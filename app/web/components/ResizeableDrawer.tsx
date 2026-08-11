@@ -13,6 +13,8 @@ interface ResizeableDrawerProps {
   nonScrollableChildren?: React.ReactNode;
   onDrawerWidthChange: (width: number) => void;
   showDragger?: boolean;
+  /** The element that actually scrolls, so consumers can virtualize their content against it. */
+  scrollRef?: React.RefObject<HTMLDivElement | null>;
 }
 
 const DrawerContentWrapper = styled("div")(() => ({
@@ -52,6 +54,7 @@ export default function ResizeableDrawer({
   nonScrollableChildren,
   onDrawerWidthChange,
   showDragger,
+  scrollRef,
 }: ResizeableDrawerProps) {
   const { t } = useTranslation([GLOBAL]);
 
@@ -66,7 +69,7 @@ export default function ResizeableDrawer({
   return (
     <DrawerContentWrapper>
       <FlexColumn>
-        <ScrollableContent>{children}</ScrollableContent>
+        <ScrollableContent ref={scrollRef}>{children}</ScrollableContent>
         {nonScrollableChildren}
       </FlexColumn>
       {showDragger && (

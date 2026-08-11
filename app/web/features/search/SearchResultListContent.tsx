@@ -1,11 +1,13 @@
 import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
 import { Alert, Box, Button, IconButton, styled, Typography, useMediaQuery } from "@mui/material";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import BetaFlag from "components/BetaFlag";
 import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
 import { SearchUser } from "proto/search_pb";
+import { useEffect, useRef, useState } from "react";
 import { theme } from "theme";
 
 import SearchResultUserCard from "./SeachResultUserCard";
@@ -19,11 +21,18 @@ interface SearchResultListContentProps {
   currentRange: string;
   onSetMapView: (view: MapViews) => void;
   onUserCardClick: (userId: number) => void;
+  scrollRef: React.RefObject<HTMLDivElement | null>;
   showAlert: boolean;
   showTopSpace?: boolean;
   totalItems: number | undefined;
   users: SearchUser.AsObject[] | undefined;
 }
+
+// Keep in sync with StyledCardWrapper's height.
+const DESKTOP_CARD_HEIGHT = DEFAULT_DRAWER_WIDTH - 75;
+const DESKTOP_ROW_GAP = 16;
+const MOBILE_ESTIMATED_ROW_HEIGHT = 220;
+const MIN_COLUMN_WIDTH = DEFAULT_DRAWER_WIDTH - 50;
 
 const ListContentWrapper = styled(Box, {
   shouldForwardProp: (prop) => prop !== "showTopSpace",
@@ -34,13 +43,22 @@ const ListContentWrapper = styled(Box, {
   ...(showTopSpace && { paddingTop: theme.spacing(10) }),
 }));
 
+// Full-height spacer that the virtual rows are absolutely positioned within.
 const UserCardsWrapper = styled("div")(({ theme }) => ({
+  position: "relative",
+  width: "100%",
+  paddingBottom: theme.spacing(2),
+}));
+
+// A row of `columns` cards on desktop, a single card on mobile.
+const VirtualRow = styled("div", {
+  shouldForwardProp: (prop) => prop !== "columns",
+})<{ columns: number }>(({ theme, columns }) => ({
   display: "grid",
-  gridTemplateColumns: `repeat(auto-fill, minmax(${DEFAULT_DRAWER_WIDTH - 50}px, 1fr))`, // Responsive columns
+  gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
   gap: theme.spacing(2),
   justifyContent: "start",
   width: "100%",
-  paddingBottom: theme.spacing(2),
 
   [theme.breakpoints.down("md")]: {
     display: "flex",
@@ -72,6 +90,7 @@ const SearchResultListContent = ({
   currentRange,
   onSetMapView,
   onUserCardClick,
+  scrollRef,
   showAlert,
   showTopSpace = false,
   totalItems,
@@ -83,6 +102,46 @@ const SearchResultListContent = ({
   const { filters, selectedUserId } = useMapSearchState();
 
   const { setSearchFilters } = useMapSearchActions();
+
+  // Virtualizing by row means we need the column count ourselves rather than leaving it to the grid.
+  const gridRef = useRef<HTMLDivElement | null>(null);
+  const [columns, setColumns] = useState(1);
+
+  useEffect(() => {
+    const element = gridRef.current;
+    if (!element) return;
+    const update = () => {
+      const width = element.clientWidth;
+      setColumns(isMobile || width === 0 ? 1 : Math.max(1, Math.floor(width / MIN_COLUMN_WIDTH)));
+    };
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [isMobile]);
+
+  const userList = users ?? [];
+  const rowCount = Math.ceil(userList.length / columns);
+
+  const rowVirtualizer = useVirtualizer({
+    count: rowCount,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => (isMobile ? MOBILE_ESTIMATED_ROW_HEIGHT : DESKTOP_CARD_HEIGHT + DESKTOP_ROW_GAP),
+    overscan: 2,
+    // Mobile cards are auto-height, so let the virtualizer measure them.
+    measureElement: isMobile ? undefined : () => DESKTOP_CARD_HEIGHT + DESKTOP_ROW_GAP,
+  });
+
+  // Scroll the selected user (e.g. from clicking a map pin) into view.
+  useEffect(() => {
+    if (selectedUserId === undefined || columns < 1) return;
+    const index = userList.findIndex((user) => user.userId === selectedUserId);
+    if (index >= 0) {
+      rowVirtualizer.scrollToIndex(Math.floor(index / columns), { align: "center", behavior: "smooth" });
+    }
+    // rowVirtualizer identity changes every render; depending on it would re-scroll constantly
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedUserId, columns, userList]);
 
   const shouldShowSuggestion =
     !showAlert && totalItems !== undefined && filters.showEmptyProfile === false && selectedUserId === undefined;
@@ -182,17 +241,37 @@ const SearchResultListContent = ({
           </Button>
         </Box>
       )}
-      <UserCardsWrapper>
-        {users?.map((user, index) => (
-          <StyledCardWrapper key={user?.userId} id={`search-result-${user?.userId}`}>
-            <SearchResultUserCard
-              isHighlighted={selectedUserId === user.userId}
-              onUserCardClick={onUserCardClick}
-              position={index}
-              user={user}
-            />
-          </StyledCardWrapper>
-        ))}
+      <UserCardsWrapper ref={gridRef} style={{ height: rowCount ? rowVirtualizer.getTotalSize() : undefined }}>
+        {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+          const start = virtualRow.index * columns;
+          const rowUsers = userList.slice(start, start + columns);
+
+          return (
+            <VirtualRow
+              key={virtualRow.key}
+              columns={columns}
+              data-index={virtualRow.index}
+              ref={isMobile ? rowVirtualizer.measureElement : undefined}
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                transform: `translateY(${virtualRow.start}px)`,
+              }}
+            >
+              {rowUsers.map((user, columnIndex) => (
+                <StyledCardWrapper key={user?.userId} id={`search-result-${user?.userId}`}>
+                  <SearchResultUserCard
+                    isHighlighted={selectedUserId === user.userId}
+                    onUserCardClick={onUserCardClick}
+                    position={start + columnIndex}
+                    user={user}
+                  />
+                </StyledCardWrapper>
+              ))}
+            </VirtualRow>
+          );
+        })}
       </UserCardsWrapper>
     </ListContentWrapper>
   );

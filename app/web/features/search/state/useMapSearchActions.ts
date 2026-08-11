@@ -82,8 +82,8 @@ function useMapSearchActions() {
       type: mapSearchActionTypes.SET_SELECTED_USER_ID,
       payload: { userId },
     });
-
-    document.getElementById(`search-result-${userId}`)?.scrollIntoView({ behavior: "smooth" });
+    // The results list scrolls the selected card into view; its rows are virtualized, so the
+    // card may not be in the DOM here.
   };
 
   const clearSearchFilters = () => {

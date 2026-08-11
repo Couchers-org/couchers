@@ -3,6 +3,7 @@ import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import ResizeableDrawer from "components/ResizeableDrawer";
 import { RpcError } from "grpc-web";
 import { SearchUser } from "proto/search_pb";
+import { useRef } from "react";
 import { theme } from "theme";
 
 import PreviousNextPagination from "./PreviousNextPagination";
@@ -56,6 +57,7 @@ const MapSearchResultsList = ({
   users,
 }: MapSearchResultsListProps) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const scrollRef = useRef<HTMLDivElement | null>(null);
 
   const {
     hasActiveFilters,
@@ -69,6 +71,7 @@ const MapSearchResultsList = ({
     <DrawerContainer>
       <ResizeableDrawer
         onDrawerWidthChange={onDrawerWidthChange}
+        scrollRef={scrollRef}
         showDragger={!isMobile && mapView !== MapViews.LIST_ONLY}
         nonScrollableChildren={
           <PreviousNextPagination
@@ -90,6 +93,7 @@ const MapSearchResultsList = ({
             currentRange={currentRange}
             onSetMapView={onSetMapView}
             onUserCardClick={onUserCardClick}
+            scrollRef={scrollRef}
             showAlert={!isLoading && !meetsSearchCriteria}
             showTopSpace={
               !isMobile &&
