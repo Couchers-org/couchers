@@ -79,6 +79,18 @@ class UserAuthInfo:
     is_api_key: bool
 
 
+@dataclass(frozen=True, slots=True, kw_only=True)
+class CouchersHeaders:
+    token: str | None = field(repr=False)
+    is_api_key: bool
+    ip_address: str | None
+    user_agent: str | None
+    client_platform: ClientPlatform | None
+    ui_lang: str | None
+    user_id: str | None
+    sofa: str | None
+
+
 def _binned_now() -> Function[Any]:
     return func.date_bin(
         literal_column("interval '1 hour'"),
@@ -269,31 +281,32 @@ def _sanitized_bytes(proto: Message | None) -> bytes | None:
     return new_proto.SerializeToString()
 
 
-def _store_log(
+def _log_call(
     *,
     method: str,
-    status_code: str | None = None,
-    duration: float,
+    start: int,
+    perf: PerfResult | None,
+    headers: CouchersHeaders | None,
     user_id: int | None,
     is_api_key: bool,
-    request: Message,
-    response: Message | None,
-    traceback: str | None = None,
-    perf_report: str | None = None,
-    perf: PerfResult | None = None,
-    client_platform: ClientPlatform | None = None,
-    ip_address: str | None,
-    user_agent: str | None,
     sofa: str | None,
+    request: Message | None = None,
+    response: Message | None = None,
+    status_code: str | None = None,
+    exception: Exception | None = None,
 ) -> None:
+    """Record a finished call: one api_calls row, plus the per-call Prometheus observations."""
+    duration = (perf_counter_ns() - start) / 1e6  # ms
+
     req_bytes = _sanitized_bytes(request)
     res_bytes = _sanitized_bytes(response)
+    response_truncated = False
+    truncate_res_bytes_length = 16 * 1024  # 16 kB
+    if res_bytes and len(res_bytes) > truncate_res_bytes_length:
+        res_bytes = res_bytes[:truncate_res_bytes_length]
+        response_truncated = True
+
     with session_scope() as session:
-        response_truncated = False
-        truncate_res_bytes_length = 16 * 1024  # 16 kB
-        if res_bytes and len(res_bytes) > truncate_res_bytes_length:
-            res_bytes = res_bytes[:truncate_res_bytes_length]
-            response_truncated = True
         session.add(
             APICall(
                 is_api_key=is_api_key,
@@ -304,19 +317,57 @@ def _store_log(
                 request=req_bytes,
                 response=res_bytes,
                 response_truncated=response_truncated,
-                traceback=traceback,
-                perf_report=perf_report,
+                traceback="".join(format_exception(type(exception), exception, exception.__traceback__))
+                if exception
+                else None,
                 db_query_count=perf.db_query_count if perf else None,
                 db_write_query_count=perf.db_write_query_count if perf else None,
                 db_time_ms=perf.db_time_ms if perf else None,
                 cpu_ms=perf.cpu_ms if perf else None,
-                client_platform=client_platform,
-                ip_address=ip_address,
-                user_agent=user_agent,
+                client_platform=headers.client_platform if headers else None,
+                ip_address=headers.ip_address if headers else None,
+                user_agent=headers.user_agent if headers else None,
                 sofa=sofa,
             )
         )
+
+    observe_in_servicer_duration_histogram(
+        method, user_id, status_code or "", type(exception).__name__ if exception else "", duration / 1000
+    )
+    observe_api_call(method, headers.client_platform if headers else None)
     logger.debug(f"{user_id=}, {method=}, {duration=} ms")
+
+
+def _abort_and_log[T, R](
+    *,
+    method: str,
+    message: str,
+    code: grpc.StatusCode,
+    start: int,
+    headers: CouchersHeaders | None,
+    auth_info: UserAuthInfo | None = None,
+    exception: Exception | None = None,
+) -> grpc.RpcMethodHandler[T, R]:
+    """
+    Log a call rejected during auth/setup, then return a handler that terminates it.
+
+    The request is never deserialized on these paths, so there are no request bytes to store, and the perf numbers cover
+    the auth/setup phase, which is all the work the call did.
+    """
+    perf = read_perf()
+    _log_call(
+        method=method,
+        start=start,
+        perf=perf,
+        headers=headers,
+        user_id=auth_info.user_id if auth_info else None,
+        is_api_key=headers.is_api_key if headers else False,
+        sofa=headers.sofa if headers else None,
+        status_code=code.name,
+        exception=exception,
+    )
+    observe_in_servicer_setup_histogram(method, perf)
+    return abort_handler(message, code)
 
 
 type Cont[T, R] = Callable[[grpc.HandlerCallDetails], grpc.RpcMethodHandler[T, R] | None]
@@ -351,19 +402,31 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
         # accounting for the auth/setup phase; the handler re-arms its own below
         start_perf()
 
-        try:
-            try:
-                auth_level = find_auth_level(self._pool, method)
-            except AbortError as ae:
-                return abort_handler(ae.msg, ae.code)
+        # bound as setup progresses so the reject paths below, and the catch-all, can log what is known so far
+        maybe_headers: CouchersHeaders | None = None
+        auth_info: UserAuthInfo | None = None
 
+        try:
+            # parsed before anything else so client details are available on every reject path
             try:
                 headers = parse_headers(dict(handler_call_details.invocation_metadata))
             except BadHeaders:
-                return unauthenticated_handler(COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE)
+                return _abort_and_log(
+                    method=method,
+                    message=COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE,
+                    code=grpc.StatusCode.UNAUTHENTICATED,
+                    start=start,
+                    headers=None,
+                )
+            maybe_headers = headers
 
             # if this is not present in prod, it's a Big Bug in config
             assert config.DEV or headers.ip_address is not None
+
+            try:
+                auth_level = find_auth_level(self._pool, method)
+            except AbortError as ae:
+                return _abort_and_log(method=method, message=ae.msg, code=ae.code, start=start, headers=headers)
 
             auth_info = _try_get_and_update_user_details(
                 headers.token,
@@ -377,7 +440,9 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             try:
                 check_permissions(auth_info, auth_level)
             except AbortError as ae:
-                return unauthenticated_handler(ae.msg, ae.code)
+                return _abort_and_log(
+                    method=method, message=ae.msg, code=ae.code, start=start, headers=headers, auth_info=auth_info
+                )
 
             if not (handler := continuation(handler_call_details)):
                 raise RuntimeError(f"No handler in '{method}'")
@@ -402,7 +467,16 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             sentry_sdk.set_tag("context", "servicer_setup")
             sentry_sdk.set_tag("method", method)
             sentry_sdk.capture_exception(e)
-            return abort_handler(UNKNOWN_ERROR_MESSAGE, grpc.StatusCode.INTERNAL)
+            # reported to Sentry first: if the DB is what's broken, logging the call below fails too
+            return _abort_and_log(
+                method=method,
+                message=UNKNOWN_ERROR_MESSAGE,
+                code=grpc.StatusCode.INTERNAL,
+                start=start,
+                headers=maybe_headers,
+                auth_info=auth_info,
+                exception=e,
+            )
 
         def function_without_couchers_stuff(req: Message, grpc_context: grpc.ServicerContext) -> Message | None:
             couchers_context = make_interactive_context(
@@ -420,64 +494,42 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                 session.connection()
                 observe_in_servicer_pool_wait_histogram(method, (perf_counter_ns() - pool_wait_start) / 1e9)
                 start_perf()
+
+                res: Message | None = None
+                exception: Exception | None = None
                 try:
                     _res = prev_function(req, couchers_context, session)  # type: ignore[call-arg, arg-type]
-                    res = cast(Message, _res)
                     # flush so pending ORM writes execute (and are counted) before we snapshot; a handler that only
                     # session.add(...)s and returns would otherwise flush at commit, after read_perf()
                     session.flush()
-                    perf = read_perf()
-                    finished = perf_counter_ns()
-                    duration = (finished - start) / 1e6  # ms
-                    _store_log(
-                        method=method,
-                        duration=duration,
-                        user_id=couchers_context._user_id,
-                        is_api_key=cast(bool, couchers_context._is_api_key),
-                        request=req,
-                        response=res,
-                        perf=perf,
-                        client_platform=headers.client_platform,
-                        ip_address=headers.ip_address,
-                        user_agent=headers.user_agent,
-                        sofa=sofa,
-                    )
-                    observe_in_servicer_duration_histogram(method, couchers_context._user_id, "", "", duration / 1000)
-                    observe_api_call(method, headers.client_platform)
-                    observe_in_servicer_perf_histograms(method, perf)
+                    res = cast(Message, _res)
                 except Exception as e:
-                    perf = read_perf()
-                    finished = perf_counter_ns()
-                    duration = (finished - start) / 1e6  # ms
+                    exception = e
 
-                    if couchers_context._grpc_context:
-                        context_code = couchers_context._grpc_context.code()  # type: ignore[attr-defined]
-                        code = getattr(context_code, "name", None)
-                    else:
-                        code = None
+                perf = read_perf()
 
-                    traceback = "".join(format_exception(type(e), e, e.__traceback__))
-                    _store_log(
-                        method=method,
-                        status_code=code,
-                        duration=duration,
-                        user_id=couchers_context._user_id,
-                        is_api_key=cast(bool, couchers_context._is_api_key),
-                        request=req,
-                        response=None,
-                        traceback=traceback,
-                        perf=perf,
-                        client_platform=headers.client_platform,
-                        ip_address=headers.ip_address,
-                        user_agent=headers.user_agent,
-                        sofa=sofa,
-                    )
-                    observe_in_servicer_duration_histogram(
-                        method, couchers_context._user_id, code or "", type(e).__name__, duration / 1000
-                    )
-                    observe_api_call(method, headers.client_platform)
-                    observe_in_servicer_perf_histograms(method, perf)
+                if exception and couchers_context._grpc_context:
+                    context_code = couchers_context._grpc_context.code()  # type: ignore[attr-defined]
+                    code = getattr(context_code, "name", None)
+                else:
+                    code = None
 
+                _log_call(
+                    method=method,
+                    start=start,
+                    perf=perf,
+                    headers=headers,
+                    user_id=couchers_context._user_id,
+                    is_api_key=cast(bool, couchers_context._is_api_key),
+                    sofa=sofa,
+                    request=req,
+                    response=res,
+                    status_code=code,
+                    exception=exception,
+                )
+                observe_in_servicer_perf_histograms(method, perf)
+
+                if exception:
                     if not code:
                         sentry_sdk.set_tag("context", "servicer")
                         sentry_sdk.set_tag("method", method)
@@ -490,9 +542,9 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                                 "sofa": sofa[:12],
                             }
                         )
-                        sentry_sdk.capture_exception(e)
+                        sentry_sdk.capture_exception(exception)
 
-                    raise e
+                    raise exception
 
             if auth_info and not auth_info.is_api_key:
                 # check the two cookies are in sync & that language preference cookie is correct
@@ -529,18 +581,6 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             request_deserializer=timed_serde(handler.request_deserializer, "deserialize"),
             response_serializer=timed_serde(handler.response_serializer, "serialize"),
         )
-
-
-@dataclass(frozen=True, slots=True, kw_only=True)
-class CouchersHeaders:
-    token: str | None = field(repr=False)
-    is_api_key: bool
-    ip_address: str | None
-    user_agent: str | None
-    client_platform: ClientPlatform | None
-    ui_lang: str | None
-    user_id: str | None
-    sofa: str | None
 
 
 def parse_headers(headers: Mapping[str, str | bytes]) -> CouchersHeaders:
