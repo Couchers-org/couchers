@@ -6,6 +6,10 @@ WORKDIR /app
 # disable next.js telemetry
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# node:*-slim ships without a system CA store (node bundles its own), but sentry-cli
+# is a rust binary that uses it, so the source map upload fails TLS verification.
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
+
 COPY package.json yarn.lock ./
 # https://github.com/yarnpkg/yarn/issues/8242
 RUN yarn config set network-timeout 300000 && yarn install --frozen-lockfile && yarn cache clean

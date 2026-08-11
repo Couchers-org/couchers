@@ -111,6 +111,8 @@ module.exports = withSentryConfig(module.exports, {
   org: "couchers",
   project: "frontend",
 
+  telemetry: false,
+
   // Also cover the shared chunks, which is where most of our code ends up
   widenClientFileUpload: true,
 
