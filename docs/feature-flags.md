@@ -20,6 +20,8 @@ else:
 In web/mobile:
 
 ```ts
+import { useFeatureValue } from "@growthbook/growthbook-react";
+
 if (useFeatureValue("my_new_feature_enabled", false)) {
   // feature enabled
 } else {
