@@ -22,7 +22,7 @@ export default function RelativeTime({ instant, options, className }: RelativeTi
   } = useTranslation(GLOBAL);
 
   return (
-    <Tooltip title={localizeDateTime(instantToPlainDateTime(instant), locale)}>
+    <Tooltip title={localizeDateTime(instantToPlainDateTime(instant), locale)} placement="top" arrow>
       <span className={className}>{localizeRelativeTime(instant, locale, { t, ...options })}</span>
     </Tooltip>
   );
