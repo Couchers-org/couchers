@@ -63,7 +63,11 @@ Counters are kept in **Valkey** (shared across all API worker processes; no dist
 
 Counting happens whenever a counter store is configured; leaving the store unconfigured turns the whole system off. When counting, a single global boolean feature flag `rate_limiting_enabled` (evaluated via the experimentation framework's global evaluator, flippable without a deploy) decides whether limits actually bite:
 
-- **false (default)** — *shadow*: count and log what *would* be blocked, but allow everything.
+- **false (default)** — *shadow*: count what *would* be blocked, but allow everything.
 - **true** — *enforce*: actually reject over-limit requests.
 
-The default is fail-safe: shadow. Shadow logs name the exact scope and dimension that tripped (e.g. "would block svc:API per_ip"), so limits can be tuned before enforcement is switched on.
+The default is fail-safe: shadow. Tuning is driven off the `couchers_rate_limit_trips_total{method,scope,dimension,enforced}` metric, which names the exact counter that tripped. Shadow mode deliberately emits no log line — a flood is precisely when the log would be least affordable and the metric already carries the signal.
+
+## Exemptions
+
+Superusers skip the check entirely, so a mistuned limit can't lock admins out during an incident.

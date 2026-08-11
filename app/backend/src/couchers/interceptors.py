@@ -459,7 +459,13 @@ def admit_call(pool: DescriptorPool, handler_call_details: grpc.HandlerCallDetai
         check_permissions(auth_info, auth_level)
 
         method = handler_call_details.method
-        rl_result = check_rate_limits(pool, method, headers.ip_address, auth_info.user_id if auth_info else None)
+        rl_result = check_rate_limits(
+            pool,
+            method,
+            headers.ip_address,
+            auth_info.user_id if auth_info else None,
+            is_superuser=bool(auth_info and auth_info.is_superuser),
+        )
         if rl_result is not None:
             if rl_result.store_error:
                 # the store was unreachable: fail closed only when enforcing and configured to, else fail open
@@ -474,10 +480,9 @@ def admit_call(pool: DescriptorPool, handler_call_details: grpc.HandlerCallDetai
                 if enforced:
                     observe_rate_limit_check("blocked")
                     raise CallRejectedError(RATE_LIMIT_ERROR_MESSAGE, grpc.StatusCode.RESOURCE_EXHAUSTED)
+                # shadow (the default): allow the request; the trips metric records what would have been
+                # blocked, deliberately without a log line so a flood can't drown the logs
                 observe_rate_limit_check("shadowed")
-                # shadow (the default): allow the request but log what would have been blocked
-                labels = ", ".join(t.label for t in rl_result.tripped)
-                logger.warning("rate limit (shadow) would block %s on %s", method, labels)
             else:
                 observe_rate_limit_check("allowed")
 

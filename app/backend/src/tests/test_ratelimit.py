@@ -1,13 +1,22 @@
+import os
+from uuid import uuid4
+
 import grpc
 import pytest
+import valkey
 
 from couchers import metrics, ratelimit
 from couchers.descriptor_pool import get_descriptor_pool
-from couchers.proto import auth_pb2
-from tests.fixtures.sessions import auth_api_session
+from couchers.proto import api_pb2, auth_pb2
+from tests.fixtures.db import generate_user
+from tests.fixtures.sessions import auth_api_session, real_api_session
 
 AUTHENTICATE = "/org.couchers.auth.Auth/Authenticate"
 USERNAME_VALID = "/org.couchers.auth.Auth/UsernameValid"
+
+# Where the Valkey integration tests look for a server; docker-compose.test.yml publishes one on 6545.
+VALKEY_TEST_HOST = os.environ.get("VALKEY_TEST_HOST", "localhost")
+VALKEY_TEST_PORT = int(os.environ.get("VALKEY_TEST_PORT", "6545"))
 
 
 @pytest.fixture(autouse=True)
@@ -46,6 +55,32 @@ def store(monkeypatch):
     s = InMemoryCounterStore()
     monkeypatch.setattr(ratelimit, "_store", s)
     return s
+
+
+@pytest.fixture
+def valkey_client():
+    """A raw client against the test Valkey, skipping the test if there isn't one running."""
+    client = valkey.Valkey(host=VALKEY_TEST_HOST, port=VALKEY_TEST_PORT, socket_connect_timeout=1, socket_timeout=1)
+    try:
+        client.ping()
+    except valkey.ConnectionError as e:
+        pytest.skip(
+            f"no Valkey at {VALKEY_TEST_HOST}:{VALKEY_TEST_PORT} ({e}); "
+            f"start one with `docker compose -f docker-compose.test.yml up -d valkey_tests`"
+        )
+    return client
+
+
+@pytest.fixture
+def valkey_store(valkey_client):
+    """The real Valkey-backed store, so the Lua script itself is exercised rather than a stand-in."""
+    return ratelimit.ValkeyCounterStore(VALKEY_TEST_HOST, VALKEY_TEST_PORT)
+
+
+@pytest.fixture
+def key_prefix():
+    """A prefix unique to this test run, so counters can't collide with a previous run's leftovers."""
+    return f"test:{uuid4().hex}"
 
 
 def _check(pool, method, ip, user_id):
@@ -132,6 +167,36 @@ def test_check_rate_limits_store_error(monkeypatch):
     assert result.store_error
     assert result.tripped == []
     assert len(captured) == 1
+
+
+def test_check_rate_limits_superuser_exempt(store):
+    pool = get_descriptor_pool()
+    # Authenticate per_ip = 10, but a superuser is never checked at all, so nothing is even counted
+    for _ in range(20):
+        assert ratelimit.check_rate_limits(pool, AUTHENTICATE, "1.2.3.4", 1, is_superuser=True) is None
+    assert store.counts == {}
+
+
+def test_interceptor_superuser_exempt_when_enforcing(db, feature_flags, monkeypatch):
+    feature_flags.set("rate_limiting_enabled", True)
+    monkeypatch.setattr(ratelimit, "_store", AlwaysTripStore())
+    superuser, token = generate_user(is_superuser=True)
+
+    # real_api_session, not api_session: only the real server runs the interceptor the limiter lives in
+    with real_api_session(token) as api:
+        # every limit trips, but superusers bypass the check entirely
+        assert api.Ping(api_pb2.PingReq()).user.user_id == superuser.id
+
+
+def test_interceptor_non_superuser_still_blocked_when_enforcing(db, feature_flags, monkeypatch):
+    feature_flags.set("rate_limiting_enabled", True)
+    monkeypatch.setattr(ratelimit, "_store", AlwaysTripStore())
+    _, token = generate_user()
+
+    with real_api_session(token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.Ping(api_pb2.PingReq())
+        assert e.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
 
 
 def test_interceptor_no_store_allows(db, feature_flags, monkeypatch):
@@ -234,3 +299,70 @@ def test_interceptor_emits_metrics_on_enforce(db, feature_flags, monkeypatch):
         )
         == trip_before + 1
     )
+
+
+# The tests below run the real Lua script against a real Valkey; everything above uses a stand-in store.
+
+
+def test_valkey_store_counts_and_trips(valkey_store, key_prefix):
+    key = f"{key_prefix}:counted"
+    # a limit of 3 means the first three calls pass and the fourth is over
+    for _ in range(3):
+        assert valkey_store.incr_and_check([(key, 3)], 120) == []
+    assert valkey_store.incr_and_check([(key, 3)], 120) == [0]
+    # and it stays tripped for the rest of the window
+    assert valkey_store.incr_and_check([(key, 3)], 120) == [0]
+
+
+def test_valkey_store_returns_indices_of_tripped_entries(valkey_store, key_prefix):
+    # a limit of 0 trips on the first increment, a high limit never does; this pins the Lua script's
+    # 1-based indices being translated back to the 0-based positions of the entries passed in
+    entries = [
+        (f"{key_prefix}:high:0", 100),
+        (f"{key_prefix}:zero:1", 0),
+        (f"{key_prefix}:high:2", 100),
+        (f"{key_prefix}:zero:3", 0),
+    ]
+    assert valkey_store.incr_and_check(entries, 120) == [1, 3]
+
+
+def test_valkey_store_counts_keys_independently(valkey_store, key_prefix):
+    a, b = f"{key_prefix}:a", f"{key_prefix}:b"
+    for _ in range(5):
+        valkey_store.incr_and_check([(a, 5)], 120)
+    # a is now at its limit, but b has its own counter
+    assert valkey_store.incr_and_check([(a, 5), (b, 5)], 120) == [0]
+
+
+def test_valkey_store_sets_ttl_on_first_increment(valkey_store, valkey_client, key_prefix):
+    key = f"{key_prefix}:ttl"
+    valkey_store.incr_and_check([(key, 100)], 120)
+    # without a TTL the counter would never reset and the key would leak
+    assert 0 < valkey_client.ttl(key) <= 120
+
+
+def test_valkey_store_does_not_extend_ttl_on_later_increments(valkey_store, valkey_client, key_prefix):
+    key = f"{key_prefix}:ttl-once"
+    valkey_store.incr_and_check([(key, 100)], 120)
+    # pull the expiry in, then increment again: the window must not slide, or a sustained flood would keep
+    # renewing its own counter and the fixed window would never roll over
+    valkey_client.expire(key, 5)
+    valkey_store.incr_and_check([(key, 100)], 120)
+    assert 0 < valkey_client.ttl(key) <= 5
+
+
+def test_check_rate_limits_end_to_end_against_valkey(valkey_store, monkeypatch):
+    monkeypatch.setattr(ratelimit, "_store", valkey_store)
+    pool = get_descriptor_pool()
+    # a /64 unique to this run, so the per-IP counters start clean
+    ip = f"2001:db8:{uuid4().hex[:4]}:{uuid4().hex[:4]}::1"
+
+    # Authenticate annotates per_ip = 10
+    for _ in range(10):
+        assert _check(pool, AUTHENTICATE, ip, None).tripped == []
+    tripped = _check(pool, AUTHENTICATE, ip, None).tripped
+    assert any(t.scope == "rpc" and t.dimension == "per_ip" for t in tripped)
+
+    # a different /64 is unaffected
+    other_ip = f"2001:db8:{uuid4().hex[:4]}:{uuid4().hex[:4]}::1"
+    assert _check(pool, AUTHENTICATE, other_ip, None).tripped == []

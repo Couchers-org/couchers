@@ -180,10 +180,6 @@ class TrippedLimit:
     scope: str
     dimension: str
 
-    @property
-    def label(self) -> str:
-        return f"{self.scope}:{self.dimension}"
-
 
 @dataclass(frozen=True, slots=True)
 class RateLimitResult:
@@ -221,15 +217,23 @@ def _build_entries(
 
 
 def check_rate_limits(
-    pool: DescriptorPool, method: str, ip_address: str | None, user_id: int | None
+    pool: DescriptorPool,
+    method: str,
+    ip_address: str | None,
+    user_id: int | None,
+    is_superuser: bool = False,
 ) -> RateLimitResult | None:
     """
     Check every applicable limit for this request.
 
-    Returns None if no counter store is configured (rate limiting off), otherwise a RateLimitResult listing
-    the limits that tripped. If the store is unreachable the result has store_error set and the error is
-    reported; the caller decides whether to fail open or closed.
+    Returns None if no check ran — either no counter store is configured (rate limiting off) or the caller is
+    exempt — otherwise a RateLimitResult listing the limits that tripped. If the store is unreachable the
+    result has store_error set and the error is reported; the caller decides whether to fail open or closed.
     """
+    # superusers are exempt entirely, so a mistuned limit can never lock admins out mid-incident
+    if is_superuser:
+        return None
+
     store = _get_store()
     if store is None:
         return None
