@@ -76,5 +76,11 @@
   "community_info_page_title": "Genel bilgiler",
   "new_discussion_topic": "Tartışma konusu",
   "new_post_label": "Yeni gönderi",
-  "no_comments": "Bu tartışmada şu anda hiç yorum yok."
+  "no_comments": "Bu tartışmada şu anda hiç yorum yok.",
+  "no_moderators": "Anlık olarak burada hiç Topluluk Mimarı yok.",
+  "my_communities": "Topluluklarım",
+  "overview_label": "Genel Bakış",
+  "page_content_field_label": "Sayfa içeriği",
+  "page_content_required": "Lütfen sayfa içeriğini doldurun",
+  "places_empty_state": "Henüz gösterilecek yer yok."
 }

@@ -55,5 +55,20 @@
   "stays": {
     "night_count_one": "{{count}} gece",
     "night_count_other": "{{count}} gece"
+  },
+  "reminder": {
+    "write_reference": {
+      "description_surfed": "{{name}}'in evindeki konaklamanız için bir referans bırakın",
+      "description_hosted": "{{name}}'ın konaklaması için bir referans bırak",
+      "button": "Referans yaz"
+    },
+    "complete_my_home": {
+      "title": "Profilinizin \"Evim\" bölümünü tamamlayın",
+      "description": "Uyku düzenini, ev kurallarını ve evinin açıklamasını doldur",
+      "button": "Evini düzenle"
+    },
+    "complete_profile": {
+      "title": "Profilinizi tamamlayın"
+    }
   }
 }

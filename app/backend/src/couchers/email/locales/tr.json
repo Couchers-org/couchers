@@ -64,6 +64,16 @@
     "created": {
       "subject": "{{author}} bir tartışma başlattı: {{title}}",
       "view_action": "Tartışmayı görüntüle"
+    },
+    "comment": {
+      "view_action": "Tartışmayı görüntüle"
     }
+  },
+  "donation_received": {
+    "subject": "Couchers.org'a yaptığınız bağış için teşekkür ederiz!",
+    "purpose": "Couchers.org'a olan <b>{{amount_with_currency}}</b> bağışınız için teşekkürler.",
+    "contribution_impact": "Katkınız Couchers.org topluluğunun büyümesine ve sürdürülmesine yardımcı olacak; ücretsiz ve kâr amacı gütmeyen bir kanepe sörfü platformu hedefimiz için hayati önem taşıyor.",
+    "invoice_receipt_info": "Bağışa ait fatura ve makbuzu buradan indirebilirsiniz:",
+    "download_invoice": "Faturayı indir"
   }
 }
