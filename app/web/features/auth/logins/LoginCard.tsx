@@ -5,7 +5,6 @@ import Button from "components/Button";
 import { CalendarIcon, ClockIcon, InfoIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
 import { activeLoginsKey } from "features/queryKeys";
-import { Trans } from "i18n";
 import { localizeDateOnly, localizeDateTime, localizeRelativeTime } from "i18n/datetimes";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
@@ -50,30 +49,17 @@ export default function LoginsPage({ session }: { session: ActiveSession.AsObjec
   return (
     <StyledCard>
       <CardContent>
-        <Typography variant="h2">
-          <Trans t={t} i18nKey="auth:active_logins.login_header" values={{ login_datetime: createdDisplay }} />
-        </Typography>
+        <Typography variant="h2">{t("auth:active_logins.login_header", { login_datetime: createdDisplay })}</Typography>
         {error && <Alert severity="error">{error.message}</Alert>}
         <IconText
           icon={LocationIcon}
-          text={
-            <Trans
-              t={t}
-              i18nKey="auth:active_logins.location"
-              values={{ approximate_location: session.approximateLocation }}
-            />
-          }
+          text={t("auth:active_logins.location", { approximate_location: session.approximateLocation })}
         />
         <IconText
           icon={ClockIcon}
-          text={
-            <Trans t={t} i18nKey="auth:active_logins.last_activity" values={{ last_activity_ago: lastSeenDisplay }} />
-          }
+          text={t("auth:active_logins.last_activity", { last_activity_ago: lastSeenDisplay })}
         />
-        <IconText
-          icon={CalendarIcon}
-          text={<Trans t={t} i18nKey="auth:active_logins.expiry" values={{ expiry_datetime: expiryDisplay }} />}
-        />
+        <IconText icon={CalendarIcon} text={t("auth:active_logins.expiry", { expiry_datetime: expiryDisplay })} />
         <IconText
           icon={InfoIcon}
           text={

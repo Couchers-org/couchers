@@ -158,11 +158,9 @@ export default function ChangePhone({ className, accountInfo }: ChangePhoneProps
           {!accountInfo.phoneVerified ? (
             <StyledForm onSubmit={onVerifySubmit}>
               <Typography variant="body1">
-                <Trans
-                  t={t}
-                  i18nKey="auth:change_phone.phone_not_verified_description"
-                  values={{ phone: formatPhoneNumberIntl(accountInfo.phone) }}
-                />
+                {t("auth:change_phone.phone_not_verified_description", {
+                  phone: formatPhoneNumberIntl(accountInfo.phone),
+                })}
               </Typography>
               <TextField
                 id="code"
@@ -182,11 +180,7 @@ export default function ChangePhone({ className, accountInfo }: ChangePhoneProps
           ) : (
             <>
               <Typography variant="body1">
-                <Trans
-                  t={t}
-                  i18nKey="auth:change_phone.remove_phone_description"
-                  values={{ phone: formatPhoneNumberIntl(accountInfo.phone) }}
-                />
+                {t("auth:change_phone.remove_phone_description", { phone: formatPhoneNumberIntl(accountInfo.phone) })}
               </Typography>
               <Button fullWidth={!isMdOrWider} loading={isRemoveLoading} onClick={() => removePhone()}>
                 {t("auth:change_phone.remove_button_text")}

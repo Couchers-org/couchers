@@ -6,7 +6,7 @@ import Button from "components/Button";
 import TextField from "components/TextField";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
-import { Trans, useTranslation } from "i18n";
+import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -63,9 +63,7 @@ export default function ChangeEmail({ className, email }: ChangeEmailProps) {
     <div className={className}>
       <Typography variant="h2">{t("auth:change_email_form.title")}</Typography>
       <>
-        <Typography variant="body1">
-          <Trans i18nKey="auth:change_email_form.current_email_message" values={{ email }} />
-        </Typography>
+        <Typography variant="body1">{t("auth:change_email_form.current_email_message", { email })}</Typography>
         {changeEmailError && <Alert severity="error">{changeEmailError.message}</Alert>}
         {isChangeEmailSuccess && <Alert severity="success">{t("auth:change_email_form.success_message")}</Alert>}
         <StyledForm onSubmit={onSubmit}>

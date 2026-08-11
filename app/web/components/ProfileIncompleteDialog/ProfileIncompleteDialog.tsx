@@ -32,7 +32,7 @@ export default function ProfileIncompleteDialog({ open, onClose, attempted_actio
       <DialogTitle id="profile-incomplete-dialog-title">{t("profile:complete_profile_dialog.title")}</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          <Trans i18nKey="profile:complete_profile_dialog.description_1" values={{ action_name: action_text }} />
+          {t("profile:complete_profile_dialog.description_1", { action_name: action_text })}
         </DialogContentText>
         <DialogContentText>
           <Trans

@@ -5,7 +5,7 @@ import Button from "components/Button";
 import TextField from "components/TextField";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
-import { Trans, useTranslation } from "i18n";
+import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
 import { service } from "service";
@@ -66,7 +66,7 @@ export default function DeleteAccount({ className, username }: DeleteAccountProp
         {isDeleteAccountSuccess && <Alert severity="success">{t("auth:delete_account.request.success_message")}</Alert>}
         <StyledForm onSubmit={onSubmit}>
           <Typography variant="subtitle1" sx={{ paddingBottom: 2 }}>
-            <Trans t={t} i18nKey="auth:delete_account.request.confirm_username_explanation" values={{ username }} />
+            {t("auth:delete_account.request.confirm_username_explanation", { username })}
           </Typography>
           <TextField
             id="confirmUsername"
