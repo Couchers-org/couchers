@@ -1,7 +1,7 @@
 {
   "change_email_form": {
     "title": "メールアドレスを変更する",
-    "current_email_message": "現在のメールアドレスは<2>1{{email}}</2>です。",
+    "current_email_message": "現在のメールアドレスは<strong>{{email}}</strong>です。",
     "current_password": "現在のパスワード",
     "new_email": "新たなメールアドレス",
     "success_message": "メールアドレスの変更が確認されました。新たに使用するアドレスを開き、変更を完了してください。"

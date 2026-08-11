@@ -1,7 +1,7 @@
 {
   "change_email_form": {
     "title": "更改邮箱",
-    "current_email_message": "您当前的邮箱地址是：<2>{{email}}</2>。",
+    "current_email_message": "您当前的邮箱地址是：<strong>{{email}}</strong>。",
     "success_message": "您的邮箱更改申请已提交。请查阅邮箱，完成更改。",
     "current_password": "当前密码",
     "new_email": "新邮箱地址",

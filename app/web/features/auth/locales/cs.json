@@ -271,8 +271,8 @@
     "title": "Silné ověření",
     "subtitle": "Silné ověření je doplňková bezpečnostní funkce, která ti umožňuje ověřit datum narození a pohlaví pomocí tvého biometrického pasu.",
     "status": {
-      "enabled_message": "Tvůj účet má v <1>tuto chvíli</1> silné ověření.",
-      "disabled_message": "Tvůj účet v <1>tuto chvíli</1> nemá silné ověření."
+      "enabled_message": "Tvůj účet má v <strong>tuto chvíli</strong> silné ověření.",
+      "disabled_message": "Tvůj účet v <strong>tuto chvíli</strong> nemá silné ověření."
     },
     "start_button": "Zahájit silné ověření",
     "complete_title": "Zpracováváme tvůj pokus o silné ověření",
