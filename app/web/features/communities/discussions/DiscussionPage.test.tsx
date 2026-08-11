@@ -182,9 +182,7 @@ describe("Discussion page", () => {
     const firstPostedTime = `${t("communities:by_creator", {
       name: commentUser.name,
     })} • last year`;
-    expect(
-      commentCards[0].getByText((_, element) => element?.textContent === firstPostedTime),
-    ).toBeVisible();
+    expect(commentCards[0].getByText((_, element) => element?.textContent === firstPostedTime)).toBeVisible();
     expect(commentCards[0].getByText(firstTopLevelComment!.content)).toBeVisible();
     expect(commentCards[0].getByRole("button", { name: t("global:reply") })).toBeVisible();
 

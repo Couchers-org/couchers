@@ -42,9 +42,7 @@ describe("DiscussionsListPage", () => {
     const discussionCards = (await screen.findAllByTestId(DISCUSSION_CARD_TEST_ID)).map((element) => within(element));
 
     const firstCreator = await getLiteUser(discussions[0].creatorUserId.toString());
-    const firstPostedTimeRegExp = new RegExp(
-      `${t("communities:by_creator", { name: firstCreator.name })} • .+ ago`,
-    );
+    const firstPostedTimeRegExp = new RegExp(`${t("communities:by_creator", { name: firstCreator.name })} • .+ ago`);
     expect(
       discussionCards[0].getByText((_, element) => firstPostedTimeRegExp.test(element?.textContent ?? ""), {
         selector: "p",
