@@ -6,11 +6,34 @@ This is achieved by having the backend, frontend, and apps pull the latest featu
 
 The backend is guaranteed to have at most 1 minute propagation delay, the frontend and apps should have at most 5 minutes staleness. The backend pulls the feature flags from Growthbook every minute via the API (and persists the last version so it remembers this on startup). The frontend and apps pull it from the CDN, refreshing every minute, but using up to 5 mintue stale flags in case of a fresh load (to not increase page load times significantly). The hosting setup allows Growthbook to go down temporarily (but not during feature flag updates), while still serving the latest versions of flags to all users.
 
+## How to use a feature flag
+
+In the backend:
+
+```py3
+if context.get_boolean_value("my_new_feature_enabled", default=False):
+    # feature enabled
+else:
+    # feature disabled
+```
+
+In web/mobile:
+
+```ts
+if (useFeatureValue("my_new_feature_enabled", false)) {
+  // feature enabled
+} else {
+  // feature disabled
+}
+```
+
+The local dev environment does not pull feature flags from the server, instead it resolves them from override files called `feature-flags.dev.json`. Both clients (web and mobile) as well as backend have such a file: it will decide what the value is. You will need to syncrhonize them across the three files to maintain consistency across backend/frontend. You should set a value here that makes sense for devs developing locally (e.g. enable experimental features), and you can use it for local debug/testing temporary overrides (but don't commit such testing).
+
 ## How to add a new feature flag
 
-First, pick a name. Make it descriptive, e.g. `enable_my_new_feature`.
+First, pick a name. Make it descriptive, e.g. `my_new_feature_enabled`.
 
-Pick a default: it should be the "off" version: where prod does not break if it falls back to a default. For `enable_my_new_feature`, it would be `false`.
+Pick a default: it should be the "off" version: where prod does not break if it falls back to a default. For `my_new_feature_enabled`, it would be `false`.
 
 See the *Local development* section below for how to enable the feature flag for local testing.
 
@@ -29,11 +52,7 @@ If you have access, you can then add it to the feature flag service. If not, ask
 
 ![Screenshot showing how to add a feature](feature-flag-setup.png)
 
-## Local development
-
-The local dev environment does not pull feature flags from the server, instead it resolves them from override files called `feature-flags.dev.json`. Both clients (web and mobile) as well as backend have such a file: it will decide what the value is. You will need to syncrhonize them across the three files to maintain consistency across backend/frontend. You should set a value here that makes sense for devs developing locally (e.g. enable experimental features), and you can use it for local debug/testing temporary overrides (but don't commit such testing).
-
-## Setting the value of a feature flag to a non-code-default value
+## Setting the value of a feature flag to a non-default value
 
 To set the value of a feature flag for everyone for a given environment, follow this process:
 
