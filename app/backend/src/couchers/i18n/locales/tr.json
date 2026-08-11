@@ -164,7 +164,8 @@
     "discussion_edit_permission_denied": "Bu tartışmayı düzenleme iznin yok.",
     "reply_delete_permission_denied": "Bu yorumu silme iznin yok.",
     "reply_deleted": "Bu yorum silinmiş.",
-    "reply_edit_permission_denied": "Bu yorumu düzenleme iznin yok."
+    "reply_edit_permission_denied": "Bu yorumu düzenleme iznin yok.",
+    "event_timezone_not_found": "Etkinlik konumu için bir saat dilimi bulunamadı."
   },
   "badges": {
     "volunteer_description": "Bu kullanıcı Couchers.org için aktif bir gönüllü",

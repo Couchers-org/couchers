@@ -241,7 +241,7 @@
       }
     },
     "create": {
-      "event_description": "Birisi sana bir ev sahipliği isteği gönderince",
+      "event_description": "Birisi sana bir ev sahipliği isteği gönderdiğinde",
       "push": {
         "title": "{{user}}'dan yeni konaklama isteği",
         "ios_title": "{{user}}",
