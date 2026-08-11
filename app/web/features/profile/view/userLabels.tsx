@@ -25,7 +25,7 @@ export const ReferencesLastActiveLabels = ({ user }: Props) => {
         label={t("heading.last_active")}
         text={
           user.lastActive ? (
-            <RelativeTime instant={user.lastActive} options={{ smallestUnit: "hours" }} />
+            <RelativeTime instant={user.lastActive} smallestUnit="hours" capitalize={true} />
           ) : (
             t("last_active_false")
           )

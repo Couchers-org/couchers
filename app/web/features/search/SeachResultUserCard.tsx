@@ -289,7 +289,8 @@ const SearchResultUserCard = ({
             <Typography variant="body2">
               {user.lastActive ? (
                 <>
-                  {t("profile:active")}: <RelativeTime instant={user.lastActive} options={{ smallestUnit: "hours" }} />
+                  {t("profile:active")}:{" "}
+                  <RelativeTime instant={user.lastActive} smallestUnit="hours" capitalize={true} />
                 </>
               ) : (
                 t("last_active_false")

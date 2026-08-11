@@ -46,7 +46,7 @@ export default function ControlMessageView({ message, onVisible, className }: Me
       id={messageElementId(message.messageId)}
     >
       <StyledTimestamp>
-        <RelativeTime instant={message.time!} />
+        <RelativeTime instant={message.time!} capitalize={true} />
       </StyledTimestamp>
 
       <StyledBodyWrapper>

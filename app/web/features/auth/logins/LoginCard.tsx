@@ -7,7 +7,7 @@ import IconText from "components/IconText";
 import RelativeTime from "components/RelativeTime";
 import { activeLoginsKey } from "features/queryKeys";
 import { Trans } from "i18n";
-import { localizeDateTime } from "i18n/datetimes";
+import { localizeDateOnly, localizeDateTime } from "i18n/datetimes";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { ActiveSession } from "proto/account_pb";
@@ -28,6 +28,7 @@ export default function LoginsPage({ session }: { session: ActiveSession.AsObjec
   const createdDisplay = localizeDateTime(timestampToPlainDateTime(session.created!), locale, {
     includeSeconds: true,
   });
+  const expiryDisplay = localizeDateOnly(timestampToPlainDateTime(session.expiry!), locale);
   const queryClient = useQueryClient();
 
   const {
@@ -88,11 +89,7 @@ export default function LoginsPage({ session }: { session: ActiveSession.AsObjec
               t={t}
               i18nKey="auth:active_logins.expiry2"
               components={{
-                datetime: (
-                  <strong>
-                    <RelativeTime instant={session.expiry!} />
-                  </strong>
-                ),
+                datetime: <strong>{expiryDisplay}</strong>,
               }}
             />
           }

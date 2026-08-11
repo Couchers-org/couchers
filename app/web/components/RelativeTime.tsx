@@ -6,13 +6,17 @@ import { GLOBAL } from "i18n/namespaces";
 import { Temporal } from "temporal-polyfill";
 import { instantToPlainDateTime, timestampToInstant } from "utils/date";
 
-interface RelativeTimeProps {
+interface RelativeTimeProps extends React.HTMLAttributes<HTMLTimeElement> {
   instant: Temporal.Instant | Timestamp.AsObject;
-  options?: NonNullable<Parameters<typeof localizeRelativeTime>[2]>;
-  className?: string;
+  smallestUnit?: Temporal.PluralizeUnit<Temporal.TimeUnit>;
+  capitalize?: boolean;
 }
 
-export default function RelativeTime({ instant, options, className }: RelativeTimeProps) {
+/**
+ * Unstyled component displaying an instant in time as a relative time (e.g. "3 hours ago"),
+ * with a tooltip showing the full date and time.
+ */
+export default function RelativeTime({ instant, smallestUnit, capitalize, ...rest }: RelativeTimeProps) {
   if (!(instant instanceof Temporal.Instant)) {
     instant = timestampToInstant(instant);
   }
@@ -21,9 +25,13 @@ export default function RelativeTime({ instant, options, className }: RelativeTi
     i18n: { language: locale },
   } = useTranslation(GLOBAL);
 
+  const plainDateTime = instantToPlainDateTime(instant);
+
   return (
-    <Tooltip title={localizeDateTime(instantToPlainDateTime(instant), locale)} placement="top" arrow>
-      <span className={className}>{localizeRelativeTime(instant, locale, { t, ...options })}</span>
+    <Tooltip title={localizeDateTime(plainDateTime, locale)} placement="top" arrow>
+      <time dateTime={plainDateTime.toString()} {...rest}>
+        <>{localizeRelativeTime(instant, locale, { capitalize, smallestUnit, t })}</>
+      </time>
     </Tooltip>
   );
 }

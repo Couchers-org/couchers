@@ -1,13 +1,12 @@
 import { Favorite, Language, Star } from "@mui/icons-material";
 import { Box, Divider, Skeleton, Typography, useMediaQuery } from "@mui/material";
+import RelativeTime from "components/RelativeTime";
 import { useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import { Trans } from "react-i18next";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
 import useSignupPageInfo from "utils/useSignupPageInfo";
-
-import RelativeTime from "../../components/RelativeTime";
 
 const SocialProof = () => {
   const { t } = useTranslation([GLOBAL, LANDING]);
