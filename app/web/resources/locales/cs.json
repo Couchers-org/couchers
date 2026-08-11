@@ -68,7 +68,8 @@
   "meetup_status": {
     "wants_to_meetup": "Chci se setkat",
     "open_to_meetup": "Otevřený k setkání",
-    "does_not_want_to_meetup": "Nemohu/nechci se setkat"
+    "does_not_want_to_meetup": "Nemohu/nechci se setkat",
+    "unspecified_info": "Neřekli"
   },
   "learn_more": "Zjistit více",
   "terms_of_service": "Podmínky služby",
@@ -91,7 +92,8 @@
   "hosting_status": {
     "can_host": "Mohu ubytovat",
     "maybe": "Občas mohu ubytovat",
-    "cant_host": "Nemohu ubytovat"
+    "cant_host": "Nemohu ubytovat",
+    "unspecified_info": "Neřekli"
   },
   "close": "Zavřít",
   "create_account": "Vytvořit účet",

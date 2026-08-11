@@ -83,7 +83,7 @@
       "required_error": "Prosím vyber svou pohlavní identitu",
       "selector_a11y": "Pohlaví"
     },
-    "tos_prompt": "Chceš-li pokračovat, musíš si přečíst a souhlasit s <tosLink></tosLink>.",
+    "tos_prompt": "Pro pokračování si musíš přečíst a souhlasit s <tosLink></tosLink>.",
     "tos_accept_label": "Souhlasím s Podmínkami služby.",
     "password": {
       "required_error": "Zadej heslo",
@@ -150,18 +150,25 @@
       "title": "Smazat účet",
       "confirm_username_label": "Potvrzení uživatelského jména",
       "username_mismatch": "Uživatelské jméno se neshoduje.",
-      "reason_label": "Důvod k odstranění účtu"
+      "reason_label": "Důvod k odstranění účtu",
+      "description": "Pokud chceš smazat svůj účet, postupuj podle níže uvedených kroků. Zašleme ti e-mailem potvrzení.",
+      "confirm_username_explanation": "Tvoje uživatelské jméno je <strong>{{ username }}</strong>, zadej jej prosím níže pro potvrzení smazání účtu.",
+      "reason_explanation": "Pomož nám prosím vylepšit naši platformu – dej nám vědět proč jsti se rozhodl smazat svůj účet.",
+      "success_message": "Smazání účtu bylo zahájeno. Pro dokončení smazání účtu jej prosím potvrď prostřednictvím e-mailu, který jsme ti zaslali."
     },
     "confirm": {
       "title": "Potvrdit smazání účtu",
       "account_deleted": "Účet smazán. Děkujeme za používání Couchers.org!",
-      "button_text": "Potvrdit smazání účtu"
+      "button_text": "Potvrdit smazání účtu",
+      "error_message": "Nepodařilo se potvrdit smazání účtu: {{message}}"
     },
     "recover": {
       "button_text": "Obnovit účet",
-      "success": "Tvůj účet byl obnoven, můžeš se znovu přihlášit. Jsme rádi, že jsi zpět!"
+      "success": "Tvůj účet byl obnoven, můžeš se znovu přihlášit. Jsme rádi, že jsi zpět!",
+      "title": "Obnovit účet na Couchers.org",
+      "error_message": "Obnovení účtu se nezdařilo: {{message}}"
     },
-    "missing_token": "Chyba: missing token"
+    "missing_token": "Chyba: chybí token"
   },
   "about_us": "O nás",
   "reset_password": "Resetovat heslo",
@@ -175,7 +182,13 @@
     "title": "Telefonní číslo",
     "add_success": "Telefonní číslo bylo přidáno.",
     "wrong_code": "Neplatný kód.",
-    "change_button_text": "Změnit telefonní číslo"
+    "change_button_text": "Změnit telefonní číslo",
+    "need_to_donate": "Než budeš moci dokončit ověření telefonu, musíš <donateLink>přispět</donateLink>.",
+    "no_phone_description": "Ke svému účtu jsi nepřidal telefonní číslo. Pokud jej chceš přidat, zadej jej níže. Ověříme jej pomocí textové zprávy.",
+    "add_button_text": "Přidat telefonní číslo",
+    "phone_not_verified_description": "Poslali jsme ti kód na <strong>{{phone}}</strong>. Pro ověření svého čísla zadej níže uvedený kód:",
+    "remove_phone_description": "Tvoje telefonní číslo je aktuálně <strong>{{phone}}</strong>. Níže můžeš své telefonní číslo odebrat.",
+    "change_to_different_description": "Pokud si chceš změnit telefonní číslo, zadej ho prosím níže."
   },
   "jail": {
     "location_section": {
@@ -189,7 +202,7 @@
     },
     "title": "Potřebujeme více informací",
     "terms_of_service_section": {
-      "description": "Aktualizovali jsme naše Podmínky služby. Chceš-li pokračovat, přečti si je a potvrď nové <tosLink></tosLink>."
+      "description": "Aktualizovali jsme naše Podmínky služby. Pokud chceš pokračovat, přečti si je a potvrď nové <tosLink></tosLink>."
     },
     "mod_note_section": {
       "acknowledge": "Potvrdit zprávu",
@@ -202,7 +215,7 @@
       "still_hosting": "Pořád chci hostit!",
       "not_hosting": "Už nemohu dále hostit.",
       "description": "Všimli jsme si u tebe delší neaktivity a chtěli jsme se zeptat, jestli máš stále zájem hostovat surfery.",
-      "title": "Máš pořád zájem hostit surfaře?"
+      "title": "Chceš pořád hostit surfaře?"
     },
     "description": "Zkontroluj prosím následující, aby bylo možné pokračovat."
   },
@@ -284,6 +297,67 @@
     "delete_my_data_button": "Smazat moje data",
     "delete_button": "Smazat má data silného ověření",
     "delete_success": "Tvé pasové údaje byly smazány.",
-    "donation_title": "Díky za ověření – pomáháš, aby byl Couchers.org bezpečnější pro všechny."
+    "donation_title": "Díky za ověření – pomáháš, aby byl Couchers.org bezpečnější pro všechny.",
+    "instructions": {
+      "download_app_store": "Stáhnout v App Store",
+      "download_google_play": "Stáhnout v Google Play",
+      "chip_location": {
+        "heading": "Jak najít NFC čip v pasu",
+        "description": "Umístění čipu se liší podle země. Možná bude nutné vyzkoušet různé stránky. Zde je několik příkladů umístění:",
+        "us_germany_mexico": "<strong>Brazílie, USA, Německo (2016), Indonésie, Mexiko:</strong> Zadní strana",
+        "finland_germany_new": "<strong>Finsko, Německo (2017+), Rusko:</strong> Stránka s fotografií",
+        "australia": "<strong>Austrálie:</strong> Prostřední stránka (označená symbolem + „název čipu“)"
+      },
+      "scanning_tips": {
+        "heading": "Tipy pro úspěšné skenování NFC",
+        "description": "Skenování NFC je ta nejtěžší část. Tyto tipy výrazně zvýší vaše šance:",
+        "remove_case": "<strong>Sundej z telefonu obal</strong> — i tenké obaly mohou blokovat signál NFC",
+        "hold_still": "<strong>Drž telefon úplně nehybně</strong> alespoň 5 sekund – příliš brzký pohyb je nejčastější příčinou selhání",
+        "flat_surface": "<strong>Polož pas na rovnou plochu</strong> — nedrž ho v ruce",
+        "nfc_location": "<strong>Najdi NFC anténu svého telefonu</strong> – obvykle se nachází na zadní straně telefonu v horní části uprostřed. Pokud se připojení nezdaří, vyzkoušej různé polohy",
+        "no_metal": "<strong>Vyhýbej se kovovým povrchům</strong> — nepokládej pas na kovový stůl ani na notebook",
+        "retry": "Pokud se skenování nezdaří, zkus to znovu — často je potřeba 2–3 pokusy, než se podaří správně zamířit"
+      },
+      "before_you_start": {
+        "heading": "Než začneš",
+        "nfc_check": "Telefon musí mít <strong>podporu NFC</strong> — většina moderních telefonů ji má. NFC bývá standardně zapnuté, ale u některých starších telefonů ho možná budeš muset povolit v nastavení telefonu.",
+        "passport_check": "Pas musí být <strong>biometrický pas</strong> — hledej na obálce zlatý symbol čipu. Starší pasy bez tohoto symbolu nebudou fungovat.",
+        "remove_case": "<strong>Před zahájením sejmi z telefonu kryt</strong> — i tenké kryty mohou blokovat NFC signál a způsobit selhání načtení.",
+        "passport_symbol_alt": "Symbol biometrického pasu"
+      },
+      "didnt_work": {
+        "heading": "Nejde to?",
+        "tip1": "U starších Androidem telefonů se ujisti, že máš v nastavení telefonu zapnuté NFC (většina moderních telefonů ho má zapnuté automaticky)",
+        "tip2": "Zkus jinou stránku pasu — umístění čipu se liší podle země",
+        "tip3": "Pokud používáš Android, ujisti se, že máš nainstalovanou aplikaci IRIS ID (ne verzi pro prohlížeč)",
+        "tip4": "Některé starší pasy nebo pasové karty nemají NFC čip a nebudou fungovat",
+        "contact": "Pokud problém přetrvává, <supportLink>dej nám vědět</supportLink> a rádi ti pomůžeme."
+      }
+    }
+  },
+  "quick_links": {
+    "title": "Rychlá akce e-mailu",
+    "button_text": "Potvrzovací akce",
+    "error_message": "Chyba: {{message}}",
+    "missing_payload_or_sig": "Neplatná URL"
+  },
+  "profile_visibility": {
+    "title": "Viditelnost profilu",
+    "choose": "Vyber, jaké informace budou viditelné pro odhlášené uživatele",
+    "visiblility_options": {
+      "nothing": "<strong>Nic</strong>: skryj mě úplně",
+      "map_only": "<strong>Pouze mapa</strong>: zobrazí náhodně umístěnou anonymní značku na mapě bez dalších informací",
+      "limited": "<strong>Omezené</strong>: zobrazit mé jméno, lokalitu, stav hostování/setkávání, odznaky, počet referencí a jak dlouho už jsem Coucher",
+      "most": "<strong>Většina</strong>: zobrazit celou sekci „O mně“ kromě „Další informace“",
+      "full_profile": "<strong>Celý profil</strong>: zobrazit můj celý profil (kromě referencí)"
+    }
+  },
+  "volunteer_management": {
+    "title": "Správa dobrovolníků",
+    "description": "Pokud tcihw role nebo data nejsou správné, dej nám prosím vědět.",
+    "card_preview_label": "Výpis tvojí týmové stránky",
+    "not_a_volunteer_message": "Podle našich záznamů nejsti současným ani bývalým dobrovolníkem. Pokud to není správně, dej nám prosím vědět vyplněním <formLink>tohoto formuláře</formLink>.",
+    "current_volunteer": "Dobrovolníkem od {{startDate}}.",
+    "past_volunteer": "Dobrovolníkem od {{startDate}} do {{endDate}}."
   }
 }
