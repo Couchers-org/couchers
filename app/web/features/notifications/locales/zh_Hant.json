@@ -63,5 +63,9 @@
   "mark_all_read": "全部標記為已讀",
   "no_new_notifications": "沒有新通知",
   "error_loading": "載入通知時發生錯誤",
-  "error_updating_notifications": "更新通知時出錯"
+  "error_updating_notifications": "更新通知時出錯",
+  "notifications_filters": {
+    "all_button": "全部",
+    "unread_button": "未讀"
+  }
 }

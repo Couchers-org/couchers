@@ -97,7 +97,8 @@
       "required_error": "请选择您的性别",
       "man": "男性",
       "non_binary": "非二元性别",
-      "woman": "女性"
+      "woman": "女性",
+      "selector_a11y": "性别"
     },
     "opt_in_newsletter": "订阅我们的社区更新偶尔通讯。",
     "tos_prompt": "请您阅读并且接受<tosLink></tosLink>以继续。",
@@ -253,7 +254,7 @@
       "step3": "请用手机扫描二维码",
       "step5": "选择<strong>护照</strong>（不支持身份证）",
       "step6": "请拍摄一张护照页面的清晰照片，确保底部的号码清晰可见",
-      "step7": "将手机贴在带有NFC芯片的护照页面上（见下方提示）",
+      "step7": "将手机贴在带有NFC芯片的护照页面上，并<strong>保持完全静止至少5秒</strong>——过早移动是最常见的失败原因",
       "download_app_store": "前往App Store下载",
       "download_google_play": "前往Google Play下载",
       "chip_location": {
@@ -314,7 +315,7 @@
     "request": {
       "title": "删除账户",
       "description": "如要删除您的账户，请按以下步骤操作。我们将向您发出确认邮件。",
-      "confirm_username_explanation": "您的用户名是<strong>{{username}}</strong>，请在下方输入以确认删除账户。",
+      "confirm_username_explanation": "您的用户名是<strong>{{ username }}</strong>，请在下方输入以确认删除账户。",
       "confirm_username_label": "用户名确认",
       "username_mismatch": "用户名不匹配。",
       "reason_explanation": "请告诉我们删除账户的原因，以帮助我们改进平台。",

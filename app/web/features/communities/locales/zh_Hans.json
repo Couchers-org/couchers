@@ -142,5 +142,32 @@
   "search_communities_placeholder": "按城市或国家名称搜索…",
   "search_communities_helper": "选择一个社区进入其页面",
   "no_results_found_with_link": "未找到相关社区。<requestCommunityLink>申请创建该社区！</requestCommunityLink>",
-  "fill_out_comment": "你需要先输入一些内容！"
+  "fill_out_comment": "你需要先输入一些内容！",
+  "comment_deleted": "该评论已被删除。",
+  "edit_comment": "编辑评论",
+  "delete_comment": "删除评论",
+  "comment_edited_date": "已编辑{{timeAgo}}",
+  "discussion_edited_date": "已编辑{{timeAgo}}",
+  "discussion_deleted": "此讨论已被删除。",
+  "delete_discussion": "删除讨论",
+  "delete_discussion_dialog": {
+    "title": "删除讨论",
+    "message": "您确定要删除此讨论吗？评论将保持可见。",
+    "confirm": "删除",
+    "cancel": "取消"
+  },
+  "edit_discussion": "编辑讨论",
+  "report_discussion_button_a11y": "报告此讨论",
+  "copy_link": "复制链接",
+  "copy_link_success": "链接已复制到剪贴板",
+  "report_event_button_a11y": "举报此活动",
+  "community_breadcrumb_a11y": "当前社区",
+  "select_macroregion": "选择地区",
+  "select_region": "选择国家",
+  "select_subregion": "选择区域",
+  "select_locality": "选择城市",
+  "select_sublocality": "选择街区",
+  "select_sub_community": "选择社区",
+  "sub_community_search_placeholder": "地点",
+  "sub_community_dropdown_a11y": "浏览更具体的社区"
 }

@@ -97,7 +97,8 @@
       "required_error": "請選擇您的性別",
       "man": "男性",
       "non_binary": "非二元性別",
-      "woman": "女性"
+      "woman": "女性",
+      "selector_a11y": "性別"
     },
     "opt_in_newsletter": "訂閱我們偶爾寄送的社群更新電子報。",
     "tos_prompt": "請您閱讀並且接受<tosLink></tosLink>以繼續。",
@@ -253,7 +254,7 @@
       "step3": "請用手機掃描二維碼",
       "step5": "選擇<strong>護照</strong>（不支持身份證）",
       "step6": "請拍攝一張護照頁面的清晰照片，確保底部的號碼清晰可見",
-      "step7": "將手機貼在帶有NFC芯片的護照頁面上（見下方提示）",
+      "step7": "將手機貼在帶有NFC晶片的護照頁面上，並<strong>保持完全靜止至少5秒</strong>——過早移動是最常見的失敗原因",
       "download_app_store": "前往App Store下載",
       "download_google_play": "前往Google Play下載",
       "chip_location": {
@@ -314,7 +315,7 @@
     "request": {
       "title": "刪除帳戶",
       "description": "如要刪除您的帳戶，請按以下步驟操作。我們將向您發出確認郵件。",
-      "confirm_username_explanation": "您的使用者名稱是<strong>{{username}}</strong>，請在下方輸入以確認刪除帳戶。",
+      "confirm_username_explanation": "您的使用者名稱是<strong>{{ username }}</strong>，請在下方輸入以確認刪除帳戶。",
       "confirm_username_label": "使用者名稱確認",
       "username_mismatch": "使用者名稱不匹配。",
       "reason_explanation": "請告訴我們刪除帳戶的原因，以幫助我們改進平台。",
