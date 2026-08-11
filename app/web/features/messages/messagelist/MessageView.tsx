@@ -1,10 +1,10 @@
 import { Card, CardContent, Skeleton, styled, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import Linkify from "components/Linkify";
+import RelativeTime from "components/RelativeTime";
 import TextBody from "components/TextBody";
 import { contentRefs } from "features/contentRefs";
 import FlagButton from "features/FlagButton";
-import TimeInterval from "features/messages/messagelist/TimeInterval";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
@@ -84,10 +84,12 @@ const StyledNameTypography = styled(Typography)(({ theme }) => ({
   margin: 0,
 }));
 
-const StyledTimeInterval = styled(TimeInterval)({
+const StyledRelativeTime = styled(RelativeTime)(({ theme }) => ({
+  ...theme.typography.caption,
+  fontSize: "0.75rem", // 12px
   flexShrink: 0,
   whiteSpace: "nowrap",
-});
+}));
 
 const StyledMessageBody = styled(CardContent)(({ theme }) => ({
   paddingTop: 0,
@@ -169,7 +171,7 @@ export default function MessageView({ className, message, onVisible, isDm = fals
           </TextBody>
         </StyledMessageBody>
         <StyledFooter>
-          <StyledTimeInterval instant={timestampToInstant(message.time!)} />
+          <StyledRelativeTime instant={timestampToInstant(message.time!)} capitalize={true} />
           {author && !isCurrentUser && (
             <StyledFlagButton contentRef={contentRefs.chatMessage(message)} authorUser={author.userId} size="small" />
           )}
