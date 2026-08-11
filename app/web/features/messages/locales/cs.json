@@ -32,8 +32,8 @@
   "write_reference_button_text": "Napiš referenci",
   "close_request_button_text": "Zamítnout",
   "confirm_request_button_text": "Potvrdit",
-  "host_pending_request_help_text": "<0>Co je třeba zvážit</0> před odpovědí.",
-  "surfer_declined_request_help_text": "<0>Přečti si našeho průvodce</0>, jak napsat žádost, která bude přijata.",
+  "host_pending_request_help_text": "<guideLink>Co je třeba zvážit</guideLink> před odpovědí.",
+  "surfer_declined_request_help_text": "<guideLink>Přečti si našeho průvodce</guideLink>, jak napsat žádost, která bude přijata.",
   "messages_page": {
     "title": "Zprávy",
     "tabs": {

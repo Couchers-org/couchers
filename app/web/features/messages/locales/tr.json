@@ -2,9 +2,9 @@
   "write_reference_button_text": "Bir referans yaz",
   "close_request_button_text": "Reddet",
   "confirm_request_button_text": "Onayla",
-  "surfer_declined_request_help_text": "Kabul edilecek bir istek yazmak hakkında olan <0>rehberimizi oku</0>.",
+  "surfer_declined_request_help_text": "Kabul edilecek bir istek yazmak hakkında olan <guideLink>rehberimizi oku</guideLink>.",
   "past_request_help_text": "Bu geçmişten kalma bir istek, hâlâ mesaj gönderebilirsin ancak bunun dışında bir değişiklik yapamazsın.",
-  "host_pending_request_help_text": "Cevap vermeden önce <0>değerlendirmek isteyebileceğin şeyler</0>.",
+  "host_pending_request_help_text": "Cevap vermeden önce <guideLink>değerlendirmek isteyebileceğin şeyler</guideLink>.",
   "mark_all_read_button_text": "Hepsini okundu işaretle",
   "messages_page": {
     "title": "Mesajlar",

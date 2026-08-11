@@ -69,7 +69,9 @@ export default function CookieBanner() {
           <Trans
             t={t}
             i18nKey="cookie_message"
-            components={{ 1: <StyledLink href={tosRoute} sx={{ color: "var(--mui-palette-secondary-light)" }} /> }}
+            components={{
+              tosLink: <StyledLink href={tosRoute} sx={{ color: "var(--mui-palette-secondary-light)" }} />,
+            }}
           />
         </Typography>
       </div>

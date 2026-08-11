@@ -41,14 +41,14 @@
     "rating_label": "Votre expérience vous a fait senti.e comme ",
     "add_a_reference": "Ajoutez une référence au profil de {{name}}",
     "did_stay_confirmation": {
-      "message_hosted": "Vous <strong>ne pourrez pas écrire une référence</strong> si vous indiquez que {{name}} n'a pas été hébergé.e chez vous. Ce membre ne sera pas informé, toutefois il sera toujours possible de laisser une référence pour vous.<br /><br />Si vous voulez signaler quelque chose, découvrez comment faire <2>ici</2>.",
-      "message_surfed": "Vous <strong>ne pourrez pas écrire une référence</strong> si vous indiquez que vous n'avez pas été hébergé.e chez {{name}}. Ce membre ne sera pas informé, toutefois il sera toujours possible de laisser une référence pour vous.<br /><br />Si vous voulez signaler quelque chose, découvrez comment faire <2>ici</2>.",
+      "message_hosted": "Vous <strong>ne pourrez pas écrire une référence</strong> si vous indiquez que {{name}} n'a pas été hébergé.e chez vous. Ce membre ne sera pas informé, toutefois il sera toujours possible de laisser une référence pour vous.<br /><br />Si vous voulez signaler quelque chose, découvrez comment faire <reportLink>ici</reportLink>.",
+      "message_surfed": "Vous <strong>ne pourrez pas écrire une référence</strong> si vous indiquez que vous n'avez pas été hébergé.e chez {{name}}. Ce membre ne sera pas informé, toutefois il sera toujours possible de laisser une référence pour vous.<br /><br />Si vous voulez signaler quelque chose, découvrez comment faire <reportLink>ici</reportLink>.",
       "title_surfed": "Confirmez que vous n'avez pas été hébergé.e par {{name}}",
       "title_hosted": "Confirmez que {{name}} n'a pas été hébergé.e chez vous",
       "confirm_hosted": "Confirmer que je n'ai pas hébergé ce membre",
       "confirm_surfed": "Confirmer que je n'ai pas surfé chez ce membre"
     },
-    "by_writing_thoughtful": "Ne savez-vous pas quoi écrire ? Lisez notre guide <1>ici</1>. En partageant honnêtement et en détail votre expérience avec cette personne, vous aiderez directement les autres membres et contribuerez à la sécurité et à la confiance au sein de la communauté Couchers.",
+    "by_writing_thoughtful": "Ne savez-vous pas quoi écrire ? Lisez notre guide <guideLink>ici</guideLink>. En partageant honnêtement et en détail votre expérience avec cette personne, vous aiderez directement les autres membres et contribuerez à la sécurité et à la confiance au sein de la communauté Couchers.",
     "rating_how": "Comment s'est passée votre expérience globale avec {{name}} ?",
     "reason_didnt_meetup": "Pourquoi ne vous êtes-vous pas rencontré(e)s ? (Facultatif)",
     "appropriate_explanation": "Vos commentaires privés sur cette page, ainsi que votre référence publique sur la page suivante, sont essentiels pour maintenir la communauté sûre, digne de confiance et accueillante. Merci de contribuer à la sécurité de la communauté !",
@@ -80,10 +80,10 @@
     "text_explanation": "Laissez une référence et faites savoir aux autres comment s'est passée votre expérience avec cette personne. Cela aidera les autres à savoir à quoi s'attendre avec cette personne à l'avenir.",
     "text_explanation_hosted_surfed": "La référence que vous écrivez ci-dessous sera partagée avec {{name}} après qu'ils auront écrit une référence pour vous, ou après 14 jours. La référence sera également visible pour le reste de la communauté Couchers.org.",
     "thank_you_message": "Nous vous remercions d'avoir pris le temps de rédiger une référence réfléchie qui aidera d'autres personnes à l'avenir. Vous trouverez ci-dessous un résumé que vous pouvez consulter avant de soumettre.",
-    "thank_you_donation_prompt": "Envisagez de <2>faire un don</2> ! Couchers.org est une organisation à but non lucratif 501(c)(3) et nous avons besoin de dons pour maintenir nos serveurs en fonctionnement.",
+    "thank_you_donation_prompt": "Envisagez de <donateLink>faire un don</donateLink> ! Couchers.org est une organisation à but non lucratif 501(c)(3) et nous avons besoin de dons pour maintenir nos serveurs en fonctionnement.",
     "was_appropriate_required": "Pour nous aider à garder notre communauté sûre, cette question est obligatoire.",
     "did_stay_explanation": "Sélectionnez « Non » si vous ne vous êtes pas réellement rencontré(e)s. Vous ne pourrez pas écrire de référence publique, mais vous pouvez, si vous le souhaitez, partager des informations <strong>privées</strong> avec nous sur ce qui s'est passé. L'autre membre ne sera pas informée, mais pourra tout de même laisser une référence si il/elle affirme que vous vous êtes rencontré(e)s.",
-    "private_text_explanation_2": "Cette réponse ne sera vue que par notre équipe de sécurité et restera privée. Plus vous donnez de détails, mieux c’est, mais même une brève explication peut beaucoup aider. En savoir plus <2>ici</2>.",
+    "private_text_explanation_2": "Cette réponse ne sera vue que par notre équipe de sécurité et restera privée. Plus vous donnez de détails, mieux c’est, mais même une brève explication peut beaucoup aider. En savoir plus <helpLink>ici</helpLink>.",
     "cant_write_reference_expired": "Le délai pour écrire une référence s'est écoulé (après 14 jours).",
     "cant_write_reference_didnt_stay": "Vous ne pouvez pas écrire de référence car vous avez indiqué que vous n'avez pas surfé chez ce membre.",
     "rating_required": "Veuillez déplacer la barre de défilement et évaluer votre expérience.",
@@ -156,7 +156,7 @@
     "travel_experience": "Expérience de voyage",
     "travel_experience_subtitle": "Partagez vos expériences de voyage et connexions",
     "location_subtitle": "Emplacement approximatif de votre logement",
-    "about_me_subtitle": "Présentez-vous et partagez un peu aux autres . C’est comment la confiance commence. Aidez les autres à comprendre qui vous êtes vraiment. Consultez les <1>conseils pour créer un profil excellent</1>."
+    "about_me_subtitle": "Présentez-vous et partagez un peu aux autres . C’est comment la confiance commence. Aidez les autres à comprendre qui vous êtes vraiment. Consultez les <guideLink>conseils pour créer un profil excellent</guideLink>."
   },
   "more_profile_actions_a11y_text": "Plus d’actions sur le profil",
   "info_unanswered": "Demandez-moi",
@@ -192,7 +192,7 @@
     "characters_remaining_other": "<bold>Veuillez écrire {{count}} caractères supplémentaires pour compléter votre profil.</bold> Les profils authentiques construisent une communauté de confiance. Plus vous partagez, plus il est facile de faire des contacts !",
     "missing_profile_photo": "Veuillez ajouter une photo pour compléter votre profil."
   },
-  "edit_profile_helper_text": "Cherchez vous de l'inspiration comment commencer ? <2>Consultez notre guide pour créer un profil exceptionnel</2>.",
+  "edit_profile_helper_text": "Cherchez vous de l'inspiration comment commencer ? <guideLink>Consultez notre guide pour créer un profil exceptionnel</guideLink>.",
   "edit_profile_tab_bar_a11y_label": "onglets pour modifier différentes parties de votre profil",
   "parking_details": {
     "paid_offsite": "Parking extérieur payant",
@@ -216,7 +216,7 @@
     "request_description_empty": "Veuillez rédiger une demande d'hébergement",
     "departure_date": "Date de départ prévue",
     "departure_date_empty": "Veuillez spécifier une date de départ prévue",
-    "guide_link_help_text": "<0>Lisez notre guide</0> sur la façon de rédiger une demande d'hébergement qui augmentera la chance d'être acceptée.",
+    "guide_link_help_text": "<guideLink>Lisez notre guide</guideLink> sur la façon de rédiger une demande d'hébergement qui augmentera la chance d'être acceptée.",
     "request": "Demander d'hébergement",
     "success": "Votre demande d'hébergement a été envoyée !",
     "arrival_date_empty": "Veuillez spécifier une date d'arrivée prévue"
@@ -312,7 +312,7 @@
     "report_photo": "Signaler cette photo"
   },
   "complete_profile_dialog": {
-    "description_1": "Avant de {{action_name}}, il faut <4>écrire un peu au sujet de vous</4> dans votre profile et <7>ajouter une photo de profile</7>.",
+    "description_1": "Avant de {{action_name}}, il faut <strong>écrire un peu au sujet de vous</strong> dans votre profile et <strong>ajouter une photo de profile</strong>.",
     "title": "Vous êtes presque là ; veuillez compléter votre profil afin de continuer !",
     "actions": {
       "send_request": "demander une demande à séjourner",
@@ -322,6 +322,6 @@
     },
     "edit_profile_button": "Modifier votre profil",
     "cancel_button": "Qu'à cela ne tienne !",
-    "description_2": "Cela contribue à bâtir une communauté de confiance et à réduire le spam. Pour plus d'informations, <2>veuillez consulter cette page d'aide</2>. Merci pour votre aide !"
+    "description_2": "Cela contribue à bâtir une communauté de confiance et à réduire le spam. Pour plus d'informations, <helpLink>veuillez consulter cette page d'aide</helpLink>. Merci pour votre aide !"
   }
 }

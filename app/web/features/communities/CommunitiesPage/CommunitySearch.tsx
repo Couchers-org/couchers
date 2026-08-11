@@ -128,14 +128,15 @@ export default function CommunitySearch() {
         <Trans
           t={t}
           i18nKey="communities:no_results_found_with_link"
-          components={[
-            <StyledLink
-              href={communityCreationFormURL(accountInfo?.username)}
-              target="_blank"
-              rel="noreferrer noopener"
-              key="request-link"
-            />,
-          ]}
+          components={{
+            requestCommunityLink: (
+              <StyledLink
+                href={communityCreationFormURL(accountInfo?.username)}
+                target="_blank"
+                rel="noreferrer noopener"
+              />
+            ),
+          }}
         />
       }
       renderInput={(params) => (

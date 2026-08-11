@@ -46,7 +46,7 @@
   "next": "下一页",
   "previous": "上一页",
   "mod": "审核",
-  "cookie_message": "我们使用cookie以确保在我们的网站上为您提供最佳体验。如果您继续使用本网站，我们将假设您对此感到满意。您可以详细了解我们的<1>服务条款</1>。",
+  "cookie_message": "我们使用cookie以确保在我们的网站上为您提供最佳体验。如果您继续使用本网站，我们将假设您对此感到满意。您可以详细了解我们的<tosLink>服务条款</tosLink>。",
   "hosting_status": {
     "can_host": "可以接待",
     "maybe": "有可能接待",
@@ -126,7 +126,7 @@
     }
   },
   "not_found_text_1": "我们找不到您请求的URL或资源",
-  "not_found_text_2": "您只想<1>回家吗？</1>",
+  "not_found_text_2": "您只想<homeLink>回家吗？</homeLink>",
   "not_found_alt": "404错误：找不到资源",
   "change_time": "更改时间",
   "html_meta": {
@@ -233,7 +233,7 @@
   },
   "footer": {
     "non_profit_note": "Couchers.org是美国501(c)(3)非营利免税组织Couchers, Inc.的一个项目。",
-    "version_info": "版本<2>{{version}}</2>，最后更新<5>{{updated_ago}}</5>。"
+    "version_info": "版本<versionLink>{{version}}</versionLink>，最后更新<updatedAgoLink>{{updated_ago}}</updatedAgoLink>。"
   },
   "what_is_cs": {
     "title": "什么是沙发冲浪？",
@@ -305,9 +305,9 @@
     "board_member": "董事会成员"
   },
   "blog": {
-    "byline_with_author": "由<1/>撰写。发布于{{date}}.",
+    "byline_with_author": "由<authorList/>撰写。发布于{{date}}.",
     "byline_without_author": "发布于{{date}}.",
-    "cta_message": "想帮助撰写我们的博客或做志愿者吗？<1>注册</1>并告诉我们。志愿者和<3>捐款</3>使Couchers.org成为可能！"
+    "cta_message": "想帮助撰写我们的博客或做志愿者吗？<volunteerLink>注册</volunteerLink>并告诉我们。志愿者和<donateLink>捐款</donateLink>使Couchers.org成为可能！"
   },
   "error_loading_languages": "无法加载语言选项",
   "language_names": {

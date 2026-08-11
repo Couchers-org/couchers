@@ -292,7 +292,7 @@ export default function StrongVerificationInstructions() {
             <Trans
               i18nKey="auth:strong_verification.instructions.didnt_work.contact"
               components={{
-                1: <StyledLink href="mailto:support@couchers.org?subject=Strong%20Verification%20Help" />,
+                supportLink: <StyledLink href="mailto:support@couchers.org?subject=Strong%20Verification%20Help" />,
               }}
             />
           </Typography>

@@ -89,7 +89,7 @@ const CommunitiesPage = () => {
         <Trans
           i18nKey="dashboard:community_builder"
           components={{
-            1: (
+            communityBuilderLink: (
               <MuiLink
                 href={helpCenterCommunityBuilderURL}
                 target="_blank"
@@ -110,7 +110,7 @@ const CommunitiesPage = () => {
         <Trans
           i18nKey="dashboard:find_your_community_intro_simplified"
           components={{
-            1: (
+            requestCommunityLink: (
               <MuiLink
                 href={communityCreationFormURL(accountInfo?.username)}
                 target="_blank"

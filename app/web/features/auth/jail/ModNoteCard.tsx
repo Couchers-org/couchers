@@ -1,7 +1,7 @@
 import { Card, styled, Typography } from "@mui/material";
 import Button from "components/Button";
 import Markdown from "components/Markdown";
-import { useTranslation } from "i18n";
+import { Trans, useTranslation } from "i18n";
 import { localizeDateTime } from "i18n/datetimes";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { ModNote } from "proto/account_pb";
@@ -52,7 +52,9 @@ export default function ModNoteCard({ note, updateJailed }: ModNoteCardProps) {
 
   return (
     <StyledNoteContainer key={note.noteId}>
-      <Typography variant="h3">{t("auth:jail.mod_note_section.note_title", { time: formattedTime })}</Typography>
+      <Typography variant="h3">
+        <Trans t={t} i18nKey="auth:jail.mod_note_section.note_title" values={{ time: formattedTime }} />
+      </Typography>
       <StyledNoteCard>
         <Markdown source={note.noteContent} topHeaderLevel={3} />
       </StyledNoteCard>
