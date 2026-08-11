@@ -10,10 +10,7 @@ import useSignupPageInfo from "utils/useSignupPageInfo";
 import RelativeTime from "../../components/RelativeTime";
 
 const SocialProof = () => {
-  const {
-    t,
-    i18n: { language: locale },
-  } = useTranslation([GLOBAL, LANDING]);
+  const { t } = useTranslation([GLOBAL, LANDING]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const { signupInfo, isLoading } = useSignupPageInfo();

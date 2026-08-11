@@ -126,10 +126,7 @@ interface EditCommentData {
 }
 
 export default function Comment({ topLevel = false, comment, parentThreadId, discussionId }: CommentProps) {
-  const {
-    t,
-    i18n: { language: locale },
-  } = useTranslation([GLOBAL, COMMUNITIES]);
+  const { t } = useTranslation([GLOBAL, COMMUNITIES]);
 
   const queryClient = useQueryClient();
 

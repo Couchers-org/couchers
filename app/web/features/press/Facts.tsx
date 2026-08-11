@@ -62,10 +62,7 @@ function Loader({ width }: LoaderProps) {
 }
 
 export default function Facts() {
-  const {
-    t,
-    i18n: { language: locale },
-  } = useTranslation([LANDING, PRESS]);
+  const { t } = useTranslation([LANDING, PRESS]);
   const { signupInfo, isLoading: isSignupInfoLoading } = useSignupPageInfo();
   const volunteers = useListVolunteers();
 
