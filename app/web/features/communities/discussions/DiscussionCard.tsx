@@ -105,7 +105,7 @@ export default function DiscussionCard({
                   )}{" "}
                   {discussion.created && (
                     <>
-                      • <RelativeTime instant={discussion.created} capitalize={true} />
+                      • <RelativeTime instant={discussion.created} />
                     </>
                   )}
                   <ModVisibleComponent>

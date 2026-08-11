@@ -126,7 +126,7 @@ const NotificationItem = ({ notification, onClose, onMarkIsSeen }: NotificationI
           }}
         />
         <Typography variant="body2" color="primary" sx={{ fontWeight: 600 }}>
-          <RelativeTime instant={notification.created!} capitalize={true} />
+          <RelativeTime instant={notification.created!} />
         </Typography>
         <LinesEllipsis
           text={notification.body}

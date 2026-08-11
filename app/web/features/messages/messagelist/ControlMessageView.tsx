@@ -49,7 +49,7 @@ export default function ControlMessageView({ message, onVisible, className }: Me
       ref={ref}
       id={messageElementId(message.messageId)}
     >
-      <StyledRelativeTime instant={message.time!} capitalize={true} />
+      <StyledRelativeTime instant={message.time!} />
 
       <StyledBodyWrapper>
         {!isAuthorLoading && !isTargetLoading ? (

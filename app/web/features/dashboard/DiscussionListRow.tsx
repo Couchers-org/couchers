@@ -117,9 +117,7 @@ export default function DiscussionListRow({ discussion }: DiscussionListRowProps
           <MetaText>{discussion.ownerTitle}</MetaText>
           <MetaDot>·</MetaDot>
           <Schedule sx={{ fontSize: "11px", flexShrink: 0 }} />
-          <span style={{ flexShrink: 0 }}>
-            {discussion.created && <RelativeTime instant={discussion.created} capitalize={true} />}
-          </span>
+          <span style={{ flexShrink: 0 }}>{discussion.created && <RelativeTime instant={discussion.created} />}</span>
           <MetaDot>·</MetaDot>
           <ChatBubbleOutlined sx={{ fontSize: "11px", flexShrink: 0 }} />
           <span style={{ flexShrink: 0 }}>

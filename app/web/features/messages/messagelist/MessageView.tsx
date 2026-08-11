@@ -171,7 +171,7 @@ export default function MessageView({ className, message, onVisible, isDm = fals
           </TextBody>
         </StyledMessageBody>
         <StyledFooter>
-          <StyledRelativeTime instant={timestampToInstant(message.time!)} capitalize={true} />
+          <StyledRelativeTime instant={timestampToInstant(message.time!)} />
           {author && !isCurrentUser && (
             <StyledFlagButton contentRef={contentRefs.chatMessage(message)} authorUser={author.userId} size="small" />
           )}

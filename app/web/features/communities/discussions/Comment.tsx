@@ -250,7 +250,7 @@ export default function Comment({ topLevel = false, comment, parentThreadId, dis
                   {comment.createdTime && (
                     <>
                       {" "}
-                      {"•"} <RelativeTime instant={comment.createdTime} capitalize={true} />
+                      {"•"} <RelativeTime instant={comment.createdTime} />
                     </>
                   )}
                   {comment.lastEdited && (
