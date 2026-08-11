@@ -42,22 +42,28 @@ describe("DiscussionsListPage", () => {
     const discussionCards = (await screen.findAllByTestId(DISCUSSION_CARD_TEST_ID)).map((element) => within(element));
 
     const firstCreator = await getLiteUser(discussions[0].creatorUserId.toString());
+    const firstPostedTimeRegExp = new RegExp(
+      `${t("communities:by_creator", { name: firstCreator.name })} • .+ ago`,
+    );
     expect(
-      discussionCards[0].getByText(new RegExp(`${t("communities:by_creator", { name: firstCreator.name })} • .+ ago`)),
+      discussionCards[0].getByText((_, element) => firstPostedTimeRegExp.test(element?.textContent ?? ""), {
+        selector: "p",
+      }),
     ).toBeVisible();
     expect(discussionCards[0].getByRole("heading", { name: discussions[0].title })).toBeVisible();
     expect(discussionCards[0].getByText("Hi everyone, I'm looking for fun activities to do here!")).toBeVisible();
     expect(discussionCards[0].getByText(t("communities:comments_count", { count: 5 }))).toBeVisible();
 
     const secondCreator = await getLiteUser(discussions[1].creatorUserId.toString());
+    const secondPostedTimeRegExp = new RegExp(
+      `${t("communities:by_creator", {
+        name: secondCreator.name,
+      })} • .+ ago`,
+    );
     expect(
-      discussionCards[1].getByText(
-        new RegExp(
-          `${t("communities:by_creator", {
-            name: secondCreator.name,
-          })} • .+ ago`,
-        ),
-      ),
+      discussionCards[1].getByText((_, element) => secondPostedTimeRegExp.test(element?.textContent ?? ""), {
+        selector: "p",
+      }),
     ).toBeVisible();
     expect(discussionCards[1].getByRole("heading", { name: discussions[1].title })).toBeVisible();
     expect(discussionCards[1].getByText("Some rules you need to know...")).toBeVisible();

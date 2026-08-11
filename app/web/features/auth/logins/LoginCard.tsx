@@ -4,9 +4,10 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import { CalendarIcon, ClockIcon, InfoIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
+import RelativeTime from "components/RelativeTime";
 import { activeLoginsKey } from "features/queryKeys";
 import { Trans } from "i18n";
-import { localizeDateOnly, localizeDateTime, localizeRelativeTime } from "i18n/datetimes";
+import { localizeDateTime } from "i18n/datetimes";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { ActiveSession } from "proto/account_pb";
@@ -24,11 +25,9 @@ export default function LoginsPage({ session }: { session: ActiveSession.AsObjec
     i18n: { language: locale },
   } = useTranslation([GLOBAL, AUTH]);
 
-  const lastSeenDisplay = localizeRelativeTime(session.lastSeen!, locale);
   const createdDisplay = localizeDateTime(timestampToPlainDateTime(session.created!), locale, {
     includeSeconds: true,
   });
-  const expiryDisplay = localizeDateOnly(timestampToPlainDateTime(session.expiry!), locale);
   const queryClient = useQueryClient();
 
   const {
@@ -60,19 +59,43 @@ export default function LoginsPage({ session }: { session: ActiveSession.AsObjec
             <Trans
               t={t}
               i18nKey="auth:active_logins.location"
-              values={{ approximate_location: session.approximateLocation }}
+              components={{
+                location: <strong>{session.approximateLocation}</strong>,
+              }}
             />
           }
         />
         <IconText
           icon={ClockIcon}
           text={
-            <Trans t={t} i18nKey="auth:active_logins.last_activity" values={{ last_activity_ago: lastSeenDisplay }} />
+            <Trans
+              t={t}
+              i18nKey="auth:active_logins.last_activity2"
+              components={{
+                timeAgo: (
+                  <strong>
+                    <RelativeTime instant={session.lastSeen!} />
+                  </strong>
+                ),
+              }}
+            />
           }
         />
         <IconText
           icon={CalendarIcon}
-          text={<Trans t={t} i18nKey="auth:active_logins.expiry" values={{ expiry_datetime: expiryDisplay }} />}
+          text={
+            <Trans
+              t={t}
+              i18nKey="auth:active_logins.expiry2"
+              components={{
+                datetime: (
+                  <strong>
+                    <RelativeTime instant={session.expiry!} />
+                  </strong>
+                ),
+              }}
+            />
+          }
         />
         <IconText
           icon={InfoIcon}

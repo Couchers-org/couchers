@@ -179,12 +179,11 @@ describe("Discussion page", () => {
         name: getProfileLinkA11yLabel(commentUser.name),
       }),
     ).toBeVisible();
+    const firstPostedTime = `${t("communities:by_creator", {
+      name: commentUser.name,
+    })} • last year`;
     expect(
-      commentCards[0].getByText(
-        `${t("communities:by_creator", {
-          name: commentUser.name,
-        })} • last year`,
-      ),
+      commentCards[0].getByText((_, element) => element?.textContent === firstPostedTime),
     ).toBeVisible();
     expect(commentCards[0].getByText(firstTopLevelComment!.content)).toBeVisible();
     expect(commentCards[0].getByRole("button", { name: t("global:reply") })).toBeVisible();
@@ -197,9 +196,8 @@ describe("Discussion page", () => {
         name: getProfileLinkA11yLabel(replyUser.name),
       }),
     ).toBeVisible();
-    expect(
-      commentCards[1].getByText(`${t("communities:by_creator", { name: replyUser.name })} • last year`),
-    ).toBeVisible();
+    const secondPostedTime = `${t("communities:by_creator", { name: replyUser.name })} • last year`;
+    expect(commentCards[1].getByText((_, element) => element?.textContent === secondPostedTime)).toBeVisible();
     expect(commentCards[1].getByText("+6")).toBeVisible();
     // Nested comment cannot be replied on further
     expect(commentCards[1].queryByRole("button", { name: t("global:reply") })).not.toBeInTheDocument();

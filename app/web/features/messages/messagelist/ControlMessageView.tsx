@@ -1,4 +1,5 @@
 import { Skeleton, styled } from "@mui/material";
+import RelativeTime from "components/RelativeTime";
 import TextBody from "components/TextBody";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
@@ -6,13 +7,11 @@ import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import React from "react";
 import { theme } from "theme";
-import { timestampToInstant } from "utils/date";
 
 import { firstName } from "../../../utils/names";
 import useOnVisibleEffect from "../../../utils/useOnVisibleEffect";
 import { controlMessage, messageTargetId } from "../utils";
 import { messageElementId, MessageProps } from "./MessageView";
-import TimeInterval from "./TimeInterval";
 
 const StyledWrapper = styled("div")(() => ({
   marginInlineEnd: "auto",
@@ -47,7 +46,7 @@ export default function ControlMessageView({ message, onVisible, className }: Me
       id={messageElementId(message.messageId)}
     >
       <StyledTimestamp>
-        <TimeInterval instant={timestampToInstant(message.time!)} />
+        <RelativeTime instant={message.time!} />
       </StyledTimestamp>
 
       <StyledBodyWrapper>

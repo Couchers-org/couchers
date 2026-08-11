@@ -1,11 +1,12 @@
 import { Favorite, Language, People, Star } from "@mui/icons-material";
 import { Box, Skeleton, styled, Typography } from "@mui/material";
 import { useTranslation } from "i18n";
-import { localizeRelativeTime } from "i18n/datetimes";
 import { LANDING, PRESS } from "i18n/namespaces";
+import { Trans } from "react-i18next";
 import { Temporal } from "temporal-polyfill";
 import useSignupPageInfo from "utils/useSignupPageInfo";
 
+import RelativeTime from "../../components/RelativeTime";
 import { useListVolunteers } from "../communities/hooks";
 import SectionHeading from "./SectionHeading";
 import SectionWrapper from "./SectionWrapper";
@@ -120,9 +121,13 @@ export default function Facts() {
             <Loader width="14.5rem" />
           ) : signupInfo?.lastSignup ? (
             <Typography sx={textStyle}>
-              {t("landing:last_signup", {
-                timeAgo: localizeRelativeTime(Temporal.Instant.from(signupInfo.lastSignup), locale),
-              })}
+              <Trans
+                t={t}
+                i18nKey="landing:last_signup2"
+                components={{
+                  timeAgo: <RelativeTime instant={Temporal.Instant.from(signupInfo.lastSignup)} />,
+                }}
+              />
             </Typography>
           ) : null}
         </Box>

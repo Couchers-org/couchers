@@ -1,15 +1,10 @@
 import { styled, Tooltip } from "@mui/material";
 import { CheckCircleIcon, ErrorIcon } from "components/Icons";
 import LabelAndText from "components/LabelAndText";
+import RelativeTime from "components/RelativeTime";
 import { useLanguages } from "features/profile/hooks/useLanguages";
 import { useTranslation } from "i18n";
-import {
-  localizeDuration,
-  localizeRelativeTime,
-  localizeTimeOnly,
-  localizeTimeZone,
-  localizeYearMonth,
-} from "i18n/datetimes";
+import { localizeDuration, localizeTimeOnly, localizeTimeZone, localizeYearMonth } from "i18n/datetimes";
 import { COMMUNITIES, GLOBAL, PROFILE } from "i18n/namespaces";
 import { BirthdateVerificationStatus, GenderVerificationStatus, User } from "proto/api_pb";
 import { Trans } from "react-i18next";
@@ -22,22 +17,18 @@ interface Props {
 }
 
 export const ReferencesLastActiveLabels = ({ user }: Props) => {
-  const {
-    t,
-    i18n: { language: locale },
-  } = useTranslation(PROFILE);
+  const { t } = useTranslation(PROFILE);
   return (
     <>
       <LabelAndText label={t("heading.references")} text={`${user.numReferences || 0}`} />
       <LabelAndText
         label={t("heading.last_active")}
         text={
-          user.lastActive
-            ? localizeRelativeTime(user.lastActive, locale, {
-                smallestUnit: "hours",
-                t,
-              })
-            : t("last_active_false")
+          user.lastActive ? (
+            <RelativeTime instant={user.lastActive} options={{ smallestUnit: "hours" }} />
+          ) : (
+            t("last_active_false")
+          )
         }
       />
     </>

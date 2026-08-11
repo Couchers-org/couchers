@@ -1,7 +1,5 @@
 import { styled, Typography } from "@mui/material";
-import { useTranslation } from "i18n";
-import { localizeRelativeTime } from "i18n/datetimes";
-import { GLOBAL } from "i18n/namespaces";
+import RelativeTime from "components/RelativeTime";
 import React from "react";
 import { Temporal } from "temporal-polyfill";
 
@@ -15,13 +13,9 @@ interface TimeIntervalProps {
 }
 
 export default function TimeInterval({ instant, className }: TimeIntervalProps) {
-  const {
-    i18n: { language: locale },
-  } = useTranslation(GLOBAL);
-
   return (
     <StyledTypography className={className} variant="caption">
-      {localizeRelativeTime(instant, locale)}
+      <RelativeTime instant={instant} />
     </StyledTypography>
   );
 }

@@ -8,6 +8,7 @@ import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
 import Markdown from "components/Markdown";
 import MarkdownInput, { MarkdownInputProps } from "components/MarkdownInput";
+import RelativeTime from "components/RelativeTime";
 import { contentRefs } from "features/contentRefs";
 import FlagButton from "features/FlagButton";
 import CopyOnClick from "features/mod/CopyOnClick";
@@ -15,8 +16,7 @@ import ModVisibleComponent from "features/mod/ModVisibleComponent";
 import { discussionKey, threadKey } from "features/queryKeys";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { localizeRelativeTime } from "i18n/datetimes";
+import { Trans, useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { Reply } from "proto/threads_pb";
 import { useEffect, useRef, useState } from "react";
@@ -200,8 +200,6 @@ export default function Comment({ topLevel = false, comment, parentThreadId, dis
     setIsEditing(false);
   };
 
-  const postedTime = comment.createdTime ? localizeRelativeTime(comment.createdTime, locale) : "";
-
   const ellipsisMenuItems: EllipsisMenuItem[] = comment.canEdit
     ? [
         {
@@ -252,14 +250,23 @@ export default function Comment({ topLevel = false, comment, parentThreadId, dis
                   {t("communities:by_creator", {
                     name: user?.name ?? t("communities:unknown_user"),
                   })}
-                  {postedTime && ` • ${postedTime}`}
+                  {comment.createdTime && (
+                    <>
+                      {" "}
+                      • <RelativeTime instant={comment.createdTime} />
+                    </>
+                  )}
                   {comment.lastEdited && (
                     <>
                       {" "}
                       {"•"}{" "}
-                      {t("communities:comment_edited_date", {
-                        timeAgo: localizeRelativeTime(comment.lastEdited, locale),
-                      })}
+                      <Trans
+                        t={t}
+                        i18nKey="communities:comment_edited_date2"
+                        components={{
+                          timeAgo: <RelativeTime instant={comment.lastEdited} />,
+                        }}
+                      />
                     </>
                   )}
                   <ModVisibleComponent>
