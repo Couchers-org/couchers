@@ -7,7 +7,6 @@
   },
   "scripts": {
     "build": "next build",
-    "injectsourcemaps": "sentry-cli sourcemaps inject .next/",
     "dev": "next dev",
     "start": "yarn dev",
     "format": "prettier --write '**/*.{ts,tsx,js,jsx,json,css}' && eslint . --fix",

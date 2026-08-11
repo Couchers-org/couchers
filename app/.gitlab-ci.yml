@@ -112,6 +112,13 @@ default:
         cache_to="--cache-to type=registry,ref=$cache_tag,mode=max"
       fi
 
+      # The web build uploads source maps to Sentry, which needs the auth token inside
+      # the container. It's a protected variable, so it's absent on unprotected branches.
+      local secrets=""
+      if [ -n "${SENTRY_AUTH_TOKEN:-}" ]; then
+        secrets="--secret id=sentry_auth_token,env=SENTRY_AUTH_TOKEN"
+      fi
+
       # Use buildx, as "docker build" does not work with registry cache.
       docker pull "$cache_tag" || true
       docker context create my-builder
@@ -126,6 +133,7 @@ default:
         --build-arg version="$version" \
         --cache-from "$cache_tag" \
         ${cache_to} \
+        ${secrets} \
         "$@" \
         "app/$path/"
     }
