@@ -19,7 +19,11 @@ const StyledWrapper = styled("div")(() => ({
   textAlign: "center",
 }));
 
-const StyledTimestamp = styled("div")(() => theme.typography.caption);
+const StyledRelativeTime = styled(RelativeTime)(() => ({
+  ...theme.typography.caption,
+  fontSize: "0.75rem", // 12px
+  display: "block",
+}));
 
 const StyledBodyWrapper = styled("div")(() => ({
   paddingInlineEnd: theme.spacing(1),
@@ -45,9 +49,7 @@ export default function ControlMessageView({ message, onVisible, className }: Me
       ref={ref}
       id={messageElementId(message.messageId)}
     >
-      <StyledTimestamp>
-        <RelativeTime instant={message.time!} capitalize={true} />
-      </StyledTimestamp>
+      <StyledRelativeTime instant={message.time!} capitalize={true} />
 
       <StyledBodyWrapper>
         {!isAuthorLoading && !isTargetLoading ? (
