@@ -114,7 +114,6 @@
       "description_required": "Description is required.",
       "description_label": "Describe the issue",
       "description_helper": "Please tell us why you are reporting this.",
-      "success": "Thank you for your report and making Couchers a better platform for everybody!",
       "reason": {
         "dating": "Flirting / dating app behavior or similar",
         "external": "Incident off-platform",
@@ -221,7 +220,6 @@
       "fetch_invite_info": "Couldn't get invite code details"
     }
   },
-  "contribute_title": "Sign up to contribute",
   "reply": "Reply",
   "yes": "Yes",
   "no": "No",

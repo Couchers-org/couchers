@@ -167,7 +167,6 @@
   "sign_up_confirmed_prompt": "完成啦！如果页面没有自动跳转，您可以直接登录账号。",
   "unhandled_sign_up_state": "错误：未处理的注册流程状态。",
   "login_prompt": "点击此处登录",
-  "about_us": "关于我们",
   "reset_password": "重置密码",
   "account_settings_page": {
     "title": "账户设置",
@@ -280,8 +279,7 @@
         "heading": "开始之前",
         "nfc_check": "您的手机必须具有<strong>NFC功能</strong> -大多数现代手机都具备。NFC通常默认处于开启状态，但在某些较旧的手机上，您可能需要在手机设置中启用它。",
         "passport_check": "您的护照必须是<strong>生物识别护照</strong> -查找封面上的金色芯片符号。没有此符号的旧护照将无法使用。",
-        "remove_case": "<strong>开始前请取下手机壳</strong> -即使很薄的手机壳也会阻挡NFC信号并导致扫描失败。",
-        "passport_symbol_alt": "生物识别护照符号"
+        "remove_case": "<strong>开始前请取下手机壳</strong> -即使很薄的手机壳也会阻挡NFC信号并导致扫描失败。"
       },
       "didnt_work": {
         "heading": "有问题吗？",

@@ -182,9 +182,6 @@
   },
   "respond_box_title": "Sende eine Antwort",
   "respond_box_description": "Wähle eine Antwort, um {{name}} sofort zu informieren. Du kannst auch jederzeit eine Nachricht senden.",
-  "status_bar_edit_button": "Bearbeiten",
-  "status_bar_cancel_edit_button": "Abbrechen",
-  "status_bar_close_button": "Schließen",
   "surfer_bar_pending": "Du hast eine Host-Anfrage gesendet — warte auf eine Antwort von {{name}}.",
   "cancel_request_button": "Anfrage abbrechen",
   "cancel_request_dialog_title": "Anfrage abbrechen?",
@@ -192,7 +189,6 @@
   "cancel_request_dialog_confirm_button": "Ja, abbrechen",
   "cancel_request_dialog_dismiss_button": "Nein",
   "private_feedback_card": {
-    "title": "Feedback zu dieser Anfrage",
     "quality_label": "Bewerte diese Anfrage privat (Optional):",
     "quality_high": "Hohe Qualität",
     "quality_okay": "Ok",
@@ -201,8 +197,6 @@
     "reason_other_placeholder": "Bitte erzähle uns mehr...",
     "privacy_notice": "Deine Antworten sind privat und werden nicht mit dem Nutzer geteilt. Wir können sie in aggregierter und anonymer Form — zusammen mit vielen anderen — verwenden, um das Feedback für alle Nutzer zu verbessern.",
     "skip_button": "Überspringen",
-    "next_button": "Weiter",
-    "back_button": "Zurück",
     "submit_button": "Absenden",
     "decline_reason_options": {
       "didnt_read_profile": "Hat mein Profil nicht gelesen",

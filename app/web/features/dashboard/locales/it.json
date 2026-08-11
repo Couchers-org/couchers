@@ -1,19 +1,12 @@
 {
   "dashboard": "Pannello di controllo",
-  "please_complete_profile": "Completa il tuo profilo in modo da comparire nei risultati di ricerca:",
-  "fill_in_who_i_am": "1. Completa la sezione \"Chi sono\" con alcune frasi su di te",
-  "upload_photo": "2. Carica una foto (cliccando sull'avatar nella pagina di modifica)",
   "your_communities_heading": "Le tue community",
-  "all_communities_heading": "Tutte le community",
   "load_more": "Carica altro",
   "welcome": "Benvenuto in Couchers.org!",
   "new_pill": "Nuovo",
-  "landing_text": "Stiamo sviluppando nuove <featuresLink>funzionalità</featuresLink> come eventi, guide locali, moderazione e ritrovi. Apprezziamo la tua pazienza ed il tuo <supportLink>supporto</supportLink> durante lo sviluppo.",
   "your_communities_helper_text": "Fai parte di tutte le community relative alla tua posizione. Se ti va, puoi sempre <browseCommunitiesLink>esplorare e unirti alle community</browseCommunitiesLink> anche in altre località.",
-  "complete_profile_explanation": "Non odi il fatto che su altre piattaforme ci siano profili \"fantasma\" vuoti e senza informazioni? Per favore non ghostarci! 👻👻👻",
   "no_community": "Attualmente non sei in alcuna community.",
   "no_sub_communities": "Nessuna sotto-community.",
-  "community_builder_form_text": "Crea la tua community locale",
   "communities_welcome_title": "Benvenuto nel portale community",
   "communities_intro": "Per aiutare la gente in tutto il mondo a organizzare eventi, discussioni e incontri, abbiamo creato il portale delle community, che sono riportate qui sotto. <strong>Fai automaticamente parte di alcune di queste in base alla tua posizione geografica, ma puoi unirti a qualsiasi community tu voglia!</strong> Le tue community sono riportate nella bacheca.",
   "community_builder": "Vuoi essere un ambasciatore per la tua community e aiutare a farla crescere? Diventa un <communityBuilderLink>Creatore di community!</communityBuilderLink>",
@@ -26,9 +19,6 @@
   "browse_communities_text": "Clicca sul nome di una regione per vedere le altre community contenute all'interno. Clicca sul link per vedere la pagina della community di quella specifica città o regione.",
   "show_all_communities": "Mostra tutte le community",
   "hide_all_communities": "Nascondi tutte le community",
-  "all_communities_section": "Tutte le community",
-  "all_communities_intro": "Di seguito puoi sfogliare tutte le pagine della community esistenti finora. <strong>Clicca sul nome di una community per vedere le altre community al suo interno.</strong>",
-  "community_missing": "Manca il tuo paese o la tua città? Usa <requestCommunityLink>questo modulo </requestCommunityLink> per richiederlo!",
   "member_count_one": "{{count}} utente",
   "member_count_many": "{{count}} di utenti",
   "member_count_other": "{{count}} utenti",
@@ -54,7 +44,6 @@
   },
   "events": {
     "your_upcoming_header": "I tuoi prossimi eventi",
-    "see_all_link": "Vedi tutti →",
     "your_upcoming_empty_message": "Nessun evento al momento. Perché non ne <createEventLink>crei</createEventLink> uno ✨?",
     "community_header": "Eventi nelle tue community",
     "today_label": "Oggi"
@@ -63,8 +52,6 @@
     "my_trips_header": "I tuoi viaggi pubblici",
     "manage_link": "Gestisci",
     "when_now": "Adesso",
-    "when_today": "Oggi",
-    "when_tomorrow": "Domani",
     "empty_description": "Vai da qualche parte? Pubblica un viaggio pubblico in una community per ricevere offerte dagli host nelle vicinanze.",
     "same_gender_only_indicator": "Stesso genere",
     "offers_count_one": "{{count}} offerta",
@@ -113,10 +100,6 @@
       "description": "{{name}} ha accettato la tua richiesta. Conferma il tuo soggiorno per riservarlo.",
       "button": "Conferma soggiorno"
     },
-    "carousel_dismiss_button_a11y": "Ignora promemoria",
-    "carousel_scroller": {
-      "left_arrow_a11y": "Scorri a sinistra",
-      "right_arrow_a11y": "Scorri a destra"
-    }
+    "carousel_dismiss_button_a11y": "Ignora promemoria"
   }
 }

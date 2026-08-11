@@ -125,11 +125,6 @@
   "my_connections": "我的联系人",
   "connection_pending": "待处理",
   "cancel": "取消",
-  "more_profile_actions": "...",
-  "more_profile_actions_a11y_text": "更多个人资料操作",
-  "report_details": "详情",
-  "report_reason": "原因",
-  "report_user": "举报此用户",
   "leave_reference": {
     "appropriate_explanation": "您在本页的私人反馈以及在下一页的公开评价，对于维护社区的安全、可信和友好至关重要。感谢您为社区做出的贡献！",
     "appropriate_question": "你是否觉得与此人的行为互动是安全的？",
@@ -216,8 +211,7 @@
     "message": "消息",
     "message_description": "写下你的消息...",
     "message_empty": "请写一条消息。",
-    "hosting_request_hint": "要发送接待请求吗？请改用<request>请求</request>按钮。",
-    "success": "消息已发送！"
+    "hosting_request_hint": "要发送接待请求吗？请改用<request>请求</request>按钮。"
   },
   "reference_filter_label": {
     "friend": "来自朋友",
@@ -269,7 +263,6 @@
     "characters_remaining_one": "<bold>请至少再写{{count}}个字符来解锁消息和请求。</bold>真实的个人资料可构建信任社区。您分享的越多，联系就越容易！"
   },
   "do_not_email_error_link": "更新您的电子邮件设置以重新启用此功能。",
-  "edit_profile_name_required": "必填名称",
   "what_options_mean": "这些选项的含义",
   "have_pending_reference_text": "您还有一则给这位用户的评价待撰写",
   "write_friend_reference": "写朋友参考",

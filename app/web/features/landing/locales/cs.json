@@ -1,10 +1,8 @@
 {
-  "create_an_account": "Vytvořit účet",
   "what_couchsurfing_title": "Couchers.org: jiný způsob cestování",
   "introduction_title": "Sejděte se jako cizinci, odejděte jako přátelé",
   "introduction_subtitle2": "Navždy zdarma. Vedené komunitou. Neziskově.",
   "signup_header": "Přidej se ke komunitě Couchers.org",
-  "signup_continue": "Dokonči registraci",
   "introduction_subtitle": "Sdílej svůj svět, objevuj jejich. Autentické couchsurfingové zážitky postavené na důvěře a opravdovém spojení – ne na transakcích.",
   "signup_description2_one": "Cestuj, hostuj a spoj se s {{count}} členem. <aboutLink>Zjisti o nás víc</aboutLink>.",
   "signup_description2_few": "Cestuj, hostuj a seznamuj se s {{count}} členy. <aboutLink>Zjisti o nás víc</aboutLink>.",
@@ -12,7 +10,6 @@
   "signup_description_no_link2_one": "Cestuj, hostuj a spoj se s {{count}} členem.",
   "signup_description_no_link2_few": "Cestuj, hostuj a spoj se s {{count}} členy.",
   "signup_description_no_link2_other": "Cestujte, hostuj a spoj se s {{count}} členy.",
-  "sign_up_ready": "Zaregistruj se a můžeš začít!",
   "why_couchers_title": "Proč Couchers.org?",
   "community_first": "Komunita na prvním místě",
   "num_users2_one": "{{count}} člen",
