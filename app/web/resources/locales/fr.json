@@ -114,7 +114,7 @@
       "success_message": "Nous vous remercions pour votre signalement et pour rendre Couchers une meilleure plateforme pour tous et pour toutes !"
     }
   },
-  "expand": "Gonfler",
+  "expand": "Agrandir",
   "meetup_status": {
     "open_to_meetup": "Ouvert.e à une rencontre",
     "unspecified_info": "Non spécifié",
@@ -274,5 +274,8 @@
   "beta": "Beta",
   "team": {
     "title": "L'équipe"
-  }
+  },
+  "close_button_a11y": "Fermer",
+  "app_store_badge_a11y": "Télécharger sur l'App Store",
+  "google_play_badge_a11y": "Disponible sur Google Play"
 }
