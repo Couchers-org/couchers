@@ -60,7 +60,6 @@ export default function DoNotEmail() {
                   ? "do_not_email.status.no_emails_enabled_message"
                   : "do_not_email.status.no_emails_disabled_message"
               }
-              components={{ 1: <strong /> }}
             />
           </Typography>
           <Typography variant="body1">

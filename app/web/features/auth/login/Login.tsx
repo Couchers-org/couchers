@@ -80,9 +80,7 @@ export default function Login() {
             <Trans
               t={t}
               i18nKey="auth:login_page.no_account_prompt"
-              components={{
-                2: <StyledLink href={signupRoute} />,
-              }}
+              components={{ signupLink: <StyledLink href={signupRoute} /> }}
             />
           </Typography>
         </StyledFormWrapper>

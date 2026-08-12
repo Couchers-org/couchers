@@ -30,8 +30,8 @@
       "title": "推送通知",
       "description": "您可以在设备上为Couchers.org启用推送通知。我们正在扩展此功能。",
       "allow_push": "点击浏览器弹出的“允许”按钮以启用推送通知。",
-      "enabled_message": "您当前已<1>启用</1>推送通知。",
-      "disabled_message": "您当前已<1>禁用</1>推送通知。",
+      "enabled_message": "您当前已<strong>启用</strong>推送通知。",
+      "disabled_message": "您当前已<strong>禁用</strong>推送通知。",
       "error_generic": "订阅推送通知时出错",
       "error_unsupported": "此浏览器不支持推送通知或服务工作线程。",
       "permission_denied": {

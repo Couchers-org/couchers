@@ -1,7 +1,7 @@
 {
   "change_email_form": {
     "title": "Change email",
-    "current_email_message": "Your email address is currently <1>{{email}}</1>.",
+    "current_email_message": "Your email address is currently <strong>{{email}}</strong>.",
     "success_message": "Your email change has been received. Check your new email to complete the change.",
     "current_password": "Current password",
     "new_email": "New email",
@@ -11,8 +11,8 @@
   "do_not_email": {
     "title": "Do not email me",
     "status": {
-      "no_emails_enabled_message": "Emails are currently <1>disabled</1> for your account.",
-      "no_emails_disabled_message": "Emails are currently <1>enabled</1> for your account."
+      "no_emails_enabled_message": "Emails are currently <strong>disabled</strong> for your account.",
+      "no_emails_disabled_message": "Emails are currently <strong>enabled</strong> for your account."
     },
     "action_button": {
       "no_emails_enable_text": "Do not email me",
@@ -51,7 +51,7 @@
   "login_page": {
     "title": "Log in",
     "header": "Welcome back!",
-    "no_account_prompt": "No account yet? <2>Join us</2>",
+    "no_account_prompt": "No account yet? <signupLink>Join us</signupLink>",
     "form": {
       "username_field_label": "Email/Username",
       "password_field_label": "Password",
@@ -62,8 +62,8 @@
     }
   },
   "basic_sign_up_form": {
-    "existing_user_prompt": "Already have an account? <2>Log in</2>",
-    "sign_up_agreement_explainer": "By continuing, you agree to our <2>Terms of Service</2>, including our cookie, email, and data handling policies."
+    "existing_user_prompt": "Already have an account? <loginLink>Log in</loginLink>",
+    "sign_up_agreement_explainer": "By continuing, you agree to our <tosLink>Terms of Service</tosLink>, including our cookie, email, and data handling policies."
   },
   "account_form": {
     "header": "Your account details",
@@ -101,7 +101,7 @@
       "selector_a11y": "Gender"
     },
     "opt_in_newsletter": "Subscribe to our occasional newsletter about community updates.",
-    "tos_prompt": "To continue, please read and accept the <1></1>.",
+    "tos_prompt": "To continue, please read and accept the <tosLink></tosLink>.",
     "tos_accept_label": "I Accept the Terms of Service."
   },
   "basic_form": {
@@ -146,7 +146,7 @@
     "title": "More information required",
     "description": "Please check the following in order to continue.",
     "terms_of_service_section": {
-      "description": "We've updated our Terms of Service. To continue, please read and accept the new <1></1>."
+      "description": "We've updated our Terms of Service. To continue, please read and accept the new <tosLink></tosLink>."
     },
     "location_section": {
       "title": "Please update your location",
@@ -174,7 +174,7 @@
   "logged_out_message": "You were logged out.",
   "sign_up_completed_title": "Thank you for signing up!",
   "sign_up_need_verification_title": "One last thing: confirm your email.",
-  "sign_up_resend_verification_email_help": "Didn't receive the email? Click <2>here to resend the verification link</2>.",
+  "sign_up_resend_verification_email_help": "Didn't receive the email? Click <resendLink>here to resend the verification link</resendLink>.",
   "sign_up_resend_verification_done": "Done! We've sent you another email.",
   "sign_up_completed_prompt": "We have sent an email with a verification link to your email address. Please click the link to activate your account.",
   "sign_up_confirmed_prompt": "You're all done! If you are not redirected, try logging in.",
@@ -194,12 +194,12 @@
     },
     "timezone_section": {
       "title": "Timezone and localisation",
-      "description": "Your timezone is <1>{{timezone}}</1>. Based on this, your local time is approximately <4>{{time}}</4>.",
+      "description": "Your timezone is <strong>{{timezone}}</strong>. Based on this, your local time is approximately <strong>{{time}}</strong>.",
       "explanation": "This time and timezone is determined based on your home location. Please report a bug if it is incorrect."
     },
     "username_section": {
       "title": "Username",
-      "description": "Your username is <1>{{username}}</1>.",
+      "description": "Your username is <strong>{{username}}</strong>.",
       "explanation": "Your username is set when you create your account."
     },
     "appearance_section": {
@@ -229,9 +229,9 @@
     "settings_page_link": "Manage current logins",
     "description": "This page lists active logins, you can log out of any of them by clicking on the button next to the login, or scrolling to the bottom and clicking the button to log out of all but this session.",
     "login_header": "Login on {{login_datetime}}",
-    "location": "Near <2>{{approximate_location}}</2>",
-    "last_activity": "Last activity <2>{{last_activity_ago}}</2>",
-    "expiry": "Expires on <1>{{expiry_datetime}}</1>",
+    "location": "Near <strong>{{approximate_location}}</strong>",
+    "last_activity": "Last activity <strong>{{last_activity_ago}}</strong>",
+    "expiry": "Expires on <strong>{{expiry_datetime}}</strong>",
     "current_session": "This is your current session.",
     "log_out_of_session": "Log out of this session",
     "log_out_of_all_session": "Log out of all other sessions"
@@ -241,8 +241,8 @@
     "title": "Strong Verification",
     "subtitle": "Strong Verification is an additional safety feature that allows you to verify your date of birth and gender using your biometric passport.",
     "status": {
-      "enabled_message": "You <1>are currently</1> verified with Strong Verification.",
-      "disabled_message": "You <1>are not currently</1> verified with Strong Verification."
+      "enabled_message": "You <strong>are currently</strong> verified with Strong Verification.",
+      "disabled_message": "You <strong>are not currently</strong> verified with Strong Verification."
     },
     "start_button": "Start Strong Verification",
     "complete_title": "We are processing your Strong Verification attempt",
@@ -302,7 +302,7 @@
         "tip2": "Try a different page of your passport — the chip location varies by country",
         "tip3": "If using Android, make sure you have the IRIS ID app installed (not the browser version)",
         "tip4": "Some older passports or passport cards don't have NFC chips and won't work",
-        "contact": "If you're still having trouble, <1>let us know</1> and we'll help."
+        "contact": "If you're still having trouble, <supportLink>let us know</supportLink> and we'll help."
       }
     }
   },
@@ -314,17 +314,17 @@
   },
   "change_phone": {
     "title": "Phone number",
-    "need_to_donate": "You need to <2>donate</2> before you can complete phone verification.",
+    "need_to_donate": "You need to <donateLink>donate</donateLink> before you can complete phone verification.",
     "no_phone_description": "You have not added a phone number to your account. To add one, enter it below. We will verify it with a text message.",
     "phone_label": "Your phone number",
     "add_button_text": "Add phone number",
     "add_success": "Phone added.",
-    "phone_not_verified_description": "We sent you a code to <2>{{phone}}</2>. To verify your number, please enter the code below:",
+    "phone_not_verified_description": "We sent you a code to <strong>{{phone}}</strong>. To verify your number, please enter the code below:",
     "code_label": "Verification code",
     "wrong_code": "The code is wrong.",
     "verify_button_text": "Verify phone number",
     "verify_success": "Phone verified.",
-    "remove_phone_description": "Your phone number is currently <2>{{phone}}</2>. You can remove your phone number below.",
+    "remove_phone_description": "Your phone number is currently <strong>{{phone}}</strong>. You can remove your phone number below.",
     "remove_button_text": "Remove current phone number",
     "remove_success": "Phone removed.",
     "change_to_different_description": "To change your phone number to a different one, please enter it below.",
@@ -334,7 +334,7 @@
     "request": {
       "title": "Delete account",
       "description": "To delete your account, please follow the steps below. We will email you a confirmation.",
-      "confirm_username_explanation": "Your username is <1>{{ username }}</1>, please type it in below to confirm account deletion.",
+      "confirm_username_explanation": "Your username is <strong>{{ username }}</strong>, please type it in below to confirm account deletion.",
       "confirm_username_label": "Username confirmation",
       "username_mismatch": "Username doesn't match.",
       "reason_explanation": "Please help us improve the platform by telling us why you've chosen to delete your account.",
@@ -359,18 +359,18 @@
     "title": "Profile Visibility",
     "choose": "Choose what information will be visible to logged-out users",
     "visiblility_options": {
-      "nothing": "<1>Nothing</1>: hide me completely",
-      "map_only": "<1>Map only</1>: show a randomized, anonymous map pin with no other information",
-      "limited": "<1>Limited</1>: show my name, location, hosting/meetup status, badges, number of references, and how long I've been a Coucher",
-      "most": "<1>Most</1>: show full \"About me\" section except \"Additional information\"",
-      "full_profile": "<1>Full profile</1>: show my full profile (except references)"
+      "nothing": "<strong>Nothing</strong>: hide me completely",
+      "map_only": "<strong>Map only</strong>: show a randomized, anonymous map pin with no other information",
+      "limited": "<strong>Limited</strong>: show my name, location, hosting/meetup status, badges, number of references, and how long I've been a Coucher",
+      "most": "<strong>Most</strong>: show full \"About me\" section except \"Additional information\"",
+      "full_profile": "<strong>Full profile</strong>: show my full profile (except references)"
     }
   },
   "volunteer_management": {
     "title": "Volunteer Management",
     "description": "If your role or dates are incorrect, please let us know.",
     "card_preview_label": "Your team page listing",
-    "not_a_volunteer_message": "According to our records you are not a current or past volunteer. If this is incorrect, please let us know by filling in <1>this form</1>.",
+    "not_a_volunteer_message": "According to our records you are not a current or past volunteer. If this is incorrect, please let us know by filling in <formLink>this form</formLink>.",
     "current_volunteer": "Volunteering since {{startDate}}.",
     "past_volunteer": "Volunteered from {{startDate}} to {{endDate}}.",
     "shown_on_team_page_current": "Shown on team page as a current team member.",

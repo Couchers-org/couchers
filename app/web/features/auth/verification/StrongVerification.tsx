@@ -29,7 +29,6 @@ export default function StrongVerification({ className, accountInfo }: StrongVer
               ? "strong_verification.status.enabled_message"
               : "strong_verification.status.disabled_message"
           }
-          components={{ 1: <strong /> }}
         />
       </Typography>
       <Typography

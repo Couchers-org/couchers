@@ -65,7 +65,7 @@
   "discussions_title": "Debats",
   "edit_event": "Edita l'esdeveniment",
   "error_loading_community": "Error en carregar la comunitat.",
-  "events_empty_state": "Ara mateix no hi ha esdeveniments. Per què no en <0>crees</0> un ✨?",
+  "events_empty_state": "Ara mateix no hi ha esdeveniments. Per què no en <createEventLink>crees</createEventLink> un ✨?",
   "find_host": "Cerca amfitrió",
   "finished": "Acabat",
   "community_info_page_title": "Informació general",
@@ -140,7 +140,7 @@
   "search_communities": "Cerca i visita una comunitat",
   "search_communities_placeholder": "Cerca per nom de ciutat o país...",
   "search_communities_helper": "Selecciona una comunitat per anar a la seva pàgina",
-  "no_results_found_with_link": "No s'han trobat comunitats. <0>Sol·licita aquesta comunitat!</0>",
+  "no_results_found_with_link": "No s'han trobat comunitats. <requestCommunityLink>Sol·licita aquesta comunitat!</requestCommunityLink>",
   "discussion_creation_date": "Creat el {{dateOnly}}",
   "duplicate_event": "Duplica l'esdeveniment"
 }

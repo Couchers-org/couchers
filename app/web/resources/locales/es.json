@@ -46,7 +46,7 @@
   "community_standing": "Prestigio comunitario",
   "accept": "Aceptar",
   "cancel": "Cancelar",
-  "cookie_message": "Utilizamos cookies para asegurarnos de brindarte la mejor experiencia en nuestro sitio web. Si continúas usando este sitio asumiremos que estás de acuerdo con ello. Puedes leer más sobre nuestros <1>Términos del Servicio</1>.",
+  "cookie_message": "Utilizamos cookies para asegurarnos de brindarte la mejor experiencia en nuestro sitio web. Si continúas usando este sitio asumiremos que estás de acuerdo con ello. Puedes leer más sobre nuestros <tosLink>Términos del Servicio</tosLink>.",
   "meetup_status": {
     "does_not_want_to_meetup": "No puedo quedar",
     "open_to_meetup": "Abierto a quedar",
@@ -117,7 +117,7 @@
   "send": "Enviar",
   "confirm": "Confirmar",
   "mod": "Moderación",
-  "not_found_text_2": "¿Unicamente quieres <1>volver a casa?</1>",
+  "not_found_text_2": "¿Unicamente quieres <homeLink>volver a casa?</homeLink>",
   "not_found_text_1": "No pudimos encontrar la URL o el recurso que ha solicitado",
   "not_found_alt": "Error 404: Recurso no encontrado",
   "nav": {
@@ -231,7 +231,7 @@
   },
   "footer": {
     "non_profit_note": "Couchers.org es un proyecto de Couchers, Inc., una organización sin ánimo de lucro exenta de impuestos 501(c)(3) de EE.UU.",
-    "version_info": "Versión <2>{{version}}</2>, última actualización <5>{{updated_ago}}</5>."
+    "version_info": "Versión <versionLink>{{version}}</versionLink>, última actualización <updatedAgoLink>{{updated_ago}}</updatedAgoLink>."
   },
   "strong_verification": {
     "helper_text": "Este usuario ha verificado su identidad utilizando un pasaporte biométrico"
@@ -335,9 +335,9 @@
     "read_file_error_message": "No se pudo leer el fichero"
   },
   "blog": {
-    "byline_with_author": "Escrito por <1/>. Publicado el {{date}}.",
+    "byline_with_author": "Escrito por <authorList/>. Publicado el {{date}}.",
     "byline_without_author": "Publicado el {{date}}.",
-    "cta_message": "¿Quieres ayudar a escribir nuestro blog o ser voluntario? <1>Regístrate</1> y cuéntanos. ¡Los voluntarios y las <3>donaciones</3> son lo que hacen posible Couchers.org!"
+    "cta_message": "¿Quieres ayudar a escribir nuestro blog o ser voluntario? <volunteerLink>Regístrate</volunteerLink> y cuéntanos. ¡Los voluntarios y las <donateLink>donaciones</donateLink> son lo que hacen posible Couchers.org!"
   },
   "copy_button": {
     "a11y": "Copiar",

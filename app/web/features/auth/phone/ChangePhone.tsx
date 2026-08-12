@@ -132,9 +132,7 @@ export default function ChangePhone({ className, accountInfo }: ChangePhoneProps
           <Typography variant="body1">
             <Trans
               i18nKey="auth:change_phone.need_to_donate"
-              components={{
-                2: <StyledLink href={howToDonateUrl} />,
-              }}
+              components={{ donateLink: <StyledLink href={howToDonateUrl} /> }}
             />
           </Typography>
         ) : (
@@ -164,7 +162,6 @@ export default function ChangePhone({ className, accountInfo }: ChangePhoneProps
                   t={t}
                   i18nKey="auth:change_phone.phone_not_verified_description"
                   values={{ phone: formatPhoneNumberIntl(accountInfo.phone) }}
-                  components={{ 2: <b /> }}
                 />
               </Typography>
               <TextField
@@ -189,7 +186,6 @@ export default function ChangePhone({ className, accountInfo }: ChangePhoneProps
                   t={t}
                   i18nKey="auth:change_phone.remove_phone_description"
                   values={{ phone: formatPhoneNumberIntl(accountInfo.phone) }}
-                  components={{ 2: <b /> }}
                 />
               </Typography>
               <Button fullWidth={!isMdOrWider} loading={isRemoveLoading} onClick={() => removePhone()}>

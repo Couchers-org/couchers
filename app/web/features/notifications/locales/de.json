@@ -48,8 +48,8 @@
       "title": "Push-Benachrichtigungen",
       "description": "Du kannst Push-Benachrichtigungen für Couchers.org auf deinem Gerät aktivieren. Wir arbeiten daran, diese Funktion zu erweitern.",
       "allow_push": "Klick im Browser-Popup auf die Schaltfläche „Zulassen“, um Push-Benachrichtigungen zu aktivieren.",
-      "enabled_message": "Du hast Push-Benachrichtigungen aktuell <1>aktiviert</1>.",
-      "disabled_message": "Du hast Push-Benachrichtigungen aktuell <1>deaktiviert</1>.",
+      "enabled_message": "Du hast Push-Benachrichtigungen aktuell <strong>aktiviert</strong>.",
+      "disabled_message": "Du hast Push-Benachrichtigungen aktuell <strong>deaktiviert</strong>.",
       "error_generic": "Fehler beim Abonnieren von Push-Benachrichtigungen",
       "error_unsupported": "Push-Benachrichtigungen oder Service Worker werden in diesem Browser nicht unterstützt.",
       "error_not_granted": "Du hast keine Erlaubnis erteilt, Push-Benachrichtigungen zu senden."

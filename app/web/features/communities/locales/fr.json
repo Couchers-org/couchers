@@ -20,7 +20,7 @@
     "close": "Annuler"
   },
   "unknown_user": "Utilisateur.trice inconnu.e",
-  "events_empty_state": "Aucun événement pour le moment. Pourquoi ne pas en <0>créer</0> un ✨ ?",
+  "events_empty_state": "Aucun événement pour le moment. Pourquoi ne pas en <createEventLink>créer</createEventLink> un ✨ ?",
   "location": "Localisation",
   "comment": "Commenter",
   "comments": "Commentaires",

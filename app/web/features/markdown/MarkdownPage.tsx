@@ -232,7 +232,7 @@ export default function MarkdownPage({ slug, frontmatter, content }: MarkdownPag
                 i18nKey="blog.byline_with_author"
                 values={{ date: frontmatter.date }}
                 components={{
-                  1: <AuthorList author={frontmatter.author} authorUsername={frontmatter.author_username} />,
+                  authorList: <AuthorList author={frontmatter.author} authorUsername={frontmatter.author_username} />,
                 }}
               />
             ) : (
@@ -245,8 +245,8 @@ export default function MarkdownPage({ slug, frontmatter, content }: MarkdownPag
             <Trans
               i18nKey="blog.cta_message"
               components={{
-                1: <Link href="/volunteer" />,
-                3: <Link href="/donate" />,
+                volunteerLink: <Link href="/volunteer" />,
+                donateLink: <Link href="/donate" />,
               }}
             />
           </Typography>

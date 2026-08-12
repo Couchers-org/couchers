@@ -45,8 +45,8 @@
     }
   },
   "past_request_help_text": "Этот запрос уже в прошлом, вы все еще можете отправлять сообщения, но не можете вносить другие изменения.",
-  "host_pending_request_help_text": "<0>Что учесть</0> перед ответом.",
-  "surfer_declined_request_help_text": "<0>Прочитайте наше руководство</0> о том, как написать запрос, который будет принят.",
+  "host_pending_request_help_text": "<guideLink>Что учесть</guideLink> перед ответом.",
+  "surfer_declined_request_help_text": "<guideLink>Прочитайте наше руководство</guideLink> о том, как написать запрос, который будет принят.",
   "group_chats_tab": {
     "load_more_button_label": "Загрузить еще"
   },

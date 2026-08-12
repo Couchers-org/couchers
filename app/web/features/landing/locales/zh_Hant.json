@@ -1,8 +1,8 @@
 {
   "introduction_subtitle": "分享你的世界，走進他們的故事。真正的沙發衝浪體驗，源於信任，基於真實，而不是交易。",
   "signup_header": "加入Couchers.org社群",
-  "signup_description2_one": "與{{count}}位成員旅行、接待與連接。<2>進一步瞭解我們</2>。",
-  "signup_description2_other": "與{{count}}位成員旅行、接待與連接。<2>進一步瞭解我們</2>。",
+  "signup_description2_one": "與{{count}}位成員旅行、接待與連接。<aboutLink>進一步瞭解我們</aboutLink>。",
+  "signup_description2_other": "與{{count}}位成員旅行、接待與連接。<aboutLink>進一步瞭解我們</aboutLink>。",
   "signup_description_no_link2_one": "與{{count}}位成員旅行、接待與連接。",
   "signup_description_no_link2_other": "與{{count}}位成員旅行、接待與連接。",
   "create_an_account": "建立帳戶",
