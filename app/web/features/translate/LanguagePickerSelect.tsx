@@ -1,5 +1,6 @@
 import CheckIcon from "@mui/icons-material/Check";
 import ExpandMoreOutlinedIcon from "@mui/icons-material/ExpandMoreOutlined";
+import TranslateIcon from "@mui/icons-material/Translate";
 import {
   Box,
   FormControl,
@@ -31,13 +32,13 @@ import { useShowAllLanguages } from "./useShowAllLanguages";
 import { getAvailableLanguages } from "./utils";
 
 interface StyledMuiSelectProps {
-  displayMode?: "round" | "rect";
+  displayMode?: "rounded" | "rect" | "icon";
 }
 
 const StyledSelect = styled(Select, {
   shouldForwardProp: (prop) => prop !== "displayMode",
 })<StyledMuiSelectProps>(({ theme, displayMode }) => ({
-  borderRadius: displayMode === "round" ? 999 : theme.shape.borderRadius,
+  borderRadius: displayMode === "rect" ? theme.shape.borderRadius : displayMode === "icon" ? "50%" : 999,
   backgroundColor: "var(--mui-palette-grey-200)",
   "& .MuiOutlinedInput-notchedOutline": {
     borderColor: "var(--mui-palette-grey-300)",
@@ -54,16 +55,28 @@ const StyledSelect = styled(Select, {
     top: "50%",
     transform: "translateY(-50%)",
     right: 10,
+    ...(displayMode === "icon" && { display: "none" }),
   },
   height: 41.25,
+  ...(displayMode === "icon" && {
+    width: 41.25,
+    minWidth: 41.25,
+    "& .MuiSelect-select": {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      paddingLeft: "0 !important",
+      paddingRight: "0 !important",
+    },
+  }),
 }));
 
 type LanguagePickerSelectProps = {
-  displayMode?: "round" | "rect";
+  displayMode?: "rounded" | "rect" | "icon";
   onNavigate?: () => void;
 };
 
-export default function LanguagePickerSelect({ displayMode = "round", onNavigate }: LanguagePickerSelectProps) {
+export default function LanguagePickerSelect({ displayMode = "rounded", onNavigate }: LanguagePickerSelectProps) {
   const router = useRouter();
   const { asPath, locale, pathname, query } = router;
   const { authState } = useAuthContext();
@@ -174,9 +187,9 @@ export default function LanguagePickerSelect({ displayMode = "round", onNavigate
       });
 
   // renderValue function for what should be rendered after a selection is made
-  const renderValue = (value: unknown) => {
+  const renderRoundedValue = (value: unknown) => {
     const selected = value as string;
-    const selectedDisplay = (
+    return (
       <Box
         sx={{
           display: "flex",
@@ -190,8 +203,21 @@ export default function LanguagePickerSelect({ displayMode = "round", onNavigate
         {LANGUAGE_MAP[selected].nativeName}
       </Box>
     );
-    return selectedDisplay;
   };
+
+  // Icon mode shows a generic translate icon instead of the selected language
+  const renderIconValue = () => (
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "var(--mui-palette-text-primary)",
+      }}
+    >
+      <TranslateIcon fontSize="small" />
+    </Box>
+  );
 
   return (
     <>
@@ -200,17 +226,17 @@ export default function LanguagePickerSelect({ displayMode = "round", onNavigate
         <FormControl
           variant="outlined"
           sx={{
-            width: displayMode === "round" ? "fit-content" : !isMobile ? "241px" : "100%",
+            width: displayMode === "rect" ? (!isMobile ? "241px" : "100%") : "fit-content",
           }}
         >
-          {displayMode === "round" ? (
+          {displayMode !== "rect" ? (
             <StyledSelect
               id="language-select"
               value={isLoading ? "" : locale || ""}
               displayMode={displayMode}
               onChange={handleChange}
-              // Use renderValue to display the selected language in collapsed state
-              renderValue={renderValue}
+              // Use renderValue to display the selected language (or, in icon mode, a generic translate icon) in collapsed state
+              renderValue={displayMode === "icon" ? renderIconValue : renderRoundedValue}
               IconComponent={ExpandMoreOutlinedIcon}
               disabled={isLoading || isChangingLanguage}
               open={isOpen}
