@@ -1,11 +1,17 @@
 {
   "errors": {
     "failed_to_load": "Erreur de chargement",
-    "check_connection": "Vérifiez votre connexion internet et réessayez."
+    "check_connection": "Vérifiez votre connexion internet et réessayez.",
+    "try_again": "Réessayer",
+    "camera_permission_denied": "L'autorisation de l'appareil photo est requise pour prendre des photos.",
+    "camera_permission_required": "Autorisation de l'appareil photo requise",
+    "camera_permission_explanation": "Cette application requiert l'accès à l'appareil photo pour prendre des photos. Autorisez l'accès à l'appareil photo lorsque requis.",
+    "camera_permission_denied_permanently": "L'accès à l'appareil photo a été refusé. Pour prendre des photos vous devrez autoriser l'accès à l'appareil photo depuis les paramètres de votre appareil."
   },
   "not_found": {
     "message": "Cet écran n'existe pas.",
-    "title": "Oups !"
+    "title": "Oups !",
+    "go_home": "Revenir à la page d'accueil !"
   },
   "tabs": {
     "home": "Accueil",

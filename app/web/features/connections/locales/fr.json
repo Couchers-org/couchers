@@ -34,5 +34,6 @@
     "title": "Connaissez-vous cette personne ?",
     "message": "N'envoyez des demandes d'ami qu'aux personnes que vous connaissez déjà ou avez rencontré pendant vos voyages — la plupart des personnes préfèrent se connecter après s'être rencontré en personne. <helpCenterLink> Lire plus sur les demandes d'amis dans notre Centre d'aide.</helpCenterLink>",
     "confirm": "Oui, je les connais. Envoyer la demande !"
-  }
+  },
+  "friend_requests_dismiss_button": "Ignorer"
 }
