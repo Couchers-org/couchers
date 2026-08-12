@@ -6,7 +6,7 @@
   "onlyAdminsInvite": true,
   "isDm": false,
   "created": { "seconds": 1577800000, "nanos": 0 },
-  "unseenMessageCount": 0,
+  "unseenMessageCount": 1,
   "lastSeenMessageId": 4,
   "latestMessage": {
     "messageId": 5,

@@ -29,9 +29,7 @@ export default function VolunteerManagement({ className, accountInfo }: Voluntee
           <Trans
             t={t}
             i18nKey="auth:volunteer_management.not_a_volunteer_message"
-            components={{
-              1: <StyledLink href={volunteerNotAVolunteerFormUrl} />,
-            }}
+            components={{ formLink: <StyledLink href={volunteerNotAVolunteerFormUrl} /> }}
           />
         </Typography>
       </div>

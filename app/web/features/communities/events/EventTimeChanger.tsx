@@ -43,6 +43,17 @@ export default function EventTimeChanger({
     : undefined;
   const defaultEndDateTime = event?.endTime ? timestampToPlainDateTime(event.endTime, event?.timezone) : undefined;
 
+  const handleStartDateAccept = (value: Temporal.PlainDate) => {
+    const endDate = getValues("endDate");
+    //limiting value.year>1000 to prevent autofilling year "2027" too early as "202 A.D."
+    if (!endDate && value && value.year > 1000) {
+      setValue("endDate", value, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
+  };
+
   const handleStartDateChange = (value: Temporal.PlainDate) => {
     setValue("startDate", value, {
       shouldDirty: true,
@@ -55,6 +66,16 @@ export default function EventTimeChanger({
       shouldDirty: true,
       shouldValidate: true,
     });
+  };
+
+  const handleStartTimeAccept = (value: Temporal.PlainTime) => {
+    const endTime = getValues("endTime");
+    if (!endTime) {
+      setValue("endTime", value, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
   };
 
   const handleStartTimeChange = (value: Temporal.PlainTime) => {
@@ -82,6 +103,7 @@ export default function EventTimeChanger({
           id="startDate"
           label={t("communities:start_date")}
           name="startDate"
+          onAccept={handleStartDateAccept}
           onPostChange={handleStartDateChange}
           rules={{
             required: t("communities:date_required"),
@@ -103,6 +125,7 @@ export default function EventTimeChanger({
           control={control}
           name="startTime"
           onPostChange={handleStartTimeChange}
+          onAccept={handleStartTimeAccept}
           defaultValue={defaultStartDateTime?.toPlainTime()}
           rules={{
             required: t("communities:time_required"),
