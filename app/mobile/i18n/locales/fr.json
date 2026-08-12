@@ -11,7 +11,7 @@
   "not_found": {
     "message": "Cet écran n'existe pas.",
     "title": "Oups !",
-    "go_home": "Revenir à la page d'accueil !"
+    "go_home": "Revenir à la page d'accueil !"
   },
   "tabs": {
     "home": "Accueil",

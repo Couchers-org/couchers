@@ -2,9 +2,9 @@
   "generic": {
     "greeting_line": "Bonjour {{name}},",
     "do_not_reply_request": "Ne répondez pas à cet e-mail. Utilisez un des boutons ci-dessus pour répondre à cette demande.",
-    "thanks": "Merci !",
+    "thanks": "Merci !",
     "closing_lines": {
-      "default": "Amicalement, <br> l'équipe Couchers.org"
+      "default": "Amicalement, <br>l'équipe Couchers.org"
     }
   }
 }
