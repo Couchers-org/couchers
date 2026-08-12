@@ -12,7 +12,7 @@ import { service } from "service";
 import { theme } from "theme";
 import { lowercaseAndTrimField } from "utils/validation";
 
-const DEFAULT_TEXTFIELD_WIDTH = '15.5rem';
+const DEFAULT_TEXTFIELD_WIDTH = "15.5rem";
 const StyledForm = styled("form")(() => ({
   marginBottom: theme.spacing(2),
   "& > * + *": {
