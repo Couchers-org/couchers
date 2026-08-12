@@ -350,5 +350,6 @@
   "about_me_textbox_placeholder": "Например: текущая цель, почему вы пользуетесь Couchers.org, любимая история о путешествии...",
   "hobbies_textbox_placeholder": "например, занятия, книги, фильмы, музыка...",
   "edit_profile_pronouns_placeholder": "напр. она/её",
-  "local_time_with_time_zone_text": "{{ time }} (<timeZone/>)"
+  "local_time_with_time_zone_text": "{{ time }} (<timeZone/>)",
+  "open_profile_a11y": "Открыть профиль"
 }
