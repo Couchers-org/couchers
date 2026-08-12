@@ -7,12 +7,12 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
-import { useLayoutEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { service } from "service";
 import { theme } from "theme";
 import { lowercaseAndTrimField } from "utils/validation";
 
+const DEFAULT_TEXTFIELD_WIDTH = '15.5rem';
 const StyledForm = styled("form")(() => ({
   marginBottom: theme.spacing(2),
   "& > * + *": {
@@ -58,24 +58,8 @@ export default function DeleteAccount({ className, username }: DeleteAccountProp
     },
   });
 
-  //the placeholder label for "confirm_username" can be very long when translated so
-  //add a hidden element to measure the translated text & extend the box as needed
-  const labelUsername = t("auth:delete_account.request.confirm_username_label");
+  const labelConfirmUsername = t("auth:delete_account.request.confirm_username_label");
 
-  const labelRef = useRef<HTMLSpanElement>(null);
-  const [usernameWidth, setUsernameWidth] = useState(200);
-
-  useLayoutEffect(() => {
-    if (labelRef.current) {
-      setUsernameWidth(labelRef.current.offsetWidth + 48);
-    }
-  }, [labelUsername]);
-
-  const measureUsernamePlaceholder = (
-    <span ref={labelRef} style={{ visibility: "hidden" }}>
-      {labelUsername}
-    </span>
-  );
   return (
     <div className={className}>
       <Typography variant="h2">{t("auth:delete_account.request.title")}</Typography>
@@ -90,13 +74,12 @@ export default function DeleteAccount({ className, username }: DeleteAccountProp
           <TextField
             sx={{
               display: "inline-flex",
-              width: isMdOrWider ? usernameWidth : "100%",
+              width: isMdOrWider ? `max(${DEFAULT_TEXTFIELD_WIDTH}, ${labelConfirmUsername.length}ch)` : "100%",
             }}
             id="confirmUsername"
             {...register("confirmUsername", { required: true })}
-            label={labelUsername}
+            label={labelConfirmUsername}
           />
-          {measureUsernamePlaceholder}
           <Typography variant="subtitle1" sx={{ paddingTop: 2, paddingBottom: 2 }}>
             {t("auth:delete_account.request.reason_explanation")}
           </Typography>
