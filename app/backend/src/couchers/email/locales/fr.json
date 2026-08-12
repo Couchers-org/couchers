@@ -4,7 +4,11 @@
     "do_not_reply_request": "Ne répondez pas à cet e-mail. Utilisez un des boutons ci-dessus pour répondre à cette demande.",
     "thanks": "Merci !",
     "closing_lines": {
-      "default": "Amicalement, <br>l'équipe Couchers.org"
+      "default": "Amicalement, <br>l'équipe Couchers.org",
+      "emily": "Emily de Couchers.org<br>{{ email_link }}<br>{{ profile_link }}"
+    },
+    "footer": {
+      "received_because": "Vous recevez cet email car vous êtes abonné.e à Couchers.org."
     }
   }
 }
