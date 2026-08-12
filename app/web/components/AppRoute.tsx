@@ -102,6 +102,13 @@ function AppRoute({ children, isPrivate, noFooter = false, variant = "standard",
   const isNativeEmbed = useIsNativeEmbed();
   const featuresReady = useGrowthBook().ready;
 
+  //there must be the same loading state on auth'd pages on server and client
+  //for hydration matching, so we will display a loader until mounted.
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => setIsMounted(true), []);
+
+  const isPrivateRouteNotReady = isPrivate && (!isMounted || !isAuthenticated || !featuresReady);
+
   const headerRef = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
     const updateNavHeight = () => {
@@ -115,12 +122,7 @@ function AppRoute({ children, isPrivate, noFooter = false, variant = "standard",
       resizeObserver.observe(headerRef.current);
     }
     return () => resizeObserver.disconnect();
-  }, [isAuthenticated, isNativeEmbed]);
-
-  //there must be the same loading state on auth'd pages on server and client
-  //for hydration matching, so we will display a loader until mounted.
-  const [isMounted, setIsMounted] = useState(false);
-  useEffect(() => setIsMounted(true), []);
+  }, [isAuthenticated, isNativeEmbed, isPrivateRouteNotReady]);
 
   useEffect(() => {
     if (!isAuthenticated && isPrivate) {
@@ -131,8 +133,6 @@ function AppRoute({ children, isPrivate, noFooter = false, variant = "standard",
       router.push(jailRoute);
     }
   }, [isAuthenticated, isJailed, isPrivate, authActions, router, pathname]);
-
-  const isPrivateRouteNotReady = isPrivate && (!isMounted || !isAuthenticated || !featuresReady);
 
   return (
     <ErrorBoundary>
