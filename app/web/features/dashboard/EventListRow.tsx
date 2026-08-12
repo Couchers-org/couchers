@@ -165,16 +165,17 @@ export default function EventListRow({ event }: EventListRowProps) {
   const now = Temporal.Now.zonedDateTimeISO();
   const startDate = timestampToZonedDateTime(event.startTime!, event.timezone);
   const endDate = event.endTime ? timestampToZonedDateTime(event.endTime, event.timezone) : null;
-  const isOngoing =
+  const isNow =
     endDate !== null &&
     Temporal.ZonedDateTime.compare(startDate, now) <= 0 &&
     Temporal.ZonedDateTime.compare(endDate, now) >= 0;
 
   // Define "today" as: starting on the current day in the current timezone.
-  const isToday = !isOngoing && startDate.withTimeZone(now.timeZoneId).toPlainDate() === now.toPlainDate();
-  const todayLabel = t("dashboard:events.today_label");
+  const isToday =
+    !isNow && Temporal.PlainDate.compare(startDate.withTimeZone(now.timeZoneId).toPlainDate(), now.toPlainDate()) === 0;
+  const todayLabel = t("dashboard:today_label");
   const nowLabel = t("dashboard:now_label");
-  const chipLabel = isOngoing ? nowLabel : todayLabel;
+  const chipLabel = isNow ? nowLabel : todayLabel;
   const chipFontSize = chipLabel.length <= 5 ? 9 : chipLabel.length <= 7 ? 8 : 7;
   const month = localizeMonthName(startDate.month, locale, {
     abbreviate: true,
@@ -186,11 +187,11 @@ export default function EventListRow({ event }: EventListRowProps) {
 
   return (
     <RowLink href={routeToEvent(event.eventId, event.slug)}>
-      <DateChip data-today={isToday || isOngoing || undefined}>
-        <DateMonth labelFontSize={isToday || isOngoing ? chipFontSize : undefined}>
-          {isOngoing ? nowLabel : isToday ? todayLabel : month}
+      <DateChip data-today={isToday || isNow || undefined}>
+        <DateMonth labelFontSize={isToday || isNow ? chipFontSize : undefined}>
+          {isNow ? nowLabel : isToday ? todayLabel : month}
         </DateMonth>
-        {!isToday && !isOngoing && <DateDay>{day}</DateDay>}
+        {!isToday && !isNow && <DateDay>{day}</DateDay>}
       </DateChip>
       <ContentWrapper>
         <TitleRow>
