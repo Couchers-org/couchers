@@ -1,6 +1,6 @@
 import CheckIcon from "@mui/icons-material/Check";
 import ExpandMoreOutlinedIcon from "@mui/icons-material/ExpandMoreOutlined";
-import TranslateIcon from "@mui/icons-material/Translate";
+import LanguageIcon from "@mui/icons-material/Language";
 import {
   Box,
   FormControl,
@@ -205,7 +205,7 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
     );
   };
 
-  // Icon mode shows a generic translate icon instead of the selected language
+  // Icon mode shows a generic language icon instead of the selected language
   const renderIconValue = () => (
     <Box
       sx={{
@@ -215,7 +215,7 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
         color: "var(--mui-palette-text-primary)",
       }}
     >
-      <TranslateIcon fontSize="small" />
+      <LanguageIcon fontSize="small" />
     </Box>
   );
 
@@ -235,7 +235,7 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
               value={isLoading ? "" : locale || ""}
               displayMode={displayMode}
               onChange={handleChange}
-              // Use renderValue to display the selected language (or, in icon mode, a generic translate icon) in collapsed state
+              // Use renderValue to display the selected language (or, in icon mode, a generic language icon) in collapsed state
               renderValue={displayMode === "icon" ? renderIconValue : renderRoundedValue}
               IconComponent={ExpandMoreOutlinedIcon}
               disabled={isLoading || isChangingLanguage}
