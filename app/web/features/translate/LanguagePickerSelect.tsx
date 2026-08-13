@@ -242,6 +242,14 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
               open={isOpen}
               onOpen={() => setIsOpen(true)}
               onClose={() => setIsOpen(false)}
+              MenuProps={
+                displayMode === "icon"
+                  ? {
+                      anchorOrigin: { vertical: "bottom", horizontal: "right" },
+                      transformOrigin: { vertical: "top", horizontal: "right" },
+                    }
+                  : undefined
+              }
             >
               {menuItems}
               <Box
