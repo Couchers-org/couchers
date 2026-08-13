@@ -60,7 +60,7 @@ make mypy
 - For paginated APIs, use a `next_page_token` string field: an empty token means there are no more pages (don't add a separate `no_more` flag). Encrypt tokens with `encrypt_page_token`/`decrypt_page_token` from `couchers.crypto` so they are opaque to clients
 
 ### Web (TypeScript/React)
-- Uses `nvm` for node version management
+- Uses `nvm` for node version management. In non-interactive shells, use it as `source $HOME/.nvm/nvm.sh && <nvm command>`, and use `yarn` as `source $HOME/.nvm/nvm.sh && nvm use && <yarn command>`.
 - Uses `yarn` (not npm) - run dev server with `yarn start` (not Docker)
 - Run linting with `yarn lint` and auto-fix with `yarn lint:fix`
 - Run tests with `yarn test`
