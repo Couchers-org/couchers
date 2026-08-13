@@ -63,6 +63,102 @@
     "purpose": "Notamos que você não entra faz um tempo e gostariamos de checar se você ainda está aberto a hospedar surfers",
     "instructions_days_one": "Para manter seu status \"Posso Hospedar\", acesse novamente dentro de <b>{{count}} dia(s)</b>. Senão trocaremos seu status de hospedagem para \"Não posso hospedar.\"",
     "instructions_days_many": "Para manter seu status \"Posso Hospedar\", acesse novamente dentro de <b>{{count}} dias</b>. Senão trocaremos seu status de hospedagem para \"Não posso hospedar.\"",
-    "instructions_days_other": "Para manter seu status \"Posso Hospedar\", acesse novamente dentro de <b>{{count}} dias</b>. Senão trocaremos seu status de hospedagem para \"Não posso hospedar.\""
+    "instructions_days_other": "Para manter seu status \"Posso Hospedar\", acesse novamente dentro de <b>{{count}} dias</b>. Senão trocaremos seu status de hospedagem para \"Não posso hospedar.\"",
+    "encouragement": "Esses chek-ins ajudam surfers a encontrar anfitriões ativos mais facilmente e a manter tempos de resposta precisos.",
+    "latest_release": "Em caso de você ter perdido, nós lançamos a versão {{version}} recentemente. Algumas de nossas atualizações recentes incluem: aplicativos de celular para iOS e Android, um dashboard melhorado, revisão de envio de mensagens e novas funcionalidades. Leia mais no <a href=\"{{blog_url}}\">blog do Couchers.org</a>."
+  },
+  "api_key_issued": {
+    "subject": "Sua chave da API para o Couchers.org",
+    "header": "Você solicitou recentemente uma chave de API para o Couchers.org. Nós criamos para você a seguinte chave de API:",
+    "expiry": "A chave expira em <b>{{ datetime }}</b>.",
+    "usage_warning": "Essa chave de API é única para sua conta; não a compartilhe com ninguém. Ela fornece acesso completo a sua conta e você é responsável por qualquer ação tomada usando essa chave de API.",
+    "policy_warning": "Lembre de cumprir com nossos <a href=\"{{terms_url}}\">Termos de Serviço</a>, nossos Guias de Comunidade e outras políticas durante o uso de nossas APIs. Todo acesso é registrado e analisado, e podemos encerrar seu acesso ou conta em caso de abuso de serivço."
+  },
+  "badges": {
+    "added": {
+      "subject": "A insígnia {{ name }} foi adicionada ao seu perfil",
+      "purpose": "A insígnia <b>{{ name }}</b> foi adicionada ao seu perfil."
+    },
+    "removed": {
+      "subject": "A insígnia {{ name }} foi removida do seu perfil",
+      "purpose": "A insígnia <b>{{ name }}</b> foi removida do seu perfil."
+    }
+  },
+  "birthdate_changed": {
+    "subject": "Sua data de nascimento foi modificada",
+    "purpose": "Seu dia de nascimento foi modificado para <b>{{ date }}</b> por um administrador."
+  },
+  "chat_messages": {
+    "received": {
+      "direct": {
+        "subject": "{{ author }} te enviou uma mensagem",
+        "purpose": "<b>{{ author }}</b> te enviou uma mensagem:",
+        "view_action": "Visualize essa mensagem"
+      },
+      "group": {
+        "subject": "{{ author }} enviou uma mensagem em {{ group }}",
+        "purpose": "<b></b>{{ author }} enviou uma mensagem em <b>{{ group }}</b>:",
+        "view_action": "Visualize essa mensagem"
+      }
+    },
+    "missed": {
+      "subject": "Você tem mensagens não lidas",
+      "purpose": "Você perdeu algumas mensagens desde a sua última visita:",
+      "count_in_dm_one": "{{count}} mensagem de <b>{{author}}</b>:",
+      "count_in_dm_many": "{{count}} mensagens de <b>{{author}}</b>:",
+      "count_in_dm_other": "{{count}} mensagens de <b>{{author}}</b>:",
+      "count_in_group_one": "{{count}} mensagem de <b>{{group}}</b>:",
+      "count_in_group_many": "{{count}} mensagens de <b>{{group}}</b>:",
+      "count_in_group_other": "{{count}} mensagens de <b>{{group}}</b>:",
+      "view_action": "Visualizar mensagens"
+    }
+  },
+  "discussions": {
+    "created": {
+      "subject": "{{author}} começou uma discussão: {{title}}",
+      "purpose": "<b>{{author}}</b> começou uma discussão em <b>{{parent_context}}</b>:",
+      "view_action": "Visualizar discussão"
+    },
+    "comment": {
+      "view_action": "Visualizar discussão",
+      "subject": "{{author}} comentou em {{discussion_title}}",
+      "purpose": "<b>{{author}}</b> comentou em <b>{{discussion_title}}</b> em <b>{{parent_context}}</b>:"
+    }
+  },
+  "events": {
+    "generic": {
+      "view_action": "Visualizar evento"
+    }
+  },
+  "friend_requests": {
+    "received": {
+      "view_action": "Visualizar pedidos de amizade"
+    },
+    "accepted": {
+      "view_action": "Visualizar perfil"
+    }
+  },
+  "host_requests": {
+    "generic": {
+      "view_action": "Visualizar pedido de anftrião"
+    }
+  },
+  "moderator_note": {
+    "view_action": "Visualizar nota de moderador"
+  },
+  "references": {
+    "received": {
+      "view_action": "Visualizar a referência"
+    }
+  },
+  "thread_reply": {
+    "view_action": "Visualizar thread"
+  },
+  "donation_received": {
+    "subject": "Obrigado pela sua doação ao Couchers.org!",
+    "purpose": "Muito obrigado pela sua doação de <b>{{amount_with_currency}}</b> ao Couchers.org.",
+    "contribution_impact": "Sua contribuição será destinada à construção e à manutenção da comunidade Couchers.org, e é vital a nossos objetivos de ter uma plataforma de couch surfing livre e sem fins lucrativos.",
+    "invoice_receipt_info": "Você pode baixar uma fatura e um recibo para a doação aqui:",
+    "download_invoice": "Baixar fatura"
   }
 }
