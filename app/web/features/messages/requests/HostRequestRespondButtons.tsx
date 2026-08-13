@@ -23,7 +23,6 @@ const StyledButtonRow = styled(Box)(({ theme }) => ({
   justifyContent: "flex-end",
 }));
 
-
 export default function HostRequestRespondButtons({
   isHost,
   status,
