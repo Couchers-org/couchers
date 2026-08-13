@@ -188,7 +188,7 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
         owner_user_id=event.owner_user_id,
         owner_community_id=owner_community_id,
         owner_group_id=owner_group_id,
-        thread=thread_to_pb(session, context, event.thread_id),
+        thread=thread_to_pb(session, context, occurrence.thread_id),
         can_edit=can_edit,
         can_moderate=can_moderate,
     )
@@ -533,15 +533,10 @@ class Events(events_pb2_grpc.EventsServicer):
         ):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "photo_not_found")
 
-        thread = Thread()
-        session.add(thread)
-        session.flush()
-
         event = Event(
             title=request.title,
             parent_node_id=parent_node.id,
             owner_user_id=context.user_id,
-            thread_id=thread.id,
             creator_user_id=context.user_id,
         )
         session.add(event)
@@ -551,6 +546,9 @@ class Events(events_pb2_grpc.EventsServicer):
 
         def create_occurrence(moderation_state_id: int) -> int:
             nonlocal occurrence
+            thread = Thread()
+            session.add(thread)
+            session.flush()
             occurrence = EventOccurrence(
                 event_id=event.id,
                 content=request.content,
@@ -561,6 +559,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 during=TimestamptzRange(start_datetime, end_datetime),
                 creator_user_id=context.user_id,
                 moderation_state_id=moderation_state_id,
+                thread_id=thread.id,
             )
             session.add(occurrence)
             session.flush()
@@ -674,6 +673,9 @@ class Events(events_pb2_grpc.EventsServicer):
 
         def create_occurrence(moderation_state_id: int) -> int:
             nonlocal new_occurrence
+            thread = Thread()
+            session.add(thread)
+            session.flush()
             new_occurrence = EventOccurrence(
                 event_id=event.id,
                 content=request.content,
@@ -684,6 +686,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 during=during,
                 creator_user_id=context.user_id,
                 moderation_state_id=moderation_state_id,
+                thread_id=thread.id,
             )
             session.add(new_occurrence)
             session.flush()

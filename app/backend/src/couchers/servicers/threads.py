@@ -14,7 +14,6 @@ from couchers.jobs.enqueue import queue_job
 from couchers.models import (
     Comment,
     Discussion,
-    Event,
     EventOccurrence,
     ModerationObjectType,
     Reply,
@@ -109,14 +108,16 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                 created_time=Timestamp_from_datetime(comment.created),
                 num_replies=0,
             )
-            # figure out if the thread is related to an event or discussion
-            event = session.execute(select(Event).where(Event.thread_id == thread.id)).scalar_one_or_none()
+            # figure out if the thread is related to an event occurrence or discussion
+            occurrence = session.execute(
+                select(EventOccurrence).where(EventOccurrence.thread_id == thread.id)
+            ).scalar_one_or_none()
             discussion = session.execute(
                 select(Discussion).where(Discussion.thread_id == thread.id)
             ).scalar_one_or_none()
-            if event:
-                # thread is an event thread
-                occurrence = event.occurrences.order_by(EventOccurrence.id.desc()).limit(1).one()
+            if occurrence:
+                # thread is an event occurrence thread
+                event = occurrence.event
                 subscribed_user_ids = [user.id for user in event.subscribers]
                 attending_user_ids = [user.user_id for user in occurrence.attendances]
 
@@ -199,15 +200,14 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                 num_replies=0,
             )
 
-            event = session.execute(
-                select(Event).where(Event.thread_id == parent_comment.thread_id)
+            occurrence = session.execute(
+                select(EventOccurrence).where(EventOccurrence.thread_id == parent_comment.thread_id)
             ).scalar_one_or_none()
             discussion = session.execute(
                 select(Discussion).where(Discussion.thread_id == parent_comment.thread_id)
             ).scalar_one_or_none()
-            if event:
-                # thread is an event thread
-                occurrence = event.occurrences.order_by(EventOccurrence.id.desc()).limit(1).one()
+            if occurrence:
+                # thread is an event occurrence thread
                 for user_id in user_ids_to_notify:
                     context = make_notification_user_context(user_id=user_id)
                     notify(
