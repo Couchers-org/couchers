@@ -1,14 +1,35 @@
 import { Clear } from "@mui/icons-material";
-import { alpha, Autocomplete, AutocompleteChangeReason, InputAdornment, InputProps, styled } from "@mui/material";
+import {
+  alpha,
+  Autocomplete,
+  AutocompleteChangeReason,
+  AutocompleteInputChangeReason,
+  debounce,
+  InputAdornment,
+  InputProps,
+  styled,
+} from "@mui/material";
 import IconButton from "components/IconButton";
 import { SearchIcon } from "components/Icons";
 import TextField from "components/TextField";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
-import { forwardRef, SyntheticEvent, useEffect, useState } from "react";
+import {
+  forwardRef,
+  SyntheticEvent,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { service } from "service";
 import { theme } from "theme";
 import { GeocodeResult, useGeocodeQuery } from "utils/hooks";
+
+// Debounced typeahead: wait this long after the last keystroke before querying,
+// and require at least this many characters before firing a request. Mirrors
+// LocationAutocomplete.
+const SEARCH_DEBOUNCE_MS = 300;
+const MIN_SEARCH_LENGTH = 2;
 
 interface LocationAutocompleteOutlinedProps {
   className?: string;
@@ -84,7 +105,21 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     results: options,
     error: geocodeError,
     isLoading,
+    provider,
+    isProviderUnavailable,
   } = useGeocodeQuery({ allowFallback });
+
+  // Geocode.earth is unavailable and we are serving results from the legacy
+  // Nominatim fallback, which must not be queried as-you-type (OSM usage
+  // policy). Fall back to the pre-LOC-1 interaction: the user types, then
+  // submits with Enter or the search button.
+  const isSubmitMode = provider === "nominatim";
+
+  const debouncedQuery = useMemo(
+    () => debounce((value: string) => query(value), SEARCH_DEBOUNCE_MS),
+    [query],
+  );
+  useEffect(() => () => debouncedQuery.clear(), [debouncedQuery]);
 
   useEffect(() => {
     if (!hasSearchValue) {
@@ -110,20 +145,55 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
   };
 
   const handleSearchSubmit = () => {
-    query(inputValue);
+    const trimmed = inputValue.trim();
+    if (!trimmed) return;
+    debouncedQuery.clear();
+    query(trimmed);
     setIsOpen(true);
   };
 
-  const handleInputChange = (event: React.SyntheticEvent<Element, Event>, newValue: string) => {
+  const handleInputChange = (
+    event: React.SyntheticEvent<Element, Event>,
+    newValue: string,
+    reason: AutocompleteInputChangeReason,
+  ) => {
     if (inputValue !== newValue) {
       setInputValue(newValue);
     }
 
     if (newValue === "") {
+      debouncedQuery.clear();
       clearGeocodeResults();
+      setIsOpen(false);
       if (onClear) {
         onClear();
       }
+      return;
+    }
+
+    // MUI fires "reset" (selection made) and "clear" separately from typing;
+    // only a real keystroke should trigger a new search.
+    if (reason !== "input") {
+      return;
+    }
+
+    if (isSubmitMode) {
+      // No request until the user submits. Any results still on screen belong
+      // to the previously submitted text, so drop them and close the list.
+      debouncedQuery.clear();
+      clearGeocodeResults();
+      setIsOpen(false);
+      return;
+    }
+
+    const trimmed = newValue.trim();
+    if (trimmed.length >= MIN_SEARCH_LENGTH) {
+      setIsOpen(true);
+      debouncedQuery(trimmed);
+    } else {
+      debouncedQuery.clear();
+      clearGeocodeResults();
+      setIsOpen(false);
     }
   };
 
@@ -144,7 +214,14 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
         <TextField
           {...params}
           label={label}
-          error={!!fieldError || !!geocodeError}
+          error={!!fieldError || !!geocodeError || isProviderUnavailable}
+          helperText={
+            isProviderUnavailable
+              ? t("location_autocomplete.provider_unavailable")
+              : isSubmitMode
+                ? t("location_autocomplete.search_location_hint")
+                : undefined
+          }
           fullWidth={fullWidth}
           variant="outlined"
           placeholder={placeholder}
@@ -161,14 +238,18 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
                       marginRight: inputValue === "" ? theme.spacing(1) : 0,
                     }}
                   >
-                    <IconButton
-                      aria-label={t("location_autocomplete.search_location_button")}
-                      onClick={handleSearchSubmit}
-                      size="small"
-                      sx={{ marginRight: theme.spacing(1) }}
-                    >
-                      <SearchIcon />
-                    </IconButton>
+                    {isSubmitMode && (
+                      <IconButton
+                        aria-label={t(
+                          "location_autocomplete.search_location_button",
+                        )}
+                        onClick={handleSearchSubmit}
+                        size="small"
+                        sx={{ marginRight: theme.spacing(1) }}
+                      >
+                        <SearchIcon />
+                      </IconButton>
+                    )}
                     {InputProps?.endAdornment}
                   </InputAdornment>
                 </>
@@ -187,8 +268,11 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
       onChange={handleChange}
       onInputChange={handleInputChange}
       onKeyDown={(e) => {
-        if (e.key === "Enter") {
-          e.preventDefault();
+        if (e.key !== "Enter") return;
+        // Stop the wrapping form from submitting. MUI still gets this event
+        // and selects the highlighted option, if the list is open on one.
+        e.preventDefault();
+        if (isSubmitMode && !isOpen) {
           handleSearchSubmit();
         }
       }}

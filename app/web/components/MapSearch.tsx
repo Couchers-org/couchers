@@ -1,17 +1,30 @@
-import { Box, CircularProgress, IconButton, styled } from "@mui/material";
-import { AutocompleteChangeReason } from "@mui/material/Autocomplete";
-import { SignupAccountInputs } from "features/auth/signup/AccountForm";
-import { EditProfileFormValues } from "features/profile/edit/EditProfile";
+import {
+  Box,
+  CircularProgress,
+  debounce,
+  IconButton,
+  styled,
+} from "@mui/material";
+import {
+  AutocompleteChangeReason,
+  AutocompleteInputChangeReason,
+} from "@mui/material/Autocomplete";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { LngLat } from "maplibre-gl";
-import React, { useEffect, useState } from "react";
-import { ControllerRenderProps, FieldError } from "react-hook-form";
+import React, { useEffect, useMemo, useState } from "react";
+import { FieldError } from "react-hook-form";
 import { useGeocodeQuery } from "utils/hooks";
 import useMyLocation from "utils/useMyLocation";
 
 import Autocomplete from "./Autocomplete";
 import { MyLocationIcon, SearchIcon } from "./Icons";
+
+// Debounced typeahead: wait this long after the last keystroke before querying,
+// and require at least this many characters before firing a request. Mirrors
+// LocationAutocomplete.
+const SEARCH_DEBOUNCE_MS = 300;
+const MIN_SEARCH_LENGTH = 2;
 
 const StyledBox = styled(Box)(({ theme }) => ({
   "& *": {
@@ -45,14 +58,19 @@ const StyledForm = styled("div")(({ theme }) => ({
 
 interface MapSearchProps {
   setError: (error: string) => void;
-  setResult: (lngLat: LngLat, address: string, simplifiedAddress: string) => void;
-  inputFieldProps?:
-    | ControllerRenderProps<SignupAccountInputs, "location">
-    | ControllerRenderProps<EditProfileFormValues, "location">;
+  setResult: (
+    lngLat: LngLat,
+    address: string,
+    simplifiedAddress: string,
+  ) => void;
   inputFieldError?: FieldError;
 }
 
-export default function MapSearch({ setError, setResult, inputFieldProps, inputFieldError }: MapSearchProps) {
+export default function MapSearch({
+  setError,
+  setResult,
+  inputFieldError,
+}: MapSearchProps) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
   const { t } = useTranslation([GLOBAL]);
@@ -60,14 +78,33 @@ export default function MapSearch({ setError, setResult, inputFieldProps, inputF
   // This widget sets the location stored on a user's profile (signup and profile
   // edit), so later we won't accept results from the legacy fallback provider —
   // those have no provider id
-  const { query, isLoading, results, error, isProviderUnavailable } =
-    useGeocodeQuery({ allowFallback: true /*false*/ });
+  const {
+    query,
+    clear: clearGeocodeResults,
+    isLoading,
+    results,
+    error,
+    isProviderUnavailable,
+    provider,
+  } = useGeocodeQuery({ allowFallback: true /*false*/ });
   const {
     getMyLocation,
     isLoading: isLocating,
     error: myLocationError,
     reset: resetMyLocationError,
   } = useMyLocation();
+
+  // Geocode.earth is unavailable and we are serving results from the legacy
+  // Nominatim fallback, which must not be queried as-you-type (OSM usage
+  // policy). Fall back to the pre-LOC-1 interaction: the user types, then
+  // submits with Enter or the search button.
+  const isSubmitMode = provider === "nominatim";
+
+  const debouncedQuery = useMemo(
+    () => debounce((v: string) => query(v), SEARCH_DEBOUNCE_MS),
+    [query],
+  );
+  useEffect(() => () => debouncedQuery.clear(), [debouncedQuery]);
 
   //create a dummy search options if there are no results
   const searchOptions = isLoading
@@ -114,7 +151,10 @@ export default function MapSearch({ setError, setResult, inputFieldProps, inputF
     if (!searchOption) {
       //createOption is when enter is pressed on user-entered string
       if (reason === "createOption") {
-        query(value);
+        const trimmed = value.trim();
+        if (!trimmed) return;
+        debouncedQuery.clear();
+        query(trimmed);
         setOpen(true);
       }
     } else {
@@ -134,13 +174,40 @@ export default function MapSearch({ setError, setResult, inputFieldProps, inputF
           options={searchOptions?.map((o) => o.name) || []}
           loading={isLoading}
           open={open}
+          // Highlight the top result as it types in, so Enter alone confirms
+          // it — keyboard-only use doesn't need an ArrowDown first.
+          autoHighlight
           onBlur={() => setOpen(false)}
-          inputProps={inputFieldProps}
           error={inputFieldError?.message}
-          onInputChange={(e, v) => {
+          onInputChange={(
+            e,
+            v: string,
+            reason: AutocompleteInputChangeReason,
+          ) => {
             setValue(v);
             // They're typing, which is what a failed lookup told them to do.
             resetMyLocationError();
+
+            if (reason !== "input") return;
+
+            if (isSubmitMode) {
+              // No request until the user submits. Any results still on
+              // screen belong to the previously submitted text.
+              debouncedQuery.clear();
+              clearGeocodeResults();
+              setOpen(false);
+              return;
+            }
+
+            const trimmed = v.trim();
+            if (trimmed.length >= MIN_SEARCH_LENGTH) {
+              setOpen(true);
+              debouncedQuery(trimmed);
+            } else {
+              debouncedQuery.clear();
+              clearGeocodeResults();
+              setOpen(false);
+            }
           }}
           onChange={(e, v, reason) => {
             setValue(v);
@@ -152,21 +219,35 @@ export default function MapSearch({ setError, setResult, inputFieldProps, inputF
           filterOptions={(x) => x}
           disableClearable
           sx={{ flexGrow: 1 }}
-          getOptionDisabled={(option) => option === t("global:components.edit_location_map.no_location_results_text")}
-          helperText={t("global:components.edit_location_map.press_enter_to_search")}
+          getOptionDisabled={(option) =>
+            option ===
+            t("global:components.edit_location_map.no_location_results_text")
+          }
+          helperText={
+            isSubmitMode
+              ? t("global:components.edit_location_map.press_enter_to_search")
+              : undefined
+          }
           onKeyDown={(e) => {
-            if (e.key === "Enter") searchSubmit(value, "createOption");
+            if (e.key !== "Enter") return;
+            if (isSubmitMode && !open) {
+              searchSubmit(value, "createOption");
+            }
           }}
         />
-        <IconButton
-          aria-label={t("global:location_autocomplete.search_location_button")}
-          size="medium"
-          onClick={() => {
-            searchSubmit(value, "createOption");
-          }}
-        >
-          <SearchIcon />
-        </IconButton>
+        {isSubmitMode && (
+          <IconButton
+            aria-label={t(
+              "global:location_autocomplete.search_location_button",
+            )}
+            size="medium"
+            onClick={() => {
+              searchSubmit(value, "createOption");
+            }}
+          >
+            <SearchIcon />
+          </IconButton>
+        )}
         <IconButton
           aria-label={t("global:use_my_location.button")}
           title={t("global:use_my_location.button")}

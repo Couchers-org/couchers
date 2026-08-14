@@ -278,7 +278,6 @@ export default function AccountForm() {
         }}
         render={({ field, fieldState: { error } }) => (
           <StyledEditLocationMap
-            inputFieldProps={field}
             inputFieldError={error}
             updateLocation={(location) => {
               if (location) {
