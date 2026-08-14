@@ -141,6 +141,60 @@ describe("Edit location map", () => {
         expect(updateLocation).toHaveBeenCalledTimes(1);
       });
     });
+
+    it("still accepts a search result when the map style is gone", async () => {
+      MapMock.mockImplementation(({ postMapInitialize }) => {
+        useEffect(() => {
+          const instance = new MaplibreMap({
+            container: document.createElement("div"),
+            style: "mapbox://styles/mapbox/streets-v11",
+          });
+          Object.defineProperty(instance, "style", {
+            configurable: true,
+            value: null,
+          });
+          instance.flyTo = jest.fn(() => {
+            throw new TypeError("Cannot read properties of null");
+          });
+          instance.setLayoutProperty = jest.fn(() => {
+            throw new TypeError("Cannot read properties of null");
+          });
+          postMapInitialize?.(instance);
+        });
+        return <div>Map</div>;
+      });
+
+      const updateLocation = jest.fn();
+      render(
+        <EditLocationMap
+          initialLocation={{
+            address: "",
+            lat: 1,
+            lng: 2,
+            radius: 100,
+          }}
+          updateLocation={updateLocation}
+        />,
+        { wrapper },
+      );
+
+      const user = userEvent.setup();
+      await user.type(
+        screen.getByLabelText(
+          t("global:components.edit_location_map.search_location_label"),
+        ),
+        "test{enter}",
+      );
+      await user.click(
+        await screen.findByRole("option", {
+          name: "test city, test county, test country",
+        }),
+      );
+
+      await waitFor(() => {
+        expect(updateLocation).toHaveBeenCalledTimes(1);
+      });
+    });
   });
 
   describe('the "use my location" button (LOC-4)', () => {
