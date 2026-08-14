@@ -44,17 +44,20 @@
     "your_upcoming_header": "您即将参加的活动",
     "see_all_link": "查看全部→",
     "your_upcoming_empty_message": "目前没有活动。何不<createEventLink>创建</createEventLink>一个✨？",
-    "community_header": "您所在社区的活动"
+    "community_header": "您所在社区的活动",
+    "today_label": "今天"
   },
   "reminder": {
     "respond_to_host_request": {
-      "title": "回复接待请求",
+      "title": "回复{{name}}",
       "description": "别忘了回复{{name}}关于他们接待请求的消息。",
       "button": "查看请求"
     },
     "write_reference": {
       "title": "写评语",
-      "button": "写评语"
+      "button": "写评语",
+      "description_surfed": "为您在{{name}}家的住宿撰写评价",
+      "description_hosted": "为{{name}}在您家的住宿撰写评价"
     },
     "complete_profile": {
       "title": "完善您的个人资料",
@@ -65,6 +68,51 @@
       "title": "强身份验证",
       "description": "验证您的身份，打造更安全的社区",
       "button": "验证您的账号"
+    },
+    "complete_my_home": {
+      "title": "填写您的个人资料“我的家”部分",
+      "description": "填写您的睡眠安排、入住须知以及对您住所的描述",
+      "button": "编辑您的家"
+    },
+    "confirm_host_request": {
+      "title": "与{{name}}确认您的住宿",
+      "description": "{{name}}已接受您的请求。确认您的住宿并将其锁定。",
+      "button": "确认入住"
+    },
+    "carousel_dismiss_button_a11y": "关闭提醒",
+    "carousel_scroller": {
+      "left_arrow_a11y": "向左滚动",
+      "right_arrow_a11y": "向右滚动"
     }
+  },
+  "member_count_one": "{{count}}名会员",
+  "prev_page_button_a11y": "上一页",
+  "next_page_button_a11y": "下一页",
+  "now_label": "现在",
+  "discussions": {
+    "community_header": "您社区中的讨论",
+    "community_empty_message": "您的社区中还没有讨论。",
+    "replies_count_label_one": "{{count}}条回复",
+    "replies_count_label_other": "{{count}}条回复"
+  },
+  "public_trips": {
+    "my_trips_header": "您的公开行程",
+    "manage_link": "管理",
+    "when_now": "现在",
+    "when_today": "今天",
+    "when_tomorrow": "明天",
+    "empty_description": "准备出发？在社区中发布公开行程，即可收到附近接待者的邀请。",
+    "same_gender_only_indicator": "同性别",
+    "offers_count_one": "{{count}}个接待邀请",
+    "offers_count_other": "{{count}}个接待邀请",
+    "no_offers": "尚无接待邀请"
+  },
+  "stays": {
+    "upcoming_trips_header": "您即将入住的住宿",
+    "upcoming_guests_header": "您即将到来的客人",
+    "night_count_one": "{{count}}晚",
+    "night_count_other": "{{count}}晚",
+    "no_upcoming_trips": "没有即将到来的旅行。准备好探索了吗？",
+    "no_upcoming_guests": "还没有即将到来的客人。"
   }
 }

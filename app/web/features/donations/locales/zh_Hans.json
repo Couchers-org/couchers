@@ -9,7 +9,7 @@
       "success_message": "感谢您对Couchers.org的捐赠，衷心感谢您的支持！您将很快收到一封邮件。",
       "warning_message": "您的付款已取消。"
     },
-    "helper_text": "您将被重定向至我们的支付处理平台 Stripe，以完成捐赠。如需取消或更新现有捐赠，可随时<portalLink>点击此处前往捐赠管理页面</portalLink>。",
+    "helper_text": "您将被重定向至我们的支付处理平台Stripe，以完成捐赠。如需取消或更新现有捐赠，可随时<portalLink>点击此处前往捐赠管理页面</portalLink>。",
     "monthly_button_label": "每月",
     "one_time_button_label": "一次性",
     "amount_validation_error": "请仅输入整数。"
@@ -30,5 +30,12 @@
     "title": "管理您的捐赠",
     "description": "点击下方按钮以更新或取消您的定期捐赠，或查看历史账单。",
     "button_text": "进入捐赠管理中心"
+  },
+  "logged_out": {
+    "title": "捐款金额",
+    "body": "登录进行捐赠，以便我们可以在您的个人资料上为您提供捐赠者徽章。",
+    "login_button": "登录捐款",
+    "signup_prompt": "没有帐户？ <signupLink>注册</signupLink>",
+    "anonymous_donation": "要一次性捐赠${{ amount }}或更多而不与帐户绑定，请通过<emailLink>{{ email }}</emailLink>联系我们。"
   }
 }

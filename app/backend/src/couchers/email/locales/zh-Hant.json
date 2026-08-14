@@ -1,1 +1,412 @@
-{}
+{
+  "generic": {
+    "greeting_line": "嗨{{name}}，",
+    "security_warning_contact_support": "如果您沒有啟動此操作，請透過{{ email_link }}與我們聯繫，以便我們盡快解決此問題。",
+    "do_not_reply_request": "請勿回覆此電子郵件。使用上面的按鈕之一回覆此請求。",
+    "thanks": "謝謝！",
+    "closing_lines": {
+      "default": "此致，<br>Couchers.org團隊",
+      "founders": "Aapeli與Itsi，<br>Couchers.org創辦人",
+      "aapeli": "Aapeli<br>Couchers.org共同創辦人<br>{{ profile_link }}",
+      "emily": "來自Couchers.org的Emily<br>{{ email_link }}<br>{{ profile_link }}"
+    },
+    "footer": {
+      "received_because": "您收到這封電子郵件是因為您註冊了Couchers.org。",
+      "contact_support": "您可以透過{{ email_link }}聯絡我們的支援團隊。",
+      "timezone_note": "所有時間均根據您個人資料中的位置，以{{ timezone }}時區顯示。",
+      "donate_link": "捐贈",
+      "volunteer_link": "志工",
+      "blog_link": "部落格",
+      "nonprofit_note": "Couchers.org是Couchers, Inc.的一個項目，該公司是美國501(c)(3)非營利免稅組織。",
+      "security_email_note": "這是一封安全電子郵件，您無法取消訂閱。",
+      "notification_settings_link": "管理通知首選項",
+      "do_not_email_link": "停止傳送郵件（關閉接待狀態）",
+      "happy_couch_icon_caption": "快樂的Couchers沙發希望您有個愉快的一天。"
+    }
+  },
+  "calendar_events": {
+    "title_cancelled": "已取消：{{ title }}",
+    "host_requests": {
+      "title_host": "接待{{ name }}",
+      "title_surfer": "借宿於{{ name }}家"
+    }
+  },
+  "plaintext_formats": {
+    "action": "{{text}}：{{url}}",
+    "user": "{{name}}、{{age}}、{{city}}"
+  },
+  "account_deletion": {
+    "started": {
+      "subject": "確認您的帳戶刪除",
+      "purpose": "您要求我們刪除您的Couchers.org帳號。要完成此過程，請點擊以下連結：",
+      "confirm_action": "確認帳戶刪除"
+    },
+    "completed": {
+      "subject": "您的帳戶已被刪除",
+      "purpose": "您已成功刪除您的Couchers.org帳號。",
+      "farewell": "我們很遺憾您的離開，並祝福您未來的旅行一切順利。隨時歡迎您回到Couchers.org平台:)",
+      "recovery_instructions_days_one": "如果您改變主意，<strong>您有{{count}}天的時間來恢復您的帳戶</strong>，只需點擊以下連結即可：",
+      "recovery_instructions_days_other": "如果您改變主意，<strong>您有{{count}}天的時間來恢復您的帳戶</strong>，只需點擊以下連結即可：",
+      "recover_action": "恢復帳戶"
+    },
+    "recovered": {
+      "subject": "您的帳戶已恢復！",
+      "confirmation": "您的Couchers.org帳號已成功恢復。我們很高興您決定留下來！",
+      "login_instructions": "要重新登錄，請點擊以下連結：",
+      "login_action": "重新登入",
+      "redelete_instructions": "如果您改變主意，您可以隨時刪除您的帳戶。"
+    }
+  },
+  "activeness_probe": {
+    "subject": "您還願意接待嗎？",
+    "purpose": "我們注意到您已有一段時間沒有登入，想確認您是否仍願意接待沙發客。",
+    "instructions_days_one": "若要保留「可以接待」狀態，請在接下來的<b>{{count}}天內</b>重新登入；否則我們會將您的接待狀態改為「無法接待」。",
+    "instructions_days_other": "若要保留「可以接待」狀態，請在接下來的<b>{{count}}天內</b>重新登入；否則我們會將您的接待狀態改為「無法接待」。",
+    "login_action": "重新登入",
+    "encouragement": "定期確認狀態可以幫助沙發客找到活躍的接待者，並讓回覆時間資料保持準確。",
+    "latest_release": "如果您錯過了，我們最近發布了版本{{version}}。最近的一些更新包括：適用於iOS和Android的行動應用程式、改進的儀表板、徹底修改的訊息傳遞和新的活動功能。請造訪<a href=\"{{blog_url}}\">Couchers.org部落格</a>以了解更多資訊。"
+  },
+  "api_key_issued": {
+    "subject": "您的Couchers.org API金鑰",
+    "header": "您最近請求了Couchers.org的API金鑰。我們已向您頒發以下API金鑰：",
+    "expiry": "密鑰將於<b>{{ datetime }}</b>到期。",
+    "usage_warning": "該API金鑰對於您的帳戶是唯一的；不要與任何人分享。它提供對您帳戶的完全存取權限，並且您對使用此API金鑰採取的任何操作負責。",
+    "policy_warning": "使用我們的API時，請記得遵守我們的<a href=\"{{terms_url}}\">服務條款</a>、我們的社群準則和其他政策。所有存取都會被記錄和分析，如果您濫用服務，我們可能會終止您的存取或帳戶。"
+  },
+  "badges": {
+    "added": {
+      "subject": "{{ name }}徽章已新增至您的個人資料中",
+      "purpose": "<b>{{ name }}</b>徽章已新增至您的個人資料。"
+    },
+    "removed": {
+      "subject": "{{ name }}徽章已從您的個人資料中刪除",
+      "purpose": "<b>{{ name }}</b>徽章已從您的個人資料中刪除。"
+    }
+  },
+  "birthdate_changed": {
+    "subject": "您的出生日期已更改",
+    "purpose": "管理員已將您的出生日期更改為<b>{{ date }}</b>。"
+  },
+  "chat_messages": {
+    "received": {
+      "direct": {
+        "subject": "{{ author }}給您發了一封訊息",
+        "purpose": "<b>{{ author }}</b>向您發送了一條訊息：",
+        "view_action": "查看此訊息"
+      },
+      "group": {
+        "subject": "{{ author }}在{{ group }}中發送了一則訊息",
+        "purpose": "<b>{{ author }}</b>在<b>{{ group }}</b>中發送了一則訊息：",
+        "view_action": "查看此訊息"
+      }
+    },
+    "missed": {
+      "subject": "您有未看到的訊息",
+      "purpose": "自上次訪問以來您錯過了一些消息：",
+      "count_in_dm_one": "來自{{author}}的<b>{{count}}</b>則訊息：",
+      "count_in_dm_other": "來自{{author}}的<b>{{count}}</b>則訊息：",
+      "count_in_group_one": "{{group}}中的<b>{{count}}</b>則訊息：",
+      "count_in_group_other": "{{group}}中的<b>{{count}}</b>則訊息：",
+      "view_action": "查看訊息"
+    }
+  },
+  "discussions": {
+    "created": {
+      "subject": "{{author}}發起了討論：{{title}}",
+      "purpose": "<b>{{author}}</b>在<b>{{parent_context}}</b>中啟動了討論：",
+      "view_action": "查看討論"
+    },
+    "comment": {
+      "subject": "{{author}}對{{discussion_title}}發表了評論",
+      "purpose": "<b>{{author}}</b>在<b>{{discussion_title}}</b>中對<b>{{parent_context}}</b>發表了評論：",
+      "view_action": "查看討論"
+    }
+  },
+  "donation_received": {
+    "subject": "感謝您捐款給Couchers.org ！",
+    "purpose": "非常感謝您捐贈給Couchers.org <b>{{amount_with_currency}}</b>。",
+    "contribution_impact": "您的貢獻將用於建立和維持Couchers.org社群，對於我們實現免費和非營利沙發衝浪平台的目標至關重要。",
+    "invoice_receipt_info": "您可以在此下載捐款發票和收據：",
+    "download_invoice": "下載發票",
+    "tax_acknowledgment": "Couchers, Inc.是美國註冊的501(c)(3)非營利組織（EIN：87-1734577）。沒有提供任何商品或服務來換取這項貢獻。",
+    "questions_contact": "如果您對捐款有任何疑問，請發送電子郵件至{{ email_link }}。"
+  },
+  "email_change": {
+    "initiated": {
+      "subject": "已開始更改電子郵件地址",
+      "purpose": "您已要求將您的電子郵件地址變更為<b>{{ email_address }}</b>。請查看我們發送到該地址的電子郵件以確認變更。"
+    },
+    "confirmation": {
+      "subject": "確認您的新電子郵件地址",
+      "purpose": "您要求將您的電子郵件地址從<b>{{ old_email }}</b>變更為此電子郵件地址。要完成此更改，請點擊以下連結：",
+      "confirm_action": "確認新電子郵件"
+    },
+    "verified": {
+      "subject": "郵箱變更完成",
+      "purpose": "您的新電子郵件地址已驗證。"
+    }
+  },
+  "events": {
+    "generic": {
+      "view_action": "查看活動"
+    },
+    "created": {
+      "invitation": {
+        "subject": "{{user}}邀請您參加{{title}}",
+        "purpose_with_community": "<b>{{user}}</b>邀請您參加<b>{{community}}</b>中的活動：",
+        "purpose_no_community": "<b>{{user}}</b>邀請您參加附近的活動："
+      },
+      "notification": {
+        "subject": "{{user}}建立了一個活動：{{title}}",
+        "purpose_with_community": "<b>{{user}}</b>在<b>{{community}}</b>中建立了一個活動：",
+        "purpose_no_community": "<b>{{user}}</b>在附近建立了一個活動："
+      }
+    },
+    "updated": {
+      "subject": "{{user}}更新了{{title}}",
+      "purpose_generic": "<b>{{user}}</b>更新了您訂閱的活動：",
+      "purpose_with_items": "<b>{{user}}</b>更新了您訂閱的活動({{items_list}})：",
+      "item_names": {
+        "title": "標題",
+        "content": "內容",
+        "location": "位置",
+        "start_time": "開始時間",
+        "end_time": "結束時間"
+      }
+    },
+    "organizer_invited": {
+      "subject": "{{user}}邀請您共同組織{{title}}",
+      "purpose": "<b>{{user}}</b>邀請您共同組織活動："
+    },
+    "comment": {
+      "subject": "{{author}}對{{title}}發表了評論",
+      "purpose": "<b>{{author}}</b>對您訂閱的活動發表了評論："
+    },
+    "reminder": {
+      "subject": "提醒：{{title}}即將開始",
+      "purpose": "您訂閱的活動將在24小時內開始："
+    },
+    "cancel": {
+      "subject": "{{user}}取消了{{title}}",
+      "purpose": "<b>{{user}}</b>取消了您訂閱的活動："
+    },
+    "deleted": {
+      "subject": "版主刪除了{{title}}",
+      "purpose": "版主刪除了您訂閱的活動："
+    }
+  },
+  "friend_requests": {
+    "received": {
+      "subject": "{{name}}想成為你的朋友",
+      "purpose": "<b>{{name}}</b>向您發送了好友請求。",
+      "view_action": "查看好友請求",
+      "closing": "我們希望您結交新朋友！"
+    },
+    "accepted": {
+      "subject": "{{name}}接受了您的好友請求",
+      "purpose": "<b>{{name}}</b>已接受您的好友請求。",
+      "view_action": "查看他們的個人資料",
+      "closing": "我們希望您繼續結交新朋友！"
+    }
+  },
+  "gender_changed": {
+    "subject": "您的性別已更改",
+    "purpose": "您在Couchers.org上的性別已被管理員更改為<b>{{ gender }}</b>。"
+  },
+  "host_requests": {
+    "created": {
+      "subject": "{{surfer_name}}向您發送了接待請求",
+      "purpose": "<b>{{surfer_name}}</b>向您發送了接待請求：",
+      "respond_encouragement": "請回覆此請求。即使快速拒絕，也比不回覆更好！"
+    },
+    "generic": {
+      "date_range": "從<b>{{from_date}}</b>到<b>{{to_date}}</b>。",
+      "view_action": "查看接待請求",
+      "quick_decline_action": "快速拒絕"
+    },
+    "reminder": {
+      "subject": "您有一個來自{{surfer_name}}的待處理接待請求",
+      "purpose": "<b>{{surfer_name}}</b>正在等待您的回覆。即使快速拒絕，也比不回覆更好！"
+    },
+    "message": {
+      "from_host": {
+        "subject": "{{other_name}}在您的接待請求中向您發送了一則訊息",
+        "purpose": "<b>{{other_name}}</b>在您的接待請求中向您發送了一則訊息："
+      },
+      "from_surfer": {
+        "subject": "{{other_name}}在其接待請求中向您發送了一則訊息",
+        "purpose": "<b>{{other_name}}</b>在其接待請求中向您發送了一則訊息："
+      }
+    },
+    "missed_messages": {
+      "from_host": {
+        "subject": "{{other_name}}在您的接待請求中向您發送了訊息",
+        "purpose": "<b>{{other_name}}</b>在您的接待請求中向您發送了一則或多個訊息："
+      },
+      "from_surfer": {
+        "subject": "{{other_name}}在其接待請求中向您發送了訊息",
+        "purpose": "<b>{{other_name}}</b>在其接待請求中向您發送了一條或多條訊息："
+      }
+    },
+    "status_changed": {
+      "accepted_by_host": {
+        "subject": "{{other_name}}接受了您的接待請求",
+        "purpose": "<b>{{other_name}}</b>接受了您的接待請求："
+      },
+      "declined_by_host": {
+        "subject": "{{other_name}}拒絕了您的接待請求",
+        "purpose": "<b>{{other_name}}</b>拒絕了您的接待請求："
+      },
+      "confirmed_by_surfer": {
+        "subject": "{{other_name}}確認了他們的接待請求",
+        "purpose": "<b>{{other_name}}</b>確認了他們的接待請求："
+      },
+      "cancelled_by_surfer": {
+        "subject": "{{other_name}}取消了他們的接待請求",
+        "purpose": "<b>{{other_name}}</b>取消了他們的接待請求："
+      }
+    }
+  },
+  "moderator_note": {
+    "subject": "您已收到管理員備註",
+    "purpose": "您已收到版主發出的重要說明。在繼續使用該平台之前，您必須閱讀並確認它。",
+    "view_action": "查看版主備註"
+  },
+  "new_blog_post": {
+    "subject": "新部落格文章：{{title}}",
+    "purpose": "我們發布了一篇新的部落格文章：",
+    "read_action": "閱讀貼文"
+  },
+  "onboarding_reminder": {
+    "initial": {
+      "subject": "歡迎來到Couchers.org和沙發衝浪的未來",
+      "welcome": "歡迎來到Couchers.org和我們的全球沙發衝浪社群！",
+      "early_user_role": "我們正在快速成長，回頭看，您將成為早期用戶之一。因此，您在塑造不斷發展的社群和我們平台的文化和感覺方面發揮著至關重要的作用。我真的很高興您找到我們並決定加入我們！",
+      "complete_profile_request": "熟悉平台後，請上傳照片並寫一些關於自己的介紹；如果您想接待，也請介紹一下您的家，以完善個人資料。",
+      "profile_importance": "真實、有溫度的個人資料能幫助他人判斷是否願意與您見面、接待您或在您家借宿。向社群展示真實的自己即可：分享您的興趣、平時喜歡做的事，以及您重視的事物。",
+      "share_request": "還有一件事：請分享並發展社群！我們最好的成員是那些受別人邀請的人。"
+    },
+    "follow_up": {
+      "subject": "完成您的個人資料",
+      "intro": "我希望您花點時間瀏覽Couchers.org平台！",
+      "request": "想請您幫個忙：請花一點時間完善個人資料，在「關於我」和「我的家」部分新增照片和文字。完整的個人資料會讓其他人更願意與您互動，也能讓社群更友善。"
+    },
+    "complete_profile_action": "完成您的個人資料"
+  },
+  "password_changed": {
+    "subject": "您的密碼已更改",
+    "purpose": "您在Couchers.org上的密碼已更改。"
+  },
+  "password_reset": {
+    "started": {
+      "subject": "重設您的密碼",
+      "purpose": "您在Couchers.org上請求重設密碼。要完成此更改，請點擊以下連結：",
+      "reset_action": "重設您的密碼"
+    },
+    "completed": {
+      "subject": "您的密碼已成功重置",
+      "purpose": "您在Couchers.org上的密碼已重設。"
+    }
+  },
+  "phone_number_verification": {
+    "started": {
+      "subject": "手機號碼驗證已開始",
+      "purpose": "您已開始使用號碼<b>{{ phone_number }}</b>進行電話號碼驗證。"
+    },
+    "verified": {
+      "subject": "手機號碼驗證成功",
+      "purpose": "您的電話號碼已成功驗證為<b>{{ phone_number }}</b>。"
+    }
+  },
+  "postal_verification": {
+    "postcard_sent": {
+      "subject": "您的驗證明信片已寄出",
+      "purpose": "我們已將包含您的驗證碼的明信片發送至<b>{{ city }}，{{ country }}</b>。它應該會在1-3週內送達，具體取決於您所在的位置。到達後，請使用以下連結完成驗證：",
+      "enter_code_action": "輸入明信片代碼"
+    },
+    "succeeded": {
+      "subject": "郵政驗證成功",
+      "purpose": "您的郵寄地址已驗證成功。"
+    },
+    "failed": {
+      "subject": "郵政驗證失敗",
+      "purpose": {
+        "default": "由於未知原因，您的郵政驗證嘗試失敗。",
+        "code_expired": "您的郵政驗證嘗試失敗，因為您的代碼已過期。代碼在明信片寄出後90天內有效。",
+        "too_many_attempts": "您的郵政驗證失敗，因為嘗試錯誤代碼次數太多。"
+      },
+      "restart_action": "索取新明信片"
+    }
+  },
+  "references": {
+    "received": {
+      "friend": {
+        "subject": "您收到了{{name}}的好友評語！",
+        "purpose": "<b>{{name}}</b>為您寫了一則好友評語："
+      },
+      "hosted": {
+        "purpose": "<b>{{name}}</b>為您接待對方的經歷寫了一則評語。",
+        "reciprocate_encouragement": "現在輪到您為<b>{{name}}</b>撰寫評語了。提交後，雙方的評語都會顯示；否則，<b>{{name}}</b>的評語會在住宿結束14天後自動顯示，屆時您將無法再撰寫評語。"
+      },
+      "surfed": {
+        "purpose": "<b>{{name}}</b>為您借宿於對方家中的經歷寫了一則評語。",
+        "reciprocate_encouragement": "現在輪到您為<b>{{name}}</b>撰寫評語了。提交後，雙方的評語都會顯示；否則，<b>{{name}}</b>的評語會在住宿結束14天後自動顯示，屆時您將無法再撰寫評語。"
+      },
+      "subject": "您收到了{{name}}的評語！",
+      "view_action": "查看評語"
+    },
+    "reminder": {
+      "subject_days_one": "您還有{{count}}天可以為{{name}}撰寫評語",
+      "subject_days_other": "您還有{{count}}天可以為{{name}}撰寫評語",
+      "hosted": {
+        "purpose_days_one": "<strong>您還剩{{count}}天可以為曾由您接待的{{name}}撰寫評語</strong>。您的評語對維護社群的安全與信任至關重要。",
+        "purpose_days_other": "<strong>您還剩{{count}}天可以為曾由您接待的{{name}}撰寫評語</strong>。您的評語對維護社群的安全與信任至關重要。"
+      },
+      "surfed": {
+        "purpose_days_one": "<strong>您還剩{{count}}天可以為曾接待您的{{name}}撰寫評語</strong>。您的評語對維護社群的安全與信任至關重要。",
+        "purpose_days_other": "<strong>您還剩{{count}}天可以為曾接待您的{{name}}撰寫評語</strong>。您的評語對維護社群的安全與信任至關重要。"
+      },
+      "no_meeting_note": "如果您最後沒有與<b>{{name}}</b>見面，請透過連結告訴我們，我們將不再提醒您。",
+      "visibility_note": "評語會在住宿結束兩週後，或在雙方都為彼此撰寫評語後顯示，以較早者為準。"
+    },
+    "write_action": "為{{name}}撰寫評語"
+  },
+  "signup": {
+    "subject": "完成Couchers.org註冊",
+    "closing": "回頭見:)",
+    "verify": {
+      "thanks": "感謝您註冊Couchers.org！",
+      "instructions": "要完成帳戶設置，請點擊以下連結：",
+      "confirm_action": "確認您的電子郵件地址"
+    },
+    "continue": {
+      "purpose": "請完成Couchers.org註冊。點選此連結以繼續：",
+      "continue_action": "完成註冊",
+      "ignore_if_unexpected": "如果您沒有要求註冊，而是其他人使用了您的電子郵件，那麼您可以安全地忽略此訊息。"
+    }
+  },
+  "strong_verification": {
+    "succeeded": {
+      "subject": "強驗證成功",
+      "purpose": "您的強驗證已通過。現在，平台上您的姓名旁會顯示驗證標誌。",
+      "thanks_message": "感謝您完成驗證！您正在幫助維護Couchers.org社群的信任與安全。",
+      "cost_explanation": "驗證對您來說是免費的，但我們需要付費。作為一個由志工運作的非營利組織，我們依靠捐款來支付費用，例如保持伺服器運作、驗證以及為我們的軟體工程師、設計師和安全團隊提供工具。",
+      "donation_request": "如果可以的話，請考慮捐款以幫助Couchers.org保持運作和發展。",
+      "donate_action": "捐款支持Couchers.org"
+    },
+    "failed": {
+      "subject": "強驗證失敗",
+      "purpose": {
+        "wrong_birthdate_or_gender": "您的強驗證嘗試失敗，因為您個人資料上的出生日期或性別與護照上的出生日期或性別不符。請聯絡支援團隊更新您的出生日期或性別，或如果您的護照性別與您的性別認同不符。",
+        "not_a_passport": "您的強驗證嘗試失敗，因為您使用的文件不是護照。您只能使用護照進行強驗證。",
+        "duplicate": "您的強驗證嘗試失敗，因為您使用的護照已在平台上使用過。請使用另一本護照。"
+      },
+      "restart_action": "重新開始強驗證"
+    }
+  },
+  "thread_reply": {
+    "subject": "{{author}}在{{parent_context}}中回覆",
+    "purpose": "<b>{{author}}</b>在<b>{{parent_context}}</b>回覆：",
+    "view_action": "查看主題"
+  }
+}

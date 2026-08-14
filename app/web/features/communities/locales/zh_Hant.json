@@ -142,5 +142,32 @@
   "search_communities_placeholder": "依城市或國家名稱搜尋…",
   "search_communities_helper": "選擇一個社群進入其頁面",
   "no_results_found_with_link": "未找到相關社群。<requestCommunityLink>申請建立該社群！</requestCommunityLink>",
-  "fill_out_comment": "你需要先輸入一些內容！"
+  "fill_out_comment": "你需要先輸入一些內容！",
+  "comment_deleted": "該評論已被刪除。",
+  "edit_comment": "編輯評論",
+  "delete_comment": "刪除評論",
+  "comment_edited_date": "已編輯{{timeAgo}}",
+  "discussion_edited_date": "已編輯{{timeAgo}}",
+  "discussion_deleted": "此討論已被刪除。",
+  "delete_discussion": "刪除討論",
+  "delete_discussion_dialog": {
+    "title": "刪除討論",
+    "message": "您確定要刪除此討論嗎？評論將保持可見。",
+    "confirm": "刪除",
+    "cancel": "取消"
+  },
+  "edit_discussion": "編輯討論",
+  "report_discussion_button_a11y": "報告此討論",
+  "copy_link": "複製連結",
+  "copy_link_success": "連結已複製到剪貼簿",
+  "report_event_button_a11y": "檢舉此活動",
+  "community_breadcrumb_a11y": "目前社區",
+  "select_macroregion": "選擇地區",
+  "select_region": "選擇國家",
+  "select_subregion": "選擇區域",
+  "select_locality": "選擇城市",
+  "select_sublocality": "選擇街區",
+  "select_sub_community": "選擇社區",
+  "sub_community_search_placeholder": "地點",
+  "sub_community_dropdown_a11y": "瀏覽更具體的社區"
 }
