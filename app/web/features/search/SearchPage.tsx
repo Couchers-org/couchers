@@ -1,6 +1,6 @@
 import { styled } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
-import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
+import { DEFAULT_DRAWER_WIDTH, DRAWER_WIDTH_TRANSITION_MS } from "components/ResizeableDrawer";
 import { useLogEvent } from "features/analytics/hooks";
 import { SearchAnalyticsProvider } from "features/analytics/searchAnalyticsContext";
 import { getOrCreateSearchSessionId } from "features/analytics/searchAttribution";
@@ -77,7 +77,9 @@ export default function SearchPage() {
   const mapRef = useRef<MapRef | null>(null);
 
   const [drawerWidth, setDrawerWidth] = useState<number>(DEFAULT_DRAWER_WIDTH);
+  const [isDrawerResizing, setIsDrawerResizing] = useState(false);
   const [mapView, setMapView] = useState<MapViewOptions>(MapViews.MAP_AND_LIST);
+  const drawerResizeTimeoutRef = useRef<number | undefined>(undefined);
 
   const mapSearchState = useMapSearchState();
   const { setPageNumber, setMapQueryArea, setMoveMapUIOnly, setShowSearchThisAreaButton, setSelectedUserId } =
@@ -156,8 +158,19 @@ export default function SearchPage() {
   };
 
   const handleDrawerWidthChange = (width: number) => {
+    setIsDrawerResizing(true);
     setDrawerWidth(width);
+    window.clearTimeout(drawerResizeTimeoutRef.current);
+    drawerResizeTimeoutRef.current = window.setTimeout(() => {
+      setIsDrawerResizing(false);
+    }, DRAWER_WIDTH_TRANSITION_MS);
   };
+
+  useEffect(() => {
+    return () => {
+      window.clearTimeout(drawerResizeTimeoutRef.current);
+    };
+  }, []);
 
   const handleSetMapView = (view: MapViewOptions) => {
     setMapView(view);
@@ -223,6 +236,7 @@ export default function SearchPage() {
             drawerWidth={drawerWidth}
             hasPreviousPage={hasPreviousPage}
             hasNextPage={hasNextPage}
+            isDrawerResizing={isDrawerResizing}
             isLoading={isLoading}
             mapRef={mapRef}
             mapView={mapView}
