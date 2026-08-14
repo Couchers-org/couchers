@@ -1,8 +1,8 @@
-import { Autocomplete as MuiAutocomplete, AutocompleteProps as MuiAutocompleteProps } from "@mui/material";
-import { SignupAccountInputs } from "features/auth/signup/AccountForm";
-import { EditProfileFormValues } from "features/profile/edit/EditProfile";
+import {
+  Autocomplete as MuiAutocomplete,
+  AutocompleteProps as MuiAutocompleteProps,
+} from "@mui/material";
 import React from "react";
-import { ControllerRenderProps } from "react-hook-form";
 
 import TextField from "./TextField";
 
@@ -19,9 +19,6 @@ type AutocompleteProps<
   placeholder?: string;
   helperText?: string;
   variant?: "filled" | "standard" | "outlined" | undefined;
-  inputProps?:
-    | ControllerRenderProps<SignupAccountInputs, "location">
-    | ControllerRenderProps<EditProfileFormValues, "location">;
 };
 
 export default function Autocomplete<
@@ -38,7 +35,6 @@ export default function Autocomplete<
   placeholder,
   variant = "standard",
   endAdornment,
-  inputProps,
   sx,
   ...otherProps
 }: AutocompleteProps<T, Multiple, DisableClearable, FreeSolo>) {
@@ -65,7 +61,6 @@ export default function Autocomplete<
       renderInput={(params) => (
         <TextField
           {...params}
-          {...inputProps}
           variant={variant}
           error={!!error}
           label={label}
