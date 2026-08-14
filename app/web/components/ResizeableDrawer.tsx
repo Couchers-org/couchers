@@ -7,6 +7,8 @@ import React from "react";
 import IconButton from "./IconButton";
 
 export const DEFAULT_DRAWER_WIDTH = 420;
+/** Keep in sync with CSS width transitions on the map search layout. */
+export const DRAWER_WIDTH_TRANSITION_MS = 200;
 
 interface ResizeableDrawerProps {
   children: React.ReactNode;

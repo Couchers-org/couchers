@@ -1,5 +1,8 @@
 import { styled } from "@mui/material";
-import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
+import {
+  DEFAULT_DRAWER_WIDTH,
+  DRAWER_WIDTH_TRANSITION_MS,
+} from "components/ResizeableDrawer";
 import { RpcError } from "grpc-web";
 import { SearchUser } from "proto/search_pb";
 import { LngLatLike, MapRef } from "react-map-gl/maplibre";
@@ -16,6 +19,7 @@ interface MapSearchContentProps {
   drawerWidth: number;
   hasPreviousPage: boolean | undefined;
   hasNextPage: boolean | undefined;
+  isDrawerResizing: boolean;
   isLoading: boolean;
   mapRef: React.RefObject<MapRef | null>;
   mapView: MapViewOptions;
@@ -47,6 +51,7 @@ const SearchResultsContainer = styled("div", {
   display: "flex",
   height: "100%",
   width: isListOnlyView ? "100%" : `${drawerWidth}px`,
+  transition: `width ${DRAWER_WIDTH_TRANSITION_MS}ms ease-in-out`,
 
   ...(!isListOnlyView && {
     [theme.breakpoints.down("md")]: {
@@ -56,6 +61,7 @@ const SearchResultsContainer = styled("div", {
       order: 2,
       boxShadow: "0px -2px 4px rgba(0,0,0,0.1)",
       overflow: "hidden",
+      transition: "none",
     },
   }),
 }));
@@ -68,18 +74,21 @@ const MapContainer = styled("div", {
   position: "relative",
   display: "flex",
   alignItems: "center",
+  transition: `width ${DRAWER_WIDTH_TRANSITION_MS}ms ease-in-out`,
   ...(isListOnlyView && {
     width: 0,
     height: 0,
     overflow: "hidden",
     position: "absolute",
     pointerEvents: "none",
+    transition: "none",
   }),
 
   [theme.breakpoints.down("md")]: {
     width: "100%",
     height: "55%",
     order: 1,
+    transition: "none",
     ...(isListOnlyView && {
       width: 0,
       height: 0,
@@ -92,6 +101,7 @@ const MapSearchContent = ({
   drawerWidth,
   hasPreviousPage,
   hasNextPage,
+  isDrawerResizing,
   isLoading,
   mapRef,
   mapView,
@@ -131,7 +141,12 @@ const MapSearchContent = ({
 
   return (
     <Wrapper>
-      <SearchResultsContainer drawerWidth={drawerWidth} isListOnlyView={mapView === MapViews.LIST_ONLY}>
+      <SearchResultsContainer
+        drawerWidth={drawerWidth}
+        isListOnlyView={mapView === MapViews.LIST_ONLY}
+        // Default Replay block selector; skips serializing list mutations during expand/collapse.
+        {...(isDrawerResizing ? { "data-sentry-block": true } : {})}
+      >
         <MapSearchResultsList
           error={error}
           drawerWidth={drawerWidth}

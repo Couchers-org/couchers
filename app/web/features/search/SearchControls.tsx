@@ -1,4 +1,5 @@
 import { styled, useMediaQuery } from "@mui/material";
+import { DRAWER_WIDTH_TRANSITION_MS } from "components/ResizeableDrawer";
 import { useState } from "react";
 import { LngLatLike, MapRef } from "react-map-gl/maplibre";
 import { theme } from "theme";
@@ -41,6 +42,7 @@ const MapControlsWrapper = styled("div", {
 
   ...(!isMobile &&
     isDualView && {
+      transition: `width ${DRAWER_WIDTH_TRANSITION_MS}ms ease-in-out, left ${DRAWER_WIDTH_TRANSITION_MS}ms ease-in-out, right ${DRAWER_WIDTH_TRANSITION_MS}ms ease-in-out`,
       ...(drawerWidth > window.innerWidth / 2
         ? { left: 0, width: `${drawerWidth}px` }
         : { right: 0, width: `calc(100% - ${drawerWidth}px)` }),

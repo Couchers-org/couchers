@@ -29,6 +29,9 @@ Sentry.init({
       maskAllText: true,
       maskAllInputs: true,
       blockAllMedia: true,
+      // MapLibre (and other canvases) produce huge mutation storms on resize;
+      // block them so Replay's processMutation doesn't freeze the UI.
+      block: [".maplibregl-map", "canvas"],
     }),
   ],
   // Note: if you want to override the automatic release value, do not set a
