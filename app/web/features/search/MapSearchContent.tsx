@@ -1,8 +1,5 @@
 import { styled } from "@mui/material";
-import {
-  DEFAULT_DRAWER_WIDTH,
-  DRAWER_WIDTH_TRANSITION_MS,
-} from "components/ResizeableDrawer";
+import { DEFAULT_DRAWER_WIDTH, DRAWER_WIDTH_TRANSITION_MS } from "components/ResizeableDrawer";
 import { RpcError } from "grpc-web";
 import { SearchUser } from "proto/search_pb";
 import { LngLatLike, MapRef } from "react-map-gl/maplibre";
