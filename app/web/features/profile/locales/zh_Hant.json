@@ -125,11 +125,6 @@
   "my_connections": "我的聯繫人",
   "connection_pending": "待處理",
   "cancel": "取消",
-  "more_profile_actions": "...",
-  "more_profile_actions_a11y_text": "更多個人資料操作",
-  "report_details": "詳情",
-  "report_reason": "原因",
-  "report_user": "舉報此使用者",
   "leave_reference": {
     "appropriate_explanation": "您在本頁的私人反饋以及在下一頁的公開評價，對於維護社群的安全、可信和友好至關重要。感謝您為社群做出的貢獻！",
     "appropriate_question": "你是否覺得與此人的行為互動是安全的？",
@@ -216,8 +211,7 @@
     "message": "訊息",
     "message_description": "寫下你的訊息...",
     "message_empty": "請寫一則訊息。",
-    "hosting_request_hint": "想傳送接待請求嗎？請改用<request>請求</request>按鈕。",
-    "success": "訊息已傳送！"
+    "hosting_request_hint": "想傳送接待請求嗎？請改用<request>請求</request>按鈕。"
   },
   "reference_filter_label": {
     "friend": "來自朋友",
@@ -269,7 +263,6 @@
     "characters_remaining_one": "<bold>請至少再寫{{count}}個字元來解鎖訊息和請求。 </bold>真實的個人資料可建立信任社群。您分享的越多，聯繫就越容易！"
   },
   "do_not_email_error_link": "更新您的電子郵件設定以重新啟用此功能。",
-  "edit_profile_name_required": "必填名稱",
   "what_options_mean": "這些選項的含義",
   "have_pending_reference_text": "您還有一則給這位使用者的評語待撰寫",
   "write_friend_reference": "寫朋友參考",

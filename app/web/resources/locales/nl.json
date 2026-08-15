@@ -161,7 +161,6 @@
       "description_required": "Een beschrijving is verplicht.",
       "description_label": "Beschrijf het probleem",
       "description_helper": "Vertel ons waarom je dit wilt melden.",
-      "success": "Bedankt voor je melding en het verbeteren van Couchers voor iedereen!",
       "reason": {
         "external": "Incident buiten dit platform om",
         "guidelines_breach": "Overtreding van de regels (geld vragen, naaktlopen, gedeeld bed enz.)",
@@ -210,7 +209,6 @@
     "disabled_datetime": "Uitgeschakeld: {{datetime}}",
     "disable_link": "Uitzetten"
   },
-  "contribute_title": "Meld je aan om mee te doen",
   "reply": "Beantwoorden",
   "yes": "Ja",
   "no": "Nee",

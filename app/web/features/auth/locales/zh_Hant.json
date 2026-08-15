@@ -167,7 +167,6 @@
   "sign_up_confirmed_prompt": "大功告成！如果頁面沒有自動跳轉，請嘗試登入。",
   "unhandled_sign_up_state": "錯誤：未處理的註冊流程狀態。",
   "login_prompt": "點此登入",
-  "about_us": "關於我們",
   "reset_password": "重置密碼",
   "account_settings_page": {
     "title": "帳戶設定",
@@ -280,8 +279,7 @@
         "heading": "開始之前",
         "nfc_check": "您的手機必須具備<strong>NFC功能</strong>。大多數現代手機都支援，而且通常預設會開啟；某些較舊的手機則可能需要您到設定中手動開啟。",
         "passport_check": "您的護照必須是<strong>生物識別護照</strong> -查找封面上的金色芯片符號。沒有此符號的舊護照將無法使用。",
-        "remove_case": "<strong>開始前請取下手機殼</strong> -即使很薄的手機殼也會阻擋NFC信號並導致掃描失敗。",
-        "passport_symbol_alt": "生物識別護照符號"
+        "remove_case": "<strong>開始前請取下手機殼</strong> -即使很薄的手機殼也會阻擋NFC信號並導致掃描失敗。"
       },
       "didnt_work": {
         "heading": "有問題嗎？",

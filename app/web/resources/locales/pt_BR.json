@@ -103,7 +103,6 @@
       "description_required": "A descrição é obrigatória.",
       "description_label": "Descreva o problema",
       "description_helper": "Conte-nos porque você está reportando isso.",
-      "success": "Agradecemos por sua denúncia e por tornar o Couchers uma plataforma melhor para todos!",
       "reason": {
         "dating": "Comportamento de aplicativo de paquera/namoro ou semelhante",
         "external": "Incidente fora da plataforma",
@@ -220,7 +219,6 @@
       "fetch_invite_info": "Não foi possível obter detalhes do código de convite"
     }
   },
-  "contribute_title": "Cadastre-se para contribuir",
   "reply": "Responder",
   "yes": "Sim",
   "no": "Não",

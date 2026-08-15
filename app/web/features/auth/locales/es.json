@@ -143,7 +143,6 @@
   "sign_up_completed_prompt": "Hemos enviado un enlace de verificación a tu dirección de correo electrónico. Por favor, pincha en el enlace para activar tu cuenta.",
   "sign_up_completed_title": "¡Gracias por registrarte!",
   "sign_up_confirmed_prompt": "¡Todo listo! Si el navegador no te redirecciona automáticamente, intenta iniciar sesión.",
-  "about_us": "Sobre nosotros",
   "reset_password": "Restablecer contraseña",
   "account_settings_page": {
     "title": "Configuración de la cuenta",
@@ -349,8 +348,7 @@
         "heading": "Antes de empezar",
         "nfc_check": "Tu teléfono debe tener <strong>capacidad NFC</strong>: la mayoría de los teléfonos modernos la tienen. La NFC suele estar activada de por defecto, pero en algunos teléfonos antiguos es posible que debas habilitarla en la configuración de tu teléfono.",
         "passport_check": "Tu pasaporte debe ser un <strong>pasaporte biométrico</strong>: busca el símbolo del chip dorado en la portada. Los pasaportes antiguos sin este símbolo no funcionarán.",
-        "remove_case": "<strong>Retira la funda de tu teléfono antes de empezar</strong>: incluso las fundas finas pueden bloquear la señal NFC y provocar que el escaneo falle.",
-        "passport_symbol_alt": "Símbolo de pasaporte biométrico"
+        "remove_case": "<strong>Retira la funda de tu teléfono antes de empezar</strong>: incluso las fundas finas pueden bloquear la señal NFC y provocar que el escaneo falle."
       },
       "didnt_work": {
         "heading": "¿Tienes problemas?",

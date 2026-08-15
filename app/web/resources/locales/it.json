@@ -114,7 +114,6 @@
       "description_required": "La descrizione è obbligatoria.",
       "description_label": "Descrivi il problema",
       "description_helper": "Per favore dicci perché stai effettuando questa segnalazione.",
-      "success": "Grazie per la tua segnalazione e per rendere Couchers una piattaforma migliore per tutti!",
       "reason": {
         "dating": "Flirt / comportamento da app di incontri o simili",
         "external": "Incidente fuori dalla piattaforma",
@@ -223,7 +222,6 @@
       "fetch_invite_info": "Impossibile ottenere i dettagli del codice di invito"
     }
   },
-  "contribute_title": "Iscriviti per contribuire",
   "reply": "Rispondi",
   "yes": "Sì",
   "no": "No",

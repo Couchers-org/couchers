@@ -187,6 +187,5 @@
   },
   "login_prompt": "Clica aqui para entrar",
   "reset_password": "Redefinir palavra-passe",
-  "about_us": "Sobre nós",
   "unhandled_sign_up_state": "Erro: unhandled signup flow state."
 }

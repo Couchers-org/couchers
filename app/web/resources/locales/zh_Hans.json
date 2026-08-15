@@ -111,7 +111,6 @@
       "description_required": "描述为必填项。",
       "description_label": "描述问题",
       "description_helper": "请告诉我们您报告此问题的原因。",
-      "success": "感谢您的报告，并使Couchers成为每个人更好的平台！",
       "reason": {
         "dating": "调情/约会应用程序行为或类似行为",
         "external": "平台外事件",
@@ -218,7 +217,6 @@
     },
     "number_of_uses_one": "使用：{{count}}已完成注册"
   },
-  "contribute_title": "注册投稿",
   "reply": "回复",
   "yes": "是",
   "no": "否",

@@ -4,22 +4,13 @@
   "member_count_other": "{{count}} membros",
   "dashboard": "Painel principal",
   "your_communities_heading": "Suas comunidades",
-  "all_communities_heading": "Todas as comunidades",
   "load_more": "Carregar mais",
-  "all_communities_section": "Todas as comunidades",
-  "please_complete_profile": "Conclua seu perfil para garantir que você vai aparecer nas pesquisas:",
-  "fill_in_who_i_am": "1. Preencha sua seção \"Quem sou eu\" com algumas frases sobre você",
-  "upload_photo": "2. Carregue uma foto (clicando no avatar na página de edição)",
   "no_community": "Você não está em nenhuma comunidade atualmente.",
   "no_sub_communities": "Nenhuma subcomunidade.",
   "profile_summary_edit": "Editar perfil",
-  "complete_profile_explanation": "Não é irritante como outras plataformas têm perfis \"fantasmas\" sem nenhuma informação. Não faça isso com a gente também! 👻👻👻",
   "browse_communities_text": "Clique no nome de uma região para ver outras comunidades dentro dela abaixo. Clique no link para ir para a página da comunidade dessa cidade ou região.",
-  "all_communities_intro": "Abaixo você pode navegar por todas as páginas de comunidade que existem até o momento. <strong>Clique no nome de uma comunidade para ver outras comunidades dentro dela.</strong>",
   "welcome": "Bem-vindo ao Couchers.org!",
   "new_pill": "Novo",
-  "landing_text": "Estamos criando novos <featuresLink>recursos</featuresLink>, como eventos, guias locais, moderação e encontros. Agradecemos sua paciência e <supportLink>apoio</supportLink> enquanto trabalhamos nisso.",
-  "community_builder_form_text": "Crie sua própria comunidade local",
   "communities_welcome_title": "Bem-vindo a Comunidades",
   "communities_intro": "Para ajudar as pessoas em todo o mundo a organizar eventos, discussões e encontros locais, criamos páginas de comunidades, que estão listadas abaixo. <strong>Você foi adicionado automaticamente a algumas comunidades com base em sua localização, mas pode se juntar a qualquer comunidade!</strong> Suas comunidades estão listadas no painel principal.",
   "community_builder": "Quer ser um embaixador da sua comunidade e ajudá-la a crescer? Torne-se um <communityBuilderLink>Criador de Comunidade!</communityBuilderLink>",
@@ -34,7 +25,6 @@
   "browse_all_communities": "Navegar por Todas as Comunidades",
   "show_all_communities": "Mostrar todas as comunidades",
   "hide_all_communities": "Ocultar todas as comunidades",
-  "community_missing": "Não está vendo seu país ou cidade? Use <requestCommunityLink>este formulário</requestCommunityLink> para solicitá-lo!",
   "profile_summary_view": "Ver meu perfil",
   "search_input_label": "Para onde você está indo?",
   "search_input_placeholder": "Busque uma localização",
@@ -54,7 +44,6 @@
   },
   "events": {
     "your_upcoming_header": "Seus próximos eventos",
-    "see_all_link": "Veja todos →",
     "community_header": "Eventos nas suas comunidades",
     "today_label": "Hoje",
     "your_upcoming_empty_message": "Nenhum evento no momento. Por que você não <createEventLink>cria</createEventLink> um ✨?"
@@ -62,8 +51,6 @@
   "public_trips": {
     "my_trips_header": "Suas viagens públicas",
     "when_now": "Agora",
-    "when_today": "Hoje",
-    "when_tomorrow": "Amanhã",
     "same_gender_only_indicator": "Mesmo gênero",
     "manage_link": "Gerenciar",
     "empty_description": "Indo a algum lugar? Publique uma viagem pública em uma comunidade para receber convites de anfitriões próximos.",
@@ -113,10 +100,6 @@
       "description": "{{name}} aceitou sua solicitação. Confirme sua estadia para reservá-la.",
       "button": "Confirmar estadia"
     },
-    "carousel_dismiss_button_a11y": "Dispensar lembrete",
-    "carousel_scroller": {
-      "left_arrow_a11y": "Rolar para a esquerda",
-      "right_arrow_a11y": "Rolar para a direita"
-    }
+    "carousel_dismiss_button_a11y": "Dispensar lembrete"
   }
 }

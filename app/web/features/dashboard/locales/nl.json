@@ -1,20 +1,13 @@
 {
   "dashboard": "Dashboard",
-  "please_complete_profile": "Vul je profiel helemaal in om te zorgen dat je goed gevonden wordt:",
-  "fill_in_who_i_am": "1. Schrijf bij \"Wie ik ben\" een paar regels over jezelf",
-  "upload_photo": "2. Upload een foto (door op je profielfoto te klikken op de Bewerken-pagina)",
-  "complete_profile_explanation": "Vind jij het ook zo vervelend, van die lege \"ghost\" profielen zonder informatie? Ghost ons alsjeblieft niet! 👻👻👻",
   "your_communities_heading": "Jouw communities",
   "welcome": "Welkom bij Couchers.org!",
-  "all_communities_heading": "Alle communities",
   "no_community": "Je zit op dit moment niet in een community.",
   "no_sub_communities": "Geen sub-communities.",
   "load_more": "Meer laden",
   "new_pill": "Nieuw",
   "your_communities_helper_text": "Je bent op basis van je locatie automatisch toegevoegd aan een aantal communities. Natuurlijk kan je ook door <browseCommunitiesLink>communities bladeren en lid worden</browseCommunitiesLink> van andere locaties.",
-  "community_builder_form_text": "Begin jouw eigen lokale community",
   "communities_welcome_title": "Welkom bij Communities",
-  "landing_text": "We bouwen nieuwe <featuresLink>functionaliteiten</featuresLink> zoals events, lokale gidsen, moderatie en hangouts. We waarderen je geduld en <supportLink>support</supportLink> tijdens het wachten hierop.",
   "communities_intro": "We willen graag iedereen, waar ook ter wereld, helpen bij het organiseren van events, discussies of lokale meetups. Daarom hebben we speciale community-pagina's gemaakt. Je kan ze hieronder bekijken. <strong>Je bent automatisch, op basis van je locatie, toegevoegd aan een aantal communities. Je kan natuurlijk zelf ook lid worden van andere communities!</strong> De communities waar je lid van bent, kan je altijd terugvinden op je Dashboard.",
   "community_builder": "Wil je ambassadeur worden en zorgen dat jouw community groeit? Word een <communityBuilderLink>Community Builder!</communityBuilderLink>",
   "find_your_community_intro_simplified": "Zoek jouw community of blader door de lijst hieronder. <requestCommunityLink>Niet gevonden wat je zoekt? Vraag hem aan!</requestCommunityLink>",
@@ -25,11 +18,8 @@
   "browse_communities_text": "Klik op de naam van een regio om alle onderliggende communities te bekijken. Klik op de link om naar die stad of regio community-pagina te gaan.",
   "show_all_communities": "Bekijk alle communities",
   "hide_all_communities": "Verberg alle communities",
-  "all_communities_section": "Alle communities",
   "member_count_one": "{{count}} lid",
   "member_count_other": "{{count}} leden",
-  "all_communities_intro": "Hieronder kan je door alle communities bladeren. <strong>Klik op de naam van een community om de onderliggende communites te bekijken.</strong>",
-  "community_missing": "Mist jouw land of stad? Gebruik <requestCommunityLink>dit formulier </requestCommunityLink> om die community aan te vragen!",
   "profile_summary_edit": "Profiel bewerken",
   "profile_summary_view": "Profiel bekijken",
   "profile_mobile_summary_view": "Ga naar profiel",
@@ -73,15 +63,10 @@
       "title": "Bevestig je verblijf bij {{name}}",
       "description": "{{name}} heeft je verzoek geaccepteerd. Bevestig je verblijf om het vast te leggen.",
       "button": "Verblijf bevestigen"
-    },
-    "carousel_scroller": {
-      "left_arrow_a11y": "Naar links scrollen",
-      "right_arrow_a11y": "Naar rechts scrollen"
     }
   },
   "events": {
     "your_upcoming_header": "Je aankomende events",
-    "see_all_link": "Alles bekijken →",
     "your_upcoming_empty_message": "Geen events op dit moment. Waarom <createEventLink>plan</createEventLink> je er zelf niet eentje ✨?",
     "community_header": "Events in jouw communities",
     "today_label": "Vandaag"
@@ -99,8 +84,6 @@
     "my_trips_header": "Je openbare trips",
     "manage_link": "Beheren",
     "when_now": "Nu",
-    "when_today": "Vandaag",
-    "when_tomorrow": "Morgen",
     "empty_description": "Ga je ergens heen? Maak een openbare trip in een community om uitnodigingen te krijgen van hosts in de buurt.",
     "same_gender_only_indicator": "Zelfde gender",
     "offers_count_one": "{{count}} uitnodiging",
