@@ -1,8 +1,11 @@
 {
   "mcpServers": {
     "playwright": {
-      "command": "npx",
-      "args": ["-y", "@playwright/mcp@latest", "--isolated", "--viewport-size=1280,900"]
+      "command": "bash",
+      "args": [
+        "-c",
+        "command -v npx >/dev/null || . \"${NVM_DIR:-$HOME/.nvm}/nvm.sh\"; exec npx -y @playwright/mcp@latest --isolated --viewport-size=1280,900"
+      ]
     }
   }
 }
