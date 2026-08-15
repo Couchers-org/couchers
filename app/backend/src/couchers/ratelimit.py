@@ -17,9 +17,9 @@ from typing import TYPE_CHECKING, Protocol
 
 import sentry_sdk
 import valkey
-from google.protobuf.descriptor_pool import DescriptorPool
 
 from couchers.config import config
+from couchers.descriptor_pool import get_descriptor_pool
 from couchers.experimentation import get_global_boolean_value
 from couchers.metrics import (
     observe_rate_limit_check,
@@ -31,7 +31,7 @@ from couchers.proto import annotations_pb2
 from couchers.proto_annotations import method_extension, optional_field, service_extension, split_method
 
 if TYPE_CHECKING:
-    from couchers.interceptors import UserAuthInfo
+    from couchers.interceptors import CouchersHeaders, UserAuthInfo
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +50,7 @@ class ResolvedLimits:
 
 
 @cache
-def resolve_method_rate_limits(pool: DescriptorPool, method: str) -> ResolvedLimits:
+def resolve_method_rate_limits(method: str) -> ResolvedLimits:
     """
     Resolve the limits for a method from its proto annotations, falling back to global defaults.
 
@@ -71,6 +71,7 @@ def resolve_method_rate_limits(pool: DescriptorPool, method: str) -> ResolvedLim
     def resolve(annotation_value: int | None, default: int) -> int:
         return annotation_value if annotation_value is not None else default
 
+    pool = get_descriptor_pool()
     service_name, _ = split_method(method)
     method_rl = method_extension(pool, method, annotations_pb2.rate_limit)
     service_default = service_extension(pool, service_name, annotations_pb2.rate_limit_default)
@@ -208,9 +209,7 @@ def _build_entries(
     return entries
 
 
-def check_rate_limits(
-    pool: DescriptorPool, method: str, ip_address: str | None, user_id: int | None
-) -> RateLimitResult | None:
+def check_rate_limits(method: str, ip_address: str | None, user_id: int | None) -> RateLimitResult | None:
     """
     Check every applicable limit for this request.
 
@@ -222,7 +221,7 @@ def check_rate_limits(
     if store is None:
         return None
 
-    limits = resolve_method_rate_limits(pool, method)
+    limits = resolve_method_rate_limits(method)
     bucket = int(time.time() // _WINDOW_SECONDS)
     entries = _build_entries(limits, method, ip_address, user_id, bucket)
 
@@ -241,9 +240,7 @@ def check_rate_limits(
     return RateLimitResult(tripped=[TrippedLimit(entries[i][0], entries[i][1]) for i in tripped_idx])
 
 
-def should_rate_limit(
-    pool: DescriptorPool, method: str, ip_address: str | None, auth_info: UserAuthInfo | None
-) -> bool:
+def should_rate_limit(method: str, headers: CouchersHeaders, auth_info: UserAuthInfo | None) -> bool:
     """
     Count this request against every applicable limit and decide whether it should be rejected.
 
@@ -254,7 +251,7 @@ def should_rate_limit(
     if auth_info and auth_info.is_superuser:
         return False
 
-    result = check_rate_limits(pool, method, ip_address, auth_info.user_id if auth_info else None)
+    result = check_rate_limits(method, headers.ip_address, auth_info.user_id if auth_info else None)
     if result is None:
         return False
 

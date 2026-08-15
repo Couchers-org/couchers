@@ -457,7 +457,7 @@ def admit_call(pool: DescriptorPool, handler_call_details: grpc.HandlerCallDetai
 
         check_permissions(auth_info, auth_level)
 
-        if should_rate_limit(pool, handler_call_details.method, headers.ip_address, auth_info):
+        if should_rate_limit(handler_call_details.method, headers, auth_info):
             raise CallRejectedError(RATE_LIMIT_ERROR_MESSAGE, grpc.StatusCode.RESOURCE_EXHAUSTED)
 
         if headers.sofa:

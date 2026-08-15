@@ -6,7 +6,6 @@ import pytest
 import valkey
 
 from couchers import metrics, ratelimit
-from couchers.descriptor_pool import get_descriptor_pool
 from couchers.proto import api_pb2, auth_pb2
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import auth_api_session, real_api_session
@@ -83,9 +82,9 @@ def key_prefix():
     return f"test:{uuid4().hex}"
 
 
-def _check(pool, method, ip, user_id):
+def _check(method, ip, user_id):
     """check_rate_limits asserting a store was configured (non-None result)."""
-    result = ratelimit.check_rate_limits(pool, method, ip, user_id)
+    result = ratelimit.check_rate_limits(method, ip, user_id)
     assert result is not None
     return result
 
@@ -107,15 +106,13 @@ def test_ip_to_key_ipv6_prefix_configurable():
 
 
 def test_resolve_method_rate_limits_method_override():
-    pool = get_descriptor_pool()
-    limits = ratelimit.resolve_method_rate_limits(pool, AUTHENTICATE)
+    limits = ratelimit.resolve_method_rate_limits(AUTHENTICATE)
     # Authenticate annotates per_ip = 10; the other dimensions fall through to the global rpc defaults
     assert limits.rpc == {"per_ip": 10, "per_user": 120, "global": 6000}
 
 
 def test_resolve_method_rate_limits_defaults():
-    pool = get_descriptor_pool()
-    limits = ratelimit.resolve_method_rate_limits(pool, USERNAME_VALID)
+    limits = ratelimit.resolve_method_rate_limits(USERNAME_VALID)
     # no annotation anywhere: every scope/dimension uses its global default
     assert limits.rpc == {"per_ip": 60, "per_user": 120, "global": 6000}
     assert limits.svc == {"per_ip": 300, "per_user": 600, "global": 20000}
@@ -124,33 +121,29 @@ def test_resolve_method_rate_limits_defaults():
 
 def test_check_rate_limits_disabled_when_no_store():
     # default config has no store, so no check runs at all
-    pool = get_descriptor_pool()
-    assert ratelimit.check_rate_limits(pool, AUTHENTICATE, "1.2.3.4", None) is None
+    assert ratelimit.check_rate_limits(AUTHENTICATE, "1.2.3.4", None) is None
 
 
 def test_check_rate_limits_trips_per_ip(store):
-    pool = get_descriptor_pool()
     # Authenticate per_ip = 10: first 10 calls pass, the 11th trips the per-IP RPC limit
     for _ in range(10):
-        assert _check(pool, AUTHENTICATE, "1.2.3.4", None).tripped == []
-    tripped = _check(pool, AUTHENTICATE, "1.2.3.4", None).tripped
+        assert _check(AUTHENTICATE, "1.2.3.4", None).tripped == []
+    tripped = _check(AUTHENTICATE, "1.2.3.4", None).tripped
     assert any(t.scope == "rpc" and t.dimension == "per_ip" for t in tripped)
 
 
 def test_check_rate_limits_per_ip_skipped_without_ip(store):
-    pool = get_descriptor_pool()
     # no IP → the per_ip dimension is not counted, so the per_ip=10 limit can never trip
     for _ in range(20):
-        tripped = _check(pool, AUTHENTICATE, None, None).tripped
+        tripped = _check(AUTHENTICATE, None, None).tripped
         assert not any(t.dimension == "per_ip" for t in tripped)
 
 
 def test_check_rate_limits_separate_subnets(store):
-    pool = get_descriptor_pool()
     # two different /64s get independent counters
     for _ in range(11):
-        ratelimit.check_rate_limits(pool, AUTHENTICATE, "2001:db8:1::1", None)
-    assert _check(pool, AUTHENTICATE, "2001:db8:2::1", None).tripped == []
+        ratelimit.check_rate_limits(AUTHENTICATE, "2001:db8:1::1", None)
+    assert _check(AUTHENTICATE, "2001:db8:2::1", None).tripped == []
 
 
 def test_check_rate_limits_store_error(monkeypatch):
@@ -159,9 +152,8 @@ def test_check_rate_limits_store_error(monkeypatch):
     monkeypatch.setattr("couchers.ratelimit.sentry_sdk.capture_exception", lambda e: captured.append(e))
     monkeypatch.setattr("couchers.ratelimit.sentry_sdk.set_tag", lambda *a, **k: None)
 
-    pool = get_descriptor_pool()
     # store blows up → store_error is flagged (nothing tripped) and the error is reported
-    result = _check(pool, AUTHENTICATE, "1.2.3.4", None)
+    result = _check(AUTHENTICATE, "1.2.3.4", None)
     assert result.store_error
     assert result.tripped == []
     assert len(captured) == 1
@@ -331,16 +323,15 @@ def test_valkey_store_does_not_extend_ttl_on_later_increments(valkey_store, valk
 
 def test_check_rate_limits_end_to_end_against_valkey(valkey_store, monkeypatch):
     monkeypatch.setattr(ratelimit, "_store", valkey_store)
-    pool = get_descriptor_pool()
     # a /64 unique to this run, so the per-IP counters start clean
     ip = f"2001:db8:{uuid4().hex[:4]}:{uuid4().hex[:4]}::1"
 
     # Authenticate annotates per_ip = 10
     for _ in range(10):
-        assert _check(pool, AUTHENTICATE, ip, None).tripped == []
-    tripped = _check(pool, AUTHENTICATE, ip, None).tripped
+        assert _check(AUTHENTICATE, ip, None).tripped == []
+    tripped = _check(AUTHENTICATE, ip, None).tripped
     assert any(t.scope == "rpc" and t.dimension == "per_ip" for t in tripped)
 
     # a different /64 is unaffected
     other_ip = f"2001:db8:{uuid4().hex[:4]}:{uuid4().hex[:4]}::1"
-    assert _check(pool, AUTHENTICATE, other_ip, None).tripped == []
+    assert _check(AUTHENTICATE, other_ip, None).tripped == []
