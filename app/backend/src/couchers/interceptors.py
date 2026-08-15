@@ -323,8 +323,8 @@ type Cont[T, R] = Callable[[grpc.HandlerCallDetails], grpc.RpcMethodHandler[T, R
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
-class _CallSetup:
-    """What the auth/setup phase resolves before the handler body runs."""
+class _AdmittedCall:
+    """What a call that's cleared to run carries into the handler body."""
 
     headers: CouchersHeaders
     auth_info: UserAuthInfo | None
@@ -333,8 +333,8 @@ class _CallSetup:
     localization: LocalizationContext
 
 
-def _setup_call(pool: DescriptorPool, handler_call_details: grpc.HandlerCallDetails) -> _CallSetup:
-    """Authenticate the call and resolve its per-call context, raising AbortError to reject it."""
+def _admit_call(pool: DescriptorPool, handler_call_details: grpc.HandlerCallDetails) -> _AdmittedCall:
+    """Let the call through, resolving who is making it and in what locale, or raise AbortError to reject it."""
     auth_level = find_auth_level(pool, handler_call_details.method)
 
     try:
@@ -362,7 +362,7 @@ def _setup_call(pool: DescriptorPool, handler_call_details: grpc.HandlerCallDeta
     else:
         sofa, new_sofa_cookie = generate_sofa_cookie()
 
-    return _CallSetup(
+    return _AdmittedCall(
         headers=headers,
         auth_info=auth_info,
         sofa=sofa,
@@ -415,7 +415,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             start_perf()
 
             try:
-                setup = _setup_call(self._pool, handler_call_details)
+                call = _admit_call(self._pool, handler_call_details)
                 observe_in_servicer_setup_histogram(method, read_perf())
             except AbortError as ae:
                 grpc_context.abort(ae.code, ae.msg)
@@ -426,10 +426,10 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                 sentry_sdk.capture_exception(e)
                 grpc_context.abort(grpc.StatusCode.INTERNAL, UNKNOWN_ERROR_MESSAGE)
 
-            headers = setup.headers
-            auth_info = setup.auth_info
-            sofa = setup.sofa
-            loc_context = setup.localization
+            headers = call.headers
+            auth_info = call.auth_info
+            sofa = call.sofa
+            loc_context = call.localization
 
             couchers_context = make_interactive_context(
                 grpc_context=grpc_context,
@@ -529,8 +529,8 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                 if auth_info.ui_language_preference and auth_info.ui_language_preference != headers.ui_lang:
                     couchers_context.set_cookies(create_lang_cookie(auth_info.ui_language_preference))
 
-            if setup.new_sofa_cookie:
-                couchers_context.set_cookies([setup.new_sofa_cookie])
+            if call.new_sofa_cookie:
+                couchers_context.set_cookies([call.new_sofa_cookie])
 
             if not grpc_context.is_active():
                 grpc_context.abort(grpc.StatusCode.INTERNAL, CALL_CANCELLED_ERROR_MESSAGE)
