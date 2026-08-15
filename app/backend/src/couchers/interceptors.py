@@ -63,6 +63,10 @@ from couchers.utils import (
 
 logger = logging.getLogger(__name__)
 
+# a call to a method that doesn't exist carries an arbitrary string off the wire, so it's bucketed under this rather
+# than used as a prometheus label; the api_calls row still records what was actually asked for
+NONEXISTENT_METHOD_LABEL = "<nonexistent>"
+
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class UserAuthInfo:
@@ -294,8 +298,10 @@ def _log_call(
     request: Message | None = None,
     response: Message | None = None,
     exception: Exception | None = None,
+    nonexistent_method: bool = False,
 ) -> None:
     """Record a finished call: one api_calls row, plus the per-call Prometheus observations."""
+    metric_method = NONEXISTENT_METHOD_LABEL if nonexistent_method else method
     duration = (perf_counter_ns() - start) / 1e6  # ms
 
     req_bytes = _sanitized_bytes(request)
@@ -332,9 +338,9 @@ def _log_call(
         )
 
     observe_in_servicer_duration_histogram(
-        method, user_id, status_code or "", type(exception).__name__ if exception else "", duration / 1000
+        metric_method, user_id, status_code or "", type(exception).__name__ if exception else "", duration / 1000
     )
-    observe_api_call(method, headers.client_platform if headers else None)
+    observe_api_call(metric_method, headers.client_platform if headers else None)
     logger.debug(f"{user_id=}, {method=}, {duration=} ms")
 
 
@@ -346,6 +352,7 @@ def _log_rejected_call(
     headers: CouchersHeaders | None,
     auth_info: UserAuthInfo | None = None,
     exception: Exception | None = None,
+    nonexistent_method: bool = False,
 ) -> None:
     """
     Log a call rejected during auth/setup.
@@ -364,8 +371,9 @@ def _log_rejected_call(
         start=start,
         perf=perf,
         exception=exception,
+        nonexistent_method=nonexistent_method,
     )
-    observe_in_servicer_setup_histogram(method, perf)
+    observe_in_servicer_setup_histogram(NONEXISTENT_METHOD_LABEL if nonexistent_method else method, perf)
 
 
 def _rejected_call_handler[T, R](
@@ -384,7 +392,7 @@ def _rejected_call_handler[T, R](
             headers: CouchersHeaders | None = parse_headers(dict(handler_call_details.invocation_metadata))
         except BadHeaders:
             headers = None
-        _log_rejected_call(method=method, code=code, start=start, headers=headers)
+        _log_rejected_call(method=method, code=code, start=start, headers=headers, nonexistent_method=True)
         context.abort(code, message)
 
     return grpc.unary_unary_rpc_method_handler(f)
@@ -514,7 +522,12 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                 observe_in_servicer_setup_histogram(method, read_perf())
             except CallRejectedError as ae:
                 _log_rejected_call(
-                    method=method, code=ae.code, start=start, headers=progress.headers, auth_info=progress.auth_info
+                    method=method,
+                    code=ae.code,
+                    start=start,
+                    headers=progress.headers,
+                    auth_info=progress.auth_info,
+                    nonexistent_method=ae.code == grpc.StatusCode.UNIMPLEMENTED,
                 )
                 grpc_context.abort(ae.code, ae.msg)
             except Exception as e:
@@ -699,6 +712,9 @@ def find_auth_level(pool: DescriptorPool, method: str) -> AuthLevel.ValueType:
 
     try:
         service: ServiceDescriptor = pool.FindServiceByName(service_name)  # type: ignore[no-untyped-call]
+        # checked so a probe for a method that doesn't exist on a real service aborts here, rather than reaching the
+        # missing-handler RuntimeError below and being reported as an internal error
+        service.FindMethodByName(method_name)  # type: ignore[no-untyped-call]
         service_options = service.GetOptions()
     except KeyError:
         raise CallRejectedError(NONEXISTENT_API_CALL_ERROR_MESSAGE, grpc.StatusCode.UNIMPLEMENTED) from None
