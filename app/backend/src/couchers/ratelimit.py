@@ -23,25 +23,12 @@ from couchers.config import config
 from couchers.experimentation import get_global_boolean_value
 from couchers.metrics import observe_rate_limit_store_error, observe_rate_limit_store_latency
 from couchers.proto import annotations_pb2
+from couchers.proto_annotations import method_extension, optional_field, service_extension, split_method
 
 logger = logging.getLogger(__name__)
 
 # Window length for the fixed-window counters, in seconds.
 _WINDOW_SECONDS = 60
-# Counter keys carry their window bucket, so a stale key is only ever read within its own window; we let
-# Valkey expire them a window later as housekeeping.
-_KEY_TTL_SECONDS = 2 * _WINDOW_SECONDS
-
-# Dimensions, in a fixed order.
-DIMENSIONS = ("per_ip", "per_user", "global")
-
-# Global default limits (requests per minute) per dimension, one set per scope. These apply wherever an
-# annotation leaves a dimension unset; tune them in shadow mode before enforcing.
-_DEFAULTS: dict[str, dict[str, int]] = {
-    "rpc": {"per_ip": 60, "per_user": 120, "global": 6000},
-    "svc": {"per_ip": 300, "per_user": 600, "global": 20000},
-    "api": {"per_ip": 600, "per_user": 1200, "global": 60000},
-}
 
 
 @dataclass(frozen=True, slots=True)
@@ -54,17 +41,8 @@ class ResolvedLimits:
     api: dict[str, int]
 
 
-def _resolve_dim(annotation_value: int | None, default: int) -> int:
-    return annotation_value if annotation_value is not None else default
-
-
-def _opt(message: annotations_pb2.RateLimit, dim: str) -> int | None:
-    """Read a dimension off a RateLimit message, honouring proto field presence."""
-    return getattr(message, dim) if message.HasField(dim) else None  # type: ignore[arg-type]
-
-
 @cache
-def find_rate_limits(pool: DescriptorPool, method: str) -> ResolvedLimits:
+def resolve_method_rate_limits(pool: DescriptorPool, method: str) -> ResolvedLimits:
     """
     Resolve the limits for a method from its proto annotations, falling back to global defaults.
 
@@ -72,25 +50,36 @@ def find_rate_limits(pool: DescriptorPool, method: str) -> ResolvedLimits:
     per-servicer: service rate_limit_aggregate.<dim> → global svc default
     all-API:      global api default
     """
-    # method is of the form "/org.couchers.api.core.API/GetUser"
-    _, service_name, method_name = method.split("/")
-
-    service = pool.FindServiceByName(service_name)  # type: ignore[no-untyped-call]
-    method_desc = service.FindMethodByName(method_name)
-
-    service_options = service.GetOptions()
-    method_rl = method_desc.GetOptions().Extensions[annotations_pb2.rate_limit]
-    service_default = service_options.Extensions[annotations_pb2.rate_limit_default]
-    service_aggregate = service_options.Extensions[annotations_pb2.rate_limit_aggregate]
-
-    rpc = {
-        dim: _resolve_dim(_opt(method_rl, dim), _resolve_dim(_opt(service_default, dim), _DEFAULTS["rpc"][dim]))
-        for dim in DIMENSIONS
+    # dimensions, in a fixed order
+    dimensions = ("per_ip", "per_user", "global")
+    # global default limits (requests per minute) per dimension, one set per scope. These apply wherever an
+    # annotation leaves a dimension unset; tune them in shadow mode before enforcing.
+    defaults = {
+        "rpc": {"per_ip": 60, "per_user": 120, "global": 6000},
+        "svc": {"per_ip": 300, "per_user": 600, "global": 20000},
+        "api": {"per_ip": 600, "per_user": 1200, "global": 60000},
     }
-    svc = {dim: _resolve_dim(_opt(service_aggregate, dim), _DEFAULTS["svc"][dim]) for dim in DIMENSIONS}
-    api = dict(_DEFAULTS["api"])
 
-    return ResolvedLimits(service_name=service_name, rpc=rpc, svc=svc, api=api)
+    def resolve(annotation_value: int | None, default: int) -> int:
+        return annotation_value if annotation_value is not None else default
+
+    service_name, _ = split_method(method)
+    method_rl = method_extension(pool, method, annotations_pb2.rate_limit)
+    service_default = service_extension(pool, service_name, annotations_pb2.rate_limit_default)
+    service_aggregate = service_extension(pool, service_name, annotations_pb2.rate_limit_aggregate)
+
+    return ResolvedLimits(
+        service_name=service_name,
+        rpc={
+            dim: resolve(
+                optional_field(method_rl, dim),
+                resolve(optional_field(service_default, dim), defaults["rpc"][dim]),
+            )
+            for dim in dimensions
+        },
+        svc={dim: resolve(optional_field(service_aggregate, dim), defaults["svc"][dim]) for dim in dimensions},
+        api=dict(defaults["api"]),
+    )
 
 
 def ip_to_key(ip: str, ipv6_prefix: int) -> str:
@@ -202,12 +191,12 @@ def _build_entries(
     )
     entries = []
     for scope, scope_id, scope_limits in scopes:
-        for dim in DIMENSIONS:
+        for dim, limit in scope_limits.items():
             dim_id = dim_ids[dim]
             if dim_id is None:
                 continue
             key = f"rl:{scope}:{scope_id}:{dim}:{dim_id}:{bucket}"
-            entries.append((scope, dim, key, scope_limits[dim]))
+            entries.append((scope, dim, key, limit))
     return entries
 
 
@@ -225,13 +214,15 @@ def check_rate_limits(
     if store is None:
         return None
 
-    limits = find_rate_limits(pool, method)
+    limits = resolve_method_rate_limits(pool, method)
     bucket = int(time.time() // _WINDOW_SECONDS)
     entries = _build_entries(limits, method, ip_address, user_id, bucket)
 
     start = time.perf_counter_ns()
     try:
-        tripped_idx = store.incr_and_check([(key, limit) for _, _, key, limit in entries], _KEY_TTL_SECONDS)
+        # keys carry their window bucket, so a stale key is only ever read within its own window; we let
+        # Valkey expire them a window later as housekeeping
+        tripped_idx = store.incr_and_check([(key, limit) for _, _, key, limit in entries], 2 * _WINDOW_SECONDS)
     except Exception as e:
         observe_rate_limit_store_error(type(e).__name__)
         sentry_sdk.set_tag("context", "rate_limiting")

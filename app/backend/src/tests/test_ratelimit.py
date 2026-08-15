@@ -106,22 +106,20 @@ def test_ip_to_key_ipv6_prefix_configurable():
     assert ratelimit.ip_to_key("2001:db8:abcd:1234::1", 48) == "2001:db8:abcd::/48"
 
 
-def test_find_rate_limits_method_override():
+def test_resolve_method_rate_limits_method_override():
     pool = get_descriptor_pool()
-    limits = ratelimit.find_rate_limits(pool, AUTHENTICATE)
-    # Authenticate annotates per_ip = 10; the other dimensions fall through to global rpc defaults
-    assert limits.rpc["per_ip"] == 10
-    assert limits.rpc["per_user"] == ratelimit._DEFAULTS["rpc"]["per_user"]
-    assert limits.rpc["global"] == ratelimit._DEFAULTS["rpc"]["global"]
+    limits = ratelimit.resolve_method_rate_limits(pool, AUTHENTICATE)
+    # Authenticate annotates per_ip = 10; the other dimensions fall through to the global rpc defaults
+    assert limits.rpc == {"per_ip": 10, "per_user": 120, "global": 6000}
 
 
-def test_find_rate_limits_defaults():
+def test_resolve_method_rate_limits_defaults():
     pool = get_descriptor_pool()
-    limits = ratelimit.find_rate_limits(pool, USERNAME_VALID)
+    limits = ratelimit.resolve_method_rate_limits(pool, USERNAME_VALID)
     # no annotation anywhere: every scope/dimension uses its global default
-    assert limits.rpc == ratelimit._DEFAULTS["rpc"]
-    assert limits.svc == ratelimit._DEFAULTS["svc"]
-    assert limits.api == ratelimit._DEFAULTS["api"]
+    assert limits.rpc == {"per_ip": 60, "per_user": 120, "global": 6000}
+    assert limits.svc == {"per_ip": 300, "per_user": 600, "global": 20000}
+    assert limits.api == {"per_ip": 600, "per_user": 1200, "global": 60000}
 
 
 def test_check_rate_limits_disabled_when_no_store():

@@ -13,7 +13,7 @@ from zoneinfo import ZoneInfo
 
 import grpc
 import sentry_sdk
-from google.protobuf.descriptor import Descriptor, ServiceDescriptor
+from google.protobuf.descriptor import Descriptor
 from google.protobuf.descriptor_pool import DescriptorPool
 from google.protobuf.message import Message
 from opentelemetry import trace
@@ -26,7 +26,6 @@ from couchers.config import config
 from couchers.constants import (
     CALL_CANCELLED_ERROR_MESSAGE,
     COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE,
-    MISSING_AUTH_LEVEL_ERROR_MESSAGE,
     NONEXISTENT_API_CALL_ERROR_MESSAGE,
     PERMISSION_DENIED_ERROR_MESSAGE,
     RATE_LIMIT_ERROR_MESSAGE,
@@ -36,6 +35,7 @@ from couchers.constants import (
 from couchers.context import CouchersContext, make_interactive_context, make_media_context
 from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
+from couchers.errors import CallRejectedError
 from couchers.i18n import LocalizationContext
 from couchers.metrics import (
     observe_api_call,
@@ -52,6 +52,7 @@ from couchers.models import APICall, ClientPlatform, User, UserActivity, UserSes
 from couchers.perf import PerfResult, read_perf, start_perf
 from couchers.proto import annotations_pb2
 from couchers.proto.annotations_pb2 import AuthLevel
+from couchers.proto_annotations import find_auth_level
 from couchers.ratelimit import check_rate_limits, rate_limiting_enabled
 from couchers.utils import (
     create_lang_cookie,
@@ -740,44 +741,6 @@ def parse_headers(headers: Mapping[str, str | bytes]) -> CouchersHeaders:
 
 class BadHeaders(Exception):
     pass
-
-
-class CallRejectedError(Exception):
-    def __init__(self, msg: str, code: grpc.StatusCode):
-        self.msg = msg
-        self.code = code
-
-
-def find_auth_level(pool: DescriptorPool, method: str) -> AuthLevel.ValueType:
-    # method is of the form "/org.couchers.api.core.API/GetUser"
-    _, service_name, method_name = method.split("/")
-
-    try:
-        service: ServiceDescriptor = pool.FindServiceByName(service_name)  # type: ignore[no-untyped-call]
-        service_options = service.GetOptions()
-    except KeyError:
-        raise CallRejectedError(NONEXISTENT_API_CALL_ERROR_MESSAGE, grpc.StatusCode.UNIMPLEMENTED) from None
-
-    level = service_options.Extensions[annotations_pb2.auth_level]
-
-    validate_auth_level(level)
-
-    return level
-
-
-def validate_auth_level(auth_level: AuthLevel.ValueType) -> None:
-    # if unknown auth level, then it wasn't set and something's wrong
-    if auth_level == annotations_pb2.AUTH_LEVEL_UNKNOWN:
-        raise CallRejectedError(MISSING_AUTH_LEVEL_ERROR_MESSAGE, grpc.StatusCode.INTERNAL)
-
-    if auth_level not in {
-        annotations_pb2.AUTH_LEVEL_OPEN,
-        annotations_pb2.AUTH_LEVEL_JAILED,
-        annotations_pb2.AUTH_LEVEL_SECURE,
-        annotations_pb2.AUTH_LEVEL_EDITOR,
-        annotations_pb2.AUTH_LEVEL_ADMIN,
-    }:
-        raise CallRejectedError(MISSING_AUTH_LEVEL_ERROR_MESSAGE, grpc.StatusCode.INTERNAL)
 
 
 def check_permissions(auth_info: UserAuthInfo | None, auth_level: AuthLevel.ValueType) -> None:
