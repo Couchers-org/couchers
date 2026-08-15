@@ -21,7 +21,12 @@ from google.protobuf.descriptor_pool import DescriptorPool
 
 from couchers.config import config
 from couchers.experimentation import get_global_boolean_value
-from couchers.metrics import observe_rate_limit_store_error, observe_rate_limit_store_latency
+from couchers.metrics import (
+    observe_rate_limit_check,
+    observe_rate_limit_store_error,
+    observe_rate_limit_store_latency,
+    observe_rate_limit_trip,
+)
 from couchers.proto import annotations_pb2
 from couchers.proto_annotations import method_extension, optional_field, service_extension, split_method
 
@@ -231,3 +236,33 @@ def check_rate_limits(
     observe_rate_limit_store_latency((time.perf_counter_ns() - start) / 1e9)
 
     return RateLimitResult(tripped=[TrippedLimit(entries[i][0], entries[i][1]) for i in tripped_idx])
+
+
+def should_rate_limit(pool: DescriptorPool, method: str, ip_address: str | None, user_id: int | None) -> bool:
+    """
+    Count this request against every applicable limit and decide whether it should be rejected.
+
+    True only when a limit tripped and enforcement is on. Shadow mode, an unreachable counter store, and no
+    store configured at all each count for what they can and allow the request.
+    """
+    result = check_rate_limits(pool, method, ip_address, user_id)
+    if result is None:
+        return False
+
+    if result.store_error:
+        # the store is unreachable so nothing could be counted; always fail open, since going dark on the
+        # counters is not a reason to take the API down with it
+        observe_rate_limit_check(method, "failed_open")
+        return False
+
+    if not result.tripped:
+        observe_rate_limit_check(method, "allowed")
+        return False
+
+    enforced = rate_limiting_enabled()
+    for tripped in result.tripped:
+        observe_rate_limit_trip(method, tripped.scope, tripped.dimension, enforced)
+    # in shadow (the default) the trips metric records what would have been blocked, deliberately without a
+    # log line so a flood can't drown the logs
+    observe_rate_limit_check(method, "blocked" if enforced else "shadowed")
+    return enforced

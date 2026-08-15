@@ -45,15 +45,13 @@ from couchers.metrics import (
     observe_in_servicer_serde_histogram,
     observe_in_servicer_setup_errors_counter,
     observe_in_servicer_setup_histogram,
-    observe_rate_limit_check,
-    observe_rate_limit_trip,
 )
 from couchers.models import APICall, ClientPlatform, User, UserActivity, UserSession
 from couchers.perf import PerfResult, read_perf, start_perf
 from couchers.proto import annotations_pb2
 from couchers.proto.annotations_pb2 import AuthLevel
 from couchers.proto_annotations import find_auth_level
-from couchers.ratelimit import check_rate_limits, rate_limiting_enabled
+from couchers.ratelimit import should_rate_limit
 from couchers.utils import (
     create_lang_cookie,
     create_session_cookies,
@@ -459,30 +457,11 @@ def admit_call(pool: DescriptorPool, handler_call_details: grpc.HandlerCallDetai
 
         check_permissions(auth_info, auth_level)
 
-        method = handler_call_details.method
         # superusers are exempt, so a mistuned limit can't lock admins out mid-incident
-        rl_result = (
-            None
-            if auth_info and auth_info.is_superuser
-            else check_rate_limits(pool, method, headers.ip_address, auth_info.user_id if auth_info else None)
-        )
-        if rl_result is not None:
-            if rl_result.store_error:
-                # the store is unreachable so nothing could be counted; always fail open, since going dark
-                # on the counters is not a reason to take the API down with it
-                observe_rate_limit_check(method, "failed_open")
-            elif rl_result.tripped:
-                enforced = rate_limiting_enabled()
-                for t in rl_result.tripped:
-                    observe_rate_limit_trip(method, t.scope, t.dimension, enforced)
-                if enforced:
-                    observe_rate_limit_check(method, "blocked")
-                    raise CallRejectedError(RATE_LIMIT_ERROR_MESSAGE, grpc.StatusCode.RESOURCE_EXHAUSTED)
-                # shadow (the default): allow the request; the trips metric records what would have been
-                # blocked, deliberately without a log line so a flood can't drown the logs
-                observe_rate_limit_check(method, "shadowed")
-            else:
-                observe_rate_limit_check(method, "allowed")
+        if not (auth_info and auth_info.is_superuser) and should_rate_limit(
+            pool, handler_call_details.method, headers.ip_address, auth_info.user_id if auth_info else None
+        ):
+            raise CallRejectedError(RATE_LIMIT_ERROR_MESSAGE, grpc.StatusCode.RESOURCE_EXHAUSTED)
 
         if headers.sofa:
             sofa = headers.sofa
