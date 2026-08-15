@@ -52,7 +52,7 @@ from couchers.models import APICall, ClientPlatform, User, UserActivity, UserSes
 from couchers.perf import PerfResult, read_perf, start_perf
 from couchers.proto import annotations_pb2
 from couchers.proto.annotations_pb2 import AuthLevel
-from couchers.ratelimit import check_rate_limits, rate_limiting_enabled, rate_limiting_fail_closed
+from couchers.ratelimit import check_rate_limits, rate_limiting_enabled
 from couchers.utils import (
     create_lang_cookie,
     create_session_cookies,
@@ -467,23 +467,21 @@ def admit_call(pool: DescriptorPool, handler_call_details: grpc.HandlerCallDetai
         )
         if rl_result is not None:
             if rl_result.store_error:
-                # the store was unreachable: fail closed only when enforcing and configured to, else fail open
-                if rate_limiting_enabled() and rate_limiting_fail_closed():
-                    observe_rate_limit_check("failed_closed")
-                    raise CallRejectedError(RATE_LIMIT_ERROR_MESSAGE, grpc.StatusCode.RESOURCE_EXHAUSTED)
-                observe_rate_limit_check("failed_open")
+                # the store is unreachable so nothing could be counted; always fail open, since going dark
+                # on the counters is not a reason to take the API down with it
+                observe_rate_limit_check(method, "failed_open")
             elif rl_result.tripped:
                 enforced = rate_limiting_enabled()
                 for t in rl_result.tripped:
                     observe_rate_limit_trip(method, t.scope, t.dimension, enforced)
                 if enforced:
-                    observe_rate_limit_check("blocked")
+                    observe_rate_limit_check(method, "blocked")
                     raise CallRejectedError(RATE_LIMIT_ERROR_MESSAGE, grpc.StatusCode.RESOURCE_EXHAUSTED)
                 # shadow (the default): allow the request; the trips metric records what would have been
                 # blocked, deliberately without a log line so a flood can't drown the logs
-                observe_rate_limit_check("shadowed")
+                observe_rate_limit_check(method, "shadowed")
             else:
-                observe_rate_limit_check("allowed")
+                observe_rate_limit_check(method, "allowed")
 
         if headers.sofa:
             sofa = headers.sofa

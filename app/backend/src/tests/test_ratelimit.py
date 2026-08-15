@@ -216,31 +216,11 @@ def test_interceptor_enforce_rejects(db, feature_flags, monkeypatch):
         assert e.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
 
 
-def test_interceptor_fails_open_by_default(db, feature_flags, monkeypatch):
+def test_interceptor_fails_open_when_enforcing(db, feature_flags, monkeypatch):
     feature_flags.set("rate_limiting_enabled", True)
-    # rate_limiting_fail_closed defaults to false
     monkeypatch.setattr(ratelimit, "_store", BrokenStore())
     with auth_api_session() as (auth_api, _):
-        # store unreachable + enforcing but fail-open → request allowed
-        assert auth_api.UsernameValid(auth_pb2.UsernameValidReq(username="test")).valid
-
-
-def test_interceptor_fails_closed_when_enforcing(db, feature_flags, monkeypatch):
-    feature_flags.set("rate_limiting_enabled", True)
-    feature_flags.set("rate_limiting_fail_closed", True)
-    monkeypatch.setattr(ratelimit, "_store", BrokenStore())
-    with auth_api_session() as (auth_api, _):
-        with pytest.raises(grpc.RpcError) as e:
-            auth_api.UsernameValid(auth_pb2.UsernameValidReq(username="test"))
-        assert e.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
-
-
-def test_interceptor_shadow_ignores_fail_closed(db, feature_flags, monkeypatch):
-    feature_flags.set("rate_limiting_enabled", False)
-    feature_flags.set("rate_limiting_fail_closed", True)
-    monkeypatch.setattr(ratelimit, "_store", BrokenStore())
-    with auth_api_session() as (auth_api, _):
-        # shadow never blocks, even with fail-closed set and the store down
+        # a store outage always allows, even while enforcing: it must not become an API outage
         assert auth_api.UsernameValid(auth_pb2.UsernameValidReq(username="test")).valid
 
 
@@ -260,7 +240,10 @@ def test_interceptor_emits_metrics_on_enforce(db, feature_flags, monkeypatch):
     monkeypatch.setattr(ratelimit, "_store", AlwaysTripStore())
 
     blocked_before = _metric_value(
-        metrics.rate_limit_checks_counter, "couchers_rate_limit_checks_total", decision="blocked"
+        metrics.rate_limit_checks_counter,
+        "couchers_rate_limit_checks_total",
+        method=USERNAME_VALID,
+        decision="blocked",
     )
     # no IP/user on this call, so the global dimension trips at every scope
     trip_before = _metric_value(
@@ -277,7 +260,12 @@ def test_interceptor_emits_metrics_on_enforce(db, feature_flags, monkeypatch):
             auth_api.UsernameValid(auth_pb2.UsernameValidReq(username="test"))
 
     assert (
-        _metric_value(metrics.rate_limit_checks_counter, "couchers_rate_limit_checks_total", decision="blocked")
+        _metric_value(
+            metrics.rate_limit_checks_counter,
+            "couchers_rate_limit_checks_total",
+            method=USERNAME_VALID,
+            decision="blocked",
+        )
         == blocked_before + 1
     )
     assert (

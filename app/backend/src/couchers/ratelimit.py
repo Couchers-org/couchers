@@ -170,11 +170,6 @@ def rate_limiting_enabled() -> bool:
     return get_global_boolean_value("rate_limiting_enabled", False)
 
 
-def rate_limiting_fail_closed() -> bool:
-    """When enforcing, whether a counter-store outage rejects requests instead of allowing them (default false)."""
-    return get_global_boolean_value("rate_limiting_fail_closed", False)
-
-
 @dataclass(frozen=True, slots=True)
 class TrippedLimit:
     scope: str

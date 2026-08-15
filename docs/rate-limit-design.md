@@ -57,7 +57,9 @@ Enforcement lives in the gRPC middleware interceptor, in the same setup phase th
 
 Counters are kept in **Valkey** (shared across all API worker processes; no distributed-state problem). A single Lua script does a fixed-window `INCR` + `EXPIRE` over all applicable keys in one round trip and returns which, if any, tripped. Keys are scope/dimension/identity/minute-bucket, e.g. `rl:rpc:API/GetUser:ip:2001:db8::/64:<minute>`.
 
-**Fail-open / fail-closed:** if Valkey is unreachable the error is reported to Sentry and, by default, the request is allowed. When enforcing, the `rate_limiting_fail_closed` flag flips this to rejecting requests instead. In shadow mode a store outage always allows (shadow never blocks).
+**Fail-open:** if Valkey is unreachable the error is reported to Sentry and the request is allowed. Losing the counters is not a reason to take the API down with them, and the alternative — rejecting everything while the store is down — turns a Valkey outage into a full outage. If a flood ever coincides with a store outage, the lever is to fix or restart the store, not to shed every request in the meantime.
+
+A rejected call returns before the instrumented handler wrapper is built, so — like every other rejected-in-setup call, such as a failed auth — it emits none of the ordinary servicer metrics and writes no `APICall` row. Blocked traffic is visible only through the rate-limit metrics above, and is not attributable to a user or IP from the database.
 
 ## Enabling
 
@@ -65,6 +67,8 @@ Counting happens whenever a counter store is configured; leaving the store uncon
 
 - **false (default)** — *shadow*: count what *would* be blocked, but allow everything.
 - **true** — *enforce*: actually reject over-limit requests.
+
+Shadow versus enforce is the only switch; there is deliberately no second flag for outage behaviour.
 
 The default is fail-safe: shadow. Tuning is driven off the `couchers_rate_limit_trips_total{method,scope,dimension,enforced}` metric, which names the exact counter that tripped. Shadow mode deliberately emits no log line — a flood is precisely when the log would be least affordable and the metric already carries the signal.
 

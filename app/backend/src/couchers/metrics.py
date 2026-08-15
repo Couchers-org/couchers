@@ -1186,17 +1186,17 @@ def observe_feature_flag_evaluation(flag_key: str, source: str, value: Any) -> N
 # =============================================================================
 
 # One increment per request that ran a rate-limit check. "allowed" = nothing tripped; "shadowed" = a
-# limit tripped but enforcement is off so the request was let through; "blocked" = rejected; "failed_open"
-# / "failed_closed" = the store was unreachable and the request was allowed / rejected accordingly.
+# limit tripped but enforcement is off so the request was let through; "blocked" = rejected;
+# "failed_open" = the store was unreachable so nothing could be counted and the request was allowed.
 rate_limit_checks_counter: Counter = Counter(
     "couchers_rate_limit_checks_total",
-    "Rate limit checks, by decision (allowed, shadowed, blocked, failed_open, failed_closed)",
-    labelnames=["decision"],
+    "Rate limit checks, by method and decision (allowed, shadowed, blocked, failed_open)",
+    labelnames=["method", "decision"],
 )
 
 
-def observe_rate_limit_check(decision: str) -> None:
-    rate_limit_checks_counter.labels(decision).inc()
+def observe_rate_limit_check(method: str, decision: str) -> None:
+    rate_limit_checks_counter.labels(method, decision).inc()
 
 
 # One increment per (scope, dimension) counter that tripped on a request; a single request can trip
