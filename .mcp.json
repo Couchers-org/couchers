@@ -4,7 +4,7 @@
       "command": "bash",
       "args": [
         "-c",
-        "command -v npx >/dev/null || . \"${NVM_DIR:-$HOME/.nvm}/nvm.sh\"; exec npx -y @playwright/mcp@latest --isolated --browser chromium --viewport-size=1280,900"
+        "command -v npx >/dev/null || . \"${NVM_DIR:-$HOME/.nvm}/nvm.sh\"; exec npx -y @playwright/mcp@0.0.79 --isolated --headless --browser chromium --viewport-size=1280,900 --output-dir app/e2e/.playwright-mcp"
       ]
     }
   }

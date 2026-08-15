@@ -29,6 +29,23 @@ yarn shots
 Screenshots land in `screenshots/<device>-<theme>/<recipe>/<name>.png`, each
 with a `.json` sidecar describing what it is.
 
+## Driving the browser from Claude Code
+
+`.mcp.json` in the repo root registers a Playwright MCP server, which lets
+Claude Code click around a running app rather than only run the recipes here.
+It runs headless and writes its scratch output to `.playwright-mcp/`.
+
+It bundles its own Playwright, which wants a different Chromium build than the
+one `npx playwright install chromium` puts down for this package, so the first
+run asks for a ~90MB download:
+
+```sh
+npx @playwright/mcp@0.0.79 install-browser chrome-for-testing
+```
+
+The version is pinned so that download happens once rather than every time the
+package publishes a release built against a newer Chromium.
+
 ## Targets
 
 A target is which running app we point at. Set `E2E_TARGET`:
