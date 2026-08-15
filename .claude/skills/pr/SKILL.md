@@ -97,7 +97,13 @@ Append the following note as the very last line of the PR body, after the "For m
   _This PR was created with the Couchers PR skill._
   ```
 
-### 7. Create the PR
+### 7. Prune the description
+
+Read the draft description once more as if you had no context on the change and were a busy person with other PRs to get through. Ask what could be dropped and what needs clarifying: a sentence they would skip, a phrase they would have to re-read, a term they would have to look up.
+
+Then make one more editing pass. You may only prune and reword — the description must not get longer.
+
+### 8. Create the PR
 
 ```bash
 gh pr create --base develop --title "<short title>" --body "$(cat <<'EOF'
@@ -108,6 +114,6 @@ EOF
 )"
 ```
 
-### 8. Report back
+### 9. Report back
 
 Tell the user the PR URL when done. If the change alters the UI, say that screenshots are still needed — you can't take them.
