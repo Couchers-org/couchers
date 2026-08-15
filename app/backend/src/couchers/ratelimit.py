@@ -13,7 +13,7 @@ import time
 from dataclasses import dataclass
 from functools import cache
 from ipaddress import ip_network
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
 
 import sentry_sdk
 import valkey
@@ -29,6 +29,9 @@ from couchers.metrics import (
 )
 from couchers.proto import annotations_pb2
 from couchers.proto_annotations import method_extension, optional_field, service_extension, split_method
+
+if TYPE_CHECKING:
+    from couchers.interceptors import UserAuthInfo
 
 logger = logging.getLogger(__name__)
 
@@ -238,14 +241,20 @@ def check_rate_limits(
     return RateLimitResult(tripped=[TrippedLimit(entries[i][0], entries[i][1]) for i in tripped_idx])
 
 
-def should_rate_limit(pool: DescriptorPool, method: str, ip_address: str | None, user_id: int | None) -> bool:
+def should_rate_limit(
+    pool: DescriptorPool, method: str, ip_address: str | None, auth_info: UserAuthInfo | None
+) -> bool:
     """
     Count this request against every applicable limit and decide whether it should be rejected.
 
     True only when a limit tripped and enforcement is on. Shadow mode, an unreachable counter store, and no
     store configured at all each count for what they can and allow the request.
     """
-    result = check_rate_limits(pool, method, ip_address, user_id)
+    # superusers are exempt, so a mistuned limit can't lock admins out mid-incident
+    if auth_info and auth_info.is_superuser:
+        return False
+
+    result = check_rate_limits(pool, method, ip_address, auth_info.user_id if auth_info else None)
     if result is None:
         return False
 

@@ -457,10 +457,7 @@ def admit_call(pool: DescriptorPool, handler_call_details: grpc.HandlerCallDetai
 
         check_permissions(auth_info, auth_level)
 
-        # superusers are exempt, so a mistuned limit can't lock admins out mid-incident
-        if not (auth_info and auth_info.is_superuser) and should_rate_limit(
-            pool, handler_call_details.method, headers.ip_address, auth_info.user_id if auth_info else None
-        ):
+        if should_rate_limit(pool, handler_call_details.method, headers.ip_address, auth_info):
             raise CallRejectedError(RATE_LIMIT_ERROR_MESSAGE, grpc.StatusCode.RESOURCE_EXHAUSTED)
 
         if headers.sofa:
