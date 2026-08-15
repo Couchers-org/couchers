@@ -2,6 +2,7 @@ from collections.abc import Callable, Generator
 from concurrent import futures
 from contextlib import contextmanager
 from datetime import timedelta
+from threading import current_thread
 from typing import Any
 from unittest.mock import Mock, patch
 
@@ -26,6 +27,7 @@ from couchers.interceptors import (
     CouchersMiddlewareInterceptor,
     ErrorSanitizationInterceptor,
     UserAuthInfo,
+    _try_get_and_update_user_details,
     check_permissions,
     find_auth_level,
     parse_headers,
@@ -351,6 +353,28 @@ def test_tracing_interceptor_phase_histograms(db):
         )
         == serialize_before + 1
     )
+
+
+def test_auth_runs_on_the_handler_thread(db):
+    # gRPC runs intercept_service inline on the server's single polling thread, under the server-wide lock, so the auth
+    # query has to happen in the returned handler or it serializes dispatch for every other call in the process
+    threads: dict[str, str] = {}
+
+    def TestRpc(request, context, session):
+        threads["handler"] = current_thread().name
+        return empty_pb2.Empty()
+
+    def record_thread(*args, **kwargs):
+        threads["auth"] = current_thread().name
+        return _try_get_and_update_user_details(*args, **kwargs)
+
+    with (
+        patch("couchers.interceptors._try_get_and_update_user_details", record_thread),
+        interceptor_dummy_api(TestRpc, interceptors=[CouchersMiddlewareInterceptor()]) as call_rpc,
+    ):
+        call_rpc(empty_pb2.Empty())
+
+    assert threads["auth"] == threads["handler"]
 
 
 def test_tracing_interceptor_perf_accounting_orm_write(db):

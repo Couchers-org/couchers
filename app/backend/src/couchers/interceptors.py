@@ -322,6 +322,58 @@ def _store_log(
 type Cont[T, R] = Callable[[grpc.HandlerCallDetails], grpc.RpcMethodHandler[T, R] | None]
 
 
+@dataclass(frozen=True, slots=True, kw_only=True)
+class _CallSetup:
+    """What the auth/setup phase resolves before the handler body runs."""
+
+    headers: CouchersHeaders
+    auth_info: UserAuthInfo | None
+    sofa: str
+    new_sofa_cookie: str | None
+    localization: LocalizationContext
+
+
+def _setup_call(pool: DescriptorPool, handler_call_details: grpc.HandlerCallDetails) -> _CallSetup:
+    """Authenticate the call and resolve its per-call context, raising AbortError to reject it."""
+    auth_level = find_auth_level(pool, handler_call_details.method)
+
+    try:
+        headers = parse_headers(dict(handler_call_details.invocation_metadata))
+    except BadHeaders:
+        raise AbortError(COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE, grpc.StatusCode.UNAUTHENTICATED) from None
+
+    # if this is not present in prod, it's a Big Bug in config
+    assert config.DEV or headers.ip_address is not None
+
+    auth_info = _try_get_and_update_user_details(
+        headers.token,
+        headers.is_api_key,
+        headers.ip_address,
+        headers.user_agent,
+        headers.sofa,
+        headers.client_platform,
+    )
+
+    check_permissions(auth_info, auth_level)
+
+    if headers.sofa:
+        sofa = headers.sofa
+        new_sofa_cookie = None
+    else:
+        sofa, new_sofa_cookie = generate_sofa_cookie()
+
+    return _CallSetup(
+        headers=headers,
+        auth_info=auth_info,
+        sofa=sofa,
+        new_sofa_cookie=new_sofa_cookie,
+        localization=LocalizationContext(
+            locale=(auth_info.ui_language_preference if auth_info else headers.ui_lang) or "",
+            timezone=ZoneInfo((auth_info and auth_info.timezone) or "Etc/UTC"),
+        ),
+    )
+
+
 class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
     """
     1. Does auth: extracts a session token from a cookie, and authenticates a user with that.
@@ -334,6 +386,11 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
     3. Injects a session to get a database transaction.
 
     4. Measures and logs the time it takes to service each incoming call.
+
+    All of that happens in the returned handler, on a thread pool thread. gRPC runs intercept_service inline on the
+    server's single completion-queue thread while holding the server-wide lock, and only submits to the pool once
+    the interceptor chain has returned a handler, so blocking in the interceptor body (the auth query above all)
+    serializes call dispatch for the entire worker process.
     """
 
     def __init__(self) -> None:
@@ -348,63 +405,32 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
 
         method = handler_call_details.method
 
-        # accounting for the auth/setup phase; the handler re-arms its own below
-        start_perf()
-
-        try:
-            try:
-                auth_level = find_auth_level(self._pool, method)
-            except AbortError as ae:
-                return abort_handler(ae.msg, ae.code)
-
-            try:
-                headers = parse_headers(dict(handler_call_details.invocation_metadata))
-            except BadHeaders:
-                return unauthenticated_handler(COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE)
-
-            # if this is not present in prod, it's a Big Bug in config
-            assert config.DEV or headers.ip_address is not None
-
-            auth_info = _try_get_and_update_user_details(
-                headers.token,
-                headers.is_api_key,
-                headers.ip_address,
-                headers.user_agent,
-                headers.sofa,
-                headers.client_platform,
-            )
-
-            try:
-                check_permissions(auth_info, auth_level)
-            except AbortError as ae:
-                return unauthenticated_handler(ae.msg, ae.code)
-
-            if not (handler := continuation(handler_call_details)):
-                raise RuntimeError(f"No handler in '{method}'")
-
-            if not (prev_function := handler.unary_unary):
-                raise RuntimeError(f"No prev_function in '{method}', {handler}")
-
-            if headers.sofa:
-                sofa = headers.sofa
-                new_sofa_cookie = None
-            else:
-                sofa, new_sofa_cookie = generate_sofa_cookie()
-
-            loc_context = LocalizationContext(
-                locale=(auth_info.ui_language_preference if auth_info else headers.ui_lang) or "",
-                timezone=ZoneInfo((auth_info and auth_info.timezone) or "Etc/UTC"),
-            )
-
-            observe_in_servicer_setup_histogram(method, read_perf())
-        except Exception as e:
-            observe_in_servicer_setup_errors_counter(method, type(e).__name__)
-            sentry_sdk.set_tag("context", "servicer_setup")
-            sentry_sdk.set_tag("method", method)
-            sentry_sdk.capture_exception(e)
-            return abort_handler(UNKNOWN_ERROR_MESSAGE, grpc.StatusCode.INTERNAL)
+        # only the handler lookup happens here, the rest waits for the handler thread; see the class docstring
+        handler = continuation(handler_call_details)
+        if not handler or not (prev_function := handler.unary_unary):
+            return abort_handler(NONEXISTENT_API_CALL_ERROR_MESSAGE, grpc.StatusCode.UNIMPLEMENTED)
 
         def function_without_couchers_stuff(req: Message, grpc_context: grpc.ServicerContext) -> Message | None:
+            # accounting for the auth/setup phase; the handler re-arms its own below
+            start_perf()
+
+            try:
+                setup = _setup_call(self._pool, handler_call_details)
+                observe_in_servicer_setup_histogram(method, read_perf())
+            except AbortError as ae:
+                grpc_context.abort(ae.code, ae.msg)
+            except Exception as e:
+                observe_in_servicer_setup_errors_counter(method, type(e).__name__)
+                sentry_sdk.set_tag("context", "servicer_setup")
+                sentry_sdk.set_tag("method", method)
+                sentry_sdk.capture_exception(e)
+                grpc_context.abort(grpc.StatusCode.INTERNAL, UNKNOWN_ERROR_MESSAGE)
+
+            headers = setup.headers
+            auth_info = setup.auth_info
+            sofa = setup.sofa
+            loc_context = setup.localization
+
             couchers_context = make_interactive_context(
                 grpc_context=grpc_context,
                 user_id=auth_info.user_id if auth_info else None,
@@ -503,8 +529,8 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                 if auth_info.ui_language_preference and auth_info.ui_language_preference != headers.ui_lang:
                     couchers_context.set_cookies(create_lang_cookie(auth_info.ui_language_preference))
 
-            if new_sofa_cookie:
-                couchers_context.set_cookies([new_sofa_cookie])
+            if setup.new_sofa_cookie:
+                couchers_context.set_cookies([setup.new_sofa_cookie])
 
             if not grpc_context.is_active():
                 grpc_context.abort(grpc.StatusCode.INTERNAL, CALL_CANCELLED_ERROR_MESSAGE)
@@ -713,12 +739,12 @@ class OTelInterceptor(grpc.ServerInterceptor):
 
         method = handler_call_details.method
 
-        # method is of the form "/org.couchers.api.core.API/GetUser"
-        _, service_name, method_name = method.split("/")
-
-        headers = dict(handler_call_details.invocation_metadata)
-
         def tracing_function(request: T, context: grpc.ServicerContext) -> R:
+            # method is of the form "/org.couchers.api.core.API/GetUser"
+            _, service_name, method_name = method.split("/")
+
+            headers = dict(handler_call_details.invocation_metadata)
+
             with self.tracer.start_as_current_span("handler") as rollspan:
                 rollspan.set_attribute("rpc.method_full", method)
                 rollspan.set_attribute("rpc.service", service_name)
