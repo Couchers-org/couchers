@@ -67,8 +67,6 @@ class MeetupStatus(enum.Enum):
 
 
 class HostingMeetupStatusSource(enum.Enum):
-    # reconstructed from other data, not observed live
-    backfill = enum.auto()
     # the statuses the account was created with
     signup = enum.auto()
     # the user edited their profile

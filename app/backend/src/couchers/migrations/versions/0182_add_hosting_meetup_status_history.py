@@ -26,7 +26,6 @@ def upgrade() -> None:
         sa.Column(
             "source",
             sa.Enum(
-                "backfill",
                 "signup",
                 "profile_edit",
                 "do_not_email",
