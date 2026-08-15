@@ -13,7 +13,6 @@ import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { TFunction } from "i18next";
 import { SearchUser } from "proto/search_pb";
 import { MouseEvent } from "react";
-import LinesEllipsis from "react-lines-ellipsis";
 import { theme } from "theme";
 import { timestampToInstant } from "utils/date";
 import stripMarkdown from "utils/stripMarkdown";
@@ -135,6 +134,16 @@ const HaikuContainer = styled("div")(({ theme }) => ({
   flexGrow: 1,
 }));
 
+const ClampedAbout = styled("div", {
+  shouldForwardProp: (prop) => prop !== "maxLine",
+})<{ maxLine: number }>(({ maxLine }) => ({
+  display: "-webkit-box",
+  WebkitBoxOrient: "vertical",
+  WebkitLineClamp: maxLine,
+  overflow: "hidden",
+  wordBreak: "break-all",
+}));
+
 const generateAboutText = (user: SearchUser.AsObject, t: TFunction, isMobile: boolean) => {
   const missingAbout = user.profileSnippet.length === 0;
   const hasPhoto = user.avatarUrl.length > 0;
@@ -159,13 +168,7 @@ const generateAboutText = (user: SearchUser.AsObject, t: TFunction, isMobile: bo
       </HaikuContainer>
     );
   } else {
-    return (
-      <LinesEllipsis
-        maxLine={isMobile ? 3 : 7}
-        text={stripMarkdown(aboutText(user, t))}
-        style={{ wordBreak: "break-all", overflow: "hidden" }}
-      />
-    );
+    return <ClampedAbout maxLine={isMobile ? 3 : 7}>{stripMarkdown(aboutText(user, t))}</ClampedAbout>;
   }
 };
 
