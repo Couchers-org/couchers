@@ -58,4 +58,4 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.drop_table("hosting_meetup_status_history")
-    sa.Enum(name="hostingmeetupstatussource").drop(op.get_bind())
+    sa.Enum(name="hostingmeetupstatussource").drop(op.get_bind(), checkfirst=True)
