@@ -63,6 +63,10 @@ from couchers.utils import (
 
 logger = logging.getLogger(__name__)
 
+# a call to a method that doesn't exist carries an arbitrary string off the wire, so it's bucketed under this rather
+# than used as a prometheus label; the api_calls row still records what was actually asked for
+NONEXISTENT_METHOD_LABEL = "<nonexistent>"
+
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class UserAuthInfo:
@@ -284,6 +288,7 @@ def _sanitized_bytes(proto: Message | None) -> bytes | None:
 def _log_call(
     *,
     method: str,
+    metric_method: str | None = None,
     start: int,
     perf: PerfResult | None,
     headers: CouchersHeaders | None,
@@ -296,6 +301,7 @@ def _log_call(
     exception: Exception | None = None,
 ) -> None:
     """Record a finished call: one api_calls row, plus the per-call Prometheus observations."""
+    metric_method = metric_method or method
     duration = (perf_counter_ns() - start) / 1e6  # ms
 
     req_bytes = _sanitized_bytes(request)
@@ -332,9 +338,9 @@ def _log_call(
         )
 
     observe_in_servicer_duration_histogram(
-        method, user_id, status_code or "", type(exception).__name__ if exception else "", duration / 1000
+        metric_method, user_id, status_code or "", type(exception).__name__ if exception else "", duration / 1000
     )
-    observe_api_call(method, headers.client_platform if headers else None)
+    observe_api_call(metric_method, headers.client_platform if headers else None)
     logger.debug(f"{user_id=}, {method=}, {duration=} ms")
 
 
@@ -347,6 +353,7 @@ def _abort_and_log[T, R](
     headers: CouchersHeaders | None,
     auth_info: UserAuthInfo | None = None,
     exception: Exception | None = None,
+    nonexistent_method: bool = False,
 ) -> grpc.RpcMethodHandler[T, R]:
     """
     Log a call rejected during auth/setup, then return a handler that terminates it.
@@ -355,8 +362,10 @@ def _abort_and_log[T, R](
     the auth/setup phase, which is all the work the call did.
     """
     perf = read_perf()
+    metric_method = NONEXISTENT_METHOD_LABEL if nonexistent_method else method
     _log_call(
         method=method,
+        metric_method=metric_method,
         start=start,
         perf=perf,
         headers=headers,
@@ -366,7 +375,7 @@ def _abort_and_log[T, R](
         status_code=code.name,
         exception=exception,
     )
-    observe_in_servicer_setup_histogram(method, perf)
+    observe_in_servicer_setup_histogram(metric_method, perf)
     return abort_handler(message, code)
 
 
@@ -426,7 +435,14 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             try:
                 auth_level = find_auth_level(self._pool, method)
             except AbortError as ae:
-                return _abort_and_log(method=method, message=ae.msg, code=ae.code, start=start, headers=headers)
+                return _abort_and_log(
+                    method=method,
+                    message=ae.msg,
+                    code=ae.code,
+                    start=start,
+                    headers=headers,
+                    nonexistent_method=ae.code == grpc.StatusCode.UNIMPLEMENTED,
+                )
 
             auth_info = _try_get_and_update_user_details(
                 headers.token,
@@ -640,6 +656,9 @@ def find_auth_level(pool: DescriptorPool, method: str) -> AuthLevel.ValueType:
 
     try:
         service: ServiceDescriptor = pool.FindServiceByName(service_name)  # type: ignore[no-untyped-call]
+        # checked so a probe for a method that doesn't exist on a real service aborts here, rather than reaching the
+        # missing-handler RuntimeError below and being reported as an internal error
+        service.FindMethodByName(method_name)  # type: ignore[no-untyped-call]
         service_options = service.GetOptions()
     except KeyError:
         raise AbortError(NONEXISTENT_API_CALL_ERROR_MESSAGE, grpc.StatusCode.UNIMPLEMENTED) from None

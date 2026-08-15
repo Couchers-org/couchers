@@ -22,6 +22,7 @@ from couchers.crypto import b64encode, random_hex, simple_encrypt
 from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.interceptors import (
+    NONEXISTENT_METHOD_LABEL,
     AbortError,
     BadHeaders,
     CouchersMiddlewareInterceptor,
@@ -932,6 +933,9 @@ def test_rejected_call_logged_permission_denied(db):
 
 
 def test_rejected_call_logged_nonexistent_rpc(db):
+    hist_before = _get_histogram_labels_value(NONEXISTENT_METHOD_LABEL, "False", "", "UNIMPLEMENTED")
+    api_calls_before = _get_api_call_count(NONEXISTENT_METHOD_LABEL, "unknown")
+
     def TestRpc(request, context, session):
         return empty_pb2.Empty()
 
@@ -954,6 +958,50 @@ def test_rejected_call_logged_nonexistent_rpc(db):
         # headers are parsed before the method is looked up, so we know who called a method that doesn't exist
         assert trace.ip_address == "1.1.1.1"
         assert trace.user_agent is not None
+
+    # the caller picks the method, so it's bucketed in prometheus instead of becoming a label of its own
+    assert _get_histogram_labels_value(NONEXISTENT_METHOD_LABEL, "False", "", "UNIMPLEMENTED") == hist_before + 1
+    assert _get_api_call_count(NONEXISTENT_METHOD_LABEL, "unknown") == api_calls_before + 1
+    assert _get_histogram_labels_value("/org.couchers.nonexistent.NA/GetNothing", "False", "", "UNIMPLEMENTED") == 0
+    assert _get_api_call_count("/org.couchers.nonexistent.NA/GetNothing", "unknown") == 0
+    assert (
+        _get_histogram_count(
+            servicer_setup_db_time_histogram,
+            "couchers_servicer_setup_db_time_seconds_count",
+            method="/org.couchers.nonexistent.NA/GetNothing",
+        )
+        == 0
+    )
+
+
+def test_rejected_call_logged_nonexistent_method_on_real_service(db):
+    """A real service with a method that doesn't exist is rejected too, rather than reported as an internal error."""
+    method = "/org.couchers.api.core.API/GetNothing"
+    hist_before = _get_histogram_labels_value(NONEXISTENT_METHOD_LABEL, "False", "", "UNIMPLEMENTED")
+
+    def TestRpc(request, context, session):
+        return empty_pb2.Empty()
+
+    with interceptor_dummy_api(
+        TestRpc,
+        interceptors=[CouchersMiddlewareInterceptor()],
+        service_name="org.couchers.api.core.API",
+        method_name="GetNothing",
+    ) as call_rpc:
+        with pytest.raises(grpc.RpcError) as e:
+            call_rpc(empty_pb2.Empty(), metadata=(("x-couchers-real-ip", "1.1.1.1"),))
+        assert e.value.code() == grpc.StatusCode.UNIMPLEMENTED
+        assert e.value.details() == NONEXISTENT_API_CALL_ERROR_MESSAGE
+
+    with session_scope() as session:
+        trace = session.execute(select(APICall)).scalar_one()
+        assert trace.method == method
+        assert trace.status_code == "UNIMPLEMENTED"
+        assert not trace.traceback
+
+    assert _get_histogram_labels_value(NONEXISTENT_METHOD_LABEL, "False", "", "UNIMPLEMENTED") == hist_before + 1
+    assert _get_histogram_labels_value(method, "False", "", "UNIMPLEMENTED") == 0
+    assert _get_setup_errors_value(method, "RuntimeError") == 0
 
 
 def test_rejected_call_logged_missing_auth_level(db):
