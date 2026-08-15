@@ -116,4 +116,4 @@ EOF
 
 ### 9. Report back
 
-Tell the user the PR URL when done. If the change alters the UI, say that screenshots are still needed — you can't take them.
+Tell the user the PR URL when done.
