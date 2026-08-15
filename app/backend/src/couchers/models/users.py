@@ -66,6 +66,23 @@ class MeetupStatus(enum.Enum):
     does_not_want_to_meetup = enum.auto()
 
 
+class HostingMeetupStatusSource(enum.Enum):
+    # reconstructed from other data, not observed live
+    backfill = enum.auto()
+    # the statuses the account was created with
+    signup = enum.auto()
+    # the user edited their profile
+    profile_edit = enum.auto()
+    # the user enabled "do not email" in their notification settings
+    do_not_email = enum.auto()
+    # the user used the "do not email" quick link in an email
+    unsubscribe_link = enum.auto()
+    # the user responded to an activeness probe saying they're no longer active
+    activeness_probe_response = enum.auto()
+    # the user let an activeness probe expire, so we downgraded them
+    activeness_probe_expired = enum.auto()
+
+
 class SmokingLocation(enum.Enum):
     yes = enum.auto()
     window = enum.auto()
@@ -637,3 +654,23 @@ class RegionLived(Base, kw_only=True):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     region_code: Mapped[str] = mapped_column(ForeignKey("regions.code", deferrable=True))
+
+
+class HostingMeetupStatusHistory(Base, kw_only=True):
+    """
+    Append-only snapshot log of users' hosting and meetup statuses. A row is written whenever either status changes, so
+    a user's statuses at any past time are those of their newest row at or before that time.
+    """
+
+    __tablename__ = "hosting_meetup_status_history"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    source: Mapped[HostingMeetupStatusSource] = mapped_column(Enum(HostingMeetupStatusSource))
+    hosting_status: Mapped[HostingStatus] = mapped_column(Enum(HostingStatus))
+    meetup_status: Mapped[MeetupStatus] = mapped_column(Enum(MeetupStatus))
+
+    user: Mapped[User] = relationship(init=False)
+
+    __table_args__ = (Index("ix_hosting_meetup_status_history_user_id_time", user_id, time),)
