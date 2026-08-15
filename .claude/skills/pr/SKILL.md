@@ -101,7 +101,7 @@ Append the following note as the very last line of the PR body, after the "For m
 
 Read the draft description once more as if you had no context on the change and were a busy person with other PRs to get through. Ask what could be dropped and what needs clarifying: a sentence they would skip, a phrase they would have to re-read, a term they would have to look up.
 
-Then make one more editing pass. You may only prune and reword — the description must not get longer.
+Then make one more editing pass for simplification and clarification. You may only prune and reword — the description must not get longer.
 
 ### 8. Create the PR
 
