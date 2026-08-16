@@ -22,8 +22,8 @@ from couchers.crypto import b64encode, random_hex, simple_encrypt
 from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.interceptors import (
-    CallRejectedError,
     BadHeaders,
+    CallRejectedError,
     CouchersMiddlewareInterceptor,
     ErrorSanitizationInterceptor,
     UserAuthInfo,
