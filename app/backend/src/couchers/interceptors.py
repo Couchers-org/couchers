@@ -144,14 +144,6 @@ def _try_get_and_update_user_details(
 
         user, user_session, is_jailed = result._tuple()
 
-        # let's update the token
-        touch_session = (
-            update(UserSession)
-            .where(UserSession.token == token)
-            .values(last_seen=func.now(), api_calls=UserSession.api_calls + 1)
-            .cte("touch_session")
-        )
-
         # update user last active time if it's been a while; a non-matching UPDATE takes no row lock, so this
         # costs nothing on the calls that don't move it
         touch_user = (
@@ -160,6 +152,14 @@ def _try_get_and_update_user_details(
             .where(User.last_active < func.now() - literal_column("interval '5 minutes'"))
             .values(last_active=func.now())
             .cte("touch_user")
+        )
+
+        # let's update the token
+        touch_session = (
+            update(UserSession)
+            .where(UserSession.token == token)
+            .values(last_seen=func.now(), api_calls=UserSession.api_calls + 1)
+            .cte("touch_session")
         )
 
         # upsert so concurrent requests for the same activity tuple don't race to insert and violate the index
@@ -174,7 +174,8 @@ def _try_get_and_update_user_details(
         )
         # all three writes go out as one statement: every concurrent call from a session contends for the same
         # sessions row (and the same user_activity row), and splitting them held that lock across two more round
-        # trips plus the commit. add_cte keeps them in a fixed order, so the lock order is the same for everyone
+        # trips plus the commit. add_cte fixes the order, so everyone locks the same way round and the users
+        # lookup, which contends with nothing, happens before we take the sessions row
         session.execute(
             insert_stmt.on_conflict_do_update(
                 index_elements=[
@@ -190,7 +191,7 @@ def _try_get_and_update_user_details(
                         insert_stmt.excluded.client_platform, UserActivity.client_platform
                     ),
                 },
-            ).add_cte(touch_session, touch_user)
+            ).add_cte(touch_user, touch_session)
         )
 
         # build before committing to avoid expire_on_commit reloading these attributes
