@@ -4,13 +4,14 @@ import {
   Autocomplete,
   AutocompleteChangeReason,
   AutocompleteInputChangeReason,
+  CircularProgress,
   debounce,
   InputAdornment,
   InputProps,
   styled,
 } from "@mui/material";
 import IconButton from "components/IconButton";
-import { SearchIcon } from "components/Icons";
+import { MyLocationIcon, SearchIcon } from "components/Icons";
 import TextField from "components/TextField";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
@@ -24,6 +25,7 @@ import {
 import { service } from "service";
 import { theme } from "theme";
 import { GeocodeResult, useGeocodeQuery } from "utils/hooks";
+import useMyLocation from "utils/useMyLocation";
 
 // Debounced typeahead: wait this long after the last keystroke before querying,
 // and require at least this many characters before firing a request. Mirrors
@@ -47,6 +49,15 @@ interface LocationAutocompleteOutlinedProps {
   placeholder?: string;
   required?: string;
   showFullDisplayName?: boolean;
+  // Soft-promote city hits over a leading neighbourhood, macrocounty, venue, address etc.
+  preferCity?: boolean;
+  // Rank places near the user's approximate location higher (LOC-3). Silent
+  // best-effort: no permission prompt, unbiased results when unavailable
+  biasToUserLocation?: boolean;
+  // Show the "use my location" button (LOC-4), which fills the field from the
+  // device's position. Prompts for permission, and always leaves manual typing
+  // available on any failure.
+  showUseMyLocation?: boolean;
   // Whether a Geocode.earth outage may be served by the legacy fallback
   // provider. Required, and later must be `false` wherever the chosen location is
   // persisted — fallback results have no provider id (see utils/geocode.ts).
@@ -90,6 +101,9 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     onClear,
     placeholder,
     showFullDisplayName = false,
+    preferCity = false,
+    biasToUserLocation = false,
+    showUseMyLocation = false,
     allowFallback,
     autocompleteContext,
   } = props;
@@ -107,7 +121,15 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     isLoading,
     provider,
     isProviderUnavailable,
-  } = useGeocodeQuery({ allowFallback });
+  } = useGeocodeQuery({ preferCity, biasToUserLocation, allowFallback });
+  // Same city-level/precise choice the typed search makes, so the button fills the
+  // field with the kind of place this field is for.
+  const {
+    getMyLocation,
+    isLoading: isLocating,
+    error: myLocationError,
+    reset: resetMyLocationError,
+  } = useMyLocation({ preferCity });
 
   // Geocode.earth is unavailable and we are serving results from the legacy
   // Nominatim fallback, which must not be queried as-you-type (OSM usage
@@ -127,6 +149,27 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
       setSelected(null);
     }
   }, [hasSearchValue]);
+
+  // Show the clear control only when there is something to clear (typed text or
+  // a selected place). Also swaps with "use my location": once the field has
+  // content, that button would replace what the user is working on, so it steps
+  // aside and comes back as soon as the field is empty again.
+  const hasClearableValue = inputValue !== "" || selected !== null;
+
+  // LOC-4: resolve the device position into a place and select it as if the user
+  // had picked it from the list. On any failure the hook surfaces a message and we
+  // change nothing, so typing remains the way out.
+  const handleUseMyLocation = async () => {
+    const place = await getMyLocation();
+    if (!place) {
+      return;
+    }
+    debouncedQuery.clear();
+    clearGeocodeResults();
+    setIsOpen(false);
+    setInputValue(geocodeResult2String(place, showFullDisplayName));
+    onChange(place);
+  };
 
   const handleChange = (
     event: SyntheticEvent<Element, Event>,
@@ -160,6 +203,10 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     if (inputValue !== newValue) {
       setInputValue(newValue);
     }
+
+    // The user is doing exactly what a failed "use my location" told them to do,
+    // so drop that message.
+    resetMyLocationError();
 
     if (newValue === "") {
       debouncedQuery.clear();
@@ -214,13 +261,21 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
         <TextField
           {...params}
           label={label}
-          error={!!fieldError || !!geocodeError || isProviderUnavailable}
+          error={
+            !!fieldError ||
+            !!geocodeError ||
+            isProviderUnavailable ||
+            !!myLocationError
+          }
           helperText={
-            isProviderUnavailable
+            // Never blocks typing: the field stays editable and the message clears
+            // on the next keystroke (LOC-4's no-dead-end acceptance note).
+            myLocationError ||
+            (isProviderUnavailable
               ? t("location_autocomplete.provider_unavailable")
               : isSubmitMode
                 ? t("location_autocomplete.search_location_hint")
-                : undefined
+                : undefined)
           }
           fullWidth={fullWidth}
           variant="outlined"
@@ -238,6 +293,22 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
                       marginRight: inputValue === "" ? theme.spacing(1) : 0,
                     }}
                   >
+                    {showUseMyLocation && !hasClearableValue && (
+                      <IconButton
+                        aria-label={t("use_my_location.button")}
+                        title={t("use_my_location.button")}
+                        onClick={handleUseMyLocation}
+                        disabled={isLocating}
+                        size="small"
+                        sx={{ marginRight: theme.spacing(1) }}
+                      >
+                        {isLocating ? (
+                          <CircularProgress size="1.25rem" />
+                        ) : (
+                          <MyLocationIcon />
+                        )}
+                      </IconButton>
+                    )}
                     {isSubmitMode && (
                       <IconButton
                         aria-label={t(
