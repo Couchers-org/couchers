@@ -541,12 +541,12 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             call = admit_call(self._pool, handler_call_details)
 
             if isinstance(call, RejectedCall):
+                # anything unexpected goes to Sentry before the row below: if the DB is what's broken, that fails too
                 if call.exception:
                     observe_in_servicer_setup_errors_counter(method, type(call.exception).__name__)
                     sentry_sdk.set_tag("context", "servicer_setup")
                     sentry_sdk.set_tag("method", method)
                     sentry_sdk.capture_exception(call.exception)
-                # anything unexpected is reported to Sentry first: if the DB is what's broken, logging fails too
                 _log_rejected_call(
                     method=method,
                     code=call.code,
