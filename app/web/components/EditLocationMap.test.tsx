@@ -180,9 +180,7 @@ describe("Edit location map", () => {
 
       const user = userEvent.setup();
       await user.type(
-        screen.getByLabelText(
-          t("global:components.edit_location_map.search_location_label"),
-        ),
+        screen.getByLabelText(t("global:components.edit_location_map.search_location_label")),
         "test{enter}",
       );
       await user.click(
@@ -199,17 +197,13 @@ describe("Edit location map", () => {
 
   describe('the "use my location" button (LOC-4)', () => {
     const BUTTON = t("global:use_my_location.button");
-    const REVERSE_URL = `${process.env
-      .NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/reverse`;
+    const REVERSE_URL = `${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/reverse`;
 
     const mockPosition = (granted: boolean) => {
       Object.defineProperty(navigator, "geolocation", {
         configurable: true,
         value: {
-          getCurrentPosition: (
-            onSuccess: PositionCallback,
-            onError: PositionErrorCallback,
-          ) =>
+          getCurrentPosition: (onSuccess: PositionCallback, onError: PositionErrorCallback) =>
             granted
               ? onSuccess({
                   coords: { latitude: 48.8566, longitude: 2.3522 },
@@ -266,11 +260,9 @@ describe("Edit location map", () => {
       await user.click(await screen.findByRole("button", { name: BUTTON }));
 
       await waitFor(() => {
-        expect(
-          screen.getByLabelText(
-            t("global:components.edit_location_map.display_location_label"),
-          ),
-        ).toHaveValue("Paris, Île-de-France, France");
+        expect(screen.getByLabelText(t("global:components.edit_location_map.display_location_label"))).toHaveValue(
+          "Paris, Île-de-France, France",
+        );
       });
       expect(updateLocation).toHaveBeenCalled();
     });
@@ -282,13 +274,9 @@ describe("Edit location map", () => {
 
       await user.click(await screen.findByRole("button", { name: BUTTON }));
 
-      expect(
-        await screen.findByText(t("global:use_my_location.permission_denied")),
-      ).toBeVisible();
+      expect(await screen.findByText(t("global:use_my_location.permission_denied"))).toBeVisible();
 
-      const addressField = screen.getByLabelText(
-        t("global:components.edit_location_map.display_location_label"),
-      );
+      const addressField = screen.getByLabelText(t("global:components.edit_location_map.display_location_label"));
       await user.type(addressField, "Somewhere");
       expect(addressField).toHaveValue("Somewhere");
     });

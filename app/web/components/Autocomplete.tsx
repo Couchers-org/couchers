@@ -1,7 +1,4 @@
-import {
-  Autocomplete as MuiAutocomplete,
-  AutocompleteProps as MuiAutocompleteProps,
-} from "@mui/material";
+import { Autocomplete as MuiAutocomplete, AutocompleteProps as MuiAutocompleteProps } from "@mui/material";
 import React from "react";
 
 import TextField from "./TextField";

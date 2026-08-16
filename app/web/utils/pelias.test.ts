@@ -15,11 +15,9 @@ import {
   toPeliasLanguage,
 } from "./pelias";
 
-const AUTOCOMPLETE_URL = `${process.env
-  .NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/autocomplete`;
+const AUTOCOMPLETE_URL = `${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/autocomplete`;
 const PLACE_URL = `${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/place`;
-const REVERSE_URL = `${process.env
-  .NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/reverse`;
+const REVERSE_URL = `${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/reverse`;
 
 const feature = (
   overrides: {
@@ -52,9 +50,7 @@ afterAll(() => server.close());
 
 describe("simplifyPeliasDisplayName", () => {
   it("builds locality, region, country", () => {
-    expect(simplifyPeliasDisplayName(feature().properties)).toBe(
-      "Paris, Île-de-France, France",
-    );
+    expect(simplifyPeliasDisplayName(feature().properties)).toBe("Paris, Île-de-France, France");
   });
 
   it("falls back to the matched name when there is no locality", () => {
@@ -193,9 +189,7 @@ describe("simplifyPeliasDisplayName", () => {
     }).properties;
     const regions = new Set(["New York\0United States"]);
 
-    expect(simplifyPeliasDisplayName(city, false, regions)).toBe(
-      "New York, NY, United States",
-    );
+    expect(simplifyPeliasDisplayName(city, false, regions)).toBe("New York, NY, United States");
     // Isolated city hit: no sibling state, leave the collapsed label alone
     // (Paris/Madrid/Murcia).
     expect(simplifyPeliasDisplayName(city)).toBe("New York, United States");
@@ -215,9 +209,7 @@ describe("simplifyPeliasDisplayName", () => {
     }).properties;
     const regions = new Set(["New York\0United States"]);
 
-    expect(simplifyPeliasDisplayName(state, false, regions)).toBe(
-      "New York, United States",
-    );
+    expect(simplifyPeliasDisplayName(state, false, regions)).toBe("New York, United States");
   });
 
   it("does not use region_a when the sibling region is a different country", () => {
@@ -232,13 +224,7 @@ describe("simplifyPeliasDisplayName", () => {
       },
     }).properties;
 
-    expect(
-      simplifyPeliasDisplayName(
-        madrid,
-        false,
-        new Set(["Madrid\0United States"]),
-      ),
-    ).toBe("Madrid, Spain");
+    expect(simplifyPeliasDisplayName(madrid, false, new Set(["Madrid\0United States"]))).toBe("Madrid, Spain");
   });
 
   it("leaves Paris unchanged even when region_a is present", () => {
@@ -253,9 +239,7 @@ describe("simplifyPeliasDisplayName", () => {
       },
     }).properties;
 
-    expect(simplifyPeliasDisplayName(paris, false, new Set())).toBe(
-      "Paris, France",
-    );
+    expect(simplifyPeliasDisplayName(paris, false, new Set())).toBe("Paris, France");
   });
 });
 
@@ -309,10 +293,7 @@ describe("reorderPreferCity", () => {
     });
 
     const reordered = reorderPreferCity([macrocounty, locality]);
-    expect(reordered.map((f) => f.properties.gid)).toEqual([
-      "whosonfirst:locality:2",
-      "geonames:macrocounty:1",
-    ]);
+    expect(reordered.map((f) => f.properties.gid)).toEqual(["whosonfirst:locality:2", "geonames:macrocounty:1"]);
   });
 
   it("promotes the first venue over a leading neighbourhood", () => {
@@ -334,10 +315,7 @@ describe("reorderPreferCity", () => {
     });
 
     const reordered = reorderPreferCity([neighbourhood, venue]);
-    expect(reordered.map((f) => f.properties.gid)).toEqual([
-      "openstreetmap:venue:2",
-      "whosonfirst:neighbourhood:1",
-    ]);
+    expect(reordered.map((f) => f.properties.gid)).toEqual(["openstreetmap:venue:2", "whosonfirst:neighbourhood:1"]);
   });
 
   it("leaves order unchanged when the preferred hit is already first", () => {
@@ -348,10 +326,7 @@ describe("reorderPreferCity", () => {
       properties: { gid: "b", layer: "neighbourhood", name: "Le Marais" },
     });
 
-    expect(reorderPreferCity([locality, neighbourhood])).toEqual([
-      locality,
-      neighbourhood,
-    ]);
+    expect(reorderPreferCity([locality, neighbourhood])).toEqual([locality, neighbourhood]);
   });
 
   it("leaves order unchanged when nothing preferred follows a neighbourhood", () => {
@@ -362,10 +337,7 @@ describe("reorderPreferCity", () => {
       properties: { gid: "b", layer: "county", name: "Somewhere" },
     });
 
-    expect(reorderPreferCity([neighbourhood, other])).toEqual([
-      neighbourhood,
-      other,
-    ]);
+    expect(reorderPreferCity([neighbourhood, other])).toEqual([neighbourhood, other]);
   });
 });
 
@@ -446,10 +418,7 @@ describe("dedupeBySimplifiedName", () => {
       true,
     );
 
-    expect(dedupeBySimplifiedName([first, duplicate, other])).toEqual([
-      first,
-      other,
-    ]);
+    expect(dedupeBySimplifiedName([first, duplicate, other])).toEqual([first, other]);
   });
 });
 
@@ -466,12 +435,9 @@ describe("toPeliasLanguage", () => {
     expect(toPeliasLanguage(tag)).toBe(expected);
   });
 
-  it.each([[""], ["123"], ["e"], ["toolongtag"]])(
-    "returns undefined for a malformed tag %s",
-    (tag) => {
-      expect(toPeliasLanguage(tag)).toBeUndefined();
-    },
-  );
+  it.each([[""], ["123"], ["e"], ["toolongtag"]])("returns undefined for a malformed tag %s", (tag) => {
+    expect(toPeliasLanguage(tag)).toBeUndefined();
+  });
 });
 
 describe("normalize", () => {
@@ -489,24 +455,14 @@ describe("normalize", () => {
   });
 
   it("classifies region/country layers as regions", () => {
-    expect(
-      normalize(feature({ properties: { layer: "region" } })).isRegion,
-    ).toBe(true);
-    expect(
-      normalize(feature({ properties: { layer: "country" } })).isRegion,
-    ).toBe(true);
+    expect(normalize(feature({ properties: { layer: "region" } })).isRegion).toBe(true);
+    expect(normalize(feature({ properties: { layer: "country" } })).isRegion).toBe(true);
   });
 
   it("classifies locality/venue/address layers as non-regions", () => {
-    expect(
-      normalize(feature({ properties: { layer: "locality" } })).isRegion,
-    ).toBe(false);
-    expect(
-      normalize(feature({ properties: { layer: "venue" } })).isRegion,
-    ).toBe(false);
-    expect(
-      normalize(feature({ properties: { layer: "address" } })).isRegion,
-    ).toBe(false);
+    expect(normalize(feature({ properties: { layer: "locality" } })).isRegion).toBe(false);
+    expect(normalize(feature({ properties: { layer: "venue" } })).isRegion).toBe(false);
+    expect(normalize(feature({ properties: { layer: "address" } })).isRegion).toBe(false);
   });
 
   it("synthesizes a bbox for point results (precise address / venue) with no bbox", () => {
@@ -583,9 +539,7 @@ describe("autocomplete", () => {
       rest.get(AUTOCOMPLETE_URL, (req, res, ctx) => {
         requestedLang = req.url.searchParams.get("lang");
         requestedText = req.url.searchParams.get("text");
-        return res(
-          ctx.json({ type: "FeatureCollection", features: [feature()] }),
-        );
+        return res(ctx.json({ type: "FeatureCollection", features: [feature()] }));
       }),
     );
 
@@ -602,9 +556,7 @@ describe("autocomplete", () => {
     server.use(
       rest.get(AUTOCOMPLETE_URL, (req, res, ctx) => {
         params = req.url.searchParams;
-        return res(
-          ctx.json({ type: "FeatureCollection", features: [feature()] }),
-        );
+        return res(ctx.json({ type: "FeatureCollection", features: [feature()] }));
       }),
     );
 
@@ -613,9 +565,7 @@ describe("autocomplete", () => {
     expect(params?.get("focus.point.lat")).toBe("43");
     expect(params?.get("focus.point.lon")).toBe("-81.2");
     // Bias only — a hard boundary filter would drop distant results entirely.
-    expect(
-      [...params!.keys()].filter((key) => key.startsWith("boundary.")),
-    ).toEqual([]);
+    expect([...params!.keys()].filter((key) => key.startsWith("boundary."))).toEqual([]);
   });
 
   it("omits focus.point entirely when no bias point is known", async () => {
@@ -623,9 +573,7 @@ describe("autocomplete", () => {
     server.use(
       rest.get(AUTOCOMPLETE_URL, (req, res, ctx) => {
         params = req.url.searchParams;
-        return res(
-          ctx.json({ type: "FeatureCollection", features: [feature()] }),
-        );
+        return res(ctx.json({ type: "FeatureCollection", features: [feature()] }));
       }),
     );
 
@@ -828,9 +776,7 @@ describe("autocomplete", () => {
     expect(placeCalled).toBe(false);
     // Precise mode: matched name, no city collapse; still dedupe identical labels.
     expect(results).toHaveLength(1);
-    expect(results[0].simplifiedName).toBe(
-      "Wall Street, New York, United States",
-    );
+    expect(results[0].simplifiedName).toBe("Wall Street, New York, United States");
     expect(results[0].location).toEqual(new LngLat(-74.008, 40.706));
     expect(results[0].bbox[0]).toBeCloseTo(-73.908);
   });
@@ -991,10 +937,7 @@ describe("autocomplete", () => {
 
     const { results } = await autocomplete("New York", { preferCity: true });
 
-    expect(results.map((r) => r.simplifiedName)).toEqual([
-      "New York, NY, United States",
-      "New York, United States",
-    ]);
+    expect(results.map((r) => r.simplifiedName)).toEqual(["New York, NY, United States", "New York, United States"]);
     expect(results[1].isRegion).toBe(true);
   });
 
@@ -1037,18 +980,11 @@ describe("autocomplete", () => {
 
     const { results } = await autocomplete("Madrid");
 
-    expect(results.map((r) => r.simplifiedName)).toEqual([
-      "Madrid, Spain",
-      "Provincia de Madrid, Madrid, Spain",
-    ]);
+    expect(results.map((r) => r.simplifiedName)).toEqual(["Madrid, Spain", "Provincia de Madrid, Madrid, Spain"]);
   });
 
   it("throws a typed PeliasError on a non-ok response", async () => {
-    server.use(
-      rest.get(AUTOCOMPLETE_URL, (_req, res, ctx) =>
-        res(ctx.status(500), ctx.text("boom")),
-      ),
-    );
+    server.use(rest.get(AUTOCOMPLETE_URL, (_req, res, ctx) => res(ctx.status(500), ctx.text("boom"))));
 
     await expect(autocomplete("paris")).rejects.toBeInstanceOf(PeliasError);
   });
@@ -1088,9 +1024,7 @@ describe("reverse", () => {
     expect(captured.params?.get("lang")).toBe("fr");
     // Fine mode: no layers restriction, so addresses and venues can come back.
     expect(captured.params?.has("layers")).toBe(false);
-    expect(results[0].simplifiedName).toBe(
-      "8 Place De L'Hotel De Ville, Paris, France",
-    );
+    expect(results[0].simplifiedName).toBe("8 Place De L'Hotel De Ville, Paris, France");
     expect(results[0].id).toBe("openstreetmap:address:1");
   });
 
@@ -1117,9 +1051,7 @@ describe("reverse", () => {
     server.use(
       rest.get(PLACE_URL, (req, res, ctx) => {
         requestedPlaceIds = req.url.searchParams.get("ids");
-        return res(
-          ctx.json({ type: "FeatureCollection", features: [feature()] }),
-        );
+        return res(ctx.json({ type: "FeatureCollection", features: [feature()] }));
       }),
     );
 
@@ -1159,9 +1091,7 @@ describe("reverse", () => {
     const { results } = await reverse(48.8565, 2.3512);
 
     expect(placeCalled).toBe(false);
-    expect(results[0].simplifiedName).toBe(
-      "8 Place De L'Hotel De Ville, Paris, France",
-    );
+    expect(results[0].simplifiedName).toBe("8 Place De L'Hotel De Ville, Paris, France");
     expect(results[0].location).toEqual(new LngLat(2.3512, 48.8565));
   });
 
@@ -1221,11 +1151,7 @@ describe("reverse", () => {
   });
 
   it("throws a typed PeliasError on a non-ok response", async () => {
-    server.use(
-      rest.get(REVERSE_URL, (_req, res, ctx) =>
-        res(ctx.status(503), ctx.text("down")),
-      ),
-    );
+    server.use(rest.get(REVERSE_URL, (_req, res, ctx) => res(ctx.status(503), ctx.text("down"))));
 
     await expect(reverse(48.8566, 2.3522)).rejects.toBeInstanceOf(PeliasError);
   });

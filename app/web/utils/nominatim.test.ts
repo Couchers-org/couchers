@@ -189,9 +189,7 @@ describe("Nominatim utilities", () => {
         },
       };
 
-      const result = simplifyPlaceDisplayName(
-        californiaState as NominatimPlace,
-      );
+      const result = simplifyPlaceDisplayName(californiaState as NominatimPlace);
       expect(result).toBe("California, United States");
     });
 

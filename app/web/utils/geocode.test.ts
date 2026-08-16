@@ -1,7 +1,6 @@
 import { rest, server } from "test/restMock";
 
-const AUTOCOMPLETE_URL = `${process.env
-  .NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/autocomplete`;
+const AUTOCOMPLETE_URL = `${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/autocomplete`;
 const NOMINATIM_SEARCH_URL = `${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`;
 
 /**
@@ -9,22 +8,16 @@ const NOMINATIM_SEARCH_URL = `${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`;
  * inlines `process.env.NEXT_PUBLIC_*` at build time in the app — in Jest it is a
  * real lookup, so the setting can be varied per test with a fresh module.
  */
-const loadGeocode = async (
-  provider?: NodeJS.ProcessEnv["NEXT_PUBLIC_GEOCODE_PROVIDER"] | "bogus",
-) => {
+const loadGeocode = async (provider?: NodeJS.ProcessEnv["NEXT_PUBLIC_GEOCODE_PROVIDER"] | "bogus") => {
   jest.resetModules();
   if (provider === undefined) {
     delete process.env.NEXT_PUBLIC_GEOCODE_PROVIDER;
   } else {
-    process.env.NEXT_PUBLIC_GEOCODE_PROVIDER =
-      provider as NodeJS.ProcessEnv["NEXT_PUBLIC_GEOCODE_PROVIDER"];
+    process.env.NEXT_PUBLIC_GEOCODE_PROVIDER = provider as NodeJS.ProcessEnv["NEXT_PUBLIC_GEOCODE_PROVIDER"];
   }
   // PeliasError comes from the same fresh module graph, so `instanceof` inside
   // geocode.ts matches the errors these tests construct.
-  const [geocode, pelias] = await Promise.all([
-    import("./geocode"),
-    import("./pelias"),
-  ]);
+  const [geocode, pelias] = await Promise.all([import("./geocode"), import("./pelias")]);
   return { ...geocode, PeliasError: pelias.PeliasError };
 };
 
@@ -48,21 +41,15 @@ describe("geocodeSearch", () => {
   });
 
   describe("isOutageError", () => {
-    it.each([undefined, 500, 502, 503, 402, 403, 408, 429])(
-      "treats status %s as an outage",
-      async (status) => {
-        const { isOutageError, PeliasError } = await loadGeocode();
-        expect(isOutageError(new PeliasError("nope", status))).toBe(true);
-      },
-    );
+    it.each([undefined, 500, 502, 503, 402, 403, 408, 429])("treats status %s as an outage", async (status) => {
+      const { isOutageError, PeliasError } = await loadGeocode();
+      expect(isOutageError(new PeliasError("nope", status))).toBe(true);
+    });
 
-    it.each([400, 404, 422])(
-      "treats status %i as a bad request",
-      async (status) => {
-        const { isOutageError, PeliasError } = await loadGeocode();
-        expect(isOutageError(new PeliasError("nope", status))).toBe(false);
-      },
-    );
+    it.each([400, 404, 422])("treats status %i as a bad request", async (status) => {
+      const { isOutageError, PeliasError } = await loadGeocode();
+      expect(isOutageError(new PeliasError("nope", status))).toBe(false);
+    });
 
     it("ignores errors from other sources", async () => {
       const { isOutageError } = await loadGeocode();
@@ -74,10 +61,7 @@ describe("geocodeSearch", () => {
     it("uses Geocode.earth when it is available", async () => {
       const { geocodeSearch } = await loadGeocode();
 
-      const { provider, results, peliasFeatures } = await geocodeSearch(
-        "test",
-        { allowFallback: true },
-      );
+      const { provider, results, peliasFeatures } = await geocodeSearch("test", { allowFallback: true });
 
       expect(provider).toBe("pelias");
       expect(results[0].id).toBe("whosonfirst:locality:1");
@@ -93,9 +77,7 @@ describe("geocodeSearch", () => {
       });
 
       expect(provider).toBe("nominatim");
-      expect(results[0].simplifiedName).toBe(
-        "fallback city, fallback state, fallback country",
-      );
+      expect(results[0].simplifiedName).toBe("fallback city, fallback state, fallback country");
       expect(fallbackCause?.message).toBe("gateway down");
     });
 
@@ -103,9 +85,7 @@ describe("geocodeSearch", () => {
       failPelias(400, "bad query");
       const { geocodeSearch } = await loadGeocode();
 
-      await expect(
-        geocodeSearch("test", { allowFallback: true }),
-      ).rejects.toThrow("bad query");
+      await expect(geocodeSearch("test", { allowFallback: true })).rejects.toThrow("bad query");
     });
 
     it("does not fall back when the caller aborted the request", async () => {
@@ -163,9 +143,7 @@ describe("geocodeSearch", () => {
       const fallback = countFallbackRequests();
       const { geocodeSearch } = await loadGeocode();
 
-      await expect(
-        geocodeSearch("test", { allowFallback: false }),
-      ).rejects.toThrow("gateway down");
+      await expect(geocodeSearch("test", { allowFallback: false })).rejects.toThrow("gateway down");
       expect(fallback.count).toBe(0);
     });
 
@@ -175,9 +153,7 @@ describe("geocodeSearch", () => {
       const { geocodeSearch, initialProvider } = await loadGeocode("nominatim");
 
       expect(initialProvider(false)).toBe("pelias");
-      await expect(
-        geocodeSearch("test", { allowFallback: false }),
-      ).rejects.toThrow("gateway down");
+      await expect(geocodeSearch("test", { allowFallback: false })).rejects.toThrow("gateway down");
       expect(fallback.count).toBe(0);
     });
 
@@ -223,9 +199,7 @@ describe("geocodeSearch", () => {
       const { geocodeSearch, initialProvider } = await loadGeocode("pelias");
 
       expect(initialProvider(true)).toBe("pelias");
-      await expect(
-        geocodeSearch("test", { allowFallback: true }),
-      ).rejects.toThrow("gateway down");
+      await expect(geocodeSearch("test", { allowFallback: true })).rejects.toThrow("gateway down");
       expect(fallbackRequests).toBe(0);
     });
 

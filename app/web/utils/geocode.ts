@@ -35,9 +35,7 @@ type ProviderSetting = "auto" | GeocodeProvider;
 
 function providerSetting(): ProviderSetting {
   const configured = process.env.NEXT_PUBLIC_GEOCODE_PROVIDER;
-  return configured === "pelias" || configured === "nominatim"
-    ? configured
-    : "auto";
+  return configured === "pelias" || configured === "nominatim" ? configured : "auto";
 }
 
 /**
@@ -148,10 +146,7 @@ async function viaNominatim(
  * A deliberate cancellation (a newer keystroke aborting `options.signal`) is
  * never treated as an outage and never triggers a fallback request.
  */
-export async function geocodeSearch(
-  text: string,
-  options: GeocodeSearchOptions,
-): Promise<GeocodeSearchResult> {
+export async function geocodeSearch(text: string, options: GeocodeSearchOptions): Promise<GeocodeSearchResult> {
   const { allowFallback } = options;
   const setting = providerSetting();
 
@@ -161,9 +156,7 @@ export async function geocodeSearch(
 
   try {
     const { results, features } = await autocomplete(text, {
-      language: options.language
-        ? toPeliasLanguage(options.language)
-        : undefined,
+      language: options.language ? toPeliasLanguage(options.language) : undefined,
       preferCity: options.preferCity,
       focus: options.focus,
       signal: options.signal,
