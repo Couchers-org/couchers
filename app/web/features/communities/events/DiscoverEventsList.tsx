@@ -126,6 +126,9 @@ const DiscoverEventsList = () => {
       onChange={handleOnChangeAutocomplete}
       fieldError={undefined}
       fullWidth={isMobile}
+      preferCity
+      biasToUserLocation
+      showUseMyLocation
       // Event search filter, not persisted.
       allowFallback
       autocompleteContext="discover-events-list"
