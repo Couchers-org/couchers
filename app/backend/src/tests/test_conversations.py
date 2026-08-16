@@ -822,7 +822,7 @@ def test_send_direct_message(db, moderator: Moderator, push_collector: PushColle
         assert messages[0].author_user_id == user1.id
 
 
-def test_excessive_chat_initiations_are_reported(db, email_collector: EmailCollector):
+def test_excessive_chat_initiations_are_reported(db, low_rate_limits, email_collector: EmailCollector):
     """Test that excessive chat initiations are first reported in a warning email and finally lead blocking of further contacting other users."""
     user, token = generate_user()
     rate_limit_definition = RATE_LIMIT_DEFINITIONS[RateLimitAction.chat_initiation]
@@ -865,7 +865,7 @@ def test_excessive_chat_initiations_are_reported(db, email_collector: EmailColle
         assert "The user has been blocked from sending further chat initiations for now." in email.plain
 
 
-def test_send_direct_message_rate_limit(db, moderator, email_collector: EmailCollector):
+def test_send_direct_message_rate_limit(db, low_rate_limits, moderator, email_collector: EmailCollector):
     """SendDirectMessage should enforce the chat_initiation rate limit when creating a new DM, but not when sending into an existing one."""
     user, token = generate_user(complete_profile=True)
     rate_limit_definition = RATE_LIMIT_DEFINITIONS[RateLimitAction.chat_initiation]
