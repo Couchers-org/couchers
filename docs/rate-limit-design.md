@@ -8,11 +8,13 @@ Every limit is a pair of (**scope**, **dimension**).
 
 **Scopes** are nested — a single request increments a counter at each level:
 
-| Scope         | Counts traffic across | Configured by |
-|---------------|-----------------------|---------------|
-| per-RPC       | one method            | method annotation → service default → global constant |
-| per-servicer  | all methods in a service | service annotation → global constant |
-| all-API       | the entire backend    | global constants |
+| Scope         | Name  | Counts traffic across | Configured by |
+|---------------|-------|-----------------------|---------------|
+| per-RPC       | `rpc` | one method            | method annotation → service default → global constant |
+| per-servicer  | `svc` | all methods in a service | service annotation → global constant |
+| all-API       | `api` | the entire backend    | global constants |
+
+The short names in that column are what appear in counter keys and in the `scope` label on the metrics below.
 
 **Dimensions** — each scope carries one limit per dimension:
 
@@ -55,7 +57,15 @@ So you can set a per-method default for a whole service, override one expensive 
 
 Enforcement lives in the gRPC middleware interceptor's call admission (`admit_call`), the same setup phase that already resolves `auth_level` (from the proto descriptor pool), parses headers and checks permissions. By the time we check, we have the method name, the client IP, and the authenticated `user_id` (if any).
 
-Counters are kept in **Valkey** (shared across all API worker processes; no distributed-state problem). A single Lua script does a fixed-window `INCR` + `EXPIRE` over all applicable keys in one round trip and returns which, if any, tripped. Keys are scope/dimension/identity/minute-bucket, e.g. `rl:rpc:API/GetUser:ip:2001:db8::/64:<minute>`.
+Counters are kept in **Valkey** (shared across all API worker processes; no distributed-state problem). A single Lua script does a fixed-window `INCR` + `EXPIRE` over all applicable keys in one round trip and returns which, if any, tripped.
+
+Keys are `rl:<scope>:<scope id>:<dimension>:<identity>:<window>`, where the scope id is the full method path for `rpc`, the service name for `svc`, and `*` for `api`; the identity is the masked subnet, the user id, or `*`; and the window is `unix time // RATE_LIMIT_WINDOW_SECONDS`. One authenticated IPv6 call to `GetUser` increments nine counters, three of which are:
+
+```
+rl:rpc:/org.couchers.api.core.API/GetUser:per_ip:2001:db8::/64:29876543
+rl:svc:org.couchers.api.core.API:per_user:42:29876543
+rl:api:*:global:*:29876543
+```
 
 **Fail-open:** if Valkey is unreachable the error is reported to Sentry and the request is allowed. Losing the counters is not a reason to take the API down with them, and the alternative — rejecting everything while the store is down — turns a Valkey outage into a full outage. If a flood ever coincides with a store outage, the lever is to fix or restart the store, not to shed every request in the meantime.
 
