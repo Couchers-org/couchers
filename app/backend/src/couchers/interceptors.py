@@ -63,8 +63,8 @@ from couchers.utils import (
 
 logger = logging.getLogger(__name__)
 
-# a call to a method that doesn't exist carries an arbitrary string off the wire, so it's bucketed under this rather
-# than used as a prometheus label; the api_calls row still records what was actually asked for
+# nonexistent method names are arbitrary strings off the wire, so they share one prometheus label rather than
+# spawning one per name; the api_calls row keeps the real one
 NONEXISTENT_METHOD_LABEL = "<nonexistent>"
 
 
