@@ -145,6 +145,7 @@ const useGeocodeQuery = (options: { allowFallback: boolean; preferCity?: boolean
           results: formattedResults,
           provider: usedProvider,
           peliasFeatures,
+          nominatimPlaces,
           fallbackCause,
         } = await geocodeSearch(value, {
           allowFallback,
@@ -165,8 +166,7 @@ const useGeocodeQuery = (options: { allowFallback: boolean; preferCity?: boolean
           // Sticky: never switch back, so the widget's UI mode is stable for the
           // rest of the session.
           setProvider("nominatim");
-          // The search telemetry field is Pelias-shaped, so report the outage
-          // itself instead — this is how we learn a fallback happened.
+          // Also log the Pelias outage that forced the fallback, when there was one.
           if (fallbackCause) {
             Sentry.captureException(fallbackCause, {
               tags: {
@@ -175,14 +175,16 @@ const useGeocodeQuery = (options: { allowFallback: boolean; preferCity?: boolean
               },
             });
           }
-        } else {
-          service.bugs.geolocationSearchInfo({
-            searchString: value,
-            peliasResultJson: JSON.stringify(peliasFeatures ?? []),
-            formattedResultJson: JSON.stringify(formattedResults),
-            durationMs: performance.now() - startTime,
-          });
         }
+
+        service.bugs.geolocationSearchInfo({
+          searchString: value,
+          nominatimResultJson: JSON.stringify(
+            usedProvider === "nominatim" ? (nominatimPlaces ?? []) : (peliasFeatures ?? []),
+          ),
+          formattedResultJson: JSON.stringify(formattedResults),
+          durationMs: performance.now() - startTime,
+        });
 
         setResults(formattedResults);
       } catch (e) {
