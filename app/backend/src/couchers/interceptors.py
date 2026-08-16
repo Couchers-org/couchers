@@ -63,7 +63,7 @@ from couchers.utils import (
 
 logger = logging.getLogger(__name__)
 
-# the prometheus label shared by all calls to methods that don't exist
+# the prometheus label shared by calls to methods with no servicer registered, whose name is whatever the caller sent
 NONEXISTENT_METHOD_LABEL = "<nonexistent>"
 
 
@@ -554,7 +554,6 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                     handler_call_details=handler_call_details,
                     user_id=call.user_id,
                     exception=call.exception,
-                    nonexistent_method=call.code == grpc.StatusCode.UNIMPLEMENTED,
                 )
                 grpc_context.abort(call.code, call.message)
 

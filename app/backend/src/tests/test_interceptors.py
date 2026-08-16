@@ -957,9 +957,15 @@ def test_rejected_call_logged_permission_denied(db):
     assert _get_histogram_labels_value(method, "True", "", "PERMISSION_DENIED") == hist_before + 1
 
 
-def test_rejected_call_logged_nonexistent_rpc(db):
-    hist_before = _get_histogram_labels_value(NONEXISTENT_METHOD_LABEL, "False", "", "UNIMPLEMENTED")
-    api_calls_before = _get_api_call_count(NONEXISTENT_METHOD_LABEL, "unknown")
+def test_rejected_call_logged_service_missing_from_pool(db):
+    """A servicer registered for a service missing from the descriptor pool is our bug, so it keeps its name."""
+    method = "/org.couchers.nonexistent.NA/GetNothing"
+    hist_before = _get_histogram_labels_value(method, "False", "", "UNIMPLEMENTED")
+    api_calls_before = _get_api_call_count(method, "unknown")
+    bucketed_before = _get_histogram_labels_value(NONEXISTENT_METHOD_LABEL, "False", "", "UNIMPLEMENTED")
+    setup_db_before = _get_histogram_count(
+        servicer_setup_db_time_histogram, "couchers_servicer_setup_db_time_seconds_count", method=method
+    )
 
     def TestRpc(request, context, session):
         return empty_pb2.Empty()
@@ -977,26 +983,23 @@ def test_rejected_call_logged_nonexistent_rpc(db):
 
     with session_scope() as session:
         trace = session.execute(select(APICall)).scalar_one()
-        assert trace.method == "/org.couchers.nonexistent.NA/GetNothing"
+        assert trace.method == method
         assert trace.status_code == "UNIMPLEMENTED"
         assert trace.user_id is None
-        # headers are parsed before the method is looked up, so we know who called a method that doesn't exist
+        # headers are parsed before the auth level is looked up, so we know who made the call
         assert trace.ip_address == "1.1.1.1"
         assert trace.user_agent is not None
 
-    # the caller picks the method, so it's bucketed in prometheus instead of becoming a label of its own
-    assert _get_histogram_labels_value(NONEXISTENT_METHOD_LABEL, "False", "", "UNIMPLEMENTED") == hist_before + 1
-    assert _get_api_call_count(NONEXISTENT_METHOD_LABEL, "unknown") == api_calls_before + 1
-    assert _get_histogram_labels_value("/org.couchers.nonexistent.NA/GetNothing", "False", "", "UNIMPLEMENTED") == 0
-    assert _get_api_call_count("/org.couchers.nonexistent.NA/GetNothing", "unknown") == 0
+    # the method is one this server registered, so it's a label of its own rather than bucketed
+    assert _get_histogram_labels_value(method, "False", "", "UNIMPLEMENTED") == hist_before + 1
+    assert _get_api_call_count(method, "unknown") == api_calls_before + 1
     assert (
         _get_histogram_count(
-            servicer_setup_db_time_histogram,
-            "couchers_servicer_setup_db_time_seconds_count",
-            method="/org.couchers.nonexistent.NA/GetNothing",
+            servicer_setup_db_time_histogram, "couchers_servicer_setup_db_time_seconds_count", method=method
         )
-        == 0
+        == setup_db_before + 1
     )
+    assert _get_histogram_labels_value(NONEXISTENT_METHOD_LABEL, "False", "", "UNIMPLEMENTED") == bucketed_before
 
 
 def test_rejected_call_logged_unregistered_method(db):
