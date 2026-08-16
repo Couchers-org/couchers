@@ -107,10 +107,10 @@ global.ResizeObserver = class ResizeObserver {
 
 declare global {
   // Ambient globals require `var` (let/const don't attach to the global object).
-  /* eslint-disable no-var */
+   
   var defaultUser: typeof user;
   var testKit: ReturnType<typeof sentryTestkit>["testkit"];
-  /* eslint-enable no-var */
+   
 }
 
 function createWebStorageMock() {
