@@ -22,7 +22,6 @@ from couchers.constants import (
 from couchers.crypto import b64encode, random_hex, simple_encrypt
 from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
-from couchers.errors import CallRejectedError
 from couchers.interceptors import (
     NONEXISTENT_METHOD_LABEL,
     BadHeaders,
@@ -43,6 +42,7 @@ from couchers.metrics import (
     servicer_setup_db_time_histogram,
     servicer_setup_errors_counter,
 )
+from couchers.middleware_errors import CallRejectedError
 from couchers.models import APICall, ClientPlatform, User, UserActivity, UserSession
 from couchers.proto import account_pb2, admin_pb2, annotations_pb2, api_pb2, auth_pb2
 from couchers.proto_annotations import find_auth_level, validate_auth_level

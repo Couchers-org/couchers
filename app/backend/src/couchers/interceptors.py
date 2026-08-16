@@ -35,7 +35,6 @@ from couchers.constants import (
 from couchers.context import CouchersContext, make_interactive_context, make_media_context
 from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
-from couchers.errors import CallRejectedError
 from couchers.i18n import LocalizationContext
 from couchers.metrics import (
     observe_api_call,
@@ -46,6 +45,7 @@ from couchers.metrics import (
     observe_in_servicer_setup_errors_counter,
     observe_in_servicer_setup_histogram,
 )
+from couchers.middleware_errors import CallRejectedError
 from couchers.models import APICall, ClientPlatform, User, UserActivity, UserSession
 from couchers.perf import PerfResult, read_perf, start_perf
 from couchers.proto import annotations_pb2

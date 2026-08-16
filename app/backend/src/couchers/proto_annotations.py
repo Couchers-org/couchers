@@ -21,7 +21,7 @@ from couchers.constants import (
     MISSING_AUTH_LEVEL_ERROR_MESSAGE,
     NONEXISTENT_API_CALL_ERROR_MESSAGE,
 )
-from couchers.errors import CallRejectedError
+from couchers.middleware_errors import CallRejectedError
 from couchers.proto import annotations_pb2
 from couchers.proto.annotations_pb2 import AuthLevel
 
