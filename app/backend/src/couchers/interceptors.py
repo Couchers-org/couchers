@@ -173,8 +173,8 @@ def _try_get_and_update_user_details(
             api_calls=1,
         )
         # one statement, so the sessions and user_activity row locks that every concurrent call from the same
-        # session queues on are held for a single round trip. add_cte fixes the order: everyone locks the same
-        # way round, and the uncontended users lookup happens before we take the sessions row
+        # session queues on are held for a single round trip. postgres leaves the order it applies the CTEs in
+        # undefined, but every caller runs this same statement, so they all take those locks the same way round
         session.execute(
             insert_stmt.on_conflict_do_update(
                 index_elements=[
