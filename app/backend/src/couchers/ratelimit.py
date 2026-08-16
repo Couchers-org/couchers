@@ -141,21 +141,6 @@ def _get_store() -> ValkeyCounterStore | None:
     return ValkeyCounterStore(config.VALKEY_HOST, config.VALKEY_PORT)
 
 
-@dataclass(frozen=True, slots=True)
-class TrippedLimit:
-    scope: str
-    dimension: str
-
-
-@dataclass(frozen=True, slots=True)
-class RateLimitResult:
-    """The outcome of a check that actually ran (i.e. a store was configured)."""
-
-    tripped: list[TrippedLimit]
-    # the counter store was unreachable, so nothing could be counted; the caller decides open vs closed
-    store_error: bool = False
-
-
 def _build_entries(
     limits: ResolvedLimits, method: str, ip_address: str | None, user_id: int | None, bucket: int
 ) -> list[tuple[str, str, str, int]]:
@@ -182,17 +167,17 @@ def _build_entries(
     return entries
 
 
-def check_rate_limits(method: str, ip_address: str | None, user_id: int | None) -> RateLimitResult | None:
+def check_rate_limits(method: str, ip_address: str | None, user_id: int | None) -> list[tuple[str, str]]:
     """
-    Check every applicable limit for this request.
+    Count this request against every applicable limit; return the (scope, dimension) pairs that tripped.
 
-    Returns None if no counter store is configured (rate limiting off), otherwise a RateLimitResult listing
-    the limits that tripped. If the store is unreachable the result has store_error set and the error is
-    reported; the caller decides whether to fail open or closed.
+    Nothing trips when no store is configured (rate limiting is off entirely), and nothing trips when the
+    store is unreachable: the outage is reported and the request passes, since going dark on the counters is
+    not a reason to take the API down with it. Whether a trip actually blocks is the caller's decision.
     """
     store = _get_store()
     if store is None:
-        return None
+        return []
 
     limits = resolve_method_rate_limits(method)
     bucket = int(time.time() // RATE_LIMIT_WINDOW_SECONDS)
@@ -207,42 +192,34 @@ def check_rate_limits(method: str, ip_address: str | None, user_id: int | None) 
         )
     except Exception as e:
         observe_rate_limit_store_error(type(e).__name__)
+        observe_rate_limit_check(method, "failed_open")
         sentry_sdk.set_tag("context", "rate_limiting")
         sentry_sdk.capture_exception(e)
-        return RateLimitResult(tripped=[], store_error=True)
+        return []
     observe_rate_limit_store_latency((time.perf_counter_ns() - start) / 1e9)
 
-    return RateLimitResult(tripped=[TrippedLimit(entries[i][0], entries[i][1]) for i in tripped_idx])
+    if not tripped_idx:
+        observe_rate_limit_check(method, "allowed")
+    return [(entries[i][0], entries[i][1]) for i in tripped_idx]
 
 
 def should_rate_limit(method: str, headers: CouchersHeaders, auth_info: UserAuthInfo | None) -> bool:
     """
     Count this request against every applicable limit and decide whether it should be rejected.
 
-    True only when a limit tripped and enforcement is on. Shadow mode, an unreachable counter store, and no
-    store configured at all each count for what they can and allow the request.
+    True only when a limit tripped and enforcement is on; shadow mode (the default) allows the request.
     """
     # superusers are exempt, so a mistuned limit can't lock admins out mid-incident
     if auth_info and auth_info.is_superuser:
         return False
 
-    result = check_rate_limits(method, headers.ip_address, auth_info.user_id if auth_info else None)
-    if result is None:
-        return False
-
-    if result.store_error:
-        # the store is unreachable so nothing could be counted; always fail open, since going dark on the
-        # counters is not a reason to take the API down with it
-        observe_rate_limit_check(method, "failed_open")
-        return False
-
-    if not result.tripped:
-        observe_rate_limit_check(method, "allowed")
+    tripped = check_rate_limits(method, headers.ip_address, auth_info.user_id if auth_info else None)
+    if not tripped:
         return False
 
     enforced = get_global_boolean_value("rate_limiting_enabled", False)
-    for tripped in result.tripped:
-        observe_rate_limit_trip(method, tripped.scope, tripped.dimension, enforced)
+    for scope, dimension in tripped:
+        observe_rate_limit_trip(method, scope, dimension, enforced)
     # in shadow (the default) the trips metric records what would have been blocked, deliberately without a
     # log line so a flood can't drown the logs
     observe_rate_limit_check(method, "blocked" if enforced else "shadowed")
