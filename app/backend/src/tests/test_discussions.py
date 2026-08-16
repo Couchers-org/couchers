@@ -51,7 +51,7 @@ def test_create_discussion_errors(db):
         assert e.value.details() == "Missing discussion content."
 
 
-def test_create_and_get_discussion(db, push_collector: PushCollector, moderator: Moderator):
+def test_create_and_get_discussion(db, frozen_timewarp, push_collector: PushCollector, moderator: Moderator):
     generate_user()
     user, token = generate_user()
     user2, token2 = generate_user()
@@ -459,7 +459,7 @@ def test_admin_delete_discussion(db):
         assert res.deleted
 
 
-def test_discussion_notifications_regression(db, push_collector: PushCollector, moderator: Moderator):
+def test_discussion_notifications_regression(db, frozen_timewarp, push_collector: PushCollector, moderator: Moderator):
     generate_user()
     user, token = generate_user()
     user2, token2 = generate_user()
