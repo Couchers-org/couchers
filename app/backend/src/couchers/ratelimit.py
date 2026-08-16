@@ -167,21 +167,28 @@ def _build_entries(
     return entries
 
 
-def check_rate_limits(method: str, ip_address: str | None, user_id: int | None) -> list[tuple[str, str]]:
+def should_rate_limit(method: str, headers: CouchersHeaders, auth_info: UserAuthInfo | None) -> bool:
     """
-    Count this request against every applicable limit; return the (scope, dimension) pairs that tripped.
+    Count this request against every applicable limit and decide whether it should be rejected.
 
-    Nothing trips when no store is configured (rate limiting is off entirely), and nothing trips when the
-    store is unreachable: the outage is reported and the request passes, since going dark on the counters is
-    not a reason to take the API down with it. Whether a trip actually blocks is the caller's decision.
+    True only when a limit tripped and enforcement is on; shadow mode (the default) allows the request, as
+    does having no counter store configured at all, which turns rate limiting off entirely.
     """
+    # superusers are exempt, so a mistuned limit can't lock admins out mid-incident
+    if auth_info and auth_info.is_superuser:
+        return False
+
     store = _get_store()
     if store is None:
-        return []
+        return False
 
-    limits = resolve_method_rate_limits(method)
-    bucket = int(time.time() // RATE_LIMIT_WINDOW_SECONDS)
-    entries = _build_entries(limits, method, ip_address, user_id, bucket)
+    entries = _build_entries(
+        resolve_method_rate_limits(method),
+        method,
+        headers.ip_address,
+        auth_info.user_id if auth_info else None,
+        int(time.time() // RATE_LIMIT_WINDOW_SECONDS),
+    )
 
     start = time.perf_counter_ns()
     try:
@@ -191,34 +198,22 @@ def check_rate_limits(method: str, ip_address: str | None, user_id: int | None) 
             [(key, limit) for _, _, key, limit in entries], 2 * RATE_LIMIT_WINDOW_SECONDS
         )
     except Exception as e:
+        # nothing could be counted, so always fail open: going dark on the counters is not a reason to take
+        # the API down with them
         observe_rate_limit_store_error(type(e).__name__)
         observe_rate_limit_check(method, "failed_open")
         sentry_sdk.set_tag("context", "rate_limiting")
         sentry_sdk.capture_exception(e)
-        return []
+        return False
     observe_rate_limit_store_latency((time.perf_counter_ns() - start) / 1e9)
 
     if not tripped_idx:
         observe_rate_limit_check(method, "allowed")
-    return [(entries[i][0], entries[i][1]) for i in tripped_idx]
-
-
-def should_rate_limit(method: str, headers: CouchersHeaders, auth_info: UserAuthInfo | None) -> bool:
-    """
-    Count this request against every applicable limit and decide whether it should be rejected.
-
-    True only when a limit tripped and enforcement is on; shadow mode (the default) allows the request.
-    """
-    # superusers are exempt, so a mistuned limit can't lock admins out mid-incident
-    if auth_info and auth_info.is_superuser:
-        return False
-
-    tripped = check_rate_limits(method, headers.ip_address, auth_info.user_id if auth_info else None)
-    if not tripped:
         return False
 
     enforced = get_global_boolean_value("rate_limiting_enabled", False)
-    for scope, dimension in tripped:
+    for i in tripped_idx:
+        scope, dimension, _, _ = entries[i]
         observe_rate_limit_trip(method, scope, dimension, enforced)
     # in shadow (the default) the trips metric records what would have been blocked, deliberately without a
     # log line so a flood can't drown the logs

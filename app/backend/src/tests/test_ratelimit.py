@@ -6,6 +6,7 @@ import pytest
 import valkey
 
 from couchers import metrics, ratelimit
+from couchers.interceptors import CouchersHeaders
 from couchers.proto import api_pb2, auth_pb2
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import auth_api_session, real_api_session
@@ -87,6 +88,21 @@ def key_prefix():
     return f"test:{uuid4().hex}"
 
 
+def _limited(method: str, ip: str | None = None) -> bool:
+    """should_rate_limit for an unauthenticated call from this IP; the limiter reads no other header."""
+    headers = CouchersHeaders(
+        token=None,
+        is_api_key=False,
+        ip_address=ip,
+        user_agent=None,
+        client_platform=None,
+        ui_lang=None,
+        user_id_str=None,
+        sofa=None,
+    )
+    return ratelimit.should_rate_limit(method, headers, None)
+
+
 def test_ip_to_key_ipv4():
     # IPv4 is always keyed at the exact /32 address
     assert ratelimit.ip_to_key("1.2.3.4", 64) == "1.2.3.4/32"
@@ -117,43 +133,47 @@ def test_resolve_method_rate_limits_defaults():
     assert limits.api == {"per_ip": 600, "per_user": 1200, "global": 60000}
 
 
-def test_check_rate_limits_disabled_when_no_store():
+def test_no_store_means_rate_limiting_is_off():
     # this is the one test that goes through the real accessor, so it can't reuse another test's store
     ratelimit._get_store.cache_clear()
-    # default config has no VALKEY_HOST, so no check runs at all
-    assert ratelimit.check_rate_limits(AUTHENTICATE, "1.2.3.4", None) == []
+    # default config has no VALKEY_HOST, so nothing is counted at all
     assert ratelimit._get_store() is None
+    assert not _limited(AUTHENTICATE, ip="1.2.3.4")
 
 
-def test_check_rate_limits_trips_per_ip(store):
-    # Authenticate per_ip = 10: first 10 calls pass, the 11th trips the per-IP RPC limit
+def test_trips_per_ip(feature_flags, store):
+    feature_flags.set("rate_limiting_enabled", True)
+    # Authenticate per_ip = 10 and every other limit is far higher, so the 11th call from an IP is the first
+    # to trip anything
     for _ in range(10):
-        assert ratelimit.check_rate_limits(AUTHENTICATE, "1.2.3.4", None) == []
-    assert ("rpc", "per_ip") in ratelimit.check_rate_limits(AUTHENTICATE, "1.2.3.4", None)
+        assert not _limited(AUTHENTICATE, ip="1.2.3.4")
+    assert _limited(AUTHENTICATE, ip="1.2.3.4")
 
 
-def test_check_rate_limits_per_ip_skipped_without_ip(store):
+def test_per_ip_skipped_without_ip(feature_flags, store):
+    feature_flags.set("rate_limiting_enabled", True)
     # no IP → the per_ip dimension is not counted, so the per_ip=10 limit can never trip
     for _ in range(20):
-        tripped = ratelimit.check_rate_limits(AUTHENTICATE, None, None)
-        assert not any(dimension == "per_ip" for _, dimension in tripped)
+        assert not _limited(AUTHENTICATE)
 
 
-def test_check_rate_limits_separate_subnets(store):
+def test_separate_subnets_counted_separately(feature_flags, store):
+    feature_flags.set("rate_limiting_enabled", True)
     # two different /64s get independent counters
     for _ in range(11):
-        ratelimit.check_rate_limits(AUTHENTICATE, "2001:db8:1::1", None)
-    assert ratelimit.check_rate_limits(AUTHENTICATE, "2001:db8:2::1", None) == []
+        _limited(AUTHENTICATE, ip="2001:db8:1::1")
+    assert not _limited(AUTHENTICATE, ip="2001:db8:2::1")
 
 
-def test_check_rate_limits_store_error(monkeypatch):
+def test_store_error_fails_open(feature_flags, monkeypatch):
+    feature_flags.set("rate_limiting_enabled", True)
     _use_store(monkeypatch, BrokenStore())
     captured = []
     monkeypatch.setattr("couchers.ratelimit.sentry_sdk.capture_exception", lambda e: captured.append(e))
     monkeypatch.setattr("couchers.ratelimit.sentry_sdk.set_tag", lambda *a, **k: None)
 
-    # store blows up → nothing trips (fail open) and the error is reported
-    assert ratelimit.check_rate_limits(AUTHENTICATE, "1.2.3.4", None) == []
+    # store blows up → the request is allowed even while enforcing, and the error is reported
+    assert not _limited(AUTHENTICATE, ip="1.2.3.4")
     assert len(captured) == 1
 
 
@@ -319,16 +339,17 @@ def test_valkey_store_does_not_extend_ttl_on_later_increments(valkey_store, valk
     assert 0 < valkey_client.ttl(key) <= 5
 
 
-def test_check_rate_limits_end_to_end_against_valkey(valkey_store, monkeypatch):
+def test_rate_limiting_end_to_end_against_valkey(feature_flags, valkey_store, monkeypatch):
+    feature_flags.set("rate_limiting_enabled", True)
     _use_store(monkeypatch, valkey_store)
     # a /64 unique to this run, so the per-IP counters start clean
     ip = f"2001:db8:{uuid4().hex[:4]}:{uuid4().hex[:4]}::1"
 
     # Authenticate annotates per_ip = 10
     for _ in range(10):
-        assert ratelimit.check_rate_limits(AUTHENTICATE, ip, None) == []
-    assert ("rpc", "per_ip") in ratelimit.check_rate_limits(AUTHENTICATE, ip, None)
+        assert not _limited(AUTHENTICATE, ip=ip)
+    assert _limited(AUTHENTICATE, ip=ip)
 
     # a different /64 is unaffected
     other_ip = f"2001:db8:{uuid4().hex[:4]}:{uuid4().hex[:4]}::1"
-    assert ratelimit.check_rate_limits(AUTHENTICATE, other_ip, None) == []
+    assert not _limited(AUTHENTICATE, ip=other_ip)
