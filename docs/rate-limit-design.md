@@ -73,7 +73,7 @@ A rejected call aborts before the handler body runs, so — like every other rej
 
 ## Enabling
 
-Counting happens whenever a counter store is configured; leaving the store unconfigured turns the whole system off. When counting, a single global boolean feature flag `rate_limiting_enabled` (evaluated via the experimentation framework's global evaluator, flippable without a deploy) decides whether limits actually bite:
+Counting happens whenever `VALKEY_HOST` is configured; leaving it empty turns the whole system off. When counting, a single global boolean feature flag `rate_limiting_enabled` (evaluated via the experimentation framework's global evaluator, flippable without a deploy) decides whether limits actually bite:
 
 - **false (default)** — *shadow*: count what *would* be blocked, but allow everything.
 - **true** — *enforce*: actually reject over-limit requests.

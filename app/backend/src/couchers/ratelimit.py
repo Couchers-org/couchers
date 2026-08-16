@@ -13,7 +13,7 @@ import time
 from dataclasses import dataclass
 from functools import cache
 from ipaddress import ip_network
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING
 
 import sentry_sdk
 import valkey
@@ -66,8 +66,9 @@ def resolve_method_rate_limits(method: str) -> ResolvedLimits:
         "api": {"per_ip": 600, "per_user": 1200, "global": 60000},
     }
 
-    def resolve(annotation_value: int | None, default: int) -> int:
-        return annotation_value if annotation_value is not None else default
+    def resolve(*values: int | None) -> int:
+        """The first value that was actually set; the last is always the global default, so one always is."""
+        return next(value for value in values if value is not None)
 
     pool = get_descriptor_pool()
     service_name, _ = split_method(method)
@@ -78,10 +79,7 @@ def resolve_method_rate_limits(method: str) -> ResolvedLimits:
     return ResolvedLimits(
         service_name=service_name,
         rpc={
-            dim: resolve(
-                optional_field(method_rl, dim),
-                resolve(optional_field(service_default, dim), defaults["rpc"][dim]),
-            )
+            dim: resolve(optional_field(method_rl, dim), optional_field(service_default, dim), defaults["rpc"][dim])
             for dim in dimensions
         },
         svc={dim: resolve(optional_field(service_aggregate, dim), defaults["svc"][dim]) for dim in dimensions},
@@ -98,12 +96,6 @@ def ip_to_key(ip: str, ipv6_prefix: int) -> str:
     network = ip_network(ip, strict=False)
     prefix = 32 if network.version == 4 else ipv6_prefix
     return str(ip_network(f"{network.network_address}/{prefix}", strict=False))
-
-
-class CounterStore(Protocol):
-    def incr_and_check(self, entries: list[tuple[str, int]], ttl: int) -> list[int]:
-        """Increment each key's counter; return the indices of entries whose count now exceeds its limit."""
-        ...
 
 
 _LUA_SCRIPT = """
@@ -133,6 +125,7 @@ class ValkeyCounterStore:
         self._script = self._client.register_script(_LUA_SCRIPT)
 
     def incr_and_check(self, entries: list[tuple[str, int]], ttl: int) -> list[int]:
+        """Increment each key's counter; return the indices of entries whose count now exceeds its limit."""
         keys = [key for key, _ in entries]
         limits = [str(limit) for _, limit in entries]
         result = self._script(keys=keys, args=[str(ttl), *limits])
@@ -141,16 +134,11 @@ class ValkeyCounterStore:
 
 
 @cache
-def _get_store() -> CounterStore | None:
+def _get_store() -> ValkeyCounterStore | None:
     """The process-wide counter store, or None when no store is configured and rate limiting is off."""
     if not config.VALKEY_HOST:
         return None
     return ValkeyCounterStore(config.VALKEY_HOST, config.VALKEY_PORT)
-
-
-def rate_limiting_enabled() -> bool:
-    """Whether over-limit requests are actually rejected; when false (default) limits only shadow-log."""
-    return get_global_boolean_value("rate_limiting_enabled", False)
 
 
 @dataclass(frozen=True, slots=True)
@@ -252,7 +240,7 @@ def should_rate_limit(method: str, headers: CouchersHeaders, auth_info: UserAuth
         observe_rate_limit_check(method, "allowed")
         return False
 
-    enforced = rate_limiting_enabled()
+    enforced = get_global_boolean_value("rate_limiting_enabled", False)
     for tripped in result.tripped:
         observe_rate_limit_trip(method, tripped.scope, tripped.dimension, enforced)
     # in shadow (the default) the trips metric records what would have been blocked, deliberately without a
