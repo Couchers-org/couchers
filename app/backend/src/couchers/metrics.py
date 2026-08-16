@@ -1212,16 +1212,19 @@ def observe_rate_limit_trip(method: str, scope: str, dimension: str, enforced: b
     rate_limit_trips_counter.labels(method, scope, dimension, "true" if enforced else "false").inc()
 
 
-# Round-trip time of the counter-store call, i.e. the latency the limiter adds to a request.
-rate_limit_store_latency_histogram: Histogram = Histogram(
-    "couchers_rate_limit_store_seconds",
-    "Counter-store round-trip time for a rate-limit check",
+# The latency the limiter adds to a request: everything from building the keys through the counter-store
+# round trip to evaluating the enforcement flag, timed on every path including the store timing out.
+# Unlabelled by method deliberately - the work is the same whichever method is being counted, and a method
+# label would multiply the series by the whole API surface.
+rate_limit_duration_histogram: Histogram = Histogram(
+    "couchers_rate_limit_duration_seconds",
+    "Time spent in the rate limit check",
     buckets=MACHINE_DURATION_SECONDS,
 )
 
 
-def observe_rate_limit_store_latency(latency_s: float) -> None:
-    rate_limit_store_latency_histogram.observe(latency_s)
+def observe_rate_limit_duration(duration_s: float) -> None:
+    rate_limit_duration_histogram.observe(duration_s)
 
 
 # Counter-store call failures; each one is a fail-open (the request was allowed).

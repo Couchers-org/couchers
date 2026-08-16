@@ -24,8 +24,8 @@ from couchers.descriptor_pool import get_descriptor_pool
 from couchers.experimentation import get_global_boolean_value
 from couchers.metrics import (
     observe_rate_limit_check,
+    observe_rate_limit_duration,
     observe_rate_limit_store_error,
-    observe_rate_limit_store_latency,
     observe_rate_limit_trip,
 )
 from couchers.proto import annotations_pb2
@@ -182,40 +182,48 @@ def should_rate_limit(method: str, headers: CouchersHeaders, auth_info: UserAuth
     if store is None:
         return False
 
-    entries = _build_entries(
-        resolve_method_rate_limits(method),
-        method,
-        headers.ip_address,
-        auth_info.user_id if auth_info else None,
-        int(time.time() // RATE_LIMIT_WINDOW_SECONDS),
-    )
-
+    # timed from here rather than from the top of the function, so the exempt and disabled paths - which do
+    # no work at all - don't bury the real measurements under a pile of near-zero observations
     start = time.perf_counter_ns()
     try:
-        # keys carry their window bucket, so a stale key is only ever read within its own window; we let
-        # Valkey expire them a window later as housekeeping
-        tripped_idx = store.incr_and_check(
-            [(key, limit) for _, _, key, limit in entries], 2 * RATE_LIMIT_WINDOW_SECONDS
+        entries = _build_entries(
+            resolve_method_rate_limits(method),
+            method,
+            headers.ip_address,
+            auth_info.user_id if auth_info else None,
+            int(time.time() // RATE_LIMIT_WINDOW_SECONDS),
         )
-    except Exception as e:
-        # nothing could be counted, so always fail open: going dark on the counters is not a reason to take
-        # the API down with them
-        observe_rate_limit_store_error(type(e).__name__)
-        observe_rate_limit_check(method, "failed_open")
-        sentry_sdk.set_tag("context", "rate_limiting")
-        sentry_sdk.capture_exception(e)
-        return False
-    observe_rate_limit_store_latency((time.perf_counter_ns() - start) / 1e9)
 
-    if not tripped_idx:
-        observe_rate_limit_check(method, "allowed")
-        return False
+        try:
+            # keys carry their window bucket, so a stale key is only ever read within its own window; we let
+            # Valkey expire them a window later as housekeeping
+            tripped_idx = store.incr_and_check(
+                [(key, limit) for _, _, key, limit in entries], 2 * RATE_LIMIT_WINDOW_SECONDS
+            )
+        except Exception as e:
+            # nothing could be counted, so always fail open: going dark on the counters is not a reason to
+            # take the API down with them
+            observe_rate_limit_store_error(type(e).__name__)
+            observe_rate_limit_check(method, "failed_open")
+            sentry_sdk.set_tag("context", "rate_limiting")
+            sentry_sdk.capture_exception(e)
+            return False
 
-    enforced = get_global_boolean_value("rate_limiting_enabled", False)
-    for i in tripped_idx:
-        scope, dimension, _, _ = entries[i]
-        observe_rate_limit_trip(method, scope, dimension, enforced)
-    # in shadow (the default) the trips metric records what would have been blocked, deliberately without a
-    # log line so a flood can't drown the logs
-    observe_rate_limit_check(method, "blocked" if enforced else "shadowed")
-    return enforced
+        if not tripped_idx:
+            observe_rate_limit_check(method, "allowed")
+            return False
+
+        # a global evaluation even though we have a validated user id here: the limit is a property of the
+        # infrastructure rather than of a user, it has to apply to logged-out traffic too, and the per-user
+        # path writes a FeatureUsage row per evaluation - on the one path that only runs during a flood
+        enforced = get_global_boolean_value("rate_limiting_enabled", False)
+        for i in tripped_idx:
+            scope, dimension, _, _ = entries[i]
+            observe_rate_limit_trip(method, scope, dimension, enforced)
+        # in shadow (the default) the trips metric records what would have been blocked, deliberately without
+        # a log line so a flood can't drown the logs
+        observe_rate_limit_check(method, "blocked" if enforced else "shadowed")
+        return enforced
+    finally:
+        # in a finally so a store timeout - the worst latency this can add - is recorded rather than skipped
+        observe_rate_limit_duration((time.perf_counter_ns() - start) / 1e9)
