@@ -86,7 +86,10 @@ export default function MapSearch({
     error,
     isProviderUnavailable,
     provider,
-  } = useGeocodeQuery({ allowFallback: true /*false*/ });
+  } = useGeocodeQuery({
+    biasToUserLocation: true,
+    allowFallback: true /*false*/,
+  });
   const {
     getMyLocation,
     isLoading: isLocating,
