@@ -7,7 +7,7 @@ from sqlalchemy import Engine, event
 # Per-request resource accounting. The gRPC server is thread-per-request with synchronous psycopg, so the SQLAlchemy
 # cursor-execute listeners fire on the same thread that runs the handler. We keep a thread-local accumulator that the
 # interceptor arms (start_perf) right before invoking the handler and reads back (read_perf) right after, so the
-# captured numbers cover the handler span only (not auth lookup or the _store_log insert that runs afterwards).
+# captured numbers cover the handler span only (not auth lookup or the _log_call insert that runs afterwards).
 
 _local = threading.local()
 
@@ -36,7 +36,7 @@ def start_perf() -> None:
 def read_perf() -> PerfResult | None:
     """Snapshot and clear the current thread's accumulator, or None if accounting wasn't armed.
 
-    Clearing means queries that run after this (e.g. the _store_log insert, or background work reusing the thread)
+    Clearing means queries that run after this (e.g. the _log_call insert, or background work reusing the thread)
     aren't attributed to the just-finished request.
     """
     acc: _PerfAccumulator | None = getattr(_local, "acc", None)
