@@ -12,8 +12,7 @@ import LocationAutocomplete from "./LocationAutocomplete";
 
 const { t } = i18n;
 
-const AUTOCOMPLETE_URL = `${process.env
-  .NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/autocomplete`;
+const AUTOCOMPLETE_URL = `${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/autocomplete`;
 
 const submitAction = jest.fn();
 const submitInvalidAction = jest.fn();
@@ -172,9 +171,7 @@ describe("LocationAutocomplete component", () => {
     const item = await screen.findByText("test city, test country");
     await user.click(item);
 
-    expect(onChange).toBeCalledWith(
-      expect.objectContaining({ simplifiedName: "test city, test country" }),
-    );
+    expect(onChange).toBeCalledWith(expect.objectContaining({ simplifiedName: "test city, test country" }));
   });
 
   it("does not keep previous results when searching again", async () => {
@@ -236,12 +233,8 @@ describe("LocationAutocomplete component", () => {
     await user.clear(input);
     await user.type(input, "second");
 
-    expect(
-      await screen.findByText("second city, second country"),
-    ).toBeVisible();
-    expect(
-      screen.queryByText("first city, first country"),
-    ).not.toBeInTheDocument();
+    expect(await screen.findByText("second city, second country")).toBeVisible();
+    expect(screen.queryByText("first city, first country")).not.toBeInTheDocument();
   });
 
   it("shows an empty state when there are no results", async () => {
@@ -258,9 +251,7 @@ describe("LocationAutocomplete component", () => {
 
     await user.type(input, "nowhere");
 
-    expect(
-      await screen.findByText(t("global:location_autocomplete.no_results")),
-    ).toBeVisible();
+    expect(await screen.findByText(t("global:location_autocomplete.no_results"))).toBeVisible();
   });
 
   it("shows the search result's full display name if showFullDisplayName is true", async () => {
@@ -284,11 +275,7 @@ describe("LocationAutocomplete component", () => {
         name: t("global:location_autocomplete.search_location_button"),
       }),
     ).not.toBeInTheDocument();
-    expect(
-      screen.queryByText(
-        "Press Enter or click the search icon to choose a location",
-      ),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText("Press Enter or click the search icon to choose a location")).not.toBeInTheDocument();
   });
 
   it("hides the clear button when the input is empty and shows it when there is text", async () => {
@@ -298,9 +285,7 @@ describe("LocationAutocomplete component", () => {
     const user = userEvent.setup();
 
     // disableClearable unmounts the control when empty (not merely hiding it).
-    expect(
-      screen.queryByRole("button", { name: "Clear" }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Clear" })).not.toBeInTheDocument();
 
     await user.type(input, "te");
 
@@ -309,9 +294,7 @@ describe("LocationAutocomplete component", () => {
     await user.clear(input);
 
     await waitFor(() => {
-      expect(
-        screen.queryByRole("button", { name: "Clear" }),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "Clear" })).not.toBeInTheDocument();
     });
   });
 
@@ -468,17 +451,13 @@ describe("LocationAutocomplete component", () => {
 
   describe('the "use my location" button (LOC-4)', () => {
     const BUTTON = t("global:use_my_location.button");
-    const REVERSE_URL = `${process.env
-      .NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/reverse`;
+    const REVERSE_URL = `${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/reverse`;
 
     const mockPosition = (granted: boolean, code = 1) => {
       Object.defineProperty(navigator, "geolocation", {
         configurable: true,
         value: {
-          getCurrentPosition: (
-            onSuccess: PositionCallback,
-            onError: PositionErrorCallback,
-          ) =>
+          getCurrentPosition: (onSuccess: PositionCallback, onError: PositionErrorCallback) =>
             granted
               ? onSuccess({
                   coords: { latitude: 48.8566, longitude: 2.3522 },
@@ -523,9 +502,7 @@ describe("LocationAutocomplete component", () => {
     it("is not shown unless the widget asks for it", async () => {
       renderForm("", () => {});
       await screen.findByLabelText(LABEL);
-      expect(
-        screen.queryByRole("button", { name: BUTTON }),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: BUTTON })).not.toBeInTheDocument();
     });
 
     it("fills the field with the resolved place", async () => {
@@ -552,8 +529,7 @@ describe("LocationAutocomplete component", () => {
     it("fills a city-level field with the city, not the street", async () => {
       // Destination search looks for hosts in a city, so the street the device is
       // standing on collapses to the city around it (and gets the city's bbox).
-      const PLACE_URL = `${process.env
-        .NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/place`;
+      const PLACE_URL = `${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/place`;
       mockPosition(true);
       server.use(
         rest.get(REVERSE_URL, (_req, res, ctx) =>
@@ -629,17 +605,13 @@ describe("LocationAutocomplete component", () => {
 
       await user.click(await screen.findByRole("button", { name: BUTTON }));
 
-      expect(
-        await screen.findByText(t("global:use_my_location.permission_denied")),
-      ).toBeVisible();
+      expect(await screen.findByText(t("global:use_my_location.permission_denied"))).toBeVisible();
 
       // No dead end: the field still works, and the message clears as they type.
       await user.type(input, "tes");
       expect(input).toHaveValue("tes");
       expect(await screen.findByText("test city, test country")).toBeVisible();
-      expect(
-        screen.queryByText(t("global:use_my_location.permission_denied")),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText(t("global:use_my_location.permission_denied"))).not.toBeInTheDocument();
     });
 
     it("explains an unavailable position and still allows typing", async () => {
@@ -650,11 +622,7 @@ describe("LocationAutocomplete component", () => {
 
       await user.click(await screen.findByRole("button", { name: BUTTON }));
 
-      expect(
-        await screen.findByText(
-          t("global:use_my_location.position_unavailable"),
-        ),
-      ).toBeVisible();
+      expect(await screen.findByText(t("global:use_my_location.position_unavailable"))).toBeVisible();
       await user.type(input, "tes");
       expect(input).toHaveValue("tes");
     });
@@ -668,36 +636,26 @@ describe("LocationAutocomplete component", () => {
 
       await user.click(await screen.findByRole("button", { name: BUTTON }));
 
-      expect(
-        await screen.findByText(t("global:use_my_location.lookup_failed")),
-      ).toBeVisible();
+      expect(await screen.findByText(t("global:use_my_location.lookup_failed"))).toBeVisible();
       await user.type(input, "tes");
       expect(input).toHaveValue("tes");
     });
 
     it("reports when the provider has nothing at that point", async () => {
       mockPosition(true);
-      server.use(
-        rest.get(REVERSE_URL, (_req, res, ctx) =>
-          res(ctx.json({ type: "FeatureCollection", features: [] })),
-        ),
-      );
+      server.use(rest.get(REVERSE_URL, (_req, res, ctx) => res(ctx.json({ type: "FeatureCollection", features: [] }))));
       renderForm("", () => {}, false, false, true, true);
       const user = userEvent.setup();
       await screen.findByLabelText(LABEL);
 
       await user.click(await screen.findByRole("button", { name: BUTTON }));
 
-      expect(
-        await screen.findByText(t("global:use_my_location.no_address")),
-      ).toBeVisible();
+      expect(await screen.findByText(t("global:use_my_location.no_address"))).toBeVisible();
     });
   });
 
   describe("during a Geocode.earth outage", () => {
-    const SEARCH_BUTTON = t(
-      "global:location_autocomplete.search_location_button",
-    );
+    const SEARCH_BUTTON = t("global:location_autocomplete.search_location_button");
     const SEARCH_HINT = t("global:location_autocomplete.search_location_hint");
     const FALLBACK_RESULT = "fallback city, fallback state, fallback country";
 
@@ -710,10 +668,7 @@ describe("LocationAutocomplete component", () => {
 
     // Type enough to trigger the typeahead, which fails over to Nominatim and
     // flips the widget into submit mode.
-    const triggerFallback = async (
-      user: ReturnType<typeof userEvent.setup>,
-      input: HTMLElement,
-    ) => {
+    const triggerFallback = async (user: ReturnType<typeof userEvent.setup>, input: HTMLElement) => {
       await user.type(input, "test");
       expect(await screen.findByText(FALLBACK_RESULT)).toBeVisible();
     };
@@ -724,15 +679,11 @@ describe("LocationAutocomplete component", () => {
       const user = userEvent.setup();
       const input = await screen.findByLabelText(LABEL);
 
-      expect(
-        screen.queryByRole("button", { name: SEARCH_BUTTON }),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: SEARCH_BUTTON })).not.toBeInTheDocument();
 
       await triggerFallback(user, input);
 
-      expect(
-        await screen.findByRole("button", { name: SEARCH_BUTTON }),
-      ).toBeVisible();
+      expect(await screen.findByRole("button", { name: SEARCH_BUTTON })).toBeVisible();
       expect(await screen.findByText(SEARCH_HINT)).toBeVisible();
     });
 
@@ -740,29 +691,26 @@ describe("LocationAutocomplete component", () => {
       failPelias();
       let fallbackRequests = 0;
       server.use(
-        rest.get(
-          `${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`,
-          (_req, res, ctx) => {
-            fallbackRequests += 1;
-            return res(
-              ctx.json([
-                {
-                  place_id: 1,
-                  display_name: FALLBACK_RESULT,
-                  lat: "4.0",
-                  lon: "3.0",
-                  boundingbox: ["1", "2", "3", "4"],
-                  importance: 0.5,
-                  address: {
-                    city: "fallback city",
-                    state: "fallback state",
-                    country: "fallback country",
-                  },
+        rest.get(`${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`, (_req, res, ctx) => {
+          fallbackRequests += 1;
+          return res(
+            ctx.json([
+              {
+                place_id: 1,
+                display_name: FALLBACK_RESULT,
+                lat: "4.0",
+                lon: "3.0",
+                boundingbox: ["1", "2", "3", "4"],
+                importance: 0.5,
+                address: {
+                  city: "fallback city",
+                  state: "fallback state",
+                  country: "fallback country",
                 },
-              ]),
-            );
-          },
-        ),
+              },
+            ]),
+          );
+        }),
       );
       renderForm("", () => {});
       const user = userEvent.setup();
@@ -787,29 +735,26 @@ describe("LocationAutocomplete component", () => {
       failPelias();
       let fallbackRequests = 0;
       server.use(
-        rest.get(
-          `${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`,
-          (_req, res, ctx) => {
-            fallbackRequests += 1;
-            return res(
-              ctx.json([
-                {
-                  place_id: 1,
-                  display_name: FALLBACK_RESULT,
-                  lat: "4.0",
-                  lon: "3.0",
-                  boundingbox: ["1", "2", "3", "4"],
-                  importance: 0.5,
-                  address: {
-                    city: "fallback city",
-                    state: "fallback state",
-                    country: "fallback country",
-                  },
+        rest.get(`${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`, (_req, res, ctx) => {
+          fallbackRequests += 1;
+          return res(
+            ctx.json([
+              {
+                place_id: 1,
+                display_name: FALLBACK_RESULT,
+                lat: "4.0",
+                lon: "3.0",
+                boundingbox: ["1", "2", "3", "4"],
+                importance: 0.5,
+                address: {
+                  city: "fallback city",
+                  state: "fallback state",
+                  country: "fallback country",
                 },
-              ]),
-            );
-          },
-        ),
+              },
+            ]),
+          );
+        }),
       );
       renderForm("", () => {});
       const user = userEvent.setup();
@@ -847,13 +792,10 @@ describe("LocationAutocomplete component", () => {
       failPelias();
       let fallbackRequests = 0;
       server.use(
-        rest.get(
-          `${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`,
-          (_req, res, ctx) => {
-            fallbackRequests += 1;
-            return res(ctx.json([]));
-          },
-        ),
+        rest.get(`${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`, (_req, res, ctx) => {
+          fallbackRequests += 1;
+          return res(ctx.json([]));
+        }),
       );
       const user = userEvent.setup();
 
@@ -871,9 +813,7 @@ describe("LocationAutocomplete component", () => {
       renderForm("", () => {});
       const input = await screen.findByLabelText(LABEL);
 
-      expect(
-        await screen.findByRole("button", { name: SEARCH_BUTTON }),
-      ).toBeVisible();
+      expect(await screen.findByRole("button", { name: SEARCH_BUTTON })).toBeVisible();
       await user.type(input, "somewhere");
       await waitFor(() => {
         expect(fallbackRequests).toBe(1);
@@ -889,13 +829,10 @@ describe("LocationAutocomplete component", () => {
       failPelias();
       let fallbackRequests = 0;
       server.use(
-        rest.get(
-          `${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`,
-          (_req, res, ctx) => {
-            fallbackRequests += 1;
-            return res(ctx.json([]));
-          },
-        ),
+        rest.get(`${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`, (_req, res, ctx) => {
+          fallbackRequests += 1;
+          return res(ctx.json([]));
+        }),
       );
       renderForm("", () => {}, false, false, false);
       const user = userEvent.setup();
@@ -903,16 +840,10 @@ describe("LocationAutocomplete component", () => {
 
       await user.type(input, "test");
 
-      expect(
-        await screen.findByText(
-          t("global:location_autocomplete.provider_unavailable"),
-        ),
-      ).toBeVisible();
+      expect(await screen.findByText(t("global:location_autocomplete.provider_unavailable"))).toBeVisible();
       expect(fallbackRequests).toBe(0);
       // The widget stays a typeahead: no submit UI, since nothing degraded.
-      expect(
-        screen.queryByRole("button", { name: SEARCH_BUTTON }),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: SEARCH_BUTTON })).not.toBeInTheDocument();
     });
 
     it("submits a fallback result that has no provider id", async () => {

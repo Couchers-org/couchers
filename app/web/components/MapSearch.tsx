@@ -1,14 +1,5 @@
-import {
-  Box,
-  CircularProgress,
-  debounce,
-  IconButton,
-  styled,
-} from "@mui/material";
-import {
-  AutocompleteChangeReason,
-  AutocompleteInputChangeReason,
-} from "@mui/material/Autocomplete";
+import { Box, CircularProgress, debounce, IconButton, styled } from "@mui/material";
+import { AutocompleteChangeReason, AutocompleteInputChangeReason } from "@mui/material/Autocomplete";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { LngLat } from "maplibre-gl";
@@ -58,19 +49,11 @@ const StyledForm = styled("div")(({ theme }) => ({
 
 interface MapSearchProps {
   setError: (error: string) => void;
-  setResult: (
-    lngLat: LngLat,
-    address: string,
-    simplifiedAddress: string,
-  ) => void;
+  setResult: (lngLat: LngLat, address: string, simplifiedAddress: string) => void;
   inputFieldError?: FieldError;
 }
 
-export default function MapSearch({
-  setError,
-  setResult,
-  inputFieldError,
-}: MapSearchProps) {
+export default function MapSearch({ setError, setResult, inputFieldError }: MapSearchProps) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
   const { t } = useTranslation([GLOBAL]);
@@ -90,12 +73,7 @@ export default function MapSearch({
     biasToUserLocation: true,
     allowFallback: true /*false*/,
   });
-  const {
-    getMyLocation,
-    isLoading: isLocating,
-    error: myLocationError,
-    reset: resetMyLocationError,
-  } = useMyLocation();
+  const { getMyLocation, isLoading: isLocating, error: myLocationError, reset: resetMyLocationError } = useMyLocation();
 
   // Geocode.earth is unavailable and we are serving results from the legacy
   // Nominatim fallback, which must not be queried as-you-type (OSM usage
@@ -103,10 +81,7 @@ export default function MapSearch({
   // submits with Enter or the search button.
   const isSubmitMode = provider === "nominatim";
 
-  const debouncedQuery = useMemo(
-    () => debounce((v: string) => query(v), SEARCH_DEBOUNCE_MS),
-    [query],
-  );
+  const debouncedQuery = useMemo(() => debounce((v: string) => query(v), SEARCH_DEBOUNCE_MS), [query]);
   useEffect(() => () => debouncedQuery.clear(), [debouncedQuery]);
 
   //create a dummy search options if there are no results
@@ -182,11 +157,7 @@ export default function MapSearch({
           autoHighlight
           onBlur={() => setOpen(false)}
           error={inputFieldError?.message}
-          onInputChange={(
-            e,
-            v: string,
-            reason: AutocompleteInputChangeReason,
-          ) => {
+          onInputChange={(e, v: string, reason: AutocompleteInputChangeReason) => {
             setValue(v);
             // They're typing, which is what a failed lookup told them to do.
             resetMyLocationError();
@@ -222,15 +193,8 @@ export default function MapSearch({
           filterOptions={(x) => x}
           disableClearable
           sx={{ flexGrow: 1 }}
-          getOptionDisabled={(option) =>
-            option ===
-            t("global:components.edit_location_map.no_location_results_text")
-          }
-          helperText={
-            isSubmitMode
-              ? t("global:components.edit_location_map.press_enter_to_search")
-              : undefined
-          }
+          getOptionDisabled={(option) => option === t("global:components.edit_location_map.no_location_results_text")}
+          helperText={isSubmitMode ? t("global:components.edit_location_map.press_enter_to_search") : undefined}
           onKeyDown={(e) => {
             if (e.key !== "Enter") return;
             if (isSubmitMode && !open) {
@@ -240,9 +204,7 @@ export default function MapSearch({
         />
         {isSubmitMode && (
           <IconButton
-            aria-label={t(
-              "global:location_autocomplete.search_location_button",
-            )}
+            aria-label={t("global:location_autocomplete.search_location_button")}
             size="medium"
             onClick={() => {
               searchSubmit(value, "createOption");
@@ -258,11 +220,7 @@ export default function MapSearch({
           disabled={isLocating}
           onClick={useMyLocationSubmit}
         >
-          {isLocating ? (
-            <CircularProgress size="1.25rem" />
-          ) : (
-            <MyLocationIcon />
-          )}
+          {isLocating ? <CircularProgress size="1.25rem" /> : <MyLocationIcon />}
         </IconButton>
       </StyledForm>
     </StyledBox>
