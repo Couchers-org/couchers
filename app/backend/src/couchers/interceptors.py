@@ -303,8 +303,8 @@ def _log_call(
     nonexistent_method: bool = False,
 ) -> None:
     """Record a finished call: one api_calls row, plus the per-call Prometheus observations."""
-    metric_method = NONEXISTENT_METHOD_LABEL if nonexistent_method else method
     duration = (perf_counter_ns() - start) / 1e6  # ms
+    metric_method = NONEXISTENT_METHOD_LABEL if nonexistent_method else method
 
     req_bytes = _sanitized_bytes(request)
     res_bytes = _sanitized_bytes(response)
