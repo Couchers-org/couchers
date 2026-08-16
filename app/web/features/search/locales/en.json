@@ -88,6 +88,5 @@
   },
   "location": "Location",
   "keyword": "Keyword",
-  "search_this_area": "Search this area",
-  "zoom_in_to_select_user": "Zoom in to select a user"
+  "search_this_area": "Search this area"
 }

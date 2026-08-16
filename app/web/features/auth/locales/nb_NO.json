@@ -94,7 +94,6 @@
     },
     "header": "Gemenskapsveiledning"
   },
-  "about_us": "Om oss",
   "sign_up_confirmed_prompt": "Da er alt klart! Hvis ikke siden åpnes automatisk kan du prøve å logge in selv.",
   "unhandled_sign_up_state": "Feilmelding: unhandled signup flow state.",
   "login_prompt": "Klikk her for å logge inn",

@@ -6,8 +6,8 @@
   "write_reference_button_text": "撰寫評語",
   "close_request_button_text": "拒絕",
   "confirm_request_button_text": "確認",
-  "host_pending_request_help_text": "回覆前需要考慮的事項。",
-  "surfer_declined_request_help_text": "閱讀我們的指南，瞭解如何寫出容易被接受的請求。",
+  "host_pending_request_help_text": "回覆前請先查看<guideLink>需要考慮的事項</guideLink>。",
+  "surfer_declined_request_help_text": "請<guideLink>閱讀我們的指南</guideLink>，瞭解如何撰寫更容易被接受的請求。",
   "messages_page": {
     "title": "訊息",
     "tabs": {
@@ -133,7 +133,11 @@
       "accepted": "{{user}}已接受該請求",
       "cancelled": "{{user}}已取消該請求",
       "confirmed": "{{user}}已確認該請求",
-      "rejected": "{{user}}已拒絕該請求"
+      "rejected": "{{user}}已拒絕該請求",
+      "accepted_self": "您已接受請求",
+      "cancelled_self": "您已取消請求",
+      "confirmed_self": "您已確認該請求",
+      "rejected_self": "您已拒絕該請求"
     },
     "unknown_message_text": "未知的控制訊息"
   },
@@ -151,12 +155,13 @@
       "accepted": "您已接受此請求",
       "cancelled": "您已拒絕此請求",
       "confirmed": "您已確認此請求",
-      "rejected": "您已拒絕此請求"
+      "rejected": "您已拒絕此請求",
+      "accepted_waiting": "您已接受此請求，正在等待沙發客確認。"
     },
     "surfer_status": {
-      "accepted": "您的請求已被接受",
+      "accepted": "祝旅途愉快！{{name}}已接受您的請求。",
       "cancelled": "您的請求已取消",
-      "confirmed": "您的請求已確認",
+      "confirmed": "祝旅途愉快！{{name}}已接受請求，您也已確認。",
       "rejected": "您的請求被拒絕"
     },
     "expired": "此請求已過期"
@@ -166,8 +171,47 @@
     "back_button_a11y_label": "返回",
     "title_for_host": "來自{{user}}的請求- {{status}}",
     "title_for_surfer": "向{{user}}發出的請求- {{status}}",
-    "request_duration_other": "{{count}}晚"
+    "request_duration_other": "{{count}}晚",
+    "request_duration_one": "{{count}}晚"
   },
   "past_request_help_text": "此請求已過期，您仍可傳送訊息，但無法再進行其他修改。",
-  "unknown_user": "未知使用者"
+  "unknown_user": "未知使用者",
+  "reference_card": {
+    "title": "撰寫評語",
+    "description": "分享您的經歷，為社群提供參考。"
+  },
+  "respond_box_title": "發送回覆",
+  "respond_box_description": "選擇一個回覆以立即告知{{name}}。歡迎留言跟進。",
+  "status_bar_edit_button": "編輯",
+  "status_bar_cancel_edit_button": "取消",
+  "status_bar_close_button": "關閉",
+  "surfer_bar_pending": "您已傳送接待請求，正在等待{{name}}回覆。",
+  "cancel_request_button": "取消請求",
+  "cancel_request_dialog_title": "取消請求？",
+  "cancel_request_dialog_message": "您確定要取消您的要求嗎？此操作無法撤銷。",
+  "cancel_request_dialog_confirm_button": "是的，取消",
+  "cancel_request_dialog_dismiss_button": "否",
+  "private_feedback_card": {
+    "title": "對此請求的回饋",
+    "quality_label": "私下評價此請求（可選）：",
+    "quality_high": "高品質",
+    "quality_okay": "一般",
+    "quality_low": "低品質",
+    "decline_reason_label": "為什麼拒絕？",
+    "decline_reason_options": {
+      "didnt_read_profile": "沒有閱讀我的個人資料",
+      "dont_want_to_host": "我不想接待這個人",
+      "not_available": "我當時無法接待",
+      "other": "其他"
+    },
+    "reason_other_placeholder": "請告訴我們更多...",
+    "privacy_notice": "您的回覆是私人的，不會與用戶分享。我們可能會以匯總和匿名的形式使用它們（與許多其他形式結合），以改善所有使用者的回饋。",
+    "skip_button": "跳過",
+    "next_button": "下一步",
+    "back_button": "返回",
+    "submit_button": "提交"
+  },
+  "surfer_confirm_box_title": "{{name}}接受了您的請求！",
+  "surfer_confirm_box_description": "確認鎖定您的住宿，或如果您的計劃變更則取消。",
+  "show_more_actions_button_a11y": "顯示更多操作"
 }

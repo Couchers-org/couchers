@@ -2,7 +2,8 @@
   "actions": {
     "message_label": "資訊",
     "request": "請求",
-    "back_to_dashboard": "回到個人主頁"
+    "back_to_dashboard": "回到個人主頁",
+    "add_friend": "新增好友"
   },
   "heading": {
     "about_me": "關於我",
@@ -124,11 +125,6 @@
   "my_connections": "我的聯繫人",
   "connection_pending": "待處理",
   "cancel": "取消",
-  "more_profile_actions": "...",
-  "more_profile_actions_a11y_text": "更多個人資料操作",
-  "report_details": "詳情",
-  "report_reason": "原因",
-  "report_user": "舉報此使用者",
   "leave_reference": {
     "appropriate_explanation": "您在本頁的私人反饋以及在下一頁的公開評價，對於維護社群的安全、可信和友好至關重要。感謝您為社群做出的貢獻！",
     "appropriate_question": "你是否覺得與此人的行為互動是安全的？",
@@ -155,23 +151,23 @@
     "add_a_reference": "添加對{{name}}個人資料的引用",
     "by_writing_thoughtful": "不確定要寫什麼？請<guideLink>在此處</guideLink>閱讀我們的指南。通過誠實、詳細地寫下您與此人相處的經歷，您將直接幫助其他成員，併為Couchers社群的安全和信任做出貢獻。",
     "did_stay_confirmation": {
-      "title_hosted": "確認{{name}}沒有留下來",
-      "title_surfed": "確認您沒有和{{name}}",
-      "message_hosted": "一起留下，如果您表明{{name}}沒有留下來，您<strong>將無法撰寫推薦信</strong>。他們不會收到通知，但仍然可以為您留下參考資訊。<br /><br />如果您需要舉報某些內容，請在<reportLink>此處</reportLink>瞭解如何舉報。",
-      "message_surfed": "如果您表明您沒有留在{{name}}，您<strong>將無法撰寫推薦信</strong>。他們不會收到通知，但仍然可以為您留下參考資訊。<br /><br />如果您需要報告某些內容，請在<reportLink>此處</reportLink>找到具體方法。",
-      "confirm_hosted": "確認我沒有接待",
-      "confirm_surfed": "確認我沒有沙發衝浪"
+      "title_hosted": "確認{{name}}沒有住在您家",
+      "title_surfed": "確認您沒有住在{{name}}家",
+      "message_hosted": "如果您確認{{name}}沒有住在您家，您<strong>將無法撰寫評語</strong>。對方不會收到通知，但仍然可以為您留下評語。<br /><br />如果您需要檢舉相關情況，請在<reportLink>此處</reportLink>瞭解檢舉方式。",
+      "message_surfed": "如果您確認自己沒有住在{{name}}家，您<strong>將無法撰寫評語</strong>。對方不會收到通知，但仍然可以為您留下評語。<br /><br />如果您需要檢舉相關情況，請在<reportLink>此處</reportLink>瞭解檢舉方式。",
+      "confirm_hosted": "確認我未接待對方",
+      "confirm_surfed": "確認我未住在對方家"
     },
-    "did_stay_explanation": "如果您實際上沒有見面，請選擇“否”。您將無法撰寫公開參考資料，但可以選擇與我們分享有關所發生事件的<strong>私人</strong>資訊。對方不會被通知，但如果他們說你們見過面，仍然可以留下參考資訊。",
+    "did_stay_explanation": "如果您實際上沒有見面，請選擇“否”。您將無法撰寫公開評語，但可以選擇與我們分享有關所發生事件的<strong>私人</strong>資訊。對方不會被通知，但如果他們說你們見過面，仍然可以留下評語。",
     "reference_form_heading_did_stay_surfed": "您和{{name}}住在一起嗎？",
     "reference_form_heading_did_stay_hosted": "您接待了{{name}}嗎？",
     "reason_didnt_meetup": "您為什麼沒有見面？ （可選）",
-    "cant_write_reference_didnt_stay": "您無法編寫推薦信，因為您已表示您沒有與該使用者呆在一起。",
-    "cant_write_reference_expired": "編寫推薦信的時間已過（14天后）。",
-    "text_explanation_hosted_surfed": "您在下面輸入的推薦信將在{{name}}為您編寫推薦信後或14天后與他們共享。Couchers.org社群的其他成員也可以看到它。",
+    "cant_write_reference_didnt_stay": "您無法編寫評語，因為您已表示您沒有與該使用者呆在一起。",
+    "cant_write_reference_expired": "撰寫評語的期限已過（14天後）。",
+    "text_explanation_hosted_surfed": "您在下方輸入的評語會在{{name}}為您撰寫評語後或14天後公開，以較早者為準。Couchers.org社群的其他成員也能看到這則評語。",
     "text_label": "通過在此處分享上下文和任何相關詳細資訊，讓其他人瞭解您的體驗。",
     "thank_you_header": "感謝您留下參考！",
-    "thank_you_references_available": "接待或沙發衝浪時，當雙方都提交了參考資料時，或兩週後，以較早者為準。",
+    "thank_you_references_available": "接待或沙發衝浪時，當雙方都提交了評語時，或兩週後，以較早者為準。",
     "thank_you_support": "最重要的是，感謝您加入Couchers併成為我們社群的一部分！",
     "thank_you_donation_prompt": "考慮<donateLink>捐款</donateLink>！Couchers.org是一個501(c)(3)非營利組織，我們需要捐款來保持服務器運行。",
     "rating_required": "請移動滑塊並評價您的體驗。",
@@ -180,7 +176,7 @@
     "rating_positive": "正面",
     "rating_amazing": "超棒！",
     "ratings_slider_label": "評分滑桿",
-    "didnt_meetup_submit_success": "感謝您告知我們！我們不會要求您寫參考資料！",
+    "didnt_meetup_submit_success": "感謝您告知我們！我們不會要求您寫評語！",
     "go_to_dashboard": "轉到儀表板",
     "private_text_explanation_1": "在下面的框中，您可以私下告訴我們的安全團隊發生了什麼事。",
     "private_text_explanation_2": "這隻會由我們的安全團隊看到，並將保持私密。細節越多越好，但即使是簡短的解釋也會有很大幫助。點擊<helpLink>此處</helpLink>瞭解更多資訊。",
@@ -190,9 +186,10 @@
     "yes_safe": "是的，我感到安全。",
     "no_not_safe": "不，我在一次或多次情況下感到不安全。",
     "what_happened": "什麼發生了？",
-    "friend_reference_requires_friendship": "您只能為您的好友撰寫好友推薦信。",
-    "already_wrote_reference_for_stay": "您已為此使用者和本次入住撰寫了好友推薦信。他們為您撰寫推薦信後或14天后，您的推薦信將可見。",
-    "already_wrote_friend_reference": "您已為此使用者編寫了朋友推薦信。"
+    "friend_reference_requires_friendship": "您只能為您的好友撰寫好友評語。",
+    "already_wrote_reference_for_stay": "您已為此使用者的這次住宿撰寫評語。對方為您撰寫評語後或14天後，您的評語便會顯示。",
+    "already_wrote_friend_reference": "您已為此使用者編寫了朋友評語。",
+    "safety_rating_selector_a11y": "安全等級"
   },
   "request_form": {
     "send_request": "向{{name}}發送請求",
@@ -205,15 +202,16 @@
     "request_description": "分享你的訪問計劃，並說明為什麼選擇與這位特定的接待者同住",
     "request_description_empty": "請寫一條請求訊息",
     "success": "請求已發送！",
-    "request_chars_remaining_other": "請至少再寫{{count}}個字元，才能送出接待請求。"
+    "request_chars_remaining_other": "請至少再寫{{count}}個字元，才能送出接待請求。",
+    "arrival_date_before_host_today": "{{name}}的這個日期已經過去了。",
+    "request_chars_remaining_one": "請至少再輸入{{count}}個字元以傳送接待請求。"
   },
   "message_form": {
     "send_message": "傳送訊息給{{name}}",
     "message": "訊息",
     "message_description": "寫下你的訊息...",
     "message_empty": "請寫一則訊息。",
-    "hosting_request_hint": "想傳送接待請求嗎？請改用<request>請求</request>按鈕。",
-    "success": "訊息已傳送！"
+    "hosting_request_hint": "想傳送接待請求嗎？請改用<request>請求</request>按鈕。"
   },
   "reference_filter_label": {
     "friend": "來自朋友",
@@ -261,12 +259,12 @@
   "active": "活躍",
   "helper_text": {
     "missing_profile_photo": "請添加一張照片以完善您的個人資料。",
-    "characters_remaining_other": "<bold>請至少再寫{{count}}個字元，才能解鎖訊息與請求。</bold>真實的個人資料能建立信任。您分享得越多，與他人建立連結就越容易！"
+    "characters_remaining_other": "<bold>請至少再寫{{count}}個字元，才能解鎖訊息與請求。</bold>真實的個人資料能建立信任。您分享得越多，與他人建立連結就越容易！",
+    "characters_remaining_one": "<bold>請至少再寫{{count}}個字元來解鎖訊息和請求。 </bold>真實的個人資料可建立信任社群。您分享的越多，聯繫就越容易！"
   },
   "do_not_email_error_link": "更新您的電子郵件設定以重新啟用此功能。",
-  "edit_profile_name_required": "必填名稱",
   "what_options_mean": "這些選項的含義",
-  "have_pending_reference_text": "您有一個待處理的推薦信要為此寫入使用者",
+  "have_pending_reference_text": "您還有一則給這位使用者的評語待撰寫",
   "write_friend_reference": "寫朋友參考",
   "badges": {
     "title": "探索Couchers.org徽章",
@@ -279,7 +277,8 @@
   "reference_amounts": {
     "no_references": "沒有引用",
     "count_references_other": "{{count}}引用",
-    "hundred_or_more_references": "100+引用"
+    "hundred_or_more_references": "100+引用",
+    "count_references_one": "{{count}}則評語"
   },
   "incomplete_profile_haiku": "空白頭像的凝視，\n沉默背後的秘密——\n陌生人，你是誰？",
   "search_indicator": "當其他會員搜尋您時，這部分的開頭會顯示在搜尋結果中",
@@ -305,7 +304,7 @@
     "add_photo": "添加照片",
     "remove_photo": "刪除照片",
     "select_photo": "選擇一張照片",
-    "photo_count": "{{當前}}，共{{total}}",
+    "photo_count": "{{current}}，共{{total}}",
     "empty_title": "添加您的第一張照片",
     "empty_description": "點擊此處或上面的按鈕上傳照片",
     "no_photos": "尚無照片",
@@ -320,5 +319,27 @@
     "next_photo": "下一張照片",
     "close_viewer": "關閉照片查看器",
     "report_photo": "報告照片"
+  },
+  "local_time_with_time_zone_text": "{{ time }} (<timeZone/>)",
+  "about_me_textbox_placeholder": "例如目前的任務、為什麼使用Couchers.org、最喜歡的旅行故事...",
+  "hobbies_textbox_placeholder": "例如活動、書籍、電影、音樂...",
+  "edit_profile_pronouns_placeholder": "例如她/她",
+  "open_full_profile": "開啟完整檔案",
+  "open_profile_a11y": "打開個人資料",
+  "complete_profile_dialog": {
+    "title": "即將完成：請填寫您的個人資料以繼續！",
+    "description_1": "在執行{{action_name}}之前，您必須在個人資料中<strong>寫下一些關於您自己的資訊</strong>並<strong>上傳個人資料照片</strong>。",
+    "description_2": "這有助於建立一個值得信賴的社區並減少垃圾郵件。如需了解更多信息，<helpLink>請參閱此說明頁面</helpLink>。感謝您的幫忙！",
+    "actions": {
+      "send_request": "發送請求",
+      "send_message": "發送訊息",
+      "send_friend_request": "發送好友請求",
+      "create_event": "建立活動",
+      "create_public_trip": "建立公開行程",
+      "create_discussion": "創建討論",
+      "post_comment": "發表評論"
+    },
+    "edit_profile_button": "立即編輯您的個人資料",
+    "cancel_button": "暫不"
   }
 }

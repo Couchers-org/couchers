@@ -2,6 +2,7 @@ from collections.abc import Callable, Generator
 from concurrent import futures
 from contextlib import contextmanager
 from datetime import timedelta
+from threading import current_thread
 from typing import Any
 from unittest.mock import Mock, patch
 
@@ -21,11 +22,12 @@ from couchers.crypto import b64encode, random_hex, simple_encrypt
 from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.interceptors import (
-    AbortError,
     BadHeaders,
+    CallRejectedError,
     CouchersMiddlewareInterceptor,
     ErrorSanitizationInterceptor,
     UserAuthInfo,
+    _try_get_and_update_user_details,
     check_permissions,
     find_auth_level,
     parse_headers,
@@ -351,6 +353,28 @@ def test_tracing_interceptor_phase_histograms(db):
         )
         == serialize_before + 1
     )
+
+
+def test_auth_runs_on_the_handler_thread(db):
+    # gRPC runs intercept_service inline on the server's single polling thread, under the server-wide lock, so the auth
+    # query has to happen in the returned handler or it serializes dispatch for every other call in the process
+    threads: dict[str, str] = {}
+
+    def TestRpc(request, context, session):
+        threads["handler"] = current_thread().name
+        return empty_pb2.Empty()
+
+    def record_thread(*args, **kwargs):
+        threads["auth"] = current_thread().name
+        return _try_get_and_update_user_details(*args, **kwargs)
+
+    with (
+        patch("couchers.interceptors._try_get_and_update_user_details", record_thread),
+        interceptor_dummy_api(TestRpc, interceptors=[CouchersMiddlewareInterceptor()]) as call_rpc,
+    ):
+        call_rpc(empty_pb2.Empty())
+
+    assert threads["auth"] == threads["handler"]
 
 
 def test_tracing_interceptor_perf_accounting_orm_write(db):
@@ -893,7 +917,7 @@ def test_parse_headers_with_all_optional_headers():
     assert result.ip_address == "192.168.1.1"
     assert result.user_agent == "TestAgent/1.0"
     assert result.ui_lang == "en"
-    assert result.user_id == "42"
+    assert result.user_id_str == "42"
 
 
 def test_parse_headers_with_bytes_ip_address():
@@ -931,7 +955,7 @@ def test_find_auth_level_with_valid_service():
 def test_find_auth_level_with_nonexistent_service():
     pool = get_descriptor_pool()
 
-    with pytest.raises(AbortError) as exc:
+    with pytest.raises(CallRejectedError) as exc:
         find_auth_level(pool, "/org.couchers.nonexistent.Service/Method")
     assert exc.value.msg == NONEXISTENT_API_CALL_ERROR_MESSAGE
     assert exc.value.code == grpc.StatusCode.UNIMPLEMENTED
@@ -945,14 +969,14 @@ def test_find_auth_level_with_unknown_auth_level():
     service_desc.GetOptions.return_value = service_options
     pool.FindServiceByName.return_value = service_desc
 
-    with pytest.raises(AbortError) as exc:
+    with pytest.raises(CallRejectedError) as exc:
         find_auth_level(pool, "/org.couchers.api.core.API/GetUser")
     assert exc.value.msg == MISSING_AUTH_LEVEL_ERROR_MESSAGE
     assert exc.value.code == grpc.StatusCode.INTERNAL
 
 
 def test_validate_auth_level_with_unknown():
-    with pytest.raises(AbortError) as exc:
+    with pytest.raises(CallRejectedError) as exc:
         validate_auth_level(annotations_pb2.AUTH_LEVEL_UNKNOWN)
     assert exc.value.msg == MISSING_AUTH_LEVEL_ERROR_MESSAGE
     assert exc.value.code == grpc.StatusCode.INTERNAL
@@ -998,7 +1022,7 @@ def test_check_auth_open_service_with_auth():
 
 
 def test_check_auth_secure_service_without_auth():
-    with pytest.raises(AbortError):
+    with pytest.raises(CallRejectedError):
         check_permissions(None, annotations_pb2.AUTH_LEVEL_SECURE)
 
 
@@ -1029,7 +1053,7 @@ def test_check_auth_secure_service_with_jailed_user():
         token="abc123",
         is_api_key=False,
     )
-    with pytest.raises(AbortError):
+    with pytest.raises(CallRejectedError):
         check_permissions(auth_info, annotations_pb2.AUTH_LEVEL_SECURE)
 
 
@@ -1049,7 +1073,7 @@ def test_check_auth_jailed_service_with_jailed_user():
 
 
 def test_check_auth_jailed_service_without_auth():
-    with pytest.raises(AbortError):
+    with pytest.raises(CallRejectedError):
         check_permissions(None, annotations_pb2.AUTH_LEVEL_JAILED)
 
 
@@ -1065,7 +1089,7 @@ def test_check_auth_editor_service_without_editor():
         token="abc123",
         is_api_key=False,
     )
-    with pytest.raises(AbortError):
+    with pytest.raises(CallRejectedError):
         check_permissions(auth_info, annotations_pb2.AUTH_LEVEL_EDITOR)
 
 
@@ -1096,7 +1120,7 @@ def test_check_auth_admin_service_without_superuser():
         token="abc123",
         is_api_key=False,
     )
-    with pytest.raises(AbortError):
+    with pytest.raises(CallRejectedError):
         check_permissions(auth_info, annotations_pb2.AUTH_LEVEL_ADMIN)
 
 
@@ -1116,7 +1140,7 @@ def test_check_auth_admin_service_with_superuser():
 
 
 def test_check_auth_admin_service_without_auth():
-    with pytest.raises(AbortError):
+    with pytest.raises(CallRejectedError):
         check_permissions(None, annotations_pb2.AUTH_LEVEL_ADMIN)
 
 

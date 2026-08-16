@@ -107,9 +107,6 @@
   },
   "connection_pending": "Pendiente",
   "cancel": "Cancelar",
-  "more_profile_actions": "...",
-  "report_details": "Detalles",
-  "report_reason": "Motivo",
   "leave_reference": {
     "next_step_label": "Siguiente",
     "cant_write_reference_expired": "El tiempo para escribir una referencia ha pasado (después de 14 días).",
@@ -206,8 +203,7 @@
     "send_message": "Envia un mensaje a {{name}}",
     "message": "Mensaje",
     "message_description": "Escribe tu mensaje...",
-    "message_empty": "Por favor, escribe un mensaje.",
-    "success": "¡Mensaje enviado!"
+    "message_empty": "Por favor, escribe un mensaje."
   },
   "my_connections": "Mis contactos",
   "active": "Activo",
@@ -252,7 +248,6 @@
   },
   "edit": "Editar Perfil",
   "edit_profile_helper_text": "¿Buscas inspiración sobre por dónde empezar? <guideLink>Consulta nuestra guía para crear un perfil increíble</guideLink>.",
-  "edit_profile_name_required": "Nombre requerido",
   "edit_home_questions": {
     "accept_drinking": "No me molesta que la gente beba",
     "accept_pets": "Aloja personas con mascotas",
@@ -268,8 +263,6 @@
   },
   "edit_profile_tab_bar_a11y_label": "pestañas para editar diferentes partes del perfil",
   "info_unanswered": "Pregúntame",
-  "more_profile_actions_a11y_text": "Más acciones del perfil",
-  "report_user": "Reportar este usuario",
   "no_references": "¡Sin referencias de este tipo todavía!",
   "references_filter_a11y_label": "Mostrar referencias: ",
   "see_more_references": "Ver más referencias",

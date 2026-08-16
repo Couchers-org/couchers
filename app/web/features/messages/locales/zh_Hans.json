@@ -6,8 +6,8 @@
   "write_reference_button_text": "编写评语",
   "close_request_button_text": "拒绝",
   "confirm_request_button_text": "确认",
-  "host_pending_request_help_text": "回复前需要考虑的事项。",
-  "surfer_declined_request_help_text": "阅读我们的指南，了解如何写出容易被接受的请求。",
+  "host_pending_request_help_text": "回复前请先查看<guideLink>需要考虑的事项</guideLink>。",
+  "surfer_declined_request_help_text": "请<guideLink>阅读我们的指南</guideLink>，了解如何撰写更容易被接受的请求。",
   "messages_page": {
     "title": "消息",
     "tabs": {
@@ -133,7 +133,11 @@
       "accepted": "{{user}}已接受该请求",
       "cancelled": "{{user}}已取消该请求",
       "confirmed": "{{user}}已确认该请求",
-      "rejected": "{{user}}已拒绝该请求"
+      "rejected": "{{user}}已拒绝该请求",
+      "accepted_self": "您已接受请求",
+      "cancelled_self": "您已取消请求",
+      "confirmed_self": "您已确认该请求",
+      "rejected_self": "您已拒绝该请求"
     },
     "unknown_message_text": "未知控制消息"
   },
@@ -151,12 +155,13 @@
       "accepted": "您已接受此请求",
       "cancelled": "您已拒绝此请求",
       "confirmed": "您已确认此请求",
-      "rejected": "您已拒绝此请求"
+      "rejected": "您已拒绝此请求",
+      "accepted_waiting": "您已接受此请求，正在等待沙发客确认。"
     },
     "surfer_status": {
-      "accepted": "您的请求已被接受",
+      "accepted": "祝旅途愉快！{{name}}已接受您的请求。",
       "cancelled": "您的请求已取消",
-      "confirmed": "您的请求已确认",
+      "confirmed": "祝旅途愉快！{{name}}已接受请求，您也已确认。",
       "rejected": "您的请求被拒绝"
     },
     "expired": "此请求已过期"
@@ -166,8 +171,47 @@
     "back_button_a11y_label": "返回",
     "title_for_host": "来自{{user}}的请求- {{status}}",
     "title_for_surfer": "向{{user}}发出的请求- {{status}}",
-    "request_duration_other": "{{count}}晚"
+    "request_duration_other": "{{count}}晚",
+    "request_duration_one": "{{count}}晚"
   },
   "past_request_help_text": "该请求已过期，你仍可发送消息，但无法进行其他修改。",
-  "unknown_user": "未知用户"
+  "unknown_user": "未知用户",
+  "reference_card": {
+    "title": "撰写评价",
+    "description": "分享您的经历，为社区提供参考。"
+  },
+  "respond_box_title": "发送回复",
+  "respond_box_description": "选择一个回复以立即告知{{name}}。欢迎留言跟进。",
+  "status_bar_edit_button": "编辑",
+  "status_bar_cancel_edit_button": "取消",
+  "status_bar_close_button": "关闭",
+  "surfer_bar_pending": "您已发送接待请求，正在等待{{name}}回复。",
+  "cancel_request_button": "取消请求",
+  "cancel_request_dialog_title": "取消请求？",
+  "cancel_request_dialog_message": "您确定要取消您的请求吗？此操作无法撤消。",
+  "cancel_request_dialog_confirm_button": "是的，取消",
+  "cancel_request_dialog_dismiss_button": "否",
+  "private_feedback_card": {
+    "title": "对此请求的反馈",
+    "quality_label": "私下评价此请求（可选）：",
+    "quality_high": "高质量",
+    "quality_okay": "一般",
+    "quality_low": "低质量",
+    "decline_reason_label": "你为什么拒绝？",
+    "decline_reason_options": {
+      "didnt_read_profile": "没有阅读我的个人资料",
+      "dont_want_to_host": "我不想接待这个人",
+      "not_available": "我当时无法接待",
+      "other": "其他"
+    },
+    "reason_other_placeholder": "请告诉我们更多...",
+    "privacy_notice": "您的回复是私人的，不会与用户共享。我们可能会以汇总和匿名的形式使用它们（与许多其他形式相结合），以改善所有用户的反馈。",
+    "skip_button": "跳过",
+    "next_button": "下一步",
+    "back_button": "返回",
+    "submit_button": "提交"
+  },
+  "surfer_confirm_box_title": "{{name}}接受了您的请求！",
+  "surfer_confirm_box_description": "确认锁定您的住宿，或者如果您的计划发生变化则取消。",
+  "show_more_actions_button_a11y": "显示更多操作"
 }

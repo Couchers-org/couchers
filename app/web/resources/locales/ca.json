@@ -111,7 +111,6 @@
       "description_required": "La descripció és obligatòria.",
       "description_label": "Descriu el problema",
       "description_helper": "Explica'ns per què reportes això.",
-      "success": "Gràcies pel teu informe i per ajudar a fer de Couchers una plataforma millor per a tothom!",
       "reason": {
         "dating": "Comportament de flirteig / app de cites o similar",
         "external": "Incident fora de la plataforma",
@@ -216,7 +215,6 @@
       "fetch_invite_info": "No s'han pogut obtenir els detalls del codi d'invitació"
     }
   },
-  "contribute_title": "Registra't per contribuir",
   "reply": "Respon",
   "yes": "Sí",
   "no": "No",

@@ -5,14 +5,9 @@
   "profile_summary_edit": "Upravit profil",
   "profile_summary_view": "Zobrazit můj profil",
   "show_map": "Zobrazit mapu",
-  "please_complete_profile": "Dokonči prosím svůj profil a ujisti se, že se zobrazuje ve vyhledávání:",
-  "fill_in_who_i_am": "1. Vyplň sekci \"Kdo jsem\" několika větami o sobě",
-  "upload_photo": "2. Nahraj fotografii (kliknutím na avatar na stránce úprav)",
   "your_communities_heading": "Tvé komunity",
-  "all_communities_heading": "Všechny komunity",
   "no_community": "Momentálně nejsi v žádné komunitě.",
   "your_communities_helper_text": "Přidali jsme tě do všech komunit na základě tvé polohy. Neváhej však <browseCommunitiesLink>procházet komunity a přidávat se do nich</browseCommunitiesLink> i v jiných lokalitách.",
-  "community_builder_form_text": "Založ si vlastní místní komunitu",
   "communities_welcome_title": "Vítej v Komunitách",
   "community_builder": "Chceš být ambasadorem své komunity a pomoci jí růst? Staň se <communityBuilderLink>budovatelem komunity!</communityBuilderLink>",
   "find_your_community_intro_simplified": "Vyhledej svou komunitu nebo procházej níže. <requestCommunityLink>Nenacházíš tu svou? Požádej o ni!</requestCommunityLink>",
@@ -20,18 +15,13 @@
   "browse_all_communities": "Procházet všechny komunity",
   "show_all_communities": "Zobrazit všechny komunity",
   "hide_all_communities": "Skrýt všechny komunity",
-  "all_communities_section": "Všechny komunity",
   "find_your_community_intro": "Níže můžeš vyhledávat nebo procházet všechny komunitní stránky, které dosud existují. Chybí tvá země nebo město? <requestCommunityLink>Použij tento formulář</requestCommunityLink> k jejich přidání!",
-  "landing_text": "Pracujeme na nových <featuresLink>funkcí</featuresLink> jako jsou události, místní průvodci, moderování a setkání. Oceňujeme tvou trpělivost a <supportLink>podporu</supportLink>, zatímco je vyvíjíme.",
   "find_your_community": "Najďi komunitu",
   "communities_intro": "Abychom lidem po celém světě pomohli organizovat akce, diskutovat a setkávat se na místní úrovni, vytvořili jsme komunitní stránky, které jsou uvedeny níže. <strong>Na základě tvé polohy jsme tě automaticky přidali do některých komunit, ale můžeš se připojit k jakékoli jiné komunitě!</strong> Tvé komunity jsou uvedeny na hlavním panelu.",
   "browse_communities_text": "Klikni na název regionu, pro zobrazení dalších komunit v ní níže. Klikni na odkaz a přejdi tak na stránku komunity daného města nebo regionu.",
-  "all_communities_intro": "Níže si můžeš prohlédnout všechny komunitní stránky, které dosud existují. <strong>Klikni na název komunity a zobrazí se ti další komunity v rámci této skupiny.</strong>",
-  "community_missing": "Chybí tvá země nebo město? Použij <requestCommunityLink>tento formulář</requestCommunityLink> k jeho přidání!",
   "profile_mobile_summary_view": "Přejít na profil",
   "find_a_host": "Najdi hostitele",
   "become_a_host": "Staň se hostitelem",
-  "complete_profile_explanation": "Taky tě štve, jak mají jiné platformy prázdné „duchařské\" profily bez jakýchkoliv informací? Prosím, nedělej z nás duchy! 👻👻👻",
   "no_sub_communities": "Žádné podkomunity.",
   "new_pill": "Nové",
   "my_communities_heading": "Moje komunity",
@@ -70,10 +60,6 @@
       "button": "Uprav svůj domov"
     },
     "carousel_dismiss_button_a11y": "Zavřít upozornění",
-    "carousel_scroller": {
-      "left_arrow_a11y": "Posunout doleva",
-      "right_arrow_a11y": "Posunout doprava"
-    },
     "confirm_host_request": {
       "title": "Potvrď svůj pobyt u {{name}}",
       "button": "Potvrď pobyt",
@@ -81,8 +67,6 @@
     }
   },
   "public_trips": {
-    "when_tomorrow": "Zítra",
-    "when_today": "Dnes",
     "manage_link": "Spravovat",
     "when_now": "Nyní",
     "empty_description": "Chystáš se někam? Zveřejni veřejnou cestu v komunitě a získej tak nabídky od hostitelů v okolí.",
@@ -105,7 +89,6 @@
   },
   "events": {
     "your_upcoming_header": "Tvoje nadcházející události",
-    "see_all_link": "Zobrazit vše →",
     "your_upcoming_empty_message": "Žádné události v tento moment. Co tak jednu <createEventLink>založit</createEventLink> ✨?",
     "community_header": "Události v tvých komunitách",
     "today_label": "Dnes"

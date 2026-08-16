@@ -183,9 +183,6 @@
   },
   "respond_box_title": "Envie uma resposta",
   "respond_box_description": "Selecione uma resposta para avisar {{name}} imediatamente. Fique à vontade para enviar uma nova mensagem mais tarde.",
-  "status_bar_edit_button": "Editar",
-  "status_bar_cancel_edit_button": "Cancelar",
-  "status_bar_close_button": "Fechar",
   "surfer_bar_pending": "Você solicitou uma solicitação de hospedagem — aguardando {{name}} responder.",
   "cancel_request_button": "Cancelar solicitação",
   "cancel_request_dialog_title": "Cancelar solicitação?",
@@ -193,7 +190,6 @@
   "cancel_request_dialog_confirm_button": "Sim, cancelar",
   "cancel_request_dialog_dismiss_button": "Não",
   "private_feedback_card": {
-    "title": "Comentário sobre esta solicitação",
     "quality_label": "Avalie esta solicitação de forma confidencial (opcional):",
     "quality_high": "Excelente",
     "quality_okay": "Boa",
@@ -208,8 +204,6 @@
     "reason_other_placeholder": "Conte mais...",
     "privacy_notice": "Suas respostas são confidenciais e não serão compartilhadas com o usuário. Podemos usá-las de forma conjunta e anônima, junto a muitas outras, para melhorar os comentários para todos os usuários.",
     "skip_button": "Pular",
-    "next_button": "Avançar",
-    "back_button": "Voltar",
     "submit_button": "Enviar"
   },
   "surfer_confirm_box_title": "{{name}} aceitou sua solicitação!",
