@@ -183,7 +183,6 @@
     "message": "Сообщение",
     "message_description": "Напишите ваше сообщение...",
     "message_empty": "Пожалуйста, напишите сообщение.",
-    "success": "Сообщение отправлено!",
     "send_message": "Отправьте сообщение {{name}}"
   },
   "open_profile_new_tab": "Открыть профиль в новой вкладке",
@@ -220,9 +219,7 @@
     "characters_remaining_many": "<bold>Пожалуйста, напишите ещё как минимум {{count}} символов, чтобы разблокировать отправку сообщений и запросов.</bold> Подлинные профили помогают создавать доверие в сообществе. Чем больше вы рассказываете о себе, тем проще установить контакт!"
   },
   "edit_profile_tab_bar_a11y_label": "Вкладки для редактирования различных частей вашего профиля",
-  "report_details": "Детали",
   "references_filter_a11y_label": "Показать отзывы: ",
-  "report_reason": "Причина",
   "profile_tag_input": {
     "remove_button_a11y_text": "Удалить {{tag}}"
   },
@@ -260,7 +257,6 @@
     "cannot_host_description": "В данный момент я не могу принимать путешественников"
   },
   "section_tabs_a11y_label": "Вкладки с данными пользователя",
-  "edit_profile_name_required": "Имя обязательно",
   "unspecified_info": "-",
   "smoking_location": {
     "no": "Нет",
@@ -274,9 +270,6 @@
   },
   "info_unanswered": "Спроси меня",
   "connection_pending": "В ожидании",
-  "more_profile_actions": "...",
-  "more_profile_actions_a11y_text": "Больше действий с профилем",
-  "report_user": "Пожаловаться на этого пользователя",
   "no_references": "Пока нет таких отзывов!",
   "languages_fluent_false": "Не указано",
   "regions_empty_state": "Никуда",
@@ -350,5 +343,6 @@
   "about_me_textbox_placeholder": "Например: текущая цель, почему вы пользуетесь Couchers.org, любимая история о путешествии...",
   "hobbies_textbox_placeholder": "например, занятия, книги, фильмы, музыка...",
   "edit_profile_pronouns_placeholder": "напр. она/её",
-  "local_time_with_time_zone_text": "{{ time }} (<timeZone/>)"
+  "local_time_with_time_zone_text": "{{ time }} (<timeZone/>)",
+  "open_profile_a11y": "Открыть профиль"
 }

@@ -180,7 +180,6 @@
   "sign_up_confirmed_prompt": "Klaar! Als je niet automatisch wordt doorgestuurd, probeer dan zelf in te loggen.",
   "unhandled_sign_up_state": "Fout: onverwerkte status van het aanmeldingsproces.",
   "login_prompt": "Klik hier om in te loggen",
-  "about_us": "Over ons",
   "reset_password": "Wachtwoord opnieuw instellen",
   "account_settings_page": {
     "title": "Account-instellingen",
@@ -293,8 +292,7 @@
         "heading": "Voor je begint",
         "nfc_check": "Je telefoon moet een <strong>NFC-functie</strong> hebben, zoals de meeste nieuwere mobiels hebben. NFC staat meestal aan, maar soms moet je hem handmatig aanzetten in de instellingen van je telefoon.",
         "passport_check": "Je paspoort moet een <strong>biometrisch paspoort</strong> zijn. Er staat dan een gouden chip-symbool op de voorkant. Als je een ouder paspoort zonder dit symbool hebt, dan lukt het helaas niet.",
-        "remove_case": "<strong>Verwijder je telefoonhoesje voor je begint</strong>, ook een dun hoesje kan het signaal blokkeren en dan werkt het helaas niet.",
-        "passport_symbol_alt": "Biometrisch paspoort-symbool"
+        "remove_case": "<strong>Verwijder je telefoonhoesje voor je begint</strong>, ook een dun hoesje kan het signaal blokkeren en dan werkt het helaas niet."
       },
       "didnt_work": {
         "heading": "Lukt het niet?",

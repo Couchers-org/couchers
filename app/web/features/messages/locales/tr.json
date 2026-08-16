@@ -48,10 +48,16 @@
   },
   "admins_dialog": {
     "step_down_confirmation_dialog": {
-      "message": "Bu sohbetin yöneticisi olmaktan vazgeçmek istediğine emin misin? Başka bir yönetici seni tekrardan yönetici olarak eklemediği sürece tekrardan bu sohbetin yöneticisi olamayacaksın."
+      "message": "Bu sohbetin yöneticisi olmaktan vazgeçmek istediğine emin misin? Başka bir yönetici seni tekrardan yönetici olarak eklemediği sürece tekrardan bu sohbetin yöneticisi olamayacaksın.",
+      "title": "Yöneticilikten ayrıl?"
     },
     "remove_admin": {
-      "title": "Yönetici çıkar"
+      "title": "Yönetici çıkar",
+      "action_a11y_label": "Yöneticilikten çıkar"
+    },
+    "add_admin": {
+      "title": "Yönetici ekle",
+      "action_a11y_label": "Yönetici olarak ekle"
     }
   },
   "create_chat": {
@@ -119,9 +125,6 @@
     "description": "Deneyimini paylaşarak topluluğa yardımcı ol."
   },
   "respond_box_title": "Yanıt gönder",
-  "status_bar_edit_button": "Düzenle",
-  "status_bar_cancel_edit_button": "İptal Et",
-  "status_bar_close_button": "Kapat",
   "surfer_bar_pending": "Bir konaklama isteği gönderdin — {{name}} tarafından bir yanıt bekleniyor.",
   "cancel_request_button": "İsteği iptal et",
   "private_feedback_card": {

@@ -138,7 +138,6 @@
         "scam": "Betrug, Fake oder irreführende Informationen",
         "sexualized": "Sexualisierte Inhalte oder Verhaltensweisen"
       },
-      "success": "Vielen Dank für deinen Bericht und dafür, dass du Couchers zu einer besseren Plattform für alle machst!",
       "block_user": "{{username}} blockieren",
       "profile_button_aria_label": "Inhalt melden oder Nutzer blockieren",
       "profile_title": "Melden oder blockieren",
@@ -211,7 +210,6 @@
   "confirm": "Bestätigen",
   "cookie_message": "Wir verwenden Cookies, um sicherzustellen, dass wir dir die bestmögliche Erfahrung auf unserer Website bieten. Wenn du diese Seite weiterhin nutzt, gehen wir davon aus, dass du damit einverstanden bist. Weitere Informationen findest du in unseren <tosLink>Nutzungsbedingungen</tosLink>.",
   "not_found_text_1": "Wir konnten die von dir angeforderte URL oder Ressource nicht finden",
-  "contribute_title": "Melde dich an, um beizutragen",
   "strong_verification": {
     "helper_text": "Die Identität des Mitglieds wurde mit einem biometrischen Reisepass verifiziert"
   },

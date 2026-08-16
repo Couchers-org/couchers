@@ -87,7 +87,6 @@
       "reason_label": "Motivo de la denuncia",
       "description_required": "Se requiere una descripción.",
       "description_label": "Describa el problema",
-      "success": "¡Gracias por tu denuncia y por hacer de Couchers una plataforma mejor para todos!",
       "block_user": "Bloquear a {{username}}",
       "block_user_explainer": "Los mensajes y peticiones de esta persona serán bloqueadas, y tu perfil, eventos y comentarios no serán visibles para ella. No se le informará de que la bloqueaste."
     },
@@ -255,7 +254,6 @@
     "number_of_uses_other": "Usos: {{count}} registros completados",
     "disable_link": "Desactivar"
   },
-  "contribute_title": "Regístrate para contribuir",
   "reply": "Responder",
   "yes": "Sí",
   "team": {

@@ -30,5 +30,12 @@
     "title": "管理您的捐款",
     "description": "點擊下方按鈕以更新或取消您的定期捐贈，或查看歷史帳單。",
     "button_text": "進入捐贈管理中心"
+  },
+  "logged_out": {
+    "title": "捐款金額",
+    "body": "登入進行捐贈，以便我們可以在您的個人資料上為您提供捐贈者徽章。",
+    "login_button": "登入捐款",
+    "signup_prompt": "沒有帳戶？ <signupLink>註冊</signupLink>",
+    "anonymous_donation": "要一次捐贈${{ amount }}或更多而不與帳戶綁定，請透過<emailLink>{{ email }}</emailLink>與我們聯絡。"
   }
 }

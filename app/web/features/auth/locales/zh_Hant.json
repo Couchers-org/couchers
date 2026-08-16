@@ -97,7 +97,8 @@
       "required_error": "請選擇您的性別",
       "man": "男性",
       "non_binary": "非二元性別",
-      "woman": "女性"
+      "woman": "女性",
+      "selector_a11y": "性別"
     },
     "opt_in_newsletter": "訂閱我們偶爾寄送的社群更新電子報。",
     "tos_prompt": "請您閱讀並且接受<tosLink></tosLink>以繼續。",
@@ -166,7 +167,6 @@
   "sign_up_confirmed_prompt": "大功告成！如果頁面沒有自動跳轉，請嘗試登入。",
   "unhandled_sign_up_state": "錯誤：未處理的註冊流程狀態。",
   "login_prompt": "點此登入",
-  "about_us": "關於我們",
   "reset_password": "重置密碼",
   "account_settings_page": {
     "title": "帳戶設定",
@@ -253,7 +253,7 @@
       "step3": "請用手機掃描二維碼",
       "step5": "選擇<strong>護照</strong>（不支持身份證）",
       "step6": "請拍攝一張護照頁面的清晰照片，確保底部的號碼清晰可見",
-      "step7": "將手機貼在帶有NFC芯片的護照頁面上（見下方提示）",
+      "step7": "將手機貼在帶有NFC晶片的護照頁面上，並<strong>保持完全靜止至少5秒</strong>——過早移動是最常見的失敗原因",
       "download_app_store": "前往App Store下載",
       "download_google_play": "前往Google Play下載",
       "chip_location": {
@@ -279,8 +279,7 @@
         "heading": "開始之前",
         "nfc_check": "您的手機必須具備<strong>NFC功能</strong>。大多數現代手機都支援，而且通常預設會開啟；某些較舊的手機則可能需要您到設定中手動開啟。",
         "passport_check": "您的護照必須是<strong>生物識別護照</strong> -查找封面上的金色芯片符號。沒有此符號的舊護照將無法使用。",
-        "remove_case": "<strong>開始前請取下手機殼</strong> -即使很薄的手機殼也會阻擋NFC信號並導致掃描失敗。",
-        "passport_symbol_alt": "生物識別護照符號"
+        "remove_case": "<strong>開始前請取下手機殼</strong> -即使很薄的手機殼也會阻擋NFC信號並導致掃描失敗。"
       },
       "didnt_work": {
         "heading": "有問題嗎？",
@@ -314,7 +313,7 @@
     "request": {
       "title": "刪除帳戶",
       "description": "如要刪除您的帳戶，請按以下步驟操作。我們將向您發出確認郵件。",
-      "confirm_username_explanation": "您的使用者名稱是<strong>{{username}}</strong>，請在下方輸入以確認刪除帳戶。",
+      "confirm_username_explanation": "您的使用者名稱是<strong>{{ username }}</strong>，請在下方輸入以確認刪除帳戶。",
       "confirm_username_label": "使用者名稱確認",
       "username_mismatch": "使用者名稱不匹配。",
       "reason_explanation": "請告訴我們刪除帳戶的原因，以幫助我們改進平台。",

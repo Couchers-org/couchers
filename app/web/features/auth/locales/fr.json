@@ -101,7 +101,6 @@
     }
   },
   "login_prompt": "Cliquez ici pour vous connecter",
-  "about_us": "Au sujet de nous",
   "sign_up_completed_prompt": "Nous vous avons envoyé un lien de vérification à votre adresse mail. Veuillez cliquer sur ce lien pour activer votre compte.",
   "reset_password": "Réinitialiser votre mot de passe",
   "account_form": {

@@ -1,31 +1,21 @@
 {
-  "complete_profile_explanation": "Diğer platformların hiçbir bilgi olmayan boş ''hayalet'' profillere sahip olmasından rahatsız olmuyor musun? Lütfen bize hayaletlik yapma!👻👻👻",
   "dashboard": "Gösterge",
-  "please_complete_profile": "Aramalarda gözüktüğüne emin olmak için lütfen profilini tamamla:",
-  "fill_in_who_i_am": "1. Kendine ait ''Ben kimim'' alanını kendin hakkında birkaç cümleyle doldur",
-  "upload_photo": "2. Bir fotoğraf yükle (Düzenle sayfasından avatarına tıklayarak)",
   "load_more": "Daha fazla yükle",
   "welcome": "Couchers.org a hoşgeldin!",
-  "community_builder_form_text": "Kendi yerel topluluğunu başlat",
   "communities_welcome_title": "Topluluklara hoşgeldin",
-  "community_missing": "Ülken veya şehrin eksik mi? <requestCommunityLink>Bu formu</requestCommunityLink> kullanarak isteyebilirsin!",
   "profile_summary_view": "Profilimi görüntüle",
   "profile_mobile_summary_view": "Profile git",
   "new_pill": "Yeni",
-  "all_communities_section": "Tüm topluluklar",
   "browse_communities": "Toplulukları Keşfet",
   "community_builder": "Topluluğunuzun elçisi olmak ve büyümesine yardımcı olmak ister misiniz? Bir <communityBuilderLink>Topluluk Mimarı</communityBuilderLink> olun!",
-  "all_communities_intro": "Aşağıda şu ana dek var olan tüm topluluk sayfalarına bakabilirsin. <strong>Bir topluluk adına tıklayarak içindeki diğer toplulukları görebilirsin.</strong>",
   "member_count_one": "{{count}} üye",
   "member_count_other": "{{count}} üye",
   "profile_summary_edit": "Profili Düzenle",
   "your_communities_heading": "Topluluklarınız",
-  "all_communities_heading": "Tüm topluluklar",
   "no_community": "Şu anda bir topluluğun içinde değilsin.",
   "no_sub_communities": "Alt topluluk yok.",
   "your_communities_helper_text": "Konumunuza göre var olan tüm topluluklara eklendiniz. Dilerseniz diğer konumlardaki <browseCommunitiesLink>topluluklara da göz atabilirsiniz</browseCommunitiesLink>.",
   "find_a_host": "Bir ev sahibi bul",
-  "landing_text": "Etkinlikler, yerel rehberler, moderasyon ve buluşmalar gibi yeni <featuresLink>özellikler</featuresLink> geliştiriyoruz. Bunları geliştirirkenki sabrınız ve <supportLink>desteğiniz</supportLink> için teşekkür ederiz.",
   "find_your_community": "Bir topluluk bul",
   "find_your_community_intro": "Aşağıda var olan tüm topluluk sayfalarını gezebilir veya göz atabilirsin. Şehrin veya ülken eksik mi? <requestCommunityLink>Bu formu</requestCommunityLink> kullanarak iste!",
   "find_your_community_intro_simplified": "Aşağıda topluluğunu ara veya göz at. <requestCommunityLink>Sana ait olanı göremiyor musun? Hemen iste!</requestCommunityLink>",
@@ -48,12 +38,26 @@
   "now_label": "Şimdi",
   "events": {
     "your_upcoming_header": "Yaklaşan etkinlikleriniz",
-    "see_all_link": "Tümünü gör →",
     "community_header": "Topluluklarındaki etkinlikler",
     "today_label": "Bugün"
   },
   "stays": {
     "night_count_one": "{{count}} gece",
     "night_count_other": "{{count}} gece"
+  },
+  "reminder": {
+    "write_reference": {
+      "description_surfed": "{{name}}'in evindeki konaklamanız için bir referans bırakın",
+      "description_hosted": "{{name}}'ın konaklaması için bir referans bırak",
+      "button": "Referans yaz"
+    },
+    "complete_my_home": {
+      "title": "Profilinizin \"Evim\" bölümünü tamamlayın",
+      "description": "Uyku düzenini, ev kurallarını ve evinin açıklamasını doldur",
+      "button": "Evini düzenle"
+    },
+    "complete_profile": {
+      "title": "Profilinizi tamamlayın"
+    }
   }
 }

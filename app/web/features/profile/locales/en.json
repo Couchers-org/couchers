@@ -107,7 +107,6 @@
     "travel_experience_subtitle": "Share your travel experiences and connections",
     "location_subtitle": "Approximate location of your home"
   },
-  "edit_profile_name_required": "Name required",
   "edit_profile_pronouns_placeholder": "e.g. she/her",
   "edit_home_questions": {
     "accept_drinking": "Okay with people drinking",
@@ -148,11 +147,6 @@
   "open_full_profile": "Open full profile",
   "connection_pending": "Pending",
   "cancel": "Cancel",
-  "more_profile_actions": "...",
-  "more_profile_actions_a11y_text": "More profile actions",
-  "report_details": "Details",
-  "report_reason": "Reason",
-  "report_user": "Report this user",
   "leave_reference": {
     "add_a_reference": "Add a reference to {{name}}'s profile",
     "appropriate_explanation": "Your private feedback on this page, and your public reference on the next page, are vital to keeping the community safe, trustworthy, and welcoming. Thanks for doing your part to help the community!",
@@ -239,8 +233,7 @@
     "message": "Message",
     "message_description": "Write your message...",
     "message_empty": "Please write a message.",
-    "hosting_request_hint": "Sending a hosting request? Use the <request>Request</request> button instead.",
-    "success": "Message sent!"
+    "hosting_request_hint": "Sending a hosting request? Use the <request>Request</request> button instead."
   },
   "reference_filter_label": {
     "friend": "From friends",

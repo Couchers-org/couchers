@@ -1,19 +1,12 @@
 {
   "dashboard": "个人主页",
-  "please_complete_profile": "请完善您的个人资料，并确保您的资料在搜索中显示：",
-  "fill_in_who_i_am": "1.填写您的\"我是谁\"部分，介绍一下自己",
-  "upload_photo": "2.上传照片（点击编辑页面上的头像）",
-  "complete_profile_explanation": "您是否讨厌其他平台上那些没有信息的空白\"幽灵\"资料？请不要忽视我们！👻👻👻",
   "your_communities_heading": "您的社区",
-  "all_communities_heading": "所有社区",
   "no_community": "您当前不在任何社区中。",
   "no_sub_communities": "没有子社区。",
   "load_more": "加载更多",
   "welcome": "欢迎来到Couchers.org！",
   "new_pill": "新",
-  "landing_text": "我们正在开发新的<featuresLink>功能</featuresLink>，如活动、本地指南、管理和聚会。感谢您在我们开发过程中给予的耐心和<supportLink>支持</supportLink>。",
   "your_communities_helper_text": "根据您的位置，您已被添加到所有社区。您也可以随时<browseCommunitiesLink>浏览其他位置的社区</browseCommunitiesLink>。",
-  "community_builder_form_text": "创建您自己的本地社区",
   "my_communities_heading": "我的社区",
   "profile_summary_edit": "编辑个人资料",
   "profile_summary_view": "查看我的个人资料",
@@ -28,7 +21,6 @@
   "hero_image_attribution": "图片由<photographerLink>Mesut Kaya</photographerLink>提供，来源于<unsplashLink>Unsplash</unsplashLink>",
   "communities_welcome_title": "欢迎来到社区",
   "community_builder": "想成为你所在社区的大使并助力其发展吗？快来成为<communityBuilderLink>社区建设者！</communityBuilderLink>",
-  "all_communities_section": "所有社区",
   "communities_intro": "为了帮助世界各地的人们在本地组织活动、讨论和聚会，我们创建了社区页面，具体如下。<strong>我们已根据您的位置自动将您添加到一些社区，但您可以加入任何社区！</strong>您加入的社区会显示在您的个人主页上。",
   "find_your_community": "寻找你的社区",
   "find_your_community_intro": "您可以在下方搜索或浏览目前已有的所有社区页面。没有找到您的国家或城市？<requestCommunityLink>请使用此表单</requestCommunityLink>进行申请！",
@@ -36,25 +28,25 @@
   "browse_all_communities": "浏览所有社区",
   "show_all_communities": "显示所有社区",
   "hide_all_communities": "隐藏所有社区",
-  "all_communities_intro": "以下是目前已存在的所有社区页面。<strong>点击社区名称可查看其下的其他社区。</strong>",
-  "community_missing": "您的国家或城市不在列表中吗？请使用<requestCommunityLink>此表格</requestCommunityLink>进行申请！",
   "browse_communities_text": "点击区域名称可在下方查看该区域内的其他社区。点击链接可进入该城市或区域的社区页面。",
   "member_count_other": "{{count}}位成员",
   "events": {
     "your_upcoming_header": "您即将参加的活动",
-    "see_all_link": "查看全部→",
     "your_upcoming_empty_message": "目前没有活动。何不<createEventLink>创建</createEventLink>一个✨？",
-    "community_header": "您所在社区的活动"
+    "community_header": "您所在社区的活动",
+    "today_label": "今天"
   },
   "reminder": {
     "respond_to_host_request": {
-      "title": "回复接待请求",
+      "title": "回复{{name}}",
       "description": "别忘了回复{{name}}关于他们接待请求的消息。",
       "button": "查看请求"
     },
     "write_reference": {
       "title": "写评语",
-      "button": "写评语"
+      "button": "写评语",
+      "description_surfed": "为您在{{name}}家的住宿撰写评价",
+      "description_hosted": "为{{name}}在您家的住宿撰写评价"
     },
     "complete_profile": {
       "title": "完善您的个人资料",
@@ -65,6 +57,51 @@
       "title": "强身份验证",
       "description": "验证您的身份，打造更安全的社区",
       "button": "验证您的账号"
+    },
+    "complete_my_home": {
+      "title": "填写您的个人资料“我的家”部分",
+      "description": "填写您的睡眠安排、入住须知以及对您住所的描述",
+      "button": "编辑您的家"
+    },
+    "confirm_host_request": {
+      "title": "与{{name}}确认您的住宿",
+      "description": "{{name}}已接受您的请求。确认您的住宿并将其锁定。",
+      "button": "确认入住"
+    },
+    "carousel_dismiss_button_a11y": "关闭提醒",
+    "carousel_scroller": {
+      "left_arrow_a11y": "向左滚动",
+      "right_arrow_a11y": "向右滚动"
     }
+  },
+  "member_count_one": "{{count}}名会员",
+  "prev_page_button_a11y": "上一页",
+  "next_page_button_a11y": "下一页",
+  "now_label": "现在",
+  "discussions": {
+    "community_header": "您社区中的讨论",
+    "community_empty_message": "您的社区中还没有讨论。",
+    "replies_count_label_one": "{{count}}条回复",
+    "replies_count_label_other": "{{count}}条回复"
+  },
+  "public_trips": {
+    "my_trips_header": "您的公开行程",
+    "manage_link": "管理",
+    "when_now": "现在",
+    "when_today": "今天",
+    "when_tomorrow": "明天",
+    "empty_description": "准备出发？在社区中发布公开行程，即可收到附近接待者的邀请。",
+    "same_gender_only_indicator": "同性别",
+    "offers_count_one": "{{count}}个接待邀请",
+    "offers_count_other": "{{count}}个接待邀请",
+    "no_offers": "尚无接待邀请"
+  },
+  "stays": {
+    "upcoming_trips_header": "您即将入住的住宿",
+    "upcoming_guests_header": "您即将到来的客人",
+    "night_count_one": "{{count}}晚",
+    "night_count_other": "{{count}}晚",
+    "no_upcoming_trips": "没有即将到来的旅行。准备好探索了吗？",
+    "no_upcoming_guests": "还没有即将到来的客人。"
   }
 }

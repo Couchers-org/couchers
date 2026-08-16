@@ -73,7 +73,6 @@
   },
   "report": {
     "flag": {
-      "success": "Nous vous remercions pour votre signalement et pour rendre Couchers une meilleure plateforme pour tous et pour toutes !",
       "reason": {
         "dating": "Flirting ou comportements des applications de rencontres ou similaire",
         "external": "Incident en dehors de la plateforme",
@@ -114,7 +113,7 @@
       "success_message": "Nous vous remercions pour votre signalement et pour rendre Couchers une meilleure plateforme pour tous et pour toutes !"
     }
   },
-  "expand": "Gonfler",
+  "expand": "Agrandir",
   "meetup_status": {
     "open_to_meetup": "Ouvert.e à une rencontre",
     "unspecified_info": "Non spécifié",
@@ -267,12 +266,14 @@
     "select_button_a11y": "Sélectionner une image",
     "read_file_error_message": "Fichier non lisible"
   },
-  "contribute_title": "S'enregistrer pour contribuer",
   "reply": "Répondre",
   "yes": "Oui",
   "no": "Non",
   "beta": "Beta",
   "team": {
     "title": "L'équipe"
-  }
+  },
+  "close_button_a11y": "Fermer",
+  "app_store_badge_a11y": "Télécharger sur l'App Store",
+  "google_play_badge_a11y": "Disponible sur Google Play"
 }

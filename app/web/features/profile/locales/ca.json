@@ -59,7 +59,6 @@
     "personal_information": "Informació personal",
     "personal_information_subtitle": "Comparteix detalls sobre tu i el teu origen"
   },
-  "edit_profile_name_required": "El nom és obligatori",
   "edit_home_questions": {
     "accept_drinking": "D'acord amb que la gent begui",
     "accept_pets": "Allotja persones amb mascotes",
@@ -67,8 +66,6 @@
     "accept_camping": "Càmping amb tenda disponible",
     "accept_kids": "Allotja persones amb nens"
   },
-  "report_reason": "Motiu",
-  "report_user": "Reporta aquest usuari",
   "leave_reference": {
     "add_a_reference": "Afegeix una referència al perfil de {{name}}",
     "appropriate_explanation": "Els teus comentaris privats en aquesta pàgina i la teva referència pública a la pàgina següent són vitals per mantenir la comunitat segura, de confiança i acollidora. Gràcies per fer la teva part per ajudar la comunitat!",
@@ -193,9 +190,6 @@
   "info_unanswered": "Pregunta'm",
   "connection_pending": "Pendent",
   "cancel": "Cancel·la",
-  "more_profile_actions": "...",
-  "more_profile_actions_a11y_text": "Més accions del perfil",
-  "report_details": "Detalls",
   "section_tabs_a11y_label": "pestanyes per als detalls de l'usuari",
   "incomplete_dialog": {
     "title": "Perfil incomplet",

@@ -40,6 +40,24 @@ export default function FeatureFlagProvider({ children }: { children: ReactNode 
   const { authState } = useAuthContext();
 
   useEffect(() => {
+    // Dev-only: when set, flags resolve from feature-flags.dev.json instead of GrowthBook,
+    // mirroring the backend's FEATURE_FLAGS_FILE_OVERRIDE_PATH. Overridden flags return the file
+    // value; unknown flags fall through to their in-code default. GrowthBook is never contacted in
+    // this mode. The inline NODE_ENV check lets webpack compile the whole branch out of production
+    // builds, keeping the file out of production bundles.
+    if (process.env.NODE_ENV === "development" && process.env.NEXT_PUBLIC_FEATURE_FLAGS_OVERRIDE === "1") {
+      void import("feature-flags.dev.json").then((mod) => {
+        const overrides = mod.default as Record<string, unknown>;
+        growthbook.initSync({
+          payload: {
+            features: Object.fromEntries(
+              Object.entries(overrides).map(([key, value]) => [key, { defaultValue: value }]),
+            ),
+          },
+        });
+      });
+      return;
+    }
     void growthbook.init({ timeout: INIT_TIMEOUT_MS });
     const id = setInterval(() => void growthbook.refreshFeatures(), REFRESH_INTERVAL_MS);
     return () => clearInterval(id);

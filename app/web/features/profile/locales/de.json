@@ -127,11 +127,6 @@
   "info_unanswered": "Frag mich",
   "connection_pending": "Ausstehend",
   "cancel": "Abbrechen",
-  "more_profile_actions": "...",
-  "more_profile_actions_a11y_text": "Weitere Profilaktionen",
-  "report_details": "Details",
-  "report_reason": "Grund",
-  "report_user": "Diesen Benutzer melden",
   "leave_reference": {
     "appropriate_question": "Hast du dich durch das Verhalten dieser Person sicher gefühlt?",
     "rating_label": "Deine Erfahrung gab dir das Gefühl ",
@@ -218,8 +213,7 @@
     "send_message": "Sende {{name}} eine Nachricht",
     "message": "Nachricht",
     "message_description": "Schreibe deine Nachricht...",
-    "message_empty": "Bitte schreib eine Nachricht.",
-    "success": "Nachricht gesendet!"
+    "message_empty": "Bitte schreib eine Nachricht."
   },
   "response_rate_text_some": "Manchmal",
   "reference_filter_label": {
@@ -254,7 +248,6 @@
     "common_short": "Gemeinschaftsraum",
     "shared_room_short": "Geteiltes Zimmer"
   },
-  "edit_profile_name_required": "Name benötigt",
   "parking_details": {
     "free_onsite": "Kostenloses Parken vor Ort",
     "free_offsite": "Kostenloses Parken vor dem Grundstück",
@@ -347,5 +340,6 @@
   "about_me_textbox_placeholder": "z. B. Aktuelle Mission, warum du Couchers.org nutzt, deine liebste Reisegeschichte...",
   "hobbies_textbox_placeholder": "z. B. Aktivitäten, Bücher, Filme, Musik...",
   "edit_profile_pronouns_placeholder": "z. B. sie/ihr",
-  "local_time_with_time_zone_text": "{{ time }} (<timeZone/>)"
+  "local_time_with_time_zone_text": "{{ time }} (<timeZone/>)",
+  "open_profile_a11y": "Profil öffnen"
 }
