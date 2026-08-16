@@ -65,7 +65,8 @@
     "instructions_days_many": "Para manter seu status \"Posso Hospedar\", acesse novamente dentro de <b>{{count}} dias</b>. Senão trocaremos seu status de hospedagem para \"Não posso hospedar.\"",
     "instructions_days_other": "Para manter seu status \"Posso Hospedar\", acesse novamente dentro de <b>{{count}} dias</b>. Senão trocaremos seu status de hospedagem para \"Não posso hospedar.\"",
     "encouragement": "Esses chek-ins ajudam surfers a encontrar anfitriões ativos mais facilmente e a manter tempos de resposta precisos.",
-    "latest_release": "Em caso de você ter perdido, nós lançamos a versão {{version}} recentemente. Algumas de nossas atualizações recentes incluem: aplicativos de celular para iOS e Android, um dashboard melhorado, revisão de envio de mensagens e novas funcionalidades. Leia mais no <a href=\"{{blog_url}}\">blog do Couchers.org</a>."
+    "latest_release": "Em caso de você ter perdido, nós lançamos a versão {{version}} recentemente. Algumas de nossas atualizações recentes incluem: aplicativos de celular para iOS e Android, um dashboard melhorado, revisão de envio de mensagens e novas funcionalidades. Leia mais no <a href=\"{{blog_url}}\">blog do Couchers.org</a>.",
+    "login_action": "Acessar novamente"
   },
   "api_key_issued": {
     "subject": "Sua chave da API para o Couchers.org",
@@ -128,6 +129,44 @@
   "events": {
     "generic": {
       "view_action": "Visualizar evento"
+    },
+    "created": {
+      "invitation": {
+        "subject": "{{user}} te convidou para {{title}}",
+        "purpose_with_community": "<b>{{user}}</b> te convidou para um evento em <b>{{community}}</b>:",
+        "purpose_no_community": "<b>{{user}}</b> te convidou para um evento por perto:"
+      },
+      "notification": {
+        "subject": "{{user}} criou um evento: {{title}}",
+        "purpose_with_community": "<b>{{user}}</b> criou um evento em <b>{{community}}</b>:",
+        "purpose_no_community": "<b>{{user}}</b> criou um evento por perto:"
+      }
+    },
+    "updated": {
+      "subject": "{{user}} atualizou {{title}}",
+      "purpose_generic": "<b>{{user}}</b> atualizou um evento que você se interessa:",
+      "purpose_with_items": "<b>{{user}}</b> atualizou um evento que você se interessa para {{items_list}}:",
+      "item_names": {
+        "title": "título",
+        "content": "conteúdo",
+        "location": "localidade",
+        "start_time": "hora de início",
+        "end_time": "hora do fim"
+      }
+    },
+    "organizer_invited": {
+      "subject": "{{user}} te convidou para coorganizar {{title}}",
+      "purpose": "<b>{{user}}</b> te convidou para coorganizar um evento:"
+    },
+    "comment": {
+      "subject": "{{author}} comentou em {{title}}",
+      "purpose": "<b>{{author}}</b> comentou em um evento que você se interessa em:"
+    },
+    "reminder": {
+      "subject": "Lembrete: {{title}} começa em breve"
+    },
+    "cancel": {
+      "subject": "{{user}} cancelou {{title}}"
     }
   },
   "friend_requests": {
@@ -159,6 +198,23 @@
     "purpose": "Muito obrigado pela sua doação de <b>{{amount_with_currency}}</b> ao Couchers.org.",
     "contribution_impact": "Sua contribuição será destinada à construção e à manutenção da comunidade Couchers.org, e é vital a nossos objetivos de ter uma plataforma de couch surfing livre e sem fins lucrativos.",
     "invoice_receipt_info": "Você pode baixar uma fatura e um recibo para a doação aqui:",
-    "download_invoice": "Baixar fatura"
+    "download_invoice": "Baixar fatura",
+    "tax_acknowledgment": "Couchers, Inc. é uma organização sem fins lucrativos 501(c)(3) (EIN: 87-1734577) registrada nos Estados Unidos. Nenhum bem ou serviço foi fornecido em troca dessa contribuição.",
+    "questions_contact": "Se você tiver alguma pergunta sobre sua doação, nos envie um e-mail em {{ email_link }}."
+  },
+  "email_change": {
+    "initiated": {
+      "subject": "Troca de endereço de e-mail iniciada",
+      "purpose": "Você solicitou que seu endereço de e-mail fosse trocado para <b>{{ email_address }}</b>. Revise o e-mail que enviamos para esse endereço para confirmar a troca."
+    },
+    "confirmation": {
+      "subject": "Confirme seu novo endereço de e-mail",
+      "purpose": "Você solicitou que seu e-mail fosse trocado de <b>{{ old_email }}</b> para este endereço de e-mail. Para concluir essa troca, clique no link a seguir:",
+      "confirm_action": "Confirmar novo e-mail"
+    },
+    "verified": {
+      "subject": "Troca de e-mail concluida",
+      "purpose": "Seu novo endereço de e-mail foi verificado."
+    }
   }
 }
