@@ -1,0 +1,361 @@
+// Format of the JSON data export an admin can generate for a user. Bump export_format_version when
+// it changes.
+syntax = "proto3";
+
+package user_data_export;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+// Enums are strings holding the backend enum member name; dates are ISO 8601 strings.
+
+message UserDataExport {
+  int32 export_format_version = 1;
+  google.protobuf.Timestamp generated = 2;
+
+  Account account = 3;
+  Profile profile = 4;
+  Home home = 5;
+  Photos photos = 6;
+  repeated Friend friends = 7;
+  repeated BlockedUser blocked_users = 8;
+  References references = 9;
+  repeated HostRequest host_requests = 10;
+  repeated GroupChat group_chats = 11;
+  Events events = 12;
+  Discussions discussions = 13;
+  repeated CommunityMembership communities = 14;
+  repeated PublicTrip public_trips = 15;
+  repeated Invoice donations = 16;
+  Verification verification = 17;
+  repeated Login logins = 18;
+  repeated ModNoteReceived mod_notes_received = 19;
+  repeated ActivenessProbe activeness_probes = 20;
+  repeated AccountDeletionReason account_deletion_reasons = 21;
+  repeated InviteCode invite_codes_created = 22;
+}
+
+message UserRef {
+  int64 user_id = 1;
+  string username = 2;
+}
+
+message Account {
+  int64 user_id = 1;
+  string username = 2;
+  string email = 3;
+  string name = 4;
+  string birthdate = 5;
+  string gender = 6;
+  string pronouns = 7;
+  string phone = 8;
+  bool phone_is_verified = 9;
+  google.protobuf.Timestamp phone_verified = 10;
+  string pending_email_change = 11;
+  google.protobuf.Timestamp joined = 12;
+  google.protobuf.Timestamp profile_last_updated = 13;
+  string city = 14;
+  string hometown = 15;
+  google.protobuf.DoubleValue latitude = 16;
+  google.protobuf.DoubleValue longitude = 17;
+  double location_radius = 18;
+  string ui_language_preference = 19;
+  int32 accepted_tos_version = 20;
+  int32 accepted_community_guidelines_version = 21;
+  bool do_not_email = 22;
+  bool opt_out_of_newsletter = 23;
+  google.protobuf.Int32Value digest_frequency_seconds = 24;
+  int32 onboarding_emails_sent = 25;
+  google.protobuf.Timestamp last_donated = 26;
+  string heard_about_couchers = 27;
+  repeated string signup_motivations = 28;
+  string signed_up_with_invite_code = 29;
+  string profile_url = 30;
+}
+
+message Badge {
+  string badge_id = 1;
+  google.protobuf.Timestamp awarded = 2;
+}
+
+message Profile {
+  string about_me = 1;
+  string things_i_like = 2;
+  string occupation = 3;
+  string education = 4;
+  string additional_information = 5;
+  string hosting_status = 6;
+  string meetup_status = 7;
+  repeated string languages = 8;
+  repeated string regions_visited = 9;
+  repeated string regions_lived = 10;
+  repeated Badge badges = 11;
+}
+
+message Home {
+  string about_place = 1;
+  google.protobuf.Int32Value max_guests = 2;
+  google.protobuf.BoolValue last_minute = 3;
+  google.protobuf.BoolValue has_pets = 4;
+  google.protobuf.BoolValue accepts_pets = 5;
+  string pet_details = 6;
+  google.protobuf.BoolValue has_kids = 7;
+  google.protobuf.BoolValue accepts_kids = 8;
+  string kid_details = 9;
+  google.protobuf.BoolValue has_housemates = 10;
+  string housemate_details = 11;
+  google.protobuf.BoolValue wheelchair_accessible = 12;
+  string smoking_allowed = 13;
+  google.protobuf.BoolValue smokes_at_home = 14;
+  google.protobuf.BoolValue drinking_allowed = 15;
+  google.protobuf.BoolValue drinks_at_home = 16;
+  string other_host_info = 17;
+  string sleeping_arrangement = 18;
+  string sleeping_details = 19;
+  string area = 20;
+  string house_rules = 21;
+  google.protobuf.BoolValue parking = 22;
+  string parking_details = 23;
+  google.protobuf.BoolValue camping_ok = 24;
+}
+
+message GalleryPhoto {
+  string caption = 1;
+  double position = 2;
+  google.protobuf.Timestamp created = 3;
+  string url = 4;
+}
+
+message Gallery {
+  bool is_profile_gallery = 1;
+  google.protobuf.Timestamp created = 2;
+  google.protobuf.Timestamp last_updated = 3;
+  repeated GalleryPhoto photos = 4;
+}
+
+message UploadedFile {
+  string credit = 1;
+  google.protobuf.Timestamp created = 2;
+  string url = 3;
+}
+
+message Photos {
+  repeated Gallery galleries = 1;
+  repeated UploadedFile uploads = 2;
+}
+
+message Friend {
+  UserRef user = 1;
+  // "friends", or "request_sent"/"request_received" while a request is pending
+  string status = 2;
+  // only for requests this user sent
+  google.protobuf.Timestamp time_sent = 3;
+}
+
+message BlockedUser {
+  UserRef user = 1;
+  google.protobuf.Timestamp time_blocked = 2;
+}
+
+message ReferenceWritten {
+  UserRef to_user = 1;
+  string reference_type = 2;
+  google.protobuf.Timestamp time = 3;
+  string text = 4;
+}
+
+message ReferenceReceived {
+  UserRef from_user = 1;
+  string reference_type = 2;
+  // coarsened to the day, as the app shows it
+  google.protobuf.Timestamp time = 3;
+  string text = 4;
+}
+
+message References {
+  repeated ReferenceWritten written = 1;
+  repeated ReferenceReceived received = 2;
+}
+
+message ChatMessage {
+  UserRef author = 1;
+  google.protobuf.Timestamp time = 2;
+  string message_type = 3;
+  string text = 4;
+  // the user a control message is about, e.g. who was added to the chat
+  UserRef target = 5;
+  string host_request_status_target = 6;
+}
+
+message HostRequestFeedback {
+  google.protobuf.Timestamp time = 1;
+  string request_quality = 2;
+  string decline_reason = 3;
+}
+
+message HostRequest {
+  // "surfer" or "host", from this user's point of view
+  string role = 1;
+  UserRef surfer = 2;
+  UserRef host = 3;
+  string status = 4;
+  string from_date = 5;
+  string to_date = 6;
+  string hosting_city = 7;
+  google.protobuf.Timestamp created = 8;
+  string my_reason_didnt_meetup = 9;
+  repeated HostRequestFeedback my_feedback = 10;
+  repeated ChatMessage messages = 11;
+}
+
+message GroupChat {
+  string title = 1;
+  google.protobuf.Timestamp created = 2;
+  UserRef creator = 3;
+  repeated ChatMessage messages = 4;
+}
+
+message EventOccurrence {
+  string title = 1;
+  string content = 2;
+  string address = 3;
+  google.protobuf.DoubleValue latitude = 4;
+  google.protobuf.DoubleValue longitude = 5;
+  string timezone = 6;
+  google.protobuf.Timestamp start = 7;
+  google.protobuf.Timestamp end = 8;
+  bool is_cancelled = 9;
+  bool is_deleted = 10;
+  google.protobuf.Timestamp created = 11;
+  string url = 12;
+  // only set under Events.attending
+  string attendee_status = 13;
+}
+
+message EventRef {
+  string title = 1;
+}
+
+message Events {
+  repeated EventOccurrence created = 1;
+  repeated EventRef organizing = 2;
+  repeated EventOccurrence attending = 3;
+  repeated EventRef subscribed = 4;
+}
+
+message ThreadContext {
+  // "discussion", "event" or "page"
+  string type = 1;
+  string title = 2;
+}
+
+message DiscussionCreated {
+  string title = 1;
+  string content = 2;
+  google.protobuf.Timestamp created = 3;
+  google.protobuf.Timestamp last_edited = 4;
+  google.protobuf.Timestamp deleted = 5;
+  string url = 6;
+}
+
+message Comment {
+  ThreadContext posted_in = 1;
+  string content = 2;
+  google.protobuf.Timestamp created = 3;
+  google.protobuf.Timestamp last_edited = 4;
+  google.protobuf.Timestamp deleted = 5;
+}
+
+message Reply {
+  ThreadContext posted_in = 1;
+  string content = 2;
+  google.protobuf.Timestamp created = 3;
+  google.protobuf.Timestamp last_edited = 4;
+  google.protobuf.Timestamp deleted = 5;
+}
+
+message Discussions {
+  repeated DiscussionCreated created = 1;
+  repeated Comment comments = 2;
+  repeated Reply replies = 3;
+}
+
+message CommunityMembership {
+  string name = 1;
+}
+
+message PublicTrip {
+  string from_date = 1;
+  string to_date = 2;
+  string description = 3;
+  string status = 4;
+  bool same_gender_only = 5;
+  google.protobuf.Timestamp created = 6;
+}
+
+message Invoice {
+  google.protobuf.Timestamp created = 1;
+  double amount = 2;
+  string invoice_type = 3;
+  string receipt_url = 4;
+}
+
+message StrongVerificationAttempt {
+  google.protobuf.Timestamp created = 1;
+  string status = 2;
+  string passport_date_of_birth = 3;
+  string passport_sex = 4;
+  string passport_expiry_date = 5;
+  string passport_nationality = 6;
+  string passport_last_three_document_chars = 7;
+}
+
+message PostalVerificationAttempt {
+  google.protobuf.Timestamp created = 1;
+  string status = 2;
+  string address_line_1 = 3;
+  string address_line_2 = 4;
+  string city = 5;
+  string state = 6;
+  string postal_code = 7;
+  string country_code = 8;
+  google.protobuf.Timestamp address_confirmed = 9;
+  google.protobuf.Timestamp postcard_sent = 10;
+  google.protobuf.Timestamp verified = 11;
+}
+
+message Verification {
+  repeated StrongVerificationAttempt strong_verification = 1;
+  repeated PostalVerificationAttempt postal_verification = 2;
+}
+
+message Login {
+  google.protobuf.Timestamp created = 1;
+  google.protobuf.Timestamp last_seen = 2;
+  google.protobuf.Timestamp logged_out = 3;
+  string ip_address = 4;
+  string user_agent = 5;
+}
+
+message ModNoteReceived {
+  google.protobuf.Timestamp created = 1;
+  google.protobuf.Timestamp acknowledged = 2;
+  string content = 3;
+}
+
+message ActivenessProbe {
+  google.protobuf.Timestamp probe_initiated = 1;
+  google.protobuf.Timestamp responded = 2;
+  string response = 3;
+}
+
+message AccountDeletionReason {
+  google.protobuf.Timestamp created = 1;
+  string reason = 2;
+}
+
+message InviteCode {
+  string code = 1;
+  google.protobuf.Timestamp created = 2;
+  google.protobuf.Timestamp disabled = 3;
+}
