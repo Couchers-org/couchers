@@ -75,7 +75,7 @@ class HostingMeetupStatusSource(enum.Enum):
     do_not_email = enum.auto()
     # the user used the "do not email" quick link in an email
     unsubscribe_link = enum.auto()
-    # the user responded to an activeness probe saying they're no longer active
+    # the user responded to an activeness probe
     activeness_probe_response = enum.auto()
     # the user let an activeness probe expire, so we downgraded them
     activeness_probe_expired = enum.auto()
