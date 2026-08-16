@@ -420,39 +420,72 @@ class AdmittedCall:
     localization: LocalizationContext
 
 
-def admit_call(pool: DescriptorPool, handler_call_details: grpc.HandlerCallDetails) -> AdmittedCall:
-    """Pre-RPC setup handling."""
+@dataclass(frozen=True, slots=True, kw_only=True)
+class RejectedCall:
+    """What a call that didn't clear setup gets terminated and logged with."""
+
+    code: grpc.StatusCode
+    message: str
+    user_id: int | None
+    exception: Exception | None
+    """Set when setup broke rather than turned the call away, so the caller can report it."""
+
+
+def admit_call(pool: DescriptorPool, handler_call_details: grpc.HandlerCallDetails) -> AdmittedCall | RejectedCall:
+    """
+    Pre-RPC setup handling.
+
+    Never raises: a call that doesn't make it through comes back as a RejectedCall carrying whatever setup had
+    resolved before it stopped, so the caller can log the call it never ran.
+    """
+    auth_info = None
     try:
         headers = parse_headers(dict(handler_call_details.invocation_metadata))
+
+        # if this is not present in prod, it's a Big Bug in config
+        assert config.DEV or headers.ip_address is not None
+
+        auth_level = find_auth_level(pool, handler_call_details.method)
+
+        auth_info = _try_get_and_update_user_details(
+            headers.token,
+            headers.is_api_key,
+            headers.ip_address,
+            headers.user_agent,
+            headers.sofa,
+            headers.client_platform,
+        )
+
+        check_permissions(auth_info, auth_level)
+
+        if headers.sofa:
+            sofa = headers.sofa
+            new_sofa_cookie = None
+        else:
+            sofa, new_sofa_cookie = generate_sofa_cookie()
+
+        loc_context = LocalizationContext(
+            locale=(auth_info.ui_language_preference if auth_info else headers.ui_lang) or "",
+            timezone=ZoneInfo((auth_info and auth_info.timezone) or "Etc/UTC"),
+        )
     except BadHeaders:
-        raise CallRejectedError(COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE, grpc.StatusCode.UNAUTHENTICATED) from None
-
-    # if this is not present in prod, it's a Big Bug in config
-    assert config.DEV or headers.ip_address is not None
-
-    auth_level = find_auth_level(pool, handler_call_details.method)
-
-    auth_info = _try_get_and_update_user_details(
-        headers.token,
-        headers.is_api_key,
-        headers.ip_address,
-        headers.user_agent,
-        headers.sofa,
-        headers.client_platform,
-    )
-
-    check_permissions(auth_info, auth_level)
-
-    if headers.sofa:
-        sofa = headers.sofa
-        new_sofa_cookie = None
-    else:
-        sofa, new_sofa_cookie = generate_sofa_cookie()
-
-    loc_context = LocalizationContext(
-        locale=(auth_info.ui_language_preference if auth_info else headers.ui_lang) or "",
-        timezone=ZoneInfo((auth_info and auth_info.timezone) or "Etc/UTC"),
-    )
+        return RejectedCall(
+            code=grpc.StatusCode.UNAUTHENTICATED,
+            message=COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE,
+            user_id=None,
+            exception=None,
+        )
+    except CallRejectedError as e:
+        return RejectedCall(
+            code=e.code, message=e.msg, user_id=auth_info.user_id if auth_info else None, exception=None
+        )
+    except Exception as e:
+        return RejectedCall(
+            code=grpc.StatusCode.INTERNAL,
+            message=UNKNOWN_ERROR_MESSAGE,
+            user_id=auth_info.user_id if auth_info else None,
+            exception=e,
+        )
 
     return AdmittedCall(
         headers=headers,
@@ -509,33 +542,27 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             # accounting for the auth/setup phase; the handler re-arms its own below
             start_perf()
 
-            try:
-                call = admit_call(self._pool, handler_call_details)
-                observe_in_servicer_setup_histogram(method, read_perf())
-            except CallRejectedError as ae:
+            call = admit_call(self._pool, handler_call_details)
+
+            if isinstance(call, RejectedCall):
+                if call.exception:
+                    observe_in_servicer_setup_errors_counter(method, type(call.exception).__name__)
+                    sentry_sdk.set_tag("context", "servicer_setup")
+                    sentry_sdk.set_tag("method", method)
+                    sentry_sdk.capture_exception(call.exception)
+                # anything unexpected is reported to Sentry first: if the DB is what's broken, logging fails too
                 _log_rejected_call(
                     method=method,
-                    code=ae.code,
+                    code=call.code,
                     start=start,
                     handler_call_details=handler_call_details,
-                    user_id=ae.user_id,
-                    nonexistent_method=ae.code == grpc.StatusCode.UNIMPLEMENTED,
+                    user_id=call.user_id,
+                    exception=call.exception,
+                    nonexistent_method=call.code == grpc.StatusCode.UNIMPLEMENTED,
                 )
-                grpc_context.abort(ae.code, ae.msg)
-            except Exception as e:
-                observe_in_servicer_setup_errors_counter(method, type(e).__name__)
-                sentry_sdk.set_tag("context", "servicer_setup")
-                sentry_sdk.set_tag("method", method)
-                sentry_sdk.capture_exception(e)
-                # reported to Sentry first: if the DB is what's broken, logging the call below fails too
-                _log_rejected_call(
-                    method=method,
-                    code=grpc.StatusCode.INTERNAL,
-                    start=start,
-                    handler_call_details=handler_call_details,
-                    exception=e,
-                )
-                grpc_context.abort(grpc.StatusCode.INTERNAL, UNKNOWN_ERROR_MESSAGE)
+                grpc_context.abort(call.code, call.message)
+
+            observe_in_servicer_setup_histogram(method, read_perf())
 
             headers = call.headers
             auth_info = call.auth_info
@@ -692,11 +719,9 @@ class BadHeaders(Exception):
 
 
 class CallRejectedError(Exception):
-    def __init__(self, msg: str, code: grpc.StatusCode, user_id: int | None = None):
+    def __init__(self, msg: str, code: grpc.StatusCode):
         self.msg = msg
         self.code = code
-        # set when the session was authenticated before the call was rejected, so the log row can attribute it
-        self.user_id = user_id
 
 
 def find_auth_level(pool: DescriptorPool, method: str) -> AuthLevel.ValueType:
@@ -739,21 +764,17 @@ def check_permissions(auth_info: UserAuthInfo | None, auth_level: AuthLevel.Valu
     else:
         # a valid user session was found - check permissions
         if auth_level == annotations_pb2.AUTH_LEVEL_ADMIN and not auth_info.is_superuser:
-            raise CallRejectedError(
-                PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.PERMISSION_DENIED, auth_info.user_id
-            )
+            raise CallRejectedError(PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.PERMISSION_DENIED)
 
         if auth_level == annotations_pb2.AUTH_LEVEL_EDITOR and not auth_info.is_editor:
-            raise CallRejectedError(
-                PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.PERMISSION_DENIED, auth_info.user_id
-            )
+            raise CallRejectedError(PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.PERMISSION_DENIED)
 
         # if the user is jailed and this isn't an open or jailed service, fail
         if auth_info.is_jailed and auth_level not in [
             annotations_pb2.AUTH_LEVEL_OPEN,
             annotations_pb2.AUTH_LEVEL_JAILED,
         ]:
-            raise CallRejectedError(PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.UNAUTHENTICATED, auth_info.user_id)
+            raise CallRejectedError(PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.UNAUTHENTICATED)
 
 
 class MediaInterceptor(grpc.ServerInterceptor):
