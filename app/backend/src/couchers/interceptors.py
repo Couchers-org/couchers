@@ -349,8 +349,8 @@ def _log_rejected_call(
     method: str,
     code: grpc.StatusCode,
     start: int,
-    headers: CouchersHeaders | None,
-    auth_info: UserAuthInfo | None = None,
+    handler_call_details: grpc.HandlerCallDetails,
+    user_id: int | None = None,
     exception: Exception | None = None,
     nonexistent_method: bool = False,
 ) -> None:
@@ -358,13 +358,19 @@ def _log_rejected_call(
     Log a call rejected during auth/setup.
 
     No servicer ran, so there is no request or response to store, and the perf numbers cover the auth/setup phase,
-    which is all the work the call did.
+    which is all the work the call did. The headers are parsed again here rather than handed over by the setup code,
+    since parsing is cheap and the call may well have been rejected before it got that far.
     """
+    try:
+        headers: CouchersHeaders | None = parse_headers(dict(handler_call_details.invocation_metadata))
+    except BadHeaders:
+        headers = None
+
     perf = read_perf()
     _log_call(
         method=method,
         status_code=code.name,
-        user_id=auth_info.user_id if auth_info else None,
+        user_id=user_id,
         is_api_key=headers.is_api_key if headers else False,
         sofa=headers.sofa if headers else None,
         headers=headers,
@@ -388,11 +394,13 @@ def _rejected_call_handler[T, R](
 
     def f(request: Any, context: grpc.ServicerContext) -> NoReturn:
         start_perf()
-        try:
-            headers: CouchersHeaders | None = parse_headers(dict(handler_call_details.invocation_metadata))
-        except BadHeaders:
-            headers = None
-        _log_rejected_call(method=method, code=code, start=start, headers=headers, nonexistent_method=True)
+        _log_rejected_call(
+            method=method,
+            code=code,
+            start=start,
+            handler_call_details=handler_call_details,
+            nonexistent_method=True,
+        )
         context.abort(code, message)
 
     return grpc.unary_unary_rpc_method_handler(f)
@@ -412,24 +420,12 @@ class AdmittedCall:
     localization: LocalizationContext
 
 
-@dataclass(slots=True)
-class SetupProgress:
-    """Filled in as setup runs, so a call rejected partway through can be logged with whatever was resolved by then."""
-
-    headers: CouchersHeaders | None = None
-    auth_info: UserAuthInfo | None = None
-
-
-def admit_call(
-    pool: DescriptorPool, handler_call_details: grpc.HandlerCallDetails, progress: SetupProgress
-) -> AdmittedCall:
+def admit_call(pool: DescriptorPool, handler_call_details: grpc.HandlerCallDetails) -> AdmittedCall:
     """Pre-RPC setup handling."""
-    # parsed before anything else so client details are available on every reject path
     try:
         headers = parse_headers(dict(handler_call_details.invocation_metadata))
     except BadHeaders:
         raise CallRejectedError(COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE, grpc.StatusCode.UNAUTHENTICATED) from None
-    progress.headers = headers
 
     # if this is not present in prod, it's a Big Bug in config
     assert config.DEV or headers.ip_address is not None
@@ -444,7 +440,6 @@ def admit_call(
         headers.sofa,
         headers.client_platform,
     )
-    progress.auth_info = auth_info
 
     check_permissions(auth_info, auth_level)
 
@@ -514,19 +509,16 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             # accounting for the auth/setup phase; the handler re-arms its own below
             start_perf()
 
-            # bound as setup progresses so the reject paths below, and the catch-all, can log what is known so far
-            progress = SetupProgress()
-
             try:
-                call = admit_call(self._pool, handler_call_details, progress)
+                call = admit_call(self._pool, handler_call_details)
                 observe_in_servicer_setup_histogram(method, read_perf())
             except CallRejectedError as ae:
                 _log_rejected_call(
                     method=method,
                     code=ae.code,
                     start=start,
-                    headers=progress.headers,
-                    auth_info=progress.auth_info,
+                    handler_call_details=handler_call_details,
+                    user_id=ae.user_id,
                     nonexistent_method=ae.code == grpc.StatusCode.UNIMPLEMENTED,
                 )
                 grpc_context.abort(ae.code, ae.msg)
@@ -540,8 +532,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                     method=method,
                     code=grpc.StatusCode.INTERNAL,
                     start=start,
-                    headers=progress.headers,
-                    auth_info=progress.auth_info,
+                    handler_call_details=handler_call_details,
                     exception=e,
                 )
                 grpc_context.abort(grpc.StatusCode.INTERNAL, UNKNOWN_ERROR_MESSAGE)
@@ -701,9 +692,11 @@ class BadHeaders(Exception):
 
 
 class CallRejectedError(Exception):
-    def __init__(self, msg: str, code: grpc.StatusCode):
+    def __init__(self, msg: str, code: grpc.StatusCode, user_id: int | None = None):
         self.msg = msg
         self.code = code
+        # set when the session was authenticated before the call was rejected, so the log row can attribute it
+        self.user_id = user_id
 
 
 def find_auth_level(pool: DescriptorPool, method: str) -> AuthLevel.ValueType:
@@ -746,17 +739,21 @@ def check_permissions(auth_info: UserAuthInfo | None, auth_level: AuthLevel.Valu
     else:
         # a valid user session was found - check permissions
         if auth_level == annotations_pb2.AUTH_LEVEL_ADMIN and not auth_info.is_superuser:
-            raise CallRejectedError(PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.PERMISSION_DENIED)
+            raise CallRejectedError(
+                PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.PERMISSION_DENIED, auth_info.user_id
+            )
 
         if auth_level == annotations_pb2.AUTH_LEVEL_EDITOR and not auth_info.is_editor:
-            raise CallRejectedError(PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.PERMISSION_DENIED)
+            raise CallRejectedError(
+                PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.PERMISSION_DENIED, auth_info.user_id
+            )
 
         # if the user is jailed and this isn't an open or jailed service, fail
         if auth_info.is_jailed and auth_level not in [
             annotations_pb2.AUTH_LEVEL_OPEN,
             annotations_pb2.AUTH_LEVEL_JAILED,
         ]:
-            raise CallRejectedError(PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.UNAUTHENTICATED)
+            raise CallRejectedError(PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.UNAUTHENTICATED, auth_info.user_id)
 
 
 class MediaInterceptor(grpc.ServerInterceptor):
