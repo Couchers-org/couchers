@@ -1406,5 +1406,5 @@ class Events(events_pb2_grpc.EventsServicer):
         _, occurrence_db = res
 
         event_pb = event_to_pb(session, occurrence_db, context)
-        ics_data = create_event_ics_calendar(event_pb, context.localization).serialize().encode("utf-8")
+        ics_data = create_event_ics_calendar(event_pb, context.localization).to_ical()
         return httpbody_pb2.HttpBody(content_type="text/calendar", data=ics_data)
