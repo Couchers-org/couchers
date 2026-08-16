@@ -172,10 +172,9 @@ def _try_get_and_update_user_details(
             client_platform=client_platform,
             api_calls=1,
         )
-        # all three writes go out as one statement: every concurrent call from a session contends for the same
-        # sessions row (and the same user_activity row), and splitting them held that lock across two more round
-        # trips plus the commit. add_cte fixes the order, so everyone locks the same way round and the users
-        # lookup, which contends with nothing, happens before we take the sessions row
+        # one statement, so the sessions and user_activity row locks that every concurrent call from the same
+        # session queues on are held for a single round trip. add_cte fixes the order: everyone locks the same
+        # way round, and the uncontended users lookup happens before we take the sessions row
         session.execute(
             insert_stmt.on_conflict_do_update(
                 index_elements=[
