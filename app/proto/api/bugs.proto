@@ -109,7 +109,9 @@ message StatusRes {
 
 message GeolocationSearchInfoReq {
   string search_string = 1;
-  string pelias_result_json = 2;
+  // Historical field name: payload is Geocode.earth/Pelias GeoJSON features or
+  // Nominatim places JSON, depending on which provider answered. Wire tag 2 is unchanged.
+  string nominatim_result_json = 2;
   string formatted_result_json = 3;
   uint32 duration_ms = 4;
 }

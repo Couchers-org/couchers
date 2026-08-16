@@ -47,18 +47,19 @@ export async function reportBug({ description, results, subject }: BugReportForm
 
 export async function geolocationSearchInfo({
   searchString,
-  peliasResultJson,
+  nominatimResultJson,
   formattedResultJson,
   durationMs,
 }: {
   searchString: string;
-  peliasResultJson: string;
+  // Proto field name is historical; callers send Pelias or Nominatim provider JSON here.
+  nominatimResultJson: string;
   formattedResultJson: string;
   durationMs: number;
 }) {
   const req = new GeolocationSearchInfoReq();
   req.setSearchString(searchString);
-  req.setPeliasResultJson(peliasResultJson);
+  req.setNominatimResultJson(nominatimResultJson);
   req.setFormattedResultJson(formattedResultJson);
   req.setDurationMs(Math.max(Math.round(durationMs), 0));
   await client.bugs.geolocationSearchInfo(req);
