@@ -41,7 +41,7 @@ from couchers.models import (
 )
 from couchers.proto import moderation_pb2, moderation_pb2_grpc
 from couchers.proto.internal import jobs_pb2
-from couchers.utils import Timestamp_from_datetime, now
+from couchers.utils import Timestamp_from_datetime, not_none, now
 
 logger = logging.getLogger(__name__)
 
@@ -113,6 +113,7 @@ moderationobjecttype2api = {
     ModerationObjectType.discussion: moderation_pb2.MODERATION_OBJECT_TYPE_DISCUSSION,
     ModerationObjectType.reference: moderation_pb2.MODERATION_OBJECT_TYPE_REFERENCE,
     ModerationObjectType.public_trip: moderation_pb2.MODERATION_OBJECT_TYPE_PUBLIC_TRIP,
+    ModerationObjectType.user: moderation_pb2.MODERATION_OBJECT_TYPE_USER,
 }
 
 moderationobjecttype2sql = {
@@ -126,6 +127,7 @@ moderationobjecttype2sql = {
     moderation_pb2.MODERATION_OBJECT_TYPE_DISCUSSION: ModerationObjectType.discussion,
     moderation_pb2.MODERATION_OBJECT_TYPE_REFERENCE: ModerationObjectType.reference,
     moderation_pb2.MODERATION_OBJECT_TYPE_PUBLIC_TRIP: ModerationObjectType.public_trip,
+    moderation_pb2.MODERATION_OBJECT_TYPE_USER: ModerationObjectType.user,
 }
 
 
@@ -159,6 +161,8 @@ def bulk_set_user_content_visibility(
 
     author_exists_clauses = []
     for entry in get_moderated_models().values():
+        if entry.has_own_visibility_mechanism:
+            continue
         author_exists_clauses.append(
             exists().where(and_(entry.moderation_state_id_column == ModerationState.id, entry.author_column == user.id))
         )
@@ -172,7 +176,7 @@ def bulk_set_user_content_visibility(
         if moderation_state.visibility == new_visibility:
             continue
 
-        old_visibility = moderation_state.visibility
+        old_visibility = not_none(moderation_state.visibility)
         moderation_state.visibility = new_visibility
         moderation_state.updated = now()
 
@@ -299,6 +303,10 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
         author_user_id, content = session.execute(
             select(PublicTrip.user_id, PublicTrip.description).where(PublicTrip.id == object_id)
         ).one()
+    elif object_type == ModerationObjectType.user:
+        author_user_id = object_id
+        username = session.execute(select(User.username).where(User.id == object_id)).scalar_one()
+        content = f"@{username} / {object_id}"
     else:
         raise ValueError(f"Unsupported moderation object type: {object_type}")
 
@@ -517,11 +525,14 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
         object_type = moderation_state.object_type
 
         if action in (ModerationAction.approve, ModerationAction.hide):
+            if get_moderated_models()[object_type].has_own_visibility_mechanism:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:cannot_set_visibility_on_state")
+
             new_visibility = moderationvisibility2sql[request.visibility]
             if new_visibility is None:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:visibility_must_be_specified")
 
-            old_visibility = moderation_state.visibility
+            old_visibility = not_none(moderation_state.visibility)
             moderation_state.visibility = new_visibility
             moderation_state.updated = now()
 

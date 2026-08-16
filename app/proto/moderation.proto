@@ -66,6 +66,8 @@ enum ModerationObjectType {
   MODERATION_OBJECT_TYPE_DISCUSSION = 7;
   MODERATION_OBJECT_TYPE_REFERENCE = 8;
   MODERATION_OBJECT_TYPE_PUBLIC_TRIP = 9;
+  // The UMS does not handle visibility for these, so APPROVE/HIDE are rejected
+  MODERATION_OBJECT_TYPE_USER = 10;
 }
 
 message ModerationStateInfo {

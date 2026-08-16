@@ -5,6 +5,7 @@
     "blog_title_too_long": "The blog post title is too long.",
     "cannot_edit_badge": "Admins cannot edit that badge.",
     "cannot_reinstate_and_set_stopped_date": "Cannot reinstate a volunteer and set a stopped date at the same time.",
+    "cannot_set_visibility_on_state": "This object type cannot be approved or hidden, its visibility is not decided by the moderation system.",
     "content_report_not_found": "Content report not found.",
     "deletereference_deprecated_use_ums": "DeleteReference is deprecated. Use the Unified Moderation System (UMS) to hide a reference.",
     "event_community_invite_already_decided": "That event community invite was already approved/denied.",

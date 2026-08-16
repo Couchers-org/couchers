@@ -11,7 +11,18 @@ from datetime import datetime
 from functools import cache
 from typing import TYPE_CHECKING, Protocol
 
-from sqlalchemy import BigInteger, ColumnElement, DateTime, Enum, ForeignKey, Index, Integer, String, func
+from sqlalchemy import (
+    BigInteger,
+    CheckConstraint,
+    ColumnElement,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    func,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from couchers.models.base import Base, moderation_seq
@@ -75,6 +86,7 @@ class ModerationObjectType(enum.Enum):
     discussion = enum.auto()
     reference = enum.auto()
     public_trip = enum.auto()
+    user = enum.auto()
 
 
 class ModerationState(Base, kw_only=True):
@@ -95,7 +107,7 @@ class ModerationState(Base, kw_only=True):
     object_type: Mapped[ModerationObjectType] = mapped_column(Enum(ModerationObjectType))
     object_id: Mapped[int] = mapped_column(BigInteger)
 
-    visibility: Mapped[ModerationVisibility] = mapped_column(Enum(ModerationVisibility))
+    visibility: Mapped[ModerationVisibility | None] = mapped_column(Enum(ModerationVisibility))
 
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     updated: Mapped[datetime] = mapped_column(
@@ -109,6 +121,10 @@ class ModerationState(Base, kw_only=True):
         Index("ix_moderation_states_id_visibility", id, visibility),
         # Fast filtering by object type and visibility
         Index("ix_moderation_states_type_visibility", object_type, visibility),
+        CheckConstraint(
+            "(object_type = 'user') = (visibility IS NULL)",
+            name="check_visibility_null_iff_own_mechanism",
+        ),
     )
 
     def __repr__(self) -> str:
@@ -205,6 +221,7 @@ class ModeratedContent(Protocol):
 
     __moderation_object_type__: ModerationObjectType
     __moderation_author_column__: str
+    __moderation_has_own_visibility_mechanism__: bool
 
 
 @dataclass(frozen=True)
@@ -216,6 +233,8 @@ class ModeratedModel:
     author_column: ColumnElement[int]
     object_id_column: ColumnElement[int]
     moderation_state_id_column: ColumnElement[int]
+    # Visibility not determined by the moderation state, they have some other visibility logic
+    has_own_visibility_mechanism: bool
 
 
 @cache
@@ -242,5 +261,6 @@ def get_moderated_models() -> dict[ModerationObjectType, ModeratedModel]:
             author_column=mapper.columns[model.__moderation_author_column__],
             object_id_column=mapper.primary_key[0],
             moderation_state_id_column=mapper.columns["moderation_state_id"],
+            has_own_visibility_mechanism=model.__moderation_has_own_visibility_mechanism__,
         )
     return models
