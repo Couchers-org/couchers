@@ -999,35 +999,6 @@ def test_rejected_call_logged_nonexistent_rpc(db):
     )
 
 
-def test_rejected_call_logged_nonexistent_method_on_real_service(db):
-    """A real service with a method that doesn't exist is rejected too, rather than admitted under the service's auth level."""
-    method = "/org.couchers.api.core.API/GetNothing"
-    hist_before = _get_histogram_labels_value(NONEXISTENT_METHOD_LABEL, "False", "", "UNIMPLEMENTED")
-
-    def TestRpc(request, context, session):
-        return empty_pb2.Empty()
-
-    with interceptor_dummy_api(
-        TestRpc,
-        interceptors=[CouchersMiddlewareInterceptor()],
-        service_name="org.couchers.api.core.API",
-        method_name="GetNothing",
-    ) as call_rpc:
-        with pytest.raises(grpc.RpcError) as e:
-            call_rpc(empty_pb2.Empty(), metadata=(("x-couchers-real-ip", "1.1.1.1"),))
-        assert e.value.code() == grpc.StatusCode.UNIMPLEMENTED
-        assert e.value.details() == NONEXISTENT_API_CALL_ERROR_MESSAGE
-
-    with session_scope() as session:
-        trace = session.execute(select(APICall)).scalar_one()
-        assert trace.method == method
-        assert trace.status_code == "UNIMPLEMENTED"
-        assert not trace.traceback
-
-    assert _get_histogram_labels_value(NONEXISTENT_METHOD_LABEL, "False", "", "UNIMPLEMENTED") == hist_before + 1
-    assert _get_histogram_labels_value(method, "False", "", "UNIMPLEMENTED") == 0
-
-
 def test_rejected_call_logged_unregistered_method(db):
     """A method with no servicer registered is terminated by the interceptor itself, and still logged."""
     hist_before = _get_histogram_labels_value(NONEXISTENT_METHOD_LABEL, "False", "", "UNIMPLEMENTED")

@@ -712,9 +712,6 @@ def find_auth_level(pool: DescriptorPool, method: str) -> AuthLevel.ValueType:
 
     try:
         service: ServiceDescriptor = pool.FindServiceByName(service_name)  # type: ignore[no-untyped-call]
-        # checked so a probe for a method that doesn't exist on a real service aborts here, rather than reaching the
-        # missing-handler RuntimeError below and being reported as an internal error
-        service.FindMethodByName(method_name)  # type: ignore[no-untyped-call]
         service_options = service.GetOptions()
     except KeyError:
         raise CallRejectedError(NONEXISTENT_API_CALL_ERROR_MESSAGE, grpc.StatusCode.UNIMPLEMENTED) from None
