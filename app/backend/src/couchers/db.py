@@ -69,7 +69,7 @@ def _get_base_engine() -> Engine:
         # one connection per thread
         poolclass=QueuePool,
         # each process keeps its own pool, so total connections ~= process count * pool_size, kept under postgres
-        # max_connections. ~2 per thread since a thread can hold two connections at once (handler + _store_log,
+        # max_connections. ~2 per thread since a thread can hold two connections at once (handler + _log_call,
         # or the jobs worker's own session_scope + the handler's).
         pool_size=DB_POOL_SIZE,
         max_overflow=0,
