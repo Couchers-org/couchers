@@ -80,17 +80,11 @@ async function hasGeolocationPermission(): Promise<boolean> {
   return wasGeolocationGranted();
 }
 
-export default function useLocationBias(
-  enabled: boolean,
-): MutableRefObject<FocusPoint | undefined> {
+export default function useLocationBias(enabled: boolean): MutableRefObject<FocusPoint | undefined> {
   const focusRef = useRef<FocusPoint | undefined>(undefined);
 
   useEffect(() => {
-    if (
-      !enabled ||
-      typeof navigator === "undefined" ||
-      !navigator.geolocation
-    ) {
+    if (!enabled || typeof navigator === "undefined" || !navigator.geolocation) {
       return;
     }
 

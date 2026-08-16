@@ -47,9 +47,7 @@ export interface UseMyLocationResult {
   reset: () => void;
 }
 
-export default function useMyLocation({
-  preferCity = false,
-}: UseMyLocationOptions = {}): UseMyLocationResult {
+export default function useMyLocation({ preferCity = false }: UseMyLocationOptions = {}): UseMyLocationResult {
   const { t, i18n } = useTranslation("global");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
@@ -73,15 +71,9 @@ export default function useMyLocation({
 
     setIsLoading(true);
     try {
-      const position = await new Promise<GeolocationPosition>(
-        (resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(
-            resolve,
-            reject,
-            GEOLOCATION_OPTIONS,
-          );
-        },
-      );
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, GEOLOCATION_OPTIONS);
+      });
 
       if (isStale()) {
         return undefined;
@@ -89,11 +81,10 @@ export default function useMyLocation({
       // Lets LOC-3's bias work on browsers that can't report permission state.
       markGeolocationGranted();
 
-      const { results } = await reverse(
-        position.coords.latitude,
-        position.coords.longitude,
-        { language: toPeliasLanguage(i18n.language), preferCity },
-      );
+      const { results } = await reverse(position.coords.latitude, position.coords.longitude, {
+        language: toPeliasLanguage(i18n.language),
+        preferCity,
+      });
 
       if (isStale()) {
         return undefined;
