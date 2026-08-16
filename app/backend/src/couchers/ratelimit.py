@@ -56,10 +56,7 @@ def resolve_method_rate_limits(method: str) -> ResolvedLimits:
     per-servicer: service rate_limit_aggregate.<dim> → global svc default
     all-API:      global api default
     """
-    # dimensions, in a fixed order
     dimensions = ("per_ip", "per_user", "global")
-    # global default limits (requests per minute) per dimension, one set per scope. These apply wherever an
-    # annotation leaves a dimension unset; tune them in shadow mode before enforcing.
     defaults = {
         "rpc": {"per_ip": 60, "per_user": 120, "global": 6000},
         "svc": {"per_ip": 300, "per_user": 600, "global": 20000},
@@ -67,7 +64,7 @@ def resolve_method_rate_limits(method: str) -> ResolvedLimits:
     }
 
     def resolve(*values: int | None) -> int:
-        """The first value that was actually set; the last is always the global default, so one always is."""
+        # the last value is always a global default, so there is always one to find
         return next(value for value in values if value is not None)
 
     pool = get_descriptor_pool()
@@ -145,7 +142,6 @@ def _build_entries(
     limits: ResolvedLimits, method: str, ip_address: str | None, user_id: int | None, bucket: int
 ) -> list[tuple[str, str, str, int]]:
     """The applicable (scope, dimension, key, limit) tuples for one request, across all scopes and dimensions."""
-    # The identity each dimension is keyed by; None means the dimension doesn't apply to this request.
     dim_ids: dict[str, str | None] = {
         "per_ip": ip_to_key(ip_address, config.RATE_LIMIT_IPV6_PREFIX) if ip_address else None,
         "per_user": str(user_id) if user_id is not None else None,
@@ -174,7 +170,6 @@ def should_rate_limit(method: str, headers: CouchersHeaders, auth_info: UserAuth
     True only when a limit tripped and enforcement is on; shadow mode (the default) allows the request, as
     does having no counter store configured at all, which turns rate limiting off entirely.
     """
-    # superusers are exempt, so a mistuned limit can't lock admins out mid-incident
     if auth_info and auth_info.is_superuser:
         return False
 
@@ -182,8 +177,6 @@ def should_rate_limit(method: str, headers: CouchersHeaders, auth_info: UserAuth
     if store is None:
         return False
 
-    # timed from here rather than from the top of the function, so the exempt and disabled paths - which do
-    # no work at all - don't bury the real measurements under a pile of near-zero observations
     start = time.perf_counter_ns()
     try:
         entries = _build_entries(
@@ -201,8 +194,7 @@ def should_rate_limit(method: str, headers: CouchersHeaders, auth_info: UserAuth
                 [(key, limit) for _, _, key, limit in entries], 2 * RATE_LIMIT_WINDOW_SECONDS
             )
         except Exception as e:
-            # nothing could be counted, so always fail open: going dark on the counters is not a reason to
-            # take the API down with them
+            # nothing could be counted, so fail open: going dark on the counters shouldn't take the API down
             observe_rate_limit_store_error(type(e).__name__)
             observe_rate_limit_check(method, "failed_open")
             sentry_sdk.set_tag("context", "rate_limiting")
@@ -213,17 +205,11 @@ def should_rate_limit(method: str, headers: CouchersHeaders, auth_info: UserAuth
             observe_rate_limit_check(method, "allowed")
             return False
 
-        # a global evaluation even though we have a validated user id here: the limit is a property of the
-        # infrastructure rather than of a user, it has to apply to logged-out traffic too, and the per-user
-        # path writes a FeatureUsage row per evaluation - on the one path that only runs during a flood
         enforced = get_global_boolean_value("rate_limiting_enabled", False)
         for i in tripped_idx:
             scope, dimension, _, _ = entries[i]
             observe_rate_limit_trip(method, scope, dimension, enforced)
-        # in shadow (the default) the trips metric records what would have been blocked, deliberately without
-        # a log line so a flood can't drown the logs
         observe_rate_limit_check(method, "blocked" if enforced else "shadowed")
         return enforced
     finally:
-        # in a finally so a store timeout - the worst latency this can add - is recorded rather than skipped
         observe_rate_limit_duration((time.perf_counter_ns() - start) / 1e9)

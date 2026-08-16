@@ -143,11 +143,10 @@ class Config:
     SLACK_BOT_TOKEN: str
     SLACK_DONATIONS_CHANNEL: str
     SLACK_MERCH_CHANNEL: str
-    # Valkey connection. Currently only the rate limiter uses it; an empty host disables rate limiting
-    # (enforcement is further gated by the `rate_limiting_enabled` feature flag). See docs/rate-limit-design.md.
+    # an empty host turns rate limiting off entirely, see docs/rate-limit-design.md
     VALKEY_HOST: str = ""
     VALKEY_PORT: int = 6379
-    # Prefix length per-IP rate-limit counters are keyed at for IPv6 (IPv4 is always /32).
+    # prefix length per-IP counters are keyed at for IPv6; IPv4 is always /32
     RATE_LIMIT_IPV6_PREFIX: int = 64
 
     def __init__(self) -> None:

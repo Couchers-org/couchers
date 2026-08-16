@@ -1185,9 +1185,8 @@ def observe_feature_flag_evaluation(flag_key: str, source: str, value: Any) -> N
 # Rate limiting metrics (see couchers/ratelimit.py)
 # =============================================================================
 
-# One increment per request that ran a rate-limit check. "allowed" = nothing tripped; "shadowed" = a
-# limit tripped but enforcement is off so the request was let through; "blocked" = rejected;
-# "failed_open" = the store was unreachable so nothing could be counted and the request was allowed.
+# "shadowed" = a limit tripped but enforcement is off; "failed_open" = the store was unreachable so nothing
+# could be counted. Both let the request through.
 rate_limit_checks_counter: Counter = Counter(
     "couchers_rate_limit_checks_total",
     "Rate limit checks, by method and decision (allowed, shadowed, blocked, failed_open)",
@@ -1199,8 +1198,7 @@ def observe_rate_limit_check(method: str, decision: str) -> None:
     rate_limit_checks_counter.labels(method, decision).inc()
 
 
-# One increment per (scope, dimension) counter that tripped on a request; a single request can trip
-# several. enforced=false means it tripped in shadow mode. The headline metric for tuning limits.
+# one increment per counter that tripped, so a single request can trip several
 rate_limit_trips_counter: Counter = Counter(
     "couchers_rate_limit_trips_total",
     "Rate limit counters that tripped, by method, scope, dimension, and whether enforced",
@@ -1212,10 +1210,8 @@ def observe_rate_limit_trip(method: str, scope: str, dimension: str, enforced: b
     rate_limit_trips_counter.labels(method, scope, dimension, "true" if enforced else "false").inc()
 
 
-# The latency the limiter adds to a request: everything from building the keys through the counter-store
-# round trip to evaluating the enforcement flag, timed on every path including the store timing out.
-# Unlabelled by method deliberately - the work is the same whichever method is being counted, and a method
-# label would multiply the series by the whole API surface.
+# unlabelled by method: the work is the same whichever method is being counted, and a label would multiply
+# the series by the whole API surface
 rate_limit_duration_histogram: Histogram = Histogram(
     "couchers_rate_limit_duration_seconds",
     "Time spent in the rate limit check",
@@ -1227,7 +1223,6 @@ def observe_rate_limit_duration(duration_s: float) -> None:
     rate_limit_duration_histogram.observe(duration_s)
 
 
-# Counter-store call failures; each one is a fail-open (the request was allowed).
 rate_limit_store_errors_counter: Counter = Counter(
     "couchers_rate_limit_store_errors_total",
     "Rate limit counter-store errors, which fail open, by exception type",

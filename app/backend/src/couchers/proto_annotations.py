@@ -4,9 +4,9 @@ Reading our custom proto annotations (see proto/annotations.proto) off the descr
 Everything that knows how descriptors, service/method options and extensions fit together lives here, so
 callers work in terms of "the auth level for this method" rather than in terms of protobuf machinery.
 
-The lookups are cached on (pool, method). The pool is a process-wide singleton and the set of methods is
-fixed by the descriptors, so the cache is bounded by the API surface. functools.cache does not store
-exceptions, so a request naming a method that doesn't exist raises every time and never accumulates.
+Lookups are cached on (pool, method), which is bounded because the pool is a process-wide singleton and the
+descriptors fix the set of methods. functools.cache doesn't store exceptions, so a request naming a method
+that doesn't exist raises every time rather than accumulating cache entries.
 """
 
 from functools import cache

@@ -104,12 +104,10 @@ def _limited(method: str, ip: str | None = None) -> bool:
 
 
 def test_ip_to_key_ipv4():
-    # IPv4 is always keyed at the exact /32 address
     assert ratelimit.ip_to_key("1.2.3.4", 64) == "1.2.3.4/32"
 
 
 def test_ip_to_key_ipv6_masks_to_prefix():
-    # a whole /64 collapses to one key, regardless of the host bits or textual form
     assert ratelimit.ip_to_key("2001:db8::1", 64) == "2001:db8::/64"
     assert ratelimit.ip_to_key("2001:0db8:0000:0000:dead:beef:0:1", 64) == "2001:db8::/64"
     assert ratelimit.ip_to_key("2001:db8::1", 64) == ratelimit.ip_to_key("2001:db8::ffff", 64)
@@ -121,13 +119,11 @@ def test_ip_to_key_ipv6_prefix_configurable():
 
 def test_resolve_method_rate_limits_method_override():
     limits = ratelimit.resolve_method_rate_limits(AUTHENTICATE)
-    # Authenticate annotates per_ip = 10; the other dimensions fall through to the global rpc defaults
     assert limits.rpc == {"per_ip": 10, "per_user": 120, "global": 6000}
 
 
 def test_resolve_method_rate_limits_defaults():
     limits = ratelimit.resolve_method_rate_limits(USERNAME_VALID)
-    # no annotation anywhere: every scope/dimension uses its global default
     assert limits.rpc == {"per_ip": 60, "per_user": 120, "global": 6000}
     assert limits.svc == {"per_ip": 300, "per_user": 600, "global": 20000}
     assert limits.api == {"per_ip": 600, "per_user": 1200, "global": 60000}
@@ -136,7 +132,6 @@ def test_resolve_method_rate_limits_defaults():
 def test_no_store_means_rate_limiting_is_off():
     # this is the one test that goes through the real accessor, so it can't reuse another test's store
     ratelimit._get_store.cache_clear()
-    # default config has no VALKEY_HOST, so nothing is counted at all
     assert ratelimit._get_store() is None
     assert not _limited(AUTHENTICATE, ip="1.2.3.4")
 
@@ -159,7 +154,6 @@ def test_per_ip_skipped_without_ip(feature_flags, store):
 
 def test_separate_subnets_counted_separately(feature_flags, store):
     feature_flags.set("rate_limiting_enabled", True)
-    # two different /64s get independent counters
     for _ in range(11):
         _limited(AUTHENTICATE, ip="2001:db8:1::1")
     assert not _limited(AUTHENTICATE, ip="2001:db8:2::1")
@@ -172,7 +166,6 @@ def test_store_error_fails_open(feature_flags, monkeypatch):
     monkeypatch.setattr("couchers.ratelimit.sentry_sdk.capture_exception", lambda e: captured.append(e))
     monkeypatch.setattr("couchers.ratelimit.sentry_sdk.set_tag", lambda *a, **k: None)
 
-    # store blows up → the request is allowed even while enforcing, and the error is reported
     assert not _limited(AUTHENTICATE, ip="1.2.3.4")
     assert len(captured) == 1
 
@@ -184,7 +177,6 @@ def test_interceptor_superuser_exempt_when_enforcing(db, feature_flags, monkeypa
 
     # real_api_session, not api_session: only the real server runs the interceptor the limiter lives in
     with real_api_session(token) as api:
-        # every limit trips, but superusers bypass the check entirely
         assert api.Ping(api_pb2.PingReq()).user.user_id == superuser.id
 
 
@@ -203,7 +195,6 @@ def test_interceptor_no_store_allows(db, feature_flags, monkeypatch):
     feature_flags.set("rate_limiting_enabled", True)
     _use_store(monkeypatch, None)
     with auth_api_session() as (auth_api, _):
-        # no counter store configured → rate limiting is off entirely, even when enabled
         assert auth_api.UsernameValid(auth_pb2.UsernameValidReq(username="test")).valid
 
 
@@ -211,7 +202,6 @@ def test_interceptor_shadow_allows(db, feature_flags, monkeypatch):
     feature_flags.set("rate_limiting_enabled", False)
     _use_store(monkeypatch, AlwaysTripStore())
     with auth_api_session() as (auth_api, _):
-        # disabled (default) → counted and would-block logged, but the request still succeeds
         assert auth_api.UsernameValid(auth_pb2.UsernameValidReq(username="test")).valid
 
 
@@ -228,7 +218,6 @@ def test_interceptor_fails_open_when_enforcing(db, feature_flags, monkeypatch):
     feature_flags.set("rate_limiting_enabled", True)
     _use_store(monkeypatch, BrokenStore())
     with auth_api_session() as (auth_api, _):
-        # a store outage always allows, even while enforcing: it must not become an API outage
         assert auth_api.UsernameValid(auth_pb2.UsernameValidReq(username="test")).valid
 
 
@@ -294,11 +283,9 @@ def test_interceptor_emits_metrics_on_enforce(db, feature_flags, monkeypatch):
 
 def test_valkey_store_counts_and_trips(valkey_store, key_prefix):
     key = f"{key_prefix}:counted"
-    # a limit of 3 means the first three calls pass and the fourth is over
     for _ in range(3):
         assert valkey_store.incr_and_check([(key, 3)], 120) == []
     assert valkey_store.incr_and_check([(key, 3)], 120) == [0]
-    # and it stays tripped for the rest of the window
     assert valkey_store.incr_and_check([(key, 3)], 120) == [0]
 
 
@@ -318,7 +305,6 @@ def test_valkey_store_counts_keys_independently(valkey_store, key_prefix):
     a, b = f"{key_prefix}:a", f"{key_prefix}:b"
     for _ in range(5):
         valkey_store.incr_and_check([(a, 5)], 120)
-    # a is now at its limit, but b has its own counter
     assert valkey_store.incr_and_check([(a, 5), (b, 5)], 120) == [0]
 
 
@@ -350,6 +336,5 @@ def test_rate_limiting_end_to_end_against_valkey(feature_flags, valkey_store, mo
         assert not _limited(AUTHENTICATE, ip=ip)
     assert _limited(AUTHENTICATE, ip=ip)
 
-    # a different /64 is unaffected
     other_ip = f"2001:db8:{uuid4().hex[:4]}:{uuid4().hex[:4]}::1"
     assert not _limited(AUTHENTICATE, ip=other_ip)
