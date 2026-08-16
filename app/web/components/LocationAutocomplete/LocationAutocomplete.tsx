@@ -57,6 +57,9 @@ interface LocationAutocompleteProps {
   // persisted — fallback results have no provider id (see utils/geocode.ts).
   allowFallback: boolean;
   autocompleteContext: string;
+  // Parent is navigating / submitting after a selection: lock the field and
+  // show a spinner so the user doesn't keep typing into a dead zone.
+  isPending?: boolean;
   sx?: SxProps<Theme>;
 }
 
@@ -81,6 +84,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
     showUseMyLocation = false,
     allowFallback,
     autocompleteContext,
+    isPending = false,
     sx,
   } = props;
 
@@ -304,7 +308,8 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
       }
       endAdornment={
         <>
-          {showUseMyLocation && !hasClearableValue && (
+          {isPending && <CircularProgress size="1.25rem" />}
+          {showUseMyLocation && !hasClearableValue && !isPending && (
             <IconButton
               aria-label={t("use_my_location.button")}
               title={t("use_my_location.button")}
@@ -319,7 +324,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
               )}
             </IconButton>
           )}
-          {isSubmitMode && (
+          {isSubmitMode && !isPending && (
             <IconButton
               aria-label={t("location_autocomplete.search_location_button")}
               onClick={searchSubmit}
@@ -333,8 +338,9 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
       loading={isLoading}
       loadingText={t("location_autocomplete.loading")}
       options={displayOptions}
-      open={isOpen}
+      open={isOpen && !isPending}
       onClose={() => setIsOpen(false)}
+      readOnly={isPending}
       value={controller.field.value}
       getOptionLabel={(option: GeocodeResult | string) => {
         return geocodeResult2String(option, showFullDisplayName);
@@ -365,7 +371,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
           searchSubmit();
         }
       }}
-      disableClearable={!hasClearableValue}
+      disableClearable={!hasClearableValue || isPending}
       // Override the slot's default visibility:hidden so the clear control is
       // always shown when rendered (non-empty field), including on touch.
       slotProps={{
