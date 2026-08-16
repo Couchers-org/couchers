@@ -141,6 +141,23 @@ export function toPeliasLanguage(tag: string): string | undefined {
 }
 
 /**
+ * Keys (`name` + country) of `layer: region` hits in a result set. Used so a
+ * city that shares its name with a sibling state/province (New York, Québec)
+ * can keep `region_a` in the label without turning every Paris/Madrid into an
+ * obscure abbreviation.
+ */
+export function homonymousRegionKeys(features: PeliasFeature[]): Set<string> {
+  const keys = new Set<string>();
+  for (const feature of features) {
+    const { layer, name, country } = feature.properties;
+    if (layer === "region" && name && country) {
+      keys.add(`${name}\0${country}`);
+    }
+  }
+  return keys;
+}
+
+/**
  * Build the simplified, human-readable display name from a Pelias feature.
  *
  * When `preferCity` is set (destination search), collapse venues/addresses to
@@ -150,10 +167,16 @@ export function toPeliasLanguage(tag: string): string | undefined {
  *
  * Without `preferCity` (address / event venue), the primary is always the
  * matched `name` so precise places stay precise.
+ *
+ * `homonymousRegions` is the set from `homonymousRegionKeys`. When this hit's
+ * primary equals a region in the same list (same country), use `region_a`
+ * instead of dropping the duplicate region name — so the city reads
+ * "New York, NY, United States" and the state stays "New York, United States".
  */
 export function simplifyPeliasDisplayName(
   properties: PeliasFeatureProperties,
   preferCity = false,
+  homonymousRegions?: ReadonlySet<string>,
 ): string {
   const isCoarseAdmin = MATCHED_NAME_PRIMARY_LAYERS.has(properties.layer);
   let primary: string | undefined;
@@ -178,12 +201,29 @@ export function simplifyPeliasDisplayName(
     containingCity && containingCity !== primary ? containingCity : undefined;
   const region = properties.region || properties.macroregion;
 
+  // City vs state twins (NYC / NY): only when the set actually contains that
+  // region. Do not abbreviate the region hit itself — both would become
+  // "New York, NY, …" and preferCity dedupe would drop one.
+  const sharesNameWithRegion =
+    !isCoarseAdmin &&
+    Boolean(
+      primary &&
+        properties.country &&
+        homonymousRegions?.has(`${primary}\0${properties.country}`),
+    );
+  const regionAbbrev =
+    sharesNameWithRegion &&
+    properties.region_a &&
+    properties.region_a !== primary
+      ? properties.region_a
+      : undefined;
+
   const parts = [
     primary,
     // City and region together are more administrative detail than an address
     // field needs — the city is the more useful of the two, and matches the
     // provider's own `label` format.
-    city ?? region,
+    regionAbbrev ?? city ?? region,
     properties.country,
   ].filter((part): part is string => Boolean(part));
 
@@ -280,6 +320,7 @@ export function normalize(
   feature: PeliasFeature,
   displayArea?: PeliasFeature,
   preferCity = false,
+  homonymousRegions?: ReadonlySet<string>,
 ): GeocodeResult {
   const { properties } = feature;
   const geometrySource = displayArea ?? feature;
@@ -288,7 +329,11 @@ export function normalize(
   return {
     id: properties.gid,
     name: properties.label,
-    simplifiedName: simplifyPeliasDisplayName(properties, preferCity),
+    simplifiedName: simplifyPeliasDisplayName(
+      properties,
+      preferCity,
+      homonymousRegions,
+    ),
     location: new LngLat(lon, lat),
     bbox: toGeocodeBbox(geometrySource),
     isRegion: REGION_LAYERS.has(properties.layer),
@@ -408,8 +453,12 @@ async function normalizeFeatures(
   preferCity: boolean,
   signal?: AbortSignal,
 ): Promise<GeocodeResult[]> {
+  const homonymousRegions = homonymousRegionKeys(features);
+
   if (!preferCity) {
-    return features.map((feature) => normalize(feature));
+    return features.map((feature) =>
+      normalize(feature, undefined, false, homonymousRegions),
+    );
   }
 
   const areaIds = [
@@ -427,6 +476,7 @@ async function normalizeFeatures(
       feature,
       areaGid ? displayAreas.get(areaGid) : undefined,
       true,
+      homonymousRegions,
     );
   });
 }
