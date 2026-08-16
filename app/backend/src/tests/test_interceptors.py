@@ -22,7 +22,7 @@ from couchers.crypto import b64encode, random_hex, simple_encrypt
 from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.interceptors import (
-    AbortError,
+    CallRejectedError,
     BadHeaders,
     CouchersMiddlewareInterceptor,
     ErrorSanitizationInterceptor,
@@ -955,7 +955,7 @@ def test_find_auth_level_with_valid_service():
 def test_find_auth_level_with_nonexistent_service():
     pool = get_descriptor_pool()
 
-    with pytest.raises(AbortError) as exc:
+    with pytest.raises(CallRejectedError) as exc:
         find_auth_level(pool, "/org.couchers.nonexistent.Service/Method")
     assert exc.value.msg == NONEXISTENT_API_CALL_ERROR_MESSAGE
     assert exc.value.code == grpc.StatusCode.UNIMPLEMENTED
@@ -969,14 +969,14 @@ def test_find_auth_level_with_unknown_auth_level():
     service_desc.GetOptions.return_value = service_options
     pool.FindServiceByName.return_value = service_desc
 
-    with pytest.raises(AbortError) as exc:
+    with pytest.raises(CallRejectedError) as exc:
         find_auth_level(pool, "/org.couchers.api.core.API/GetUser")
     assert exc.value.msg == MISSING_AUTH_LEVEL_ERROR_MESSAGE
     assert exc.value.code == grpc.StatusCode.INTERNAL
 
 
 def test_validate_auth_level_with_unknown():
-    with pytest.raises(AbortError) as exc:
+    with pytest.raises(CallRejectedError) as exc:
         validate_auth_level(annotations_pb2.AUTH_LEVEL_UNKNOWN)
     assert exc.value.msg == MISSING_AUTH_LEVEL_ERROR_MESSAGE
     assert exc.value.code == grpc.StatusCode.INTERNAL
@@ -1022,7 +1022,7 @@ def test_check_auth_open_service_with_auth():
 
 
 def test_check_auth_secure_service_without_auth():
-    with pytest.raises(AbortError):
+    with pytest.raises(CallRejectedError):
         check_permissions(None, annotations_pb2.AUTH_LEVEL_SECURE)
 
 
@@ -1053,7 +1053,7 @@ def test_check_auth_secure_service_with_jailed_user():
         token="abc123",
         is_api_key=False,
     )
-    with pytest.raises(AbortError):
+    with pytest.raises(CallRejectedError):
         check_permissions(auth_info, annotations_pb2.AUTH_LEVEL_SECURE)
 
 
@@ -1073,7 +1073,7 @@ def test_check_auth_jailed_service_with_jailed_user():
 
 
 def test_check_auth_jailed_service_without_auth():
-    with pytest.raises(AbortError):
+    with pytest.raises(CallRejectedError):
         check_permissions(None, annotations_pb2.AUTH_LEVEL_JAILED)
 
 
@@ -1089,7 +1089,7 @@ def test_check_auth_editor_service_without_editor():
         token="abc123",
         is_api_key=False,
     )
-    with pytest.raises(AbortError):
+    with pytest.raises(CallRejectedError):
         check_permissions(auth_info, annotations_pb2.AUTH_LEVEL_EDITOR)
 
 
@@ -1120,7 +1120,7 @@ def test_check_auth_admin_service_without_superuser():
         token="abc123",
         is_api_key=False,
     )
-    with pytest.raises(AbortError):
+    with pytest.raises(CallRejectedError):
         check_permissions(auth_info, annotations_pb2.AUTH_LEVEL_ADMIN)
 
 
@@ -1140,7 +1140,7 @@ def test_check_auth_admin_service_with_superuser():
 
 
 def test_check_auth_admin_service_without_auth():
-    with pytest.raises(AbortError):
+    with pytest.raises(CallRejectedError):
         check_permissions(None, annotations_pb2.AUTH_LEVEL_ADMIN)
 
 

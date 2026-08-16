@@ -323,7 +323,7 @@ type Cont[T, R] = Callable[[grpc.HandlerCallDetails], grpc.RpcMethodHandler[T, R
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
-class _AdmittedCall:
+class AdmittedCall:
     """What a call that's cleared to run carries into the handler body."""
 
     headers: CouchersHeaders
@@ -333,14 +333,14 @@ class _AdmittedCall:
     localization: LocalizationContext
 
 
-def _admit_call(pool: DescriptorPool, handler_call_details: grpc.HandlerCallDetails) -> _AdmittedCall:
-    """Let the call through, resolving who is making it and in what locale, or raise AbortError to reject it."""
+def admit_call(pool: DescriptorPool, handler_call_details: grpc.HandlerCallDetails) -> AdmittedCall:
+    """Pre-RPC setup handling."""
     auth_level = find_auth_level(pool, handler_call_details.method)
 
     try:
         headers = parse_headers(dict(handler_call_details.invocation_metadata))
     except BadHeaders:
-        raise AbortError(COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE, grpc.StatusCode.UNAUTHENTICATED) from None
+        raise CallRejectedError(COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE, grpc.StatusCode.UNAUTHENTICATED) from None
 
     # if this is not present in prod, it's a Big Bug in config
     assert config.DEV or headers.ip_address is not None
@@ -362,15 +362,17 @@ def _admit_call(pool: DescriptorPool, handler_call_details: grpc.HandlerCallDeta
     else:
         sofa, new_sofa_cookie = generate_sofa_cookie()
 
-    return _AdmittedCall(
+    loc_context = LocalizationContext(
+        locale=(auth_info.ui_language_preference if auth_info else headers.ui_lang) or "",
+        timezone=ZoneInfo((auth_info and auth_info.timezone) or "Etc/UTC"),
+    )
+
+    return AdmittedCall(
         headers=headers,
         auth_info=auth_info,
         sofa=sofa,
         new_sofa_cookie=new_sofa_cookie,
-        localization=LocalizationContext(
-            locale=(auth_info.ui_language_preference if auth_info else headers.ui_lang) or "",
-            timezone=ZoneInfo((auth_info and auth_info.timezone) or "Etc/UTC"),
-        ),
+        localization=loc_context,
     )
 
 
@@ -415,9 +417,9 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             start_perf()
 
             try:
-                call = _admit_call(self._pool, handler_call_details)
+                call = admit_call(self._pool, handler_call_details)
                 observe_in_servicer_setup_histogram(method, read_perf())
-            except AbortError as ae:
+            except CallRejectedError as ae:
                 grpc_context.abort(ae.code, ae.msg)
             except Exception as e:
                 observe_in_servicer_setup_errors_counter(method, type(e).__name__)
@@ -614,7 +616,7 @@ class BadHeaders(Exception):
     pass
 
 
-class AbortError(Exception):
+class CallRejectedError(Exception):
     def __init__(self, msg: str, code: grpc.StatusCode):
         self.msg = msg
         self.code = code
@@ -628,7 +630,7 @@ def find_auth_level(pool: DescriptorPool, method: str) -> AuthLevel.ValueType:
         service: ServiceDescriptor = pool.FindServiceByName(service_name)  # type: ignore[no-untyped-call]
         service_options = service.GetOptions()
     except KeyError:
-        raise AbortError(NONEXISTENT_API_CALL_ERROR_MESSAGE, grpc.StatusCode.UNIMPLEMENTED) from None
+        raise CallRejectedError(NONEXISTENT_API_CALL_ERROR_MESSAGE, grpc.StatusCode.UNIMPLEMENTED) from None
 
     level = service_options.Extensions[annotations_pb2.auth_level]
 
@@ -640,7 +642,7 @@ def find_auth_level(pool: DescriptorPool, method: str) -> AuthLevel.ValueType:
 def validate_auth_level(auth_level: AuthLevel.ValueType) -> None:
     # if unknown auth level, then it wasn't set and something's wrong
     if auth_level == annotations_pb2.AUTH_LEVEL_UNKNOWN:
-        raise AbortError(MISSING_AUTH_LEVEL_ERROR_MESSAGE, grpc.StatusCode.INTERNAL)
+        raise CallRejectedError(MISSING_AUTH_LEVEL_ERROR_MESSAGE, grpc.StatusCode.INTERNAL)
 
     if auth_level not in {
         annotations_pb2.AUTH_LEVEL_OPEN,
@@ -649,28 +651,28 @@ def validate_auth_level(auth_level: AuthLevel.ValueType) -> None:
         annotations_pb2.AUTH_LEVEL_EDITOR,
         annotations_pb2.AUTH_LEVEL_ADMIN,
     }:
-        raise AbortError(MISSING_AUTH_LEVEL_ERROR_MESSAGE, grpc.StatusCode.INTERNAL)
+        raise CallRejectedError(MISSING_AUTH_LEVEL_ERROR_MESSAGE, grpc.StatusCode.INTERNAL)
 
 
 def check_permissions(auth_info: UserAuthInfo | None, auth_level: AuthLevel.ValueType) -> None:
     if not auth_info:
         # if this isn't an open service, fail
         if auth_level != annotations_pb2.AUTH_LEVEL_OPEN:
-            raise AbortError(UNAUTHORIZED_ERROR_MESSAGE, grpc.StatusCode.UNAUTHENTICATED)
+            raise CallRejectedError(UNAUTHORIZED_ERROR_MESSAGE, grpc.StatusCode.UNAUTHENTICATED)
     else:
         # a valid user session was found - check permissions
         if auth_level == annotations_pb2.AUTH_LEVEL_ADMIN and not auth_info.is_superuser:
-            raise AbortError(PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.PERMISSION_DENIED)
+            raise CallRejectedError(PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.PERMISSION_DENIED)
 
         if auth_level == annotations_pb2.AUTH_LEVEL_EDITOR and not auth_info.is_editor:
-            raise AbortError(PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.PERMISSION_DENIED)
+            raise CallRejectedError(PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.PERMISSION_DENIED)
 
         # if the user is jailed and this isn't an open or jailed service, fail
         if auth_info.is_jailed and auth_level not in [
             annotations_pb2.AUTH_LEVEL_OPEN,
             annotations_pb2.AUTH_LEVEL_JAILED,
         ]:
-            raise AbortError(PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.UNAUTHENTICATED)
+            raise CallRejectedError(PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.UNAUTHENTICATED)
 
 
 class MediaInterceptor(grpc.ServerInterceptor):
