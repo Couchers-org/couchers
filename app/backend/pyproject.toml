@@ -111,6 +111,8 @@ extra-standard-library = ["zoneinfo"]
 # Pytest
 [tool.pytest.ini_options]
 pythonpath = ["src"]
+# Also makes src/tests/conftest.py an initial conftest, so its pytest_addoption runs
+testpaths = ["src/tests"]
 strict = true
 filterwarnings = [
     "error",  # Treat all warnings as errors by default

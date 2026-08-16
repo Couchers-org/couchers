@@ -156,38 +156,70 @@ def setup_testdb(postgres_conn: Connection, testdb_engine: Engine) -> None:
         populate_testing_resources(conn)
 
 
-def _truncate_non_static_tables(conn: Connection) -> None:
+_reset_sql: str | None = None
+
+
+def _build_reset_sql(conn: Connection) -> str:
     """
-    Truncates all non-static tables.
-    Static tables (languages, timezone_areas, regions) are preserved.
+    Builds the statement that empties every non-static table and rewinds every sequence they use.
+
+    TRUNCATE would be the obvious way to do this, but it allocates a fresh relfilenode for each
+    table, index, toast relation and sequence it touches, which here is ~600 files per call and
+    costs the same whether the tables hold a million rows or none. DELETE with the foreign key
+    triggers off reaches the same end state ~35x faster, and the tables are near-empty anyway.
     """
-    tables_to_truncate = []
+    tables = []
     for name in Base.metadata.tables.keys():
-        # Skip static tables
         if name in STATIC_TABLES:
             continue
-        # Handle schema-qualified names (e.g., "logging.api_calls" -> logging."api_calls")
-        if "." in name:
-            schema, table = name.split(".", 1)
-            tables_to_truncate.append(f'{schema}."{table}"')
-        else:
-            tables_to_truncate.append(f'"{name}"')
-    if tables_to_truncate:
-        conn.execute(text(f"TRUNCATE {', '.join(tables_to_truncate)} RESTART IDENTITY CASCADE"))
+        schema, _, table = name.rpartition(".")
+        tables.append(f'{schema}."{table}"' if schema else f'"{table}"')
 
-    # Reset standalone sequences, not owned by any table column
-    # (RESTART IDENTITY only resets sequences owned by truncated columns)
-    conn.execute(text("ALTER SEQUENCE communities_seq RESTART WITH 1"))
-    conn.execute(text("ALTER SEQUENCE moderation_seq RESTART WITH 2000000"))
+    sequences = conn.execute(
+        text("""
+            SELECT s.schemaname, s.sequencename, s.start_value, d.refobjid::regclass::text AS owner
+            FROM pg_sequences s
+            JOIN pg_class c ON c.relname = s.sequencename AND c.relnamespace = s.schemaname::regnamespace
+            LEFT JOIN pg_depend d ON d.objid = c.oid AND d.deptype = 'a'
+            WHERE s.schemaname IN ('public', 'logging')
+        """)
+    ).all()
+
+    # The models have foreign key cycles, so there is no order the tables could be emptied in that
+    # would satisfy the constraints; turning the triggers off sidesteps the ordering entirely.
+    statements = ["SET session_replication_role = replica"]
+    statements += [f"DELETE FROM {table}" for table in tables]
+    statements.append("SET session_replication_role = DEFAULT")
+    # setval to the sequence's own start value is what RESTART IDENTITY would have done, and it also
+    # covers the standalone sequences (communities_seq, moderation_seq) that nothing owns.
+    statements += [
+        f"SELECT setval('{schema}.\"{sequence}\"', {start_value}, false)"
+        for schema, sequence, start_value, owner in sequences
+        if owner not in STATIC_TABLES
+    ]
+    return "; ".join(statements)
+
+
+def _reset_non_static_tables(conn: Connection) -> None:
+    """
+    Empties all non-static tables and rewinds their sequences.
+    Static tables (languages, timezone_areas, regions) are preserved.
+    """
+    global _reset_sql
+    if _reset_sql is None:
+        _reset_sql = _build_reset_sql(conn)
+    # One roundtrip: psycopg sends a parameterless statement over the simple query protocol, which
+    # takes the whole semicolon-separated batch.
+    conn.exec_driver_sql(_reset_sql)
 
 
 @pytest.fixture
 def db(setup_testdb: None, testdb_conn: Connection) -> None:
     """
-    Truncates all non-static tables before each test.
+    Empties all non-static tables before each test.
     Static tables (languages, timezone_areas, regions) are preserved.
     """
-    _truncate_non_static_tables(testdb_conn)
+    _reset_non_static_tables(testdb_conn)
 
 
 @pytest.fixture(scope="class")
@@ -195,7 +227,7 @@ def db_class(setup_testdb: None, testdb_conn: Connection) -> None:
     """
     The same as above, but with a different scope. Used in test_communities.py.
     """
-    _truncate_non_static_tables(testdb_conn)
+    _reset_non_static_tables(testdb_conn)
 
 
 @pytest.fixture
