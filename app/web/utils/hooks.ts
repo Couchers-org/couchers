@@ -5,12 +5,7 @@ import Sentry from "platform/sentry";
 import { useCallback, useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { service } from "service";
-import {
-  GeocodeProvider,
-  geocodeSearch,
-  initialProvider,
-  isOutageError,
-} from "utils/geocode";
+import { GeocodeProvider, geocodeSearch, initialProvider, isOutageError } from "utils/geocode";
 import useLocationBias from "utils/useLocationBias";
 
 function useIsClient() {
@@ -59,16 +54,11 @@ export interface GeocodeResult {
  * `utils/useLocationBias.ts`). It is a soft signal only — distant places are still
  * returned, and searches run unbiased whenever no position is available.
  */
-const useGeocodeQuery = (options: {
-  allowFallback: boolean;
-  preferCity?: boolean;
-  biasToUserLocation?: boolean;
-}) => {
+const useGeocodeQuery = (options: { allowFallback: boolean; preferCity?: boolean; biasToUserLocation?: boolean }) => {
   const { allowFallback } = options;
   const preferCity = options.preferCity ?? false;
   const focusRef = useLocationBias(options.biasToUserLocation ?? false);
   const { i18n } = useTranslation();
-  const isMounted = useIsMounted();
   const [provider, setProvider] = useState<GeocodeProvider>(() => initialProvider(allowFallback));
   // The active provider is unavailable and no fallback was permitted, so there
   // are no results to show — distinct from a failed or malformed query.

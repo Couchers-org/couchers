@@ -44,9 +44,7 @@ describe("useLocationBias", () => {
 
     const { result } = renderHook(() => useLocationBias(true));
 
-    await waitFor(() =>
-      expect(result.current.current).toEqual({ lat: 43.0, lon: -81.2 }),
-    );
+    await waitFor(() => expect(result.current.current).toEqual({ lat: 43.0, lon: -81.2 }));
   });
 
   it("does not prompt, and stays unbiased, when permission has not been granted", async () => {
@@ -71,9 +69,7 @@ describe("useLocationBias", () => {
 
   it("stays unbiased when the geolocation read fails", async () => {
     mockGeolocation({ permissionState: "granted" });
-    getCurrentPosition.mockImplementation((_onSuccess, onError) =>
-      onError({ code: 3, message: "timeout" }),
-    );
+    getCurrentPosition.mockImplementation((_onSuccess, onError) => onError({ code: 3, message: "timeout" }));
 
     const { result } = renderHook(() => useLocationBias(true));
 
@@ -120,9 +116,7 @@ describe("useLocationBias", () => {
 
       const { result } = renderHook(() => useLocationBias(true));
 
-      await waitFor(() =>
-        expect(result.current.current).toEqual({ lat: 43.0, lon: -81.2 }),
-      );
+      await waitFor(() => expect(result.current.current).toEqual({ lat: 43.0, lon: -81.2 }));
     });
   });
 });

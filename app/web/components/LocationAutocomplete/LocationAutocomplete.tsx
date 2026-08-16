@@ -97,12 +97,8 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
     rules: {
       required,
       validate: {
-        didSelect: (value) =>
-          value === "" || typeof value !== "string" ? true : false, // don't show a scary error while the autocomplete UI is displayed
-        isSpecific: (value) =>
-          !value?.isRegion || !disableRegions
-            ? true
-            : t("location_autocomplete.more_specific"),
+        didSelect: (value) => (value === "" || typeof value !== "string" ? true : false), // don't show a scary error while the autocomplete UI is displayed
+        isSpecific: (value) => (!value?.isRegion || !disableRegions ? true : t("location_autocomplete.more_specific")),
       },
     },
   });
@@ -134,18 +130,12 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
   // TODO(LOC-eval): remove along with the Nominatim fallback.
   const isSubmitMode = provider === "nominatim";
 
-  const debouncedQuery = useMemo(
-    () => debounce((value: string) => query(value), SEARCH_DEBOUNCE_MS),
-    [query],
-  );
+  const debouncedQuery = useMemo(() => debounce((value: string) => query(value), SEARCH_DEBOUNCE_MS), [query]);
   useEffect(() => () => debouncedQuery.clear(), [debouncedQuery]);
 
   // The provider returned an empty result set for the current query (undefined
   // means "not searched yet", so only [] counts as empty).
-  const hasEmptyResults =
-    !isLoading &&
-    options?.length === 0 &&
-    inputValue.trim().length >= MIN_SEARCH_LENGTH;
+  const hasEmptyResults = !isLoading && options?.length === 0 && inputValue.trim().length >= MIN_SEARCH_LENGTH;
 
   const displayOptions: GeocodeResult[] = hasEmptyResults
     ? [
@@ -188,10 +178,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
   };
 
   // Fired on every keystroke: drives the debounced typeahead query.
-  const handleInputChange = (
-    value: string,
-    reason: AutocompleteInputChangeReason,
-  ) => {
+  const handleInputChange = (value: string, reason: AutocompleteInputChangeReason) => {
     // MUI fires "reset" with the option's label when a selection is made; don't
     // treat that as a new search.
     if (value === controller.field.value?.simplifiedName) return;
@@ -228,10 +215,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
 
   // Fired when an option is chosen, the field is cleared, focus is lost, or the
   // user presses Enter on free-typed text.
-  const handleChange = (
-    value: GeocodeResult | string | null,
-    reason: AutocompleteChangeReason,
-  ) => {
+  const handleChange = (value: GeocodeResult | string | null, reason: AutocompleteChangeReason) => {
     if (reason === "blur") {
       setIsOpen(false);
       return;
@@ -277,9 +261,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
   // would replace what the user is working on, so it steps aside and comes back
   // as soon as the field is empty again (clear button or backspace).
   const hasClearableValue =
-    inputValue !== "" ||
-    (typeof controller.field.value === "object" &&
-      controller.field.value !== null);
+    inputValue !== "" || (typeof controller.field.value === "object" && controller.field.value !== null);
 
   return (
     <Autocomplete
@@ -290,9 +272,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
       label={label}
       error={
         fieldError ||
-        (isProviderUnavailable
-          ? t("location_autocomplete.provider_unavailable")
-          : geocodeError) ||
+        (isProviderUnavailable ? t("location_autocomplete.provider_unavailable") : geocodeError) ||
         // Never blocks typing: the field stays editable and the message clears on
         // the next keystroke (LOC-4's no-dead-end acceptance note).
         myLocationError
@@ -301,11 +281,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
       variant={variant}
       placeholder={placeholder}
       sx={sx}
-      helperText={
-        isSubmitMode
-          ? t("location_autocomplete.search_location_hint")
-          : undefined
-      }
+      helperText={isSubmitMode ? t("location_autocomplete.search_location_hint") : undefined}
       endAdornment={
         <>
           {isPending && <CircularProgress size="1.25rem" />}
@@ -317,11 +293,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
               disabled={isLocating}
               size="small"
             >
-              {isLocating ? (
-                <CircularProgress size="1.25rem" />
-              ) : (
-                <MyLocationIcon />
-              )}
+              {isLocating ? <CircularProgress size="1.25rem" /> : <MyLocationIcon />}
             </IconButton>
           )}
           {isSubmitMode && !isPending && (

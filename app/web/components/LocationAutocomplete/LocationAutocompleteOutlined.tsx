@@ -15,13 +15,7 @@ import { MyLocationIcon, SearchIcon } from "components/Icons";
 import TextField from "components/TextField";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
-import {
-  forwardRef,
-  SyntheticEvent,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { forwardRef, SyntheticEvent, useEffect, useMemo, useState } from "react";
 import { service } from "service";
 import { theme } from "theme";
 import { GeocodeResult, useGeocodeQuery } from "utils/hooks";
@@ -137,10 +131,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
   // submits with Enter or the search button.
   const isSubmitMode = provider === "nominatim";
 
-  const debouncedQuery = useMemo(
-    () => debounce((value: string) => query(value), SEARCH_DEBOUNCE_MS),
-    [query],
-  );
+  const debouncedQuery = useMemo(() => debounce((value: string) => query(value), SEARCH_DEBOUNCE_MS), [query]);
   useEffect(() => () => debouncedQuery.clear(), [debouncedQuery]);
 
   useEffect(() => {
@@ -261,12 +252,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
         <TextField
           {...params}
           label={label}
-          error={
-            !!fieldError ||
-            !!geocodeError ||
-            isProviderUnavailable ||
-            !!myLocationError
-          }
+          error={!!fieldError || !!geocodeError || isProviderUnavailable || !!myLocationError}
           helperText={
             // Never blocks typing: the field stays editable and the message clears
             // on the next keystroke (LOC-4's no-dead-end acceptance note).
@@ -302,18 +288,12 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
                         size="small"
                         sx={{ marginRight: theme.spacing(1) }}
                       >
-                        {isLocating ? (
-                          <CircularProgress size="1.25rem" />
-                        ) : (
-                          <MyLocationIcon />
-                        )}
+                        {isLocating ? <CircularProgress size="1.25rem" /> : <MyLocationIcon />}
                       </IconButton>
                     )}
                     {isSubmitMode && (
                       <IconButton
-                        aria-label={t(
-                          "location_autocomplete.search_location_button",
-                        )}
+                        aria-label={t("location_autocomplete.search_location_button")}
                         onClick={handleSearchSubmit}
                         size="small"
                         sx={{ marginRight: theme.spacing(1) }}

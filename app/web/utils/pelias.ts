@@ -86,13 +86,7 @@ export class PeliasError extends Error {
 // specific, searchable place. These are rejected by the homepage widget when
 // `disableRegions` is set (equivalent to the old Nominatim `nonRegionKeys`
 // logic, where district/locality-and-below counted as specific).
-const REGION_LAYERS = new Set([
-  "continent",
-  "country",
-  "dependency",
-  "macroregion",
-  "region",
-]);
+const REGION_LAYERS = new Set(["continent", "country", "dependency", "macroregion", "region"]);
 
 // Layers where `name` is the matched entity and must not be replaced by a
 // nested hierarchy locality/localadmin (those can be centroid artifacts — e.g.
@@ -113,11 +107,7 @@ const MATCHED_NAME_PRIMARY_LAYERS = new Set([
 // neighbourhood (or similar) / macrocounty is ranked above it. Not a filter —
 // every provider hit is kept, only order changes.
 const PREFER_CITY_LAYERS = new Set(["locality", "localadmin", "venue"]);
-const DEPRIORITIZE_WHEN_PREFER_CITY = new Set([
-  "neighbourhood",
-  "microhood",
-  "macrocounty",
-]);
+const DEPRIORITIZE_WHEN_PREFER_CITY = new Set(["neighbourhood", "microhood", "macrocounty"]);
 
 // Half-width (in degrees, ~11km) of the synthetic bbox created for point
 // results that Pelias does not return a bbox for (addresses, venues).
@@ -193,12 +183,8 @@ export function simplifyPeliasDisplayName(
   // département onto `region`, so name + region alone reads "Rue X, Hérault,
   // France". Skipped when the primary already *is* that city, and for coarse
   // admin areas, which are not inside a city.
-  const containingCity =
-    isCoarseAdmin || preferCity
-      ? undefined
-      : properties.locality || properties.localadmin;
-  const city =
-    containingCity && containingCity !== primary ? containingCity : undefined;
+  const containingCity = isCoarseAdmin || preferCity ? undefined : properties.locality || properties.localadmin;
+  const city = containingCity && containingCity !== primary ? containingCity : undefined;
   const region = properties.region || properties.macroregion;
 
   // City vs state twins (NYC / NY): only when the set actually contains that
@@ -206,17 +192,9 @@ export function simplifyPeliasDisplayName(
   // "New York, NY, …" and preferCity dedupe would drop one.
   const sharesNameWithRegion =
     !isCoarseAdmin &&
-    Boolean(
-      primary &&
-        properties.country &&
-        homonymousRegions?.has(`${primary}\0${properties.country}`),
-    );
+    Boolean(primary && properties.country && homonymousRegions?.has(`${primary}\0${properties.country}`));
   const regionAbbrev =
-    sharesNameWithRegion &&
-    properties.region_a &&
-    properties.region_a !== primary
-      ? properties.region_a
-      : undefined;
+    sharesNameWithRegion && properties.region_a && properties.region_a !== primary ? properties.region_a : undefined;
 
   const parts = [
     primary,
@@ -239,18 +217,14 @@ export function simplifyPeliasDisplayName(
  * Does not drop any results.
  */
 export function reorderPreferCity(features: PeliasFeature[]): PeliasFeature[] {
-  const preferredIdx = features.findIndex((feature) =>
-    PREFER_CITY_LAYERS.has(feature.properties.layer),
-  );
+  const preferredIdx = features.findIndex((feature) => PREFER_CITY_LAYERS.has(feature.properties.layer));
   if (preferredIdx <= 0) {
     return features;
   }
 
   const hasDeprioritizedBefore = features
     .slice(0, preferredIdx)
-    .some((feature) =>
-      DEPRIORITIZE_WHEN_PREFER_CITY.has(feature.properties.layer),
-    );
+    .some((feature) => DEPRIORITIZE_WHEN_PREFER_CITY.has(feature.properties.layer));
   if (!hasDeprioritizedBefore) {
     return features;
   }
@@ -267,9 +241,7 @@ export function reorderPreferCity(features: PeliasFeature[]): PeliasFeature[] {
  * admin hits and locality/localadmin hits themselves return undefined — their
  * own geometry already matches the display string.
  */
-export function displayAreaGid(
-  properties: PeliasFeatureProperties,
-): string | undefined {
+export function displayAreaGid(properties: PeliasFeatureProperties): string | undefined {
   if (MATCHED_NAME_PRIMARY_LAYERS.has(properties.layer)) {
     return undefined;
   }
@@ -301,12 +273,7 @@ function toGeocodeBbox(feature: PeliasFeature): Coordinates {
 
   // No bbox (point result) — synthesise a small box around the coordinate.
   const [lon, lat] = feature.geometry.coordinates;
-  return [
-    lon + POINT_BBOX_MARGIN,
-    lat + POINT_BBOX_MARGIN,
-    lon - POINT_BBOX_MARGIN,
-    lat - POINT_BBOX_MARGIN,
-  ];
+  return [lon + POINT_BBOX_MARGIN, lat + POINT_BBOX_MARGIN, lon - POINT_BBOX_MARGIN, lat - POINT_BBOX_MARGIN];
 }
 
 /**
@@ -329,11 +296,7 @@ export function normalize(
   return {
     id: properties.gid,
     name: properties.label,
-    simplifiedName: simplifyPeliasDisplayName(
-      properties,
-      preferCity,
-      homonymousRegions,
-    ),
+    simplifiedName: simplifyPeliasDisplayName(properties, preferCity, homonymousRegions),
     location: new LngLat(lon, lat),
     bbox: toGeocodeBbox(geometrySource),
     isRegion: REGION_LAYERS.has(properties.layer),
@@ -347,9 +310,7 @@ export function normalize(
  * the provider is preserved — equivalent to the old Nominatim
  * `filterDuplicatePlaces` rule. Applied in both city and precise autocomplete.
  */
-export function dedupeBySimplifiedName(
-  results: GeocodeResult[],
-): GeocodeResult[] {
+export function dedupeBySimplifiedName(results: GeocodeResult[]): GeocodeResult[] {
   const seen = new Set<string>();
   return results.filter((result) => {
     if (seen.has(result.simplifiedName)) {
@@ -368,10 +329,7 @@ export function dedupeBySimplifiedName(
  * outage classification) see one error type. A deliberate cancellation is still
  * distinguishable by the caller via its own `signal.aborted`.
  */
-async function fetchPelias(
-  url: URL,
-  signal?: AbortSignal,
-): Promise<PeliasResponse> {
+async function fetchPelias(url: URL, signal?: AbortSignal): Promise<PeliasResponse> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
   const abortFromExternal = () => controller.abort();
@@ -402,9 +360,7 @@ async function fetchPelias(
     if (error instanceof DOMException && error.name === "AbortError") {
       throw new PeliasError("The location search was cancelled or timed out.");
     }
-    throw new PeliasError(
-      error instanceof Error ? error.message : "Geocoding request failed.",
-    );
+    throw new PeliasError(error instanceof Error ? error.message : "Geocoding request failed.");
   } finally {
     clearTimeout(timeout);
     if (signal) {
@@ -418,10 +374,7 @@ async function fetchPelias(
  * the area bbox for hits whose simplified label is a parent locality. Failures
  * are non-fatal — callers fall back to the original feature geometry.
  */
-async function fetchPlacesByIds(
-  ids: string[],
-  signal?: AbortSignal,
-): Promise<Map<string, PeliasFeature>> {
+async function fetchPlacesByIds(ids: string[], signal?: AbortSignal): Promise<Map<string, PeliasFeature>> {
   const places = new Map<string, PeliasFeature>();
   if (!BASE_URL || !API_KEY || ids.length === 0) {
     return places;
@@ -457,28 +410,17 @@ async function normalizeFeatures(
   const homonymousRegions = homonymousRegionKeys(features);
 
   if (!preferCity) {
-    return features.map((feature) =>
-      normalize(feature, undefined, false, homonymousRegions),
-    );
+    return features.map((feature) => normalize(feature, undefined, false, homonymousRegions));
   }
 
   const areaIds = [
-    ...new Set(
-      features
-        .map((feature) => displayAreaGid(feature.properties))
-        .filter((id): id is string => Boolean(id)),
-    ),
+    ...new Set(features.map((feature) => displayAreaGid(feature.properties)).filter((id): id is string => Boolean(id))),
   ];
   const displayAreas = await fetchPlacesByIds(areaIds, signal);
 
   return features.map((feature) => {
     const areaGid = displayAreaGid(feature.properties);
-    return normalize(
-      feature,
-      areaGid ? displayAreas.get(areaGid) : undefined,
-      true,
-      homonymousRegions,
-    );
+    return normalize(feature, areaGid ? displayAreas.get(areaGid) : undefined, true, homonymousRegions);
   });
 }
 
