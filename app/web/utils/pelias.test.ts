@@ -5,6 +5,7 @@ import {
   autocomplete,
   dedupeBySimplifiedName,
   displayAreaGid,
+  homonymousRegionKeys,
   normalize,
   PeliasError,
   PeliasFeature,
@@ -176,6 +177,115 @@ describe("simplifyPeliasDisplayName", () => {
         }).properties,
       ),
     ).toBe("Île-de-France, France");
+  });
+
+  it("uses region_a for a city when a same-named region is in the set", () => {
+    const city = feature({
+      properties: {
+        gid: "whosonfirst:locality:85977539",
+        layer: "locality",
+        name: "New York",
+        locality: "New York",
+        region: "New York",
+        region_a: "NY",
+        country: "United States",
+      },
+    }).properties;
+    const regions = new Set(["New York\0United States"]);
+
+    expect(simplifyPeliasDisplayName(city, false, regions)).toBe(
+      "New York, NY, United States",
+    );
+    // Isolated city hit: no sibling state, leave the collapsed label alone
+    // (Paris/Madrid/Murcia).
+    expect(simplifyPeliasDisplayName(city)).toBe("New York, United States");
+  });
+
+  it("does not abbreviate the region hit itself", () => {
+    const state = feature({
+      properties: {
+        gid: "whosonfirst:region:85688543",
+        layer: "region",
+        name: "New York",
+        locality: undefined,
+        region: "New York",
+        region_a: "NY",
+        country: "United States",
+      },
+    }).properties;
+    const regions = new Set(["New York\0United States"]);
+
+    expect(simplifyPeliasDisplayName(state, false, regions)).toBe(
+      "New York, United States",
+    );
+  });
+
+  it("does not use region_a when the sibling region is a different country", () => {
+    const madrid = feature({
+      properties: {
+        layer: "locality",
+        name: "Madrid",
+        locality: "Madrid",
+        region: "Madrid",
+        region_a: "MD",
+        country: "Spain",
+      },
+    }).properties;
+
+    expect(
+      simplifyPeliasDisplayName(
+        madrid,
+        false,
+        new Set(["Madrid\0United States"]),
+      ),
+    ).toBe("Madrid, Spain");
+  });
+
+  it("leaves Paris unchanged even when region_a is present", () => {
+    const paris = feature({
+      properties: {
+        layer: "locality",
+        name: "Paris",
+        locality: "Paris",
+        region: "Paris",
+        region_a: "VP",
+        country: "France",
+      },
+    }).properties;
+
+    expect(simplifyPeliasDisplayName(paris, false, new Set())).toBe(
+      "Paris, France",
+    );
+  });
+});
+
+describe("homonymousRegionKeys", () => {
+  it("collects region name+country pairs", () => {
+    expect(
+      homonymousRegionKeys([
+        feature({
+          properties: {
+            layer: "locality",
+            name: "New York",
+            country: "United States",
+          },
+        }),
+        feature({
+          properties: {
+            layer: "region",
+            name: "New York",
+            country: "United States",
+          },
+        }),
+        feature({
+          properties: {
+            layer: "region",
+            name: "Quebec",
+            country: "Canada",
+          },
+        }),
+      ]),
+    ).toEqual(new Set(["New York\0United States", "Quebec\0Canada"]));
   });
 });
 
@@ -798,6 +908,97 @@ describe("autocomplete", () => {
     ]);
     // Raw provider payload is unchanged for telemetry.
     expect(features).toHaveLength(3);
+  });
+
+  it("keeps city and state when they would otherwise share a label", async () => {
+    server.use(
+      rest.get(AUTOCOMPLETE_URL, (_req, res, ctx) =>
+        res(
+          ctx.json({
+            type: "FeatureCollection",
+            features: [
+              feature({
+                properties: {
+                  gid: "whosonfirst:locality:85977539",
+                  layer: "locality",
+                  label: "New York, NY, USA",
+                  name: "New York",
+                  locality: "New York",
+                  region: "New York",
+                  region_a: "NY",
+                  country: "United States",
+                },
+              }),
+              feature({
+                properties: {
+                  gid: "whosonfirst:region:85688543",
+                  layer: "region",
+                  label: "New York, USA",
+                  name: "New York",
+                  locality: undefined,
+                  region: "New York",
+                  region_a: "NY",
+                  country: "United States",
+                },
+              }),
+            ],
+          }),
+        ),
+      ),
+    );
+
+    const { results } = await autocomplete("New York", { preferCity: true });
+
+    expect(results.map((r) => r.simplifiedName)).toEqual([
+      "New York, NY, United States",
+      "New York, United States",
+    ]);
+    expect(results[1].isRegion).toBe(true);
+  });
+
+  it("does not abbreviate Madrid when the set has no Madrid region", async () => {
+    server.use(
+      rest.get(AUTOCOMPLETE_URL, (_req, res, ctx) =>
+        res(
+          ctx.json({
+            type: "FeatureCollection",
+            features: [
+              feature({
+                properties: {
+                  gid: "whosonfirst:locality:madrid",
+                  layer: "locality",
+                  label: "Madrid, Spain",
+                  name: "Madrid",
+                  locality: "Madrid",
+                  region: "Madrid",
+                  region_a: "MD",
+                  country: "Spain",
+                },
+              }),
+              feature({
+                properties: {
+                  gid: "whosonfirst:county:madrid",
+                  layer: "county",
+                  label: "Provincia de Madrid, Spain",
+                  name: "Provincia de Madrid",
+                  locality: undefined,
+                  region: "Madrid",
+                  region_a: "MD",
+                  country: "Spain",
+                },
+              }),
+            ],
+          }),
+        ),
+      ),
+    );
+
+    const { results } = await autocomplete("Madrid");
+
+    expect(results.map((r) => r.simplifiedName)).toEqual([
+      "Madrid, Spain",
+      "Provincia de Madrid, Madrid, Spain",
+    ]);
   });
 
   it("throws a typed PeliasError on a non-ok response", async () => {
