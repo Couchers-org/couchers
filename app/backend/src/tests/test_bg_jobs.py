@@ -99,8 +99,8 @@ def _(testconfig):
     pass
 
 
-def _check_job_counter(job, status, attempt, exception):
-    metrics_string = requests.get("http://localhost:8000").text
+def _check_job_counter(port, job, status, attempt, exception):
+    metrics_string = requests.get(f"http://localhost:{port}").text
     string_to_check = f'attempt="{attempt}",exception="{exception}",job="{job}",status="{status}"'
     assert string_to_check in metrics_string
 
@@ -452,7 +452,8 @@ def test_job_retry(db):
     MOCK_JOBS: dict[str, Job[Any]] = {
         "mock_job": Job(mock_job),
     }
-    create_prometheus_server(port=8000)
+    # port 0 so parallel test runs don't fight over the port
+    metrics_server = create_prometheus_server(port=0)
 
     # if IN_TEST is true, then the bg worker will raise on exceptions
     new_config = config.copy()
@@ -507,8 +508,10 @@ def test_job_retry(db):
             == 0
         )
 
-    _check_job_counter("mock_job", "error", "4", "Exception")
-    _check_job_counter("mock_job", "failed", "5", "Exception")
+    _check_job_counter(metrics_server.server_port, "mock_job", "error", "4", "Exception")
+    _check_job_counter(metrics_server.server_port, "mock_job", "failed", "5", "Exception")
+    metrics_server.shutdown()
+    metrics_server.server_close()
 
 
 def test_job_retry_backs_off_from_now_not_from_a_stale_next_attempt_after(db):

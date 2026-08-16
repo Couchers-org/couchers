@@ -1,5 +1,5 @@
+import hashlib
 import os
-import re
 from collections.abc import Generator
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -15,10 +15,30 @@ prometheus_multiproc_dir = TemporaryDirectory()
 os.environ["PROMETHEUS_MULTIPROC_DIR"] = prometheus_multiproc_dir.name
 
 # Default for running with a database from docker-compose.test.yml.
-if "DATABASE_CONNECTION_STRING" not in os.environ:  # pragma: no cover
-    os.environ["DATABASE_CONNECTION_STRING"] = (
-        "postgresql://postgres:06b3890acd2c235c41be0bbfe22f1b386a04bf02eedf8c977486355616be2aa1@localhost:6544/testdb"
-    )
+DEFAULT_DATABASE_CONNECTION_STRING = (
+    "postgresql://postgres:06b3890acd2c235c41be0bbfe22f1b386a04bf02eedf8c977486355616be2aa1@localhost:6544/testdb"
+)
+
+
+def _test_database_name() -> str:
+    """
+    The database this run owns, which it drops and rebuilds at the start of the session.
+
+    The name comes from where this file sits on disk, so suites running side by side out of
+    different checkouts can share one postgres without destroying each other's database. It's
+    printed in the pytest header. Set TEST_DB_NAME to run two suites out of the same checkout.
+    """
+    if name := os.environ.get("TEST_DB_NAME"):
+        return name
+    return "testdb_" + hashlib.blake2b(str(Path(__file__).resolve()).encode(), digest_size=4).hexdigest()
+
+
+TEST_DB_NAME = _test_database_name()
+
+# The environment says which postgres to talk to; the database name within it is always ours, so
+# pointing DATABASE_CONNECTION_STRING at a real database can't get that database dropped.
+_dsn = os.environ.get("DATABASE_CONNECTION_STRING", DEFAULT_DATABASE_CONNECTION_STRING)
+os.environ["DATABASE_CONNECTION_STRING"] = _dsn.rsplit("/", 1)[0] + "/" + TEST_DB_NAME
 
 from couchers import experimentation  # noqa: E402
 from couchers.config import config  # noqa: E402
@@ -57,6 +77,10 @@ def pytest_configure(config: pytest.Config) -> None:
         query_log.enable(_get_base_engine())
 
 
+def pytest_report_header() -> str:
+    return f"test database: {TEST_DB_NAME}"
+
+
 def pytest_sessionfinish(session: pytest.Session) -> None:
     if session.config.getoption("--query-log"):
         print(f"\nquery log written to {query_log.dump(QUERY_LOG_DIR)}")
@@ -78,11 +102,7 @@ def postgres_engine() -> Generator[Engine]:
     """
     SQLAlchemy engine connected to "postgres" database.
     """
-    dsn = config.DATABASE_CONNECTION_STRING
-    if not dsn.endswith("/testdb"):
-        raise RuntimeError(f"DATABASE_CONNECTION_STRING must point to /testdb, but was {dsn}")
-
-    postgres_dsn = re.sub(r"/testdb$", "/postgres", dsn)
+    postgres_dsn = config.DATABASE_CONNECTION_STRING.rsplit("/", 1)[0] + "/postgres"
 
     with autocommit_engine(postgres_dsn) as engine:
         yield engine
@@ -100,7 +120,7 @@ def postgres_conn(postgres_engine: Engine) -> Generator[Connection]:
 @pytest.fixture(scope="session")
 def testdb_engine() -> Generator[Engine]:
     """
-    SQLAlchemy engine connected to "testdb" database.
+    SQLAlchemy engine connected to this run's test database.
     """
     dsn = config.DATABASE_CONNECTION_STRING
     with autocommit_engine(dsn) as engine:
@@ -110,7 +130,7 @@ def testdb_engine() -> Generator[Engine]:
 @pytest.fixture(scope="session")
 def testdb_conn(testdb_engine: Engine) -> Generator[Connection]:
     """
-    Connection to testdb for truncating tables between tests.
+    Connection to the test database for truncating tables between tests.
     """
     with testdb_engine.connect() as conn:
         yield conn
@@ -130,15 +150,15 @@ def setup_testdb(postgres_conn: Connection, testdb_engine: Engine) -> None:
     # running in non-UTC catches some timezone errors
     os.environ["TZ"] = "America/New_York"
 
-    postgres_conn.execute(text("DROP DATABASE IF EXISTS testdb WITH (FORCE)"))
-    postgres_conn.execute(text("CREATE DATABASE testdb"))
+    postgres_conn.execute(text(f"DROP DATABASE IF EXISTS {TEST_DB_NAME} WITH (FORCE)"))
+    postgres_conn.execute(text(f"CREATE DATABASE {TEST_DB_NAME}"))
 
     # A column DEFAULT resolves now() once, when the column is created, and stores the function
     # identity forever after; later search_path changes don't reach it. So mock.now() has to
     # already shadow pg_catalog.now() on every connection before any DDL runs, which means
     # setting this at the database level here, ahead of the first connect. The mock schema
     # doesn't exist yet, which postgres tolerates in a search_path.
-    postgres_conn.execute(text(f"ALTER DATABASE testdb SET search_path = {MOCK_SEARCH_PATH}"))
+    postgres_conn.execute(text(f"ALTER DATABASE {TEST_DB_NAME} SET search_path = {MOCK_SEARCH_PATH}"))
 
     with testdb_engine.connect() as conn:
         conn.execute(
