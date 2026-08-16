@@ -53,13 +53,13 @@ So you can set a per-method default for a whole service, override one expensive 
 
 ## Enforcement
 
-Enforcement lives in the gRPC middleware interceptor, in the same setup phase that already resolves `auth_level` (from the proto descriptor pool) and parses headers. By the time we check, we have the method name, the client IP, and the authenticated `user_id` (if any).
+Enforcement lives in the gRPC middleware interceptor's call admission (`admit_call`), the same setup phase that already resolves `auth_level` (from the proto descriptor pool), parses headers and checks permissions. By the time we check, we have the method name, the client IP, and the authenticated `user_id` (if any).
 
 Counters are kept in **Valkey** (shared across all API worker processes; no distributed-state problem). A single Lua script does a fixed-window `INCR` + `EXPIRE` over all applicable keys in one round trip and returns which, if any, tripped. Keys are scope/dimension/identity/minute-bucket, e.g. `rl:rpc:API/GetUser:ip:2001:db8::/64:<minute>`.
 
 **Fail-open:** if Valkey is unreachable the error is reported to Sentry and the request is allowed. Losing the counters is not a reason to take the API down with them, and the alternative — rejecting everything while the store is down — turns a Valkey outage into a full outage. If a flood ever coincides with a store outage, the lever is to fix or restart the store, not to shed every request in the meantime.
 
-A rejected call returns before the instrumented handler wrapper is built, so — like every other rejected-in-setup call, such as a failed auth — it emits none of the ordinary servicer metrics and writes no `APICall` row. Blocked traffic is visible only through the rate-limit metrics above, and is not attributable to a user or IP from the database.
+A rejected call aborts before the handler body runs, so — like every other rejected-in-setup call, such as a failed auth — it emits none of the ordinary servicer metrics and writes no `APICall` row. Blocked traffic is visible only through the rate-limit metrics above, and is not attributable to a user or IP from the database.
 
 ## Enabling
 
