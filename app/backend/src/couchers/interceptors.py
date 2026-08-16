@@ -63,6 +63,9 @@ from couchers.utils import (
 
 logger = logging.getLogger(__name__)
 
+# the prometheus label shared by all calls to methods that don't exist
+NONEXISTENT_METHOD_LABEL = "<nonexistent>"
+
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class UserAuthInfo:
@@ -291,14 +294,16 @@ def _log_call(
     user_id: int | None,
     is_api_key: bool,
     sofa: str | None,
-    headers: CouchersHeaders,
+    headers: CouchersHeaders | None,
     start: int,
     perf: PerfResult | None,
-    request: Message,
-    response: Message | None,
-    exception: Exception | None,
+    request: Message | None = None,
+    response: Message | None = None,
+    exception: Exception | None = None,
+    nonexistent_method: bool = False,
 ) -> None:
     """Record a finished call: one api_calls row, plus the per-call Prometheus observations."""
+    metric_method = NONEXISTENT_METHOD_LABEL if nonexistent_method else method
     duration = (perf_counter_ns() - start) / 1e6  # ms
 
     req_bytes = _sanitized_bytes(request)
@@ -327,18 +332,74 @@ def _log_call(
                 db_write_query_count=perf.db_write_query_count if perf else None,
                 db_time_ms=perf.db_time_ms if perf else None,
                 cpu_ms=perf.cpu_ms if perf else None,
-                client_platform=headers.client_platform,
-                ip_address=headers.ip_address,
-                user_agent=headers.user_agent,
+                client_platform=headers.client_platform if headers else None,
+                ip_address=headers.ip_address if headers else None,
+                user_agent=headers.user_agent if headers else None,
                 sofa=sofa,
             )
         )
 
     observe_in_servicer_duration_histogram(
-        method, user_id, status_code or "", type(exception).__name__ if exception else "", duration / 1000
+        metric_method, user_id, status_code or "", type(exception).__name__ if exception else "", duration / 1000
     )
-    observe_api_call(method, headers.client_platform)
+    observe_api_call(metric_method, headers.client_platform if headers else None)
     logger.debug(f"{user_id=}, {method=}, {duration=} ms")
+
+
+def _log_rejected_call(
+    *,
+    method: str,
+    code: grpc.StatusCode,
+    start: int,
+    handler_call_details: grpc.HandlerCallDetails,
+    user_id: int | None = None,
+    exception: Exception | None = None,
+    nonexistent_method: bool = False,
+) -> None:
+    """Log a call rejected during auth/setup."""
+    try:
+        headers: CouchersHeaders | None = parse_headers(dict(handler_call_details.invocation_metadata))
+    except BadHeaders:
+        headers = None
+
+    perf = read_perf()
+    _log_call(
+        method=method,
+        status_code=code.name,
+        user_id=user_id,
+        is_api_key=headers.is_api_key if headers else False,
+        sofa=headers.sofa if headers else None,
+        headers=headers,
+        start=start,
+        perf=perf,
+        exception=exception,
+        nonexistent_method=nonexistent_method,
+    )
+    observe_in_servicer_setup_histogram(NONEXISTENT_METHOD_LABEL if nonexistent_method else method, perf)
+
+
+def _rejected_call_handler[T, R](
+    *,
+    method: str,
+    message: str,
+    code: grpc.StatusCode,
+    start: int,
+    handler_call_details: grpc.HandlerCallDetails,
+) -> grpc.RpcMethodHandler[T, R]:
+    """Terminate a call that has no handler to run, logging it from the pool thread rather than the serving one."""
+
+    def f(request: Any, context: grpc.ServicerContext) -> NoReturn:
+        start_perf()
+        _log_rejected_call(
+            method=method,
+            code=code,
+            start=start,
+            handler_call_details=handler_call_details,
+            nonexistent_method=True,
+        )
+        context.abort(code, message)
+
+    return grpc.unary_unary_rpc_method_handler(f)
 
 
 type Cont[T, R] = Callable[[grpc.HandlerCallDetails], grpc.RpcMethodHandler[T, R] | None]
@@ -357,10 +418,11 @@ class AdmittedCall:
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class RejectedCall:
-    """What a call that didn't clear setup gets terminated with."""
+    """What a call that didn't clear setup gets terminated and logged with."""
 
     code: grpc.StatusCode
     message: str
+    user_id: int | None
     # set when setup broke rather than turned the call away, so the caller can report it
     exception: Exception | None
 
@@ -369,8 +431,10 @@ def admit_call(pool: DescriptorPool, handler_call_details: grpc.HandlerCallDetai
     """
     Pre-RPC setup handling.
 
-    Never raises: a call that doesn't make it through comes back as a RejectedCall for the caller to terminate.
+    Never raises: a call that doesn't make it through comes back as a RejectedCall carrying whatever setup had
+    resolved before it stopped, so the caller can log the call it never ran.
     """
+    auth_info = None
     try:
         headers = parse_headers(dict(handler_call_details.invocation_metadata))
 
@@ -402,12 +466,22 @@ def admit_call(pool: DescriptorPool, handler_call_details: grpc.HandlerCallDetai
         )
     except BadHeaders:
         return RejectedCall(
-            code=grpc.StatusCode.UNAUTHENTICATED, message=COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE, exception=None
+            code=grpc.StatusCode.UNAUTHENTICATED,
+            message=COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE,
+            user_id=None,
+            exception=None,
         )
     except CallRejectedError as e:
-        return RejectedCall(code=e.code, message=e.msg, exception=None)
+        return RejectedCall(
+            code=e.code, message=e.msg, user_id=auth_info.user_id if auth_info else None, exception=None
+        )
     except Exception as e:
-        return RejectedCall(code=grpc.StatusCode.INTERNAL, message=UNKNOWN_ERROR_MESSAGE, exception=e)
+        return RejectedCall(
+            code=grpc.StatusCode.INTERNAL,
+            message=UNKNOWN_ERROR_MESSAGE,
+            user_id=auth_info.user_id if auth_info else None,
+            exception=e,
+        )
 
     return AdmittedCall(
         headers=headers,
@@ -452,7 +526,13 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
         # only the handler lookup happens here, the rest waits for the handler thread; see the class docstring
         handler = continuation(handler_call_details)
         if not handler or not (prev_function := handler.unary_unary):
-            return abort_handler(NONEXISTENT_API_CALL_ERROR_MESSAGE, grpc.StatusCode.UNIMPLEMENTED)
+            return _rejected_call_handler(
+                method=method,
+                message=NONEXISTENT_API_CALL_ERROR_MESSAGE,
+                code=grpc.StatusCode.UNIMPLEMENTED,
+                start=start,
+                handler_call_details=handler_call_details,
+            )
 
         def function_without_couchers_stuff(req: Message, grpc_context: grpc.ServicerContext) -> Message | None:
             # accounting for the auth/setup phase; the handler re-arms its own below
@@ -466,6 +546,16 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                     sentry_sdk.set_tag("context", "servicer_setup")
                     sentry_sdk.set_tag("method", method)
                     sentry_sdk.capture_exception(call.exception)
+                # anything unexpected is reported to Sentry first: if the DB is what's broken, logging fails too
+                _log_rejected_call(
+                    method=method,
+                    code=call.code,
+                    start=start,
+                    handler_call_details=handler_call_details,
+                    user_id=call.user_id,
+                    exception=call.exception,
+                    nonexistent_method=call.code == grpc.StatusCode.UNIMPLEMENTED,
+                )
                 grpc_context.abort(call.code, call.message)
 
             observe_in_servicer_setup_histogram(method, read_perf())
