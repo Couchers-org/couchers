@@ -81,9 +81,12 @@ class UserAuthInfo:
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class CouchersHeaders:
-    user_id: str | None
+    # the user id cookie: client-supplied and unauthenticated, only good for spotting a desynced cookie
+    user_id_str: str | None
     token: str | None = field(repr=False)
     sofa: str | None
+    # which mechanism the token came in on, not whether it authenticated: a bad key still reads True here, while
+    # the context's is_api_key is False whenever there's no session at all
     is_api_key: bool
     ip_address: str | None
     user_agent: str | None
@@ -541,7 +544,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
 
             if auth_info and not auth_info.is_api_key:
                 # check the two cookies are in sync & that language preference cookie is correct
-                if headers.user_id != str(auth_info.user_id):
+                if headers.user_id_str != str(auth_info.user_id):
                     couchers_context.set_cookies(
                         create_session_cookies(auth_info.token, auth_info.user_id, auth_info.token_expiry)
                     )
@@ -602,11 +605,11 @@ def parse_headers(headers: Mapping[str, str | bytes]) -> CouchersHeaders:
     )
 
     ui_lang = parse_ui_lang_cookie(headers)
-    user_id = parse_user_id_cookie(headers)
+    user_id_str = parse_user_id_cookie(headers)
     sofa = parse_sofa_cookie(headers)
 
     return CouchersHeaders(
-        user_id=user_id,
+        user_id_str=user_id_str,
         token=token,
         sofa=sofa,
         is_api_key=is_api_key,

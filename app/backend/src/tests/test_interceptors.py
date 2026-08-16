@@ -917,7 +917,7 @@ def test_parse_headers_with_all_optional_headers():
     assert result.ip_address == "192.168.1.1"
     assert result.user_agent == "TestAgent/1.0"
     assert result.ui_lang == "en"
-    assert result.user_id == "42"
+    assert result.user_id_str == "42"
 
 
 def test_parse_headers_with_bytes_ip_address():
