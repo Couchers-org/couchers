@@ -79,10 +79,7 @@ export const simplifyPlaceDisplayName = (place: NominatimPlace) => {
   }
 
   // Administrative region (state/province level)
-  const adminRegion =
-    place.address.state ||
-    place.address.province ||
-    place.address.state_district;
+  const adminRegion = place.address.state || place.address.province || place.address.state_district;
 
   if (adminRegion) {
     addressParts.push(adminRegion);
@@ -177,9 +174,7 @@ export async function search(
     if (error instanceof DOMException && error.name === "AbortError") {
       throw error;
     }
-    throw new NominatimError(
-      error instanceof Error ? error.message : "Geocoding request failed.",
-    );
+    throw new NominatimError(error instanceof Error ? error.message : "Geocoding request failed.");
   }
 
   if (!response.ok) {
