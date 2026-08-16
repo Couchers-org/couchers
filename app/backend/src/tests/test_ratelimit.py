@@ -48,11 +48,16 @@ class BrokenStore:
         raise RuntimeError("valkey down")
 
 
+def _use_store(monkeypatch, store):
+    """Point the rate limiter at this counter store (None meaning none configured)."""
+    monkeypatch.setattr(ratelimit, "_get_store", lambda: store)
+
+
 @pytest.fixture
 def store(monkeypatch):
     """Inject an in-memory counter store, bypassing Valkey."""
     s = InMemoryCounterStore()
-    monkeypatch.setattr(ratelimit, "_store", s)
+    _use_store(monkeypatch, s)
     return s
 
 
@@ -120,7 +125,9 @@ def test_resolve_method_rate_limits_defaults():
 
 
 def test_check_rate_limits_disabled_when_no_store():
-    # default config has no store, so no check runs at all
+    # this is the one test that goes through the real accessor, so it can't reuse another test's store
+    ratelimit._get_store.cache_clear()
+    # default config has no VALKEY_HOST, so no check runs at all
     assert ratelimit.check_rate_limits(AUTHENTICATE, "1.2.3.4", None) is None
 
 
@@ -147,7 +154,7 @@ def test_check_rate_limits_separate_subnets(store):
 
 
 def test_check_rate_limits_store_error(monkeypatch):
-    monkeypatch.setattr(ratelimit, "_store", BrokenStore())
+    _use_store(monkeypatch, BrokenStore())
     captured = []
     monkeypatch.setattr("couchers.ratelimit.sentry_sdk.capture_exception", lambda e: captured.append(e))
     monkeypatch.setattr("couchers.ratelimit.sentry_sdk.set_tag", lambda *a, **k: None)
@@ -161,7 +168,7 @@ def test_check_rate_limits_store_error(monkeypatch):
 
 def test_interceptor_superuser_exempt_when_enforcing(db, feature_flags, monkeypatch):
     feature_flags.set("rate_limiting_enabled", True)
-    monkeypatch.setattr(ratelimit, "_store", AlwaysTripStore())
+    _use_store(monkeypatch, AlwaysTripStore())
     superuser, token = generate_user(is_superuser=True)
 
     # real_api_session, not api_session: only the real server runs the interceptor the limiter lives in
@@ -172,7 +179,7 @@ def test_interceptor_superuser_exempt_when_enforcing(db, feature_flags, monkeypa
 
 def test_interceptor_non_superuser_still_blocked_when_enforcing(db, feature_flags, monkeypatch):
     feature_flags.set("rate_limiting_enabled", True)
-    monkeypatch.setattr(ratelimit, "_store", AlwaysTripStore())
+    _use_store(monkeypatch, AlwaysTripStore())
     _, token = generate_user()
 
     with real_api_session(token) as api:
@@ -183,7 +190,7 @@ def test_interceptor_non_superuser_still_blocked_when_enforcing(db, feature_flag
 
 def test_interceptor_no_store_allows(db, feature_flags, monkeypatch):
     feature_flags.set("rate_limiting_enabled", True)
-    monkeypatch.setattr(ratelimit, "_store", None)
+    _use_store(monkeypatch, None)
     with auth_api_session() as (auth_api, _):
         # no counter store configured → rate limiting is off entirely, even when enabled
         assert auth_api.UsernameValid(auth_pb2.UsernameValidReq(username="test")).valid
@@ -191,7 +198,7 @@ def test_interceptor_no_store_allows(db, feature_flags, monkeypatch):
 
 def test_interceptor_shadow_allows(db, feature_flags, monkeypatch):
     feature_flags.set("rate_limiting_enabled", False)
-    monkeypatch.setattr(ratelimit, "_store", AlwaysTripStore())
+    _use_store(monkeypatch, AlwaysTripStore())
     with auth_api_session() as (auth_api, _):
         # disabled (default) → counted and would-block logged, but the request still succeeds
         assert auth_api.UsernameValid(auth_pb2.UsernameValidReq(username="test")).valid
@@ -199,7 +206,7 @@ def test_interceptor_shadow_allows(db, feature_flags, monkeypatch):
 
 def test_interceptor_enforce_rejects(db, feature_flags, monkeypatch):
     feature_flags.set("rate_limiting_enabled", True)
-    monkeypatch.setattr(ratelimit, "_store", AlwaysTripStore())
+    _use_store(monkeypatch, AlwaysTripStore())
     with auth_api_session() as (auth_api, _):
         with pytest.raises(grpc.RpcError) as e:
             auth_api.UsernameValid(auth_pb2.UsernameValidReq(username="test"))
@@ -208,7 +215,7 @@ def test_interceptor_enforce_rejects(db, feature_flags, monkeypatch):
 
 def test_interceptor_fails_open_when_enforcing(db, feature_flags, monkeypatch):
     feature_flags.set("rate_limiting_enabled", True)
-    monkeypatch.setattr(ratelimit, "_store", BrokenStore())
+    _use_store(monkeypatch, BrokenStore())
     with auth_api_session() as (auth_api, _):
         # a store outage always allows, even while enforcing: it must not become an API outage
         assert auth_api.UsernameValid(auth_pb2.UsernameValidReq(username="test")).valid
@@ -227,7 +234,7 @@ def _metric_value(counter, name: str, **labels: str) -> float:
 
 def test_interceptor_emits_metrics_on_enforce(db, feature_flags, monkeypatch):
     feature_flags.set("rate_limiting_enabled", True)
-    monkeypatch.setattr(ratelimit, "_store", AlwaysTripStore())
+    _use_store(monkeypatch, AlwaysTripStore())
 
     blocked_before = _metric_value(
         metrics.rate_limit_checks_counter,
@@ -322,7 +329,7 @@ def test_valkey_store_does_not_extend_ttl_on_later_increments(valkey_store, valk
 
 
 def test_check_rate_limits_end_to_end_against_valkey(valkey_store, monkeypatch):
-    monkeypatch.setattr(ratelimit, "_store", valkey_store)
+    _use_store(monkeypatch, valkey_store)
     # a /64 unique to this run, so the per-IP counters start clean
     ip = f"2001:db8:{uuid4().hex[:4]}:{uuid4().hex[:4]}::1"
 

@@ -19,6 +19,7 @@ import sentry_sdk
 import valkey
 
 from couchers.config import config
+from couchers.constants import RATE_LIMIT_WINDOW_SECONDS
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.experimentation import get_global_boolean_value
 from couchers.metrics import (
@@ -34,9 +35,6 @@ if TYPE_CHECKING:
     from couchers.interceptors import CouchersHeaders, UserAuthInfo
 
 logger = logging.getLogger(__name__)
-
-# Window length for the fixed-window counters, in seconds.
-_WINDOW_SECONDS = 60
 
 
 @dataclass(frozen=True, slots=True)
@@ -142,25 +140,12 @@ class ValkeyCounterStore:
         return [i - 1 for i in result]
 
 
-# Sentinel distinguishing "not yet built" from "built but disabled (None)".
-class _Unset:
-    pass
-
-
-_store: CounterStore | None | type[_Unset] = _Unset
-
-
-def _build_store() -> CounterStore | None:
+@cache
+def _get_store() -> CounterStore | None:
+    """The process-wide counter store, or None when no store is configured and rate limiting is off."""
     if not config.VALKEY_HOST:
         return None
     return ValkeyCounterStore(config.VALKEY_HOST, config.VALKEY_PORT)
-
-
-def _get_store() -> CounterStore | None:
-    global _store
-    if _store is _Unset:
-        _store = _build_store()
-    return _store  # type: ignore[return-value]
 
 
 def rate_limiting_enabled() -> bool:
@@ -222,14 +207,16 @@ def check_rate_limits(method: str, ip_address: str | None, user_id: int | None) 
         return None
 
     limits = resolve_method_rate_limits(method)
-    bucket = int(time.time() // _WINDOW_SECONDS)
+    bucket = int(time.time() // RATE_LIMIT_WINDOW_SECONDS)
     entries = _build_entries(limits, method, ip_address, user_id, bucket)
 
     start = time.perf_counter_ns()
     try:
         # keys carry their window bucket, so a stale key is only ever read within its own window; we let
         # Valkey expire them a window later as housekeeping
-        tripped_idx = store.incr_and_check([(key, limit) for _, _, key, limit in entries], 2 * _WINDOW_SECONDS)
+        tripped_idx = store.incr_and_check(
+            [(key, limit) for _, _, key, limit in entries], 2 * RATE_LIMIT_WINDOW_SECONDS
+        )
     except Exception as e:
         observe_rate_limit_store_error(type(e).__name__)
         sentry_sdk.set_tag("context", "rate_limiting")
