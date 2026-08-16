@@ -63,8 +63,7 @@ from couchers.utils import (
 
 logger = logging.getLogger(__name__)
 
-# nonexistent method names are arbitrary strings off the wire, so they share one prometheus label rather than
-# spawning one per name; the api_calls row keeps the real one
+# the prometheus label shared by all calls to methods that don't exist
 NONEXISTENT_METHOD_LABEL = "<nonexistent>"
 
 
@@ -354,13 +353,7 @@ def _log_rejected_call(
     exception: Exception | None = None,
     nonexistent_method: bool = False,
 ) -> None:
-    """
-    Log a call rejected during auth/setup.
-
-    No servicer ran, so there is no request or response to store, and the perf numbers cover the auth/setup phase,
-    which is all the work the call did. The headers are parsed again here rather than handed over by the setup code,
-    since parsing is cheap and the call may well have been rejected before it got that far.
-    """
+    """Log a call rejected during auth/setup."""
     try:
         headers: CouchersHeaders | None = parse_headers(dict(handler_call_details.invocation_metadata))
     except BadHeaders:
