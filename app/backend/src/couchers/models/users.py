@@ -42,6 +42,7 @@ from couchers.constants import (
 from couchers.models.activeness_probe import ActivenessProbe
 from couchers.models.base import Base, Geom
 from couchers.models.mod_note import ModNote
+from couchers.models.moderation import ModerationObjectType, ModerationState
 from couchers.models.static import Language, Region, TimezoneArea
 from couchers.utils import get_coordinates, last_active_coarsen, now
 
@@ -104,6 +105,9 @@ class User(Base, kw_only=True):
     """
 
     __tablename__ = "users"
+    __moderation_author_column__ = "id"
+    __moderation_object_type__ = ModerationObjectType.user
+    __moderation_has_own_visibility_mechanism__ = True
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
@@ -192,6 +196,9 @@ class User(Base, kw_only=True):
     banned_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
     shadowed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+
+    moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
+
     is_superuser: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
     is_editor: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
 
@@ -367,6 +374,8 @@ class User(Base, kw_only=True):
     )
 
     public_trips: Mapped[list[PublicTrip]] = relationship(init=False, back_populates="user")
+
+    moderation_state: Mapped[ModerationState] = relationship(init=False)
 
     __table_args__ = (
         # Verified phone numbers should be unique
