@@ -117,9 +117,9 @@ export interface GeocodeSearchOptions {
 export interface GeocodeSearchResult {
   results: GeocodeResult[];
   provider: GeocodeProvider;
-  // Raw provider payload, for telemetry. Only set for Pelias — the telemetry
-  // field is Pelias-shaped, so fallback queries are reported to Sentry instead.
+  // Raw provider payload for `GeolocationSearchInfo` telemetry.
   peliasFeatures?: unknown[];
+  nominatimPlaces?: unknown[];
   // The Pelias failure that caused the fallback, when one happened.
   fallbackCause?: PeliasError;
 }
@@ -132,11 +132,11 @@ async function viaNominatim(
   if (fallbackCause) {
     hasFailedOver = true;
   }
-  const { results } = await nominatim.search(text, {
+  const { results, places } = await nominatim.search(text, {
     language: options.language,
     signal: options.signal,
   });
-  return { results, provider: "nominatim", fallbackCause };
+  return { results, provider: "nominatim", nominatimPlaces: places, fallbackCause };
 }
 
 /**
