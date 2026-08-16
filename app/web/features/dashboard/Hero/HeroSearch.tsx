@@ -5,7 +5,7 @@ import { DASHBOARD } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import { HostingStatus } from "proto/api_pb";
-import { useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { routeToSearch } from "routes";
 import { GeocodeResult } from "utils/hooks";
@@ -34,11 +34,22 @@ export default function HeroSearch() {
   const searchInputId = "hero-search-input";
   const isNativeEmbed = useIsNativeEmbed();
   const [, startTransition] = useTransition();
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const {
     control,
     formState: { errors },
   } = useForm<{ location: GeocodeResult }>({ mode: "onChange" });
+
+  // If navigation is cancelled or fails, unlock the field so the user can retry.
+  // On success this component unmounts, so clearing is unnecessary.
+  useEffect(() => {
+    const handleRouteChangeError = () => setIsNavigating(false);
+    router.events.on("routeChangeError", handleRouteChangeError);
+    return () => {
+      router.events.off("routeChangeError", handleRouteChangeError);
+    };
+  }, [router.events]);
 
   return (
     <StyledSearchBoxContainer>
@@ -74,6 +85,7 @@ export default function HeroSearch() {
           // Destination search only — the result is never persisted, so degraded
           // fallback results are better than no search at all.
           allowFallback
+          isPending={isNavigating}
           onChange={(value) => {
             if (value && value.bbox && value.simplifiedName) {
               const newBbox: Coordinates = [value.bbox[2], value.bbox[3], value.bbox[0], value.bbox[1]];
@@ -84,6 +96,7 @@ export default function HeroSearch() {
                 showEmptyProfile: false,
               });
 
+              setIsNavigating(true);
               // Use startTransition in WebView to allow autocomplete to complete before navigation
               if (isNativeEmbed) {
                 startTransition(() => {

@@ -28,6 +28,7 @@ const renderForm = (
   allowFallback = true,
   showUseMyLocation = false,
   preferCity = false,
+  isPending = false,
 ) => {
   const Form = () => {
     const {
@@ -51,6 +52,7 @@ const renderForm = (
           allowFallback={allowFallback}
           showUseMyLocation={showUseMyLocation}
           preferCity={preferCity}
+          isPending={isPending}
           autocompleteContext="test"
         />
         <input type="submit" aria-label="submit" />
@@ -70,6 +72,14 @@ describe("LocationAutocomplete component", () => {
   });
   afterAll(() => {
     server.close();
+  });
+
+  it("locks the field and shows a spinner while pending", async () => {
+    renderForm("", jest.fn(), false, false, true, false, false, true);
+
+    const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
+    expect(input).toHaveAttribute("readonly");
+    expect(screen.getByRole("progressbar")).toBeVisible();
   });
 
   it("successfully searches and submits", async () => {
