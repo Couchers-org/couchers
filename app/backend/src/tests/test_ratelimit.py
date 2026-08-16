@@ -5,8 +5,9 @@ import grpc
 import pytest
 import valkey
 
-from couchers import metrics, ratelimit
-from couchers.interceptors import CouchersHeaders
+from couchers import metrics
+from couchers.middleware import ratelimit
+from couchers.middleware.interceptors import CouchersHeaders
 from couchers.proto import api_pb2, auth_pb2
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import auth_api_session, real_api_session
@@ -163,8 +164,8 @@ def test_store_error_fails_open(feature_flags, monkeypatch):
     feature_flags.set("rate_limiting_enabled", True)
     _use_store(monkeypatch, BrokenStore())
     captured = []
-    monkeypatch.setattr("couchers.ratelimit.sentry_sdk.capture_exception", lambda e: captured.append(e))
-    monkeypatch.setattr("couchers.ratelimit.sentry_sdk.set_tag", lambda *a, **k: None)
+    monkeypatch.setattr("couchers.middleware.ratelimit.sentry_sdk.capture_exception", lambda e: captured.append(e))
+    monkeypatch.setattr("couchers.middleware.ratelimit.sentry_sdk.set_tag", lambda *a, **k: None)
 
     assert not _limited(AUTHENTICATE, ip="1.2.3.4")
     assert len(captured) == 1

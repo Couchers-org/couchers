@@ -28,6 +28,7 @@ from couchers.config import config
 from couchers.db import session_scope
 from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.materialized_views import ClusterSubscriptionCount
+from couchers.middleware.perf import PerfResult
 from couchers.models import (
     BackgroundJob,
     ClientPlatform,
@@ -53,7 +54,6 @@ from couchers.models.moderation import (
     ModerationVisibility,
 )
 from couchers.models.uploads import PhotoGalleryItem
-from couchers.perf import PerfResult
 
 tracer = trace.get_tracer(__name__)
 
@@ -193,7 +193,7 @@ def observe_in_servicer_setup_errors_counter(method: str, exception_type: str) -
     servicer_setup_errors_counter.labels(method, exception_type).inc()
 
 
-# Per-request resource accounting (see couchers/perf.py), labelled by method only to keep cardinality modest. The
+# Per-request resource accounting (see couchers/middleware/perf.py), labelled by method only to keep cardinality modest. The
 # histogram _sum gives the cost rate per endpoint via rate() (DB-seconds/sec, CPU-seconds/sec); the buckets give the
 # per-call distribution.
 servicer_db_time_histogram: Histogram = Histogram(
@@ -1182,7 +1182,7 @@ def observe_feature_flag_evaluation(flag_key: str, source: str, value: Any) -> N
 
 
 # =============================================================================
-# Rate limiting metrics (see couchers/ratelimit.py)
+# Rate limiting metrics (see couchers/middleware/ratelimit.py)
 # =============================================================================
 
 # "shadowed" = a limit tripped but enforcement is off; "failed_open" = the store was unreachable so nothing

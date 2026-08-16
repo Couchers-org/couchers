@@ -20,7 +20,6 @@ import valkey
 
 from couchers.config import config
 from couchers.constants import RATE_LIMIT_WINDOW_SECONDS
-from couchers.descriptor_pool import get_descriptor_pool
 from couchers.experimentation import get_global_boolean_value
 from couchers.metrics import (
     observe_rate_limit_check,
@@ -28,11 +27,12 @@ from couchers.metrics import (
     observe_rate_limit_store_error,
     observe_rate_limit_trip,
 )
+from couchers.middleware.descriptor_pool import get_descriptor_pool
+from couchers.middleware.proto_annotations import method_extension, optional_field, service_extension, split_method
 from couchers.proto import annotations_pb2
-from couchers.proto_annotations import method_extension, optional_field, service_extension, split_method
 
 if TYPE_CHECKING:
-    from couchers.interceptors import CouchersHeaders, UserAuthInfo
+    from couchers.middleware.interceptors import CouchersHeaders, UserAuthInfo
 
 logger = logging.getLogger(__name__)
 
