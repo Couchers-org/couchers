@@ -113,35 +113,74 @@
       "push": {
         "title": "Nuevo debate: {{title}}",
         "ios_title": "Nuevo debate",
-        "ios_subtitle": "{{title}}"
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} inició el debate en {{group_or_community}}."
       }
     }
   },
   "donation": {
     "received": {
-      "event_description": "Tu donación ha sido recibida"
+      "event_description": "Tu donación ha sido recibida",
+      "push": {
+        "title": "Donación recibida",
+        "ios_title": "Donación recibida",
+        "body": "¡Muchísimas gracias por tu donación de {{amount_with_currency}}!"
+      }
     }
   },
   "email_address": {
     "change": {
-      "event_description": "Se inicia el cambio de correo electrónico"
+      "event_description": "Se inicia el cambio de correo electrónico",
+      "push": {
+        "title": "Cambio de correo electrónico solicitado",
+        "ios_title": "Cambio de correo electrónico solicitado",
+        "body": "Usa el enlace que enviamos a {{email}} para confirmar tu nueva dirección."
+      }
     },
     "verify": {
-      "event_description": "Tu nuevo correo electrónico ha sido verificado"
+      "event_description": "Tu nuevo correo electrónico ha sido verificado",
+      "push": {
+        "title": "Correo electrónico verificado",
+        "ios_title": "Correo electrónico verificado",
+        "body": "Tu nueva dirección de correo electrónico ha sido verificada."
+      }
     }
   },
   "event": {
     "cancel": {
-      "event_description": "Se cancela un evento en el que participas"
+      "event_description": "Se cancela un evento en el que participas",
+      "push": {
+        "title": "Evento cancelado: {{title}}",
+        "ios_title": "Evento cancelado",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} ha cancelado el evento."
+      }
     },
     "comment": {
-      "event_description": "Un usuario comenta en un evento al que asistirás"
+      "event_description": "Un usuario comenta en un evento al que asistirás",
+      "push": {
+        "title": "{{user}} • {{title}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Ha comentado en {{title}}"
+      }
     },
     "create_any": {
-      "event_description": "Un evento se crea en tu comunidad (sin ser revisado por un moderador)"
+      "event_description": "Un evento se crea en tu comunidad (sin ser revisado por un moderador)",
+      "push": {
+        "title": "Nuevo evento: {{title}}",
+        "ios_title": "Nuevo evento",
+        "ios_subtitle": "{{title}}",
+        "body": "El usuario {{user}} ha creado el evento el {{date_and_time}}."
+      }
     },
     "create_approved": {
-      "event_description": "Un evento aprobado por los moderadores se crea en tu comunidad"
+      "event_description": "Un evento aprobado por los moderadores se crea en tu comunidad",
+      "push": {
+        "title": "Nuevo evento: {{title}}",
+        "ios_title": "Nuevo evento",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} te ha invitado al evento del {{date_and_time}}."
+      }
     },
     "delete": {
       "event_description": "Se elimina un evento en el que participas"
