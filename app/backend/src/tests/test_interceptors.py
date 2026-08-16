@@ -25,15 +25,12 @@ from couchers.descriptor_pool import get_descriptor_pool
 from couchers.interceptors import (
     NONEXISTENT_METHOD_LABEL,
     BadHeaders,
-    CallRejectedError,
     CouchersMiddlewareInterceptor,
     ErrorSanitizationInterceptor,
     UserAuthInfo,
     _try_get_and_update_user_details,
     check_permissions,
-    find_auth_level,
     parse_headers,
-    validate_auth_level,
 )
 from couchers.metrics import (
     api_calls_counter,
@@ -45,8 +42,10 @@ from couchers.metrics import (
     servicer_setup_db_time_histogram,
     servicer_setup_errors_counter,
 )
+from couchers.middleware_errors import CallRejectedError
 from couchers.models import APICall, ClientPlatform, User, UserActivity, UserSession
 from couchers.proto import account_pb2, admin_pb2, annotations_pb2, api_pb2, auth_pb2
+from couchers.proto_annotations import find_auth_level, validate_auth_level
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
 from couchers.utils import generate_sofa_cookie, now, parse_sofa_cookie

@@ -44,6 +44,7 @@ services:
       - 1753
     depends_on:
       - postgres
+      - valkey
     healthcheck:
       # fails if any API worker port is down, so a dead/looping worker shows up as unhealthy
       test: ["CMD", "python", "src/healthcheck.py"]
@@ -56,6 +57,18 @@ services:
       - postgres_backend
       - backend_media
       - backend_envoy
+      - backend_valkey
+    dns_search: ""
+  # ephemeral rate limiting counter store; no persistence needed (2-minute TTLs)
+  valkey:
+    image: valkey/valkey:8-alpine
+    restart: always
+    stop_grace_period: 5s
+    command: ["valkey-server", "--save", "", "--appendonly", "no"]
+    expose:
+      - 6379
+    networks:
+      - backend_valkey
     dns_search: ""
   media:
     image: registry.gitlab.com/couchers/couchers/media
@@ -221,5 +234,8 @@ networks:
     driver: bridge
     enable_ipv6: true
   cadvisor_prometheus:
+    driver: bridge
+    enable_ipv6: true
+  backend_valkey:
     driver: bridge
     enable_ipv6: true

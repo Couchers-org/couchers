@@ -16,7 +16,6 @@ from couchers.interceptors import (
     CouchersMiddlewareInterceptor,
     _try_get_and_update_user_details,
     check_permissions,
-    find_auth_level,
 )
 from couchers.proto import (
     account_pb2_grpc,
@@ -51,6 +50,7 @@ from couchers.proto import (
     stripe_pb2_grpc,
     threads_pb2_grpc,
 )
+from couchers.proto_annotations import find_auth_level
 from couchers.servicers.account import Account, Iris
 from couchers.servicers.admin import Admin
 from couchers.servicers.api import API
