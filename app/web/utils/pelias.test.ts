@@ -826,13 +826,55 @@ describe("autocomplete", () => {
     const { results } = await autocomplete("Wall Street");
 
     expect(placeCalled).toBe(false);
-    // Precise mode: matched name, no city collapse, no dedupe.
-    expect(results).toHaveLength(2);
+    // Precise mode: matched name, no city collapse; still dedupe identical labels.
+    expect(results).toHaveLength(1);
     expect(results[0].simplifiedName).toBe(
       "Wall Street, New York, United States",
     );
     expect(results[0].location).toEqual(new LngLat(-74.008, 40.706));
     expect(results[0].bbox[0]).toBeCloseTo(-73.908);
+  });
+
+  it("dedupes identical Paris labels from two sources in precise mode", async () => {
+    server.use(
+      rest.get(AUTOCOMPLETE_URL, (_req, res, ctx) =>
+        res(
+          ctx.json({
+            type: "FeatureCollection",
+            features: [
+              feature({
+                properties: {
+                  gid: "geonames:locality:6455259",
+                  layer: "locality",
+                  label: "Paris, France",
+                  name: "Paris",
+                  locality: "Paris",
+                  region: "Paris",
+                  country: "France",
+                },
+              }),
+              feature({
+                properties: {
+                  gid: "whosonfirst:locality:101751119",
+                  layer: "locality",
+                  label: "Paris, France",
+                  name: "Paris",
+                  locality: "Paris",
+                  region: "Paris",
+                  country: "France",
+                },
+              }),
+            ],
+          }),
+        ),
+      ),
+    );
+
+    const { results, features } = await autocomplete("Paris");
+
+    expect(results.map((r) => r.simplifiedName)).toEqual(["Paris, France"]);
+    expect(results[0].id).toBe("geonames:locality:6455259");
+    expect(features).toHaveLength(2);
   });
 
   it("omits later hits that share a simplified display name", async () => {

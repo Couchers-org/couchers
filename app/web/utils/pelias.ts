@@ -342,9 +342,10 @@ export function normalize(
 
 /**
  * Drop later hits that share a `simplifiedName` with an earlier one (e.g. several
- * Wall Street venues all collapsing to "New York, …"). Keeps first occurrence so
- * order from `reorderPreferCity` / the provider is preserved — equivalent to the
- * old Nominatim `filterDuplicatePlaces` rule.
+ * Wall Street venues all collapsing to "New York, …", or GeoNames + WOF both
+ * "Paris, France"). Keeps first occurrence so order from `reorderPreferCity` /
+ * the provider is preserved — equivalent to the old Nominatim
+ * `filterDuplicatePlaces` rule. Applied in both city and precise autocomplete.
  */
 export function dedupeBySimplifiedName(
   results: GeocodeResult[],
@@ -538,8 +539,7 @@ export interface AutocompleteOptions {
   focus?: FocusPoint;
   // Soft client-side reorder: promote the first city/venue over a leading
   // neighbourhood or macrocounty. Does not pass `layers` to Pelias.
-  // Also: collapse labels to locality, resolve parent area bbox/center, and
-  // dedupe by simplified name (Nominatim-era destination behaviour).
+  // Also: collapse labels to locality and resolve parent area bbox/center.
   preferCity?: boolean;
   signal?: AbortSignal;
 }
@@ -577,8 +577,10 @@ export async function autocomplete(
   const ordered = preferCity ? reorderPreferCity(features) : features;
   const results = await normalizeFeatures(ordered, preferCity, signal);
 
+  // Always drop identical display labels (e.g. GeoNames + WOF both
+  // "Paris, France"), including precise mode. Keep first occurrence.
   return {
-    results: preferCity ? dedupeBySimplifiedName(results) : results,
+    results: dedupeBySimplifiedName(results),
     features,
   };
 }
