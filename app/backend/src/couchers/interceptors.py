@@ -420,8 +420,8 @@ class RejectedCall:
     code: grpc.StatusCode
     message: str
     user_id: int | None
+    # set when setup broke rather than turned the call away, so the caller can report it
     exception: Exception | None
-    """Set when setup broke rather than turned the call away, so the caller can report it."""
 
 
 def admit_call(pool: DescriptorPool, handler_call_details: grpc.HandlerCallDetails) -> AdmittedCall | RejectedCall:
