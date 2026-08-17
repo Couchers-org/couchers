@@ -394,11 +394,10 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
                 )
             statement = statement.where(or_(*author_exists_clauses))
 
-        # Order by time created
         if request.newest_first:
-            statement = statement.order_by(ModerationQueueItem.time_created.desc(), ModerationQueueItem.id.desc())
+            statement = statement.order_by(ModerationQueueItem.id.desc())
         else:
-            statement = statement.order_by(ModerationQueueItem.time_created.asc(), ModerationQueueItem.id.asc())
+            statement = statement.order_by(ModerationQueueItem.id.asc())
 
         queue_items = session.execute(statement.limit(page_size + 1)).scalars().all()
 
@@ -717,7 +716,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
     def ListModerationStates(
         self, request: moderation_pb2.ListModerationStatesReq, context: CouchersContext, session: Session
     ) -> moderation_pb2.ListModerationStatesRes:
-        """Chronological, paginated list of ModerationState rows. Optional author_user_id filter."""
+        """Paginated list of ModerationState rows in id order. Optional author_user_id filter."""
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
 
         statement = select(ModerationState)
@@ -743,9 +742,9 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
             statement = statement.where(or_(*author_exists_clauses))
 
         if request.newest_first:
-            statement = statement.order_by(ModerationState.created.desc(), ModerationState.id.desc())
+            statement = statement.order_by(ModerationState.id.desc())
         else:
-            statement = statement.order_by(ModerationState.created.asc(), ModerationState.id.asc())
+            statement = statement.order_by(ModerationState.id.asc())
 
         states = session.execute(statement.limit(page_size + 1)).scalars().all()
 

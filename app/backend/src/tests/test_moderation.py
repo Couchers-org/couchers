@@ -1351,6 +1351,42 @@ def test_GetModerationQueue_pagination_newest_first(db):
         assert page1_ids.isdisjoint(page2_ids), "Pages should not have overlapping items"
 
 
+def test_GetModerationQueue_pagination_ignores_time_created(db):
+    """Backfilled queue items were given ids out of a separate range, so time_created and id disagree."""
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, normal_token = generate_user()
+    host, _ = generate_user()
+
+    first_state_id = create_test_host_request_with_moderation(normal_token, host.id)
+    create_test_host_request_with_moderation(normal_token, host.id)
+    create_test_host_request_with_moderation(normal_token, host.id)
+
+    with session_scope() as session:
+        item = session.execute(
+            select(ModerationQueueItem).where(ModerationQueueItem.moderation_state_id == first_state_id)
+        ).scalar_one()
+        item.time_created = now() + timedelta(days=1)
+
+    paged_ids = []
+    page_token = ""
+    with real_moderation_session(super_token) as api:
+        while True:
+            res = api.GetModerationQueue(
+                moderation_pb2.GetModerationQueueReq(page_size=2, page_token=page_token, newest_first=True)
+            )
+            paged_ids += [item.queue_item_id for item in res.queue_items]
+            page_token = res.next_page_token
+            if not page_token:
+                break
+
+    with session_scope() as session:
+        expected = list(
+            session.execute(select(ModerationQueueItem.id).order_by(ModerationQueueItem.id.desc())).scalars().all()
+        )
+
+    assert paged_ids == expected
+
+
 def test_GetModerationLog(db):
     """Test getting moderation log for a state via API"""
     super_user, super_token = generate_user(is_superuser=True)
@@ -3464,6 +3500,38 @@ def test_ListModerationStates_pagination(db):
                 break
 
         assert paged_ids == all_ids
+
+
+def test_ListModerationStates_pagination_ignores_created(db):
+    """Backfilled states carry the migration's timestamp, so created and id disagree on their order."""
+    super_user, super_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+
+    first_state_id = create_test_host_request_with_moderation(surfer_token, host.id)
+    create_test_host_request_with_moderation(surfer_token, host.id)
+    create_test_host_request_with_moderation(surfer_token, host.id)
+
+    with session_scope() as session:
+        state = session.execute(select(ModerationState).where(ModerationState.id == first_state_id)).scalar_one()
+        state.created = now() + timedelta(days=1)
+
+    paged_ids = []
+    page_token = ""
+    with real_moderation_session(super_token) as api:
+        while True:
+            res = api.ListModerationStates(
+                moderation_pb2.ListModerationStatesReq(page_size=2, page_token=page_token, newest_first=True)
+            )
+            paged_ids += [s.moderation_state_id for s in res.moderation_states]
+            page_token = res.next_page_token
+            if not page_token:
+                break
+
+    with session_scope() as session:
+        expected = list(session.execute(select(ModerationState.id).order_by(ModerationState.id.desc())).scalars().all())
+
+    assert paged_ids == expected
 
 
 # ============================================================================
