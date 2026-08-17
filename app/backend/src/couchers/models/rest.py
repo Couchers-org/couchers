@@ -75,6 +75,7 @@ class FriendRelationship(Base, kw_only=True):
     __tablename__ = "friend_relationships"
     __moderation_author_column__ = "from_user_id"
     __moderation_object_type__ = ModerationObjectType.friend_request
+    __moderation_has_own_visibility_mechanism__ = False
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
@@ -431,6 +432,7 @@ class Reference(Base, kw_only=True):
     __tablename__ = "references"
     __moderation_author_column__ = "from_user_id"
     __moderation_object_type__ = ModerationObjectType.reference
+    __moderation_has_own_visibility_mechanism__ = False
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     # timezone should always be UTC

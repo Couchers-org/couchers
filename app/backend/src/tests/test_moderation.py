@@ -2,11 +2,13 @@
 Comprehensive tests for the Unified Moderation System (UMS)
 """
 
+import json
 from datetime import datetime, timedelta
 
 import grpc
 import pytest
 from google.protobuf import empty_pb2
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import select
 
 from couchers.config import config
@@ -28,6 +30,7 @@ from couchers.models import (
     ModerationTrigger,
     ModerationVisibility,
     User,
+    get_moderated_models,
 )
 from couchers.moderation.utils import create_moderation
 from couchers.proto import (
@@ -171,6 +174,130 @@ def test_add_to_moderation_queue(db):
             .where(ModerationLog.action == ModerationAction.flag)
         ).scalar_one()
         assert flag_log.queue_item_id == flag.id
+
+
+def test_flag_with_data(db):
+    """A flag can carry a JSON payload"""
+    super_user, super_token = generate_user(is_superuser=True)
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    state_id = create_test_host_request_with_moderation(token1, user2.id)
+
+    with real_moderation_session(super_token) as api:
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=state_id,
+                action=moderation_pb2.MODERATION_ACTION_FLAG,
+                trigger=moderation_pb2.MODERATION_TRIGGER_MACHINE_FLAG,
+                reason="Automod",
+                data=json.dumps({"classifier": "spam", "score": 0.97, "matches": ["buy now"]}),
+            )
+        )
+
+        res = api.GetModerationQueue(
+            moderation_pb2.GetModerationQueueReq(triggers=[moderation_pb2.MODERATION_TRIGGER_MACHINE_FLAG])
+        )
+        assert len(res.queue_items) == 1
+        assert json.loads(res.queue_items[0].data) == {
+            "classifier": "spam",
+            "score": 0.97,
+            "matches": ["buy now"],
+        }
+
+    with session_scope() as session:
+        flag = session.execute(
+            select(ModerationQueueItem)
+            .where(ModerationQueueItem.moderation_state_id == state_id)
+            .where(ModerationQueueItem.trigger == ModerationTrigger.machine_flag)
+        ).scalar_one()
+        assert flag.data == {"classifier": "spam", "score": 0.97, "matches": ["buy now"]}
+
+
+def test_flag_without_data(db):
+    """A flag with no data serializes as an empty string"""
+    super_user, super_token = generate_user(is_superuser=True)
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    state_id = create_test_host_request_with_moderation(token1, user2.id)
+
+    with real_moderation_session(super_token) as api:
+        res = api.GetModerationQueue(moderation_pb2.GetModerationQueueReq())
+        assert len(res.queue_items) == 1
+        assert res.queue_items[0].data == ""
+
+    with session_scope() as session:
+        item = session.execute(
+            select(ModerationQueueItem).where(ModerationQueueItem.moderation_state_id == state_id)
+        ).scalar_one()
+        assert item.data is None
+
+
+def test_flag_with_invalid_data(db):
+    """Flag data must be valid JSON"""
+    super_user, super_token = generate_user(is_superuser=True)
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    state_id = create_test_host_request_with_moderation(token1, user2.id)
+
+    with real_moderation_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.ModerateContent(
+                moderation_pb2.ModerateContentReq(
+                    moderation_state_id=state_id,
+                    action=moderation_pb2.MODERATION_ACTION_FLAG,
+                    trigger=moderation_pb2.MODERATION_TRIGGER_MACHINE_FLAG,
+                    reason="Automod",
+                    data="not json",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "The moderation data must be valid JSON."
+
+
+def test_data_rejected_on_non_flag_action(db):
+    """Data has nowhere to go on actions that don't create a queue item"""
+    super_user, super_token = generate_user(is_superuser=True)
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    state_id = create_test_host_request_with_moderation(token1, user2.id)
+
+    with real_moderation_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.ModerateContent(
+                moderation_pb2.ModerateContentReq(
+                    moderation_state_id=state_id,
+                    action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                    visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+                    reason="Looks fine",
+                    data=json.dumps({"score": 0.1}),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "Moderation data can only be set when flagging."
+
+
+def test_create_moderation_with_data(db):
+    """create_moderation can attach data to the initial review item"""
+    user, _ = generate_user()
+
+    with session_scope() as session:
+        moderation_state = create_moderation(
+            session=session,
+            object_type=ModerationObjectType.host_request,
+            object_id=123,
+            creator_user_id=user.id,
+            data={"classifier": "spam", "score": 0.42},
+        )
+
+        item = session.execute(
+            select(ModerationQueueItem).where(ModerationQueueItem.moderation_state_id == moderation_state.id)
+        ).scalar_one()
+        assert item.trigger == ModerationTrigger.initial_review
+        assert item.data == {"classifier": "spam", "score": 0.42}
 
 
 def test_moderate_content(db):
@@ -1347,6 +1474,42 @@ def test_GetModerationQueue_pagination_newest_first(db):
         page1_ids = {item.moderation_state_id for item in res1.queue_items}
         page2_ids = {item.moderation_state_id for item in res2.queue_items}
         assert page1_ids.isdisjoint(page2_ids), "Pages should not have overlapping items"
+
+
+def test_GetModerationQueue_pagination_ignores_time_created(db):
+    """Backfilled queue items were given ids out of a separate range, so time_created and id disagree."""
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, normal_token = generate_user()
+    host, _ = generate_user()
+
+    first_state_id = create_test_host_request_with_moderation(normal_token, host.id)
+    create_test_host_request_with_moderation(normal_token, host.id)
+    create_test_host_request_with_moderation(normal_token, host.id)
+
+    with session_scope() as session:
+        item = session.execute(
+            select(ModerationQueueItem).where(ModerationQueueItem.moderation_state_id == first_state_id)
+        ).scalar_one()
+        item.time_created = now() + timedelta(days=1)
+
+    paged_ids = []
+    page_token = ""
+    with real_moderation_session(super_token) as api:
+        while True:
+            res = api.GetModerationQueue(
+                moderation_pb2.GetModerationQueueReq(page_size=2, page_token=page_token, newest_first=True)
+            )
+            paged_ids += [item.queue_item_id for item in res.queue_items]
+            page_token = res.next_page_token
+            if not page_token:
+                break
+
+    with session_scope() as session:
+        expected = list(
+            session.execute(select(ModerationQueueItem.id).order_by(ModerationQueueItem.id.desc())).scalars().all()
+        )
+
+    assert paged_ids == expected
 
 
 def test_GetModerationLog(db):
@@ -3379,12 +3542,22 @@ def test_SetUserContentVisibility_from_visibility_unspecified_rejected(db):
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
-def test_ListModerationStates_empty(db):
+def _content_state_ids(res: moderation_pb2.ListModerationStatesRes) -> list[int]:
+    """Every user has a moderation state, so listings mix them in with the content states."""
+    return [
+        s.moderation_state_id
+        for s in res.moderation_states
+        if s.object_type != moderation_pb2.MODERATION_OBJECT_TYPE_USER
+    ]
+
+
+def test_ListModerationStates_with_no_content(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with real_moderation_session(super_token) as api:
         res = api.ListModerationStates(moderation_pb2.ListModerationStatesReq())
-    assert len(res.moderation_states) == 0
+    assert [s.object_id for s in res.moderation_states] == [super_user.id]
+    assert _content_state_ids(res) == []
     assert res.next_page_token == ""
 
 
@@ -3399,10 +3572,10 @@ def test_ListModerationStates_returns_states_chronologically(db):
 
     with real_moderation_session(super_token) as api:
         res = api.ListModerationStates(moderation_pb2.ListModerationStatesReq())
-        assert [s.moderation_state_id for s in res.moderation_states] == [state1_id, state2_id, state3_id]
+        assert _content_state_ids(res) == [state1_id, state2_id, state3_id]
 
         res_newest = api.ListModerationStates(moderation_pb2.ListModerationStatesReq(newest_first=True))
-        assert [s.moderation_state_id for s in res_newest.moderation_states] == [state3_id, state2_id, state1_id]
+        assert _content_state_ids(res_newest) == [state3_id, state2_id, state1_id]
 
 
 def test_ListModerationStates_filter_by_author(db):
@@ -3417,10 +3590,12 @@ def test_ListModerationStates_filter_by_author(db):
 
     with real_moderation_session(super_token) as api:
         res = api.ListModerationStates(moderation_pb2.ListModerationStatesReq(author_user_id=surfer1.id))
-        assert {s.moderation_state_id for s in res.moderation_states} == {state1_id, state3_id}
+        assert set(_content_state_ids(res)) == {state1_id, state3_id}
+        user_states = [s for s in res.moderation_states if s.object_type == moderation_pb2.MODERATION_OBJECT_TYPE_USER]
+        assert [s.object_id for s in user_states] == [surfer1.id]
 
         res = api.ListModerationStates(moderation_pb2.ListModerationStatesReq(author_user_id=surfer2.id))
-        assert [s.moderation_state_id for s in res.moderation_states] == [state2_id]
+        assert _content_state_ids(res) == [state2_id]
 
 
 def test_ListModerationStates_pagination(db):
@@ -3428,15 +3603,255 @@ def test_ListModerationStates_pagination(db):
     surfer, surfer_token = generate_user()
     host, _ = generate_user()
 
-    state_ids = [create_test_host_request_with_moderation(surfer_token, host.id) for _ in range(3)]
+    for _ in range(3):
+        create_test_host_request_with_moderation(surfer_token, host.id)
 
     with real_moderation_session(super_token) as api:
-        res = api.ListModerationStates(moderation_pb2.ListModerationStatesReq(page_size=2))
-        assert [s.moderation_state_id for s in res.moderation_states] == state_ids[:2]
-        assert res.next_page_token != ""
+        # 3 users plus 3 host requests
+        all_ids = [
+            s.moderation_state_id
+            for s in api.ListModerationStates(moderation_pb2.ListModerationStatesReq()).moderation_states
+        ]
+        assert len(all_ids) == 6
 
-        res2 = api.ListModerationStates(
-            moderation_pb2.ListModerationStatesReq(page_size=2, page_token=res.next_page_token)
+        paged_ids = []
+        page_token = ""
+        while True:
+            res = api.ListModerationStates(moderation_pb2.ListModerationStatesReq(page_size=2, page_token=page_token))
+            assert len(res.moderation_states) == 2
+            paged_ids += [s.moderation_state_id for s in res.moderation_states]
+            page_token = res.next_page_token
+            if not page_token:
+                break
+
+        assert paged_ids == all_ids
+
+
+def test_ListModerationStates_pagination_ignores_created(db):
+    """Backfilled states carry the migration's timestamp, so created and id disagree on their order."""
+    super_user, super_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+
+    first_state_id = create_test_host_request_with_moderation(surfer_token, host.id)
+    create_test_host_request_with_moderation(surfer_token, host.id)
+    create_test_host_request_with_moderation(surfer_token, host.id)
+
+    with session_scope() as session:
+        state = session.execute(select(ModerationState).where(ModerationState.id == first_state_id)).scalar_one()
+        state.created = now() + timedelta(days=1)
+
+    paged_ids = []
+    page_token = ""
+    with real_moderation_session(super_token) as api:
+        while True:
+            res = api.ListModerationStates(
+                moderation_pb2.ListModerationStatesReq(page_size=2, page_token=page_token, newest_first=True)
+            )
+            paged_ids += [s.moderation_state_id for s in res.moderation_states]
+            page_token = res.next_page_token
+            if not page_token:
+                break
+
+    with session_scope() as session:
+        expected = list(session.execute(select(ModerationState.id).order_by(ModerationState.id.desc())).scalars().all())
+
+    assert paged_ids == expected
+
+
+# ============================================================================
+# Tests for user account moderation states
+# ============================================================================
+
+
+def test_user_moderation_state_created_with_the_account(db):
+    user, _ = generate_user()
+
+    with session_scope() as session:
+        state = session.execute(
+            select(ModerationState)
+            .where(ModerationState.object_type == ModerationObjectType.user)
+            .where(ModerationState.object_id == user.id)
+        ).scalar_one()
+
+        assert state.visibility is None
+        assert session.execute(select(User.moderation_state_id).where(User.id == user.id)).scalar_one() == state.id
+
+        log_entries = (
+            session.execute(select(ModerationLog).where(ModerationLog.moderation_state_id == state.id)).scalars().all()
         )
-        assert [s.moderation_state_id for s in res2.moderation_states] == [state_ids[2]]
-        assert res2.next_page_token == ""
+        assert len(log_entries) == 1
+        assert log_entries[0].action == ModerationAction.create
+        assert log_entries[0].moderator_user_id == user.id
+
+        queue_items = (
+            session.execute(select(ModerationQueueItem).where(ModerationQueueItem.moderation_state_id == state.id))
+            .scalars()
+            .all()
+        )
+        assert queue_items == []
+
+
+def test_GetModerationState_for_user(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user, _ = generate_user()
+
+    with real_moderation_session(super_token) as api:
+        state = api.GetModerationState(
+            moderation_pb2.GetModerationStateReq(
+                object_type=moderation_pb2.MODERATION_OBJECT_TYPE_USER,
+                object_id=user.id,
+            )
+        ).moderation_state
+        assert state.object_type == moderation_pb2.MODERATION_OBJECT_TYPE_USER
+        assert state.object_id == user.id
+        assert state.author_user_id == user.id
+        assert state.author.user_id == user.id
+        assert state.content == f"@{user.username} / {user.id}"
+        assert state.visibility == moderation_pb2.MODERATION_VISIBILITY_UNSPECIFIED
+
+
+def test_GetModerationState_for_nonexistent_user(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    with real_moderation_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetModerationState(
+                moderation_pb2.GetModerationStateReq(
+                    object_type=moderation_pb2.MODERATION_OBJECT_TYPE_USER,
+                    object_id=999999,
+                )
+            )
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+
+def test_flag_user_shows_up_in_queue_and_author_filters(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+    other, _ = generate_user()
+
+    content_state_id = create_test_host_request_with_moderation(surfer_token, host.id)
+
+    with real_moderation_session(super_token) as api:
+        user_state_id = api.GetModerationState(
+            moderation_pb2.GetModerationStateReq(
+                object_type=moderation_pb2.MODERATION_OBJECT_TYPE_USER,
+                object_id=surfer.id,
+            )
+        ).moderation_state.moderation_state_id
+
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=user_state_id,
+                action=moderation_pb2.MODERATION_ACTION_FLAG,
+                trigger=moderation_pb2.MODERATION_TRIGGER_USER_FLAG,
+                reason="Reported for spamming hosts",
+            )
+        )
+
+        res = api.GetModerationQueue(moderation_pb2.GetModerationQueueReq(item_author_user_id=surfer.id))
+        assert {item.moderation_state_id for item in res.queue_items} == {content_state_id, user_state_id}
+        user_item = next(item for item in res.queue_items if item.moderation_state_id == user_state_id)
+        assert user_item.trigger == moderation_pb2.MODERATION_TRIGGER_USER_FLAG
+        assert user_item.reason == "Reported for spamming hosts"
+        assert user_item.moderation_state.author.user_id == surfer.id
+
+        res = api.GetModerationQueue(moderation_pb2.GetModerationQueueReq(item_author_user_id=other.id))
+        assert len(res.queue_items) == 0
+
+        res = api.ListModerationStates(moderation_pb2.ListModerationStatesReq(author_user_id=surfer.id))
+        assert {s.moderation_state_id for s in res.moderation_states} == {content_state_id, user_state_id}
+
+        res = api.ListModerationStates(moderation_pb2.ListModerationStatesReq(author_user_id=other.id))
+        assert [s.object_id for s in res.moderation_states] == [other.id]
+
+
+@pytest.mark.parametrize("action", [moderation_pb2.MODERATION_ACTION_APPROVE, moderation_pb2.MODERATION_ACTION_HIDE])
+def test_ModerateContent_cannot_set_visibility_on_user_state(db, action):
+    super_user, super_token = generate_user(is_superuser=True)
+    user, _ = generate_user()
+
+    with real_moderation_session(super_token) as api:
+        user_state_id = api.GetModerationState(
+            moderation_pb2.GetModerationStateReq(
+                object_type=moderation_pb2.MODERATION_OBJECT_TYPE_USER,
+                object_id=user.id,
+            )
+        ).moderation_state.moderation_state_id
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.ModerateContent(
+                moderation_pb2.ModerateContentReq(
+                    moderation_state_id=user_state_id,
+                    action=action,
+                    visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
+                )
+            )
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+    with session_scope() as session:
+        state = session.execute(select(ModerationState).where(ModerationState.id == user_state_id)).scalar_one()
+        assert state.visibility is None
+
+
+def test_SetUserContentVisibility_leaves_user_state_alone(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+
+    content_state_id = create_test_host_request_with_moderation(surfer_token, host.id)
+
+    with real_moderation_session(super_token) as api:
+        user_state_id = api.GetModerationState(
+            moderation_pb2.GetModerationStateReq(
+                object_type=moderation_pb2.MODERATION_OBJECT_TYPE_USER,
+                object_id=surfer.id,
+            )
+        ).moderation_state.moderation_state_id
+
+        res = api.SetUserContentVisibility(
+            moderation_pb2.SetUserContentVisibilityReq(
+                user_id=surfer.id,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
+            )
+        )
+        assert res.updated_count == 1
+
+    with session_scope() as session:
+        content_state = session.execute(
+            select(ModerationState).where(ModerationState.id == content_state_id)
+        ).scalar_one()
+        assert content_state.visibility == ModerationVisibility.hidden
+
+        user_state = session.execute(select(ModerationState).where(ModerationState.id == user_state_id)).scalar_one()
+        assert user_state.visibility is None
+
+
+# ============================================================================
+# Tests for the moderation model metadata
+# ============================================================================
+
+
+def test_every_object_type_has_a_model():
+    """A type in the enum with no model behind it is accepted everywhere and understood nowhere."""
+    assert set(get_moderated_models()) == set(ModerationObjectType)
+
+
+@pytest.mark.parametrize("object_type", list(ModerationObjectType))
+def test_visibility_check_constraint_matches_the_models(db, object_type):
+    """The check constraint spells out the types with their own visibility mechanism; this makes sure it agrees with the models."""
+    has_own_visibility_mechanism = get_moderated_models()[object_type].has_own_visibility_mechanism
+
+    def add_state(object_id: int, visibility: ModerationVisibility | None) -> None:
+        with session_scope() as session:
+            session.add(ModerationState(object_type=object_type, object_id=object_id, visibility=visibility))
+
+    if has_own_visibility_mechanism:
+        add_state(1, None)
+        with pytest.raises(IntegrityError):
+            add_state(2, ModerationVisibility.visible)
+    else:
+        add_state(1, ModerationVisibility.visible)
+        with pytest.raises(IntegrityError):
+            add_state(2, None)

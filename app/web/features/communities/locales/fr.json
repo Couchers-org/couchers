@@ -2,7 +2,6 @@
   "by_creator": "écrit par {{name}}",
   "cancel_event": "Annuler l'événement",
   "show_cancelled_events": "Montrer les événements annulés",
-  "cancel_event_success_message": "L'événement a été annulé avec succès.",
   "cancel_event_dialog": {
     "title": "Annuleer l'événement ?",
     "message": "Êtes-vous sûr d'annuler cet événement ?"
@@ -46,11 +45,8 @@
   "invalid_community_id": "Identifiant de communauté invalide.",
   "load_more_moderators": "Charger plus d'organisateurs.trices de la communauté",
   "local_info_title": "À propos de {{name}}",
-  "more_replies": "Plus de réponses...",
-  "more_tips": "Plus de conseils et d'information",
   "new_discussion_title": "Titre de la discussion",
   "new_discussion_topic": "Sujet de la discussion",
-  "new_discussion_topic_placeholder": "Créer un nouveau sujet de discussion - par exemple, mon souvenir préféré à Amsterdam était...",
   "my_communities": "Mes communautés",
   "page_content_field_label": "Contenu de la page",
   "page_content_required": "Veuillez remplir le contenu de la page",
@@ -70,6 +66,5 @@
   "date_required": "Veuillez entrer une date.",
   "end_time_error": "L'heure de fin de l'événement doit être après l'heure de début.",
   "time_required": "Veuillez entrer une heure.",
-  "find_host": "Trouver un.e hôte",
   "community_info_page_title": "Information générale"
 }

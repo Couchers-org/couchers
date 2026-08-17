@@ -1,19 +1,12 @@
 {
   "dashboard": "Dashboard",
-  "please_complete_profile": "Please complete your profile and ensure you show up in search:",
-  "fill_in_who_i_am": "1. Fill in your \"Who I am\" section with a few sentences about yourself",
-  "upload_photo": "2. Upload a photo (by clicking on the avatar on the edit page)",
-  "complete_profile_explanation": "Don't you hate how other platforms have empty \"ghost\" profiles with no information. Please don't ghost us! 👻👻👻",
   "your_communities_heading": "Your communities",
-  "all_communities_heading": "All communities",
   "no_community": "You are not currently in a community.",
   "no_sub_communities": "No sub-communities.",
   "load_more": "Load more",
   "welcome": "Welcome to Couchers.org!",
   "new_pill": "New",
-  "landing_text": "We are building new <featuresLink>features</featuresLink> like events, local guides, moderation and hangouts. We appreciate your patience and <supportLink>support</supportLink> as we develop these.",
   "your_communities_helper_text": "You have been added to all communities based on your location. Feel free to <browseCommunitiesLink>browse and join communities</browseCommunitiesLink> in other locations as well.",
-  "community_builder_form_text": "Start your own local community",
   "communities_welcome_title": "Welcome to Communities",
   "communities_intro": "To help people around the world organize events, discussions, and meetups locally, we created community pages, which are listed below. <strong>You have automatically been added to some communities based on your location, but you can join any community!</strong> Your communities are listed on the dashboard.",
   "community_builder": "Want to be an ambassador for your community and help it grow? Become a <communityBuilderLink>Community Builder!</communityBuilderLink>",
@@ -26,9 +19,6 @@
   "browse_communities_text": "Click on a region name to see the other communities within it below. Click on link to go to that city or region's community page.",
   "show_all_communities": "Show all communities",
   "hide_all_communities": "Hide all communities",
-  "all_communities_section": "All Communities",
-  "all_communities_intro": "Below you can browse all community pages that exist so far. <strong>Click on a community name to see the other communities within it.</strong>",
-  "community_missing": "Is your country or city missing? Use <requestCommunityLink>this form </requestCommunityLink> to request it!",
   "member_count_one": "{{count}} member",
   "member_count_other": "{{count}} members",
   "profile_summary_edit": "Edit Profile",
@@ -52,7 +42,6 @@
   },
   "events": {
     "your_upcoming_header": "Your upcoming events",
-    "see_all_link": "See all →",
     "your_upcoming_empty_message": "No events at the moment. Why don't you <createEventLink>create</createEventLink> one ✨?",
     "community_header": "Events in your communities",
     "today_label": "Today"
@@ -61,8 +50,6 @@
     "my_trips_header": "Your public trips",
     "manage_link": "Manage",
     "when_now": "Now",
-    "when_today": "Today",
-    "when_tomorrow": "Tomorrow",
     "empty_description": "Heading somewhere? Post a public trip in a community to receive offers from nearby hosts.",
     "same_gender_only_indicator": "Same gender",
     "offers_count_one": "{{count}} offer",
@@ -109,10 +96,6 @@
       "description": "{{name}} has accepted your request. Confirm your stay to lock it in.",
       "button": "Confirm stay"
     },
-    "carousel_dismiss_button_a11y": "Dismiss reminder",
-    "carousel_scroller": {
-      "left_arrow_a11y": "Scroll left",
-      "right_arrow_a11y": "Scroll right"
-    }
+    "carousel_dismiss_button_a11y": "Dismiss reminder"
   }
 }

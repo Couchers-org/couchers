@@ -182,9 +182,6 @@
   },
   "respond_box_title": "Stuur een reactie",
   "respond_box_description": "Selecteer een reactie om het {{name}} meteen te laten weten. Je kan daarna ook een berichtje sturen.",
-  "status_bar_edit_button": "Bewerken",
-  "status_bar_cancel_edit_button": "Annuleren",
-  "status_bar_close_button": "Sluiten",
   "surfer_bar_pending": "Je hebt een hostverzoek gestuurd — wacht op een reactie van {{name}}.",
   "cancel_request_button": "Verzoek annuleren",
   "cancel_request_dialog_title": "Verzoek annuleren?",
@@ -192,7 +189,6 @@
   "cancel_request_dialog_confirm_button": "Ja, annuleren",
   "cancel_request_dialog_dismiss_button": "Nee",
   "private_feedback_card": {
-    "title": "Feedback over dit verzoek",
     "quality_label": "Beoordeel dit verzoek privé (optioneel):",
     "quality_high": "Hoge kwaliteit",
     "quality_okay": "Oké",
@@ -201,8 +197,6 @@
     "reason_other_placeholder": "Vertel ons alsjeblieft wat meer...",
     "privacy_notice": "Je reacties zijn privé en worden niet gedeeld met de gebruiker. We kunnen ze geanonimiseerd, samen met andere reacties, gebruiken om de feedback voor iedereen te verbeteren.",
     "skip_button": "Overslaan",
-    "next_button": "Volgende",
-    "back_button": "Terug",
     "submit_button": "Sturen",
     "decline_reason_options": {
       "didnt_read_profile": "Heeft mijn profiel niet gelezen",

@@ -1,6 +1,5 @@
 {
   "show_cancelled_events": "İptal olmuş etkinlikleri göster",
-  "cancel_event_success_message": "Bu etkinlik başarılı bir şekilde iptal edildi.",
   "cancel_event_dialog": {
     "title": "Etkinliği iptal et?",
     "message": "Bu etkinliği iptal etmek istediğine emin misin?"
@@ -23,7 +22,6 @@
   "create_new_discussion_title": "Yeni gönderi oluştur",
   "edit_event": "Etkinliği düzenle",
   "edit_info_page_title": "Yerel bilgi düzenle",
-  "find_host": "Ev sahibi ara",
   "finished": "Bitti",
   "comments_count": "{{count}} | Yorum",
   "community_image_input_alt": "Topluluk görsel girişi",
@@ -47,9 +45,7 @@
   "see_all_moderators": "Tüm Topluluk Mimarlarını gör",
   "see_more_discussions_label": "Daha fazla tartışma göster",
   "see_more_information": "Daha fazla bilgi gör",
-  "see_more_places_label": "Daha fazla yer gör",
   "unknown_user": "Bilinmeyen kullanıcı",
-  "upload_image": "Resim yükle",
   "details_subheading_colon": "Detaylar:",
   "details_subheading": "Detaylar",
   "write_comment_a11y_label": "Bir yorum yaz",
@@ -61,7 +57,6 @@
   "date_required": "Lütfen bir tarih girin.",
   "time_required": "Lütfen bir zaman girin.",
   "end_date": "Bitiş tarihi",
-  "load_more_attendees": "Daha fazla katılımcı yükle",
   "invalid_time": "Saat 24 saat formatında SS:DD olmalıdır.",
   "load_more_organizers": "Daha fazla organizatör yükle",
   "location": "Konum",
@@ -81,6 +76,5 @@
   "my_communities": "Topluluklarım",
   "overview_label": "Genel Bakış",
   "page_content_field_label": "Sayfa içeriği",
-  "page_content_required": "Lütfen sayfa içeriğini doldurun",
-  "places_empty_state": "Henüz gösterilecek yer yok."
+  "page_content_required": "Lütfen sayfa içeriğini doldurun"
 }

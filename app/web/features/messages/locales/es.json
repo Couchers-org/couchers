@@ -183,9 +183,6 @@
   },
   "respond_box_title": "Envía una respuesta",
   "respond_box_description": "Selecciona una respuesta para avisar a {{name}} de inmediato. Posteriormente si quieres podrás enviarle un mensaje.",
-  "status_bar_edit_button": "Editar",
-  "status_bar_cancel_edit_button": "Cancelar",
-  "status_bar_close_button": "Cerrar",
   "surfer_bar_pending": "Enviaste una solicitud de anfitrión: esperando a que {{name}} responda.",
   "cancel_request_button": "Cancelar solicitud",
   "cancel_request_dialog_title": "¿Cancelar solicitud?",
@@ -193,7 +190,6 @@
   "cancel_request_dialog_confirm_button": "Si, cancelar",
   "cancel_request_dialog_dismiss_button": "No",
   "private_feedback_card": {
-    "title": "Comentarios sobre esta solicitud",
     "quality_label": "Califica esta solicitud de forma privada (Opcional):",
     "quality_high": "Excelente",
     "quality_okay": "Buena",
@@ -208,8 +204,6 @@
     "reason_other_placeholder": "Cuéntanos más...",
     "privacy_notice": "Tus respuestas son privadas y no se compartirán con el usuario. Es posible que las utilicemos de forma agregada y anónima -combinadas con muchas otras- para mejorar la retroalimentación de todos los usuarios.",
     "skip_button": "Saltar",
-    "next_button": "Siguiente",
-    "back_button": "Atrás",
     "submit_button": "Enviar"
   },
   "surfer_confirm_box_title": "¡{{name}} ha aceptado tu solicitud!",

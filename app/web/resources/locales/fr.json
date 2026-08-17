@@ -73,7 +73,6 @@
   },
   "report": {
     "flag": {
-      "success": "Nous vous remercions pour votre signalement et pour rendre Couchers une meilleure plateforme pour tous et pour toutes !",
       "reason": {
         "dating": "Flirting ou comportements des applications de rencontres ou similaire",
         "external": "Incident en dehors de la plateforme",
@@ -267,7 +266,6 @@
     "select_button_a11y": "Sélectionner une image",
     "read_file_error_message": "Fichier non lisible"
   },
-  "contribute_title": "S'enregistrer pour contribuer",
   "reply": "Répondre",
   "yes": "Oui",
   "no": "Non",

@@ -114,7 +114,6 @@
     "about_me_subtitle": "Racconta agli altri qualcosa di te. È da qui che inizia la fiducia. Aiuta gli altri a farsi un'idea di chi sei veramente. Guarda i <guideLink>consigli per creare un profilo super</guideLink>.",
     "travel_experience_subtitle": "Condividi le tue esperienze di viaggio e le tue connessioni"
   },
-  "edit_profile_name_required": "Il nome è necessario",
   "edit_home_questions": {
     "accept_pets": "Ospita persone con animali domestici",
     "accept_kids": "Ospita persone con bambini",
@@ -150,10 +149,6 @@
   "info_unanswered": "Chiedimi",
   "connection_pending": "In attesa",
   "cancel": "Annulla",
-  "more_profile_actions": "...",
-  "report_details": "Dettagli",
-  "report_reason": "Motivo",
-  "report_user": "Segnala questo utente",
   "leave_reference": {
     "appropriate_question": "Il comportamento di questa persona è stato appropriato?",
     "did_stay_confirmation": {
@@ -234,7 +229,6 @@
   "unspecified_info": "-",
   "edit_profile_tab_bar_a11y_label": "schede per modificare diverse parti del tuo profilo",
   "open_full_profile": "Apri profilo completo",
-  "more_profile_actions_a11y_text": "Altre azioni del profilo",
   "request_form": {
     "send_request": "Invia una richiesta a {{name}}",
     "guide_link_help_text": "<guideLink>Leggi la nostra guida</guideLink> su come scrivere una richiesta che possa essere accettata.",
@@ -256,8 +250,7 @@
     "message": "Messaggio",
     "message_description": "Scrivi il tuo messaggio...",
     "message_empty": "Per favore scrivi un messaggio.",
-    "hosting_request_hint": "Vuoi offrire ospitalità? Usa il pulsante <request>Richiesta</request>.",
-    "success": "Messaggio inviato!"
+    "hosting_request_hint": "Vuoi offrire ospitalità? Usa il pulsante <request>Richiesta</request>."
   },
   "reference_filter_label": {
     "friend": "Dagli amici",

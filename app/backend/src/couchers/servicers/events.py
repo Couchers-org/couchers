@@ -779,6 +779,13 @@ class Events(events_pb2_grpc.EventsServicer):
         if end_datetime != occurrence.end_time:
             notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_END_TIME)
 
+        if request.update_all_future and (
+            start_datetime != occurrence.start_time or end_datetime != occurrence.end_time
+        ):
+            # Not implemented: every future occurrence would need its own times, rechecked against the others.
+            # Writing this one range to all of them violates the exclusion constraint on (event_id, during).
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_cant_update_all_times")
+
         if start_datetime != occurrence.start_time or end_datetime != occurrence.end_time:
             _check_occurrence_time_validity(start_datetime, end_datetime, context)
 
@@ -808,6 +815,8 @@ class Events(events_pb2_grpc.EventsServicer):
         if request.update_all_future:
             session.execute(
                 update(EventOccurrence)
+                .where(EventOccurrence.event_id == event.id)
+                .where(~EventOccurrence.is_deleted)
                 .where(EventOccurrence.end_time >= cutoff_time)
                 .where(EventOccurrence.start_time >= occurrence.start_time)
                 .values(occurrence_update)
@@ -1406,5 +1415,5 @@ class Events(events_pb2_grpc.EventsServicer):
         _, occurrence_db = res
 
         event_pb = event_to_pb(session, occurrence_db, context)
-        ics_data = create_event_ics_calendar(event_pb, context.localization).serialize().encode("utf-8")
+        ics_data = create_event_ics_calendar(event_pb, context.localization).to_ical()
         return httpbody_pb2.HttpBody(content_type="text/calendar", data=ics_data)

@@ -106,7 +106,6 @@
     "travel_experience_subtitle": "compartilhe suas experiências de viagens e conexões",
     "location_subtitle": "Localização aproximada da sua casa"
   },
-  "edit_profile_name_required": "Nome obrigatório",
   "edit_home_questions": {
     "accept_drinking": "Tudo bem que as pessoas bebam",
     "accept_pets": "Hospeda pessoas com pets",
@@ -143,11 +142,6 @@
   "edit_profile_tab_bar_a11y_label": "abas para editar diferentes partes do seu perfil",
   "info_unanswered": "Pergunte para mim",
   "connection_pending": "Pendente",
-  "more_profile_actions": "...",
-  "more_profile_actions_a11y_text": "Mais ações do perfil",
-  "report_details": "Detalhes",
-  "report_reason": "Motivo",
-  "report_user": "Reportar este usuário",
   "leave_reference": {
     "add_a_reference": "Deixe uma referência no perfil de {{name}}",
     "appropriate_explanation": "Seu feedback privado nesta página, e sua referência pública na próxima página, são cruciais para manter a comunidade segura, confiável e acolhedora. Agradecemos por fazer a sua parte para ajudar a comunidade!",
@@ -235,8 +229,7 @@
     "send_message": "Enviar uma mensagem para {{name}}",
     "message": "Mensagem",
     "message_description": "Escreva sua mensagem...",
-    "message_empty": "Escreva uma mensagem.",
-    "success": "Mensagem enviada!"
+    "message_empty": "Escreva uma mensagem."
   },
   "reference_filter_label": {
     "friend": "De amigos",

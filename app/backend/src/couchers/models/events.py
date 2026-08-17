@@ -114,6 +114,7 @@ class EventOccurrence(Base, kw_only=True):
     __tablename__ = "event_occurrences"
     __moderation_author_column__ = "creator_user_id"
     __moderation_object_type__ = ModerationObjectType.event_occurrence
+    __moderation_has_own_visibility_mechanism__ = False
 
     id: Mapped[int] = mapped_column(
         BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value(), init=False

@@ -170,7 +170,6 @@
     },
     "missing_token": "Chyba: chybí token"
   },
-  "about_us": "O nás",
   "reset_password": "Resetovat heslo",
   "change_phone": {
     "phone_label": "Tvé telefonní číslo",
@@ -322,8 +321,7 @@
         "heading": "Než začneš",
         "nfc_check": "Telefon musí mít <strong>podporu NFC</strong> — většina moderních telefonů ji má. NFC bývá standardně zapnuté, ale u některých starších telefonů ho možná budeš muset povolit v nastavení telefonu.",
         "passport_check": "Pas musí být <strong>biometrický pas</strong> — hledej na obálce zlatý symbol čipu. Starší pasy bez tohoto symbolu nebudou fungovat.",
-        "remove_case": "<strong>Před zahájením sejmi z telefonu kryt</strong> — i tenké kryty mohou blokovat NFC signál a způsobit selhání načtení.",
-        "passport_symbol_alt": "Symbol biometrického pasu"
+        "remove_case": "<strong>Před zahájením sejmi z telefonu kryt</strong> — i tenké kryty mohou blokovat NFC signál a způsobit selhání načtení."
       },
       "didnt_work": {
         "heading": "Nejde to?",

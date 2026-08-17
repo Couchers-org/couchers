@@ -134,7 +134,6 @@
     "paid_onsite": "Betaald parkeren bij huis",
     "paid_offsite": "Betaald parkeren in de buurt"
   },
-  "edit_profile_name_required": "Naam verplicht",
   "reference_amounts": {
     "count_references_one": "{{count}} referentie",
     "count_references_other": "{{count}} referenties",
@@ -148,11 +147,6 @@
   "edit_profile_tab_bar_a11y_label": "tabs om verschillende delen van je profiel te bewerken",
   "info_unanswered": "Vraag me",
   "connection_pending": "In afwachting",
-  "more_profile_actions": "...",
-  "more_profile_actions_a11y_text": "Meer profielacties",
-  "report_details": "Details",
-  "report_reason": "Reden",
-  "report_user": "Meld deze gebruiker",
   "leave_reference": {
     "add_a_reference": "Voeg een referentie toe op het profiel van {{name}}",
     "appropriate_question": "Voelde je je veilig bij het gedrag van deze persoon?",
@@ -239,8 +233,7 @@
     "send_message": "Stuur {{name}} een bericht",
     "message": "Bericht",
     "message_description": "Schrijf je bericht...",
-    "message_empty": "Schrijf alsjeblieft een bericht.",
-    "success": "Bericht verzonden!"
+    "message_empty": "Schrijf alsjeblieft een bericht."
   },
   "reference_filter_label": {
     "friend": "Van vrienden",
