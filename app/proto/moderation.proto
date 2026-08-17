@@ -92,6 +92,7 @@ message ModerationQueueItemInfo {
   int64 resolved_by_log_id = 7;
   ModerationStateInfo moderation_state = 8;
   int32 priority = 9;
+  string data = 10;  // optional JSON payload
 }
 
 message ModerationLogEntryInfo {
@@ -171,6 +172,8 @@ message ModerateContentReq {
   int64 supersede_queue_item_id = 8;
   // For APPROVE / HIDE: also resolve all open flags on the state
   bool clear_flags = 9;
+  // For FLAG: JSON object stored on the new flag
+  string data = 10;
 }
 
 message ModerateContentRes {

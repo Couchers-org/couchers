@@ -1,3 +1,4 @@
+import json
 import logging
 
 import grpc
@@ -419,6 +420,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
                 resolved_by_log_id=item.resolved_by_log_id or 0,
                 moderation_state=moderation_state_to_pb(mod_state, session),
                 priority=item.priority,
+                data=json.dumps(item.data) if item.data is not None else "",
             )
 
             queue_items_pb.append(queue_item_pb)
@@ -523,6 +525,15 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
         reason = request.reason or "Moderated by admin"
         object_type = moderation_state.object_type
 
+        data = None
+        if request.data.strip():
+            if action != ModerationAction.flag:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:data_only_allowed_on_flag")
+            try:
+                data = json.loads(request.data)
+            except json.JSONDecodeError:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:data_must_be_valid_json")
+
         if action in (ModerationAction.approve, ModerationAction.hide):
             if get_moderated_models()[object_type].has_own_visibility_mechanism:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:cannot_set_visibility_on_state")
@@ -575,6 +586,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
                 trigger=trigger,
                 reason=reason,
                 priority=request.priority,
+                data=data,
             )
             session.add(queue_item)
             session.flush()

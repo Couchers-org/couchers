@@ -9,7 +9,7 @@ import enum
 from dataclasses import dataclass
 from datetime import datetime
 from functools import cache
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 
 from sqlalchemy import (
     BigInteger,
@@ -23,6 +23,7 @@ from sqlalchemy import (
     String,
     func,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from couchers.models.base import Base, moderation_seq
@@ -151,6 +152,8 @@ class ModerationQueueItem(Base, kw_only=True):
     reason: Mapped[str] = mapped_column(String)
 
     priority: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0", default=0)
+
+    data: Mapped[Any | None] = mapped_column(JSONB(none_as_null=True), default=None)
 
     # When resolved, this links to the log entry that resolved it
     resolved_by_log_id: Mapped[int | None] = mapped_column(ForeignKey("moderation_log.id"), index=True, default=None)
