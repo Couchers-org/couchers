@@ -31,7 +31,6 @@ from couchers.metrics import (
     servicer_setup_db_time_histogram,
     servicer_setup_errors_counter,
 )
-from couchers.middleware.descriptor_pool import get_descriptor_pool
 from couchers.middleware.errors import CallRejectedError
 from couchers.middleware.interceptors import (
     NONEXISTENT_METHOD_LABEL,
@@ -43,7 +42,7 @@ from couchers.middleware.interceptors import (
     check_permissions,
     parse_headers,
 )
-from couchers.middleware.proto_annotations import find_auth_level, validate_auth_level
+from couchers.middleware.proto_annotations import ProtoAnnotations, get_proto_annotations, validate_auth_level
 from couchers.models import APICall, ClientPlatform, User, UserActivity, UserSession
 from couchers.proto import account_pb2, admin_pb2, annotations_pb2, api_pb2, auth_pb2
 from couchers.servicers.account import Account
@@ -1140,23 +1139,19 @@ def test_parse_headers_malformed_authorization():
     assert result.is_api_key is True
 
 
-def test_find_auth_level_with_valid_service():
-    pool = get_descriptor_pool()
-
-    result = find_auth_level(pool, "/org.couchers.api.core.API/GetUser")
+def test_auth_level_with_valid_service():
+    result = get_proto_annotations().auth_level("/org.couchers.api.core.API/GetUser")
     assert result == annotations_pb2.AUTH_LEVEL_SECURE
 
 
-def test_find_auth_level_with_nonexistent_service():
-    pool = get_descriptor_pool()
-
+def test_auth_level_with_nonexistent_service():
     with pytest.raises(CallRejectedError) as exc:
-        find_auth_level(pool, "/org.couchers.nonexistent.Service/Method")
+        get_proto_annotations().auth_level("/org.couchers.nonexistent.Service/Method")
     assert exc.value.msg == NONEXISTENT_API_CALL_ERROR_MESSAGE
     assert exc.value.code == grpc.StatusCode.UNIMPLEMENTED
 
 
-def test_find_auth_level_with_unknown_auth_level():
+def test_auth_level_with_unknown_auth_level():
     pool = Mock(spec=DescriptorPool)
     service_desc = Mock(spec=ServiceDescriptor)
     service_options = Mock()
@@ -1165,7 +1160,7 @@ def test_find_auth_level_with_unknown_auth_level():
     pool.FindServiceByName.return_value = service_desc
 
     with pytest.raises(CallRejectedError) as exc:
-        find_auth_level(pool, "/org.couchers.api.core.API/GetUser")
+        ProtoAnnotations(pool).auth_level("/org.couchers.api.core.API/GetUser")
     assert exc.value.msg == MISSING_AUTH_LEVEL_ERROR_MESSAGE
     assert exc.value.code == grpc.StatusCode.INTERNAL
 

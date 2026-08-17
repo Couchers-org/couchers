@@ -10,11 +10,12 @@ def get_descriptors_pb() -> bytes:
         return descriptor_set_f.read()
 
 
-@functools.cache
-def get_descriptor_pool() -> descriptor_pool.DescriptorPool:
+def build_descriptor_pool() -> descriptor_pool.DescriptorPool:
     """
-    Generates a protocol buffer object descriptor pool which allows looking up info about our proto API, such as options
+    Builds a protocol buffer object descriptor pool which allows looking up info about our proto API, such as options
     for each servicer, method, or message.
+
+    Not cached: ProtoAnnotations holds the process-wide pool, see couchers.middleware.proto_annotations.
     """
     # this needs to be imported so the annotations are available in the generated pool...
     from couchers.proto import annotations_pb2  # noqa
