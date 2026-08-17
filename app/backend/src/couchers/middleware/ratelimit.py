@@ -27,8 +27,7 @@ from couchers.metrics import (
     observe_rate_limit_store_error,
     observe_rate_limit_trip,
 )
-from couchers.middleware.descriptor_pool import get_descriptor_pool
-from couchers.middleware.proto_annotations import method_extension, optional_field, service_extension, split_method
+from couchers.middleware.proto_annotations import get_proto_annotations, optional_field, split_method
 from couchers.proto import annotations_pb2
 
 if TYPE_CHECKING:
@@ -67,11 +66,11 @@ def resolve_method_rate_limits(method: str) -> ResolvedLimits:
         # the last value is always a global default, so there is always one to find
         return next(value for value in values if value is not None)
 
-    pool = get_descriptor_pool()
+    annotations = get_proto_annotations()
     service_name, _ = split_method(method)
-    method_rl = method_extension(pool, method, annotations_pb2.rate_limit)
-    service_default = service_extension(pool, service_name, annotations_pb2.rate_limit_default)
-    service_aggregate = service_extension(pool, service_name, annotations_pb2.rate_limit_aggregate)
+    method_rl = annotations.method_extension(method, annotations_pb2.rate_limit)
+    service_default = annotations.service_extension(service_name, annotations_pb2.rate_limit_default)
+    service_aggregate = annotations.service_extension(service_name, annotations_pb2.rate_limit_aggregate)
 
     return ResolvedLimits(
         service_name=service_name,

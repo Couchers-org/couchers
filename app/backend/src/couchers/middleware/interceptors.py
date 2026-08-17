@@ -11,7 +11,6 @@ from zoneinfo import ZoneInfo
 
 import grpc
 import sentry_sdk
-from google.protobuf.descriptor_pool import DescriptorPool
 from google.protobuf.message import Message
 from opentelemetry import trace
 from sqlalchemy import Function, literal_column, select, update
@@ -41,10 +40,9 @@ from couchers.metrics import (
     observe_in_servicer_setup_errors_counter,
     observe_in_servicer_setup_histogram,
 )
-from couchers.middleware.descriptor_pool import get_descriptor_pool
 from couchers.middleware.errors import CallRejectedError
 from couchers.middleware.perf import PerfResult, read_perf, start_perf
-from couchers.middleware.proto_annotations import find_auth_level
+from couchers.middleware.proto_annotations import get_proto_annotations
 from couchers.middleware.ratelimit import should_rate_limit
 from couchers.middleware.sanitize import sanitized_bytes
 from couchers.models import APICall, ClientPlatform, User, UserActivity, UserSession
@@ -366,7 +364,7 @@ class RejectedCall:
     exception: Exception | None
 
 
-def admit_call(pool: DescriptorPool, handler_call_details: grpc.HandlerCallDetails) -> AdmittedCall | RejectedCall:
+def admit_call(handler_call_details: grpc.HandlerCallDetails) -> AdmittedCall | RejectedCall:
     """
     Pre-RPC setup handling.
 
@@ -380,7 +378,7 @@ def admit_call(pool: DescriptorPool, handler_call_details: grpc.HandlerCallDetai
         # if this is not present in prod, it's a Big Bug in config
         assert config.DEV or headers.ip_address is not None
 
-        auth_level = find_auth_level(pool, handler_call_details.method)
+        auth_level = get_proto_annotations().auth_level(handler_call_details.method)
 
         auth_info = _try_get_and_update_user_details(
             headers.token,
@@ -454,7 +452,8 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
     """
 
     def __init__(self) -> None:
-        self._pool = get_descriptor_pool()
+        # builds the descriptor pool at startup rather than on the first call
+        get_proto_annotations()
 
     def intercept_service[T = Message, R = Message](
         self,
@@ -480,7 +479,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             # accounting for the auth/setup phase; the handler re-arms its own below
             start_perf()
 
-            call = admit_call(self._pool, handler_call_details)
+            call = admit_call(handler_call_details)
 
             if isinstance(call, RejectedCall):
                 # anything unexpected goes to Sentry before the row below: if the DB is what's broken, that fails too
