@@ -77,12 +77,18 @@ def public_trip_to_pb(
         same_gender_only=public_trip.same_gender_only,
     )
     if public_trip.user_id == context.user_id:
-        pb.offers_count = session.execute(
+        # Filtered like the thread list the owner opens the offers from, since an offer they can't
+        # open shouldn't raise the count. The recipient of an offer on the trip is the owner, i.e.
+        # the viewer, so only the offering user's visibility needs checking.
+        offers = (
             select(func.count())
             .select_from(HostRequest)
             .where(HostRequest.public_trip_id == public_trip.id)
             .where(HostRequest.status != HostRequestStatus.cancelled)
-        ).scalar_one()
+        )
+        offers = where_users_column_visible(offers, context, HostRequest.initiator_user_id)
+        offers = where_moderated_content_visible(offers, context, HostRequest, is_list_operation=True)
+        pb.offers_count = session.execute(offers).scalar_one()
     else:
         # The viewer's own existing offer on this trip (if any), so the client can
         # show an "already offered" state and link to the thread.

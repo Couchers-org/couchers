@@ -111,6 +111,12 @@ def _create_trip_directly(
         return trip.id
 
 
+def _set_offer_visibility(host_request_id: int, visibility: ModerationVisibility):
+    with session_scope() as session:
+        offer = session.execute(select(HostRequest).where(HostRequest.conversation_id == host_request_id)).scalar_one()
+        offer.moderation_state.visibility = visibility
+
+
 def test_create_public_trip(db):
     user, token = generate_user()
     node_id = _make_node()
@@ -978,7 +984,7 @@ def test_list_public_trips_by_user_offers_count_owner(db):
 
     # Host creates an offer via a host request linked to the trip
     with requests_session(host_token) as api:
-        api.CreateHostRequest(
+        host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=traveler.id,
                 from_date=(today() + timedelta(days=5)).isoformat(),
@@ -986,13 +992,64 @@ def test_list_public_trips_by_user_offers_count_owner(db):
                 text=_valid_request_text(),
                 public_trip_id=trip_id,
             )
-        )
+        ).host_request_id
+
+    # The offer is shadowed until a moderator approves it, so the owner can't open it yet
+    with public_trips_session(traveler_token) as api:
+        res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
+        trip = next(t for t in res.public_trips if t.trip_id == trip_id)
+        assert trip.HasField("offers_count")
+        assert trip.offers_count == 0
+
+    _set_offer_visibility(host_request_id, ModerationVisibility.visible)
 
     with public_trips_session(traveler_token) as api:
         res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
         trip = next(t for t in res.public_trips if t.trip_id == trip_id)
         assert trip.HasField("offers_count")
         assert trip.offers_count == 1
+
+
+def test_list_public_trips_by_user_offers_count_excludes_invisible_offers(db):
+    """The count only covers offers the owner can open: not hidden ones, and not ones from a user
+    they can't see."""
+    traveler, traveler_token = generate_user()
+    _hidden_host, hidden_host_token = generate_user()
+    banned_host, banned_host_token = generate_user()
+    node_id = _make_node()
+
+    trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+
+    offer_ids = []
+    for token in (hidden_host_token, banned_host_token):
+        with requests_session(token) as api:
+            offer_ids.append(
+                api.CreateHostRequest(
+                    requests_pb2.CreateHostRequestReq(
+                        host_user_id=traveler.id,
+                        from_date=(today() + timedelta(days=5)).isoformat(),
+                        to_date=(today() + timedelta(days=10)).isoformat(),
+                        text=_valid_request_text(),
+                        public_trip_id=trip_id,
+                    )
+                ).host_request_id
+            )
+    hidden_offer_id = offer_ids[0]
+
+    for offer_id in offer_ids:
+        _set_offer_visibility(offer_id, ModerationVisibility.visible)
+
+    with public_trips_session(traveler_token) as api:
+        res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
+        assert next(t for t in res.public_trips if t.trip_id == trip_id).offers_count == 2
+
+    _set_offer_visibility(hidden_offer_id, ModerationVisibility.hidden)
+    with session_scope() as session:
+        session.execute(select(User).where(User.id == banned_host.id)).scalar_one().banned_at = now()
+
+    with public_trips_session(traveler_token) as api:
+        res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
+        assert next(t for t in res.public_trips if t.trip_id == trip_id).offers_count == 0
 
 
 def test_list_public_trips_by_user_offers_count_not_set_for_others(db):
@@ -1036,6 +1093,8 @@ def test_list_public_trips_by_user_offers_count_excludes_cancelled(db):
             .scalars()
             .all()
         )
+        for offer in offers:
+            offer.moderation_state.visibility = ModerationVisibility.visible
         offers[0].status = HostRequestStatus.pending
         offers[1].status = HostRequestStatus.accepted
         offers[2].status = HostRequestStatus.confirmed
