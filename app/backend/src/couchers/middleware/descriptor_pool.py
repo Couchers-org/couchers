@@ -6,7 +6,7 @@ from google.protobuf import descriptor_pb2, descriptor_pool
 
 @functools.cache
 def get_descriptors_pb() -> bytes:
-    with open(Path(__file__).parents[1] / "proto" / "descriptors.pb", "rb") as descriptor_set_f:
+    with open(Path(__file__).parent.parent / "proto" / "descriptors.pb", "rb") as descriptor_set_f:
         return descriptor_set_f.read()
 
 
