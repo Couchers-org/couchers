@@ -1043,3 +1043,23 @@ def test_attempt_only_verifies_its_own_user(db):
             .select_from(StrongVerificationAttempt)
             .where(StrongVerificationAttempt.has_strong_verification(User))
         ).scalars().all() == [verified_user.id]
+
+
+@pytest.mark.parametrize("predicate", ["matches_birthdate", "matches_gender"])
+def test_attempt_predicates_bind_their_own_user(db, predicate):
+    # the same gap as has_strong_verification: these take a subject, so they have to bind it themselves
+    verified_user, _ = generate_user(birthdate=date(1988, 1, 1), gender="Man", strong_verification=True)
+    other_user, _ = generate_user(birthdate=date(1988, 1, 1), gender="Man")
+
+    with session_scope() as session:
+        attempt = session.execute(
+            select(StrongVerificationAttempt).where(StrongVerificationAttempt.user_id == verified_user.id)
+        ).scalar_one()
+        assert getattr(attempt, predicate)(verified_user)
+        assert not getattr(attempt, predicate)(other_user)
+
+        assert session.execute(
+            select(User.id)
+            .select_from(StrongVerificationAttempt)
+            .where(getattr(StrongVerificationAttempt, predicate)(User))
+        ).scalars().all() == [verified_user.id]
