@@ -2,6 +2,7 @@
 Comprehensive tests for the Unified Moderation System (UMS)
 """
 
+import json
 from datetime import datetime, timedelta
 
 import grpc
@@ -173,6 +174,130 @@ def test_add_to_moderation_queue(db):
             .where(ModerationLog.action == ModerationAction.flag)
         ).scalar_one()
         assert flag_log.queue_item_id == flag.id
+
+
+def test_flag_with_data(db):
+    """A flag can carry a JSON payload"""
+    super_user, super_token = generate_user(is_superuser=True)
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    state_id = create_test_host_request_with_moderation(token1, user2.id)
+
+    with real_moderation_session(super_token) as api:
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=state_id,
+                action=moderation_pb2.MODERATION_ACTION_FLAG,
+                trigger=moderation_pb2.MODERATION_TRIGGER_MACHINE_FLAG,
+                reason="Automod",
+                data=json.dumps({"classifier": "spam", "score": 0.97, "matches": ["buy now"]}),
+            )
+        )
+
+        res = api.GetModerationQueue(
+            moderation_pb2.GetModerationQueueReq(triggers=[moderation_pb2.MODERATION_TRIGGER_MACHINE_FLAG])
+        )
+        assert len(res.queue_items) == 1
+        assert json.loads(res.queue_items[0].data) == {
+            "classifier": "spam",
+            "score": 0.97,
+            "matches": ["buy now"],
+        }
+
+    with session_scope() as session:
+        flag = session.execute(
+            select(ModerationQueueItem)
+            .where(ModerationQueueItem.moderation_state_id == state_id)
+            .where(ModerationQueueItem.trigger == ModerationTrigger.machine_flag)
+        ).scalar_one()
+        assert flag.data == {"classifier": "spam", "score": 0.97, "matches": ["buy now"]}
+
+
+def test_flag_without_data(db):
+    """A flag with no data serializes as an empty string"""
+    super_user, super_token = generate_user(is_superuser=True)
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    state_id = create_test_host_request_with_moderation(token1, user2.id)
+
+    with real_moderation_session(super_token) as api:
+        res = api.GetModerationQueue(moderation_pb2.GetModerationQueueReq())
+        assert len(res.queue_items) == 1
+        assert res.queue_items[0].data == ""
+
+    with session_scope() as session:
+        item = session.execute(
+            select(ModerationQueueItem).where(ModerationQueueItem.moderation_state_id == state_id)
+        ).scalar_one()
+        assert item.data is None
+
+
+def test_flag_with_invalid_data(db):
+    """Flag data must be valid JSON"""
+    super_user, super_token = generate_user(is_superuser=True)
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    state_id = create_test_host_request_with_moderation(token1, user2.id)
+
+    with real_moderation_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.ModerateContent(
+                moderation_pb2.ModerateContentReq(
+                    moderation_state_id=state_id,
+                    action=moderation_pb2.MODERATION_ACTION_FLAG,
+                    trigger=moderation_pb2.MODERATION_TRIGGER_MACHINE_FLAG,
+                    reason="Automod",
+                    data="not json",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "The moderation data must be valid JSON."
+
+
+def test_data_rejected_on_non_flag_action(db):
+    """Data has nowhere to go on actions that don't create a queue item"""
+    super_user, super_token = generate_user(is_superuser=True)
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    state_id = create_test_host_request_with_moderation(token1, user2.id)
+
+    with real_moderation_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.ModerateContent(
+                moderation_pb2.ModerateContentReq(
+                    moderation_state_id=state_id,
+                    action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                    visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+                    reason="Looks fine",
+                    data=json.dumps({"score": 0.1}),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "Moderation data can only be set when flagging."
+
+
+def test_create_moderation_with_data(db):
+    """create_moderation can attach data to the initial review item"""
+    user, _ = generate_user()
+
+    with session_scope() as session:
+        moderation_state = create_moderation(
+            session=session,
+            object_type=ModerationObjectType.host_request,
+            object_id=123,
+            creator_user_id=user.id,
+            data={"classifier": "spam", "score": 0.42},
+        )
+
+        item = session.execute(
+            select(ModerationQueueItem).where(ModerationQueueItem.moderation_state_id == moderation_state.id)
+        ).scalar_one()
+        assert item.trigger == ModerationTrigger.initial_review
+        assert item.data == {"classifier": "spam", "score": 0.42}
 
 
 def test_moderate_content(db):

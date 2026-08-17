@@ -3,6 +3,7 @@ Utility functions for the Unified Moderation System (UMS)
 """
 
 from collections.abc import Callable
+from typing import Any
 
 from sqlalchemy.orm import Session
 
@@ -25,6 +26,7 @@ def create_moderation(
     object_id: int | Callable[[int], int],
     # None for objects that are their own creator, whose id isn't known until the callback has run
     creator_user_id: int | None = None,
+    data: Any | None = None,
 ) -> ModerationState:
     has_own_visibility_mechanism = get_moderated_models()[object_type].has_own_visibility_mechanism
     visibility = None if has_own_visibility_mechanism else ModerationVisibility.shadowed
@@ -68,6 +70,7 @@ def create_moderation(
                 moderation_state_id=moderation_state.id,
                 trigger=ModerationTrigger.initial_review,
                 reason="Object created.",
+                data=data,
             )
         )
         observe_moderation_queue_item_created(ModerationTrigger.initial_review, object_type)
