@@ -9,14 +9,15 @@ from grpc._server import _validate_generic_rpc_handlers
 
 from couchers.context import make_interactive_context
 from couchers.db import session_scope
-from couchers.descriptor_pool import get_descriptor_pool
 from couchers.i18n import LocalizationContext
 from couchers.i18n.locales import DEFAULT_LOCALE
-from couchers.interceptors import (
+from couchers.middleware.descriptor_pool import get_descriptor_pool
+from couchers.middleware.interceptors import (
     CouchersMiddlewareInterceptor,
     _try_get_and_update_user_details,
     check_permissions,
 )
+from couchers.middleware.proto_annotations import find_auth_level
 from couchers.proto import (
     account_pb2_grpc,
     admin_pb2_grpc,
@@ -50,7 +51,6 @@ from couchers.proto import (
     stripe_pb2_grpc,
     threads_pb2_grpc,
 )
-from couchers.proto_annotations import find_auth_level
 from couchers.servicers.account import Account, Iris
 from couchers.servicers.admin import Admin
 from couchers.servicers.api import API
@@ -214,7 +214,7 @@ class FakeChannel:
             request = handler.request_deserializer(request_serializer(request))
 
             # Span covers the handler and its session but not the auth lookup above, matching the boundary
-            # couchers.perf uses in prod and the real-server sessions below.
+            # couchers.middleware.perf uses in prod and the real-server sessions below.
             with query_log.span("rpc", method), session_scope() as session:
                 context = make_interactive_context(
                     grpc_context=MockGrpcContext(),

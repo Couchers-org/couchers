@@ -70,7 +70,7 @@ class APICall(Base, kw_only=True):
     # human readable perf report
     perf_report: Mapped[str | None] = mapped_column(String, default=None)
 
-    # per-request resource accounting, covering the handler span (see couchers/perf.py)
+    # per-request resource accounting, covering the handler span (see couchers/middleware/perf.py)
     db_query_count: Mapped[int | None] = mapped_column(BigInteger, default=None)
     # counts only SQLAlchemy rendered insert/update/delete
     db_write_query_count: Mapped[int | None] = mapped_column(BigInteger, default=None)

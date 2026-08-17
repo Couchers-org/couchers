@@ -21,17 +21,6 @@ from couchers.constants import (
 )
 from couchers.crypto import b64encode, random_hex, simple_encrypt
 from couchers.db import session_scope
-from couchers.descriptor_pool import get_descriptor_pool
-from couchers.interceptors import (
-    NONEXISTENT_METHOD_LABEL,
-    BadHeaders,
-    CouchersMiddlewareInterceptor,
-    ErrorSanitizationInterceptor,
-    UserAuthInfo,
-    _try_get_and_update_user_details,
-    check_permissions,
-    parse_headers,
-)
 from couchers.metrics import (
     api_calls_counter,
     servicer_db_query_count_histogram,
@@ -42,10 +31,21 @@ from couchers.metrics import (
     servicer_setup_db_time_histogram,
     servicer_setup_errors_counter,
 )
-from couchers.middleware_errors import CallRejectedError
+from couchers.middleware.descriptor_pool import get_descriptor_pool
+from couchers.middleware.errors import CallRejectedError
+from couchers.middleware.interceptors import (
+    NONEXISTENT_METHOD_LABEL,
+    BadHeaders,
+    CouchersMiddlewareInterceptor,
+    ErrorSanitizationInterceptor,
+    UserAuthInfo,
+    _try_get_and_update_user_details,
+    check_permissions,
+    parse_headers,
+)
+from couchers.middleware.proto_annotations import find_auth_level, validate_auth_level
 from couchers.models import APICall, ClientPlatform, User, UserActivity, UserSession
 from couchers.proto import account_pb2, admin_pb2, annotations_pb2, api_pb2, auth_pb2
-from couchers.proto_annotations import find_auth_level, validate_auth_level
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
 from couchers.utils import generate_sofa_cookie, now, parse_sofa_cookie
@@ -371,7 +371,7 @@ def test_auth_runs_on_the_handler_thread(db):
         return _try_get_and_update_user_details(*args, **kwargs)
 
     with (
-        patch("couchers.interceptors._try_get_and_update_user_details", record_thread),
+        patch("couchers.middleware.interceptors._try_get_and_update_user_details", record_thread),
         interceptor_dummy_api(TestRpc, interceptors=[CouchersMiddlewareInterceptor()]) as call_rpc,
     ):
         call_rpc(empty_pb2.Empty())
@@ -484,8 +484,8 @@ def test_setup_phase_exception_observed(db):
         return empty_pb2.Empty()
 
     with (
-        patch("couchers.interceptors.LocalizationContext", side_effect=ValueError("expected only letters")),
-        patch("couchers.interceptors.sentry_sdk") as mock_sentry,
+        patch("couchers.middleware.interceptors.LocalizationContext", side_effect=ValueError("expected only letters")),
+        patch("couchers.middleware.interceptors.sentry_sdk") as mock_sentry,
         interceptor_dummy_api(TestRpc, interceptors=[CouchersMiddlewareInterceptor()]) as call_rpc,
     ):
         with pytest.raises(grpc.RpcError) as e:
