@@ -58,6 +58,7 @@ from couchers.event_log import log_event
 from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.helpers.group_chats import is_newest_subscription, is_unseen
+from couchers.helpers.hosting_meetup_status import record_hosting_meetup_status
 from couchers.materialized_views import (
     UserResponseRate,
 )
@@ -78,6 +79,7 @@ from couchers.models import (
     EventOccurrenceAttendee,
     GroupChat,
     GroupChatSubscription,
+    HostingMeetupStatusSource,
     HostingStatus,
     HostRequest,
     HostRequestStatus,
@@ -1131,6 +1133,7 @@ def send_activeness_probes(payload: empty_pb2.Empty) -> None:
                 probe.user.hosting_status = HostingStatus.maybe
             if probe.user.meetup_status == MeetupStatus.wants_to_meetup:
                 probe.user.meetup_status = MeetupStatus.open_to_meetup
+            record_hosting_meetup_status(session, probe.user, HostingMeetupStatusSource.activeness_probe_expired)
             session.commit()
 
 

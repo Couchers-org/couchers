@@ -13,6 +13,7 @@ from couchers.constants import ANTIBOT_FREQ, BANNED_USERNAME_PHRASES, GUIDELINES
 from couchers.context import CouchersContext
 from couchers.crypto import cookiesafe_secure_token, hash_password, urlsafe_secure_token, verify_password
 from couchers.event_log import log_event
+from couchers.helpers.hosting_meetup_status import record_hosting_meetup_status
 from couchers.metrics import (
     account_deletion_completions_counter,
     account_recoveries_counter,
@@ -33,6 +34,7 @@ from couchers.models import (
     AccountDeletionToken,
     AntiBotLog,
     ContributorForm,
+    HostingMeetupStatusSource,
     InviteCode,
     ModerationObjectType,
     NonvisibleUserAccessType,
@@ -391,6 +393,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 object_id=create_user,
             )
             assert user is not None
+
+            record_hosting_meetup_status(session, user, HostingMeetupStatusSource.signup)
 
             # Create a profile gallery for the user
             profile_gallery = PhotoGallery(owner_user_id=user.id)
