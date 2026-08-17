@@ -224,6 +224,8 @@ def _enqueue_pending_notifications(session: Session, moderation_state_id: int) -
             select(Notification)
             .where(Notification.moderation_state_id == moderation_state_id)
             .where(not_(exists().where(NotificationDelivery.notification_id == Notification.id)))
+            # they're delivered in the order they're queued, so the user reads them chronologically
+            .order_by(Notification.id)
         )
         .scalars()
         .all()
