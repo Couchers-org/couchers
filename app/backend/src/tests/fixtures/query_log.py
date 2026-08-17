@@ -83,8 +83,10 @@ def _fingerprint(statement: str) -> str:
     sql = re.sub(r"\(\?\)(?:\s*,\s*\(\?\))+", "(?)", sql)
     # Literals inlined into the statement text rather than bound. Bulk resource loads do this: the real
     # timezone_areas.sql is a few hundred INSERTs each carrying megabytes of WKB hex, so without collapsing them
-    # every row becomes its own multi-megabyte shape.
-    sql = re.sub(r"'[^']{64,}'", "'...'", sql)
+    # every row becomes its own multi-megabyte shape. Every literal is matched and the long ones are picked out
+    # afterwards, rather than matching only the long ones: a pattern for "quote, 64 characters, quote" also matches
+    # from one literal's closing quote to the next literal's opening quote, collapsing the statement in between.
+    sql = re.sub(r"'([^']*)'", lambda literal: "'...'" if len(literal.group(1)) >= 64 else literal.group(), sql)
     return _truncate(re.sub(r"\s+", " ", sql).strip())
 
 
