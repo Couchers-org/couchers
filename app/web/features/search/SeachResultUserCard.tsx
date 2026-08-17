@@ -1,5 +1,5 @@
 import { styled, Tooltip, Typography } from "@mui/material";
-import { FlexboxProps, useMediaQuery } from "@mui/system";
+import { FlexboxProps } from "@mui/system";
 import Avatar from "components/Avatar";
 import ProfileLink from "components/ProfileLink/ProfileLink";
 import StrongVerificationBadge from "components/StrongVerificationBadge";
@@ -134,17 +134,19 @@ const HaikuContainer = styled("div")(({ theme }) => ({
   flexGrow: 1,
 }));
 
-const ClampedAbout = styled("div", {
-  shouldForwardProp: (prop) => prop !== "maxLine",
-})<{ maxLine: number }>(({ maxLine }) => ({
+const ClampedAbout = styled("div")(({ theme }) => ({
   display: "-webkit-box",
   WebkitBoxOrient: "vertical",
-  WebkitLineClamp: maxLine,
+  WebkitLineClamp: 7,
   overflow: "hidden",
-  wordBreak: "break-all",
+  overflowWrap: "break-word",
+
+  [theme.breakpoints.down("md")]: {
+    WebkitLineClamp: 3,
+  },
 }));
 
-const generateAboutText = (user: SearchUser.AsObject, t: TFunction, isMobile: boolean) => {
+const generateAboutText = (user: SearchUser.AsObject, t: TFunction) => {
   const missingAbout = user.profileSnippet.length === 0;
   const hasPhoto = user.avatarUrl.length > 0;
 
@@ -168,7 +170,7 @@ const generateAboutText = (user: SearchUser.AsObject, t: TFunction, isMobile: bo
       </HaikuContainer>
     );
   } else {
-    return <ClampedAbout maxLine={isMobile ? 3 : 7}>{stripMarkdown(aboutText(user, t))}</ClampedAbout>;
+    return <ClampedAbout>{stripMarkdown(aboutText(user, t))}</ClampedAbout>;
   }
 };
 
@@ -178,7 +180,6 @@ const SearchResultUserCard = ({
   position,
   user,
 }: SearchResultUserCardProps) => {
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const {
     t,
     i18n: { language: locale },
@@ -285,7 +286,7 @@ const SearchResultUserCard = ({
           meetupStatus={user.meetupStatus}
           numberReferences={user.numReferences}
         />
-        {generateAboutText(user, t, isMobile)}
+        {generateAboutText(user, t)}
         <FlexRow alignItems="flex-end" justifyContent="space-between" sx={{ marginTop: 1.5 }}>
           <UserDetailsRow>
             <Typography variant="body2">
