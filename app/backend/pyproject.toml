@@ -13,7 +13,7 @@ dependencies = [
     "geoip2>=5.1.0",
     "grpcio>=1.80.0",
     "http-ece>=1.2.1",
-    "ics>=0.7.3",
+    "icalendar>=7.2.2",
     "Jinja2>=3.1.6",
     "luhn>=0.2.0",
     "markdown-it-py>=4.2.0",
@@ -44,6 +44,7 @@ dependencies = [
     "user-agents>=2.2.0",
     "growthbook>=2.3.1",
     "pyroscope-io>=1.0.12",
+    "valkey>=6.1.0",
 ]
 
 [project.scripts]
@@ -139,7 +140,7 @@ module = ["couchers.migrations.versions.*"]
 ignore_errors = true
 
 [[tool.mypy.overrides]]
-module = ["http_ece", "py_vapid", "luhn", "sqlalchemy_utils.*", "growthbook", "user_agents", "pyroscope", "ics"]
+module = ["http_ece", "py_vapid", "luhn", "sqlalchemy_utils.*", "growthbook", "user_agents", "pyroscope"]
 # These libraries don't have type stubs or py.typed markers
 ignore_missing_imports = true
 

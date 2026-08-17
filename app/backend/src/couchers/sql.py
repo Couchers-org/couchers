@@ -150,6 +150,7 @@ def where_moderated_content_visible_to_user_column[T: tuple[Any, ...]](
     is_list_operation: bool = False,
 ) -> Select[T]:
     entry = get_moderated_models()[table.__moderation_object_type__]
+    assert not entry.has_own_visibility_mechanism, f"{table.__name__} visibility is not decided by the UMS"
     aliased_mod_state = aliased(ModerationState)
     conditions = [aliased_mod_state.visibility == ModerationVisibility.visible]
 
@@ -177,6 +178,7 @@ def where_moderated_content_visible[T: tuple[Any, ...]](
     is_list_operation: bool = False,
 ) -> Select[T]:
     entry = get_moderated_models()[table.__moderation_object_type__]
+    assert not entry.has_own_visibility_mechanism, f"{table.__name__} visibility is not decided by the UMS"
     aliased_mod_state = aliased(ModerationState)
     conditions = [aliased_mod_state.visibility == ModerationVisibility.visible]
 
@@ -219,6 +221,8 @@ def moderation_state_column_visible(
     shadowed_conditions: list[ColumnElement[bool]] = []
     if context.is_logged_in():
         for entry in get_moderated_models().values():
+            if entry.has_own_visibility_mechanism:
+                continue
             shadowed_conditions.append(
                 and_(
                     aliased_mod_state.object_type == entry.object_type,

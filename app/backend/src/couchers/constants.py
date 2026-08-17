@@ -131,6 +131,8 @@ CALL_CANCELLED_ERROR_MESSAGE = "Call cancelled."
 UNAUTHORIZED_ERROR_MESSAGE = "Unauthorized"
 PERMISSION_DENIED_ERROR_MESSAGE = "Permission denied"
 
+RATE_LIMIT_ERROR_MESSAGE = "Too many requests. Please slow down and try again shortly."
+
 GHOST_USERNAME = "ghost"
 
 # Photo gallery limits
@@ -141,5 +143,8 @@ COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH = 150
 
 # How long a container must run uninterrupted before /status reports stable=true
 STABLE_THRESHOLD_SECONDS = 5 * 60
+
+# window length for the API rate limiter's fixed-window counters, in seconds
+RATE_LIMIT_WINDOW_SECONDS = 60
 
 MODERATION_AUTO_APPROVE_FLAG_PRIORITY = 1000

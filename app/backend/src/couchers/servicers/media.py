@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 
 from couchers.context import CouchersContext
 from couchers.crypto import secure_compare
-from couchers.interceptors import MediaInterceptor
+from couchers.middleware.interceptors import MediaInterceptor
 from couchers.models import InitiatedUpload, Upload
 from couchers.proto import media_pb2, media_pb2_grpc
 

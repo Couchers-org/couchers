@@ -348,9 +348,15 @@ test:backend:
         "-c", "wal_keep_size=100MB",
         "-c", "max_wal_senders=0",
       ]
+    # the rate limiter's Valkey integration tests skip unless this is reachable
+    - name: valkey/valkey:8-alpine
+      alias: valkey
+      command: ["valkey-server", "--save", "", "--appendonly", "no"]
   variables:
     POSTGRES_PASSWORD: c765064a49d18a95
     DATABASE_CONNECTION_STRING: "postgresql://postgres:c765064a49d18a95@postgres/testdb"
+    VALKEY_TEST_HOST: valkey
+    VALKEY_TEST_PORT: "6379"
     COVERAGE_FILE: /app/.coverage.$CI_NODE_INDEX
   script:
     # --query-log records every SQL query into test_artifacts/queries/data.$CI_NODE_INDEX.json.gz, which the

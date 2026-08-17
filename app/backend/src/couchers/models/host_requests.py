@@ -64,6 +64,7 @@ class HostRequest(Base, kw_only=True):
     __tablename__ = "host_requests"
     __moderation_author_column__ = "initiator_user_id"
     __moderation_object_type__ = ModerationObjectType.host_request
+    __moderation_has_own_visibility_mechanism__ = False
 
     conversation_id: Mapped[int] = mapped_column("id", ForeignKey("conversations.id"), primary_key=True)
     initiator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
