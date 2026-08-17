@@ -25,6 +25,7 @@ from couchers.helpers.host_requests import (
     is_public_trip_offer_recipient,
     is_surfing_party,
 )
+from couchers.helpers.hosting_meetup_status import record_hosting_meetup_status
 from couchers.helpers.references import where_reference_user_visible, where_references_not_hidden_by_reciprocity
 from couchers.helpers.strong_verification import get_strong_verification_fields
 from couchers.materialized_views import LiteUser, UserResponseRate
@@ -33,6 +34,7 @@ from couchers.models import (
     FriendStatus,
     GroupChat,
     GroupChatSubscription,
+    HostingMeetupStatusSource,
     HostingStatus,
     HostRequest,
     InitiatedUpload,
@@ -437,6 +439,12 @@ class API(api_pb2_grpc.APIServicer):
             if user.do_not_email and request.meetup_status != api_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP:
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "do_not_email_cannot_meet")
             user.meetup_status = meetupstatus2sql[request.meetup_status]  # type: ignore[assignment]
+
+        if (
+            request.hosting_status != api_pb2.HOSTING_STATUS_UNSPECIFIED
+            or request.meetup_status != api_pb2.MEETUP_STATUS_UNSPECIFIED
+        ):
+            record_hosting_meetup_status(session, user, HostingMeetupStatusSource.profile_edit)
 
         if request.HasField("language_abilities"):
             # delete all existing abilities

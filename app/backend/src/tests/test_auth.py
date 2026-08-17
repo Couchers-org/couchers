@@ -15,6 +15,8 @@ from couchers.models import (
     ContributeOption,
     ContributorForm,
     LoginToken,
+    ModerationObjectType,
+    ModerationState,
     NonvisibleUserAccess,
     NonvisibleUserAccessType,
     NonvisibleUserState,
@@ -375,6 +377,19 @@ def _quick_signup() -> int:
 
 def test_signup(db):
     _quick_signup()
+
+
+def test_signup_creates_user_moderation_state(db):
+    user_id = _quick_signup()
+
+    with session_scope() as session:
+        state = session.execute(
+            select(ModerationState)
+            .where(ModerationState.object_type == ModerationObjectType.user)
+            .where(ModerationState.object_id == user_id)
+        ).scalar_one()
+        assert state.visibility is None
+        assert session.execute(select(User.moderation_state_id).where(User.id == user_id)).scalar_one() == state.id
 
 
 def test_basic_login(db):

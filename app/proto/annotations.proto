@@ -27,4 +27,21 @@ enum AuthLevel {
 extend google.protobuf.ServiceOptions {
   // the auth level required to access this service, one of
   AuthLevel auth_level = 50001;
+  // default per-RPC rate limit applied to every method in this service
+  RateLimit rate_limit_default = 50003;
+  // per-servicer aggregate rate limit, counting all methods in this service together
+  RateLimit rate_limit_aggregate = 50004;
+}
+
+extend google.protobuf.MethodOptions {
+  // this method's per-RPC rate limit, overriding the service default
+  RateLimit rate_limit = 50002;
+}
+
+// A rate limit, in requests per minute, with one optional count per dimension. Unset fields fall back
+// to the service default (per-RPC) or a global default constant. See docs/rate-limit-design.md.
+message RateLimit {
+  optional uint32 per_ip   = 1;
+  optional uint32 per_user = 2;
+  optional uint32 global   = 3;
 }

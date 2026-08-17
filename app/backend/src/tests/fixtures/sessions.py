@@ -9,15 +9,14 @@ from grpc._server import _validate_generic_rpc_handlers
 
 from couchers.context import make_interactive_context
 from couchers.db import session_scope
-from couchers.descriptor_pool import get_descriptor_pool
 from couchers.i18n import LocalizationContext
 from couchers.i18n.locales import DEFAULT_LOCALE
-from couchers.interceptors import (
+from couchers.middleware.interceptors import (
     CouchersMiddlewareInterceptor,
     _try_get_and_update_user_details,
     check_permissions,
-    find_auth_level,
 )
+from couchers.middleware.proto_annotations import get_proto_annotations
 from couchers.proto import (
     account_pb2_grpc,
     admin_pb2_grpc,
@@ -187,7 +186,6 @@ class FakeChannel:
         self.handlers: dict[str, Any] = {}
         self._token = token
         self._locale = locale or DEFAULT_LOCALE
-        self._pool = get_descriptor_pool()
 
     def add_generic_rpc_handlers(self, generic_rpc_handlers: Any):
         _validate_generic_rpc_handlers(generic_rpc_handlers)
@@ -206,7 +204,7 @@ class FakeChannel:
                     sofa=None,
                     client_platform=None,
                 )
-            auth_level = find_auth_level(self._pool, method)
+            auth_level = get_proto_annotations().auth_level(method)
             check_permissions(auth_info, auth_level)
 
             # Do a full serialization cycle on the request and the
@@ -214,7 +212,7 @@ class FakeChannel:
             request = handler.request_deserializer(request_serializer(request))
 
             # Span covers the handler and its session but not the auth lookup above, matching the boundary
-            # couchers.perf uses in prod and the real-server sessions below.
+            # couchers.middleware.perf uses in prod and the real-server sessions below.
             with query_log.span("rpc", method), session_scope() as session:
                 context = make_interactive_context(
                     grpc_context=MockGrpcContext(),

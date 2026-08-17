@@ -54,6 +54,7 @@ service Auth {
   }
 
   rpc Authenticate(AuthReq) returns (AuthRes) {
+    option (rate_limit) = { per_ip: 10 };
     // Log in with username + password
   }
 

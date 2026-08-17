@@ -171,8 +171,7 @@
     "back_button_a11y_label": "返回",
     "title_for_host": "来自{{user}}的请求- {{status}}",
     "title_for_surfer": "向{{user}}发出的请求- {{status}}",
-    "request_duration_other": "{{count}}晚",
-    "request_duration_one": "{{count}}晚"
+    "request_duration_other": "{{count}}晚"
   },
   "past_request_help_text": "该请求已过期，你仍可发送消息，但无法进行其他修改。",
   "unknown_user": "未知用户",
@@ -182,9 +181,6 @@
   },
   "respond_box_title": "发送回复",
   "respond_box_description": "选择一个回复以立即告知{{name}}。欢迎留言跟进。",
-  "status_bar_edit_button": "编辑",
-  "status_bar_cancel_edit_button": "取消",
-  "status_bar_close_button": "关闭",
   "surfer_bar_pending": "您已发送接待请求，正在等待{{name}}回复。",
   "cancel_request_button": "取消请求",
   "cancel_request_dialog_title": "取消请求？",
@@ -192,7 +188,6 @@
   "cancel_request_dialog_confirm_button": "是的，取消",
   "cancel_request_dialog_dismiss_button": "否",
   "private_feedback_card": {
-    "title": "对此请求的反馈",
     "quality_label": "私下评价此请求（可选）：",
     "quality_high": "高质量",
     "quality_okay": "一般",
@@ -207,8 +202,6 @@
     "reason_other_placeholder": "请告诉我们更多...",
     "privacy_notice": "您的回复是私人的，不会与用户共享。我们可能会以汇总和匿名的形式使用它们（与许多其他形式相结合），以改善所有用户的反馈。",
     "skip_button": "跳过",
-    "next_button": "下一步",
-    "back_button": "返回",
     "submit_button": "提交"
   },
   "surfer_confirm_box_title": "{{name}}接受了您的请求！",

@@ -1011,3 +1011,35 @@ def test_strong_verification_non_passport(db, monkeypatch, push_collector: PushC
         push.content.body
         == "You used a document other than a passport. You can only use a passport for Strong Verification."
     )
+
+
+def test_lite_user_strong_verification_not_shared_between_users(db):
+    # regression: the lite_users view joined attempts to users only on birthdate/gender, so anyone born on the same
+    # day as a strongly verified user (with a compatible gender) got the badge too
+    verified_user, _ = generate_user(birthdate=date(1988, 1, 1), gender="Man", strong_verification=True)
+    other_user, other_token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+
+    with api_session(other_token) as api:
+        assert api.GetLiteUser(api_pb2.GetLiteUserReq(user=verified_user.username)).has_strong_verification
+        assert not api.GetLiteUser(api_pb2.GetLiteUserReq(user=other_user.username)).has_strong_verification
+
+
+def test_attempt_only_verifies_its_own_user(db):
+    verified_user, _ = generate_user(birthdate=date(1988, 1, 1), gender="Man", strong_verification=True)
+    other_user, _ = generate_user(birthdate=date(1988, 1, 1), gender="Man")
+
+    with session_scope() as session:
+        attempt = session.execute(
+            select(StrongVerificationAttempt).where(StrongVerificationAttempt.user_id == verified_user.id)
+        ).scalar_one()
+        assert attempt.has_strong_verification(verified_user)
+        assert not attempt.has_strong_verification(other_user)
+
+        # as a SQL expression, without the join the two tables are still linked by the birthdate and gender predicates
+        assert session.execute(
+            select(User.id)
+            .select_from(StrongVerificationAttempt)
+            .where(StrongVerificationAttempt.has_strong_verification(User))
+        ).scalars().all() == [verified_user.id]

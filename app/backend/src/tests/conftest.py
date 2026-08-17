@@ -335,6 +335,11 @@ def testconfig():
     config.PYROSCOPE_SERVER = "https://localhost"
     config.PYROSCOPE_AUTH_TOKEN = "token"
 
+    # No Valkey by default, so rate limiting is disabled; tests that exercise it inject an in-memory store
+    config.VALKEY_HOST = ""
+    config.VALKEY_PORT = 6379
+    config.RATE_LIMIT_IPV6_PREFIX = 64
+
     yield None
 
     config.copy_from(prevconfig)
