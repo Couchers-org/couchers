@@ -2,7 +2,7 @@ import logging
 from collections.abc import Callable, Mapping
 from copy import deepcopy
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from functools import cache
 from os import getpid
 from threading import get_ident
@@ -17,7 +17,7 @@ from google.protobuf.descriptor import Descriptor
 from google.protobuf.descriptor_pool import DescriptorPool
 from google.protobuf.message import Message
 from opentelemetry import trace
-from sqlalchemy import Function, literal_column, select
+from sqlalchemy import Function, literal_column, select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import undefer
 from sqlalchemy.sql import func
@@ -56,7 +56,6 @@ from couchers.utils import (
     create_lang_cookie,
     create_session_cookies,
     generate_sofa_cookie,
-    now,
     parse_api_key,
     parse_session_cookie,
     parse_sofa_cookie,
@@ -145,13 +144,23 @@ def _try_get_and_update_user_details(
 
         user, user_session, is_jailed = result._tuple()
 
-        # update user last active time if it's been a while
-        if now() - user.last_active > timedelta(minutes=5):
-            user.last_active = func.now()
+        # update user last active time if it's been a while; a non-matching UPDATE takes no row lock, so this
+        # costs nothing on the calls that don't move it
+        touch_user = (
+            update(User)
+            .where(User.id == user.id)
+            .where(User.last_active < func.now() - literal_column("interval '5 minutes'"))
+            .values(last_active=func.now())
+            .cte("touch_user")
+        )
 
         # let's update the token
-        user_session.last_seen = func.now()
-        user_session.api_calls += 1
+        touch_session = (
+            update(UserSession)
+            .where(UserSession.token == token)
+            .values(last_seen=func.now(), api_calls=UserSession.api_calls + 1)
+            .cte("touch_session")
+        )
 
         # upsert so concurrent requests for the same activity tuple don't race to insert and violate the index
         insert_stmt = pg_insert(UserActivity).values(
@@ -163,6 +172,9 @@ def _try_get_and_update_user_details(
             client_platform=client_platform,
             api_calls=1,
         )
+        # one statement, so the sessions and user_activity row locks that every concurrent call from the same
+        # session queues on are held for a single round trip. postgres leaves the order it applies the CTEs in
+        # undefined, but every caller runs this same statement, so they all take those locks the same way round
         session.execute(
             insert_stmt.on_conflict_do_update(
                 index_elements=[
@@ -178,7 +190,7 @@ def _try_get_and_update_user_details(
                         insert_stmt.excluded.client_platform, UserActivity.client_platform
                     ),
                 },
-            )
+            ).add_cte(touch_user, touch_session)
         )
 
         # build before committing to avoid expire_on_commit reloading these attributes
