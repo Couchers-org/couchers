@@ -16,8 +16,8 @@ def _(testconfig):
 
 
 def test_create_servers():
-    server = create_main_server(port=1751)
-    media_server = create_media_server(port=1753)
+    server = create_main_server(port=0)
+    media_server = create_media_server(port=0)
     server.start()
     media_server.start()
     server.stop(None).wait()
