@@ -175,6 +175,17 @@ def _make_thread_and_comment(token, content="hello"):
     return parent_thread_id, comment_thread_id
 
 
+def _set_content_visibility(object_type, object_id, visibility):
+    with session_scope() as session:
+        state = session.execute(
+            select(ModerationState).where(
+                ModerationState.object_type == object_type,
+                ModerationState.object_id == object_id,
+            )
+        ).scalar_one()
+        state.visibility = visibility
+
+
 def test_comment_creates_moderation_state(db):
     """Posting a comment creates a ModerationState (shadowed) and an initial-review queue item."""
     user, token = generate_user()
@@ -453,6 +464,67 @@ def test_total_num_responses_includes_own_shadowed(db):
 
     with session_scope() as session:
         assert total_num_responses(session, author_context, parent_db_id) == 1
+
+
+def test_total_num_responses_excludes_replies_under_hidden_comment(db):
+    """A reply only counts while the comment it hangs off is visible, since that comment is the only
+    way GetThread reaches it."""
+    from couchers.context import make_background_user_context  # noqa: PLC0415
+    from couchers.servicers.threads import total_num_responses  # noqa: PLC0415
+
+    author, author_token = generate_user()
+    viewer, viewer_token = generate_user()
+    parent_thread_id, comment_thread_id = _make_thread_and_comment(author_token, content="comment")
+    comment_db_id = comment_thread_id // 10
+    viewer_context = make_background_user_context(user_id=viewer.id)
+    parent_db_id, _ = divmod(parent_thread_id, 10)
+
+    with threads_session(author_token) as api:
+        reply_thread_id = api.PostReply(
+            threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="reply")
+        ).thread_id
+    reply_db_id = reply_thread_id // 10
+
+    _set_content_visibility(ModerationObjectType.comment, comment_db_id, ModerationVisibility.visible)
+    _set_content_visibility(ModerationObjectType.reply, reply_db_id, ModerationVisibility.visible)
+
+    with session_scope() as session:
+        assert total_num_responses(session, viewer_context, parent_db_id) == 2
+
+    _set_content_visibility(ModerationObjectType.comment, comment_db_id, ModerationVisibility.hidden)
+
+    with threads_session(viewer_token) as api:
+        assert len(api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_thread_id)).replies) == 0
+    with session_scope() as session:
+        assert total_num_responses(session, viewer_context, parent_db_id) == 0
+
+
+def test_total_num_responses_excludes_replies_under_someone_elses_shadowed_comment(db):
+    """The reply's own author doesn't get to count it while the comment above it is still shadowed to
+    them: GetThread doesn't list that comment, so the reply isn't reachable."""
+    from couchers.context import make_background_user_context  # noqa: PLC0415
+    from couchers.servicers.threads import total_num_responses  # noqa: PLC0415
+
+    author, author_token = generate_user()
+    replier, replier_token = generate_user()
+    parent_thread_id, comment_thread_id = _make_thread_and_comment(author_token, content="comment")
+    replier_context = make_background_user_context(user_id=replier.id)
+    parent_db_id, _ = divmod(parent_thread_id, 10)
+
+    with threads_session(replier_token) as api:
+        reply_thread_id = api.PostReply(
+            threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="reply")
+        ).thread_id
+
+    _set_content_visibility(ModerationObjectType.reply, reply_thread_id // 10, ModerationVisibility.visible)
+
+    with session_scope() as session:
+        assert total_num_responses(session, replier_context, parent_db_id) == 0
+
+    _set_content_visibility(ModerationObjectType.comment, comment_thread_id // 10, ModerationVisibility.visible)
+
+    with session_scope() as session:
+        assert total_num_responses(session, replier_context, parent_db_id) == 2
 
 
 def test_edit_comment_creates_version_record(db):
