@@ -19,8 +19,11 @@ from couchers.jobs.handlers import check_expo_push_receipts
 from couchers.jobs.worker import process_job
 from couchers.models import (
     DeviceType,
+    GroupChat,
     HostingStatus,
     MeetupStatus,
+    ModerationState,
+    ModerationVisibility,
     Notification,
     NotificationDelivery,
     NotificationDeliveryType,
@@ -481,6 +484,45 @@ def test_unseen_notification_count_excludes_ums_hidden(db, moderator):
 
     with api_session(token1) as api:
         assert api.Ping(api_pb2.PingReq()).unseen_notification_count == 1
+
+
+@pytest.mark.parametrize(
+    "visibility,author_sees,other_sees",
+    [
+        (ModerationVisibility.visible, 1, 1),
+        (ModerationVisibility.unlisted, 1, 1),
+        (ModerationVisibility.shadowed, 1, 0),
+        (ModerationVisibility.hidden, 0, 0),
+    ],
+)
+def test_notifications_follow_the_visibility_of_their_content(db, moderator, visibility, author_sees, other_sees):
+    author, author_token = generate_user()
+    other, other_token = generate_user()
+    sender, sender_token = generate_user()
+
+    with conversations_session(author_token) as c:
+        group_chat_id = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[other.id, sender.id])
+        ).group_chat_id
+    moderator.approve_group_chat(group_chat_id)
+
+    with conversations_session(sender_token) as c:
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message"))
+
+    process_jobs()
+
+    with session_scope() as session:
+        state_id = session.execute(
+            select(GroupChat.moderation_state_id).where(GroupChat.conversation_id == group_chat_id)
+        ).scalar_one()
+        session.execute(update(ModerationState).where(ModerationState.id == state_id).values(visibility=visibility))
+
+    for token, expected in [(author_token, author_sees), (other_token, other_sees)]:
+        with api_session(token) as api:
+            assert api.Ping(api_pb2.PingReq()).unseen_notification_count == expected
+        with notifications_session(token) as notifications:
+            res = notifications.ListNotifications(notifications_pb2.ListNotificationsReq())
+            assert len(res.notifications) == expected
 
 
 def test_GetVapidPublicKey(db):

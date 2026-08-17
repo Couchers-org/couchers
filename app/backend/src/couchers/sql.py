@@ -235,18 +235,21 @@ def moderation_state_column_visible(
                 )
             )
 
+    conditions = [
+        aliased_mod_state.visibility == ModerationVisibility.visible,
+        aliased_mod_state.visibility == ModerationVisibility.unlisted,
+    ]
+    if shadowed_conditions:
+        conditions.append(
+            and_(
+                aliased_mod_state.visibility == ModerationVisibility.shadowed,
+                or_(*shadowed_conditions),
+            )
+        )
+
     return or_(
         column.is_(None),
-        exists(
-            select(aliased_mod_state.id).where(
-                aliased_mod_state.id == column,
-                or_(
-                    aliased_mod_state.visibility == ModerationVisibility.visible,
-                    aliased_mod_state.visibility == ModerationVisibility.unlisted,
-                    *shadowed_conditions,
-                ),
-            )
-        ),
+        exists(select(aliased_mod_state.id).where(aliased_mod_state.id == column, or_(*conditions))),
     )
 
 
