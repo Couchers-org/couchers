@@ -25,7 +25,7 @@ from couchers.models import (
 )
 from couchers.proto import api_pb2, public_pb2
 from couchers.servicers.public import _get_donation_stats, _get_public_users, _get_signup_page_info, _get_volunteers
-from couchers.utils import now
+from couchers.utils import create_coordinate, now
 from tests.fixtures.db import generate_user, make_volunteer
 from tests.fixtures.misc import process_jobs
 from tests.fixtures.sessions import public_session
@@ -37,14 +37,10 @@ def _(testconfig):
 
 
 def test_GetPublicMapLayer(db):
-    user1, _ = generate_user()
-    user2, _ = generate_user(username="user2", public_visibility=ProfilePublicVisibility.nothing)
-    user3, _ = generate_user()
-    user4, _ = generate_user(username="user4", public_visibility=ProfilePublicVisibility.limited)
-    user5, _ = generate_user()
-
-    # these are hardcoded in test_fixtures
-    test_user_coordinates = [-73.9740, 40.7108]
+    # a degree apart each, so a randomized location (at most 0.1 degrees off) can only belong to one of them
+    map_only_users = [generate_user(geom=create_coordinate(40 + i, -74))[0] for i in range(3)]
+    generate_user(username="user2", public_visibility=ProfilePublicVisibility.nothing)
+    named_user, _ = generate_user(username="user4", public_visibility=ProfilePublicVisibility.limited)
 
     with session_scope() as session:
         queue_job(session, job=update_randomized_locations, payload=empty_pb2.Empty())
@@ -55,43 +51,32 @@ def test_GetPublicMapLayer(db):
         http_body = public.GetPublicUsers(empty_pb2.Empty())
         assert http_body.content_type == "application/json"
         data = json.loads(http_body.data)
-        # Sort to ensure a deterministic order
-        data["features"].sort(key=lambda f: f["geometry"]["coordinates"][0])
-        assert data == {
-            "type": "FeatureCollection",
-            "features": [
-                {
-                    "type": "Feature",
-                    "geometry": {"type": "Point", "coordinates": [-74.042643848, 40.706241098]},
-                    "properties": {"username": None},
-                },
-                {
-                    "type": "Feature",
-                    "geometry": {"type": "Point", "coordinates": [-73.974, 40.7108]},
-                    "properties": {"username": "user4"},
-                },
-                {
-                    "type": "Feature",
-                    "geometry": {"type": "Point", "coordinates": [-73.955417734, 40.691831306]},
-                    "properties": {"username": None},
-                },
-                {
-                    "type": "Feature",
-                    "geometry": {"type": "Point", "coordinates": [-73.928380198, 40.729706144]},
-                    "properties": {"username": None},
-                },
-            ],
-        }
 
-        for user in data["features"]:
-            coords = user["geometry"]["coordinates"]
-            if user["properties"]["username"]:
-                assert coords == test_user_coordinates
-            else:
-                xdiff = coords[0] - test_user_coordinates[0]
-                ydiff = coords[1] - test_user_coordinates[1]
-                dist = sqrt(xdiff**2 + ydiff**2)
-                assert dist > 0.02 and dist < 0.1
+    assert data["type"] == "FeatureCollection"
+    named = [feature for feature in data["features"] if feature["properties"]["username"]]
+    anonymous = [feature for feature in data["features"] if not feature["properties"]["username"]]
+
+    lat, lng = named_user.coordinates
+    assert len(named) == 1
+    assert named[0]["type"] == "Feature"
+    assert named[0]["properties"] == {"username": "user4"}
+    assert named[0]["geometry"]["type"] == "Point"
+    # the response rounds coordinates to nine decimal places
+    assert named[0]["geometry"]["coordinates"] == pytest.approx([lng, lat])
+
+    # each map-only user appears exactly once, displaced from their real location by 0.02 to 0.1 degrees
+    assert len(anonymous) == len(map_only_users)
+    for user in map_only_users:
+        lat, lng = user.coordinates
+        distances = [
+            sqrt(
+                (feature["geometry"]["coordinates"][0] - lng) ** 2 + (feature["geometry"]["coordinates"][1] - lat) ** 2
+            )
+            for feature in anonymous
+        ]
+        nearest = min(range(len(anonymous)), key=distances.__getitem__)
+        assert 0.02 < distances[nearest] < 0.1
+        anonymous.pop(nearest)
 
 
 def test_GetPublicMapLayer_excludes_shadowed(db):

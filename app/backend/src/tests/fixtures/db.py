@@ -1,3 +1,4 @@
+import hashlib
 import subprocess
 from collections.abc import Sequence
 from contextlib import contextmanager
@@ -166,9 +167,50 @@ def autocommit_engine(url: str):
     engine.dispose()
 
 
-def make_user(moderation_state_id: int = 0, **kwargs: Any) -> User:
-    """Build an unsaved user. Pass a real moderation_state_id if you intend to save it."""
+_FIXTURE_GENDERS = ("Woman", "Man", "Non-binary", "Genderqueer", "Agender")
+# a fixed window so the derived birthdates don't drift with the wall clock: everyone is an adult, nobody is implausible
+_FIXTURE_BIRTHDATE_EARLIEST = date(1950, 1, 1)
+_FIXTURE_BIRTHDATE_SPAN_DAYS = 20000
+# the fake timezone_areas polygon for America/New_York comfortably contains this box around the old fixture location,
+# so users keep the timezone they always had
+_FIXTURE_LAT, _FIXTURE_LNG = 40.7108, -73.9740
+_FIXTURE_COORDINATE_JITTER_DEG = 0.5
+
+
+def _fixture_variation(seed: str) -> dict[str, Any]:
+    """
+    Attributes that would otherwise be identical for every fixture user, varied deterministically.
+
+    A population that shares a birthdate, a gender and a location hides bugs that treat those values as an identity
+    (the `lite_users` strong verification bug) and makes distance errors untestable. Tests that want a collision opt
+    into it: pass the field explicitly, or give two users the same `fixture_seed`.
+    """
+    digest = hashlib.blake2b(seed.encode(), digest_size=16).digest()
+
+    def _fraction(start: int) -> float:
+        """A number in [-1, 1) from four bytes of the digest"""
+        return int.from_bytes(digest[start : start + 4], "big") / 2**31 - 1
+
+    return {
+        "birthdate": _FIXTURE_BIRTHDATE_EARLIEST
+        + timedelta(days=int.from_bytes(digest[0:4], "big") % _FIXTURE_BIRTHDATE_SPAN_DAYS),
+        "gender": _FIXTURE_GENDERS[digest[4] % len(_FIXTURE_GENDERS)],
+        "geom": create_coordinate(
+            _FIXTURE_LAT + _FIXTURE_COORDINATE_JITTER_DEG * _fraction(5),
+            _FIXTURE_LNG + _FIXTURE_COORDINATE_JITTER_DEG * _fraction(9),
+        ),
+    }
+
+
+def make_user(moderation_state_id: int = 0, fixture_seed: str | None = None, **kwargs: Any) -> User:
+    """
+    Build an unsaved user. Pass a real moderation_state_id if you intend to save it.
+
+    Birthdate, gender and coordinates are derived from `fixture_seed` (the username by default), so users differ from
+    each other unless you deliberately collide them with a shared seed or explicit values.
+    """
     username = "test_user_" + random_hex(16)
+    variation = _fixture_variation(fixture_seed if fixture_seed is not None else kwargs.get("username", username))
 
     user = User(
         moderation_state_id=moderation_state_id,
@@ -180,8 +222,8 @@ def make_user(moderation_state_id: int = 0, **kwargs: Any) -> User:
         city="Testing city",
         hometown="Test hometown",
         community_standing=0.5,
-        birthdate=date(year=2000, month=1, day=1),
-        gender="Woman",
+        birthdate=variation["birthdate"],
+        gender=variation["gender"],
         pronouns="",
         occupation="Tester",
         education="UST(esting)",
@@ -190,7 +232,7 @@ def make_user(moderation_state_id: int = 0, **kwargs: Any) -> User:
         about_place="My place has a lot of testing paraphenelia",
         additional_information="I can be a bit testy",
         accepted_tos=TOS_VERSION,
-        geom=create_coordinate(40.7108, -73.9740),
+        geom=variation["geom"],
         geom_radius=100,
         last_onboarding_email_sent=now(),
         last_donated=now(),
