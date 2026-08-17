@@ -5,12 +5,13 @@ from unittest.mock import DEFAULT, patch
 import grpc
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
-from sqlalchemy import select, update
+from sqlalchemy import event, select, update
 from sqlalchemy.sql import delete, func
 
 from couchers import urls
+from couchers.context import CouchersContext
 from couchers.crypto import hash_password, random_hex
-from couchers.db import session_scope
+from couchers.db import _get_base_engine, session_scope
 from couchers.models import (
     ContributeOption,
     ContributorForm,
@@ -26,11 +27,13 @@ from couchers.models import (
     UserSession,
 )
 from couchers.proto import account_pb2, api_pb2, auth_pb2
+from couchers.servicers.auth import create_session
 from couchers.utils import now
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import EmailCollector, PushCollector
 from tests.fixtures.sessions import (
     MetadataKeeperInterceptor,
+    _MockCouchersContext,
     account_session,
     api_session,
     auth_api_session,
@@ -1623,3 +1626,29 @@ def test_signup_motivations_empty_motivations_list(db):
         flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
         assert flow.heard_about_couchers == "former_cs_member"
         assert flow.signup_motivations == []
+
+
+def test_create_session_does_not_reselect_the_user(db):
+    """
+    The commit in create_session expires the user, so anything read off it afterwards re-selects the whole row.
+
+    This is on the path of every login, so it was the most executed statement in the query log.
+    """
+    user, _ = generate_user()
+
+    statements = []
+
+    def record(conn, cursor, statement, parameters, context, executemany):
+        statements.append(statement)
+
+    engine = _get_base_engine()
+    with session_scope() as session:
+        db_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
+        context = cast(CouchersContext, _MockCouchersContext())
+        event.listen(engine, "before_cursor_execute", record)
+        try:
+            create_session(context, session, db_user, False)
+        finally:
+            event.remove(engine, "before_cursor_execute", record)
+
+    assert not [statement for statement in statements if "FROM users" in statement]
