@@ -33,7 +33,7 @@ def test_is_visible_property(db):
 
         visible_users = session.execute(select(User.id).where(User.is_visible)).scalars().all()
 
-        assert visible_users[0] == user1.id
+        assert set(visible_users) == {user1.id}
 
 
 def test_select_dot_where_users_visible(db):
