@@ -17,8 +17,8 @@ depends_on = None
 
 # the strong verification subquery was missing the join back onto the attempt's own user, so it matched any user
 # sharing a birthdate (and compatible gender) with any strongly verified user; the rest of the definition is unchanged
-# from 0176, so it's shared between upgrade and downgrade with just that FROM clause swapped out
-def _create_lite_users(sv_from: str) -> None:
+# from 0176, so it's shared between upgrade and downgrade with just the attempt-to-user identity swapped out
+def _create_lite_users(sv_from: str, sv_identity: str) -> None:
     op.execute("DROP MATERIALIZED VIEW IF EXISTS lite_users")
     op.execute(f"""
         CREATE MATERIALIZED VIEW lite_users AS
@@ -61,7 +61,7 @@ def _create_lite_users(sv_from: str) -> None:
                 true AS "true"
             FROM {sv_from}
             WHERE
-                ((strong_verification_attempts.status = 'succeeded')
+                ({sv_identity}(strong_verification_attempts.status = 'succeeded')
                 AND COALESCE(timezone('Etc/UTC', strong_verification_attempts.passport_expiry_date::timestamp without time zone) >= now(), false)
                 AND strong_verification_attempts.passport_date_of_birth = users_1.birthdate
                 AND (
@@ -82,9 +82,10 @@ def _create_lite_users(sv_from: str) -> None:
 
 def upgrade() -> None:
     _create_lite_users(
-        "strong_verification_attempts JOIN users users_1 ON users_1.id = strong_verification_attempts.user_id"
+        "strong_verification_attempts JOIN users users_1 ON users_1.id = strong_verification_attempts.user_id",
+        "strong_verification_attempts.user_id = users_1.id AND ",
     )
 
 
 def downgrade() -> None:
-    _create_lite_users("strong_verification_attempts, users users_1")
+    _create_lite_users("strong_verification_attempts, users users_1", "")

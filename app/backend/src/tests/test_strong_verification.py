@@ -1024,3 +1024,22 @@ def test_lite_user_strong_verification_not_shared_between_users(db):
     with api_session(other_token) as api:
         assert api.GetLiteUser(api_pb2.GetLiteUserReq(user=verified_user.username)).has_strong_verification
         assert not api.GetLiteUser(api_pb2.GetLiteUserReq(user=other_user.username)).has_strong_verification
+
+
+def test_attempt_only_verifies_its_own_user(db):
+    verified_user, _ = generate_user(birthdate=date(1988, 1, 1), gender="Man", strong_verification=True)
+    other_user, _ = generate_user(birthdate=date(1988, 1, 1), gender="Man")
+
+    with session_scope() as session:
+        attempt = session.execute(
+            select(StrongVerificationAttempt).where(StrongVerificationAttempt.user_id == verified_user.id)
+        ).scalar_one()
+        assert attempt.has_strong_verification(verified_user)
+        assert not attempt.has_strong_verification(other_user)
+
+        # as a SQL expression, without the join the two tables are still linked by the birthdate and gender predicates
+        assert session.execute(
+            select(User.id)
+            .select_from(StrongVerificationAttempt)
+            .where(StrongVerificationAttempt.has_strong_verification(User))
+        ).scalars().all() == [verified_user.id]
