@@ -1,6 +1,7 @@
 import os
 import re
 from collections.abc import Generator
+from dataclasses import replace
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
@@ -24,6 +25,7 @@ from couchers import experimentation  # noqa: E402
 from couchers.config import config  # noqa: E402
 from couchers.db import _get_base_engine  # noqa: E402
 from couchers.models import Base  # noqa: E402
+from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS  # noqa: E402
 from tests.fixtures import query_log  # noqa: E402
 from tests.fixtures.db import (  # noqa: E402
     autocommit_engine,
@@ -416,6 +418,19 @@ def feature_flags(monkeypatch) -> FeatureFlags:
     # Switch to GrowthBook mode (empty override path).
     monkeypatch.setitem(config, "FEATURE_FLAGS_FILE_OVERRIDE_PATH", "")
     return FeatureFlags(features)
+
+
+@pytest.fixture
+def low_rate_limits(monkeypatch) -> None:
+    """
+    Shrinks every rate limit so a test can walk past it in a handful of calls.
+
+    The production limits run up to 150 actions, and a test that has to exceed one spends most of its
+    time creating the users to act on. The tests read the limits out of the definitions, so they pick
+    these up without knowing they've been lowered.
+    """
+    for action, definition in list(RATE_LIMIT_DEFINITIONS.items()):
+        monkeypatch.setitem(RATE_LIMIT_DEFINITIONS, action, replace(definition, warning_limit=3, hard_limit=6))
 
 
 @pytest.fixture
