@@ -171,8 +171,7 @@ export default function EventListRow({ event }: EventListRowProps) {
     Temporal.ZonedDateTime.compare(endDate, now) >= 0;
 
   // Define "today" as: starting on the current day in the current timezone.
-  const isToday =
-    !isNow && startDate.withTimeZone(now.timeZoneId).toPlainDate().equals(now.toPlainDate());
+  const isToday = !isNow && startDate.withTimeZone(now.timeZoneId).toPlainDate().equals(now.toPlainDate());
   const todayLabel = t("dashboard:today_label");
   const nowLabel = t("dashboard:now_label");
   const chipLabel = isNow ? nowLabel : todayLabel;
