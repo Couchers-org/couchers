@@ -20,6 +20,7 @@ from couchers.models import (
 )
 from couchers.proto import api_pb2, conversations_pb2, notification_data_pb2, notifications_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
+from couchers.servicers import conversations
 from couchers.utils import Duration_from_timedelta, now, to_aware_datetime
 from tests.fixtures.db import generate_user, make_friends, make_user_block, make_user_invisible
 from tests.fixtures.misc import EmailCollector, Moderator, PushCollector, process_jobs
@@ -822,7 +823,7 @@ def test_send_direct_message(db, moderator: Moderator, push_collector: PushColle
         assert messages[0].author_user_id == user1.id
 
 
-def test_excessive_chat_initiations_are_reported(db, email_collector: EmailCollector):
+def test_excessive_chat_initiations_are_reported(db, low_rate_limits, email_collector: EmailCollector):
     """Test that excessive chat initiations are first reported in a warning email and finally lead blocking of further contacting other users."""
     user, token = generate_user()
     rate_limit_definition = RATE_LIMIT_DEFINITIONS[RateLimitAction.chat_initiation]
@@ -865,7 +866,7 @@ def test_excessive_chat_initiations_are_reported(db, email_collector: EmailColle
         assert "The user has been blocked from sending further chat initiations for now." in email.plain
 
 
-def test_send_direct_message_rate_limit(db, moderator, email_collector: EmailCollector):
+def test_send_direct_message_rate_limit(db, low_rate_limits, moderator, email_collector: EmailCollector):
     """SendDirectMessage should enforce the chat_initiation rate limit when creating a new DM, but not when sending into an existing one."""
     user, token = generate_user(complete_profile=True)
     rate_limit_definition = RATE_LIMIT_DEFINITIONS[RateLimitAction.chat_initiation]
@@ -1899,7 +1900,7 @@ def test_rejoined_group_chat_archived_filter_reads_newest_subscription(db, moder
         assert not listed.is_archived
 
 
-def test_regression_ListGroupChats_pagination(db, moderator):
+def test_regression_ListGroupChats_pagination(db, moderator, monkeypatch):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -1907,10 +1908,14 @@ def test_regression_ListGroupChats_pagination(db, moderator):
     make_friends(user1, user2)
     make_friends(user1, user3)
 
+    # two full pages and a partial one, which is the shape that lost chats, without paying for a
+    # chat per row of a production-sized page
+    monkeypatch.setattr(conversations, "DEFAULT_PAGINATION_LENGTH", 3)
+
     with conversations_session(token1) as c:
         # tuples of (group_chat_id, message_id)
         group_chat_and_message_ids = []
-        for i in range(50):
+        for i in range(7):
             res1 = c.CreateGroupChat(
                 conversations_pb2.CreateGroupChatReq(
                     recipient_user_ids=[user2.id, user3.id], title=wrappers_pb2.StringValue(value=f"Chat {i}")
@@ -1926,15 +1931,18 @@ def test_regression_ListGroupChats_pagination(db, moderator):
 
         seen_group_chat_ids = []
 
+        pages = 0
         last_message_id = 0
         more = True
         while more:
             res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq(last_message_id=last_message_id))
             last_message_id = res.last_message_id
             more = not res.no_more
+            pages += 1
 
             seen_group_chat_ids.extend([chat.group_chat_id for chat in res.group_chats])
 
+        assert pages == 3, "The chats didn't come back over several pages, so nothing was paginated"
         assert set(seen_group_chat_ids) == {x[0] for x in group_chat_and_message_ids}, "Not all group chats returned"
 
 

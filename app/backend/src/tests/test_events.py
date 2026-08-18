@@ -31,6 +31,7 @@ from couchers.utils import datetime_to_iso8601_local, now, to_aware_datetime
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import EmailCollector, Moderator, PushCollector, process_jobs
 from tests.fixtures.sessions import events_session, real_editor_session, threads_session
+from tests.fixtures.timewarp import FrozenTimewarp
 from tests.test_communities import create_community, create_group
 
 
@@ -50,7 +51,7 @@ def is_utc_or_gmt(timezone: str) -> bool:
     return timezone in ("Etc/UTC", "Etc/GMT")
 
 
-def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
+def test_CreateEvent(db, frozen_timewarp, push_collector: PushCollector, moderator: Moderator):
     # test cases:
     # can create event
     # cannot create event with missing details
@@ -381,7 +382,7 @@ def test_CreateEvent_incomplete_profile(db):
         assert e.value.details() == "You have to complete your profile before you can create an event."
 
 
-def test_ScheduleEvent(db):
+def test_ScheduleEvent(db, frozen_timewarp):
     # test cases:
     # can schedule a new event occurrence
 
@@ -567,7 +568,7 @@ def test_cannot_overlap_occurrences_update(db):
         assert e.value.details() == "An event cannot have overlapping occurrences."
 
 
-def test_UpdateEvent_single(db, moderator: Moderator):
+def test_UpdateEvent_single(db, frozen_timewarp: FrozenTimewarp, moderator: Moderator):
     # test cases:
     # owner can update
     # community owner can update
@@ -621,6 +622,8 @@ def test_UpdateEvent_single(db, moderator: Moderator):
     with events_session(token6) as api:
         api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
 
+    # the clock is stopped, so the edit below needs the test to move it on for last_edited to change
+    frozen_timewarp.advance(timedelta(minutes=1))
     time_before_update = now()
 
     with events_session(token1) as api:
@@ -744,7 +747,7 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert res.location.lng == 0.02
 
 
-def test_UpdateEvent_all(db, moderator: Moderator):
+def test_UpdateEvent_all(db, frozen_timewarp: FrozenTimewarp, moderator: Moderator):
     # event creator
     user1, token1 = generate_user()
     # community moderator
@@ -819,6 +822,8 @@ def test_UpdateEvent_all(db, moderator: Moderator):
 
     updated_event_id = event_ids[3]
 
+    # the clock is stopped, so the edit below needs the test to move it on for last_edited to change
+    frozen_timewarp.advance(timedelta(minutes=1))
     time_before_update = now()
 
     with events_session(token1) as api:
@@ -1000,7 +1005,7 @@ def test_UpdateEvent_all_cant_change_times(db, moderator: Moderator):
         assert e.value.details() == "You cannot update all events if you're modifying start or end times."
 
 
-def test_GetEvent(db, moderator: Moderator):
+def test_GetEvent(db, frozen_timewarp, moderator: Moderator):
     # event creator
     user1, token1 = generate_user()
     # community moderator

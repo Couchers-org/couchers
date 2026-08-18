@@ -469,7 +469,7 @@ def test_ChangeEmailV2_wrong_token(db, fast_passwords):
         assert user_updated.email == user.email
 
 
-def test_ChangeEmailV2_tokens_two_hour_window(db, timewarp: Timewarp):
+def test_ChangeEmailV2_tokens_two_hour_window(db, fast_passwords, timewarp: Timewarp):
     password = random_hex()
     new_email = f"{random_hex()}@couchers.org.invalid"
     user, token = generate_user(hashed_password=hash_password(password))
