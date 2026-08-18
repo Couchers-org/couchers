@@ -158,7 +158,6 @@
     "location_subtitle": "Emplacement approximatif de votre logement",
     "about_me_subtitle": "Présentez-vous et partagez un peu aux autres . C’est comment la confiance commence. Aidez les autres à comprendre qui vous êtes vraiment. Consultez les <guideLink>conseils pour créer un profil excellent</guideLink>."
   },
-  "more_profile_actions_a11y_text": "Plus d’actions sur le profil",
   "info_unanswered": "Demandez-moi",
   "smoking_location": {
     "no": "Non",
@@ -200,15 +199,10 @@
     "free_offsite": "Parking extérieur gratuit",
     "paid_onsite": "Parking payant sur place"
   },
-  "edit_profile_name_required": "Prénom requis",
   "unspecified_info": "-",
   "cancel": "Annuler",
   "my_connections": "Mes connexions",
   "connection_pending": "En attente",
-  "more_profile_actions": "...",
-  "report_details": "Détails",
-  "report_reason": "Raison",
-  "report_user": "Signaler ce membre",
   "request_form": {
     "send_request": "Envoyer une demande d'hébergement à {{name}}",
     "arrival_date": "Date d'arrivée prévue",

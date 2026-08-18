@@ -120,7 +120,6 @@
     "location_subtitle": "Přibližná poloha tvého domova"
   },
   "edit_profile_helper_text": "Hledáš inspiraci, kde začít? <guideLink>Podívej se na náš průvodce, jak vytvořit skvělý profil</guideLink>.",
-  "edit_profile_name_required": "Jméno je povinné",
   "edit_home_questions": {
     "accept_drinking": "V pohodě s tím, že lidé pijí alkohol",
     "accept_pets": "Hosté s domácími mazlíčky",
@@ -158,7 +157,6 @@
   "info_unanswered": "Zeptej se mě",
   "my_connections": "Moje kontakty",
   "connection_pending": "Čeká na vyřízení",
-  "more_profile_actions": "...",
   "request_form": {
     "request_chars_remaining_one": "Napiš ještě alespoň {{count}} znak, aby bylo možné odeslat žádost o ubytování.",
     "request_chars_remaining_few": "Napiš ještě alespoň {{count}} znaky, aby bylo možné odeslat žádost o ubytování.",

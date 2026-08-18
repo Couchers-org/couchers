@@ -42,6 +42,7 @@ from couchers.constants import (
 from couchers.models.activeness_probe import ActivenessProbe
 from couchers.models.base import Base, Geom
 from couchers.models.mod_note import ModNote
+from couchers.models.moderation import ModerationObjectType, ModerationState
 from couchers.models.static import Language, Region, TimezoneArea
 from couchers.utils import get_coordinates, last_active_coarsen, now
 
@@ -63,6 +64,21 @@ class MeetupStatus(enum.Enum):
     wants_to_meetup = enum.auto()
     open_to_meetup = enum.auto()
     does_not_want_to_meetup = enum.auto()
+
+
+class HostingMeetupStatusSource(enum.Enum):
+    # the statuses the account was created with
+    signup = enum.auto()
+    # the user edited their profile
+    profile_edit = enum.auto()
+    # the user enabled "do not email" in their notification settings
+    do_not_email = enum.auto()
+    # the user used the "do not email" quick link in an email
+    unsubscribe_link = enum.auto()
+    # the user responded to an activeness probe
+    activeness_probe_response = enum.auto()
+    # the user let an activeness probe expire, so we downgraded them
+    activeness_probe_expired = enum.auto()
 
 
 class SmokingLocation(enum.Enum):
@@ -104,6 +120,9 @@ class User(Base, kw_only=True):
     """
 
     __tablename__ = "users"
+    __moderation_author_column__ = "id"
+    __moderation_object_type__ = ModerationObjectType.user
+    __moderation_has_own_visibility_mechanism__ = True
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
@@ -192,6 +211,9 @@ class User(Base, kw_only=True):
     banned_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
     shadowed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+
+    moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
+
     is_superuser: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
     is_editor: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
 
@@ -367,6 +389,8 @@ class User(Base, kw_only=True):
     )
 
     public_trips: Mapped[list[PublicTrip]] = relationship(init=False, back_populates="user")
+
+    moderation_state: Mapped[ModerationState] = relationship(init=False)
 
     __table_args__ = (
         # Verified phone numbers should be unique
@@ -628,3 +652,23 @@ class RegionLived(Base, kw_only=True):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     region_code: Mapped[str] = mapped_column(ForeignKey("regions.code", deferrable=True))
+
+
+class HostingMeetupStatusHistory(Base, kw_only=True):
+    """
+    Append-only snapshot log of users' hosting and meetup statuses. A row is written whenever either status changes, so
+    a user's statuses at any past time are those of their newest row at or before that time.
+    """
+
+    __tablename__ = "hosting_meetup_status_history"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    source: Mapped[HostingMeetupStatusSource] = mapped_column(Enum(HostingMeetupStatusSource))
+    hosting_status: Mapped[HostingStatus] = mapped_column(Enum(HostingStatus))
+    meetup_status: Mapped[MeetupStatus] = mapped_column(Enum(MeetupStatus))
+
+    user: Mapped[User] = relationship(init=False)
+
+    __table_args__ = (Index("ix_hosting_meetup_status_history_user_id_time", user_id, time),)

@@ -19,7 +19,7 @@
   "cancel": "取消",
   "load_more": "載入更多",
   "copy_button": {
-    "a11y": "Copy",
+    "a11y": "複製",
     "copied_tooltip": "複製到剪貼板"
   },
   "thanks": "謝謝！",
@@ -29,7 +29,7 @@
     "progress_label": "捐贈進度"
   },
   "community_standing": "社群聲望",
-  "community_standing_description": "根據參考資料和社群參與度等各種因素計算得出。",
+  "community_standing_description": "根據評語和社群參與度等各種因素計算得出。",
   "verification_score": "驗證分數",
   "verification_score_description": "根據其他會員提供的驗證與佐證計算。",
   "edit": "編輯",
@@ -111,7 +111,6 @@
       "description_required": "描述為必填項。",
       "description_label": "描述問題",
       "description_helper": "請告訴我們您報告此問題的原因。",
-      "success": "感謝您的檢舉，讓Couchers對每個人都更友善。",
       "reason": {
         "dating": "調情／約會應用程式行為或類似行為",
         "external": "平台外事件",
@@ -159,7 +158,8 @@
       "map_is_blank": "缺少座標，請先使用上方地圖搜尋位置",
       "radius_text2_other": "{{count}}米",
       "no_location_results_text": "找不到結果，請嘗試只搜尋城市名稱。",
-      "press_enter_to_search": "按Enter鍵搜尋"
+      "press_enter_to_search": "按Enter鍵搜尋",
+      "radius_text2_one": "{{count}}米"
     }
   },
   "nav": {
@@ -195,7 +195,11 @@
     "invite_members": "邀請會員",
     "merch_shop": "商品商店",
     "switch_to_light_mode": "切換到淺色模式",
-    "switch_to_dark_mode": "切換到深色模式"
+    "switch_to_dark_mode": "切換到深色模式",
+    "press": "新聞與媒體",
+    "close_menu_a11y": "關閉選單",
+    "open_drawer_a11y": "打開抽屜",
+    "close_drawer_a11y": "關閉抽屜"
   },
   "invites": {
     "title": "邀請",
@@ -210,13 +214,13 @@
     },
     "error": {
       "fetch_invite_info": "無法獲取邀請碼詳細資訊"
-    }
+    },
+    "number_of_uses_one": "使用：{{count}}已完成註冊"
   },
-  "contribute_title": "投稿",
   "reply": "回覆",
   "yes": "是",
   "no": "否",
-  "ok": "OK",
+  "ok": "確定",
   "beta": "Beta",
   "relative_time": {
     "less_than_a_minute_ago": "< 1分鐘前",
@@ -264,12 +268,12 @@
       "hosts": "<bold>對於接待者</bold>：結識來自世界各地的人們並分享您的城市",
       "everyone": "<bold>對於所有人</bold>：社群、文化和聯繫-而不是交易"
     },
-    "tip_label": "TIP",
+    "tip_label": "提示",
     "tip_text": "新來的嗎？參加當地活動，感受社群-低承諾，高聯繫。",
     "compare_title": "Couchers.org相比如何？",
     "table": {
       "header_couchers": "Couchers.org",
-      "header_hostel": "Hostel",
+      "header_hostel": "青年旅舍",
       "header_hotel": "酒店",
       "people_first": "以人為本的非營利組織",
       "cost_to_stay": "住宿費用",
@@ -290,7 +294,7 @@
     "is_it_safe": {
       "title": "沙發衝浪有多安全？",
       "description_1": "雖然所有旅行和與陌生人的互動都存在一定風險，但沙發衝浪比許多人最初想象的要安全得多。",
-      "description_2": "我們的社群建立在成員之間的信任之上，通過入住後的參考建立。我們的積極審核團隊認真對待每一份報告，並努力反擊那些不遵守我們的<指南>社群準則</指南>的不良行為者。",
+      "description_2": "我們的社群建立在成員之間的信任之上，通過入住後的參考建立。我們的積極審核團隊認真對待每一份報告，並努力反擊那些不遵守我們的<guidelines>社群準則</guidelines>的不良行為者。",
       "description_3": "此外，Couchers平台還包括各種形式的驗證（例如使用生物識別護照的強驗證）等工具，這些工具增加了額外的安全級別。重要的是要始終準備好替代計劃，以防事情沒有按預期進行，並相信你的直覺！"
     }
   },
@@ -334,5 +338,11 @@
     "zh-Hans": "中文（簡體）",
     "zh-Hant": "中文（繁體）",
     "hu": "匈牙利語"
+  },
+  "close_button_a11y": "關閉",
+  "app_store_badge_a11y": "在應用程式商店下載",
+  "google_play_badge_a11y": "在Google Play上取得",
+  "bar": {
+    "help_button_a11y": "幫助"
   }
 }

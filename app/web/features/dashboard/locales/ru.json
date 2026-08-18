@@ -1,16 +1,11 @@
 {
   "dashboard": "Главная",
-  "fill_in_who_i_am": "1. Заполните раздел \"Кто я\" несколькими предложениями о себе",
-  "upload_photo": "2. Загрузите фотографию (нажав на аватар на странице редактирования)",
   "your_communities_heading": "Ваши сообщества",
-  "all_communities_heading": "Все сообщества",
   "no_community": "В настоящее время вы не находитесь в сообществе.",
   "no_sub_communities": "Нет подсообществ.",
   "load_more": "Загрузить еще",
-  "welcome": "Добро пожаловать в Couchers.org!",
-  "landing_text": "Мы работаем над новыми <featuresLink>функциями</featuresLink>: мероприятиями, путеводителями, модерацией и встречами. Спасибо за ваше терпение и <supportLink>поддержку</supportLink>.",
+  "welcome": "Добро пожаловать на Couchers.org!",
   "your_communities_helper_text": "Вы были добавлены во все сообщества, соответствующие вашему местоположению. Вы также можете <browseCommunitiesLink>просматривать сообщества и вступать в них</browseCommunitiesLink> в других местах.",
-  "community_builder_form_text": "Создайте свое местное сообщество",
   "become_a_host": "Стать хостом",
   "find_a_host": "Найти хоста",
   "profile_summary_edit": "Редактировать профиль",
@@ -25,14 +20,9 @@
   "hero_image_attribution": "Фото <photographerLink>Mesut Kaya</photographerLink> с <unsplashLink>Unsplash</unsplashLink>",
   "show_map": "Показать карту",
   "hero_image_alt": "Воздушные шары в Каппадокии",
-  "complete_profile_explanation": "Разве не раздражает, когда на других платформах есть пустые \"призрачные\" профили без какой-либо информации. Пожалуйста, не становитесь призраком! 👻👻👻",
   "communities_intro": "Чтобы помочь людям по всему миру организовывать мероприятия, обсуждения и встречи на местном уровне, мы создали страницы сообществ, которые перечислены ниже. <strong>Вы были автоматически добавлены в некоторые сообщества на основе вашего местоположения, но вы можете присоединиться к любому сообществу!</strong> Ваши сообщества отображаются на главной.",
   "communities_welcome_title": "Добро пожаловать в Сообщества",
   "community_builder": "Хотите стать амбассадором вашего сообщества и помочь ему развиваться? Станьте <communityBuilderLink>Создателем Сообщества!</communityBuilderLink>",
-  "all_communities_section": "Все Сообщества",
-  "all_communities_intro": "Ниже вы можете просмотреть все страницы сообществ, которые существуют на данный момент. <strong>Нажмите на название сообщества, чтобы увидеть другие сообщества внутри него.</strong>",
-  "community_missing": "Вашей страны или города нет в списке? Используйте <requestCommunityLink>эту форму</requestCommunityLink>, чтобы отправить запрос!",
-  "please_complete_profile": "Пожалуйста, заполни профиль, чтобы он отображался в поиске:",
   "new_pill": "Новое",
   "find_your_community_intro_simplified": "Найдите своё сообщество или просмотрите список ниже. <requestCommunityLink>Не нашли своё? Оставьте заявку!</requestCommunityLink>",
   "browse_all_communities": "Просмотреть Все Сообщества",
@@ -63,10 +53,6 @@
       "description": "Верифицируйте профиль, чтобы сделать сообщество безопаснее",
       "button": "Верифицируйте свой профиль"
     },
-    "carousel_scroller": {
-      "left_arrow_a11y": "Прокрутить влево",
-      "right_arrow_a11y": "Прокрутить вправо"
-    },
     "write_reference": {
       "description_surfed": "Оставьте отзыв о вашем пребывании у {{name}}",
       "description_hosted": "Оставить отзыв для {{name}}",
@@ -92,15 +78,12 @@
   },
   "events": {
     "your_upcoming_header": "Ваши предстоящие мероприятия",
-    "see_all_link": "Посмотреть все →",
     "today_label": "Сегодня",
     "community_header": "Мероприятия в ваших сообществах",
     "your_upcoming_empty_message": "В данный момент мероприятий нет. Почему бы вам не <createEventLink>создать</createEventLink> своё ✨?"
   },
   "public_trips": {
     "when_now": "Сейчас",
-    "when_today": "Сегодня",
-    "when_tomorrow": "Завтра",
     "same_gender_only_indicator": "Тот же пол",
     "offers_count_one": "{{count}} предложение",
     "offers_count_few": "{{count}} предложения",

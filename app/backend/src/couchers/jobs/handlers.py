@@ -24,6 +24,7 @@ from sqlalchemy.sql import (
     func,
     literal,
     not_,
+    or_,
     union_all,
     update,
 )
@@ -57,6 +58,7 @@ from couchers.event_log import log_event
 from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.helpers.group_chats import is_newest_subscription, is_unseen
+from couchers.helpers.hosting_meetup_status import record_hosting_meetup_status
 from couchers.materialized_views import (
     UserResponseRate,
 )
@@ -77,6 +79,7 @@ from couchers.models import (
     EventOccurrenceAttendee,
     GroupChat,
     GroupChatSubscription,
+    HostingMeetupStatusSource,
     HostingStatus,
     HostRequest,
     HostRequestStatus,
@@ -103,6 +106,7 @@ from couchers.models import (
     User,
     UserBadge,
     Volunteer,
+    get_moderated_models,
 )
 from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.expo_api import get_expo_push_receipts
@@ -1129,6 +1133,7 @@ def send_activeness_probes(payload: empty_pb2.Empty) -> None:
                 probe.user.hosting_status = HostingStatus.maybe
             if probe.user.meetup_status == MeetupStatus.wants_to_meetup:
                 probe.user.meetup_status = MeetupStatus.open_to_meetup
+            record_hosting_meetup_status(session, probe.user, HostingMeetupStatusSource.activeness_probe_expired)
             session.commit()
 
 
@@ -1416,11 +1421,16 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
 
         # === Moderation System Consistency Checks ===
 
+        types_with_own_visibility = [
+            entry.object_type for entry in get_moderated_models().values() if entry.has_own_visibility_mechanism
+        ]
+
         # Check every ModerationState has at least one INITIAL_REVIEW queue item
         # Skip items with ID < 2000000 as they were created before this check was introduced
         states_without_initial_review = session.execute(
             select(ModerationState.id, ModerationState.object_type, ModerationState.object_id).where(
                 ModerationState.id >= 2000000,
+                ModerationState.object_type.not_in(types_with_own_visibility),
                 ~exists(
                     select(1)
                     .where(ModerationQueueItem.moderation_state_id == ModerationState.id)
@@ -1430,6 +1440,26 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
         ).all()
         if states_without_initial_review:
             errors.append(f"ModerationStates without INITIAL_REVIEW queue item: {states_without_initial_review}")
+
+        # Check states with their own visibility mechanism have no visibility and no INITIAL_REVIEW item
+        states_with_spurious_visibility = session.execute(
+            select(ModerationState.id, ModerationState.object_type, ModerationState.object_id).where(
+                ModerationState.object_type.in_(types_with_own_visibility),
+                or_(
+                    ModerationState.visibility.is_not(None),
+                    exists(
+                        select(1)
+                        .where(ModerationQueueItem.moderation_state_id == ModerationState.id)
+                        .where(ModerationQueueItem.trigger == ModerationTrigger.initial_review)
+                    ),
+                ),
+            )
+        ).all()
+        if states_with_spurious_visibility:
+            errors.append(
+                f"ModerationStates with a visibility or INITIAL_REVIEW item for an object type that has its own "
+                f"visibility mechanism: {states_with_spurious_visibility}"
+            )
 
         # Check every ModerationState has a CREATE log entry
         # Skip items with ID < 2000000 as they were created before this check was introduced

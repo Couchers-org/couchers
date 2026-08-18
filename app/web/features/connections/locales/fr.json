@@ -29,5 +29,11 @@
     "title": "Êtes-vous sûr.e de vouloir débloquer {{name}} ?",
     "message": "Le déblocage lui permettra de voir votre profil et de vous envoyer des demandes. Si vous étiez auparavant ami.e.s, il/elle réapparaîtra dans votre liste d’ami.e.s. Il/elle ne sera pas notifié.e.",
     "confirm": "Débloquer"
-  }
+  },
+  "add_friend_confirmation_dialog": {
+    "title": "Connaissez-vous cette personne ?",
+    "message": "N'envoyez des demandes d'ami qu'aux personnes que vous connaissez déjà ou avez rencontré pendant vos voyages — la plupart des personnes préfèrent se connecter après s'être rencontré en personne. <helpCenterLink> Lire plus sur les demandes d'amis dans notre Centre d'aide.</helpCenterLink>",
+    "confirm": "Oui, je les connais. Envoyer la demande !"
+  },
+  "friend_requests_dismiss_button": "Ignorer"
 }

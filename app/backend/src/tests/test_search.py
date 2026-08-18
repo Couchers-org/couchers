@@ -24,46 +24,58 @@ def _(testconfig):
     pass
 
 
-def test_Search(testing_communities):
-    user, token = generate_user()
-    with search_session(token) as api:
-        res = api.Search(
-            search_pb2.SearchReq(
-                query="Country 1, Region 1",
-                include_users=True,
-                include_communities=True,
-                include_groups=True,
-                include_places=True,
-                include_guides=True,
+class TestSearchInCommunities:
+    """The tests that search the whole community tree, grouped so they share one copy of it."""
+
+    @staticmethod
+    def test_Search(testing_communities):
+        user, token = generate_user()
+        with search_session(token) as api:
+            res = api.Search(
+                search_pb2.SearchReq(
+                    query="Country 1, Region 1",
+                    include_users=True,
+                    include_communities=True,
+                    include_groups=True,
+                    include_places=True,
+                    include_guides=True,
+                )
             )
-        )
-        res = api.Search(
-            search_pb2.SearchReq(
-                query="Country 1, Region 1, Attraction",
-                title_only=True,
-                include_users=True,
-                include_communities=True,
-                include_groups=True,
-                include_places=True,
-                include_guides=True,
+            res = api.Search(
+                search_pb2.SearchReq(
+                    query="Country 1, Region 1, Attraction",
+                    title_only=True,
+                    include_users=True,
+                    include_communities=True,
+                    include_groups=True,
+                    include_places=True,
+                    include_guides=True,
+                )
             )
-        )
 
+    @staticmethod
+    def test_UserSearch(testing_communities):
+        """Test that UserSearch returns all users if no filter is set."""
+        user, token = generate_user()
 
-def test_UserSearch(testing_communities):
-    """Test that UserSearch returns all users if no filter is set."""
-    user, token = generate_user()
+        refresh_materialized_views_rapid(empty_pb2.Empty())
+        refresh_materialized_views(empty_pb2.Empty())
 
-    refresh_materialized_views_rapid(empty_pb2.Empty())
-    refresh_materialized_views(empty_pb2.Empty())
+        with search_session(token) as api:
+            res = api.UserSearch(search_pb2.UserSearchReq())
+            assert len(res.results) > 0
+            assert res.total_items == len(res.results)
+            res = api.UserSearchV2(search_pb2.UserSearchReq())
+            assert len(res.results) > 0
+            assert res.total_items == len(res.results)
 
-    with search_session(token) as api:
-        res = api.UserSearch(search_pb2.UserSearchReq())
-        assert len(res.results) > 0
-        assert res.total_items == len(res.results)
-        res = api.UserSearchV2(search_pb2.UserSearchReq())
-        assert len(res.results) > 0
-        assert res.total_items == len(res.results)
+    @staticmethod
+    def test_EventSearch_no_filters(testing_communities):
+        """Test that EventSearch returns all events if no filter is set."""
+        user, token = generate_user()
+        with search_session(token) as api:
+            res = api.EventSearch(search_pb2.EventSearchReq())
+            assert len(res.events) > 0
 
 
 def test_regression_search_in_area(db):
@@ -436,14 +448,6 @@ def sample_community(db) -> int:
     user, _ = generate_user()
     with session_scope() as session:
         return create_community(session, -50, 50, "Community", [user], [], None).id
-
-
-def test_EventSearch_no_filters(testing_communities):
-    """Test that EventSearch returns all events if no filter is set."""
-    user, token = generate_user()
-    with search_session(token) as api:
-        res = api.EventSearch(search_pb2.EventSearchReq())
-        assert len(res.events) > 0
 
 
 def test_event_search_by_query(sample_community, create_event):

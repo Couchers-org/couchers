@@ -121,7 +121,6 @@
   "sign_up_completed_title": "Danke, dass du dich bei uns registriert hast!",
   "sign_up_confirmed_prompt": "Du hast alles erledigt! Falls du nicht weitergeleitet wirst, versuche dich einzuloggen.",
   "login_prompt": "Klicke hier, um dich einzuloggen",
-  "about_us": "Über uns",
   "reset_password": "Passwort zurücksetzen",
   "account_settings_page": {
     "birth_date_section": {
@@ -320,8 +319,7 @@
         "heading": "Bevor du beginst",
         "nfc_check": "Dein Telefon muss über <strong>NFC-Funktionalität</strong> verfügen – die meisten modernen Telefone tun dies. NFC ist normalerweise standardmäßig aktiviert, bei einigen älteren Telefonen muss es jedoch möglicherweise in den Einstellungen deines Telefons aktiviert werden.",
         "passport_check": "Dein Reisepass muss ein <strong>biometrischer Reisepass</strong> sein — achte auf das goldene Chip-Symbol auf dem Umschlag. Ältere Reisepässe ohne dieses Symbol funktionieren nicht.",
-        "remove_case": "<strong>Entferne deine Handyhülle vor dem Start</strong> – selbst dünne Hüllen können das NFC-Signal blockieren und zum Scheitern des Scans führen.",
-        "passport_symbol_alt": "Biometrischer Reisepass Symbol"
+        "remove_case": "<strong>Entferne deine Handyhülle vor dem Start</strong> – selbst dünne Hüllen können das NFC-Signal blockieren und zum Scheitern des Scans führen."
       },
       "didnt_work": {
         "heading": "Hast du Probleme?",

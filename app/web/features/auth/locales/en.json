@@ -180,7 +180,6 @@
   "sign_up_confirmed_prompt": "You're all done! If you are not redirected, try logging in.",
   "unhandled_sign_up_state": "Error: unhandled signup flow state.",
   "login_prompt": "Click here to log in",
-  "about_us": "About us",
   "reset_password": "Reset password",
   "account_settings_page": {
     "title": "Account settings",
@@ -293,8 +292,7 @@
         "heading": "Before You Start",
         "nfc_check": "Your phone must have <strong>NFC capability</strong> — most modern phones do. NFC is usually on by default, but on some older phones, you may need to enable it in your phone's settings.",
         "passport_check": "Your passport must be a <strong>biometric passport</strong> — look for the gold chip symbol on the cover. Older passports without this symbol won't work.",
-        "remove_case": "<strong>Remove your phone case before starting</strong> — even thin cases can block the NFC signal and cause the scan to fail.",
-        "passport_symbol_alt": "Biometric passport symbol"
+        "remove_case": "<strong>Remove your phone case before starting</strong> — even thin cases can block the NFC signal and cause the scan to fail."
       },
       "didnt_work": {
         "heading": "Having Trouble?",
