@@ -130,10 +130,10 @@ export default function CommunitiesList() {
         </div>
       </SectionHeader>
       <StyledTypography variant="body1" sx={{ marginBottom: "16px" }}>
-         <Trans
+        <Trans
           i18nKey="dashboard:communities_intro"
-            components={{
-              browseCommunitiesLink: <StyledBrowseCommunitiesLink href="/communities" underline="hover" />,
+          components={{
+            browseCommunitiesLink: <StyledBrowseCommunitiesLink href="/communities" underline="hover" />,
           }}
         />
       </StyledTypography>
