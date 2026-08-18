@@ -199,14 +199,6 @@ class Moderator:
         visibility: moderation_pb2.ModerationVisibility.ValueType,
         reason: str = "Test moderation",
     ) -> None:
-        """
-        Set a group chat's visibility using the moderation API.
-
-        Args:
-            group_chat_id: The conversation_id of the group chat
-            visibility: The visibility to move the group chat to
-            reason: Optional reason for the moderation
-        """
         raising = visibility in (
             moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
             moderation_pb2.MODERATION_VISIBILITY_UNLISTED,
