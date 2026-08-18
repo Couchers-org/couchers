@@ -19,11 +19,8 @@ from couchers.jobs.handlers import check_expo_push_receipts
 from couchers.jobs.worker import process_job
 from couchers.models import (
     DeviceType,
-    GroupChat,
     HostingStatus,
     MeetupStatus,
-    ModerationState,
-    ModerationVisibility,
     Notification,
     NotificationDelivery,
     NotificationDeliveryType,
@@ -44,6 +41,7 @@ from couchers.proto import (
     conversations_pb2,
     editor_pb2,
     events_pb2,
+    moderation_pb2,
     notification_data_pb2,
     notifications_pb2,
 )
@@ -489,10 +487,10 @@ def test_unseen_notification_count_excludes_ums_hidden(db, moderator):
 @pytest.mark.parametrize(
     "visibility,author_sees,other_sees",
     [
-        (ModerationVisibility.visible, 1, 1),
-        (ModerationVisibility.unlisted, 1, 1),
-        (ModerationVisibility.shadowed, 1, 0),
-        (ModerationVisibility.hidden, 0, 0),
+        (moderation_pb2.MODERATION_VISIBILITY_VISIBLE, 1, 1),
+        (moderation_pb2.MODERATION_VISIBILITY_UNLISTED, 1, 1),
+        (moderation_pb2.MODERATION_VISIBILITY_SHADOWED, 1, 0),
+        (moderation_pb2.MODERATION_VISIBILITY_HIDDEN, 0, 0),
     ],
 )
 def test_notifications_follow_the_visibility_of_their_content(db, moderator, visibility, author_sees, other_sees):
@@ -511,11 +509,7 @@ def test_notifications_follow_the_visibility_of_their_content(db, moderator, vis
 
     process_jobs()
 
-    with session_scope() as session:
-        state_id = session.execute(
-            select(GroupChat.moderation_state_id).where(GroupChat.conversation_id == group_chat_id)
-        ).scalar_one()
-        session.execute(update(ModerationState).where(ModerationState.id == state_id).values(visibility=visibility))
+    moderator.set_group_chat_visibility(group_chat_id, visibility)
 
     for token, expected in [(author_token, author_sees), (other_token, other_sees)]:
         with api_session(token) as api:

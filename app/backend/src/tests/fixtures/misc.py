@@ -193,6 +193,43 @@ class Moderator:
                 )
             )
 
+    def set_group_chat_visibility(
+        self,
+        group_chat_id: int,
+        visibility: moderation_pb2.ModerationVisibility.ValueType,
+        reason: str = "Test moderation",
+    ) -> None:
+        """
+        Set a group chat's visibility using the moderation API.
+
+        Args:
+            group_chat_id: The conversation_id of the group chat
+            visibility: The visibility to move the group chat to
+            reason: Optional reason for the moderation
+        """
+        raising = visibility in (
+            moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+            moderation_pb2.MODERATION_VISIBILITY_UNLISTED,
+        )
+        with real_moderation_session(self.token) as api:
+            state_res = api.GetModerationState(
+                moderation_pb2.GetModerationStateReq(
+                    object_type=moderation_pb2.MODERATION_OBJECT_TYPE_GROUP_CHAT,
+                    object_id=group_chat_id,
+                )
+            )
+            api.ModerateContent(
+                moderation_pb2.ModerateContentReq(
+                    moderation_state_id=state_res.moderation_state.moderation_state_id,
+                    action=(
+                        moderation_pb2.MODERATION_ACTION_APPROVE if raising else moderation_pb2.MODERATION_ACTION_HIDE
+                    ),
+                    visibility=visibility,
+                    reason=reason,
+                    clear_flags=True,
+                )
+            )
+
     def approve_friend_request(self, friend_request_id: int, reason: str = "Test approval") -> None:
         """
         Approve a friend request using the moderation API.
