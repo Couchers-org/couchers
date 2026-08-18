@@ -542,13 +542,14 @@ class Events(events_pb2_grpc.EventsServicer):
         session.add(event)
         session.flush()
 
+        thread = Thread()
+        session.add(thread)
+        session.flush()
+
         occurrence: EventOccurrence | None = None
 
         def create_occurrence(moderation_state_id: int) -> int:
             nonlocal occurrence
-            thread = Thread()
-            session.add(thread)
-            session.flush()
             occurrence = EventOccurrence(
                 event_id=event.id,
                 content=request.content,
@@ -669,13 +670,14 @@ class Events(events_pb2_grpc.EventsServicer):
         ):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "event_cant_overlap")
 
+        thread = Thread()
+        session.add(thread)
+        session.flush()
+
         new_occurrence: EventOccurrence | None = None
 
         def create_occurrence(moderation_state_id: int) -> int:
             nonlocal new_occurrence
-            thread = Thread()
-            session.add(thread)
-            session.flush()
             new_occurrence = EventOccurrence(
                 event_id=event.id,
                 content=request.content,
