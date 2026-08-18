@@ -168,6 +168,31 @@ class Moderator:
                 )
             )
 
+    def hide_host_request(self, host_request_id: int, reason: str = "Test hide") -> None:
+        """
+        Hide a host request using the moderation API.
+
+        Args:
+            host_request_id: The conversation_id of the host request
+            reason: Optional reason for hiding
+        """
+        with real_moderation_session(self.token) as api:
+            state_res = api.GetModerationState(
+                moderation_pb2.GetModerationStateReq(
+                    object_type=moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST,
+                    object_id=host_request_id,
+                )
+            )
+            api.ModerateContent(
+                moderation_pb2.ModerateContentReq(
+                    moderation_state_id=state_res.moderation_state.moderation_state_id,
+                    action=moderation_pb2.MODERATION_ACTION_HIDE,
+                    visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
+                    reason=reason,
+                    clear_flags=True,
+                )
+            )
+
     def approve_group_chat(self, group_chat_id: int, reason: str = "Test approval") -> None:
         """
         Approve a group chat using the moderation API.
