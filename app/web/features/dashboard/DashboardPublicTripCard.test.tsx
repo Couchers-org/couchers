@@ -1,7 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import { PublicTrip } from "features/publicTrips/useListPublicTrips";
+import { service } from "service";
 import { Temporal } from "temporal-polyfill";
-import publicTrips from "test/fixtures/publicTrips.json";
+import community from "test/fixtures/community.json";
+import publicTrips from "test/fixtures/publicTrips";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 
@@ -9,10 +11,14 @@ import { DashboardPublicTripCard } from "./DashboardPublicTripCard";
 
 const { t } = i18n;
 
+const getCommunityMock = service.communities.getCommunity as jest.MockedFunction<
+  typeof service.communities.getCommunity
+>;
+
 function tripFrom(fromOffsetDays: number, toOffsetDays: number): PublicTrip {
   const today = Temporal.Now.plainDateISO();
   return {
-    ...(publicTrips[0] as unknown as PublicTrip),
+    ...publicTrips[0],
     fromDate: today.add({ days: fromOffsetDays }).toString(),
     toDate: today.add({ days: toOffsetDays }).toString(),
   };
@@ -22,6 +28,7 @@ describe("DashboardPublicTripCard", () => {
   beforeEach(() => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date("2021-05-10T12:34:56Z"));
+    getCommunityMock.mockResolvedValue(community);
   });
 
   afterEach(() => {
@@ -59,6 +66,20 @@ describe("DashboardPublicTripCard", () => {
 
       expect(screen.queryByText(t("dashboard:today_label"))).not.toBeInTheDocument();
       expect(screen.queryByText("Tomorrow")).not.toBeInTheDocument();
+    });
+
+    // "today" is mocked to 2021-05-10. The \s in these matchers keeps them
+    // working whichever space ICU puts either side of the dash (thin today).
+    it("shows the trip's date range, naming the month once when it doesn't change", () => {
+      render(<DashboardPublicTripCard trip={tripFrom(9, 12)} locale="en" {...modeProps} />, { wrapper });
+
+      expect(screen.getByText(/^May 19\s–\s22, 2021$/)).toBeVisible();
+    });
+
+    it("names both months in the date range when the trip spans a month boundary", () => {
+      render(<DashboardPublicTripCard trip={tripFrom(20, 30)} locale="en" {...modeProps} />, { wrapper });
+
+      expect(screen.getByText(/^May 30\s–\sJun 9, 2021$/)).toBeVisible();
     });
   });
 });

@@ -17,7 +17,7 @@ const getLiteUserMock = service.user.getLiteUser as jest.Mock;
 function stayFrom(fromOffsetDays: number, toOffsetDays: number): HostRequest.AsObject {
   const today = Temporal.Now.plainDateISO();
   return {
-    ...(hostRequest as unknown as HostRequest.AsObject),
+    ...hostRequest,
     fromDate: today.add({ days: fromOffsetDays }).toString(),
     toDate: today.add({ days: toOffsetDays }).toString(),
   };

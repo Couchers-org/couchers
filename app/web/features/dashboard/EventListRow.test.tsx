@@ -9,7 +9,7 @@ import EventListRow from "./EventListRow";
 
 const { t } = i18n;
 
-const baseEvent = events[0] as unknown as Event.AsObject;
+const baseEvent: Event.AsObject = events[0];
 
 function eventAt(start: Temporal.ZonedDateTime, end: Temporal.ZonedDateTime): Event.AsObject {
   return {
@@ -48,12 +48,17 @@ describe("EventListRow", () => {
     expect(screen.queryByText(t("dashboard:today_label"))).not.toBeInTheDocument();
   });
 
-  it("shows the month and day for an event on another day", () => {
+  it("shows the month, day and start time for an event on another day", () => {
     const now = Temporal.Now.zonedDateTimeISO();
+    // "now" is mocked to 2021-05-10T12:34:56Z and tests run in UTC, so three
+    // days out is 13 May at 12:34.
     const start = now.add({ days: 3 });
     render(<EventListRow event={eventAt(start, start.add({ hours: 1 }))} />, { wrapper });
 
-    expect(screen.getByText(String(start.day))).toBeVisible();
+    expect(screen.getByText("May")).toBeVisible();
+    expect(screen.getByText("13")).toBeVisible();
+    // \s: ICU's meridiem separator is a plain space in some versions, narrow no-break in others.
+    expect(screen.getByText(/^12:34\sPM$/)).toBeVisible();
     expect(screen.queryByText(t("dashboard:today_label"))).not.toBeInTheDocument();
     expect(screen.queryByText(t("dashboard:now_label"))).not.toBeInTheDocument();
   });
