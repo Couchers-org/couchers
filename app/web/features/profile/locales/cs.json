@@ -89,7 +89,8 @@
     "hundred_or_more_references": "Více než 100 referencí",
     "count_references_one": "{{count}} reference",
     "count_references_few": "{{count}} reference",
-    "count_references_other": "{{count}} referencí"
+    "count_references_other": "{{count}} referencí",
+    "no_references": "Žádné reference"
   },
   "gallery": {
     "previous_photo": "Předchozí fotka",
@@ -177,5 +178,11 @@
     "cancel_button": "To nevadí",
     "description_1": "Než budeš moci {{action_name}}, musíš ve svém profilu <strong>napsat něco o sobě</strong> a <strong>nahrát profilovou fotografii</strong>."
   },
-  "hobbies_textbox_placeholder": "např. aktivity, knihy, filmy, hudba…"
+  "hobbies_textbox_placeholder": "např. aktivity, knihy, filmy, hudba…",
+  "open_profile_a11y": "Otevřít profil",
+  "open_profile_new_tab": "Otevřít profil na nové kartě",
+  "incomplete_profile_haiku": "Prázdný avatar hledí,\nza tichem se skrývá tajemství -\nkdo jsi, cizinče?",
+  "meetup_status": {
+    "does_not_want_to_meetup_description": "Raději se s ostatními nescházím"
+  }
 }
