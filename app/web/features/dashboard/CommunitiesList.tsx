@@ -8,7 +8,7 @@ import { useListUserCommunities } from "features/communities/hooks";
 import { Trans, useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import { useEffect, useRef, useState } from "react";
-import {routeToCommunity } from "routes";
+import { routeToCommunity } from "routes";
 
 const CARD_GAP = 12;
 const CARD_WIDTH = 200;
