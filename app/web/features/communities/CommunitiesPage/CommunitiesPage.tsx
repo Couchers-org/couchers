@@ -22,29 +22,12 @@ const HeaderRow = styled("div")(({ theme }) => ({
   paddingBottom: theme.spacing(1),
 }));
 
-const Subtitle = styled(Typography)(({ theme }) => ({
-  fontWeight: "bold",
-  fontSize: "1.25rem",
-  paddingBottom: theme.spacing(1),
-}));
-
 const SectionHeader = styled("div")({
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
   marginBottom: "8px",
 });
-
-const MainTitle = styled(Typography)(({ theme }) => ({
-  fontWeight: "bold",
-  fontSize: "2rem",
-  paddingBottom: theme.spacing(2),
-  paddingTop: theme.spacing(2),
-}));
-
-const StyledBrowseCommunitiesLink = styled(StyledLink)(() => ({
-  verticalAlign: "baseline",
-}));
 
 const StyledTypography = styled(Typography)(({ theme }) => ({
   paddingBlockEnd: theme.spacing(1),
@@ -84,9 +67,6 @@ const ExpandButton = styled(Button)(({ theme }) => ({
 const CommunitiesPage = () => {
   const { t } = useTranslation([GLOBAL, DASHBOARD]);
   const [browserExpanded, setBrowserExpanded] = useState(false);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-  const [scroll, setScroll] = useState<((dir: 1 | -1) => void) | null>(null);
   const { data: accountInfo } = useAccountInfo();
   return (
     <>

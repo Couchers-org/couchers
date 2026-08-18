@@ -60,10 +60,6 @@ const SkeletonCard = styled("div")(({ theme }) => ({
   background: "var(--mui-palette-background-paper)",
 }));
 
-const StyledBrowseCommunitiesLink = styled(StyledLink)(() => ({
-  verticalAlign: "baseline",
-}));
-
 const StyledTypography = styled(Typography)(({ theme }) => ({
   paddingBlockEnd: theme.spacing(1),
 }));
