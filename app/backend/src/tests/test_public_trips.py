@@ -989,7 +989,6 @@ def test_list_public_trips_by_user_offers_count_owner(db, moderator: Moderator):
             )
         ).host_request_id
 
-    # The offer is shadowed until a moderator approves it, so the owner can't open it yet
     with public_trips_session(traveler_token) as api:
         res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
         trip = next(t for t in res.public_trips if t.trip_id == trip_id)
@@ -1006,8 +1005,7 @@ def test_list_public_trips_by_user_offers_count_owner(db, moderator: Moderator):
 
 
 def test_list_public_trips_by_user_offers_count_excludes_invisible_offers(db, moderator: Moderator):
-    """The count only covers offers the owner can open: not hidden ones, and not ones from a user
-    they can't see."""
+    """The count only covers offers the owner can open."""
     traveler, traveler_token = generate_user()
     _hidden_host, hidden_host_token = generate_user()
     banned_host, banned_host_token = generate_user()

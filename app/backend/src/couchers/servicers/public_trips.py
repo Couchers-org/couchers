@@ -77,9 +77,6 @@ def public_trip_to_pb(
         same_gender_only=public_trip.same_gender_only,
     )
     if public_trip.user_id == context.user_id:
-        # Filtered like the thread list the owner opens the offers from, since an offer they can't
-        # open shouldn't raise the count. The recipient of an offer on the trip is the owner, i.e.
-        # the viewer, so only the offering user's visibility needs checking.
         offers = (
             select(func.count())
             .select_from(HostRequest)

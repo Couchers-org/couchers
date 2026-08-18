@@ -169,13 +169,7 @@ class Moderator:
             )
 
     def hide_host_request(self, host_request_id: int, reason: str = "Test hide") -> None:
-        """
-        Hide a host request using the moderation API.
-
-        Args:
-            host_request_id: The conversation_id of the host request
-            reason: Optional reason for hiding
-        """
+        """Hide a host request using the moderation API. host_request_id is its conversation_id."""
         with real_moderation_session(self.token) as api:
             state_res = api.GetModerationState(
                 moderation_pb2.GetModerationStateReq(
