@@ -1,5 +1,5 @@
-import { ArrowBack, ArrowForward, ExpandMoreOutlined, ExploreOutlined, Groups, Search } from "@mui/icons-material";
-import { Button, Collapse, IconButton, styled, Typography } from "@mui/material";
+import { ExpandMoreOutlined, ExploreOutlined, Search } from "@mui/icons-material";
+import { Button, Collapse, styled, Typography } from "@mui/material";
 import MuiLink from "@mui/material/Link";
 import PageTitle from "components/PageTitle";
 import StyledLink from "components/StyledLink";
@@ -96,7 +96,7 @@ const CommunitiesPage = () => {
         </HeaderRow>
       </div>
       <CommunitiesList />
-         <StyledTypography variant="body1" sx={{ marginTop: "16px" }}>
+      <StyledTypography variant="body1" sx={{ marginTop: "16px" }}>
         <Trans
           i18nKey="dashboard:community_builder"
           components={{
@@ -111,7 +111,7 @@ const CommunitiesPage = () => {
           }}
         />
       </StyledTypography>
-     
+
       <SectionHeader sx={{ marginTop: "16px" }}>
         <Typography variant="h2" sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
           <Search sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />

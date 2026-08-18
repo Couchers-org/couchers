@@ -1,7 +1,6 @@
 import { ArrowBack, ArrowForward, Groups } from "@mui/icons-material";
 import { Box, IconButton, styled, Typography, TypographyProps, useMediaQuery, useTheme } from "@mui/material";
 import Alert from "components/Alert";
-import MuiLink from "@mui/material/Link";
 import FadingScrollTrack from "components/FadingScrollTrack";
 import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
@@ -9,7 +8,7 @@ import { useListUserCommunities } from "features/communities/hooks";
 import { Trans, useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import { useEffect, useRef, useState } from "react";
-import { routeToCommunity, communityCreationFormURL, helpCenterCommunityBuilderURL  } from "routes";
+import {routeToCommunity } from "routes";
 
 const CARD_GAP = 12;
 const CARD_WIDTH = 200;
@@ -130,9 +129,9 @@ export default function CommunitiesList() {
           </IconButton>
         </div>
       </SectionHeader>
-        <StyledTypography variant="body1" sx={{ marginBottom: "16px" }}>
+      <StyledTypography variant="body1" sx={{ marginBottom: "16px" }}>
         <Trans i18nKey="dashboard:communities_intro" />
-        </StyledTypography>
+      </StyledTypography>
       {error?.message && <Alert severity="error">{error.message}</Alert>}
       {isPending ? (
         <FadingScrollTrack $gap={CARD_GAP} $snapType="x proximity">
