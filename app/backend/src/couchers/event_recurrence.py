@@ -7,35 +7,27 @@ No database or session dependency.
 from collections.abc import Generator
 from datetime import date, datetime, time, timedelta
 
-from dateutil.rrule import rrulestr
-from icalendar.prop import vDatetime, vRecur
+from dateutil.rrule import DAILY, MONTHLY, WEEKLY, rrule, rrulestr
 
 from couchers.utils import now
 
 
-def _make_rrule(freq: str, start_date: date, end_date: date | None, **recur_params: object) -> str:
-    params: dict[str, object] = {"FREQ": freq, **recur_params}
-    if end_date is not None:
-        params["UNTIL"] = datetime.combine(end_date, time.min)
-
-    dtstart: bytes = vDatetime(datetime.combine(start_date, time.min)).to_ical()  # type: ignore[no-untyped-call]
-    rrule: bytes = vRecur(params).to_ical()  # type: ignore[no-untyped-call]
-    return f"DTSTART:{dtstart.decode()}\nRRULE:{rrule.decode()}"
-
-
 def make_every_nth_week_rrule(start_date: date, n: int, end_date: date | None = None) -> str:
     """Build an RRULE for recurring every nth week. Unbounded if no `end_date`."""
-    return _make_rrule("WEEKLY", start_date, end_date, INTERVAL=n)
+    until = datetime.combine(end_date, time.min) if end_date is not None else None
+    return str(rrule(WEEKLY, dtstart=datetime.combine(start_date, time.min), interval=n, until=until))
 
 
 def make_daily_rrule(start_date: date, end_date: date | None = None) -> str:
     """Build an RRULE for recurring daily. Unbounded if no `end_date`."""
-    return _make_rrule("DAILY", start_date, end_date)
+    until = datetime.combine(end_date, time.min) if end_date is not None else None
+    return str(rrule(DAILY, dtstart=datetime.combine(start_date, time.min), until=until))
 
 
 def make_monthly_rrule(start_date: date, end_date: date | None = None) -> str:
     """Build an RRULE for recurring monthly. Unbounded if no `end_date`."""
-    return _make_rrule("MONTHLY", start_date, end_date)
+    until = datetime.combine(end_date, time.min) if end_date is not None else None
+    return str(rrule(MONTHLY, dtstart=datetime.combine(start_date, time.min), until=until))
 
 
 def get_future_occurrences(from_date: date, rrule: str) -> Generator[date]:
