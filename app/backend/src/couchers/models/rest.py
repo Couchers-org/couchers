@@ -320,6 +320,8 @@ class UserActivity(Base, kw_only=True):
             # treat NULL ip_address/user_agent/sofa as equal so the upsert dedupes rows with absent columns
             postgresql_nulls_not_distinct=True,
         ),
+        Index("ix_user_activity_sofa", sofa),
+        Index("ix_user_activity_ip_address", ip_address),
     )
 
 
