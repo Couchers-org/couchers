@@ -1,6 +1,7 @@
 import { ArrowBack, ArrowForward, Groups } from "@mui/icons-material";
 import { Box, IconButton, styled, Typography, TypographyProps, useMediaQuery, useTheme } from "@mui/material";
 import Alert from "components/Alert";
+import MuiLink from "@mui/material/Link";
 import FadingScrollTrack from "components/FadingScrollTrack";
 import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
@@ -8,7 +9,7 @@ import { useListUserCommunities } from "features/communities/hooks";
 import { Trans, useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import { useEffect, useRef, useState } from "react";
-import { routeToCommunity } from "routes";
+import { routeToCommunity, communityCreationFormURL, helpCenterCommunityBuilderURL  } from "routes";
 
 const CARD_GAP = 12;
 const CARD_WIDTH = 200;
@@ -64,6 +65,10 @@ const StyledBrowseCommunitiesLink = styled(StyledLink)(() => ({
   verticalAlign: "baseline",
 }));
 
+const StyledTypography = styled(Typography)(({ theme }) => ({
+  paddingBlockEnd: theme.spacing(1),
+}));
+
 export default function CommunitiesList() {
   const { t } = useTranslation([DASHBOARD]);
   const theme = useTheme();
@@ -103,6 +108,7 @@ export default function CommunitiesList() {
           <Groups sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />
           {t("dashboard:your_communities_heading")}
         </Typography>
+
         <div>
           <IconButton
             size="small"
@@ -124,19 +130,9 @@ export default function CommunitiesList() {
           </IconButton>
         </div>
       </SectionHeader>
-      <Typography
-        variant="body1"
-        sx={{
-          marginBottom: "16px",
-        }}
-      >
-        <Trans
-          i18nKey="dashboard:your_communities_helper_text"
-          components={{
-            browseCommunitiesLink: <StyledBrowseCommunitiesLink href="/communities" underline="hover" />,
-          }}
-        />
-      </Typography>
+        <StyledTypography variant="body1" sx={{ marginBottom: "16px" }}>
+        <Trans i18nKey="dashboard:communities_intro" />
+        </StyledTypography>
       {error?.message && <Alert severity="error">{error.message}</Alert>}
       {isPending ? (
         <FadingScrollTrack $gap={CARD_GAP} $snapType="x proximity">
