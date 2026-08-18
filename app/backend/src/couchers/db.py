@@ -20,6 +20,7 @@ from sqlalchemy.sql import and_, func, literal, or_
 
 from couchers.config import config
 from couchers.constants import DB_POOL_SIZE
+from couchers.middleware.perf import register_perf_listeners
 from couchers.models import (
     Cluster,
     ClusterRole,
@@ -31,7 +32,6 @@ from couchers.models import (
     TimezoneArea,
     User,
 )
-from couchers.perf import register_perf_listeners
 from couchers.sql import where_users_column_visible
 
 if TYPE_CHECKING:

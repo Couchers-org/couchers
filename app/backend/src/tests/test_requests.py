@@ -453,7 +453,7 @@ def test_create_request_incomplete_profile(db):
     assert e.value.details() == "You have to complete your profile before you can send a request."
 
 
-def test_excessive_requests_are_reported(db, email_collector: EmailCollector):
+def test_excessive_requests_are_reported(db, low_rate_limits, email_collector: EmailCollector):
     """Test that excessive host requests are first reported in a warning email and finally lead blocking of further requests."""
     user, token = generate_user()
     today_plus_2 = today() + timedelta(days=2)

@@ -1118,7 +1118,7 @@ def test_cant_friend_request_incomplete_profile(db):
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
 
 
-def test_excessive_friend_requests_are_reported(db, email_collector: EmailCollector):
+def test_excessive_friend_requests_are_reported(db, low_rate_limits, email_collector: EmailCollector):
     """Test that excessive friend requests are first reported in a warning email and finally lead blocking of further requests."""
     user, token = generate_user()
     rate_limit_definition = RATE_LIMIT_DEFINITIONS[RateLimitAction.friend_request]

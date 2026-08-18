@@ -60,11 +60,13 @@ make mypy
 - For paginated APIs, use a `next_page_token` string field: an empty token means there are no more pages (don't add a separate `no_more` flag). Encrypt tokens with `encrypt_page_token`/`decrypt_page_token` from `couchers.crypto` so they are opaque to clients
 
 ### Web (TypeScript/React)
-- Uses `nvm` for node version management
-- Uses `yarn` (not npm) - run dev server with `yarn start` (not Docker)
+- Uses `nvm` for node version management. Use it as `source $HOME/.nvm/nvm.sh && <nvm command>`.
+- Uses `yarn` (not npm). Use it as `source $HOME/.nvm/nvm.sh && nvm use && <yarn command>`
+- Run the dev server with `yarn start` (not Docker)
 - Run linting with `yarn lint` and auto-fix with `yarn lint:fix`
 - Run tests with `yarn test`
 - Run linting AND formatting with `yarn format`
+- Run type checking with `yarn typecheck`
 - Import aliases: use `components/` not `../../../components/`, `routes` not `../../../routes`
 - Import multiple MUI icons together: `import { Favorite, Star, Public } from "@mui/icons-material"` instead of separate imports
 - No `any` types - explicitly type mock mutations (e.g., `UseMutationResult<...>`)

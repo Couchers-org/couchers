@@ -5,16 +5,13 @@ import { PublicTrip, PublicTripStatus } from "proto/public_trips_pb";
 import { routeToHostRequest } from "routes";
 import { service } from "service";
 import community from "test/fixtures/community.json";
-import publicTripsFixture from "test/fixtures/publicTrips.json";
+import publicTrips from "test/fixtures/publicTrips";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 import { getAccountInfo } from "test/serviceMockDefaults";
 import { addDefaultUser, MockedService } from "test/utils";
 
 import PublicTripsSection from "./PublicTripsSection";
-
-// Cast once: the JSON fixture uses only the User fields the card actually reads.
-const publicTrips = publicTripsFixture as unknown as PublicTrip.AsObject[];
 
 const { t } = i18n;
 
@@ -35,6 +32,7 @@ const updatePublicTripMock = service.publicTrips.updatePublicTrip as MockedServi
   typeof service.publicTrips.updatePublicTrip
 >;
 const getAccountInfoMock = service.account.getAccountInfo as MockedService<typeof service.account.getAccountInfo>;
+const getCommunityMock = service.communities.getCommunity as MockedService<typeof service.communities.getCommunity>;
 const createHostRequestMock = service.requests.createHostRequest as MockedService<
   typeof service.requests.createHostRequest
 >;
@@ -72,6 +70,8 @@ describe("PublicTripsSection", () => {
   beforeEach(() => {
     addDefaultUser();
     getAccountInfoMock.mockImplementation(getAccountInfo);
+    // The edit dialog looks up the trip's community to show its name.
+    getCommunityMock.mockResolvedValue(community);
     listPublicTripsMock.mockResolvedValue({
       publicTripsList: publicTrips,
       nextPageToken: "",

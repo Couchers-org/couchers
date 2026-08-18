@@ -13,6 +13,7 @@ from couchers.constants import ANTIBOT_FREQ, BANNED_USERNAME_PHRASES, GUIDELINES
 from couchers.context import CouchersContext
 from couchers.crypto import cookiesafe_secure_token, hash_password, urlsafe_secure_token, verify_password
 from couchers.event_log import log_event
+from couchers.helpers.hosting_meetup_status import record_hosting_meetup_status
 from couchers.metrics import (
     account_deletion_completions_counter,
     account_recoveries_counter,
@@ -33,7 +34,9 @@ from couchers.models import (
     AccountDeletionToken,
     AntiBotLog,
     ContributorForm,
+    HostingMeetupStatusSource,
     InviteCode,
+    ModerationObjectType,
     NonvisibleUserAccessType,
     PasswordResetToken,
     PhotoGallery,
@@ -43,6 +46,7 @@ from couchers.models import (
 )
 from couchers.models.notifications import NotificationTopicAction
 from couchers.models.uploads import get_avatar_upload
+from couchers.moderation.utils import create_moderation
 from couchers.notifications.notify import notify
 from couchers.notifications.quick_links import decode_quick_link
 from couchers.proto import auth_pb2, auth_pb2_grpc, notification_data_pb2
@@ -126,14 +130,20 @@ def create_session(
         user_session.expiry = func.now() + duration
 
     session.add(user_session)
+
+    # read off the user before the commit expires it: every attribute touched after the commit re-selects the
+    # whole row, and this is on the path of every single login
+    user_id = user.id
+    user_gender = user.gender
+
     session.commit()
 
-    logger.debug(f"Handing out {token=} to {user=}")
+    logger.debug("Handing out %s to user %s", token, user_id)
 
     if set_cookie:
-        context.set_cookies(create_session_cookies(token, user.id, user_session.expiry))
+        context.set_cookies(create_session_cookies(token, user_id, user_session.expiry))
 
-    logins_counter.labels(user.gender).inc()
+    logins_counter.labels(user_gender).inc()
 
     return token, user_session.expiry
 
@@ -352,30 +362,45 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         # finish the signup if done
         if flow.is_completed:
-            user = User(
-                name=flow.name,
-                email=flow.email,
-                username=not_none(flow.username),
-                hashed_password=not_none(flow.hashed_password),
-                birthdate=not_none(flow.birthdate),
-                gender=not_none(flow.gender),
-                hosting_status=not_none(flow.hosting_status),
-                city=not_none(flow.city),
-                geom=is_geom(flow.geom),
-                geom_radius=not_none(flow.geom_radius),
-                accepted_tos=not_none(flow.accepted_tos),
-                last_onboarding_email_sent=func.now(),
-                invite_code_id=flow.invite_code_id,
-                heard_about_couchers=flow.heard_about_couchers,
-                signup_motivations=flow.signup_motivations if flow.filled_motivations else None,
+            user: User | None = None
+
+            def create_user(moderation_state_id: int) -> int:
+                nonlocal user
+                user = User(
+                    name=flow.name,
+                    email=flow.email,
+                    username=not_none(flow.username),
+                    hashed_password=not_none(flow.hashed_password),
+                    birthdate=not_none(flow.birthdate),
+                    gender=not_none(flow.gender),
+                    hosting_status=not_none(flow.hosting_status),
+                    city=not_none(flow.city),
+                    geom=is_geom(flow.geom),
+                    geom_radius=not_none(flow.geom_radius),
+                    accepted_tos=not_none(flow.accepted_tos),
+                    last_onboarding_email_sent=func.now(),
+                    invite_code_id=flow.invite_code_id,
+                    heard_about_couchers=flow.heard_about_couchers,
+                    signup_motivations=flow.signup_motivations if flow.filled_motivations else None,
+                    moderation_state_id=moderation_state_id,
+                )
+
+                user.accepted_community_guidelines = flow.accepted_community_guidelines
+                user.onboarding_emails_sent = 1
+                user.opt_out_of_newsletter = not_none(flow.opt_out_of_newsletter)
+
+                session.add(user)
+                session.flush()
+                return user.id
+
+            create_moderation(
+                session=session,
+                object_type=ModerationObjectType.user,
+                object_id=create_user,
             )
+            assert user is not None
 
-            user.accepted_community_guidelines = flow.accepted_community_guidelines
-            user.onboarding_emails_sent = 1
-            user.opt_out_of_newsletter = not_none(flow.opt_out_of_newsletter)
-
-            session.add(user)
-            session.flush()
+            record_hosting_meetup_status(session, user, HostingMeetupStatusSource.signup)
 
             # Create a profile gallery for the user
             profile_gallery = PhotoGallery(owner_user_id=user.id)

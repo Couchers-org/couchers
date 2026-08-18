@@ -10,9 +10,11 @@ from sqlalchemy.orm import Session
 
 from couchers.constants import DATETIME_INFINITY
 from couchers.context import CouchersContext, make_one_off_interactive_user_context
+from couchers.helpers.hosting_meetup_status import record_hosting_meetup_status
 from couchers.models import (
     GroupChat,
     GroupChatSubscription,
+    HostingMeetupStatusSource,
     HostingStatus,
     MeetupStatus,
     NotificationDeliveryType,
@@ -39,6 +41,7 @@ def handle_unsubscribe(payload: unsubscribe_pb2.UnsubscribePayload, context: Cou
         user.do_not_email = True
         user.hosting_status = HostingStatus.cant_host
         user.meetup_status = MeetupStatus.does_not_want_to_meetup
+        record_hosting_meetup_status(session, user, HostingMeetupStatusSource.unsubscribe_link)
         return context.localization.localize_string("quick_links.do_not_email")
 
     if payload.HasField("topic_action"):

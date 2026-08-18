@@ -70,7 +70,7 @@ from couchers.servicers.events import generate_event_delete_notifications
 from couchers.servicers.moderation import bulk_set_user_content_visibility
 from couchers.servicers.threads import unpack_thread_id
 from couchers.sql import to_bool, username_or_email_or_id
-from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date, to_aware_datetime
+from couchers.utils import Timestamp_from_datetime, date_to_api, not_none, now, parse_date, to_aware_datetime
 
 logger = logging.getLogger(__name__)
 
@@ -979,7 +979,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 status=rel.status.name if rel.status else "",
                 time_sent=Timestamp_from_datetime(rel.time_sent),
                 time_responded=Timestamp_from_datetime(rel.time_responded) if rel.time_responded else None,
-                moderation_visibility=rel.moderation_state.visibility.name,
+                moderation_visibility=not_none(rel.moderation_state.visibility).name,
             )
 
         sent = (

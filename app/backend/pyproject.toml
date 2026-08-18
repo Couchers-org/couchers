@@ -44,6 +44,7 @@ dependencies = [
     "user-agents>=2.2.0",
     "growthbook>=2.3.1",
     "pyroscope-io>=1.0.12",
+    "valkey>=6.1.0",
 ]
 
 [project.scripts]
@@ -111,6 +112,8 @@ extra-standard-library = ["zoneinfo"]
 # Pytest
 [tool.pytest.ini_options]
 pythonpath = ["src"]
+# Also makes src/tests/conftest.py an initial conftest, so its pytest_addoption runs
+testpaths = ["src/tests"]
 strict = true
 filterwarnings = [
     "error",  # Treat all warnings as errors by default
