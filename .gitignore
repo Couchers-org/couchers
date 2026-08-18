@@ -19,3 +19,6 @@ pyrightconfig.json
 !/.claude/tools/**
 !/.claude/skills/
 !/.claude/skills/**
+
+# scratch working directory
+/tmp/
