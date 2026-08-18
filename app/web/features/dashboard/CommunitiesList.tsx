@@ -27,6 +27,10 @@ const CardSlot = styled(Box)({
   scrollSnapAlign: "start",
 });
 
+const StyledBrowseCommunitiesLink = styled(StyledLink)(() => ({
+  verticalAlign: "baseline",
+}));
+
 const CommunityCard = styled(StyledLink)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
@@ -126,7 +130,12 @@ export default function CommunitiesList() {
         </div>
       </SectionHeader>
       <StyledTypography variant="body1" sx={{ marginBottom: "16px" }}>
-        <Trans i18nKey="dashboard:communities_intro" />
+         <Trans
+          i18nKey="dashboard:communities_intro"
+            components={{
+              browseCommunitiesLink: <StyledBrowseCommunitiesLink href="/communities" underline="hover" />,
+          }}
+        />
       </StyledTypography>
       {error?.message && <Alert severity="error">{error.message}</Alert>}
       {isPending ? (
