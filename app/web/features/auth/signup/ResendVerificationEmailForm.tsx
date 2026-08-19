@@ -46,9 +46,7 @@ export default function ResendVerificationEmailForm() {
           <Trans
             i18nKey="auth:sign_up_resend_verification_email_help"
             components={{
-              resendLink: (
-                <StyledLink href="#" onClick={handleResendVerification} />
-              ),
+              resendLink: <StyledLink href="#" onClick={handleResendVerification} />,
             }}
           />
         ) : (
@@ -58,11 +56,9 @@ export default function ResendVerificationEmailForm() {
       <Typography variant="body1">
         <Trans
           i18nKey="auth:sign_up_restart_signup"
-            components={{
-              restartSignup: (
-                <StyledLink href="#" onClick={handleRestartSignup} />
-              ),
-            }}
+          components={{
+            restartSignup: <StyledLink href="#" onClick={handleRestartSignup} />,
+          }}
         />
       </Typography>
     </>
