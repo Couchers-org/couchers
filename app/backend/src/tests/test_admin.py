@@ -14,6 +14,7 @@ from couchers.models import (
     EventOccurrence,
     FriendRelationship,
     FriendStatus,
+    HostRequest,
     ModerationObjectType,
     ModerationState,
     ModerationUserList,
@@ -39,7 +40,7 @@ from couchers.proto import (
     reporting_pb2,
     requests_pb2,
 )
-from couchers.utils import Timestamp_from_datetime, datetime_to_iso8601_local, now, parse_date
+from couchers.utils import Timestamp_from_datetime, date_to_api, datetime_to_iso8601_local, now, parse_date
 from tests.fixtures.db import (
     add_users_to_new_moderation_list,
     backdate_conversations,
@@ -58,6 +59,7 @@ from tests.fixtures.sessions import (
     requests_session,
 )
 from tests.test_communities import create_community
+from tests.test_references import create_host_reference
 from tests.test_requests import valid_request_text
 
 
@@ -912,7 +914,19 @@ def test_GetUserReferences(db):
         assert res.references_from[0].reference_id == ref1.reference_id
         assert res.references_from[0].from_user_id == user1.id
         assert res.references_from[0].to_user_id == user2.id
+        assert res.references_from[0].from_user.user_id == user1.id
+        assert res.references_from[0].from_user.username == user1.username
+        assert res.references_from[0].to_user.user_id == user2.id
+        assert res.references_from[0].to_user.username == user2.username
+        assert res.references_from[0].reference_type == "friend"
         assert res.references_from[0].text == "Reference from user1 to user2"
+        # freshly written content starts out shadowed
+        assert res.references_from[0].moderation_visibility == "shadowed"
+        assert res.references_from[0].host_request_id == 0
+        assert res.references_from[0].hosting_city == ""
+        assert res.references_from[0].from_date == ""
+        assert res.references_from[0].to_date == ""
+        assert res.references_from[0].status == ""
 
         # user1 received 2 references
         assert len(res.references_to) == 2
@@ -923,6 +937,54 @@ def test_GetUserReferences(db):
         assert res.references_to[1].reference_id == ref2.reference_id
         assert res.references_to[1].private_text == "Private note"
         assert res.references_to[1].rating == 0.8
+
+
+def test_GetUserReferences_host_request(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+
+    with session_scope() as session:
+        surfed_ref_id, host_request_id = create_host_reference(session, user1.id, user2.id, timedelta(days=2))
+        hosted_ref_id, _ = create_host_reference(
+            session, user2.id, user1.id, timedelta(days=2), host_request_id=host_request_id
+        )
+        host_request = session.execute(
+            select(HostRequest).where(HostRequest.conversation_id == host_request_id)
+        ).scalar_one()
+        from_date = date_to_api(host_request.from_date)
+        to_date = date_to_api(host_request.to_date)
+
+    with real_admin_session(super_token) as admin_api:
+        res = admin_api.GetUserReferences(admin_pb2.GetUserReferencesReq(user=user1.username))
+
+    assert len(res.references_from) == 1
+    surfed_ref = res.references_from[0]
+    assert surfed_ref.reference_id == surfed_ref_id
+    assert surfed_ref.reference_type == "surfed"
+    assert surfed_ref.from_user.user_id == user1.id
+    assert surfed_ref.from_user.username == user1.username
+    assert surfed_ref.to_user.user_id == user2.id
+    assert surfed_ref.to_user.username == user2.username
+    assert surfed_ref.moderation_visibility == "visible"
+    assert surfed_ref.host_request_id == host_request_id
+    assert surfed_ref.hosting_city == "Test City"
+    assert surfed_ref.from_date == from_date
+    assert surfed_ref.to_date == to_date
+    assert surfed_ref.status == "confirmed"
+
+    assert len(res.references_to) == 1
+    hosted_ref = res.references_to[0]
+    assert hosted_ref.reference_id == hosted_ref_id
+    assert hosted_ref.reference_type == "hosted"
+    assert hosted_ref.from_user.user_id == user2.id
+    assert hosted_ref.to_user.user_id == user1.id
+    assert hosted_ref.host_request_id == host_request_id
+    assert hosted_ref.hosting_city == "Test City"
+    assert hosted_ref.from_date == from_date
+    assert hosted_ref.to_date == to_date
+    assert hosted_ref.status == "confirmed"
 
 
 def test_GetUserReferences_not_found(db):
