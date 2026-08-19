@@ -68,8 +68,7 @@
   "events": {
     "your_upcoming_header": "Deine anstehenden Events",
     "your_upcoming_empty_message": "Aktuell gibt es keine Events. Warum <createEventLink>erstellst</createEventLink> du nicht eins ✨?",
-    "community_header": "Events in deinen Communitys",
-    "today_label": "Heute"
+    "community_header": "Events in deinen Communitys"
   },
   "discussions": {
     "community_header": "Beiträge in deinen Communitys",
