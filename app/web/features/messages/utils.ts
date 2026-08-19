@@ -12,9 +12,10 @@ type Conversation = GroupChat.AsObject | HostRequest.AsObject;
 export function hasUnreadMessages<T extends Conversation>(
   conversation: T,
 ): conversation is T & { latestMessage: Message.AsObject } {
-  return (
-    conversation.latestMessage !== undefined && conversation.lastSeenMessageId < conversation.latestMessage.messageId
-  );
+  // The server scopes unseen counts to the current subscription window, so a message sent while the
+  // user was out of the chat is not unread. Comparing ids here would re-derive that rule and get it
+  // wrong: last_seen_message_id starts at 0, so all pre-join history would look unread.
+  return conversation.latestMessage !== undefined && conversation.unseenMessageCount > 0;
 }
 
 export function isControlMessage(message: Message.AsObject) {

@@ -3,7 +3,7 @@ import Button from "components/Button";
 import { DoneAllIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
 import { messageFilterToRequest, MessageFilterType } from "features/messages/constants";
-import { messageThreadsListKey, pingQueryKey } from "features/queryKeys";
+import { listNotificationsQueryKey, messageThreadsListKey, pingQueryKey } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { service } from "service";
@@ -28,6 +28,9 @@ export default function MarkAllReadButton({ type }: { type: MarkAllReadType }) {
       queryClient.invalidateQueries({ queryKey: messageThreadsListKey() });
       // Invalidate ping to update badge counts in tabs
       queryClient.invalidateQueries({ queryKey: [pingQueryKey] });
+      // MarkAllThreadsSeen also marks the chat notifications seen server-side, so the feed's
+      // seen state goes stale otherwise (the single-thread views invalidate this too).
+      queryClient.invalidateQueries({ queryKey: [listNotificationsQueryKey] });
     },
   });
 
