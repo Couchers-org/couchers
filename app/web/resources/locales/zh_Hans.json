@@ -19,7 +19,7 @@
   "cancel": "取消",
   "load_more": "加载更多",
   "copy_button": {
-    "a11y": "Copy",
+    "a11y": "复制",
     "copied_tooltip": "复制到剪贴板"
   },
   "thanks": "谢谢！",
@@ -46,7 +46,7 @@
   "next": "下一页",
   "previous": "上一页",
   "mod": "审核",
-  "cookie_message": "我们使用cookie以确保在我们的网站上为您提供最佳体验。如果您继续使用本网站，我们将假设您对此感到满意。您可以详细了解我们的<1>服务条款</1>。",
+  "cookie_message": "我们使用cookie以确保在我们的网站上为您提供最佳体验。如果您继续使用本网站，我们将假设您对此感到满意。您可以详细了解我们的<tosLink>服务条款</tosLink>。",
   "hosting_status": {
     "can_host": "可以接待",
     "maybe": "有可能接待",
@@ -56,7 +56,7 @@
   "language_preference": {
     "current_preferred_language": "您的首选语言目前是<lang>{{language}}</lang>。",
     "form_title": "语言",
-    "help_translate": "帮忙把 Couchers 翻译成你的语言。",
+    "help_translate": "帮忙把Couchers翻译成你的语言。",
     "error_loading_languages": "无法加载语言选项。请稍后重试。",
     "translation_progress": {
       "title": "翻译进度",
@@ -67,7 +67,7 @@
       "no_data": "没有可用的翻译数据",
       "complete": "已完成",
       "almost_there": "几乎其中",
-      "midway": "Midway",
+      "midway": "翻译过半",
       "early_stage": "早期阶段",
       "just_started": "刚刚开始",
       "info_text": "💡完成度为50-80%的语言在语言选择器中显示为灰色。完成率低于50%的语言对语言选择器隐藏。为了鼓励贡献者，本网站上显示低于20%的语言。",
@@ -96,10 +96,10 @@
     },
     "content": {
       "button_label": "报告不当内容或行为",
-      "success_message": "感谢您的举报，感谢您帮助我们让 Couchers 成为对所有人都更好的平台！"
+      "success_message": "感谢您的举报，感谢您帮助我们让Couchers成为对所有人都更好的平台！"
     },
     "flag": {
-      "block_user": "Block {{username}}",
+      "block_user": "屏蔽{{username}}",
       "block_user_explainer": "来自此人的消息和请求将被阻止，并且此人将看不到您的个人资料、活动和评论。他们不会被告知您阻止了他们。",
       "button_aria_label": "报告内容或用户",
       "profile_button_aria_label": "报告内容或阻止用户",
@@ -111,7 +111,6 @@
       "description_required": "描述为必填项。",
       "description_label": "描述问题",
       "description_helper": "请告诉我们您报告此问题的原因。",
-      "success": "感谢您的报告，并使Couchers成为每个人更好的平台！",
       "reason": {
         "dating": "调情/约会应用程序行为或类似行为",
         "external": "平台外事件",
@@ -126,7 +125,7 @@
     }
   },
   "not_found_text_1": "我们找不到您请求的URL或资源",
-  "not_found_text_2": "您只想<1>回家吗？</1>",
+  "not_found_text_2": "您只想<homeLink>回家吗？</homeLink>",
   "not_found_alt": "404错误：找不到资源",
   "change_time": "更改时间",
   "html_meta": {
@@ -159,7 +158,8 @@
       "map_is_blank": "缺少坐标，请首先使用上面的地图搜索位置",
       "radius_text2_other": "{{count}}米",
       "no_location_results_text": "没有结果。尝试仅搜索城市。",
-      "press_enter_to_search": "按Enter键搜索"
+      "press_enter_to_search": "按Enter键搜索",
+      "radius_text2_one": "{{count}}米"
     }
   },
   "nav": {
@@ -195,7 +195,11 @@
     "invite_members": "邀请会员",
     "merch_shop": "商品商店",
     "switch_to_light_mode": "切换到浅色模式",
-    "switch_to_dark_mode": "切换到深色模式"
+    "switch_to_dark_mode": "切换到深色模式",
+    "press": "新闻与媒体",
+    "close_menu_a11y": "关闭菜单",
+    "open_drawer_a11y": "打开抽屉",
+    "close_drawer_a11y": "关闭抽屉"
   },
   "invites": {
     "title": "邀请会员",
@@ -210,13 +214,13 @@
     },
     "error": {
       "fetch_invite_info": "无法获取邀请码详细信息"
-    }
+    },
+    "number_of_uses_one": "使用：{{count}}已完成注册"
   },
-  "contribute_title": "注册投稿",
   "reply": "回复",
-  "yes": "Yes",
-  "no": "No",
-  "ok": "OK",
+  "yes": "是",
+  "no": "否",
+  "ok": "确定",
   "beta": "Beta",
   "relative_time": {
     "less_than_a_minute_ago": "< 1分钟前",
@@ -233,7 +237,7 @@
   },
   "footer": {
     "non_profit_note": "Couchers.org是美国501(c)(3)非营利免税组织Couchers, Inc.的一个项目。",
-    "version_info": "版本<2>{{version}}</2>，最后更新<5>{{updated_ago}}</5>。"
+    "version_info": "版本<versionLink>{{version}}</versionLink>，最后更新<updatedAgoLink>{{updated_ago}}</updatedAgoLink>。"
   },
   "what_is_cs": {
     "title": "什么是沙发冲浪？",
@@ -264,12 +268,12 @@
       "hosts": "<bold>对于接待者</bold>：结识来自世界各地的人们并分享您的城市",
       "everyone": "<bold>对于所有人</bold>：社区、文化和联系-而不是交易"
     },
-    "tip_label": "TIP",
+    "tip_label": "提示",
     "tip_text": "新来的吗？参加当地活动，感受社区-低承诺，高联系。",
     "compare_title": "Couchers.org相比如何？",
     "table": {
       "header_couchers": "Couchers.org",
-      "header_hostel": "Hostel",
+      "header_hostel": "青年旅舍",
       "header_hotel": "酒店",
       "people_first": "以人为本的非营利组织",
       "cost_to_stay": "住宿费用",
@@ -290,7 +294,7 @@
     "is_it_safe": {
       "title": "沙发冲浪有多安全？",
       "description_1": "虽然所有旅行和与陌生人的互动都存在一定风险，但沙发冲浪比许多人最初想象的要安全得多。",
-      "description_2": "我们的社区建立在成员之间的信任之上，通过入住后的参考建立。我们的积极审核团队认真对待每一份报告，并努力反击那些不遵守我们的<指南>社区准则</指南>的不良行为者。",
+      "description_2": "我们的社区建立在成员之间的信任之上，通过入住后的参考建立。我们的积极审核团队认真对待每一份报告，并努力反击那些不遵守我们的<guidelines>社区准则</guidelines>的不良行为者。",
       "description_3": "此外，Couchers平台还包括各种形式的验证（例如使用生物识别护照的强验证）等工具，这些工具增加了额外的安全级别。重要的是要始终准备好替代计划，以防事情没有按预期进行，并相信你的直觉！"
     }
   },
@@ -305,9 +309,9 @@
     "board_member": "董事会成员"
   },
   "blog": {
-    "byline_with_author": "由<1/>撰写。发布于{{date}}.",
+    "byline_with_author": "由<authorList/>撰写。发布于{{date}}.",
     "byline_without_author": "发布于{{date}}.",
-    "cta_message": "想帮助撰写我们的博客或做志愿者吗？<1>注册</1>并告诉我们。志愿者和<3>捐款</3>使Couchers.org成为可能！"
+    "cta_message": "想帮助撰写我们的博客或做志愿者吗？<volunteerLink>注册</volunteerLink>并告诉我们。志愿者和<donateLink>捐款</donateLink>使Couchers.org成为可能！"
   },
   "error_loading_languages": "无法加载语言选项",
   "language_names": {
@@ -334,5 +338,11 @@
     "zh-Hans": "中文（简体）",
     "zh-Hant": "中文（繁体）",
     "hu": "匈牙利语"
+  },
+  "close_button_a11y": "关闭",
+  "app_store_badge_a11y": "在应用商店下载",
+  "google_play_badge_a11y": "在Google Play上获取",
+  "bar": {
+    "help_button_a11y": "帮助"
   }
 }

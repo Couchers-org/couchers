@@ -1,10 +1,8 @@
 import { styled, Tooltip, Typography } from "@mui/material";
 import { FlexboxProps, useMediaQuery } from "@mui/system";
 import Avatar from "components/Avatar";
-import { OpenInNewIcon } from "components/Icons";
 import ProfileLink from "components/ProfileLink/ProfileLink";
 import StrongVerificationBadge from "components/StrongVerificationBadge";
-import StyledLink from "components/StyledLink";
 import { useImpressionRef, useLogEvent } from "features/analytics/hooks";
 import { useSearchAnalytics } from "features/analytics/searchAnalyticsContext";
 import { makeResultId, setSearchReferrer } from "features/analytics/searchAttribution";
@@ -16,10 +14,8 @@ import { TFunction } from "i18next";
 import { SearchUser } from "proto/search_pb";
 import { MouseEvent } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
-import { routeToUser } from "routes";
 import { theme } from "theme";
 import { timestampToInstant } from "utils/date";
-import { useIsNativeEmbed } from "utils/nativeLink";
 import stripMarkdown from "utils/stripMarkdown";
 
 import HostMeetupReferenceStatus from "./HostMeetupReferenceStatus";
@@ -96,11 +92,6 @@ const StyledBottomContent = styled("div")(({ theme }) => ({
   },
 }));
 
-const StyledOpenInNewIcon = styled(OpenInNewIcon)(() => ({
-  height: "1rem",
-  width: "1rem",
-}));
-
 const FlexRow = styled("div")<{
   alignItems?: FlexboxProps["alignItems"];
   justifyContent?: FlexboxProps["justifyContent"];
@@ -172,7 +163,6 @@ const generateAboutText = (user: SearchUser.AsObject, t: TFunction, isMobile: bo
       <LinesEllipsis
         maxLine={isMobile ? 3 : 7}
         text={stripMarkdown(aboutText(user, t))}
-        basedOn="letters"
         style={{ wordBreak: "break-all", overflow: "hidden" }}
       />
     );
@@ -186,7 +176,6 @@ const SearchResultUserCard = ({
   user,
 }: SearchResultUserCardProps) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const isNativeEmbed = useIsNativeEmbed();
   const {
     t,
     i18n: { language: locale },
@@ -258,7 +247,6 @@ const SearchResultUserCard = ({
               <ProfileLink
                 userId={user.userId}
                 username={user.username}
-                aria-label={t("profile:open_profile_new_tab")}
                 openInNewTab
                 style={{ fontSize: "1.1rem", overflow: "hidden" }}
               >
@@ -276,25 +264,7 @@ const SearchResultUserCard = ({
               </ProfileLink>
               {user.hasStrongVerification && <StrongVerificationBadge />}
             </FlexRow>
-            {!isNativeEmbed && !isMobile && (
-              <StyledLink
-                aria-label={t("profile:open_profile_new_tab")}
-                href={routeToUser(user.username)}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Tooltip title={t("profile:open_profile_new_tab")}>
-                  <StyledOpenInNewIcon
-                    sx={{
-                      "&:hover": {
-                        color: "var(--mui-palette-primary-dark)",
-                      },
-                    }}
-                  />
-                </Tooltip>
-              </StyledLink>
-            )}
+            <ProfileLink userId={user.userId} username={user.username} openInNewTab showOpenIcon />
           </FlexRow>
 
           <FlexRow justifyContent="space-between">

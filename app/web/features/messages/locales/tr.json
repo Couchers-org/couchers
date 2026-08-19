@@ -2,9 +2,9 @@
   "write_reference_button_text": "Bir referans yaz",
   "close_request_button_text": "Reddet",
   "confirm_request_button_text": "Onayla",
-  "surfer_declined_request_help_text": "Kabul edilecek bir istek yazmak hakkında olan <0>rehberimizi oku</0>.",
+  "surfer_declined_request_help_text": "Kabul edilecek bir istek yazmak hakkında olan <guideLink>rehberimizi oku</guideLink>.",
   "past_request_help_text": "Bu geçmişten kalma bir istek, hâlâ mesaj gönderebilirsin ancak bunun dışında bir değişiklik yapamazsın.",
-  "host_pending_request_help_text": "Cevap vermeden önce <0>değerlendirmek isteyebileceğin şeyler</0>.",
+  "host_pending_request_help_text": "Cevap vermeden önce <guideLink>değerlendirmek isteyebileceğin şeyler</guideLink>.",
   "mark_all_read_button_text": "Hepsini okundu işaretle",
   "messages_page": {
     "title": "Mesajlar",
@@ -48,10 +48,16 @@
   },
   "admins_dialog": {
     "step_down_confirmation_dialog": {
-      "message": "Bu sohbetin yöneticisi olmaktan vazgeçmek istediğine emin misin? Başka bir yönetici seni tekrardan yönetici olarak eklemediği sürece tekrardan bu sohbetin yöneticisi olamayacaksın."
+      "message": "Bu sohbetin yöneticisi olmaktan vazgeçmek istediğine emin misin? Başka bir yönetici seni tekrardan yönetici olarak eklemediği sürece tekrardan bu sohbetin yöneticisi olamayacaksın.",
+      "title": "Yöneticilikten ayrıl?"
     },
     "remove_admin": {
-      "title": "Yönetici çıkar"
+      "title": "Yönetici çıkar",
+      "action_a11y_label": "Yöneticilikten çıkar"
+    },
+    "add_admin": {
+      "title": "Yönetici ekle",
+      "action_a11y_label": "Yönetici olarak ekle"
     }
   },
   "create_chat": {
@@ -119,9 +125,6 @@
     "description": "Deneyimini paylaşarak topluluğa yardımcı ol."
   },
   "respond_box_title": "Yanıt gönder",
-  "status_bar_edit_button": "Düzenle",
-  "status_bar_cancel_edit_button": "İptal Et",
-  "status_bar_close_button": "Kapat",
   "surfer_bar_pending": "Bir konaklama isteği gönderdin — {{name}} tarafından bir yanıt bekleniyor.",
   "cancel_request_button": "İsteği iptal et",
   "private_feedback_card": {

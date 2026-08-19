@@ -45,8 +45,10 @@ class Config:
     COOKIE_DOMAIN: str
     # SQLAlchemy database connection string
     DATABASE_CONNECTION_STRING: str
-    # OpenTelemetry endpoint to send traces to
+    # OTLP/HTTP traces endpoint to export spans to, e.g. https://traces.example.org/v1/traces
     OPENTELEMETRY_ENDPOINT: str = ""
+    # Bearer token for the traces endpoint; empty for an unauthenticated collector (e.g. in dev)
+    OPENTELEMETRY_AUTH_TOKEN: str = ""
     # Path to a GeoLite2-City.mmdb file for geocoding IPs in user session info
     GEOLITE2_CITY_MMDB_FILE_LOCATION: str = ""
     GEOLITE2_ASN_MMDB_FILE_LOCATION: str = ""
@@ -101,6 +103,9 @@ class Config:
     # Sentry
     SENTRY_ENABLED: bool
     SENTRY_URL: str
+    # Sentry project id the web frontend reports to, used to deep-link bug reports to the
+    # reporter's errors and session replay
+    SENTRY_FRONTEND_PROJECT_ID: str
     # Push notifications
     PUSH_NOTIFICATIONS_ENABLED: bool
     PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY: str
@@ -138,6 +143,11 @@ class Config:
     SLACK_BOT_TOKEN: str
     SLACK_DONATIONS_CHANNEL: str
     SLACK_MERCH_CHANNEL: str
+    # an empty host turns rate limiting off entirely, see docs/rate-limit-design.md
+    VALKEY_HOST: str = ""
+    VALKEY_PORT: int = 6379
+    # prefix length per-IP counters are keyed at for IPv6; IPv4 is always /32
+    RATE_LIMIT_IPV6_PREFIX: int = 64
 
     def __init__(self) -> None:
         # Initialize instance attributes with default values from class attributes.

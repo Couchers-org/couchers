@@ -1,5 +1,55 @@
 {
   "generic": {
-    "greeting_line": "Bonjour {{name}},"
+    "greeting_line": "Bonjour {{name}},",
+    "do_not_reply_request": "Ne répondez pas à cet e-mail. Utilisez un des boutons ci-dessus pour répondre à cette demande.",
+    "thanks": "Merci !",
+    "closing_lines": {
+      "default": "Amicalement, <br>l'équipe Couchers.org",
+      "emily": "Emily de Couchers.org<br>{{ email_link }}<br>{{ profile_link }}"
+    },
+    "footer": {
+      "received_because": "Vous recevez cet email car vous êtes abonné.e à Couchers.org.",
+      "donate_link": "Faire un don",
+      "volunteer_link": "Devenir bénévole",
+      "nonprofit_note": "Couchers.org est un projet de Couchers, Inc., une association à but non lucratif exemptée de taxes enregistrée aux EUA (U.S. 501(c)(3)).",
+      "security_email_note": "Ceci est un email de sécurité, vous ne pouvez pas vous en désabonner.",
+      "do_not_email_link": "Ne m'envoyez plus d'emails (désactive l'hébergement)"
+    },
+    "security_warning_contact_support": "Si vous n'êtes pas à l'origine de cette action, contactez-nous à {{ email_link }} afin que nous puissions résoudre ça le plus rapidement possible."
+  },
+  "calendar_events": {
+    "title_cancelled": "Annulé : {{ title }}"
+  },
+  "plaintext_formats": {
+    "user": "{{name}}, {{age}}, {{city}}"
+  },
+  "account_deletion": {
+    "started": {
+      "subject": "Confirmez la suppression de votre compte",
+      "confirm_action": "Confirmer la suppression du compte"
+    },
+    "completed": {
+      "subject": "Votre compte a été supprimé",
+      "purpose": "Vous avez supprimé votre compte Couchers.org avec succès.",
+      "recovery_instructions_days_one": "Si vous changez d'avis, <strong>vous avez{{count}} jour pour récupérer votre compte </strong> en cliquant sur le lien suivant:",
+      "recovery_instructions_days_many": "Si vous changez d'avis, <strong>vous avez{{count}} jours pour récupérer votre compte </strong> en cliquant sur le lien suivant:",
+      "recovery_instructions_days_other": "Si vous changez d'avis, <strong>vous avez{{count}} jour(s) pour récupérer votre compte </strong> en cliquant sur le lien suivant:",
+      "recover_action": "Récupérer le compte"
+    },
+    "recovered": {
+      "subject": "Votre compte a été récupéré!",
+      "confirmation": "Votre compte Couchers.org a été récupéré avec succès. Nous sommes ravi.e.s que vous ayez décidé de rester!",
+      "login_instructions": "Pour vous ré-identifier, cliquez sur le lien suivant:",
+      "redelete_instructions": "Si vous changez d'avis, vous pouvez supprimer votre compte à n'importe quel moment."
+    }
+  },
+  "activeness_probe": {
+    "subject": "Êtes vous toujours disposé.e à héberger?",
+    "purpose": "Nous avons remarqué que vous ne vous étiez pas connecté.e depuis un certain temps et voulons vérifier si vous êtes toujours disposé.e à héberger des surfers.",
+    "instructions_days_one": "Afin de conserver votre statut \"Peut héberger\", vous devez vous reconnecter avant  <b>{{count}} jour</b>. Sans quoi, nous modifierons votre statut en \"Ne peut pas héberger\".",
+    "instructions_days_many": "Afin de conserver votre statut \"Peut héberger\", vous devez vous reconnecter avant <b>{{count}} jours</b>. Sans quoi, nous modifierons votre statut en \"Ne peut pas héberger\".",
+    "instructions_days_other": "Afin de conserver votre statut \"Peut héberger\", vous devez vous reconnecter avant  <b>{{count}} jour(s)</b>. Sans quoi, nous modifierons votre statut en \"Ne peut pas héberger\".",
+    "login_action": "Se connecter",
+    "encouragement": "Ces vérifications aident les surfers à trouver des hôtes plus facilement et à évaluer correctement les temps de réponse."
   }
 }

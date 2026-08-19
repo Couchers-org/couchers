@@ -29,5 +29,13 @@
     "confirm": "取消封鎖",
     "message": "取消封鎖後,對方將可以查看您的資料並向您發送請求。如果您之前是好友關係,對方會重新出現在您的好友列表中。對方不會收到通知。",
     "title": "您確定要取消封鎖{{name}}嗎?"
-  }
+  },
+  "add_friend_confirmation_dialog": {
+    "title": "你認識這個人嗎？",
+    "message": "請僅向您已經認識或在旅行中遇到的人發送好友請求-大多數人更喜歡在親自見面後聯繫。 <helpCenterLink>在我們的幫助中心了解好友請求。 </helpCenterLink>",
+    "confirm": "是的，我認識他們。發送請求！"
+  },
+  "friend_requests_dismiss_button": "忽略",
+  "friend_request_no_longer_available": "此好友請求不再可用。",
+  "cancel_request_button_a11y": "取消請求"
 }

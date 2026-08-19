@@ -44,7 +44,7 @@ services:
       - 1753
     depends_on:
       - postgres
-      - jaeger
+      - valkey
     healthcheck:
       # fails if any API worker port is down, so a dead/looping worker shows up as unhealthy
       test: ["CMD", "python", "src/healthcheck.py"]
@@ -57,7 +57,18 @@ services:
       - postgres_backend
       - backend_media
       - backend_envoy
-      - backend_jaeger
+      - backend_valkey
+    dns_search: ""
+  # ephemeral rate limiting counter store; no persistence needed (2-minute TTLs)
+  valkey:
+    image: valkey/valkey:8-alpine
+    restart: always
+    stop_grace_period: 5s
+    command: ["valkey-server", "--save", "", "--appendonly", "no"]
+    expose:
+      - 6379
+    networks:
+      - backend_valkey
     dns_search: ""
   media:
     image: registry.gitlab.com/couchers/couchers/media
@@ -134,6 +145,35 @@ services:
     pid: host
     volumes:
       - "/:/host:ro,rslave"
+  # generates prometheus metrics for the containers
+  cadvisor:
+    image: ghcr.io/google/cadvisor:v0.60.5
+    restart: always
+    stop_grace_period: 5s
+    command:
+      # ignore the host's non-docker cgroups
+      - "--docker_only=true"
+      - "--housekeeping_interval=15s"
+      # the default metric set is very wide, this keeps ingest into victoriametrics sane
+      - "--disable_metrics=advtcp,cpu_topology,cpuset,hugetlb,memory_numa,percpu,process,referenced_memory,resctrl,sched,tcp,udp"
+      # otherwise every compose label rides along, including the config hash, which churns series
+      - "--store_container_labels=false"
+      - "--whitelisted_container_labels=com.docker.compose.service"
+    privileged: true
+    devices:
+      - /dev/kmsg
+    volumes:
+      - "/:/rootfs:ro"
+      - "/var/run:/var/run:ro"
+      - "/sys:/sys:ro"
+      - "/var/lib/docker/:/var/lib/docker:ro"
+      - "/dev/disk/:/dev/disk:ro"
+    expose:
+      - 8080
+    # cadvisor's RSS creeps over time, don't let it crowd out postgres
+    mem_limit: 512m
+    networks:
+      - cadvisor_prometheus
   prometheus:
     image: registry.gitlab.com/couchers/couchers/prometheus
     restart: always
@@ -144,6 +184,7 @@ services:
       - envoy
       - pgprom
       - node_exporter
+      - cadvisor
     # this allows us to communicate with node_exporter which will be running directly on host networking
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -151,6 +192,7 @@ services:
       - backend_prometheus
       - pgprom_prometheus
       - envoy_prometheus
+      - cadvisor_prometheus
   web:
     image: registry.gitlab.com/couchers/couchers/web
     restart: always
@@ -159,20 +201,6 @@ services:
       - 3000
     networks:
       - web_nginx
-
-  jaeger:
-    image: jaegertracing/all-in-one:1.60
-    restart: always
-    stop_grace_period: 5s
-    ports:
-      - "16686:16686"
-    expose:
-      - 4317
-    environment:
-      - MEMORY_MAX_TRACES=10000
-      - COLLECTOR_OTLP_ENABLED=true
-    networks:
-      - backend_jaeger
 
 networks:
   backend_prometheus:
@@ -205,6 +233,9 @@ networks:
   envoy_prometheus:
     driver: bridge
     enable_ipv6: true
-  backend_jaeger:
+  cadvisor_prometheus:
+    driver: bridge
+    enable_ipv6: true
+  backend_valkey:
     driver: bridge
     enable_ipv6: true

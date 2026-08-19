@@ -4,29 +4,20 @@
   "member_count_other": "{{count}} membros",
   "dashboard": "Painel principal",
   "your_communities_heading": "Suas comunidades",
-  "all_communities_heading": "Todas as comunidades",
   "load_more": "Carregar mais",
-  "all_communities_section": "Todas as comunidades",
-  "please_complete_profile": "Conclua seu perfil para garantir que você vai aparecer nas pesquisas:",
-  "fill_in_who_i_am": "1. Preencha sua seção \"Quem sou eu\" com algumas frases sobre você",
-  "upload_photo": "2. Carregue uma foto (clicando no avatar na página de edição)",
   "no_community": "Você não está em nenhuma comunidade atualmente.",
   "no_sub_communities": "Nenhuma subcomunidade.",
   "profile_summary_edit": "Editar perfil",
-  "complete_profile_explanation": "Não é irritante como outras plataformas têm perfis \"fantasmas\" sem nenhuma informação. Não faça isso com a gente também! 👻👻👻",
   "browse_communities_text": "Clique no nome de uma região para ver outras comunidades dentro dela abaixo. Clique no link para ir para a página da comunidade dessa cidade ou região.",
-  "all_communities_intro": "Abaixo você pode navegar por todas as páginas de comunidade que existem até o momento. <strong>Clique no nome de uma comunidade para ver outras comunidades dentro dela.</strong>",
   "welcome": "Bem-vindo ao Couchers.org!",
   "new_pill": "Novo",
-  "landing_text": "Estamos criando novos <1>recursos</1>, como eventos, guias locais, moderação e encontros. Agradecemos sua paciência e <3>apoio</3> enquanto trabalhamos nisso.",
-  "community_builder_form_text": "Crie sua própria comunidade local",
   "communities_welcome_title": "Bem-vindo a Comunidades",
   "communities_intro": "Para ajudar as pessoas em todo o mundo a organizar eventos, discussões e encontros locais, criamos páginas de comunidades, que estão listadas abaixo. <strong>Você foi adicionado automaticamente a algumas comunidades com base em sua localização, mas pode se juntar a qualquer comunidade!</strong> Suas comunidades estão listadas no painel principal.",
-  "community_builder": "Quer ser um embaixador da sua comunidade e ajudá-la a crescer? Torne-se um <1>Criador de Comunidade!</1>",
-  "your_communities_helper_text": "Você foi adicionado a todas as comunidades com base em sua localização. Sinta-se à vontade para <1>navegar por comunidades</1> em outras localizações também.",
+  "community_builder": "Quer ser um embaixador da sua comunidade e ajudá-la a crescer? Torne-se um <communityBuilderLink>Criador de Comunidade!</communityBuilderLink>",
+  "your_communities_helper_text": "Você foi adicionado a todas as comunidades com base em sua localização. Sinta-se à vontade para <browseCommunitiesLink>navegar e se juntar a comunidades</browseCommunitiesLink> em outras localizações também.",
   "find_your_community": "Encontre uma comunidade",
-  "find_your_community_intro": "Abaixo você pode buscar ou navegar por todas as páginas de comunidades que existem até o momento. Não está encontrando seu país ou cidade? <1>Use este formulário</1> para solicitá-lo!",
-  "find_your_community_intro_simplified": "Busque por sua comunidade ou navegue abaixo. <1>Não está vendo a sua? Solicite-a!</1>",
+  "find_your_community_intro": "Abaixo você pode buscar ou navegar por todas as páginas de comunidades que existem até o momento. Não está encontrando seu país ou cidade? <requestCommunityLink>Use este formulário</requestCommunityLink> para solicitá-lo!",
+  "find_your_community_intro_simplified": "Busque por sua comunidade ou navegue abaixo. <requestCommunityLink>Não está vendo a sua? Solicite-a!</requestCommunityLink>",
   "browse_communities": "Explore as comunidades",
   "profile_mobile_summary_view": "Ir para o perfil",
   "find_a_host": "Encontre um anfitrião",
@@ -34,13 +25,12 @@
   "browse_all_communities": "Navegar por Todas as Comunidades",
   "show_all_communities": "Mostrar todas as comunidades",
   "hide_all_communities": "Ocultar todas as comunidades",
-  "community_missing": "Não está vendo seu país ou cidade? Use <1>este formulário</1> para solicitá-lo!",
   "profile_summary_view": "Ver meu perfil",
   "search_input_label": "Para onde você está indo?",
   "search_input_placeholder": "Busque uma localização",
   "show_map": "Mostrar Mapa",
   "hero_image_alt": "Balões na Capadócia",
-  "hero_image_attribution": "Foto de <1>Mesut Kaya</1> no <3>Unsplash</3>",
+  "hero_image_attribution": "Foto de <photographerLink>Mesut Kaya</photographerLink> no <unsplashLink>Unsplash</unsplashLink>",
   "my_communities_heading": "Minhas comunidades",
   "prev_page_button_a11y": "Página anterior",
   "next_page_button_a11y": "Próxima página",
@@ -54,24 +44,61 @@
   },
   "events": {
     "your_upcoming_header": "Seus próximos eventos",
-    "see_all_link": "Veja todos →",
     "community_header": "Eventos nas suas comunidades",
-    "today_label": "Hoje",
-    "your_upcoming_empty_message": "Nenhum evento no momento. Por que você não <0>cria</0> um ✨?"
+    "your_upcoming_empty_message": "Nenhum evento no momento. Por que você não <createEventLink>cria</createEventLink> um ✨?"
   },
   "public_trips": {
     "my_trips_header": "Suas viagens públicas",
     "when_now": "Agora",
-    "when_today": "Hoje",
-    "when_tomorrow": "Amanhã",
     "same_gender_only_indicator": "Mesmo gênero",
-    "manage_link": "Gerenciar"
+    "manage_link": "Gerenciar",
+    "empty_description": "Indo a algum lugar? Publique uma viagem pública em uma comunidade para receber convites de anfitriões próximos.",
+    "offers_count_one": "{{count}} convite",
+    "offers_count_many": "{{count}} convites",
+    "offers_count_other": "{{count}} convites",
+    "no_offers": "Nenhuma oferta ainda"
   },
   "stays": {
     "upcoming_guests_header": "Seus próximos hóspedes",
     "night_count_one": "{{count}} noite",
     "night_count_many": "{{count}} noites",
     "night_count_other": "{{count}} noites",
-    "upcoming_trips_header": "Suas próximas estadias"
+    "upcoming_trips_header": "Suas próximas estadias",
+    "no_upcoming_trips": "Nenhuma viagem próxima. Que tal explorar?",
+    "no_upcoming_guests": "Nenhum próximo hóspede ainda."
+  },
+  "reminder": {
+    "respond_to_host_request": {
+      "title": "Responder para {{name}}",
+      "description": "Não se esqueça de responder a solicitação de hospedagem de {{name}}.",
+      "button": "Ver solicitação"
+    },
+    "write_reference": {
+      "title": "Escrever uma referência",
+      "description_surfed": "Deixe uma referência para sua hospedagem com {{name}}",
+      "description_hosted": "Deixe uma referência para a hospedagem de {{name}}",
+      "button": "Escrever referência"
+    },
+    "complete_my_home": {
+      "title": "Complete a seção \"Minha Casa\" no seu perfil",
+      "description": "Preencha suas acomodações para dormir, regras da casa e uma descrição do seu local",
+      "button": "Edite sua casa"
+    },
+    "complete_profile": {
+      "title": "Complete seu perfil",
+      "description": "Preencha a seção \"Quem sou eu\" e faça upload de uma foto de perfil",
+      "button": "Edite seu perfil"
+    },
+    "strong_verification": {
+      "title": "Verificação forte",
+      "description": "Verifique sua identidade para uma comunidade mais segura",
+      "button": "Verifique sua conta"
+    },
+    "confirm_host_request": {
+      "title": "Confirme sua estadia com {{name}}",
+      "description": "{{name}} aceitou sua solicitação. Confirme sua estadia para reservá-la.",
+      "button": "Confirmar estadia"
+    },
+    "carousel_dismiss_button_a11y": "Dispensar lembrete"
   }
 }

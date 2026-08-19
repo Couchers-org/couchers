@@ -1,11 +1,11 @@
 from datetime import timedelta
-from unittest.mock import patch
 
 import grpc
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy import func, select
 
+from couchers.constants import MISSED_MESSAGES_DELAY
 from couchers.db import session_scope
 from couchers.jobs.handlers import send_message_notifications
 from couchers.jobs.worker import process_job
@@ -20,10 +20,12 @@ from couchers.models import (
 )
 from couchers.proto import api_pb2, conversations_pb2, notification_data_pb2, notifications_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
+from couchers.servicers import conversations
 from couchers.utils import Duration_from_timedelta, now, to_aware_datetime
 from tests.fixtures.db import generate_user, make_friends, make_user_block, make_user_invisible
-from tests.fixtures.misc import EmailCollector, Moderator, PushCollector, now_5_min_in_future, process_jobs
+from tests.fixtures.misc import EmailCollector, Moderator, PushCollector, process_jobs
 from tests.fixtures.sessions import api_session, conversations_session, notifications_session
+from tests.fixtures.timewarp import Timewarp
 
 
 @pytest.fixture(autouse=True)
@@ -821,7 +823,7 @@ def test_send_direct_message(db, moderator: Moderator, push_collector: PushColle
         assert messages[0].author_user_id == user1.id
 
 
-def test_excessive_chat_initiations_are_reported(db, email_collector: EmailCollector):
+def test_excessive_chat_initiations_are_reported(db, low_rate_limits, email_collector: EmailCollector):
     """Test that excessive chat initiations are first reported in a warning email and finally lead blocking of further contacting other users."""
     user, token = generate_user()
     rate_limit_definition = RATE_LIMIT_DEFINITIONS[RateLimitAction.chat_initiation]
@@ -864,7 +866,7 @@ def test_excessive_chat_initiations_are_reported(db, email_collector: EmailColle
         assert "The user has been blocked from sending further chat initiations for now." in email.plain
 
 
-def test_send_direct_message_rate_limit(db, moderator, email_collector: EmailCollector):
+def test_send_direct_message_rate_limit(db, low_rate_limits, moderator, email_collector: EmailCollector):
     """SendDirectMessage should enforce the chat_initiation rate limit when creating a new DM, but not when sending into an existing one."""
     user, token = generate_user(complete_profile=True)
     rate_limit_definition = RATE_LIMIT_DEFINITIONS[RateLimitAction.chat_initiation]
@@ -1467,7 +1469,7 @@ def test_mark_last_seen_clears_notifications(db, moderator):
     assert unseen_notification_count(user2.id) == 0
 
 
-def test_mark_last_seen_clears_missed_messages_notification(db, moderator):
+def test_mark_last_seen_clears_missed_messages_notification(db, moderator, timewarp: Timewarp):
     """
     Regression test: chat__missed_messages is a summary keyed with "" rather than a chat id, so it
     needs to be marked seen separately from the per-chat chat__message notifications.
@@ -1503,9 +1505,9 @@ def test_mark_last_seen_clears_missed_messages_notification(db, moderator):
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text="Hello!"))
 
     # the job only picks up messages that have been unseen for five minutes
-    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
-        send_message_notifications(empty_pb2.Empty())
-        process_jobs()
+    timewarp.advance(MISSED_MESSAGES_DELAY)
+    send_message_notifications(empty_pb2.Empty())
+    process_jobs()
 
     def unseen_missed_messages():
         with notifications_session(token2) as n:
@@ -1706,7 +1708,199 @@ def test_total_unseen(db, moderator):
         assert api.Ping(api_pb2.PingReq()).unseen_message_count == 13
 
 
-def test_regression_ListGroupChats_pagination(db, moderator):
+def test_left_group_chat_unseen_count_excludes_unreachable_messages(db, moderator):
+    """
+    ListGroupChats and GetGroupChat used to count messages sent after the viewer left the chat, which
+    they can never open. The viewer is removed rather than leaving, because leaving posts a message of
+    your own, which marks everything up to it seen.
+    """
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    make_friends(user1, user2)
+    make_friends(user2, user3)
+
+    with conversations_session(token2) as c:
+        group_chat_id = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user1.id, user3.id])
+        ).group_chat_id
+        moderator.approve_group_chat(group_chat_id)
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="hi"))
+        c.RemoveGroupChatUser(conversations_pb2.RemoveGroupChatUserReq(group_chat_id=group_chat_id, user_id=user1.id))
+        for _ in range(3):
+            c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="after you left"))
+
+    # chat created, "hi", and the removal notice; the three messages sent afterwards are out of reach
+    with api_session(token1) as api:
+        assert api.Ping(api_pb2.PingReq()).unseen_message_count == 3
+
+    with conversations_session(token1) as c:
+        res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq())
+        (listed,) = [gc for gc in res.group_chats if gc.group_chat_id == group_chat_id]
+        assert listed.unseen_message_count == 3
+        assert c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id)).unseen_message_count == 3
+
+
+def test_left_group_chat_can_be_marked_seen(db, moderator):
+    """
+    MarkLastSeenGroupChat used to require a subscription with left == None, so a chat you were removed
+    from kept contributing to the unread badge with no way to clear it.
+    """
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    make_friends(user1, user2)
+    make_friends(user2, user3)
+
+    with conversations_session(token2) as c:
+        group_chat_id = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user1.id, user3.id])
+        ).group_chat_id
+        moderator.approve_group_chat(group_chat_id)
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="hi"))
+        c.RemoveGroupChatUser(conversations_pb2.RemoveGroupChatUserReq(group_chat_id=group_chat_id, user_id=user1.id))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="after you left"))
+
+    with api_session(token1) as api:
+        assert api.Ping(api_pb2.PingReq()).unseen_message_count == 3
+
+    with conversations_session(token1) as c:
+        latest_message_id = c.GetGroupChat(
+            conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id)
+        ).latest_message.message_id
+        c.MarkLastSeenGroupChat(
+            conversations_pb2.MarkLastSeenGroupChatReq(
+                group_chat_id=group_chat_id, last_seen_message_id=latest_message_id
+            )
+        )
+
+        assert c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id)).unseen_message_count == 0
+
+        with pytest.raises(grpc.RpcError) as e:
+            c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="let me back in"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+    with api_session(token1) as api:
+        assert api.Ping(api_pb2.PingReq()).unseen_message_count == 0
+
+
+def test_rejoined_group_chat_ping_reads_newest_subscription(db, moderator):
+    """
+    Rejoining a chat leaves the earlier subscription behind with its own last-seen state. Ping used to
+    match on any of the viewer's subscriptions, so the stale one kept the badge up forever.
+    """
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    make_friends(user1, user2)
+    make_friends(user2, user3)
+
+    with conversations_session(token2) as c:
+        group_chat_id = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user1.id, user3.id])
+        ).group_chat_id
+        moderator.approve_group_chat(group_chat_id)
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="hi"))
+        # removed rather than leaving, so user1's first subscription is left behind with unread messages
+        c.RemoveGroupChatUser(conversations_pb2.RemoveGroupChatUserReq(group_chat_id=group_chat_id, user_id=user1.id))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="while you were away"))
+        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user1.id))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="welcome back"))
+
+    # only the invite notice and "welcome back" are in reach of the newest subscription
+    with api_session(token1) as api:
+        assert api.Ping(api_pb2.PingReq()).unseen_message_count == 2
+
+    with conversations_session(token1) as c:
+        latest_message_id = c.GetGroupChat(
+            conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id)
+        ).latest_message.message_id
+        c.MarkLastSeenGroupChat(
+            conversations_pb2.MarkLastSeenGroupChatReq(
+                group_chat_id=group_chat_id, last_seen_message_id=latest_message_id
+            )
+        )
+
+    with api_session(token1) as api:
+        assert api.Ping(api_pb2.PingReq()).unseen_message_count == 0
+
+
+def test_rejoined_group_chat_only_unseen_matches_the_badge(db, moderator):
+    """
+    GetGroupChatMessages matched only_unseen against every one of the viewer's subscriptions, so the
+    abandoned one served up its unread messages even though the badge no longer counts them.
+    """
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    make_friends(user1, user2)
+    make_friends(user2, user3)
+
+    with conversations_session(token2) as c:
+        group_chat_id = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user1.id, user3.id])
+        ).group_chat_id
+        moderator.approve_group_chat(group_chat_id)
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="hi"))
+        c.RemoveGroupChatUser(conversations_pb2.RemoveGroupChatUserReq(group_chat_id=group_chat_id, user_id=user1.id))
+        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user1.id))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="welcome back"))
+
+    with api_session(token1) as api:
+        assert api.Ping(api_pb2.PingReq()).unseen_message_count == 2
+
+    with conversations_session(token1) as c:
+        unseen = c.GetGroupChatMessages(
+            conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id, only_unseen=True)
+        ).messages
+        assert [m.WhichOneof("content") for m in unseen] == ["text", "user_invited"]
+        assert unseen[0].text.text == "welcome back"
+
+        # the earlier stint is still readable, it just isn't unread
+        all_messages = c.GetGroupChatMessages(
+            conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id)
+        ).messages
+        assert [m.text.text for m in all_messages if m.WhichOneof("content") == "text"] == ["welcome back", "hi"]
+
+
+def test_rejoined_group_chat_archived_filter_reads_newest_subscription(db, moderator):
+    """
+    ListGroupChats applied the archived filter before picking the newest subscription, so a chat
+    archived before the viewer was removed stayed in their archived list off the abandoned
+    subscription, where nothing could ever mark it seen.
+    """
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    make_friends(user1, user2)
+    make_friends(user2, user3)
+
+    with conversations_session(token2) as c:
+        group_chat_id = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user1.id, user3.id])
+        ).group_chat_id
+        moderator.approve_group_chat(group_chat_id)
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="hi"))
+
+    with conversations_session(token1) as c:
+        c.SetGroupChatArchiveStatus(
+            conversations_pb2.SetGroupChatArchiveStatusReq(group_chat_id=group_chat_id, is_archived=True)
+        )
+
+    with conversations_session(token2) as c:
+        c.RemoveGroupChatUser(conversations_pb2.RemoveGroupChatUserReq(group_chat_id=group_chat_id, user_id=user1.id))
+        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user1.id))
+
+    with conversations_session(token1) as c:
+        archived = c.ListGroupChats(conversations_pb2.ListGroupChatsReq(only_archived=True)).group_chats
+        assert [gc.group_chat_id for gc in archived] == []
+
+        (listed,) = c.ListGroupChats(conversations_pb2.ListGroupChatsReq(only_archived=False)).group_chats
+        assert listed.group_chat_id == group_chat_id
+        assert not listed.is_archived
+
+
+def test_regression_ListGroupChats_pagination(db, moderator, monkeypatch):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -1714,10 +1908,14 @@ def test_regression_ListGroupChats_pagination(db, moderator):
     make_friends(user1, user2)
     make_friends(user1, user3)
 
+    # two full pages and a partial one, which is the shape that lost chats, without paying for a
+    # chat per row of a production-sized page
+    monkeypatch.setattr(conversations, "DEFAULT_PAGINATION_LENGTH", 3)
+
     with conversations_session(token1) as c:
         # tuples of (group_chat_id, message_id)
         group_chat_and_message_ids = []
-        for i in range(50):
+        for i in range(7):
             res1 = c.CreateGroupChat(
                 conversations_pb2.CreateGroupChatReq(
                     recipient_user_ids=[user2.id, user3.id], title=wrappers_pb2.StringValue(value=f"Chat {i}")
@@ -1733,15 +1931,18 @@ def test_regression_ListGroupChats_pagination(db, moderator):
 
         seen_group_chat_ids = []
 
+        pages = 0
         last_message_id = 0
         more = True
         while more:
             res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq(last_message_id=last_message_id))
             last_message_id = res.last_message_id
             more = not res.no_more
+            pages += 1
 
             seen_group_chat_ids.extend([chat.group_chat_id for chat in res.group_chats])
 
+        assert pages == 3, "The chats didn't come back over several pages, so nothing was paginated"
         assert set(seen_group_chat_ids) == {x[0] for x in group_chat_and_message_ids}, "Not all group chats returned"
 
 

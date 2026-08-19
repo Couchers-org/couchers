@@ -1,0 +1,7 @@
+services:
+  postgres_tests:
+    build:
+      # The postgis/postgis only publishes an amd64 image,
+      # so we have to build it locally for arm64.
+      context: postgis
+    platform: linux/arm64/v8

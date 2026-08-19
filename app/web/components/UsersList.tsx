@@ -1,4 +1,4 @@
-import { CircularProgress, styled } from "@mui/material";
+import { styled } from "@mui/material";
 import UserSummary from "components/UserSummary";
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
@@ -12,11 +12,15 @@ const ContainingDiv = styled("div")(({ theme }) => ({
   padding: theme.spacing(2),
 }));
 
+// how many skeleton rows to show before we know how many users there are
+const PLACEHOLDER_COUNT = 3;
+
 const StyledUsersDiv = styled("div", {
   shouldForwardProp: (prop) => prop !== "layout",
 })<{ layout?: "list" | "grid" }>(({ theme, layout = "list" }) => ({
   marginBlockStart: theme.spacing(2),
   display: "grid",
+  gridTemplateColumns: "minmax(0, 1fr)",
   gap: theme.spacing(1),
   ...(layout === "grid" && {
     gridAutoRows: "6rem",
@@ -40,7 +44,7 @@ interface UsersListProps {
 /**
  * A cute list of <UserSummary> components for each userId. Automatically fetches the user info.
  *
- * A spinner shows up while `userIds` is `undefined`. When this component is fetching the lite users, it will show skeletons (the right number).
+ * Skeletons show up while `userIds` is `undefined`. When this component is fetching the lite users, it will show skeletons (the right number).
  *
  * If any users are not found or userIds is an empty list, this will show `emptyListChildren`.
  *
@@ -67,7 +71,13 @@ export default function UsersList({
     } else if (usersError) {
       return <Alert severity="error">{usersError.message}</Alert>;
     } else if (!userIds) {
-      return <CircularProgress />;
+      return (
+        <StyledUsersDiv layout={layout}>
+          {Array.from({ length: PLACEHOLDER_COUNT }).map((_, i) => (
+            <UserSummary headlineComponent="h3" key={i} user={undefined} />
+          ))}
+        </StyledUsersDiv>
+      );
     } else if (isLoadingLiteUsers) {
       return (
         <StyledUsersDiv layout={layout}>

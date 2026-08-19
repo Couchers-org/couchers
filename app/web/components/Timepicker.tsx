@@ -19,6 +19,7 @@ interface TimepickerProps {
   label?: string;
   name: string;
   onPostChange?(value: Temporal.PlainTime | null): void;
+  onAccept?(value: Temporal.PlainTime | null): void;
   testId?: string;
 }
 
@@ -44,6 +45,7 @@ const Timepicker = ({
   label,
   name,
   onPostChange,
+  onAccept,
   testId,
 }: TimepickerProps) => {
   const { t, i18n } = useTranslation([GLOBAL]);
@@ -65,6 +67,10 @@ const Timepicker = ({
             const valueTemporal = valueDayjs && valueDayjs.isValid() ? dayjsToTemporal(valueDayjs) : null;
             field.onChange(valueTemporal);
             onPostChange?.(valueTemporal);
+          }}
+          onAccept={(valueDayjs: Dayjs | null) => {
+            const valueTemporal = valueDayjs && valueDayjs.isValid() ? dayjsToTemporal(valueDayjs) : null;
+            onAccept?.(valueTemporal);
           }}
           format={format}
           ampm={format.includes("a")} // Clock picker uses am/pm iff format also uses it

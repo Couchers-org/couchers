@@ -31,8 +31,8 @@
       "title": "Anlık Bildirimler",
       "description": "Cihazınızda Couchers.org için anlık bildirimleri etkinleştirebilirsiniz. Bu özelliği büyütmek için çalışıyoruz.",
       "allow_push": "Anlık bildirimleri etkinleştirmek için tarayıcınızda açılan penceredeki 'İzin Ver' düğmesine tıklayın.",
-      "enabled_message": "Şu anda anlık bildirimleriniz <1>açık</1>.",
-      "disabled_message": "Şu anda anlık bildirimler <1>kapalı</1>.",
+      "enabled_message": "Şu anda anlık bildirimleriniz <strong>açık</strong>.",
+      "disabled_message": "Şu anda anlık bildirimler <strong>kapalı</strong>.",
       "error_generic": "Anlık bildirimlere abonelik sırasında hata oluştu",
       "error_not_granted": "Anlık bildirimler gönderebilmemiz için izin vermediniz.",
       "permission_denied": {

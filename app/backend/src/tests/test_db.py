@@ -7,7 +7,7 @@ from typing import Any
 
 import pytest
 from google.protobuf import empty_pb2
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.sql import func
 
 from couchers.config import config
@@ -22,12 +22,12 @@ from couchers.utils import (
     is_valid_username,
     parse_date,
 )
+from tests.conftest import TEST_DB_NAME
 from tests.fixtures.db import (
     create_schema_from_models,
     drop_database,
     generate_user,
     pg_dump_is_available,
-    populate_testing_resources,
 )
 from tests.test_communities import create_1d_point, get_community_id, testing_communities  # noqa
 
@@ -184,24 +184,36 @@ def strip_leading_whitespace(lines: list[str]) -> list[str]:
 
 
 @pytest.fixture
-def restore_db_after_migration_test(db):
+def migration_test_db(postgres_conn):
+    """
+    Points everything at a scratch database for the duration of the test.
+
+    The schemas compared here should look like production's, and the test database doesn't: its
+    column defaults bind mock.now() so the timewarp fixture can shift the clock. Building somewhere
+    else keeps the mock out of both dumps and leaves the test database alone, which this test would
+    otherwise destroy and have to rebuild.
+    """
+    migration_db_name = f"{TEST_DB_NAME}_migrations"
+    postgres_conn.execute(text(f"DROP DATABASE IF EXISTS {migration_db_name} WITH (FORCE)"))
+    postgres_conn.execute(text(f"CREATE DATABASE {migration_db_name}"))
+
+    previous_dsn = config.DATABASE_CONNECTION_STRING
+    config.DATABASE_CONNECTION_STRING = previous_dsn.rsplit("/", 1)[0] + "/" + migration_db_name
+    # the cached engine still points at the test database, and clearing the cache would drop it
+    # with its pooled connections still open
+    _get_base_engine().dispose()
+    _get_base_engine.cache_clear()
     try:
         yield
     finally:
-        # Dispose the engine's connection pool since we dropped/recreated PostGIS extension,
-        # which invalidates cached operator OIDs in existing connections
-        engine = _get_base_engine()
-        engine.dispose()
-
-        # Restore test resources since we destroyed the database
-        # This is needed because setup_testdb is session-scoped and won't run again
-        with engine.connect() as conn:
-            populate_testing_resources(conn)
-            conn.commit()
+        _get_base_engine().dispose()
+        config.DATABASE_CONNECTION_STRING = previous_dsn
+        _get_base_engine.cache_clear()
+        postgres_conn.execute(text(f"DROP DATABASE IF EXISTS {migration_db_name} WITH (FORCE)"))
 
 
 @pytest.mark.skipif(not pg_dump_is_available(), reason="Can't run migration tests without pg_dump")
-def test_migrations(db, testconfig: dict[str, Any], restore_db_after_migration_test) -> None:
+def test_migrations(testconfig: dict[str, Any], migration_test_db) -> None:
     """
     Compares the database schema built up from migrations with the
     schema built by models.py. Both scenarios are started from an

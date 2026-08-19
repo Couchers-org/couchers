@@ -132,9 +132,7 @@ export default function ChangePhone({ className, accountInfo }: ChangePhoneProps
           <Typography variant="body1">
             <Trans
               i18nKey="auth:change_phone.need_to_donate"
-              components={{
-                2: <StyledLink href={howToDonateUrl} />,
-              }}
+              components={{ donateLink: <StyledLink href={howToDonateUrl} /> }}
             />
           </Typography>
         ) : (
@@ -164,11 +162,7 @@ export default function ChangePhone({ className, accountInfo }: ChangePhoneProps
                   t={t}
                   i18nKey="auth:change_phone.phone_not_verified_description"
                   values={{ phone: formatPhoneNumberIntl(accountInfo.phone) }}
-                >
-                  We sent you a code to{` `}
-                  <b>{formatPhoneNumberIntl(accountInfo.phone)}</b>.
-                  {`To verify your number, please enter the code below:`}
-                </Trans>
+                />
               </Typography>
               <TextField
                 id="code"
@@ -192,12 +186,7 @@ export default function ChangePhone({ className, accountInfo }: ChangePhoneProps
                   t={t}
                   i18nKey="auth:change_phone.remove_phone_description"
                   values={{ phone: formatPhoneNumberIntl(accountInfo.phone) }}
-                >
-                  Your phone number is currently{` `}
-                  <b>{formatPhoneNumberIntl(accountInfo.phone)}</b>.
-                  {` You can remove your phone number below, but you will loose
-                  verification.`}
-                </Trans>
+                />
               </Typography>
               <Button fullWidth={!isMdOrWider} loading={isRemoveLoading} onClick={() => removePhone()}>
                 {t("auth:change_phone.remove_button_text")}

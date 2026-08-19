@@ -113,79 +113,187 @@
       "push": {
         "title": "Nuevo debate: {{title}}",
         "ios_title": "Nuevo debate",
-        "ios_subtitle": "{{title}}"
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} inició el debate en {{group_or_community}}."
       }
     }
   },
   "donation": {
     "received": {
-      "event_description": "Tu donación ha sido recibida"
+      "event_description": "Tu donación ha sido recibida",
+      "push": {
+        "title": "Donación recibida",
+        "ios_title": "Donación recibida",
+        "body": "¡Muchísimas gracias por tu donación de {{amount_with_currency}}!"
+      }
     }
   },
   "email_address": {
     "change": {
-      "event_description": "Se inicia el cambio de correo electrónico"
+      "event_description": "Se inicia el cambio de correo electrónico",
+      "push": {
+        "title": "Cambio de correo electrónico solicitado",
+        "ios_title": "Cambio de correo electrónico solicitado",
+        "body": "Usa el enlace que enviamos a {{email}} para confirmar tu nueva dirección."
+      }
     },
     "verify": {
-      "event_description": "Tu nuevo correo electrónico ha sido verificado"
+      "event_description": "Tu nuevo correo electrónico ha sido verificado",
+      "push": {
+        "title": "Correo electrónico verificado",
+        "ios_title": "Correo electrónico verificado",
+        "body": "Tu nueva dirección de correo electrónico ha sido verificada."
+      }
     }
   },
   "event": {
     "cancel": {
-      "event_description": "Se cancela un evento en el que participas"
+      "event_description": "Se cancela un evento en el que participas",
+      "push": {
+        "title": "Evento cancelado: {{title}}",
+        "ios_title": "Evento cancelado",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} ha cancelado el evento."
+      }
     },
     "comment": {
-      "event_description": "Un usuario comenta en un evento al que asistirás"
+      "event_description": "Un usuario comenta en un evento al que asistirás",
+      "push": {
+        "title": "{{user}} • {{title}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Ha comentado en {{title}}"
+      }
     },
     "create_any": {
-      "event_description": "Un evento se crea en tu comunidad (sin ser revisado por un moderador)"
+      "event_description": "Un evento se crea en tu comunidad (sin ser revisado por un moderador)",
+      "push": {
+        "title": "Nuevo evento: {{title}}",
+        "ios_title": "Nuevo evento",
+        "ios_subtitle": "{{title}}",
+        "body": "El usuario {{user}} ha creado el evento el {{date_and_time}}."
+      }
     },
     "create_approved": {
-      "event_description": "Un evento aprobado por los moderadores se crea en tu comunidad"
+      "event_description": "Un evento aprobado por los moderadores se crea en tu comunidad",
+      "push": {
+        "title": "Nuevo evento: {{title}}",
+        "ios_title": "Nuevo evento",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} te ha invitado al evento del {{date_and_time}}."
+      }
     },
     "delete": {
-      "event_description": "Se elimina un evento en el que participas"
+      "event_description": "Se elimina un evento en el que participas",
+      "push": {
+        "title": "Evento eliminado: {{title}}",
+        "ios_title": "Evento eliminado",
+        "ios_subtitle": "{{title}}",
+        "body": "Un moderador ha eliminado el evento."
+      }
     },
     "invite_organizer": {
-      "event_description": "Alguien te invita a coorganizar un evento"
+      "event_description": "Alguien te invita a coorganizar un evento",
+      "push": {
+        "title": "Evento actualizado: {{title}}",
+        "ios_title": "Evento actualizado",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} te añadió como coorganizador de un evento."
+      }
     },
     "reminder": {
-      "event_description": "Recordatorio de que un evento al que asistirás tendrá lugar pronto"
+      "event_description": "Recordatorio de que un evento al que asistirás tendrá lugar pronto",
+      "push": {
+        "title": "Evento próximo: {{title}}",
+        "ios_title": "Evento próximo",
+        "ios_subtitle": "{{title}}",
+        "body": "El evento comienza el {{date_and_time}}."
+      }
     },
     "update": {
-      "event_description": "Se actualiza un evento en el que participas"
+      "event_description": "Se actualiza un evento en el que participas",
+      "push": {
+        "title": "Evento actualizado: {{title}}",
+        "ios_title": "Evento actualizado",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} ha actualizado el evento."
+      }
     }
   },
   "friend_request": {
     "accept": {
-      "event_description": "Alguien acepta tu solicitud de amistad"
+      "event_description": "Alguien acepta tu solicitud de amistad",
+      "push": {
+        "title": "{{friend}} ha aceptado tu solicitud de amistad",
+        "ios_title": "{{friend}}",
+        "ios_subtitle": "Aceptó tu solicitud de amistad",
+        "body": "Ahora eres amigo de {{friend}}."
+      }
     },
     "create": {
-      "event_description": "Alguien te envía una solicitud de amistad"
+      "event_description": "Alguien te envía una solicitud de amistad",
+      "push": {
+        "title": "Solicitud de amistad de {{from_user}}",
+        "ios_title": "{{from_user}}",
+        "ios_subtitle": "Solicitud de amistad",
+        "body": "{{from_user}} quiere ser tu amigo."
+      }
     }
   },
   "gender": {
     "change": {
-      "event_description": "El género mostrado en tu perfil ha sido cambiado"
+      "event_description": "El género mostrado en tu perfil ha sido cambiado",
+      "push": {
+        "title": "Género modificado",
+        "ios_title": "Género modificado",
+        "body": "Un administrador modificó tu género a {{gender}}."
+      }
     }
   },
   "general": {
     "new_blog_post": {
-      "event_description": "Se ha publicado un nuevo artículo en el blog"
+      "event_description": "Se ha publicado un nuevo artículo en el blog",
+      "push": {
+        "title": "Nueva publicación del blog: {{title}}",
+        "ios_title": "Nueva publicación del blog",
+        "ios_subtitle": "{{title}}"
+      }
     }
   },
   "host_request": {
     "accept": {
-      "event_description": "Alguien acepta tu solicitud de alojamiento"
+      "event_description": "Alguien acepta tu solicitud de alojamiento",
+      "push": {
+        "title": "{{user}} aceptó tu solicitud de alojamiento",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Solicitud de alojamiento aceptada",
+        "body": "{{user}} aceptó tu solicitud de alojamiento para {{date}}."
+      }
     },
     "cancel": {
-      "event_description": "Alguien cancela su solicitud de alojamiento"
+      "event_description": "Alguien cancela su solicitud de alojamiento",
+      "push": {
+        "title": "{{user}} canceló su solicitud de alojamiento",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Solicitud de alojamiento cancelada",
+        "body": "{{user}} canceló su solicitud de alojamiento para {{date}}."
+      }
     },
     "confirm": {
-      "event_description": "Alguien confirma su solicitud de alojamiento"
+      "event_description": "Alguien confirma su solicitud de alojamiento",
+      "push": {
+        "title": "{{user}} confirmó su solicitud de alojamiento",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Solicitud de alojamiento confirmada",
+        "body": "{{user}} confirmó su solicitud de alojamiento para {{date}}."
+      }
     },
     "create": {
-      "event_description": "Alguien te envía una solicitud de alojamiento"
+      "event_description": "Alguien te envía una solicitud de alojamiento",
+      "push": {
+        "title": "Nueva solicitud de alojamiento de {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Nueva solicitud de alojamiento"
+      }
     },
     "message": {
       "event_description": "Alguien envía un mensaje en una solicitud de alojamiento"

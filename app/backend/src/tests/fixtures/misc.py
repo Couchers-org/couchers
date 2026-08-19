@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from datetime import datetime, timedelta
 from typing import Any
 from unittest.mock import patch
 
@@ -12,17 +11,17 @@ from couchers.notifications.push import PushNotificationContent
 from couchers.proto import moderation_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.servicers.threads import unpack_thread_id
-from couchers.utils import now
+from tests.fixtures import query_log
 from tests.fixtures.sessions import real_moderation_session
 
 
 def process_jobs() -> None:
-    while process_job():
-        pass
-
-
-def now_5_min_in_future() -> datetime:
-    return now() + timedelta(minutes=5)
+    # One span for the whole drain, not one per job type: Job is a frozen dataclass deriving its name and payload
+    # type from the handler's __name__ and type hints, so wrapping handlers to name them breaks get_type_hints.
+    # Splitting these out wants a span alongside the existing tracer span in worker.process_job.
+    with query_log.span("job", "process_jobs"):
+        while process_job():
+            pass
 
 
 class EmailCollector:
@@ -144,207 +143,146 @@ class Moderator:
         self.user = user
         self.token = token
 
-    def approve_host_request(self, host_request_id: int, reason: str = "Test approval") -> None:
-        """
-        Approve a host request using the moderation API.
-
-        Args:
-            host_request_id: The conversation_id of the host request
-            reason: Optional reason for approval
-        """
+    def set_visibility(
+        self,
+        object_type: moderation_pb2.ModerationObjectType.ValueType,
+        object_id: int,
+        visibility: moderation_pb2.ModerationVisibility.ValueType,
+        reason: str = "Test moderation",
+    ) -> None:
+        """Move a piece of moderated content to the given visibility through the moderation API."""
+        raising = visibility in (
+            moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+            moderation_pb2.MODERATION_VISIBILITY_UNLISTED,
+        )
         with real_moderation_session(self.token) as api:
             state_res = api.GetModerationState(
-                moderation_pb2.GetModerationStateReq(
-                    object_type=moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST,
-                    object_id=host_request_id,
-                )
+                moderation_pb2.GetModerationStateReq(object_type=object_type, object_id=object_id)
             )
             api.ModerateContent(
                 moderation_pb2.ModerateContentReq(
                     moderation_state_id=state_res.moderation_state.moderation_state_id,
-                    action=moderation_pb2.MODERATION_ACTION_APPROVE,
-                    visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+                    action=(
+                        moderation_pb2.MODERATION_ACTION_APPROVE if raising else moderation_pb2.MODERATION_ACTION_HIDE
+                    ),
+                    visibility=visibility,
                     reason=reason,
                     clear_flags=True,
                 )
             )
+
+    def approve_host_request(self, host_request_id: int, reason: str = "Test approval") -> None:
+        """host_request_id is the conversation_id of the host request."""
+        self.set_visibility(
+            moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST,
+            host_request_id,
+            moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+            reason,
+        )
+
+    def hide_host_request(self, host_request_id: int, reason: str = "Test hide") -> None:
+        """host_request_id is the conversation_id of the host request."""
+        self.set_visibility(
+            moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST,
+            host_request_id,
+            moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
+            reason,
+        )
 
     def approve_group_chat(self, group_chat_id: int, reason: str = "Test approval") -> None:
-        """
-        Approve a group chat using the moderation API.
+        """group_chat_id is the conversation_id of the group chat."""
+        self.set_visibility(
+            moderation_pb2.MODERATION_OBJECT_TYPE_GROUP_CHAT,
+            group_chat_id,
+            moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+            reason,
+        )
 
-        Args:
-            group_chat_id: The conversation_id of the group chat
-            reason: Optional reason for approval
-        """
-        with real_moderation_session(self.token) as api:
-            state_res = api.GetModerationState(
-                moderation_pb2.GetModerationStateReq(
-                    object_type=moderation_pb2.MODERATION_OBJECT_TYPE_GROUP_CHAT,
-                    object_id=group_chat_id,
-                )
-            )
-            api.ModerateContent(
-                moderation_pb2.ModerateContentReq(
-                    moderation_state_id=state_res.moderation_state.moderation_state_id,
-                    action=moderation_pb2.MODERATION_ACTION_APPROVE,
-                    visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
-                    reason=reason,
-                    clear_flags=True,
-                )
-            )
+    def set_group_chat_visibility(
+        self,
+        group_chat_id: int,
+        visibility: moderation_pb2.ModerationVisibility.ValueType,
+        reason: str = "Test moderation",
+    ) -> None:
+        self.set_visibility(moderation_pb2.MODERATION_OBJECT_TYPE_GROUP_CHAT, group_chat_id, visibility, reason)
 
     def approve_friend_request(self, friend_request_id: int, reason: str = "Test approval") -> None:
-        """
-        Approve a friend request using the moderation API.
-
-        Args:
-            friend_request_id: The ID of the friend request (FriendRelationship.id)
-            reason: Optional reason for approval
-        """
-        with real_moderation_session(self.token) as api:
-            state_res = api.GetModerationState(
-                moderation_pb2.GetModerationStateReq(
-                    object_type=moderation_pb2.MODERATION_OBJECT_TYPE_FRIEND_REQUEST,
-                    object_id=friend_request_id,
-                )
-            )
-            api.ModerateContent(
-                moderation_pb2.ModerateContentReq(
-                    moderation_state_id=state_res.moderation_state.moderation_state_id,
-                    action=moderation_pb2.MODERATION_ACTION_APPROVE,
-                    visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
-                    reason=reason,
-                    clear_flags=True,
-                )
-            )
+        """friend_request_id is the FriendRelationship id."""
+        self.set_visibility(
+            moderation_pb2.MODERATION_OBJECT_TYPE_FRIEND_REQUEST,
+            friend_request_id,
+            moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+            reason,
+        )
 
     def approve_event_occurrence(self, occurrence_id: int, reason: str = "Test approval") -> None:
-        """
-        Approve an event occurrence using the moderation API.
-
-        Args:
-            occurrence_id: The ID of the EventOccurrence (what the proto calls event_id)
-            reason: Optional reason for approval
-        """
-        with real_moderation_session(self.token) as api:
-            state_res = api.GetModerationState(
-                moderation_pb2.GetModerationStateReq(
-                    object_type=moderation_pb2.MODERATION_OBJECT_TYPE_EVENT_OCCURRENCE,
-                    object_id=occurrence_id,
-                )
-            )
-            api.ModerateContent(
-                moderation_pb2.ModerateContentReq(
-                    moderation_state_id=state_res.moderation_state.moderation_state_id,
-                    action=moderation_pb2.MODERATION_ACTION_APPROVE,
-                    visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
-                    reason=reason,
-                    clear_flags=True,
-                )
-            )
+        """occurrence_id is the EventOccurrence id, which is what the proto calls event_id."""
+        self.set_visibility(
+            moderation_pb2.MODERATION_OBJECT_TYPE_EVENT_OCCURRENCE,
+            occurrence_id,
+            moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+            reason,
+        )
 
     def approve_comment(self, comment_id: int, reason: str = "Test approval") -> None:
-        """Approve a Comment using the moderation API. comment_id is the database id of the Comment."""
-        with real_moderation_session(self.token) as api:
-            state_res = api.GetModerationState(
-                moderation_pb2.GetModerationStateReq(
-                    object_type=moderation_pb2.MODERATION_OBJECT_TYPE_COMMENT,
-                    object_id=comment_id,
-                )
-            )
-            api.ModerateContent(
-                moderation_pb2.ModerateContentReq(
-                    moderation_state_id=state_res.moderation_state.moderation_state_id,
-                    action=moderation_pb2.MODERATION_ACTION_APPROVE,
-                    visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
-                    reason=reason,
-                    clear_flags=True,
-                )
-            )
+        """comment_id is the database id of the Comment."""
+        self.set_visibility(
+            moderation_pb2.MODERATION_OBJECT_TYPE_COMMENT,
+            comment_id,
+            moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+            reason,
+        )
 
     def approve_reply(self, reply_id: int, reason: str = "Test approval") -> None:
-        """Approve a Reply using the moderation API. reply_id is the database id of the Reply."""
-        with real_moderation_session(self.token) as api:
-            state_res = api.GetModerationState(
-                moderation_pb2.GetModerationStateReq(
-                    object_type=moderation_pb2.MODERATION_OBJECT_TYPE_REPLY,
-                    object_id=reply_id,
-                )
-            )
-            api.ModerateContent(
-                moderation_pb2.ModerateContentReq(
-                    moderation_state_id=state_res.moderation_state.moderation_state_id,
-                    action=moderation_pb2.MODERATION_ACTION_APPROVE,
-                    visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
-                    reason=reason,
-                    clear_flags=True,
-                )
-            )
+        """reply_id is the database id of the Reply."""
+        self.set_visibility(
+            moderation_pb2.MODERATION_OBJECT_TYPE_REPLY,
+            reply_id,
+            moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+            reason,
+        )
 
     def approve_discussion(self, discussion_id: int, reason: str = "Test approval") -> None:
-        """Approve a Discussion using the moderation API. discussion_id is the database id of the Discussion."""
-        with real_moderation_session(self.token) as api:
-            state_res = api.GetModerationState(
-                moderation_pb2.GetModerationStateReq(
-                    object_type=moderation_pb2.MODERATION_OBJECT_TYPE_DISCUSSION,
-                    object_id=discussion_id,
-                )
-            )
-            api.ModerateContent(
-                moderation_pb2.ModerateContentReq(
-                    moderation_state_id=state_res.moderation_state.moderation_state_id,
-                    action=moderation_pb2.MODERATION_ACTION_APPROVE,
-                    visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
-                    reason=reason,
-                    clear_flags=True,
-                )
-            )
+        """discussion_id is the database id of the Discussion."""
+        self.set_visibility(
+            moderation_pb2.MODERATION_OBJECT_TYPE_DISCUSSION,
+            discussion_id,
+            moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+            reason,
+        )
 
     def approve_reference(self, reference_id: int, reason: str = "Test approval") -> None:
-        """Approve a Reference using the moderation API."""
-        with real_moderation_session(self.token) as api:
-            state_res = api.GetModerationState(
-                moderation_pb2.GetModerationStateReq(
-                    object_type=moderation_pb2.MODERATION_OBJECT_TYPE_REFERENCE,
-                    object_id=reference_id,
-                )
-            )
-            api.ModerateContent(
-                moderation_pb2.ModerateContentReq(
-                    moderation_state_id=state_res.moderation_state.moderation_state_id,
-                    action=moderation_pb2.MODERATION_ACTION_APPROVE,
-                    visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
-                    reason=reason,
-                    clear_flags=True,
-                )
-            )
+        self.set_visibility(
+            moderation_pb2.MODERATION_OBJECT_TYPE_REFERENCE,
+            reference_id,
+            moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+            reason,
+        )
 
     def approve_public_trip(self, public_trip_id: int, reason: str = "Test approval") -> None:
-        """Approve a PublicTrip using the moderation API."""
-        with real_moderation_session(self.token) as api:
-            state_res = api.GetModerationState(
-                moderation_pb2.GetModerationStateReq(
-                    object_type=moderation_pb2.MODERATION_OBJECT_TYPE_PUBLIC_TRIP,
-                    object_id=public_trip_id,
-                )
-            )
-            api.ModerateContent(
-                moderation_pb2.ModerateContentReq(
-                    moderation_state_id=state_res.moderation_state.moderation_state_id,
-                    action=moderation_pb2.MODERATION_ACTION_APPROVE,
-                    visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
-                    reason=reason,
-                    clear_flags=True,
-                )
-            )
+        self.set_visibility(
+            moderation_pb2.MODERATION_OBJECT_TYPE_PUBLIC_TRIP,
+            public_trip_id,
+            moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+            reason,
+        )
 
     def approve_thread_post(self, packed_thread_id: int, reason: str = "Test approval") -> None:
         """Approve whichever of Comment/Reply the packed thread_id refers to."""
+        self.set_thread_post_visibility(packed_thread_id, moderation_pb2.MODERATION_VISIBILITY_VISIBLE, reason)
+
+    def set_thread_post_visibility(
+        self,
+        packed_thread_id: int,
+        visibility: moderation_pb2.ModerationVisibility.ValueType,
+        reason: str = "Test moderation",
+    ) -> None:
+        """Moderate whichever of Comment/Reply the packed thread_id refers to."""
         database_id, depth = unpack_thread_id(packed_thread_id)
         if depth == 1:
-            self.approve_comment(database_id, reason=reason)
+            object_type = moderation_pb2.MODERATION_OBJECT_TYPE_COMMENT
         elif depth == 2:
-            self.approve_reply(database_id, reason=reason)
+            object_type = moderation_pb2.MODERATION_OBJECT_TYPE_REPLY
         else:
-            raise ValueError(f"approve_thread_post: thread_id {packed_thread_id} has unsupported depth {depth}")
+            raise ValueError(f"thread_id {packed_thread_id} has unsupported depth {depth}")
+        self.set_visibility(object_type, database_id, visibility, reason)

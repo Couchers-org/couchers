@@ -32,8 +32,8 @@
   "write_reference_button_text": "Napiš referenci",
   "close_request_button_text": "Zamítnout",
   "confirm_request_button_text": "Potvrdit",
-  "host_pending_request_help_text": "<0>Co je třeba zvážit</0> před odpovědí.",
-  "surfer_declined_request_help_text": "<0>Přečti si našeho průvodce</0>, jak napsat žádost, která bude přijata.",
+  "host_pending_request_help_text": "<guideLink>Co je třeba zvážit</guideLink> před odpovědí.",
+  "surfer_declined_request_help_text": "<guideLink>Přečti si našeho průvodce</guideLink>, jak napsat žádost, která bude přijata.",
   "messages_page": {
     "title": "Zprávy",
     "tabs": {
@@ -67,9 +67,6 @@
   },
   "respond_box_title": "Odeslat odpověď",
   "respond_box_description": "Vyber odpověď a dej {{name}} hned vědět. Klidně pak připoj i zprávu.",
-  "status_bar_edit_button": "Upravit",
-  "status_bar_cancel_edit_button": "Zrušit",
-  "status_bar_close_button": "Zavřít",
   "surfer_bar_pending": "Tvá žádost o ubytování byla odeslána – čeká se na odpověď od {{name}}.",
   "cancel_request_button": "Zrušit žádost",
   "cancel_request_dialog_title": "Zrušit žádost?",
@@ -77,7 +74,6 @@
   "cancel_request_dialog_confirm_button": "Ano, zrušit",
   "cancel_request_dialog_dismiss_button": "Ne",
   "private_feedback_card": {
-    "title": "Hodnocení této žádosti",
     "quality_label": "Ohodnoť tuto žádost soukromě (nepovinné):",
     "quality_high": "Kvalitní",
     "quality_okay": "Dobrý",
@@ -87,8 +83,6 @@
     "reason_other_placeholder": "Řekni nám více...",
     "privacy_notice": "Tvé odpovědi jsou soukromé a nebudou sdíleny s uživatelem. Můžeme je použít v agregované a anonymní podobě – zkombinované s mnoha dalšími – ke zlepšení zpětné vazby pro všechny uživatele.",
     "skip_button": "Přeskočit",
-    "next_button": "Další",
-    "back_button": "Zpět",
     "submit_button": "Odeslat",
     "quality_low": "Nízká kvalita"
   },

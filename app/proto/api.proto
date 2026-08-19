@@ -121,6 +121,13 @@ message PingRes {
   uint32 pending_friend_request_count = 4;
 
   uint32 unseen_notification_count = 7;
+
+  // Role-based unread host-request counts. Unlike the direction-based
+  // sent/received counts above, these classify by stay-role, so public-trip
+  // offers (role reversal) are bucketed correctly.
+  uint32 unseen_hosting_host_request_count = 8; // I am the host of the stay
+  uint32 unseen_surfing_host_request_count = 9; // I am the guest/traveller
+  uint32 unseen_public_trip_offer_count = 10; // incoming public-trip offers (gated by public_trips_enabled)
 }
 
 message MutualFriend {

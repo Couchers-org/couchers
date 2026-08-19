@@ -2,7 +2,7 @@ import { Box, ListItemAvatar, ListItemText, Skeleton, Tooltip, Typography } from
 import { styled } from "@mui/system";
 import Avatar from "components/Avatar";
 import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
-import { OpenInNewIcon } from "components/Icons";
+import { PinIcon } from "components/Icons";
 import ProfileLink from "components/ProfileLink/ProfileLink";
 import { LiteUser } from "proto/api_pb";
 import { BlockedUser } from "proto/blocking_pb";
@@ -20,21 +20,16 @@ const StyledWrapper = styled("div")({
   display: "flex",
   padding: 0,
   width: "100%",
+  minWidth: 0,
   alignItems: "center",
   wordBreak: "break-word",
 });
-
-const StyledOpenInNewIcon = styled(OpenInNewIcon)(({ theme }) => ({
-  display: "block",
-  marginInlineStart: theme.spacing(0.5),
-  height: "1.25rem",
-  width: "1.25rem",
-}));
 
 const StyledListItemText = styled(ListItemText, {
   shouldForwardProp: (prop) => prop !== "isSmallAvatar",
 })<{ isSmallAvatar: boolean }>(({ theme, isSmallAvatar }) => ({
   display: "grid",
+  gridTemplateColumns: "minmax(0, 1fr)",
   gap: theme.spacing(0.25),
   margin: 0,
   minHeight: isSmallAvatar ? theme.spacing(6) : theme.spacing(9),
@@ -94,7 +89,7 @@ export default function UserSummary({
     setMenuAnchorEl(null);
   };
 
-  const nameValue = user && user.name ? (user.name.length > 20 ? user.name.slice(0, 20) + "..." : user.name) : "";
+  const nameValue = user?.name ?? "";
 
   const cityValue =
     user && "city" in user && typeof user.city === "string"
@@ -109,14 +104,35 @@ export default function UserSummary({
         component={headlineComponentWithRef}
         variant="h2"
         noWrap={nameOnly}
-        sx={{ marginTop: "auto", fontSize: "1.2rem" }}
+        sx={{ marginTop: "auto", minWidth: 0 }}
       >
         {!user ? (
           <Skeleton data-testid={USER_TITLE_SKELETON_TEST_ID} sx={{ maxWidth: 300 }} />
         ) : (
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            {nameOnly ? nameValue : `${nameValue}${user && "age" in user ? `, ${user.age}` : ""}`}
-            {isLiteUser(user) && user.hasStrongVerification && <StrongVerificationBadge />}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 0.5,
+              minWidth: 0,
+            }}
+          >
+            <Box
+              component="span"
+              sx={{
+                minWidth: 0,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {nameValue}
+            </Box>
+            {isLiteUser(user) && user.hasStrongVerification && (
+              <Box component="span" sx={{ flexShrink: 0 }}>
+                <StrongVerificationBadge />
+              </Box>
+            )}
           </Box>
         )}
       </Typography>
@@ -141,14 +157,15 @@ export default function UserSummary({
               userId={"userId" in user ? user.userId : undefined}
               username={user.username}
               openInNewTab={!isMobile}
+              showOpenIcon={!isMobile}
               style={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "flex-start",
+                minWidth: 0,
               }}
             >
               {title}
-              {!isMobile && <StyledOpenInNewIcon />}
             </ProfileLink>
           ) : (
             title
@@ -158,9 +175,37 @@ export default function UserSummary({
           <>
             {!nameOnly && (
               <Tooltip title={(user as LiteUser.AsObject)?.city} arrow placement="top">
-                <Typography color="textSecondary" variant="body1" noWrap={nameOnly}>
-                  {!user ? <Skeleton /> : cityValue}
-                </Typography>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 0.5,
+                    minWidth: 0,
+                  }}
+                >
+                  {user && cityValue && (
+                    <PinIcon
+                      sx={(theme) => ({
+                        flexShrink: 0,
+                        color: "var(--mui-palette-text-secondary)",
+                        fontSize: "1.25rem",
+                        [theme.breakpoints.down("md")]: { fontSize: "1rem" },
+                      })}
+                    />
+                  )}
+                  <Typography
+                    color="textSecondary"
+                    variant="body1"
+                    noWrap
+                    sx={(theme) => ({
+                      minWidth: 0,
+                      fontSize: "1rem",
+                      [theme.breakpoints.down("md")]: { fontSize: "0.875rem" },
+                    })}
+                  >
+                    {!user ? <Skeleton /> : cityValue}
+                  </Typography>
+                </Box>
               </Tooltip>
             )}
             {children}

@@ -57,13 +57,16 @@ make mypy
 - For URLs, use `from couchers import urls` and then `urls.whatever()`
 - Avoid inline imports whenever possible
 - To filter out invisible users (deleted/banned/blocked), use the helper functions from `couchers.sql`: `where(users_visible(context))` when User is already joined, `where(users_column_visible(context, column))` when you have a user_id column, or `where(users_visible_to_each_other(user1, user2))` for mutual visibility. Never use `User.is_visible` directly in queries
+- For paginated APIs, use a `next_page_token` string field: an empty token means there are no more pages (don't add a separate `no_more` flag). Encrypt tokens with `encrypt_page_token`/`decrypt_page_token` from `couchers.crypto` so they are opaque to clients
 
 ### Web (TypeScript/React)
-- Uses `nvm` for node version management
-- Uses `yarn` (not npm) - run dev server with `yarn start` (not Docker)
+- Uses `nvm` for node version management. Use it as `source $HOME/.nvm/nvm.sh && <nvm command>`.
+- Uses `yarn` (not npm). Use it as `source $HOME/.nvm/nvm.sh && nvm use && <yarn command>`
+- Run the dev server with `yarn start` (not Docker)
 - Run linting with `yarn lint` and auto-fix with `yarn lint:fix`
 - Run tests with `yarn test`
 - Run linting AND formatting with `yarn format`
+- Run type checking with `yarn typecheck`
 - Import aliases: use `components/` not `../../../components/`, `routes` not `../../../routes`
 - Import multiple MUI icons together: `import { Favorite, Star, Public } from "@mui/icons-material"` instead of separate imports
 - No `any` types - explicitly type mock mutations (e.g., `UseMutationResult<...>`)
@@ -122,6 +125,7 @@ If you ever feel tempted to renumber, STOP and ask the user. There is essentiall
 - Use fixtures from `test_fixtures.py` (e.g., `generate_user()`, `push_collector`)
 - Mock external APIs with `unittest.mock.patch`
 - Background jobs don't run automatically in tests - use `process_job()` to manually execute queued jobs
+- To control time, use the `timewarp` / `frozen_timewarp` fixtures rather than patching `now` on a module, which leaves postgres on the real clock. The clock can't be moved inside an open `session_scope()`
 
 ### Web Tests
 - Use fixture data from `test/fixtures/` (e.g., `hostRequest.json`, `messages.json`, `groupChat.json`) when available, instead of creating mock data inline

@@ -34,10 +34,11 @@ export default function NotFoundPage() {
         <StyledImg src={Graphic.src} alt={t("not_found_alt")} />
         <Typography>{t("not_found_text_1")}</Typography>
         <Typography>
-          <Trans t={t} i18nKey="not_found_text_2">
-            Do you just want to
-            <StyledLink href={!authenticated || !isMounted ? baseRoute : dashboardRoute}>go home?</StyledLink>
-          </Trans>
+          <Trans
+            t={t}
+            i18nKey="not_found_text_2"
+            components={{ homeLink: <StyledLink href={!authenticated || !isMounted ? baseRoute : dashboardRoute} /> }}
+          />
         </Typography>
       </StyledWrapper>
     </>

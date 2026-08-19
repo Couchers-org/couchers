@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import ColumnElement, and_, false, or_, select, true
+from sqlalchemy import ColumnElement, SQLColumnExpression, and_, false, or_, select, true
 from sqlalchemy.orm import InstrumentedAttribute, aliased
 from sqlalchemy.sql import Select, exists, union
 
@@ -88,7 +88,7 @@ def users_visible(context: CouchersContext, table: _User = User) -> ColumnElemen
 
 
 def where_users_column_visible[T: tuple[Any, ...]](
-    query: Select[T], context: CouchersContext, column: InstrumentedAttribute[int]
+    query: Select[T], context: CouchersContext, column: SQLColumnExpression[int]
 ) -> Select[T]:
     """
     Filters the given column, not yet joined/selected from
@@ -150,6 +150,7 @@ def where_moderated_content_visible_to_user_column[T: tuple[Any, ...]](
     is_list_operation: bool = False,
 ) -> Select[T]:
     entry = get_moderated_models()[table.__moderation_object_type__]
+    assert not entry.has_own_visibility_mechanism, f"{table.__name__} visibility is not decided by the UMS"
     aliased_mod_state = aliased(ModerationState)
     conditions = [aliased_mod_state.visibility == ModerationVisibility.visible]
 
@@ -177,6 +178,7 @@ def where_moderated_content_visible[T: tuple[Any, ...]](
     is_list_operation: bool = False,
 ) -> Select[T]:
     entry = get_moderated_models()[table.__moderation_object_type__]
+    assert not entry.has_own_visibility_mechanism, f"{table.__name__} visibility is not decided by the UMS"
     aliased_mod_state = aliased(ModerationState)
     conditions = [aliased_mod_state.visibility == ModerationVisibility.visible]
 
@@ -219,6 +221,8 @@ def moderation_state_column_visible(
     shadowed_conditions: list[ColumnElement[bool]] = []
     if context.is_logged_in():
         for entry in get_moderated_models().values():
+            if entry.has_own_visibility_mechanism:
+                continue
             shadowed_conditions.append(
                 and_(
                     aliased_mod_state.object_type == entry.object_type,
@@ -231,18 +235,21 @@ def moderation_state_column_visible(
                 )
             )
 
+    conditions = [
+        aliased_mod_state.visibility == ModerationVisibility.visible,
+        aliased_mod_state.visibility == ModerationVisibility.unlisted,
+    ]
+    if shadowed_conditions:
+        conditions.append(
+            and_(
+                aliased_mod_state.visibility == ModerationVisibility.shadowed,
+                or_(*shadowed_conditions),
+            )
+        )
+
     return or_(
         column.is_(None),
-        exists(
-            select(aliased_mod_state.id).where(
-                aliased_mod_state.id == column,
-                or_(
-                    aliased_mod_state.visibility == ModerationVisibility.visible,
-                    aliased_mod_state.visibility == ModerationVisibility.unlisted,
-                    *shadowed_conditions,
-                ),
-            )
-        ),
+        exists(select(aliased_mod_state.id).where(aliased_mod_state.id == column, or_(*conditions))),
     )
 
 

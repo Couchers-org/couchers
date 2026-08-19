@@ -1,8 +1,4 @@
 {
-  "complete_profile_explanation": "Hasst du es nicht auch, dass andere Plattformen leere „Geister“-Profile ohne Informationen haben? Bitte Ghoste uns nicht! 👻👻👻",
-  "please_complete_profile": "Bitte vervollständige dein Profil, um sicher zu gehen, dass du in der Suche angezeigt wirst:",
-  "upload_photo": "2. Lade dein Foto hoch (indem du auf der Bearbeitungsseite auf den Avatar klickst)",
-  "fill_in_who_i_am": "1. Fülle den Abschnitt „Wer ich bin“ mit ein paar Sätzen über dich selbst aus",
   "dashboard": "Übersicht",
   "find_a_host": "Finde einen Host",
   "browse_communities": "Communitys durchsuchen",
@@ -10,15 +6,12 @@
   "search_input_placeholder": "Suche einen Ort",
   "become_a_host": "Werde ein Host",
   "your_communities_heading": "Deine Communitys",
-  "all_communities_heading": "Alle Communitys",
   "no_community": "Du befindest dich aktuell in keiner Community.",
   "no_sub_communities": "Keine Sub-Communitys.",
   "load_more": "Mehr laden",
   "welcome": "Willkommen bei Couchers.org!",
   "new_pill": "Neu",
-  "landing_text": "Wir entwickeln neue <1>Funktionen</1> wie Events, Local Guides, Moderation und Hangouts. Wir danken euch für eure Geduld und <3>Unterstützung</3> bei der Entwicklung.",
-  "your_communities_helper_text": "Du wurdest zu allen Communitys hinzugefügt, die sich auf deinen Standort beziehen. Du kannst auch an anderen Orten <1>Communitys durchsuchen</1>.",
-  "community_builder_form_text": "Gründen deine eigene lokale Community",
+  "your_communities_helper_text": "Du wurdest zu allen Communitys hinzugefügt, die sich auf deinen Standort beziehen. Du kannst auch an anderen Orten <browseCommunitiesLink>Communitys durchsuchen und beitreten</browseCommunitiesLink>.",
   "member_count_one": "{{count}} Mitglied",
   "member_count_other": "{{count}} Mitglieder",
   "profile_summary_edit": "Profil bearbeiten",
@@ -26,19 +19,16 @@
   "profile_mobile_summary_view": "Zu Profil gehen",
   "show_map": "Karte anzeigen",
   "hero_image_alt": "Heißluftballons in Kapadokien",
-  "hero_image_attribution": "Foto von <1>Mesut Kaya</1> auf <3>Unsplash</3>",
-  "all_communities_section": "Alle Communitys",
-  "all_communities_intro": "Unten kannst du alle Community-Seiten durchsuchen, die bisher erstellt wurden. <strong>Klicke auf einen Community-Namen, um die anderen Communitys darin zu sehen.</strong>",
-  "community_missing": "Fehlt dein Land oder deine Stadt? Nutze <1>dieses Formular</1>, um die Community anzufragen!",
+  "hero_image_attribution": "Foto von <photographerLink>Mesut Kaya</photographerLink> auf <unsplashLink>Unsplash</unsplashLink>",
   "communities_welcome_title": "Willkommen bei Communitys",
   "communities_intro": "Um Menschen auf der ganzen Welt dabei zu helfen, Events, Beiträge und Treffen zu organisieren, haben wir Community-Seiten erstellt, die unten aufgeführt sind. <strong>Du wurdest basierend auf deinem Ort automatisch zu einigen Communitys hinzugefügt, aber du kannst jeder Community beitreten!</strong> Deine Communitys sind auf deinem Dashboard aufgeführt.",
-  "community_builder": "Möchtest du Botschafter für deine Community sein und ihr Wachstum unterstützen? Werde ein <1>Community Builder!</1>",
+  "community_builder": "Möchtest du Botschafter für deine Community sein und ihr Wachstum unterstützen? Werde ein <communityBuilderLink>Community Builder!</communityBuilderLink>",
   "find_your_community": "Finde eine Community",
   "browse_all_communities": "Alle Communitys durchsuchen",
   "show_all_communities": "Alle Communitys anzeigen",
   "hide_all_communities": "Alle Communitys verstecken",
-  "find_your_community_intro": "Unten kannst du alle Community-Seiten durchsuchen, die bisher existieren. Fehlt dein Land oder deine Stadt? <1>Nutze dieses Formular</1>, um die Community anzufordern!",
-  "find_your_community_intro_simplified": "Suche nach deiner Community oder stöbere unten. <1>Deine ist nicht dabei? Fordere sie an!</1>",
+  "find_your_community_intro": "Unten kannst du alle Community-Seiten durchsuchen, die bisher existieren. Fehlt dein Land oder deine Stadt? <requestCommunityLink>Nutze dieses Formular</requestCommunityLink>, um die Community anzufordern!",
+  "find_your_community_intro_simplified": "Suche nach deiner Community oder stöbere unten. <requestCommunityLink>Deine ist nicht dabei? Fordere sie an!</requestCommunityLink>",
   "browse_communities_text": "Klicke auf einen Regionsnamen, um die anderen Communitys innerhalb dieser Region unten anzuzeigen. Klicke auf den Link, um zur Community-Seite dieser Stadt oder Region zu gelangen.",
   "my_communities_heading": "Meine Communitys",
   "reminder": {
@@ -73,18 +63,12 @@
       "title": "Bestätige deinen Aufenthalt bei {{name}}",
       "description": "{{name}} hat deine Anfrage angenommen. Bestätige deinen Aufenthalt, um ihn zu sichern.",
       "button": "Aufenthalt bestätigen"
-    },
-    "carousel_scroller": {
-      "left_arrow_a11y": "Nach links scrollen",
-      "right_arrow_a11y": "Nach rechts scrollen"
     }
   },
   "events": {
     "your_upcoming_header": "Deine anstehenden Events",
-    "see_all_link": "Alle anzeigen →",
-    "your_upcoming_empty_message": "Aktuell gibt es keine Events. Warum <0>erstellst</0> du nicht eins ✨?",
-    "community_header": "Events in deinen Communitys",
-    "today_label": "Heute"
+    "your_upcoming_empty_message": "Aktuell gibt es keine Events. Warum <createEventLink>erstellst</createEventLink> du nicht eins ✨?",
+    "community_header": "Events in deinen Communitys"
   },
   "discussions": {
     "community_header": "Beiträge in deinen Communitys",
@@ -107,12 +91,11 @@
     "my_trips_header": "Deine öffentlichen Trips",
     "manage_link": "Verwalten",
     "when_now": "Jetzt",
-    "when_today": "Heute",
-    "when_tomorrow": "Morgen",
     "empty_description": "Wohin des Weges? Poste einen öffentlichen Trip in einer Community, um Angebote von Hosts in der Nähe zu erhalten.",
     "same_gender_only_indicator": "Gleiches Geschlecht",
     "offers_count_one": "{{count}} Angebot",
     "offers_count_other": "{{count}} Angebote",
     "no_offers": "Noch keine Angebote"
-  }
+  },
+  "today_label": "Heute"
 }

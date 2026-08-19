@@ -26,6 +26,7 @@ from sqlalchemy.dialects.postgresql import INET
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import expression
+from sqlalchemy.sql.elements import ColumnElement
 
 from couchers.constants import GUIDELINES_VERSION
 from couchers.models.base import Base, Geom
@@ -75,6 +76,7 @@ class FriendRelationship(Base, kw_only=True):
     __tablename__ = "friend_relationships"
     __moderation_author_column__ = "from_user_id"
     __moderation_object_type__ = ModerationObjectType.friend_request
+    __moderation_has_own_visibility_mechanism__ = False
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
@@ -224,8 +226,14 @@ class SignupFlow(Base, kw_only=True):
     invite_code_id: Mapped[str | None] = mapped_column(ForeignKey("invite_codes.id"), default=None)
 
     @hybrid_property
-    def token_is_valid(self) -> Any:
-        return (self.email_token != None) & (self.email_token_expiry >= now())  # type: ignore[operator]
+    def token_is_valid(self) -> bool:
+        # `and` so a flow without a token answers False instead of raising on the None comparison
+        return self.email_token is not None and self.email_token_expiry is not None and self.email_token_expiry >= now()
+
+    @token_is_valid.inplace.expression
+    @classmethod
+    def _token_is_valid_expression(cls) -> ColumnElement[bool]:
+        return (cls.email_token != None) & (cls.email_token_expiry >= now())
 
     @hybrid_property
     def account_is_filled(self) -> Any:
@@ -319,6 +327,8 @@ class UserActivity(Base, kw_only=True):
             # treat NULL ip_address/user_agent/sofa as equal so the upsert dedupes rows with absent columns
             postgresql_nulls_not_distinct=True,
         ),
+        Index("ix_user_activity_sofa", sofa),
+        Index("ix_user_activity_ip_address", ip_address),
     )
 
 
@@ -431,6 +441,7 @@ class Reference(Base, kw_only=True):
     __tablename__ = "references"
     __moderation_author_column__ = "from_user_id"
     __moderation_object_type__ = ModerationObjectType.reference
+    __moderation_has_own_visibility_mechanism__ = False
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     # timezone should always be UTC

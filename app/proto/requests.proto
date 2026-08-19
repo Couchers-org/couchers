@@ -81,6 +81,8 @@ message HostRequest {
   bool is_archived = 15;
   // If set, this host request was created in response to a public trip
   optional int64 public_trip_id = 16;
+  // number of messages on this request the viewer hasn't seen yet
+  uint32 unseen_message_count = 17;
 }
 
 message GetHostRequestReq {

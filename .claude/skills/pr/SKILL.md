@@ -63,19 +63,57 @@ Write a concise commit message (1-2 sentences) that describes what changed and w
 git push -u origin <branch-name>
 ```
 
-### 6. Create the PR
+### 6. Write the PR description
 
-Read the PR template from `.github/pull_request_template.md` in this repo. Fill it in based on the actual changes:
+Read the PR template from `.github/pull_request_template.md` and fill it in.
 
-- Fill in the description at the top (what and why)
-- Fill in the Testing section with what was done or what should be done
-- Include the appropriate checklist(s) — backend, web, or both — based on which areas were changed. Remove checklists that don't apply.
-- Keep the "For maintainers" section as-is
-- Append the following note as the very last line of the PR body, after the "For maintainers" section (separated by a blank line):
+The description has one job: give a reviewer who context-switches in enough to understand what the change is about and why it exists, without reading the code. Nothing else.
+
+**Shape. ONE paragraph.** Not two. Not "one short one and then a brief note". One. Open with high-level context — which subsystem this touches, what it is for, why it matters — so a reviewer who may be familiar with this area but did not drive the session is oriented. Then what is wrong, missing, or needed, and what the change does about it. Stop there. Well under 150 words.
+
+A second paragraph is allowed in exactly one case: the user explicitly directed a consequential decision that needs recording (see **The one exception** below). That case is rare — most PRs will never hit it. Everything else you were tempted to put in a second paragraph — a behaviour change, a stacking or follow-up relationship to another PR, a caveat — either fits as a clause in the one paragraph or does not belong in the description at all. If you have written two paragraphs and the second is not a user-directed decision, delete it; do not merge it in.
+
+**Never fabricate. This is absolute.** Write only what you actually know from the session, the diff, the repo, or the user. You do not get to invent *why* a change is being made. If the user did not tell you the motivation, and it is not plainly evident from the code or the issue being fixed, then you do not know it — say what the change does and leave the motivation out. Never write a plausible-sounding backstory: no invented user complaints, no invented incidents or bug reports, no invented performance or scale pressures, no invented product goals, no invented prior discussion, no invented future plans, no guessed issue or PR numbers, no attributing a decision to the user that they did not make. A description that is short and says less is always better than one that reads well and contains something you made up. If you are unsure whether you know a rationale or are reconstructing it, you are reconstructing it — leave it out.
+
+**Stay above the code.** Write in terms a reviewer can follow without opening a file — the authentication system, the notification emails, the search page — rather than the private helpers, local variables and internal functions that implement them. Nobody remembers what those do, including whoever wrote them. Identifiers are fine where a reviewer would recognise them from outside: RPC and service names, database tables, proto messages, settings and env vars, feature flags, URLs.
+
+**Tone.** You are describing the change and the human's decisions about it. You are not an engineer offering your take. Never write anything that reads as your own engineering judgement or as an invitation to discuss it — no "worth a reviewer's opinion", no "happy to change this", no flagged concerns, no recommendations, no notes to reviewers. If something genuinely needs discussion, raise it with the user instead.
+
+**Never include:**
+
+- Anything about tests, formatting, linting, type checking, or CI. It all runs automatically, so there is nothing to report — no test names, no pass counts, no "`make mypy` clean", no "verified to fail before the fix".
+- *How* the change is implemented. The diff shows that. No per-file or per-function walkthrough, no lists of the fields/files/keys/symbols added, no tables.
+- Any narration of the session: what you tried first, what you ruled out, what you deliberately left alone, what you couldn't run locally, environment problems.
+- Design or implementation choices that were yours rather than the user's, however much work went into them.
+- Annotations on checklist items. Tick or leave unticked.
+- Headings, tables, or bold sub-headings beyond the template's own.
+- A first sentence that restates the title.
+- Any rationale, history, or context you cannot point to a source for.
+
+**The one exception.** If the user explicitly directed a design or implementation decision during the session, and it is consequential and looks wrong on its face — or was picked after real work on an alternative — record it in a sentence or two as their decision. Nothing you decided on your own ever qualifies.
+
+**Testing section.** Leave it out unless a human has to do something by hand to exercise the change that isn't obvious; then give one line of steps. Never test results.
+
+**Checklists.** Include the checklist(s) — backend, web, or both — matching the areas changed, and remove the ones that don't apply. Tick honestly, annotate never. Keep the "For maintainers" section as-is.
+
+Append the following note as the very last line of the PR body, after the "For maintainers" section (separated by a blank line):
 
   ```
   _This PR was created with the Couchers PR skill._
   ```
+
+### 7. Prune the description
+
+Read the draft description once more as if you had no context on the change and were a busy person with other PRs to get through. Ask what could be dropped and what needs clarifying: a sentence they would skip, a phrase they would have to re-read, a term they would have to look up.
+
+Then check the two hard rules explicitly:
+
+- **Count the paragraphs.** If there is more than one, and the extra is not a user-directed decision under the exception, delete it.
+- **Point at a source for every claim of *why*.** Go sentence by sentence over anything that explains motivation, history, or impact. For each, name where it came from — the user said it, the diff shows it, the issue states it. Anything left over is fabricated: delete it.
+
+Then make one more editing pass for simplification and clarification. You may only prune and reword — the description must not get longer.
+
+### 8. Create the PR
 
 ```bash
 gh pr create --base develop --title "<short title>" --body "$(cat <<'EOF'
@@ -86,6 +124,6 @@ EOF
 )"
 ```
 
-### 7. Report back
+### 9. Report back
 
 Tell the user the PR URL when done.

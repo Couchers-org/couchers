@@ -52,12 +52,13 @@ upgrade:
 	DATABASE_CONNECTION_STRING="postgresql://postgres:203d805f4b62c0a1b2f1f6b82d4583dfe563ec1619b83ce22ee414e8376a25e7@localhost:6545/postgres" \
 	uv run alembic upgrade +1
 
-# Starts a Postgres container for backend tests. On Mac, it builds a Postgis image locally,
-# because there are no official images for ARM, and using amd64 image makes tests 4x slower.
+# Starts a Postgres container for backend tests. On ARM64 (Apple Silicon Macs, ARM Linux), it
+# builds a Postgis image locally, because there are no official images for ARM, and using the
+# amd64 image via emulation makes tests 4x slower.
 # Note: creating postgis extension takes several seconds, and we don't want to do it on
 # every test run.
 setup-db:
-	$(eval COMPOSE_FILES := -f ../docker-compose.test.yml $(if $(filter Darwin,$(shell uname -s)),-f ../docker-compose.testmac.yml))
+	$(eval COMPOSE_FILES := -f ../docker-compose.test.yml $(if $(filter arm64 aarch64,$(shell uname -m)),-f ../docker-compose.test.arm64.yml))
 	docker compose $(COMPOSE_FILES) up -d --wait --no-deps postgres_tests
 	docker compose $(COMPOSE_FILES) exec postgres_tests psql -U postgres -c \
 		"CREATE EXTENSION IF NOT EXISTS postgis; \
@@ -82,7 +83,7 @@ test:
 # make docker-test                    → runs all tests
 # make docker-test file=test_file.py → runs tests in a specific file
 docker-test:
-	$(eval COMPOSE_FILES := -f ../docker-compose.test.yml $(if $(filter Darwin,$(shell uname -s)),-f ../docker-compose.testmac.yml))
+	$(eval COMPOSE_FILES := -f ../docker-compose.test.yml $(if $(filter arm64 aarch64,$(shell uname -m)),-f ../docker-compose.test.arm64.yml))
 	docker compose $(COMPOSE_FILES) up -d --wait postgres_tests
 	docker compose $(COMPOSE_FILES) run --rm --build \
 		-v $(ROOT_DIR):/app \

@@ -31,6 +31,7 @@ from couchers.utils import datetime_to_iso8601_local, now, to_aware_datetime
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import EmailCollector, Moderator, PushCollector, process_jobs
 from tests.fixtures.sessions import events_session, real_editor_session, threads_session
+from tests.fixtures.timewarp import FrozenTimewarp
 from tests.test_communities import create_community, create_group
 
 
@@ -50,7 +51,7 @@ def is_utc_or_gmt(timezone: str) -> bool:
     return timezone in ("Etc/UTC", "Etc/GMT")
 
 
-def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
+def test_CreateEvent(db, frozen_timewarp, push_collector: PushCollector, moderator: Moderator):
     # test cases:
     # can create event
     # cannot create event with missing details
@@ -381,7 +382,7 @@ def test_CreateEvent_incomplete_profile(db):
         assert e.value.details() == "You have to complete your profile before you can create an event."
 
 
-def test_ScheduleEvent(db):
+def test_ScheduleEvent(db, frozen_timewarp):
     # test cases:
     # can schedule a new event occurrence
 
@@ -567,7 +568,7 @@ def test_cannot_overlap_occurrences_update(db):
         assert e.value.details() == "An event cannot have overlapping occurrences."
 
 
-def test_UpdateEvent_single(db, moderator: Moderator):
+def test_UpdateEvent_single(db, frozen_timewarp: FrozenTimewarp, moderator: Moderator):
     # test cases:
     # owner can update
     # community owner can update
@@ -621,6 +622,8 @@ def test_UpdateEvent_single(db, moderator: Moderator):
     with events_session(token6) as api:
         api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
 
+    # the clock is stopped, so the edit below needs the test to move it on for last_edited to change
+    frozen_timewarp.advance(timedelta(minutes=1))
     time_before_update = now()
 
     with events_session(token1) as api:
@@ -744,7 +747,7 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         assert res.location.lng == 0.02
 
 
-def test_UpdateEvent_all(db, moderator: Moderator):
+def test_UpdateEvent_all(db, frozen_timewarp: FrozenTimewarp, moderator: Moderator):
     # event creator
     user1, token1 = generate_user()
     # community moderator
@@ -819,6 +822,8 @@ def test_UpdateEvent_all(db, moderator: Moderator):
 
     updated_event_id = event_ids[3]
 
+    # the clock is stopped, so the edit below needs the test to move it on for last_edited to change
+    frozen_timewarp.advance(timedelta(minutes=1))
     time_before_update = now()
 
     with events_session(token1) as api:
@@ -850,7 +855,157 @@ def test_UpdateEvent_all(db, moderator: Moderator):
             assert time_before_update <= to_aware_datetime(res.last_edited) <= time_after_update
 
 
-def test_GetEvent(db, moderator: Moderator):
+def test_UpdateEvent_all_leaves_other_events_alone(db, moderator: Moderator):
+    """update_all_future must only touch the occurrences of the event being edited."""
+    # creator of the event that gets edited
+    user1, token1 = generate_user()
+    # creator of an unrelated event in the same time window
+    user2, token2 = generate_user()
+    # community moderator, so that neither creator has edit rights on the other's event
+    user3, token3 = generate_user()
+
+    with session_scope() as session:
+        create_community(session, 0, 2, "Community", [user3], [], None)
+
+    start_time = now() + timedelta(hours=1)
+
+    with events_session(token1) as api:
+        edited_id = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Edited Event",
+                content="0th occurrence",
+                location=events_pb2.EventLocation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start_time + timedelta(hours=1)),
+            )
+        ).event_id
+
+        second_id = api.ScheduleEvent(
+            events_pb2.ScheduleEventReq(
+                event_id=edited_id,
+                content="1th occurrence",
+                location=events_pb2.EventLocation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time + timedelta(hours=2)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start_time + timedelta(hours=3)),
+            )
+        ).event_id
+
+    # an occurrence of a different event, starting after the edited one and ending well after the cutoff
+    with events_session(token2) as api:
+        other_id = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Other Event",
+                content="Other content.",
+                location=events_pb2.EventLocation(
+                    address="Somewhere else entirely",
+                    lat=0.5,
+                    lng=0.5,
+                ),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time + timedelta(hours=4)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start_time + timedelta(hours=5)),
+            )
+        ).event_id
+
+    for occurrence_id in (edited_id, second_id, other_id):
+        moderator.approve_event_occurrence(occurrence_id)
+
+    with events_session(token2) as api:
+        other_before = api.GetEvent(events_pb2.GetEventReq(event_id=other_id))
+
+    with events_session(token1) as api:
+        api.UpdateEvent(
+            events_pb2.UpdateEventReq(
+                event_id=edited_id,
+                content=wrappers_pb2.StringValue(value="New content."),
+                location=events_pb2.EventLocation(
+                    address="Not so near Null Island",
+                    lat=0.2,
+                    lng=0.2,
+                ),
+                update_all_future=True,
+            )
+        )
+
+    with events_session(token3) as api:
+        for occurrence_id in (edited_id, second_id):
+            res = api.GetEvent(events_pb2.GetEventReq(event_id=occurrence_id))
+            assert res.content == "New content."
+            assert res.location.address == "Not so near Null Island"
+
+        res = api.GetEvent(events_pb2.GetEventReq(event_id=other_id))
+        assert res.content == "Other content."
+        assert res.location.address == "Somewhere else entirely"
+        assert res.location.lat == 0.5
+        assert res.location.lng == 0.5
+        assert res.timezone == other_before.timezone
+        assert res.last_edited == other_before.last_edited
+
+
+def test_UpdateEvent_all_cant_change_times(db, moderator: Moderator):
+    """Every future occurrence would get the same times, which the exclusion constraint forbids."""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        create_community(session, 0, 2, "Community", [user2], [], None)
+
+    start_time = now() + timedelta(hours=1)
+
+    with events_session(token1) as api:
+        event_id = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="0th occurrence",
+                location=events_pb2.EventLocation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start_time + timedelta(hours=1)),
+            )
+        ).event_id
+
+        api.ScheduleEvent(
+            events_pb2.ScheduleEventReq(
+                event_id=event_id,
+                content="1th occurrence",
+                location=events_pb2.EventLocation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time + timedelta(hours=2)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(start_time + timedelta(hours=3)),
+            )
+        )
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdateEvent(
+                events_pb2.UpdateEventReq(
+                    event_id=event_id,
+                    start_datetime_iso8601_local=wrappers_pb2.StringValue(
+                        value=datetime_to_iso8601_local(start_time + timedelta(minutes=30))
+                    ),
+                    end_datetime_iso8601_local=wrappers_pb2.StringValue(
+                        value=datetime_to_iso8601_local(start_time + timedelta(hours=1, minutes=30))
+                    ),
+                    update_all_future=True,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "You cannot update all events if you're modifying start or end times."
+
+
+def test_GetEvent(db, frozen_timewarp, moderator: Moderator):
     # event creator
     user1, token1 = generate_user()
     # community moderator

@@ -242,7 +242,8 @@
     "user_not_member": "Ese usuario no está en la comunidad.",
     "username_not_available": "Lo sentimos, ese nombre de usuario no está disponible.",
     "wrong_signature": "Firma incorrecta.",
-    "wrong_sms_code": "El código no es válido."
+    "wrong_sms_code": "El código no es válido.",
+    "invalid_thread_category": "Categoría de hilo de mensajes no válida."
   },
   "badges": {
     "volunteer_name": "Voluntario en activo",

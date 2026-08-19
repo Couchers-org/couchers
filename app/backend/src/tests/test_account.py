@@ -33,6 +33,7 @@ from tests.fixtures.sessions import (
     real_account_session,
     requests_session,
 )
+from tests.fixtures.timewarp import Timewarp
 from tests.test_requests import valid_request_text
 
 
@@ -468,13 +469,7 @@ def test_ChangeEmailV2_wrong_token(db, fast_passwords):
         assert user_updated.email == user.email
 
 
-def test_ChangeEmailV2_tokens_two_hour_window(db):
-    def two_hours_one_minute_in_future():
-        return now() + timedelta(hours=2, minutes=1)
-
-    def one_minute_ago():
-        return now() - timedelta(minutes=1)
-
+def test_ChangeEmailV2_tokens_two_hour_window(db, fast_passwords, timewarp: Timewarp):
     password = random_hex()
     new_email = f"{random_hex()}@couchers.org.invalid"
     user, token = generate_user(hashed_password=hash_password(password))
@@ -490,37 +485,39 @@ def test_ChangeEmailV2_tokens_two_hour_window(db):
     with session_scope() as session:
         new_email_token = session.execute(select(User.new_email_token).where(User.id == user.id)).scalar_one()
 
-    with patch("couchers.servicers.auth.now", one_minute_ago):
-        with auth_api_session() as (auth_api, metadata_interceptor):
-            with pytest.raises(grpc.RpcError) as e:
-                auth_api.ConfirmChangeEmailV2(auth_pb2.ConfirmChangeEmailV2Req())
-            assert e.value.code() == grpc.StatusCode.NOT_FOUND
-            assert e.value.details() == "Invalid token."
+    # before the token was issued
+    timewarp.advance(-timedelta(minutes=1))
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.ConfirmChangeEmailV2(auth_pb2.ConfirmChangeEmailV2Req())
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == "Invalid token."
 
-            with pytest.raises(grpc.RpcError) as e:
-                auth_api.ConfirmChangeEmailV2(
-                    auth_pb2.ConfirmChangeEmailV2Req(
-                        change_email_token=new_email_token,
-                    )
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.ConfirmChangeEmailV2(
+                auth_pb2.ConfirmChangeEmailV2Req(
+                    change_email_token=new_email_token,
                 )
-            assert e.value.code() == grpc.StatusCode.NOT_FOUND
-            assert e.value.details() == "Invalid token."
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == "Invalid token."
 
-    with patch("couchers.servicers.auth.now", two_hours_one_minute_in_future):
-        with auth_api_session() as (auth_api, metadata_interceptor):
-            with pytest.raises(grpc.RpcError) as e:
-                auth_api.ConfirmChangeEmailV2(auth_pb2.ConfirmChangeEmailV2Req())
-            assert e.value.code() == grpc.StatusCode.NOT_FOUND
-            assert e.value.details() == "Invalid token."
+    # and a minute after the two hour window closed
+    timewarp.advance(timedelta(hours=2, minutes=1))
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.ConfirmChangeEmailV2(auth_pb2.ConfirmChangeEmailV2Req())
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == "Invalid token."
 
-            with pytest.raises(grpc.RpcError) as e:
-                auth_api.ConfirmChangeEmailV2(
-                    auth_pb2.ConfirmChangeEmailV2Req(
-                        change_email_token=new_email_token,
-                    )
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.ConfirmChangeEmailV2(
+                auth_pb2.ConfirmChangeEmailV2Req(
+                    change_email_token=new_email_token,
                 )
-            assert e.value.code() == grpc.StatusCode.NOT_FOUND
-            assert e.value.details() == "Invalid token."
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == "Invalid token."
 
 
 def test_ChangeEmailV2(db, fast_passwords, push_collector: PushCollector):

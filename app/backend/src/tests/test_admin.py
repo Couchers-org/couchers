@@ -14,6 +14,7 @@ from couchers.models import (
     EventOccurrence,
     FriendRelationship,
     FriendStatus,
+    HostRequest,
     ModerationObjectType,
     ModerationState,
     ModerationUserList,
@@ -33,22 +34,24 @@ from couchers.proto import (
     account_pb2,
     admin_pb2,
     auth_pb2,
+    blocking_pb2,
     events_pb2,
     references_pb2,
     reporting_pb2,
     requests_pb2,
 )
-from couchers.utils import Timestamp_from_datetime, datetime_to_iso8601_local, now, parse_date
+from couchers.utils import Timestamp_from_datetime, date_to_api, datetime_to_iso8601_local, now, parse_date
 from tests.fixtures.db import (
     add_users_to_new_moderation_list,
     backdate_conversations,
     generate_user,
     make_friends,
 )
-from tests.fixtures.misc import EmailCollector, PushCollector
+from tests.fixtures.misc import EmailCollector, Moderator, PushCollector
 from tests.fixtures.sessions import (
     account_session,
     auth_api_session,
+    blocking_session,
     events_session,
     real_admin_session,
     references_session,
@@ -56,6 +59,7 @@ from tests.fixtures.sessions import (
     requests_session,
 )
 from tests.test_communities import create_community
+from tests.test_references import create_host_reference
 from tests.test_requests import valid_request_text
 
 
@@ -287,7 +291,7 @@ def test_UnbanUser(db):
     assert res.admin_actions[0].level == admin_pb2.ADMIN_ACTION_LEVEL_HIGH
 
 
-def test_ShadowUser(db):
+def test_ShadowUser(db, moderator: Moderator):
     super_user, super_token = generate_user(is_superuser=True)
     surfer, surfer_token = generate_user()
     host, _ = generate_user()
@@ -305,13 +309,7 @@ def test_ShadowUser(db):
                 text=valid_request_text(),
             )
         ).host_request_id
-    with session_scope() as session:
-        state = session.execute(
-            select(ModerationState)
-            .where(ModerationState.object_type == ModerationObjectType.host_request)
-            .where(ModerationState.object_id == host_request_id)
-        ).scalar_one()
-        state.visibility = ModerationVisibility.visible
+    moderator.approve_host_request(host_request_id)
 
     with real_admin_session(super_token) as api:
         res = api.ShadowUser(admin_pb2.ShadowUserReq(user=surfer.username, admin_note=admin_note))
@@ -334,7 +332,7 @@ def test_ShadowUser(db):
         assert state.visibility == ModerationVisibility.shadowed
 
 
-def test_UnshadowUser(db):
+def test_UnshadowUser(db, moderator: Moderator):
     super_user, super_token = generate_user(is_superuser=True)
     surfer, surfer_token = generate_user()
     host, _ = generate_user()
@@ -360,18 +358,9 @@ def test_UnshadowUser(db):
             )
         ).host_request_id
 
+    moderator.hide_host_request(admin_hidden_request_id)
     with session_scope() as session:
         session.execute(select(User).where(User.id == surfer.id)).scalar_one().shadowed_at = now()
-        session.execute(
-            select(ModerationState)
-            .where(ModerationState.object_type == ModerationObjectType.host_request)
-            .where(ModerationState.object_id == shadow_cascade_request_id)
-        ).scalar_one().visibility = ModerationVisibility.shadowed
-        session.execute(
-            select(ModerationState)
-            .where(ModerationState.object_type == ModerationObjectType.host_request)
-            .where(ModerationState.object_id == admin_hidden_request_id)
-        ).scalar_one().visibility = ModerationVisibility.hidden
 
     with real_admin_session(super_token) as api:
         res = api.UnshadowUser(admin_pb2.UnshadowUserReq(user=surfer.username, admin_note="rehabilitated"))
@@ -910,7 +899,19 @@ def test_GetUserReferences(db):
         assert res.references_from[0].reference_id == ref1.reference_id
         assert res.references_from[0].from_user_id == user1.id
         assert res.references_from[0].to_user_id == user2.id
+        assert res.references_from[0].from_user.user_id == user1.id
+        assert res.references_from[0].from_user.username == user1.username
+        assert res.references_from[0].to_user.user_id == user2.id
+        assert res.references_from[0].to_user.username == user2.username
+        assert res.references_from[0].reference_type == "friend"
         assert res.references_from[0].text == "Reference from user1 to user2"
+        # freshly written content starts out shadowed
+        assert res.references_from[0].moderation_visibility == "shadowed"
+        assert res.references_from[0].host_request_id == 0
+        assert res.references_from[0].hosting_city == ""
+        assert res.references_from[0].from_date == ""
+        assert res.references_from[0].to_date == ""
+        assert res.references_from[0].status == ""
 
         # user1 received 2 references
         assert len(res.references_to) == 2
@@ -921,6 +922,54 @@ def test_GetUserReferences(db):
         assert res.references_to[1].reference_id == ref2.reference_id
         assert res.references_to[1].private_text == "Private note"
         assert res.references_to[1].rating == 0.8
+
+
+def test_GetUserReferences_host_request(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+
+    with session_scope() as session:
+        surfed_ref_id, host_request_id = create_host_reference(session, user1.id, user2.id, timedelta(days=2))
+        hosted_ref_id, _ = create_host_reference(
+            session, user2.id, user1.id, timedelta(days=2), host_request_id=host_request_id
+        )
+        host_request = session.execute(
+            select(HostRequest).where(HostRequest.conversation_id == host_request_id)
+        ).scalar_one()
+        from_date = date_to_api(host_request.from_date)
+        to_date = date_to_api(host_request.to_date)
+
+    with real_admin_session(super_token) as admin_api:
+        res = admin_api.GetUserReferences(admin_pb2.GetUserReferencesReq(user=user1.username))
+
+    assert len(res.references_from) == 1
+    surfed_ref = res.references_from[0]
+    assert surfed_ref.reference_id == surfed_ref_id
+    assert surfed_ref.reference_type == "surfed"
+    assert surfed_ref.from_user.user_id == user1.id
+    assert surfed_ref.from_user.username == user1.username
+    assert surfed_ref.to_user.user_id == user2.id
+    assert surfed_ref.to_user.username == user2.username
+    assert surfed_ref.moderation_visibility == "visible"
+    assert surfed_ref.host_request_id == host_request_id
+    assert surfed_ref.hosting_city == "Test City"
+    assert surfed_ref.from_date == from_date
+    assert surfed_ref.to_date == to_date
+    assert surfed_ref.status == "confirmed"
+
+    assert len(res.references_to) == 1
+    hosted_ref = res.references_to[0]
+    assert hosted_ref.reference_id == hosted_ref_id
+    assert hosted_ref.reference_type == "hosted"
+    assert hosted_ref.from_user.user_id == user2.id
+    assert hosted_ref.to_user.user_id == user1.id
+    assert hosted_ref.host_request_id == host_request_id
+    assert hosted_ref.hosting_city == "Test City"
+    assert hosted_ref.from_date == from_date
+    assert hosted_ref.to_date == to_date
+    assert hosted_ref.status == "confirmed"
 
 
 def test_GetUserReferences_not_found(db):
@@ -998,6 +1047,50 @@ def test_GetFriendRequests_not_found(db):
     with real_admin_session(super_token) as admin_api:
         with pytest.raises(grpc.RpcError) as e:
             admin_api.GetFriendRequests(admin_pb2.GetFriendRequestsReq(user="nonexistent"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+
+def test_GetUserBlocks(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    user3, token3 = generate_user()
+    user4, token4 = generate_user()
+
+    with blocking_session(token1) as user_blocks:
+        user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user2.username))
+
+    with blocking_session(token3) as user_blocks:
+        user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user1.username))
+
+    with blocking_session(token4) as user_blocks:
+        user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user1.username))
+
+    with real_admin_session(super_token) as admin_api:
+        res = admin_api.GetUserBlocks(admin_pb2.GetUserBlocksReq(user=user1.username))
+
+    assert len(res.blocked_users) == 1
+    assert res.blocked_users[0].user.user_id == user2.id
+    assert res.blocked_users[0].user.username == user2.username
+    assert res.blocked_users[0].HasField("time_blocked")
+
+    # most recently blocked first
+    assert [block.user.user_id for block in res.blocking_users] == [user4.id, user3.id]
+
+    with real_admin_session(super_token) as admin_api:
+        res = admin_api.GetUserBlocks(admin_pb2.GetUserBlocksReq(user=user2.username))
+
+    assert len(res.blocked_users) == 0
+    assert [block.user.user_id for block in res.blocking_users] == [user1.id]
+
+
+def test_GetUserBlocks_not_found(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    with real_admin_session(super_token) as admin_api:
+        with pytest.raises(grpc.RpcError) as e:
+            admin_api.GetUserBlocks(admin_pb2.GetUserBlocksReq(user="nonexistent"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 

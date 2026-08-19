@@ -38,6 +38,8 @@ from couchers.constants import (
     EVENT_REMINDER_TIMEDELTA,
     HOST_REQUEST_MAX_REMINDERS,
     HOST_REQUEST_REMINDER_INTERVAL,
+    MISSED_MESSAGES_DELAY,
+    MISSED_MESSAGES_DELAY_WITH_PUSH,
     MODERATION_AUTO_APPROVE_FLAG_PRIORITY,
 )
 from couchers.context import make_background_user_context, make_notification_user_context
@@ -55,6 +57,8 @@ from couchers.email.smtp import send_smtp_email
 from couchers.event_log import log_event
 from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.helpers.completed_profile import has_completed_profile_expression
+from couchers.helpers.group_chats import is_newest_subscription, is_unseen
+from couchers.helpers.hosting_meetup_status import record_hosting_meetup_status
 from couchers.materialized_views import (
     UserResponseRate,
 )
@@ -75,6 +79,7 @@ from couchers.models import (
     EventOccurrenceAttendee,
     GroupChat,
     GroupChatSubscription,
+    HostingMeetupStatusSource,
     HostingStatus,
     HostRequest,
     HostRequestStatus,
@@ -101,6 +106,7 @@ from couchers.models import (
     User,
     UserBadge,
     Volunteer,
+    get_moderated_models,
 )
 from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.expo_api import get_expo_push_receipts
@@ -170,12 +176,6 @@ def purge_account_deletion_tokens(payload: empty_pb2.Empty) -> None:
         )
 
 
-# how long a message must go unseen before we email the user about it
-MISSED_MESSAGES_DELAY = timedelta(minutes=5)
-# ... unless we could reach them by push, in which case they've already been told about it once
-MISSED_MESSAGES_DELAY_WITH_PUSH = timedelta(hours=24)
-
-
 def _message_unseen_long_enough(user_id_column: InstrumentedAttribute[int]) -> ColumnElement[bool]:
     """
     Whether `Message` has gone unseen long enough to email the given user about it.
@@ -217,10 +217,9 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                 )
                 .where(not_(GroupChatSubscription.is_muted))
                 .where(User.is_visible)
-                .where(Message.time >= GroupChatSubscription.joined)
-                .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
+                .where(is_newest_subscription(User.id))
+                .where(is_unseen(Message, GroupChatSubscription))
                 .where(Message.id > User.last_notified_message_id)
-                .where(Message.id > GroupChatSubscription.last_seen_message_id)
                 .where(_message_unseen_long_enough(User.id))
                 .where(Message.message_type == MessageType.text)  # TODO: only text messages for now
             )
@@ -248,11 +247,10 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                     )
                     .where(GroupChatSubscription.user_id == user.id)
                     .where(not_(GroupChatSubscription.is_muted))
+                    .where(is_newest_subscription(user.id))
                     .where(Message.id > user.last_notified_message_id)
-                    .where(Message.id > GroupChatSubscription.last_seen_message_id)
-                    .where(Message.time >= GroupChatSubscription.joined)
-                    .where(Message.message_type == MessageType.text)  # TODO: only text messages for now
-                    .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None)),
+                    .where(is_unseen(Message, GroupChatSubscription))
+                    .where(Message.message_type == MessageType.text),  # TODO: only text messages for now
                     context,
                     Message.author_id,
                 )
@@ -1135,6 +1133,7 @@ def send_activeness_probes(payload: empty_pb2.Empty) -> None:
                 probe.user.hosting_status = HostingStatus.maybe
             if probe.user.meetup_status == MeetupStatus.wants_to_meetup:
                 probe.user.meetup_status = MeetupStatus.open_to_meetup
+            record_hosting_meetup_status(session, probe.user, HostingMeetupStatusSource.activeness_probe_expired)
             session.commit()
 
 
@@ -1422,11 +1421,16 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
 
         # === Moderation System Consistency Checks ===
 
+        types_with_own_visibility = [
+            entry.object_type for entry in get_moderated_models().values() if entry.has_own_visibility_mechanism
+        ]
+
         # Check every ModerationState has at least one INITIAL_REVIEW queue item
         # Skip items with ID < 2000000 as they were created before this check was introduced
         states_without_initial_review = session.execute(
             select(ModerationState.id, ModerationState.object_type, ModerationState.object_id).where(
                 ModerationState.id >= 2000000,
+                ModerationState.object_type.not_in(types_with_own_visibility),
                 ~exists(
                     select(1)
                     .where(ModerationQueueItem.moderation_state_id == ModerationState.id)
@@ -1436,6 +1440,26 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
         ).all()
         if states_without_initial_review:
             errors.append(f"ModerationStates without INITIAL_REVIEW queue item: {states_without_initial_review}")
+
+        # Check states with their own visibility mechanism have no visibility and no INITIAL_REVIEW item
+        states_with_spurious_visibility = session.execute(
+            select(ModerationState.id, ModerationState.object_type, ModerationState.object_id).where(
+                ModerationState.object_type.in_(types_with_own_visibility),
+                or_(
+                    ModerationState.visibility.is_not(None),
+                    exists(
+                        select(1)
+                        .where(ModerationQueueItem.moderation_state_id == ModerationState.id)
+                        .where(ModerationQueueItem.trigger == ModerationTrigger.initial_review)
+                    ),
+                ),
+            )
+        ).all()
+        if states_with_spurious_visibility:
+            errors.append(
+                f"ModerationStates with a visibility or INITIAL_REVIEW item for an object type that has its own "
+                f"visibility mechanism: {states_with_spurious_visibility}"
+            )
 
         # Check every ModerationState has a CREATE log entry
         # Skip items with ID < 2000000 as they were created before this check was introduced

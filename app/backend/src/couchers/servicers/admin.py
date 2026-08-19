@@ -1,5 +1,6 @@
 import json
 import logging
+from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
@@ -49,6 +50,7 @@ from couchers.models import (
     UserActivity,
     UserAdminTag,
     UserBadge,
+    UserBlock,
 )
 from couchers.models.discussions import (
     CommentVersion,
@@ -69,7 +71,7 @@ from couchers.servicers.events import generate_event_delete_notifications
 from couchers.servicers.moderation import bulk_set_user_content_visibility
 from couchers.servicers.threads import unpack_thread_id
 from couchers.sql import to_bool, username_or_email_or_id
-from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date, to_aware_datetime
+from couchers.utils import Timestamp_from_datetime, date_to_api, not_none, now, parse_date, to_aware_datetime
 
 logger = logging.getLogger(__name__)
 
@@ -269,6 +271,7 @@ def _user_to_details(session: Session, user: User) -> admin_pb2.UserDetails:
         admin_actions=action_pbs,
         admin_tags=list(admin_tags),
         mod_score=user.mod_score,
+        ui_language_preference=user.ui_language_preference,
     )
 
 
@@ -286,11 +289,34 @@ def _content_report_to_pb(content_report: ContentReport) -> admin_pb2.ContentRep
     )
 
 
-def _reference_to_pb(reference: Reference) -> admin_pb2.AdminReference:
+def _make_chat_user_info_getter(session: Session) -> Callable[[int], admin_pb2.ChatUserInfo]:
+    user_info_cache: dict[int, admin_pb2.ChatUserInfo] = {}
+
+    def get_chat_user_info(user_id: int) -> admin_pb2.ChatUserInfo:
+        if user_id not in user_info_cache:
+            u = session.execute(select(User).where(User.id == user_id)).scalar_one()
+            user_info_cache[user_id] = admin_pb2.ChatUserInfo(
+                user_id=u.id,
+                username=u.username,
+                name=u.name,
+                birthdate=date_to_api(u.birthdate),
+                gender=u.gender,
+            )
+        return user_info_cache[user_id]
+
+    return get_chat_user_info
+
+
+def _reference_to_pb(
+    reference: Reference, get_chat_user_info: Callable[[int], admin_pb2.ChatUserInfo]
+) -> admin_pb2.AdminReference:
+    host_request = reference.host_request
     return admin_pb2.AdminReference(
         reference_id=reference.id,
         from_user_id=reference.from_user_id,
         to_user_id=reference.to_user_id,
+        from_user=get_chat_user_info(reference.from_user_id),
+        to_user=get_chat_user_info(reference.to_user_id),
         reference_type=reference.reference_type.name,
         text=reference.text,
         private_text=reference.private_text or "",
@@ -298,6 +324,11 @@ def _reference_to_pb(reference: Reference) -> admin_pb2.AdminReference:
         host_request_id=reference.host_request_id or 0,
         rating=reference.rating,
         was_appropriate=reference.was_appropriate,
+        moderation_visibility=not_none(reference.moderation_state.visibility).name,
+        hosting_city=host_request.hosting_city if host_request else "",
+        from_date=date_to_api(host_request.from_date) if host_request else "",
+        to_date=date_to_api(host_request.to_date) if host_request else "",
+        status=host_request.status.name if host_request else "",
     )
 
 
@@ -732,20 +763,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
-        # Cache for ChatUserInfo to avoid recomputing for the same user
-        user_info_cache = {}
-
-        def get_chat_user_info(user_id: int) -> admin_pb2.ChatUserInfo:
-            if user_id not in user_info_cache:
-                u = session.execute(select(User).where(User.id == user_id)).scalar_one()
-                user_info_cache[user_id] = admin_pb2.ChatUserInfo(
-                    user_id=u.id,
-                    username=u.username,
-                    name=u.name,
-                    birthdate=date_to_api(u.birthdate),
-                    gender=u.gender,
-                )
-            return user_info_cache[user_id]
+        get_chat_user_info = _make_chat_user_info_getter(session)
 
         def message_to_pb(message: Message) -> admin_pb2.ChatMessage:
             return admin_pb2.ChatMessage(
@@ -773,8 +791,8 @@ class Admin(admin_pb2_grpc.AdminServicer):
         def get_host_request_pb(host_request: HostRequest) -> admin_pb2.AdminHostRequest:
             return admin_pb2.AdminHostRequest(
                 host_request_id=host_request.conversation_id,
-                surfer=get_chat_user_info(host_request.initiator_user_id),
-                host=get_chat_user_info(host_request.recipient_user_id),
+                surfer=get_chat_user_info(host_request.surfer_user_id),
+                host=get_chat_user_info(host_request.host_user_id),
                 status=host_request.status.name if host_request.status else "",
                 from_date=date_to_api(host_request.from_date),
                 to_date=date_to_api(host_request.to_date),
@@ -931,21 +949,33 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
+        get_chat_user_info = _make_chat_user_info_getter(session)
+
         references_from = (
-            session.execute(select(Reference).where(Reference.from_user_id == user.id).order_by(Reference.id.desc()))
+            session.execute(
+                select(Reference)
+                .where(Reference.from_user_id == user.id)
+                .options(selectinload(Reference.host_request), selectinload(Reference.moderation_state))
+                .order_by(Reference.id.desc())
+            )
             .scalars()
             .all()
         )
 
         references_to = (
-            session.execute(select(Reference).where(Reference.to_user_id == user.id).order_by(Reference.id.desc()))
+            session.execute(
+                select(Reference)
+                .where(Reference.to_user_id == user.id)
+                .options(selectinload(Reference.host_request), selectinload(Reference.moderation_state))
+                .order_by(Reference.id.desc())
+            )
             .scalars()
             .all()
         )
 
         return admin_pb2.GetUserReferencesRes(
-            references_from=[_reference_to_pb(ref) for ref in references_from],
-            references_to=[_reference_to_pb(ref) for ref in references_to],
+            references_from=[_reference_to_pb(ref, get_chat_user_info) for ref in references_from],
+            references_to=[_reference_to_pb(ref, get_chat_user_info) for ref in references_to],
         )
 
     def GetFriendRequests(
@@ -955,19 +985,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
-        user_info_cache: dict[int, admin_pb2.ChatUserInfo] = {}
-
-        def get_chat_user_info(user_id: int) -> admin_pb2.ChatUserInfo:
-            if user_id not in user_info_cache:
-                u = session.execute(select(User).where(User.id == user_id)).scalar_one()
-                user_info_cache[user_id] = admin_pb2.ChatUserInfo(
-                    user_id=u.id,
-                    username=u.username,
-                    name=u.name,
-                    birthdate=date_to_api(u.birthdate),
-                    gender=u.gender,
-                )
-            return user_info_cache[user_id]
+        get_chat_user_info = _make_chat_user_info_getter(session)
 
         def friend_request_to_pb(rel: FriendRelationship) -> admin_pb2.AdminFriendRequest:
             return admin_pb2.AdminFriendRequest(
@@ -977,7 +995,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 status=rel.status.name if rel.status else "",
                 time_sent=Timestamp_from_datetime(rel.time_sent),
                 time_responded=Timestamp_from_datetime(rel.time_responded) if rel.time_responded else None,
-                moderation_visibility=rel.moderation_state.visibility.name,
+                moderation_visibility=not_none(rel.moderation_state.visibility).name,
             )
 
         sent = (
@@ -1003,6 +1021,46 @@ class Admin(admin_pb2_grpc.AdminServicer):
         return admin_pb2.GetFriendRequestsRes(
             sent=[friend_request_to_pb(rel) for rel in sent],
             received=[friend_request_to_pb(rel) for rel in received],
+        )
+
+    def GetUserBlocks(
+        self, request: admin_pb2.GetUserBlocksReq, context: CouchersContext, session: Session
+    ) -> admin_pb2.GetUserBlocksRes:
+        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
+        if not user:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+
+        def user_block_to_pb(block: UserBlock, other_user: User) -> admin_pb2.AdminUserBlock:
+            return admin_pb2.AdminUserBlock(
+                user=admin_pb2.ChatUserInfo(
+                    user_id=other_user.id,
+                    username=other_user.username,
+                    name=other_user.name,
+                    birthdate=date_to_api(other_user.birthdate),
+                    gender=other_user.gender,
+                ),
+                time_blocked=Timestamp_from_datetime(block.time_blocked),
+            )
+
+        blocked_user = aliased(User)
+        blocked_users = session.execute(
+            select(UserBlock, blocked_user)
+            .join(blocked_user, UserBlock.blocked_user_id == blocked_user.id)
+            .where(UserBlock.blocking_user_id == user.id)
+            .order_by(UserBlock.time_blocked.desc(), UserBlock.id.desc())
+        ).all()
+
+        blocking_user = aliased(User)
+        blocking_users = session.execute(
+            select(UserBlock, blocking_user)
+            .join(blocking_user, UserBlock.blocking_user_id == blocking_user.id)
+            .where(UserBlock.blocked_user_id == user.id)
+            .order_by(UserBlock.time_blocked.desc(), UserBlock.id.desc())
+        ).all()
+
+        return admin_pb2.GetUserBlocksRes(
+            blocked_users=[user_block_to_pb(block, other_user) for block, other_user in blocked_users],
+            blocking_users=[user_block_to_pb(block, other_user) for block, other_user in blocking_users],
         )
 
     def GetNonvisibleUserAccessLog(

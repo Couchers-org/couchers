@@ -15,6 +15,10 @@ const nextConfig = {
   // ESM-only packages with no CommonJS entry point - Next.js (and next/jest) need to
   // transpile these themselves rather than treating them as pre-built node_modules.
   transpilePackages: ["temporal-polyfill", "temporal-utils"],
+  experimental: {
+    // Trades slightly slower compiles for a lower webpack memory ceiling.
+    webpackMemoryOptimizations: true,
+  },
   webpack: (config, { isServer }) => {
     if (isServer) {
       generateBlogIndex();
@@ -97,14 +101,20 @@ module.exports = withSentryConfig(module.exports, {
   // For all available options, see:
   // https://github.com/getsentry/sentry-webpack-plugin#options
   sourcemaps: {
-    disable: process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod",
+    // The auth token is only present in the deploy builds, and it's what the upload needs.
+    disable: !process.env.SENTRY_AUTH_TOKEN,
+    // productionBrowserSourceMaps serves them from the CDN too; don't pull them out from
+    // under the sourceMappingURL comments webpack leaves in the bundles.
+    deleteSourcemapsAfterUpload: false,
   },
 
   org: "couchers",
   project: "frontend",
 
-  // Only print logs for uploading source maps in CI
-  silent: !process.env.CI,
+  telemetry: false,
+
+  // Also cover the shared chunks, which is where most of our code ends up
+  widenClientFileUpload: true,
 
   // Automatically tree-shake Sentry logger statements to reduce bundle size
   disableLogger: true,
