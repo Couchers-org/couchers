@@ -47,7 +47,7 @@ from tests.fixtures.db import (
     generate_user,
     make_friends,
 )
-from tests.fixtures.misc import EmailCollector, PushCollector
+from tests.fixtures.misc import EmailCollector, Moderator, PushCollector
 from tests.fixtures.sessions import (
     account_session,
     auth_api_session,
@@ -291,7 +291,7 @@ def test_UnbanUser(db):
     assert res.admin_actions[0].level == admin_pb2.ADMIN_ACTION_LEVEL_HIGH
 
 
-def test_ShadowUser(db):
+def test_ShadowUser(db, moderator: Moderator):
     super_user, super_token = generate_user(is_superuser=True)
     surfer, surfer_token = generate_user()
     host, _ = generate_user()
@@ -309,13 +309,7 @@ def test_ShadowUser(db):
                 text=valid_request_text(),
             )
         ).host_request_id
-    with session_scope() as session:
-        state = session.execute(
-            select(ModerationState)
-            .where(ModerationState.object_type == ModerationObjectType.host_request)
-            .where(ModerationState.object_id == host_request_id)
-        ).scalar_one()
-        state.visibility = ModerationVisibility.visible
+    moderator.approve_host_request(host_request_id)
 
     with real_admin_session(super_token) as api:
         res = api.ShadowUser(admin_pb2.ShadowUserReq(user=surfer.username, admin_note=admin_note))
@@ -338,7 +332,7 @@ def test_ShadowUser(db):
         assert state.visibility == ModerationVisibility.shadowed
 
 
-def test_UnshadowUser(db):
+def test_UnshadowUser(db, moderator: Moderator):
     super_user, super_token = generate_user(is_superuser=True)
     surfer, surfer_token = generate_user()
     host, _ = generate_user()
@@ -364,18 +358,9 @@ def test_UnshadowUser(db):
             )
         ).host_request_id
 
+    moderator.hide_host_request(admin_hidden_request_id)
     with session_scope() as session:
         session.execute(select(User).where(User.id == surfer.id)).scalar_one().shadowed_at = now()
-        session.execute(
-            select(ModerationState)
-            .where(ModerationState.object_type == ModerationObjectType.host_request)
-            .where(ModerationState.object_id == shadow_cascade_request_id)
-        ).scalar_one().visibility = ModerationVisibility.shadowed
-        session.execute(
-            select(ModerationState)
-            .where(ModerationState.object_type == ModerationObjectType.host_request)
-            .where(ModerationState.object_id == admin_hidden_request_id)
-        ).scalar_one().visibility = ModerationVisibility.hidden
 
     with real_admin_session(super_token) as api:
         res = api.UnshadowUser(admin_pb2.UnshadowUserReq(user=surfer.username, admin_note="rehabilitated"))

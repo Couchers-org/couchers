@@ -41,6 +41,7 @@ from couchers.proto import (
     conversations_pb2,
     editor_pb2,
     events_pb2,
+    moderation_pb2,
     notification_data_pb2,
     notifications_pb2,
 )
@@ -481,6 +482,41 @@ def test_unseen_notification_count_excludes_ums_hidden(db, moderator):
 
     with api_session(token1) as api:
         assert api.Ping(api_pb2.PingReq()).unseen_notification_count == 1
+
+
+@pytest.mark.parametrize(
+    "visibility,author_sees,other_sees",
+    [
+        (moderation_pb2.MODERATION_VISIBILITY_VISIBLE, 1, 1),
+        (moderation_pb2.MODERATION_VISIBILITY_UNLISTED, 1, 1),
+        (moderation_pb2.MODERATION_VISIBILITY_SHADOWED, 1, 0),
+        (moderation_pb2.MODERATION_VISIBILITY_HIDDEN, 0, 0),
+    ],
+)
+def test_notifications_follow_the_visibility_of_their_content(db, moderator, visibility, author_sees, other_sees):
+    author, author_token = generate_user()
+    other, other_token = generate_user()
+    sender, sender_token = generate_user()
+
+    with conversations_session(author_token) as c:
+        group_chat_id = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[other.id, sender.id])
+        ).group_chat_id
+    moderator.approve_group_chat(group_chat_id)
+
+    with conversations_session(sender_token) as c:
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message"))
+
+    process_jobs()
+
+    moderator.set_group_chat_visibility(group_chat_id, visibility)
+
+    for token, expected in [(author_token, author_sees), (other_token, other_sees)]:
+        with api_session(token) as api:
+            assert api.Ping(api_pb2.PingReq()).unseen_notification_count == expected
+        with notifications_session(token) as notifications:
+            res = notifications.ListNotifications(notifications_pb2.ListNotificationsReq())
+            assert len(res.notifications) == expected
 
 
 def test_GetVapidPublicKey(db):
