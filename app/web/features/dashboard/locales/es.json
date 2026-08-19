@@ -100,5 +100,6 @@
     "offers_count_many": "{{count}} de ofrecimientos",
     "offers_count_other": "{{count}} ofrecimientos",
     "no_offers": "Ningún ofrecimiento todavía"
-  }
+  },
+  "today_label": "Hoy"
 }
