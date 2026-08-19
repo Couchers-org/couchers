@@ -96,5 +96,6 @@
     "offers_count_one": "{{count}} Angebot",
     "offers_count_other": "{{count}} Angebote",
     "no_offers": "Noch keine Angebote"
-  }
+  },
+  "today_label": "Heute"
 }
