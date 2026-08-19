@@ -17,8 +17,7 @@ export default function ResendVerificationEmailForm() {
       const state = await service.auth.signupFlowResendVerificationEmail(authState.flowState!.flowToken);
       authActions.updateSignupState(state);
       setResent(true);
-    },app/web/features/auth/signup/ResendVerificationEmailForm.tsx
-
+    },
   });
   const mutationRestart = useMutation({
     mutationFn: async () => {
