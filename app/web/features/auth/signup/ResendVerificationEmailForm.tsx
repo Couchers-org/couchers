@@ -17,7 +17,8 @@ export default function ResendVerificationEmailForm() {
       const state = await service.auth.signupFlowResendVerificationEmail(authState.flowState!.flowToken);
       authActions.updateSignupState(state);
       setResent(true);
-    },
+    },app/web/features/auth/signup/ResendVerificationEmailForm.tsx
+
   });
   const mutationRestart = useMutation({
     mutationFn: async () => {
@@ -58,9 +59,11 @@ export default function ResendVerificationEmailForm() {
       <Typography variant="body1">
         <Trans
           i18nKey="auth:sign_up_restart_signup"
-          components={{
-            2: <StyledLink href="#" onClick={handleRestartSignup} />,
-          }}
+            components={{
+              restartSignup: (
+                <StyledLink href="#" onClick={handleRestartSignup} />,
+              ),
+            }}
         />
       </Typography>
     </>
