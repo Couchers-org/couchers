@@ -31,24 +31,24 @@
     "completed": {
       "subject": "Votre compte a été supprimé",
       "purpose": "Vous avez supprimé votre compte Couchers.org avec succès.",
-      "recovery_instructions_days_one": "Si vous changez d'avis, <strong>vous avez {{count}} jour pour récupérer votre compte </strong> en cliquant sur le lien suivant :",
-      "recovery_instructions_days_many": "Si vous changez d'avis, <strong>vous avez {{count}} de jours pour récupérer votre compte </strong> en cliquant sur le lien suivant :",
-      "recovery_instructions_days_other": "Si vous changez d'avis, <strong>vous avez {{count}} jours pour récupérer votre compte </strong> en cliquant sur le lien suivant :",
+      "recovery_instructions_days_one": "Si vous changez d'avis, <strong>vous avez{{count}} jour pour récupérer votre compte </strong> en cliquant sur le lien suivant:",
+      "recovery_instructions_days_many": "Si vous changez d'avis, <strong>vous avez{{count}} jours pour récupérer votre compte </strong> en cliquant sur le lien suivant:",
+      "recovery_instructions_days_other": "Si vous changez d'avis, <strong>vous avez{{count}} jour(s) pour récupérer votre compte </strong> en cliquant sur le lien suivant:",
       "recover_action": "Récupérer le compte"
     },
     "recovered": {
-      "subject": "Votre compte a été récupéré !",
-      "confirmation": "Votre compte Couchers.org a été récupéré avec succès. Nous sommes ravi.e.s que vous ayez décidé de rester !",
-      "login_instructions": "Pour vous ré-identifier, cliquez sur le lien suivant :",
+      "subject": "Votre compte a été récupéré!",
+      "confirmation": "Votre compte Couchers.org a été récupéré avec succès. Nous sommes ravi.e.s que vous ayez décidé de rester!",
+      "login_instructions": "Pour vous ré-identifier, cliquez sur le lien suivant:",
       "redelete_instructions": "Si vous changez d'avis, vous pouvez supprimer votre compte à n'importe quel moment."
     }
   },
   "activeness_probe": {
-    "subject": "Êtes-vous toujours disposé.e à héberger ?",
+    "subject": "Êtes vous toujours disposé.e à héberger?",
     "purpose": "Nous avons remarqué que vous ne vous étiez pas connecté.e depuis un certain temps et voulons vérifier si vous êtes toujours disposé.e à héberger des surfers.",
-    "instructions_days_one": "Afin de conserver votre statut \"Peut héberger\", vous devez vous reconnecter avant <b>{{count}} jour</b>. Sans quoi, nous changerons votre statut pour \"Ne peut pas héberger\".",
-    "instructions_days_many": "Afin de conserver votre statut \"Peut héberger\", vous devez vous reconnecter avant <b>{{count}} de jours</b>. Sans quoi, nous changerons votre statut pour \"Ne peut pas héberger\".",
-    "instructions_days_other": "Afin de conserver votre statut \"Peut héberger\", vous devez vous reconnecter avant <b>{{count}} jours</b>. Sans quoi, nous changerons votre statut pour \"Ne peut pas héberger\".",
+    "instructions_days_one": "Afin de conserver votre statut \"Peut héberger\", vous devez vous reconnecter avant  <b>{{count}} jour</b>. Sans quoi, nous modifierons votre statut en \"Ne peut pas héberger\".",
+    "instructions_days_many": "Afin de conserver votre statut \"Peut héberger\", vous devez vous reconnecter avant <b>{{count}} jours</b>. Sans quoi, nous modifierons votre statut en \"Ne peut pas héberger\".",
+    "instructions_days_other": "Afin de conserver votre statut \"Peut héberger\", vous devez vous reconnecter avant  <b>{{count}} jour(s)</b>. Sans quoi, nous modifierons votre statut en \"Ne peut pas héberger\".",
     "login_action": "Se connecter",
     "encouragement": "Ces vérifications aident les surfers à trouver des hôtes plus facilement et à évaluer correctement les temps de réponse."
   }
