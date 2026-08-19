@@ -90,8 +90,7 @@
   "events": {
     "your_upcoming_header": "Tvoje nadcházející události",
     "your_upcoming_empty_message": "Žádné události v tento moment. Co tak jednu <createEventLink>založit</createEventLink> ✨?",
-    "community_header": "Události v tvých komunitách",
-    "today_label": "Dnes"
+    "community_header": "Události v tvých komunitách"
   },
   "stays": {
     "upcoming_trips_header": "Tvoje nadcházející ubytování",
