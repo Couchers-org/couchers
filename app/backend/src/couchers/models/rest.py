@@ -184,7 +184,7 @@ class SignupFlow(Base, kw_only=True):
     flow_token: Mapped[str] = mapped_column(String, unique=True)
     email_verified: Mapped[bool] = mapped_column(Boolean, default=False)
     email_sent: Mapped[bool] = mapped_column(Boolean, default=False)
-    email_token: Mapped[str | None] = mapped_column(String, default=None)
+    email_token: Mapped[str | None] = mapped_column(String, unique=True, default=None)
     email_token_expiry: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
     ## Basic
