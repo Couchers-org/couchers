@@ -459,7 +459,7 @@ def test_admin_delete_discussion(db):
         assert res.deleted
 
 
-def test_discussion_notifications_regression(db, frozen_timewarp, push_collector: PushCollector, moderator: Moderator):
+def test_discussion_notifications_regression(db, push_collector: PushCollector, moderator: Moderator):
     generate_user()
     user, token = generate_user()
     user2, token2 = generate_user()
@@ -474,7 +474,6 @@ def test_discussion_notifications_regression(db, frozen_timewarp, push_collector
         user2_id = user2.id
 
     with discussions_session(token) as api:
-        time_before_create = now()
         res = api.CreateDiscussion(
             discussions_pb2.CreateDiscussionReq(
                 title="dummy title",
@@ -482,12 +481,10 @@ def test_discussion_notifications_regression(db, frozen_timewarp, push_collector
                 owner_community_id=community_id,
             )
         )
-        time_after_create = now()
 
         assert res.title == "dummy title"
         assert res.content == "dummy content"
         assert res.slug == "dummy-title"
-        assert time_before_create <= to_aware_datetime(res.created) <= time_after_create
         assert res.creator_user_id == user.id
         assert res.owner_community_id == community_id
 

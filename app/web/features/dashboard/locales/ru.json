@@ -78,7 +78,6 @@
   },
   "events": {
     "your_upcoming_header": "Ваши предстоящие мероприятия",
-    "today_label": "Сегодня",
     "community_header": "Мероприятия в ваших сообществах",
     "your_upcoming_empty_message": "В данный момент мероприятий нет. Почему бы вам не <createEventLink>создать</createEventLink> своё ✨?"
   },
@@ -101,5 +100,6 @@
     "upcoming_guests_header": "Ваши предстоящие гости",
     "no_upcoming_trips": "Нет предстоящих поездок. Готовы к путешествию?",
     "no_upcoming_guests": "Пока нет предстоящих гостей."
-  }
+  },
+  "today_label": "Сегодня"
 }

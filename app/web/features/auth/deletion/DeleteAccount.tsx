@@ -12,6 +12,7 @@ import { service } from "service";
 import { theme } from "theme";
 import { lowercaseAndTrimField } from "utils/validation";
 
+const DEFAULT_TEXTFIELD_WIDTH = "15.5rem";
 const StyledForm = styled("form")(() => ({
   marginBottom: theme.spacing(2),
   "& > * + *": {
@@ -57,6 +58,8 @@ export default function DeleteAccount({ className, username }: DeleteAccountProp
     },
   });
 
+  const labelConfirmUsername = t("auth:delete_account.request.confirm_username_label");
+
   return (
     <div className={className}>
       <Typography variant="h2">{t("auth:delete_account.request.title")}</Typography>
@@ -69,10 +72,13 @@ export default function DeleteAccount({ className, username }: DeleteAccountProp
             <Trans t={t} i18nKey="auth:delete_account.request.confirm_username_explanation" values={{ username }} />
           </Typography>
           <TextField
+            sx={{
+              display: "inline-flex",
+              width: isMdOrWider ? `max(${DEFAULT_TEXTFIELD_WIDTH}, ${labelConfirmUsername.length}ch)` : "100%",
+            }}
             id="confirmUsername"
             {...register("confirmUsername", { required: true })}
-            label={t("auth:delete_account.request.confirm_username_label")}
-            fullWidth={!isMdOrWider}
+            label={labelConfirmUsername}
           />
           <Typography variant="subtitle1" sx={{ paddingTop: 2, paddingBottom: 2 }}>
             {t("auth:delete_account.request.reason_explanation")}

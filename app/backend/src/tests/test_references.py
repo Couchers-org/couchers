@@ -19,13 +19,16 @@ from couchers.models import (
     ModerationObjectType,
     ModerationState,
     ModerationVisibility,
+    Node,
+    NodeType,
     Reference,
     ReferenceType,
     User,
 )
+from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.moderation.utils import create_moderation
 from couchers.proto import api_pb2, messages_pb2, moderation_pb2, references_pb2, requests_pb2
-from couchers.utils import create_coordinate, now, to_aware_datetime, today
+from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_aware_datetime, to_multi, today
 from tests.fixtures.db import generate_user, make_friends, make_user_block
 from tests.fixtures.misc import EmailCollector, PushCollector
 from tests.fixtures.sessions import (
@@ -43,6 +46,37 @@ def _(testconfig):
     pass
 
 
+def create_public_trip(session: Session, user_id: int, from_date: date, to_date: date) -> int:
+    node = session.execute(select(Node).limit(1)).scalar_one_or_none()
+    if node is None:
+        node = Node(
+            geom=to_multi(create_polygon_lat_lng([[0, 0], [0, 2], [2, 2], [2, 0], [0, 0]])),
+            node_type=NodeType.locality,
+        )
+        session.add(node)
+        session.flush()
+    moderation_state = ModerationState(
+        object_type=ModerationObjectType.public_trip,
+        object_id=0,
+        visibility=ModerationVisibility.visible,
+    )
+    session.add(moderation_state)
+    session.flush()
+    trip = PublicTrip(
+        user_id=user_id,
+        node_id=node.id,
+        from_date=from_date,
+        to_date=to_date,
+        description="Looking for a host!",
+        status=PublicTripStatus.searching_for_host,
+        moderation_state_id=moderation_state.id,
+    )
+    session.add(trip)
+    session.flush()
+    moderation_state.object_id = trip.id
+    return trip.id
+
+
 def create_host_request(
     session: Session,
     surfer_user_id: int,
@@ -51,20 +85,33 @@ def create_host_request(
     status: HostRequestStatus = HostRequestStatus.confirmed,
     host_reason_didnt_meetup: str | None = None,
     surfer_reason_didnt_meetup: str | None = None,
+    is_offer: bool = False,
 ) -> int:
     """
     Create a host request that's `host_request_age` old
+
+    If `is_offer`, it's an offer on a public trip, so the host initiated it and the surfer received it.
     """
     from_date = today() - host_request_age - timedelta(days=2)
     to_date = today() - host_request_age
     fake_created = now() - host_request_age - timedelta(days=3)
+
+    if is_offer:
+        initiator_user_id, recipient_user_id = host_user_id, surfer_user_id
+        initiator_reason, recipient_reason = host_reason_didnt_meetup, surfer_reason_didnt_meetup
+    else:
+        initiator_user_id, recipient_user_id = surfer_user_id, host_user_id
+        initiator_reason, recipient_reason = surfer_reason_didnt_meetup, host_reason_didnt_meetup
+
+    public_trip_id = create_public_trip(session, surfer_user_id, from_date, to_date) if is_offer else None
+
     conversation = Conversation()
     session.add(conversation)
     session.flush()
 
     msg1 = Message(
         conversation_id=conversation.id,
-        author_id=surfer_user_id,
+        author_id=initiator_user_id,
         message_type=MessageType.chat_created,
     )
     msg1.time = fake_created + timedelta(seconds=1)
@@ -72,8 +119,8 @@ def create_host_request(
 
     msg2 = Message(
         conversation_id=conversation.id,
-        author_id=surfer_user_id,
-        text="Hi, I'm requesting to be hosted.",
+        author_id=initiator_user_id,
+        text="Hi, I'm requesting to be hosted." if not is_offer else "Hi, I'd love to host you.",
         message_type=MessageType.text,
     )
     msg2.time = fake_created + timedelta(seconds=2)
@@ -84,23 +131,24 @@ def create_host_request(
         session,
         ModerationObjectType.host_request,
         conversation.id,
-        surfer_user_id,
+        initiator_user_id,
     )
 
     host_request = HostRequest(
         conversation_id=conversation.id,
-        initiator_user_id=surfer_user_id,
-        recipient_user_id=host_user_id,
+        initiator_user_id=initiator_user_id,
+        recipient_user_id=recipient_user_id,
         from_date=from_date,
         to_date=to_date,
         status=status,
         initiator_last_seen_message_id=msg2.id,
-        recipient_reason_didnt_meetup=host_reason_didnt_meetup,
-        initiator_reason_didnt_meetup=surfer_reason_didnt_meetup,
+        recipient_reason_didnt_meetup=recipient_reason,
+        initiator_reason_didnt_meetup=initiator_reason,
         hosting_city="Test City",
         hosting_location=create_coordinate(0, 0),
         hosting_radius=10,
         moderation_state_id=moderation_state.id,
+        public_trip_id=public_trip_id,
     )
     session.add(host_request)
     session.commit()
@@ -801,6 +849,65 @@ def test_host_request_states_references(db, moderator):
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == "You can't write a reference for that host request, or it wasn't found."
+
+
+def test_public_trip_offer_reference_roles(db, moderator):
+    """An offer reverses initiator/recipient, so the reference types have to come from the stay role."""
+    surfer, surfer_token = generate_user()
+    host, host_token = generate_user()
+
+    with session_scope() as session:
+        host_request_id = create_host_request(session, surfer.id, host.id, timedelta(days=7), is_offer=True)
+
+    moderator.approve_host_request(host_request_id)
+    # ListPendingReferencesToWrite reads the other user out of the LiteUser matview
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+
+    with references_session(surfer_token) as api:
+        available = api.AvailableWriteReferences(
+            references_pb2.AvailableWriteReferencesReq(to_user_id=host.id)
+        ).available_write_references
+        assert [r.reference_type for r in available] == [references_pb2.REFERENCE_TYPE_SURFED]
+        pending = api.ListPendingReferencesToWrite(empty_pb2.Empty()).pending_references
+        assert [r.reference_type for r in pending] == [references_pb2.REFERENCE_TYPE_SURFED]
+
+        api.WriteHostRequestReference(
+            references_pb2.WriteHostRequestReferenceReq(
+                host_request_id=host_request_id,
+                text="Thanks for having me!",
+                was_appropriate=True,
+                rating=0.9,
+            )
+        )
+
+    with references_session(host_token) as api:
+        available = api.AvailableWriteReferences(
+            references_pb2.AvailableWriteReferencesReq(to_user_id=surfer.id)
+        ).available_write_references
+        assert [r.reference_type for r in available] == [references_pb2.REFERENCE_TYPE_HOSTED]
+        pending = api.ListPendingReferencesToWrite(empty_pb2.Empty()).pending_references
+        assert [r.reference_type for r in pending] == [references_pb2.REFERENCE_TYPE_HOSTED]
+
+        api.WriteHostRequestReference(
+            references_pb2.WriteHostRequestReferenceReq(
+                host_request_id=host_request_id,
+                text="Great guest!",
+                was_appropriate=True,
+                rating=0.9,
+            )
+        )
+
+    with session_scope() as session:
+        references = {
+            reference.from_user_id: reference
+            for reference in session.execute(
+                select(Reference).where(Reference.host_request_id == host_request_id)
+            ).scalars()
+        }
+        assert references[surfer.id].reference_type == ReferenceType.surfed
+        assert references[surfer.id].to_user_id == host.id
+        assert references[host.id].reference_type == ReferenceType.hosted
+        assert references[host.id].to_user_id == surfer.id
 
 
 def test_WriteHostRequestReference(db, moderator):

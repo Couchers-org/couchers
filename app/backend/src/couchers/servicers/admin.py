@@ -1,5 +1,6 @@
 import json
 import logging
+from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
@@ -288,11 +289,34 @@ def _content_report_to_pb(content_report: ContentReport) -> admin_pb2.ContentRep
     )
 
 
-def _reference_to_pb(reference: Reference) -> admin_pb2.AdminReference:
+def _make_chat_user_info_getter(session: Session) -> Callable[[int], admin_pb2.ChatUserInfo]:
+    user_info_cache: dict[int, admin_pb2.ChatUserInfo] = {}
+
+    def get_chat_user_info(user_id: int) -> admin_pb2.ChatUserInfo:
+        if user_id not in user_info_cache:
+            u = session.execute(select(User).where(User.id == user_id)).scalar_one()
+            user_info_cache[user_id] = admin_pb2.ChatUserInfo(
+                user_id=u.id,
+                username=u.username,
+                name=u.name,
+                birthdate=date_to_api(u.birthdate),
+                gender=u.gender,
+            )
+        return user_info_cache[user_id]
+
+    return get_chat_user_info
+
+
+def _reference_to_pb(
+    reference: Reference, get_chat_user_info: Callable[[int], admin_pb2.ChatUserInfo]
+) -> admin_pb2.AdminReference:
+    host_request = reference.host_request
     return admin_pb2.AdminReference(
         reference_id=reference.id,
         from_user_id=reference.from_user_id,
         to_user_id=reference.to_user_id,
+        from_user=get_chat_user_info(reference.from_user_id),
+        to_user=get_chat_user_info(reference.to_user_id),
         reference_type=reference.reference_type.name,
         text=reference.text,
         private_text=reference.private_text or "",
@@ -300,6 +324,11 @@ def _reference_to_pb(reference: Reference) -> admin_pb2.AdminReference:
         host_request_id=reference.host_request_id or 0,
         rating=reference.rating,
         was_appropriate=reference.was_appropriate,
+        moderation_visibility=not_none(reference.moderation_state.visibility).name,
+        hosting_city=host_request.hosting_city if host_request else "",
+        from_date=date_to_api(host_request.from_date) if host_request else "",
+        to_date=date_to_api(host_request.to_date) if host_request else "",
+        status=host_request.status.name if host_request else "",
     )
 
 
@@ -734,20 +763,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
-        # Cache for ChatUserInfo to avoid recomputing for the same user
-        user_info_cache = {}
-
-        def get_chat_user_info(user_id: int) -> admin_pb2.ChatUserInfo:
-            if user_id not in user_info_cache:
-                u = session.execute(select(User).where(User.id == user_id)).scalar_one()
-                user_info_cache[user_id] = admin_pb2.ChatUserInfo(
-                    user_id=u.id,
-                    username=u.username,
-                    name=u.name,
-                    birthdate=date_to_api(u.birthdate),
-                    gender=u.gender,
-                )
-            return user_info_cache[user_id]
+        get_chat_user_info = _make_chat_user_info_getter(session)
 
         def message_to_pb(message: Message) -> admin_pb2.ChatMessage:
             return admin_pb2.ChatMessage(
@@ -933,21 +949,33 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
+        get_chat_user_info = _make_chat_user_info_getter(session)
+
         references_from = (
-            session.execute(select(Reference).where(Reference.from_user_id == user.id).order_by(Reference.id.desc()))
+            session.execute(
+                select(Reference)
+                .where(Reference.from_user_id == user.id)
+                .options(selectinload(Reference.host_request), selectinload(Reference.moderation_state))
+                .order_by(Reference.id.desc())
+            )
             .scalars()
             .all()
         )
 
         references_to = (
-            session.execute(select(Reference).where(Reference.to_user_id == user.id).order_by(Reference.id.desc()))
+            session.execute(
+                select(Reference)
+                .where(Reference.to_user_id == user.id)
+                .options(selectinload(Reference.host_request), selectinload(Reference.moderation_state))
+                .order_by(Reference.id.desc())
+            )
             .scalars()
             .all()
         )
 
         return admin_pb2.GetUserReferencesRes(
-            references_from=[_reference_to_pb(ref) for ref in references_from],
-            references_to=[_reference_to_pb(ref) for ref in references_to],
+            references_from=[_reference_to_pb(ref, get_chat_user_info) for ref in references_from],
+            references_to=[_reference_to_pb(ref, get_chat_user_info) for ref in references_to],
         )
 
     def GetFriendRequests(
@@ -957,19 +985,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
-        user_info_cache: dict[int, admin_pb2.ChatUserInfo] = {}
-
-        def get_chat_user_info(user_id: int) -> admin_pb2.ChatUserInfo:
-            if user_id not in user_info_cache:
-                u = session.execute(select(User).where(User.id == user_id)).scalar_one()
-                user_info_cache[user_id] = admin_pb2.ChatUserInfo(
-                    user_id=u.id,
-                    username=u.username,
-                    name=u.name,
-                    birthdate=date_to_api(u.birthdate),
-                    gender=u.gender,
-                )
-            return user_info_cache[user_id]
+        get_chat_user_info = _make_chat_user_info_getter(session)
 
         def friend_request_to_pb(rel: FriendRelationship) -> admin_pb2.AdminFriendRequest:
             return admin_pb2.AdminFriendRequest(
