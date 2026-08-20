@@ -400,6 +400,26 @@ class User(Base, kw_only=True):
             unique=True,
             postgresql_where=phone_verification_verified != None,
         ),
+        # These three are each looked up by equality as though the value named exactly one user, so the database
+        # needs to enforce that; partial as the columns are null for almost every user
+        Index(
+            "ix_users_unique_undelete_token",
+            undelete_token,
+            unique=True,
+            postgresql_where=undelete_token != None,
+        ),
+        Index(
+            "ix_users_unique_new_email_token",
+            new_email_token,
+            unique=True,
+            postgresql_where=new_email_token != None,
+        ),
+        Index(
+            "ix_users_unique_stripe_customer_id",
+            stripe_customer_id,
+            unique=True,
+            postgresql_where=stripe_customer_id != None,
+        ),
         Index(
             "ix_users_active",
             id,
