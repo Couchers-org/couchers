@@ -865,7 +865,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     host_request=host_request_to_pb(host_request, session, recipient_context),
                     user=user_model_to_pb(host_request.initiator, session, recipient_context),
                     text=request.text,
-                    am_host=True,
+                    am_host=host_request.host_user_id == host_request.recipient_user_id,
                 ),
                 moderation_state_id=host_request.moderation_state_id,
             )
@@ -883,7 +883,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     host_request=host_request_to_pb(host_request, session, recipient_context),
                     user=user_model_to_pb(host_request.recipient, session, recipient_context),
                     text=request.text,
-                    am_host=False,
+                    am_host=host_request.host_user_id == host_request.initiator_user_id,
                 ),
                 moderation_state_id=host_request.moderation_state_id,
             )
