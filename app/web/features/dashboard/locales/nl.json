@@ -68,8 +68,7 @@
   "events": {
     "your_upcoming_header": "Je aankomende events",
     "your_upcoming_empty_message": "Geen events op dit moment. Waarom <createEventLink>plan</createEventLink> je er zelf niet eentje ✨?",
-    "community_header": "Events in jouw communities",
-    "today_label": "Vandaag"
+    "community_header": "Events in jouw communities"
   },
   "discussions": {
     "community_header": "Discussies in jouw communities",

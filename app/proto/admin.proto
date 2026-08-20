@@ -442,6 +442,15 @@ message AdminReference {
   int64 host_request_id = 8;
   double rating = 9;
   bool was_appropriate = 10;
+  ChatUserInfo from_user = 12;
+  ChatUserInfo to_user = 13;
+  string moderation_visibility = 14; // "hidden", "shadowed", "unlisted", "visible"
+
+  // the stay, not set for friend references
+  string hosting_city = 15;
+  string from_date = 16;
+  string to_date = 17;
+  string status = 18;
 }
 
 message GetUserReferencesRes {

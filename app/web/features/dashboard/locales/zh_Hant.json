@@ -33,8 +33,7 @@
   "events": {
     "your_upcoming_header": "您即將參加的活動",
     "your_upcoming_empty_message": "目前沒有活動。何不<createEventLink>建立</createEventLink>一個✨？",
-    "community_header": "您所在社群的活動",
-    "today_label": "今天"
+    "community_header": "您所在社群的活動"
   },
   "reminder": {
     "respond_to_host_request": {
