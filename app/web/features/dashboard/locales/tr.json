@@ -38,8 +38,7 @@
   "now_label": "Şimdi",
   "events": {
     "your_upcoming_header": "Yaklaşan etkinlikleriniz",
-    "community_header": "Topluluklarındaki etkinlikler",
-    "today_label": "Bugün"
+    "community_header": "Topluluklarındaki etkinlikler"
   },
   "stays": {
     "night_count_one": "{{count}} gece",
