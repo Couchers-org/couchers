@@ -14,6 +14,7 @@ We are recruiting Community Builders (CBs) around the world to help grow, nurtur
 This is an unpaid volunteer position where you will work closely with the Community Builder Program Managers (CBPMs).
 
 ### Mandatory Duties
+We prepared the Couchers.org [Community Builder Guide](../documents/community-builder) to help you understand your role and provide useful tips. Please ensure you have read it thoroughly before applying for the role.
 As a representative, you are expected to uphold the following baseline commitments:
 
 - **Represent Couchers.org:** Positively reflect our values, core mission, and guidelines across all interactions
