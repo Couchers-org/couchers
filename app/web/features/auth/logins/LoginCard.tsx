@@ -59,7 +59,7 @@ export default function LoginsPage({ session }: { session: ActiveSession.AsObjec
           text={
             <Trans
               t={t}
-              i18nKey="auth:active_logins.location"
+              i18nKey="auth:active_logins.location2"
               components={{
                 location: <strong>{session.approximateLocation}</strong>,
               }}

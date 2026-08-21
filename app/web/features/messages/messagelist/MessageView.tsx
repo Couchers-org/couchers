@@ -10,7 +10,6 @@ import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { Message } from "proto/messages_pb";
-import { timestampToInstant } from "utils/date";
 import useOnVisibleEffect from "utils/useOnVisibleEffect";
 
 export const messageElementId = (id: number) => `message-${id}`;
@@ -171,7 +170,7 @@ export default function MessageView({ className, message, onVisible, isDm = fals
           </TextBody>
         </StyledMessageBody>
         <StyledFooter>
-          <StyledRelativeTime instant={timestampToInstant(message.time!)} />
+          <StyledRelativeTime instant={message.time!} />
           {author && !isCurrentUser && (
             <StyledFlagButton contentRef={contentRefs.chatMessage(message)} authorUser={author.userId} size="small" />
           )}

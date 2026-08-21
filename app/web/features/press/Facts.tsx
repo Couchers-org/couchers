@@ -1,9 +1,8 @@
 import { Favorite, Language, People, Star } from "@mui/icons-material";
 import { Box, Skeleton, styled, Typography } from "@mui/material";
 import RelativeTime from "components/RelativeTime";
-import { useTranslation } from "i18n";
+import { Trans, useTranslation } from "i18n";
 import { LANDING, PRESS } from "i18n/namespaces";
-import { Trans } from "react-i18next";
 import { Temporal } from "temporal-polyfill";
 import useSignupPageInfo from "utils/useSignupPageInfo";
 

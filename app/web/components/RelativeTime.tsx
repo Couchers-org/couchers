@@ -29,8 +29,8 @@ export default function RelativeTime({ instant, smallestUnit, capitalize, ...res
 
   return (
     <Tooltip title={localizeDateTime(plainDateTime, locale)} placement="top" arrow>
-      <time dateTime={plainDateTime.toString()} {...rest}>
-        <>{localizeRelativeTime(instant, locale, { capitalize, smallestUnit, t })}</>
+      <time dateTime={instant.toString()} {...rest}>
+        {localizeRelativeTime(instant, locale, { capitalize, smallestUnit, t })}
       </time>
     </Tooltip>
   );
