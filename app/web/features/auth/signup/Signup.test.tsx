@@ -447,14 +447,14 @@ describe("Signup", () => {
       flowToken: "token",
     };
 
-    const providedEmailAddress = "test@example.com";
+    const testEmail = "test@example.com";
 
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
-    window.localStorage.setItem("signupEmail", providedEmailAddress);
+    window.localStorage.setItem("signupEmail", testEmail);
 
     // Removing <strong> tags so the translated message can be compared with the element's textContent.
     const message = t("auth:sign_up_completed_prompt", {
-      providedEmailAddress: "test@example.com",
+      providedEmailAddress: testEmail,
     }).replace(/<\/?strong>/g, "");
 
     render(<View />, { wrapper });
