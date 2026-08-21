@@ -37,14 +37,15 @@ export default function ResendVerificationEmailForm() {
       {mutationResend.error && <Alert severity="error">{mutationResend.error.message || ""}</Alert>}
       {mutationRestart.error && <Alert severity="error">{mutationRestart.error.message || ""}</Alert>}
       <Typography variant="body1" gutterBottom>
-        {<Trans
+        {
+          <Trans
             i18nKey="auth:sign_up_completed_prompt"
             values={{
               providedEmailAddress: localStorage.getItem("signupEmail"),
             }}
           />
         }
-      </Typography>         
+      </Typography>
       <Typography variant="body1" gutterBottom>
         {!resent ? (
           <Trans
