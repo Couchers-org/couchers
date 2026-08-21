@@ -24,14 +24,6 @@ export default function ResendVerificationEmailForm() {
       await authActions.restartSignup();
     },
   });
-  const handleResendVerification = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    mutationResend.mutateAsync();
-  };
-  const handleRestartSignup = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    mutationRestart.mutateAsync();
-  };
   return (
     <>
       {mutationResend.error && <Alert severity="error">{mutationResend.error.message || ""}</Alert>}
@@ -51,7 +43,10 @@ export default function ResendVerificationEmailForm() {
           <Trans
             i18nKey="auth:sign_up_resend_verification_email_help"
             components={{
-              resendLink: <StyledLink href="#" onClick={handleResendVerification} />,
+              resendLink: <StyledLink href="#" onClick={(e) => {
+                    e.preventDefault();
+                    mutationResend.mutateAsync();
+                  }}/>,
             }}
           />
         ) : (
@@ -62,7 +57,10 @@ export default function ResendVerificationEmailForm() {
         <Trans
           i18nKey="auth:sign_up_restart_signup"
           components={{
-            restartSignup: <StyledLink href="#" onClick={handleRestartSignup} />,
+            restartSignup: <StyledLink href="#" onClick={(e) => {
+                    e.preventDefault();
+                    mutationRestart.mutateAsync();
+                  }}/>,
           }}
         />
       </Typography>
