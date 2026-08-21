@@ -446,7 +446,7 @@ describe("Signup", () => {
       needVerifyEmail: true,
       flowToken: "token",
     };
-    
+
     const providedEmailAddress = "test@example.com";
 
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
@@ -456,15 +456,12 @@ describe("Signup", () => {
     const message = t("auth:sign_up_completed_prompt", {
       providedEmailAddress: "test@example.com",
     }).replace(/<\/?strong>/g, "");
-    
+
     render(<View />, { wrapper });
     expect(
       screen.getByText((_, element) => {
-        return (
-          element?.textContent ===
-          `${message}`
-        );
-      })
+        return element?.textContent === `${message}`;
+      }),
     ).toBeVisible();
   });
   it("displays the redirect message when nothing is pending and has authRes", async () => {
