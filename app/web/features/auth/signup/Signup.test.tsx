@@ -446,11 +446,27 @@ describe("Signup", () => {
       needVerifyEmail: true,
       flowToken: "token",
     };
-    window.localStorage.setItem("auth.flowState", JSON.stringify(state));
-    render(<View />, { wrapper });
-    expect(screen.getByText(t("auth:sign_up_completed_prompt"))).toBeVisible();
-  });
+    
+    const providedEmailAddress = "test@example.com";
 
+    window.localStorage.setItem("auth.flowState", JSON.stringify(state));
+    window.localStorage.setItem("signupEmail", providedEmailAddress);
+
+    // Removing <strong> tags so the translated message can be compared with the element's textContent.
+    const message = t("auth:sign_up_completed_prompt", {
+      providedEmailAddress: "test@example.com",
+    }).replace(/<\/?strong>/g, "");
+    
+    render(<View />, { wrapper });
+    expect(
+      screen.getByText((_, element) => {
+        return (
+          element?.textContent ===
+          `${message}`
+        );
+      })
+    ).toBeVisible();
+  });
   it("displays the redirect message when nothing is pending and has authRes", async () => {
     const state: SignupFlowRes.AsObject = {
       needBasic: false,
