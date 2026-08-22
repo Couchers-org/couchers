@@ -111,6 +111,9 @@ describe("localizeDateTime", () => {
   it("honors the locale", () => {
     expect(localizeDateTime(janFirst2000, "en")).toContain("January");
     expect(localizeDateTime(janFirst2000, "en-US")).toContain("January");
+    // "en" (international English) formats with the day before the month
+    expect(localizeDateTime(janFirst2000, "en", { includeTime: false })).toBe("1 January 2000");
+    expect(localizeDateTime(janFirst2000, "en-US", { includeTime: false })).toBe("January 1, 2000");
     expect(localizeDateTime(janFirst2000, "es")).toContain("enero");
     expect(localizeDateTime(janFirst2000, "de")).toContain("Januar");
     expect(localizeDateTime(janFirst2000, "pt-BR")).toContain("janeiro");
@@ -153,11 +156,15 @@ describe("localizeDateTime", () => {
 describe("localizeDateTime-derived helpers", () => {
   // Sanity check. Testing is otherwise covered by localizeDateTime, which these functions delegate to.
   it("localizeDateOnly", () => {
-    expect(localizeDateOnly(janFirst2000.add({ hours: 7 }), "en")).toBe("January 1, 2000");
+    // "en" (international English) formats with the day before the month
+    expect(localizeDateOnly(janFirst2000.add({ hours: 7 }), "en")).toBe("1 January 2000");
+    expect(localizeDateOnly(janFirst2000.add({ hours: 7 }), "en-US")).toBe("January 1, 2000");
   });
 
   it("localizeTimeOnly", () => {
-    expect(localizeTimeOnly(janFirst2000.add({ hours: 7 }), "en")).toBe("7:00 AM");
+    // "en" (international English) uses lowercase am/pm per CLDR's en-001 data
+    expect(localizeTimeOnly(janFirst2000.add({ hours: 7 }), "en")).toBe("7:00 am");
+    expect(localizeTimeOnly(janFirst2000.add({ hours: 7 }), "en-US")).toBe("7:00 AM");
   });
 
   // Sanity check. Testing is otherwise covered by localizeDateTime, which these functions delegate to.
@@ -411,7 +418,9 @@ describe("localizeTimeZone", () => {
 
 describe("getMuiDateFormat", () => {
   it("works for common locales", () => {
-    expect(getMuiDateFormat("en")).toEqual("MM/DD/YYYY");
+    // "en" (international English) uses day-before-month; "en-US" keeps US conventions
+    expect(getMuiDateFormat("en")).toEqual("DD/MM/YYYY");
+    expect(getMuiDateFormat("en-US")).toEqual("MM/DD/YYYY");
     expect(getMuiDateFormat("de")).toEqual("DD.MM.YYYY");
     expect(getMuiDateFormat("ja-JP")).toEqual("YYYY/MM/DD");
     expect(getMuiDateFormat("fr-CA")).toEqual("YYYY-MM-DD");
@@ -430,6 +439,7 @@ describe("getMuiDateFormat", () => {
 describe("getMuiTimeFormat", () => {
   it("works for common locales", () => {
     expect(getMuiTimeFormat("en")).toEqual("h:mm a");
+    expect(getMuiTimeFormat("en-US")).toEqual("h:mm a");
     expect(getMuiTimeFormat("de")).toEqual("HH:mm");
     expect(getMuiTimeFormat("ja-JP")).toEqual("H:mm");
   });

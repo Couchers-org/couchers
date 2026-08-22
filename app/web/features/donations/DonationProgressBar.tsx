@@ -1,6 +1,7 @@
 import { alpha, Box, LinearProgress, Skeleton, styled } from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
+import { localizeUSD } from "i18n/numbers";
 
 import useDonationStats from "./useDonationStats";
 
@@ -50,15 +51,8 @@ export default function DonationProgressBar() {
 
   const progress = Math.min((donationStats.totalDonatedYtd / donationStats.goal) * 100, 100);
 
-  const currencyFormatter = new Intl.NumberFormat(i18n.language, {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  });
-
-  const formattedRaised = currencyFormatter.format(donationStats.totalDonatedYtd);
-  const formattedGoal = currencyFormatter.format(donationStats.goal);
+  const formattedRaised = localizeUSD(donationStats.totalDonatedYtd, i18n.language);
+  const formattedGoal = localizeUSD(donationStats.goal, i18n.language);
 
   return (
     <ProgressRow>

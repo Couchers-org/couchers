@@ -27,7 +27,7 @@ describe("TranslationProgress", () => {
   it("lists languages by their autonym (name in their own language)", async () => {
     render(<TranslationProgress />, { wrapper });
 
-    expect(await screen.findByText("English")).toBeInTheDocument();
+    expect(await screen.findByText("English (International)")).toBeInTheDocument();
     expect(screen.getByText("Deutsch")).toBeInTheDocument();
     // The two Chinese variants are distinct, not conflated under one flag.
     expect(screen.getByText("中文（简体）")).toBeInTheDocument();
@@ -38,7 +38,7 @@ describe("TranslationProgress", () => {
     render(<TranslationProgress />, { wrapper });
 
     // Wait for the list to render.
-    await screen.findByText("English");
+    await screen.findByText("English (International)");
 
     // Flags were <img> elements with an alt of "<code> flag"; none should remain.
     expect(screen.queryByAltText(/flag/i)).not.toBeInTheDocument();

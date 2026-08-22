@@ -6,6 +6,7 @@
 import "dayjs/locale/ca";
 import "dayjs/locale/cs";
 import "dayjs/locale/de";
+import "dayjs/locale/en-gb";
 import "dayjs/locale/es";
 import "dayjs/locale/fr";
 import "dayjs/locale/he";
@@ -41,12 +42,16 @@ dayjs.extend(Timezone);
 dayjs.extend(LocalizedFormat);
 
 // Maps an i18n language code to the matching dayjs locale name (they differ for
-// some: e.g. "pt-BR" -> "pt-br", "zh-Hans" -> "zh-cn"). en is the built-in default.
+// some: e.g. "pt-BR" -> "pt-br", "zh-Hans" -> "zh-cn").
 const I18N_TO_DAYJS_LOCALE: Record<string, string> = {
   ca: "ca",
   cs: "cs",
   de: "de",
-  en: "en",
+  // Treat "en" as international English for date formats.
+  // dayjs doesn't support en-001, so use en-gb.
+  en: "en-gb",
+  // dayjs' "en" locale uses US english formats.
+  "en-US": "en",
   es: "es",
   "es-419": "es",
   fr: "fr",

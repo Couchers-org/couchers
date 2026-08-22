@@ -57,6 +57,7 @@ describe("Middleware locale detection logic", () => {
     describe("Locale configuration", () => {
       it("should have English as a supported language", () => {
         expect(allLanguages).toContain("en");
+        expect(allLanguages).toContain("en-US");
       });
 
       it("should have common European languages", () => {
@@ -94,6 +95,11 @@ describe("Middleware locale detection logic", () => {
         expect(shouldBlockIncompleteLanguage("en", undefined, false)).toBe(false);
         expect(shouldBlockIncompleteLanguage("en", "en", true)).toBe(false);
         expect(shouldBlockIncompleteLanguage("en", "de", true)).toBe(false);
+      });
+
+      it("should never block English (US)", () => {
+        expect(shouldBlockIncompleteLanguage("en-US", undefined, true)).toBe(false);
+        expect(shouldBlockIncompleteLanguage("en-US", undefined, false)).toBe(false);
       });
     });
 
