@@ -449,21 +449,22 @@ describe("Signup", () => {
 
     const testEmail = "test@example.com";
 
-    window.localStorage.setItem("auth.flowState", JSON.stringify(state));
-    window.localStorage.setItem("signupEmail", testEmail);
-
-    // Removing <strong> tags so the translated message can be compared with the element's textContent.
-    const message = t("auth:sign_up_completed_prompt", {
-      providedEmailAddress: testEmail,
-    }).replace(/<\/?strong>/g, "");
+    localStorage.setItem("auth.flowState", JSON.stringify(state));
+    localStorage.setItem("auth.signupEmail", JSON.stringify(testEmail));
 
     render(<View />, { wrapper });
+
     expect(
-      screen.getByText((_, element) => {
-        return element?.textContent === `${message}`;
+      await screen.findByText((_, element) => {
+        return (
+          element?.textContent ===
+          `We have sent an email with a verification link to your email address: ${testEmail}. Please click the link to activate your account.`
+        );
       }),
     ).toBeVisible();
   });
+
+
   it("displays the redirect message when nothing is pending and has authRes", async () => {
     const state: SignupFlowRes.AsObject = {
       needBasic: false,

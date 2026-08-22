@@ -33,7 +33,7 @@ export default function ResendVerificationEmailForm() {
           <Trans
             i18nKey="auth:sign_up_completed_prompt"
             values={{
-              providedEmailAddress: localStorage.getItem("signupEmail"),
+              providedEmailAddress: authState.signupEmail,
             }}
           />
         }
@@ -43,15 +43,10 @@ export default function ResendVerificationEmailForm() {
           <Trans
             i18nKey="auth:sign_up_resend_verification_email_help"
             components={{
-              resendLink: (
-                <StyledLink
-                  href="#"
-                  onClick={(e) => {
+              resendLink: <StyledLink href="#" onClick={(e) => {
                     e.preventDefault();
                     mutationResend.mutateAsync();
-                  }}
-                />
-              ),
+                  }}/>,
             }}
           />
         ) : (
@@ -62,15 +57,10 @@ export default function ResendVerificationEmailForm() {
         <Trans
           i18nKey="auth:sign_up_restart_signup"
           components={{
-            restartSignup: (
-              <StyledLink
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  mutationRestart.mutateAsync();
-                }}
-              />
-            ),
+            restartSignup: <StyledLink href="#" onClick={(e) => {
+                    e.preventDefault();
+                    mutationRestart.mutateAsync();
+                  }}/>,
           }}
         />
       </Typography>
