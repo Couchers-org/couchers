@@ -292,30 +292,67 @@
       "push": {
         "title": "Nueva solicitud de alojamiento de {{user}}",
         "ios_title": "{{user}}",
-        "ios_subtitle": "Nueva solicitud de alojamiento"
+        "ios_subtitle": "Nueva solicitud de alojamiento",
+        "body_one": "{{user}} quiere quedarse desde el {{start_date}} durante {{count}} noche.",
+        "body_many": "{{user}} quiere quedarse desde el {{start_date}} durante {{count}} de noches.",
+        "body_other": "{{user}} quiere quedarse desde el {{start_date}} durante {{count}} noches."
       }
     },
     "message": {
       "event_description": "Alguien envía un mensaje en una solicitud de alojamiento"
     },
     "missed_messages": {
-      "event_description": "Mensajes pendientes en una solicitud de alojamiento"
+      "event_description": "Mensajes pendientes en una solicitud de alojamiento",
+      "push": {
+        "title": "Nuevos mensajes de {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Mensajes perdidos",
+        "body": "Tienes nuevos mensajes sin leer de {{user}}."
+      }
     },
     "reject": {
-      "event_description": "Alguien rechaza tu solicitud de alojamiento"
+      "event_description": "Alguien rechaza tu solicitud de alojamiento",
+      "push": {
+        "title": "{{user}} ha declinado tu solicitud de alojamiento",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Solicitud de alojamiento declinada",
+        "body": "{{user}} ha declinado tu solicitud de alojamiento para el {{date}}."
+      }
     },
     "reminder": {
-      "event_description": "No has respondido a una solicitud de alojamiento pendiente"
+      "event_description": "No has respondido a una solicitud de alojamiento pendiente",
+      "push": {
+        "title": "Solicitud pendiente de {{user}}",
+        "ios_title": "Solicitud de alojamiento pendiente",
+        "ios_subtitle": "{{user}}",
+        "body": "{{user}} está esperando tu respuesta, por favor acepta o declina la solicitud."
+      }
     }
   },
   "onboarding": {
     "reminder": {
-      "event_description": "Recordatorio para completar tu perfil después de registrarte"
+      "event_description": "Recordatorio para completar tu perfil después de registrarte",
+      "push": {
+        "first": {
+          "title": "¡Bienvenido a Couchers!",
+          "ios_title": "¡Bienvenido a Couchers!",
+          "body": "Por favor completa tu perfil con una foto y un breve texto sobre ti."
+        },
+        "subsequent": {
+          "title": "Recuerda completar tu perfil",
+          "ios_title": "Recordatorio de perfil",
+          "body": "Por favor completa tu perfil con una foto y un breve texto sobre ti."
+        }
+      }
     }
   },
   "password": {
     "change": {
-      "event_description": "Tu contraseña ha sido cambiada"
+      "event_description": "Tu contraseña ha sido cambiada",
+      "push": {
+        "title": "Contraseña cambiada",
+        "ios_title": "Contraseña cambiada"
+      }
     }
   },
   "password_reset": {
@@ -354,6 +391,16 @@
   "thread": {
     "reply": {
       "event_description": "Alguien responde a tu comentario"
+    }
+  },
+  "modnote": {
+    "create": {
+      "event_description": "Un moderador te ha enviado una nota",
+      "push": {
+        "title": "Nueva nota del moderador",
+        "ios_title": "Nueva nota del moderador",
+        "body": "Has recibido una nota del moderador. Léela y confírmala para seguir usando la plataforma."
+      }
     }
   }
 }
