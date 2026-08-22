@@ -145,10 +145,10 @@ export default function useAuthStore() {
           return;
         }
       },
-      setSignupEmail(email: string) {
+      assignSignupEmail(email: string) {
         setSignupEmail(email);
       },
-      async restartSignup() {
+      restartSignup() {
         setFlowState(null);
         setError(null);
         setSignupEmail(null);
