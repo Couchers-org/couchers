@@ -464,7 +464,6 @@ describe("Signup", () => {
     ).toBeVisible();
   });
 
-
   it("displays the redirect message when nothing is pending and has authRes", async () => {
     const state: SignupFlowRes.AsObject = {
       needBasic: false,
