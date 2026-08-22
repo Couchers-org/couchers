@@ -131,7 +131,7 @@ export default function EditLocationMap({
   };
 
   const redrawMap = () => {
-    const circle = map.current?.getSource(CIRCLE_SOURCE_NAME) as GeoJSONSource | null;
+    const circle = map.current?.getSource<GeoJSONSource>(CIRCLE_SOURCE_NAME);
     if (!circle) return;
     if (!exact) {
       circle.setData(circleGeoJson(extractLngLat(location.current), location.current.radius));
