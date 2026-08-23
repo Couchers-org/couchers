@@ -99,8 +99,8 @@ def _(testconfig):
     pass
 
 
-def _check_job_counter(job, status, attempt, exception):
-    metrics_string = requests.get("http://localhost:8000").text
+def _check_job_counter(port, job, status, attempt, exception):
+    metrics_string = requests.get(f"http://localhost:{port}").text
     string_to_check = f'attempt="{attempt}",exception="{exception}",job="{job}",status="{status}"'
     assert string_to_check in metrics_string
 
@@ -452,7 +452,8 @@ def test_job_retry(db):
     MOCK_JOBS: dict[str, Job[Any]] = {
         "mock_job": Job(mock_job),
     }
-    create_prometheus_server(port=8000)
+    # port 0 so parallel test runs don't fight over the port
+    metrics_server = create_prometheus_server(port=0)
 
     # if IN_TEST is true, then the bg worker will raise on exceptions
     new_config = config.copy()
@@ -507,8 +508,10 @@ def test_job_retry(db):
             == 0
         )
 
-    _check_job_counter("mock_job", "error", "4", "Exception")
-    _check_job_counter("mock_job", "failed", "5", "Exception")
+    _check_job_counter(metrics_server.server_port, "mock_job", "error", "4", "Exception")
+    _check_job_counter(metrics_server.server_port, "mock_job", "failed", "5", "Exception")
+    metrics_server.shutdown()
+    metrics_server.server_close()
 
 
 def test_job_retry_backs_off_from_now_not_from_a_stale_next_attempt_after(db):
@@ -1289,6 +1292,33 @@ def test_send_reference_reminders(db):
             for find in search_strings:
                 assert find in plain, f"Expected to find string {find} in PLAIN email {subject} to {address}, didn't"
                 assert find in html, f"Expected to find string {find} in HTML email {subject} to {address}, didn't"
+
+
+def test_send_reference_reminders_public_trip_offer(db):
+    """An offer reverses initiator/recipient, so the reminders have to be picked by the stay role."""
+    surfer, _ = generate_user(email="surfer@couchers.org.invalid", name="Surfer")
+    host, _ = generate_user(email="host@couchers.org.invalid", name="Host")
+
+    with session_scope() as session:
+        create_host_request(session, surfer.id, host.id, timedelta(days=4), is_offer=True)
+
+    send_reference_reminders(empty_pb2.Empty())
+
+    while process_job():
+        pass
+
+    with session_scope() as session:
+        emails = {
+            email.recipient: (email.subject, email.plain) for email in session.execute(select(Email)).scalars().all()
+        }
+
+    assert set(emails) == {"surfer@couchers.org.invalid", "host@couchers.org.invalid"}
+    surfer_subject, surfer_plain = emails["surfer@couchers.org.invalid"]
+    assert surfer_subject == "[TEST] You have 14 days to write a reference for Host"
+    assert "from when you surfed with them" in surfer_plain
+    host_subject, host_plain = emails["host@couchers.org.invalid"]
+    assert host_subject == "[TEST] You have 14 days to write a reference for Surfer"
+    assert "from when you hosted them" in host_plain
 
 
 def test_send_host_request_reminders(db, moderator):

@@ -34,6 +34,7 @@
   "prev_page_button_a11y": "Previous page",
   "next_page_button_a11y": "Next page",
   "now_label": "Now",
+  "today_label": "Today",
   "discussions": {
     "community_header": "Discussions in your communities",
     "community_empty_message": "No discussions yet in your communities.",
@@ -43,8 +44,7 @@
   "events": {
     "your_upcoming_header": "Your upcoming events",
     "your_upcoming_empty_message": "No events at the moment. Why don't you <createEventLink>create</createEventLink> one ✨?",
-    "community_header": "Events in your communities",
-    "today_label": "Today"
+    "community_header": "Events in your communities"
   },
   "public_trips": {
     "my_trips_header": "Your public trips",

@@ -45,8 +45,7 @@
   "events": {
     "your_upcoming_header": "I tuoi prossimi eventi",
     "your_upcoming_empty_message": "Nessun evento al momento. Perché non ne <createEventLink>crei</createEventLink> uno ✨?",
-    "community_header": "Eventi nelle tue community",
-    "today_label": "Oggi"
+    "community_header": "Eventi nelle tue community"
   },
   "public_trips": {
     "my_trips_header": "I tuoi viaggi pubblici",

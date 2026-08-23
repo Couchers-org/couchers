@@ -6,7 +6,7 @@ from couchers.resources import copy_resources_to_database
 from dummy_data import add_dummy_data
 
 
-def test_add_dummy_data(db, caplog, testconfig):
+def test_add_dummy_data(db, caplog, testconfig, fast_passwords):
     # copy the real resources to the database: this way if the testing resources go out of date with the real ones
     # causing dummy data to fail, we'll catch it easily
     with session_scope() as session:

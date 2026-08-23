@@ -1,6 +1,7 @@
+import hashlib
 import os
-import re
 from collections.abc import Generator
+from dataclasses import replace
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
@@ -15,15 +16,36 @@ prometheus_multiproc_dir = TemporaryDirectory()
 os.environ["PROMETHEUS_MULTIPROC_DIR"] = prometheus_multiproc_dir.name
 
 # Default for running with a database from docker-compose.test.yml.
-if "DATABASE_CONNECTION_STRING" not in os.environ:  # pragma: no cover
-    os.environ["DATABASE_CONNECTION_STRING"] = (
-        "postgresql://postgres:06b3890acd2c235c41be0bbfe22f1b386a04bf02eedf8c977486355616be2aa1@localhost:6544/testdb"
-    )
+DEFAULT_DATABASE_CONNECTION_STRING = (
+    "postgresql://postgres:06b3890acd2c235c41be0bbfe22f1b386a04bf02eedf8c977486355616be2aa1@localhost:6544/testdb"
+)
+
+
+def _test_database_name() -> str:
+    """
+    The database this run owns, which it drops and rebuilds at the start of the session.
+
+    The name comes from where this file sits on disk, so suites running side by side out of
+    different checkouts can share one postgres without destroying each other's database. It's
+    printed in the pytest header. Set TEST_DB_NAME to run two suites out of the same checkout.
+    """
+    if name := os.environ.get("TEST_DB_NAME"):
+        return name
+    return "testdb_" + hashlib.blake2b(str(Path(__file__).resolve()).encode(), digest_size=4).hexdigest()
+
+
+TEST_DB_NAME = _test_database_name()
+
+# The environment says which postgres to talk to; the database name within it is always ours, so
+# pointing DATABASE_CONNECTION_STRING at a real database can't get that database dropped.
+_dsn = os.environ.get("DATABASE_CONNECTION_STRING", DEFAULT_DATABASE_CONNECTION_STRING)
+os.environ["DATABASE_CONNECTION_STRING"] = _dsn.rsplit("/", 1)[0] + "/" + TEST_DB_NAME
 
 from couchers import experimentation  # noqa: E402
 from couchers.config import config  # noqa: E402
 from couchers.db import _get_base_engine  # noqa: E402
 from couchers.models import Base  # noqa: E402
+from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS  # noqa: E402
 from tests.fixtures import query_log  # noqa: E402
 from tests.fixtures.db import (  # noqa: E402
     autocommit_engine,
@@ -57,6 +79,10 @@ def pytest_configure(config: pytest.Config) -> None:
         query_log.enable(_get_base_engine())
 
 
+def pytest_report_header() -> str:
+    return f"test database: {TEST_DB_NAME}"
+
+
 def pytest_sessionfinish(session: pytest.Session) -> None:
     if session.config.getoption("--query-log"):
         print(f"\nquery log written to {query_log.dump(QUERY_LOG_DIR)}")
@@ -78,11 +104,7 @@ def postgres_engine() -> Generator[Engine]:
     """
     SQLAlchemy engine connected to "postgres" database.
     """
-    dsn = config.DATABASE_CONNECTION_STRING
-    if not dsn.endswith("/testdb"):
-        raise RuntimeError(f"DATABASE_CONNECTION_STRING must point to /testdb, but was {dsn}")
-
-    postgres_dsn = re.sub(r"/testdb$", "/postgres", dsn)
+    postgres_dsn = config.DATABASE_CONNECTION_STRING.rsplit("/", 1)[0] + "/postgres"
 
     with autocommit_engine(postgres_dsn) as engine:
         yield engine
@@ -100,7 +122,7 @@ def postgres_conn(postgres_engine: Engine) -> Generator[Connection]:
 @pytest.fixture(scope="session")
 def testdb_engine() -> Generator[Engine]:
     """
-    SQLAlchemy engine connected to "testdb" database.
+    SQLAlchemy engine connected to this run's test database.
     """
     dsn = config.DATABASE_CONNECTION_STRING
     with autocommit_engine(dsn) as engine:
@@ -110,7 +132,7 @@ def testdb_engine() -> Generator[Engine]:
 @pytest.fixture(scope="session")
 def testdb_conn(testdb_engine: Engine) -> Generator[Connection]:
     """
-    Connection to testdb for truncating tables between tests.
+    Connection to the test database for truncating tables between tests.
     """
     with testdb_engine.connect() as conn:
         yield conn
@@ -130,15 +152,15 @@ def setup_testdb(postgres_conn: Connection, testdb_engine: Engine) -> None:
     # running in non-UTC catches some timezone errors
     os.environ["TZ"] = "America/New_York"
 
-    postgres_conn.execute(text("DROP DATABASE IF EXISTS testdb WITH (FORCE)"))
-    postgres_conn.execute(text("CREATE DATABASE testdb"))
+    postgres_conn.execute(text(f"DROP DATABASE IF EXISTS {TEST_DB_NAME} WITH (FORCE)"))
+    postgres_conn.execute(text(f"CREATE DATABASE {TEST_DB_NAME}"))
 
     # A column DEFAULT resolves now() once, when the column is created, and stores the function
     # identity forever after; later search_path changes don't reach it. So mock.now() has to
     # already shadow pg_catalog.now() on every connection before any DDL runs, which means
     # setting this at the database level here, ahead of the first connect. The mock schema
     # doesn't exist yet, which postgres tolerates in a search_path.
-    postgres_conn.execute(text(f"ALTER DATABASE testdb SET search_path = {MOCK_SEARCH_PATH}"))
+    postgres_conn.execute(text(f"ALTER DATABASE {TEST_DB_NAME} SET search_path = {MOCK_SEARCH_PATH}"))
 
     with testdb_engine.connect() as conn:
         conn.execute(
@@ -156,38 +178,70 @@ def setup_testdb(postgres_conn: Connection, testdb_engine: Engine) -> None:
         populate_testing_resources(conn)
 
 
-def _truncate_non_static_tables(conn: Connection) -> None:
+_reset_sql: str | None = None
+
+
+def _build_reset_sql(conn: Connection) -> str:
     """
-    Truncates all non-static tables.
-    Static tables (languages, timezone_areas, regions) are preserved.
+    Builds the statement that empties every non-static table and rewinds every sequence they use.
+
+    TRUNCATE would be the obvious way to do this, but it allocates a fresh relfilenode for each
+    table, index, toast relation and sequence it touches, which here is ~600 files per call and
+    costs the same whether the tables hold a million rows or none. DELETE with the foreign key
+    triggers off reaches the same end state ~35x faster, and the tables are near-empty anyway.
     """
-    tables_to_truncate = []
+    tables = []
     for name in Base.metadata.tables.keys():
-        # Skip static tables
         if name in STATIC_TABLES:
             continue
-        # Handle schema-qualified names (e.g., "logging.api_calls" -> logging."api_calls")
-        if "." in name:
-            schema, table = name.split(".", 1)
-            tables_to_truncate.append(f'{schema}."{table}"')
-        else:
-            tables_to_truncate.append(f'"{name}"')
-    if tables_to_truncate:
-        conn.execute(text(f"TRUNCATE {', '.join(tables_to_truncate)} RESTART IDENTITY CASCADE"))
+        schema, _, table = name.rpartition(".")
+        tables.append(f'{schema}."{table}"' if schema else f'"{table}"')
 
-    # Reset standalone sequences, not owned by any table column
-    # (RESTART IDENTITY only resets sequences owned by truncated columns)
-    conn.execute(text("ALTER SEQUENCE communities_seq RESTART WITH 1"))
-    conn.execute(text("ALTER SEQUENCE moderation_seq RESTART WITH 2000000"))
+    sequences = conn.execute(
+        text("""
+            SELECT s.schemaname, s.sequencename, s.start_value, d.refobjid::regclass::text AS owner
+            FROM pg_sequences s
+            JOIN pg_class c ON c.relname = s.sequencename AND c.relnamespace = s.schemaname::regnamespace
+            LEFT JOIN pg_depend d ON d.objid = c.oid AND d.deptype = 'a'
+            WHERE s.schemaname IN ('public', 'logging')
+        """)
+    ).all()
+
+    # The models have foreign key cycles, so there is no order the tables could be emptied in that
+    # would satisfy the constraints; turning the triggers off sidesteps the ordering entirely.
+    statements = ["SET session_replication_role = replica"]
+    statements += [f"DELETE FROM {table}" for table in tables]
+    statements.append("SET session_replication_role = DEFAULT")
+    # setval to the sequence's own start value is what RESTART IDENTITY would have done, and it also
+    # covers the standalone sequences (communities_seq, moderation_seq) that nothing owns.
+    statements += [
+        f"SELECT setval('{schema}.\"{sequence}\"', {start_value}, false)"
+        for schema, sequence, start_value, owner in sequences
+        if owner not in STATIC_TABLES
+    ]
+    return "; ".join(statements)
+
+
+def _reset_non_static_tables(conn: Connection) -> None:
+    """
+    Empties all non-static tables and rewinds their sequences.
+    Static tables (languages, timezone_areas, regions) are preserved.
+    """
+    global _reset_sql
+    if _reset_sql is None:
+        _reset_sql = _build_reset_sql(conn)
+    # One roundtrip: psycopg sends a parameterless statement over the simple query protocol, which
+    # takes the whole semicolon-separated batch.
+    conn.exec_driver_sql(_reset_sql)
 
 
 @pytest.fixture
 def db(setup_testdb: None, testdb_conn: Connection) -> None:
     """
-    Truncates all non-static tables before each test.
+    Empties all non-static tables before each test.
     Static tables (languages, timezone_areas, regions) are preserved.
     """
-    _truncate_non_static_tables(testdb_conn)
+    _reset_non_static_tables(testdb_conn)
 
 
 @pytest.fixture(scope="class")
@@ -195,7 +249,7 @@ def db_class(setup_testdb: None, testdb_conn: Connection) -> None:
     """
     The same as above, but with a different scope. Used in test_communities.py.
     """
-    _truncate_non_static_tables(testdb_conn)
+    _reset_non_static_tables(testdb_conn)
 
 
 @pytest.fixture
@@ -416,6 +470,19 @@ def feature_flags(monkeypatch) -> FeatureFlags:
     # Switch to GrowthBook mode (empty override path).
     monkeypatch.setitem(config, "FEATURE_FLAGS_FILE_OVERRIDE_PATH", "")
     return FeatureFlags(features)
+
+
+@pytest.fixture
+def low_rate_limits(monkeypatch) -> None:
+    """
+    Shrinks every rate limit so a test can walk past it in a handful of calls.
+
+    The production limits run up to 150 actions, and a test that has to exceed one spends most of its
+    time creating the users to act on. The tests read the limits out of the definitions, so they pick
+    these up without knowing they've been lowered.
+    """
+    for action, definition in list(RATE_LIMIT_DEFINITIONS.items()):
+        monkeypatch.setitem(RATE_LIMIT_DEFINITIONS, action, replace(definition, warning_limit=3, hard_limit=6))
 
 
 @pytest.fixture

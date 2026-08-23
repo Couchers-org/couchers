@@ -130,14 +130,20 @@ def create_session(
         user_session.expiry = func.now() + duration
 
     session.add(user_session)
+
+    # read off the user before the commit expires it: every attribute touched after the commit re-selects the
+    # whole row, and this is on the path of every single login
+    user_id = user.id
+    user_gender = user.gender
+
     session.commit()
 
-    logger.debug(f"Handing out {token=} to {user=}")
+    logger.debug("Handing out %s to user %s", token, user_id)
 
     if set_cookie:
-        context.set_cookies(create_session_cookies(token, user.id, user_session.expiry))
+        context.set_cookies(create_session_cookies(token, user_id, user_session.expiry))
 
-    logins_counter.labels(user.gender).inc()
+    logins_counter.labels(user_gender).inc()
 
     return token, user_session.expiry
 

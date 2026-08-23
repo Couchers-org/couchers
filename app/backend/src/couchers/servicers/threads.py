@@ -66,20 +66,19 @@ def total_num_responses(session: Session, context: CouchersContext, database_id:
         Comment,
         is_list_operation=True,
     )
-    replies = where_moderated_content_visible(
-        where_users_column_visible(
-            select(func.count())
-            .select_from(Reply)
-            .join(Comment, Comment.id == Reply.comment_id)
-            .where(Comment.thread_id == database_id)
-            .where(Reply.deleted == None),
-            context,
-            Reply.author_user_id,
-        ),
-        context,
-        Reply,
-        is_list_operation=True,
+    # the comment a reply hangs off is filtered too, but not on Comment.deleted: GetThread lists a
+    # deleted comment as a stub and still renders its replies
+    replies = (
+        select(func.count())
+        .select_from(Reply)
+        .join(Comment, Comment.id == Reply.comment_id)
+        .where(Comment.thread_id == database_id)
+        .where(Reply.deleted == None)
     )
+    replies = where_users_column_visible(replies, context, Reply.author_user_id)
+    replies = where_users_column_visible(replies, context, Comment.author_user_id)
+    replies = where_moderated_content_visible(replies, context, Reply, is_list_operation=True)
+    replies = where_moderated_content_visible(replies, context, Comment, is_list_operation=True)
     return session.execute(comments).scalar_one() + session.execute(replies).scalar_one()
 
 
