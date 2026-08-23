@@ -69,8 +69,7 @@
   "events": {
     "your_upcoming_header": "Tus próximos eventos",
     "your_upcoming_empty_message": "No hay eventos en este momento. ¿Por qué no <createEventLink>creas</createEventLink> uno ✨?",
-    "community_header": "Eventos en tus comunidades",
-    "today_label": "Hoy"
+    "community_header": "Eventos en tus comunidades"
   },
   "discussions": {
     "community_header": "Discusiones en tus comunidades",
@@ -101,5 +100,6 @@
     "offers_count_many": "{{count}} de ofrecimientos",
     "offers_count_other": "{{count}} ofrecimientos",
     "no_offers": "Ningún ofrecimiento todavía"
-  }
+  },
+  "today_label": "Hoy"
 }
