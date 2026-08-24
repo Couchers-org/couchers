@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 import grpc
 import pytest
 from google.protobuf import empty_pb2
@@ -8,12 +10,16 @@ from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views_rapid
 from couchers.models import (
     Cluster,
+    Event,
     Node,
     Volunteer,
 )
-from couchers.proto import editor_pb2
+from couchers.proto import editor_pb2, events_pb2
+from couchers.tasks import enforce_community_memberships
+from couchers.utils import datetime_to_iso8601_local, now
 from tests.fixtures.db import generate_user
-from tests.fixtures.sessions import real_editor_session
+from tests.fixtures.sessions import events_session, real_editor_session
+from tests.test_communities import create_1d_point, create_community
 
 
 @pytest.fixture(autouse=True)
@@ -794,3 +800,179 @@ def test_ListVolunteers_empty(db):
     with real_editor_session(editor_token) as api:
         res = api.ListVolunteers(editor_pb2.ListVolunteersReq(include_past=False))
         assert len(res.volunteers) == 0
+
+
+def _create_event_in_community(token: str, community_id: int, lat: float, lng: float) -> int:
+    with events_session(token) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                parent_community_id=community_id,
+                location=events_pb2.EventLocation(address="Somewhere", lat=lat, lng=lng),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=3)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=4)),
+            )
+        )
+        return int(res.event_id)
+
+
+@pytest.fixture
+def event_in_wrong_community(db):
+    """An event physically in "City" but parented to the far too large "Country" community."""
+    editor_user, editor_token = generate_user(is_editor=True)
+    creator, creator_token = generate_user(complete_profile=True, geom=create_1d_point(3), geom_radius=0.1)
+    member1, _ = generate_user(geom=create_1d_point(3), geom_radius=0.1)
+    member2, _ = generate_user(geom=create_1d_point(4), geom_radius=0.1)
+
+    with session_scope() as session:
+        w = create_community(session, 0, 100, "Global", [editor_user], [], None)
+        mr = create_community(session, 0, 100, "Macroregion", [editor_user], [], w)
+        country = create_community(session, 0, 50, "Country", [editor_user], [], mr)
+        city = create_community(session, 0, 10, "City", [creator], [member1, member2], country)
+        country_id = country.id
+        city_id = city.id
+
+    enforce_community_memberships()
+
+    event_id = _create_event_in_community(creator_token, country_id, lat=3, lng=1)
+
+    yield editor_token, creator_token, event_id, country_id, city_id
+
+
+def test_GetEventCommunityInfo(event_in_wrong_community):
+    editor_token, creator_token, event_id, country_id, city_id = event_in_wrong_community
+
+    with real_editor_session(editor_token) as api:
+        res = api.GetEventCommunityInfo(editor_pb2.GetEventCommunityInfoReq(event_id=event_id))
+
+    assert res.event_id == event_id
+    assert res.title == "Dummy Title"
+    assert res.address == "Somewhere"
+    assert res.occurrence_count == 1
+    assert not res.is_in_smallest_local_community
+
+    assert res.current.community.community_id == country_id
+    assert res.current.community.name == "Country"
+    # a region-level community never gets event broadcasts
+    assert res.current.too_large_for_notifications
+    assert res.current.approx_users_to_notify == 0
+
+    assert res.smallest_local.community.community_id == city_id
+    assert res.smallest_local.community.name == "City"
+    assert not res.smallest_local.too_large_for_notifications
+    assert not res.smallest_local.notifies_by_proximity
+    # the two other members of the city; the creator is an organizer so doesn't need an invite
+    assert res.smallest_local.approx_users_to_notify == 2
+
+
+def test_GetEventCommunityInfo_already_in_smallest_community(event_in_wrong_community):
+    editor_token, creator_token, event_id, country_id, city_id = event_in_wrong_community
+
+    correctly_placed_event_id = _create_event_in_community(creator_token, city_id, lat=3, lng=1)
+
+    with real_editor_session(editor_token) as api:
+        res = api.GetEventCommunityInfo(editor_pb2.GetEventCommunityInfoReq(event_id=correctly_placed_event_id))
+
+    assert res.is_in_smallest_local_community
+    assert res.current.community.community_id == city_id
+    assert res.smallest_local.community.community_id == city_id
+
+
+def test_GetEventCommunityInfo_event_not_found(db):
+    _, editor_token = generate_user(is_editor=True)
+
+    with real_editor_session(editor_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetEventCommunityInfo(editor_pb2.GetEventCommunityInfoReq(event_id=42))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == "Event not found."
+
+
+def test_GetEventCommunityInfo_access_by_normal_user(event_in_wrong_community):
+    editor_token, creator_token, event_id, country_id, city_id = event_in_wrong_community
+
+    with real_editor_session(creator_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetEventCommunityInfo(editor_pb2.GetEventCommunityInfoReq(event_id=event_id))
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+
+
+def test_MoveEventToCommunity_smallest_local_community(event_in_wrong_community):
+    editor_token, creator_token, event_id, country_id, city_id = event_in_wrong_community
+
+    with real_editor_session(editor_token) as api:
+        res = api.MoveEventToCommunity(
+            editor_pb2.MoveEventToCommunityReq(event_id=event_id, smallest_local_community=True)
+        )
+
+    assert res.current.community.community_id == city_id
+    assert res.is_in_smallest_local_community
+    assert not res.current.too_large_for_notifications
+    assert res.current.approx_users_to_notify == 2
+
+    with session_scope() as session:
+        assert session.execute(select(Event.parent_node_id)).scalar_one() == city_id
+
+
+def test_MoveEventToCommunity_explicit_community(event_in_wrong_community):
+    editor_token, creator_token, event_id, country_id, city_id = event_in_wrong_community
+
+    with real_editor_session(editor_token) as api:
+        res = api.MoveEventToCommunity(editor_pb2.MoveEventToCommunityReq(event_id=event_id, community_id=city_id))
+        assert res.current.community.community_id == city_id
+
+        # and back again, editors aren't restricted to the smallest community
+        res = api.MoveEventToCommunity(editor_pb2.MoveEventToCommunityReq(event_id=event_id, community_id=country_id))
+        assert res.current.community.community_id == country_id
+        assert not res.is_in_smallest_local_community
+
+    with session_scope() as session:
+        assert session.execute(select(Event.parent_node_id)).scalar_one() == country_id
+
+
+def test_MoveEventToCommunity_moves_all_occurrences(event_in_wrong_community):
+    editor_token, creator_token, event_id, country_id, city_id = event_in_wrong_community
+
+    with events_session(creator_token) as api:
+        other_occurrence_id = api.ScheduleEvent(
+            events_pb2.ScheduleEventReq(
+                event_id=event_id,
+                content="Dummy content.",
+                location=events_pb2.EventLocation(address="Somewhere", lat=3, lng=1),
+                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(days=1)),
+                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(days=1, hours=1)),
+            )
+        ).event_id
+
+    with real_editor_session(editor_token) as api:
+        res = api.MoveEventToCommunity(
+            editor_pb2.MoveEventToCommunityReq(event_id=event_id, smallest_local_community=True)
+        )
+        assert res.occurrence_count == 2
+
+        res = api.GetEventCommunityInfo(editor_pb2.GetEventCommunityInfoReq(event_id=other_occurrence_id))
+        assert res.current.community.community_id == city_id
+
+
+def test_MoveEventToCommunity_no_target(event_in_wrong_community):
+    editor_token, creator_token, event_id, country_id, city_id = event_in_wrong_community
+
+    with real_editor_session(editor_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.MoveEventToCommunity(editor_pb2.MoveEventToCommunityReq(event_id=event_id))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert (
+            e.value.details()
+            == "Specify either a community to move the event to, or recompute it from the event's location."
+        )
+
+
+def test_MoveEventToCommunity_community_not_found(event_in_wrong_community):
+    editor_token, creator_token, event_id, country_id, city_id = event_in_wrong_community
+
+    with real_editor_session(editor_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.MoveEventToCommunity(editor_pb2.MoveEventToCommunityReq(event_id=event_id, community_id=42))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == "Community not found."

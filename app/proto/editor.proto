@@ -23,6 +23,10 @@ service Editor {
 
   rpc DecideEventCommunityInviteRequest(DecideEventCommunityInviteRequestReq) returns (DecideEventCommunityInviteRequestRes) {}
 
+  rpc GetEventCommunityInfo(GetEventCommunityInfoReq) returns (EventCommunityInfo) {}
+
+  rpc MoveEventToCommunity(MoveEventToCommunityReq) returns (EventCommunityInfo) {}
+
   rpc SendBlogPostNotification(SendBlogPostNotificationReq) returns (google.protobuf.Empty) {}
 
   rpc MakeUserVolunteer(MakeUserVolunteerReq) returns (Volunteer) {}
@@ -110,6 +114,56 @@ message DecideEventCommunityInviteRequestReq {
 }
 
 message DecideEventCommunityInviteRequestRes {}
+
+message GetEventCommunityInfoReq {
+  // the event occurrence id, as used everywhere else in the events API
+  int64 event_id = 1;
+}
+
+message EventCommunityCandidate {
+  org.couchers.api.communities.Community community = 1;
+  // approximate number of users that would be notified if the event were broadcast in this community; note that
+  // this is unrelated to whether a broadcast is actually allowed, see too_large_for_notifications
+  uint32 approx_users_to_notify = 2;
+  // set if this community is a region or larger, in which case new event notifications are never sent out
+  bool too_large_for_notifications = 3;
+  // whether the notified users were picked by a radius search around the event rather than by community membership
+  bool notifies_by_proximity = 4;
+}
+
+message EventCommunityInfo {
+  // the event occurrence this was looked up by
+  int64 event_id = 1;
+  string title = 2;
+  string event_url = 3;
+  int64 creator_user_id = 4;
+  // the address of this occurrence; the smallest local community is computed from its coordinates
+  string address = 5;
+  // the number of occurrences of this event; the parent community is shared by all of them, so moving the event
+  // moves every occurrence
+  uint32 occurrence_count = 6;
+
+  // the community the event currently belongs to
+  EventCommunityCandidate current = 7;
+  // the smallest community containing this occurrence's location, i.e. where the event would land if created now;
+  // unset in the unlikely case that no community contains the location
+  EventCommunityCandidate smallest_local = 8;
+  // whether the event is already in the smallest community containing its location
+  bool is_in_smallest_local_community = 9;
+}
+
+message MoveEventToCommunityReq {
+  // the event occurrence id; note this moves the whole event, i.e. all its occurrences
+  int64 event_id = 1;
+
+  oneof new_parent_community {
+    // move the event into this community; this is intentionally not blocked when the community has events disabled,
+    // check small_community_features_enabled on the returned community
+    int64 community_id = 2;
+    // recompute the parent community as the smallest community containing this occurrence's location
+    bool smallest_local_community = 3;
+  }
+}
 
 message SendBlogPostNotificationReq {
   string url = 1;

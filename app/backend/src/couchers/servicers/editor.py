@@ -12,11 +12,11 @@ from sqlalchemy.sql import exists, update
 
 from couchers import urls
 from couchers.context import CouchersContext
-from couchers.db import session_scope
+from couchers.db import get_parent_node_at_location, session_scope
 from couchers.helpers.clusters import CHILD_NODE_TYPE, create_cluster, create_node
 from couchers.jobs.enqueue import queue_job
 from couchers.materialized_views import LiteUser
-from couchers.models import EventCommunityInviteRequest, Node, User, Volunteer
+from couchers.models import EventCommunityInviteRequest, EventOccurrence, Node, NodeType, User, Volunteer
 from couchers.models.notifications import NotificationTopicAction
 from couchers.models.postal_verification import PostalVerificationAttempt
 from couchers.notifications.notify import notify
@@ -50,6 +50,52 @@ def load_community_geom(geojson: str, context: CouchersContext) -> BaseGeometry:
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:no_multipolygon")
 
     return geom
+
+
+def _get_event_occurrence(session: Session, occurrence_id: int, context: CouchersContext) -> EventOccurrence:
+    # deliberately unfiltered by moderation state or deletion: editors need to fix up any event
+    occurrence = session.execute(
+        select(EventOccurrence).where(EventOccurrence.id == occurrence_id)
+    ).scalar_one_or_none()
+    if not occurrence:
+        context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
+    return occurrence
+
+
+def _event_community_candidate_to_pb(
+    session: Session, occurrence: EventOccurrence, node: Node, context: CouchersContext
+) -> editor_pb2.EventCommunityCandidate:
+    users_to_notify, node_id = get_users_to_notify_for_new_event(session, occurrence, node)
+    return editor_pb2.EventCommunityCandidate(
+        community=community_to_pb(session, node, context),
+        approx_users_to_notify=len(users_to_notify),
+        too_large_for_notifications=node.node_type.value <= NodeType.region.value,
+        notifies_by_proximity=node_id is None,
+    )
+
+
+def event_community_info_to_pb(
+    session: Session, occurrence: EventOccurrence, context: CouchersContext
+) -> editor_pb2.EventCommunityInfo:
+    event = occurrence.event
+    smallest_local_node = get_parent_node_at_location(session, occurrence.geom)
+
+    return editor_pb2.EventCommunityInfo(
+        event_id=occurrence.id,
+        title=event.title,
+        event_url=urls.event_link(occurrence_id=occurrence.id, slug=event.slug),
+        creator_user_id=occurrence.creator_user_id,
+        address=occurrence.address,
+        occurrence_count=event.occurrences.count(),
+        current=_event_community_candidate_to_pb(session, occurrence, event.parent_node, context),
+        smallest_local=(
+            _event_community_candidate_to_pb(session, occurrence, smallest_local_node, context)
+            if smallest_local_node
+            else None
+        ),
+        is_in_smallest_local_community=smallest_local_node is not None
+        and smallest_local_node.id == event.parent_node_id,
+    )
 
 
 def volunteer_to_pb(session: Session, volunteer: Volunteer) -> editor_pb2.Volunteer:
@@ -255,6 +301,33 @@ class Editor(editor_pb2_grpc.EditorServicer):
             )
 
         return editor_pb2.DecideEventCommunityInviteRequestRes()
+
+    def GetEventCommunityInfo(
+        self, request: editor_pb2.GetEventCommunityInfoReq, context: CouchersContext, session: Session
+    ) -> editor_pb2.EventCommunityInfo:
+        occurrence = _get_event_occurrence(session, request.event_id, context)
+        return event_community_info_to_pb(session, occurrence, context)
+
+    def MoveEventToCommunity(
+        self, request: editor_pb2.MoveEventToCommunityReq, context: CouchersContext, session: Session
+    ) -> editor_pb2.EventCommunityInfo:
+        occurrence = _get_event_occurrence(session, request.event_id, context)
+
+        if request.WhichOneof("new_parent_community") == "community_id":
+            node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
+        elif request.WhichOneof("new_parent_community") == "smallest_local_community":
+            node = get_parent_node_at_location(session, occurrence.geom)
+        else:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:event_move_target_must_be_specified")
+
+        if not node:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
+
+        # assign the relationship rather than the id, so the info we return below isn't read off a stale parent_node
+        occurrence.event.parent_node = node
+        session.flush()
+
+        return event_community_info_to_pb(session, occurrence, context)
 
     def SendBlogPostNotification(
         self, request: editor_pb2.SendBlogPostNotificationReq, context: CouchersContext, session: Session
