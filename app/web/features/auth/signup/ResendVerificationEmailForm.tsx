@@ -21,7 +21,7 @@ export default function ResendVerificationEmailForm() {
   });
   const mutationRestart = useMutation({
     mutationFn: async () => {
-      const state = await service.auth.signupFlowCancelSignup(authState.flowState!.flowToken);
+      await service.auth.signupFlowCancelSignup(authState.flowState!.flowToken);
       authActions.restartSignup();
     },
   });
@@ -30,12 +30,16 @@ export default function ResendVerificationEmailForm() {
       {mutationResend.error && <Alert severity="error">{mutationResend.error.message || ""}</Alert>}
       {mutationRestart.error && <Alert severity="error">{mutationRestart.error.message || ""}</Alert>}
       <Typography variant="body1" gutterBottom>
-        <Trans
-          i18nKey="auth:sign_up_completed_prompt"
-          values={{
-            providedEmailAddress: authState.signupEmail,
-          }}
-        />
+        {authState.signupEmail ? (
+          <Trans
+            i18nKey="auth:sign_up_completed_prompt"
+            values={{
+              providedEmailAddress: authState.signupEmail,
+            }}
+          />
+        ) : (
+          <Trans i18nKey="auth:sign_up_completed_prompt_noemail" />
+        )}
       </Typography>
       <Typography variant="body1" gutterBottom>
         {!resent ? (
