@@ -100,5 +100,6 @@
       "button": "Conferma soggiorno"
     },
     "carousel_dismiss_button_a11y": "Ignora promemoria"
-  }
+  },
+  "today_label": "Oggi"
 }
