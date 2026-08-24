@@ -187,7 +187,7 @@ class SignupFlow(Base, kw_only=True):
     email_token: Mapped[str | None] = mapped_column(String, unique=True, default=None)
     email_token_expiry: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
     signup_cancelled: Mapped[bool] = mapped_column(Boolean, default=False)
-   
+
     ## Basic
     name: Mapped[str] = mapped_column(String)
     # TODO: unique across both tables
@@ -264,9 +264,7 @@ class SignupFlow(Base, kw_only=True):
             "uq_signup_flows_username",
             username,
             unique=True,
-            postgresql_where=(
-                (username != None) & (signup_cancelled == False)
-            ),
+            postgresql_where=((username != None) & (signup_cancelled == False)),
         ),
     )
 
