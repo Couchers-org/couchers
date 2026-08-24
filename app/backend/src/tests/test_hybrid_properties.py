@@ -335,6 +335,7 @@ def _populate_event_occurrences() -> None:
             node_type=NodeType.world,
         )
         session.add(node)
+        session.flush()
         event = Event(
             parent_node_id=node.id,
             title="Testing event",
