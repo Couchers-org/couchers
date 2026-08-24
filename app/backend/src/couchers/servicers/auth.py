@@ -179,7 +179,10 @@ def _username_available(session: Session, username: str) -> bool:
     user_exists = session.execute(select(User).where(User.username == username)).scalar_one_or_none() is not None
     # check for started signup with that username
     signup_exists = (
-        session.execute(select(SignupFlow).where(SignupFlow.username == username).where(SignupFlow.signup_cancelled.is_not(True))).scalar_one_or_none() is not None
+        session.execute(
+            select(SignupFlow).where(SignupFlow.username == username).where(SignupFlow.signup_cancelled.is_not(True))
+        ).scalar_one_or_none()
+        is not None
     )
     # return False if user exists, True otherwise
     return not user_exists and not signup_exists
@@ -280,10 +283,10 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_token")
                 if request.cancel_signup:
                     flow.signup_cancelled = True
-                    flow.email_token = None 
+                    flow.email_token = None
                     flow.email_token_expiry = None
                     session.flush()
-                    
+
                     return auth_pb2.SignupFlowRes()
                 if request.HasField("basic"):
                     context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_basic_filled")
