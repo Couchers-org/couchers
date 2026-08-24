@@ -1,1 +1,105 @@
-{}
+{
+  "dashboard": "Головна",
+  "your_communities_heading": "Ваші спільноти",
+  "no_community": "Наразі ви не є учасником спільнот.",
+  "no_sub_communities": "Немає дочірніх спільнот.",
+  "load_more": "Більше",
+  "welcome": "Ласкаво просимо на Couchers.org!",
+  "new_pill": "Нові",
+  "your_communities_helper_text": "Ми додали вас до усіх спільнот, відповідних вашій місцевості. Також запрошуємо <browseCommunitiesLink>переглянути та долучитися до спільнот</browseCommunitiesLink> у інших місцях.",
+  "communities_welcome_title": "Ласкаво просимо до Спільнот",
+  "communities_intro": "Або допомогти людям по всьому світу організовувати локальні події, дискусії, та зустрічі, ми створили сторінки для спільнот, які вказані нижче. <strong>Ми додали вас до деяких спільнот відновідно до вашого місця перебування, але ви можете долучитися до будь-якої спільноти!</strong> Ваші спільноти відображаються на головній сторінці.",
+  "community_builder": "Хочете бути провідником для вашої спільноти та допомогти їй зростати? Станьте <communityBuilderLink>Архітектором спільноти!</communityBuilderLink>",
+  "my_communities_heading": "Мої спільноти",
+  "find_your_community": "Знайти спільноту",
+  "find_your_community_intro": "Нижче ви можете шукати чи переглядати сторінки усіх спільнот які наразі існують. Немає вашої країни чи міста? <requestCommunityLink>Скористайтесь цією формою</requestCommunityLink> аби подати заявку на її створення!",
+  "find_your_community_intro_simplified": "Знайдіть вашу спільноту або перегляньте список нижче.<requestCommunityLink>Не бачите вашої? Подайте запит на створення!</requestCommunityLink>",
+  "browse_communities": "Переглянути Спільноти",
+  "browse_all_communities": "Переглянути усі Спільноти",
+  "browse_communities_text": "Натисність на назву регіону аби побачити нижче усі спільноти всередині нього. Натиснить на посилання аби відвідати сторінку спільноти цього міста чи регіону.",
+  "show_all_communities": "Показати усі спільноти",
+  "hide_all_communities": "Приховати усі спільноти",
+  "member_count_one": "{{count}} учасник",
+  "member_count_few": "{{count}} учасника",
+  "member_count_many": "{{count}} учасників",
+  "profile_summary_edit": "Редагувати профіль",
+  "profile_summary_view": "Переглянути мій профіль",
+  "profile_mobile_summary_view": "Відвідати профіль",
+  "find_a_host": "Знайти гостинність",
+  "become_a_host": "Запросити гостей",
+  "search_input_label": "Куди мандруєте?",
+  "search_input_placeholder": "Шукати місто",
+  "show_map": "Показати карту",
+  "hero_image_alt": "Повітряні кулі у Каппадокії",
+  "hero_image_attribution": "Автор фото<photographerLink>Месут Кайя</photographerLink> на<unsplashLink>Unsplash</unsplashLink>",
+  "prev_page_button_a11y": "Попередня",
+  "next_page_button_a11y": "Наступна",
+  "now_label": "Прямо зараз",
+  "today_label": "Сьогодні",
+  "discussions": {
+    "community_header": "Обговорення у ваших спільнотах",
+    "community_empty_message": "Немає обговорень у ваших спільнотах.",
+    "replies_count_label_one": "{{count}} повідомлення",
+    "replies_count_label_few": "{{count}} повідомлення",
+    "replies_count_label_many": "{{count}} повідомлень"
+  },
+  "events": {
+    "your_upcoming_header": "Ваші прийдешні події",
+    "your_upcoming_empty_message": "Наразі немає подій. Чому б вам не <createEventLink>створити</createEventLink> свою✨?",
+    "community_header": "Події у ваших спільнотах"
+  },
+  "public_trips": {
+    "my_trips_header": "Ваші публічні подорожі",
+    "manage_link": "Керувати",
+    "when_now": "Зараз",
+    "empty_description": "Прямуєте кудись ? Створіть публічну подорож, аби місцеві могли запросити вас у гості.",
+    "same_gender_only_indicator": "Однакової статі",
+    "offers_count_one": "{{count}} запрошення",
+    "offers_count_few": "{{count}} запрошення",
+    "offers_count_many": "{{count}} запрошень",
+    "no_offers": "Поки запрошень немає"
+  },
+  "stays": {
+    "upcoming_trips_header": "Ваші майбутні подорожі",
+    "upcoming_guests_header": "Ваші майбутні гості",
+    "night_count_one": "{{count}} ніч",
+    "night_count_few": "{{count}} ночі",
+    "night_count_many": "{{count}} ночей",
+    "no_upcoming_trips": "Нема запланованих подорожей. Готові до пригод?",
+    "no_upcoming_guests": "Поки немає запланованих гостей."
+  },
+  "reminder": {
+    "respond_to_host_request": {
+      "title": "Відповісти {{name}}",
+      "description": "Не забудьте відповісти на запит {{name}}.",
+      "button": "Переглянути запит"
+    },
+    "write_reference": {
+      "title": "Написати відгук",
+      "description_surfed": "Залиште відгук про ваш досвід в гостях у {{name}}",
+      "description_hosted": "Залиште відгук про ваш досвід із {{name}} як гостем(ю)",
+      "button": "Написати відгук"
+    },
+    "complete_my_home": {
+      "title": "Доповніть розділ \"Моє помешкання\" у вашому профілі",
+      "description": "Опишіть де розташовані ваші ліжка, домашні правила, та вашу домівку загалом",
+      "button": "Редагувати ваше помешкання"
+    },
+    "complete_profile": {
+      "title": "Доповніть ваш профіль",
+      "description": "Заповніть розділ \"Про мене\" та завантажте фото у профіль",
+      "button": "Редагувати ваш профіль"
+    },
+    "strong_verification": {
+      "title": "Офіційна верифікація",
+      "description": "Верифікуйте вашу особу із міркувань безпеки спільноти",
+      "button": "Верифікувати"
+    },
+    "confirm_host_request": {
+      "title": "Підтвердіть ваш намір бути гостем у {{name}}",
+      "description": "{{name}} прийняв(ла) ваш запит. Підтвердіть ваш намір аби запланувати візит.",
+      "button": "Підтвердити"
+    },
+    "carousel_dismiss_button_a11y": "Приховати нагадування"
+  }
+}
