@@ -57,4 +57,9 @@ def downgrade() -> None:
     op.create_unique_constraint(
         op.f("uq_signup_flows_username"), "signup_flows", ["username"], postgresql_nulls_not_distinct=False
     )
+<<<<<<< HEAD
     op.drop_column("signup_flows", "signup_cancelled")
+=======
+    op.execute("DELETE FROM signup_flows WHERE signup_cancelled")
+    op.drop_column("signup_flows", "signup_cancelled")
+>>>>>>> fa81c79b8 (update upgrade and downgrade to add signup_cancelled)
