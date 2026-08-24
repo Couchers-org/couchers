@@ -15,6 +15,7 @@ down_revision = "0186"
 branch_labels = None
 depends_on = None
 
+
 def upgrade() -> None:
     op.add_column(
         "signup_flows",
@@ -37,9 +38,7 @@ def upgrade() -> None:
         "signup_flows",
         ["username"],
         unique=True,
-        postgresql_where=sa.text(
-            "username IS NOT NULL AND signup_cancelled = false"
-        ),
+        postgresql_where=sa.text("username IS NOT NULL AND signup_cancelled = false"),
     )
 
     op.alter_column(
@@ -47,7 +46,7 @@ def upgrade() -> None:
         "signup_cancelled",
         server_default=None,
     )
-    
+
 
 def downgrade() -> None:
     op.drop_index(
