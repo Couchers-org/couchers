@@ -144,7 +144,6 @@ export async function signupFlowResendVerificationEmail(flowToken: string) {
   return res.toObject();
 }
 
-
 export async function signupFlowCancelSignup(flowToken: string) {
   const req = new SignupFlowReq();
   req.setFlowToken(flowToken);
