@@ -21,7 +21,8 @@ export default function ResendVerificationEmailForm() {
   });
   const mutationRestart = useMutation({
     mutationFn: async () => {
-      await authActions.restartSignup();
+      const state = await service.auth.signupFlowCancelSignup(authState.flowState!.flowToken);
+      authActions.restartSignup();
     },
   });
   return (
