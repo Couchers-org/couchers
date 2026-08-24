@@ -186,7 +186,8 @@ class SignupFlow(Base, kw_only=True):
     email_sent: Mapped[bool] = mapped_column(Boolean, default=False)
     email_token: Mapped[str | None] = mapped_column(String, unique=True, default=None)
     email_token_expiry: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
-
+    signup_cancelled: Mapped[bool] = mapped_column(Boolean, default=False)
+   
     ## Basic
     name: Mapped[str] = mapped_column(String)
     # TODO: unique across both tables
@@ -195,7 +196,7 @@ class SignupFlow(Base, kw_only=True):
 
     ## Account
     # TODO: unique across both tables
-    username: Mapped[str | None] = mapped_column(String, unique=True, default=None)
+    username: Mapped[str | None] = mapped_column(String, default=None)
     hashed_password: Mapped[bytes | None] = mapped_column(Binary, default=None)
     birthdate: Mapped[date | None] = mapped_column(Date, default=None)  # in the timezone of birthplace
     gender: Mapped[str | None] = mapped_column(String, default=None)
@@ -257,6 +258,17 @@ class SignupFlow(Base, kw_only=True):
             & (self.accepted_community_guidelines == GUIDELINES_VERSION)
             & self.filled_motivations
         )
+
+    __table_args__ = (
+        Index(
+            "uq_signup_flows_username",
+            username,
+            unique=True,
+            postgresql_where=(
+                (username != None) & (signup_cancelled == False)
+            ),
+        ),
+    )
 
 
 class AccountDeletionToken(Base, kw_only=True):
