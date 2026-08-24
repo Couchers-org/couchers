@@ -396,7 +396,7 @@ def test_ScheduleEvent(db, frozen_timewarp):
     end_time = start_time + timedelta(hours=3)
 
     with events_session(token) as api:
-        res = api.CreateEvent(
+        create_res = api.CreateEvent(
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content.",
@@ -414,9 +414,9 @@ def test_ScheduleEvent(db, frozen_timewarp):
         new_start_time = now() + timedelta(hours=6)
         new_end_time = new_start_time + timedelta(hours=2)
 
-        res = api.ScheduleEvent(
+        schedule_res = api.ScheduleEvent(
             events_pb2.ScheduleEventReq(
-                event_id=res.event_id,
+                event_id=create_res.event_id,
                 content="New event occurrence",
                 location=events_pb2.EventLocation(
                     address="A bit further but still near Null Island",
@@ -428,7 +428,11 @@ def test_ScheduleEvent(db, frozen_timewarp):
             )
         )
 
-        res = api.GetEvent(events_pb2.GetEventReq(event_id=res.event_id))
+        # Each occurrence is independent and has an independent thread
+        assert schedule_res.event_id != create_res.event_id
+        assert schedule_res.thread.thread_id != create_res.thread.thread_id
+
+        res = api.GetEvent(events_pb2.GetEventReq(event_id=schedule_res.event_id))
 
         assert not res.is_next
         assert res.title == "Dummy Title"
