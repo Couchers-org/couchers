@@ -147,7 +147,6 @@ export async function signupFlowResendVerificationEmail(flowToken: string) {
 export async function signupFlowCancelSignup(flowToken: string) {
   const req = new SignupFlowReq();
   req.setFlowToken(flowToken);
-  req.setEmailToken(null); //invalidate any existing email tokens
   req.setCancelSignup(true);
   const res = await client.auth.signupFlow(req);
   return res.toObject();
