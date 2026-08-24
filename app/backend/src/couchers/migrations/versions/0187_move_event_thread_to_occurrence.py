@@ -1,7 +1,7 @@
 """Move event comment thread from Event to EventOccurrence
 
-Revision ID: 0181
-Revises: 0180
+Revision ID: 0187
+Revises: 0186
 Create Date: 2026-08-13 07:21:39.779870
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "0181"
-down_revision = "0180"
+revision = "0187"
+down_revision = "0186"
 branch_labels = None
 depends_on = None
 
