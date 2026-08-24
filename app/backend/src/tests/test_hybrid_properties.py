@@ -335,15 +335,11 @@ def _populate_event_occurrences() -> None:
             node_type=NodeType.world,
         )
         session.add(node)
-        thread = Thread()
-        session.add(thread)
-        session.flush()
         event = Event(
             parent_node_id=node.id,
             title="Testing event",
             creator_user_id=creator.id,
             owner_user_id=creator.id,
-            thread_id=thread.id,
         )
         session.add(event)
         session.flush()
@@ -352,7 +348,11 @@ def _populate_event_occurrences() -> None:
         for days, hours in [(1, 2), (10, 3)]:
             start = now() + timedelta(days=days)
 
-            def create_occurrence(moderation_state_id: int, start=start, hours=hours) -> int:
+            thread = Thread()
+            session.add(thread)
+            session.flush()
+
+            def create_occurrence(moderation_state_id: int, start=start, hours=hours, thread=thread) -> int:
                 occurrence = EventOccurrence(
                     event_id=event.id,
                     moderation_state_id=moderation_state_id,
@@ -362,6 +362,7 @@ def _populate_event_occurrences() -> None:
                     address="Somewhere",
                     timezone="Etc/UTC",
                     during=TimestamptzRange(start, start + timedelta(hours=hours)),
+                    thread_id=thread.id,
                 )
                 session.add(occurrence)
                 session.flush()
