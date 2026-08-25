@@ -446,9 +446,22 @@ describe("Signup", () => {
       needVerifyEmail: true,
       flowToken: "token",
     };
-    window.localStorage.setItem("auth.flowState", JSON.stringify(state));
+
+    const testEmail = "test@example.com";
+
+    localStorage.setItem("auth.flowState", JSON.stringify(state));
+    localStorage.setItem("auth.signupEmail", JSON.stringify(testEmail));
+
     render(<View />, { wrapper });
-    expect(screen.getByText(t("auth:sign_up_completed_prompt"))).toBeVisible();
+
+    expect(
+      await screen.findByText((_, element) => {
+        return (
+          element?.textContent ===
+          `We have sent an email with a verification link to your email address: ${testEmail}. Please click the link to activate your account.`
+        );
+      }),
+    ).toBeVisible();
   });
 
   it("displays the redirect message when nothing is pending and has authRes", async () => {
