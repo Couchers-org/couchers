@@ -25,11 +25,11 @@ const SectionHeader = styled("div")({
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
-  marginBottom: "8px",
+  paddingBottom: "8px",
 });
 
 const StyledTypography = styled(Typography)(({ theme }) => ({
-  paddingBlockEnd: theme.spacing(1),
+  paddingBlockEnd: theme.spacing(2),
 }));
 
 const BrowserContainer = styled("div")(({ theme }) => ({
@@ -44,7 +44,7 @@ const BrowserHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   gap: theme.spacing(1),
-  marginBottom: theme.spacing(1.5),
+  paddingBottom: theme.spacing(1.5),
 }));
 
 const BrowserTitle = styled(Typography)(({ theme }) => ({
@@ -74,8 +74,10 @@ const CommunitiesPage = () => {
           <PageTitle>{t("nav.communities")}</PageTitle>
         </HeaderRow>
       </div>
-      <CommunitiesList />
-      <StyledTypography variant="body1" sx={{ marginTop: "16px" }}>
+      <StyledTypography >
+        <CommunitiesList />
+      </StyledTypography>
+      <StyledTypography variant="body1" >
         <Trans
           i18nKey="dashboard:community_builder"
           components={{
@@ -90,15 +92,14 @@ const CommunitiesPage = () => {
           }}
         />
       </StyledTypography>
-
-      <SectionHeader sx={{ marginTop: "16px" }}>
+      
+      <SectionHeader>
         <Typography variant="h2" sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
           <Search sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />
           {t("dashboard:find_your_community")}
         </Typography>
       </SectionHeader>
-
-      <StyledTypography variant="body1" sx={{ marginBottom: "16px" }}>
+      <StyledTypography variant="body1" sx={{ paddingBottom: "16px" }}>
         <Trans
           i18nKey="dashboard:find_your_community_intro_simplified"
           components={{
