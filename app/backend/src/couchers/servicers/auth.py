@@ -180,7 +180,7 @@ def _username_available(session: Session, username: str) -> bool:
     # check for started signup with that username
     signup_exists = (
         session.execute(
-            select(SignupFlow).where(SignupFlow.username == username).where(SignupFlow.signup_cancelled == False)
+            select(SignupFlow).where(SignupFlow.username == username)
         ).scalar_one_or_none()
         is not None
     )
@@ -203,7 +203,6 @@ class Auth(auth_pb2_grpc.AuthServicer):
             flow = session.execute(
                 select(SignupFlow)
                 .where(SignupFlow.email_verified == False)
-                .where(SignupFlow.signup_cancelled == False)
                 .where(SignupFlow.email_token == request.email_token)
                 .where(SignupFlow.token_is_valid)
             ).scalar_one_or_none()
@@ -218,7 +217,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             else:
                 # just try to find the flow by flow token, no verification is done
                 flow = session.execute(
-                    select(SignupFlow).where(SignupFlow.flow_token == request.email_token).where(SignupFlow.signup_cancelled == False)
+                    select(SignupFlow).where(SignupFlow.flow_token == request.email_token)
                 ).scalar_one_or_none()
                 if not flow:
                     context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_token")
@@ -238,7 +237,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                         )
                     context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_email_taken")
                 existing_flow = session.execute(
-                    select(SignupFlow).where(SignupFlow.email == request.basic.email).where(SignupFlow.signup_cancelled == False)
+                    select(SignupFlow).where(SignupFlow.email == request.basic.email)
                 ).scalar_one_or_none()
                 if existing_flow:
                     send_signup_email(context, session, existing_flow)
@@ -278,16 +277,10 @@ class Auth(auth_pb2_grpc.AuthServicer):
             else:
                 # not fresh signup
                 flow = session.execute(
-                    select(SignupFlow).where(SignupFlow.flow_token == request.flow_token).where(SignupFlow.signup_cancelled == False)
+                    select(SignupFlow).where(SignupFlow.flow_token == request.flow_token)
                 ).scalar_one_or_none()
                 if not flow:
                     context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_token")
-                if request.cancel_signup:
-                    flow.signup_cancelled = True
-                    flow.email_token = None
-                    flow.email_token_expiry = None
-                    session.flush()
-                    return auth_pb2.SignupFlowRes()
                 if request.HasField("basic"):
                     context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_basic_filled")
 
@@ -363,7 +356,6 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     signup_guidelines_accepted_counter.inc()
                 flow.accepted_community_guidelines = GUIDELINES_VERSION
                 session.flush()
-
             # send verification email if needed
             if not flow.email_sent or request.resend_verification_email:
                 send_signup_email(context, session, flow)
@@ -520,7 +512,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         else:  # user not found
             # check if this is an email and they tried to sign up but didn't complete
             signup_flow = session.execute(
-                select(SignupFlow).where(username_or_email(request.user, table=SignupFlow)).where(SignupFlow.signup_cancelled == False)
+                select(SignupFlow).where(username_or_email(request.user, table=SignupFlow))
             ).scalar_one_or_none()
             if signup_flow:
                 send_signup_email(context, session, signup_flow)
@@ -822,4 +814,79 @@ class Auth(auth_pb2_grpc.AuthServicer):
             username=user.username,
             avatar_url=avatar_upload.thumbnail_url if avatar_upload else None,
             url=urls.invite_code_link(code=request.code),
+        )
+    def SignupFlowChangeEmail(
+        self,
+        request: auth_pb2.ChangeSignupEmailReq,
+        context: CouchersContext,
+        session: Session,
+    ) -> auth_pb2.SignupFlowRes:
+        flow = session.execute(
+            select(SignupFlow).where(
+                SignupFlow.flow_token == request.flow_token
+            )
+        ).scalar_one_or_none()
+
+        if not flow:
+            context.abort_with_error_code(
+                grpc.StatusCode.NOT_FOUND,
+                "invalid_token",
+            )
+
+        new_email = request.new_email.strip().lower()
+       
+        if not is_valid_email(new_email):
+            context.abort_with_error_code(
+                grpc.StatusCode.INVALID_ARGUMENT,
+                "invalid_email",
+            )
+
+        existing_user = session.execute(
+            select(User).where(User.email == new_email)
+        ).scalar_one_or_none()
+     
+        if existing_user:
+            if not existing_user.is_visible:
+                context.abort_with_error_code(
+                    grpc.StatusCode.FAILED_PRECONDITION,
+                    "signup_email_cannot_be_used",
+                )
+
+            context.abort_with_error_code(
+                grpc.StatusCode.FAILED_PRECONDITION,
+                "signup_flow_email_taken",
+            )
+        existing_signup = session.execute(
+            select(SignupFlow).where(
+                SignupFlow.email == new_email,
+                SignupFlow.id != flow.id,
+            )
+        ).scalar_one_or_none()
+
+        if existing_signup:
+            context.abort_with_error_code(
+                grpc.StatusCode.FAILED_PRECONDITION,
+                "signup_flow_email_taken",
+            )
+
+        flow.email = new_email
+      
+        # Invalidate the old verification token.
+        flow.email_token = None
+        flow.email_token_expiry = None
+        flow.email_sent = False
+
+        send_signup_email(context, session, flow)
+
+        session.flush()
+
+        return auth_pb2.SignupFlowRes(
+            flow_token=flow.flow_token,
+            need_account=not flow.account_is_filled,
+            need_feedback=False,
+            need_verify_email=True,
+            need_accept_community_guidelines=(
+                flow.accepted_community_guidelines < GUIDELINES_VERSION
+            ),
+            need_motivations=not flow.filled_motivations,
         )

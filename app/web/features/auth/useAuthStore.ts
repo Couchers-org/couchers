@@ -148,11 +148,6 @@ export default function useAuthStore() {
       assignSignupEmail(email: string) {
         setSignupEmail(email);
       },
-      restartSignup() {
-        setFlowState(null);
-        setError(null);
-        setSignupEmail(null);
-      },
       async firstLogin(res: AuthRes.AsObject) {
         setError(null);
         setUserId(res.userId);

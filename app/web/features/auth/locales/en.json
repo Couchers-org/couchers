@@ -8,6 +8,13 @@
     "hide_current_password": "Hide current password",
     "show_current_password": "Show current password"
   },
+  "change_signup_email_form": {
+    "title": "Change signup email",
+    "current_email_message": "Your email address is currently <strong>{{email}}</strong>.",
+    "success_message": "Your email change has been received. Check your new email to confirm your email.",
+    "new_email": "Changed email address",
+    "signup_change_email": "Change your email address"
+  },
   "do_not_email": {
     "title": "Do not email me",
     "status": {
@@ -176,7 +183,7 @@
   "sign_up_need_verification_title": "One last thing: confirm your email.",
   "sign_up_resend_verification_email_help": "Didn't receive the email? Click <resendLink>here to resend the verification link</resendLink>.",
   "sign_up_resend_verification_done": "Done! We've sent you another email.",
-  "sign_up_restart_signup": "Mistyped your email address? Click <restartSignup>here to start over</restartSignup>.",
+  "sign_up_change_email": "Mistyped your email address? Enter your correct email address here.",
   "sign_up_completed_prompt": "We have sent an email with a verification link to your email address: <strong>{{providedEmailAddress}}</strong>. Please click the link to activate your account.",
   "sign_up_completed_prompt_noemail": "We have sent an email with a verification link to your email address. Please click the link to activate your account.",
   "sign_up_confirmed_prompt": "You're all done! If you are not redirected, try logging in.",

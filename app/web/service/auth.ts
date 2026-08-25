@@ -12,6 +12,7 @@ import {
   SignupMotivations,
   UnsubscribeReq,
   UsernameValidReq,
+  ChangeSignupEmailReq
 } from "proto/auth_pb";
 import { Temporal } from "temporal-polyfill";
 
@@ -144,12 +145,20 @@ export async function signupFlowResendVerificationEmail(flowToken: string) {
   return res.toObject();
 }
 
-export async function signupFlowCancelSignup(flowToken: string) {
-  const req = new SignupFlowReq();
+// export async function signupFlowCancelSignup(flowToken: string) {
+//   const req = new SignupFlowReq();
+//   req.setFlowToken(flowToken);
+//   req.setCancelSignup(true);
+//   const res = await client.auth.signupFlow(req);
+//   return res.toObject();
+// }
+
+
+export function signupFlowChangeEmail(flowToken: string, newEmail: string) {
+  const req = new ChangeSignupEmailReq();
+  req.setNewEmail(newEmail);
   req.setFlowToken(flowToken);
-  req.setCancelSignup(true);
-  const res = await client.auth.signupFlow(req);
-  return res.toObject();
+  return client.auth.signupFlowChangeEmail(req);
 }
 
 export async function validateUsername(username: string) {

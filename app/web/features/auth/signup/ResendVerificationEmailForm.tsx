@@ -5,43 +5,41 @@ import StyledLink from "components/StyledLink";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
+
+import ChangeSignupEmail from "features/auth/signup/ChangeSignupEmail"; 
 import { useState } from "react";
 import { service } from "service";
 
 export default function ResendVerificationEmailForm() {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { authActions, authState } = useAuthContext();
+
   const [resent, setResent] = useState<boolean>(false);
-  const mutationResend = useMutation({
+
+  const mutation = useMutation({
     mutationFn: async () => {
       const state = await service.auth.signupFlowResendVerificationEmail(authState.flowState!.flowToken);
       authActions.updateSignupState(state);
       setResent(true);
     },
   });
-  const mutationRestart = useMutation({
-    mutationFn: async () => {
-      await service.auth.signupFlowCancelSignup(authState.flowState!.flowToken);
-      authActions.restartSignup();
-    },
-  });
+
   return (
     <>
-      {mutationResend.error && <Alert severity="error">{mutationResend.error.message || ""}</Alert>}
-      {mutationRestart.error && <Alert severity="error">{mutationRestart.error.message || ""}</Alert>}
+      {mutation.error && <Alert severity="error">{mutation.error.message || ""}</Alert>}
       <Typography variant="body1" gutterBottom>
-        {authState.signupEmail ? (
-          <Trans
-            i18nKey="auth:sign_up_completed_prompt"
-            values={{
-              providedEmailAddress: authState.signupEmail,
-            }}
-          />
-        ) : (
-          <Trans i18nKey="auth:sign_up_completed_prompt_noemail" />
-        )}
-      </Typography>
-      <Typography variant="body1" gutterBottom>
+         <Typography variant="body1" gutterBottom>
+          {authState.signupEmail ? (
+            <Trans
+              i18nKey="auth:sign_up_completed_prompt"
+              values={{
+                providedEmailAddress: authState.signupEmail,
+              }}
+            />
+          ) : (
+            <Trans i18nKey="auth:sign_up_completed_prompt_noemail" />
+          )}
+        </Typography>
         {!resent ? (
           <Trans
             i18nKey="auth:sign_up_resend_verification_email_help"
@@ -51,7 +49,7 @@ export default function ResendVerificationEmailForm() {
                   href="#"
                   onClick={(e) => {
                     e.preventDefault();
-                    mutationResend.mutateAsync();
+                    mutation.mutateAsync();
                   }}
                 />
               ),
@@ -61,22 +59,8 @@ export default function ResendVerificationEmailForm() {
           <>{t("auth:sign_up_resend_verification_done")}</>
         )}
       </Typography>
-      <Typography variant="body1">
-        <Trans
-          i18nKey="auth:sign_up_restart_signup"
-          components={{
-            restartSignup: (
-              <StyledLink
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  mutationRestart.mutateAsync();
-                }}
-              />
-            ),
-          }}
-        />
-      </Typography>
+      <ChangeSignupEmail/>
+     
     </>
   );
 }
