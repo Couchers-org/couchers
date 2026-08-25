@@ -190,7 +190,7 @@ export default function useAuthStore() {
         setLoading(false);
       },
     }),
-    //note: there should be no dependenices on the state or t, or
+    //note: there should be no dependencies on the state or t, or
     //some useEffects will break. Eg. the token login in Login.tsx
     [setAuthenticated, setJailed, setUserId, setFlowState, queryClient],
   );
