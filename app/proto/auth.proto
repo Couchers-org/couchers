@@ -49,6 +49,10 @@ service Auth {
     // * Once the flow completes, the user is logged in and the signup flow is destroyed
   }
 
+  rpc SignupFlowChangeEmail(ChangeSignupEmailReq) returns (SignupFlowRes) {
+    // Change the email address of an incomplete signup flow.
+  }
+
   rpc UsernameValid(UsernameValidReq) returns (UsernameValidRes) {
     // Check whether the username is valid and available
   }
@@ -283,4 +287,9 @@ message GetInviteCodeInfoRes {
   string username = 2;
   string avatar_url = 3;
   string url = 4;
+}
+
+message ChangeSignupEmailReq {
+  string flow_token = 1;
+  string new_email = 2;
 }
