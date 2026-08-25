@@ -1000,6 +1000,46 @@ def test_signup_change_email(db, email_collector: EmailCollector):
     assert old_email_token not in email.plain
     assert old_email_token not in email.html
    
+@pytest.mark.parametrize("invalid_email", ["bad email", "a@b","a@b.", "@ab.cd", "a@b.c"])
+def test_signup_change_new_invalid_email(db, invalid_email):
+    old_email = f"{random_hex(12)}@couchers.org.invalid"
+
+    # Create a signup with a valid email first.
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(
+                    name="frodo",
+                    email=old_email,
+                )
+            )
+        )
+
+    flow_token = res.flow_token
+    assert flow_token
+
+    # Try changing to an invalid email.
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.SignupFlowChangeEmail(
+                auth_pb2.ChangeSignupEmailReq(
+                    flow_token=flow_token,
+                    new_email=invalid_email,
+                )
+            )
+
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == "Invalid email."
+
+    # Make sure the original email wasn't changed.
+    with session_scope() as session:
+        flow = session.execute(
+            select(SignupFlow).where(SignupFlow.flow_token == flow_token)
+        ).scalar_one()
+
+        assert flow.email == old_email
+
+
 def test_signup_change_email_after_email_verified(db):
     old_email = f"{random_hex(12)}@couchers.org.invalid"
     new_email = f"{random_hex(12)}@couchers.org.invalid"
