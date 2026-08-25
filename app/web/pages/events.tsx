@@ -7,7 +7,13 @@ import { GetStaticProps } from "next";
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
-    ...(await appServerSideTranslations(locale ?? DEFAULT_LOCALE, [GLOBAL, COMMUNITIES, NOTIFICATIONS, PROFILE, MESSAGES])),
+    ...(await appServerSideTranslations(locale ?? DEFAULT_LOCALE, [
+      GLOBAL,
+      COMMUNITIES,
+      NOTIFICATIONS,
+      PROFILE,
+      MESSAGES,
+    ])),
   },
 });
 
