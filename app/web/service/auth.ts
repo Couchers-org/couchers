@@ -145,14 +145,6 @@ export async function signupFlowResendVerificationEmail(flowToken: string) {
   return res.toObject();
 }
 
-// export async function signupFlowCancelSignup(flowToken: string) {
-//   const req = new SignupFlowReq();
-//   req.setFlowToken(flowToken);
-//   req.setCancelSignup(true);
-//   const res = await client.auth.signupFlow(req);
-//   return res.toObject();
-// }
-
 export function signupFlowChangeEmail(flowToken: string, newEmail: string) {
   const req = new ChangeSignupEmailReq();
   req.setNewEmail(newEmail);
