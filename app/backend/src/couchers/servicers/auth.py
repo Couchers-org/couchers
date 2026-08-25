@@ -179,10 +179,7 @@ def _username_available(session: Session, username: str) -> bool:
     user_exists = session.execute(select(User).where(User.username == username)).scalar_one_or_none() is not None
     # check for started signup with that username
     signup_exists = (
-        session.execute(
-            select(SignupFlow).where(SignupFlow.username == username)
-        ).scalar_one_or_none()
-        is not None
+        session.execute(select(SignupFlow).where(SignupFlow.username == username)).scalar_one_or_none() is not None
     )
     # return False if user exists, True otherwise
     return not user_exists and not signup_exists
@@ -815,6 +812,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             avatar_url=avatar_upload.thumbnail_url if avatar_upload else None,
             url=urls.invite_code_link(code=request.code),
         )
+
     def SignupFlowChangeEmail(
         self,
         request: auth_pb2.ChangeSignupEmailReq,
@@ -822,9 +820,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         session: Session,
     ) -> auth_pb2.SignupFlowRes:
         flow = session.execute(
-            select(SignupFlow).where(
-                SignupFlow.flow_token == request.flow_token
-            )
+            select(SignupFlow).where(SignupFlow.flow_token == request.flow_token)
         ).scalar_one_or_none()
 
         if not flow:
@@ -834,17 +830,15 @@ class Auth(auth_pb2_grpc.AuthServicer):
             )
 
         new_email = request.new_email.strip().lower()
-       
+
         if not is_valid_email(new_email):
             context.abort_with_error_code(
                 grpc.StatusCode.INVALID_ARGUMENT,
                 "invalid_email",
             )
 
-        existing_user = session.execute(
-            select(User).where(User.email == new_email)
-        ).scalar_one_or_none()
-     
+        existing_user = session.execute(select(User).where(User.email == new_email)).scalar_one_or_none()
+
         if existing_user:
             if not existing_user.is_visible:
                 context.abort_with_error_code(
@@ -870,7 +864,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             )
 
         flow.email = new_email
-      
+
         # Invalidate the old verification token.
         flow.email_token = None
         flow.email_token_expiry = None
@@ -885,8 +879,6 @@ class Auth(auth_pb2_grpc.AuthServicer):
             need_account=not flow.account_is_filled,
             need_feedback=False,
             need_verify_email=True,
-            need_accept_community_guidelines=(
-                flow.accepted_community_guidelines < GUIDELINES_VERSION
-            ),
+            need_accept_community_guidelines=(flow.accepted_community_guidelines < GUIDELINES_VERSION),
             need_motivations=not flow.filled_motivations,
         )
