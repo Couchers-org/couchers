@@ -924,6 +924,7 @@ def test_signup_resend_email(db, email_collector: EmailCollector):
     assert not res.flow_token
     assert res.HasField("auth_res")
 
+
 def test_signup_change_email(db, email_collector: EmailCollector):
     old_email = f"{random_hex(12)}@couchers.org.invalid"
     new_email = f"{random_hex(12)}@couchers.org.invalid"
@@ -944,9 +945,7 @@ def test_signup_change_email(db, email_collector: EmailCollector):
 
     # Get the original verification token.
     with session_scope() as session:
-        flow = session.execute(
-            select(SignupFlow).where(SignupFlow.flow_token == flow_token)
-        ).scalar_one()
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
 
         old_email_token = flow.email_token
         assert flow.email == old_email
@@ -969,9 +968,7 @@ def test_signup_change_email(db, email_collector: EmailCollector):
 
     # The signup should now have the new email and a new verification token.
     with session_scope() as session:
-        flow = session.execute(
-            select(SignupFlow).where(SignupFlow.flow_token == flow_token)
-        ).scalar_one()
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
 
         assert flow.email == new_email
         assert flow.email != old_email
@@ -999,8 +996,9 @@ def test_signup_change_email(db, email_collector: EmailCollector):
     assert new_email_token in email.html
     assert old_email_token not in email.plain
     assert old_email_token not in email.html
-   
-@pytest.mark.parametrize("invalid_email", ["bad email", "a@b","a@b.", "@ab.cd", "a@b.c"])
+
+
+@pytest.mark.parametrize("invalid_email", ["bad email", "a@b", "a@b.", "@ab.cd", "a@b.c"])
 def test_signup_change_new_invalid_email(db, invalid_email):
     old_email = f"{random_hex(12)}@couchers.org.invalid"
 
@@ -1033,9 +1031,7 @@ def test_signup_change_new_invalid_email(db, invalid_email):
 
     # Make sure the original email wasn't changed.
     with session_scope() as session:
-        flow = session.execute(
-            select(SignupFlow).where(SignupFlow.flow_token == flow_token)
-        ).scalar_one()
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
 
         assert flow.email == old_email
 
@@ -1060,9 +1056,7 @@ def test_signup_change_email_after_email_verified(db):
 
     # Get the verification token.
     with session_scope() as session:
-        flow = session.execute(
-            select(SignupFlow).where(SignupFlow.flow_token == flow_token)
-        ).scalar_one()
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
 
         email_token = flow.email_token
         assert email_token
@@ -1078,9 +1072,7 @@ def test_signup_change_email_after_email_verified(db):
 
     # The email should now be verified.
     with session_scope() as session:
-        flow = session.execute(
-            select(SignupFlow).where(SignupFlow.flow_token == flow_token)
-        ).scalar_one()
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
 
         assert flow.email_verified
 
@@ -1099,12 +1091,11 @@ def test_signup_change_email_after_email_verified(db):
 
     # Make sure the signup email wasn't changed.
     with session_scope() as session:
-        flow = session.execute(
-            select(SignupFlow).where(SignupFlow.flow_token == flow_token)
-        ).scalar_one()
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
 
         assert flow.email == old_email
         assert flow.email_verified
+
 
 def test_signup_change_email_same_email_resends_existing_token(db, email_collector: EmailCollector):
     testing_email = f"{random_hex(12)}@couchers.org.invalid"
@@ -1124,9 +1115,7 @@ def test_signup_change_email_same_email_resends_existing_token(db, email_collect
 
     # Get the original email token.
     with session_scope() as session:
-        flow = session.execute(
-            select(SignupFlow).where(SignupFlow.flow_token == flow_token)
-        ).scalar_one()
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
 
         original_email_token = flow.email_token
         assert original_email_token
@@ -1156,9 +1145,7 @@ def test_signup_change_email_same_email_resends_existing_token(db, email_collect
 
     # The signup flow should still have the same token.
     with session_scope() as session:
-        flow = session.execute(
-            select(SignupFlow).where(SignupFlow.flow_token == flow_token)
-        ).scalar_one()
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
 
         assert flow.email == testing_email
         assert flow.email_token == original_email_token

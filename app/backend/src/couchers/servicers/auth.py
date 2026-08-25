@@ -812,6 +812,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             avatar_url=avatar_upload.thumbnail_url if avatar_upload else None,
             url=urls.invite_code_link(code=request.code),
         )
+
     def SignupFlowChangeEmail(
         self, request: auth_pb2.ChangeSignupEmailReq, context: CouchersContext, session: Session
     ) -> auth_pb2.SignupFlowRes:
@@ -830,7 +831,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 grpc.StatusCode.FAILED_PRECONDITION,
                 "signup_flow_email_taken",
             )
-            
+
         new_email = request.new_email
 
         if not is_valid_email(new_email):
@@ -839,9 +840,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 "invalid_email",
             )
 
-        existing_user = session.execute(
-            select(User).where(User.email == new_email)
-        ).scalar_one_or_none()
+        existing_user = session.execute(select(User).where(User.email == new_email)).scalar_one_or_none()
 
         if existing_user:
             if not existing_user.is_visible:
@@ -873,7 +872,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 SignupFlow.flow_token == flow.flow_token,
             )
         ).scalar_one_or_none()
-                
+
         if not existing_same_signup:
             # change signup email and invalidate the old verification token.
             flow.email = new_email
