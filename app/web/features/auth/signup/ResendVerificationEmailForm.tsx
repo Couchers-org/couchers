@@ -3,10 +3,9 @@ import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import StyledLink from "components/StyledLink";
 import { useAuthContext } from "features/auth/AuthProvider";
+import ChangeSignupEmail from "features/auth/signup/ChangeSignupEmail";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
-
-import ChangeSignupEmail from "features/auth/signup/ChangeSignupEmail"; 
 import { useState } from "react";
 import { service } from "service";
 
@@ -28,7 +27,7 @@ export default function ResendVerificationEmailForm() {
     <>
       {mutation.error && <Alert severity="error">{mutation.error.message || ""}</Alert>}
       <Typography variant="body1" gutterBottom>
-         <Typography variant="body1" gutterBottom>
+        <Typography variant="body1" gutterBottom>
           {authState.signupEmail ? (
             <Trans
               i18nKey="auth:sign_up_completed_prompt"
@@ -59,8 +58,7 @@ export default function ResendVerificationEmailForm() {
           <>{t("auth:sign_up_resend_verification_done")}</>
         )}
       </Typography>
-      <ChangeSignupEmail/>
-     
+      <ChangeSignupEmail />
     </>
   );
 }
