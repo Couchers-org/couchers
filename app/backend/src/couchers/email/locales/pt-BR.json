@@ -116,8 +116,8 @@
   },
   "discussions": {
     "created": {
-      "subject": "{{author}} começou uma discussão: {{title}}",
-      "purpose": "<b>{{author}}</b> começou uma discussão em <b>{{parent_context}}</b>:",
+      "subject": "{{author}} iniciou uma discussão: {{title}}",
+      "purpose": "<b>{{author}}</b> iniciou uma discussão em <b>{{parent_context}}</b>:",
       "view_action": "Visualizar discussão"
     },
     "comment": {
@@ -144,8 +144,8 @@
     },
     "updated": {
       "subject": "{{user}} atualizou {{title}}",
-      "purpose_generic": "<b>{{user}}</b> atualizou um evento que você se interessa:",
-      "purpose_with_items": "<b>{{user}}</b> atualizou um evento que você se interessa para {{items_list}}:",
+      "purpose_generic": "<b>{{user}}</b> atualizou um evento em que você se inscreveu:",
+      "purpose_with_items": "<b>{{user}}</b> atualizou um evento em que você se inscreveu para {{items_list}}:",
       "item_names": {
         "title": "título",
         "content": "conteúdo",
@@ -160,38 +160,133 @@
     },
     "comment": {
       "subject": "{{author}} comentou em {{title}}",
-      "purpose": "<b>{{author}}</b> comentou em um evento que você se interessa em:"
+      "purpose": "<b>{{author}}</b> comentou em um evento em que você se inscreveu:"
     },
     "reminder": {
-      "subject": "Lembrete: {{title}} começa em breve"
+      "subject": "Lembrete: {{title}} inicia em breve",
+      "purpose": "Um evento em que você se inscreveu iniciará em menos de 24 horas:"
     },
     "cancel": {
-      "subject": "{{user}} cancelou {{title}}"
+      "subject": "{{user}} cancelou {{title}}",
+      "purpose": "<b>{{user}}</b> cancelou um evento em que você se inscreveu:"
+    },
+    "deleted": {
+      "subject": "Um moderador deletou {{title}}",
+      "purpose": "Um moderador deletou um evento em que você se inscreveu:"
     }
   },
   "friend_requests": {
     "received": {
-      "view_action": "Visualizar pedidos de amizade"
+      "view_action": "Visualizar pedidos de amizade",
+      "subject": "{{name}} quer ser seu amigo",
+      "purpose": "<b>{{name}}</b> te enviou um pedido de amizade.",
+      "closing": "Esperamos que você faça uma nova amizade!"
     },
     "accepted": {
-      "view_action": "Visualizar perfil"
+      "view_action": "Visualizar perfil",
+      "subject": "{{name}} aceitou seu pedido de amizade",
+      "purpose": "<b>{{name}}</b> aceitou seu pedido de amizade.",
+      "closing": "Esperamos que você continue fazendo novos amigos!"
     }
   },
   "host_requests": {
     "generic": {
-      "view_action": "Visualizar pedido de anftrião"
+      "view_action": "Visualizar pedido de anftrião",
+      "date_range": "De <b>{{from_date}}</b> a <b>{{to_date}}</b>.",
+      "quick_decline_action": "Recusa rápida"
+    },
+    "created": {
+      "subject": "{{surfer_name}} te enviou um pedido de hospedagem",
+      "purpose": "<b>{{surfer_name}}</b> te enviou um pedido de hospedagem:",
+      "respond_encouragement": "Responda a esse pedido. Até mesmo uma recusa rápida é melhor que não responder!"
+    },
+    "reminder": {
+      "subject": "Você tem um pedido de hospedagem pendente de {{surfer_name}}",
+      "purpose": "<b>{{surfer_name}}</b> está esperando sua resposta. Até mesmo uma recusa rápida é melhor do que não responder!"
+    },
+    "message": {
+      "from_host": {
+        "subject": "{{other_name}} te enviou uma mensagem no seu pedido de hospedagem",
+        "purpose": "<b>{{other_name}}</b> te enviou uma mensagem no seu pedido de hospedagem:"
+      },
+      "from_surfer": {
+        "subject": "{{other_name}} te enviou uma mensagem em seu próprio pedido de hospedagem",
+        "purpose": "<b>{{other_name}}</b> te enviou uma mensagem em seu pedido de hospedagem:"
+      }
+    },
+    "missed_messages": {
+      "from_host": {
+        "subject": "{{other_name}} te enviou uma ou mais mensagens no seu pedido de hospedagem",
+        "purpose": "<b>{{other_name}}</b> te enviou uma ou mais mensagens no seu pedido de hospedagem:"
+      },
+      "from_surfer": {
+        "subject": "{{other_name}} te enviou uma ou mais mensagens em seu próprio pedido de hospedagem",
+        "purpose": "<b>{{other_name}}</b> te enviou uma ou mais mensagens em seu próprio pedido de hospedagem:"
+      }
+    },
+    "status_changed": {
+      "accepted_by_host": {
+        "subject": "{{other_name}} aceitou seu pedido de hospedagem",
+        "purpose": "<b>{{other_name}}</b> aceitou seu pedido de hospedagem:"
+      },
+      "declined_by_host": {
+        "subject": "{{other_name}} recusou seu pedido de hospedagem",
+        "purpose": "<b>{{other_name}}</b> recusou seu pedido de hospedagem:"
+      },
+      "confirmed_by_surfer": {
+        "subject": "{{other_name}} confirmou seu pedido de hospedagem",
+        "purpose": "<b>{{other_name}}</b> confirmou seu pedido de hospedagem:"
+      },
+      "cancelled_by_surfer": {
+        "subject": "{{other_name}} cancelou o pedido de hospedagem",
+        "purpose": "<b>{{other_name}}</b> cancelou o pedido de hospedagem:"
+      }
     }
   },
   "moderator_note": {
-    "view_action": "Visualizar nota de moderador"
+    "view_action": "Visualizar mensagem de moderador",
+    "subject": "Você recebeu a mensagem de um moderador",
+    "purpose": "Você recebeu uma mensagem importante dos moderadors. Você deve ler e aceitá-la antes de continuar a usar a plataforma."
   },
   "references": {
     "received": {
-      "view_action": "Visualizar a referência"
-    }
+      "view_action": "Visualizar a referência",
+      "friend": {
+        "purpose": "<b>{{name}}</b> escreveu uma referência de amizade para você:"
+      },
+      "hosted": {
+        "purpose": "<b>{{name}}</b> escreveu uma referência para você de quando você a hospedou.",
+        "reciprocate_encouragement": "É a sua vez de escrever uma referência para <b>{{name}}</b>. Uma vez que submetê-la, ambas as referências ficarão visíveis. Caso contrário, a referência de <b>{{name}}</b> se tornará automaticamente visível 14 dias após sua estadia, e não será mais possível escrever uma referência."
+      },
+      "surfed": {
+        "purpose": "<b>{{name}}</b> escreveu uma referência para você depois de sua hospedagem.",
+        "reciprocate_encouragement": "É a sua vez de escrever uma referência para <b>{{name}}</b>. Uma vez que submetê-la, ambas as referências ficarão visíveis. Caso contrário, a referência de <b>{{name}}</b> se tornará automaticamente visível 14 dias após a sua estadia, e não será mais possível escrever uma referência."
+      },
+      "subject": "Você recebeu uma referência de {{name}}!"
+    },
+    "reminder": {
+      "subject_days_one": "Você tem {{count}} dia para escrever uma referência para {{name}}",
+      "subject_days_many": "Você tem {{count}} dias para escrever uma referência para {{name}}",
+      "subject_days_other": "Você tem {{count}} dias para escrever uma referência para {{name}}",
+      "hosted": {
+        "purpose_days_one": "<strong> Você tem {{count}} dia restante para escrever uma referência para a estadia de {{name}}</strong> em sua casa. Sua referência é vital para manter a comunidade segura e confiável.",
+        "purpose_days_many": "<strong> Você tem {{count}} dias restante para escrever uma referência para a estadia de {{name}}</strong> em sua casa. Sua referência é vital para manter a comunidade segura e confiável.",
+        "purpose_days_other": "<strong> Você tem {{count}} dias restante para escrever uma referência para a estadia de {{name}}</strong> em sua casa. Sua referência é vital para manter a comunidade segura e confiável."
+      },
+      "surfed": {
+        "purpose_days_one": "<strong> Você tem {{count}} dia restante para escrever uma referência de sua estadia na casa de {{name}}</strong> . Sua referência é vital para manter a comunidade segura e confiável.",
+        "purpose_days_many": "<strong> Você tem {{count}} dias restante para escrever uma referência de sua estadia na casa de {{name}}</strong> . Sua referência é vital para manter a comunidade segura e confiável.",
+        "purpose_days_other": "<strong> Você tem {{count}} dias restante para escrever uma referência de sua estadia na casa de {{name}}</strong> . Sua referência é vital para manter a comunidade segura e confiável."
+      },
+      "no_meeting_note": "Se você não encontrou <b>{{name}}</b>, use o link para que saibamos e paremos de te enviar lembretes.",
+      "visibility_note": "Referências ficarão visíveis 2 semanas após a hospedagem, ou quando ambos escreverem uma referência um para outro, o que acontecer primeiro."
+    },
+    "write_action": "Escreva uma referência para {{name}}"
   },
   "thread_reply": {
-    "view_action": "Visualizar thread"
+    "view_action": "Visualizar thread",
+    "subject": "{{author}} respondeu em {{parent_context}}",
+    "purpose": "<b>{{author}}</b> respondeu em <b>{{parent_context}}</b>:"
   },
   "donation_received": {
     "subject": "Obrigado pela sua doação ao Couchers.org!",
@@ -215,6 +310,55 @@
     "verified": {
       "subject": "Troca de e-mail concluida",
       "purpose": "Seu novo endereço de e-mail foi verificado."
+    }
+  },
+  "gender_changed": {
+    "subject": "Seu gênero foi modificado",
+    "purpose": "Seu gênero em Couchers.org foi modificado para <b>{{ gender }}</b> por um administrador."
+  },
+  "signup": {
+    "subject": "Termine o cadastro em Couchers.org",
+    "closing": "Te vejo logo :)",
+    "verify": {
+      "thanks": "Obrigado por se cadastrar em Couchers.org!",
+      "instructions": "Para terminar de configurar sua conta, clique no link a seguir:",
+      "confirm_action": "Confirme seu endereço de e-mail"
+    },
+    "continue": {
+      "purpose": "Termine seu cadastro em Couchers.org. Clique neste link para continuar:",
+      "continue_action": "Termine de se cadastrar",
+      "ignore_if_unexpected": "Se você não solicitou um cadastro, outra pessoa fez isso com o seu e-mail, e você pode ignorar essa mensagem com segurança."
+    }
+  },
+  "strong_verification": {
+    "succeeded": {
+      "subject": "Verificação Forte bem sucedida",
+      "purpose": "Você foi verificado com Verificação Forte. Agora você verá um símbolo de verificação do lado do seu nome na plataforma.",
+      "thanks_message": "Obrigado por fazer a verificação! Você está ajudando a apoiar a confiança e a degurança na comunidade Coucher.org.",
+      "cost_explanation": "A verificação é gratuita para você, mas tem um custo para nós. Como um comunidade sem fins lucrativos comandada por voluntários, nós contamos com doações para cobrir gastos como manter os servidores funcionando, verificações e ferramentas para nossos engenheiros de software, designers e time de segurança.",
+      "donation_request": "Se puder, considere fazer uma doação para ajudar a manter o Couchers.org funcionando e crescendo.",
+      "donate_action": "Faça uma doação para apoiar o Couchers.org"
+    },
+    "failed": {
+      "subject": "Verificação Forte falhou",
+      "purpose": {
+        "wrong_birthdate_or_gender": "Sua tentativa de fazer a Verificação Forte falhou porque a data de nascimento ou gênero no seu perfil não corresponde à data de nascimento ou sexo no seu passaporte. Entre em contato com o time de suporte para atualizar sua data de nascimento ou gênero, ou se o sexo no seu passaporte não corresponde à sua identidade de gênero.",
+        "not_a_passport": "Sua tentativa de Verificação Forte falhou porque você usou um documento que não é um passaporte. Você pode somente usar um passaporte para a Verificação Forte.",
+        "duplicate": "Sua tentativa de Verificação Forte falhou porque você usou um passaporte que já foi usado na plataforma. Use outro passaporte."
+      },
+      "restart_action": "Reinicie a Verificação Forte"
+    }
+  },
+  "new_blog_post": {
+    "subject": "Nova postagem no blog: {{title}}",
+    "purpose": "Publicamos uma nova postagem no blog:",
+    "read_action": "Leia o post"
+  },
+  "onboarding_reminder": {
+    "initial": {
+      "subject": "Bem-vindo(a) ao Couchers.org e ao futuro do couch surfing",
+      "welcome": "Bem-vindo(a) ao Couchers.org e a nossa comunidade mundial de couch surfing!",
+      "early_user_role": "Nós estamos crescendo rapidamente, e olhando para trás, você será um dos primeiros usuários. Você, então, tem o papel vital de moldar a cultura e sentir o crescimento da comunidade e de nossa plataforma. Estou realmente feliz que você nos encontrou e que decidiu se juntar a nós!"
     }
   }
 }
