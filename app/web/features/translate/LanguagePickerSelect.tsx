@@ -200,6 +200,7 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
           fontWeight: "bold",
         }}
       >
+        <LanguageIcon fontSize="small" />
         {LANGUAGE_MAP[selected].nativeName}
       </Box>
     );
