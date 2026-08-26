@@ -57,7 +57,7 @@ def load_community_geom(geojson: str, context: CouchersContext) -> BaseGeometry:
 
 
 def _get_event_occurrence(session: Session, occurrence_id: int, context: CouchersContext) -> EventOccurrence:
-    # deliberately unfiltered by moderation state or deletion: editors need to fix up any event
+    # unfiltered by moderation state and deletion: editors need to fix up any event
     occurrence = session.execute(
         select(EventOccurrence).where(EventOccurrence.id == occurrence_id)
     ).scalar_one_or_none()
@@ -327,7 +327,7 @@ class Editor(editor_pb2_grpc.EditorServicer):
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
 
-        # assign the relationship rather than the id, so the info we return below isn't read off a stale parent_node
+        # assign the relationship, not the id, or we read a stale parent_node below
         occurrence.event.parent_node = node
         session.flush()
 
