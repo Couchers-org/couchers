@@ -125,7 +125,7 @@ export default function CommunitiesList() {
           </IconButton>
         </div>
       </SectionHeader>
-      <Typography variant="body1" sx={{ paddingBottom:  theme.spacing(2) }}>
+      <Typography variant="body1" sx={{ paddingBottom: theme.spacing(2) }}>
         <Trans
           i18nKey="dashboard:communities_intro"
           components={{
