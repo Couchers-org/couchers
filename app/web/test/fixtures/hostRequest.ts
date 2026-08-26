@@ -2,7 +2,11 @@ import { HostRequestStatus } from "proto/messages_pb";
 import { HostRequest } from "proto/requests_pb";
 
 // The default test user (id 1) is the surfer on this request; user 2 is the host.
+// Spread the real default shape first: toObject() sends every field, filling unset scalars with
+// 0/""/false, so this can't drift into a shape the API never returns. Lines below are the
+// deliberate test data.
 const hostRequest: HostRequest.AsObject = {
+  ...new HostRequest().toObject(),
   hostRequestId: 1,
   surferUserId: 1,
   hostUserId: 2,
@@ -24,8 +28,6 @@ const hostRequest: HostRequest.AsObject = {
   hostingRadius: 500,
   needHostRequestFeedback: false,
   isArchived: false,
-  // jspb emits 0 for an unset optional int64, so a non-offer request carries 0, not undefined.
-  publicTripId: 0,
 };
 
 export default hostRequest;
