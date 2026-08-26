@@ -122,7 +122,7 @@ message GetEventCommunityInfoReq {
 message EventCommunityCandidate {
   org.couchers.api.communities.Community community = 1;
   uint32 approx_users_to_notify = 2;
-  // region or larger, so new event notifications are never sent out
+  // if set, a broadcast reaches nobody at all
   bool too_large_for_notifications = 3;
   // users were picked by a radius search around the event, not by community membership
   bool notifies_by_proximity = 4;

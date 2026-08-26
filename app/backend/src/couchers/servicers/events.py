@@ -350,7 +350,7 @@ def get_users_to_notify_for_new_event(
     cluster = node.official_cluster
     creator = aliased(User)
     if is_community_too_large_for_event_notifications(node):
-        logger.info("Global, macroregion, and region communities are too big for email notifications.")
+        logger.info(f"Community {node.id} is a {node.node_type} and too big for email notifications.")
         return [], node.id
     elif occurrence.creator_user in cluster.admins or cluster.is_leaf:
         members = (
