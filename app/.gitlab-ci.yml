@@ -28,6 +28,12 @@ variables:
   BACKEND_QUERY_LOG: "true"
   PREVIEW_DOMAIN: preview.couchershq.org
   GIT_DEPTH: 1  # Speed up the checkout.
+  # buildkit >=0.32 exports the provenance attestation as an OCI artifact whose subject is
+  # the image manifest, which forces the push to be an index. GitLab's registry rejects the
+  # index while that subject manifest is still new to it, as "blob unknown to registry -
+  # <the image manifest digest>". We don't consume provenance, so don't export it.
+  # See moby/buildkit#7007.
+  BUILDX_NO_DEFAULT_ATTESTATIONS: "1"
   DOCKER_HOST: tcp://docker:2376
   DOCKER_TLS_CERTDIR: "/certs"
   RELEASE_BRANCH: develop
