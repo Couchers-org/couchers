@@ -327,6 +327,13 @@ def occurrences_next_page_token(occurrences: Sequence[EventOccurrence], page_siz
     return dt_id_to_page_token(next_occurrence.start_time, next_occurrence.id)
 
 
+def is_community_too_large_for_event_notifications(node: Node) -> bool:
+    """
+    Global, macroregion, and region communities are too big to notify about new events.
+    """
+    return node.node_type.value <= NodeType.region.value
+
+
 def get_users_to_notify_for_new_event(
     session: Session, occurrence: EventOccurrence, node: Node | None = None
 ) -> tuple[list[User], int | None]:
@@ -345,7 +352,7 @@ def get_users_to_notify_for_new_event(
 
     cluster = node.official_cluster
     creator = aliased(User)
-    if node.node_type.value <= NodeType.region.value:
+    if is_community_too_large_for_event_notifications(node):
         logger.info("Global, macroregion, and region communities are too big for email notifications.")
         return [], node.id
     elif occurrence.creator_user in cluster.admins or cluster.is_leaf:
