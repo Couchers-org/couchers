@@ -956,10 +956,12 @@ def test_signup_change_email(db, email_collector: EmailCollector):
 
     # Change the signup email.
     with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.SignupFlowChangeEmail(
-            auth_pb2.ChangeSignupEmailReq(
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
                 flow_token=flow_token,
-                new_email=new_email,
+                change_email=auth_pb2.ChangeSignupEmail(
+                    new_email = new_email
+                ),
             )
         )
 
@@ -1019,12 +1021,14 @@ def test_signup_change_new_invalid_email(db, invalid_email):
     # Try changing to an invalid email.
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
-            auth_api.SignupFlowChangeEmail(
-                auth_pb2.ChangeSignupEmailReq(
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
                     flow_token=flow_token,
-                    new_email=invalid_email,
+                    change_email=auth_pb2.ChangeSignupEmail(
+                        new_email=invalid_email,
+                    ),
                 )
-            )
+    )
 
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
     assert e.value.details() == "Invalid email."
@@ -1076,16 +1080,17 @@ def test_signup_change_email_after_email_verified(db):
 
         assert flow.email_verified
 
-    # Once the email has been verified, changing the signup email should fail.
+    # Try changing to an invalid email.
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
-            auth_api.SignupFlowChangeEmail(
-                auth_pb2.ChangeSignupEmailReq(
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
                     flow_token=flow_token,
-                    new_email=new_email,
+                    change_email=auth_pb2.ChangeSignupEmail(
+                        new_email=new_email,
+                    ),
                 )
-            )
-
+    )
     assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
     assert e.value.details() == "That email address is already associated with an account. Please log in instead!"
 
@@ -1127,10 +1132,12 @@ def test_signup_change_email_same_email_resends_existing_token(db, email_collect
 
     # Ask to change the signup email to the same email.
     with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.SignupFlowChangeEmail(
-            auth_pb2.ChangeSignupEmailReq(
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
                 flow_token=flow_token,
-                new_email=testing_email,
+                change_email=auth_pb2.ChangeSignupEmail(
+                    new_email = testing_email
+                ),
             )
         )
 

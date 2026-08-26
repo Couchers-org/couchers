@@ -353,9 +353,53 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     signup_guidelines_accepted_counter.inc()
                 flow.accepted_community_guidelines = GUIDELINES_VERSION
                 session.flush()
+            if request.HasField("change_email"):
+                if flow.email_verified:
+                    context.abort_with_error_code(
+                        grpc.StatusCode.FAILED_PRECONDITION,
+                        "signup_flow_email_taken",
+                    )
+                new_email = request.change_email.new_email
+                if not is_valid_email(new_email):
+                    context.abort_with_error_code(
+                        grpc.StatusCode.INVALID_ARGUMENT,
+                        "invalid_email",
+                    )
+                existing_user = session.execute(
+                    select(User).where(User.email == new_email)
+                ).scalar_one_or_none()
+                if existing_user:
+                    if not existing_user.is_visible:
+                        context.abort_with_error_code(
+                            grpc.StatusCode.FAILED_PRECONDITION,
+                            "signup_email_cannot_be_used",
+                        )
+                    context.abort_with_error_code(
+                        grpc.StatusCode.FAILED_PRECONDITION,
+                        "signup_flow_email_taken",
+                    )
+                existing_signup = session.execute(
+                    select(SignupFlow).where(
+                        SignupFlow.email == new_email,
+                        SignupFlow.flow_token != flow.flow_token,
+                    )
+                ).scalar_one_or_none()
+                if existing_signup:
+                    context.abort_with_error_code(
+                        grpc.StatusCode.FAILED_PRECONDITION,
+                        "signup_flow_email_taken",
+                    )
+                if flow.email != new_email:
+                    flow.email = new_email
+                    flow.email_token = None
+                    flow.email_token_expiry = None
+                    flow.email_sent = False
+                send_signup_email(context, session, flow)
+                session.flush()
+
             # send verification email if needed
             if not flow.email_sent or request.resend_verification_email:
-                send_signup_email(context, session, flow)
+                send_signup_email(context, session, flow)                
 
             session.flush()
 
@@ -811,84 +855,4 @@ class Auth(auth_pb2_grpc.AuthServicer):
             username=user.username,
             avatar_url=avatar_upload.thumbnail_url if avatar_upload else None,
             url=urls.invite_code_link(code=request.code),
-        )
-
-    def SignupFlowChangeEmail(
-        self, request: auth_pb2.ChangeSignupEmailReq, context: CouchersContext, session: Session
-    ) -> auth_pb2.SignupFlowRes:
-        flow = session.execute(
-            select(SignupFlow).where(SignupFlow.flow_token == request.flow_token)
-        ).scalar_one_or_none()
-
-        if not flow:
-            context.abort_with_error_code(
-                grpc.StatusCode.NOT_FOUND,
-                "invalid_token",
-            )
-
-        if flow.email_verified:
-            context.abort_with_error_code(
-                grpc.StatusCode.FAILED_PRECONDITION,
-                "signup_flow_email_taken",
-            )
-
-        new_email = request.new_email
-
-        if not is_valid_email(new_email):
-            context.abort_with_error_code(
-                grpc.StatusCode.INVALID_ARGUMENT,
-                "invalid_email",
-            )
-
-        existing_user = session.execute(select(User).where(User.email == new_email)).scalar_one_or_none()
-
-        if existing_user:
-            if not existing_user.is_visible:
-                context.abort_with_error_code(
-                    grpc.StatusCode.FAILED_PRECONDITION,
-                    "signup_email_cannot_be_used",
-                )
-
-            context.abort_with_error_code(
-                grpc.StatusCode.FAILED_PRECONDITION,
-                "signup_flow_email_taken",
-            )
-        existing_different_signup = session.execute(
-            select(SignupFlow).where(
-                SignupFlow.email == new_email,
-                SignupFlow.flow_token != flow.flow_token,
-            )
-        ).scalar_one_or_none()
-
-        if existing_different_signup:
-            context.abort_with_error_code(
-                grpc.StatusCode.FAILED_PRECONDITION,
-                "signup_flow_email_taken",
-            )
-
-        existing_same_signup = session.execute(
-            select(SignupFlow).where(
-                SignupFlow.email == new_email,
-                SignupFlow.flow_token == flow.flow_token,
-            )
-        ).scalar_one_or_none()
-
-        if not existing_same_signup:
-            # change signup email and invalidate the old verification token.
-            flow.email = new_email
-            flow.email_token = None
-            flow.email_token_expiry = None
-            flow.email_sent = False
-
-        send_signup_email(context, session, flow)
-
-        session.flush()
-
-        return auth_pb2.SignupFlowRes(
-            flow_token=flow.flow_token,
-            need_account=not flow.account_is_filled,
-            need_feedback=False,
-            need_verify_email=True,
-            need_accept_community_guidelines=(flow.accepted_community_guidelines < GUIDELINES_VERSION),
-            need_motivations=not flow.filled_motivations,
         )

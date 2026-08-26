@@ -49,10 +49,6 @@ service Auth {
     // * Once the flow completes, the user is logged in and the signup flow is destroyed
   }
 
-  rpc SignupFlowChangeEmail(ChangeSignupEmailReq) returns (SignupFlowRes) {
-    // Change the email address of an incomplete signup flow.
-  }
-
   rpc UsernameValid(UsernameValidReq) returns (UsernameValidRes) {
     // Check whether the username is valid and available
   }
@@ -127,6 +123,8 @@ message SignupFlowReq {
   google.protobuf.BoolValue accept_community_guidelines = 6;
 
   bool resend_verification_email = 7;
+
+  ChangeSignupEmail change_email = 9;
 }
 
 message SignupFlowRes {
@@ -181,6 +179,9 @@ message SignupMotivations {
   repeated string motivations = 2;
 }
 
+message ChangeSignupEmail {
+  string new_email = 1; 
+}
 message UsernameValidReq {
   string username = 1;
 }
@@ -287,9 +288,4 @@ message GetInviteCodeInfoRes {
   string username = 2;
   string avatar_url = 3;
   string url = 4;
-}
-
-message ChangeSignupEmailReq {
-  string flow_token = 1;
-  string new_email = 2;
 }
