@@ -64,10 +64,6 @@ const SkeletonCard = styled("div")(({ theme }) => ({
   background: "var(--mui-palette-background-paper)",
 }));
 
-const StyledTypography = styled(Typography)(({ theme }) => ({
-  paddingBlockEnd: theme.spacing(1),
-}));
-
 export default function CommunitiesList() {
   const { t } = useTranslation([DASHBOARD]);
   const theme = useTheme();
@@ -129,14 +125,14 @@ export default function CommunitiesList() {
           </IconButton>
         </div>
       </SectionHeader>
-      <StyledTypography variant="body1" sx={{ marginBottom: "16px" }}>
+      <Typography variant="body1" sx={{ paddingBottom:  theme.spacing(2) }}>
         <Trans
           i18nKey="dashboard:communities_intro"
           components={{
             browseCommunitiesLink: <StyledBrowseCommunitiesLink href="/communities" underline="hover" />,
           }}
         />
-      </StyledTypography>
+      </Typography>
       {error?.message && <Alert severity="error">{error.message}</Alert>}
       {isPending ? (
         <FadingScrollTrack $gap={CARD_GAP} $snapType="x proximity">
