@@ -38,7 +38,6 @@ export default function QuickLink() {
       return await service.auth.unsubscribe(payload, sig);
     },
   });
-
   return (
     <>
       <HtmlMeta title={t("auth:quick_links.title")} />
@@ -51,9 +50,11 @@ export default function QuickLink() {
         </Alert>
       )}
       {isSuccess && <Alert severity="success">{data!.response}</Alert>}
+      {!error && !isSuccess && 
       <Button onClick={() => unsubscribe({ payload, sig })} loading={isPending}>
         {t("auth:quick_links.button_text")}
       </Button>
+    }
     </>
   );
 }
