@@ -959,9 +959,7 @@ def test_signup_change_email(db, email_collector: EmailCollector):
         res = auth_api.SignupFlow(
             auth_pb2.SignupFlowReq(
                 flow_token=flow_token,
-                change_email=auth_pb2.ChangeSignupEmail(
-                    new_email = new_email
-                ),
+                change_email=auth_pb2.ChangeSignupEmail(new_email=new_email),
             )
         )
 
@@ -1028,7 +1026,7 @@ def test_signup_change_new_invalid_email(db, invalid_email):
                         new_email=invalid_email,
                     ),
                 )
-    )
+            )
 
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
     assert e.value.details() == "Invalid email."
@@ -1090,7 +1088,7 @@ def test_signup_change_email_after_email_verified(db):
                         new_email=new_email,
                     ),
                 )
-    )
+            )
     assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
     assert e.value.details() == "That email address is already associated with an account. Please log in instead!"
 
@@ -1135,9 +1133,7 @@ def test_signup_change_email_same_email_resends_existing_token(db, email_collect
         res = auth_api.SignupFlow(
             auth_pb2.SignupFlowReq(
                 flow_token=flow_token,
-                change_email=auth_pb2.ChangeSignupEmail(
-                    new_email = testing_email
-                ),
+                change_email=auth_pb2.ChangeSignupEmail(new_email=testing_email),
             )
         )
 
