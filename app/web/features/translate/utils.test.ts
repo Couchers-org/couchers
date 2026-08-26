@@ -19,6 +19,12 @@ describe("translate/utils", () => {
       expect(isLanguageProductionReady("en", mockLanguages)).toBe(true);
     });
 
+    it("should return true for English (US) regardless of language data", () => {
+      expect(isLanguageProductionReady("en-US", undefined)).toBe(true);
+      expect(isLanguageProductionReady("en-US", [])).toBe(true);
+      expect(isLanguageProductionReady("en-US", mockLanguages)).toBe(true);
+    });
+
     it("should return true for languages >= 80% translated", () => {
       expect(isLanguageProductionReady("es", mockLanguages)).toBe(true);
       expect(isLanguageProductionReady("fr", mockLanguages)).toBe(true);
@@ -75,8 +81,10 @@ describe("translate/utils", () => {
       expect(getAvailableLanguages(undefined)).toEqual([]);
     });
 
-    it("should return empty array when languages is empty", () => {
-      expect(getAvailableLanguages([])).toEqual([]);
+    it("should always include English locales, even when languages is empty", () => {
+      const result = getAvailableLanguages([]);
+      const codes = result.map((lang) => lang.code);
+      expect(codes).toEqual(["en", "en-US"]);
     });
 
     it("should filter out languages below 50% translated", () => {
@@ -96,7 +104,7 @@ describe("translate/utils", () => {
       expect(codes).not.toContain("zh");
     });
 
-    it("should filter out languages not in LANGUAGE_MAP", () => {
+    it("should filter out languages not in LOCALE_NATIVE_NAMES", () => {
       const languagesWithUnmapped: WeblateLanguage[] = [
         { code: "en", translated_percent: 100 },
         { code: "xx_FAKE", translated_percent: 90 },
@@ -136,15 +144,20 @@ describe("translate/utils", () => {
       const borderlineLanguages: WeblateLanguage[] = [{ code: "pt", translated_percent: 50 }];
 
       const result = getAvailableLanguages(borderlineLanguages);
-      expect(result).toHaveLength(1);
-      expect(result[0].code).toBe("pt");
+      const codes = result.map((lang) => lang.code);
+      // Plus the always-available English locales
+      expect(codes).toEqual(expect.arrayContaining(["pt", "en", "en-US"]));
+      expect(result).toHaveLength(3);
     });
 
-    it("should exclude language at 49%", () => {
+    it("should exclude language at 49%, but still include English locales", () => {
       const borderlineLanguages: WeblateLanguage[] = [{ code: "pt", translated_percent: 49 }];
 
       const result = getAvailableLanguages(borderlineLanguages);
-      expect(result).toHaveLength(0);
+      const codes = result.map((lang) => lang.code);
+      expect(codes).not.toContain("pt");
+      expect(codes).toEqual(expect.arrayContaining(["en", "en-US"]));
+      expect(result).toHaveLength(2);
     });
   });
 });

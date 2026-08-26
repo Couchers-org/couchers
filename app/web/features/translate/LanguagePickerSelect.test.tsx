@@ -68,7 +68,8 @@ describe("LanguagePickerSelect", () => {
 
     // Languages with >= 50% translation are shown by their autonym (the name in
     // their own language), regardless of the current UI language — no flags.
-    const expectedLanguages = ["English", "Español (España)", "Français", "Deutsch"];
+    // "en"/"en-US" are always shown regardless of Weblate data.
+    const expectedLanguages = ["English (International)", "English (US)", "Español (España)", "Français", "Deutsch"];
     expectedLanguages.forEach((language) => {
       within(listBox).getByText(language);
     });

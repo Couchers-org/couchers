@@ -5,6 +5,7 @@ const { allLanguages } = require("./i18n/allLanguages");
 
 const fallbackLng = {
   default: ["en"],
+  "en-US": ["en"],
   "pt-BR": ["pt", "en"],
   pt: ["pt-BR", "en"],
   "es-419": ["es", "en"],

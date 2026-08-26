@@ -1,5 +1,6 @@
 import { lookupAcceptLanguage } from "i18n/acceptLanguage";
 import { allLanguages } from "i18n/allLanguages";
+import { ENGLISH_LOCALES } from "i18n/locales";
 import { NextRequest, NextResponse } from "next/server";
 
 import { sessionCookieName } from "./appConstants";
@@ -49,8 +50,8 @@ async function getProductionReadyLocales(): Promise<string[]> {
     .filter((lang) => lang.translated_percent >= ALMOST_DONE_CUTOFF)
     .map((lang) => lang.code.replace("_", "-"));
 
-  // English is always production-ready
-  return allLanguages.filter((locale) => locale === "en" || productionReadyLocales.includes(locale));
+  // English locales are always production-ready
+  return allLanguages.filter((locale) => ENGLISH_LOCALES.includes(locale) || productionReadyLocales.includes(locale));
 }
 
 /**
@@ -75,7 +76,7 @@ export function shouldBlockIncompleteLanguage(
   cookieLocale: string | undefined,
   isProductionReady: boolean,
 ): boolean {
-  if (currentLocale === "en") {
+  if (ENGLISH_LOCALES.includes(currentLocale)) {
     return false;
   }
 

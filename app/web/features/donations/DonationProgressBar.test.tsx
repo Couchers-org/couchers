@@ -56,7 +56,7 @@ describe("DonationProgressBar", () => {
     });
     expect(progressBar).toBeInTheDocument();
     expect(progressBar).toHaveAttribute("aria-valuenow", "50");
-    expect(screen.getByText("$5,000 / $10,000")).toBeInTheDocument();
+    expect(screen.getByText("US$5,000 / US$10,000")).toBeInTheDocument();
   });
 
   it("displays correct progress percentage for 75%", () => {
@@ -72,7 +72,7 @@ describe("DonationProgressBar", () => {
 
     const progressBar = screen.getByRole("progressbar");
     expect(progressBar).toHaveAttribute("aria-valuenow", "75");
-    expect(screen.getByText("$7,500 / $10,000")).toBeInTheDocument();
+    expect(screen.getByText("US$7,500 / US$10,000")).toBeInTheDocument();
   });
 
   it("caps progress at 100% when donations exceed goal", () => {
@@ -88,7 +88,7 @@ describe("DonationProgressBar", () => {
 
     const progressBar = screen.getByRole("progressbar");
     expect(progressBar).toHaveAttribute("aria-valuenow", "100");
-    expect(screen.getByText("$15,000 / $10,000")).toBeInTheDocument();
+    expect(screen.getByText("US$15,000 / US$10,000")).toBeInTheDocument();
   });
 
   it("formats large numbers with commas", () => {
@@ -102,7 +102,7 @@ describe("DonationProgressBar", () => {
 
     render(<DonationProgressBar />, { wrapper });
 
-    expect(screen.getByText("$123,456 / $500,000")).toBeInTheDocument();
+    expect(screen.getByText("US$123,456 / US$500,000")).toBeInTheDocument();
   });
 
   it("handles zero donations", () => {
@@ -118,6 +118,6 @@ describe("DonationProgressBar", () => {
 
     const progressBar = screen.getByRole("progressbar");
     expect(progressBar).toHaveAttribute("aria-valuenow", "0");
-    expect(screen.getByText("$0 / $10,000")).toBeInTheDocument();
+    expect(screen.getByText("US$0 / US$10,000")).toBeInTheDocument();
   });
 });

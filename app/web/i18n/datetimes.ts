@@ -1,6 +1,7 @@
 // format a date
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { capitalizeFirstLetter } from "i18n/casing";
+import { getFormatLocale } from "i18n/locales";
 import { TFunction } from "i18next";
 import { Temporal } from "temporal-polyfill";
 import { approxDateDuration, timestampToInstant, UTC_TIMEZONE } from "utils/date";
@@ -175,11 +176,12 @@ function getIntlDateTimeFormatUTC(
   options?: LocalizeDateTimeOptions,
   dateComponents?: { year?: number },
 ): Intl.DateTimeFormat {
+  const formatLocale = getFormatLocale(locale);
   const intlOptions = getIntlDateTimeFormatOptionsUTC(options, dateComponents);
-  const cacheKey = JSON.stringify({ ...intlOptions, locale });
+  const cacheKey = JSON.stringify({ ...intlOptions, locale: formatLocale });
   let format = intlDateTimeFormatCache.get(cacheKey);
   if (!format) {
-    format = new Intl.DateTimeFormat(locale, intlOptions);
+    format = new Intl.DateTimeFormat(formatLocale, intlOptions);
     intlDateTimeFormatCache.set(cacheKey, format);
   }
   return format;
@@ -236,14 +238,15 @@ export function localizeTimeZone(
     capitalize?: boolean;
   },
 ) {
+  const formatLocale = getFormatLocale(locale);
   const intlOptions: Intl.DateTimeFormatOptions = {
     timeZone: timeZone,
     timeZoneName: options?.short ? "short" : "long",
   };
-  const cacheKey = JSON.stringify({ ...intlOptions, locale });
+  const cacheKey = JSON.stringify({ ...intlOptions, locale: formatLocale });
   let name = timeZoneNameCache.get(cacheKey);
   if (!name) {
-    const format = new Intl.DateTimeFormat(locale, intlOptions);
+    const format = new Intl.DateTimeFormat(formatLocale, intlOptions);
     name = format.formatToParts(Date.now()).find((part) => part.type === "timeZoneName")!.value;
     timeZoneNameCache.set(cacheKey, name);
   }
@@ -254,12 +257,13 @@ const isoMuiDateFormat = "YYYY-MM-DD";
 
 /** Gets the date format for a locale using Material UI placeholders. */
 export function getMuiDateFormat(locale: string): string {
-  if (Intl.DateTimeFormat.supportedLocalesOf(locale).length === 0) {
+  const formatLocale = getFormatLocale(locale);
+  if (Intl.DateTimeFormat.supportedLocalesOf(formatLocale).length === 0) {
     return isoMuiDateFormat;
   }
 
   // Format dummy 3333-11-22 date to figure out how it gets laid out.
-  const referenceDate = new Intl.DateTimeFormat(locale, {
+  const referenceDate = new Intl.DateTimeFormat(formatLocale, {
     day: "numeric",
     month: "numeric",
     year: "numeric",
@@ -276,11 +280,12 @@ const defaultMuiTimeFormat = "HH:mm";
 
 /** Gets a localized time format string compatible with Material UI time pickers. */
 export function getMuiTimeFormat(locale: string): string {
-  if (Intl.DateTimeFormat.supportedLocalesOf(locale).length === 0) {
+  const formatLocale = getFormatLocale(locale);
+  if (Intl.DateTimeFormat.supportedLocalesOf(formatLocale).length === 0) {
     return defaultMuiTimeFormat;
   }
 
-  const intlFormat = new Intl.DateTimeFormat(locale, {
+  const intlFormat = new Intl.DateTimeFormat(formatLocale, {
     hour: "numeric",
     minute: "numeric",
     hour12: undefined,
@@ -325,14 +330,15 @@ export function localizeRelativeTimeUnit(
   locale: string,
   options?: LocalizeRelativeTimeOptions,
 ): string {
+  const formatLocale = getFormatLocale(locale);
   const intlOptions = {
     style: options?.style ?? "long",
     numeric: options?.numeric ?? "auto",
   };
-  const cacheKey = JSON.stringify({ locale, ...intlOptions });
+  const cacheKey = JSON.stringify({ locale: formatLocale, ...intlOptions });
   let formatter = relativeTimeFormatCache.get(cacheKey);
   if (!formatter) {
-    formatter = new Intl.RelativeTimeFormat(locale, intlOptions);
+    formatter = new Intl.RelativeTimeFormat(formatLocale, intlOptions);
     relativeTimeFormatCache.set(cacheKey, formatter);
   }
   let result = formatter.format(value, unit);

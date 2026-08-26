@@ -151,6 +151,26 @@ describe("DatePicker", () => {
     expect(date!.toString()).toBe("2021-03-20");
   });
 
+  it("typing should work in en's (international) DD/MM/YYYY format", async () => {
+    i18n.changeLanguage("en");
+
+    let date: Temporal.PlainDate | null = null;
+    render(<Form setDate={(d) => (date = d)} />, { wrapper });
+
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+
+    const group = await screen.findByRole("group", { name: /Date field/i });
+    await user.click(group);
+
+    // Clear the field and type the full date
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("21032021");
+
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
+
+    expect(date!.toString()).toBe("2021-03-21");
+  });
+
   it("typing should work in de's DD.MM.YYYY format", async () => {
     i18n.changeLanguage("de");
 
@@ -171,8 +191,8 @@ describe("DatePicker", () => {
     expect(date!.toString()).toBe("2021-03-21");
   });
 
-  it("typing should work in en's MM/DD/YYYY format", async () => {
-    i18n.changeLanguage("en");
+  it("typing should work in en-US's MM/DD/YYYY format", async () => {
+    i18n.changeLanguage("en-US");
 
     let date: Temporal.PlainDate | null = null;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
@@ -216,8 +236,8 @@ describe("DatePicker", () => {
 
     const group = await screen.findByRole("group", { name: /Date field/i });
 
-    // en locale format is MM/DD/YYYY, system time is 2021-03-20
-    expect(group).toHaveTextContent("03/20/2021");
+    // en (international) locale format is DD/MM/YYYY, system time is 2021-03-20
+    expect(group).toHaveTextContent("20/03/2021");
   });
 
   describe("PickerOnlyDatepicker", () => {
