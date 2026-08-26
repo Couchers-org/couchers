@@ -2,7 +2,7 @@ import { BoolValue } from "google-protobuf/google/protobuf/wrappers_pb";
 import { HostingStatus } from "proto/api_pb";
 import {
   AntiBotReq,
-  ChangeSignupEmailReq,
+  ChangeSignupEmail,
   ConfirmDeleteAccountReq,
   ContributorForm as ContributorFormPb,
   GetInviteCodeInfoReq,
@@ -146,10 +146,12 @@ export async function signupFlowResendVerificationEmail(flowToken: string) {
 }
 
 export function signupFlowChangeEmail(flowToken: string, newEmail: string) {
-  const req = new ChangeSignupEmailReq();
-  req.setNewEmail(newEmail);
+  const req = new SignupFlowReq();
   req.setFlowToken(flowToken);
-  return client.auth.signupFlowChangeEmail(req);
+  const changeEmail = new ChangeSignupEmail();
+  changeEmail.setNewEmail(newEmail);
+  req.setChangeEmail(changeEmail);
+  return client.auth.signupFlow(req);
 }
 
 export async function validateUsername(username: string) {
