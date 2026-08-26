@@ -358,7 +358,14 @@
     "initial": {
       "subject": "Bem-vindo(a) ao Couchers.org e ao futuro do couch surfing",
       "welcome": "Bem-vindo(a) ao Couchers.org e a nossa comunidade mundial de couch surfing!",
-      "early_user_role": "Nós estamos crescendo rapidamente, e olhando para trás, você será um dos primeiros usuários. Você, então, tem o papel vital de moldar a cultura e sentir o crescimento da comunidade e de nossa plataforma. Estou realmente feliz que você nos encontrou e que decidiu se juntar a nós!"
+      "early_user_role": "Nós estamos crescendo rapidamente, e olhando para trás, você será um dos primeiros usuários. Você, então, tem o papel vital de moldar a cultura e sentir o crescimento da comunidade e de nossa plataforma. Estou realmente feliz que você nos encontrou e que decidiu se juntar a nós!",
+      "complete_profile_request": "Quando tiver uma chance de olhar isso, complete o perfil inserindo uma foto e escrevendo um pouco sobre você (e sobre sua casa, se você deseja hospedar alguém).",
+      "profile_importance": "Um perfil que se parece com uma pessoa real é o que ajuda alguém a decidir se adoraria te encontrar ou se hospedar com você. Tente dar a comunidade uma amostra de sua vibe! Não pense demais: escreva como você mesmo. Compartilhe o que você gosta, o que faz no seu tempo livre e as coisas que importam para você.",
+      "share_request": "Mais uma coisa: compartilhe a palavra e faça a comunidade crescer! Nossos melhores membros são aqueles que foram convidados por outra pessoa."
+    },
+    "follow_up": {
+      "subject": "Complete seu perfil",
+      "intro": "Eu espero que você tenha tomado um tempo para dar uma olhada na plataforma do Couchers.org!"
     }
   }
 }
