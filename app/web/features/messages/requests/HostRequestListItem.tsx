@@ -85,12 +85,10 @@ export default function HostRequestListItem({ hostRequest, className, isArchived
     i18n: { language: locale },
   } = useTranslation(MESSAGES);
   const { authState } = useAuthContext();
-  // surferUserId/hostUserId are role-based from the backend (handles public-trip
-  // offers, where the roles are reversed relative to initiator/recipient), so the
-  // viewer is the host iff their own id is the host id. An offer is a thread with
-  // a linked public trip (publicTripId present).
+  // surferUserId/hostUserId are generated stay-role columns, so the backend has already reversed
+  // them for public-trip offers: the viewer is the host if their id is the host id.
   const isHost = hostRequest.hostUserId === authState.userId;
-  const isOffer = hostRequest.publicTripId !== undefined;
+  const isOffer = !!hostRequest.publicTripId;
   const { data: currentUser } = useCurrentUser();
   const { data: otherUser, isLoading: isOtherUserLoading } = useLiteUser(
     isHost ? hostRequest.surferUserId : hostRequest.hostUserId,

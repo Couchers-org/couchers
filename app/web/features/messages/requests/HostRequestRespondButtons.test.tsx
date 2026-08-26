@@ -253,4 +253,21 @@ describe("HostRequestRespondButtons — public-trip offer", () => {
     );
     expect(screen.getByText(t("messages:offer_accept_confirmation", { name: "Luca" }))).toBeInTheDocument();
   });
+
+  it("drops the Confirm button for the offering host once the stay is confirmed", () => {
+    render(
+      <HostRequestRespondButtons
+        isHost
+        isOffer
+        status={HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED}
+        isLoading={false}
+        handleStatus={jest.fn().mockReturnValue(jest.fn())}
+        name="Aapeli"
+      />,
+      { wrapper },
+    );
+
+    expect(screen.getByRole("button", { name: t("messages:withdraw_offer_button") })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: t("messages:confirm_request_button_text") })).not.toBeInTheDocument();
+  });
 });

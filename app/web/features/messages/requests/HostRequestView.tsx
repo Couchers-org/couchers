@@ -140,11 +140,10 @@ export default function HostRequestView({ hostRequestId }: { hostRequestId: numb
   const currentUserId = useAuthContext().authState.userId;
   const isOffer = !!hostRequest?.publicTripId;
   // Whether the viewer is the host of the *stay* (the one offering a couch).
-  // For a normal request that's the recipient (hostUserId); for a public-trip
-  // offer the roles are reversed, so it's the initiator (surferUserId), i.e. the
-  // person who offered to host. The payload is not role-swapped, so we derive
-  // it here.
-  const isHost = isOffer ? hostRequest?.surferUserId === currentUserId : hostRequest?.hostUserId === currentUserId;
+  // surferUserId/hostUserId are generated stay-role columns, so the backend has already reversed
+  // them for public-trip offers: hostUserId is the host either way. Reversing again here would
+  // invert the role on offers.
+  const isHost = hostRequest?.hostUserId === currentUserId;
   // The other party in the conversation, independent of stay-role.
   const otherUser = hostRequest?.surferUserId === currentUserId ? host : surfer;
   const isRequestPast =
