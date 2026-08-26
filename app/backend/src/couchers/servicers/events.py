@@ -328,9 +328,6 @@ def occurrences_next_page_token(occurrences: Sequence[EventOccurrence], page_siz
 
 
 def is_community_too_large_for_event_notifications(node: Node) -> bool:
-    """
-    Global, macroregion, and region communities are too big to notify about new events.
-    """
     return node.node_type.value <= NodeType.region.value
 
 
@@ -340,7 +337,7 @@ def get_users_to_notify_for_new_event(
     """
     Returns the users to notify, as well as the community id that is being notified (None if based on geo search)
 
-    Defaults to the event's current parent community; pass `node` to work out what would happen in a different one.
+    Defaults to the event's current parent community.
     """
     node = node or occurrence.event.parent_node
     # people already attending or organizing the event don't need an invite to it

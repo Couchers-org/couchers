@@ -854,7 +854,6 @@ def test_GetEventCommunityInfo(event_in_wrong_community):
 
     assert res.current.community.community_id == country_id
     assert res.current.community.name == "Country"
-    # a region-level community never gets event broadcasts
     assert res.current.too_large_for_notifications
     assert res.current.approx_users_to_notify == 0
 
