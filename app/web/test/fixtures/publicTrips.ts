@@ -19,6 +19,7 @@ const publicTrips: PublicTrip.AsObject[] = [
     communitySlug: community.slug,
     sameGenderOnly: true,
     communityName: community.name,
+    offersCount: 0,
     viewerHostRequestId: 0,
   },
   {
@@ -34,6 +35,7 @@ const publicTrips: PublicTrip.AsObject[] = [
     communitySlug: community.slug,
     sameGenderOnly: false,
     communityName: community.name,
+    offersCount: 0,
     viewerHostRequestId: 0,
   },
   {
@@ -49,6 +51,7 @@ const publicTrips: PublicTrip.AsObject[] = [
     communitySlug: community.slug,
     sameGenderOnly: false,
     communityName: community.name,
+    offersCount: 0,
     viewerHostRequestId: 0,
   },
   {
@@ -64,6 +67,7 @@ const publicTrips: PublicTrip.AsObject[] = [
     communitySlug: community.slug,
     sameGenderOnly: true,
     communityName: community.name,
+    offersCount: 0,
     viewerHostRequestId: 0,
   },
   {
@@ -79,6 +83,7 @@ const publicTrips: PublicTrip.AsObject[] = [
     communitySlug: community.slug,
     sameGenderOnly: false,
     communityName: community.name,
+    offersCount: 0,
     viewerHostRequestId: 0,
   },
   {
@@ -93,6 +98,7 @@ const publicTrips: PublicTrip.AsObject[] = [
     communitySlug: community.slug,
     sameGenderOnly: false,
     communityName: community.name,
+    offersCount: 0,
     viewerHostRequestId: 0,
   },
 ];

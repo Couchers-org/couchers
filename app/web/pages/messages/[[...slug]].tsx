@@ -5,7 +5,7 @@ import GroupChatView from "features/messages/groupchats/GroupChatView";
 import MessagesHeader from "features/messages/MessagesHeader";
 import HostRequestView from "features/messages/requests/HostRequestView";
 import NotFoundPage from "features/NotFoundPage";
-import { GLOBAL, MESSAGES, NOTIFICATIONS, PROFILE } from "i18n/namespaces";
+import { GLOBAL, MESSAGES, NOTIFICATIONS, PROFILE, PUBLIC_TRIPS } from "i18n/namespaces";
 import { translationStaticProps } from "i18n/server-side-translations";
 import { GetStaticPaths, GetStaticProps } from "next";
 import { useRouter } from "next/router";
@@ -16,7 +16,13 @@ export const getStaticPaths: GetStaticPaths = () => ({
   fallback: "blocking",
 });
 
-export const getStaticProps: GetStaticProps = translationStaticProps([GLOBAL, MESSAGES, NOTIFICATIONS, PROFILE]);
+export const getStaticProps: GetStaticProps = translationStaticProps([
+  GLOBAL,
+  MESSAGES,
+  NOTIFICATIONS,
+  PROFILE,
+  PUBLIC_TRIPS,
+]);
 function MessagesPageContent() {
   const router = useRouter();
   const slugs =

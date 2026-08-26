@@ -10,8 +10,11 @@ import {
   InviteToGroupChatReq,
   LeaveGroupChatReq,
   ListGroupChatsReq,
+  ListMessageThreadsReq,
   MakeGroupChatAdminReq,
+  MarkAllThreadsSeenReq,
   MarkLastSeenGroupChatReq,
+  MessageThreadCategory,
   MuteGroupChatReq,
   RemoveGroupChatAdminReq,
   SendDirectMessageReq,
@@ -35,6 +38,59 @@ export async function listGroupChats(lastMessageId = 0, count = 10, onlyArchived
   const response = await client.conversations.listGroupChats(req);
 
   return response.toObject();
+}
+
+export async function listMessageThreads({
+  categories,
+  onlyUnread,
+  onlyArchived,
+  pageToken,
+  count,
+}: {
+  categories: MessageThreadCategory[];
+  onlyUnread?: boolean;
+  onlyArchived?: boolean;
+  pageToken?: string;
+  count?: number;
+}) {
+  const req = new ListMessageThreadsReq();
+  req.setCategoriesList(categories);
+  if (onlyUnread !== undefined) {
+    req.setOnlyUnread(onlyUnread);
+  }
+  if (onlyArchived !== undefined) {
+    req.setOnlyArchived(onlyArchived);
+  }
+  if (pageToken) {
+    req.setPageToken(pageToken);
+  }
+  if (count !== undefined) {
+    req.setPageSize(count);
+  }
+
+  const response = await client.conversations.listMessageThreads(req);
+
+  return response.toObject();
+}
+
+export async function markAllThreadsSeen({
+  categories,
+  onlyUnread,
+  onlyArchived,
+}: {
+  categories: MessageThreadCategory[];
+  onlyUnread?: boolean;
+  onlyArchived?: boolean;
+}) {
+  const req = new MarkAllThreadsSeenReq();
+  req.setCategoriesList(categories);
+  if (onlyUnread !== undefined) {
+    req.setOnlyUnread(onlyUnread);
+  }
+  if (onlyArchived !== undefined) {
+    req.setOnlyArchived(onlyArchived);
+  }
+  return client.conversations.markAllThreadsSeen(req);
 }
 
 export async function getGroupChat(id: number) {

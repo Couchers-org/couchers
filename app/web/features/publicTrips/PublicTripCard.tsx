@@ -16,6 +16,7 @@ import {
   VisibilityIcon,
 } from "components/Icons";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
+import ProfileLink from "components/ProfileLink/ProfileLink";
 import StyledLink from "components/StyledLink";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAccountInfo from "features/auth/useAccountInfo";
@@ -25,11 +26,11 @@ import { useTranslation } from "i18n";
 import { localizeDateRange } from "i18n/datetimes";
 import { PUBLIC_TRIPS } from "i18n/namespaces";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { PublicTripStatus } from "proto/public_trips_pb";
 import { useCallback, useState } from "react";
-import { routeToCommunity, routeToHostRequest, routeToUser } from "routes";
+import { routeToCommunity, routeToHostRequest, routeToPublicTripOffers, routeToUser } from "routes";
 import { Temporal } from "temporal-polyfill";
-import dayjs from "utils/dayjs";
 import { useIsNativeEmbed } from "utils/nativeLink";
 
 import OfferToHostDialog from "./OfferToHostDialog";
@@ -162,6 +163,7 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
   const { data: accountInfo } = useAccountInfo();
   const { authState } = useAuthContext();
   const isNativeEmbed = useIsNativeEmbed();
+  const router = useRouter();
   const { mutate: updateTrip } = useUpdatePublicTrip();
   const isOwnTrip = trip.user?.userId === authState.userId;
 
@@ -176,7 +178,7 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
   const handleMenuClose = () => setMenuAnchorEl(null);
 
   const isClosed = trip.status === PublicTripStatus.PUBLIC_TRIP_STATUS_CLOSED;
-  const isPast = dayjs(trip.toDate).isBefore(dayjs().startOf("day"));
+  const isPast = Temporal.PlainDate.compare(Temporal.PlainDate.from(trip.toDate), Temporal.Now.plainDateISO()) < 0;
   const isDimmed = isClosed || isPast;
   const showOwnMarker = isOwnTrip && !ownerView;
 
@@ -226,6 +228,15 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
           >
             {(setConfirmOpen) => {
               const menuItems: EllipsisMenuItem[] = [
+                ...(trip.offersCount && (trip.offersCount ?? 0) > 0
+                  ? [
+                      {
+                        icon: WavingHandOutlined,
+                        label: t("publicTrips:view_offers"),
+                        onClick: () => router.push(routeToPublicTripOffers(trip.tripId)),
+                      },
+                    ]
+                  : []),
                 {
                   icon: EditIcon,
                   label: t("publicTrips:edit"),
@@ -394,29 +405,35 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
                     ) : (
                       <Chip label={t("publicTrips:status_active")} size="small" color="primary" variant="outlined" />
                     )}
-                    {trip.offersCount !== undefined && (
+                    {isOwnTrip && (
                       <Box
-                        component="span"
+                        component={(trip.offersCount ?? 0) > 0 ? Link : "span"}
+                        href={(trip.offersCount ?? 0) > 0 ? routeToPublicTripOffers(trip.tripId) : undefined}
                         sx={{
                           display: "inline-flex",
                           alignItems: "center",
                           gap: "3px",
                           fontSize: "0.8125rem",
                           fontWeight: 700,
+                          textDecoration: "none",
                           color:
-                            trip.offersCount > 0
+                            (trip.offersCount ?? 0) > 0
                               ? "var(--mui-palette-primary-main)"
                               : "var(--mui-palette-text-secondary)",
+                          ...((trip.offersCount ?? 0) > 0 && {
+                            cursor: "pointer",
+                            "&:hover": { textDecoration: "underline" },
+                          }),
                         }}
                       >
-                        {trip.offersCount > 0 ? (
+                        {(trip.offersCount ?? 0) > 0 ? (
                           <WavingHandOutlined sx={{ fontSize: "1rem" }} />
                         ) : (
                           <HourglassEmptyOutlined sx={{ fontSize: "1rem" }} />
                         )}
-                        {trip.offersCount > 0
+                        {(trip.offersCount ?? 0) > 0
                           ? t("publicTrips:offers_count", {
-                              count: trip.offersCount,
+                              count: trip.offersCount ?? 0,
                             })
                           : t("publicTrips:no_offers")}
                       </Box>
@@ -424,9 +441,9 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
                   </Box>
                 ) : (
                   <>
-                    <StyledLink href={routeToUser(user.username)} target={isNativeEmbed ? undefined : "_blank"}>
+                    <ProfileLink userId={user.userId} username={user.username} openInNewTab={!isNativeEmbed}>
                       {t("publicTrips:view_profile")}
-                    </StyledLink>
+                    </ProfileLink>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                       <FlagButton contentRef={contentRefs.publicTrip(trip)} authorUser={user.userId} />
                       {alreadyOffered ? (
