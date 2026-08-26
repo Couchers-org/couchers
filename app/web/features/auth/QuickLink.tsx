@@ -50,11 +50,11 @@ export default function QuickLink() {
         </Alert>
       )}
       {isSuccess && <Alert severity="success">{data!.response}</Alert>}
-      {!error && !isSuccess && 
-      <Button onClick={() => unsubscribe({ payload, sig })} loading={isPending}>
-        {t("auth:quick_links.button_text")}
-      </Button>
-    }
+      {!error && !isSuccess && (
+        <Button onClick={() => unsubscribe({ payload, sig })} loading={isPending}>
+          {t("auth:quick_links.button_text")}
+        </Button>
+      )}
     </>
   );
 }
