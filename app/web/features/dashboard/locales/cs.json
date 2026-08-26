@@ -100,5 +100,6 @@
     "night_count_other": "{{count}} nocí",
     "no_upcoming_guests": "Zatím žádní nadcházející hosté.",
     "no_upcoming_trips": "Žádné nadcházející cesty. Připraveni objevovat?"
-  }
+  },
+  "today_label": "Dnes"
 }
