@@ -74,10 +74,10 @@ const CommunitiesPage = () => {
           <PageTitle>{t("nav.communities")}</PageTitle>
         </HeaderRow>
       </div>
-      <StyledTypography >
+      <StyledTypography>
         <CommunitiesList />
       </StyledTypography>
-      <StyledTypography variant="body1" >
+      <StyledTypography variant="body1">
         <Trans
           i18nKey="dashboard:community_builder"
           components={{
@@ -92,7 +92,7 @@ const CommunitiesPage = () => {
           }}
         />
       </StyledTypography>
-      
+
       <SectionHeader>
         <Typography variant="h2" sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
           <Search sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />
