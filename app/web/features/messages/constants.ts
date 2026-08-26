@@ -1,4 +1,59 @@
+import { MessageThreadCategory } from "proto/conversations_pb";
 import { HostRequestStatus } from "proto/messages_pb";
+
+export type MessageFilterType = "all" | "unread" | "chats" | "hosting" | "surfing" | "public-trips" | "archived";
+
+export const MESSAGE_FILTER_TYPES: MessageFilterType[] = [
+  "all",
+  "unread",
+  "chats",
+  "hosting",
+  "surfing",
+  "public-trips",
+  "archived",
+];
+
+// Maps a URL filter slug to the unified ListMessageThreads request params.
+// categories, onlyUnread and onlyArchived are orthogonal; an empty categories
+// list means all categories.
+export function messageFilterToRequest(filter: MessageFilterType): {
+  categories: MessageThreadCategory[];
+  onlyUnread: boolean;
+  onlyArchived: boolean;
+} {
+  switch (filter) {
+    case "unread":
+      return { categories: [], onlyUnread: true, onlyArchived: false };
+    case "chats":
+      return {
+        categories: [MessageThreadCategory.MESSAGE_THREAD_CATEGORY_CHATS],
+        onlyUnread: false,
+        onlyArchived: false,
+      };
+    case "hosting":
+      return {
+        categories: [MessageThreadCategory.MESSAGE_THREAD_CATEGORY_HOSTING],
+        onlyUnread: false,
+        onlyArchived: false,
+      };
+    case "surfing":
+      return {
+        categories: [MessageThreadCategory.MESSAGE_THREAD_CATEGORY_SURFING],
+        onlyUnread: false,
+        onlyArchived: false,
+      };
+    case "public-trips":
+      return {
+        categories: [MessageThreadCategory.MESSAGE_THREAD_CATEGORY_MY_PUBLIC_TRIPS],
+        onlyUnread: false,
+        onlyArchived: false,
+      };
+    case "archived":
+      return { categories: [], onlyUnread: false, onlyArchived: true };
+    default:
+      return { categories: [], onlyUnread: false, onlyArchived: false };
+  }
+}
 
 export const requestStatusToTransKey = {
   [HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED]: "host_request_status.accepted",

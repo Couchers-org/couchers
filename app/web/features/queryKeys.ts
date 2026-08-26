@@ -91,6 +91,8 @@ export const discussionKey = (discussionId: number) => ["discussion", discussion
 export const threadKey = (threadId: number) => ["thread", threadId];
 
 // messaging
+export const messageThreadsListKey = (filters?: { filter?: string; onlyArchived?: boolean }) =>
+  filters ? ["messageThreads", filters] : ["messageThreads"];
 export const groupChatsListKey = (filters?: { onlyArchived?: boolean }) =>
   filters ? ["groupChatsList", filters] : ["groupChatsList"];
 export const groupChatKey = (groupChatId: number) => ["groupChat", groupChatId];
