@@ -365,9 +365,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                         grpc.StatusCode.INVALID_ARGUMENT,
                         "invalid_email",
                     )
-                existing_user = session.execute(
-                    select(User).where(User.email == new_email)
-                ).scalar_one_or_none()
+                existing_user = session.execute(select(User).where(User.email == new_email)).scalar_one_or_none()
                 if existing_user:
                     if not existing_user.is_visible:
                         context.abort_with_error_code(
@@ -399,7 +397,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
             # send verification email if needed
             if not flow.email_sent or request.resend_verification_email:
-                send_signup_email(context, session, flow)                
+                send_signup_email(context, session, flow)
 
             session.flush()
 
