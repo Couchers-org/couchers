@@ -46,6 +46,8 @@
     "chat_initiation_rate_limit2_other": "",
     "date_from_after_one_year": "Veuillez choisir une date de début d'ici un an maximum.",
     "date_from_after_to": "La date de début ne peut pas être postérieure à la date de fin.",
-    "cant_refer_self": "Vous ne pouvez pas écrire de référence pour vous-même."
+    "cant_refer_self": "Vous ne pouvez pas écrire de référence pour vous-même.",
+    "cant_write_reference_for_request": "Vous ne pouvez pas écrire de référence pour cette demande d'hébergement, ou elle n'a pas été trouvée.",
+    "cant_write_reference_indicated_didnt_meetup": "Vous ne pouvez pas écrire de référence pour cette demande d'hébergement parce que vous avez indiqué que vous ne vous étiez pas rencontrés."
   }
 }

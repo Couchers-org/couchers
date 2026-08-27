@@ -34,6 +34,7 @@
   "logged_out": {
     "title": "Montant du don",
     "body": "Connectez-vous pour faire un don afin que nous puissions afficher un badge de donneur sur votre profil.",
-    "login_button": "Connectez-vous pour faire un don"
+    "login_button": "Connectez-vous pour faire un don",
+    "signup_prompt": "Vous n'avez pas de compte ? <signupLink>S'inscrire</signupLink>"
   }
 }

@@ -71,5 +71,15 @@
   "edit_comment": "Modifier le commentaire",
   "delete_comment": "Supprimer le commentaire",
   "comment_edited_date": "Modifié il y a {{timeAgo}}",
-  "discussion_creation_date": "Créé le {{dateOnly}}"
+  "discussion_creation_date": "Créé le {{dateOnly}}",
+  "discussion_edited_date": "Modifié il y a {{timeAgo}}",
+  "discussion_deleted": "Cette discussion a été supprimée.",
+  "delete_discussion": "Supprimer la discussion",
+  "delete_discussion_dialog": {
+    "title": "Supprimer la discussion",
+    "message": "Êtes-vous sûr.e de vouloir supprimer cette discussion ? Les commentaires resteront visibles.",
+    "confirm": "Supprimer",
+    "cancel": "Supprimer"
+  },
+  "edit_discussion": "Modifier la discussion"
 }
