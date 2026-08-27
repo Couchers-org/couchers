@@ -278,7 +278,7 @@ export default function LoggedInMenu({
     <>
       {!isMobile && (
         <Box sx={{ marginRight: theme.spacing(1) }}>
-          <LanguagePickerSelect />
+          <LanguagePickerSelect displayMode="icon" />
         </Box>
       )}
       <Tooltip title={t("global:nav.notifications")}>
