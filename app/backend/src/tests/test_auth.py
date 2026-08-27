@@ -1,0 +1,1654 @@
+import http.cookies
+from typing import cast
+from unittest.mock import DEFAULT, patch
+
+import grpc
+import pytest
+from google.protobuf import empty_pb2, wrappers_pb2
+from sqlalchemy import event, select, update
+from sqlalchemy.sql import delete, func
+
+from couchers import urls
+from couchers.context import CouchersContext
+from couchers.crypto import hash_password, random_hex
+from couchers.db import _get_base_engine, session_scope
+from couchers.models import (
+    ContributeOption,
+    ContributorForm,
+    LoginToken,
+    ModerationObjectType,
+    ModerationState,
+    NonvisibleUserAccess,
+    NonvisibleUserAccessType,
+    NonvisibleUserState,
+    PasswordResetToken,
+    SignupFlow,
+    User,
+    UserSession,
+)
+from couchers.proto import account_pb2, api_pb2, auth_pb2
+from couchers.servicers.auth import create_session
+from couchers.utils import now
+from tests.fixtures.db import generate_user
+from tests.fixtures.misc import EmailCollector, PushCollector
+from tests.fixtures.sessions import (
+    MetadataKeeperInterceptor,
+    _MockCouchersContext,
+    account_session,
+    api_session,
+    auth_api_session,
+    real_api_session,
+)
+
+
+@pytest.fixture(autouse=True)
+def _(testconfig, fast_passwords):
+    pass
+
+
+def get_session_cookie_tokens(metadata_interceptor: MetadataKeeperInterceptor) -> tuple[str, str]:
+    set_cookies = [val for key, val in metadata_interceptor.latest_header_raw if key == "set-cookie"]
+    sesh = http.cookies.SimpleCookie([v for v in set_cookies if "sesh" in v][0])["couchers-sesh"].value
+    uid = http.cookies.SimpleCookie([v for v in set_cookies if "user-id" in v][0])["couchers-user-id"].value
+    return sesh, uid
+
+
+def test_UsernameValid(db):
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        assert auth_api.UsernameValid(auth_pb2.UsernameValidReq(username="test")).valid
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        assert not auth_api.UsernameValid(auth_pb2.UsernameValidReq(username="")).valid
+
+
+def test_signup_incremental(db):
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"),
+            )
+        )
+
+    flow_token = res.flow_token
+    assert res.flow_token
+    assert not res.HasField("auth_res")
+    assert not res.need_basic
+    assert res.need_account
+    assert not res.need_feedback
+    assert res.need_verify_email
+    assert res.need_accept_community_guidelines
+    assert res.need_motivations
+
+    # read out the signup token directly from the database for now
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+        assert flow.email_sent
+        assert not flow.email_verified
+        email_token = flow.email_token
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(flow_token=flow_token))
+
+    assert res.flow_token == flow_token
+    assert not res.HasField("auth_res")
+    assert not res.need_basic
+    assert res.need_account
+    assert not res.need_feedback
+    assert res.need_verify_email
+    assert res.need_accept_community_guidelines
+    assert res.need_motivations
+
+    # Add feedback
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                flow_token=flow_token,
+                feedback=auth_pb2.ContributorForm(
+                    ideas="I'm a robot, incapable of original ideation",
+                    features="I love all your features",
+                    experience="I haven't done couch surfing before",
+                    contribute=auth_pb2.CONTRIBUTE_OPTION_YES,
+                    contribute_ways=["serving", "backend"],
+                    expertise="I'd love to be your server: I can compute very fast, but only simple opcodes",
+                ),
+            )
+        )
+
+    assert res.flow_token == flow_token
+    assert not res.HasField("auth_res")
+    assert not res.need_basic
+    assert res.need_account
+    assert not res.need_feedback
+    assert res.need_verify_email
+    assert res.need_accept_community_guidelines
+    assert res.need_motivations
+
+    # Agree to community guidelines
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                flow_token=flow_token,
+                accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+            )
+        )
+
+    assert res.flow_token == flow_token
+    assert not res.HasField("auth_res")
+    assert not res.need_basic
+    assert res.need_account
+    assert not res.need_feedback
+    assert res.need_verify_email
+    assert not res.need_accept_community_guidelines
+    assert res.need_motivations
+
+    # Submit motivations
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                flow_token=flow_token,
+                motivations=auth_pb2.SignupMotivations(motivations=["surfing"]),
+            )
+        )
+
+    assert res.flow_token == flow_token
+    assert not res.HasField("auth_res")
+    assert not res.need_basic
+    assert res.need_account
+    assert not res.need_feedback
+    assert res.need_verify_email
+    assert not res.need_accept_community_guidelines
+    assert not res.need_motivations
+
+    # Verify email
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                flow_token=flow_token,
+                email_token=email_token,
+            )
+        )
+
+    assert res.flow_token == flow_token
+    assert not res.HasField("auth_res")
+    assert not res.need_basic
+    assert res.need_account
+    assert not res.need_feedback
+    assert not res.need_verify_email
+    assert not res.need_accept_community_guidelines
+    assert not res.need_motivations
+
+    # Finally finish off account info
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                flow_token=flow_token,
+                account=auth_pb2.SignupAccount(
+                    username="frodo",
+                    password="a very insecure password",
+                    birthdate="1970-01-01",
+                    gender="Bot",
+                    hosting_status=api_pb2.HOSTING_STATUS_MAYBE,
+                    city="New York City",
+                    lat=40.7331,
+                    lng=-73.9778,
+                    radius=500,
+                    accept_tos=True,
+                ),
+            )
+        )
+
+    assert not res.flow_token
+    assert res.HasField("auth_res")
+    assert res.auth_res.user_id
+    assert not res.auth_res.jailed
+    assert not res.need_basic
+    assert not res.need_account
+    assert not res.need_feedback
+    assert not res.need_verify_email
+    assert not res.need_accept_community_guidelines
+    assert not res.need_motivations
+
+    user_id = res.auth_res.user_id
+
+    sess_token, uid = get_session_cookie_tokens(metadata_interceptor)
+    assert uid == str(user_id)
+
+    with api_session(sess_token) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=str(user_id)))
+
+    assert res.username == "frodo"
+    assert res.gender == "Bot"
+    assert res.hosting_status == api_pb2.HOSTING_STATUS_MAYBE
+    assert res.city == "New York City"
+    assert res.lat == 40.7331
+    assert res.lng == -73.9778
+    assert res.radius == 500
+
+    with session_scope() as session:
+        form = session.execute(select(ContributorForm)).scalar_one()
+
+        assert form.ideas == "I'm a robot, incapable of original ideation"
+        assert form.features == "I love all your features"
+        assert form.experience == "I haven't done couch surfing before"
+        assert form.contribute == ContributeOption.yes
+        assert form.contribute_ways == ["serving", "backend"]
+        assert form.expertise == "I'd love to be your server: I can compute very fast, but only simple opcodes"
+
+
+def test_signup_funnel_counters(db):
+    """Each per-step signup funnel counter should fire exactly once across an incremental signup."""
+    with patch.multiple(
+        "couchers.servicers.auth",
+        signup_initiations_counter=DEFAULT,
+        signup_account_filled_counter=DEFAULT,
+        signup_email_verified_counter=DEFAULT,
+        signup_guidelines_accepted_counter=DEFAULT,
+        signup_motivations_filled_counter=DEFAULT,
+        signup_completions_counter=DEFAULT,
+    ) as counters:
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            res = auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"),
+                )
+            )
+        flow_token = res.flow_token
+        counters["signup_initiations_counter"].inc.assert_called_once()
+
+        with session_scope() as session:
+            email_token = (
+                session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one().email_token
+            )
+
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    account=auth_pb2.SignupAccount(
+                        username="frodo",
+                        password="a very insecure password",
+                        birthdate="1970-01-01",
+                        gender="Bot",
+                        hosting_status=api_pb2.HOSTING_STATUS_MAYBE,
+                        city="New York City",
+                        lat=40.7331,
+                        lng=-73.9778,
+                        radius=500,
+                        accept_tos=True,
+                    ),
+                )
+            )
+        counters["signup_account_filled_counter"].inc.assert_called_once()
+
+        # accept the guidelines twice; the counter must still only fire once
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+                )
+            )
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+                )
+            )
+        counters["signup_guidelines_accepted_counter"].inc.assert_called_once()
+
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    motivations=auth_pb2.SignupMotivations(motivations=["surfing"]),
+                )
+            )
+        counters["signup_motivations_filled_counter"].inc.assert_called_once()
+
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(flow_token=flow_token, email_token=email_token))
+        counters["signup_email_verified_counter"].inc.assert_called_once()
+
+        assert res.HasField("auth_res")
+        counters["signup_completions_counter"].labels.assert_called_once_with("Bot")
+
+
+def _quick_signup() -> int:
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"),
+                account=auth_pb2.SignupAccount(
+                    username="frodo",
+                    password="a very insecure password",
+                    birthdate="1970-01-01",
+                    gender="Bot",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    city="New York City",
+                    lat=40.7331,
+                    lng=-73.9778,
+                    radius=500,
+                    accept_tos=True,
+                ),
+                feedback=auth_pb2.ContributorForm(),
+                accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+                motivations=auth_pb2.SignupMotivations(motivations=["surfing"]),
+            )
+        )
+
+    flow_token = res.flow_token
+
+    assert res.flow_token
+    assert not res.HasField("auth_res")
+    assert not res.need_basic
+    assert not res.need_account
+    assert not res.need_feedback
+    assert not res.need_motivations
+    assert res.need_verify_email
+
+    # read out the signup token directly from the database for now
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+        assert flow.email_sent
+        assert not flow.email_verified
+        email_token = flow.email_token
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
+
+    assert not res.flow_token
+    assert res.HasField("auth_res")
+    assert res.auth_res.user_id
+    assert not res.auth_res.jailed
+    assert not res.need_basic
+    assert not res.need_account
+    assert not res.need_feedback
+    assert not res.need_motivations
+    assert not res.need_verify_email
+
+    # make sure we got the right token in a cookie
+    with session_scope() as session:
+        token = session.execute(
+            select(UserSession.token).join(User, UserSession.user_id == User.id).where(User.username == "frodo")
+        ).scalar_one()
+    sesh, uid = get_session_cookie_tokens(metadata_interceptor)
+    assert sesh == token
+
+    return cast(int, res.auth_res.user_id)
+
+
+def test_signup(db):
+    _quick_signup()
+
+
+def test_signup_creates_user_moderation_state(db):
+    user_id = _quick_signup()
+
+    with session_scope() as session:
+        state = session.execute(
+            select(ModerationState)
+            .where(ModerationState.object_type == ModerationObjectType.user)
+            .where(ModerationState.object_id == user_id)
+        ).scalar_one()
+        assert state.visibility is None
+        assert session.execute(select(User.moderation_state_id).where(User.id == user_id)).scalar_one() == state.id
+
+
+def test_basic_login(db):
+    # Create our test user using signup
+    _quick_signup()
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="a very insecure password"))
+
+    reply_token, _ = get_session_cookie_tokens(metadata_interceptor)
+
+    with session_scope() as session:
+        token = session.execute(
+            select(UserSession.token)
+            .join(User, UserSession.user_id == User.id)
+            .where(User.username == "frodo")
+            .where(UserSession.token == reply_token)
+            .where(UserSession.is_valid)
+        ).scalar_one_or_none()
+        assert token
+
+    # log out
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.Deauthenticate(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={reply_token}"),))
+
+
+def test_login_part_signed_up_verified_email(db):
+    """
+    If you try to log in but didn't finish singing up, we send you a new email and ask you to finish signing up.
+    """
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"))
+        )
+
+    flow_token = res.flow_token
+    assert res.need_verify_email
+
+    # verify the email
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+        flow_token = flow.flow_token
+        email_token = flow.email_token
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
+
+    with EmailCollector() as email_collector:
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            with pytest.raises(grpc.RpcError) as err:
+                auth_api.Authenticate(auth_pb2.AuthReq(user="email@couchers.org.invalid", password="wrong pwd"))
+            assert err.value.details() == "Please check your email for a link to continue signing up."
+
+        email = email_collector.pop_for_recipient("email@couchers.org.invalid", last=True)
+        assert email.recipient == "email@couchers.org.invalid"
+        assert flow_token in email.plain
+        assert flow_token in email.html
+
+
+def test_login_part_signed_up_not_verified_email(db):
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"),
+                account=auth_pb2.SignupAccount(
+                    username="frodo",
+                    password="a very insecure password",
+                    birthdate="1999-01-01",
+                    gender="Bot",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    city="New York City",
+                    lat=40.7331,
+                    lng=-73.9778,
+                    radius=500,
+                    accept_tos=True,
+                ),
+            )
+        )
+
+    flow_token = res.flow_token
+    assert res.need_verify_email
+
+    with EmailCollector() as email_collector:
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            with pytest.raises(grpc.RpcError) as err:
+                auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="wrong pwd"))
+            assert err.value.details() == "Please check your email for a link to continue signing up."
+
+        with session_scope() as session:
+            flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+            email_token = flow.email_token
+
+        email = email_collector.pop_for_recipient("email@couchers.org.invalid", last=True)
+        assert email.recipient == "email@couchers.org.invalid"
+        assert email_token
+        assert email_token in email.plain
+        assert email_token in email.html
+
+
+def test_banned_user(db):
+    user_id = _quick_signup()
+
+    with session_scope() as session:
+        session.execute(select(User)).scalar_one().banned_at = now()
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="a very insecure password"))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "Your account is suspended."
+
+    with session_scope() as session:
+        access = session.execute(select(NonvisibleUserAccess)).scalar_one()
+        assert access.access_type == NonvisibleUserAccessType.login_attempt
+        assert access.target_state == NonvisibleUserState.banned
+        assert access.target_user_id == user_id
+        assert access.actor_user_id == user_id
+
+
+def test_shadowed_user_login_logged(db):
+    user_id = _quick_signup()
+
+    with session_scope() as session:
+        session.execute(select(User)).scalar_one().shadowed_at = now()
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="a very insecure password"))
+
+    with session_scope() as session:
+        access = session.execute(select(NonvisibleUserAccess)).scalar_one()
+        assert access.access_type == NonvisibleUserAccessType.login_attempt
+        assert access.target_state == NonvisibleUserState.shadowed
+        assert access.target_user_id == user_id
+        assert access.actor_user_id == user_id
+
+
+def test_deleted_user(db):
+    user_id = _quick_signup()
+
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == user_id).values(deleted_at=func.now()))
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="a very insecure password"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == "An account with that username or email was not found."
+
+
+def test_invalid_token(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    wrong_token = random_hex(32)
+
+    with real_api_session(wrong_token) as api, pytest.raises(grpc.RpcError) as e:
+        res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
+
+    assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
+    assert e.value.details() == "Unauthorized"
+
+
+def test_password_reset_v2(db, email_collector: EmailCollector, push_collector: PushCollector):
+    user, token = generate_user(hashed_password=hash_password("mypassword"))
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.ResetPassword(auth_pb2.ResetPasswordReq(user=user.username))
+
+    with session_scope() as session:
+        password_reset_token = session.execute(select(PasswordResetToken.token)).scalar_one()
+
+    email = email_collector.pop_for_recipient(user.email, last=True)
+    assert email.recipient == user.email
+    assert "reset" in email.subject.lower()
+    assert password_reset_token in email.plain
+    assert password_reset_token in email.html
+    unique_string = "You asked for your password to be reset on Couchers.org."
+    assert unique_string in email.plain
+    assert unique_string in email.html
+    assert f"http://localhost:3000/complete-password-reset?token={password_reset_token}" in email.plain
+    assert f"http://localhost:3000/complete-password-reset?token={password_reset_token}" in email.html
+    assert "support@couchers.org" in email.plain
+    assert "support@couchers.org" in email.html
+
+    push = push_collector.pop_for_user(user.id, last=True)
+    assert push.content.title == "Password reset requested"
+    assert push.content.body == "Use the link we sent by email to complete it."
+
+    # make sure bad password are caught
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as err:
+            auth_api.CompletePasswordResetV2(
+                auth_pb2.CompletePasswordResetV2Req(password_reset_token=password_reset_token, new_password="password")
+            )
+        assert err.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert err.value.details() == "The password is insecure. Please use one that is not easily guessable."
+
+    # make sure we can set a good password
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        pwd = random_hex()
+        auth_api.CompletePasswordResetV2(
+            auth_pb2.CompletePasswordResetV2Req(password_reset_token=password_reset_token, new_password=pwd)
+        )
+
+    push = push_collector.pop_for_user(user.id, last=True)
+    assert push.content.title == "Password reset"
+    assert push.content.body == "Your password was successfully reset."
+
+    session_token, _ = get_session_cookie_tokens(metadata_interceptor)
+
+    with session_scope() as session:
+        other_session_token = session.execute(
+            select(UserSession.token)
+            .join(User, UserSession.user_id == User.id)
+            .where(User.username == user.username)
+            .where(UserSession.token == session_token)
+            .where(UserSession.is_valid)
+        ).scalar_one_or_none()
+        assert other_session_token
+
+    # make sure we can't set a password again
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as err:
+            auth_api.CompletePasswordResetV2(
+                auth_pb2.CompletePasswordResetV2Req(
+                    password_reset_token=password_reset_token, new_password=random_hex()
+                )
+            )
+        assert err.value.code() == grpc.StatusCode.NOT_FOUND
+        assert err.value.details() == "Invalid token."
+
+    with session_scope() as session:
+        user = session.execute(select(User)).scalar_one()
+        assert user.hashed_password == hash_password(pwd)
+
+
+def test_password_reset_no_such_user(db):
+    user, token = generate_user()
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.ResetPassword(
+            auth_pb2.ResetPasswordReq(
+                user="nonexistentuser",
+            )
+        )
+
+    with session_scope() as session:
+        assert session.execute(select(PasswordResetToken)).scalar_one_or_none() is None
+
+
+def test_password_reset_invalid_token_v2(db):
+    password = random_hex()
+    user, token = generate_user(hashed_password=hash_password(password))
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.ResetPassword(
+            auth_pb2.ResetPasswordReq(
+                user=user.username,
+            )
+        )
+
+    with auth_api_session() as (auth_api, metadata_interceptor), pytest.raises(grpc.RpcError) as e:
+        res = auth_api.CompletePasswordResetV2(auth_pb2.CompletePasswordResetV2Req(password_reset_token="wrongtoken"))
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    assert e.value.details() == "Invalid token."
+
+    with session_scope() as session:
+        user = session.execute(select(User)).scalar_one()
+        assert user.hashed_password == hash_password(password)
+
+
+def test_logout_invalid_token(db):
+    # Create our test user using signup
+    _quick_signup()
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="a very insecure password"))
+
+    reply_token, _ = get_session_cookie_tokens(metadata_interceptor)
+
+    # delete all login tokens
+    with session_scope() as session:
+        session.execute(delete(LoginToken))
+
+    # log out with non-existent token should still return a valid result
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.Deauthenticate(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={reply_token}"),))
+
+    reply_token, _ = get_session_cookie_tokens(metadata_interceptor)
+    # make sure we set an empty cookie
+    assert reply_token == ""
+
+
+def test_signup_without_password(db):
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    basic=auth_pb2.SignupBasic(name="Räksmörgås", email="a1@b.com"),
+                    account=auth_pb2.SignupAccount(
+                        username="frodo",
+                        password="bad",
+                        city="Minas Tirith",
+                        birthdate="9999-12-31",  # arbitrary future birthdate
+                        gender="Robot",
+                        hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                        lat=1,
+                        lng=1,
+                        radius=100,
+                        accept_tos=True,
+                    ),
+                    feedback=auth_pb2.ContributorForm(),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "The password must be 8 or more characters long."
+
+
+def test_signup_invalid_birthdate(db):
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    basic=auth_pb2.SignupBasic(name="Räksmörgås", email="a1@b.com"),
+                    account=auth_pb2.SignupAccount(
+                        username="frodo",
+                        password="a very insecure password",
+                        city="Minas Tirith",
+                        birthdate="9999-12-31",  # arbitrary future birthdate
+                        gender="Robot",
+                        hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                        lat=1,
+                        lng=1,
+                        radius=100,
+                        accept_tos=True,
+                    ),
+                    feedback=auth_pb2.ContributorForm(),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "You must be at least 18 years old to sign up."
+
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="Christopher", email="a2@b.com"),
+                account=auth_pb2.SignupAccount(
+                    username="ceelo",
+                    password="a very insecure password",
+                    city="New York City",
+                    birthdate="2000-12-31",  # arbitrary birthdate older than 18 years
+                    gender="Helicopter",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    lat=1,
+                    lng=1,
+                    radius=100,
+                    accept_tos=True,
+                ),
+                feedback=auth_pb2.ContributorForm(),
+            )
+        )
+
+        assert res.flow_token
+
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    basic=auth_pb2.SignupBasic(name="Franklin", email="a3@b.com"),
+                    account=auth_pb2.SignupAccount(
+                        username="franklin",
+                        password="a very insecure password",
+                        city="Los Santos",
+                        birthdate="2010-04-09",  # arbitrary birthdate < 18 yrs
+                        gender="Male",
+                        hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                        lat=1,
+                        lng=1,
+                        radius=100,
+                        accept_tos=True,
+                    ),
+                    feedback=auth_pb2.ContributorForm(),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "You must be at least 18 years old to sign up."
+
+        with session_scope() as session:
+            assert session.execute(select(func.count()).select_from(SignupFlow)).scalar_one() == 1
+
+
+def test_signup_invalid_email(db):
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email="a")))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "Invalid email."
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email="a@b")))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "Invalid email."
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email="a@b.")))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "Invalid email."
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email="a@b.c")))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "Invalid email."
+
+
+def test_signup_existing_email(db):
+    # Signed up user
+    user, _ = generate_user()
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email=user.email)))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "That email address is already associated with an account. Please log in instead!"
+
+
+def test_signup_banned_user_email(db):
+    user, _ = generate_user()
+
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == user.id).values(banned_at=func.now()))
+
+    with auth_api_session() as (auth_api, _):
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="NewName", email=user.email)))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "You cannot sign up with that email address."
+
+
+def test_signup_deleted_user_email(db):
+    user, _ = generate_user()
+
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == user.id).values(deleted_at=func.now()))
+
+    with auth_api_session() as (auth_api, _):
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="NewName", email=user.email)))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "You cannot sign up with that email address."
+
+
+def test_signup_continue_with_email(db):
+    testing_email = f"{random_hex(12)}@couchers.org.invalid"
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email=testing_email)))
+    flow_token = res.flow_token
+    assert flow_token
+
+    # continue with same email, should just send another email to the user
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            res = auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email=testing_email))
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "Please check your email for a link to continue signing up."
+
+
+def test_signup_resend_email(db, email_collector: EmailCollector):
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"),
+                account=auth_pb2.SignupAccount(
+                    username="frodo",
+                    password="a very insecure password",
+                    birthdate="1970-01-01",
+                    gender="Bot",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    city="New York City",
+                    lat=40.7331,
+                    lng=-73.9778,
+                    radius=500,
+                    accept_tos=True,
+                ),
+                feedback=auth_pb2.ContributorForm(),
+                accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+                motivations=auth_pb2.SignupMotivations(motivations=["surfing"]),
+            )
+        )
+
+    email_collector.pop_for_recipient("email@couchers.org.invalid", last=True)
+
+    flow_token = res.flow_token
+    assert flow_token
+
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow)).scalar_one()
+        assert flow.flow_token == flow_token
+        assert flow.email_sent
+        assert not flow.email_verified
+        email_token = flow.email_token
+
+    # ask for a new signup email
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                flow_token=flow_token,
+                resend_verification_email=True,
+            )
+        )
+
+    email = email_collector.pop_for_recipient("email@couchers.org.invalid", last=True)
+    assert email_token
+    assert email_token in email.plain
+    assert email_token in email.html
+
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow)).scalar_one()
+        assert not flow.email_verified
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                email_token=email_token,
+            )
+        )
+
+    assert not res.flow_token
+    assert res.HasField("auth_res")
+
+
+def test_successful_authenticate(db):
+    user, _ = generate_user(hashed_password=hash_password("password"))
+
+    # Authenticate with username
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password="password"))
+    assert not reply.jailed
+
+    # Authenticate with email
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.Authenticate(auth_pb2.AuthReq(user=user.email, password="password"))
+    assert not reply.jailed
+
+
+def test_unsuccessful_authenticate(db):
+    user, _ = generate_user(hashed_password=hash_password("password"))
+
+    # Invalid password
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password="incorrectpassword"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == "Wrong username/email or password."
+
+    # Invalid username
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.Authenticate(auth_pb2.AuthReq(user="notarealusername", password="password"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == "An account with that username or email was not found."
+
+    # Invalid email
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.Authenticate(
+                auth_pb2.AuthReq(user=f"{random_hex(12)}@couchers.org.invalid", password="password")
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == "An account with that username or email was not found."
+
+    # Invalid id
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            reply = auth_api.Authenticate(auth_pb2.AuthReq(user="-1", password="password"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == "An account with that username or email was not found."
+
+
+def test_complete_signup(db):
+    testing_email = f"{random_hex(12)}@couchers.org.invalid"
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="Tester", email=testing_email))
+        )
+
+    flow_token = reply.flow_token
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        # Invalid username
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    account=auth_pb2.SignupAccount(
+                        username=" ",
+                        password="a very insecure password",
+                        city="Minas Tirith",
+                        birthdate="1980-12-31",
+                        gender="Robot",
+                        hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                        lat=1,
+                        lng=1,
+                        radius=100,
+                        accept_tos=True,
+                    ),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "Invalid username."
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        # Invalid name
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    basic=auth_pb2.SignupBasic(name=" ", email=f"{random_hex(12)}@couchers.org.invalid")
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "Name not supported."
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        # Hosting status required
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    account=auth_pb2.SignupAccount(
+                        username="frodo",
+                        password="a very insecure password",
+                        city="Minas Tirith",
+                        birthdate="1980-12-31",
+                        gender="Robot",
+                        hosting_status=None,
+                        lat=1,
+                        lng=1,
+                        radius=100,
+                        accept_tos=True,
+                    ),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "Hosting status is required."
+
+    user, _ = generate_user()
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        # Username unavailable
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    account=auth_pb2.SignupAccount(
+                        username=user.username,
+                        password="a very insecure password",
+                        city="Minas Tirith",
+                        birthdate="1980-12-31",
+                        gender="Robot",
+                        hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                        lat=1,
+                        lng=1,
+                        radius=100,
+                        accept_tos=True,
+                    ),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "Sorry, that username isn't available."
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        # Invalid coordinate
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    account=auth_pb2.SignupAccount(
+                        username="frodo",
+                        password="a very insecure password",
+                        city="Minas Tirith",
+                        birthdate="1980-12-31",
+                        gender="Robot",
+                        hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                        lat=0,
+                        lng=0,
+                        radius=100,
+                        accept_tos=True,
+                    ),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "Invalid coordinate."
+
+
+def test_signup_token_regression(db):
+    # Repro steps:
+    # 1. Start a signup
+    # 2. Confirm the email
+    # 3. Start a new signup with the same email
+    # Expected: send a link to the email to continue signing up.
+    # Actual: `AttributeError: 'SignupFlow' object has no attribute 'token'`
+
+    testing_email = f"{random_hex(12)}@couchers.org.invalid"
+
+    # 1. Start a signup
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email=testing_email)))
+    flow_token = res.flow_token
+    assert flow_token
+
+    # 2. Confirm the email
+    with session_scope() as session:
+        email_token = session.execute(
+            select(SignupFlow.email_token).where(SignupFlow.flow_token == flow_token)
+        ).scalar_one()
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                flow_token=flow_token,
+                email_token=email_token,
+            )
+        )
+
+    # 3. Start a new signup with the same email
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email=testing_email)))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "Please check your email for a link to continue signing up."
+
+
+@pytest.mark.parametrize("opt_out", [True, False])
+def test_opt_out_of_newsletter(db, opt_out):
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"),
+                account=auth_pb2.SignupAccount(
+                    username="frodo",
+                    password="a very insecure password",
+                    birthdate="1970-01-01",
+                    gender="Bot",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    city="New York City",
+                    lat=40.7331,
+                    lng=-73.9778,
+                    radius=500,
+                    accept_tos=True,
+                    opt_out_of_newsletter=opt_out,
+                ),
+                feedback=auth_pb2.ContributorForm(),
+                accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+                motivations=auth_pb2.SignupMotivations(motivations=["surfing"]),
+            )
+        )
+
+    with session_scope() as session:
+        email_token = session.execute(
+            select(SignupFlow.email_token).where(SignupFlow.flow_token == res.flow_token)
+        ).scalar_one()
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
+
+    user_id = res.auth_res.user_id
+
+    with session_scope() as session:
+        user = session.execute(select(User).where(User.id == user_id)).scalar_one()
+        assert not user.in_sync_with_newsletter
+        assert user.opt_out_of_newsletter == opt_out
+
+
+def test_GetAuthState(db):
+    user, token = generate_user()
+    jailed_user, jailed_token = generate_user(accepted_tos=0)
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.GetAuthState(empty_pb2.Empty())
+        assert not res.logged_in
+        assert not res.HasField("auth_res")
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.GetAuthState(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={token}"),))
+        assert res.logged_in
+        assert res.HasField("auth_res")
+        assert res.auth_res.user_id == user.id
+        assert not res.auth_res.jailed
+
+        auth_api.Deauthenticate(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={token}"),))
+
+        res = auth_api.GetAuthState(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={token}"),))
+        assert not res.logged_in
+        assert not res.HasField("auth_res")
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.GetAuthState(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={jailed_token}"),))
+        assert res.logged_in
+        assert res.HasField("auth_res")
+        assert res.auth_res.user_id == jailed_user.id
+        assert res.auth_res.jailed
+
+
+def test_signup_no_feedback_regression(db):
+    """
+    When we first remove the feedback form, the backned was saying it's not needed but was not completing the signup,
+    this regression test checks that.
+    """
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"),
+                account=auth_pb2.SignupAccount(
+                    username="frodo",
+                    password="a very insecure password",
+                    birthdate="1970-01-01",
+                    gender="Bot",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    city="New York City",
+                    lat=40.7331,
+                    lng=-73.9778,
+                    radius=500,
+                    accept_tos=True,
+                ),
+                accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+                motivations=auth_pb2.SignupMotivations(motivations=["surfing"]),
+            )
+        )
+
+    flow_token = res.flow_token
+
+    assert res.flow_token
+    assert not res.HasField("auth_res")
+    assert not res.need_basic
+    assert not res.need_account
+    assert not res.need_feedback
+    assert not res.need_motivations
+    assert res.need_verify_email
+
+    # read out the signup token directly from the database for now
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+        assert flow.email_sent
+        assert not flow.email_verified
+        email_token = flow.email_token
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
+
+    assert not res.flow_token
+    assert res.HasField("auth_res")
+    assert res.auth_res.user_id
+    assert not res.auth_res.jailed
+    assert not res.need_basic
+    assert not res.need_account
+    assert not res.need_feedback
+    assert not res.need_motivations
+    assert not res.need_verify_email
+
+    # make sure we got the right token in a cookie
+    with session_scope() as session:
+        token = session.execute(
+            select(UserSession.token).join(User, UserSession.user_id == User.id).where(User.username == "frodo")
+        ).scalar_one()
+    sesh, uid = get_session_cookie_tokens(metadata_interceptor)
+    assert sesh == token
+
+
+def test_banned_username(db):
+    testing_email = f"{random_hex(12)}@couchers.org.invalid"
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        reply = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="Tester", email=testing_email))
+        )
+
+    flow_token = reply.flow_token
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        # Banned username
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    account=auth_pb2.SignupAccount(
+                        username="thecouchersadminaccount",
+                        password="a very insecure password",
+                        city="Minas Tirith",
+                        birthdate="1980-12-31",
+                        gender="Robot",
+                        hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                        lat=1,
+                        lng=1,
+                        radius=100,
+                        accept_tos=True,
+                    ),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "Sorry, that username isn't available."
+
+
+# tests for ConfirmChangeEmail within test_account.py tests for test_ChangeEmail_*
+
+
+def test_GetInviteCodeInfo(db):
+    user, token = generate_user(complete_profile=True)
+
+    with account_session(token) as account:
+        code = account.CreateInviteCode(account_pb2.CreateInviteCodeReq()).code
+
+    with auth_api_session() as (auth, _):
+        res = auth.GetInviteCodeInfo(auth_pb2.GetInviteCodeInfoReq(code=code))
+        assert res.name == user.name
+        assert res.username == user.username
+        # Avatar URL should be a thumbnail URL with a hashed filename
+        assert "/img/thumbnail/" in res.avatar_url
+        assert res.avatar_url.endswith(".jpg")
+        # Verify the hashed filename looks correct (64 char hex hash)
+        assert len(res.avatar_url.split("/")[-1].replace(".jpg", "")) == 64
+        assert res.url == urls.invite_code_link(code=code)
+
+
+def test_GetInviteCodeInfo_no_avatar(db):
+    user, token = generate_user(complete_profile=False)
+
+    with account_session(token) as account:
+        code = account.CreateInviteCode(account_pb2.CreateInviteCodeReq()).code
+
+    with auth_api_session() as (auth, _):
+        res = auth.GetInviteCodeInfo(auth_pb2.GetInviteCodeInfoReq(code=code))
+        assert res.name == user.name
+        assert res.username == user.username
+        assert res.avatar_url == ""
+        assert res.url == urls.invite_code_link(code=code)
+
+
+def test_GetInviteCodeInfo_not_found(db):
+    generate_user()
+
+    with auth_api_session() as (auth, _):
+        with pytest.raises(grpc.RpcError) as e:
+            auth.GetInviteCodeInfo(auth_pb2.GetInviteCodeInfoReq(code="BADCODE"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == "Invite code not found."
+
+
+def test_SignupFlow_invite_code(db):
+    user, token = generate_user()
+
+    with account_session(token) as account:
+        invite_code = account.CreateInviteCode(account_pb2.CreateInviteCodeReq()).code
+
+    with auth_api_session() as (auth_api, _):
+        # Signup basic step with invite code
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(
+                    name="Test User",
+                    email="inviteuser@example.com",
+                    invite_code=invite_code,
+                )
+            )
+        )
+        flow_token = res.flow_token
+        assert flow_token
+
+        # Confirm email
+        with session_scope() as session:
+            email_token = session.execute(
+                select(SignupFlow.email_token).where(SignupFlow.flow_token == flow_token)
+            ).scalar_one()
+
+        auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
+
+        # Signup account step
+        auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                flow_token=flow_token,
+                account=auth_pb2.SignupAccount(
+                    username="invited_user",
+                    password="secure password",
+                    birthdate="1990-01-01",
+                    gender="Other",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    city="Example City",
+                    lat=1,
+                    lng=5,
+                    radius=100,
+                    accept_tos=True,
+                ),
+                feedback=auth_pb2.ContributorForm(),
+                accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+                motivations=auth_pb2.SignupMotivations(motivations=["surfing"]),
+            )
+        )
+
+    # Check that invite_code_id is stored in the final User object
+    with session_scope() as session:
+        invite_code_id = session.execute(
+            select(User.invite_code_id).where(User.username == "invited_user")
+        ).scalar_one()
+        assert invite_code_id == invite_code
+
+
+def test_signup_with_motivations(db):
+    """
+    Test signup flow with the new motivations step (heard_about_couchers and signup_motivations)
+    """
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"),
+                account=auth_pb2.SignupAccount(
+                    username="intentuser",
+                    password="a very insecure password",
+                    birthdate="1970-01-01",
+                    gender="Bot",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    city="New York City",
+                    lat=40.7331,
+                    lng=-73.9778,
+                    radius=500,
+                    accept_tos=True,
+                ),
+                motivations=auth_pb2.SignupMotivations(
+                    heard_about_couchers="friend",
+                    motivations=["hosting", "surfing", "events"],
+                ),
+                accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+            )
+        )
+
+    flow_token = res.flow_token
+    assert flow_token
+    assert not res.HasField("auth_res")
+    assert res.need_verify_email
+
+    # Verify the motivations are stored in the SignupFlow
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+        assert flow.heard_about_couchers == "friend"
+        assert set(flow.signup_motivations) == {"hosting", "surfing", "events"}
+        email_token = flow.email_token
+
+    # Complete signup by verifying email
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
+
+    assert res.HasField("auth_res")
+    user_id = res.auth_res.user_id
+
+    # Verify the motivations are transferred to the User object
+    with session_scope() as session:
+        user = session.execute(select(User).where(User.id == user_id)).scalar_one()
+        assert user.heard_about_couchers == "friend"
+        assert user.signup_motivations is not None
+        assert set(user.signup_motivations) == {"hosting", "surfing", "events"}
+
+
+def test_signup_motivations_incremental(db):
+    """
+    Test that motivations can be submitted incrementally as a separate step
+    """
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        # First, basic signup
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email2@couchers.org.invalid"),
+            )
+        )
+
+    flow_token = res.flow_token
+    assert flow_token
+    assert res.need_account
+    assert res.need_motivations  # New field
+
+    # Submit motivations separately
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                flow_token=flow_token,
+                motivations=auth_pb2.SignupMotivations(
+                    heard_about_couchers="social_media",
+                    motivations=["surfing"],
+                ),
+            )
+        )
+
+    assert res.flow_token == flow_token
+    assert not res.need_motivations  # Should be filled now
+    assert res.need_account  # Still need account
+
+    # Verify motivations are stored
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+        assert flow.heard_about_couchers == "social_media"
+        assert flow.signup_motivations == ["surfing"]
+
+
+def test_signup_motivations_cannot_be_refilled(db):
+    """
+    Test that motivations cannot be submitted twice
+    """
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email3@couchers.org.invalid"),
+                motivations=auth_pb2.SignupMotivations(
+                    heard_about_couchers="friend",
+                    motivations=["hosting"],
+                ),
+            )
+        )
+
+    flow_token = res.flow_token
+
+    # Try to submit motivations again - should fail
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    motivations=auth_pb2.SignupMotivations(
+                        heard_about_couchers="different_source",
+                        motivations=["surfing"],
+                    ),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "You've already told us about why you are signing up."
+
+
+def test_signup_motivations_required(db):
+    """
+    Test that signup cannot complete without providing motivations
+    """
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email4@couchers.org.invalid"),
+                account=auth_pb2.SignupAccount(
+                    username="nointents",
+                    password="a very insecure password",
+                    birthdate="1970-01-01",
+                    gender="Bot",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    city="New York City",
+                    lat=40.7331,
+                    lng=-73.9778,
+                    radius=500,
+                    accept_tos=True,
+                ),
+                # No motivations provided
+                accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+            )
+        )
+
+    flow_token = res.flow_token
+    assert not res.HasField("auth_res")
+    assert res.need_motivations  # Intents still required
+
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+        email_token = flow.email_token
+
+    # Verify email - signup still not complete without motivations
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
+
+    assert not res.HasField("auth_res")
+    assert res.need_motivations
+
+    # Now submit motivations
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                flow_token=flow_token,
+                motivations=auth_pb2.SignupMotivations(motivations=["surfing"]),
+            )
+        )
+
+    assert res.HasField("auth_res")
+    user_id = res.auth_res.user_id
+
+    with session_scope() as session:
+        user = session.execute(select(User).where(User.id == user_id)).scalar_one()
+        assert user.signup_motivations == ["surfing"]
+
+
+def test_signup_motivations_all_options(db):
+    """
+    Test all the different motivation options
+    """
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email5@couchers.org.invalid"),
+                motivations=auth_pb2.SignupMotivations(
+                    heard_about_couchers="other",
+                    motivations=["hosting", "surfing", "events"],
+                ),
+            )
+        )
+
+    flow_token = res.flow_token
+
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+        assert flow.heard_about_couchers == "other"
+        assert set(flow.signup_motivations) == {"hosting", "surfing", "events"}
+
+
+def test_signup_motivations_empty_motivations_list(db):
+    """
+    Test that providing heard_about but empty motivations list is valid
+    """
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email6@couchers.org.invalid"),
+                motivations=auth_pb2.SignupMotivations(
+                    heard_about_couchers="former_cs_member",
+                    motivations=[],  # No specific motivations selected
+                ),
+            )
+        )
+
+    flow_token = res.flow_token
+
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+        assert flow.heard_about_couchers == "former_cs_member"
+        assert flow.signup_motivations == []
+
+
+def test_create_session_does_not_reselect_the_user(db):
+    """
+    The commit in create_session expires the user, so anything read off it afterwards re-selects the whole row.
+
+    This is on the path of every login, so it was the most executed statement in the query log.
+    """
+    user, _ = generate_user()
+
+    statements = []
+
+    def record(conn, cursor, statement, parameters, context, executemany):
+        statements.append(statement)
+
+    engine = _get_base_engine()
+    with session_scope() as session:
+        db_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
+        context = cast(CouchersContext, _MockCouchersContext())
+        event.listen(engine, "before_cursor_execute", record)
+        try:
+            create_session(context, session, db_user, False)
+        finally:
+            event.remove(engine, "before_cursor_execute", record)
+
+    assert not [statement for statement in statements if "FROM users" in statement]
