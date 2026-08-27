@@ -76,7 +76,7 @@ export default function ChangeSignupEmail({ className }: ChangeSignupEmailProps)
         {isChangeSignupEmailSuccess && (
           <Alert severity="success">{t("auth:change_signup_email_form.success_message")}</Alert>
         )}
-        {!changedEmail ? (
+        {!changedEmail &&  (
           <StyledForm onSubmit={onSubmit}>
             <TextField
               id="newSignupEmail"
@@ -89,7 +89,7 @@ export default function ChangeSignupEmail({ className }: ChangeSignupEmailProps)
               {t("auth:change_signup_email_form.signup_change_email")}
             </Button>
           </StyledForm>
-        ) : null}
+        )}
       </>
     </div>
   );
