@@ -25,6 +25,54 @@
   "generic": {
     "greeting_line": "Ahoj {{name}},",
     "do_not_reply_request": "Neodpovídej na tento e-mail. K odpovědi na tuto žádost použij jedno z tlačítek výše.",
-    "thanks": "Děkuji!"
+    "thanks": "Děkuji!",
+    "security_warning_contact_support": "Pokud nedošlo k zahájení této akce z tvé strany, kontaktuj nás prosím na {{ email_link }}, abychom to mohli co nejdříve vyřešit.",
+    "closing_lines": {
+      "default": "S pozdravem,<br>tým Couchers.org",
+      "founders": "Aapeli a Itsi,<br>zakladatelé Couchers.org",
+      "aapeli": "Aapeli<br>Spoluzakladatel Couchers.org<br>{{ profile_link }}",
+      "emily": "Emily z Couchers.org<br>{{ email_link }}<br>{{ profile_link }}"
+    },
+    "footer": {
+      "received_because": "Tento e-mail dostáváš, protože máš účet na Couchers.org.",
+      "contact_support": "Náš tým podpory můžeš kontaktovat na {{ email_link }}.",
+      "timezone_note": "Všechny časy jsou v {{ timezone }} podle polohy v tvém profilu.",
+      "donate_link": "Podpořit projekt",
+      "volunteer_link": "Dobrovolník",
+      "blog_link": "Blog",
+      "nonprofit_note": "Couchers.org je projekt společnosti Couchers, Inc., americké neziskové organizace s daňovým osvobozením podle paragrafu 501(c)(3).",
+      "security_email_note": "Toto je bezpečnostní e-mail, jeho odběr nelze zrušit.",
+      "notification_settings_link": "Spravovat předvolby oznámení",
+      "do_not_email_link": "Neposílat mi e-maily (zakáže hostování)"
+    }
+  },
+  "calendar_events": {
+    "title_cancelled": "Zrušeno: {{ title }}",
+    "host_requests": {
+      "title_host": "Hostování {{ name }}"
+    }
+  },
+  "plaintext_formats": {
+    "action": "{{text}}: {{url}}",
+    "user": "{{name}}, {{age}}, {{city}}"
+  },
+  "account_deletion": {
+    "started": {
+      "subject": "Potvrď smazání svého účtu",
+      "purpose": "Bylo požádáno o smazání tvého účtu na Couchers.org. Pro dokončení tohoto procesu prosím klikni na následující odkaz:",
+      "confirm_action": "Potvrdit smazání účtu"
+    },
+    "completed": {
+      "subject": "Tvůj účet byl smazán",
+      "purpose": "Účet na Couchers.org byl úspěšně smazán.",
+      "farewell": "Je nám líto, že odcházíš, a přejeme ti vše nejlepší na tvých budoucích cestách. Na platformě Couchers.org máš však dveře vždy otevřené :)",
+      "recovery_instructions_days_one": "Pokud si to rozmyslíš, <strong>máš {{count}} den na obnovení svého účtu</strong> kliknutím na následující odkaz:",
+      "recovery_instructions_days_few": "Pokud si to rozmyslíš, <strong>máš {{count}} dny na obnovení svého účtu</strong> kliknutím na následující odkaz:",
+      "recovery_instructions_days_other": "Pokud si to rozmyslíš, <strong>máš {{count}} dní na obnovení svého účtu</strong> kliknutím na následující odkaz:",
+      "recover_action": "Obnovit účet"
+    },
+    "recovered": {
+      "subject": "Tvůj účet byl obnoven!"
+    }
   }
 }
