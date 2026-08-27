@@ -5,7 +5,8 @@
     "new_email": "Nouvelle adresse mail",
     "current_password": "Mot de passe actuel",
     "success_message": "Votre changement d’adresse mail a été pris en compte. Veuillez vérifier votre nouvelle adresse mail pour finaliser la procédure.",
-    "hide_current_password": "Masquer le mot de passe actuel"
+    "hide_current_password": "Masquer le mot de passe actuel",
+    "show_current_password": "Montrer le mot de passe actuel"
   },
   "basic_form": {
     "name": {

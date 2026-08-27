@@ -30,5 +30,10 @@
     "title": "Gérez vos dons",
     "description": "Cliquez sur le bouton ci-dessous pour mettre à jour ou pour annuler votre don récurrent, ou pour consulter vos factures précédentes.",
     "button_text": "Accédez au portail de gestion des dons"
+  },
+  "logged_out": {
+    "title": "Montant du don",
+    "body": "Connectez-vous pour faire un don afin que nous puissions afficher un badge de donneur sur votre profil.",
+    "login_button": "Connectez-vous pour faire un don"
   }
 }

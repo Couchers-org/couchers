@@ -13,12 +13,20 @@
       "volunteer_link": "Devenir bénévole",
       "nonprofit_note": "Couchers.org est un projet de Couchers, Inc., une association à but non lucratif exemptée de taxes enregistrée aux EUA (U.S. 501(c)(3)).",
       "security_email_note": "Ceci est un email de sécurité, vous ne pouvez pas vous en désabonner.",
-      "do_not_email_link": "Ne m'envoyez plus d'emails (désactive l'hébergement)"
+      "do_not_email_link": "Ne m'envoyez plus d'emails (désactive l'hébergement)",
+      "contact_support": "Vous pouvez contacter notre équipe support sur {{ email_link }}.",
+      "timezone_note": "Toutes les heures sont à {{ timezone }}, d'après la localisation de votre profil.",
+      "blog_link": "Blog",
+      "notification_settings_link": "Régler les paramètres de notifications"
     },
     "security_warning_contact_support": "Si vous n'êtes pas à l'origine de cette action, contactez-nous à {{ email_link }} afin que nous puissions résoudre ça le plus rapidement possible."
   },
   "calendar_events": {
-    "title_cancelled": "Annulé : {{ title }}"
+    "title_cancelled": "Annulé : {{ title }}",
+    "host_requests": {
+      "title_host": "Héberge {{ name }}",
+      "title_surfer": "Hébergé par {{ name }}"
+    }
   },
   "plaintext_formats": {
     "user": "{{name}}, {{age}}, {{city}}"
@@ -26,7 +34,8 @@
   "account_deletion": {
     "started": {
       "subject": "Confirmez la suppression de votre compte",
-      "confirm_action": "Confirmer la suppression du compte"
+      "confirm_action": "Confirmer la suppression du compte",
+      "purpose": "Vous avez demandé la suppression de votre compte Couchers.org. Veuillez cliquer sur le lien suivant afin de finaliser le processus :"
     },
     "completed": {
       "subject": "Votre compte a été supprimé",

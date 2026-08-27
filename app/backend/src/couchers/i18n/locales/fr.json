@@ -45,6 +45,7 @@
     "chat_initiation_rate_limit2_many": "Trop de messages envoyés au cours des {{count}} dernières heures. Pour prévenir tout abus, l'envoi de nouveaux messages est temporairement bloqué.",
     "chat_initiation_rate_limit2_other": "",
     "date_from_after_one_year": "Veuillez choisir une date de début d'ici un an maximum.",
-    "date_from_after_to": "La date de début ne peut pas être postérieure à la date de fin."
+    "date_from_after_to": "La date de début ne peut pas être postérieure à la date de fin.",
+    "cant_refer_self": "Vous ne pouvez pas écrire de référence pour vous-même."
   }
 }
