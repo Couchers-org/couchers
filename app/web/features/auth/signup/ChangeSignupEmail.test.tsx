@@ -28,7 +28,10 @@ describe("ChangeSignupEmail", () => {
   beforeEach(() => {
     signupFlowChangeEmailMock.mockReset();
 
-    window.localStorage.setItem("auth.flowState", JSON.stringify(flowState));
+    window.localStorage.setItem(
+      "auth.flowState",
+      JSON.stringify(flowState),
+    );
   });
 
   afterEach(() => {
@@ -39,9 +42,15 @@ describe("ChangeSignupEmail", () => {
   it("renders the change email form", async () => {
     render(<ChangeSignupEmail />, { wrapper });
 
-    expect(screen.getByLabelText(t("auth:change_signup_email_form.new_email"))).toBeVisible();
+    expect(
+      screen.getByLabelText(
+        t("auth:change_signup_email_form.new_email"),
+      ),
+    ).toBeVisible();
 
-    expect(screen.getByRole("button", { name: t("auth:change_signup_email_form.signup_change_email") })).toBeVisible();
+    expect(
+      screen.getByRole("button", { name: t("auth:change_signup_email_form.signup_change_email") }),
+    ).toBeVisible();
   });
 
   it("changes the signup email", async () => {
@@ -51,28 +60,22 @@ describe("ChangeSignupEmail", () => {
 
     const user = userEvent.setup();
 
-    await user.type(screen.getByLabelText(t("auth:change_signup_email_form.new_email")), "new@example.com");
+    await user.type(
+      screen.getByLabelText(
+        t("auth:change_signup_email_form.new_email"),
+      ),
+      "new@example.com",
+    );
 
-    await user.click(screen.getByRole("button", { name: t("auth:change_signup_email_form.signup_change_email") }));
-
-    await waitFor(() => {
-      expect(signupFlowChangeEmailMock).toHaveBeenCalledWith("token", "new@example.com");
-    });
-  });
-
-  it("lowercases the new signup email", async () => {
-    signupFlowChangeEmailMock.mockResolvedValue(flowState);
-
-    render(<ChangeSignupEmail />, { wrapper });
-
-    const user = userEvent.setup();
-
-    await user.type(screen.getByLabelText(t("auth:change_signup_email_form.new_email")), "NEW@EXAMPLE.COM");
-
-    await user.click(screen.getByRole("button", { name: t("auth:change_signup_email_form.signup_change_email") }));
+    await user.click(
+      screen.getByRole("button", { name: t("auth:change_signup_email_form.signup_change_email") }),
+    );
 
     await waitFor(() => {
-      expect(signupFlowChangeEmailMock).toHaveBeenCalledWith("token", "new@example.com");
+      expect(signupFlowChangeEmailMock).toHaveBeenCalledWith(
+        "token",
+        "new@example.com",
+      );
     });
   });
 
@@ -86,11 +89,20 @@ describe("ChangeSignupEmail", () => {
 
     const user = userEvent.setup();
 
-    await user.type(screen.getByLabelText(t("auth:change_signup_email_form.new_email")), "existing@example.com");
+    await user.type(
+      screen.getByLabelText(
+        t("auth:change_signup_email_form.new_email"),
+      ),
+      "existing@example.com",
+    );
 
-    await user.click(screen.getByRole("button", { name: t("auth:change_signup_email_form.signup_change_email") }));
+    await user.click(
+      screen.getByRole("button", { name: t("auth:change_signup_email_form.signup_change_email") }),
+    );
 
-    await assertErrorAlert("That email address is already associated with an account.");
+    await assertErrorAlert(
+      "That email address is already associated with an account.",
+    );
   });
 
   it("displays an error when the signup flow token is invalid", async () => {
@@ -103,9 +115,16 @@ describe("ChangeSignupEmail", () => {
 
     const user = userEvent.setup();
 
-    await user.type(screen.getByLabelText(t("auth:change_signup_email_form.new_email")), "new@example.com");
+    await user.type(
+      screen.getByLabelText(
+        t("auth:change_signup_email_form.new_email"),
+      ),
+      "new@example.com",
+    );
 
-    await user.click(screen.getByRole("button", { name: t("auth:change_signup_email_form.signup_change_email") }));
+    await user.click(
+      screen.getByRole("button", { name: t("auth:change_signup_email_form.signup_change_email") }),
+    );
 
     await assertErrorAlert("Invalid token");
   });

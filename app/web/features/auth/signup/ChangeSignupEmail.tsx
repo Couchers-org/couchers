@@ -1,4 +1,4 @@
-import { styled, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -22,7 +22,7 @@ const StyledForm = styled("form")(({ theme }) => ({
   alignItems: "flex-start",
   width: "100%",
   [theme.breakpoints.up("md")]: {
-    width: "15.5rem",
+    width: "25.5rem",
   },
 }));
 
@@ -38,9 +38,7 @@ interface ChangeSignupEmailProps {
 export default function ChangeSignupEmail({ className }: ChangeSignupEmailProps) {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { authActions, authState } = useAuthContext();
-  const theme = useTheme();
-  const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
-
+  
   const [changedEmail, setChangedEmail] = useState<boolean>(false);
 
   const { handleSubmit, register, reset: resetForm } = useForm<ChangeSignupEmailFormData>();
@@ -69,7 +67,7 @@ export default function ChangeSignupEmail({ className }: ChangeSignupEmailProps)
   return (
     <div className={className}>
       <Typography variant="body1" gutterBottom>
-        {!changedEmail ? t("Mistype your email address? Change it here:") : ""}
+        {!changedEmail ? t("auth:sign_up_change_email") : ""}
       </Typography>
       <>
         {changeSignupEmailError && <Alert severity="error">{changeSignupEmailError.message}</Alert>}
@@ -85,7 +83,7 @@ export default function ChangeSignupEmail({ className }: ChangeSignupEmailProps)
               name="newSignupEmail"
               fullWidth
             />
-            <Button fullWidth={!isMdOrWider} loading={isChangeSignupEmailLoading} type="submit">
+            <Button fullWidth={true} loading={isChangeSignupEmailLoading} type="submit">
               {t("auth:change_signup_email_form.signup_change_email")}
             </Button>
           </StyledForm>
