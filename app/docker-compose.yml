@@ -51,8 +51,7 @@ services:
     env_file: media.dev.env
     volumes:
       - "./data/media/uploads/:/uploads/"
-      - "./backend/src/data/dummy_profile_images/:/dummy-profile-images/:ro"
-    command: sh -c "mkdir -p /uploads/full && cp -n /dummy-profile-images/*.jpg /uploads/full/ && exec uwsgi --http '[::]:5001' --wsgi-file src/media/server.py --callable app"
+      - "./backend/src/data/dummy_profile_images/:/uploads/full/:ro"
     ports:
       - 5001:5001
     depends_on:
