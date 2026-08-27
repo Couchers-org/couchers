@@ -19,7 +19,7 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
   const { t } = useTranslation([GLOBAL, CONNECTIONS]);
 
   const [openDialog, setOpenDialog] = useState<"remove-friend" | "block-user" | null>(null);
-  
+
   const { blockUserMutation, isPending: isBlocking } = useBlockUser();
 
   const { removeFriendMutation, isPending: isRemoving } = useRemoveFriend();
@@ -56,21 +56,23 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
   // The friends list has the full width of the main column and only an overflow
   // menu, so it keeps the wide row and the larger avatar.
   return (
-    <FriendSummaryView friend={friend} isCompact={isCompact}
-      menuItems = {[
-          {
-            icon: PersonRemove,
-            label: t("connections:remove_friend"),
-            onClick: handleRemoveFriend,
-            id: "remove-friend",
-          },
-          {
-            icon: Block,
-            label: t("connections:block_user"),
-            onClick: handleBlockUser,
-            id: "block-user",
-          },
-        ]}
+    <FriendSummaryView
+      friend={friend}
+      isCompact={isCompact}
+      menuItems={[
+        {
+          icon: PersonRemove,
+          label: t("connections:remove_friend"),
+          onClick: handleRemoveFriend,
+          id: "remove-friend",
+        },
+        {
+          icon: Block,
+          label: t("connections:block_user"),
+          onClick: handleBlockUser,
+          id: "block-user",
+        },
+      ]}
     >
       {openDialog === "remove-friend" && (
         <ConnectionActionDialog

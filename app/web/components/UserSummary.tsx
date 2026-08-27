@@ -208,7 +208,6 @@ export default function UserSummary({
               </Box>
             )}
           </Box>
-
         }
         secondary={
           <>

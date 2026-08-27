@@ -49,10 +49,23 @@ const ButtonWrapper = styled("div", {
   isCompact ? fullWidthActions : { [theme.breakpoints.down("md")]: fullWidthActions },
 );
 
-function FriendSummaryView({ children, friend, isCompact = true, isProfileLink, cardRef, menuItems }: FriendSummaryViewProps) {
+function FriendSummaryView({
+  children,
+  friend,
+  isCompact = true,
+  isProfileLink,
+  cardRef,
+  menuItems,
+}: FriendSummaryViewProps) {
   return friend ? (
     <StyledFriendItem ref={cardRef} data-testid={FRIEND_ITEM_TEST_ID} isCompact={isCompact}>
-      <UserSummary headlineComponent="h3" user={friend} isProfileLink={isProfileLink} smallAvatar={isCompact} menuItems={menuItems} />
+      <UserSummary
+        headlineComponent="h3"
+        user={friend}
+        isProfileLink={isProfileLink}
+        smallAvatar={isCompact}
+        menuItems={menuItems}
+      />
       <ButtonWrapper isCompact={isCompact}>{children}</ButtonWrapper>
     </StyledFriendItem>
   ) : null;
