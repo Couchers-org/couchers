@@ -152,24 +152,63 @@ export default function UserSummary({
         disableTypography
         isSmallAvatar={smallAvatar}
         primary={
-          titleIsLink && user ? (
-            <ProfileLink
-              userId={"userId" in user ? user.userId : undefined}
-              username={user.username}
-              openInNewTab={!isMobile}
-              showOpenIcon={!isMobile}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "flex-start",
+          <Box
+            sx={{
+              position: "relative",
+              display: "flex",
+              alignItems: "end",
+              minWidth: 0,
+              width: "100%",
+            }}
+          >
+            <Box
+              sx={{
                 minWidth: 0,
+                flex: 1,
+                // Reserve horizontal space for the menu
+                paddingInlineEnd: menuItems ? 6 : 0,
               }}
             >
-              {title}
-            </ProfileLink>
-          ) : (
-            title
-          )
+              {titleIsLink && user ? (
+                <ProfileLink
+                  userId={"userId" in user ? user.userId : undefined}
+                  username={user.username}
+                  openInNewTab={!isMobile}
+                  showOpenIcon={!isMobile}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                    minWidth: 0,
+                  }}
+                >
+                  {title}
+                </ProfileLink>
+              ) : (
+                title
+              )}
+            </Box>
+
+            {menuItems && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  right: 0,
+                  top: "-50%",
+                }}
+              >
+                <EllipsisMenu
+                  idName={`${user?.username}-summary-menu`}
+                  isMenuOpen={!!menuAnchorEl}
+                  menuAnchorEl={menuAnchorEl}
+                  onMenuOpen={handleMenuOpen}
+                  onMenuClose={handleMenuClose}
+                  items={menuItems}
+                />
+              </Box>
+            )}
+          </Box>
+
         }
         secondary={
           <>
@@ -212,17 +251,6 @@ export default function UserSummary({
           </>
         }
       />
-
-      {menuItems && (
-        <EllipsisMenu
-          idName={`${user?.username}-summary-menu`}
-          isMenuOpen={!!menuAnchorEl}
-          menuAnchorEl={menuAnchorEl}
-          onMenuOpen={handleMenuOpen}
-          onMenuClose={handleMenuClose}
-          items={menuItems}
-        />
-      )}
     </StyledWrapper>
   );
 }
