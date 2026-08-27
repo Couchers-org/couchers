@@ -38,7 +38,7 @@ interface ChangeSignupEmailProps {
 export default function ChangeSignupEmail({ className }: ChangeSignupEmailProps) {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { authActions, authState } = useAuthContext();
-  
+
   const [changedEmail, setChangedEmail] = useState<boolean>(false);
 
   const { handleSubmit, register, reset: resetForm } = useForm<ChangeSignupEmailFormData>();
