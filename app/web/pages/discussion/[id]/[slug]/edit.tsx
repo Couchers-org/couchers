@@ -1,6 +1,7 @@
 import { appGetLayout } from "components/AppRoute";
 import EditDiscussionPageComponent from "features/communities/discussions/EditDiscussionPage";
 import NotFoundPage from "features/NotFoundPage";
+import { DEFAULT_LOCALE } from "i18n/locales";
 import { COMMUNITIES, GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
 import { GetStaticPaths, GetStaticProps } from "next";
 import { useRouter } from "next/router";
@@ -15,7 +16,11 @@ export const getStaticPaths: GetStaticPaths = () => ({
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
-    ...(await serverSideTranslations(locale ?? "en", [COMMUNITIES, GLOBAL, NOTIFICATIONS], nextI18nextConfig)),
+    ...(await serverSideTranslations(
+      locale ?? DEFAULT_LOCALE,
+      [COMMUNITIES, GLOBAL, NOTIFICATIONS],
+      nextI18nextConfig,
+    )),
   },
 });
 

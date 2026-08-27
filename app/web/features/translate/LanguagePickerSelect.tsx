@@ -18,7 +18,7 @@ import Snackbar from "components/Snackbar";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useWeblateStats } from "features/weblate/useWeblateStats";
 import { useTranslation } from "i18n";
-import { LANGUAGE_MAP } from "i18n/constants";
+import { LOCALE_AUTONYMS } from "i18n/locales";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -173,7 +173,7 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
                     display: "inline",
                   }}
                 >
-                  {LANGUAGE_MAP[languageCode].nativeName}
+                  {LOCALE_AUTONYMS[languageCode]}
                 </ListItemText>
               </Stack>
               <div>
@@ -201,7 +201,7 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
         }}
       >
         <LanguageIcon fontSize="small" />
-        {LANGUAGE_MAP[selected].nativeName}
+        {LOCALE_AUTONYMS[selected]}
       </Box>
     );
   };
