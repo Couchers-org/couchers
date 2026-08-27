@@ -36,5 +36,6 @@
     "confirm": "Oui, je les connais. Envoyer la demande !"
   },
   "friend_requests_dismiss_button": "Ignorer",
-  "friend_request_no_longer_available": "Cette demande d'ami n'est plus disponible."
+  "friend_request_no_longer_available": "Cette demande d'ami n'est plus disponible.",
+  "cancel_request_button_a11y": "Annuler la demande"
 }
