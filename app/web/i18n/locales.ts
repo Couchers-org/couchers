@@ -36,31 +36,10 @@ export const LOCALE_AUTONYMS: Record<string, string> = {
   "zh-Hant": "中文（繁體）",
 };
 
-export enum LocaleReadiness {
-  JustStarted,
-  EarlyStage,
-  Midway,
-  AlmostDone,
-  Complete,
-}
-
 export interface LocaleInfo {
   code: string;
   autonym: string;
   stringAvailabilityPercent: number;
-}
-
-export function getLocaleReadiness(stringAvailabilityPercent: number): LocaleReadiness {
-  const EARLY_STAGE_PERCENTAGE = 20;
-  const MIDWAY_PERCENTAGE = 50;
-  const ALMOST_DONE_PERCENTAGE = 80;
-  const COMPLETE_PERCENTAGE = 100;
-
-  if (stringAvailabilityPercent >= COMPLETE_PERCENTAGE) return LocaleReadiness.Complete;
-  if (stringAvailabilityPercent >= ALMOST_DONE_PERCENTAGE) return LocaleReadiness.AlmostDone;
-  if (stringAvailabilityPercent >= MIDWAY_PERCENTAGE) return LocaleReadiness.Midway;
-  if (stringAvailabilityPercent >= EARLY_STAGE_PERCENTAGE) return LocaleReadiness.EarlyStage;
-  return LocaleReadiness.JustStarted;
 }
 
 /**
@@ -93,10 +72,31 @@ export function getLocaleInfos(weblateLanguages: WeblateLanguage[]): LocaleInfo[
   return Object.values(locales);
 }
 
-export function isLocaleProductionReady(locale: LocaleInfo | undefined): boolean {
-  return locale !== undefined && getLocaleReadiness(locale.stringAvailabilityPercent) >= LocaleReadiness.AlmostDone;
+export enum LocaleReadiness {
+  JustStarted,
+  EarlyStage,
+  Midway,
+  AlmostDone,
+  Complete,
 }
 
-export function isLocaleSelectable(locale: LocaleInfo | undefined): boolean {
-  return locale !== undefined && getLocaleReadiness(locale.stringAvailabilityPercent) >= LocaleReadiness.Midway;
+export function getLocaleReadiness(stringAvailabilityPercent: number): LocaleReadiness {
+  const EARLY_STAGE_PERCENTAGE = 20;
+  const MIDWAY_PERCENTAGE = 50;
+  const ALMOST_DONE_PERCENTAGE = 80;
+  const COMPLETE_PERCENTAGE = 100;
+
+  if (stringAvailabilityPercent >= COMPLETE_PERCENTAGE) return LocaleReadiness.Complete;
+  if (stringAvailabilityPercent >= ALMOST_DONE_PERCENTAGE) return LocaleReadiness.AlmostDone;
+  if (stringAvailabilityPercent >= MIDWAY_PERCENTAGE) return LocaleReadiness.Midway;
+  if (stringAvailabilityPercent >= EARLY_STAGE_PERCENTAGE) return LocaleReadiness.EarlyStage;
+  return LocaleReadiness.JustStarted;
+}
+
+export function isLocaleProductionReady(locale: LocaleInfo): boolean {
+  return getLocaleReadiness(locale.stringAvailabilityPercent) >= LocaleReadiness.AlmostDone;
+}
+
+export function isLocaleSelectable(locale: LocaleInfo): boolean {
+  return getLocaleReadiness(locale.stringAvailabilityPercent) >= LocaleReadiness.Midway;
 }
