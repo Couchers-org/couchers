@@ -71,8 +71,7 @@ const getStatusText = (readiness: LocaleReadiness, t: (key: string) => string) =
   if (readiness === LocaleReadiness.AlmostDone)
     return t("global:language_preference.translation_progress.almost_there");
   if (readiness === LocaleReadiness.Midway) return t("global:language_preference.translation_progress.midway");
-  if (readiness === LocaleReadiness.EarlyStage)
-    return t("global:language_preference.translation_progress.early_stage");
+  if (readiness === LocaleReadiness.EarlyStage) return t("global:language_preference.translation_progress.early_stage");
   return t("global:language_preference.translation_progress.just_started");
 };
 

@@ -3,7 +3,13 @@ import { allLanguages } from "i18n/allLanguages";
 import { NextRequest, NextResponse } from "next/server";
 
 import { sessionCookieName } from "./appConstants";
-import { ALWAYS_AVAILABLE_LOCALES, DEFAULT_LOCALE, getLocaleInfos, isLocaleProductionReady, LOCALE_COOKIE_NAME } from "./i18n/locales";
+import {
+  ALWAYS_AVAILABLE_LOCALES,
+  DEFAULT_LOCALE,
+  getLocaleInfos,
+  isLocaleProductionReady,
+  LOCALE_COOKIE_NAME,
+} from "./i18n/locales";
 import { fetchWeblateLanguages } from "./i18n/weblate";
 
 // In-memory cache for the production-ready locale list
