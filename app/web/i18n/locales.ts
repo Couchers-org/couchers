@@ -10,8 +10,7 @@ export const DEFAULT_LOCALE = "en";
 export const ALWAYS_AVAILABLE_LOCALES = ["en"];
 
 // Autonym = a language name as written in its own language.
-// Module-private: consumers get a locale's autonym via AppLocale.autonym.
-const LOCALE_AUTONYMS: Record<string, string> = {
+export const LOCALE_AUTONYMS: Record<string, string> = {
   ca: "Català",
   cs: "Čeština",
   de: "Deutsch",
@@ -45,13 +44,13 @@ export enum LocaleReadiness {
   Complete,
 }
 
-export interface AppLocale {
+export interface LocaleInfo {
   code: string;
   autonym: string;
-  percent: number;
+  stringAvailabilityPercent: number;
 }
 
-export function getLocaleReadiness(percent: number): LocaleReadiness {
+export function getLocaleReadiness(stringAvailabilityPercent: number): LocaleReadiness {
   // Mirrors the cutoffs in features/translate/constants.ts. That file's
   // consumers will be migrated to read `readiness` instead and it will be
   // removed as later steps of #9625 land; kept duplicated here in the
@@ -61,10 +60,10 @@ export function getLocaleReadiness(percent: number): LocaleReadiness {
   const ALMOST_DONE_PERCENTAGE = 80;
   const COMPLETE_PERCENTAGE = 100;
 
-  if (percent >= COMPLETE_PERCENTAGE) return LocaleReadiness.Complete;
-  if (percent >= ALMOST_DONE_PERCENTAGE) return LocaleReadiness.AlmostDone;
-  if (percent >= MIDWAY_PERCENTAGE) return LocaleReadiness.Midway;
-  if (percent >= EARLY_STAGE_PERCENTAGE) return LocaleReadiness.EarlyStage;
+  if (stringAvailabilityPercent >= COMPLETE_PERCENTAGE) return LocaleReadiness.Complete;
+  if (stringAvailabilityPercent >= ALMOST_DONE_PERCENTAGE) return LocaleReadiness.AlmostDone;
+  if (stringAvailabilityPercent >= MIDWAY_PERCENTAGE) return LocaleReadiness.Midway;
+  if (stringAvailabilityPercent >= EARLY_STAGE_PERCENTAGE) return LocaleReadiness.EarlyStage;
   return LocaleReadiness.JustStarted;
 }
 
@@ -72,8 +71,8 @@ export function getLocaleReadiness(percent: number): LocaleReadiness {
  * Gets the locales supported by our app based on Weblate-reported language stats,
  * and including always-available locales.
  */
-export function getAppLocales(weblateLanguages: WeblateLanguage[]): AppLocale[] {
-  const locales: Record<string, AppLocale> = {};
+export function getLocaleInfos(weblateLanguages: WeblateLanguage[]): LocaleInfo[] {
+  const locales: Record<string, LocaleInfo> = {};
 
   for (const language of weblateLanguages) {
     const code = weblateToISOLocale(language.code);
@@ -83,7 +82,7 @@ export function getAppLocales(weblateLanguages: WeblateLanguage[]): AppLocale[] 
     locales[code] = {
       code,
       autonym,
-      percent: language.translated_percent,
+      stringAvailabilityPercent: language.translated_percent,
     };
   }
 
@@ -91,17 +90,17 @@ export function getAppLocales(weblateLanguages: WeblateLanguage[]): AppLocale[] 
     locales[code] = {
       code,
       autonym: LOCALE_AUTONYMS[code],
-      percent: 100,
+      stringAvailabilityPercent: 100,
     };
   }
 
   return Object.values(locales);
 }
 
-export function isLocaleProductionReady(locale: AppLocale | undefined): boolean {
-  return locale !== undefined && getLocaleReadiness(locale.percent) >= LocaleReadiness.AlmostDone;
+export function isLocaleProductionReady(locale: LocaleInfo | undefined): boolean {
+  return locale !== undefined && getLocaleReadiness(locale.stringAvailabilityPercent) >= LocaleReadiness.AlmostDone;
 }
 
-export function isLocaleSelectable(locale: AppLocale | undefined): boolean {
-  return locale !== undefined && getLocaleReadiness(locale.percent) >= LocaleReadiness.Midway;
+export function isLocaleSelectable(locale: LocaleInfo | undefined): boolean {
+  return locale !== undefined && getLocaleReadiness(locale.stringAvailabilityPercent) >= LocaleReadiness.Midway;
 }

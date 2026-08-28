@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 
-import { getAppLocales } from "./locales";
+import { getLocaleInfos } from "./locales";
 import { fetchWeblateLanguages } from "./weblate";
 
-export function useAppLocales() {
+export function useLocaleInfos() {
   const { data: weblateLanguages, ...rest } = useQuery({
     queryKey: ["weblate-stats"],
     queryFn: () => fetchWeblateLanguages(),
@@ -15,7 +15,7 @@ export function useAppLocales() {
     refetchOnMount: false,
   });
 
-  const data = useMemo(() => getAppLocales(weblateLanguages ?? []), [weblateLanguages]);
+  const data = useMemo(() => getLocaleInfos(weblateLanguages ?? []), [weblateLanguages]);
 
   return { data, ...rest };
 }

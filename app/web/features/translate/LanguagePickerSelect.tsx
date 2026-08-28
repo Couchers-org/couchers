@@ -19,7 +19,7 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import { useTranslation } from "i18n";
 import { isLocaleProductionReady, isLocaleSelectable } from "i18n/locales";
 import { GLOBAL } from "i18n/namespaces";
-import { useAppLocales } from "i18n/useAppLocales";
+import { useLocaleInfos } from "i18n/useLocaleInfos";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { translateRoute } from "routes";
@@ -83,7 +83,7 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { t, i18n } = useTranslation([GLOBAL]);
 
-  const { data: appLocales, isLoading, error } = useAppLocales();
+  const { data: localeInfos, isLoading, error } = useLocaleInfos();
   const { showAllLanguages } = useShowAllLanguages();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -131,7 +131,7 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
 
   // Locales with < 50% translated are hidden from the language selector (unless showAllLanguages is enabled)
   // Locales with < 80% translated are greyed out
-  const availableLocales = appLocales
+  const availableLocales = localeInfos
     .filter((locale) => showAllLanguages || isLocaleSelectable(locale))
     .sort((a, b) => {
       const aReady = isLocaleProductionReady(a);
@@ -142,11 +142,11 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
 
   const menuItems: React.ReactNode[] | undefined = isLoading
     ? []
-    : availableLocales.map((appLocale) => {
+    : availableLocales.map((localeInfo) => {
         return (
           <MenuItem
-            key={appLocale.code}
-            value={appLocale.code}
+            key={localeInfo.code}
+            value={localeInfo.code}
             sx={{
               display: "flex",
               alignItems: "center",
@@ -170,16 +170,16 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
               <Stack direction="row">
                 <ListItemText
                   sx={{
-                    opacity: isLocaleProductionReady(appLocale) ? 1 : 0.4,
+                    opacity: isLocaleProductionReady(localeInfo) ? 1 : 0.4,
                     fontWeight: "bold",
                     display: "inline",
                   }}
                 >
-                  {appLocale.autonym}
+                  {localeInfo.autonym}
                 </ListItemText>
               </Stack>
               <div>
-                {locale === appLocale.code && (
+                {locale === localeInfo.code && (
                   <CheckIcon fontSize="small" sx={{ color: "var(--mui-palette-primary-main)" }} />
                 )}
               </div>
@@ -203,7 +203,7 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
         }}
       >
         <LanguageIcon fontSize="small" />
-        {appLocales.find((appLocale) => appLocale.code === selected)?.autonym}
+        {localeInfos.find((localeInfo) => localeInfo.code === selected)?.autonym}
       </Box>
     );
   };

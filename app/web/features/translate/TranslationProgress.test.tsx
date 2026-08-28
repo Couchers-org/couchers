@@ -3,16 +3,16 @@ import wrapper from "test/hookWrapper";
 
 import TranslationProgress from "./TranslationProgress";
 
-jest.mock("i18n/useAppLocales", () => ({
+jest.mock("i18n/useLocaleInfos", () => ({
   __esModule: true,
-  useAppLocales: () => ({
+  useLocaleInfos: () => ({
     data: [
-      { code: "en", autonym: "English", percent: 100 },
-      { code: "de", autonym: "Deutsch", percent: 90 },
+      { code: "en", autonym: "English", stringAvailabilityPercent: 100 },
+      { code: "de", autonym: "Deutsch", stringAvailabilityPercent: 90 },
       // Both Chinese variants (issue #8523: they must be distinctly named and
       // must NOT render the China flag).
-      { code: "zh-Hans", autonym: "中文（简体）", percent: 70 },
-      { code: "zh-Hant", autonym: "中文（繁體）", percent: 65 },
+      { code: "zh-Hans", autonym: "中文（简体）", stringAvailabilityPercent: 70 },
+      { code: "zh-Hant", autonym: "中文（繁體）", stringAvailabilityPercent: 65 },
     ],
     isLoading: false,
     error: null,
