@@ -1,9 +1,8 @@
 import TranslateIcon from "@mui/icons-material/Translate";
 import { Box, Card, CardContent, Chip, Link, styled, Typography, useMediaQuery } from "@mui/material";
 import { useTranslation } from "i18n";
-import { LOCALE_AUTONYMS } from "i18n/locales";
 import { GLOBAL } from "i18n/namespaces";
-import { useWeblateLanguages } from "i18n/weblate";
+import { useAppLocales } from "i18n/useAppLocales";
 import React from "react";
 import { translateJobURL } from "routes";
 import { theme } from "theme";
@@ -92,7 +91,7 @@ export default function TranslationProgress() {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { t } = useTranslation([GLOBAL]);
 
-  const { data: languages, isLoading, error } = useWeblateLanguages();
+  const { data: appLocales, isLoading, error } = useAppLocales();
 
   if (isLoading) {
     return (
@@ -114,26 +113,10 @@ export default function TranslationProgress() {
     );
   }
 
-  if (!languages || languages.length === 0) {
-    return (
-      <Box sx={{ p: 2 }}>
-        <Typography
-          variant="h6"
-          gutterBottom
-          sx={{
-            color: "text.secondary",
-          }}
-        >
-          {t("global:language_preference.translation_progress.no_data")}
-        </Typography>
-      </Box>
-    );
-  }
-
-  // Filter and sort languages - show all with any progress
-  const availableLanguages = languages
-    .filter((language) => LOCALE_AUTONYMS[language.code.replace("_", "-")] && language.translated_percent > 0)
-    .sort((a, b) => b.translated_percent - a.translated_percent); // Sort by completion percentage
+  // Show all locales with any progress, sorted by completion percentage
+  const availableLocales = appLocales
+    .filter((locale) => locale.percent > 0)
+    .sort((a, b) => b.percent - a.percent);
 
   return (
     <Box sx={{ p: 2 }}>
@@ -169,15 +152,13 @@ export default function TranslationProgress() {
           {t("global:language_preference.translation_progress.info_text")}
         </Typography>
       </Box>
-      {availableLanguages.map((language) => {
-        const languageCode = language.code.replace("_", "-");
-        const nativeName = LOCALE_AUTONYMS[languageCode];
-        const percent = language.translated_percent;
-
-        if (!nativeName) return null;
+      {availableLocales.map((appLocale) => {
+        const languageCode = appLocale.code;
+        const nativeName = appLocale.autonym;
+        const percent = appLocale.percent;
 
         return (
-          <React.Fragment key={language.code}>
+          <React.Fragment key={appLocale.code}>
             {isMobile && (
               <SmallLanguageCard percent={percent}>
                 <StyledCardContent

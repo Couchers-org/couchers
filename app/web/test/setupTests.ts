@@ -42,17 +42,17 @@ jest.mock("next/dynamic", () => ({
   },
 }));
 jest.mock("react-gtm-module");
-jest.mock("i18n/weblate", () => ({
+jest.mock("i18n/useAppLocales", () => ({
   __esModule: true,
-  useWeblateLanguages: () => ({
+  useAppLocales: () => ({
     data: [
-      { code: "en", name: "English", translated_percent: 100 },
-      { code: "es", name: "Spanish", translated_percent: 85 },
-      { code: "fr", name: "French", translated_percent: 75 },
-      { code: "de", name: "German", translated_percent: 60 },
-      { code: "it", name: "Italian", translated_percent: 45 },
-      { code: "pt", name: "Portuguese", translated_percent: 30 },
-      { code: "ru", name: "Russian", translated_percent: 15 },
+      { code: "en", autonym: "English", percent: 100 },
+      { code: "es", autonym: "Español (España)", percent: 85 },
+      { code: "fr", autonym: "Français", percent: 75 },
+      { code: "de", autonym: "Deutsch", percent: 60 },
+      { code: "it", autonym: "Italiano", percent: 45 },
+      { code: "pt", autonym: "Português (Portugal)", percent: 30 },
+      { code: "ru", autonym: "Русский", percent: 15 },
     ],
     isLoading: false,
     error: null,

@@ -17,9 +17,9 @@ import { useMutation } from "@tanstack/react-query";
 import Snackbar from "components/Snackbar";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useTranslation } from "i18n";
-import { LOCALE_AUTONYMS } from "i18n/locales";
+import { isProductionReady, isSelectable } from "i18n/locales";
 import { GLOBAL } from "i18n/namespaces";
-import { useWeblateLanguages } from "i18n/weblate";
+import { useAppLocales } from "i18n/useAppLocales";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { translateRoute } from "routes";
@@ -27,9 +27,7 @@ import { service } from "service";
 import { theme } from "theme";
 import { sendLanguageChange } from "utils/nativeLink";
 
-import { ALMOST_DONE_CUTOFF } from "./constants";
 import { useShowAllLanguages } from "./useShowAllLanguages";
-import { getAvailableLanguages } from "./utils";
 
 interface StyledMuiSelectProps {
   displayMode?: "rounded" | "rect" | "icon";
@@ -85,7 +83,7 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { t, i18n } = useTranslation([GLOBAL]);
 
-  const { data: languages, isLoading, error } = useWeblateLanguages();
+  const { data: appLocales, isLoading, error } = useAppLocales();
   const { showAllLanguages } = useShowAllLanguages();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -131,20 +129,24 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
     router.push(translateRoute);
   };
 
-  // Languages with < 50% translated are hidden from language selector (unless showAllLanguages is enabled)
-  // Languages with < 80% translated are greyed out
-  const availableLanguages = getAvailableLanguages(languages, showAllLanguages, i18n.language);
+  // Locales with < 50% translated are hidden from the language selector (unless showAllLanguages is enabled)
+  // Locales with < 80% translated are greyed out
+  const availableLocales = appLocales
+    .filter((locale) => showAllLanguages || isSelectable(locale))
+    .sort((a, b) => {
+      const aReady = isProductionReady(a);
+      const bReady = isProductionReady(b);
+      if (aReady !== bReady) return aReady ? -1 : 1;
+      return a.code.localeCompare(b.code, i18n.language);
+    });
 
   const menuItems: React.ReactNode[] | undefined = isLoading
     ? []
-    : availableLanguages.map((language) => {
-        // language.code has underscore, we need to change to hyphen
-        const languageCode = language.code.replace("_", "-");
-
+    : availableLocales.map((appLocale) => {
         return (
           <MenuItem
-            key={languageCode}
-            value={languageCode}
+            key={appLocale.code}
+            value={appLocale.code}
             sx={{
               display: "flex",
               alignItems: "center",
@@ -168,16 +170,16 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
               <Stack direction="row">
                 <ListItemText
                   sx={{
-                    opacity: language.translated_percent < ALMOST_DONE_CUTOFF ? 0.4 : 1,
+                    opacity: isProductionReady(appLocale) ? 1 : 0.4,
                     fontWeight: "bold",
                     display: "inline",
                   }}
                 >
-                  {LOCALE_AUTONYMS[languageCode]}
+                  {appLocale.autonym}
                 </ListItemText>
               </Stack>
               <div>
-                {locale === languageCode && (
+                {locale === appLocale.code && (
                   <CheckIcon fontSize="small" sx={{ color: "var(--mui-palette-primary-main)" }} />
                 )}
               </div>
@@ -201,7 +203,7 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
         }}
       >
         <LanguageIcon fontSize="small" />
-        {LOCALE_AUTONYMS[selected]}
+        {appLocales.find((appLocale) => appLocale.code === selected)?.autonym}
       </Box>
     );
   };

@@ -3,20 +3,16 @@ import wrapper from "test/hookWrapper";
 
 import TranslationProgress from "./TranslationProgress";
 
-jest.mock("i18n/weblate", () => ({
+jest.mock("i18n/useAppLocales", () => ({
   __esModule: true,
-  useWeblateLanguages: () => ({
+  useAppLocales: () => ({
     data: [
-      { code: "en", name: "English", translated_percent: 100 },
-      { code: "de", name: "German", translated_percent: 90 },
+      { code: "en", autonym: "English", percent: 100 },
+      { code: "de", autonym: "Deutsch", percent: 90 },
       // Both Chinese variants (issue #8523: they must be distinctly named and
       // must NOT render the China flag).
-      { code: "zh-Hans", name: "Chinese (Simplified)", translated_percent: 70 },
-      {
-        code: "zh-Hant",
-        name: "Chinese (Traditional)",
-        translated_percent: 65,
-      },
+      { code: "zh-Hans", autonym: "中文（简体）", percent: 70 },
+      { code: "zh-Hant", autonym: "中文（繁體）", percent: 65 },
     ],
     isLoading: false,
     error: null,

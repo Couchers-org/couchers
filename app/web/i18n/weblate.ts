@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
 import Sentry from "platform/sentry";
 
 /** A language tracked by weblate (either the base English language or a translated language). */
@@ -25,22 +24,11 @@ export async function fetchWeblateLanguages(): Promise<WeblateLanguage[]> {
   });
 
   if (!response.ok) {
-    Sentry.captureException(new Error(`Weblate API error: ${response.status} ${response.statusText}`));
-    throw new Error(`Weblate API error: ${response.status} ${response.statusText}`);
+    const error = new Error(`Weblate API error: ${response.status} ${response.statusText}`);
+    Sentry.captureException(error);
+    throw error;
   }
 
   const languages: WeblateLanguage[] = await response.json();
   return languages || [];
 }
-
-export const useWeblateLanguages = () => {
-  return useQuery({
-    queryKey: ["weblate-stats"],
-    queryFn: () => fetchWeblateLanguages(),
-    staleTime: 10 * 60 * 1000, // 10 minutes - data considered fresh
-    gcTime: 10 * 60 * 1000, // 10 minutes - cache persists
-    retry: 1,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-  });
-};
