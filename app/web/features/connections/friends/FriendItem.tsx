@@ -52,13 +52,13 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
     removeFriend(friend.userId);
     setOpenDialog(null);
   };
-  const isCompact = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   // The friends list has the full width of the main column and only an overflow
   // menu, so it keeps the wide row and the larger avatar.
   return (
     <FriendSummaryView
       friend={friend}
-      isCompact={isCompact}
+      isMobile={isMobile}
       menuItems={[
         {
           icon: PersonRemove,
