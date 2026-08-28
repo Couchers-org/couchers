@@ -4,8 +4,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { sessionCookieName } from "./appConstants";
 import { ALMOST_DONE_CUTOFF } from "./features/translate/constants";
-import { fetchWeblateStats, WeblateLanguage } from "./features/weblate/useWeblateStats";
 import { ALWAYS_AVAILABLE_LOCALES, DEFAULT_LOCALE, LOCALE_COOKIE_NAME } from "./i18n/locales";
+import { fetchWeblateStats, WeblateLanguage } from "./i18n/weblate";
 
 // In-memory cache for Weblate stats
 let statsCache: {

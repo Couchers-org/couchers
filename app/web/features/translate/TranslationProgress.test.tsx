@@ -3,7 +3,7 @@ import wrapper from "test/hookWrapper";
 
 import TranslationProgress from "./TranslationProgress";
 
-jest.mock("features/weblate/useWeblateStats", () => ({
+jest.mock("i18n/weblate", () => ({
   __esModule: true,
   useWeblateStats: () => ({
     data: [

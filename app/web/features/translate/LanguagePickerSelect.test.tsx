@@ -21,7 +21,7 @@ jest.mock("features/auth/useAuthStore", () => ({
   }),
 }));
 
-jest.mock("features/weblate/useWeblateStats", () => ({
+jest.mock("i18n/weblate", () => ({
   __esModule: true,
   useWeblateStats: () => ({
     data: [

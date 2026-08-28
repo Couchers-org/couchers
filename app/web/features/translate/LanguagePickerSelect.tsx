@@ -16,10 +16,10 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import Snackbar from "components/Snackbar";
 import { useAuthContext } from "features/auth/AuthProvider";
-import { useWeblateStats } from "features/weblate/useWeblateStats";
 import { useTranslation } from "i18n";
 import { LOCALE_AUTONYMS } from "i18n/locales";
 import { GLOBAL } from "i18n/namespaces";
+import { useWeblateStats } from "i18n/weblate";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { translateRoute } from "routes";

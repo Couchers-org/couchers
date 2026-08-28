@@ -1,9 +1,9 @@
 import TranslateIcon from "@mui/icons-material/Translate";
 import { Box, Card, CardContent, Chip, Link, styled, Typography, useMediaQuery } from "@mui/material";
-import { useWeblateStats } from "features/weblate/useWeblateStats";
 import { useTranslation } from "i18n";
 import { LOCALE_AUTONYMS } from "i18n/locales";
 import { GLOBAL } from "i18n/namespaces";
+import { useWeblateStats } from "i18n/weblate";
 import React from "react";
 import { translateJobURL } from "routes";
 import { theme } from "theme";

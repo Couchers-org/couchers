@@ -42,7 +42,7 @@ jest.mock("next/dynamic", () => ({
   },
 }));
 jest.mock("react-gtm-module");
-jest.mock("features/weblate/useWeblateStats", () => ({
+jest.mock("i18n/weblate", () => ({
   __esModule: true,
   useWeblateStats: () => ({
     data: [
