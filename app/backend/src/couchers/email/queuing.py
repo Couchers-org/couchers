@@ -48,7 +48,7 @@ def queue_userless_email(
     """
 
     loc_context = context.localization
-    if not context.get_boolean_value("notification_translations_enabled", default=False):
+    if not context.get_boolean_value("notification_translations_enabled", default=True):
         loc_context = LocalizationContext(locale="en", timezone=loc_context.timezone)
 
     footer = EmailFooter(timezone_name=loc_context.localized_timezone, copyright_year=now().year, unsubscribe_info=None)

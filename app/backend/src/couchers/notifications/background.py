@@ -42,7 +42,7 @@ def _send_email_notification(session: Session, user: User, notification: Notific
     context = make_background_user_context(user.id)
 
     loc_context = LocalizationContext.from_user(user)
-    if not context.get_boolean_value("notification_translations_enabled", default=False):
+    if not context.get_boolean_value("notification_translations_enabled", default=True):
         loc_context = LocalizationContext(locale="en", timezone=loc_context.timezone)
 
     payload = get_send_email_payload(
