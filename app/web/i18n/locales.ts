@@ -98,10 +98,10 @@ export function getAppLocales(weblateLanguages: WeblateLanguage[]): AppLocale[] 
   return Object.values(locales);
 }
 
-export function isProductionReady(locale: AppLocale | undefined): boolean {
+export function isLocaleProductionReady(locale: AppLocale | undefined): boolean {
   return locale !== undefined && getLocaleReadiness(locale.percent) >= LocaleReadiness.AlmostDone;
 }
 
-export function isSelectable(locale: AppLocale | undefined): boolean {
+export function isLocaleSelectable(locale: AppLocale | undefined): boolean {
   return locale !== undefined && getLocaleReadiness(locale.percent) >= LocaleReadiness.Midway;
 }

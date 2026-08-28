@@ -17,7 +17,7 @@ import { useMutation } from "@tanstack/react-query";
 import Snackbar from "components/Snackbar";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useTranslation } from "i18n";
-import { isProductionReady, isSelectable } from "i18n/locales";
+import { isLocaleProductionReady, isLocaleSelectable } from "i18n/locales";
 import { GLOBAL } from "i18n/namespaces";
 import { useAppLocales } from "i18n/useAppLocales";
 import { useRouter } from "next/router";
@@ -132,10 +132,10 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
   // Locales with < 50% translated are hidden from the language selector (unless showAllLanguages is enabled)
   // Locales with < 80% translated are greyed out
   const availableLocales = appLocales
-    .filter((locale) => showAllLanguages || isSelectable(locale))
+    .filter((locale) => showAllLanguages || isLocaleSelectable(locale))
     .sort((a, b) => {
-      const aReady = isProductionReady(a);
-      const bReady = isProductionReady(b);
+      const aReady = isLocaleProductionReady(a);
+      const bReady = isLocaleProductionReady(b);
       if (aReady !== bReady) return aReady ? -1 : 1;
       return a.code.localeCompare(b.code, i18n.language);
     });
@@ -170,7 +170,7 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
               <Stack direction="row">
                 <ListItemText
                   sx={{
-                    opacity: isProductionReady(appLocale) ? 1 : 0.4,
+                    opacity: isLocaleProductionReady(appLocale) ? 1 : 0.4,
                     fontWeight: "bold",
                     display: "inline",
                   }}
