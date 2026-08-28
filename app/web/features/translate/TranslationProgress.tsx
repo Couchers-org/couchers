@@ -1,17 +1,16 @@
 import TranslateIcon from "@mui/icons-material/Translate";
 import { Box, Card, CardContent, Chip, Link, styled, Typography, useMediaQuery } from "@mui/material";
 import { useTranslation } from "i18n";
+import { getLocaleReadiness, LocaleReadiness } from "i18n/locales";
 import { GLOBAL } from "i18n/namespaces";
 import { useLocaleInfos } from "i18n/useLocaleInfos";
 import React from "react";
 import { translateJobURL } from "routes";
 import { theme } from "theme";
 
-import { ALMOST_DONE_CUTOFF, COMPLETE_CUTOFF, HIDDEN_CUTOFF, SELECTOR_CUTOFF } from "./constants";
-
 const ProgressBar = styled(Box, {
-  shouldForwardProp: (prop) => prop !== "percent",
-})<{ percent: number }>(({ theme, percent }) => ({
+  shouldForwardProp: (prop) => prop !== "percent" && prop !== "readiness",
+})<{ percent: number; readiness: LocaleReadiness }>(({ theme, percent, readiness }) => ({
   width: "100%",
   height: 8,
   backgroundColor: theme.palette.grey[200],
@@ -26,23 +25,23 @@ const ProgressBar = styled(Box, {
     height: "100%",
     width: `${percent}%`,
     backgroundColor:
-      percent >= ALMOST_DONE_CUTOFF
-        ? theme.palette.success.main // 80-100%: Green
-        : percent >= SELECTOR_CUTOFF
-          ? "#FFC107" // 50-80%: Yellow (Material Design amber/yellow)
-          : percent >= HIDDEN_CUTOFF
-            ? theme.palette.error.main // 20-50%: Red
-            : theme.palette.grey[500], // <20%: Grey
+      readiness >= LocaleReadiness.AlmostDone
+        ? theme.palette.success.main // Green
+        : readiness === LocaleReadiness.Midway
+          ? "#FFC107" // Yellow (Material Design amber/yellow)
+          : readiness === LocaleReadiness.EarlyStage
+            ? theme.palette.error.main // Red
+            : theme.palette.grey[500], // Grey
     transition: "width 0.3s ease-in-out",
   },
 }));
 
 const LargeLanguageCard = styled(Card, {
-  shouldForwardProp: (prop) => prop !== "percent",
-})<{ percent: number }>(({ theme, percent }) => ({
+  shouldForwardProp: (prop) => prop !== "readiness",
+})<{ readiness: LocaleReadiness }>(({ theme, readiness }) => ({
   width: "100%",
   transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
-  opacity: percent < HIDDEN_CUTOFF ? 0.35 : percent < SELECTOR_CUTOFF ? 0.55 : 1,
+  opacity: readiness === LocaleReadiness.JustStarted ? 0.35 : readiness === LocaleReadiness.EarlyStage ? 0.55 : 1,
   marginBottom: theme.spacing(2),
 
   "&:hover": {
@@ -52,28 +51,27 @@ const LargeLanguageCard = styled(Card, {
 }));
 
 const SmallLanguageCard = styled(Card, {
-  shouldForwardProp: (prop) => prop !== "percent",
-})<{ percent: number }>(({ theme, percent }) => ({
+  shouldForwardProp: (prop) => prop !== "readiness",
+})<{ readiness: LocaleReadiness }>(({ theme, readiness }) => ({
   width: "100%",
   transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
-  opacity: percent < HIDDEN_CUTOFF ? 0.35 : percent < SELECTOR_CUTOFF ? 0.55 : 1,
+  opacity: readiness === LocaleReadiness.JustStarted ? 0.35 : readiness === LocaleReadiness.EarlyStage ? 0.55 : 1,
   marginBottom: theme.spacing(2),
 }));
 
-const getStatusColor = (percent: number): "success" | "info" | "warning" | "error" | "default" => {
-  if (percent >= ALMOST_DONE_CUTOFF) return "success"; // 80-100%: Green
-  if (percent >= SELECTOR_CUTOFF && percent < ALMOST_DONE_CUTOFF) return "warning"; // 50-80%: Orange/Yellow
-  if (percent >= HIDDEN_CUTOFF) return "error"; // 20-50%: Red
-  return "default"; // <20%: Grey
+const getStatusColor = (readiness: LocaleReadiness): "success" | "info" | "warning" | "error" | "default" => {
+  if (readiness >= LocaleReadiness.AlmostDone) return "success"; // Green
+  if (readiness === LocaleReadiness.Midway) return "warning"; // Orange/Yellow
+  if (readiness === LocaleReadiness.EarlyStage) return "error"; // Red
+  return "default"; // Grey
 };
 
-const getStatusText = (percent: number, t: (key: string) => string) => {
-  if (percent >= COMPLETE_CUTOFF) return t("global:language_preference.translation_progress.complete");
-  if (percent >= ALMOST_DONE_CUTOFF && percent < COMPLETE_CUTOFF)
+const getStatusText = (readiness: LocaleReadiness, t: (key: string) => string) => {
+  if (readiness === LocaleReadiness.Complete) return t("global:language_preference.translation_progress.complete");
+  if (readiness === LocaleReadiness.AlmostDone)
     return t("global:language_preference.translation_progress.almost_there");
-  if (percent >= SELECTOR_CUTOFF && percent < ALMOST_DONE_CUTOFF)
-    return t("global:language_preference.translation_progress.midway");
-  if (percent >= HIDDEN_CUTOFF && percent < SELECTOR_CUTOFF)
+  if (readiness === LocaleReadiness.Midway) return t("global:language_preference.translation_progress.midway");
+  if (readiness === LocaleReadiness.EarlyStage)
     return t("global:language_preference.translation_progress.early_stage");
   return t("global:language_preference.translation_progress.just_started");
 };
@@ -156,11 +154,12 @@ export default function TranslationProgress() {
         const languageCode = localeInfo.code;
         const nativeName = localeInfo.autonym;
         const percent = localeInfo.stringAvailabilityPercent;
+        const readiness = getLocaleReadiness(percent);
 
         return (
           <React.Fragment key={localeInfo.code}>
             {isMobile && (
-              <SmallLanguageCard percent={percent}>
+              <SmallLanguageCard readiness={readiness}>
                 <StyledCardContent
                   sx={{
                     display: "flex",
@@ -188,16 +187,15 @@ export default function TranslationProgress() {
                       </Typography>
                     </Box>
                     <Chip
-                      label={getStatusText(percent, t)}
+                      label={getStatusText(readiness, t)}
                       size="small"
-                      color={getStatusColor(percent)}
+                      color={getStatusColor(readiness)}
                       variant="outlined"
                       sx={{
-                        ...(percent >= SELECTOR_CUTOFF &&
-                          percent < ALMOST_DONE_CUTOFF && {
-                            borderColor: "#FFC107",
-                            color: "#F57C00",
-                          }),
+                        ...(readiness === LocaleReadiness.Midway && {
+                          borderColor: "#FFC107",
+                          color: "#F57C00",
+                        }),
                       }}
                     />
                   </Box>
@@ -212,7 +210,7 @@ export default function TranslationProgress() {
                     <Typography
                       variant="h5"
                       sx={{
-                        color: percent < HIDDEN_CUTOFF ? "text.secondary" : "primary.main",
+                        color: readiness === LocaleReadiness.JustStarted ? "text.secondary" : "primary.main",
                         fontWeight: "bold",
                       }}
                     >
@@ -223,13 +221,13 @@ export default function TranslationProgress() {
                     </Typography>
                   </Box>
                   <Box sx={{ flex: 1, width: "100%" }}>
-                    <ProgressBar percent={percent} />
+                    <ProgressBar percent={percent} readiness={readiness} />
                   </Box>
                 </StyledCardContent>
               </SmallLanguageCard>
             )}
             {!isMobile && (
-              <LargeLanguageCard percent={percent}>
+              <LargeLanguageCard readiness={readiness}>
                 <StyledCardContent>
                   <Box
                     sx={{
@@ -270,29 +268,28 @@ export default function TranslationProgress() {
                       <Typography
                         variant="h5"
                         sx={{
-                          color: percent < HIDDEN_CUTOFF ? "text.secondary" : "primary.main",
+                          color: readiness === LocaleReadiness.JustStarted ? "text.secondary" : "primary.main",
                           fontWeight: "bold",
                         }}
                       >
                         {percent.toFixed(1)}%
                       </Typography>
                       <Chip
-                        label={getStatusText(percent, t)}
+                        label={getStatusText(readiness, t)}
                         size="small"
-                        color={getStatusColor(percent)}
+                        color={getStatusColor(readiness)}
                         variant="outlined"
                         sx={{
-                          ...(percent >= SELECTOR_CUTOFF &&
-                            percent < ALMOST_DONE_CUTOFF && {
-                              borderColor: "#FFC107",
-                              color: "#F57C00",
-                            }),
+                          ...(readiness === LocaleReadiness.Midway && {
+                            borderColor: "#FFC107",
+                            color: "#F57C00",
+                          }),
                         }}
                       />
                     </Box>
 
                     <Box sx={{ flex: 1, maxWidth: 200 }}>
-                      <ProgressBar percent={percent} />
+                      <ProgressBar percent={percent} readiness={readiness} />
                     </Box>
                   </Box>
                 </StyledCardContent>

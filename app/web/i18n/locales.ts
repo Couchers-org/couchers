@@ -51,10 +51,6 @@ export interface LocaleInfo {
 }
 
 export function getLocaleReadiness(stringAvailabilityPercent: number): LocaleReadiness {
-  // Mirrors the cutoffs in features/translate/constants.ts. That file's
-  // consumers will be migrated to read `readiness` instead and it will be
-  // removed as later steps of #9625 land; kept duplicated here in the
-  // meantime to avoid a features/ -> i18n/ dependency.
   const EARLY_STAGE_PERCENTAGE = 20;
   const MIDWAY_PERCENTAGE = 50;
   const ALMOST_DONE_PERCENTAGE = 80;
