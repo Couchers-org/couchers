@@ -23,7 +23,7 @@ jest.mock("features/auth/useAuthStore", () => ({
 
 jest.mock("i18n/weblate", () => ({
   __esModule: true,
-  useWeblateStats: () => ({
+  useWeblateLanguages: () => ({
     data: [
       { code: "en", name: "English", translated_percent: 100 },
       { code: "es", name: "Spanish", translated_percent: 85 },

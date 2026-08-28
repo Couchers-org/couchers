@@ -7,7 +7,7 @@ export interface WeblateLanguage {
   translated_percent: number;
 }
 
-export async function fetchWeblateStats(): Promise<WeblateLanguage[]> {
+export async function fetchWeblateLanguages(): Promise<WeblateLanguage[]> {
   const response = await fetch("https://cdn.couchers.org/api/projects/couchers/languages/", {
     headers: {
       Accept: "application/json",
@@ -23,10 +23,10 @@ export async function fetchWeblateStats(): Promise<WeblateLanguage[]> {
   return languages || [];
 }
 
-export const useWeblateStats = () => {
+export const useWeblateLanguages = () => {
   return useQuery({
     queryKey: ["weblate-stats"],
-    queryFn: () => fetchWeblateStats(),
+    queryFn: () => fetchWeblateLanguages(),
     staleTime: 10 * 60 * 1000, // 10 minutes - data considered fresh
     gcTime: 10 * 60 * 1000, // 10 minutes - cache persists
     retry: 1,

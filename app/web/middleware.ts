@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { sessionCookieName } from "./appConstants";
 import { ALMOST_DONE_CUTOFF } from "./features/translate/constants";
 import { ALWAYS_AVAILABLE_LOCALES, DEFAULT_LOCALE, LOCALE_COOKIE_NAME } from "./i18n/locales";
-import { fetchWeblateStats, WeblateLanguage } from "./i18n/weblate";
+import { fetchWeblateLanguages, WeblateLanguage } from "./i18n/weblate";
 
 // In-memory cache for Weblate stats
 let statsCache: {
@@ -27,7 +27,7 @@ async function getCachedWeblateStats(): Promise<WeblateLanguage[]> {
   }
 
   // Fetch fresh data
-  const languages = await fetchWeblateStats();
+  const languages = await fetchWeblateLanguages();
 
   // Update cache
   statsCache = {

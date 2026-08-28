@@ -44,7 +44,7 @@ jest.mock("next/dynamic", () => ({
 jest.mock("react-gtm-module");
 jest.mock("i18n/weblate", () => ({
   __esModule: true,
-  useWeblateStats: () => ({
+  useWeblateLanguages: () => ({
     data: [
       { code: "en", name: "English", translated_percent: 100 },
       { code: "es", name: "Spanish", translated_percent: 85 },

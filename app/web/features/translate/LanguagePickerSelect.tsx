@@ -19,7 +19,7 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import { useTranslation } from "i18n";
 import { LOCALE_AUTONYMS } from "i18n/locales";
 import { GLOBAL } from "i18n/namespaces";
-import { useWeblateStats } from "i18n/weblate";
+import { useWeblateLanguages } from "i18n/weblate";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { translateRoute } from "routes";
@@ -85,7 +85,7 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { t, i18n } = useTranslation([GLOBAL]);
 
-  const { data: languages, isLoading, error } = useWeblateStats();
+  const { data: languages, isLoading, error } = useWeblateLanguages();
   const { showAllLanguages } = useShowAllLanguages();
 
   const [isOpen, setIsOpen] = useState(false);

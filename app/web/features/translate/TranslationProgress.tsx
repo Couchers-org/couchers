@@ -3,7 +3,7 @@ import { Box, Card, CardContent, Chip, Link, styled, Typography, useMediaQuery }
 import { useTranslation } from "i18n";
 import { LOCALE_AUTONYMS } from "i18n/locales";
 import { GLOBAL } from "i18n/namespaces";
-import { useWeblateStats } from "i18n/weblate";
+import { useWeblateLanguages } from "i18n/weblate";
 import React from "react";
 import { translateJobURL } from "routes";
 import { theme } from "theme";
@@ -92,7 +92,7 @@ export default function TranslationProgress() {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { t } = useTranslation([GLOBAL]);
 
-  const { data: languages, isLoading, error } = useWeblateStats();
+  const { data: languages, isLoading, error } = useWeblateLanguages();
 
   if (isLoading) {
     return (

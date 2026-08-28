@@ -5,7 +5,7 @@ import TranslationProgress from "./TranslationProgress";
 
 jest.mock("i18n/weblate", () => ({
   __esModule: true,
-  useWeblateStats: () => ({
+  useWeblateLanguages: () => ({
     data: [
       { code: "en", name: "English", translated_percent: 100 },
       { code: "de", name: "German", translated_percent: 90 },
