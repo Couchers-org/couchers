@@ -1,4 +1,5 @@
 import { styled, Theme } from "@mui/material";
+import { EllipsisMenuItem } from "components/EllipsisMenu";
 import UserSummary from "components/UserSummary";
 import { LiteUser } from "proto/api_pb";
 import { BlockedUser } from "proto/blocking_pb";
