@@ -285,7 +285,7 @@
     "write_action": "Escreva uma referência para {{name}}"
   },
   "thread_reply": {
-    "view_action": "Visualizar thread",
+    "view_action": "Visualizar tópico",
     "subject": "{{author}} respondeu em {{parent_context}}",
     "purpose": "<b>{{author}}</b> respondeu em <b>{{parent_context}}</b>:"
   },
@@ -334,8 +334,8 @@
   "strong_verification": {
     "succeeded": {
       "subject": "Verificação Forte bem sucedida",
-      "purpose": "Você foi verificado com Verificação Forte. Agora você verá um símbolo de verificação do lado do seu nome na plataforma.",
-      "thanks_message": "Obrigado por fazer a verificação! Você está ajudando a apoiar a confiança e a degurança na comunidade Coucher.org.",
+      "purpose": "Você foi verificado com a Verificação Forte. Agora você verá um símbolo de verificação do lado do seu nome na plataforma.",
+      "thanks_message": "Obrigado por fazer a verificação! Você está ajudando a apoiar a confiança e a segurança na comunidade Coucher.org.",
       "cost_explanation": "A verificação é gratuita para você, mas tem um custo para nós. Como um comunidade sem fins lucrativos comandada por voluntários, nós contamos com doações para cobrir gastos como manter os servidores funcionando, verificações e ferramentas para nossos engenheiros de software, designers e time de segurança.",
       "donation_request": "Se puder, considere fazer uma doação para ajudar a manter o Couchers.org funcionando e crescendo.",
       "donate_action": "Faça uma doação para apoiar o Couchers.org"
@@ -343,7 +343,7 @@
     "failed": {
       "subject": "Verificação Forte falhou",
       "purpose": {
-        "wrong_birthdate_or_gender": "Sua tentativa de fazer a Verificação Forte falhou porque a data de nascimento ou gênero no seu perfil não corresponde à data de nascimento ou sexo no seu passaporte. Entre em contato com o time de suporte para atualizar sua data de nascimento ou gênero, ou se o sexo no seu passaporte não corresponde à sua identidade de gênero.",
+        "wrong_birthdate_or_gender": "Sua tentativa de fazer a Verificação Forte falhou porque a data de nascimento ou gênero no seu perfil não corresponde à data de nascimento ou sexo no seu passaporte. Entre em contato com o time de suporte para atualizar sua data de nascimento ou gênero, ou se o sexo no seu passaporte não corresponde a sua identidade de gênero.",
         "not_a_passport": "Sua tentativa de Verificação Forte falhou porque você usou um documento que não é um passaporte. Você pode somente usar um passaporte para a Verificação Forte.",
         "duplicate": "Sua tentativa de Verificação Forte falhou porque você usou um passaporte que já foi usado na plataforma. Use outro passaporte."
       },
