@@ -75,5 +75,20 @@
     "contribution_impact": "Katkınız Couchers.org topluluğunun büyümesine ve sürdürülmesine yardımcı olacak; ücretsiz ve kâr amacı gütmeyen bir kanepe sörfü platformu hedefimiz için hayati önem taşıyor.",
     "invoice_receipt_info": "Bağışa ait fatura ve makbuzu buradan indirebilirsiniz:",
     "download_invoice": "Faturayı indir"
+  },
+  "email_change": {
+    "verified": {
+      "purpose": "Yeni email adresiniz doğrulandı."
+    }
+  },
+  "events": {
+    "generic": {
+      "view_action": "Etkinliği görüntüle"
+    },
+    "created": {
+      "invitation": {
+        "subject": "{{user}} seni {{title}}'ya davet etti"
+      }
+    }
   }
 }

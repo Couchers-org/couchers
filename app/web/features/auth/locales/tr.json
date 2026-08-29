@@ -104,7 +104,8 @@
     }
   },
   "motivations_form": {
-    "header": "Seni Couchers'a ne getirdi?"
+    "header": "Seni Couchers'a ne getirdi?",
+    "surfing_description": "Bir seyahat planlıyorum ve bir ev sahibi arıyorum"
   },
   "jail": {
     "location_section": {
