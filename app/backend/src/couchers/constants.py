@@ -17,7 +17,11 @@ VALID_NAME_MIN_LENGTH = 2
 VALID_NAME_MAX_LENGTH = 100
 
 # Letters, diacritics, internal spaces, quotes, dashes, commas, dots, and's for two names. See tests!
-VALID_NAME_REGEX = r"""^(?!\p{Zs})[\p{L}\p{M}\p{Zs}\p{Pi}\p{Pf}\p{Pd},.'"·・&/|]+(?<!\p{Zs})$"""
+# A valid name must match both regexes. They're split rather than using a lookbehind for the trailing
+# whitespace because Safari before 16.4 doesn't support lookbehind assertions and fails to compile the
+# combined regex at all; keep in sync with app/web/utils/validation.ts
+VALID_NAME_CHARACTERS_REGEX = r"""^[\p{L}\p{M}\p{Zs}\p{Pi}\p{Pf}\p{Pd},.'"·・&/|]+$"""
+VALID_NAME_NO_SURROUNDING_WHITESPACE_REGEX = r"^\P{Zs}(?:[\s\S]*\P{Zs})?$"
 
 BANNED_USERNAME_PHRASES = [
     "admin",
