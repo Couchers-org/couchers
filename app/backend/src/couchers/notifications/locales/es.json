@@ -351,24 +351,45 @@
       "event_description": "Tu contraseña ha sido cambiada",
       "push": {
         "title": "Contraseña cambiada",
-        "ios_title": "Contraseña cambiada"
+        "ios_title": "Contraseña cambiada",
+        "body": "Tu contraseña ha sido modificada."
       }
     }
   },
   "password_reset": {
     "complete": {
-      "event_description": "El restablecimiento de la contraseña se ha completado"
+      "event_description": "El restablecimiento de la contraseña se ha completado",
+      "push": {
+        "title": "Contraseña restablecida",
+        "ios_title": "Contraseña restablecida",
+        "body": "Tu contraseña se ha restablecido correctamente."
+      }
     },
     "start": {
-      "event_description": "Se inicia el restablecimiento de la contraseña"
+      "event_description": "Se inicia el restablecimiento de la contraseña",
+      "push": {
+        "title": "Restablecimiento de contraseña solicitado",
+        "ios_title": "Restablecimiento de contraseña solicitado",
+        "body": "Utiliza el enlace que te hemos enviado por correo electrónico para completarlo."
+      }
     }
   },
   "phone_number": {
     "change": {
-      "event_description": "Tu número de teléfono ha sido cambiado"
+      "event_description": "Tu número de teléfono ha sido cambiado",
+      "push": {
+        "title": "Verificación del número de teléfono iniciada",
+        "ios_title": "Verificación del número de teléfono iniciada",
+        "body": "Has iniciado la verificación del número de teléfono con el número {{phone_number}}."
+      }
     },
     "verify": {
-      "event_description": "Tu número de teléfono ha sido verificado"
+      "event_description": "Tu número de teléfono ha sido verificado",
+      "push": {
+        "title": "Verificación del número de teléfono completada",
+        "ios_title": "Verificación del número de teléfono completada",
+        "body": "Tu número de teléfono ha sido correctamente verificado como {{phone_number}}."
+      }
     }
   },
   "reference": {
@@ -386,6 +407,21 @@
     },
     "reminder_surfed": {
       "event_description": "Recordatorio para escribir una recomendación a alguien con quien surfeaste"
+    },
+    "_receive_any": {
+      "push": {
+        "title": "Nueva referencia de {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Nueva referencia",
+        "body_must_write_yours": "{{user}} te ha dejado una referencia, ¡ahora te toca escribir la suya!"
+      }
+    },
+    "_reminder_any": {
+      "push": {
+        "title": "Escribe tu referencia para {{user}}",
+        "ios_title": "Escribe tu referencia",
+        "ios_subtitle": "{{user}}"
+      }
     }
   },
   "thread": {
@@ -400,6 +436,34 @@
         "title": "Nueva nota del moderador",
         "ios_title": "Nueva nota del moderador",
         "body": "Has recibido una nota del moderador. Léela y confírmala para seguir usando la plataforma."
+      }
+    }
+  },
+  "postal_verification": {
+    "failed": {
+      "event_description": "Tu verificación postal ha fallado",
+      "push": {
+        "title": "Verificación postal fallida",
+        "ios_title": "Verificación postal fallida",
+        "body_code_expired": "Tu código de verificación ha caducado. Los códigos son válidos durante 90 días después del envío de la postal. Puedes solicitar una nueva postal.",
+        "body_too_many_attempts": "Demasiados intentos de código incorrectos. Puedes solicitar una nueva postal.",
+        "body_generic": "Tu intento de verificación postal ha fallado. Puedes solicitar una nueva postal."
+      }
+    },
+    "postcard_sent": {
+      "event_description": "Tu postal de verificación ha sido enviada",
+      "push": {
+        "title": "Verificación postal iniciada",
+        "ios_title": "Verificación postal iniciada",
+        "body": "Tu postal está en camino a {{city}}, {{country}}. Debería llegar en un plazo de 1 a 3 semanas."
+      }
+    },
+    "success": {
+      "event_description": "Tu verificación postal se ha realizaso correctamente",
+      "push": {
+        "title": "Verificación postal completada",
+        "ios_title": "Verificación postal completada",
+        "body": "Tu dirección ahora está verificada."
       }
     }
   }

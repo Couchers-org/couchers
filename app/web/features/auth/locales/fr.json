@@ -5,7 +5,8 @@
     "new_email": "Nouvelle adresse mail",
     "current_password": "Mot de passe actuel",
     "success_message": "Votre changement d’adresse mail a été pris en compte. Veuillez vérifier votre nouvelle adresse mail pour finaliser la procédure.",
-    "hide_current_password": "Masquer le mot de passe actuel"
+    "hide_current_password": "Masquer le mot de passe actuel",
+    "show_current_password": "Montrer le mot de passe actuel"
   },
   "basic_form": {
     "name": {
@@ -41,7 +42,13 @@
     "reset_password_error": "Erreur lors de la réinitialisation du mot de passe : {{message}}",
     "password_mismatch_error": "Les mots de passe ne correspondent pas.",
     "user_logged_error": "Vous ne pouvez pas réinitialiser votre mot de passe si vous êtes connecté.e. Vous pouvez changer votre mot de passe dans les paramètres ou si vous déconnecter pour le réinitialiser.",
-    "token_error": "Une erreur s'est produite lors du traitement du jeton de réinitialisation du mot de passe, veuillez réessayer d'ouvrir le lien dans le mail que vous avez reçu."
+    "token_error": "Une erreur s'est produite lors du traitement du jeton de réinitialisation du mot de passe, veuillez réessayer d'ouvrir le lien dans le mail que vous avez reçu.",
+    "hide_old_password": "Masquer l'ancien mot de passe",
+    "show_old_password": "Montrer l'ancien mot de passe",
+    "hide_new_password": "Masquer le nouveau mot de passe",
+    "show_new_password": "Montrer le nouveau mot de passe",
+    "hide_confirm_password": "Masquer la confirmation du mot de passe",
+    "show_confirm_password": "Montrer la confirmation du mot de passe"
   },
   "basic_sign_up_form": {
     "existing_user_prompt": "Déjà inscrit·e ? <loginLink>Se connecter</loginLink>",
