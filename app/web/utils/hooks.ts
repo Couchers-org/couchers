@@ -1,3 +1,4 @@
+import { useFeatureValue } from "@growthbook/growthbook-react";
 import { Coordinates } from "features/search/utils/constants";
 import { LngLat } from "maplibre-gl";
 import { useRouter } from "next/router";
@@ -5,7 +6,13 @@ import Sentry from "platform/sentry";
 import { Dispatch, MutableRefObject, SetStateAction, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { service } from "service";
-import { GeocodeProvider, geocodeSearch, initialProvider, isOutageError } from "utils/geocode";
+import {
+  GeocodeProvider,
+  geocodeSearch,
+  initialProvider,
+  isOutageError,
+  normalizeProviderSetting,
+} from "utils/geocode";
 import useLocationBias from "utils/useLocationBias";
 
 /**
@@ -95,7 +102,15 @@ const useGeocodeQuery = (options: { allowFallback: boolean; preferCity?: boolean
   const focusRef = useLocationBias(options.biasToUserLocation ?? false);
   const { i18n } = useTranslation();
   const isMounted = useIsMounted();
-  const [provider, setProvider] = useSafeState<GeocodeProvider>(isMounted, () => initialProvider(allowFallback));
+
+  // GrowthBook flag is the runtime source of truth; env is the last-resort default
+  // when the flag is missing (local override file / GB outage).
+  const envDefault = normalizeProviderSetting(process.env.NEXT_PUBLIC_GEOCODE_DEFAULT_PROVIDER);
+  const providerSetting = normalizeProviderSetting(useFeatureValue("geocode_provider", envDefault));
+
+  const [provider, setProvider] = useSafeState<GeocodeProvider>(isMounted, () =>
+    initialProvider(allowFallback, providerSetting),
+  );
   // The active provider is unavailable and no fallback was permitted, so there
   // are no results to show — distinct from a failed or malformed query.
   const [isProviderUnavailable, setIsProviderUnavailable] = useSafeState(isMounted, false);
@@ -119,6 +134,18 @@ const useGeocodeQuery = (options: { allowFallback: boolean; preferCity?: boolean
     setIsProviderUnavailable(false);
     setIsLoading(false);
   }, [setError, setIsLoading, setIsProviderUnavailable, setResults]);
+
+  // When the flag changes (GB ready, mid-session targeting), reset sticky provider
+  // and in-flight state so the UI does not stay on Nominatim after being granted auto.
+  const providerSettingRef = useRef(providerSetting);
+  useEffect(() => {
+    if (providerSettingRef.current === providerSetting) {
+      return;
+    }
+    providerSettingRef.current = providerSetting;
+    clear();
+    setProvider(initialProvider(allowFallback, providerSetting));
+  }, [allowFallback, clear, providerSetting, setProvider]);
 
   const query = useCallback(
     async (value: string) => {
@@ -149,6 +176,7 @@ const useGeocodeQuery = (options: { allowFallback: boolean; preferCity?: boolean
           fallbackCause,
         } = await geocodeSearch(value, {
           allowFallback,
+          providerSetting,
           language: i18n.language,
           preferCity,
           // Read at request time, not render time: the fix may land between
@@ -217,6 +245,7 @@ const useGeocodeQuery = (options: { allowFallback: boolean; preferCity?: boolean
       focusRef,
       i18n.language,
       preferCity,
+      providerSetting,
       setError,
       setIsLoading,
       setIsProviderUnavailable,

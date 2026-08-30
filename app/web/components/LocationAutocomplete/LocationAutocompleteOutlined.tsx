@@ -279,7 +279,8 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
                       marginRight: inputValue === "" ? theme.spacing(1) : 0,
                     }}
                   >
-                    {showUseMyLocation && !hasClearableValue && (
+                    {/* Reverse geocode is Pelias-only — hide once forward search is on Nominatim. */}
+                    {showUseMyLocation && provider === "pelias" && !hasClearableValue && (
                       <IconButton
                         aria-label={t("use_my_location.button")}
                         title={t("use_my_location.button")}

@@ -25,10 +25,11 @@ NEXT_PUBLIC_IS_POST_BETA_ENABLED=true
 NEXT_PUBLIC_GEOCODE_EARTH_KEY=
 NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL=
 # Legacy provider, used only as the Geocode.earth outage fallback while we
-# evaluate the service. Set NEXT_PUBLIC_GEOCODE_PROVIDER to force one provider
-# (auto | pelias | nominatim); leaving it unset means auto.
+# evaluate the service. Runtime selection is the GrowthBook flag
+# `geocode_provider`; NEXT_PUBLIC_GEOCODE_DEFAULT_PROVIDER is the last-resort
+# default when GrowthBook has no value (auto | pelias | nominatim; unset → nominatim).
 NEXT_PUBLIC_NOMINATIM_URL="https://nominatim.openstreetmap.org/"
-NEXT_PUBLIC_GEOCODE_PROVIDER=auto
+NEXT_PUBLIC_GEOCODE_DEFAULT_PROVIDER=auto
 NEXT_PUBLIC_IS_VERIFICATION_ENABLED=true
 NEXT_PUBLIC_IS_COMMUNITIES_PART2_ENABLED=true
 NEXT_PUBLIC_STRIPE_KEY="pk_test_51KEzByIfR5z29g5khFE5samD8XKOGLcCrM1lhCkfOomGPUFAEYOw8uAqI2Nkv33wYdPM2FgTQNTC07IiNfHY1kLJ00Jqm8Ppai"
