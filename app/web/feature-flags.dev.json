@@ -1,5 +1,6 @@
 {
   "test_growthbook_integration": true,
   "show_moderator_badge": true,
-  "public_trips_enabled": true
+  "public_trips_enabled": true,
+  "geocode_provider": "auto"
 }
