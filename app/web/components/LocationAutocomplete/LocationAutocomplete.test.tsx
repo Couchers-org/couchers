@@ -171,7 +171,7 @@ describe("LocationAutocomplete component", () => {
     const item = await screen.findByText("test city, test country");
     await user.click(item);
 
-    expect(onChange).toBeCalledWith(expect.objectContaining({ simplifiedName: "test city, test country" }));
+    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ simplifiedName: "test city, test country" }));
   });
 
   it("does not keep previous results when searching again", async () => {
@@ -785,7 +785,7 @@ describe("LocationAutocomplete component", () => {
       await waitFor(() => {
         expect(screen.getByText(FALLBACK_RESULT)).toBeVisible();
       });
-      expect(submitAction).not.toBeCalled();
+      expect(submitAction).not.toHaveBeenCalled();
     });
 
     it("starts a newly mounted widget in submit mode, without querying", async () => {
@@ -857,7 +857,7 @@ describe("LocationAutocomplete component", () => {
       await user.click(await screen.findByRole("button", { name: "submit" }));
 
       await waitFor(() => {
-        expect(submitAction).toBeCalledWith(
+        expect(submitAction).toHaveBeenCalledWith(
           expect.objectContaining({
             location: expect.objectContaining({
               name: FALLBACK_RESULT,
