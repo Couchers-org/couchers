@@ -26,7 +26,7 @@ from couchers.constants import (
     VALID_NAME_MAX_LENGTH,
     VALID_NAME_MIN_LENGTH,
     VALID_NAME_NO_SURROUNDING_WHITESPACE_REGEX,
-    VALID_USERNAME_REGEX
+    VALID_USERNAME_REGEX,
 )
 from couchers.crypto import (
     create_sofa_id,
