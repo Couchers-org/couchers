@@ -29,7 +29,7 @@ import isGrpcError from "service/utils/isGrpcError";
 import { theme } from "theme";
 import { useIsMounted, useSafeState, useUnsavedChangesWarning } from "utils/hooks";
 import { useIsNativeEmbed } from "utils/nativeLink";
-import { nameMaxLength, nameMinLength, profileAboutMeMinLength, validateName } from "utils/validation";
+import { nameMaxLength, nameMinLength, profileAboutMeMinLength, validateNameChars } from "utils/validation";
 
 import StatusCardGroup from "./StatusCard";
 
@@ -460,7 +460,7 @@ export default function EditProfileForm() {
                       message: t("auth:basic_form.name.max_length_error"),
                     },
                     validate: (value: string) =>
-                      validateName(value) || t("auth:basic_form.name.invalid_characters_error"),
+                      validateNameChars(value) || t("auth:basic_form.name.invalid_characters_error"),
                   })}
                   label={t("profile:edit_profile_headings.name")}
                   defaultValue={user.name}

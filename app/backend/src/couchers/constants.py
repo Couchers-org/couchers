@@ -10,18 +10,20 @@ GUIDELINES_VERSION = 1
 # src/couchers/email/locales/en.json
 LATEST_RELEASE_BLOG_URL = "https://couchers.org/blog/2026/05/25/couchers-spring-release"
 
+# Keep the frontend in sync at app/web/utils/validation.ts
 EMAIL_REGEX = r"^[0-9a-z]([0-9a-z\-\_\+]|(\.[0-9a-z\-\_\+]))*@([0-9a-z\-]+\.)*[0-9a-z\-]+\.[a-z]{2,}$"
 
-# Must match the frontend values in app/web/utils/validation.ts
+# Letters, diacritics, internal spaces, quotes, dashes, commas, dots, and's for names. See tests!
+# The surrounding whitespace rule could be encoded using a lookbehind assertion,
+# but the frontend counterpart would not be supported on older browsers (Safari < 16.4).
+# Keep the frontend in sync at app/web/utils/validation.ts
+VALID_NAME_CHARACTERS_REGEX = r"""^[\p{L}\p{M}\p{Zs}\p{Pi}\p{Pf}\p{Pd},.'"·・&/|]+$"""
+VALID_NAME_NO_SURROUNDING_WHITESPACE_REGEX = r"^\P{Zs}(?:[\s\S]*\P{Zs})?$"
 VALID_NAME_MIN_LENGTH = 2
 VALID_NAME_MAX_LENGTH = 100
 
-# Letters, diacritics, internal spaces, quotes, dashes, commas, dots, and's for two names. See tests!
-# A valid name must match both regexes. They're split rather than using a lookbehind for the trailing
-# whitespace because Safari before 16.4 doesn't support lookbehind assertions and fails to compile the
-# combined regex at all; keep in sync with app/web/utils/validation.ts
-VALID_NAME_CHARACTERS_REGEX = r"""^[\p{L}\p{M}\p{Zs}\p{Pi}\p{Pf}\p{Pd},.'"·・&/|]+$"""
-VALID_NAME_NO_SURROUNDING_WHITESPACE_REGEX = r"^\P{Zs}(?:[\s\S]*\P{Zs})?$"
+# Keep the frontend in sync at app/web/utils/validation.ts
+VALID_USERNAME_REGEX = r"^[a-z][0-9a-z_]*[a-z0-9]$"
 
 BANNED_USERNAME_PHRASES = [
     "admin",

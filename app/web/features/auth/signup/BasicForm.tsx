@@ -14,7 +14,7 @@ import {
   lowercaseAndTrimField,
   nameMaxLength,
   nameMinLength,
-  validateName,
+  validateNameChars,
 } from "utils/validation";
 
 type SignupBasicInputs = {
@@ -82,7 +82,7 @@ export default function BasicForm({ submitText, successCallback, inviteCode }: B
               value: nameMaxLength,
               message: t("auth:basic_form.name.max_length_error"),
             },
-            validate: (value: string) => validateName(value) || t("auth:basic_form.name.invalid_characters_error"),
+            validate: (value: string) => validateNameChars(value) || t("auth:basic_form.name.invalid_characters_error"),
           })}
           fullWidth
           name="name"
