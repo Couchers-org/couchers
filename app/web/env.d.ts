@@ -11,7 +11,7 @@ declare namespace NodeJS {
     // Legacy provider, kept only as the Geocode.earth outage fallback during the
     // evaluation period. Remove with utils/nominatim.ts.
     NEXT_PUBLIC_NOMINATIM_URL?: string;
-    NEXT_PUBLIC_GEOCODE_PROVIDER?: "auto" | "pelias" | "nominatim";
+    NEXT_PUBLIC_GEOCODE_DEFAULT_PROVIDER?: "auto" | "pelias" | "nominatim";
     NEXT_PUBLIC_IS_POST_BETA_ENABLED?: "true";
     NEXT_PUBLIC_VERSION: string;
     NEXT_PUBLIC_DISPLAY_VERSION?: string;

@@ -285,7 +285,8 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
       endAdornment={
         <>
           {isPending && <CircularProgress size="1.25rem" />}
-          {showUseMyLocation && !hasClearableValue && !isPending && (
+          {/* Reverse geocode is Pelias-only — hide once forward search is on Nominatim. */}
+          {showUseMyLocation && provider === "pelias" && !hasClearableValue && !isPending && (
             <IconButton
               aria-label={t("use_my_location.button")}
               title={t("use_my_location.button")}
