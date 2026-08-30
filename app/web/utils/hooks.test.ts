@@ -1,5 +1,6 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { LngLat } from "maplibre-gl";
+import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 import { rest, server } from "test/restMock";
 import { resetFailoverState } from "utils/geocode";
@@ -19,7 +20,7 @@ describe("useGeocodeQuery hook", () => {
   });
 
   it("works with expected loading state and result", async () => {
-    const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }));
+    const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper });
     expect(result.current).toMatchObject({
       isLoading: false,
       error: undefined,
@@ -99,7 +100,7 @@ describe("useGeocodeQuery hook", () => {
       }),
     );
 
-    const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }));
+    const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper });
     await act(() => result.current.query("first"));
     await waitFor(() => {
       expect(result.current.results?.[0].simplifiedName).toBe("first city, first country");
@@ -131,7 +132,7 @@ describe("useGeocodeQuery hook", () => {
   });
 
   it("clear() drops results and cancels in-flight work", async () => {
-    const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }));
+    const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper });
     await act(() => result.current.query("test"));
     await waitFor(() => {
       expect(result.current.results).toBeDefined();
@@ -163,7 +164,7 @@ describe("useGeocodeQuery hook", () => {
     );
 
     await act(() => i18n.changeLanguage(language));
-    const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }));
+    const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper });
     await act(() => result.current.query("test"));
 
     await waitFor(() => {
@@ -217,7 +218,9 @@ describe("useGeocodeQuery hook", () => {
       mockGranted(true);
       const captured = captureParams();
 
-      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true, biasToUserLocation: true }));
+      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true, biasToUserLocation: true }), {
+        wrapper,
+      });
       // Let the permission check and position read settle before querying.
       await act(async () => {});
       await act(() => result.current.query("london"));
@@ -232,7 +235,9 @@ describe("useGeocodeQuery hook", () => {
       mockGranted(false);
       const captured = captureParams();
 
-      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true, biasToUserLocation: true }));
+      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true, biasToUserLocation: true }), {
+        wrapper,
+      });
       await act(async () => {});
       await act(() => result.current.query("london"));
 
@@ -247,7 +252,7 @@ describe("useGeocodeQuery hook", () => {
       mockGranted(true);
       const captured = captureParams();
 
-      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }));
+      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper });
       await act(async () => {});
       await act(() => result.current.query("london"));
 
@@ -266,7 +271,7 @@ describe("useGeocodeQuery hook", () => {
         return res(ctx.status(400), ctx.text("Generic error"));
       }),
     );
-    const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }));
+    const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper });
     expect(result.current).toMatchObject({
       isLoading: false,
       error: undefined,
@@ -300,7 +305,7 @@ describe("useGeocodeQuery hook", () => {
       "serves Nominatim results and reports the fallback provider on a %i",
       async (status) => {
         failPelias(status);
-        const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }));
+        const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper });
 
         await act(() => result.current.query("test"));
 
@@ -324,7 +329,7 @@ describe("useGeocodeQuery hook", () => {
 
     it("does not attach an id to fallback results", async () => {
       failPelias(500);
-      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }));
+      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper });
 
       await act(() => result.current.query("test"));
 
@@ -336,7 +341,7 @@ describe("useGeocodeQuery hook", () => {
 
     it("stays on the fallback provider once it has been used", async () => {
       failPelias(500);
-      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }));
+      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper });
 
       await act(() => result.current.query("test"));
       await waitFor(() => {
@@ -355,7 +360,7 @@ describe("useGeocodeQuery hook", () => {
 
     it("fails closed when the caller does not allow fallback", async () => {
       failPelias(503);
-      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: false }));
+      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: false }), { wrapper });
 
       await act(() => result.current.query("test"));
 
@@ -371,7 +376,7 @@ describe("useGeocodeQuery hook", () => {
 
     it("reports a bad request as an error even when fallback is disallowed", async () => {
       failPelias(400);
-      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: false }));
+      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: false }), { wrapper });
 
       await act(() => result.current.query("test"));
 
@@ -383,7 +388,7 @@ describe("useGeocodeQuery hook", () => {
 
     it("clears the unavailable state when a later query succeeds", async () => {
       failPelias(503);
-      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: false }));
+      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: false }), { wrapper });
 
       await act(() => result.current.query("test"));
       await waitFor(() => {
@@ -406,7 +411,7 @@ describe("useGeocodeQuery hook", () => {
           return res(ctx.status(500), ctx.text("fallback down"));
         }),
       );
-      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }));
+      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper });
 
       await act(() => result.current.query("test"));
 

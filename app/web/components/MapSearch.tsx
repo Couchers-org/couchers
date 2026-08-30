@@ -213,15 +213,18 @@ export default function MapSearch({ setError, setResult, inputFieldError }: MapS
             <SearchIcon />
           </IconButton>
         )}
-        <IconButton
-          aria-label={t("global:use_my_location.button")}
-          title={t("global:use_my_location.button")}
-          size="medium"
-          disabled={isLocating}
-          onClick={useMyLocationSubmit}
-        >
-          {isLocating ? <CircularProgress size="1.25rem" /> : <MyLocationIcon />}
-        </IconButton>
+        {/* Reverse geocode is Pelias-only — hide once forward search is on Nominatim. */}
+        {provider === "pelias" && (
+          <IconButton
+            aria-label={t("global:use_my_location.button")}
+            title={t("global:use_my_location.button")}
+            size="medium"
+            disabled={isLocating}
+            onClick={useMyLocationSubmit}
+          >
+            {isLocating ? <CircularProgress size="1.25rem" /> : <MyLocationIcon />}
+          </IconButton>
+        )}
       </StyledForm>
     </StyledBox>
   );

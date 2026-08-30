@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 import { rest, server } from "test/restMock";
+import { resetFailoverState } from "utils/geocode";
 
 import EditLocationMap from "./EditLocationMap";
 
@@ -53,6 +54,7 @@ describe("Edit location map", () => {
 
   afterEach(() => {
     server.resetHandlers();
+    resetFailoverState();
   });
 
   afterAll(() => {

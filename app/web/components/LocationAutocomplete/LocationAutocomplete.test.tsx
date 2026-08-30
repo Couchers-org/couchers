@@ -2,7 +2,7 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { LngLat } from "maplibre-gl";
 import { useForm } from "react-hook-form";
-import wrapper from "test/hookWrapper";
+import wrapper, { getHookWrapperWithClient } from "test/hookWrapper";
 import i18n from "test/i18n";
 import { rest, server } from "test/restMock";
 import { resetFailoverState } from "utils/geocode";
@@ -28,6 +28,7 @@ const renderForm = (
   showUseMyLocation = false,
   preferCity = false,
   isPending = false,
+  testWrapper: typeof wrapper = wrapper,
 ) => {
   const Form = () => {
     const {
@@ -58,7 +59,7 @@ const renderForm = (
       </form>
     );
   };
-  render(<Form />, { wrapper });
+  render(<Form />, { wrapper: testWrapper });
 };
 
 describe("LocationAutocomplete component", () => {
@@ -505,6 +506,15 @@ describe("LocationAutocomplete component", () => {
       expect(screen.queryByRole("button", { name: BUTTON })).not.toBeInTheDocument();
     });
 
+    it("is hidden when geocode_provider is nominatim", async () => {
+      const { wrapper: nominatimWrapper } = getHookWrapperWithClient({
+        geocode_provider: { defaultValue: "nominatim" },
+      });
+      renderForm("", () => {}, false, false, true, true, false, false, nominatimWrapper);
+      await screen.findByLabelText(LABEL);
+      expect(screen.queryByRole("button", { name: BUTTON })).not.toBeInTheDocument();
+    });
+
     it("fills the field with the resolved place", async () => {
       mockPosition(true);
       mockReverse();
@@ -685,6 +695,22 @@ describe("LocationAutocomplete component", () => {
 
       expect(await screen.findByRole("button", { name: SEARCH_BUTTON })).toBeVisible();
       expect(await screen.findByText(SEARCH_HINT)).toBeVisible();
+    });
+
+    it("hides use my location after failing over to Nominatim", async () => {
+      failPelias();
+      renderForm("", () => {}, false, false, true, true);
+      const user = userEvent.setup();
+      const input = await screen.findByLabelText(LABEL);
+      const useMyLocation = t("global:use_my_location.button");
+
+      expect(await screen.findByRole("button", { name: useMyLocation })).toBeVisible();
+
+      await triggerFallback(user, input);
+
+      await waitFor(() => {
+        expect(screen.queryByRole("button", { name: useMyLocation })).not.toBeInTheDocument();
+      });
     });
 
     it("stops querying as the user types once in submit mode", async () => {

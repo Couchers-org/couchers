@@ -13,6 +13,10 @@ import { autocomplete, PeliasError, toPeliasLanguage } from "utils/pelias";
  * submit UI (search button + hint) when the fallback is in use, because
  * Nominatim must not be queried as-you-type.
  *
+ * Runtime selection comes from the GrowthBook flag `geocode_provider` (see
+ * `useGeocodeQuery`), with `NEXT_PUBLIC_GEOCODE_DEFAULT_PROVIDER` as the
+ * last-resort default when GrowthBook has no value.
+ *
  * TODO(LOC-eval): delete this module together with `utils/nominatim.ts`,
  * `NEXT_PUBLIC_NOMINATIM_URL` and the widget's fallback branch once the
  * Geocode.earth evaluation concludes.
@@ -27,15 +31,18 @@ import { autocomplete, PeliasError, toPeliasLanguage } from "utils/pelias";
 
 export type GeocodeProvider = "pelias" | "nominatim";
 
-// `auto` (default): Pelias, falling back to Nominatim on an outage.
+// `auto`: Pelias, falling back to Nominatim on an outage.
 // `pelias` / `nominatim`: force one provider, no fallback. The forced modes are
 // the operational escape hatch for degradation that isn't a clean error —
 // Geocode.earth answering 200 with slow or useless results.
-type ProviderSetting = "auto" | GeocodeProvider;
+export type ProviderSetting = "auto" | GeocodeProvider;
 
-function providerSetting(): ProviderSetting {
-  const configured = process.env.NEXT_PUBLIC_GEOCODE_PROVIDER;
-  return configured === "pelias" || configured === "nominatim" ? configured : "auto";
+/**
+ * Normalize a raw flag/env value to a known provider setting.
+ * Unknown or missing values resolve to `nominatim` (safe legacy default).
+ */
+export function normalizeProviderSetting(raw: unknown): ProviderSetting {
+  return raw === "pelias" || raw === "nominatim" || raw === "auto" ? raw : "nominatim";
 }
 
 /**
@@ -58,11 +65,11 @@ export function resetFailoverState() {
 
 // Should this search skip Geocode.earth entirely and go straight to the legacy
 // provider? True when it is forced, or when we already know it is unavailable.
-function shouldUseFallbackDirectly(allowFallback: boolean): boolean {
+function shouldUseFallbackDirectly(allowFallback: boolean, setting: ProviderSetting): boolean {
   if (!allowFallback) {
     return false;
   }
-  return providerSetting() === "nominatim" || hasFailedOver;
+  return setting === "nominatim" || hasFailedOver;
 }
 
 /**
@@ -70,8 +77,8 @@ function shouldUseFallbackDirectly(allowFallback: boolean): boolean {
  * results always starts — and stays — on Pelias, so its UI never switches to the
  * legacy submit mode.
  */
-export function initialProvider(allowFallback: boolean): GeocodeProvider {
-  return shouldUseFallbackDirectly(allowFallback) ? "nominatim" : "pelias";
+export function initialProvider(allowFallback: boolean, setting: ProviderSetting): GeocodeProvider {
+  return shouldUseFallbackDirectly(allowFallback, setting) ? "nominatim" : "pelias";
 }
 
 /**
@@ -104,6 +111,11 @@ export interface GeocodeSearchOptions {
    * resolved location, since fallback results have no Pelias `gid`.
    */
   allowFallback: boolean;
+  /**
+   * Runtime provider mode from GrowthBook / env default. Required so callers
+   * cannot silently re-read configuration from process.env.
+   */
+  providerSetting: ProviderSetting;
   // BCP-47 UI locale (e.g. "pt-BR"); narrowed per provider.
   language?: string;
   preferCity?: boolean;
@@ -147,10 +159,9 @@ async function viaNominatim(
  * never treated as an outage and never triggers a fallback request.
  */
 export async function geocodeSearch(text: string, options: GeocodeSearchOptions): Promise<GeocodeSearchResult> {
-  const { allowFallback } = options;
-  const setting = providerSetting();
+  const { allowFallback, providerSetting: setting } = options;
 
-  if (shouldUseFallbackDirectly(allowFallback)) {
+  if (shouldUseFallbackDirectly(allowFallback, setting)) {
     return viaNominatim(text, options);
   }
 
