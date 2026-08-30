@@ -1,20 +1,12 @@
 import { rest, server } from "test/restMock";
 
+import type { ProviderSetting } from "./geocode";
+
 const AUTOCOMPLETE_URL = `${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/autocomplete`;
 const NOMINATIM_SEARCH_URL = `${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`;
 
-/**
- * `utils/geocode.ts` reads NEXT_PUBLIC_GEOCODE_PROVIDER at call time, but Next
- * inlines `process.env.NEXT_PUBLIC_*` at build time in the app — in Jest it is a
- * real lookup, so the setting can be varied per test with a fresh module.
- */
-const loadGeocode = async (provider?: NodeJS.ProcessEnv["NEXT_PUBLIC_GEOCODE_PROVIDER"] | "bogus") => {
+const loadGeocode = async () => {
   jest.resetModules();
-  if (provider === undefined) {
-    delete process.env.NEXT_PUBLIC_GEOCODE_PROVIDER;
-  } else {
-    process.env.NEXT_PUBLIC_GEOCODE_PROVIDER = provider as NodeJS.ProcessEnv["NEXT_PUBLIC_GEOCODE_PROVIDER"];
-  }
   // PeliasError comes from the same fresh module graph, so `instanceof` inside
   // geocode.ts matches the errors these tests construct.
   const [geocode, pelias] = await Promise.all([import("./geocode"), import("./pelias")]);
@@ -28,16 +20,35 @@ const failPelias = (status: number, body = "unavailable") =>
     }),
   );
 
+const searchOpts = (providerSetting: ProviderSetting = "auto", allowFallback = true) => ({
+  allowFallback,
+  providerSetting,
+});
+
 describe("geocodeSearch", () => {
   beforeAll(() => {
     server.listen();
   });
   afterEach(() => {
     server.resetHandlers();
-    delete process.env.NEXT_PUBLIC_GEOCODE_PROVIDER;
   });
   afterAll(() => {
     server.close();
+  });
+
+  describe("normalizeProviderSetting", () => {
+    it("keeps known values", async () => {
+      const { normalizeProviderSetting } = await loadGeocode();
+      expect(normalizeProviderSetting("auto")).toBe("auto");
+      expect(normalizeProviderSetting("pelias")).toBe("pelias");
+      expect(normalizeProviderSetting("nominatim")).toBe("nominatim");
+    });
+
+    it("defaults unknown or missing values to nominatim", async () => {
+      const { normalizeProviderSetting } = await loadGeocode();
+      expect(normalizeProviderSetting(undefined)).toBe("nominatim");
+      expect(normalizeProviderSetting("bogus")).toBe("nominatim");
+    });
   });
 
   describe("isOutageError", () => {
@@ -61,7 +72,7 @@ describe("geocodeSearch", () => {
     it("uses Geocode.earth when it is available", async () => {
       const { geocodeSearch } = await loadGeocode();
 
-      const { provider, results, peliasFeatures } = await geocodeSearch("test", { allowFallback: true });
+      const { provider, results, peliasFeatures } = await geocodeSearch("test", searchOpts());
 
       expect(provider).toBe("pelias");
       expect(results[0].id).toBe("whosonfirst:locality:1");
@@ -72,9 +83,7 @@ describe("geocodeSearch", () => {
       failPelias(503, "gateway down");
       const { geocodeSearch } = await loadGeocode();
 
-      const { provider, results, fallbackCause } = await geocodeSearch("test", {
-        allowFallback: true,
-      });
+      const { provider, results, fallbackCause } = await geocodeSearch("test", searchOpts());
 
       expect(provider).toBe("nominatim");
       expect(results[0].simplifiedName).toBe("fallback city, fallback state, fallback country");
@@ -85,7 +94,7 @@ describe("geocodeSearch", () => {
       failPelias(400, "bad query");
       const { geocodeSearch } = await loadGeocode();
 
-      await expect(geocodeSearch("test", { allowFallback: true })).rejects.toThrow("bad query");
+      await expect(geocodeSearch("test", searchOpts())).rejects.toThrow("bad query");
     });
 
     it("does not fall back when the caller aborted the request", async () => {
@@ -107,7 +116,7 @@ describe("geocodeSearch", () => {
 
       await expect(
         geocodeSearch("test", {
-          allowFallback: true,
+          ...searchOpts(),
           signal: controller.signal,
         }),
       ).rejects.toThrow();
@@ -119,7 +128,7 @@ describe("geocodeSearch", () => {
       process.env.NEXT_PUBLIC_GEOCODE_EARTH_KEY = "";
       const { geocodeSearch } = await loadGeocode();
 
-      const { provider } = await geocodeSearch("test", { allowFallback: true });
+      const { provider } = await geocodeSearch("test", searchOpts());
 
       expect(provider).toBe("nominatim");
       process.env.NEXT_PUBLIC_GEOCODE_EARTH_KEY = key;
@@ -143,26 +152,24 @@ describe("geocodeSearch", () => {
       const fallback = countFallbackRequests();
       const { geocodeSearch } = await loadGeocode();
 
-      await expect(geocodeSearch("test", { allowFallback: false })).rejects.toThrow("gateway down");
+      await expect(geocodeSearch("test", searchOpts("auto", false))).rejects.toThrow("gateway down");
       expect(fallback.count).toBe(0);
     });
 
     it("refuses the forced nominatim setting rather than serving id-less results", async () => {
       failPelias(503, "gateway down");
       const fallback = countFallbackRequests();
-      const { geocodeSearch, initialProvider } = await loadGeocode("nominatim");
+      const { geocodeSearch, initialProvider } = await loadGeocode();
 
-      expect(initialProvider(false)).toBe("pelias");
-      await expect(geocodeSearch("test", { allowFallback: false })).rejects.toThrow("gateway down");
+      expect(initialProvider(false, "nominatim")).toBe("pelias");
+      await expect(geocodeSearch("test", searchOpts("nominatim", false))).rejects.toThrow("gateway down");
       expect(fallback.count).toBe(0);
     });
 
     it("still serves Geocode.earth results normally", async () => {
       const { geocodeSearch } = await loadGeocode();
 
-      const { provider, results } = await geocodeSearch("test", {
-        allowFallback: false,
-      });
+      const { provider, results } = await geocodeSearch("test", searchOpts("auto", false));
 
       expect(provider).toBe("pelias");
       expect(results[0].id).toBe("whosonfirst:locality:1");
@@ -178,10 +185,10 @@ describe("geocodeSearch", () => {
           return res(ctx.json({ type: "FeatureCollection", features: [] }));
         }),
       );
-      const { geocodeSearch, initialProvider } = await loadGeocode("nominatim");
+      const { geocodeSearch, initialProvider } = await loadGeocode();
 
-      expect(initialProvider(true)).toBe("nominatim");
-      const { provider } = await geocodeSearch("test", { allowFallback: true });
+      expect(initialProvider(true, "nominatim")).toBe("nominatim");
+      const { provider } = await geocodeSearch("test", searchOpts("nominatim"));
 
       expect(provider).toBe("nominatim");
       expect(peliasRequests).toBe(0);
@@ -196,21 +203,30 @@ describe("geocodeSearch", () => {
           return res(ctx.json([]));
         }),
       );
-      const { geocodeSearch, initialProvider } = await loadGeocode("pelias");
+      const { geocodeSearch, initialProvider } = await loadGeocode();
 
-      expect(initialProvider(true)).toBe("pelias");
-      await expect(geocodeSearch("test", { allowFallback: true })).rejects.toThrow("gateway down");
+      expect(initialProvider(true, "pelias")).toBe("pelias");
+      await expect(geocodeSearch("test", searchOpts("pelias"))).rejects.toThrow("gateway down");
       expect(fallbackRequests).toBe(0);
     });
 
-    it("ignores an unrecognised setting and behaves as auto", async () => {
-      failPelias(503);
-      const { geocodeSearch, initialProvider } = await loadGeocode("bogus");
+    it("treats an unrecognised setting as nominatim", async () => {
+      let peliasRequests = 0;
+      server.use(
+        rest.get(AUTOCOMPLETE_URL, (_req, res, ctx) => {
+          peliasRequests += 1;
+          return res(ctx.json({ type: "FeatureCollection", features: [] }));
+        }),
+      );
+      const { geocodeSearch, initialProvider, normalizeProviderSetting } = await loadGeocode();
+      const setting = normalizeProviderSetting("bogus");
 
-      expect(initialProvider(true)).toBe("pelias");
-      const { provider } = await geocodeSearch("test", { allowFallback: true });
+      expect(setting).toBe("nominatim");
+      expect(initialProvider(true, setting)).toBe("nominatim");
+      const { provider } = await geocodeSearch("test", searchOpts(setting));
 
       expect(provider).toBe("nominatim");
+      expect(peliasRequests).toBe(0);
     });
   });
 });
