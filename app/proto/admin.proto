@@ -115,6 +115,10 @@ service Admin {
 
   rpc ListUserUploads(ListUserUploadsReq) returns (ListUserUploadsRes) {}
 
+  rpc ExportUserData(ExportUserDataReq) returns (ExportUserDataRes) {
+    // Produce a JSON export of a user's data, for an admin to hand to them on request
+  }
+
   rpc CreateOTAPackage(CreateOTAPackageReq) returns (OTAPackage) {
     // Register a published Expo OTA bundle so the backend serves it to compatible native builds
   }
@@ -707,6 +711,19 @@ message UserUpload {
 message ListUserUploadsRes {
   repeated UserUpload uploads = 1;
   string next_page_token = 2;
+}
+
+message ExportUserDataReq {
+  // username, email, or user id
+  string user = 1;
+}
+
+message ExportUserDataRes {
+  int64 user_id = 1;
+  google.protobuf.Timestamp generated = 2;
+  // suggested filename to save the export as
+  string filename = 3;
+  string json = 4;
 }
 
 enum OTAPlatform {

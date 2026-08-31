@@ -6,6 +6,7 @@ from typing import Any
 
 import grpc
 from google.protobuf import empty_pb2
+from google.protobuf.json_format import MessageToJson
 from google.protobuf.wrappers_pb2 import Int64Value
 from sqlalchemy import select, tuple_
 from sqlalchemy.orm import Session, aliased, selectinload
@@ -15,6 +16,7 @@ from user_agents import parse as user_agents_parse
 from couchers import urls
 from couchers.context import CouchersContext
 from couchers.crypto import urlsafe_secure_token
+from couchers.data_export import generate_user_data_export
 from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.helpers.geoip import geoip_approximate_location, geoip_asn
 from couchers.helpers.strong_verification import get_strong_verification_fields
@@ -1494,6 +1496,24 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 for upload in page
             ],
             next_page_token=uploads[page_size - 1].key if len(uploads) > page_size else None,
+        )
+
+    def ExportUserData(
+        self, request: admin_pb2.ExportUserDataReq, context: CouchersContext, session: Session
+    ) -> admin_pb2.ExportUserDataRes:
+        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
+        if not user:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+
+        generated = now()
+        export = generate_user_data_export(session, user, generated)
+        log_admin_action(session, context, user, "export_user_data", level=AdminActionLevel.high)
+
+        return admin_pb2.ExportUserDataRes(
+            user_id=user.id,
+            generated=Timestamp_from_datetime(generated),
+            filename=f"couchers-data-export-{user.username}-{generated.date().isoformat()}.json",
+            json=MessageToJson(export, indent=2, preserving_proto_field_name=True),
         )
 
     def CreateOTAPackage(
