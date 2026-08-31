@@ -18,7 +18,6 @@ from couchers.models import (
     InvoiceType,
     Node,
     ProfilePublicVisibility,
-    Reference,
     User,
     Volunteer,
 )
@@ -26,7 +25,13 @@ from couchers.models.uploads import get_avatar_upload
 from couchers.proto import api_pb2, public_pb2, public_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
 from couchers.resources import get_static_badge_dict
-from couchers.servicers.api import fluency2api, hostingstatus2api, meetupstatus2api, user_model_to_pb
+from couchers.servicers.api import (
+    fluency2api,
+    get_num_references,
+    hostingstatus2api,
+    meetupstatus2api,
+    user_model_to_pb,
+)
 from couchers.servicers.gis import _statement_to_geojson_response
 from couchers.sql import users_visible
 from couchers.utils import Timestamp_from_datetime, not_none, now
@@ -213,13 +218,10 @@ class Public(public_pb2_grpc.PublicServicer):
                 full_user=user_model_to_pb(user, session, make_logged_out_context(localization=context.localization))
             )
 
-        num_references = session.execute(
-            select(func.count())
-            .select_from(Reference)
-            .join(User, User.id == Reference.from_user_id)
-            .where(users_visible(context, User))
-            .where(Reference.to_user_id == user.id)
-        ).scalar_one()
+        # use the shared count so public profiles agree with the reference list and profile count
+        num_references = get_num_references(
+            session, make_logged_out_context(localization=context.localization), [user.id]
+        ).get(user.id, 0)
 
         if user.public_visibility == ProfilePublicVisibility.limited:
             return public_pb2.GetPublicUserRes(
