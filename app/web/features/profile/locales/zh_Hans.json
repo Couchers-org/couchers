@@ -203,8 +203,7 @@
     "request_description_empty": "请写一条请求消息",
     "success": "请求已发送！",
     "request_chars_remaining_other": "请再写至少{{count}}个字符以发送接待请求。",
-    "arrival_date_before_host_today": "{{name}}的这个日期已经过去了。",
-    "request_chars_remaining_one": "请至少再输入{{count}}个字符以发送接待请求。"
+    "arrival_date_before_host_today": "{{name}}的这个日期已经过去了。"
   },
   "message_form": {
     "send_message": "给{{name}}发送消息",
@@ -259,8 +258,7 @@
   "active": "活跃",
   "helper_text": {
     "missing_profile_photo": "请添加一张照片以完善您的个人资料。",
-    "characters_remaining_other": "<bold>请至少再写{{count}}个字符来解锁消息和请求。</bold>真实的个人资料可构建信任社区。您分享的越多，联系就越容易！",
-    "characters_remaining_one": "<bold>请至少再写{{count}}个字符来解锁消息和请求。</bold>真实的个人资料可构建信任社区。您分享的越多，联系就越容易！"
+    "characters_remaining_other": "<bold>请至少再写{{count}}个字符来解锁消息和请求。</bold>真实的个人资料可构建信任社区。您分享的越多，联系就越容易！"
   },
   "do_not_email_error_link": "更新您的电子邮件设置以重新启用此功能。",
   "what_options_mean": "这些选项的含义",
@@ -277,8 +275,7 @@
   "reference_amounts": {
     "no_references": "没有引用",
     "count_references_other": "{{count}}引用",
-    "hundred_or_more_references": "100+引用",
-    "count_references_one": "{{count}}条评价"
+    "hundred_or_more_references": "100+引用"
   },
   "incomplete_profile_haiku": "空白头像的凝视，\n沉默背后的秘密——\n陌生人，你是谁？",
   "search_indicator": "当其他会员搜索你时，在搜索结果中可以看到此部分的开头",

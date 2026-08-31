@@ -1,9 +1,9 @@
 {
   "generic": {
     "greeting_line": "Oi {{name}},",
-    "security_warning_contact_support": "Se você não iniciou essa ação, por favor entre em contato conosco em {{ email_link }} para que possamos resolver isso o mais rápido possível.",
-    "do_not_reply_request": "Não responda a esse e-mail. Use um dos botões acima para responder a esse pedido.",
-    "thanks": "Obrigado!",
+    "security_warning_contact_support": "Se você não iniciou essa ação, entre em contato conosco em {{ email_link }} para que possamos resolver isso o mais rápido possível.",
+    "do_not_reply_request": "Não responda a esse e-mail. Use um dos botões acima para responder a essa solicitação.",
+    "thanks": "Obrigado(a)!",
     "closing_lines": {
       "default": "Abraços,<br> Equipe Couchers.org",
       "founders": "Aapeli e Itsi,<br>Fundadores do Couchers.org",
@@ -45,7 +45,7 @@
       "subject": "Sua conta foi excluída",
       "purpose": "Você excluiu sua conta Couchers.org com sucesso.",
       "farewell": "Estamos tristes em deixar você ir e desejamos o melhor em suas futuras viagens. Você sempre será bem-vindo(a) de volta na plataforma do Couchers.org :)",
-      "recovery_instructions_days_one": "Se você mudar de ideia, <strong> você tem {{count}} dia(s) para recuperar sua conta</strong> clicando no link a seguir:",
+      "recovery_instructions_days_one": "Se você mudar de ideia, <strong> você tem {{count}} dia para recuperar sua conta</strong> clicando no link a seguir:",
       "recovery_instructions_days_many": "Se você mudar de ideia, <strong> você tem {{count}} dias para recuperar sua conta</strong> clicando no link a seguir:",
       "recovery_instructions_days_other": "Se você mudar de ideia, <strong> você tem {{count}} dias para recuperar sua conta</strong> clicando no link a seguir:",
       "recover_action": "Recuperar conta"
@@ -59,11 +59,11 @@
     }
   },
   "activeness_probe": {
-    "subject": "Você ainda está aberto a hospedagem?",
-    "purpose": "Notamos que você não entra faz um tempo e gostariamos de checar se você ainda está aberto a hospedar surfers",
-    "instructions_days_one": "Para manter seu status \"Posso Hospedar\", acesse novamente dentro de <b>{{count}} dia(s)</b>. Senão trocaremos seu status de hospedagem para \"Não posso hospedar.\"",
-    "instructions_days_many": "Para manter seu status \"Posso Hospedar\", acesse novamente dentro de <b>{{count}} dias</b>. Senão trocaremos seu status de hospedagem para \"Não posso hospedar.\"",
-    "instructions_days_other": "Para manter seu status \"Posso Hospedar\", acesse novamente dentro de <b>{{count}} dias</b>. Senão trocaremos seu status de hospedagem para \"Não posso hospedar.\"",
+    "subject": "Você ainda está disponível para hospedar?",
+    "purpose": "Notamos que você não entra faz um tempo e gostariamos de checar se você ainda está disponível a hospedar surfers.",
+    "instructions_days_one": "Para manter seu status \"Posso Hospedar\", acesse novamente dentro de <b>{{count}} dia</b>. Senão trocaremos seu status de hospedagem para \"Não Posso Hospedar.\"",
+    "instructions_days_many": "Para manter seu status \"Posso Hospedar\", acesse novamente dentro de <b>{{count}} dias</b>. Senão trocaremos seu status de hospedagem para \"Não Posso Hospedar.\"",
+    "instructions_days_other": "Para manter seu status \"Posso Hospedar\", acesse novamente dentro de <b>{{count}} dias</b>. Senão trocaremos seu status de hospedagem para \"Não Posso Hospedar.\"",
     "encouragement": "Esses chek-ins ajudam surfers a encontrar anfitriões ativos mais facilmente e a manter tempos de resposta precisos.",
     "latest_release": "Em caso de você ter perdido, nós lançamos a versão {{version}} recentemente. Algumas de nossas atualizações recentes incluem: aplicativos de celular para iOS e Android, um dashboard melhorado, revisão de envio de mensagens e novas funcionalidades. Leia mais no <a href=\"{{blog_url}}\">blog do Couchers.org</a>.",
     "login_action": "Acessar novamente"
@@ -73,7 +73,7 @@
     "header": "Você solicitou recentemente uma chave de API para o Couchers.org. Nós criamos para você a seguinte chave de API:",
     "expiry": "A chave expira em <b>{{ datetime }}</b>.",
     "usage_warning": "Essa chave de API é única para sua conta; não a compartilhe com ninguém. Ela fornece acesso completo a sua conta e você é responsável por qualquer ação tomada usando essa chave de API.",
-    "policy_warning": "Lembre de cumprir com nossos <a href=\"{{terms_url}}\">Termos de Serviço</a>, nossos Guias de Comunidade e outras políticas durante o uso de nossas APIs. Todo acesso é registrado e analisado, e podemos encerrar seu acesso ou conta em caso de abuso de serivço."
+    "policy_warning": "Lembre de cumprir com nossos <a href=\"{{terms_url}}\">Termos de Serviço</a>, nossos Guias de Comunidade e outras políticas durante o uso de nossas APIs. Todo acesso é registrado e analisado, e podemos encerrar seu acesso ou conta em caso de abuso de serviço."
   },
   "badges": {
     "added": {
@@ -87,7 +87,7 @@
   },
   "birthdate_changed": {
     "subject": "Sua data de nascimento foi modificada",
-    "purpose": "Seu dia de nascimento foi modificado para <b>{{ date }}</b> por um administrador."
+    "purpose": "Sua data de nascimento foi modificado para <b>{{ date }}</b> por um administrador."
   },
   "chat_messages": {
     "received": {
@@ -149,7 +149,7 @@
       "item_names": {
         "title": "título",
         "content": "conteúdo",
-        "location": "localidade",
+        "location": "localização",
         "start_time": "hora de início",
         "end_time": "hora do fim"
       }
@@ -178,7 +178,7 @@
   "friend_requests": {
     "received": {
       "view_action": "Visualizar pedidos de amizade",
-      "subject": "{{name}} quer ser seu amigo",
+      "subject": "{{name}} quer fazer amizade com você",
       "purpose": "<b>{{name}}</b> te enviou um pedido de amizade.",
       "closing": "Esperamos que você faça uma nova amizade!"
     },
@@ -191,14 +191,14 @@
   },
   "host_requests": {
     "generic": {
-      "view_action": "Visualizar pedido de anftrião",
+      "view_action": "Visualizar pedido de hospedagem",
       "date_range": "De <b>{{from_date}}</b> a <b>{{to_date}}</b>.",
       "quick_decline_action": "Recusa rápida"
     },
     "created": {
       "subject": "{{surfer_name}} te enviou um pedido de hospedagem",
       "purpose": "<b>{{surfer_name}}</b> te enviou um pedido de hospedagem:",
-      "respond_encouragement": "Responda a esse pedido. Até mesmo uma recusa rápida é melhor que não responder!"
+      "respond_encouragement": "Responda a esse pedido. Até mesmo uma recusa rápida é melhor do que não responder!"
     },
     "reminder": {
       "subject": "Você tem um pedido de hospedagem pendente de {{surfer_name}}",
@@ -210,8 +210,8 @@
         "purpose": "<b>{{other_name}}</b> te enviou uma mensagem no seu pedido de hospedagem:"
       },
       "from_surfer": {
-        "subject": "{{other_name}} te enviou uma mensagem em seu próprio pedido de hospedagem",
-        "purpose": "<b>{{other_name}}</b> te enviou uma mensagem em seu pedido de hospedagem:"
+        "subject": "{{other_name}} te enviou uma mensagem no pedido de hospedagem que ele(a) enviou",
+        "purpose": "<b>{{other_name}}</b> te enviou uma mensagem no pedido de hospedagem que ele(a) enviou:"
       }
     },
     "missed_messages": {
@@ -220,8 +220,8 @@
         "purpose": "<b>{{other_name}}</b> te enviou uma ou mais mensagens no seu pedido de hospedagem:"
       },
       "from_surfer": {
-        "subject": "{{other_name}} te enviou uma ou mais mensagens em seu próprio pedido de hospedagem",
-        "purpose": "<b>{{other_name}}</b> te enviou uma ou mais mensagens em seu próprio pedido de hospedagem:"
+        "subject": "{{other_name}} te enviou uma ou mais mensagens no pedido de hospedagem que ele(a) enviou",
+        "purpose": "<b>{{other_name}}</b> te enviou uma ou mais mensagens no pedido de hospedagem que ele(a) enviou:"
       }
     },
     "status_changed": {
@@ -234,8 +234,8 @@
         "purpose": "<b>{{other_name}}</b> recusou seu pedido de hospedagem:"
       },
       "confirmed_by_surfer": {
-        "subject": "{{other_name}} confirmou seu pedido de hospedagem",
-        "purpose": "<b>{{other_name}}</b> confirmou seu pedido de hospedagem:"
+        "subject": "{{other_name}} confirmou o pedido de hospedagem que dele(a)",
+        "purpose": "<b>{{other_name}}</b> confirmou o pedido de hospedagem dele(a):"
       },
       "cancelled_by_surfer": {
         "subject": "{{other_name}} cancelou o pedido de hospedagem",
@@ -246,16 +246,17 @@
   "moderator_note": {
     "view_action": "Visualizar mensagem de moderador",
     "subject": "Você recebeu a mensagem de um moderador",
-    "purpose": "Você recebeu uma mensagem importante dos moderadors. Você deve ler e aceitá-la antes de continuar a usar a plataforma."
+    "purpose": "Você recebeu uma mensagem importante dos moderadors. Você deve lê-la e aceitá-la antes de continuar a usar a plataforma."
   },
   "references": {
     "received": {
       "view_action": "Visualizar a referência",
       "friend": {
-        "purpose": "<b>{{name}}</b> escreveu uma referência de amizade para você:"
+        "purpose": "<b>{{name}}</b> escreveu uma referência de amizade para você:",
+        "subject": "Você recebeu uma referência de amizade de {{name}}!"
       },
       "hosted": {
-        "purpose": "<b>{{name}}</b> escreveu uma referência para você de quando você a hospedou.",
+        "purpose": "<b>{{name}}</b> escreveu uma referência para você de quando você o(a) hospedou.",
         "reciprocate_encouragement": "É a sua vez de escrever uma referência para <b>{{name}}</b>. Uma vez que submetê-la, ambas as referências ficarão visíveis. Caso contrário, a referência de <b>{{name}}</b> se tornará automaticamente visível 14 dias após sua estadia, e não será mais possível escrever uma referência."
       },
       "surfed": {
@@ -270,13 +271,13 @@
       "subject_days_other": "Você tem {{count}} dias para escrever uma referência para {{name}}",
       "hosted": {
         "purpose_days_one": "<strong> Você tem {{count}} dia restante para escrever uma referência para a estadia de {{name}}</strong> em sua casa. Sua referência é vital para manter a comunidade segura e confiável.",
-        "purpose_days_many": "<strong> Você tem {{count}} dias restante para escrever uma referência para a estadia de {{name}}</strong> em sua casa. Sua referência é vital para manter a comunidade segura e confiável.",
-        "purpose_days_other": "<strong> Você tem {{count}} dias restante para escrever uma referência para a estadia de {{name}}</strong> em sua casa. Sua referência é vital para manter a comunidade segura e confiável."
+        "purpose_days_many": "<strong> Você tem {{count}} dias restantes para escrever uma referência para a estadia de {{name}}</strong> em sua casa. Sua referência é vital para manter a comunidade segura e confiável.",
+        "purpose_days_other": "<strong> Você tem {{count}} dias restantes para escrever uma referência para a estadia de {{name}}</strong> em sua casa. Sua referência é vital para manter a comunidade segura e confiável."
       },
       "surfed": {
         "purpose_days_one": "<strong> Você tem {{count}} dia restante para escrever uma referência de sua estadia na casa de {{name}}</strong> . Sua referência é vital para manter a comunidade segura e confiável.",
-        "purpose_days_many": "<strong> Você tem {{count}} dias restante para escrever uma referência de sua estadia na casa de {{name}}</strong> . Sua referência é vital para manter a comunidade segura e confiável.",
-        "purpose_days_other": "<strong> Você tem {{count}} dias restante para escrever uma referência de sua estadia na casa de {{name}}</strong> . Sua referência é vital para manter a comunidade segura e confiável."
+        "purpose_days_many": "<strong> Você tem {{count}} dias restantes para escrever uma referência de sua estadia na casa de {{name}}</strong> . Sua referência é vital para manter a comunidade segura e confiável.",
+        "purpose_days_other": "<strong> Você tem {{count}} dias restantes para escrever uma referência de sua estadia na casa de {{name}}</strong> . Sua referência é vital para manter a comunidade segura e confiável."
       },
       "no_meeting_note": "Se você não encontrou <b>{{name}}</b>, use o link para que saibamos e paremos de te enviar lembretes.",
       "visibility_note": "Referências ficarão visíveis 2 semanas após a hospedagem, ou quando ambos escreverem uma referência um para outro, o que acontecer primeiro."
@@ -284,14 +285,14 @@
     "write_action": "Escreva uma referência para {{name}}"
   },
   "thread_reply": {
-    "view_action": "Visualizar thread",
+    "view_action": "Visualizar tópico",
     "subject": "{{author}} respondeu em {{parent_context}}",
     "purpose": "<b>{{author}}</b> respondeu em <b>{{parent_context}}</b>:"
   },
   "donation_received": {
     "subject": "Obrigado pela sua doação ao Couchers.org!",
     "purpose": "Muito obrigado pela sua doação de <b>{{amount_with_currency}}</b> ao Couchers.org.",
-    "contribution_impact": "Sua contribuição será destinada à construção e à manutenção da comunidade Couchers.org, e é vital a nossos objetivos de ter uma plataforma de couch surfing livre e sem fins lucrativos.",
+    "contribution_impact": "Sua contribuição será destinada à construção e à manutenção da comunidade Couchers.org, e é vital a nossos objetivos de ter uma plataforma de couch surfing gratuita e sem fins lucrativos.",
     "invoice_receipt_info": "Você pode baixar uma fatura e um recibo para a doação aqui:",
     "download_invoice": "Baixar fatura",
     "tax_acknowledgment": "Couchers, Inc. é uma organização sem fins lucrativos 501(c)(3) (EIN: 87-1734577) registrada nos Estados Unidos. Nenhum bem ou serviço foi fornecido em troca dessa contribuição.",
@@ -333,8 +334,8 @@
   "strong_verification": {
     "succeeded": {
       "subject": "Verificação Forte bem sucedida",
-      "purpose": "Você foi verificado com Verificação Forte. Agora você verá um símbolo de verificação do lado do seu nome na plataforma.",
-      "thanks_message": "Obrigado por fazer a verificação! Você está ajudando a apoiar a confiança e a degurança na comunidade Coucher.org.",
+      "purpose": "Você foi verificado com a Verificação Forte. Agora você verá um símbolo de verificação do lado do seu nome na plataforma.",
+      "thanks_message": "Obrigado por fazer a verificação! Você está ajudando a apoiar a confiança e a segurança na comunidade Coucher.org.",
       "cost_explanation": "A verificação é gratuita para você, mas tem um custo para nós. Como um comunidade sem fins lucrativos comandada por voluntários, nós contamos com doações para cobrir gastos como manter os servidores funcionando, verificações e ferramentas para nossos engenheiros de software, designers e time de segurança.",
       "donation_request": "Se puder, considere fazer uma doação para ajudar a manter o Couchers.org funcionando e crescendo.",
       "donate_action": "Faça uma doação para apoiar o Couchers.org"
@@ -342,7 +343,7 @@
     "failed": {
       "subject": "Verificação Forte falhou",
       "purpose": {
-        "wrong_birthdate_or_gender": "Sua tentativa de fazer a Verificação Forte falhou porque a data de nascimento ou gênero no seu perfil não corresponde à data de nascimento ou sexo no seu passaporte. Entre em contato com o time de suporte para atualizar sua data de nascimento ou gênero, ou se o sexo no seu passaporte não corresponde à sua identidade de gênero.",
+        "wrong_birthdate_or_gender": "Sua tentativa de fazer a Verificação Forte falhou porque a data de nascimento ou gênero no seu perfil não corresponde à data de nascimento ou sexo no seu passaporte. Entre em contato com o time de suporte para atualizar sua data de nascimento ou gênero, ou se o sexo no seu passaporte não corresponde a sua identidade de gênero.",
         "not_a_passport": "Sua tentativa de Verificação Forte falhou porque você usou um documento que não é um passaporte. Você pode somente usar um passaporte para a Verificação Forte.",
         "duplicate": "Sua tentativa de Verificação Forte falhou porque você usou um passaporte que já foi usado na plataforma. Use outro passaporte."
       },
@@ -358,14 +359,61 @@
     "initial": {
       "subject": "Bem-vindo(a) ao Couchers.org e ao futuro do couch surfing",
       "welcome": "Bem-vindo(a) ao Couchers.org e a nossa comunidade mundial de couch surfing!",
-      "early_user_role": "Nós estamos crescendo rapidamente, e olhando para trás, você será um dos primeiros usuários. Você, então, tem o papel vital de moldar a cultura e sentir o crescimento da comunidade e de nossa plataforma. Estou realmente feliz que você nos encontrou e que decidiu se juntar a nós!",
-      "complete_profile_request": "Quando tiver uma chance de olhar isso, complete o perfil inserindo uma foto e escrevendo um pouco sobre você (e sobre sua casa, se você deseja hospedar alguém).",
+      "early_user_role": "Nós estamos crescendo rapidamente, e olhando para trás, você terá sido um dos primeiros usuários. Você, então, tem o papel vital de moldar a cultura e sentir o crescimento da comunidade e de nossa plataforma. Estou realmente feliz que você nos encontrou e que decidiu se juntar a nós!",
+      "complete_profile_request": "Quando tiver uma chance de dar uma olhada, complete o perfil inserindo uma foto e escrevendo um pouco sobre você (e sobre sua casa, se você deseja hospedar alguém).",
       "profile_importance": "Um perfil que se parece com uma pessoa real é o que ajuda alguém a decidir se adoraria te encontrar ou se hospedar com você. Tente dar a comunidade uma amostra de sua vibe! Não pense demais: escreva como você mesmo. Compartilhe o que você gosta, o que faz no seu tempo livre e as coisas que importam para você.",
       "share_request": "Mais uma coisa: compartilhe a palavra e faça a comunidade crescer! Nossos melhores membros são aqueles que foram convidados por outra pessoa."
     },
     "follow_up": {
       "subject": "Complete seu perfil",
-      "intro": "Eu espero que você tenha tomado um tempo para dar uma olhada na plataforma do Couchers.org!"
+      "intro": "Eu espero que você tenha tomado um tempo para dar uma olhada na plataforma do Couchers.org!",
+      "request": "Adoraríamos pedir um pequeno favor a você: por gentileza, tire um tempo para preencher seu perfil, adicionando uma foto e algum texto nas seções 'quem sou eu' e 'minha casa'. Preencher seu perfil faz com que outras pessoas se interessem mais em se conectar com você e ajuda nossa comunidade a se tornar mais acolhedora."
+    },
+    "complete_profile_action": "Complete seu perfil"
+  },
+  "password_changed": {
+    "subject": "Sua senha foi trocada",
+    "purpose": "Sua senha no Couchers.org foi trocada."
+  },
+  "password_reset": {
+    "started": {
+      "subject": "Redefina sua senha",
+      "purpose": "Você pediu para que sua senha seja redefinida no Couchers.org. Para completar essa mudança, clique no link a seguir:",
+      "reset_action": "Redefina sua senha"
+    },
+    "completed": {
+      "subject": "Sua senha foi redefinida com sucesso",
+      "purpose": "Sua senha no Couchers.org foi redefinida."
+    }
+  },
+  "phone_number_verification": {
+    "started": {
+      "subject": "Verificação de telefone começou",
+      "purpose": "Você começou a verificação de número de telefone com o número <b>{{ phone_number }}</b>."
+    },
+    "verified": {
+      "subject": "Telefone verificado com sucesso",
+      "purpose": "Seu número de telefone foi verificado com sucesso como <b>{{ phone_number }}</b>."
+    }
+  },
+  "postal_verification": {
+    "postcard_sent": {
+      "subject": "A verificação do seu cartão postal está a caminho",
+      "purpose": "Te enviamos um cartão postal com o seu código de verificação para <b>{{ city }}, {{ country }}</b>. Deve chegar dentro de 1-3 semanas dependendo da sua localização. Assim que chegar, use o link a seguir para completar a verificação:",
+      "enter_code_action": "Insira o código do cartão postal"
+    },
+    "succeeded": {
+      "subject": "Verificação Postal bem sucedida",
+      "purpose": "Seu endereço foi verificado com sucesso com a Verificação Postal."
+    },
+    "failed": {
+      "subject": "Verificação Postal falhou",
+      "purpose": {
+        "default": "Sua tentativa de Verificação Postal falhou por razões desconhecidas.",
+        "code_expired": "Sua tentativa de Verificação Postal falhou porque seu código expirou. Os códigos são válidos por 90 dias após o envio do cartão postal.",
+        "too_many_attempts": "Sua tentativa de Verificação Postal falhou pois foram feitas muitas tentativas com o código errado."
+      },
+      "restart_action": "Solicite um novo cartão postal"
     }
   }
 }

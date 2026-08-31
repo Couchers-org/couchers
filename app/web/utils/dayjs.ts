@@ -32,6 +32,7 @@ import LocalizedFormat from "dayjs/plugin/localizedFormat";
 import RelativeTime from "dayjs/plugin/relativeTime";
 import Timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
+import { DEFAULT_LOCALE } from "i18n/locales";
 
 dayjs.extend(utc);
 dayjs.extend(customParseFormat);
@@ -75,7 +76,7 @@ const I18N_TO_DAYJS_LOCALE: Record<string, string> = {
  * `dayjs(x).locale(i18nToDayjsLocale(language)).format("LL")`.
  */
 export function i18nToDayjsLocale(language: string): string {
-  return I18N_TO_DAYJS_LOCALE[language] ?? I18N_TO_DAYJS_LOCALE[language.split("-")[0]] ?? "en";
+  return I18N_TO_DAYJS_LOCALE[language] ?? I18N_TO_DAYJS_LOCALE[language.split("-")[0]] ?? DEFAULT_LOCALE;
 }
 
 export { Dayjs };

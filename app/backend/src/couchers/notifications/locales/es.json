@@ -394,7 +394,12 @@
   },
   "reference": {
     "receive_friend": {
-      "event_description": "Recibes una recomendación de un amigo"
+      "event_description": "Recibes una recomendación de un amigo",
+      "push": {
+        "title": "Nueva referencia de amistad de {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Nueva referencia de amigo"
+      }
     },
     "receive_hosted": {
       "event_description": "Recibes una recomendación de alguien que te alojó"
@@ -420,13 +425,21 @@
       "push": {
         "title": "Escribe tu referencia para {{user}}",
         "ios_title": "Escribe tu referencia",
-        "ios_subtitle": "{{user}}"
+        "ios_subtitle": "{{user}}",
+        "body_one": "Todavía tienes {{count}} día para escribir una referencia para {{user}}.",
+        "body_many": "Todavía tienes {{count}} de días para escribir una referencia para {{user}}.",
+        "body_other": "Todavía tienes {{count}} días para escribir una referencia para {{user}}."
       }
     }
   },
   "thread": {
     "reply": {
-      "event_description": "Alguien responde a tu comentario"
+      "event_description": "Alguien responde a tu comentario",
+      "push": {
+        "title": "{{user}} • {{title}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "{{title}}"
+      }
     }
   },
   "modnote": {
@@ -464,6 +477,26 @@
         "title": "Verificación postal completada",
         "ios_title": "Verificación postal completada",
         "body": "Tu dirección ahora está verificada."
+      }
+    }
+  },
+  "verification": {
+    "sv_fail": {
+      "event_description": "Tu verificación robusta ha fallado",
+      "push": {
+        "title": "La verificación robusta ha fallado",
+        "ios_title": "La verificación robusta ha fallado",
+        "body_wrong_birthdate_gender": "La fecha de nacimiento o el género de tu perfil no coinciden con la fecha de nacimiento o el sexo de tu pasaporte. Ponte en contacto con el equipo de soporte para actualizar tu fecha de nacimiento o género, o si el sexo que figura en tu pasaporte no coincide con tu identidad de género.",
+        "body_not_a_passport": "Has utilizado un documento que no es un pasaporte. Solo se puede usar un pasaporte para la verificación robusta.",
+        "body_duplicate": "Has utilizado un pasaporte que ya ha usado para la verificación. Por favor, utiliza otro pasaporte."
+      }
+    },
+    "sv_success": {
+      "event_description": "Tu verificación robusta ha sido satisfactoria",
+      "push": {
+        "title": "Verificación robusta completada",
+        "ios_title": "Verificación robusta completada",
+        "body": "Has sido verificado con verificación robusta."
       }
     }
   }
