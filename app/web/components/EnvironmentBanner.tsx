@@ -28,6 +28,7 @@ export function EnvironmentBanner() {
 
   return isShown ? (
     <Banner
+      data-testid="environment-banner"
       label={`This is a preview build of the app.${
         !isBelowSm ? " It uses a separate database to the production app." : ""
       }`}
