@@ -51,12 +51,12 @@
 </summary>
 <div class="panes">
   <section>
-    <h2>HTML <a data-href="{{ r.html_filename }}" target="_blank">open</a></h2>
-    <iframe data-file="{{ r.html_filename }}" loading="lazy"></iframe>
+    <h2>HTML <a data-kind="html" target="_blank">open</a></h2>
+    <iframe data-kind="html" loading="lazy"></iframe>
   </section>
   <section>
-    <h2>Plaintext <a data-href="{{ r.plaintext_filename }}" target="_blank">open</a></h2>
-    <iframe data-file="{{ r.plaintext_filename }}" loading="lazy"></iframe>
+    <h2>Plaintext <a data-kind="txt" target="_blank">open</a></h2>
+    <iframe data-kind="txt" loading="lazy"></iframe>
   </section>
 </div>
 </details>
@@ -64,10 +64,33 @@
 </main>
 <script>
 const SUBJECTS = {{ subjects_json }};
+const BODIES = new Map([[{{ inlined_locale_json }}, {{ inlined_bodies_json }}]]);
 const select = document.getElementById("locale");
 
 const requested = new URLSearchParams(location.search).get("locale");
 if (requested && SUBJECTS[Object.keys(SUBJECTS)[0]][requested] !== undefined) select.value = requested;
+
+async function bodies(locale) {
+  if (!BODIES.has(locale)) {
+    const resp = await fetch("emails-" + locale + ".json");
+    if (!resp.ok) throw new Error(resp.status + " fetching " + locale);
+    BODIES.set(locale, await resp.json());
+  }
+  return BODIES.get(locale);
+}
+
+const escapeHtml = (s) => s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
+
+// srcdoc resolves relative URLs against this document's base, so attachment_imgs/ is
+// already right; a blob: document has an opaque base and needs them made absolute
+const absolutise = (html) => html.replaceAll("attachment_imgs/", new URL("attachment_imgs/", location.href).href);
+
+function docFor(kind, body) {
+  return kind === "html"
+    ? body.html
+    : '<pre style="white-space:pre-wrap;font:13px/1.5 ui-monospace,monospace;margin:0;padding:8px">' +
+        escapeHtml(body.txt) + "</pre>";
+}
 
 function refresh() {
   const locale = select.value;
@@ -78,13 +101,23 @@ function refresh() {
   }
 }
 
-function load(details, locale) {
-  for (const iframe of details.querySelectorAll("iframe")) {
-    const src = locale + "/" + iframe.dataset.file;
-    if (iframe.getAttribute("src") !== src) iframe.src = src;
+async function load(details, locale) {
+  let body;
+  try {
+    body = (await bodies(locale))[details.dataset.key];
+  } catch (e) {
+    for (const iframe of details.querySelectorAll("iframe")) iframe.srcdoc = "<p>" + escapeHtml(String(e)) + "</p>";
+    return;
   }
-  for (const link of details.querySelectorAll("a[data-href]")) {
-    link.href = locale + "/" + link.dataset.href;
+  // a slow fetch may land after the user has moved on to another locale
+  if (select.value !== locale) return;
+  for (const iframe of details.querySelectorAll("iframe")) iframe.srcdoc = docFor(iframe.dataset.kind, body);
+  for (const link of details.querySelectorAll("a[data-kind]")) {
+    const html = link.dataset.kind === "html";
+    if (link.href.startsWith("blob:")) URL.revokeObjectURL(link.href);
+    link.href = URL.createObjectURL(
+      new Blob([html ? absolutise(body.html) : body.txt], { type: html ? "text/html" : "text/plain;charset=utf-8" })
+    );
   }
 }
 
