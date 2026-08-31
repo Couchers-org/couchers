@@ -3,12 +3,20 @@ import pytest
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 
+from couchers.context import (
+    CouchersContext,
+    make_background_user_context,
+    make_logged_out_context,
+    make_notification_user_context,
+)
 from couchers.db import session_scope
+from couchers.i18n import LocalizationContext
 from couchers.models import User, UserBlock
 from couchers.proto import blocking_pb2
-from couchers.servicers.blocking import is_not_visible
+from couchers.servicers.blocking import forget_viewer_visibility, is_not_visible, is_not_visible_to_viewer
 from couchers.utils import now
 from tests.fixtures.db import generate_user, make_user_block
+from tests.fixtures.misc import count_queries
 from tests.fixtures.sessions import blocking_session
 
 
@@ -302,3 +310,67 @@ def test_is_not_visible(db):
         # Shadowed viewer can still see other (visible) users
         assert not is_not_visible(session, shadowed_user.id, visible_for_shadowed.id)
         assert not is_not_visible(session, shadowed_user.id, None)
+
+
+def test_is_not_visible_to_viewer_agrees_with_is_not_visible(db):
+    """
+    is_not_visible_to_viewer answers from a loaded row and the context's cached blocks rather than by
+    querying per user, so it has to reach the same verdict as is_not_visible for every viewer/target
+    pair. Cover each way a user can be hidden and compare the two exhaustively.
+    """
+    visible1, _ = generate_user()
+    visible2, _ = generate_user()
+    blocker, _ = generate_user()
+    blockee, _ = generate_user()
+    deleted, _ = generate_user()
+    banned, _ = generate_user()
+    shadowed, _ = generate_user()
+
+    make_user_block(blocker, blockee)
+
+    with session_scope() as session:
+        session.get_one(User, deleted.id).deleted_at = now()
+        session.get_one(User, banned.id).banned_at = now()
+        session.get_one(User, shadowed.id).shadowed_at = now()
+        session.commit()
+
+    everyone = [visible1, visible2, blocker, blockee, deleted, banned, shadowed]
+
+    # a fresh context each time, as a fresh request would get; notification contexts are the ones that
+    # serialize shadowed users, so they cover ignore_shadow
+    viewers: list[tuple[CouchersContext, int | None]] = [(make_logged_out_context(LocalizationContext.en_utc()), None)]
+    for user in everyone:
+        viewers.append((make_background_user_context(user_id=user.id), user.id))
+        viewers.append((make_notification_user_context(user_id=user.id), user.id))
+
+    with session_scope() as session:
+        for context, viewer_id in viewers:
+            for target in everyone:
+                expected = is_not_visible(session, viewer_id, target.id, ignore_shadow=context.serialize_shadowed)
+                actual = is_not_visible_to_viewer(session, context, session.get_one(User, target.id))
+                assert actual == expected, (
+                    f"viewer={viewer_id}, target={target.id}, shadowed={context.serialize_shadowed}"
+                )
+
+
+def test_is_not_visible_to_viewer_caches_blocks_for_the_request(db):
+    viewer, _ = generate_user()
+    others = [generate_user()[0] for _ in range(5)]
+
+    context = make_background_user_context(user_id=viewer.id)
+
+    with session_scope() as session:
+        with count_queries() as queries:
+            for other in others:
+                assert not is_not_visible_to_viewer(session, context, session.get_one(User, other.id))
+        # the point of the cache: one block lookup however many users get checked
+        assert sum(1 for query in queries if "user_blocks" in query) == 1
+
+    # the snapshot is taken once, so a block made after it needs dropping to take effect. That's what
+    # BlockUser/UnblockUser call forget_viewer_visibility for
+    make_user_block(viewer, others[0])
+    with session_scope() as session:
+        blocked = session.get_one(User, others[0].id)
+        assert not is_not_visible_to_viewer(session, context, blocked)
+        forget_viewer_visibility(context)
+        assert is_not_visible_to_viewer(session, context, blocked)
