@@ -3,13 +3,12 @@ import { userLocationMaxRadius, userLocationMinRadius } from "appConstants";
 import MapSearch from "components/MapSearch";
 import Map from "components/OldMap";
 import TextField from "components/TextField";
-import { SignupAccountInputs } from "features/auth/signup/AccountForm";
-import { EditProfileFormValues } from "features/profile/edit/EditProfile";
 import { Feature, GeoJsonProperties, Geometry } from "geojson";
 import { useTranslation } from "i18n";
 import { GeoJSONSource, LngLat, Map as MaplibreMap, MapMouseEvent, MapTouchEvent } from "maplibre-gl";
 import React, { useRef, useState } from "react";
-import { ControllerRenderProps, FieldError } from "react-hook-form";
+import { FieldError } from "react-hook-form";
+import { markGeolocationGranted } from "utils/useLocationBias";
 
 import { GLOBAL } from "../i18n/namespaces";
 
@@ -27,6 +26,12 @@ const StyledMap = styled("div")({
   position: "relative",
 });
 
+// MapLibre nulls `style` on WebGL context loss (e.g. after a long idle tab);
+// the Map instance itself stays non-null.
+function hasMapStyle(map: MaplibreMap | null): map is MaplibreMap {
+  return map != null && map.style != null;
+}
+
 export interface ApproximateLocation {
   address: string;
   lat: number;
@@ -43,9 +48,6 @@ export interface EditLocationMapProps extends BoxProps {
   showRadiusSlider?: boolean;
   // whether we are selecting an exact point (for pages, etc) or approx circle, doesn't maeks ense with radius slider
   exact?: boolean;
-  inputFieldProps?:
-    | ControllerRenderProps<SignupAccountInputs, "location">
-    | ControllerRenderProps<EditProfileFormValues, "location">;
   inputFieldError?: FieldError | undefined;
   variant?: "standard" | "outlined" | "filled";
 }
@@ -57,7 +59,6 @@ export default function EditLocationMap({
   grow,
   showRadiusSlider,
   exact,
-  inputFieldProps,
   inputFieldError,
   variant = "standard",
   ...otherProps
@@ -124,13 +125,15 @@ export default function EditLocationMap({
       lat: wrapped.lat,
       lng: wrapped.lng,
     });
-    if (!isBlank.current) {
+    if (!hasMapStyle(map.current)) return;
+    if (!isBlank.current && map.current.getLayer(CIRCLE_LAYER_NAME)) {
       map.current.setLayoutProperty(CIRCLE_LAYER_NAME, "visibility", "visible");
     }
     redrawMap();
   };
 
   const redrawMap = () => {
+    if (!hasMapStyle(map.current)) return;
     const circle = map.current?.getSource<GeoJSONSource>(CIRCLE_SOURCE_NAME);
     if (!circle) return;
     if (!exact) {
@@ -221,9 +224,14 @@ export default function EditLocationMap({
         });
       }
 
-      // if no user is specified, ask to get the location from browser
-      if (!initialLocation && navigator.geolocation) {
+      // No location chosen yet (signup, jail, or a profile with none set): offer to
+      // centre the map on the browser's location. Never when the user already has
+      // one — that would move the circle off their saved home.
+      if (isBlank.current && navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
+          // Record the grant so search can bias results (LOC-3) on browsers whose
+          // Permissions API can't report geolocation state (Safari).
+          markGeolocationGranted();
           flyToSearch(new LngLat(position.coords.longitude, position.coords.latitude));
         });
       }
@@ -255,7 +263,9 @@ export default function EditLocationMap({
 
   const flyToSearch = (coords: LngLat) => {
     if (!map.current) return;
-    map.current.flyTo({ center: coords, zoom: 12.5 });
+    if (hasMapStyle(map.current)) {
+      map.current.flyTo({ center: coords, zoom: 12.5 });
+    }
     if (!exact) {
       const randomizedLocation = displaceLngLat(
         coords,
@@ -286,7 +296,6 @@ export default function EditLocationMap({
             {...otherProps}
           />
           <MapSearch
-            inputFieldProps={inputFieldProps}
             inputFieldError={inputFieldError}
             setError={setError}
             setResult={(coordinate, _, simplified) => {

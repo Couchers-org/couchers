@@ -230,9 +230,7 @@
   },
   "location_autocomplete": {
     "more_specific": "Escolha um local mais específico",
-    "search_location_hint": "Pressione Enter ou clique no ícone de busca para escolher uma localização",
-    "search_location_button": "Buscar localização",
-    "select_location_hint": "Pressione Enter ou clique no ícone de busca, depois em uma localização da lista"
+    "search_location_button": "Buscar localização"
   },
   "strong_verification": {
     "helper_text": "Este usuário verificou sua identidade usando um passaporte biométrico"
@@ -346,5 +344,14 @@
   "google_play_badge_a11y": "Baixe no Google Play",
   "bar": {
     "help_button_a11y": "Ajuda"
+  },
+  "use_my_location": {
+    "button": "Usar minha localização",
+    "loading": "Buscando sua localização…",
+    "permission_denied": "O acesso à localização foi negado. Você ainda pode digitar um lugar.",
+    "position_unavailable": "Não foi possível obter sua localização. Você ainda pode digitar um lugar.",
+    "no_address": "Não foi possível encontrar um lugar na sua localização. Você ainda pode digitar um lugar.",
+    "lookup_failed": "Não foi possível consultar sua localização agora. Você ainda pode digitar um lugar.",
+    "unsupported": "Este navegador não consegue compartilhar sua localização. Você ainda pode digitar um lugar."
   }
 }

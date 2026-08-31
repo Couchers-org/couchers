@@ -491,9 +491,8 @@ export default function EditProfileForm() {
                   }}
                   name="location"
                   control={control}
-                  render={({ field, fieldState: { error } }) => (
+                  render={({ fieldState: { error } }) => (
                     <EditLocationMap
-                      inputFieldProps={field}
                       inputFieldError={error}
                       showRadiusSlider
                       initialLocation={{
