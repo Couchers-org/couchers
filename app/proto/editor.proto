@@ -23,6 +23,10 @@ service Editor {
 
   rpc DecideEventCommunityInviteRequest(DecideEventCommunityInviteRequestReq) returns (DecideEventCommunityInviteRequestRes) {}
 
+  rpc GetEventCommunityInfo(GetEventCommunityInfoReq) returns (EventCommunityInfo) {}
+
+  rpc MoveEventToCommunity(MoveEventToCommunityReq) returns (EventCommunityInfo) {}
+
   rpc SendBlogPostNotification(SendBlogPostNotificationReq) returns (google.protobuf.Empty) {}
 
   rpc MakeUserVolunteer(MakeUserVolunteerReq) returns (Volunteer) {}
@@ -110,6 +114,43 @@ message DecideEventCommunityInviteRequestReq {
 }
 
 message DecideEventCommunityInviteRequestRes {}
+
+message GetEventCommunityInfoReq {
+  int64 event_id = 1;
+}
+
+message EventCommunityCandidate {
+  org.couchers.api.communities.Community community = 1;
+  uint32 approx_users_to_notify = 2;
+  // if set, a broadcast reaches nobody at all
+  bool too_large_for_notifications = 3;
+  // users were picked by a radius search around the event, not by community membership
+  bool notifies_by_proximity = 4;
+}
+
+message EventCommunityInfo {
+  int64 event_id = 1;
+  string title = 2;
+  string event_url = 3;
+  int64 creator_user_id = 4;
+  string address = 5;
+  uint32 occurrence_count = 6;
+
+  EventCommunityCandidate current = 7;
+  // smallest community containing this occurrence's location, i.e. where the event would land if created now
+  EventCommunityCandidate smallest_local = 8;
+  bool is_in_smallest_local_community = 9;
+}
+
+message MoveEventToCommunityReq {
+  // moves the whole event, i.e. all its occurrences
+  int64 event_id = 1;
+
+  oneof new_parent_community {
+    int64 community_id = 2;
+    bool smallest_local_community = 3;
+  }
+}
 
 message SendBlogPostNotificationReq {
   string url = 1;

@@ -327,10 +327,19 @@ def occurrences_next_page_token(occurrences: Sequence[EventOccurrence], page_siz
     return dt_id_to_page_token(next_occurrence.start_time, next_occurrence.id)
 
 
-def get_users_to_notify_for_new_event(session: Session, occurrence: EventOccurrence) -> tuple[list[User], int | None]:
+def is_community_too_large_for_event_notifications(node: Node) -> bool:
+    return node.node_type.value <= NodeType.region.value
+
+
+def get_users_to_notify_for_new_event(
+    session: Session, occurrence: EventOccurrence, node: Node | None = None
+) -> tuple[list[User], int | None]:
     """
     Returns the users to notify, as well as the community id that is being notified (None if based on geo search)
+
+    Defaults to the event's current parent community.
     """
+    node = node or occurrence.event.parent_node
     # people already attending or organizing the event don't need an invite to it
     not_already_involved = User.id.not_in(
         select(EventOccurrenceAttendee.user_id)
@@ -338,11 +347,11 @@ def get_users_to_notify_for_new_event(session: Session, occurrence: EventOccurre
         .union(select(EventOrganizer.user_id).where(EventOrganizer.event_id == occurrence.event_id))
     )
 
-    cluster = occurrence.event.parent_node.official_cluster
+    cluster = node.official_cluster
     creator = aliased(User)
-    if occurrence.event.parent_node.node_type.value <= NodeType.region.value:
-        logger.info("Global, macroregion, and region communities are too big for email notifications.")
-        return [], occurrence.event.parent_node_id
+    if is_community_too_large_for_event_notifications(node):
+        logger.info(f"Community {node.id} is a {node.node_type} and too big for email notifications.")
+        return [], node.id
     elif occurrence.creator_user in cluster.admins or cluster.is_leaf:
         members = (
             session.execute(
@@ -356,7 +365,7 @@ def get_users_to_notify_for_new_event(session: Session, occurrence: EventOccurre
             .scalars()
             .all()
         )
-        return list(members), occurrence.event.parent_node_id
+        return list(members), node.id
     else:
         max_radius = 20000  # m
         users = (
