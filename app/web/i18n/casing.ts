@@ -2,12 +2,15 @@
 const segmenterCache = new Map<string, Intl.Segmenter>();
 
 /**
- * Uppercases the first grapheme cluster of a string, leaving the rest untouched.
- * Non-capitalizable first clusters (digits, CJK, etc.) are returned unchanged.
- * Only for strings that stand alone (their own "sentence") — never for text
- * interpolated into a larger translated string.
+ * Uppercases the first letter of a string (if capitalizable), leaving the rest untouched.
  */
 export function capitalizeFirstLetter(value: string, locale: string): string {
+  if (typeof Intl.Segmenter !== "function") {
+    // Naive fallback for environments without Intl.Segmenter, like older Firefox browsers.
+    if (!value) return value;
+    return value[0].toLocaleUpperCase(locale) + value.slice(1);
+  }
+
   let segmenter = segmenterCache.get(locale);
   if (!segmenter) {
     segmenter = new Intl.Segmenter(locale, { granularity: "grapheme" });
