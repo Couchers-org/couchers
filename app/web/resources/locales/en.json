@@ -92,7 +92,7 @@
       "warning_message": "The information you provide in this form, as well as diagnostic information including the page you are on, your browser and your username will be recorded for our team to review.",
       "title_label": "Report title",
       "problem_label": "How did you encounter the problem?",
-      "problem_helper": "Describe the steps you took, which pages you navigated to, what you clicked on, etc.",
+      "problem_helper": "Describe the steps you took: which pages you were on, what you clicked on, etc.",
       "expect_label": "What happened? What should have happened?",
       "expect_helper": "Describe the problem you saw as a result of your steps, including any error messages, and what you expected to happen instead.",
       "success_message2": "Thank you for reporting this problem and making Couchers better! A report was sent to the developers. You can refer to this problem using ID: <id/>."
