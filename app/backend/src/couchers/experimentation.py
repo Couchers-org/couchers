@@ -186,7 +186,7 @@ def setup_experimentation() -> None:
         )
 
     with _state_lock:
-        smoke_gb = GrowthBook(features=_state["features"], savedGroups=_state["savedGroups"])
+        smoke_gb = GrowthBook(features=_state["features"], saved_groups=_state["savedGroups"])
     test_gate_result = smoke_gb.is_on("test_growthbook_integration")
 
     _refresh_stop.clear()
@@ -197,7 +197,7 @@ def setup_experimentation() -> None:
     logger.info(f"Experimentation integration test: gate 'test_growthbook_integration' = {test_gate_result}")
 
 
-def _record_exposure(user_id: int, experiment: Experiment, result: Result, **_: Any) -> None:
+def _record_exposure(user_id: int, experiment: Experiment[Any], result: Result[Any], **_: Any) -> None:
     data = {
         "experiment_name": experiment.name,
         "variation_key": result.key,
@@ -225,7 +225,7 @@ def _record_exposure(user_id: int, experiment: Experiment, result: Result, **_: 
         session.execute(stmt)
 
 
-def _record_feature_usage(user_id: int, key: str, result: FeatureResult, **_: Any) -> None:
+def _record_feature_usage(user_id: int, key: str, result: FeatureResult[Any], **_: Any) -> None:
     with session_scope() as session:
         session.add(FeatureUsage(user_id=user_id, feature_key=key, value=result.value))
 
@@ -251,18 +251,18 @@ def _create_evaluator(user_id: int | None) -> GrowthBook:
         features = _state["features"]
         saved_groups = _state["savedGroups"]
 
-    def on_experiment_viewed(experiment: Experiment, result: Result, **kwargs: Any) -> None:
+    def on_experiment_viewed(experiment: Experiment[Any], result: Result[Any], **kwargs: Any) -> None:
         if user_id is not None:
             _record_exposure(user_id, experiment, result)
 
-    def on_feature_usage(key: str, result: FeatureResult, *args: Any, **kwargs: Any) -> None:
+    def on_feature_usage(key: str, result: FeatureResult[Any], *args: Any, **kwargs: Any) -> None:
         if user_id is not None:
             _record_feature_usage(user_id, key, result)
 
     return GrowthBook(
         attributes={"id": str(user_id)} if user_id is not None else {},
         features=features,
-        savedGroups=saved_groups,
+        saved_groups=saved_groups,
         on_experiment_viewed=on_experiment_viewed,
         on_feature_usage=on_feature_usage,
     )
