@@ -43,7 +43,7 @@ dependencies = [
     "ua-parser>=1.0.2",
     "user-agents>=2.2.0",
     "growthbook>=2.3.1",
-    "pyroscope-io>=1.0.12",
+    "pyroscope-io>=1.2.1",
     "valkey>=6.1.0",
 ]
 
