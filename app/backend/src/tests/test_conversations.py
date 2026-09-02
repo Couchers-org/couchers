@@ -732,6 +732,10 @@ def test_send_message(db, moderator: Moderator, push_collector: PushCollector, e
     # user2 gets email and push notifications
     push = push_collector.pop_for_user(user2.id, last=True)
     assert push.topic_action == NotificationTopicAction.chat__message.display
+    assert user1.name in push.content.title
+    assert group_chat_title in push.content.title
+    assert push.content.ios_title == user1.name
+    assert push.content.ios_subtitle == group_chat_title
     assert message1 in push.content.body
 
     email = email_collector.pop_for_recipient(user2.email, last=True)

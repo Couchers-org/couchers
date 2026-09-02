@@ -86,7 +86,12 @@
   },
   "chat": {
     "message": {
-      "event_description": "Кто-то отправил вам сообщение"
+      "event_description": "Кто-то отправил вам сообщение",
+      "push_group": {
+        "title": "{{user}} • {{group}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "{{group}}"
+      }
     },
     "missed_messages": {
       "event_description": "Вы пропустили сообщения в чате",
