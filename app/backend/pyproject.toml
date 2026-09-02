@@ -8,7 +8,7 @@ dependencies = [
     "babel>=2.18.0",
     "boto3>=1.43.1",
     "cachetools>=6.2.1",
-    "cryptography>=46.0.3",
+    "cryptography>=50.0.1",
     "geoalchemy2>=0.18.0",
     "geoip2>=5.1.0",
     "grpcio>=1.80.0",
@@ -43,7 +43,7 @@ dependencies = [
     "ua-parser>=1.0.2",
     "user-agents>=2.2.0",
     "growthbook>=2.3.1",
-    "pyroscope-io>=1.0.12",
+    "pyroscope-io>=1.2.1",
     "valkey>=6.1.0",
 ]
 
@@ -61,7 +61,7 @@ dev = [
     "types-protobuf>=6.32.1.20251105",
     "types-shapely>=2.1.0.20250917",
     "types-requests>=2.32.4.20250913",
-    "types-pyyaml>=6.0.12.20260724",
+    "types-pyyaml>=6.0.12.20260815",
     "types-boto3>=1.40.69",
     "types-cachetools",
     "types-python-dateutil>=2.9.0.20251115",

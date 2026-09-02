@@ -48,12 +48,11 @@ export default function FeatureFlagProvider({ children }: { children: ReactNode 
     if (process.env.NODE_ENV === "development" && process.env.NEXT_PUBLIC_FEATURE_FLAGS_OVERRIDE === "1") {
       void import("feature-flags.dev.json").then((mod) => {
         const overrides = mod.default as Record<string, unknown>;
-        growthbook.initSync({
-          payload: {
-            features: Object.fromEntries(
-              Object.entries(overrides).map(([key, value]) => [key, { defaultValue: value }]),
-            ),
-          },
+        // Avoid initSync. It is meant to be used as new GrowthBook(...).initSync(...),
+        // so it assumes there are no users and doesn't notify them.
+        // Hence React components can wait on useGrowthBook().ready forever.
+        void growthbook.setPayload({
+          features: Object.fromEntries(Object.entries(overrides).map(([key, value]) => [key, { defaultValue: value }])),
         });
       });
       return;

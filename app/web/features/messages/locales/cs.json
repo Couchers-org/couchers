@@ -17,7 +17,8 @@
       "8_hours_label": "8 hodin",
       "1_day_label": "1 den",
       "1_week_label": "1 týden",
-      "1_month_label": "1 měsíc"
+      "1_month_label": "1 měsíc",
+      "unmute_button_label": "Zrušit ztlumení chatu"
     },
     "no_messages_state_text": "Žádné zprávy",
     "back_button": {
@@ -38,11 +39,19 @@
     "title": "Zprávy",
     "tabs": {
       "unread": "Nepřečteno",
-      "chats": "Chaty"
+      "chats": "Chaty",
+      "hosting": "Hostování"
     }
   },
   "create_chat": {
-    "back_button": "Zpět"
+    "back_button": "Zpět",
+    "dm_title": "Vytvořit nový chat",
+    "group_title": "Vytvořit skupinový chat",
+    "no_friends_found_message": "Nepodařilo se najít žádné přátele",
+    "user_load_error_message": "(Chyba při načítání uživatele)",
+    "friends_input_label": "Přátelé",
+    "title_label": "Název",
+    "create_button": "Vytvořit chat"
   },
   "mark_all_read_button_text": "Označit vše jako přečtené",
   "mark_all_read_button_text_chats": "Označit všechny chaty jako přečtené",
@@ -86,5 +95,60 @@
     "submit_button": "Odeslat",
     "quality_low": "Nízká kvalita"
   },
-  "unknown_user": "Neznámý uživatel"
+  "unknown_user": "Neznámý uživatel",
+  "admins_dialog": {
+    "step_down_confirmation_dialog": {
+      "title": "Odstoupit z pozice správce?",
+      "message": "Opravdu chceš přestat být správcem této skupinové konverzace? Správcem se znovu stát nebudeš moci, dokud tě nepřidá jiný správce."
+    },
+    "remove_admin": {
+      "title": "Odebrat správce",
+      "action_a11y_label": "Odebrat jako správce"
+    },
+    "add_admin": {
+      "title": "Přidat správce",
+      "action_a11y_label": "Přidat jako správce"
+    }
+  },
+  "chat_input": {
+    "label": "Zpráva"
+  },
+  "group_chat_settings_dialog": {
+    "title": "Nastavení skupinového chatu",
+    "chat_title": {
+      "field_label": "Název chatu"
+    },
+    "only_admins_invite": {
+      "field_label": "Pouze správci mohou pozvat další lidi do chatu"
+    }
+  },
+  "group_chats_tab": {
+    "load_more_button_label": "Načíst více"
+  },
+  "requests_tab": {
+    "no_requests_message": "Zatím žádné požadavky",
+    "load_more_button_label": "Načíst více"
+  },
+  "all_messages_tab": {
+    "no_messages": "Zatím žádné zprávy",
+    "load_more": "Načíst více",
+    "filter": {
+      "all": "Vše"
+    }
+  },
+  "invite_dialog": {
+    "selected": {
+      "field_label": "Přátelé",
+      "no_options_text": "Není koho pozvat",
+      "option_load_error_text": "(Chyba při načítání uživatele)"
+    },
+    "invite_button_label": "Pozvat"
+  },
+  "leave_chat_dialog": {
+    "title": "Opustit chat?",
+    "message": "Opravdu chceš opustit tento chat?"
+  },
+  "members_dialog": {
+    "title": "Členové chatu"
+  }
 }

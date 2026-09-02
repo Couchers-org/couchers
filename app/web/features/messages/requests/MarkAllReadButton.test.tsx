@@ -6,7 +6,7 @@ import { GroupChat } from "proto/conversations_pb";
 import { HostRequest } from "proto/requests_pb";
 import { service } from "service";
 import chat from "test/fixtures/groupChat.json";
-import request from "test/fixtures/hostRequest.json";
+import request from "test/fixtures/hostRequest";
 import messages from "test/fixtures/messages.json";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";

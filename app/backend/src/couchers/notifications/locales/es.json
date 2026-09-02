@@ -292,51 +292,114 @@
       "push": {
         "title": "Nueva solicitud de alojamiento de {{user}}",
         "ios_title": "{{user}}",
-        "ios_subtitle": "Nueva solicitud de alojamiento"
+        "ios_subtitle": "Nueva solicitud de alojamiento",
+        "body_one": "{{user}} quiere quedarse desde el {{start_date}} durante {{count}} noche.",
+        "body_many": "{{user}} quiere quedarse desde el {{start_date}} durante {{count}} de noches.",
+        "body_other": "{{user}} quiere quedarse desde el {{start_date}} durante {{count}} noches."
       }
     },
     "message": {
       "event_description": "Alguien envía un mensaje en una solicitud de alojamiento"
     },
     "missed_messages": {
-      "event_description": "Mensajes pendientes en una solicitud de alojamiento"
+      "event_description": "Mensajes pendientes en una solicitud de alojamiento",
+      "push": {
+        "title": "Nuevos mensajes de {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Mensajes perdidos",
+        "body": "Tienes nuevos mensajes sin leer de {{user}}."
+      }
     },
     "reject": {
-      "event_description": "Alguien rechaza tu solicitud de alojamiento"
+      "event_description": "Alguien rechaza tu solicitud de alojamiento",
+      "push": {
+        "title": "{{user}} ha declinado tu solicitud de alojamiento",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Solicitud de alojamiento declinada",
+        "body": "{{user}} ha declinado tu solicitud de alojamiento para el {{date}}."
+      }
     },
     "reminder": {
-      "event_description": "No has respondido a una solicitud de alojamiento pendiente"
+      "event_description": "No has respondido a una solicitud de alojamiento pendiente",
+      "push": {
+        "title": "Solicitud pendiente de {{user}}",
+        "ios_title": "Solicitud de alojamiento pendiente",
+        "ios_subtitle": "{{user}}",
+        "body": "{{user}} está esperando tu respuesta, por favor acepta o declina la solicitud."
+      }
     }
   },
   "onboarding": {
     "reminder": {
-      "event_description": "Recordatorio para completar tu perfil después de registrarte"
+      "event_description": "Recordatorio para completar tu perfil después de registrarte",
+      "push": {
+        "first": {
+          "title": "¡Bienvenido a Couchers!",
+          "ios_title": "¡Bienvenido a Couchers!",
+          "body": "Por favor completa tu perfil con una foto y un breve texto sobre ti."
+        },
+        "subsequent": {
+          "title": "Recuerda completar tu perfil",
+          "ios_title": "Recordatorio de perfil",
+          "body": "Por favor completa tu perfil con una foto y un breve texto sobre ti."
+        }
+      }
     }
   },
   "password": {
     "change": {
-      "event_description": "Tu contraseña ha sido cambiada"
+      "event_description": "Tu contraseña ha sido cambiada",
+      "push": {
+        "title": "Contraseña cambiada",
+        "ios_title": "Contraseña cambiada",
+        "body": "Tu contraseña ha sido modificada."
+      }
     }
   },
   "password_reset": {
     "complete": {
-      "event_description": "El restablecimiento de la contraseña se ha completado"
+      "event_description": "El restablecimiento de la contraseña se ha completado",
+      "push": {
+        "title": "Contraseña restablecida",
+        "ios_title": "Contraseña restablecida",
+        "body": "Tu contraseña se ha restablecido correctamente."
+      }
     },
     "start": {
-      "event_description": "Se inicia el restablecimiento de la contraseña"
+      "event_description": "Se inicia el restablecimiento de la contraseña",
+      "push": {
+        "title": "Restablecimiento de contraseña solicitado",
+        "ios_title": "Restablecimiento de contraseña solicitado",
+        "body": "Utiliza el enlace que te hemos enviado por correo electrónico para completarlo."
+      }
     }
   },
   "phone_number": {
     "change": {
-      "event_description": "Tu número de teléfono ha sido cambiado"
+      "event_description": "Tu número de teléfono ha sido cambiado",
+      "push": {
+        "title": "Verificación del número de teléfono iniciada",
+        "ios_title": "Verificación del número de teléfono iniciada",
+        "body": "Has iniciado la verificación del número de teléfono con el número {{phone_number}}."
+      }
     },
     "verify": {
-      "event_description": "Tu número de teléfono ha sido verificado"
+      "event_description": "Tu número de teléfono ha sido verificado",
+      "push": {
+        "title": "Verificación del número de teléfono completada",
+        "ios_title": "Verificación del número de teléfono completada",
+        "body": "Tu número de teléfono ha sido correctamente verificado como {{phone_number}}."
+      }
     }
   },
   "reference": {
     "receive_friend": {
-      "event_description": "Recibes una recomendación de un amigo"
+      "event_description": "Recibes una recomendación de un amigo",
+      "push": {
+        "title": "Nueva referencia de amistad de {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Nueva referencia de amigo"
+      }
     },
     "receive_hosted": {
       "event_description": "Recibes una recomendación de alguien que te alojó"
@@ -349,11 +412,92 @@
     },
     "reminder_surfed": {
       "event_description": "Recordatorio para escribir una recomendación a alguien con quien surfeaste"
+    },
+    "_receive_any": {
+      "push": {
+        "title": "Nueva referencia de {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Nueva referencia",
+        "body_must_write_yours": "{{user}} te ha dejado una referencia, ¡ahora te toca escribir la suya!"
+      }
+    },
+    "_reminder_any": {
+      "push": {
+        "title": "Escribe tu referencia para {{user}}",
+        "ios_title": "Escribe tu referencia",
+        "ios_subtitle": "{{user}}",
+        "body_one": "Todavía tienes {{count}} día para escribir una referencia para {{user}}.",
+        "body_many": "Todavía tienes {{count}} de días para escribir una referencia para {{user}}.",
+        "body_other": "Todavía tienes {{count}} días para escribir una referencia para {{user}}."
+      }
     }
   },
   "thread": {
     "reply": {
-      "event_description": "Alguien responde a tu comentario"
+      "event_description": "Alguien responde a tu comentario",
+      "push": {
+        "title": "{{user}} • {{title}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "{{title}}"
+      }
+    }
+  },
+  "modnote": {
+    "create": {
+      "event_description": "Un moderador te ha enviado una nota",
+      "push": {
+        "title": "Nueva nota del moderador",
+        "ios_title": "Nueva nota del moderador",
+        "body": "Has recibido una nota del moderador. Léela y confírmala para seguir usando la plataforma."
+      }
+    }
+  },
+  "postal_verification": {
+    "failed": {
+      "event_description": "Tu verificación postal ha fallado",
+      "push": {
+        "title": "Verificación postal fallida",
+        "ios_title": "Verificación postal fallida",
+        "body_code_expired": "Tu código de verificación ha caducado. Los códigos son válidos durante 90 días después del envío de la postal. Puedes solicitar una nueva postal.",
+        "body_too_many_attempts": "Demasiados intentos de código incorrectos. Puedes solicitar una nueva postal.",
+        "body_generic": "Tu intento de verificación postal ha fallado. Puedes solicitar una nueva postal."
+      }
+    },
+    "postcard_sent": {
+      "event_description": "Tu postal de verificación ha sido enviada",
+      "push": {
+        "title": "Verificación postal iniciada",
+        "ios_title": "Verificación postal iniciada",
+        "body": "Tu postal está en camino a {{city}}, {{country}}. Debería llegar en un plazo de 1 a 3 semanas."
+      }
+    },
+    "success": {
+      "event_description": "Tu verificación postal se ha realizaso correctamente",
+      "push": {
+        "title": "Verificación postal completada",
+        "ios_title": "Verificación postal completada",
+        "body": "Tu dirección ahora está verificada."
+      }
+    }
+  },
+  "verification": {
+    "sv_fail": {
+      "event_description": "Tu verificación robusta ha fallado",
+      "push": {
+        "title": "La verificación robusta ha fallado",
+        "ios_title": "La verificación robusta ha fallado",
+        "body_wrong_birthdate_gender": "La fecha de nacimiento o el género de tu perfil no coinciden con la fecha de nacimiento o el sexo de tu pasaporte. Ponte en contacto con el equipo de soporte para actualizar tu fecha de nacimiento o género, o si el sexo que figura en tu pasaporte no coincide con tu identidad de género.",
+        "body_not_a_passport": "Has utilizado un documento que no es un pasaporte. Solo se puede usar un pasaporte para la verificación robusta.",
+        "body_duplicate": "Has utilizado un pasaporte que ya ha usado para la verificación. Por favor, utiliza otro pasaporte."
+      }
+    },
+    "sv_success": {
+      "event_description": "Tu verificación robusta ha sido satisfactoria",
+      "push": {
+        "title": "Verificación robusta completada",
+        "ios_title": "Verificación robusta completada",
+        "body": "Has sido verificado con verificación robusta."
+      }
     }
   }
 }

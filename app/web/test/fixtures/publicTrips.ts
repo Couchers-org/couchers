@@ -4,9 +4,11 @@ import users from "test/fixtures/users.json";
 
 const [funnyCat, funnyDog, funnyKid, funnyChicken, friendlyCow] = users;
 
-// Trips in the Amsterdam community fixture, so the two line up.
+// Each trip spreads the real default shape first (see hostRequest.ts) so it can't drift into a
+// shape the API never returns. Trips sit in the Amsterdam community fixture, so the two line up.
 const publicTrips: PublicTrip.AsObject[] = [
   {
+    ...new PublicTrip().toObject(),
     tripId: 1,
     user: funnyDog,
     communityId: community.communityId,
@@ -22,6 +24,7 @@ const publicTrips: PublicTrip.AsObject[] = [
     viewerHostRequestId: 0,
   },
   {
+    ...new PublicTrip().toObject(),
     tripId: 2,
     user: funnyKid,
     communityId: community.communityId,
@@ -37,6 +40,7 @@ const publicTrips: PublicTrip.AsObject[] = [
     viewerHostRequestId: 0,
   },
   {
+    ...new PublicTrip().toObject(),
     tripId: 3,
     user: funnyChicken,
     communityId: community.communityId,
@@ -52,6 +56,7 @@ const publicTrips: PublicTrip.AsObject[] = [
     viewerHostRequestId: 0,
   },
   {
+    ...new PublicTrip().toObject(),
     tripId: 4,
     user: friendlyCow,
     communityId: community.communityId,
@@ -67,6 +72,7 @@ const publicTrips: PublicTrip.AsObject[] = [
     viewerHostRequestId: 0,
   },
   {
+    ...new PublicTrip().toObject(),
     tripId: 5,
     user: funnyDog,
     communityId: community.communityId,
@@ -82,6 +88,7 @@ const publicTrips: PublicTrip.AsObject[] = [
     viewerHostRequestId: 0,
   },
   {
+    ...new PublicTrip().toObject(),
     tripId: 6,
     user: funnyCat,
     communityId: community.communityId,

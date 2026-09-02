@@ -75,12 +75,10 @@ class Event(Base, kw_only=True):
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     owner_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), index=True, default=None)
     owner_cluster_id: Mapped[int | None] = mapped_column(ForeignKey("clusters.id"), index=True, default=None)
-    thread_id: Mapped[int] = mapped_column(ForeignKey("threads.id"), unique=True)
 
     parent_node: Mapped[Node] = relationship(
         init=False, backref="child_events", remote_side="Node.id", foreign_keys="Event.parent_node_id"
     )
-    thread: Mapped[Thread] = relationship(init=False, backref="event", uselist=False)
     subscribers: DynamicMapped[User] = relationship(
         init=False, backref="subscribed_events", secondary="event_subscriptions", lazy="dynamic", viewonly=True
     )
@@ -121,6 +119,7 @@ class EventOccurrence(Base, kw_only=True):
     )
     event_id: Mapped[int] = mapped_column(ForeignKey("events.id"), index=True)
     moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
+    thread_id: Mapped[int] = mapped_column(ForeignKey("threads.id"), unique=True)
 
     # the user that created this particular occurrence of a repeating event (same as event.creator_user_id if single event)
     creator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
@@ -148,6 +147,7 @@ class EventOccurrence(Base, kw_only=True):
     creator_user: Mapped[User] = relationship(
         init=False, backref="created_event_occurrences", foreign_keys="EventOccurrence.creator_user_id"
     )
+    thread: Mapped[Thread] = relationship(init=False, backref="event_occurrence", uselist=False)
     event: Mapped[Event] = relationship(
         init=False,
         back_populates="occurrences",

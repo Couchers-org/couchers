@@ -269,7 +269,17 @@ def _render_birthdate__change(
 def _render_chat__message(
     data: notification_data_pb2.ChatMessage, loc_context: LocalizationContext
 ) -> PushNotificationContent:
-    # All strings are dynamic, no need to use _get_content
+    if data.group_chat_title:
+        # Group chat message: title/subtitle specifies user and group
+        return _get_content(
+            "chat.message.push_group",
+            loc_context,
+            body=data.text,
+            substitutions={"user": data.author.name, "group": data.group_chat_title},
+            icon_user=data.author,
+            action_url=urls.chat_link(chat_id=data.group_chat_id),
+        )
+    # Direct message: all strings are dynamic, no need to use _get_content
     return PushNotificationContent(
         title=data.author.name,
         ios_title=data.author.name,
