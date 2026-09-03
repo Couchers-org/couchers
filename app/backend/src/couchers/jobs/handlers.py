@@ -144,6 +144,7 @@ from couchers.utils import (
     get_coordinates,
     not_none,
     now,
+    today,
 )
 
 logger = logging.getLogger(__name__)
@@ -1272,8 +1273,15 @@ def _schedule_occurrences_for_recurrence(session: Session, recurrence: EventRecu
     local_start = template.start_time.astimezone(template_tz)
     duration = template.end_time - template.start_time
 
+    # We get the recurring day from the latest occurrence, typically in the future,
+    # but to consider which upcoming recurrences are already scheduled,
+    # we need the start of the recurrence today or before.
+    anchor_date = local_start.date()
+    while anchor_date > today():
+        anchor_date -= timedelta(weeks=recurrence.rrule_interval)
+
     rrule = make_every_nth_week_rrule(
-        start_date=local_start.date(),
+        start_date=anchor_date,
         n=recurrence.rrule_interval,
         end_date=recurrence.ends_on_date,
     )
@@ -1285,7 +1293,9 @@ def _schedule_occurrences_for_recurrence(session: Session, recurrence: EventRecu
     )
 
     for occurrence_date in dates_to_schedule:
-        occurrence_start_datetime = datetime.combine(occurrence_date, local_start.time(), tzinfo=template_tz).astimezone(UTC)
+        occurrence_start_datetime = datetime.combine(
+            occurrence_date, local_start.time(), tzinfo=template_tz
+        ).astimezone(UTC)
         occurrence_end_datetime = occurrence_start_datetime + duration
 
         thread = Thread()
