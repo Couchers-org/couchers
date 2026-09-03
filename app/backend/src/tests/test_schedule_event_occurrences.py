@@ -246,8 +246,12 @@ def test_no_rescheduling_after_edit_or_cancel(db, frozen_timewarp: FrozenTimewar
         api.UpdateEvent(
             events_pb2.UpdateEventReq(
                 event_id=to_move.event_id,
-                start_datetime_iso8601_local=wrappers_pb2.StringValue(value=datetime_to_iso8601_local(datetime(2020, 1, 9, 12, 0, tzinfo=UTC))),
-                end_datetime_iso8601_local=wrappers_pb2.StringValue(value=datetime_to_iso8601_local(datetime(2020, 1, 9, 13, 0, tzinfo=UTC))),
+                start_datetime_iso8601_local=wrappers_pb2.StringValue(
+                    value=datetime_to_iso8601_local(datetime(2020, 1, 9, 12, 0, tzinfo=UTC))
+                ),
+                end_datetime_iso8601_local=wrappers_pb2.StringValue(
+                    value=datetime_to_iso8601_local(datetime(2020, 1, 9, 13, 0, tzinfo=UTC))
+                ),
             )
         )
 
@@ -262,8 +266,12 @@ def test_no_rescheduling_after_edit_or_cancel(db, frozen_timewarp: FrozenTimewar
         ).events
 
     assert len(scheduled_occurrences_after_changes) == 2
-    assert to_aware_datetime(scheduled_occurrences_after_changes[0].start_time) == datetime(2020, 1, 3, 12, 0, tzinfo=UTC)
-    assert to_aware_datetime(scheduled_occurrences_after_changes[1].start_time) == datetime(2020, 1, 9, 12, 0, tzinfo=UTC)
+    assert to_aware_datetime(scheduled_occurrences_after_changes[0].start_time) == datetime(
+        2020, 1, 3, 12, 0, tzinfo=UTC
+    )
+    assert to_aware_datetime(scheduled_occurrences_after_changes[1].start_time) == datetime(
+        2020, 1, 9, 12, 0, tzinfo=UTC
+    )
 
 
 def test_new_occurrence_based_on_latest(db, frozen_timewarp: FrozenTimewarp):
