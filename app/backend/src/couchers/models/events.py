@@ -1,5 +1,5 @@
 import enum
-from datetime import datetime
+from datetime import date, datetime
 from typing import TYPE_CHECKING, cast
 
 from geoalchemy2 import Geometry
@@ -8,10 +8,12 @@ from sqlalchemy import (
     BigInteger,
     Boolean,
     CheckConstraint,
+    Date,
     DateTime,
     Enum,
     ForeignKey,
     Index,
+    Integer,
     String,
     UniqueConstraint,
     and_,
@@ -191,6 +193,36 @@ class EventOccurrence(Base, kw_only=True):
     @classmethod
     def _end_time_expression(cls) -> ColumnElement[datetime]:
         return cast(ColumnElement[datetime], func.upper(cls.during))
+
+
+class EventRecurrence(Base, kw_only=True):
+    """
+    Defines a recurrence rule and associated data for its parent Event. At most one per Event.
+
+    The recurrence rule is based on the iCalendar RRULE standard.
+    """
+
+    __tablename__ = "event_recurrences"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+    event_id: Mapped[int] = mapped_column(ForeignKey("events.id"), unique=True)
+
+    # The recurrence rule is based on iCalendar RRULE properties,
+    # so that we can use an RRULE engine for scheduling.
+    # FREQ=WEEKLY is implicit (no daily/monthly events yet).
+    # INTERVAL: every how many weeks
+    rrule_interval: Mapped[int] = mapped_column(Integer)
+
+    # Occurrences are only scheduled for dates strictly after this.
+    # Updated whenever an occurrence is scheduled to ensure idempotence.
+    last_scheduled_date: Mapped[date] = mapped_column(Date)
+
+    # Prevents unbounded recurrence. Feeds into the RRULE UNTIL property.
+    ends_on_date: Mapped[date] = mapped_column(Date)
+
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+
+    event: Mapped[Event] = relationship(init=False, backref=backref("recurrence", uselist=False))
 
 
 class EventSubscription(Base, kw_only=True):
