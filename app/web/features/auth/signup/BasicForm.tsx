@@ -45,6 +45,7 @@ export default function BasicForm({ submitText, successCallback, inviteCode }: B
     mutationFn: async (data) => {
       const sanitizedEmail = lowercaseAndTrimField(data.email);
       const sanitizedName = data.name.trim();
+      authActions.assignSignupEmail(sanitizedEmail);
       const state = await service.auth.startSignup(sanitizedName, sanitizedEmail, inviteCode);
       doAntibot("signup");
       return authActions.updateSignupState(state);

@@ -47,6 +47,7 @@ export default function useAuthStore() {
   const [userId, setUserId] = usePersistedState<number | null>("auth.userId", null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [signupEmail, setSignupEmail] = usePersistedState<string | null>("auth.signupEmail", null);
   const [flowState, setFlowState] = usePersistedState<SignupFlowRes.AsObject | null>("auth.flowState", null);
 
   //this is used to set the current user in the user cache
@@ -139,9 +140,13 @@ export default function useAuthStore() {
         setFlowState(state);
         if (state.authRes) {
           setFlowState(null);
+          setSignupEmail(null);
           authActions.firstLogin(state.authRes!);
           return;
         }
+      },
+      assignSignupEmail(email: string) {
+        setSignupEmail(email);
       },
       async firstLogin(res: AuthRes.AsObject) {
         setError(null);
@@ -190,9 +195,9 @@ export default function useAuthStore() {
         setLoading(false);
       },
     }),
-    //note: there should be no dependenices on the state or t, or
+    //note: there should be no dependencies on the state or t, or
     //some useEffects will break. Eg. the token login in Login.tsx
-    [setAuthenticated, setJailed, setUserId, setFlowState, queryClient],
+    [setAuthenticated, setJailed, setUserId, setFlowState, setSignupEmail, queryClient],
   );
 
   return {
@@ -202,6 +207,7 @@ export default function useAuthStore() {
       error,
       jailed,
       loading,
+      signupEmail,
       userId,
       flowState,
     },
