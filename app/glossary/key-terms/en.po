@@ -2,6 +2,13 @@
 # such that translators can define standard equivalents in their language,
 # which Weblate will suggest when translating strings which include those terms.
 #
+# Does not define what terms should or should not be used in English,
+# only helps ensure that whichever terms appear in English strings
+# will be translated consistently in other languages.
+#
+# When adding a term, also include variants like plurals, past tenses, gerunds,
+# as Weblate will only match terms verbatim (though case insensitively).
+#
 # GNU gettext Portable Object syntax:
 #   #. Definition of the term, visible to translators when the term is matched by Weblate.
 #   #, Term-specific flags, including:
@@ -13,8 +20,6 @@
 #     - If it could be a noun or a verb, suffix with .noun / .verb
 #   msgstr "term"
 #     The English term
-#
-# Also include English variants like plurals, past tense, gerund, so Weblate matches them all.
 
 #-----------------------------------------------
 # General terms
@@ -31,6 +36,10 @@ msgid "couchers_inc"
 msgstr "Couchers, Inc."
 
 #. (noun) The team behind Couchers.org.
+msgid "couchers_org_team"
+msgstr "Couchers.org Team"
+
+#. (noun) The team behind Couchers.org, short form.
 msgid "team"
 msgstr "team"
 
