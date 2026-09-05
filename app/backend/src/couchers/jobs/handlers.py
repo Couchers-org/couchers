@@ -4,15 +4,17 @@ Background job servicers
 
 import logging
 from collections.abc import Sequence
-from datetime import date, timedelta
+from datetime import UTC, date, datetime, timedelta
 from math import cos, pi, sin, sqrt
 from random import sample
 from typing import Any
+from zoneinfo import ZoneInfo
 
 import requests
 from google.protobuf import empty_pb2
+from psycopg.types.range import TimestamptzRange
 from sqlalchemy import ColumnElement, Float, Function, Integer, select
-from sqlalchemy.orm import InstrumentedAttribute, aliased
+from sqlalchemy.orm import InstrumentedAttribute, Session, aliased
 from sqlalchemy.sql import (
     and_,
     case,
@@ -34,6 +36,8 @@ from couchers.constants import (
     ACTIVENESS_PROBE_EXPIRY_TIME,
     ACTIVENESS_PROBE_INACTIVITY_PERIOD,
     ACTIVENESS_PROBE_TIME_REMINDERS,
+    EVENT_RECURRENCE_MIN_SCHEDULED_OCCURRENCES,
+    EVENT_RECURRENCE_SCHEDULE_WINDOW,
     EVENT_REMINDER_TIMEDELTA,
     HOST_REQUEST_MAX_REMINDERS,
     HOST_REQUEST_REMINDER_INTERVAL,
@@ -54,6 +58,7 @@ from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
 from couchers.event_log import log_event
+from couchers.event_recurrence import make_every_nth_week_rrule, schedule_occurrences
 from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.helpers.group_chats import is_newest_subscription, is_unseen
@@ -76,6 +81,7 @@ from couchers.models import (
     ClusterSubscription,
     EventOccurrence,
     EventOccurrenceAttendee,
+    EventRecurrence,
     GroupChat,
     GroupChatSubscription,
     HostingMeetupStatusSource,
@@ -102,12 +108,14 @@ from couchers.models import (
     Reference,
     StrongVerificationAttempt,
     StrongVerificationAttemptStatus,
+    Thread,
     User,
     UserBadge,
     Volunteer,
     get_moderated_models,
 )
 from couchers.models.notifications import NotificationTopicAction
+from couchers.moderation.utils import create_moderation
 from couchers.notifications.expo_api import get_expo_push_receipts
 from couchers.notifications.notify import notify
 from couchers.postal.my_postcard import get_order_ids, send_postcard
@@ -136,6 +144,7 @@ from couchers.utils import (
     get_coordinates,
     not_none,
     now,
+    today,
 )
 
 logger = logging.getLogger(__name__)
@@ -1220,6 +1229,117 @@ def send_event_reminders(payload: empty_pb2.Empty) -> None:
 
                 attendee.reminder_sent = True
                 session.commit()
+
+
+def schedule_event_occurrences(payload: empty_pb2.Empty) -> None:
+    """
+    Schedules new occurrences for recurring events based on their recurrence rules.
+    """
+    logger.info("Scheduling recurring event occurrences")
+
+    with session_scope() as session:
+        recurrences = (
+            session.execute(select(EventRecurrence).where(EventRecurrence.ends_on_date >= now().date())).scalars().all()
+        )
+
+        for recurrence in recurrences:
+            try:
+                _schedule_occurrences_for_recurrence(session, recurrence)
+                session.commit()
+            except Exception:
+                logger.exception(f"Failed to schedule occurrences for event recurrence {recurrence.id}")
+                session.rollback()
+
+
+def _schedule_occurrences_for_recurrence(session: Session, recurrence: EventRecurrence) -> None:
+    # New occurrences use the last occurrence as a template.
+    # FUTURE: EventRecurrence will include the template.
+    template = (
+        session.execute(
+            select(EventOccurrence)
+            .where(EventOccurrence.event_id == recurrence.event_id)
+            .where(~EventOccurrence.is_deleted)
+            .order_by(EventOccurrence.start_time.desc())
+            .limit(1)
+        )
+        .scalars()
+        .one_or_none()
+    )
+    if template is None:
+        logger.info(f"No occurrences left for event {recurrence.event_id}, skipping its recurrence")
+        return
+
+    template_tz = ZoneInfo(template.timezone)
+    local_start = template.start_time.astimezone(template_tz)
+    duration = template.end_time - template.start_time
+
+    # We get the recurring day from the latest occurrence, typically in the future,
+    # but to consider which upcoming recurrences are already scheduled,
+    # we need the start of the recurrence today or before.
+    anchor_date = local_start.date()
+    while anchor_date > today():
+        anchor_date -= timedelta(weeks=recurrence.rrule_interval)
+
+    rrule = make_every_nth_week_rrule(
+        start_date=anchor_date,
+        n=recurrence.rrule_interval,
+        end_date=recurrence.ends_on_date,
+    )
+    dates_to_schedule = schedule_occurrences(
+        rrule=rrule,
+        schedule_window=EVENT_RECURRENCE_SCHEDULE_WINDOW,
+        min_occurrences=EVENT_RECURRENCE_MIN_SCHEDULED_OCCURRENCES,
+        last_scheduled_date=recurrence.last_scheduled_date,
+    )
+
+    for occurrence_date in dates_to_schedule:
+        occurrence_start_datetime = datetime.combine(
+            occurrence_date, local_start.time(), tzinfo=template_tz
+        ).astimezone(UTC)
+        occurrence_end_datetime = occurrence_start_datetime + duration
+
+        thread = Thread()
+        session.add(thread)
+        session.flush()
+
+        occurrence: EventOccurrence | None = None
+
+        def create_occurrence(
+            moderation_state_id: int,
+            *,
+            recurrence: EventRecurrence = recurrence,
+            template: EventOccurrence | None = template,
+            start_datetime: datetime = occurrence_start_datetime,
+            end_datetime: datetime = occurrence_end_datetime,
+            thread: Thread = thread,
+        ) -> int:
+            assert template is not None
+            nonlocal occurrence
+            occurrence = EventOccurrence(
+                event_id=recurrence.event_id,
+                content=template.content,
+                geom=template.geom,
+                address=template.address,
+                timezone=template.timezone,
+                photo_key=template.photo_key,
+                during=TimestamptzRange(start_datetime, end_datetime),
+                creator_user_id=template.creator_user_id,
+                moderation_state_id=moderation_state_id,
+                thread_id=thread.id,
+            )
+            session.add(occurrence)
+            session.flush()
+            return occurrence.id
+
+        create_moderation(
+            session=session,
+            object_type=ModerationObjectType.event_occurrence,
+            object_id=create_occurrence,
+            creator_user_id=template.creator_user_id,
+        )
+
+    if dates_to_schedule:
+        recurrence.last_scheduled_date = dates_to_schedule[-1]
 
 
 def check_expo_push_receipts(payload: empty_pb2.Empty) -> None:
