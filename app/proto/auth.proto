@@ -123,6 +123,8 @@ message SignupFlowReq {
   google.protobuf.BoolValue accept_community_guidelines = 6;
 
   bool resend_verification_email = 7;
+
+  ChangeSignupEmail change_email = 9;
 }
 
 message SignupFlowRes {
@@ -177,6 +179,9 @@ message SignupMotivations {
   repeated string motivations = 2;
 }
 
+message ChangeSignupEmail {
+  string new_email = 1; 
+}
 message UsernameValidReq {
   string username = 1;
 }
