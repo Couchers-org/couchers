@@ -1,4 +1,4 @@
-import { ExpandMoreOutlined, ExploreOutlined } from "@mui/icons-material";
+import { ExpandMoreOutlined, ExploreOutlined, Search } from "@mui/icons-material";
 import { Button, Collapse, styled, Typography } from "@mui/material";
 import MuiLink from "@mui/material/Link";
 import PageTitle from "components/PageTitle";
@@ -18,24 +18,18 @@ const HeaderRow = styled("div")(({ theme }) => ({
   justifyContent: "flex-start",
   flexDirection: "column",
   width: "100%",
-  paddingBottom: theme.spacing(2),
-}));
-
-const Subtitle = styled(Typography)(({ theme }) => ({
-  fontWeight: "bold",
-  fontSize: "1.25rem",
   paddingBottom: theme.spacing(1),
 }));
 
-const MainTitle = styled(Typography)(({ theme }) => ({
-  fontWeight: "bold",
-  fontSize: "2rem",
-  paddingBottom: theme.spacing(2),
-  paddingTop: theme.spacing(2),
-}));
+const SectionHeader = styled("div")({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  paddingBottom: "8px",
+});
 
 const StyledTypography = styled(Typography)(({ theme }) => ({
-  paddingBlockEnd: theme.spacing(1),
+  paddingBlockEnd: theme.spacing(2),
 }));
 
 const BrowserContainer = styled("div")(({ theme }) => ({
@@ -50,7 +44,7 @@ const BrowserHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   gap: theme.spacing(1),
-  marginBottom: theme.spacing(1.5),
+  paddingBottom: theme.spacing(1.5),
 }));
 
 const BrowserTitle = styled(Typography)(({ theme }) => ({
@@ -71,9 +65,8 @@ const ExpandButton = styled(Button)(({ theme }) => ({
 
 const CommunitiesPage = () => {
   const { t } = useTranslation([GLOBAL, DASHBOARD]);
-  const { data: accountInfo } = useAccountInfo();
   const [browserExpanded, setBrowserExpanded] = useState(false);
-
+  const { data: accountInfo } = useAccountInfo();
   return (
     <>
       <div>
@@ -81,11 +74,10 @@ const CommunitiesPage = () => {
           <PageTitle>{t("nav.communities")}</PageTitle>
         </HeaderRow>
       </div>
-      <Subtitle variant="h2">{t("dashboard:communities_welcome_title")}</Subtitle>
-      <StyledTypography variant="body1" sx={{ marginBottom: "16px" }}>
-        <Trans i18nKey="dashboard:communities_intro" />
+      <StyledTypography>
+        <CommunitiesList />
       </StyledTypography>
-      <StyledTypography variant="body1" sx={{ marginBottom: "16px" }}>
+      <StyledTypography variant="body1">
         <Trans
           i18nKey="dashboard:community_builder"
           components={{
@@ -101,12 +93,13 @@ const CommunitiesPage = () => {
         />
       </StyledTypography>
 
-      <MainTitle variant="h1">{t("dashboard:my_communities_heading")}</MainTitle>
-      <CommunitiesList />
-
-      <MainTitle variant="h1">{t("dashboard:find_your_community")}</MainTitle>
-
-      <StyledTypography variant="body1" sx={{ marginBottom: "16px" }}>
+      <SectionHeader>
+        <Typography variant="h2" sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
+          <Search sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />
+          {t("dashboard:find_your_community")}
+        </Typography>
+      </SectionHeader>
+      <StyledTypography variant="body1" sx={{ paddingBottom: "16px" }}>
         <Trans
           i18nKey="dashboard:find_your_community_intro_simplified"
           components={{

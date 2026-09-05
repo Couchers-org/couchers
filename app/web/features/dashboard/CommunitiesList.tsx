@@ -27,6 +27,10 @@ const CardSlot = styled(Box)({
   scrollSnapAlign: "start",
 });
 
+const StyledBrowseCommunitiesLink = styled(StyledLink)(() => ({
+  verticalAlign: "baseline",
+}));
+
 const CommunityCard = styled(StyledLink)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
@@ -58,10 +62,6 @@ const SkeletonCard = styled("div")(({ theme }) => ({
   border: "1px solid var(--mui-palette-divider)",
   borderRadius: 10,
   background: "var(--mui-palette-background-paper)",
-}));
-
-const StyledBrowseCommunitiesLink = styled(StyledLink)(() => ({
-  verticalAlign: "baseline",
 }));
 
 export default function CommunitiesList() {
@@ -103,6 +103,7 @@ export default function CommunitiesList() {
           <Groups sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />
           {t("dashboard:your_communities_heading")}
         </Typography>
+
         <div>
           <IconButton
             size="small"
@@ -124,14 +125,9 @@ export default function CommunitiesList() {
           </IconButton>
         </div>
       </SectionHeader>
-      <Typography
-        variant="body1"
-        sx={{
-          marginBottom: "16px",
-        }}
-      >
+      <Typography variant="body1" sx={{ paddingBottom: theme.spacing(2) }}>
         <Trans
-          i18nKey="dashboard:your_communities_helper_text"
+          i18nKey="dashboard:communities_intro"
           components={{
             browseCommunitiesLink: <StyledBrowseCommunitiesLink href="/communities" underline="hover" />,
           }}
