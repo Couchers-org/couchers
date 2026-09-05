@@ -18,12 +18,16 @@
 #     Translation key for the term, usually the same as the term, but:
 #     - If ambiguous, prefix by some context and a dot.
 #     - If it could be a noun or a verb, suffix with .noun / .verb
-#   msgstr "term"
+#   msgstr "banana"
 #     The English term
+#
+# Annoyingly, all PO comments end up associated with a string, except for this header,
+# so we cannot use banner comments for organizing this file,
+# lest they end up in the source string description in weblate.
+msgid ""
+msgstr "MIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit"
 
-#-----------------------------------------------
-# General terms
-#-----------------------------------------------
+
 
 #. (name) Our website and platform, untranslatable.
 #, read-only
@@ -120,9 +124,7 @@ msgstr "problems"
 msgid "report_problem.report"
 msgstr "report"
 
-#-----------------------------------------------
-# Accounts, auth and sessions
-#-----------------------------------------------
+
 
 #. (noun) A user account on Couchers.org.
 msgid "account"
@@ -208,10 +210,6 @@ msgstr "push notifications"
 msgid "strong_verification"
 msgstr "Strong Verification"
 
-#-----------------------------------------------
-# Profile
-#-----------------------------------------------
-
 #. The section of a user profile with information relating their person.
 msgid "profile.about_me"
 msgstr "about me"
@@ -244,9 +242,7 @@ msgstr "may host"
 msgid "status.cant_host"
 msgstr "can't host"
 
-#-----------------------------------------------
-# Messages
-#-----------------------------------------------
+
 
 #. (noun) A message sent from a user to another user or to a group chat.
 msgid "message.noun"
@@ -276,9 +272,7 @@ msgstr "group_chat"
 msgid "group_chats"
 msgstr "group_chats"
 
-#-----------------------------------------------
-# Friends, hosting and surfing
-#-----------------------------------------------
+
 
 #. (noun) Other users which are friends or have pending friend requests.
 msgid "connections"
@@ -320,9 +314,7 @@ msgstr "surfer"
 msgid "surfers"
 msgstr "surfers"
 
-#-----------------------------------------------
-# Requests
-#-----------------------------------------------
+
 
 #. (noun) A request to add another user as a friend.
 msgid "friend_request"
@@ -372,9 +364,7 @@ msgstr "cancel"
 msgid "host_request.cancelled"
 msgstr "cancelled"
 
-#-----------------------------------------------
-# References
-#-----------------------------------------------
+
 
 #. (noun) A reference from a friend, host or surfer.
 msgid "reference"
@@ -388,12 +378,7 @@ msgstr "references"
 msgid "friend_reference"
 msgstr "friend_reference"
 
-# "Host reference" and "Surfer reference" are ambiguous
-# (is it from the host or to the host?), so avoid them.
 
-#-----------------------------------------------
-# Communities & discussions
-#-----------------------------------------------
 
 #. (noun) A geographical community with local discussions, events, etc.
 msgid "community"
@@ -443,9 +428,7 @@ msgstr "comment"
 msgid "discussions.replies"
 msgstr "replies"
 
-#-----------------------------------------------
-# Events
-#-----------------------------------------------
+
 
 #. (noun) An event created by a user for others to attend.
 msgid "event"
