@@ -1,7 +1,7 @@
 import { Favorite, Language, People, Star } from "@mui/icons-material";
 import { Box, Skeleton, styled, Typography } from "@mui/material";
-import { useTranslation } from "i18n";
-import { localizeRelativeTime } from "i18n/datetimes";
+import RelativeTime from "components/RelativeTime";
+import { Trans, useTranslation } from "i18n";
 import { LANDING, PRESS } from "i18n/namespaces";
 import { Temporal } from "temporal-polyfill";
 import useSignupPageInfo from "utils/useSignupPageInfo";
@@ -61,10 +61,7 @@ function Loader({ width }: LoaderProps) {
 }
 
 export default function Facts() {
-  const {
-    t,
-    i18n: { language: locale },
-  } = useTranslation([LANDING, PRESS]);
+  const { t } = useTranslation([LANDING, PRESS]);
   const { signupInfo, isLoading: isSignupInfoLoading } = useSignupPageInfo();
   const volunteers = useListVolunteers();
 
@@ -120,9 +117,13 @@ export default function Facts() {
             <Loader width="14.5rem" />
           ) : signupInfo?.lastSignup ? (
             <Typography sx={textStyle}>
-              {t("landing:last_signup", {
-                timeAgo: localizeRelativeTime(Temporal.Instant.from(signupInfo.lastSignup), locale),
-              })}
+              <Trans
+                t={t}
+                i18nKey="landing:last_signup2"
+                components={{
+                  timeAgo: <RelativeTime instant={Temporal.Instant.from(signupInfo.lastSignup)} />,
+                }}
+              />
             </Typography>
           ) : null}
         </Box>

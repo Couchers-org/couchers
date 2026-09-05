@@ -1,17 +1,14 @@
 import { Favorite, Language, Star } from "@mui/icons-material";
 import { Box, Divider, Skeleton, Typography, useMediaQuery } from "@mui/material";
-import { useTranslation } from "i18n";
-import { localizeRelativeTime } from "i18n/datetimes";
+import RelativeTime from "components/RelativeTime";
+import { Trans, useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
 import useSignupPageInfo from "utils/useSignupPageInfo";
 
 const SocialProof = () => {
-  const {
-    t,
-    i18n: { language: locale },
-  } = useTranslation([GLOBAL, LANDING]);
+  const { t } = useTranslation([GLOBAL, LANDING]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const { signupInfo, isLoading } = useSignupPageInfo();
@@ -140,9 +137,13 @@ const SocialProof = () => {
                   fontWeight: 500,
                 }}
               >
-                {t("landing:last_signup", {
-                  timeAgo: localizeRelativeTime(Temporal.Instant.from(signupInfo.lastSignup), locale),
-                })}
+                <Trans
+                  t={t}
+                  i18nKey="landing:last_signup2"
+                  components={{
+                    timeAgo: <RelativeTime instant={Temporal.Instant.from(signupInfo.lastSignup)} />,
+                  }}
+                />
               </Typography>
             )
           )}
