@@ -1,9 +1,10 @@
 import { Block, PersonRemove } from "@mui/icons-material";
-import EllipsisMenu from "components/EllipsisMenu";
+import { useMediaQuery } from "@mui/material";
 import { useTranslation } from "i18n";
 import { CONNECTIONS, GLOBAL } from "i18n/namespaces";
 import { LiteUser } from "proto/api_pb";
 import { useState } from "react";
+import { theme } from "theme";
 
 import ConnectionActionDialog from "./ConnectionActionDialog";
 import FriendSummaryView from "./FriendSummaryView";
@@ -18,9 +19,6 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
   const { t } = useTranslation([GLOBAL, CONNECTIONS]);
 
   const [openDialog, setOpenDialog] = useState<"remove-friend" | "block-user" | null>(null);
-  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(null);
-
-  const isMenuOpen = Boolean(menuAnchorEl);
 
   const { blockUserMutation, isPending: isBlocking } = useBlockUser();
 
@@ -35,14 +33,6 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
 
   const handleBlockUser = () => {
     setOpenDialog("block-user");
-  };
-
-  const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>): void => {
-    setMenuAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = (): void => {
-    setMenuAnchorEl(null);
   };
 
   const handleRemoveFriend = () => {
@@ -62,32 +52,28 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
     removeFriend(friend.userId);
     setOpenDialog(null);
   };
-
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   // The friends list has the full width of the main column and only an overflow
   // menu, so it keeps the wide row and the larger avatar.
   return (
-    <FriendSummaryView friend={friend} isCompact={false}>
-      <EllipsisMenu
-        idName="friend-item"
-        isMenuOpen={isMenuOpen}
-        menuAnchorEl={menuAnchorEl}
-        onMenuOpen={handleMenuOpen}
-        onMenuClose={handleMenuClose}
-        items={[
-          {
-            icon: PersonRemove,
-            label: t("connections:remove_friend"),
-            onClick: handleRemoveFriend,
-            id: "remove-friend",
-          },
-          {
-            icon: Block,
-            label: t("connections:block_user"),
-            onClick: handleBlockUser,
-            id: "block-user",
-          },
-        ]}
-      />
+    <FriendSummaryView
+      friend={friend}
+      isMobile={isMobile}
+      menuItems={[
+        {
+          icon: PersonRemove,
+          label: t("connections:remove_friend"),
+          onClick: handleRemoveFriend,
+          id: "remove-friend",
+        },
+        {
+          icon: Block,
+          label: t("connections:block_user"),
+          onClick: handleBlockUser,
+          id: "block-user",
+        },
+      ]}
+    >
       {openDialog === "remove-friend" && (
         <ConnectionActionDialog
           dialogConfirm={t("connections:remove_friend_confirmation_dialog.confirm")}
