@@ -1,0 +1,19 @@
+# Makefile intended to be called within the grpc container
+.SILENT:
+
+GEN_DIR := gen
+API_SOURCE_FILES := $(shell find api -type f -name "*.proto")
+GENERATED_SENTINEL := gen/api/descriptors.pb # No-op if this file is up-to-date
+
+.PHONY: default
+default: generate
+
+.PHONY: generate
+generate: ${GENERATED_SENTINEL}
+
+${GENERATED_SENTINEL}: generate.sh postprocess_grpc_stubs.py ${API_SOURCE_FILES}
+	./generate.sh ${GEN_DIR}
+
+.PHONY: clean
+clean:
+	rm -rf ${GEN_DIR}
