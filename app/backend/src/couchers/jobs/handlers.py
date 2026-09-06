@@ -1238,17 +1238,25 @@ def schedule_event_occurrences(payload: empty_pb2.Empty) -> None:
     logger.info("Scheduling recurring event occurrences")
 
     with session_scope() as session:
-        recurrences = (
-            session.execute(select(EventRecurrence).where(EventRecurrence.ends_on_date >= now().date())).scalars().all()
+        recurrence_ids = (
+            session.execute(
+                select(EventRecurrence.id)
+                .where(EventRecurrence.ends_on_date >= now().date())
+                .order_by(EventRecurrence.id)
+            )
+            .scalars()
+            .all()
         )
 
-        for recurrence in recurrences:
-            try:
+    for recurrence_id in recurrence_ids:
+        try:
+            with session_scope() as session:
+                recurrence = session.execute(
+                    select(EventRecurrence).where(EventRecurrence.id == recurrence_id)
+                ).scalar_one()
                 _schedule_occurrences_for_recurrence(session, recurrence)
-                session.commit()
-            except Exception:
-                logger.exception(f"Failed to schedule occurrences for event recurrence {recurrence.id}")
-                session.rollback()
+        except Exception:
+            logger.exception(f"Failed to schedule occurrences for event recurrence {recurrence_id}")
 
 
 def _schedule_occurrences_for_recurrence(session: Session, recurrence: EventRecurrence) -> None:
@@ -1302,8 +1310,6 @@ def _schedule_occurrences_for_recurrence(session: Session, recurrence: EventRecu
         session.add(thread)
         session.flush()
 
-        occurrence: EventOccurrence | None = None
-
         def create_occurrence(
             moderation_state_id: int,
             *,
@@ -1314,7 +1320,6 @@ def _schedule_occurrences_for_recurrence(session: Session, recurrence: EventRecu
             thread: Thread = thread,
         ) -> int:
             assert template is not None
-            nonlocal occurrence
             occurrence = EventOccurrence(
                 event_id=recurrence.event_id,
                 content=template.content,

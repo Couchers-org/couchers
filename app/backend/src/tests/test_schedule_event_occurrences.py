@@ -57,7 +57,7 @@ def _create_recurring_event(
 ) -> events_pb2.Event:
     """Creates a recurring event (not yet offered through API)."""
     with events_session(token) as api:
-        create_res = api.CreateEvent(
+        create_res: events_pb2.Event = api.CreateEvent(
             events_pb2.CreateEventReq(
                 title="Dummy Title",
                 content="Dummy content",
@@ -70,7 +70,7 @@ def _create_recurring_event(
 
     # Make it recurring through DB manipulation.
     with session_scope() as session:
-        occurrence: events_pb2.Event = session.execute(
+        occurrence = session.execute(
             select(EventOccurrence).where(EventOccurrence.id == create_res.event_id)
         ).scalar_one()
 
