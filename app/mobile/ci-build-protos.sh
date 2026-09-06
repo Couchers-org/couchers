@@ -3,7 +3,7 @@
 # Self-contained (downloads its own protoc/grpc-web) so it can run in environments
 # without the full dev toolchain: EAS Build's eas-build-pre-install hook, and as a
 # local fallback via `npm run build:protos`. GitLab CI instead generates these stubs
-# in the shared `protos` job (app/generate_protos.sh) and ships them as an artifact —
+# in the shared `protos` job (app/ci_generate_protos.sh) and ships them as an artifact —
 # its OTA/test jobs consume that artifact in place, but EAS cloud native builds
 # regenerate the (git-ignored) stubs themselves via the hook.
 

@@ -8,8 +8,7 @@ DB_PASSWORD := "203d805f4b62c0a1b2f1f6b82d4583dfe563ec1619b83ce22ee414e8376a25e7
 DB_CONNECTION_STRING := "postgresql://postgres:${DB_PASSWORD}@localhost:6545/postgres"
 
 protos:
-	make -C ../proto
-	../copy_generated_protos.sh
+	../generate_protos.sh
 
 setup:
 	curl -fsSL https://astral.sh/uv/${UV_VERSION}/install.sh | sh
