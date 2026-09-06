@@ -100,6 +100,7 @@ class Event(Base, kw_only=True):
         foreign_keys="Event.owner_cluster_id",
     )
     occurrences: DynamicMapped[EventOccurrence] = relationship(init=False, lazy="dynamic")
+    recurrence: Mapped[EventRecurrence | None] = relationship(init=False, back_populates="event", uselist=False)
 
     __table_args__ = (
         # Only one of owner_user and owner_cluster should be set
@@ -222,7 +223,7 @@ class EventRecurrence(Base, kw_only=True):
 
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
-    event: Mapped[Event] = relationship(init=False, backref=backref("recurrence", uselist=False))
+    event: Mapped[Event] = relationship(init=False, back_populates="recurrence")
 
 
 class EventSubscription(Base, kw_only=True):
