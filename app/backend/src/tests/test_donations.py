@@ -538,8 +538,6 @@ def fire_stripe_event(event_id):
 
 
 def fire_stripe_event_data(event):
-    # sign the payload the way Stripe does, so the servicer runs the real `stripe.Webhook.construct_event`. Mocking it
-    # out would hand the servicer plain dicts instead of Stripe's own objects, which behave differently
     payload = json.dumps(event).encode("utf-8")
     timestamp = int(time.time())
     signature = hmac.new(b"dummy_webhook_secret", f"{timestamp}.".encode() + payload, hashlib.sha256).hexdigest()

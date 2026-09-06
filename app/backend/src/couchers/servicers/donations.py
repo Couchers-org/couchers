@@ -143,7 +143,6 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
         event_type = event["type"]
         event_id = event["id"]
         data_object = data["object"]
-        # Stripe objects aren't dicts, so convert the free-form metadata bag into one
         metadata = data_object["metadata"].to_dict() if "metadata" in data_object else {}
 
         # Get the type of webhook event sent - used to check the status of PaymentIntents.
