@@ -133,7 +133,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
         # We're set up to receive the following webhook events (with explanations from stripe docs):
         # For both recurring and one-off donations, we get a `charge.succeeded` event and we then send the user an
         # invoice. There are other events too, but we don't handle them right now.
-        event = stripe.Webhook.construct_event(  # type: ignore[no-untyped-call]
+        event = stripe.Webhook.construct_event(
             payload=request.data,
             sig_header=context.get_header("stripe-signature"),
             secret=config.STRIPE_WEBHOOK_SECRET,
@@ -143,7 +143,8 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
         event_type = event["type"]
         event_id = event["id"]
         data_object = data["object"]
-        metadata = data_object.get("metadata", {})
+        # Stripe objects aren't dicts, so convert the free-form metadata bag into one
+        metadata = data_object["metadata"].to_dict() if "metadata" in data_object else {}
 
         # Get the type of webhook event sent - used to check the status of PaymentIntents.
         logger.info(f"Got signed Stripe webhook, {event_type=}, {event_id=}")
@@ -151,7 +152,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
         if event_type == "charge.succeeded":
             if metadata.get("site_url") == config.MERCH_SHOP_URL:
                 # merch shop. look up this email and give them the swagster badge
-                customer_email = metadata.get("customer_email") or data_object["billing_details"].get("email")
+                customer_email = metadata.get("customer_email") or data_object["billing_details"]["email"]
                 observe_revenue("merch", int(data_object["amount"]))
                 amount = int(data_object["amount"]) // 100
                 user = (
@@ -204,7 +205,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                 )
 
                 # Recurring donations go through Stripe invoices, one-time don't
-                is_recurring = data_object.get("invoice") is not None
+                is_recurring = data_object["invoice"] is not None
                 donation_type = "recurring" if is_recurring else "one-time"
                 user_link = urls.user_link(username=user.username)
                 try:
