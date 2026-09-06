@@ -1,4 +1,7 @@
+import hashlib
+import hmac
 import json
+import time
 from unittest.mock import patch
 
 import grpc
@@ -535,15 +538,16 @@ def fire_stripe_event(event_id):
 
 
 def fire_stripe_event_data(event):
+    # sign the payload the way Stripe does, so the servicer runs the real `stripe.Webhook.construct_event`. Mocking it
+    # out would hand the servicer plain dicts instead of Stripe's own objects, which behave differently
+    payload = json.dumps(event).encode("utf-8")
+    timestamp = int(time.time())
+    signature = hmac.new(b"dummy_webhook_secret", f"{timestamp}.".encode() + payload, hashlib.sha256).hexdigest()
+
     with real_stripe_session() as api:
-        with patch("couchers.servicers.donations.stripe") as mock:
-            mock.Webhook.construct_event.return_value = event
-            reply = api.Webhook(
-                httpbody_pb2.HttpBody(content_type="application/json", data=b"{}"),
-                metadata=(("stripe-signature", "dummy_sig"),),
-            )
-        mock.Webhook.construct_event.assert_called_once_with(
-            payload=b"{}", sig_header="dummy_sig", secret="dummy_webhook_secret", api_key="dummy_api_key"
+        api.Webhook(
+            httpbody_pb2.HttpBody(content_type="application/json", data=payload),
+            metadata=(("stripe-signature", f"t={timestamp},v1={signature}"),),
         )
 
 
