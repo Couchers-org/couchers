@@ -42,6 +42,7 @@ from couchers.notifications.notify import notify
 from couchers.proto import events_pb2, events_pb2_grpc, notification_data_pb2
 from couchers.proto.google.api import httpbody_pb2
 from couchers.proto.internal import jobs_pb2
+from couchers.sentry import report_message
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import is_not_visible
 from couchers.servicers.threads import thread_to_pb
@@ -392,7 +393,7 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
         inviting_user = session.execute(select(User).where(User.id == payload.inviting_user_id)).scalar_one_or_none()
 
         if not inviting_user:
-            logger.error(f"Inviting user {payload.inviting_user_id} is gone while trying to send event notification?")
+            report_message(f"Inviting user {payload.inviting_user_id} is gone while trying to send event notification?")
             return
 
         for user in users:
