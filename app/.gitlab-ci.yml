@@ -152,7 +152,9 @@ protos:
     # the grpc container doesn't have docker, no need to login
     default: false
   script:
-    - cd app && ./ci_generate_protos.sh
+    # The container doesn't have Make, so generate.sh directly
+    - app/proto/generate.sh
+    - app/proto/copy_generated_protos.sh
   artifacts:
     paths:
       - app/
