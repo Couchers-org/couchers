@@ -54,7 +54,8 @@ def send_web_push(
         "authorization": generate_vapid_authorization(endpoint, vapid_sub, vapid_private_key),
         "content-encoding": "aes128gcm",
         "ttl": str(ttl),
-        # WNS (Edge) 400s with "Ttl value conflicts with X-WNS-Cache-Policy" unless this matches the ttl
+        # WNS (Windows Notification Service, the push backend for Edge) 400s with
+        # "Ttl value conflicts with X-WNS-Cache-Policy" unless this matches the ttl
         "x-wns-cache-policy": "no-cache" if ttl == 0 else "cache",
     }
 
@@ -73,8 +74,11 @@ def send_web_push(
     )
 
 
-def wns_headers(resp: requests.Response) -> dict[str, str] | None:
-    """WNS reports why it rejected a push in x-wns-* headers and leaves the body empty."""
+def debug_response_headers(resp: requests.Response) -> dict[str, str] | None:
+    """Pick out the response headers worth reporting when a push fails.
+
+    WNS reports why it rejected a push in x-wns-* headers and leaves the body empty.
+    """
     headers = {k: v for k, v in resp.headers.items() if k.lower().startswith("x-wns-")}
     return headers or None
 

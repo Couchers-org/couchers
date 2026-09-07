@@ -17,7 +17,7 @@ from couchers.models import (
 )
 from couchers.models.notifications import DeviceType
 from couchers.notifications.expo_api import send_expo_push_notification
-from couchers.notifications.web_push_api import send_web_push, wns_headers
+from couchers.notifications.web_push_api import debug_response_headers, send_web_push
 from couchers.proto.internal import jobs_pb2
 from couchers.utils import not_none, now
 
@@ -117,7 +117,7 @@ def _send_web_push(
     if resp.status_code in [200, 201, 202]:
         return PushDeliveryResult(status_code=resp.status_code, response=resp.text)
 
-    headers = wns_headers(resp)
+    headers = debug_response_headers(resp)
 
     if resp.status_code in [404, 410]:
         raise PermanentSubscriptionFailure(

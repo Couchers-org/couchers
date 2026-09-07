@@ -2108,7 +2108,7 @@ def test_web_push_gone_disables_subscription(db, status_code):
 
 @pytest.mark.parametrize(("ttl", "expected"), [(0, "no-cache"), (3600, "cache")])
 def test_web_push_sends_wns_cache_policy(testconfig, ttl, expected):
-    """WNS rejects a push whose cache policy doesn't match its ttl."""
+    """WNS (Windows Notification Service, Edge's push backend) rejects a mismatched cache policy and ttl."""
     with patch("couchers.notifications.web_push_api.requests.post") as mock_post:
         send_web_push(
             b"data",
