@@ -19,7 +19,7 @@ function parseGlobalMessage(flag: JSONValue): GlobalMessageData | null {
     throw new Error("global_message is not an object");
   }
 
-  const { message } = flag;
+  const { severity, message } = flag;
 
   if (message === undefined || message === "") {
     return null;
@@ -29,13 +29,13 @@ function parseGlobalMessage(flag: JSONValue): GlobalMessageData | null {
     throw new Error("global_message.message is not a string");
   }
 
-  const severity = SEVERITIES.find((s) => s === flag.severity);
+  const alertColor = SEVERITIES.find((s) => s === severity);
 
-  if (severity === undefined) {
+  if (alertColor === undefined) {
     throw new Error("global_message.severity is not a known severity");
   }
 
-  return { severity, message };
+  return { severity: alertColor, message };
 }
 
 export function GlobalMessage() {
