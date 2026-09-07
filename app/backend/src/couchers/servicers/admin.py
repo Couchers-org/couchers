@@ -8,7 +8,7 @@ import grpc
 from google.protobuf import empty_pb2
 from google.protobuf.wrappers_pb2 import Int64Value
 from sqlalchemy import select, tuple_
-from sqlalchemy.orm import Session, aliased, selectinload
+from sqlalchemy.orm import Session, aliased, selectinload, undefer
 from sqlalchemy.sql import and_, func, or_
 from user_agents import parse as user_agents_parse
 
@@ -286,6 +286,23 @@ def _content_report_to_pb(content_report: ContentReport) -> admin_pb2.ContentRep
         content_ref=content_report.content_ref,
         user_agent=content_report.user_agent,
         page=content_report.page,
+    )
+
+
+def _upload_metadata_to_pb(upload: Upload) -> admin_pb2.UploadMetadata | None:
+    # the media service always sends the original size, so this is unset only for uploads made before we
+    # started capturing metadata
+    if upload.original_size is None:
+        return None
+
+    return admin_pb2.UploadMetadata(
+        parsed_json=json.dumps(upload.metadata_parsed, sort_keys=True) if upload.metadata_parsed else "",
+        parse_error=upload.metadata_parse_error or "",
+        original_filename=upload.original_filename or "",
+        original_format=upload.original_format or "",
+        original_size=upload.original_size,
+        original_width=upload.original_width or 0,
+        original_height=upload.original_height or 0,
     )
 
 
@@ -1454,7 +1471,19 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
 
-        statement = select(Upload).where(Upload.creator_user_id == user.id)
+        statement = (
+            select(Upload)
+            .where(Upload.creator_user_id == user.id)
+            .options(
+                undefer(Upload.metadata_parsed),
+                undefer(Upload.metadata_parse_error),
+                undefer(Upload.original_filename),
+                undefer(Upload.original_format),
+                undefer(Upload.original_size),
+                undefer(Upload.original_width),
+                undefer(Upload.original_height),
+            )
+        )
         if request.page_token:
             cursor_created = session.execute(
                 select(Upload.created).where(Upload.key == request.page_token)
@@ -1479,6 +1508,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                     thumbnail_url=upload.thumbnail_url,
                     credit=upload.credit or "",
                     created=Timestamp_from_datetime(upload.created),
+                    metadata=_upload_metadata_to_pb(upload),
                     uses=[
                         admin_pb2.UploadUse(
                             type=uploadusetype2api[use.use_type],

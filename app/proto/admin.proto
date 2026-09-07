@@ -694,6 +694,18 @@ message UploadUse {
   string url = 6;
 }
 
+message UploadMetadata {
+  // JSON object of the metadata tags parsed out of the original file
+  string parsed_json = 1;
+  string parse_error = 2;
+
+  string original_filename = 3;
+  string original_format = 4;
+  uint64 original_size = 5;
+  uint32 original_width = 6;
+  uint32 original_height = 7;
+}
+
 message UserUpload {
   string key = 1;
   string filename = 2;
@@ -702,6 +714,8 @@ message UserUpload {
   string credit = 5;
   google.protobuf.Timestamp created = 6;
   repeated UploadUse uses = 7;
+  // not set for uploads made before we started capturing metadata
+  UploadMetadata metadata = 8;
 }
 
 message ListUserUploadsRes {
