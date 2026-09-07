@@ -5,49 +5,23 @@ import Sentry from "platform/sentry";
 import { usePersistedState } from "platform/usePersistedState";
 import React, { useEffect } from "react";
 
-type ParsedGlobalMessage =
-  | { status: "off" }
-  | { status: "invalid" }
-  | { status: "ok"; severity: AlertColor; message: string };
+type GlobalMessageData = { severity: AlertColor; message: string };
 
 const SEVERITIES: readonly AlertColor[] = ["success", "info", "warning", "error"];
 
-/**
- * Interprets the raw flag value, which is JSON typed by hand into the GrowthBook console and so
- * can be anything at all. What we want is:
- *
- *     { "severity": "info", "message": "Logins are <b>down</b>" }
- *
- * "off" and "invalid" are told apart because switching the banner off is routine, whereas a value
- * we can't render is a mistake worth reporting: since the flag is only ever set during an
- * incident, a silently absent banner is the worst way to find out about a typo.
- */
-function parseGlobalMessage(flag: JSONValue): ParsedGlobalMessage {
-  if (flag === null) {
-    return { status: "off" };
-  }
+// { "severity": "info", "message": "Logins are <b>down</b>" }
+function parseGlobalMessage(flag: JSONValue): GlobalMessageData | null {
+  if (flag === null) return null;
+  if (typeof flag !== "object" || Array.isArray(flag)) throw new Error("global_message is not an object");
 
-  if (typeof flag !== "object" || Array.isArray(flag)) {
-    return { status: "invalid" };
-  }
+  const { message } = flag;
+  if (message === undefined || message === "") return null;
+  if (typeof message !== "string") throw new Error("global_message.message is not a string");
 
-  const { severity: rawSeverity, message } = flag;
+  const severity = SEVERITIES.find((s) => s === flag.severity);
+  if (!severity) throw new Error("global_message.severity is not a known severity");
 
-  // clearing the message out is the other way to switch the banner off
-  if (message === undefined || message === "") {
-    return { status: "off" };
-  }
-
-  if (typeof message !== "string") {
-    return { status: "invalid" };
-  }
-
-  const severity = SEVERITIES.find((s) => s === rawSeverity);
-  if (severity === undefined) {
-    return { status: "invalid" };
-  }
-
-  return { status: "ok", severity, message };
+  return { severity, message };
 }
 
 export function GlobalMessage() {
@@ -55,27 +29,32 @@ export function GlobalMessage() {
   // dismissal is keyed on the banner's contents, so publishing anything different re-shows it
   const [dismissed, setDismissed] = usePersistedState<string | null>("globalmessage.dismissed", null);
 
-  const parsed = parseGlobalMessage(flag);
-  // the payload is refetched on a timer, so key the report on the value rather than on the object
-  // identity, which changes on every refresh
-  const invalid = parsed.status === "invalid" ? JSON.stringify(flag) : null;
+  const flagJson = JSON.stringify(flag);
+  let data: GlobalMessageData | null = null;
+  let error: string | null = null;
+  try {
+    data = parseGlobalMessage(flag);
+  } catch (e) {
+    error = (e as Error).message;
+  }
 
+  // deps are strings because GrowthBook rebuilds the flag object on every refresh
   useEffect(() => {
-    if (invalid === null) return;
-    Sentry.captureException(new Error("Invalid global_message feature flag value"), {
+    if (error === null) return;
+    Sentry.captureException(new Error(error), {
       tags: { component: "GlobalMessage" },
-      extra: { value: invalid },
+      extra: { flag: flagJson },
     });
-  }, [invalid]);
+  }, [error, flagJson]);
 
-  if (parsed.status !== "ok") return null;
+  if (data === null) return null;
 
-  const key = `${parsed.severity}:${parsed.message}`;
+  const key = `${data.severity}:${data.message}`;
   if (key === dismissed) return null;
 
   return (
-    <MuiAlert severity={parsed.severity} onClose={() => setDismissed(key)}>
-      <span dangerouslySetInnerHTML={{ __html: parsed.message }} />
+    <MuiAlert severity={data.severity} onClose={() => setDismissed(key)}>
+      <span dangerouslySetInnerHTML={{ __html: data.message }} />
     </MuiAlert>
   );
 }

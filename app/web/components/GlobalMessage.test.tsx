@@ -46,7 +46,7 @@ describe("GlobalMessage", () => {
       expect.any(Error),
       expect.objectContaining({
         tags: { component: "GlobalMessage" },
-        extra: { value: JSON.stringify(value) },
+        extra: { flag: JSON.stringify(value) },
       }),
     );
   });
