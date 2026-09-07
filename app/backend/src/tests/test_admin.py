@@ -1771,7 +1771,7 @@ def test_ListUserUploads_metadata(db):
         res = api.ListUserUploads(admin_pb2.ListUserUploadsReq(user=user.username))
 
     uploads = {u.key: u for u in res.uploads}
-    assert not uploads["without_metadata"].HasField("metadata")
+    assert uploads["without_metadata"].metadata == admin_pb2.UploadMetadata()
 
     metadata = uploads["with_metadata"].metadata
     assert json.loads(metadata.parsed_json) == {"Image Make": "Canon", "EXIF LensModel": "50mm"}

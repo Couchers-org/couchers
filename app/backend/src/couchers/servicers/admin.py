@@ -289,20 +289,15 @@ def _content_report_to_pb(content_report: ContentReport) -> admin_pb2.ContentRep
     )
 
 
-def _upload_metadata_to_pb(upload: Upload) -> admin_pb2.UploadMetadata | None:
-    # the media service always sends the original size, so this is unset only for uploads made before we
-    # started capturing metadata
-    if upload.original_size is None:
-        return None
-
+def _upload_metadata_to_pb(upload: Upload) -> admin_pb2.UploadMetadata:
     return admin_pb2.UploadMetadata(
-        parsed_json=json.dumps(upload.metadata_parsed, sort_keys=True) if upload.metadata_parsed else "",
-        parse_error=upload.metadata_parse_error or "",
-        original_filename=upload.original_filename or "",
-        original_format=upload.original_format or "",
+        parsed_json=json.dumps(upload.metadata_parsed, sort_keys=True) if upload.metadata_parsed else None,
+        parse_error=upload.metadata_parse_error,
+        original_filename=upload.original_filename,
+        original_format=upload.original_format,
         original_size=upload.original_size,
-        original_width=upload.original_width or 0,
-        original_height=upload.original_height or 0,
+        original_width=upload.original_width,
+        original_height=upload.original_height,
     )
 
 
