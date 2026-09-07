@@ -6,22 +6,48 @@ import { usePersistedState } from "platform/usePersistedState";
 import React, { useEffect } from "react";
 
 type ParsedGlobalMessage =
-  | { status: "none" }
+  | { status: "off" }
   | { status: "invalid" }
   | { status: "ok"; severity: AlertColor; message: string };
 
 const SEVERITIES: readonly AlertColor[] = ["success", "info", "warning", "error"];
 
-// the flag holds hand-authored JSON and this banner renders on every page, so anything that isn't
-// the expected shape is reported and ignored rather than left to throw inside MuiAlert
+/**
+ * Interprets the raw flag value, which is JSON typed by hand into the GrowthBook console and so
+ * can be anything at all. What we want is:
+ *
+ *     { "severity": "info", "message": "Logins are <b>down</b>" }
+ *
+ * "off" and "invalid" are told apart because switching the banner off is routine, whereas a value
+ * we can't render is a mistake worth reporting: since the flag is only ever set during an
+ * incident, a silently absent banner is the worst way to find out about a typo.
+ */
 function parseGlobalMessage(flag: JSONValue): ParsedGlobalMessage {
-  if (flag === null) return { status: "none" };
-  if (typeof flag !== "object" || Array.isArray(flag)) return { status: "invalid" };
-  // an absent or empty message is how the banner is turned off
-  if (flag.message === undefined || flag.message === "") return { status: "none" };
-  const severity = SEVERITIES.find((s) => s === flag.severity);
-  if (typeof flag.message !== "string" || !severity) return { status: "invalid" };
-  return { status: "ok", severity, message: flag.message };
+  if (flag === null) {
+    return { status: "off" };
+  }
+
+  if (typeof flag !== "object" || Array.isArray(flag)) {
+    return { status: "invalid" };
+  }
+
+  const { severity: rawSeverity, message } = flag;
+
+  // clearing the message out is the other way to switch the banner off
+  if (message === undefined || message === "") {
+    return { status: "off" };
+  }
+
+  if (typeof message !== "string") {
+    return { status: "invalid" };
+  }
+
+  const severity = SEVERITIES.find((s) => s === rawSeverity);
+  if (severity === undefined) {
+    return { status: "invalid" };
+  }
+
+  return { status: "ok", severity, message };
 }
 
 export function GlobalMessage() {
