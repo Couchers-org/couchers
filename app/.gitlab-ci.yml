@@ -154,7 +154,7 @@ protos:
   script:
     # The container doesn't have Make, so generate.sh directly
     - app/proto/generate.sh
-    - app/proto/copy_generated_protos.sh
+    - app/copy_generated_protos.sh
   artifacts:
     paths:
       - app/
