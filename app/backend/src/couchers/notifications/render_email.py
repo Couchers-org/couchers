@@ -39,8 +39,8 @@ def get_send_email_payload(
         attachment = None
 
     return SendEmailPayload(
-        sender_name=config.NOTIFICATION_EMAIL_SENDER,
-        sender_email=config.NOTIFICATION_EMAIL_ADDRESS,
+        sender_name=email.sender.display_name,
+        sender_email=email.sender.addr_spec,
         recipient=user.email,
         subject=config.NOTIFICATION_PREFIX + rendered_email.subject,
         plain=rendered_email.body_plaintext,

@@ -57,8 +57,8 @@ def queue_userless_email(
     queue_email(
         session,
         jobs_pb2.SendEmailPayload(
-            sender_name=config.NOTIFICATION_EMAIL_SENDER,
-            sender_email=config.NOTIFICATION_EMAIL_ADDRESS,
+            sender_name=email.sender.display_name,
+            sender_email=email.sender.addr_spec,
             recipient=recipient,
             subject=config.NOTIFICATION_PREFIX + rendered.subject,
             plain=rendered.body_plaintext,

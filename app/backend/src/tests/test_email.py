@@ -5,6 +5,7 @@ from urllib.parse import parse_qs, urlparse
 import pytest
 from sqlalchemy import func, select, update
 
+import couchers.email.blocks
 import couchers.jobs.handlers
 from couchers.config import config
 from couchers.context import make_background_user_context, make_logged_out_context
@@ -369,7 +370,9 @@ def test_email_prefix_config(db, email_collector: EmailCollector, monkeypatch):
     new_config.NOTIFICATION_EMAIL_ADDRESS = "testco@testing.co.invalid"
     new_config.NOTIFICATION_PREFIX = ""
 
+    # the subject prefix is applied when queuing, the sender comes from the email itself
     monkeypatch.setattr(couchers.notifications.render_email, "config", new_config)
+    monkeypatch.setattr(couchers.email.blocks, "config", new_config)
 
     with session_scope() as session:
         notify(

@@ -5,11 +5,13 @@ that can be rendered HTML and plaintext for any locale.
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from email.headerregistry import Address
 from typing import Self
 
 from markupsafe import Markup
 
 from couchers import urls
+from couchers.config import config
 from couchers.email.locales import get_emails_i18next
 from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import SubstitutionDict, full_string_key
@@ -30,6 +32,10 @@ class EmailBase(ABC):
     @property
     @abstractmethod
     def string_key_base(self) -> str: ...
+
+    @property
+    def sender(self) -> Address:
+        return Address(config.NOTIFICATION_EMAIL_SENDER, addr_spec=config.NOTIFICATION_EMAIL_ADDRESS)
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         """Gets the subject line header of the email."""
