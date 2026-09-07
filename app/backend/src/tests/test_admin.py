@@ -1423,7 +1423,10 @@ def test_admin_actions_on_mutations(db, push_collector: PushCollector):
         # SendModNote with notify
         res = api.SendModNote(
             admin_pb2.SendModNoteReq(
-                user=normal_user.username, content="Please update your profile", internal_id="test1"
+                user=normal_user.username,
+                content="Please update your profile",
+                internal_id="test1",
+                notification=admin_pb2.MOD_NOTE_NOTIFICATION_NOTIFY,
             )
         )
         assert any(
@@ -1431,17 +1434,31 @@ def test_admin_actions_on_mutations(db, push_collector: PushCollector):
             for a in res.admin_actions
         )
 
-        # SendModNote with do_not_notify
+        # SendModNote without notifying
         res = api.SendModNote(
             admin_pb2.SendModNoteReq(
                 user=normal_user.username,
                 content="Silent note",
                 internal_id="test2",
-                do_not_notify=True,
+                notification=admin_pb2.MOD_NOTE_NOTIFICATION_NONE,
             )
         )
         assert any(
             a.action_type == "send_mod_note" and a.note == "Notify user: No\n\nSilent note" for a in res.admin_actions
+        )
+
+        # SendModNote including the note text in the email
+        res = api.SendModNote(
+            admin_pb2.SendModNoteReq(
+                user=normal_user.username,
+                content="Emailed note",
+                internal_id="test3",
+                notification=admin_pb2.MOD_NOTE_NOTIFICATION_NOTIFY_WITH_CONTENT,
+            )
+        )
+        assert any(
+            a.action_type == "send_mod_note" and a.note == "Notify user: Yes, including the note text\n\nEmailed note"
+            for a in res.admin_actions
         )
 
         # DeleteUser
