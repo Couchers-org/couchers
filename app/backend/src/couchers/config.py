@@ -68,9 +68,9 @@ class Config:
     MYPOSTCARD_PASSWORD: str
     MYPOSTCARD_PRODUCT_CODE: str
     MYPOSTCARD_CAMPAIGN_ID: str
-    # Whether to place real, billed MyPostcard orders. Off by default so that a deployment can only charge us
-    # if it deliberately opts in; non-prod runs the whole flow but emails the rendered postcard instead.
-    MYPOSTCARD_LIVE: bool = False
+    # Whether to email users their verification code instead of posting them a postcard. Hands postal
+    # verification to anyone who asks for it, so only non-prod deployments may set it.
+    POSTAL_VERIFICATION_BYPASS_POST_AND_EMAIL_CODE_FOR_TESTING: bool = False
     # SMS (gated at runtime by the `sms_enabled` feature flag)
     SMS_SENDER_ID: str
     # Email
@@ -216,23 +216,22 @@ class Config:
             ):
                 raise Exception("Listmonk credentials must be configured in production")
 
-            # Strong verification is gated at runtime by the `strong_verification_enabled` feature flag, which
-            # can be flipped on remotely at any time, so prod must always have the Iris ID credentials present.
+            # The following features are gated at runtime by feature flags (`strong_verification_enabled`,
+            # `postal_verification_enabled`), which can be flipped on remotely at any time, so prod must
+            # always have their credentials present.
             if not self.IRIS_ID_PUBKEY or not self.IRIS_ID_SECRET or not self.VERIFICATION_DATA_PUBLIC_KEY:
                 raise Exception("Iris ID credentials must be configured in production")
+            if (
+                not self.MYPOSTCARD_API_KEY
+                or not self.MYPOSTCARD_USERNAME
+                or not self.MYPOSTCARD_PASSWORD
+                or not self.MYPOSTCARD_PRODUCT_CODE
+                or not self.MYPOSTCARD_CAMPAIGN_ID
+            ):
+                raise Exception("MyPostcard API credentials must be configured in production")
 
             if self.FEATURE_FLAGS_FILE_OVERRIDE_PATH:
                 raise Exception("FEATURE_FLAGS_FILE_OVERRIDE_PATH is dev-only and must not be set in production")
-
-        # Only live mode talks to MyPostcard; a simulated send needs no credentials.
-        if self.MYPOSTCARD_LIVE and (
-            not self.MYPOSTCARD_API_KEY
-            or not self.MYPOSTCARD_USERNAME
-            or not self.MYPOSTCARD_PASSWORD
-            or not self.MYPOSTCARD_PRODUCT_CODE
-            or not self.MYPOSTCARD_CAMPAIGN_ID
-        ):
-            raise Exception("MyPostcard API credentials must be configured when MYPOSTCARD_LIVE is set")
 
         if not self.FEATURE_FLAGS_FILE_OVERRIDE_PATH:
             if not self.GROWTHBOOK_CLIENT_KEY:

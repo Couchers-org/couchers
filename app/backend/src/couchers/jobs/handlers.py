@@ -110,8 +110,8 @@ from couchers.models import (
 from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.expo_api import get_expo_push_receipts
 from couchers.notifications.notify import notify
+from couchers.postal.bypass import email_verification_code_instead_of_posting
 from couchers.postal.my_postcard import get_order_ids, send_postcard
-from couchers.postal.simulated import send_simulated_postcard
 from couchers.proto import moderation_pb2, notification_data_pb2
 from couchers.proto.internal import internal_pb2, jobs_pb2
 from couchers.resources import get_badge_dict, get_static_badge_dict
@@ -833,9 +833,8 @@ def update_recommendation_scores(payload: empty_pb2.Empty) -> None:
             "strong_verification": 3,
             "volunteer": 3,
             "past_volunteer": 2,
-            "donor": 1,
-            # Harder to fake than a phone number, easier than a biometric passport
             "postal_verified": 2,
+            "donor": 1,
             "phone_verified": 1,
         }
 
@@ -1324,8 +1323,10 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
 
         user_name, user_email = session.execute(select(User.name, User.email).where(User.id == attempt.user_id)).one()
 
-        if config.MYPOSTCARD_LIVE:
-            attempt.mypostcard_job_id = send_postcard(
+        if config.POSTAL_VERIFICATION_BYPASS_POST_AND_EMAIL_CODE_FOR_TESTING:
+            email_verification_code_instead_of_posting(
+                session,
+                recipient_email=user_email,
                 recipient_name=user_name,
                 address_line_1=attempt.address_line_1,
                 address_line_2=attempt.address_line_2,
@@ -1336,9 +1337,7 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
                 verification_code=not_none(attempt.verification_code),
             )
         else:
-            send_simulated_postcard(
-                session,
-                recipient_email=user_email,
+            attempt.mypostcard_job_id = send_postcard(
                 recipient_name=user_name,
                 address_line_1=attempt.address_line_1,
                 address_line_2=attempt.address_line_2,
@@ -1383,7 +1382,7 @@ def check_mypostcard_jobs(payload: empty_pb2.Empty) -> None:
     """
     Checks that all MyPostcard jobs from the last week are tied to a postal verification attempt.
     """
-    if not config.MYPOSTCARD_LIVE:
+    if config.POSTAL_VERIFICATION_BYPASS_POST_AND_EMAIL_CODE_FOR_TESTING:
         # Nothing to reconcile: we never placed any orders.
         return
 

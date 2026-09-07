@@ -1,9 +1,9 @@
 """
-Stand-in for the MyPostcard API, used when MYPOSTCARD_LIVE is off.
+Emails the recipient their verification code instead of posting them a postcard.
 
-Lets non-prod deployments run the whole postal verification flow without placing (billed) orders: instead of
-mailing a postcard, we email the recipient the image that would have been printed, so they can read the code
-or scan the QR and carry on through the flow.
+Used when POSTAL_VERIFICATION_BYPASS_POST_AND_EMAIL_CODE_FOR_TESTING is set, so a deployment can run the whole
+postal verification flow end to end without placing (billed) MyPostcard orders. The code is real and completes
+verification; only the printing and posting is skipped.
 """
 
 import logging
@@ -16,10 +16,10 @@ from couchers.proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
 
-ATTACHMENT_FILENAME = "example-postcard.png"
+ATTACHMENT_FILENAME = "postcard.png"
 
 
-def send_simulated_postcard(
+def email_verification_code_instead_of_posting(
     session: Session,
     *,
     recipient_email: str,
@@ -32,20 +32,12 @@ def send_simulated_postcard(
     country: str,
     verification_code: str,
 ) -> None:
-    """
-    Emails the rendered postcard instead of mailing one. See the module docstring.
-    """
-    logger.warning(
-        f"MYPOSTCARD_LIVE is off: simulating postcard to {recipient_email} instead of mailing one. "
-        "If this is production, postal verification postcards are NOT being sent."
-    )
-
     address = ", ".join(part for part in (address_line_1, address_line_2, city, state, postal_code, country) if part)
 
     queue_system_email(
         session,
         recipient_email,
-        "simulated_postal_verification_postcard",
+        "postal_verification_testing_code",
         {
             "recipient_name": recipient_name,
             "address": address,

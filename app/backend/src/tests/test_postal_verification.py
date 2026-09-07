@@ -734,16 +734,18 @@ def _confirmed_attempt_id(token: str) -> int:
     return attempt_id
 
 
-def test_simulated_postcard_emails_the_user_instead_of_mailing(db, email_collector):
-    """With MYPOSTCARD_LIVE off, no order is placed and the postcard is emailed to the user instead."""
-    config.MYPOSTCARD_LIVE = False
+def test_bypass_emails_the_code_instead_of_posting(db, email_collector):
+    """With the bypass set, no order is placed and the code is emailed instead."""
     user, token = generate_user()
     attempt_id = _confirmed_attempt_id(token)
 
-    with patch("couchers.postal.my_postcard._place_order") as mock_order:
+    with (
+        patch.object(config, "POSTAL_VERIFICATION_BYPASS_POST_AND_EMAIL_CODE_FOR_TESTING", True),
+        patch("couchers.jobs.handlers.send_postcard") as mock_send,
+    ):
         while process_job():
             pass
-        mock_order.assert_not_called()
+        mock_send.assert_not_called()
 
     with session_scope() as session:
         attempt = session.execute(
@@ -755,29 +757,31 @@ def test_simulated_postcard_emails_the_user_instead_of_mailing(db, email_collect
         verification_code = attempt.verification_code
 
     email = email_collector.pop_for_recipient(user.email)
-    # The email must be unmistakably an example from a test server, right at the top
-    assert "EXAMPLE" in email.subject
-    assert "THIS IS AN EXAMPLE. NO POSTCARD WAS PRINTED OR MAILED." in email.plain.split("Hi ")[0]
-    assert "nothing has been charged" in email.plain
+    assert "[TESTING]" in email.subject
+    # It must be unmistakable, right at the top, that this is a testing email
+    assert "should only be sent out in testing environments" in email.plain.split("\n\n")[0]
+    assert "support@couchers.org" in email.plain
     assert verification_code in email.plain
 
     assert len(email.attachments) == 1
     attachment = email.attachments[0]
     assert attachment.data[:4] == b"\x89PNG"
-    assert 'filename="example-postcard.png"' in attachment.content_disposition
+    assert 'filename="postcard.png"' in attachment.content_disposition
 
     # The emailed code still works, so the whole flow can be tested
     with postal_verification_session(token) as pv:
         assert pv.VerifyPostalCode(postal_verification_pb2.VerifyPostalCodeReq(code=verification_code)).success
 
 
-def test_live_postcard_places_a_real_order(db):
-    """With MYPOSTCARD_LIVE on, an order is placed and its job ID recorded."""
-    config.MYPOSTCARD_LIVE = True
+def test_postcard_is_posted_when_bypass_is_unset(db):
+    """With the bypass unset, an order is placed and its job ID recorded."""
     user, token = generate_user()
     attempt_id = _confirmed_attempt_id(token)
 
-    with patch("couchers.jobs.handlers.send_postcard") as mock_send:
+    with (
+        patch.object(config, "POSTAL_VERIFICATION_BYPASS_POST_AND_EMAIL_CODE_FOR_TESTING", False),
+        patch("couchers.jobs.handlers.send_postcard") as mock_send,
+    ):
         mock_send.return_value = 12345
         while process_job():
             pass
@@ -791,11 +795,12 @@ def test_live_postcard_places_a_real_order(db):
         assert attempt.mypostcard_job_id == 12345
 
 
-def test_check_mypostcard_jobs_skipped_when_not_live(db):
+def test_check_mypostcard_jobs_skipped_when_bypassing(db):
     """The reconciliation job must not call the API when we never placed any orders."""
-    config.MYPOSTCARD_LIVE = False
-
-    with patch("couchers.jobs.handlers.get_order_ids") as mock_get_order_ids:
+    with (
+        patch.object(config, "POSTAL_VERIFICATION_BYPASS_POST_AND_EMAIL_CODE_FOR_TESTING", True),
+        patch("couchers.jobs.handlers.get_order_ids") as mock_get_order_ids,
+    ):
         check_mypostcard_jobs(empty_pb2.Empty())
         mock_get_order_ids.assert_not_called()
 
