@@ -11,15 +11,29 @@ const SEVERITIES: readonly AlertColor[] = ["success", "info", "warning", "error"
 
 // { "severity": "info", "message": "Logins are <b>down</b>" }
 function parseGlobalMessage(flag: JSONValue): GlobalMessageData | null {
-  if (flag === null) return null;
-  if (typeof flag !== "object" || Array.isArray(flag)) throw new Error("global_message is not an object");
+  if (flag === null) {
+    return null;
+  }
+
+  if (typeof flag !== "object" || Array.isArray(flag)) {
+    throw new Error("global_message is not an object");
+  }
 
   const { message } = flag;
-  if (message === undefined || message === "") return null;
-  if (typeof message !== "string") throw new Error("global_message.message is not a string");
+
+  if (message === undefined || message === "") {
+    return null;
+  }
+
+  if (typeof message !== "string") {
+    throw new Error("global_message.message is not a string");
+  }
 
   const severity = SEVERITIES.find((s) => s === flag.severity);
-  if (!severity) throw new Error("global_message.severity is not a known severity");
+
+  if (severity === undefined) {
+    throw new Error("global_message.severity is not a known severity");
+  }
 
   return { severity, message };
 }
@@ -30,8 +44,10 @@ export function GlobalMessage() {
   const [dismissed, setDismissed] = usePersistedState<string | null>("globalmessage.dismissed", null);
 
   const flagJson = JSON.stringify(flag);
+
   let data: GlobalMessageData | null = null;
   let error: string | null = null;
+
   try {
     data = parseGlobalMessage(flag);
   } catch (e) {
@@ -40,17 +56,23 @@ export function GlobalMessage() {
 
   // deps are strings because GrowthBook rebuilds the flag object on every refresh
   useEffect(() => {
-    if (error === null) return;
-    Sentry.captureException(new Error(error), {
-      tags: { component: "GlobalMessage" },
-      extra: { flag: flagJson },
-    });
+    if (error !== null) {
+      Sentry.captureException(new Error(error), {
+        tags: { component: "GlobalMessage" },
+        extra: { flag: flagJson },
+      });
+    }
   }, [error, flagJson]);
 
-  if (data === null) return null;
+  if (data === null) {
+    return null;
+  }
 
   const key = `${data.severity}:${data.message}`;
-  if (key === dismissed) return null;
+
+  if (key === dismissed) {
+    return null;
+  }
 
   return (
     <MuiAlert severity={data.severity} onClose={() => setDismissed(key)}>
