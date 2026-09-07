@@ -1,3 +1,4 @@
+import { MessageFilterType } from "features/messages/constants";
 import { ReferenceType } from "proto/references_pb";
 
 // profiles/users
