@@ -17,5 +17,26 @@
       "count_in_dm_many": "{{count}} de mensajes de <b>{{author}}</b>:",
       "count_in_dm_other": "{{count}} mensajes de <b>{{author}}</b>:"
     }
+  },
+  "generic": {
+    "greeting_line": "Hola {{name}},",
+    "security_warning_contact_support": "Si no has sido tu ponte en contacto con nosotros en {{ email_link }} para que podamos solucionarlo lo antes posible.",
+    "do_not_reply_request": "No respondas a este correo electrónico. Utiliza uno de los botones de arriba para responder a esta solicitud.",
+    "thanks": "¡Gracias!",
+    "closing_lines": {
+      "default": "Saludos,<br>El equipo de Couchers.org",
+      "founders": "Aapeli e Itsi,<br>Fundadores de Couchers.org",
+      "aapeli": "Aapeli<br>Cofundador de Couchers.org<br>{{ profile_link }}",
+      "emily": "Emily de Couchers.org<br>{{ email_link }}<br>{{ profile_link }}"
+    },
+    "footer": {
+      "received_because": "Recibes este correo electrónico porque te registraste en Couchers.org.",
+      "contact_support": "Puedes contactar con nuestro equipo de soporte en {{ email_link }}.",
+      "timezone_note": "Todas las horas están en {{ timezone }}, según la ubicación de tu perfil.",
+      "donate_link": "Donar",
+      "volunteer_link": "Voluntario",
+      "blog_link": "Blog",
+      "nonprofit_note": "Couchers.org es un proyecto de Couchers, Inc., una organización sin ánimo de lucro exenta de impuestos 501(c)(3) de EE.UU."
+    }
   }
 }
