@@ -4,11 +4,11 @@
       "problem_label": "Při jaké činnosti došlo k chybě?",
       "button_label": "Nahlásit technický problém",
       "title_label": "Předmět zprávy",
-      "problem_helper": "Stručný popis problému a jak ho reprodukovat",
+      "problem_helper": "Popište kroky, které jste provedli: na kterých stránkách jste byli, na co jste klikli, atd.",
       "expect_label": "Co se stalo? Co se mělo stát?",
-      "expect_helper": "Stručný popis toho, co jste očekávali, že se stane místo toho",
+      "expect_helper": "Popište problém, který se objevil, včetně případných chybových hlášek a uveďte co jste očekávali, že se stane místo toho.",
       "warning_message": "Vezmi prosím na vědomí, že tyto informace, stejně jako diagnostické údaje, včetně toho na které stránce se nacházíš, jaký používáš prohlížeč a tvé uživatelské jméno, budou uloženy do veřejného seznamu chyb.",
-      "success_message2": "Děkujeme za nahlášení této chyby a za zlepšení Couchers, hlášení bylo odesláno vývojářům! ID chyby je <id/>."
+      "success_message2": "Děkujeme za nahlášení tohoto problému a za zlepšení Couchers! Hlášení bylo odesláno vývojářům. Pro referenci můžeš použít ID: <id/>."
     },
     "flag": {
       "reason_required": "Důvod je vyžadován.",

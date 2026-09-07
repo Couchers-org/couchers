@@ -158,8 +158,7 @@
       "map_is_blank": "缺少座標，請先使用上方地圖搜尋位置",
       "radius_text2_other": "{{count}}米",
       "no_location_results_text": "找不到結果，請嘗試只搜尋城市名稱。",
-      "press_enter_to_search": "按Enter鍵搜尋",
-      "radius_text2_one": "{{count}}米"
+      "press_enter_to_search": "按Enter鍵搜尋"
     }
   },
   "nav": {
@@ -214,8 +213,7 @@
     },
     "error": {
       "fetch_invite_info": "無法獲取邀請碼詳細資訊"
-    },
-    "number_of_uses_one": "使用：{{count}}已完成註冊"
+    }
   },
   "reply": "回覆",
   "yes": "是",
