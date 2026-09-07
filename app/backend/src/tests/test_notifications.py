@@ -1002,7 +1002,7 @@ def test_check_expo_push_receipts_success(db):
         assert sub.disabled_at == DATETIME_INFINITY
 
 
-def test_check_expo_push_receipts_device_not_registered(db):
+def test_check_expo_push_receipts_device_not_registered(db, frozen_timewarp):
     """Test batch receipt checking with DeviceNotRegistered error disables subscription."""
     user, token = generate_user()
 
@@ -1027,7 +1027,7 @@ def test_check_expo_push_receipts_device_not_registered(db):
         session.add(attempt)
         session.flush()
         # Make the attempt old enough to be checked
-        attempt.time = now() - timedelta(minutes=15)
+        attempt.time = now() - timedelta(minutes=20)
         attempt_id = attempt.id
         sub_id = sub.id
 
@@ -1058,8 +1058,7 @@ def test_check_expo_push_receipts_device_not_registered(db):
         sub = session.execute(
             select(PushNotificationSubscription).where(PushNotificationSubscription.id == sub_id)
         ).scalar_one()
-        # not compared against now(): postgres sets this from its own clock, which can lead ours
-        assert sub.disabled_at < DATETIME_INFINITY
+        assert sub.disabled_at == now()
 
 
 def test_check_expo_push_receipts_not_found(db):
@@ -2077,7 +2076,7 @@ def test_web_push_transient_error_is_retried(db, status_code):
 
 
 @pytest.mark.parametrize("status_code", [404, 410])
-def test_web_push_gone_disables_subscription(db, status_code):
+def test_web_push_gone_disables_subscription(db, frozen_timewarp, status_code):
     user, _ = generate_user()
     sub_id = _make_web_push_sub(user.id)
 
@@ -2102,8 +2101,7 @@ def test_web_push_gone_disables_subscription(db, status_code):
         sub = session.execute(
             select(PushNotificationSubscription).where(PushNotificationSubscription.id == sub_id)
         ).scalar_one()
-        # not compared against now(): postgres sets this from its own clock, which can lead ours
-        assert sub.disabled_at < DATETIME_INFINITY
+        assert sub.disabled_at == now()
 
 
 @pytest.mark.parametrize(("ttl", "expected"), [(0, "no-cache"), (3600, "cache")])
