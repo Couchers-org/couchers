@@ -1,17 +1,6 @@
 import { MessageThreadCategory } from "proto/conversations_pb";
 import { HostRequestStatus } from "proto/messages_pb";
-
-export type MessageFilterType = "all" | "unread" | "chats" | "hosting" | "surfing" | "public-trips" | "archived";
-
-export const MESSAGE_FILTER_TYPES: MessageFilterType[] = [
-  "all",
-  "unread",
-  "chats",
-  "hosting",
-  "surfing",
-  "public-trips",
-  "archived",
-];
+import { MessageFilterType } from "routes";
 
 // Maps a URL filter slug to the unified ListMessageThreads request params.
 // categories, onlyUnread and onlyArchived are orthogonal; an empty categories
