@@ -1,4 +1,6 @@
-# Dev-facing makefile. Enters the GRPC container for operations and delegates generate.sh
+# Generates protobuf bindings incrementally for dev scenarios.
+# Uses a GRPC docker container if dependencies are not installed locally.
+# CI doesn't use this file because the GRPC container doesn't have Make installed.
 .SILENT:
 
 API_SOURCE_FILES := $(shell find api backend -type f -name "*.proto")
