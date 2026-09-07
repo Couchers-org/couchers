@@ -19,3 +19,4 @@ pyrightconfig.json
 !/.claude/tools/**
 !/.claude/skills/
 !/.claude/skills/**
+/tmp/
