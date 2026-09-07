@@ -24,7 +24,13 @@
     "user_logged_error": "Você não pode redefinir sua senha enquanto estiver logado. Altere sua senha nas configurações ou faça log out para redefini-la.",
     "token_error": "Houve um erro ao processar o token de redefinição de senha. Tente abrir o link do e-mail novamente.",
     "reset_password_success": "Sua senha foi alterada com sucesso!",
-    "reset_password_error": "Erro ao redefinir a senha: {{message}}"
+    "reset_password_error": "Erro ao redefinir a senha: {{message}}",
+    "hide_old_password": "Ocultar senha anterior",
+    "show_old_password": "Mostrar senha anterior",
+    "hide_new_password": "Ocultar nova senha",
+    "show_new_password": "Mostrar nova senha",
+    "hide_confirm_password": "Ocultar confirmação de senha",
+    "show_confirm_password": "Mostrar confirmação de senha"
   },
   "reset_password_form": {
     "enter_email": "Digite seu nome de usuário/e-mail",
@@ -54,14 +60,15 @@
       "required_error": "Digite seu nome de usuário",
       "username_taken_error": "Este nome de usuário já existe.",
       "validation_error": "O nome de usuário só pode conter números ou _, e deve começar com uma letra.",
-      "helper_text": "Este é seu ID de login exclusivo, não seu nome de exibição."
+      "helper_text": "Este é seu nome de usuário público, não o nome do seu perfil."
     },
     "gender": {
       "field_label": "Identifico-me como…",
       "required_error": "Selecione sua identidade de gênero",
       "man": "Homem",
       "non_binary": "Não binário",
-      "woman": "Mulher"
+      "woman": "Mulher",
+      "selector_a11y": "Gênero"
     },
     "password": {
       "validation_error": "A senha deve ter entre 8 e 256 caracteres e não deve ser extremamente comum.",
@@ -258,7 +265,7 @@
   "strong_verification": {
     "delete_information": "Você pode excluir seus dados de Autenticação Forte (exceto país expedidor, data de validade e últimos três dígitos do número do documento) dos nossos servidores a qualquer momento.",
     "title": "Autenticação Forte",
-    "subtitle": "A Autenticação Forte é uma funcionalidade de segurança adicional que permite que você verifique sua data de nascimento e sexo usando seu passaporte biométrico.",
+    "subtitle": "A Autenticação Forte é uma funcionalidade adicional de segurança que permite que você verifique sua data de nascimento e gênero usando seu passaporte biométrico.",
     "start_button": "Iniciar Autenticação Forte",
     "status": {
       "disabled_message": "Você <strong>não foi</strong> verificado com Autenticação Forte.",
@@ -294,9 +301,33 @@
         "finland_germany_new": "<strong>Finlândia, Alemanha (a partir de 2017), Rússia:</strong> Página da foto",
         "australia": "<strong>Austrália:</strong> Página do meio (marcada com o símbolo + \"nome do chip\")"
       },
-      "step7": "Segure o telefone sobre a página do passaporte com o chip NFC (veja dicas abaixo)",
+      "step7": "Segure o telefone sobre a página do passaporte com o chip NFC e <strong>mantenha-o completamente parado por pelo menos 5 segundos</strong> – movê-lo muito cedo é a causa mais comum de erro",
       "step8": "Você saberá que deu certo quando vir uma porcentagem crescente e uma barra de carregamento",
-      "step6": "Tire uma foto nítida da página do passaporte com números na parte inferior"
+      "step6": "Tire uma foto nítida da página do passaporte com números na parte inferior",
+      "scanning_tips": {
+        "heading": "Dicas para leitura correta do NFC",
+        "description": "A leitura do NFC é a parte mais complicada. Estas dicas melhoram significativamente sua probabilidade de sucesso:",
+        "remove_case": "<strong>Remova o telefone da capa</strong> — até capas finas podem bloquear o sinal do NFC",
+        "hold_still": "<strong>Segure seu telefone completamente imóvel</strong> por pelo menos 5 segundos — movê-lo muito cedo é a causa mais comum de erro",
+        "flat_surface": "<strong>Coloque seu passaporte em uma superfície plana</strong> — não segure-o nas mãos",
+        "nfc_location": "<strong>Encontre a antena NFC do seu telefone</strong> — ela fica normalmente próxima ao centro na parte superior da parte de trás do telefone. Tente posições diferentes se ela não se conectar",
+        "no_metal": "<strong>Evite superfícies metálicas</strong> — não posicione seu passaporte em uma mesa de metal ou laptop",
+        "retry": "Se a leitura falhar, tente novamente — pode levar de 2 a 3 tentativas para encontrar a posição correta"
+      },
+      "before_you_start": {
+        "heading": "Antes de começar",
+        "nfc_check": "Seu telefone deve ter <strong>funcionalidade NFC</strong> — a maioria dos telefones modernos têm. NFC normalmente fica habilitado por padrão, mas em alguns telefones antigos, você pode precisar habilitá-lo nas configurações do telefone.",
+        "passport_check": "Seu passaporte precisa ser um <strong>passaporte biométrico</strong> — procure pelo símbolo de chip dourado na capa. Passaportes antigos sem esse símbolo não vão funcionar.",
+        "remove_case": "<strong>Remova o telefone da capa antes de começar</strong> — até capas finas podem bloquear o sinal do NFC e causar erro de leitura."
+      },
+      "didnt_work": {
+        "heading": "Problemas?",
+        "tip1": "Em telefones Android antigos, verifique se o NFC está habilitado nas configurações do seu telefone (na maioria dos telefones modernos ele está habilitado por padrão)",
+        "tip2": "Tente uma página diferente do seu passaporte — o local do chip varia de país para país",
+        "tip3": "Se estiver usando Android, verifique se você tem o aplicativo IRIS ID instalado (não a versão de navegador)",
+        "tip4": "Alguns passaportes antigos ou cartões passaporte não têm chips NFC e não vão funcionar",
+        "contact": "Se ainda estiver tendo problema, <supportLink>avise-nos</supportLink> e ajudaremos. você."
+      }
     },
     "donate_button": "Doe para apoiar o Couchers.org"
   },

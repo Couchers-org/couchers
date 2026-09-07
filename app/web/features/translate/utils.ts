@@ -1,4 +1,4 @@
-import { LANGUAGE_MAP } from "i18n/constants";
+import { ALWAYS_AVAILABLE_LOCALES, LOCALE_AUTONYMS } from "i18n/locales";
 
 import { ALMOST_DONE_CUTOFF, SELECTOR_CUTOFF } from "./constants";
 
@@ -12,7 +12,7 @@ export interface WeblateLanguage {
  */
 export function isLanguageProductionReady(locale: string, languages: WeblateLanguage[] | undefined): boolean {
   // English is always production-ready
-  if (locale === "en") {
+  if (ALWAYS_AVAILABLE_LOCALES.includes(locale)) {
     return true;
   }
 
@@ -44,7 +44,7 @@ export function getAvailableLanguages(
   return languages
     .filter(
       (language) =>
-        LANGUAGE_MAP[language.code.replace("_", "-")] && (showAll || language.translated_percent >= SELECTOR_CUTOFF),
+        LOCALE_AUTONYMS[language.code.replace("_", "-")] && (showAll || language.translated_percent >= SELECTOR_CUTOFF),
     )
     .sort((a, b) => {
       // Sort by translation percentage (>= 80% first), then alphabetically

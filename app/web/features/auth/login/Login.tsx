@@ -3,6 +3,7 @@ import Alert from "components/Alert";
 import HtmlMeta from "components/HtmlMeta";
 import StyledLink from "components/StyledLink";
 import { Trans, useTranslation } from "i18n";
+import { DEFAULT_LOCALE, LOCALE_COOKIE_NAME } from "i18n/locales";
 import { AUTH, GLOBAL, LANDING } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
@@ -50,11 +51,11 @@ export default function Login() {
         typeof document !== "undefined"
           ? document.cookie
               .split("; ")
-              .find((row) => row.startsWith("NEXT_LOCALE="))
+              .find((row) => row.startsWith(`${LOCALE_COOKIE_NAME}=`))
               ?.split("=")[1]
           : null;
 
-      const targetLocale = nextLocale || router.locale || "en";
+      const targetLocale = nextLocale || router.locale || DEFAULT_LOCALE;
 
       // Navigate to destination with user's preferred locale
       router.push(redirectTo, undefined, { locale: targetLocale });

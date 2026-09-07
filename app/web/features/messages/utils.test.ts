@@ -1,5 +1,5 @@
 import groupChat from "test/fixtures/groupChat.json";
-import hostRequest from "test/fixtures/hostRequest.json";
+import hostRequest from "test/fixtures/hostRequest";
 
 import { hasUnreadMessages } from "./utils";
 

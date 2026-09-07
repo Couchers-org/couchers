@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { sessionCookieName } from "./appConstants";
 import { ALMOST_DONE_CUTOFF } from "./features/translate/constants";
 import { fetchWeblateStats, WeblateLanguage } from "./features/weblate/useWeblateStats";
+import { ALWAYS_AVAILABLE_LOCALES, DEFAULT_LOCALE, LOCALE_COOKIE_NAME } from "./i18n/locales";
 
 // In-memory cache for Weblate stats
 let statsCache: {
@@ -50,7 +51,9 @@ async function getProductionReadyLocales(): Promise<string[]> {
     .map((lang) => lang.code.replace("_", "-"));
 
   // English is always production-ready
-  return allLanguages.filter((locale) => locale === "en" || productionReadyLocales.includes(locale));
+  return allLanguages.filter(
+    (locale) => ALWAYS_AVAILABLE_LOCALES.includes(locale) || productionReadyLocales.includes(locale),
+  );
 }
 
 /**
@@ -75,7 +78,7 @@ export function shouldBlockIncompleteLanguage(
   cookieLocale: string | undefined,
   isProductionReady: boolean,
 ): boolean {
-  if (currentLocale === "en") {
+  if (ALWAYS_AVAILABLE_LOCALES.includes(currentLocale)) {
     return false;
   }
 
@@ -98,7 +101,7 @@ export function getBrowserLocaleFromHeader(
 
 async function getBestLocale(request: NextRequest): Promise<string> {
   // Priority 1: NEXT_LOCALE cookie (set by backend or language picker)
-  const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
+  const cookieLocale = request.cookies.get(LOCALE_COOKIE_NAME)?.value;
   if (cookieLocale && allLanguages.includes(cookieLocale)) {
     return cookieLocale;
   }
@@ -108,12 +111,12 @@ async function getBestLocale(request: NextRequest): Promise<string> {
   // falling through to the next preferred language in the header otherwise
   const acceptLanguage = request.headers.get("accept-language");
   const productionReadyLocales = await getProductionReadyLocales();
-  return getBrowserLocaleFromHeader(acceptLanguage || undefined, productionReadyLocales) || "en";
+  return getBrowserLocaleFromHeader(acceptLanguage || undefined, productionReadyLocales) || DEFAULT_LOCALE;
 }
 
 export async function middleware(request: NextRequest) {
   const { pathname, locale: currentLocale } = request.nextUrl;
-  const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
+  const cookieLocale = request.cookies.get(LOCALE_COOKIE_NAME)?.value;
   const isAuthenticated = !!request.cookies.get(sessionCookieName);
 
   // Skip locale redirect if this is a client-side navigation
@@ -126,14 +129,14 @@ export async function middleware(request: NextRequest) {
 
   if (shouldBlock) {
     const url = request.nextUrl.clone();
-    url.locale = "en";
+    url.locale = DEFAULT_LOCALE;
 
     if (isAuthenticated && pathname === "/") {
       url.pathname = "/dashboard";
     }
 
     const response = NextResponse.redirect(url);
-    response.cookies.set("NEXT_LOCALE", "en", {
+    response.cookies.set(LOCALE_COOKIE_NAME, DEFAULT_LOCALE, {
       path: "/",
       maxAge: 31536000, // 1 year
       sameSite: "lax",
@@ -146,7 +149,8 @@ export async function middleware(request: NextRequest) {
 
   if (cookieLocale && allLanguages.includes(cookieLocale)) {
     targetLocale = cookieLocale;
-  } else if (currentLocale !== "en") {
+  } else if (currentLocale !== DEFAULT_LOCALE) {
+    // The locale is explicit in the URL
     targetLocale = currentLocale;
   } else {
     targetLocale = await getBestLocale(request);
@@ -164,7 +168,7 @@ export async function middleware(request: NextRequest) {
     }
 
     const response = NextResponse.redirect(url);
-    response.cookies.set("NEXT_LOCALE", targetLocale, {
+    response.cookies.set(LOCALE_COOKIE_NAME, targetLocale, {
       path: "/",
       maxAge: 31536000,
       sameSite: "lax",
@@ -182,7 +186,7 @@ export async function middleware(request: NextRequest) {
   // Set cookie if it doesn't exist yet
   if (!cookieLocale) {
     const response = NextResponse.next();
-    response.cookies.set("NEXT_LOCALE", currentLocale, {
+    response.cookies.set(LOCALE_COOKIE_NAME, currentLocale, {
       path: "/",
       maxAge: 31536000, // 1 year
       sameSite: "lax",

@@ -100,5 +100,6 @@
       "button": "Confirmar estadia"
     },
     "carousel_dismiss_button_a11y": "Dispensar lembrete"
-  }
+  },
+  "today_label": "Hoje"
 }

@@ -2,7 +2,7 @@ import TranslateIcon from "@mui/icons-material/Translate";
 import { Box, Card, CardContent, Chip, Link, styled, Typography, useMediaQuery } from "@mui/material";
 import { useWeblateStats } from "features/weblate/useWeblateStats";
 import { useTranslation } from "i18n";
-import { LANGUAGE_MAP } from "i18n/constants";
+import { LOCALE_AUTONYMS } from "i18n/locales";
 import { GLOBAL } from "i18n/namespaces";
 import React from "react";
 import { translateJobURL } from "routes";
@@ -132,7 +132,7 @@ export default function TranslationProgress() {
 
   // Filter and sort languages - show all with any progress
   const availableLanguages = languages
-    .filter((language) => LANGUAGE_MAP[language.code.replace("_", "-")] && language.translated_percent > 0)
+    .filter((language) => LOCALE_AUTONYMS[language.code.replace("_", "-")] && language.translated_percent > 0)
     .sort((a, b) => b.translated_percent - a.translated_percent); // Sort by completion percentage
 
   return (
@@ -171,10 +171,10 @@ export default function TranslationProgress() {
       </Box>
       {availableLanguages.map((language) => {
         const languageCode = language.code.replace("_", "-");
-        const languageInfo = LANGUAGE_MAP[languageCode];
+        const nativeName = LOCALE_AUTONYMS[languageCode];
         const percent = language.translated_percent;
 
-        if (!languageInfo) return null;
+        if (!nativeName) return null;
 
         return (
           <React.Fragment key={language.code}>
@@ -203,7 +203,7 @@ export default function TranslationProgress() {
                           fontWeight: "bold",
                         }}
                       >
-                        {languageInfo.nativeName}
+                        {nativeName}
                       </Typography>
                     </Box>
                     <Chip
@@ -265,7 +265,7 @@ export default function TranslationProgress() {
                         fontWeight: "bold",
                       }}
                     >
-                      {languageInfo.nativeName}
+                      {nativeName}
                     </Typography>
                     <Typography
                       variant="caption"

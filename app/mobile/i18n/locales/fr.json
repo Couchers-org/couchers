@@ -17,12 +17,26 @@
     "home": "Accueil",
     "messages": "Messages",
     "communities": "Communautés",
-    "events": "Événements"
+    "events": "Événements",
+    "search": "Recherche"
   },
   "common": {
     "cancel": "Annuler",
     "add_photo": "Ajouter une photo",
     "take_photo": "Prendre une photo",
-    "choose_from_library": "Choisissez dans la bibliothèque"
+    "choose_from_library": "Choisissez dans la bibliothèque",
+    "choose_photo_source": "Choisissez la source de votre photo",
+    "open_settings": "Ouvrir les paramètres"
+  },
+  "update": {
+    "required_title": "Mise à jour requise",
+    "body_warn": "Il semble que vous utilisiez une ancienne version de l'application, vous allez devoir la mettre à jour bientôt.",
+    "body_block": "Il semble que vous utilisiez une ancienne version de l'application, vous devez la mettre à jour maintenant.",
+    "body_banned": "Il semble que nous vous ayons fourni une version de l'application défectueuse, vous allez devoir la mettre à jour.",
+    "preamble_warn": "Nous sommes une petite équipe de bénévoles et maintenir les anciennes versions est très difficile, nous sommes désolé.e.s du dérangement.",
+    "action_update": "Mettre à jour maintenant",
+    "action_reinstall": "Télécharger la nouvelle application",
+    "later": "Plus tard",
+    "failed": "La mise à jour n'a pas pu être appliquée. Réessayez s'il vous plaît."
   }
 }

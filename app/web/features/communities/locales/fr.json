@@ -27,7 +27,7 @@
   "fill_out_comment": "Vous devez d'abord écrire quelque chose !",
   "community_image_input_alt": "Sélection d'image de la communauté",
   "upload_helper_text_replace": "Cliquez pour changer l'image",
-  "community_moderators": "Organisateurs.trices de la communauté",
+  "community_moderators": "Organisateur.rice.s de la communauté",
   "community_header": "Bienvenue à {{name}}",
   "edit_info_page_success_message": "La page de la communauté a été mise à jour avec succès.",
   "create_new_discussion_title": "Créer une nouvelle publication",
@@ -66,5 +66,20 @@
   "date_required": "Veuillez entrer une date.",
   "end_time_error": "L'heure de fin de l'événement doit être après l'heure de début.",
   "time_required": "Veuillez entrer une heure.",
-  "community_info_page_title": "Information générale"
+  "community_info_page_title": "Information générale",
+  "comment_deleted": "Ce commentaire a été supprimé.",
+  "edit_comment": "Modifier le commentaire",
+  "delete_comment": "Supprimer le commentaire",
+  "comment_edited_date": "Modifié il y a {{timeAgo}}",
+  "discussion_creation_date": "Créé le {{dateOnly}}",
+  "discussion_edited_date": "Modifié il y a {{timeAgo}}",
+  "discussion_deleted": "Cette discussion a été supprimée.",
+  "delete_discussion": "Supprimer la discussion",
+  "delete_discussion_dialog": {
+    "title": "Supprimer la discussion",
+    "message": "Êtes-vous sûr.e de vouloir supprimer cette discussion ? Les commentaires resteront visibles.",
+    "confirm": "Supprimer",
+    "cancel": "Supprimer"
+  },
+  "edit_discussion": "Modifier la discussion"
 }

@@ -96,7 +96,7 @@ describe("translate/utils", () => {
       expect(codes).not.toContain("zh");
     });
 
-    it("should filter out languages not in LANGUAGE_MAP", () => {
+    it("should filter out languages not in LOCALE_AUTONYMS", () => {
       const languagesWithUnmapped: WeblateLanguage[] = [
         { code: "en", translated_percent: 100 },
         { code: "xx_FAKE", translated_percent: 90 },

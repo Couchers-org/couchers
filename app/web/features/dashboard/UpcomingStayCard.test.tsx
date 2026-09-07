@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { HostRequest } from "proto/requests_pb";
 import { service } from "service";
 import { Temporal } from "temporal-polyfill";
-import hostRequest from "test/fixtures/hostRequest.json";
+import hostRequest from "test/fixtures/hostRequest";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 import { getLiteUser } from "test/serviceMockDefaults";
