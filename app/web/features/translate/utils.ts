@@ -20,7 +20,7 @@ export function isLanguageProductionReady(locale: string, languages: WeblateLang
     return false;
   }
 
-  // Convert locale format (e.g., "es-419" to "es_419" for Weblate)
+  // Convert locale format (e.g., "zh-Hans" to "zh_Hans" for Weblate)
   const weblateCode = locale.replace("-", "_");
   const languageStats = languages.find((lang) => lang.code === weblateCode);
 

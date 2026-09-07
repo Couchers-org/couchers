@@ -4,7 +4,6 @@ const allLanguages = [
   "de",
   "en",
   "es",
-  "es-419",
   "fr",
   "he",
   "hi",
