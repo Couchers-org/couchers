@@ -9,11 +9,9 @@ import { requestStatusChangedMessageToSelfTransKey, requestStatusChangedMessageT
 
 type Conversation = GroupChat.AsObject | HostRequest.AsObject;
 
-export function hasUnreadMessages<T extends Conversation>(
-  conversation: T,
-): conversation is T & { latestMessage: Message.AsObject } {
+export function hasUnreadMessages(conversation: Conversation) {
   // Use the server's count: it excludes messages sent while the user was out of the chat.
-  return conversation.latestMessage !== undefined && conversation.unseenMessageCount > 0;
+  return conversation.unseenMessageCount > 0;
 }
 
 export function isControlMessage(message: Message.AsObject) {
