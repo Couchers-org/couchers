@@ -7,6 +7,17 @@ import SectionWrapper from "./SectionWrapper";
 
 const articlesData = [
   {
+    imgPath: "/img/press/travel-massive-logo.svg",
+    altText: "Travel Massive",
+    bgColor: "#fff",
+    padding: "0.5rem",
+    publishedDate: "August 28, 2026",
+    dateTime: "2026-08-28",
+    headline:
+      "Couchers is a free couch surfing platform connecting travelers and locals in 180+ countries around the world",
+    href: "https://www.travelmassive.com/posts/couchers-is-a-free-couch-surfing-platform-connecting-travelers-and-locals-in-180-countries-around-the-world-371378167",
+  },
+  {
     imgPath: "/img/press/travel-noir-logo.webp",
     altText: "Travel Noir",
     bgColor: "#001d2e",

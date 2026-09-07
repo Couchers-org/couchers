@@ -76,5 +76,9 @@
   "my_communities": "Topluluklarım",
   "overview_label": "Genel Bakış",
   "page_content_field_label": "Sayfa içeriği",
-  "page_content_required": "Lütfen sayfa içeriğini doldurun"
+  "page_content_required": "Lütfen sayfa içeriğini doldurun",
+  "end_time": "Bitiş zamanı",
+  "end_date_error": "Etkinlik bitiş tarihi, başlangıç tarihinden sonra olmalıdır.",
+  "end_time_error": "Etkinlik bitiş tarihi başlangıç tarihinden sonra olmalıdır.",
+  "event_details": "Etkinlik detayları"
 }

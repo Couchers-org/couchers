@@ -343,5 +343,6 @@
   "about_me_textbox_placeholder": "p. ex. Sua missão atual, por que você usa Couchers.org, sua história de viagem favorita...",
   "edit_profile_pronouns_placeholder": "p. ex. ela/dela",
   "open_full_profile": "Abrir perfil completo",
-  "do_not_email_error_link": "Atualize as configurações do seu e-mail para reabilitar isso."
+  "do_not_email_error_link": "Atualize as configurações do seu e-mail para reabilitar isso.",
+  "open_profile_a11y": "Abrir perfil"
 }

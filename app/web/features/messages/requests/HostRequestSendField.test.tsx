@@ -5,7 +5,7 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { HostRequestStatus } from "proto/messages_pb";
 import { HostRequest } from "proto/requests_pb";
-import hostRequest from "test/fixtures/hostRequest.json";
+import hostRequest from "test/fixtures/hostRequest";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 

@@ -23,7 +23,11 @@
       },
       "expand_all": "Gonflez tout",
       "collapse_all": "Réduisez tout",
-      "description": "Toute modification apportée ci-dessous est enregistrée automatiquement. Veuillez noter que vous pouvez toujours recevoir des notifications importantes concernant votre compte et votre contenu, en dehors de vos paramètres de notification préférés."
+      "description": "Toute modification apportée ci-dessous est enregistrée automatiquement. Veuillez noter que vous pouvez toujours recevoir des notifications importantes concernant votre compte et votre contenu, en dehors de vos paramètres de notification préférés.",
+      "channels": {
+        "email_label": "Email",
+        "push_label": "Notifications push"
+      }
     },
     "push_notifications": {
       "title": "Les notifications poussées",

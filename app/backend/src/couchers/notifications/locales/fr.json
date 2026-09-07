@@ -31,9 +31,10 @@
     "probe": {
       "push": {
         "title": "Toujours disposé.e à héberger ?",
-        "ios_title": "Toujours disposé.e à héberger ?"
+        "ios_title": "Toujours disposé.e à héberger ?",
+        "body": "Connectez-vous pour confirmer votre statut d'hébergement."
       },
-      "event_description": "Vous acceptez les invités, mais vous ne vous êtes pas connecté depuis un certain temps"
+      "event_description": "Vous acceptez les invité.e.s, mais vous ne vous êtes pas connecté.e depuis un certain temps"
     }
   },
   "api_key": {

@@ -104,6 +104,9 @@ def test_is_valid_name() -> None:
     assert not is_valid_name(" leading whitespace")
     assert not is_valid_name("trailing whitespace ")
     assert not is_valid_name(" surrounding whitespace ")
+    assert not is_valid_name(chr(0xA0) + "Anne")  # leading non-breaking space
+    assert not is_valid_name("Anne" + chr(0xA0))  # trailing non-breaking space
+    assert not is_valid_name("\n")
     # invalid: disallowed characters
     assert not is_valid_name("digits123")
     assert not is_valid_name("email@domain.com")

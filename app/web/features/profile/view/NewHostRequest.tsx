@@ -226,7 +226,7 @@ export default function NewHostRequest({ setIsRequestSuccess, setIsRequesting }:
     mutate(data);
   });
 
-  const hostToday = Temporal.Now.plainDateISO(user.timezone);
+  const hostToday = Temporal.Now.plainDateISO(user.timezone || Temporal.Now.timeZoneId());
 
   const watchFromDate = watch("fromDate", undefined);
   const arrivalBeforeHostToday = !!watchFromDate && Temporal.PlainDate.compare(watchFromDate, hostToday) < 0;

@@ -275,5 +275,9 @@
   },
   "close_button_a11y": "Fermer",
   "app_store_badge_a11y": "Télécharger sur l'App Store",
-  "google_play_badge_a11y": "Disponible sur Google Play"
+  "google_play_badge_a11y": "Disponible sur Google Play",
+  "copy_button": {
+    "a11y": "Copier",
+    "copied_tooltip": "Copié dans le presse-papier"
+  }
 }

@@ -1,9 +1,10 @@
+import { DEFAULT_LOCALE } from "i18n/locales";
 import { GetStaticProps } from "next";
 import nextI18NextConfig from "next-i18next.config";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
 const serverSideTranslationProps = async (locale: string | undefined, namespaces: Array<string>) =>
-  await serverSideTranslations(locale ?? "en", namespaces, nextI18NextConfig);
+  await serverSideTranslations(locale ?? DEFAULT_LOCALE, namespaces, nextI18NextConfig);
 
 export const translationStaticProps =
   (namespaces: Array<string>): GetStaticProps =>

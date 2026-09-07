@@ -64,6 +64,10 @@
       "title": "Confirma tu estancia con {{name}}",
       "description": "{{name}} ha aceptado tu solicitud. Confirma tu estancia para asegurarla.",
       "button": "Confirmar estancia"
+    },
+    "carousel_scroller": {
+      "left_arrow_a11y": "Desplazar a la izquierda",
+      "right_arrow_a11y": "Desplazar a la derecha"
     }
   },
   "events": {

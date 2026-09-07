@@ -22,9 +22,11 @@ from couchers.config import config
 from couchers.constants import (
     EMAIL_REGEX,
     PREFERRED_LANGUAGE_COOKIE_EXPIRY,
+    VALID_NAME_CHARACTERS_REGEX,
     VALID_NAME_MAX_LENGTH,
     VALID_NAME_MIN_LENGTH,
-    VALID_NAME_REGEX,
+    VALID_NAME_NO_SURROUNDING_WHITESPACE_REGEX,
+    VALID_USERNAME_REGEX,
 )
 from couchers.crypto import (
     create_sofa_id,
@@ -35,7 +37,8 @@ from couchers.crypto import (
 )
 from couchers.proto.internal import internal_pb2
 
-_VALID_NAME_PATTERN = regex.compile(VALID_NAME_REGEX, regex.UNICODE)
+_VALID_NAME_CHARACTERS_PATTERN = regex.compile(VALID_NAME_CHARACTERS_REGEX, regex.UNICODE)
+_VALID_NAME_NO_SURROUNDING_WHITESPACE_PATTERN = regex.compile(VALID_NAME_NO_SURROUNDING_WHITESPACE_REGEX, regex.UNICODE)
 
 if TYPE_CHECKING:
     from couchers.models import Geom
@@ -61,7 +64,7 @@ def is_valid_username(field: str) -> bool:
     Checks if it's an alphanumeric + underscore, lowercase string, at least
     two characters long, and starts with a letter, ends with alphanumeric
     """
-    return re.match(r"[a-z][0-9a-z_]*[a-z0-9]$", field) is not None
+    return re.fullmatch(VALID_USERNAME_REGEX, field) is not None
 
 
 def is_valid_name(field: str) -> bool:
@@ -75,7 +78,10 @@ def is_valid_name(field: str) -> bool:
     if len(field) > VALID_NAME_MAX_LENGTH or len(field) < VALID_NAME_MIN_LENGTH:
         return False
 
-    return _VALID_NAME_PATTERN.fullmatch(field) is not None
+    return (
+        _VALID_NAME_CHARACTERS_PATTERN.fullmatch(field) is not None
+        and _VALID_NAME_NO_SURROUNDING_WHITESPACE_PATTERN.fullmatch(field) is not None
+    )
 
 
 def is_valid_email(field: str) -> bool:

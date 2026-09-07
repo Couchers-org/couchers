@@ -394,7 +394,7 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
                     ) : (
                       <Chip label={t("publicTrips:status_active")} size="small" color="primary" variant="outlined" />
                     )}
-                    {trip.offersCount !== undefined && (
+                    {isOwnTrip && (
                       <Box
                         component="span"
                         sx={{
@@ -404,19 +404,19 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
                           fontSize: "0.8125rem",
                           fontWeight: 700,
                           color:
-                            trip.offersCount > 0
+                            (trip.offersCount ?? 0) > 0
                               ? "var(--mui-palette-primary-main)"
                               : "var(--mui-palette-text-secondary)",
                         }}
                       >
-                        {trip.offersCount > 0 ? (
+                        {(trip.offersCount ?? 0) > 0 ? (
                           <WavingHandOutlined sx={{ fontSize: "1rem" }} />
                         ) : (
                           <HourglassEmptyOutlined sx={{ fontSize: "1rem" }} />
                         )}
-                        {trip.offersCount > 0
+                        {(trip.offersCount ?? 0) > 0
                           ? t("publicTrips:offers_count", {
-                              count: trip.offersCount,
+                              count: trip.offersCount ?? 0,
                             })
                           : t("publicTrips:no_offers")}
                       </Box>

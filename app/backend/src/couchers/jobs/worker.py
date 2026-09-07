@@ -90,7 +90,7 @@ def process_job() -> bool:
         except Exception as e:
             finished = perf_counter_ns()
             # not sentry_sdk.set_tag: that writes to the thread's isolation scope, where the tags stick to
-            # every later report from this thread. logger.exception is in here so its event is tagged too
+            # every later report from this thread
             with sentry_sdk.new_scope() as scope:
                 scope.set_tag("context", "job")
                 scope.set_tag("job", job.job_type)
