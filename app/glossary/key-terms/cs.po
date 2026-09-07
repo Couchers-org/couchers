@@ -1,2 +1,39 @@
 msgid ""
-msgstr "X-Generator: Weblate\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit"
+msgstr ""
+"PO-Revision-Date: 2026-09-07 07:35+0000\n"
+"Last-Translator: Tom Rohlik <ostatni@rohlik.xyz>\n"
+"Language-Team: Czech <https://translate.couchershq.org/projects/couchers/glossary-key-terms/cs/>\n"
+"Language: cs\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"X-Generator: Weblate 5.15.2\n"
+
+#. (noun) An event created by a user for others to attend.
+msgid "event"
+msgstr "událost"
+
+#. (noun) Events created by users for others to attend.
+msgid "events"
+msgstr "události"
+
+#. (noun) Another user confirmed as a friend using the friend feature.
+msgid "friend"
+msgstr "přítel"
+
+#. (noun) A request to add another user as a friend.
+msgid "friend_request"
+msgstr "žádost o přátelství"
+
+#. (noun) Requests to add other users as friends.
+msgid "friend_requests"
+msgstr "žádosti o přátelství"
+
+#. (noun) Other users confirmed as friends using the friend feature.
+msgid "friends"
+msgstr "přátelé"
+
+#. (noun) A community or event discussion that supports replies.
+msgid "discussion"
+msgstr "diskuse"
