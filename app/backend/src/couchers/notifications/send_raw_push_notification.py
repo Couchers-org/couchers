@@ -2,6 +2,7 @@ import json
 import logging
 from dataclasses import dataclass
 
+import sentry_sdk
 from sqlalchemy import select
 from sqlalchemy.sql import func
 
@@ -16,7 +17,7 @@ from couchers.models import (
 )
 from couchers.models.notifications import DeviceType
 from couchers.notifications.expo_api import send_expo_push_notification
-from couchers.notifications.web_push_api import send_web_push
+from couchers.notifications.web_push_api import send_web_push, wns_headers
 from couchers.proto.internal import jobs_pb2
 from couchers.utils import not_none, now
 
@@ -34,10 +35,18 @@ class PushNotificationError(Exception):
     Transient errors should raise this base class - they will be retried.
     """
 
-    def __init__(self, message: str, *, status_code: int | None = None, response: str | None = None):
+    def __init__(
+        self,
+        message: str,
+        *,
+        status_code: int | None = None,
+        response: str | None = None,
+        response_headers: dict[str, str] | None = None,
+    ):
         super().__init__(message)
         self.status_code = status_code
         self.response = response
+        self.response_headers = response_headers
 
 
 class PermanentSubscriptionFailure(PushNotificationError):
@@ -108,18 +117,31 @@ def _send_web_push(
     if resp.status_code in [200, 201, 202]:
         return PushDeliveryResult(status_code=resp.status_code, response=resp.text)
 
+    headers = wns_headers(resp)
+
     if resp.status_code in [404, 410]:
         raise PermanentSubscriptionFailure(
             f"Subscription gone (HTTP {resp.status_code})",
             status_code=resp.status_code,
             response=resp.text,
+            response_headers=headers,
+        )
+
+    if resp.status_code == 400:
+        # the push service rejected the request itself, so re-sending it won't help
+        raise PermanentMessageFailure(
+            f"Web push rejected as a bad request (HTTP {resp.status_code}): {headers}",
+            status_code=resp.status_code,
+            response=resp.text,
+            response_headers=headers,
         )
 
     # Other errors are transient - will retry
     raise PushNotificationError(
-        f"Web push failed (HTTP {resp.status_code})",
+        f"Web push failed (HTTP {resp.status_code}): {headers}",
         status_code=resp.status_code,
         response=resp.text,
+        response_headers=headers,
     )
 
 
@@ -246,6 +268,19 @@ def send_raw_push_notification_v2(payload: jobs_pb2.SendRawPushNotificationPaylo
 
         except PermanentMessageFailure as e:
             logger.warning(f"Permanent message failure for sub {sub.id}: {e}")
+            # this notification is dropped and never retried, so it won't reach Sentry any other way
+            with sentry_sdk.new_scope() as scope:
+                scope.set_tag("context", "push")
+                scope.set_context(
+                    "push_response",
+                    {
+                        "platform": sub.platform.name,
+                        "status_code": e.status_code,
+                        "response": e.response,
+                        "response_headers": e.response_headers,
+                    },
+                )
+                sentry_sdk.capture_exception(e)
             session.add(
                 PushNotificationDeliveryAttempt(
                     push_notification_subscription_id=sub.id,
