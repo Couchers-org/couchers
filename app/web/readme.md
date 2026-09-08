@@ -125,7 +125,9 @@ In one terminal, compile protos, run the backend and rest of the infrastructure:
 
 ```sh
 ## terminal 1
-cd app/generate_protos.sh
+cd app
+# compile protos
+./generate_protos.sh
 # launch the rest of the docker containers
 docker compose up
 ```

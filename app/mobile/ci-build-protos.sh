@@ -14,7 +14,7 @@ echo "Generating mobile proto stubs…"
 # Resolve repo paths so the script can be run from anywhere.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-PROTO_SRC="${REPO_ROOT}/proto"
+PROTO_SRC="${REPO_ROOT}/proto/api"
 OUT_DIR="${REPO_ROOT}/mobile/proto"
 TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "${TMP_DIR}"' EXIT

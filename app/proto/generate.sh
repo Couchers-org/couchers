@@ -57,5 +57,5 @@ sed -i -E 's/^from google.api/from ./' "$GEN_DIR/api/python/google/api"/*.py
 # Also patches method parameters to accept CouchersContext and sqlalchemy Session.
 find "$GEN_DIR/api/python" -name '*_grpc.pyi' -type f -exec python3 postprocess_grpc_stubs.py {} \;
 
-(cd "$GEN_DIR/api" && tar czf python.tar.gz --transform 's,^python/,proto/,' python)
-(cd "$GEN_DIR/api" && tar czf ts.tar.gz --transform 's,^ts/,proto/,' ts)
+(cd "$GEN_DIR/api" && tar czf python.tar.gz --transform 's,^python,proto,' python)
+(cd "$GEN_DIR/api" && tar czf ts.tar.gz --transform 's,^ts,proto,' ts)
