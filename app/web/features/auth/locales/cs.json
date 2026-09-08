@@ -330,8 +330,12 @@
         "tip3": "Pokud používáš Android, ujisti se, že máš nainstalovanou aplikaci IRIS ID (ne verzi pro prohlížeč)",
         "tip4": "Některé starší pasy nebo pasové karty nemají NFC čip a nebudou fungovat",
         "contact": "Pokud problém přetrvává, <supportLink>dej nám vědět</supportLink> a rádi ti pomůžeme."
-      }
-    }
+      },
+      "warning": "Důležité: Krok se skenováním čipu v pasu může být záludný - nejdřív si přečti všechny pokyny!",
+      "step1": "Stáhni si aplikaci <strong>Iris ID</strong>"
+    },
+    "donation_message2": "Pokud můžeš, zvaž prosím dar, který pomůže udržet Couchers.org v provozu a podpoří jeho další růst.",
+    "donate_button": "Přispěj na podporu Couchers.org"
   },
   "quick_links": {
     "title": "Rychlá akce e-mailu",

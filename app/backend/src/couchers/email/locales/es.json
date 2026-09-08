@@ -3,13 +3,31 @@
     "completed": {
       "recovery_instructions_days_one": "Si cambias de opinión, <strong>tienes {{count}} día para recuperar tu cuenta</strong> haciendo clic en el siguiente enlace:",
       "recovery_instructions_days_many": "Si cambias de opinión, <strong>tienes {{count}} de días para recuperar tu cuenta</strong> haciendo clic en el siguiente enlace:",
-      "recovery_instructions_days_other": "Si cambias de opinión, <strong>tienes {{count}} días para recuperar tu cuenta</strong> haciendo clic en el siguiente enlace:"
+      "recovery_instructions_days_other": "Si cambias de opinión, <strong>tienes {{count}} días para recuperar tu cuenta</strong> haciendo clic en el siguiente enlace:",
+      "subject": "Tu cuenta ha sido eliminada",
+      "purpose": "Has eliminado correctamente tu cuenta de Couchers.org.",
+      "farewell": "Lamentamos que te vayas y te deseamos lo mejor en tus futuros viajes. Siempre serás bienvenido de vuelta en la plataforma de Couchers.org :)",
+      "recover_action": "Recuperar cuenta"
+    },
+    "started": {
+      "subject": "Confirma la eliminación de tu cuenta",
+      "purpose": "Solicitaste que elimináramos tu cuenta de Couchers.org. Para completar este proceso, por favor haz clic en el siguiente enlace:",
+      "confirm_action": "Confirma la eliminación de la cuenta"
+    },
+    "recovered": {
+      "subject": "¡Tu cuenta ha sido recuperada!",
+      "confirmation": "Tu cuenta de Couchers.org se ha recuperado correctamente. ¡Nos alegra que hayas decidido quedarte!",
+      "login_instructions": "Para volver a iniciar sesión, haz clic en el siguiente enlace:",
+      "login_action": "Volver a iniciar sesión",
+      "redelete_instructions": "Si cambias de opinión, puedes eliminar tu cuenta en cualquier momento."
     }
   },
   "activeness_probe": {
     "instructions_days_one": "Para mantener tu estado de \"Puedo alojar\", vuelve a iniciar sesión dentro del próximos <b>{{count}} día</b>. De lo contrario, cambiaremos tu estado de alojamiento a \"No puedo alojar.\"",
     "instructions_days_many": "Para mantener tu estado de \"Puedo alojar\", vuelve a iniciar sesión dentro de los próximos <b>{{count}} de días</b>. De lo contrario, cambiaremos tu estado de alojamiento a \"No puedo alojar.\"",
-    "instructions_days_other": "Para mantener tu estado de \"Puedo alojar\", vuelve a iniciar sesión dentro de los próximos <b>{{count}} días</b>. De lo contrario, cambiaremos tu estado de alojamiento a \"No puedo alojar.\""
+    "instructions_days_other": "Para mantener tu estado de \"Puedo alojar\", vuelve a iniciar sesión dentro de los próximos <b>{{count}} días</b>. De lo contrario, cambiaremos tu estado de alojamiento a \"No puedo alojar.\"",
+    "subject": "¿Sigues disponible para hospedar?",
+    "purpose": "Hemos observado que no has iniciado sesión ultimamente y queremos comprobar si todavía estas abierto a hospedar viajeros."
   },
   "chat_messages": {
     "missed": {
@@ -36,7 +54,22 @@
       "donate_link": "Donar",
       "volunteer_link": "Voluntario",
       "blog_link": "Blog",
-      "nonprofit_note": "Couchers.org es un proyecto de Couchers, Inc., una organización sin ánimo de lucro exenta de impuestos 501(c)(3) de EE.UU."
+      "nonprofit_note": "Couchers.org es un proyecto de Couchers, Inc., una organización sin ánimo de lucro exenta de impuestos 501(c)(3) de EE.UU.",
+      "security_email_note": "Este es un correo electrónico de seguridad, no puedes darte de baja de él.",
+      "notification_settings_link": "Gestionar las preferencias de notificaciones",
+      "do_not_email_link": "No me envíes correos electrónicos (desactiva la posibilidad de hospedar)",
+      "happy_couch_icon_caption": "El feliz sofá de Couchers te desea que tengas un genial resto del día."
     }
+  },
+  "calendar_events": {
+    "title_cancelled": "Cancelado: {{ title }}",
+    "host_requests": {
+      "title_host": "Hospedando a {{ name }}",
+      "title_surfer": "Hospedado por {{ name }}"
+    }
+  },
+  "plaintext_formats": {
+    "action": "{{text}}: {{url}}",
+    "user": "{{name}}, {{age}}, {{city}}"
   }
 }
