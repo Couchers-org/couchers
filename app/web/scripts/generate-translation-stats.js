@@ -30,7 +30,9 @@ function writeTranslationStats(appStats, outputFile) {
 
   fs.mkdirSync(path.dirname(outputFile), { recursive: true });
   fs.writeFileSync(outputFile, JSON.stringify(stats, null, 2) + "\n");
-  console.log(`Generated translation stats for ${stats.length} locales at ${path.relative(process.cwd(), outputFile)}.`);
+  console.log(
+    `Generated translation stats for ${stats.length} locales at ${path.relative(process.cwd(), outputFile)}.`,
+  );
 }
 
 // Counts total and translated strings for each locale of the whole app.
