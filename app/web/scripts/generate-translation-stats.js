@@ -11,8 +11,8 @@ const FEATURES_DIR = path.join(__dirname, "..", "features");
 
 const UNTRANSLATED_NAMESPACES = [MOD];
 
-// Main entry point
-function main(outputFile) {
+function main(args) {
+  const [outputFile] = args;
   if (!outputFile) {
     throw new Error("Usage: generate-translation-stats.js <output-file>");
   }
@@ -30,7 +30,9 @@ function writeTranslationStats(appStats, outputFile) {
 
   fs.mkdirSync(path.dirname(outputFile), { recursive: true });
   fs.writeFileSync(outputFile, JSON.stringify(stats, null, 2) + "\n");
-  console.log(`Generated translation stats for ${stats.length} locales at ${path.relative(process.cwd(), outputFile)}.`);
+  console.log(
+    `Generated translation stats for ${stats.length} locales at ${path.relative(process.cwd(), outputFile)}.`,
+  );
 }
 
 // Counts total and translated strings for each locale of the whole app.
@@ -110,6 +112,6 @@ function normalizeKey(key) {
 module.exports = main;
 
 if (require.main === module) {
-  // node scripts/generate-translation-stats.js <path>
-  main(process.argv[2]);
+  // node scripts/generate-translation-stats.js <args>
+  main(process.argv.slice(2));
 }
