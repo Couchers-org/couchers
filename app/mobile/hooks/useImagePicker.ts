@@ -1,3 +1,4 @@
+import { useFeatureValue } from "@growthbook/growthbook-react";
 import {
   ImagePickerResult,
   launchCameraAsync,
@@ -12,6 +13,7 @@ interface ImagePickResult {
   success: boolean;
   imageBase64?: string;
   mimeType?: string;
+  fileName?: string;
   canceled?: boolean;
   error?: string;
 }
@@ -26,6 +28,11 @@ interface UseImagePickerReturn {
  */
 export function useImagePicker(): UseImagePickerReturn {
   const { t } = useTranslation();
+  // At quality 1 the picker hands back a copy of the original file rather than
+  // re-encoding it, leaving the media server's encode as the only one.
+  const quality = useFeatureValue("native_upload_original_images", false)
+    ? 1
+    : 0.8;
 
   const showPicker = useCallback(
     async (
@@ -73,14 +80,14 @@ export function useImagePicker(): UseImagePickerReturn {
           result = await launchCameraAsync({
             mediaTypes: ["images"],
             allowsEditing: false,
-            quality: 0.8,
+            quality,
             base64: true,
           });
         } else {
           result = await launchImageLibraryAsync({
             mediaTypes: ["images"],
             allowsEditing: false,
-            quality: 0.8,
+            quality,
             base64: true,
           });
         }
@@ -100,6 +107,7 @@ export function useImagePicker(): UseImagePickerReturn {
           success: true,
           imageBase64: asset.base64,
           mimeType,
+          fileName: asset.fileName ?? undefined,
         });
       } catch (error) {
         if (__DEV__) {
@@ -112,7 +120,7 @@ export function useImagePicker(): UseImagePickerReturn {
         });
       }
     },
-    [t],
+    [quality, t],
   );
 
   const pickImage = useCallback(

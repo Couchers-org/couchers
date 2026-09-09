@@ -1,8 +1,14 @@
+import { useFeatureValue } from "@growthbook/growthbook-react";
 import { renderHook, waitFor } from "@testing-library/react-native";
 import * as ImagePicker from "expo-image-picker";
 import { ActionSheetIOS, Alert, Linking, Platform } from "react-native";
 
 import { useImagePicker } from "@/hooks/useImagePicker";
+
+// Mock growthbook - flags resolve to their in-code default unless a test overrides
+jest.mock("@growthbook/growthbook-react", () => ({
+  useFeatureValue: jest.fn(),
+}));
 
 // Mock expo-image-picker
 jest.mock("expo-image-picker", () => ({
@@ -23,6 +29,9 @@ describe("useImagePicker", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (useFeatureValue as jest.Mock).mockImplementation(
+      (_key: string, fallback: unknown) => fallback,
+    );
   });
 
   describe("iOS platform", () => {
@@ -527,6 +536,69 @@ describe("useImagePicker", () => {
           imageBase64: "test-base64",
           mimeType: "image/jpeg", // Default
         });
+      });
+
+      showActionSheetSpy.mockRestore();
+    });
+
+    it("passes through the original filename", async () => {
+      (ImagePicker.launchImageLibraryAsync as jest.Mock).mockResolvedValue({
+        canceled: false,
+        assets: [
+          {
+            base64: "test-base64",
+            mimeType: "image/heic",
+            fileName: "IMG_1234.HEIC",
+          },
+        ],
+      });
+
+      const showActionSheetSpy = jest
+        .spyOn(ActionSheetIOS, "showActionSheetWithOptions")
+        .mockImplementation((options, callback) => {
+          callback(2); // Choose from library
+        });
+
+      const { result } = renderHook(() => useImagePicker());
+
+      result.current.pickImage(mockOnResult);
+
+      await waitFor(() => {
+        expect(mockOnResult).toHaveBeenCalledWith({
+          success: true,
+          imageBase64: "test-base64",
+          mimeType: "image/heic",
+          fileName: "IMG_1234.HEIC",
+        });
+      });
+
+      showActionSheetSpy.mockRestore();
+    });
+
+    it("requests the uncompressed original when the flag is on", async () => {
+      (useFeatureValue as jest.Mock).mockImplementation(
+        (key: string, fallback: unknown) =>
+          key === "native_upload_original_images" ? true : fallback,
+      );
+      (ImagePicker.launchImageLibraryAsync as jest.Mock).mockResolvedValue({
+        canceled: false,
+        assets: [{ base64: "test-base64", mimeType: "image/jpeg" }],
+      });
+
+      const showActionSheetSpy = jest
+        .spyOn(ActionSheetIOS, "showActionSheetWithOptions")
+        .mockImplementation((options, callback) => {
+          callback(2); // Choose from library
+        });
+
+      const { result } = renderHook(() => useImagePicker());
+
+      result.current.pickImage(mockOnResult);
+
+      await waitFor(() => {
+        expect(ImagePicker.launchImageLibraryAsync).toHaveBeenCalledWith(
+          expect.objectContaining({ quality: 1 }),
+        );
       });
 
       showActionSheetSpy.mockRestore();
