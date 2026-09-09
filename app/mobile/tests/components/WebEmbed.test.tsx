@@ -320,6 +320,39 @@ describe("WebEmbed", () => {
       expect(mockAuthContext.markLoggedOut).not.toHaveBeenCalled();
       expect(mockAuthContext.setUserId).not.toHaveBeenCalled();
     });
+
+    it("handles OPEN_EXTERNAL_URL message by opening it in the device browser", () => {
+      const openURLSpy = jest.spyOn(Linking, "openURL").mockResolvedValue(true);
+
+      render(<WebEmbed path="/dashboard" />);
+
+      capturedWebViewProps.onMessage?.({
+        nativeEvent: {
+          data: JSON.stringify({
+            type: "OPEN_EXTERNAL_URL",
+            data: { url: "https://example.com" },
+          }),
+        },
+      });
+
+      expect(openURLSpy).toHaveBeenCalledWith("https://example.com");
+    });
+
+    it("ignores OPEN_EXTERNAL_URL message with no url", () => {
+      const openURLSpy = jest.spyOn(Linking, "openURL").mockResolvedValue(true);
+
+      render(<WebEmbed path="/dashboard" />);
+
+      expect(() => {
+        capturedWebViewProps.onMessage?.({
+          nativeEvent: {
+            data: JSON.stringify({ type: "OPEN_EXTERNAL_URL", data: {} }),
+          },
+        });
+      }).not.toThrow();
+
+      expect(openURLSpy).not.toHaveBeenCalled();
+    });
   });
 
   describe("error handling", () => {

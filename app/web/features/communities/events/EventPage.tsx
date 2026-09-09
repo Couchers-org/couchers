@@ -1,4 +1,10 @@
-import { CancelOutlined, ContentCopyOutlined, EditOutlined, LinkOutlined } from "@mui/icons-material";
+import {
+  CancelOutlined,
+  ContentCopyOutlined,
+  EditOutlined,
+  EventAvailableOutlined,
+  LinkOutlined,
+} from "@mui/icons-material";
 import { Card, Chip, styled, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { eventImagePlaceholderUrl } from "appConstants";
@@ -28,6 +34,7 @@ import { service } from "service";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
 import { timestampToInstant, timestampToPlainDateTime } from "utils/date";
+import { downloadAtURL } from "utils/download";
 import { sendNativeBack, useIsNativeEmbed } from "utils/nativeLink";
 
 import { eventAttendeesBaseKey, eventKey } from "../../queryKeys";
@@ -243,6 +250,19 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
       },
       id: "copy-link",
     },
+    ...(!event?.isCancelled
+      ? ([
+          {
+            icon: EventAvailableOutlined,
+            label: t("communities:add_to_calendar"),
+            onClick: () => {
+              const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/events/${event!.eventId}/calendar`;
+              downloadAtURL(url, `${event!.slug || "event"}.ics`);
+            },
+            id: "add-to-calendar",
+          },
+        ] as EllipsisMenuItem[])
+      : []),
     ...(event?.canEdit && !event.isCancelled && !isPastEvent
       ? ([
           {

@@ -157,6 +157,56 @@ describe("Event page", () => {
     await waitFor(() => expect(mockRouter.push).toHaveBeenCalledWith("/events"));
   });
 
+  it("shows the 'add to calendar' item for a non-cancelled event", async () => {
+    renderEventPage();
+
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await user.click(await screen.findByTestId("event-page-more-options"));
+
+    expect(
+      await screen.findByRole("menuitem", {
+        name: t("communities:add_to_calendar"),
+      }),
+    ).toBeVisible();
+  });
+
+  it("hides the 'add to calendar' item for cancelled events", async () => {
+    getEventMock.mockResolvedValue({ ...firstEvent, isCancelled: true });
+    renderEventPage();
+
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await user.click(await screen.findByTestId("event-page-more-options"));
+
+    expect(
+      screen.queryByRole("menuitem", {
+        name: t("communities:add_to_calendar"),
+      }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("downloads a calendar file with the event's filename when 'add to calendar' is clicked", async () => {
+    renderEventPage();
+
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await user.click(await screen.findByTestId("event-page-more-options"));
+
+    const clickSpy = jest
+      .spyOn(HTMLAnchorElement.prototype, "click")
+      .mockImplementation(function (this: HTMLAnchorElement) {
+        expect(this.href).toContain(`/events/${firstEvent.eventId}/calendar`);
+        expect(this.download).toBe(`${firstEvent.slug}.ics`);
+      });
+
+    await user.click(
+      await screen.findByRole("menuitem", {
+        name: t("communities:add_to_calendar"),
+      }),
+    );
+
+    expect(clickSpy).toHaveBeenCalledTimes(1);
+    clickSpy.mockRestore();
+  });
+
   it("shows the 'edit event' button if the user has edit permission", async () => {
     getEventMock.mockResolvedValue({ ...firstEvent, canEdit: true });
     renderEventPage();
