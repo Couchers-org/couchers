@@ -60,5 +60,9 @@
     "instructions_days_other": "Afin de conserver votre statut \"Peut héberger\", vous devez vous reconnecter avant  <b>{{count}} jour(s)</b>. Sans quoi, nous modifierons votre statut en \"Ne peut pas héberger\".",
     "login_action": "Se connecter",
     "encouragement": "Ces vérifications aident les surfers à trouver des hôtes plus facilement et à évaluer correctement les temps de réponse."
+  },
+  "api_key_issued": {
+    "subject": "Votre clé API pour Couchers.org",
+    "header": "Vous avez récemment demandé une clé API pour Couchers.org. Voici votre clé API :"
   }
 }

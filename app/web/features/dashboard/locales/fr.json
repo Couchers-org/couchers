@@ -57,6 +57,10 @@
     "when_now": "Maintenant",
     "offers_count_one": "{{count}} offre",
     "offers_count_many": "{{count}} d'offres",
-    "offers_count_other": "{{count}} offres"
+    "offers_count_other": "{{count}} offres",
+    "no_offers": "Pas encore d'offres"
+  },
+  "stays": {
+    "upcoming_trips_header": "Vos séjours à venir"
   }
 }
