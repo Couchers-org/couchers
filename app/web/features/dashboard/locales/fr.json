@@ -43,7 +43,7 @@
   "discussions": {
     "community_header": "Discussions dans vos communautés",
     "replies_count_label_one": "{{count}} réponse",
-    "replies_count_label_many": "{{count}} réponses",
+    "replies_count_label_many": "{{count}} de réponses",
     "replies_count_label_other": "{{count}} réponses"
   },
   "events": {
@@ -56,7 +56,7 @@
     "manage_link": "Gérer",
     "when_now": "Maintenant",
     "offers_count_one": "{{count}} offre",
-    "offers_count_many": "{{count}} offres",
+    "offers_count_many": "{{count}} d'offres",
     "offers_count_other": "{{count}} offres"
   }
 }
