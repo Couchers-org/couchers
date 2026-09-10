@@ -48,7 +48,7 @@
     "recovered": {
       "subject": "Votre compte a été récupéré!",
       "confirmation": "Votre compte Couchers.org a été récupéré avec succès. Nous sommes ravi.e.s que vous ayez décidé de rester!",
-      "login_instructions": "Pour vous ré-identifier, cliquez sur le lien suivant:",
+      "login_instructions": "Pour vous reconnecter, cliquez sur le lien suivant :",
       "redelete_instructions": "Si vous changez d'avis, vous pouvez supprimer votre compte à n'importe quel moment."
     }
   },
@@ -62,7 +62,7 @@
     "encouragement": "Ces vérifications aident les surfers à trouver des hôtes plus facilement et à évaluer correctement les temps de réponse."
   },
   "api_key_issued": {
-    "subject": "Votre clé API pour Couchers.org",
-    "header": "Vous avez récemment demandé une clé API pour Couchers.org. Voici votre clé API :"
+    "subject": "Votre clé d'API pour Couchers.org",
+    "header": "Vous avez récemment demandé une clé d'API pour Couchers.org. Nous vous avons généré cette clé d'API :"
   }
 }

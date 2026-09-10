@@ -114,9 +114,9 @@
     "tos_prompt": "Pour continuer, veuillez lire et accepter <tosLink></tosLink>.",
     "header": "Détails de votre compte",
     "hosting_status": {
-      "maybe": "Probable d'héberger",
-      "can_host": "Possible d'héberger",
-      "cant_host": "Pas possible d'héberger",
+      "maybe": "Peut peut-être héberger",
+      "can_host": "Peut d'héberger",
+      "cant_host": "Ne peut pas héberger",
       "field_label": "Statut d’hébergement"
     },
     "gender": {
@@ -242,7 +242,7 @@
     "heading": "Utilisateurs connectés actuels",
     "settings_page_link": "Gérer les connexions actuelles",
     "description": "Cette page montre les connexions actives. Vous pouvez vous déconnecter de l’une d’elles en cliquant sur le bouton à côté de la connexion, ou faire défiler jusqu’en bas et cliquer sur le bouton pour vous déconnecter de toutes connexions sauf cette session.",
-    "login_header": "Conneté.e à {{login_datetime}}",
+    "login_header": "Connexion le {{login_datetime}}",
     "location": "Près de <strong>{{approximate_location}}</strong>",
     "last_activity": "Dernière activité il y a <strong>{{last_activity_ago}}</strong>",
     "current_session": "Ceci est votre session actuelle.",

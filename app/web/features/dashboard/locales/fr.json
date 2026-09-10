@@ -49,7 +49,7 @@
   "events": {
     "your_upcoming_header": "Vos événements à venir",
     "your_upcoming_empty_message": "Pas d'événements pour le moment. Pourquoi n'en <0>créeriez-vous</0> pas un✨?",
-    "community_header": "Évènements dans vos communautés"
+    "community_header": "Événements dans vos communautés"
   },
   "public_trips": {
     "my_trips_header": "Vos voyages publics",
