@@ -44,8 +44,8 @@ describe("translate/utils", () => {
     });
 
     it("should handle locale format conversion (hyphen to underscore)", () => {
-      const languagesWithUnderscore: WeblateLanguage[] = [{ code: "es_419", translated_percent: 90 }];
-      expect(isLanguageProductionReady("es-419", languagesWithUnderscore)).toBe(true);
+      const languagesWithUnderscore: WeblateLanguage[] = [{ code: "zh_Hans", translated_percent: 90 }];
+      expect(isLanguageProductionReady("zh-Hans", languagesWithUnderscore)).toBe(true);
     });
 
     it("should return false for language exactly at 79%", () => {

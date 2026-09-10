@@ -49,7 +49,6 @@ const I18N_TO_DAYJS_LOCALE: Record<string, string> = {
   de: "de",
   en: "en",
   es: "es",
-  "es-419": "es",
   fr: "fr",
   he: "he",
   hi: "hi",

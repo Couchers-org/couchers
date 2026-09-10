@@ -45,7 +45,7 @@ async function getCachedWeblateStats(): Promise<WeblateLanguage[]> {
 async function getProductionReadyLocales(): Promise<string[]> {
   const languages = await getCachedWeblateStats();
 
-  // Convert locale format (e.g., "es_419" to "es-419" to match allLanguages)
+  // Convert locale format (e.g., "zh_Hans" to "zh-Hans" to match allLanguages)
   const productionReadyLocales = languages
     .filter((lang) => lang.translated_percent >= ALMOST_DONE_CUTOFF)
     .map((lang) => lang.code.replace("_", "-"));
