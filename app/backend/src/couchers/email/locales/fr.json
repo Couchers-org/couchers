@@ -63,6 +63,7 @@
   },
   "api_key_issued": {
     "subject": "Votre clé d'API pour Couchers.org",
-    "header": "Vous avez récemment demandé une clé d'API pour Couchers.org. Nous vous avons généré cette clé d'API :"
+    "header": "Vous avez récemment demandé une clé d'API pour Couchers.org. Nous vous avons généré cette clé d'API :",
+    "expiry": "La clé expire le <b>{{ datetime }}</b>."
   }
 }
