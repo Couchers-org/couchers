@@ -128,6 +128,7 @@ message SignupFlowReq {
 message SignupFlowRes {
   // a token used to link the user's information across the signup flow
   string flow_token = 1 [ (is_token) = true ];
+  string email = 10;
   // auth_res is included if and only if signup is successful
   AuthRes auth_res = 3;
   // which parts are missing?
