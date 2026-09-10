@@ -16,7 +16,7 @@ popd
 # actually build the protos
 cd ..
 mkdir -p web/proto/
-find proto -name '*.proto' | /tmp/deps/bin/protoc -I /tmp/deps/include -I proto \
+find proto/api -name '*.proto' | /tmp/deps/bin/protoc -I /tmp/deps/include -I proto/api \
   --plugin=protoc-gen-grpc-web=/tmp/deps/protoc-gen-grpc-web \
   --plugin=protoc-gen-js=/tmp/deps/bin/protoc-gen-js \
   \
