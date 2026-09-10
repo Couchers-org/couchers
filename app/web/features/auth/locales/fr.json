@@ -130,7 +130,8 @@
       "required_error": "Entrez votre nom d’utilisateur",
       "username_taken_error": "Ce nom d’utilisateur est déjà pris.",
       "field_label": "Nom d’utilisateur",
-      "validation_error": "Le nom d’utilisateur ne peut contenir que des chiffres, de lettres ou/et commencer par une lettre."
+      "validation_error": "Le nom d’utilisateur ne peut contenir que des chiffres, de lettres ou/et commencer par une lettre.",
+      "helper_text": "Il s'agit de votre nom d'utilisateur public, pas de votre nom de profil."
     },
     "birthday": {
       "field_label": "Date de naissance",

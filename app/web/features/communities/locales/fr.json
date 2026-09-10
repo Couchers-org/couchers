@@ -81,5 +81,9 @@
     "confirm": "Supprimer",
     "cancel": "Supprimer"
   },
-  "edit_discussion": "Modifier la discussion"
+  "edit_discussion": "Modifier la discussion",
+  "copy_link": "Copier le lien",
+  "copy_link_success": "Lien copié dans le presse-papier",
+  "duplicate_event": "Dupliquer l'événement",
+  "report_event_button_a11y": "Signaler cet événement"
 }
