@@ -69,6 +69,16 @@ def test_all_supported_locales_have_babel_locales():
         assert babel_locale.territories
 
 
+def test_get_babel_locale_remaps_en_to_international():
+    """ "en" is remapped to international (en-001) formatting, distinct from "en-US"."""
+    en_babel_locale = get_babel_locale("en")
+    en_us_babel_locale = get_babel_locale("en-US")
+
+    assert en_babel_locale.territory == "001"
+    assert en_us_babel_locale.territory == "US"
+    assert en_babel_locale.date_formats["short"].pattern != en_us_babel_locale.date_formats["short"].pattern
+
+
 def test_get_locale_chain():
     """Test that fallbacks are correctly set up"""
     assert get_locale_chain("en") == ["en"]
