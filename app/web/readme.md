@@ -105,8 +105,7 @@ The React frontend communicates with the backend using Protocol Buffers over gRP
 You can compile the protos locally if you have [installed Docker](https://docs.docker.com/engine/install/) (this is how the built protos are generated in the CI pipeline):
 
 ```sh
-cd app
-docker run --rm -w /app -v $(pwd):/app registry.gitlab.com/couchers/grpc ./generate_protos.sh
+app/generate_protos.sh
 ```
 
 The TypeScript definitions will be generated into `app/web/proto` (all the other definitions will also be generated into the right places, for the Python backend, etc).
@@ -128,7 +127,7 @@ In one terminal, compile protos, run the backend and rest of the infrastructure:
 ## terminal 1
 cd app
 # compile protos
-docker run --rm -w /app -v $(pwd):/app registry.gitlab.com/couchers/grpc ./generate_protos.sh
+./generate_protos.sh
 # launch the rest of the docker containers
 docker compose up
 ```

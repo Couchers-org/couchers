@@ -88,7 +88,7 @@ describe("DiscussionsListPage", () => {
 
       await user.click(
         await screen.findByRole("button", {
-          name: t("communities:new_post_label"),
+          name: t("communities:new_discussion_button"),
         }),
       );
       listDiscussionsMock.mockResolvedValue({
@@ -128,7 +128,7 @@ describe("DiscussionsListPage", () => {
 
       await user.click(
         await screen.findByRole("button", {
-          name: t("communities:new_post_label"),
+          name: t("communities:new_discussion_button"),
         }),
       );
       await user.type(screen.getByLabelText(t("communities:new_discussion_title")), "Hello world");
@@ -145,7 +145,7 @@ describe("DiscussionsListPage", () => {
 
       await user.click(
         await screen.findByRole("button", {
-          name: t("communities:new_post_label"),
+          name: t("communities:new_discussion_button"),
         }),
       );
       await user.type(screen.getByLabelText(t("communities:new_discussion_title")), "Hello world");

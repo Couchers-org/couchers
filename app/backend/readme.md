@@ -79,7 +79,7 @@ cd app/backend
 make run-deps
 ```
 
-Then execute app/backend/src/run_locally.py with your debugger of choice. It will have all the correct 
+Then execute app/backend/src/run_locally.py with your debugger of choice. It will have all the correct
 env variables and will connect to the services (db, etc.) running in docker.
 
 
@@ -118,11 +118,7 @@ If you have **any trouble**, send Aapeli a message on Slack. He's more than happ
 
 ### Q: I'm having issues with proto protos!
 
-**A**: Regenerate protos using
-
-```sh
-docker run --pull always --rm -w /app -v $(pwd):/app registry.gitlab.com/couchers/grpc ./generate_protos.sh
-```
+**A**: Regenerate protos using `make protos`.
 
 ### Q: How do I log in or sign up when developing?
 

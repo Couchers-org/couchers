@@ -1,0 +1,26 @@
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2026-09-11 16:05+0000\n"
+"Last-Translator: Tristan Labelle <couchers@tristanlabelle.com>\n"
+"Language-Team: French <https://translate.couchershq.org/projects/couchers/glossary-language-specific/fr/>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 5.15.2\n"
+
+msgid "you"
+msgstr "vous"
+
+msgid "your"
+msgstr "votre"
+
+msgid "API key"
+msgstr "clé d'API"
+
+msgid "camera"
+msgstr "appareil photo"
+
+msgid "email"
+msgstr "email"

@@ -98,7 +98,7 @@ export default function DiscussionsListPage({ community }: { community: Communit
       <Collapse in={!showCreateForm}>
         <StyledNewPostButtonContainer>
           <StyledCreateResourceButton onClick={() => setIsCreatingNewPost(true)}>
-            {t("communities:new_post_label")}
+            {t("communities:new_discussion_button")}
           </StyledCreateResourceButton>
           {isRefetching && <CenteredSpinner />}
         </StyledNewPostButtonContainer>

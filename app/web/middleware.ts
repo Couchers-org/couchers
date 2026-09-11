@@ -3,66 +3,42 @@ import { allLanguages } from "i18n/allLanguages";
 import { NextRequest, NextResponse } from "next/server";
 
 import { sessionCookieName } from "./appConstants";
-import { ALMOST_DONE_CUTOFF } from "./features/translate/constants";
-import { fetchWeblateStats, WeblateLanguage } from "./features/weblate/useWeblateStats";
-import { ALWAYS_AVAILABLE_LOCALES, DEFAULT_LOCALE, LOCALE_COOKIE_NAME } from "./i18n/locales";
+import {
+  ALWAYS_AVAILABLE_LOCALES,
+  DEFAULT_LOCALE,
+  getLocaleInfos,
+  isLocaleProductionReady,
+  LOCALE_COOKIE_NAME,
+} from "./i18n/locales";
+import { fetchWeblateLanguages } from "./i18n/weblate";
 
-// In-memory cache for Weblate stats
-let statsCache: {
-  data: WeblateLanguage[];
+// In-memory cache for the production-ready locale list
+let productionReadyLocalesCache: {
+  data: string[];
   timestamp: number;
 } | null = null;
 
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes in milliseconds
 
 /**
- * Get cached Weblate stats or fetch fresh data if cache is stale
- */
-async function getCachedWeblateStats(): Promise<WeblateLanguage[]> {
-  const now = Date.now();
-
-  // Return cached data if it exists and is still fresh
-  if (statsCache && now - statsCache.timestamp < CACHE_TTL) {
-    return statsCache.data;
-  }
-
-  // Fetch fresh data
-  const languages = await fetchWeblateStats();
-
-  // Update cache
-  statsCache = {
-    data: languages,
-    timestamp: now,
-  };
-
-  return languages;
-}
-
-/**
  * Get the list of locale codes that are production-ready (>= 80% translated)
  * Uses server-side Weblate stats with caching
  */
 async function getProductionReadyLocales(): Promise<string[]> {
-  const languages = await getCachedWeblateStats();
+  const now = Date.now();
 
-  // Convert locale format (e.g., "es_419" to "es-419" to match allLanguages)
-  const productionReadyLocales = languages
-    .filter((lang) => lang.translated_percent >= ALMOST_DONE_CUTOFF)
-    .map((lang) => lang.code.replace("_", "-"));
+  if (productionReadyLocalesCache && now - productionReadyLocalesCache.timestamp < CACHE_TTL) {
+    return productionReadyLocalesCache.data;
+  }
 
-  // English is always production-ready
-  return allLanguages.filter(
-    (locale) => ALWAYS_AVAILABLE_LOCALES.includes(locale) || productionReadyLocales.includes(locale),
-  );
-}
+  const weblateLanguages = await fetchWeblateLanguages();
+  const productionReadyLocales = getLocaleInfos(weblateLanguages)
+    .filter(isLocaleProductionReady)
+    .map((locale) => locale.code);
 
-/**
- * Check if a locale is production-ready (>= 80% translated)
- * Uses server-side Weblate stats with caching
- */
-async function isLocaleProductionReady(locale: string): Promise<boolean> {
-  const productionReadyLocales = await getProductionReadyLocales();
-  return productionReadyLocales.includes(locale);
+  productionReadyLocalesCache = { data: productionReadyLocales, timestamp: now };
+
+  return productionReadyLocales;
 }
 
 /**
@@ -124,7 +100,8 @@ export async function middleware(request: NextRequest) {
   const isClientNavigation = request.headers.get("x-nextjs-data");
 
   // Check if current locale should be blocked
-  const isProductionReady = await isLocaleProductionReady(currentLocale);
+  const productionReadyLocales = await getProductionReadyLocales();
+  const isProductionReady = productionReadyLocales.includes(currentLocale);
   const shouldBlock = shouldBlockIncompleteLanguage(currentLocale, cookieLocale, isProductionReady);
 
   if (shouldBlock) {

@@ -10,7 +10,6 @@
       "help_translate": "Ayuda a traducir Couchers a tu idioma",
       "loading": "Cargando el progreso de la traducción...",
       "error_loading": "Error al cargar el progreso de la traducción",
-      "no_data": "No hay datos de traducción disponibles",
       "complete": "Completo",
       "almost_there": "Casi está",
       "early_stage": "Etapa temprana",
@@ -93,12 +92,12 @@
     "bug": {
       "button_label": "Informar de un problema técnico",
       "title_label": "Título del informe",
-      "warning_message": "Por favor tenga en cuenta que esta información, así como la información de diagnóstico incluyendo en qué página se encuentra, qué navegador está utilizando, y su nombre de usuario, se guardará en una lista pública de errores.",
-      "problem_label": "¿Qué hiciste para activar el error?",
-      "problem_helper": "Breve descripción del problema y cómo reproducirlo",
+      "warning_message": "La información que proporciones en este formulario, así como la información de diagnóstico -incluida la página en la que te encuentras, tu navegador y tu nombre de usuario- serán registradas para que nuestro equipo la revise.",
+      "problem_label": "¿Cómo has encontrado el problema?",
+      "problem_helper": "Describe los pasos que seguiste: en qué páginas estabas, dónde hiciste clic, etc.",
       "expect_label": "¿Qué pasó? ¿Qué debería haber pasado?",
-      "expect_helper": "Breve descripción de lo que esperaba que sucediera en su lugar",
-      "success_message2": "¡Gracias por informar de ese error y mejorar Couchers, se ha enviado un informe a los desarrolladores! El ID del error es <id/>."
+      "expect_helper": "Describe el problema que encontraste como resultado de tus acciones, incluidos los mensajes de error, y lo que esperabas que ocurriera en su lugar.",
+      "success_message2": "¡Gracias por informar de este problema y hacer que Couchers sea mejor! Se ha enviado un informe a los desarrolladores. Puedes referirte a este problema usando el ID: <id/>."
     },
     "content": {
       "button_label": "Denunciar contenido o comportamiento inapropiado",
