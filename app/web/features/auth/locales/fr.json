@@ -324,6 +324,13 @@
     "shown_on_team_page_current": "Affiché sur la page de l'équipe comme membre d'équipe actuel."
   },
   "motivations_form": {
-    "header": "Qu'est-ce qui vous amène sur Couchers ?"
+    "header": "Qu'est-ce qui vous amène sur Couchers ?",
+    "surfing_description": "Je planifie un voyage et recherche un hôte",
+    "hosting": "Héberger",
+    "hosting_description": "J'aimerais héberger et accueillir des voyageurs dans ma ville",
+    "events": "Les événements",
+    "events_description": "J'aimerais participer à des événements et rencontrer la communauté",
+    "community_organizing": "Organiser une communauté",
+    "community_organizing_description": "Je veux organiser des événements et activités sur la plateforme"
   }
 }
