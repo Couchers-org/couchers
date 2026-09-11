@@ -6,6 +6,7 @@ import {
   getLocaleReadiness,
   LOCALE_AUTONYMS,
   LocaleReadiness,
+  toFormatLocale,
 } from "./locales";
 import { WeblateLanguage } from "./weblate";
 
@@ -93,5 +94,16 @@ describe("getLocaleInfos", () => {
       autonym: LOCALE_AUTONYMS.en,
       stringAvailabilityPercent: 100,
     });
+  });
+});
+
+describe("toFormatLocale", () => {
+  it("remaps en to en-001 for international date/number formatting", () => {
+    expect(toFormatLocale("en")).toBe("en-001");
+  });
+
+  it("leaves other locales, including en-US, unchanged", () => {
+    expect(toFormatLocale("en-US")).toBe("en-US");
+    expect(toFormatLocale("fr")).toBe("fr");
   });
 });

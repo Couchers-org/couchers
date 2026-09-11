@@ -7,14 +7,15 @@ export const LOCALE_COOKIE_NAME = "NEXT_LOCALE";
 export const DEFAULT_LOCALE = "en";
 
 // Locales which don't rely on translation progress.
-export const ALWAYS_AVAILABLE_LOCALES = ["en"];
+export const ALWAYS_AVAILABLE_LOCALES = ["en", "en-US"];
 
 // Autonym = a language name as written in its own language.
 export const LOCALE_AUTONYMS: Record<string, string> = {
   ca: "Català",
   cs: "Čeština",
   de: "Deutsch",
-  en: "English",
+  en: "English (International)",
+  "en-US": "English (US)",
   es: "Español (España)",
   "es-419": "Español (Latinoamérica)",
   fr: "Français",
@@ -35,6 +36,16 @@ export const LOCALE_AUTONYMS: Record<string, string> = {
   "zh-Hans": "中文（简体）",
   "zh-Hant": "中文（繁體）",
 };
+
+// Locales whose Intl API-based formatting differs from their literal code
+// (translations are unaffected). Mirrors the backend's remap in
+// couchers/i18n/locales.py.
+const FORMAT_LOCALE_REMAP: Record<string, string> = { en: "en-001" };
+
+/** Maps locale code to the one that should be used for Intl date/number formatting. */
+export function toFormatLocale(locale: string): string {
+  return FORMAT_LOCALE_REMAP[locale] ?? locale;
+}
 
 export interface LocaleInfo {
   code: string;
