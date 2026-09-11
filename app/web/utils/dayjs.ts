@@ -1,11 +1,15 @@
+// Register all locales we support with dayjs.
+// use dayjs(x).locale()
 // Locale data for every app language so dayjs can render month/day names and
-// relative/duration strings in the user's language (en is built in). Importing
-// a locale only registers it; the locale is always specified at the formatting
-// site (via MUI's adapterLocale, or `dayjs(x).locale(i18nToDayjsLocale(ln))`) —
-// we never mutate dayjs's global locale.
+// relative/duration strings in the user's language ("en" -- dayjs's US-oriented
+// default -- is built in, but we use "en-gb" for international formatting; see
+// I18N_TO_DAYJS_LOCALE below). Importing a locale only registers it; the locale
+// is always specified at the formatting site (via MUI's adapterLocale, or
+// `dayjs(x).locale(toDayjsLocale(ln))`) — we never mutate dayjs's global locale.
 import "dayjs/locale/ca";
 import "dayjs/locale/cs";
 import "dayjs/locale/de";
+import "dayjs/locale/en-gb"; // For our "en" locale (international English)
 import "dayjs/locale/es";
 import "dayjs/locale/fr";
 import "dayjs/locale/he";
@@ -32,7 +36,6 @@ import LocalizedFormat from "dayjs/plugin/localizedFormat";
 import RelativeTime from "dayjs/plugin/relativeTime";
 import Timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
-import { DEFAULT_LOCALE } from "i18n/locales";
 
 dayjs.extend(utc);
 dayjs.extend(customParseFormat);
@@ -41,42 +44,23 @@ dayjs.extend(RelativeTime);
 dayjs.extend(Timezone);
 dayjs.extend(LocalizedFormat);
 
-// Maps an i18n language code to the matching dayjs locale name (they differ for
-// some: e.g. "pt-BR" -> "pt-br", "zh-Hans" -> "zh-cn"). en is the built-in default.
-const I18N_TO_DAYJS_LOCALE: Record<string, string> = {
-  ca: "ca",
-  cs: "cs",
-  de: "de",
-  en: "en",
-  es: "es",
+// Dayjs-supported locale codes don't map 1:1 with our ISO locales
+const DAYJS_LOCALE_REMAP: Record<string, string> = {
+  // Our "en" is international English (dd/mm/yyyy, 12h clock)
+  // dayjs doesn't have en-001, but en-au approximates it.
+  en: "en-au",
+  // dayjs' "en" locale uses US conventions (mm/dd/yyyy, 12h clock).
+  "en-US": "en",
   "es-419": "es",
-  fr: "fr",
-  he: "he",
-  hi: "hi",
-  hu: "hu",
-  it: "it",
-  ja: "ja",
   "nb-NO": "nb",
-  nl: "nl",
-  pl: "pl",
-  pt: "pt",
   "pt-BR": "pt-br",
-  ru: "ru",
-  sv: "sv",
-  tr: "tr",
-  uk: "uk",
   "zh-Hans": "zh-cn",
   "zh-Hant": "zh-tw",
 };
 
-/**
- * Maps an i18n language code to a registered dayjs locale name, falling back to
- * the base language, then English, for unmapped codes. Use this for MUI's
- * LocalizationProvider `adapterLocale` and for call-site formatting, e.g.
- * `dayjs(x).locale(i18nToDayjsLocale(language)).format("LL")`.
- */
-export function i18nToDayjsLocale(language: string): string {
-  return I18N_TO_DAYJS_LOCALE[language] ?? I18N_TO_DAYJS_LOCALE[language.split("-")[0]] ?? DEFAULT_LOCALE;
+/** Maps a supported ISO locale code to the locale name used for formatting with dayjs. */
+export function toDayjsLocale(locale: string): string {
+  return DAYJS_LOCALE_REMAP[locale] ?? locale.toLowerCase();
 }
 
 export { Dayjs };
