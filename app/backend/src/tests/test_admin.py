@@ -1746,6 +1746,43 @@ def test_ListUserUploads(db):
     assert upload0.HasField("created")
 
 
+def test_ListUserUploads_metadata(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user, _ = generate_user(complete_profile=False)
+
+    with session_scope() as session:
+        session.add(
+            Upload(
+                key="with_metadata",
+                filename="photo.jpg",
+                creator_user_id=user.id,
+                metadata_exif=b"\x01\x02\x03",
+                metadata_parsed={"Image Make": "Canon", "EXIF LensModel": "50mm"},
+                original_filename="IMG_1234.HEIC",
+                original_format="heif",
+                original_size=123456,
+                original_width=4032,
+                original_height=3024,
+            )
+        )
+        session.add(Upload(key="without_metadata", filename="old.jpg", creator_user_id=user.id))
+
+    with real_admin_session(super_token) as api:
+        res = api.ListUserUploads(admin_pb2.ListUserUploadsReq(user=user.username))
+
+    uploads = {u.key: u for u in res.uploads}
+    assert uploads["without_metadata"].metadata == admin_pb2.UploadMetadata()
+
+    metadata = uploads["with_metadata"].metadata
+    assert json.loads(metadata.parsed_json) == {"Image Make": "Canon", "EXIF LensModel": "50mm"}
+    assert metadata.parse_error == ""
+    assert metadata.original_filename == "IMG_1234.HEIC"
+    assert metadata.original_format == "heif"
+    assert metadata.original_size == 123456
+    assert metadata.original_width == 4032
+    assert metadata.original_height == 3024
+
+
 def test_ListUserUploads_pagination(db):
     super_user, super_token = generate_user(is_superuser=True)
     user, _ = generate_user(complete_profile=False)

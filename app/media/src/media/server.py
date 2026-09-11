@@ -14,6 +14,7 @@ from sentry_sdk.integrations import logging as sentry_logging
 from werkzeug.utils import secure_filename
 
 from media.crypto import verify_hash_signature
+from media.metadata import extract_metadata
 from media.proto import media_pb2, media_pb2_grpc
 
 logger = logging.getLogger(__name__)
@@ -72,7 +73,7 @@ def create_app(
         return e.code() != grpc.StatusCode.UNAVAILABLE
 
     @backoff.on_exception(backoff.expo, grpc.RpcError, max_time=1, giveup=_is_available)
-    def send_confirmation_to_main_server(key: str, filename: str):
+    def send_confirmation_to_main_server(key: str, filename: str, upload_metadata: media_pb2.UploadMetadata):
         logger.warning(f"Notifying main server about new upload at {main_server_address}")
 
         if main_server_use_ssl:
@@ -85,6 +86,7 @@ def create_app(
         req = media_pb2.UploadConfirmationReq(
             key=key,
             filename=filename,
+            metadata=upload_metadata,
         )
         media_stub.UploadConfirmation(req, metadata=(("authorization", f"Bearer {media_server_bearer_token}"),))
 
@@ -129,10 +131,14 @@ def create_app(
             abort(500, "Unsupported upload type")
 
         # handle image uploads
+        image_bytes = request_file.read()
+
         try:
-            img = pyvips.Image.new_from_buffer(request_file.read(), options="")
+            img = pyvips.Image.new_from_buffer(image_bytes, options="")
         except pyvips.Error:
             abort(400, "Invalid image")
+
+        upload_metadata = extract_metadata(img, image_bytes, request_file.filename)
 
         width = img.get("width")
         height = img.get("height")
@@ -150,7 +156,7 @@ def create_app(
 
         # let the main server know the upload succeeded, or delete the file
         try:
-            send_confirmation_to_main_server(req.key, filename)
+            send_confirmation_to_main_server(req.key, filename, upload_metadata)
             return {
                 "ok": True,
                 "key": req.key,

@@ -28,7 +28,23 @@ service Media {
   }
 }
 
+message UploadMetadata {
+  bytes exif = 1;
+  bytes xmp = 2;
+  bytes iptc = 3;
+
+  string parse_error = 4;
+  string parsed_json = 5;
+
+  string original_filename = 6;
+  string original_format = 7;
+  uint64 original_size = 8;
+  uint32 original_width = 9;
+  uint32 original_height = 10;
+}
+
 message UploadConfirmationReq {
   string key = 1;
   string filename = 2;
+  UploadMetadata metadata = 3;
 }
