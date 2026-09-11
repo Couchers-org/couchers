@@ -466,6 +466,29 @@ describe("Signup", () => {
     };
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
     render(<View />, { wrapper });
+    expect(
+      screen.getByText((_, element) => {
+        return (
+          element?.textContent ===
+          "We have sent an email with a verification link to test@example.com. Please click the link to activate your account."
+        );
+      }),
+    ).toBeVisible();
+  });
+
+  it("displays the verify email message without an address for a flow started before emails were returned", async () => {
+    const state: SignupFlowRes.AsObject = {
+      email: "",
+      needBasic: false,
+      needAccount: false,
+      needAcceptCommunityGuidelines: false,
+      needMotivations: false,
+      needFeedback: false,
+      needVerifyEmail: true,
+      flowToken: "token",
+    };
+    window.localStorage.setItem("auth.flowState", JSON.stringify(state));
+    render(<View />, { wrapper });
     expect(screen.getByText(t("auth:sign_up_completed_prompt"))).toBeVisible();
   });
 
