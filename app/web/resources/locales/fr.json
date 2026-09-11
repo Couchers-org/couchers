@@ -61,7 +61,7 @@
       "midway": "À mi-chemin",
       "complete": "Complet",
       "almost_there": "Presque là",
-      "just_started": "Elle vient de commencer",
+      "just_started": "Commencée",
       "info_text": "💡 Les langues avec 50-80% d'achèvement apparaissent en gris dans la sélection des langues. Les langues avec moins de 50% d'achèvement sont cachées de la sélection des langues. Pour encourager les contributeurs, les langues avec moins de 20% sont montrées sur cette page.",
       "view_progress": "Voir l'avancement de la traduction",
       "early_stage": "Étape préliminaire"
@@ -102,7 +102,7 @@
       "warning_message": "Veuillez noter que cette information, ainsi que les données du diagnostic incluant sur quelle page vous vous trouvez, quel navigateur vous utilisez et le nom d'utilisateur.trice seront conservés dans une liste publique de bogues.",
       "title_label": "Titre du rapport",
       "problem_helper": "Brève description du problème et de comment le reproduire",
-      "problem_label": "Qu'avez-vous fait pour déclencher le bogue ?",
+      "problem_label": "Comment avez-vous rencontré le problème ?",
       "expect_helper": "Brève description de ce qui était censé se produire à la place",
       "success_message2": "Merci d'avoir signalé ce bogue et d'avoir rendu Couchers meilleur. Un rapport a été envoyé aux développeurs. Le numéro du bogue est <id/>."
     },

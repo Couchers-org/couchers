@@ -141,8 +141,8 @@
     "cancel": {
       "event_description": "Un événement auquel vous participez a été annulé",
       "push": {
-        "title": "Évènement annulé : {{title}}",
-        "ios_title": "Évènement annulé",
+        "title": "Événement annulé : {{title}}",
+        "ios_title": "Événement annulé",
         "ios_subtitle": "{{title}}",
         "body": "{{user}} a annulé l'événement."
       }
@@ -176,10 +176,10 @@
     "delete": {
       "event_description": "Un événement auquel vous participez a été supprimé",
       "push": {
-        "title": "Évènement annulé : {{title}}",
-        "ios_title": "Évènement annulé",
+        "title": "Événement annulé : {{title}}",
+        "ios_title": "Événement annulé",
         "ios_subtitle": "{{title}}",
-        "body": "La modération a annulé l'événement."
+        "body": "Un modérateur a supprimé l'événement."
       }
     },
     "invite_organizer": {

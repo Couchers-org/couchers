@@ -37,7 +37,7 @@
     "action_update": "Mettre à jour maintenant",
     "action_reinstall": "Obtenir la nouvelle appli",
     "later": "Plus tard",
-    "failed": "La mise à jour a échoué. Réessayez.",
+    "failed": "La mise à jour a échoué. Veuillez réessayer.",
     "preamble_banned": "Nous sommes une petite équipe de bénévoles, et parfois nous faisons des erreurs. Nous sommes désolé.e.s pour la gêne occasionnée !"
   }
 }

@@ -44,7 +44,7 @@
       "button": "Écrire une recommandation"
     },
     "complete_my_home": {
-      "title": "Complétez votre profil \"Chez moi\"",
+      "title": "Complétez la section \"chez moi\" de votre profil",
       "button": "Éditez votre chez vous"
     },
     "complete_profile": {
@@ -60,7 +60,7 @@
       "description": "{{name}} a accepté votre demande. Confirmez votre séjour pour le réserver.",
       "button": "Confirmer votre séjour"
     },
-    "carousel_dismiss_button_a11y": "Effacer le rappel"
+    "carousel_dismiss_button_a11y": "Ignorer le rappel"
   },
   "my_communities_heading": "Mes communautés",
   "prev_page_button_a11y": "Page précédente",
@@ -86,16 +86,16 @@
     "offers_count_many": "{{count}} d'offres",
     "offers_count_other": "{{count}} offres",
     "no_offers": "Pas encore d'offres",
-    "empty_description": "Vous partez quelque part ? Postez un voyage public dans la communauté pour recevoir des offres d'hôtes à proximité.",
-    "same_gender_only_indicator": "Même sexe"
+    "empty_description": "Vous partez quelque part ? Publiez un voyage public dans la communauté pour recevoir des offres d'hôtes à proximité.",
+    "same_gender_only_indicator": "Même genre"
   },
   "stays": {
     "upcoming_trips_header": "Vos séjours à venir",
-    "upcoming_guests_header": "Vos hôtes à venir",
+    "upcoming_guests_header": "Vos futurs invités",
     "night_count_one": "{{count}} nuit",
-    "night_count_many": "{{count}} nuits",
+    "night_count_many": "{{count}} de nuits",
     "night_count_other": "{{count}} nuits",
-    "no_upcoming_trips": "Pas de voyage à venir. Prêt.e à explorer ?",
-    "no_upcoming_guests": "Pas encore d'hôtes."
+    "no_upcoming_trips": "Pas de voyage à venir. Prêt.e à explorer ?",
+    "no_upcoming_guests": "Pas encore d'invités."
   }
 }
