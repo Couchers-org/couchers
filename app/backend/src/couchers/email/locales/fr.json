@@ -60,11 +60,110 @@
     "instructions_days_many": "Afin de conserver votre statut \"Peut héberger\", vous devez vous reconnecter avant <b>{{count}} jours</b>. Sans quoi, nous modifierons votre statut en \"Ne peut pas héberger\".",
     "instructions_days_other": "Afin de conserver votre statut \"Peut héberger\", vous devez vous reconnecter avant  <b>{{count}} jour(s)</b>. Sans quoi, nous modifierons votre statut en \"Ne peut pas héberger\".",
     "login_action": "Se connecter",
-    "encouragement": "Ces vérifications aident les surfers à trouver des hôtes plus facilement et à évaluer correctement les temps de réponse."
+    "encouragement": "Ces vérifications aident les surfers à trouver des hôtes plus facilement et à évaluer correctement les temps de réponse.",
+    "latest_release": "Au cas où vous l'ayez manqué, nous sommes récemment passés à la version {{version}}.  Certaines des dernières mises à jour incluent : des applications mobiles pour iOS et Android, un tableau de bord amélioré, une messagerie retravaillée et de nouvelles fonctionnalités pour les événements. Plus d'informations sur <a href=\"{{blog_url}}\">Couchers.org blog</a>."
   },
   "api_key_issued": {
     "subject": "Votre clé d'API pour Couchers.org",
     "header": "Vous avez récemment demandé une clé d'API pour Couchers.org. Nous vous avons généré cette clé d'API :",
-    "expiry": "La clé expire le <b>{{ datetime }}</b>."
+    "expiry": "La clé expire le <b>{{ datetime }}</b>.",
+    "usage_warning": "La clé API est unique pour votre compte. Ne la partagez avec personne. Elle donne un accès complet à votre compte, et vous être responsable de toutes les actions engagées  à l'aide de cette clé API."
+  },
+  "badges": {
+    "added": {
+      "subject": "Le badge {{ name }} a été ajouté à votre profil",
+      "purpose": "Le badge <b>{{ name }}</b> a été ajouté à votre profil."
+    },
+    "removed": {
+      "subject": "Le badge {{ name }} a été retiré de votre profil",
+      "purpose": "Le badge <b>{{ name }}</b> a été retiré de votre profil."
+    }
+  },
+  "birthdate_changed": {
+    "subject": "Votre date de naissance a été modifiée",
+    "purpose": "Votre date de naissance a été modifiée pour le <b>{{ date }}</b> par un admin."
+  },
+  "chat_messages": {
+    "received": {
+      "direct": {
+        "subject": "{{ author }} vous a envoyé un message",
+        "purpose": "<b>{{ author }}</b> vous a envoyé un message :",
+        "view_action": "Voir ce message"
+      },
+      "group": {
+        "subject": "{{ author }} vous a envoyé un message dans {{ group }}",
+        "purpose": "<b>{{ author }}</b> a envoyé un message dans <b>{{ group }}</b>:",
+        "view_action": "Voir ce message"
+      }
+    },
+    "missed": {
+      "subject": "Vous avez des messages non lus",
+      "purpose": "Vous avez manqué quelques messages depuis votre dernière visite :",
+      "count_in_dm_one": "{{count}} message de <b>{{author}}</b>:",
+      "count_in_dm_many": "{{count}} messages de <b>{{author}}</b>:",
+      "count_in_dm_other": "{{count}} message.s de <b>{{author}}</b>:",
+      "count_in_group_one": "{{count}} message dans <b>{{group}}</b>:",
+      "count_in_group_many": "{{count}} messages dans <b>{{group}}</b>:",
+      "count_in_group_other": "{{count}} message.s dans <b>{{group}}</b>:",
+      "view_action": "Voir les messages"
+    }
+  },
+  "discussions": {
+    "created": {
+      "subject": "{{author}} a commencé une discussion: {{title}}",
+      "purpose": "<b>{{author}}</b> a commencé une discussion dans<b>{{parent_context}}</b>:",
+      "view_action": "Voir la discussion"
+    },
+    "comment": {
+      "subject": "{{author}} a commenté sur {{discussion_title}}",
+      "purpose": "<b>{{author}}</b> a commenté sur <b>{{discussion_title}}</b> dans <b>{{parent_context}}</b>:",
+      "view_action": "Voir la discussion"
+    }
+  },
+  "donation_received": {
+    "subject": "Merci pour votre don à Couchers.org!",
+    "purpose": "Merci pour votre don de <b>{{amount_with_currency}}</b> à Couchers.org.",
+    "contribution_impact": "Votre participation contribuera à construire et maintenir la communauté Couchers.org, et elle est vitale pour notre objectif d'une plateforme de couch surfing gratuite et à but non lucratif.",
+    "invoice_receipt_info": "Vous pouvez télécharger une facture et un reçu pour votre don ici :",
+    "download_invoice": "Télécharger la facture",
+    "tax_acknowledgment": "Couchers, Inc. est une organisation à but non lucratif 501(c)(3) (EIN: 87-1734577)  enregistrée aux États-Unis. Aucun bien ou service n'ont été fournis en échange de cette contribution.",
+    "questions_contact": "Pour toute question à propos de votre don, écrivez-nous à {{ email_link }}."
+  },
+  "email_change": {
+    "initiated": {
+      "subject": "Changement d'adresse email initié",
+      "purpose": "Vous avez demandé à ce que votre adresse email soit modifiée en <b>{{ email_address }}</b>. Veuillez consulter l'email que nous avons envoyé à cette adresse afin de confirmer le changement."
+    },
+    "confirmation": {
+      "subject": "Confirmer votre nouvelle adresse email",
+      "purpose": "Vous avez demandé à ce que votre adresse email soit modifiée de <b>{{ old_email }}</b> à cette nouvelle adresse email. Afin de valider ce changement, veuillez cliquer sur le lien suivant :",
+      "confirm_action": "Confirmer nouvelle adresse email"
+    },
+    "verified": {
+      "subject": "Changement d'adresse email terminé",
+      "purpose": "Votre nouvelle adresse email a été vérifiée."
+    }
+  },
+  "events": {
+    "generic": {
+      "view_action": "Voir l'événement"
+    },
+    "created": {
+      "invitation": {
+        "subject": "{{user}} vous a invité à {{title}}",
+        "purpose_with_community": "<b>{{user}}</b> vous a invité à un événement dans <b>{{community}}</b>:",
+        "purpose_no_community": "<b>{{user}}</b> vous a invité à un événement à proximité :"
+      },
+      "notification": {
+        "subject": "{{user}} a créé un événement : {{title}}",
+        "purpose_with_community": "<b>{{user}}</b> a créé un événement dans <b>{{community}}</b>:",
+        "purpose_no_community": "<b>{{user}}</b> a créé un évènement à proximité :"
+      }
+    },
+    "updated": {
+      "subject": "{{user}} a mis à  jour {{title}}",
+      "purpose_generic": "<b>{{user}}</b> a mis à jour un événement auquel vous vous êtes inscrit.e :",
+      "purpose_with_items": "<b>{{user}}</b> a mis à jour un événement auquel vous vous êtes inscrit.e ({{items_list}}):"
+    }
   }
 }

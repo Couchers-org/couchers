@@ -95,5 +95,6 @@
   "event_discussion": "Discussion sur l'événement",
   "event_image_input_alt": "Ajout d'images de l'événement",
   "events_label": "Événements",
-  "events_title": "Événements"
+  "events_title": "Événements",
+  "event_title_label": "Titre"
 }
