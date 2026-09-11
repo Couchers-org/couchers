@@ -22,6 +22,7 @@ import {
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { DONATIONS } from "i18n/namespaces";
+import { localizeUSD } from "i18n/numbers";
 import { useRouter } from "next/router";
 import { DonationFrequency } from "proto/donations_pb";
 import React, { PropsWithChildren, useEffect, useRef, useState } from "react";
@@ -224,7 +225,7 @@ const StyledSubmitButton = styled(Button)(() => ({
 }));
 
 export default function DonationsBox() {
-  const { t } = useTranslation(DONATIONS);
+  const { t, i18n } = useTranslation(DONATIONS);
 
   const [isPredefinedAmount, setIsPredefinedAmount] = useState(true);
 
@@ -302,13 +303,6 @@ export default function DonationsBox() {
     setIsPredefinedAmount(true);
   };
 
-  const formatDonationValue = (val: number) =>
-    new Intl.NumberFormat("en-US", {
-      currency: "USD",
-      minimumFractionDigits: 0,
-      style: "currency",
-    }).format(val);
-
   return (
     <StyledForm onSubmit={onSubmit}>
       {error && <Alert severity="error">{error.message}</Alert>}
@@ -360,7 +354,7 @@ export default function DonationsBox() {
                       onChange: field.onChange,
                     })}
                   >
-                    {formatDonationValue(value)}
+                    {localizeUSD(value, i18n.language)}
                   </StyledAmountButton>
                 );
               }),
