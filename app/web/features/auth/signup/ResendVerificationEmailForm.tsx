@@ -14,6 +14,9 @@ export default function ResendVerificationEmailForm() {
 
   const [resent, setResent] = useState<boolean>(false);
 
+  // flowState is persisted in localStorage, so a flow started before this field existed has no email
+  const email = authState.flowState?.email;
+
   const mutation = useMutation({
     mutationFn: async () => {
       const state = await service.auth.signupFlowResendVerificationEmail(authState.flowState!.flowToken);
@@ -26,7 +29,11 @@ export default function ResendVerificationEmailForm() {
     <>
       {mutation.error && <Alert severity="error">{mutation.error.message || ""}</Alert>}
       <Typography variant="body1" gutterBottom>
-        {t("auth:sign_up_completed_prompt")}
+        {email ? (
+          <Trans i18nKey="auth:sign_up_completed_prompt_with_email" values={{ email }} />
+        ) : (
+          t("auth:sign_up_completed_prompt")
+        )}
       </Typography>
       <Typography variant="body1">
         {!resent ? (
