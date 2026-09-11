@@ -72,7 +72,7 @@
   "delete_comment": "Supprimer le commentaire",
   "comment_edited_date": "Modifié il y a {{timeAgo}}",
   "discussion_creation_date": "Créé le {{dateOnly}}",
-  "discussion_edited_date": "Edité le {{timeAgo}}",
+  "discussion_edited_date": "Edité {{timeAgo}}",
   "discussion_deleted": "Cette discussion a été supprimée.",
   "delete_discussion": "Supprimer la discussion",
   "delete_discussion_dialog": {
@@ -91,9 +91,9 @@
   "overview_label": "Vue d'ensemble",
   "post": "Publier",
   "create_event_disclaimer": "En sélectionnant ce bouton, votre événement sera visible publiquement par la communauté Couchers.org.",
-  "event_details_required": "Remplissez les détails de l'événement.",
+  "event_details_required": "Veuillez remplir les détails de l'événement.",
   "event_discussion": "Discussion sur l'événement",
   "event_image_input_alt": "Ajout d'images de l'événement",
   "events_label": "Événements",
-  "events_title": "Événement"
+  "events_title": "Événements"
 }
