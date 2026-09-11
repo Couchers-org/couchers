@@ -24,7 +24,7 @@ import React, { ReactNode, useEffect } from "react";
 import TagManager from "react-gtm-module";
 import { polyfill } from "seamless-scroll-polyfill";
 import { theme } from "theme";
-import { i18nToDayjsLocale } from "utils/dayjs";
+import { toDayjsLocale } from "utils/dayjs";
 
 type AppWithLayoutProps = Omit<AppProps, "Component"> & {
   Component: AppProps["Component"] & {
@@ -76,7 +76,7 @@ function MyApp(props: AppWithLayoutProps) {
   return (
     <AppCacheProvider {...props}>
       <StyledEngineProvider injectFirst>
-        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={i18nToDayjsLocale(language)}>
+        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={toDayjsLocale(language)}>
           <ThemeProvider theme={theme}>
             <ErrorBoundary isFatal>
               <AnalyticsProvider>
