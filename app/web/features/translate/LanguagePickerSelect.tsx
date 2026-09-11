@@ -38,6 +38,7 @@ const StyledSelect = styled(Select, {
 })<StyledMuiSelectProps>(({ theme, displayMode }) => ({
   borderRadius: displayMode === "rect" ? theme.shape.borderRadius : displayMode === "icon" ? "50%" : 999,
   backgroundColor: "var(--mui-palette-grey-200)",
+  transition: "background-color 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
   "& .MuiOutlinedInput-notchedOutline": {
     borderColor: "var(--mui-palette-grey-300)",
   },
@@ -218,7 +219,7 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
         color: "var(--mui-palette-text-primary)",
       }}
     >
-      <LanguageIcon fontSize="small" />
+      <LanguageIcon sx={{ fontSize: 24 }} />
     </Box>
   );
 
