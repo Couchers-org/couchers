@@ -1,11 +1,9 @@
+// Prefer Temporal and Intl APIs to dayjs, they're richer and safer.
+// We still need dayjs for:
+// - The MUI locale adapter needed for date/time pickers.
+// - Formatting durations ("5 minutes"). Intl.RelativeTimeFormat always adds "in" or "ago".
+
 // Register all locales we support with dayjs.
-// use dayjs(x).locale()
-// Locale data for every app language so dayjs can render month/day names and
-// relative/duration strings in the user's language ("en" -- dayjs's US-oriented
-// default -- is built in, but we use "en-gb" for international formatting; see
-// I18N_TO_DAYJS_LOCALE below). Importing a locale only registers it; the locale
-// is always specified at the formatting site (via MUI's adapterLocale, or
-// `dayjs(x).locale(toDayjsLocale(ln))`) — we never mutate dayjs's global locale.
 import "dayjs/locale/ca";
 import "dayjs/locale/cs";
 import "dayjs/locale/de";
