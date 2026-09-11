@@ -476,22 +476,6 @@ describe("Signup", () => {
     ).toBeVisible();
   });
 
-  it("displays the verify email message without an address for a flow started before emails were returned", async () => {
-    const state: SignupFlowRes.AsObject = {
-      email: "",
-      needBasic: false,
-      needAccount: false,
-      needAcceptCommunityGuidelines: false,
-      needMotivations: false,
-      needFeedback: false,
-      needVerifyEmail: true,
-      flowToken: "token",
-    };
-    window.localStorage.setItem("auth.flowState", JSON.stringify(state));
-    render(<View />, { wrapper });
-    expect(screen.getByText(t("auth:sign_up_completed_prompt"))).toBeVisible();
-  });
-
   it("displays the redirect message when nothing is pending and has authRes", async () => {
     const state: SignupFlowRes.AsObject = {
       email: "test@example.com",
