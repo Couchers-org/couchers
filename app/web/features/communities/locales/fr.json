@@ -68,7 +68,7 @@
   "time_required": "Veuillez entrer une heure.",
   "community_info_page_title": "Information générale",
   "comment_deleted": "Ce commentaire a été supprimé.",
-  "edit_comment": "Modifier le commentaire",
+  "edit_comment": "Éditer le commentaire",
   "delete_comment": "Supprimer le commentaire",
   "comment_edited_date": "Modifié il y a {{timeAgo}}",
   "discussion_creation_date": "Créé le {{dateOnly}}",

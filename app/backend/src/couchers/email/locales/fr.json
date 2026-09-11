@@ -14,10 +14,11 @@
       "nonprofit_note": "Couchers.org est un projet de Couchers, Inc., une association à but non lucratif exemptée de taxes enregistrée aux EUA (U.S. 501(c)(3)).",
       "security_email_note": "Ceci est un email de sécurité, vous ne pouvez pas vous en désabonner.",
       "do_not_email_link": "Ne m'envoyez plus d'emails (désactive l'hébergement)",
-      "contact_support": "Vous pouvez contacter notre équipe support sur {{ email_link }}.",
+      "contact_support": "Vous pouvez joindre notre équipe support à {{ email_link }}.",
       "timezone_note": "Toutes les heures sont à {{ timezone }}, d'après la localisation de votre profil.",
       "blog_link": "Blog",
-      "notification_settings_link": "Régler les paramètres de notifications"
+      "notification_settings_link": "Régler les paramètres de notifications",
+      "happy_couch_icon_caption": "Le canapé heureux de Couchers vous souhaite une belle journée."
     },
     "security_warning_contact_support": "Si vous n'êtes pas à l'origine de cette action, contactez-nous à {{ email_link }} afin que nous puissions résoudre ça le plus rapidement possible."
   },
