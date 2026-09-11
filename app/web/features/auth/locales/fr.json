@@ -11,9 +11,9 @@
   "basic_form": {
     "name": {
       "field_label": "Votre prénom",
-      "required_error": "Ce champ ne peut pas être vide.",
+      "required_error": "Ce champ ne peut pas être vide",
       "min_length_error": "Le nom doit faire au moins deux caractères",
-      "max_length_error": "Le nom ne peut pas faire plus que 100 caractères"
+      "max_length_error": "Le nom ne peut pas faire plus de 100 caractères"
     },
     "email": {
       "field_label": "Adresse mail",
@@ -126,7 +126,8 @@
       "required_error": "Veuillez sélectionner votre genre",
       "man": "Homme",
       "non_binary": "Non binaire",
-      "woman": "Femme"
+      "woman": "Femme",
+      "selector_a11y": "Genre"
     },
     "username": {
       "required_error": "Entrez votre nom d’utilisateur",
@@ -323,6 +324,6 @@
     "shown_on_team_page_current": "Affiché sur la page de l'équipe comme membre d'équipe actuel."
   },
   "motivations_form": {
-    "header": "Qu'est-ce qui vous amène chez Couchers ?"
+    "header": "Qu'est-ce qui vous amène sur Couchers ?"
   }
 }
