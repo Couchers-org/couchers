@@ -27,5 +27,18 @@
     "take_photo": "Fes una foto",
     "choose_from_library": "Tria de la biblioteca",
     "open_settings": "Obre la configuració"
+  },
+  "update": {
+    "required_title": "Actualització necessària",
+    "body_warn": "Sembla que estàs utilitzant una versió antiga de l'aplicació, així que l'hauràs d'actualitzar aviat.",
+    "body_block": "Sembla que estàs utilitzant una versió antiga de l'aplicació, així que l'hauràs d'actualitzar ara.",
+    "body_banned": "Sembla que hem publicat una versió de l'aplicació amb errors, així que l'hauràs d'actualitzar.",
+    "preamble_warn": "Som un equip petit de voluntaris i mantenir el suport de versions antigues és realment difícil; lamentem les molèsties.",
+    "preamble_block": "Som un equip petit de voluntaris i mantenir el suport de versions antigues és realment difícil; lamentem les molèsties.",
+    "preamble_banned": "Som un equip reduït de voluntaris i de vegades cometem errors; ens sap greu per les molèsties!",
+    "action_update": "Actualitza ara",
+    "action_reinstall": "Obtén la nova aplicació",
+    "later": "Més tard",
+    "failed": "No s'ha pogut actualitzar. Torna-ho a provar."
   }
 }

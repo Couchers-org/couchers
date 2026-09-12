@@ -12,7 +12,7 @@
   "legal_name": "Couchers, Inc.",
   "login": "Inicia sessió",
   "sign_up": "Registra't",
-  "join_us": "Uneix-t'hi",
+  "join_us": "Uneix-te",
   "update": "Actualitza",
   "create": "Crea",
   "terms_of_service": "Condicions del servei",
@@ -24,7 +24,7 @@
   },
   "thanks": "Gràcies!",
   "donation_banner": {
-    "message": "Couchers.org funciona gràcies a la generositat — igual que el couch surfing. Aquest període de festes, ajuda'ns a mantenir-ho així. Estem recaptant {{goal}} per cobrir les despeses de funcionament de Couchers.org.",
+    "message": "Couchers.org funciona gràcies a la generositat, igual que el couch surfing. Aquest període de festes, ajuda'ns a mantenir-ho així. Estem recaptant {{goal}} per cobrir les despeses de funcionament de Couchers.org.",
     "button": "Dona ara",
     "progress_label": "Progrés de les donacions"
   },
@@ -46,7 +46,7 @@
   "next": "Següent",
   "previous": "Anterior",
   "mod": "Moderació",
-  "cookie_message": "Fem servir galetes per garantir-te la millor experiència al nostre lloc web. Si continues usant aquest lloc, assumirem que n'estàs content. Pots llegir més a les nostres <tosLink>Condicions del servei</tosLink>.",
+  "cookie_message": "Fem servir galetes per garantir-te la millor experiència al nostre lloc web. Si continues usant aquest lloc, entendrem que hi estàs d'acord. Pots llegir més a les nostres <tosLink>Condicions del servei</tosLink>.",
   "hosting_status": {
     "can_host": "Pot allotjar",
     "maybe": "Podria allotjar",
@@ -88,9 +88,9 @@
       "warning_message": "Tingues en compte que aquesta informació, juntament amb dades de diagnòstic com la pàgina en la qual ets, el navegador que fas servir i el teu nom d'usuari, es desarà en una llista pública d'errors.",
       "title_label": "Títol de l'informe",
       "problem_label": "Què has fet per provocar l'error?",
-      "problem_helper": "Breu descripció del problema i com reproduir-lo",
+      "problem_helper": "Descriu els passos seguits: en quines pàgines érets, on vas fer click, etc.",
       "expect_label": "Què ha passat? Què hauria d'haver passat?",
-      "expect_helper": "Breu descripció del que esperaves que passés",
+      "expect_helper": "Descriu el problema, incloent els missatges d'error i què esperaves que passés en canvi.",
       "success_message2": "Gràcies per reportar aquest error i millorar Couchers, s'ha enviat un informe als desenvolupadors! L'ID de l'error és <id/>."
     },
     "content": {
@@ -130,7 +130,7 @@
   "html_meta": {
     "title_suffix": " | Couchers.org",
     "default_title": "Couchers.org",
-    "default_description": "Comparteix el teu món, descobreix el dels altres. Experiències locals autèntiques, construïdes sobre la confiança i la connexió genuïna — no transaccions."
+    "default_description": "Comparteix el teu món, descobreix el dels altres. Experiències locals autèntiques, basades en la confiança i la connexió genuïna, no transaccions."
   },
   "error": {
     "fatal_message": "Això no hauria d'haver passat. Posa't en contacte amb nosaltres i explica'ns què feies per ajudar-nos a evitar aquest error en el futur.",
@@ -153,7 +153,7 @@
       "invalid_coordinate": "Coordenades que falten, selecciona una ubicació amb el mapa de dalt",
       "location_accuracy": "Precisió de la ubicació",
       "location_publicly_visible": "Això serà visible públicament",
-      "location_warn": "Fes clic i arrossega el cercle de sota per mostrar als altres la ubicació aproximada de casa teva. Assegura't que la teva llar no estigui al centre del cercle, per tal que les persones no sàpiguen la ubicació exacta.",
+      "location_warn": "Fes clic i arrossega el cercle de sota per mostrar als altres la ubicació aproximada de casa teva. Assegura't que la teva llar no estigui al centre del cercle, perquè ningú sàpiga la ubicació exacta.",
       "map_is_blank": "Coordenades que falten, comença cercant una ubicació amb el mapa de dalt",
       "radius_text2_one": "{{count}} metre",
       "radius_text2_many": "{{count}} de metres",
@@ -195,7 +195,11 @@
     "invite_members": "Convida membres",
     "merch_shop": "Botiga de marxandatge",
     "switch_to_light_mode": "Canvia al mode clar",
-    "switch_to_dark_mode": "Canvia al mode fosc"
+    "switch_to_dark_mode": "Canvia al mode fosc",
+    "press": "Premsa i mitjans",
+    "close_menu_a11y": "Tanca el menú",
+    "open_drawer_a11y": "Obrir el panell lateral",
+    "close_drawer_a11y": "Tanca el panell lateral"
   },
   "invites": {
     "title": "Convida membres",
@@ -238,7 +242,7 @@
   },
   "what_is_cs": {
     "title": "Què és el couch surfing?",
-    "description_1": "El couch surfing és un concepte en el qual alguns membres (anomenats amfitrions) publiquen a la plataforma que estan disposats a allotjar altres membres (anomenats surfistes) que visiten la seva ciutat.",
+    "description_1": "El couch surfing és quan alguns membres (anomenats amfitrions) publiquen a la plataforma que estan disposats a allotjar altres membres (anomenats surfistes) que visiten la seva ciutat.",
     "description_2": "És com tenir un amic en una altra ciutat i anar a visitar-lo, però el coneixes per primera vegada quan hi arribes!",
     "get_involved_title": "Què puc fer a Couchers.org?",
     "timeline_title": "Una breu història del couch surfing",
@@ -246,11 +250,11 @@
       "early_2000s_year": "Principis dels 2000",
       "early_2000s_text": "Neix el moviment de couch surfing en línia: allotja't amb locals, comparteix cultura.",
       "2010s_year": "Anys 2010",
-      "2010s_text": "Floreixen comunitats i esdeveniments; les referències construeixen confiança — el món comença a semblar un barri amic.",
+      "2010s_text": "Floreixen comunitats i esdeveniments; les referències construeixen confiança, el món comença a semblar un barri amistós.",
       "2020_year": "2020",
       "2020_text": "Una gran plataforma es privatitza; Couchers.org es llança com a alternativa sense ànim de lucre i gestionada per la comunitat.",
       "today_year": "Avui",
-      "today_text": "Couchers.org construeix el proper capítol: couch surfing modern, més segur i sense ànim de lucre — creat per i per a la comunitat."
+      "today_text": "Couchers.org construeix el proper capítol: couch surfing modern, més segur i sense ànim de lucre, creat per i per a la comunitat."
     },
     "actions": {
       "host": "Allotja un viatger que visita la teva ciutat",
@@ -263,10 +267,10 @@
     "why_people_points": {
       "travelers": "<bold>Per als viatgers</bold>: experiències més profundes i humanes més enllà dels circuits turístics",
       "hosts": "<bold>Per als amfitrions</bold>: coneix gent de tot el món i comparteix la teva ciutat",
-      "everyone": "<bold>Per a tothom</bold>: comunitat, cultura i connexió — no transaccions"
+      "everyone": "<bold>Per a tothom</bold>: comunitat, cultura i connexió, no transaccions"
     },
     "tip_label": "CONSELL",
-    "tip_text": "Ets nou aquí? Assisteix a un esdeveniment local per conèixer la comunitat — poca pressió, molta connexió.",
+    "tip_text": "Ets nou aquí? Assisteix a un esdeveniment local per conèixer la comunitat; poca pressió, molta connexió.",
     "compare_title": "Com es compara Couchers.org?",
     "table": {
       "header_couchers": "Couchers.org",
@@ -286,18 +290,18 @@
       "social_expectation": "Es recomana passar temps amb l'amfitrió"
     },
     "bottom_cta_title": "Preparat per provar el couch surfing?",
-    "bottom_cta_subtitle": "Uneix-te a Couchers.org i forma part d'una comunitat global construïda sobre l'hospitalitat i la connexió.",
+    "bottom_cta_subtitle": "Uneix-te a Couchers.org i forma part d'una comunitat global basada en l'hospitalitat i la connexió.",
     "join_couchers": "Uneix-te a Couchers.org",
     "is_it_safe": {
       "title": "Com de segur és el couch surfing?",
       "description_1": "Tot i que viatjar i interactuar amb desconeguts comporta algun risc, el couch surfing és molt més segur del que molta gent imagina inicialment.",
-      "description_2": "La nostra comunitat es basa en la confiança entre membres, establerta a través de referències després de les estades. El nostre equip de moderació actiu pren seriosament cada informe i combat diligentment els actors maliciosos que no respecten les nostres <guidelines>Normes de la comunitat</guidelines>.",
+      "description_2": "La nostra comunitat es basa en la confiança entre membres, establerta a través de referències després de les estades. El nostre equip de moderació actiu pren seriosament cada informe i actua amb rigor contra els usuaris que no respecten les nostres <guidelines>Normes de la comunitat</guidelines>.",
       "description_3": "A més, la plataforma Couchers inclou eines com diverses formes de verificació (com la Verificació forta amb passaport biomètric) que afegeixen un nivell addicional de seguretat. És important tenir sempre un pla alternatiu per si les coses no van com s'esperava, i confiar en els teus instints!"
     }
   },
   "team": {
     "title": "L'equip",
-    "description": "Som surfistes apassionats i professionals qualificats compromesos a crear una plataforma millorada, més segura i més inclusiva. Estem construint aquesta plataforma per donar suport i fer créixer de manera sostenible la comunitat de couch surfing mentre compartim els seus valors amb el món. Si comparteixes els nostres sentiments i vols contribuir, ens encantaria saber de tu.",
+    "description": "Som surfistes apassionats i professionals amb ganes de crear una plataforma millor, més segura i més inclusiva. Estem construint aquesta plataforma per donar suport i fer créixer de manera sostenible la comunitat de couch surfing mentre compartim els seus valors amb el món. Si comparteixes els nostres sentiments i vols contribuir, ens encantaria saber de tu.",
     "join_the_team": "Uneix-te a l'equip",
     "join_our_team": "Uneix-te al nostre equip",
     "have_skills_contribute": "Tens habilitats que vols aportar?",
@@ -335,5 +339,11 @@
     "zh-Hans": "Xinès (simplificat)",
     "zh-Hant": "Xinès (tradicional)",
     "hu": "Hongarès"
+  },
+  "close_button_a11y": "Tanca",
+  "app_store_badge_a11y": "Descarrega-ho a l'App Store",
+  "google_play_badge_a11y": "Descarrega-ho a Google Play",
+  "bar": {
+    "help_button_a11y": "Ajuda"
   }
 }

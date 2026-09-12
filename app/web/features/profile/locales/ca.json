@@ -50,7 +50,7 @@
     "name": "Nom",
     "pronouns": "Pronoms",
     "basic_information": "Informació bàsica",
-    "basic_information_subtitle": "Comença proporcionant la teva foto, nom i ubicació",
+    "basic_information_subtitle": "Comença afegint la teva foto, nom i ubicació",
     "preferences": "Preferències",
     "hometown": "Vaig créixer a",
     "about_me_subtitle": "Explica als altres qui ets. Aquí és on comença la confiança. Ajuda els altres a fer-se una idea de qui ets de veritat. Consulta <guideLink>consells per crear un bon perfil</guideLink>.",
@@ -68,18 +68,18 @@
   },
   "leave_reference": {
     "add_a_reference": "Afegeix una referència al perfil de {{name}}",
-    "appropriate_explanation": "Els teus comentaris privats en aquesta pàgina i la teva referència pública a la pàgina següent són vitals per mantenir la comunitat segura, de confiança i acollidora. Gràcies per fer la teva part per ajudar la comunitat!",
+    "appropriate_explanation": "Els teus comentaris privats en aquesta pàgina i la teva referència pública a la pàgina següent són vitals per mantenir la comunitat segura, de confiança i acollidora. Gràcies per contribuir a la comunitat!",
     "appropriate_question": "Et vas sentir segur amb el comportament d'aquesta persona?",
-    "by_writing_thoughtful": "No saps què escriure? Llegeix la nostra guia <guideLink>aquí</guideLink>. En escriure de manera honesta i detallada sobre la teva experiència amb aquesta persona, ajudaràs directament a altres membres i contribuiràs a la seguretat i la confiança de la comunitat Couchers.",
+    "by_writing_thoughtful": "No saps què escriure? Llegeix la nostra guia <guideLink>aquí</guideLink>. Si escrius amb honestedat i detall sobre la teva experiència amb aquesta persona, ajudaràs directament a altres membres i contribuiràs a la seguretat i la confiança de la comunitat Couchers.",
     "did_stay_confirmation": {
       "title_hosted": "Confirma que {{name}} no es va quedar",
       "title_surfed": "Confirma que no et vas quedar amb {{name}}",
       "message_hosted": "<strong>No podràs escriure una referència</strong> si indiques que {{name}} no es va quedar amb tu. No se l'informarà però encara pot deixar-te una referència.<br /><br />Si necessites reportar alguna cosa, descobreix com <reportLink>aquí</reportLink>.",
       "message_surfed": "<strong>No podràs escriure una referència</strong> si indiques que no et vas quedar amb {{name}}. No se l'informarà però encara pot deixar-te una referència.<br /><br />Si necessites reportar alguna cosa, descobreix com <reportLink>aquí</reportLink>.",
       "confirm_hosted": "Confirmo que no vaig allotjar",
-      "confirm_surfed": "Confirmo que no vaig fer de surfista"
+      "confirm_surfed": "Confirmo que no m'hi vaig quedar"
     },
-    "did_stay_explanation": "Selecciona 'No' si en realitat no us vau trobar. No podràs escriure una referència pública, però opcionalment pots compartir informació <strong>privada</strong> amb nosaltres sobre el que va passar. L'altra persona no serà informada, però pot deixar una referència si diu que us vau trobar.",
+    "did_stay_explanation": "Selecciona 'No' si en realitat no us vau trobar. No podràs escriure una referència pública, però si vols, pots compartir informació <strong>privada</strong> amb nosaltres sobre el que va passar. L'altra persona no serà informada, però pot deixar una referència si diu que us vau trobar.",
     "invalid_reference_type": "Tipus de referència no vàlid",
     "invalid_step": "Pas del formulari no vàlid",
     "previous_step": "Pas anterior",
@@ -104,7 +104,7 @@
     "text_explanation": "Deixa una referència i fes saber a la gent com va ser la teva experiència amb aquesta persona. Ajudarà els altres a saber què esperar d'aquesta persona en el futur.",
     "text_explanation_hosted_surfed": "La referència que escrius a continuació es compartirà amb {{name}} després que escrigui una referència per a tu, o passat 14 dies. També serà visible per a la resta de la comunitat de Couchers.org.",
     "text_label": "Fes saber als altres sobre la teva experiència compartint el context i qualsevol detall rellevant aquí.",
-    "thank_you_message": "Agraïm que t'hagis pres el temps d'escriure una referència atenta que ajudarà els altres en el futur. A continuació tens un resum que pots revisar abans d'enviar.",
+    "thank_you_message": "Agraïm que t'hagis pres el temps d'escriure una referència acurada que ajudarà els altres en el futur. A continuació tens un resum que pots revisar abans d'enviar.",
     "thank_you_header": "Gràcies per deixar una referència!",
     "thank_you_references_available": "Quan t'allotges o fas d'amfitrió, les referències es fan visibles quan les dues persones han enviat les seves, o passades 2 setmanes, el que arribi primer.",
     "thank_you_support": "Sobretot, gràcies per ser a Couchers i per formar part de la nostra comunitat!",
@@ -119,22 +119,24 @@
     "next_step_label": "Següent",
     "didnt_meetup_submit_success": "Gràcies per fer-nos-ho saber! No et demanarem que escriguis una referència!",
     "go_to_dashboard": "Ves al tauler",
-    "private_text_explanation_1": "Al quadre de sota, pots explicar de manera privada a l'Equip de Seguretat el que va passar.",
+    "private_text_explanation_1": "Al quadre de sota, pots explicar en privat a l'Equip de Seguretat el que va passar.",
     "private_text_explanation_2": "Això només ho veurà el nostre Equip de Seguretat i es mantindrà privat. Com més detalls, millor, però fins i tot una explicació curta pot ajudar molt. Llegeix-ne més <helpLink>aquí</helpLink>.",
     "private_text_explanation_3": "Gràcies per ajudar-nos a mantenir la comunitat segura!",
     "private_text_summary": "L'Equip de Seguretat de Couchers.org rebrà els comentaris privats següents:",
-    "private_text_placeholder": "Comparteix informació de manera privada amb el nostre equip de seguretat.",
+    "private_text_placeholder": "Comparteix informació en privat amb el nostre equip de seguretat.",
     "yes_safe": "Sí, em vaig sentir segur.",
     "no_not_safe": "No, no em vaig sentir segur en una o més ocasions.",
     "what_happened": "Què va passar?",
     "friend_reference_requires_friendship": "Només pots escriure una referència d'amic per a algú amb qui siguis amic.",
     "already_wrote_reference_for_stay": "Ja has escrit una referència per a aquest usuari i aquesta estada. La teva referència serà visible després que escrigui una referència per a tu, o passat 14 dies.",
-    "already_wrote_friend_reference": "Ja has escrit una referència d'amic per a aquest usuari."
+    "already_wrote_friend_reference": "Ja has escrit una referència d'amic per a aquest usuari.",
+    "safety_rating_selector_a11y": "Valoració de seguretat"
   },
   "actions": {
     "message_label": "Missatge",
     "back_to_dashboard": "Torna al tauler",
-    "request": "Sol·licita"
+    "request": "Sol·licita",
+    "add_friend": "Afegeix amic"
   },
   "heading": {
     "about_me": "Sobre mi",
@@ -219,10 +221,15 @@
     "request_chars_remaining_one": "Escriu almenys {{count}} caràcter més per enviar una sol·licitud d'allotjament.",
     "request_chars_remaining_many": "Escriu almenys {{count}} de caràcters més per enviar una sol·licitud d'allotjament.",
     "request_chars_remaining_other": "Escriu almenys {{count}} caràcters més per enviar una sol·licitud d'allotjament.",
-    "success": "Sol·licitud enviada!"
+    "success": "Sol·licitud enviada!",
+    "arrival_date_before_host_today": "Aquesta data ja ha passat per a {{name}}."
   },
   "message_form": {
-    "hosting_request_hint": "Envies una sol·licitud d'allotjament? Fes servir el botó <request>Sol·licita</request>."
+    "hosting_request_hint": "Vols enviar una sol·licitud d'allotjament? Fes servir el botó <request>Sol·licitar</request>.",
+    "send_message": "Envia un missatge a {{name}}",
+    "message": "Missatge",
+    "message_description": "Escriu el teu missatge...",
+    "message_empty": "Si us plau, escriu un missatge."
   },
   "reference_filter_label": {
     "friend": "D'amics",
@@ -275,20 +282,20 @@
     "count_references_other": "{{count}} referències",
     "hundred_or_more_references": "100+ referències"
   },
-  "incomplete_profile_haiku": "Avatar en blanc et mira,\nmisteri darrere el silenci —\nqui ets, desconegut?",
+  "incomplete_profile_haiku": "Avatar en blanc et mira,\nmisteri darrere el silenci\nqui ets, desconegut?",
   "search_indicator": "El principi d'aquesta secció és visible als resultats de cerca quan altres membres et busquen",
   "hosting_status": {
-    "can_host_description": "Estic encantat de deixar que la gent s'allotgi amb mi",
+    "can_host_description": "M'encanta allotjar gent a casa",
     "maybe_host_description": "Potser puc allotjar, depenent de les circumstàncies",
     "cannot_host_description": "Ara mateix no puc allotjar viatgers"
   },
   "meetup_status": {
-    "wants_to_meetup_description": "Estic encantat de quedar amb altres",
+    "wants_to_meetup_description": "M'encanta quedar amb gent",
     "open_to_meetup_description": "Potser quedo, depenent de les circumstàncies",
     "does_not_want_to_meetup_description": "Prefereixo no quedar amb altres"
   },
-  "avatar_photo_info": "<bold>Cal una foto teva per interactuar amb la comunitat.</bold> Una foto clara i amigable que mostri la teva cara genera confiança, ajuda els altres a sentir-se còmodes i millora molt les teves possibilitats de rebre una resposta.",
-  "avatar_placeholder_info": "<bold>Fes clic a l'avatar de marcador de posició per anar a la secció de pujada de fotos.</bold> Cal una foto teva per interactuar amb la comunitat. Una foto clara i amigable que mostri la teva cara genera confiança i ajuda els altres a sentir-se còmodes.",
+  "avatar_photo_info": "<bold>Cal una foto teva per interactuar amb la comunitat.</bold> Una foto clara i amigable que mostri la teva cara genera confiança, ajuda els altres a sentir-se còmodes i fa que sigui molt més fàcil rebre resposta.",
+  "avatar_placeholder_info": "<bold>Fes clic a l'avatar buit per anar a la secció de pujada de fotos.</bold> Cal una foto teva per interactuar amb la comunitat. Una foto clara i amigable que mostri la teva cara genera confiança i ajuda els altres a sentir-se còmodes.",
   "click_to_add_photo": "Fes clic per afegir una foto",
   "profile_changes_saved_message": "Canvis del perfil desats!",
   "hosting_preferences_success_message": "Preferències d'allotjament desades!",
@@ -306,7 +313,7 @@
     "reorder_success": "Fotos reordenades correctament!",
     "upload_success": "Foto pujada correctament!",
     "profile_photos_title": "Fotos de perfil",
-    "profile_photos_description": "Afegeix fotos teves per ajudar els altres a conèixer-te. Arrossega i deixa anar per reordenar.",
+    "profile_photos_description": "Afegeix fotos teves per ajudar els altres a conèixer-te. Arrossega per reordenar.",
     "verification_required_for_more_photos": "Has arribat al límit de fotos. Completa la verificació forta per afegir-ne més.",
     "get_verified": "Verifica't",
     "photo_viewer_aria": "Visualitzador de fotos",
@@ -316,16 +323,26 @@
     "report_photo": "Reporta la foto"
   },
   "complete_profile_dialog": {
-    "title": "Gairebé, completa el teu perfil per continuar!",
+    "title": "Gairebé! Completa el teu perfil per continuar!",
     "description_1": "Abans de poder {{action_name}}, has de <strong>escriure una mica sobre tu</strong> al teu perfil i <strong>pujar una foto de perfil</strong>.",
     "actions": {
-      "send_request": "enviar una sol·licitud",
-      "send_message": "enviar un missatge",
-      "create_event": "crear un esdeveniment",
-      "send_friend_request": "send a friend request"
+      "send_request": "envia una sol·licitud",
+      "send_message": "envia un missatge",
+      "create_event": "crea un esdeveniment",
+      "send_friend_request": "envia una sol·licitud d'amistat",
+      "create_public_trip": "crea un viatge públic",
+      "create_discussion": "inicia un debat",
+      "post_comment": "publica un comentari"
     },
     "edit_profile_button": "Edita el teu perfil ara",
-    "cancel_button": "Ara no",
+    "cancel_button": "Deixa-ho estar",
     "description_2": "Això ajuda a construir una comunitat de confiança i reduir el correu brossa. Per a més informació, <helpLink>consulta aquesta pàgina d'ajuda</helpLink>. Gràcies per la teva ajuda!"
-  }
+  },
+  "do_not_email_error_link": "Actualitza la configuració del correu electrònic per tornar a activar-ho.",
+  "local_time_with_time_zone_text": "{{ time }} (<timeZone/>)",
+  "about_me_textbox_placeholder": "p. ex. Missió actual, per què utilitzes Couchers.org, la teva història de viatge preferida...",
+  "hobbies_textbox_placeholder": "p. ex. Activitats, llibres, pel·lícules, música...",
+  "edit_profile_pronouns_placeholder": "p. ex. ella/seva",
+  "open_full_profile": "Obre el perfil complet",
+  "open_profile_a11y": "Obre el perfil"
 }
