@@ -1662,21 +1662,43 @@ class HostReferenceReminderEmail(EmailBase):
 class ModeratorNoteEmail(EmailBase):
     """Sent to a user to notify them they have received a moderator note."""
 
+    # The note's text, only set if the moderator chose to include it in the email.
+    markdown_text: str | None
+
     @property
     def string_key_base(self) -> str:
         return "moderator_note"
 
+    def get_preview_line(self, loc_context: LocalizationContext) -> str | None:
+        return markdown_to_plaintext(self.markdown_text) if self.markdown_text else None
+
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context)
-        builder.para(".purpose")
+        if self.markdown_text:
+            builder.para(".purpose_with_note")
+            builder.quote(self.markdown_text, markdown=True)
+            builder.para(".acknowledge_request")
+            builder.para(".reply_instructions")
+        else:
+            builder.para(".purpose")
         # Users with moderator notes are "jailed": any URL will show the note before
         # letting them use the platform.
         builder.action(urls.dashboard_link(), ".view_action")
         return builder.build()
 
     @classmethod
+    def from_notification(cls, data: notification_data_pb2.ModNoteCreate, *, user_name: str) -> Self:
+        return cls(user_name=user_name, markdown_text=data.markdown_text or None)
+
+    @classmethod
     def test_instances(cls) -> list[Self]:
-        return [cls(user_name="Alice")]
+        return [
+            cls(user_name="Alice", markdown_text=None),
+            cls(
+                user_name="Alice",
+                markdown_text="Please **add** a profile photo so that your hosts can recognise you.",
+            ),
+        ]
 
 
 @dataclass(kw_only=True, slots=True)

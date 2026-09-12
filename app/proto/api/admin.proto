@@ -309,13 +309,25 @@ message GetContentReportsForAuthorRes {
   repeated ContentReport content_reports = 1;
 }
 
+enum ModNoteNotification {
+  MOD_NOTE_NOTIFICATION_UNSPECIFIED = 0;
+  // don't notify the user: simply show them the note the next time they log on
+  MOD_NOTE_NOTIFICATION_NONE = 1;
+  // tell the user a note is waiting for them, without revealing what it says
+  MOD_NOTE_NOTIFICATION_NOTIFY = 2;
+  // tell the user and include the note text in the email, which they can reply to
+  MOD_NOTE_NOTIFICATION_NOTIFY_WITH_CONTENT = 3;
+}
+
 message SendModNoteReq {
   string user = 1;
   string content = 2; // CommonMark without images
   // this allows us to track what type of note it is without having to read it individually
   string internal_id = 3;
-  // whether to not notify the user about the note: simply show it to them the next time they log on
-  bool do_not_notify = 4;
+  ModNoteNotification notification = 5;
+
+  reserved 4;
+  reserved "do_not_notify";
 }
 
 message MarkUserNeedsLocationUpdateReq {

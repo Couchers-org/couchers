@@ -126,6 +126,13 @@ nonvisibleuserstate2api = {
     NonvisibleUserState.deleted: admin_pb2.NONVISIBLE_USER_STATE_DELETED,
 }
 
+# Doubles as the set of accepted values: MOD_NOTE_NOTIFICATION_UNSPECIFIED is rejected.
+_MOD_NOTE_NOTIFY_LOG_LABELS = {
+    admin_pb2.MOD_NOTE_NOTIFICATION_NONE: "No",
+    admin_pb2.MOD_NOTE_NOTIFICATION_NOTIFY: "Yes",
+    admin_pb2.MOD_NOTE_NOTIFICATION_NOTIFY_WITH_CONTENT: "Yes, including the note text",
+}
+
 
 def log_admin_action(
     session: Session,
@@ -679,6 +686,10 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def SendModNote(
         self, request: admin_pb2.SendModNoteReq, context: CouchersContext, session: Session
     ) -> admin_pb2.UserDetails:
+        if request.notification not in _MOD_NOTE_NOTIFY_LOG_LABELS:
+            context.abort_with_error_code(
+                grpc.StatusCode.INVALID_ARGUMENT, "admin:mod_note_notification_must_be_specified"
+            )
         user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
@@ -691,21 +702,27 @@ class Admin(admin_pb2_grpc.AdminServicer):
             )
         )
         session.flush()
-        notify_user = "No" if request.do_not_notify else "Yes"
         log_admin_action(
             session,
             context,
             user,
             "send_mod_note",
-            note=f"Notify user: {notify_user}\n\n{request.content}",
+            note=f"Notify user: {_MOD_NOTE_NOTIFY_LOG_LABELS[request.notification]}\n\n{request.content}",
         )
 
-        if not request.do_not_notify:
+        if request.notification != admin_pb2.MOD_NOTE_NOTIFICATION_NONE:
             notify(
                 session,
                 user_id=user.id,
                 topic_action=NotificationTopicAction.modnote__create,
                 key="",
+                data=notification_data_pb2.ModNoteCreate(
+                    markdown_text=(
+                        request.content
+                        if request.notification == admin_pb2.MOD_NOTE_NOTIFICATION_NOTIFY_WITH_CONTENT
+                        else ""
+                    ),
+                ),
             )
 
         return _user_to_details(session, user)

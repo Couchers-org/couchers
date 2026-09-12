@@ -79,6 +79,10 @@ class Config:
     NOTIFICATION_EMAIL_SENDER: str
     # Sender email, e.g. "notify@couchers.org"
     NOTIFICATION_EMAIL_ADDRESS: str
+    # Sender name for moderation emails users can reply to
+    MODERATION_EMAIL_SENDER: str
+    # Sender email for moderation emails, a monitored mailbox users can reply to
+    MODERATION_EMAIL_ADDRESS: str
     # An optional prefix for email subject, e.g. [STAGING]
     NOTIFICATION_PREFIX: str = ""
     # Address to send emails about reported users
