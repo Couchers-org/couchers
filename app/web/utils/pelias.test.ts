@@ -4,7 +4,6 @@ import { rest, server } from "test/restMock";
 import {
   autocomplete,
   dedupeBySimplifiedName,
-  displayAreaGid,
   homonymousRegionKeys,
   normalize,
   PeliasError,
@@ -88,7 +87,7 @@ describe("simplifyPeliasDisplayName", () => {
     ).toBe("Arrondissement de Lorient, Morbihan, France");
   });
 
-  it("collapses venues to their containing locality when preferCity is set", () => {
+  it("keeps the venue name (and containing city) when preferCity is set", () => {
     expect(
       simplifyPeliasDisplayName(
         feature({
@@ -102,7 +101,41 @@ describe("simplifyPeliasDisplayName", () => {
         }).properties,
         true,
       ),
-    ).toBe("New York, United States");
+    ).toBe("Wall Street, New York, United States");
+  });
+
+  it("keeps an address name (and containing city) when preferCity is set", () => {
+    expect(
+      simplifyPeliasDisplayName(
+        feature({
+          properties: {
+            layer: "address",
+            name: "8 Place de l'Hôtel de Ville",
+            locality: "Paris",
+            region: "Île-de-France",
+            country: "France",
+          },
+        }).properties,
+        true,
+      ),
+    ).toBe("8 Place de l'Hôtel de Ville, Paris, France");
+  });
+
+  it("keeps a neighbourhood name when preferCity is set", () => {
+    expect(
+      simplifyPeliasDisplayName(
+        feature({
+          properties: {
+            layer: "neighbourhood",
+            name: "Wall Street",
+            locality: "Huntsville",
+            region: "Alabama",
+            country: "United States",
+          },
+        }).properties,
+        true,
+      ),
+    ).toBe("Wall Street, Huntsville, United States");
   });
 
   it("names the containing city for a precise hit, not the département", () => {
@@ -341,40 +374,8 @@ describe("reorderPreferCity", () => {
   });
 });
 
-describe("displayAreaGid", () => {
-  it("returns the locality_gid for venues that collapse to a city label", () => {
-    expect(
-      displayAreaGid(
-        feature({
-          properties: {
-            layer: "venue",
-            name: "Wall Street",
-            locality: "New York",
-            locality_gid: "whosonfirst:locality:85977539",
-          },
-        }).properties,
-      ),
-    ).toBe("whosonfirst:locality:85977539");
-  });
-
-  it("returns undefined for locality/localadmin and coarse admin hits", () => {
-    expect(displayAreaGid(feature().properties)).toBeUndefined();
-    expect(
-      displayAreaGid(
-        feature({
-          properties: {
-            layer: "macrocounty",
-            name: "Arrondissement de Lorient",
-            locality_gid: "whosonfirst:locality:1",
-          },
-        }).properties,
-      ),
-    ).toBeUndefined();
-  });
-});
-
 describe("dedupeBySimplifiedName", () => {
-  it("keeps the first hit when several collapse to the same city label", () => {
+  it("keeps the first hit when several share the same display label", () => {
     const first = normalize(
       feature({
         properties: {
@@ -418,6 +419,7 @@ describe("dedupeBySimplifiedName", () => {
       true,
     );
 
+    expect(first.simplifiedName).toBe("Wall Street, New York, United States");
     expect(dedupeBySimplifiedName([first, duplicate, other])).toEqual([first, other]);
   });
 });
@@ -499,35 +501,35 @@ describe("normalize", () => {
     expect(result.location).toEqual(new LngLat(2.5, 23.4));
   });
 
-  it("uses the display-area feature for bbox and center when provided", () => {
-    const venue = feature({
-      geometry: { type: "Point", coordinates: [-74.008, 40.706] },
+  it("uses an optional display-area override for bbox and center", () => {
+    const address = feature({
+      geometry: { type: "Point", coordinates: [2.3522, 48.8566] },
       bbox: undefined,
       properties: {
-        gid: "openstreetmap:venue:1",
-        layer: "venue",
-        name: "Wall Street",
-        locality: "New York",
-        locality_gid: "whosonfirst:locality:85977539",
-        region: "New York",
-        country: "United States",
+        gid: "openstreetmap:address:1",
+        layer: "address",
+        name: "8 Place de l'Hôtel de Ville",
+        locality: "Paris",
+        locality_gid: "whosonfirst:locality:101751119",
+        region: "Île-de-France",
+        country: "France",
       },
     });
     const city = feature({
-      geometry: { type: "Point", coordinates: [-74.0, 40.7] },
-      bbox: [-74.26, 40.5, -73.7, 40.92],
+      geometry: { type: "Point", coordinates: [2.35, 48.85] },
+      bbox: [2.22, 48.81, 2.47, 48.9],
       properties: {
-        gid: "whosonfirst:locality:85977539",
+        gid: "whosonfirst:locality:101751119",
         layer: "locality",
-        name: "New York",
-        locality: "New York",
+        name: "Paris",
+        locality: "Paris",
       },
     });
 
-    const result = normalize(venue, city, true);
-    expect(result.simplifiedName).toBe("New York, United States");
-    expect(result.location).toEqual(new LngLat(-74.0, 40.7));
-    expect(result.bbox).toEqual([-73.7, 40.92, -74.26, 40.5]);
+    const result = normalize(address, city, true);
+    expect(result.simplifiedName).toBe("8 Place de l'Hôtel de Ville, Paris, France");
+    expect(result.location).toEqual(new LngLat(2.35, 48.85));
+    expect(result.bbox).toEqual([2.47, 48.9, 2.22, 48.81]);
   });
 });
 
@@ -671,8 +673,8 @@ describe("autocomplete", () => {
     expect(features[0].properties.gid).toBe("geonames:macrocounty:1");
   });
 
-  it("resolves parent locality bbox when preferCity collapses a venue label", async () => {
-    let requestedPlaceIds: string | null = null;
+  it("keeps venue name and point geometry when preferCity is set", async () => {
+    let placeCalled = false;
     server.use(
       rest.get(AUTOCOMPLETE_URL, (_req, res, ctx) =>
         res(
@@ -697,34 +699,17 @@ describe("autocomplete", () => {
           }),
         ),
       ),
-      rest.get(PLACE_URL, (req, res, ctx) => {
-        requestedPlaceIds = req.url.searchParams.get("ids");
-        return res(
-          ctx.json({
-            type: "FeatureCollection",
-            features: [
-              feature({
-                geometry: { type: "Point", coordinates: [-74.0, 40.7] },
-                bbox: [-74.26, 40.5, -73.7, 40.92],
-                properties: {
-                  gid: "whosonfirst:locality:85977539",
-                  layer: "locality",
-                  name: "New York",
-                  locality: "New York",
-                },
-              }),
-            ],
-          }),
-        );
+      rest.get(PLACE_URL, (_req, res, ctx) => {
+        placeCalled = true;
+        return res(ctx.json({ type: "FeatureCollection", features: [] }));
       }),
     );
 
     const { results } = await autocomplete("Wall Street", { preferCity: true });
 
-    expect(requestedPlaceIds).toBe("whosonfirst:locality:85977539");
-    expect(results[0].simplifiedName).toBe("New York, United States");
-    expect(results[0].location).toEqual(new LngLat(-74.0, 40.7));
-    expect(results[0].bbox).toEqual([-73.7, 40.92, -74.26, 40.5]);
+    expect(placeCalled).toBe(false);
+    expect(results[0].simplifiedName).toBe("Wall Street, New York, United States");
+    expect(results[0].location).toEqual(new LngLat(-74.008, 40.706));
   });
 
   it("keeps venue point geometry when preferCity is off", async () => {
@@ -891,8 +876,8 @@ describe("autocomplete", () => {
     });
 
     expect(results.map((r) => r.simplifiedName)).toEqual([
-      "New York, United States",
-      "Huntsville, Alabama, United States",
+      "Wall Street, New York, United States",
+      "Wall Street, Huntsville, United States",
     ]);
     // Raw provider payload is unchanged for telemetry.
     expect(features).toHaveLength(3);
@@ -1028,9 +1013,7 @@ describe("reverse", () => {
     expect(results[0].id).toBe("openstreetmap:address:1");
   });
 
-  it("collapses an address to its city, with the city's geometry, when preferCity is set", async () => {
-    // The city-level fields (destination search) never want the street back —
-    // and the street number is not returned anyway.
+  it("keeps an address name and point geometry when preferCity is set", async () => {
     reverseHandler([
       feature({
         bbox: undefined,
@@ -1047,20 +1030,19 @@ describe("reverse", () => {
         },
       }),
     ]);
-    let requestedPlaceIds: string | null = null;
+    let placeCalled = false;
     server.use(
-      rest.get(PLACE_URL, (req, res, ctx) => {
-        requestedPlaceIds = req.url.searchParams.get("ids");
+      rest.get(PLACE_URL, (_req, res, ctx) => {
+        placeCalled = true;
         return res(ctx.json({ type: "FeatureCollection", features: [feature()] }));
       }),
     );
 
     const { results } = await reverse(48.8565, 2.3512, { preferCity: true });
 
-    expect(requestedPlaceIds).toBe("whosonfirst:locality:101751119");
-    expect(results[0].simplifiedName).toBe("Paris, Île-de-France, France");
-    expect(results[0].location).toEqual(new LngLat(2.3522, 48.8566));
-    expect(results[0].bbox).toEqual([2.47, 48.902, 2.224, 48.815]);
+    expect(placeCalled).toBe(false);
+    expect(results[0].simplifiedName).toBe("8 Place De L'Hotel De Ville, Paris, France");
+    expect(results[0].location).toEqual(new LngLat(2.3512, 48.8565));
   });
 
   it("keeps the street when preferCity is off", async () => {

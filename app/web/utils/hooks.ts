@@ -76,9 +76,10 @@ export interface GeocodeResult {
  * results are surfaced. Results are localized via the active `i18n.language`
  * passed to the provider.
  *
- * `preferCity` (homepage destination search) enables soft city ranking, label
- * collapse to locality, parent-area bbox, and dedupe by display string. Other
- * surfaces leave precise venue/address hits alone for address / event venue use.
+ * `preferCity` (homepage destination search) enables soft city ranking and
+ * dedupe by display string. Labels always keep the matched name (venue,
+ * address, street, …); only ranking changes. Other surfaces leave precise
+ * hits alone for address / event venue use.
  *
  * The returned `provider` is sticky for the lifetime of the hook: once a query
  * has fallen back to Nominatim it stays there until remount, so the widget's UI
