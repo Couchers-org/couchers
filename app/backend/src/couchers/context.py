@@ -88,6 +88,11 @@ class CouchersContext:
         self.__cookies: list[str] = []
         self.__response_headers: list[tuple[str, str]] = []
         self._growthbook: GrowthBook | None = None
+        # Per-request snapshot of what stops this context's user seeing others, loaded on first use and
+        # owned by couchers.servicers.blocking, which has the visibility rules. Both are set together,
+        # so _blocked_user_ids being None is what "not loaded yet" means.
+        self._blocked_user_ids: frozenset[int] | None = None
+        self._viewer_is_hidden: bool = False
 
         if self.__is_interactive:
             if not self._grpc_context:
