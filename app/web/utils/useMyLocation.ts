@@ -29,12 +29,9 @@ const GEOLOCATION_OPTIONS: PositionOptions = {
 };
 
 export interface UseMyLocationOptions {
-  // Fill a city-level field: an address or venue at the user's position collapses
-  // to its containing city (the city name, not the street), with that city's bbox
-  // and centre.
-  // Destination search looks for hosts in a city, not on a street — and the
-  // street number is not returned anyway, so a precise result would be a worse
-  // answer, not a more useful one. Leave unset for address fields.
+  // Soft city-oriented ranking for destination-search fields. Labels keep the
+  // matched name (street/venue/address); preferCity does not collapse them to
+  // the containing city. Leave unset for address fields.
   preferCity?: boolean;
 }
 
