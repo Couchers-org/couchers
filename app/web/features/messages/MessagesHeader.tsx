@@ -4,7 +4,7 @@ import PageTitle from "components/PageTitle";
 import MarkAllReadButton from "features/messages/requests/MarkAllReadButton";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
-import { MessageType } from "routes";
+import { MessageFilterType } from "routes";
 import { assertNever } from "utils/assertNever";
 
 const StyledRoot = styled("div")(({ theme }) => ({
@@ -19,7 +19,7 @@ const StyledHeader = styled("div")(({ theme }) => ({
 }));
 
 // Map tab to MarkAllReadButton type (excluding archived)
-const getMarkAllReadType = (tab: MessageType): "chats" | "hosting" | "surfing" | "all" | null => {
+const getMarkAllReadType = (tab: MessageFilterType): "chats" | "hosting" | "surfing" | "all" | null => {
   switch (tab) {
     case "chats":
     case "hosting":
@@ -28,6 +28,7 @@ const getMarkAllReadType = (tab: MessageType): "chats" | "hosting" | "surfing" |
     case "all":
     case "unread":
       return "all";
+    case "public-trips":
     case "archived":
       return null;
     default:
@@ -35,7 +36,7 @@ const getMarkAllReadType = (tab: MessageType): "chats" | "hosting" | "surfing" |
   }
 };
 
-export default function MessagesHeader({ tab }: { tab: MessageType }) {
+export default function MessagesHeader({ tab }: { tab: MessageFilterType }) {
   const { t } = useTranslation(MESSAGES);
   const markAllReadType = getMarkAllReadType(tab);
 
