@@ -1,12 +1,12 @@
 import json
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from math import sqrt
 from unittest.mock import patch
 
 import grpc
 import pytest
 from google.protobuf import empty_pb2
-from sqlalchemy import select
+from sqlalchemy import func, select, update
 
 from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
@@ -29,6 +29,7 @@ from couchers.utils import now
 from tests.fixtures.db import generate_user, make_volunteer
 from tests.fixtures.misc import process_jobs
 from tests.fixtures.sessions import public_session
+from tests.test_references import create_friend_reference, create_host_reference
 
 
 @pytest.fixture(autouse=True)
@@ -631,3 +632,32 @@ def test_GetPublicUser_full_visibility(db):
         assert res.full_user.city == "Testing city"
         # Full user should have all the fields from the complete user profile
         assert res.full_user.hosting_status == api_pb2.HOSTING_STATUS_CANT_HOST
+
+
+def test_GetPublicUser_num_references_visibility_rules(db):
+    """The public reference count follows the same visibility rules as the reference list"""
+    user, _ = generate_user(public_visibility=ProfilePublicVisibility.limited)
+    friend_referrer, _ = generate_user()
+    recent_guest, _ = generate_user()
+    deleted_referrer1, _ = generate_user()
+    deleted_referrer2, _ = generate_user()
+    shadowed_referrer, _ = generate_user()
+
+    with session_scope() as session:
+        # counted: a normal friend reference
+        create_friend_reference(session, friend_referrer.id, user.id, timedelta(days=15))
+        # not counted: a recent stay where the reciprocal reference hasn't been written yet
+        create_host_reference(session, recent_guest.id, user.id, timedelta(days=3), surfing=False)
+        # counted: references from deleted users remain visible (two of them, so that miscounting
+        # deleted authors can't coincidentally cancel out against the hidden recent stay above)
+        create_friend_reference(session, deleted_referrer1.id, user.id, timedelta(days=16))
+        create_host_reference(session, deleted_referrer2.id, user.id, timedelta(days=30), surfing=False)
+        # not counted: references from shadowed users are hidden from others
+        create_friend_reference(session, shadowed_referrer.id, user.id, timedelta(days=17))
+        for deleted in (deleted_referrer1, deleted_referrer2):
+            session.execute(update(User).where(User.username == deleted.username).values(deleted_at=func.now()))
+        session.execute(update(User).where(User.username == shadowed_referrer.username).values(shadowed_at=func.now()))
+
+    with public_session() as public:
+        res = public.GetPublicUser(public_pb2.GetPublicUserReq(user=user.username))
+        assert res.limited_user.num_references == 3
