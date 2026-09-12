@@ -65,7 +65,7 @@ All our code is in one repository (monorepo). We currently use the pull request 
 
 ## How code review works and why we do it
 
-In addition to maintaining high code quality, the purpose of code review is to make sure that each team member learns from their peers, and we all assimilate knowledge from each other. You're sure to learn a lot from reviewing other people's code and having your code reviewed by others. It also helps maintain our code so that we have some shared patterns and standard way of doing things. Reviewers may leave comments in your code, which you can resolve once they are addressed. 
+In addition to maintaining high code quality, the purpose of code review is to make sure that each team member learns from their peers, and we all assimilate knowledge from each other. You're sure to learn a lot from reviewing other people's code and having your code reviewed by others. It also helps maintain our code so that we have some shared patterns and standard way of doing things. Reviewers may leave comments in your code, which you can resolve once they have been addressed. 
 
 ## CI/CD
 
