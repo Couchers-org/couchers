@@ -1,4 +1,4 @@
-import { Skeleton, styled, Tooltip, Typography, useMediaQuery } from "@mui/material";
+import { Chip, Skeleton, styled, Tooltip, Typography, useMediaQuery } from "@mui/material";
 import Avatar from "components/Avatar";
 import StrongVerificationBadge from "components/StrongVerificationBadge";
 import UserSummary from "components/UserSummary";
@@ -51,18 +51,38 @@ const StyledNameCityRow = styled("div")(({ theme }) => ({
   gap: theme.spacing(0.5),
 }));
 
+const StyledDatesRow = styled("div")({
+  display: "flex",
+  alignItems: "center",
+});
+
+const StyledPublicTripChip = styled(Chip)(({ theme }) => ({
+  height: 20,
+  fontSize: "0.75rem",
+  fontWeight: 500,
+  marginLeft: theme.spacing(1),
+  backgroundColor: "rgba(0, 163, 152, 0.1)",
+  color: "var(--mui-palette-primary-main)",
+}));
+
 const HostRequestUserSummarySection = ({
   hostRequest,
   otherUser,
+  isOffer = false,
 }: {
   hostRequest: HostRequest.AsObject | undefined;
   otherUser: LiteUser.AsObject | undefined;
+  isOffer?: boolean;
 }) => {
   const {
     t,
     i18n: { language: locale },
   } = useTranslation(MESSAGES);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+  const publicTripChip = isOffer ? (
+    <StyledPublicTripChip label={t("host_request_item.public_trip_chip")} size="small" />
+  ) : null;
 
   const smallUserSummarySection = (
     <StyledSmallUserSummary>
@@ -85,17 +105,17 @@ const HostRequestUserSummarySection = ({
           )}
         </Typography>
         {hostRequest && (
-          <Typography component="p" variant="h3" sx={{ paddingRight: theme.spacing(1) }}>
-            {localizeDateRange(
-              Temporal.PlainDateTime.from(hostRequest.fromDate),
-              Temporal.PlainDateTime.from(hostRequest.toDate),
-              locale,
-              {
-                includeYear: "auto",
-                abbreviate: true,
-              },
-            )}
-          </Typography>
+          <StyledDatesRow>
+            <Typography component="span" variant="h3" sx={{ paddingRight: theme.spacing(1) }}>
+              {localizeDateRange(
+                Temporal.PlainDateTime.from(hostRequest.fromDate),
+                Temporal.PlainDateTime.from(hostRequest.toDate),
+                locale,
+                { abbreviate: true },
+              )}
+            </Typography>
+            {publicTripChip}
+          </StyledDatesRow>
         )}
       </StyledShortUserInfo>
     </StyledSmallUserSummary>
@@ -126,6 +146,7 @@ const HostRequestUserSummarySection = ({
               })}
               )
             </Typography>
+            {publicTripChip}
           </StyledRequestedDatesWrapper>
         )}
       </UserSummary>

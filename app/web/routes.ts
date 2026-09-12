@@ -80,10 +80,13 @@ export const messagesRoute = "/messages";
 export const messageTypeStrings = ["all", "unread", "chats", "hosting", "surfing", "public-trips", "archived"] as const;
 export type MessageFilterType = (typeof messageTypeStrings)[number];
 export const groupChatsRoute = `${messagesRoute}/chats`;
+export const publicTripMessagesRoute = `${messagesRoute}/public-trips`;
 export const routeToCreateMessage = (username: string) => `${groupChatsRoute}?to=${username}`;
 const hostRequestRoute = `${messagesRoute}/request`;
 export const routeToGroupChat = (id: number) => `${groupChatsRoute}/${id}`;
 export const routeToHostRequest = (id: number) => `${hostRequestRoute}/${id}`;
+// The "My public trips" messages filter, focused on a specific trip's offers.
+export const routeToPublicTripOffers = (tripId: number) => `${publicTripMessagesRoute}?trip=${tripId}`;
 
 // REFERENCES
 export const leaveReferenceBaseRoute = "/leave-reference";

@@ -57,6 +57,7 @@
   "status_past": "Past",
   "to_date_label": "Departure",
   "to_date_required": "Please pick a departure date.",
+  "view_offers": "View offers",
   "view_profile": "View profile",
   "you_overlay": "YOU",
   "offers_count_one": "{{count}} offer",
