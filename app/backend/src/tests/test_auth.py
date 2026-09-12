@@ -72,6 +72,7 @@ def test_signup_incremental(db):
     flow_token = res.flow_token
     assert res.flow_token
     assert not res.HasField("auth_res")
+    assert res.email == "email@couchers.org.invalid"
     assert not res.need_basic
     assert res.need_account
     assert not res.need_feedback
@@ -91,6 +92,7 @@ def test_signup_incremental(db):
 
     assert res.flow_token == flow_token
     assert not res.HasField("auth_res")
+    assert res.email == "email@couchers.org.invalid"
     assert not res.need_basic
     assert res.need_account
     assert not res.need_feedback
@@ -116,6 +118,7 @@ def test_signup_incremental(db):
 
     assert res.flow_token == flow_token
     assert not res.HasField("auth_res")
+    assert res.email == "email@couchers.org.invalid"
     assert not res.need_basic
     assert res.need_account
     assert not res.need_feedback
@@ -134,6 +137,7 @@ def test_signup_incremental(db):
 
     assert res.flow_token == flow_token
     assert not res.HasField("auth_res")
+    assert res.email == "email@couchers.org.invalid"
     assert not res.need_basic
     assert res.need_account
     assert not res.need_feedback
@@ -152,6 +156,7 @@ def test_signup_incremental(db):
 
     assert res.flow_token == flow_token
     assert not res.HasField("auth_res")
+    assert res.email == "email@couchers.org.invalid"
     assert not res.need_basic
     assert res.need_account
     assert not res.need_feedback
@@ -170,6 +175,7 @@ def test_signup_incremental(db):
 
     assert res.flow_token == flow_token
     assert not res.HasField("auth_res")
+    assert res.email == "email@couchers.org.invalid"
     assert not res.need_basic
     assert res.need_account
     assert not res.need_feedback
@@ -199,6 +205,7 @@ def test_signup_incremental(db):
 
     assert not res.flow_token
     assert res.HasField("auth_res")
+    assert not res.email
     assert res.auth_res.user_id
     assert not res.auth_res.jailed
     assert not res.need_basic

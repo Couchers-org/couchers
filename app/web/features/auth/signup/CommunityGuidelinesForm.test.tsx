@@ -22,6 +22,7 @@ describe("community guidelines signup form", () => {
       "auth.flowState",
       JSON.stringify({
         flowToken: "dummy-token",
+        email: "test@example.com",
         needBasic: false,
         needAccount: true,
         needFeedback: false,
@@ -48,6 +49,7 @@ describe("community guidelines signup form", () => {
   it("works only with all boxes checked", async () => {
     signupFlowCommunityGuidelinesMock.mockResolvedValue({
       flowToken: "dummy-token",
+      email: "test@example.com",
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: false,
