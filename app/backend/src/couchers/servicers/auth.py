@@ -24,6 +24,7 @@ from couchers.metrics import (
     password_reset_initiations_counter,
     signup_account_filled_counter,
     signup_completions_counter,
+    signup_email_changes_counter,
     signup_email_verified_counter,
     signup_guidelines_accepted_counter,
     signup_initiations_counter,
@@ -195,6 +196,24 @@ class Auth(auth_pb2_grpc.AuthServicer):
     def SignupFlow(
         self, request: auth_pb2.SignupFlowReq, context: CouchersContext, session: Session
     ) -> auth_pb2.SignupFlowRes:
+        # this is a bit ugly, probably one RPC for this mega-mutation of signup flows is not ideal
+        has_signup_step = (
+            request.HasField("basic")
+            or request.HasField("account")
+            or request.HasField("feedback")
+            or request.HasField("motivations")
+            or request.HasField("accept_community_guidelines")
+        )
+        has_recovery_step = request.HasField("change_email") or request.resend_verification_email
+
+        # if we have the token then we ignore all the other stuff, so better just error to the client
+        if request.email_token and (has_signup_step or has_recovery_step):
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "signup_flow_invalid_request")
+
+        # just for safety
+        if has_signup_step and has_recovery_step:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "signup_flow_invalid_request")
+
         if request.email_token:
             # the email token can either be for verification or just to find an existing signup
             flow = session.execute(
@@ -285,19 +304,6 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
             # we've found and/or created a new flow, now sort out other parts
 
-            # this is a bit ugly, probably one RPC for this mega-mutation of signup flows is not ideal
-            has_signup_step = (
-                request.HasField("basic")
-                or request.HasField("account")
-                or request.HasField("feedback")
-                or request.HasField("motivations")
-                or request.HasField("accept_community_guidelines")
-            )
-            has_recovery_step = request.HasField("change_email") or request.resend_verification_email
-
-            if has_signup_step and has_recovery_step:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "signup_flow_invalid_request")
-
             if request.HasField("account"):
                 if flow.account_is_filled:
                     context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_account_filled")
@@ -376,15 +382,19 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_email_verified")
                 # can't resend verification at the same time
                 if request.resend_verification_email:
-                    context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_invalid_request")
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "signup_flow_invalid_request")
+
+                # this will error if the email is not different from the current one
                 _check_email_is_available_and_valid(request.change_email.new_email)
-                if flow.email != request.change_email.new_email:
-                    flow.email = request.change_email.new_email
-                    flow.email_verified = False
-                    flow.email_sent = False
-                    flow.email_token = None
-                    flow.email_token_expiry = None
-                    flow.email_changed_count += 1
+
+                flow.email = request.change_email.new_email
+                flow.email_verified = False
+                flow.email_sent = False
+                flow.email_token = None
+                flow.email_token_expiry = None
+                flow.email_changed_count += 1
+                signup_email_changes_counter.inc()
+
                 session.flush()
 
             # send verification email if needed
