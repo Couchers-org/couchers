@@ -1,8 +1,9 @@
 import { messageFilterToRequest } from "features/messages/constants";
 import { MessageThreadCategory } from "proto/conversations_pb";
+import { messageTypeStrings } from "routes";
 
 describe("messageFilterToRequest", () => {
-  it("maps content filters to the matching categories with onlyUnread/onlyArchived=false", () => {
+  it("maps content filters to their category, unrestricted by read state and excluding archived", () => {
     expect(messageFilterToRequest("all")).toEqual({
       categories: [],
       onlyUnread: false,
@@ -30,7 +31,7 @@ describe("messageFilterToRequest", () => {
     });
   });
 
-  it("maps unread to the full list restricted to unread threads", () => {
+  it("maps unread to unread threads across all categories, excluding archived", () => {
     expect(messageFilterToRequest("unread")).toEqual({
       categories: [],
       onlyUnread: true,
@@ -38,11 +39,18 @@ describe("messageFilterToRequest", () => {
     });
   });
 
-  it("maps archived to the full list restricted to archived threads", () => {
+  it("maps archived to archived threads across all categories, regardless of read state", () => {
     expect(messageFilterToRequest("archived")).toEqual({
       categories: [],
       onlyUnread: false,
       onlyArchived: true,
     });
+  });
+
+  // Archived is its own tab, so every other filter deliberately leaves archived threads out.
+  it("includes archived threads only under the archived filter", () => {
+    for (const filter of messageTypeStrings) {
+      expect(messageFilterToRequest(filter).onlyArchived).toBe(filter === "archived");
+    }
   });
 });

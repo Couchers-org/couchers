@@ -45,13 +45,13 @@ export async function listMessageThreads({
   onlyUnread,
   onlyArchived,
   pageToken,
-  count,
+  pageSize,
 }: {
   categories: MessageThreadCategory[];
   onlyUnread?: boolean;
   onlyArchived?: boolean;
   pageToken?: string;
-  count?: number;
+  pageSize?: number;
 }) {
   const req = new ListMessageThreadsReq();
   req.setCategoriesList(categories);
@@ -64,8 +64,8 @@ export async function listMessageThreads({
   if (pageToken) {
     req.setPageToken(pageToken);
   }
-  if (count !== undefined) {
-    req.setPageSize(count);
+  if (pageSize !== undefined) {
+    req.setPageSize(pageSize);
   }
 
   const response = await client.conversations.listMessageThreads(req);

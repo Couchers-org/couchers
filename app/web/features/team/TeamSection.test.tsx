@@ -42,12 +42,14 @@ describe("TeamSection", () => {
         volunteers={[boardMember]}
         hasExtraCard
         extraCardContent={{
+          title: "The full team",
           text: "Join our team",
           link: "More about the team",
         }}
       />,
       { wrapper },
     );
+    expect(screen.getByRole("heading", { name: "The full team" })).toBeInTheDocument();
     expect(screen.getByText("Join our team")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "More about the team" })).toBeInTheDocument();
   });

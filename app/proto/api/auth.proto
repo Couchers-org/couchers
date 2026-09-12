@@ -112,22 +112,24 @@ message SignupFlowReq {
   // required if basic is empty, otherwise the backend generates a new signup
   string flow_token = 1 [ (is_token) = true ];
 
+  // email token is reused for both verifying a signup's email, but also for continuing a signup
+  string email_token = 5 [ (is_token) = true ];
+
   SignupBasic basic = 2;
   SignupAccount account = 3;
   ContributorForm feedback = 4;
   SignupMotivations motivations = 8;
 
-  // email token is reused for both verifying a signup's email, but also for continuing a signup
-  string email_token = 5 [ (is_token) = true ];
-
   google.protobuf.BoolValue accept_community_guidelines = 6;
 
   bool resend_verification_email = 7;
+  ChangeSignupEmail change_email = 9;
 }
 
 message SignupFlowRes {
   // a token used to link the user's information across the signup flow
   string flow_token = 1 [ (is_token) = true ];
+  string email = 10;
   // auth_res is included if and only if signup is successful
   AuthRes auth_res = 3;
   // which parts are missing?
@@ -175,6 +177,10 @@ message SignupMotivations {
   string heard_about_couchers = 1;
   // What they're looking to do - can select multiple (e.g., "surfing", "hosting", "events", "community_organizing", "something_else")
   repeated string motivations = 2;
+}
+
+message ChangeSignupEmail {
+  string new_email = 1;
 }
 
 message UsernameValidReq {

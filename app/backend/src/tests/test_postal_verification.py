@@ -4,8 +4,10 @@ from unittest.mock import patch
 
 import grpc
 import pytest
+from google.protobuf import empty_pb2
 from sqlalchemy import select
 
+from couchers.config import config
 from couchers.constants import (
     POSTAL_VERIFICATION_CODE_LIFETIME,
     POSTAL_VERIFICATION_MAX_ATTEMPTS,
@@ -13,6 +15,7 @@ from couchers.constants import (
 )
 from couchers.db import session_scope
 from couchers.helpers.postal_verification import generate_postal_verification_code, has_postal_verification
+from couchers.jobs.handlers import check_mypostcard_jobs
 from couchers.jobs.worker import process_job
 from couchers.models import User
 from couchers.models.postal_verification import PostalVerificationAttempt, PostalVerificationStatus
@@ -680,6 +683,120 @@ def test_has_postal_verification_helper(db):
     with session_scope() as session:
         db_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
         assert has_postal_verification(session, db_user)
+
+
+def test_postal_verification_requires_donation(db):
+    """Postcards cost money, so non-donors can't initiate. Mirrors phone verification."""
+    user, token = generate_user(last_donated=None)
+
+    with postal_verification_session(token) as pv:
+        with pytest.raises(grpc.RpcError) as e:
+            pv.InitiatePostalVerification(
+                postal_verification_pb2.InitiatePostalVerificationReq(
+                    address=postal_verification_pb2.PostalAddress(
+                        address_line_1="123 Main St",
+                        city="Test City",
+                        country_code="US",
+                    )
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "You need to donate to Couchers.org before you can verify your address."
+
+    # No attempt should have been created
+    with session_scope() as session:
+        assert not session.execute(
+            select(PostalVerificationAttempt).where(PostalVerificationAttempt.user_id == user.id)
+        ).scalar_one_or_none()
+
+
+def _confirmed_attempt_id(token: str) -> int:
+    """Takes a user through to `in_progress`, i.e. ready for the postcard-sending job."""
+    with postal_verification_session(token) as pv:
+        res = pv.InitiatePostalVerification(
+            postal_verification_pb2.InitiatePostalVerificationReq(
+                address=postal_verification_pb2.PostalAddress(
+                    address_line_1="123 Main St",
+                    city="Test City",
+                    state="CA",
+                    postal_code="12345",
+                    country_code="US",
+                )
+            )
+        )
+        attempt_id: int = res.postal_verification_attempt_id
+
+    with postal_verification_session(token) as pv:
+        pv.ConfirmPostalAddress(
+            postal_verification_pb2.ConfirmPostalAddressReq(postal_verification_attempt_id=attempt_id)
+        )
+
+    return attempt_id
+
+
+def test_bypass_emails_the_code_instead_of_posting(db, email_collector):
+    """With the bypass set, no order is placed and the code is emailed instead."""
+    user, token = generate_user()
+    attempt_id = _confirmed_attempt_id(token)
+
+    config.POSTAL_VERIFICATION_BYPASS_POST_AND_EMAIL_CODE_FOR_TESTING = True
+    with patch("couchers.jobs.handlers.send_postcard") as mock_send:
+        while process_job():
+            pass
+        mock_send.assert_not_called()
+
+    with session_scope() as session:
+        attempt = session.execute(
+            select(PostalVerificationAttempt).where(PostalVerificationAttempt.id == attempt_id)
+        ).scalar_one()
+        assert attempt.status == PostalVerificationStatus.awaiting_verification
+        assert attempt.postcard_sent_at is not None
+        assert attempt.mypostcard_job_id is None
+        verification_code = attempt.verification_code
+
+    email = email_collector.pop_for_recipient(user.email)
+    assert "[TESTING]" in email.subject
+    # It must be unmistakable, right at the top, that this is a testing email
+    assert "should only be sent out in testing environments" in email.plain.split("\n\n")[0]
+    assert "support@couchers.org" in email.plain
+    assert verification_code in email.plain
+
+    assert len(email.attachments) == 1
+    attachment = email.attachments[0]
+    assert attachment.data[:4] == b"\x89PNG"
+    assert 'filename="postcard.png"' in attachment.content_disposition
+
+    # The emailed code still works, so the whole flow can be tested
+    with postal_verification_session(token) as pv:
+        assert pv.VerifyPostalCode(postal_verification_pb2.VerifyPostalCodeReq(code=verification_code)).success
+
+
+def test_postcard_is_posted_when_bypass_is_unset(db):
+    """With the bypass unset, an order is placed and its job ID recorded."""
+    user, token = generate_user()
+    attempt_id = _confirmed_attempt_id(token)
+
+    config.POSTAL_VERIFICATION_BYPASS_POST_AND_EMAIL_CODE_FOR_TESTING = False
+    with patch("couchers.jobs.handlers.send_postcard") as mock_send:
+        mock_send.return_value = 12345
+        while process_job():
+            pass
+        mock_send.assert_called_once()
+
+    with session_scope() as session:
+        attempt = session.execute(
+            select(PostalVerificationAttempt).where(PostalVerificationAttempt.id == attempt_id)
+        ).scalar_one()
+        assert attempt.status == PostalVerificationStatus.awaiting_verification
+        assert attempt.mypostcard_job_id == 12345
+
+
+def test_check_mypostcard_jobs_skipped_when_bypassing(db):
+    """The reconciliation job must not call the API when we never placed any orders."""
+    config.POSTAL_VERIFICATION_BYPASS_POST_AND_EMAIL_CODE_FOR_TESTING = True
+    with patch("couchers.jobs.handlers.get_order_ids") as mock_get_order_ids:
+        check_mypostcard_jobs(empty_pb2.Empty())
+        mock_get_order_ids.assert_not_called()
 
 
 def test_generate_postcard_images():

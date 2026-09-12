@@ -2,10 +2,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "components/Button";
 import { DoneAllIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
-import { messageFilterToRequest, MessageFilterType } from "features/messages/constants";
+import { messageFilterToRequest } from "features/messages/constants";
 import { listNotificationsQueryKey, messageThreadsListKey, pingQueryKey } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
+import { MessageFilterType } from "routes";
 import { service } from "service";
 
 export type MarkAllReadType = Exclude<MessageFilterType, "archived">;

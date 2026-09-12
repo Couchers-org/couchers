@@ -63,6 +63,10 @@
       "title": "Bestätige deinen Aufenthalt bei {{name}}",
       "description": "{{name}} hat deine Anfrage angenommen. Bestätige deinen Aufenthalt, um ihn zu sichern.",
       "button": "Aufenthalt bestätigen"
+    },
+    "carousel_scroller": {
+      "left_arrow_a11y": "Nach links scrollen",
+      "right_arrow_a11y": "Nach rechts scrollen"
     }
   },
   "events": {

@@ -4,8 +4,10 @@ import hostRequest from "test/fixtures/hostRequest";
 import { hasUnreadMessages } from "./utils";
 
 describe("hasUnreadMessages", () => {
-  it("returns false when latestMessage is undefined", () => {
-    expect(hasUnreadMessages({ ...groupChat, latestMessage: undefined })).toBe(false);
+  // List endpoints only return threads that have messages, so a missing latestMessage says nothing
+  // about whether the thread is unread.
+  it("ignores a missing latestMessage", () => {
+    expect(hasUnreadMessages({ ...groupChat, latestMessage: undefined })).toBe(true);
   });
 
   it("returns false when the server reports no unseen messages", () => {

@@ -12,7 +12,7 @@
   "profile_summary_edit": "Rédiger mon profil",
   "profile_summary_view": "Voir mon profil",
   "show_map": "Montrer la carte",
-  "your_communities_helper_text": "Vous avez été ajouté.e à tous communtés selon votre situation géographique. N'hésitez pas de <browseCommunitiesLink>naviguer les communautés</browseCommunitiesLink> dans d'autres endroits également.",
+  "your_communities_helper_text": "Vous avez été ajouté.e à toutes les communautés selon votre localisation géographique. N'hésitez pas à <browseCommunitiesLink>explorer et rejoindre les communautés</browseCommunitiesLink> dans d'autres endroits également.",
   "communities_welcome_title": "Soyez bienvenu.e.s aux Communautés",
   "communities_intro": "Pour aider les membres autour du monde d'organiser des événements, des discussions et des rencontres locales, nous avons créé des pages de communauté qui sont listées ci-dessous. <strong>Vous avez été automatiquement ajouté.e à certaines communautés en fonction de votre situation géographique, mais vous pouvez rejoindre n'importe quelle communauté !</strong> Vos communautés sont listées sur le tableau de bord.",
   "browse_communities": "Parcourir les communautés",
@@ -24,7 +24,7 @@
   "become_a_host": "Devenir un.e hôte",
   "search_input_placeholder": "Rechercher une destination géographique",
   "hero_image_alt": "Montgolfières en Cappadoce",
-  "find_your_community": "Trouvez votre communauté",
+  "find_your_community": "Trouvez une communauté",
   "find_your_community_intro_simplified": "Recherchez votre communauté ou parcourez la liste ci-dessous. <requestCommunityLink>Vous ne trouvez pas la vôtre ? Demandez-la !</requestCommunityLink>",
   "browse_all_communities": "Parcourir toutes les communautés",
   "browse_communities_text": "Cliquez sur le nom d'une région pour voir les autres communautés qu'elle contient ci-dessous. Cliquez sur le lien pour accéder à la page de la communauté de cette ville ou de cette région.",
@@ -33,7 +33,69 @@
   "find_your_community_intro": "Vous pouvez ci-dessous rechercher ou parcourir toutes les pages communautaires existantes. Votre pays ou votre ville manque á l'appel ? <requestCommunityLink>Utilisez ce formulaire</requestCommunityLink> pour en faire la demande !",
   "reminder": {
     "respond_to_host_request": {
-      "description": "N'oubliez pas de répondre à la demande d'hébergement de {{name}}."
-    }
+      "description": "N'oubliez pas de répondre à la demande d'hébergement de {{name}}.",
+      "title": "Répondre à {{name}}",
+      "button": "Voir la demande"
+    },
+    "write_reference": {
+      "title": "Écrire une recommandation",
+      "description_surfed": "Écrivez une recommandation pour votre séjour chez {{name}}",
+      "description_hosted": "Écrire une recommandation pour le séjour de {{name}}",
+      "button": "Écrire une recommandation"
+    },
+    "complete_my_home": {
+      "title": "Complétez la section \"chez moi\" de votre profil",
+      "button": "Éditez votre chez vous"
+    },
+    "complete_profile": {
+      "title": "Complétez votre profil",
+      "button": "Éditer votre profil"
+    },
+    "strong_verification": {
+      "description": "Vérifiez votre identité pour une communauté plus sûre",
+      "button": "Vérifier votre compte"
+    },
+    "confirm_host_request": {
+      "title": "Confirmez votre séjour chez {{name}}",
+      "description": "{{name}} a accepté votre demande. Confirmez votre séjour pour le réserver.",
+      "button": "Confirmer votre séjour"
+    },
+    "carousel_dismiss_button_a11y": "Ignorer le rappel"
+  },
+  "my_communities_heading": "Mes communautés",
+  "prev_page_button_a11y": "Page précédente",
+  "next_page_button_a11y": "Page suivante",
+  "now_label": "Maintenant",
+  "discussions": {
+    "community_header": "Discussions dans vos communautés",
+    "replies_count_label_one": "{{count}} réponse",
+    "replies_count_label_many": "{{count}} de réponses",
+    "replies_count_label_other": "{{count}} réponses",
+    "community_empty_message": "Pas encore de discussions dans vos communautés."
+  },
+  "events": {
+    "your_upcoming_header": "Vos événements à venir",
+    "your_upcoming_empty_message": "Pas d'événements pour le moment. Pourquoi n'en <0>créeriez-vous</0> pas un✨?",
+    "community_header": "Événements dans vos communautés"
+  },
+  "public_trips": {
+    "my_trips_header": "Vos voyages publics",
+    "manage_link": "Gérer",
+    "when_now": "Maintenant",
+    "offers_count_one": "{{count}} offre",
+    "offers_count_many": "{{count}} d'offres",
+    "offers_count_other": "{{count}} offres",
+    "no_offers": "Pas encore d'offres",
+    "empty_description": "Vous partez quelque part ? Publiez un voyage public dans la communauté pour recevoir des offres d'hôtes à proximité.",
+    "same_gender_only_indicator": "Même genre"
+  },
+  "stays": {
+    "upcoming_trips_header": "Vos séjours à venir",
+    "upcoming_guests_header": "Vos futurs invités",
+    "night_count_one": "{{count}} nuit",
+    "night_count_many": "{{count}} de nuits",
+    "night_count_other": "{{count}} nuits",
+    "no_upcoming_trips": "Pas de voyage à venir. Prêt.e à explorer ?",
+    "no_upcoming_guests": "Pas encore d'invités."
   }
 }

@@ -1,17 +1,7 @@
 import { MessageThreadCategory } from "proto/conversations_pb";
 import { HostRequestStatus } from "proto/messages_pb";
-
-export type MessageFilterType = "all" | "unread" | "chats" | "hosting" | "surfing" | "public-trips" | "archived";
-
-export const MESSAGE_FILTER_TYPES: MessageFilterType[] = [
-  "all",
-  "unread",
-  "chats",
-  "hosting",
-  "surfing",
-  "public-trips",
-  "archived",
-];
+import { MessageFilterType } from "routes";
+import { assertNever } from "utils/assertNever";
 
 // Maps a URL filter slug to the unified ListMessageThreads request params.
 // categories, onlyUnread and onlyArchived are orthogonal; an empty categories
@@ -50,8 +40,10 @@ export function messageFilterToRequest(filter: MessageFilterType): {
       };
     case "archived":
       return { categories: [], onlyUnread: false, onlyArchived: true };
-    default:
+    case "all":
       return { categories: [], onlyUnread: false, onlyArchived: false };
+    default:
+      return assertNever(filter);
   }
 }
 

@@ -120,15 +120,12 @@ export default function MyPublicTripsMessages() {
   });
 
   const offersQuery = useInfiniteQuery<ListMessageThreadsRes.AsObject, RpcError>({
-    queryKey: messageThreadsListKey({
-      filter: "public-trips",
-      onlyArchived: false,
-    }),
+    queryKey: messageThreadsListKey("public-trips"),
     queryFn: ({ pageParam }) =>
       service.conversations.listMessageThreads({
         categories: [MessageThreadCategory.MESSAGE_THREAD_CATEGORY_MY_PUBLIC_TRIPS],
         pageToken: pageParam as string | undefined,
-        count: OFFERS_PAGE_SIZE,
+        pageSize: OFFERS_PAGE_SIZE,
       }),
     getNextPageParam: (lastPage) => (lastPage.nextPageToken ? lastPage.nextPageToken : undefined),
     initialPageParam: undefined,

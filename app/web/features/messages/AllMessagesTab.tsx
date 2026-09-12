@@ -4,7 +4,7 @@ import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import NotificationBadge from "components/NotificationBadge";
 import TextBody from "components/TextBody";
-import { MESSAGE_FILTER_TYPES, messageFilterToRequest, MessageFilterType } from "features/messages/constants";
+import { messageFilterToRequest } from "features/messages/constants";
 import CreateGroupChat from "features/messages/groupchats/CreateGroupChat";
 import GroupChatListItem from "features/messages/groupchats/GroupChatListItem";
 import MyPublicTripsMessages from "features/messages/MyPublicTripsMessages";
@@ -18,7 +18,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { ListMessageThreadsRes, MessageThread } from "proto/conversations_pb";
 import React from "react";
-import { routeToGroupChat, routeToHostRequest } from "routes";
+import { MessageFilterType, messageTypeStrings, routeToGroupChat, routeToHostRequest } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 import useOnVisibleEffect from "utils/useOnVisibleEffect";
@@ -108,7 +108,7 @@ export default function AllMessagesTab() {
 
   const filterFromPath = slugs[0] as MessageFilterType;
   const filter: MessageFilterType =
-    MESSAGE_FILTER_TYPES.includes(filterFromPath) && (filterFromPath !== "public-trips" || isPublicTripsEnabled)
+    messageTypeStrings.includes(filterFromPath) && (filterFromPath !== "public-trips" || isPublicTripsEnabled)
       ? filterFromPath
       : "all";
 
@@ -124,14 +124,14 @@ export default function AllMessagesTab() {
     ListMessageThreadsRes.AsObject,
     RpcError
   >({
-    queryKey: messageThreadsListKey({ filter, onlyArchived }),
+    queryKey: messageThreadsListKey(filter),
     queryFn: ({ pageParam }) =>
       service.conversations.listMessageThreads({
         categories,
         onlyUnread,
         onlyArchived,
         pageToken: pageParam as string | undefined,
-        count: PAGE_SIZE,
+        pageSize: PAGE_SIZE,
       }),
     getNextPageParam: (lastPage) => (lastPage.nextPageToken ? lastPage.nextPageToken : undefined),
     initialPageParam: undefined,

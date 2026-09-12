@@ -253,6 +253,7 @@ describe("updateSignupState action", () => {
     await act(() =>
       result.current.authActions.updateSignupState({
         flowToken: "dummy-token",
+        email: "test@example.com",
         needBasic: false,
         needAccount: true,
         needFeedback: false,
@@ -283,6 +284,7 @@ describe("updateSignupState action", () => {
           userId: 51,
           jailed: false,
         },
+        email: "test@example.com",
         needBasic: false,
         needAccount: false,
         needFeedback: false,

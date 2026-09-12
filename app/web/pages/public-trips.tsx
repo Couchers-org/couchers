@@ -1,10 +1,10 @@
 import { useFeatureValue } from "@growthbook/growthbook-react";
 import { appGetLayout } from "components/AppRoute";
 import MyPublicTripsPage from "features/publicTrips/MyPublicTripsPage";
+import { appServerSideTranslations } from "i18n/appServerSideTranslations";
+import { DEFAULT_LOCALE } from "i18n/locales";
 import { COMMUNITIES, GLOBAL, NOTIFICATIONS, PUBLIC_TRIPS } from "i18n/namespaces";
 import { GetStaticProps } from "next";
-import nextI18nextConfig from "next-i18next.config";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
   const isPublicTripsEnabled = process.env.NODE_ENV !== "production";
@@ -17,11 +17,12 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => {
 
   return {
     props: {
-      ...(await serverSideTranslations(
-        locale ?? "en",
-        [GLOBAL, COMMUNITIES, NOTIFICATIONS, PUBLIC_TRIPS],
-        nextI18nextConfig,
-      )),
+      ...(await appServerSideTranslations(locale ?? DEFAULT_LOCALE, [
+        GLOBAL,
+        COMMUNITIES,
+        NOTIFICATIONS,
+        PUBLIC_TRIPS,
+      ])),
     },
   };
 };
