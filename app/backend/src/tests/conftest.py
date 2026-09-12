@@ -403,6 +403,17 @@ def testconfig():
     experimentation._load_local_flags = prev_load_local_flags
 
 
+@pytest.fixture(autouse=True)
+def _isolate_config() -> Generator[None]:
+    """
+    `testconfig` alone isn't enough: being class-scoped, it doesn't restore between tests within a
+    `class Test...`.
+    """
+    prevconfig = config.copy()
+    yield
+    config.copy_from(prevconfig)
+
+
 class Flags:
     """Test handle for setting feature flag values in file-override mode; see the `flags` fixture."""
 

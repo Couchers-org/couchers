@@ -1,5 +1,4 @@
 from datetime import timedelta
-from unittest.mock import patch
 
 import grpc
 import pytest
@@ -90,28 +89,26 @@ def test_activeness_probes_happy_path_active(db, push_collector: PushCollector):
 
 
 def test_activeness_probes_disabled(db, push_collector: PushCollector):
-    new_config = config.copy()
-    new_config.ACTIVENESS_PROBES_ENABLED = False
+    config.ACTIVENESS_PROBES_ENABLED = False
 
-    with patch("couchers.jobs.handlers.config", new_config):
-        user, token = generate_user(
-            hosting_status=HostingStatus.can_host,
-            meetup_status=MeetupStatus.wants_to_meetup,
-            last_active=now() - timedelta(days=335),
-        )
+    user, token = generate_user(
+        hosting_status=HostingStatus.can_host,
+        meetup_status=MeetupStatus.wants_to_meetup,
+        last_active=now() - timedelta(days=335),
+    )
 
-        with session_scope() as session:
-            queue_job(session, job=send_activeness_probes, payload=empty_pb2.Empty())
+    with session_scope() as session:
+        queue_job(session, job=send_activeness_probes, payload=empty_pb2.Empty())
 
-        process_jobs()
+    process_jobs()
 
-        with real_jail_session(token) as jail:
-            res = jail.JailInfo(empty_pb2.Empty())
-            assert not res.has_pending_activeness_probe
-            assert not res.jailed
+    with real_jail_session(token) as jail:
+        res = jail.JailInfo(empty_pb2.Empty())
+        assert not res.has_pending_activeness_probe
+        assert not res.jailed
 
-        with session_scope() as session:
-            assert not session.execute(select(exists(ActivenessProbe))).scalar_one()
+    with session_scope() as session:
+        assert not session.execute(select(exists(ActivenessProbe))).scalar_one()
 
 
 def test_activeness_probes_expiry(db, push_collector: PushCollector):

@@ -80,22 +80,20 @@ results
 
             return _PostReturn()
 
-        new_config = config.copy()
-        new_config.BUG_TOOL_ENABLED = True
+        config.BUG_TOOL_ENABLED = True
 
-        with patch("couchers.servicers.bugs.config", new_config):
-            with patch("couchers.servicers.bugs.requests.post", dud_post):
-                res = bugs.ReportBug(
-                    bugs_pb2.ReportBugReq(
-                        subject="subject",
-                        description="description",
-                        results="results",
-                        frontend_version="frontend_version",
-                        user_agent="user_agent",
-                        screen_resolution=bugs_pb2.ScreenResolution(width=1920, height=1080),
-                        page="page",
-                    )
+        with patch("couchers.servicers.bugs.requests.post", dud_post):
+            res = bugs.ReportBug(
+                bugs_pb2.ReportBugReq(
+                    subject="subject",
+                    description="description",
+                    results="results",
+                    frontend_version="frontend_version",
+                    user_agent="user_agent",
+                    screen_resolution=bugs_pb2.ScreenResolution(width=1920, height=1080),
+                    page="page",
                 )
+            )
 
     assert res.bug_id == "#11"
     assert res.bug_url == "https://github.com/org/repo/issues/11"
@@ -142,22 +140,20 @@ results
 
             return _PostReturn()
 
-        new_config = config.copy()
-        new_config.BUG_TOOL_ENABLED = True
+        config.BUG_TOOL_ENABLED = True
 
-        with patch("couchers.servicers.bugs.config", new_config):
-            with patch("couchers.servicers.bugs.requests.post", dud_post):
-                res = bugs.ReportBug(
-                    bugs_pb2.ReportBugReq(
-                        subject="subject",
-                        description="description",
-                        results="results",
-                        frontend_version="frontend_version",
-                        user_agent="user_agent",
-                        screen_resolution=bugs_pb2.ScreenResolution(width=390, height=844),
-                        page="page",
-                    )
+        with patch("couchers.servicers.bugs.requests.post", dud_post):
+            res = bugs.ReportBug(
+                bugs_pb2.ReportBugReq(
+                    subject="subject",
+                    description="description",
+                    results="results",
+                    frontend_version="frontend_version",
+                    user_agent="user_agent",
+                    screen_resolution=bugs_pb2.ScreenResolution(width=390, height=844),
+                    page="page",
                 )
+            )
 
     assert res.bug_id == "#11"
     assert res.bug_url == "https://github.com/org/repo/issues/11"
@@ -195,23 +191,21 @@ results
 
             return _PostReturn()
 
-        new_config = config.copy()
-        new_config.BUG_TOOL_ENABLED = True
+        config.BUG_TOOL_ENABLED = True
 
-        with patch("couchers.servicers.bugs.config", new_config):
-            with patch("couchers.servicers.bugs.requests.post", dud_post):
-                bugs.ReportBug(
-                    bugs_pb2.ReportBugReq(
-                        subject="subject",
-                        description="description",
-                        results="results",
-                        frontend_version="frontend_version",
-                        user_agent="user_agent",
-                        screen_resolution=bugs_pb2.ScreenResolution(width=1920, height=1080),
-                        page="page",
-                        sentry_replay_id="0123456789abcdef0123456789abcdef",
-                    )
+        with patch("couchers.servicers.bugs.requests.post", dud_post):
+            bugs.ReportBug(
+                bugs_pb2.ReportBugReq(
+                    subject="subject",
+                    description="description",
+                    results="results",
+                    frontend_version="frontend_version",
+                    user_agent="user_agent",
+                    screen_resolution=bugs_pb2.ScreenResolution(width=1920, height=1080),
+                    page="page",
+                    sentry_replay_id="0123456789abcdef0123456789abcdef",
                 )
+            )
 
 
 def test_bugs_invalid_sentry_replay_id_omitted(db):
@@ -229,19 +223,17 @@ def test_bugs_invalid_sentry_replay_id_omitted(db):
 
             return _PostReturn()
 
-        new_config = config.copy()
-        new_config.BUG_TOOL_ENABLED = True
+        config.BUG_TOOL_ENABLED = True
 
-        with patch("couchers.servicers.bugs.config", new_config):
-            with patch("couchers.servicers.bugs.requests.post", dud_post):
-                bugs.ReportBug(
-                    bugs_pb2.ReportBugReq(
-                        subject="subject",
-                        description="description",
-                        results="results",
-                        sentry_replay_id="not-a-replay-id](https://evil.example)",
-                    )
+        with patch("couchers.servicers.bugs.requests.post", dud_post):
+            bugs.ReportBug(
+                bugs_pb2.ReportBugReq(
+                    subject="subject",
+                    description="description",
+                    results="results",
+                    sentry_replay_id="not-a-replay-id](https://evil.example)",
                 )
+            )
 
 
 def test_bugs_fails_on_network_error(db):
@@ -253,23 +245,21 @@ def test_bugs_fails_on_network_error(db):
 
             return _PostReturn()
 
-        new_config = config.copy()
-        new_config.BUG_TOOL_ENABLED = True
+        config.BUG_TOOL_ENABLED = True
 
-        with patch("couchers.servicers.bugs.config", new_config):
-            with patch("couchers.servicers.bugs.requests.post", dud_post):
-                with pytest.raises(grpc.RpcError) as e:
-                    res = bugs.ReportBug(
-                        bugs_pb2.ReportBugReq(
-                            subject="subject",
-                            description="description",
-                            results="results",
-                            frontend_version="frontend_version",
-                            user_agent="user_agent",
-                            page="page",
-                        )
+        with patch("couchers.servicers.bugs.requests.post", dud_post):
+            with pytest.raises(grpc.RpcError) as e:
+                res = bugs.ReportBug(
+                    bugs_pb2.ReportBugReq(
+                        subject="subject",
+                        description="description",
+                        results="results",
+                        frontend_version="frontend_version",
+                        user_agent="user_agent",
+                        page="page",
                     )
-                assert e.value.code() == grpc.StatusCode.INTERNAL
+                )
+            assert e.value.code() == grpc.StatusCode.INTERNAL
 
 
 def test_version():

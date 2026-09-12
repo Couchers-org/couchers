@@ -9,8 +9,6 @@ from google.protobuf import empty_pb2
 from sqlalchemy import select, update
 from sqlalchemy.sql import or_
 
-import couchers.jobs.handlers
-import couchers.servicers.account
 from couchers.config import config
 from couchers.crypto import asym_decrypt, b64encode_unpadded
 from couchers.db import session_scope
@@ -236,23 +234,16 @@ def do_and_check_sv(
         assert callbacks == ["INITIATED", "COMPLETED", "APPROVED"]
 
 
-def monkeypatch_sv_config(monkeypatch):
-    new_config = config.copy()
-    new_config.IRIS_ID_PUBKEY = "dummy_pubkey"
-    new_config.IRIS_ID_SECRET = "dummy_secret"
-    new_config.VERIFICATION_DATA_PUBLIC_KEY = bytes.fromhex(
+@pytest.fixture
+def sv_config() -> None:
+    config.IRIS_ID_PUBKEY = "dummy_pubkey"
+    config.IRIS_ID_SECRET = "dummy_secret"
+    config.VERIFICATION_DATA_PUBLIC_KEY = bytes.fromhex(
         "dd740a2b2a35bf05041a28257ea439b30f76f056f3698000b71e6470cd82275f"
     )
 
-    private_key = bytes.fromhex("e6c2fbf3756b387bc09a458a7b85935718ef3eb1c2777ef41d335c9f6c0ab272")
 
-    monkeypatch.setattr(couchers.servicers.account, "config", new_config)
-    monkeypatch.setattr(couchers.jobs.handlers, "config", new_config)
-
-
-def test_strong_verification_happy_path(db, monkeypatch):
-    monkeypatch_sv_config(monkeypatch)
-
+def test_strong_verification_happy_path(db, sv_config):
     user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
     _, superuser_token = generate_user(is_superuser=True)
 
@@ -429,9 +420,7 @@ def test_strong_verification_happy_path(db, monkeypatch):
         assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_MISMATCH
 
 
-def test_strong_verification_delete_data(db, monkeypatch):
-    monkeypatch_sv_config(monkeypatch)
-
+def test_strong_verification_delete_data(db, sv_config):
     user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
     _, superuser_token = generate_user(is_superuser=True)
 
@@ -502,9 +491,7 @@ def test_strong_verification_delete_data(db, monkeypatch):
         )
 
 
-def test_strong_verification_expiry(db, monkeypatch):
-    monkeypatch_sv_config(monkeypatch)
-
+def test_strong_verification_expiry(db, sv_config):
     user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
     _, superuser_token = generate_user(is_superuser=True)
 
@@ -574,9 +561,7 @@ def test_strong_verification_expiry(db, monkeypatch):
     )
 
 
-def test_strong_verification_regression(db, monkeypatch):
-    monkeypatch_sv_config(monkeypatch)
-
+def test_strong_verification_regression(db, sv_config):
     user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
 
     do_and_check_sv(
@@ -596,9 +581,7 @@ def test_strong_verification_regression(db, monkeypatch):
         api.Ping(api_pb2.PingReq())
 
 
-def test_strong_verification_regression2(db, monkeypatch):
-    monkeypatch_sv_config(monkeypatch)
-
+def test_strong_verification_regression2(db, sv_config):
     user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
 
     do_and_check_sv(
@@ -647,9 +630,7 @@ def test_strong_verification_disabled(db, feature_flags):
         assert e.value.details() == "Strong verification is currently disabled."
 
 
-def test_strong_verification_delete_data_cant_reverify(db, monkeypatch, push_collector: PushCollector):
-    monkeypatch_sv_config(monkeypatch)
-
+def test_strong_verification_delete_data_cant_reverify(db, sv_config, push_collector: PushCollector):
     user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
     _, superuser_token = generate_user(is_superuser=True)
 
@@ -796,9 +777,7 @@ def test_strong_verification_delete_data_cant_reverify(db, monkeypatch, push_col
         )
 
 
-def test_strong_verification_duplicate_other_user(db, monkeypatch, push_collector: PushCollector):
-    monkeypatch_sv_config(monkeypatch)
-
+def test_strong_verification_duplicate_other_user(db, sv_config, push_collector: PushCollector):
     user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
     user2, token2 = generate_user(birthdate=date(1988, 1, 1), gender="Man")
     _, superuser_token = generate_user(is_superuser=True)
@@ -938,9 +917,7 @@ def test_strong_verification_duplicate_other_user(db, monkeypatch, push_collecto
     )
 
 
-def test_strong_verification_non_passport(db, monkeypatch, push_collector: PushCollector):
-    monkeypatch_sv_config(monkeypatch)
-
+def test_strong_verification_non_passport(db, sv_config, push_collector: PushCollector):
     user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
     _, superuser_token = generate_user(is_superuser=True)
 
