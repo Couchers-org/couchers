@@ -68,6 +68,9 @@ class Config:
     MYPOSTCARD_PASSWORD: str
     MYPOSTCARD_PRODUCT_CODE: str
     MYPOSTCARD_CAMPAIGN_ID: str
+    # Whether to email users their verification code instead of posting them a postcard. Hands postal
+    # verification to anyone who asks for it, so only non-prod deployments may set it.
+    POSTAL_VERIFICATION_BYPASS_POST_AND_EMAIL_CODE_FOR_TESTING: bool = False
     # SMS (gated at runtime by the `sms_enabled` feature flag)
     SMS_SENDER_ID: str
     # Email
