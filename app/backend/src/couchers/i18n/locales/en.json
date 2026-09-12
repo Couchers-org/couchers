@@ -217,6 +217,8 @@
     "signup_flow_email_taken": "That email address is already associated with an account. Please log in instead!",
     "signup_flow_feedback_filled": "Feedback information already filled in.",
     "signup_flow_motivations_filled": "You've already told us about why you are signing up.",
+    "signup_flow_email_verified": "You have already verified your email.",
+    "signup_flow_invalid_request": "Invalid signup request, you cannot recover your signup and continue signing up simultaneously.",
     "sms_disabled": "SMS verification is currently disabled.",
     "strong_verification_already_verified": "You already have strong verification.",
     "strong_verification_attempt_not_found": "Strong verification attempt not found.",
