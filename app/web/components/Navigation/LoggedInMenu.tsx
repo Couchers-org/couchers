@@ -13,7 +13,7 @@ import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { PingRes } from "proto/api_pb";
-import React, { Dispatch, FunctionComponent, SetStateAction, useCallback, useState } from "react";
+import React, { Dispatch, FunctionComponent, SetStateAction, useState } from "react";
 import { theme } from "theme";
 import { useIsNativeEmbed } from "utils/nativeLink";
 
@@ -271,18 +271,6 @@ export default function LoggedInMenu({
     setNotificationsAnchorEl(null);
   };
 
-  /**
-   * MUI marks the popover aria-hidden while it transitions out. If a menu item
-   * still holds focus at that moment, assistive tech is left pointing inside a
-   * hidden subtree, so hand focus back to the button that opened the menu
-   * before closing. Not used from onBlur, where focus is already leaving of its
-   * own accord and pulling it back would fight the user.
-   */
-  const closeMenu = useCallback(() => {
-    menuRef.current?.focus();
-    setMenuOpen(false);
-  }, [setMenuOpen]);
-
   // Find dialog items ("Report a problem")
   const dialogItems = items.filter((item): item is LoggedInMenuDialogItem => item.type === "dialog");
 
@@ -344,7 +332,7 @@ export default function LoggedInMenu({
         anchorEl={isMobile ? undefined : menuRef.current}
         onClose={(_event: object, reason: string) => {
           if (isMobile && reason === "backdropClick") return;
-          closeMenu();
+          setMenuOpen(false);
         }}
         onBlur={(e) => {
           const target = e.relatedTarget as HTMLElement | null;
@@ -377,7 +365,7 @@ export default function LoggedInMenu({
           >
             <IconButton
               aria-label={t("global:nav.close_menu_a11y")}
-              onClick={closeMenu}
+              onClick={() => setMenuOpen(false)}
               sx={{
                 backgroundColor: "var(--mui-palette-grey-200)",
                 border: "1px solid var(--mui-palette-grey-300)",
@@ -405,7 +393,7 @@ export default function LoggedInMenu({
             <MenuItemView
               key={item.name}
               {...item}
-              closeMenu={closeMenu}
+              closeMenu={() => setMenuOpen(false)}
               onOpenDialog={item.type === "dialog" ? () => setOpenDialogName(item.name) : undefined}
             />
           ))}
@@ -417,7 +405,7 @@ export default function LoggedInMenu({
                 justifyContent: "center",
               }}
             >
-              <LanguagePickerSelect onNavigate={closeMenu} />
+              <LanguagePickerSelect onNavigate={() => setMenuOpen(false)} />
             </Box>
           )}
         </Box>
