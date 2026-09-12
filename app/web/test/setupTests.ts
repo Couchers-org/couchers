@@ -106,10 +106,10 @@ global.ResizeObserver = class ResizeObserver {
 };
 
 declare global {
-  // Disable the rule for this block
+  // Ambient globals require `var` (let/const don't attach to the global object).
+
   var defaultUser: typeof user;
   var testKit: ReturnType<typeof sentryTestkit>["testkit"];
-  // Re-enable the rule
 }
 
 function createWebStorageMock() {

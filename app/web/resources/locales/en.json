@@ -230,10 +230,12 @@
     "less_than_one_hour_ago": "Less than an hour ago"
   },
   "location_autocomplete": {
+    "loading": "Searching…",
     "more_specific": "Please choose a more specific place",
-    "search_location_hint": "Press Enter or click the search icon to choose a location",
+    "no_results": "No matching places found",
+    "provider_unavailable": "Location search is temporarily unavailable. Please try again in a few minutes.",
     "search_location_button": "Search location",
-    "select_location_hint": "Press Enter or click the search icon, then select a location from the list"
+    "search_location_hint": "Press Enter or click the search icon to choose a location"
   },
   "strong_verification": {
     "helper_text": "This user has verified their identity using a biometric passport"
@@ -344,5 +346,14 @@
   },
   "bar": {
     "help_button_a11y": "Help"
+  },
+  "use_my_location": {
+    "button": "Use my location",
+    "loading": "Finding your location…",
+    "permission_denied": "Location access was denied. You can still type a place instead.",
+    "position_unavailable": "Couldn't get your location. You can still type a place instead.",
+    "no_address": "Couldn't find a place at your location. You can still type a place instead.",
+    "lookup_failed": "Couldn't look up your location right now. You can still type a place instead.",
+    "unsupported": "This browser can't share your location. You can still type a place instead."
   }
 }
