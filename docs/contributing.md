@@ -61,11 +61,11 @@ All our code is in one repository (monorepo). We currently use the pull request 
 4. Push the new branch to GitHub, and open a Pull Request (PR). If your branch is ready to be merged, pending review, make it a normal PR. If it's still work in progress and you don't want a review yet, you can make it a [draft PR](https://github.blog/2019-02-14-introducing-draft-pull-requests/). Choose some appropriate labels on the PR, such as `web`/`backend` and `feature`/`bug` to make it easier for others to navigate the list of PRs.
 5. When you are ready for a review, select a reviewer and ask them to review the code. Feel free to choose someone you know can review it, or if you don't know who else, just select @aapeliv who'll delegate someone. You can also message on the appropriate channel on Slack.
 6. The reviewer should review the pull request and comment, suggest changes, or approve the review.
-7. Once you and the reviewer are ready for the PR to be merged, someone on the core team can merge it into `develop`.
+7. Once you and the reviewer are ready for the PR to be merged, and once all comments have been resolved, you or someone on the core team can merge it into `develop`.
 
 ## How code review works and why we do it
 
-In addition to maintaining high code quality, the purpose of code review is to make sure that each team member learns from their peers, and we all assimilate knowledge from each other. You're sure to learn a lot from reviewing other people's code and having your code reviewed by others. It also helps maintain our code so that we have some shared patterns and standard way of doing things.
+In addition to maintaining high code quality, the purpose of code review is to make sure that each team member learns from their peers, and we all assimilate knowledge from each other. You're sure to learn a lot from reviewing other people's code and having your code reviewed by others. It also helps maintain our code so that we have some shared patterns and standard way of doing things. Reviewers may leave comments in your code, which you can resolve once once they are  addressed. 
 
 ## CI/CD
 
