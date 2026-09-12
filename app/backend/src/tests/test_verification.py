@@ -256,4 +256,4 @@ def test_sms_verification_no_donation():
         with pytest.raises(grpc.RpcError) as e:
             account.ChangePhone(account_pb2.ChangePhoneReq(phone="+467017406066"))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "Please complete donation to get phone verified."
+        assert e.value.details() == "You need to donate to Couchers.org before you can verify your phone number."

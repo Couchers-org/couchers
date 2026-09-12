@@ -701,7 +701,7 @@ def test_postal_verification_requires_donation(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "Please complete a donation to verify your address by post."
+        assert e.value.details() == "You need to donate to Couchers.org before you can verify your address."
 
     # No attempt should have been created
     with session_scope() as session:
