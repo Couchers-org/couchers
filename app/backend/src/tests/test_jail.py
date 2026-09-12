@@ -373,7 +373,7 @@ def test_modnotes_notify_with_content(db, email_collector: EmailCollector, push_
     assert email.sender_email == "moderation@couchers.org.invalid"
     assert "Please remove your phone number." in email.plain
     assert "Please remove your phone number." in email.html
-    assert "reply to this email" in email.plain
+    assert "replying to this email" in email.plain
 
     # the note itself is never included in the push notification
     push = push_collector.pop_for_user(user.id, last=True)

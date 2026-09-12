@@ -1662,21 +1662,21 @@ class HostReferenceReminderEmail(EmailBase):
 class ModeratorNoteEmail(EmailBase):
     """Sent to a user to notify them they have received a moderator note."""
 
-    # The note's markdown text, if the moderator chose to include it in the email.
-    note_content: str | None
+    # The note's text, only set if the moderator chose to include it in the email.
+    markdown_text: str | None
 
     @property
     def string_key_base(self) -> str:
         return "moderator_note"
 
     def get_preview_line(self, loc_context: LocalizationContext) -> str | None:
-        return markdown_to_plaintext(self.note_content) if self.note_content else None
+        return markdown_to_plaintext(self.markdown_text) if self.markdown_text else None
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context)
-        if self.note_content:
+        if self.markdown_text:
             builder.para(".purpose_with_note")
-            builder.quote(self.note_content, markdown=True)
+            builder.quote(self.markdown_text, markdown=True)
             builder.para(".acknowledge_request")
             builder.para(".reply_instructions")
         else:
@@ -1688,13 +1688,16 @@ class ModeratorNoteEmail(EmailBase):
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.ModNoteCreate, *, user_name: str) -> Self:
-        return cls(user_name=user_name, note_content=data.content or None)
+        return cls(user_name=user_name, markdown_text=data.markdown_text or None)
 
     @classmethod
     def test_instances(cls) -> list[Self]:
         return [
-            cls(user_name="Alice", note_content=None),
-            cls(user_name="Alice", note_content="Please **add** a profile photo so that your hosts can recognise you."),
+            cls(user_name="Alice", markdown_text=None),
+            cls(
+                user_name="Alice",
+                markdown_text="Please **add** a profile photo so that your hosts can recognise you.",
+            ),
         ]
 
 

@@ -717,7 +717,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 topic_action=NotificationTopicAction.modnote__create,
                 key="",
                 data=notification_data_pb2.ModNoteCreate(
-                    content=(
+                    markdown_text=(
                         request.content
                         if request.notification == admin_pb2.MOD_NOTE_NOTIFICATION_NOTIFY_WITH_CONTENT
                         else ""
