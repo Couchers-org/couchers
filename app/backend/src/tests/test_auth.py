@@ -1,5 +1,5 @@
 import http.cookies
-from typing import cast
+from typing import Any, cast
 from unittest.mock import DEFAULT, patch
 
 import grpc
@@ -983,6 +983,7 @@ def test_signup_change_email(db, email_collector: EmailCollector):
         new_email_token = flow.email_token
         assert new_email_token
         assert new_email_token != old_email_token
+        assert flow.email_changed_count == 1
 
     # The old token should no longer be usable.
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -1085,7 +1086,7 @@ def test_signup_change_email_after_email_verified(db):
 
         assert flow.email_verified
 
-    # Try changing to an invalid email.
+    # Changing the email is no longer allowed.
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
             auth_api.SignupFlow(
@@ -1097,7 +1098,7 @@ def test_signup_change_email_after_email_verified(db):
                 )
             )
     assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-    assert e.value.details() == "That email address is already associated with an account. Please log in instead!"
+    assert e.value.details() == "You have already verified your email."
 
     # Make sure the signup email wasn't changed.
     with session_scope() as session:
@@ -1107,59 +1108,348 @@ def test_signup_change_email_after_email_verified(db):
         assert flow.email_verified
 
 
-def test_signup_change_email_same_email_resends_existing_token(db, email_collector: EmailCollector):
-    testing_email = f"{random_hex(12)}@couchers.org.invalid"
+_INVALID_SIGNUP_REQUEST = (
+    "Invalid signup request, you cannot recover your signup and continue signing up simultaneously."
+)
 
+# a sample value for every field that mutates a signup flow
+_SIGNUP_FLOW_FIELDS: dict[str, Any] = {
+    "basic": auth_pb2.SignupBasic(name="testing", email="other@couchers.org.invalid"),
+    "account": auth_pb2.SignupAccount(username="frodo"),
+    "feedback": auth_pb2.ContributorForm(),
+    "motivations": auth_pb2.SignupMotivations(motivations=["surfing"]),
+    "accept_community_guidelines": wrappers_pb2.BoolValue(value=True),
+    "change_email": auth_pb2.ChangeSignupEmail(new_email="other@couchers.org.invalid"),
+    "resend_verification_email": True,
+}
+_SIGNUP_STEP_FIELDS = ["basic", "account", "feedback", "motivations", "accept_community_guidelines"]
+_RECOVERY_STEP_FIELDS = ["change_email", "resend_verification_email"]
+
+
+def _start_signup_flow(email: str) -> str:
     with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.SignupFlow(
-            auth_pb2.SignupFlowReq(
-                basic=auth_pb2.SignupBasic(
-                    name="testing",
-                    email=testing_email,
-                )
-            )
-        )
+        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="testing", email=email)))
+    assert res.flow_token
+    return cast(str, res.flow_token)
 
-    flow_token = res.flow_token
-    assert flow_token
 
-    # Get the original email token.
+def test_signup_change_email_same_email(db, email_collector: EmailCollector):
+    """Changing to the email the flow already has is rejected, but the existing link is resent."""
+    testing_email = f"{random_hex(12)}@couchers.org.invalid"
+    flow_token = _start_signup_flow(testing_email)
+
     with session_scope() as session:
         flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
 
         original_email_token = flow.email_token
         assert original_email_token
-        assert flow.email == testing_email
 
-    # Clear the original email so we can inspect the one sent by
-    # SignupFlowChangeEmail.
+    # Consume the initial email so we can specifically check the one sent below.
     email_collector.pop_for_recipient(testing_email, last=True)
 
-    # Ask to change the signup email to the same email.
     with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.SignupFlow(
-            auth_pb2.SignupFlowReq(
-                flow_token=flow_token,
-                change_email=auth_pb2.ChangeSignupEmail(new_email=testing_email),
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    change_email=auth_pb2.ChangeSignupEmail(new_email=testing_email),
+                )
             )
-        )
+    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+    assert e.value.details() == "Please check your email for a link to continue signing up."
 
-    assert res.flow_token == flow_token
-    assert res.need_verify_email
-
-    # The email should have been resent.
+    # The existing verification link is resent.
     email = email_collector.pop_for_recipient(testing_email, last=True)
     assert email.recipient == testing_email
     assert original_email_token in email.plain
     assert original_email_token in email.html
 
-    # The signup flow should still have the same token.
     with session_scope() as session:
         flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
 
         assert flow.email == testing_email
         assert flow.email_token == original_email_token
         assert not flow.email_verified
+        assert flow.email_changed_count == 0
+
+
+def test_signup_change_email_to_existing_user_email(db):
+    user, _ = generate_user()
+
+    testing_email = f"{random_hex(12)}@couchers.org.invalid"
+    flow_token = _start_signup_flow(testing_email)
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    change_email=auth_pb2.ChangeSignupEmail(new_email=user.email),
+                )
+            )
+    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+    assert e.value.details() == "That email address is already associated with an account. Please log in instead!"
+
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+
+        assert flow.email == testing_email
+        assert flow.email_changed_count == 0
+
+
+@pytest.mark.parametrize("invisible_column", ["banned_at", "deleted_at"])
+def test_signup_change_email_to_invisible_user_email(db, invisible_column):
+    user, _ = generate_user()
+
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == user.id).values(**{invisible_column: func.now()}))
+
+    testing_email = f"{random_hex(12)}@couchers.org.invalid"
+    flow_token = _start_signup_flow(testing_email)
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    change_email=auth_pb2.ChangeSignupEmail(new_email=user.email),
+                )
+            )
+    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+    assert e.value.details() == "You cannot sign up with that email address."
+
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+
+        assert flow.email == testing_email
+        assert flow.email_changed_count == 0
+
+
+def test_signup_change_email_to_other_flow_email(db, email_collector: EmailCollector):
+    """Changing to an email that another signup already uses nudges that other signup instead."""
+    testing_email = f"{random_hex(12)}@couchers.org.invalid"
+    other_email = f"{random_hex(12)}@couchers.org.invalid"
+
+    flow_token = _start_signup_flow(testing_email)
+    other_flow_token = _start_signup_flow(other_email)
+
+    with session_scope() as session:
+        other_flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == other_flow_token)).scalar_one()
+
+        other_email_token = other_flow.email_token
+        assert other_email_token
+
+    email_collector.pop_for_recipient(other_email, last=True)
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    change_email=auth_pb2.ChangeSignupEmail(new_email=other_email),
+                )
+            )
+    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+    assert e.value.details() == "Please check your email for a link to continue signing up."
+
+    # The other signup gets its own link resent, this one is untouched.
+    email = email_collector.pop_for_recipient(other_email, last=True)
+    assert other_email_token in email.plain
+    assert other_email_token in email.html
+
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+
+        assert flow.email == testing_email
+        assert flow.email_changed_count == 0
+
+
+def test_signup_change_email_without_flow_token(db):
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    change_email=auth_pb2.ChangeSignupEmail(new_email=f"{random_hex(12)}@couchers.org.invalid"),
+                )
+            )
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == "Account details needed to sign up."
+
+
+def test_signup_change_email_and_resend_verification_email(db, email_collector: EmailCollector):
+    testing_email = f"{random_hex(12)}@couchers.org.invalid"
+    new_email = f"{random_hex(12)}@couchers.org.invalid"
+    flow_token = _start_signup_flow(testing_email)
+
+    email_collector.pop_for_recipient(testing_email, last=True)
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    change_email=auth_pb2.ChangeSignupEmail(new_email=new_email),
+                    resend_verification_email=True,
+                )
+            )
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == _INVALID_SIGNUP_REQUEST
+
+    assert email_collector.count() == 0
+
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+
+        assert flow.email == testing_email
+        assert flow.email_changed_count == 0
+
+
+@pytest.mark.parametrize("field", list(_SIGNUP_FLOW_FIELDS))
+def test_signup_email_token_with_other_fields(db, field):
+    """The email token makes the rest of the request be ignored, so sending both is rejected."""
+    testing_email = f"{random_hex(12)}@couchers.org.invalid"
+    flow_token = _start_signup_flow(testing_email)
+
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+
+        email_token = flow.email_token
+        assert email_token
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token, **{field: _SIGNUP_FLOW_FIELDS[field]}))
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == _INVALID_SIGNUP_REQUEST
+
+    # the token wasn't consumed
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+
+        assert flow.email == testing_email
+        assert flow.email_token == email_token
+        assert not flow.email_verified
+
+
+@pytest.mark.parametrize("recovery_field", _RECOVERY_STEP_FIELDS)
+@pytest.mark.parametrize("signup_field", _SIGNUP_STEP_FIELDS)
+def test_signup_flow_signup_step_with_recovery_step(db, signup_field, recovery_field):
+    """Continuing a signup and recovering it in the same request is rejected."""
+    testing_email = f"{random_hex(12)}@couchers.org.invalid"
+    flow_token = _start_signup_flow(testing_email)
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    **{
+                        signup_field: _SIGNUP_FLOW_FIELDS[signup_field],
+                        recovery_field: _SIGNUP_FLOW_FIELDS[recovery_field],
+                    },
+                )
+            )
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == _INVALID_SIGNUP_REQUEST
+
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+
+        assert flow.email == testing_email
+        assert flow.email_changed_count == 0
+        assert not flow.account_is_filled
+
+
+def test_signup_change_email_repeatedly(db):
+    with patch.multiple("couchers.servicers.auth", signup_email_changes_counter=DEFAULT) as counters:
+        flow_token = _start_signup_flow(f"{random_hex(12)}@couchers.org.invalid")
+
+        for _ in range(3):
+            new_email = f"{random_hex(12)}@couchers.org.invalid"
+            with auth_api_session() as (auth_api, metadata_interceptor):
+                res = auth_api.SignupFlow(
+                    auth_pb2.SignupFlowReq(
+                        flow_token=flow_token,
+                        change_email=auth_pb2.ChangeSignupEmail(new_email=new_email),
+                    )
+                )
+            assert res.flow_token == flow_token
+            assert res.need_verify_email
+
+        assert counters["signup_email_changes_counter"].inc.call_count == 3
+
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+
+        assert flow.email == new_email
+        assert flow.email_changed_count == 3
+
+
+def test_signup_change_email_then_complete(db, email_collector: EmailCollector):
+    old_email = f"{random_hex(12)}@couchers.org.invalid"
+    new_email = f"{random_hex(12)}@couchers.org.invalid"
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email=old_email),
+                account=auth_pb2.SignupAccount(
+                    username="frodo",
+                    password="a very insecure password",
+                    birthdate="1970-01-01",
+                    gender="Bot",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    city="New York City",
+                    lat=40.7331,
+                    lng=-73.9778,
+                    radius=500,
+                    accept_tos=True,
+                ),
+                feedback=auth_pb2.ContributorForm(),
+                accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+                motivations=auth_pb2.SignupMotivations(motivations=["surfing"]),
+            )
+        )
+
+    flow_token = res.flow_token
+    assert flow_token
+    assert res.need_verify_email
+
+    email_collector.pop_for_recipient(old_email, last=True)
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                flow_token=flow_token,
+                change_email=auth_pb2.ChangeSignupEmail(new_email=new_email),
+            )
+        )
+
+    # the flow is otherwise complete, so it must not finish until the new email is verified
+    assert res.flow_token == flow_token
+    assert res.need_verify_email
+    assert not res.HasField("auth_res")
+
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+
+        email_token = flow.email_token
+        assert email_token
+
+    email = email_collector.pop_for_recipient(new_email, last=True)
+    assert email_token in email.plain
+    assert email_token in email.html
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
+
+    assert not res.flow_token
+    assert res.HasField("auth_res")
+
+    with session_scope() as session:
+        user = session.execute(select(User).where(User.username == "frodo")).scalar_one()
+
+        assert user.email == new_email
 
 
 def test_successful_authenticate(db):
