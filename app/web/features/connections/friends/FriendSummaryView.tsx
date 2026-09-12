@@ -15,7 +15,7 @@ interface FriendSummaryViewProps {
    * Pass false where the row has the full width of the page and a narrow action,
    * so a lone icon button isn't pushed onto a line of its own.
    */
-  isMobile?: boolean;
+  isCompact?: boolean;
   isProfileLink?: boolean;
   cardRef?: React.Ref<HTMLDivElement>;
   menuItems?: EllipsisMenuItem[];
@@ -35,39 +35,39 @@ const fullWidthActions = {
 };
 
 const StyledFriendItem = styled("div", {
-  shouldForwardProp: (prop) => prop !== "isMobile",
-})<{ isMobile: boolean }>(({ theme, isMobile }) => ({
+  shouldForwardProp: (prop) => prop !== "isCompact",
+})<{ isCompact: boolean }>(({ theme, isCompact }) => ({
   display: "flex",
   alignItems: "flex-start",
   padding: `0 ${theme.spacing(1)}`,
   // Wide rows still stack once the viewport itself gets narrow.
-  ...(isMobile ? stacked(theme) : { [theme.breakpoints.down("md")]: stacked(theme) }),
+  ...(isCompact ? stacked(theme) : { [theme.breakpoints.down("md")]: stacked(theme) }),
 }));
 
 const ButtonWrapper = styled("div", {
-  shouldForwardProp: (prop) => prop !== "isMobile",
-})<{ isMobile: boolean }>(({ theme, isMobile }) =>
-  isMobile ? fullWidthActions : { [theme.breakpoints.down("md")]: fullWidthActions },
+  shouldForwardProp: (prop) => prop !== "isCompact",
+})<{ isCompact: boolean }>(({ theme, isCompact }) =>
+  isCompact ? fullWidthActions : { [theme.breakpoints.down("md")]: fullWidthActions },
 );
 
 function FriendSummaryView({
   children,
   friend,
-  isMobile = true,
+  isCompact = true,
   isProfileLink,
   cardRef,
   menuItems,
 }: FriendSummaryViewProps) {
   return friend ? (
-    <StyledFriendItem ref={cardRef} data-testid={FRIEND_ITEM_TEST_ID} isMobile={isMobile}>
+    <StyledFriendItem ref={cardRef} data-testid={FRIEND_ITEM_TEST_ID} isCompact={isCompact}>
       <UserSummary
         headlineComponent="h3"
         user={friend}
         isProfileLink={isProfileLink}
-        smallAvatar={isMobile}
+        smallAvatar={isCompact}
         menuItems={menuItems}
       />
-      <ButtonWrapper isMobile={isMobile}>{children}</ButtonWrapper>
+      {children ? <ButtonWrapper isCompact={isCompact}>{children}</ButtonWrapper> : null}
     </StyledFriendItem>
   ) : null;
 }

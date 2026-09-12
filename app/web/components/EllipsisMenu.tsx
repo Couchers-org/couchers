@@ -1,5 +1,7 @@
 import { MoreHoriz, SvgIconComponent } from "@mui/icons-material";
 import { IconButton, Menu, styled, Typography } from "@mui/material";
+import { useTranslation } from "i18n";
+import { GLOBAL } from "i18n/namespaces";
 import { theme } from "theme";
 
 import { MenuItem } from "./Menu";
@@ -28,10 +30,13 @@ const MenuWrapper = styled("div")(() => ({
 }));
 
 const EllipsisMenu = ({ idName, isMenuOpen, menuAnchorEl, onMenuOpen, onMenuClose, items }: EllipsisMenuProps) => {
+  const { t } = useTranslation(GLOBAL);
+
   return (
     <MenuWrapper>
       <>
         <IconButton
+          aria-label={t("global:more_options_a11y")}
           aria-controls={isMenuOpen ? `${idName}-more-options` : undefined}
           aria-haspopup="true"
           aria-expanded={isMenuOpen ? "true" : undefined}

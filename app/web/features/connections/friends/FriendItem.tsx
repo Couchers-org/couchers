@@ -1,10 +1,8 @@
 import { Block, PersonRemove } from "@mui/icons-material";
-import { useMediaQuery } from "@mui/material";
 import { useTranslation } from "i18n";
 import { CONNECTIONS, GLOBAL } from "i18n/namespaces";
 import { LiteUser } from "proto/api_pb";
 import { useState } from "react";
-import { theme } from "theme";
 
 import ConnectionActionDialog from "./ConnectionActionDialog";
 import FriendSummaryView from "./FriendSummaryView";
@@ -52,13 +50,13 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
     removeFriend(friend.userId);
     setOpenDialog(null);
   };
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  // The friends list has the full width of the main column and only an overflow
-  // menu, so it keeps the wide row and the larger avatar.
+
+  // The friends list has the full width of the main column, so it keeps the wide row;
+  // UserSummary handles the compact mobile layout.
   return (
     <FriendSummaryView
       friend={friend}
-      isMobile={isMobile}
+      isCompact={false}
       menuItems={[
         {
           icon: PersonRemove,

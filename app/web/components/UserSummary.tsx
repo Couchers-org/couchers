@@ -33,6 +33,12 @@ const StyledListItemText = styled(ListItemText, {
   gap: theme.spacing(0.25),
   margin: 0,
   minHeight: isSmallAvatar ? theme.spacing(6) : theme.spacing(9),
+  [theme.breakpoints.down("sm")]: { minHeight: theme.spacing(6) },
+}));
+
+// The row is centred, but on mobile the ellipsis sits at the top right of the item.
+const StyledMenuWrapper = styled("div")(({ theme }) => ({
+  [theme.breakpoints.down("sm")]: { alignSelf: "flex-start" },
 }));
 
 const StyledSkeleton = styled(Skeleton, {
@@ -49,6 +55,7 @@ const StyledAvatar = styled(Avatar, {
   marginInlineEnd: theme.spacing(2),
   height: isSmallAvatar ? "3rem" : "4.5rem",
   width: isSmallAvatar ? "3rem" : "4.5rem",
+  [theme.breakpoints.down("sm")]: { height: "3rem", width: "3rem" },
 }));
 
 export const USER_TITLE_SKELETON_TEST_ID = "user-title-skeleton";
@@ -74,10 +81,6 @@ export default function UserSummary({
   isProfileLink = true,
   menuItems,
 }: UserSummaryProps) {
-  const headlineComponentWithRef = React.forwardRef(function HeadlineComponentWithRef(props, ref) {
-    return React.createElement(headlineComponent, { ...props, ref });
-  });
-
   const isMobile = useIsScreenSizeOrSmaller("mobile");
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(null);
 
@@ -100,12 +103,7 @@ export default function UserSummary({
 
   const title = (
     <Tooltip title={user?.name} arrow placement="top">
-      <Typography
-        component={headlineComponentWithRef}
-        variant="h2"
-        noWrap={nameOnly}
-        sx={{ marginTop: "auto", minWidth: 0 }}
-      >
+      <Typography component={headlineComponent} variant="h2" noWrap={nameOnly} sx={{ marginTop: "auto", minWidth: 0 }}>
         {!user ? (
           <Skeleton data-testid={USER_TITLE_SKELETON_TEST_ID} sx={{ maxWidth: 300 }} />
         ) : (
@@ -152,62 +150,24 @@ export default function UserSummary({
         disableTypography
         isSmallAvatar={smallAvatar}
         primary={
-          <Box
-            sx={{
-              position: "relative",
-              display: "flex",
-              alignItems: "end",
-              minWidth: 0,
-              width: "100%",
-            }}
-          >
-            <Box
-              sx={{
+          titleIsLink && user ? (
+            <ProfileLink
+              userId={"userId" in user ? user.userId : undefined}
+              username={user.username}
+              openInNewTab={!isMobile}
+              showOpenIcon={!isMobile}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-start",
                 minWidth: 0,
-                flex: 1,
-                // Reserve horizontal space for the menu
-                paddingInlineEnd: menuItems ? 6 : 0,
               }}
             >
-              {titleIsLink && user ? (
-                <ProfileLink
-                  userId={"userId" in user ? user.userId : undefined}
-                  username={user.username}
-                  openInNewTab={!isMobile}
-                  showOpenIcon={!isMobile}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "flex-start",
-                    minWidth: 0,
-                  }}
-                >
-                  {title}
-                </ProfileLink>
-              ) : (
-                title
-              )}
-            </Box>
-
-            {menuItems && (
-              <Box
-                sx={{
-                  position: "absolute",
-                  right: 0,
-                  top: "-50%",
-                }}
-              >
-                <EllipsisMenu
-                  idName={`${user?.username}-summary-menu`}
-                  isMenuOpen={!!menuAnchorEl}
-                  menuAnchorEl={menuAnchorEl}
-                  onMenuOpen={handleMenuOpen}
-                  onMenuClose={handleMenuClose}
-                  items={menuItems}
-                />
-              </Box>
-            )}
-          </Box>
+              {title}
+            </ProfileLink>
+          ) : (
+            title
+          )
         }
         secondary={
           <>
@@ -250,6 +210,19 @@ export default function UserSummary({
           </>
         }
       />
+
+      {menuItems?.length ? (
+        <StyledMenuWrapper>
+          <EllipsisMenu
+            idName={`${user?.username}-summary-menu`}
+            isMenuOpen={!!menuAnchorEl}
+            menuAnchorEl={menuAnchorEl}
+            onMenuOpen={handleMenuOpen}
+            onMenuClose={handleMenuClose}
+            items={menuItems}
+          />
+        </StyledMenuWrapper>
+      ) : null}
     </StyledWrapper>
   );
 }
