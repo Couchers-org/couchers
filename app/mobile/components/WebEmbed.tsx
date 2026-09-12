@@ -374,6 +374,15 @@ export default function WebEmbed({
         hasAction().then((canReview) => {
           if (canReview) requestReview();
         });
+      } else if (payload?.type === "OPEN_EXTERNAL_URL") {
+        const url = payload.data?.url;
+        if (url) {
+          Linking.openURL(url).catch((err) => {
+            if (__DEV__) {
+              console.error("Failed to open external URL:", err);
+            }
+          });
+        }
       }
     } catch (error) {
       // Ignore non-JSON messages from browser/WebView internals.
