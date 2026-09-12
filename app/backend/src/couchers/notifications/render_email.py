@@ -1,5 +1,6 @@
 import logging
 from dataclasses import dataclass
+from email.headerregistry import Address
 from typing import assert_never
 
 import couchers.email.emails as emails
@@ -38,9 +39,11 @@ def get_send_email_payload(
     else:
         attachment = None
 
+    sender = get_email_sender(notification)
+
     return SendEmailPayload(
-        sender_name=email.sender.display_name,
-        sender_email=email.sender.addr_spec,
+        sender_name=sender.display_name,
+        sender_email=sender.addr_spec,
         recipient=user.email,
         subject=config.NOTIFICATION_PREFIX + rendered_email.subject,
         plain=rendered_email.body_plaintext,
@@ -163,6 +166,11 @@ def get_notification_email(notification: Notification, *, user_name: str) -> Ema
         case _:
             # Enable mypy's exhaustiveness checking
             assert_never(notification.topic_action)
+
+
+def get_email_sender(notification: Notification) -> Address:
+    """Gets the address the email is sent from, which a notification can override to e.g. a monitored mailbox."""
+    return Address(config.NOTIFICATION_EMAIL_SENDER, addr_spec=config.NOTIFICATION_EMAIL_ADDRESS)
 
 
 def get_source_data_header(notification: Notification) -> str:

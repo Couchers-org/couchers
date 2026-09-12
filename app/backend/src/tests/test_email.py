@@ -5,7 +5,6 @@ from urllib.parse import parse_qs, urlparse
 import pytest
 from sqlalchemy import func, select, update
 
-import couchers.email.blocks
 import couchers.jobs.handlers
 from couchers.config import config
 from couchers.context import make_background_user_context, make_logged_out_context
@@ -345,7 +344,7 @@ def test_do_not_email_non_security_unsublink(db, email_collector: EmailCollector
     assert "/quick-link?payload=" in email.html
 
 
-def test_email_prefix_config(db, email_collector: EmailCollector, monkeypatch):
+def test_email_prefix_config(db, email_collector: EmailCollector):
     user, _ = generate_user()
 
     with session_scope() as session:
@@ -365,14 +364,9 @@ def test_email_prefix_config(db, email_collector: EmailCollector, monkeypatch):
     assert email1.sender_email == "notify@couchers.org.invalid"
     assert email1.subject == "[TEST] Thank you for your donation to Couchers.org!"
 
-    new_config = config.copy()
-    new_config.NOTIFICATION_EMAIL_SENDER = "TestCo"
-    new_config.NOTIFICATION_EMAIL_ADDRESS = "testco@testing.co.invalid"
-    new_config.NOTIFICATION_PREFIX = ""
-
-    # the subject prefix is applied when queuing, the sender comes from the email itself
-    monkeypatch.setattr(couchers.notifications.render_email, "config", new_config)
-    monkeypatch.setattr(couchers.email.blocks, "config", new_config)
+    config.NOTIFICATION_EMAIL_SENDER = "TestCo"
+    config.NOTIFICATION_EMAIL_ADDRESS = "testco@testing.co.invalid"
+    config.NOTIFICATION_PREFIX = ""
 
     with session_scope() as session:
         notify(
