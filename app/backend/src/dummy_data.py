@@ -35,11 +35,13 @@ from couchers.models import (
     PageType,
     PageVersion,
     PhotoGallery,
+    PhotoGalleryItem,
     Reference,
     ReferenceType,
     RegionLived,
     RegionVisited,
     Thread,
+    Upload,
     User,
     Volunteer,
 )
@@ -117,6 +119,22 @@ def add_dummy_users() -> None:
             session.add(profile_gallery)
             session.flush()
             new_user.profile_gallery_id = profile_gallery.id
+
+            avatar_key = f"dummy-{new_user.username}-avatar"
+            session.add(
+                Upload(
+                    key=avatar_key,
+                    filename=user["avatar_filename"],
+                    creator_user_id=new_user.id,
+                )
+            )
+            session.add(
+                PhotoGalleryItem(
+                    gallery_id=profile_gallery.id,
+                    upload_key=avatar_key,
+                    position=0,
+                )
+            )
 
             for language in user["languages"]:
                 session.add(
