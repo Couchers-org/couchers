@@ -16,6 +16,9 @@ function isLiteUser(user: LiteUser.AsObject | BlockedUser.AsObject): user is Lit
   return "hasStrongVerification" in user;
 }
 
+const AVATAR_SIZE_SMALL = "3rem";
+const AVATAR_SIZE_LARGE = "4.5rem";
+
 const StyledWrapper = styled("div")({
   display: "flex",
   padding: 0,
@@ -33,22 +36,30 @@ const StyledListItemText = styled(ListItemText, {
   gap: theme.spacing(0.25),
   margin: 0,
   minHeight: isSmallAvatar ? theme.spacing(6) : theme.spacing(9),
+  [theme.breakpoints.down("md")]: { minHeight: theme.spacing(6) },
+}));
+
+// The row is centred, but on mobile the ellipsis sits at the top right of the item.
+const StyledMenuWrapper = styled("div")(({ theme }) => ({
+  [theme.breakpoints.down("md")]: { alignSelf: "flex-start" },
 }));
 
 const StyledSkeleton = styled(Skeleton, {
   shouldForwardProp: (prop) => prop !== "isSmallAvatar",
 })<{ isSmallAvatar: boolean }>(({ theme, isSmallAvatar }) => ({
   marginInlineEnd: theme.spacing(2),
-  height: isSmallAvatar ? "3rem" : "4.5rem",
-  width: isSmallAvatar ? "3rem" : "4.5rem",
+  height: isSmallAvatar ? AVATAR_SIZE_SMALL : AVATAR_SIZE_LARGE,
+  width: isSmallAvatar ? AVATAR_SIZE_SMALL : AVATAR_SIZE_LARGE,
+  [theme.breakpoints.down("md")]: { height: AVATAR_SIZE_SMALL, width: AVATAR_SIZE_SMALL },
 }));
 
 const StyledAvatar = styled(Avatar, {
   shouldForwardProp: (prop) => prop !== "isSmallAvatar",
 })<{ isSmallAvatar: boolean }>(({ theme, isSmallAvatar }) => ({
   marginInlineEnd: theme.spacing(2),
-  height: isSmallAvatar ? "3rem" : "4.5rem",
-  width: isSmallAvatar ? "3rem" : "4.5rem",
+  height: isSmallAvatar ? AVATAR_SIZE_SMALL : AVATAR_SIZE_LARGE,
+  width: isSmallAvatar ? AVATAR_SIZE_SMALL : AVATAR_SIZE_LARGE,
+  [theme.breakpoints.down("md")]: { height: AVATAR_SIZE_SMALL, width: AVATAR_SIZE_SMALL },
 }));
 
 export const USER_TITLE_SKELETON_TEST_ID = "user-title-skeleton";
@@ -74,10 +85,6 @@ export default function UserSummary({
   isProfileLink = true,
   menuItems,
 }: UserSummaryProps) {
-  const headlineComponentWithRef = React.forwardRef(function HeadlineComponentWithRef(props, ref) {
-    return React.createElement(headlineComponent, { ...props, ref });
-  });
-
   const isMobile = useIsScreenSizeOrSmaller("mobile");
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(null);
 
@@ -100,12 +107,7 @@ export default function UserSummary({
 
   const title = (
     <Tooltip title={user?.name} arrow placement="top">
-      <Typography
-        component={headlineComponentWithRef}
-        variant="h2"
-        noWrap={nameOnly}
-        sx={{ marginTop: "auto", minWidth: 0 }}
-      >
+      <Typography component={headlineComponent} variant="h2" noWrap={nameOnly} sx={{ marginTop: "auto", minWidth: 0 }}>
         {!user ? (
           <Skeleton data-testid={USER_TITLE_SKELETON_TEST_ID} sx={{ maxWidth: 300 }} />
         ) : (
@@ -213,16 +215,18 @@ export default function UserSummary({
         }
       />
 
-      {menuItems && (
-        <EllipsisMenu
-          idName={`${user?.username}-summary-menu`}
-          isMenuOpen={!!menuAnchorEl}
-          menuAnchorEl={menuAnchorEl}
-          onMenuOpen={handleMenuOpen}
-          onMenuClose={handleMenuClose}
-          items={menuItems}
-        />
-      )}
+      {menuItems?.length ? (
+        <StyledMenuWrapper>
+          <EllipsisMenu
+            idName={`${user?.username}-summary-menu`}
+            isMenuOpen={!!menuAnchorEl}
+            menuAnchorEl={menuAnchorEl}
+            onMenuOpen={handleMenuOpen}
+            onMenuClose={handleMenuClose}
+            items={menuItems}
+          />
+        </StyledMenuWrapper>
+      ) : null}
     </StyledWrapper>
   );
 }

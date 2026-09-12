@@ -19,9 +19,9 @@ describe("FriendItem", () => {
 
     const user = userEvent.setup();
 
-    user.click(screen.getByTestId("friend-item-more-options"));
+    await user.click(screen.getByRole("button", { name: t("global:more_options_a11y") }));
 
-    const removeMenuItems = await screen.findAllByTestId("friend-item-remove-friend");
+    const removeMenuItems = await screen.findAllByRole("menuitem", { name: t("connections:remove_friend") });
     const removeMenuItem = removeMenuItems[0];
 
     expect(removeMenuItem).toBeVisible();
