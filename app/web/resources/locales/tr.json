@@ -41,7 +41,6 @@
       "title": "Çeviri İlerlemesi",
       "loading": "Çeviri ilerlemesi yükleniyor...",
       "error_loading": "Çeviri ilerlemesi yüklenemedi",
-      "no_data": "Çeviri verisi mevcut değil",
       "complete": "Tamamlanmış",
       "info_text": "💡 %50-80 tamamlanmış diller dil seçicisinde gri renkte görünür. %50'nin altında tamamlanmaya sahip diller dil seçicisinden gizlenir. Çevirilere katkıda bulunanları teşvik etmek için, ilerlemesi %20'nin altında olan diller bu sayfada gösterilir.",
       "view_progress": "Çeviri ilerlemesini görüntüle",

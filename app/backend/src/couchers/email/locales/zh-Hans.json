@@ -45,7 +45,6 @@
       "subject": "您的帐户已被删除",
       "purpose": "您已成功删除您的Couchers.org帐户。",
       "farewell": "我们很遗憾您的离开，并祝您未来的旅行一切顺利。随时欢迎您回到Couchers.org平台:)",
-      "recovery_instructions_days_one": "如果您改变主意，<strong>您有{{count}}天的时间来恢复您的帐户</strong>，只需点击以下链接即可：",
       "recovery_instructions_days_other": "如果您改变主意，<strong>您有{{count}}天的时间来恢复您的帐户</strong>，只需点击以下链接即可：",
       "recover_action": "恢复帐户"
     },
@@ -60,7 +59,6 @@
   "activeness_probe": {
     "subject": "您还愿意接待吗？",
     "purpose": "我们注意到您已有一段时间没有登录，想确认您是否仍愿意接待沙发客。",
-    "instructions_days_one": "若要保留“可以接待”状态，请在接下来的<b>{{count}}天内</b>重新登录；否则我们会将您的接待状态改为“无法接待”。",
     "instructions_days_other": "若要保留“可以接待”状态，请在接下来的<b>{{count}}天内</b>重新登录；否则我们会将您的接待状态改为“无法接待”。",
     "login_action": "重新登录",
     "encouragement": "定期确认状态可以帮助沙发客找到活跃的接待者，并让回复时间数据保持准确。",
@@ -103,9 +101,7 @@
     "missed": {
       "subject": "您有未看到的消息",
       "purpose": "自上次访问以来您错过了一些消息：",
-      "count_in_dm_one": "来自{{author}}的<b>{{count}}</b>条消息：",
       "count_in_dm_other": "来自{{author}}的<b>{{count}}</b>条消息：",
-      "count_in_group_one": "{{group}}中的<b>{{count}}</b>条消息：",
       "count_in_group_other": "{{group}}中的<b>{{count}}</b>条消息：",
       "view_action": "查看消息"
     }
@@ -356,14 +352,11 @@
       "view_action": "查看评价"
     },
     "reminder": {
-      "subject_days_one": "您还有{{count}}天可以为{{name}}撰写评价",
       "subject_days_other": "您还有{{count}}天可以为{{name}}撰写评价",
       "hosted": {
-        "purpose_days_one": "<strong>您还剩{{count}}天可以为曾由您接待的{{name}}撰写评价</strong>。您的评价对维护社区的安全与信任至关重要。",
         "purpose_days_other": "<strong>您还剩{{count}}天可以为曾由您接待的{{name}}撰写评价</strong>。您的评价对维护社区的安全与信任至关重要。"
       },
       "surfed": {
-        "purpose_days_one": "<strong>您还剩{{count}}天可以为曾接待您的{{name}}撰写评价</strong>。您的评价对维护社区的安全与信任至关重要。",
         "purpose_days_other": "<strong>您还剩{{count}}天可以为曾接待您的{{name}}撰写评价</strong>。您的评价对维护社区的安全与信任至关重要。"
       },
       "no_meeting_note": "如果您最后没有与<b>{{name}}</b>见面，请通过链接告诉我们，我们将不再提醒您。",

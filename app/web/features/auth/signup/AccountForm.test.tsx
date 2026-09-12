@@ -65,6 +65,7 @@ describe("AccountForm", () => {
   beforeEach(() => {
     signupFlowAccountMock.mockResolvedValue({
       flowToken: "token",
+      email: "test@example.com",
       needBasic: false,
       needAccount: false,
       needFeedback: false,
@@ -81,6 +82,7 @@ describe("AccountForm", () => {
         "auth.flowState",
         JSON.stringify({
           flowToken: "token",
+          email: "test@example.com",
           needBasic: false,
           needAccount: true,
           needFeedback: false,
@@ -314,6 +316,7 @@ describe("AccountForm", () => {
         "auth.flowState",
         JSON.stringify({
           flowToken: "token",
+          email: "test@example.com",
           needBasic: false,
           needAccount: true,
           needFeedback: false,
@@ -358,6 +361,7 @@ describe("AccountForm", () => {
         "auth.flowState",
         JSON.stringify({
           flowToken: "token",
+          email: "test@example.com",
           needBasic: false,
           needAccount: true,
           needFeedback: false,

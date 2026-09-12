@@ -182,6 +182,10 @@ msgstr "session"
 msgid "sessions"
 msgstr "sessions"
 
+#. (noun) A secret code used to make programmatic operations (call APIs) on behalf of a user.
+msgid "api_key"
+msgstr "API key"
+
 #. (noun) A grouping of settings (account, notifications, etc.)
 msgid "settings"
 msgstr "settings"
@@ -229,6 +233,10 @@ msgstr "photos"
 #. A geographical location such as an address or the name of a city.
 msgid "location"
 msgstr "location"
+
+#. A user's willingness to host surfers.
+msgid "hosting_status"
+msgstr "hosting status"
 
 #. A user status whereby a user is willing to host surfers.
 msgid "status.can_host"
@@ -404,25 +412,25 @@ msgstr "discussion"
 msgid "discussions"
 msgstr "discussions"
 
-#. (noun) A top-level reply on a discussion or event.
+#. (noun) A top-level comment on a discussion or event.
 msgid "discussions.comment.noun"
 msgstr "comment"
 
-#. (noun) The act of adding a top-level comment on a discussion or event.
+#. (verb) The act of adding a top-level comment on a discussion or event.
 msgid "discussions.comment.verb"
 msgstr "comment"
 
-#. (noun) Top-level replies on a discussion or event.
+#. (noun) Top-level comments on a discussion or event.
 msgid "discussions.comments"
 msgstr "comments"
 
 #. (noun) A reply on a top-level comment in a discussion or event.
 msgid "discussions.reply.noun"
-msgstr "comment"
+msgstr "reply"
 
-#. (noun) The act of replying to a top-level comment on a discussion or event.
+#. (verb) The act of replying to a top-level comment on a discussion or event.
 msgid "discussions.reply.verb"
-msgstr "comment"
+msgstr "reply"
 
 #. (noun) Replies on a top-level comment in a discussion or event.
 msgid "discussions.replies"

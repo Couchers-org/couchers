@@ -321,6 +321,9 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
         if (key === "acceptsLastMinRequests") {
           updatedFilters.acceptsLastMinRequests = action.payload[key] === false ? undefined : action.payload[key];
         }
+        if (key === "acceptsPets") {
+          updatedFilters.acceptsPets = action.payload[key] === false ? undefined : action.payload[key];
+        }
         if (key === "showEmptyProfile") {
           updatedFilters.showEmptyProfile = action.payload[key];
         }

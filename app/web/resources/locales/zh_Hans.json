@@ -64,7 +64,6 @@
       "help_translate": "帮助将Couchers翻译成您的语言",
       "loading": "正在加载翻译进度...",
       "error_loading": "无法加载翻译进度",
-      "no_data": "没有可用的翻译数据",
       "complete": "已完成",
       "almost_there": "几乎其中",
       "midway": "翻译过半",
@@ -158,8 +157,7 @@
       "map_is_blank": "缺少坐标，请首先使用上面的地图搜索位置",
       "radius_text2_other": "{{count}}米",
       "no_location_results_text": "没有结果。尝试仅搜索城市。",
-      "press_enter_to_search": "按Enter键搜索",
-      "radius_text2_one": "{{count}}米"
+      "press_enter_to_search": "按Enter键搜索"
     }
   },
   "nav": {
@@ -214,8 +212,7 @@
     },
     "error": {
       "fetch_invite_info": "无法获取邀请码详细信息"
-    },
-    "number_of_uses_one": "使用：{{count}}已完成注册"
+    }
   },
   "reply": "回复",
   "yes": "是",
