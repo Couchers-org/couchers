@@ -282,6 +282,7 @@ export default function WebEmbed({
     success: boolean;
     imageBase64?: string;
     mimeType?: string;
+    fileName?: string;
     canceled?: boolean;
     error?: string;
   }) => {
