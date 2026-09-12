@@ -4,8 +4,8 @@ import { RpcError } from "grpc-web";
 import { UserSearchV2Res } from "proto/search_pb";
 import { useRef } from "react";
 import { service } from "service";
+import { UserSearchFilters } from "service/search";
 
-import { FilterOptions } from "../SearchPage";
 import { MapSearchState } from "../state/mapSearchReducers";
 
 const calculateCurrentRange = ({
@@ -31,7 +31,7 @@ const calculateCurrentRange = ({
   return `${startRange}-${endRange}`;
 };
 
-export function useUserSearch(searchParams: FilterOptions, mapSearchState: MapSearchState) {
+export function useUserSearch(searchParams: UserSearchFilters, mapSearchState: MapSearchState) {
   const meetsSearchCriteria =
     mapSearchState.hasActiveFilters ||
     mapSearchState.search.bbox !== undefined ||
@@ -73,7 +73,7 @@ export function useUserSearch(searchParams: FilterOptions, mapSearchState: MapSe
   // Rolls when filters/bbox/query change, stays put across pagination within
   // the same intent. searchParams keeps a stable reference across pagination.
   const searchQueryIdRef = useRef<string | null>(null);
-  const prevSearchParamsRef = useRef<FilterOptions | null>(null);
+  const prevSearchParamsRef = useRef<UserSearchFilters | null>(null);
   if (searchQueryIdRef.current === null || prevSearchParamsRef.current !== searchParams) {
     prevSearchParamsRef.current = searchParams;
     searchQueryIdRef.current = makeSearchQueryId();
