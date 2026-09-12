@@ -4,15 +4,9 @@ import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import { useLogEvent } from "features/analytics/hooks";
 import { SearchAnalyticsProvider } from "features/analytics/searchAnalyticsContext";
 import { getOrCreateSearchSessionId } from "features/analytics/searchAttribution";
-import {
-  MapViewOptions,
-  MapViews,
-  MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
-  SleepingArrangementOptions,
-} from "features/search/utils/constants";
+import { MapViewOptions, MapViews, MAX_MAP_ZOOM_LEVEL_FOR_SEARCH } from "features/search/utils/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
-import { HostingStatus, MeetupStatus } from "proto/api_pb";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { LngLatLike, MapProvider, MapRef } from "react-map-gl/maplibre";
 
@@ -27,28 +21,6 @@ import { getMapBounds } from "./utils/mapUtils";
  * See map search architecture diagram and a description of the main concepts here:
  * docs/architecture/frontend/map-search.md
  */
-
-export type FilterOptions = {
-  acceptsKids?: boolean;
-  acceptsPets?: boolean;
-  acceptsLastMinRequests?: boolean;
-  ageMin?: number | undefined;
-  ageMax?: number | undefined;
-  showEmptyProfile?: boolean;
-  drinkingAllowed?: boolean | null;
-  hasReferences?: boolean;
-  hasStrongVerification?: boolean;
-  hostingStatus?: HostingStatus[];
-  meetupStatus?: MeetupStatus[];
-  numGuests?: number;
-  lastActive?: number;
-  lng?: number;
-  lat?: number;
-  selectedUserId?: number;
-  sleepingArrangement?: SleepingArrangementOptions[];
-  smokesAtHome?: boolean | null;
-  sameGenderOnly?: boolean;
-};
 
 const SearchPageContainer = styled("div")(({ theme }) => ({
   display: "flex",

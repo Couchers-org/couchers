@@ -24,19 +24,19 @@ import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { HostingStatus, MeetupStatus, SleepingArrangement } from "proto/api_pb";
+import { UserSearchFilterOptions } from "service/search";
 import { theme } from "theme";
 
 import { settingsRoute } from "../../routes";
-import { FilterOptions } from "./SearchPage";
 import { useMapSearchActions } from "./state/useMapSearchActions";
 import { DEFAULT_AGE_MAX, DEFAULT_AGE_MIN, lastActiveOptions, SleepingArrangementOptions } from "./utils/constants";
 
 interface FilterDialogProps {
-  filters: FilterOptions;
+  filters: UserSearchFilterOptions;
   isOpen: boolean;
   onCloseDialog: () => void;
   resetFilters: () => void;
-  updateFilter: (filter: FilterOptions) => void;
+  updateFilter: (filter: UserSearchFilterOptions) => void;
 }
 
 const StyledDialog = styled(Dialog)({
@@ -158,8 +158,9 @@ const FilterDialog = ({ filters, isOpen, onCloseDialog, resetFilters, updateFilt
     }
   };
 
+  // exclusive ToggleButtonGroups report a deselection as null
   const handleDrinkingAllowedChange = (event: React.MouseEvent<HTMLElement>, newDrinkingAllowed: boolean | null) => {
-    updateFilter({ drinkingAllowed: newDrinkingAllowed });
+    updateFilter({ drinkingAllowed: newDrinkingAllowed ?? undefined });
   };
 
   const handleShowEmptyProfileChange = () => {
@@ -205,7 +206,7 @@ const FilterDialog = ({ filters, isOpen, onCloseDialog, resetFilters, updateFilt
   };
 
   const handleSmokesAtHomeChange = (event: React.MouseEvent<HTMLElement>, newSmokesAtHome: boolean | null) => {
-    updateFilter({ smokesAtHome: newSmokesAtHome });
+    updateFilter({ smokesAtHome: newSmokesAtHome ?? undefined });
   };
 
   const handleSameGenderOnlyChange = () => {

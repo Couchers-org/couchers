@@ -1,9 +1,8 @@
 import { LngLatLike } from "maplibre-gl";
 import { GeocodeResult } from "utils/hooks";
 
-import { FilterOptions } from "../SearchPage";
 import { useMapSearchDispatch } from "../state/mapSearchContext";
-import { mapSearchActionTypes, MapSearchState } from "../state/mapSearchReducers";
+import { FilterUpdates, mapSearchActionTypes, MapSearchState } from "../state/mapSearchReducers";
 import { Coordinates } from "../utils/constants";
 
 function useMapSearchActions() {
@@ -48,7 +47,7 @@ function useMapSearchActions() {
     });
   };
 
-  const setSearchFilters = (newFilters: FilterOptions) => {
+  const setSearchFilters = (newFilters: FilterUpdates) => {
     dispatch({
       type: mapSearchActionTypes.SET_FILTERS,
       payload: newFilters,

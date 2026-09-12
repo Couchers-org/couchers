@@ -1,8 +1,9 @@
 import { createContext, Dispatch, ReactNode, useContext, useReducer } from "react";
+import { UserSearchFilterOptions } from "service/search";
 import { GeocodeResult } from "utils/hooks";
-import SearchFilters from "utils/searchFilters";
 
-import { initialState, MapSearchAction, mapSearchReducer } from "./mapSearchReducers";
+import { getHasActiveFilters } from "../utils/mapUtils";
+import { initialState, MapSearchAction, mapSearchReducer, MapSearchState } from "./mapSearchReducers";
 
 const MapSearchContext = createContext(initialState);
 const MapSearchDispatchContext = createContext<Dispatch<MapSearchAction>>(() => {
@@ -32,16 +33,19 @@ function MapSearchProvider({
   children: ReactNode;
   initialBbox: GeocodeResult["bbox"] | undefined;
   initialLocationName: string | undefined;
-  initialFilters: SearchFilters;
+  initialFilters: UserSearchFilterOptions;
 }) {
-  const [mapSearchState, dispatch] = useReducer(mapSearchReducer, {
+  const seededState: MapSearchState = {
     ...initialState,
-    hasActiveFilters: Object.keys(initialFilters).length > 0 ? true : false,
-    filters: initialFilters,
+    filters: { ...initialState.filters, ...initialFilters },
     search: {
       query: initialLocationName,
       bbox: initialBbox,
     },
+  };
+  const [mapSearchState, dispatch] = useReducer(mapSearchReducer, {
+    ...seededState,
+    hasActiveFilters: getHasActiveFilters(seededState, initialState),
   });
 
   return (

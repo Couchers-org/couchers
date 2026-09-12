@@ -1,16 +1,9 @@
 import { LngLatLike } from "maplibre-gl";
 import { HostingStatus, User } from "proto/api_pb";
-import { UserSearchFilters } from "service/search";
+import { UserSearchFilterOptions } from "service/search";
 import { GeocodeResult } from "utils/hooks";
 
-import { FilterOptions } from "../SearchPage";
-import {
-  Coordinates,
-  DEFAULT_AGE_MAX,
-  DEFAULT_AGE_MIN,
-  lastActiveOptions,
-  MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
-} from "../utils/constants";
+import { Coordinates, DEFAULT_AGE_MAX, DEFAULT_AGE_MIN, MAX_MAP_ZOOM_LEVEL_FOR_SEARCH } from "../utils/constants";
 import { getHasActiveFilters } from "../utils/mapUtils";
 
 /** WHY USE A REDUCER FOR OUR MAP STATE?
@@ -43,7 +36,7 @@ enum mapSearchActionTypes {
 
 // Overall format of the map search state
 type MapSearchState = {
-  filters: UserSearchFilters;
+  filters: UserSearchFilterOptions;
   hasActiveFilters: boolean;
   pageNumber: number;
   search: {
@@ -101,7 +94,7 @@ type MapSearchAction =
     }
   | {
       type: mapSearchActionTypes.SET_FILTERS;
-      payload: FilterOptions;
+      payload: FilterUpdates;
     }
   | {
       type: mapSearchActionTypes.SET_PAGE_NUMBER;
@@ -121,25 +114,82 @@ type MapSearchAction =
       };
     };
 
+type FilterKey = keyof UserSearchFilterOptions;
+
+// MUI's exclusive ToggleButtonGroup reports a deselection as null, so updates may carry null where undefined is meant
+type FilterUpdates = { [K in FilterKey]?: UserSearchFilterOptions[K] | null };
+
+type FilterNormalizers = {
+  [K in FilterKey]-?: (value: UserSearchFilterOptions[K] | null | undefined) => UserSearchFilterOptions[K];
+};
+
+const offToUndefined = (value: boolean | null | undefined) => (value ? true : undefined);
+const nullToUndefined = <T>(value: T | null | undefined) => value ?? undefined;
+const emptyToUndefined = <T>(value: T[] | null | undefined) => (value && value.length > 0 ? value : undefined);
+const zeroToUndefined = (value: number | null | undefined) => value || undefined;
+const defaultToUndefined = (defaultValue: number) => (value: number | null | undefined) =>
+  value === defaultValue ? undefined : (value ?? undefined);
+
+// Maps the value the dialog produces when a filter is switched off to undefined, so an untouched filter and a
+// cleared one look the same to hasActiveFilters and the API request. Omitting a filter here is a type error.
+const filterNormalizers: FilterNormalizers = {
+  acceptsKids: offToUndefined,
+  acceptsLastMinRequests: offToUndefined,
+  acceptsPets: offToUndefined,
+  ageMin: defaultToUndefined(DEFAULT_AGE_MIN),
+  ageMax: defaultToUndefined(DEFAULT_AGE_MAX),
+  // false is a real value for these three (e.g. "alcohol not allowed"), only a deselected toggle means off
+  drinkingAllowed: nullToUndefined,
+  showEmptyProfile: nullToUndefined,
+  smokesAtHome: nullToUndefined,
+  hasReferences: offToUndefined,
+  hasStrongVerification: offToUndefined,
+  hostingStatus: emptyToUndefined,
+  lastActive: zeroToUndefined,
+  meetupStatus: emptyToUndefined,
+  numGuests: zeroToUndefined,
+  sameGenderOnly: offToUndefined,
+  sleepingArrangement: emptyToUndefined,
+};
+
+// Doubles as the canonical list of filter keys (see getHasActiveFilters), so every key must be present
+const initialFilters: { [K in FilterKey]-?: UserSearchFilterOptions[K] | undefined } = {
+  acceptsKids: undefined,
+  acceptsLastMinRequests: undefined,
+  acceptsPets: undefined,
+  ageMin: undefined,
+  ageMax: undefined,
+  drinkingAllowed: undefined,
+  hasReferences: undefined,
+  hasStrongVerification: undefined,
+  hostingStatus: undefined,
+  lastActive: undefined,
+  meetupStatus: undefined,
+  numGuests: undefined,
+  sameGenderOnly: undefined,
+  showEmptyProfile: undefined,
+  sleepingArrangement: undefined,
+  smokesAtHome: undefined,
+};
+
+const normalizeFilter = <K extends FilterKey>(target: UserSearchFilterOptions, key: K, value: FilterUpdates[K]) => {
+  // TS can't resolve the mapped type for a generic key and falls back to a union of all normalizers
+  const normalize = filterNormalizers[key] as (value: FilterUpdates[K]) => UserSearchFilterOptions[K];
+  target[key] = normalize(value);
+};
+
+const normalizeFilters = (updates: FilterUpdates) => {
+  const normalized: UserSearchFilterOptions = {};
+  for (const key of Object.keys(filterNormalizers) as FilterKey[]) {
+    if (key in updates) {
+      normalizeFilter(normalized, key, updates[key]);
+    }
+  }
+  return normalized;
+};
+
 const initialState: MapSearchState = {
-  filters: {
-    acceptsKids: undefined,
-    acceptsLastMinRequests: undefined,
-    acceptsPets: undefined,
-    ageMin: undefined,
-    ageMax: undefined,
-    showEmptyProfile: undefined,
-    drinkingAllowed: undefined,
-    lastActive: undefined,
-    hasReferences: undefined,
-    hasStrongVerification: undefined,
-    hostingStatus: undefined,
-    meetupStatus: undefined,
-    numGuests: undefined,
-    sleepingArrangement: undefined,
-    smokesAtHome: undefined,
-    sameGenderOnly: undefined,
-  },
+  filters: initialFilters,
   hasActiveFilters: false,
   pageNumber: 1,
   search: {
@@ -310,72 +360,10 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
         },
       };
     }
-    case mapSearchActionTypes.SET_FILTERS:
-      const updatedFilters = { ...state.filters };
-
-      for (const key in action.payload) {
-        if (key === "ageMin") {
-          updatedFilters.ageMin = action.payload[key] === DEFAULT_AGE_MIN ? undefined : action.payload[key];
-        }
-        if (key === "ageMax") {
-          updatedFilters.ageMax = action.payload[key] === DEFAULT_AGE_MAX ? undefined : action.payload[key];
-        }
-
-        if (key === "acceptsKids") {
-          updatedFilters.acceptsKids = action.payload[key] === false ? undefined : action.payload[key];
-        }
-        if (key === "acceptsLastMinRequests") {
-          updatedFilters.acceptsLastMinRequests = action.payload[key] === false ? undefined : action.payload[key];
-        }
-        if (key === "acceptsPets") {
-          updatedFilters.acceptsPets = action.payload[key] === false ? undefined : action.payload[key];
-        }
-        if (key === "showEmptyProfile") {
-          updatedFilters.showEmptyProfile = action.payload[key];
-        }
-        if (key === "drinkingAllowed") {
-          // an exclusive ToggleButtonGroup reports a deselection as null
-          updatedFilters.drinkingAllowed = action.payload[key] ?? undefined;
-        }
-        if (key === "hasReferences") {
-          updatedFilters.hasReferences = action.payload[key] === false ? undefined : action.payload[key];
-        }
-        if (key === "hasStrongVerification") {
-          updatedFilters.hasStrongVerification = action.payload[key] === false ? undefined : action.payload[key];
-        }
-        if (key === "hostingStatus") {
-          updatedFilters.hostingStatus =
-            action.payload[key] && action.payload[key].length === 0 ? undefined : action.payload[key];
-        }
-
-        if (key === "meetupStatus") {
-          updatedFilters.meetupStatus =
-            action.payload[key] && action.payload[key].length === 0 ? undefined : action.payload[key];
-        }
-
-        if (key === "lastActive") {
-          updatedFilters.lastActive =
-            action.payload[key] === lastActiveOptions.LAST_ACTIVE_ANY ? undefined : action.payload[key];
-        }
-
-        if (key === "numGuests") {
-          updatedFilters.numGuests = action.payload[key] === 0 ? undefined : action.payload[key];
-        }
-        if (key === "sleepingArrangement") {
-          updatedFilters.sleepingArrangement =
-            action.payload[key] && action.payload[key].length === 0 ? undefined : action.payload[key];
-        }
-        if (key === "smokesAtHome") {
-          updatedFilters.smokesAtHome = action.payload[key] ?? undefined;
-        }
-        if (key === "sameGenderOnly") {
-          updatedFilters.sameGenderOnly = action.payload[key] === false ? undefined : action.payload[key];
-        }
-      }
-
+    case mapSearchActionTypes.SET_FILTERS: {
       const newState = {
         ...state,
-        filters: updatedFilters,
+        filters: { ...state.filters, ...normalizeFilters(action.payload) },
       };
 
       return {
@@ -384,6 +372,7 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
         pageNumber: initialState.pageNumber,
         shouldSearchByUserId: initialState.shouldSearchByUserId,
       };
+    }
 
     case mapSearchActionTypes.SET_PAGE_NUMBER:
       return {
@@ -456,4 +445,4 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
 };
 
 export { initialState, mapSearchActionTypes, mapSearchReducer };
-export type { MapSearchAction, MapSearchState };
+export type { FilterUpdates, MapSearchAction, MapSearchState };
