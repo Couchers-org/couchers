@@ -9,14 +9,11 @@
   "profile_summary_view": "Ver mi perfil",
   "profile_mobile_summary_view": "Ir al perfil",
   "find_a_host": "Buscar anfitrión",
-  "your_communities_helper_text": "Se te ha añadido a todas las comunidades basándonos en tu ubicación. También eres libre de <browseCommunitiesLink>explorar y unirte a comunidades</browseCommunitiesLink> en otras ubicaciones.",
   "no_sub_communities": "Sin sub-comunidades.",
   "browse_communities": "Explorar las comunidades",
   "community_builder": "¿Quieres ser un embajador para tu comunidad y ayudar a que crezca? !Conviértete en <communityBuilderLink>Creador de comunidades!</communityBuilderLink>",
-  "communities_welcome_title": "Te damos la bienvenida a comunidades",
   "find_your_community": "Encuentra una Comunidad",
   "communities_intro": "Para ayudar a gente alrededor del mundo a organizar eventos, discusiones, y reuniones de forma local, hemos creado la página de comunidades, que se listan más abajo. <strong>Se te ha añadido de forma automática a algunas comunidades basándonos en tu ubicación, ¡pero puedes unirte a cualquier comunidad!</strong>. Tus comunidades se listan en el tablón.",
-  "find_your_community_intro": "Debajo puedes buscar o navegar todas las páginas de comunidad que existen. ¿Falta tu país o tu ciudad? ¡<requestCommunityLink>Utiliza este formulario</requestCommunityLink> para solicitarlo!",
   "browse_communities_text": "Haz clic en una región para ver otras comunidades dentro de ella más abajo. Haz clic en el enlace para ir a la página de comunidad de esa ciudad o región.",
   "member_count_one": "{{count}} miembro",
   "member_count_many": "{{count}} de miembros",
@@ -31,7 +28,6 @@
   "show_map": "Mostrar mapa",
   "hero_image_alt": "Globos aerostáticos en Capadocia",
   "hero_image_attribution": "Foto por <photographerLink>Mesut Kaya</photographerLink> en <unsplashLink>Unsplash</unsplashLink>",
-  "my_communities_heading": "Mis Comunidades",
   "reminder": {
     "respond_to_host_request": {
       "title": "Responder a {{name}}",
