@@ -739,10 +739,8 @@ def test_bypass_emails_the_code_instead_of_posting(db, email_collector):
     user, token = generate_user()
     attempt_id = _confirmed_attempt_id(token)
 
-    with (
-        patch.object(config, "POSTAL_VERIFICATION_BYPASS_POST_AND_EMAIL_CODE_FOR_TESTING", True),
-        patch("couchers.jobs.handlers.send_postcard") as mock_send,
-    ):
+    config.POSTAL_VERIFICATION_BYPASS_POST_AND_EMAIL_CODE_FOR_TESTING = True
+    with patch("couchers.jobs.handlers.send_postcard") as mock_send:
         while process_job():
             pass
         mock_send.assert_not_called()
@@ -778,10 +776,8 @@ def test_postcard_is_posted_when_bypass_is_unset(db):
     user, token = generate_user()
     attempt_id = _confirmed_attempt_id(token)
 
-    with (
-        patch.object(config, "POSTAL_VERIFICATION_BYPASS_POST_AND_EMAIL_CODE_FOR_TESTING", False),
-        patch("couchers.jobs.handlers.send_postcard") as mock_send,
-    ):
+    config.POSTAL_VERIFICATION_BYPASS_POST_AND_EMAIL_CODE_FOR_TESTING = False
+    with patch("couchers.jobs.handlers.send_postcard") as mock_send:
         mock_send.return_value = 12345
         while process_job():
             pass
@@ -797,10 +793,8 @@ def test_postcard_is_posted_when_bypass_is_unset(db):
 
 def test_check_mypostcard_jobs_skipped_when_bypassing(db):
     """The reconciliation job must not call the API when we never placed any orders."""
-    with (
-        patch.object(config, "POSTAL_VERIFICATION_BYPASS_POST_AND_EMAIL_CODE_FOR_TESTING", True),
-        patch("couchers.jobs.handlers.get_order_ids") as mock_get_order_ids,
-    ):
+    config.POSTAL_VERIFICATION_BYPASS_POST_AND_EMAIL_CODE_FOR_TESTING = True
+    with patch("couchers.jobs.handlers.get_order_ids") as mock_get_order_ids:
         check_mypostcard_jobs(empty_pb2.Empty())
         mock_get_order_ids.assert_not_called()
 
