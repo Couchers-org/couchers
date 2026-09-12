@@ -11,7 +11,9 @@
   "basic_form": {
     "name": {
       "field_label": "Votre prénom",
-      "required_error": "Ce champ ne peut pas être vide."
+      "required_error": "Ce champ ne peut pas être vide",
+      "min_length_error": "Le nom doit faire au moins deux caractères",
+      "max_length_error": "Le nom ne peut pas faire plus de 100 caractères"
     },
     "email": {
       "field_label": "Adresse mail",
@@ -77,7 +79,7 @@
       "no_emails_disable_text": "Réactiver les mails"
     },
     "title": "Veuillez ne pas m'envoyer de mail",
-    "caveat": "En activant cette option, votre compte sera configuré pour refuser les demandes d'hébergement. Vous continuerez de recevoir les mails de sécurité (comme ceux pour la réinitialisation de votre mot de passe). La newsletter continuera de vous être envoyée ; vous pouvez vous désabonner de celle-ci en utilisant le lien dans le pied de page de la newsletter."
+    "caveat": "En activant cette option, votre compte sera configuré pour refuser les demandes d'hébergement. Vous continuerez de recevoir les mails de sécurité (comme ceux pour la réinitialisation de votre mot de passe). Vous continuerez à recevoir la newsletter ; vous pouvez vous désabonner de celle-ci en utilisant le lien dans le pied de page de la newsletter."
   },
   "reset_password_form": {
     "success_message": "Un lien de réinitialiser votre mot de passe a été envoyé à votre adresse mail à ce compte, si elle existe et est active. Veuillez noter que ce mail peut parfois se retrouver dans vos courriers indésirables.",
@@ -114,9 +116,9 @@
     "tos_prompt": "Pour continuer, veuillez lire et accepter <tosLink></tosLink>.",
     "header": "Détails de votre compte",
     "hosting_status": {
-      "maybe": "Probable d'héberger",
-      "can_host": "Possible d'héberger",
-      "cant_host": "Pas possible d'héberger",
+      "maybe": "Peut peut-être héberger",
+      "can_host": "Peut d'héberger",
+      "cant_host": "Ne peut pas héberger",
       "field_label": "Statut d’hébergement"
     },
     "gender": {
@@ -124,13 +126,15 @@
       "required_error": "Veuillez sélectionner votre genre",
       "man": "Homme",
       "non_binary": "Non binaire",
-      "woman": "Femme"
+      "woman": "Femme",
+      "selector_a11y": "Genre"
     },
     "username": {
       "required_error": "Entrez votre nom d’utilisateur",
       "username_taken_error": "Ce nom d’utilisateur est déjà pris.",
       "field_label": "Nom d’utilisateur",
-      "validation_error": "Le nom d’utilisateur ne peut contenir que des chiffres, de lettres ou/et commencer par une lettre."
+      "validation_error": "Le nom d’utilisateur ne peut contenir que des chiffres, de lettres ou/et commencer par une lettre.",
+      "helper_text": "Il s'agit de votre nom d'utilisateur public, pas de votre nom de profil."
     },
     "birthday": {
       "field_label": "Date de naissance",
@@ -241,7 +245,7 @@
     "heading": "Utilisateurs connectés actuels",
     "settings_page_link": "Gérer les connexions actuelles",
     "description": "Cette page montre les connexions actives. Vous pouvez vous déconnecter de l’une d’elles en cliquant sur le bouton à côté de la connexion, ou faire défiler jusqu’en bas et cliquer sur le bouton pour vous déconnecter de toutes connexions sauf cette session.",
-    "login_header": "Conneté.e à {{login_datetime}}",
+    "login_header": "Connexion le {{login_datetime}}",
     "location": "Près de <strong>{{approximate_location}}</strong>",
     "last_activity": "Dernière activité il y a <strong>{{last_activity_ago}}</strong>",
     "current_session": "Ceci est votre session actuelle.",
@@ -318,5 +322,15 @@
     "current_volunteer": "Bénévole depuis {{startDate}}.",
     "past_volunteer": "Bénévole de {{startDate}} à {{endDate}}.",
     "shown_on_team_page_current": "Affiché sur la page de l'équipe comme membre d'équipe actuel."
+  },
+  "motivations_form": {
+    "header": "Qu'est-ce qui vous amène sur Couchers ?",
+    "surfing_description": "Je planifie un voyage et recherche un hôte",
+    "hosting": "Héberger",
+    "hosting_description": "J'aimerais héberger et accueillir des voyageurs dans ma ville",
+    "events": "Les événements",
+    "events_description": "J'aimerais participer à des événements et rencontrer la communauté",
+    "community_organizing": "Organiser une communauté",
+    "community_organizing_description": "Je veux organiser des événements et activités sur la plateforme"
   }
 }

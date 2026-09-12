@@ -25,7 +25,7 @@
     "add_photo": "Ajouter une photo",
     "take_photo": "Prendre une photo",
     "choose_from_library": "Choisissez dans la bibliothèque",
-    "choose_photo_source": "Choisissez la source de votre photo",
+    "choose_photo_source": "Sélectionner l'origine de votre photo",
     "open_settings": "Ouvrir les paramètres"
   },
   "update": {
@@ -35,8 +35,9 @@
     "body_banned": "Il semble que nous vous ayons fourni une version de l'application défectueuse, vous allez devoir la mettre à jour.",
     "preamble_warn": "Nous sommes une petite équipe de bénévoles et maintenir les anciennes versions est très difficile, nous sommes désolé.e.s du dérangement.",
     "action_update": "Mettre à jour maintenant",
-    "action_reinstall": "Télécharger la nouvelle application",
+    "action_reinstall": "Obtenir la nouvelle appli",
     "later": "Plus tard",
-    "failed": "La mise à jour n'a pas pu être appliquée. Réessayez s'il vous plaît."
+    "failed": "La mise à jour a échoué. Veuillez réessayer.",
+    "preamble_banned": "Nous sommes une petite équipe de bénévoles, et parfois nous faisons des erreurs. Nous sommes désolé.e.s pour la gêne occasionnée !"
   }
 }
