@@ -91,8 +91,8 @@ const REGION_LAYERS = new Set(["continent", "country", "dependency", "macroregio
 // Layers where `name` is the matched entity and must not be replaced by a
 // nested hierarchy locality/localadmin (those can be centroid artifacts — e.g.
 // GeoNames macrocounty "Arrondissement de Lorient" carrying localadmin
-// "Brandérion"). Venues/addresses/streets intentionally keep the locality
-// collapse so destination search shows the surrounding city/area.
+// "Brandérion"). Also skip attaching a "containing city" for these — they are
+// not inside a city.
 const MATCHED_NAME_PRIMARY_LAYERS = new Set([
   "continent",
   "country",
@@ -105,7 +105,9 @@ const MATCHED_NAME_PRIMARY_LAYERS = new Set([
 
 // Soft `preferCity` ranking: promote the first city-oriented hit when a
 // neighbourhood (or similar) / macrocounty is ranked above it. Not a filter —
-// every provider hit is kept, only order changes.
+// every provider hit is kept, only order changes. Labels always keep the
+// matched `name` (venues, addresses, streets, …); preferCity does not rewrite
+// them to the containing city.
 const PREFER_CITY_LAYERS = new Set(["locality", "localadmin", "venue"]);
 const DEPRIORITIZE_WHEN_PREFER_CITY = new Set(["neighbourhood", "microhood", "macrocounty"]);
 
@@ -150,13 +152,12 @@ export function homonymousRegionKeys(features: PeliasFeature[]): Set<string> {
 /**
  * Build the simplified, human-readable display name from a Pelias feature.
  *
- * When `preferCity` is set (destination search), collapse venues/addresses to
- * their containing locality/localadmin — Nominatim-era "city around the hit"
- * behaviour. Coarse admin layers always use matched `name` to avoid centroid
- * hierarchy artifacts (e.g. Brandérion on Arrondissement de Lorient).
- *
- * Without `preferCity` (address / event venue), the primary is always the
- * matched `name` so precise places stay precise.
+ * Primary is always the matched `name` — including under `preferCity`
+ * (destination search). Venues, addresses, streets, neighbourhoods, etc. must
+ * never silently become "Paris, France". Coarse admin layers also use matched
+ * `name` to avoid centroid hierarchy artifacts (e.g. Brandérion on
+ * Arrondissement de Lorient). `preferCity` only affects ranking/reorder, not
+ * this label.
  *
  * `homonymousRegions` is the set from `homonymousRegionKeys`. When this hit's
  * primary equals a region in the same list (same country), use `region_a`
@@ -165,25 +166,19 @@ export function homonymousRegionKeys(features: PeliasFeature[]): Set<string> {
  */
 export function simplifyPeliasDisplayName(
   properties: PeliasFeatureProperties,
-  preferCity = false,
+  // Kept for call-site compatibility; labels no longer depend on preferCity.
+  _preferCity = false,
   homonymousRegions?: ReadonlySet<string>,
 ): string {
   const isCoarseAdmin = MATCHED_NAME_PRIMARY_LAYERS.has(properties.layer);
-  let primary: string | undefined;
-  if (isCoarseAdmin) {
-    primary = properties.name;
-  } else if (preferCity) {
-    primary = properties.locality || properties.localadmin || properties.name;
-  } else {
-    primary = properties.name;
-  }
+  const primary = properties.name;
 
-  // Name the containing city for precise hits (street, address, venue), or the
-  // label says nothing about where the place is: Pelias maps the French
-  // département onto `region`, so name + region alone reads "Rue X, Hérault,
-  // France". Skipped when the primary already *is* that city, and for coarse
-  // admin areas, which are not inside a city.
-  const containingCity = isCoarseAdmin || preferCity ? undefined : properties.locality || properties.localadmin;
+  // Name the containing city for precise hits (street, address, venue,
+  // neighbourhood, …), or the label says nothing about where the place is:
+  // Pelias maps the French département onto `region`, so name + region alone
+  // reads "Rue X, Hérault, France". Skipped when the primary already *is* that
+  // city, and for coarse admin areas, which are not inside a city.
+  const containingCity = isCoarseAdmin ? undefined : properties.locality || properties.localadmin;
   const city = containingCity && containingCity !== primary ? containingCity : undefined;
   const region = properties.region || properties.macroregion;
 
@@ -236,29 +231,6 @@ export function reorderPreferCity(features: PeliasFeature[]): PeliasFeature[] {
 }
 
 /**
- * When simplified display collapses a hit to its containing city/area (venue →
- * locality, etc.), return that parent's gid so we can fetch its bbox. Coarse
- * admin hits and locality/localadmin hits themselves return undefined — their
- * own geometry already matches the display string.
- */
-export function displayAreaGid(properties: PeliasFeatureProperties): string | undefined {
-  if (MATCHED_NAME_PRIMARY_LAYERS.has(properties.layer)) {
-    return undefined;
-  }
-  if (properties.layer === "locality" || properties.layer === "localadmin") {
-    return undefined;
-  }
-  // Mirrors simplifyPeliasDisplayName's locality || localadmin || name priority.
-  if (properties.locality && properties.locality_gid) {
-    return properties.locality_gid;
-  }
-  if (properties.localadmin && properties.localadmin_gid) {
-    return properties.localadmin_gid;
-  }
-  return undefined;
-}
-
-/**
  * Convert a Pelias feature's bbox (or point) into our `GeocodeResult.bbox`
  * ordering. `GeocodeResult.bbox` is [maxLon, maxLat, minLon, minLat] — the exact
  * ordering the previous Nominatim mapping produced — so downstream consumers
@@ -279,9 +251,8 @@ function toGeocodeBbox(feature: PeliasFeature): Coordinates {
 /**
  * Pure mapping: Pelias GeoJSON feature -> our `GeocodeResult`.
  *
- * When `displayArea` is provided (the parent locality/localadmin whose name we
- * show), bbox and coordinates come from that area — matching Nominatim-era
- * destination search, where the label and search box described the same place.
+ * When `displayArea` is provided, bbox and coordinates come from that area
+ * (optional override; normal autocomplete/reverse always use the feature itself).
  */
 export function normalize(
   feature: PeliasFeature,
@@ -305,9 +276,9 @@ export function normalize(
 
 /**
  * Drop later hits that share a `simplifiedName` with an earlier one (e.g. several
- * Wall Street venues all collapsing to "New York, …", or GeoNames + WOF both
- * "Paris, France"). Keeps first occurrence so order from `reorderPreferCity` /
- * the provider is preserved — equivalent to the old Nominatim
+ * Wall Street venues all labeled "Wall Street, New York, …", or GeoNames + WOF
+ * both "Paris, France"). Keeps first occurrence so order from `reorderPreferCity`
+ * / the provider is preserved — equivalent to the old Nominatim
  * `filterDuplicatePlaces` rule. Applied in both city and precise autocomplete.
  */
 export function dedupeBySimplifiedName(results: GeocodeResult[]): GeocodeResult[] {
@@ -370,58 +341,13 @@ async function fetchPelias(url: URL, signal?: AbortSignal): Promise<PeliasRespon
 }
 
 /**
- * Batch-fetch place geometries by gid (`GET /v1/place?ids=...`). Used to resolve
- * the area bbox for hits whose simplified label is a parent locality. Failures
- * are non-fatal — callers fall back to the original feature geometry.
+ * Map every feature to a `GeocodeResult`. Shared by forward autocomplete and
+ * reverse. Geometry always comes from the matched feature (labels keep the
+ * matched name; we do not swap in a parent city bbox).
  */
-async function fetchPlacesByIds(ids: string[], signal?: AbortSignal): Promise<Map<string, PeliasFeature>> {
-  const places = new Map<string, PeliasFeature>();
-  if (!BASE_URL || !API_KEY || ids.length === 0) {
-    return places;
-  }
-
-  const url = new URL("/v1/place", BASE_URL);
-  url.searchParams.set("api_key", API_KEY);
-  url.searchParams.set("ids", ids.join(","));
-
-  try {
-    const data = await fetchPelias(url, signal);
-    for (const feature of data.features ?? []) {
-      places.set(feature.properties.gid, feature);
-    }
-  } catch {
-    // Abort, timeout, or network blip — leave the map empty so normalize falls
-    // back to the original feature's own geometry. Never fatal to the search.
-  }
-  return places;
-}
-
-/**
- * Resolve the parent-area geometries a `preferCity` display needs, then map every
- * feature to a `GeocodeResult`. Shared by forward autocomplete and reverse so a
- * collapsed "Paris, France" label always carries Paris's own bbox and centre
- * rather than the precise hit's.
- */
-async function normalizeFeatures(
-  features: PeliasFeature[],
-  preferCity: boolean,
-  signal?: AbortSignal,
-): Promise<GeocodeResult[]> {
+function normalizeFeatures(features: PeliasFeature[], preferCity: boolean): GeocodeResult[] {
   const homonymousRegions = homonymousRegionKeys(features);
-
-  if (!preferCity) {
-    return features.map((feature) => normalize(feature, undefined, false, homonymousRegions));
-  }
-
-  const areaIds = [
-    ...new Set(features.map((feature) => displayAreaGid(feature.properties)).filter((id): id is string => Boolean(id))),
-  ];
-  const displayAreas = await fetchPlacesByIds(areaIds, signal);
-
-  return features.map((feature) => {
-    const areaGid = displayAreaGid(feature.properties);
-    return normalize(feature, areaGid ? displayAreas.get(areaGid) : undefined, true, homonymousRegions);
-  });
+  return features.map((feature) => normalize(feature, undefined, preferCity, homonymousRegions));
 }
 
 /**
@@ -433,11 +359,9 @@ async function normalizeFeatures(
  * ~1km, which covers a GPS fix in a desert; at sea it answers with an `ocean`
  * feature. All of those are returned as-is — the caller decides what is useful.
  *
- * `preferCity` then decides how precise the *answer* is: set it for city-level
- * fields (destination search), where an address or venue hit collapses to its
- * containing city — "Paris, Île-de-France, France", not "8 Place de l'Hôtel de
- * Ville, Paris, France" — with that city's bbox and centre. Leave it unset for
- * address fields, which want the street back.
+ * `preferCity` enables soft city-oriented ranking elsewhere; reverse labels
+ * always keep the matched name (address/street/venue), with containing city
+ * as context when present.
  *
  * An empty result is a legitimate answer, not a failure: it comes back as `[]`.
  * Genuine failures (network, non-2xx, timeout) throw `PeliasError`, same as
@@ -471,7 +395,7 @@ export async function reverse(
   // Reverse features are structurally identical to forward ones (verified against
   // live responses), so LOC-1's normalizer is reused unchanged.
   return {
-    results: await normalizeFeatures(features, preferCity, signal),
+    results: normalizeFeatures(features, preferCity),
     features,
   };
 }
@@ -480,8 +404,8 @@ export interface AutocompleteOptions {
   language?: string;
   focus?: FocusPoint;
   // Soft client-side reorder: promote the first city/venue over a leading
-  // neighbourhood or macrocounty. Does not pass `layers` to Pelias.
-  // Also: collapse labels to locality and resolve parent area bbox/center.
+  // neighbourhood or macrocounty. Does not pass `layers` to Pelias. Labels
+  // always keep the matched name; preferCity does not collapse them to a city.
   preferCity?: boolean;
   signal?: AbortSignal;
 }
@@ -517,7 +441,7 @@ export async function autocomplete(
   const data = await fetchPelias(url, signal);
   const features = data.features ?? [];
   const ordered = preferCity ? reorderPreferCity(features) : features;
-  const results = await normalizeFeatures(ordered, preferCity, signal);
+  const results = normalizeFeatures(ordered, preferCity);
 
   // Always drop identical display labels (e.g. GeoNames + WOF both
   // "Paris, France"), including precise mode. Keep first occurrence.

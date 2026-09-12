@@ -536,10 +536,8 @@ describe("LocationAutocomplete component", () => {
       );
     });
 
-    it("fills a city-level field with the city, not the street", async () => {
-      // Destination search looks for hosts in a city, so the street the device is
-      // standing on collapses to the city around it (and gets the city's bbox).
-      const PLACE_URL = `${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/place`;
+    it("keeps the street name for a city-level field when reverse returns an address", async () => {
+      // preferCity only soft-ranks; labels always keep the matched name.
       mockPosition(true);
       server.use(
         rest.get(REVERSE_URL, (_req, res, ctx) =>
@@ -565,29 +563,6 @@ describe("LocationAutocomplete component", () => {
             }),
           ),
         ),
-        rest.get(PLACE_URL, (_req, res, ctx) =>
-          res(
-            ctx.json({
-              type: "FeatureCollection",
-              features: [
-                {
-                  type: "Feature",
-                  geometry: { type: "Point", coordinates: [2.3522, 48.8566] },
-                  bbox: [2.224, 48.815, 2.47, 48.902],
-                  properties: {
-                    gid: "whosonfirst:locality:101751119",
-                    layer: "locality",
-                    label: "Paris, Île-de-France, France",
-                    name: "Paris",
-                    locality: "Paris",
-                    region: "Île-de-France",
-                    country: "France",
-                  },
-                },
-              ],
-            }),
-          ),
-        ),
       );
       const onChange = jest.fn();
       renderForm("", onChange, false, false, true, true, true);
@@ -597,12 +572,12 @@ describe("LocationAutocomplete component", () => {
       await user.click(await screen.findByRole("button", { name: BUTTON }));
 
       await waitFor(() => {
-        expect(input).toHaveValue("Paris, Île-de-France, France");
+        expect(input).toHaveValue("8 Place De L'Hotel De Ville, Paris, France");
       });
       expect(onChange).toHaveBeenCalledWith(
         expect.objectContaining({
-          simplifiedName: "Paris, Île-de-France, France",
-          bbox: [2.47, 48.902, 2.224, 48.815],
+          simplifiedName: "8 Place De L'Hotel De Ville, Paris, France",
+          location: expect.objectContaining({ lng: 2.3512, lat: 48.8565 }),
         }),
       );
     });
