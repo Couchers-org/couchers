@@ -24,6 +24,7 @@ from couchers.metrics import (
     password_reset_initiations_counter,
     signup_account_filled_counter,
     signup_completions_counter,
+    signup_email_changes_counter,
     signup_email_verified_counter,
     signup_guidelines_accepted_counter,
     signup_initiations_counter,
@@ -195,6 +196,24 @@ class Auth(auth_pb2_grpc.AuthServicer):
     def SignupFlow(
         self, request: auth_pb2.SignupFlowReq, context: CouchersContext, session: Session
     ) -> auth_pb2.SignupFlowRes:
+        # this is a bit ugly, probably one RPC for this mega-mutation of signup flows is not ideal
+        has_signup_step = (
+            request.HasField("basic")
+            or request.HasField("account")
+            or request.HasField("feedback")
+            or request.HasField("motivations")
+            or request.HasField("accept_community_guidelines")
+        )
+        has_recovery_step = request.HasField("change_email") or request.resend_verification_email
+
+        # if we have the token then we ignore all the other stuff, so better just error to the client
+        if request.email_token and (has_signup_step or has_recovery_step):
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "signup_flow_invalid_request")
+
+        # just for safety
+        if has_signup_step and has_recovery_step:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "signup_flow_invalid_request")
+
         if request.email_token:
             # the email token can either be for verification or just to find an existing signup
             flow = session.execute(
@@ -219,14 +238,10 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 if not flow:
                     context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_token")
         else:
-            if not request.flow_token:
-                # fresh signup
-                if not request.HasField("basic"):
-                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "signup_flow_basic_needed")
+
+            def _check_email_is_available_and_valid(new_email: str) -> None:
                 # TODO: unique across both tables
-                existing_user = session.execute(
-                    select(User).where(User.email == request.basic.email)
-                ).scalar_one_or_none()
+                existing_user = session.execute(select(User).where(User.email == new_email)).scalar_one_or_none()
                 if existing_user:
                     if not existing_user.is_visible:
                         context.abort_with_error_code(
@@ -234,7 +249,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                         )
                     context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_email_taken")
                 existing_flow = session.execute(
-                    select(SignupFlow).where(SignupFlow.email == request.basic.email)
+                    select(SignupFlow).where(SignupFlow.email == new_email)
                 ).scalar_one_or_none()
                 if existing_flow:
                     send_signup_email(context, session, existing_flow)
@@ -243,8 +258,14 @@ class Auth(auth_pb2_grpc.AuthServicer):
                         grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_email_started_signup"
                     )
 
-                if not is_valid_email(request.basic.email):
+                if not is_valid_email(new_email):
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_email")
+
+            if not request.flow_token:
+                # fresh signup
+                if not request.HasField("basic"):
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "signup_flow_basic_needed")
+                _check_email_is_available_and_valid(request.basic.email)
                 if not is_valid_name(request.basic.name):
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_name")
 
@@ -282,6 +303,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_basic_filled")
 
             # we've found and/or created a new flow, now sort out other parts
+
             if request.HasField("account"):
                 if flow.account_is_filled:
                     context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_account_filled")
@@ -352,6 +374,27 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 if flow.accepted_community_guidelines < GUIDELINES_VERSION:
                     signup_guidelines_accepted_counter.inc()
                 flow.accepted_community_guidelines = GUIDELINES_VERSION
+                session.flush()
+
+            if request.HasField("change_email"):
+                # can't change after verifying
+                if flow.email_verified:
+                    context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_email_verified")
+                # can't resend verification at the same time
+                if request.resend_verification_email:
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "signup_flow_invalid_request")
+
+                # this will error if the email is not different from the current one
+                _check_email_is_available_and_valid(request.change_email.new_email)
+
+                flow.email = request.change_email.new_email
+                flow.email_verified = False
+                flow.email_sent = False
+                flow.email_token = None
+                flow.email_token_expiry = None
+                flow.email_changed_count += 1
+                signup_email_changes_counter.inc()
+
                 session.flush()
 
             # send verification email if needed
