@@ -16,6 +16,7 @@ const startSignupMock = service.auth.startSignup as MockedService<typeof service
 const stateAfterStart = {
   flowToken: "dummy-token",
   success: false,
+  email: "test@example.com",
   needBasic: false,
   needAccount: false,
   needAcceptCommunityGuidelines: true,

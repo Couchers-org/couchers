@@ -10,7 +10,6 @@
     "dialog_text": "Estàs segur que vols eliminar {{name}} com a coorganitzador de {{event}}?"
   },
   "new_discussion_title": "Títol del debat",
-  "new_post_label": "Publicació nova",
   "no_comments": "Ara mateix no hi ha comentaris en aquest debat.",
   "invite_community_dialog": {
     "message": "Fes servir aquest formulari per sol·licitar que els moderadors enviïn una notificació sobre aquest esdeveniment a tots els usuaris propers.",
@@ -62,7 +61,6 @@
   "edit_event": "Edita l'esdeveniment",
   "error_loading_community": "Error en carregar la comunitat.",
   "events_empty_state": "Ara mateix no hi ha esdeveniments. Per què no en <createEventLink>crees</createEventLink> un ✨?",
-  "finished": "Acabat",
   "community_info_page_title": "Informació general",
   "join_community": "Uneix-te a la comunitat",
   "leave_community": "Abandona la comunitat",
