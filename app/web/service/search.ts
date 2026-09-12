@@ -11,15 +11,17 @@ import { EventSearchReq, EventSearchRes, RectArea, UserSearchReq } from "proto/s
 import client from "service/client";
 import { GeocodeResult } from "utils/hooks";
 
-export interface UserSearchFilters {
+/**
+ * The filters a user can set in the search FilterDialog. The map search reducer's initial filters and
+ * normalizers are typed against this, so adding a key here without handling it there won't compile.
+ */
+export interface UserSearchFilterOptions {
   acceptsKids?: boolean;
   acceptsPets?: boolean;
   acceptsLastMinRequests?: boolean;
   ageMin?: number;
   ageMax?: number;
-  drinkingAllowed?: boolean | undefined;
-  query?: string;
-  bbox?: Coordinates;
+  drinkingAllowed?: boolean;
   lastActive?: number; //within x days
   hasReferences?: boolean;
   hasStrongVerification?: boolean;
@@ -27,12 +29,17 @@ export interface UserSearchFilters {
   meetupStatus?: MeetupStatus[];
   numGuests?: number;
   showEmptyProfile?: boolean;
+  sleepingArrangement?: SleepingArrangementOptions[];
+  sameGenderOnly?: boolean;
+  smokesAtHome?: boolean;
+}
+
+export interface UserSearchFilters extends UserSearchFilterOptions {
+  query?: string;
+  bbox?: Coordinates;
   pageNumber?: number;
   pageSize?: number;
   selectedUserId?: number;
-  sleepingArrangement?: SleepingArrangementOptions[];
-  sameGenderOnly?: boolean;
-  smokesAtHome?: boolean | undefined;
 }
 
 function constructUserSearchReq(

@@ -1,65 +1,94 @@
-import { MeetupStatus } from "proto/api_pb";
+import { HostingStatus, MeetupStatus, SleepingArrangement } from "proto/api_pb";
+import { UserSearchFilterOptions } from "service/search";
 
-import { FilterOptions } from "../SearchPage";
-import { lastActiveOptions } from "../utils/constants";
-import { initialState, mapSearchActionTypes, mapSearchReducer, MapSearchState } from "./mapSearchReducers";
+import { DEFAULT_AGE_MAX, DEFAULT_AGE_MIN, lastActiveOptions } from "../utils/constants";
+import { FilterUpdates, initialState, mapSearchActionTypes, mapSearchReducer } from "./mapSearchReducers";
 
-const setFilters = (state: MapSearchState, payload: FilterOptions) =>
+// Required<> so that a filter added to UserSearchFilterOptions has to be covered here too
+const activeValues: Required<UserSearchFilterOptions> = {
+  acceptsKids: true,
+  acceptsLastMinRequests: true,
+  acceptsPets: true,
+  ageMin: 25,
+  ageMax: 40,
+  drinkingAllowed: false,
+  hasReferences: true,
+  hasStrongVerification: true,
+  hostingStatus: [HostingStatus.HOSTING_STATUS_CAN_HOST],
+  lastActive: lastActiveOptions.LAST_ACTIVE_LAST_MONTH,
+  meetupStatus: [MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP],
+  numGuests: 2,
+  sameGenderOnly: true,
+  showEmptyProfile: false,
+  sleepingArrangement: [SleepingArrangement.SLEEPING_ARRANGEMENT_PRIVATE],
+  smokesAtHome: false,
+};
+
+// What the FilterDialog hands over when each filter is switched back off
+const offValues: Required<FilterUpdates> = {
+  acceptsKids: false,
+  acceptsLastMinRequests: false,
+  acceptsPets: false,
+  ageMin: DEFAULT_AGE_MIN,
+  ageMax: DEFAULT_AGE_MAX,
+  drinkingAllowed: null,
+  hasReferences: false,
+  hasStrongVerification: false,
+  hostingStatus: [],
+  lastActive: lastActiveOptions.LAST_ACTIVE_ANY,
+  meetupStatus: [],
+  numGuests: 0,
+  sameGenderOnly: false,
+  showEmptyProfile: null,
+  sleepingArrangement: [],
+  smokesAtHome: null,
+};
+
+const filterKeys = Object.keys(activeValues) as (keyof UserSearchFilterOptions)[];
+
+const setFilters = (state: typeof initialState, payload: FilterUpdates) =>
   mapSearchReducer(state, { type: mapSearchActionTypes.SET_FILTERS, payload });
 
 describe("mapSearchReducer SET_FILTERS", () => {
-  it("persists acceptsPets when set to true", () => {
-    const state = setFilters(initialState, { acceptsPets: true });
+  it.each(filterKeys)("stores %s and marks filters as active", (key) => {
+    const state = setFilters(initialState, { [key]: activeValues[key] });
 
-    expect(state.filters.acceptsPets).toBe(true);
+    expect(state.filters).toEqual({ ...initialState.filters, [key]: activeValues[key] });
     expect(state.hasActiveFilters).toBe(true);
   });
 
-  it("normalizes acceptsPets false back to undefined", () => {
-    const state = setFilters(setFilters(initialState, { acceptsPets: true }), { acceptsPets: false });
-
-    expect(state.filters.acceptsPets).toBeUndefined();
-  });
-
-  it("marks filters as active when only meetupStatus is set", () => {
-    const state = setFilters(initialState, { meetupStatus: [MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP] });
-
-    expect(state.filters.meetupStatus).toEqual([MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP]);
-    expect(state.hasActiveFilters).toBe(true);
-  });
-
-  it.each(["drinkingAllowed", "smokesAtHome"] as const)("clears %s when its toggle is deselected", (key) => {
-    const withValue = setFilters(initialState, { [key]: true });
-    expect(withValue.filters[key]).toBe(true);
-
-    // an exclusive ToggleButtonGroup reports a deselection as null
-    const state = setFilters(withValue, { [key]: null });
+  it.each(filterKeys)("normalizes %s back to undefined when switched off", (key) => {
+    const state = setFilters(setFilters(initialState, activeValues), { [key]: offValues[key] });
 
     expect(state.filters[key]).toBeUndefined();
+  });
+
+  it("reports no active filters once every filter is switched off", () => {
+    const allActive = setFilters(initialState, activeValues);
+    expect(allActive.hasActiveFilters).toBe(true);
+
+    const state = setFilters(allActive, offValues);
+
+    expect(state.filters).toEqual(initialState.filters);
     expect(state.hasActiveFilters).toBe(false);
   });
 
-  it.each(["drinkingAllowed", "smokesAtHome"] as const)("keeps %s when explicitly set to false", (key) => {
-    const state = setFilters(initialState, { [key]: false });
+  it("leaves filters that aren't in the payload untouched", () => {
+    const state = setFilters(setFilters(initialState, { acceptsPets: true }), { acceptsKids: true });
 
-    expect(state.filters[key]).toBe(false);
-    expect(state.hasActiveFilters).toBe(true);
+    expect(state.filters.acceptsPets).toBe(true);
+    expect(state.filters.acceptsKids).toBe(true);
   });
 
-  it("normalizes lastActive 'any' back to undefined", () => {
-    const withLastActive = setFilters(initialState, { lastActive: lastActiveOptions.LAST_ACTIVE_LAST_MONTH });
-    expect(withLastActive.hasActiveFilters).toBe(true);
-
-    const state = setFilters(withLastActive, { lastActive: lastActiveOptions.LAST_ACTIVE_ANY });
-
-    expect(state.filters.lastActive).toBeUndefined();
-    expect(state.hasActiveFilters).toBe(false);
-  });
-
-  it("does not report active filters after applying unchanged filters on a freshly loaded page", () => {
-    // pages/search.tsx seeds the filters from URL params only, so keys can be missing entirely
+  it("treats missing filter keys as unset", () => {
     const state = setFilters({ ...initialState, filters: {} }, {});
 
     expect(state.hasActiveFilters).toBe(false);
+  });
+
+  it("resets to the first page", () => {
+    const state = setFilters({ ...initialState, pageNumber: 3 }, { acceptsPets: true });
+
+    expect(state.pageNumber).toBe(1);
   });
 });

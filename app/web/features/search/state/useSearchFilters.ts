@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
+import { UserSearchFilterOptions } from "service/search";
 
-import { FilterOptions } from "../SearchPage";
 import { useMapSearchState } from "./mapSearchContext";
 import { initialState } from "./mapSearchReducers";
 
@@ -12,7 +12,7 @@ import { initialState } from "./mapSearchReducers";
 export function useSearchFilters() {
   const { filters: stateFilters } = useMapSearchState();
 
-  const [filters, setFilters] = useState<FilterOptions>(stateFilters);
+  const [filters, setFilters] = useState<UserSearchFilterOptions>(stateFilters);
 
   // Sync local filters with global filters when dialog is opened
   useEffect(() => {
@@ -20,7 +20,7 @@ export function useSearchFilters() {
   }, [stateFilters]);
 
   // Update a single filter
-  const updateFilter = (newFilters: Partial<FilterOptions>) => {
+  const updateFilter = (newFilters: UserSearchFilterOptions) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
       ...newFilters,

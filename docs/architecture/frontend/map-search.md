@@ -81,10 +81,7 @@ Here's some common scenarios you might need to address with the map.
 
 ### How to Add a New Filter
 
-- [] Add the filter to the `FilterDialog` component so it appears in the UI
-- [] Add the filter key to the `initialState` in mapSearchReducer.ts.
-- [] Add logic for filter key to `SET_FILTERS` logic in mapSearchReducer.ts
-- [] Add the value in the API format matching backend protos to `UserSearchFilters` type
-- [] Add the value in state-matching format to `FilterOptions` type
-- [] Update the `hasActiveFilters` logic if needed.
-- [] Pass the new filter to the backend via the `userSearch` api call in app/web/service/search.ts
+- [] Add the filter to the `UserSearchFilterOptions` type in app/web/service/search.ts and pass it to the backend in `constructUserSearchReq` in the same file
+- [] Add the key to `initialFilters` and `filterNormalizers` in mapSearchReducers.ts (the types won't compile until you do). The normalizer maps the value the dialog produces when the filter is switched off to `undefined`, which is what makes `hasActiveFilters` and the API request treat it as unset
+- [] Add the filter to the `FilterDialog` component so it appears in the UI. An exclusive `ToggleButtonGroup` reports a deselection as `null`, convert it to `undefined` in the handler
+- [] Add the filter's active and off values to `mapSearchReducers.test.ts`
