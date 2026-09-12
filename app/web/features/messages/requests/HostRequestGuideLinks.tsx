@@ -35,7 +35,7 @@ export default function HostRequestGuideLinks({
           <Trans
             i18nKey="messages:host_pending_request_help_text"
             components={{
-              0: <StyledLink variant="body1" href={howToRespondRequestGuideUrl} />,
+              guideLink: <StyledLink variant="body1" href={howToRespondRequestGuideUrl} />,
             }}
           />
         </Typography>
@@ -48,7 +48,7 @@ export default function HostRequestGuideLinks({
           <Trans
             i18nKey="messages:surfer_declined_request_help_text"
             components={{
-              0: <StyledLink variant="body1" href={howToWriteRequestGuideUrl} />,
+              guideLink: <StyledLink variant="body1" href={howToWriteRequestGuideUrl} />,
             }}
           />
         </Typography>

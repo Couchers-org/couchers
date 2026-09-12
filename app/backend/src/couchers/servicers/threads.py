@@ -14,7 +14,6 @@ from couchers.jobs.enqueue import queue_job
 from couchers.models import (
     Comment,
     Discussion,
-    Event,
     EventOccurrence,
     ModerationObjectType,
     Reply,
@@ -66,20 +65,19 @@ def total_num_responses(session: Session, context: CouchersContext, database_id:
         Comment,
         is_list_operation=True,
     )
-    replies = where_moderated_content_visible(
-        where_users_column_visible(
-            select(func.count())
-            .select_from(Reply)
-            .join(Comment, Comment.id == Reply.comment_id)
-            .where(Comment.thread_id == database_id)
-            .where(Reply.deleted == None),
-            context,
-            Reply.author_user_id,
-        ),
-        context,
-        Reply,
-        is_list_operation=True,
+    # the comment a reply hangs off is filtered too, but not on Comment.deleted: GetThread lists a
+    # deleted comment as a stub and still renders its replies
+    replies = (
+        select(func.count())
+        .select_from(Reply)
+        .join(Comment, Comment.id == Reply.comment_id)
+        .where(Comment.thread_id == database_id)
+        .where(Reply.deleted == None)
     )
+    replies = where_users_column_visible(replies, context, Reply.author_user_id)
+    replies = where_users_column_visible(replies, context, Comment.author_user_id)
+    replies = where_moderated_content_visible(replies, context, Reply, is_list_operation=True)
+    replies = where_moderated_content_visible(replies, context, Comment, is_list_operation=True)
     return session.execute(comments).scalar_one() + session.execute(replies).scalar_one()
 
 
@@ -110,14 +108,16 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                 created_time=Timestamp_from_datetime(comment.created),
                 num_replies=0,
             )
-            # figure out if the thread is related to an event or discussion
-            event = session.execute(select(Event).where(Event.thread_id == thread.id)).scalar_one_or_none()
+            # figure out if the thread is related to an event occurrence or discussion
+            occurrence = session.execute(
+                select(EventOccurrence).where(EventOccurrence.thread_id == thread.id)
+            ).scalar_one_or_none()
             discussion = session.execute(
                 select(Discussion).where(Discussion.thread_id == thread.id)
             ).scalar_one_or_none()
-            if event:
-                # thread is an event thread
-                occurrence = event.occurrences.order_by(EventOccurrence.id.desc()).limit(1).one()
+            if occurrence:
+                # thread is an event occurrence thread
+                event = occurrence.event
                 subscribed_user_ids = [user.id for user in event.subscribers]
                 attending_user_ids = [user.user_id for user in occurrence.attendances]
 
@@ -200,15 +200,14 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                 num_replies=0,
             )
 
-            event = session.execute(
-                select(Event).where(Event.thread_id == parent_comment.thread_id)
+            occurrence = session.execute(
+                select(EventOccurrence).where(EventOccurrence.thread_id == parent_comment.thread_id)
             ).scalar_one_or_none()
             discussion = session.execute(
                 select(Discussion).where(Discussion.thread_id == parent_comment.thread_id)
             ).scalar_one_or_none()
-            if event:
-                # thread is an event thread
-                occurrence = event.occurrences.order_by(EventOccurrence.id.desc()).limit(1).one()
+            if occurrence:
+                # thread is an event occurrence thread
                 for user_id in user_ids_to_notify:
                     context = make_notification_user_context(user_id=user_id)
                     notify(

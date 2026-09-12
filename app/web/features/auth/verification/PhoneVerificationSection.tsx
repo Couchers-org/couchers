@@ -176,7 +176,11 @@ export default function PhoneVerificationSection({ accountInfo }: PhoneVerificat
         // ChangePhone is gated on having donated backend-side too, so showing the
         // form here would only earn a FAILED_PRECONDITION.
         <Typography variant="body1">
-          <Trans t={t} i18nKey="change_phone.need_to_donate" components={{ 2: <StyledLink href={howToDonateUrl} /> }} />
+          <Trans
+            t={t}
+            i18nKey="change_phone.need_to_donate"
+            components={{ donateLink: <StyledLink href={howToDonateUrl} /> }}
+          />
         </Typography>
       ) : !accountInfo.phone ? (
         changeNumberForm

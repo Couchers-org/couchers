@@ -1,0 +1,36 @@
+{
+  "hero": {
+    "title": "新聞與媒體",
+    "description": "如需新聞和媒體諮詢，請聯絡{{email}}"
+  },
+  "facts_subheading": "一目了然",
+  "num_volunteers_one": "{{count}}+志願者",
+  "num_volunteers_other": "{{count}}+志願者",
+  "about": {
+    "subheading": "了解更多關於我們的信息",
+    "mission_heading": "我們的使命和價值觀",
+    "mission_text": "Couchers.org的存在是為了創造真正的現實世界連結和社群。透過與來自不同文化和背景的人們交往，我們推動人們變得更加開放、富有同理心和寬容，並建立安全、包容的社區。",
+    "blog_heading": "我們的部落格",
+    "blog_text": "歡迎來到Couchers.org博客，我們在這裡撰寫有關最新更新、新聞和里程碑的文章！",
+    "foundation_heading": "Couchers, Inc.",
+    "foundation_text": "Couchers, Inc.是一家在美國佛羅裡達州註冊成立的501(c)(3)非營利組織，負責營運Couchers.org服務和專案。"
+  },
+  "read_more": "了解更多",
+  "read_more_link_aria": "閱讀更多：{{headline}}（在新分頁中開啟）",
+  "download": {
+    "subheading": "下載媒體資源",
+    "logo_text": "下載SVG和PNG格式的徽標",
+    "images_text": "下載行動應用程式截圖",
+    "mobile_image_alt": "行動裝置上的Couchers應用程式儀表板螢幕",
+    "button": "下載",
+    "logo_aria_label": "下載標誌資源",
+    "mobile_images_aria_label": "下載行動應用程式素材"
+  },
+  "team": {
+    "subheading": "認識團隊",
+    "extra_card_text": "我們是一群熱愛沙發衝浪的專業人士，致力於打造一個更完善、更安全、更包容的平台。",
+    "extra_card_link": "更多關於團隊的信息"
+  },
+  "social_media_subheading": "關注我們",
+  "press_coverage_subheading": "專題報導"
+}

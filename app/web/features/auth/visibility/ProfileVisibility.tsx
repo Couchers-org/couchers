@@ -85,7 +85,7 @@ export default function ProfileVisibility({ className, accountInfo }: ProfileVis
                     key={setting}
                     value={setting}
                     control={<Radio />}
-                    label={<Trans t={t} i18nKey={translationKey} components={{ "1": <strong /> }} />}
+                    label={<Trans t={t} i18nKey={translationKey} />}
                   />
                 ))}
               </RadioGroup>

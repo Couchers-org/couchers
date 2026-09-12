@@ -10,7 +10,6 @@
       "help_translate": "Ayuda a traducir Couchers a tu idioma",
       "loading": "Cargando el progreso de la traducción...",
       "error_loading": "Error al cargar el progreso de la traducción",
-      "no_data": "No hay datos de traducción disponibles",
       "complete": "Completo",
       "almost_there": "Casi está",
       "early_stage": "Etapa temprana",
@@ -46,7 +45,7 @@
   "community_standing": "Prestigio comunitario",
   "accept": "Aceptar",
   "cancel": "Cancelar",
-  "cookie_message": "Utilizamos cookies para asegurarnos de brindarte la mejor experiencia en nuestro sitio web. Si continúas usando este sitio asumiremos que estás de acuerdo con ello. Puedes leer más sobre nuestros <1>Términos del Servicio</1>.",
+  "cookie_message": "Utilizamos cookies para asegurarnos de brindarte la mejor experiencia en nuestro sitio web. Si continúas usando este sitio asumiremos que estás de acuerdo con ello. Puedes leer más sobre nuestros <tosLink>Términos del Servicio</tosLink>.",
   "meetup_status": {
     "does_not_want_to_meetup": "No puedo quedar",
     "open_to_meetup": "Abierto a quedar",
@@ -87,19 +86,18 @@
       "reason_label": "Motivo de la denuncia",
       "description_required": "Se requiere una descripción.",
       "description_label": "Describa el problema",
-      "success": "¡Gracias por tu denuncia y por hacer de Couchers una plataforma mejor para todos!",
       "block_user": "Bloquear a {{username}}",
       "block_user_explainer": "Los mensajes y peticiones de esta persona serán bloqueadas, y tu perfil, eventos y comentarios no serán visibles para ella. No se le informará de que la bloqueaste."
     },
     "bug": {
       "button_label": "Informar de un problema técnico",
       "title_label": "Título del informe",
-      "warning_message": "Por favor tenga en cuenta que esta información, así como la información de diagnóstico incluyendo en qué página se encuentra, qué navegador está utilizando, y su nombre de usuario, se guardará en una lista pública de errores.",
-      "problem_label": "¿Qué hiciste para activar el error?",
-      "problem_helper": "Breve descripción del problema y cómo reproducirlo",
+      "warning_message": "La información que proporciones en este formulario, así como la información de diagnóstico -incluida la página en la que te encuentras, tu navegador y tu nombre de usuario- serán registradas para que nuestro equipo la revise.",
+      "problem_label": "¿Cómo has encontrado el problema?",
+      "problem_helper": "Describe los pasos que seguiste: en qué páginas estabas, dónde hiciste clic, etc.",
       "expect_label": "¿Qué pasó? ¿Qué debería haber pasado?",
-      "expect_helper": "Breve descripción de lo que esperaba que sucediera en su lugar",
-      "success_message2": "¡Gracias por informar de ese error y mejorar Couchers, se ha enviado un informe a los desarrolladores! El ID del error es <id/>."
+      "expect_helper": "Describe el problema que encontraste como resultado de tus acciones, incluidos los mensajes de error, y lo que esperabas que ocurriera en su lugar.",
+      "success_message2": "¡Gracias por informar de este problema y hacer que Couchers sea mejor! Se ha enviado un informe a los desarrolladores. Puedes referirte a este problema usando el ID: <id/>."
     },
     "content": {
       "button_label": "Denunciar contenido o comportamiento inapropiado",
@@ -117,7 +115,7 @@
   "send": "Enviar",
   "confirm": "Confirmar",
   "mod": "Moderación",
-  "not_found_text_2": "¿Unicamente quieres <1>volver a casa?</1>",
+  "not_found_text_2": "¿Unicamente quieres <homeLink>volver a casa?</homeLink>",
   "not_found_text_1": "No pudimos encontrar la URL o el recurso que ha solicitado",
   "not_found_alt": "Error 404: Recurso no encontrado",
   "nav": {
@@ -231,7 +229,7 @@
   },
   "footer": {
     "non_profit_note": "Couchers.org es un proyecto de Couchers, Inc., una organización sin ánimo de lucro exenta de impuestos 501(c)(3) de EE.UU.",
-    "version_info": "Versión <2>{{version}}</2>, última actualización <5>{{updated_ago}}</5>."
+    "version_info": "Versión <versionLink>{{version}}</versionLink>, última actualización <updatedAgoLink>{{updated_ago}}</updatedAgoLink>."
   },
   "strong_verification": {
     "helper_text": "Este usuario ha verificado su identidad utilizando un pasaporte biométrico"
@@ -255,7 +253,6 @@
     "number_of_uses_other": "Usos: {{count}} registros completados",
     "disable_link": "Desactivar"
   },
-  "contribute_title": "Regístrate para contribuir",
   "reply": "Responder",
   "yes": "Sí",
   "team": {
@@ -272,7 +269,7 @@
     "he": "Hebreo",
     "sv": "Sueco",
     "uk": "Ucraniano",
-    "fr": "Francés (Francia)",
+    "fr": "Francés",
     "hi": "Hindi",
     "it": "Italiano",
     "ja": "Japonés",
@@ -335,9 +332,9 @@
     "read_file_error_message": "No se pudo leer el fichero"
   },
   "blog": {
-    "byline_with_author": "Escrito por <1/>. Publicado el {{date}}.",
+    "byline_with_author": "Escrito por <authorList/>. Publicado el {{date}}.",
     "byline_without_author": "Publicado el {{date}}.",
-    "cta_message": "¿Quieres ayudar a escribir nuestro blog o ser voluntario? <1>Regístrate</1> y cuéntanos. ¡Los voluntarios y las <3>donaciones</3> son lo que hacen posible Couchers.org!"
+    "cta_message": "¿Quieres ayudar a escribir nuestro blog o ser voluntario? <volunteerLink>Regístrate</volunteerLink> y cuéntanos. ¡Los voluntarios y las <donateLink>donaciones</donateLink> son lo que hacen posible Couchers.org!"
   },
   "copy_button": {
     "a11y": "Copiar",

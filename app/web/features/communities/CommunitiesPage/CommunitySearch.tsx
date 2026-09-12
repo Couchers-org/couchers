@@ -128,14 +128,15 @@ export default function CommunitySearch() {
         <Trans
           t={t}
           i18nKey="communities:no_results_found_with_link"
-          components={[
-            <StyledLink
-              href={communityCreationFormURL(accountInfo?.username)}
-              target="_blank"
-              rel="noreferrer noopener"
-              key="request-link"
-            />,
-          ]}
+          components={{
+            requestCommunityLink: (
+              <StyledLink
+                href={communityCreationFormURL(accountInfo?.username)}
+                target="_blank"
+                rel="noreferrer noopener"
+              />
+            ),
+          }}
         />
       }
       renderInput={(params) => (
@@ -144,7 +145,6 @@ export default function CommunitySearch() {
           label={t("communities:search_communities")}
           variant="outlined"
           placeholder={t("communities:search_communities_placeholder")}
-          helperText={t("communities:search_communities_helper")}
           slotProps={{
             ...params.slotProps,
             input: {

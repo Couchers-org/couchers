@@ -6,6 +6,8 @@ import { useTranslation } from "next-i18next";
 import { useMemo } from "react";
 import { communitiesRoute, dashboardRoute, eventsRoute, messagesRoute, searchRoute } from "routes";
 
+import { BOTTOM_NAV_BASE_HEIGHT } from "./constants";
+
 const StyledPaper = styled(Paper)(() => ({
   position: "fixed",
   bottom: "var(--cookie-banner-height, 0px)",
@@ -16,6 +18,8 @@ const StyledPaper = styled(Paper)(() => ({
 }));
 
 const StyledBottomNavigation = styled(MuiBottomNavigation)(({ theme }) => ({
+  // the height must account for the safe area (e.g. iOS notch) + MUI base height
+  height: `calc(${BOTTOM_NAV_BASE_HEIGHT}px + env(safe-area-inset-bottom, 0px))`,
   paddingBottom: "env(safe-area-inset-bottom, 0px)",
   "& .MuiBottomNavigationAction-root": {
     minWidth: "auto",

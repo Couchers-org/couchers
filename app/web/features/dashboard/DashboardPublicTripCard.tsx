@@ -104,14 +104,15 @@ function WhenChip({ fromDate, toDate, locale }: { fromDate: string; toDate: stri
   const fromStart = dayjs(fromDate).startOf("day");
   const toStart = dayjs(toDate).startOf("day");
 
-  const isOngoing = fromStart.isBefore(todayStart) && !toStart.isBefore(todayStart);
+  // Trips are date-only, so there is no time to say "now" from: anything covering today reads "Today".
+  const isToday = !fromStart.isAfter(todayStart) && !toStart.isBefore(todayStart);
   const daysUntil = fromStart.diff(todayStart, "day");
 
   let label: string | null = null;
-  if (isOngoing) {
-    label = t("dashboard:public_trips.when_now");
-  } else if (daysUntil === 0 || daysUntil === 1) {
-    label = localizeRelativeTimeUnit(daysUntil, "days", locale);
+  if (isToday) {
+    label = t("dashboard:today_label");
+  } else if (daysUntil === 1) {
+    label = localizeRelativeTimeUnit(daysUntil, "days", locale, { capitalize: true });
   }
 
   if (!label) return null;

@@ -236,7 +236,8 @@
     "invalid_event_start_end_datetime": "Ungültiges Start- oder Enddatum und -uhrzeit des Events.",
     "missing_event_start_end_datetime": "Fehlendes Anfangs- oder Enddatum und -uhrzeit des Events.",
     "duplicate_host_request_one": "Du hast dieser Person in der letzten Stunde schon eine Hostanfrage für sich überschneidende Zeiträume geschickt. Sieh in deinen Nachrichten nach, sie wurde möglicherweise trotzdem verschickt, auch wenn du es nicht gesehen hast.",
-    "duplicate_host_request_other": "Du hast dieser Person in den letzten {{count}} Stunden schon eine Hostanfrage für sich überschneidende Zeiträume geschickt. Sieh in deinen Nachrichten nach, sie wurde möglicherweise trotzdem verschickt, auch wenn du es nicht gesehen hast."
+    "duplicate_host_request_other": "Du hast dieser Person in den letzten {{count}} Stunden schon eine Hostanfrage für sich überschneidende Zeiträume geschickt. Sieh in deinen Nachrichten nach, sie wurde möglicherweise trotzdem verschickt, auch wenn du es nicht gesehen hast.",
+    "invalid_thread_category": "Ungültige Kategorie des Nachrichten-Threads."
   },
   "quick_links": {
     "do_not_email": "Du wirst keine E-Mails mehr erhalten, die nicht sicherheitsrelevant sind, und dein Hosting-Status wurde zurückgesetzt. Der Newsletter muss separat abbestellt werden.",

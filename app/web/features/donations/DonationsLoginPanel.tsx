@@ -56,7 +56,7 @@ export default function DonationsLoginPanel() {
           t={t}
           i18nKey="logged_out.signup_prompt"
           components={{
-            1: <StyledLink key="signup-link" href={signupRoute} />,
+            signupLink: <StyledLink href={signupRoute} />,
           }}
         />
       </Typography>
@@ -65,7 +65,7 @@ export default function DonationsLoginPanel() {
           t={t}
           i18nKey="logged_out.anonymous_donation"
           components={{
-            1: <Link key="support-email-link" href={`mailto:${SUPPORT_EMAIL}`} underline="hover" />,
+            emailLink: <Link href={`mailto:${SUPPORT_EMAIL}`} underline="hover" />,
           }}
           values={{
             amount: ANONYMOUS_DONATION_MIN_AMOUNT,

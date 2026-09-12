@@ -36,8 +36,15 @@ services:
       - 8000:8000
     depends_on:
       - postgres
+      - valkey
     links:
       - postgres
+      - valkey
+  valkey:
+    image: valkey/valkey:8-alpine
+    restart: unless-stopped
+    ports:
+      - 6379:6379
   media:
     build: media
     restart: unless-stopped
@@ -59,6 +66,6 @@ services:
     ports:
       - "16686:16686"
     expose:
-      - 4317
+      - 4318
     environment:
       - COLLECTOR_OTLP_ENABLED=true

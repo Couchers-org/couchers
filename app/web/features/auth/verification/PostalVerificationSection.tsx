@@ -190,7 +190,7 @@ export default function PostalVerificationSection({ hasDonated }: { hasDonated: 
           <Trans
             t={t}
             i18nKey="verification_page.postal.need_to_donate"
-            components={{ 2: <StyledLink href={howToDonateUrl} /> }}
+            components={{ donateLink: <StyledLink href={howToDonateUrl} /> }}
           />
         </Typography>
       ) : (

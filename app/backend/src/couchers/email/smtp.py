@@ -44,7 +44,9 @@ def embed_html_relative_images(
 
         return f'src="cid:{content_id}"'
 
-    html = re.sub(r'src="([^":]+)"', repl=process_relative_src_match, string=html)
+    # The lookbehind keeps us inside a tag: without it a url ending in "src=" (base64 tokens are "=" padded,
+    # so this happens) matches from within its own href across into the following attribute.
+    html = re.sub(r'(?<=\s)src="([^":]+)"', repl=process_relative_src_match, string=html)
     return html, related_parts
 
 

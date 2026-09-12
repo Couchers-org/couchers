@@ -25,8 +25,8 @@
     "push_notifications": {
       "title": "Notificacions push",
       "allow_push": "Fes clic al botó \"Permet\" a la finestra emergent del teu navegador per activar les notificacions push.",
-      "enabled_message": "Actualment tens les notificacions push <1>activades</1>.",
-      "disabled_message": "Actualment tens les notificacions push <1>desactivades</1>.",
+      "enabled_message": "Actualment tens les notificacions push <strong>activades</strong>.",
+      "disabled_message": "Actualment tens les notificacions push <strong>desactivades</strong>.",
       "error_generic": "S'ha produït un error durant la subscripció a les notificacions push",
       "error_not_granted": "No has donat permís per enviar notificacions push.",
       "permission_denied": {

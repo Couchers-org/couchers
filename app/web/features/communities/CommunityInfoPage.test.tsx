@@ -1,6 +1,7 @@
 import { render, screen, waitFor, waitForElementToBeRemoved, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { getProfileLinkA11yLabel } from "components/Avatar/constants";
+import { USER_TITLE_SKELETON_TEST_ID } from "components/UserSummary";
 import mockRouter from "next-router-mock";
 import { routeToCommunity, routeToEditCommunityPage } from "routes";
 import { service } from "service";
@@ -25,13 +26,13 @@ async function assertAdminsShown(element: typeof screen | ReturnType<typeof with
       name: getProfileLinkA11yLabel(firstAdmin.name),
     }),
   ).toBeVisible();
-  expect(element.getByText(`${firstAdmin.name}, ${firstAdmin.age}`)).toBeVisible();
+  expect(element.getByRole("heading", { name: firstAdmin.name })).toBeVisible();
   expect(
     element.getByRole("link", {
       name: getProfileLinkA11yLabel(secondAdmin.name),
     }),
   ).toBeVisible();
-  expect(element.getByText(`${secondAdmin.name}, ${secondAdmin.age}`)).toBeVisible();
+  expect(element.getByRole("heading", { name: secondAdmin.name })).toBeVisible();
 }
 
 describe("Community info page", () => {
@@ -92,7 +93,7 @@ describe("Community info page", () => {
         />,
         { wrapper },
       );
-      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+      await waitForElementToBeRemoved(screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID));
 
       const editLink = screen.getByRole("link", { name: t("global:edit") });
       expect(editLink).toBeVisible();
@@ -125,7 +126,7 @@ describe("Community info page", () => {
         nextPageToken: "3",
       });
       render(<CommunityInfoPage community={community} />, { wrapper });
-      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+      await waitForElementToBeRemoved(screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID));
 
       const user = userEvent.setup();
 
@@ -207,7 +208,7 @@ describe("Community info page", () => {
           name: getProfileLinkA11yLabel(thirdAdmin.name),
         }),
       ).toBeVisible();
-      expect(adminDialog.getByText(`${thirdAdmin.name}, ${thirdAdmin.age}`)).toBeVisible();
+      expect(adminDialog.getByRole("heading", { name: thirdAdmin.name })).toBeVisible();
 
       // Check it doesn't affect the underlying page
       await user.click(document.querySelector(".MuiBackdrop-root")!);

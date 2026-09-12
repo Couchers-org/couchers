@@ -22,6 +22,7 @@
     "gender_verification_status": "性別驗證",
     "has_passport_sex_gender_exception": "護照性別/性別例外。？",
     "pending_mod_notes_count": "Pending mod註釋",
-    "acknowledged_mod_notes_count": "Acknowledged模組註釋"
+    "acknowledged_mod_notes_count": "Acknowledged模組註釋",
+    "ui_language_preference": "使用者介面語言"
   }
 }

@@ -1,10 +1,8 @@
 import { styled, Tooltip, Typography } from "@mui/material";
-import { FlexboxProps, useMediaQuery } from "@mui/system";
+import { FlexboxProps } from "@mui/system";
 import Avatar from "components/Avatar";
-import { OpenInNewIcon } from "components/Icons";
 import ProfileLink from "components/ProfileLink/ProfileLink";
 import StrongVerificationBadge from "components/StrongVerificationBadge";
-import StyledLink from "components/StyledLink";
 import { useImpressionRef, useLogEvent } from "features/analytics/hooks";
 import { useSearchAnalytics } from "features/analytics/searchAnalyticsContext";
 import { makeResultId, setSearchReferrer } from "features/analytics/searchAttribution";
@@ -15,11 +13,8 @@ import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { TFunction } from "i18next";
 import { SearchUser } from "proto/search_pb";
 import { MouseEvent } from "react";
-import LinesEllipsis from "react-lines-ellipsis";
-import { routeToUser } from "routes";
 import { theme } from "theme";
 import { timestampToInstant } from "utils/date";
-import { useIsNativeEmbed } from "utils/nativeLink";
 import stripMarkdown from "utils/stripMarkdown";
 
 import HostMeetupReferenceStatus from "./HostMeetupReferenceStatus";
@@ -96,11 +91,6 @@ const StyledBottomContent = styled("div")(({ theme }) => ({
   },
 }));
 
-const StyledOpenInNewIcon = styled(OpenInNewIcon)(() => ({
-  height: "1rem",
-  width: "1rem",
-}));
-
 const FlexRow = styled("div")<{
   alignItems?: FlexboxProps["alignItems"];
   justifyContent?: FlexboxProps["justifyContent"];
@@ -144,7 +134,19 @@ const HaikuContainer = styled("div")(({ theme }) => ({
   flexGrow: 1,
 }));
 
-const generateAboutText = (user: SearchUser.AsObject, t: TFunction, isMobile: boolean) => {
+const ClampedAbout = styled("div")(({ theme }) => ({
+  display: "-webkit-box",
+  WebkitBoxOrient: "vertical",
+  WebkitLineClamp: 7,
+  overflow: "hidden",
+  overflowWrap: "break-word",
+
+  [theme.breakpoints.down("md")]: {
+    WebkitLineClamp: 3,
+  },
+}));
+
+const generateAboutText = (user: SearchUser.AsObject, t: TFunction) => {
   const missingAbout = user.profileSnippet.length === 0;
   const hasPhoto = user.avatarUrl.length > 0;
 
@@ -168,14 +170,7 @@ const generateAboutText = (user: SearchUser.AsObject, t: TFunction, isMobile: bo
       </HaikuContainer>
     );
   } else {
-    return (
-      <LinesEllipsis
-        maxLine={isMobile ? 3 : 7}
-        text={stripMarkdown(aboutText(user, t))}
-        basedOn="letters"
-        style={{ wordBreak: "break-all", overflow: "hidden" }}
-      />
-    );
+    return <ClampedAbout>{stripMarkdown(aboutText(user, t))}</ClampedAbout>;
   }
 };
 
@@ -185,8 +180,6 @@ const SearchResultUserCard = ({
   position,
   user,
 }: SearchResultUserCardProps) => {
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const isNativeEmbed = useIsNativeEmbed();
   const {
     t,
     i18n: { language: locale },
@@ -258,7 +251,6 @@ const SearchResultUserCard = ({
               <ProfileLink
                 userId={user.userId}
                 username={user.username}
-                aria-label={t("profile:open_profile_new_tab")}
                 openInNewTab
                 style={{ fontSize: "1.1rem", overflow: "hidden" }}
               >
@@ -276,25 +268,7 @@ const SearchResultUserCard = ({
               </ProfileLink>
               {user.hasStrongVerification && <StrongVerificationBadge />}
             </FlexRow>
-            {!isNativeEmbed && !isMobile && (
-              <StyledLink
-                aria-label={t("profile:open_profile_new_tab")}
-                href={routeToUser(user.username)}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Tooltip title={t("profile:open_profile_new_tab")}>
-                  <StyledOpenInNewIcon
-                    sx={{
-                      "&:hover": {
-                        color: "var(--mui-palette-primary-dark)",
-                      },
-                    }}
-                  />
-                </Tooltip>
-              </StyledLink>
-            )}
+            <ProfileLink userId={user.userId} username={user.username} openInNewTab showOpenIcon />
           </FlexRow>
 
           <FlexRow justifyContent="space-between">
@@ -312,7 +286,7 @@ const SearchResultUserCard = ({
           meetupStatus={user.meetupStatus}
           numberReferences={user.numReferences}
         />
-        {generateAboutText(user, t, isMobile)}
+        {generateAboutText(user, t)}
         <FlexRow alignItems="flex-end" justifyContent="space-between" sx={{ marginTop: 1.5 }}>
           <UserDetailsRow>
             <Typography variant="body2">

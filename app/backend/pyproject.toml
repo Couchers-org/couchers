@@ -8,12 +8,12 @@ dependencies = [
     "babel>=2.18.0",
     "boto3>=1.43.1",
     "cachetools>=6.2.1",
-    "cryptography>=46.0.3",
+    "cryptography>=50.0.1",
     "geoalchemy2>=0.18.0",
     "geoip2>=5.1.0",
     "grpcio>=1.80.0",
     "http-ece>=1.2.1",
-    "ics>=0.7.3",
+    "icalendar>=7.2.2",
     "Jinja2>=3.1.6",
     "luhn>=0.2.0",
     "markdown-it-py>=4.2.0",
@@ -39,11 +39,12 @@ dependencies = [
     "Shapely>=2.1.1",
     "sqlalchemy>=2.0.51",
     "sqlalchemy-utils>=0.42.0",
-    "stripe>=13.1.0",
+    "stripe>=15.6.1",
     "ua-parser>=1.0.2",
     "user-agents>=2.2.0",
-    "growthbook>=2.3.1",
-    "pyroscope-io>=1.0.12",
+    "growthbook>=3.0.0",
+    "pyroscope-io>=1.2.1",
+    "valkey>=6.1.0",
 ]
 
 [project.scripts]
@@ -60,7 +61,7 @@ dev = [
     "types-protobuf>=6.32.1.20251105",
     "types-shapely>=2.1.0.20250917",
     "types-requests>=2.32.4.20250913",
-    "types-pyyaml>=6.0.12.20260724",
+    "types-pyyaml>=6.0.12.20260815",
     "types-boto3>=1.40.69",
     "types-cachetools",
     "types-python-dateutil>=2.9.0.20251115",
@@ -111,6 +112,8 @@ extra-standard-library = ["zoneinfo"]
 # Pytest
 [tool.pytest.ini_options]
 pythonpath = ["src"]
+# Also makes src/tests/conftest.py an initial conftest, so its pytest_addoption runs
+testpaths = ["src/tests"]
 strict = true
 filterwarnings = [
     "error",  # Treat all warnings as errors by default
@@ -139,7 +142,7 @@ module = ["couchers.migrations.versions.*"]
 ignore_errors = true
 
 [[tool.mypy.overrides]]
-module = ["http_ece", "py_vapid", "luhn", "sqlalchemy_utils.*", "growthbook", "user_agents", "pyroscope", "ics"]
+module = ["http_ece", "py_vapid", "luhn", "sqlalchemy_utils.*", "growthbook", "user_agents", "pyroscope"]
 # These libraries don't have type stubs or py.typed markers
 ignore_missing_imports = true
 

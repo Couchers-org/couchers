@@ -17,6 +17,7 @@
     "user_id": "User ID",
     "email": "Email",
     "birthdate": "Birthdate",
+    "ui_language_preference": "UI language",
     "has_strong_verification": "Has strong verification",
     "birthdate_verification_status": "Birthdate verification",
     "gender_verification_status": "Gender verification",

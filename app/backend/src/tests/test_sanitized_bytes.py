@@ -1,21 +1,21 @@
 from google.protobuf import empty_pb2
 
-from couchers.interceptors import _sanitized_bytes
+from couchers.middleware.sanitize import sanitized_bytes
 from couchers.proto import api_pb2, auth_pb2, conversations_pb2
 
 
 class TestSanitizedBytes:
-    """Test suite for _sanitized_bytes function."""
+    """Test suite for sanitized_bytes function."""
 
     def test_none_input(self):
         """Test that None input returns None."""
-        result = _sanitized_bytes(None)
+        result = sanitized_bytes(None)
         assert result is None
 
     def test_empty_message(self):
         """Test that an empty message is serialized correctly."""
         proto = empty_pb2.Empty()
-        result = _sanitized_bytes(proto)
+        result = sanitized_bytes(proto)
 
         assert isinstance(result, bytes)
         # Verify we can deserialize it back
@@ -26,7 +26,7 @@ class TestSanitizedBytes:
         """Test that messages without sensitive fields are not modified."""
         # AuthRes has no sensitive fields
         proto = auth_pb2.AuthRes(user_id=12345, jailed=False)
-        result = _sanitized_bytes(proto)
+        result = sanitized_bytes(proto)
 
         deserialized = auth_pb2.AuthRes.FromString(result)
         assert deserialized.user_id == 12345
@@ -38,7 +38,7 @@ class TestSanitizedBytes:
         proto = auth_pb2.AuthReq(user="testuser", password="supersecret123", remember_device=True)
         # the plaintext is present in the wire bytes unsanitized, but must not survive sanitization
         assert b"supersecret123" in proto.SerializeToString()
-        result = _sanitized_bytes(proto)
+        result = sanitized_bytes(proto)
         assert b"supersecret123" not in result
 
         deserialized = auth_pb2.AuthReq.FromString(result)
@@ -58,7 +58,7 @@ class TestSanitizedBytes:
             account=auth_pb2.SignupAccount(username="nesteduser", password="nestedsecret", city="Boston"),
         )
         assert b"nestedsecret" in proto.SerializeToString()
-        result = _sanitized_bytes(proto)
+        result = sanitized_bytes(proto)
         assert b"nestedsecret" not in result
 
         deserialized = auth_pb2.SignupFlowReq.FromString(result)
@@ -83,7 +83,7 @@ class TestSanitizedBytes:
             need_account=False,
             # auth_res is not set
         )
-        result = _sanitized_bytes(proto)
+        result = sanitized_bytes(proto)
 
         deserialized = auth_pb2.SignupFlowRes.FromString(result)
         assert deserialized.flow_token == "token456"
@@ -104,7 +104,7 @@ class TestSanitizedBytes:
             no_more=True,
             # messages field is empty (default empty repeated field)
         )
-        result = _sanitized_bytes(proto)
+        result = sanitized_bytes(proto)
 
         deserialized = conversations_pb2.GetGroupChatMessagesRes.FromString(result)
         assert deserialized.last_message_id == 999
@@ -129,7 +129,7 @@ class TestSanitizedBytes:
         msg2.author_user_id = 456
         msg2.text.text = "World"
 
-        result = _sanitized_bytes(proto)
+        result = sanitized_bytes(proto)
 
         deserialized = conversations_pb2.GetGroupChatMessagesRes.FromString(result)
 
@@ -151,7 +151,7 @@ class TestSanitizedBytes:
             need_basic=False,
             need_account=True,
         )
-        result = _sanitized_bytes(proto)
+        result = sanitized_bytes(proto)
 
         deserialized = auth_pb2.SignupFlowRes.FromString(result)
 
@@ -175,7 +175,7 @@ class TestSanitizedBytes:
             account=auth_pb2.SignupAccount(username="testuser", password="shouldberemoved"),
         )
         assert b"shouldberemoved" in proto.SerializeToString()
-        result = _sanitized_bytes(proto)
+        result = sanitized_bytes(proto)
         assert b"shouldberemoved" not in result
 
         deserialized = auth_pb2.SignupFlowReq.FromString(result)
@@ -197,8 +197,8 @@ class TestSanitizedBytes:
         original_password = original.password
 
         assert b"original_password" in original.SerializeToString()
-        # Call _sanitized_bytes
-        result = _sanitized_bytes(original)
+        # Call sanitized_bytes
+        result = sanitized_bytes(original)
         assert b"original_password" not in result
 
         # Original should not be modified
@@ -214,7 +214,7 @@ class TestSanitizedBytes:
         """Test messages with primitive fields (no message_type)."""
         # Create a message with only primitive types
         proto = auth_pb2.AuthRes(user_id=12345, jailed=True)
-        result = _sanitized_bytes(proto)
+        result = sanitized_bytes(proto)
 
         deserialized = auth_pb2.AuthRes.FromString(result)
         assert deserialized.user_id == 12345
@@ -242,7 +242,7 @@ class TestSanitizedBytes:
         )
 
         assert b"complexsecret" in proto.SerializeToString()
-        result = _sanitized_bytes(proto)
+        result = sanitized_bytes(proto)
         assert b"complexsecret" not in result
 
         deserialized = auth_pb2.SignupFlowReq.FromString(result)

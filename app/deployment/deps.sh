@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # works on ubuntu 24.04, tested on AWS
-# installs docker, docker-compose, aws-cli, age
+# installs docker, docker-compose, aws-cli, age; sets up swap
 
 set -e
 
@@ -10,6 +10,15 @@ sudo apt-get -y update
 sudo apt-get -y dist-upgrade
 
 sudo apt-get install -y age
+
+# set up swap
+sudo fallocate -l 4G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+echo 'vm.swappiness=10' | sudo tee /etc/sysctl.d/99-swap.conf
+sudo sysctl --system
 
 # install docker
 sudo apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common

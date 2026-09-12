@@ -38,7 +38,7 @@ export default function PushNotificationSettings() {
       try {
         setIsPushEnabled(await checkPushEnabled());
       } catch (e) {
-        setErrorMessage(t("notification_settings.push_notifications.error_unsupported"));
+        setErrorMessage("notifications:notification_settings.push_notifications.error_unsupported");
         Sentry.captureException(e, {
           tags: {
             component: "PushNotificationPermission",
@@ -51,7 +51,7 @@ export default function PushNotificationSettings() {
     };
 
     checkPushEnabledWrap();
-  }, [t, isNativeEmbed]);
+  }, [isNativeEmbed]);
 
   const turnPushNotificationsOnWrap = async () => {
     setIsLoading(true);
@@ -92,15 +92,9 @@ export default function PushNotificationSettings() {
       {isNotificationSupported && Notification.permission === "denied" && <PushNotificationDenied />}
       <Typography variant="body1" sx={{ marginBottom: theme.spacing(2) }}>
         {isPushEnabled ? (
-          <Trans
-            i18nKey="notifications:notification_settings.push_notifications.enabled_message"
-            components={{ 1: <strong /> }}
-          />
+          <Trans i18nKey="notifications:notification_settings.push_notifications.enabled_message" />
         ) : (
-          <Trans
-            i18nKey="notifications:notification_settings.push_notifications.disabled_message"
-            components={{ 1: <strong /> }}
-          />
+          <Trans i18nKey="notifications:notification_settings.push_notifications.disabled_message" />
         )}
       </Typography>
       <Typography variant="body1">{t("notification_settings.push_notifications.description")}</Typography>

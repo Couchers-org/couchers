@@ -1,3 +1,4 @@
+import { useFeatureValue } from "@growthbook/growthbook-react";
 import { LocalPostOfficeOutlined, LockOutlined, SmartphoneOutlined, VerifiedUser } from "@mui/icons-material";
 import { Box, GlobalStyles, keyframes, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
@@ -5,7 +6,6 @@ import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import Divider from "components/Divider";
 import HtmlMeta from "components/HtmlMeta";
 import useAccountInfo from "features/auth/useAccountInfo";
-import { useGate } from "features/experimentation";
 import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
 import { ReactNode } from "react";
@@ -123,7 +123,7 @@ function DataUseSection({ heading, body }: { heading: string; body: ReactNode })
 
 export default function VerificationPage() {
   const { t } = useTranslation(AUTH);
-  const isPostalVerificationEnabled = useGate("postal_verification_enabled");
+  const isPostalVerificationEnabled = useFeatureValue("postal_verification_enabled", false);
   const { data: accountInfo, error: accountInfoError, isLoading: isAccountInfoLoading } = useAccountInfo();
 
   return (

@@ -11,7 +11,7 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 from sqlalchemy.orm import Session, aliased
-from sqlalchemy.sql import and_, literal, or_, union_all
+from sqlalchemy.sql import and_, or_, union_all
 
 from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import are_friends
@@ -88,9 +88,9 @@ def get_host_req_and_check_can_write_ref(
     ).scalar_one_or_none():
         context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "reference_already_given")
 
-    surfed = host_request.initiator_user_id == context.user_id
+    surfed = host_request.surfer_user_id == context.user_id
 
-    if surfed:
+    if host_request.initiator_user_id == context.user_id:
         my_reason = host_request.initiator_reason_didnt_meetup
     else:
         my_reason = host_request.recipient_reason_didnt_meetup
@@ -117,8 +117,11 @@ def check_valid_reference(
 def get_pending_references_to_write(
     session: Session, context: CouchersContext
 ) -> list[tuple[int, ReferenceType, datetime, LiteUser]]:
+    # the two halves split on the conversation role, since that's the axis the didnt_meetup columns live on
+    surfed_col = (HostRequest.surfer_user_id == context.user_id).label("surfed")
+
     q1 = (
-        select(literal(True), HostRequest, LiteUser)
+        select(surfed_col, HostRequest, LiteUser)
         .outerjoin(
             Reference,
             and_(
@@ -136,7 +139,7 @@ def get_pending_references_to_write(
     q1 = q1.where(HostRequest.initiator_reason_didnt_meetup == None)
 
     q2 = (
-        select(literal(False), HostRequest, LiteUser)
+        select(surfed_col, HostRequest, LiteUser)
         .outerjoin(
             Reference,
             and_(
@@ -309,15 +312,13 @@ class References(references_pb2_grpc.ReferencesServicer):
         reference_text = request.text.strip()
 
         if surfed:
-            # we requested to surf with someone
+            # we surfed with someone
             reference_type = ReferenceType.surfed
-            to_user_id = host_request.recipient_user_id
-            assert context.user_id == host_request.initiator_user_id
+            to_user_id = host_request.host_user_id
         else:
             # we hosted someone
             reference_type = ReferenceType.hosted
-            to_user_id = host_request.initiator_user_id
-            assert context.user_id == host_request.recipient_user_id
+            to_user_id = host_request.surfer_user_id
 
         reference: Reference | None = None
 
@@ -425,8 +426,11 @@ class References(references_pb2_grpc.ReferencesServicer):
             ).scalar_one_or_none()
         ) is None
 
+        # the two halves split on the conversation role, since that's the axis the didnt_meetup columns live on
+        surfed_col = (HostRequest.surfer_user_id == context.user_id).label("surfed")
+
         q1 = (
-            select(literal(True), HostRequest)
+            select(surfed_col, HostRequest)
             .outerjoin(
                 Reference,
                 and_(
@@ -442,7 +446,7 @@ class References(references_pb2_grpc.ReferencesServicer):
         )
 
         q2 = (
-            select(literal(False), HostRequest)
+            select(surfed_col, HostRequest)
             .outerjoin(
                 Reference,
                 and_(

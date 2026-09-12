@@ -15,7 +15,6 @@ from couchers.email.blocks import EmailBase
 from couchers.email.emails import EmailChangeConfirmationEmail, SignupContinueEmail, SignupVerifyEmail
 from couchers.email.queuing import queue_system_email, queue_userless_email
 from couchers.models import (
-    AccountDeletionReason,
     Cluster,
     ClusterRole,
     ClusterSubscription,
@@ -178,18 +177,6 @@ def send_event_community_invite_request_email(session: Session, request: EventCo
             "event_link": urls.event_link(occurrence_id=request.occurrence.id, slug=request.occurrence.event.slug),
             "user_link": urls.user_link(username=request.user.username),
             "view_link": urls.console_link(page="tools/community-invites"),
-        },
-    )
-
-
-def send_account_deletion_report_email(session: Session, reason: AccountDeletionReason) -> None:
-    logger.info("Sending account deletion report email")
-    queue_system_email(
-        session,
-        config.REPORTS_EMAIL_RECIPIENT,
-        "account_deletion_report",
-        template_args={
-            "reason": reason,
         },
     )
 

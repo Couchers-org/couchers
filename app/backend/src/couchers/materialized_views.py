@@ -153,6 +153,7 @@ def make_lite_users_selectable(create: bool = False) -> Select[Any]:
     strong_verification_subquery = (
         select(User.id, literal(True).label("true"))
         .select_from(StrongVerificationAttempt)
+        .join(User, User.id == StrongVerificationAttempt.user_id)
         .where(StrongVerificationAttempt.has_strong_verification(User))
         .distinct()
         .subquery(name="sv_subquery")

@@ -77,15 +77,16 @@ describe("BlockedUsersList", () => {
 
     expect(await screen.findByText(liteUsers[1].name)).toBeVisible();
 
-    const moreOptionsButtons = await screen.findAllByTestId("blocked-user-item-more-options");
+    const moreOptionsButtons = await screen.findAllByRole("button", { name: t("global:more_options_a11y") });
 
     await user.click(moreOptionsButtons[1]);
 
-    const unblockButtons = await screen.findAllByTestId("blocked-user-item-unblock-user");
+    // Only the clicked row's menu opens; the other rows keep theirs closed.
+    const unblockButtons = await screen.findAllByRole("menuitem", { name: t("connections:unblock_user") });
 
-    expect(unblockButtons).toHaveLength(3);
+    expect(unblockButtons).toHaveLength(1);
 
-    await user.click(unblockButtons[1]);
+    await user.click(unblockButtons[0]);
 
     expect(
       await screen.findByText(

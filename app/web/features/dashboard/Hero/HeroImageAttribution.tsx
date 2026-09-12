@@ -34,7 +34,7 @@ export default function HeroImageAttribution() {
           <Trans
             i18nKey="dashboard:hero_image_attribution"
             components={{
-              1: (
+              photographerLink: (
                 <MuiLink
                   href={authorUrl}
                   variant="inherit"
@@ -43,7 +43,7 @@ export default function HeroImageAttribution() {
                   underline="hover"
                 />
               ),
-              3: (
+              unsplashLink: (
                 <MuiLink
                   href={unsplashUrl}
                   variant="inherit"

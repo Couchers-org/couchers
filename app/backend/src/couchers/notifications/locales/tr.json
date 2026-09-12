@@ -180,7 +180,13 @@
       }
     },
     "invite_organizer": {
-      "event_description": "Birisi sizi bir etkinliği birlikte düzenlemeye davet ediyor"
+      "event_description": "Birisi sizi bir etkinliği birlikte düzenlemeye davet ediyor",
+      "push": {
+        "title": "Etkinlik güncellendi: {{title}}",
+        "ios_title": "Etkinlik Güncellendi",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} sizi bir ortak organizatör olarak ekledi."
+      }
     },
     "reminder": {
       "event_description": "Katılacağınız bir etkinlik yakında başlayacak",
@@ -241,7 +247,7 @@
       }
     },
     "create": {
-      "event_description": "Birisi sana bir ev sahipliği isteği gönderince",
+      "event_description": "Birisi sana bir ev sahipliği isteği gönderdiğinde",
       "push": {
         "title": "{{user}}'dan yeni konaklama isteği",
         "ios_title": "{{user}}",

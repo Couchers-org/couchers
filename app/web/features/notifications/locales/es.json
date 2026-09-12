@@ -49,8 +49,8 @@
       "error_unsupported": "Este navegador no soporta notificaciones push o service workers.",
       "title": "Notificaciones push",
       "allow_push": "Haz clic en el botón 'Permitir' en tu navegador para habilitar las notificaciones push.",
-      "enabled_message": "Actualmente tienes las notificaciones push <1>habilitadas</1>.",
-      "disabled_message": "Actualmente tienes las notificaciones push <1>deshabilitadas</1>.",
+      "enabled_message": "Actualmente tienes las notificaciones push <strong>habilitadas</strong>.",
+      "disabled_message": "Actualmente tienes las notificaciones push <strong>deshabilitadas</strong>.",
       "error_generic": "Error al suscribirse a las notificaciones push",
       "error_not_granted": "No has dado permiso para enviar notificaciones push."
     }

@@ -157,7 +157,7 @@
       }
     },
     "comment": {
-      "event_description": " Um usuário comenta em um evento que você irá participar",
+      "event_description": "Um usuário comenta em um evento que você irá participar",
       "push": {
         "ios_title": "{{user}}",
         "title": "{{user}} • {{title}}",

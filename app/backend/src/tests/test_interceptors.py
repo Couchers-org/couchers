@@ -2,6 +2,7 @@ from collections.abc import Callable, Generator
 from concurrent import futures
 from contextlib import contextmanager
 from datetime import timedelta
+from threading import current_thread
 from typing import Any
 from unittest.mock import Mock, patch
 
@@ -13,24 +14,13 @@ from google.protobuf.descriptor_pool import DescriptorPool
 from sqlalchemy import select, text, update
 
 from couchers.constants import (
+    COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE,
     MISSING_AUTH_LEVEL_ERROR_MESSAGE,
     NONEXISTENT_API_CALL_ERROR_MESSAGE,
     UNKNOWN_ERROR_MESSAGE,
 )
 from couchers.crypto import b64encode, random_hex, simple_encrypt
 from couchers.db import session_scope
-from couchers.descriptor_pool import get_descriptor_pool
-from couchers.interceptors import (
-    AbortError,
-    BadHeaders,
-    CouchersMiddlewareInterceptor,
-    ErrorSanitizationInterceptor,
-    UserAuthInfo,
-    check_permissions,
-    find_auth_level,
-    parse_headers,
-    validate_auth_level,
-)
 from couchers.metrics import (
     api_calls_counter,
     servicer_db_query_count_histogram,
@@ -41,6 +31,18 @@ from couchers.metrics import (
     servicer_setup_db_time_histogram,
     servicer_setup_errors_counter,
 )
+from couchers.middleware.errors import CallRejectedError
+from couchers.middleware.interceptors import (
+    NONEXISTENT_METHOD_LABEL,
+    BadHeaders,
+    CouchersMiddlewareInterceptor,
+    ErrorSanitizationInterceptor,
+    UserAuthInfo,
+    _try_get_and_update_user_details,
+    check_permissions,
+    parse_headers,
+)
+from couchers.middleware.proto_annotations import ProtoAnnotations, get_proto_annotations, validate_auth_level
 from couchers.models import APICall, ClientPlatform, User, UserActivity, UserSession
 from couchers.proto import account_pb2, admin_pb2, annotations_pb2, api_pb2, auth_pb2
 from couchers.servicers.account import Account
@@ -64,6 +66,7 @@ def interceptor_dummy_api(
     request_type=empty_pb2.Empty,
     response_type=empty_pb2.Empty,
     creds=None,
+    call_method_name=None,
 ) -> Generator[Callable[..., Any]]:
     with futures.ThreadPoolExecutor(1) as executor:
         server = grpc.server(executor, interceptors=interceptors)
@@ -84,7 +87,7 @@ def interceptor_dummy_api(
         try:
             with grpc.secure_channel(f"localhost:{port}", creds or grpc.local_channel_credentials()) as channel:
                 yield channel.unary_unary(
-                    f"/{service_name}/{method_name}",
+                    f"/{service_name}/{call_method_name or method_name}",
                     request_serializer=request_type.SerializeToString,
                     response_deserializer=response_type.FromString,
                 )
@@ -353,6 +356,28 @@ def test_tracing_interceptor_phase_histograms(db):
     )
 
 
+def test_auth_runs_on_the_handler_thread(db):
+    # gRPC runs intercept_service inline on the server's single polling thread, under the server-wide lock, so the auth
+    # query has to happen in the returned handler or it serializes dispatch for every other call in the process
+    threads: dict[str, str] = {}
+
+    def TestRpc(request, context, session):
+        threads["handler"] = current_thread().name
+        return empty_pb2.Empty()
+
+    def record_thread(*args, **kwargs):
+        threads["auth"] = current_thread().name
+        return _try_get_and_update_user_details(*args, **kwargs)
+
+    with (
+        patch("couchers.middleware.interceptors._try_get_and_update_user_details", record_thread),
+        interceptor_dummy_api(TestRpc, interceptors=[CouchersMiddlewareInterceptor()]) as call_rpc,
+    ):
+        call_rpc(empty_pb2.Empty())
+
+    assert threads["auth"] == threads["handler"]
+
+
 def test_tracing_interceptor_perf_accounting_orm_write(db):
     # a handler that only session.add(...)s and returns: the INSERT flushes at commit, after read_perf(), so without
     # the interceptor's explicit flush it would be missed from the write/query counts
@@ -458,8 +483,8 @@ def test_setup_phase_exception_observed(db):
         return empty_pb2.Empty()
 
     with (
-        patch("couchers.interceptors.LocalizationContext", side_effect=ValueError("expected only letters")),
-        patch("couchers.interceptors.sentry_sdk") as mock_sentry,
+        patch("couchers.middleware.interceptors.LocalizationContext", side_effect=ValueError("expected only letters")),
+        patch("couchers.middleware.interceptors.sentry_sdk") as mock_sentry,
         interceptor_dummy_api(TestRpc, interceptors=[CouchersMiddlewareInterceptor()]) as call_rpc,
     ):
         with pytest.raises(grpc.RpcError) as e:
@@ -469,6 +494,13 @@ def test_setup_phase_exception_observed(db):
         mock_sentry.capture_exception.assert_called_once()
 
     assert _get_setup_errors_value(method, "ValueError") == val + 1
+
+    with session_scope() as session:
+        trace = session.execute(select(APICall)).scalar_one()
+        assert trace.method == method
+        assert trace.status_code == "INTERNAL"
+        assert trace.traceback
+        assert "expected only letters" in trace.traceback
 
 
 def test_tracing_interceptor_abort(db):
@@ -855,6 +887,192 @@ def test_auth_levels(db):
         assert err.value.details() == "Internal authentication error."
 
 
+def test_rejected_call_logged_unauthenticated(db):
+    method = "/org.couchers.api.account.Account/GetAccountInfo"
+    hist_before = _get_histogram_labels_value(method, "False", "", "UNAUTHENTICATED")
+    api_calls_before = _get_api_call_count(method, "unknown")
+
+    def TestRpc(request, context, session):
+        return empty_pb2.Empty()
+
+    with interceptor_dummy_api(
+        TestRpc,
+        interceptors=[CouchersMiddlewareInterceptor()],
+        service_name="org.couchers.api.account.Account",
+        method_name="GetAccountInfo",
+    ) as call_rpc:
+        with pytest.raises(grpc.RpcError) as e:
+            call_rpc(empty_pb2.Empty())
+        assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
+
+    with session_scope() as session:
+        trace = session.execute(select(APICall)).scalar_one()
+        assert trace.method == method
+        assert trace.status_code == "UNAUTHENTICATED"
+        assert trace.user_id is None
+        assert not trace.is_api_key
+        # the request is never deserialized on a reject path
+        assert trace.request is None
+        assert trace.response is None
+        assert not trace.traceback
+        assert trace.duration > 0
+
+    assert _get_histogram_labels_value(method, "False", "", "UNAUTHENTICATED") == hist_before + 1
+    assert _get_api_call_count(method, "unknown") == api_calls_before + 1
+
+
+def test_rejected_call_logged_permission_denied(db):
+    """A rejected call from a valid session is attributed to that user."""
+    user, token = generate_user()
+    method = "/org.couchers.admin.Admin/GetUserDetails"
+    hist_before = _get_histogram_labels_value(method, "True", "", "PERMISSION_DENIED")
+
+    def TestRpc(request, context, session):
+        return empty_pb2.Empty()
+
+    with interceptor_dummy_api(
+        TestRpc,
+        interceptors=[CouchersMiddlewareInterceptor()],
+        service_name="org.couchers.admin.Admin",
+        method_name="GetUserDetails",
+    ) as call_rpc:
+        with pytest.raises(grpc.RpcError) as e:
+            call_rpc(empty_pb2.Empty(), metadata=(cookie_auth(token), ("x-couchers-client-platform", "web_mobile")))
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+
+    with session_scope() as session:
+        trace = session.execute(select(APICall)).scalar_one()
+        assert trace.method == method
+        assert trace.status_code == "PERMISSION_DENIED"
+        assert trace.user_id == user.id
+        assert trace.client_platform == ClientPlatform.web_mobile
+        assert not trace.traceback
+
+        # the same call is also counted in the per-user activity table, so the two agree
+        api_calls = session.execute(select(UserActivity.api_calls).where(UserActivity.user_id == user.id)).scalar_one()
+        assert api_calls == 1
+
+    assert _get_histogram_labels_value(method, "True", "", "PERMISSION_DENIED") == hist_before + 1
+
+
+def test_rejected_call_logged_service_missing_from_pool(db):
+    """A servicer registered for a service missing from the descriptor pool is our bug, so it keeps its name."""
+    method = "/org.couchers.nonexistent.NA/GetNothing"
+    hist_before = _get_histogram_labels_value(method, "False", "", "UNIMPLEMENTED")
+    api_calls_before = _get_api_call_count(method, "unknown")
+    bucketed_before = _get_histogram_labels_value(NONEXISTENT_METHOD_LABEL, "False", "", "UNIMPLEMENTED")
+    setup_db_before = _get_histogram_count(
+        servicer_setup_db_time_histogram, "couchers_servicer_setup_db_time_seconds_count", method=method
+    )
+
+    def TestRpc(request, context, session):
+        return empty_pb2.Empty()
+
+    with interceptor_dummy_api(
+        TestRpc,
+        interceptors=[CouchersMiddlewareInterceptor()],
+        service_name="org.couchers.nonexistent.NA",
+        method_name="GetNothing",
+    ) as call_rpc:
+        with pytest.raises(grpc.RpcError) as e:
+            call_rpc(empty_pb2.Empty(), metadata=(("x-couchers-real-ip", "1.1.1.1"),))
+        assert e.value.code() == grpc.StatusCode.UNIMPLEMENTED
+        assert e.value.details() == NONEXISTENT_API_CALL_ERROR_MESSAGE
+
+    with session_scope() as session:
+        trace = session.execute(select(APICall)).scalar_one()
+        assert trace.method == method
+        assert trace.status_code == "UNIMPLEMENTED"
+        assert trace.user_id is None
+        # headers are parsed before the auth level is looked up, so we know who made the call
+        assert trace.ip_address == "1.1.1.1"
+        assert trace.user_agent is not None
+
+    # the method is one this server registered, so it's a label of its own rather than bucketed
+    assert _get_histogram_labels_value(method, "False", "", "UNIMPLEMENTED") == hist_before + 1
+    assert _get_api_call_count(method, "unknown") == api_calls_before + 1
+    assert (
+        _get_histogram_count(
+            servicer_setup_db_time_histogram, "couchers_servicer_setup_db_time_seconds_count", method=method
+        )
+        == setup_db_before + 1
+    )
+    assert _get_histogram_labels_value(NONEXISTENT_METHOD_LABEL, "False", "", "UNIMPLEMENTED") == bucketed_before
+
+
+def test_rejected_call_logged_unregistered_method(db):
+    """A method with no servicer registered is terminated by the interceptor itself, and still logged."""
+    hist_before = _get_histogram_labels_value(NONEXISTENT_METHOD_LABEL, "False", "", "UNIMPLEMENTED")
+
+    def TestRpc(request, context, session):
+        return empty_pb2.Empty()
+
+    with interceptor_dummy_api(
+        TestRpc,
+        interceptors=[CouchersMiddlewareInterceptor()],
+        call_method_name="NotRegistered",
+    ) as call_rpc:
+        with pytest.raises(grpc.RpcError) as e:
+            call_rpc(empty_pb2.Empty(), metadata=(("x-couchers-real-ip", "1.1.1.1"),))
+        assert e.value.code() == grpc.StatusCode.UNIMPLEMENTED
+        assert e.value.details() == NONEXISTENT_API_CALL_ERROR_MESSAGE
+
+    with session_scope() as session:
+        trace = session.execute(select(APICall)).scalar_one()
+        assert trace.method == "/org.couchers.auth.Auth/NotRegistered"
+        assert trace.status_code == "UNIMPLEMENTED"
+        assert trace.user_id is None
+        assert trace.ip_address == "1.1.1.1"
+        # no servicer was found, so the request was never deserialized
+        assert trace.request is None
+
+    assert _get_histogram_labels_value(NONEXISTENT_METHOD_LABEL, "False", "", "UNIMPLEMENTED") == hist_before + 1
+    assert _get_histogram_labels_value("/org.couchers.auth.Auth/NotRegistered", "False", "", "UNIMPLEMENTED") == 0
+
+
+def test_rejected_call_logged_missing_auth_level(db):
+    def TestRpc(request, context, session):
+        return empty_pb2.Empty()
+
+    with interceptor_dummy_api(
+        TestRpc,
+        interceptors=[CouchersMiddlewareInterceptor()],
+        service_name="org.couchers.media.Media",
+        method_name="UploadConfirmation",
+    ) as call_rpc:
+        with pytest.raises(grpc.RpcError) as e:
+            call_rpc(empty_pb2.Empty())
+        assert e.value.code() == grpc.StatusCode.INTERNAL
+        assert e.value.details() == MISSING_AUTH_LEVEL_ERROR_MESSAGE
+
+    with session_scope() as session:
+        trace = session.execute(select(APICall)).scalar_one()
+        assert trace.method == "/org.couchers.media.Media/UploadConfirmation"
+        assert trace.status_code == "INTERNAL"
+
+
+def test_rejected_call_logged_bad_headers(db):
+    _, token = generate_user()
+
+    def TestRpc(request, context, session):
+        return empty_pb2.Empty()
+
+    with interceptor_dummy_api(TestRpc, interceptors=[CouchersMiddlewareInterceptor()]) as call_rpc:
+        with pytest.raises(grpc.RpcError) as e:
+            call_rpc(empty_pb2.Empty(), metadata=(cookie_auth(token), api_auth(token)))
+        assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
+        assert e.value.details() == COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE
+
+    with session_scope() as session:
+        trace = session.execute(select(APICall)).scalar_one()
+        assert trace.method == "/org.couchers.auth.Auth/SignupFlow"
+        assert trace.status_code == "UNAUTHENTICATED"
+        assert trace.user_id is None
+        # the headers couldn't be parsed, so nothing is known about the client
+        assert trace.ip_address is None
+        assert trace.user_agent is None
+
+
 def test_parse_headers_with_session_cookie():
     headers = {"cookie": "couchers-sesh=abc123; other-cookie=value"}
     result = parse_headers(headers)
@@ -893,7 +1111,7 @@ def test_parse_headers_with_all_optional_headers():
     assert result.ip_address == "192.168.1.1"
     assert result.user_agent == "TestAgent/1.0"
     assert result.ui_lang == "en"
-    assert result.user_id == "42"
+    assert result.user_id_str == "42"
 
 
 def test_parse_headers_with_bytes_ip_address():
@@ -921,23 +1139,19 @@ def test_parse_headers_malformed_authorization():
     assert result.is_api_key is True
 
 
-def test_find_auth_level_with_valid_service():
-    pool = get_descriptor_pool()
-
-    result = find_auth_level(pool, "/org.couchers.api.core.API/GetUser")
+def test_auth_level_with_valid_service():
+    result = get_proto_annotations().auth_level("/org.couchers.api.core.API/GetUser")
     assert result == annotations_pb2.AUTH_LEVEL_SECURE
 
 
-def test_find_auth_level_with_nonexistent_service():
-    pool = get_descriptor_pool()
-
-    with pytest.raises(AbortError) as exc:
-        find_auth_level(pool, "/org.couchers.nonexistent.Service/Method")
+def test_auth_level_with_nonexistent_service():
+    with pytest.raises(CallRejectedError) as exc:
+        get_proto_annotations().auth_level("/org.couchers.nonexistent.Service/Method")
     assert exc.value.msg == NONEXISTENT_API_CALL_ERROR_MESSAGE
     assert exc.value.code == grpc.StatusCode.UNIMPLEMENTED
 
 
-def test_find_auth_level_with_unknown_auth_level():
+def test_auth_level_with_unknown_auth_level():
     pool = Mock(spec=DescriptorPool)
     service_desc = Mock(spec=ServiceDescriptor)
     service_options = Mock()
@@ -945,14 +1159,14 @@ def test_find_auth_level_with_unknown_auth_level():
     service_desc.GetOptions.return_value = service_options
     pool.FindServiceByName.return_value = service_desc
 
-    with pytest.raises(AbortError) as exc:
-        find_auth_level(pool, "/org.couchers.api.core.API/GetUser")
+    with pytest.raises(CallRejectedError) as exc:
+        ProtoAnnotations(pool).auth_level("/org.couchers.api.core.API/GetUser")
     assert exc.value.msg == MISSING_AUTH_LEVEL_ERROR_MESSAGE
     assert exc.value.code == grpc.StatusCode.INTERNAL
 
 
 def test_validate_auth_level_with_unknown():
-    with pytest.raises(AbortError) as exc:
+    with pytest.raises(CallRejectedError) as exc:
         validate_auth_level(annotations_pb2.AUTH_LEVEL_UNKNOWN)
     assert exc.value.msg == MISSING_AUTH_LEVEL_ERROR_MESSAGE
     assert exc.value.code == grpc.StatusCode.INTERNAL
@@ -998,7 +1212,7 @@ def test_check_auth_open_service_with_auth():
 
 
 def test_check_auth_secure_service_without_auth():
-    with pytest.raises(AbortError):
+    with pytest.raises(CallRejectedError):
         check_permissions(None, annotations_pb2.AUTH_LEVEL_SECURE)
 
 
@@ -1029,7 +1243,7 @@ def test_check_auth_secure_service_with_jailed_user():
         token="abc123",
         is_api_key=False,
     )
-    with pytest.raises(AbortError):
+    with pytest.raises(CallRejectedError):
         check_permissions(auth_info, annotations_pb2.AUTH_LEVEL_SECURE)
 
 
@@ -1049,7 +1263,7 @@ def test_check_auth_jailed_service_with_jailed_user():
 
 
 def test_check_auth_jailed_service_without_auth():
-    with pytest.raises(AbortError):
+    with pytest.raises(CallRejectedError):
         check_permissions(None, annotations_pb2.AUTH_LEVEL_JAILED)
 
 
@@ -1065,7 +1279,7 @@ def test_check_auth_editor_service_without_editor():
         token="abc123",
         is_api_key=False,
     )
-    with pytest.raises(AbortError):
+    with pytest.raises(CallRejectedError):
         check_permissions(auth_info, annotations_pb2.AUTH_LEVEL_EDITOR)
 
 
@@ -1096,7 +1310,7 @@ def test_check_auth_admin_service_without_superuser():
         token="abc123",
         is_api_key=False,
     )
-    with pytest.raises(AbortError):
+    with pytest.raises(CallRejectedError):
         check_permissions(auth_info, annotations_pb2.AUTH_LEVEL_ADMIN)
 
 
@@ -1116,7 +1330,7 @@ def test_check_auth_admin_service_with_superuser():
 
 
 def test_check_auth_admin_service_without_auth():
-    with pytest.raises(AbortError):
+    with pytest.raises(CallRejectedError):
         check_permissions(None, annotations_pb2.AUTH_LEVEL_ADMIN)
 
 

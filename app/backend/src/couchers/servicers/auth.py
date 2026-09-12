@@ -13,6 +13,7 @@ from couchers.constants import ANTIBOT_FREQ, BANNED_USERNAME_PHRASES, GUIDELINES
 from couchers.context import CouchersContext
 from couchers.crypto import cookiesafe_secure_token, hash_password, urlsafe_secure_token, verify_password
 from couchers.event_log import log_event
+from couchers.helpers.hosting_meetup_status import record_hosting_meetup_status
 from couchers.metrics import (
     account_deletion_completions_counter,
     account_recoveries_counter,
@@ -23,6 +24,7 @@ from couchers.metrics import (
     password_reset_initiations_counter,
     signup_account_filled_counter,
     signup_completions_counter,
+    signup_email_changes_counter,
     signup_email_verified_counter,
     signup_guidelines_accepted_counter,
     signup_initiations_counter,
@@ -33,7 +35,9 @@ from couchers.models import (
     AccountDeletionToken,
     AntiBotLog,
     ContributorForm,
+    HostingMeetupStatusSource,
     InviteCode,
+    ModerationObjectType,
     NonvisibleUserAccessType,
     PasswordResetToken,
     PhotoGallery,
@@ -43,6 +47,7 @@ from couchers.models import (
 )
 from couchers.models.notifications import NotificationTopicAction
 from couchers.models.uploads import get_avatar_upload
+from couchers.moderation.utils import create_moderation
 from couchers.notifications.notify import notify
 from couchers.notifications.quick_links import decode_quick_link
 from couchers.proto import auth_pb2, auth_pb2_grpc, notification_data_pb2
@@ -126,14 +131,20 @@ def create_session(
         user_session.expiry = func.now() + duration
 
     session.add(user_session)
+
+    # read off the user before the commit expires it: every attribute touched after the commit re-selects the
+    # whole row, and this is on the path of every single login
+    user_id = user.id
+    user_gender = user.gender
+
     session.commit()
 
-    logger.debug(f"Handing out {token=} to {user=}")
+    logger.debug("Handing out %s to user %s", token, user_id)
 
     if set_cookie:
-        context.set_cookies(create_session_cookies(token, user.id, user_session.expiry))
+        context.set_cookies(create_session_cookies(token, user_id, user_session.expiry))
 
-    logins_counter.labels(user.gender).inc()
+    logins_counter.labels(user_gender).inc()
 
     return token, user_session.expiry
 
@@ -185,6 +196,24 @@ class Auth(auth_pb2_grpc.AuthServicer):
     def SignupFlow(
         self, request: auth_pb2.SignupFlowReq, context: CouchersContext, session: Session
     ) -> auth_pb2.SignupFlowRes:
+        # this is a bit ugly, probably one RPC for this mega-mutation of signup flows is not ideal
+        has_signup_step = (
+            request.HasField("basic")
+            or request.HasField("account")
+            or request.HasField("feedback")
+            or request.HasField("motivations")
+            or request.HasField("accept_community_guidelines")
+        )
+        has_recovery_step = request.HasField("change_email") or request.resend_verification_email
+
+        # if we have the token then we ignore all the other stuff, so better just error to the client
+        if request.email_token and (has_signup_step or has_recovery_step):
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "signup_flow_invalid_request")
+
+        # just for safety
+        if has_signup_step and has_recovery_step:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "signup_flow_invalid_request")
+
         if request.email_token:
             # the email token can either be for verification or just to find an existing signup
             flow = session.execute(
@@ -209,14 +238,10 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 if not flow:
                     context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_token")
         else:
-            if not request.flow_token:
-                # fresh signup
-                if not request.HasField("basic"):
-                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "signup_flow_basic_needed")
+
+            def _check_email_is_available_and_valid(new_email: str) -> None:
                 # TODO: unique across both tables
-                existing_user = session.execute(
-                    select(User).where(User.email == request.basic.email)
-                ).scalar_one_or_none()
+                existing_user = session.execute(select(User).where(User.email == new_email)).scalar_one_or_none()
                 if existing_user:
                     if not existing_user.is_visible:
                         context.abort_with_error_code(
@@ -224,7 +249,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                         )
                     context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_email_taken")
                 existing_flow = session.execute(
-                    select(SignupFlow).where(SignupFlow.email == request.basic.email)
+                    select(SignupFlow).where(SignupFlow.email == new_email)
                 ).scalar_one_or_none()
                 if existing_flow:
                     send_signup_email(context, session, existing_flow)
@@ -233,8 +258,14 @@ class Auth(auth_pb2_grpc.AuthServicer):
                         grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_email_started_signup"
                     )
 
-                if not is_valid_email(request.basic.email):
+                if not is_valid_email(new_email):
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_email")
+
+            if not request.flow_token:
+                # fresh signup
+                if not request.HasField("basic"):
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "signup_flow_basic_needed")
+                _check_email_is_available_and_valid(request.basic.email)
                 if not is_valid_name(request.basic.name):
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_name")
 
@@ -272,6 +303,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_basic_filled")
 
             # we've found and/or created a new flow, now sort out other parts
+
             if request.HasField("account"):
                 if flow.account_is_filled:
                     context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_account_filled")
@@ -344,6 +376,27 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 flow.accepted_community_guidelines = GUIDELINES_VERSION
                 session.flush()
 
+            if request.HasField("change_email"):
+                # can't change after verifying
+                if flow.email_verified:
+                    context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_email_verified")
+                # can't resend verification at the same time
+                if request.resend_verification_email:
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "signup_flow_invalid_request")
+
+                # this will error if the email is not different from the current one
+                _check_email_is_available_and_valid(request.change_email.new_email)
+
+                flow.email = request.change_email.new_email
+                flow.email_verified = False
+                flow.email_sent = False
+                flow.email_token = None
+                flow.email_token_expiry = None
+                flow.email_changed_count += 1
+                signup_email_changes_counter.inc()
+
+                session.flush()
+
             # send verification email if needed
             if not flow.email_sent or request.resend_verification_email:
                 send_signup_email(context, session, flow)
@@ -352,30 +405,45 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         # finish the signup if done
         if flow.is_completed:
-            user = User(
-                name=flow.name,
-                email=flow.email,
-                username=not_none(flow.username),
-                hashed_password=not_none(flow.hashed_password),
-                birthdate=not_none(flow.birthdate),
-                gender=not_none(flow.gender),
-                hosting_status=not_none(flow.hosting_status),
-                city=not_none(flow.city),
-                geom=is_geom(flow.geom),
-                geom_radius=not_none(flow.geom_radius),
-                accepted_tos=not_none(flow.accepted_tos),
-                last_onboarding_email_sent=func.now(),
-                invite_code_id=flow.invite_code_id,
-                heard_about_couchers=flow.heard_about_couchers,
-                signup_motivations=flow.signup_motivations if flow.filled_motivations else None,
+            user: User | None = None
+
+            def create_user(moderation_state_id: int) -> int:
+                nonlocal user
+                user = User(
+                    name=flow.name,
+                    email=flow.email,
+                    username=not_none(flow.username),
+                    hashed_password=not_none(flow.hashed_password),
+                    birthdate=not_none(flow.birthdate),
+                    gender=not_none(flow.gender),
+                    hosting_status=not_none(flow.hosting_status),
+                    city=not_none(flow.city),
+                    geom=is_geom(flow.geom),
+                    geom_radius=not_none(flow.geom_radius),
+                    accepted_tos=not_none(flow.accepted_tos),
+                    last_onboarding_email_sent=func.now(),
+                    invite_code_id=flow.invite_code_id,
+                    heard_about_couchers=flow.heard_about_couchers,
+                    signup_motivations=flow.signup_motivations if flow.filled_motivations else None,
+                    moderation_state_id=moderation_state_id,
+                )
+
+                user.accepted_community_guidelines = flow.accepted_community_guidelines
+                user.onboarding_emails_sent = 1
+                user.opt_out_of_newsletter = not_none(flow.opt_out_of_newsletter)
+
+                session.add(user)
+                session.flush()
+                return user.id
+
+            create_moderation(
+                session=session,
+                object_type=ModerationObjectType.user,
+                object_id=create_user,
             )
+            assert user is not None
 
-            user.accepted_community_guidelines = flow.accepted_community_guidelines
-            user.onboarding_emails_sent = 1
-            user.opt_out_of_newsletter = not_none(flow.opt_out_of_newsletter)
-
-            session.add(user)
-            session.flush()
+            record_hosting_meetup_status(session, user, HostingMeetupStatusSource.signup)
 
             # Create a profile gallery for the user
             profile_gallery = PhotoGallery(owner_user_id=user.id)
@@ -439,6 +507,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         else:
             return auth_pb2.SignupFlowRes(
                 flow_token=flow.flow_token,
+                email=flow.email,
                 need_account=not flow.account_is_filled,
                 need_feedback=False,
                 need_verify_email=not flow.email_verified,

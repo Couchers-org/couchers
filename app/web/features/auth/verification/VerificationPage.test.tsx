@@ -160,8 +160,8 @@ describe("VerificationPage", () => {
       renderPage({ isPostalEnabled: true, accountInfo: { hasDonated: false } });
 
       expect(await screen.findByRole("heading", { name: t("auth:verification_page.postal.header") })).toBeVisible();
-      // <Trans> swaps <2>donate</2> for a link, so match the rendered text.
-      const donatePrompt = t("auth:verification_page.postal.need_to_donate").replace(/<\/?2>/g, "");
+      // <Trans> swaps the tagged span for a link, so match the rendered text.
+      const donatePrompt = t("auth:verification_page.postal.need_to_donate").replace(/<\/?[a-zA-Z0-9_]+>/g, "");
       expect(await screen.findByText((_, element) => element?.textContent === donatePrompt)).toBeVisible();
       // No point offering the form: the backend would reject it.
       expect(

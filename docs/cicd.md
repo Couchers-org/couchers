@@ -13,6 +13,7 @@ Note on slugs: each branch has a slug generated from the branch name, normally y
 * Web as at `develop`: <https://develop--web.preview.couchershq.org/>
 * Current backend test coverage on `develop`: <https://develop--bcov.preview.couchershq.org/>
 * Current web test coverage on `develop`: <https://develop--wcov.preview.couchershq.org/>
+* SQL queries the backend tests issue on `develop`: <https://develop--test-artifacts.preview.couchershq.org/queries/index.html> (see [docs/query-log.md](query-log.md))
 
 ## Tests
 

@@ -70,7 +70,7 @@ export default function DiscussionsSection({ community }: { community: Community
         component={Link}
         href={`${routeToCommunity(community.communityId, community.slug, "discussions")}#${composingDiscussionHash}`}
       >
-        {t("communities:new_post_label")}
+        {t("communities:new_discussion_button")}
       </StyledCreateResourceButton>
       <StyledDiscussionsContainer>
         {isDiscussionsLoading ? (

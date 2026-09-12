@@ -21,7 +21,7 @@ export default function VerificationLink() {
         <Trans
           t={t}
           i18nKey="verification_page.settings_link.moved_message"
-          components={{ 1: <StyledLink href={verificationRoute} /> }}
+          components={{ verificationLink: <StyledLink href={verificationRoute} /> }}
         />
       </Typography>
     </div>

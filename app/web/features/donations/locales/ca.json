@@ -23,12 +23,12 @@
       "success_message": "Gràcies per fer una donació a Couchers.org, agraïm el teu suport! Rebràs un correu electrònic en breu.",
       "warning_message": "El pagament ha estat cancel·lat."
     },
-    "helper_text": "Se't redirigirà a Stripe, el nostre processador de pagaments, per completar la teva donació. Per cancel·lar o actualitzar una donació existent en qualsevol moment, <2>fes clic aquí per accedir al portal de donacions</2>."
+    "helper_text": "Se't redirigirà a Stripe, el nostre processador de pagaments, per completar la teva donació. Per cancel·lar o actualitzar una donació existent en qualsevol moment, <portalLink>fes clic aquí per accedir al portal de donacions</portalLink>."
   },
   "donations_title": "La teva donació és necessària per fer créixer la plataforma que necessitem",
   "donations_title2": "On anirà la teva donació",
-  "donations_info": "La teva donació es destina a <1>{{ legal_name }}</1>, una entitat sense ànim de lucre dels EUA 501(c)(3) que gestiona el servei Couchers.org i dona suport al projecte. Les donacions són exemptes d’impostos als EUA, el nostre EIN és 87-1734577.",
-  "benefactor_contact": "Si vols contribuir amb més de 1.000 $, posa't en contacte amb nosaltres a <1>{{email}}</1> perquè puguem organitzar una transferència amb una comissió més baixa.",
+  "donations_info": "La teva donació es destina a <foundationLink>{{ legal_name }}</foundationLink>, una entitat sense ànim de lucre dels EUA 501(c)(3) que gestiona el servei Couchers.org i dona suport al projecte. Les donacions són exemptes d’impostos als EUA, el nostre EIN és 87-1734577.",
+  "benefactor_contact": "Si vols contribuir amb més de 1.000 $, posa't en contacte amb nosaltres a <emailLink>{{email}}</emailLink> perquè puguem organitzar una transferència amb una comissió més baixa.",
   "donations_recurrence_explainer": "Una donació mensual ens ajuda a planificar amb antelació i continuar les nostres operacions de manera estable.",
   "donations_use_explainer": "Consulta els nostres resultats financers per a {{ year }}."
 }

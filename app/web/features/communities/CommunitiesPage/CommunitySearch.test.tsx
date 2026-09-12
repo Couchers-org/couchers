@@ -20,10 +20,13 @@ jest.mock("next/router", () => ({
 
 jest.mock("platform/sentry", () => {
   const mockCaptureException = jest.fn();
+  const mockSetUser = jest.fn();
   return {
     captureException: mockCaptureException,
+    setUser: mockSetUser,
     default: {
       captureException: mockCaptureException,
+      setUser: mockSetUser,
     },
   };
 });

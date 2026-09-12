@@ -63,15 +63,11 @@ describe("User page", () => {
       });
     });
 
-    it("does not show the button for opening a profile actions menu (viewed with username)", async () => {
+    it("does not show the report button (viewed with username)", async () => {
       renderUserPage("funnycat");
 
       expect(await screen.findByRole("heading", { name: "Funny Cat current User" })).toBeVisible();
-      expect(
-        screen.queryByRole("button", {
-          name: t("profile:more_profile_actions_a11y_text"),
-        }),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByLabelText(t("global:report.flag.profile_button_aria_label"))).not.toBeInTheDocument();
     });
 
     describe("and a tab is opened", () => {
@@ -160,7 +156,7 @@ describe("User page", () => {
         await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
         const successAlert = await screen.findByRole("alert");
-        expect(within(successAlert).getByText(t("global:report.flag.success"))).toBeVisible();
+        expect(within(successAlert).getByText(t("global:report.content.success_message"))).toBeVisible();
         expect(reportContentMock).toHaveBeenCalledTimes(1);
         expect(reportContentMock).toHaveBeenCalledWith({
           authorUser: 2,

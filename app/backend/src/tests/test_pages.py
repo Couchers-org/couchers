@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 import grpc
 import pytest
 from google.protobuf import wrappers_pb2
@@ -20,6 +22,7 @@ from couchers.proto import pages_pb2
 from couchers.utils import create_polygon_lat_lng, now, to_aware_datetime, to_multi
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import pages_session
+from tests.fixtures.timewarp import FrozenTimewarp
 from tests.test_communities import create_community
 
 
@@ -176,7 +179,7 @@ def test_create_guide_errors(db):
         assert e.value.details() == "You need to either supply an address and location or neither for a guide."
 
 
-def test_create_page_place(db):
+def test_create_page_place(db, frozen_timewarp):
     user, token = generate_user()
     with session_scope() as session:
         c_id = create_community(session, 0, 2, "Root node", [user], [], None).id
@@ -214,7 +217,7 @@ def test_create_page_place(db):
         assert res.can_moderate
 
 
-def test_create_page_guide(db):
+def test_create_page_guide(db, frozen_timewarp):
     user, token = generate_user()
     with session_scope() as session:
         c_id = create_community(session, 0, 2, "Root node", [user], [], None).id
@@ -280,7 +283,7 @@ def test_create_page_guide(db):
         assert res.can_moderate
 
 
-def test_get_page(db):
+def test_get_page(db, frozen_timewarp):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     with session_scope() as session:
@@ -323,7 +326,7 @@ def test_get_page(db):
         assert res.thread.num_responses == 0
 
 
-def test_update_page(db):
+def test_update_page(db, frozen_timewarp: FrozenTimewarp):
     user, token = generate_user()
     with session_scope() as session:
         c_id = create_community(session, 0, 2, "Root node", [user], [], None).id
@@ -342,6 +345,8 @@ def test_update_page(db):
             )
         ).page_id
 
+        # the clock is stopped, so each edit needs the test to move it on for last_edited to change
+        frozen_timewarp.advance(timedelta(minutes=1))
         time_before_update = now()
         api.UpdatePage(
             pages_pb2.UpdatePageReq(
@@ -370,6 +375,7 @@ def test_update_page(db):
         assert res.can_edit
         assert res.can_moderate
 
+        frozen_timewarp.advance(timedelta(minutes=1))
         time_before_second_update = now()
         api.UpdatePage(
             pages_pb2.UpdatePageReq(
@@ -400,6 +406,7 @@ def test_update_page(db):
         assert res.thread.thread_id > 0
         assert res.thread.num_responses == 0
 
+        frozen_timewarp.advance(timedelta(minutes=1))
         time_before_third_update = now()
         api.UpdatePage(
             pages_pb2.UpdatePageReq(
@@ -430,6 +437,7 @@ def test_update_page(db):
         assert res.thread.thread_id > 0
         assert res.thread.num_responses == 0
 
+        frozen_timewarp.advance(timedelta(minutes=1))
         time_before_fourth_update = now()
         api.UpdatePage(
             pages_pb2.UpdatePageReq(

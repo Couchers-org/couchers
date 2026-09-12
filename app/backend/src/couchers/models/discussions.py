@@ -20,6 +20,7 @@ class Discussion(Base, kw_only=True):
     __tablename__ = "discussions"
     __moderation_author_column__ = "creator_user_id"
     __moderation_object_type__ = ModerationObjectType.discussion
+    __moderation_has_own_visibility_mechanism__ = False
 
     id: Mapped[int] = mapped_column(
         BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value(), init=False
@@ -90,6 +91,7 @@ class Comment(Base, kw_only=True):
     __tablename__ = "comments"
     __moderation_author_column__ = "author_user_id"
     __moderation_object_type__ = ModerationObjectType.comment
+    __moderation_has_own_visibility_mechanism__ = False
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
@@ -112,6 +114,7 @@ class Reply(Base, kw_only=True):
     __tablename__ = "replies"
     __moderation_author_column__ = "author_user_id"
     __moderation_object_type__ = ModerationObjectType.reply
+    __moderation_has_own_visibility_mechanism__ = False
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 

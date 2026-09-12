@@ -20,10 +20,12 @@ from couchers.models import (
     NodeType,
     User,
 )
+from couchers.models.host_requests import HostRequest, HostRequestStatus
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.proto import public_trips_pb2, requests_pb2
 from couchers.utils import create_polygon_lat_lng, now, to_multi, today
 from tests.fixtures.db import generate_user
+from tests.fixtures.misc import Moderator
 from tests.fixtures.sessions import public_trips_session, requests_session
 
 
@@ -962,7 +964,7 @@ def test_list_public_trips_by_user_status_filter_ignored_for_others(db):
         assert [t.trip_id for t in res.public_trips] == [active]
 
 
-def test_list_public_trips_by_user_offers_count_owner(db):
+def test_list_public_trips_by_user_offers_count_owner(db, moderator: Moderator):
     traveler, traveler_token = generate_user()
     host, host_token = generate_user()
     node_id = _make_node()
@@ -977,7 +979,7 @@ def test_list_public_trips_by_user_offers_count_owner(db):
 
     # Host creates an offer via a host request linked to the trip
     with requests_session(host_token) as api:
-        api.CreateHostRequest(
+        host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=traveler.id,
                 from_date=(today() + timedelta(days=5)).isoformat(),
@@ -985,13 +987,62 @@ def test_list_public_trips_by_user_offers_count_owner(db):
                 text=_valid_request_text(),
                 public_trip_id=trip_id,
             )
-        )
+        ).host_request_id
+
+    with public_trips_session(traveler_token) as api:
+        res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
+        trip = next(t for t in res.public_trips if t.trip_id == trip_id)
+        assert trip.HasField("offers_count")
+        assert trip.offers_count == 0
+
+    moderator.approve_host_request(host_request_id)
 
     with public_trips_session(traveler_token) as api:
         res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
         trip = next(t for t in res.public_trips if t.trip_id == trip_id)
         assert trip.HasField("offers_count")
         assert trip.offers_count == 1
+
+
+def test_list_public_trips_by_user_offers_count_excludes_invisible_offers(db, moderator: Moderator):
+    """The count only covers offers the owner can open."""
+    traveler, traveler_token = generate_user()
+    _hidden_host, hidden_host_token = generate_user()
+    banned_host, banned_host_token = generate_user()
+    node_id = _make_node()
+
+    trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+
+    offer_ids = []
+    for token in (hidden_host_token, banned_host_token):
+        with requests_session(token) as api:
+            offer_ids.append(
+                api.CreateHostRequest(
+                    requests_pb2.CreateHostRequestReq(
+                        host_user_id=traveler.id,
+                        from_date=(today() + timedelta(days=5)).isoformat(),
+                        to_date=(today() + timedelta(days=10)).isoformat(),
+                        text=_valid_request_text(),
+                        public_trip_id=trip_id,
+                    )
+                ).host_request_id
+            )
+    hidden_offer_id = offer_ids[0]
+
+    for offer_id in offer_ids:
+        moderator.approve_host_request(offer_id)
+
+    with public_trips_session(traveler_token) as api:
+        res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
+        assert next(t for t in res.public_trips if t.trip_id == trip_id).offers_count == 2
+
+    moderator.hide_host_request(hidden_offer_id)
+    with session_scope() as session:
+        session.execute(select(User).where(User.id == banned_host.id)).scalar_one().banned_at = now()
+
+    with public_trips_session(traveler_token) as api:
+        res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
+        assert next(t for t in res.public_trips if t.trip_id == trip_id).offers_count == 0
 
 
 def test_list_public_trips_by_user_offers_count_not_set_for_others(db):
@@ -1005,6 +1056,48 @@ def test_list_public_trips_by_user_offers_count_not_set_for_others(db):
         res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
         assert len(res.public_trips) == 1
         assert not res.public_trips[0].HasField("offers_count")
+
+
+def test_list_public_trips_by_user_offers_count_excludes_cancelled(db, moderator: Moderator):
+    traveler, traveler_token = generate_user()
+    hosts = [generate_user() for _ in range(5)]
+    node_id = _make_node()
+
+    trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+
+    for _host, host_token in hosts:
+        with requests_session(host_token) as api:
+            offer_id = api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=traveler.id,
+                    from_date=(today() + timedelta(days=5)).isoformat(),
+                    to_date=(today() + timedelta(days=10)).isoformat(),
+                    text=_valid_request_text(),
+                    public_trip_id=trip_id,
+                )
+            ).host_request_id
+        moderator.approve_host_request(offer_id)
+
+    # Set one offer per status, so we cover every status the count has to consider.
+    with session_scope() as session:
+        offers = (
+            session.execute(
+                select(HostRequest).where(HostRequest.public_trip_id == trip_id).order_by(HostRequest.conversation_id)
+            )
+            .scalars()
+            .all()
+        )
+        offers[0].status = HostRequestStatus.pending
+        offers[1].status = HostRequestStatus.accepted
+        offers[2].status = HostRequestStatus.confirmed
+        offers[3].status = HostRequestStatus.rejected
+        offers[4].status = HostRequestStatus.cancelled
+
+    with public_trips_session(traveler_token) as api:
+        res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
+        trip = next(t for t in res.public_trips if t.trip_id == trip_id)
+        # pending, accepted, confirmed and rejected all count; cancelled does not
+        assert trip.offers_count == 4
 
 
 def test_viewer_host_request_id_reflects_viewers_own_offer(db):

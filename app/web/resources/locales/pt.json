@@ -34,5 +34,5 @@
   "close": "Fechar",
   "terms_of_service": "Termos de Serviço",
   "community_standing_description": "Calculado a partir de vários fatores, como referências e envolvimento da comunidade.",
-  "cookie_message": "Utilizamos cookies para garantir que lhe proporcionamos a melhor experiência no nosso website. Se continuar a utilizar este site, assumiremos que está satisfeito com isso. Pode ler mais sobre os nossos <1>Termos de Serviço</1>."
+  "cookie_message": "Utilizamos cookies para garantir que lhe proporcionamos a melhor experiência no nosso website. Se continuar a utilizar este site, assumiremos que está satisfeito com isso. Pode ler mais sobre os nossos <tosLink>Termos de Serviço</tosLink>."
 }

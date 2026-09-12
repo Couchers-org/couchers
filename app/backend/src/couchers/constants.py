@@ -10,14 +10,20 @@ GUIDELINES_VERSION = 1
 # src/couchers/email/locales/en.json
 LATEST_RELEASE_BLOG_URL = "https://couchers.org/blog/2026/05/25/couchers-spring-release"
 
+# Keep the frontend in sync at app/web/utils/validation.ts
 EMAIL_REGEX = r"^[0-9a-z]([0-9a-z\-\_\+]|(\.[0-9a-z\-\_\+]))*@([0-9a-z\-]+\.)*[0-9a-z\-]+\.[a-z]{2,}$"
 
-# Must match the frontend values in app/web/utils/validation.ts
+# Letters, diacritics, internal spaces, quotes, dashes, commas, dots, and's for names. See tests!
+# The surrounding whitespace rule could be encoded using a lookbehind assertion,
+# but the frontend counterpart would not be supported on older browsers (Safari < 16.4).
+# Keep the frontend in sync at app/web/utils/validation.ts
+VALID_NAME_CHARACTERS_REGEX = r"""^[\p{L}\p{M}\p{Zs}\p{Pi}\p{Pf}\p{Pd},.'"·・&/|]+$"""
+VALID_NAME_NO_SURROUNDING_WHITESPACE_REGEX = r"^\P{Zs}(?:[\s\S]*\P{Zs})?$"
 VALID_NAME_MIN_LENGTH = 2
 VALID_NAME_MAX_LENGTH = 100
 
-# Letters, diacritics, internal spaces, quotes, dashes, commas, dots, and's for two names. See tests!
-VALID_NAME_REGEX = r"""^(?!\p{Zs})[\p{L}\p{M}\p{Zs}\p{Pi}\p{Pf}\p{Pd},.'"·・&/|]+(?<!\p{Zs})$"""
+# Keep the frontend in sync at app/web/utils/validation.ts
+VALID_USERNAME_REGEX = r"^[a-z][0-9a-z_]*[a-z0-9]$"
 
 BANNED_USERNAME_PHRASES = [
     "admin",
@@ -99,6 +105,11 @@ ACTIVENESS_PROBE_TIME_REMINDERS = [timedelta(days=0), timedelta(days=2, hours=8)
 # total time from initiation after which to expire the probe
 ACTIVENESS_PROBE_EXPIRY_TIME = timedelta(days=4)
 
+# how long a message must go unseen before we email the user about it
+MISSED_MESSAGES_DELAY = timedelta(minutes=5)
+# ... unless we could reach them by push, in which case they've already been told about it once
+MISSED_MESSAGES_DELAY_WITH_PUSH = timedelta(hours=24)
+
 HOST_REQUEST_MAX_REMINDERS = 1
 HOST_REQUEST_REMINDER_INTERVAL = timedelta(days=2)
 
@@ -126,6 +137,8 @@ CALL_CANCELLED_ERROR_MESSAGE = "Call cancelled."
 UNAUTHORIZED_ERROR_MESSAGE = "Unauthorized"
 PERMISSION_DENIED_ERROR_MESSAGE = "Permission denied"
 
+RATE_LIMIT_ERROR_MESSAGE = "Too many requests. Please slow down and try again shortly."
+
 GHOST_USERNAME = "ghost"
 
 # Photo gallery limits
@@ -136,5 +149,8 @@ COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH = 150
 
 # How long a container must run uninterrupted before /status reports stable=true
 STABLE_THRESHOLD_SECONDS = 5 * 60
+
+# window length for the API rate limiter's fixed-window counters, in seconds
+RATE_LIMIT_WINDOW_SECONDS = 60
 
 MODERATION_AUTO_APPROVE_FLAG_PRIORITY = 1000

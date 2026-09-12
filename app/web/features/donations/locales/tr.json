@@ -16,7 +16,7 @@
       "warning_message": "Ödeme iptal edildi.",
       "success_message": "Couchers.org'a bağış yaptığın için teşekkürler, desteğine minnettarız! Yakında bir email alacaksın."
     },
-    "helper_text": "Bağışını tamamlamak için, harcama yöneticimiz olan Stripe'a yönlendirileceksin.Herhangi bir zaman, var olan bir bağışı değiştirmek veya iptal etmek için <2>buraya tıklayarak bağış portalımıza gidebilirsin</2>."
+    "helper_text": "Bağışını tamamlamak için, harcama yöneticimiz olan Stripe'a yönlendirileceksin.Herhangi bir zaman, var olan bir bağışı değiştirmek veya iptal etmek için <portalLink>buraya tıklayarak bağış portalımıza gidebilirsin</portalLink>."
   },
   "donations_recurrence_explainer": "Aylık bir bağış geleceği planlamamıza ve faaliyetlerimizi istikrarlı bir şekilde devam ettirmemize yardımcı oluyor.",
   "settings_fragment": {
@@ -28,9 +28,9 @@
   "donations_text": "Couchers.org, Wikipedia'ya benzer şekilde bağışlarla finanse edilen, topluluk tarafından yönetilen kar amacı gütmeyen bir kuruluş. Girişim sermayedarları veya özel çıkarlarımız yok; sadece dünyayı biraz daha iyi bir yer haline getirmek için çalışan gönüllüler var.\n\nKanepe sörfü topluluğunda, herkes için sonsuza dek ücretsiz kalacak, gelişen bir platform yaratmak ve sürdürmek için yeterli iyi niyet olduğuna inanıyoruz.\n\nAma bunu başarmak için **sizin yardımınıza ihtiyacımız var**.\n\nCouchers.org'a yapacağınız bağış, doğrudan kritik harcamalara giden son derece verimli bir yatırım. Couchsurfing™ gibi hizmetler büyük miktarlarda işe alım ve üçüncü taraf hizmetlere harcama yaparken, biz gönüllülerle çalışıyor ve açık kaynaklı yazılımlara güveniyoruz; böylece elde ettiğimiz geliri çok daha verimli kullanıp uzun vadeye yayıyoruz.\n\nEğer bu amaca inanıyorsanız, sizden bağış yapmanızı istiyoruz. Ayrıca kanepe sörfünün kendi hayatınıza kattığı değeri ve bunu dünyadaki diğer insanlara yaymanın ne kadar önemli olduğunu düşünmenizi rica ediyoruz. Ortak hedefimize ulaşmak için lütfen 5$, 20$, 50$ ya da elinizden gelen herhangi bir miktarda bağış yapmayı değerlendirin.\n\nTeşekkürler,\n\nAapeli Vuorinen ve Itsi Weinstock<br />Couchers.org Kurucuları",
   "donations_title": "İhtiyacımız olan platformu büyütmek için bağışınıza ihtiyacımız var",
   "donations_title2": "Bağışın nereye gidecek",
-  "benefactor_contact": "1000$ üzeri bir bağış yapmak isterseniz, lütfen bize daha düşük işlem ücretli bir tranfer sağlamamız için <1>{{email}}</1> 'den yazın.",
+  "benefactor_contact": "1000$ üzeri bir bağış yapmak isterseniz, lütfen bize daha düşük işlem ücretli bir tranfer sağlamamız için <emailLink>{{email}}</emailLink> 'den yazın.",
   "logged_out": {
     "login_button": "Bağış yapmak için giriş yap",
-    "signup_prompt": "Hesabınız yok mu? <1>Kaydolun</1>"
+    "signup_prompt": "Hesabınız yok mu? <signupLink>Kaydolun</signupLink>"
   }
 }

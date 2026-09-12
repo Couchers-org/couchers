@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+import "google/protobuf/descriptor.proto";
+
+extend google.protobuf.FieldOptions {
+  // whether the field is sensitive and should not be logged
+  bool sensitive = 50000;
+  // this is a token
+  bool is_token = 50001;
+}
+
+enum AuthLevel {
+  // error
+  AUTH_LEVEL_UNKNOWN = 0;
+  // accessible to all
+  AUTH_LEVEL_OPEN = 1;
+  // accessible to users who need to finish some things to get into the app
+  AUTH_LEVEL_JAILED = 2;
+  // accessible to all signed in users
+  AUTH_LEVEL_SECURE = 3;
+  // accessible to editors (admin-lite: can create communities, modify volunteer data)
+  AUTH_LEVEL_EDITOR = 5;
+  // accessible only by the Couchers organization
+  AUTH_LEVEL_ADMIN = 4;
+}
+
+extend google.protobuf.ServiceOptions {
+  // the auth level required to access this service, one of
+  AuthLevel auth_level = 50001;
+  // default per-RPC rate limit applied to every method in this service
+  RateLimit rate_limit_default = 50003;
+  // per-servicer aggregate rate limit, counting all methods in this service together
+  RateLimit rate_limit_aggregate = 50004;
+}
+
+extend google.protobuf.MethodOptions {
+  // this method's per-RPC rate limit, overriding the service default
+  RateLimit rate_limit = 50002;
+}
+
+// A rate limit, in requests per minute, with one optional count per dimension. Unset fields fall back
+// to the service default (per-RPC) or a global default constant. See docs/rate-limit-design.md.
+message RateLimit {
+  optional uint32 per_ip   = 1;
+  optional uint32 per_user = 2;
+  optional uint32 global   = 3;
+}

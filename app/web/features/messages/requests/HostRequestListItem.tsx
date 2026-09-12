@@ -52,13 +52,15 @@ const StyledDateAndBadgeContainer = styled("div")(({ theme }) => ({
   overflow: "hidden",
 }));
 
-const RequestTypeChip = styled(Chip)<{ ishost: "true" | "false" }>(({ theme, ishost }) => ({
+const RequestTypeChip = styled(Chip, {
+  shouldForwardProp: (prop) => prop !== "isHost",
+})<{ isHost: boolean }>(({ theme, isHost }) => ({
   height: 20,
   fontSize: "0.75rem",
   fontWeight: 500,
   flexShrink: 0,
-  backgroundColor: ishost === "true" ? "rgba(0, 163, 152, 0.1)" : "rgba(255, 138, 0, 0.1)",
-  color: ishost === "true" ? "var(--mui-palette-primary-main)" : "#FF8A00",
+  backgroundColor: isHost ? "rgba(0, 163, 152, 0.1)" : "rgba(255, 138, 0, 0.1)",
+  color: isHost ? "var(--mui-palette-primary-main)" : "#FF8A00",
   "& .MuiChip-label": {
     padding: theme.spacing(0, 1),
   },
@@ -215,7 +217,7 @@ export default function HostRequestListItem({ hostRequest, className, isArchived
                 </Typography>
                 <RequestTypeChip
                   label={isHost ? t("messages_page.tabs.hosting") : t("messages_page.tabs.surfing")}
-                  ishost={isHost ? "true" : "false"}
+                  isHost={isHost}
                   size="small"
                 />
               </StyledDateAndBadgeContainer>

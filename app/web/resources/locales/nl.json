@@ -44,7 +44,8 @@
     "home": "Home",
     "close_menu_a11y": "Menu sluiten",
     "open_drawer_a11y": "Menuscherm openen",
-    "close_drawer_a11y": "Menuscherm sluiten"
+    "close_drawer_a11y": "Menuscherm sluiten",
+    "press": "Pers & Media"
   },
   "components": {
     "edit_location_map": {
@@ -66,7 +67,7 @@
     }
   },
   "join_us": "Doe mee",
-  "cookie_message": "Ja, wij gebruiken ook cookies. Hiermee zorgen we dat jij onze site zo goed mogelijk kunt gebruiken. Als je doorgaat, zal je merken hoe fijn het is. Echt, heus. Lees meer over onze cookies en andere dingen in onze <1>servicevoorwaarden</1>.",
+  "cookie_message": "Ja, wij gebruiken ook cookies. Hiermee zorgen we dat jij onze site zo goed mogelijk kunt gebruiken. Als je doorgaat, zal je merken hoe fijn het is. Echt, heus. Lees meer over onze cookies en andere dingen in onze <tosLink>servicevoorwaarden</tosLink>.",
   "read_more": "Meer lezen",
   "next": "Volgende",
   "previous": "Vorige",
@@ -86,7 +87,6 @@
       "help_translate": "Help ons bij het vertalen van Couchers in jouw taal",
       "loading": "Voortgang vertalingen aan het laden...",
       "error_loading": "Voortgang vertalingen kon niet worden geladen",
-      "no_data": "Geen informatie over de vertalingen beschikbaar",
       "just_started": "Net begonnen",
       "early_stage": "In de beginfase",
       "view_progress": "Bekijk voortgang vertalingen",
@@ -160,7 +160,6 @@
       "description_required": "Een beschrijving is verplicht.",
       "description_label": "Beschrijf het probleem",
       "description_helper": "Vertel ons waarom je dit wilt melden.",
-      "success": "Bedankt voor je melding en het verbeteren van Couchers voor iedereen!",
       "reason": {
         "external": "Incident buiten dit platform om",
         "guidelines_breach": "Overtreding van de regels (geld vragen, naaktlopen, gedeeld bed enz.)",
@@ -174,7 +173,7 @@
       }
     }
   },
-  "not_found_text_2": "Wil je gewoon <1>naar je Dashboard gaan?</1>",
+  "not_found_text_2": "Wil je gewoon <homeLink>naar je Dashboard gaan?</homeLink>",
   "not_found_alt": "404-fout: Bron niet gevonden",
   "change_time": "Tijd aanpassen",
   "html_meta": {
@@ -209,7 +208,6 @@
     "disabled_datetime": "Uitgeschakeld: {{datetime}}",
     "disable_link": "Uitzetten"
   },
-  "contribute_title": "Meld je aan om mee te doen",
   "reply": "Beantwoorden",
   "yes": "Ja",
   "no": "Nee",
@@ -230,7 +228,7 @@
   },
   "footer": {
     "non_profit_note": "Couchers.org is een project van Couchers, Inc., een Amerikaanse 501(c)(3) non-profitorganisatie met belastingvrijstelling.",
-    "version_info": "Versie <2>{{version}}</2>, laatste update <5>{{updated_ago}}</5>."
+    "version_info": "Versie <versionLink>{{version}}</versionLink>, laatste update <updatedAgoLink>{{updated_ago}}</updatedAgoLink>."
   },
   "what_is_cs": {
     "title": "Wat is couchsurfing?",
@@ -310,9 +308,9 @@
     "board_member": "Bestuurslid"
   },
   "blog": {
-    "byline_with_author": "Geschreven door <1/>. Gepubliceerd op {{date}}.",
+    "byline_with_author": "Geschreven door <authorList/>. Gepubliceerd op {{date}}.",
     "byline_without_author": "Gepubliceerd op {{date}}.",
-    "cta_message": "Wil je helpen bij het schrijven van blogs of ander vrijwilligerswerk doen? <1>Meld je aan</1> en laat het ons weten. Vrijwilligers en <3>donaties</3> maken Couchers.org mogelijk!"
+    "cta_message": "Wil je helpen bij het schrijven van blogs of ander vrijwilligerswerk doen? <volunteerLink>Meld je aan</volunteerLink> en laat het ons weten. Vrijwilligers en <donateLink>donaties</donateLink> maken Couchers.org mogelijk!"
   },
   "error_loading_languages": "Taalopties laden mislukt",
   "language_names": {
@@ -322,7 +320,7 @@
     "en": "Engels",
     "es": "Spaans (Spanje)",
     "es-419": "Spaans",
-    "fr": "Frans (Frankrijk)",
+    "fr": "Frans",
     "he": "Hebreeuws",
     "hi": "Hindi",
     "it": "Italiaans",

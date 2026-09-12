@@ -118,7 +118,7 @@ export default function Text({ referenceData, setReferenceValues, referenceType,
         <Trans
           i18nKey="profile:leave_reference.by_writing_thoughtful"
           components={{
-            1: <StyledLink href={helpCenterHowToLeaveGoodReferenceUrl} />,
+            guideLink: <StyledLink href={helpCenterHowToLeaveGoodReferenceUrl} />,
           }}
         />
       </Typography>

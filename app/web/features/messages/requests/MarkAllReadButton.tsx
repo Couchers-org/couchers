@@ -27,7 +27,7 @@ export default function MarkAllReadButton({ type }: { type: "chats" | "hosting" 
         await Promise.all(
           data.map<void>((chat) =>
             hasUnreadMessages(chat)
-              ? service.conversations.markLastSeenGroupChat(chat.groupChatId, chat.latestMessage.messageId)
+              ? service.conversations.markLastSeenGroupChat(chat.groupChatId, chat.latestMessage!.messageId)
               : Promise.resolve(),
           ),
         );
@@ -47,7 +47,7 @@ export default function MarkAllReadButton({ type }: { type: "chats" | "hosting" 
         await Promise.all(
           data.map<void>((request) =>
             hasUnreadMessages(request)
-              ? service.requests.markLastRequestSeen(request.hostRequestId, request.latestMessage.messageId)
+              ? service.requests.markLastRequestSeen(request.hostRequestId, request.latestMessage!.messageId)
               : Promise.resolve(),
           ),
         );

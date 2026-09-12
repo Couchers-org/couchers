@@ -4,7 +4,9 @@
     "new_email": "Novo e-mail",
     "current_password": "Palavra-passe actual",
     "title": "Alterar e-mail",
-    "current_email_message": "O teu endereço de e-mail atualmente é <1>{{email}}</1>."
+    "current_email_message": "O teu endereço de e-mail atualmente é <strong>{{email}}</strong>.",
+    "hide_current_password": "Ocultar senha atual",
+    "show_current_password": "Mostrar senha atual"
   },
   "change_email_confirmation": {
     "success_message": "O teu e-mail foi alterado com sucesso!",
@@ -22,14 +24,20 @@
     "user_logged_error": "Você não pode redefinir sua senha enquanto estiver logado. Altere sua senha nas configurações ou faça log out para redefini-la.",
     "token_error": "Houve um erro ao processar o token de redefinição de senha. Tente abrir o link do e-mail novamente.",
     "reset_password_success": "Sua senha foi alterada com sucesso!",
-    "reset_password_error": "Erro ao redefinir a senha: {{message}}"
+    "reset_password_error": "Erro ao redefinir a senha: {{message}}",
+    "hide_old_password": "Ocultar senha anterior",
+    "show_old_password": "Mostrar senha anterior",
+    "hide_new_password": "Ocultar nova senha",
+    "show_new_password": "Mostrar nova senha",
+    "hide_confirm_password": "Ocultar confirmação de senha",
+    "show_confirm_password": "Mostrar confirmação de senha"
   },
   "reset_password_form": {
     "enter_email": "Digite seu nome de usuário/e-mail",
     "success_message": "Um link para redefinir a senha foi enviado para o e-mail associado a essa conta, se ele existe e está ativo. O e-mail pode ir para a caixa de spam."
   },
   "login_page": {
-    "no_account_prompt": "Ainda não tem uma conta? <2>Junte-se a nós</2>",
+    "no_account_prompt": "Ainda não tem uma conta? <signupLink>Junte-se a nós</signupLink>",
     "form": {
       "remember_me": "Lembrar-se de mim",
       "username_field_label": "E-mail/Nome de usuário",
@@ -42,8 +50,8 @@
     "header": "Bem-vindo de volta!"
   },
   "basic_sign_up_form": {
-    "existing_user_prompt": "Já tem uma conta? <2>Entre!</2>",
-    "sign_up_agreement_explainer": "Ao continuar, você concorda com nossos <2> Termos de Serviço</2>, incluindo nossas políticas de gestão de cookies, email e dados."
+    "existing_user_prompt": "Já tem uma conta? <loginLink>Entre!</loginLink>",
+    "sign_up_agreement_explainer": "Ao continuar, você concorda com nossos <tosLink> Termos de Serviço</tosLink>, incluindo nossas políticas de gestão de cookies, email e dados."
   },
   "account_form": {
     "header": "Detalhes da sua conta",
@@ -52,14 +60,15 @@
       "required_error": "Digite seu nome de usuário",
       "username_taken_error": "Este nome de usuário já existe.",
       "validation_error": "O nome de usuário só pode conter números ou _, e deve começar com uma letra.",
-      "helper_text": "Este é seu ID de login exclusivo, não seu nome de exibição."
+      "helper_text": "Este é seu nome de usuário público, não o nome do seu perfil."
     },
     "gender": {
       "field_label": "Identifico-me como…",
       "required_error": "Selecione sua identidade de gênero",
       "man": "Homem",
       "non_binary": "Não binário",
-      "woman": "Mulher"
+      "woman": "Mulher",
+      "selector_a11y": "Gênero"
     },
     "password": {
       "validation_error": "A senha deve ter entre 8 e 256 caracteres e não deve ser extremamente comum.",
@@ -73,7 +82,7 @@
       "too_young_error": "Você precisa ter 18 anos ou mais para usar o Couchers",
       "not_real_date_error": "Insira uma data de nascimento verdadeira"
     },
-    "tos_prompt": "Para continuar, leia e aceite o <1></1>.",
+    "tos_prompt": "Para continuar, leia e aceite o <tosLink></tosLink>.",
     "tos_accept_label": "Aceito os Termos de Serviço.",
     "hosting_status": {
       "can_host": "Pode hospedar",
@@ -123,7 +132,7 @@
     "title": "É necessária mais informação",
     "description": "Para continuar, marque a seguir para continuar.",
     "terms_of_service_section": {
-      "description": "Atualizamos os nossos Termos de Serviço. Para continuar, leia e aceite os novos <1></1>."
+      "description": "Atualizamos os nossos Termos de Serviço. Para continuar, leia e aceite os novos <tosLink></tosLink>."
     },
     "mod_note_section": {
       "title": "Você recebeu uma mensagem dos moderadores",
@@ -143,7 +152,7 @@
     "timezone_section": {
       "explanation": "Esta hora e fuso horário são determinados com base na localização da sua casa. Se não estiverem corretos, reporte o erro.",
       "title": "Fuso horário e localização",
-      "description": "Seu fuso horário é <1>{{timezone}}</1>. Portanto, sua hora local é aproximadamente <4>{{time}}</4>."
+      "description": "Seu fuso horário é <strong>{{timezone}}</strong>. Portanto, sua hora local é aproximadamente <strong>{{time}}</strong>."
     },
     "title": "Definições de conta",
     "gender_section": {
@@ -156,7 +165,7 @@
     },
     "username_section": {
       "title": "Nome de usuário",
-      "description": "Seu nome de usuário é <1>{{username}}</1>.",
+      "description": "Seu nome de usuário é <strong>{{username}}</strong>.",
       "explanation": "Seu nome de usuário é definido quando você cria sua conta."
     },
     "appearance_section": {
@@ -171,7 +180,6 @@
       }
     }
   },
-  "about_us": "Sobre nós",
   "reset_password": "Redefinir senha",
   "community_guidelines_form": {
     "guideline": {
@@ -196,7 +204,7 @@
     "missing_token": "Erro: token ausente",
     "request": {
       "description": "Para excluir sua conta, siga as etapas abaixo. Enviaremos um e-mail de confirmação.",
-      "confirm_username_explanation": "Seu nome de usuário é <1>{{ username }}</1>, digite-o abaixo para confirmar a exclusão de conta.",
+      "confirm_username_explanation": "Seu nome de usuário é <strong>{{ username }}</strong>, digite-o abaixo para confirmar a exclusão de conta.",
       "confirm_username_label": "Confirmação de nome de usuário",
       "username_mismatch": "O nome de usuário não corresponde.",
       "title": "Excluir conta",
@@ -213,7 +221,7 @@
   },
   "change_phone": {
     "add_success": "Telefone adicionado.",
-    "phone_not_verified_description": "Enviamos um código para <2>{{phone}}</2>. Para verificar seu número, digite o código abaixo:",
+    "phone_not_verified_description": "Enviamos um código para <strong>{{phone}}</strong>. Para verificar seu número, digite o código abaixo:",
     "phone_label": "Seu número de telefone",
     "add_button_text": "Adicionar número de telefone",
     "code_label": "Código de verificação",
@@ -221,19 +229,19 @@
     "verify_button_text": "Verificar número de telefone",
     "verify_success": "Telefone verificado.",
     "remove_button_text": "Remover número de telefone atual",
-    "remove_phone_description": "Seu número de telefone atual é <2>{{phone}}</2>. Você pode remover seu número de telefone abaixo.",
+    "remove_phone_description": "Seu número de telefone atual é <strong>{{phone}}</strong>. Você pode remover seu número de telefone abaixo.",
     "change_to_different_description": "Para alterar seu número de telefone para um diferente, digite-o abaixo.",
     "change_button_text": "Alterar número de telefone",
     "no_phone_description": "Você não adicionou um número de telefone à sua conta. Para adicionar, digite abaixo. Enviaremos uma mensagem de texto para verificá-lo.",
     "title": "Número de telefone",
     "remove_success": "Telefone removido.",
-    "need_to_donate": "Você precisa <2>doar</2> para concluir a verificação de telefone."
+    "need_to_donate": "Você precisa <donateLink>doar</donateLink> para concluir a verificação de telefone."
   },
   "do_not_email": {
     "title": "Não envie e-mails para mim",
     "status": {
-      "no_emails_disabled_message": "Agora os e-mails estão <1>habilitados</1> para você.",
-      "no_emails_enabled_message": "Agora os e-mails estão <1>desabilitados</1> para sua conta."
+      "no_emails_disabled_message": "Agora os e-mails estão <strong>habilitados</strong> para você.",
+      "no_emails_enabled_message": "Agora os e-mails estão <strong>desabilitados</strong> para sua conta."
     },
     "action_button": {
       "no_emails_enable_text": "Não me envie e-mails",
@@ -246,9 +254,9 @@
     "description": "Esta página lista os logins atuais. Você pode se desconectar de qualquer um deles clicando no botão ao lado do login, ou rolando até o final e clicando no botão para encerrar sessão em todos, exceto nesta.",
     "heading": "Logins atuais",
     "login_header": "Login efetuado em {{login_datetime}}",
-    "location": "Próximo a <2>{{approximate_location}}</2>",
-    "last_activity": "Última atividade <2>{{last_activity_ago}}</2>",
-    "expiry": "Expira em <1>{{expiry_datetime}}</1>",
+    "location": "Próximo a <strong>{{approximate_location}}</strong>",
+    "last_activity": "Última atividade <strong>{{last_activity_ago}}</strong>",
+    "expiry": "Expira em <strong>{{expiry_datetime}}</strong>",
     "current_session": "Esta é sua sessão atual.",
     "log_out_of_all_session": "Encerrar todas as sessões",
     "log_out_of_session": "Encerrar esta sessão",
@@ -257,11 +265,11 @@
   "strong_verification": {
     "delete_information": "Você pode excluir seus dados de Autenticação Forte (exceto país expedidor, data de validade e últimos três dígitos do número do documento) dos nossos servidores a qualquer momento.",
     "title": "Autenticação Forte",
-    "subtitle": "A Autenticação Forte é uma funcionalidade de segurança adicional que permite que você verifique sua data de nascimento e sexo usando seu passaporte biométrico.",
+    "subtitle": "A Autenticação Forte é uma funcionalidade adicional de segurança que permite que você verifique sua data de nascimento e gênero usando seu passaporte biométrico.",
     "start_button": "Iniciar Autenticação Forte",
     "status": {
-      "disabled_message": "Você <1>não foi</1> verificado com Autenticação Forte.",
-      "enabled_message": "Você <1>foi</1> verificado com Autenticação Forte."
+      "disabled_message": "Você <strong>não foi</strong> verificado com Autenticação Forte.",
+      "enabled_message": "Você <strong>foi</strong> verificado com Autenticação Forte."
     },
     "complete_title": "Estamos processando sua tentativa de Autenticação Forte",
     "complete_message1": "Seu passaporte está sendo autenticado. Você receberá um e-mail com os resultados em alguns minutos.",
@@ -293,13 +301,37 @@
         "finland_germany_new": "<strong>Finlândia, Alemanha (a partir de 2017), Rússia:</strong> Página da foto",
         "australia": "<strong>Austrália:</strong> Página do meio (marcada com o símbolo + \"nome do chip\")"
       },
-      "step7": "Segure o telefone sobre a página do passaporte com o chip NFC (veja dicas abaixo)",
+      "step7": "Segure o telefone sobre a página do passaporte com o chip NFC e <strong>mantenha-o completamente parado por pelo menos 5 segundos</strong> – movê-lo muito cedo é a causa mais comum de erro",
       "step8": "Você saberá que deu certo quando vir uma porcentagem crescente e uma barra de carregamento",
-      "step6": "Tire uma foto nítida da página do passaporte com números na parte inferior"
+      "step6": "Tire uma foto nítida da página do passaporte com números na parte inferior",
+      "scanning_tips": {
+        "heading": "Dicas para leitura correta do NFC",
+        "description": "A leitura do NFC é a parte mais complicada. Estas dicas melhoram significativamente sua probabilidade de sucesso:",
+        "remove_case": "<strong>Remova o telefone da capa</strong> — até capas finas podem bloquear o sinal do NFC",
+        "hold_still": "<strong>Segure seu telefone completamente imóvel</strong> por pelo menos 5 segundos — movê-lo muito cedo é a causa mais comum de erro",
+        "flat_surface": "<strong>Coloque seu passaporte em uma superfície plana</strong> — não segure-o nas mãos",
+        "nfc_location": "<strong>Encontre a antena NFC do seu telefone</strong> — ela fica normalmente próxima ao centro na parte superior da parte de trás do telefone. Tente posições diferentes se ela não se conectar",
+        "no_metal": "<strong>Evite superfícies metálicas</strong> — não posicione seu passaporte em uma mesa de metal ou laptop",
+        "retry": "Se a leitura falhar, tente novamente — pode levar de 2 a 3 tentativas para encontrar a posição correta"
+      },
+      "before_you_start": {
+        "heading": "Antes de começar",
+        "nfc_check": "Seu telefone deve ter <strong>funcionalidade NFC</strong> — a maioria dos telefones modernos têm. NFC normalmente fica habilitado por padrão, mas em alguns telefones antigos, você pode precisar habilitá-lo nas configurações do telefone.",
+        "passport_check": "Seu passaporte precisa ser um <strong>passaporte biométrico</strong> — procure pelo símbolo de chip dourado na capa. Passaportes antigos sem esse símbolo não vão funcionar.",
+        "remove_case": "<strong>Remova o telefone da capa antes de começar</strong> — até capas finas podem bloquear o sinal do NFC e causar erro de leitura."
+      },
+      "didnt_work": {
+        "heading": "Problemas?",
+        "tip1": "Em telefones Android antigos, verifique se o NFC está habilitado nas configurações do seu telefone (na maioria dos telefones modernos ele está habilitado por padrão)",
+        "tip2": "Tente uma página diferente do seu passaporte — o local do chip varia de país para país",
+        "tip3": "Se estiver usando Android, verifique se você tem o aplicativo IRIS ID instalado (não a versão de navegador)",
+        "tip4": "Alguns passaportes antigos ou cartões passaporte não têm chips NFC e não vão funcionar",
+        "contact": "Se ainda estiver tendo problema, <supportLink>avise-nos</supportLink> e ajudaremos. você."
+      }
     },
     "donate_button": "Doe para apoiar o Couchers.org"
   },
-  "sign_up_resend_verification_email_help": "Não recebeu o e-mail? Clique <2>aqui para reenviar o link de verificação</2>.",
+  "sign_up_resend_verification_email_help": "Não recebeu o e-mail? Clique <resendLink>aqui para reenviar o link de verificação</resendLink>.",
   "sign_up_resend_verification_done": "Pronto! Enviamos outro e-mail.",
   "sign_up_need_verification_title": "Só mais uma coisa: confirme seu e-mail.",
   "quick_links": {
@@ -311,11 +343,11 @@
   "profile_visibility": {
     "choose": "Escolha quais informações ficarão visíveis para usuários deslogados",
     "visiblility_options": {
-      "nothing": "<1>Nada</1>: me ocultar completamente",
-      "map_only": "<1>Apenas mapa</1>: mostrar um pin anônimo e aleatório sem mais informações",
-      "limited": "<1>Limitado</1>: mostrar meu nome, localização, status de hospedagem/encontro, insígnias, número de referências e há quanto tempo sou Coucher",
-      "most": "<1>A maior parte</1>: mostrar toda a seção \"Sobre mim\" exceto \"Informações adicionais\"",
-      "full_profile": "<1>Perfil completo</1>: mostrar meu perfil completo (exceto referências)"
+      "nothing": "<strong>Nada</strong>: me ocultar completamente",
+      "map_only": "<strong>Apenas mapa</strong>: mostrar um pin anônimo e aleatório sem mais informações",
+      "limited": "<strong>Limitado</strong>: mostrar meu nome, localização, status de hospedagem/encontro, insígnias, número de referências e há quanto tempo sou Coucher",
+      "most": "<strong>A maior parte</strong>: mostrar toda a seção \"Sobre mim\" exceto \"Informações adicionais\"",
+      "full_profile": "<strong>Perfil completo</strong>: mostrar meu perfil completo (exceto referências)"
     },
     "title": "Visibilidade do perfil"
   },
@@ -357,7 +389,7 @@
       "link_text_website_helper": "O texto de exibição para o link"
     },
     "description": "Se sua função ou datas estiverem incorretas, avise-nos.",
-    "not_a_volunteer_message": "De acordo com nossos registros, você não é ou foi um voluntário. Se essa informação estiver incorreta, avise-nos preenchendo <1>este formulário<1>.",
+    "not_a_volunteer_message": "De acordo com nossos registros, você não é ou foi um voluntário. Se essa informação estiver incorreta, avise-nos preenchendo <formLink>este formulário<formLink>.",
     "update_success": "Suas informações de voluntário foram atualizadas."
   },
   "motivations_form": {

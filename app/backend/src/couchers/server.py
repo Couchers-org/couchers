@@ -6,12 +6,12 @@ import grpc
 from couchers.config import config
 from couchers.constants import SERVER_THREADS
 from couchers.db import _get_base_engine
-from couchers.interceptors import (
+from couchers.metrics import grpc_in_flight_gauge, start_worker_resource_sampler
+from couchers.middleware.interceptors import (
     CouchersMiddlewareInterceptor,
     ErrorSanitizationInterceptor,
     OTelInterceptor,
 )
-from couchers.metrics import grpc_in_flight_gauge, start_worker_resource_sampler
 from couchers.proto import (
     account_pb2_grpc,
     admin_pb2_grpc,

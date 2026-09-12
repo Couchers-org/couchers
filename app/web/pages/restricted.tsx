@@ -1,11 +1,12 @@
 import { appGetLayout } from "components/AppRoute";
 import Jail from "features/auth/jail/Jail";
 import { appServerSideTranslations } from "i18n/appServerSideTranslations";
+import { DEFAULT_LOCALE } from "i18n/locales";
 import { GetStaticProps } from "next";
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
-    ...(await appServerSideTranslations(locale ?? "en", ["global", "auth"])),
+    ...(await appServerSideTranslations(locale ?? DEFAULT_LOCALE, ["global", "auth"])),
   },
 });
 

@@ -29,5 +29,13 @@
     "confirm": "取消屏蔽",
     "message": "取消屏蔽后,对方将可以查看您的资料并向您发送请求。如果您之前是好友关系,对方会重新出现在您的好友列表中。对方不会收到通知。",
     "title": "您确定要取消屏蔽{{name}}吗?"
-  }
+  },
+  "add_friend_confirmation_dialog": {
+    "title": "你认识这个人吗？",
+    "message": "请仅向您已经认识或在旅行中遇到的人发送好友请求-大多数人更喜欢在亲自见面后联系。 <helpCenterLink>在我们的帮助中心了解好友请求。</helpCenterLink>",
+    "confirm": "是的，我认识他们。发送请求！"
+  },
+  "friend_requests_dismiss_button": "忽略",
+  "friend_request_no_longer_available": "此好友请求不再可用。",
+  "cancel_request_button_a11y": "取消请求"
 }

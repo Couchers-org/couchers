@@ -97,7 +97,7 @@ const MyEventsList = () => {
           <Trans
             t={t}
             i18nKey="communities:events_empty_state"
-            components={[<StyledLink key="create-link" href={routeToNewEvent()} />]}
+            components={{ createEventLink: <StyledLink href={routeToNewEvent()} /> }}
           />
         </StyledEmptyBody>
       )}

@@ -125,6 +125,7 @@
     "invite_permission_denied": "Nemáš oprávnění zvát ostatní uživatele.",
     "last_admin_cant_leave": "Poslední admin nesmí opustit skupinový chat.",
     "missing_event_address_or_location": "Chybějící adresa nebo lokace události.",
-    "missing_event_title": "Chybějící název události."
+    "missing_event_title": "Chybějící název události.",
+    "too_many_sms_code_attempts": "Příliš mnoho pokusů o zadání SMS kódu."
   }
 }

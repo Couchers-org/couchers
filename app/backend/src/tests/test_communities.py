@@ -1264,7 +1264,7 @@ def test_LeaveCommunity_regression(db):
         assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c2_id)).member
 
 
-def test_enforce_community_memberships_for_user(testing_communities):
+def test_enforce_community_memberships_for_user(testing_communities, fast_passwords):
     """
     Make sure the user is added to the right communities on signup
     """

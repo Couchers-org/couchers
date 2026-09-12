@@ -7,14 +7,17 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from urllib.parse import urlencode
 
+import exifread
 import grpc
 import pytest
+import pyvips
 from google.protobuf import empty_pb2
 from google.protobuf.timestamp_pb2 import Timestamp
 from nacl.bindings.crypto_generichash import generichash_blake2b_salt_personal
 from nacl.utils import random as random_bytes
-from PIL import Image
+from PIL import ExifTags, Image
 from PIL.JpegImagePlugin import JpegImageFile
+from PIL.TiffImagePlugin import IFDRational
 
 from media.proto import media_pb2, media_pb2_grpc
 from media.server import create_app
@@ -26,8 +29,10 @@ class MockMainServer(media_pb2_grpc.MediaServicer):
     def __init__(self, bearer_token, accept_func):
         self._bearer_token = bearer_token
         self._accept_func = accept_func
+        self.requests = []
 
     def UploadConfirmation(self, request, context):
+        self.requests.append(request)
         metadata = dict(context.invocation_metadata())
         if (
             "authorization" not in metadata
@@ -45,13 +50,13 @@ class MockMainServer(media_pb2_grpc.MediaServicer):
 @contextmanager
 def mock_main_server(*args, **kwargs):
     server = grpc.server(futures.ThreadPoolExecutor(1))
-    port = server.add_secure_port("localhost:8088", grpc.local_server_credentials())
+    server.add_secure_port("localhost:8088", grpc.local_server_credentials())
     servicer = MockMainServer(*args, **kwargs)
     media_pb2_grpc.add_MediaServicer_to_server(servicer, server)
     server.start()
 
     try:
-        yield port
+        yield servicer
     finally:
         server.stop(None).wait()
 
@@ -338,7 +343,7 @@ def test_strips_exif(client_with_secrets):
     key, request = create_upload_request()
     upload_path = generate_upload_path(request, secret_key)
 
-    with mock_main_server(bearer_token, lambda x: True):
+    with mock_main_server(bearer_token, lambda x: True) as main_server:
         img = Image.open(DATADIR / "exif.jpg")
         assert img.getexif()
         assert img.info["comment"] == b"I am an EXIF comment!\0"
@@ -359,6 +364,11 @@ def test_strips_exif(client_with_secrets):
         img = Image.open(io.BytesIO(rv.data))
         assert "comment" not in img.info
         assert not img.getexif()
+
+        metadata = main_server.requests[0].metadata
+        assert metadata.exif
+        assert metadata.xmp
+        assert metadata.iptc
 
 
 def test_jpg_pixel(client_with_secrets):
@@ -592,3 +602,200 @@ def test_cache_headers(client_with_secrets):
     # Test with mismatching Etag
     rv = client.get(f"/img/full/{key}.jpg", headers=[("If-None-Match", "strunt")])
     assert rv.status_code == 200
+
+
+def exif_source_bytes():
+    with open(DATADIR / "exif.jpg", "rb") as f:
+        return f.read()
+
+
+def upload_and_confirm(client, secret_key, bearer_token, image_bytes, filename="img"):
+    key, request = create_upload_request()
+    upload_path = generate_upload_path(request, secret_key)
+
+    with mock_main_server(bearer_token, lambda x: True) as main_server:
+        rv = client.post(upload_path, data={"file": (io.BytesIO(image_bytes), filename)})
+        assert rv.status_code == 200
+        assert json.loads(rv.data)["ok"]
+
+        assert len(main_server.requests) == 1
+        return main_server.requests[0]
+
+
+def test_metadata_segments_shipped_verbatim(client_with_secrets):
+    client, secret_key, bearer_token = client_with_secrets
+
+    source = exif_source_bytes()
+    metadata = upload_and_confirm(client, secret_key, bearer_token, source).metadata
+
+    assert metadata.exif.startswith(b"Exif\0\0")
+    for segment in (metadata.exif, metadata.xmp, metadata.iptc):
+        assert segment in source
+
+
+def test_metadata_parsed_view(client_with_secrets):
+    client, secret_key, bearer_token = client_with_secrets
+
+    metadata = upload_and_confirm(client, secret_key, bearer_token, exif_source_bytes()).metadata
+    parsed = json.loads(metadata.parsed_json)
+
+    assert parsed["Image Software"] == "GIMP 2.10.14"
+    assert parsed["Image DateTime"] == "2020:08:13 10:01:50"
+    assert parsed["EXIF UserComment"] == "I am an EXIF comment!"
+    assert "\0" not in metadata.parsed_json
+
+
+def test_metadata_gps_parsed(client_with_secrets):
+    client, secret_key, bearer_token = client_with_secrets
+
+    img = Image.new("RGB", (4, 4), (10, 20, 30))
+    exif = Image.Exif()
+    exif[ExifTags.Base.Make] = "TestCam"
+    exif[ExifTags.IFD.GPSInfo] = {
+        ExifTags.GPS.GPSLatitudeRef: "N",
+        ExifTags.GPS.GPSLatitude: (IFDRational(60), IFDRational(10), IFDRational(2550, 100)),
+        ExifTags.GPS.GPSLongitudeRef: "E",
+        ExifTags.GPS.GPSLongitude: (IFDRational(24), IFDRational(56), IFDRational(1200, 100)),
+    }
+    buf = io.BytesIO()
+    img.save(buf, format="jpeg", exif=exif)
+
+    metadata = upload_and_confirm(client, secret_key, bearer_token, buf.getvalue()).metadata
+    parsed = json.loads(metadata.parsed_json)
+
+    assert parsed["Image Make"] == "TestCam"
+    assert parsed["GPS GPSLatitudeRef"] == "N"
+    assert parsed["GPS GPSLatitude"] == "[60, 10, 51/2]"
+    assert parsed["GPS GPSLongitudeRef"] == "E"
+    assert parsed["GPS GPSLongitude"] == "[24, 56, 12]"
+
+
+def test_parsed_view_excludes_thumbnail_blob(client_with_secrets):
+    client, secret_key, bearer_token = client_with_secrets
+
+    source = exif_source_bytes()
+    thumbnail = bytes(pyvips.Image.new_from_buffer(source, options="").get("jpeg-thumbnail-data"))
+    metadata = upload_and_confirm(client, secret_key, bearer_token, source).metadata
+
+    assert "JPEGThumbnail" not in metadata.parsed_json
+    assert len(metadata.parsed_json) < len(thumbnail)
+
+
+def test_no_embedded_metadata_for_bare_image(client_with_secrets):
+    client, secret_key, bearer_token = client_with_secrets
+
+    with open(DATADIR / "1x1.png", "rb") as f:
+        metadata = upload_and_confirm(client, secret_key, bearer_token, f.read()).metadata
+
+    assert not metadata.exif
+    assert not metadata.xmp
+    assert not metadata.iptc
+    assert not metadata.parsed_json
+    assert not metadata.parse_error
+    assert metadata.original_format == "png"
+
+
+def test_embedded_thumbnail_rides_inside_exif(client_with_secrets):
+    client, secret_key, bearer_token = client_with_secrets
+
+    source = exif_source_bytes()
+    thumbnail = bytes(pyvips.Image.new_from_buffer(source, options="").get("jpeg-thumbnail-data"))
+    assert thumbnail
+
+    metadata = upload_and_confirm(client, secret_key, bearer_token, source).metadata
+
+    assert thumbnail in metadata.exif
+    parsed = json.loads(metadata.parsed_json)
+    assert parsed["Thumbnail ImageWidth"] == "256"
+    assert parsed["Thumbnail JPEGInterchangeFormatLength"] == str(len(thumbnail))
+
+
+def test_catalog_records_the_original_file(client_with_secrets):
+    client, secret_key, bearer_token = client_with_secrets
+
+    with open(DATADIR / "5000x1000.jpg", "rb") as f:
+        source = f.read()
+
+    metadata = upload_and_confirm(client, secret_key, bearer_token, source, filename="DSC_0001.JPG").metadata
+
+    assert metadata.original_filename == "DSC_0001.JPG"
+    assert metadata.original_format == "jpeg"
+    assert metadata.original_size == len(source)
+    assert metadata.original_width == 5000
+    assert metadata.original_height == 1000
+
+
+@pytest.mark.parametrize("name,expected", [("1x1.jpg", "jpeg"), ("1x1.png", "png"), ("1x1.gif", "gif")])
+def test_catalog_format_per_container(client_with_secrets, name, expected):
+    client, secret_key, bearer_token = client_with_secrets
+
+    with open(DATADIR / name, "rb") as f:
+        metadata = upload_and_confirm(client, secret_key, bearer_token, f.read()).metadata
+
+    assert metadata.original_format == expected
+
+
+def test_catalog_filename_is_recorded_but_never_used_as_a_path(client_with_secrets):
+    client, secret_key, bearer_token = client_with_secrets
+
+    with open(DATADIR / "1x1.jpg", "rb") as f:
+        source = f.read()
+
+    name = "../../etc/passwd.jpg"
+    request = upload_and_confirm(client, secret_key, bearer_token, source, filename=name)
+
+    assert request.metadata.original_filename == name
+    assert request.filename == f"{request.key}.jpg"
+
+
+def test_webp_exif_is_kept_raw_even_though_the_parse_misses_it(client_with_secrets):
+    client, secret_key, bearer_token = client_with_secrets
+
+    img = Image.new("RGB", (4, 4), (10, 20, 30))
+    exif = Image.Exif()
+    exif[ExifTags.Base.Make] = "TestCam"
+    buf = io.BytesIO()
+    img.save(buf, format="webp", exif=exif)
+
+    metadata = upload_and_confirm(client, secret_key, bearer_token, buf.getvalue()).metadata
+
+    assert metadata.original_format == "webp"
+    assert b"TestCam" in metadata.exif
+    assert not metadata.parsed_json
+    assert not metadata.parse_error
+
+
+def test_heif_metadata_is_captured_raw(client_with_secrets):
+    client, secret_key, bearer_token = client_with_secrets
+
+    with open(DATADIR / "exif.avif", "rb") as f:
+        source = f.read()
+
+    metadata = upload_and_confirm(client, secret_key, bearer_token, source, filename="IMG_1234.HEIC").metadata
+
+    assert metadata.original_format == "heif"
+    assert metadata.original_filename == "IMG_1234.HEIC"
+    assert metadata.original_width == 120
+    assert metadata.original_height == 90
+    assert metadata.exif.startswith(b"Exif\0\0")
+    assert b"iPhone 15 Pro" in metadata.exif
+    assert b"Apple" in metadata.exif
+
+
+def test_a_raising_parser_does_not_fail_the_upload(client_with_secrets):
+    client, secret_key, bearer_token = client_with_secrets
+
+    with open(DATADIR / "exif.avif", "rb") as f:
+        source = f.read()
+
+    with pytest.raises(AssertionError):
+        exifread.process_file(io.BytesIO(source), extract_thumbnail=False)
+
+    metadata = upload_and_confirm(client, secret_key, bearer_token, source).metadata
+
+    assert not metadata.parsed_json
+    assert b"iPhone 15 Pro" in metadata.exif
+
+    assert metadata.parse_error.startswith("Traceback")
+    assert "exifread/core/heic.py" in metadata.parse_error
+    assert metadata.parse_error.rstrip().endswith("AssertionError")

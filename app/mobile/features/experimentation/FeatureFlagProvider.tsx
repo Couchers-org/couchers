@@ -61,6 +61,27 @@ export default function FeatureFlagProvider({
   const { userId } = useAuthContext();
 
   useEffect(() => {
+    // Dev-only: when set, flags resolve from feature-flags.dev.json instead of GrowthBook,
+    // mirroring web and the backend's FEATURE_FLAGS_FILE_OVERRIDE_PATH. Overridden flags return
+    // the file value; unknown flags fall through to their in-code default. GrowthBook is never
+    // contacted in this mode. The __DEV__ check lets Metro compile the whole branch out of
+    // release bundles.
+    if (__DEV__ && process.env.EXPO_PUBLIC_FEATURE_FLAGS_OVERRIDE === "1") {
+      void import("@/feature-flags.dev.json").then((mod) => {
+        const overrides = (mod.default ?? mod) as Record<string, unknown>;
+        growthbook.initSync({
+          payload: {
+            features: Object.fromEntries(
+              Object.entries(overrides).map(([key, value]) => [
+                key,
+                { defaultValue: value },
+              ]),
+            ),
+          },
+        });
+      });
+      return;
+    }
     void growthbook.init({ timeout: INIT_TIMEOUT_MS });
     const id = setInterval(
       () => void growthbook.refreshFeatures(),

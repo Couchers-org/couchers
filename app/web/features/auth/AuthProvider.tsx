@@ -2,6 +2,7 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
 import { useRouter } from "next/router";
+import Sentry from "platform/sentry";
 import React, { Context, ReactNode, useContext, useEffect } from "react";
 import { jailRoute, loginRoute } from "routes";
 import { setUnauthenticatedErrorHandler } from "service/client";
@@ -26,6 +27,13 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   const push = useStablePush();
+
+  // A page reload restores auth from localStorage without going through the auth
+  // actions that set the Sentry user, so sync it here too.
+  const userId = store.authState.userId;
+  useEffect(() => {
+    Sentry.setUser(userId ? { id: userId.toString() } : null);
+  }, [userId]);
 
   useEffect(() => {
     setUnauthenticatedErrorHandler(async (e: RpcError) => {

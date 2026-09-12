@@ -42,6 +42,10 @@ export default function ModPanel({ userDetails }: ModPanelProps) {
       />
       <LabelAndText label={t("mod:panel.birthdate")} text={<code>{userDetails.birthdate}</code>} />
       <LabelAndText
+        label={t("mod:panel.ui_language_preference")}
+        text={<code>{userDetails.uiLanguagePreference}</code>}
+      />
+      <LabelAndText
         label={t("mod:banned")}
         text={userDetails.banned ? <StyledStrongStatus>{t("mod:banned")}</StyledStrongStatus> : t("global:no")}
       />

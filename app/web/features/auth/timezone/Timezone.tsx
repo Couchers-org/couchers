@@ -22,10 +22,6 @@ export default function Timezone({ className, timezone }: TimezoneProps) {
         <Trans
           t={t}
           i18nKey="account_settings_page.timezone_section.description"
-          components={{
-            1: <strong />,
-            4: <strong />,
-          }}
           values={{
             timezone: timezone,
             time: localizeTimeOnly(Temporal.Now.plainDateTimeISO(timezone), locale),

@@ -31,7 +31,8 @@
     "probe": {
       "push": {
         "title": "Toujours disposé.e à héberger ?",
-        "ios_title": "Toujours disposé.e à héberger ?"
+        "ios_title": "Toujours disposé.e à héberger ?",
+        "body": "Connectez-vous pour confirmer votre statut d'hébergement."
       },
       "event_description": "Vous acceptez les invités, mais vous ne vous êtes pas connecté depuis un certain temps"
     }
@@ -138,7 +139,13 @@
   },
   "event": {
     "cancel": {
-      "event_description": "Un événement auquel vous participez a été annulé"
+      "event_description": "Un événement auquel vous participez a été annulé",
+      "push": {
+        "title": "Événement annulé : {{title}}",
+        "ios_title": "Événement annulé",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} a annulé l'événement."
+      }
     },
     "comment": {
       "event_description": " Un utilisateur commente un événement auquel vous participez",
@@ -167,7 +174,13 @@
       }
     },
     "delete": {
-      "event_description": "Un événement auquel vous participez a été supprimé"
+      "event_description": "Un événement auquel vous participez a été supprimé",
+      "push": {
+        "title": "Événement annulé : {{title}}",
+        "ios_title": "Événement annulé",
+        "ios_subtitle": "{{title}}",
+        "body": "Un modérateur a supprimé l'événement."
+      }
     },
     "invite_organizer": {
       "event_description": "Quelqu'un.e vous invite à coorganiser un événement",

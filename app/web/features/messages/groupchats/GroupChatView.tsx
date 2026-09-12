@@ -2,6 +2,7 @@ import { styled } from "@mui/material";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import HtmlMeta from "components/HtmlMeta";
+import { BOTTOM_NAV_BASE_HEIGHT } from "components/Navigation/constants";
 import { useAuthContext } from "features/auth/AuthProvider";
 import GroupChatSendField from "features/messages/groupchats/GroupChatSendField";
 import useMarkLastSeen, { MarkLastSeenVariables } from "features/messages/useMarkLastSeen";
@@ -49,11 +50,11 @@ const StyledPageWrapper = styled("div")<{
         // Use dvh (dynamic viewport height) which adjusts for mobile keyboard
         // Use CSS custom property set by Navigation component for actual height
         height: isNativeEmbed
-          ? "calc(100dvh - var(--nav-height, 3.5rem))"
-          : "calc(100dvh - var(--nav-height, 3.5rem) - 56px - env(safe-area-inset-bottom, 0px))",
+          ? "calc(100dvh - var(--nav-height, 3.5rem) - var(--cookie-banner-height, 0px))"
+          : `calc(100dvh - var(--nav-height, 3.5rem) - ${BOTTOM_NAV_BASE_HEIGHT}px - env(safe-area-inset-bottom, 0px) - var(--cookie-banner-height, 0px))`,
 
         [theme.breakpoints.up("md")]: {
-          height: "calc(100dvh - var(--nav-height, 4rem))",
+          height: "calc(100dvh - var(--nav-height, 4rem) - var(--cookie-banner-height, 0px))",
         },
       }),
 }));

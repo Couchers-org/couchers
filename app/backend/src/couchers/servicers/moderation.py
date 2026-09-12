@@ -1,3 +1,4 @@
+import json
 import logging
 
 import grpc
@@ -41,7 +42,7 @@ from couchers.models import (
 )
 from couchers.proto import moderation_pb2, moderation_pb2_grpc
 from couchers.proto.internal import jobs_pb2
-from couchers.utils import Timestamp_from_datetime, now
+from couchers.utils import Timestamp_from_datetime, not_none, now
 
 logger = logging.getLogger(__name__)
 
@@ -113,6 +114,7 @@ moderationobjecttype2api = {
     ModerationObjectType.discussion: moderation_pb2.MODERATION_OBJECT_TYPE_DISCUSSION,
     ModerationObjectType.reference: moderation_pb2.MODERATION_OBJECT_TYPE_REFERENCE,
     ModerationObjectType.public_trip: moderation_pb2.MODERATION_OBJECT_TYPE_PUBLIC_TRIP,
+    ModerationObjectType.user: moderation_pb2.MODERATION_OBJECT_TYPE_USER,
 }
 
 moderationobjecttype2sql = {
@@ -126,6 +128,7 @@ moderationobjecttype2sql = {
     moderation_pb2.MODERATION_OBJECT_TYPE_DISCUSSION: ModerationObjectType.discussion,
     moderation_pb2.MODERATION_OBJECT_TYPE_REFERENCE: ModerationObjectType.reference,
     moderation_pb2.MODERATION_OBJECT_TYPE_PUBLIC_TRIP: ModerationObjectType.public_trip,
+    moderation_pb2.MODERATION_OBJECT_TYPE_USER: ModerationObjectType.user,
 }
 
 
@@ -159,6 +162,8 @@ def bulk_set_user_content_visibility(
 
     author_exists_clauses = []
     for entry in get_moderated_models().values():
+        if entry.has_own_visibility_mechanism:
+            continue
         author_exists_clauses.append(
             exists().where(and_(entry.moderation_state_id_column == ModerationState.id, entry.author_column == user.id))
         )
@@ -172,7 +177,7 @@ def bulk_set_user_content_visibility(
         if moderation_state.visibility == new_visibility:
             continue
 
-        old_visibility = moderation_state.visibility
+        old_visibility = not_none(moderation_state.visibility)
         moderation_state.visibility = new_visibility
         moderation_state.updated = now()
 
@@ -219,6 +224,8 @@ def _enqueue_pending_notifications(session: Session, moderation_state_id: int) -
             select(Notification)
             .where(Notification.moderation_state_id == moderation_state_id)
             .where(not_(exists().where(NotificationDelivery.notification_id == Notification.id)))
+            # they're delivered in the order they're queued, so the user reads them chronologically
+            .order_by(Notification.id)
         )
         .scalars()
         .all()
@@ -299,6 +306,10 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
         author_user_id, content = session.execute(
             select(PublicTrip.user_id, PublicTrip.description).where(PublicTrip.id == object_id)
         ).one()
+    elif object_type == ModerationObjectType.user:
+        author_user_id = object_id
+        username = session.execute(select(User.username).where(User.id == object_id)).scalar_one()
+        content = f"@{username} / {object_id}"
     else:
         raise ValueError(f"Unsupported moderation object type: {object_type}")
 
@@ -386,11 +397,10 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
                 )
             statement = statement.where(or_(*author_exists_clauses))
 
-        # Order by time created
         if request.newest_first:
-            statement = statement.order_by(ModerationQueueItem.time_created.desc(), ModerationQueueItem.id.desc())
+            statement = statement.order_by(ModerationQueueItem.id.desc())
         else:
-            statement = statement.order_by(ModerationQueueItem.time_created.asc(), ModerationQueueItem.id.asc())
+            statement = statement.order_by(ModerationQueueItem.id.asc())
 
         queue_items = session.execute(statement.limit(page_size + 1)).scalars().all()
 
@@ -412,6 +422,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
                 resolved_by_log_id=item.resolved_by_log_id or 0,
                 moderation_state=moderation_state_to_pb(mod_state, session),
                 priority=item.priority,
+                data=json.dumps(item.data) if item.data is not None else "",
             )
 
             queue_items_pb.append(queue_item_pb)
@@ -516,12 +527,24 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
         reason = request.reason or "Moderated by admin"
         object_type = moderation_state.object_type
 
+        data = None
+        if request.data.strip():
+            if action != ModerationAction.flag:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:data_only_allowed_on_flag")
+            try:
+                data = json.loads(request.data)
+            except json.JSONDecodeError:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:data_must_be_valid_json")
+
         if action in (ModerationAction.approve, ModerationAction.hide):
+            if get_moderated_models()[object_type].has_own_visibility_mechanism:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:cannot_set_visibility_on_state")
+
             new_visibility = moderationvisibility2sql[request.visibility]
             if new_visibility is None:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:visibility_must_be_specified")
 
-            old_visibility = moderation_state.visibility
+            old_visibility = not_none(moderation_state.visibility)
             moderation_state.visibility = new_visibility
             moderation_state.updated = now()
 
@@ -565,6 +588,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
                 trigger=trigger,
                 reason=reason,
                 priority=request.priority,
+                data=data,
             )
             session.add(queue_item)
             session.flush()
@@ -706,7 +730,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
     def ListModerationStates(
         self, request: moderation_pb2.ListModerationStatesReq, context: CouchersContext, session: Session
     ) -> moderation_pb2.ListModerationStatesRes:
-        """Chronological, paginated list of ModerationState rows. Optional author_user_id filter."""
+        """Paginated list of ModerationState rows in id order. Optional author_user_id filter."""
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
 
         statement = select(ModerationState)
@@ -732,9 +756,9 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
             statement = statement.where(or_(*author_exists_clauses))
 
         if request.newest_first:
-            statement = statement.order_by(ModerationState.created.desc(), ModerationState.id.desc())
+            statement = statement.order_by(ModerationState.id.desc())
         else:
-            statement = statement.order_by(ModerationState.created.asc(), ModerationState.id.asc())
+            statement = statement.order_by(ModerationState.id.asc())
 
         states = session.execute(statement.limit(page_size + 1)).scalars().all()
 

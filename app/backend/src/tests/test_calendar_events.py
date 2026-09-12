@@ -1,7 +1,7 @@
 import re
 from datetime import UTC, datetime, timedelta
 
-import ics
+import icalendar
 import pytest
 
 from couchers.email.calendar_events import create_event_ics_calendar, create_host_request_ics_calendar
@@ -24,9 +24,13 @@ def test_host_request_ics_content():
         host_request_id=42, from_date="2000-01-01", to_date="2000-01-02", hosting_city="New York"
     )
 
-    ics: str = create_host_request_ics_calendar(
-        host_request, other_name="Bob", hosting=True, loc_context=LocalizationContext.en_utc()
-    ).serialize()
+    ics: str = (
+        create_host_request_ics_calendar(
+            host_request, other_name="Bob", hosting=True, loc_context=LocalizationContext.en_utc()
+        )
+        .to_ical()
+        .decode()
+    )
     _assert_ics_matches_pattern(
         ics,
         """
@@ -58,9 +62,13 @@ def test_host_request_cancelled_ics_content():
         status=messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED,
     )
 
-    ics: str = create_host_request_ics_calendar(
-        host_request, other_name="Bob", hosting=True, loc_context=LocalizationContext.en_utc()
-    ).serialize()
+    ics: str = (
+        create_host_request_ics_calendar(
+            host_request, other_name="Bob", hosting=True, loc_context=LocalizationContext.en_utc()
+        )
+        .to_ical()
+        .decode()
+    )
     _assert_ics_matches_pattern(
         ics,
         """
@@ -97,7 +105,7 @@ def test_event_ics_content():
         timezone="Etc/GMT-1",  # Confusingly represents GMT+1, no DST
     )
 
-    ics: str = create_event_ics_calendar(event, loc_context=LocalizationContext.en_utc()).serialize()
+    ics: str = create_event_ics_calendar(event, loc_context=LocalizationContext.en_utc()).to_ical().decode()
     _assert_ics_matches_pattern(
         ics,
         """
@@ -113,7 +121,7 @@ DTSTART;TZID=Etc/GMT-1:20000102T130000
 DTEND;TZID=Etc/GMT-1:20000103T130000
 LAST-MODIFIED:20000101T000000Z
 LOCATION:City\\, Country
-GEO:0.100000;0.100000
+GEO:0.1;0.1
 URL:***/event/42/event-slug
 END:VEVENT
 METHOD:PUBLISH
@@ -175,11 +183,11 @@ def test_host_request_attachments(db, email_collector: EmailCollector, moderator
     email = email_collector.pop_for_recipient(surfer.email, last=True)
     assert "accept" in email.subject and host.name in email.subject
     accepted_ics_event = _get_email_ics_attachment_calendar_event(email)
-    assert not accepted_ics_event.status
-    assert accepted_ics_event.begin.date() == from_date
-    assert accepted_ics_event.end.date() == (to_date + timedelta(days=1))
-    assert accepted_ics_event.name == f"Surfing with {host.name}"
-    assert accepted_ics_event.location == host.city
+    assert not accepted_ics_event.get("status")
+    assert accepted_ics_event.get("dtstart").dt == from_date
+    assert accepted_ics_event.get("dtend").dt == (to_date + timedelta(days=1))
+    assert accepted_ics_event.get("summary") == f"Surfing with {host.name}"
+    assert accepted_ics_event.get("location") == host.city
 
     # Surfer confirms, host gets a calendar attachment
     with requests_session(surfer_token) as api:
@@ -194,8 +202,8 @@ def test_host_request_attachments(db, email_collector: EmailCollector, moderator
     email = email_collector.pop_for_recipient(host.email, last=True)
     assert "confirm" in email.subject and surfer.name in email.subject
     confirmed_ics_event = _get_email_ics_attachment_calendar_event(email)
-    assert not confirmed_ics_event.status
-    assert confirmed_ics_event.name == f"Hosting {surfer.name}"
+    assert not confirmed_ics_event.get("status")
+    assert confirmed_ics_event.get("summary") == f"Hosting {surfer.name}"
 
     # Surfer cancels, host gets a calendar attachment
     with requests_session(surfer_token) as api:
@@ -212,7 +220,7 @@ def test_host_request_attachments(db, email_collector: EmailCollector, moderator
     cancelled_ics_event = _get_email_ics_attachment_calendar_event(email)
     # Ideally the sequence number are strictly ascending, but they are based on timestamps so in tests they could be equal.
     assert (_get_ics_event_sequence(cancelled_ics_event) or 0) >= (_get_ics_event_sequence(accepted_ics_event) or 0)
-    assert cancelled_ics_event.status == "CANCELLED"
+    assert cancelled_ics_event.get("status") == "CANCELLED"
 
 
 def test_host_request_attachments_disabled(db, email_collector: EmailCollector, feature_flags, moderator: Moderator):
@@ -253,18 +261,19 @@ def test_host_request_attachments_disabled(db, email_collector: EmailCollector, 
     assert not email.attachments
 
 
-def _get_email_ics_attachment_calendar_event(e) -> ics.Event:
+def _get_email_ics_attachment_calendar_event(e) -> icalendar.Event:
     assert len(e.attachments or []) == 1
     ics_attachment = e.attachments[0]
     assert ics_attachment.content_type.startswith("text/calendar")
-    ics_calendar = ics.Calendar(ics_attachment.data.decode("utf-8"))
-    assert f"method={ics_calendar.method}" in ics_attachment.content_type
-    assert len(ics_calendar.events) == 1
-    return next(iter(ics_calendar.events))
+    ics_calendar = icalendar.Calendar.from_ical(ics_attachment.data.decode("utf-8"))
+    assert f"method={ics_calendar.get('method')}" in ics_attachment.content_type
+    events = list(ics_calendar.walk("VEVENT"))
+    assert len(events) == 1
+    event = events[0]
+    assert isinstance(event, icalendar.Event)
+    return event
 
 
-def _get_ics_event_sequence(event: ics.Event) -> int | None:
-    for x in event.extra:
-        if x.name == "SEQUENCE":
-            return int(x.value)
-    return None
+def _get_ics_event_sequence(event: icalendar.Event) -> int | None:
+    sequence = event.get("sequence")
+    return int(sequence) if sequence is not None else None

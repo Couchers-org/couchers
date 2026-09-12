@@ -13,6 +13,9 @@ import { ControllerRenderProps, FieldError } from "react-hook-form";
 
 import { GLOBAL } from "../i18n/namespaces";
 
+const CIRCLE_SOURCE_NAME = "circle";
+const CIRCLE_LAYER_NAME = "circle";
+
 const StyledWrapper = styled("div")<{ grow?: boolean }>(({ grow }) => ({
   margin: "auto",
   maxWidth: 700,
@@ -122,19 +125,18 @@ export default function EditLocationMap({
       lng: wrapped.lng,
     });
     if (!isBlank.current) {
-      map.current.setLayoutProperty("circle", "visibility", "visible");
+      map.current.setLayoutProperty(CIRCLE_LAYER_NAME, "visibility", "visible");
     }
     redrawMap();
   };
 
   const redrawMap = () => {
-    if (!map.current) return;
+    const circle = map.current?.getSource<GeoJSONSource>(CIRCLE_SOURCE_NAME);
+    if (!circle) return;
     if (!exact) {
-      (map.current.getSource("circle") as GeoJSONSource).setData(
-        circleGeoJson(extractLngLat(location.current), location.current.radius),
-      );
+      circle.setData(circleGeoJson(extractLngLat(location.current), location.current.radius));
     } else {
-      (map.current.getSource("circle") as GeoJSONSource).setData(pointGeoJson(extractLngLat(location.current)));
+      circle.setData(pointGeoJson(extractLngLat(location.current)));
     }
   };
 
@@ -180,13 +182,13 @@ export default function EditLocationMap({
     map.current.once("load", () => {
       if (!map.current) return;
       if (!exact) {
-        map.current.addSource("circle", {
+        map.current.addSource(CIRCLE_SOURCE_NAME, {
           data: circleGeoJson(extractLngLat(location.current), location.current.radius),
           type: "geojson",
         });
 
         map.current.addLayer({
-          id: "circle",
+          id: CIRCLE_LAYER_NAME,
           layout: {
             visibility: isBlank.current ? "none" : "visible",
           },
@@ -194,17 +196,17 @@ export default function EditLocationMap({
             "fill-color": theme.palette.primary.main,
             "fill-opacity": 0.5,
           },
-          source: "circle",
+          source: CIRCLE_SOURCE_NAME,
           type: "fill",
         });
       } else {
-        map.current.addSource("circle", {
+        map.current.addSource(CIRCLE_SOURCE_NAME, {
           data: pointGeoJson(extractLngLat(location.current)),
           type: "geojson",
         });
 
         map.current.addLayer({
-          id: "circle",
+          id: CIRCLE_LAYER_NAME,
           layout: {
             visibility: isBlank.current ? "none" : "visible",
           },
@@ -214,7 +216,7 @@ export default function EditLocationMap({
             "circle-stroke-color": theme.palette.background.paper,
             "circle-stroke-width": 1,
           },
-          source: "circle",
+          source: CIRCLE_SOURCE_NAME,
           type: "circle",
         });
       }

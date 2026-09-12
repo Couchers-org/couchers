@@ -140,8 +140,8 @@
   "members_dialog": {
     "title": "Participantes da conversa"
   },
-  "host_pending_request_help_text": "<0>Coisas a considerar</0> antes de responder.",
-  "surfer_declined_request_help_text": "<0>Leia nosso guia</0> sobre como escrever um pedido que será aceito.",
+  "host_pending_request_help_text": "<guideLink>Coisas a considerar</guideLink> antes de responder.",
+  "surfer_declined_request_help_text": "<guideLink>Leia nosso guia</guideLink> sobre como escrever um pedido que será aceito.",
   "past_request_help_text": "Esta solicitação está no passado, você ainda pode enviar mensagens, mas não pode modificá-la de outra forma.",
   "unknown_user": "Utilizador desconhecido"
 }

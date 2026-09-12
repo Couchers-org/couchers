@@ -4,11 +4,11 @@
       "problem_label": "Při jaké činnosti došlo k chybě?",
       "button_label": "Nahlásit technický problém",
       "title_label": "Předmět zprávy",
-      "problem_helper": "Stručný popis problému a jak ho reprodukovat",
+      "problem_helper": "Popište kroky, které jste provedli: na kterých stránkách jste byli, na co jste klikli, atd.",
       "expect_label": "Co se stalo? Co se mělo stát?",
-      "expect_helper": "Stručný popis toho, co jste očekávali, že se stane místo toho",
+      "expect_helper": "Popište problém, který se objevil, včetně případných chybových hlášek a uveďte co jste očekávali, že se stane místo toho.",
       "warning_message": "Vezmi prosím na vědomí, že tyto informace, stejně jako diagnostické údaje, včetně toho na které stránce se nacházíš, jaký používáš prohlížeč a tvé uživatelské jméno, budou uloženy do veřejného seznamu chyb.",
-      "success_message2": "Děkujeme za nahlášení této chyby a za zlepšení Couchers, hlášení bylo odesláno vývojářům! ID chyby je <id/>."
+      "success_message2": "Děkujeme za nahlášení tohoto problému a za zlepšení Couchers! Hlášení bylo odesláno vývojářům. Pro referenci můžeš použít ID: <id/>."
     },
     "flag": {
       "reason_required": "Důvod je vyžadován.",
@@ -33,8 +33,7 @@
       "profile_button_aria_label": "Nahlásit obsah nebo zablokovat uživatele",
       "explainer": "Důvěrně poslat zprávu našemu týmu pro bezpečí a důvěru.",
       "title": "Nahlásit obsah nebo uživatele",
-      "description_helper": "Prosím, řekni nám, proč to nahlašuješ.",
-      "success": "Děkujeme ti za tvou zprávu a za to, že pomáháš dělat Couchers lepší platformou pro všechny!"
+      "description_helper": "Prosím, řekni nám, proč to nahlašuješ."
     },
     "content": {
       "button_label": "Nahlásit nevhodný obsah nebo chování",
@@ -49,7 +48,6 @@
       "help_translate": "Pomoc s překladem Couchers do tvého jazyka",
       "complete": "Hotovo",
       "loading": "Načítám stav překladů...",
-      "no_data": "Data překladů nejsou k dispozici",
       "almost_there": "Téměř Hotovo",
       "early_stage": "Raná Fáze",
       "error_loading": "Nepodařilo se načíst stav překladů",
@@ -68,7 +66,8 @@
   "meetup_status": {
     "wants_to_meetup": "Chci se setkat",
     "open_to_meetup": "Otevřený k setkání",
-    "does_not_want_to_meetup": "Nemohu/nechci se setkat"
+    "does_not_want_to_meetup": "Nemohu/nechci se setkat",
+    "unspecified_info": "Neřekli"
   },
   "learn_more": "Zjistit více",
   "terms_of_service": "Podmínky služby",
@@ -87,11 +86,12 @@
   "read_more": "Číst dále",
   "next": "Další",
   "previous": "Předchozí",
-  "cookie_message": "Abychom vám zajistili co nejlepší uživatelský zážitek na našich webových stránkách, používáme soubory cookie. Pokud budete tyto stránky nadále používat, budeme předpokládat, že s nimi jste spokojeni. Více si můžete přečíst v našich <1>Podmínkách služby</1>.",
+  "cookie_message": "Abychom vám zajistili co nejlepší uživatelský zážitek na našich webových stránkách, používáme soubory cookie. Pokud budete tyto stránky nadále používat, budeme předpokládat, že s nimi jste spokojeni. Více si můžete přečíst v našich <tosLink>Podmínkách služby</tosLink>.",
   "hosting_status": {
     "can_host": "Mohu ubytovat",
     "maybe": "Občas mohu ubytovat",
-    "cant_host": "Nemohu ubytovat"
+    "cant_host": "Nemohu ubytovat",
+    "unspecified_info": "Neřekli"
   },
   "close": "Zavřít",
   "create_account": "Vytvořit účet",
@@ -143,7 +143,11 @@
     "merch_shop": "Obchod s merchem",
     "switch_to_light_mode": "Přepnout na světlý režim",
     "switch_to_dark_mode": "Přepnout do tmavého režimu",
-    "home": "Domů"
+    "home": "Domů",
+    "press": "Tisk a média",
+    "close_menu_a11y": "Zavřít menu",
+    "close_drawer_a11y": "Zavřít menu",
+    "open_drawer_a11y": "Otevřít menu"
   },
   "html_meta": {
     "default_description": "Sdílej svůj svět a objevuj ten jejich. Autentické místní zážitky postavené na důvěře a skutečném spojení — ne na transakcích.",
@@ -216,7 +220,7 @@
     "helper_text": "Tento uživatel ověřil svou totožnost pomocí biometrického pasu"
   },
   "footer": {
-    "version_info": "Verze <2>{{version}}</2>, naposledy aktualizováno <5>{{updated_ago}}</5>.",
+    "version_info": "Verze <versionLink>{{version}}</versionLink>, naposledy aktualizováno <updatedAgoLink>{{updated_ago}}</updatedAgoLink>.",
     "non_profit_note": "Couchers.org je projekt společnosti Couchers, Inc., americké neziskové organizace s daňovým osvobozením podle paragrafu 501(c)(3)."
   },
   "what_is_cs": {
@@ -297,7 +301,7 @@
     "zh-Hant": "Čínština (tradiční)",
     "es": "Španělština (Španělsko)",
     "es-419": "Španělština",
-    "fr": "Francouzština (Francie)",
+    "fr": "Francouzština",
     "hi": "Hindština",
     "it": "Italština",
     "ja": "Japonština",
@@ -322,8 +326,7 @@
   },
   "error_loading_languages": "Nepodařilo se načíst jazykové možnosti",
   "retract": "Stáhnout",
-  "not_found_text_2": "Chceš prostě <1>jít domů?</1>",
-  "contribute_title": "Zaregistruj se a zapoj se",
+  "not_found_text_2": "Chceš prostě <homeLink>jít domů?</homeLink>",
   "copy_button": {
     "a11y": "Kopírovat",
     "copied_tooltip": "Zkopírováno do schránky"
@@ -336,8 +339,8 @@
   },
   "blog": {
     "byline_without_author": "Publikováno {{date}}.",
-    "cta_message": "Chceš pomoct psát náš blog nebo se zapojit jako dobrovolník? <1>Zaregistruj se</1> a dej nám vědět. Dobrovolníci a <3>dary</3> jsou to, co dělá Couchers.org možným!",
-    "byline_with_author": "Napsáno <1/>. Publikováno {{date}}."
+    "cta_message": "Chceš pomoct psát náš blog nebo se zapojit jako dobrovolník? <volunteerLink>Zaregistruj se</volunteerLink> a dej nám vědět. Dobrovolníci a <donateLink>dary</donateLink> jsou to, co dělá Couchers.org možným!",
+    "byline_with_author": "Napsáno <authorList/>. Publikováno {{date}}."
   },
   "bar": {
     "help_button_a11y": "Nápověda"

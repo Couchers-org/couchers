@@ -33,7 +33,9 @@ const ThankYouReference = () => {
         <Trans
           i18nKey="profile:leave_reference.thank_you_donation_prompt"
           components={{
-            2: <StyledLink href={`${donationsRoute}?utm_source=leave-reference-thank-you`} sx={{ fontWeight: 600 }} />,
+            donateLink: (
+              <StyledLink href={`${donationsRoute}?utm_source=leave-reference-thank-you`} sx={{ fontWeight: 600 }} />
+            ),
           }}
         />
       </Typography>

@@ -42,6 +42,7 @@ from couchers.notifications.notify import notify
 from couchers.proto import events_pb2, events_pb2_grpc, notification_data_pb2
 from couchers.proto.google.api import httpbody_pb2
 from couchers.proto.internal import jobs_pb2
+from couchers.sentry import report_message
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import is_not_visible
 from couchers.servicers.threads import thread_to_pb
@@ -188,7 +189,7 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
         owner_user_id=event.owner_user_id,
         owner_community_id=owner_community_id,
         owner_group_id=owner_group_id,
-        thread=thread_to_pb(session, context, event.thread_id),
+        thread=thread_to_pb(session, context, occurrence.thread_id),
         can_edit=can_edit,
         can_moderate=can_moderate,
     )
@@ -392,7 +393,7 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
         inviting_user = session.execute(select(User).where(User.id == payload.inviting_user_id)).scalar_one_or_none()
 
         if not inviting_user:
-            logger.error(f"Inviting user {payload.inviting_user_id} is gone while trying to send event notification?")
+            report_message(f"Inviting user {payload.inviting_user_id} is gone while trying to send event notification?")
             return
 
         for user in users:
@@ -533,18 +534,17 @@ class Events(events_pb2_grpc.EventsServicer):
         ):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "photo_not_found")
 
-        thread = Thread()
-        session.add(thread)
-        session.flush()
-
         event = Event(
             title=request.title,
             parent_node_id=parent_node.id,
             owner_user_id=context.user_id,
-            thread_id=thread.id,
             creator_user_id=context.user_id,
         )
         session.add(event)
+        session.flush()
+
+        thread = Thread()
+        session.add(thread)
         session.flush()
 
         occurrence: EventOccurrence | None = None
@@ -561,6 +561,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 during=TimestamptzRange(start_datetime, end_datetime),
                 creator_user_id=context.user_id,
                 moderation_state_id=moderation_state_id,
+                thread_id=thread.id,
             )
             session.add(occurrence)
             session.flush()
@@ -670,6 +671,10 @@ class Events(events_pb2_grpc.EventsServicer):
         ):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "event_cant_overlap")
 
+        thread = Thread()
+        session.add(thread)
+        session.flush()
+
         new_occurrence: EventOccurrence | None = None
 
         def create_occurrence(moderation_state_id: int) -> int:
@@ -684,6 +689,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 during=during,
                 creator_user_id=context.user_id,
                 moderation_state_id=moderation_state_id,
+                thread_id=thread.id,
             )
             session.add(new_occurrence)
             session.flush()
@@ -779,6 +785,13 @@ class Events(events_pb2_grpc.EventsServicer):
         if end_datetime != occurrence.end_time:
             notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_END_TIME)
 
+        if request.update_all_future and (
+            start_datetime != occurrence.start_time or end_datetime != occurrence.end_time
+        ):
+            # Not implemented: every future occurrence would need its own times, rechecked against the others.
+            # Writing this one range to all of them violates the exclusion constraint on (event_id, during).
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_cant_update_all_times")
+
         if start_datetime != occurrence.start_time or end_datetime != occurrence.end_time:
             _check_occurrence_time_validity(start_datetime, end_datetime, context)
 
@@ -808,6 +821,8 @@ class Events(events_pb2_grpc.EventsServicer):
         if request.update_all_future:
             session.execute(
                 update(EventOccurrence)
+                .where(EventOccurrence.event_id == event.id)
+                .where(~EventOccurrence.is_deleted)
                 .where(EventOccurrence.end_time >= cutoff_time)
                 .where(EventOccurrence.start_time >= occurrence.start_time)
                 .values(occurrence_update)
@@ -1406,5 +1421,5 @@ class Events(events_pb2_grpc.EventsServicer):
         _, occurrence_db = res
 
         event_pb = event_to_pb(session, occurrence_db, context)
-        ics_data = create_event_ics_calendar(event_pb, context.localization).serialize().encode("utf-8")
+        ics_data = create_event_ics_calendar(event_pb, context.localization).to_ical()
         return httpbody_pb2.HttpBody(content_type="text/calendar", data=ics_data)

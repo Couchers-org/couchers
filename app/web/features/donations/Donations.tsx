@@ -135,7 +135,7 @@ export default function Donations() {
               <Trans
                 i18nKey="donations:donations_info"
                 components={{
-                  1: <Link key={"foundation-route-link"} href={foundationRoute} underline="hover" />,
+                  foundationLink: <Link href={foundationRoute} underline="hover" />,
                 }}
                 values={{ legal_name: t("global:legal_name") }}
               />
@@ -145,7 +145,7 @@ export default function Donations() {
                 t={t}
                 i18nKey="donations:benefactor_contact"
                 components={{
-                  1: <Link key="benefactor-email-link" href={`mailto:${BENEFACTOR_EMAIL}`} underline="hover" />,
+                  emailLink: <Link href={`mailto:${BENEFACTOR_EMAIL}`} underline="hover" />,
                 }}
                 values={{ email: BENEFACTOR_EMAIL }}
               />

@@ -28,6 +28,7 @@ class PublicTrip(Base, kw_only=True):
     __tablename__ = "public_trips"
     __moderation_author_column__ = "user_id"
     __moderation_object_type__ = ModerationObjectType.public_trip
+    __moderation_has_own_visibility_mechanism__ = False
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 

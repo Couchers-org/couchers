@@ -7,7 +7,15 @@ from sqlalchemy.orm import Session
 
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.context import CouchersContext
-from couchers.models import ActivenessProbe, ActivenessProbeStatus, HostingStatus, ModNote, User
+from couchers.helpers.hosting_meetup_status import record_hosting_meetup_status
+from couchers.models import (
+    ActivenessProbe,
+    ActivenessProbeStatus,
+    HostingMeetupStatusSource,
+    HostingStatus,
+    ModNote,
+    User,
+)
 from couchers.proto import jail_pb2, jail_pb2_grpc
 from couchers.servicers.account import mod_note_to_pb
 from couchers.utils import create_coordinate, now
@@ -134,5 +142,8 @@ class Jail(jail_pb2_grpc.JailServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "probe_response_invalid")
 
         probe.responded = now()
+
+        # after `responded` is set, otherwise the autoflush inside would trip the probe's check constraint
+        record_hosting_meetup_status(session, user, HostingMeetupStatusSource.activeness_probe_response)
 
         return _get_jail_info(user)

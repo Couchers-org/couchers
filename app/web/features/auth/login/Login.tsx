@@ -3,6 +3,7 @@ import Alert from "components/Alert";
 import HtmlMeta from "components/HtmlMeta";
 import StyledLink from "components/StyledLink";
 import { Trans, useTranslation } from "i18n";
+import { DEFAULT_LOCALE, LOCALE_COOKIE_NAME } from "i18n/locales";
 import { AUTH, GLOBAL, LANDING } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
@@ -50,11 +51,11 @@ export default function Login() {
         typeof document !== "undefined"
           ? document.cookie
               .split("; ")
-              .find((row) => row.startsWith("NEXT_LOCALE="))
+              .find((row) => row.startsWith(`${LOCALE_COOKIE_NAME}=`))
               ?.split("=")[1]
           : null;
 
-      const targetLocale = nextLocale || router.locale || "en";
+      const targetLocale = nextLocale || router.locale || DEFAULT_LOCALE;
 
       // Navigate to destination with user's preferred locale
       router.push(redirectTo, undefined, { locale: targetLocale });
@@ -77,9 +78,11 @@ export default function Login() {
           )}
           <LoginForm />
           <Typography sx={{ marginTop: 2 }}>
-            <Trans t={t} i18nKey="auth:login_page.no_account_prompt">
-              No account yet? <StyledLink href={signupRoute}>Sign up</StyledLink>
-            </Trans>
+            <Trans
+              t={t}
+              i18nKey="auth:login_page.no_account_prompt"
+              components={{ signupLink: <StyledLink href={signupRoute} /> }}
+            />
           </Typography>
         </StyledFormWrapper>
       </StyledContent>

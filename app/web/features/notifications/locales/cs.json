@@ -34,5 +34,9 @@
   "mark_unread": "Označit jako nepřečtené",
   "mark_all_read": "Označit vše jako přečtené",
   "no_new_notifications": "Žádná nová oznámení",
-  "error_updating_notifications": "Chyba při aktualizaci oznámení"
+  "error_updating_notifications": "Chyba při aktualizaci oznámení",
+  "notifications_filters": {
+    "all_button": "Vše",
+    "unread_button": "Nepřečtené"
+  }
 }

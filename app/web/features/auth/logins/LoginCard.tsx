@@ -51,9 +51,7 @@ export default function LoginsPage({ session }: { session: ActiveSession.AsObjec
     <StyledCard>
       <CardContent>
         <Typography variant="h2">
-          <Trans t={t} i18nKey="auth:active_logins.login_header">
-            Login on {{ login_datetime: createdDisplay }}
-          </Trans>
+          <Trans t={t} i18nKey="auth:active_logins.login_header" values={{ login_datetime: createdDisplay }} />
         </Typography>
         {error && <Alert severity="error">{error.message}</Alert>}
         <IconText
@@ -63,28 +61,18 @@ export default function LoginsPage({ session }: { session: ActiveSession.AsObjec
               t={t}
               i18nKey="auth:active_logins.location"
               values={{ approximate_location: session.approximateLocation }}
-            >
-              {`Near `}
-              <strong>{session.approximateLocation}</strong>
-            </Trans>
+            />
           }
         />
         <IconText
           icon={ClockIcon}
           text={
-            <Trans t={t} i18nKey="auth:active_logins.last_activity" values={{ last_activity_ago: lastSeenDisplay }}>
-              Last activity <strong>{lastSeenDisplay}</strong>
-            </Trans>
+            <Trans t={t} i18nKey="auth:active_logins.last_activity" values={{ last_activity_ago: lastSeenDisplay }} />
           }
         />
         <IconText
           icon={CalendarIcon}
-          text={
-            <Trans t={t} i18nKey="auth:active_logins.expiry" values={{ expiry_datetime: expiryDisplay }}>
-              {`Expires on `}
-              <strong>{expiryDisplay}</strong>
-            </Trans>
-          }
+          text={<Trans t={t} i18nKey="auth:active_logins.expiry" values={{ expiry_datetime: expiryDisplay }} />}
         />
         <IconText
           icon={InfoIcon}
