@@ -10,10 +10,7 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { service } from "service";
-import {
-  emailValidationPattern,
-  lowercaseAndTrimField
-} from "utils/validation";
+import { emailValidationPattern, lowercaseAndTrimField } from "utils/validation";
 
 const StyledForm = styled("form")(({ theme }) => ({
   marginTop: theme.spacing(2),
@@ -35,13 +32,18 @@ export default function ChangeSignupEmail() {
 
   const [changedEmail, setChangedEmail] = useState<boolean>(false);
 
-  const { formState: { errors }, handleSubmit, register, reset: resetForm, watch } = useForm<ChangeSignupEmailFormData>({mode:"onBlur"});
+  const {
+    formState: { errors },
+    handleSubmit,
+    register,
+    reset: resetForm,
+    watch,
+  } = useForm<ChangeSignupEmailFormData>({ mode: "onBlur" });
   const newSignupEmail = watch("newSignupEmail", "");
   const isSubmitDisabled =
-  !newSignupEmail.trim() ||
-  !!errors.newSignupEmail ||
-  lowercaseAndTrimField(newSignupEmail) ===
-    lowercaseAndTrimField(authState.flowState!.email);
+    !newSignupEmail.trim() ||
+    !!errors.newSignupEmail ||
+    lowercaseAndTrimField(newSignupEmail) === lowercaseAndTrimField(authState.flowState!.email);
 
   const onSubmit = handleSubmit(({ newSignupEmail }) => {
     const sanitizedEmail = lowercaseAndTrimField(newSignupEmail || "");
@@ -81,10 +83,13 @@ export default function ChangeSignupEmail() {
           <StyledForm onSubmit={onSubmit}>
             <TextField
               id="newSignupEmail"
-              {...register("newSignupEmail", { pattern: {
-              message: t("auth:basic_form.email.empty_error"),
-              value: emailValidationPattern,
-            },required: true })}
+              {...register("newSignupEmail", {
+                pattern: {
+                  message: t("auth:basic_form.email.empty_error"),
+                  value: emailValidationPattern,
+                },
+                required: true,
+              })}
               placeholder={t("auth:change_signup_email_form.new_email")}
               name="newSignupEmail"
               fullWidth
