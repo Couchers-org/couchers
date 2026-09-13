@@ -32,7 +32,9 @@ describe("addToCalendar", () => {
     await addToCalendar("QkVHSU46VkNBTEVOREFS", "event.ics");
 
     expect(mockFile.create).toHaveBeenCalled();
-    expect(mockFile.write).toHaveBeenCalledWith("QkVHSU46VkNBTEVOREFS", { encoding: "base64" });
+    expect(mockFile.write).toHaveBeenCalledWith("QkVHSU46VkNBTEVOREFS", {
+      encoding: "base64",
+    });
     expect(Sharing.shareAsync).toHaveBeenCalledWith(mockFile.uri, {
       mimeType: "text/calendar",
       UTI: "text/calendar",
