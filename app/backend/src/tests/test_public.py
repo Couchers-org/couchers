@@ -26,7 +26,7 @@ from couchers.models import (
 from couchers.proto import api_pb2, public_pb2
 from couchers.servicers.public import _get_donation_stats, _get_public_users, _get_signup_page_info, _get_volunteers
 from couchers.utils import now
-from tests.fixtures.db import generate_user, make_volunteer
+from tests.fixtures.db import generate_user, make_friends, make_volunteer
 from tests.fixtures.misc import process_jobs
 from tests.fixtures.sessions import public_session
 from tests.test_references import create_friend_reference, create_host_reference
@@ -638,7 +638,7 @@ def test_GetPublicUser_num_references_visibility_rules(db):
     """The public reference count follows the same visibility rules as the reference list"""
     user, _ = generate_user(public_visibility=ProfilePublicVisibility.limited)
     friend_referrer, _ = generate_user()
-    recent_guest, _ = generate_user()
+    recent_host, _ = generate_user()
     deleted_referrer1, _ = generate_user()
     deleted_referrer2, _ = generate_user()
     shadowed_referrer, _ = generate_user()
@@ -647,7 +647,7 @@ def test_GetPublicUser_num_references_visibility_rules(db):
         # counted: a normal friend reference
         create_friend_reference(session, friend_referrer.id, user.id, timedelta(days=15))
         # not counted: a recent stay where the reciprocal reference hasn't been written yet
-        create_host_reference(session, recent_guest.id, user.id, timedelta(days=3), surfing=False)
+        create_host_reference(session, recent_host.id, user.id, timedelta(days=3), surfing=False)
         # counted: references from deleted users remain visible (two of them, so that miscounting
         # deleted authors can't coincidentally cancel out against the hidden recent stay above)
         create_friend_reference(session, deleted_referrer1.id, user.id, timedelta(days=16))
@@ -661,3 +661,36 @@ def test_GetPublicUser_num_references_visibility_rules(db):
     with public_session() as public:
         res = public.GetPublicUser(public_pb2.GetPublicUserReq(user=user.username))
         assert res.limited_user.num_references == 3
+
+
+def test_GetPublicUser_full_visibility_uses_callers_context(db):
+    """A logged-in caller sees the profile as it looks to them, not the anonymous view"""
+    user, _ = generate_user(public_visibility=ProfilePublicVisibility.full)
+    viewer, viewer_token = generate_user()
+    make_friends(user, viewer)
+
+    with public_session() as public:
+        res = public.GetPublicUser(public_pb2.GetPublicUserReq(user=user.username))
+        assert res.full_user.friends == api_pb2.User.FriendshipStatus.NA
+
+    with public_session(viewer_token) as public:
+        res = public.GetPublicUser(public_pb2.GetPublicUserReq(user=user.username))
+        assert res.full_user.friends == api_pb2.User.FriendshipStatus.FRIENDS
+
+
+def test_GetPublicUser_num_references_uses_callers_context(db):
+    """A shadowed author still sees their own reference counted, so the shadow ban isn't leaked"""
+    user, _ = generate_user(public_visibility=ProfilePublicVisibility.limited)
+    shadowed_referrer, shadowed_token = generate_user()
+
+    with session_scope() as session:
+        create_friend_reference(session, shadowed_referrer.id, user.id, timedelta(days=15))
+        session.execute(update(User).where(User.username == shadowed_referrer.username).values(shadowed_at=func.now()))
+
+    with public_session() as public:
+        res = public.GetPublicUser(public_pb2.GetPublicUserReq(user=user.username))
+        assert res.limited_user.num_references == 0
+
+    with public_session(shadowed_token) as public:
+        res = public.GetPublicUser(public_pb2.GetPublicUserReq(user=user.username))
+        assert res.limited_user.num_references == 1
