@@ -7662,11 +7662,6 @@ react-is@^19.2.6, react-is@^19.2.8:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-19.2.8.tgz#09826f9fbc187bc668e3e5c62edc001f804d5018"
   integrity sha512-s5un28nYxKJw5gvUHyW5PCC28CvBqLu9r3cWgzHT4Vo/5fqqkFcdRYsGcKf50WMPpjjFZS5d76fn3YCo2njKwQ==
 
-react-lines-ellipsis@^0.16.1:
-  version "0.16.1"
-  resolved "https://registry.yarnpkg.com/react-lines-ellipsis/-/react-lines-ellipsis-0.16.1.tgz#c19f7712999d228cbde71c31954bb3de6212b046"
-  integrity sha512-cQefaTdPlmvOAoQlcBOuv3AG2csThsdzCWSGydUZhv6VrrIsLShJ+WmxnCEHa3jAQeH4lxlsNVBd6i4bE5h2+g==
-
 react-map-gl@^8.1.2:
   version "8.1.2"
   resolved "https://registry.yarnpkg.com/react-map-gl/-/react-map-gl-8.1.2.tgz#719bc3aa3972a4eb17478100a13f7e8a234ac963"
