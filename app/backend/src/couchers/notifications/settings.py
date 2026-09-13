@@ -201,10 +201,10 @@ settings_layout = [
                 ],
             ),
             (
-                "host_my_home",
-                "Hosting Nudges",
+                "campaign",
+                "Occasional tips and suggestions",
                 [
-                    NotificationTopicAction.host_my_home__nudge,
+                    NotificationTopicAction.campaign__nudge,
                 ],
             ),
             (
