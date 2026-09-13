@@ -26,15 +26,15 @@ export default function ResendVerificationEmailForm() {
   return (
     <>
       {mutation.error && <Alert severity="error">{mutation.error.message || ""}</Alert>}
-        <Typography variant="body1" gutterBottom>
-            <Trans
-              i18nKey="auth:sign_up_completed_prompt"
-              values={{
-                email: authState.flowState?.email,
-              }}
-            />
-        </Typography>
-        <Typography variant="body1" gutterBottom>
+      <Typography variant="body1" gutterBottom>
+        <Trans
+          i18nKey="auth:sign_up_completed_prompt"
+          values={{
+            email: authState.flowState?.email,
+          }}
+        />
+      </Typography>
+      <Typography variant="body1" gutterBottom>
         {!resent ? (
           <Trans
             i18nKey="auth:sign_up_resend_verification_email_help"

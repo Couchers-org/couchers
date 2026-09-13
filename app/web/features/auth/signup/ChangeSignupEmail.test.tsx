@@ -16,7 +16,7 @@ const signupFlowChangeEmailMock = service.auth.signupFlowChangeEmail as MockedSe
 
 const flowState = {
   flowToken: "token",
-  email:"test@example.com",
+  email: "test@example.com",
   needBasic: false,
   needAccount: true,
   needAcceptCommunityGuidelines: false,
