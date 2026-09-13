@@ -10,7 +10,10 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { service } from "service";
-import { lowercaseAndTrimField } from "utils/validation";
+import {
+  emailValidationPattern,
+  lowercaseAndTrimField
+} from "utils/validation";
 
 const StyledForm = styled("form")(({ theme }) => ({
   marginTop: theme.spacing(2),
@@ -32,11 +35,13 @@ export default function ChangeSignupEmail() {
 
   const [changedEmail, setChangedEmail] = useState<boolean>(false);
 
-  const { handleSubmit, register, reset: resetForm, watch } = useForm<ChangeSignupEmailFormData>();
+  const { formState: { errors }, handleSubmit, register, reset: resetForm, watch } = useForm<ChangeSignupEmailFormData>({mode:"onBlur"});
   const newSignupEmail = watch("newSignupEmail", "");
   const isSubmitDisabled =
-    !newSignupEmail.trim() ||
-    lowercaseAndTrimField(newSignupEmail) === lowercaseAndTrimField(authState.flowState!.email);
+  !newSignupEmail.trim() ||
+  !!errors.newSignupEmail ||
+  lowercaseAndTrimField(newSignupEmail) ===
+    lowercaseAndTrimField(authState.flowState!.email);
 
   const onSubmit = handleSubmit(({ newSignupEmail }) => {
     const sanitizedEmail = lowercaseAndTrimField(newSignupEmail || "");
@@ -76,10 +81,15 @@ export default function ChangeSignupEmail() {
           <StyledForm onSubmit={onSubmit}>
             <TextField
               id="newSignupEmail"
-              {...register("newSignupEmail", { required: true })}
+              {...register("newSignupEmail", { pattern: {
+              message: t("auth:basic_form.email.empty_error"),
+              value: emailValidationPattern,
+            },required: true })}
               placeholder={t("auth:change_signup_email_form.new_email")}
               name="newSignupEmail"
               fullWidth
+              error={!!errors.newSignupEmail}
+              helperText={errors.newSignupEmail?.message ?? " "}
             />
             <Button fullWidth={true} loading={isChangeSignupEmailLoading} type="submit" disabled={isSubmitDisabled}>
               {t("auth:change_signup_email_form.signup_change_email")}
