@@ -195,12 +195,12 @@ describe("Event page", () => {
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
     await user.click(await screen.findByTestId("event-page-more-options"));
 
-    const clickSpy = jest
-      .spyOn(HTMLAnchorElement.prototype, "click")
-      .mockImplementation(function (this: HTMLAnchorElement) {
-        expect(this.href).toBe("blob:mock-url");
-        expect(this.download).toBe(`${firstEvent.slug}.ics`);
-      });
+    const clickSpy = jest.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (
+      this: HTMLAnchorElement,
+    ) {
+      expect(this.href).toBe("blob:mock-url");
+      expect(this.download).toBe(`${firstEvent.slug}.ics`);
+    });
 
     await user.click(
       await screen.findByRole("menuitem", {
@@ -208,10 +208,9 @@ describe("Event page", () => {
       }),
     );
 
-    expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringContaining(`/events/${firstEvent.eventId}/calendar`),
-      { credentials: "include" },
-    );
+    expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining(`/events/${firstEvent.eventId}/calendar`), {
+      credentials: "include",
+    });
     expect(clickSpy).toHaveBeenCalledTimes(1);
   });
 
