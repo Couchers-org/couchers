@@ -236,6 +236,7 @@ def do_and_check_sv(
 
 @pytest.fixture
 def sv_config() -> None:
+    # An autouse fixture runs before non-autouse fixtures of the same scope.
     config.IRIS_ID_PUBKEY = "dummy_pubkey"
     config.IRIS_ID_SECRET = "dummy_secret"
     config.VERIFICATION_DATA_PUBLIC_KEY = bytes.fromhex(

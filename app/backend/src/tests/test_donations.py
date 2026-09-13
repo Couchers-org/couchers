@@ -26,6 +26,7 @@ def _(testconfig):
 
 @pytest.fixture
 def stripe_config() -> None:
+    # An autouse fixture runs before non-autouse fixtures of the same scope.
     config.STRIPE_API_KEY = "dummy_api_key"
     config.STRIPE_WEBHOOK_SECRET = "dummy_webhook_secret"
     config.STRIPE_RECURRING_PRODUCT_ID = "price_1KIbmbIfR5z29g5kFWPEUnC6"
