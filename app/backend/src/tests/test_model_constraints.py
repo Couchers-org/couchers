@@ -24,11 +24,6 @@ from tests.fixtures.db import generate_user
 from tests.test_communities import create_1d_polygon, create_community
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def test_node_constraints(db):
     # check we can't have two official clusters for a given node
     with pytest.raises(IntegrityError) as e:

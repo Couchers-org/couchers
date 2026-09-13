@@ -44,11 +44,6 @@ from tests.fixtures.sessions import (
 from tests.test_communities import create_community
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def test_signup_verification_email(db, email_collector: EmailCollector):
     request_email = f"{random_hex(12)}@couchers.org.invalid"
 

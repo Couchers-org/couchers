@@ -96,11 +96,6 @@ def _count_queued_emails() -> int:
         ).scalar_one()
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def _check_job_counter(port, job, status, attempt, exception):
     metrics_string = requests.get(f"http://localhost:{port}").text
     string_to_check = f'attempt="{attempt}",exception="{exception}",job="{job}",status="{status}"'

@@ -19,11 +19,6 @@ from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import donations_session, real_stripe_session
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 @pytest.fixture
 def stripe_config() -> None:
     # An autouse fixture runs before non-autouse fixtures of the same scope.

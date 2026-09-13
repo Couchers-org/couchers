@@ -7,11 +7,6 @@ from couchers.postal.my_postcard import send_postcard
 from couchers.resources import get_postcard_front_image
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def test_get_postcard_front_image_returns_png():
     data = get_postcard_front_image()
     assert isinstance(data, bytes)
