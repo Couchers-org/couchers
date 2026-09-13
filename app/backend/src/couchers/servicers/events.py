@@ -94,24 +94,29 @@ def _is_event_organizer(event: Event, user_id: int) -> bool:
     """
     return event.organizers.where(EventOrganizer.user_id == user_id).one_or_none() is not None
 
+
 def _community_invite_requested(session: Session, event: Event, user_id: int) -> bool:
-    #Returns True if the given user has already requested a community invite 
-    #for this event, or if one has already been approved.
-    return session.execute(
-        select(EventCommunityInviteRequest.id)
-        .join(
-            EventOccurrence,
-            EventOccurrence.id == EventCommunityInviteRequest.occurrence_id,
-        )
-        .where(EventOccurrence.event_id == event.id)
-        .where(
-            or_(
-                EventCommunityInviteRequest.user_id == user_id,
-                # EventCommunityInviteRequest.approved,
+    # Returns True if the given user has already requested a community invite
+    # for this event, or if one has already been approved.
+    return (
+        session.execute(
+            select(EventCommunityInviteRequest.id)
+            .join(
+                EventOccurrence,
+                EventOccurrence.id == EventCommunityInviteRequest.occurrence_id,
             )
-        )
-        .limit(1)
-    ).scalar_one_or_none() is not None
+            .where(EventOccurrence.event_id == event.id)
+            .where(
+                or_(
+                    EventCommunityInviteRequest.user_id == user_id,
+                    # EventCommunityInviteRequest.approved,
+                )
+            )
+            .limit(1)
+        ).scalar_one_or_none()
+        is not None
+    )
+
 
 def _can_moderate_event(session: Session, event: Event, user_id: int) -> bool:
     # if the event is owned by a cluster, then any moderator of that cluster can moderate this event
@@ -179,7 +184,7 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
             EventSubscription.user_id,
         )
     ).scalar_one()
-        
+
     return events_pb2.Event(
         event_id=occurrence.id,
         is_next=False if not next_occurrence else occurrence.id == next_occurrence.id,
@@ -211,7 +216,7 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
         thread=thread_to_pb(session, context, occurrence.thread_id),
         can_edit=can_edit,
         can_moderate=can_moderate,
-        community_invite_requested=community_invite_requested
+        community_invite_requested=community_invite_requested,
     )
 
 
