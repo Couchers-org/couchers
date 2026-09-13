@@ -4,7 +4,6 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
@@ -20,8 +19,12 @@ const StyledForm = styled("form")(({ theme }) => ({
   flexDirection: "column",
   gap: theme.spacing(1),
   alignItems: "flex-start",
-  width: "100%",
+  width: "100%"
 }));
+
+interface ChangeSignupEmailFormData {
+  newSignupEmail: string;
+}
 
 export default function ChangeSignupEmail() {
   const { t } = useTranslation([AUTH, GLOBAL]);
@@ -29,30 +32,26 @@ export default function ChangeSignupEmail() {
 
   const [changedEmail, setChangedEmail] = useState<boolean>(false);
 
-  const { handleSubmit, register, reset: resetForm, watch } = useForm();
+  const { handleSubmit, register, reset: resetForm, watch } = useForm<ChangeSignupEmailFormData>();
   const newSignupEmail = watch("newSignupEmail", "");
-  const isSubmitDisabled =
-    !newSignupEmail.trim() ||
-    lowercaseAndTrimField(newSignupEmail) === lowercaseAndTrimField(authState.flowState!.email);
+  const isSubmitDisabled = !newSignupEmail.trim() || (lowercaseAndTrimField(newSignupEmail) === lowercaseAndTrimField(authState.flowState!.email));
 
   const onSubmit = handleSubmit(({ newSignupEmail }) => {
     const sanitizedEmail = lowercaseAndTrimField(newSignupEmail || "");
-    changeSignupEmail({ newSignupEmail: sanitizedEmail || "" });
+    changeSignupEmail({ newSignupEmail: sanitizedEmail || ""});
   });
-
+  
   const {
     error: changeSignupEmailError,
     isPending: isChangeSignupEmailLoading,
     isSuccess: isChangeSignupEmailSuccess,
     mutate: changeSignupEmail,
-  } = useMutation<Empty, RpcError>({
+  } = useMutation<void, RpcError, ChangeSignupEmailFormData>({
     mutationFn: async ({ newSignupEmail }) => {
       resetForm();
-      const state = await service.auth.signupFlowChangeEmail(
-        authState.flowState!.flowToken,
-        lowercaseAndTrimField(newSignupEmail),
-      );
+      const state =  await service.auth.signupFlowChangeEmail(authState.flowState!.flowToken, lowercaseAndTrimField(newSignupEmail));
       authActions.updateSignupState(state);
+      // return state;
     },
     onSuccess: () => {
       setChangedEmail(true);
