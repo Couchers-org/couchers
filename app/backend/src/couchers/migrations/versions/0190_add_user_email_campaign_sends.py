@@ -16,7 +16,7 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'host_my_home__nudge'")
+    op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'campaign__nudge'")
 
     op.create_table(
         "user_email_campaign_sends",

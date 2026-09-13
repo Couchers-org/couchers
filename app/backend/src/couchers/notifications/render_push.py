@@ -10,6 +10,7 @@ from zoneinfo import ZoneInfo
 from google.protobuf.timestamp_pb2 import Timestamp
 
 from couchers import urls
+from couchers.email_campaigns import get_campaign
 from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import LocalizationError
 from couchers.i18n.localize import format_phone_number
@@ -105,9 +106,8 @@ def render_push_notification(notification: Notification, loc_context: Localizati
             return _render_modnote__create(loc_context)
         case NotificationTopicAction.onboarding__reminder:
             return _render_onboarding__reminder(notification.key, loc_context)
-        case NotificationTopicAction.host_my_home__nudge:
-            # Delivery defaults to email only; this case exists to satisfy exhaustiveness.
-            raise NotImplementedError("host_my_home__nudge is email-only")
+        case NotificationTopicAction.campaign__nudge:
+            return _render_campaign__nudge(notification.key, loc_context)
         case NotificationTopicAction.password__change:
             return _render_password__change(loc_context)
         case NotificationTopicAction.password_reset__start:
@@ -645,6 +645,15 @@ def _render_host_request__confirm(
 
 def _render_modnote__create(loc_context: LocalizationContext) -> PushNotificationContent:
     return _get_content(NotificationTopicAction.modnote__create, loc_context)
+
+
+def _render_campaign__nudge(key: str, loc_context: LocalizationContext) -> PushNotificationContent:
+    campaign = get_campaign(key)
+    return _get_content(
+        f"campaign.nudge.push.{campaign.key}",
+        loc_context,
+        action_url=campaign.action_url(),
+    )
 
 
 def _render_onboarding__reminder(key: str, loc_context: LocalizationContext) -> PushNotificationContent:
