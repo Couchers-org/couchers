@@ -32,11 +32,6 @@ from tests.fixtures.sessions import public_session
 from tests.test_references import create_friend_reference, create_host_reference
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def test_GetPublicMapLayer(db):
     user1, _ = generate_user()
     user2, _ = generate_user(username="user2", public_visibility=ProfilePublicVisibility.nothing)

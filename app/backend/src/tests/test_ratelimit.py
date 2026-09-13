@@ -20,11 +20,6 @@ VALKEY_TEST_HOST = os.environ.get("VALKEY_TEST_HOST", "localhost")
 VALKEY_TEST_PORT = int(os.environ.get("VALKEY_TEST_PORT", "6545"))
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 class InMemoryCounterStore:
     """A pure-Python fixed-window store mirroring the Valkey one, for hermetic tests."""
 

@@ -61,11 +61,6 @@ from tests.fixtures.sessions import (
 )
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 @pytest.mark.parametrize("enabled", [True, False])
 def test_SetNotificationSettings_preferences_respected_editable(db, enabled):
     user, token = generate_user()
@@ -2105,7 +2100,7 @@ def test_web_push_gone_disables_subscription(db, frozen_timewarp, status_code):
 
 
 @pytest.mark.parametrize(("ttl", "expected"), [(0, "no-cache"), (3600, "cache")])
-def test_web_push_sends_wns_cache_policy(testconfig, ttl, expected):
+def test_web_push_sends_wns_cache_policy(ttl, expected):
     """WNS (Windows Notification Service, Edge's push backend) rejects a mismatched cache policy and ttl."""
     with patch("couchers.notifications.web_push_api.requests.post") as mock_post:
         send_web_push(

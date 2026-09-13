@@ -21,11 +21,6 @@ from tests.fixtures.sessions import (
 from tests.test_communities import create_community, create_group
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def test_create_discussion_errors(db):
     user, token = generate_user()
     with discussions_session(token) as api:
