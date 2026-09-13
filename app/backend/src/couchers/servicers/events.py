@@ -107,7 +107,7 @@ def _community_invite_requested(session: Session, event: Event, user_id: int) ->
         .where(
             or_(
                 EventCommunityInviteRequest.user_id == user_id,
-                EventCommunityInviteRequest.approved,
+                # EventCommunityInviteRequest.approved,
             )
         )
         .limit(1)
