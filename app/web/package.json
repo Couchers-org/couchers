@@ -66,7 +66,7 @@
     "react-intersection-observer": "^11.0.1",
     "react-lines-ellipsis": "^0.16.1",
     "react-map-gl": "^8.1.2",
-    "react-phone-number-input": "^3.4.17",
+    "react-phone-number-input": "^3.4.18",
     "react-simple-maps": "^3.0.0",
     "seamless-scroll-polyfill": "^2.1.8",
     "temporal-polyfill": "^1.0.4",
