@@ -6,6 +6,8 @@
     "cannot_edit_badge": "Admins cannot edit that badge.",
     "cannot_reinstate_and_set_stopped_date": "Cannot reinstate a volunteer and set a stopped date at the same time.",
     "cannot_set_visibility_on_state": "This object type cannot be approved or hidden, its visibility is not decided by the moderation system.",
+    "community_builder_request_already_decided": "That community builder request was already approved/denied.",
+    "community_builder_request_not_found": "Couldn't find that community builder request.",
     "content_report_not_found": "Content report not found.",
     "data_must_be_valid_json": "The moderation data must be valid JSON.",
     "data_only_allowed_on_flag": "Moderation data can only be set when flagging.",
@@ -42,7 +44,9 @@
     "user_already_volunteer": "This user is already a volunteer.",
     "user_does_not_have_admin_tag": "The user does not have that admin tag.",
     "user_does_not_have_badge": "The user does not have that badge.",
+    "user_not_found": "Couldn't find that user.",
     "user_not_in_the_moderation_user_list": "User is not in the moderation user list.",
+    "user_not_member": "That user is not in the community.",
     "visibility_must_be_specified": "Visibility must be specified.",
     "volunteer_not_found": "Volunteer not found."
   }

@@ -292,7 +292,7 @@ class CommunityBuilderRequest(Base, kw_only=True):
             node_id,
             user_id,
             unique=True,
-            postgresql_where=approved.is_(None),
+            postgresql_where=decided.is_(None),
         ),
         CheckConstraint(
             "((decided IS NULL) AND (decided_by_user_id IS NULL) AND (approved IS NULL)) OR \

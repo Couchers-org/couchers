@@ -60,7 +60,7 @@ def upgrade() -> None:
         "community_builder_requests",
         ["node_id", "user_id"],
         unique=True,
-        postgresql_where=sa.text("approved IS NULL"),
+        postgresql_where=sa.text("decided IS NULL"),
     )
 
 

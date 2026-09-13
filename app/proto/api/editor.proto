@@ -126,6 +126,8 @@ message CommunityBuilderRequest {
   int64 user_id = 2;
   int64 community_id = 3;
   string community_name = 4;
+
+  google.protobuf.Timestamp created = 5;
 }
 
 message ListCommunityBuilderRequestsRes {

@@ -574,20 +574,22 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 grpc.StatusCode.FAILED_PRECONDITION, "incomplete_profile_become_community_builder"
             )
 
-        existing_admin_subscription = session.execute(
+        subscription = session.execute(
             select(ClusterSubscription)
             .where(ClusterSubscription.user_id == context.user_id)
             .where(ClusterSubscription.cluster_id == node.official_cluster.id)
-            .where(ClusterSubscription.role == ClusterRole.admin)
         ).scalar_one_or_none()
-        if existing_admin_subscription:
+        # mirrors AddAdmin: community builders are members that got upgraded, never fresh subscriptions
+        if not subscription:
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "not_in_community")
+        if subscription.role == ClusterRole.admin:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "user_already_community_builder")
 
         pending_request = session.execute(
             select(CommunityBuilderRequest)
             .where(CommunityBuilderRequest.node_id == node.id)
             .where(CommunityBuilderRequest.user_id == context.user_id)
-            .where(CommunityBuilderRequest.approved.is_(None))
+            .where(CommunityBuilderRequest.decided.is_(None))
         ).scalar_one_or_none()
         if pending_request:
             context.abort_with_error_code(

@@ -101,10 +101,13 @@ service Communities {
   rpc RequestCommunityBuilder(RequestCommunityBuilderReq) returns (google.protobuf.Empty) {
     // Request to become a community builder (admin) of a community. The request is reviewed by moderators.
     //
+    // Raises: NOT_FOUND if the community does not exist
+    //
     // Raises: FAILED_PRECONDITION if
     //   1. the user has not completed their profile
-    //   2. the user is already an admin of the community
-    //   3. the user already has a pending request for this community
+    //   2. the user is not a member of the community
+    //   3. the user is already an admin of the community
+    //   4. the user already has a pending request for this community
   }
 
   rpc SearchCommunities(SearchCommunitiesReq) returns (SearchCommunitiesRes) {

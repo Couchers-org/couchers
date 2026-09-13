@@ -1,10 +1,10 @@
-from datetime import timedelta
+from datetime import UTC, timedelta
 
 import grpc
 import pytest
 from geoalchemy2 import WKBElement
 from google.protobuf import empty_pb2, wrappers_pb2
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from couchers.db import is_user_in_node_geography, session_scope
@@ -27,7 +27,7 @@ from couchers.models import (
 from couchers.proto import api_pb2, auth_pb2, communities_pb2, discussions_pb2, editor_pb2, events_pb2, pages_pb2
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import create_coordinate, create_polygon_lat_lng, datetime_to_iso8601_local, now, to_multi
-from tests.fixtures.db import generate_user, get_user_id_and_token
+from tests.fixtures.db import generate_user, get_user_id_and_token, make_user_invisible
 from tests.fixtures.misc import EmailCollector, Moderator
 from tests.fixtures.sessions import (
     auth_api_session,
@@ -1326,11 +1326,13 @@ def test_enforce_community_memberships_for_user(testing_communities, fast_passwo
 
 
 def test_community_builder_requests(db, email_collector: EmailCollector):
-    admin_user, _ = generate_user(complete_profile=True)
-    user1, token1 = generate_user(complete_profile=True)
-    user2, token2 = generate_user(complete_profile=False)
-    user3, token3 = generate_user(complete_profile=True)
-    user4, token4 = generate_user(complete_profile=True)
+    admin_user, _ = generate_user(complete_profile=True, geom=create_1d_point(1), geom_radius=0.1)
+    user1, token1 = generate_user(complete_profile=True, geom=create_1d_point(1), geom_radius=0.1)
+    user2, token2 = generate_user(complete_profile=False, geom=create_1d_point(1), geom_radius=0.1)
+    user3, token3 = generate_user(complete_profile=True, geom=create_1d_point(1), geom_radius=0.1)
+    user4, token4 = generate_user(complete_profile=True, geom=create_1d_point(1), geom_radius=0.1)
+    user5, token5 = generate_user(complete_profile=True, geom=create_1d_point(1), geom_radius=0.1)
+    outsider, outsider_token = generate_user(complete_profile=True, geom=create_1d_point(50), geom_radius=0.1)
     superuser, super_token = generate_user(is_superuser=True)
 
     with session_scope() as session:
@@ -1344,6 +1346,13 @@ def test_community_builder_requests(db, email_collector: EmailCollector):
             api.RequestCommunityBuilder(communities_pb2.RequestCommunityBuilderReq(community_id=c_id))
         assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert err.value.details() == "Please complete your profile before becoming a community builder."
+
+    # cannot request for a community you're not a member of
+    with communities_session(outsider_token) as api:
+        with pytest.raises(grpc.RpcError) as err:
+            api.RequestCommunityBuilder(communities_pb2.RequestCommunityBuilderReq(community_id=c_id))
+        assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert err.value.details() == "You're not in that community."
 
     # missing community
     with communities_session(token1) as api:
@@ -1375,6 +1384,7 @@ def test_community_builder_requests(db, email_collector: EmailCollector):
         assert {r.user_id for r in res.requests} == {user1.id, user3.id}
         assert all(r.community_id == c_id for r in res.requests)
         assert res.requests[0].community_name == "Builder Test Community"
+        assert res.requests[0].created.ToDatetime(tzinfo=UTC) <= now()
 
         user1_req_id = next(r.community_builder_request_id for r in res.requests if r.user_id == user1.id)
         user3_req_id = next(r.community_builder_request_id for r in res.requests if r.user_id == user3.id)
@@ -1425,6 +1435,58 @@ def test_community_builder_requests(db, email_collector: EmailCollector):
     with communities_session(token4) as api:
         api.RequestCommunityBuilder(communities_pb2.RequestCommunityBuilderReq(community_id=c_id))
 
+    # as can user5, who then gets banned
+    with communities_session(token5) as api:
+        api.RequestCommunityBuilder(communities_pb2.RequestCommunityBuilderReq(community_id=c_id))
+
     with real_editor_session(super_token) as editor:
         res = editor.ListCommunityBuilderRequests(editor_pb2.ListCommunityBuilderRequestsReq())
+        assert {r.user_id for r in res.requests} == {user1.id, user4.id, user5.id}
+        user4_req_id = next(r.community_builder_request_id for r in res.requests if r.user_id == user4.id)
+        user5_req_id = next(r.community_builder_request_id for r in res.requests if r.user_id == user5.id)
+
+    # user4 stops being a member before the request is decided
+    with session_scope() as session:
+        cluster_id = (
+            session.execute(select(Cluster).where(Cluster.parent_node_id == c_id).where(Cluster.is_official_cluster))
+            .scalar_one()
+            .id
+        )
+        session.execute(
+            delete(ClusterSubscription)
+            .where(ClusterSubscription.cluster_id == cluster_id)
+            .where(ClusterSubscription.user_id == user4.id)
+        )
+
+    make_user_invisible(user5.id)
+
+    with real_editor_session(super_token) as editor:
+        # banned users' requests are hidden
+        res = editor.ListCommunityBuilderRequests(editor_pb2.ListCommunityBuilderRequestsReq())
         assert {r.user_id for r in res.requests} == {user1.id, user4.id}
+
+        # and can't be approved
+        with pytest.raises(grpc.RpcError) as err:
+            editor.DecideCommunityBuilderRequest(
+                editor_pb2.DecideCommunityBuilderRequestReq(community_builder_request_id=user5_req_id, approve=True)
+            )
+        assert err.value.code() == grpc.StatusCode.NOT_FOUND
+
+        # nor can a user who's no longer a member of the community
+        with pytest.raises(grpc.RpcError) as err:
+            editor.DecideCommunityBuilderRequest(
+                editor_pb2.DecideCommunityBuilderRequestReq(community_builder_request_id=user4_req_id, approve=True)
+            )
+        assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert err.value.details() == "That user is not in the community."
+
+        # both are still pending, so they can be denied instead
+        editor.DecideCommunityBuilderRequest(
+            editor_pb2.DecideCommunityBuilderRequestReq(community_builder_request_id=user4_req_id, approve=False)
+        )
+        editor.DecideCommunityBuilderRequest(
+            editor_pb2.DecideCommunityBuilderRequestReq(community_builder_request_id=user5_req_id, approve=False)
+        )
+
+        res = editor.ListCommunityBuilderRequests(editor_pb2.ListCommunityBuilderRequestsReq())
+        assert {r.user_id for r in res.requests} == {user1.id}
