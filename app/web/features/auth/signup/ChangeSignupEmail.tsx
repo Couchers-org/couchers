@@ -23,7 +23,6 @@ const StyledForm = styled("form")(({ theme }) => ({
   width: "100%",
 }));
 
-
 export default function ChangeSignupEmail() {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { authActions, authState } = useAuthContext();
