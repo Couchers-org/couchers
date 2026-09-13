@@ -83,6 +83,18 @@
       }
     }
   },
+  "campaign": {
+    "nudge": {
+      "event_description": "Occasional tips and suggestions for getting the most out of Couchers",
+      "push": {
+        "host_my_home_nudge": {
+          "title": "Get ready to host a couch surfer",
+          "ios_title": "Ready to host?",
+          "body": "Finish your My Home section so travellers can find you and send you requests."
+        }
+      }
+    }
+  },
   "chat": {
     "message": {
       "event_description": "Someone sends you a message",
@@ -355,11 +367,6 @@
           "body": "Please complete your profile with a picture and a bit of text about yourself."
         }
       }
-    }
-  },
-  "host_my_home": {
-    "nudge": {
-      "event_description": "Reminder to fill in your My Home section so you can host"
     }
   },
   "password": {
