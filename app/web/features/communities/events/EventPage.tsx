@@ -33,8 +33,8 @@ import { eventsRoute, routeToDuplicateEvent, routeToEditEvent, routeToEvent } fr
 import { service } from "service";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
+import { addToCalendar } from "utils/addToCalendar";
 import { timestampToInstant, timestampToPlainDateTime } from "utils/date";
-import { downloadAtURL } from "utils/download";
 import { sendNativeBack, useIsNativeEmbed } from "utils/nativeLink";
 
 import { eventAttendeesBaseKey, eventKey } from "../../queryKeys";
@@ -257,7 +257,7 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
             label: t("communities:add_to_calendar"),
             onClick: () => {
               const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/events/${event!.eventId}/calendar`;
-              downloadAtURL(url, `${event!.slug || "event"}.ics`);
+              addToCalendar(url, `${event!.slug || "event"}.ics`);
             },
             id: "add-to-calendar",
           },

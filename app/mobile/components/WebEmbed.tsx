@@ -28,6 +28,7 @@ import errorGraphic from "@/resources/404graphic.png";
 import client from "@/service/client";
 import { dispatchEscapeRef, lastLoginTimeRef } from "@/state/webViewState";
 import { theme } from "@/theme";
+import { addToCalendar } from "@/utils/addToCalendar";
 import { applicationNameForUserAgent } from "@/utils/userAgent";
 import { shouldLoadInWebView } from "@/utils/webViewUrlUtils";
 
@@ -374,12 +375,13 @@ export default function WebEmbed({
         hasAction().then((canReview) => {
           if (canReview) requestReview();
         });
-      } else if (payload?.type === "OPEN_EXTERNAL_URL") {
-        const url = payload.data?.url;
-        if (url) {
-          Linking.openURL(url).catch((err) => {
+      } else if (payload?.type === "OPEN_CALENDAR_FILE") {
+        const base64 = payload.data?.base64;
+        const filename = payload.data?.filename;
+        if (base64 && filename) {
+          addToCalendar(base64, filename).catch((err) => {
             if (__DEV__) {
-              console.error("Failed to open external URL:", err);
+              console.error("Failed to add to calendar:", err);
             }
           });
         }

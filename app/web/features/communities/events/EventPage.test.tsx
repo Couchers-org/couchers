@@ -185,6 +185,11 @@ describe("Event page", () => {
   });
 
   it("downloads a calendar file with the event's filename when 'add to calendar' is clicked", async () => {
+    const mockBlob = new Blob(["BEGIN:VCALENDAR"]);
+    global.fetch = jest.fn().mockResolvedValue({ ok: true, blob: jest.fn().mockResolvedValue(mockBlob) });
+    jest.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock-url");
+    URL.revokeObjectURL = jest.fn();
+
     renderEventPage();
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
@@ -193,7 +198,7 @@ describe("Event page", () => {
     const clickSpy = jest
       .spyOn(HTMLAnchorElement.prototype, "click")
       .mockImplementation(function (this: HTMLAnchorElement) {
-        expect(this.href).toContain(`/events/${firstEvent.eventId}/calendar`);
+        expect(this.href).toBe("blob:mock-url");
         expect(this.download).toBe(`${firstEvent.slug}.ics`);
       });
 
@@ -203,8 +208,11 @@ describe("Event page", () => {
       }),
     );
 
+    expect(global.fetch).toHaveBeenCalledWith(
+      expect.stringContaining(`/events/${firstEvent.eventId}/calendar`),
+      { credentials: "include" },
+    );
     expect(clickSpy).toHaveBeenCalledTimes(1);
-    clickSpy.mockRestore();
   });
 
   it("shows the 'edit event' button if the user has edit permission", async () => {
