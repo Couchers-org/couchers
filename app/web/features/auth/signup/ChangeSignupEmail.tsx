@@ -23,9 +23,6 @@ const StyledForm = styled("form")(({ theme }) => ({
   width: "100%",
 }));
 
-interface ChangeSignupEmailFormData {
-  newSignupEmail: string;
-}
 
 export default function ChangeSignupEmail() {
   const { t } = useTranslation([AUTH, GLOBAL]);
@@ -33,7 +30,7 @@ export default function ChangeSignupEmail() {
 
   const [changedEmail, setChangedEmail] = useState<boolean>(false);
 
-  const { handleSubmit, register, reset: resetForm, watch } = useForm<ChangeSignupEmailFormData>();
+  const { handleSubmit, register, reset: resetForm, watch } = useForm();
   const newSignupEmail = watch("newSignupEmail", "");
   const isSubmitDisabled =
     !newSignupEmail.trim() ||
@@ -49,7 +46,7 @@ export default function ChangeSignupEmail() {
     isPending: isChangeSignupEmailLoading,
     isSuccess: isChangeSignupEmailSuccess,
     mutate: changeSignupEmail,
-  } = useMutation<Empty, RpcError, ChangeSignupEmailFormData>({
+  } = useMutation<Empty, RpcError>({
     mutationFn: async ({ newSignupEmail }) => {
       resetForm();
       const state = await service.auth.signupFlowChangeEmail(
