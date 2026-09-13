@@ -6,17 +6,21 @@ from google.protobuf import empty_pb2
 from sqlalchemy import select
 from sqlalchemy.sql import func
 
+from couchers import urls
 from couchers.db import session_scope
 from couchers.jobs.user_email_campaigns import run_user_email_campaigns
 from couchers.models import (
     BackgroundJob,
     HostingStatus,
+    NotificationTopicAction,
     SleepingArrangement,
     UserEmailCampaignSend,
 )
+from couchers.proto import notifications_pb2
 from couchers.utils import now
 from tests.fixtures.db import generate_user
-from tests.fixtures.misc import process_jobs
+from tests.fixtures.misc import PushCollector, process_jobs
+from tests.fixtures.sessions import notifications_session
 
 CAMPAIGN_KEY = "host_my_home_nudge"
 FLAG_KEY = "host_my_home_nudge_days_after_signup"
@@ -153,3 +157,59 @@ def test_host_my_home_nudge_skips_when_my_home_complete(db, feature_flags):
     process_jobs()
 
     assert _send_email_jobs() == 0
+
+
+def test_campaign_unsubscribe_covers_all_campaigns(db, feature_flags):
+    """Campaigns share one topic-action, so unsubscribing once opts out of every campaign."""
+    feature_flags.set(FLAG_KEY, 14)
+    user, token = _make_eligible_user()
+
+    topic_action = NotificationTopicAction.campaign__nudge
+    with notifications_session(token) as notifications:
+        notifications.SetNotificationSettings(
+            notifications_pb2.SetNotificationSettingsReq(
+                preferences=[
+                    notifications_pb2.SingleNotificationPreference(
+                        topic=topic_action.topic,
+                        action=topic_action.action,
+                        delivery_method="email",
+                        enabled=False,
+                    )
+                ],
+            )
+        )
+
+    run_user_email_campaigns(empty_pb2.Empty())
+    process_jobs()
+
+    assert _send_email_jobs() == 0
+    # the send is still recorded, so the user isn't re-targeted once they resubscribe
+    assert _campaign_sends() == 1
+
+
+def test_campaign_renders_push_when_user_opts_in(db, feature_flags, push_collector: PushCollector):
+    """Push is off by default for campaigns, but opting in must render rather than blow up."""
+    feature_flags.set(FLAG_KEY, 14)
+    user, token = _make_eligible_user()
+
+    topic_action = NotificationTopicAction.campaign__nudge
+    with notifications_session(token) as notifications:
+        notifications.SetNotificationSettings(
+            notifications_pb2.SetNotificationSettingsReq(
+                preferences=[
+                    notifications_pb2.SingleNotificationPreference(
+                        topic=topic_action.topic,
+                        action=topic_action.action,
+                        delivery_method="push",
+                        enabled=True,
+                    )
+                ],
+            )
+        )
+
+    run_user_email_campaigns(empty_pb2.Empty())
+    process_jobs()
+
+    push = push_collector.pop_for_user(user.id, last=True)
+    assert push.content.title == "Get ready to host a couch surfer"
+    assert push.content.action_url == urls.edit_home_link()
