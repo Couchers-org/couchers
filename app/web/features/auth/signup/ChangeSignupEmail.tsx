@@ -51,7 +51,6 @@ export default function ChangeSignupEmail() {
       resetForm();
       const state =  await service.auth.signupFlowChangeEmail(authState.flowState!.flowToken, lowercaseAndTrimField(newSignupEmail));
       authActions.updateSignupState(state);
-      // return state;
     },
     onSuccess: () => {
       setChangedEmail(true);
