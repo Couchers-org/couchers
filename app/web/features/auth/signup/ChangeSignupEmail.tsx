@@ -19,7 +19,7 @@ const StyledForm = styled("form")(({ theme }) => ({
   flexDirection: "column",
   gap: theme.spacing(1),
   alignItems: "flex-start",
-  width: "100%"
+  width: "100%",
 }));
 
 interface ChangeSignupEmailFormData {
@@ -34,13 +34,15 @@ export default function ChangeSignupEmail() {
 
   const { handleSubmit, register, reset: resetForm, watch } = useForm<ChangeSignupEmailFormData>();
   const newSignupEmail = watch("newSignupEmail", "");
-  const isSubmitDisabled = !newSignupEmail.trim() || (lowercaseAndTrimField(newSignupEmail) === lowercaseAndTrimField(authState.flowState!.email));
+  const isSubmitDisabled =
+    !newSignupEmail.trim() ||
+    lowercaseAndTrimField(newSignupEmail) === lowercaseAndTrimField(authState.flowState!.email);
 
   const onSubmit = handleSubmit(({ newSignupEmail }) => {
     const sanitizedEmail = lowercaseAndTrimField(newSignupEmail || "");
-    changeSignupEmail({ newSignupEmail: sanitizedEmail || ""});
+    changeSignupEmail({ newSignupEmail: sanitizedEmail || "" });
   });
-  
+
   const {
     error: changeSignupEmailError,
     isPending: isChangeSignupEmailLoading,
@@ -49,7 +51,10 @@ export default function ChangeSignupEmail() {
   } = useMutation<void, RpcError, ChangeSignupEmailFormData>({
     mutationFn: async ({ newSignupEmail }) => {
       resetForm();
-      const state =  await service.auth.signupFlowChangeEmail(authState.flowState!.flowToken, lowercaseAndTrimField(newSignupEmail));
+      const state = await service.auth.signupFlowChangeEmail(
+        authState.flowState!.flowToken,
+        lowercaseAndTrimField(newSignupEmail),
+      );
       authActions.updateSignupState(state);
     },
     onSuccess: () => {
