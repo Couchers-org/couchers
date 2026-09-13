@@ -1,4 +1,4 @@
-import { DialogProps } from "@mui/material";
+import { DialogProps, Link as MuiLink } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -6,6 +6,7 @@ import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } 
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
+import { helpCenterCommunityBuilderURL } from "routes";
 import { service } from "service";
 
 export default function RequestCommunityBuilderDialog({
@@ -29,7 +30,14 @@ export default function RequestCommunityBuilderDialog({
       </DialogTitle>
       <DialogContent>
         {requestMutation.error && <Alert severity="error">{requestMutation.error.message}</Alert>}
-        <DialogContentText>{t("communities:request_community_builder_dialog.message")}</DialogContentText>
+        <DialogContentText>
+          {t("communities:request_community_builder_dialog.message")}
+          <br />
+          <br />
+          <MuiLink href={helpCenterCommunityBuilderURL} target="_blank" rel="noreferrer noopener" underline="hover">
+            {t("communities:request_community_builder_dialog.link")}
+          </MuiLink>
+        </DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button onClick={() => requestMutation.mutate()} loading={requestMutation.isPending}>

@@ -32,6 +32,9 @@ const StyledActions = styled("div")(({ theme }) => ({
   alignItems: "center",
   gap: theme.spacing(1),
   flexWrap: "wrap",
+  [theme.breakpoints.down("sm")]: {
+    alignSelf: "center",
+  },
 }));
 
 const StyledBreadcrumbs = styled(Breadcrumbs)(({ theme }) => ({
