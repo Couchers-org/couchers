@@ -8,6 +8,7 @@ import WebEmbed from "@/components/WebEmbed";
 import { useAuthContext } from "@/features/auth/AuthContext";
 import { useImagePicker } from "@/hooks/useImagePicker";
 import { useWebNavigation } from "@/hooks/useWebNavigation";
+import { addToCalendar } from "@/utils/addToCalendar";
 
 const mockWebBaseUrl = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
 
@@ -28,6 +29,7 @@ jest.mock("@/features/auth/AuthContext", () => ({
 
 jest.mock("@/hooks/useImagePicker");
 jest.mock("@/hooks/useWebNavigation");
+jest.mock("@/utils/addToCalendar");
 
 // WebView mock - captures props and ref methods for test assertions
 const mockWebViewRef = {
@@ -321,37 +323,50 @@ describe("WebEmbed", () => {
       expect(mockAuthContext.setUserId).not.toHaveBeenCalled();
     });
 
-    it("handles OPEN_EXTERNAL_URL message by opening it in the device browser", () => {
-      const openURLSpy = jest.spyOn(Linking, "openURL").mockResolvedValue(true);
+    it("handles OPEN_CALENDAR_FILE message by writing and sharing the file", async () => {
+      const addToCalendarMock = addToCalendar as jest.MockedFunction<
+        typeof addToCalendar
+      >;
+      addToCalendarMock.mockResolvedValue(undefined);
 
       render(<WebEmbed path="/dashboard" />);
 
-      capturedWebViewProps.onMessage?.({
-        nativeEvent: {
-          data: JSON.stringify({
-            type: "OPEN_EXTERNAL_URL",
-            data: { url: "https://example.com" },
-          }),
-        },
+      await act(async () => {
+        capturedWebViewProps.onMessage?.({
+          nativeEvent: {
+            data: JSON.stringify({
+              type: "OPEN_CALENDAR_FILE",
+              data: {
+                base64: "QkVHSU46VkNBTEVOREFS",
+                filename: "event.ics",
+              },
+            }),
+          },
+        });
       });
 
-      expect(openURLSpy).toHaveBeenCalledWith("https://example.com");
+      expect(addToCalendarMock).toHaveBeenCalledWith(
+        "QkVHSU46VkNBTEVOREFS",
+        "event.ics",
+      );
     });
 
-    it("ignores OPEN_EXTERNAL_URL message with no url", () => {
-      const openURLSpy = jest.spyOn(Linking, "openURL").mockResolvedValue(true);
+    it("ignores OPEN_CALENDAR_FILE message with no base64 or filename", () => {
+      const addToCalendarMock = addToCalendar as jest.MockedFunction<
+        typeof addToCalendar
+      >;
 
       render(<WebEmbed path="/dashboard" />);
 
       expect(() => {
         capturedWebViewProps.onMessage?.({
           nativeEvent: {
-            data: JSON.stringify({ type: "OPEN_EXTERNAL_URL", data: {} }),
+            data: JSON.stringify({ type: "OPEN_CALENDAR_FILE", data: {} }),
           },
         });
       }).not.toThrow();
 
-      expect(openURLSpy).not.toHaveBeenCalled();
+      expect(addToCalendarMock).not.toHaveBeenCalled();
     });
   });
 
