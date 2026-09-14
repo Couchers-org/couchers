@@ -324,6 +324,14 @@ def create_session_cookies(token: str, user_id: str | int, expiry: datetime) -> 
     ]
 
 
+def delete_session_cookies() -> list[str]:
+    """
+    Creates cookies that remove our session cookies: an empty value that expires immediately clears them from the
+    browser.
+    """
+    return create_session_cookies("", "", now())
+
+
 def create_lang_cookie(lang: str) -> list[str]:
     return [
         _create_tasty_cookie("NEXT_LOCALE", lang, expiry=(now() + PREFERRED_LANGUAGE_COOKIE_EXPIRY), httponly=False)

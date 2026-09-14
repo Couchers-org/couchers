@@ -63,6 +63,7 @@ from couchers.tasks import (
 from couchers.utils import (
     create_coordinate,
     create_session_cookies,
+    delete_session_cookies,
     is_geom,
     is_valid_email,
     is_valid_name,
@@ -585,8 +586,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         log_event(context, session, "account.logout", {})
 
-        # set the cookie to an empty string and expire immediately, should remove it from the browser
-        context.set_cookies(create_session_cookies("", "", now()))
+        context.set_cookies(delete_session_cookies())
 
         return empty_pb2.Empty()
 

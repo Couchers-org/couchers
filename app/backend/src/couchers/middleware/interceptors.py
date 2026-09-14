@@ -51,6 +51,7 @@ from couchers.proto.annotations_pb2 import AuthLevel
 from couchers.utils import (
     create_lang_cookie,
     create_session_cookies,
+    delete_session_cookies,
     generate_sofa_cookie,
     parse_api_key,
     parse_session_cookie,
@@ -351,6 +352,8 @@ class AdmittedCall:
     sofa: str
     new_sofa_cookie: str | None
     localization: LocalizationContext
+    # the caller sent a session cookie that no longer authenticates anyone, so it needs clearing
+    stale_session: bool
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -362,6 +365,8 @@ class RejectedCall:
     user_id: int | None
     # set when setup broke rather than turned the call away, so the caller can report it
     exception: Exception | None
+    # the caller sent a session cookie that no longer authenticates anyone, so it needs clearing
+    stale_session: bool
 
 
 def admit_call(handler_call_details: grpc.HandlerCallDetails) -> AdmittedCall | RejectedCall:
@@ -372,6 +377,7 @@ def admit_call(handler_call_details: grpc.HandlerCallDetails) -> AdmittedCall | 
     resolved before it stopped, so the caller can log the call it never ran.
     """
     auth_info = None
+    stale_session = False
     try:
         headers = parse_headers(dict(handler_call_details.invocation_metadata))
 
@@ -388,6 +394,10 @@ def admit_call(handler_call_details: grpc.HandlerCallDetails) -> AdmittedCall | 
             headers.sofa,
             headers.client_platform,
         )
+
+        # a cookie that doesn't authenticate anyone leaves the browser looking logged in to the frontend, which
+        # can't read the httponly cookie to tell otherwise; clear it wherever the call ends up
+        stale_session = not auth_info and bool(headers.token) and not headers.is_api_key
 
         check_permissions(auth_info, auth_level)
 
@@ -410,10 +420,15 @@ def admit_call(handler_call_details: grpc.HandlerCallDetails) -> AdmittedCall | 
             message=COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE,
             user_id=None,
             exception=None,
+            stale_session=False,
         )
     except CallRejectedError as e:
         return RejectedCall(
-            code=e.code, message=e.msg, user_id=auth_info.user_id if auth_info else None, exception=None
+            code=e.code,
+            message=e.msg,
+            user_id=auth_info.user_id if auth_info else None,
+            exception=None,
+            stale_session=stale_session,
         )
     except Exception as e:
         return RejectedCall(
@@ -421,6 +436,7 @@ def admit_call(handler_call_details: grpc.HandlerCallDetails) -> AdmittedCall | 
             message=UNKNOWN_ERROR_MESSAGE,
             user_id=auth_info.user_id if auth_info else None,
             exception=e,
+            stale_session=stale_session,
         )
 
     return AdmittedCall(
@@ -429,6 +445,7 @@ def admit_call(handler_call_details: grpc.HandlerCallDetails) -> AdmittedCall | 
         sofa=sofa,
         new_sofa_cookie=new_sofa_cookie,
         localization=loc_context,
+        stale_session=stale_session,
     )
 
 
@@ -496,6 +513,11 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                     user_id=call.user_id,
                     exception=call.exception,
                 )
+                if call.stale_session:
+                    # abort() otherwise sends a trailers-only response, which carries no headers to clear with
+                    grpc_context.send_initial_metadata(
+                        tuple(("set-cookie", cookie) for cookie in delete_session_cookies())
+                    )
                 grpc_context.abort(call.code, call.message)
 
             observe_in_servicer_setup_histogram(method, read_perf())
@@ -580,6 +602,8 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                     )
                 if auth_info.ui_language_preference and auth_info.ui_language_preference != headers.ui_lang:
                     couchers_context.set_cookies(create_lang_cookie(auth_info.ui_language_preference))
+            elif call.stale_session:
+                couchers_context.set_cookies(delete_session_cookies())
 
             if call.new_sofa_cookie:
                 couchers_context.set_cookies([call.new_sofa_cookie])

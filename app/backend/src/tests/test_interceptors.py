@@ -1,9 +1,10 @@
-from collections.abc import Callable, Generator
+import http.cookies
+from collections.abc import Callable, Generator, Sequence
 from concurrent import futures
 from contextlib import contextmanager
 from datetime import timedelta
 from threading import current_thread
-from typing import Any
+from typing import Any, cast
 from unittest.mock import Mock, patch
 
 import grpc
@@ -1066,6 +1067,103 @@ def test_rejected_call_logged_bad_headers(db):
         # the headers couldn't be parsed, so nothing is known about the client
         assert trace.ip_address is None
         assert trace.user_agent is None
+
+
+SESSION_COOKIE_NAMES = ["couchers-sesh", "couchers-user-id"]
+
+
+def _session_cookies(initial_metadata: Sequence[tuple[str, str | bytes]]) -> dict[str, str]:
+    """
+    Pulls our session cookies out of a response's set-cookie headers, by name.
+    """
+    cookies = {}
+    for key, value in initial_metadata:
+        if key != "set-cookie" or not isinstance(value, str):
+            continue
+        for name, morsel in http.cookies.SimpleCookie(value).items():
+            if name in SESSION_COOKIE_NAMES:
+                cookies[name] = morsel.value
+    return cookies
+
+
+def _error_session_cookies(error: grpc.RpcError) -> dict[str, str]:
+    """
+    Same, for a call that was aborted: what grpc raises is also a grpc.Call, which carries the response headers.
+    """
+    return _session_cookies(cast(grpc.Call, error).initial_metadata())
+
+
+ACCOUNT_RPC_DEF = {
+    "rpc": Account().GetAccountInfo,
+    "service_name": "org.couchers.api.account.Account",
+    "method_name": "GetAccountInfo",
+    "interceptors": [CouchersMiddlewareInterceptor()],
+    "request_type": empty_pb2.Empty,
+    "response_type": account_pb2.GetAccountInfoRes,
+}
+
+
+def test_stale_session_cookie_cleared_on_open_call(db):
+    def TestRpc(request, context, session):
+        return empty_pb2.Empty()
+
+    with interceptor_dummy_api(TestRpc, interceptors=[CouchersMiddlewareInterceptor()]) as call_rpc:
+        _, call = cast("grpc.UnaryUnaryMultiCallable[empty_pb2.Empty, empty_pb2.Empty]", call_rpc).with_call(
+            empty_pb2.Empty(), metadata=(cookie_auth(random_hex(32)),)
+        )
+
+    assert _session_cookies(call.initial_metadata()) == {"couchers-sesh": "", "couchers-user-id": ""}
+
+
+def test_stale_session_cookie_cleared_on_rejected_call(db):
+    with interceptor_dummy_api(**ACCOUNT_RPC_DEF, creds=grpc.local_channel_credentials()) as call_rpc:
+        with pytest.raises(grpc.RpcError) as e:
+            call_rpc(empty_pb2.Empty(), metadata=(cookie_auth(random_hex(32)),))
+
+    assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
+    assert _error_session_cookies(e.value) == {"couchers-sesh": "", "couchers-user-id": ""}
+
+
+def test_deleted_user_session_cookie_cleared(db):
+    _, token = generate_user(delete_user=True)
+
+    with interceptor_dummy_api(**ACCOUNT_RPC_DEF, creds=grpc.local_channel_credentials()) as call_rpc:
+        with pytest.raises(grpc.RpcError) as e:
+            call_rpc(empty_pb2.Empty(), metadata=(cookie_auth(token),))
+
+    assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
+    assert _error_session_cookies(e.value) == {"couchers-sesh": "", "couchers-user-id": ""}
+
+
+def test_valid_session_cookie_not_cleared(db):
+    user, token = generate_user()
+
+    with interceptor_dummy_api(**ACCOUNT_RPC_DEF, creds=grpc.local_channel_credentials()) as call_rpc:
+        _, call = cast(
+            "grpc.UnaryUnaryMultiCallable[empty_pb2.Empty, account_pb2.GetAccountInfoRes]", call_rpc
+        ).with_call(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={token}; couchers-user-id={user.id}"),))
+
+    assert _session_cookies(call.initial_metadata()) == {}
+
+
+def test_jailed_user_session_cookie_not_cleared(db):
+    user, token = generate_user(accepted_tos=0)
+
+    with interceptor_dummy_api(**ACCOUNT_RPC_DEF, creds=grpc.local_channel_credentials()) as call_rpc:
+        with pytest.raises(grpc.RpcError) as e:
+            call_rpc(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={token}; couchers-user-id={user.id}"),))
+
+    assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
+    assert _error_session_cookies(e.value) == {}
+
+
+def test_bad_api_key_sets_no_session_cookies(db):
+    with interceptor_dummy_api(**ACCOUNT_RPC_DEF, creds=grpc.local_channel_credentials()) as call_rpc:
+        with pytest.raises(grpc.RpcError) as e:
+            call_rpc(empty_pb2.Empty(), metadata=(api_auth(random_hex(32)),))
+
+    assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
+    assert _error_session_cookies(e.value) == {}
 
 
 def test_parse_headers_with_session_cookie():
