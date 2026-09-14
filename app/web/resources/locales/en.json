@@ -91,6 +91,7 @@
     "bug": {
       "button_label": "Report a technical problem",
       "warning_message": "The information you provide in this form, as well as diagnostic information including the page you are on, your browser and your username will be recorded for our team to review.",
+      "no_response_note": "<strong>You will not get a response.</strong> If you need support, please contact <supportLink>support@couchers.org</supportLink>.",
       "title_label": "Report title",
       "problem_label": "How did you encounter the problem?",
       "problem_helper": "Describe the steps you took: which pages you were on, what you clicked on, etc.",
