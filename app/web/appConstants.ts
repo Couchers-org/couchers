@@ -18,3 +18,6 @@ export const grpcErrorStrings = {
 export type ObscureGrpcErrorMessages = keyof typeof grpcErrorStrings;
 
 export const sessionCookieName = "couchers-sesh";
+// Set by the backend alongside the session cookie, with the same expiry, but readable from javascript
+// so the frontend can tell whether the browser still has a live session.
+export const userIdCookieName = "couchers-user-id";
