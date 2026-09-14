@@ -1,3 +1,4 @@
+import { useFeatureValue } from "@growthbook/growthbook-react";
 import { Chip, List, styled } from "@mui/material";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
@@ -26,7 +27,6 @@ import useOnVisibleEffect from "utils/useOnVisibleEffect";
 import useNotifications from "../useNotifications";
 
 const PAGE_SIZE = 25;
-const isPublicTripsEnabled = process.env.NODE_ENV !== "production";
 
 const StyledWrapper = styled("div")(() => ({
   padding: theme.spacing(0, 2),
@@ -95,6 +95,7 @@ export default function AllMessagesTab() {
   const { t } = useTranslation(MESSAGES);
   const router = useRouter();
   const { data: notifications } = useNotifications();
+  const isPublicTripsEnabled = useFeatureValue("public_trips_enabled", false);
 
   useMessageListsAutoRefetch();
 
