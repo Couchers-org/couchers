@@ -1,4 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { userIdCookieName } from "appConstants";
 import { userKey } from "features/queryKeys";
 import { StatusCode } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -10,6 +11,7 @@ import { AuthRes, SignupFlowRes } from "proto/auth_pb";
 import { useMemo, useRef, useState } from "react";
 import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
+import { getCookie } from "utils/cookies";
 
 /**
  * Sync the NEXT_LOCALE cookie with the user's language preference from the backend
@@ -19,13 +21,7 @@ async function syncLanguagePreference() {
     const accountInfo = await service.account.getAccountInfo();
     const userLanguage = accountInfo.uiLanguagePreference;
 
-    const currentCookieLocale =
-      typeof document !== "undefined"
-        ? document.cookie
-            .split("; ")
-            .find((row) => row.startsWith("NEXT_LOCALE="))
-            ?.split("=")[1]
-        : null;
+    const currentCookieLocale = getCookie("NEXT_LOCALE");
 
     // Only update cookie if user has a valid language preference and it differs from current cookie
     if (userLanguage && allLanguages.includes(userLanguage) && userLanguage !== currentCookieLocale) {
@@ -42,10 +38,21 @@ async function syncLanguagePreference() {
   }
 }
 
+function sessionUserIdFromCookie(): number | null {
+  const value = getCookie(userIdCookieName);
+  if (!value) return null;
+
+  const userId = Number(value);
+  return Number.isInteger(userId) && userId > 0 ? userId : null;
+}
+
 export default function useAuthStore() {
-  const [authenticated, setAuthenticated] = usePersistedState("auth.authenticated", false);
+  // localStorage can be cleared while the session cookie lives on, so a missing record is not proof of being
+  // signed out. An explicit logout writes `false`, which still wins over this.
+  const sessionUserId = sessionUserIdFromCookie();
+  const [authenticated, setAuthenticated] = usePersistedState("auth.authenticated", sessionUserId !== null);
   const [jailed, setJailed] = usePersistedState("auth.jailed", false);
-  const [userId, setUserId] = usePersistedState<number | null>("auth.userId", null);
+  const [userId, setUserId] = usePersistedState<number | null>("auth.userId", sessionUserId);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [flowState, setFlowState] = usePersistedState<SignupFlowRes.AsObject | null>("auth.flowState", null);

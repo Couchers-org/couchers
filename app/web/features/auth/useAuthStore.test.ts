@@ -1,5 +1,6 @@
 import { captureException } from "@sentry/nextjs";
 import { act, renderHook } from "@testing-library/react";
+import { userIdCookieName } from "appConstants";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { StatusCode } from "grpc-web";
 import { useClearablePersistedState } from "platform/usePersistedState";
@@ -21,6 +22,22 @@ const getIsJailedMock = service.jail.getIsJailed as jest.Mock;
 const logoutMock = service.user.logout as jest.Mock;
 const getAccountInfoMock = service.account.getAccountInfo as jest.Mock;
 const captureExceptionMock = captureException as jest.Mock;
+
+// One jar for the whole file: a test that swaps out document.cookie otherwise leaks into every test after it.
+let cookies = "";
+let cookieSetter: jest.Mock;
+
+beforeEach(() => {
+  cookies = "";
+  cookieSetter = jest.fn((value: string) => {
+    cookies = value;
+  });
+  Object.defineProperty(document, "cookie", {
+    get: () => cookies,
+    set: cookieSetter,
+    configurable: true,
+  });
+});
 
 describe("useClearablePersistedState hook", () => {
   it("uses a default value", () => {
@@ -116,15 +133,6 @@ describe("passwordLogin action", () => {
     getUserMock.mockResolvedValue(defaultUser);
     getAccountInfoMock.mockResolvedValue({ uiLanguagePreference: "es" });
 
-    // Mock document.cookie getter and setter
-    const cookieGetter = jest.fn(() => "");
-    const cookieSetter = jest.fn();
-    Object.defineProperty(document, "cookie", {
-      get: cookieGetter,
-      set: cookieSetter,
-      configurable: true,
-    });
-
     const { result } = renderHook(() => useAuthStore(), { wrapper });
 
     await act(() =>
@@ -143,14 +151,7 @@ describe("passwordLogin action", () => {
     getUserMock.mockResolvedValue(defaultUser);
     getAccountInfoMock.mockResolvedValue({ uiLanguagePreference: "fr" });
 
-    // Mock document.cookie with existing NEXT_LOCALE=fr
-    const cookieGetter = jest.fn(() => "NEXT_LOCALE=fr");
-    const cookieSetter = jest.fn();
-    Object.defineProperty(document, "cookie", {
-      get: cookieGetter,
-      set: cookieSetter,
-      configurable: true,
-    });
+    cookies = "NEXT_LOCALE=fr";
 
     const { result } = renderHook(() => useAuthStore(), { wrapper });
 
@@ -278,15 +279,6 @@ describe("firstLogin action", () => {
   it("sets NEXT_LOCALE cookie from user's language preference on first login", async () => {
     getAccountInfoMock.mockResolvedValue({ uiLanguagePreference: "de" });
 
-    // Mock document.cookie
-    const cookieGetter = jest.fn(() => "");
-    const cookieSetter = jest.fn();
-    Object.defineProperty(document, "cookie", {
-      get: cookieGetter,
-      set: cookieSetter,
-      configurable: true,
-    });
-
     const { result } = renderHook(() => useAuthStore(), { wrapper });
 
     await act(() =>
@@ -376,5 +368,46 @@ describe("updateJailStatus action", () => {
     await act(() => result.current.authActions.updateJailStatus());
     expect(result.current.authState.jailed).toBe(false);
     expect(result.current.authState.authenticated).toBe(true);
+  });
+});
+
+describe("session cookie fallback", () => {
+  it("signs in from the session cookie when localStorage has been cleared", () => {
+    cookies = `${userIdCookieName}=42`;
+    const { result } = renderHook(() => useAuthStore(), { wrapper });
+    expect(result.current.authState.authenticated).toBe(true);
+    expect(result.current.authState.userId).toBe(42);
+  });
+
+  it("stays signed out when there is no session cookie", () => {
+    const { result } = renderHook(() => useAuthStore(), { wrapper });
+    expect(result.current.authState.authenticated).toBe(false);
+    expect(result.current.authState.userId).toBeNull();
+  });
+
+  it("ignores a malformed session cookie", () => {
+    cookies = `${userIdCookieName}=not-a-user-id`;
+    const { result } = renderHook(() => useAuthStore(), { wrapper });
+    expect(result.current.authState.authenticated).toBe(false);
+    expect(result.current.authState.userId).toBeNull();
+  });
+
+  it("doesn't undo an explicit logout", async () => {
+    logoutMock.mockResolvedValue(new Empty());
+    addDefaultUser();
+    cookies = `${userIdCookieName}=${defaultUser.userId}`;
+    const { result } = renderHook(() => useAuthStore(), { wrapper });
+    await act(() => result.current.authActions.logout());
+    expect(result.current.authState.authenticated).toBe(false);
+
+    const { result: afterReload } = renderHook(() => useAuthStore(), { wrapper });
+    expect(afterReload.current.authState.authenticated).toBe(false);
+  });
+
+  it("stays signed in when the cookie isn't readable", () => {
+    addDefaultUser();
+    const { result } = renderHook(() => useAuthStore(), { wrapper });
+    expect(result.current.authState.authenticated).toBe(true);
+    expect(result.current.authState.userId).toBe(defaultUser.userId);
   });
 });
