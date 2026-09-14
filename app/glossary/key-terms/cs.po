@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "PO-Revision-Date: 2026-09-14 22:41+0000\n"
-"Last-Translator: Daniel Brvnišťan <daniel.brvnistan@gmail.com>\n"
+"Last-Translator: Tom Rohlik <ostatni@rohlik.xyz>\n"
 "Language-Team: Czech <https://translate.couchershq.org/projects/couchers/glossary-key-terms/cs/>\n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
@@ -187,19 +187,16 @@ msgid "donations"
 msgstr "příspěvky"
 
 #. (noun) A reference from a friend.
-#, fuzzy
 msgid "friend_reference"
-msgstr "reference_přítele"
+msgstr "reference přítele"
 
 #. (noun) A named thread for messages between three or more users.
-#, fuzzy
 msgid "group_chat"
-msgstr "skupinový_chat"
+msgstr "skupinový chat"
 
 #. (noun) A named thread for messages between three or more users.
-#, fuzzy
 msgid "group_chats"
-msgstr "skupinové_chaty"
+msgstr "skupinové chaty"
 
 #. (noun) The https://help.couchers.org website.
 msgid "help_center"
