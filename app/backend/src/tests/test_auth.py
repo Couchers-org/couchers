@@ -42,7 +42,7 @@ from tests.fixtures.sessions import (
 
 
 @pytest.fixture(autouse=True)
-def _(testconfig, fast_passwords):
+def _(fast_passwords):
     pass
 
 

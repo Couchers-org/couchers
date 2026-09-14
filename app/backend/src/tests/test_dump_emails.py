@@ -10,7 +10,7 @@ from pathlib import Path
 from couchers.email.dump_emails import dump_all
 
 
-def test_dump_email_samples(testconfig):
+def test_dump_email_samples():
     output_path = Path(__file__).resolve().parents[2] / "test_artifacts" / "emails"
     rendered = dump_all(output_path)
 

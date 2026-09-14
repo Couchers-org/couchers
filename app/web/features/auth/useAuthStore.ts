@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { userKey } from "features/queryKeys";
+import { StatusCode } from "grpc-web";
 import { useTranslation } from "i18n";
 import { allLanguages } from "i18n/allLanguages";
 import { GLOBAL } from "i18n/namespaces";
@@ -125,12 +126,15 @@ export default function useAuthStore() {
             );
           }
         } catch (e) {
-          Sentry.captureException(e, {
-            tags: {
-              component: "auth/useAuthStore",
-              action: "passwordLogin",
-            },
-          });
+          // Wrong password / account not found are normal login outcomes, not bugs - don't spam Sentry with them
+          if (!(isGrpcError(e) && e.code === StatusCode.NOT_FOUND)) {
+            Sentry.captureException(e, {
+              tags: {
+                component: "auth/useAuthStore",
+                action: "passwordLogin",
+              },
+            });
+          }
           setError(isGrpcError(e) ? e.message : fatalErrorMessage.current);
         }
         setLoading(false);

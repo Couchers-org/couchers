@@ -9,13 +9,10 @@
   "load_more": "Carrega'n més",
   "welcome": "Benvingut a Couchers.org!",
   "new_pill": "Nou",
-  "your_communities_helper_text": "T'han afegit a totes les comunitats basant-se en la teva ubicació. Pots <browseCommunitiesLink>explorar comunitats</browseCommunitiesLink> en altres ubicacions.",
-  "communities_welcome_title": "Benvingut a les Comunitats",
-  "community_builder": "Vols ser un ambaixador de la teva comunitat i ajudar-la a créixer? Sigues un <communityBuilderLink>Impulsor de Comunitat!</communityBuilderLink>",
+  "community_builder": "Vols ser un ambaixador de la teva comunitat i ajudar-la a créixer? Sigues un <1>Impulsor de Comunitat!</1>",
   "communities_intro": "Per ajudar persones de tot el món a organitzar esdeveniments, debats i trobades localment, hem creat pàgines de comunitat, que es llisten a continuació. <strong>T'han afegit automàticament a algunes comunitats basant-se en la teva ubicació, però pots unir-te a qualsevol comunitat!</strong> Les teves comunitats apareixen al tauler.",
   "find_your_community": "Troba la teva comunitat",
-  "find_your_community_intro": "A continuació pots cercar o explorar totes les pàgines de comunitat que existeixen fins ara. Falta el teu país o ciutat? <requestCommunityLink>Fes servir aquest formulari</requestCommunityLink> per sol·licitar-ho!",
-  "find_your_community_intro_simplified": "Cerca la teva comunitat o explora a continuació. <requestCommunityLink>No la trobes? Sol·licita-la!</requestCommunityLink>",
+  "find_your_community_intro_simplified": "Cerca la teva comunitat o explora a continuació. <1>No la trobes? Sol·licita-la!</1>",
   "browse_communities": "Explora les comunitats",
   "browse_all_communities": "Explora totes les comunitats",
   "browse_communities_text": "Fes clic al nom d'una regió per veure les altres comunitats que hi ha dins a continuació. Fes clic a l'enllaç per anar a la pàgina de la comunitat d'aquella ciutat o regió.",
@@ -30,5 +27,5 @@
   "search_input_placeholder": "Cerca una ubicació",
   "show_map": "Mostra el mapa",
   "hero_image_alt": "Globus aerostàtics a Capadòcia",
-  "hero_image_attribution": "Foto de <photographerLink>Mesut Kaya</photographerLink> a <unsplashLink>Unsplash</unsplashLink>"
+  "hero_image_attribution": "Foto de <1>Mesut Kaya</1> a <3>Unsplash</3>"
 }

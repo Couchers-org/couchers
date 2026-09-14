@@ -5,7 +5,6 @@ from urllib.parse import parse_qs, urlparse
 import pytest
 from sqlalchemy import func, select, update
 
-import couchers.jobs.handlers
 from couchers.config import config
 from couchers.context import make_background_user_context, make_logged_out_context
 from couchers.crypto import b64decode, random_hex, urlsafe_secure_token
@@ -43,11 +42,6 @@ from tests.fixtures.sessions import (
     real_editor_session,
 )
 from tests.test_communities import create_community
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
 
 
 def test_signup_verification_email(db, email_collector: EmailCollector):
@@ -386,13 +380,10 @@ def test_email_prefix_config(db, email_collector: EmailCollector):
     assert email2.subject == "Thank you for your donation to Couchers.org!"
 
 
-def test_send_donation_email(db, monkeypatch):
+def test_send_donation_email(db):
     user, _ = generate_user(name="Testy von Test", email="testing@couchers.org.invalid")
 
-    new_config = config.copy()
-    new_config.ENABLE_EMAIL = True
-
-    monkeypatch.setattr(couchers.jobs.handlers, "config", new_config)
+    config.ENABLE_EMAIL = True
 
     with session_scope() as session:
         notify(
