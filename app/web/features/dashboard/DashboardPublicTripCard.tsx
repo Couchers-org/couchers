@@ -62,6 +62,8 @@ const TextBlock = styled("div")({
 });
 
 const DescriptionText = styled(Typography)(({ theme }) => ({
+  // Keep the author's line breaks, same as the full card.
+  whiteSpace: "pre-line",
   fontSize: 12,
   color: "var(--mui-palette-text-secondary)",
   overflow: "hidden",

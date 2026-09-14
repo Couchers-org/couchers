@@ -28,7 +28,7 @@ import { PUBLIC_TRIPS } from "i18n/namespaces";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { PublicTripStatus } from "proto/public_trips_pb";
-import { useCallback, useState } from "react";
+import { useEffect, useState } from "react";
 import { routeToCommunity, routeToHostRequest, routeToPublicTripOffers, routeToUser } from "routes";
 import { Temporal } from "temporal-polyfill";
 import { useIsNativeEmbed } from "utils/nativeLink";
@@ -132,6 +132,9 @@ const MetaItem = styled("div")(({ theme }) => ({
 const Description = styled(Typography, {
   shouldForwardProp: (prop) => prop !== "expanded",
 })<{ expanded: boolean }>(({ expanded, theme }) => ({
+  // Descriptions come from a plain textarea, so keep the author's line breaks
+  // (outside the clamp block so they survive expanding too).
+  whiteSpace: "pre-line",
   ...(!expanded && {
     display: "-webkit-box",
     WebkitLineClamp: 3,
@@ -151,11 +154,18 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
   } = useTranslation([PUBLIC_TRIPS]);
   const [expanded, setExpanded] = useState(false);
   const [isOverflowing, setIsOverflowing] = useState(false);
-  const descriptionRef = useCallback((node: HTMLElement | null) => {
-    if (node) {
-      setIsOverflowing(node.scrollHeight > node.clientHeight);
-    }
-  }, []);
+  const [descriptionEl, setDescriptionEl] = useState<HTMLElement | null>(null);
+  // Whether the clamped text overflows depends on layout, so re-measure on any
+  // resize (width changes, late-loading fonts) rather than once on mount.
+  // Skipped while expanded: the clamp is off then, so nothing ever overflows.
+  useEffect(() => {
+    if (!descriptionEl || expanded) return;
+    const measure = () => setIsOverflowing(descriptionEl.scrollHeight > descriptionEl.clientHeight);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(descriptionEl);
+    return () => observer.disconnect();
+  }, [descriptionEl, expanded, trip.description]);
   const [showIncompleteDialog, setShowIncompleteDialog] = useState(false);
   const [showOfferDialog, setShowOfferDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -362,7 +372,7 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
             </MetaRow>
             <Description
               variant="body1"
-              ref={descriptionRef}
+              ref={setDescriptionEl}
               expanded={expanded}
               onClick={isOverflowing || expanded ? () => setExpanded((e) => !e) : undefined}
               sx={{ cursor: isOverflowing || expanded ? "pointer" : "default" }}
