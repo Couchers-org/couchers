@@ -2421,10 +2421,10 @@
   dependencies:
     "@sinonjs/commons" "^3.0.1"
 
-"@stripe/stripe-js@^9.13.0":
-  version "9.13.0"
-  resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-9.13.0.tgz#2d499bf023f7da107762d826440ea2471f1c1425"
-  integrity sha512-/0c72BUgzzVkVTlsw5uBn8x3waTdVJ/PZGfQ6jY1eu6K7olUPf4d9lgDPA9/0sIdsR8j7o3QIG8fOCO6ItcL7A==
+"@stripe/stripe-js@^9.16.0":
+  version "9.16.0"
+  resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-9.16.0.tgz#6de20ff7af39a77c7338a1ef1026f8a245cb53e3"
+  integrity sha512-PNZmy9hbuiuiyjAsigMlQChzJqrNEzQUtYIL/z5w0dsx27Ha69SBTYa2o8/M0Hbfiz9V2qctqX2DBd5sa57qoA==
 
 "@swc/helpers@0.5.15":
   version "0.5.15"
