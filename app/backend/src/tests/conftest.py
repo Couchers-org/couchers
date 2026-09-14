@@ -321,6 +321,7 @@ def _testconfig() -> Generator[None]:
     config.STRIPE_API_KEY = ""
     config.STRIPE_WEBHOOK_SECRET = ""
     config.STRIPE_RECURRING_PRODUCT_ID = ""
+    config.STRIPE_YEARLY_RECURRING_PRODUCT_ID = ""
 
     config.IRIS_ID_PUBKEY = ""
     config.IRIS_ID_SECRET = ""

@@ -112,6 +112,7 @@
     "invalid_diagnostics_json": "Invalid JSON in diagnostic event properties.",
     "invalid_date": "Invalid date.",
     "invalid_delivery_method": "Invalid delivery method.",
+    "invalid_donation_frequency": "Invalid donation frequency.",
     "invalid_email": "Invalid email.",
     "invalid_endpoint": "Invalid push notification endpoint.",
     "invalid_event_start_end_datetime": "Invalid event start or end date and time.",
