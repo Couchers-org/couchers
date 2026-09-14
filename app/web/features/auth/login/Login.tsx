@@ -47,6 +47,7 @@ export default function Login() {
 
   useEffect(() => {
     if (authenticated) {
+      // Get the NEXT_LOCALE cookie to use the user's preferred language
       const nextLocale = getCookie(LOCALE_COOKIE_NAME);
 
       const targetLocale = nextLocale || router.locale || DEFAULT_LOCALE;
