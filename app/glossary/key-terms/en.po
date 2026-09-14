@@ -274,11 +274,11 @@ msgstr "chats"
 
 #. (noun) A named thread for messages between three or more users.
 msgid "group_chat"
-msgstr "group_chat"
+msgstr "group chat"
 
 #. (noun) A named thread for messages between three or more users.
 msgid "group_chats"
-msgstr "group_chats"
+msgstr "group chats"
 
 
 
@@ -384,7 +384,7 @@ msgstr "references"
 
 #. (noun) A reference from a friend.
 msgid "friend_reference"
-msgstr "friend_reference"
+msgstr "friend reference"
 
 
 
