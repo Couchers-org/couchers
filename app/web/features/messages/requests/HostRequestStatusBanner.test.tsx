@@ -190,3 +190,25 @@ describe("HostRequestStatusBanner — surfer view", () => {
     expect(container).toBeEmptyDOMElement();
   });
 });
+
+// An offer has its own respond card and title, so the quick banner must stay out
+// of the way for both parties.
+describe("HostRequestStatusBanner — public-trip offer", () => {
+  it.each([
+    ["offering host", true],
+    ["travelling surfer", false],
+  ])("renders nothing for the %s", (_name, isHost) => {
+    const { container } = render(
+      <HostRequestStatusBanner
+        {...defaultCallbacks}
+        isHost={isHost}
+        isOffer
+        hostName={HOST_NAME}
+        status={HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED}
+      />,
+      { wrapper },
+    );
+
+    expect(container).toBeEmptyDOMElement();
+  });
+});

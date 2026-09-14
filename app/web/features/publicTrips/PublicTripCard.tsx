@@ -16,6 +16,7 @@ import {
   VisibilityIcon,
 } from "components/Icons";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
+import ProfileLink from "components/ProfileLink/ProfileLink";
 import StyledLink from "components/StyledLink";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAccountInfo from "features/auth/useAccountInfo";
@@ -25,11 +26,11 @@ import { useTranslation } from "i18n";
 import { localizeDateRange } from "i18n/datetimes";
 import { PUBLIC_TRIPS } from "i18n/namespaces";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { PublicTripStatus } from "proto/public_trips_pb";
-import { useCallback, useState } from "react";
-import { routeToCommunity, routeToHostRequest, routeToUser } from "routes";
+import { useEffect, useState } from "react";
+import { routeToCommunity, routeToHostRequest, routeToPublicTripOffers, routeToUser } from "routes";
 import { Temporal } from "temporal-polyfill";
-import dayjs from "utils/dayjs";
 import { useIsNativeEmbed } from "utils/nativeLink";
 
 import OfferToHostDialog from "./OfferToHostDialog";
@@ -131,6 +132,9 @@ const MetaItem = styled("div")(({ theme }) => ({
 const Description = styled(Typography, {
   shouldForwardProp: (prop) => prop !== "expanded",
 })<{ expanded: boolean }>(({ expanded, theme }) => ({
+  // Descriptions come from a plain textarea, so keep the author's line breaks
+  // (outside the clamp block so they survive expanding too).
+  whiteSpace: "pre-line",
   ...(!expanded && {
     display: "-webkit-box",
     WebkitLineClamp: 3,
@@ -150,11 +154,18 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
   } = useTranslation([PUBLIC_TRIPS]);
   const [expanded, setExpanded] = useState(false);
   const [isOverflowing, setIsOverflowing] = useState(false);
-  const descriptionRef = useCallback((node: HTMLElement | null) => {
-    if (node) {
-      setIsOverflowing(node.scrollHeight > node.clientHeight);
-    }
-  }, []);
+  const [descriptionEl, setDescriptionEl] = useState<HTMLElement | null>(null);
+  // Whether the clamped text overflows depends on layout, so re-measure on any
+  // resize (width changes, late-loading fonts) rather than once on mount.
+  // Skipped while expanded: the clamp is off then, so nothing ever overflows.
+  useEffect(() => {
+    if (!descriptionEl || expanded) return;
+    const measure = () => setIsOverflowing(descriptionEl.scrollHeight > descriptionEl.clientHeight);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(descriptionEl);
+    return () => observer.disconnect();
+  }, [descriptionEl, expanded, trip.description]);
   const [showIncompleteDialog, setShowIncompleteDialog] = useState(false);
   const [showOfferDialog, setShowOfferDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -162,6 +173,7 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
   const { data: accountInfo } = useAccountInfo();
   const { authState } = useAuthContext();
   const isNativeEmbed = useIsNativeEmbed();
+  const router = useRouter();
   const { mutate: updateTrip } = useUpdatePublicTrip();
   const isOwnTrip = trip.user?.userId === authState.userId;
 
@@ -176,7 +188,7 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
   const handleMenuClose = () => setMenuAnchorEl(null);
 
   const isClosed = trip.status === PublicTripStatus.PUBLIC_TRIP_STATUS_CLOSED;
-  const isPast = dayjs(trip.toDate).isBefore(dayjs().startOf("day"));
+  const isPast = Temporal.PlainDate.compare(Temporal.PlainDate.from(trip.toDate), Temporal.Now.plainDateISO()) < 0;
   const isDimmed = isClosed || isPast;
   const showOwnMarker = isOwnTrip && !ownerView;
 
@@ -226,6 +238,15 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
           >
             {(setConfirmOpen) => {
               const menuItems: EllipsisMenuItem[] = [
+                ...(trip.offersCount && (trip.offersCount ?? 0) > 0
+                  ? [
+                      {
+                        icon: WavingHandOutlined,
+                        label: t("publicTrips:view_offers"),
+                        onClick: () => router.push(routeToPublicTripOffers(trip.tripId)),
+                      },
+                    ]
+                  : []),
                 {
                   icon: EditIcon,
                   label: t("publicTrips:edit"),
@@ -351,7 +372,7 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
             </MetaRow>
             <Description
               variant="body1"
-              ref={descriptionRef}
+              ref={setDescriptionEl}
               expanded={expanded}
               onClick={isOverflowing || expanded ? () => setExpanded((e) => !e) : undefined}
               sx={{ cursor: isOverflowing || expanded ? "pointer" : "default" }}
@@ -396,17 +417,23 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
                     )}
                     {isOwnTrip && (
                       <Box
-                        component="span"
+                        component={(trip.offersCount ?? 0) > 0 ? Link : "span"}
+                        href={(trip.offersCount ?? 0) > 0 ? routeToPublicTripOffers(trip.tripId) : undefined}
                         sx={{
                           display: "inline-flex",
                           alignItems: "center",
                           gap: "3px",
                           fontSize: "0.8125rem",
                           fontWeight: 700,
+                          textDecoration: "none",
                           color:
                             (trip.offersCount ?? 0) > 0
                               ? "var(--mui-palette-primary-main)"
                               : "var(--mui-palette-text-secondary)",
+                          ...((trip.offersCount ?? 0) > 0 && {
+                            cursor: "pointer",
+                            "&:hover": { textDecoration: "underline" },
+                          }),
                         }}
                       >
                         {(trip.offersCount ?? 0) > 0 ? (
@@ -424,9 +451,9 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
                   </Box>
                 ) : (
                   <>
-                    <StyledLink href={routeToUser(user.username)} target={isNativeEmbed ? undefined : "_blank"}>
+                    <ProfileLink userId={user.userId} username={user.username} openInNewTab={!isNativeEmbed}>
                       {t("publicTrips:view_profile")}
-                    </StyledLink>
+                    </ProfileLink>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                       <FlagButton contentRef={contentRefs.publicTrip(trip)} authorUser={user.userId} />
                       {alreadyOffered ? (
