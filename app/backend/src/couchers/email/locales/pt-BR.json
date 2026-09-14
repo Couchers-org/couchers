@@ -246,7 +246,10 @@
   "moderator_note": {
     "view_action": "Visualizar mensagem de moderador",
     "subject": "Você recebeu a mensagem de um moderador",
-    "purpose": "Você recebeu uma mensagem importante dos moderadors. Você deve lê-la e aceitá-la antes de continuar a usar a plataforma."
+    "purpose": "Você recebeu uma mensagem importante dos moderadors. Você deve lê-la e aceitá-la antes de continuar a usar a plataforma.",
+    "purpose_with_note": "Você recebeu uma mensagem importante dos moderadores:",
+    "acknowledge_request": "Você deve ler e aceitar esta mensagem antes de continuar usando a plataforma.",
+    "reply_instructions": "Você pode responder à equipe de moderação respondendo a este e-mail."
   },
   "references": {
     "received": {

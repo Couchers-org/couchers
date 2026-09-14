@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-09-11 16:05+0000\n"
+"PO-Revision-Date: 2026-09-14 17:41+0000\n"
 "Last-Translator: Tristan Labelle <couchers@tristanlabelle.com>\n"
 "Language-Team: French <https://translate.couchershq.org/projects/couchers/glossary-language-specific/fr/>\n"
 "Language: fr\n"
@@ -23,4 +23,4 @@ msgid "camera"
 msgstr "appareil photo"
 
 msgid "email"
-msgstr "email"
+msgstr "e-mail"
