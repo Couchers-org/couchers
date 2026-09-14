@@ -1,5 +1,5 @@
 """
-Renders every email in every locale with dummy data, as a smoke test that they all build.
+Renders sample emails for visual inspection.
 
 Output is written to test_artifacts/emails/ (gitignored) and picked up by CI, which
 publishes the browsable index.html to the preview environment.
