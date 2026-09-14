@@ -19,8 +19,7 @@ let replay: { stop: jest.Mock };
 beforeEach(() => {
   replay = { stop: jest.fn(() => Promise.resolve()) };
   mockedSentry.replayIntegration.mockReturnValue(INTEGRATION);
-  // Model the real SDK: getReplay() is empty until the integration is added, and keeps
-  // returning it afterwards - including after a stop().
+  // As in the real SDK, getReplay() is empty until the integration is added, then stays set.
   mockedSentry.getReplay.mockReturnValue(undefined);
   mockedSentry.addIntegration.mockImplementation(() => mockedSentry.getReplay.mockReturnValue(replay));
 });
@@ -29,8 +28,7 @@ function payload(value?: boolean): { features: FeatureApiResponse["features"] } 
   return { features: value === undefined ? {} : { [FLAG]: { defaultValue: value } } };
 }
 
-// Flags are flipped through one live GrowthBook instance, the way a rollout change reaches a
-// page that's already open.
+// One live instance, so setFlag reaches the component the way a rollout change reaches an open page.
 function renderWithFlag(enabled?: boolean) {
   const growthbook = new GrowthBook();
   growthbook.initSync({ payload: payload(enabled) });
