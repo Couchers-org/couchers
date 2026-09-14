@@ -127,5 +127,10 @@
     "missing_event_address_or_location": "Chybějící adresa nebo lokace události.",
     "missing_event_title": "Chybějící název události.",
     "too_many_sms_code_attempts": "Příliš mnoho pokusů o zadání SMS kódu."
+  },
+  "badges": {
+    "postal_verified_name": "Ověřená adresa",
+    "postal_verified_description": "Adresa tohoto uživatele byla ověřena pomocí fyzické pohlednice",
+    "strong_verification_name": "Silné ověření"
   }
 }
