@@ -690,6 +690,11 @@ signup_time_histogram: Histogram = Histogram(
     buckets=(30, 60, 90, 120, 180, 240, 300, 360, 420, 480, 540, 600, 900, 1200, 1800, 3600, 7200, _INF),
 )
 
+signup_email_changes_counter: Counter = Counter(
+    "couchers_signup_email_changes_total",
+    "Number of times email is changed during signup",
+)
+
 logins_counter: Counter = Counter(
     "couchers_logins_total",
     "Number of logins",

@@ -121,11 +121,13 @@ describe("MarkAllReadButton", () => {
 });
 
 //id must = array index + 1
+// unseenMessageCount drives unread state (the server scopes it); only item 2 is unread.
 const defaultChats: GroupChat.AsObject[] = [
   {
     ...chat,
     groupChatId: 1,
     lastSeenMessageId: 1,
+    unseenMessageCount: 0,
     latestMessage: { ...messages[0], messageId: 1 },
     isArchived: false,
   },
@@ -133,6 +135,7 @@ const defaultChats: GroupChat.AsObject[] = [
     ...chat,
     groupChatId: 2,
     lastSeenMessageId: 1,
+    unseenMessageCount: 1,
     latestMessage: { ...messages[0], messageId: 2 },
     isArchived: false,
   },
@@ -140,6 +143,7 @@ const defaultChats: GroupChat.AsObject[] = [
     ...chat,
     groupChatId: 3,
     lastSeenMessageId: 4,
+    unseenMessageCount: 0,
     latestMessage: { ...messages[0], messageId: 3 },
     isArchived: false,
   },
@@ -150,6 +154,7 @@ const defaultRequests: HostRequest.AsObject[] = [
     ...request,
     hostRequestId: 1,
     lastSeenMessageId: 1,
+    unseenMessageCount: 0,
     latestMessage: { ...messages[0], messageId: 1 },
     hostingCity: "Los Angeles",
     hostingLat: 34.0522,
@@ -162,6 +167,7 @@ const defaultRequests: HostRequest.AsObject[] = [
     ...request,
     hostRequestId: 2,
     lastSeenMessageId: 1,
+    unseenMessageCount: 1,
     latestMessage: { ...messages[0], messageId: 2 },
     hostingCity: "San Francisco",
     hostingLat: 37.7749,
@@ -174,6 +180,7 @@ const defaultRequests: HostRequest.AsObject[] = [
     ...request,
     hostRequestId: 3,
     lastSeenMessageId: 4,
+    unseenMessageCount: 0,
     latestMessage: { ...messages[0], messageId: 3 },
     hostingCity: "New York",
     hostingLat: 40.7128,

@@ -1,4 +1,5 @@
 {
+  "native_upload_original_images": true,
   "test_growthbook_integration": true,
   "show_moderator_badge": true,
   "public_trips_enabled": true

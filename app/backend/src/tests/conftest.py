@@ -272,7 +272,7 @@ def frozen_timewarp() -> Generator[FrozenTimewarp]:
     yield from install_timewarp(FrozenTimewarp(FROZEN_TEST_TIME))
 
 
-# Production gates forced True so tests run as "everything enabled". Used by testconfig and the `flags`
+# Production gates forced True so tests run as "everything enabled". Used by `_testconfig` and the `flags`
 # fixture; tests flip individual values via `flags`.
 _TEST_FLAG_DEFAULTS: dict[str, Any] = {
     "test_growthbook_integration": True,
@@ -290,8 +290,8 @@ _TEST_FLAG_DEFAULTS: dict[str, Any] = {
 }
 
 
-@pytest.fixture(scope="class")
-def testconfig():
+@pytest.fixture(scope="class", autouse=True)
+def _testconfig() -> Generator[None]:
     prevconfig = config.copy()
     prev_initialized = experimentation._initialized
     prev_load_local_flags = experimentation._load_local_flags
@@ -311,6 +311,8 @@ def testconfig():
     config.ENABLE_EMAIL = False
     config.NOTIFICATION_EMAIL_SENDER = "Couchers.org"
     config.NOTIFICATION_EMAIL_ADDRESS = "notify@couchers.org.invalid"
+    config.MODERATION_EMAIL_SENDER = "Couchers.org Moderation"
+    config.MODERATION_EMAIL_ADDRESS = "moderation@couchers.org.invalid"
     config.NOTIFICATION_PREFIX = "[TEST] "
     config.REPORTS_EMAIL_RECIPIENT = "reports@couchers.org.invalid"
     config.CONTRIBUTOR_FORM_EMAIL_RECIPIENT = "forms@couchers.org.invalid"
@@ -332,6 +334,8 @@ def testconfig():
     config.MYPOSTCARD_PASSWORD = "test-password"
     config.MYPOSTCARD_PRODUCT_CODE = "J9GCU"
     config.MYPOSTCARD_CAMPAIGN_ID = "295"
+    # Flow tests exercise the posting path with `send_postcard` mocked; tests for the bypass flip this on
+    config.POSTAL_VERIFICATION_BYPASS_POST_AND_EMAIL_CODE_FOR_TESTING = False
 
     config.SMTP_HOST = "localhost"
     config.SMTP_PORT = 587
@@ -399,6 +403,17 @@ def testconfig():
     config.copy_from(prevconfig)
     experimentation._initialized = prev_initialized
     experimentation._load_local_flags = prev_load_local_flags
+
+
+@pytest.fixture(autouse=True)
+def _isolate_config() -> Generator[None]:
+    """
+    `_testconfig` alone isn't enough: being class-scoped, it doesn't restore between tests within a
+    `class Test...`.
+    """
+    prevconfig = config.copy()
+    yield
+    config.copy_from(prevconfig)
 
 
 class Flags:

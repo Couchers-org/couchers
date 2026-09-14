@@ -35,11 +35,6 @@ from tests.fixtures.timewarp import FrozenTimewarp
 from tests.test_communities import create_community, create_group
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def to_event_time_granularity(value: datetime) -> datetime:
     """Events are scheduled at the minute granularity."""
     return value.replace(second=0, microsecond=0)

@@ -156,7 +156,7 @@ class NotificationTopicAction(enum.Enum):
 
     onboarding__reminder = ("onboarding:reminder", dt_sec, False, empty_pb2.Empty)
 
-    modnote__create = ("modnote:create", dt_sec, True, empty_pb2.Empty)
+    modnote__create = ("modnote:create", dt_sec, True, nd.ModNoteCreate)
 
     verification__sv_fail = ("verification:sv_fail", dt_sec, True, nd.VerificationSVFail)
     verification__sv_success = ("verification:sv_success", dt_sec, True, empty_pb2.Empty)

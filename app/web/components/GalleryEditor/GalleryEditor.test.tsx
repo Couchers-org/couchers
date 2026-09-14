@@ -207,6 +207,7 @@ describe("GalleryEditor", () => {
         success: true,
         imageBase64: "dGVzdGltYWdl", // "testimage" in base64
         mimeType: "image/jpeg",
+        fileName: "IMG_1234.JPG",
       });
 
       mockUseNativeImagePicker.mockReturnValue({
@@ -233,9 +234,9 @@ describe("GalleryEditor", () => {
         expect(mockPickImage).toHaveBeenCalled();
       });
 
-      // Upload should be called with the converted file
+      // Upload should be called with the converted file, keeping its original name
       await waitFor(() => {
-        expect(mockUploadFile).toHaveBeenCalled();
+        expect(mockUploadFile).toHaveBeenCalledWith(expect.objectContaining({ name: "IMG_1234.JPG" }));
       });
     });
 

@@ -187,6 +187,8 @@ class SignupFlow(Base, kw_only=True):
     email_token: Mapped[str | None] = mapped_column(String, unique=True, default=None)
     email_token_expiry: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
+    email_changed_count: Mapped[int] = mapped_column(Integer, server_default="0", init=False)
+
     ## Basic
     name: Mapped[str] = mapped_column(String)
     # TODO: unique across both tables

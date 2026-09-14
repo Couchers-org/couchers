@@ -48,15 +48,16 @@ export default function Press() {
       <About />
       <MediaAssets />
       <SectionWrapper>
-        <SectionHeading>{t("team.subheading")}</SectionHeading>
+        <SectionHeading>{t("board.subheading")}</SectionHeading>
         <TeamSection
           variant="current"
           volunteers={volunteers.data?.currentVolunteersList}
           boardMembersOnly
           hasExtraCard
           extraCardContent={{
-            text: t("team.extra_card_text"),
-            link: t("team.extra_card_link"),
+            title: t("board.full_team_card_title"),
+            text: t("board.full_team_card_text"),
+            link: t("board.full_team_card_link"),
           }}
         />
       </SectionWrapper>

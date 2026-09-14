@@ -17,11 +17,6 @@ from tests.fixtures.misc import PushCollector, process_jobs
 from tests.fixtures.sessions import account_session, api_session
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def test_ChangePhone(db, monkeypatch, push_collector: PushCollector):
     user, token = generate_user()
     user_id = user.id
@@ -256,4 +251,4 @@ def test_sms_verification_no_donation():
         with pytest.raises(grpc.RpcError) as e:
             account.ChangePhone(account_pb2.ChangePhoneReq(phone="+467017406066"))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "Please complete donation to get phone verified."
+        assert e.value.details() == "You need to donate to Couchers.org before you can verify your phone number."

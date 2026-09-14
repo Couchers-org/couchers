@@ -58,7 +58,7 @@ describe("Press", () => {
     expect(
       screen.getByRole("heading", {
         level: 2,
-        name: t("press:team.subheading"),
+        name: t("press:board.subheading"),
       }),
     ).toBeInTheDocument();
     expect(

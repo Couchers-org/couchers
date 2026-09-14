@@ -54,6 +54,8 @@ from couchers.models import (
     Message,
     MessageType,
     PasswordResetToken,
+    PostalVerificationAttempt,
+    PostalVerificationStatus,
     PushNotificationPlatform,
     PushNotificationSubscription,
     User,
@@ -92,11 +94,6 @@ def _count_queued_emails() -> int:
         return session.execute(
             select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
         ).scalar_one()
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
 
 
 def _check_job_counter(port, job, status, attempt, exception):
@@ -456,10 +453,9 @@ def test_job_retry(db):
     metrics_server = create_prometheus_server(port=0)
 
     # if IN_TEST is true, then the bg worker will raise on exceptions
-    new_config = config.copy()
-    new_config.IN_TEST = False
+    config.IN_TEST = False
 
-    with patch("couchers.jobs.worker.config", new_config), patch("couchers.jobs.worker.JOBS", MOCK_JOBS):
+    with patch("couchers.jobs.worker.JOBS", MOCK_JOBS):
         process_job()
         with session_scope() as session:
             assert (
@@ -525,10 +521,9 @@ def test_job_retry_backs_off_from_now_not_from_a_stale_next_attempt_after(db):
         session.flush()
         session.execute(select(BackgroundJob)).scalar_one().next_attempt_after = now() - timedelta(hours=1)
 
-    new_config = config.copy()
-    new_config.IN_TEST = False
+    config.IN_TEST = False
 
-    with patch("couchers.jobs.worker.config", new_config), patch("couchers.jobs.worker.JOBS", MOCK_JOBS):
+    with patch("couchers.jobs.worker.JOBS", MOCK_JOBS):
         assert process_job()
 
         with session_scope() as session:
@@ -1475,63 +1470,61 @@ def test_send_host_request_reminders(db, moderator):
 
 def test_add_users_to_email_list(db, feature_flags):
     feature_flags.set("listmonk_enabled", True)
-    new_config = config.copy()
-    new_config.LISTMONK_BASE_URL = "https://example.com"
-    new_config.LISTMONK_API_USERNAME = "test_user"
-    new_config.LISTMONK_API_KEY = "dummy_api_key"
-    new_config.LISTMONK_LIST_ID = 6
+    config.LISTMONK_BASE_URL = "https://example.com"
+    config.LISTMONK_API_USERNAME = "test_user"
+    config.LISTMONK_API_KEY = "dummy_api_key"
+    config.LISTMONK_LIST_ID = 6
 
-    with patch("couchers.jobs.handlers.config", new_config):
-        with patch("couchers.jobs.handlers.requests.Session") as mock_session_cls:
-            mock_session_cls.return_value.post.return_value.status_code = 200
-            add_users_to_email_list(empty_pb2.Empty())
-        mock_session_cls.return_value.post.assert_not_called()
+    with patch("couchers.jobs.handlers.requests.Session") as mock_session_cls:
+        mock_session_cls.return_value.post.return_value.status_code = 200
+        add_users_to_email_list(empty_pb2.Empty())
+    mock_session_cls.return_value.post.assert_not_called()
 
-        generate_user(in_sync_with_newsletter=False, email="testing1@couchers.invalid", name="Tester1", id=15)
-        generate_user(in_sync_with_newsletter=True, email="testing2@couchers.invalid", name="Tester2")
-        generate_user(in_sync_with_newsletter=False, email="testing3@couchers.invalid", name="Tester3 von test", id=17)
-        generate_user(
-            in_sync_with_newsletter=False, email="testing4@couchers.invalid", name="Tester4", opt_out_of_newsletter=True
-        )
+    generate_user(in_sync_with_newsletter=False, email="testing1@couchers.invalid", name="Tester1", id=15)
+    generate_user(in_sync_with_newsletter=True, email="testing2@couchers.invalid", name="Tester2")
+    generate_user(in_sync_with_newsletter=False, email="testing3@couchers.invalid", name="Tester3 von test", id=17)
+    generate_user(
+        in_sync_with_newsletter=False, email="testing4@couchers.invalid", name="Tester4", opt_out_of_newsletter=True
+    )
 
-        with patch("couchers.jobs.handlers.requests.Session") as mock_session_cls:
-            mock_sess = mock_session_cls.return_value
-            mock_sess.post.return_value.status_code = 200
-            add_users_to_email_list(empty_pb2.Empty())
-        mock_sess.post.assert_has_calls(
-            [
-                call(
-                    "https://example.com/api/subscribers",
-                    json={
-                        "email": "testing1@couchers.invalid",
-                        "name": "Tester1",
-                        "lists": [6],
-                        "preconfirm_subscriptions": True,
-                        "attribs": {"couchers_user_id": 15},
-                        "status": "enabled",
-                    },
-                    timeout=10,
-                ),
-                call(
-                    "https://example.com/api/subscribers",
-                    json={
-                        "email": "testing3@couchers.invalid",
-                        "name": "Tester3 von test",
-                        "lists": [6],
-                        "preconfirm_subscriptions": True,
-                        "attribs": {"couchers_user_id": 17},
-                        "status": "enabled",
-                    },
-                    timeout=10,
-                ),
-            ],
-            any_order=True,
-        )
+    with patch("couchers.jobs.handlers.requests.Session") as mock_session_cls:
+        mock_sess = mock_session_cls.return_value
+        mock_sess.post.return_value.status_code = 200
+        add_users_to_email_list(empty_pb2.Empty())
+    mock_sess.post.assert_has_calls(
+        [
+            call(
+                "https://example.com/api/subscribers",
+                json={
+                    "email": "testing1@couchers.invalid",
+                    "name": "Tester1",
+                    "lists": [6],
+                    "preconfirm_subscriptions": True,
+                    "attribs": {"couchers_user_id": 15},
+                    "status": "enabled",
+                },
+                timeout=10,
+            ),
+            call(
+                "https://example.com/api/subscribers",
+                json={
+                    "email": "testing3@couchers.invalid",
+                    "name": "Tester3 von test",
+                    "lists": [6],
+                    "preconfirm_subscriptions": True,
+                    "attribs": {"couchers_user_id": 17},
+                    "status": "enabled",
+                },
+                timeout=10,
+            ),
+        ],
+        any_order=True,
+    )
 
-        with patch("couchers.jobs.handlers.requests.Session") as mock_session_cls:
-            mock_session_cls.return_value.post.return_value.status_code = 200
-            add_users_to_email_list(empty_pb2.Empty())
-        mock_session_cls.return_value.post.assert_not_called()
+    with patch("couchers.jobs.handlers.requests.Session") as mock_session_cls:
+        mock_session_cls.return_value.post.return_value.status_code = 200
+        add_users_to_email_list(empty_pb2.Empty())
+    mock_session_cls.return_value.post.assert_not_called()
 
 
 def test_update_recommendation_scores(db):
@@ -1548,6 +1541,18 @@ def test_update_badges(db, push_collector: PushCollector):
 
     with session_scope() as session:
         session.add(UserBadge(user_id=user5.id, badge_id="board_member"))
+        session.add(
+            PostalVerificationAttempt(
+                user_id=user6.id,
+                address_line_1="123 Main St",
+                city="Test City",
+                country_code="US",
+                status=PostalVerificationStatus.succeeded,
+                verification_code="ABC123",
+                postcard_sent_at=func.now(),
+                verified_at=func.now(),
+            )
+        )
 
     update_badges(empty_pb2.Empty())
     process_jobs()
@@ -1564,6 +1569,7 @@ def test_update_badges(db, push_collector: PushCollector):
         (user2.id, "board_member"),
         (user4.id, "phone_verified"),
         (user5.id, "phone_verified"),
+        (user6.id, "postal_verified"),
     ]
 
     assert badge_tuples == expected  # type: ignore[comparison-overlap]

@@ -31,6 +31,8 @@ async function getProductionReadyLocales(): Promise<string[]> {
     return productionReadyLocalesCache.data;
   }
 
+  // Hardcoded to keep Weblate out of the request path.
+  return ["de", "en", "es", "it", "pt-BR", "ru", "zh-Hans", "zh-Hant"];
   const weblateLanguages = await fetchWeblateLanguages();
   const productionReadyLocales = getLocaleInfos(weblateLanguages)
     .filter(isLocaleProductionReady)

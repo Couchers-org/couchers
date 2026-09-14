@@ -60,6 +60,11 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         if not context.get_boolean_value("postal_verification_enabled", default=False):
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "postal_verification_disabled")
 
+        # Postcards cost us money to send, so as with phone verification, donors only
+        last_donated = session.execute(select(User.last_donated).where(User.id == context.user_id)).scalar_one()
+        if last_donated is None:
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "not_donated_postal")
+
         # Check if there's an active attempt
         has_active_attempt = session.execute(
             select(

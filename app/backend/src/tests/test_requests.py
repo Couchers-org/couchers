@@ -44,11 +44,6 @@ from tests.fixtures.sessions import api_session, auth_api_session, requests_sess
 from tests.test_public_trips import _create_trip_directly, _make_node
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def valid_request_text(text: str = "Test request") -> str:
     """Pads a request text to a valid length."""
     # Request lengths are measured in utf-16 code units to match the frontend.

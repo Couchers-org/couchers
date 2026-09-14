@@ -26,10 +26,8 @@
     "logo_aria_label": "下载徽标资源",
     "mobile_images_aria_label": "下载移动应用素材"
   },
-  "team": {
-    "subheading": "认识团队",
-    "extra_card_text": "我们是一群热爱沙发冲浪的专业人士，致力于打造一个更完善、更安全、更包容的平台。",
-    "extra_card_link": "更多关于团队的信息"
+  "board": {
+    "full_team_card_text": "我们是一群热爱沙发冲浪的专业人士，致力于打造一个更完善、更安全、更包容的平台。"
   },
   "social_media_subheading": "关注我们",
   "press_coverage_subheading": "专题报道"

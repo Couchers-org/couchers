@@ -1,4 +1,5 @@
 import { ReferenceType } from "proto/references_pb";
+import { MessageFilterType } from "routes";
 
 // profiles/users
 export const languagesKey = "languages";
@@ -91,6 +92,9 @@ export const discussionKey = (discussionId: number) => ["discussion", discussion
 export const threadKey = (threadId: number) => ["thread", threadId];
 
 // messaging
+// onlyArchived is derivable from the filter ("archived"), so the filter alone keys the cache
+export const messageThreadsListKey = (filter?: MessageFilterType) =>
+  filter ? ["messageThreads", filter] : ["messageThreads"];
 export const groupChatsListKey = (filters?: { onlyArchived?: boolean }) =>
   filters ? ["groupChatsList", filters] : ["groupChatsList"];
 export const groupChatKey = (groupChatId: number) => ["groupChat", groupChatId];

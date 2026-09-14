@@ -150,5 +150,6 @@
   "select_sublocality": "Selecionar bairro",
   "select_sub_community": "Selecionar comunidade",
   "sub_community_search_placeholder": "Localização",
-  "sub_community_dropdown_a11y": "Navegar comunidades mais específicas"
+  "sub_community_dropdown_a11y": "Navegar comunidades mais específicas",
+  "new_discussion_button": "Nova discussão"
 }

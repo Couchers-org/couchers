@@ -80,11 +80,17 @@ function BoardMemberBadge() {
   );
 }
 
+type ExtraCardContent = {
+  title?: string;
+  text: string;
+  link: string;
+};
+
 interface MemberListProps {
   variant: "current" | "past";
   members: Volunteer.AsObject[] | undefined;
   hasExtraCard?: boolean;
-  extraCardContent?: { text: string; link: string };
+  extraCardContent?: ExtraCardContent;
   boardMembersOnly?: boolean;
 }
 
@@ -150,6 +156,11 @@ function MemberList({ variant, members, hasExtraCard, extraCardContent, boardMem
       {hasExtraCard && extraCardContent ? (
         <Grid key="extra" size={{ xs: 12, md: 6, lg: 4 }}>
           <ExtraCard variant="outlined">
+            {extraCardContent.title && (
+              <Typography variant="h3" component="h2">
+                {extraCardContent.title}
+              </Typography>
+            )}
             <Typography
               sx={{
                 textAlign: "center",
@@ -164,11 +175,6 @@ function MemberList({ variant, members, hasExtraCard, extraCardContent, boardMem
     </StyledGrid>
   );
 }
-
-type ExtraCardContent = {
-  text: string;
-  link: string;
-};
 
 interface TeamSectionProps {
   variant: "current" | "past";

@@ -1,4 +1,3 @@
-import pytest
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 
@@ -6,11 +5,6 @@ from couchers.db import session_scope
 from couchers.models import Language
 from couchers.resources import copy_resources_to_database
 from tests.fixtures.sessions import resources_session
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
 
 
 def test_GetTermsOfService():
@@ -86,6 +80,7 @@ def test_GetBadges(db):
             "past_volunteer",
             "donor",
             "phone_verified",
+            "postal_verified",
             "strong_verification",
             "swagster",
         }

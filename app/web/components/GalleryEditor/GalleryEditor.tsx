@@ -195,7 +195,7 @@ export default function GalleryEditor({
           const file = base64ToFile(
             result.imageBase64,
             result.mimeType,
-            `photo.${result.mimeType.split("/")[1] || "jpg"}`,
+            result.fileName ?? `photo.${result.mimeType.split("/")[1] || "jpg"}`,
           );
           const uploadResult = await service.api.uploadFile(file);
           await addPhotoMutation.mutateAsync({ uploadKey: uploadResult.key });
