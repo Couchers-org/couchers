@@ -20,8 +20,7 @@ Sentry.init({
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#sendDefaultPii
   sendDefaultPii: true,
 
-  // Buffer mode: only upload on an error, or when a bug report flushes the buffer
-  // (service/bugs.ts). The integration itself is added by components/SentryReplay.tsx.
+  // Buffer mode: upload on an error, or when a bug report flushes it (service/bugs.ts).
   replaysSessionSampleRate: 0,
   replaysOnErrorSampleRate: 1.0,
 
