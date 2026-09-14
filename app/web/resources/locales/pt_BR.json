@@ -345,5 +345,7 @@
   "google_play_badge_a11y": "Baixe no Google Play",
   "bar": {
     "help_button_a11y": "Ajuda"
-  }
+  },
+  "more_options_a11y": "Mais opções",
+  "tap_press_to_flip": "Toque/pressione para virar"
 }

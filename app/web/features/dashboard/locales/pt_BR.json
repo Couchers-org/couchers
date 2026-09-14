@@ -11,7 +11,7 @@
   "browse_communities_text": "Clique no nome de uma região para ver outras comunidades dentro dela abaixo. Clique no link para ir para a página da comunidade dessa cidade ou região.",
   "welcome": "Bem-vindo ao Couchers.org!",
   "new_pill": "Novo",
-  "communities_intro": "Para ajudar as pessoas em todo o mundo a organizar eventos, discussões e encontros locais, criamos páginas de comunidades, que estão listadas abaixo. <strong>Você foi adicionado automaticamente a algumas comunidades com base em sua localização, mas pode se juntar a qualquer comunidade!</strong> Suas comunidades estão listadas no painel principal.",
+  "communities_intro": "As páginas de comunidades ajudam a organizar eventos e discussões locais. <strong>Você sempre fica nas comunidades da sua localização, mas pode <browseCommunitiesLink>se juntar a qualquer comunidade.</browseCommunitiesLink></strong>",
   "community_builder": "Quer ser um embaixador da sua comunidade e ajudá-la a crescer? Torne-se um <communityBuilderLink>Criador de Comunidade!</communityBuilderLink>",
   "find_your_community": "Encontre uma comunidade",
   "find_your_community_intro_simplified": "Busque por sua comunidade ou navegue abaixo. <requestCommunityLink>Não está vendo a sua? Solicite-a!</requestCommunityLink>",
