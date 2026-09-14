@@ -332,10 +332,20 @@
         "contact": "Pokud problém přetrvává, <supportLink>dej nám vědět</supportLink> a rádi ti pomůžeme."
       },
       "warning": "Důležité: Krok se skenováním čipu v pasu může být záludný - nejdřív si přečti všechny pokyny!",
-      "step1": "Stáhni si aplikaci <strong>Iris ID</strong>"
+      "step1": "Stáhni si aplikaci <strong>Iris ID</strong>",
+      "title": "Jak dokončit silné ověření",
+      "step1_apple_note": "<strong>Uživatelé Apple:</strong> Stahování můžete přeskočit a použít místo toho svůj prohlížeč. Až se zobrazí výzva, stačí kliknout na „Otevřít“.",
+      "step2": "Klikni níže na <strong>„Zahájit silné ověření“</strong> (otevře se v nové kartě)",
+      "step3": "Naskenuj QR kód telefonem",
+      "step4": "Pokud budeš vyzván, otevři aplikaci a znovu naskenuj QR kód",
+      "step5": "Zvol <strong>Cestovní pas</strong> (občanské průkazy nejsou podporovány)",
+      "step6": "Pořiď ostrou fotku stránky pasu s čísly v dolní části",
+      "step7": "Přilož telefon k stránce pasu s NFC čipem a <strong>vydrž úplně bez pohybu alespoň 5 sekund</strong> — předčasný pohyb je nejčastější příčinou selhání",
+      "step8": "Že to proběhlo úspěšně, poznáš podle toho, že uvidíš rostoucí procento a načítací indikátor"
     },
     "donation_message2": "Pokud můžeš, zvaž prosím dar, který pomůže udržet Couchers.org v provozu a podpoří jeho další růst.",
-    "donate_button": "Přispěj na podporu Couchers.org"
+    "donate_button": "Přispěj na podporu Couchers.org",
+    "donation_message1": "Ověření je pro tebe zdarma, ale nás něco stojí. Jsme nezisková organizace vedená dobrovolníky, a proto se spoléháme na příspěvky, které nám pomáhají pokrývat výdaje, jako je provoz našich serverů, ověřování a nástroje pro dobrovolníky a budovatele komunit."
   },
   "quick_links": {
     "title": "Rychlá akce e-mailu",
@@ -360,6 +370,19 @@
     "card_preview_label": "Výpis tvojí týmové stránky",
     "not_a_volunteer_message": "Podle našich záznamů nejsti současným ani bývalým dobrovolníkem. Pokud to není správně, dej nám prosím vědět vyplněním <formLink>tohoto formuláře</formLink>.",
     "current_volunteer": "Dobrovolníkem od {{startDate}}.",
-    "past_volunteer": "Dobrovolníkem od {{startDate}} do {{endDate}}."
+    "past_volunteer": "Dobrovolníkem od {{startDate}} do {{endDate}}.",
+    "shown_on_team_page_current": "Zobrazeno na stránce týmu jako současný člen týmu.",
+    "shown_on_team_page_past": "Zobrazeno na stránce týmu jako bývalý dobrovolník.",
+    "not_shown_on_team_page": "Skryto na stránce týmu.",
+    "update_success": "Tvoje informace o dobrovolnictví byly aktualizovány.",
+    "form": {
+      "title": "Aktualizuj své údaje o dobrovolnictví",
+      "override_name_label": "Použít na stránce týmu jiné jméno (místo „{{profileName}}“)",
+      "display_name_label": "Zobrazované jméno",
+      "override_location_label": "Použít jinou polohu na stránce týmu (místo „{{profileLocation}}“)",
+      "display_location_label": "Zobrazit polohu",
+      "show_on_team_page_label": "Zobrazit mě na stránce týmu",
+      "link_type_label": "Typ odkazu"
+    }
   }
 }

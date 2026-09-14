@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-09-07 07:35+0000\n"
-"Last-Translator: Tom Rohlik <ostatni@rohlik.xyz>\n"
+"PO-Revision-Date: 2026-09-14 22:41+0000\n"
+"Last-Translator: Daniel Brvnišťan <daniel.brvnistan@gmail.com>\n"
 "Language-Team: Czech <https://translate.couchershq.org/projects/couchers/glossary-key-terms/cs/>\n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
@@ -37,3 +37,390 @@ msgstr "přátelé"
 #. (noun) A community or event discussion that supports replies.
 msgid "discussion"
 msgstr "diskuse"
+
+#. The section of a user profile with information relating their person.
+msgid "profile.about_me"
+msgstr "o mě"
+
+#. (verb) As a host, the act of accepting a surfer's host request.
+msgid "host_request.accept"
+msgstr "přijmout"
+
+#. (adj) The state of a host request that was accepted by the host.
+msgid "host_request.accepted"
+msgstr "přijato"
+
+#. (noun) A user account on Couchers.org.
+msgid "account"
+msgstr "účet"
+
+#. (noun) A user's account settings (notifications, theme, language, etc.).
+msgid "account_settings"
+msgstr "nastavení účtu"
+
+#. (noun) A secret code used to make programmatic operations (call APIs) on behalf of a user.
+msgid "api_key"
+msgstr "API klíč"
+
+#. (noun) A user who has indicated their intention to attend an event.
+msgid "events.attendee"
+msgstr "účastník"
+
+#. (noun) Users who have indicated their intention to attend an event.
+msgid "events.attendees"
+msgstr "účastníci"
+
+#. (noun) The Couchers.org blog.
+msgid "blog"
+msgstr "blog"
+
+#. (verb) As a surfer, the act of cancelling a host request.
+msgid "host_request.cancel"
+msgstr "zrušit"
+
+#. (verb) The act of cancelling an event.
+msgid "events.cancel"
+msgstr "zrušit"
+
+#. (adj) The state of a host request that was cancelled by the surfer.
+msgid "host_request.cancelled"
+msgstr "zrušeno"
+
+#. (adj) The state of an event that has been cancelled.
+msgid "events.cancelled"
+msgstr "zrušeno"
+
+#. A user status whereby a user is willing to host surfers.
+msgid "status.can_host"
+msgstr "může hostovat"
+
+#. A user status whereby a user is unwilling to host surfers.
+msgid "status.cant_host"
+msgstr "nemůže hostovat"
+
+#. (noun) A thread for messages between two or more users.
+msgid "chat"
+msgstr "chat"
+
+#. (noun) Threads for messages between two or more users.
+msgid "chats"
+msgstr "chaty"
+
+#. (noun) A top-level comment on a discussion or event.
+msgid "discussions.comment.noun"
+msgstr "komentář"
+
+#. (verb) The act of adding a top-level comment on a discussion or event.
+msgid "discussions.comment.verb"
+msgstr "komentář"
+
+#. (noun) Top-level comments on a discussion or event.
+msgid "discussions.comments"
+msgstr "komentáře"
+
+#. (noun) Geographical communities with local discussions, events, etc.
+msgid "communities"
+msgstr "komunity"
+
+#. (noun) A geographical community with local discussions, events, etc.
+msgid "community"
+msgstr "komunita"
+
+#. (noun) A user recognized to be highly involved in a community, with special editing rights.
+msgid "community_builder"
+msgstr "budovatel komunity"
+
+#. (noun) Users recognized to be highly involved in a community, with special editing rights.
+msgid "community_builders"
+msgstr "budovatelé komunity"
+
+#. (noun) The behavioral guidelines that new members must accept when joining Couchers.org.
+msgid "community_guidelines"
+msgstr "Pravidla komunity"
+
+#. (verb) As a surfer, the act of confirming a host request that was accepted by the host.
+msgid "host_request.confirm"
+msgstr "potvrdit"
+
+#. (adj) The state of a host request that was confirmed by the surfer after being accepted by the host.
+msgid "host_request.confirmed"
+msgstr "potvrzeno"
+
+#. (noun) Other users which are friends or have pending friend requests.
+msgid "connections"
+msgstr "kontakty"
+
+#. (noun) The team behind Couchers.org.
+msgid "couchers_org_team"
+msgstr "Tým Couchers.org"
+
+#. (noun) The activity of free hospitality welcome/exchange. Platform-agnostic.
+msgid "couch surfing"
+msgstr "surfování"
+
+#. (verb) As a host, the act of declining a surfer's host request.
+msgid "host_request.decline"
+msgstr "odmítnout"
+
+#. (adj) The state of a host request that was declined by the host.
+msgid "host_request.declined"
+msgstr "odmítnuto"
+
+#. (noun) Community or event discussions that support replies.
+msgid "discussions"
+msgstr "diskuze"
+
+#. (verb) The act of donating money to Couchers.org.
+msgid "donate"
+msgstr "přispět"
+
+#. (verb) The act of donating money to Couchers.org.
+msgid "donating"
+msgstr "přispění"
+
+#. (noun) Money donated to Couchers.org.
+msgid "donation"
+msgstr "příspěvek"
+
+#. (noun) Money donated to Couchers.org.
+msgid "donations"
+msgstr "příspěvky"
+
+#. (noun) A reference from a friend.
+#, fuzzy
+msgid "friend_reference"
+msgstr "reference_přítele"
+
+#. (noun) A named thread for messages between three or more users.
+#, fuzzy
+msgid "group_chat"
+msgstr "skupinový_chat"
+
+#. (noun) A named thread for messages between three or more users.
+#, fuzzy
+msgid "group_chats"
+msgstr "skupinové_chaty"
+
+#. (noun) The https://help.couchers.org website.
+msgid "help_center"
+msgstr "Centrum nápovědy"
+
+#. (noun) A user providing hospitality to other users.
+msgid "host.noun"
+msgstr "hostitel"
+
+#. (verb) As a host, the act of offering hospitality to other users.
+msgid "host.verb"
+msgstr "hostovat"
+
+#. (adjective) As a surfer, the state of receiving hospitality from a host.
+msgid "hosted"
+msgstr "hostoval"
+
+#. (verb) As a host, the act of offering hospitality to other users.
+msgid "hosting"
+msgstr "hostování"
+
+#. A user's willingness to host surfers.
+msgid "hosting_status"
+msgstr "stav hostování"
+
+#. (noun) The process of establishing a hosting relationship.
+msgid "host_request"
+msgstr "žádost o hostování"
+
+#. (noun) The process of establishing a hosting relationship.
+msgid "host_requests"
+msgstr "žádosti o hostování"
+
+#. (noun) Users providing hospitality to other users.
+msgid "hosts.noun"
+msgstr "hostitelé"
+
+#. A geographical location such as an address or the name of a city.
+msgid "location"
+msgstr "poloha"
+
+#. (verb) The action of logging in to Couchers.org after logging out.
+msgid "log_back_in"
+msgstr "přihlásit se znovu"
+
+#. (adj) The state of being logged in to Couchers.org.
+msgid "logged_in"
+msgstr "přihlášeno"
+
+#. (adj) The state of being logged out of Couchers.org.
+msgid "logged_out"
+msgstr "odhlášeno"
+
+#. (verb) The action of logging in to Couchers.org.
+msgid "logging_in"
+msgstr "přihlašování"
+
+#. (verb) The action of logging out of Couchers.org.
+msgid "logging_out"
+msgstr "odhlašování"
+
+#. (verb) The action of logging in to Couchers.org.
+msgid "log_in"
+msgstr "přihlásit se"
+
+#. (verb) The action of logging out of Couchers.org.
+msgid "log_out"
+msgstr "odhlásit se"
+
+#. A user status whereby a user is potentially willing to host surfers.
+msgid "status.may_host"
+msgstr "někdy může hostovat"
+
+#. (noun) The Couchers.org merchandise shop website.
+msgid "merch_shop"
+msgstr "Obchod s merchem"
+
+#. (noun) A message sent from a user to another user or to a group chat.
+msgid "message.noun"
+msgstr "zpráva"
+
+#. (verb) The act of sending a message to another user or to a group chat.
+msgid "message.verb"
+msgstr "poslat zprávu"
+
+#. (noun) Messages sent between users or to group chats.
+msgid "messages"
+msgstr "zprávy"
+
+#. The section of a user profile with information relating to their home.
+msgid "profile.my_home"
+msgstr "můj domov"
+
+#. (noun) An email or push notifications sent to a user.
+msgid "notification"
+msgstr "notifikace"
+
+#. (noun) Email or push notifications sent to a user.
+msgid "notifications"
+msgstr "notifikace"
+
+#. (noun) A user listed as an organizer on an event.
+msgid "events.organizer"
+msgstr "organizátor"
+
+#. (noun) Users listed as organizers on an event.
+msgid "events.organizers"
+msgstr "organizátoři"
+
+#. (noun) A user's account password on Couchers.org.
+msgid "password"
+msgstr "heslo"
+
+#. (noun) A profile picture.
+msgid "photo"
+msgstr "fotka"
+
+#. (noun) Profile pictures.
+msgid "photos"
+msgstr "fotky"
+
+#. (noun) A problem with the platform reported by a user.
+msgid "report_problem.problem"
+msgstr "problém"
+
+#. (noun) Problems with the platform reported by a user.
+msgid "report_problem.problems"
+msgstr "problémy"
+
+#. (noun) A notifications sent to a user's phone or browser.
+msgid "push_notification"
+msgstr "push notifikace"
+
+#. (noun) Notifications sent to a user's phone or browser.
+msgid "push_notifications"
+msgstr "push notifikace"
+
+#. (noun) A reference from a friend, host or surfer.
+msgid "reference"
+msgstr "reference"
+
+#. (noun) References from friends, hosts or surfers.
+msgid "references"
+msgstr "reference"
+
+#. (noun) Replies on a top-level comment in a discussion or event.
+msgid "discussions.replies"
+msgstr "odpovědi"
+
+#. (noun) A reply on a top-level comment in a discussion or event.
+msgid "discussions.reply.noun"
+msgstr "odpověď"
+
+#. (verb) The act of replying to a top-level comment on a discussion or event.
+msgid "discussions.reply.verb"
+msgstr "odpovědět"
+
+#. (noun) As a user, the act of reporting a problem with the platform.
+msgid "report_problem.report"
+msgstr "nahlásit"
+
+#. (noun) The Couchers.org safety team.
+msgid "safety_team"
+msgstr "Bezpečnostní tým"
+
+#. (noun) A website/app session, from logging in to logging out.
+msgid "session"
+msgstr "relace"
+
+#. (noun) Website/app sessions, from logging in to logging out.
+msgid "sessions"
+msgstr "relace"
+
+#. (noun) A grouping of settings (account, notifications, etc.)
+msgid "settings"
+msgstr "nastavení"
+
+#. (noun) A status whereby a user's identity has been verified.
+msgid "strong_verification"
+msgstr "Silné ověření"
+
+#. (noun) The Couchers.org support team.
+msgid "support_team"
+msgstr "Tým podpory"
+
+#. (noun) A user receiving hospitality from other users.
+msgid "surfer"
+msgstr "surfař"
+
+#. (noun) Users receiving hospitality from other users.
+msgid "surfers"
+msgstr "surfaři"
+
+#. (noun) The team behind Couchers.org, short form.
+msgid "team"
+msgstr "tým"
+
+#. (noun) The document outlining the legal agreement for using Couchers.org.
+msgid "terms_of_service"
+msgstr "Podmínky služby"
+
+#. (noun) Someone with an account on Couchers.org.
+msgid "user"
+msgstr "uživatel"
+
+#. (noun) A user's account identifier on Couchers.org.
+msgid "username"
+msgstr "uživatelské jméno"
+
+#. (noun) Someone with an account on Couchers.org.
+msgid "users"
+msgstr "uživatelé"
+
+#. (verb) The act of volunteering with Couchers.org.
+msgid "volunteer.verb"
+msgstr "dobrovolnictví"
+
+#. (noun) A person volunteering with Couchers.org.
+msgid "volunteer.noun"
+msgstr "dobrovolník"
+
+#. (noun) A person volunteering with Couchers.org.
+msgid "volunteers"
+msgstr "dobrovolníci"
