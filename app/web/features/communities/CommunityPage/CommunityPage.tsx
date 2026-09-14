@@ -1,3 +1,4 @@
+import { useFeatureValue } from "@growthbook/growthbook-react";
 import { styled, Typography } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import EditCommunityPage from "features/communities/EditCommunityInfoPage";
@@ -32,7 +33,7 @@ export default function CommunityPage({
   edit: boolean | undefined;
 }) {
   const { t } = useTranslation([COMMUNITIES]);
-  const isPublicTripsEnabled = process.env.NODE_ENV !== "production";
+  const isPublicTripsEnabled = useFeatureValue("public_trips_enabled", false);
 
   return (
     <CommunityBase communityId={communityId}>
