@@ -38,9 +38,6 @@ async function syncLanguagePreference() {
   }
 }
 
-/**
- * The user id the backend last handed this browser, or null if it has no session cookie.
- */
 function sessionUserIdFromCookie(): number | null {
   const value = getCookie(userIdCookieName);
   if (!value) return null;
@@ -50,10 +47,8 @@ function sessionUserIdFromCookie(): number | null {
 }
 
 export default function useAuthStore() {
-  // A "remember this browser" session is good for two years, but browsers drop script-writable storage
-  // long before that - Safari clears it after a week away from the site - so missing localStorage doesn't
-  // mean the session is gone. Seed from the cookie instead of sending a signed-in user to the login page;
-  // an explicit logout writes `false` and so still wins over this.
+  // localStorage can be cleared while the session cookie lives on, so a missing record is not proof of being
+  // signed out. An explicit logout writes `false`, which still wins over this.
   const sessionUserId = sessionUserIdFromCookie();
   const [authenticated, setAuthenticated] = usePersistedState("auth.authenticated", sessionUserId !== null);
   const [jailed, setJailed] = usePersistedState("auth.jailed", false);

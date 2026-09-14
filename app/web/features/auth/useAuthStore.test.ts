@@ -23,8 +23,7 @@ const logoutMock = service.user.logout as jest.Mock;
 const getAccountInfoMock = service.account.getAccountInfo as jest.Mock;
 const captureExceptionMock = captureException as jest.Mock;
 
-// document.cookie is a plain property on jsdom's document, so a test that swaps it out leaks into every
-// test after it. Install one jar for the whole file instead, rebuilt each test so resetMocks can't strip it.
+// One jar for the whole file: a test that swaps out document.cookie otherwise leaks into every test after it.
 let cookies = "";
 let cookieSetter: jest.Mock;
 
