@@ -1,5 +1,3 @@
-import pytest
-
 from couchers.i18n.locales import (
     DEFAULT_LOCALE,
     get_babel_locale,
@@ -10,11 +8,6 @@ from couchers.i18n.locales import (
     is_supported_locale,
     to_supported_locale,
 )
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
 
 
 def test_translations_loaded():

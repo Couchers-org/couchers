@@ -37,11 +37,6 @@ from tests.fixtures.timewarp import Timewarp
 from tests.test_requests import valid_request_text
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def test_GetAccountInfo(db, fast_passwords):
     # with password
     user1, token1 = generate_user(hashed_password=hash_password(random_hex()), email="user@couchers.invalid")

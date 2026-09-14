@@ -36,11 +36,6 @@ def _valid_request_text(text: str = "Offer to host") -> str:
     return text + "_" * (HOST_REQUEST_MIN_LENGTH_UTF16 - utf16_length)
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 # 150+ utf-16 code units to satisfy PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16.
 VALID_DESCRIPTION = (
     "Visiting the area for a week for a music festival. I love meeting new people "

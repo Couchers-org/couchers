@@ -57,11 +57,6 @@ from tests.test_communities import create_community
 from tests.test_requests import valid_request_text
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def create_test_host_request_with_moderation(surfer_token, host_user_id):
     """Helper to create a host request and return its moderation state ID"""
     today_plus_2 = (today() + timedelta(days=2)).isoformat()

@@ -11,11 +11,6 @@ from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import api_session, galleries_session
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def create_upload(session, user_id, filename="test.jpg"):
     """Helper to create an upload for testing"""
     upload = Upload(

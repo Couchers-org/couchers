@@ -86,7 +86,12 @@
   },
   "chat": {
     "message": {
-      "event_description": "Algú t'ha enviat un missatge"
+      "event_description": "Algú t'ha enviat un missatge",
+      "push_group": {
+        "title": "{{user}} • {{group}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "{{group}}"
+      }
     },
     "missed_messages": {
       "event_description": "T'has perdut missatges en un xat",
@@ -293,9 +298,9 @@
         "title": "Nova sol·licitud d'allotjament de {{user}}",
         "ios_title": "{{user}}",
         "ios_subtitle": "Nova sol·licitud d'allotjament",
-        "body_one": "{{user}} vol allotjar-se des de {{start_date}} durant {{count}} dia.",
-        "body_many": "{{user}} vol allotjar-se des de {{start_date}} durant {{count}} de dies.",
-        "body_other": "{{user}} vol allotjar-se des de {{start_date}} durant {{count}} dies."
+        "body_one": "{{user}} vol allotjar-se des de {{start_date}} durant {{count}} nit.",
+        "body_many": "{{user}} vol allotjar-se des de {{start_date}} durant {{count}} de nits.",
+        "body_other": "{{user}} vol allotjar-se des de {{start_date}} durant {{count}} nits."
       }
     },
     "message": {

@@ -1,3 +1,4 @@
+import { useFeatureValue } from "@growthbook/growthbook-react";
 import { TabContext } from "@mui/lab";
 import { Breadcrumbs, styled, Typography } from "@mui/material";
 import BetaFlag from "components/BetaFlag";
@@ -51,7 +52,7 @@ export default function CommunityPageSubHeader({
   tab: CommunityTab;
 }) {
   const { t } = useTranslation([COMMUNITIES, PUBLIC_TRIPS]);
-  const isPublicTripsEnabled = process.env.NODE_ENV !== "production";
+  const isPublicTripsEnabled = useFeatureValue("public_trips_enabled", false);
 
   const router = useRouter();
 

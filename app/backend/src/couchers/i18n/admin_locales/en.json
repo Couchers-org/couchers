@@ -18,6 +18,7 @@
     "invalid_started_volunteering_date": "Invalid start date for volunteering.",
     "invalid_stopped_volunteering_date": "Invalid end date for volunteering.",
     "missing_moderation_user_list_id": "Missing moderation user list id.",
+    "mod_note_notification_must_be_specified": "Whether and how to notify the user about the mod note must be specified.",
     "moderation_user_list_not_found": "Moderation user list not found.",
     "no_multipolygon": "GeoJson was not of type MultiPolygon.",
     "note_cant_be_empty": "The admin note cannot be empty.",

@@ -74,5 +74,9 @@
     "recovered": {
       "subject": "Tvůj účet byl obnoven!"
     }
+  },
+  "moderator_note": {
+    "purpose_with_note": "Obdrželi jste důležitou zprávu od moderátorů:",
+    "acknowledge_request": "Než budeš pokračovat v používání platformy, musíš si přečíst a potvrdit tuto poznámku."
   }
 }
