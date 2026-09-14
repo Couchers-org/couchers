@@ -1,0 +1,56 @@
+# Reminds about, then unassigns and marks as abandoned, pull requests that have gone quiet.
+# Scheduled runs only happen while the STALE_PR_BOT_ENABLED repo variable is "true";
+# manually dispatched runs always go ahead.
+name: Stale PRs
+
+on:
+  schedule:
+    - cron: "23 7 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Only log what would happen"
+        type: boolean
+        default: true
+      pr_number:
+        description: "Only process this PR"
+        type: string
+
+concurrency:
+  group: stale-prs
+
+jobs:
+  stale-prs:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || vars.STALE_PR_BOT_ENABLED == 'true'
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v5
+
+      # the app token, unlike GITHUB_TOKEN, can reach the org's project boards
+      - uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version-file: ".github/llm-bot/.python-version"
+      - uses: astral-sh/setup-uv@v6
+      - name: Install dependencies
+        working-directory: .github/llm-bot
+        run: uv sync --locked --all-extras --dev
+
+      - name: Process stale PRs
+        working-directory: .github/llm-bot
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          REPOSITORY: ${{ github.repository }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+          PYTHONUNBUFFERED: "1"
+        run: uv run stale_prs.py
