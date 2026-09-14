@@ -140,8 +140,10 @@ export const useMarkAllNotificationsSeen = () => {
   const { error, mutate, isPending } = useMutation({
     mutationFn: async ({ latestNotificationId }: { latestNotificationId: number }) =>
       await service.notifications.markAllNotificationsSeen(latestNotificationId),
-    onMutate: () => {
-      queryClient.cancelQueries({
+    onMutate: async () => {
+      // Awaited so an in-flight list refetch can't resolve after the optimistic
+      // write below and clobber it.
+      await queryClient.cancelQueries({
         queryKey: [listNotificationsQueryKey],
       });
 
@@ -191,8 +193,10 @@ export const useMarkSingleNotificationIsSeen = () => {
   const { error, mutate, isPending } = useMutation({
     mutationFn: async ({ notificationId, isSeen }: { notificationId: number; isSeen: boolean }) =>
       await service.notifications.markNotificationSeen(notificationId, isSeen),
-    onMutate: ({ notificationId, isSeen }) => {
-      queryClient.cancelQueries({
+    onMutate: async ({ notificationId, isSeen }) => {
+      // Awaited so an in-flight list refetch can't resolve after the optimistic
+      // write below and clobber it.
+      await queryClient.cancelQueries({
         queryKey: [listNotificationsQueryKey],
       });
 
@@ -223,6 +227,12 @@ export const useMarkSingleNotificationIsSeen = () => {
           action: "onMutate",
         },
       });
+    },
+    onSettled: () => {
+      // Refetch the list (to reconcile the optimistic update) and the ping so the
+      // overall unread notification count / badge stays in sync.
+      queryClient.invalidateQueries({ queryKey: [listNotificationsQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [pingQueryKey] });
     },
   });
 
