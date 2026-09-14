@@ -1,13 +1,13 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { InitiateDonationReq } from "proto/donations_pb";
+import { DonationFrequency, InitiateDonationReq } from "proto/donations_pb";
 
 import client from "./client";
 
-export async function initiateDonation(amount: number, recurring: boolean, source?: string) {
+export async function initiateDonation(amount: number, frequency: DonationFrequency, source?: string) {
   const req = new InitiateDonationReq();
 
   req.setAmount(amount);
-  req.setRecurring(recurring);
+  req.setFrequency(frequency);
 
   if (source) {
     req.setSource(source);

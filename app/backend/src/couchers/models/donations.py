@@ -13,7 +13,8 @@ if TYPE_CHECKING:
 
 class DonationType(enum.Enum):
     one_time = enum.auto()
-    recurring = enum.auto()
+    monthly = enum.auto()
+    yearly = enum.auto()
 
 
 class InvoiceType(enum.Enum):
