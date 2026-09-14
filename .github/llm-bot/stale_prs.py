@@ -44,17 +44,27 @@ ABANDONED_OPTION_NAME = "Abandoned"
 
 GRAPHQL_URL = "https://api.github.com/graphql"
 
-PROJECT_ITEMS_QUERY = """
+LINKED_ISSUES_QUERY = """
 query($owner: String!, $name: String!, $number: Int!) {
   repository(owner: $owner, name: $name) {
     pullRequest(number: $number) {
-      projectItems(first: 20) {
+      closingIssuesReferences(first: 20) {
         nodes {
           id
-          project { id title }
+          number
+          assignees(first: 20) { nodes { login } }
         }
       }
     }
+  }
+}
+"""
+
+PROJECT_ITEMS_QUERY = """
+query($id: ID!) {
+  node(id: $id) {
+    ... on PullRequest { projectItems(first: 20) { nodes { id project { id title } } } }
+    ... on Issue { projectItems(first: 20) { nodes { id project { id title } } } }
   }
 }
 """
@@ -147,28 +157,40 @@ class StalePRBot:
         pr.remove_from_labels(name)
         print(f"Removed {name!r} from #{pr.number}")
 
-    def comment(self, pr: PullRequest, body: str) -> None:
+    def comment(self, number: int, body: str) -> None:
         if self.dry_run:
-            print(f"[dry run] would comment on #{pr.number}:\n{body}\n")
+            print(f"[dry run] would comment on #{number}:\n{body}\n")
             return
-        pr.create_issue_comment(body)
-        print(f"Commented on #{pr.number}")
+        self.repo.get_issue(number).create_comment(body)
+        print(f"Commented on #{number}")
 
-    def unassign(self, pr: PullRequest, logins: list[str]) -> None:
+    def unassign(self, number: int, logins: list[str]) -> None:
         if self.dry_run:
-            print(f"[dry run] would unassign {', '.join(logins)} from #{pr.number}")
+            print(f"[dry run] would unassign {', '.join(logins)} from #{number}")
             return
-        pr.remove_from_assignees(*logins)
-        print(f"Unassigned {', '.join(logins)} from #{pr.number}")
+        self.repo.get_issue(number).remove_from_assignees(*logins)
+        print(f"Unassigned {', '.join(logins)} from #{number}")
 
     # ------------------------------------------------------------------
     # Project board
     # ------------------------------------------------------------------
 
-    def project_item(self, pr: PullRequest) -> Optional[dict[str, Any]]:
+    def linked_issues(self, pr: PullRequest) -> list[dict[str, Any]]:
+        """The issues this pull request would close, which is where the work is actually assigned."""
         owner, name = self.repo.full_name.split("/")
-        data = self.graphql(PROJECT_ITEMS_QUERY, {"owner": owner, "name": name, "number": pr.number})
-        for item in data["repository"]["pullRequest"]["projectItems"]["nodes"]:
+        data = self.graphql(LINKED_ISSUES_QUERY, {"owner": owner, "name": name, "number": pr.number})
+        return [
+            {
+                "id": node["id"],
+                "number": node["number"],
+                "assignees": [assignee["login"] for assignee in node["assignees"]["nodes"]],
+            }
+            for node in data["repository"]["pullRequest"]["closingIssuesReferences"]["nodes"]
+        ]
+
+    def project_item(self, node_id: str) -> Optional[dict[str, Any]]:
+        data = self.graphql(PROJECT_ITEMS_QUERY, {"id": node_id})
+        for item in data["node"]["projectItems"]["nodes"]:
             if item["project"]["title"] == PROJECT_TITLE:
                 return item
         return None
@@ -182,10 +204,10 @@ class StalePRBot:
             self.status_options[project_id] = (field["id"], {o["name"]: o["id"] for o in field["options"]})
         return self.status_options[project_id]
 
-    def set_project_status(self, pr: PullRequest, option_name: str) -> None:
-        item = self.project_item(pr)
+    def set_project_status(self, node_id: str, what: str, option_name: str) -> None:
+        item = self.project_item(node_id)
         if not item:
-            print(f"#{pr.number} is not on the {PROJECT_TITLE!r} board, leaving its status alone")
+            print(f"{what} is not on the {PROJECT_TITLE!r} board, leaving its status alone")
             return
 
         project_id = item["project"]["id"]
@@ -194,7 +216,7 @@ class StalePRBot:
             raise RuntimeError(f"No {option_name!r} option on the {STATUS_FIELD_NAME!r} field of {PROJECT_TITLE!r}")
 
         if self.dry_run:
-            print(f"[dry run] would set #{pr.number} to {option_name!r} on {PROJECT_TITLE!r}")
+            print(f"[dry run] would set {what} to {option_name!r} on {PROJECT_TITLE!r}")
             return
         self.graphql(
             SET_STATUS_MUTATION,
@@ -205,7 +227,7 @@ class StalePRBot:
                 "optionId": options[option_name],
             },
         )
-        print(f"Set #{pr.number} to {option_name!r} on {PROJECT_TITLE!r}")
+        print(f"Set {what} to {option_name!r} on {PROJECT_TITLE!r}")
 
     # ------------------------------------------------------------------
     # Staleness
@@ -247,34 +269,44 @@ class StalePRBot:
     # Actions
     # ------------------------------------------------------------------
 
-    def remind(self, pr: PullRequest, days: int, stage: int) -> None:
-        recipients = [assignee.login for assignee in pr.assignees] or [pr.user.login]
+    @staticmethod
+    def owners(pr: PullRequest, linked: list[dict[str, Any]]) -> list[str]:
+        logins = [assignee.login for assignee in pr.assignees]
+        logins += [login for issue in linked for login in issue["assignees"]]
+        return list(dict.fromkeys(logins)) or [pr.user.login]
+
+    def remind(self, pr: PullRequest, days: int, stage: int, linked: list[dict[str, Any]]) -> None:
         if stage == 1:
             body = (
-                f"{mentions(recipients)} CouchersBot here! There haven't been any updates on this pull "
-                f"request in {days} days, are you still working on it? If not, please let us know."
+                f"{mentions(self.owners(pr, linked))} CouchersBot here! There haven't been any updates on this "
+                f"pull request in {days} days, are you still working on it? If not, please let us know."
             )
         else:
             body = (
-                f"{mentions(recipients)} CouchersBot again: still no updates after {days} days. If you're "
-                f"still on this, just say so, otherwise we'll unassign it in a couple of weeks so that "
-                f"someone else can pick it up."
+                f"{mentions(self.owners(pr, linked))} CouchersBot again: still no updates after {days} days. If "
+                f"you're still on this, just say so, otherwise we'll mark it as abandoned in a couple of weeks so "
+                f"that someone else can pick it up."
             )
         body += f"\n\n<sub>Maintainers: add the <code>{EXEMPT_LABEL}</code> label to stop these reminders.</sub>"
-        self.comment(pr, body)
+        self.comment(pr.number, body)
 
-    def abandon(self, pr: PullRequest, days: int) -> None:
-        assignees = [assignee.login for assignee in pr.assignees]
-        thanks = f" {mentions(assignees or [pr.user.login])}, thanks for the work so far!"
+    def abandon(self, pr: PullRequest, days: int, linked: list[dict[str, Any]]) -> None:
         self.comment(
-            pr,
-            f"This pull request has had no updates in {days} days, so we're marking it as abandoned."
-            f"{thanks} Anyone is welcome to pick it up from here, and of course that includes you if "
-            f"you find the time again.",
+            pr.number,
+            f"This pull request has had no updates in {days} days, so we're marking it as abandoned. "
+            f"{mentions(self.owners(pr, linked))}, thanks for the work so far! Anyone is welcome to pick it up "
+            f"from here, and of course that includes you if you find the time again.",
         )
-        if assignees:
-            self.unassign(pr, assignees)
-        self.set_project_status(pr, ABANDONED_OPTION_NAME)
+        for issue in linked:
+            if issue["assignees"]:
+                self.unassign(issue["number"], issue["assignees"])
+            self.comment(
+                issue["number"],
+                f"The pull request for this, #{pr.number}, has had no updates in {days} days, so this issue is "
+                f"up for grabs again. Comment here if you'd like to take it on!",
+            )
+            self.set_project_status(issue["id"], f"#{issue['number']}", ABANDONED_OPTION_NAME)
+        self.set_project_status(pr.node_id, f"#{pr.number}", ABANDONED_OPTION_NAME)
 
     def process(self, pr: PullRequest) -> None:
         labels = {label.name for label in pr.labels}
@@ -295,10 +327,12 @@ class StalePRBot:
 
         # a pull request that jumps several stages at once only gets the action for the stage it lands on
         self.set_stage(pr, labels, due)
-        if due == 3:
-            self.abandon(pr, days)
-        elif due > current:
-            self.remind(pr, days, due)
+        if due > current:
+            linked = self.linked_issues(pr)
+            if due == 3:
+                self.abandon(pr, days, linked)
+            else:
+                self.remind(pr, days, due, linked)
 
     def run(self) -> None:
         if self.dry_run:
