@@ -158,10 +158,7 @@ const FilterDialog = ({ filters, isOpen, onCloseDialog, resetFilters, updateFilt
     }
   };
 
-  const handleDrinkingAllowedChange = (
-    event: React.MouseEvent<HTMLElement>,
-    newDrinkingAllowed: boolean | undefined,
-  ) => {
+  const handleDrinkingAllowedChange = (event: React.MouseEvent<HTMLElement>, newDrinkingAllowed: boolean | null) => {
     updateFilter({ drinkingAllowed: newDrinkingAllowed });
   };
 
@@ -207,7 +204,7 @@ const FilterDialog = ({ filters, isOpen, onCloseDialog, resetFilters, updateFilt
     updateFilter({ sleepingArrangement: newSleepingArrangement });
   };
 
-  const handleSmokesAtHomeChange = (event: React.MouseEvent<HTMLElement>, newSmokesAtHome: boolean | undefined) => {
+  const handleSmokesAtHomeChange = (event: React.MouseEvent<HTMLElement>, newSmokesAtHome: boolean | null) => {
     updateFilter({ smokesAtHome: newSmokesAtHome });
   };
 
