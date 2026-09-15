@@ -1,6 +1,7 @@
 import { ArrowBack, ArrowForward, Groups } from "@mui/icons-material";
-import { Box, IconButton, styled, Typography, TypographyProps, useMediaQuery, useTheme } from "@mui/material";
+import { Box, IconButton, styled, Typography, useMediaQuery, useTheme } from "@mui/material";
 import Alert from "components/Alert";
+import { clampedTypographyWith } from "components/ClampedTypography";
 import FadingScrollTrack from "components/FadingScrollTrack";
 import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
@@ -46,14 +47,8 @@ const CommunityCard = styled(StyledLink)(({ theme }) => ({
   },
 }));
 
-const CommunityName = styled(Typography)<TypographyProps>({
+const CommunityName = styled(clampedTypographyWith({ WebkitLineClamp: 2, ellipsis: true }))({
   fontWeight: 600,
-  display: "-webkit-box",
-  WebkitLineClamp: 2,
-  WebkitBoxOrient: "vertical",
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-  overflowWrap: "anywhere",
 });
 
 const SkeletonCard = styled("div")(({ theme }) => ({
