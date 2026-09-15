@@ -167,6 +167,28 @@ describe("ReportButton", () => {
       expect(screen.getByLabelText(resultsFieldLabel)).toBeVisible();
     });
 
+    it("shows a no-response note with a support mailto link above the submit button", async () => {
+      render(<ReportButton />, { wrapper });
+
+      const user = userEvent.setup();
+
+      await user.click(screen.getByRole("button", { name: t("global:report.label") }));
+      await user.click(
+        screen.getByRole("button", {
+          name: t("global:report.bug.button_label"),
+        }),
+      );
+
+      const note = await screen.findByText(/you will not get a response/i);
+      expect(note).toBeVisible();
+
+      const supportLink = screen.getByRole("link", { name: "support@couchers.org" });
+      expect(supportLink).toHaveAttribute("href", "mailto:support@couchers.org?subject=Couchers.org%20bug%20report");
+
+      const submitButton = screen.getByRole("button", { name: t("global:submit") });
+      expect(note.compareDocumentPosition(submitButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
+
     it("does not submit the bug report if the required fields are not filled in", async () => {
       render(<ReportButton />, { wrapper });
 
