@@ -1,35 +1,9 @@
-*Describe briefly what this PR is doing and why.*
-
-<!--
-Reference issues with "closes #1234", or simply "#1234" if not closing.
--->
+<!-- Describe what this PR is doing and why. Reference issues related or closed. -->
 
 ## Testing
-*Explain how you tested this PR and give clear steps so the reviewer can replicate.*
 
-<!--
-Include screenshots and any necessary dev environment adjustments such as editing .env files.
-Fill applicable checklists below, or remove those that don't apply.
--->
+<!-- Explain how you tested this PR, include screenshots if relevant, and give clear steps so the reviewer can replicate. -->
 
-**Backend checklist**
-- [ ] Added tests for any new code or added a regression test if fixing a bug
-- [ ] Run the backend locally and it works
-- [ ] Added migrations if there are any database changes, rebased onto `develop` if necessary for linear migration history
+## AI usage
 
-**Web frontend checklist**
-- [ ] There are no console warnings when running the app
-- [ ] Added tests where relevant
-- [ ] Clicked around my changes running locally and it works
-- [ ] Checked Desktop, Mobile and Tablet screen sizes
-
-## For maintainers
-<!-- Untick the following if you'd prefer that maintainers don't push commits/merge your branch. -->
-- [x] Maintainers can push commits to my branch
-- [x] Maintainers can merge this PR for me
-
-<!--
-Create the code review as a draft if still iterating or validating via CI.
-Once published, reviewers will be added based on changes, but feel free to add more.
-Once your code is approved, you can merge it if you have write access.
---->
+<!-- Explain how you used LLMs in this PR. -->
