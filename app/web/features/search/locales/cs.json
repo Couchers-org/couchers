@@ -30,7 +30,7 @@
       },
       "last_active_field_label": "Naposledy aktivní",
       "meetup_status_field_label": "Stav setkání",
-      "hosting_status_field_label": "Stav ubytování"
+      "hosting_status_field_label": "Stav hostování"
     },
     "accommodation_filters": {
       "title": "Filtry ubytování",

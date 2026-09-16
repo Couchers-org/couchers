@@ -43,7 +43,7 @@ from tests.test_communities import create_community
 
 
 @pytest.fixture(autouse=True)
-def _(testconfig, fast_passwords):
+def _(fast_passwords):
     pass
 
 

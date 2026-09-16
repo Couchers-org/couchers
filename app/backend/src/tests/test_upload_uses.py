@@ -1,6 +1,5 @@
 from datetime import timedelta
 
-import pytest
 from google.protobuf import wrappers_pb2
 from sqlalchemy import select
 
@@ -10,15 +9,9 @@ from couchers.helpers.upload_uses import UploadUseType, get_upload_uses, get_upl
 from couchers.models import Base, EventOccurrence, Page, PageType, PhotoGallery, PhotoGalleryItem, Upload
 from couchers.proto import events_pb2, pages_pb2
 from couchers.utils import datetime_to_iso8601_local, now
-from tests.conftest import testconfig  # noqa
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import events_session, pages_session
 from tests.test_communities import create_community
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
 
 
 def _add_upload(user_id, key):

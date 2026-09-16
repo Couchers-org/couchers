@@ -9,6 +9,7 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import CouchersTextLogo from "resources/CouchersTextLogo";
 import { dashboardRoute, signupRoute } from "routes";
+import { getCookie } from "utils/cookies";
 import stringOrFirstString from "utils/stringOrFirstString";
 
 import { useAuthContext } from "../AuthProvider";
@@ -47,13 +48,7 @@ export default function Login() {
   useEffect(() => {
     if (authenticated) {
       // Get the NEXT_LOCALE cookie to use the user's preferred language
-      const nextLocale =
-        typeof document !== "undefined"
-          ? document.cookie
-              .split("; ")
-              .find((row) => row.startsWith(`${LOCALE_COOKIE_NAME}=`))
-              ?.split("=")[1]
-          : null;
+      const nextLocale = getCookie(LOCALE_COOKIE_NAME);
 
       const targetLocale = nextLocale || router.locale || DEFAULT_LOCALE;
 

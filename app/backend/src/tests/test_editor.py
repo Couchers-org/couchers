@@ -15,12 +15,6 @@ from couchers.proto import editor_pb2
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import real_editor_session
 
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 VALID_GEOJSON_MULTIPOLYGON = """
     {
       "type": "MultiPolygon",

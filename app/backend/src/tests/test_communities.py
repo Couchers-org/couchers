@@ -38,12 +38,6 @@ from tests.fixtures.sessions import (
 )
 from tests.test_auth import get_session_cookie_tokens
 
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 # For testing purposes, restrict ourselves to a 1D-world, consisting of "intervals" that have width 2, and coordinates
 # that are points at (x, 1).
 # we'll stick to EPSG4326, even though it's not ideal, so don't use too large values, but it's around the equator, so
@@ -241,7 +235,7 @@ def get_group_id(session: Session, group_name: str) -> int:
 
 
 @pytest.fixture(scope="class")
-def testing_communities(db_class, testconfig):
+def testing_communities(db_class):
     user1, token1 = generate_user(username="user1", geom=create_1d_point(1), geom_radius=0.1)
     user2, token2 = generate_user(username="user2", geom=create_1d_point(2), geom_radius=0.1)
     user3, token3 = generate_user(username="user3", geom=create_1d_point(3), geom_radius=0.1)
