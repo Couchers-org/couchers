@@ -1,3 +1,4 @@
+import { useFeatureValue } from "@growthbook/growthbook-react";
 import { Box, Grid } from "@mui/material";
 import Divider from "components/Divider";
 import HtmlMeta from "components/HtmlMeta";
@@ -19,7 +20,7 @@ import UpcomingStays from "./UpcomingStays";
 
 export default function Dashboard() {
   const { t } = useTranslation([GLOBAL, DASHBOARD]);
-  const isPublicTripsEnabled = process.env.NODE_ENV !== "production";
+  const isPublicTripsEnabled = useFeatureValue("public_trips_enabled", false);
 
   return (
     <>
