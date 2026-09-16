@@ -110,11 +110,6 @@ def _populates(model: type[Base]) -> Callable[[Population], Population]:
     return decorator
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 ## Populations: one per model, each diverse enough that every hybrid on the model takes at least two
 ## different values across the rows (test_hybrid_agrees_with_sql asserts that).
 

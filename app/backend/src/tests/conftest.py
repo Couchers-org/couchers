@@ -272,7 +272,7 @@ def frozen_timewarp() -> Generator[FrozenTimewarp]:
     yield from install_timewarp(FrozenTimewarp(FROZEN_TEST_TIME))
 
 
-# Production gates forced True so tests run as "everything enabled". Used by testconfig and the `flags`
+# Production gates forced True so tests run as "everything enabled". Used by `_testconfig` and the `flags`
 # fixture; tests flip individual values via `flags`.
 _TEST_FLAG_DEFAULTS: dict[str, Any] = {
     "test_growthbook_integration": True,
@@ -290,8 +290,8 @@ _TEST_FLAG_DEFAULTS: dict[str, Any] = {
 }
 
 
-@pytest.fixture(scope="class")
-def testconfig():
+@pytest.fixture(scope="class", autouse=True)
+def _testconfig() -> Generator[None]:
     prevconfig = config.copy()
     prev_initialized = experimentation._initialized
     prev_load_local_flags = experimentation._load_local_flags
@@ -403,6 +403,17 @@ def testconfig():
     config.copy_from(prevconfig)
     experimentation._initialized = prev_initialized
     experimentation._load_local_flags = prev_load_local_flags
+
+
+@pytest.fixture(autouse=True)
+def _isolate_config() -> Generator[None]:
+    """
+    `_testconfig` alone isn't enough: being class-scoped, it doesn't restore between tests within a
+    `class Test...`.
+    """
+    prevconfig = config.copy()
+    yield
+    config.copy_from(prevconfig)
 
 
 class Flags:

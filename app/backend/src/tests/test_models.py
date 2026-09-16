@@ -1,16 +1,10 @@
 from datetime import UTC, date, datetime
 
-import pytest
 from sqlalchemy import select
 from sqlalchemy.sql import func
 
 from couchers.db import session_scope
 from tests.fixtures.db import make_user
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
 
 
 def test_user_age(db):

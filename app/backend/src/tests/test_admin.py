@@ -63,11 +63,6 @@ from tests.test_references import create_host_reference
 from tests.test_requests import valid_request_text
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def test_access_by_normal_user(db):
     normal_user, normal_token = generate_user()
 

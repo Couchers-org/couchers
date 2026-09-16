@@ -243,7 +243,10 @@
     "public_trip_user_mismatch": "O destinatário da solicitação de hospedagem não corresponde ao viajante da viagem pública.",
     "public_trips_disabled": "Viagens públicas estão atualmente desativadas.",
     "public_trips_not_enabled": "Viagens públicas não estão habilitadas nesta comunidade.",
-    "sms_disabled": "A verificação por SMS está atualmente desativada."
+    "sms_disabled": "A verificação por SMS está atualmente desativada.",
+    "not_donated_postal": "Você precisa doar para o Couchers.org antes de poder verificar seu endereço.",
+    "signup_flow_email_verified": "Você já verificou seu e-mail.",
+    "signup_flow_invalid_request": "Solicitação de registro inválida. Não é possível recuperar seu registro e continuar fazendo registro simultaneamente."
   },
   "quick_links": {
     "do_not_email": "Você não receberá nenhum e-mail não relacionado a segurança, e seu status de hospedagem foi desabilitado. Você ainda pode receber a newsletter e precisa cancelar sua inscrição nela separadamente.",
@@ -275,7 +278,9 @@
     "strong_verification_name": "Verificação forte",
     "strong_verification_description": "Este usuário teve seu gênero e data de nascimento verificados com um passaporte biométrico",
     "swagster_name": "Swagster",
-    "swagster_description": "Este usuário comprou um produto do Couchers.org!"
+    "swagster_description": "Este usuário comprou um produto do Couchers.org!",
+    "postal_verified_name": "Endereço verificado",
+    "postal_verified_description": "O endereço do usuário foi verificado com um cartão-postal físico"
   },
   "community_guidelines": {
     "be_kind_title": "Seja gentil com os outros",

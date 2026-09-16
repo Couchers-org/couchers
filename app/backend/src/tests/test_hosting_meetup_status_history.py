@@ -1,6 +1,5 @@
 from datetime import timedelta
 
-import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy import select
 
@@ -28,11 +27,6 @@ from tests.fixtures.sessions import (
     real_jail_session,
 )
 from tests.test_auth import _quick_signup
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
 
 
 def get_history(user_id: int) -> list[tuple[HostingMeetupStatusSource, HostingStatus, MeetupStatus]]:

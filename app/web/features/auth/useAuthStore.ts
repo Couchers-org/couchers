@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { userKey } from "features/queryKeys";
+import { StatusCode } from "grpc-web";
 import { useTranslation } from "i18n";
 import { allLanguages } from "i18n/allLanguages";
 import { GLOBAL } from "i18n/namespaces";
@@ -9,6 +10,7 @@ import { AuthRes, SignupFlowRes } from "proto/auth_pb";
 import { useMemo, useRef, useState } from "react";
 import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
+import { getCookie } from "utils/cookies";
 
 /**
  * Sync the NEXT_LOCALE cookie with the user's language preference from the backend
@@ -18,13 +20,7 @@ async function syncLanguagePreference() {
     const accountInfo = await service.account.getAccountInfo();
     const userLanguage = accountInfo.uiLanguagePreference;
 
-    const currentCookieLocale =
-      typeof document !== "undefined"
-        ? document.cookie
-            .split("; ")
-            .find((row) => row.startsWith("NEXT_LOCALE="))
-            ?.split("=")[1]
-        : null;
+    const currentCookieLocale = getCookie("NEXT_LOCALE");
 
     // Only update cookie if user has a valid language preference and it differs from current cookie
     if (userLanguage && allLanguages.includes(userLanguage) && userLanguage !== currentCookieLocale) {
@@ -125,12 +121,15 @@ export default function useAuthStore() {
             );
           }
         } catch (e) {
-          Sentry.captureException(e, {
-            tags: {
-              component: "auth/useAuthStore",
-              action: "passwordLogin",
-            },
-          });
+          // Wrong password / account not found are normal login outcomes, not bugs - don't spam Sentry with them
+          if (!(isGrpcError(e) && e.code === StatusCode.NOT_FOUND)) {
+            Sentry.captureException(e, {
+              tags: {
+                component: "auth/useAuthStore",
+                action: "passwordLogin",
+              },
+            });
+          }
           setError(isGrpcError(e) ? e.message : fatalErrorMessage.current);
         }
         setLoading(false);

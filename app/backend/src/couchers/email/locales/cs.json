@@ -37,7 +37,7 @@
       "received_because": "Tento e-mail dostáváš, protože máš účet na Couchers.org.",
       "contact_support": "Náš tým podpory můžeš kontaktovat na {{ email_link }}.",
       "timezone_note": "Všechny časy jsou v {{ timezone }} podle polohy v tvém profilu.",
-      "donate_link": "Podpořit projekt",
+      "donate_link": "Přispět",
       "volunteer_link": "Dobrovolník",
       "blog_link": "Blog",
       "nonprofit_note": "Couchers.org je projekt společnosti Couchers, Inc., americké neziskové organizace s daňovým osvobozením podle paragrafu 501(c)(3).",
@@ -74,5 +74,9 @@
     "recovered": {
       "subject": "Tvůj účet byl obnoven!"
     }
+  },
+  "moderator_note": {
+    "purpose_with_note": "Obdrželi jste důležitou zprávu od moderátorů:",
+    "acknowledge_request": "Než budeš pokračovat v používání platformy, musíš si přečíst a potvrdit tuto poznámku."
   }
 }

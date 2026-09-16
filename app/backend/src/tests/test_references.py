@@ -41,11 +41,6 @@ from tests.fixtures.sessions import (
 from tests.test_requests import valid_request_text
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def create_public_trip(session: Session, user_id: int, from_date: date, to_date: date) -> int:
     node = session.execute(select(Node).limit(1)).scalar_one_or_none()
     if node is None:
@@ -587,6 +582,14 @@ def test_ListReference_blocked_shadowed_users(db):
 
     with api_session(token1) as api:
         assert api.GetUser(api_pb2.GetUserReq(user=user1.username)).num_references == 1
+
+    # the shadowed author still sees their own reference in both, so the shadow ban isn't leaked
+    with references_session(token3) as api:
+        refs_rec = api.ListReferences(references_pb2.ListReferencesReq(to_user_id=user1.id)).references
+        assert len(refs_rec) == 2
+
+    with api_session(token3) as api:
+        assert api.GetUser(api_pb2.GetUserReq(user=user1.username)).num_references == 2
 
 
 def test_WriteFriendReference(db, moderator):
