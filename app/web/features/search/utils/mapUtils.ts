@@ -51,6 +51,7 @@ const getHasActiveFilters = (state: MapSearchState, initialState: MapSearchState
     state.filters.ageMax !== initialState.filters.ageMax ||
     state.filters.acceptsPets !== initialState.filters.acceptsPets ||
     state.filters.hostingStatus !== initialState.filters.hostingStatus ||
+    state.filters.meetupStatus !== initialState.filters.meetupStatus ||
     state.filters.numGuests !== initialState.filters.numGuests ||
     state.filters.showEmptyProfile !== initialState.filters.showEmptyProfile ||
     state.filters.acceptsKids !== initialState.filters.acceptsKids ||
