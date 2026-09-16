@@ -319,9 +319,7 @@
   },
   "error_loading_languages": "Не вдалося завантажити список мов",
   "language_names": {
-    "uk": "Українська",
-    "ca": "",
-    "cs": ""
+    "uk": "Українська"
   },
   "bar": {
     "help_button_a11y": "Допомога"
