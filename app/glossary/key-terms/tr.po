@@ -10,10 +10,6 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 5.15.2\n"
 
-#. (noun) The team behind Couchers.org, short form.
-msgid "team"
-msgstr ""
-
 #. (noun) The team behind Couchers.org.
 msgid "couchers_org_team"
 msgstr "Couchers.org Ekibi"
