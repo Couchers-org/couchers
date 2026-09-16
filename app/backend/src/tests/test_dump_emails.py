@@ -40,7 +40,7 @@ def test_dump_email_samples():
             assert bodies[variation.name]["txt"]
 
 
-def test_dump_email_index_is_self_contained(testconfig, tmp_path):
+def test_dump_email_index_is_self_contained(tmp_path):
     rendered = dump_all(tmp_path, locales=["de", "en"])
 
     assert sorted(path.name for path in tmp_path.iterdir()) == ["attachment_imgs", "index.html"]
