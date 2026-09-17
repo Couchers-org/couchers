@@ -188,6 +188,16 @@
       "rejected": "{{user}} has declined the request",
       "rejected_self": "You have declined the request"
     },
+    "invitation_status_changed": {
+      "accepted": "{{user}} has accepted the invitation",
+      "accepted_self": "You have accepted the invitation",
+      "cancelled": "{{user}} has withdrawn the invitation",
+      "cancelled_self": "You have withdrawn the invitation",
+      "confirmed": "{{user}} has confirmed the stay",
+      "confirmed_self": "You have confirmed the stay",
+      "rejected": "{{user}} has declined the invitation",
+      "rejected_self": "You have declined the invitation"
+    },
     "unknown_message_text": "Unknown control message"
   },
   "host_request_status": {

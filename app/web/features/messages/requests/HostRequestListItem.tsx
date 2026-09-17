@@ -115,6 +115,7 @@ export default function HostRequestListItem({ hostRequest, className, isArchived
           user: authorName,
           target_user: targetName,
           t,
+          isOffer,
         })
       : //if it's a normal message, show "<User's Name>: <The message>"
         `${capitalize(authorName)}: ${hostRequest.latestMessage.text?.text || ""}`

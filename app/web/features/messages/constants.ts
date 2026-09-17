@@ -72,4 +72,22 @@ export const requestStatusChangedMessageToSelfTransKey = {
   [HostRequestStatus.HOST_REQUEST_STATUS_PENDING]: null,
 } as const;
 
+// Public-trip invitations reverse the roles, so the control messages need their own wording:
+// the traveller accepts/declines and the host withdraws.
+export const invitationStatusChangedMessageToTransKey = {
+  [HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED]: "control_message.invitation_status_changed.accepted",
+  [HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED]: "control_message.invitation_status_changed.cancelled",
+  [HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED]: "control_message.invitation_status_changed.confirmed",
+  [HostRequestStatus.HOST_REQUEST_STATUS_REJECTED]: "control_message.invitation_status_changed.rejected",
+  [HostRequestStatus.HOST_REQUEST_STATUS_PENDING]: null,
+} as const;
+
+export const invitationStatusChangedMessageToSelfTransKey = {
+  [HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED]: "control_message.invitation_status_changed.accepted_self",
+  [HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED]: "control_message.invitation_status_changed.cancelled_self",
+  [HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED]: "control_message.invitation_status_changed.confirmed_self",
+  [HostRequestStatus.HOST_REQUEST_STATUS_REJECTED]: "control_message.invitation_status_changed.rejected_self",
+  [HostRequestStatus.HOST_REQUEST_STATUS_PENDING]: null,
+} as const;
+
 export const MARK_LAST_SEEN_TIMEOUT = 500;

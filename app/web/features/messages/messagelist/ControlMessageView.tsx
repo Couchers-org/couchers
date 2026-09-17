@@ -14,6 +14,10 @@ import { controlMessage, messageTargetId } from "../utils";
 import { messageElementId, MessageProps } from "./MessageView";
 import TimeInterval from "./TimeInterval";
 
+interface ControlMessageProps extends MessageProps {
+  isOffer?: boolean;
+}
+
 const StyledWrapper = styled("div")(() => ({
   marginInlineEnd: "auto",
   marginInlineStart: "auto",
@@ -30,7 +34,7 @@ const StyledSkeleton = styled(Skeleton)(() => ({
   minWidth: 100,
 }));
 
-export default function ControlMessageView({ message, onVisible, className }: MessageProps) {
+export default function ControlMessageView({ message, onVisible, className, isOffer }: ControlMessageProps) {
   const { t } = useTranslation(MESSAGES);
   const { authState } = useAuthContext();
   const { data: author, isLoading: isAuthorLoading } = useLiteUser(message.authorUserId);
@@ -59,6 +63,7 @@ export default function ControlMessageView({ message, onVisible, className }: Me
               target_user: targetName,
               t,
               isCurrentUser: message.authorUserId === authState.userId,
+              isOffer,
             })}
           </TextBody>
         ) : (
