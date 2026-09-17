@@ -271,13 +271,16 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 and user.gender != recipient.gender
             ):
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "public_trip_same_gender_only")
-            # Prevent duplicate offers on the same trip
+            # Prevent duplicate offers on the same trip. A withdrawn offer doesn't count, so a host
+            # can offer again after withdrawing, e.g. to renegotiate dates.
             existing_offer = session.execute(
-                select(HostRequest)
+                select(HostRequest.conversation_id)
                 .where(HostRequest.public_trip_id == public_trip_id)
                 .where(HostRequest.initiator_user_id == context.user_id)
+                .where(HostRequest.status != HostRequestStatus.cancelled)
+                .limit(1)
             ).scalar_one_or_none()
-            if existing_offer:
+            if existing_offer is not None:
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "duplicate_host_request_for_trip")
 
         # an offer on a public trip reverses the roles: the caller is the host and the recipient is the traveller
