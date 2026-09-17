@@ -55,7 +55,7 @@
   },
   "mark_all_read_button_text": "Označit vše jako přečtené",
   "mark_all_read_button_text_chats": "Označit všechny chaty jako přečtené",
-  "mark_all_read_button_text_hosting": "Označit všechny žádosti o ubytování jako přečtené",
+  "mark_all_read_button_text_hosting": "Označit všechny žádosti o hostování jako přečtené",
   "mark_all_read_button_text_surfing": "Označit všechny žádosti jako přečtené",
   "host_request_view": {
     "request_duration_one": "{{count}} noc",
@@ -76,7 +76,7 @@
   },
   "respond_box_title": "Odeslat odpověď",
   "respond_box_description": "Vyber odpověď a dej {{name}} hned vědět. Klidně pak připoj i zprávu.",
-  "surfer_bar_pending": "Tvá žádost o ubytování byla odeslána – čeká se na odpověď od {{name}}.",
+  "surfer_bar_pending": "Tvá žádost o hostování byla odeslána – čeká se na odpověď od {{name}}.",
   "cancel_request_button": "Zrušit žádost",
   "cancel_request_dialog_title": "Zrušit žádost?",
   "cancel_request_dialog_message": "Opravdu chceš zrušit svou žádost? Tuto akci nelze vrátit zpět.",

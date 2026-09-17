@@ -7,7 +7,7 @@
       "problem_helper": "Popište kroky, které jste provedli: na kterých stránkách jste byli, na co jste klikli, atd.",
       "expect_label": "Co se stalo? Co se mělo stát?",
       "expect_helper": "Popište problém, který se objevil, včetně případných chybových hlášek a uveďte co jste očekávali, že se stane místo toho.",
-      "warning_message": "Vezmi prosím na vědomí, že tyto informace, stejně jako diagnostické údaje, včetně toho na které stránce se nacházíš, jaký používáš prohlížeč a tvé uživatelské jméno, budou uloženy do veřejného seznamu chyb.",
+      "warning_message": "Informace, které v tomto formuláři poskytneš, a také diagnostické údaje včetně stránky, na které se právě nacházíš, tvého prohlížeče a tvého uživatelského jména, budou zaznamenány, aby je náš tým mohl zkontrolovat.",
       "success_message2": "Děkujeme za nahlášení tohoto problému a za zlepšení Couchers! Hlášení bylo odesláno vývojářům. Pro referenci můžeš použít ID: <id/>."
     },
     "flag": {
@@ -127,7 +127,7 @@
     "community": "Komunita",
     "communities": "Komunity",
     "dashboard": "Nástěnka",
-    "donate": "Podpořit projekt",
+    "donate": "Přispět",
     "events": "Události",
     "newsletter": "Zpravodaj",
     "profile": "Profil",
@@ -345,5 +345,7 @@
   "bar": {
     "help_button_a11y": "Nápověda"
   },
-  "close_button_a11y": "Zavřít"
+  "close_button_a11y": "Zavřít",
+  "more_options_a11y": "Další možnosti",
+  "tap_press_to_flip": "Klikni / stiskni pro otočení"
 }

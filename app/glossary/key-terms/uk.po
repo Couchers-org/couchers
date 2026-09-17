@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-09-14 00:41+0000\n"
+"PO-Revision-Date: 2026-09-15 23:41+0000\n"
 "Last-Translator: Oleh S <olewa@protonmail.com>\n"
 "Language-Team: Ukrainian <https://translate.couchershq.org/projects/couchers/glossary-key-terms/uk/>\n"
 "Language: uk\n"
@@ -120,7 +120,7 @@ msgstr "підтверджений"
 
 #. (noun) Other users which are friends or have pending friend requests.
 msgid "connections"
-msgstr "зв'язки"
+msgstr "зв'язки / контакти"
 
 #. (noun) The team behind Couchers.org.
 msgid "couchers_org_team"
@@ -128,7 +128,7 @@ msgstr "Команда Couchers.org"
 
 #. (noun) The activity of free hospitality welcome/exchange. Platform-agnostic.
 msgid "couch surfing"
-msgstr "жити по каучу / обміну гостинністю"
+msgstr "каучсерфінг / подорожі по каучу / платформа гостинності"
 
 #. (verb) As a host, the act of declining a surfer's host request.
 msgid "host_request.decline"
@@ -175,6 +175,7 @@ msgid "friend"
 msgstr "друг"
 
 #. (noun) A reference from a friend.
+#, fuzzy
 msgid "friend_reference"
 msgstr "відгук друга"
 
@@ -191,10 +192,12 @@ msgid "friends"
 msgstr "друзі"
 
 #. (noun) A named thread for messages between three or more users.
+#, fuzzy
 msgid "group_chat"
 msgstr "групова розмова"
 
 #. (noun) A named thread for messages between three or more users.
+#, fuzzy
 msgid "group_chats"
 msgstr "групові розмови"
 
@@ -236,7 +239,7 @@ msgstr "~ люди що приймають гостей"
 
 #. A geographical location such as an address or the name of a city.
 msgid "location"
-msgstr "місто"
+msgstr "місто / місцевість"
 
 #. (verb) The action of logging in to Couchers.org after logging out.
 msgid "log_back_in"
@@ -320,11 +323,11 @@ msgstr "фотографії"
 
 #. (noun) A problem with the platform reported by a user.
 msgid "report_problem.problem"
-msgstr "проблема"
+msgstr "проблема / помилка"
 
 #. (noun) Problems with the platform reported by a user.
 msgid "report_problem.problems"
-msgstr "проблеми"
+msgstr "проблеми / помилки"
 
 #. (noun) A notifications sent to a user's phone or browser.
 msgid "push_notification"
@@ -356,7 +359,7 @@ msgstr "відповісти"
 
 #. (noun) As a user, the act of reporting a problem with the platform.
 msgid "report_problem.report"
-msgstr "звіт / скарга"
+msgstr "повідомлення / звіт / скарга"
 
 #. (noun) The Couchers.org safety team.
 msgid "safety_team"
@@ -376,7 +379,7 @@ msgstr "налаштування"
 
 #. (noun) A status whereby a user's identity has been verified.
 msgid "strong_verification"
-msgstr "Офіційна верифікація"
+msgstr "Офіційна Верифікація"
 
 #. (noun) The Couchers.org support team.
 msgid "support_team"
@@ -412,7 +415,7 @@ msgstr "користувачі"
 
 #. (verb) The act of volunteering with Couchers.org.
 msgid "volunteer.verb"
-msgstr "волонтерити"
+msgstr "волонтерити / стати волонтером"
 
 #. (noun) A person volunteering with Couchers.org.
 msgid "volunteer.noun"
