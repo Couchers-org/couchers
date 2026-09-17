@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-09-14 12:41+0000\n"
+"PO-Revision-Date: 2026-09-14 22:41+0000\n"
 "Last-Translator: Mariana Baroni <maribaroni@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) <https://translate.couchershq.org/projects/couchers/glossary-key-terms/pt_BR/>\n"
 "Language: pt_BR\n"
@@ -43,7 +43,6 @@ msgid "blog"
 msgstr "blog"
 
 #. (noun) The activity of free hospitality welcome/exchange. Platform-agnostic.
-#, fuzzy
 msgid "couch surfing"
 msgstr "couch surfing"
 
@@ -234,3 +233,194 @@ msgstr "conversa"
 #. (noun) Threads for messages between two or more users.
 msgid "chats"
 msgstr "conversas"
+
+#. (verb) As a host, the act of accepting a surfer's host request.
+msgid "host_request.accept"
+msgstr "aceitar"
+
+#. (adj) The state of a host request that was accepted by the host.
+msgid "host_request.accepted"
+msgstr "aceita"
+
+#. (noun) A user who has indicated their intention to attend an event.
+msgid "events.attendee"
+msgstr "participante"
+
+#. (noun) Users who have indicated their intention to attend an event.
+msgid "events.attendees"
+msgstr "participantes"
+
+#. (verb) As a surfer, the act of cancelling a host request.
+msgid "host_request.cancel"
+msgstr "cancelar"
+
+#. (verb) The act of cancelling an event.
+msgid "events.cancel"
+msgstr "cancelar"
+
+#. (adj) The state of a host request that was cancelled by the surfer.
+msgid "host_request.cancelled"
+msgstr "cancelada"
+
+#. (adj) The state of an event that has been cancelled.
+msgid "events.cancelled"
+msgstr "cancelado"
+
+#. (noun) A top-level comment on a discussion or event.
+msgid "discussions.comment.noun"
+msgstr "comentário"
+
+#. (verb) The act of adding a top-level comment on a discussion or event.
+msgid "discussions.comment.verb"
+msgstr "comentar"
+
+#. (noun) Top-level comments on a discussion or event.
+msgid "discussions.comments"
+msgstr "comentários"
+
+#. (noun) Geographical communities with local discussions, events, etc.
+msgid "communities"
+msgstr "comunidades"
+
+#. (noun) A geographical community with local discussions, events, etc.
+msgid "community"
+msgstr "comunidade"
+
+#. (noun) A user recognized to be highly involved in a community, with special editing rights.
+msgid "community_builder"
+msgstr "criador de comunidade"
+
+#. (noun) Users recognized to be highly involved in a community, with special editing rights.
+msgid "community_builders"
+msgstr "criadores de comunidade"
+
+#. (verb) As a surfer, the act of confirming a host request that was accepted by the host.
+msgid "host_request.confirm"
+msgstr "confirmar"
+
+#. (adj) The state of a host request that was confirmed by the surfer after being accepted by the host.
+msgid "host_request.confirmed"
+msgstr "confirmada"
+
+#. (noun) Other users which are friends or have pending friend requests.
+msgid "connections"
+msgstr "conexões"
+
+#. (verb) As a host, the act of declining a surfer's host request.
+msgid "host_request.decline"
+msgstr "recusar"
+
+#. (adj) The state of a host request that was declined by the host.
+msgid "host_request.declined"
+msgstr "recusada"
+
+#. (noun) A community or event discussion that supports replies.
+msgid "discussion"
+msgstr "discussão"
+
+#. (noun) Community or event discussions that support replies.
+msgid "discussions"
+msgstr "discussões"
+
+#. (noun) An event created by a user for others to attend.
+msgid "event"
+msgstr "evento"
+
+#. (noun) Events created by users for others to attend.
+msgid "events"
+msgstr "eventos"
+
+#. (noun) Another user confirmed as a friend using the friend feature.
+msgid "friend"
+msgstr "amigo/amiga"
+
+#. (noun) A reference from a friend.
+#, fuzzy
+msgid "friend_reference"
+msgstr "referência de amigo"
+
+#. (noun) A request to add another user as a friend.
+msgid "friend_request"
+msgstr "solicitação de amizade"
+
+#. (noun) Requests to add other users as friends.
+msgid "friend_requests"
+msgstr "solicitações de amizade"
+
+#. (noun) Other users confirmed as friends using the friend feature.
+msgid "friends"
+msgstr "amigos"
+
+#. (noun) A named thread for messages between three or more users.
+#, fuzzy
+msgid "group_chat"
+msgstr "conversa de grupo"
+
+#. (noun) A named thread for messages between three or more users.
+#, fuzzy
+msgid "group_chats"
+msgstr "conversas de grupo"
+
+#. (noun) A user providing hospitality to other users.
+msgid "host.noun"
+msgstr "anfitrião/anfitriã"
+
+#. (verb) As a host, the act of offering hospitality to other users.
+msgid "host.verb"
+msgstr "hospedar"
+
+#. (adjective) As a surfer, the state of receiving hospitality from a host.
+msgid "hosted"
+msgstr "hospedado/hospedada"
+
+#. (verb) As a host, the act of offering hospitality to other users.
+msgid "hosting"
+msgstr "hospedando"
+
+#. (noun) The process of establishing a hosting relationship.
+msgid "host_request"
+msgstr "solicitação de hospedagem"
+
+#. (noun) The process of establishing a hosting relationship.
+msgid "host_requests"
+msgstr "solicitações de hospedagem"
+
+#. (noun) Users providing hospitality to other users.
+msgid "hosts.noun"
+msgstr "anfitriões"
+
+#. (noun) A user listed as an organizer on an event.
+msgid "events.organizer"
+msgstr "organizador/organizadora"
+
+#. (noun) Users listed as organizers on an event.
+msgid "events.organizers"
+msgstr "organizadores"
+
+#. (noun) A reference from a friend, host or surfer.
+msgid "reference"
+msgstr "referência"
+
+#. (noun) References from friends, hosts or surfers.
+msgid "references"
+msgstr "referências"
+
+#. (noun) Replies on a top-level comment in a discussion or event.
+msgid "discussions.replies"
+msgstr "respostas"
+
+#. (noun) A reply on a top-level comment in a discussion or event.
+msgid "discussions.reply.noun"
+msgstr "resposta"
+
+#. (verb) The act of replying to a top-level comment on a discussion or event.
+msgid "discussions.reply.verb"
+msgstr "responder"
+
+#. (noun) A user receiving hospitality from other users.
+msgid "surfer"
+msgstr "surfer"
+
+#. (noun) Users receiving hospitality from other users.
+msgid "surfers"
+msgstr "surfers"

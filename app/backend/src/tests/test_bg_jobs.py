@@ -6,6 +6,7 @@ import pytest
 import requests
 from google.protobuf import empty_pb2
 from google.protobuf.empty_pb2 import Empty
+from prometheus_client import REGISTRY
 from sqlalchemy import select, text
 from sqlalchemy.sql import delete, func
 
@@ -100,6 +101,14 @@ def _check_job_counter(port, job, status, attempt, exception):
     metrics_string = requests.get(f"http://localhost:{port}").text
     string_to_check = f'attempt="{attempt}",exception="{exception}",job="{job}",status="{status}"'
     assert string_to_check in metrics_string
+
+
+def _queued_seconds_sum():
+    total = 0.0
+    for metric in REGISTRY.collect():
+        if metric.name == "couchers_background_jobs_queued_seconds":
+            total += sum(sample.value for sample in metric.samples if sample.name.endswith("_sum"))
+    return total
 
 
 def test_email_job(db):
@@ -533,6 +542,27 @@ def test_job_retry_backs_off_from_now_not_from_a_stale_next_attempt_after(db):
             assert now() + timedelta(seconds=25) < job.next_attempt_after < now() + timedelta(seconds=35)
 
         assert not process_job()
+
+
+def test_job_queued_latency_excludes_retry_backoff(db):
+    def mock_job(payload: empty_pb2.Empty) -> None:
+        pass
+
+    MOCK_JOBS: dict[str, Job[Any]] = {"mock_job": Job(mock_job)}
+
+    with session_scope() as session:
+        queue_job(session, job=mock_job, payload=empty_pb2.Empty())
+        session.flush()
+        job = session.execute(select(BackgroundJob)).scalar_one()
+        job.queued = now() - timedelta(hours=1)
+        job.next_attempt_after = now()
+
+    before = _queued_seconds_sum()
+
+    with patch("couchers.jobs.worker.JOBS", MOCK_JOBS):
+        assert process_job()
+
+    assert _queued_seconds_sum() - before < 60
 
 
 def test_job_dequeue_steps_over_other_workers_jobs(db):

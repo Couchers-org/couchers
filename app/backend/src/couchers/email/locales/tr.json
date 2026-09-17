@@ -15,7 +15,10 @@
       "donate_link": "Bağış Yap",
       "volunteer_link": "Gönüllü Ol",
       "blog_link": "Blog",
-      "nonprofit_note": "Couchers.org, ABD'de 501(c)(3) statüsünde kar amacı gütmeyen, vergiden muaf bir kuruluş olan Couchers, Inc.'in bir projesidir."
+      "nonprofit_note": "Couchers.org, ABD'de 501(c)(3) statüsünde kar amacı gütmeyen, vergiden muaf bir kuruluş olan Couchers, Inc.'in bir projesidir.",
+      "security_email_note": "Bu bir güvenlik e-postasıdır, bu e-postaya aboneliğini iptal edemezsin.",
+      "notification_settings_link": "Bildirim ayarlarını yönet",
+      "do_not_email_link": "Bana e-posta göndermeyin (Ev sahipliğini devre dışı bırakır)"
     }
   },
   "account_deletion": {
