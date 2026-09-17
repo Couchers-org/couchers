@@ -167,7 +167,9 @@ function OffersChip({ count }: { count: number }) {
       ) : (
         <HourglassEmptyOutlined sx={{ fontSize: "15px" }} />
       )}
-      {hasOffers ? t("dashboard:public_trips.invitations_count", { count }) : t("dashboard:public_trips.no_invitations")}
+      {hasOffers
+        ? t("dashboard:public_trips.invitations_count", { count })
+        : t("dashboard:public_trips.no_invitations")}
     </Box>
   );
 }
