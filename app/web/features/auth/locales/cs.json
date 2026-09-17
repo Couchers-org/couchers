@@ -382,7 +382,27 @@
       "override_location_label": "Použít jinou polohu na stránce týmu (místo „{{profileLocation}}“)",
       "display_location_label": "Zobrazit polohu",
       "show_on_team_page_label": "Zobrazit mě na stránce týmu",
-      "link_type_label": "Typ odkazu"
+      "link_type_label": "Typ odkazu",
+      "link_type_couchers": "Couchers profil",
+      "link_type_email": "Email",
+      "link_type_linkedin": "LinkedIn",
+      "link_type_website": "Webové stránky",
+      "link_text_label": "Hodnota odkazu",
+      "link_text_email_helper": "Tvoje e-mailová adresa",
+      "link_text_website_helper": "Text, který se zobrazí jako odkaz",
+      "link_text_required": "Zadej prosím hodnotu pro odkaz",
+      "link_text_email_invalid": "Zadej prosím platnou e-mailovou adresu",
+      "link_text_linkedin_invalid": "Zadej prosím platné uživatelské jméno LinkedIn (pouze písmena, číslice a pomlčky)",
+      "link_url_label": "URL odkazu",
+      "link_url_placeholder": "https://tvuj-web.cz",
+      "link_url_helper": "Úplná adresa URL, na kterou má odkaz směřovat",
+      "link_url_required": "Zadej prosím URL adresu webových stránek",
+      "link_url_invalid": "Zadej prosím platnou URL adresu začínající na http:// nebo https://",
+      "save_button": "Uložit změny",
+      "link_text_linkedin_placeholder": "jan-novak-a1b2c3",
+      "link_text_email_placeholder": "tvuj@email.cz",
+      "link_text_website_placeholder": "https://tvuj-web.cz",
+      "link_text_linkedin_helper": "Uživatelské jméno z URL adresy tvého profilu (např. linkedin.com/in/jan-novak-a1b2c3)"
     }
   }
 }
