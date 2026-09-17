@@ -58,7 +58,7 @@ describe("HostRequestView — normal request", () => {
     });
 
     expect(await screen.findByRole("button", { name: t("global:accept") })).toBeVisible();
-    expect(screen.queryByRole("button", { name: t("messages:withdraw_offer_button") })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: t("messages:withdraw_invitation_button") })).not.toBeInTheDocument();
   });
 
   it("does not give the surfer an accept button while pending", async () => {
@@ -85,8 +85,8 @@ describe("HostRequestView — public-trip offer", () => {
       status: HostRequestStatus.HOST_REQUEST_STATUS_PENDING,
     });
 
-    expect(await screen.findByText(t("messages:offer_sent_box_title"))).toBeVisible();
-    expect(screen.getByRole("button", { name: t("messages:withdraw_offer_button") })).toBeVisible();
+    expect(await screen.findByText(t("messages:invitation_sent_box_title"))).toBeVisible();
+    expect(screen.getByRole("button", { name: t("messages:withdraw_invitation_button") })).toBeVisible();
     expect(screen.queryByRole("button", { name: t("global:accept") })).not.toBeInTheDocument();
   });
 
@@ -99,8 +99,8 @@ describe("HostRequestView — public-trip offer", () => {
     });
 
     expect(await screen.findByRole("button", { name: t("global:accept") })).toBeVisible();
-    expect(screen.queryByRole("button", { name: t("messages:withdraw_offer_button") })).not.toBeInTheDocument();
-    expect(screen.queryByText(t("messages:offer_sent_box_title"))).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: t("messages:withdraw_invitation_button") })).not.toBeInTheDocument();
+    expect(screen.queryByText(t("messages:invitation_sent_box_title"))).not.toBeInTheDocument();
   });
 
   it("lets the offering host confirm once the surfer has accepted", async () => {
@@ -112,7 +112,7 @@ describe("HostRequestView — public-trip offer", () => {
     });
 
     expect(await screen.findByRole("button", { name: t("messages:confirm_request_button_text") })).toBeVisible();
-    expect(screen.getByRole("button", { name: t("messages:withdraw_offer_button") })).toBeVisible();
+    expect(screen.getByRole("button", { name: t("messages:withdraw_invitation_button") })).toBeVisible();
   });
 
   it("shows the surfer a confirmation, not a confirm button, once they've accepted", async () => {
@@ -124,7 +124,7 @@ describe("HostRequestView — public-trip offer", () => {
     });
 
     expect(
-      await screen.findByText(t("messages:offer_accept_confirmation", { name: "Funny" }), { exact: false }),
+      await screen.findByText(t("messages:invitation_accept_confirmation", { name: "Funny" }), { exact: false }),
     ).toBeVisible();
     expect(screen.queryByRole("button", { name: t("messages:confirm_request_button_text") })).not.toBeInTheDocument();
   });

@@ -3,7 +3,7 @@
   "mark_all_read_button_text_chats": "Mark all chats as read",
   "mark_all_read_button_text_hosting": "Mark all host requests as read",
   "mark_all_read_button_text_surfing": "Mark all surf requests as read",
-  "mark_all_read_button_text_public_trips": "Mark all public trip offers as read",
+  "mark_all_read_button_text_public_trips": "Mark all public trip invitations as read",
   "write_reference_button_text": "Write a Reference",
   "reference_card": {
     "title": "Write a reference",
@@ -12,18 +12,18 @@
   "close_request_button_text": "Decline",
   "respond_box_title": "Send a response",
   "respond_box_description": "Select a response to let {{name}} know immediately. Feel free to follow up with a message.",
-  "offer_respond_box_title": "Respond to {{name}}'s offer",
-  "offer_respond_box_description": "Accepting lets {{name}} know you'd like to stay. You can keep chatting to sort out the details either way.",
-  "offer_accept_confirmation": "You accepted {{name}}'s offer. Say hi and sort out arrival details.",
-  "offer_sent_box_title": "Offer sent",
-  "offer_sent_box_description": "{{name}} hasn't responded yet. You'll be notified when they accept or pick another host. You can withdraw your offer until then.",
-  "offer_host_accepted_box_title": "{{name}} accepted your offer",
-  "offer_host_accepted_box_description": "Confirm to lock in the stay, or withdraw if your plans have changed.",
-  "withdraw_offer_button": "Withdraw offer",
-  "withdraw_offer_dialog_title": "Withdraw your offer?",
-  "withdraw_offer_dialog_message": "This will withdraw your offer to host. You can't undo this.",
-  "withdraw_offer_dialog_confirm_button": "Withdraw offer",
-  "withdraw_offer_dialog_dismiss_button": "Keep offer",
+  "invitation_respond_box_title": "Respond to {{name}}'s invitation",
+  "invitation_respond_box_description": "Accepting lets {{name}} know you'd like to stay. You can keep chatting to sort out the details either way.",
+  "invitation_accept_confirmation": "You accepted {{name}}'s invitation. Say hi and sort out arrival details.",
+  "invitation_sent_box_title": "Invitation sent",
+  "invitation_sent_box_description": "{{name}} hasn't responded yet. You'll be notified when they reply. You can withdraw your invitation until then.",
+  "invitation_host_accepted_box_title": "{{name}} accepted your invitation",
+  "invitation_host_accepted_box_description": "Confirm to lock in the stay, or withdraw if your plans have changed.",
+  "withdraw_invitation_button": "Withdraw invitation",
+  "withdraw_invitation_dialog_title": "Withdraw your invitation?",
+  "withdraw_invitation_dialog_message": "This will withdraw your invitation to host. You can't undo this.",
+  "withdraw_invitation_dialog_confirm_button": "Withdraw invitation",
+  "withdraw_invitation_dialog_dismiss_button": "Keep invitation",
   "status_bar_edit_button": "Edit",
   "status_bar_cancel_edit_button": "Cancel",
   "status_bar_close_button": "Close",
@@ -215,34 +215,34 @@
       "rejected": "Your request was declined"
     },
     "public_trip_chip": "Public trip",
-    "offer_host_status": {
+    "invitation_host_status": {
       "pending": "Awaiting {{name}}'s reply",
-      "accepted": "{{name}} accepted your offer",
-      "rejected": "{{name}} chose another host",
-      "cancelled": "You withdrew your offer"
+      "accepted": "{{name}} accepted your invitation",
+      "rejected": "{{name}} declined your invitation",
+      "cancelled": "You withdrew your invitation"
     },
-    "offer_surfer_status": {
-      "pending": "Offer to host you · awaiting your reply",
-      "accepted": "You accepted {{name}}'s offer",
-      "rejected": "You declined this offer",
-      "cancelled": "{{name}} withdrew their offer"
+    "invitation_surfer_status": {
+      "pending": "Invitation to host you · awaiting your reply",
+      "accepted": "You accepted {{name}}'s invitation",
+      "rejected": "You declined this invitation",
+      "cancelled": "{{name}} withdrew their invitation"
     }
   },
   "my_public_trips": {
-    "empty_state": "No offers on your public trips yet.",
+    "empty_state": "No invitations on your public trips yet.",
     "toggle_group": "Toggle trip",
     "nights_one": "{{count}} night",
     "nights_other": "{{count}} nights",
-    "offers_one": "{{count}} offer",
-    "offers_other": "{{count}} offers"
+    "invitations_one": "{{count}} invitation",
+    "invitations_other": "{{count}} invitations"
   },
   "host_request_view": {
     "error_message": "Invalid host request ID",
     "back_button_a11y_label": "Back",
     "title_for_host": "Request from {{user}} - {{status}}",
     "title_for_surfer": "Request to {{user}} - {{status}}",
-    "offer_title_for_surfer": "Offer from {{user}} · {{status}}",
-    "offer_title_for_host": "Your offer to {{user}} · {{status}}",
+    "invitation_title_for_surfer": "Invitation from {{user}} · {{status}}",
+    "invitation_title_for_host": "Your invitation to {{user}} · {{status}}",
     "request_duration_one": "{{count}} night",
     "request_duration_other": "{{count}} nights"
   },

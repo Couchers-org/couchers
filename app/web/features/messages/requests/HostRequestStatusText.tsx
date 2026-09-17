@@ -26,34 +26,34 @@ function offerStatusText(
   if (requestStatus === HostRequestStatus.HOST_REQUEST_STATUS_PENDING) {
     if (isPast) return t("host_request_item.expired");
     return isHost
-      ? t("host_request_item.offer_host_status.pending", { name: otherName })
-      : t("host_request_item.offer_surfer_status.pending");
+      ? t("host_request_item.invitation_host_status.pending", { name: otherName })
+      : t("host_request_item.invitation_surfer_status.pending");
   }
   if (isHost) {
     switch (requestStatus) {
       case HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED:
       case HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED:
-        return t("host_request_item.offer_host_status.accepted", {
+        return t("host_request_item.invitation_host_status.accepted", {
           name: otherName,
         });
       case HostRequestStatus.HOST_REQUEST_STATUS_REJECTED:
-        return t("host_request_item.offer_host_status.rejected", {
+        return t("host_request_item.invitation_host_status.rejected", {
           name: otherName,
         });
       case HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED:
-        return t("host_request_item.offer_host_status.cancelled");
+        return t("host_request_item.invitation_host_status.cancelled");
     }
   } else {
     switch (requestStatus) {
       case HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED:
       case HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED:
-        return t("host_request_item.offer_surfer_status.accepted", {
+        return t("host_request_item.invitation_surfer_status.accepted", {
           name: otherName,
         });
       case HostRequestStatus.HOST_REQUEST_STATUS_REJECTED:
-        return t("host_request_item.offer_surfer_status.rejected");
+        return t("host_request_item.invitation_surfer_status.rejected");
       case HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED:
-        return t("host_request_item.offer_surfer_status.cancelled", {
+        return t("host_request_item.invitation_surfer_status.cancelled", {
           name: otherName,
         });
     }

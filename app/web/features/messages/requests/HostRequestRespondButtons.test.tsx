@@ -191,7 +191,7 @@ describe("HostRequestRespondButtons — public-trip offer", () => {
     );
     expect(
       screen.getByRole("button", {
-        name: t("messages:withdraw_offer_button"),
+        name: t("messages:withdraw_invitation_button"),
       }),
     ).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: t("global:accept") })).not.toBeInTheDocument();
@@ -210,7 +210,7 @@ describe("HostRequestRespondButtons — public-trip offer", () => {
       { wrapper },
     );
     const user = userEvent.setup();
-    await user.click(screen.getByRole("button", { name: t("messages:withdraw_offer_button") }));
+    await user.click(screen.getByRole("button", { name: t("messages:withdraw_invitation_button") }));
     expect(screen.getByRole("dialog")).toBeVisible();
   });
 
@@ -234,7 +234,7 @@ describe("HostRequestRespondButtons — public-trip offer", () => {
     ).toBeInTheDocument();
     expect(
       screen.queryByRole("button", {
-        name: t("messages:withdraw_offer_button"),
+        name: t("messages:withdraw_invitation_button"),
       }),
     ).not.toBeInTheDocument();
   });
@@ -251,7 +251,7 @@ describe("HostRequestRespondButtons — public-trip offer", () => {
       />,
       { wrapper },
     );
-    expect(screen.getByText(t("messages:offer_accept_confirmation", { name: "Luca" }))).toBeInTheDocument();
+    expect(screen.getByText(t("messages:invitation_accept_confirmation", { name: "Luca" }))).toBeInTheDocument();
   });
 
   it("drops the Confirm button for the offering host once the stay is confirmed", () => {
@@ -267,7 +267,7 @@ describe("HostRequestRespondButtons — public-trip offer", () => {
       { wrapper },
     );
 
-    expect(screen.getByRole("button", { name: t("messages:withdraw_offer_button") })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: t("messages:withdraw_invitation_button") })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: t("messages:confirm_request_button_text") })).not.toBeInTheDocument();
   });
 });

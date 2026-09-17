@@ -15,7 +15,7 @@ describe("HostRequestStatusText (public-trip offers)", () => {
       />,
       { wrapper },
     );
-    expect(screen.getByText("Offer to host you · awaiting your reply")).toBeVisible();
+    expect(screen.getByText("Invitation to host you · awaiting your reply")).toBeVisible();
 
     rerender(
       <HostRequestStatusText
@@ -26,7 +26,7 @@ describe("HostRequestStatusText (public-trip offers)", () => {
         otherName="Luca"
       />,
     );
-    expect(screen.getByText("You accepted Luca's offer")).toBeVisible();
+    expect(screen.getByText("You accepted Luca's invitation")).toBeVisible();
 
     rerender(
       <HostRequestStatusText
@@ -37,7 +37,7 @@ describe("HostRequestStatusText (public-trip offers)", () => {
         otherName="Luca"
       />,
     );
-    expect(screen.getByText("You declined this offer")).toBeVisible();
+    expect(screen.getByText("You declined this invitation")).toBeVisible();
   });
 
   it("shows the offering host offer copy", () => {
@@ -62,6 +62,6 @@ describe("HostRequestStatusText (public-trip offers)", () => {
         otherName="Mateo"
       />,
     );
-    expect(screen.getByText("Mateo chose another host")).toBeVisible();
+    expect(screen.getByText("Mateo declined your invitation")).toBeVisible();
   });
 });

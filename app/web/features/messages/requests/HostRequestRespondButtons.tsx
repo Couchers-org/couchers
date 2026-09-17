@@ -38,15 +38,15 @@ function WithdrawOfferButton({ isLoading, onConfirm }: { isLoading: boolean; onC
   const { t } = useTranslation([MESSAGES]);
   return (
     <ConfirmationDialogWrapper
-      title={t("messages:withdraw_offer_dialog_title")}
-      message={t("messages:withdraw_offer_dialog_message")}
-      confirmButtonLabel={t("messages:withdraw_offer_dialog_confirm_button")}
-      cancelButtonLabel={t("messages:withdraw_offer_dialog_dismiss_button")}
+      title={t("messages:withdraw_invitation_dialog_title")}
+      message={t("messages:withdraw_invitation_dialog_message")}
+      confirmButtonLabel={t("messages:withdraw_invitation_dialog_confirm_button")}
+      cancelButtonLabel={t("messages:withdraw_invitation_dialog_dismiss_button")}
       onConfirm={onConfirm}
     >
       {(setIsOpen) => (
         <FieldButton isLoading={isLoading} callback={() => setIsOpen(true)} variant="outlined">
-          {t("messages:withdraw_offer_button")}
+          {t("messages:withdraw_invitation_button")}
         </FieldButton>
       )}
     </ConfirmationDialogWrapper>
@@ -79,9 +79,9 @@ function OfferRespondButtons({
       return (
         <StyledCard>
           <div>
-            <Typography variant="subtitle2">{t("messages:offer_respond_box_title", { name })}</Typography>
+            <Typography variant="subtitle2">{t("messages:invitation_respond_box_title", { name })}</Typography>
             <Typography variant="body2" color="text.secondary">
-              {t("messages:offer_respond_box_description", { name })}
+              {t("messages:invitation_respond_box_description", { name })}
             </Typography>
           </div>
           <StyledButtonRow>
@@ -103,7 +103,7 @@ function OfferRespondButtons({
       return (
         <StyledConfirmationBanner>
           <CheckCircle sx={{ color: "var(--mui-palette-success-main)" }} />
-          <Typography variant="body2">{t("messages:offer_accept_confirmation", { name })}</Typography>
+          <Typography variant="body2">{t("messages:invitation_accept_confirmation", { name })}</Typography>
         </StyledConfirmationBanner>
       );
     }
@@ -115,9 +115,9 @@ function OfferRespondButtons({
     return (
       <StyledCard>
         <div>
-          <Typography variant="subtitle2">{t("messages:offer_sent_box_title")}</Typography>
+          <Typography variant="subtitle2">{t("messages:invitation_sent_box_title")}</Typography>
           <Typography variant="body2" color="text.secondary">
-            {t("messages:offer_sent_box_description", { name })}
+            {t("messages:invitation_sent_box_description", { name })}
           </Typography>
         </div>
         <StyledButtonRow>
@@ -133,9 +133,9 @@ function OfferRespondButtons({
     return (
       <StyledCard>
         <div>
-          <Typography variant="subtitle2">{t("messages:offer_host_accepted_box_title", { name })}</Typography>
+          <Typography variant="subtitle2">{t("messages:invitation_host_accepted_box_title", { name })}</Typography>
           <Typography variant="body2" color="text.secondary">
-            {t("messages:offer_host_accepted_box_description")}
+            {t("messages:invitation_host_accepted_box_description")}
           </Typography>
         </div>
         <StyledButtonRow>

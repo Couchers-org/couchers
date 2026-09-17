@@ -2,7 +2,15 @@
 
 ## Overview
 
-Surfers post public trips in communities. Hosts browse trips and click "Offer to Host" which creates a host request with `public_trip_id` linked. The surfer can accept/decline these offers. References flow triggers normally after the stay.
+Surfers post public trips in communities. Hosts browse trips and click "Offer to host" which creates a host request with `public_trip_id` linked. The surfer can accept/decline these offers. References flow triggers normally after the stay.
+
+### Terminology
+
+The noun for the thing a host sends is **invitation** — in UI copy ("Invitation sent", "Withdraw invitation", "3 invitations") and in i18n keys (`withdraw_invitation_button`, `invitations_count`, `no_invitations`). Translators flagged that "offer" as a noun reads like a commercial ad, especially in Latin languages.
+
+"Offer" as a *verb* is fine and stays: the button is "Offer to host", and the keys for that action and its dialog keep the `offer_to_host` / `offer_dialog_*` names.
+
+The wire format still says offer and can't change: `offers_count` and `unseen_public_trip_offer_count` are shipped proto fields. Backend and TypeScript identifiers (`is_public_trip_offer_recipient`, `isOffer`, `OfferToHostDialog`) follow the protos. So "offer" in a field or symbol name is expected; "offer" as a noun in user-visible copy is not.
 
 ---
 
@@ -96,7 +104,7 @@ A user cannot create overlapping active trips (same node, overlapping dates, bot
 4. Submit calls `CreateHostRequest` with `public_trip_id` set.
 5. Redirect to the host request thread on success.
 
-**"Already offered" indicator**: derive from the user's sent host requests (which already carry `public_trip_id`) — no new backend field needed. Disable the button and show a label if a matching sent request exists.
+**"Invitation sent" indicator**: derive from the user's sent host requests (which already carry `public_trip_id`) — no new backend field needed. Disable the button and show a label if a matching sent request exists.
 
 ### Trip dashboard (`/public-trips`)
 
@@ -114,6 +122,8 @@ In the host request thread/card, check `public_trip_id` and show an indicator fo
 
 1. Surfer calls `RespondHostRequest` with `status = accepted`.
 2. Optionally call `UpdatePublicTrip` to set `status = closed` (stops further offers).
+
+Accepting one offer does nothing to the others: they stay pending and their hosts aren't notified. Closing the trip only blocks new offers, it doesn't reject the open ones. So don't write copy promising a host they'll hear about it when the traveller picks someone else — nothing sends that.
 
 ---
 

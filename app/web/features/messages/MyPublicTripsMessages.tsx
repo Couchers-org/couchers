@@ -89,7 +89,7 @@ function OffersChip({ count, dimmed }: { count: number; dimmed?: boolean }) {
   return (
     <StyledOffersChip sx={dimmed ? { color: "var(--mui-palette-grey-500)" } : undefined}>
       <WavingHandOutlined />
-      {t("my_public_trips.offers", { count })}
+      {t("my_public_trips.invitations", { count })}
     </StyledOffersChip>
   );
 }

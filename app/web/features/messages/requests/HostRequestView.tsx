@@ -154,8 +154,8 @@ export default function HostRequestView({ hostRequestId }: { hostRequestId: numb
     hostRequest && t(requestStatusToTransKey[hostRequest.status as keyof typeof requestStatusToTransKey]);
   const titleTransKey = isOffer
     ? isHost
-      ? "host_request_view.offer_title_for_host"
-      : "host_request_view.offer_title_for_surfer"
+      ? "host_request_view.invitation_title_for_host"
+      : "host_request_view.invitation_title_for_surfer"
     : isHost
       ? "host_request_view.title_for_host"
       : "host_request_view.title_for_surfer";

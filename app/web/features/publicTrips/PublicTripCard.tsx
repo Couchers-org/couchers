@@ -242,7 +242,7 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
                   ? [
                       {
                         icon: WavingHandOutlined,
-                        label: t("publicTrips:view_offers"),
+                        label: t("publicTrips:view_invitations"),
                         onClick: () => router.push(routeToPublicTripOffers(trip.tripId)),
                       },
                     ]
@@ -442,10 +442,10 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
                           <HourglassEmptyOutlined sx={{ fontSize: "1rem" }} />
                         )}
                         {(trip.offersCount ?? 0) > 0
-                          ? t("publicTrips:offers_count", {
+                          ? t("publicTrips:invitations_count", {
                               count: trip.offersCount ?? 0,
                             })
-                          : t("publicTrips:no_offers")}
+                          : t("publicTrips:no_invitations")}
                       </Box>
                     )}
                   </Box>
@@ -464,7 +464,7 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
                           endIcon={<ChevronRightIcon />}
                           sx={{ whiteSpace: "nowrap" }}
                         >
-                          {t("publicTrips:already_offered")}
+                          {t("publicTrips:already_invited")}
                         </Button>
                       ) : isDimmed ? (
                         // Closed/past trips can't be offered on (the backend
@@ -472,7 +472,7 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
                         // but guard against the trip closing/expiring while the
                         // card is on screen. Tooltip needs a wrapper since
                         // disabled buttons don't emit hover events.
-                        <Tooltip title={t("publicTrips:offer_unavailable")}>
+                        <Tooltip title={t("publicTrips:invitations_unavailable")}>
                           <span>
                             <Button startIcon={<CouchIcon />} disabled>
                               {t("publicTrips:offer_to_host")}
