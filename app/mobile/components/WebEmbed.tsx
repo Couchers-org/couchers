@@ -28,6 +28,7 @@ import errorGraphic from "@/resources/404graphic.png";
 import client from "@/service/client";
 import { dispatchEscapeRef, lastLoginTimeRef } from "@/state/webViewState";
 import { theme } from "@/theme";
+import { addToCalendar } from "@/utils/addToCalendar";
 import { applicationNameForUserAgent } from "@/utils/userAgent";
 import { shouldLoadInWebView } from "@/utils/webViewUrlUtils";
 
@@ -375,6 +376,16 @@ export default function WebEmbed({
         hasAction().then((canReview) => {
           if (canReview) requestReview();
         });
+      } else if (payload?.type === "OPEN_CALENDAR_FILE") {
+        const base64 = payload.data?.base64;
+        const filename = payload.data?.filename;
+        if (base64 && filename) {
+          addToCalendar(base64, filename).catch((err) => {
+            if (__DEV__) {
+              console.error("Failed to add to calendar:", err);
+            }
+          });
+        }
       }
     } catch (error) {
       // Ignore non-JSON messages from browser/WebView internals.
