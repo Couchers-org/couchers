@@ -381,7 +381,7 @@ describe("PublicTripsSection", () => {
   });
 
   describe("offer to host", () => {
-    it("shows an 'Already offered' link to the thread on trips the viewer has offered on, and an enabled 'Offer to host' on the rest", async () => {
+    it("shows an 'Invitation sent' link to the thread on trips the viewer has offered on, and an enabled 'Offer to host' on the rest", async () => {
       const VIEWER_HOST_REQUEST_ID = 555;
       // Trip 1: the viewer already has an offer (host request 555).
       // Trip 2: no offer (viewerHostRequestId 0).
@@ -400,12 +400,12 @@ describe("PublicTripsSection", () => {
 
       // Wait for the cards to render.
       await screen.findByRole("link", {
-        name: t("publicTrips:already_offered"),
+        name: t("publicTrips:already_invited"),
       });
       const tripAlreadyOffered = document.getElementById("trip-1")!;
       // It's a link to the existing offer thread, not an offer button.
       const link = within(tripAlreadyOffered).getByRole("link", {
-        name: t("publicTrips:already_offered"),
+        name: t("publicTrips:already_invited"),
       });
       expect(link).toHaveAttribute("href", routeToHostRequest(VIEWER_HOST_REQUEST_ID));
       expect(

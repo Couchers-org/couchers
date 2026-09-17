@@ -3,6 +3,7 @@
   "mark_all_read_button_text_chats": "Mark all chats as read",
   "mark_all_read_button_text_hosting": "Mark all host requests as read",
   "mark_all_read_button_text_surfing": "Mark all surf requests as read",
+  "mark_all_read_button_text_public_trips": "Mark all public trip invitations as read",
   "write_reference_button_text": "Write a Reference",
   "reference_card": {
     "title": "Write a reference",
@@ -11,6 +12,21 @@
   "close_request_button_text": "Decline",
   "respond_box_title": "Send a response",
   "respond_box_description": "Select a response to let {{name}} know immediately. Feel free to follow up with a message.",
+  "invitation_respond_box_title": "Respond to {{name}}'s invitation",
+  "invitation_respond_box_description": "Accepting lets {{name}} know you'd like to stay. You can keep chatting to sort out the details either way.",
+  "invitation_accept_confirmation": "You accepted {{name}}'s invitation. Say hi and sort out arrival details.",
+  "invitation_sent_box_title": "Invitation sent",
+  "invitation_sent_box_description": "{{name}} hasn't responded yet. You'll be notified when they reply. You can withdraw your invitation until then.",
+  "invitation_host_accepted_box_title": "{{name}} accepted your invitation",
+  "invitation_host_accepted_box_description": "Confirm to lock in the stay, or withdraw if your plans have changed.",
+  "withdraw_invitation_button": "Withdraw invitation",
+  "withdraw_invitation_dialog_title": "Withdraw your invitation?",
+  "withdraw_invitation_dialog_message": "This will withdraw your invitation to host. You can't undo this.",
+  "withdraw_invitation_dialog_confirm_button": "Withdraw invitation",
+  "withdraw_invitation_dialog_dismiss_button": "Keep invitation",
+  "status_bar_edit_button": "Edit",
+  "status_bar_cancel_edit_button": "Cancel",
+  "status_bar_close_button": "Close",
   "surfer_bar_pending": "You sent a host request — waiting for {{name}} to respond.",
   "cancel_request_button": "Cancel request",
   "cancel_request_dialog_title": "Cancel request?",
@@ -46,7 +62,8 @@
       "unread": "Unread",
       "chats": "Chats",
       "hosting": "Hosting",
-      "surfing": "Surfing"
+      "surfing": "Surfing",
+      "public_trips": "My public trips"
     }
   },
   "archive": {
@@ -171,6 +188,16 @@
       "rejected": "{{user}} has declined the request",
       "rejected_self": "You have declined the request"
     },
+    "invitation_status_changed": {
+      "accepted": "{{user}} has accepted the invitation",
+      "accepted_self": "You have accepted the invitation",
+      "cancelled": "{{user}} has withdrawn the invitation",
+      "cancelled_self": "You have withdrawn the invitation",
+      "confirmed": "{{user}} has confirmed the stay",
+      "confirmed_self": "You have confirmed the stay",
+      "rejected": "{{user}} has declined the invitation",
+      "rejected_self": "You have declined the invitation"
+    },
     "unknown_message_text": "Unknown control message"
   },
   "host_request_status": {
@@ -196,13 +223,36 @@
       "cancelled": "You have cancelled this request",
       "confirmed": "Have fun! {{name}} accepted and you confirmed this request.",
       "rejected": "Your request was declined"
+    },
+    "public_trip_chip": "Public trip",
+    "invitation_host_status": {
+      "pending": "Awaiting {{name}}'s reply",
+      "accepted": "{{name}} accepted your invitation",
+      "rejected": "{{name}} declined your invitation",
+      "cancelled": "You withdrew your invitation"
+    },
+    "invitation_surfer_status": {
+      "pending": "Invitation to host you · awaiting your reply",
+      "accepted": "You accepted {{name}}'s invitation",
+      "rejected": "You declined this invitation",
+      "cancelled": "{{name}} withdrew their invitation"
     }
+  },
+  "my_public_trips": {
+    "empty_state": "No invitations on your public trips yet.",
+    "toggle_group": "Toggle trip",
+    "nights_one": "{{count}} night",
+    "nights_other": "{{count}} nights",
+    "invitations_one": "{{count}} invitation",
+    "invitations_other": "{{count}} invitations"
   },
   "host_request_view": {
     "error_message": "Invalid host request ID",
     "back_button_a11y_label": "Back",
     "title_for_host": "Request from {{user}} - {{status}}",
     "title_for_surfer": "Request to {{user}} - {{status}}",
+    "invitation_title_for_surfer": "Invitation from {{user}} · {{status}}",
+    "invitation_title_for_host": "Your invitation to {{user}} · {{status}}",
     "request_duration_one": "{{count}} night",
     "request_duration_other": "{{count}} nights"
   },

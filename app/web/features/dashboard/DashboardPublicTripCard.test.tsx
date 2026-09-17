@@ -35,6 +35,17 @@ describe("DashboardPublicTripCard", () => {
     jest.useRealTimers();
   });
 
+  // Descriptions are written in a plain textarea, so the teaser has to render the
+  // author's line breaks rather than collapsing them into spaces.
+  it("keeps the author's line breaks in the description", () => {
+    const trip = { ...publicTrips[0], description: "Line one\nLine two\nLine three" };
+    render(<DashboardPublicTripCard trip={trip} locale="en" />, { wrapper });
+
+    const description = screen.getByText(/Line one/);
+    expect(description.textContent).toBe("Line one\nLine two\nLine three");
+    expect(window.getComputedStyle(description).whiteSpace).toBe("pre-line");
+  });
+
   // The dashboard renders the card without isOwnTrip; the community overview passes it.
   describe.each([
     ["on the dashboard", {}],
