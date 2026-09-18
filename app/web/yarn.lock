@@ -7681,7 +7681,7 @@ react-phone-number-input@^3.4.18:
     libphonenumber-js "^1.13.11"
     prop-types "^15.8.1"
 
-react-simple-maps@5.0.5:
+react-simple-maps@^5.0.5:
   version "5.0.5"
   resolved "https://registry.yarnpkg.com/react-simple-maps/-/react-simple-maps-5.0.5.tgz#d055a5f25baaacc3126ad0a5c143bdcdc431933a"
   integrity sha512-I8fROu8ESwUOnmYOwqr9IBV6DDuAIXDrTZOqaRv5IuxIKUI3qawmCeiSxGFB5szY25LzZcflzb1LHRqGW+estA==
