@@ -80,7 +80,6 @@
     "show_all_languages": "Show all languages in language picker",
     "show_all_languages_description": "When enabled, the language picker will show all languages regardless of translation completion percentage. This shows on staging only to help test languages that are still in progress."
   },
-  "ambiguous_language_name": "{{name}} ({{code}})",
   "meetup_status": {
     "wants_to_meetup": "Wants to meet",
     "open_to_meetup": "Open to meet",
