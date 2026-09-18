@@ -82,12 +82,13 @@ export default function About({ user }: AboutProps) {
           {({ geographies }) =>
             geographies.map((geo) => {
               let color = theme.palette.grey[200];
-              if (regions) {
+
+              if (regions && typeof geo.id === "string") {
                 if (user.regionsLivedList.includes(geo.id)) {
-                  color = theme.palette.primary.main;
+                 color = theme.palette.primary.main;
                 } else if (user.regionsVisitedList.includes(geo.id)) {
-                  color = theme.palette.secondary.main;
-                }
+                 color = theme.palette.secondary.main;
+              }
               }
               return <Geography key={geo.rsmKey} geography={geo} fill={color} />;
             })
