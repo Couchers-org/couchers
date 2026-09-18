@@ -51,5 +51,9 @@
   "push_notification_banner": {
     "message": "İstekleri, yanıtları veya mesajları kaçırmamak için sana anlık bildirimleri gönderebilir miyiz?",
     "confirm": "Evet, lütfen!"
+  },
+  "notifications_filters": {
+    "all_button": "Tümü",
+    "unread_button": "Okunmamış"
   }
 }

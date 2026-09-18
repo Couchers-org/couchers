@@ -78,5 +78,7 @@
   "end_time": "Bitiş zamanı",
   "end_date_error": "Etkinlik bitiş tarihi, başlangıç tarihinden sonra olmalıdır.",
   "end_time_error": "Etkinlik bitiş tarihi başlangıç tarihinden sonra olmalıdır.",
-  "event_details": "Etkinlik detayları"
+  "event_details": "Etkinlik detayları",
+  "comment_deleted": "Bu yorum silinmiş.",
+  "edit_comment": "Yorumu düzenle"
 }

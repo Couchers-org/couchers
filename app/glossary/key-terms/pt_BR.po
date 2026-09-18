@@ -1,2 +1,426 @@
 msgid ""
-msgstr "X-Generator: Weblate\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit"
+msgstr ""
+"PO-Revision-Date: 2026-09-14 22:41+0000\n"
+"Last-Translator: Mariana Baroni <maribaroni@gmail.com>\n"
+"Language-Team: Portuguese (Brazil) <https://translate.couchershq.org/projects/couchers/glossary-key-terms/pt_BR/>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 5.15.2\n"
+
+#. (noun) The team behind Couchers.org.
+msgid "couchers_org_team"
+msgstr "Equipe Couchers.org"
+
+#. (noun) The team behind Couchers.org, short form.
+msgid "team"
+msgstr "equipe"
+
+#. (noun) The Couchers.org safety team.
+msgid "safety_team"
+msgstr "Equipe de segurança"
+
+#. (noun) The Couchers.org support team.
+msgid "support_team"
+msgstr "Equipe de suporte"
+
+#. (noun) The behavioral guidelines that new members must accept when joining Couchers.org.
+msgid "community_guidelines"
+msgstr "Diretrizes da comunidade"
+
+#. (noun) The document outlining the legal agreement for using Couchers.org.
+msgid "terms_of_service"
+msgstr "Termos de serviço"
+
+#. (noun) The https://help.couchers.org website.
+msgid "help_center"
+msgstr "Central de ajuda"
+
+#. (noun) The Couchers.org blog.
+msgid "blog"
+msgstr "blog"
+
+#. (noun) The activity of free hospitality welcome/exchange. Platform-agnostic.
+msgid "couch surfing"
+msgstr "couch surfing"
+
+#. (verb) The act of volunteering with Couchers.org.
+msgid "volunteer.verb"
+msgstr "voluntariar-se"
+
+#. (noun) A person volunteering with Couchers.org.
+msgid "volunteer.noun"
+msgstr "voluntário"
+
+#. (noun) A person volunteering with Couchers.org.
+msgid "volunteers"
+msgstr "voluntários"
+
+#. (verb) The act of donating money to Couchers.org.
+msgid "donate"
+msgstr "doar"
+
+#. (verb) The act of donating money to Couchers.org.
+msgid "donating"
+msgstr "doar"
+
+#. (noun) Money donated to Couchers.org.
+msgid "donation"
+msgstr "doação"
+
+#. (noun) Money donated to Couchers.org.
+msgid "donations"
+msgstr "doações"
+
+#. (noun) A problem with the platform reported by a user.
+msgid "report_problem.problem"
+msgstr "problema"
+
+#. (noun) Problems with the platform reported by a user.
+msgid "report_problem.problems"
+msgstr "problemas"
+
+#. (noun) As a user, the act of reporting a problem with the platform.
+msgid "report_problem.report"
+msgstr "reportar"
+
+#. (noun) A user account on Couchers.org.
+msgid "account"
+msgstr "conta"
+
+#. (noun) Someone with an account on Couchers.org.
+msgid "user"
+msgstr "usuário"
+
+#. (noun) Someone with an account on Couchers.org.
+msgid "users"
+msgstr "usuários"
+
+#. (noun) A user's account identifier on Couchers.org.
+msgid "username"
+msgstr "nome de usuário"
+
+#. (noun) A user's account password on Couchers.org.
+msgid "password"
+msgstr "senha"
+
+#. (verb) The action of logging in to Couchers.org.
+msgid "log_in"
+msgstr "fazer log in"
+
+#. (verb) The action of logging in to Couchers.org.
+msgid "logging_in"
+msgstr "fazer log in"
+
+#. (adj) The state of being logged in to Couchers.org.
+msgid "logged_in"
+msgstr "conectado"
+
+#. (verb) The action of logging in to Couchers.org after logging out.
+msgid "log_back_in"
+msgstr "fazer login novamente"
+
+#. (verb) The action of logging out of Couchers.org.
+msgid "log_out"
+msgstr "desconectar"
+
+#. (verb) The action of logging out of Couchers.org.
+msgid "logging_out"
+msgstr "desconectar"
+
+#. (adj) The state of being logged out of Couchers.org.
+msgid "logged_out"
+msgstr "desconectado"
+
+#. (noun) The Couchers.org merchandise shop website.
+msgid "merch_shop"
+msgstr "Produtos oficiais"
+
+#. (noun) A website/app session, from logging in to logging out.
+msgid "session"
+msgstr "sessão"
+
+#. (noun) Website/app sessions, from logging in to logging out.
+msgid "sessions"
+msgstr "sessões"
+
+#. (noun) A secret code used to make programmatic operations (call APIs) on behalf of a user.
+msgid "api_key"
+msgstr "chave API"
+
+#. (noun) A grouping of settings (account, notifications, etc.)
+msgid "settings"
+msgstr "configuraçōes"
+
+#. (noun) A user's account settings (notifications, theme, language, etc.).
+msgid "account_settings"
+msgstr "configuraçōes da conta"
+
+#. (noun) An email or push notifications sent to a user.
+msgid "notification"
+msgstr "notificação"
+
+#. (noun) Email or push notifications sent to a user.
+msgid "notifications"
+msgstr "notificações"
+
+#. (noun) A notifications sent to a user's phone or browser.
+msgid "push_notification"
+msgstr "notificação por push"
+
+#. (noun) Notifications sent to a user's phone or browser.
+msgid "push_notifications"
+msgstr "notificações por push"
+
+#. (noun) A status whereby a user's identity has been verified.
+msgid "strong_verification"
+msgstr "Verificação forte"
+
+#. The section of a user profile with information relating their person.
+msgid "profile.about_me"
+msgstr "sobre mim"
+
+#. The section of a user profile with information relating to their home.
+msgid "profile.my_home"
+msgstr "minha casa"
+
+#. (noun) A profile picture.
+msgid "photo"
+msgstr "foto"
+
+#. (noun) Profile pictures.
+msgid "photos"
+msgstr "fotos"
+
+#. A geographical location such as an address or the name of a city.
+msgid "location"
+msgstr "localização"
+
+#. A user's willingness to host surfers.
+msgid "hosting_status"
+msgstr "status de hospedagem"
+
+#. A user status whereby a user is willing to host surfers.
+msgid "status.can_host"
+msgstr "pode hospedar"
+
+#. A user status whereby a user is potentially willing to host surfers.
+msgid "status.may_host"
+msgstr "talvez possa hospedar"
+
+#. A user status whereby a user is unwilling to host surfers.
+msgid "status.cant_host"
+msgstr "não pode hospedar"
+
+#. (noun) A message sent from a user to another user or to a group chat.
+msgid "message.noun"
+msgstr "mensagem"
+
+#. (verb) The act of sending a message to another user or to a group chat.
+msgid "message.verb"
+msgstr "enviar mensagem"
+
+#. (noun) Messages sent between users or to group chats.
+msgid "messages"
+msgstr "mensagens"
+
+#. (noun) A thread for messages between two or more users.
+msgid "chat"
+msgstr "conversa"
+
+#. (noun) Threads for messages between two or more users.
+msgid "chats"
+msgstr "conversas"
+
+#. (verb) As a host, the act of accepting a surfer's host request.
+msgid "host_request.accept"
+msgstr "aceitar"
+
+#. (adj) The state of a host request that was accepted by the host.
+msgid "host_request.accepted"
+msgstr "aceita"
+
+#. (noun) A user who has indicated their intention to attend an event.
+msgid "events.attendee"
+msgstr "participante"
+
+#. (noun) Users who have indicated their intention to attend an event.
+msgid "events.attendees"
+msgstr "participantes"
+
+#. (verb) As a surfer, the act of cancelling a host request.
+msgid "host_request.cancel"
+msgstr "cancelar"
+
+#. (verb) The act of cancelling an event.
+msgid "events.cancel"
+msgstr "cancelar"
+
+#. (adj) The state of a host request that was cancelled by the surfer.
+msgid "host_request.cancelled"
+msgstr "cancelada"
+
+#. (adj) The state of an event that has been cancelled.
+msgid "events.cancelled"
+msgstr "cancelado"
+
+#. (noun) A top-level comment on a discussion or event.
+msgid "discussions.comment.noun"
+msgstr "comentário"
+
+#. (verb) The act of adding a top-level comment on a discussion or event.
+msgid "discussions.comment.verb"
+msgstr "comentar"
+
+#. (noun) Top-level comments on a discussion or event.
+msgid "discussions.comments"
+msgstr "comentários"
+
+#. (noun) Geographical communities with local discussions, events, etc.
+msgid "communities"
+msgstr "comunidades"
+
+#. (noun) A geographical community with local discussions, events, etc.
+msgid "community"
+msgstr "comunidade"
+
+#. (noun) A user recognized to be highly involved in a community, with special editing rights.
+msgid "community_builder"
+msgstr "criador de comunidade"
+
+#. (noun) Users recognized to be highly involved in a community, with special editing rights.
+msgid "community_builders"
+msgstr "criadores de comunidade"
+
+#. (verb) As a surfer, the act of confirming a host request that was accepted by the host.
+msgid "host_request.confirm"
+msgstr "confirmar"
+
+#. (adj) The state of a host request that was confirmed by the surfer after being accepted by the host.
+msgid "host_request.confirmed"
+msgstr "confirmada"
+
+#. (noun) Other users which are friends or have pending friend requests.
+msgid "connections"
+msgstr "conexões"
+
+#. (verb) As a host, the act of declining a surfer's host request.
+msgid "host_request.decline"
+msgstr "recusar"
+
+#. (adj) The state of a host request that was declined by the host.
+msgid "host_request.declined"
+msgstr "recusada"
+
+#. (noun) A community or event discussion that supports replies.
+msgid "discussion"
+msgstr "discussão"
+
+#. (noun) Community or event discussions that support replies.
+msgid "discussions"
+msgstr "discussões"
+
+#. (noun) An event created by a user for others to attend.
+msgid "event"
+msgstr "evento"
+
+#. (noun) Events created by users for others to attend.
+msgid "events"
+msgstr "eventos"
+
+#. (noun) Another user confirmed as a friend using the friend feature.
+msgid "friend"
+msgstr "amigo/amiga"
+
+#. (noun) A reference from a friend.
+#, fuzzy
+msgid "friend_reference"
+msgstr "referência de amigo"
+
+#. (noun) A request to add another user as a friend.
+msgid "friend_request"
+msgstr "solicitação de amizade"
+
+#. (noun) Requests to add other users as friends.
+msgid "friend_requests"
+msgstr "solicitações de amizade"
+
+#. (noun) Other users confirmed as friends using the friend feature.
+msgid "friends"
+msgstr "amigos"
+
+#. (noun) A named thread for messages between three or more users.
+#, fuzzy
+msgid "group_chat"
+msgstr "conversa de grupo"
+
+#. (noun) A named thread for messages between three or more users.
+#, fuzzy
+msgid "group_chats"
+msgstr "conversas de grupo"
+
+#. (noun) A user providing hospitality to other users.
+msgid "host.noun"
+msgstr "anfitrião/anfitriã"
+
+#. (verb) As a host, the act of offering hospitality to other users.
+msgid "host.verb"
+msgstr "hospedar"
+
+#. (adjective) As a surfer, the state of receiving hospitality from a host.
+msgid "hosted"
+msgstr "hospedado/hospedada"
+
+#. (verb) As a host, the act of offering hospitality to other users.
+msgid "hosting"
+msgstr "hospedando"
+
+#. (noun) The process of establishing a hosting relationship.
+msgid "host_request"
+msgstr "solicitação de hospedagem"
+
+#. (noun) The process of establishing a hosting relationship.
+msgid "host_requests"
+msgstr "solicitações de hospedagem"
+
+#. (noun) Users providing hospitality to other users.
+msgid "hosts.noun"
+msgstr "anfitriões"
+
+#. (noun) A user listed as an organizer on an event.
+msgid "events.organizer"
+msgstr "organizador/organizadora"
+
+#. (noun) Users listed as organizers on an event.
+msgid "events.organizers"
+msgstr "organizadores"
+
+#. (noun) A reference from a friend, host or surfer.
+msgid "reference"
+msgstr "referência"
+
+#. (noun) References from friends, hosts or surfers.
+msgid "references"
+msgstr "referências"
+
+#. (noun) Replies on a top-level comment in a discussion or event.
+msgid "discussions.replies"
+msgstr "respostas"
+
+#. (noun) A reply on a top-level comment in a discussion or event.
+msgid "discussions.reply.noun"
+msgstr "resposta"
+
+#. (verb) The act of replying to a top-level comment on a discussion or event.
+msgid "discussions.reply.verb"
+msgstr "responder"
+
+#. (noun) A user receiving hospitality from other users.
+msgid "surfer"
+msgstr "surfer"
+
+#. (noun) Users receiving hospitality from other users.
+msgid "surfers"
+msgstr "surfers"

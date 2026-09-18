@@ -1,2 +1,426 @@
 msgid ""
-msgstr "X-Generator: Weblate\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit"
+msgstr ""
+"PO-Revision-Date: 2026-09-15 23:41+0000\n"
+"Last-Translator: Oleh S <olewa@protonmail.com>\n"
+"Language-Team: Ukrainian <https://translate.couchershq.org/projects/couchers/glossary-key-terms/uk/>\n"
+"Language: uk\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 5.15.2\n"
+
+#. The section of a user profile with information relating their person.
+msgid "profile.about_me"
+msgstr "про мене"
+
+#. (verb) As a host, the act of accepting a surfer's host request.
+msgid "host_request.accept"
+msgstr "прийняти"
+
+#. (adj) The state of a host request that was accepted by the host.
+msgid "host_request.accepted"
+msgstr "прийнятий"
+
+#. (noun) A user account on Couchers.org.
+msgid "account"
+msgstr "акаунт"
+
+#. (noun) A user's account settings (notifications, theme, language, etc.).
+msgid "account_settings"
+msgstr "налаштування акаунта"
+
+#. (noun) A secret code used to make programmatic operations (call APIs) on behalf of a user.
+msgid "api_key"
+msgstr "API ключ"
+
+#. (noun) A user who has indicated their intention to attend an event.
+msgid "events.attendee"
+msgstr "учасник"
+
+#. (noun) Users who have indicated their intention to attend an event.
+msgid "events.attendees"
+msgstr "учасники"
+
+#. (noun) The Couchers.org blog.
+msgid "blog"
+msgstr "щоденник"
+
+#. (verb) As a surfer, the act of cancelling a host request.
+msgid "host_request.cancel"
+msgstr "скасувати"
+
+#. (verb) The act of cancelling an event.
+msgid "events.cancel"
+msgstr "скасувати"
+
+#. (adj) The state of a host request that was cancelled by the surfer.
+msgid "host_request.cancelled"
+msgstr "скасований"
+
+#. (adj) The state of an event that has been cancelled.
+msgid "events.cancelled"
+msgstr "скасований"
+
+#. A user status whereby a user is willing to host surfers.
+msgid "status.can_host"
+msgstr "приймає гостей"
+
+#. A user status whereby a user is unwilling to host surfers.
+msgid "status.cant_host"
+msgstr "не приймає гостей"
+
+#. (noun) A thread for messages between two or more users.
+msgid "chat"
+msgstr "розмова"
+
+#. (noun) Threads for messages between two or more users.
+msgid "chats"
+msgstr "розмови"
+
+#. (noun) A top-level comment on a discussion or event.
+msgid "discussions.comment.noun"
+msgstr "коментар"
+
+#. (verb) The act of adding a top-level comment on a discussion or event.
+msgid "discussions.comment.verb"
+msgstr "додати коментар"
+
+#. (noun) Top-level comments on a discussion or event.
+msgid "discussions.comments"
+msgstr "коментарі"
+
+#. (noun) Geographical communities with local discussions, events, etc.
+msgid "communities"
+msgstr "спільноти"
+
+#. (noun) A geographical community with local discussions, events, etc.
+msgid "community"
+msgstr "спільнота"
+
+#. (noun) A user recognized to be highly involved in a community, with special editing rights.
+msgid "community_builder"
+msgstr "архітектор спільноти"
+
+#. (noun) Users recognized to be highly involved in a community, with special editing rights.
+msgid "community_builders"
+msgstr "архітектори спільнот"
+
+#. (noun) The behavioral guidelines that new members must accept when joining Couchers.org.
+msgid "community_guidelines"
+msgstr "Правила Спільноти"
+
+#. (verb) As a surfer, the act of confirming a host request that was accepted by the host.
+msgid "host_request.confirm"
+msgstr "підтвердити"
+
+#. (adj) The state of a host request that was confirmed by the surfer after being accepted by the host.
+msgid "host_request.confirmed"
+msgstr "підтверджений"
+
+#. (noun) Other users which are friends or have pending friend requests.
+msgid "connections"
+msgstr "зв'язки / контакти"
+
+#. (noun) The team behind Couchers.org.
+msgid "couchers_org_team"
+msgstr "Команда Couchers.org"
+
+#. (noun) The activity of free hospitality welcome/exchange. Platform-agnostic.
+msgid "couch surfing"
+msgstr "каучсерфінг / подорожі по каучу / платформа гостинності"
+
+#. (verb) As a host, the act of declining a surfer's host request.
+msgid "host_request.decline"
+msgstr "відхилити"
+
+#. (adj) The state of a host request that was declined by the host.
+msgid "host_request.declined"
+msgstr "відхилений"
+
+#. (noun) A community or event discussion that supports replies.
+msgid "discussion"
+msgstr "обговорення"
+
+#. (noun) Community or event discussions that support replies.
+msgid "discussions"
+msgstr "обговорення"
+
+#. (verb) The act of donating money to Couchers.org.
+msgid "donate"
+msgstr "зробити внесок"
+
+#. (verb) The act of donating money to Couchers.org.
+msgid "donating"
+msgstr "підтримуючи фінансово"
+
+#. (noun) Money donated to Couchers.org.
+msgid "donation"
+msgstr "внесок"
+
+#. (noun) Money donated to Couchers.org.
+msgid "donations"
+msgstr "внески"
+
+#. (noun) An event created by a user for others to attend.
+msgid "event"
+msgstr "подія"
+
+#. (noun) Events created by users for others to attend.
+msgid "events"
+msgstr "події"
+
+#. (noun) Another user confirmed as a friend using the friend feature.
+msgid "friend"
+msgstr "друг"
+
+#. (noun) A reference from a friend.
+#, fuzzy
+msgid "friend_reference"
+msgstr "відгук друга"
+
+#. (noun) A request to add another user as a friend.
+msgid "friend_request"
+msgstr "запит на дружбу"
+
+#. (noun) Requests to add other users as friends.
+msgid "friend_requests"
+msgstr "запити на дружбу"
+
+#. (noun) Other users confirmed as friends using the friend feature.
+msgid "friends"
+msgstr "друзі"
+
+#. (noun) A named thread for messages between three or more users.
+#, fuzzy
+msgid "group_chat"
+msgstr "групова розмова"
+
+#. (noun) A named thread for messages between three or more users.
+#, fuzzy
+msgid "group_chats"
+msgstr "групові розмови"
+
+#. (noun) The https://help.couchers.org website.
+msgid "help_center"
+msgstr "Центр Підтримки"
+
+#. (noun) A user providing hospitality to other users.
+msgid "host.noun"
+msgstr "~ людина що приймає гостей"
+
+#. (verb) As a host, the act of offering hospitality to other users.
+msgid "host.verb"
+msgstr "прийняти гостей"
+
+#. (adjective) As a surfer, the state of receiving hospitality from a host.
+msgid "hosted"
+msgstr "~ був прийнятий / гостював"
+
+#. (verb) As a host, the act of offering hospitality to other users.
+msgid "hosting"
+msgstr "приймаю у себе (гостей/гостя)"
+
+#. A user's willingness to host surfers.
+msgid "hosting_status"
+msgstr "доступність"
+
+#. (noun) The process of establishing a hosting relationship.
+msgid "host_request"
+msgstr "~ запит до мене (на гостинність)"
+
+#. (noun) The process of establishing a hosting relationship.
+msgid "host_requests"
+msgstr "~ запити до мене (на гостинність)"
+
+#. (noun) Users providing hospitality to other users.
+msgid "hosts.noun"
+msgstr "~ люди що приймають гостей"
+
+#. A geographical location such as an address or the name of a city.
+msgid "location"
+msgstr "місто / місцевість"
+
+#. (verb) The action of logging in to Couchers.org after logging out.
+msgid "log_back_in"
+msgstr "увійти наново"
+
+#. (adj) The state of being logged in to Couchers.org.
+msgid "logged_in"
+msgstr "вхід здійснено"
+
+#. (adj) The state of being logged out of Couchers.org.
+msgid "logged_out"
+msgstr "вихід здійснено"
+
+#. (verb) The action of logging in to Couchers.org.
+msgid "logging_in"
+msgstr "в процесі входу"
+
+#. (verb) The action of logging out of Couchers.org.
+msgid "logging_out"
+msgstr "в процесі виходу"
+
+#. (verb) The action of logging in to Couchers.org.
+msgid "log_in"
+msgstr "увійти"
+
+#. (verb) The action of logging out of Couchers.org.
+msgid "log_out"
+msgstr "вийти"
+
+#. A user status whereby a user is potentially willing to host surfers.
+msgid "status.may_host"
+msgstr "можливо прийме гостей"
+
+#. (noun) The Couchers.org merchandise shop website.
+msgid "merch_shop"
+msgstr "Фан-Магазин"
+
+#. (noun) A message sent from a user to another user or to a group chat.
+msgid "message.noun"
+msgstr "повідомлення"
+
+#. (verb) The act of sending a message to another user or to a group chat.
+msgid "message.verb"
+msgstr "написати"
+
+#. (noun) Messages sent between users or to group chats.
+msgid "messages"
+msgstr "повідомлення"
+
+#. The section of a user profile with information relating to their home.
+msgid "profile.my_home"
+msgstr "моє помешкання"
+
+#. (noun) An email or push notifications sent to a user.
+msgid "notification"
+msgstr "сповіщення"
+
+#. (noun) Email or push notifications sent to a user.
+msgid "notifications"
+msgstr "сповіщення"
+
+#. (noun) A user listed as an organizer on an event.
+msgid "events.organizer"
+msgstr "організатор"
+
+#. (noun) Users listed as organizers on an event.
+msgid "events.organizers"
+msgstr "організатори"
+
+#. (noun) A user's account password on Couchers.org.
+msgid "password"
+msgstr "пароль"
+
+#. (noun) A profile picture.
+msgid "photo"
+msgstr "фото"
+
+#. (noun) Profile pictures.
+msgid "photos"
+msgstr "фотографії"
+
+#. (noun) A problem with the platform reported by a user.
+msgid "report_problem.problem"
+msgstr "проблема / помилка"
+
+#. (noun) Problems with the platform reported by a user.
+msgid "report_problem.problems"
+msgstr "проблеми / помилки"
+
+#. (noun) A notifications sent to a user's phone or browser.
+msgid "push_notification"
+msgstr "push сповіщення"
+
+#. (noun) Notifications sent to a user's phone or browser.
+msgid "push_notifications"
+msgstr "push сповіщення"
+
+#. (noun) A reference from a friend, host or surfer.
+msgid "reference"
+msgstr "відгук"
+
+#. (noun) References from friends, hosts or surfers.
+msgid "references"
+msgstr "відгуки"
+
+#. (noun) Replies on a top-level comment in a discussion or event.
+msgid "discussions.replies"
+msgstr "відповіді"
+
+#. (noun) A reply on a top-level comment in a discussion or event.
+msgid "discussions.reply.noun"
+msgstr "відповідь"
+
+#. (verb) The act of replying to a top-level comment on a discussion or event.
+msgid "discussions.reply.verb"
+msgstr "відповісти"
+
+#. (noun) As a user, the act of reporting a problem with the platform.
+msgid "report_problem.report"
+msgstr "повідомлення / звіт / скарга"
+
+#. (noun) The Couchers.org safety team.
+msgid "safety_team"
+msgstr "Команда із Безпеки"
+
+#. (noun) A website/app session, from logging in to logging out.
+msgid "session"
+msgstr "сесія"
+
+#. (noun) Website/app sessions, from logging in to logging out.
+msgid "sessions"
+msgstr "сесії"
+
+#. (noun) A grouping of settings (account, notifications, etc.)
+msgid "settings"
+msgstr "налаштування"
+
+#. (noun) A status whereby a user's identity has been verified.
+msgid "strong_verification"
+msgstr "Офіційна Верифікація"
+
+#. (noun) The Couchers.org support team.
+msgid "support_team"
+msgstr "Команда Підтримки"
+
+#. (noun) A user receiving hospitality from other users.
+msgid "surfer"
+msgstr "гість"
+
+#. (noun) Users receiving hospitality from other users.
+msgid "surfers"
+msgstr "гості"
+
+#. (noun) The team behind Couchers.org, short form.
+msgid "team"
+msgstr "команда"
+
+#. (noun) The document outlining the legal agreement for using Couchers.org.
+msgid "terms_of_service"
+msgstr "Умови надання послуг"
+
+#. (noun) Someone with an account on Couchers.org.
+msgid "user"
+msgstr "користувач"
+
+#. (noun) A user's account identifier on Couchers.org.
+msgid "username"
+msgstr "назва користувача"
+
+#. (noun) Someone with an account on Couchers.org.
+msgid "users"
+msgstr "користувачі"
+
+#. (verb) The act of volunteering with Couchers.org.
+msgid "volunteer.verb"
+msgstr "волонтерити / стати волонтером"
+
+#. (noun) A person volunteering with Couchers.org.
+msgid "volunteer.noun"
+msgstr "волонтер"
+
+#. (noun) A person volunteering with Couchers.org.
+msgid "volunteers"
+msgstr "волонтери"
