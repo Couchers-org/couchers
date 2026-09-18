@@ -95,7 +95,11 @@
       "description": "{{name}} aceitou sua solicitação. Confirme sua estadia para reservá-la.",
       "button": "Confirmar estadia"
     },
-    "carousel_dismiss_button_a11y": "Dispensar lembrete"
+    "carousel_dismiss_button_a11y": "Dispensar lembrete",
+    "carousel_scroller": {
+      "left_arrow_a11y": "Rolar para a esquerda",
+      "right_arrow_a11y": "Rolar para a direita"
+    }
   },
   "today_label": "Hoje"
 }

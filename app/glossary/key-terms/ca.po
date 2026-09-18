@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-09-12 14:08+0000\n"
+"PO-Revision-Date: 2026-09-14 22:41+0000\n"
 "Last-Translator: Marc Vilella <markus.from.and@gmail.com>\n"
 "Language-Team: Catalan <https://translate.couchershq.org/projects/couchers/glossary-key-terms/ca/>\n"
 "Language: ca\n"
@@ -175,6 +175,7 @@ msgid "friend"
 msgstr "amistat"
 
 #. (noun) A reference from a friend.
+#, fuzzy
 msgid "friend_reference"
 msgstr "referència d'amistat"
 
@@ -191,10 +192,12 @@ msgid "friends"
 msgstr "amistats"
 
 #. (noun) A named thread for messages between three or more users.
+#, fuzzy
 msgid "group_chat"
 msgstr "xat grupal"
 
 #. (noun) A named thread for messages between three or more users.
+#, fuzzy
 msgid "group_chats"
 msgstr "xats de grup"
 

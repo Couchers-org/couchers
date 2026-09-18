@@ -14,7 +14,7 @@
   "show_all_communities": "Zobrazit všechny komunity",
   "hide_all_communities": "Skrýt všechny komunity",
   "find_your_community": "Najďi komunitu",
-  "communities_intro": "Abychom lidem po celém světě pomohli organizovat akce, diskutovat a setkávat se na místní úrovni, vytvořili jsme komunitní stránky, které jsou uvedeny níže. <strong>Na základě tvé polohy jsme tě automaticky přidali do některých komunit, ale můžeš se připojit k jakékoli jiné komunitě!</strong> Tvé komunity jsou uvedeny na hlavním panelu.",
+  "communities_intro": "Stránky komunit pomáhají organizovat místní události a diskuze. <strong>Vždy jste v komunitách ve své lokalitě, ale můžete se <browseCommunitiesLink>připojit k jakékoli komunitě.</browseCommunitiesLink></strong>",
   "browse_communities_text": "Klikni na název regionu, pro zobrazení dalších komunit v ní níže. Klikni na odkaz a přejdi tak na stránku komunity daného města nebo regionu.",
   "profile_mobile_summary_view": "Přejít na profil",
   "find_a_host": "Najdi hostitele",
@@ -60,6 +60,10 @@
       "title": "Potvrď svůj pobyt u {{name}}",
       "button": "Potvrď pobyt",
       "description": "{{name}} přijal tvoji žádost. Zajisti si svůj pobyt jeho potvrzením."
+    },
+    "carousel_scroller": {
+      "left_arrow_a11y": "Posunout doleva",
+      "right_arrow_a11y": "Posunout doprava"
     }
   },
   "public_trips": {
