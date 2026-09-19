@@ -76,12 +76,12 @@
   "report": {
     "bug": {
       "title_label": "Reportar título",
-      "problem_label": "O que você fez para que o erro aparecesse?",
-      "expect_helper": "Breve descrição do que você esperava que acontecesse",
-      "warning_message": "Observe que esta informação, bem como informações de diagnóstico, incluindo em que página você está, qual navegador está usando e seu nome de usuário, será salva em uma lista pública de erros.",
-      "success_message2": "Agradecemos por relatar esse erro e melhorar o Couchers. Um relatório foi enviado para os desenvolvedores. O ID do erro é <id/>.",
+      "problem_label": "Como você encontrou o problema?",
+      "expect_helper": "Descreva o problema que você encontrou como resultado das suas etapas, incluindo mensagens de erro, e o que você esperava que acontecesse.",
+      "warning_message": "As informações fornecidas neste formulário, bem como informações de diagnóstico, incluindo a página em que você está, seu navegador e seu nome de usuário, serão registradas para que nossa equipe revise.",
+      "success_message2": "Agradecemos por relatar esse problema e melhorar o Couchers. Um relatório foi enviado para os desenvolvedores. Você pode consultar esse problema usando o ID <id/>.",
       "button_label": "Reportar um problema técnico",
-      "problem_helper": "Breve descrição do problema e como reproduzí-lo",
+      "problem_helper": "Descreva as etapas que você realizou: em quais páginas você estava, onde você clicou etc.",
       "expect_label": "O que aconteceu? O que deveria ter acontecido?"
     },
     "label": "Reportar um problema",
