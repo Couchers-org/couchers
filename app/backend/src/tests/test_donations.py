@@ -25,6 +25,7 @@ def stripe_config() -> None:
     config.STRIPE_API_KEY = "dummy_api_key"
     config.STRIPE_WEBHOOK_SECRET = "dummy_webhook_secret"
     config.STRIPE_RECURRING_PRODUCT_ID = "price_1KIbmbIfR5z29g5kFWPEUnC6"
+    config.STRIPE_YEARLY_RECURRING_PRODUCT_ID = "price_1UFQSGIfR5z29g5koIy21lYR"
     config.MERCH_SHOP_URL = "https://shop.couchershq.org"
 
 
@@ -53,7 +54,7 @@ def test_one_time_donation_flow(db, stripe_config):
             res = donations.InitiateDonation(
                 donations_pb2.InitiateDonationReq(
                     amount=100,
-                    recurring=False,
+                    frequency=donations_pb2.DONATION_FREQUENCY_ONE_TIME,
                     source="test-one-time",
                 )
             )
@@ -135,7 +136,7 @@ def test_one_time_donation_flow(db, stripe_config):
         )
 
 
-def test_recurring_donation_flow(db, stripe_config):
+def test_monthly_donation_flow(db, stripe_config):
     user, token = generate_user()
     user_email = user.email
     user_id = user.id
@@ -151,8 +152,8 @@ def test_recurring_donation_flow(db, stripe_config):
             res = donations.InitiateDonation(
                 donations_pb2.InitiateDonationReq(
                     amount=25,
-                    recurring=True,
-                    source="test-recurring",
+                    frequency=donations_pb2.DONATION_FREQUENCY_MONTHLY,
+                    source="test-monthly",
                 )
             )
 
@@ -229,8 +230,8 @@ def test_recurring_donation_flow(db, stripe_config):
         assert (
             donation.stripe_checkout_session_id == "cs_test_a1JoMu1FbksL058ob6T6AC1byYR2DCXVRwi0ybLSZKwINYe868OQr25qaC"
         )
-        assert donation.donation_type == DonationType.recurring
-        assert donation.source == "test-recurring"
+        assert donation.donation_type == DonationType.monthly
+        assert donation.source == "test-monthly"
 
         invoice = session.execute(select(Invoice)).scalar_one()
         assert invoice.user_id == user_id
@@ -251,6 +252,128 @@ def test_recurring_donation_flow(db, stripe_config):
             ).scalar_one()
             == user_id
         )
+
+
+def test_yearly_donation_flow(db, stripe_config):
+    user, token = generate_user()
+    user_id = user.id
+
+    with donations_session(token) as donations:
+        with patch("couchers.servicers.donations.stripe") as mock:
+            mock.Customer.create.return_value = type("__MockCustomer", (), {"id": "cus_Pv4w8dxBpTVUsQ"})
+            mock.checkout.Session.create.return_value = type("__MockCheckoutSession", (), RECURRING_STRIPE_SESSION)
+
+            donations.InitiateDonation(
+                donations_pb2.InitiateDonationReq(
+                    amount=250,
+                    frequency=donations_pb2.DONATION_FREQUENCY_YEARLY,
+                    source="test-yearly",
+                )
+            )
+
+        mock.checkout.Session.create.assert_called_once_with(
+            client_reference_id=str(user_id),
+            customer="cus_Pv4w8dxBpTVUsQ",
+            submit_type=None,
+            success_url="http://localhost:3000/donate?success=true",
+            cancel_url="http://localhost:3000/donate?cancelled=true",
+            payment_method_types=["card"],
+            mode="subscription",
+            line_items=[
+                {
+                    "price": "price_1UFQSGIfR5z29g5koIy21lYR",
+                    "quantity": 250,
+                }
+            ],
+            api_key="dummy_api_key",
+        )
+
+    with session_scope() as session:
+        donation = session.execute(select(DonationInitiation)).scalar_one()
+        assert donation.user_id == user_id
+        assert donation.amount == 250
+        assert donation.donation_type == DonationType.yearly
+        assert donation.source == "test-yearly"
+
+
+def test_legacy_recurring_bool_means_monthly(db, stripe_config):
+    """Clients from before DonationFrequency existed set the bool and no frequency."""
+    user, token = generate_user()
+    user_id = user.id
+
+    with donations_session(token) as donations:
+        with patch("couchers.servicers.donations.stripe") as mock:
+            mock.Customer.create.return_value = type("__MockCustomer", (), {"id": "cus_Pv4w8dxBpTVUsQ"})
+            mock.checkout.Session.create.return_value = type("__MockCheckoutSession", (), RECURRING_STRIPE_SESSION)
+
+            donations.InitiateDonation(donations_pb2.InitiateDonationReq(amount=25, recurring_monthly_do_not_use=True))
+
+        assert mock.checkout.Session.create.call_args.kwargs["mode"] == "subscription"
+        assert mock.checkout.Session.create.call_args.kwargs["line_items"] == [
+            {
+                "price": "price_1KIbmbIfR5z29g5kFWPEUnC6",
+                "quantity": 25,
+            }
+        ]
+
+    with session_scope() as session:
+        donation = session.execute(select(DonationInitiation)).scalar_one()
+        assert donation.user_id == user_id
+        assert donation.donation_type == DonationType.monthly
+
+
+def test_legacy_no_recurring_bool_means_one_time(db, stripe_config):
+    user, token = generate_user()
+    user_id = user.id
+
+    with donations_session(token) as donations:
+        with patch("couchers.servicers.donations.stripe") as mock:
+            mock.Customer.create.return_value = type("__MockCustomer", (), {"id": "cus_Pv4uq0gT0rDZWN"})
+            mock.checkout.Session.create.return_value = type("__MockCheckoutSession", (), one_time_STRIPE_SESSION)
+
+            donations.InitiateDonation(donations_pb2.InitiateDonationReq(amount=100))
+
+        assert mock.checkout.Session.create.call_args.kwargs["mode"] == "payment"
+
+    with session_scope() as session:
+        donation = session.execute(select(DonationInitiation)).scalar_one()
+        assert donation.user_id == user_id
+        assert donation.donation_type == DonationType.one_time
+
+
+def test_explicit_frequency_beats_legacy_recurring_bool(db, stripe_config):
+    user, token = generate_user()
+    user_id = user.id
+
+    with donations_session(token) as donations:
+        with patch("couchers.servicers.donations.stripe") as mock:
+            mock.Customer.create.return_value = type("__MockCustomer", (), {"id": "cus_Pv4uq0gT0rDZWN"})
+            mock.checkout.Session.create.return_value = type("__MockCheckoutSession", (), one_time_STRIPE_SESSION)
+
+            donations.InitiateDonation(
+                donations_pb2.InitiateDonationReq(
+                    amount=100,
+                    frequency=donations_pb2.DONATION_FREQUENCY_ONE_TIME,
+                    recurring_monthly_do_not_use=True,
+                )
+            )
+
+    with session_scope() as session:
+        donation = session.execute(select(DonationInitiation)).scalar_one()
+        assert donation.user_id == user_id
+        assert donation.donation_type == DonationType.one_time
+
+
+def test_unknown_donation_frequency(db, stripe_config):
+    _, token = generate_user()
+
+    with donations_session(token) as donations:
+        with pytest.raises(grpc.RpcError) as e:
+            donations.InitiateDonation(
+                donations_pb2.InitiateDonationReq(amount=100, frequency=donations_pb2.DonationFrequency.ValueType(42))
+            )
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == "Invalid donation frequency."
 
 
 def test_customer_portal_url(db, stripe_config):
@@ -383,7 +506,9 @@ def test_slack_notification_on_one_time_donation(db, stripe_config):
         with patch("couchers.servicers.donations.stripe") as mock:
             mock.Customer.create.return_value = type("__MockCustomer", (), {"id": "cus_Pv4uq0gT0rDZWN"})
             mock.checkout.Session.create.return_value = type("__MockCheckoutSession", (), one_time_STRIPE_SESSION)
-            donations.InitiateDonation(donations_pb2.InitiateDonationReq(amount=100, recurring=False))
+            donations.InitiateDonation(
+                donations_pb2.InitiateDonationReq(amount=100, frequency=donations_pb2.DONATION_FREQUENCY_ONE_TIME)
+            )
 
     # Fire the charge.succeeded webhook and check Slack message
     with patch("couchers.servicers.donations.send_slack_message") as mock_slack:
@@ -396,8 +521,8 @@ def test_slack_notification_on_one_time_donation(db, stripe_config):
         assert user.name in call_args
 
 
-def test_slack_notification_on_recurring_donation(db, stripe_config):
-    """Test that a Slack notification is sent when a recurring donation is received."""
+def test_slack_notification_on_monthly_donation(db, stripe_config):
+    """Test that a Slack notification is sent when a monthly donation is received."""
     user, token = generate_user()
 
     config.STRIPE_RECURRING_PRODUCT_ID = "price_1IRoHdE5kUmYuPWz9tX8UpRv"
@@ -407,7 +532,9 @@ def test_slack_notification_on_recurring_donation(db, stripe_config):
         with patch("couchers.servicers.donations.stripe") as mock:
             mock.Customer.create.return_value = type("__MockCustomer", (), {"id": "cus_Pv4w8dxBpTVUsQ"})
             mock.checkout.Session.create.return_value = type("__MockCheckoutSession", (), RECURRING_STRIPE_SESSION)
-            donations.InitiateDonation(donations_pb2.InitiateDonationReq(amount=25, recurring=True))
+            donations.InitiateDonation(
+                donations_pb2.InitiateDonationReq(amount=25, frequency=donations_pb2.DONATION_FREQUENCY_MONTHLY)
+            )
 
     # Fire the charge.succeeded webhook and check Slack message
     with patch("couchers.servicers.donations.send_slack_message") as mock_slack:
@@ -428,7 +555,9 @@ def test_revenue_metric_on_donation(db, stripe_config):
         with patch("couchers.servicers.donations.stripe") as mock:
             mock.Customer.create.return_value = type("__MockCustomer", (), {"id": "cus_Pv4uq0gT0rDZWN"})
             mock.checkout.Session.create.return_value = type("__MockCheckoutSession", (), one_time_STRIPE_SESSION)
-            donations.InitiateDonation(donations_pb2.InitiateDonationReq(amount=100, recurring=False))
+            donations.InitiateDonation(
+                donations_pb2.InitiateDonationReq(amount=100, frequency=donations_pb2.DONATION_FREQUENCY_ONE_TIME)
+            )
 
     with patch("couchers.servicers.donations.observe_revenue") as mock_observe_revenue:
         # Captured Stripe test-mode event: charge.succeeded for one-time $100 donation
