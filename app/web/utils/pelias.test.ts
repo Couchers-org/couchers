@@ -535,6 +535,46 @@ describe("normalize", () => {
     });
   });
 
+  it("inserts a venue's street address into name, since Pelias's own label omits it", () => {
+    const result = normalize(
+      feature({
+        properties: {
+          layer: "venue",
+          label: "Tour Eiffel, Paris, France",
+          name: "Tour Eiffel",
+          housenumber: "5",
+          street: "Avenue Anatole France",
+          locality: "Paris",
+          region: "Paris",
+          country: "France",
+        },
+      }),
+    );
+    expect(result.name).toBe("Tour Eiffel, 5 Avenue Anatole France, Paris, France");
+    // The compact label shown in the dropdown stays unaffected.
+    expect(result.simplifiedName).toBe("Tour Eiffel, Paris, France");
+  });
+
+  it("leaves a venue's name untouched when it has no street address", () => {
+    const result = normalize(feature({ properties: { layer: "venue", name: "Stonehenge", label: "Stonehenge, England, United Kingdom" } }));
+    expect(result.name).toBe("Stonehenge, England, United Kingdom");
+  });
+
+  it("leaves an address feature's name untouched, since its name is already the full street address", () => {
+    const result = normalize(
+      feature({
+        properties: {
+          layer: "address",
+          label: "8 Place De L'Hotel De Ville, Paris, France",
+          name: "8 Place De L'Hotel De Ville",
+          housenumber: "8",
+          street: "Place De L'Hotel De Ville",
+        },
+      }),
+    );
+    expect(result.name).toBe("8 Place De L'Hotel De Ville, Paris, France");
+  });
+
   it("classifies region/country layers as regions", () => {
     expect(normalize(feature({ properties: { layer: "region" } })).isRegion).toBe(true);
     expect(normalize(feature({ properties: { layer: "country" } })).isRegion).toBe(true);
