@@ -493,6 +493,7 @@ export default function EditProfileForm() {
                   render={({ fieldState: { error } }) => (
                     <EditLocationMap
                       inputFieldError={error}
+                      collapseToCity
                       showRadiusSlider
                       initialLocation={{
                         address: user.city,

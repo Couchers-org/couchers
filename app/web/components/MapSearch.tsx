@@ -51,9 +51,12 @@ interface MapSearchProps {
   setError: (error: string) => void;
   setResult: (lngLat: LngLat, address: string, simplifiedAddress: string) => void;
   inputFieldError?: FieldError;
+  // Force the displayed address to the containing city/locality regardless of
+  // what matched (street, venue, address, …), rather than the precise hit.
+  collapseToCity?: boolean;
 }
 
-export default function MapSearch({ setError, setResult, inputFieldError }: MapSearchProps) {
+export default function MapSearch({ setError, setResult, inputFieldError, collapseToCity = false }: MapSearchProps) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
   const { t } = useTranslation([GLOBAL]);
@@ -71,9 +74,15 @@ export default function MapSearch({ setError, setResult, inputFieldError }: MapS
     provider,
   } = useGeocodeQuery({
     biasToUserLocation: true,
+    collapseToCity,
     allowFallback: true /*false*/,
   });
-  const { getMyLocation, isLoading: isLocating, error: myLocationError, reset: resetMyLocationError } = useMyLocation();
+  const {
+    getMyLocation,
+    isLoading: isLocating,
+    error: myLocationError,
+    reset: resetMyLocationError,
+  } = useMyLocation({ collapseToCity });
 
   // Geocode.earth is unavailable and we are serving results from the legacy
   // Nominatim fallback, which must not be queried as-you-type (OSM usage

@@ -163,22 +163,33 @@ export function homonymousRegionKeys(features: PeliasFeature[]): Set<string> {
  * primary equals a region in the same list (same country), use `region_a`
  * instead of dropping the duplicate region name — so the city reads
  * "New York, NY, United States" and the state stays "New York, United States".
+ *
+ * `collapseToCity` is the privacy-motivated opposite of the above: approximate
+ * location fields (a user's home) must never surface the precise street/venue
+ * that was matched, so the primary becomes the containing locality/localadmin
+ * (falling back to the matched name itself when there isn't one, e.g. an
+ * `ocean` reverse hit). Independent of `preferCity`, which only reorders
+ * results and never rewrites this label.
  */
 export function simplifyPeliasDisplayName(
   properties: PeliasFeatureProperties,
   // Kept for call-site compatibility; labels no longer depend on preferCity.
   _preferCity = false,
   homonymousRegions?: ReadonlySet<string>,
+  collapseToCity = false,
 ): string {
   const isCoarseAdmin = MATCHED_NAME_PRIMARY_LAYERS.has(properties.layer);
-  const primary = properties.name;
+  const primary =
+    !isCoarseAdmin && collapseToCity
+      ? properties.locality || properties.localadmin || properties.name
+      : properties.name;
 
   // Name the containing city for precise hits (street, address, venue,
   // neighbourhood, …), or the label says nothing about where the place is:
   // Pelias maps the French département onto `region`, so name + region alone
   // reads "Rue X, Hérault, France". Skipped when the primary already *is* that
   // city, and for coarse admin areas, which are not inside a city.
-  const containingCity = isCoarseAdmin ? undefined : properties.locality || properties.localadmin;
+  const containingCity = isCoarseAdmin || collapseToCity ? undefined : properties.locality || properties.localadmin;
   const city = containingCity && containingCity !== primary ? containingCity : undefined;
   const region = properties.region || properties.macroregion;
 
@@ -259,6 +270,7 @@ export function normalize(
   displayArea?: PeliasFeature,
   preferCity = false,
   homonymousRegions?: ReadonlySet<string>,
+  collapseToCity = false,
 ): GeocodeResult {
   const { properties } = feature;
   const geometrySource = displayArea ?? feature;
@@ -267,7 +279,7 @@ export function normalize(
   return {
     id: properties.gid,
     name: properties.label,
-    simplifiedName: simplifyPeliasDisplayName(properties, preferCity, homonymousRegions),
+    simplifiedName: simplifyPeliasDisplayName(properties, preferCity, homonymousRegions, collapseToCity),
     location: new LngLat(lon, lat),
     bbox: toGeocodeBbox(geometrySource),
     isRegion: REGION_LAYERS.has(properties.layer),
@@ -345,9 +357,9 @@ async function fetchPelias(url: URL, signal?: AbortSignal): Promise<PeliasRespon
  * reverse. Geometry always comes from the matched feature (labels keep the
  * matched name; we do not swap in a parent city bbox).
  */
-function normalizeFeatures(features: PeliasFeature[], preferCity: boolean): GeocodeResult[] {
+function normalizeFeatures(features: PeliasFeature[], preferCity: boolean, collapseToCity = false): GeocodeResult[] {
   const homonymousRegions = homonymousRegionKeys(features);
-  return features.map((feature) => normalize(feature, undefined, preferCity, homonymousRegions));
+  return features.map((feature) => normalize(feature, undefined, preferCity, homonymousRegions, collapseToCity));
 }
 
 /**
@@ -361,7 +373,8 @@ function normalizeFeatures(features: PeliasFeature[], preferCity: boolean): Geoc
  *
  * `preferCity` enables soft city-oriented ranking elsewhere; reverse labels
  * always keep the matched name (address/street/venue), with containing city
- * as context when present.
+ * as context when present. `collapseToCity` overrides that for approximate
+ * location fields (see `simplifyPeliasDisplayName`).
  *
  * An empty result is a legitimate answer, not a failure: it comes back as `[]`.
  * Genuine failures (network, non-2xx, timeout) throw `PeliasError`, same as
@@ -373,10 +386,11 @@ export async function reverse(
   options: {
     language?: string;
     preferCity?: boolean;
+    collapseToCity?: boolean;
     signal?: AbortSignal;
   } = {},
 ): Promise<{ results: GeocodeResult[]; features: PeliasFeature[] }> {
-  const { language, preferCity = false, signal } = options;
+  const { language, preferCity = false, collapseToCity = false, signal } = options;
 
   if (!BASE_URL || !API_KEY) {
     throw new PeliasError("Geocoding is not configured.");
@@ -395,7 +409,7 @@ export async function reverse(
   // Reverse features are structurally identical to forward ones (verified against
   // live responses), so LOC-1's normalizer is reused unchanged.
   return {
-    results: normalizeFeatures(features, preferCity),
+    results: normalizeFeatures(features, preferCity, collapseToCity),
     features,
   };
 }
@@ -407,6 +421,11 @@ export interface AutocompleteOptions {
   // neighbourhood or macrocounty. Does not pass `layers` to Pelias. Labels
   // always keep the matched name; preferCity does not collapse them to a city.
   preferCity?: boolean;
+  // Force labels to the containing city/locality regardless of what matched
+  // (street, venue, address, …). For approximate-location fields (a user's
+  // home) where the precise hit must never be shown. Independent of
+  // `preferCity`.
+  collapseToCity?: boolean;
   signal?: AbortSignal;
 }
 
@@ -421,7 +440,7 @@ export async function autocomplete(
   text: string,
   options: AutocompleteOptions = {},
 ): Promise<{ results: GeocodeResult[]; features: PeliasFeature[] }> {
-  const { language, focus, preferCity = false, signal } = options;
+  const { language, focus, preferCity = false, collapseToCity = false, signal } = options;
 
   if (!BASE_URL || !API_KEY) {
     throw new PeliasError("Geocoding is not configured.");
@@ -441,7 +460,7 @@ export async function autocomplete(
   const data = await fetchPelias(url, signal);
   const features = data.features ?? [];
   const ordered = preferCity ? reorderPreferCity(features) : features;
-  const results = normalizeFeatures(ordered, preferCity);
+  const results = normalizeFeatures(ordered, preferCity, collapseToCity);
 
   // Always drop identical display labels (e.g. GeoNames + WOF both
   // "Paris, France"), including precise mode. Keep first occurrence.

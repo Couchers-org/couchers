@@ -50,6 +50,11 @@ export interface EditLocationMapProps extends BoxProps {
   exact?: boolean;
   inputFieldError?: FieldError | undefined;
   variant?: "standard" | "outlined" | "filled";
+  // Force the displayed/stored address to the containing city/locality rather
+  // than the precise matched place (street, venue, address, …). Set this for
+  // approximate, privacy-sensitive locations (a user's home); leave it off for
+  // an exact place.
+  collapseToCity?: boolean;
 }
 
 export default function EditLocationMap({
@@ -61,6 +66,7 @@ export default function EditLocationMap({
   exact,
   inputFieldError,
   variant = "standard",
+  collapseToCity = false,
   ...otherProps
 }: EditLocationMapProps) {
   const theme = useTheme();
@@ -297,6 +303,7 @@ export default function EditLocationMap({
           />
           <MapSearch
             inputFieldError={inputFieldError}
+            collapseToCity={collapseToCity}
             setError={setError}
             setResult={(coordinate, _, simplified) => {
               commit({ address: simplified }, false);
