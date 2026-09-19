@@ -100,11 +100,11 @@
   "make_co_organizer": {
     "title": "Rendre co-organisateur.rice",
     "dialog_title": "Rendre {{name}} co-organisateur.rice",
-    "dialog_text": "Êtes-vous sûr.e de vouloir rendre {{name}} co-organisateur.ice de {{event}}?"
+    "dialog_text": "Êtes-vous sûr.e de vouloir rendre {{name}} co-organisateur.ice de {{event}} ?"
   },
   "remove_as_co_organizer": {
     "title": "Retirer comme co-organisateur.rice",
     "dialog_title": "Retirer {{name}} comme co-organisateur.ice",
-    "dialog_text": "Êtes-vous sûr.e de vouloir retirer {{name}} comme co-organisateur.rice de {{event}}?"
+    "dialog_text": "Êtes-vous sûr.e de vouloir retirer {{name}} comme co-organisateur.rice de {{event}} ?"
   }
 }

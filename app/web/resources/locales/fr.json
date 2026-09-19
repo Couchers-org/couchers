@@ -233,7 +233,7 @@
       "press_enter_to_search": "Appuyez sur \"entrée\" pour rechercher",
       "display_location_not_empty": "Veuillez ajouter votre localisation",
       "radius_text2_one": "{{count}} mètre",
-      "radius_text2_many": "{{count}} mètres",
+      "radius_text2_many": "{{count}} de mètres",
       "radius_text2_other": "{{count}} mètres"
     }
   },
