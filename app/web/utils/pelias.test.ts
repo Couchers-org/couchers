@@ -192,6 +192,85 @@ describe("simplifyPeliasDisplayName", () => {
     ).toBe("Wall Street, New York, United States");
   });
 
+  it("collapses a venue name to its containing city when collapseToCity is set", () => {
+    expect(
+      simplifyPeliasDisplayName(
+        feature({
+          properties: {
+            layer: "venue",
+            name: "Wall Street",
+            locality: "New York",
+            region: "New York",
+            country: "United States",
+          },
+        }).properties,
+        false,
+        undefined,
+        true,
+      ),
+    ).toBe("New York, United States");
+  });
+
+  it("collapses an address name to its containing city when collapseToCity is set", () => {
+    expect(
+      simplifyPeliasDisplayName(
+        feature({
+          properties: {
+            layer: "address",
+            name: "8 Place de l'Hôtel de Ville",
+            locality: "Paris",
+            region: "Île-de-France",
+            country: "France",
+          },
+        }).properties,
+        false,
+        undefined,
+        true,
+      ),
+    ).toBe("Paris, Île-de-France, France");
+  });
+
+  it("falls back to the matched name under collapseToCity when there is no locality", () => {
+    expect(
+      simplifyPeliasDisplayName(
+        feature({
+          properties: {
+            layer: "venue",
+            name: "Stonehenge",
+            locality: undefined,
+            localadmin: undefined,
+            region: "England",
+            country: "United Kingdom",
+          },
+        }).properties,
+        false,
+        undefined,
+        true,
+      ),
+    ).toBe("Stonehenge, England, United Kingdom");
+  });
+
+  it("keeps the matched name for coarse admin layers even when collapseToCity is set", () => {
+    expect(
+      simplifyPeliasDisplayName(
+        feature({
+          properties: {
+            layer: "macrocounty",
+            name: "Arrondissement de Lorient",
+            locality: "Brandérion",
+            localadmin: "Brandérion",
+            macrocounty: "Lorient",
+            region: "Morbihan",
+            country: "France",
+          },
+        }).properties,
+        false,
+        undefined,
+        true,
+      ),
+    ).toBe("Arrondissement de Lorient, Morbihan, France");
+  });
+
   it("drops duplicate adjacent parts (region feature named after its region)", () => {
     expect(
       simplifyPeliasDisplayName(
@@ -764,6 +843,40 @@ describe("autocomplete", () => {
     expect(results[0].simplifiedName).toBe("Wall Street, New York, United States");
     expect(results[0].location).toEqual(new LngLat(-74.008, 40.706));
     expect(results[0].bbox[0]).toBeCloseTo(-73.908);
+  });
+
+  it("collapses the label to the city while keeping precise geometry when collapseToCity is set", async () => {
+    server.use(
+      rest.get(AUTOCOMPLETE_URL, (_req, res, ctx) =>
+        res(
+          ctx.json({
+            type: "FeatureCollection",
+            features: [
+              feature({
+                geometry: { type: "Point", coordinates: [-74.008, 40.706] },
+                bbox: undefined,
+                properties: {
+                  gid: "openstreetmap:venue:1",
+                  layer: "venue",
+                  label: "Wall Street, New York, NY, USA",
+                  name: "Wall Street",
+                  locality: "New York",
+                  region: "New York",
+                  country: "United States",
+                },
+              }),
+            ],
+          }),
+        ),
+      ),
+    );
+
+    const { results } = await autocomplete("Wall Street", { collapseToCity: true });
+
+    // Approximate-location fields must not leak the precise street/venue match.
+    expect(results[0].simplifiedName).toBe("New York, United States");
+    // Geometry is still the precise hit's own coordinate.
+    expect(results[0].location).toEqual(new LngLat(-74.008, 40.706));
   });
 
   it("dedupes identical Paris labels from two sources in precise mode", async () => {

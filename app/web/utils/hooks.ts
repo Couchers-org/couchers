@@ -96,10 +96,21 @@ export interface GeocodeResult {
  * location higher, when the browser will give it to us without a prompt (see
  * `utils/useLocationBias.ts`). It is a soft signal only — distant places are still
  * returned, and searches run unbiased whenever no position is available.
+ *
+ * `collapseToCity` forces labels to the containing city/locality regardless of
+ * what matched (street, venue, address, …), for approximate-location fields (a
+ * user's home) where the precise hit must never be shown. Independent of
+ * `preferCity`.
  */
-const useGeocodeQuery = (options: { allowFallback: boolean; preferCity?: boolean; biasToUserLocation?: boolean }) => {
+const useGeocodeQuery = (options: {
+  allowFallback: boolean;
+  preferCity?: boolean;
+  collapseToCity?: boolean;
+  biasToUserLocation?: boolean;
+}) => {
   const { allowFallback } = options;
   const preferCity = options.preferCity ?? false;
+  const collapseToCity = options.collapseToCity ?? false;
   const focusRef = useLocationBias(options.biasToUserLocation ?? false);
   const { i18n } = useTranslation();
   const isMounted = useIsMounted();
@@ -180,6 +191,7 @@ const useGeocodeQuery = (options: { allowFallback: boolean; preferCity?: boolean
           providerSetting,
           language: i18n.language,
           preferCity,
+          collapseToCity,
           // Read at request time, not render time: the fix may land between
           // keystrokes, and an early query simply goes out unbiased.
           focus: focusRef.current,
@@ -243,6 +255,7 @@ const useGeocodeQuery = (options: { allowFallback: boolean; preferCity?: boolean
     [
       allowFallback,
       clear,
+      collapseToCity,
       focusRef,
       i18n.language,
       preferCity,
