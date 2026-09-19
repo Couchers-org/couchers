@@ -60,6 +60,9 @@ export interface GeocodeResult {
   // Stable provider id (Pelias `gid`). Consumed by the storage stories
   // (LOC-6/LOC-12); the homepage widget only needs the label + bbox.
   id?: string;
+  // Full display name. For a venue with a known street address, this is the
+  // venue name plus that address (Pelias's own label omits it) — see
+  // `withVenueStreetAddress` in `utils/pelias.ts`.
   name: string;
   simplifiedName: string;
   location: LngLat;
