@@ -119,6 +119,7 @@ export interface GeocodeSearchOptions {
   // BCP-47 UI locale (e.g. "pt-BR"); narrowed per provider.
   language?: string;
   preferCity?: boolean;
+  collapseToCity?: boolean; // only affects Pelias
   // LOC-3: soft ranking bias toward the user's approximate location. Pelias only
   // (Nominatim's viewbox is a different, harder mechanism we don't replicate for
   // the deprecated fallback path). Omitted entirely when unknown.
@@ -169,6 +170,7 @@ export async function geocodeSearch(text: string, options: GeocodeSearchOptions)
     const { results, features } = await autocomplete(text, {
       language: options.language ? toPeliasLanguage(options.language) : undefined,
       preferCity: options.preferCity,
+      collapseToCity: options.collapseToCity,
       focus: options.focus,
       signal: options.signal,
     });

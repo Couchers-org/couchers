@@ -33,6 +33,10 @@ export interface UseMyLocationOptions {
   // matched name (street/venue/address); preferCity does not collapse them to
   // the containing city. Leave unset for address fields.
   preferCity?: boolean;
+  // Force the label to the containing city/locality regardless of what
+  // matched. For approximate-location fields (a user's home) where the
+  // precise hit must never be shown. Independent of `preferCity`.
+  collapseToCity?: boolean;
 }
 
 export interface UseMyLocationResult {
@@ -44,7 +48,10 @@ export interface UseMyLocationResult {
   reset: () => void;
 }
 
-export default function useMyLocation({ preferCity = false }: UseMyLocationOptions = {}): UseMyLocationResult {
+export default function useMyLocation({
+  preferCity = false,
+  collapseToCity = false,
+}: UseMyLocationOptions = {}): UseMyLocationResult {
   const { t, i18n } = useTranslation("global");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
@@ -81,6 +88,7 @@ export default function useMyLocation({ preferCity = false }: UseMyLocationOptio
       const { results } = await reverse(position.coords.latitude, position.coords.longitude, {
         language: toPeliasLanguage(i18n.language),
         preferCity,
+        collapseToCity,
       });
 
       if (isStale()) {
@@ -119,7 +127,7 @@ export default function useMyLocation({ preferCity = false }: UseMyLocationOptio
         setIsLoading(false);
       }
     }
-  }, [i18n.language, preferCity, t]);
+  }, [collapseToCity, i18n.language, preferCity, t]);
 
   return { getMyLocation, isLoading, error, reset };
 }
