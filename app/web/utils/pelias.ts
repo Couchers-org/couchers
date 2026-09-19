@@ -42,6 +42,10 @@ export interface PeliasFeatureProperties {
   borough?: string;
   neighbourhood?: string;
   continent?: string;
+  // Street-level address components, present on many venues in addition to
+  // `address` features
+  housenumber?: string;
+  street?: string;
 }
 
 export interface PeliasFeature {
@@ -242,6 +246,23 @@ export function reorderPreferCity(features: PeliasFeature[]): PeliasFeature[] {
 }
 
 /**
+ * Pelias's own `label` names a venue but drops its street address, even when
+ * the feature carries `housenumber`/`street`
+ */
+function withVenueStreetAddress(properties: PeliasFeatureProperties): string {
+  if (properties.layer !== "venue" || !properties.street) {
+    return properties.label;
+  }
+
+  const streetAddress = [properties.housenumber, properties.street].filter(Boolean).join(" ");
+  const cityOrRegion = properties.locality || properties.localadmin || properties.region;
+  const parts = [properties.name, streetAddress, cityOrRegion, properties.country].filter(
+    (part): part is string => Boolean(part),
+  );
+  return parts.filter((part, index) => part !== parts[index - 1]).join(", ");
+}
+
+/**
  * Convert a Pelias feature's bbox (or point) into our `GeocodeResult.bbox`
  * ordering. `GeocodeResult.bbox` is [maxLon, maxLat, minLon, minLat] — the exact
  * ordering the previous Nominatim mapping produced — so downstream consumers
@@ -278,7 +299,7 @@ export function normalize(
 
   return {
     id: properties.gid,
-    name: properties.label,
+    name: withVenueStreetAddress(properties),
     simplifiedName: simplifyPeliasDisplayName(properties, preferCity, homonymousRegions, collapseToCity),
     location: new LngLat(lon, lat),
     bbox: toGeocodeBbox(geometrySource),
