@@ -231,7 +231,10 @@
       "location_publicly_visible": "Cela sera visible publiquement",
       "location_warn": "Clique et bouge le cercle ci-dessous pour montrer approximativement aux gens, où se situe ta maison. Fais attention de ne pas placer ta maison au centre du cercle, afin que les gens ne sachent pas exactement où se trouve ta maison.",
       "press_enter_to_search": "Appuyez sur \"entrée\" pour rechercher",
-      "display_location_not_empty": "Veuillez ajouter votre localisation"
+      "display_location_not_empty": "Veuillez ajouter votre localisation",
+      "radius_text2_one": "{{count}} mètre",
+      "radius_text2_many": "{{count}} mètres",
+      "radius_text2_other": "{{count}} mètres"
     }
   },
   "nav": {

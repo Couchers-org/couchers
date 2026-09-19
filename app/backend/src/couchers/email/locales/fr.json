@@ -165,5 +165,19 @@
       "purpose_generic": "<b>{{user}}</b> a mis à jour un événement auquel vous vous êtes inscrit.e :",
       "purpose_with_items": "<b>{{user}}</b> a mis à jour un événement auquel vous êtes inscrit.e ({{items_list}}) :"
     }
+  },
+  "host_requests": {
+    "created": {
+      "purpose": "<b>{{surfer_name}}</b> vous a envoyé une demande d'hébergement :"
+    },
+    "generic": {
+      "date_range": "Du <b>{{from_date}}</b> au <b>{{to_date}}</b>.",
+      "view_action": "Voir la demande d'hébergement",
+      "quick_decline_action": "Refus rapide"
+    },
+    "reminder": {
+      "subject": "Vous avez une demande d'hébergement en attente de {{surfer_name}}",
+      "purpose": "<b>{{surfer_name}}</b> attend votre réponse. Même un refus rapide est préférable à une absence de réponse !"
+    }
   }
 }
