@@ -1,8 +1,12 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { LngLat } from "maplibre-gl";
+import { service } from "service";
+import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 import { rest, server } from "test/restMock";
+import { getUser } from "test/serviceMockDefaults";
+import { addDefaultUser } from "test/utils";
 import { resetFailoverState } from "utils/geocode";
 
 import { useGeocodeQuery, useIsMounted, useSafeState } from "./hooks";
@@ -199,6 +203,18 @@ describe("useGeocodeQuery hook", () => {
 
   describe("location bias (LOC-3)", () => {
     const autocompleteUrl = `${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/autocomplete`;
+    const getUserMock = service.user.getUser as jest.Mock;
+
+    beforeEach(() => {
+      getUserMock.mockImplementation(getUser);
+    });
+
+    // `addDefaultUser` logs a user in via localStorage; don't leak that (or the
+    // geolocation-granted hint) into the tests that expect a logged-out, unbiased
+    // baseline.
+    afterEach(() => {
+      window.localStorage.clear();
+    });
 
     const mockGranted = (granted: boolean) => {
       Object.defineProperty(navigator, "geolocation", {
@@ -254,7 +270,43 @@ describe("useGeocodeQuery hook", () => {
       });
     });
 
-    it("queries unbiased when geolocation is refused", async () => {
+    it("falls back to the profile location when geolocation is refused", async () => {
+      mockGranted(false);
+      addDefaultUser();
+      const captured = captureParams();
+
+      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true, biasToUserLocation: true }), {
+        wrapper,
+      });
+      await waitFor(() => expect(getUserMock).toHaveBeenCalled());
+      await act(async () => {});
+      await act(() => result.current.query("london"));
+
+      await waitFor(() => {
+        expect(captured.params?.get("focus.point.lat")).toBe(String(users[0].lat));
+        expect(captured.params?.get("focus.point.lon")).toBe(String(users[0].lng));
+      });
+    });
+
+    it("prefers the browser position over the profile location", async () => {
+      mockGranted(true);
+      addDefaultUser();
+      const captured = captureParams();
+
+      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true, biasToUserLocation: true }), {
+        wrapper,
+      });
+      await waitFor(() => expect(getUserMock).toHaveBeenCalled());
+      await act(async () => {});
+      await act(() => result.current.query("london"));
+
+      await waitFor(() => {
+        expect(captured.params?.get("focus.point.lat")).toBe("43");
+        expect(captured.params?.get("focus.point.lon")).toBe("-81.2");
+      });
+    });
+
+    it("queries unbiased when geolocation is refused and the user is logged out", async () => {
       mockGranted(false);
       const captured = captureParams();
 
@@ -271,8 +323,9 @@ describe("useGeocodeQuery hook", () => {
       expect(result.current.error).toBeUndefined();
     });
 
-    it("queries unbiased when the caller does not ask for bias", async () => {
+    it("queries unbiased when the caller does not ask for bias, even with a profile location", async () => {
       mockGranted(true);
+      addDefaultUser();
       const captured = captureParams();
 
       const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper });

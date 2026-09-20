@@ -14,6 +14,7 @@ import {
   normalizeProviderSetting,
 } from "utils/geocode";
 import useLocationBias from "utils/useLocationBias";
+import useProfileLocationBias from "utils/useProfileLocationBias";
 
 /**
  * @deprecated use useIsClient instead. This pattern should only be used as a last resort
@@ -96,9 +97,11 @@ export interface GeocodeResult {
  * results, and its `provider` never leaves `"pelias"`.
  *
  * `biasToUserLocation` (LOC-3) ranks results nearer the user's approximate
- * location higher, when the browser will give it to us without a prompt (see
- * `utils/useLocationBias.ts`). It is a soft signal only — distant places are still
- * returned, and searches run unbiased whenever no position is available.
+ * location higher. The position comes from the browser when it will give it to
+ * us without a prompt (see `utils/useLocationBias.ts`), and otherwise falls back
+ * to the logged-in user's profile location (`utils/useProfileLocationBias.ts`).
+ * It is a soft signal only — distant places are still returned, and searches run
+ * unbiased whenever neither source has anything.
  *
  * `collapseToCity` forces labels to the containing city/locality regardless of
  * what matched (street, venue, address, …), for approximate-location fields (a
@@ -114,7 +117,9 @@ const useGeocodeQuery = (options: {
   const { allowFallback } = options;
   const preferCity = options.preferCity ?? false;
   const collapseToCity = options.collapseToCity ?? false;
-  const focusRef = useLocationBias(options.biasToUserLocation ?? false);
+  const biasToUserLocation = options.biasToUserLocation ?? false;
+  const focusRef = useLocationBias(biasToUserLocation);
+  const profileFocus = useProfileLocationBias();
   const { i18n } = useTranslation();
   const isMounted = useIsMounted();
 
@@ -196,8 +201,8 @@ const useGeocodeQuery = (options: {
           preferCity,
           collapseToCity,
           // Read at request time, not render time: the fix may land between
-          // keystrokes, and an early query simply goes out unbiased.
-          focus: focusRef.current,
+          // keystrokes, and an early query simply falls back to the profile.
+          focus: biasToUserLocation ? (focusRef.current ?? profileFocus) : undefined,
           signal: abortController.signal,
         });
 
@@ -257,11 +262,13 @@ const useGeocodeQuery = (options: {
     },
     [
       allowFallback,
+      biasToUserLocation,
       clear,
       collapseToCity,
       focusRef,
       i18n.language,
       preferCity,
+      profileFocus,
       providerSetting,
       setError,
       setIsLoading,
