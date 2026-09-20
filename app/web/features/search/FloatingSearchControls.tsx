@@ -238,7 +238,6 @@ const FloatingSearchControls = ({
                 onChange={handleLocationChange}
                 onClear={handleClearLocation}
                 preferCity
-                biasToUserLocation
                 showUseMyLocation
                 // Search filter only, never persisted.
                 allowFallback
