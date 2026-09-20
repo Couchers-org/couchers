@@ -7,7 +7,7 @@ export async function initiateDonation(amount: number, recurring: boolean, sourc
   const req = new InitiateDonationReq();
 
   req.setAmount(amount);
-  req.setRecurring(recurring);
+  req.setRecurringMonthlyDoNotUse(recurring);
 
   if (source) {
     req.setSource(source);
