@@ -256,8 +256,8 @@ function withVenueStreetAddress(properties: PeliasFeatureProperties): string {
 
   const streetAddress = [properties.housenumber, properties.street].filter(Boolean).join(" ");
   const cityOrRegion = properties.locality || properties.localadmin || properties.region;
-  const parts = [properties.name, streetAddress, cityOrRegion, properties.country].filter(
-    (part): part is string => Boolean(part),
+  const parts = [properties.name, streetAddress, cityOrRegion, properties.country].filter((part): part is string =>
+    Boolean(part),
   );
   return parts.filter((part, index) => part !== parts[index - 1]).join(", ");
 }
