@@ -4,7 +4,7 @@ import { rest, server } from "test/restMock";
 import {
   autocomplete,
   dedupeBySimplifiedName,
-  homonymousRegionKeys,
+  labelHasRegionAbbrev,
   normalize,
   PeliasError,
   PeliasFeature,
@@ -87,7 +87,7 @@ describe("simplifyPeliasDisplayName", () => {
     ).toBe("Arrondissement de Lorient, Morbihan, France");
   });
 
-  it("keeps the venue name (and containing city) when preferCity is set", () => {
+  it("keeps the venue name and its containing city", () => {
     expect(
       simplifyPeliasDisplayName(
         feature({
@@ -99,12 +99,11 @@ describe("simplifyPeliasDisplayName", () => {
             country: "United States",
           },
         }).properties,
-        true,
       ),
     ).toBe("Wall Street, New York, United States");
   });
 
-  it("keeps an address name (and containing city) when preferCity is set", () => {
+  it("keeps an address name and its containing city", () => {
     expect(
       simplifyPeliasDisplayName(
         feature({
@@ -116,12 +115,11 @@ describe("simplifyPeliasDisplayName", () => {
             country: "France",
           },
         }).properties,
-        true,
       ),
     ).toBe("8 Place de l'Hôtel de Ville, Paris, France");
   });
 
-  it("keeps a neighbourhood name when preferCity is set", () => {
+  it("keeps a neighbourhood name, not its city", () => {
     expect(
       simplifyPeliasDisplayName(
         feature({
@@ -133,7 +131,6 @@ describe("simplifyPeliasDisplayName", () => {
             country: "United States",
           },
         }).properties,
-        true,
       ),
     ).toBe("Wall Street, Huntsville, United States");
   });
@@ -176,7 +173,7 @@ describe("simplifyPeliasDisplayName", () => {
     ).toBe("Montpellier, Hérault, France");
   });
 
-  it("keeps the matched venue name when preferCity is off", () => {
+  it("keeps the matched venue name", () => {
     expect(
       simplifyPeliasDisplayName(
         feature({
@@ -204,11 +201,29 @@ describe("simplifyPeliasDisplayName", () => {
             country: "United States",
           },
         }).properties,
-        false,
-        undefined,
         true,
       ),
     ).toBe("New York, United States");
+  });
+
+  it("gives a collapsed label the same region_a a city hit would get", () => {
+    // The privacy path must not produce a second spelling of the same city.
+    expect(
+      simplifyPeliasDisplayName(
+        feature({
+          properties: {
+            layer: "venue",
+            label: "Radisson Hotel New York Wall Street, New York, NY, USA",
+            name: "Radisson Hotel New York Wall Street",
+            locality: "New York",
+            region: "New York",
+            region_a: "NY",
+            country: "United States",
+          },
+        }).properties,
+        true,
+      ),
+    ).toBe("New York, NY, United States");
   });
 
   it("collapses an address name to its containing city when collapseToCity is set", () => {
@@ -223,8 +238,6 @@ describe("simplifyPeliasDisplayName", () => {
             country: "France",
           },
         }).properties,
-        false,
-        undefined,
         true,
       ),
     ).toBe("Paris, Île-de-France, France");
@@ -243,8 +256,6 @@ describe("simplifyPeliasDisplayName", () => {
             country: "United Kingdom",
           },
         }).properties,
-        false,
-        undefined,
         true,
       ),
     ).toBe("Stonehenge, England, United Kingdom");
@@ -264,8 +275,6 @@ describe("simplifyPeliasDisplayName", () => {
             country: "France",
           },
         }).properties,
-        false,
-        undefined,
         true,
       ),
     ).toBe("Arrondissement de Lorient, Morbihan, France");
@@ -287,11 +296,12 @@ describe("simplifyPeliasDisplayName", () => {
     ).toBe("Île-de-France, France");
   });
 
-  it("uses region_a for a city when a same-named region is in the set", () => {
+  it("uses region_a for a city the provider itself disambiguates", () => {
     const city = feature({
       properties: {
         gid: "whosonfirst:locality:85977539",
         layer: "locality",
+        label: "New York, NY, USA",
         name: "New York",
         locality: "New York",
         region: "New York",
@@ -299,19 +309,30 @@ describe("simplifyPeliasDisplayName", () => {
         country: "United States",
       },
     }).properties;
-    const regions = new Set(["New York\0United States"]);
 
-    expect(simplifyPeliasDisplayName(city, false, regions)).toBe("New York, NY, United States");
-    // Isolated city hit: no sibling state, leave the collapsed label alone
-    // (Paris/Madrid/Murcia).
-    expect(simplifyPeliasDisplayName(city)).toBe("New York, United States");
+    expect(simplifyPeliasDisplayName(city)).toBe("New York, NY, United States");
   });
 
-  it("does not abbreviate the region hit itself", () => {
+  it("labels a city the same way no matter what else the query returned", () => {
+    // Searching "New York" surfaces the state alongside the city; "New York
+    // City" does not. The city's label must not depend on that.
+    const city = feature({
+      properties: {
+        gid: "whosonfirst:locality:85977539",
+        layer: "locality",
+        label: "New York, NY, USA",
+        name: "New York",
+        locality: "New York",
+        region: "New York",
+        region_a: "NY",
+        country: "United States",
+      },
+    }).properties;
     const state = feature({
       properties: {
         gid: "whosonfirst:region:85688543",
         layer: "region",
+        label: "New York, USA",
         name: "New York",
         locality: undefined,
         region: "New York",
@@ -319,15 +340,38 @@ describe("simplifyPeliasDisplayName", () => {
         country: "United States",
       },
     }).properties;
-    const regions = new Set(["New York\0United States"]);
 
-    expect(simplifyPeliasDisplayName(state, false, regions)).toBe("New York, United States");
+    const withState = [city, state].map((p) => simplifyPeliasDisplayName(p));
+    const withoutState = [city].map((p) => simplifyPeliasDisplayName(p));
+
+    expect(withState).toEqual(["New York, NY, United States", "New York, United States"]);
+    expect(withoutState).toEqual(["New York, NY, United States"]);
   });
 
-  it("does not use region_a when the sibling region is a different country", () => {
+  it("does not abbreviate the region hit itself", () => {
+    const state = feature({
+      properties: {
+        gid: "whosonfirst:region:85688543",
+        layer: "region",
+        label: "New York, USA",
+        name: "New York",
+        locality: undefined,
+        region: "New York",
+        region_a: "NY",
+        country: "United States",
+      },
+    }).properties;
+
+    expect(simplifyPeliasDisplayName(state)).toBe("New York, United States");
+  });
+
+  it("leaves a city coextensive with its region unabbreviated (Madrid, Paris)", () => {
+    // The provider's own label omits region_a for these — the region is the
+    // city, so there is nothing to disambiguate from.
     const madrid = feature({
       properties: {
         layer: "locality",
+        label: "Madrid, Spain",
         name: "Madrid",
         locality: "Madrid",
         region: "Madrid",
@@ -335,14 +379,10 @@ describe("simplifyPeliasDisplayName", () => {
         country: "Spain",
       },
     }).properties;
-
-    expect(simplifyPeliasDisplayName(madrid, false, new Set(["Madrid\0United States"]))).toBe("Madrid, Spain");
-  });
-
-  it("leaves Paris unchanged even when region_a is present", () => {
     const paris = feature({
       properties: {
         layer: "locality",
+        label: "Paris, France",
         name: "Paris",
         locality: "Paris",
         region: "Paris",
@@ -351,37 +391,114 @@ describe("simplifyPeliasDisplayName", () => {
       },
     }).properties;
 
-    expect(simplifyPeliasDisplayName(paris, false, new Set())).toBe("Paris, France");
+    expect(simplifyPeliasDisplayName(madrid)).toBe("Madrid, Spain");
+    expect(simplifyPeliasDisplayName(paris)).toBe("Paris, France");
+  });
+
+  it("keeps both the city and region_a for a precise hit, to tell Springfields apart", () => {
+    const intersection = feature({
+      properties: {
+        layer: "intersection",
+        label: "Main Street & Springfield Road, Reily Township, OH, USA",
+        name: "Main Street & Springfield Road",
+        locality: undefined,
+        localadmin: "Reily Township",
+        region: "Ohio",
+        region_a: "OH",
+        country: "United States",
+      },
+    }).properties;
+
+    expect(simplifyPeliasDisplayName(intersection)).toBe(
+      "Main Street & Springfield Road, Reily Township, OH, United States",
+    );
+  });
+
+  it("does not add a region to a precise hit the provider labels without one", () => {
+    // French départements are noise in an address, and Pelias's label omits
+    // them — so no country allowlist is needed to keep them out.
+    const street = feature({
+      properties: {
+        layer: "street",
+        label: "Rue Foch, Montpellier, France",
+        name: "Rue Foch",
+        locality: "Montpellier",
+        region: "Hérault",
+        region_a: "HE",
+        country: "France",
+      },
+    }).properties;
+
+    expect(simplifyPeliasDisplayName(street)).toBe("Rue Foch, Montpellier, France");
+  });
+
+  it("tells Berlin from Berlingerode, which no per-country rule could", () => {
+    const berlin = feature({
+      properties: {
+        layer: "venue",
+        label: "Berlin, Hauptstraße/Berliner Straße, Berlin, Germany",
+        name: "Hauptstraße/Berliner Straße",
+        locality: "Berlin",
+        region: "Berlin",
+        region_a: "BE",
+        country: "Germany",
+      },
+    }).properties;
+    const berlingerode = feature({
+      properties: {
+        layer: "venue",
+        label: "Berlingerode Hauptstraße, Berlingerode, TH, Germany",
+        name: "Berlingerode Hauptstraße",
+        locality: "Berlingerode",
+        region: "Thuringia",
+        region_a: "TH",
+        country: "Germany",
+      },
+    }).properties;
+
+    expect(simplifyPeliasDisplayName(berlin)).toBe("Hauptstraße/Berliner Straße, Berlin, Germany");
+    expect(simplifyPeliasDisplayName(berlingerode)).toBe("Berlingerode Hauptstraße, Berlingerode, TH, Germany");
+  });
+
+  it("does not repeat a full region name next to the city", () => {
+    const airport = feature({
+      properties: {
+        layer: "venue",
+        label: "Aéroport de Montpellier - Méditerranée, Mauguio, France",
+        name: "Aéroport de Montpellier - Méditerranée",
+        locality: "Mauguio",
+        region: "Hérault",
+        country: "France",
+      },
+    }).properties;
+
+    expect(simplifyPeliasDisplayName(airport)).toBe("Aéroport de Montpellier - Méditerranée, Mauguio, France");
   });
 });
 
-describe("homonymousRegionKeys", () => {
-  it("collects region name+country pairs", () => {
-    expect(
-      homonymousRegionKeys([
-        feature({
-          properties: {
-            layer: "locality",
-            name: "New York",
-            country: "United States",
-          },
-        }),
-        feature({
-          properties: {
-            layer: "region",
-            name: "New York",
-            country: "United States",
-          },
-        }),
-        feature({
-          properties: {
-            layer: "region",
-            name: "Quebec",
-            country: "Canada",
-          },
-        }),
-      ]),
-    ).toEqual(new Set(["New York\0United States", "Quebec\0Canada"]));
+describe("labelHasRegionAbbrev", () => {
+  it("detects region_a as a label component", () => {
+    const withAbbrev = feature({
+      properties: { label: "New York, NY, USA", region_a: "NY" },
+    }).properties;
+    const withoutAbbrev = feature({
+      properties: { label: "Madrid, Spain", region_a: "MD" },
+    }).properties;
+
+    expect(labelHasRegionAbbrev(withAbbrev)).toBe(true);
+    expect(labelHasRegionAbbrev(withoutAbbrev)).toBe(false);
+  });
+
+  it("does not match region_a inside a longer component", () => {
+    const properties = feature({
+      properties: { label: "Nice, Alpes-Maritimes, France", region_a: "AM" },
+    }).properties;
+
+    expect(labelHasRegionAbbrev(properties)).toBe(false);
+  });
+
+  it("is false when the feature has no region_a", () => {
+    expect(labelHasRegionAbbrev(feature({ properties: { label: "Singapore" } }).properties)).toBe(false);
   });
 });
 
@@ -466,8 +583,6 @@ describe("dedupeBySimplifiedName", () => {
           country: "United States",
         },
       }),
-      undefined,
-      true,
     );
     const duplicate = normalize(
       feature({
@@ -480,8 +595,6 @@ describe("dedupeBySimplifiedName", () => {
           country: "United States",
         },
       }),
-      undefined,
-      true,
     );
     const other = normalize(
       feature({
@@ -494,8 +607,6 @@ describe("dedupeBySimplifiedName", () => {
           country: "United States",
         },
       }),
-      undefined,
-      true,
     );
 
     expect(first.simplifiedName).toBe("Wall Street, New York, United States");
@@ -647,7 +758,7 @@ describe("normalize", () => {
       },
     });
 
-    const result = normalize(address, city, true);
+    const result = normalize(address, city);
     expect(result.simplifiedName).toBe("8 Place de l'Hôtel de Ville, Paris, France");
     expect(result.location).toEqual(new LngLat(2.35, 48.85));
     expect(result.bbox).toEqual([2.47, 48.9, 2.22, 48.81]);
@@ -1081,7 +1192,7 @@ describe("autocomplete", () => {
     expect(results[1].isRegion).toBe(true);
   });
 
-  it("does not abbreviate Madrid when the set has no Madrid region", async () => {
+  it("does not abbreviate Madrid, which the provider itself labels without MD", async () => {
     server.use(
       rest.get(AUTOCOMPLETE_URL, (_req, res, ctx) =>
         res(
