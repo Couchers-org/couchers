@@ -296,72 +296,14 @@ def test_yearly_donation_flow(db, stripe_config):
         assert donation.source == "test-yearly"
 
 
-def test_legacy_recurring_bool_means_monthly(db, stripe_config):
-    """Clients from before DonationFrequency existed set the bool and no frequency."""
-    user, token = generate_user()
-    user_id = user.id
+def test_unspecified_donation_frequency(db, stripe_config):
+    _, token = generate_user()
 
     with donations_session(token) as donations:
-        with patch("couchers.servicers.donations.stripe") as mock:
-            mock.Customer.create.return_value = type("__MockCustomer", (), {"id": "cus_Pv4w8dxBpTVUsQ"})
-            mock.checkout.Session.create.return_value = type("__MockCheckoutSession", (), RECURRING_STRIPE_SESSION)
-
-            donations.InitiateDonation(donations_pb2.InitiateDonationReq(amount=25, recurring_monthly_do_not_use=True))
-
-        assert mock.checkout.Session.create.call_args.kwargs["mode"] == "subscription"
-        assert mock.checkout.Session.create.call_args.kwargs["line_items"] == [
-            {
-                "price": "price_1KIbmbIfR5z29g5kFWPEUnC6",
-                "quantity": 25,
-            }
-        ]
-
-    with session_scope() as session:
-        donation = session.execute(select(DonationInitiation)).scalar_one()
-        assert donation.user_id == user_id
-        assert donation.donation_type == DonationType.monthly
-
-
-def test_legacy_no_recurring_bool_means_one_time(db, stripe_config):
-    user, token = generate_user()
-    user_id = user.id
-
-    with donations_session(token) as donations:
-        with patch("couchers.servicers.donations.stripe") as mock:
-            mock.Customer.create.return_value = type("__MockCustomer", (), {"id": "cus_Pv4uq0gT0rDZWN"})
-            mock.checkout.Session.create.return_value = type("__MockCheckoutSession", (), one_time_STRIPE_SESSION)
-
+        with pytest.raises(grpc.RpcError) as e:
             donations.InitiateDonation(donations_pb2.InitiateDonationReq(amount=100))
-
-        assert mock.checkout.Session.create.call_args.kwargs["mode"] == "payment"
-
-    with session_scope() as session:
-        donation = session.execute(select(DonationInitiation)).scalar_one()
-        assert donation.user_id == user_id
-        assert donation.donation_type == DonationType.one_time
-
-
-def test_explicit_frequency_beats_legacy_recurring_bool(db, stripe_config):
-    user, token = generate_user()
-    user_id = user.id
-
-    with donations_session(token) as donations:
-        with patch("couchers.servicers.donations.stripe") as mock:
-            mock.Customer.create.return_value = type("__MockCustomer", (), {"id": "cus_Pv4uq0gT0rDZWN"})
-            mock.checkout.Session.create.return_value = type("__MockCheckoutSession", (), one_time_STRIPE_SESSION)
-
-            donations.InitiateDonation(
-                donations_pb2.InitiateDonationReq(
-                    amount=100,
-                    frequency=donations_pb2.DONATION_FREQUENCY_ONE_TIME,
-                    recurring_monthly_do_not_use=True,
-                )
-            )
-
-    with session_scope() as session:
-        donation = session.execute(select(DonationInitiation)).scalar_one()
-        assert donation.user_id == user_id
-        assert donation.donation_type == DonationType.one_time
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == "Invalid donation frequency."
 
 
 def test_unknown_donation_frequency(db, stripe_config):

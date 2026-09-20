@@ -31,11 +31,13 @@ enum DonationFrequency {
 message InitiateDonationReq {
   // amount in USD, integral for now
   uint32 amount = 1;
-  bool recurring_monthly_do_not_use = 2;
-  // source of the donation (e.g., "strong-verification-complete")
-  string source = 3;
   // how often the donation repeats
   DonationFrequency frequency = 4;
+  // source of the donation (e.g., "strong-verification-complete")
+  string source = 3;
+
+  reserved 2;
+  reserved "recurring";
 }
 
 message InitiateDonationRes {
