@@ -556,7 +556,9 @@ describe("normalize", () => {
   });
 
   it("leaves a venue's name untouched when it has no street address", () => {
-    const result = normalize(feature({ properties: { layer: "venue", name: "Stonehenge", label: "Stonehenge, England, United Kingdom" } }));
+    const result = normalize(
+      feature({ properties: { layer: "venue", name: "Stonehenge", label: "Stonehenge, England, United Kingdom" } }),
+    );
     expect(result.name).toBe("Stonehenge, England, United Kingdom");
   });
 
