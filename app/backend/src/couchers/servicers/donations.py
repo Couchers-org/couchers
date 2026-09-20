@@ -59,13 +59,9 @@ class Donations(donations_pb2_grpc.DonationsServicer):
             # we don't want to waste *all* of the donation on processing fees
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "donation_too_small")
 
-        if request.frequency != donations_pb2.DONATION_FREQUENCY_UNSPECIFIED:
-            donation_type = donationfrequency2sql.get(request.frequency)
-            if not donation_type:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_donation_frequency")
-        else:
-            # remove when clients migrate off bool recurring
-            donation_type = DonationType.monthly if request.recurring_monthly_do_not_use else DonationType.one_time
+        donation_type = donationfrequency2sql.get(request.frequency)
+        if not donation_type:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_donation_frequency")
 
         if not user.stripe_customer_id:
             _create_stripe_customer(session, user)
