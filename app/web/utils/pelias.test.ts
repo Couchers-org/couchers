@@ -3,6 +3,7 @@ import { rest, server } from "test/restMock";
 
 import {
   autocomplete,
+  capPreciseLayers,
   dedupeBySimplifiedName,
   labelHasRegionAbbrev,
   normalize,
@@ -567,6 +568,57 @@ describe("reorderPreferCity", () => {
     });
 
     expect(reorderPreferCity([neighbourhood, other])).toEqual([neighbourhood, other]);
+  });
+});
+
+describe("capPreciseLayers", () => {
+  const venue = (gid: string, locality: string) =>
+    feature({ properties: { gid, layer: "venue", name: "Taj Mahal", locality } });
+
+  it("keeps only the first two precise hits", () => {
+    const features = [
+      venue("a", "Agra"),
+      venue("b", "Aachen"),
+      venue("c", "Graz"),
+      venue("d", "Valencia"),
+      venue("e", "Salzburg"),
+    ];
+
+    expect(capPreciseLayers(features).map((f) => f.properties.gid)).toEqual(["a", "b"]);
+  });
+
+  it("counts addresses, streets and intersections against the same cap", () => {
+    const features = [
+      feature({ properties: { gid: "street", layer: "street", name: "Calle Taj Mahal" } }),
+      feature({ properties: { gid: "intersection", layer: "intersection", name: "Calle Taj Mahal & Torre Eiffel" } }),
+      feature({ properties: { gid: "address", layer: "address", name: "1 Calle Taj Mahal" } }),
+      venue("venue", "Agra"),
+    ];
+
+    expect(capPreciseLayers(features).map((f) => f.properties.gid)).toEqual(["street", "intersection"]);
+  });
+
+  it("never drops coarse results, however many there are", () => {
+    const features = [
+      feature({ properties: { gid: "l1", layer: "locality", name: "Springfield" } }),
+      feature({ properties: { gid: "l2", layer: "locality", name: "Springfield" } }),
+      feature({ properties: { gid: "la", layer: "localadmin", name: "Springfield Township" } }),
+      feature({ properties: { gid: "c", layer: "county", name: "Sangamon County" } }),
+      feature({ properties: { gid: "r", layer: "region", name: "Illinois" } }),
+    ];
+
+    expect(capPreciseLayers(features)).toEqual(features);
+  });
+
+  it("keeps the precise hits it allows ahead of the coarse ones they were ranked above", () => {
+    const features = [
+      venue("agra", "Agra"),
+      venue("aachen", "Aachen"),
+      venue("graz", "Graz"),
+      feature({ properties: { gid: "mumbai", layer: "locality", name: "Mumbai" } }),
+    ];
+
+    expect(capPreciseLayers(features).map((f) => f.properties.gid)).toEqual(["agra", "aachen", "mumbai"]);
   });
 });
 
