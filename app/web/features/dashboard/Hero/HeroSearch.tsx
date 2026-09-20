@@ -110,7 +110,10 @@ export default function HeroSearch() {
           fieldError={errors.location?.message}
           disableRegions
           preferCity
-          biasToUserLocation
+          // Deliberately *not* biased to the user's location, unlike the event
+          // and profile address fields. A travel destination is by definition
+          // somewhere else, and Pelias's focus.point is a pure distance decay
+          // with no global-prominence counterweight
           showUseMyLocation
           autocompleteContext="hero-search"
           sx={{

@@ -108,12 +108,21 @@ const MATCHED_NAME_PRIMARY_LAYERS = new Set([
 ]);
 
 // Soft `preferCity` ranking: promote the first city-oriented hit when a
-// neighbourhood (or similar) / macrocounty is ranked above it. Not a filter —
-// every provider hit is kept, only order changes. Labels always keep the
-// matched `name` (venues, addresses, streets, …); preferCity does not rewrite
-// them to the containing city.
+// neighbourhood (or similar) / macrocounty is ranked above it. Order only —
+// the separate `capPreciseLayers` pass is what drops results under preferCity.
+// Labels always keep the matched `name` (venues, addresses, streets, …);
+// preferCity does not rewrite them to the containing city.
 const PREFER_CITY_LAYERS = new Set(["locality", "localadmin", "venue"]);
 const DEPRIORITIZE_WHEN_PREFER_CITY = new Set(["neighbourhood", "microhood", "macrocounty"]);
+
+// Layers that name a point rather than an area you could travel to and look for
+// hosts in. A destination search ("Where are you going?", the map search, event
+// discovery) can legitimately match one — a famous landmark is a `venue` — but
+// we prefer avoiding returning a long list of them
+const PRECISE_LAYERS = new Set(["venue", "address", "street", "intersection"]);
+
+// How many precise hits a destination search keeps
+const MAX_PRECISE_RESULTS = 2;
 
 // Half-width (in degrees, ~11km) of the synthetic bbox created for point
 // results that Pelias does not return a bbox for (addresses, venues).
@@ -253,6 +262,22 @@ export function reorderPreferCity(features: PeliasFeature[]): PeliasFeature[] {
   const [preferred] = reordered.splice(preferredIdx, 1);
   reordered.unshift(preferred);
   return reordered;
+}
+
+/**
+ * Keep at most `MAX_PRECISE_RESULTS` venue/address/street/intersection hits,
+ * preserving order so the highest-ranked ones survive. Everything coarser
+ * (locality, region, country, …) is kept unconditionally.
+ */
+export function capPreciseLayers(features: PeliasFeature[]): PeliasFeature[] {
+  let preciseSeen = 0;
+  return features.filter((feature) => {
+    if (!PRECISE_LAYERS.has(feature.properties.layer)) {
+      return true;
+    }
+    preciseSeen += 1;
+    return preciseSeen <= MAX_PRECISE_RESULTS;
+  });
 }
 
 /**
@@ -444,9 +469,11 @@ export async function reverse(
 export interface AutocompleteOptions {
   language?: string;
   focus?: FocusPoint;
-  // Soft client-side reorder: promote the first city/venue over a leading
-  // neighbourhood or macrocounty. Does not pass `layers` to Pelias. Labels
-  // always keep the matched name; preferCity does not collapse them to a city.
+  // Destination-search ranking: promote the first city/venue over a leading
+  // neighbourhood or macrocounty, and cap venue/address/street/intersection
+  // hits at `MAX_PRECISE_RESULTS` so a common business name cannot fill the
+  // list. Does not pass `layers` to Pelias. Labels always keep the matched
+  // name; preferCity does not collapse them to a city.
   preferCity?: boolean;
   // Force labels to the containing city/locality regardless of what matched
   // (street, venue, address, …). For approximate-location fields (a user's
@@ -486,7 +513,7 @@ export async function autocomplete(
 
   const data = await fetchPelias(url, signal);
   const features = data.features ?? [];
-  const ordered = preferCity ? reorderPreferCity(features) : features;
+  const ordered = preferCity ? capPreciseLayers(reorderPreferCity(features)) : features;
   const results = normalizeFeatures(ordered, collapseToCity);
 
   // Always drop identical display labels (e.g. GeoNames + WOF both
