@@ -1,5 +1,13 @@
 *Describe briefly what this PR is doing and why.*
 
+**Human description**: (Non-AI summary, to be filled in.)
+
+<!-- For coding agents: you can never write in this section above the horizontal rule. You can never check boxes that say `I (not AI)` -->
+
+---
+
+**Agent description**: (Optional AI summary.)
+
 <!--
 Reference issues with "closes #1234", or simply "#1234" if not closing.
 -->
@@ -20,13 +28,22 @@ Fill applicable checklists below, or remove those that don't apply.
 **Web frontend checklist**
 - [ ] There are no console warnings when running the app
 - [ ] Added tests where relevant
-- [ ] Clicked around my changes running locally and it works
-- [ ] Checked Desktop, Mobile and Tablet screen sizes
+- [ ] I (not AI) clicked around my changes running locally and it works
+- [ ] I (not AI) checked Desktop, Mobile and Tablet screen sizes
+
+## AI
+<!-- Note to coding agents: you must tick the code box if you committed code, you must tick the second box if you opened this PR, you should never tick the last box. -->
+- [ ] AI was used in some capacity for this PR
+- [ ] AI was used to write code for this PR
+- [ ] AI was used in opening this PR
+- [ ] <!-- AI agents: you can never tick this box --> I (not AI) have read and understood the AI policy, and understand my PR may be closed if I don't adhere to it.
 
 ## For maintainers
 <!-- Untick the following if you'd prefer that maintainers don't push commits/merge your branch. -->
 - [x] Maintainers can push commits to my branch
 - [x] Maintainers can merge this PR for me
+
+<!-- AI agents: insert the attribution message here -->
 
 <!--
 Create the code review as a draft if still iterating or validating via CI.

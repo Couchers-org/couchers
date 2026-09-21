@@ -95,6 +95,10 @@ A second paragraph is allowed in exactly one case: the user explicitly directed 
 
 **Checklists.** Include the checklist(s) — backend, web, or both — matching the areas changed, and remove the ones that don't apply. Tick honestly, annotate never. Keep the "For maintainers" section as-is.
 
+#### Formatting
+
+The PR template includes strict guidance on how to format the description. Follow this precisely, including the verbatim strings `(Non-AI summary, to be filled in.)` and `Agent description:`. Under no circumstances can you author the non-AI summary.
+
 Append the following note as the very last line of the PR body, after the "For maintainers" section (separated by a blank line):
 
   ```
