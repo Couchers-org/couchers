@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useProfileSheet } from "features/profile/ProfileSheetContext";
 import wrapper from "test/hookWrapper";
+import { createMatchMedia } from "test/utils";
 import { useIsNativeEmbed } from "utils/nativeLink";
 
 import ProfileLink from "./ProfileLink";
@@ -15,8 +16,13 @@ jest.mock("features/profile/ProfileSheetContext", () => ({
 }));
 
 const mockOpenProfileSheet = jest.fn();
+const originalMatchMedia = window.matchMedia;
 
 describe("ProfileLink", () => {
+  afterEach(() => {
+    window.matchMedia = originalMatchMedia;
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
     (useProfileSheet as jest.Mock).mockReturnValue({
@@ -70,8 +76,9 @@ describe("ProfileLink", () => {
     expect(mockOpenProfileSheet).not.toHaveBeenCalled();
   });
 
-  it("opens a new tab on web when asked to", () => {
+  it("opens a new tab on desktop web when asked to", () => {
     (useIsNativeEmbed as jest.Mock).mockReturnValue(false);
+    window.matchMedia = createMatchMedia(1180);
     render(
       <ProfileLink userId={1} username="testuser" openInNewTab>
         Test
@@ -81,8 +88,9 @@ describe("ProfileLink", () => {
     expect(screen.getByRole("link")).toHaveAttribute("target", "_blank");
   });
 
-  it("navigates in place rather than opening a new tab on native", () => {
+  it("navigates in place on native when there is no userId to open the sheet with", () => {
     (useIsNativeEmbed as jest.Mock).mockReturnValue(true);
+    window.matchMedia = createMatchMedia(1180);
     render(
       <ProfileLink username="testuser" openInNewTab>
         Test
