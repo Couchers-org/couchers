@@ -69,4 +69,26 @@ describe("ProfileLink", () => {
     await userEvent.click(screen.getByRole("link"));
     expect(mockOpenProfileSheet).not.toHaveBeenCalled();
   });
+
+  it("opens a new tab on web when asked to", () => {
+    (useIsNativeEmbed as jest.Mock).mockReturnValue(false);
+    render(
+      <ProfileLink userId={1} username="testuser" openInNewTab>
+        Test
+      </ProfileLink>,
+      { wrapper },
+    );
+    expect(screen.getByRole("link")).toHaveAttribute("target", "_blank");
+  });
+
+  it("navigates in place rather than opening a new tab on native", () => {
+    (useIsNativeEmbed as jest.Mock).mockReturnValue(true);
+    render(
+      <ProfileLink username="testuser" openInNewTab>
+        Test
+      </ProfileLink>,
+      { wrapper },
+    );
+    expect(screen.getByRole("link")).not.toHaveAttribute("target");
+  });
 });

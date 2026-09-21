@@ -13,8 +13,8 @@ import { CONNECTIONS, GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { UserTab } from "routes";
-import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
+import useOpensProfileSheet from "./hooks/useOpensProfileSheet";
 import { ProfileUserProvider } from "./hooks/useProfileUser";
 import { useProfileSheet } from "./ProfileSheetContext";
 
@@ -79,7 +79,7 @@ function ProfileSheetSkeleton() {
 }
 
 export default function ProfileSheet() {
-  const isMobile = useIsScreenSizeOrSmaller("mobile");
+  const opensSheet = useOpensProfileSheet();
   const { t } = useTranslation([GLOBAL, PROFILE, CONNECTIONS]);
 
   const {
@@ -130,7 +130,7 @@ export default function ProfileSheet() {
   const prevProfileHistoryLengthRef = useRef(0);
 
   useEffect(() => {
-    if (!isMobile || !isSheetOpen) return;
+    if (!opensSheet || !isSheetOpen) return;
     window.history.pushState({ profileSheetOpen: true }, "");
     pushedCountRef.current = 1;
     prevProfileHistoryLengthRef.current = 0;
@@ -145,19 +145,19 @@ export default function ProfileSheet() {
         window.history.go(-count);
       }
     };
-  }, [isSheetOpen, isMobile]);
+  }, [isSheetOpen, opensSheet]);
 
   // Push an extra history entry each time the user navigates deeper so every
   // back press has a matching popstate to intercept.
   useEffect(() => {
-    if (!isMobile || !isSheetOpen) return;
+    if (!opensSheet || !isSheetOpen) return;
     const currentLength = profileHistory.length;
     if (currentLength > prevProfileHistoryLengthRef.current) {
       window.history.pushState({ profileSheetOpen: true }, "");
       pushedCountRef.current++;
     }
     prevProfileHistoryLengthRef.current = currentLength;
-  }, [isMobile, isSheetOpen, profileHistory.length]);
+  }, [opensSheet, isSheetOpen, profileHistory.length]);
 
   // Keep a ref so the popstate handler always has the latest back/close logic
   // without re-registering the listener on every profile navigation.
@@ -167,14 +167,14 @@ export default function ProfileSheet() {
   }, [profileHistory, goBackProfile, closeProfileSheet]);
 
   useEffect(() => {
-    if (!isMobile || !isSheetOpen) return;
+    if (!opensSheet || !isSheetOpen) return;
     const handlePopState = () => {
       pushedCountRef.current = Math.max(0, pushedCountRef.current - 1);
       goBackOrCloseRef.current();
     };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, [isSheetOpen, isMobile]);
+  }, [isSheetOpen, opensSheet]);
 
   useLayoutEffect(() => {
     if (isRequesting || isMessaging) {
@@ -183,7 +183,7 @@ export default function ProfileSheet() {
     }
   }, [isRequesting, isMessaging]);
 
-  if (!isMobile) return null;
+  if (!opensSheet) return null;
 
   return (
     <StyledDrawer
