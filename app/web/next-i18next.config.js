@@ -22,13 +22,13 @@ const reportedMissingKeys = new Set();
 // At build time this fails the build so a missing key never ships; in the
 // browser it reports to Sentry to catch what the build can't see (soft-nav
 // races, stale WebView caches after a deploy, etc).
-function missingKeyHandler(lngs, ns, key) {
+function missingKeyHandler(fallbackLngs, ns, key) {
   if (typeof window === "undefined") {
     // Only throw during `next build` (static generation). Don't throw in dev
     // or in live SSR, where it would crash the page for a single missing key.
     if (process.env.NEXT_PHASE === "phase-production-build") {
       throw new Error(
-        `Missing i18n key "${ns}:${key}" (tried: ${(lngs || []).join(", ")}). ` +
+        `Missing i18n key "${ns}:${key}" (fallbacks: ${(fallbackLngs || []).join(", ")}). ` +
           `Add it to the en source locale, or include the "${ns}" namespace ` +
           `in this page's serverSideTranslations().`,
       );
@@ -43,16 +43,18 @@ function missingKeyHandler(lngs, ns, key) {
 
   // eslint-disable-next-line
   const Sentry = require("@sentry/nextjs");
+  // eslint-disable-next-line
+  const { i18n } = require("next-i18next");
   Sentry.captureMessage(`Missing i18n key: ${ns}:${key}`, {
     level: "warning",
     fingerprint: ["i18n-missing-key", ns, key],
     tags: {
       i18n_namespace: ns,
       i18n_key: key,
-      i18n_language: (lngs && lngs[0]) || "unknown",
+      i18n_language: (i18n && i18n.language) || "unknown",
     },
     extra: {
-      languages_tried: lngs,
+      fallback_languages: fallbackLngs,
       pathname,
       build_id: window.__NEXT_DATA__ && window.__NEXT_DATA__.buildId,
     },
