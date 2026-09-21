@@ -185,11 +185,13 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - manifest.json (PWA manifest)
+     * - service-worker.js (a redirect here makes registration fail outright)
+     * - .well-known (app association files, fetched without following redirects)
      * - img (static images)
      * - logo files (PWA icons)
      * - robots.txt, sitemap.xml (SEO files)
      * - Files with common static extensions
      */
-    "/((?!api|_next/static|_next/image|favicon.ico|manifest.json|img/|logo.*\\.png|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|eot|json)$).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|manifest.json|service-worker.js|\\.well-known/|img/|logo.*\\.png|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|eot|json|js|xml)$).*)",
   ],
 };
