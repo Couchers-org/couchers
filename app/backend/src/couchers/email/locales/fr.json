@@ -182,7 +182,7 @@
     "status_changed": {
       "cancelled_by_surfer": {
         "subject": "{{other_name}} a annulé sa demande d'hébergement",
-        "purpose": "<b>{{other_name}}</b> a annulé sa demande d'hébergement :"
+        "purpose": "<b>{{other_name}}</b> a annulé sa demande d'hébergement :"
       }
     }
   },
