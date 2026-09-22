@@ -127,7 +127,9 @@
     "banner": {
       "invited_you": "{{name}} vous a invité à rejoindre Couchers !"
     },
-    "title": "Inviter des membres"
+    "title": "Inviter des membres",
+    "no_codes_message": "Pas encore de code d'invitation",
+    "disable_link": "Désactiver"
   },
   "what_is_cs": {
     "title": "Qu'est-ce que le couch surfing ?",
@@ -263,7 +265,14 @@
     "landing_page": "Page d'accueil",
     "invite_members": "Inviter des membres",
     "donate": "Faire un don",
-    "press": "Presse et médias"
+    "press": "Presse et médias",
+    "our_plan": "Notre plan",
+    "legal_more": "Légal et plus",
+    "built_with": "Open source",
+    "merch_shop": "Boutique",
+    "close_menu_a11y": "Fermer le menu",
+    "open_drawer_a11y": "Dérouler le menu",
+    "close_drawer_a11y": "Refermer le menu"
   },
   "image_input": {
     "select_button_a11y": "Sélectionner une image",
@@ -282,5 +291,6 @@
   "copy_button": {
     "a11y": "Copier",
     "copied_tooltip": "Copié dans le presse-papier"
-  }
+  },
+  "ok": "OK"
 }

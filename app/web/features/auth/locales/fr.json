@@ -367,7 +367,8 @@
       "link_url_placeholder": "https://votre-site‐web.com",
       "link_url_helper": "L'URL complet vers lequel le lien devrait emmener",
       "link_url_required": "Entrez un lien URL pour le site web",
-      "link_url_invalid": "Veuillez entrer un URL valide commençant par http:// or https://"
+      "link_url_invalid": "Veuillez entrer un URL valide commençant par http:// or https://",
+      "save_button": "Enregistrer les modifications"
     }
   },
   "motivations_form": {
