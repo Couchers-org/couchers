@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql.elements import ColumnElement
 from sqlalchemy.sql.selectable import Subquery
 
-from couchers.constants import COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH
+from couchers.constants import COMPLETED_PROFILE_MIN_LENGTH_UTF16
+from couchers.helpers.text_length import trimmed_utf16_length
 from couchers.models import User
 from couchers.models.uploads import has_avatar_photo_expression
 
@@ -11,8 +12,10 @@ from couchers.models.uploads import has_avatar_photo_expression
 def has_completed_profile(session: Session, user: User) -> bool:
     """
     Check if a user has completed their profile (has photo + 150 char about_me).
+
+    The about_me is measured the way the frontend's character counter does, see couchers.helpers.text_length.
     """
-    if not user.profile_gallery_id or not user.about_me or len(user.about_me) < COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH:
+    if not user.profile_gallery_id or trimmed_utf16_length(user.about_me) < COMPLETED_PROFILE_MIN_LENGTH_UTF16:
         return False
     return bool(session.execute(select(has_avatar_photo_expression(user))).scalar())
 
@@ -36,5 +39,5 @@ def has_completed_profile_expression(galleries_with_photos: Subquery | None = No
         has_avatar_photo_expression(User)
         if galleries_with_photos is None
         else galleries_with_photos.c.gallery_id.isnot(None),
-        User.about_me_length >= COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH,
+        User.about_me_length >= COMPLETED_PROFILE_MIN_LENGTH_UTF16,
     )

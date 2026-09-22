@@ -19,6 +19,7 @@ import { service } from "service";
 import { CreateHostRequestWrapper } from "service/requests";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
+import { trimmedLength } from "utils/validation";
 
 const TYPING_GAP_CAP_MS = 3000;
 
@@ -306,12 +307,11 @@ export default function NewHostRequest({ setIsRequestSuccess, setIsRequesting }:
             id="text"
             {...register("text", {
               required: t("profile:request_form.request_description_empty"),
-              minLength: {
-                value: MIN_LENGTH,
-                message: t("profile:request_form.request_chars_remaining", {
-                  count: MIN_LENGTH - textField.length,
+              validate: (value) =>
+                trimmedLength(value ?? "") >= MIN_LENGTH ||
+                t("profile:request_form.request_chars_remaining", {
+                  count: MIN_LENGTH - trimmedLength(value ?? ""),
                 }),
-              },
             })}
             label={t("profile:request_form.request")}
             minRows={6}
@@ -322,9 +322,9 @@ export default function NewHostRequest({ setIsRequestSuccess, setIsRequesting }:
             helperText={
               errors.text?.message
                 ? errors.text.message
-                : MIN_LENGTH - textField.length > 0
+                : MIN_LENGTH - trimmedLength(textField) > 0
                   ? t("profile:request_form.request_chars_remaining", {
-                      count: MIN_LENGTH - textField.length,
+                      count: MIN_LENGTH - trimmedLength(textField),
                     })
                   : ""
             }

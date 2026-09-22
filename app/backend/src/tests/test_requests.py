@@ -12,6 +12,7 @@ from sqlalchemy_utils import refresh_materialized_view
 from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.crypto import b64decode
 from couchers.db import session_scope
+from couchers.helpers.text_length import trimmed_utf16_length
 from couchers.i18n import LocalizationContext
 from couchers.models import (
     Cluster,
@@ -46,12 +47,42 @@ from tests.test_public_trips import _create_trip_directly, _make_node
 
 def valid_request_text(text: str = "Test request") -> str:
     """Pads a request text to a valid length."""
-    # Request lengths are measured in utf-16 code units to match the frontend.
-    utf16_length = len(text.encode("utf-16-le")) // 2
-    if utf16_length >= HOST_REQUEST_MIN_LENGTH_UTF16:
+    # Request lengths are measured the way the frontend's character counter measures them.
+    padding_length = HOST_REQUEST_MIN_LENGTH_UTF16 - trimmed_utf16_length(text)
+    if padding_length <= 0:
         return text
-    padding_length = HOST_REQUEST_MIN_LENGTH_UTF16 - utf16_length
     return text + ("_" * padding_length)  # Each "_" adds one utf16 code unit.
+
+
+def test_create_request_minimum_length(db, moderator):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    today_plus_2 = today() + timedelta(days=2)
+    today_plus_3 = today() + timedelta(days=3)
+
+    with requests_session(token1) as api:
+        # whitespace isn't counted by the frontend's character counter, so it mustn't count here either
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=user2.id,
+                    from_date=today_plus_2.isoformat(),
+                    to_date=today_plus_3.isoformat(),
+                    text="a" * (HOST_REQUEST_MIN_LENGTH_UTF16 - 1) + " \n",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+        res = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
+                text="\n " + "a" * HOST_REQUEST_MIN_LENGTH_UTF16 + " \n",
+            )
+        )
+        assert res.host_request_id
 
 
 def test_create_request(db, moderator):

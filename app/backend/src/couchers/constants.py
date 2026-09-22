@@ -115,9 +115,11 @@ HOST_REQUEST_REMINDER_INTERVAL = timedelta(days=2)
 
 HOST_REQUEST_DUPLICATE_WINDOW_HOURS = 3
 
-# Note: Javascript's string.length is in utf16 code units, Python's len(str) is in utf8 code units.
+# Note: Javascript's string.length is in utf16 code units, Python's len(str) is in code points; these are checked with
+# couchers.helpers.text_length.trimmed_utf16_length, which counts the way the frontend's character counter does.
 HOST_REQUEST_MIN_LENGTH_UTF16 = 250  # Must match frontend
 PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16 = 150  # Must match frontend
+COMPLETED_PROFILE_MIN_LENGTH_UTF16 = 150  # Must match frontend
 
 ANTIBOT_FREQ = timedelta(hours=48)
 
@@ -144,8 +146,6 @@ GHOST_USERNAME = "ghost"
 # Photo gallery limits
 GALLERY_MAX_PHOTOS_NOT_VERIFIED = 2
 GALLERY_MAX_PHOTOS_VERIFIED = 5
-
-COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH = 150
 
 # How long a container must run uninterrupted before /status reports stable=true
 STABLE_THRESHOLD_SECONDS = 5 * 60

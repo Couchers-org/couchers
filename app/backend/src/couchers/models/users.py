@@ -32,13 +32,14 @@ from sqlalchemy.sql import expression
 from sqlalchemy.sql.elements import ColumnElement
 
 from couchers.constants import (
-    COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH,
+    COMPLETED_PROFILE_MIN_LENGTH_UTF16,
     EMAIL_REGEX,
     GUIDELINES_VERSION,
     PHONE_VERIFICATION_LIFETIME,
     SMS_CODE_LIFETIME,
     TOS_VERSION,
 )
+from couchers.helpers.text_length import trimmed_utf16_length_sql
 from couchers.models.activeness_probe import ActivenessProbe
 from couchers.models.base import Base, Geom
 from couchers.models.mod_note import ModNote
@@ -199,7 +200,7 @@ class User(Base, kw_only=True):
     # kept in sync by the database so profile-completeness checks never detoast about_me; doing so was the dominant
     # cost of both the lite_users refresh and the profile metrics, which scan every user several times a minute
     about_me_length: Mapped[int] = mapped_column(
-        Integer, Computed("coalesce(character_length(about_me), 0)", persisted=True), init=False
+        Integer, Computed(trimmed_utf16_length_sql("about_me"), persisted=True), init=False
     )
     # "What I do in my free time" under "About Me" tab
     things_i_like: Mapped[str | None] = mapped_column(String, default=None)  # CommonMark without images
@@ -452,7 +453,7 @@ class User(Base, kw_only=True):
                 banned_at.is_(None),
                 deleted_at.is_(None),
                 profile_gallery_id.isnot(None),
-                about_me_length >= COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH,
+                about_me_length >= COMPLETED_PROFILE_MIN_LENGTH_UTF16,
             ),
         ),
         # There are two possible states for new_email_token, new_email_token_created, and new_email_token_expiry

@@ -10,6 +10,7 @@ from couchers.context import CouchersContext
 from couchers.db import can_moderate_node
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
+from couchers.helpers.text_length import trimmed_utf16_length
 from couchers.models import ModerationObjectType, Node, User
 from couchers.models.host_requests import HostRequest, HostRequestStatus
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
@@ -36,10 +37,7 @@ publictripstatus2sql = {
 
 
 def _is_description_long_enough(text: str) -> bool:
-    # Match Javascript's string.length (utf16 code units) rather than Python's len()
-    # so the backend check aligns with the frontend character counter.
-    text_length_utf16 = len(text.encode("utf-16-le")) // 2
-    return text_length_utf16 >= PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16
+    return trimmed_utf16_length(text) >= PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16
 
 
 def _parse_page_token(page_token: str) -> tuple[date | None, int | None]:

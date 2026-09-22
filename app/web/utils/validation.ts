@@ -21,6 +21,17 @@ export const timePattern = /\d{2}:\d{2}/;
 
 export const profileAboutMeMinLength = 150;
 
+/**
+ * Length of a user-entered text for minimum-length checks, ignoring surrounding whitespace.
+ *
+ * Whitespace is invisible to the user, so padding a text with it mustn't get it over the line. The backend counts the
+ * same way, see app/backend/src/couchers/helpers/text_length.py -- if these disagree, a text can pass the counter here
+ * and be rejected there.
+ */
+export function trimmedLength(text: string) {
+  return text.trim().length;
+}
+
 export function validatePastDate(stringDate: string) {
   const date = new Date(stringDate);
   return !isNaN(date.getTime()) && date < new Date();

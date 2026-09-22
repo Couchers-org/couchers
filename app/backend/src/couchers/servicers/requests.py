@@ -14,6 +14,7 @@ from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.helpers.host_requests import HOST_REQUEST_NOTIFICATION_TOPIC_ACTIONS, unseen_host_request_message_count
 from couchers.helpers.messages import api2hostrequeststatus, hostrequeststatus2api, message_to_pb
+from couchers.helpers.text_length import trimmed_utf16_length
 from couchers.materialized_views import UserResponseRate
 from couchers.metrics import (
     account_age_on_host_request_create_histogram,
@@ -156,11 +157,7 @@ def _possibly_observe_first_response_time(
 
 
 def _is_host_request_long_enough(text: str) -> bool:
-    # Python's len(str) does not match Javascript's string.length.
-    # e.g. len("é") == 2 but "é".length == 1.
-    # To match the frontend's validation, measure the string in utf16 code units.
-    text_length_utf16 = len(text.encode("utf-16-le")) // 2  # utf-16-le does not include a prefix BOM code unit.
-    return text_length_utf16 >= HOST_REQUEST_MIN_LENGTH_UTF16
+    return trimmed_utf16_length(text) >= HOST_REQUEST_MIN_LENGTH_UTF16
 
 
 class Requests(requests_pb2_grpc.RequestsServicer):

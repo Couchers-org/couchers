@@ -29,7 +29,13 @@ import isGrpcError from "service/utils/isGrpcError";
 import { theme } from "theme";
 import { useIsMounted, useSafeState, useUnsavedChangesWarning } from "utils/hooks";
 import { useIsNativeEmbed } from "utils/nativeLink";
-import { nameMaxLength, nameMinLength, profileAboutMeMinLength, validateNameChars } from "utils/validation";
+import {
+  nameMaxLength,
+  nameMinLength,
+  profileAboutMeMinLength,
+  trimmedLength,
+  validateNameChars,
+} from "utils/validation";
 
 import StatusCardGroup from "./StatusCard";
 
@@ -305,6 +311,7 @@ export default function EditProfileForm() {
   }, [router.asPath]);
 
   const aboutMeField = watch("aboutMe") ?? "";
+  const aboutMeLength = trimmedLength(aboutMeField);
 
   useUnsavedChangesWarning({
     isDirty: isDirty,
@@ -355,7 +362,7 @@ export default function EditProfileForm() {
   const handleSubmitButtonClick = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (aboutMeField.length < profileAboutMeMinLength || !user?.avatarUrl) {
+    if (aboutMeLength < profileAboutMeMinLength || !user?.avatarUrl) {
       setShowIncompleteProfileDialog(true);
     } else {
       onSubmit();
@@ -740,12 +747,12 @@ export default function EditProfileForm() {
                   placeholder={t("profile:about_me_textbox_placeholder")}
                   defaultValue={user.aboutMe}
                   control={control}
-                  warning={aboutMeField.length < profileAboutMeMinLength}
+                  warning={aboutMeLength < profileAboutMeMinLength}
                   helperText={
                     <Trans
                       i18nKey="profile:helper_text.characters_remaining"
                       values={{
-                        count: profileAboutMeMinLength - aboutMeField.length,
+                        count: profileAboutMeMinLength - aboutMeLength,
                       }}
                       components={{ bold: <strong /> }}
                     />
@@ -880,7 +887,7 @@ export default function EditProfileForm() {
                 >
                   {t("profile:incomplete_dialog.description")}
                 </Typography>
-                {aboutMeField.length < profileAboutMeMinLength && (
+                {aboutMeLength < profileAboutMeMinLength && (
                   <ListItem key={1} style={{ display: "list-item" }}>
                     {`• ${t("profile:incomplete_dialog.about_me_message")}`}
                   </ListItem>

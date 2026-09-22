@@ -10,6 +10,7 @@ import { GLOBAL, PUBLIC_TRIPS } from "i18n/namespaces";
 import { useEffect } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { Temporal } from "temporal-polyfill";
+import { trimmedLength } from "utils/validation";
 
 import { PublicTrip, useCreatePublicTrip, useUpdatePublicTrip } from "./useListPublicTrips";
 
@@ -89,7 +90,7 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
 
   const watchFromDate = useWatch({ control, name: "fromDate" });
   const watchDescription = useWatch({ control, name: "description" }) ?? "";
-  const descriptionCharsRemaining = DESCRIPTION_MIN_LENGTH - watchDescription.length;
+  const descriptionCharsRemaining = DESCRIPTION_MIN_LENGTH - trimmedLength(watchDescription);
 
   // PublicTrip proto only carries community_id, so fetch the community name in
   // edit mode. Hook is no-op when id is 0 (create mode already has the name).
@@ -202,12 +203,13 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
               {...register("description", {
                 required: t("publicTrips:description_required"),
                 validate: (value) => {
-                  if (value.trim().length === 0) {
+                  const length = trimmedLength(value);
+                  if (length === 0) {
                     return t("publicTrips:description_required");
                   }
-                  if (value.length < DESCRIPTION_MIN_LENGTH) {
+                  if (length < DESCRIPTION_MIN_LENGTH) {
                     return t("publicTrips:description_chars_remaining", {
-                      count: DESCRIPTION_MIN_LENGTH - value.length,
+                      count: DESCRIPTION_MIN_LENGTH - length,
                     });
                   }
                   return true;

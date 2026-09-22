@@ -204,6 +204,31 @@ describe("Edit profile", () => {
     });
   }, 10000);
 
+  it("should not count surrounding whitespace towards the aboutMe minimum length", async () => {
+    getUserMock.mockImplementation(async (user) => ({
+      ...(await getUser(user)),
+      aboutMe: "",
+      thingsILike: "",
+    }));
+
+    await renderPage();
+
+    const user = userEvent.setup();
+
+    const aboutMeInput = await screen.findByTestId("aboutMe-input");
+
+    await user.clear(aboutMeInput);
+    await waitFor(() => expect(aboutMeInput).toHaveValue(""));
+
+    // one character short once the trailing whitespace is discounted, which is what the backend does too
+    await user.click(aboutMeInput);
+    await user.paste(" ".repeat(10) + "a".repeat(profileAboutMeMinLength - 1) + "  \n");
+
+    expect(
+      await screen.findByText(/Please write at least 1 more character to unlock messaging and requests/i),
+    ).toBeInTheDocument();
+  }, 10000);
+
   it("should reject names with invalid characters like !@#$", async () => {
     getUserMock.mockImplementation(async (user) => ({
       ...(await getUser(user)),
