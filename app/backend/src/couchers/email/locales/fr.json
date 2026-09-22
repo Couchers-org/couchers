@@ -234,7 +234,16 @@
       "subject": "Échec de la vérification postale",
       "purpose": {
         "default": "Votre vérification postale a échoué pour une raison inconnue.",
-        "code_expired": "Votre vérification postale a échoué car votre code a expiré. Les codes sont valables pour 90 jours après l'envoi de la carte postale."
+        "code_expired": "Votre vérification postale a échoué car votre code a expiré. Les codes sont valables pour 90 jours après l'envoi de la carte postale.",
+        "too_many_attempts": "Votre vérification postale a échoué suite à un trop grand nombre de tentatives incorrectes."
+      },
+      "restart_action": "Demander une nouvelle carte postale"
+    }
+  },
+  "references": {
+    "received": {
+      "hosted": {
+        "purpose": "<b>{{name}}</b> a écrit une recommandation pour quand vous les avez hébergé."
       }
     }
   }
