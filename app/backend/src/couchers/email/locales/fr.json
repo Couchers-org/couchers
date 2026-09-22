@@ -178,6 +178,15 @@
     "reminder": {
       "subject": "Vous avez une demande d'hébergement en attente de {{surfer_name}}",
       "purpose": "<b>{{surfer_name}}</b> attend votre réponse. Même un refus rapide est préférable l'absence d'une réponse !"
+    },
+    "status_changed": {
+      "cancelled_by_surfer": {
+        "subject": "{{other_name}} a annulé sa demande d'hébergement",
+        "purpose": "<b>{{other_name}}</b> a annulé sa demande d'hébergement :"
+      }
     }
+  },
+  "moderator_note": {
+    "subject": "Vous avez reçu une note d'un modérateur"
   }
 }
