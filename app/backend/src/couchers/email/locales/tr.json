@@ -33,7 +33,9 @@
     "recovered": {
       "login_instructions": "Tekrar giriş yapmak için bağlantıya tıklayın:",
       "login_action": "Tekrar giriş yap",
-      "redelete_instructions": "Eğer fikrini değiştirirsen hesabını istediğin zaman silebilirsin."
+      "redelete_instructions": "Eğer fikrini değiştirirsen hesabını istediğin zaman silebilirsin.",
+      "subject": "Hesabınız kurtarıldı!",
+      "confirmation": "Couchers.org hesabınız başarıyla kurtarıldı. Kalmaya karar verdiğinize sevindik!"
     }
   },
   "activeness_probe": {

@@ -255,7 +255,11 @@
       "event_description": "Quelqu’un.e envoie un message dans une demande d’hébergement"
     },
     "missed_messages": {
-      "event_description": "Vous manquez des messages dans une demande d'hébergement"
+      "event_description": "Vous manquez des messages dans une demande d'hébergement",
+      "push": {
+        "ios_subtitle": "Messages manqués",
+        "body": "Vous avez de nouveaux messages non lus de {{user}}."
+      }
     },
     "reject": {
       "event_description": "Quelqu'un.e refuse votre demande d'hébergement"

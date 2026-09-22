@@ -178,6 +178,73 @@
     "reminder": {
       "subject": "Vous avez une demande d'hébergement en attente de {{surfer_name}}",
       "purpose": "<b>{{surfer_name}}</b> attend votre réponse. Même un refus rapide est préférable l'absence d'une réponse !"
+    },
+    "status_changed": {
+      "cancelled_by_surfer": {
+        "subject": "{{other_name}} a annulé sa demande d'hébergement",
+        "purpose": "<b>{{other_name}}</b> a annulé sa demande d'hébergement :"
+      }
+    }
+  },
+  "moderator_note": {
+    "subject": "Vous avez reçu une note d'un modérateur"
+  },
+  "new_blog_post": {
+    "subject": "Nouvel article sur le blog : {{title}}",
+    "purpose": "Nous avons publié un nouvel article sur le blog :",
+    "read_action": "Lire l'article"
+  },
+  "onboarding_reminder": {
+    "initial": {
+      "subject": "Bienvenue sur Couchers.org et le futur du couch surfing",
+      "welcome": "Bienvenue sur Couchers.org et notre communauté mondiale du couch surfing !",
+      "complete_profile_request": "Lorsque vous vous serez familiarisé avec le site, complétez votre profil en téléchargeant une photo et en écrivant quelque chose sur vous-même (et sur votre maison, si vous voulez héberger).",
+      "share_request": "Encore une chose : faites passer le mot et aidez à faire grandir notre communauté ! Nos meilleurs membres sont ceux qui ont été invités par d'autres."
+    },
+    "follow_up": {
+      "subject": "Complétez votre profil",
+      "intro": "J'espère que vous avez pris un peu de temps pour découvrir la plateforme Couchers.org !"
+    },
+    "complete_profile_action": "Compléter votre profil"
+  },
+  "password_changed": {
+    "subject": "Votre mot de passe a été modifié",
+    "purpose": "Votre mot de passe sur Couchers.org a été modifié."
+  },
+  "phone_number_verification": {
+    "started": {
+      "subject": "Début de la vérification du numéro de téléphone",
+      "purpose": "Vous avez commencé la vérification du numéro de téléphone <b>{{ phone_number }}</b>."
+    },
+    "verified": {
+      "subject": "Numéro de téléphone vérifié avec succès",
+      "purpose": "Votre numéro de téléphone <b>{{ phone_number }}</b> a été vérifié avec succès."
+    }
+  },
+  "postal_verification": {
+    "postcard_sent": {
+      "subject": "Votre carte postale de vérification est en route",
+      "enter_code_action": "Entrer le code de la carte postale"
+    },
+    "succeeded": {
+      "subject": "Vérification postale réussie",
+      "purpose": "Votre adresse a été vérifiée avec succès grâce à la vérification postale."
+    },
+    "failed": {
+      "subject": "Échec de la vérification postale",
+      "purpose": {
+        "default": "Votre vérification postale a échoué pour une raison inconnue.",
+        "code_expired": "Votre vérification postale a échoué car votre code a expiré. Les codes sont valables pour 90 jours après l'envoi de la carte postale.",
+        "too_many_attempts": "Votre vérification postale a échoué suite à un trop grand nombre de tentatives incorrectes."
+      },
+      "restart_action": "Demander une nouvelle carte postale"
+    }
+  },
+  "references": {
+    "received": {
+      "hosted": {
+        "purpose": "<b>{{name}}</b> a écrit une recommandation pour quand vous les avez hébergé."
+      }
     }
   }
 }

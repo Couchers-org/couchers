@@ -150,5 +150,6 @@
   "sub_community_search_placeholder": "Ubicación",
   "sub_community_dropdown_a11y": "Explora comunidades más específicas",
   "report_discussion_button_a11y": "Denunciar esta conversación",
-  "report_event_button_a11y": "Denunciar este evento"
+  "report_event_button_a11y": "Denunciar este evento",
+  "new_discussion_button": "Nuevo debate"
 }
