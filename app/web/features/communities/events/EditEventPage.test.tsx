@@ -91,9 +91,9 @@ describe("Edit event page", () => {
 
     await user.click(endDateGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("07012021");
+    await user.keyboard("01072021");
 
-    expect(endDateGroup).toHaveTextContent("07/01/2021");
+    expect(endDateGroup).toHaveTextContent("01/07/2021");
 
     await user.click(screen.getByRole("button", { name: t("global:update") }));
 
@@ -126,9 +126,9 @@ describe("Edit event page", () => {
 
     await user.click(startDateGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("08012021");
+    await user.keyboard("01082021");
 
-    expect(startDateGroup).toHaveTextContent("08/01/2021");
+    expect(startDateGroup).toHaveTextContent("01/08/2021");
 
     await user.click(screen.getByRole("button", { name: t("global:update") }));
 
@@ -195,9 +195,9 @@ describe("Edit event page", () => {
 
     await user.click(startDateGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("07012021");
+    await user.keyboard("01072021");
 
-    expect(startDateGroup).toHaveTextContent("07/01/2021");
+    expect(startDateGroup).toHaveTextContent("01/07/2021");
 
     const endDateGroup = await screen.findByRole("group", {
       name: t("communities:end_date"),

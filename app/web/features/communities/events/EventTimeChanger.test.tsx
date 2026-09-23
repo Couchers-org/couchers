@@ -96,7 +96,7 @@ describe("Event time changer", () => {
     });
     await user.click(startDateGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("07302021");
+    await user.keyboard("30072021");
 
     const startDateErrorText = await screen.findByTestId("startDate-helper-text");
 
@@ -124,7 +124,7 @@ describe("Event time changer", () => {
     });
     await user.click(startDateGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("08012021");
+    await user.keyboard("01082021");
 
     const startTimeGroup = await screen.findByRole("group", {
       name: t("communities:start_time"),
@@ -172,7 +172,7 @@ describe("Event time changer", () => {
     });
     await user.click(startDateGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("07302021");
+    await user.keyboard("30072021");
 
     const startDateErrorText = await screen.findByTestId("startDate-helper-text");
 
@@ -183,7 +183,7 @@ describe("Event time changer", () => {
     });
     await user.click(endDateGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("07302021");
+    await user.keyboard("30072021");
 
     const endDateErrorText = await screen.findByTestId("endDate-helper-text");
 
@@ -200,14 +200,14 @@ describe("Event time changer", () => {
     });
     await user.click(startDateGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("08012021");
+    await user.keyboard("01082021");
 
     const endDateGroup = await screen.findByRole("group", {
       name: t("communities:end_date"),
     });
     await user.click(endDateGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("07302021");
+    await user.keyboard("30072021");
 
     const endDateErrorText = await screen.findByTestId("endDate-helper-text");
 
@@ -231,7 +231,7 @@ describe("Event time changer", () => {
     });
     await user.click(startDateGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("08012021");
+    await user.keyboard("01082021");
 
     const startTimeGroup = await screen.findByRole("group", {
       name: t("communities:start_time"),
@@ -245,7 +245,7 @@ describe("Event time changer", () => {
     });
     await user.click(endDateGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("08012021");
+    await user.keyboard("01082021");
 
     const endDateErrorText = screen.queryByTestId("endDate-helper-text");
 
@@ -277,7 +277,7 @@ describe("Event time changer", () => {
     });
     await user.click(endDateGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("07302021");
+    await user.keyboard("30072021");
 
     await user.click(screen.getByTestId("submit"));
 
@@ -303,7 +303,7 @@ describe("Event time changer", () => {
     });
     await user.click(startDateGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("08022021");
+    await user.keyboard("02082021");
 
     const startTimeGroup = screen.getByRole("group", {
       name: t("communities:start_time"),
@@ -351,7 +351,7 @@ describe("Event time changer", () => {
       });
       await user.click(endDateGroup);
       await user.keyboard("{Control>}a{/Control}");
-      await user.keyboard("07012021");
+      await user.keyboard("01072021");
 
       const endTimeGroup = await screen.findByRole("group", {
         name: t("communities:end_time"),
@@ -402,7 +402,7 @@ describe("Event time changer", () => {
       });
       await user.click(startDateGroup);
       await user.keyboard("{Control>}a{/Control}");
-      await user.keyboard("08052021");
+      await user.keyboard("05082021");
 
       const startTimeGroup = screen.getByRole("group", {
         name: t("communities:start_time"),
@@ -436,7 +436,7 @@ describe("Event time changer", () => {
       });
       await user.click(startDateGroup);
       await user.keyboard("{Control>}a{/Control}");
-      await user.keyboard("08052021");
+      await user.keyboard("05082021");
 
       const startTimeGroup = screen.getByRole("group", {
         name: t("communities:start_time"),
@@ -465,14 +465,14 @@ describe("Event time changer", () => {
       });
       await user.click(endDateGroup);
       await user.keyboard("{Control>}a{/Control}");
-      await user.keyboard("08102021");
+      await user.keyboard("10082021");
 
       const startDateGroup = await screen.findByRole("group", {
         name: t("communities:start_date"),
       });
       await user.click(startDateGroup);
       await user.keyboard("{Control>}a{/Control}");
-      await user.keyboard("08052021");
+      await user.keyboard("05082021");
 
       const startTimeGroup = await screen.findByRole("group", {
         name: t("communities:start_time"),
@@ -514,7 +514,7 @@ describe("Event time changer", () => {
       });
       await user.click(startDateGroup);
       await user.keyboard("{Control>}a{/Control}");
-      await user.keyboard("08052021");
+      await user.keyboard("05082021");
 
       await user.click(screen.getByTestId("submit"));
       expect(onValidSubmit).toHaveBeenCalled();

@@ -7,7 +7,7 @@
 import "dayjs/locale/ca";
 import "dayjs/locale/cs";
 import "dayjs/locale/de";
-import "dayjs/locale/en-gb"; // For our "en" locale (international English)
+import "dayjs/locale/en-au"; // For our "en" locale (international English)
 import "dayjs/locale/es";
 import "dayjs/locale/fr";
 import "dayjs/locale/he";
