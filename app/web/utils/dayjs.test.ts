@@ -19,13 +19,13 @@ describe("toDayjsLocale", () => {
     expect(dayjs("2021-03-20").locale(toDayjsLocale("zh-Hans")).format("LL")).toContain("3月");
   });
 
-  it("maps en to en-gb and en-US to dayjs's built-in en", () => {
-    expect(toDayjsLocale("en")).toBe("en-gb");
+  it("maps en to en-au and en-US to dayjs's built-in en", () => {
+    expect(toDayjsLocale("en")).toBe("en-au");
     expect(toDayjsLocale("en-US")).toBe("en");
   });
 
-  it("falls back to the base language, then English, for unmapped codes", () => {
-    // fully unknown -> en
-    expect(toDayjsLocale("xx")).toBe("en");
+  it("passes through unmapped codes lowercased", () => {
+    expect(toDayjsLocale("xx")).toBe("xx");
+    expect(toDayjsLocale("FR")).toBe("fr");
   });
 });
