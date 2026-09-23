@@ -85,5 +85,6 @@
   "comment_deleted": "Bu yorum silinmiş.",
   "edit_comment": "Yorumu düzenle",
   "discussion_edited_date": "{{timeAgo}} düzenlendi",
-  "delete_discussion": "Tartışmayı sil"
+  "delete_discussion": "Tartışmayı sil",
+  "comment_edited_date": "{{timeAgo}} Düzenlendi"
 }
