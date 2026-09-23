@@ -23,7 +23,8 @@
   },
   "account_deletion": {
     "started": {
-      "confirm_action": "Hesap silme işlemini onayla"
+      "confirm_action": "Hesap silme işlemini onayla",
+      "subject": "Hesabının silinmesini onayla"
     },
     "completed": {
       "subject": "Hesabınız silindi",
