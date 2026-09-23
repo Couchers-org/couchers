@@ -164,7 +164,7 @@
     "no_recipients": "Ningún destinatario.",
     "node_moderate_permission_denied": "No tienes permiso para moderar esa comunidad",
     "not_a_volunteer": "Actualmente no estás registrado como voluntario; si esto es un error, por favor contáctanos.",
-    "not_donated": "Por favor completa la donación para obtener la verificación telefónica.",
+    "not_donated": "Necesitas donar a Couchers.org antes de poder verificar tu número de teléfono.",
     "not_friends": "¡No eres amigo de ese usuario!",
     "permission_denied_to_edit_gallery": "No tienes permiso para editar esta galería.",
     "not_in_community": "No estás en esa comunidad.",
@@ -243,7 +243,11 @@
     "username_not_available": "Lo sentimos, ese nombre de usuario no está disponible.",
     "wrong_signature": "Firma incorrecta.",
     "wrong_sms_code": "El código no es válido.",
-    "invalid_thread_category": "Categoría de hilo de mensajes no válida."
+    "invalid_thread_category": "Categoría de hilo de mensajes no válida.",
+    "invalid_donation_frequency": "Frecuencia de donación no válida.",
+    "not_donated_postal": "Necesitas donar a Couchers.org antes de poder verificar tu dirección.",
+    "signup_flow_email_verified": "Ya has verificado tu correo electrónico.",
+    "signup_flow_invalid_request": "Solicitud de registro no válida: no puedes recuperar tu registro y continuar con el registro al mismo tiempo."
   },
   "badges": {
     "volunteer_name": "Voluntario en activo",
@@ -265,7 +269,9 @@
     "strong_verification_name": "Verificación robusta",
     "strong_verification_description": "Este usuario ha verificado su género y su fecha de nacimiento con un pasaporte biométrico",
     "swagster_name": "Swagster",
-    "swagster_description": "¡Este usuario ha comprado merchandising de Couchers.org!"
+    "swagster_description": "¡Este usuario ha comprado merchandising de Couchers.org!",
+    "postal_verified_name": "Dirección verificada",
+    "postal_verified_description": "La dirección de este usuario ha sido verificada mediante una postal física"
   },
   "quick_links": {
     "chat_unsub": "Ese chat grupal ha sido silenciado.",
