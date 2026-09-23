@@ -17,7 +17,7 @@ describe("Event card", () => {
     expect(screen.getByRole("heading", { name: firstEvent.title })).toBeVisible();
     expect(screen.getByText(firstEvent.location!.address)).toBeVisible();
     expect(
-      screen.getByText("Tue, Jun 29, 2021, 4:37 – 5:37 AM", {
+      screen.getByText("Tue, 29 Jun 2021, 4:37 – 5:37 am", {
         normalizer: (x) => x, // Match non-breaking spaces and en dashes exactly
       }),
     ).toBeVisible();
@@ -38,7 +38,7 @@ describe("Event card", () => {
     expect(screen.getByRole("heading", { name: secondEvent.title })).toBeVisible();
     expect(screen.getByText(secondEvent.location!.address)).toBeVisible();
     expect(
-      screen.getByText("Tue, Jun 29, 2021, 11:00 PM – Wed, Jun 30, 2021, 4:00 AM", {
+      screen.getByText("Tue, 29 Jun 2021, 11:00 pm – Wed, 30 Jun 2021, 4:00 am", {
         normalizer: (x) => x, // Match non-breaking spaces and en dashes exactly
       }),
     ).toBeVisible();

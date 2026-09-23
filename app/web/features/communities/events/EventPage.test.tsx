@@ -78,7 +78,7 @@ describe("Event page", () => {
     expect(await screen.findByRole("heading", { name: firstEvent.title })).toBeVisible();
     expect(await screen.findByText(firstEvent.location!.address)).toBeVisible();
     expect(
-      await screen.findByText("Tuesday, June 29, 4:37 – 5:37 AM", {
+      await screen.findByText("Tuesday, 29 June, 4:37 – 5:37 am", {
         normalizer: (x) => x, // Match non-breaking spaces and en dashes exactly
       }),
     ).toBeVisible();
@@ -115,7 +115,7 @@ describe("Event page", () => {
     renderEventPage(secondEvent.eventId, secondEvent.slug);
 
     expect(
-      await screen.findByText("Tuesday, June 29 at 11:00 PM – Wednesday, June 30 at 4:00 AM", {
+      await screen.findByText("Tuesday, 29 June at 11:00 pm – Wednesday, 30 June at 4:00 am", {
         normalizer: (x) => x, // Match non-breaking spaces and en dashes exactly
       }),
     ).toBeVisible();

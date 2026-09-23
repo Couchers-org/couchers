@@ -37,9 +37,9 @@ describe("PressCoverage", () => {
     render(<PressCoverage />, { wrapper });
 
     const dates = [
-      { text: "April 1, 2025", dateTime: "2025-04-01" },
-      { text: "October 6, 2022", dateTime: "2022-10-06" },
-      { text: "September 15, 2021", dateTime: "2021-09-15" },
+      { text: "1 April 2025", dateTime: "2025-04-01" },
+      { text: "6 October 2022", dateTime: "2022-10-06" },
+      { text: "15 September 2021", dateTime: "2021-09-15" },
     ];
 
     dates.forEach(({ text, dateTime }) => {

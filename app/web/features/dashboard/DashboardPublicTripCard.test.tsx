@@ -73,13 +73,13 @@ describe("DashboardPublicTripCard", () => {
     it("shows the trip's date range, naming the month once when it doesn't change", () => {
       render(<DashboardPublicTripCard trip={tripFrom(9, 12)} locale="en" {...modeProps} />, { wrapper });
 
-      expect(screen.getByText(/^May 19\s–\s22, 2021$/)).toBeVisible();
+      expect(screen.getByText(/^19–22 May 2021$/)).toBeVisible();
     });
 
     it("names both months in the date range when the trip spans a month boundary", () => {
       render(<DashboardPublicTripCard trip={tripFrom(20, 30)} locale="en" {...modeProps} />, { wrapper });
 
-      expect(screen.getByText(/^May 30\s–\sJun 9, 2021$/)).toBeVisible();
+      expect(screen.getByText(/^30 May\s–\s9 Jun 2021$/)).toBeVisible();
     });
   });
 });
