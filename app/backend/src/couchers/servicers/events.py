@@ -150,7 +150,9 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
 
     can_moderate = _can_moderate_event(session, event, context.user_id)
     can_edit = _can_edit_event(session, event, context.user_id)
-    community_invite_requested = _community_invite_requested(session, occurrence, context.user_id) if can_edit else False
+    community_invite_requested = (
+        _community_invite_requested(session, occurrence, context.user_id) if can_edit else False
+    )
 
     going_count = session.execute(
         where_users_column_visible(
