@@ -95,10 +95,10 @@ def _is_event_organizer(event: Event, user_id: int) -> bool:
     return event.organizers.where(EventOrganizer.user_id == user_id).one_or_none() is not None
 
 
-def _community_invite_requested(session: Session, event: Event, user_id: int) -> bool:
+def _community_invite_requested(session: Session, occurrence: EventOccurrence, user_id: int) -> bool:
 
     # Returns True if the given user has already requested a community invite
-    # for this event, or if one has already been approved.
+    # for this event occurrence, or if one has already been approved.
     return (
         session.execute(
             select(EventCommunityInviteRequest.id)
@@ -106,7 +106,7 @@ def _community_invite_requested(session: Session, event: Event, user_id: int) ->
                 EventOccurrence,
                 EventOccurrence.id == EventCommunityInviteRequest.occurrence_id,
             )
-            .where(EventOccurrence.event_id == event.id)
+            .where(EventOccurrence.event_id == occurrence.id)
             .where(EventCommunityInviteRequest.user_id == user_id)
             .limit(1)
         ).scalar_one_or_none()
