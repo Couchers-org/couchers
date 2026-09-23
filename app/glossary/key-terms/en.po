@@ -154,9 +154,17 @@ msgstr "account"
 msgid "account.delete"
 msgstr "delete"
 
+#. (adj) The state of a user's account which has been deleted.
+msgid "account.deleted"
+msgstr "deleted"
+
 #. (verb) As a user, the action of recovering a previously deleted account.
 msgid "account.recover"
 msgstr "recover"
+
+#. (adj) The state of a user's account which has been recovered.
+msgid "account.recovered"
+msgstr "recovered"
 
 #. (noun) Someone with an account on Couchers.org.
 msgid "user"
