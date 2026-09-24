@@ -201,6 +201,13 @@ settings_layout = [
                 ],
             ),
             (
+                "campaign",
+                "Occasional tips and suggestions",
+                [
+                    NotificationTopicAction.campaign__nudge,
+                ],
+            ),
+            (
                 "badge",
                 "Updates to Badges on your profile",
                 [
