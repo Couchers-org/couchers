@@ -1,4 +1,4 @@
-import { addToCalendarNatively,isNativeEmbed } from "utils/nativeLink";
+import { addToCalendarNatively, isNativeEmbed } from "utils/nativeLink";
 
 function blobToBase64(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
