@@ -43,7 +43,7 @@ type MessageType =
   | "NATIVE_BACK"
   | "LANGUAGE_CHANGE"
   | "REQUEST_REVIEW"
-  | "OPEN_CALENDAR_FILE";
+  | "ADD_TO_CALENDAR";
 
 function sendToNative(type: MessageType, data: unknown) {
   if (!isNativeEmbed()) return;
@@ -71,8 +71,8 @@ export function sendNativeRequestReview() {
 }
 
 // Adds an .ics file, encoded as a base64 string, to the mobile calendar.
-export function openCalendarFileNatively(base64: string, filename: string) {
-  sendToNative("OPEN_CALENDAR_FILE", { base64, filename });
+export function addToCalendarNatively(ics_base64: string, filename: string) {
+  sendToNative("ADD_TO_CALENDAR", { ics_base64, filename });
 }
 
 // Image picker bridge for native mobile app
