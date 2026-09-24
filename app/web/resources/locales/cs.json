@@ -8,7 +8,8 @@
       "expect_label": "Co se stalo? Co se mělo stát?",
       "expect_helper": "Popište problém, který se objevil, včetně případných chybových hlášek a uveďte co jste očekávali, že se stane místo toho.",
       "warning_message": "Informace, které v tomto formuláři poskytneš, a také diagnostické údaje včetně stránky, na které se právě nacházíš, tvého prohlížeče a tvého uživatelského jména, budou zaznamenány, aby je náš tým mohl zkontrolovat.",
-      "success_message2": "Děkujeme za nahlášení tohoto problému a za zlepšení Couchers! Hlášení bylo odesláno vývojářům. Pro referenci můžeš použít ID: <id/>."
+      "success_message2": "Děkujeme za nahlášení tohoto problému a za zlepšení Couchers! Hlášení bylo odesláno vývojářům. Pro referenci můžeš použít ID: <id/>.",
+      "no_response_note": "<strong>Nedostaneš odpověď.</strong> Pokud potřebuješ pomoc, kontaktuj prosím <supportLink>support@couchers.org</supportLink>."
     },
     "flag": {
       "reason_required": "Důvod je vyžadován.",

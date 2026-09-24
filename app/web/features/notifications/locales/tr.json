@@ -25,7 +25,10 @@
       },
       "expand_all": "Tümünü genişlet",
       "collapse_all": "Tümünü daralt",
-      "error_loading": "Bildirim ayarlarını yüklemede hata oluştu"
+      "error_loading": "Bildirim ayarlarını yüklemede hata oluştu",
+      "channels": {
+        "email_label": "E-posta"
+      }
     },
     "push_notifications": {
       "title": "Anlık Bildirimler",

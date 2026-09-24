@@ -80,7 +80,8 @@
         "title": "Datum narození změněno",
         "ios_title": "Datum narození změněno",
         "body": "Administrátor změnil tvé datum narození na {{birthdate}}."
-      }
+      },
+      "event_description": "Tvé datum narození bylo změněno"
     }
   },
   "chat": {

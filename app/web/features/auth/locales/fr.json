@@ -13,7 +13,8 @@
       "field_label": "Votre prénom",
       "required_error": "Ce champ ne peut pas être vide",
       "min_length_error": "Le nom doit faire au moins deux caractères",
-      "max_length_error": "Le nom ne peut pas faire plus de 100 caractères"
+      "max_length_error": "Le nom ne peut pas faire plus de 100 caractères",
+      "invalid_characters_error": "Le nom ne peut contenir que des lettres, espaces, tirets et apostrophes"
     },
     "email": {
       "field_label": "Adresse mail",
@@ -107,6 +108,14 @@
       "title": "Nom d’utilisateur",
       "description": "Votre nom d'utilisateur est <strong>{{username}}</strong>.",
       "explanation": "Votre nom d'utilisateur est défini lors de la création de votre compte."
+    },
+    "appearance_section": {
+      "click_to_change": "Cliquez sur le bouton ci-dessous pour basculer entre les modes clair, sombre et système.",
+      "modes": {
+        "light": "Mode clair",
+        "dark": "Mode sombre",
+        "system": "Mode système (selon votre appareil)"
+      }
     }
   },
   "login_prompt": "Cliquez ici pour vous connecter",
@@ -179,7 +188,7 @@
       "note": "Nous mettrons à jour votre profil pour correspondre à ce choix !"
     },
     "mod_note_section": {
-      "note_title": "Note de modération reçue à {{time}} :",
+      "note_title": "Note de modération reçue à {{time}} :",
       "acknowledge": "Accuser réception de la note",
       "title": "Vous avez reçu une note des modérateurs",
       "description": "Les modérateurs vous ont envoyé la note suivante. Veuillez la lire attentivement et confirmer que vous l'avez lue et comprise avant de continuer."
@@ -200,14 +209,25 @@
       "step4": "Si vous êtes demandé.e, ouvrez l’application et scannez à nouveau le code QR",
       "step5": "Sélectionnez <strong>Passeport</strong> (les cartes d'identité ne sont pas acceptées)",
       "step6": "Prenez une photo claire de la page du passeport avec les numéros d'identification en bas",
-      "step7": "Placez votre portable contre la page du passeport contenant la puce NFC (voir les conseils ci-dessous)",
+      "step7": "Placez votre portable contre la page du passeport contenant la puce NFC et <strong> restez immobile pendant au moins 5 secondes</strong> — bouger trop rapidement est la cause d'échec la plus courante",
       "download_app_store": "Télécharger sur l’App Store",
       "download_google_play": "Télécharger-le sur Google Play",
       "chip_location": {
         "heading": "Trouver la puce NFC de votre passeport",
         "us_germany_mexico": "<strong>le Brésil, les États-Unis, l'Allemagne (2016), l'Indonésie, le Mexique :</strong> Page en arrière",
         "finland_germany_new": "<strong>la Finlande, l'Allemagne (2017+), la Russie :</strong> Page de photo",
-        "australia": "<strong>l'Australie :</strong> Page du milieu (marquée avec le symbole + \"nom de la puce\")"
+        "australia": "<strong>l'Australie :</strong> Page du milieu (marquée avec le symbole + \"nom de la puce\")",
+        "description": "L'emplacement de la puce varie selon le pays. Il se peut que vous deviez essayer plusieurs pages. Voici quelques exemples d'emplacement :"
+      },
+      "scanning_tips": {
+        "heading": "Conseils pour scanner la puce NFC avec succès",
+        "description": "Le scan NFC est la partie la plus délicate. Ces conseils vous aideront grandement :"
+      },
+      "before_you_start": {
+        "heading": "Avant de commencer"
+      },
+      "didnt_work": {
+        "contact": "Si vous rencontrez encore des problèmes, <supportLink> contactez-nous</supportLink> et nous vous aiderons."
       }
     },
     "status": {
@@ -229,7 +249,7 @@
     "donation_message2": "Si vous le pouvez, veuillez envisager de faire un don pour aider Couchers.org à continuer de fonctionner et de se développer.",
     "donate_button": "Faire un don pour soutenir Couchers.org"
   },
-  "sign_up_need_verification_title": "On y est presque là, mais encore une dernière chose !",
+  "sign_up_need_verification_title": "Une dernière chose : confirme ton e-mail.",
   "sign_up_resend_verification_email_help": "N'avez-vous pas reçu le mail ? Cliquez <resendLink>ici pour renvoyer le lien de vérification</resendLink>.",
   "sign_up_resend_verification_done": "C'est fait ! Nous vous avons envoyé un autre mail.",
   "feature_preview": {
@@ -277,7 +297,7 @@
       "button_text": "Récupérer votre compte",
       "success": "Votre compte a été récupéré, vous pouvez à nouveau vous connecter. Nous sommes ravis de vous retrouver !"
     },
-    "missing_token": "Erreur"
+    "missing_token": "Erreur : token manquant"
   },
   "profile_visibility": {
     "visiblility_options": {
@@ -321,7 +341,35 @@
     "not_a_volunteer_message": "Selon notre base de données, vous n'êtes pas un bénévole actuel ou passé. Si cela est incorrect, veuillez nous en informer en remplissant <formLink>ce formulaire</formLink>.",
     "current_volunteer": "Bénévole depuis {{startDate}}.",
     "past_volunteer": "Bénévole de {{startDate}} à {{endDate}}.",
-    "shown_on_team_page_current": "Affiché sur la page de l'équipe comme membre d'équipe actuel."
+    "shown_on_team_page_current": "Affiché sur la page de l'équipe comme membre d'équipe actuel.",
+    "shown_on_team_page_past": "Affiché sur la page d'équipe comme un ancien bénévole.",
+    "not_shown_on_team_page": "Masqué de la page d'équipe.",
+    "update_success": "Vos informations de bénévole ont été mises à jour.",
+    "form": {
+      "title": "Mettre à jour vos informations de bénévole",
+      "override_name_label": "Utiliser un nom différent sur la page d'équipe (au lieu de \"{{profileName}}\")",
+      "link_type_label": "Type de lien",
+      "link_type_couchers": "Profil Couchers",
+      "link_type_email": "E-mail",
+      "link_type_linkedin": "LinkedIn",
+      "link_type_website": "Site web",
+      "link_text_label": "Valeur du lien",
+      "link_text_linkedin_placeholder": "jane-doe-a1b2c3",
+      "link_text_email_placeholder": "votre@email.com",
+      "link_text_website_placeholder": "https://votre-site‐web.com",
+      "link_text_linkedin_helper": "Le nom d'utilisateur du lien URL de votre profil (e.g. linkedin.com/in/jane-doe-a1b2c3)",
+      "link_text_email_helper": "Votre adresse e-mail",
+      "link_text_website_helper": "Le texte à afficher pour le lien",
+      "link_text_required": "Veuillez spécifier la valeur du lien",
+      "link_text_email_invalid": "Veuillez utiliser une adresse e-mail valide",
+      "link_text_linkedin_invalid": "Veuillez spécifier un nom d'utilisateur LinkedIn valide (lettres, nombres et tirets seulement)",
+      "link_url_label": "URL du lien",
+      "link_url_placeholder": "https://votre-site‐web.com",
+      "link_url_helper": "L'URL complet vers lequel le lien devrait emmener",
+      "link_url_required": "Entrez un lien URL pour le site web",
+      "link_url_invalid": "Veuillez entrer un URL valide commençant par http:// or https://",
+      "save_button": "Enregistrer les modifications"
+    }
   },
   "motivations_form": {
     "header": "Qu'est-ce qui vous amène sur Couchers ?",
@@ -331,6 +379,8 @@
     "events": "Les événements",
     "events_description": "J'aimerais participer à des événements et rencontrer la communauté",
     "community_organizing": "Organiser une communauté",
-    "community_organizing_description": "Je veux organiser des événements et activités sur la plateforme"
+    "community_organizing_description": "Je veux organiser des événements et activités sur la plateforme",
+    "something_else": "Autre",
+    "something_else_description": "J'explore ou je n'ai pas encore décidé"
   }
 }

@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-09-17 03:12+0000\n"
+"PO-Revision-Date: 2026-09-23 03:08+0000\n"
 "Last-Translator: Vasilii Tikhonov <student.almet@gmail.com>\n"
 "Language-Team: Russian <https://translate.couchershq.org/projects/couchers/glossary-key-terms/ru/>\n"
 "Language: ru\n"
@@ -17,3 +17,27 @@ msgstr "обсуждение"
 #. (noun) Community or event discussions that support replies.
 msgid "discussions"
 msgstr "обсуждения"
+
+#. (noun) A thread for messages between two or more users.
+msgid "chat"
+msgstr "чат"
+
+#. (noun) Threads for messages between two or more users.
+msgid "chats"
+msgstr "чаты"
+
+#. (noun) A top-level comment on a discussion or event.
+msgid "discussions.comment.noun"
+msgstr "комментарий"
+
+#. (verb) The act of adding a top-level comment on a discussion or event.
+msgid "discussions.comment.verb"
+msgstr "комментарий"
+
+#. (noun) Top-level comments on a discussion or event.
+msgid "discussions.comments"
+msgstr "комментарии"
+
+#. (verb) As a host, the act of accepting a surfer's host request.
+msgid "host_request.accept"
+msgstr "принять"
