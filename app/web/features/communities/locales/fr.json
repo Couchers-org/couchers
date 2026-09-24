@@ -96,5 +96,15 @@
   "event_image_input_alt": "Ajout d'images de l'événement",
   "events_label": "Événements",
   "events_title": "Événements",
-  "event_title_label": "Titre"
+  "event_title_label": "Titre",
+  "make_co_organizer": {
+    "title": "Rendre co-organisateur.rice",
+    "dialog_title": "Rendre {{name}} co-organisateur.rice",
+    "dialog_text": "Êtes-vous sûr.e de vouloir rendre {{name}} co-organisateur.ice de {{event}} ?"
+  },
+  "remove_as_co_organizer": {
+    "title": "Retirer comme co-organisateur.rice",
+    "dialog_title": "Retirer {{name}} comme co-organisateur.ice",
+    "dialog_text": "Êtes-vous sûr.e de vouloir retirer {{name}} comme co-organisateur.rice de {{event}} ?"
+  }
 }

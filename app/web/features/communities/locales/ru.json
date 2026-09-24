@@ -150,5 +150,6 @@
   "select_sublocality": "Выбрать район",
   "select_sub_community": "Выбрать сообщество",
   "report_discussion_button_a11y": "Пожаловаться на это обсуждение",
-  "report_event_button_a11y": "Пожаловаться на это мероприятие"
+  "report_event_button_a11y": "Пожаловаться на это мероприятие",
+  "new_discussion_button": "Новое обсуждение"
 }

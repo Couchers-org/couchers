@@ -75,6 +75,10 @@ msgstr "Merch Shop"
 msgid "blog"
 msgstr "blog"
 
+#. (noun) A post on the Couchers.org blog.
+msgid "blog.post"
+msgstr "post"
+
 #. (name) Alternative couch surfing platform. Always include ™.
 #, read-only
 msgid "couchsurfing_tm"
@@ -124,11 +128,43 @@ msgstr "problems"
 msgid "report_problem.report"
 msgstr "report"
 
+#. (noun) A moderator from the Couchers.org team.
+msgid "moderator"
+msgstr "moderator"
+
+#. (noun) Moderators from the Couchers.org team.
+msgid "moderators"
+msgstr "moderators"
+
+#. (noun) A note sent to a user by a moderator.
+msgid "moderator_note"
+msgstr "moderator note"
+
+#. (noun) Notes sent to a user by a moderator.
+msgid "moderator_notes"
+msgstr "moderator notes"
+
 
 
 #. (noun) A user account on Couchers.org.
 msgid "account"
 msgstr "account"
+
+#. (verb) As a user, the action of deleting one's account.
+msgid "account.delete"
+msgstr "delete"
+
+#. (adj) The state of a user's account which has been deleted.
+msgid "account.deleted"
+msgstr "deleted"
+
+#. (verb) As a user, the action of recovering a previously deleted account.
+msgid "account.recover"
+msgstr "recover"
+
+#. (adj) The state of a user's account which has been recovered.
+msgid "account.recovered"
+msgstr "recovered"
 
 #. (noun) Someone with an account on Couchers.org.
 msgid "user"
@@ -145,6 +181,10 @@ msgstr "username"
 #. (noun) A user's account password on Couchers.org.
 msgid "password"
 msgstr "password"
+
+#. (verb) The action of resetting one's password.
+msgid "password.reset"
+msgstr "reset"
 
 #. (verb) The action of logging in to Couchers.org.
 msgid "log_in"
@@ -210,9 +250,18 @@ msgstr "push notification"
 msgid "push_notifications"
 msgstr "push notifications"
 
-#. (noun) A status whereby a user's identity has been verified.
+#. (noun) A process and the resulting status for verifying a user's identity.
 msgid "strong_verification"
 msgstr "Strong Verification"
+
+#. (name) Our provider for identity document verification.
+#, read-only
+msgid "iris_id"
+msgstr "Iris ID"
+
+#. (noun) A process and the resulting status for verifying a user's phone number.
+msgid "phone_verification"
+msgstr "Phone Verification"
 
 #. The section of a user profile with information relating their person.
 msgid "profile.about_me"
@@ -322,6 +371,13 @@ msgstr "surfer"
 msgid "surfers"
 msgstr "surfers"
 
+#. (noun) A code that can be shared to invite people to join Couchers.org.
+msgid "invite_code"
+msgstr "invite code"
+
+#. (noun) Codes that can be shared to invite people to join Couchers.org.
+msgid "invite_codes"
+msgstr "invite codes"
 
 
 #. (noun) A request to add another user as a friend.

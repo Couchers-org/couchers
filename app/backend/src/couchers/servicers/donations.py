@@ -25,6 +25,14 @@ from couchers.utils import not_none
 logger = logging.getLogger(__name__)
 
 
+donationfrequency2sql = {
+    donations_pb2.DONATION_FREQUENCY_UNSPECIFIED: None,
+    donations_pb2.DONATION_FREQUENCY_ONE_TIME: DonationType.one_time,
+    donations_pb2.DONATION_FREQUENCY_MONTHLY: DonationType.monthly,
+    donations_pb2.DONATION_FREQUENCY_YEARLY: DonationType.yearly,
+}
+
+
 def _create_stripe_customer(session: Session, user: User) -> None:
     # create a new stripe id for this user
     customer = stripe.Customer.create(
@@ -51,15 +59,16 @@ class Donations(donations_pb2_grpc.DonationsServicer):
             # we don't want to waste *all* of the donation on processing fees
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "donation_too_small")
 
+        donation_type = donationfrequency2sql.get(request.frequency)
+        if not donation_type:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_donation_frequency")
+
         if not user.stripe_customer_id:
             _create_stripe_customer(session, user)
 
-        if request.recurring:
-            item = {
-                "price": config.STRIPE_RECURRING_PRODUCT_ID,
-                "quantity": request.amount,
-            }
-        else:
+        if donation_type == DonationType.one_time:
+            mode = "payment"
+            submit_type: str | None = "donate"
             item = {
                 "price_data": {
                     "currency": "usd",
@@ -71,16 +80,27 @@ class Donations(donations_pb2_grpc.DonationsServicer):
                 },
                 "quantity": 1,
             }
+        else:
+            mode = "subscription"
+            submit_type = None
+            recurring_price_ids = {
+                DonationType.monthly: config.STRIPE_RECURRING_PRODUCT_ID,
+                DonationType.yearly: config.STRIPE_YEARLY_RECURRING_PRODUCT_ID,
+            }
+            item = {
+                "price": recurring_price_ids[donation_type],
+                "quantity": request.amount,
+            }
 
         checkout_session = stripe.checkout.Session.create(
             client_reference_id=str(user.id),
             # Stripe actually allows None, but the signature says it's either a string or not passed.
-            submit_type="donate" if not request.recurring else None,  # type: ignore[arg-type]
+            submit_type=submit_type,  # type: ignore[arg-type]
             customer=not_none(user.stripe_customer_id),
             success_url=urls.donation_success_url(),
             cancel_url=urls.donation_cancelled_url(),
             payment_method_types=["card"],
-            mode="subscription" if request.recurring else "payment",
+            mode=mode,
             line_items=[item],  # type: ignore[list-item]
             api_key=config.STRIPE_API_KEY,
         )
@@ -90,7 +110,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
                 user_id=user.id,
                 amount=request.amount,
                 stripe_checkout_session_id=checkout_session.id,
-                donation_type=DonationType.recurring if request.recurring else DonationType.one_time,
+                donation_type=donation_type,
                 source=request.source if request.source else None,
             )
         )
@@ -99,7 +119,11 @@ class Donations(donations_pb2_grpc.DonationsServicer):
             context,
             session,
             "donation.initiated",
-            {"amount": request.amount, "recurring": request.recurring, "source": request.source or None},
+            {
+                "amount": request.amount,
+                "frequency": donation_type.name,
+                "source": request.source or None,
+            },
         )
 
         return donations_pb2.InitiateDonationRes(

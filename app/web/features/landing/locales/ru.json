@@ -45,5 +45,6 @@
   "signup_description2_many": "Путешествуйте, принимайте гостей и общайтесь с {{count}} пользователями. <aboutLink>Узнайте больше о нас</aboutLink>.",
   "signup_description_no_link2_one": "Путешествуйте, принимайте гостей и общайтесь с {{count}} пользователем.",
   "signup_description_no_link2_few": "Путешествуйте, принимайте гостей и общайтесь с {{count}} пользователями.",
-  "signup_description_no_link2_many": "Путешествуйте, принимайте гостей и общайтесь с {{count}} пользователями."
+  "signup_description_no_link2_many": "Путешествуйте, принимайте гостей и общайтесь с {{count}} пользователями.",
+  "animation_error": "Ошибка загрузки анимации"
 }

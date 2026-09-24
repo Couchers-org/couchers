@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-09-14 22:41+0000\n"
+"PO-Revision-Date: 2026-09-19 12:41+0000\n"
 "Last-Translator: Mariana Baroni <maribaroni@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) <https://translate.couchershq.org/projects/couchers/glossary-key-terms/pt_BR/>\n"
 "Language: pt_BR\n"
@@ -335,7 +335,6 @@ msgid "friend"
 msgstr "amigo/amiga"
 
 #. (noun) A reference from a friend.
-#, fuzzy
 msgid "friend_reference"
 msgstr "referência de amigo"
 
@@ -352,14 +351,12 @@ msgid "friends"
 msgstr "amigos"
 
 #. (noun) A named thread for messages between three or more users.
-#, fuzzy
 msgid "group_chat"
-msgstr "conversa de grupo"
+msgstr "conversa do grupo"
 
 #. (noun) A named thread for messages between three or more users.
-#, fuzzy
 msgid "group_chats"
-msgstr "conversas de grupo"
+msgstr "conversas do grupo"
 
 #. (noun) A user providing hospitality to other users.
 msgid "host.noun"
