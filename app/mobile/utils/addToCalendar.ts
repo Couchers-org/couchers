@@ -13,6 +13,9 @@ export async function addToCalendar(base64: string, filename: string) {
   file.write(base64, { encoding: "base64" });
 
   if (await Sharing.isAvailableAsync()) {
-    await Sharing.shareAsync(file.uri, { mimeType: "text/calendar", UTI: "text/calendar" });
+    await Sharing.shareAsync(file.uri, {
+      mimeType: "text/calendar",
+      UTI: "text/calendar",
+    });
   }
 }
