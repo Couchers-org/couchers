@@ -137,7 +137,7 @@ describe("Discussion page", () => {
       }),
     ).toBeVisible();
     expect(creatorContainer.getByText("Funny Cat current User")).toBeVisible();
-    expect(creatorContainer.getByText("Created on January 1, 2020")).toBeVisible();
+    expect(creatorContainer.getByText("Created on 1 January 2020")).toBeVisible();
   });
 
   it("renders a loading skeleton if the user info is still loading", async () => {

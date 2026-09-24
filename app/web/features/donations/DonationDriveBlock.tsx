@@ -3,6 +3,7 @@ import { Alert, alpha, styled } from "@mui/material";
 import useAccountInfo from "features/auth/useAccountInfo";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
+import { localizeUSD } from "i18n/numbers";
 import { theme } from "theme";
 
 import DonationProgressBar from "./DonationProgressBar";
@@ -50,14 +51,7 @@ export default function DonationDriveBlock({ onClose, action, alwaysShow = false
     return null;
   }
 
-  const formattedGoal = donationStats
-    ? new Intl.NumberFormat(i18n.language, {
-        style: "currency",
-        currency: "USD",
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-      }).format(donationStats.goal)
-    : "";
+  const formattedGoal = donationStats ? localizeUSD(donationStats.goal, i18n.language) : "";
 
   return (
     <Alert

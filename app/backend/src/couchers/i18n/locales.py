@@ -20,6 +20,10 @@ NON_TRANSLATED_LOCALES: list[str] = ["en-US"]
 # Some mutually intelligible language variants fallback to each other.
 _LOCALE_FALLBACKS: dict[str, str] = {"pt-BR": "pt", "pt": "pt-BR", "es-419": "es", "es": "es-419"}
 
+# Locales whose Babel formatting differs from their literal locale code.
+# Our "en" locale should use international English formatting.
+_BABEL_LOCALE_REMAP: dict[str, str] = {"en": "en-001"}
+
 
 def get_locales_with_translations() -> list[str]:
     """Gets the list of locales which have translations."""
@@ -85,8 +89,7 @@ def get_babel_locale(locale: str) -> babel.Locale:
     Returns the babel locale object for a given locale string.
     Guaranteed by tests to succeed for supported locales.
     """
-    # TODO(#9184): Once we have en-US available, "en" should return the babel locale for "en-001" (Global English)
-    return babel.Locale.parse(locale, sep="-")
+    return babel.Locale.parse(_BABEL_LOCALE_REMAP.get(locale, locale), sep="-")
 
 
 def load_locales(directory: Path) -> I18Next:
