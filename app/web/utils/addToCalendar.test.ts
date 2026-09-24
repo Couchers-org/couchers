@@ -49,8 +49,8 @@ describe("addToCalendar", () => {
 
     expect(postMessageSpy).toHaveBeenCalledWith(
       JSON.stringify({
-        type: "OPEN_CALENDAR_FILE",
-        data: { base64: Buffer.from("ics content").toString("base64"), filename: "file.ics" },
+        type: "ADD_TO_CALENDAR",
+        data: { ics_base64: Buffer.from("ics content").toString("base64"), filename: "file.ics" },
       }),
     );
     expect(clickSpy).not.toHaveBeenCalled();

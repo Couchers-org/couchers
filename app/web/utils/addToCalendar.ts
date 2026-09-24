@@ -1,4 +1,4 @@
-import { isNativeEmbed, openCalendarFileNatively } from "utils/nativeLink";
+import { isNativeEmbed, addToCalendarNatively } from "utils/nativeLink";
 
 function blobToBase64(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -28,7 +28,7 @@ export async function addToCalendar(url: string, filename: string) {
 
   if (isNativeEmbed()) {
     const base64 = await blobToBase64(blob);
-    openCalendarFileNatively(base64, filename);
+    addToCalendarNatively(base64, filename);
     return;
   }
 
