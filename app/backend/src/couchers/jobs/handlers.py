@@ -145,7 +145,7 @@ from couchers.utils import (
     get_coordinates,
     not_none,
     now,
-    today,
+    today_in_timezone,
 )
 
 logger = logging.getLogger(__name__)
@@ -1268,36 +1268,10 @@ def schedule_event_occurrences(payload: empty_pb2.Empty) -> None:
 
 
 def _schedule_occurrences_for_recurrence(session: Session, recurrence: EventRecurrence) -> None:
-    # New occurrences use the last occurrence as a template.
-    # FUTURE: EventRecurrence will include the template.
-    template = (
-        session.execute(
-            select(EventOccurrence)
-            .where(EventOccurrence.event_id == recurrence.event_id)
-            .where(~EventOccurrence.is_deleted)
-            .order_by(EventOccurrence.start_time.desc())
-            .limit(1)
-        )
-        .scalars()
-        .one_or_none()
-    )
-    if template is None:
-        logger.info(f"No occurrences left for event {recurrence.event_id}, skipping its recurrence")
-        return
-
-    template_tz = ZoneInfo(template.timezone)
-    local_start = template.start_time.astimezone(template_tz)
-    duration = template.end_time - template.start_time
-
-    # We get the recurring day from the latest occurrence, typically in the future,
-    # but to consider which upcoming recurrences are already scheduled,
-    # we need the start of the recurrence today or before.
-    anchor_date = local_start.date()
-    while anchor_date > today():
-        anchor_date -= timedelta(weeks=recurrence.rrule_interval)
+    timezone = ZoneInfo(recurrence.timezone)
 
     rrule = make_every_nth_week_rrule(
-        start_date=anchor_date,
+        start_date=recurrence.dtstart_date,
         n=recurrence.rrule_interval,
         end_date=recurrence.ends_on_date,
     )
@@ -1306,13 +1280,16 @@ def _schedule_occurrences_for_recurrence(session: Session, recurrence: EventRecu
         schedule_window=EVENT_RECURRENCE_SCHEDULE_WINDOW,
         min_occurrences=EVENT_RECURRENCE_MIN_SCHEDULED_OCCURRENCES,
         last_scheduled_date=recurrence.last_scheduled_date,
+        today=today_in_timezone(recurrence.timezone),
     )
 
     for occurrence_date in dates_to_schedule:
         occurrence_start_datetime = datetime.combine(
-            occurrence_date, local_start.time(), tzinfo=template_tz
+            occurrence_date, recurrence.start_time, tzinfo=timezone
         ).astimezone(UTC)
-        occurrence_end_datetime = occurrence_start_datetime + duration
+        occurrence_end_datetime = datetime.combine(
+            occurrence_date + timedelta(days=recurrence.day_delta), recurrence.end_time, tzinfo=timezone
+        ).astimezone(UTC)
 
         thread = Thread()
         session.add(thread)
@@ -1322,21 +1299,19 @@ def _schedule_occurrences_for_recurrence(session: Session, recurrence: EventRecu
             moderation_state_id: int,
             *,
             recurrence: EventRecurrence = recurrence,
-            template: EventOccurrence | None = template,
             start_datetime: datetime = occurrence_start_datetime,
             end_datetime: datetime = occurrence_end_datetime,
             thread: Thread = thread,
         ) -> int:
-            assert template is not None
             occurrence = EventOccurrence(
                 event_id=recurrence.event_id,
-                content=template.content,
-                geom=template.geom,
-                address=template.address,
-                timezone=template.timezone,
-                photo_key=template.photo_key,
+                content=recurrence.content,
+                geom=recurrence.geom,
+                address=recurrence.address,
+                timezone=recurrence.timezone,
+                photo_key=recurrence.photo_key,
                 during=TimestamptzRange(start_datetime, end_datetime),
-                creator_user_id=template.creator_user_id,
+                creator_user_id=recurrence.event.creator_user_id,
                 moderation_state_id=moderation_state_id,
                 thread_id=thread.id,
             )
@@ -1348,7 +1323,7 @@ def _schedule_occurrences_for_recurrence(session: Session, recurrence: EventRecu
             session=session,
             object_type=ModerationObjectType.event_occurrence,
             object_id=create_occurrence,
-            creator_user_id=template.creator_user_id,
+            creator_user_id=recurrence.event.creator_user_id,
         )
 
     if dates_to_schedule:

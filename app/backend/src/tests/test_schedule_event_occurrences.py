@@ -2,8 +2,9 @@
 Integration tests for the job scheduling event recurrences.
 """
 
-from datetime import UTC, date, datetime, timedelta
+from datetime import UTC, date, datetime, time
 from typing import cast
+from zoneinfo import ZoneInfo
 
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
@@ -47,43 +48,72 @@ def _create_user_in_community() -> tuple[User, str]:
     return user, token
 
 
-def _create_recurring_event(
+DEFAULT_EVENT_TITLE = "Dummy Title"
+DEFAULT_EVENT_CONTENT = "Dummy content"
+DEFAULT_EVENT_LOCATION = events_pb2.EventLocation(address="Near Null Island", lat=0.1, lng=0.2)
+
+
+def _create_event(
     token: str,
     *,
-    utc_start_time: datetime,
-    duration: timedelta,
-    rrule_interval: int,
-    ends_on_utc_date: date,
+    title: str = DEFAULT_EVENT_TITLE,
+    content: str = DEFAULT_EVENT_CONTENT,
+    location=DEFAULT_EVENT_LOCATION,
+    photo_key: str | None = None,
+    start_date: date,
+    start_time: time,
+    end_date: date | None = None,
+    end_time: time,
 ) -> events_pb2.Event:
-    """Creates a recurring event (not yet offered through API)."""
+    if end_date is None:
+        end_date = start_date
+
     with events_session(token) as api:
         create_res: events_pb2.Event = api.CreateEvent(
             events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content",
-                # Null Island is in GMT/UTC
-                location=events_pb2.EventLocation(address="Near Null Island", lat=0.1, lng=0.2),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(utc_start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(utc_start_time + duration),
-            )
-        )
-
-    # Make it recurring through DB manipulation.
-    with session_scope() as session:
-        occurrence = session.execute(
-            select(EventOccurrence).where(EventOccurrence.id == create_res.event_id)
-        ).scalar_one()
-
-        session.add(
-            EventRecurrence(
-                event_id=occurrence.event_id,
-                rrule_interval=rrule_interval,
-                last_scheduled_date=utc_start_time.date(),
-                ends_on_date=ends_on_utc_date,
+                title=title,
+                content=content,
+                location=location,
+                photo_key=photo_key,
+                start_datetime_iso8601_local=datetime.combine(start_date, start_time).isoformat(),
+                end_datetime_iso8601_local=datetime.combine(end_date, end_time).isoformat(),
             )
         )
 
     return create_res
+
+
+def _make_event_recurring(
+    event: events_pb2.Event,
+    *,
+    rrule_interval: int = 1,
+    ends_on_date: date,
+) -> None:
+    # Make it recurring through DB manipulation.
+    with session_scope() as session:
+        occurrence = session.execute(select(EventOccurrence).where(EventOccurrence.id == event.event_id)).scalar_one()
+
+        timezone = ZoneInfo(occurrence.timezone)
+        start_datetime_in_tz = occurrence.start_time.astimezone(timezone)
+        end_datetime_in_tz = occurrence.end_time.astimezone(timezone)
+        day_delta = (end_datetime_in_tz.date() - start_datetime_in_tz.date()).days
+        session.add(
+            EventRecurrence(
+                event_id=occurrence.event_id,
+                content=occurrence.content,
+                photo_key=occurrence.photo_key,
+                geom=occurrence.geom,
+                address=occurrence.address,
+                timezone=occurrence.timezone,
+                dtstart_date=start_datetime_in_tz.date(),
+                start_time=start_datetime_in_tz.time(),
+                day_delta=day_delta,
+                end_time=end_datetime_in_tz.time(),
+                rrule_interval=rrule_interval,
+                last_scheduled_date=start_datetime_in_tz.date(),
+                ends_on_date=ends_on_date,
+            )
+        )
 
 
 def test_progressive_scheduling_until_end_date(db, frozen_timewarp: FrozenTimewarp):
@@ -96,28 +126,28 @@ def test_progressive_scheduling_until_end_date(db, frozen_timewarp: FrozenTimewa
     frozen_timewarp.freeze_at(datetime(2020, 1, 1, tzinfo=UTC))
 
     # Create a recurring weekly event on Thursday, January 2, 2020, 12:00-13:30 UTC.
-    created_occurrence = _create_recurring_event(
+    initial_occurrence = _create_event(
         token,
-        utc_start_time=datetime(2020, 1, 2, 12, 0, tzinfo=UTC),
-        duration=timedelta(hours=1, minutes=30),
-        rrule_interval=1,
-        ends_on_utc_date=datetime(2020, 1, 20, tzinfo=UTC).date(),
+        start_date=date(2020, 1, 2),
+        start_time=time(12, 0),
+        end_time=time(13, 30),
     )
+    _make_event_recurring(initial_occurrence, rrule_interval=1, ends_on_date=date(2020, 1, 20))
 
     with events_session(token) as api:
         occurrences_before_scheduling = api.ListEventOccurrences(
-            events_pb2.ListEventOccurrencesReq(event_id=created_occurrence.event_id, past=False)
+            events_pb2.ListEventOccurrencesReq(event_id=initial_occurrence.event_id, past=False)
         ).events
 
     assert len(occurrences_before_scheduling) == 1, "No other occurrences should exist yet."
-    assert occurrences_before_scheduling[0].event_id == created_occurrence.event_id
+    assert occurrences_before_scheduling[0].event_id == initial_occurrence.event_id
 
     # Schedule recurring occurrences, expect a new occurrence on Thursday, January 9
     schedule_event_occurrences(empty_pb2.Empty())
 
     with events_session(token) as api:
         occurrences_after_scheduling = api.ListEventOccurrences(
-            events_pb2.ListEventOccurrencesReq(event_id=created_occurrence.event_id, past=False)
+            events_pb2.ListEventOccurrencesReq(event_id=initial_occurrence.event_id, past=False)
         ).events
 
     assert len(occurrences_after_scheduling) == 2
@@ -139,7 +169,7 @@ def test_progressive_scheduling_until_end_date(db, frozen_timewarp: FrozenTimewa
 
     with events_session(token) as api:
         occurrences_after_scheduling_redundantly = api.ListEventOccurrences(
-            events_pb2.ListEventOccurrencesReq(event_id=created_occurrence.event_id, past=False)
+            events_pb2.ListEventOccurrencesReq(event_id=initial_occurrence.event_id, past=False)
         ).events
 
     assert len(occurrences_after_scheduling_redundantly) == len(occurrences_after_scheduling)
@@ -152,7 +182,7 @@ def test_progressive_scheduling_until_end_date(db, frozen_timewarp: FrozenTimewa
 
     with events_session(token) as api:
         occurrences_after_january_3_scheduling = api.ListEventOccurrences(
-            events_pb2.ListEventOccurrencesReq(event_id=created_occurrence.event_id, past=False)
+            events_pb2.ListEventOccurrencesReq(event_id=initial_occurrence.event_id, past=False)
         ).events
 
     # January 2 has now ended and drops off the upcoming list, so this is January 9 and 16, not 3
@@ -170,7 +200,7 @@ def test_progressive_scheduling_until_end_date(db, frozen_timewarp: FrozenTimewa
 
     with events_session(token) as api:
         occurrences_after_january_10_scheduling = api.ListEventOccurrences(
-            events_pb2.ListEventOccurrencesReq(event_id=created_occurrence.event_id, past=False)
+            events_pb2.ListEventOccurrencesReq(event_id=initial_occurrence.event_id, past=False)
         ).events
 
     # January 9 has now also ended; January 23 shouldn't be scheduled because it's past the
@@ -189,19 +219,16 @@ def test_biweekly_frequency(db, frozen_timewarp: FrozenTimewarp):
     frozen_timewarp.freeze_at(datetime(2020, 1, 1, tzinfo=UTC))
 
     # Create a recurring biweekly event on Thursday, January 2, 2020, 12:00-13:30 UTC.
-    created_occurrence = _create_recurring_event(
-        token,
-        utc_start_time=datetime(2020, 1, 2, 12, 0, tzinfo=UTC),
-        duration=timedelta(hours=1, minutes=30),
-        rrule_interval=2,
-        ends_on_utc_date=datetime(2020, 1, 20, tzinfo=UTC).date(),
+    initial_occurrence = _create_event(
+        token, start_date=date(2020, 1, 2), start_time=time(12, 0), end_time=time(13, 30)
     )
+    _make_event_recurring(initial_occurrence, rrule_interval=2, ends_on_date=date(2020, 1, 20))
 
     schedule_event_occurrences(empty_pb2.Empty())
 
     with events_session(token) as api:
         scheduled_occurrences = api.ListEventOccurrences(
-            events_pb2.ListEventOccurrencesReq(event_id=created_occurrence.event_id, past=False)
+            events_pb2.ListEventOccurrencesReq(event_id=initial_occurrence.event_id, past=False)
         ).events
 
     assert len(scheduled_occurrences) == 2
@@ -219,19 +246,14 @@ def test_no_rescheduling_after_edit_or_cancel(db, frozen_timewarp: FrozenTimewar
     frozen_timewarp.freeze_at(datetime(2020, 1, 1, tzinfo=UTC))
 
     # Create a recurring event on Fridays
-    created_occurrence = _create_recurring_event(
-        token,
-        utc_start_time=datetime(2020, 1, 3, 12, 0, tzinfo=UTC),
-        duration=timedelta(hours=1),
-        rrule_interval=1,
-        ends_on_utc_date=datetime(2020, 6, 30, tzinfo=UTC).date(),
-    )
+    initial_occurrence = _create_event(token, start_date=date(2020, 1, 3), start_time=time(12, 0), end_time=time(13, 0))
+    _make_event_recurring(initial_occurrence, rrule_interval=1, ends_on_date=date(2020, 6, 30))
 
     schedule_event_occurrences(empty_pb2.Empty())
 
     with events_session(token) as api:
         initial_scheduled_occurrences = api.ListEventOccurrences(
-            events_pb2.ListEventOccurrencesReq(event_id=created_occurrence.event_id, past=False)
+            events_pb2.ListEventOccurrencesReq(event_id=initial_occurrence.event_id, past=False)
         ).events
 
     assert len(initial_scheduled_occurrences) == 2
@@ -262,7 +284,7 @@ def test_no_rescheduling_after_edit_or_cancel(db, frozen_timewarp: FrozenTimewar
 
     with events_session(token) as api:
         scheduled_occurrences_after_changes = api.ListEventOccurrences(
-            events_pb2.ListEventOccurrencesReq(event_id=created_occurrence.event_id, past=False, include_cancelled=True)
+            events_pb2.ListEventOccurrencesReq(event_id=initial_occurrence.event_id, past=False, include_cancelled=True)
         ).events
 
     assert len(scheduled_occurrences_after_changes) == 2
@@ -274,7 +296,7 @@ def test_no_rescheduling_after_edit_or_cancel(db, frozen_timewarp: FrozenTimewar
     )
 
 
-def test_new_occurrence_based_on_latest(db, frozen_timewarp: FrozenTimewarp):
+def test_new_occurrence_not_based_on_previous(db, frozen_timewarp: FrozenTimewarp):
     """The latest occurrence is the one that is used as a template for the next one."""
     user, token = _create_user_in_community()
 
@@ -282,40 +304,24 @@ def test_new_occurrence_based_on_latest(db, frozen_timewarp: FrozenTimewarp):
     frozen_timewarp.freeze_at(datetime(2020, 1, 1, tzinfo=UTC))
 
     # Schedule on Thursdays
-    created_occurrence = _create_recurring_event(
-        token,
-        utc_start_time=datetime(2020, 1, 2, 12, 0, tzinfo=UTC),
-        duration=timedelta(hours=1),
-        rrule_interval=1,
-        ends_on_utc_date=datetime(2020, 6, 30, tzinfo=UTC).date(),
-    )
+    initial_occurrence = _create_event(token, start_date=date(2020, 1, 2), start_time=time(12, 0), end_time=time(13, 0))
+    _make_event_recurring(initial_occurrence, rrule_interval=1, ends_on_date=date(2020, 6, 30))
 
-    schedule_event_occurrences(empty_pb2.Empty())
-
+    # Change the original occurrence
     with events_session(token) as api:
-        second_occurrence = api.ListEventOccurrences(
-            events_pb2.ListEventOccurrencesReq(event_id=created_occurrence.event_id, past=False)
-        ).events[-1]
-    assert to_aware_datetime(second_occurrence.start_time) == datetime(2020, 1, 9, 12, 0, tzinfo=UTC)
-
-    with events_session(token) as api:
-        second_occurrence = api.UpdateEvent(
+        initial_occurrence = api.UpdateEvent(
             events_pb2.UpdateEventReq(
-                event_id=second_occurrence.event_id,
+                event_id=initial_occurrence.event_id,
                 content=wrappers_pb2.StringValue(value="Updated content"),
             )
         )
 
-    # 📅 Wednesday, January 8, 2020
-    frozen_timewarp.freeze_at(datetime(2020, 1, 8, tzinfo=UTC))
-
-    # A new occurrence should be scheduled based on the updated second one.
+    # New scheduled occurrences should not care
     schedule_event_occurrences(empty_pb2.Empty())
 
     with events_session(token) as api:
-        third_occurrence = api.ListEventOccurrences(
-            events_pb2.ListEventOccurrencesReq(event_id=created_occurrence.event_id, past=False)
+        second_occurrence = api.ListEventOccurrences(
+            events_pb2.ListEventOccurrencesReq(event_id=initial_occurrence.event_id, past=False)
         ).events[-1]
-
-    assert to_aware_datetime(third_occurrence.start_time) == datetime(2020, 1, 16, 12, 0, tzinfo=UTC)
-    assert third_occurrence.content == "Updated content"
+    assert to_aware_datetime(second_occurrence.start_time) == datetime(2020, 1, 9, 12, 0, tzinfo=UTC)
+    assert second_occurrence.content == DEFAULT_EVENT_CONTENT
