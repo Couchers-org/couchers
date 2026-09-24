@@ -375,6 +375,9 @@ export default function WebEmbed({
         hasAction().then((canReview) => {
           if (canReview) requestReview();
         });
+      } else if (payload?.type === "ADD_TO_CALENDAR") {
+        // TODO(#8533): Implement mobile native add to calendar.
+        throw new Error("Native add to calendar not implemented.");
       }
     } catch (error) {
       // Ignore non-JSON messages from browser/WebView internals.

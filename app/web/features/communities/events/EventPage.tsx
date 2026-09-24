@@ -1,4 +1,10 @@
-import { CancelOutlined, ContentCopyOutlined, EditOutlined, LinkOutlined } from "@mui/icons-material";
+import {
+  CancelOutlined,
+  ContentCopyOutlined,
+  EditOutlined,
+  EventAvailableOutlined,
+  LinkOutlined,
+} from "@mui/icons-material";
 import { Card, Chip, styled, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { eventImagePlaceholderUrl } from "appConstants";
@@ -27,6 +33,7 @@ import { eventsRoute, routeToDuplicateEvent, routeToEditEvent, routeToEvent } fr
 import { service } from "service";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
+import { addToCalendar } from "utils/addToCalendar";
 import { timestampToInstant, timestampToPlainDateTime } from "utils/date";
 import { sendNativeBack, useIsNativeEmbed } from "utils/nativeLink";
 
@@ -243,6 +250,20 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
       },
       id: "copy-link",
     },
+    // TODO(#8533): Implement mobile native add to calendar.
+    ...(!event?.isCancelled && !isPastEvent && !isNativeEmbed
+      ? ([
+          {
+            icon: EventAvailableOutlined,
+            label: t("communities:add_to_calendar"),
+            onClick: () => {
+              const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/events/${event!.eventId}/calendar`;
+              addToCalendar(url, `${event!.slug || "event"}.ics`);
+            },
+            id: "add-to-calendar",
+          },
+        ] as EllipsisMenuItem[])
+      : []),
     ...(event?.canEdit && !event.isCancelled && !isPastEvent
       ? ([
           {
