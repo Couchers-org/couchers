@@ -16,7 +16,15 @@ from couchers.db import session_scope
 from couchers.helpers.clusters import CHILD_NODE_TYPE, create_cluster, create_node
 from couchers.jobs.enqueue import queue_job
 from couchers.materialized_views import LiteUser
-from couchers.models import EventCommunityInviteRequest, Node, User, Volunteer
+from couchers.models import (
+    ClusterRole,
+    ClusterSubscription,
+    CommunityBuilderRequest,
+    EventCommunityInviteRequest,
+    Node,
+    User,
+    Volunteer,
+)
 from couchers.models.notifications import NotificationTopicAction
 from couchers.models.postal_verification import PostalVerificationAttempt
 from couchers.notifications.notify import notify
@@ -28,6 +36,7 @@ from couchers.servicers.communities import community_to_pb
 from couchers.servicers.events import generate_event_create_notifications, get_users_to_notify_for_new_event
 from couchers.servicers.postal_verification import postalverificationstatus2pb
 from couchers.servicers.public import format_volunteer_link
+from couchers.sql import users_visible, where_users_column_visible
 from couchers.utils import (
     Timestamp_from_datetime,
     date_to_api,
@@ -255,6 +264,82 @@ class Editor(editor_pb2_grpc.EditorServicer):
             )
 
         return editor_pb2.DecideEventCommunityInviteRequestRes()
+
+    def ListCommunityBuilderRequests(
+        self, request: editor_pb2.ListCommunityBuilderRequestsReq, context: CouchersContext, session: Session
+    ) -> editor_pb2.ListCommunityBuilderRequestsRes:
+        page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+        next_request_id = int(request.page_token) if request.page_token else 0
+        requests = (
+            session.execute(
+                where_users_column_visible(
+                    select(CommunityBuilderRequest)
+                    .where(CommunityBuilderRequest.decided.is_(None))
+                    .where(CommunityBuilderRequest.id >= next_request_id)
+                    .order_by(CommunityBuilderRequest.id)
+                    .limit(page_size + 1),
+                    context,
+                    CommunityBuilderRequest.user_id,
+                )
+            )
+            .scalars()
+            .all()
+        )
+
+        def _request_to_pb(req: CommunityBuilderRequest) -> editor_pb2.CommunityBuilderRequest:
+            return editor_pb2.CommunityBuilderRequest(
+                community_builder_request_id=req.id,
+                user_id=req.user_id,
+                community_id=req.node.id,
+                community_name=req.node.official_cluster.name,
+                created=Timestamp_from_datetime(req.created),
+            )
+
+        return editor_pb2.ListCommunityBuilderRequestsRes(
+            requests=[_request_to_pb(req) for req in requests[:page_size]],
+            next_page_token=str(requests[-1].id) if len(requests) > page_size else None,
+        )
+
+    def DecideCommunityBuilderRequest(
+        self, request: editor_pb2.DecideCommunityBuilderRequestReq, context: CouchersContext, session: Session
+    ) -> editor_pb2.DecideCommunityBuilderRequestRes:
+        req = session.execute(
+            select(CommunityBuilderRequest).where(CommunityBuilderRequest.id == request.community_builder_request_id)
+        ).scalar_one_or_none()
+
+        if not req:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "admin:community_builder_request_not_found")
+
+        if req.decided:
+            context.abort_with_error_code(
+                grpc.StatusCode.FAILED_PRECONDITION, "admin:community_builder_request_already_decided"
+            )
+
+        if request.approve:
+            user = session.execute(
+                select(User).where(users_visible(context)).where(User.id == req.user_id)
+            ).scalar_one_or_none()
+            if not user:
+                context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "admin:user_not_found")
+
+            # mirrors AddAdmin: only an existing member can be upgraded, so the request stays pending
+            # for denial if they left the community since filing it
+            subscription = session.execute(
+                select(ClusterSubscription)
+                .where(ClusterSubscription.user_id == req.user_id)
+                .where(ClusterSubscription.cluster_id == req.node.official_cluster.id)
+            ).scalar_one_or_none()
+            if not subscription:
+                context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin:user_not_member")
+            subscription.role = ClusterRole.admin
+
+        req.decided = now()
+        req.decided_by_user_id = context.user_id
+        req.approved = request.approve
+
+        session.flush()
+
+        return editor_pb2.DecideCommunityBuilderRequestRes()
 
     def SendBlogPostNotification(
         self, request: editor_pb2.SendBlogPostNotificationReq, context: CouchersContext, session: Session

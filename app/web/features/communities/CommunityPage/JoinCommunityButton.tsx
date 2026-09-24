@@ -63,7 +63,6 @@ export default function JoinCommunityButton({ community }: { community: Communit
         sx={{
           whiteSpace: "nowrap",
           flexShrink: 0,
-          alignSelf: { xs: "center", sm: "auto" },
         }}
       >
         {community.member ? t("communities:leave_community") : t("communities:join_community")}

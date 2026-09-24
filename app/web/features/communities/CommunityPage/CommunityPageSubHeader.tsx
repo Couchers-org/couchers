@@ -14,6 +14,7 @@ import { ReactNode, useEffect } from "react";
 import { CommunityTab, routeToCommunity } from "routes";
 
 import JoinCommunityButton from "./JoinCommunityButton";
+import RequestCommunityBuilderButton from "./RequestCommunityBuilderButton";
 import SubCommunitiesDropdown from "./SubCommunitiesDropdown";
 
 const StyledBreadcrumbsContainer = styled("div")(({ theme }) => ({
@@ -24,6 +25,16 @@ const StyledBreadcrumbsContainer = styled("div")(({ theme }) => ({
   [theme.breakpoints.down("sm")]: {
     flexDirection: "column",
     alignItems: "flex-start",
+  },
+}));
+
+const StyledActions = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  gap: theme.spacing(1),
+  flexWrap: "wrap",
+  [theme.breakpoints.down("sm")]: {
+    alignSelf: "center",
   },
 }));
 
@@ -115,7 +126,10 @@ export default function CommunityPageSubHeader({
             )}
           {subCommunities.length > 0 && <SubCommunitiesDropdown subCommunities={subCommunities} />}
         </StyledBreadcrumbs>
-        <JoinCommunityButton community={community} />
+        <StyledActions>
+          <RequestCommunityBuilderButton community={community} />
+          <JoinCommunityButton community={community} />
+        </StyledActions>
       </StyledBreadcrumbsContainer>
       <TabContext value={tab}>
         <TabBar
