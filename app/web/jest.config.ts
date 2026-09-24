@@ -39,6 +39,9 @@ const customJestConfig: Config = {
     // https://jestjs.io/docs/configuration#transform-objectstring-pathtotransformer--pathtotransformer-object
     "^.+\\.(js|jsx|ts|tsx)$": ["babel-jest", { presets: ["next/babel"] }],
   },
+  // transformIgnorePatterns: [
+  //   "node_modules/(?!(d3-geo)/)",
+  // ],
   resetMocks: true,
 };
 
