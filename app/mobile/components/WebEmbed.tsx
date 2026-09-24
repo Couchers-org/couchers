@@ -28,7 +28,6 @@ import errorGraphic from "@/resources/404graphic.png";
 import client from "@/service/client";
 import { dispatchEscapeRef, lastLoginTimeRef } from "@/state/webViewState";
 import { theme } from "@/theme";
-import { addToCalendar } from "@/utils/addToCalendar";
 import { applicationNameForUserAgent } from "@/utils/userAgent";
 import { shouldLoadInWebView } from "@/utils/webViewUrlUtils";
 
@@ -375,16 +374,9 @@ export default function WebEmbed({
         hasAction().then((canReview) => {
           if (canReview) requestReview();
         });
-      } else if (payload?.type === "OPEN_CALENDAR_FILE") {
-        const base64 = payload.data?.base64;
-        const filename = payload.data?.filename;
-        if (base64 && filename) {
-          addToCalendar(base64, filename).catch((err) => {
-            if (__DEV__) {
-              console.error("Failed to add to calendar:", err);
-            }
-          });
-        }
+      } else if (payload?.type === "ADD_TO_CALENDAR") {
+        // TODO(#8533): Implement mobile native add to calendar.
+        throw new Error("Native add to calendar not implemented.");
       }
     } catch (error) {
       // Ignore non-JSON messages from browser/WebView internals.

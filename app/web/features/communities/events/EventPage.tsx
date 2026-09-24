@@ -250,7 +250,8 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
       },
       id: "copy-link",
     },
-    ...(!event?.isCancelled
+    // TODO(#8533): Implement mobile native add to calendar.
+    ...(!event?.isCancelled && !isPastEvent && !isNativeEmbed
       ? ([
           {
             icon: EventAvailableOutlined,
