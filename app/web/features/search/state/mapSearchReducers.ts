@@ -170,8 +170,8 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
           hasActiveFilters: false,
           filters: {
             ...state.filters,
-            hostingStatus: undefined,
-            showEmptyProfile: false,
+            hostingStatus: initialState.filters.hostingStatus,
+            showEmptyProfile: initialState.filters.showEmptyProfile,
           },
         }),
         search: {
@@ -208,8 +208,11 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
         ...(areDefaultFiltersActive && {
           filters: {
             ...state.filters,
-            hostingStatus: undefined,
-            showEmptyProfile: false,
+            // Must reset to the initial values, not to `false`/`undefined` literals: getHasActiveFilters
+            // compares against initialState, so `showEmptyProfile: false` would read as an active filter
+            // and keep searching after the location is cleared.
+            hostingStatus: initialState.filters.hostingStatus,
+            showEmptyProfile: initialState.filters.showEmptyProfile,
           },
         }),
         search: {
