@@ -1,3 +1,5 @@
+make
+
 # download deps
 mkdir -p /tmp/deps
 pushd /tmp/deps
