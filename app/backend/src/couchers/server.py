@@ -21,6 +21,7 @@ from couchers.proto import (
     bugs_pb2_grpc,
     communities_pb2_grpc,
     conversations_pb2_grpc,
+    dashboard_pb2_grpc,
     discussions_pb2_grpc,
     donations_pb2_grpc,
     editor_pb2_grpc,
@@ -53,6 +54,7 @@ from couchers.servicers.blocking import Blocking
 from couchers.servicers.bugs import Bugs
 from couchers.servicers.communities import Communities
 from couchers.servicers.conversations import Conversations
+from couchers.servicers.dashboard import Dashboard
 from couchers.servicers.discussions import Discussions
 from couchers.servicers.donations import Donations, Stripe
 from couchers.servicers.editor import Editor
@@ -108,6 +110,7 @@ def create_main_server(port: int, start_resource_sampler: bool = False) -> grpc.
     bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), server)
     communities_pb2_grpc.add_CommunitiesServicer_to_server(Communities(), server)
     conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(), server)
+    dashboard_pb2_grpc.add_DashboardServicer_to_server(Dashboard(), server)
     discussions_pb2_grpc.add_DiscussionsServicer_to_server(Discussions(), server)
     donations_pb2_grpc.add_DonationsServicer_to_server(Donations(), server)
     editor_pb2_grpc.add_EditorServicer_to_server(Editor(), server)
