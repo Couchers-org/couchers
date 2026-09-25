@@ -53,6 +53,25 @@ const growthbook = new GrowthBook({
   },
 });
 
+export type FeatureFlagSnapshot = {
+  targeting: Record<string, unknown>;
+  values: Record<string, unknown>;
+};
+
+export function getFeatureFlagSnapshot(): FeatureFlagSnapshot {
+  const targeting = growthbook.getAttributes();
+  const probe = new GrowthBook({ attributes: targeting });
+  probe.initSync({ payload: growthbook.getDecryptedPayload() });
+  return {
+    targeting,
+    values: Object.fromEntries(
+      Object.keys(probe.getFeatures())
+        .sort()
+        .map((key) => [key, probe.evalFeature(key).value]),
+    ),
+  };
+}
+
 export default function FeatureFlagProvider({
   children,
 }: {
@@ -69,15 +88,13 @@ export default function FeatureFlagProvider({
     if (__DEV__ && process.env.EXPO_PUBLIC_FEATURE_FLAGS_OVERRIDE === "1") {
       void import("@/feature-flags.dev.json").then((mod) => {
         const overrides = (mod.default ?? mod) as Record<string, unknown>;
-        growthbook.initSync({
-          payload: {
-            features: Object.fromEntries(
-              Object.entries(overrides).map(([key, value]) => [
-                key,
-                { defaultValue: value },
-              ]),
-            ),
-          },
+        void growthbook.setPayload({
+          features: Object.fromEntries(
+            Object.entries(overrides).map(([key, value]) => [
+              key,
+              { defaultValue: value },
+            ]),
+          ),
         });
       });
       return;
