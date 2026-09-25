@@ -95,6 +95,21 @@ def _is_event_organizer(event: Event, user_id: int) -> bool:
     return event.organizers.where(EventOrganizer.user_id == user_id).one_or_none() is not None
 
 
+def _community_invite_requested(session: Session, occurrence: EventOccurrence, user_id: int) -> bool:
+
+    # Returns True if the given user has already requested a community invite
+    # for this event occurrence, or if one has already been approved.
+    return (
+        session.execute(
+            select(EventCommunityInviteRequest.id)
+            .where(EventCommunityInviteRequest.occurrence_id == occurrence.id)
+            .where(EventCommunityInviteRequest.user_id == user_id)
+            .limit(1)
+        ).scalar_one_or_none()
+        is not None
+    )
+
+
 def _can_moderate_event(session: Session, event: Event, user_id: int) -> bool:
     # if the event is owned by a cluster, then any moderator of that cluster can moderate this event
     if event.owner_cluster is not None and can_moderate_node(session, user_id, event.owner_cluster.parent_node_id):
@@ -135,6 +150,9 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
 
     can_moderate = _can_moderate_event(session, event, context.user_id)
     can_edit = _can_edit_event(session, event, context.user_id)
+    community_invite_requested = (
+        _community_invite_requested(session, occurrence, context.user_id) if can_edit else False
+    )
 
     going_count = session.execute(
         where_users_column_visible(
@@ -192,6 +210,7 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
         thread=thread_to_pb(session, context, occurrence.thread_id),
         can_edit=can_edit,
         can_moderate=can_moderate,
+        community_invite_requested=community_invite_requested,
     )
 
 
@@ -923,7 +942,6 @@ class Events(events_pb2_grpc.EventsServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "event_cant_update_old_event")
 
         this_user_reqs = [req for req in occurrence.community_invite_requests if req.user_id == context.user_id]
-
         if len(this_user_reqs) > 0:
             context.abort_with_error_code(
                 grpc.StatusCode.FAILED_PRECONDITION, "event_community_invite_already_requested"
