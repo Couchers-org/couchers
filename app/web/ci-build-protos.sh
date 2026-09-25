@@ -1,4 +1,6 @@
+echo "calling make"
 make
+exit 1
 
 # download deps
 mkdir -p /tmp/deps
