@@ -1,8 +1,8 @@
 import { Circle, MoreHoriz } from "@mui/icons-material";
 import { Avatar, Box, Menu, MenuItem, styled, Typography, useMediaQuery } from "@mui/material";
 import IconButton from "components/IconButton";
+import RelativeTime from "components/RelativeTime";
 import { useTranslation } from "i18n";
-import { localizeRelativeTime } from "i18n/datetimes";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Notification } from "proto/notifications_pb";
@@ -58,10 +58,7 @@ const BottomRightIconWrapper = styled(Box)(({ theme }) => ({
 }));
 
 const NotificationItem = ({ notification, onClose, onMarkIsSeen }: NotificationItemProps) => {
-  const {
-    t,
-    i18n: { language: locale },
-  } = useTranslation([GLOBAL]);
+  const { t } = useTranslation([GLOBAL]);
   const router = useRouter();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -129,7 +126,7 @@ const NotificationItem = ({ notification, onClose, onMarkIsSeen }: NotificationI
           }}
         />
         <Typography variant="body2" color="primary" sx={{ fontWeight: 600 }}>
-          {localizeRelativeTime(notification.created!, locale)}
+          <RelativeTime instant={notification.created!} />
         </Typography>
         <LinesEllipsis
           text={notification.body}
