@@ -58,7 +58,7 @@ jest.mock("i18n/useLocaleInfos", () => ({
     error: null,
   }),
 }));
-jest.mock("react-simple-maps/core", () => ({
+jest.mock("react-simple-maps", () => ({
   ComposableMap: () => null,
   Geographies: () => null,
   Geography: () => null,

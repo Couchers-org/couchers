@@ -4,7 +4,7 @@ import Markdown from "components/Markdown";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { User } from "proto/api_pb";
-import { ComposableMap, Geographies, Geography } from "react-simple-maps/core";
+import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 
 import { useRegions } from "../hooks/useRegions";
 import ProfilePhotoGallery from "./ProfilePhotoGallery";
