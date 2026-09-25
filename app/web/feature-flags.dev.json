@@ -2,5 +2,6 @@
   "test_growthbook_integration": true,
   "show_moderator_badge": true,
   "public_trips_enabled": true,
+  "sentry_session_replay_enabled": true,
   "global_message": { "severity": "info", "message": "" }
 }
