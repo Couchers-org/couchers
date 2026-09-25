@@ -1,4 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { userIdCookieName } from "appConstants";
 import { userKey } from "features/queryKeys";
 import { StatusCode } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -37,10 +38,21 @@ async function syncLanguagePreference() {
   }
 }
 
+function sessionUserIdFromCookie(): number | null {
+  const value = getCookie(userIdCookieName);
+  if (!value) return null;
+
+  const userId = Number(value);
+  return Number.isInteger(userId) && userId > 0 ? userId : null;
+}
+
 export default function useAuthStore() {
-  const [authenticated, setAuthenticated] = usePersistedState("auth.authenticated", false);
+  // localStorage can be cleared while the session cookie lives on, so a missing record is not proof of being
+  // signed out. An explicit logout writes `false`, which still wins over this.
+  const sessionUserId = sessionUserIdFromCookie();
+  const [authenticated, setAuthenticated] = usePersistedState("auth.authenticated", sessionUserId !== null);
   const [jailed, setJailed] = usePersistedState("auth.jailed", false);
-  const [userId, setUserId] = usePersistedState<number | null>("auth.userId", null);
+  const [userId, setUserId] = usePersistedState<number | null>("auth.userId", sessionUserId);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [flowState, setFlowState] = usePersistedState<SignupFlowRes.AsObject | null>("auth.flowState", null);
