@@ -1,36 +1,191 @@
-name: Claude Auto Review
+name: Code Review Bot
+
+# Deterministic rules decide what happens to a PR; the model only ever supplies an opinion for those rules to act on.
+# See .github/llm-bot/pr_review_bot.py for why the two are kept apart.
+#
+# This runs on pull_request_target, so it holds a token that can approve pull requests even when the PR comes from a
+# fork. The PR's code is checked out, read-only, into pr-head/ so the review can read changed files in full rather
+# than squinting at diff hunks. Nothing ever executes it: no install step runs against it, and the review's Bash
+# access is restricted to two `gh` subcommands. Do not add a step that runs anything out of pr-head/, and do not
+# widen allowedTools to a general Bash, or a fork gains the token that approves its own pull request.
+#
+# pull_request_target also means this file is always read from the base branch, so a PR cannot edit the workflow that
+# reviews it. `.github/**` is in the bot's sensitive-path list besides, so such a PR can never be auto-approved.
+
 on:
   pull_request_target:
-    types: [review_requested]
+    types: [opened, synchronize, ready_for_review]
+
+concurrency:
+  group: code-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   review:
-    if: github.event.requested_reviewer.login == 'couchersbot'
     runs-on: ubuntu-latest
+    # Generous, because the SQL step waits for GitLab to publish this commit's query log.
+    timeout-minutes: 45
     permissions:
       contents: read
       pull-requests: write
       id-token: write
     steps:
-      - uses: actions/checkout@v5
-        with:
-          fetch-depth: 1
+      - name: Check out the base branch
+        uses: actions/checkout@v5
 
-      - uses: anthropics/claude-code-action@v1
+      # Read-only copy of the PR's own code, for the review to read. Never executed; see the note at the top.
+      - name: Check out the pull request's code
+        uses: actions/checkout@v5
         with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: pr-head
+          fetch-depth: 1
+          persist-credentials: false
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version-file: ".github/llm-bot/.python-version"
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Install dependencies
+        run: uv sync --locked --all-extras --dev
+        working-directory: .github/llm-bot
+
+      - uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
+      # Applies the deterministic rules. Approves rebase-only pushes itself and stops there; otherwise it writes
+      # pr-review-context.md for the review to read and reports whether an approval is permitted at all.
+      - name: Gate
+        id: gate
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: uv run --project .github/llm-bot .github/llm-bot/pr_review_bot.py gate
+
+      - name: Diff the SQL the branch issues
+        if: steps.gate.outputs.action == 'review' && steps.gate.outputs.backend_touched == 'true'
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: uv run --project .github/llm-bot .github/llm-bot/pr_review_bot.py query-diff
+
+      - name: Review
+        if: steps.gate.outputs.action == 'review'
+        uses: anthropics/claude-code-action@v1
+        with:
+          github_token: ${{ steps.app-token.outputs.token }}
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          track_progress: true # ✨ Enables tracking comments
+          additional_permissions: |
+            pull-requests: write
           prompt: |
+            You are the code review bot for Couchers.org, a non-profit couch surfing platform.
+
             REPO: ${{ github.repository }}
             PR NUMBER: ${{ github.event.pull_request.number }}
 
-            Please review this pull request with a focus on:
-            - Code quality and best practices
-            - Potential bugs or issues
-            - Security implications
-            - Performance considerations
+            ## Where the code is
 
-            Provide detailed feedback using inline comments for specific issues.
+            There are two checkouts, and confusing them will make you review the wrong thing:
 
+            - The working directory is the BASE branch, without the PR's changes. Read files here for surrounding
+              context: models, callers, existing conventions.
+            - `pr-head/` is the same repository at the PR's head commit, so `pr-head/app/backend/...` is a changed
+              file as the PR leaves it. Read files here to see a change in full rather than as diff hunks.
+
+            Get the change itself with `gh pr diff ${{ github.event.pull_request.number }}`. Both checkouts are
+            shallow, so `git diff` and `git log` will tell you nothing useful.
+
+            When you report a finding or post an inline comment, name the path WITHOUT the `pr-head/` prefix — that
+            prefix is an artefact of this checkout and means nothing to anyone reading the PR.
+
+            ## Context prepared for you
+
+            Read both of these first:
+
+            - `pr-review-context.md` — deterministic facts about the PR, already established. Do not re-derive them.
+            - `pr-review-queries.md` — the SQL this branch newly issues, if the PR touches the backend. Absent when it
+              does not.
+
+            The repository's CLAUDE.md describes this project's conventions. Follow it when judging whether code fits.
+
+            ## What to review
+
+            1. **Correctness.** Bugs, unhandled cases, mistakes in logic, misuse of an API, races, N+1 queries,
+               anything that will behave differently from what the change plainly intends.
+
+            2. **New SQL, carefully.** This is the part worth spending real effort on. For every new query shape in
+               `pr-review-queries.md`, and for every query you can see in the diff, work out what it actually does:
+               read the models it touches under `app/backend/src/couchers/models/` and check the joins, the filter
+               conditions, and the columns. Specifically:
+               - Does the query answer the question the calling code believes it answers?
+               - Are joins on the right columns, and is the cardinality what the caller expects? A join that fans out
+                 silently turns one row into many.
+               - Are deleted, banned and blocked users filtered out? This project requires `users_visible(context)`,
+                 `users_column_visible(context, column)` or `users_visible_to_each_other(...)` from `couchers.sql`,
+                 and never `User.is_visible` directly in a query.
+               - Is anything issued inside a loop that should have been one query?
+               - Are new queries hitting indexed columns, on tables that are large in production?
+               - Does a new query shape appear in many more tests than the change would suggest? That usually means a
+                 shared helper or fixture started issuing it.
+               If `pr-review-queries.md` says the log was not published in time, say so in your summary rather than
+               guessing, and review the queries visible in the diff.
+
+            3. **Whether the change is architectural.** Set `architectural_change` to true if the PR introduces a new
+               abstraction, changes a data model or an interface between components, changes how a subsystem is wired
+               together, alters authentication, authorisation or visibility rules, or would make a reviewer want to
+               discuss the approach rather than the code. Small, local, self-evident changes are not architectural.
+               When you are unsure, true is the safe answer.
+
+            Do not comment on formatting or style; linters and formatters already run in CI. Do not restate what the
+            diff does. Only raise things you would raise with a colleague.
+
+            ## Output
+
+            Post inline comments on specific problematic lines with
+            `mcp__github_inline_comment__create_inline_comment`. Keep them concrete and actionable.
+
+            Then write your verdict to `pr-review-verdict.json` in the current directory, exactly this shape:
+
+            ```json
+            {
+              "verdict": "approve",
+              "architectural_change": false,
+              "summary": "One to three sentences on what the PR does and how it looks. Markdown.",
+              "findings": [
+                {"severity": "high", "file": "app/backend/src/couchers/servicers/x.py", "description": "..."}
+              ]
+            }
+            ```
+
+            - `verdict` is `"approve"` only when you found nothing of `high` or `medium` severity and
+              `architectural_change` is false. Otherwise it is `"comment"`.
+            - `findings` lists only real problems, most serious first. An empty list is the expected result for a
+              clean PR — do not pad it.
+            - Severity is `high` for something that is wrong and will cause incorrect behaviour or data loss, `medium`
+              for something likely wrong or risky, `low` for a suggestion.
+
+            Writing this file is the last thing you do, and it is required. Something else decides what to do with
+            your verdict: you are not approving anything yourself, and you should not run `gh pr review`.
           claude_args: |
-            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
+            --model opus
+            --allowedTools "Read,Glob,Grep,Write,Bash(gh pr diff:*),Bash(gh pr view:*),mcp__github_inline_comment__create_inline_comment"
+
+      # Turns the verdict into a review. Approves only where the gate already said an approval was permitted, which
+      # arrives as step outputs rather than as a file, so the review step cannot have tampered with it.
+      - name: Apply the verdict
+        if: steps.gate.outputs.action == 'review'
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          AUTO_STAMP_ELIGIBLE: ${{ steps.gate.outputs.auto_stamp_eligible }}
+          FINGERPRINT: ${{ steps.gate.outputs.fingerprint }}
+          STAMP_BLOCKERS: ${{ steps.gate.outputs.stamp_blockers }}
+        run: uv run --project .github/llm-bot .github/llm-bot/pr_review_bot.py apply
