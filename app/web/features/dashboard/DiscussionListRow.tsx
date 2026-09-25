@@ -1,5 +1,6 @@
 import { ChatBubbleOutlined, ChevronRight, Place, Schedule } from "@mui/icons-material";
 import { Skeleton, styled } from "@mui/material";
+import { clampedTypographyWith } from "components/ClampedTypography";
 import getContentSummary from "features/communities/getContentSummary";
 import { useTranslation } from "i18n";
 import { localizeRelativeTime } from "i18n/datetimes";
@@ -45,14 +46,10 @@ const RowTitle = styled("div")({
   whiteSpace: "nowrap",
 });
 
-const ContentTeaser = styled("div")({
+const ContentTeaser = styled(clampedTypographyWith({ WebkitLineClamp: 2 }))({
   fontSize: "12px",
   color: "var(--mui-palette-text-secondary)",
   marginTop: "2px",
-  overflow: "hidden",
-  display: "-webkit-box",
-  WebkitLineClamp: 2,
-  WebkitBoxOrient: "vertical",
   lineHeight: 1.4,
 });
 
@@ -115,7 +112,7 @@ export default function DiscussionListRow({ discussion }: DiscussionListRowProps
     <RowLink href={routeToDiscussion(discussion.discussionId, discussion.slug)}>
       <ContentWrapper>
         <RowTitle>{discussion.title}</RowTitle>
-        {teaser && <ContentTeaser>{teaser}</ContentTeaser>}
+        {teaser && <ContentTeaser component="div">{teaser}</ContentTeaser>}
         <MetaLine>
           <Place sx={{ fontSize: "11px", flexShrink: 0 }} />
           <MetaText>{discussion.ownerTitle}</MetaText>

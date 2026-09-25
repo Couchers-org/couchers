@@ -1,4 +1,5 @@
 import { Avatar, Card, CardContent, styled, Typography } from "@mui/material";
+import { clampedTypographyWith } from "components/ClampedTypography";
 import { PinIcon } from "components/Icons";
 import IconText from "components/IconText";
 import StyledLink from "components/StyledLink";
@@ -44,13 +45,7 @@ const VolunteerStatus = styled("div")(() => ({
   gap: theme.spacing(0.5),
 }));
 
-const LocationText = styled(Typography)(() => ({
-  display: "-webkit-box",
-  WebkitLineClamp: 2,
-  WebkitBoxOrient: "vertical",
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-}));
+const LocationText = clampedTypographyWith({ WebkitLineClamp: 2, ellipsis: true });
 
 interface VolunteerCardProps {
   volunteerInfo: GetMyVolunteerInfoRes.AsObject;
