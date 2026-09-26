@@ -315,6 +315,53 @@ describe("LocationAutocomplete component", () => {
     expect(submitAction).not.toHaveBeenCalled();
   });
 
+  it("reopens results when the form is submitted with free text instead of a selected place", async () => {
+    const onChange = jest.fn();
+    renderForm("", onChange);
+
+    const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
+    const user = userEvent.setup();
+
+    await user.type(input, "test");
+    expect(await screen.findByText("test city, test country")).toBeVisible();
+
+    // Blur closes the list; free text remains the form value.
+    await user.tab();
+    await waitFor(() => {
+      expect(screen.queryByText("test city, test country")).not.toBeInTheDocument();
+    });
+
+    await user.click(await screen.findByRole("button", { name: "submit" }));
+
+    expect(submitAction).not.toHaveBeenCalled();
+    expect(submitInvalidAction).toHaveBeenCalled();
+    // Reopen so the user can pick a hit instead of a silent no-op.
+    expect(await screen.findByText("test city, test country")).toBeVisible();
+  });
+
+  it("reopens results on Enter after blur left free text in the field", async () => {
+    const onChange = jest.fn();
+    renderForm("", onChange);
+
+    const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
+    const user = userEvent.setup();
+
+    await user.type(input, "test");
+    expect(await screen.findByText("test city, test country")).toBeVisible();
+
+    await user.tab();
+    await waitFor(() => {
+      expect(screen.queryByText("test city, test country")).not.toBeInTheDocument();
+    });
+
+    await user.click(input);
+    await user.keyboard("{Enter}");
+
+    expect(await screen.findByText("test city, test country")).toBeVisible();
+    expect(onChange).not.toHaveBeenCalled();
+    expect(submitAction).not.toHaveBeenCalled();
+  });
+
   it("shows a default value and submits correctly when cleared", async () => {
     const onChange = jest.fn();
     renderForm(

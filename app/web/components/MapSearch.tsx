@@ -1,5 +1,10 @@
 import { Box, CircularProgress, debounce, IconButton, styled } from "@mui/material";
 import { AutocompleteChangeReason, AutocompleteInputChangeReason } from "@mui/material/Autocomplete";
+import {
+  MIN_SEARCH_LENGTH,
+  SEARCH_DEBOUNCE_MS,
+} from "components/LocationAutocomplete/constants";
+import useLocationAutocompleteOpen from "components/LocationAutocomplete/useLocationAutocompleteOpen";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { LngLat } from "maplibre-gl";
@@ -11,11 +16,7 @@ import useMyLocation from "utils/useMyLocation";
 import Autocomplete from "./Autocomplete";
 import { MyLocationIcon, SearchIcon } from "./Icons";
 
-// Debounced typeahead: wait this long after the last keystroke before querying,
-// and require at least this many characters before firing a request. Mirrors
-// LocationAutocomplete.
-const SEARCH_DEBOUNCE_MS = 300;
-const MIN_SEARCH_LENGTH = 2;
+const MAP_SEARCH_ID = "map-search";
 
 const StyledBox = styled(Box)(({ theme }) => ({
   "& *": {
@@ -57,7 +58,6 @@ interface MapSearchProps {
 }
 
 export default function MapSearch({ setError, setResult, inputFieldError, collapseToCity = false }: MapSearchProps) {
-  const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
   const { t } = useTranslation([GLOBAL]);
 
@@ -93,6 +93,23 @@ export default function MapSearch({ setError, setResult, inputFieldError, collap
   const debouncedQuery = useMemo(() => debounce((v: string) => query(v), SEARCH_DEBOUNCE_MS), [query]);
   useEffect(() => () => debouncedQuery.clear(), [debouncedQuery]);
 
+  // Run the geocode request only — the open hook opens the list after calling this.
+  const searchSubmitQuery = () => {
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    debouncedQuery.clear();
+    query(trimmed);
+  };
+
+  const { isOpen: open, setIsOpen: setOpen, closeIfAllowed, handleEnterKeyDown } = useLocationAutocompleteOpen({
+    id: MAP_SEARCH_ID,
+    inputValue: value,
+    options: results,
+    query,
+    isSubmitMode,
+    searchSubmit: searchSubmitQuery,
+  });
+
   //create a dummy search options if there are no results
   const searchOptions = isLoading
     ? []
@@ -113,7 +130,7 @@ export default function MapSearch({ setError, setResult, inputFieldError, collap
   useEffect(() => {
     setError(errorMessage);
     if (errorMessage) setOpen(false);
-  }, [errorMessage, setError]);
+  }, [errorMessage, setError, setOpen]);
 
   // LOC-4: fill the address field and move the pin from the device's position.
   // On any failure the hook's message shows and nothing changes, so the user can
@@ -130,7 +147,7 @@ export default function MapSearch({ setError, setResult, inputFieldError, collap
 
   const searchSubmit = (value: string, reason: AutocompleteChangeReason) => {
     if (reason === "blur") {
-      setOpen(false);
+      closeIfAllowed();
       return;
     }
     const searchOption = results?.find((o) => value === o.name);
@@ -138,10 +155,7 @@ export default function MapSearch({ setError, setResult, inputFieldError, collap
     if (!searchOption) {
       //createOption is when enter is pressed on user-entered string
       if (reason === "createOption") {
-        const trimmed = value.trim();
-        if (!trimmed) return;
-        debouncedQuery.clear();
-        query(trimmed);
+        searchSubmitQuery();
         setOpen(true);
       }
     } else {
@@ -154,17 +168,18 @@ export default function MapSearch({ setError, setResult, inputFieldError, collap
     <StyledBox>
       <StyledForm>
         <Autocomplete
-          id="map-search"
+          id={MAP_SEARCH_ID}
           label={t("global:components.edit_location_map.search_location_label")}
           value={value}
           size="small"
           options={searchOptions?.map((o) => o.name) || []}
           loading={isLoading}
           open={open}
+          onClose={closeIfAllowed}
           // Highlight the top result as it types in, so Enter alone confirms
           // it — keyboard-only use doesn't need an ArrowDown first.
           autoHighlight
-          onBlur={() => setOpen(false)}
+          onBlur={closeIfAllowed}
           error={inputFieldError?.message}
           onInputChange={(e, v: string, reason: AutocompleteInputChangeReason) => {
             setValue(v);
@@ -204,12 +219,7 @@ export default function MapSearch({ setError, setResult, inputFieldError, collap
           sx={{ flexGrow: 1 }}
           getOptionDisabled={(option) => option === t("global:components.edit_location_map.no_location_results_text")}
           helperText={isSubmitMode ? t("global:components.edit_location_map.press_enter_to_search") : undefined}
-          onKeyDown={(e) => {
-            if (e.key !== "Enter") return;
-            if (isSubmitMode && !open) {
-              searchSubmit(value, "createOption");
-            }
-          }}
+          onKeyDown={handleEnterKeyDown}
         />
         {isSubmitMode && (
           <IconButton
