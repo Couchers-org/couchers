@@ -16,6 +16,7 @@
     "invalid_ota_manifest": "Could not read a valid manifest (runtimeVersion, id, createdAt) from the CDN for this version.",
     "invalid_ota_platform": "Invalid OTA platform.",
     "invalid_ota_version": "An OTA package version (CDN path) is required.",
+    "invalid_sofa_prefix": "The sofa prefix must be exactly 12 characters.",
     "invalid_started_volunteering_date": "Invalid start date for volunteering.",
     "invalid_stopped_volunteering_date": "Invalid end date for volunteering.",
     "missing_moderation_user_list_id": "Missing moderation user list id.",

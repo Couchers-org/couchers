@@ -34,6 +34,8 @@ service Editor {
   rpc ListPostcards(ListPostcardsReq) returns (ListPostcardsRes) {}
 
   rpc DownloadPostcardPdf(DownloadPostcardPdfReq) returns (DownloadPostcardPdfRes) {}
+
+  rpc LookupUsersForDebug(LookupUsersForDebugReq) returns (LookupUsersForDebugRes) {}
 }
 
 message CreateCommunityReq {
@@ -204,4 +206,19 @@ message DownloadPostcardPdfReq {
 
 message DownloadPostcardPdfRes {
   bytes pdf = 1;
+}
+
+message LookupUsersForDebugReq {
+  string sofa_prefix = 1;
+}
+
+message LookupUser {
+  int64 user_id = 1;
+  bool banned = 2;
+  bool deleted = 3;
+  bool shadowed = 4;
+}
+
+message LookupUsersForDebugRes {
+  repeated LookupUser users = 1;
 }
