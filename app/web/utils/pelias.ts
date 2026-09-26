@@ -90,15 +90,7 @@ export class PeliasError extends Error {
 // specific, searchable place. These are rejected by the homepage widget when
 // `disableRegions` is set (equivalent to the old Nominatim `nonRegionKeys`
 // logic, where district/locality-and-below counted as specific).
-const REGION_LAYERS = new Set([
-  "continent",
-  "country",
-  "dependency",
-  "macroregion",
-  "region",
-  "macrocounty",
-  "county",
-]);
+const REGION_LAYERS = new Set(["continent", "country", "dependency", "macroregion", "region", "macrocounty", "county"]);
 
 // Layers where `name` is the matched entity and must not be replaced by a
 // nested hierarchy locality/localadmin (those can be centroid artifacts — e.g.

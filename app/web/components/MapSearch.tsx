@@ -1,9 +1,6 @@
 import { Box, CircularProgress, debounce, IconButton, styled } from "@mui/material";
 import { AutocompleteChangeReason, AutocompleteInputChangeReason } from "@mui/material/Autocomplete";
-import {
-  MIN_SEARCH_LENGTH,
-  SEARCH_DEBOUNCE_MS,
-} from "components/LocationAutocomplete/constants";
+import { MIN_SEARCH_LENGTH, SEARCH_DEBOUNCE_MS } from "components/LocationAutocomplete/constants";
 import useLocationAutocompleteOpen from "components/LocationAutocomplete/useLocationAutocompleteOpen";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
@@ -101,7 +98,12 @@ export default function MapSearch({ setError, setResult, inputFieldError, collap
     query(trimmed);
   };
 
-  const { isOpen: open, setIsOpen: setOpen, closeIfAllowed, handleEnterKeyDown } = useLocationAutocompleteOpen({
+  const {
+    isOpen: open,
+    setIsOpen: setOpen,
+    closeIfAllowed,
+    handleEnterKeyDown,
+  } = useLocationAutocompleteOpen({
     id: MAP_SEARCH_ID,
     inputValue: value,
     options: results,

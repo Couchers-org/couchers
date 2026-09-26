@@ -377,29 +377,26 @@ describe("useGeocodeQuery hook", () => {
         }),
       );
 
-    it.each([500, 503, 429, 402])(
-      "switches to Nominatim submit mode on a %i without querying it",
-      async (status) => {
-        failPelias(status);
-        let nominatimRequests = 0;
-        server.use(
-          rest.get(`${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`, (_req, res, ctx) => {
-            nominatimRequests += 1;
-            return res(ctx.json([]));
-          }),
-        );
-        const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper });
+    it.each([500, 503, 429, 402])("switches to Nominatim submit mode on a %i without querying it", async (status) => {
+      failPelias(status);
+      let nominatimRequests = 0;
+      server.use(
+        rest.get(`${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`, (_req, res, ctx) => {
+          nominatimRequests += 1;
+          return res(ctx.json([]));
+        }),
+      );
+      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper });
 
-        await act(() => result.current.query("test"));
+      await act(() => result.current.query("test"));
 
-        await waitFor(() => {
-          expect(result.current.provider).toBe("nominatim");
-        });
-        expect(result.current.error).toBeUndefined();
-        expect(result.current.results).toBeUndefined();
-        expect(nominatimRequests).toBe(0);
-      },
-    );
+      await waitFor(() => {
+        expect(result.current.provider).toBe("nominatim");
+      });
+      expect(result.current.error).toBeUndefined();
+      expect(result.current.results).toBeUndefined();
+      expect(nominatimRequests).toBe(0);
+    });
 
     it("queries Nominatim only after switching to submit mode", async () => {
       failPelias(500);
