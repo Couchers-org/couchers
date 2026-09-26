@@ -21,11 +21,10 @@ import { theme } from "theme";
 import { GeocodeResult, useGeocodeQuery } from "utils/hooks";
 import useMyLocation from "utils/useMyLocation";
 
-// Debounced typeahead: wait this long after the last keystroke before querying,
-// and require at least this many characters before firing a request. Mirrors
-// LocationAutocomplete.
-const SEARCH_DEBOUNCE_MS = 300;
-const MIN_SEARCH_LENGTH = 2;
+import { MIN_SEARCH_LENGTH, SEARCH_DEBOUNCE_MS } from "./constants";
+import { buildLocationDisplayOptions, isNoResultsOption } from "./displayOptions";
+import { geocodeResult2String } from "./geocodeResult2String";
+import useLocationAutocompleteOpen from "./useLocationAutocompleteOpen";
 
 interface LocationAutocompleteOutlinedProps {
   className?: string;
@@ -103,7 +102,6 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
   } = props;
   const { t } = useTranslation([GLOBAL]);
 
-  const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState<string>(defaultValue || "");
   const [selected, setSelected] = useState<GeocodeResult | null>(null);
 
@@ -141,6 +139,30 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     }
   }, [hasSearchValue]);
 
+  // Run the geocode request only — the open hook opens the list after calling this.
+  const searchSubmit = () => {
+    const trimmed = inputValue.trim();
+    if (!trimmed) return;
+    debouncedQuery.clear();
+    query(trimmed);
+  };
+
+  const { isOpen, setIsOpen, closeIfAllowed, handleEnterKeyDown } = useLocationAutocompleteOpen({
+    id,
+    inputValue,
+    options,
+    query,
+    isSubmitMode,
+    searchSubmit,
+  });
+
+  const displayOptions = buildLocationDisplayOptions(
+    options,
+    inputValue,
+    isLoading,
+    t("location_autocomplete.no_results"),
+  );
+
   // Show the clear control only when there is something to clear (typed text or
   // a selected place). Also swaps with "use my location": once the field has
   // content, that button would replace what the user is working on, so it steps
@@ -159,6 +181,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     clearGeocodeResults();
     setIsOpen(false);
     setInputValue(geocodeResult2String(place, showFullDisplayName));
+    setSelected(place);
     onChange(place);
   };
 
@@ -167,7 +190,17 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     newValue: NonNullable<string | GeocodeResult> | null,
     reason: AutocompleteChangeReason,
   ) => {
+    if (reason === "blur") {
+      closeIfAllowed();
+      return;
+    }
+
+    if (isNoResultsOption(newValue)) {
+      return;
+    }
+
     if (reason === "selectOption") {
+      setSelected(newValue as GeocodeResult);
       onChange(newValue as GeocodeResult | undefined);
       setIsOpen(false);
       service.bugs.geolocationClickInfo({
@@ -176,14 +209,6 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
         searchChoiceJson: JSON.stringify(newValue),
       });
     }
-  };
-
-  const handleSearchSubmit = () => {
-    const trimmed = inputValue.trim();
-    if (!trimmed) return;
-    debouncedQuery.clear();
-    query(trimmed);
-    setIsOpen(true);
   };
 
   const handleInputChange = (
@@ -295,7 +320,10 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
                     {isSubmitMode && (
                       <IconButton
                         aria-label={t("location_autocomplete.search_location_button")}
-                        onClick={handleSearchSubmit}
+                        onClick={() => {
+                          searchSubmit();
+                          setIsOpen(true);
+                        }}
                         size="small"
                         sx={{ marginRight: theme.spacing(1) }}
                       >
@@ -311,23 +339,16 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
         />
       )}
       loading={isLoading}
-      options={options || []}
+      options={displayOptions}
       open={isOpen}
-      onClose={() => setIsOpen(false)}
+      onClose={closeIfAllowed}
       getOptionLabel={(option) => {
         return geocodeResult2String(option, showFullDisplayName);
       }}
+      getOptionDisabled={(option) => isNoResultsOption(option)}
       onChange={handleChange}
       onInputChange={handleInputChange}
-      onKeyDown={(e) => {
-        if (e.key !== "Enter") return;
-        // Stop the wrapping form from submitting. MUI still gets this event
-        // and selects the highlighted option, if the list is open on one.
-        e.preventDefault();
-        if (isSubmitMode && !isOpen) {
-          handleSearchSubmit();
-        }
-      }}
+      onKeyDown={handleEnterKeyDown}
       freeSolo
       multiple={false}
       sx={{
@@ -339,15 +360,5 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     />
   );
 });
-
-function geocodeResult2String(option: GeocodeResult | string, full: boolean) {
-  if (typeof option === "string") {
-    return option;
-  }
-  if (full) {
-    return option.name;
-  }
-  return option.simplifiedName;
-}
 
 export default LocationAutocompleteOutlined;

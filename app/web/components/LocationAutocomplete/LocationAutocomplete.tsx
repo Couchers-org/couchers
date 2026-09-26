@@ -10,22 +10,17 @@ import Autocomplete from "components/Autocomplete";
 import IconButton from "components/IconButton";
 import { MyLocationIcon, SearchIcon } from "components/Icons";
 import { GLOBAL } from "i18n/namespaces";
-import { LngLat } from "maplibre-gl";
 import { useTranslation } from "next-i18next";
 import React, { useEffect, useMemo, useState } from "react";
-import { Control, useController } from "react-hook-form";
+import { Control, useController, useFormState } from "react-hook-form";
 import { service } from "service";
 import { GeocodeResult, useGeocodeQuery } from "utils/hooks";
 import useMyLocation from "utils/useMyLocation";
 
-// Debounced typeahead: wait this long after the last keystroke before querying,
-// and require at least this many characters before firing a request.
-const SEARCH_DEBOUNCE_MS = 300;
-const MIN_SEARCH_LENGTH = 2;
-
-// When the geocoder returns [], inject a fake option that looks like “No results”, mark it disabled, and ignore selecting it.
-// Reason: MUI's autocompletes in `freeSolo` mode (i.e. user can type anything) never renders `noOptionsText`
-const NO_RESULTS_ID = "__no_results__";
+import { MIN_SEARCH_LENGTH, SEARCH_DEBOUNCE_MS } from "./constants";
+import { buildLocationDisplayOptions, isNoResultsOption } from "./displayOptions";
+import { geocodeResult2String } from "./geocodeResult2String";
+import useLocationAutocompleteOpen from "./useLocationAutocompleteOpen";
 
 interface LocationAutocompleteProps {
   className?: string;
@@ -97,7 +92,10 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
     rules: {
       required,
       validate: {
-        didSelect: (value) => (value === "" || typeof value !== "string" ? true : false), // don't show a scary error while the autocomplete UI is displayed
+        // Free text is never a place (no coordinates). Return bare false so we
+        // don't show a validation message while the list is open; on submit we
+        // reopen the list instead (see useLocationAutocompleteOpen).
+        didSelect: (value) => (value === "" || typeof value !== "string" ? true : false),
         isSpecific: (value) => (!value?.isRegion || !disableRegions ? true : t("location_autocomplete.more_specific")),
       },
     },
@@ -120,8 +118,9 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
     error: myLocationError,
     reset: resetMyLocationError,
   } = useMyLocation({ preferCity });
-  const [isOpen, setIsOpen] = useState(false);
-  const [inputValue, setInputValue] = useState<string>("");
+
+  // Subscribe so submitCount updates re-render this component.
+  const { submitCount } = useFormState({ control });
 
   // Geocode.earth is unavailable and we are serving results from the legacy
   // Nominatim fallback, which must not be queried as-you-type (OSM usage
@@ -133,25 +132,35 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
   const debouncedQuery = useMemo(() => debounce((value: string) => query(value), SEARCH_DEBOUNCE_MS), [query]);
   useEffect(() => () => debouncedQuery.clear(), [debouncedQuery]);
 
-  // The provider returned an empty result set for the current query (undefined
-  // means "not searched yet", so only [] counts as empty).
-  const hasEmptyResults = !isLoading && options?.length === 0 && inputValue.trim().length >= MIN_SEARCH_LENGTH;
+  const [inputValue, setInputValue] = useState<string>("");
 
-  const displayOptions: GeocodeResult[] = hasEmptyResults
-    ? [
-        {
-          id: NO_RESULTS_ID,
-          name: t("location_autocomplete.no_results"),
-          simplifiedName: t("location_autocomplete.no_results"),
-          location: new LngLat(0, 0),
-          bbox: [0, 0, 0, 0],
-          isRegion: false,
-        },
-      ]
-    : options || [];
+  // Run the geocode request only — the open hook opens the list after calling this.
+  const searchSubmit = () => {
+    const trimmed = inputValue.trim();
+    if (!trimmed) return;
+    query(trimmed);
+  };
 
-  const isNoResultsOption = (value: GeocodeResult | string | null) =>
-    typeof value === "object" && value !== null && value.id === NO_RESULTS_ID;
+  const freeTextForSubmit = typeof controller.field.value === "string" ? controller.field.value : "";
+
+  const { isOpen, setIsOpen, closeIfAllowed, handleEnterKeyDown } = useLocationAutocompleteOpen({
+    id,
+    inputValue,
+    options,
+    query,
+    isSubmitMode,
+    searchSubmit,
+    enableSubmitReopen: true,
+    freeTextForSubmit,
+    submitCount,
+  });
+
+  const displayOptions = buildLocationDisplayOptions(
+    options,
+    inputValue,
+    isLoading,
+    t("location_autocomplete.no_results"),
+  );
 
   // LOC-4: resolve the device position into a place and select it as if the user
   // had picked it from the list. On any failure the hook surfaces a message and we
@@ -167,14 +176,6 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
     setInputValue(geocodeResult2String(place, showFullDisplayName));
     controller.field.onChange(place);
     onChange?.(place);
-  };
-
-  // Submit mode only: run the search the user explicitly asked for.
-  const searchSubmit = () => {
-    const trimmed = inputValue.trim();
-    if (!trimmed) return;
-    query(trimmed);
-    setIsOpen(true);
   };
 
   // Fired on every keystroke: drives the debounced typeahead query.
@@ -217,7 +218,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
   // user presses Enter on free-typed text.
   const handleChange = (value: GeocodeResult | string | null, reason: AutocompleteChangeReason) => {
     if (reason === "blur") {
-      setIsOpen(false);
+      closeIfAllowed();
       return;
     }
 
@@ -300,7 +301,10 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
           {isSubmitMode && !isPending && (
             <IconButton
               aria-label={t("location_autocomplete.search_location_button")}
-              onClick={searchSubmit}
+              onClick={() => {
+                searchSubmit();
+                setIsOpen(true);
+              }}
               size="small"
             >
               <SearchIcon />
@@ -312,7 +316,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
       loadingText={t("location_autocomplete.loading")}
       options={displayOptions}
       open={isOpen && !isPending}
-      onClose={() => setIsOpen(false)}
+      onClose={closeIfAllowed}
       readOnly={isPending}
       value={controller.field.value}
       getOptionLabel={(option: GeocodeResult | string) => {
@@ -331,19 +335,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
       filterOptions={(opts) => opts}
       onInputChange={(_e, value, reason) => handleInputChange(value, reason)}
       onChange={(_e, value, reason) => handleChange(value, reason)}
-      onKeyDown={(e) => {
-        if (e.key !== "Enter") return;
-        // Stop the wrapping <form> from submitting. MUI still gets this event and
-        // selects the highlighted option, if the list is open on one.
-        e.preventDefault();
-        // In submit mode Enter is the search trigger, and we have to run it
-        // ourselves: MUI's freeSolo "createOption" path is skipped because we
-        // mirror the typed text into the form value, so it sees the input as
-        // already equal to the selected value.
-        if (isSubmitMode && !isOpen) {
-          searchSubmit();
-        }
-      }}
+      onKeyDown={handleEnterKeyDown}
       disableClearable={!hasClearableValue || isPending}
       // Override the slot's default visibility:hidden so the clear control is
       // always shown when rendered (non-empty field), including on touch.
@@ -358,15 +350,5 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
     />
   );
 });
-
-function geocodeResult2String(option: GeocodeResult | string, full: boolean) {
-  if (typeof option === "string") {
-    return option;
-  }
-  if (full) {
-    return option.name;
-  }
-  return option.simplifiedName;
-}
 
 export default LocationAutocomplete;
