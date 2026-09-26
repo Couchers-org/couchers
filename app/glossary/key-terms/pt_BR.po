@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-09-19 12:41+0000\n"
-"Last-Translator: Mariana Baroni <maribaroni@gmail.com>\n"
+"PO-Revision-Date: 2026-09-26 13:25+0000\n"
+"Last-Translator: Gabriel Alonso da Silva Ferreira <gab.asferreira08@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) <https://translate.couchershq.org/projects/couchers/glossary-key-terms/pt_BR/>\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
@@ -421,3 +421,55 @@ msgstr "surfer"
 #. (noun) Users receiving hospitality from other users.
 msgid "surfers"
 msgstr "surfers"
+
+#. (verb) As a user, the action of deleting one's account.
+msgid "account.delete"
+msgstr "excluir"
+
+#. (adj) The state of a user's account which has been deleted.
+msgid "account.deleted"
+msgstr "excluído"
+
+#. (noun) A code that can be shared to invite people to join Couchers.org.
+msgid "invite_code"
+msgstr "código do convite"
+
+#. (noun) Codes that can be shared to invite people to join Couchers.org.
+msgid "invite_codes"
+msgstr "códigos do convite"
+
+#. (noun) A moderator from the Couchers.org team.
+msgid "moderator"
+msgstr "moderador"
+
+#. (noun) A note sent to a user by a moderator.
+msgid "moderator_note"
+msgstr "mensagem do moderador"
+
+#. (noun) Notes sent to a user by a moderator.
+msgid "moderator_notes"
+msgstr "mensagens do moderador"
+
+#. (noun) Moderators from the Couchers.org team.
+msgid "moderators"
+msgstr "moderadores"
+
+#. (noun) A process and the resulting status for verifying a user's phone number.
+msgid "phone_verification"
+msgstr "Verificação de telefone"
+
+#. (noun) A post on the Couchers.org blog.
+msgid "blog.post"
+msgstr "publicação"
+
+#. (verb) As a user, the action of recovering a previously deleted account.
+msgid "account.recover"
+msgstr "recuperar"
+
+#. (adj) The state of a user's account which has been recovered.
+msgid "account.recovered"
+msgstr "recuperado"
+
+#. (verb) The action of resetting one's password.
+msgid "password.reset"
+msgstr "redefinir"
