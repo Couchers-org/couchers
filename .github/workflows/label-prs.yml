@@ -1,0 +1,53 @@
+# Labels PRs based on the rules in autoreviewers.yml. Labels are only ever added, never removed.
+name: Label PRs
+
+# pull_request_target so fork PRs get a writable token; safe because no PR code is checked out or run.
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  label:
+    name: Label PR
+    runs-on: ubuntu-latest
+    steps:
+      # Checks out the base branch, so a PR can't change its own rules
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/autoreviewers.yml
+
+      - name: Match rules from autoreviewers.yml
+        uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          filters: .github/autoreviewers.yml
+          predicate-quantifier: every
+
+      - name: Add labels
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          FILTER_CHANGES: ${{ steps.filter.outputs.changes }}
+        run: |
+          # Filter keys are "<label> [reviewers]"
+          mapfile -t LABELS < <(echo "$FILTER_CHANGES" | jq -r '.[] | split(" ")[0]' | sort -u)
+          if [[ ${#LABELS[@]} -eq 0 ]]; then
+            echo "No rules matched"
+            exit 0
+          fi
+          echo "Adding labels: ${LABELS[*]}"
+          # The REST endpoint creates missing labels, unlike `gh pr edit --add-label`
+          ARGS=()
+          for label in "${LABELS[@]}"; do
+            ARGS+=(-f "labels[]=$label")
+          done
+          gh api --method POST "repos/$GH_REPO/issues/$PR_NUMBER/labels" "${ARGS[@]}" --silent

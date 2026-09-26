@@ -1,7 +1,8 @@
-# Defines PR reviewers based on modified file paths.
+# Defines PR labels and reviewers based on modified file paths.
 # This is an input to the dorny/paths-filter GitHub action,
 # configured to match rules if EVERY glob applies (to support exclusions).
-# Filter names are a label plus a comma-delimited people/teams to assign.
+# Use {a,b} brace groups to match any of several paths within one rule.
+# Filter names are a label plus an optional comma-delimited people/teams to assign.
 backend Couchers-org/backend:
   - 'app/backend/**'
   - '!app/backend/**/locales/*.json'
@@ -21,3 +22,13 @@ i18n tristanlabelle:
   - 'app/**/i18n/**'
 docs aapeliv,nabramow:
   - 'docs/**'
+protos:
+  - 'app/proto/**'
+db:
+  - 'app/backend/src/couchers/{migrations,models}/**'
+devops:
+  - '{.github/**,**/.gitlab-ci.yml,app/docker-compose*.yml,app/deployment/**,app/{nginx,proxy,prometheus,postgis}/**}'
+emails:
+  - 'app/backend/templates/**'
+dependencies:
+  - '**/{uv.lock,yarn.lock,package-lock.json}'
