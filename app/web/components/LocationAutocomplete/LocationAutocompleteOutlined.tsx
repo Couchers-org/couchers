@@ -15,7 +15,7 @@ import { MyLocationIcon, SearchIcon } from "components/Icons";
 import TextField from "components/TextField";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
-import { forwardRef, SyntheticEvent, useEffect, useMemo, useState } from "react";
+import { forwardRef, SyntheticEvent, useEffect, useMemo, useRef, useState } from "react";
 import { service } from "service";
 import { theme } from "theme";
 import { GeocodeResult, useGeocodeQuery } from "utils/hooks";
@@ -155,6 +155,17 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     isSubmitMode,
     searchSubmit,
   });
+
+  // When an outage flips us into submit mode, drop any pending typeahead and
+  // close the list so a leftover debounce cannot query Nominatim from a keystroke.
+  const wasSubmitModeRef = useRef(isSubmitMode);
+  useEffect(() => {
+    if (isSubmitMode && !wasSubmitModeRef.current) {
+      debouncedQuery.clear();
+      setIsOpen(false);
+    }
+    wasSubmitModeRef.current = isSubmitMode;
+  }, [debouncedQuery, isSubmitMode, setIsOpen]);
 
   const displayOptions = buildLocationDisplayOptions(
     options,

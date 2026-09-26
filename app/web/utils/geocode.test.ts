@@ -79,15 +79,30 @@ describe("geocodeSearch", () => {
       expect(peliasFeatures).toHaveLength(1);
     });
 
-    it("falls back to Nominatim on an outage and reports the cause", async () => {
+    it("does not query Nominatim on the outage request; a later search does", async () => {
       failPelias(503, "gateway down");
+      let nominatimRequests = 0;
+      server.use(
+        rest.get(NOMINATIM_SEARCH_URL, (_req, res, ctx) => {
+          nominatimRequests += 1;
+          return res(ctx.json([]));
+        }),
+      );
       const { geocodeSearch } = await loadGeocode();
 
-      const { provider, results, fallbackCause } = await geocodeSearch("test", searchOpts());
+      const first = await geocodeSearch("test", searchOpts());
 
-      expect(provider).toBe("nominatim");
-      expect(results[0].simplifiedName).toBe("fallback city, fallback state, fallback country");
-      expect(fallbackCause?.message).toBe("gateway down");
+      expect(first.provider).toBe("nominatim");
+      expect(first.awaitingSubmit).toBe(true);
+      expect(first.results).toEqual([]);
+      expect(first.fallbackCause?.message).toBe("gateway down");
+      expect(nominatimRequests).toBe(0);
+
+      const second = await geocodeSearch("test", { ...searchOpts(), useFallbackProvider: true });
+
+      expect(second.provider).toBe("nominatim");
+      expect(second.awaitingSubmit).toBeUndefined();
+      expect(nominatimRequests).toBe(1);
     });
 
     it("rethrows a bad request instead of falling back", async () => {
@@ -123,14 +138,23 @@ describe("geocodeSearch", () => {
       expect(fallbackRequests).toBe(0);
     });
 
-    it("falls back when Geocode.earth is not configured", async () => {
+    it("does not query Nominatim when Geocode.earth is not configured", async () => {
       const key = process.env.NEXT_PUBLIC_GEOCODE_EARTH_KEY;
       process.env.NEXT_PUBLIC_GEOCODE_EARTH_KEY = "";
+      let nominatimRequests = 0;
+      server.use(
+        rest.get(NOMINATIM_SEARCH_URL, (_req, res, ctx) => {
+          nominatimRequests += 1;
+          return res(ctx.json([]));
+        }),
+      );
       const { geocodeSearch } = await loadGeocode();
 
-      const { provider } = await geocodeSearch("test", searchOpts());
+      const { provider, awaitingSubmit } = await geocodeSearch("test", searchOpts());
 
       expect(provider).toBe("nominatim");
+      expect(awaitingSubmit).toBe(true);
+      expect(nominatimRequests).toBe(0);
       process.env.NEXT_PUBLIC_GEOCODE_EARTH_KEY = key;
     });
   });
@@ -208,6 +232,32 @@ describe("geocodeSearch", () => {
       expect(initialProvider(true, "pelias")).toBe("pelias");
       await expect(geocodeSearch("test", searchOpts("pelias"))).rejects.toThrow("gateway down");
       expect(fallbackRequests).toBe(0);
+    });
+
+    it("ignores session failover when the setting is later forced to pelias", async () => {
+      failPelias(503, "gateway down");
+      let peliasRequests = 0;
+      let nominatimRequests = 0;
+      server.use(
+        rest.get(AUTOCOMPLETE_URL, (_req, res, ctx) => {
+          peliasRequests += 1;
+          return res(ctx.status(503), ctx.text("gateway down"));
+        }),
+        rest.get(NOMINATIM_SEARCH_URL, (_req, res, ctx) => {
+          nominatimRequests += 1;
+          return res(ctx.json([]));
+        }),
+      );
+      const { geocodeSearch, initialProvider } = await loadGeocode();
+
+      await geocodeSearch("test", searchOpts("auto"));
+      expect(initialProvider(true, "auto")).toBe("nominatim");
+      expect(nominatimRequests).toBe(0);
+
+      expect(initialProvider(true, "pelias")).toBe("pelias");
+      await expect(geocodeSearch("test", searchOpts("pelias"))).rejects.toThrow("gateway down");
+      expect(peliasRequests).toBeGreaterThan(0);
+      expect(nominatimRequests).toBe(0);
     });
 
     it("treats an unrecognised setting as nominatim", async () => {

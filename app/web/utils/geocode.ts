@@ -10,8 +10,9 @@ import { autocomplete, PeliasError, toPeliasLanguage } from "utils/pelias";
  * legacy Nominatim path is kept as a fallback so a Geocode.earth outage (5xx,
  * rate limit, exhausted credits, network failure, missing key) degrades search
  * instead of breaking it. The consuming widget switches back to the pre-LOC-1
- * submit UI (search button + hint) when the fallback is in use, because
- * Nominatim must not be queried as-you-type.
+ * submit UI (search button + hint) when the fallback is in use. Nominatim is
+ * never queried as-you-type (OSM usage policy): an outage only flips the
+ * session into submit mode, and the next Nominatim request waits for submit.
  *
  * Runtime selection comes from the GrowthBook flag `geocode_provider` (see
  * `useGeocodeQuery`), with `NEXT_PUBLIC_GEOCODE_DEFAULT_PROVIDER` as the
@@ -51,10 +52,11 @@ export function normalizeProviderSetting(raw: unknown): ProviderSetting {
  * Module-scoped rather than per-hook, so client-side navigation (search results
  * and back, opening another widget) does not reset it. Without this, every newly
  * mounted widget would start as a typeahead, spend one as-you-type request
- * discovering the outage again, and flip its UI under the user — which also means
- * querying Nominatim from a keystroke rather than a submit.
+ * discovering the outage again, and flip its UI under the user.
  *
- * Cleared by a full page load, which is the intended recovery path.
+ * Only reused while the setting remains `auto`. Forced `pelias` ignores it so a
+ * mid-session GrowthBook flip can recover without a full reload. A full page
+ * load also clears it.
  */
 let hasFailedOver = false;
 
@@ -63,9 +65,9 @@ export function resetFailoverState() {
   hasFailedOver = false;
 }
 
-// Should this search skip Geocode.earth entirely and go straight to the legacy
-// provider? True when it is forced, or when we already know it is unavailable.
-function shouldUseFallbackDirectly(allowFallback: boolean, setting: ProviderSetting): boolean {
+// Should this search skip Geocode.earth entirely? True when Nominatim is forced,
+// or when auto mode already knows Pelias is unavailable.
+function shouldSkipPelias(allowFallback: boolean, setting: ProviderSetting): boolean {
   if (!allowFallback) {
     return false;
   }
@@ -78,7 +80,7 @@ function shouldUseFallbackDirectly(allowFallback: boolean, setting: ProviderSett
  * legacy submit mode.
  */
 export function initialProvider(allowFallback: boolean, setting: ProviderSetting): GeocodeProvider {
-  return shouldUseFallbackDirectly(allowFallback, setting) ? "nominatim" : "pelias";
+  return shouldSkipPelias(allowFallback, setting) ? "nominatim" : "pelias";
 }
 
 /**
@@ -125,6 +127,12 @@ export interface GeocodeSearchOptions {
   // the deprecated fallback path). Omitted entirely when unknown.
   focus?: FocusPoint;
   signal?: AbortSignal;
+  /**
+   * Query Nominatim when auto mode has already failed over. Typeahead must leave
+   * this false: public Nominatim forbids as-you-type use, so an outage only
+   * flips the session into submit mode. Submit-mode widgets pass true.
+   */
+  useFallbackProvider?: boolean;
 }
 
 export interface GeocodeSearchResult {
@@ -135,21 +143,23 @@ export interface GeocodeSearchResult {
   nominatimPlaces?: unknown[];
   // The Pelias failure that caused the fallback, when one happened.
   fallbackCause?: PeliasError;
+  /**
+   * Pelias is down (or already known down) and this request was not allowed to
+   * hit Nominatim. The widget should switch to submit mode and wait.
+   */
+  awaitingSubmit?: boolean;
 }
 
-async function viaNominatim(
-  text: string,
-  options: GeocodeSearchOptions,
-  fallbackCause?: PeliasError,
-): Promise<GeocodeSearchResult> {
-  if (fallbackCause) {
-    hasFailedOver = true;
-  }
+async function viaNominatim(text: string, options: GeocodeSearchOptions): Promise<GeocodeSearchResult> {
   const { results, places } = await nominatim.search(text, {
     language: options.language,
     signal: options.signal,
   });
-  return { results, provider: "nominatim", nominatimPlaces: places, fallbackCause };
+  return { results, provider: "nominatim", nominatimPlaces: places };
+}
+
+function deferNominatim(fallbackCause?: PeliasError): GeocodeSearchResult {
+  return { results: [], provider: "nominatim", fallbackCause, awaitingSubmit: true };
 }
 
 /**
@@ -158,12 +168,20 @@ async function viaNominatim(
  *
  * A deliberate cancellation (a newer keystroke aborting `options.signal`) is
  * never treated as an outage and never triggers a fallback request.
+ *
+ * Discovering an outage never queries Nominatim in the same turn: it records
+ * failover and returns `awaitingSubmit` so the widget can switch to submit
+ * mode. The next search, with `useFallbackProvider: true`, is the one that
+ * may hit Nominatim.
  */
 export async function geocodeSearch(text: string, options: GeocodeSearchOptions): Promise<GeocodeSearchResult> {
-  const { allowFallback, providerSetting: setting } = options;
+  const { allowFallback, providerSetting: setting, useFallbackProvider } = options;
 
-  if (shouldUseFallbackDirectly(allowFallback, setting)) {
-    return viaNominatim(text, options);
+  if (shouldSkipPelias(allowFallback, setting)) {
+    if (setting === "nominatim" || useFallbackProvider) {
+      return viaNominatim(text, options);
+    }
+    return deferNominatim();
   }
 
   try {
@@ -187,6 +205,11 @@ export async function geocodeSearch(text: string, options: GeocodeSearchOptions)
     if (!isOutageError(error)) {
       throw error;
     }
-    return viaNominatim(text, options, error as PeliasError);
+    hasFailedOver = true;
+    if (useFallbackProvider) {
+      const result = await viaNominatim(text, options);
+      return { ...result, fallbackCause: error as PeliasError };
+    }
+    return deferNominatim(error as PeliasError);
   }
 }

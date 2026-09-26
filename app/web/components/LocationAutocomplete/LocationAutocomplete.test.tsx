@@ -698,11 +698,11 @@ describe("LocationAutocomplete component", () => {
         }),
       );
 
-    // Type enough to trigger the typeahead, which fails over to Nominatim and
-    // flips the widget into submit mode.
+    // Type enough to trigger the typeahead, which discovers the outage and
+    // flips the widget into submit mode without querying Nominatim.
     const triggerFallback = async (user: ReturnType<typeof userEvent.setup>, input: HTMLElement) => {
       await user.type(input, "test");
-      expect(await screen.findByText(FALLBACK_RESULT)).toBeVisible();
+      expect(await screen.findByRole("button", { name: SEARCH_BUTTON })).toBeVisible();
     };
 
     it("serves fallback results and switches to the search button and hint", async () => {
@@ -717,6 +717,7 @@ describe("LocationAutocomplete component", () => {
 
       expect(await screen.findByRole("button", { name: SEARCH_BUTTON })).toBeVisible();
       expect(await screen.findByText(SEARCH_HINT)).toBeVisible();
+      expect(screen.queryByText(FALLBACK_RESULT)).not.toBeInTheDocument();
     });
 
     it("hides use my location after failing over to Nominatim", async () => {
@@ -765,17 +766,17 @@ describe("LocationAutocomplete component", () => {
       const input = await screen.findByLabelText(LABEL);
 
       await triggerFallback(user, input);
-      expect(fallbackRequests).toBe(1);
+      expect(fallbackRequests).toBe(0);
 
       // Further typing must not reach Nominatim — it is submit-driven only.
       await user.type(input, " more text");
       await waitFor(() => {
-        expect(fallbackRequests).toBe(1);
+        expect(fallbackRequests).toBe(0);
       });
 
       await user.click(screen.getByRole("button", { name: SEARCH_BUTTON }));
       await waitFor(() => {
-        expect(fallbackRequests).toBe(2);
+        expect(fallbackRequests).toBe(1);
       });
     });
 
@@ -809,7 +810,7 @@ describe("LocationAutocomplete component", () => {
       const input = await screen.findByLabelText(LABEL);
 
       await triggerFallback(user, input);
-      expect(fallbackRequests).toBe(1);
+      expect(fallbackRequests).toBe(0);
 
       // Editing the text drops the stale hits, so Enter means "search again".
       await user.type(input, " again");
@@ -818,7 +819,7 @@ describe("LocationAutocomplete component", () => {
       await user.type(input, "{enter}");
 
       expect(await screen.findByText(FALLBACK_RESULT)).toBeVisible();
-      expect(fallbackRequests).toBe(2);
+      expect(fallbackRequests).toBe(1);
     });
 
     it("does not submit the form when Enter triggers a fallback search", async () => {
@@ -847,13 +848,11 @@ describe("LocationAutocomplete component", () => {
       );
       const user = userEvent.setup();
 
-      // First widget discovers the outage (this mock returns no places, so wait
-      // on the request rather than on a rendered result).
+      // First widget discovers the outage without querying Nominatim.
       renderForm("", () => {});
       await user.type(await screen.findByLabelText(LABEL), "test");
-      await waitFor(() => {
-        expect(fallbackRequests).toBe(1);
-      });
+      expect(await screen.findByRole("button", { name: SEARCH_BUTTON })).toBeVisible();
+      expect(fallbackRequests).toBe(0);
 
       // A later navigation mounts a fresh widget: it must already be in submit
       // mode, and must not query anything as the user types.
@@ -864,12 +863,12 @@ describe("LocationAutocomplete component", () => {
       expect(await screen.findByRole("button", { name: SEARCH_BUTTON })).toBeVisible();
       await user.type(input, "somewhere");
       await waitFor(() => {
-        expect(fallbackRequests).toBe(1);
+        expect(fallbackRequests).toBe(0);
       });
 
       await user.click(screen.getByRole("button", { name: SEARCH_BUTTON }));
       await waitFor(() => {
-        expect(fallbackRequests).toBe(2);
+        expect(fallbackRequests).toBe(1);
       });
     });
 
@@ -901,7 +900,8 @@ describe("LocationAutocomplete component", () => {
       const input = await screen.findByLabelText(LABEL);
 
       await triggerFallback(user, input);
-      await user.click(screen.getByText(FALLBACK_RESULT));
+      await user.click(screen.getByRole("button", { name: SEARCH_BUTTON }));
+      await user.click(await screen.findByText(FALLBACK_RESULT));
       await user.click(await screen.findByRole("button", { name: "submit" }));
 
       await waitFor(() => {
