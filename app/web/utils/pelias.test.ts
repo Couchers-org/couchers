@@ -740,9 +740,11 @@ describe("normalize", () => {
     expect(result.name).toBe("8 Place De L'Hotel De Ville, Paris, France");
   });
 
-  it("classifies region/country layers as regions", () => {
+  it("classifies region/country/county layers as regions", () => {
     expect(normalize(feature({ properties: { layer: "region" } })).isRegion).toBe(true);
     expect(normalize(feature({ properties: { layer: "country" } })).isRegion).toBe(true);
+    expect(normalize(feature({ properties: { layer: "county" } })).isRegion).toBe(true);
+    expect(normalize(feature({ properties: { layer: "macrocounty" } })).isRegion).toBe(true);
   });
 
   it("classifies locality/venue/address layers as non-regions", () => {
