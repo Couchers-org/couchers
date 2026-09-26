@@ -192,6 +192,7 @@ message GetUserReq {
 message SearchUsersReq {
   string username = 3;
   string email = 4;
+  string exact_email = 23;
   string name = 5;
   string admin_action_log = 6;
   string city = 7;

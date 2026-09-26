@@ -179,7 +179,9 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                 observe_revenue("merch", int(data_object["amount"]))
                 amount = int(data_object["amount"]) // 100
                 user = (
-                    session.execute(select(User).where(User.email == customer_email)).scalar_one_or_none()
+                    session.execute(
+                        select(User).where(User.email == customer_email).where(User.deleted_at.is_(None))
+                    ).scalar_one_or_none()
                     if customer_email
                     else None
                 )

@@ -41,7 +41,7 @@ def get_history(user_id: int) -> list[tuple[HostingMeetupStatusSource, HostingSt
         ]
 
 
-def test_history_recorded_on_signup(db):
+def test_history_recorded_on_signup(db, fast_passwords):
     user_id = _quick_signup()
 
     assert get_history(user_id) == [

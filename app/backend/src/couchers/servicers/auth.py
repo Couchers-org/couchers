@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy import select
+from sqlalchemy import exists, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import delete, func, or_
 
@@ -51,7 +51,7 @@ from couchers.moderation.utils import create_moderation
 from couchers.notifications.notify import notify
 from couchers.notifications.quick_links import decode_quick_link
 from couchers.proto import auth_pb2, auth_pb2_grpc, notification_data_pb2
-from couchers.servicers.account import abort_on_invalid_password, contributeoption2sql
+from couchers.servicers.account import abort_if_email_reused, abort_on_invalid_password, contributeoption2sql
 from couchers.servicers.api import hostingstatus2sql
 from couchers.servicers.auth_unsubscribe import handle_unsubscribe
 from couchers.sql import username_or_email
@@ -241,12 +241,15 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
             def _check_email_is_available_and_valid(new_email: str) -> None:
                 # TODO: unique across both tables
-                existing_user = session.execute(select(User).where(User.email == new_email)).scalar_one_or_none()
-                if existing_user:
-                    if not existing_user.is_visible:
-                        context.abort_with_error_code(
-                            grpc.StatusCode.FAILED_PRECONDITION, "signup_email_cannot_be_used"
-                        )
+                is_banned, is_taken = session.execute(
+                    select(
+                        exists().where(User.email == new_email).where(User.is_banned),
+                        exists().where(User.email == new_email).where(User.reserves_email),
+                    )
+                ).one()
+                if is_banned:
+                    context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_email_cannot_be_used")
+                if is_taken:
                     context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_email_taken")
                 existing_flow = session.execute(
                     select(SignupFlow).where(SignupFlow.email == new_email)
@@ -764,6 +767,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_token")
+
+        abort_if_email_reused(context, session, user)
 
         user.deleted_at = None
         user.undelete_token = None

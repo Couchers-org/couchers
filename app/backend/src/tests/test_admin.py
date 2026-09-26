@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import grpc
 import pytest
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.sql import func
 
 from couchers.db import session_scope
@@ -615,6 +615,43 @@ def test_RecoverDeletedUser_after_user_initiated_deletion(db, push_collector: Pu
         assert user.deleted_at is None
         assert user.undelete_token is None
         assert user.undelete_until is None
+
+
+def test_RecoverDeletedUser_email_reused(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == normal_user.id).values(deleted_at=func.now()))
+
+    new_user, _ = generate_user(email=normal_user.email)
+
+    with real_admin_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.email))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert (
+            e.value.details()
+            == "That email address is used by more than one user, look them up by username or ID instead."
+        )
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.RecoverDeletedUser(admin_pb2.RecoverDeletedUserReq(user=normal_user.username))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+
+def test_SearchUsers_exact_email(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    deleted_user, _ = generate_user(email="first_last@couchers.org.invalid", delete_user=True)
+    live_user, _ = generate_user(email="first_last@couchers.org.invalid")
+    wildcard_match, _ = generate_user(email="firstxlast@couchers.org.invalid")
+
+    with real_admin_session(super_token) as api:
+        res = api.SearchUsers(admin_pb2.SearchUsersReq(email="first_last@couchers.org.invalid"))
+        assert {u.user_id for u in res.users} == {deleted_user.id, live_user.id, wildcard_match.id}
+
+        res = api.SearchUsers(admin_pb2.SearchUsersReq(exact_email="First_Last@couchers.org.invalid"))
+        assert {u.user_id for u in res.users} == {deleted_user.id, live_user.id}
 
 
 def test_CreateApiKey(db, email_collector: EmailCollector, push_collector: PushCollector):
