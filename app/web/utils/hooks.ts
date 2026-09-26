@@ -89,7 +89,9 @@ export interface GeocodeResult {
  * has fallen back to Nominatim it stays there until remount, so the widget's UI
  * does not flip back and forth if Geocode.earth recovers intermittently.
  * Consumers driving an as-you-type UI MUST switch to submit-on-demand while
- * `provider === "nominatim"`.
+ * `provider === "nominatim"`. The typeahead request that discovers an outage
+ * does not query Nominatim; it only flips `provider` and leaves `results`
+ * unset until the user submits.
  *
  * `allowFallback` is required: pass `false` on any surface that persists the
  * chosen location requiring a gid, since fallback results carry no Pelias `gid`.
@@ -131,6 +133,8 @@ const useGeocodeQuery = (options: {
   const [provider, setProvider] = useSafeState<GeocodeProvider>(isMounted, () =>
     initialProvider(allowFallback, providerSetting),
   );
+  const providerRef = useRef(provider);
+  providerRef.current = provider;
   // The active provider is unavailable and no fallback was permitted, so there
   // are no results to show — distinct from a failed or malformed query.
   const [isProviderUnavailable, setIsProviderUnavailable] = useSafeState(isMounted, false);
@@ -194,6 +198,7 @@ const useGeocodeQuery = (options: {
           peliasFeatures,
           nominatimPlaces,
           fallbackCause,
+          awaitingSubmit,
         } = await geocodeSearch(value, {
           allowFallback,
           providerSetting,
@@ -204,6 +209,10 @@ const useGeocodeQuery = (options: {
           // keystrokes, and an early query simply falls back to the profile.
           focus: biasToUserLocation ? (focusRef.current ?? profileFocus) : undefined,
           signal: abortController.signal,
+          // Nominatim only once the widget is already in submit mode. Read from
+          // the ref so an in-flight typeahead still defers after a sibling
+          // request has recorded failover, until this hook re-renders.
+          useFallbackProvider: providerRef.current === "nominatim",
         });
 
         // A newer query has superseded this one; drop these results.
@@ -224,6 +233,11 @@ const useGeocodeQuery = (options: {
               },
             });
           }
+        }
+
+        if (awaitingSubmit) {
+          // Mode switch only — no Nominatim hits, and do not flash an empty list.
+          return;
         }
 
         service.bugs.geolocationSearchInfo({

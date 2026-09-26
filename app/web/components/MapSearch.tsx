@@ -8,7 +8,7 @@ import useLocationAutocompleteOpen from "components/LocationAutocomplete/useLoca
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { LngLat } from "maplibre-gl";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FieldError } from "react-hook-form";
 import { useGeocodeQuery } from "utils/hooks";
 import useMyLocation from "utils/useMyLocation";
@@ -109,6 +109,17 @@ export default function MapSearch({ setError, setResult, inputFieldError, collap
     isSubmitMode,
     searchSubmit: searchSubmitQuery,
   });
+
+  // When an outage flips us into submit mode, drop any pending typeahead and
+  // close the list so a leftover debounce cannot query Nominatim from a keystroke.
+  const wasSubmitModeRef = useRef(isSubmitMode);
+  useEffect(() => {
+    if (isSubmitMode && !wasSubmitModeRef.current) {
+      debouncedQuery.clear();
+      setOpen(false);
+    }
+    wasSubmitModeRef.current = isSubmitMode;
+  }, [debouncedQuery, isSubmitMode, setOpen]);
 
   //create a dummy search options if there are no results
   const searchOptions = isLoading
