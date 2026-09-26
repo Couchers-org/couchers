@@ -64,6 +64,7 @@ from couchers.notifications.notify import notify
 from couchers.proto import admin_pb2, admin_pb2_grpc, api_pb2, notification_data_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.resources import get_badge_dict
+from couchers.servicers.account import abort_if_email_reused
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.auth import create_session
 from couchers.servicers.bugs import _fetch_signed_manifest, _native_ota_manifest_url
@@ -213,6 +214,15 @@ def _ota_package_to_pb(package: OTAPackage, live_ids: set[int]) -> admin_pb2.OTA
     )
 
 
+def find_user_by_username_or_email_or_id(session: Session, context: CouchersContext, user: str) -> User:
+    users = session.execute(select(User).where(username_or_email_or_id(user))).scalars().all()
+    if not users:
+        context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+    if len(users) > 1:
+        context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin:email_used_by_multiple_users")
+    return users[0]
+
+
 def _user_to_details(session: Session, user: User) -> admin_pb2.UserDetails:
     # Query admin actions for this user
     actions = session.execute(
@@ -355,15 +365,11 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def GetUserDetails(
         self, request: admin_pb2.GetUserDetailsReq, context: CouchersContext, session: Session
     ) -> admin_pb2.UserDetails:
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
         return _user_to_details(session, user)
 
     def GetUser(self, request: admin_pb2.GetUserReq, context: CouchersContext, session: Session) -> api_pb2.User:
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
         return user_model_to_pb(user, session, context, is_admin_see_ghosts=True)
 
     def SearchUsers(
@@ -376,6 +382,8 @@ class Admin(admin_pb2_grpc.AdminServicer):
             statement = statement.where(User.username.ilike(request.username))
         if request.email:
             statement = statement.where(User.email.ilike(request.email))
+        if request.exact_email:
+            statement = statement.where(User.email == request.exact_email.lower())
         if request.name:
             statement = statement.where(User.name.ilike(request.name))
         if request.admin_action_log:
@@ -445,9 +453,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def ChangeUserGender(
         self, request: admin_pb2.ChangeUserGenderReq, context: CouchersContext, session: Session
     ) -> admin_pb2.UserDetails:
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
         old_gender = user.gender
         user.gender = request.gender
         log_admin_action(
@@ -470,9 +476,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def ChangeUserBirthdate(
         self, request: admin_pb2.ChangeUserBirthdateReq, context: CouchersContext, session: Session
     ) -> admin_pb2.UserDetails:
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
         if not (birthdate := parse_date(request.birthdate)):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_birthdate")
 
@@ -498,9 +502,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def AddBadge(
         self, request: admin_pb2.AddBadgeReq, context: CouchersContext, session: Session
     ) -> admin_pb2.UserDetails:
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
 
         badge = get_badge_dict().get(request.badge_id)
         if not badge:
@@ -520,9 +522,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def RemoveBadge(
         self, request: admin_pb2.RemoveBadgeReq, context: CouchersContext, session: Session
     ) -> admin_pb2.UserDetails:
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
 
         badge = get_badge_dict().get(request.badge_id)
         if not badge:
@@ -545,9 +545,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def SetPassportSexGenderException(
         self, request: admin_pb2.SetPassportSexGenderExceptionReq, context: CouchersContext, session: Session
     ) -> admin_pb2.UserDetails:
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
         old_exception = user.has_passport_sex_gender_exception
         user.has_passport_sex_gender_exception = request.passport_sex_gender_exception
         log_admin_action(
@@ -562,9 +560,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def BanUser(
         self, request: admin_pb2.BanUserReq, context: CouchersContext, session: Session
     ) -> admin_pb2.UserDetails:
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
         if not request.admin_note.strip():
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:note_cant_be_empty")
         log_admin_action(session, context, user, "ban", note=request.admin_note, level=AdminActionLevel.high)
@@ -574,9 +570,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def UnbanUser(
         self, request: admin_pb2.UnbanUserReq, context: CouchersContext, session: Session
     ) -> admin_pb2.UserDetails:
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
         if not request.admin_note.strip():
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:note_cant_be_empty")
         log_admin_action(session, context, user, "unban", note=request.admin_note, level=AdminActionLevel.high)
@@ -586,9 +580,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def ShadowUser(
         self, request: admin_pb2.ShadowUserReq, context: CouchersContext, session: Session
     ) -> admin_pb2.UserDetails:
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
         if not request.admin_note.strip():
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:note_cant_be_empty")
         log_admin_action(session, context, user, "shadow", note=request.admin_note, level=AdminActionLevel.high)
@@ -606,9 +598,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def UnshadowUser(
         self, request: admin_pb2.UnshadowUserReq, context: CouchersContext, session: Session
     ) -> admin_pb2.UserDetails:
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
         if not request.admin_note.strip():
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:note_cant_be_empty")
         log_admin_action(session, context, user, "unshadow", note=request.admin_note, level=AdminActionLevel.high)
@@ -627,9 +617,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def AddAdminNote(
         self, request: admin_pb2.AddAdminNoteReq, context: CouchersContext, session: Session
     ) -> admin_pb2.UserDetails:
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
         has_note = bool(request.admin_note.strip())
         has_data = bool(request.data.strip())
         if has_note == has_data:
@@ -669,9 +657,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def GetContentReportsForAuthor(
         self, request: admin_pb2.GetContentReportsForAuthorReq, context: CouchersContext, session: Session
     ) -> admin_pb2.GetContentReportsForAuthorRes:
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
         content_reports = (
             session.execute(
                 select(ContentReport).where(ContentReport.author_user_id == user.id).order_by(ContentReport.id.desc())
@@ -690,9 +676,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             context.abort_with_error_code(
                 grpc.StatusCode.INVALID_ARGUMENT, "admin:mod_note_notification_must_be_specified"
             )
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
         session.add(
             ModNote(
                 user_id=user.id,
@@ -730,9 +714,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def MarkUserNeedsLocationUpdate(
         self, request: admin_pb2.MarkUserNeedsLocationUpdateReq, context: CouchersContext, session: Session
     ) -> admin_pb2.UserDetails:
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
         user.needs_to_update_location = True
         log_admin_action(
             session, context, user, "mark_needs_location_update", note="Marked user as needing location update"
@@ -742,9 +724,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def DeleteUser(
         self, request: admin_pb2.DeleteUserReq, context: CouchersContext, session: Session
     ) -> admin_pb2.UserDetails:
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
         user.deleted_at = now()
         log_admin_action(session, context, user, "delete_user", level=AdminActionLevel.high)
         return _user_to_details(session, user)
@@ -752,9 +732,8 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def RecoverDeletedUser(
         self, request: admin_pb2.RecoverDeletedUserReq, context: CouchersContext, session: Session
     ) -> admin_pb2.UserDetails:
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
+        abort_if_email_reused(context, session, user)
         user.deleted_at = None
         user.undelete_token = None
         user.undelete_until = None
@@ -764,9 +743,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def CreateApiKey(
         self, request: admin_pb2.CreateApiKeyReq, context: CouchersContext, session: Session
     ) -> admin_pb2.CreateApiKeyRes:
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
         token, expiry = create_session(
             context, session, user, long_lived=True, is_api_key=True, duration=timedelta(days=365), set_cookie=False
         )
@@ -788,9 +765,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def GetChats(
         self, request: admin_pb2.GetChatsReq, context: CouchersContext, session: Session
     ) -> admin_pb2.GetChatsRes:
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
 
         get_chat_user_info = _make_chat_user_info_getter(session)
 
@@ -974,9 +949,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def GetUserReferences(
         self, request: admin_pb2.GetUserReferencesReq, context: CouchersContext, session: Session
     ) -> admin_pb2.GetUserReferencesRes:
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
 
         get_chat_user_info = _make_chat_user_info_getter(session)
 
@@ -1010,9 +983,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def GetFriendRequests(
         self, request: admin_pb2.GetFriendRequestsReq, context: CouchersContext, session: Session
     ) -> admin_pb2.GetFriendRequestsRes:
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
 
         get_chat_user_info = _make_chat_user_info_getter(session)
 
@@ -1055,9 +1026,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def GetUserBlocks(
         self, request: admin_pb2.GetUserBlocksReq, context: CouchersContext, session: Session
     ) -> admin_pb2.GetUserBlocksRes:
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
 
         def user_block_to_pb(block: UserBlock, other_user: User) -> admin_pb2.AdminUserBlock:
             return admin_pb2.AdminUserBlock(
@@ -1095,9 +1064,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def GetNonvisibleUserAccessLog(
         self, request: admin_pb2.GetNonvisibleUserAccessLogReq, context: CouchersContext, session: Session
     ) -> admin_pb2.GetNonvisibleUserAccessLogRes:
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
 
         actor = aliased(User)
         rows = session.execute(
@@ -1210,9 +1177,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         users = []
 
         for req_user in req_users:
-            user = session.execute(select(User).where(username_or_email_or_id(req_user))).scalar_one_or_none()
-            if not user:
-                context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+            user = find_user_by_username_or_email_or_id(session, context, req_user)
             users.append(user)
 
         if request.moderation_list_id:
@@ -1237,9 +1202,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         self, request: admin_pb2.ListModerationUserListsReq, context: CouchersContext, session: Session
     ) -> admin_pb2.ListModerationUserListsRes:
         """Lists all moderation user lists for a user."""
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
 
         moderation_lists = [
             admin_pb2.ModerationList(
@@ -1254,9 +1217,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         self, request: admin_pb2.RemoveUserFromModerationUserListReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
         """Removes a user from a provided moderation user list."""
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
         if not request.moderation_list_id:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:missing_moderation_user_list_id")
 
@@ -1279,9 +1240,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def CreateAccountDeletionLink(
         self, request: admin_pb2.CreateAccountDeletionLinkReq, context: CouchersContext, session: Session
     ) -> admin_pb2.CreateAccountDeletionLinkRes:
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
         token = AccountDeletionToken(token=urlsafe_secure_token(), user_id=user.id, expiry=now() + timedelta(hours=2))
         session.add(token)
         log_admin_action(session, context, user, "create_account_deletion_link", level=AdminActionLevel.high)
@@ -1292,9 +1251,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def AccessStats(
         self, request: admin_pb2.AccessStatsReq, context: CouchersContext, session: Session
     ) -> admin_pb2.AccessStatsRes:
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
 
         start_time = (
             to_aware_datetime(request.start_time) if request.HasField("start_time") else now() - timedelta(days=90)
@@ -1346,9 +1303,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def SetLastDonated(
         self, request: admin_pb2.SetLastDonatedReq, context: CouchersContext, session: Session
     ) -> admin_pb2.UserDetails:
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
 
         if request.HasField("last_donated"):
             user.last_donated = to_aware_datetime(request.last_donated)
@@ -1382,9 +1337,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def AddAdminTagToUser(
         self, request: admin_pb2.AddAdminTagToUserReq, context: CouchersContext, session: Session
     ) -> admin_pb2.UserDetails:
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
         admin_tag = session.execute(select(AdminTag).where(AdminTag.tag == request.tag)).scalar_one_or_none()
         if not admin_tag:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "admin:tag_not_found")
@@ -1401,9 +1354,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def RemoveAdminTagFromUser(
         self, request: admin_pb2.RemoveAdminTagFromUserReq, context: CouchersContext, session: Session
     ) -> admin_pb2.UserDetails:
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
         admin_tag = session.execute(select(AdminTag).where(AdminTag.tag == request.tag)).scalar_one_or_none()
         if not admin_tag:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "admin:tag_not_found")
@@ -1420,9 +1371,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def SetModScore(
         self, request: admin_pb2.SetModScoreReq, context: CouchersContext, session: Session
     ) -> admin_pb2.UserDetails:
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
         user.mod_score = request.mod_score
         log_admin_action(session, context, user, "set_mod_score", note=f"mod_score={request.mod_score}")
         return _user_to_details(session, user)
@@ -1477,9 +1426,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def ListUserUploads(
         self, request: admin_pb2.ListUserUploadsReq, context: CouchersContext, session: Session
     ) -> admin_pb2.ListUserUploadsRes:
-        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
-        if not user:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
 
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
 

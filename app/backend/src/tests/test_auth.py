@@ -1,4 +1,5 @@
 import http.cookies
+from datetime import timedelta
 from typing import Any, cast
 from unittest.mock import DEFAULT, patch
 
@@ -839,16 +840,81 @@ def test_signup_banned_user_email(db):
 
 
 def test_signup_deleted_user_email(db):
-    user, _ = generate_user()
+    user, _ = generate_user(email="email@couchers.org.invalid")
 
     with session_scope() as session:
         session.execute(update(User).where(User.id == user.id).values(deleted_at=func.now()))
+
+    new_user_id = _quick_signup()
+    assert new_user_id != user.id
+
+    with auth_api_session() as (auth_api, _):
+        res = auth_api.Authenticate(auth_pb2.AuthReq(user=user.email, password="a very insecure password"))
+    assert res.user_id == new_user_id
+
+
+def test_signup_deleted_shadowed_user_email(db):
+    user, _ = generate_user(email="email@couchers.org.invalid")
+
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == user.id).values(deleted_at=func.now(), shadowed_at=func.now()))
+
+    new_user_id = _quick_signup()
+
+    with session_scope() as session:
+        new_user = session.execute(select(User).where(User.id == new_user_id)).scalar_one()
+        assert new_user.shadowed_at is None
+
+
+def test_signup_deleted_banned_user_email(db):
+    user, _ = generate_user()
+
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == user.id).values(deleted_at=func.now(), banned_at=func.now()))
 
     with auth_api_session() as (auth_api, _):
         with pytest.raises(grpc.RpcError) as e:
             auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="NewName", email=user.email)))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == "You cannot sign up with that email address."
+
+
+def test_signup_shadowed_user_email(db):
+    user, _ = generate_user()
+
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == user.id).values(shadowed_at=func.now()))
+
+    with auth_api_session() as (auth_api, _):
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="NewName", email=user.email)))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "That email address is already associated with an account. Please log in instead!"
+
+
+def test_recover_account_email_reused(db):
+    user, _ = generate_user()
+
+    with session_scope() as session:
+        session.execute(
+            update(User)
+            .where(User.id == user.id)
+            .values(deleted_at=func.now(), undelete_token="token", undelete_until=now() + timedelta(days=1))
+        )
+
+    generate_user(email=user.email)
+
+    with auth_api_session() as (auth_api, _):
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.RecoverAccount(auth_pb2.RecoverAccountReq(token="token"))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert (
+            e.value.details()
+            == "This account can't be recovered because its email address is now used by another account."
+        )
+
+    with session_scope() as session:
+        assert session.execute(select(User.deleted_at).where(User.id == user.id)).scalar_one() is not None
 
 
 def test_signup_continue_with_email(db):
@@ -1197,12 +1263,12 @@ def test_signup_change_email_to_existing_user_email(db):
         assert flow.email_changed_count == 0
 
 
-@pytest.mark.parametrize("invisible_column", ["banned_at", "deleted_at"])
-def test_signup_change_email_to_invisible_user_email(db, invisible_column):
+@pytest.mark.parametrize("columns", [["banned_at"], ["banned_at", "deleted_at"]])
+def test_signup_change_email_to_banned_user_email(db, columns):
     user, _ = generate_user()
 
     with session_scope() as session:
-        session.execute(update(User).where(User.id == user.id).values(**{invisible_column: func.now()}))
+        session.execute(update(User).where(User.id == user.id).values(**{column: func.now() for column in columns}))
 
     testing_email = f"{random_hex(12)}@couchers.org.invalid"
     flow_token = _start_signup_flow(testing_email)
