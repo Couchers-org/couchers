@@ -167,6 +167,33 @@ def test_user_search_in_rectangle(db):
         assert [result.user_id for result in res.results] == [user3.id, user4.id]
 
 
+def test_user_search_in_rectangle_crossing_antimeridian(db):
+    """Searches both sides of a rectangle crossing the antimeridian."""
+
+    user_east, _ = generate_user(geom=create_coordinate(-17, 179.5), geom_radius=100)
+    user_west, _ = generate_user(geom=create_coordinate(-17, -179.5), geom_radius=100)
+    user_outside, token = generate_user(geom=create_coordinate(-17, 0), geom_radius=100)
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
+
+    request = search_pb2.UserSearchReq(
+        search_in_rectangle=search_pb2.RectArea(
+            lat_min=-20,
+            lat_max=-15,
+            lng_min=179,
+            lng_max=-179,
+        )
+    )
+
+    with search_session(token) as api:
+        res = api.UserSearch(request)
+        assert {result.user.user_id for result in res.results} == {user_east.id, user_west.id}
+
+        res = api.UserSearchV2(request)
+        assert {result.user_id for result in res.results} == {user_east.id, user_west.id}
+
+
 def test_user_filter_complete_profile(db):
     """
     Make sure the completed profile flag returns only completed user profile

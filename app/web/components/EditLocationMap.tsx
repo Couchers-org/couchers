@@ -3,13 +3,11 @@ import { userLocationMaxRadius, userLocationMinRadius } from "appConstants";
 import MapSearch from "components/MapSearch";
 import Map from "components/OldMap";
 import TextField from "components/TextField";
-import { SignupAccountInputs } from "features/auth/signup/AccountForm";
-import { EditProfileFormValues } from "features/profile/edit/EditProfile";
 import { Feature, GeoJsonProperties, Geometry } from "geojson";
 import { useTranslation } from "i18n";
 import { GeoJSONSource, LngLat, Map as MaplibreMap, MapMouseEvent, MapTouchEvent } from "maplibre-gl";
 import React, { useRef, useState } from "react";
-import { ControllerRenderProps, FieldError } from "react-hook-form";
+import { FieldError } from "react-hook-form";
 
 import { GLOBAL } from "../i18n/namespaces";
 
@@ -27,6 +25,12 @@ const StyledMap = styled("div")({
   position: "relative",
 });
 
+// MapLibre nulls `style` on WebGL context loss (e.g. after a long idle tab);
+// the Map instance itself stays non-null.
+function hasMapStyle(map: MaplibreMap | null): map is MaplibreMap {
+  return map != null && map.style != null;
+}
+
 export interface ApproximateLocation {
   address: string;
   lat: number;
@@ -43,11 +47,13 @@ export interface EditLocationMapProps extends BoxProps {
   showRadiusSlider?: boolean;
   // whether we are selecting an exact point (for pages, etc) or approx circle, doesn't maeks ense with radius slider
   exact?: boolean;
-  inputFieldProps?:
-    | ControllerRenderProps<SignupAccountInputs, "location">
-    | ControllerRenderProps<EditProfileFormValues, "location">;
   inputFieldError?: FieldError | undefined;
   variant?: "standard" | "outlined" | "filled";
+  // Force the displayed/stored address to the containing city/locality rather
+  // than the precise matched place (street, venue, address, …). Set this for
+  // approximate, privacy-sensitive locations (a user's home); leave it off for
+  // an exact place.
+  collapseToCity?: boolean;
 }
 
 export default function EditLocationMap({
@@ -57,9 +63,9 @@ export default function EditLocationMap({
   grow,
   showRadiusSlider,
   exact,
-  inputFieldProps,
   inputFieldError,
   variant = "standard",
+  collapseToCity = false,
   ...otherProps
 }: EditLocationMapProps) {
   const theme = useTheme();
@@ -124,13 +130,15 @@ export default function EditLocationMap({
       lat: wrapped.lat,
       lng: wrapped.lng,
     });
-    if (!isBlank.current) {
+    if (!hasMapStyle(map.current)) return;
+    if (!isBlank.current && map.current.getLayer(CIRCLE_LAYER_NAME)) {
       map.current.setLayoutProperty(CIRCLE_LAYER_NAME, "visibility", "visible");
     }
     redrawMap();
   };
 
   const redrawMap = () => {
+    if (!hasMapStyle(map.current)) return;
     const circle = map.current?.getSource<GeoJSONSource>(CIRCLE_SOURCE_NAME);
     if (!circle) return;
     if (!exact) {
@@ -221,12 +229,8 @@ export default function EditLocationMap({
         });
       }
 
-      // if no user is specified, ask to get the location from browser
-      if (!initialLocation && navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position) => {
-          flyToSearch(new LngLat(position.coords.longitude, position.coords.latitude));
-        });
-      }
+      // Keep the default map center until the user explicitly clicks "Use my location";
+      // loading a blank form must not trigger a geolocation permission prompt.
     });
 
     const onDblClick = (e: MapMouseEvent) => {
@@ -255,7 +259,9 @@ export default function EditLocationMap({
 
   const flyToSearch = (coords: LngLat) => {
     if (!map.current) return;
-    map.current.flyTo({ center: coords, zoom: 12.5 });
+    if (hasMapStyle(map.current)) {
+      map.current.flyTo({ center: coords, zoom: 12.5 });
+    }
     if (!exact) {
       const randomizedLocation = displaceLngLat(
         coords,
@@ -286,8 +292,8 @@ export default function EditLocationMap({
             {...otherProps}
           />
           <MapSearch
-            inputFieldProps={inputFieldProps}
             inputFieldError={inputFieldError}
+            collapseToCity={collapseToCity}
             setError={setError}
             setResult={(coordinate, _, simplified) => {
               commit({ address: simplified }, false);
