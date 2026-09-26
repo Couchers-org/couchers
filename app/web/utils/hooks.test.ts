@@ -378,9 +378,16 @@ describe("useGeocodeQuery hook", () => {
       );
 
     it.each([500, 503, 429, 402])(
-      "serves Nominatim results and reports the fallback provider on a %i",
+      "switches to Nominatim submit mode on a %i without querying it",
       async (status) => {
         failPelias(status);
+        let nominatimRequests = 0;
+        server.use(
+          rest.get(`${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`, (_req, res, ctx) => {
+            nominatimRequests += 1;
+            return res(ctx.json([]));
+          }),
+        );
         const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper });
 
         await act(() => result.current.query("test"));
@@ -389,30 +396,36 @@ describe("useGeocodeQuery hook", () => {
           expect(result.current.provider).toBe("nominatim");
         });
         expect(result.current.error).toBeUndefined();
-        expect(result.current.results).toEqual([
-          {
-            name: "fallback city, fallback state, fallback country",
-            simplifiedName: "fallback city, fallback state, fallback country",
-            location: new LngLat(3.0, 4.0),
-            // Nominatim's [minLat, maxLat, minLon, maxLon] rotated into our
-            // [maxLon, maxLat, minLon, minLat] ordering.
-            bbox: [4, 2, 3, 1],
-            isRegion: false,
-          },
-        ]);
+        expect(result.current.results).toBeUndefined();
+        expect(nominatimRequests).toBe(0);
       },
     );
 
-    it("does not attach an id to fallback results", async () => {
+    it("queries Nominatim only after switching to submit mode", async () => {
       failPelias(500);
       const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper });
 
       await act(() => result.current.query("test"));
-
       await waitFor(() => {
         expect(result.current.provider).toBe("nominatim");
       });
+      expect(result.current.results).toBeUndefined();
+
+      await act(() => result.current.query("test"));
+
+      await waitFor(() => {
+        expect(result.current.results).toHaveLength(1);
+      });
       expect(result.current.results?.[0].id).toBeUndefined();
+      expect(result.current.results).toEqual([
+        {
+          name: "fallback city, fallback state, fallback country",
+          simplifiedName: "fallback city, fallback state, fallback country",
+          location: new LngLat(3.0, 4.0),
+          bbox: [4, 2, 3, 1],
+          isRegion: false,
+        },
+      ]);
     });
 
     it("stays on the fallback provider once it has been used", async () => {
@@ -488,6 +501,11 @@ describe("useGeocodeQuery hook", () => {
         }),
       );
       const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper });
+
+      await act(() => result.current.query("test"));
+      await waitFor(() => {
+        expect(result.current.provider).toBe("nominatim");
+      });
 
       await act(() => result.current.query("test"));
 
