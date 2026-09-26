@@ -1,5 +1,5 @@
 import enum
-from datetime import datetime
+from datetime import date, datetime, time
 from typing import TYPE_CHECKING, cast
 
 from geoalchemy2 import Geometry
@@ -8,11 +8,14 @@ from sqlalchemy import (
     BigInteger,
     Boolean,
     CheckConstraint,
+    Date,
     DateTime,
     Enum,
     ForeignKey,
     Index,
+    Integer,
     String,
+    Time,
     UniqueConstraint,
     and_,
     func,
@@ -98,6 +101,7 @@ class Event(Base, kw_only=True):
         foreign_keys="Event.owner_cluster_id",
     )
     occurrences: DynamicMapped[EventOccurrence] = relationship(init=False, lazy="dynamic")
+    recurrence: Mapped[EventRecurrence | None] = relationship(init=False, back_populates="event", uselist=False)
 
     __table_args__ = (
         # Only one of owner_user and owner_cluster should be set
@@ -191,6 +195,80 @@ class EventOccurrence(Base, kw_only=True):
     @classmethod
     def _end_time_expression(cls) -> ColumnElement[datetime]:
         return cast(ColumnElement[datetime], func.upper(cls.during))
+
+
+class EventRecurrence(Base, kw_only=True):
+    """
+    Defines a template for future event occurrences and a recurrence rule for its parent Event.
+
+    The recurrence rule is based on a subset of the time-tested iCalendar RRULE standard (RFC 5545).
+    Docs: https://icalendar.org/iCalendar-RFC-5545/3-3-10-recurrence-rule.html
+    Online demo: https://jkbrzt.github.io/rrule/
+
+    We use RRULEs for generating dates only (DTSTART is at 00:00), so they are timezone-agnostic.
+    We separately apply a start + end time to generated occurrence dates.
+
+    We currently support weekly and biweekly events using the following properties:
+    - DTSTART (date-only): For specifying the seed day for weekly events.
+        It replaces RRULE.BYDAY for events that occur once weekly,
+        and allows disambiguating which week is skipped for biweekly events.
+    - RRULE.FREQ: Implicitly WEEKLY, so not stored
+    - RRULE.INTERVAL: 1 for weekly, 2 for biweekly
+
+    Future rule extensibility:
+    - Multiple days a week: Add RRULE.BYDAY supporting multiple values (e.g. "MO,TH")
+    - nth <weekday> of month: Store RRULE.FREQ to support MONTHLY, add RRULE.BYDAY with "1MO" (first Monday)
+    """
+
+    __tablename__ = "event_recurrences"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+    event_id: Mapped[int] = mapped_column(ForeignKey("events.id"), unique=True)
+
+    # Properties acting as templates for future EventOccurrence's
+    content: Mapped[str] = mapped_column(String)  # CommonMark without images
+    photo_key: Mapped[str | None] = mapped_column(ForeignKey("uploads.key"), default=None)
+    geom: Mapped[Geom] = mapped_column(Geometry(geometry_type="POINT", srid=4326))
+    address: Mapped[str] = mapped_column(String)
+    timezone: Mapped[str] = mapped_column(String)
+
+    # Date part of the DTSTART, serves to seed the RRULE,
+    # and disambiguates which week to skip for biweekly events.
+    # Typically the date of latest occurrence where the RRULE.INTERVAL was changed.
+    dtstart_date: Mapped[date] = mapped_column(Date)
+
+    # Start time of the event (local time based on timezone)
+    start_time: Mapped[time] = mapped_column(Time)
+
+    # Number of days to the end of the event (typically zero) and local end time on that day.
+    # This representation maintains the same end time for occurrences crossing a DST change.
+    day_delta: Mapped[int] = mapped_column(Integer)
+    end_time: Mapped[time] = mapped_column(Time)
+
+    # RRULE.INTERVAL: 1 for weekly, 2 for biweekly (FREQ=WEEKLY is implicit)
+    rrule_interval: Mapped[int] = mapped_column(Integer)
+
+    # Occurrences are only scheduled for dates strictly after this.
+    # Updated whenever an occurrence is scheduled to ensure idempotence.
+    last_scheduled_date: Mapped[date] = mapped_column(Date)
+
+    # Prevents unbounded recurrence. Feeds into the RRULE UNTIL property.
+    ends_on_date: Mapped[date] = mapped_column(Date)
+
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+
+    event: Mapped[Event] = relationship(init=False, back_populates="recurrence")
+    photo: Mapped[Upload | None] = relationship(init=False)
+
+    __table_args__ = (
+        # Only weekly (1) and biweekly (2) are supported for now; see the class docstring.
+        CheckConstraint("rrule_interval IN (1, 2)", name="rrule_interval_weekly_or_biweekly"),
+    )
+
+    @property
+    def coordinates(self) -> tuple[float, float]:
+        # returns (lat, lng) or None
+        return get_coordinates(self.geom)
 
 
 class EventSubscription(Base, kw_only=True):
