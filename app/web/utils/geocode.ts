@@ -69,7 +69,7 @@ function shouldUseFallbackDirectly(allowFallback: boolean, setting: ProviderSett
   if (!allowFallback) {
     return false;
   }
-  return setting === "nominatim" || hasFailedOver;
+  return setting === "nominatim" || (setting === "auto" && hasFailedOver);
 }
 
 /**
