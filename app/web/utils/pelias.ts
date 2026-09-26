@@ -305,12 +305,28 @@ function withVenueStreetAddress(properties: PeliasFeatureProperties): string {
   return parts.filter((part, index) => part !== parts[index - 1]).join(", ");
 }
 
+/** Normalize longitude into (-180, 180]. */
+function wrapLongitude(lon: number): number {
+  const wrapped = ((((lon + 180) % 360) + 360) % 360) - 180;
+  return wrapped === -180 ? 180 : wrapped;
+}
+
+/** Clamp latitude to [-90, 90]. */
+function clampLatitude(lat: number): number {
+  return Math.min(90, Math.max(-90, lat));
+}
+
 /**
  * Convert a Pelias feature's bbox (or point) into our `GeocodeResult.bbox`
  * ordering. `GeocodeResult.bbox` is [maxLon, maxLat, minLon, minLat] — the exact
  * ordering the previous Nominatim mapping produced — so downstream consumers
  * (HeroSearch's remap, the search-state reducers, service/search.ts) keep
  * working unchanged.
+ *
+ * For point results the synthetic box wraps longitudes and clamps latitudes so
+ * values stay in valid geographic bounds. Near the antimeridian that yields
+ * maxLon < minLon in this ordering, which after remapping to RectArea becomes
+ * lng_min > lng_max — the wrapping rectangle the backend expects.
  */
 function toGeocodeBbox(feature: PeliasFeature): Coordinates {
   if (feature.bbox) {
@@ -320,7 +336,12 @@ function toGeocodeBbox(feature: PeliasFeature): Coordinates {
 
   // No bbox (point result) — synthesise a small box around the coordinate.
   const [lon, lat] = feature.geometry.coordinates;
-  return [lon + POINT_BBOX_MARGIN, lat + POINT_BBOX_MARGIN, lon - POINT_BBOX_MARGIN, lat - POINT_BBOX_MARGIN];
+  return [
+    wrapLongitude(lon + POINT_BBOX_MARGIN),
+    clampLatitude(lat + POINT_BBOX_MARGIN),
+    wrapLongitude(lon - POINT_BBOX_MARGIN),
+    clampLatitude(lat - POINT_BBOX_MARGIN),
+  ];
 }
 
 /**
