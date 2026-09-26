@@ -16,6 +16,10 @@ This is a monorepo for Couchers.org, a non-profit couch surfing platform. Users 
 - `/app/proto` - Protocol buffer definitions shared across services
 - `/docs` - Documentation
 
+## Pull Requests
+
+- Always use the PR skill to open pull requests in this repo.
+
 ## Backend Commands
 
 All backend commands should be run from `/app/backend`:
@@ -169,7 +173,3 @@ uv run --project .claude/tools ci-job-log <job-id> --full
 - Migrations use ordinal numbering (`0001_`, `0002_`, ...) and must be linear (no branches). New migrations automatically get the next ordinal as their revision ID via `env.py`
 - Always add a `downgrade()` to migrations when possible and relevant
 - Models in `/app/backend/src/couchers/models/`
-
-## Pull Requests
-
-- Use the PR template in `.github/pull_request_template.md` when creating PRs
