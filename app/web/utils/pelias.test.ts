@@ -768,6 +768,52 @@ describe("normalize", () => {
     expect(result.bbox[3]).toBeCloseTo(51.4074);
   });
 
+  it("wraps synthetic bbox longitudes across the antimeridian", () => {
+    const east = normalize(
+      feature({
+        geometry: { type: "Point", coordinates: [179.95, 0] },
+        bbox: undefined,
+        properties: { layer: "venue", name: "Near antimeridian east" },
+      }),
+    );
+    // maxLon wraps past 180 → negative; minLon stays east of the line.
+    // After HeroSearch remaps to RectArea this is lng_min > lng_max (wrapping).
+    expect(east.bbox[0]).toBeCloseTo(-179.95);
+    expect(east.bbox[2]).toBeCloseTo(179.85);
+
+    const west = normalize(
+      feature({
+        geometry: { type: "Point", coordinates: [-179.95, 0] },
+        bbox: undefined,
+        properties: { layer: "venue", name: "Near antimeridian west" },
+      }),
+    );
+    expect(west.bbox[0]).toBeCloseTo(-179.85);
+    expect(west.bbox[2]).toBeCloseTo(179.95);
+  });
+
+  it("clamps synthetic bbox latitudes at the poles", () => {
+    const north = normalize(
+      feature({
+        geometry: { type: "Point", coordinates: [0, 89.95] },
+        bbox: undefined,
+        properties: { layer: "venue", name: "Near north pole" },
+      }),
+    );
+    expect(north.bbox[1]).toBe(90);
+    expect(north.bbox[3]).toBeCloseTo(89.85);
+
+    const south = normalize(
+      feature({
+        geometry: { type: "Point", coordinates: [0, -89.95] },
+        bbox: undefined,
+        properties: { layer: "venue", name: "Near south pole" },
+      }),
+    );
+    expect(south.bbox[1]).toBeCloseTo(-89.85);
+    expect(south.bbox[3]).toBe(-90);
+  });
+
   it("handles a sparse-hierarchy point (e.g. GPS in the desert)", () => {
     const result = normalize(
       feature({
