@@ -98,7 +98,7 @@ const getCurrentSubscription = async () => {
 export const checkPushEnabled = async () => {
   // Return false if service workers or push notifications aren't supported
   // (e.g., in mobile WebViews, Safari private browsing, etc.)
-  if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+  if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
     return false;
   }
 
@@ -109,7 +109,7 @@ export const checkPushEnabled = async () => {
 export const turnPushNotificationsOn = async (
   setShouldPromptAllow: (on: boolean) => void,
 ): Promise<PushNotificationPermissionResponse> => {
-  if (Notification.permission !== "denied") {
+  if ("Notification" in window && Notification.permission !== "denied") {
     setShouldPromptAllow(true);
     const result = await Notification.requestPermission();
     setShouldPromptAllow(false);

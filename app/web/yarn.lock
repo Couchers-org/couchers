@@ -299,13 +299,13 @@
     "@babel/helper-string-parser" "^7.29.7"
     "@babel/helper-validator-identifier" "^7.29.7"
 
-"@base-ui/utils@^0.3.1":
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/@base-ui/utils/-/utils-0.3.1.tgz#329b4fbd5e66a78a93df68223061224f474e5c0f"
-  integrity sha512-gFFiltORVmW/N6IILTGxizP3PBpVpysqML1ALY5Vk0mH+7faVkCknOU31goYHN5Aoek2dkjxva1XOD2Ce9WuIg==
+"@base-ui/utils@^0.3.2":
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/@base-ui/utils/-/utils-0.3.2.tgz#21983db937f78a378d1f2e0f50157a2bc107123d"
+  integrity sha512-oWy1aq/I2GmYjpl4PhEAhzflF8VPGKgZeq0xAWTbfD5KBWyxcN0ZP2+WHSUm/5Z6lVMBDLReLcoXwSYoRc/zNQ==
   dependencies:
     "@babel/runtime" "^7.29.2"
-    "@floating-ui/utils" "^0.2.11"
+    "@floating-ui/utils" "^0.2.12"
     reselect "^5.2.0"
     use-sync-external-store "^1.6.0"
 
@@ -660,7 +660,7 @@
     "@eslint/core" "^1.2.1"
     levn "^0.4.1"
 
-"@floating-ui/utils@^0.2.11":
+"@floating-ui/utils@^0.2.12":
   version "0.2.12"
   resolved "https://registry.yarnpkg.com/@floating-ui/utils/-/utils-0.2.12.tgz#afefe785949f16ac4cdd1e695935a321572dd56a"
   integrity sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==
@@ -1401,12 +1401,12 @@
     clsx "^2.1.1"
     prop-types "^15.8.1"
 
-"@mui/material-nextjs@^9.1.1":
-  version "9.1.1"
-  resolved "https://registry.yarnpkg.com/@mui/material-nextjs/-/material-nextjs-9.1.1.tgz#91c33882e122079b16df6349afba9118247c5e16"
-  integrity sha512-OUM0a2GvzKXkkFxKBjs6O36pXv5/vhmgET+k6XNaKR+gG2B4wU1rlGuUkynddbvuVqgdF5ZjElIZAf2W7TRMZA==
+"@mui/material-nextjs@^9.4.0":
+  version "9.4.0"
+  resolved "https://registry.yarnpkg.com/@mui/material-nextjs/-/material-nextjs-9.4.0.tgz#56bc3afc43f12f67c05c33b7e16a32df4246f4e8"
+  integrity sha512-LDE1I6vJDlVHu7MUheabo//Uzy5/Tdpt+MXaMar5IpdWDuoLp3c+GiMv5m22GXp30FUfB427XFuUG//CBbglgA==
   dependencies:
-    "@babel/runtime" "^7.29.2"
+    "@babel/runtime" "^7.29.7"
 
 "@mui/material@^9.2.0":
   version "9.2.0"
@@ -1468,41 +1468,48 @@
   dependencies:
     "@babel/runtime" "^7.29.7"
 
-"@mui/utils@^9.2.0", "@mui/utils@^9.3.0":
-  version "9.3.0"
-  resolved "https://registry.yarnpkg.com/@mui/utils/-/utils-9.3.0.tgz#894dc0dfd382612ff08cad745cbf34ff87c08f95"
-  integrity sha512-2HZdHwWJ6eB+7lVGSOHsByGw8jeRulT4g0NZ608Wb8Q57DE2jbNqrWPFuJsvkQQiBiTmlpvQL3i+/62zsiPrkw==
+"@mui/types@^9.4.0":
+  version "9.4.0"
+  resolved "https://registry.yarnpkg.com/@mui/types/-/types-9.4.0.tgz#76334f61810aba0f80a9e3696c5fe22788afb286"
+  integrity sha512-13DH0Oniua4WmGqeYbQAZqmiN7r4nfd0zwIoGJ5QeJwyIHgEmf+LkRw/jV1HZb6AiUoHX8Oxf4xgalq3vYHcIw==
   dependencies:
     "@babel/runtime" "^7.29.7"
-    "@mui/types" "^9.3.0"
+
+"@mui/utils@^9.2.0", "@mui/utils@^9.3.0", "@mui/utils@^9.4.0":
+  version "9.4.0"
+  resolved "https://registry.yarnpkg.com/@mui/utils/-/utils-9.4.0.tgz#3e4946c1bf0d8f735e71d4d90d4fb9d1afa48cec"
+  integrity sha512-WkzY8uYtqUDyGKPShrRQRBomfMQHddlsyKu/gRRESYO24tDPD2z0xRE8CBoUsWqpBa+YrFs9KixiS7kQRjsPAQ==
+  dependencies:
+    "@babel/runtime" "^7.29.7"
+    "@mui/types" "^9.4.0"
     "@types/prop-types" "^15.7.15"
     clsx "^2.1.1"
     prop-types "^15.8.1"
     react-is "^19.2.8"
 
-"@mui/x-date-pickers@^9.10.0":
-  version "9.10.0"
-  resolved "https://registry.yarnpkg.com/@mui/x-date-pickers/-/x-date-pickers-9.10.0.tgz#bb64e93311de05b4ecc3ee41f839bf2b69129fd1"
-  integrity sha512-/OwMO6ZPqp9bpzFUZsolzwOF1CCbv+GykVMJPcqV+bKVH5jVb99zvdEF6QsLkr3BPjYp3/R7nkMPzIHTsr2nsQ==
+"@mui/x-date-pickers@^9.13.0":
+  version "9.13.0"
+  resolved "https://registry.yarnpkg.com/@mui/x-date-pickers/-/x-date-pickers-9.13.0.tgz#5e9fc17d1c5f561eec906ee84d1e382259ef067f"
+  integrity sha512-OdxxL8Q89bktqtXw35wcJXE1q+DbJrO0GRcXn6GzXpTvoiEd8NCdF10WENGmQiBG6GZnPHGNw3j7dSNcZhFEww==
   dependencies:
     "@babel/runtime" "^7.29.7"
-    "@mui/utils" "^9.2.0"
-    "@mui/x-internals" "^9.10.0"
+    "@mui/utils" "^9.4.0"
+    "@mui/x-internals" "^9.13.0"
     "@types/react-transition-group" "^4.4.12"
     clsx "^2.1.1"
     prop-types "^15.8.1"
     react-transition-group "^4.4.5"
 
-"@mui/x-internals@^9.10.0":
-  version "9.10.0"
-  resolved "https://registry.yarnpkg.com/@mui/x-internals/-/x-internals-9.10.0.tgz#707c16ab5cc707dfcbf7fa9cc3fd6e484d8553dc"
-  integrity sha512-ubd8eMVMEfu9ByLa6jR4xVborrDcauiRos2m1HtIlJALYBiGw5/FIW9TYFnzHkOHH1dl3+5rhjlXx9x+8wo54A==
+"@mui/x-internals@^9.13.0":
+  version "9.14.0"
+  resolved "https://registry.yarnpkg.com/@mui/x-internals/-/x-internals-9.14.0.tgz#c1866a908a9a00d7a640ae61bf385d07ac3044fe"
+  integrity sha512-m4XkKIihP+uWvz18BgSOHtwxCBWtE3Qi2X9hZUdEGW5mk50umziYaCLn9B/3cT9qBU7LirEC8agqpWxDSYjaNw==
   dependencies:
     "@babel/runtime" "^7.29.7"
-    "@base-ui/utils" "^0.3.1"
-    "@mui/utils" "^9.2.0"
+    "@base-ui/utils" "^0.3.2"
+    "@mui/utils" "^9.4.0"
     reselect "^5.2.0"
-    use-sync-external-store "^1.6.0"
+    use-sync-external-store "^1.7.0"
 
 "@napi-rs/wasm-runtime@^0.2.11":
   version "0.2.12"
@@ -4578,10 +4585,10 @@ eslint-plugin-import@^2.31.0:
     string.prototype.trimend "^1.0.9"
     tsconfig-paths "^3.15.0"
 
-eslint-plugin-jsonc@^3.4.1:
-  version "3.4.1"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-jsonc/-/eslint-plugin-jsonc-3.4.1.tgz#c3d317bcd176e7c52f61ad551a36894c6a891915"
-  integrity sha512-HHWkjAmVJ3QAffCkfo0XKl3CstLtgbIu5EGfFfVDLQT6vqPrxl4pFbUwFwY03nOlvyuDiiBixhHFrlbzn9u09Q==
+eslint-plugin-jsonc@^3.4.2:
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-jsonc/-/eslint-plugin-jsonc-3.4.2.tgz#e756c40a0ef07f35f69c6613019b154e48638940"
+  integrity sha512-q5xzjCYFQuhFomTbctXzd3STfDJ8XduvaigjQmMEbP2gzSKrc58y3Fv6D775/cIK1/sRUn+4kpljiU2iW8k0zw==
   dependencies:
     "@eslint-community/eslint-utils" "^4.5.1"
     "@eslint/core" "^1.0.1"
@@ -5385,10 +5392,10 @@ i18next-fs-backend@^2.6.0:
   resolved "https://registry.yarnpkg.com/i18next-fs-backend/-/i18next-fs-backend-2.6.1.tgz#bb352278136f47599783308df29f0a1b6a0d08b6"
   integrity sha512-eYWTX7QT7kJ0sZyCPK6x1q+R63zvNKv2D6UdbMf15A8vNb2ZLyw4NNNZxPFwXlIv/U+oUtg8SakW6ZgJZcoqHQ==
 
-i18next@^26.3.6:
-  version "26.3.6"
-  resolved "https://registry.yarnpkg.com/i18next/-/i18next-26.3.6.tgz#599db275c50b66d28a69d8f6c5162c245ce9296b"
-  integrity sha512-Bu5Z2nAXgfVyM8xvW3jk9EKRIuX37PudsrBViThNFx7CR7aaYTpP01cxNB/E4c4UUzTDiAZRstEhsRfPOL/8xA==
+i18next@^26.4.2:
+  version "26.4.2"
+  resolved "https://registry.yarnpkg.com/i18next/-/i18next-26.4.2.tgz#824233630f147359296bcaddf1404945d2b211bf"
+  integrity sha512-RX+R0VLg13IbvRuJSxnqykUFS9vQZTl8wYpWPCIUDWVrSGjsQywB5Y+pjzrkboxGAuYfJZVH1InFTdgBdxq6ug==
 
 iconv-lite@0.6.3:
   version "0.6.3"
@@ -8904,6 +8911,11 @@ use-sync-external-store@^1.6.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/use-sync-external-store/-/use-sync-external-store-1.6.0.tgz#b174bfa65cb2b526732d9f2ac0a408027876f32d"
   integrity sha512-Pp6GSwGP/NrPIrxVFAIkOQeyw8lFenOHijQWkUTrDvrF4ALqylP2C/KCkeS9dpUM3KvYRQhna5vt7IL95+ZQ9w==
+
+use-sync-external-store@^1.7.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/use-sync-external-store/-/use-sync-external-store-1.7.0.tgz#6dcb66ef569e02f186af6b3d575f414ce746e18f"
+  integrity sha512-6L+EeigHMQhdaIPNIFUKwfWJSwWFQ8gJbJ2DLOs5sDIegTwR9fRxvnM3uciHKjIZhFz+KAv2emhWMRvDmMcY8A==
 
 util-deprecate@^1.0.1, util-deprecate@~1.0.1:
   version "1.0.2"

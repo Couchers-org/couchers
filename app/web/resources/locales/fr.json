@@ -127,7 +127,9 @@
     "banner": {
       "invited_you": "{{name}} vous a invité à rejoindre Couchers !"
     },
-    "title": "Inviter des membres"
+    "title": "Inviter des membres",
+    "no_codes_message": "Pas encore de code d'invitation",
+    "disable_link": "Désactiver"
   },
   "what_is_cs": {
     "title": "Qu'est-ce que le couch surfing ?",
@@ -185,7 +187,8 @@
       "description_1": "Bien que tous les voyages et interactions avec des inconnus comportent certains risques, le couch surfing est bien plus sûr que beaucoup de gens ne l'imaginent au premier abord.",
       "description_2": "Notre communauté est fondée sur la confiance entre ses membres, établie grâce aux évaluations laissées après chaque séjour. Notre équipe de modération active prend chaque signalement au sérieux et lutte avec diligence contre les mauvais acteurs qui ne respectent pas nos <guidelines>Directives communautaires</guidelines>.",
       "description_3": "De plus, la plateforme Couchers inclut des  divers outils comme la Vérification renforcée avec le passeport biométrique. Cela permet d'ajouter un niveau de sécurité supplémentaire. Il est important d'avoir un plan alternatif au cas où les choses ne se passeraient pas comme prévu, et de faire confiance à son instinct!"
-    }
+    },
+    "timeline_title": "Une brève histoire du couchsurfing"
   },
   "location_autocomplete": {
     "more_specific": "Veuillez choisir un emplacement plus spécifique",
@@ -260,7 +263,15 @@
     "volunteer": "Bénévolat",
     "landing_page": "Page d'accueil",
     "invite_members": "Inviter des membres",
-    "donate": "Faire un don"
+    "donate": "Faire un don",
+    "press": "Presse et médias",
+    "our_plan": "Notre plan",
+    "legal_more": "Légal et plus",
+    "built_with": "Open source",
+    "merch_shop": "Boutique",
+    "close_menu_a11y": "Fermer le menu",
+    "open_drawer_a11y": "Dérouler le menu",
+    "close_drawer_a11y": "Refermer le menu"
   },
   "image_input": {
     "select_button_a11y": "Sélectionner une image",
@@ -288,5 +299,6 @@
     "no_address": "Impossible de trouver un lieu à votre position. Vous pouvez toujours saisir un lieu à la place.",
     "lookup_failed": "Impossible de rechercher votre position pour le moment. Vous pouvez toujours saisir un lieu à la place.",
     "unsupported": "Ce navigateur ne peut pas partager votre position. Vous pouvez toujours saisir un lieu à la place."
-  }
+  },
+  "ok": "OK"
 }
