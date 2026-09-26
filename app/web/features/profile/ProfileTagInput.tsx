@@ -235,6 +235,7 @@ export default function ProfileTagInput({
               label: effectiveOptions[key],
             }))}
             isOptionEqualToValue={(option, val) => option.key === val.key}
+            getOptionKey={(option) => option.key}
             getOptionLabel={(option) => option.label}
             renderInput={(params) => (
               <StyledInputBase ref={params.slotProps.input.ref} inputProps={params.slotProps.htmlInput} autoFocus />
@@ -244,17 +245,13 @@ export default function ProfileTagInput({
             options={Object.entries(effectiveOptions)
               .map(([key, label]) => ({ key, label }))
               .sort((a, b) => compareLocalizedLabels(a.label, b.label))}
-            renderOption={(props, option, { selected }) => {
-              const { key, ...rest } = props;
+            renderOption={(props, option, { selected }) => (
+              <StyledAutocompleteOption {...props} key={option.key}>
+                <StyledCheckbox color="primary" size="small" checked={selected} />
 
-              return (
-                <StyledAutocompleteOption key={key} {...rest}>
-                  <StyledCheckbox color="primary" size="small" checked={selected} />
-
-                  {option.label}
-                </StyledAutocompleteOption>
-              );
-            }}
+                {option.label}
+              </StyledAutocompleteOption>
+            )}
             slots={{
               paper: StyledAutocompletePaper,
               popper: StyledAutocompletePopper,

@@ -1,11 +1,13 @@
 import functools
 import logging
+from collections import Counter
 
 import babel
 from google.protobuf import empty_pb2
 from sqlalchemy.orm import Session
 
 from couchers.context import CouchersContext
+from couchers.i18n.locales import get_main_i18next
 from couchers.i18n.localize import try_localize_language_name_from_iso639, try_localize_region_name_from_iso3166
 from couchers.proto import resources_pb2, resources_pb2_grpc
 from couchers.resources import get_badge_dict, get_icon, get_language_dict, get_region_dict, get_terms_of_service
@@ -38,14 +40,28 @@ def _get_regions_res(locale: babel.Locale) -> resources_pb2.GetRegionsRes:
 
 
 @functools.lru_cache
-def _get_languages_res(locale: babel.Locale) -> resources_pb2.GetLanguagesRes:
+def _get_languages_res(locale: babel.Locale, locale_list: tuple[str, ...]) -> resources_pb2.GetLanguagesRes:
+    names_by_code = {
+        code: try_localize_language_name_from_iso639(code, [locale], standalone=True) or english_name
+        for code, english_name in sorted(get_language_dict().items())
+    }
+    name_counts = Counter(names_by_code.values())
+    i18next = get_main_i18next()
     return resources_pb2.GetLanguagesRes(
         languages=[
             resources_pb2.Language(
                 code=code,
-                name=try_localize_language_name_from_iso639(code, [locale], standalone=True) or english_name,
+                name=(
+                    i18next.localize(
+                        "ambiguous_language_display_format",
+                        list(locale_list),
+                        substitutions={"name": name, "code": code},
+                    )
+                    if name_counts[name] > 1
+                    else name
+                ),
             )
-            for code, english_name in sorted(get_language_dict().items())
+            for code, name in names_by_code.items()
         ]
     )
 
@@ -78,7 +94,7 @@ class Resources(resources_pb2_grpc.ResourcesServicer):
     def GetLanguages(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> resources_pb2.GetLanguagesRes:
-        return _get_languages_res(context.localization.preferred_babel_locale)
+        return _get_languages_res(context.localization.preferred_babel_locale, tuple(context.localization.locale_list))
 
     def GetBadges(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
