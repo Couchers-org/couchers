@@ -8,7 +8,6 @@ import { useTranslation } from "i18n";
 import { GeoJSONSource, LngLat, Map as MaplibreMap, MapMouseEvent, MapTouchEvent } from "maplibre-gl";
 import React, { useRef, useState } from "react";
 import { FieldError } from "react-hook-form";
-import { markGeolocationGranted } from "utils/useLocationBias";
 
 import { GLOBAL } from "../i18n/namespaces";
 
