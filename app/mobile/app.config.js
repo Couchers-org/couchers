@@ -155,7 +155,7 @@ const updates =
 export default {
   name: variant.name,
   slug: "mobile",
-  version: "1.3.0",
+  version: "1.3.1",
   orientation: "portrait",
   icon: icons.icon,
   scheme: variant.scheme,
