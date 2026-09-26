@@ -230,17 +230,8 @@ export default function EditLocationMap({
         });
       }
 
-      // No location chosen yet (signup, jail, or a profile with none set): offer to
-      // centre the map on the browser's location. Never when the user already has
-      // one — that would move the circle off their saved home.
-      if (isBlank.current && navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position) => {
-          // Record the grant so search can bias results (LOC-3) on browsers whose
-          // Permissions API can't report geolocation state (Safari).
-          markGeolocationGranted();
-          flyToSearch(new LngLat(position.coords.longitude, position.coords.latitude));
-        });
-      }
+      // Keep the default map center until the user explicitly clicks "Use my location";
+      // loading a blank form must not trigger a geolocation permission prompt.
     });
 
     const onDblClick = (e: MapMouseEvent) => {
