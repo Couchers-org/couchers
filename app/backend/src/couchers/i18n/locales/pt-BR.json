@@ -246,7 +246,8 @@
     "sms_disabled": "A verificação por SMS está atualmente desativada.",
     "not_donated_postal": "Você precisa doar para o Couchers.org antes de poder verificar seu endereço.",
     "signup_flow_email_verified": "Você já verificou seu e-mail.",
-    "signup_flow_invalid_request": "Solicitação de registro inválida. Não é possível recuperar seu registro e continuar fazendo registro simultaneamente."
+    "signup_flow_invalid_request": "Solicitação de registro inválida. Não é possível recuperar seu registro e continuar fazendo registro simultaneamente.",
+    "invalid_donation_frequency": "frequência de doação invalida."
   },
   "quick_links": {
     "do_not_email": "Você não receberá nenhum e-mail não relacionado a segurança, e seu status de hospedagem foi desabilitado. Você ainda pode receber a newsletter e precisa cancelar sua inscrição nela separadamente.",
