@@ -2,16 +2,19 @@ import grpc
 import pytest
 from google.protobuf import empty_pb2
 from google.protobuf.wrappers_pb2 import BoolValue, DoubleValue, StringValue
-from sqlalchemy import select
+from sqlalchemy import select, update
 
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views_rapid
 from couchers.models import (
     Cluster,
     Node,
+    User,
+    UserActivity,
     Volunteer,
 )
 from couchers.proto import editor_pb2
+from couchers.utils import now
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import real_editor_session
 
@@ -788,3 +791,51 @@ def test_ListVolunteers_empty(db):
     with real_editor_session(editor_token) as api:
         res = api.ListVolunteers(editor_pb2.ListVolunteersReq(include_past=False))
         assert len(res.volunteers) == 0
+
+
+def test_LookupUsersForDebug(db):
+    editor_user, editor_token = generate_user(is_editor=True)
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+    user3, _ = generate_user()
+    user4, _ = generate_user()
+    user5, _ = generate_user()
+
+    shared_sofa = "abcdefghijklMNOPQR"
+    other_sofa = "zyxwvutsrqpoNMLKJI"
+    wildcard_sofa = "abcdefghijkXMNOPQR"
+
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == user2.id).values(banned_at=now()))
+        session.execute(update(User).where(User.id == user3.id).values(deleted_at=now()))
+        session.execute(update(User).where(User.id == user4.id).values(shadowed_at=now()))
+
+        session.add(UserActivity(user_id=user1.id, period=now(), sofa=shared_sofa, api_calls=5))
+        session.add(UserActivity(user_id=user2.id, period=now(), sofa=shared_sofa, api_calls=3))
+        session.add(UserActivity(user_id=user2.id, period=now(), sofa=other_sofa, api_calls=100))
+        session.add(UserActivity(user_id=user3.id, period=now(), sofa=shared_sofa, api_calls=1))
+        session.add(UserActivity(user_id=user4.id, period=now(), sofa=shared_sofa, api_calls=1))
+        session.add(UserActivity(user_id=user5.id, period=now(), sofa=wildcard_sofa, api_calls=1))
+        session.add(UserActivity(user_id=user5.id, period=now(), sofa=None, api_calls=1))
+
+    with real_editor_session(editor_token) as api:
+        res = api.LookupUsersForDebug(editor_pb2.LookupUsersForDebugReq(sofa_prefix="abcdefghijkl"))
+
+    assert [u.user_id for u in res.users] == [user1.id, user2.id, user3.id, user4.id]
+    assert [(u.banned, u.deleted, u.shadowed) for u in res.users] == [
+        (False, False, False),
+        (True, False, False),
+        (False, True, False),
+        (False, False, True),
+    ]
+
+    with real_editor_session(editor_token) as api:
+        res = api.LookupUsersForDebug(editor_pb2.LookupUsersForDebugReq(sofa_prefix="abcdefghijk_"))
+    assert list(res.users) == []
+
+    with real_editor_session(editor_token) as api:
+        for bad_prefix in ["", "abcdefghijk", "abcdefghijklm", shared_sofa]:
+            with pytest.raises(grpc.RpcError) as e:
+                api.LookupUsersForDebug(editor_pb2.LookupUsersForDebugReq(sofa_prefix=bad_prefix))
+            assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+            assert e.value.details() == "The sofa prefix must be exactly 12 characters."
