@@ -1,14 +1,7 @@
 """
-Finds tables in a query that are tied to the rest of the query by a value rather than by a key.
-
-The lite_users strong verification bug was a select over the attempts table and the users table whose only connection
-was `passport_date_of_birth = users.birthdate`. Every user sharing a birthdate with a verified user got the badge.
-
-SQLAlchemy's own FROM-linter cannot catch this for two independent reasons: the predicate does syntactically connect
-the two tables, so it sees no cartesian product, and a materialized view's select is compiled into DDL and never
-executed as a statement, so the lint path is never reached at all. This checks the stronger property the linter can't
-express: two tables count as connected only when an equality relates a foreign key to what it references, two foreign
-keys to the same target, or a column to itself through a subquery. A birthdate is not an identity.
+Finds tables in a query that are tied to the rest of it by a value (e.g. `passport_date_of_birth = users.birthdate`)
+rather than by a key. SQLAlchemy's FROM-linter can't catch this: it counts any predicate as a connection, and never
+runs on view DDL.
 """
 
 import itertools
@@ -29,7 +22,6 @@ from sqlalchemy.sql.util import find_tables
 
 
 def _conjuncts(clause: ColumnElement[Any] | None) -> list[ColumnElement[Any]]:
-    """Splits a clause into the conditions that must all hold. Anything under an OR binds nothing, so it isn't split."""
     if clause is None:
         return []
     if isinstance(clause, BooleanClauseList) and clause.operator is operators.and_:
@@ -38,7 +30,6 @@ def _conjuncts(clause: ColumnElement[Any] | None) -> list[ColumnElement[Any]]:
 
 
 def _origins(expr: Any) -> set[Column[Any]]:
-    """The real table columns an expression stands for, seeing through subqueries: sub.c.id -> users.id"""
     if not isinstance(expr, ColumnClause):
         return set()
     return {col for col in expr.proxy_set if isinstance(col, Column) and isinstance(col.table, Table)}
@@ -50,14 +41,10 @@ def _fk_targets(col: Column[Any]) -> set[Column[Any]]:
 
 def _is_key_link(left: Any, right: Any) -> bool:
     left_origins, right_origins = _origins(left), _origins(right)
-    # the same column reached through a subquery: an identity, not a coincidence
     if left_origins & right_origins:
         return True
     for a, b in itertools.product(left_origins, right_origins):
-        if b in _fk_targets(a) or a in _fk_targets(b):
-            return True
-        # both sides point at the same row of a third table, e.g. two tables' user_id
-        if _fk_targets(a) & _fk_targets(b):
+        if b in _fk_targets(a) or a in _fk_targets(b) or _fk_targets(a) & _fk_targets(b):
             return True
     return False
 
@@ -79,18 +66,12 @@ def _join_conditions(from_clause: FromClause) -> list[ColumnElement[Any]]:
 
 
 def _key(from_clause: FromClause) -> str:
-    """
-    Identifies a FROM element by its name, which SQL requires to be unique within one FROM list.
-
-    Not by object identity: the ORM annotates its own copy of a table, so the entry in the FROM list and the table a
-    condition's column hangs off are equal but distinct objects.
-    """
+    # by name rather than identity: the ORM annotates its own copies of tables, so they compare equal but aren't the same
     name = getattr(from_clause, "name", None)
     return str(name) if name is not None else str(id(from_clause))
 
 
 def _describe(from_clause: FromClause) -> str:
-    """Names a FROM element for the error message, falling back to what an unnamed subquery selects from."""
     name = getattr(from_clause, "name", None)
     if name is not None and not isinstance(name, _anonymous_label):
         return str(name)
@@ -100,8 +81,6 @@ def _describe(from_clause: FromClause) -> str:
 
 
 class _Components:
-    """Union-find over the FROM elements, to check they end up in one connected component."""
-
     def __init__(self, keys: list[str]) -> None:
         self._parent = {key: key for key in keys}
 
@@ -119,11 +98,7 @@ class _Components:
 
 
 def find_unkeyed_joins(statement: Select[Any] | CompoundSelect[Any], path: str = "query") -> list[str]:
-    """
-    Returns a problem description for every table not connected to the rest of its query by a key.
-
-    Recurses into subqueries, CTEs and the arms of a union, each of which is checked in its own right.
-    """
+    """Returns a problem for every FROM list (recursing into subqueries and unions) not connected by keys."""
     if isinstance(statement, CompoundSelect):
         return [
             problem
@@ -133,8 +108,7 @@ def find_unkeyed_joins(statement: Select[Any] | CompoundSelect[Any], path: str =
         ]
 
     with warnings.catch_warnings():
-        # resolving the FROM list builds a compiler for the default dialect, which warns that DISTINCT ON is
-        # PostgreSQL-only. We only ever run on PostgreSQL, and this reads structure rather than emitting any SQL.
+        # resolving the FROM list compiles against the default dialect, which warns about DISTINCT ON
         warnings.filterwarnings("ignore", "DISTINCT ON is currently supported only by the PostgreSQL dialect")
         froms = statement.get_final_froms()
     leaves = [leaf for from_clause in froms for leaf in _leaves(from_clause)]
@@ -162,7 +136,6 @@ def find_unkeyed_joins(statement: Select[Any] | CompoundSelect[Any], path: str =
 
     problems = []
     if components.count() > 1:
-        # the unkeyed equalities are what the author probably mistook for a join
         mistaken = "".join(f"\n    only linked by: {condition}" for condition in unkeyed)
         problems.append(
             f"{path}: {', '.join(sorted(_describe(leaf) for leaf in leaves))} are not all connected by keys, so rows "

@@ -1020,7 +1020,6 @@ def test_attempt_only_verifies_its_own_user(db):
 
 @pytest.mark.parametrize("predicate", ["matches_birthdate", "matches_gender"])
 def test_attempt_predicates_bind_their_own_user(db, predicate):
-    # the same gap as has_strong_verification: these take a subject, so they have to bind it themselves
     verified_user, _ = generate_user(birthdate=date(1988, 1, 1), gender="Man", strong_verification=True)
     other_user, _ = generate_user(birthdate=date(1988, 1, 1), gender="Man")
 

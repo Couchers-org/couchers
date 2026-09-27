@@ -121,15 +121,12 @@ class StrongVerificationAttempt(Base, kw_only=True):
 
     @hybrid_method
     def _is_own_user(self, user: User | type[User]) -> Any:
-        """
-        An attempt only verifies the user it belongs to. As a SQL expression there's no control flow to carry that, so
-        every predicate taking a subject has to bind it, or a caller can pair any attempt with any user.
-        """
+        # as SQL, nothing else ties the attempt to the user, so every predicate taking a user must include this
         return self.user_id == user.id
 
     @hybrid_method
     def _raw_birthdate_match(self, user: User | type[User]) -> Any:
-        """Checks neither that the attempt belongs to the user nor that it isn't expired"""
+        """Doesn't check ownership or expiry"""
         return self.passport_date_of_birth == user.birthdate
 
     @hybrid_method
@@ -138,7 +135,7 @@ class StrongVerificationAttempt(Base, kw_only=True):
 
     @hybrid_method
     def _raw_gender_match(self, user: User | type[User]) -> Any:
-        """Checks neither that the attempt belongs to the user nor that it isn't expired"""
+        """Doesn't check ownership or expiry"""
         return (
             ((user.gender == "Woman") & (self.passport_sex == PassportSex.female))  # type: ignore[operator]
             | ((user.gender == "Man") & (self.passport_sex == PassportSex.male))
