@@ -11,11 +11,18 @@ import { theme } from "theme";
 import AuthProvider from "../features/auth/AuthProvider";
 
 // In prod the GrowthBook provider sits at the app root (see pages/_app.tsx), so any component using
-// flag hooks expects one. Mirror that with a ready SDK; with no configured features flag hooks
-// return the caller's default and the AppRoute readiness gate passes.
+// flag hooks expects one. Mirror that with a ready SDK. Default `geocode_provider` to auto so tests
+// match feature-flags.dev.json / localdev (Jest does not load .env.development).
 function newGrowthBook(features: FeatureApiResponse["features"] = {}) {
   const growthbook = new GrowthBook();
-  growthbook.initSync({ payload: { features } });
+  growthbook.initSync({
+    payload: {
+      features: {
+        geocode_provider: { defaultValue: "auto" },
+        ...features,
+      },
+    },
+  });
   return growthbook;
 }
 

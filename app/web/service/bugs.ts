@@ -2,6 +2,9 @@ import { BugReportFormData } from "components/Navigation/ReportDialog";
 import Sentry from "platform/sentry";
 import { GeolocationClickInfoReq, GeolocationSearchInfoReq, ReportBugReq, ScreenResolution } from "proto/bugs_pb";
 
+/*
+ * The 'bugs' service actually handles some telemetry entry points.
+ */
 import client from "./client";
 
 const REPLAY_FLUSH_TIMEOUT_MS = 2000;
@@ -49,6 +52,7 @@ export async function geolocationSearchInfo({
   durationMs,
 }: {
   searchString: string;
+  // Proto field name is historical; callers send Pelias or Nominatim provider JSON here.
   nominatimResultJson: string;
   formattedResultJson: string;
   durationMs: number;
