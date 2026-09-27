@@ -18,7 +18,9 @@ depends_on = None
 
 def upgrade() -> None:
     op.add_column("users", sa.Column("review_bot_test", sa.String(), nullable=False))
+    op.create_index("ix_users_review_bot_test", "users", ["review_bot_test"])
 
 
 def downgrade() -> None:
+    op.drop_index("ix_users_review_bot_test", table_name="users")
     op.drop_column("users", "review_bot_test")
