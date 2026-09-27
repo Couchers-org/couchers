@@ -51,7 +51,7 @@ services:
     env_file: media.dev.env
     volumes:
       - "./data/media/uploads/:/uploads/"
-      - "./backend/src/data/dummy_profile_images/:/uploads/full/:ro"
+      - "./backend/src/data/dummy_profile_images/:/seed/:ro"
     ports:
       - 5001:5001
     depends_on:

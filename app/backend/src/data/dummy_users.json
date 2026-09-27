@@ -6,14 +6,14 @@
       "password": "Aapeli's password",
       "name": "Aapeli",
       "location": {
-        "city": "Morningside Heights, New York City",
+        "city": "New York City",
         "lat": 40.8086,
         "lng": -73.9616,
         "radius": 500
       },
       "verification": 0.98,
       "community_standing": 0.87,
-      "gender": "Male",
+      "gender": "Man",
       "birthdate": {
         "year": 1990,
         "month": 3,
@@ -25,7 +25,7 @@
       ],
       "occupation": "Mathematician",
       "avatar_filename": "avatar-01.jpg",
-      "about_me": "I am a mathematician who enjoys long train journeys, neighborhood walks, and conversations that wander from science to food. When I travel I usually look for small museums, local cafés, and places that are easier to discover with someone who lives nearby. I am always happy to cook a simple dinner and exchange stories from the road.",
+      "about_me": "Hey! I'm the co-founder of Couchers: I currently lead the project! I started Couchers with [Itsi](/user/itsi) in early 2020.\n\nI did my PhD in Operations Research at Columbia: the field is concerned with applying math to make better decisions in the real world. I worked on improving the way that kids in New York get assigned to public schools: to make it fairer and more equitable.\n\nI have a personal website at [https://www.aapelivuorinen.com](https://www.aapelivuorinen.com) that you can check out if you want to read more about me!",
       "about_place": "About Aapeli's place",
       "regions_visited": ["AUS"],
       "regions_lived": ["AUS", "FIN", "SWE", "USA"],
@@ -47,7 +47,7 @@
       },
       "verification": 0.73,
       "community_standing": 0.41,
-      "gender": "Male",
+      "gender": "Man",
       "birthdate": {
         "year": 1995,
         "month": 11,
@@ -93,7 +93,7 @@
       },
       "verification": 0.4,
       "community_standing": 0.3,
-      "gender": "Male",
+      "gender": "Man",
       "birthdate": {
         "year": 1993,
         "month": 5,
@@ -126,7 +126,7 @@
       },
       "verification": 0.94,
       "community_standing": 0.97,
-      "gender": "Female",
+      "gender": "Woman",
       "birthdate": {
         "year": 1995,
         "month": 1,
@@ -154,7 +154,7 @@
       },
       "verification": 0.96,
       "community_standing": 0.82,
-      "gender": "Male",
+      "gender": "Man",
       "birthdate": {
         "year": 1985,
         "month": 1,
@@ -182,7 +182,7 @@
       },
       "verification": 0.78,
       "community_standing": 0.99,
-      "gender": "Female",
+      "gender": "Woman",
       "birthdate": {
         "year": 1977,
         "month": 4,
@@ -213,7 +213,7 @@
       },
       "verification": 0.81,
       "community_standing": 0.22,
-      "gender": "Female",
+      "gender": "Woman",
       "birthdate": {
         "year": 1980,
         "month": 12,
@@ -244,7 +244,7 @@
       },
       "verification": 0.8,
       "community_standing": 0.7,
-      "gender": "Male",
+      "gender": "Man",
       "birthdate": {
         "year": 1995,
         "month": 3,
@@ -284,7 +284,7 @@
       },
       "verification": 0.85,
       "community_standing": 0.8,
-      "gender": "Female",
+      "gender": "Woman",
       "birthdate": {
         "year": 1992,
         "month": 6,
@@ -314,7 +314,7 @@
       },
       "verification": 0.89,
       "community_standing": 0.76,
-      "gender": "",
+      "gender": "Non-binary",
       "birthdate": {
         "year": 1995,
         "month": 3,
