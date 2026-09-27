@@ -12,11 +12,6 @@ from tests.fixtures.misc import EmailCollector, PushCollector
 from tests.fixtures.sessions import real_account_session, real_admin_session, real_api_session, real_jail_session
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def test_jail_basic(db):
     user1, token1 = generate_user()
 

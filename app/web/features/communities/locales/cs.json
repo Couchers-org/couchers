@@ -150,5 +150,6 @@
   "report_discussion_button_a11y": "Nahlásit tuto diskuzi",
   "report_event_button_a11y": "Nahlásit tuto událost",
   "event_image_input_alt": "Vložiť obrázek události",
-  "community_image_input_alt": "Vložení obrázku komunity"
+  "community_image_input_alt": "Vložení obrázku komunity",
+  "new_discussion_button": "Nová diskuse"
 }

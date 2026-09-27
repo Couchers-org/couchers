@@ -41,11 +41,6 @@ from tests.fixtures.sessions import (
 from tests.test_requests import valid_request_text
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def create_public_trip(session: Session, user_id: int, from_date: date, to_date: date) -> int:
     node = session.execute(select(Node).limit(1)).scalar_one_or_none()
     if node is None:

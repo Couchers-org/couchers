@@ -22,11 +22,6 @@ from tests.fixtures.sessions import bugs_session, real_bugs_session
 EAS_CLIENT_ID = uuid.UUID("11111111-1111-1111-1111-111111111111")
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def test_bugs_disabled():
     with bugs_session() as bugs, pytest.raises(grpc.RpcError) as e:
         bugs.ReportBug(

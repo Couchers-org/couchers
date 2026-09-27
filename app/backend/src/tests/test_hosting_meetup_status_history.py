@@ -1,6 +1,5 @@
 from datetime import timedelta
 
-import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy import select
 
@@ -30,11 +29,6 @@ from tests.fixtures.sessions import (
 from tests.test_auth import _quick_signup
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def get_history(user_id: int) -> list[tuple[HostingMeetupStatusSource, HostingStatus, MeetupStatus]]:
     with session_scope() as session:
         return [
@@ -47,7 +41,7 @@ def get_history(user_id: int) -> list[tuple[HostingMeetupStatusSource, HostingSt
         ]
 
 
-def test_history_recorded_on_signup(db):
+def test_history_recorded_on_signup(db, fast_passwords):
     user_id = _quick_signup()
 
     assert get_history(user_id) == [

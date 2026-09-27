@@ -29,11 +29,6 @@ from tests.fixtures.misc import PushCollector
 from tests.fixtures.sessions import account_session, api_session, real_admin_session, real_iris_session
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def _emulate_iris_callback(session_id, session_state, reference):
     assert session_state in ["CREATED", "INITIATED", "FAILED", "ABORTED", "COMPLETED", "REJECTED", "APPROVED"]
     with real_iris_session() as iris:

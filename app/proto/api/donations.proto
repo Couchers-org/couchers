@@ -21,13 +21,23 @@ service Donations {
   }
 }
 
+enum DonationFrequency {
+  DONATION_FREQUENCY_UNSPECIFIED = 0;
+  DONATION_FREQUENCY_ONE_TIME = 1;
+  DONATION_FREQUENCY_MONTHLY = 2;
+  DONATION_FREQUENCY_YEARLY = 3;
+}
+
 message InitiateDonationReq {
   // amount in USD, integral for now
   uint32 amount = 1;
-  // whether to create a monthly recurring donation
-  bool recurring = 2;
+  // how often the donation repeats
+  DonationFrequency frequency = 4;
   // source of the donation (e.g., "strong-verification-complete")
   string source = 3;
+
+  reserved 2;
+  reserved "recurring";
 }
 
 message InitiateDonationRes {

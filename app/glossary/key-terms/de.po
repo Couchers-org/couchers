@@ -1,2 +1,15 @@
 msgid ""
-msgstr "X-Generator: Weblate\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit"
+msgstr ""
+"PO-Revision-Date: 2026-09-12 04:41+0000\n"
+"Last-Translator: Chris Kreuz <ckreuz@users.noreply.translate.couchershq.org>\n"
+"Language-Team: German <https://translate.couchershq.org/projects/couchers/glossary-key-terms/de/>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.15.2\n"
+
+#. (noun) The document outlining the legal agreement for using Couchers.org.
+msgid "terms_of_service"
+msgstr "Allgemeine Geschäftsbedingungen"

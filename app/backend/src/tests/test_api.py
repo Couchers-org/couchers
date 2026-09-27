@@ -42,11 +42,6 @@ from tests.fixtures.sessions import (
 )
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def test_ping(db):
     user, token = generate_user(
         regions_lived=["ESP", "FRA", "EST"],

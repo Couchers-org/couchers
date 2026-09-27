@@ -30,5 +30,12 @@
   "donations_info": "La teva donació es destina a <foundationLink>{{ legal_name }}</foundationLink>, una entitat sense ànim de lucre dels EUA 501(c)(3) que gestiona el servei Couchers.org i dona suport al projecte. Les donacions són exemptes d’impostos als EUA, el nostre EIN és 87-1734577.",
   "benefactor_contact": "Si vols contribuir amb més de 1.000 $, posa't en contacte amb nosaltres a <emailLink>{{email}}</emailLink> perquè puguem organitzar una transferència amb una comissió més baixa.",
   "donations_recurrence_explainer": "Una donació mensual ens ajuda a planificar amb antelació i continuar les nostres operacions de manera estable.",
-  "donations_use_explainer": "Consulta els nostres resultats financers per a {{ year }}."
+  "donations_use_explainer": "Consulta els nostres resultats financers per a {{ year }}.",
+  "logged_out": {
+    "title": "Import de la donació",
+    "body": "Inicia la sessió per fer una donació i així et podrem posar una insígnia de donant al teu perfil.",
+    "login_button": "Inicia la sessió per fer una donació",
+    "signup_prompt": "No tens cap compte? <signupLink>Registra't</signupLink>",
+    "anonymous_donation": "Per fer una donació puntual de {{ amount }} $ o més sense vincular-la a un compte, contacta amb nosaltres a <emailLink>{{ email }}</emailLink>."
+  }
 }

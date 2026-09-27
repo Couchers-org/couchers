@@ -27,11 +27,6 @@ from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import postal_verification_session
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def test_generate_postal_verification_code():
     """Test that generated codes meet requirements."""
     allowed = set("ABCDEFGHJKLMNPQRSTUVWXYZ23456789")

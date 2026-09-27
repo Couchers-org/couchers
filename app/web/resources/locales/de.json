@@ -106,13 +106,13 @@
     "label": "Ein Problem melden",
     "bug": {
       "title_label": "Report Titel",
-      "problem_label": "Was hast du getan, um den Fehler auszulösen?",
-      "problem_helper": "Kurze Beschreibung des Problems und wie es reproduziert werden kann",
+      "problem_label": "Wie bist du auf das Problem gestoßen?",
+      "problem_helper": "Beschreibe die Schritte, die du unternommen hast: auf welchen Seiten du warst, worauf du geklickt hast usw.",
       "expect_label": "Was ist passiert? Was hätte passieren sollen?",
-      "expect_helper": "Kurze Beschreibung, was du stattdessen erwartest hast",
+      "expect_helper": "Beschreibe das Problem, das nach deinen Schritten aufgetreten ist, einschließlich etwaiger Fehlermeldungen, und was du stattdessen erwartet hättest.",
       "button_label": "Ein technisches Problem melden",
-      "warning_message": "Bitte beachte, dass diese Informationen sowie diagnostische Daten, einschließlich der Seite, auf der du dich befindest, des von dir verwendeten Browsers und deines Benutzernamens, in einer öffentlichen Fehlerliste gespeichert werden.",
-      "success_message2": "Vielen Dank, dass du diesen Fehler gemeldet und Couchers verbessert hast. Ein Bericht wurde an die Entwickler gesendet! Die Fehler-ID ist <id/>."
+      "warning_message": "Die Informationen, die du in diesem Formular angibst, sowie Diagnosedaten – einschließlich der Seite, auf der du dich befindest, deines Browsers und deines Benutzernamens – werden zur Überprüfung durch unser Team aufgezeichnet.",
+      "success_message2": "Danke, dass du dieses Problem gemeldet und Couchers damit besser gemacht hast! Ein Bericht wurde an die Entwickler gesendet. Du kannst dich mit dieser ID auf das Problem beziehen: <id/>."
     },
     "content": {
       "button_label": "Unangemessene Inhalte oder Verhaltensweisen melden",
@@ -200,7 +200,7 @@
   "expand": "Erweitern",
   "update": "Aktualisieren",
   "create": "Erstellen",
-  "terms_of_service": "Nutzungsbedingungen",
+  "terms_of_service": "Allgemeine Geschäftsbedingungen",
   "required": "Erforderlich",
   "accept": "Annehmen",
   "community_standing": "Community Status",

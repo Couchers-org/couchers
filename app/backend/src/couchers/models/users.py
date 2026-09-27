@@ -127,7 +127,7 @@ class User(Base, kw_only=True):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     username: Mapped[str] = mapped_column(String, unique=True)
-    email: Mapped[str] = mapped_column(String, unique=True)
+    email: Mapped[str] = mapped_column(String, index=True)
     # stored in libsodium hash format, can be null for email login
     hashed_password: Mapped[bytes] = mapped_column(Binary)
     # phone number in E.164 format with leading +, for example "+46701740605"
@@ -400,6 +400,12 @@ class User(Base, kw_only=True):
             unique=True,
             postgresql_where=phone_verification_verified != None,
         ),
+        Index(
+            "ix_users_unique_email",
+            email,
+            unique=True,
+            postgresql_where=deleted_at == None,
+        ),
         # These three are each looked up by equality as though the value named exactly one user, so the database
         # needs to enforce that; partial as the columns are null for almost every user
         Index(
@@ -592,6 +598,24 @@ class User(Base, kw_only=True):
     @classmethod
     def _is_shadowed_expression(cls) -> ColumnElement[bool]:
         return cls.shadowed_at.is_not(None)
+
+    @hybrid_property
+    def is_banned(self) -> bool:
+        return self.banned_at is not None
+
+    @is_banned.inplace.expression
+    @classmethod
+    def _is_banned_expression(cls) -> ColumnElement[bool]:
+        return cls.banned_at.is_not(None)
+
+    @hybrid_property
+    def reserves_email(self) -> bool:
+        return self.deleted_at is None or self.banned_at is not None
+
+    @reserves_email.inplace.expression
+    @classmethod
+    def _reserves_email_expression(cls) -> ColumnElement[bool]:
+        return or_(cls.deleted_at.is_(None), cls.banned_at.is_not(None))
 
     @property
     def coordinates(self) -> tuple[float, float]:

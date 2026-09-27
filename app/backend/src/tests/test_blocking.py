@@ -12,11 +12,6 @@ from tests.fixtures.db import generate_user, make_user_block
 from tests.fixtures.sessions import blocking_session
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def test_BlockUser(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()

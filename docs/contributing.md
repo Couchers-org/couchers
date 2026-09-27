@@ -4,7 +4,7 @@ Thank you for your interest in contributing to Couchers.org! We're a small, pass
 
 We collaborate on code through git, hosted on GitHub. If you are a software engineer (web/mobile/backend) who has been onboarded, you should request write access to the codebase.
 
-Before you start, please read this guide carefully to understand our workflow and expectations.
+Before you start, please read this guide carefully to understand our workflow and expectations. Please read our [AI policy](ai-policy.md) if you wish to use AI in your contributions.
 
 ## Expectations for developers
 
@@ -61,7 +61,7 @@ All our code is in one repository (monorepo). We currently use the pull request 
 4. Push the new branch to GitHub, and open a Pull Request (PR). If your branch is ready to be merged, pending review, make it a normal PR. If it's still work in progress and you don't want a review yet, you can make it a [draft PR](https://github.blog/2019-02-14-introducing-draft-pull-requests/). Choose some appropriate labels on the PR, such as `web`/`backend` and `feature`/`bug` to make it easier for others to navigate the list of PRs.
 5. When you are ready for a review, select a reviewer and ask them to review the code. Feel free to choose someone you know can review it, or if you don't know who else, just select @aapeliv who'll delegate someone. You can also message on the appropriate channel on Slack.
 6. The reviewer should review the pull request and comment, suggest changes, or approve the review.
-7. Once you and the reviewer are ready for the PR to be merged, you or someone on the core team can merge it into `develop`. (Reviewers may leave comments in your code, which you can resolve once they have been addressed.) 
+7. Once you and the reviewer are ready for the PR to be merged, you or someone on the core team can merge it into `develop`. (Reviewers may leave comments in your code, which you can resolve once they have been addressed.)
 
 ## How code review works and why we do it
 

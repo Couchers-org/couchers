@@ -4,7 +4,9 @@
     "success_message": "S'ha sol·licitat el canvi de correu electrònic. Comprova el teu nou correu per completar el canvi.",
     "current_email_message": "La teva adreça de correu electrònic actual és <strong>{{email}}</strong>.",
     "current_password": "Contrasenya actual",
-    "new_email": "Nou correu electrònic"
+    "new_email": "Nou correu electrònic",
+    "hide_current_password": "Amaga la contrasenya actual",
+    "show_current_password": "Mostra la contrasenya actual"
   },
   "basic_form": {
     "email": {
@@ -32,7 +34,7 @@
     }
   },
   "login_page": {
-    "no_account_prompt": "Encara no tens compte? <signupLink>Uneix-t'hi</signupLink>",
+    "no_account_prompt": "Encara no tens compte? <signupLink>Uneix-te</signupLink>",
     "form": {
       "remember_me": "Recorda'm",
       "username_field_label": "Correu electrònic / Nom d'usuari",
@@ -60,11 +62,11 @@
       "explanation": "Sembla que les teves coordenades no eren correctes. Actualitza la teva ubicació per continuar."
     },
     "activeness_probe": {
-      "description": "Hem observat que fa temps que no inicies sessió i volíem comprovar si encara estàs obert a allotjar surfistes.",
+      "description": "Fa temps que no inicies sessió i volíem saber si encara estàs obert a allotjar surfistes.",
       "title": "Encara estàs obert a allotjar surfistes?",
       "still_hosting": "Encara vull allotjar!",
       "not_hosting": "Ja no puc allotjar.",
-      "note": "Actualitzarem el teu perfil perquè coincideixi amb aquesta elecció!"
+      "note": "Actualitzarem el teu perfil Ho reflectirem al teu perfil!"
     },
     "mod_note_section": {
       "description": "Els moderadors t'han enviat la nota següent. Llegeix-la atentament i confirma que l'has llegit i comprès abans de continuar.",
@@ -76,15 +78,21 @@
   "change_password_form": {
     "user_logged_error": "No pots restablir la contrasenya si has iniciat sessió. Pots canviar la contrasenya a la configuració o tancar sessió per restablir-la.",
     "title": "Canvia la contrasenya",
-    "subtitle": "Fes servir aquest formulari per restablir la teva contrasenya d'accés.",
+    "subtitle": "Canvia la teva contrasenya d'accés aquí.",
     "confirm_password": "Confirma la contrasenya",
     "password_changed_success": "S'ha establert la teva nova contrasenya i s'ha enviat una notificació al teu correu electrònic.",
     "old_password": "Contrasenya antiga",
     "new_password": "Nova contrasenya",
     "password_mismatch_error": "Les contrasenyes no coincideixen.",
-    "token_error": "S'ha produït un error en processar el token de restabliment de contrasenya. Prova d'obrir l'enllaç del correu electrònic de nou.",
+    "token_error": "Hi ha hagut un error amb l'enllaç de restabliment de contrasenya. Prova d'obrir l'enllaç del correu electrònic de nou.",
     "reset_password_success": "La teva contrasenya s'ha canviat correctament!",
-    "reset_password_error": "Error en restablir la contrasenya: {{message}}"
+    "reset_password_error": "Error en restablir la contrasenya: {{message}}",
+    "hide_old_password": "Amaga la contrasenya antiga",
+    "show_old_password": "Mostra la contrasenya antiga",
+    "hide_new_password": "Amaga la contrasenya nova",
+    "show_new_password": "Mostra la contrasenya nova",
+    "hide_confirm_password": "Amaga la confirmació de la contrasenya",
+    "show_confirm_password": "Mostra la confirmació de la contrasenya"
   },
   "sign_up_resend_verification_email_help": "No has rebut el correu? Fes clic <resendLink>aquí per tornar a enviar l'enllaç de verificació</resendLink>.",
   "account_form": {
@@ -119,7 +127,8 @@
       "required_error": "Selecciona la teva identitat de gènere",
       "man": "Home",
       "non_binary": "No binari",
-      "woman": "Dona"
+      "woman": "Dona",
+      "selector_a11y": "Gènere"
     },
     "opt_in_newsletter": "Subscriu-te al nostre butlletí ocasional sobre novetats de la comunitat.",
     "tos_prompt": "Per continuar, llegeix i accepta la <tosLink></tosLink>.",
@@ -127,7 +136,7 @@
   },
   "feature_preview": {
     "explanation": "Aquesta pàgina et permet provar funcions que encara estan en desenvolupament abans que estiguin preparades per a tothom.",
-    "disclaimer": "Tingues en compte que aquestes funcions són experimentals. Pot ser que no funcionin com s'esperava i que canviïn ràpidament mentre les desenvolupem. No dubtis a donar la teva opinió fent servir el botó 'Reporta un problema' per informar de qualsevol error!",
+    "disclaimer": "Tingues en compte que aquestes funcions són experimentals. Pot ser que no funcionin com s'esperava i que canviïn ràpidament mentre les desenvolupem. Si trobes cap error, fes-nos-ho saber amb el botó 'Reporta un problema'!",
     "title": "Previsualització de funcions",
     "no_previews": {
       "title": "Cap funció en previsualització ara mateix",
@@ -149,18 +158,18 @@
   },
   "account_settings_page": {
     "gender_section": {
-      "explanation": "Els administradors estaran encantats de canviar la teva etiqueta de gènere. Posa't en contacte amb support@couchers.org!",
+      "explanation": "Contacta amb support@couchers.org i els administradors t'ho canviaran!",
       "title": "Canvia el gènere"
     },
     "timezone_section": {
       "description": "La teva zona horària és <strong>{{timezone}}</strong>. Basant-nos en això, la teva hora local és aproximadament <strong>{{time}}</strong>.",
       "title": "Zona horària i localització",
-      "explanation": "Aquesta hora i zona horària es determinen basant-se en la teva ubicació. Reporta un error si és incorrecte."
+      "explanation": "Aquesta hora i zona horària es calculen a partir de la teva ubicació. Reporta un error si és incorrecte."
     },
     "title": "Configuració del compte",
     "birth_date_section": {
       "title": "Canvia la data de naixement",
-      "explanation": "Els administradors estaran encantats de canviar la teva data de naixement. Posa't en contacte amb support@couchers.org!"
+      "explanation": "Contacta amb support@couchers.org i els administradors t'ho canviaran!"
     },
     "username_section": {
       "title": "Nom d'usuari",
@@ -184,8 +193,8 @@
     "title": "Verificació forta",
     "subtitle": "La Verificació forta és una funció de seguretat addicional que et permet verificar la teva data de naixement i gènere amb el teu passaport biomètric.",
     "status": {
-      "disabled_message": "<strong>No tens</strong> la Verificació forta activa.",
-      "enabled_message": "<strong>Tens</strong> la Verificació forta activa."
+      "disabled_message": "<strong>No estàs verificat</strong> amb la Verificació forta.",
+      "enabled_message": "<strong>Estàs verificat</strong> amb la Verificació forta."
     },
     "start_button": "Inicia la Verificació forta",
     "complete_title": "Estem processant el teu intent de Verificació forta",
@@ -197,13 +206,13 @@
     "delete_my_data_button": "Elimina les meves dades",
     "delete_button": "Elimina les meves dades de Verificació forta",
     "delete_success": "Les dades del teu passaport han estat eliminades.",
-    "donation_title": "Gràcies per verificar-te — estàs ajudant a fer Couchers.org més segur per a tothom.",
+    "donation_title": "Gràcies per verificar-te, estàs ajudant a fer Couchers.org més segur per a tothom.",
     "donation_message1": "La verificació és gratuïta per a tu, però té un cost per a nosaltres. Com a organització sense ànim de lucre gestionada per voluntaris, depenem de les donacions per cobrir despeses com el manteniment dels nostres servidors, la verificació i les eines per a voluntaris i impulsors de comunitat.",
-    "donation_message2": "Si pots, considera fer una donació per ajudar a mantenir i fer créixer Couchers.org.",
+    "donation_message2": "Si pots, si pots, fes una donació per ajudar a mantenir i fer créixer Couchers.org.",
     "donate_button": "Dona per donar suport a Couchers.org",
     "instructions": {
       "step1": "Descarrega l'aplicació <strong>Iris ID</strong>",
-      "step1_apple_note": "<strong>Usuaris d'Apple:</strong> pots saltar-te la descàrrega i usar el navegador. Simplement fes clic a \"Obre\" quan se't demani.",
+      "step1_apple_note": "<strong>Usuaris d'Apple:</strong> pots saltar-te la descàrrega i usar el navegador. Només fes clic a \"Obre\" quan se't demani.",
       "step3": "Escaneja el codi QR amb el teu telèfon",
       "step4": "Si se't demana, obre l'aplicació i escaneja el codi QR de nou",
       "download_app_store": "Descarrega a l'App Store",
@@ -215,13 +224,37 @@
         "us_germany_mexico": "<strong>Brasil, EUA, Alemanya (2016), Indonèsia, Mèxic:</strong> pàgina posterior"
       },
       "title": "Com completar la Verificació forta",
-      "warning": "Important: el pas d'escaneig del xip del passaport pot ser complicat — llegeix totes les instruccions primer!",
+      "warning": "Important: el pas d'escaneig del xip del passaport pot ser complicat, llegeix totes les instruccions primer!",
       "step2": "Fes clic a <strong>\"Inicia la Verificació forta\"</strong> a sota (s'obre en una pestanya nova)",
-      "step7": "Mantingues el telèfon contra la pàgina del passaport amb el xip NFC (consulta els consells a continuació)",
+      "step7": "Mantén el telèfon contra la pàgina del passaport que té el xip NFC i <strong>no el moguis gens durant almenys 5 segons</strong>, moure'l massa aviat és la causa d'error més habitual",
       "step8": "Sabràs que ha tingut èxit quan vegis percentatges creixents i un indicador de càrrega",
       "step6": "Fes una foto clara de la pàgina del passaport amb els números a la part inferior",
       "download_google_play": "Obtén-lo a Google Play",
-      "step5": "Selecciona <strong>Passaport</strong> (els DNI no són compatibles)"
+      "step5": "Selecciona <strong>Passaport</strong> (els DNI no són compatibles)",
+      "scanning_tips": {
+        "heading": "Consells per a un escaneig NFC correcte",
+        "description": "L'escaneig NFC és la part més delicada. Aquests consells milloren significativament les teves possibilitats:",
+        "remove_case": "<strong>Treu la funda del telèfon</strong>: fins i tot les fundes fines poden bloquejar el senyal NFC",
+        "hold_still": "<strong>Mantén el telèfon completament immòbil</strong> durant almenys 5 segons: moure'l massa aviat és la causa més habitual d'error",
+        "flat_surface": "<strong>Col·loca el passaport sobre una superfície plana</strong>; no el subjectis amb la mà",
+        "nfc_location": "<strong>Localitza l'antena NFC del teu telèfon</strong>: normalment es troba a la part superior central del darrere del telèfon. Prova diferents posicions si no es connecta",
+        "no_metal": "<strong>Evita les superfícies metàl·liques</strong>; no posis el passaport sobre una taula de metall ni sobre un portàtil",
+        "retry": "Si l'escaneig falla, torna-ho a provar — sovint calen 2-3 intents per aconseguir el posicionament correcte"
+      },
+      "before_you_start": {
+        "heading": "Abans de començar",
+        "nfc_check": "El teu telèfon ha de tenir <strong>capacitat NFC</strong>, la majoria de telèfons moderns en tenen. L'NFC sol estar activat per defecte, però en alguns telèfons més antics és possible que l'hagis d'activar a la configuració del telèfon.",
+        "passport_check": "El teu passaport ha de ser un <strong>passaport biomètric</strong>: busca el símbol del xip daurat a la coberta. Els passaports antics sense aquest símbol no serveixen.",
+        "remove_case": "<strong>Retira la funda del telèfon abans de començar</strong>, fins i tot les fundes fines poden bloquejar el senyal NFC i fer que l'escaneig falli."
+      },
+      "didnt_work": {
+        "heading": "Tens problemes?",
+        "tip1": "En telèfons Android més antics, assegura't que l'NFC estigui activat a la configuració del telèfon (la majoria de telèfons moderns el tenen activat per defecte)",
+        "tip2": "Prova amb una altra pàgina del passaport, la ubicació del xip varia segons el país",
+        "tip3": "Si utilitzes Android, assegura't de tenir instal·lada l'aplicació IRIS ID (no la versió del navegador)",
+        "tip4": "Alguns passaports o targetes de passaport antics no tenen xips NFC i no funcionaran",
+        "contact": "Si encara tens problemes, <supportLink>fes-nos-ho saber</supportLink> i t'ajudarem."
+      }
     }
   },
   "do_not_email": {
@@ -234,7 +267,7 @@
       "no_emails_enable_text": "No m'enviïs correus",
       "no_emails_disable_text": "Torna a activar els correus"
     },
-    "caveat": "En activar aquest paràmetre, el teu compte es configurarà per no acceptar sol·licituds d'allotjament. Continuaràs rebent correus de seguretat (com els de restabliment de contrasenya). Podries continuar rebent el butlletí; pots donar-te de baixa fent servir l'enllaç al peu del butlletí."
+    "caveat": "Si actives aquesta opció, el teu compte deixarà d'acceptar sol·licituds d'allotjament. Continuaràs rebent correus de seguretat (com els de restabliment de contrasenya). Podries continuar rebent el butlletí; pots donar-te de baixa fent servir l'enllaç al peu del butlletí."
   },
   "reset_password": "Restableix la contrasenya",
   "change_email_confirmation": {
@@ -345,7 +378,7 @@
       "link_type_linkedin": "LinkedIn",
       "link_type_website": "Lloc web",
       "link_text_label": "Valor de l'enllaç",
-      "link_text_linkedin_placeholder": "jane-doe-a1b2c3",
+      "link_text_linkedin_placeholder": "anna-vila-a1b2c3",
       "link_text_email_placeholder": "el-teu@correu.com",
       "link_text_website_placeholder": "https://el-teu-lloc-web.com",
       "link_text_linkedin_helper": "El nom d'usuari de l'URL del teu perfil (p. ex. linkedin.com/in/jane-doe-a1b2c3)",

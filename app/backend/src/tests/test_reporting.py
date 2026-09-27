@@ -9,11 +9,6 @@ from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import reporting_session
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def test_reporting(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()

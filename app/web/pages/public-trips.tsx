@@ -7,14 +7,6 @@ import { COMMUNITIES, GLOBAL, NOTIFICATIONS, PUBLIC_TRIPS } from "i18n/namespace
 import { GetStaticProps } from "next";
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
-  const isPublicTripsEnabled = process.env.NODE_ENV !== "production";
-
-  if (!isPublicTripsEnabled) {
-    return {
-      notFound: true,
-    };
-  }
-
   return {
     props: {
       ...(await appServerSideTranslations(locale ?? DEFAULT_LOCALE, [

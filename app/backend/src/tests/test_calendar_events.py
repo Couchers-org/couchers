@@ -2,7 +2,6 @@ import re
 from datetime import UTC, datetime, timedelta
 
 import icalendar
-import pytest
 
 from couchers.email.calendar_events import create_event_ics_calendar, create_host_request_ics_calendar
 from couchers.i18n.context import LocalizationContext
@@ -12,11 +11,6 @@ from tests.fixtures.db import generate_user
 from tests.fixtures.misc import EmailCollector, Moderator
 from tests.fixtures.sessions import requests_session
 from tests.test_requests import valid_request_text
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
 
 
 def test_host_request_ics_content():

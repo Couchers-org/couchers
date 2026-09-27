@@ -17,11 +17,6 @@ from tests.fixtures.misc import PushCollector, process_jobs
 from tests.fixtures.sessions import api_session, real_jail_session
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def test_activeness_probes_happy_path_inactive(db, push_collector: PushCollector):
     user, token = generate_user(
         hosting_status=HostingStatus.can_host,

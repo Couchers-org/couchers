@@ -97,7 +97,8 @@
       "problem_helper": "Describe los pasos que seguiste: en qué páginas estabas, dónde hiciste clic, etc.",
       "expect_label": "¿Qué pasó? ¿Qué debería haber pasado?",
       "expect_helper": "Describe el problema que encontraste como resultado de tus acciones, incluidos los mensajes de error, y lo que esperabas que ocurriera en su lugar.",
-      "success_message2": "¡Gracias por informar de este problema y hacer que Couchers sea mejor! Se ha enviado un informe a los desarrolladores. Puedes referirte a este problema usando el ID: <id/>."
+      "success_message2": "¡Gracias por informar de este problema y hacer que Couchers sea mejor! Se ha enviado un informe a los desarrolladores. Puedes referirte a este problema usando el ID: <id/>.",
+      "no_response_note": "<strong>No recibirás una respuesta.</strong> Si necesitas ayuda por favor escribe a <supportLink>support@couchers.org</supportLink>."
     },
     "content": {
       "button_label": "Denunciar contenido o comportamiento inapropiado",
@@ -345,5 +346,7 @@
   "close_button_a11y": "Cerrar",
   "bar": {
     "help_button_a11y": "Ayuda"
-  }
+  },
+  "more_options_a11y": "Más opciones",
+  "tap_press_to_flip": "Toca / pulsa para girar"
 }

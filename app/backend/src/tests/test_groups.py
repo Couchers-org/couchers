@@ -16,11 +16,6 @@ from tests.test_communities import (  # noqa
 )
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 class TestGroups:
     @staticmethod
     def test_GetGroup(testing_communities):

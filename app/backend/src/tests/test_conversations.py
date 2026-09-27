@@ -28,11 +28,6 @@ from tests.fixtures.sessions import api_session, conversations_session, notifica
 from tests.fixtures.timewarp import Timewarp
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def test_list_group_chats(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()

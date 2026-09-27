@@ -16,7 +16,7 @@ from couchers.db import session_scope
 from couchers.helpers.clusters import CHILD_NODE_TYPE, create_cluster, create_node
 from couchers.jobs.enqueue import queue_job
 from couchers.materialized_views import LiteUser
-from couchers.models import EventCommunityInviteRequest, Node, User, Volunteer
+from couchers.models import EventCommunityInviteRequest, Node, User, UserActivity, Volunteer
 from couchers.models.notifications import NotificationTopicAction
 from couchers.models.postal_verification import PostalVerificationAttempt
 from couchers.notifications.notify import notify
@@ -441,3 +441,32 @@ class Editor(editor_pb2_grpc.EditorServicer):
 
         pdf_data = download_pdf(attempt.mypostcard_job_id)
         return editor_pb2.DownloadPostcardPdfRes(pdf=pdf_data)
+
+    def LookupUsersForDebug(
+        self, request: editor_pb2.LookupUsersForDebugReq, context: CouchersContext, session: Session
+    ) -> editor_pb2.LookupUsersForDebugRes:
+        sofa_prefix = request.sofa_prefix.strip()
+        if len(sofa_prefix) != 12:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:invalid_sofa_prefix")
+
+        users = session.execute(
+            select(User.id, User.banned_at, User.deleted_at, User.shadowed_at)
+            .where(
+                User.id.in_(
+                    select(UserActivity.user_id).where(UserActivity.sofa.startswith(sofa_prefix, autoescape=True))
+                )
+            )
+            .order_by(User.id)
+        ).all()
+
+        return editor_pb2.LookupUsersForDebugRes(
+            users=[
+                editor_pb2.LookupUser(
+                    user_id=user_id,
+                    banned=banned_at is not None,
+                    deleted=deleted_at is not None,
+                    shadowed=shadowed_at is not None,
+                )
+                for user_id, banned_at, deleted_at, shadowed_at in users
+            ]
+        )

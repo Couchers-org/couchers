@@ -29,5 +29,13 @@
   "pending": "Pendent",
   "remove_friend": "Elimina amic",
   "unblock_user": "Desbloqueja l'usuari",
-  "accept": "Accepta"
+  "accept": "Accepta",
+  "add_friend_confirmation_dialog": {
+    "title": "Coneixes aquesta persona?",
+    "message": "Envia sol·licituds d'amistat només a persones que ja coneguis o que hagis conegut durant els teus viatges: la majoria de la gent prefereix connectar després d'haver-se conegut en persona. <helpCenterLink>Llegeix més sobre les sol·licituds d'amistat al nostre Centre d'ajuda.</helpCenterLink>",
+    "confirm": "Sí, la conec. Envia la sol·licitud!"
+  },
+  "friend_requests_dismiss_button": "Descarta",
+  "friend_request_no_longer_available": "Aquesta sol·licitud d'amistat ja no està disponible.",
+  "cancel_request_button_a11y": "Cancel·la la sol·licitud"
 }

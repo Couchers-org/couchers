@@ -1,7 +1,6 @@
 import json
 from urllib.parse import parse_qs, urlparse
 
-import pytest
 from google.protobuf import empty_pb2
 from sqlalchemy import inspect, select
 from sqlalchemy.orm import undefer
@@ -14,11 +13,6 @@ from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import api_session, media_session
 
 METADATA_COLUMNS = [attr.key for attr in inspect(Upload).column_attrs if attr.deferred]
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
 
 
 def test_media_upload(db):
