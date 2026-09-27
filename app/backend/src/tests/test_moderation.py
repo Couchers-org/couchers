@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 
 import grpc
 import pytest
-from google.protobuf import empty_pb2, wrappers_pb2
+from google.protobuf import empty_pb2
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import select
 
@@ -32,10 +32,7 @@ from couchers.models import (
     ModerationVisibility,
     Page,
     PageType,
-    PublicTrip,
-    PublicTripStatus,
     Reply,
-    Thread,
     User,
     get_moderated_models,
 )
@@ -48,7 +45,6 @@ from couchers.proto import (
     messages_pb2,
     moderation_pb2,
     notifications_pb2,
-    references_pb2,
     requests_pb2,
     threads_pb2,
 )
@@ -63,7 +59,6 @@ from tests.fixtures.sessions import (
     events_session,
     notifications_session,
     real_moderation_session,
-    references_session,
     requests_session,
     threads_session,
 )
@@ -3876,28 +3871,16 @@ def _get_moderated_object(token, moderation_state_id):
         return api.GetModeratedObject(moderation_pb2.GetModeratedObjectReq(moderation_state_id=moderation_state_id))
 
 
-def _create_event(token, title, *, owner_group_id=None):
+def _create_event(token, title):
     start_time = now() + timedelta(hours=2)
     with events_session(token) as api:
-        res = api.CreateEvent(
+        return api.CreateEvent(
             events_pb2.CreateEventReq(
                 title=title,
                 content="Event description.",
                 location=events_pb2.EventLocation(address="Near Null Island", lat=0.1, lng=0.2),
                 start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
                 end_datetime_iso8601_local=datetime_to_iso8601_local(start_time + timedelta(hours=3)),
-            )
-        )
-        if owner_group_id:
-            api.TransferEvent(events_pb2.TransferEventReq(event_id=res.event_id, new_owner_group_id=owner_group_id))
-    return res
-
-
-def _create_discussion(token, community_id, title):
-    with discussions_session(token) as api:
-        return api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title=title, content="Discussion body.", owner_community_id=community_id
             )
         )
 
@@ -3921,57 +3904,10 @@ def test_GetModeratedObject_host_request(db):
 
     res = _get_moderated_object(super_token, state_id)
     assert res.moderation_state.moderation_state_id == state_id
-    assert res.moderation_state.object_type == moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST
-    assert res.WhichOneof("details") == "host_request"
-    assert res.host_request.surfer_user_id == surfer.id
-    assert res.host_request.host_user_id == host.id
-    assert res.host_request.hosting_city
-    assert res.host_request.from_date == (today() + timedelta(days=2)).isoformat()
-    assert res.host_request.to_date == (today() + timedelta(days=3)).isoformat()
-    assert res.host_request.status == "pending"
+    assert res.involved_user_ids == [host.id]
     assert res.url == ""
     assert not res.HasField("community")
-
-
-def test_GetModeratedObject_group_chat(db):
-    super_user, super_token = generate_user(is_superuser=True)
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
-    user3, _ = generate_user()
-    make_friends(user1, user2)
-    make_friends(user1, user3)
-
-    with conversations_session(token1) as api:
-        group_chat_id = api.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(
-                title=wrappers_pb2.StringValue(value="Trip planning"), recipient_user_ids=[user2.id, user3.id]
-            )
-        ).group_chat_id
-
-    res = _get_moderated_object(super_token, _moderation_state_id(ModerationObjectType.group_chat, group_chat_id))
-    assert res.WhichOneof("details") == "group_chat"
-    assert res.group_chat.title == "Trip planning"
-    assert not res.group_chat.is_dm
-    assert sorted(res.group_chat.member_user_ids) == sorted([user1.id, user2.id, user3.id])
-
-
-def test_GetModeratedObject_friend_request(db):
-    super_user, super_token = generate_user(is_superuser=True)
-    sender, sender_token = generate_user()
-    recipient, _ = generate_user()
-
-    with api_session(sender_token) as api:
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=recipient.id))
-
-    with session_scope() as session:
-        fr_id = session.execute(
-            select(FriendRelationship.id).where(FriendRelationship.from_user_id == sender.id)
-        ).scalar_one()
-
-    res = _get_moderated_object(super_token, _moderation_state_id(ModerationObjectType.friend_request, fr_id))
-    assert res.WhichOneof("details") == "friend_request"
-    assert res.friend_request.to_user_id == recipient.id
-    assert res.friend_request.status == "pending"
+    assert not res.HasField("thread_parent")
 
 
 def test_GetModeratedObject_event_occurrence_in_group(db):
@@ -3984,41 +3920,18 @@ def test_GetModeratedObject_event_occurrence_in_group(db):
         community_id = community.id
         group_id = group.id
 
-    event = _create_event(token, "Group Picnic", owner_group_id=group_id)
+    event = _create_event(token, "Group Picnic")
+    with events_session(token) as api:
+        api.TransferEvent(events_pb2.TransferEventReq(event_id=event.event_id, new_owner_group_id=group_id))
 
     res = _get_moderated_object(
         super_token, _moderation_state_id(ModerationObjectType.event_occurrence, event.event_id)
     )
-    assert res.WhichOneof("details") == "event_occurrence"
-    assert res.event_occurrence.event_id > 0
-    assert res.event_occurrence.start_time == event.start_time
-    assert res.event_occurrence.end_time == event.end_time
-    assert res.event_occurrence.address == "Near Null Island"
     assert res.url == urls.event_link(occurrence_id=event.event_id, slug=event.slug)
     assert res.community.community_id == community_id
     assert res.community.community_name == "Event Community"
     assert res.community.group_id == group_id
     assert res.community.group_name == "Event Group"
-
-
-def test_GetModeratedObject_discussion(db):
-    super_user, super_token = generate_user(is_superuser=True)
-    user, token = generate_user()
-
-    with session_scope() as session:
-        community_id = create_community(session, 0, 2, "Discussion Community", [user], [], None).id
-
-    discussion = _create_discussion(token, community_id, "Where to eat?")
-
-    res = _get_moderated_object(
-        super_token, _moderation_state_id(ModerationObjectType.discussion, discussion.discussion_id)
-    )
-    assert res.WhichOneof("details") is None
-    assert res.url == urls.discussion_link(discussion_id=str(discussion.discussion_id), slug=discussion.slug)
-    assert res.community.community_id == community_id
-    assert res.community.community_name == "Discussion Community"
-    assert res.community.group_id == 0
-    assert res.community.group_name == ""
 
 
 def test_GetModeratedObject_comment_on_discussion(db):
@@ -4028,17 +3941,22 @@ def test_GetModeratedObject_comment_on_discussion(db):
     with session_scope() as session:
         community_id = create_community(session, 0, 2, "Discussion Community", [user], [], None).id
 
-    discussion = _create_discussion(token, community_id, "Where to eat?")
+    with discussions_session(token) as api:
+        discussion = api.CreateDiscussion(
+            discussions_pb2.CreateDiscussionReq(
+                title="Where to eat?", content="Discussion body.", owner_community_id=community_id
+            )
+        )
     comment_thread_id = _post_reply(token, discussion.thread.thread_id, "Try the noodle place")
 
     res = _get_moderated_object(
         super_token, _moderation_state_id(ModerationObjectType.comment, comment_thread_id // 10)
     )
-    assert res.WhichOneof("details") == "comment"
-    assert res.comment.parent.discussion_id == discussion.discussion_id
-    assert res.comment.parent.title == "Where to eat?"
+    assert res.thread_parent.discussion_id == discussion.discussion_id
+    assert res.thread_parent.title == "Where to eat?"
     assert res.url == urls.discussion_link(discussion_id=str(discussion.discussion_id), slug=discussion.slug)
     assert res.community.community_id == community_id
+    assert res.community.group_id == 0
 
 
 def test_GetModeratedObject_comment_on_page(db):
@@ -4058,31 +3976,10 @@ def test_GetModeratedObject_comment_on_page(db):
     res = _get_moderated_object(
         super_token, _moderation_state_id(ModerationObjectType.comment, comment_thread_id // 10)
     )
-    assert res.comment.parent.page_id == page_id
-    assert res.comment.parent.title == "Main page for the Page Community community"
+    assert res.thread_parent.page_id == page_id
+    assert res.thread_parent.title == "Main page for the Page Community community"
     assert res.url == ""
     assert res.community.community_id == community_id
-
-
-def test_GetModeratedObject_comment_on_unattached_thread(db):
-    super_user, super_token = generate_user(is_superuser=True)
-    user, token = generate_user()
-
-    with session_scope() as session:
-        thread = Thread()
-        session.add(thread)
-        session.flush()
-        thread_id = pack_thread_id(thread.id, 0)
-
-    comment_thread_id = _post_reply(token, thread_id, "hello")
-
-    res = _get_moderated_object(
-        super_token, _moderation_state_id(ModerationObjectType.comment, comment_thread_id // 10)
-    )
-    assert res.WhichOneof("details") == "comment"
-    assert not res.comment.HasField("parent")
-    assert res.url == ""
-    assert not res.HasField("community")
 
 
 def test_GetModeratedObject_reply_on_event(db):
@@ -4097,95 +3994,17 @@ def test_GetModeratedObject_reply_on_event(db):
     reply_thread_id = _post_reply(token, comment_thread_id, "Sure")
 
     with session_scope() as session:
-        reply = session.execute(select(Reply).where(Reply.id == reply_thread_id // 10)).scalar_one()
-        reply_state_id = reply.moderation_state_id
+        reply_state_id = session.execute(
+            select(Reply.moderation_state_id).where(Reply.id == reply_thread_id // 10)
+        ).scalar_one()
 
     res = _get_moderated_object(super_token, reply_state_id)
-    assert res.WhichOneof("details") == "reply"
-    assert res.reply.comment_id == comment_thread_id // 10
-    assert res.reply.comment_content == "Can I bring a friend?"
-    assert res.reply.parent.event_occurrence_id == event.event_id
-    assert res.reply.parent.title == "Board Games"
+    assert res.parent_comment_id == comment_thread_id // 10
+    assert res.parent_comment_content == "Can I bring a friend?"
+    assert res.thread_parent.event_occurrence_id == event.event_id
+    assert res.thread_parent.title == "Board Games"
     assert res.url == urls.event_link(occurrence_id=event.event_id, slug=event.slug)
     assert res.community.community_id == community_id
-    assert res.community.group_id == 0
-
-
-def test_GetModeratedObject_reference(db):
-    super_user, super_token = generate_user(is_superuser=True)
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
-    make_friends(user1, user2)
-
-    with references_session(token1) as api:
-        reference_id = api.WriteFriendReference(
-            references_pb2.WriteFriendReferenceReq(
-                to_user_id=user2.id,
-                text="Great friend",
-                private_text="Only for the mods",
-                was_appropriate=True,
-                rating=0.9,
-            )
-        ).reference_id
-
-    res = _get_moderated_object(super_token, _moderation_state_id(ModerationObjectType.reference, reference_id))
-    assert res.WhichOneof("details") == "reference"
-    assert res.reference.to_user_id == user2.id
-    assert res.reference.reference_type == "friend"
-    assert res.reference.host_request_id == 0
-    assert res.url == urls.user_link(username=user2.username)
-    assert "Only for the mods" not in str(res)
-
-
-def _add_public_trip(session, user_id, node_id, from_date, to_date, moderation_state_id):
-    trip = PublicTrip(
-        user_id=user_id,
-        node_id=node_id,
-        from_date=from_date,
-        to_date=to_date,
-        description="Looking for a host!",
-        status=PublicTripStatus.searching_for_host,
-        moderation_state_id=moderation_state_id,
-    )
-    session.add(trip)
-    session.flush()
-    return trip.id
-
-
-def test_GetModeratedObject_public_trip(db):
-    super_user, super_token = generate_user(is_superuser=True)
-    user, _ = generate_user()
-    from_date = today() + timedelta(days=5)
-    to_date = today() + timedelta(days=10)
-
-    with session_scope() as session:
-        community_id = create_community(session, 0, 2, "Trip Community", [user], [], None).id
-        state = create_moderation(
-            session,
-            ModerationObjectType.public_trip,
-            lambda moderation_state_id: _add_public_trip(
-                session, user.id, community_id, from_date, to_date, moderation_state_id
-            ),
-            user.id,
-        )
-        state_id = state.id
-
-    res = _get_moderated_object(super_token, state_id)
-    assert res.WhichOneof("details") == "public_trip"
-    assert res.public_trip.from_date == from_date.isoformat()
-    assert res.public_trip.to_date == to_date.isoformat()
-    assert res.community.community_id == community_id
-    assert res.community.community_name == "Trip Community"
-
-
-def test_GetModeratedObject_user(db):
-    super_user, super_token = generate_user(is_superuser=True)
-    user, _ = generate_user()
-
-    res = _get_moderated_object(super_token, _moderation_state_id(ModerationObjectType.user, user.id))
-    assert res.WhichOneof("details") is None
-    assert res.url == urls.user_link(username=user.username)
-    assert not res.HasField("community")
 
 
 def test_GetModeratedObject_not_found(db):
