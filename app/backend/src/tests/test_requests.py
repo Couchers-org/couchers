@@ -27,6 +27,7 @@ from couchers.models import (
     NodeType,
     Notification,
     RateLimitAction,
+    RateLimitViolation,
 )
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.proto import (
@@ -518,6 +519,27 @@ def test_excessive_requests_are_reported(db, low_rate_limits, email_collector: E
             f"User {user.username} has sent {rate_limit_definition.hard_limit} host requests in the past {RATE_LIMIT_HOURS} hours."
         )
         assert "The user has been blocked from sending further host requests for now." in email.plain
+
+        with session_scope() as session:
+            assert session.execute(
+                select(RateLimitViolation.is_hard_limit)
+                .where(RateLimitViolation.user_id == user.id)
+                .order_by(RateLimitViolation.id)
+            ).scalars().all() == [False, True]
+
+        # still blocked once the hard violation is on record, without reporting again
+        host_user, _ = generate_user()
+        with pytest.raises(grpc.RpcError) as exc_info:
+            _ = api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=host_user.id,
+                    from_date=today_plus_2.isoformat(),
+                    to_date=today_plus_3.isoformat(),
+                    text=valid_request_text("Excessive test request"),
+                )
+            )
+        assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
+        assert email_collector.count_for_reports() == 0
 
 
 def add_message(db, text, author_id, conversation_id):
