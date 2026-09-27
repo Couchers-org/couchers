@@ -12,6 +12,7 @@ export default function useMarkLastSeen(
   lastSeenMessageId?: number,
 ) {
   const maxMessageIdRef = useRef(0);
+  const pendingMessageIdRef = useRef<number | null>(null);
   // Sync with latest lastSeenMessageId so anything below that ID doesn't get tried again.
   // Needed since lastSeenMessageId comes from react query which is initially
   // undefined so can't do useRef(lastSeenMessageId).
@@ -24,14 +25,30 @@ export default function useMarkLastSeen(
   const debouncedMarkLastSeen = useMemo(
     () =>
       debounce((messageId: number) => {
+        pendingMessageIdRef.current = null;
         markLastSeenMutate(messageId);
       }, MARK_LAST_SEEN_TIMEOUT),
     [markLastSeenMutate],
   );
 
+  // Safe after unmount: callers' hook-level onSuccess still fires, unlike per-call
+  // mutate(x, { onSuccess }) callbacks.
+  // https://tanstack.com/query/latest/docs/framework/react/guides/mutations#mutation-side-effects
+  useEffect(
+    () => () => {
+      debouncedMarkLastSeen.clear();
+      if (pendingMessageIdRef.current !== null) {
+        markLastSeenMutate(pendingMessageIdRef.current);
+        pendingMessageIdRef.current = null;
+      }
+    },
+    [debouncedMarkLastSeen, markLastSeenMutate],
+  );
+
   const markLastSeen = (messageId: number) => {
     if (messageId > maxMessageIdRef.current) {
       maxMessageIdRef.current = messageId;
+      pendingMessageIdRef.current = messageId;
       debouncedMarkLastSeen(messageId);
     }
   };
