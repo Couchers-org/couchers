@@ -26,7 +26,7 @@ jest.mock("i18n/useLocaleInfos", () => ({
   useLocaleInfos: () => ({
     data: [
       { code: "en", autonym: "English", stringAvailabilityPercent: 100 },
-      { code: "es", autonym: "Español (España)", stringAvailabilityPercent: 85 },
+      { code: "es", autonym: "Español", stringAvailabilityPercent: 85 },
       { code: "fr", autonym: "Français", stringAvailabilityPercent: 75 },
       { code: "de", autonym: "Deutsch", stringAvailabilityPercent: 60 },
       // Both Chinese variants are shown so we can assert they are distinct
