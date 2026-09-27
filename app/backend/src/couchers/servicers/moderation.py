@@ -5,6 +5,7 @@ import grpc
 from sqlalchemy import and_, exists, not_, or_, select
 from sqlalchemy.orm import Session
 
+from couchers import urls
 from couchers.context import CouchersContext
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import (
@@ -16,12 +17,14 @@ from couchers.metrics import (
 )
 from couchers.models import (
     AdminActionLevel,
+    Cluster,
     Comment,
     Discussion,
     Event,
     EventOccurrence,
     FriendRelationship,
     GroupChat,
+    GroupChatSubscription,
     HostRequest,
     Message,
     MessageType,
@@ -34,6 +37,8 @@ from couchers.models import (
     ModerationVisibility,
     Notification,
     NotificationDelivery,
+    Page,
+    PageVersion,
     PublicTrip,
     Reference,
     Reply,
@@ -42,7 +47,7 @@ from couchers.models import (
 )
 from couchers.proto import moderation_pb2, moderation_pb2_grpc
 from couchers.proto.internal import jobs_pb2
-from couchers.utils import Timestamp_from_datetime, not_none, now
+from couchers.utils import Timestamp_from_datetime, date_to_api, not_none, now
 
 logger = logging.getLogger(__name__)
 
@@ -331,6 +336,166 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
     )
 
     return state_pb
+
+
+def _community_pb(
+    session: Session, node_id: int, owner_cluster_id: int | None = None
+) -> moderation_pb2.ModeratedObjectCommunity:
+    community = moderation_pb2.ModeratedObjectCommunity(
+        community_id=node_id,
+        community_name=session.execute(
+            select(Cluster.name).where(Cluster.parent_node_id == node_id).where(Cluster.is_official_cluster)
+        ).scalar_one(),
+    )
+    if owner_cluster_id is not None:
+        cluster = session.execute(select(Cluster).where(Cluster.id == owner_cluster_id)).scalar_one()
+        if not cluster.is_official_cluster:
+            community.group_id = cluster.id
+            community.group_name = cluster.name
+    return community
+
+
+def _set_event_occurrence_location(
+    session: Session, res: moderation_pb2.GetModeratedObjectRes, occurrence: EventOccurrence
+) -> None:
+    event = occurrence.event
+    res.url = urls.event_link(occurrence_id=occurrence.id, slug=event.slug)
+    res.community.CopyFrom(_community_pb(session, event.parent_node_id, event.owner_cluster_id))
+
+
+def _set_discussion_location(
+    session: Session, res: moderation_pb2.GetModeratedObjectRes, discussion: Discussion
+) -> None:
+    res.url = urls.discussion_link(discussion_id=str(discussion.id), slug=discussion.slug)
+    res.community.CopyFrom(_community_pb(session, discussion.owner_cluster.parent_node_id, discussion.owner_cluster_id))
+
+
+def _thread_parent_pb(
+    session: Session, res: moderation_pb2.GetModeratedObjectRes, thread_id: int
+) -> moderation_pb2.ModeratedThreadParent | None:
+    """Finds what the thread is attached to, and points res at that object's location"""
+    occurrence = session.execute(
+        select(EventOccurrence).where(EventOccurrence.thread_id == thread_id)
+    ).scalar_one_or_none()
+    if occurrence is not None:
+        _set_event_occurrence_location(session, res, occurrence)
+        return moderation_pb2.ModeratedThreadParent(event_occurrence_id=occurrence.id, title=occurrence.event.title)
+
+    discussion = session.execute(select(Discussion).where(Discussion.thread_id == thread_id)).scalar_one_or_none()
+    if discussion is not None:
+        _set_discussion_location(session, res, discussion)
+        return moderation_pb2.ModeratedThreadParent(discussion_id=discussion.id, title=discussion.title)
+
+    page = session.execute(select(Page).where(Page.thread_id == thread_id)).scalar_one_or_none()
+    if page is not None:
+        res.community.CopyFrom(_community_pb(session, page.parent_node_id, page.owner_cluster_id))
+        title = session.execute(
+            select(PageVersion.title).where(PageVersion.page_id == page.id).order_by(PageVersion.id.desc()).limit(1)
+        ).scalar_one()
+        return moderation_pb2.ModeratedThreadParent(page_id=page.id, title=title)
+
+    return None
+
+
+def moderated_object_to_pb(state: ModerationState, session: Session) -> moderation_pb2.GetModeratedObjectRes:
+    res = moderation_pb2.GetModeratedObjectRes(moderation_state=moderation_state_to_pb(state, session))
+    object_type = state.object_type
+    object_id = state.object_id
+
+    if object_type == ModerationObjectType.host_request:
+        host_request = session.execute(select(HostRequest).where(HostRequest.conversation_id == object_id)).scalar_one()
+        res.host_request.CopyFrom(
+            moderation_pb2.ModeratedHostRequest(
+                surfer_user_id=host_request.surfer_user_id,
+                host_user_id=host_request.host_user_id,
+                hosting_city=host_request.hosting_city,
+                from_date=date_to_api(host_request.from_date),
+                to_date=date_to_api(host_request.to_date),
+                status=host_request.status.name,
+            )
+        )
+    elif object_type == ModerationObjectType.group_chat:
+        group_chat = session.execute(select(GroupChat).where(GroupChat.conversation_id == object_id)).scalar_one()
+        member_user_ids = (
+            session.execute(
+                select(GroupChatSubscription.user_id)
+                .where(GroupChatSubscription.group_chat_id == object_id)
+                .where(GroupChatSubscription.left.is_(None))
+                .order_by(GroupChatSubscription.joined.asc())
+            )
+            .scalars()
+            .all()
+        )
+        res.group_chat.CopyFrom(
+            moderation_pb2.ModeratedGroupChat(
+                title=group_chat.title or "",
+                is_dm=group_chat.is_dm,
+                member_user_ids=member_user_ids,
+            )
+        )
+    elif object_type == ModerationObjectType.friend_request:
+        friend_request = session.execute(
+            select(FriendRelationship).where(FriendRelationship.id == object_id)
+        ).scalar_one()
+        res.friend_request.CopyFrom(
+            moderation_pb2.ModeratedFriendRequest(
+                to_user_id=friend_request.to_user_id,
+                status=friend_request.status.name,
+            )
+        )
+    elif object_type == ModerationObjectType.event_occurrence:
+        occurrence = session.execute(select(EventOccurrence).where(EventOccurrence.id == object_id)).scalar_one()
+        _set_event_occurrence_location(session, res, occurrence)
+        res.event_occurrence.CopyFrom(
+            moderation_pb2.ModeratedEventOccurrence(
+                event_id=occurrence.event_id,
+                start_time=Timestamp_from_datetime(occurrence.start_time),
+                end_time=Timestamp_from_datetime(occurrence.end_time),
+                address=occurrence.address,
+            )
+        )
+    elif object_type == ModerationObjectType.comment:
+        comment = session.execute(select(Comment).where(Comment.id == object_id)).scalar_one()
+        res.comment.CopyFrom(moderation_pb2.ModeratedComment(parent=_thread_parent_pb(session, res, comment.thread_id)))
+    elif object_type == ModerationObjectType.reply:
+        reply, comment = session.execute(
+            select(Reply, Comment).join(Comment, Comment.id == Reply.comment_id).where(Reply.id == object_id)
+        ).one()
+        res.reply.CopyFrom(
+            moderation_pb2.ModeratedReply(
+                parent=_thread_parent_pb(session, res, comment.thread_id),
+                comment_id=comment.id,
+                comment_content=comment.content,
+            )
+        )
+    elif object_type == ModerationObjectType.discussion:
+        discussion = session.execute(select(Discussion).where(Discussion.id == object_id)).scalar_one()
+        _set_discussion_location(session, res, discussion)
+    elif object_type == ModerationObjectType.reference:
+        reference = session.execute(select(Reference).where(Reference.id == object_id)).scalar_one()
+        res.url = urls.user_link(username=reference.to_user.username)
+        res.reference.CopyFrom(
+            moderation_pb2.ModeratedReference(
+                to_user_id=reference.to_user_id,
+                reference_type=reference.reference_type.name,
+                host_request_id=reference.host_request_id or 0,
+            )
+        )
+    elif object_type == ModerationObjectType.public_trip:
+        public_trip = session.execute(select(PublicTrip).where(PublicTrip.id == object_id)).scalar_one()
+        res.community.CopyFrom(_community_pb(session, public_trip.node_id))
+        res.public_trip.CopyFrom(
+            moderation_pb2.ModeratedPublicTrip(
+                from_date=date_to_api(public_trip.from_date),
+                to_date=date_to_api(public_trip.to_date),
+            )
+        )
+    elif object_type == ModerationObjectType.user:
+        res.url = urls.user_link(username=res.moderation_state.author.username)
+    else:
+        raise ValueError(f"Unsupported moderation object type: {object_type}")
+
+    return res
 
 
 class Moderation(moderation_pb2_grpc.ModerationServicer):
@@ -768,3 +933,14 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
             moderation_states=state_pbs,
             next_page_token=str(states[page_size - 1].id) if len(states) > page_size else None,
         )
+
+    def GetModeratedObject(
+        self, request: moderation_pb2.GetModeratedObjectReq, context: CouchersContext, session: Session
+    ) -> moderation_pb2.GetModeratedObjectRes:
+        moderation_state = session.execute(
+            select(ModerationState).where(ModerationState.id == request.moderation_state_id)
+        ).scalar_one_or_none()
+        if moderation_state is None:
+            context.abort(grpc.StatusCode.NOT_FOUND, "Moderation state not found.")
+
+        return moderated_object_to_pb(moderation_state, session)

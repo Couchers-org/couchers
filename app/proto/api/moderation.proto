@@ -21,6 +21,8 @@ service Moderation {
   rpc SetUserContentVisibility(SetUserContentVisibilityReq) returns (SetUserContentVisibilityRes) {}
 
   rpc ListModerationStates(ListModerationStatesReq) returns (ListModerationStatesRes) {}
+
+  rpc GetModeratedObject(GetModeratedObjectReq) returns (GetModeratedObjectRes) {}
 }
 
 
@@ -205,4 +207,96 @@ message ListModerationStatesReq {
 message ListModerationStatesRes {
   repeated ModerationStateInfo moderation_states = 1;
   string next_page_token = 2;
+}
+
+message ModeratedObjectCommunity {
+  int64 community_id = 1;
+  string community_name = 2;
+  // Set when the object belongs to a group within the community
+  int64 group_id = 3;
+  string group_name = 4;
+}
+
+// What a comment thread is attached to
+message ModeratedThreadParent {
+  oneof parent {
+    int64 event_occurrence_id = 1;
+    int64 discussion_id = 2;
+    int64 page_id = 3;
+  }
+  string title = 4;
+}
+
+message ModeratedHostRequest {
+  int64 surfer_user_id = 1;
+  int64 host_user_id = 2;
+  string hosting_city = 3;
+  string from_date = 4;
+  string to_date = 5;
+  string status = 6;
+}
+
+message ModeratedGroupChat {
+  string title = 1;
+  bool is_dm = 2;
+  // Current members only
+  repeated int64 member_user_ids = 3;
+}
+
+message ModeratedFriendRequest {
+  int64 to_user_id = 1;
+  string status = 2;
+}
+
+message ModeratedEventOccurrence {
+  int64 event_id = 1;
+  google.protobuf.Timestamp start_time = 2;
+  google.protobuf.Timestamp end_time = 3;
+  string address = 4;
+}
+
+message ModeratedComment {
+  // Not set if the thread isn't attached to anything
+  ModeratedThreadParent parent = 1;
+}
+
+message ModeratedReply {
+  // Not set if the thread isn't attached to anything
+  ModeratedThreadParent parent = 1;
+  int64 comment_id = 2;
+  string comment_content = 3;
+}
+
+message ModeratedReference {
+  int64 to_user_id = 1;
+  string reference_type = 2;
+  int64 host_request_id = 3;
+}
+
+message ModeratedPublicTrip {
+  string from_date = 1;
+  string to_date = 2;
+}
+
+message GetModeratedObjectReq {
+  int64 moderation_state_id = 1;
+}
+
+message GetModeratedObjectRes {
+  ModerationStateInfo moderation_state = 1;
+  // Web link to the object, or to what it's attached to; empty if there is none
+  string url = 2;
+  // Not set if the object doesn't belong to a community
+  ModeratedObjectCommunity community = 3;
+  // Not set for object types with nothing to add beyond moderation_state (discussions and users)
+  oneof details {
+    ModeratedHostRequest host_request = 4;
+    ModeratedGroupChat group_chat = 5;
+    ModeratedFriendRequest friend_request = 6;
+    ModeratedEventOccurrence event_occurrence = 7;
+    ModeratedComment comment = 8;
+    ModeratedReply reply = 9;
+    ModeratedReference reference = 10;
+    ModeratedPublicTrip public_trip = 11;
+  }
 }
