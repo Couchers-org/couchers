@@ -1,4 +1,4 @@
-# Claude Code Instructions for Couchers
+# AI/Coding Agent Instructions for Couchers
 
 ## Summary
 
