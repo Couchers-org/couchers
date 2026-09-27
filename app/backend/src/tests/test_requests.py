@@ -2673,3 +2673,102 @@ def test_create_request_duplicate_offer_rejected(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+
+def test_create_request_offer_allowed_after_withdrawal(db, moderator):
+    """Withdrawing an offer frees the host to offer again, e.g. to renegotiate dates."""
+    surfer, _ = generate_user()
+    _, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+
+    with requests_session(host_token) as api:
+        request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=trip_from.isoformat(),
+                to_date=trip_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(request_id)
+
+    with requests_session(host_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
+            )
+        )
+
+        # a second offer on shorter dates now goes through
+        res = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=trip_from.isoformat(),
+                to_date=(trip_to - timedelta(days=2)).isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        )
+        assert res.host_request_id != request_id
+
+        # ...but that new offer is active, so a third is still blocked
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=surfer.id,
+                    from_date=trip_from.isoformat(),
+                    to_date=trip_to.isoformat(),
+                    text=valid_request_text(),
+                    public_trip_id=trip_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+
+def test_create_request_offer_blocked_after_traveller_declines(db, moderator):
+    """Only the host withdrawing frees them to re-offer; being declined does not."""
+    surfer, surfer_token = generate_user()
+    _, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+
+    with requests_session(host_token) as api:
+        request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=trip_from.isoformat(),
+                to_date=trip_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(request_id)
+
+    # the traveller is the recipient on an offer, so they are the one who declines
+    with requests_session(surfer_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
+            )
+        )
+
+    with requests_session(host_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=surfer.id,
+                    from_date=trip_from.isoformat(),
+                    to_date=trip_to.isoformat(),
+                    text=valid_request_text(),
+                    public_trip_id=trip_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
