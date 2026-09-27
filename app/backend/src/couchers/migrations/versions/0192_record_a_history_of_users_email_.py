@@ -28,6 +28,7 @@ def upgrade() -> None:
     )
     op.create_index("ix_user_email_history_email", "user_email_history", ["email"], unique=False)
     op.create_index("ix_user_email_history_user_id_time", "user_email_history", ["user_id", "time"], unique=False)
+    op.execute("INSERT INTO user_email_history (user_id, email) SELECT id, email FROM users")
 
 
 def downgrade() -> None:
