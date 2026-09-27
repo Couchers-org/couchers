@@ -82,7 +82,8 @@
       "success_message2": "Agradecemos por relatar esse problema e melhorar o Couchers. Um relatório foi enviado para os desenvolvedores. Você pode consultar esse problema usando o ID <id/>.",
       "button_label": "Reportar um problema técnico",
       "problem_helper": "Descreva as etapas que você realizou: em quais páginas você estava, onde você clicou etc.",
-      "expect_label": "O que aconteceu? O que deveria ter acontecido?"
+      "expect_label": "O que aconteceu? O que deveria ter acontecido?",
+      "no_response_note": "<strong>Você não terá uma resposta.</strong> se precisar de suporte, entre em contato com <supportLink>support@couchers.org</supportLink>."
     },
     "label": "Reportar um problema",
     "content": {
