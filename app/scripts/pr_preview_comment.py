@@ -10,6 +10,7 @@ rebuilt only some artifacts keeps the others' items from an earlier commit.
 Modes:
   --stub          post a "building" placeholder if no comment exists yet
   --items a,b,c   (re)build these items and upsert them (keys: see ITEM_BUILDERS)
+  --pr N          target this PR instead of looking it up from CI_COMMIT_SHA
 
 Pure stdlib so it runs on any python3 without pip. Requires GITHUB_PREVIEW_TOKEN;
 no-ops (exit 0) when there is no open PR for the commit.
@@ -249,13 +250,14 @@ def main():
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--stub", action="store_true", help="post the building placeholder if no comment exists yet")
     mode.add_argument("--items", help="comma-separated item keys to (re)build")
+    parser.add_argument("--pr", type=int, help="PR number; looked up from CI_COMMIT_SHA if omitted")
     args = parser.parse_args()
 
     token = env("GITHUB_PREVIEW_TOKEN", required=True)
     repo = env("GITHUB_REPO", "Couchers-org/couchers")
-    sha = env("CI_COMMIT_SHA", required=True)
+    sha = env("CI_COMMIT_SHA", required=not args.pr)
 
-    pr = find_open_pr(repo, sha, token)
+    pr = args.pr or find_open_pr(repo, sha, token)
     if not pr:
         print(f"No open PR for {sha} - skipping preview comment.")
         return
