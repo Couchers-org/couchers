@@ -20,12 +20,6 @@ import couchers.materialized_views  # noqa: F401 -- importing registers the view
 from couchers.models import Base, StrongVerificationAttempt, User
 from tests.sql_linkage import find_unkeyed_joins
 
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 _MAPPED_CLASSES = {mapper.class_.__name__: mapper.class_ for mapper in Base.registry.mappers}
 
 
