@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: write
+      pull-requests: read
       id-token: write
       actions: read
     steps:
@@ -19,6 +19,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          persist-credentials: false
 
       - name: Calculate migrations hash
         id: hash
@@ -33,12 +34,16 @@ jobs:
           path: .migration-review-marker
           key: migration-review-${{ github.event.pull_request.number }}-${{ steps.hash.outputs.hash }}
 
+      # Claude reads untrusted PR content, so it only gets a read-only token and a
+      # later step posts its review to this PR
       - uses: actions/create-github-app-token@v2
         if: steps.cache.outputs.cache-hit != 'true'
-        id: app-token
+        id: read-token
         with:
           app-id: ${{ vars.APP_ID }}
           private-key: ${{ secrets.PRIVATE_KEY }}
+          permission-contents: read
+          permission-pull-requests: read
 
       - name: Download current schema
         if: steps.cache.outputs.cache-hit != 'true'
@@ -48,14 +53,10 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         id: claude
         uses: anthropics/claude-code-action@v1
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
         with:
-          github_token: ${{ steps.app-token.outputs.token }}
+          github_token: ${{ steps.read-token.outputs.token }}
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           allowed_bots: "couchersbot[bot]"
-          additional_permissions: |
-            pull-requests: write
           prompt: |
             You are a database migration safety reviewer for the Couchers.org project.
             Your job is to review Alembic migration files in pull requests and check whether
@@ -102,12 +103,8 @@ jobs:
                recent changes to the same tables).
             7. Evaluate the migration against the review checklist below.
             8. Write the review (see Output Format) to `migration-review.md` in the repo
-               root using the Write tool.
-            9. Publish it by running exactly:
-               `python3 app/scripts/sticky_comment.py --pr ${{ github.event.pull_request.number }} --marker migration-review --body-file migration-review.md`
-               This replaces the previous migration review comment on the PR (or posts
-               the first one). Do not post comments any other way: no inline comments,
-               no `gh pr comment`.
+               root using the Write tool. Do not post it yourself: a later workflow step
+               posts it to the PR, replacing the previous migration review comment.
 
             ## Review Checklist
 
@@ -262,7 +259,21 @@ jobs:
             migration is safe, say so briefly and don't pad the review with non-issues.
           claude_args: |
             --model opus
-            --allowedTools "Read,Glob,Grep,Write,Bash(gh pr diff:*),Bash(gh pr view:*),Bash(python3 app/scripts/sticky_comment.py:*)"
+            --allowedTools "Read,Glob,Grep,Write,Bash(gh pr diff:*),Bash(gh pr view:*)"
+
+      - uses: actions/create-github-app-token@v2
+        if: steps.cache.outputs.cache-hit != 'true'
+        id: write-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+          permission-pull-requests: write
+
+      - name: Post review comment
+        if: steps.cache.outputs.cache-hit != 'true'
+        env:
+          GH_TOKEN: ${{ steps.write-token.outputs.token }}
+        run: python3 app/scripts/sticky_comment.py --pr ${{ github.event.pull_request.number }} --marker migration-review --body-file migration-review.md
 
       - name: Mark as reviewed
         if: steps.cache.outputs.cache-hit != 'true'
