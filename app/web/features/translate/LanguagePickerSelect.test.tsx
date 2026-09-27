@@ -26,7 +26,7 @@ jest.mock("i18n/useLocaleInfos", () => ({
   useLocaleInfos: () => ({
     data: [
       { code: "en", autonym: "English", stringAvailabilityPercent: 100 },
-      { code: "es", autonym: "Español (España)", stringAvailabilityPercent: 85 },
+      { code: "es", autonym: "Español", stringAvailabilityPercent: 85 },
       { code: "fr", autonym: "Français", stringAvailabilityPercent: 75 },
       { code: "de", autonym: "Deutsch", stringAvailabilityPercent: 60 },
       // Both Chinese variants are shown so we can assert they are distinct
@@ -64,7 +64,7 @@ describe("LanguagePickerSelect", () => {
 
     // Languages with >= 50% translation are shown by their autonym (the name in
     // their own language), regardless of the current UI language — no flags.
-    const expectedLanguages = ["English", "Español (España)", "Français", "Deutsch"];
+    const expectedLanguages = ["English", "Español", "Français", "Deutsch"];
     expectedLanguages.forEach((language) => {
       within(listBox).getByText(language);
     });
@@ -120,7 +120,7 @@ describe("LanguagePickerSelect", () => {
     await user.click(select);
 
     const listBox = await screen.findByRole("listbox");
-    const spanishOption = within(listBox).getByText("Español (España)");
+    const spanishOption = within(listBox).getByText("Español");
 
     await user.click(spanishOption);
 
@@ -218,7 +218,7 @@ describe("LanguagePickerSelect", () => {
     // First language change
     await user.click(select);
     const listBox = await screen.findByRole("listbox");
-    const spanishOption = within(listBox).getByText("Español (España)");
+    const spanishOption = within(listBox).getByText("Español");
     await user.click(spanishOption);
 
     // Verify first change went through
