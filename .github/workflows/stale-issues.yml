@@ -1,0 +1,60 @@
+# Asks whether an issue tagged with a check label is still wanted, then unassigns or closes it if
+# nobody answers within two weeks. The question goes out when the label is added; the daily run follows up.
+name: Stale issues
+
+on:
+  issues:
+    types: [labeled]
+  schedule:
+    - cron: "41 7 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Only log what would happen"
+        type: boolean
+        default: true
+      issue_number:
+        description: "Only process this issue"
+        type: string
+
+concurrency:
+  group: stale-issues-${{ github.event.issue.number || 'all' }}
+
+jobs:
+  stale-issues:
+    runs-on: ubuntu-latest
+    if: >-
+      github.event_name != 'issues' ||
+      github.event.label.name == 'stale: check assignee' ||
+      github.event.label.name == 'stale: check still needed'
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v5
+
+      # post as the app so the bot's comments come from the same account as the stale PR bot's
+      - uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version-file: ".github/llm-bot/.python-version"
+      - uses: astral-sh/setup-uv@v6
+      - name: Install dependencies
+        working-directory: .github/llm-bot
+        run: uv sync --locked --all-extras --dev
+
+      - name: Process stale issues
+        working-directory: .github/llm-bot
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          REPOSITORY: ${{ github.repository }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+          ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue_number }}
+          PYTHONUNBUFFERED: "1"
+        run: uv run stale_issues.py

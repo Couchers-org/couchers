@@ -2,41 +2,42 @@
 Stale PR bot: reminds about, then unassigns and marks as abandoned, pull requests that
 have gone quiet.
 
-Escalation state lives in the `stale: *` labels on the pull request, so runs are
-idempotent and removing the labels puts a pull request back at the start.
+Each reminder carries a hidden stage marker, and the next stage is due two weeks after the
+latest one. Human activity after a marker puts the pull request back at the start. The
+`stale: *` labels mirror the stage for visibility only.
 """
 
 import os
-import sys
-import traceback
-from datetime import datetime, timezone
+import re
+from collections.abc import Iterable
+from datetime import datetime
 from typing import Any, Optional
 
 import requests
-from github import Auth, Github
+from github.IssueComment import IssueComment
 from github.PullRequest import PullRequest
+from github.PullRequestReview import PullRequestReview
 
-FIRST_REMINDER_DAYS = 14
-SECOND_REMINDER_DAYS = 28
-ABANDON_DAYS = 42
+from stale_common import StaleBot, is_bot, mentions
+
+REMINDER_INTERVAL_DAYS = 14
+
+STAGE_MARKER = "<!-- stale-pr-bot:stage={} -->"
+STAGE_MARKER_RE = re.compile(r"<!-- stale-pr-bot:stage=(\d) -->")
 
 EXEMPT_LABEL = "stale: exempt"
 FIRST_REMINDER_LABEL = "stale: first reminder"
 SECOND_REMINDER_LABEL = "stale: second reminder"
 ABANDONED_LABEL = "stale: abandoned"
 
-# created on demand so the bot also works on a repo that doesn't have them yet
 MANAGED_LABELS = {
     EXEMPT_LABEL: ("ededed", "Stale PR bot ignores this pull request"),
-    FIRST_REMINDER_LABEL: ("fef2c0", "No activity for two weeks"),
-    SECOND_REMINDER_LABEL: ("f9d0c4", "No activity for four weeks"),
-    ABANDONED_LABEL: ("d93f0b", "No activity for six weeks, up for grabs"),
+    FIRST_REMINDER_LABEL: ("fef2c0", "Stale PR bot sent a first reminder"),
+    SECOND_REMINDER_LABEL: ("f9d0c4", "Stale PR bot sent a second reminder"),
+    ABANDONED_LABEL: ("d93f0b", "Marked as abandoned, up for grabs"),
 }
 
 STAGE_LABELS = {1: FIRST_REMINDER_LABEL, 2: SECOND_REMINDER_LABEL, 3: ABANDONED_LABEL}
-
-# accounts whose activity doesn't mean anyone is working on the pull request
-BOT_LOGINS = {"CouchersBot"}
 
 PROJECT_TITLE = "Couchers Engineering"
 STATUS_FIELD_NAME = "Status"
@@ -98,26 +99,12 @@ mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
 """
 
 
-def is_bot(user: Any) -> bool:
-    return user is None or user.type == "Bot" or user.login in BOT_LOGINS
+class StalePRBot(StaleBot):
+    managed_labels = MANAGED_LABELS
 
-
-def mentions(logins: list[str]) -> str:
-    return " ".join(f"@{login}" for login in logins)
-
-
-class StalePRBot:
     def __init__(self) -> None:
-        self.token = os.environ["GITHUB_TOKEN"]
-        self.dry_run = os.environ.get("DRY_RUN", "false").lower() == "true"
-        self.github = Github(auth=Auth.Token(self.token))
-        self.repo = self.github.get_repo(os.environ["REPOSITORY"])
-        self.now = datetime.now(timezone.utc)
+        super().__init__()
         self.status_options: dict[str, tuple[str, dict[str, str]]] = {}
-
-    # ------------------------------------------------------------------
-    # GitHub helpers
-    # ------------------------------------------------------------------
 
     def graphql(self, query: str, variables: dict[str, Any]) -> dict[str, Any]:
         response = requests.post(
@@ -131,45 +118,6 @@ class StalePRBot:
         if payload.get("errors"):
             raise RuntimeError(f"GraphQL request failed: {payload['errors']}")
         return payload["data"]
-
-    def ensure_labels(self) -> None:
-        existing = {label.name for label in self.repo.get_labels()}
-        for name, (color, description) in MANAGED_LABELS.items():
-            if name in existing:
-                continue
-            if self.dry_run:
-                print(f"[dry run] would create label {name!r}")
-                continue
-            self.repo.create_label(name, color, description)
-            print(f"Created label {name!r}")
-
-    def add_label(self, pr: PullRequest, name: str) -> None:
-        if self.dry_run:
-            print(f"[dry run] would add {name!r} to #{pr.number}")
-            return
-        pr.add_to_labels(name)
-        print(f"Added {name!r} to #{pr.number}")
-
-    def remove_label(self, pr: PullRequest, name: str) -> None:
-        if self.dry_run:
-            print(f"[dry run] would remove {name!r} from #{pr.number}")
-            return
-        pr.remove_from_labels(name)
-        print(f"Removed {name!r} from #{pr.number}")
-
-    def comment(self, number: int, body: str) -> None:
-        if self.dry_run:
-            print(f"[dry run] would comment on #{number}:\n{body}\n")
-            return
-        self.repo.get_issue(number).create_comment(body)
-        print(f"Commented on #{number}")
-
-    def unassign(self, number: int, logins: list[str]) -> None:
-        if self.dry_run:
-            print(f"[dry run] would unassign {', '.join(logins)} from #{number}")
-            return
-        self.repo.get_issue(number).remove_from_assignees(*logins)
-        print(f"Unassigned {', '.join(logins)} from #{number}")
 
     # ------------------------------------------------------------------
     # Project board
@@ -233,30 +181,29 @@ class StalePRBot:
     # Staleness
     # ------------------------------------------------------------------
 
-    def last_activity(self, pr: PullRequest) -> datetime:
+    @staticmethod
+    def last_activity(
+        pr: PullRequest,
+        comments: list[IssueComment],
+        reviews: list[PullRequestReview],
+        head_committed_at: datetime,
+    ) -> datetime:
         """When a human last did anything to the pull request."""
-        times = [pr.created_at, self.repo.get_commit(pr.head.sha).commit.committer.date]
-        times += [c.created_at for c in pr.get_issue_comments() if not is_bot(c.user)]
+        times = [pr.created_at, head_committed_at]
+        times += [c.created_at for c in comments if not is_bot(c.user)]
         times += [c.created_at for c in pr.get_review_comments() if not is_bot(c.user)]
-        times += [r.submitted_at for r in pr.get_reviews() if r.submitted_at and not is_bot(r.user)]
+        times += [r.submitted_at for r in reviews]
         return max(times)
 
     @staticmethod
-    def due_stage(days: int) -> int:
-        if days >= ABANDON_DAYS:
-            return 3
-        if days >= SECOND_REMINDER_DAYS:
-            return 2
-        if days >= FIRST_REMINDER_DAYS:
-            return 1
-        return 0
-
-    @staticmethod
-    def current_stage(labels: set[str]) -> int:
-        for stage in (3, 2, 1):
-            if STAGE_LABELS[stage] in labels:
-                return stage
-        return 0
+    def current_stage(comments: list[IssueComment], since: datetime) -> tuple[int, datetime]:
+        """The stage of the latest reminder posted after `since`, and when it was posted."""
+        stage, posted_at = 0, since
+        for c in comments:
+            match = STAGE_MARKER_RE.search(c.body)
+            if match and is_bot(c.user) and c.created_at > since:
+                stage, posted_at = int(match.group(1)), c.created_at
+        return stage, posted_at
 
     def set_stage(self, pr: PullRequest, labels: set[str], stage: int) -> None:
         for label_stage, name in STAGE_LABELS.items():
@@ -288,6 +235,7 @@ class StalePRBot:
                 f"that someone else can pick it up."
             )
         body += f"\n\n<sub>Maintainers: add the <code>{EXEMPT_LABEL}</code> label to stop these reminders.</sub>"
+        body += STAGE_MARKER.format(stage)
         self.comment(pr.number, body)
 
     def abandon(self, pr: PullRequest, days: int, linked: list[dict[str, Any]]) -> None:
@@ -295,9 +243,14 @@ class StalePRBot:
             pr.number,
             f"This pull request has had no updates in {days} days, so we're marking it as abandoned. "
             f"{mentions(self.owners(pr, linked))}, thanks for the work so far! Anyone is welcome to pick it up "
-            f"from here, and of course that includes you if you find the time again.",
+            f"from here, and of course that includes you if you find the time again.{STAGE_MARKER.format(3)}",
         )
+        pr_people = {pr.user.login, *(assignee.login for assignee in pr.assignees)}
         for issue in linked:
+            others = [login for login in issue["assignees"] if login not in pr_people]
+            if others:
+                print(f"#{issue['number']} is assigned to {', '.join(others)}, leaving it alone")
+                continue
             if issue["assignees"]:
                 self.unassign(issue["number"], issue["assignees"])
             self.comment(
@@ -317,15 +270,24 @@ class StalePRBot:
             print(f"#{pr.number}: opened by a bot, skipping")
             return
 
-        days = (self.now - self.last_activity(pr)).days
-        due = self.due_stage(days)
-        current = self.current_stage(labels)
-        print(f"#{pr.number} by {pr.user.login}: {days} days since last activity, stage {current} -> {due}")
+        comments = list(pr.get_issue_comments())
+        reviews = [r for r in pr.get_reviews() if r.submitted_at and not is_bot(r.user)]
+        head_committed_at = self.repo.get_commit(pr.head.sha).commit.committer.date
 
-        if due == current:
+        # CODEOWNERS requests reviewers on every pull request, so pending requests don't tell us who's up
+        if not pr.draft and not any(r.submitted_at > head_committed_at for r in reviews):
+            print(f"#{pr.number}: waiting on review, skipping")
+            self.set_stage(pr, labels, 0)
             return
 
-        # a pull request that jumps several stages at once only gets the action for the stage it lands on
+        last_activity = self.last_activity(pr, comments, reviews, head_committed_at)
+        current, stage_started = self.current_stage(comments, last_activity)
+        due = current
+        if current < 3 and (self.now - stage_started).days >= REMINDER_INTERVAL_DAYS:
+            due = current + 1
+        days = (self.now - last_activity).days
+        print(f"#{pr.number} by {pr.user.login}: {days} days since last activity, stage {current} -> {due}")
+
         self.set_stage(pr, labels, due)
         if due > current:
             linked = self.linked_issues(pr)
@@ -340,23 +302,12 @@ class StalePRBot:
         self.ensure_labels()
 
         pr_number = os.environ.get("PR_NUMBER", "").strip()
+        prs: Iterable[PullRequest]
         if pr_number:
             prs = [self.repo.get_pull(int(pr_number))]
         else:
             prs = self.repo.get_pulls(state="open")
-
-        failures = []
-        for pr in prs:
-            try:
-                self.process(pr)
-            except Exception:
-                print(f"Error processing #{pr.number}", file=sys.stderr)
-                traceback.print_exc()
-                failures.append(pr.number)
-
-        if failures:
-            print(f"\nFailed on: {', '.join(f'#{number}' for number in failures)}", file=sys.stderr)
-            sys.exit(1)
+        self.process_all(prs, self.process)
 
 
 if __name__ == "__main__":
