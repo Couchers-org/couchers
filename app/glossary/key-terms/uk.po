@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-09-26 20:27+0000\n"
+"PO-Revision-Date: 2026-09-27 16:37+0000\n"
 "Last-Translator: Oleh S <olewa@protonmail.com>\n"
 "Language-Team: Ukrainian <https://translate.couchershq.org/projects/couchers/glossary-key-terms/uk/>\n"
 "Language: uk\n"
@@ -128,7 +128,7 @@ msgstr "Команда Couchers.org"
 
 #. (noun) The activity of free hospitality welcome/exchange. Platform-agnostic.
 msgid "couch surfing"
-msgstr "кауч серфінг / подорожі по каучу / платформа гостинності"
+msgstr "кауч серфінг (активність та традиція) / платформа гостинності ( вебсайт та сервіс)"
 
 #. (verb) As a host, the act of declining a surfer's host request.
 msgid "host_request.decline"
