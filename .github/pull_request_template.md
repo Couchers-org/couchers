@@ -35,7 +35,7 @@ Fill applicable checklists below, or remove those that don't apply.
 
 ## For maintainers
 <!-- Untick the following if you'd prefer that maintainers don't push commits/merge your branch. -->
-- [x] Maintainers can push commits to my branch and merge this PR for me
+- [x] Maintainers can push commits to my branch or merge this PR for me
 
 <!--
 Create the code review as a draft if still iterating or validating via CI.
