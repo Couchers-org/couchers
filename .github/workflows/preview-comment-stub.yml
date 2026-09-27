@@ -1,6 +1,6 @@
 # Posts the preview comment placeholder as soon as a PR opens, rather than waiting
 # for the GitLab pipeline's preview:pr-comment-stub job, which then fills it in.
-name: Preview Comment Stub
+name: Preview Comment
 
 on:
   pull_request:
@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   stub:
-    name: Post preview comment stub
+    name: Stub
     # GitLab doesn't build fork PRs, so they never get previews
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
