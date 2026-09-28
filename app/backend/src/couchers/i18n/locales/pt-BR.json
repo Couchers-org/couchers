@@ -129,7 +129,7 @@
     "no_recipients": "Nenhum destinatário.",
     "node_moderate_permission_denied": "Você não tem permissão para moderar essa comunidade",
     "not_a_volunteer": "No momento, você não está registrado como voluntário. Se essa informação estiver incorreta, entre em contato conosco.",
-    "not_donated": "Conclua a doação para ter seu telefone verificado.",
+    "not_donated": "Você precisa fazer uma doação para o Couchers.org para poder verificar seu telefone.",
     "not_friends": "Você não é amigo desse usuário!",
     "permission_denied_to_edit_gallery": "Você não tem permissão para editar essa galeria.",
     "not_in_community": "Você não está nessa comunidade.",
@@ -246,7 +246,8 @@
     "sms_disabled": "A verificação por SMS está atualmente desativada.",
     "not_donated_postal": "Você precisa doar para o Couchers.org antes de poder verificar seu endereço.",
     "signup_flow_email_verified": "Você já verificou seu e-mail.",
-    "signup_flow_invalid_request": "Solicitação de registro inválida. Não é possível recuperar seu registro e continuar fazendo registro simultaneamente."
+    "signup_flow_invalid_request": "Solicitação de registro inválida. Não é possível recuperar seu registro e continuar fazendo registro simultaneamente.",
+    "invalid_donation_frequency": "frequência de doação invalida."
   },
   "quick_links": {
     "do_not_email": "Você não receberá nenhum e-mail não relacionado a segurança, e seu status de hospedagem foi desabilitado. Você ainda pode receber a newsletter e precisa cancelar sua inscrição nela separadamente.",

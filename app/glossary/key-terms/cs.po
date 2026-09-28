@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-09-15 21:41+0000\n"
+"PO-Revision-Date: 2026-09-21 20:41+0000\n"
 "Last-Translator: Daniel Brvnišťan <daniel.brvnistan@gmail.com>\n"
 "Language-Team: Czech <https://translate.couchershq.org/projects/couchers/glossary-key-terms/cs/>\n"
 "Language: cs\n"
@@ -236,7 +236,7 @@ msgstr "hostitelé"
 
 #. A geographical location such as an address or the name of a city.
 msgid "location"
-msgstr "poloha"
+msgstr "místo"
 
 #. (verb) The action of logging in to Couchers.org after logging out.
 msgid "log_back_in"

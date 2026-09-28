@@ -17,6 +17,7 @@ from couchers.models import (
     NotificationDeliveryType,
     NotificationTopicAction,
     RateLimitAction,
+    RateLimitViolation,
 )
 from couchers.proto import api_pb2, conversations_pb2, notification_data_pb2, notifications_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
@@ -863,6 +864,20 @@ def test_excessive_chat_initiations_are_reported(db, low_rate_limits, email_coll
             f"User {user.username} has sent {rate_limit_definition.hard_limit} chat initiations in the past {RATE_LIMIT_HOURS} hours."
         )
         assert "The user has been blocked from sending further chat initiations for now." in email.plain
+
+        with session_scope() as session:
+            assert session.execute(
+                select(RateLimitViolation.is_hard_limit)
+                .where(RateLimitViolation.user_id == user.id)
+                .order_by(RateLimitViolation.id)
+            ).scalars().all() == [False, True]
+
+        # still blocked once the hard violation is on record, without reporting again
+        recipient_user, _ = generate_user()
+        with pytest.raises(grpc.RpcError) as exc_info:
+            _ = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
+        assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
+        assert email_collector.count_for_reports() == 0
 
 
 def test_send_direct_message_rate_limit(db, low_rate_limits, moderator, email_collector: EmailCollector):

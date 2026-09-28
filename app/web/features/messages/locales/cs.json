@@ -18,7 +18,8 @@
       "1_day_label": "1 den",
       "1_week_label": "1 týden",
       "1_month_label": "1 měsíc",
-      "unmute_button_label": "Zrušit ztlumení chatu"
+      "unmute_button_label": "Zrušit ztlumení chatu",
+      "forever_label": "Dokud znovu nezapnu"
     },
     "no_messages_state_text": "Žádné zprávy",
     "back_button": {
@@ -40,7 +41,8 @@
     "tabs": {
       "unread": "Nepřečteno",
       "chats": "Chaty",
-      "hosting": "Hostování"
+      "hosting": "Hostování",
+      "surfing": "Surfování"
     }
   },
   "create_chat": {
@@ -87,13 +89,17 @@
     "quality_high": "Kvalitní",
     "quality_okay": "Dobrý",
     "decline_reason_options": {
-      "other": "Ostatní"
+      "other": "Ostatní",
+      "didnt_read_profile": "Nepřečtení mého profilu",
+      "dont_want_to_host": "Nechci hostit tohoto člověka",
+      "not_available": "V daný čas nemůžu hostovat"
     },
     "reason_other_placeholder": "Řekni nám více...",
     "privacy_notice": "Tvé odpovědi jsou soukromé a nebudou sdíleny s uživatelem. Můžeme je použít v agregované a anonymní podobě – zkombinované s mnoha dalšími – ke zlepšení zpětné vazby pro všechny uživatele.",
     "skip_button": "Přeskočit",
     "submit_button": "Odeslat",
-    "quality_low": "Nízká kvalita"
+    "quality_low": "Nízká kvalita",
+    "decline_reason_label": "Jaký byl důvod tvého odmítnutí?"
   },
   "unknown_user": "Neznámý uživatel",
   "admins_dialog": {
@@ -142,7 +148,8 @@
       "no_options_text": "Není koho pozvat",
       "option_load_error_text": "(Chyba při načítání uživatele)"
     },
-    "invite_button_label": "Pozvat"
+    "invite_button_label": "Pozvat",
+    "title": "Pozvat do chatu"
   },
   "leave_chat_dialog": {
     "title": "Opustit chat?",
@@ -150,5 +157,18 @@
   },
   "members_dialog": {
     "title": "Členové chatu"
+  },
+  "surfer_confirm_box_title": "Žádost u {{name}} prošla!",
+  "surfer_confirm_box_description": "Potvrď a zajisti si surfování, nebo zruš, pokud se tvé plány změnily.",
+  "control_message": {
+    "created_chat_text": "Chat vytvořen {{user}}",
+    "edited_chat_text": "Chat editován {{user}}",
+    "invite_user_text": "Pozvánka od {{user}} pro {{target_user}}",
+    "user_left_chat_text": "{{user}} je pryč z chatu",
+    "admin_assignment_text": "{{target_user}} má nově roli admina (uděleno uživatelem {{user}})",
+    "admin_removal_text": "{{target_user}} už nemá roli admina (odebráno uživatelem {{user}})"
+  },
+  "host_request_status": {
+    "confirmed": "Potvrzeno"
   }
 }
