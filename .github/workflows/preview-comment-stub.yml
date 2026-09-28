@@ -1,0 +1,29 @@
+# Posts the preview comment placeholder as soon as a PR opens, rather than waiting
+# for the GitLab pipeline's preview:pr-comment-stub job, which then fills it in.
+name: Preview Comment
+
+on:
+  pull_request:
+    types: [opened, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  stub:
+    name: Stub
+    # GitLab doesn't build fork PRs, so they never get previews
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: app/scripts
+          persist-credentials: false
+
+      - name: Post stub
+        env:
+          # the CouchersBot token GitLab uses, so the comment has the same author either way
+          GITHUB_PREVIEW_TOKEN: ${{ secrets.GITHUB_PREVIEW_TOKEN }}
+          GITHUB_REPO: ${{ github.repository }}
+        run: python3 app/scripts/pr_preview_comment.py --stub --pr ${{ github.event.pull_request.number }}
