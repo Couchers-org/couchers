@@ -29,26 +29,12 @@ def mentions(logins: list[str]) -> str:
 
 
 class StaleBot:
-    # created on demand so the bot also works on a repo that doesn't have them yet
-    managed_labels: dict[str, tuple[str, str]] = {}
-
     def __init__(self) -> None:
         self.token = os.environ["GITHUB_TOKEN"]
         self.dry_run = os.environ.get("DRY_RUN", "false").lower() == "true"
         self.github = Github(auth=Auth.Token(self.token))
         self.repo = self.github.get_repo(os.environ["REPOSITORY"])
         self.now = datetime.now(timezone.utc)
-
-    def ensure_labels(self) -> None:
-        existing = {label.name for label in self.repo.get_labels()}
-        for name, (color, description) in self.managed_labels.items():
-            if name in existing:
-                continue
-            if self.dry_run:
-                print(f"[dry run] would create label {name!r}")
-                continue
-            self.repo.create_label(name, color, description)
-            print(f"Created label {name!r}")
 
     def add_label(self, item: Issue | PullRequest, name: str) -> None:
         if self.dry_run:

@@ -18,17 +18,12 @@ RESPONSE_DAYS = 14
 CHECK_ASSIGNEE_LABEL = "stale: check assignee"
 CHECK_NEEDED_LABEL = "stale: check still needed"
 
-MANAGED_LABELS = {
-    CHECK_ASSIGNEE_LABEL: ("c5def5", "Asks the assignees if they're still on it, unassigns them after two weeks"),
-    CHECK_NEEDED_LABEL: ("c5def5", "Asks if this is still needed, closes it after two weeks"),
-}
+CHECK_LABELS = [CHECK_ASSIGNEE_LABEL, CHECK_NEEDED_LABEL]
 
 CHECK_MARKER = "<!-- stale-issue-bot:{} -->"
 
 
 class StaleIssueBot(StaleBot):
-    managed_labels = MANAGED_LABELS
-
     def close(self, issue: Issue) -> None:
         if self.dry_run:
             print(f"[dry run] would close #{issue.number} as not planned")
@@ -111,7 +106,7 @@ class StaleIssueBot(StaleBot):
 
     def process(self, issue: Issue) -> None:
         labels = {label.name for label in issue.labels}
-        checks = [label for label in MANAGED_LABELS if label in labels]
+        checks = [label for label in CHECK_LABELS if label in labels]
         if issue.pull_request or issue.state != "open" or not checks:
             return
         comments = list(issue.get_comments())
@@ -121,14 +116,13 @@ class StaleIssueBot(StaleBot):
     def run(self) -> None:
         if self.dry_run:
             print("Dry run: no comments, labels, assignees or issue states will be changed\n")
-        self.ensure_labels()
 
         issue_number = os.environ.get("ISSUE_NUMBER", "").strip()
         if issue_number:
             issues = [self.repo.get_issue(int(issue_number))]
         else:
             by_number = {
-                issue.number: issue for label in MANAGED_LABELS for issue in self.repo.get_issues(labels=[label])
+                issue.number: issue for label in CHECK_LABELS for issue in self.repo.get_issues(labels=[label])
             }
             issues = list(by_number.values())
         self.process_all(issues, self.process)
