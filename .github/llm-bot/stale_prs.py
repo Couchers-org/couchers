@@ -30,13 +30,6 @@ FIRST_REMINDER_LABEL = "stale: first reminder"
 SECOND_REMINDER_LABEL = "stale: second reminder"
 ABANDONED_LABEL = "stale: abandoned"
 
-MANAGED_LABELS = {
-    TRACKED_LABEL: ("ededed", "Stale PR bot reminds about this pull request if it goes quiet"),
-    FIRST_REMINDER_LABEL: ("fef2c0", "Stale PR bot sent a first reminder"),
-    SECOND_REMINDER_LABEL: ("f9d0c4", "Stale PR bot sent a second reminder"),
-    ABANDONED_LABEL: ("d93f0b", "Marked as abandoned, up for grabs"),
-}
-
 STAGE_LABELS = {1: FIRST_REMINDER_LABEL, 2: SECOND_REMINDER_LABEL, 3: ABANDONED_LABEL}
 
 PROJECT_TITLE = "Couchers Engineering"
@@ -100,8 +93,6 @@ mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
 
 
 class StalePRBot(StaleBot):
-    managed_labels = MANAGED_LABELS
-
     def __init__(self) -> None:
         super().__init__()
         self.status_options: dict[str, tuple[str, dict[str, str]]] = {}
@@ -274,12 +265,6 @@ class StalePRBot(StaleBot):
         reviews = [r for r in pr.get_reviews() if r.submitted_at and not is_bot(r.user)]
         head_committed_at = self.repo.get_commit(pr.head.sha).commit.committer.date
 
-        # CODEOWNERS requests reviewers on every pull request, so pending requests don't tell us who's up
-        if not pr.draft and not any(r.submitted_at > head_committed_at for r in reviews):
-            print(f"#{pr.number}: waiting on review, skipping")
-            self.set_stage(pr, labels, 0)
-            return
-
         last_activity = self.last_activity(pr, comments, reviews, head_committed_at)
         current, stage_started = self.current_stage(comments, last_activity)
         due = current
@@ -299,7 +284,6 @@ class StalePRBot(StaleBot):
     def run(self) -> None:
         if self.dry_run:
             print("Dry run: no comments, labels, assignees or project statuses will be changed\n")
-        self.ensure_labels()
 
         pr_number = os.environ.get("PR_NUMBER", "").strip()
         prs: Iterable[PullRequest]
