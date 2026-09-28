@@ -12,7 +12,6 @@
     "title": "Change signup email",
     "current_email_message": "Your email address is currently <strong>{{email}}</strong>.",
     "success_message": "Your email change has been received. Check your new email to confirm your email.",
-    "new_email": "you@couchers.org",
     "signup_change_email": "Change email address"
   },
   "do_not_email": {
