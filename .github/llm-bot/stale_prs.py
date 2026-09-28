@@ -1,6 +1,6 @@
 """
 Stale PR bot: reminds about, then unassigns and marks as abandoned, pull requests that
-have gone quiet.
+have gone quiet. Only pull requests with the `stale: pr` label are tracked.
 
 Each reminder carries a hidden stage marker, and the next stage is due two weeks after the
 latest one. Human activity after a marker puts the pull request back at the start. The
@@ -25,13 +25,13 @@ REMINDER_INTERVAL_DAYS = 14
 STAGE_MARKER = "<!-- stale-pr-bot:stage={} -->"
 STAGE_MARKER_RE = re.compile(r"<!-- stale-pr-bot:stage=(\d) -->")
 
-EXEMPT_LABEL = "stale: exempt"
+TRACKED_LABEL = "stale: pr"
 FIRST_REMINDER_LABEL = "stale: first reminder"
 SECOND_REMINDER_LABEL = "stale: second reminder"
 ABANDONED_LABEL = "stale: abandoned"
 
 MANAGED_LABELS = {
-    EXEMPT_LABEL: ("ededed", "Stale PR bot ignores this pull request"),
+    TRACKED_LABEL: ("ededed", "Stale PR bot reminds about this pull request if it goes quiet"),
     FIRST_REMINDER_LABEL: ("fef2c0", "Stale PR bot sent a first reminder"),
     SECOND_REMINDER_LABEL: ("f9d0c4", "Stale PR bot sent a second reminder"),
     ABANDONED_LABEL: ("d93f0b", "Marked as abandoned, up for grabs"),
@@ -234,7 +234,7 @@ class StalePRBot(StaleBot):
                 f"you're still on this, just say so, otherwise we'll mark it as abandoned in a couple of weeks so "
                 f"that someone else can pick it up."
             )
-        body += f"\n\n<sub>Maintainers: add the <code>{EXEMPT_LABEL}</code> label to stop these reminders.</sub>"
+        body += f"\n\n<sub>Maintainers: remove the <code>{TRACKED_LABEL}</code> label to stop these reminders.</sub>"
         body += STAGE_MARKER.format(stage)
         self.comment(pr.number, body)
 
@@ -263,8 +263,8 @@ class StalePRBot(StaleBot):
 
     def process(self, pr: PullRequest) -> None:
         labels = {label.name for label in pr.labels}
-        if EXEMPT_LABEL in labels:
-            print(f"#{pr.number}: exempt, skipping")
+        if TRACKED_LABEL not in labels:
+            self.set_stage(pr, labels, 0)
             return
         if is_bot(pr.user):
             print(f"#{pr.number}: opened by a bot, skipping")
