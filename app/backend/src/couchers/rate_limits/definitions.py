@@ -39,11 +39,13 @@ def _get_user_host_requests_in_past_time_interval(session: Session, user_id: int
         session.execute(
             select(
                 Conversation.created.label("created"),
-                HostRequest.recipient_user_id.label("host ID"),
-                User.gender.label("host gender"),
-                User.username.label("host username"),
+                HostRequest.recipient_user_id.label("recipient ID"),
+                User.gender.label("recipient gender"),
+                User.username.label("recipient username"),
                 HostRequest.status,
-                User.city.label("host city"),
+                User.city.label("recipient city"),
+                # set when this is an offer on a public trip, where the recipient is the traveller, not the host
+                HostRequest.public_trip_id.label("public trip ID"),
             )
             .join(Conversation, HostRequest.conversation_id == Conversation.id)
             .join(User, HostRequest.recipient_user_id == User.id)

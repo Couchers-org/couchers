@@ -6,6 +6,7 @@ from urllib.parse import parse_qs, urlparse
 
 import grpc
 import pytest
+from prometheus_client.metrics import MetricWrapperBase
 from sqlalchemy import func, select
 from sqlalchemy_utils import refresh_materialized_view
 
@@ -13,6 +14,7 @@ from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.crypto import b64decode
 from couchers.db import session_scope
 from couchers.i18n import LocalizationContext
+from couchers.metrics import host_request_first_response_histogram, host_request_responses_counter
 from couchers.models import (
     Cluster,
     ClusterRole,
@@ -37,7 +39,11 @@ from couchers.proto import (
     requests_pb2,
 )
 from couchers.proto.internal import unsubscribe_pb2
-from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
+from couchers.rate_limits.definitions import (
+    RATE_LIMIT_DEFINITIONS,
+    RATE_LIMIT_HOURS,
+    _get_user_host_requests_in_past_time_interval,
+)
 from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_multi, today
 from tests.fixtures.db import backdate_conversations, generate_user
 from tests.fixtures.misc import EmailCollector, PushCollector
@@ -1724,6 +1730,64 @@ def test_ping_public_trip_offer_count_gated_by_flag(db, moderator, feature_flags
         assert res.unseen_public_trip_offer_count == 0
         # ...but the offer is a real conversation and still surfaces under surfing
         assert res.unseen_surfing_host_request_count == 1
+
+
+def _metric_sample_total(metric: MetricWrapperBase, suffix: str) -> float:
+    return sum(sample.value for m in metric.collect() for sample in m.samples if sample.name.endswith(suffix))
+
+
+def test_public_trip_offer_responses_not_counted_as_host_responses(db, moderator):
+    traveler, traveler_token = generate_user()
+    host, host_token = generate_user()
+    node_id = _make_node()
+    trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    offer_id = _create_host_request_via_api(host_token, traveler.id, moderator, public_trip_id=trip_id)
+
+    first_responses_before = _metric_sample_total(host_request_first_response_histogram, "_count")
+    responses_before = _metric_sample_total(host_request_responses_counter, "_total")
+
+    with requests_session(traveler_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=offer_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+            )
+        )
+    with requests_session(host_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=offer_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
+            )
+        )
+
+    assert _metric_sample_total(host_request_first_response_histogram, "_count") == first_responses_before
+    assert _metric_sample_total(host_request_responses_counter, "_total") == responses_before
+
+    # a normal request between the same two users is still counted
+    request_id = _create_host_request_via_api(traveler_token, host.id, moderator)
+    with requests_session(host_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+            )
+        )
+
+    assert _metric_sample_total(host_request_first_response_histogram, "_count") == first_responses_before + 1
+    assert _metric_sample_total(host_request_responses_counter, "_total") == responses_before + 1
+
+
+def test_rate_limit_mod_email_shows_public_trip_offer_recipient(db, moderator):
+    traveler, _ = generate_user()
+    host, host_token = generate_user()
+    node_id = _make_node()
+    trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    _create_host_request_via_api(host_token, traveler.id, moderator, public_trip_id=trip_id)
+
+    with session_scope() as session:
+        rows = _get_user_host_requests_in_past_time_interval(session, host.id)
+        assert len(rows) == 1
+        assert rows[0]["recipient ID"] == traveler.id
+        assert rows[0]["recipient username"] == traveler.username
+        assert rows[0]["public trip ID"] == trip_id
 
 
 def test_mark_last_seen_clears_notifications(db, moderator):
