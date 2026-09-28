@@ -363,106 +363,128 @@ def _owner_community_pb(
     return _community_pb(session, parent_node_id)
 
 
-def _set_event_occurrence_location(
-    session: Session, res: moderation_pb2.GetModeratedObjectRes, occurrence: EventOccurrence
-) -> None:
+def _event_occurrence_location(
+    session: Session, occurrence: EventOccurrence
+) -> tuple[str, moderation_pb2.ModeratedObjectCommunity]:
     event = occurrence.event
-    res.url = urls.event_link(occurrence_id=occurrence.id, slug=event.slug)
-    res.community.CopyFrom(_owner_community_pb(session, event.parent_node_id, event.owner_cluster))
+    return (
+        urls.event_link(occurrence_id=occurrence.id, slug=event.slug),
+        _owner_community_pb(session, event.parent_node_id, event.owner_cluster),
+    )
 
 
-def _set_discussion_location(
-    session: Session, res: moderation_pb2.GetModeratedObjectRes, discussion: Discussion
-) -> None:
-    res.url = urls.discussion_link(discussion_id=str(discussion.id), slug=discussion.slug)
-    res.community.CopyFrom(_cluster_community_pb(session, discussion.owner_cluster))
+def _discussion_location(
+    session: Session, discussion: Discussion
+) -> tuple[str, moderation_pb2.ModeratedObjectCommunity]:
+    return (
+        urls.discussion_link(discussion_id=str(discussion.id), slug=discussion.slug),
+        _cluster_community_pb(session, discussion.owner_cluster),
+    )
 
 
-def _set_thread_parent(session: Session, res: moderation_pb2.GetModeratedObjectRes, thread_id: int) -> None:
+def _thread_parent(
+    session: Session, thread_id: int
+) -> tuple[str, moderation_pb2.ModeratedObjectCommunity | None, moderation_pb2.ModeratedThreadParent | None]:
     occurrence = session.execute(
         select(EventOccurrence).where(EventOccurrence.thread_id == thread_id)
     ).scalar_one_or_none()
     if occurrence is not None:
-        _set_event_occurrence_location(session, res, occurrence)
-        res.thread_parent.CopyFrom(
-            moderation_pb2.ModeratedThreadParent(event_occurrence_id=occurrence.id, title=occurrence.event.title)
+        url, community = _event_occurrence_location(session, occurrence)
+        return (
+            url,
+            community,
+            moderation_pb2.ModeratedThreadParent(event_occurrence_id=occurrence.id, title=occurrence.event.title),
         )
-        return
 
     discussion = session.execute(select(Discussion).where(Discussion.thread_id == thread_id)).scalar_one_or_none()
     if discussion is not None:
-        _set_discussion_location(session, res, discussion)
-        res.thread_parent.CopyFrom(
-            moderation_pb2.ModeratedThreadParent(discussion_id=discussion.id, title=discussion.title)
-        )
-        return
+        url, community = _discussion_location(session, discussion)
+        return url, community, moderation_pb2.ModeratedThreadParent(discussion_id=discussion.id, title=discussion.title)
 
     page = session.execute(select(Page).where(Page.thread_id == thread_id)).scalar_one_or_none()
     if page is not None:
-        res.community.CopyFrom(_owner_community_pb(session, page.parent_node_id, page.owner_cluster))
-        res.thread_parent.CopyFrom(moderation_pb2.ModeratedThreadParent(page_id=page.id, title=page.versions[-1].title))
+        return (
+            "",
+            _owner_community_pb(session, page.parent_node_id, page.owner_cluster),
+            moderation_pb2.ModeratedThreadParent(page_id=page.id, title=page.versions[-1].title),
+        )
+
+    return "", None, None
 
 
 def moderated_object_to_pb(state: ModerationState, session: Session) -> moderation_pb2.GetModeratedObjectRes:
-    res = moderation_pb2.GetModeratedObjectRes(moderation_state=moderation_state_to_pb(state, session))
+    """Describe where a moderated object lives and what it's about"""
+    state_pb = moderation_state_to_pb(state, session)
     object_type = state.object_type
     object_id = state.object_id
 
+    url = ""
+    community: moderation_pb2.ModeratedObjectCommunity | None = None
+    thread_parent: moderation_pb2.ModeratedThreadParent | None = None
+    parent_comment: Comment | None = None
+    involved_user_ids: list[int] = []
+
     if object_type == ModerationObjectType.host_request:
-        res.involved_user_ids.append(
+        involved_user_ids = [
             session.execute(
                 select(HostRequest.recipient_user_id).where(HostRequest.conversation_id == object_id)
             ).scalar_one()
-        )
+        ]
     elif object_type == ModerationObjectType.group_chat:
-        res.involved_user_ids.extend(
+        involved_user_ids = list(
             session.execute(
                 select(GroupChatSubscription.user_id)
                 .where(GroupChatSubscription.group_chat_id == object_id)
                 .where(GroupChatSubscription.left.is_(None))
-                .where(GroupChatSubscription.user_id != res.moderation_state.author_user_id)
+                .where(GroupChatSubscription.user_id != state_pb.author_user_id)
                 .order_by(GroupChatSubscription.joined.asc())
             )
             .scalars()
             .all()
         )
     elif object_type == ModerationObjectType.friend_request:
-        res.involved_user_ids.append(
+        involved_user_ids = [
             session.execute(
                 select(FriendRelationship.to_user_id).where(FriendRelationship.id == object_id)
             ).scalar_one()
-        )
+        ]
     elif object_type == ModerationObjectType.event_occurrence:
         occurrence = session.execute(select(EventOccurrence).where(EventOccurrence.id == object_id)).scalar_one()
-        _set_event_occurrence_location(session, res, occurrence)
+        url, community = _event_occurrence_location(session, occurrence)
     elif object_type == ModerationObjectType.comment:
         thread_id = session.execute(select(Comment.thread_id).where(Comment.id == object_id)).scalar_one()
-        _set_thread_parent(session, res, thread_id)
+        url, community, thread_parent = _thread_parent(session, thread_id)
     elif object_type == ModerationObjectType.reply:
-        comment = session.execute(
+        parent_comment = session.execute(
             select(Comment).join(Reply, Reply.comment_id == Comment.id).where(Reply.id == object_id)
         ).scalar_one()
-        _set_thread_parent(session, res, comment.thread_id)
-        res.parent_comment_id = comment.id
-        res.parent_comment_content = comment.content
+        url, community, thread_parent = _thread_parent(session, parent_comment.thread_id)
     elif object_type == ModerationObjectType.discussion:
         discussion = session.execute(select(Discussion).where(Discussion.id == object_id)).scalar_one()
-        _set_discussion_location(session, res, discussion)
+        url, community = _discussion_location(session, discussion)
     elif object_type == ModerationObjectType.reference:
         to_user = session.execute(
             select(User).join(Reference, Reference.to_user_id == User.id).where(Reference.id == object_id)
         ).scalar_one()
-        res.url = urls.user_link(username=to_user.username)
-        res.involved_user_ids.append(to_user.id)
+        url = urls.user_link(username=to_user.username)
+        involved_user_ids = [to_user.id]
     elif object_type == ModerationObjectType.public_trip:
         node_id = session.execute(select(PublicTrip.node_id).where(PublicTrip.id == object_id)).scalar_one()
-        res.community.CopyFrom(_community_pb(session, node_id))
+        community = _community_pb(session, node_id)
     elif object_type == ModerationObjectType.user:
-        res.url = urls.user_link(username=res.moderation_state.author.username)
+        url = urls.user_link(username=state_pb.author.username)
     else:
         raise ValueError(f"Unsupported moderation object type: {object_type}")
 
-    return res
+    return moderation_pb2.GetModeratedObjectRes(
+        moderation_state=state_pb,
+        url=url,
+        community=community,
+        thread_parent=thread_parent,
+        parent_comment_id=parent_comment.id if parent_comment else None,
+        parent_comment_content=parent_comment.content if parent_comment else None,
+        involved_user_ids=involved_user_ids,
+    )
 
 
 class Moderation(moderation_pb2_grpc.ModerationServicer):
