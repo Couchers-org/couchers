@@ -20,6 +20,7 @@ from couchers.models import (
     NonvisibleUserAccessType,
     NonvisibleUserState,
     RateLimitAction,
+    RateLimitViolation,
     User,
     UserBadge,
 )
@@ -1152,6 +1153,20 @@ def test_excessive_friend_requests_are_reported(db, low_rate_limits, email_colle
             f"User {user.username} has sent {rate_limit_definition.hard_limit} friend requests in the past {RATE_LIMIT_HOURS} hours."
         )
         assert "The user has been blocked from sending further friend requests for now." in email.plain
+
+        with session_scope() as session:
+            assert session.execute(
+                select(RateLimitViolation.is_hard_limit)
+                .where(RateLimitViolation.user_id == user.id)
+                .order_by(RateLimitViolation.id)
+            ).scalars().all() == [False, True]
+
+        # still blocked once the hard violation is on record, without reporting again
+        friend_user, _ = generate_user()
+        with pytest.raises(grpc.RpcError) as exc_info:
+            _ = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=friend_user.id))
+        assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
+        assert email_collector.count_for_reports() == 0
 
 
 def test_ListFriends(db, moderator):

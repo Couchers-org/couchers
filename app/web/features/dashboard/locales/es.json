@@ -13,7 +13,7 @@
   "browse_communities": "Explorar las comunidades",
   "community_builder": "¿Quieres ser un embajador para tu comunidad y ayudar a que crezca? !Conviértete en <communityBuilderLink>Creador de comunidades!</communityBuilderLink>",
   "find_your_community": "Encuentra una Comunidad",
-  "communities_intro": "Para ayudar a gente alrededor del mundo a organizar eventos, discusiones, y reuniones de forma local, hemos creado la página de comunidades, que se listan más abajo. <strong>Se te ha añadido de forma automática a algunas comunidades basándonos en tu ubicación, ¡pero puedes unirte a cualquier comunidad!</strong>. Tus comunidades se listan en el tablón.",
+  "communities_intro": "Las páginas de la comunidad ayudan a organizar eventos locales y debates. <strong>Siempre estás en las comunidades de tu ubicación, pero puedes <browseCommunitiesLink>unirte a cualquier comunidad.</browseCommunitiesLink></strong>",
   "browse_communities_text": "Haz clic en una región para ver otras comunidades dentro de ella más abajo. Haz clic en el enlace para ir a la página de comunidad de esa ciudad o región.",
   "member_count_one": "{{count}} miembro",
   "member_count_many": "{{count}} de miembros",
