@@ -123,6 +123,7 @@
     "invalid_language": "Invalid language.",
     "invalid_link_type": "Invalid link type.",
     "invalid_message": "Invalid message.",
+    "invalid_page_token": "Invalid page token.",
     "invalid_name": "Name not supported.",
     "invalid_notification_preference": "Invalid notification preference.",
     "invalid_password": "Wrong password.",

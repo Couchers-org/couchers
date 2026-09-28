@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import UTC, date, datetime, timedelta
 from unittest.mock import patch
 
 import grpc
@@ -6,6 +6,7 @@ import pytest
 from sqlalchemy import select
 
 from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
+from couchers.crypto import encrypt_page_token
 from couchers.db import session_scope
 from couchers.models import (
     Cluster,
@@ -521,6 +522,45 @@ def test_list_public_trips_by_user_invisible_user(db):
     with public_trips_session(viewer_token) as api:
         res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
         assert len(res.public_trips) == 0
+
+
+def test_list_public_trips_invalid_page_token(db):
+    traveler, _ = generate_user()
+    _, viewer_token = generate_user()
+    node_id = _make_node()
+
+    page_tokens = ["5", "not a token", "2026-01-15:5", encrypt_page_token("garbage"), encrypt_page_token("x:5")]
+
+    with public_trips_session(viewer_token) as api:
+        for page_token in page_tokens:
+            with pytest.raises(grpc.RpcError) as e:
+                api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id, page_token=page_token))
+            assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+            with pytest.raises(grpc.RpcError) as e:
+                api.ListPublicTripsByUser(
+                    public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id, page_token=page_token)
+                )
+            assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+
+def test_list_public_trips_past_uses_node_timezone(db, frozen_timewarp):
+    # 23:00 UTC on 2026-01-15 is already 2026-01-16 in the node's Europe/Helsinki timezone,
+    # so a trip ending on 2026-01-15 is past even though it's still that day in UTC.
+    frozen_timewarp.freeze_at(datetime(2026, 1, 15, 23, 0, tzinfo=UTC))
+    traveler, _ = generate_user()
+    _, viewer_token = generate_user()
+    node_id = _make_node()
+
+    _create_trip_directly(traveler.id, node_id, date(2026, 1, 10), date(2026, 1, 15))
+    current = _create_trip_directly(traveler.id, node_id, date(2026, 1, 12), date(2026, 1, 16))
+
+    with public_trips_session(viewer_token) as api:
+        res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
+        assert [t.trip_id for t in res.public_trips] == [current]
+
+        res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
+        assert [t.trip_id for t in res.public_trips] == [current]
 
 
 def test_update_public_trip_close(db):
