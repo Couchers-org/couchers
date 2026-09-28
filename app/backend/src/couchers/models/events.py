@@ -232,12 +232,12 @@ class EventRecurrence(Base, kw_only=True):
     address: Mapped[str] = mapped_column(String)
     timezone: Mapped[str] = mapped_column(String)
 
-    # Date part of the DTSTART, serves to seed the RRULE,
-    # and disambiguates which week to skip for biweekly events.
+    # Date part of the DTSTART in local time based on timezone.
+    # Seeds the RRULE and disambiguates which week to skip for biweekly events.
     # Typically the date of latest occurrence where the RRULE.INTERVAL was changed.
     dtstart_date: Mapped[date] = mapped_column(Date)
 
-    # Start time of the event (local time based on timezone)
+    # Start time of the event in local time based on timezone.
     start_time: Mapped[time] = mapped_column(Time)
 
     # Number of days to the end of the event (typically zero) and local end time on that day.
@@ -248,10 +248,12 @@ class EventRecurrence(Base, kw_only=True):
     # RRULE.INTERVAL: 1 for weekly, 2 for biweekly (FREQ=WEEKLY is implicit)
     rrule_interval: Mapped[int] = mapped_column(Integer)
 
-    # Occurrences are only scheduled for dates strictly after this.
+    # Last day on which an occurrence was scheduled, in local time based on timezone.
+    # New occurrences are only scheduled for dates strictly after this.
     # Updated whenever an occurrence is scheduled to ensure idempotence.
     last_scheduled_date: Mapped[date] = mapped_column(Date)
 
+    # Last day on which an occurrence can be scheduled, in local time based on timezone.
     # Prevents unbounded recurrence. Feeds into the RRULE UNTIL property.
     ends_on_date: Mapped[date] = mapped_column(Date)
 
