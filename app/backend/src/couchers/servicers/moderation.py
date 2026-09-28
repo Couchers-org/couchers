@@ -360,7 +360,10 @@ def _set_event_occurrence_location(
 ) -> None:
     event = occurrence.event
     res.url = urls.event_link(occurrence_id=occurrence.id, slug=event.slug)
-    res.community.CopyFrom(_community_pb(session, event.parent_node_id, event.owner_cluster_id))
+    if event.owner_cluster is not None:
+        res.community.CopyFrom(_community_pb(session, event.owner_cluster.parent_node_id, event.owner_cluster_id))
+    else:
+        res.community.CopyFrom(_community_pb(session, event.parent_node_id))
 
 
 def _set_discussion_location(

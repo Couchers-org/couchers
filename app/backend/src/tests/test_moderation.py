@@ -3934,6 +3934,30 @@ def test_GetModeratedObject_event_occurrence_in_group(db):
     assert res.community.group_name == "Event Group"
 
 
+def test_GetModeratedObject_event_occurrence_transferred_to_group_elsewhere(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user, token = generate_user()
+
+    with session_scope() as session:
+        create_community(session, 0, 2, "Location Community", [user], [], None)
+        other_community = create_community(session, 5, 7, "Other Community", [user], [], None)
+        group = create_group(session, "Other Group", [user], [], other_community)
+        other_community_id = other_community.id
+        group_id = group.id
+
+    event = _create_event(token, "Group Picnic")
+    with events_session(token) as api:
+        api.TransferEvent(events_pb2.TransferEventReq(event_id=event.event_id, new_owner_group_id=group_id))
+
+    res = _get_moderated_object(
+        super_token, _moderation_state_id(ModerationObjectType.event_occurrence, event.event_id)
+    )
+    assert res.community.community_id == other_community_id
+    assert res.community.community_name == "Other Community"
+    assert res.community.group_id == group_id
+    assert res.community.group_name == "Other Group"
+
+
 def test_GetModeratedObject_comment_on_discussion(db):
     super_user, super_token = generate_user(is_superuser=True)
     user, token = generate_user()
