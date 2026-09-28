@@ -45,6 +45,7 @@ from couchers.proto import (
     messages_pb2,
     moderation_pb2,
     notifications_pb2,
+    pages_pb2,
     public_trips_pb2,
     requests_pb2,
     threads_pb2,
@@ -59,6 +60,7 @@ from tests.fixtures.sessions import (
     discussions_session,
     events_session,
     notifications_session,
+    pages_session,
     public_trips_session,
     real_moderation_session,
     requests_session,
@@ -4008,6 +4010,41 @@ def test_GetModeratedObject_comment_on_page(db):
     assert res.thread_parent.title == "Main page for the Page Community community"
     assert res.url == ""
     assert res.community.community_id == community_id
+
+
+def test_GetModeratedObject_comment_on_page_transferred_to_group_elsewhere(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user, token = generate_user()
+
+    with session_scope() as session:
+        create_community(session, 0, 2, "Location Community", [user], [], None)
+        other_community = create_community(session, 5, 7, "Other Community", [user], [], None)
+        group = create_group(session, "Other Group", [user], [], other_community)
+        other_community_id = other_community.id
+        group_id = group.id
+
+    with pages_session(token) as api:
+        place = api.CreatePlace(
+            pages_pb2.CreatePlaceReq(
+                title="Old Lighthouse",
+                content="Place description.",
+                address="Near Null Island",
+                location=pages_pb2.Coordinate(lat=1, lng=1),
+            )
+        )
+        api.TransferPage(pages_pb2.TransferPageReq(page_id=place.page_id, new_owner_group_id=group_id))
+
+    comment_thread_id = _post_reply(token, place.thread.thread_id, "Is it open to visitors?")
+
+    res = _get_moderated_object(
+        super_token, _moderation_state_id(ModerationObjectType.comment, comment_thread_id // 10)
+    )
+    assert res.thread_parent.page_id == place.page_id
+    assert res.thread_parent.title == "Old Lighthouse"
+    assert res.community.community_id == other_community_id
+    assert res.community.community_name == "Other Community"
+    assert res.community.group_id == group_id
+    assert res.community.group_name == "Other Group"
 
 
 def test_GetModeratedObject_reply_on_event(db):

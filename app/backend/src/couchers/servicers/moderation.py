@@ -38,7 +38,6 @@ from couchers.models import (
     Notification,
     NotificationDelivery,
     Page,
-    PageVersion,
     PublicTrip,
     Reference,
     Reply,
@@ -338,21 +337,30 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
     return state_pb
 
 
-def _community_pb(
-    session: Session, node_id: int, owner_cluster_id: int | None = None
-) -> moderation_pb2.ModeratedObjectCommunity:
-    community = moderation_pb2.ModeratedObjectCommunity(
+def _community_pb(session: Session, node_id: int) -> moderation_pb2.ModeratedObjectCommunity:
+    return moderation_pb2.ModeratedObjectCommunity(
         community_id=node_id,
         community_name=session.execute(
             select(Cluster.name).where(Cluster.parent_node_id == node_id).where(Cluster.is_official_cluster)
         ).scalar_one(),
     )
-    if owner_cluster_id is not None:
-        cluster = session.execute(select(Cluster).where(Cluster.id == owner_cluster_id)).scalar_one()
-        if not cluster.is_official_cluster:
-            community.group_id = cluster.id
-            community.group_name = cluster.name
+
+
+def _cluster_community_pb(session: Session, cluster: Cluster) -> moderation_pb2.ModeratedObjectCommunity:
+    if cluster.is_official_cluster:
+        return moderation_pb2.ModeratedObjectCommunity(community_id=cluster.parent_node_id, community_name=cluster.name)
+    community = _community_pb(session, cluster.parent_node_id)
+    community.group_id = cluster.id
+    community.group_name = cluster.name
     return community
+
+
+def _owner_community_pb(
+    session: Session, parent_node_id: int, owner_cluster: Cluster | None
+) -> moderation_pb2.ModeratedObjectCommunity:
+    if owner_cluster is not None:
+        return _cluster_community_pb(session, owner_cluster)
+    return _community_pb(session, parent_node_id)
 
 
 def _set_event_occurrence_location(
@@ -360,17 +368,14 @@ def _set_event_occurrence_location(
 ) -> None:
     event = occurrence.event
     res.url = urls.event_link(occurrence_id=occurrence.id, slug=event.slug)
-    if event.owner_cluster is not None:
-        res.community.CopyFrom(_community_pb(session, event.owner_cluster.parent_node_id, event.owner_cluster_id))
-    else:
-        res.community.CopyFrom(_community_pb(session, event.parent_node_id))
+    res.community.CopyFrom(_owner_community_pb(session, event.parent_node_id, event.owner_cluster))
 
 
 def _set_discussion_location(
     session: Session, res: moderation_pb2.GetModeratedObjectRes, discussion: Discussion
 ) -> None:
     res.url = urls.discussion_link(discussion_id=str(discussion.id), slug=discussion.slug)
-    res.community.CopyFrom(_community_pb(session, discussion.owner_cluster.parent_node_id, discussion.owner_cluster_id))
+    res.community.CopyFrom(_cluster_community_pb(session, discussion.owner_cluster))
 
 
 def _set_thread_parent(session: Session, res: moderation_pb2.GetModeratedObjectRes, thread_id: int) -> None:
@@ -394,11 +399,8 @@ def _set_thread_parent(session: Session, res: moderation_pb2.GetModeratedObjectR
 
     page = session.execute(select(Page).where(Page.thread_id == thread_id)).scalar_one_or_none()
     if page is not None:
-        res.community.CopyFrom(_community_pb(session, page.parent_node_id, page.owner_cluster_id))
-        title = session.execute(
-            select(PageVersion.title).where(PageVersion.page_id == page.id).order_by(PageVersion.id.desc()).limit(1)
-        ).scalar_one()
-        res.thread_parent.CopyFrom(moderation_pb2.ModeratedThreadParent(page_id=page.id, title=title))
+        res.community.CopyFrom(_owner_community_pb(session, page.parent_node_id, page.owner_cluster))
+        res.thread_parent.CopyFrom(moderation_pb2.ModeratedThreadParent(page_id=page.id, title=page.versions[-1].title))
 
 
 def moderated_object_to_pb(state: ModerationState, session: Session) -> moderation_pb2.GetModeratedObjectRes:
