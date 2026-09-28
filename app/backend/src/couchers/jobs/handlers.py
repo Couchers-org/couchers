@@ -13,7 +13,7 @@ from zoneinfo import ZoneInfo
 import requests
 from google.protobuf import empty_pb2
 from psycopg.types.range import TimestamptzRange
-from sqlalchemy import ColumnElement, Float, Function, Integer, select
+from sqlalchemy import ColumnElement, Date, Float, Function, Integer, select
 from sqlalchemy.orm import InstrumentedAttribute, Session, aliased
 from sqlalchemy.sql import (
     and_,
@@ -76,11 +76,14 @@ from couchers.models import (
     AccountDeletionToken,
     ActivenessProbe,
     ActivenessProbeStatus,
+    AttendeeStatus,
     Cluster,
     ClusterRole,
     ClusterSubscription,
+    Event,
     EventOccurrence,
     EventOccurrenceAttendee,
+    EventOrganizer,
     EventRecurrence,
     GroupChat,
     GroupChatSubscription,
@@ -123,7 +126,7 @@ from couchers.postal.my_postcard import get_order_ids, send_postcard
 from couchers.proto import moderation_pb2, notification_data_pb2
 from couchers.proto.internal import internal_pb2, jobs_pb2
 from couchers.resources import get_badge_dict, get_static_badge_dict
-from couchers.sentry import report_message
+from couchers.sentry import report_error, report_message
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.events import (
     event_to_pb,
@@ -1249,7 +1252,10 @@ def schedule_event_occurrences(payload: empty_pb2.Empty) -> None:
         recurrence_ids = (
             session.execute(
                 select(EventRecurrence.id)
-                .where(EventRecurrence.ends_on_date >= now().date())
+                .join(Event, Event.id == EventRecurrence.event_id)
+                .join(User, User.id == Event.creator_user_id)
+                .where(User.is_visible)
+                .where(EventRecurrence.ends_on_date >= cast(func.timezone(EventRecurrence.timezone, now()), Date))
                 .order_by(EventRecurrence.id)
             )
             .scalars()
@@ -1263,13 +1269,15 @@ def schedule_event_occurrences(payload: empty_pb2.Empty) -> None:
                     select(EventRecurrence).where(EventRecurrence.id == recurrence_id)
                 ).scalar_one()
                 _schedule_occurrences_for_recurrence(session, recurrence)
-        except Exception:
+        except Exception as e:
             logger.exception(f"Failed to schedule occurrences for event recurrence {recurrence_id}")
+            report_error(e)
 
 
 def _schedule_occurrences_for_recurrence(session: Session, recurrence: EventRecurrence) -> None:
     timezone = ZoneInfo(recurrence.timezone)
 
+    # All dates are local to the recurrence's timezone
     rrule = make_every_nth_week_rrule(
         start_date=recurrence.dtstart_date,
         n=recurrence.rrule_interval,
@@ -1281,6 +1289,17 @@ def _schedule_occurrences_for_recurrence(session: Session, recurrence: EventRecu
         min_occurrences=EVENT_RECURRENCE_MIN_SCHEDULED_OCCURRENCES,
         last_scheduled_date=recurrence.last_scheduled_date,
         today=today_in_timezone(recurrence.timezone),
+    )
+
+    organizer_user_ids = (
+        session.execute(
+            select(EventOrganizer.user_id)
+            .join(User, User.id == EventOrganizer.user_id)
+            .where(EventOrganizer.event_id == recurrence.event_id)
+            .where(User.is_visible)
+        )
+        .scalars()
+        .all()
     )
 
     for occurrence_date in dates_to_schedule:
@@ -1319,12 +1338,22 @@ def _schedule_occurrences_for_recurrence(session: Session, recurrence: EventRecu
             session.flush()
             return occurrence.id
 
-        create_moderation(
+        moderation_state = create_moderation(
             session=session,
             object_type=ModerationObjectType.event_occurrence,
             object_id=create_occurrence,
             creator_user_id=recurrence.event.creator_user_id,
         )
+
+        for organizer_user_id in organizer_user_ids:
+            session.add(
+                EventOccurrenceAttendee(
+                    user_id=organizer_user_id,
+                    occurrence_id=moderation_state.object_id,
+                    attendee_status=AttendeeStatus.going,
+                )
+            )
+        session.flush()
 
     if dates_to_schedule:
         recurrence.last_scheduled_date = dates_to_schedule[-1]

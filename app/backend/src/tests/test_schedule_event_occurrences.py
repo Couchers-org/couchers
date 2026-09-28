@@ -6,9 +6,8 @@ from datetime import UTC, date, datetime, time
 from typing import cast
 from zoneinfo import ZoneInfo
 
-import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
-from sqlalchemy import select
+from sqlalchemy import func, select, update
 
 from couchers.context import CouchersContext
 from couchers.db import session_scope
@@ -21,11 +20,6 @@ from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import _MockCouchersContext, events_session
 from tests.fixtures.timewarp import FrozenTimewarp
 from tests.test_communities import create_community
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
 
 
 def _create_user_in_community() -> tuple[User, str]:
@@ -122,7 +116,7 @@ def test_progressive_scheduling_until_end_date(db, frozen_timewarp: FrozenTimewa
     """
     user, token = _create_user_in_community()
 
-    # 📅 Wednesday, January 1, 2020
+    # Set time to Wednesday, January 1, 2020
     frozen_timewarp.freeze_at(datetime(2020, 1, 1, tzinfo=UTC))
 
     # Create a recurring weekly event on Thursday, January 2, 2020, 12:00-13:30 UTC.
@@ -174,7 +168,7 @@ def test_progressive_scheduling_until_end_date(db, frozen_timewarp: FrozenTimewa
 
     assert len(occurrences_after_scheduling_redundantly) == len(occurrences_after_scheduling)
 
-    # 📅 Friday, January 3, 2020
+    # Set time to Friday, January 3, 2020
     frozen_timewarp.freeze_at(datetime(2020, 1, 3, tzinfo=UTC))
 
     # Test that new occurrences get scheduled now that the January 2 occurrence has gone by
@@ -192,7 +186,7 @@ def test_progressive_scheduling_until_end_date(db, frozen_timewarp: FrozenTimewa
         2020, 1, 16, 12, 0, tzinfo=UTC
     )
 
-    # 📅 Friday, January 10, 2020
+    # Set time to Friday, January 10, 2020
     frozen_timewarp.freeze_at(datetime(2020, 1, 10, tzinfo=UTC))
 
     # Test that no occurrence gets scheduled past the ends_on_date of January 20, 2020
@@ -215,7 +209,7 @@ def test_biweekly_frequency(db, frozen_timewarp: FrozenTimewarp):
     """Test biweekly event scheduling."""
     user, token = _create_user_in_community()
 
-    # 📅 Wednesday, January 1, 2020
+    # Set time to Wednesday, January 1, 2020
     frozen_timewarp.freeze_at(datetime(2020, 1, 1, tzinfo=UTC))
 
     # Create a recurring biweekly event on Thursday, January 2, 2020, 12:00-13:30 UTC.
@@ -242,7 +236,7 @@ def test_no_rescheduling_after_edit_or_cancel(db, frozen_timewarp: FrozenTimewar
     """Editing or cancelling an already-spawned occurrence must not cause it to be rescheduled."""
     user, token = _create_user_in_community()
 
-    # 📅 Wednesday, January 1, 2020
+    # Set time to Wednesday, January 1, 2020
     frozen_timewarp.freeze_at(datetime(2020, 1, 1, tzinfo=UTC))
 
     # Create a recurring event on Fridays
@@ -300,7 +294,7 @@ def test_new_occurrence_not_based_on_previous(db, frozen_timewarp: FrozenTimewar
     """The latest occurrence is the one that is used as a template for the next one."""
     user, token = _create_user_in_community()
 
-    # 📅 Wednesday, January 1, 2020
+    # Set time to Wednesday, January 1, 2020
     frozen_timewarp.freeze_at(datetime(2020, 1, 1, tzinfo=UTC))
 
     # Schedule on Thursdays
@@ -325,3 +319,77 @@ def test_new_occurrence_not_based_on_previous(db, frozen_timewarp: FrozenTimewar
         ).events[-1]
     assert to_aware_datetime(second_occurrence.start_time) == datetime(2020, 1, 9, 12, 0, tzinfo=UTC)
     assert second_occurrence.content == DEFAULT_EVENT_CONTENT
+
+
+def test_no_scheduling_after_creator_banned(db, frozen_timewarp: FrozenTimewarp):
+    """Occurrences should stop being scheduled once the event creator is banned."""
+    user, token = _create_user_in_community()
+
+    # Set time to Wednesday, January 1, 2020
+    frozen_timewarp.freeze_at(datetime(2020, 1, 1, tzinfo=UTC))
+
+    # Schedule on Thursdays
+    initial_occurrence = _create_event(token, start_date=date(2020, 1, 2), start_time=time(12, 0), end_time=time(13, 0))
+    _make_event_recurring(initial_occurrence, rrule_interval=1, ends_on_date=date(2020, 6, 30))
+
+    # Schedules January 9
+    schedule_event_occurrences(empty_pb2.Empty())
+
+    with events_session(token) as api:
+        occurrences_before_ban = api.ListEventOccurrences(
+            events_pb2.ListEventOccurrencesReq(event_id=initial_occurrence.event_id, past=False)
+        ).events
+
+    assert len(occurrences_before_ban) == 2
+
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == user.id).values(banned_at=func.now()))
+
+    # Set time to Friday, January 3, 2020, when January 16 would otherwise get scheduled
+    frozen_timewarp.freeze_at(datetime(2020, 1, 3, tzinfo=UTC))
+
+    schedule_event_occurrences(empty_pb2.Empty())
+
+    # Unban so the creator can see their (shadowed) occurrences through the API again
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == user.id).values(banned_at=None))
+
+    with events_session(token) as api:
+        occurrences_after_ban = api.ListEventOccurrences(
+            events_pb2.ListEventOccurrencesReq(event_id=initial_occurrence.event_id, past=False)
+        ).events
+
+    # January 2 has ended and drops off the upcoming list, and January 16 was never scheduled.
+    assert [to_aware_datetime(occurrence.start_time) for occurrence in occurrences_after_ban] == [
+        datetime(2020, 1, 9, 12, 0, tzinfo=UTC)
+    ]
+
+
+def test_organizers_attend_scheduled_occurrences(db, frozen_timewarp: FrozenTimewarp):
+    """Event organizers should be added as attendees of newly scheduled occurrences."""
+    user, token = _create_user_in_community()
+    co_organizer, _ = generate_user()
+
+    # Set time to Wednesday, January 1, 2020
+    frozen_timewarp.freeze_at(datetime(2020, 1, 1, tzinfo=UTC))
+
+    # Schedule on Thursdays
+    initial_occurrence = _create_event(token, start_date=date(2020, 1, 2), start_time=time(12, 0), end_time=time(13, 0))
+    _make_event_recurring(initial_occurrence, rrule_interval=1, ends_on_date=date(2020, 6, 30))
+
+    with events_session(token) as api:
+        api.InviteEventOrganizer(
+            events_pb2.InviteEventOrganizerReq(event_id=initial_occurrence.event_id, user_id=co_organizer.id)
+        )
+
+    # Schedules January 9
+    schedule_event_occurrences(empty_pb2.Empty())
+
+    with events_session(token) as api:
+        scheduled_occurrence = api.ListEventOccurrences(
+            events_pb2.ListEventOccurrencesReq(event_id=initial_occurrence.event_id, past=False)
+        ).events[-1]
+
+    assert to_aware_datetime(scheduled_occurrence.start_time) == datetime(2020, 1, 9, 12, 0, tzinfo=UTC)
+    assert scheduled_occurrence.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
+    assert scheduled_occurrence.going_count == 2
