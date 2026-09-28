@@ -1,7 +1,7 @@
 """Add event_recurrences table
 
-Revision ID: 0191
-Revises: 0190
+Revision ID: 0193
+Revises: 0192
 Create Date: 2026-09-02 00:00:00.000000
 
 """
@@ -11,8 +11,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "0191"
-down_revision = "0190"
+revision = "0193"
+down_revision = "0192"
 branch_labels = None
 depends_on = None
 
