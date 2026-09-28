@@ -90,7 +90,7 @@ export default function ChangeSignupEmail() {
                 },
                 required: true,
               })}
-              placeholder={t("auth:change_signup_email_form.new_email")}
+              placeholder={"you@couchers.org"}
               name="newSignupEmail"
               fullWidth
               error={!!errors.newSignupEmail}

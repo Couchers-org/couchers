@@ -40,7 +40,7 @@ describe("ChangeSignupEmail", () => {
   it("renders the change email form", async () => {
     render(<ChangeSignupEmail />, { wrapper });
 
-    expect(screen.getByPlaceholderText(t("auth:change_signup_email_form.new_email"))).toBeVisible();
+    expect(screen.getByPlaceholderText("you@couchers.org")).toBeVisible();
 
     expect(screen.getByRole("button", { name: t("auth:change_signup_email_form.signup_change_email") })).toBeVisible();
   });
@@ -52,7 +52,7 @@ describe("ChangeSignupEmail", () => {
 
     const user = userEvent.setup();
 
-    await user.type(screen.getByPlaceholderText(t("auth:change_signup_email_form.new_email")), "new@example.com");
+    await user.type(screen.getByPlaceholderText("you@couchers.org"), "new@example.com");
 
     await user.click(screen.getByRole("button", { name: t("auth:change_signup_email_form.signup_change_email") }));
 
@@ -71,7 +71,7 @@ describe("ChangeSignupEmail", () => {
 
     const user = userEvent.setup();
 
-    await user.type(screen.getByPlaceholderText(t("auth:change_signup_email_form.new_email")), "existing@example.com");
+    await user.type(screen.getByPlaceholderText("you@couchers.org"), "existing@example.com");
 
     await user.click(screen.getByRole("button", { name: t("auth:change_signup_email_form.signup_change_email") }));
 
@@ -88,7 +88,7 @@ describe("ChangeSignupEmail", () => {
 
     const user = userEvent.setup();
 
-    await user.type(screen.getByPlaceholderText(t("auth:change_signup_email_form.new_email")), "new@example.com");
+    await user.type(screen.getByPlaceholderText("you@couchers.org"), "new@example.com");
 
     await user.click(screen.getByRole("button", { name: t("auth:change_signup_email_form.signup_change_email") }));
 
