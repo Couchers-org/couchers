@@ -16,8 +16,8 @@ import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
 import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
-// Must match the backend host request minimum (and normal host requests).
-const MESSAGE_MIN_LENGTH = 250;
+// Must match the backend PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16.
+const MESSAGE_MIN_LENGTH = 100;
 
 const DATE_FIELD_ID = "offer-to-host-dates";
 

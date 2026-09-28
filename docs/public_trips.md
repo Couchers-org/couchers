@@ -100,7 +100,7 @@ A user cannot create overlapping active trips (same node, overlapping dates, bot
 
 1. Host clicks "Offer to Host" on a trip card.
 2. Reuse/extract the existing `NewHostRequest.tsx` form — pre-fill trip dates and traveler. Host can adjust dates.
-3. Required message (same 250-char minimum as normal host requests).
+3. Required message (100-char minimum, lower than the 250 for normal host requests).
 4. Submit calls `CreateHostRequest` with `public_trip_id` set.
 5. Redirect to the host request thread on success.
 

@@ -34,12 +34,20 @@ const StyledConfirmationBanner = styled(Box)(({ theme }) => ({
   alignSelf: "flex-start",
 }));
 
-function WithdrawOfferButton({ isLoading, onConfirm }: { isLoading: boolean; onConfirm: () => void }) {
+function WithdrawOfferButton({
+  isLoading,
+  onConfirm,
+  name,
+}: {
+  isLoading: boolean;
+  onConfirm: () => void;
+  name?: string;
+}) {
   const { t } = useTranslation([MESSAGES]);
   return (
     <ConfirmationDialogWrapper
       title={t("messages:withdraw_invitation_dialog_title")}
-      message={t("messages:withdraw_invitation_dialog_message")}
+      message={t("messages:withdraw_invitation_dialog_message", { name })}
       confirmButtonLabel={t("messages:withdraw_invitation_dialog_confirm_button")}
       cancelButtonLabel={t("messages:withdraw_invitation_dialog_dismiss_button")}
       onConfirm={onConfirm}
@@ -53,8 +61,36 @@ function WithdrawOfferButton({ isLoading, onConfirm }: { isLoading: boolean; onC
   );
 }
 
-// Public-trip offers: the traveller accepts/declines; the offering host can
-// withdraw while pending, then confirm once accepted.
+function CancelAcceptedOfferButton({
+  isLoading,
+  onConfirm,
+  name,
+}: {
+  isLoading: boolean;
+  onConfirm: () => void;
+  name?: string;
+}) {
+  const { t } = useTranslation([MESSAGES]);
+  return (
+    <ConfirmationDialogWrapper
+      title={t("messages:cancel_accepted_invitation_stay_dialog_title", { name })}
+      message={t("messages:cancel_accepted_invitation_stay_dialog_message", { name })}
+      confirmButtonLabel={t("messages:cancel_accepted_invitation_stay_dialog_confirm_button")}
+      cancelButtonLabel={t("messages:cancel_accepted_invitation_stay_dialog_dismiss_button")}
+      onConfirm={onConfirm}
+    >
+      {(setIsOpen) => (
+        <FieldButton isLoading={isLoading} callback={() => setIsOpen(true)} variant="outlined">
+          {t("messages:cancel_accepted_invitation_stay_button")}
+        </FieldButton>
+      )}
+    </ConfirmationDialogWrapper>
+  );
+}
+
+// Public-trip offers: the traveller accepts/declines (and can cancel their stay after
+// accepting, which is sent as a decline); the offering host can
+// confirm once accepted, and withdraw at any point.
 function OfferRespondButtons({
   isHost,
   status,
@@ -69,9 +105,8 @@ function OfferRespondButtons({
   name?: string;
 }) {
   const { t } = useTranslation([MESSAGES, GLOBAL]);
-  const isAccepted =
-    status === HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED ||
-    status === HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED;
+  const isAccepted = status === HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED;
+  const isConfirmed = status === HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED;
 
   // Traveller (the trip owner) accepts or declines the offer.
   if (!isHost) {
@@ -99,18 +134,24 @@ function OfferRespondButtons({
         </StyledCard>
       );
     }
-    if (isAccepted) {
+    if (isAccepted || isConfirmed) {
       return (
         <StyledConfirmationBanner>
           <CheckCircle sx={{ color: "var(--mui-palette-success-main)" }} />
           <Typography variant="body2">{t("messages:invitation_accept_confirmation", { name })}</Typography>
+          <CancelAcceptedOfferButton
+            isLoading={isLoading}
+            onConfirm={handleStatus(HostRequestStatus.HOST_REQUEST_STATUS_REJECTED)}
+            name={name}
+          />
         </StyledConfirmationBanner>
       );
     }
     return null;
   }
 
-  // Offering host: withdraw while pending, confirm (or withdraw) once accepted.
+  // Offering host: withdraw while pending, confirm (or withdraw) once accepted,
+  // and still withdraw after confirming.
   if (status === HostRequestStatus.HOST_REQUEST_STATUS_PENDING) {
     return (
       <StyledCard>
@@ -124,6 +165,26 @@ function OfferRespondButtons({
           <WithdrawOfferButton
             isLoading={isLoading}
             onConfirm={handleStatus(HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED)}
+            name={name}
+          />
+        </StyledButtonRow>
+      </StyledCard>
+    );
+  }
+  if (isConfirmed) {
+    return (
+      <StyledCard>
+        <div>
+          <Typography variant="subtitle2">{t("messages:invitation_host_confirmed_box_title", { name })}</Typography>
+          <Typography variant="body2" color="text.secondary">
+            {t("messages:invitation_host_confirmed_box_description", { name })}
+          </Typography>
+        </div>
+        <StyledButtonRow>
+          <WithdrawOfferButton
+            isLoading={isLoading}
+            onConfirm={handleStatus(HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED)}
+            name={name}
           />
         </StyledButtonRow>
       </StyledCard>
@@ -142,12 +203,11 @@ function OfferRespondButtons({
           <WithdrawOfferButton
             isLoading={isLoading}
             onConfirm={handleStatus(HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED)}
+            name={name}
           />
-          {status === HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED && (
-            <FieldButton callback={handleStatus(HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED)} isLoading={isLoading}>
-              {t("messages:confirm_request_button_text")}
-            </FieldButton>
-          )}
+          <FieldButton callback={handleStatus(HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED)} isLoading={isLoading}>
+            {t("messages:confirm_request_button_text")}
+          </FieldButton>
         </StyledButtonRow>
       </StyledCard>
     );
