@@ -95,7 +95,7 @@ def _make_event_recurring(
             EventRecurrence(
                 event_id=occurrence.event_id,
                 content=occurrence.content,
-                photo_key=occurrence.photo_key,
+                # TODO(#9845): Initialize photo_key. Implies adding admin usage tracking infra.
                 geom=occurrence.geom,
                 address=occurrence.address,
                 timezone=occurrence.timezone,
