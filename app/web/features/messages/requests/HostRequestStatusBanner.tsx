@@ -21,7 +21,6 @@ export default function HostRequestStatusBanner({
   status,
   isLoading,
   onAccept,
-  onDecline,
   onCancel,
   hostName,
 }: {
@@ -29,7 +28,6 @@ export default function HostRequestStatusBanner({
   status: HostRequestStatus;
   isLoading: boolean;
   onAccept: () => void;
-  onDecline: () => void;
   onCancel: () => void;
   hostName?: string;
 }) {
@@ -56,7 +54,7 @@ export default function HostRequestStatusBanner({
           variant="contained"
           size="small"
           color="primary"
-          onClick={isRejected ? onAccept : onDecline}
+          onClick={isRejected ? onAccept : onCancel}
           loading={isLoading}
           sx={{ flexShrink: 0 }}
         >
