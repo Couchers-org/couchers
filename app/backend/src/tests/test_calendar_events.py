@@ -20,7 +20,7 @@ def test_host_request_ics_content():
 
     ics: str = (
         create_host_request_ics_calendar(
-            host_request, other_name="Bob", is_host=True, loc_context=LocalizationContext.en_utc()
+            host_request, other_name="Bob", hosting=True, loc_context=LocalizationContext.en_utc()
         )
         .to_ical()
         .decode()
@@ -58,7 +58,7 @@ def test_host_request_cancelled_ics_content():
 
     ics: str = (
         create_host_request_ics_calendar(
-            host_request, other_name="Bob", is_host=True, loc_context=LocalizationContext.en_utc()
+            host_request, other_name="Bob", hosting=True, loc_context=LocalizationContext.en_utc()
         )
         .to_ical()
         .decode()
