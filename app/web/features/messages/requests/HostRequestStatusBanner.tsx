@@ -5,7 +5,7 @@ import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import { HostRequestStatus } from "proto/messages_pb";
 
-const StyledBanner = styled(Box)(({ theme }) => ({
+export const StyledBanner = styled(Box)(({ theme }) => ({
   background: "var(--mui-palette-background-paper)",
   borderBottom: "1px solid var(--mui-palette-divider)",
   padding: theme.spacing(1.5, 2),

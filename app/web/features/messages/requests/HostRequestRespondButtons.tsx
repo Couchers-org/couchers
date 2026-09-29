@@ -1,11 +1,12 @@
-import { CheckCircle } from "@mui/icons-material";
 import { Box, styled, Typography } from "@mui/material";
+import Button from "components/Button";
 import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
 import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import { HostRequestStatus } from "proto/messages_pb";
 
 import FieldButton from "./FieldButton";
+import { StyledBanner } from "./HostRequestStatusBanner";
 
 const StyledCard = styled(Box)(({ theme }) => ({
   background: "var(--mui-palette-grey-50)",
@@ -22,16 +23,6 @@ const StyledButtonRow = styled(Box)(({ theme }) => ({
   flexWrap: "wrap",
   gap: theme.spacing(1),
   justifyContent: "flex-end",
-}));
-
-const StyledConfirmationBanner = styled(Box)(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  gap: theme.spacing(1.5),
-  background: "var(--mui-palette-grey-50)",
-  borderRadius: theme.shape.borderRadius * 2,
-  padding: theme.spacing(1.5, 2),
-  alignSelf: "flex-start",
 }));
 
 function WithdrawOfferButton({
@@ -80,9 +71,9 @@ function CancelAcceptedOfferButton({
       onConfirm={onConfirm}
     >
       {(setIsOpen) => (
-        <FieldButton isLoading={isLoading} callback={() => setIsOpen(true)} variant="outlined">
+        <Button variant="text" size="small" color="primary" onClick={() => setIsOpen(true)} loading={isLoading}>
           {t("messages:cancel_accepted_invitation_stay_button")}
-        </FieldButton>
+        </Button>
       )}
     </ConfirmationDialogWrapper>
   );
@@ -136,15 +127,14 @@ function OfferRespondButtons({
     }
     if (isAccepted || isConfirmed) {
       return (
-        <StyledConfirmationBanner>
-          <CheckCircle sx={{ color: "var(--mui-palette-success-main)" }} />
+        <StyledBanner>
           <Typography variant="body2">{t("messages:invitation_accept_confirmation", { name })}</Typography>
           <CancelAcceptedOfferButton
             isLoading={isLoading}
             onConfirm={handleStatus(HostRequestStatus.HOST_REQUEST_STATUS_REJECTED)}
             name={name}
           />
-        </StyledConfirmationBanner>
+        </StyledBanner>
       );
     }
     return null;
