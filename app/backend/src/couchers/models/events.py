@@ -226,8 +226,8 @@ class EventRecurrence(Base, kw_only=True):
     event_id: Mapped[int] = mapped_column(ForeignKey("events.id"), unique=True)
 
     # Properties acting as templates for future EventOccurrence's
+    # TODO(#9845): Add photo_key and photo. Implies adding admin infra for tracking uses.
     content: Mapped[str] = mapped_column(String)  # CommonMark without images
-    photo_key: Mapped[str | None] = mapped_column(ForeignKey("uploads.key"), default=None)
     geom: Mapped[Geom] = mapped_column(Geometry(geometry_type="POINT", srid=4326))
     address: Mapped[str] = mapped_column(String)
     timezone: Mapped[str] = mapped_column(String)
@@ -260,7 +260,6 @@ class EventRecurrence(Base, kw_only=True):
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     event: Mapped[Event] = relationship(init=False, back_populates="recurrence")
-    photo: Mapped[Upload | None] = relationship(init=False)
 
     __table_args__ = (
         # Only weekly (1) and biweekly (2) are supported for now; see the class docstring.
