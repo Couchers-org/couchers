@@ -114,6 +114,7 @@ def host_request_to_pb(
         created=Timestamp_from_datetime(initial_message.time),
         from_date=date_to_api(host_request.from_date),
         to_date=date_to_api(host_request.to_date),
+        timezone=host_request.timezone,
         last_seen_message_id=(
             host_request.initiator_last_seen_message_id
             if context.user_id == host_request.initiator_user_id
@@ -187,7 +188,15 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if not from_date or not to_date:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_date")
 
-        today = today_in_timezone(recipient.timezone)
+        # If this is an offer in response to a public trip, it's validated further down
+        public_trip_id = request.public_trip_id if request.HasField("public_trip_id") else None
+
+        # an offer on a public trip reverses the roles: the caller is the host and the recipient is the traveller
+        surfer_user, host_user = (user, recipient) if public_trip_id is None else (recipient, user)
+
+        # the dates are in the host's timezone, recorded on the request since the host may move later
+        host_timezone = host_user.timezone or "Etc/UTC"
+        today = today_in_timezone(host_timezone)
 
         # request starts from the past
         if from_date < today:
@@ -222,9 +231,6 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 "host_request_rate_limit2",
                 substitutions={"count": RATE_LIMIT_HOURS},
             )
-
-        # If this is an offer in response to a public trip, validate it
-        public_trip_id = request.public_trip_id if request.HasField("public_trip_id") else None
 
         # Offers on public trips are deduplicated per trip further down instead
         if public_trip_id is None:
@@ -283,9 +289,6 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if existing_offer is not None:
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "duplicate_host_request_for_trip")
 
-        # an offer on a public trip reverses the roles: the caller is the host and the recipient is the traveller
-        surfer_user, host_user = (recipient, user) if public_trip_id is not None else (user, recipient)
-
         conversation = Conversation()
         session.add(conversation)
         session.flush()
@@ -324,8 +327,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             to_date=to_date,
             status=HostRequestStatus.pending,
             initiator_last_seen_message_id=message.id,
-            # TODO: tz
-            # timezone=recipient.timezone,
+            timezone=host_timezone,
             hosting_city=host_user.city,
             hosting_location=host_user.geom,
             hosting_radius=host_user.geom_radius,
@@ -517,6 +519,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     created=Timestamp_from_datetime(result.Conversation.created),
                     from_date=date_to_api(result.HostRequest.from_date),
                     to_date=date_to_api(result.HostRequest.to_date),
+                    timezone=result.HostRequest.timezone,
                     last_seen_message_id=(
                         result.HostRequest.initiator_last_seen_message_id
                         if context.user_id == result.HostRequest.initiator_user_id
