@@ -59,6 +59,12 @@ const StyledSelect = styled(Select, {
   ...(displayMode === "icon" && {
     width: 41.25,
     minWidth: 41.25,
+    // Notification bell is an IconButton, which transitions background-color
+    // (duration.shortest). Palette CSS variables only interpolate on properties
+    // that declare a transition; the glyph fill snaps on the bell too.
+    transition: theme.transitions.create("background-color", {
+      duration: theme.transitions.duration.shortest,
+    }),
     "& .MuiSelect-select": {
       display: "flex",
       alignItems: "center",

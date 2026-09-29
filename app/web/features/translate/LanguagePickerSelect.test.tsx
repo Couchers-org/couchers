@@ -44,6 +44,32 @@ jest.mock("i18n/useLocaleInfos", () => ({
 
 const changeLanguageMock = service.account.changeLanguage as MockedService<typeof service.account.changeLanguage>;
 
+// MUI IconButton (the notification bell) animates theme changes with this exact shorthand.
+const BELL_BACKGROUND_TRANSITION = "background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms";
+
+function transitionDeclarations(element: Element): string[] {
+  const classNames = new Set(element.classList);
+  const declarations: string[] = [];
+
+  for (const sheet of Array.from(document.styleSheets)) {
+    let rules: CSSRuleList;
+    try {
+      rules = sheet.cssRules;
+    } catch {
+      continue;
+    }
+
+    for (const rule of Array.from(rules)) {
+      if (!(rule instanceof CSSStyleRule)) continue;
+      const selectorClasses = rule.selectorText.match(/\.([_a-zA-Z]+[_a-zA-Z0-9-]*)/g) ?? [];
+      if (!selectorClasses.some((token) => classNames.has(token.slice(1)))) continue;
+      if (rule.style.transition) declarations.push(rule.style.transition);
+    }
+  }
+
+  return declarations;
+}
+
 describe("LanguagePickerSelect", () => {
   beforeEach(() => {
     mockRouter.setCurrentUrl("/messages/all");
@@ -240,5 +266,21 @@ describe("LanguagePickerSelect", () => {
     expect(cookieSetter).toHaveBeenCalledTimes(1);
     expect(changeLanguageMock).toHaveBeenCalledTimes(1);
     expect(changeLanguageMock).toHaveBeenCalledWith("fr");
+  });
+
+  it("transitions the icon-mode circle background the same way as the notification bell", () => {
+    render(<LanguagePickerSelect displayMode="icon" />, { wrapper });
+
+    const root = screen.getByRole("combobox").closest(".MuiInputBase-root");
+    if (!root) throw new Error("language picker root not found");
+    expect(transitionDeclarations(root).join(" ")).toContain(BELL_BACKGROUND_TRANSITION);
+  });
+
+  it("does not add the bell background transition outside icon mode", () => {
+    render(<LanguagePickerSelect />, { wrapper });
+
+    const root = screen.getByRole("combobox").closest(".MuiInputBase-root");
+    if (!root) throw new Error("language picker root not found");
+    expect(transitionDeclarations(root).join(" ")).not.toContain("background-color 150ms");
   });
 });
