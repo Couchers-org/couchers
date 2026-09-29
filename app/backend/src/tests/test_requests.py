@@ -1,9 +1,8 @@
 import html
 import re
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlparse
-from zoneinfo import ZoneInfo
 
 import grpc
 import pytest
