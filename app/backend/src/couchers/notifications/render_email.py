@@ -188,14 +188,14 @@ def get_ics_attachment(notification: Notification, loc_context: LocalizationCont
         return create_host_request_attachment(
             data.host_request,
             other_name=data.host.name,
-            is_host=notification.user_id == data.host_request.host_user_id,
+            hosting=notification.user_id == data.host_request.host_user_id,
             loc_context=loc_context,
         )
     elif notification.topic_action == NotificationTopicAction.host_request__confirm:
         return create_host_request_attachment(
             data.host_request,
             other_name=data.surfer.name,
-            is_host=notification.user_id == data.host_request.host_user_id,
+            hosting=notification.user_id == data.host_request.host_user_id,
             loc_context=loc_context,
         )
     elif notification.topic_action == NotificationTopicAction.host_request__cancel:
@@ -204,7 +204,7 @@ def get_ics_attachment(notification: Notification, loc_context: LocalizationCont
         return create_host_request_attachment(
             data.host_request,
             other_name=data.surfer.name,
-            is_host=notification.user_id == data.host_request.host_user_id,
+            hosting=notification.user_id == data.host_request.host_user_id,
             loc_context=loc_context,
         )
     else:
