@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-09-12 04:41+0000\n"
+"PO-Revision-Date: 2026-09-28 16:41+0000\n"
 "Last-Translator: Chris Kreuz <ckreuz@users.noreply.translate.couchershq.org>\n"
 "Language-Team: German <https://translate.couchershq.org/projects/couchers/glossary-key-terms/de/>\n"
 "Language: de\n"
@@ -13,3 +13,83 @@ msgstr ""
 #. (noun) The document outlining the legal agreement for using Couchers.org.
 msgid "terms_of_service"
 msgstr "Allgemeine Geschäftsbedingungen"
+
+#. The section of a user profile with information relating their person.
+msgid "profile.about_me"
+msgstr "Über mich"
+
+#. (verb) As a host, the act of accepting a surfer's host request.
+msgid "host_request.accept"
+msgstr "annehmen"
+
+#. (adj) The state of a host request that was accepted by the host.
+msgid "host_request.accepted"
+msgstr "angenommen"
+
+#. (noun) A user account on Couchers.org.
+msgid "account"
+msgstr "Konto"
+
+#. (noun) A user's account settings (notifications, theme, language, etc.).
+msgid "account_settings"
+msgstr "Kontoeinstellungen"
+
+#. (noun) A secret code used to make programmatic operations (call APIs) on behalf of a user.
+msgid "api_key"
+msgstr "API-Schlüssel"
+
+#. (noun) A user who has indicated their intention to attend an event.
+msgid "events.attendee"
+msgstr "Teilnehmende Person"
+
+#. (noun) Users who have indicated their intention to attend an event.
+msgid "events.attendees"
+msgstr "Teilnehmende"
+
+#. (noun) The Couchers.org blog.
+msgid "blog"
+msgstr "Blog"
+
+#. (verb) As a surfer, the act of cancelling a host request.
+msgid "host_request.cancel"
+msgstr "abbrechen"
+
+#. (verb) The act of cancelling an event.
+msgid "events.cancel"
+msgstr "abbrechen"
+
+#. (adj) The state of a host request that was cancelled by the surfer.
+msgid "host_request.cancelled"
+msgstr "Abgebrochen"
+
+#. (adj) The state of an event that has been cancelled.
+msgid "events.cancelled"
+msgstr "Abgebrochen"
+
+#. A user status whereby a user is willing to host surfers.
+msgid "status.can_host"
+msgstr "kann hosten"
+
+#. A user status whereby a user is unwilling to host surfers.
+msgid "status.cant_host"
+msgstr "Kann nicht hosten"
+
+#. (noun) A thread for messages between two or more users.
+msgid "chat"
+msgstr "Chat"
+
+#. (noun) Threads for messages between two or more users.
+msgid "chats"
+msgstr "Chats"
+
+#. (noun) A top-level comment on a discussion or event.
+msgid "discussions.comment.noun"
+msgstr "Kommentar"
+
+#. (verb) The act of adding a top-level comment on a discussion or event.
+msgid "discussions.comment.verb"
+msgstr "kommentieren"
+
+#. (noun) Top-level comments on a discussion or event.
+msgid "discussions.comments"
+msgstr "Kommentare"
