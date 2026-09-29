@@ -12,7 +12,10 @@ from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import can_moderate_node
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
-from couchers.helpers.host_requests import HOST_REQUEST_NOTIFICATION_TOPIC_ACTIONS, unseen_host_request_message_count
+from couchers.helpers.host_requests import (
+    HOST_REQUEST_NOTIFICATION_TOPIC_ACTIONS,
+    unseen_host_request_message_count,
+)
 from couchers.helpers.messages import api2hostrequeststatus, hostrequeststatus2api, message_to_pb
 from couchers.materialized_views import UserResponseRate
 from couchers.metrics import (
@@ -132,6 +135,7 @@ def host_request_to_pb(
         ),
         public_trip_id=host_request.public_trip_id,
         unseen_message_count=unseen_message_count,
+        ended_by_user_id=host_request.ended_by_user_id or 0,
     )
 
 
@@ -271,13 +275,13 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 and user.gender != recipient.gender
             ):
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "public_trip_same_gender_only")
-            # Prevent duplicate offers on the same trip. A withdrawn offer doesn't count, so a host
+            # Prevent duplicate offers on the same trip. An offer the host withdrew doesn't count, so a host
             # can offer again after withdrawing, e.g. to renegotiate dates.
             existing_offer = session.execute(
                 select(HostRequest.conversation_id)
                 .where(HostRequest.public_trip_id == public_trip_id)
                 .where(HostRequest.initiator_user_id == context.user_id)
-                .where(HostRequest.status != HostRequestStatus.cancelled)
+                .where(HostRequest.ended_by_user_id.is_distinct_from(HostRequest.initiator_user_id))
                 .limit(1)
             ).scalar_one_or_none()
             if existing_offer is not None:
@@ -528,6 +532,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     hosting_lng=lng,
                     hosting_radius=result.HostRequest.hosting_radius,
                     unseen_message_count=result.unseen_message_count,
+                    ended_by_user_id=result.HostRequest.ended_by_user_id or 0,
                 )
             )
 
@@ -590,6 +595,11 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             author_id=context.user_id,
         )
 
+        # either person can end some requests (e.g. cancelling once accepted), so notify whoever didn't
+        is_initiator = context.user_id == host_request.initiator_user_id
+        acting_user = host_request.initiator if is_initiator else host_request.recipient
+        other_user = host_request.recipient if is_initiator else host_request.initiator
+
         if request.status == messages_pb2.HOST_REQUEST_STATUS_ACCEPTED:
             # only host can accept
             if context.user_id != host_request.recipient_user_id:
@@ -604,6 +614,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             _possibly_observe_first_response_time(session, host_request, context.user_id, "accepted")
             control_message.host_request_status_target = HostRequestStatus.accepted
             host_request.status = HostRequestStatus.accepted
+            host_request.ended_by_user_id = None
             session.flush()
 
             recipient_context = make_notification_user_context(user_id=host_request.initiator_user_id)
@@ -637,31 +648,34 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             )
 
         if request.status == messages_pb2.HOST_REQUEST_STATUS_REJECTED:
-            # only host can reject
-            if context.user_id != host_request.recipient_user_id:
+            # only host can reject (on a public trip offer either person can)
+            if host_request.public_trip_id is None and context.user_id != host_request.recipient_user_id:
                 context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
-            # can't reject a cancelled or already rejected request
-            if host_request.status == HostRequestStatus.cancelled or host_request.status == HostRequestStatus.rejected:
+            # can only reject a pending request, once it's been accepted it gets cancelled instead
+            if host_request.status != HostRequestStatus.pending:
                 context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
-            _possibly_observe_first_response_time(session, host_request, context.user_id, "rejected")
+            # a host withdrawing their public trip offer isn't a response
+            if not is_initiator:
+                _possibly_observe_first_response_time(session, host_request, context.user_id, "rejected")
             control_message.host_request_status_target = HostRequestStatus.rejected
             host_request.status = HostRequestStatus.rejected
+            host_request.ended_by_user_id = context.user_id
             session.flush()
 
-            recipient_context = make_notification_user_context(user_id=host_request.initiator_user_id)
+            recipient_context = make_notification_user_context(user_id=other_user.id)
             notify(
                 session,
-                user_id=host_request.initiator_user_id,
+                user_id=other_user.id,
                 topic_action=NotificationTopicAction.host_request__reject,
                 key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestReject(
                     host_request=host_request_to_pb(host_request, session, recipient_context),
-                    host=user_model_to_pb(host_request.recipient, session, recipient_context),
+                    host=user_model_to_pb(acting_user, session, recipient_context),
                 ),
                 moderation_state_id=host_request.moderation_state_id,
             )
 
-            count_host_response(host_request.initiator_user_id, "rejected")
+            count_host_response(other_user.id, "rejected")
 
             log_event(
                 context,
@@ -721,30 +735,36 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             )
 
         if request.status == messages_pb2.HOST_REQUEST_STATUS_CANCELLED:
-            # only surfer can cancel
-            if context.user_id != host_request.initiator_user_id:
+            # only surfer can cancel, but once it's been accepted either person can
+            # (a public trip offer can only be cancelled once accepted, before that it's declined)
+            is_accepted = host_request.status in (HostRequestStatus.accepted, HostRequestStatus.confirmed)
+            if host_request.public_trip_id is not None:
+                if not is_accepted:
+                    context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
+            elif not is_accepted and context.user_id != host_request.initiator_user_id:
                 context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
             # can't' cancel an already cancelled or rejected request
             if host_request.status == HostRequestStatus.rejected or host_request.status == HostRequestStatus.cancelled:
                 context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
             control_message.host_request_status_target = HostRequestStatus.cancelled
             host_request.status = HostRequestStatus.cancelled
+            host_request.ended_by_user_id = context.user_id
             session.flush()
 
-            recipient_context = make_notification_user_context(user_id=host_request.recipient_user_id)
+            recipient_context = make_notification_user_context(user_id=other_user.id)
             notify(
                 session,
-                user_id=host_request.recipient_user_id,
+                user_id=other_user.id,
                 topic_action=NotificationTopicAction.host_request__cancel,
                 key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestCancel(
                     host_request=host_request_to_pb(host_request, session, recipient_context),
-                    surfer=user_model_to_pb(host_request.initiator, session, recipient_context),
+                    surfer=user_model_to_pb(acting_user, session, recipient_context),
                 ),
                 moderation_state_id=host_request.moderation_state_id,
             )
 
-            count_host_response(host_request.recipient_user_id, "cancelled")
+            count_host_response(other_user.id, "cancelled")
             log_event(
                 context,
                 session,

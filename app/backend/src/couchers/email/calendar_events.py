@@ -18,16 +18,16 @@ HOST_REQUEST_ICS_FILENAME = "host_request.ics"
 
 
 def create_host_request_attachment(
-    host_request: requests_pb2.HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
+    host_request: requests_pb2.HostRequest, other_name: str, is_host: bool, loc_context: LocalizationContext
 ) -> EmailPart:
-    calendar = create_host_request_ics_calendar(host_request, other_name, hosting, loc_context)
+    calendar = create_host_request_ics_calendar(host_request, other_name, is_host, loc_context)
     return ics_calendar_to_attachment(calendar, HOST_REQUEST_ICS_FILENAME)
 
 
 def create_host_request_ics_calendar(
-    host_request: requests_pb2.HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
+    host_request: requests_pb2.HostRequest, other_name: str, is_host: bool, loc_context: LocalizationContext
 ) -> Calendar:
-    event = create_host_request_ics_event(host_request, other_name, hosting, loc_context)
+    event = create_host_request_ics_event(host_request, other_name, is_host, loc_context)
 
     # METHOD:PUBLISH means this is part of a stream of calendar event information.
     # It allows for later cancellation, and doesn't expose accept/decline functionality.
@@ -36,7 +36,7 @@ def create_host_request_ics_calendar(
 
 
 def create_host_request_ics_event(
-    host_request: requests_pb2.HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
+    host_request: requests_pb2.HostRequest, other_name: str, is_host: bool, loc_context: LocalizationContext
 ) -> Event:
     """Creates an ics event for a host request."""
 
@@ -45,7 +45,7 @@ def create_host_request_ics_event(
     _set_sequence_timestamp(event, now())
 
     title: str
-    if hosting:
+    if is_host:
         title = loc_context.localize_string(
             "calendar_events.host_requests.title_host", i18next=get_emails_i18next(), substitutions={"name": other_name}
         )

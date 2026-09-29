@@ -186,17 +186,26 @@ def get_ics_attachment(notification: Notification, loc_context: LocalizationCont
         # Caveat: The surfer technically still hasn't confirmed, but when they do they don't receive an email,
         # so the accept notification is our last opportunity to provide them with a calendar event.
         return create_host_request_attachment(
-            data.host_request, other_name=data.host.name, hosting=False, loc_context=loc_context
+            data.host_request,
+            other_name=data.host.name,
+            is_host=notification.user_id == data.host_request.host_user_id,
+            loc_context=loc_context,
         )
     elif notification.topic_action == NotificationTopicAction.host_request__confirm:
         return create_host_request_attachment(
-            data.host_request, other_name=data.surfer.name, hosting=True, loc_context=loc_context
+            data.host_request,
+            other_name=data.surfer.name,
+            is_host=notification.user_id == data.host_request.host_user_id,
+            loc_context=loc_context,
         )
     elif notification.topic_action == NotificationTopicAction.host_request__cancel:
         # Caveat: only the party getting cancelled receives this notification,
         # we have no opportunity to provide the cancelling party with a cancelled ics attachment.
         return create_host_request_attachment(
-            data.host_request, other_name=data.surfer.name, hosting=True, loc_context=loc_context
+            data.host_request,
+            other_name=data.surfer.name,
+            is_host=notification.user_id == data.host_request.host_user_id,
+            loc_context=loc_context,
         )
     else:
         return None

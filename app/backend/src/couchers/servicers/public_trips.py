@@ -11,7 +11,7 @@ from couchers.db import can_moderate_node
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.models import ModerationObjectType, Node, User
-from couchers.models.host_requests import HostRequest, HostRequestStatus
+from couchers.models.host_requests import HostRequest
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.moderation.utils import create_moderation
 from couchers.proto import public_trips_pb2, public_trips_pb2_grpc
@@ -81,7 +81,7 @@ def public_trip_to_pb(
             select(func.count())
             .select_from(HostRequest)
             .where(HostRequest.public_trip_id == public_trip.id)
-            .where(HostRequest.status != HostRequestStatus.cancelled)
+            .where(HostRequest.ended_by_user_id.is_distinct_from(HostRequest.initiator_user_id))
         )
         offers = where_users_column_visible(offers, context, HostRequest.initiator_user_id)
         offers = where_moderated_content_visible(offers, context, HostRequest, is_list_operation=True)
@@ -94,7 +94,7 @@ def public_trip_to_pb(
                 select(HostRequest.conversation_id)
                 .where(HostRequest.public_trip_id == public_trip.id)
                 .where(HostRequest.initiator_user_id == context.user_id)
-                .where(HostRequest.status != HostRequestStatus.cancelled)
+                .where(HostRequest.ended_by_user_id.is_distinct_from(HostRequest.initiator_user_id))
             ).scalar_one_or_none()
             or 0
         )

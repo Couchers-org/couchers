@@ -20,9 +20,8 @@ from couchers.models import (
     NodeType,
     User,
 )
-from couchers.models.host_requests import HostRequest, HostRequestStatus
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
-from couchers.proto import public_trips_pb2, requests_pb2
+from couchers.proto import messages_pb2, public_trips_pb2, requests_pb2
 from couchers.utils import create_polygon_lat_lng, now, to_multi, today
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import Moderator
@@ -1053,13 +1052,14 @@ def test_list_public_trips_by_user_offers_count_not_set_for_others(db):
         assert not res.public_trips[0].HasField("offers_count")
 
 
-def test_list_public_trips_by_user_offers_count_excludes_cancelled(db, moderator: Moderator):
+def test_list_public_trips_by_user_offers_count_excludes_withdrawn(db, moderator: Moderator):
     traveler, traveler_token = generate_user()
-    hosts = [generate_user() for _ in range(5)]
+    hosts = [generate_user() for _ in range(6)]
     node_id = _make_node()
 
     trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
 
+    offer_ids = []
     for _host, host_token in hosts:
         with requests_session(host_token) as api:
             offer_id = api.CreateHostRequest(
@@ -1072,26 +1072,27 @@ def test_list_public_trips_by_user_offers_count_excludes_cancelled(db, moderator
                 )
             ).host_request_id
         moderator.approve_host_request(offer_id)
+        offer_ids.append(offer_id)
 
-    # Set one offer per status, so we cover every status the count has to consider.
-    with session_scope() as session:
-        offers = (
-            session.execute(
-                select(HostRequest).where(HostRequest.public_trip_id == trip_id).order_by(HostRequest.conversation_id)
-            )
-            .scalars()
-            .all()
-        )
-        offers[0].status = HostRequestStatus.pending
-        offers[1].status = HostRequestStatus.accepted
-        offers[2].status = HostRequestStatus.confirmed
-        offers[3].status = HostRequestStatus.rejected
-        offers[4].status = HostRequestStatus.cancelled
+    def respond(token: str, offer_id: int, status: messages_pb2.HostRequestStatus.ValueType) -> None:
+        with requests_session(token) as api:
+            api.RespondHostRequest(requests_pb2.RespondHostRequestReq(host_request_id=offer_id, status=status))
+
+    # offer 0 stays pending
+    respond(traveler_token, offer_ids[1], messages_pb2.HOST_REQUEST_STATUS_ACCEPTED)
+    # traveler declines offer 2, and cancels offer 3 after accepting it
+    respond(traveler_token, offer_ids[2], messages_pb2.HOST_REQUEST_STATUS_REJECTED)
+    respond(traveler_token, offer_ids[3], messages_pb2.HOST_REQUEST_STATUS_ACCEPTED)
+    respond(traveler_token, offer_ids[3], messages_pb2.HOST_REQUEST_STATUS_CANCELLED)
+    # host 4 withdraws while pending, host 5 cancels after the traveler accepted
+    respond(hosts[4][1], offer_ids[4], messages_pb2.HOST_REQUEST_STATUS_REJECTED)
+    respond(traveler_token, offer_ids[5], messages_pb2.HOST_REQUEST_STATUS_ACCEPTED)
+    respond(hosts[5][1], offer_ids[5], messages_pb2.HOST_REQUEST_STATUS_CANCELLED)
 
     with public_trips_session(traveler_token) as api:
         res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
         trip = next(t for t in res.public_trips if t.trip_id == trip_id)
-        # pending, accepted, confirmed and rejected all count; cancelled does not
+        # only the two offers their hosts ended don't count
         assert trip.offers_count == 4
 
 

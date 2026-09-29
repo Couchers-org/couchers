@@ -264,6 +264,34 @@
       "cancelled_by_surfer": {
         "subject": "{{other_name}} cancelled their host request",
         "purpose": "<b>{{other_name}}</b> cancelled their host request:"
+      },
+      "cancelled_by_host": {
+        "subject": "{{other_name}} cancelled your host request",
+        "purpose": "<b>{{other_name}}</b> cancelled your host request:"
+      },
+      "invitation_accepted_by_surfer": {
+        "subject": "{{other_name}} accepted your invitation to host them",
+        "purpose": "<b>{{other_name}}</b> accepted your invitation to host them:"
+      },
+      "invitation_declined_by_surfer": {
+        "subject": "{{other_name}} declined your invitation to host them",
+        "purpose": "<b>{{other_name}}</b> declined your invitation to host them:"
+      },
+      "invitation_stay_cancelled_by_surfer": {
+        "subject": "{{other_name}} cancelled their stay with you",
+        "purpose": "<b>{{other_name}}</b> cancelled their stay with you:"
+      },
+      "invitation_confirmed_by_host": {
+        "subject": "{{other_name}} confirmed your stay",
+        "purpose": "<b>{{other_name}}</b> confirmed your stay:"
+      },
+      "invitation_withdrawn_by_host": {
+        "subject": "{{other_name}} withdrew their invitation to host you",
+        "purpose": "<b>{{other_name}}</b> withdrew their invitation to host you:"
+      },
+      "invitation_stay_cancelled_by_host": {
+        "subject": "{{other_name}} cancelled your stay",
+        "purpose": "<b>{{other_name}}</b> cancelled your stay with them:"
       }
     }
   },

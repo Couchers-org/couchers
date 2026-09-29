@@ -1232,7 +1232,7 @@ def test_get_host_request_messages(db, moderator):
 
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=conversation_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
+                host_request_id=conversation_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
             )
         )
 
@@ -1247,7 +1247,7 @@ def test_get_host_request_messages(db, moderator):
         )
         assert not res.no_more
         assert len(res.messages) == 3
-        assert res.messages[0].host_request_status_changed.status == messages_pb2.HOST_REQUEST_STATUS_REJECTED
+        assert res.messages[0].host_request_status_changed.status == messages_pb2.HOST_REQUEST_STATUS_CANCELLED
         assert res.messages[0].WhichOneof("content") == "host_request_status_changed"
         assert res.messages[1].text.text == "Test request 1 message 5"
         assert res.messages[2].text.text == "Test request 1 message 4"
@@ -2070,6 +2070,90 @@ def test_request_notifications(db, email_collector: EmailCollector, push_collect
     assert push_collector.pop_for_user(surfer.id, last=True).content.title == f"{host.name} accepted your host request"
 
 
+def test_host_cancels_accepted_request(db, email_collector: EmailCollector, push_collector: PushCollector, moderator):
+    """Once a request is accepted either person can end it, and it's cancelled rather than declined."""
+    host, host_token = generate_user(complete_profile=True)
+    surfer, surfer_token = generate_user(complete_profile=True)
+
+    with requests_session(surfer_token) as api:
+        hr_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=(today() + timedelta(days=2)).isoformat(),
+                to_date=(today() + timedelta(days=3)).isoformat(),
+                text=valid_request_text("can i stay plz"),
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(hr_id)
+
+    with requests_session(host_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(host_request_id=hr_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED)
+        )
+
+    while email_collector.count_for_recipient(surfer.email):
+        email_collector.pop_for_recipient(surfer.email)
+    while push_collector.count_for_user(surfer.id):
+        push_collector.pop_for_user(surfer.id)
+
+    with requests_session(host_token) as api:
+        # once accepted it can't be declined
+        with pytest.raises(grpc.RpcError) as e:
+            api.RespondHostRequest(
+                requests_pb2.RespondHostRequestReq(
+                    host_request_id=hr_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(host_request_id=hr_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED)
+        )
+        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=hr_id))
+        assert res.status == messages_pb2.HOST_REQUEST_STATUS_CANCELLED
+        assert res.ended_by_user_id == host.id
+
+    assert push_collector.pop_for_user(surfer.id, last=True).content.title == f"{host.name} cancelled your host request"
+    email = email_collector.pop_for_recipient(surfer.email, last=True)
+    assert email.subject.endswith(f"{host.name} cancelled your host request")
+
+
+def test_surfer_cancels_pending_request(db, moderator):
+    host, host_token = generate_user(complete_profile=True)
+    surfer, surfer_token = generate_user(complete_profile=True)
+
+    with requests_session(surfer_token) as api:
+        hr_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=(today() + timedelta(days=2)).isoformat(),
+                to_date=(today() + timedelta(days=3)).isoformat(),
+                text=valid_request_text("can i stay plz"),
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(hr_id)
+
+    # the host can't cancel a pending request, only decline it
+    with requests_session(host_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.RespondHostRequest(
+                requests_pb2.RespondHostRequestReq(
+                    host_request_id=hr_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+
+    with requests_session(surfer_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(host_request_id=hr_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED)
+        )
+        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=hr_id))
+        assert res.status == messages_pb2.HOST_REQUEST_STATUS_CANCELLED
+        assert res.ended_by_user_id == surfer.id
+
+
 def test_quick_decline(db, email_collector: EmailCollector, push_collector: PushCollector, moderator):
     host, host_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
@@ -2722,7 +2806,7 @@ def test_create_request_offer_allowed_after_withdrawal(db, moderator):
     with requests_session(host_token) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
+                host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
             )
         )
 
@@ -2750,6 +2834,63 @@ def test_create_request_offer_allowed_after_withdrawal(db, moderator):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+
+def test_respond_offer_declined_while_pending_cancelled_once_accepted(db, moderator):
+    """On a public trip offer either person can end it: it's declined while pending, cancelled once accepted."""
+    surfer, surfer_token = generate_user()
+    host, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+
+    with requests_session(host_token) as api:
+        request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=trip_from.isoformat(),
+                to_date=trip_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(request_id)
+
+    # can't cancel a pending offer, it has to be declined
+    with requests_session(host_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.RespondHostRequest(
+                requests_pb2.RespondHostRequestReq(
+                    host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+
+    with requests_session(surfer_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+            )
+        )
+        # once accepted it can't be declined, only cancelled
+        with pytest.raises(grpc.RpcError) as e:
+            api.RespondHostRequest(
+                requests_pb2.RespondHostRequestReq(
+                    host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
+            )
+        )
+        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=request_id))
+        assert res.status == messages_pb2.HOST_REQUEST_STATUS_CANCELLED
+        assert res.ended_by_user_id == surfer.id
 
 
 def test_create_request_offer_blocked_after_traveller_declines(db, moderator):

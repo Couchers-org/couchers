@@ -583,8 +583,11 @@ def _render_host_request__reminder(
 def _render_host_request__accept(
     data: notification_data_pb2.HostRequestAccept, loc_context: LocalizationContext
 ) -> PushNotificationContent:
+    # on a public trip offer the surfer accepts the host's invitation
     return _get_content(
-        NotificationTopicAction.host_request__accept,
+        "host_request.accept.push_invitation"
+        if data.host_request.HasField("public_trip_id")
+        else NotificationTopicAction.host_request__accept,
         loc_context,
         substitutions={
             "user": data.host.name,
@@ -598,8 +601,16 @@ def _render_host_request__accept(
 def _render_host_request__reject(
     data: notification_data_pb2.HostRequestReject, loc_context: LocalizationContext
 ) -> PushNotificationContent:
+    # data.host is whoever declined: on a public trip offer that's the surfer declining, or the host withdrawing
+    string_group: NotificationTopicAction | str = NotificationTopicAction.host_request__reject
+    if data.host_request.HasField("public_trip_id"):
+        string_group = (
+            "host_request.reject.push_invitation_withdrawn_by_host"
+            if data.host.user_id == data.host_request.host_user_id
+            else "host_request.reject.push_invitation_declined_by_surfer"
+        )
     return _get_content(
-        NotificationTopicAction.host_request__reject,
+        string_group,
         loc_context,
         substitutions={
             "user": data.host.name,
@@ -613,8 +624,19 @@ def _render_host_request__reject(
 def _render_host_request__cancel(
     data: notification_data_pb2.HostRequestCancel, loc_context: LocalizationContext
 ) -> PushNotificationContent:
+    # data.surfer is whoever cancelled: once a request is accepted that can be either person
+    cancelled_by_host = data.surfer.user_id == data.host_request.host_user_id
+    string_group: NotificationTopicAction | str = (
+        "host_request.cancel.push_by_host" if cancelled_by_host else NotificationTopicAction.host_request__cancel
+    )
+    if data.host_request.HasField("public_trip_id"):
+        string_group = (
+            "host_request.cancel.push_invitation_stay_cancelled_by_host"
+            if cancelled_by_host
+            else "host_request.cancel.push_invitation_stay_cancelled_by_surfer"
+        )
     return _get_content(
-        NotificationTopicAction.host_request__cancel,
+        string_group,
         loc_context,
         substitutions={
             "user": data.surfer.name,
@@ -628,8 +650,11 @@ def _render_host_request__cancel(
 def _render_host_request__confirm(
     data: notification_data_pb2.HostRequestConfirm, loc_context: LocalizationContext
 ) -> PushNotificationContent:
+    # on a public trip offer the host confirms the stay
     return _get_content(
-        NotificationTopicAction.host_request__confirm,
+        "host_request.confirm.push_invitation"
+        if data.host_request.HasField("public_trip_id")
+        else NotificationTopicAction.host_request__confirm,
         loc_context,
         substitutions={
             "user": data.surfer.name,

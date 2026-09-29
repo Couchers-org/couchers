@@ -269,6 +269,12 @@
         "ios_title": "{{user}}",
         "ios_subtitle": "Host Request Accepted",
         "body": "{{user}} accepted your host request for {{date}}."
+      },
+      "push_invitation": {
+        "title": "{{user}} accepted your invitation",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Invitation Accepted",
+        "body": "{{user}} accepted your invitation to host them from {{date}}."
       }
     },
     "cancel": {
@@ -278,6 +284,24 @@
         "ios_title": "{{user}}",
         "ios_subtitle": "Host Request Cancelled",
         "body": "{{user}} cancelled their host request for {{date}}."
+      },
+      "push_by_host": {
+        "title": "{{user}} cancelled your host request",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Host Request Cancelled",
+        "body": "{{user}} cancelled your host request for {{date}}."
+      },
+      "push_invitation_stay_cancelled_by_surfer": {
+        "title": "{{user}} cancelled their stay",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Stay Cancelled",
+        "body": "{{user}} cancelled their stay with you from {{date}}."
+      },
+      "push_invitation_stay_cancelled_by_host": {
+        "title": "{{user}} cancelled your stay",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Stay Cancelled",
+        "body": "{{user}} cancelled your stay with them from {{date}}."
       }
     },
     "confirm": {
@@ -287,6 +311,12 @@
         "ios_title": "{{user}}",
         "ios_subtitle": "Host Request Confirmed",
         "body": "{{user}} confirmed their host request for {{date}}."
+      },
+      "push_invitation": {
+        "title": "{{user}} confirmed your stay",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Stay Confirmed",
+        "body": "{{user}} confirmed your stay from {{date}}."
       }
     },
     "create": {
@@ -318,6 +348,18 @@
         "ios_title": "{{user}}",
         "ios_subtitle": "Host Request Declined",
         "body": "{{user}} declined your host request for {{date}}."
+      },
+      "push_invitation_declined_by_surfer": {
+        "title": "{{user}} declined your invitation",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Invitation Declined",
+        "body": "{{user}} declined your invitation to host them from {{date}}."
+      },
+      "push_invitation_withdrawn_by_host": {
+        "title": "{{user}} withdrew their invitation",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Invitation Withdrawn",
+        "body": "{{user}} withdrew their invitation to host you from {{date}}."
       }
     },
     "reminder": {

@@ -8,9 +8,9 @@ from couchers.i18n.context import LocalizationContext
 from couchers.proto import events_pb2, messages_pb2, requests_pb2
 from couchers.utils import Timestamp_from_datetime, today
 from tests.fixtures.db import generate_user
-from tests.fixtures.misc import EmailCollector, Moderator
+from tests.fixtures.misc import EmailCollector, Moderator, PushCollector
 from tests.fixtures.sessions import requests_session
-from tests.test_requests import valid_request_text
+from tests.test_requests import _create_public_trip, valid_request_text
 
 
 def test_host_request_ics_content():
@@ -20,7 +20,7 @@ def test_host_request_ics_content():
 
     ics: str = (
         create_host_request_ics_calendar(
-            host_request, other_name="Bob", hosting=True, loc_context=LocalizationContext.en_utc()
+            host_request, other_name="Bob", is_host=True, loc_context=LocalizationContext.en_utc()
         )
         .to_ical()
         .decode()
@@ -58,7 +58,7 @@ def test_host_request_cancelled_ics_content():
 
     ics: str = (
         create_host_request_ics_calendar(
-            host_request, other_name="Bob", hosting=True, loc_context=LocalizationContext.en_utc()
+            host_request, other_name="Bob", is_host=True, loc_context=LocalizationContext.en_utc()
         )
         .to_ical()
         .decode()
@@ -215,6 +215,154 @@ def test_host_request_attachments(db, email_collector: EmailCollector, moderator
     # Ideally the sequence number are strictly ascending, but they are based on timestamps so in tests they could be equal.
     assert (_get_ics_event_sequence(cancelled_ics_event) or 0) >= (_get_ics_event_sequence(accepted_ics_event) or 0)
     assert cancelled_ics_event.get("status") == "CANCELLED"
+
+
+def test_public_trip_offer_notifications(
+    db, email_collector: EmailCollector, push_collector: PushCollector, moderator: Moderator
+):
+    surfer, surfer_token = generate_user(complete_profile=True)
+    host, host_token = generate_user(complete_profile=True)
+
+    from_date = today() + timedelta(days=2)
+    to_date = today() + timedelta(days=3)
+    trip_id = _create_public_trip(surfer.id, from_date, to_date)
+
+    with requests_session(host_token) as api:
+        hr_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=from_date.isoformat(),
+                to_date=to_date.isoformat(),
+                text=valid_request_text("come stay with me"),
+                public_trip_id=trip_id,
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(hr_id)
+
+    while email_collector.count_for_recipient(surfer.email):
+        email_collector.pop_for_recipient(surfer.email)
+    while push_collector.count_for_user(surfer.id):
+        push_collector.pop_for_user(surfer.id)
+
+    # surfer accepts, host is told their invitation was accepted
+    with requests_session(surfer_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(host_request_id=hr_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED)
+        )
+
+    assert push_collector.pop_for_user(host.id, last=True).content.title == f"{surfer.name} accepted your invitation"
+    email = email_collector.pop_for_recipient(host.email, last=True)
+    assert email.subject.endswith(f"{surfer.name} accepted your invitation to host them")
+    accepted_ics_event = _get_email_ics_attachment_calendar_event(email)
+    assert accepted_ics_event.get("summary") == f"Hosting {surfer.name}"
+
+    # host confirms, surfer is told their stay is confirmed
+    with requests_session(host_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(host_request_id=hr_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED)
+        )
+
+    assert push_collector.pop_for_user(surfer.id, last=True).content.title == f"{host.name} confirmed your stay"
+    email = email_collector.pop_for_recipient(surfer.email, last=True)
+    assert email.subject.endswith(f"{host.name} confirmed your stay")
+    confirmed_ics_event = _get_email_ics_attachment_calendar_event(email)
+    assert confirmed_ics_event.get("summary") == f"Surfing with {host.name}"
+
+    # host cancels the confirmed stay
+    with requests_session(host_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(host_request_id=hr_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED)
+        )
+
+    assert push_collector.pop_for_user(surfer.id, last=True).content.title == f"{host.name} cancelled your stay"
+
+    email = email_collector.pop_for_recipient(surfer.email, last=True)
+    assert email.subject.endswith(f"{host.name} cancelled your stay")
+    cancelled_ics_event = _get_email_ics_attachment_calendar_event(email)
+    assert cancelled_ics_event.get("status") == "CANCELLED"
+    assert f"Surfing with {host.name}" in cancelled_ics_event.get("summary")
+
+
+def test_public_trip_offer_declined_while_pending_notifies_host(
+    db, email_collector: EmailCollector, push_collector: PushCollector, moderator: Moderator
+):
+    surfer, surfer_token = generate_user(complete_profile=True)
+    host, host_token = generate_user(complete_profile=True)
+
+    from_date = today() + timedelta(days=2)
+    to_date = today() + timedelta(days=3)
+    trip_id = _create_public_trip(surfer.id, from_date, to_date)
+
+    with requests_session(host_token) as api:
+        hr_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=from_date.isoformat(),
+                to_date=to_date.isoformat(),
+                text=valid_request_text("come stay with me"),
+                public_trip_id=trip_id,
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(hr_id)
+
+    with requests_session(surfer_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(host_request_id=hr_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED)
+        )
+
+    assert push_collector.pop_for_user(host.id, last=True).content.title == f"{surfer.name} declined your invitation"
+    email = email_collector.pop_for_recipient(host.email, last=True)
+    assert email.subject.endswith(f"{surfer.name} declined your invitation to host them")
+
+
+def test_public_trip_offer_cancelled_by_surfer_after_confirm_notifies_host(
+    db, email_collector: EmailCollector, push_collector: PushCollector, moderator: Moderator
+):
+    surfer, surfer_token = generate_user(complete_profile=True)
+    host, host_token = generate_user(complete_profile=True)
+
+    from_date = today() + timedelta(days=2)
+    to_date = today() + timedelta(days=3)
+    trip_id = _create_public_trip(surfer.id, from_date, to_date)
+
+    with requests_session(host_token) as api:
+        hr_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=from_date.isoformat(),
+                to_date=to_date.isoformat(),
+                text=valid_request_text("come stay with me"),
+                public_trip_id=trip_id,
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(hr_id)
+
+    with requests_session(surfer_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(host_request_id=hr_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED)
+        )
+    with requests_session(host_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(host_request_id=hr_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED)
+        )
+
+    while email_collector.count_for_recipient(host.email):
+        email_collector.pop_for_recipient(host.email)
+    while push_collector.count_for_user(host.id):
+        push_collector.pop_for_user(host.id)
+
+    # surfer's plans change after the stay was confirmed
+    with requests_session(surfer_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(host_request_id=hr_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED)
+        )
+
+    assert push_collector.pop_for_user(host.id, last=True).content.title == f"{surfer.name} cancelled their stay"
+    email = email_collector.pop_for_recipient(host.email, last=True)
+    assert email.subject.endswith(f"{surfer.name} cancelled their stay with you")
 
 
 def test_host_request_attachments_disabled(db, email_collector: EmailCollector, feature_flags, moderator: Moderator):

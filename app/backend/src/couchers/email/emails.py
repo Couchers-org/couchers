@@ -1435,10 +1435,27 @@ class HostRequestStatusChangedEmail(EmailBase):
     to_date: date
     new_status: messages_pb2.HostRequestStatus.ValueType
     view_link: str
+    is_public_trip_offer: bool = False
+    # whether the host (rather than the surfer) made this change, since either can cancel once it's accepted
+    changed_by_host: bool = False
 
     @property
     def string_key_base(self) -> str:
         base_key = "host_requests.status_changed"
+        if self.is_public_trip_offer:
+            match self.new_status:
+                case messages_pb2.HOST_REQUEST_STATUS_ACCEPTED:
+                    return f"{base_key}.invitation_accepted_by_surfer"
+                case messages_pb2.HOST_REQUEST_STATUS_REJECTED if self.changed_by_host:
+                    return f"{base_key}.invitation_withdrawn_by_host"
+                case messages_pb2.HOST_REQUEST_STATUS_REJECTED:
+                    return f"{base_key}.invitation_declined_by_surfer"
+                case messages_pb2.HOST_REQUEST_STATUS_CONFIRMED:
+                    return f"{base_key}.invitation_confirmed_by_host"
+                case messages_pb2.HOST_REQUEST_STATUS_CANCELLED if self.changed_by_host:
+                    return f"{base_key}.invitation_stay_cancelled_by_host"
+                case messages_pb2.HOST_REQUEST_STATUS_CANCELLED:
+                    return f"{base_key}.invitation_stay_cancelled_by_surfer"
         match self.new_status:
             case messages_pb2.HOST_REQUEST_STATUS_ACCEPTED:
                 return f"{base_key}.accepted_by_host"
@@ -1446,6 +1463,8 @@ class HostRequestStatusChangedEmail(EmailBase):
                 return f"{base_key}.declined_by_host"
             case messages_pb2.HOST_REQUEST_STATUS_CONFIRMED:
                 return f"{base_key}.confirmed_by_surfer"
+            case messages_pb2.HOST_REQUEST_STATUS_CANCELLED if self.changed_by_host:
+                return f"{base_key}.cancelled_by_host"
             case messages_pb2.HOST_REQUEST_STATUS_CANCELLED:
                 return f"{base_key}.cancelled_by_surfer"
             case _:
@@ -1481,6 +1500,7 @@ class HostRequestStatusChangedEmail(EmailBase):
     ) -> Self:
         other_user: UserInfo
         new_status: messages_pb2.HostRequestStatus.ValueType
+        changed_by_host = False
         match data:
             case notification_data_pb2.HostRequestAccept():
                 other_user = UserInfo.from_protobuf(data.host)
@@ -1488,12 +1508,14 @@ class HostRequestStatusChangedEmail(EmailBase):
             case notification_data_pb2.HostRequestReject():
                 other_user = UserInfo.from_protobuf(data.host)
                 new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_REJECTED
+                changed_by_host = data.host.user_id == data.host_request.host_user_id
             case notification_data_pb2.HostRequestConfirm():
                 other_user = UserInfo.from_protobuf(data.surfer)
                 new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED
             case notification_data_pb2.HostRequestCancel():
                 other_user = UserInfo.from_protobuf(data.surfer)
                 new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED
+                changed_by_host = data.surfer.user_id == data.host_request.host_user_id
             case _:
                 # Enable mypy's exhaustiveness checking
                 assert_never("Unexpected host request status changed notification data type.")
@@ -1505,6 +1527,8 @@ class HostRequestStatusChangedEmail(EmailBase):
             to_date=date.fromisoformat(data.host_request.to_date),
             new_status=new_status,
             view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
+            is_public_trip_offer=data.host_request.HasField("public_trip_id"),
+            changed_by_host=changed_by_host,
         )
 
     @classmethod
@@ -1522,6 +1546,23 @@ class HostRequestStatusChangedEmail(EmailBase):
             replace(prototype, new_status=messages_pb2.HOST_REQUEST_STATUS_REJECTED),
             replace(prototype, new_status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED),
             replace(prototype, new_status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED),
+            replace(prototype, new_status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED, changed_by_host=True),
+            replace(prototype, new_status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED, is_public_trip_offer=True),
+            replace(prototype, new_status=messages_pb2.HOST_REQUEST_STATUS_REJECTED, is_public_trip_offer=True),
+            replace(
+                prototype,
+                new_status=messages_pb2.HOST_REQUEST_STATUS_REJECTED,
+                is_public_trip_offer=True,
+                changed_by_host=True,
+            ),
+            replace(
+                prototype,
+                new_status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED,
+                is_public_trip_offer=True,
+                changed_by_host=True,
+            ),
+            replace(prototype, new_status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED, is_public_trip_offer=True),
+            replace(prototype, new_status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED, is_public_trip_offer=True),
         ]
 
 
