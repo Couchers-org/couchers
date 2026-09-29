@@ -23,7 +23,6 @@ def upgrade() -> None:
         sa.Column("id", sa.BigInteger(), nullable=False),
         sa.Column("event_id", sa.BigInteger(), nullable=False),
         sa.Column("content", sa.String(), nullable=False),
-        sa.Column("photo_key", sa.String(), nullable=True),
         sa.Column(
             "geom",
             geoalchemy2.types.Geometry(geometry_type="POINT", srid=4326, from_text="ST_GeomFromEWKT", name="geometry"),
@@ -44,7 +43,6 @@ def upgrade() -> None:
             name=op.f("ck_event_recurrences_rrule_interval_weekly_or_biweekly"),
         ),
         sa.ForeignKeyConstraint(["event_id"], ["events.id"], name=op.f("fk_event_recurrences_event_id_events")),
-        sa.ForeignKeyConstraint(["photo_key"], ["uploads.key"], name=op.f("fk_event_recurrences_photo_key_uploads")),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_event_recurrences")),
         sa.UniqueConstraint("event_id", name=op.f("uq_event_recurrences_event_id")),
     )
