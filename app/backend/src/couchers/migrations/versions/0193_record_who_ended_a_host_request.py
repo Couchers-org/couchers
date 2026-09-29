@@ -21,22 +21,9 @@ def upgrade() -> None:
     op.create_foreign_key(
         op.f("fk_host_requests_ended_by_user_id_users"), "host_requests", "users", ["ended_by_user_id"], ["id"]
     )
-    # backfill from the author of the status change that ended each request
-    op.execute(
-        """
-        UPDATE host_requests
-        SET ended_by_user_id = (
-            SELECT messages.author_id
-            FROM messages
-            WHERE messages.conversation_id = host_requests.id
-              AND messages.message_type = 'host_request_status_changed'
-              AND messages.host_request_status_target = host_requests.status
-            ORDER BY messages.id DESC
-            LIMIT 1
-        )
-        WHERE host_requests.status IN ('rejected', 'cancelled')
-        """
-    )
+    # until now only the recipient could decline and only the initiator could cancel
+    op.execute("UPDATE host_requests SET ended_by_user_id = recipient_user_id WHERE status = 'rejected'")
+    op.execute("UPDATE host_requests SET ended_by_user_id = initiator_user_id WHERE status = 'cancelled'")
     op.create_check_constraint(
         op.f("ck_host_requests_ended_by_only_when_ended"),
         "host_requests",
