@@ -270,7 +270,10 @@
   "moderator_note": {
     "subject": "Du hast eine Moderatoren-Notiz erhalten",
     "purpose": "Du hast eine wichtige Nachricht von den Moderatoren erhalten. Du musst sie lesen und bestätigen, bevor du die Plattform weiter nutzen kannst.",
-    "view_action": "Moderation Notiz anzeigen"
+    "view_action": "Moderation Notiz anzeigen",
+    "purpose_with_note": "Du hast eine wichtige Nachricht von den Moderatoren erhalten:",
+    "acknowledge_request": "Du musst diesen Hinweis lesen und bestätigen, bevor du die Plattform weiter nutzen kannst.",
+    "reply_instructions": "Du kannst dem Moderationsteam antworten, indem du auf diese E-Mail antwortest."
   },
   "new_blog_post": {
     "subject": "Neuer Blogbeitrag: {{title}}",
