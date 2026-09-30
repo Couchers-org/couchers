@@ -10,6 +10,7 @@ import ErrorBoundary from "components/ErrorBoundary";
 import HtmlMeta from "components/HtmlMeta";
 import NativeColorSchemeSync from "components/NativeColorSchemeSync";
 import NativeMobileNavigationHandler from "components/NativeMobileNavigationHandler";
+import SentryReplay from "components/SentryReplay";
 import { AnalyticsProvider } from "features/analytics";
 import AuthProvider from "features/auth/AuthProvider";
 import FeatureFlagProvider from "features/experimentation/FeatureFlagProvider";
@@ -86,6 +87,7 @@ function MyApp(props: AppWithLayoutProps) {
                       <CssBaseline />
                       <NativeColorSchemeSync />
                       <NativeMobileNavigationHandler />
+                      <SentryReplay />
                       <EnvironmentBanner />
                       <HtmlMeta />
                       <ProfileSheetProvider>
