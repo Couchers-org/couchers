@@ -120,13 +120,19 @@ class StrongVerificationAttempt(Base, kw_only=True):
         return self.status != StrongVerificationAttemptStatus.deleted
 
     @hybrid_method
+    def _is_own_user(self, user: User | type[User]) -> Any:
+        # an attempt only verifies its own user: as a SQL expression there's no control flow to carry that, so the
+        # identity check has to be part of the predicate or a caller can pair any attempt with any user
+        return self.user_id == user.id
+
+    @hybrid_method
     def _raw_birthdate_match(self, user: User | type[User]) -> Any:
         """Does not check whether the SV attempt itself is not expired"""
         return self.passport_date_of_birth == user.birthdate
 
     @hybrid_method
     def matches_birthdate(self, user: User | type[User]) -> Any:
-        return self.is_valid & self._raw_birthdate_match(user)
+        return self._is_own_user(user) & self.is_valid & self._raw_birthdate_match(user)
 
     @hybrid_method
     def _raw_gender_match(self, user: User | type[User]) -> Any:
@@ -140,15 +146,11 @@ class StrongVerificationAttempt(Base, kw_only=True):
 
     @hybrid_method
     def matches_gender(self, user: User | type[User]) -> Any:
-        return self.is_valid & self._raw_gender_match(user)
+        return self._is_own_user(user) & self.is_valid & self._raw_gender_match(user)
 
     @hybrid_method
     def has_strong_verification(self, user: User | type[User]) -> Any:
-        # an attempt only verifies its own user: as a SQL expression there's no control flow to carry that, so the
-        # identity check has to be part of the predicate or a caller can pair any attempt with any user
-        return (
-            (self.user_id == user.id) & self.is_valid & self._raw_birthdate_match(user) & self._raw_gender_match(user)
-        )
+        return self._is_own_user(user) & self.is_valid & self._raw_birthdate_match(user) & self._raw_gender_match(user)
 
     __table_args__ = (
         # used to look up verification status for a user

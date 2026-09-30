@@ -288,8 +288,7 @@
     "cs": "Checo",
     "de": "Alemán",
     "en": "Inglés",
-    "es": "Español (España)",
-    "es-419": "Español"
+    "es": "Español"
   },
   "components": {
     "edit_location_map": {
