@@ -346,6 +346,5 @@
   "bar": {
     "help_button_a11y": "Помощь"
   },
-  "more_options_a11y": "Больше опций",
-  "tap_press_to_flip": "Коснитесь / нажмите, чтобы перевернуть"
+  "more_options_a11y": "Больше опций"
 }
