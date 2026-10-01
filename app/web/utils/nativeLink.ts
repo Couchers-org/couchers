@@ -6,7 +6,7 @@ function getReactNativeWebView(): typeof window.ReactNativeWebView {
   }
 }
 
-export function isNativeEmbed(): boolean {
+function isNativeEmbed(): boolean {
   const webview = getReactNativeWebView();
   if (!webview) return false;
 
@@ -42,8 +42,7 @@ type MessageType =
   | "REQUEST_IMAGE_PICK"
   | "NATIVE_BACK"
   | "LANGUAGE_CHANGE"
-  | "REQUEST_REVIEW"
-  | "ADD_TO_CALENDAR";
+  | "REQUEST_REVIEW";
 
 function sendToNative(type: MessageType, data: unknown) {
   if (!isNativeEmbed()) return;
@@ -68,11 +67,6 @@ export function sendLanguageChange(locale: string) {
 
 export function sendNativeRequestReview() {
   sendToNative("REQUEST_REVIEW", {});
-}
-
-// Adds an .ics file, encoded as a base64 string, to the mobile calendar.
-export function addToCalendarNatively(ics_base64: string, filename: string) {
-  sendToNative("ADD_TO_CALENDAR", { ics_base64, filename });
 }
 
 // Image picker bridge for native mobile app
