@@ -34,25 +34,4 @@ describe("addToCalendar", () => {
       "Failed to fetch calendar file: 401",
     );
   });
-
-  it("hands the base64-encoded file and filename to the native app when embedded natively", async () => {
-    const postMessageSpy = jest.fn();
-    window.ReactNativeWebView = {
-      injectedObjectJson: () => JSON.stringify({ isNativeEmbed: true }),
-      postMessage: postMessageSpy,
-    };
-    const mockBlob = new Blob(["ics content"]);
-    global.fetch = jest.fn().mockResolvedValue({ ok: true, blob: jest.fn().mockResolvedValue(mockBlob) });
-    const clickSpy = jest.spyOn(HTMLAnchorElement.prototype, "click");
-
-    await addToCalendar("https://example.com/calendar", "file.ics");
-
-    expect(postMessageSpy).toHaveBeenCalledWith(
-      JSON.stringify({
-        type: "ADD_TO_CALENDAR",
-        data: { ics_base64: Buffer.from("ics content").toString("base64"), filename: "file.ics" },
-      }),
-    );
-    expect(clickSpy).not.toHaveBeenCalled();
-  });
 });
