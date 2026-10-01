@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-09-28 16:41+0000\n"
+"PO-Revision-Date: 2026-10-01 07:28+0000\n"
 "Last-Translator: Chris Kreuz <ckreuz@users.noreply.translate.couchershq.org>\n"
 "Language-Team: German <https://translate.couchershq.org/projects/couchers/glossary-key-terms/de/>\n"
 "Language: de\n"
@@ -93,3 +93,383 @@ msgstr "kommentieren"
 #. (noun) Top-level comments on a discussion or event.
 msgid "discussions.comments"
 msgstr "Kommentare"
+
+#. (noun) Geographical communities with local discussions, events, etc.
+msgid "communities"
+msgstr "Communitys"
+
+#. (noun) A geographical community with local discussions, events, etc.
+msgid "community"
+msgstr "Community"
+
+#. (noun) A user recognized to be highly involved in a community, with special editing rights.
+msgid "community_builder"
+msgstr "Community-Builder"
+
+#. (noun) Users recognized to be highly involved in a community, with special editing rights.
+msgid "community_builders"
+msgstr "Community-Builder"
+
+#. (noun) The behavioral guidelines that new members must accept when joining Couchers.org.
+msgid "community_guidelines"
+msgstr "Community-Richtlinien"
+
+#. (verb) As a surfer, the act of confirming a host request that was accepted by the host.
+msgid "host_request.confirm"
+msgstr "bestätigen"
+
+#. (adj) The state of a host request that was confirmed by the surfer after being accepted by the host.
+msgid "host_request.confirmed"
+msgstr "bestätigt"
+
+#. (noun) Other users which are friends or have pending friend requests.
+msgid "connections"
+msgstr "Verbindungen"
+
+#. (noun) The team behind Couchers.org.
+msgid "couchers_org_team"
+msgstr "Couchers.org-Team"
+
+#. (noun) The activity of free hospitality welcome/exchange. Platform-agnostic.
+msgid "couch surfing"
+msgstr "Couch-Surfing"
+
+#. (verb) As a host, the act of declining a surfer's host request.
+msgid "host_request.decline"
+msgstr "Ablehnen"
+
+#. (adj) The state of a host request that was declined by the host.
+msgid "host_request.declined"
+msgstr "Abgelehnt"
+
+#. (verb) As a user, the action of deleting one's account.
+msgid "account.delete"
+msgstr "löschen"
+
+#. (adj) The state of a user's account which has been deleted.
+msgid "account.deleted"
+msgstr "gelöscht"
+
+#. (noun) A community or event discussion that supports replies.
+msgid "discussion"
+msgstr "Beitrag"
+
+#. (noun) Community or event discussions that support replies.
+msgid "discussions"
+msgstr "Beiträge"
+
+#. (verb) The act of donating money to Couchers.org.
+msgid "donate"
+msgstr "spenden"
+
+#. (verb) The act of donating money to Couchers.org.
+msgid "donating"
+msgstr "spenden"
+
+#. (noun) Money donated to Couchers.org.
+msgid "donation"
+msgstr "Spende"
+
+#. (noun) Money donated to Couchers.org.
+msgid "donations"
+msgstr "Spenden"
+
+#. (noun) An event created by a user for others to attend.
+msgid "event"
+msgstr "Event"
+
+#. (noun) Events created by users for others to attend.
+msgid "events"
+msgstr "Events"
+
+#. (noun) Another user confirmed as a friend using the friend feature.
+msgid "friend"
+msgstr "Freund"
+
+#. (noun) A reference from a friend.
+msgid "friend_reference"
+msgstr "Freund Referenz"
+
+#. (noun) A request to add another user as a friend.
+msgid "friend_request"
+msgstr "Freundschaftsanfrage"
+
+#. (noun) Requests to add other users as friends.
+msgid "friend_requests"
+msgstr "Freundschaftsanfragen"
+
+#. (noun) Other users confirmed as friends using the friend feature.
+msgid "friends"
+msgstr "Freunde"
+
+#. (noun) A named thread for messages between three or more users.
+msgid "group_chat"
+msgstr "Gruppenchat"
+
+#. (noun) A named thread for messages between three or more users.
+msgid "group_chats"
+msgstr "Gruppenchats"
+
+#. (noun) The https://help.couchers.org website.
+msgid "help_center"
+msgstr "Hilfezentrum"
+
+#. (noun) A user providing hospitality to other users.
+msgid "host.noun"
+msgstr "Host"
+
+#. (verb) As a host, the act of offering hospitality to other users.
+msgid "host.verb"
+msgstr "hosten"
+
+#. (adjective) As a surfer, the state of receiving hospitality from a host.
+msgid "hosted"
+msgstr "gehostet"
+
+#. (verb) As a host, the act of offering hospitality to other users.
+msgid "hosting"
+msgstr "hosten"
+
+#. (noun) The process of establishing a hosting relationship.
+msgid "host_request"
+msgstr "Host-Anfrage"
+
+#. (noun) The process of establishing a hosting relationship.
+msgid "host_requests"
+msgstr "Host-Anfragen"
+
+#. (noun) Users providing hospitality to other users.
+msgid "hosts.noun"
+msgstr "Hosts"
+
+#. (noun) A code that can be shared to invite people to join Couchers.org.
+msgid "invite_code"
+msgstr "Einladungscode"
+
+#. (noun) Codes that can be shared to invite people to join Couchers.org.
+msgid "invite_codes"
+msgstr "Einladungscodes"
+
+#. A geographical location such as an address or the name of a city.
+msgid "location"
+msgstr "Ort"
+
+#. (noun) The team behind Couchers.org, short form.
+msgid "team"
+msgstr "Team"
+
+#. (noun) The Couchers.org safety team.
+msgid "safety_team"
+msgstr "Sicherheitsteam"
+
+#. (noun) The Couchers.org support team.
+msgid "support_team"
+msgstr "Support-Team"
+
+#. (noun) The Couchers.org merchandise shop website.
+msgid "merch_shop"
+msgstr "Merch-Shop"
+
+#. (noun) A problem with the platform reported by a user.
+msgid "report_problem.problem"
+msgstr "Problem"
+
+#. (noun) Problems with the platform reported by a user.
+msgid "report_problem.problems"
+msgstr "Probleme"
+
+#. (noun) A moderator from the Couchers.org team.
+msgid "moderator"
+msgstr "Moderator"
+
+#. (noun) Moderators from the Couchers.org team.
+msgid "moderators"
+msgstr "Moderatoren"
+
+#. (noun) A note sent to a user by a moderator.
+msgid "moderator_note"
+msgstr "Moderatorenhinweis"
+
+#. (noun) Notes sent to a user by a moderator.
+msgid "moderator_notes"
+msgstr "Moderatorenhinweise"
+
+#. (verb) As a user, the action of recovering a previously deleted account.
+msgid "account.recover"
+msgstr "wiederherstellen"
+
+#. (adj) The state of a user's account which has been recovered.
+msgid "account.recovered"
+msgstr "wiederhergestellt"
+
+#. (noun) Someone with an account on Couchers.org.
+msgid "user"
+msgstr "Benutzer"
+
+#. (noun) Someone with an account on Couchers.org.
+msgid "users"
+msgstr "Benutzer"
+
+#. (noun) A user's account identifier on Couchers.org.
+msgid "username"
+msgstr "Benutzername"
+
+#. (noun) A user's account password on Couchers.org.
+msgid "password"
+msgstr "Passwort"
+
+#. (verb) The action of resetting one's password.
+msgid "password.reset"
+msgstr "zurücksetzen"
+
+#. (noun) A post on the Couchers.org blog.
+msgid "blog.post"
+msgstr "Beitrag"
+
+#. (verb) The act of volunteering with Couchers.org.
+msgid "volunteer.verb"
+msgstr "helfen"
+
+#. (noun) A person volunteering with Couchers.org.
+msgid "volunteer.noun"
+msgstr "Freiwilliger"
+
+#. (noun) A person volunteering with Couchers.org.
+msgid "volunteers"
+msgstr "Freiwillige"
+
+#. A user status whereby a user is potentially willing to host surfers.
+msgid "status.may_host"
+msgstr "Kann vielleicht hosten"
+
+#. (noun) Notifications sent to a user's phone or browser.
+msgid "push_notifications"
+msgstr "Push-Benachrichtigungen"
+
+#. (noun) A notifications sent to a user's phone or browser.
+msgid "push_notification"
+msgstr "Push-Benachrichtigung"
+
+#. (noun) A process and the resulting status for verifying a user's identity.
+msgid "strong_verification"
+msgstr "Starke Verifizierung"
+
+#. (noun) A process and the resulting status for verifying a user's phone number.
+msgid "phone_verification"
+msgstr "Telefonverifizierung"
+
+#. The section of a user profile with information relating to their home.
+msgid "profile.my_home"
+msgstr "Mein Zuhause"
+
+#. (noun) A profile picture.
+msgid "photo"
+msgstr "Foto"
+
+#. (noun) Profile pictures.
+msgid "photos"
+msgstr "Fotos"
+
+#. A user's willingness to host surfers.
+msgid "hosting_status"
+msgstr "Hosting status"
+
+#. (noun) A message sent from a user to another user or to a group chat.
+msgid "message.noun"
+msgstr "Nachricht"
+
+#. (verb) The act of sending a message to another user or to a group chat.
+msgid "message.verb"
+msgstr "schreiben"
+
+#. (noun) Messages sent between users or to group chats.
+msgid "messages"
+msgstr "Nachrichten"
+
+#. (noun) A user receiving hospitality from other users.
+msgid "surfer"
+msgstr "Surfer"
+
+#. (noun) Users receiving hospitality from other users.
+msgid "surfers"
+msgstr "Surfer"
+
+#. (noun) A reference from a friend, host or surfer.
+msgid "reference"
+msgstr "Referenz"
+
+#. (noun) References from friends, hosts or surfers.
+msgid "references"
+msgstr "Referenzen"
+
+#. (noun) A reply on a top-level comment in a discussion or event.
+msgid "discussions.reply.noun"
+msgstr "Antwort"
+
+#. (verb) The act of replying to a top-level comment on a discussion or event.
+msgid "discussions.reply.verb"
+msgstr "antworten"
+
+#. (noun) Replies on a top-level comment in a discussion or event.
+msgid "discussions.replies"
+msgstr "Antworten"
+
+#. (noun) A user listed as an organizer on an event.
+msgid "events.organizer"
+msgstr "Organisator"
+
+#. (noun) Users listed as organizers on an event.
+msgid "events.organizers"
+msgstr "Organisatoren"
+
+#. (noun) As a user, the act of reporting a problem with the platform.
+msgid "report_problem.report"
+msgstr "Meldung"
+
+#. (verb) The action of logging in to Couchers.org.
+msgid "log_in"
+msgstr "einloggen"
+
+#. (verb) The action of logging in to Couchers.org.
+msgid "logging_in"
+msgstr "einloggen"
+
+#. (adj) The state of being logged in to Couchers.org.
+msgid "logged_in"
+msgstr "eingeloggt"
+
+#. (verb) The action of logging in to Couchers.org after logging out.
+msgid "log_back_in"
+msgstr "wieder einloggen"
+
+#. (verb) The action of logging out of Couchers.org.
+msgid "log_out"
+msgstr "ausloggen"
+
+#. (verb) The action of logging out of Couchers.org.
+msgid "logging_out"
+msgstr "ausloggen"
+
+#. (adj) The state of being logged out of Couchers.org.
+msgid "logged_out"
+msgstr "ausgeloggt"
+
+#. (noun) A website/app session, from logging in to logging out.
+msgid "session"
+msgstr "Sitzung"
+
+#. (noun) Website/app sessions, from logging in to logging out.
+msgid "sessions"
+msgstr "Sitzungen"
+
+#. (noun) A grouping of settings (account, notifications, etc.)
+msgid "settings"
+msgstr "Einstellungen"
+
+#. (noun) An email or push notifications sent to a user.
+msgid "notification"
+msgstr "Benachrichtigung"
+
+#. (noun) Email or push notifications sent to a user.
+msgid "notifications"
+msgstr "Benachrichtigungen"
