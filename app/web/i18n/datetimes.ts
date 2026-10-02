@@ -1,10 +1,11 @@
 // format a date
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { capitalizeFirstLetter } from "i18n/casing";
+import { toFormatLocale } from "i18n/locales";
 import { TFunction } from "i18next";
 import { Temporal } from "temporal-polyfill";
 import { approxDateDuration, timestampToInstant, UTC_TIMEZONE } from "utils/date";
-import dayjs, { i18nToDayjsLocale } from "utils/dayjs";
+import dayjs, { toDayjsLocale } from "utils/dayjs";
 
 /**
  * Converts a Temporal date/time object to a Date
@@ -175,6 +176,7 @@ function getIntlDateTimeFormatUTC(
   options?: LocalizeDateTimeOptions,
   dateComponents?: { year?: number },
 ): Intl.DateTimeFormat {
+  locale = toFormatLocale(locale);
   const intlOptions = getIntlDateTimeFormatOptionsUTC(options, dateComponents);
   const cacheKey = JSON.stringify({ ...intlOptions, locale });
   let format = intlDateTimeFormatCache.get(cacheKey);
@@ -236,6 +238,7 @@ export function localizeTimeZone(
     capitalize?: boolean;
   },
 ) {
+  locale = toFormatLocale(locale);
   const intlOptions: Intl.DateTimeFormatOptions = {
     timeZone: timeZone,
     timeZoneName: options?.short ? "short" : "long",
@@ -254,6 +257,7 @@ const isoMuiDateFormat = "YYYY-MM-DD";
 
 /** Gets the date format for a locale using Material UI placeholders. */
 export function getMuiDateFormat(locale: string): string {
+  locale = toFormatLocale(locale);
   if (Intl.DateTimeFormat.supportedLocalesOf(locale).length === 0) {
     return isoMuiDateFormat;
   }
@@ -276,6 +280,7 @@ const defaultMuiTimeFormat = "HH:mm";
 
 /** Gets a localized time format string compatible with Material UI time pickers. */
 export function getMuiTimeFormat(locale: string): string {
+  locale = toFormatLocale(locale);
   if (Intl.DateTimeFormat.supportedLocalesOf(locale).length === 0) {
     return defaultMuiTimeFormat;
   }
@@ -413,5 +418,5 @@ export function localizeDuration(duration: Temporal.Duration, locale: string) {
   else if (duration.minutes > 0) dayjsDuration = dayjs.duration(duration.minutes, "minutes");
   else dayjsDuration = dayjs.duration(duration.seconds, "seconds");
 
-  return dayjsDuration.locale(i18nToDayjsLocale(locale)).humanize();
+  return dayjsDuration.locale(toDayjsLocale(locale)).humanize();
 }

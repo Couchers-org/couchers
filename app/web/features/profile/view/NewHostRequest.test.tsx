@@ -73,14 +73,14 @@ describe("NewHostRequest", () => {
     });
     await user.click(arrivalGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("06012026");
+    await user.keyboard("01062026");
 
     const departureGroup = screen.getByRole("group", {
       name: t("profile:request_form.departure_date"),
     });
     await user.click(departureGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("06052026");
+    await user.keyboard("05062026");
 
     const textArea = screen.getByLabelText(t("profile:request_form.request"));
     await user.click(textArea);
@@ -116,14 +116,14 @@ describe("NewHostRequest", () => {
     });
     await user.click(arrivalGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("05242026");
+    await user.keyboard("24052026");
 
     const departureGroup = screen.getByRole("group", {
       name: t("profile:request_form.departure_date"),
     });
     await user.click(departureGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("05282026");
+    await user.keyboard("28052026");
 
     const textArea = screen.getByLabelText(t("profile:request_form.request"));
     await user.click(textArea);
@@ -159,14 +159,14 @@ describe("NewHostRequest", () => {
     });
     await user.click(arrivalGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("05252026");
+    await user.keyboard("25052026");
 
     const departureGroup = screen.getByRole("group", {
       name: t("profile:request_form.departure_date"),
     });
     await user.click(departureGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("05302026");
+    await user.keyboard("30052026");
 
     await user.click(screen.getByLabelText(t("profile:request_form.request")));
     await user.paste(LONG_TEXT);
@@ -195,14 +195,14 @@ describe("NewHostRequest", () => {
     });
     await user.click(arrivalGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("06012026");
+    await user.keyboard("01062026");
 
     const departureGroup = screen.getByRole("group", {
       name: t("profile:request_form.departure_date"),
     });
     await user.click(departureGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("06052026");
+    await user.keyboard("05062026");
 
     await user.click(screen.getByLabelText(t("profile:request_form.request")));
     await user.paste(LONG_TEXT);

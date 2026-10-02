@@ -63,7 +63,7 @@ describe("DonationBanner", () => {
 
     // Should also show the progress bar
     expect(screen.getByRole("progressbar")).toBeInTheDocument();
-    expect(screen.getByText("$5,000 / $10,000")).toBeInTheDocument();
+    expect(screen.getByText("US$5,000 / US$10,000")).toBeInTheDocument();
   });
 
   it("navigates to donations page with utm_source when button is clicked", async () => {
@@ -278,7 +278,7 @@ describe("DonationBanner", () => {
 
     const progressBar = screen.getByRole("progressbar");
     expect(progressBar).toHaveAttribute("aria-valuenow", "75");
-    expect(screen.getByText("$7,500 / $10,000")).toBeInTheDocument();
+    expect(screen.getByText("US$7,500 / US$10,000")).toBeInTheDocument();
   });
 
   it("caps progress at 100% when donations exceed goal", async () => {
@@ -305,6 +305,6 @@ describe("DonationBanner", () => {
 
     const progressBar = screen.getByRole("progressbar");
     expect(progressBar).toHaveAttribute("aria-valuenow", "100");
-    expect(screen.getByText("$15,000 / $10,000")).toBeInTheDocument();
+    expect(screen.getByText("US$15,000 / US$10,000")).toBeInTheDocument();
   });
 });
