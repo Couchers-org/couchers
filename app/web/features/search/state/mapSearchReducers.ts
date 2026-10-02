@@ -4,7 +4,13 @@ import { UserSearchFilters } from "service/search";
 import { GeocodeResult } from "utils/hooks";
 
 import { FilterOptions } from "../SearchPage";
-import { Coordinates, DEFAULT_AGE_MAX, DEFAULT_AGE_MIN, MAX_MAP_ZOOM_LEVEL_FOR_SEARCH } from "../utils/constants";
+import {
+  Coordinates,
+  DEFAULT_AGE_MAX,
+  DEFAULT_AGE_MIN,
+  lastActiveOptions,
+  MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
+} from "../utils/constants";
 import { getHasActiveFilters } from "../utils/mapUtils";
 
 /** WHY USE A REDUCER FOR OUR MAP STATE?
@@ -124,7 +130,7 @@ const initialState: MapSearchState = {
     ageMax: undefined,
     showEmptyProfile: undefined,
     drinkingAllowed: undefined,
-    lastActive: 0,
+    lastActive: undefined,
     hasReferences: undefined,
     hasStrongVerification: undefined,
     hostingStatus: undefined,
@@ -328,7 +334,8 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
           updatedFilters.showEmptyProfile = action.payload[key];
         }
         if (key === "drinkingAllowed") {
-          updatedFilters.drinkingAllowed = action.payload[key];
+          // an exclusive ToggleButtonGroup reports a deselection as null
+          updatedFilters.drinkingAllowed = action.payload[key] ?? undefined;
         }
         if (key === "hasReferences") {
           updatedFilters.hasReferences = action.payload[key] === false ? undefined : action.payload[key];
@@ -347,7 +354,8 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
         }
 
         if (key === "lastActive") {
-          updatedFilters.lastActive = action.payload[key];
+          updatedFilters.lastActive =
+            action.payload[key] === lastActiveOptions.LAST_ACTIVE_ANY ? undefined : action.payload[key];
         }
 
         if (key === "numGuests") {
@@ -358,7 +366,7 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
             action.payload[key] && action.payload[key].length === 0 ? undefined : action.payload[key];
         }
         if (key === "smokesAtHome") {
-          updatedFilters.smokesAtHome = action.payload[key];
+          updatedFilters.smokesAtHome = action.payload[key] ?? undefined;
         }
         if (key === "sameGenderOnly") {
           updatedFilters.sameGenderOnly = action.payload[key] === false ? undefined : action.payload[key];
