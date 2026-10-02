@@ -278,7 +278,6 @@ export default function HostRequestView({ hostRequestId }: { hostRequestId: numb
           status={hostRequest.status}
           isLoading={respondMutation.isPending}
           onAccept={handleBannerRespond(HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED)}
-          onDecline={handleBannerRespond(HostRequestStatus.HOST_REQUEST_STATUS_REJECTED)}
           onCancel={handleBannerRespond(HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED)}
           hostName={otherUser ? firstName(otherUser.name) : undefined}
         />

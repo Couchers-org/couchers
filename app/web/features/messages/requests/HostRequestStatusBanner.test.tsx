@@ -13,7 +13,6 @@ const HOST_NAME = "Alice";
 const defaultCallbacks = {
   isLoading: false,
   onAccept: jest.fn(),
-  onDecline: jest.fn(),
   onCancel: jest.fn(),
 };
 
@@ -63,7 +62,7 @@ describe("HostRequestStatusBanner — host view", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("calls onDecline when Decline is clicked on accepted", async () => {
+  it("calls onCancel when Decline is clicked on accepted", async () => {
     render(
       <HostRequestStatusBanner {...defaultCallbacks} isHost status={HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED} />,
       { wrapper },
@@ -74,7 +73,7 @@ describe("HostRequestStatusBanner — host view", () => {
         name: t("messages:close_request_button_text"),
       }),
     );
-    expect(defaultCallbacks.onDecline).toHaveBeenCalledTimes(1);
+    expect(defaultCallbacks.onCancel).toHaveBeenCalledTimes(1);
   });
 
   it("calls onAccept when Accept is clicked on declined", async () => {
