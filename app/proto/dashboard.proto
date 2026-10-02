@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package org.couchers.api.dashboard;
+
+import "annotations.proto";
+import "account.proto";
+import "discussions.proto";
+import "events.proto";
+import "requests.proto";
+
+service Dashboard {
+  option (auth_level) = AUTH_LEVEL_SECURE;
+
+  rpc GetDashboardV2(GetDashboardV2Req) returns (GetDashboardV2Res) {
+    // Fetch all the content needed to render the dashboard in a single call, instead of fanning out
+    // to the individual RPCs. Each field mirrors the response of the RPC that previously populated it.
+  }
+}
+
+message GetDashboardV2Req {}
+
+message GetDashboardV2Res {
+  org.couchers.api.account.GetRemindersRes reminders = 1;
+  org.couchers.api.requests.ListHostRequestsRes surfing = 2;
+  org.couchers.api.requests.ListHostRequestsRes hosting = 3;
+  org.couchers.api.events.ListMyEventsRes my_events = 4;
+  org.couchers.api.events.ListMyEventsRes community_events = 5;
+  org.couchers.api.discussions.ListMyCommunitiesDiscussionsRes discussions = 6;
+}
