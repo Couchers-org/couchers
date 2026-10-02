@@ -228,9 +228,9 @@
     "settings_page_link": "Manage current logins",
     "description": "This page lists active logins, you can log out of any of them by clicking on the button next to the login, or scrolling to the bottom and clicking the button to log out of all but this session.",
     "login_header": "Login on {{login_datetime}}",
-    "location": "Near <strong>{{approximate_location}}</strong>",
-    "last_activity": "Last activity <strong>{{last_activity_ago}}</strong>",
-    "expiry": "Expires on <strong>{{expiry_datetime}}</strong>",
+    "location2": "Near <location/>",
+    "last_activity2": "Last activity <timeAgo/>",
+    "expiry2": "Expires on <datetime/>",
     "current_session": "This is your current session.",
     "log_out_of_session": "Log out of this session",
     "log_out_of_all_session": "Log out of all other sessions"
