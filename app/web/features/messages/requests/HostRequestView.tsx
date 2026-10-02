@@ -5,8 +5,8 @@ import Alert from "components/Alert";
 import HeaderButton from "components/HeaderButton";
 import { BackIcon, OverflowMenuIcon } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
-import { BOTTOM_NAV_BASE_HEIGHT } from "components/Navigation/constants";
 import PageTitle from "components/PageTitle";
+import StyledFullHeightView from "components/StyledFullHeightView";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { GROUP_CHAT_REFETCH_INTERVAL } from "features/messages/groupchats/constants";
 import HostRequestSendField from "features/messages/requests/HostRequestSendField";
@@ -63,21 +63,6 @@ const StyledPageTitle = styled(PageTitle)({
     fontSize: "0.9rem",
   },
 });
-
-const StyledPageWrapper = styled("div")<{ isNativeEmbed: boolean }>(({ theme, isNativeEmbed }) => ({
-  display: "flex",
-  flexDirection: "column",
-  // Use dvh (dynamic viewport height) which adjusts for mobile keyboard
-  // Use CSS custom property set by Navigation component for actual height
-  height: isNativeEmbed
-    ? "calc(100dvh - var(--nav-height, 3.5rem) - var(--cookie-banner-height, 0px))"
-    : `calc(100dvh - var(--nav-height, 3.5rem) - ${BOTTOM_NAV_BASE_HEIGHT}px - env(safe-area-inset-bottom, 0px) - var(--cookie-banner-height, 0px))`,
-
-  [theme.breakpoints.up("md")]: {
-    // On desktop, only subtract top nav (no bottom nav)
-    height: "calc(100dvh - var(--nav-height, 4rem) - var(--cookie-banner-height, 0px))",
-  },
-}));
 
 // Footer is fixed at bottom - never scrolls away
 const StyledFooter = styled("div")(({ theme }) => ({
@@ -219,7 +204,7 @@ export default function HostRequestView({ hostRequestId }: { hostRequestId: numb
   }
 
   return (
-    <StyledPageWrapper isNativeEmbed={isNativeEmbed}>
+    <StyledFullHeightView isNativeEmbed={isNativeEmbed}>
       <StyledHeader>
         <HeaderButton
           onClick={handleBack}
@@ -322,6 +307,6 @@ export default function HostRequestView({ hostRequestId }: { hostRequestId: numb
       <StyledFooter>
         {hostRequest && <HostRequestSendField hostRequest={hostRequest} sendMutation={sendMutation} />}
       </StyledFooter>
-    </StyledPageWrapper>
+    </StyledFullHeightView>
   );
 }
