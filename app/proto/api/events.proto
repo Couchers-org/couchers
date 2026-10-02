@@ -158,6 +158,7 @@ message Event {
 
   bool can_edit = 32;
   bool can_moderate = 33;
+  bool community_invite_requested = 36;
 }
 
 message CreateEventReq {
