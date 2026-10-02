@@ -1,6 +1,7 @@
 import { styled, Tooltip, Typography } from "@mui/material";
 import { FlexboxProps } from "@mui/system";
 import Avatar from "components/Avatar";
+import { clampedTypographyWith } from "components/ClampedTypography";
 import ProfileLink from "components/ProfileLink/ProfileLink";
 import StrongVerificationBadge from "components/StrongVerificationBadge";
 import { useImpressionRef, useLogEvent } from "features/analytics/hooks";
@@ -134,12 +135,8 @@ const HaikuContainer = styled("div")(({ theme }) => ({
   flexGrow: 1,
 }));
 
-const ClampedAbout = styled("div")(({ theme }) => ({
-  display: "-webkit-box",
-  WebkitBoxOrient: "vertical",
+const ClampedAbout = styled(clampedTypographyWith({ WebkitLineClamp: 7 }))(({ theme }) => ({
   WebkitLineClamp: 7,
-  overflow: "hidden",
-  overflowWrap: "break-word",
 
   [theme.breakpoints.down("md")]: {
     WebkitLineClamp: 3,
@@ -170,7 +167,7 @@ const generateAboutText = (user: SearchUser.AsObject, t: TFunction) => {
       </HaikuContainer>
     );
   } else {
-    return <ClampedAbout>{stripMarkdown(aboutText(user, t))}</ClampedAbout>;
+    return <ClampedAbout component="div">{stripMarkdown(aboutText(user, t))}</ClampedAbout>;
   }
 };
 

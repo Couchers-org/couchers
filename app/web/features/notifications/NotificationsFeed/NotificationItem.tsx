@@ -1,5 +1,6 @@
 import { Circle, MoreHoriz } from "@mui/icons-material";
 import { Avatar, Box, Menu, MenuItem, styled, Typography, useMediaQuery } from "@mui/material";
+import ClampedTypography from "components/ClampedTypography";
 import IconButton from "components/IconButton";
 import { useTranslation } from "i18n";
 import { localizeRelativeTime } from "i18n/datetimes";
@@ -7,7 +8,6 @@ import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Notification } from "proto/notifications_pb";
 import { useState } from "react";
-import LinesEllipsis from "react-lines-ellipsis";
 import { theme } from "theme";
 
 import { mapNotificationFeedTypeToIcon } from "../utils/constants";
@@ -117,30 +117,15 @@ const NotificationItem = ({ notification, onClose, onMarkIsSeen }: NotificationI
         <BottomRightIconWrapper>{mapNotificationFeedTypeToIcon[notification.topic]}</BottomRightIconWrapper>
       </AvatarWrapper>
       <FlexColumn>
-        <LinesEllipsis
-          text={notification.title}
-          maxLine={1}
-          ellipsis="…"
-          style={{
-            fontSize: theme.typography.body2.fontSize,
-            fontWeight: 600,
-            whiteSpace: "normal",
-            wordBreak: "break-word",
-          }}
-        />
+        <ClampedTypography WebkitLineClamp={1} ellipsis variant="body2" sx={{ fontWeight: 600 }}>
+          {notification.title}
+        </ClampedTypography>
         <Typography variant="body2" color="primary" sx={{ fontWeight: 600 }}>
           {localizeRelativeTime(notification.created!, locale)}
         </Typography>
-        <LinesEllipsis
-          text={notification.body}
-          maxLine={2}
-          ellipsis="…"
-          style={{
-            fontSize: theme.typography.body2.fontSize,
-            whiteSpace: "normal",
-            wordBreak: "break-word",
-          }}
-        />
+        <ClampedTypography WebkitLineClamp={2} ellipsis variant="body2">
+          {notification.body}
+        </ClampedTypography>
       </FlexColumn>
       {!notification.isSeen && (
         <Circle

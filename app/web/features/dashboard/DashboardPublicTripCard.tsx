@@ -7,6 +7,7 @@ import {
 } from "@mui/icons-material";
 import { alpha, Box, Skeleton, styled, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
+import { clampedTypographyWith } from "components/ClampedTypography";
 import { useCommunity } from "features/communities/hooks";
 import { PublicTrip } from "features/publicTrips/useListPublicTrips";
 import { useTranslation } from "i18n";
@@ -61,14 +62,9 @@ const TextBlock = styled("div")({
   flex: 1,
 });
 
-const DescriptionText = styled(Typography)(({ theme }) => ({
+const DescriptionText = styled(clampedTypographyWith({ WebkitLineClamp: 2, ellipsis: true }))(({ theme }) => ({
   fontSize: 12,
   color: "var(--mui-palette-text-secondary)",
-  overflow: "hidden",
-  display: "-webkit-box",
-  WebkitLineClamp: 2,
-  WebkitBoxOrient: "vertical",
-  textOverflow: "ellipsis",
   lineHeight: 1.4,
   marginTop: theme.spacing(0.75),
   [theme.breakpoints.down("sm")]: {
