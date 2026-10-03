@@ -18,7 +18,7 @@ from couchers.moderation.utils import create_moderation
 from couchers.proto import public_trips_pb2, public_trips_pb2_grpc
 from couchers.servicers.api import user_model_to_pb
 from couchers.sql import to_bool, where_moderated_content_visible, where_users_column_visible
-from couchers.utils import Timestamp_from_datetime, date_to_api, parse_date, today, today_in_timezone
+from couchers.utils import Timestamp_from_datetime, date_to_api, parse_date, today_in_timezone
 
 logger = logging.getLogger(__name__)
 
@@ -259,7 +259,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             )
             .where(PublicTrip.node_id == node.id)
             .where(PublicTrip.status == PublicTripStatus.searching_for_host)
-            .where(PublicTrip.to_date >= today())
+            .where(PublicTrip.end_time >= func.now())
             .where(or_(PublicTrip.id <= next_page_id, to_bool(next_page_id == 0)))
             .order_by(PublicTrip.id.desc())
             .limit(page_size + 1)
@@ -300,7 +300,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
                     select(PublicTrip.node_id)
                     .where(PublicTrip.user_id == request.user_id)
                     .where(PublicTrip.status == PublicTripStatus.searching_for_host)
-                    .where(PublicTrip.to_date >= today())
+                    .where(PublicTrip.end_time >= func.now())
                     .distinct()
                 )
                 .scalars()
@@ -309,7 +309,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             viewer_is_moderator = any(can_moderate_node(session, context.user_id, nid) for nid in active_node_ids)
 
             statement = statement.where(PublicTrip.status == PublicTripStatus.searching_for_host).where(
-                PublicTrip.to_date >= today()
+                PublicTrip.end_time >= func.now()
             )
             if not viewer_is_moderator:
                 statement = statement.where(_same_gender_filter(context))
