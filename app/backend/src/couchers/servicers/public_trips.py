@@ -2,7 +2,6 @@ import logging
 from datetime import date, timedelta
 
 import grpc
-from nacl.exceptions import CryptoError
 from sqlalchemy import ColumnElement, Date, and_, cast, func, or_, select
 from sqlalchemy.orm import Session, selectinload
 
@@ -18,7 +17,7 @@ from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.moderation.utils import create_moderation
 from couchers.proto import public_trips_pb2, public_trips_pb2_grpc
 from couchers.servicers.api import user_model_to_pb
-from couchers.sql import where_moderated_content_visible, where_users_column_visible
+from couchers.sql import to_bool, where_moderated_content_visible, where_users_column_visible
 from couchers.utils import Timestamp_from_datetime, date_to_api, parse_date, today_in_timezone
 
 logger = logging.getLogger(__name__)
@@ -44,25 +43,12 @@ def _is_description_long_enough(text: str) -> bool:
     return text_length_utf16 >= PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16
 
 
-def _parse_id_page_token(context: CouchersContext, page_token: str) -> int | None:
-    """Parse a page token into a trip_id. Returns None for the first page."""
+def _parse_page_token(page_token: str) -> tuple[date | None, int | None]:
+    """Parse a page token into (from_date, trip_id). Returns (None, None) for first page."""
     if not page_token:
-        return None
-    try:
-        return int(decrypt_page_token(page_token))
-    except ValueError, CryptoError:
-        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_page_token")
-
-
-def _parse_date_id_page_token(context: CouchersContext, page_token: str) -> tuple[date, int] | None:
-    """Parse a page token into (from_date, trip_id). Returns None for the first page."""
-    if not page_token:
-        return None
-    try:
-        date_str, id_str = decrypt_page_token(page_token).rsplit(":", 1)
-        return date.fromisoformat(date_str), int(id_str)
-    except ValueError, CryptoError:
-        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_page_token")
+        return None, None
+    date_str, id_str = decrypt_page_token(page_token).rsplit(":", 1)
+    return date.fromisoformat(date_str), int(id_str)
 
 
 def _trip_not_past() -> ColumnElement[bool]:
@@ -262,7 +248,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "public_trips_disabled")
 
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        next_page_id = _parse_id_page_token(context, request.page_token)
+        next_page_id = int(decrypt_page_token(request.page_token)) if request.page_token else 0
 
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
@@ -280,12 +266,11 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             .where(PublicTrip.node_id == node.id)
             .where(PublicTrip.status == PublicTripStatus.searching_for_host)
             .where(PublicTrip.to_date >= today_in_timezone(node.timezone))
+            .where(or_(PublicTrip.id <= next_page_id, to_bool(next_page_id == 0)))
             .order_by(PublicTrip.id.desc())
             .limit(page_size + 1)
             .options(selectinload(PublicTrip.node, Node.official_cluster))
         )
-        if next_page_id is not None:
-            statement = statement.where(PublicTrip.id <= next_page_id)
         if not viewer_is_moderator:
             statement = statement.where(_same_gender_filter(context))
         public_trips = session.execute(statement).scalars().all()
@@ -302,7 +287,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "public_trips_disabled")
 
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        cursor = _parse_date_id_page_token(context, request.page_token)
+        cursor_date, cursor_id = _parse_page_token(request.page_token)
         ascending = request.ascending
         is_self = request.user_id == context.user_id
 
@@ -340,8 +325,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
                 statement = statement.where(PublicTrip.status.in_(statuses))
 
         # Cursor-based pagination using (from_date, id) composite key
-        if cursor is not None:
-            cursor_date, cursor_id = cursor
+        if cursor_date is not None and cursor_id is not None:
             if ascending:
                 statement = statement.where(
                     or_(
