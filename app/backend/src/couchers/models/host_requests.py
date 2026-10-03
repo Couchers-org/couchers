@@ -6,6 +6,7 @@ from geoalchemy2 import Geometry
 from sqlalchemy import (
     BigInteger,
     Boolean,
+    CheckConstraint,
     Computed,
     Date,
     DateTime,
@@ -105,6 +106,8 @@ class HostRequest(Base, kw_only=True):
     end_time_to_write_reference = column_property(date_in_timezone(to_date, timezone) + text("interval '15 days'"))
 
     status: Mapped[HostRequestStatus] = mapped_column(Enum(HostRequestStatus))
+    # who declined or cancelled it, since either person can (e.g. cancelling once it's been accepted)
+    ended_by_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), default=None)
     is_recipient_archived: Mapped[bool] = mapped_column(Boolean, default=False, server_default=expression.false())
     is_initiator_archived: Mapped[bool] = mapped_column(Boolean, default=False, server_default=expression.false())
 
@@ -157,6 +160,11 @@ class HostRequest(Base, kw_only=True):
             recipient_sent_request_reminders,
             last_sent_request_reminder_time,
             from_date,
+        ),
+        # only a declined or cancelled request has someone who ended it
+        CheckConstraint(
+            "ended_by_user_id IS NULL OR status IN ('rejected', 'cancelled')",
+            name="ended_by_only_when_ended",
         ),
     )
 

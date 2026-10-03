@@ -231,6 +231,7 @@ def _host_request_thread_to_pb(
         ),
         public_trip_id=host_request.public_trip_id,
         unseen_message_count=unseen_message_count,
+        ended_by_user_id=host_request.ended_by_user_id or 0,
     )
 
 
