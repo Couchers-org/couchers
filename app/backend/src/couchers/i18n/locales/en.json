@@ -1,4 +1,5 @@
 {
+  "ambiguous_language_display_format": "{{name}} ({{code}})",
   "errors": {
     "account_not_found": "An account with that username or email was not found.",
     "account_suspended": "Your account is suspended.",
