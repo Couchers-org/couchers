@@ -2,7 +2,7 @@ import logging
 from datetime import date, timedelta
 
 import grpc
-from sqlalchemy import ColumnElement, and_, func, or_, select
+from sqlalchemy import ColumnElement, Date, and_, cast, func, or_, select
 from sqlalchemy.orm import Session, selectinload
 
 from couchers.constants import PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16
@@ -17,7 +17,7 @@ from couchers.moderation.utils import create_moderation
 from couchers.proto import public_trips_pb2, public_trips_pb2_grpc
 from couchers.servicers.api import user_model_to_pb
 from couchers.sql import to_bool, where_moderated_content_visible, where_users_column_visible
-from couchers.utils import Timestamp_from_datetime, date_to_api, parse_date, today, today_in_timezone
+from couchers.utils import Timestamp_from_datetime, date_to_api, parse_date, today_in_timezone
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +48,12 @@ def _parse_page_token(page_token: str) -> tuple[date | None, int | None]:
         return None, None
     date_str, id_str = page_token.rsplit(":", 1)
     return date.fromisoformat(date_str), int(id_str)
+
+
+def _trip_not_past() -> ColumnElement[bool]:
+    # Judged in each trip's community timezone to agree with CreatePublicTrip/UpdatePublicTrip
+    node_timezone = select(Node.timezone).where(Node.id == PublicTrip.node_id).scalar_subquery()
+    return PublicTrip.to_date >= cast(func.timezone(node_timezone, func.now()), Date)
 
 
 def _same_gender_filter(context: CouchersContext) -> ColumnElement[bool]:
@@ -258,7 +264,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             )
             .where(PublicTrip.node_id == node.id)
             .where(PublicTrip.status == PublicTripStatus.searching_for_host)
-            .where(PublicTrip.to_date >= today())
+            .where(PublicTrip.to_date >= today_in_timezone(node.timezone))
             .where(or_(PublicTrip.id <= next_page_id, to_bool(next_page_id == 0)))
             .order_by(PublicTrip.id.desc())
             .limit(page_size + 1)
@@ -299,7 +305,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
                     select(PublicTrip.node_id)
                     .where(PublicTrip.user_id == request.user_id)
                     .where(PublicTrip.status == PublicTripStatus.searching_for_host)
-                    .where(PublicTrip.to_date >= today())
+                    .where(_trip_not_past())
                     .distinct()
                 )
                 .scalars()
@@ -308,7 +314,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             viewer_is_moderator = any(can_moderate_node(session, context.user_id, nid) for nid in active_node_ids)
 
             statement = statement.where(PublicTrip.status == PublicTripStatus.searching_for_host).where(
-                PublicTrip.to_date >= today()
+                _trip_not_past()
             )
             if not viewer_is_moderator:
                 statement = statement.where(_same_gender_filter(context))
