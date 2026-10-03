@@ -23,7 +23,7 @@ from couchers.models import (
 from couchers.models.discussions import CommentVersion, ContentChangeType, ReplyVersion
 from couchers.models.notifications import NotificationTopicAction
 from couchers.moderation.utils import create_moderation
-from couchers.notifications.notify import notify
+from couchers.notifications.notify import NotificationSpec, notify_many
 from couchers.proto import notification_data_pb2, threads_pb2, threads_pb2_grpc
 from couchers.proto.internal import jobs_pb2
 from couchers.servicers.api import user_model_to_pb
@@ -93,6 +93,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
     from couchers.servicers.discussions import discussion_to_pb  # noqa: PLC0415
     from couchers.servicers.events import event_to_pb  # noqa: PLC0415
 
+    specs = []
     with session_scope() as session:
         database_id, depth = unpack_thread_id(payload.thread_id)
         if depth == 1:
@@ -127,17 +128,18 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                     if user_id == comment.author_user_id:
                         continue
                     context = make_notification_user_context(user_id=user_id)
-                    notify(
-                        session,
-                        user_id=user_id,
-                        topic_action=NotificationTopicAction.event__comment,
-                        key=str(occurrence.id),
-                        data=notification_data_pb2.EventComment(
-                            reply=reply,
-                            event=event_to_pb(session, occurrence, context),
-                            author=user_model_to_pb(author_user, session, context),
-                        ),
-                        moderation_state_id=comment.moderation_state_id,
+                    specs.append(
+                        NotificationSpec(
+                            user_id=user_id,
+                            topic_action=NotificationTopicAction.event__comment,
+                            key=str(occurrence.id),
+                            data=notification_data_pb2.EventComment(
+                                reply=reply,
+                                event=event_to_pb(session, occurrence, context),
+                                author=user_model_to_pb(author_user, session, context),
+                            ),
+                            moderation_state_id=comment.moderation_state_id,
+                        )
                     )
             elif discussion:
                 # community discussion thread
@@ -153,17 +155,18 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                         continue
 
                     context = make_notification_user_context(user_id=user_id)
-                    notify(
-                        session,
-                        user_id=user_id,
-                        topic_action=NotificationTopicAction.discussion__comment,
-                        key=str(discussion.id),
-                        data=notification_data_pb2.DiscussionComment(
-                            reply=reply,
-                            discussion=discussion_to_pb(session, discussion, context),
-                            author=user_model_to_pb(author_user, session, context),
-                        ),
-                        moderation_state_id=comment.moderation_state_id,
+                    specs.append(
+                        NotificationSpec(
+                            user_id=user_id,
+                            topic_action=NotificationTopicAction.discussion__comment,
+                            key=str(discussion.id),
+                            data=notification_data_pb2.DiscussionComment(
+                                reply=reply,
+                                discussion=discussion_to_pb(session, discussion, context),
+                                author=user_model_to_pb(author_user, session, context),
+                            ),
+                            moderation_state_id=comment.moderation_state_id,
+                        )
                     )
             else:
                 raise NotImplementedError("I can only do event and discussion threads for now")
@@ -210,38 +213,43 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                 # thread is an event occurrence thread
                 for user_id in user_ids_to_notify:
                     context = make_notification_user_context(user_id=user_id)
-                    notify(
-                        session,
-                        user_id=user_id,
-                        topic_action=NotificationTopicAction.thread__reply,
-                        key=str(occurrence.id),
-                        data=notification_data_pb2.ThreadReply(
-                            reply=reply,
-                            event=event_to_pb(session, occurrence, context),
-                            author=user_model_to_pb(author_user, session, context),
-                        ),
-                        moderation_state_id=db_reply.moderation_state_id,
+                    specs.append(
+                        NotificationSpec(
+                            user_id=user_id,
+                            topic_action=NotificationTopicAction.thread__reply,
+                            key=str(occurrence.id),
+                            data=notification_data_pb2.ThreadReply(
+                                reply=reply,
+                                event=event_to_pb(session, occurrence, context),
+                                author=user_model_to_pb(author_user, session, context),
+                            ),
+                            moderation_state_id=db_reply.moderation_state_id,
+                        )
                     )
             elif discussion:
                 # community discussion thread
                 for user_id in user_ids_to_notify:
                     context = make_notification_user_context(user_id=user_id)
-                    notify(
-                        session,
-                        user_id=user_id,
-                        topic_action=NotificationTopicAction.thread__reply,
-                        key=str(discussion.id),
-                        data=notification_data_pb2.ThreadReply(
-                            reply=reply,
-                            discussion=discussion_to_pb(session, discussion, context),
-                            author=user_model_to_pb(author_user, session, context),
-                        ),
-                        moderation_state_id=db_reply.moderation_state_id,
+                    specs.append(
+                        NotificationSpec(
+                            user_id=user_id,
+                            topic_action=NotificationTopicAction.thread__reply,
+                            key=str(discussion.id),
+                            data=notification_data_pb2.ThreadReply(
+                                reply=reply,
+                                discussion=discussion_to_pb(session, discussion, context),
+                                author=user_model_to_pb(author_user, session, context),
+                            ),
+                            moderation_state_id=db_reply.moderation_state_id,
+                        )
                     )
             else:
                 raise NotImplementedError("I can only do event and discussion threads for now")
         else:
             raise Exception("Unknown depth")
+
+    with session_scope() as session:
+        notify_many(session, specs)
 
 
 class Threads(threads_pb2_grpc.ThreadsServicer):
