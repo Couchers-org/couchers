@@ -68,13 +68,7 @@ def notify(
 
 
 def notify_many(session: Session, specs: Sequence[NotificationSpec]) -> None:
-    """
-    Queues many notifications at once, see notify().
-
-    Fan-outs should render all their specs first and then call this in a fresh, short transaction: queued jobs are
-    stamped with the transaction start time but can't be picked up until commit, so a long transaction inflates
-    measured queue latency.
-    """
+    # call this from a short transaction: the queued jobs get stamped with the transaction start time
     # Import here to avoid circular dependency
     from couchers.notifications.background import handle_notification  # noqa: PLC0415
 
