@@ -615,6 +615,8 @@ sent_request_gauge: Gauge = _make_gauge_from_query(
         select(func.count(distinct(HostRequest.initiator_user_id)))
         .join(User, User.id == HostRequest.initiator_user_id)
         .where(User.is_visible)
+        # offers on public trips are initiated by the host
+        .where(HostRequest.public_trip_id == None)
     ),
 )
 
