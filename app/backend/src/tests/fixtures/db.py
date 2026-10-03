@@ -112,9 +112,12 @@ def populate_testing_resources(conn: Connection) -> None:
     conn.execute(
         text("""
         INSERT INTO languages (code, name) VALUES
+        ('aka', 'Akan'),
         ('arb', 'Arabic (Standard)'),
         ('deu', 'German'),
         ('eng', 'English'),
+        ('fat', 'Fanti'),
+        ('fil', 'Filipino'),
         ('fin', 'Finnish'),
         ('fra', 'French'),
         ('heb', 'Hebrew'),
@@ -122,6 +125,8 @@ def populate_testing_resources(conn: Connection) -> None:
         ('jpn', 'Japanese'),
         ('pol', 'Polish'),
         ('swe', 'Swedish'),
+        ('tgl', 'Tagalog'),
+        ('twi', 'Twi'),
         ('cmn', 'Chinese (Mandarin)')
     """)
     )
