@@ -90,8 +90,9 @@ class HostRequest(Base, kw_only=True):
     hosting_location: Mapped[Geom] = mapped_column(Geometry("POINT", srid=4326))
     hosting_radius: Mapped[float] = mapped_column(Float)
 
-    # TODO: proper timezone handling
-    timezone = "Etc/UTC"
+    # Timezone at the location where they stay will happen.
+    # Initialized based on the host location at creation time, then immutable.
+    timezone: Mapped[str] = mapped_column(String)
 
     # dates in the timezone above
     from_date: Mapped[date] = mapped_column(Date)

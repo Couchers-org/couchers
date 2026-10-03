@@ -415,7 +415,7 @@ def remove_duplicates_retain_order[T](list_: Sequence[T]) -> list[T]:
     return out
 
 
-def date_in_timezone(date_: Mapped[date | None], timezone: str) -> Function[Any]:
+def date_in_timezone(date_: Mapped[date | None], timezone: str | Mapped[str]) -> Function[Any]:
     """
     Given a naive postgres date object (postgres doesn't have tzd dates), returns a timezone-aware timestamp for the
     start of that date in that timezone. E.g., if postgres is in 'America/New_York',
