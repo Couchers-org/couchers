@@ -31,7 +31,6 @@ export default function EventPage() {
   const parsedId = Number.parseInt(stringOrFirstString(router.query.id) ?? "");
   if (isNaN(parsedId)) return <NotFoundPage />;
 
-  // EventPage replaces this with /event/{id}/{slug} once the event loads.
   return <EventPageComponent eventId={parsedId} eventSlug="" />;
 }
 
