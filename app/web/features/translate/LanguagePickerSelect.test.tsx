@@ -44,7 +44,6 @@ jest.mock("i18n/useLocaleInfos", () => ({
 
 const changeLanguageMock = service.account.changeLanguage as MockedService<typeof service.account.changeLanguage>;
 
-// MUI IconButton (the notification bell) animates theme changes with this exact shorthand.
 const BELL_BACKGROUND_TRANSITION = "background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms";
 
 function transitionDeclarations(element: Element): string[] {

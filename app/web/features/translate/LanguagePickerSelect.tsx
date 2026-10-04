@@ -59,9 +59,8 @@ const StyledSelect = styled(Select, {
   ...(displayMode === "icon" && {
     width: 41.25,
     minWidth: 41.25,
-    // Notification bell is an IconButton, which transitions background-color
-    // (duration.shortest). Palette CSS variables only interpolate on properties
-    // that declare a transition; the glyph fill snaps on the bell too.
+    // Select does not inherit IconButton's background-color transition; palette
+    // CSS variables only interpolate when the property declares one.
     transition: theme.transitions.create("background-color", {
       duration: theme.transitions.duration.shortest,
     }),
