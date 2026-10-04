@@ -14,7 +14,7 @@ from couchers.models import Cluster, ClusterSubscription, Discussion, Moderation
 from couchers.models.discussions import ContentChangeType, DiscussionVersion
 from couchers.models.notifications import NotificationTopicAction
 from couchers.moderation.utils import create_moderation
-from couchers.notifications.notify import notify
+from couchers.notifications.notify import PendingNotification, notify_many
 from couchers.proto import discussions_pb2, discussions_pb2_grpc, notification_data_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.servicers.api import user_model_to_pb
@@ -66,6 +66,7 @@ def discussion_to_pb(session: Session, discussion: Discussion, context: Couchers
 
 
 def generate_create_discussion_notifications(payload: jobs_pb2.GenerateCreateDiscussionNotificationsPayload) -> None:
+    notifications = []
     with session_scope() as session:
         discussion = session.execute(select(Discussion).where(Discussion.id == payload.discussion_id)).scalar_one()
 
@@ -88,17 +89,21 @@ def generate_create_discussion_notifications(payload: jobs_pb2.GenerateCreateDis
         )
         for user in members:
             context = make_notification_user_context(user_id=user.id)
-            notify(
-                session,
-                user_id=user.id,
-                topic_action=NotificationTopicAction.discussion__create,
-                key=str(payload.discussion_id),
-                data=notification_data_pb2.DiscussionCreate(
-                    author=user_model_to_pb(discussion.creator_user, session, context),
-                    discussion=discussion_to_pb(session, discussion, context),
-                ),
-                moderation_state_id=discussion.moderation_state_id,
+            notifications.append(
+                PendingNotification(
+                    user_id=user.id,
+                    topic_action=NotificationTopicAction.discussion__create,
+                    key=str(payload.discussion_id),
+                    data=notification_data_pb2.DiscussionCreate(
+                        author=user_model_to_pb(discussion.creator_user, session, context),
+                        discussion=discussion_to_pb(session, discussion, context),
+                    ),
+                    moderation_state_id=discussion.moderation_state_id,
+                )
             )
+
+    with session_scope() as session:
+        notify_many(session, notifications)
 
 
 class Discussions(discussions_pb2_grpc.DiscussionsServicer):

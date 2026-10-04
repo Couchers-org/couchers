@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from couchers.constants import PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16
 from couchers.context import CouchersContext
+from couchers.crypto import decrypt_page_token, encrypt_page_token
 from couchers.db import can_moderate_node
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
@@ -17,7 +18,7 @@ from couchers.moderation.utils import create_moderation
 from couchers.proto import public_trips_pb2, public_trips_pb2_grpc
 from couchers.servicers.api import user_model_to_pb
 from couchers.sql import to_bool, where_moderated_content_visible, where_users_column_visible
-from couchers.utils import Timestamp_from_datetime, date_to_api, parse_date, today, today_in_timezone
+from couchers.utils import Timestamp_from_datetime, date_to_api, parse_date, today_in_timezone
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +47,7 @@ def _parse_page_token(page_token: str) -> tuple[date | None, int | None]:
     """Parse a page token into (from_date, trip_id). Returns (None, None) for first page."""
     if not page_token:
         return None, None
-    date_str, id_str = page_token.rsplit(":", 1)
+    date_str, id_str = decrypt_page_token(page_token).rsplit(":", 1)
     return date.fromisoformat(date_str), int(id_str)
 
 
@@ -241,7 +242,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "public_trips_disabled")
 
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        next_page_id = int(request.page_token) if request.page_token else 0
+        next_page_id = int(decrypt_page_token(request.page_token)) if request.page_token else 0
 
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
@@ -258,7 +259,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             )
             .where(PublicTrip.node_id == node.id)
             .where(PublicTrip.status == PublicTripStatus.searching_for_host)
-            .where(PublicTrip.to_date >= today())
+            .where(PublicTrip.end_time >= func.now())
             .where(or_(PublicTrip.id <= next_page_id, to_bool(next_page_id == 0)))
             .order_by(PublicTrip.id.desc())
             .limit(page_size + 1)
@@ -270,7 +271,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
 
         return public_trips_pb2.ListPublicTripsRes(
             public_trips=[public_trip_to_pb(trip, session, context) for trip in public_trips[:page_size]],
-            next_page_token=str(public_trips[-1].id) if len(public_trips) > page_size else None,
+            next_page_token=encrypt_page_token(str(public_trips[-1].id)) if len(public_trips) > page_size else None,
         )
 
     def ListPublicTripsByUser(
@@ -299,7 +300,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
                     select(PublicTrip.node_id)
                     .where(PublicTrip.user_id == request.user_id)
                     .where(PublicTrip.status == PublicTripStatus.searching_for_host)
-                    .where(PublicTrip.to_date >= today())
+                    .where(PublicTrip.end_time >= func.now())
                     .distinct()
                 )
                 .scalars()
@@ -308,7 +309,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             viewer_is_moderator = any(can_moderate_node(session, context.user_id, nid) for nid in active_node_ids)
 
             statement = statement.where(PublicTrip.status == PublicTripStatus.searching_for_host).where(
-                PublicTrip.to_date >= today()
+                PublicTrip.end_time >= func.now()
             )
             if not viewer_is_moderator:
                 statement = statement.where(_same_gender_filter(context))
@@ -344,7 +345,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         next_page_token = None
         if len(public_trips) > page_size:
             last = public_trips[page_size - 1]
-            next_page_token = f"{last.from_date.isoformat()}:{last.id}"
+            next_page_token = encrypt_page_token(f"{last.from_date.isoformat()}:{last.id}")
 
         return public_trips_pb2.ListPublicTripsByUserRes(
             public_trips=[public_trip_to_pb(trip, session, context) for trip in public_trips[:page_size]],

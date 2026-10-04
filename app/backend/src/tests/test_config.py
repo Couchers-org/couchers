@@ -21,7 +21,7 @@ def _complete_config(dev: bool) -> Config:
         elif var_type is bytes:
             setattr(cfg, var_name, b"x")
         elif typing.get_origin(var_type) is typing.Literal:  # type: ignore[comparison-overlap]
-            setattr(cfg, var_name, typing.get_args(var_type)[0])
+            setattr(cfg, var_name, typing.get_args(var_type)[0])  # type: ignore[unreachable]
         else:
             setattr(cfg, var_name, "x")
 
@@ -85,6 +85,11 @@ def test_setitem() -> None:
 
     with pytest.raises(TypeError):
         cfg["BASE_URL"] = 123
+
+    cfg["ROLE"] = "worker"
+    assert cfg.ROLE == "worker"
+    with pytest.raises(ValueError):
+        cfg["ROLE"] = "not a valid role"
 
 
 def test_instances_state_are_independent() -> None:

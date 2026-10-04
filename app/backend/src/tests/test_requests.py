@@ -13,6 +13,7 @@ from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.crypto import b64decode
 from couchers.db import session_scope
 from couchers.i18n import LocalizationContext
+from couchers.materialized_views import UserResponseRate
 from couchers.models import (
     Cluster,
     ClusterRole,
@@ -1996,6 +1997,29 @@ def test_response_rate(db, moderator):
         assert res.HasField("almost_all")
         assert res.almost_all.response_time_p33.ToTimedelta() == timedelta(hours=4)
         assert res.almost_all.response_time_p66.ToTimedelta() == timedelta(hours=35)
+
+
+def test_response_rate_ignores_public_trip_offers(db, moderator):
+    traveler, _ = generate_user()
+    _, surfer_token = generate_user()
+    node_id = _make_node()
+    trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+
+    # the traveller leaves every offer on their trip unanswered
+    for _ in range(3):
+        _, host_token = generate_user()
+        _create_host_request_via_api(host_token, traveler.id, moderator, public_trip_id=trip_id)
+
+    # a regular request to the traveller as a host still counts
+    _create_host_request_via_api(surfer_token, traveler.id, moderator)
+
+    with session_scope() as session:
+        refresh_materialized_view(session, "user_response_rates")
+        response_rate = session.execute(
+            select(UserResponseRate).where(UserResponseRate.user_id == traveler.id)
+        ).scalar_one()
+        assert response_rate.requests == 1
+        assert response_rate.response_rate == 0
 
 
 def test_request_notifications(db, email_collector: EmailCollector, push_collector: PushCollector, moderator):

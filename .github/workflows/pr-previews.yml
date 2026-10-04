@@ -12,8 +12,9 @@ permissions:
 jobs:
   placeholder:
     name: Placeholder
-    # GitLab doesn't build fork PRs, so they never get previews
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    # GitLab doesn't build fork PRs, so they never get previews. Dependabot runs don't get
+    # Actions secrets, so the GitLab stub job posts the placeholder for those instead.
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
