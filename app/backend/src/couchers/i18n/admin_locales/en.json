@@ -13,6 +13,7 @@
     "email_used_by_multiple_users": "That email address is used by more than one user, look them up by username or ID instead.",
     "event_community_invite_already_decided": "That event community invite was already approved/denied.",
     "event_community_invite_not_found": "Couldn't find that event community invite.",
+    "event_move_target_must_be_specified": "Specify either a community to move the event to, or recompute it from the event's location.",
     "invalid_ota_manifest": "Could not read a valid manifest (runtimeVersion, id, createdAt) from the CDN for this version.",
     "invalid_ota_platform": "Invalid OTA platform.",
     "invalid_ota_version": "An OTA package version (CDN path) is required.",

@@ -13,6 +13,7 @@ from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.crypto import b64decode
 from couchers.db import session_scope
 from couchers.i18n import LocalizationContext
+from couchers.materialized_views import UserResponseRate
 from couchers.models import (
     Cluster,
     ClusterRole,
@@ -27,6 +28,7 @@ from couchers.models import (
     NodeType,
     Notification,
     RateLimitAction,
+    RateLimitViolation,
 )
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.proto import (
@@ -518,6 +520,27 @@ def test_excessive_requests_are_reported(db, low_rate_limits, email_collector: E
             f"User {user.username} has sent {rate_limit_definition.hard_limit} host requests in the past {RATE_LIMIT_HOURS} hours."
         )
         assert "The user has been blocked from sending further host requests for now." in email.plain
+
+        with session_scope() as session:
+            assert session.execute(
+                select(RateLimitViolation.is_hard_limit)
+                .where(RateLimitViolation.user_id == user.id)
+                .order_by(RateLimitViolation.id)
+            ).scalars().all() == [False, True]
+
+        # still blocked once the hard violation is on record, without reporting again
+        host_user, _ = generate_user()
+        with pytest.raises(grpc.RpcError) as exc_info:
+            _ = api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=host_user.id,
+                    from_date=today_plus_2.isoformat(),
+                    to_date=today_plus_3.isoformat(),
+                    text=valid_request_text("Excessive test request"),
+                )
+            )
+        assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
+        assert email_collector.count_for_reports() == 0
 
 
 def add_message(db, text, author_id, conversation_id):
@@ -1976,6 +1999,29 @@ def test_response_rate(db, moderator):
         assert res.almost_all.response_time_p66.ToTimedelta() == timedelta(hours=35)
 
 
+def test_response_rate_ignores_public_trip_offers(db, moderator):
+    traveler, _ = generate_user()
+    _, surfer_token = generate_user()
+    node_id = _make_node()
+    trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+
+    # the traveller leaves every offer on their trip unanswered
+    for _ in range(3):
+        _, host_token = generate_user()
+        _create_host_request_via_api(host_token, traveler.id, moderator, public_trip_id=trip_id)
+
+    # a regular request to the traveller as a host still counts
+    _create_host_request_via_api(surfer_token, traveler.id, moderator)
+
+    with session_scope() as session:
+        refresh_materialized_view(session, "user_response_rates")
+        response_rate = session.execute(
+            select(UserResponseRate).where(UserResponseRate.user_id == traveler.id)
+        ).scalar_one()
+        assert response_rate.requests == 1
+        assert response_rate.response_rate == 0
+
+
 def test_request_notifications(db, email_collector: EmailCollector, push_collector: PushCollector, moderator):
     host, host_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
@@ -2662,6 +2708,105 @@ def test_create_request_duplicate_offer_rejected(db):
                 public_trip_id=trip_id,
             )
         )
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=surfer.id,
+                    from_date=trip_from.isoformat(),
+                    to_date=trip_to.isoformat(),
+                    text=valid_request_text(),
+                    public_trip_id=trip_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+
+def test_create_request_offer_allowed_after_withdrawal(db, moderator):
+    """Withdrawing an offer frees the host to offer again, e.g. to renegotiate dates."""
+    surfer, _ = generate_user()
+    _, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+
+    with requests_session(host_token) as api:
+        request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=trip_from.isoformat(),
+                to_date=trip_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(request_id)
+
+    with requests_session(host_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
+            )
+        )
+
+        # a second offer on shorter dates now goes through
+        res = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=trip_from.isoformat(),
+                to_date=(trip_to - timedelta(days=2)).isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        )
+        assert res.host_request_id != request_id
+
+        # ...but that new offer is active, so a third is still blocked
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=surfer.id,
+                    from_date=trip_from.isoformat(),
+                    to_date=trip_to.isoformat(),
+                    text=valid_request_text(),
+                    public_trip_id=trip_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+
+def test_create_request_offer_blocked_after_traveller_declines(db, moderator):
+    """Only the host withdrawing frees them to re-offer; being declined does not."""
+    surfer, surfer_token = generate_user()
+    _, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+
+    with requests_session(host_token) as api:
+        request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=trip_from.isoformat(),
+                to_date=trip_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(request_id)
+
+    # the traveller is the recipient on an offer, so they are the one who declines
+    with requests_session(surfer_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
+            )
+        )
+
+    with requests_session(host_token) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(

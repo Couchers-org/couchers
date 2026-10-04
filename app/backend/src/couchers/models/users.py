@@ -716,3 +716,24 @@ class HostingMeetupStatusHistory(Base, kw_only=True):
     user: Mapped[User] = relationship(init=False)
 
     __table_args__ = (Index("ix_hosting_meetup_status_history_user_id_time", user_id, time),)
+
+
+class UserEmailHistory(Base, kw_only=True):
+    """
+    Append-only log of users' email addresses. A row is written whenever a user's email is set, so a user's email at any
+    past time is that of their newest row at or before that time.
+    """
+
+    __tablename__ = "user_email_history"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    email: Mapped[str] = mapped_column(String)
+
+    user: Mapped[User] = relationship(init=False)
+
+    __table_args__ = (
+        Index("ix_user_email_history_user_id_time", user_id, time),
+        Index("ix_user_email_history_email", email),
+    )

@@ -2,12 +2,25 @@ import enum
 from datetime import date, datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import BigInteger, Boolean, CheckConstraint, Date, DateTime, Enum, ForeignKey, Index, String, func
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import (
+    BigInteger,
+    Boolean,
+    CheckConstraint,
+    Date,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Index,
+    String,
+    func,
+    text,
+)
+from sqlalchemy.orm import Mapped, column_property, mapped_column, relationship
 from sqlalchemy.sql import expression
 
 from couchers.models.base import Base
 from couchers.models.moderation import ModerationObjectType
+from couchers.utils import date_in_timezone
 
 if TYPE_CHECKING:
     from couchers.models import Node, User
@@ -38,9 +51,15 @@ class PublicTrip(Base, kw_only=True):
     # The community/location (city-level node)
     node_id: Mapped[int] = mapped_column(ForeignKey("nodes.id"), index=True)
 
+    # TODO: proper timezone handling
+    timezone = "Etc/UTC"
+
     # Trip dates
     from_date: Mapped[date] = mapped_column(Date)
     to_date: Mapped[date] = mapped_column(Date)
+
+    # timezone-aware end time of the trip, can be compared to now()
+    end_time = column_property(date_in_timezone(to_date, timezone) + text("interval '1 days'"))
 
     # User's message about their trip
     description: Mapped[str] = mapped_column(String)

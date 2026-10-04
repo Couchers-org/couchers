@@ -278,7 +278,7 @@ class Config:
             # mypy erroneously reports an error below (https://github.com/python/mypy/issues/15630)
             elif typing.get_origin(var_type) is Literal:  # type: ignore[comparison-overlap]
                 # list of allowed string values
-                options = typing.get_args(var_type)
+                options = typing.get_args(var_type)  # type: ignore[unreachable]
                 if env_value not in options:
                     raise ValueError(f"Invalid value for {var_name}, need one of {', '.join(options)}")
                 attr_value = env_value
@@ -306,7 +306,7 @@ class Config:
             raise KeyError(f"No such config key: {key}.")
 
         if typing.get_origin(var_type) is Literal:  # type: ignore[comparison-overlap]
-            options = typing.get_args(var_type)
+            options = typing.get_args(var_type)  # type: ignore[unreachable]
             if value not in options:
                 raise ValueError(f"Invalid value for {key}, need one of {', '.join(options)}")
         elif not isinstance(value, var_type):

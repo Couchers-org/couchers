@@ -112,7 +112,8 @@
       "expect_helper": "Beschreibe das Problem, das nach deinen Schritten aufgetreten ist, einschließlich etwaiger Fehlermeldungen, und was du stattdessen erwartet hättest.",
       "button_label": "Ein technisches Problem melden",
       "warning_message": "Die Informationen, die du in diesem Formular angibst, sowie Diagnosedaten – einschließlich der Seite, auf der du dich befindest, deines Browsers und deines Benutzernamens – werden zur Überprüfung durch unser Team aufgezeichnet.",
-      "success_message2": "Danke, dass du dieses Problem gemeldet und Couchers damit besser gemacht hast! Ein Bericht wurde an die Entwickler gesendet. Du kannst dich mit dieser ID auf das Problem beziehen: <id/>."
+      "success_message2": "Danke, dass du dieses Problem gemeldet und Couchers damit besser gemacht hast! Ein Bericht wurde an die Entwickler gesendet. Du kannst dich mit dieser ID auf das Problem beziehen: <id/>.",
+      "no_response_note": "<strong>Du erhältst keine Antwort.</strong> Wenn du Unterstützung brauchst, wende dich bitte an <supportLink>support@couchers.org</supportLink>."
     },
     "content": {
       "button_label": "Unangemessene Inhalte oder Verhaltensweisen melden",
@@ -222,8 +223,7 @@
     "cs": "Tschechisch",
     "de": "Deutsch",
     "en": "Englisch",
-    "es": "Spanisch (Spanien)",
-    "es-419": "Spanisch",
+    "es": "Spanisch",
     "fr": "Französisch",
     "hi": "Hindi",
     "it": "Italienisch",
@@ -343,5 +343,6 @@
   "close_button_a11y": "Schließen",
   "bar": {
     "help_button_a11y": "Hilfe"
-  }
+  },
+  "more_options_a11y": "Weitere Optionen"
 }

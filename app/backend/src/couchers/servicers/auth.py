@@ -43,6 +43,7 @@ from couchers.models import (
     PhotoGallery,
     SignupFlow,
     User,
+    UserEmailHistory,
     UserSession,
 )
 from couchers.models.notifications import NotificationTopicAction
@@ -447,6 +448,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             assert user is not None
 
             record_hosting_meetup_status(session, user, HostingMeetupStatusSource.signup)
+            session.add(UserEmailHistory(user_id=user.id, email=user.email))
 
             # Create a profile gallery for the user
             profile_gallery = PhotoGallery(owner_user_id=user.id)
@@ -695,6 +697,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         user.new_email_token = None
         user.new_email_token_created = None
         user.new_email_token_expiry = None
+        session.add(UserEmailHistory(user_id=user.id, email=user.email))
 
         notify(
             session,
