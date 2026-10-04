@@ -2391,18 +2391,23 @@
   dependencies:
     tslib "^2.8.0"
 
-"@tanstack/query-async-storage-persister@^5.102.8":
-  version "5.102.8"
-  resolved "https://registry.yarnpkg.com/@tanstack/query-async-storage-persister/-/query-async-storage-persister-5.102.8.tgz#f1ee64298b5063400381e8c8f690f98de7bce942"
-  integrity sha512-9smqFJWyhRo+0l3NqaGFo6CQVr+3jpKOVZBQXI/LL+GoTIGhhxq1wTZegeI63dy0oResZx/EyazGzDjW8harbg==
+"@tanstack/query-async-storage-persister@^5.104.0":
+  version "5.104.0"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-async-storage-persister/-/query-async-storage-persister-5.104.0.tgz#02700a0e8345ac7c3b2c94817a985f5ad989cac9"
+  integrity sha512-7pz2WgNxcvGKqbmILrmZ8DOQLOoQyqjT9HTWngYoxgjUyEses0O+GOzTjShT68snFq67EA3CFuYJs2Jna+kBIA==
   dependencies:
-    "@tanstack/query-core" "5.102.8"
-    "@tanstack/query-persist-client-core" "5.102.8"
+    "@tanstack/query-core" "5.104.0"
+    "@tanstack/query-persist-client-core" "5.104.0"
 
 "@tanstack/query-core@5.102.8":
   version "5.102.8"
   resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.102.8.tgz#c55c31b4f99124054805ce8ec8137c84108f3252"
   integrity sha512-ZNjkJ33CqvPNec/6lZBnHqLc3EVGPZ9ySLhYahU9TcuRFdmwXewuj0c4hwSWcGHqEUwcSrKeZ+oGcvPBqXcQcg==
+
+"@tanstack/query-core@5.104.0":
+  version "5.104.0"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.104.0.tgz#31e432c573b9ed383d9a9fb2ed9ba7871fcfbd17"
+  integrity sha512-JrC2r/JQlXt7khBSdUpsgxNvybzOg+aITa+ARRMlP2AFo93Y8vIqz077rp+e61mJetSZ0T6AJbwW1JHer1vrPQ==
 
 "@tanstack/query-devtools@5.102.8":
   version "5.102.8"
@@ -2415,6 +2420,13 @@
   integrity sha512-t3v4/D6ejo/BrPzM5gm/AT3c4CWPCxFa+0cIjAeHAeanGPG6rCjFS1hZnPZH/rf55qe3qYYgx5U6iBZMY1PQjA==
   dependencies:
     "@tanstack/query-core" "5.102.8"
+
+"@tanstack/query-persist-client-core@5.104.0":
+  version "5.104.0"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-persist-client-core/-/query-persist-client-core-5.104.0.tgz#166902076a568f39511fe2bdd441314ec5dc369d"
+  integrity sha512-7XEoH8+gaARK06Uw6e97WqOfus7dtcrYxA6RUf1+OZArz1Ax7Stlcfas6XRz7V2YiOTAkGKUYsk2y43QUmpiTw==
+  dependencies:
+    "@tanstack/query-core" "5.104.0"
 
 "@tanstack/react-query-devtools@^5.102.8":
   version "5.102.8"
