@@ -2,7 +2,7 @@ import { styled } from "@mui/material";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import HtmlMeta from "components/HtmlMeta";
-import { BOTTOM_NAV_BASE_HEIGHT } from "components/Navigation/constants";
+import StyledFullHeightView from "components/StyledFullHeightView";
 import { useAuthContext } from "features/auth/AuthProvider";
 import GroupChatSendField from "features/messages/groupchats/GroupChatSendField";
 import useMarkLastSeen, { MarkLastSeenVariables } from "features/messages/useMarkLastSeen";
@@ -35,28 +35,6 @@ const StyledHeader = styled("div")(({ theme }) => ({
     paddingLeft: theme.spacing(1),
     paddingRight: theme.spacing(1),
   },
-}));
-
-const StyledPageWrapper = styled("div")<{
-  isNativeEmbed: boolean;
-  embedded: boolean;
-}>(({ theme, isNativeEmbed, embedded }) => ({
-  display: "flex",
-  flexDirection: "column",
-  overflow: "hidden", // Prevent page scroll - only messages should scroll
-  ...(embedded
-    ? { flex: 1, minHeight: 0 }
-    : {
-        // Use dvh (dynamic viewport height) which adjusts for mobile keyboard
-        // Use CSS custom property set by Navigation component for actual height
-        height: isNativeEmbed
-          ? "calc(100dvh - var(--nav-height, 3.5rem) - var(--cookie-banner-height, 0px))"
-          : `calc(100dvh - var(--nav-height, 3.5rem) - ${BOTTOM_NAV_BASE_HEIGHT}px - env(safe-area-inset-bottom, 0px) - var(--cookie-banner-height, 0px))`,
-
-        [theme.breakpoints.up("md")]: {
-          height: "calc(100dvh - var(--nav-height, 4rem) - var(--cookie-banner-height, 0px))",
-        },
-      }),
 }));
 
 // Footer is fixed at bottom - never scrolls away
@@ -140,7 +118,8 @@ export default function GroupChatView({ chatId, embedded = false }: { chatId: nu
       {!chatId ? (
         <Alert severity="error">{t("messages:chat_view.invalid_id_error")}</Alert>
       ) : (
-        <StyledPageWrapper isNativeEmbed={isNativeEmbed} embedded={embedded}>
+        // Prevent page scroll - only messages should scroll
+        <StyledFullHeightView isNativeEmbed={isNativeEmbed} embedded={embedded} noOverflow>
           <StyledHeader>
             <GroupChatHeaderBar
               chatId={chatId}
@@ -176,7 +155,7 @@ export default function GroupChatView({ chatId, embedded = false }: { chatId: nu
               <StyledCannotMessageText>{t("messages:chat_view.cannot_message_text")}</StyledCannotMessageText>
             )}
           </StyledFooter>
-        </StyledPageWrapper>
+        </StyledFullHeightView>
       )}
     </>
   );
