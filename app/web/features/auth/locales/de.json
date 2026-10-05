@@ -45,7 +45,7 @@
     },
     "opt_in_newsletter": "Abonnieren unseren gelegentlichen Newsletter über Community-Updates."
   },
-  "sign_up_completed_prompt": "Wir haben eine E-Mail mit einem Bestätigungslink an deine E-Mail-Adresse gesendet. Bitte klicke auf den Link, um deinen Account zu aktivieren.",
+  "sign_up_completed_prompt": "Wir haben eine E-Mail mit einem Bestätigungslink an deine E-Mail-Adresse gesendet: <strong>{{email}}</strong>. Bitte klicke auf den Link, um deinen Account zu aktivieren.",
   "change_email_form": {
     "title": "E-Mail-Adresse ändern",
     "current_email_message": "Deine aktuelle E-Mail-Adresse lautet <strong>{{email}}</strong>.",
@@ -404,5 +404,11 @@
     "surfing_description": "Ich plane eine Reise und suche einen Host",
     "hosting_description": "Ich würde gerne Reisende in meiner Stadt hosten und willkommen heißen",
     "something_else_description": "Ich schaue mich nur um oder habe mich noch nicht entschieden"
-  }
+  },
+  "change_signup_email_form": {
+    "title": "Anmelde-E-Mail ändern",
+    "current_email_message": "Deine aktuelle E-Mail-Adresse lautet <strong>{{email}}</strong>.",
+    "signup_change_email": "E-Mail-Adresse ändern"
+  },
+  "sign_up_change_email": "Hast du dich bei deiner E-Mail-Adresse vertippt? Gib hier deine korrekte E-Mail-Adresse ein:"
 }
