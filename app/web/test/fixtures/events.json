@@ -21,6 +21,7 @@
     "isDeleted": false,
     "canEdit": false,
     "canModerate": false,
+    "communityInviteRequested": false,
     "isNext": false,
     "location": {
       "address": "Concertgebouw",
@@ -57,6 +58,7 @@
     "isDeleted": false,
     "canEdit": false,
     "canModerate": false,
+    "communityInviteRequested": false,
     "isNext": false,
     "location": {
       "address": "Mayjor A. Colijnweg 68, Amstelveen",
@@ -93,6 +95,7 @@
     "isDeleted": false,
     "canEdit": false,
     "canModerate": false,
+    "communityInviteRequested": false,
     "isNext": false,
     "location": {
       "address": "Amsterdam",
@@ -129,6 +132,7 @@
     "isDeleted": false,
     "canEdit": false,
     "canModerate": false,
+    "communityInviteRequested": false,
     "isNext": false,
     "location": {
       "address": "Mayjor A. Colijnweg 68, Amstelveen",
