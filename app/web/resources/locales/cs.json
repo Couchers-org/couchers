@@ -300,7 +300,7 @@
     "uk": "Ukrajinština",
     "zh-Hans": "Čínština (zjednodušená)",
     "zh-Hant": "Čínština (tradiční)",
-    "es": "Španělština (Španělsko)",
+    "es": "Španělština",
     "fr": "Francouzština",
     "hi": "Hindština",
     "it": "Italština",
@@ -346,6 +346,5 @@
     "help_button_a11y": "Nápověda"
   },
   "close_button_a11y": "Zavřít",
-  "more_options_a11y": "Další možnosti",
-  "tap_press_to_flip": "Klikni / stiskni pro otočení"
+  "more_options_a11y": "Další možnosti"
 }

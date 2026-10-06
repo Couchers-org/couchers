@@ -20,6 +20,17 @@ Sentry.init({
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#sendDefaultPii
   sendDefaultPii: true,
 
+  beforeSend(event) {
+    // Chrome's page translation swaps text nodes for <font> elements behind React's back, which
+    // causes DOM errors like "Failed to execute 'insertBefore' on 'Node'"
+    const { classList } = document.documentElement;
+    event.tags = {
+      ...event.tags,
+      is_chrome_translated: classList.contains("translated-ltr") || classList.contains("translated-rtl"),
+    };
+    return event;
+  },
+
   // Note: if you want to override the automatic release value, do not set a
   // `release` value here - use the environment variable `SENTRY_RELEASE`, so
   // that it will also get attached to your source maps

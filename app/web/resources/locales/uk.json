@@ -28,7 +28,7 @@
   "thanks": "Дякуємо!",
   "donation_banner": {
     "message": "Couchers.org засновано на доброті - як і сама гостинність. Цього святкового сезону, допоможіть нам підтримувати такий стан речей. Ми збираємо {{goal}} аби покрити витрати на роботу Couchers.org.",
-    "button": "Зробити внесок зараз",
+    "button": "Задонатити зараз",
     "progress_label": "Внесок у процесі"
   },
   "community_standing": "Рейтинг спільноти",
@@ -47,7 +47,6 @@
     "read_file_error_message": "Неможливо прочитати файл"
   },
   "read_more": "Читати ще",
-  "tap_press_to_flip": "Торкніться / натисність щоб перегорнути",
   "next": "Наступна",
   "previous": "Попередня",
   "mod": "Модерація",
@@ -175,7 +174,7 @@
     "community": "Спільнота",
     "communities": "Спільноти",
     "dashboard": "Головна",
-    "donate": "Зробити внесок",
+    "donate": "Задонатити",
     "events": "Події",
     "faq": "ЧаПи",
     "help_center": "Центр підтримки",
@@ -315,7 +314,7 @@
   "blog": {
     "byline_with_author": "Автор(и): <authorList/>. Опубліковано {{date}}.",
     "byline_without_author": "Опубліковано {{date}}.",
-    "cta_message": "Хочете допомогти писати наш блог або стати волонтером? <volunteerLink>Запишіться</volunteerLink> та повідомте нас. Волонтери та <donateLink>доброчинні внески</donateLink>це те що робить Couchers.org можливим!"
+    "cta_message": "Хочете допомогти писати наш блог або стати волонтером? <volunteerLink>Запишіться</volunteerLink> та повідомте нас. Волонтери та <donateLink>донати</donateLink>це те що робить Couchers.org можливим!"
   },
   "error_loading_languages": "Не вдалося завантажити список мов",
   "language_names": {

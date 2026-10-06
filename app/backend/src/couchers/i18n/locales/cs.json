@@ -127,7 +127,8 @@
     "missing_event_address_or_location": "Chybějící adresa nebo lokace události.",
     "missing_event_title": "Chybějící název události.",
     "too_many_sms_code_attempts": "Příliš mnoho pokusů o zadání SMS kódu.",
-    "invalid_donation_frequency": "Neplatná frekvence příspěvku."
+    "invalid_donation_frequency": "Neplatná frekvence příspěvku.",
+    "undelete_email_reused": "Přístup k tomuto účtu nelze obnovit, protože jeho emailová adresa je nyní používána jiným účtem."
   },
   "badges": {
     "postal_verified_name": "Ověřená adresa",
