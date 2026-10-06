@@ -1,9 +1,8 @@
 import html
 import re
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlparse
-from zoneinfo import ZoneInfo
 
 import grpc
 import pytest
@@ -285,7 +284,9 @@ def test_create_request_records_host_timezone(db, moderator):
 
     moderator.approve_host_request(create_res.host_request_id)
 
-    assert create_res.timezone == "Europe/Helsinki"
+    with requests_session(surfer_token) as api:
+        get_res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=create_res.host_request_id))
+        assert get_res.timezone == "Europe/Helsinki"
 
     # The host request timezone shouldn't change if the host then moves to a different timezone
     # Otherwise this would affect all historical host requests.

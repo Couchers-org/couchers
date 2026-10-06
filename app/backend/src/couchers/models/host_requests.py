@@ -15,6 +15,7 @@ from sqlalchemy import (
     Index,
     String,
     func,
+    select,
     text,
 )
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -23,6 +24,7 @@ from sqlalchemy.sql import expression
 
 from couchers.models.base import Base, Geom
 from couchers.models.moderation import ModerationObjectType
+from couchers.models.static import TimezoneArea
 from couchers.utils import date_in_timezone, now
 
 if TYPE_CHECKING:
@@ -90,13 +92,21 @@ class HostRequest(Base, kw_only=True):
     hosting_location: Mapped[Geom] = mapped_column(Geometry("POINT", srid=4326))
     hosting_radius: Mapped[float] = mapped_column(Float)
 
-    # Timezone at the location where they stay will happen.
-    # Initialized based on the host location at creation time, then immutable.
-    timezone: Mapped[str] = mapped_column(String)
-
-    # dates in the timezone above
+    # from/to dates, local to the stay's timezone
     from_date: Mapped[date] = mapped_column(Date)
     to_date: Mapped[date] = mapped_column(Date)
+
+    # Timezone at the location of the stay.
+    # Not deferred because we always need it to interpret the dates.
+    timezone: Mapped[str] = column_property(
+        func.coalesce(
+            select(TimezoneArea.tzid)
+            .where(func.ST_Contains(TimezoneArea.geom, hosting_location))
+            .limit(1)
+            .scalar_subquery(),
+            "Etc/UTC",
+        )
+    )
 
     # timezone-aware start and end times of the request, can be compared to now()
     start_time = column_property(date_in_timezone(from_date, timezone))

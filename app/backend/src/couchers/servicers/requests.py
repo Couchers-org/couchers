@@ -194,9 +194,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         # an offer on a public trip reverses the roles: the caller is the host and the recipient is the traveller
         surfer_user, host_user = (user, recipient) if public_trip_id is None else (recipient, user)
 
-        # the dates are in the host's timezone, recorded on the request since the host may move later
-        host_timezone = host_user.timezone or "Etc/UTC"
-        today = today_in_timezone(host_timezone)
+        # the dates are in the timezone at the host's location
+        today = today_in_timezone(host_user.timezone or "Etc/UTC")
 
         # request starts from the past
         if from_date < today:
@@ -327,7 +326,6 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             to_date=to_date,
             status=HostRequestStatus.pending,
             initiator_last_seen_message_id=message.id,
-            timezone=host_timezone,
             hosting_city=host_user.city,
             hosting_location=host_user.geom,
             hosting_radius=host_user.geom_radius,
