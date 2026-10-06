@@ -12,14 +12,15 @@ import { BackIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import MarkdownInput from "components/MarkdownInput";
 import PageTitle from "components/PageTitle";
+import RelativeTime from "components/RelativeTime";
 import TextField from "components/TextField";
 import { contentRefs } from "features/contentRefs";
 import FlagButton from "features/FlagButton";
 import { discussionKey } from "features/queryKeys";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { localizeDateOnly, localizeRelativeTime } from "i18n/datetimes";
+import { Trans, useTranslation } from "i18n";
+import { localizeDateOnly } from "i18n/datetimes";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Discussion } from "proto/discussions_pb";
@@ -279,9 +280,13 @@ export default function DiscussionPage({ discussionId }: { discussionId: number 
                             )}
                             {discussion.lastEdited && (
                               <Typography variant="body2">
-                                {t("communities:discussion_edited_date", {
-                                  timeAgo: localizeRelativeTime(discussion.lastEdited, locale),
-                                })}
+                                <Trans
+                                  t={t}
+                                  i18nKey="communities:discussion_edited_date2"
+                                  components={{
+                                    timeAgo: <RelativeTime instant={discussion.lastEdited} />,
+                                  }}
+                                />
                               </Typography>
                             )}
                           </StyledCreatorDetailsContainer>

@@ -1,8 +1,8 @@
 import { ChatBubbleOutlined, ChevronRight, Place, Schedule } from "@mui/icons-material";
 import { Skeleton, styled } from "@mui/material";
+import RelativeTime from "components/RelativeTime";
 import getContentSummary from "features/communities/getContentSummary";
 import { useTranslation } from "i18n";
-import { localizeRelativeTime } from "i18n/datetimes";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
 import { Discussion } from "proto/discussions_pb";
@@ -99,12 +99,8 @@ export function DiscussionListRowSkeleton() {
 }
 
 export default function DiscussionListRow({ discussion }: DiscussionListRowProps) {
-  const {
-    t,
-    i18n: { language: locale },
-  } = useTranslation([DASHBOARD, GLOBAL]);
+  const { t } = useTranslation([DASHBOARD, GLOBAL]);
 
-  const timeStr = discussion.created ? localizeRelativeTime(discussion.created, locale) : "";
   const commentCount = discussion.thread?.numResponses ?? 0;
   const teaser = getContentSummary({
     originalContent: discussion.content?.replace(/\n/g, " "),
@@ -121,7 +117,7 @@ export default function DiscussionListRow({ discussion }: DiscussionListRowProps
           <MetaText>{discussion.ownerTitle}</MetaText>
           <MetaDot>·</MetaDot>
           <Schedule sx={{ fontSize: "11px", flexShrink: 0 }} />
-          <span style={{ flexShrink: 0 }}>{timeStr}</span>
+          <span style={{ flexShrink: 0 }}>{discussion.created && <RelativeTime instant={discussion.created} />}</span>
           <MetaDot>·</MetaDot>
           <ChatBubbleOutlined sx={{ fontSize: "11px", flexShrink: 0 }} />
           <span style={{ flexShrink: 0 }}>
