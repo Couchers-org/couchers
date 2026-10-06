@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-09-27 16:37+0000\n"
+"PO-Revision-Date: 2026-10-04 21:41+0000\n"
 "Last-Translator: Oleh S <olewa@protonmail.com>\n"
 "Language-Team: Ukrainian <https://translate.couchershq.org/projects/couchers/glossary-key-terms/uk/>\n"
 "Language: uk\n"
@@ -148,7 +148,7 @@ msgstr "обговорення"
 
 #. (verb) The act of donating money to Couchers.org.
 msgid "donate"
-msgstr "зробити внесок"
+msgstr "Задонатити / зробити внесок"
 
 #. (verb) The act of donating money to Couchers.org.
 msgid "donating"
@@ -156,7 +156,7 @@ msgstr "підтримуючи фінансово"
 
 #. (noun) Money donated to Couchers.org.
 msgid "donation"
-msgstr "внесок"
+msgstr "донат / внесок"
 
 #. (noun) Money donated to Couchers.org.
 msgid "donations"
@@ -185,7 +185,7 @@ msgstr "запит на дружбу"
 
 #. (noun) Requests to add other users as friends.
 msgid "friend_requests"
-msgstr "запити на дружбу"
+msgstr "запрошення у друзі"
 
 #. (noun) Other users confirmed as friends using the friend feature.
 msgid "friends"
@@ -223,7 +223,7 @@ msgstr "приймаю у себе (гостей/гостя)"
 
 #. A user's willingness to host surfers.
 msgid "hosting_status"
-msgstr "доступність"
+msgstr "доступність для гостей"
 
 #. (noun) The process of establishing a hosting relationship.
 msgid "host_request"
