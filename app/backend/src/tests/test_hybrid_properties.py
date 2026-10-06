@@ -310,7 +310,6 @@ def _host_request(
         moderation_state_id=moderation_state.id,
         from_date=to_date - timedelta(days=2),
         to_date=to_date,
-        timezone="Etc/UTC",
         status=status,
         hosting_city="Testing city",
         hosting_location=create_coordinate(40.7108, -73.9740),
