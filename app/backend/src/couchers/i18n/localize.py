@@ -5,13 +5,17 @@ Most code should use the higher-level couchers.i18n.LocalizationContext object.
 
 import re
 from collections.abc import Sequence
+from copy import copy
 from datetime import date, datetime, time, tzinfo
+from decimal import Decimal
 from typing import cast
 
 import babel
 import phonenumbers
 from babel.dates import get_datetime_format, get_timezone_name, match_skeleton, parse_pattern
 from babel.lists import format_list
+from babel.numbers import format_currency
+from babel.numbers import parse_pattern as parse_number_pattern
 
 from couchers.resources import get_region_code_iso3166_alpha3_to_alpha2
 
@@ -168,6 +172,22 @@ def _combine_cldr_date_time_patterns(locale: babel.Locale, date_pattern: str, ti
 
     # CLDR defines {0} to be the time and {1} to be the date
     return combining_format.replace("{1}", date_pattern).replace("{0}", time_pattern)
+
+
+def localize_currency(
+    amount: Decimal, currency_iso4217: str, locale: babel.Locale, *, keep_trailing_zeros: bool = False
+) -> str:
+    """
+    Formats a monetary amount with its currency for the given locale, e.g. "$25.50" or "25,50 $US".
+    Whole amounts are formatted without decimals ("$25") unless keep_trailing_zeros is set.
+    """
+    if amount == amount.to_integral_value() and not keep_trailing_zeros:
+        # Tweak the format to remove decimal places
+        pattern = copy(parse_number_pattern(locale.currency_formats["standard"]))
+        pattern.frac_prec = (0, 0)
+        return format_currency(amount, currency_iso4217, format=pattern, locale=locale, currency_digits=False)
+
+    return format_currency(amount, currency_iso4217, locale=locale)
 
 
 def localize_timezone(timezone: tzinfo, locales: list[babel.Locale], *, short: bool = False) -> str:

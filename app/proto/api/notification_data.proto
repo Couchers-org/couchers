@@ -96,9 +96,11 @@ message EmailAddressChange {
 }
 
 message DonationReceived {
-  // whole dollar amount
-  int64 amount = 1;
+  // Whole USD dollar amount. Deprecated in favor of amount_decimal + currency_iso4217.
+  int64 amount_usd = 1 [deprecated = true];
   string receipt_url = 2;
+  string amount_decimal = 3; // e.g. "25.50", in major units of the currency
+  string currency_iso4217 = 4; // e.g. "USD"
 }
 
 message PasswordResetStart {

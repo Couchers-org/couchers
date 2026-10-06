@@ -3,7 +3,7 @@ from unittest.mock import patch
 from urllib.parse import parse_qs, urlparse
 
 import pytest
-from sqlalchemy import func, select, update
+from sqlalchemy import func, update
 
 from couchers.config import config
 from couchers.context import make_background_user_context, make_logged_out_context
@@ -12,7 +12,6 @@ from couchers.db import session_scope
 from couchers.i18n import LocalizationContext
 from couchers.models import (
     ContentReport,
-    Email,
     ModerationObjectType,
     ModerationState,
     ModerationVisibility,
@@ -348,8 +347,9 @@ def test_email_prefix_config(db, email_collector: EmailCollector):
             topic_action=NotificationTopicAction.donation__received,
             key="",
             data=notification_data_pb2.DonationReceived(
-                amount=20,
                 receipt_url="https://example.com/receipt/12345",
+                amount_decimal="20",
+                currency_iso4217="USD",
             ),
         )
 
@@ -369,8 +369,9 @@ def test_email_prefix_config(db, email_collector: EmailCollector):
             topic_action=NotificationTopicAction.donation__received,
             key="",
             data=notification_data_pb2.DonationReceived(
-                amount=20,
                 receipt_url="https://example.com/receipt/12345",
+                amount_decimal="20",
+                currency_iso4217="USD",
             ),
         )
 
@@ -380,10 +381,8 @@ def test_email_prefix_config(db, email_collector: EmailCollector):
     assert email2.subject == "Thank you for your donation to Couchers.org!"
 
 
-def test_send_donation_email(db):
+def test_send_donation_email(db, email_collector: EmailCollector):
     user, _ = generate_user(name="Testy von Test", email="testing@couchers.org.invalid")
-
-    config.ENABLE_EMAIL = True
 
     with session_scope() as session:
         notify(
@@ -392,20 +391,17 @@ def test_send_donation_email(db):
             topic_action=NotificationTopicAction.donation__received,
             key="",
             data=notification_data_pb2.DonationReceived(
-                amount=20,
                 receipt_url="https://example.com/receipt/12345",
+                amount_decimal="20.00",
+                currency_iso4217="USD",
             ),
         )
 
-    with patch("couchers.email.smtp.smtplib.SMTP"):
-        process_jobs()
-
-    with session_scope() as session:
-        email = session.execute(select(Email)).scalar_one()
-        assert email.subject == "[TEST] Thank you for your donation to Couchers.org!"
-        assert (
-            email.plain
-            == """Hi Testy von Test,
+    email = email_collector.pop_for_recipient(user.email, last=True)
+    assert email.subject == "[TEST] Thank you for your donation to Couchers.org!"
+    assert (
+        email.plain
+        == """Hi Testy von Test,
 
 Thank you so much for your donation of $20 to Couchers.org.
 
@@ -428,15 +424,36 @@ Couchers.org Founders
 
 This is a security email, you cannot unsubscribe from it.
 """
+    )
+
+    assert "Thank you so much for your donation of <b>$20</b> to Couchers.org." in email.html
+    assert email.sender_name == "Couchers.org"
+    assert email.sender_email == "notify@couchers.org.invalid"
+    assert email.recipient == "testing@couchers.org.invalid"
+    assert "https://example.com/receipt/12345" in email.html
+    assert not email.list_unsubscribe_header
+    assert email.source_data and ("donation:received" in email.source_data)
+
+
+# TODO(#9883): Remove once there are no more notifications without amount_decimal.
+def test_send_donation_email_legacy_amount(db, email_collector: EmailCollector):
+    # Notifications created before amount_decimal was introduced only carry a whole USD amount
+    user, _ = generate_user(email="testing@couchers.org.invalid")
+
+    with session_scope() as session:
+        notify(
+            session,
+            user_id=user.id,
+            topic_action=NotificationTopicAction.donation__received,
+            key="",
+            data=notification_data_pb2.DonationReceived(
+                amount_usd=20,
+                receipt_url="https://example.com/receipt/12345",
+            ),
         )
 
-        assert "Thank you so much for your donation of <b>$20</b> to Couchers.org." in email.html
-        assert email.sender_name == "Couchers.org"
-        assert email.sender_email == "notify@couchers.org.invalid"
-        assert email.recipient == "testing@couchers.org.invalid"
-        assert "https://example.com/receipt/12345" in email.html
-        assert not email.list_unsubscribe_header
-        assert email.source_data and ("donation:received" in email.source_data)
+    email = email_collector.pop_for_recipient(user.email, last=True)
+    assert "Thank you so much for your donation of $20 to Couchers.org." in email.plain
 
 
 def test_chat_missed_messages_list_unsubscribe_header(db, email_collector: EmailCollector):
