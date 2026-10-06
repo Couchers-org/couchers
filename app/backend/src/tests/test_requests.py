@@ -6,6 +6,7 @@ from urllib.parse import parse_qs, urlparse
 
 import grpc
 import pytest
+from google.protobuf import wrappers_pb2
 from sqlalchemy import func, select
 from sqlalchemy_utils import refresh_materialized_view
 
@@ -265,6 +266,40 @@ def test_create_host_request_date_valid_when_host_behind_requester(db):
                 )
             )
             assert res.host_request_id
+
+
+def test_create_request_records_host_timezone(db, frozen_timewarp, moderator):
+    surfer, surfer_token = generate_user()  # default geom resolves to America/New_York
+    # geom inside the fake Europe/Helsinki timezone polygon used in tests
+    host, host_token = generate_user(geom=create_coordinate(61, 25))
+
+    with requests_session(surfer_token) as api:
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=(today() + timedelta(days=2)).isoformat(),
+                to_date=(today() + timedelta(days=3)).isoformat(),
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(host_request_id)
+
+    with requests_session(surfer_token) as api:
+        get_res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert get_res.timezone == "Europe/Helsinki"
+
+    # The host request timezone shouldn't change if the host then moves to a different timezone
+    # Otherwise this would affect all historical host requests.
+    with api_session(host_token) as api:
+        api.UpdateProfile(
+            api_pb2.UpdateProfileReq(lat=wrappers_pb2.DoubleValue(value=0.01), lng=wrappers_pb2.DoubleValue(value=0.01))
+        )
+        assert api.GetUser(api_pb2.GetUserReq(user=host.username)).timezone != "Europe/Helsinki"
+
+    with requests_session(surfer_token) as api:
+        get_res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert get_res.timezone == "Europe/Helsinki"
 
 
 def test_create_request_duplicate_within_window(db):
