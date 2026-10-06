@@ -273,19 +273,19 @@ def test_create_request_records_host_timezone(db, moderator):
     host, host_token = generate_user(geom=create_coordinate(61, 25))
 
     with requests_session(surfer_token) as api:
-        create_res = api.CreateHostRequest(
+        host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=host.id,
                 from_date=(today() + timedelta(days=2)).isoformat(),
                 to_date=(today() + timedelta(days=3)).isoformat(),
                 text=valid_request_text(),
             )
-        )
+        ).host_request_id
 
-    moderator.approve_host_request(create_res.host_request_id)
+    moderator.approve_host_request(host_request_id)
 
     with requests_session(surfer_token) as api:
-        get_res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=create_res.host_request_id))
+        get_res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
         assert get_res.timezone == "Europe/Helsinki"
 
     # The host request timezone shouldn't change if the host then moves to a different timezone
@@ -297,7 +297,7 @@ def test_create_request_records_host_timezone(db, moderator):
         assert api.GetUser(api_pb2.GetUserReq(user=host.username)).timezone != "Europe/Helsinki"
 
     with requests_session(surfer_token) as api:
-        get_res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=create_res.host_request_id))
+        get_res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
         assert get_res.timezone == "Europe/Helsinki"
 
 
