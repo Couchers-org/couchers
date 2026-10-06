@@ -12,14 +12,7 @@ from sqlalchemy import select
 from couchers.config import config
 from couchers.db import session_scope
 from couchers.jobs.handlers import update_badges
-from couchers.models import (
-    DonationInitiation,
-    DonationType,
-    Invoice,
-    InvoiceType,
-    User,
-    UserBadge,
-)
+from couchers.models import DonationInitiation, DonationType, Invoice, InvoiceType, User, UserBadge
 from couchers.proto import donations_pb2
 from couchers.proto.google.api import httpbody_pb2
 from tests.fixtures.db import generate_user
