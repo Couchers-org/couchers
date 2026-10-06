@@ -267,7 +267,7 @@ def test_create_host_request_date_valid_when_host_behind_requester(db):
             assert res.host_request_id
 
 
-def test_create_request_records_host_timezone(db, moderator):
+def test_create_request_records_host_timezone(db, frozen_timewarp, moderator):
     surfer, surfer_token = generate_user()  # default geom resolves to America/New_York
     # geom inside the fake Europe/Helsinki timezone polygon used in tests
     host, host_token = generate_user(geom=create_coordinate(61, 25))
