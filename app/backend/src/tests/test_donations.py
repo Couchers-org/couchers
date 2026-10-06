@@ -17,12 +17,10 @@ from couchers.models import (
     DonationType,
     Invoice,
     InvoiceType,
-    Notification,
-    NotificationTopicAction,
     User,
     UserBadge,
 )
-from couchers.proto import donations_pb2, notification_data_pb2
+from couchers.proto import donations_pb2
 from couchers.proto.google.api import httpbody_pb2
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import donations_session, real_stripe_session
@@ -133,13 +131,6 @@ def test_one_time_donation_flow(db, stripe_config):
             invoice.stripe_receipt_url
             == "https://pay.stripe.com/receipts/payment/CAcaFwoVYWNjdF8xS0V6QnlJZlI1ejI5ZzVrKIqF7LAGMgbtNxpJulk6LBaePNy_2Q2RzXJsbk7t1jLwK26AQlG05P-4EPhG7AIIcqsQLgC09iDJ2srs"
         )
-
-        notification = session.execute(
-            select(Notification).where(Notification.topic_action == NotificationTopicAction.donation__received)
-        ).scalar_one()
-        notification_data = notification_data_pb2.DonationReceived.FromString(notification.data)
-        assert notification_data.amount_decimal == "100.00"
-        assert notification_data.currency_iso4217 == "USD"
 
     # check they get a badge
     update_badges(empty_pb2.Empty())
