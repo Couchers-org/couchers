@@ -1,4 +1,15 @@
-import { filterDuplicatePlaces, NominatimPlace, simplifyPlaceDisplayName } from "./nominatim";
+import { rest, server } from "test/restMock";
+
+import {
+  filterDuplicatePlaces,
+  NominatimError,
+  NominatimPlace,
+  normalize,
+  search,
+  simplifyPlaceDisplayName,
+} from "./nominatim";
+
+const SEARCH_URL = `${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`;
 
 describe("Nominatim utilities", () => {
   describe("simplifyPlaceDisplayName", () => {
@@ -387,6 +398,138 @@ describe("Nominatim utilities", () => {
       const actual = filterDuplicatePlaces([regionOnly] as NominatimPlace[]);
       expect(actual).toHaveLength(1);
       expect(actual[0].place_id).toBe(1);
+    });
+  });
+
+  describe("normalize", () => {
+    it("rotates the bounding box into GeocodeResult ordering and coerces numbers", () => {
+      const place = {
+        display_name: "Berlin, Germany",
+        lat: "52.5",
+        lon: "13.4",
+        // Nominatim order: [minLat, maxLat, minLon, maxLat]
+        boundingbox: ["52.3", "52.7", "13.0", "13.8"],
+        address: { city: "Berlin", country: "Germany" },
+      } as unknown as NominatimPlace;
+
+      const result = normalize(place);
+
+      expect(result.bbox).toEqual([13.8, 52.7, 13.0, 52.3]);
+      expect(result.location.lng).toBe(13.4);
+      expect(result.location.lat).toBe(52.5);
+      expect(result.name).toBe("Berlin, Germany");
+      expect(result.simplifiedName).toBe("Berlin, Germany");
+      expect(result.isRegion).toBe(false);
+    });
+
+    it("never sets an id, since Nominatim cannot supply a Pelias gid", () => {
+      const place = {
+        display_name: "Berlin, Germany",
+        lat: "52.5",
+        lon: "13.4",
+        boundingbox: ["52.3", "52.7", "13.0", "13.8"],
+        address: { city: "Berlin", country: "Germany" },
+      } as unknown as NominatimPlace;
+
+      expect(normalize(place).id).toBeUndefined();
+    });
+
+    it("marks a place with no locality-level key as a region", () => {
+      const place = {
+        display_name: "Bavaria, Germany",
+        lat: "48.7",
+        lon: "11.5",
+        boundingbox: ["47.2", "50.6", "8.9", "13.9"],
+        address: { state: "Bavaria", country: "Germany" },
+      } as unknown as NominatimPlace;
+
+      expect(normalize(place).isRegion).toBe(true);
+    });
+  });
+
+  describe("search", () => {
+    beforeAll(() => {
+      server.listen();
+    });
+    afterEach(() => {
+      server.resetHandlers();
+    });
+    afterAll(() => {
+      server.close();
+    });
+
+    it("requests the query and locale, and returns deduplicated results", async () => {
+      let requestUrl: URL | undefined;
+      server.use(
+        rest.get(SEARCH_URL, (req, res, ctx) => {
+          requestUrl = new URL(req.url.toString());
+          return res(
+            ctx.json([
+              {
+                place_id: 1,
+                display_name: "Berlin, Berlin, Germany",
+                lat: "52.5",
+                lon: "13.4",
+                boundingbox: ["52.3", "52.7", "13.0", "13.8"],
+                importance: 0.9,
+                address: {
+                  city: "Berlin",
+                  state: "Berlin",
+                  country: "Germany",
+                },
+              },
+              {
+                place_id: 2,
+                display_name: "Berlin (city), Berlin, Germany",
+                lat: "52.6",
+                lon: "13.5",
+                boundingbox: ["52.3", "52.7", "13.0", "13.8"],
+                importance: 0.4,
+                address: {
+                  city: "Berlin",
+                  state: "Berlin",
+                  country: "Germany",
+                },
+              },
+            ]),
+          );
+        }),
+      );
+
+      const { results, places } = await search("berlin", { language: "de-DE" });
+
+      expect(requestUrl?.searchParams.get("q")).toBe("berlin");
+      expect(requestUrl?.searchParams.get("accept-language")).toBe("de-DE");
+      expect(requestUrl?.searchParams.get("addressdetails")).toBe("1");
+      expect(places).toHaveLength(2);
+      // Both collapse to the same display name; the more important one wins.
+      expect(results).toHaveLength(1);
+      expect(results[0].name).toBe("Berlin, Berlin, Germany");
+    });
+
+    it("omits accept-language when no locale is given", async () => {
+      let requestUrl: URL | undefined;
+      server.use(
+        rest.get(SEARCH_URL, (req, res, ctx) => {
+          requestUrl = new URL(req.url.toString());
+          return res(ctx.json([]));
+        }),
+      );
+
+      await search("berlin");
+
+      expect(requestUrl?.searchParams.has("accept-language")).toBe(false);
+    });
+
+    it("throws a NominatimError on a non-2xx response", async () => {
+      server.use(
+        rest.get(SEARCH_URL, (_req, res, ctx) => {
+          return res(ctx.status(429), ctx.text("rate limited"));
+        }),
+      );
+
+      await expect(search("berlin")).rejects.toThrow(NominatimError);
+      await expect(search("berlin")).rejects.toThrow("rate limited");
     });
   });
 });

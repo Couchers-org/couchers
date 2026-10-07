@@ -34,5 +34,14 @@
   "close": "Fechar",
   "terms_of_service": "Termos de Serviço",
   "community_standing_description": "Calculado a partir de vários fatores, como referências e envolvimento da comunidade.",
-  "cookie_message": "Utilizamos cookies para garantir que lhe proporcionamos a melhor experiência no nosso website. Se continuar a utilizar este site, assumiremos que está satisfeito com isso. Pode ler mais sobre os nossos <tosLink>Termos de Serviço</tosLink>."
+  "cookie_message": "Utilizamos cookies para garantir que lhe proporcionamos a melhor experiência no nosso website. Se continuar a utilizar este site, assumiremos que está satisfeito com isso. Pode ler mais sobre os nossos <tosLink>Termos de Serviço</tosLink>.",
+  "use_my_location": {
+    "button": "Usar a minha localização",
+    "loading": "A encontrar a sua localização…",
+    "permission_denied": "O acesso à localização foi recusado. Ainda pode escrever um lugar.",
+    "position_unavailable": "Não foi possível obter a sua localização. Ainda pode escrever um lugar.",
+    "no_address": "Não foi possível encontrar um lugar na sua localização. Ainda pode escrever um lugar.",
+    "lookup_failed": "Não foi possível consultar a sua localização neste momento. Ainda pode escrever um lugar.",
+    "unsupported": "Este navegador não consegue partilhar a sua localização. Ainda pode escrever um lugar."
+  }
 }
