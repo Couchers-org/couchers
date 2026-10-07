@@ -1,15 +1,13 @@
 import { Box, CircularProgress, debounce, IconButton, styled } from "@mui/material";
 import { AutocompleteChangeReason, AutocompleteInputChangeReason } from "@mui/material/Autocomplete";
-import {
-  MIN_SEARCH_LENGTH,
-  SEARCH_DEBOUNCE_MS,
-} from "components/LocationAutocomplete/constants";
+import { MIN_SEARCH_LENGTH, SEARCH_DEBOUNCE_MS } from "components/LocationAutocomplete/constants";
 import useLocationAutocompleteOpen from "components/LocationAutocomplete/useLocationAutocompleteOpen";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { LngLat } from "maplibre-gl";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FieldError } from "react-hook-form";
+import { useLocationSearchSession } from "utils/geocodeTelemetry";
 import { useGeocodeQuery } from "utils/hooks";
 import useMyLocation from "utils/useMyLocation";
 
@@ -17,6 +15,9 @@ import Autocomplete from "./Autocomplete";
 import { MyLocationIcon, SearchIcon } from "./Icons";
 
 const MAP_SEARCH_ID = "map-search";
+// Telemetry surface name, alongside the `autocompleteContext` values of the
+// other location widgets.
+const MAP_SEARCH_SURFACE = "edit-location-map";
 
 const StyledBox = styled(Box)(({ theme }) => ({
   "& *": {
@@ -76,6 +77,14 @@ export default function MapSearch({ setError, setResult, inputFieldError, collap
     biasToUserLocation: true,
     collapseToCity,
     allowFallback: true /*false*/,
+    surface: MAP_SEARCH_SURFACE,
+  });
+  const searchSession = useLocationSearchSession({
+    surface: MAP_SEARCH_SURFACE,
+    provider,
+    results,
+    error,
+    isProviderUnavailable,
   });
   const {
     getMyLocation,
@@ -101,7 +110,12 @@ export default function MapSearch({ setError, setResult, inputFieldError, collap
     query(trimmed);
   };
 
-  const { isOpen: open, setIsOpen: setOpen, closeIfAllowed, handleEnterKeyDown } = useLocationAutocompleteOpen({
+  const {
+    isOpen: open,
+    setIsOpen: setOpen,
+    closeIfAllowed,
+    handleEnterKeyDown,
+  } = useLocationAutocompleteOpen({
     id: MAP_SEARCH_ID,
     inputValue: value,
     options: results,
@@ -151,6 +165,7 @@ export default function MapSearch({ setError, setResult, inputFieldError, collap
     if (!place) {
       return;
     }
+    searchSession.onUseMyLocation();
     setValue(place.simplifiedName);
     setOpen(false);
     setResult(place.location, place.name, place.simplifiedName);
@@ -170,6 +185,7 @@ export default function MapSearch({ setError, setResult, inputFieldError, collap
         setOpen(true);
       }
     } else {
+      searchSession.onSelect(searchOption);
       setResult(searchOption.location, searchOption.name, searchOption.simplifiedName);
       setOpen(false);
     }
@@ -198,6 +214,7 @@ export default function MapSearch({ setError, setResult, inputFieldError, collap
             resetMyLocationError();
 
             if (reason !== "input") return;
+            searchSession.onInput(v);
 
             if (isSubmitMode) {
               // No request until the user submits. Any results still on

@@ -13,6 +13,8 @@ type UseLocationAutocompleteOpenArgs = {
   enableSubmitReopen?: boolean;
   freeTextForSubmit?: string;
   submitCount?: number;
+  // Called when a form submit reopens the list (telemetry).
+  onSubmitReopen?: () => void;
 };
 
 /**
@@ -30,6 +32,7 @@ export default function useLocationAutocompleteOpen({
   enableSubmitReopen = false,
   freeTextForSubmit = "",
   submitCount = 0,
+  onSubmitReopen,
 }: UseLocationAutocompleteOpenArgs) {
   const [isOpen, setIsOpen] = useState(false);
   // While true, ignore MUI/blur closes so a controlled reopen is not immediately
@@ -71,7 +74,8 @@ export default function useLocationAutocompleteOpen({
     lastHandledSubmitCount.current = submitCount;
     if (!freeTextForSubmit) return;
     openAndKeepOpen();
-  }, [enableSubmitReopen, submitCount, freeTextForSubmit, openAndKeepOpen]);
+    onSubmitReopen?.();
+  }, [enableSubmitReopen, submitCount, freeTextForSubmit, openAndKeepOpen, onSubmitReopen]);
 
   const handleEnterKeyDown = (e: KeyboardEvent) => {
     if (e.key !== "Enter") return;

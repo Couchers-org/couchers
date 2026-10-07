@@ -14,6 +14,7 @@ import { useTranslation } from "next-i18next";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Control, useController, useFormState } from "react-hook-form";
 import { service } from "service";
+import { useLocationSearchSession } from "utils/geocodeTelemetry";
 import { GeocodeResult, useGeocodeQuery } from "utils/hooks";
 import useMyLocation from "utils/useMyLocation";
 
@@ -109,7 +110,14 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
     isLoading,
     provider,
     isProviderUnavailable,
-  } = useGeocodeQuery({ preferCity, biasToUserLocation, allowFallback });
+  } = useGeocodeQuery({ preferCity, biasToUserLocation, allowFallback, surface: autocompleteContext });
+  const searchSession = useLocationSearchSession({
+    surface: autocompleteContext,
+    provider,
+    results: options,
+    error: geocodeError,
+    isProviderUnavailable,
+  });
   // Same city-level/precise choice the typed search makes, so the button fills the
   // field with the kind of place this field is for.
   const {
@@ -153,6 +161,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
     enableSubmitReopen: true,
     freeTextForSubmit,
     submitCount,
+    onSubmitReopen: searchSession.onSubmitReopen,
   });
 
   // When an outage flips us into submit mode, drop any pending typeahead and
@@ -181,6 +190,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
     if (!place) {
       return;
     }
+    searchSession.onUseMyLocation();
     debouncedQuery.clear();
     clearGeocodeResults();
     setIsOpen(false);
@@ -202,6 +212,12 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
     // Keep the form value as the raw string until a real option is picked, so
     // form validation (didSelect) knows nothing has been selected yet.
     controller.field.onChange(value ?? "");
+
+    if (reason === "input") {
+      searchSession.onInput(value);
+    } else if (reason === "clear") {
+      searchSession.onClear();
+    }
 
     if (reason === "input" || reason === "clear") {
       const trimmed = value.trim();
@@ -252,6 +268,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
       }
     } else {
       if (value) {
+        searchSession.onSelect(value);
         setInputValue(geocodeResult2String(value, showFullDisplayName));
         service.bugs.geolocationClickInfo({
           context: autocompleteContext,

@@ -1,8 +1,9 @@
 import { useTranslation } from "next-i18next";
 import Sentry from "platform/sentry";
 import { useCallback, useRef, useState } from "react";
+import { useGeocodeTelemetry } from "utils/geocodeTelemetry";
 import type { GeocodeResult } from "utils/hooks";
-import { reverse, toPeliasLanguage } from "utils/pelias";
+import { PeliasError, reverse, toPeliasLanguage } from "utils/pelias";
 import { markGeolocationGranted } from "utils/useLocationBias";
 
 /**
@@ -57,6 +58,7 @@ export default function useMyLocation({
   const [error, setError] = useState<string | undefined>(undefined);
   // Ignore a slow in-flight lookup once a newer click supersedes it.
   const latestRequestIdRef = useRef(0);
+  const track = useGeocodeTelemetry();
 
   const reset = useCallback(() => {
     setError(undefined);
@@ -65,10 +67,14 @@ export default function useMyLocation({
   const getMyLocation = useCallback(async () => {
     const requestId = ++latestRequestIdRef.current;
     const isStale = () => requestId !== latestRequestIdRef.current;
+    const startTime = performance.now();
+    const trackOutcome = (outcome: string, properties: Record<string, unknown> = {}) =>
+      track("geocode.my_location", { outcome, ...properties }, performance.now() - startTime);
 
     setError(undefined);
 
     if (typeof navigator === "undefined" || !navigator.geolocation) {
+      trackOutcome("unsupported");
       setError(t("use_my_location.unsupported"));
       return undefined;
     }
@@ -95,9 +101,11 @@ export default function useMyLocation({
         return undefined;
       }
       if (results.length === 0) {
+        trackOutcome("no_result");
         setError(t("use_my_location.no_address"));
         return undefined;
       }
+      trackOutcome("ok");
       return results[0];
     } catch (caught) {
       if (isStale()) {
@@ -111,6 +119,7 @@ export default function useMyLocation({
         typeof (caught as GeolocationPositionError).code === "number"
       ) {
         const { code } = caught as GeolocationPositionError;
+        trackOutcome(code === 1 ? "denied" : code === 3 ? "timeout" : "position_unavailable");
         setError(
           code === 1 /* PERMISSION_DENIED */
             ? t("use_my_location.permission_denied")
@@ -119,6 +128,10 @@ export default function useMyLocation({
         return undefined;
       }
       // A provider/network failure: report it, and tell the user to type instead.
+      trackOutcome("lookup_failed", {
+        status: caught instanceof PeliasError ? (caught.status ?? null) : null,
+        error_kind: caught instanceof PeliasError ? caught.kind : "other",
+      });
       Sentry.captureException(caught, { tags: { hook: "useMyLocation" } });
       setError(t("use_my_location.lookup_failed"));
       return undefined;
@@ -127,7 +140,7 @@ export default function useMyLocation({
         setIsLoading(false);
       }
     }
-  }, [collapseToCity, i18n.language, preferCity, t]);
+  }, [collapseToCity, i18n.language, preferCity, t, track]);
 
   return { getMyLocation, isLoading, error, reset };
 }
