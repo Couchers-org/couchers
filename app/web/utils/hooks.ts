@@ -1,4 +1,4 @@
-import { useFeatureValue } from "@growthbook/growthbook-react";
+import { useFeature, useFeatureValue } from "@growthbook/growthbook-react";
 import { Coordinates } from "features/search/utils/constants";
 import { LngLat } from "maplibre-gl";
 import { useRouter } from "next/router";
@@ -13,6 +13,8 @@ import {
   isOutageError,
   normalizeProviderSetting,
 } from "utils/geocode";
+import { useGeocodeTelemetry } from "utils/geocodeTelemetry";
+import { PeliasError } from "utils/pelias";
 import useLocationBias from "utils/useLocationBias";
 import useProfileLocationBias from "utils/useProfileLocationBias";
 
@@ -109,14 +111,19 @@ export interface GeocodeResult {
  * what matched (street, venue, address, …), for approximate-location fields (a
  * user's home) where the precise hit must never be shown. Independent of
  * `preferCity`.
+ *
+ * `surface` names the widget in `geocode.request` / `geocode.failover`
+ * telemetry (see `utils/geocodeTelemetry.ts`).
  */
 const useGeocodeQuery = (options: {
   allowFallback: boolean;
   preferCity?: boolean;
   collapseToCity?: boolean;
   biasToUserLocation?: boolean;
+  surface?: string;
 }) => {
   const { allowFallback } = options;
+  const surface = options.surface ?? "unknown";
   const preferCity = options.preferCity ?? false;
   const collapseToCity = options.collapseToCity ?? false;
   const biasToUserLocation = options.biasToUserLocation ?? false;
@@ -129,6 +136,10 @@ const useGeocodeQuery = (options: {
   // when the flag is missing (local override file / GB outage).
   const envDefault = normalizeProviderSetting(process.env.NEXT_PUBLIC_GEOCODE_DEFAULT_PROVIDER);
   const providerSetting = normalizeProviderSetting(useFeatureValue("geocode_provider", envDefault));
+  // Where the setting came from: "unknownFeature" means GrowthBook had no value
+  // and the env default is in use.
+  const providerSettingSource = useFeature("geocode_provider").source;
+  const track = useGeocodeTelemetry();
 
   const [provider, setProvider] = useSafeState<GeocodeProvider>(isMounted, () =>
     initialProvider(allowFallback, providerSetting),
@@ -190,8 +201,24 @@ const useGeocodeQuery = (options: {
       // query's hits while the new request is in flight (or if it fails).
       setResults(undefined);
 
+      const startTime = performance.now();
+      const focus = biasToUserLocation ? (focusRef.current ?? profileFocus) : undefined;
+      const trackRequest = (properties: Record<string, unknown>) =>
+        track(
+          "geocode.request",
+          {
+            surface,
+            setting: providerSetting,
+            setting_source: providerSettingSource,
+            allow_fallback: allowFallback,
+            bias: focus === undefined ? "none" : focus === focusRef.current ? "device" : "profile",
+            query_length: value.length,
+            ...properties,
+          },
+          performance.now() - startTime,
+        );
+
       try {
-        const startTime = performance.now();
         const {
           results: formattedResults,
           provider: usedProvider,
@@ -207,7 +234,7 @@ const useGeocodeQuery = (options: {
           collapseToCity,
           // Read at request time, not render time: the fix may land between
           // keystrokes, and an early query simply falls back to the profile.
-          focus: biasToUserLocation ? (focusRef.current ?? profileFocus) : undefined,
+          focus,
           signal: abortController.signal,
           // Nominatim only once the widget is already in submit mode. Read from
           // the ref so an in-flight typeahead still defers after a sibling
@@ -215,8 +242,21 @@ const useGeocodeQuery = (options: {
           useFallbackProvider: providerRef.current === "nominatim",
         });
 
+        if (fallbackCause) {
+          track("geocode.failover", {
+            surface,
+            setting: providerSetting,
+            cause_status: fallbackCause.status ?? null,
+            cause_kind: fallbackCause.kind,
+            // false: the typeahead request that discovered the outage only
+            // flipped the widget into submit mode.
+            served_by_fallback: !awaitingSubmit,
+          });
+        }
+
         // A newer query has superseded this one; drop these results.
         if (requestId !== latestRequestIdRef.current) {
+          trackRequest({ provider: usedProvider, outcome: "superseded" });
           return;
         }
 
@@ -236,9 +276,16 @@ const useGeocodeQuery = (options: {
         }
 
         if (awaitingSubmit) {
+          trackRequest({ provider: usedProvider, outcome: "deferred" });
           // Mode switch only — no Nominatim hits, and do not flash an empty list.
           return;
         }
+
+        trackRequest({
+          provider: usedProvider,
+          outcome: formattedResults.length === 0 ? "empty" : "ok",
+          result_count: formattedResults.length,
+        });
 
         service.bugs.geolocationSearchInfo({
           searchString: value,
@@ -253,8 +300,15 @@ const useGeocodeQuery = (options: {
       } catch (e) {
         // A deliberate cancellation (newer keystroke) is not an error.
         if (abortController.signal.aborted) {
+          trackRequest({ provider: providerRef.current, outcome: "aborted" });
           return;
         }
+        trackRequest({
+          provider: providerRef.current,
+          outcome: isOutageError(e) ? "outage" : "error",
+          status: e instanceof PeliasError ? (e.status ?? null) : null,
+          error_kind: e instanceof PeliasError ? e.kind : "other",
+        });
         Sentry.captureException(e, {
           tags: {
             hook: "useGeocodeQuery",
@@ -284,11 +338,14 @@ const useGeocodeQuery = (options: {
       preferCity,
       profileFocus,
       providerSetting,
+      providerSettingSource,
       setError,
       setIsLoading,
       setIsProviderUnavailable,
       setProvider,
       setResults,
+      surface,
+      track,
     ],
   );
 

@@ -1339,6 +1339,30 @@ describe("autocomplete", () => {
 
     await expect(autocomplete("paris")).rejects.toBeInstanceOf(PeliasError);
   });
+
+  it("classifies a non-ok response as an http error with its status", async () => {
+    server.use(rest.get(AUTOCOMPLETE_URL, (_req, res, ctx) => res(ctx.status(429), ctx.text("slow down"))));
+
+    await expect(autocomplete("paris")).rejects.toMatchObject({ kind: "http", status: 429 });
+  });
+
+  it("classifies a non-JSON 200 body as an invalid response", async () => {
+    server.use(
+      rest.get(AUTOCOMPLETE_URL, (_req, res, ctx) => res(ctx.status(200), ctx.text("<html>proxy error</html>"))),
+    );
+
+    await expect(autocomplete("paris")).rejects.toMatchObject({ kind: "invalid_response", status: undefined });
+  });
+
+  it("classifies a caller cancellation as aborted, not a timeout", async () => {
+    // jsdom's fetch does not honour abort signals, so simulate the rejection.
+    const fetchSpy = jest.spyOn(global, "fetch").mockRejectedValue(new DOMException("aborted", "AbortError"));
+    const controller = new AbortController();
+    controller.abort();
+
+    await expect(autocomplete("paris", { signal: controller.signal })).rejects.toMatchObject({ kind: "aborted" });
+    fetchSpy.mockRestore();
+  });
 });
 
 describe("reverse", () => {

@@ -18,6 +18,7 @@ import { GLOBAL } from "i18n/namespaces";
 import { forwardRef, SyntheticEvent, useEffect, useMemo, useRef, useState } from "react";
 import { service } from "service";
 import { theme } from "theme";
+import { useLocationSearchSession } from "utils/geocodeTelemetry";
 import { GeocodeResult, useGeocodeQuery } from "utils/hooks";
 import useMyLocation from "utils/useMyLocation";
 
@@ -113,7 +114,14 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     isLoading,
     provider,
     isProviderUnavailable,
-  } = useGeocodeQuery({ preferCity, biasToUserLocation, allowFallback });
+  } = useGeocodeQuery({ preferCity, biasToUserLocation, allowFallback, surface: autocompleteContext });
+  const searchSession = useLocationSearchSession({
+    surface: autocompleteContext,
+    provider,
+    results: options,
+    error: geocodeError,
+    isProviderUnavailable,
+  });
   // Same city-level/precise choice the typed search makes, so the button fills the
   // field with the kind of place this field is for.
   const {
@@ -188,6 +196,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     if (!place) {
       return;
     }
+    searchSession.onUseMyLocation();
     debouncedQuery.clear();
     clearGeocodeResults();
     setIsOpen(false);
@@ -211,6 +220,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     }
 
     if (reason === "selectOption") {
+      searchSession.onSelect(newValue as GeocodeResult);
       setSelected(newValue as GeocodeResult);
       onChange(newValue as GeocodeResult | undefined);
       setIsOpen(false);
@@ -234,6 +244,12 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     // The user is doing exactly what a failed "use my location" told them to do,
     // so drop that message.
     resetMyLocationError();
+
+    if (reason === "input") {
+      searchSession.onInput(newValue);
+    } else if (reason === "clear") {
+      searchSession.onClear();
+    }
 
     if (newValue === "") {
       debouncedQuery.clear();

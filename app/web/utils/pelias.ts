@@ -71,6 +71,10 @@ export interface FocusPoint {
   lon: number;
 }
 
+// How a Pelias request failed, for telemetry. `status` alone cannot tell a slow
+// provider (timeout) from a missing API key (config) or a garbage 200 body.
+export type PeliasErrorKind = "http" | "network" | "timeout" | "aborted" | "config" | "invalid_response";
+
 // A clean, typed error the widget can map to the outage state (LOC-18 seam).
 // We do NOT swallow it — the hook surfaces it and reports it to Sentry.
 export class PeliasError extends Error {
@@ -78,11 +82,13 @@ export class PeliasError extends Error {
   // network failures, timeouts, and misconfiguration. `utils/geocode.ts` uses it
   // to tell a provider outage (retry elsewhere) from a bad request (don't).
   readonly status?: number;
+  readonly kind: PeliasErrorKind;
 
-  constructor(message: string, status?: number) {
+  constructor(message: string, status?: number, kind: PeliasErrorKind = status === undefined ? "network" : "http") {
     super(message);
     this.name = "PeliasError";
     this.status = status;
+    this.kind = kind;
   }
 }
 
@@ -90,15 +96,7 @@ export class PeliasError extends Error {
 // specific, searchable place. These are rejected by the homepage widget when
 // `disableRegions` is set (equivalent to the old Nominatim `nonRegionKeys`
 // logic, where district/locality-and-below counted as specific).
-const REGION_LAYERS = new Set([
-  "continent",
-  "country",
-  "dependency",
-  "macroregion",
-  "region",
-  "macrocounty",
-  "county",
-]);
+const REGION_LAYERS = new Set(["continent", "country", "dependency", "macroregion", "region", "macrocounty", "county"]);
 
 // Layers where `name` is the matched entity and must not be replaced by a
 // nested hierarchy locality/localadmin (those can be centroid artifacts — e.g.
@@ -393,7 +391,11 @@ export function dedupeBySimplifiedName(results: GeocodeResult[]): GeocodeResult[
  */
 async function fetchPelias(url: URL, signal?: AbortSignal): Promise<PeliasResponse> {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  let timedOut = false;
+  const timeout = setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, REQUEST_TIMEOUT_MS);
   const abortFromExternal = () => controller.abort();
   if (signal) {
     if (signal.aborted) {
@@ -420,7 +422,15 @@ async function fetchPelias(url: URL, signal?: AbortSignal): Promise<PeliasRespon
       throw error;
     }
     if (error instanceof DOMException && error.name === "AbortError") {
-      throw new PeliasError("The location search was cancelled or timed out.");
+      throw new PeliasError(
+        "The location search was cancelled or timed out.",
+        undefined,
+        timedOut ? "timeout" : "aborted",
+      );
+    }
+    // `response.json()` on a body that is not JSON (e.g. a proxy error page).
+    if (error instanceof SyntaxError) {
+      throw new PeliasError(error.message, undefined, "invalid_response");
     }
     throw new PeliasError(error instanceof Error ? error.message : "Geocoding request failed.");
   } finally {
@@ -474,7 +484,7 @@ export async function reverse(
   const { language, collapseToCity = false, signal } = options;
 
   if (!BASE_URL || !API_KEY) {
-    throw new PeliasError("Geocoding is not configured.");
+    throw new PeliasError("Geocoding is not configured.", undefined, "config");
   }
 
   const url = new URL("/v1/reverse", BASE_URL);
@@ -526,7 +536,7 @@ export async function autocomplete(
   const { language, focus, preferCity = false, collapseToCity = false, signal } = options;
 
   if (!BASE_URL || !API_KEY) {
-    throw new PeliasError("Geocoding is not configured.");
+    throw new PeliasError("Geocoding is not configured.", undefined, "config");
   }
 
   const url = new URL("/v1/autocomplete", BASE_URL);

@@ -1,8 +1,9 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
+import { logEvent } from "features/analytics";
 import { LngLat } from "maplibre-gl";
 import { service } from "service";
 import users from "test/fixtures/users.json";
-import wrapper from "test/hookWrapper";
+import wrapper, { getHookWrapperWithClient } from "test/hookWrapper";
 import i18n from "test/i18n";
 import { rest, server } from "test/restMock";
 import { getUser } from "test/serviceMockDefaults";
@@ -10,6 +11,9 @@ import { addDefaultUser } from "test/utils";
 import { resetFailoverState } from "utils/geocode";
 
 import { useGeocodeQuery, useIsMounted, useSafeState } from "./hooks";
+
+jest.mock("features/analytics", () => ({ logEvent: jest.fn() }));
+const mockLogEvent = logEvent as jest.MockedFunction<typeof logEvent>;
 
 describe("useIsMounted hook", () => {
   it("is true when mounted and false when not", () => {
@@ -377,29 +381,26 @@ describe("useGeocodeQuery hook", () => {
         }),
       );
 
-    it.each([500, 503, 429, 402])(
-      "switches to Nominatim submit mode on a %i without querying it",
-      async (status) => {
-        failPelias(status);
-        let nominatimRequests = 0;
-        server.use(
-          rest.get(`${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`, (_req, res, ctx) => {
-            nominatimRequests += 1;
-            return res(ctx.json([]));
-          }),
-        );
-        const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper });
+    it.each([500, 503, 429, 402])("switches to Nominatim submit mode on a %i without querying it", async (status) => {
+      failPelias(status);
+      let nominatimRequests = 0;
+      server.use(
+        rest.get(`${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`, (_req, res, ctx) => {
+          nominatimRequests += 1;
+          return res(ctx.json([]));
+        }),
+      );
+      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper });
 
-        await act(() => result.current.query("test"));
+      await act(() => result.current.query("test"));
 
-        await waitFor(() => {
-          expect(result.current.provider).toBe("nominatim");
-        });
-        expect(result.current.error).toBeUndefined();
-        expect(result.current.results).toBeUndefined();
-        expect(nominatimRequests).toBe(0);
-      },
-    );
+      await waitFor(() => {
+        expect(result.current.provider).toBe("nominatim");
+      });
+      expect(result.current.error).toBeUndefined();
+      expect(result.current.results).toBeUndefined();
+      expect(nominatimRequests).toBe(0);
+    });
 
     it("queries Nominatim only after switching to submit mode", async () => {
       failPelias(500);
@@ -513,6 +514,113 @@ describe("useGeocodeQuery hook", () => {
         expect(result.current.error).toBe("fallback down");
       });
       expect(result.current.results).toBeUndefined();
+    });
+  });
+
+  describe("telemetry", () => {
+    beforeEach(() => {
+      mockLogEvent.mockClear();
+    });
+
+    const failPelias = (status: number) =>
+      server.use(
+        rest.get(`${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/autocomplete`, (_req, res, ctx) =>
+          res(ctx.status(status), ctx.text("provider unavailable")),
+        ),
+      );
+
+    const eventsOf = (tag: string) => mockLogEvent.mock.calls.filter(([eventType]) => eventType === tag);
+
+    it("logs each completed request with its surface, provider and latency", async () => {
+      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true, surface: "hero-search" }), {
+        wrapper,
+      });
+
+      await act(() => result.current.query("test"));
+      await waitFor(() => {
+        expect(result.current.results).toBeDefined();
+      });
+
+      expect(eventsOf("geocode.request")).toEqual([
+        [
+          "geocode.request",
+          expect.objectContaining({
+            surface: "hero-search",
+            provider: "pelias",
+            setting: "auto",
+            outcome: "ok",
+            result_count: result.current.results!.length,
+            query_length: 4,
+          }),
+          expect.any(Number),
+        ],
+      ]);
+    });
+
+    it("logs the failover and the deferred request on an outage", async () => {
+      failPelias(503);
+      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true, surface: "hero-search" }), {
+        wrapper,
+      });
+
+      await act(() => result.current.query("test"));
+      await waitFor(() => {
+        expect(result.current.provider).toBe("nominatim");
+      });
+
+      expect(eventsOf("geocode.failover")).toEqual([
+        [
+          "geocode.failover",
+          expect.objectContaining({
+            surface: "hero-search",
+            cause_status: 503,
+            cause_kind: "http",
+            served_by_fallback: false,
+          }),
+          undefined,
+        ],
+      ]);
+      expect(eventsOf("geocode.request")).toEqual([
+        [
+          "geocode.request",
+          expect.objectContaining({ provider: "nominatim", outcome: "deferred" }),
+          expect.any(Number),
+        ],
+      ]);
+    });
+
+    it("logs an outage on a surface that does not allow fallback", async () => {
+      failPelias(503);
+      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: false }), { wrapper });
+
+      await act(() => result.current.query("test"));
+      await waitFor(() => {
+        expect(result.current.isProviderUnavailable).toBe(true);
+      });
+
+      expect(eventsOf("geocode.request")).toEqual([
+        [
+          "geocode.request",
+          expect.objectContaining({ allow_fallback: false, outcome: "outage", status: 503, error_kind: "http" }),
+          expect.any(Number),
+        ],
+      ]);
+      expect(eventsOf("geocode.failover")).toEqual([]);
+    });
+
+    it("logs nothing when the geocode_telemetry_enabled kill switch is off", async () => {
+      failPelias(503);
+      const { wrapper: disabledWrapper } = getHookWrapperWithClient({
+        geocode_telemetry_enabled: { defaultValue: false },
+      });
+      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper: disabledWrapper });
+
+      await act(() => result.current.query("test"));
+      await waitFor(() => {
+        expect(result.current.provider).toBe("nominatim");
+      });
+
+      expect(mockLogEvent).not.toHaveBeenCalled();
     });
   });
 });
