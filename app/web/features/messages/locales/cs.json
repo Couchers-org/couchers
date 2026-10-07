@@ -166,9 +166,31 @@
     "invite_user_text": "Pozvánka od {{user}} pro {{target_user}}",
     "user_left_chat_text": "{{user}} je pryč z chatu",
     "admin_assignment_text": "{{target_user}} má nově roli admina (uděleno uživatelem {{user}})",
-    "admin_removal_text": "{{target_user}} už nemá roli admina (odebráno uživatelem {{user}})"
+    "admin_removal_text": "{{target_user}} už nemá roli admina (odebráno uživatelem {{user}})",
+    "host_request_status_changed": {
+      "accepted": "Žádost byla přijata {{user}}",
+      "accepted_self": "Žádost byla tebou přijata",
+      "cancelled": "Žádost byla zrušena {{user}}",
+      "cancelled_self": "Žádost byla tebou zrušena",
+      "confirmed": "Žádost byla potvrzena {{user}}",
+      "confirmed_self": "Žádost byla tebou potvrzena",
+      "rejected": "Žádost byla odmítnuta {{user}}",
+      "rejected_self": "Žádost byla tebou odmítnuta"
+    }
   },
   "host_request_status": {
-    "confirmed": "Potvrzeno"
+    "confirmed": "Potvrzeno",
+    "accepted": "Přijato",
+    "cancelled": "Zrušeno",
+    "past": "Minulé",
+    "pending": "Čeká na vyřízení",
+    "rejected": "Odmítnuto"
+  },
+  "host_request_item": {
+    "expired": "Platnost této žádosti vypršela",
+    "pending": "Tato žádost stále čeká na vyřízení",
+    "host_status": {
+      "cancelled": "Surfař tuto žádost zrušil"
+    }
   }
 }
