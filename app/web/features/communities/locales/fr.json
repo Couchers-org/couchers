@@ -106,5 +106,6 @@
     "title": "Retirer comme co-organisateur.rice",
     "dialog_title": "Retirer {{name}} comme co-organisateur.ice",
     "dialog_text": "Êtes-vous sûr.e de vouloir retirer {{name}} comme co-organisateur.rice de {{event}} ?"
-  }
+  },
+  "local_info_label": "Informations locales"
 }

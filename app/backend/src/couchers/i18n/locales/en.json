@@ -228,6 +228,7 @@
     "thread_not_found": "Discussion thread not found.",
     "too_many_diagnostic_infos": "Too many diagnostic events in a single batch.",
     "too_many_sms_code_attempts": "Too many sms code attempts performed.",
+    "undelete_email_reused": "This account can't be recovered because its email address is now used by another account.",
     "unknown_error": "An unknown backend error occurred. Please consider filing a bug!",
     "unrecognized_phone_number": "Your mobile phone number is not recognized. Please double-check it and contact support if this error persists.",
     "upload_not_found": "Upload not found.",

@@ -2514,15 +2514,21 @@ def test_community_invite_requests(db, email_collector: EmailCollector, moderato
                 end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=4)),
             )
         )
+
         user_url = f"http://localhost:3000/user/{user1.username}"
         event_url = f"http://localhost:3000/event/{res.event_id}/{res.slug}"
 
         event_id = res.event_id
-
+        assert res.community_invite_requested is False
     moderator.approve_event_occurrence(event_id)
 
     with events_session(token1) as api:
+        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
+        assert res.community_invite_requested is False
+
         api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
+        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
+        assert res.community_invite_requested is True
 
         email = email_collector.pop_for_mods(last=True)
 
@@ -2537,7 +2543,14 @@ def test_community_invite_requests(db, email_collector: EmailCollector, moderato
 
     # another user can send one though
     with events_session(token3) as api:
+        # api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
+        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
+        assert res.community_invite_requested is False
+
         api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
+
+        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
+        assert res.community_invite_requested is True
 
     # but not a non-admin
     with events_session(token2) as api:
@@ -2568,6 +2581,12 @@ def test_community_invite_requests(db, email_collector: EmailCollector, moderato
                 approve=True,
             )
         )
+
+    # Once a request is approved, the event still reports that a
+    # community invite has been requested.
+    with events_session(token1) as api:
+        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
+        assert res.community_invite_requested is True
 
     # not after approve
     with events_session(token4) as api:

@@ -64,7 +64,7 @@ git push -u origin <branch-name>
 
 ### 6. Write the PR description
 
-Read the PR template from `.github/pull_request_template.md` and fill it in.
+Read the PR template from `.github/pull_request_template.md` and fill it in. The description goes under `## Details`.
 
 The description has one job: give a reviewer who context-switches in enough to understand what the change is about and why it exists, without reading the code. Nothing else.
 
@@ -95,7 +95,11 @@ A second paragraph is allowed in exactly one case: the user explicitly directed 
 
 **Checklists.** Include the checklist(s) — backend, web, or both — matching the areas changed, and remove the ones that don't apply. Tick honestly, annotate never. Keep the "For maintainers" section as-is.
 
-Append the following note as the very last line of the PR body, after the "For maintainers" section (separated by a blank line):
+#### Formatting
+
+Never write anything above `## Details`: that section is human-written, so leave it exactly as it is in the template. Never tick a box that says `I (not AI)`.
+
+Replace the `<!-- AI/coding agents: ... -->` comment at the end of the template with the following note, as the very last line of the PR body (separated by a blank line):
 
   ```
   _This PR was created with the Couchers PR skill with [tool] using [model]._
