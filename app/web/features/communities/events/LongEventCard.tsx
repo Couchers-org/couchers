@@ -1,6 +1,7 @@
 import { Group } from "@mui/icons-material";
 import { Card, CardContent, CardMedia, styled, Tooltip, Typography } from "@mui/material";
 import { eventImagePlaceholderUrl } from "appConstants";
+import { clampedTypographyWith } from "components/ClampedTypography";
 import Pill from "components/Pill";
 import { contentRefs } from "features/contentRefs";
 import FlagButton from "features/FlagButton";
@@ -51,12 +52,7 @@ const Row = styled("div")({
   justifyContent: "space-between",
 });
 
-const Title = styled(Typography)(({ theme }) => ({
-  display: "-webkit-box",
-  WebkitLineClamp: 2,
-  WebkitBoxOrient: "vertical",
-  overflow: "hidden",
-  textOverflow: "ellipsis",
+const Title = styled(clampedTypographyWith({ WebkitLineClamp: 2, ellipsis: true }))(({ theme }) => ({
   maxHeight: "3em",
   lineHeight: "1.5em",
   paddingRight: theme.spacing(2),
