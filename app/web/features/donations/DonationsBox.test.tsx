@@ -21,9 +21,9 @@ describe("DonationsBox", () => {
   it("shows the monthly amounts by default", () => {
     render(<DonationsBox />, { wrapper });
 
-    expect(screen.getByText("$3")).toBeVisible();
-    expect(screen.getByText("$500")).toBeVisible();
-    expect(screen.queryByText("$1,000")).not.toBeInTheDocument();
+    expect(screen.getByText("US$3")).toBeVisible();
+    expect(screen.getByText("US$500")).toBeVisible();
+    expect(screen.queryByText("US$1,000")).not.toBeInTheDocument();
   });
 
   it("swaps in the larger amounts when yearly is selected", async () => {
@@ -31,16 +31,16 @@ describe("DonationsBox", () => {
 
     await userEvent.click(screen.getByLabelText(t("donations:donations_box.yearly_button_label")));
 
-    expect(screen.getByText("$25")).toBeVisible();
-    expect(screen.getByText("$1,000")).toBeVisible();
-    expect(screen.queryByText("$3")).not.toBeInTheDocument();
+    expect(screen.getByText("US$25")).toBeVisible();
+    expect(screen.getByText("US$1,000")).toBeVisible();
+    expect(screen.queryByText("US$3")).not.toBeInTheDocument();
   });
 
   it("initiates a yearly donation with the selected amount", async () => {
     render(<DonationsBox />, { wrapper });
 
     await userEvent.click(screen.getByLabelText(t("donations:donations_box.yearly_button_label")));
-    await userEvent.click(screen.getByText("$250"));
+    await userEvent.click(screen.getByText("US$250"));
     await userEvent.click(screen.getByRole("button", { name: t("donations:donations_box.action_button_label") }));
 
     await waitFor(() => {
