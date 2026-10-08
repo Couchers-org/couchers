@@ -460,10 +460,11 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if request.page_token:
                 statement = statement.where(Message.id < int(request.page_token))
 
+        # filter by stay role, so a public-trip offer (started by the host) lands on the right side
         if request.only_sent:
-            statement = statement.where(HostRequest.initiator_user_id == context.user_id)
+            statement = statement.where(HostRequest.surfer_user_id == context.user_id)
         elif request.only_received:
-            statement = statement.where(HostRequest.recipient_user_id == context.user_id)
+            statement = statement.where(HostRequest.host_user_id == context.user_id)
         elif request.HasField("only_archived"):
             statement = statement.where(
                 or_(
@@ -527,6 +528,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     hosting_lat=lat,
                     hosting_lng=lng,
                     hosting_radius=result.HostRequest.hosting_radius,
+                    public_trip_id=result.HostRequest.public_trip_id,
                     unseen_message_count=result.unseen_message_count,
                 )
             )

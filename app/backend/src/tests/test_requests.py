@@ -2690,6 +2690,48 @@ def test_create_request_same_gender_only_moderator_bypass(db, moderator):
         assert res.host_request_id > 0
 
 
+def test_list_host_requests_public_trip_offer_by_stay_role(db, moderator):
+    """only_sent/only_received follow the stay roles, so an offer the host started is hosting for them."""
+    traveller, traveller_token = generate_user()
+    host, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(traveller.id, trip_from, trip_to)
+
+    with requests_session(host_token) as api:
+        offer_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=traveller.id,
+                from_date=trip_from.isoformat(),
+                to_date=trip_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(offer_id)
+
+    def listed_ids(token: str, req: requests_pb2.ListHostRequestsReq) -> list[int]:
+        with requests_session(token) as api:
+            res = api.ListHostRequests(req)
+        return [hr.host_request_id for hr in res.host_requests]
+
+    hosting = requests_pb2.ListHostRequestsReq(only_received=True)
+    surfing = requests_pb2.ListHostRequestsReq(only_sent=True)
+
+    # the host offered, but they're the one hosting
+    assert listed_ids(host_token, hosting) == [offer_id]
+    assert listed_ids(host_token, surfing) == []
+    # the traveller received the offer, but they're the one surfing
+    assert listed_ids(traveller_token, surfing) == [offer_id]
+    assert listed_ids(traveller_token, hosting) == []
+
+    with requests_session(traveller_token) as api:
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq())
+    assert res.host_requests[0].public_trip_id == trip_id
+
+
 def test_create_request_duplicate_offer_rejected(db):
     surfer, _ = generate_user()
     _, host_token = generate_user()
