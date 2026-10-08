@@ -95,8 +95,13 @@ def host_request_to_pb(
 
     lat, lng = get_coordinates(host_request.hosting_location)
 
+    # public-trip offers aren't asked for feedback: their recipient is the traveller, not a host
     need_feedback = False
-    if context.user_id == host_request.recipient_user_id and host_request.status == HostRequestStatus.rejected:
+    if (
+        context.user_id == host_request.recipient_user_id
+        and host_request.status == HostRequestStatus.rejected
+        and host_request.public_trip_id is None
+    ):
         need_feedback = not session.execute(
             select(
                 exists().where(
@@ -1049,6 +1054,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             where_moderated_content_visible(select(HostRequest), context, HostRequest, is_list_operation=False)
             .where(HostRequest.conversation_id == request.host_request_id)
             .where(HostRequest.recipient_user_id == context.user_id)
+            # public-trip offers don't take feedback
+            .where(HostRequest.public_trip_id == None)
         ).scalar_one_or_none()
 
         if not host_request:

@@ -340,12 +340,12 @@ def _build_host_request_threads_pb(
     latest_message_ids = [thread.latest_message_id for thread in threads]
 
     # same rule as host_request_to_pb: the host is asked for feedback once they've rejected a request
-    # and haven't given any yet.
-    # TODO(#9347): the recipient-based logic is wrong for public-trip offers, where the recipient is
-    # the traveller rather than the host — same for the response-rate observation.
+    # and haven't given any yet. Public-trip offers aren't asked, as their recipient is the traveller.
+    # TODO(#9347): the recipient-based response-time observation is wrong for public-trip offers.
     need_host_request_feedback = and_(
         HostRequest.recipient_user_id == context.user_id,
         HostRequest.status == HostRequestStatus.rejected,
+        HostRequest.public_trip_id == None,
         ~exists()
         .where(HostRequestFeedback.from_user_id == context.user_id)
         .where(HostRequestFeedback.host_request_id == HostRequest.conversation_id)

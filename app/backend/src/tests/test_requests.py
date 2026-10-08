@@ -2776,6 +2776,51 @@ def test_create_request_offer_allowed_after_withdrawal(db, moderator):
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
+def test_no_feedback_for_declined_public_trip_offer(db, moderator):
+    """Decline feedback is a host's view of a surfer's request, so a traveller declining an offer isn't asked."""
+    surfer, surfer_token = generate_user()
+    _, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+
+    with requests_session(host_token) as api:
+        request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=trip_from.isoformat(),
+                to_date=trip_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(request_id)
+
+    with requests_session(surfer_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
+            )
+        )
+        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=request_id))
+        assert not res.need_host_request_feedback
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.SendHostRequestFeedback(
+                requests_pb2.SendHostRequestFeedbackReq(
+                    host_request_id=request_id,
+                    host_request_quality=requests_pb2.HOST_REQUEST_QUALITY_LOW,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+    with requests_session(host_token) as api:
+        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=request_id))
+        assert not res.need_host_request_feedback
+
+
 def test_create_request_offer_blocked_after_traveller_declines(db, moderator):
     """Only the host withdrawing frees them to re-offer; being declined does not."""
     surfer, surfer_token = generate_user()
