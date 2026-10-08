@@ -2,6 +2,7 @@ import hashlib
 import os
 from collections.abc import Generator
 from dataclasses import replace
+from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
@@ -270,6 +271,16 @@ def frozen_timewarp() -> Generator[FrozenTimewarp]:
     moved to, so both python and postgres read back exactly the instant the test asked for.
     """
     yield from install_timewarp(FrozenTimewarp(FROZEN_TEST_TIME))
+
+
+@pytest.fixture
+def frozen_timewarp_y2k() -> Generator[None]:
+    """
+    Freezes the clock at 2000-01-01 UTC,
+    such that tests can hardcode date/times relative to that.
+    """
+    for _ in install_timewarp(FrozenTimewarp(datetime(2000, 1, 1, tzinfo=UTC))):
+        yield
 
 
 # Production gates forced True so tests run as "everything enabled". Used by `_testconfig` and the `flags`
