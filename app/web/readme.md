@@ -82,7 +82,7 @@ If you are running the backend locally, use username `aapeli` and password `Aape
 
 2. Make sure you have the development environment going (see above).
 
-3. Create a new branch for your issue under 'web/issue-type/branch-name' eg. `web/feature/global-search`, `web/bug/no-duplicate-users` or `web/refactor/fix-host-requests`
+3. Create a new branch for your issue named `<dev-name>/<description>`, where `<dev-name>` is your name or GitHub handle, eg. `jdoe/global-search`, `jdoe/no-duplicate-users` or `jdoe/fix-host-requests`
 
 4. Do some code! It is good to commit regularly, but if possible your code should successfully compile with each commit.
 
