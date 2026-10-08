@@ -9,7 +9,7 @@ author_username: unsettleddown
 has_custom_cta: true
 ---
 
-*Quick summary: We've rebuilt the messages inbox, made the dashboard smarter, made connecting with people easier, and improved how Couchers works in your language and timezone.*
+*Quick summary: We've been hard at work improving Couchers over the summer. Couchers v1.4 brings you a new messages inbox, a smarter dashboard, easier ways to connect with people, better support for your language and timezone, and more.*
 
 ## Table of Contents
 
@@ -108,7 +108,7 @@ Request dates are now checked and displayed correctly across timezones. If sendi
 
 ## Language and localization
 
-Couchers is used all over the world, and this release does a much better job of speaking your language. Dates and times across the site, events, notifications and signup now follow your language and date format, hide the year when it isn't needed, and avoid common timezone mistakes. Local times on profiles now show the timezone.
+Couchers is used all over the world, and we're continually working to better localize and translate the platform. Dates and times across the site, events, notifications and signup now follow your language and date format, hide the year when it isn't needed, and avoid common timezone mistakes. Local times on profiles now show the timezone.
 
 The language picker now lists each language by its own name instead of a flag, which makes variants like Brazilian Portuguese and Traditional Chinese easier to tell apart. Your browser's language is also detected more accurately. Region and language names are translated, lists are sorted in the right order for your language (including Chinese), and Māori, Krio and Tok Pisin are now available as profile languages. Signup and email-change emails now arrive in your chosen language, and we fixed missing or broken translations in several places, including web push notifications.
 
@@ -118,9 +118,9 @@ The language picker now lists each language by its own name instead of a flag, w
 
 </div>
 
-As always, a huge thank you to our volunteer translators. [See where your language stands and help out on our translation page](https://couchers.org/translate)!
+A huge thank you to our volunteer translators who contributed the most since June: Alejandro Rodriguez (Spanish), Chris Kreuz (German), Daniel Brvnišťan (Czech), Daniele Dora (Italian), Francesco Biletta (Italian), Gabriel Alonso da Silva Ferreira (Portuguese), Hakan Kartal (Turkish), Henriëtte (Dutch), Mariana Baroni (Portuguese), Max and Jul (Russian), Oleh S (Ukrainian), Pauline Robard (French), Tom Rohlik (Czech), Tristan Labelle (French) and Vasilii Tikhonov (Russian). [See where your language stands and help out on our translation page](https://couchers.org/translate)!
 
-**Thanks to** [Tristan](https://couchers.org/user/tristanlabelle), [Kevin](https://couchers.org/user/kevinortiz43), [Aapeli](https://couchers.org/user/aapeli), [Nicole](https://couchers.org/user/unsettleddown), [Han](https://couchers.org/user/aviatorhan), [Jesse](https://couchers.org/user/jesse) and [Alexey](https://couchers.org/user/ptz)!
+**For the tech side, thanks to** [Tristan](https://couchers.org/user/tristanlabelle), [Kevin](https://couchers.org/user/kevinortiz43), [Aapeli](https://couchers.org/user/aapeli), [Nicole](https://couchers.org/user/unsettleddown), [Han](https://couchers.org/user/aviatorhan), [Jesse](https://couchers.org/user/jesse) and [Alexey](https://couchers.org/user/ptz)!
 
 ## Notifications and email
 

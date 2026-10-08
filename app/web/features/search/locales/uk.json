@@ -1,1 +1,93 @@
-{}
+{
+  "any": "Будь-яке",
+  "choose_search_criteria": "Напишіть назву місцевості або застосуйте фільтр для пошуку.",
+  "error_loading_users": "Помилка завантаження користувачів",
+  "filter_dialog": {
+    "desktop_title": "Фільтри",
+    "mobile_title": "Пошук"
+  },
+  "last_active_options": {
+    "last_week": "Протягом тижня",
+    "last_month": "Протягом місяця",
+    "last_3_months": "Протягом 3 місяців",
+    "last_6_months": "Протягом 6 місяців",
+    "last_year": "Протягом року"
+  },
+  "form": {
+    "location_field_label": "Біля міста",
+    "keywords": {
+      "field_label": "Ім'я, ключове слово, або назва користувача",
+      "clear_field_action_a11y_label": "Очистити пошук",
+      "search_this_keyword_a11y_label": "Шукати за цим ключовим словом"
+    },
+    "by_location_filter_label": "За містом",
+    "by_keyword_filter_label": "За ключовим словом або іменем",
+    "host_filters": {
+      "age": {
+        "field_label": "Вік",
+        "min_age": "Мінімальний вік",
+        "max_age": "Максимальний вік"
+      },
+      "last_active_field_label": "Остання активність",
+      "hosting_status_field_label": "Доступність для гостей",
+      "meetup_status_field_label": "Зацікавленість у зустрічах"
+    },
+    "accommodation_filters": {
+      "title": "Фільтри щодо умов проживання",
+      "guests_field_label": "Кількість гостей",
+      "sleeping_arrangement_label": "Розташування ліжок",
+      "sleeping_arrangement_filters": {
+        "shared_room": {
+          "label": "Спільна кімната",
+          "description": " тобто спільна спальня із окремими ліжками"
+        },
+        "private": {
+          "label": "Приватний простір",
+          "description": " тобто наприклад окрема кімната"
+        },
+        "common": {
+          "label": "Вітальня",
+          "description": " тобто диван у вітальні"
+        }
+      }
+    },
+    "empty_profile_filters": {
+      "title": "Показувати пусті профілі"
+    },
+    "general_filters": {
+      "accepts_last_minute_requests": "Приймає термінові запити",
+      "has_strong_verification": "Має Офіційну Верифікацію",
+      "has_references": "Має відгуки",
+      "same_gender_only": "Показувати лише людей мого гендеру",
+      "same_gender_only_helper_text": "Лише люди із Офіційною Верифікацією можуть користуватися цим фільтром.",
+      "get_strong_verification": "Пройти Офіційну Верифікацію тут ( це безкоштовно)."
+    },
+    "rules": {
+      "title": "Правила",
+      "alcohol_allowed": "Алкоголь допускається",
+      "kids_allowed": "Можна з дітьми",
+      "pets_allowed": "Можна із тваринами",
+      "smokes_at_home": "Курить вдома"
+    },
+    "submit_button_label": "Застосувати",
+    "search_filters": "Пошукові фільтри",
+    "clear_filters": "Очистити усі фільтри"
+  },
+  "search_result": {
+    "no_user_result_message": "Користувачів не знайдено. Спробуйте прибрати деякі фільтри, щоб отримати більше результатів.",
+    "missing_about_description": "{{name}} ще нічого не розповів про себе",
+    "people_range_message_one": "{{currentRange}} з {{count}} людини",
+    "people_range_message_few": "{{currentRange}} з {{count}} людей",
+    "people_range_message_many": "{{currentRange}} з {{count}} людей",
+    "few_results_suggestion": "За замовчуванням, пусті та \"не приймаю гостей\" профілі приховуються.",
+    "include_empty_profiles_button": "Показати усі профілі"
+  },
+  "views": {
+    "choose_map_view": "Обрати вигляд картою",
+    "list": "Список",
+    "map_and_list": "Карта & Список"
+  },
+  "location": "Місцевість",
+  "keyword": "Ключове слово",
+  "search_this_area": "Шукати у цій області"
+}

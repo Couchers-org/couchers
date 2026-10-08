@@ -62,6 +62,8 @@ const TextBlock = styled("div")({
 });
 
 const DescriptionText = styled(Typography)(({ theme }) => ({
+  // Keep the author's line breaks, same as the full card.
+  whiteSpace: "pre-line",
   fontSize: 12,
   color: "var(--mui-palette-text-secondary)",
   overflow: "hidden",
@@ -165,7 +167,9 @@ function OffersChip({ count }: { count: number }) {
       ) : (
         <HourglassEmptyOutlined sx={{ fontSize: "15px" }} />
       )}
-      {hasOffers ? t("dashboard:public_trips.offers_count", { count }) : t("dashboard:public_trips.no_offers")}
+      {hasOffers
+        ? t("dashboard:public_trips.invitations_count", { count })
+        : t("dashboard:public_trips.no_invitations")}
     </Box>
   );
 }
