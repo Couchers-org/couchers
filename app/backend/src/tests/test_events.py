@@ -219,14 +219,15 @@ def test_CreateEvent(db, frozen_timewarp_y2k, push_collector: PushCollector, mod
     assert e.value.details() == "Events cannot last longer than 7 days."
 
 
-def test_CreateEvent_incomplete_profile(db, frozen_timewarp: FrozenTimewarp):
+def test_CreateEvent_incomplete_profile(db):
     user1, token1 = generate_user(complete_profile=False)
     user2, token2 = generate_user()
 
     with session_scope() as session:
         c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
 
-    frozen_timewarp.freeze_at_y2k()
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
 
     with events_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -240,8 +241,8 @@ def test_CreateEvent_incomplete_profile(db, frozen_timewarp: FrozenTimewarp):
                         lat=0.1,
                         lng=0.2,
                     ),
-                    start_datetime_iso8601_local="2000-01-02T12:00:00",
-                    end_datetime_iso8601_local="2000-01-02T13:00:00",
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
