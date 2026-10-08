@@ -20,7 +20,7 @@ import {
   isControlMessage,
   messageTargetId,
 } from "features/messages/utils";
-import { groupChatsListKey } from "features/queryKeys";
+import { messageThreadsListKey } from "features/queryKeys";
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -116,11 +116,11 @@ export default function GroupChatListItem({ groupChat, className, isArchived = f
     onMutate: async () => {
       handleMenuClose();
       // Cancel outgoing refetches so they don't overwrite our optimistic update
-      await queryClient.cancelQueries({ queryKey: groupChatsListKey() });
+      await queryClient.cancelQueries({ queryKey: messageThreadsListKey() });
     },
     onSettled: () => {
       // Refetch after mutation completes (success or error)
-      queryClient.invalidateQueries({ queryKey: groupChatsListKey() });
+      queryClient.invalidateQueries({ queryKey: messageThreadsListKey() });
     },
   });
 

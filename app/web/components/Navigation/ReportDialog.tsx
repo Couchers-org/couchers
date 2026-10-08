@@ -4,6 +4,7 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "components/Dialog";
 import Snackbar from "components/Snackbar";
+import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -145,6 +146,15 @@ export default function ReportDialog({ open, onClose }: DialogProps) {
                 minRows={4}
                 maxRows={6}
               />
+              <DialogContentText>
+                <Trans
+                  i18nKey="report.bug.no_response_note"
+                  t={t}
+                  components={{
+                    supportLink: <StyledLink href="mailto:support@couchers.org?subject=Couchers.org%20bug%20report" />,
+                  }}
+                />
+              </DialogContentText>
             </DialogContent>
             <DialogActions>
               <Button onClick={() => handleClose({}, "button")} variant="outlined">
