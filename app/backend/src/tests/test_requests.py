@@ -40,7 +40,7 @@ from couchers.proto import (
 from couchers.proto.internal import unsubscribe_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_multi, today
-from tests.fixtures.db import backdate_conversations, generate_user
+from tests.fixtures.db import backdate_conversations, generate_user, make_user_block
 from tests.fixtures.misc import EmailCollector, PushCollector
 from tests.fixtures.sessions import api_session, auth_api_session, requests_session
 from tests.test_public_trips import _create_trip_directly, _make_node
@@ -2818,3 +2818,176 @@ def test_create_request_offer_blocked_after_traveller_declines(db, moderator):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+
+def _create_accepted_request(surfer_token: str, host_token: str, host_id: int, moderator, days_ahead: int = 2) -> int:
+    with requests_session(surfer_token) as api:
+        request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host_id,
+                from_date=(today() + timedelta(days=days_ahead)).isoformat(),
+                to_date=(today() + timedelta(days=days_ahead + 1)).isoformat(),
+                text=valid_request_text(),
+            )
+        ).host_request_id
+    moderator.approve_host_request(request_id)
+    with requests_session(host_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+            )
+        )
+    return int(request_id)
+
+
+def _upcoming_stay_ids(token: str, role: requests_pb2.StayRole.ValueType) -> list[int]:
+    with requests_session(token) as api:
+        res = api.ListMyUpcomingStays(requests_pb2.ListMyUpcomingStaysReq(role=role))
+    return [hr.host_request_id for hr in res.host_requests]
+
+
+def test_ListMyUpcomingStays_by_role(db, moderator):
+    surfer, surfer_token = generate_user()
+    host, host_token = generate_user()
+
+    request_id = _create_accepted_request(surfer_token, host_token, host.id, moderator)
+
+    assert _upcoming_stay_ids(host_token, requests_pb2.STAY_ROLE_HOSTING) == [request_id]
+    assert _upcoming_stay_ids(host_token, requests_pb2.STAY_ROLE_SURFING) == []
+    assert _upcoming_stay_ids(surfer_token, requests_pb2.STAY_ROLE_SURFING) == [request_id]
+    assert _upcoming_stay_ids(surfer_token, requests_pb2.STAY_ROLE_HOSTING) == []
+
+    with requests_session(host_token) as api:
+        res = api.ListMyUpcomingStays(requests_pb2.ListMyUpcomingStaysReq(role=requests_pb2.STAY_ROLE_HOSTING))
+    stay = res.host_requests[0]
+    assert stay.surfer_user_id == surfer.id
+    assert stay.host_user_id == host.id
+    assert stay.status == messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+    assert stay.from_date == (today() + timedelta(days=2)).isoformat()
+
+
+def test_ListMyUpcomingStays_public_trip_offer_by_stay_role(db, moderator):
+    """An offer is started by the host, but they're still the one hosting."""
+    traveller, traveller_token = generate_user()
+    _host, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(traveller.id, trip_from, trip_to)
+
+    with requests_session(host_token) as api:
+        offer_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=traveller.id,
+                from_date=trip_from.isoformat(),
+                to_date=trip_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        ).host_request_id
+    moderator.approve_host_request(offer_id)
+
+    # the traveller is the recipient of an offer, so they accept it
+    with requests_session(traveller_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=offer_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+            )
+        )
+
+    assert _upcoming_stay_ids(host_token, requests_pb2.STAY_ROLE_HOSTING) == [offer_id]
+    assert _upcoming_stay_ids(host_token, requests_pb2.STAY_ROLE_SURFING) == []
+    assert _upcoming_stay_ids(traveller_token, requests_pb2.STAY_ROLE_SURFING) == [offer_id]
+    assert _upcoming_stay_ids(traveller_token, requests_pb2.STAY_ROLE_HOSTING) == []
+
+    with requests_session(traveller_token) as api:
+        res = api.ListMyUpcomingStays(requests_pb2.ListMyUpcomingStaysReq(role=requests_pb2.STAY_ROLE_SURFING))
+    assert res.host_requests[0].public_trip_id == trip_id
+
+
+def test_ListMyUpcomingStays_only_accepted_or_confirmed_and_not_ended(db, moderator):
+    _surfer, surfer_token = generate_user()
+    host, host_token = generate_user()
+
+    accepted_id = _create_accepted_request(surfer_token, host_token, host.id, moderator, days_ahead=2)
+    confirmed_id = _create_accepted_request(surfer_token, host_token, host.id, moderator, days_ahead=4)
+    rejected_id = _create_accepted_request(surfer_token, host_token, host.id, moderator, days_ahead=6)
+    ended_id = _create_accepted_request(surfer_token, host_token, host.id, moderator, days_ahead=8)
+
+    with requests_session(surfer_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=confirmed_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
+            )
+        )
+    with requests_session(host_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=rejected_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
+            )
+        )
+
+    # a pending request isn't upcoming yet
+    with requests_session(surfer_token) as api:
+        pending_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=(today() + timedelta(days=10)).isoformat(),
+                to_date=(today() + timedelta(days=11)).isoformat(),
+                text=valid_request_text(),
+            )
+        ).host_request_id
+    moderator.approve_host_request(pending_id)
+
+    with session_scope() as session:
+        hr = session.execute(select(HostRequest).where(HostRequest.conversation_id == ended_id)).scalar_one()
+        hr.from_date = today() - timedelta(days=3)
+        hr.to_date = today() - timedelta(days=2)
+
+    assert _upcoming_stay_ids(host_token, requests_pb2.STAY_ROLE_HOSTING) == [accepted_id, confirmed_id]
+    assert _upcoming_stay_ids(surfer_token, requests_pb2.STAY_ROLE_SURFING) == [accepted_id, confirmed_id]
+
+
+def test_ListMyUpcomingStays_sorted_and_paginated(db, moderator):
+    _surfer, surfer_token = generate_user()
+    host, host_token = generate_user()
+
+    # created out of order, listed soonest first
+    later_id = _create_accepted_request(surfer_token, host_token, host.id, moderator, days_ahead=9)
+    soonest_id = _create_accepted_request(surfer_token, host_token, host.id, moderator, days_ahead=2)
+    middle_id = _create_accepted_request(surfer_token, host_token, host.id, moderator, days_ahead=5)
+
+    with requests_session(host_token) as api:
+        page1 = api.ListMyUpcomingStays(
+            requests_pb2.ListMyUpcomingStaysReq(role=requests_pb2.STAY_ROLE_HOSTING, page_size=2)
+        )
+        assert [hr.host_request_id for hr in page1.host_requests] == [soonest_id, middle_id]
+        assert page1.next_page_token
+
+        page2 = api.ListMyUpcomingStays(
+            requests_pb2.ListMyUpcomingStaysReq(
+                role=requests_pb2.STAY_ROLE_HOSTING, page_size=2, page_token=page1.next_page_token
+            )
+        )
+        assert [hr.host_request_id for hr in page2.host_requests] == [later_id]
+        assert not page2.next_page_token
+
+
+def test_ListMyUpcomingStays_hides_blocked_users(db, moderator):
+    surfer, surfer_token = generate_user()
+    host, host_token = generate_user()
+
+    _create_accepted_request(surfer_token, host_token, host.id, moderator)
+    make_user_block(host, surfer)
+
+    assert _upcoming_stay_ids(host_token, requests_pb2.STAY_ROLE_HOSTING) == []
+    assert _upcoming_stay_ids(surfer_token, requests_pb2.STAY_ROLE_SURFING) == []
+
+
+def test_ListMyUpcomingStays_requires_role(db):
+    _, token = generate_user()
+
+    with requests_session(token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.ListMyUpcomingStays(requests_pb2.ListMyUpcomingStaysReq())
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT

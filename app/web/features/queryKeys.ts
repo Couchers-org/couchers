@@ -105,6 +105,7 @@ export const hostRequestsListKey = (filters?: {
   type?: "all" | "hosting" | "surfing";
 }) => (filters ? ["hostRequests", filters] : ["hostRequests"]);
 export const hostRequestKey = (id?: number) => ["hostRequest", id];
+export const upcomingStaysKey = (role?: "hosting" | "surfing") => (role ? ["upcomingStays", role] : ["upcomingStays"]);
 export const hostRequestMessagesKey = (id?: number) => ["hostRequestMessages", id];
 
 // User

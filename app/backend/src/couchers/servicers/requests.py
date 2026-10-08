@@ -9,6 +9,7 @@ from sqlalchemy.sql import and_, func, or_
 
 from couchers.constants import HOST_REQUEST_DUPLICATE_WINDOW_HOURS, HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.context import CouchersContext, make_notification_user_context
+from couchers.crypto import decrypt_page_token, encrypt_page_token
 from couchers.db import can_moderate_node
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
@@ -544,6 +545,71 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
         return requests_pb2.ListHostRequestsRes(
             next_page_token=next_page_token, no_more=no_more, host_requests=host_requests
+        )
+
+    def ListMyUpcomingStays(
+        self, request: requests_pb2.ListMyUpcomingStaysReq, context: CouchersContext, session: Session
+    ) -> requests_pb2.ListMyUpcomingStaysRes:
+        if request.role == requests_pb2.STAY_ROLE_HOSTING:
+            role_column = HostRequest.host_user_id
+        elif request.role == requests_pb2.STAY_ROLE_SURFING:
+            role_column = HostRequest.surfer_user_id
+        else:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_stay_role")
+
+        page_size = min(MAX_PAGE_SIZE, request.page_size or DEFAULT_PAGINATION_LENGTH)
+
+        statement = where_moderated_content_visible(
+            where_users_column_visible(
+                where_users_column_visible(select(HostRequest), context, HostRequest.initiator_user_id),
+                context,
+                HostRequest.recipient_user_id,
+            ),
+            context,
+            HostRequest,
+            is_list_operation=True,
+        ).where(
+            role_column == context.user_id,
+            HostRequest.status.in_([HostRequestStatus.accepted, HostRequestStatus.confirmed]),
+            HostRequest.end_time >= func.now(),
+        )
+
+        if request.page_token:
+            token_date_str, token_id_str = decrypt_page_token(request.page_token).split(":")
+            token_date, token_id = parse_date(token_date_str), int(token_id_str)
+            statement = statement.where(
+                or_(
+                    HostRequest.from_date > token_date,
+                    and_(HostRequest.from_date == token_date, HostRequest.conversation_id > token_id),
+                )
+            )
+
+        host_requests = (
+            session.execute(statement.order_by(HostRequest.from_date, HostRequest.conversation_id).limit(page_size + 1))
+            .scalars()
+            .all()
+        )
+
+        next_page_token = ""
+        if len(host_requests) > page_size:
+            last = host_requests[page_size - 1]
+            next_page_token = encrypt_page_token(f"{date_to_api(last.from_date)}:{last.conversation_id}")
+
+        return requests_pb2.ListMyUpcomingStaysRes(
+            host_requests=[
+                requests_pb2.HostRequest(
+                    host_request_id=host_request.conversation_id,
+                    surfer_user_id=host_request.surfer_user_id,
+                    host_user_id=host_request.host_user_id,
+                    status=hostrequeststatus2api[host_request.status],
+                    from_date=date_to_api(host_request.from_date),
+                    to_date=date_to_api(host_request.to_date),
+                    hosting_city=host_request.hosting_city,
+                    public_trip_id=host_request.public_trip_id,
+                )
+                for host_request in host_requests[:page_size]
+            ],
+            next_page_token=next_page_token,
         )
 
     def RespondHostRequest(

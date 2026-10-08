@@ -1,15 +1,14 @@
 import { ArrowBack, ArrowForward, Luggage, MeetingRoom } from "@mui/icons-material";
 import { Box, IconButton, styled, Typography } from "@mui/material";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import FadingScrollTrack from "components/FadingScrollTrack";
-import { hostRequestsListKey } from "features/queryKeys";
+import { upcomingStaysKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
-import { HostRequestStatus } from "proto/messages_pb";
-import { HostRequest, HostRequestSortBy, ListHostRequestsRes } from "proto/requests_pb";
+import { HostRequest, ListMyUpcomingStaysRes } from "proto/requests_pb";
 import { useEffect, useRef, useState } from "react";
 import { routeToEditProfile, searchRoute } from "routes";
 import { service } from "service";
@@ -182,11 +181,6 @@ function UpcomingStaysWidget({
   );
 }
 
-const UPCOMING_STATUSES = [
-  HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED,
-  HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED,
-];
-
 export default function UpcomingStays() {
   const { t } = useTranslation([DASHBOARD]);
 
@@ -194,40 +188,22 @@ export default function UpcomingStays() {
     data: tripsData,
     isLoading: tripsLoading,
     error: tripsError,
-  } = useInfiniteQuery<ListHostRequestsRes.AsObject, RpcError>({
-    queryKey: hostRequestsListKey({ type: "surfing", onlyActive: true }),
-    queryFn: ({ pageParam }) =>
-      service.requests.listHostRequests({
-        pageToken: pageParam as string | undefined,
-        type: "surfing",
-        onlyActive: true,
-        statusIn: UPCOMING_STATUSES,
-        sortBy: HostRequestSortBy.HOST_REQUEST_SORT_BY_FROM_DATE,
-      }),
-    initialPageParam: undefined,
-    getNextPageParam: (lastPage) => (lastPage.noMore ? undefined : lastPage.nextPageToken),
+  } = useQuery<ListMyUpcomingStaysRes.AsObject, RpcError>({
+    queryKey: upcomingStaysKey("surfing"),
+    queryFn: () => service.requests.listMyUpcomingStays({ role: "surfing" }),
   });
 
   const {
     data: guestsData,
     isLoading: guestsLoading,
     error: guestsError,
-  } = useInfiniteQuery<ListHostRequestsRes.AsObject, RpcError>({
-    queryKey: hostRequestsListKey({ type: "hosting", onlyActive: true }),
-    queryFn: ({ pageParam }) =>
-      service.requests.listHostRequests({
-        pageToken: pageParam as string | undefined,
-        type: "hosting",
-        onlyActive: true,
-        statusIn: UPCOMING_STATUSES,
-        sortBy: HostRequestSortBy.HOST_REQUEST_SORT_BY_FROM_DATE,
-      }),
-    initialPageParam: undefined,
-    getNextPageParam: (lastPage) => (lastPage.noMore ? undefined : lastPage.nextPageToken),
+  } = useQuery<ListMyUpcomingStaysRes.AsObject, RpcError>({
+    queryKey: upcomingStaysKey("hosting"),
+    queryFn: () => service.requests.listMyUpcomingStays({ role: "hosting" }),
   });
 
-  const upcomingTrips = (tripsData?.pages ?? []).flatMap((page) => page.hostRequestsList);
-  const upcomingGuests = (guestsData?.pages ?? []).flatMap((page) => page.hostRequestsList);
+  const upcomingTrips = tripsData?.hostRequestsList ?? [];
+  const upcomingGuests = guestsData?.hostRequestsList ?? [];
 
   const error = tripsError ?? guestsError;
 
