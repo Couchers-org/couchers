@@ -7,13 +7,11 @@ import {
   HostRequestQuality,
   HostRequestSortBy,
   ListHostRequestsReq,
-  ListMyUpcomingStaysReq,
   MarkLastSeenHostRequestReq,
   RespondHostRequestReq,
   SendHostRequestFeedbackReq,
   SendHostRequestMessageReq,
   SetHostRequestArchiveStatusReq,
-  StayRole,
 } from "proto/requests_pb";
 import { Temporal } from "temporal-polyfill";
 
@@ -56,25 +54,6 @@ export async function listHostRequests({
   req.setNumber(count);
 
   const response = await client.requests.listHostRequests(req);
-
-  return response.toObject();
-}
-
-export async function listMyUpcomingStays({
-  role,
-  pageToken = "",
-  pageSize = 10,
-}: {
-  role: "hosting" | "surfing";
-  pageToken?: string;
-  pageSize?: number;
-}) {
-  const req = new ListMyUpcomingStaysReq();
-  req.setRole(role === "hosting" ? StayRole.STAY_ROLE_HOSTING : StayRole.STAY_ROLE_SURFING);
-  req.setPageToken(pageToken);
-  req.setPageSize(pageSize);
-
-  const response = await client.requests.listMyUpcomingStays(req);
 
   return response.toObject();
 }

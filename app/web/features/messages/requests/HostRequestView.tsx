@@ -18,7 +18,6 @@ import {
   listNotificationsQueryKey,
   messageThreadsListKey,
   pingQueryKey,
-  upcomingStaysKey,
 } from "features/queryKeys";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
@@ -195,7 +194,6 @@ export default function HostRequestView({ hostRequestId }: { hostRequestId: numb
       });
       queryClient.invalidateQueries({ queryKey: hostRequestsListKey() });
       queryClient.invalidateQueries({ queryKey: messageThreadsListKey() });
-      queryClient.invalidateQueries({ queryKey: upcomingStaysKey() });
     },
   });
 

@@ -8,16 +8,16 @@ import UpcomingStays from "./UpcomingStays";
 
 const { t } = i18n;
 
-const listMyUpcomingStaysMock = service.requests.listMyUpcomingStays as jest.MockedFunction<
-  typeof service.requests.listMyUpcomingStays
+const listHostRequestsMock = service.requests.listHostRequests as jest.MockedFunction<
+  typeof service.requests.listHostRequests
 >;
 
-const emptyResponse = { hostRequestsList: [], nextPageToken: "" };
+const emptyResponse = { hostRequestsList: [], noMore: true, nextPageToken: "" };
 
 describe("UpcomingStays", () => {
   beforeEach(() => {
     addDefaultUser();
-    listMyUpcomingStaysMock.mockResolvedValue(emptyResponse);
+    listHostRequestsMock.mockResolvedValue(emptyResponse);
   });
 
   it("shows empty state for both sections when there are no upcoming stays", async () => {
@@ -27,18 +27,22 @@ describe("UpcomingStays", () => {
     expect(screen.getByText(t("dashboard:stays.no_upcoming_guests"))).toBeVisible();
   });
 
-  it("loads upcoming stays for each role", async () => {
+  it("filters past and pending stays via API parameters", async () => {
     render(<UpcomingStays />, { wrapper });
 
     await screen.findByText(t("dashboard:stays.no_upcoming_trips"));
 
-    expect(listMyUpcomingStaysMock).toHaveBeenCalledWith({ role: "hosting" });
-    expect(listMyUpcomingStaysMock).toHaveBeenCalledWith({ role: "surfing" });
+    expect(listHostRequestsMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        onlyActive: true,
+        statusIn: [1, 3], // HOST_REQUEST_STATUS_ACCEPTED, HOST_REQUEST_STATUS_CONFIRMED
+      }),
+    );
   });
 
   it("shows an error alert if requests fail to load", async () => {
     mockConsoleError();
-    listMyUpcomingStaysMock.mockRejectedValue(new Error("Failed to load stays"));
+    listHostRequestsMock.mockRejectedValue(new Error("Failed to load stays"));
 
     render(<UpcomingStays />, { wrapper });
 
