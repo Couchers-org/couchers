@@ -6,7 +6,8 @@ from urllib.parse import parse_qs, urlparse
 
 import grpc
 import pytest
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy_utils import refresh_materialized_view
 
 from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
@@ -19,6 +20,7 @@ from couchers.models import (
     ClusterRole,
     ClusterSubscription,
     HostRequest,
+    HostRequestStatus,
     Message,
     MessageType,
     ModerationObjectType,
@@ -2774,6 +2776,54 @@ def test_create_request_offer_allowed_after_withdrawal(db, moderator):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+
+def test_db_allows_one_active_offer_per_trip(db, moderator):
+    """The database backs up the duplicate-offer check, e.g. against two concurrent offers."""
+    surfer, _ = generate_user()
+    _, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+
+    with requests_session(host_token) as api:
+        withdrawn_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=trip_from.isoformat(),
+                to_date=trip_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(withdrawn_id)
+
+    with requests_session(host_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=withdrawn_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
+            )
+        )
+        api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=trip_from.isoformat(),
+                to_date=trip_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        )
+
+    # reviving the withdrawn offer would leave the host with two active offers on the trip
+    with pytest.raises(IntegrityError):
+        with session_scope() as session:
+            session.execute(
+                update(HostRequest)
+                .where(HostRequest.conversation_id == withdrawn_id)
+                .values(status=HostRequestStatus.pending)
+            )
 
 
 def test_create_request_offer_blocked_after_traveller_declines(db, moderator):

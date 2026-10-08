@@ -158,6 +158,14 @@ class HostRequest(Base, kw_only=True):
             last_sent_request_reminder_time,
             from_date,
         ),
+        # A host can have at most one non-withdrawn offer per public trip
+        Index(
+            "ix_host_requests_one_active_offer_per_trip",
+            public_trip_id,
+            initiator_user_id,
+            unique=True,
+            postgresql_where=(status != HostRequestStatus.cancelled),
+        ),
     )
 
     @hybrid_property
