@@ -11,12 +11,16 @@
     "noFallthroughCasesInSwitch": true,
     "esModuleInterop": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "incremental": true,
-    "types": ["jest"]
+    "types": ["jest"],
+    "paths": {
+      "@toast-ui/editor": ["./node_modules/@toast-ui/editor/types/index.d.ts"],
+      "@toast-ui/editor/types/*": ["./node_modules/@toast-ui/editor/types/*"]
+    }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "i18n/namespaces.js", "i18n/allLanguages.js"],
   "exclude": ["node_modules", ".next", "jest.config.ts"]
