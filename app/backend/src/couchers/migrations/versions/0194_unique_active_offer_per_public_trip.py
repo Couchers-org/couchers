@@ -21,8 +21,8 @@ def upgrade() -> None:
         """
         UPDATE host_requests SET status = 'cancelled'
         WHERE public_trip_id IS NOT NULL AND status != 'cancelled'
-          AND conversation_id NOT IN (
-            SELECT max(conversation_id) FROM host_requests
+          AND id NOT IN (
+            SELECT max(id) FROM host_requests
             WHERE public_trip_id IS NOT NULL AND status != 'cancelled'
             GROUP BY public_trip_id, initiator_user_id
           )
