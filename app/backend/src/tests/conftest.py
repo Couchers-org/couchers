@@ -2,6 +2,7 @@ import hashlib
 import os
 from collections.abc import Generator
 from dataclasses import replace
+from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
@@ -278,8 +279,7 @@ def frozen_timewarp_y2k() -> Generator[None]:
     Freezes the clock at 2000-01-01 UTC,
     such that tests can hardcode date/times relative to that.
     """
-    for timewarp in frozen_timewarp():
-        timewarp.freeze_at_y2k()
+    for _ in install_timewarp(FrozenTimewarp(datetime(2000, 1, 1, tzinfo=UTC))):
         yield
 
 
