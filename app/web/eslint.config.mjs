@@ -1,16 +1,10 @@
-import { FlatCompat } from "@eslint/eslintrc";
-import js from "@eslint/js";
 import tsParser from "@typescript-eslint/parser";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTs from "eslint-config-next/typescript";
 import prettier from "eslint-config-prettier/flat";
 import jsonc from "eslint-plugin-jsonc";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 import unusedImports from "eslint-plugin-unused-imports";
-
-const compat = new FlatCompat({
-  baseDirectory: import.meta.dirname,
-  recommendedConfig: js.configs.recommended,
-  allConfig: js.configs.all,
-});
 
 const config = [
   {
@@ -30,14 +24,16 @@ const config = [
     linterOptions: { reportUnusedDisableDirectives: "warn" },
   },
 
-  // both legacy extends must go through the same FlatCompat instance so the
-  // @typescript-eslint plugin resolves to one module object ("Cannot redefine
-  // plugin" otherwise)
-
-  // Come back to this after we upgrade next.js https://github.com/Couchers-org/couchers/issues/9280
-  ...compat.extends("plugin:@typescript-eslint/recommended", "next/core-web-vitals"),
+  // eslint-config-next 16 ships native flat config, so spread it directly
+  // instead of going through FlatCompat. core-web-vitals = Next + React +
+  // React Hooks rules; typescript = @typescript-eslint/recommended rules.
+  ...nextVitals,
+  ...nextTs,
   prettier,
   {
+    // Scope to JS/TS so the import/* rules below resolve the `import` plugin
+    // (registered by eslint-config-next only for these files, not for JSON).
+    files: ["**/*.{js,jsx,mjs,ts,tsx,mts,cts}"],
     plugins: {
       "simple-import-sort": simpleImportSort,
       "unused-imports": unusedImports,
@@ -78,6 +74,19 @@ const config = [
       "react/no-unescaped-entities": "off",
       // Prefer inferred types so that the code is as close to JS as possible
       "@typescript-eslint/explicit-module-boundary-types": "off",
+
+      // eslint-config-next 16 bundles eslint-plugin-react-hooks v6, whose
+      // recommended set turns on the React Compiler lint rules. We don't use
+      // the React Compiler, and these flag long-standing patterns that weren't
+      // enforced before this upgrade. Keep rules-of-hooks/exhaustive-deps on
+      // and defer adopting the rest as separate work.
+      // @TODO(NA): Revisit these rules and address code issues in separate PR
+      "react-hooks/refs": "off",
+      "react-hooks/set-state-in-effect": "off",
+      "react-hooks/incompatible-library": "off",
+      "react-hooks/static-components": "off",
+      "react-hooks/purity": "off",
+      "react-hooks/immutability": "off",
     },
   },
   {
