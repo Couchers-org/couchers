@@ -2,7 +2,6 @@
   "compilerOptions": {
     "target": "es2020",
     "lib": ["dom", "dom.iterable", "esnext"],
-    "baseUrl": ".",
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -19,7 +18,8 @@
     "types": ["jest"],
     "paths": {
       "@toast-ui/editor": ["./node_modules/@toast-ui/editor/types/index.d.ts"],
-      "@toast-ui/editor/types/*": ["./node_modules/@toast-ui/editor/types/*"]
+      "@toast-ui/editor/types/*": ["./node_modules/@toast-ui/editor/types/*"],
+      "*": ["./*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "i18n/namespaces.js", "i18n/allLanguages.js"],
