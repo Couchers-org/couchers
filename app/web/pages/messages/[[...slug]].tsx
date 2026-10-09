@@ -50,7 +50,7 @@ function MessagesPageContent() {
     if (isNaN(chatId)) {
       return <NotFoundPage />;
     }
-    return <GroupChatView chatId={chatId} />;
+    return <GroupChatView key={chatId} chatId={chatId} />;
   }
 
   // Route: /messages/request/123 (host request view)
@@ -59,7 +59,7 @@ function MessagesPageContent() {
     if (isNaN(requestId)) {
       return <NotFoundPage />;
     }
-    return <HostRequestView hostRequestId={requestId} />;
+    return <HostRequestView key={requestId} hostRequestId={requestId} />;
   }
 
   // Invalid route - show 404
