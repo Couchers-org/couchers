@@ -18,7 +18,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { formatPhoneNumberIntl, isValidPhoneNumber } from "react-phone-number-input";
 import PhoneInputWithCountry from "react-phone-number-input/react-hook-form";
-import { howToDonateUrl } from "routes";
+import { donationsRoute } from "routes";
 import { service } from "service";
 
 import { ActionRow, SectionBlock, SectionRoot, SuccessBanner, VerificationSectionHeader } from "./VerificationSection";
@@ -179,7 +179,7 @@ export default function PhoneVerificationSection({ accountInfo }: PhoneVerificat
           <Trans
             t={t}
             i18nKey="change_phone.need_to_donate"
-            components={{ donateLink: <StyledLink href={howToDonateUrl} /> }}
+            components={{ donateLink: <StyledLink href={donationsRoute} /> }}
           />
         </Typography>
       ) : !accountInfo.phone ? (

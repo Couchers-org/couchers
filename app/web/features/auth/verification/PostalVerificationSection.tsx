@@ -10,7 +10,7 @@ import { localizeDateOnly } from "i18n/datetimes";
 import { AUTH } from "i18n/namespaces";
 import { PostalVerificationStatus } from "proto/postal_verification_pb";
 import { useMemo, useState } from "react";
-import { howToDonateUrl } from "routes";
+import { donationsRoute } from "routes";
 import { PostalAddressData } from "service/postalVerification";
 import { timestampToPlainDateTime } from "utils/date";
 
@@ -190,7 +190,7 @@ export default function PostalVerificationSection({ hasDonated }: { hasDonated: 
           <Trans
             t={t}
             i18nKey="verification_page.postal.need_to_donate"
-            components={{ donateLink: <StyledLink href={howToDonateUrl} /> }}
+            components={{ donateLink: <StyledLink href={donationsRoute} /> }}
           />
         </Typography>
       ) : (

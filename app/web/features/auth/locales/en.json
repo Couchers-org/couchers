@@ -368,7 +368,7 @@
     "postal": {
       "header": "Postal verification",
       "description": "We post you a card with a code, so you can confirm you live where your profile says. Your address is only used to send the card. Open to donors, as we cover the printing and postage.",
-      "need_to_donate": "We cover the cost of printing and posting your card, so postal verification is available to our donors. If you'd like to use it, you can <donateLink>make a donation</donateLink>.",
+      "need_to_donate": "You need to <donateLink>donate</donateLink> before you can complete postal verification.",
       "step_number": "Step {{step_number}}",
       "steps": {
         "address": "Your address",
