@@ -167,12 +167,6 @@ export const useMarkAllNotificationsSeen = () => {
         },
       );
     },
-    onSuccess: () => {
-      // Invalidate the ping query to update the notification badge count
-      queryClient.invalidateQueries({
-        queryKey: [pingQueryKey],
-      });
-    },
     onError: (error) => {
       Sentry.captureException(error, {
         tags: {
@@ -180,6 +174,11 @@ export const useMarkAllNotificationsSeen = () => {
           action: "onMutate",
         },
       });
+    },
+    onSettled: () => {
+      // Runs on failure too, reverting the optimistic write; ping carries the unread count.
+      queryClient.invalidateQueries({ queryKey: [listNotificationsQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [pingQueryKey] });
     },
   });
 
