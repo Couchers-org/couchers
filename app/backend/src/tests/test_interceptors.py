@@ -52,11 +52,6 @@ from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import real_admin_session
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 @contextmanager
 def interceptor_dummy_api(
     rpc,

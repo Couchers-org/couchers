@@ -405,8 +405,8 @@ def gis_session(token: str):
 
 
 @contextmanager
-def public_session():
-    channel = FakeChannel()
+def public_session(token: str | None = None):
+    channel = FakeChannel(token)
     public_pb2_grpc.add_PublicServicer_to_server(Public(), channel)
     yield public_pb2_grpc.PublicStub(channel)
 

@@ -45,5 +45,6 @@
   "non_transactional_why": "Je to ze své podstaty neslučitelné s autentickými mezilidskými kontakty. Je zdravé jen dávat nebo jen přijímat a měli bychom se naučit být s tím více v pohodě.",
   "why": "Proč?",
   "map_section_title": "Objev naši globální komunitu",
-  "last_signup": "Poslední registrace {{timeAgo}}"
+  "last_signup": "Poslední registrace {{timeAgo}}",
+  "animation_error": "Chyba při načítání animace"
 }

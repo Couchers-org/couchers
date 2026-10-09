@@ -10,11 +10,6 @@ from couchers.proto.internal import internal_pb2
 from couchers.utils import Timestamp_from_datetime, now
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def test_b64():
     assert crypto.b64decode(crypto.b64encode(b"hello there")) == b"hello there"
 

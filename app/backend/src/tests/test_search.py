@@ -19,11 +19,6 @@ from tests.test_communities import create_community, testing_communities  # noqa
 from tests.test_references import create_friend_reference
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 class TestSearchInCommunities:
     """The tests that search the whole community tree, grouped so they share one copy of it."""
 

@@ -18,6 +18,7 @@ from couchers.db import session_scope
 from couchers.jobs.handlers import check_expo_push_receipts
 from couchers.jobs.worker import process_job
 from couchers.models import (
+    BackgroundJob,
     DeviceType,
     HostingStatus,
     MeetupStatus,
@@ -33,7 +34,7 @@ from couchers.models import (
 )
 from couchers.notifications.background import handle_notification
 from couchers.notifications.expo_api import get_expo_push_receipts
-from couchers.notifications.notify import notify
+from couchers.notifications.notify import PendingNotification, notify, notify_many
 from couchers.notifications.send_raw_push_notification import PushNotificationError, send_raw_push_notification_v2
 from couchers.notifications.settings import get_topic_actions_by_delivery_type, reset_preference
 from couchers.notifications.web_push_api import decode_key, send_web_push
@@ -59,11 +60,6 @@ from tests.fixtures.sessions import (
     notifications_session,
     real_editor_session,
 )
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
 
 
 @pytest.mark.parametrize("enabled", [True, False])
@@ -775,6 +771,54 @@ def test_event_reminder_email_sent(db, email_collector: EmailCollector):
     assert title in email.plain
     assert expected_time_str in email.html
     assert expected_time_str in email.plain
+
+
+def test_notify_many(db):
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+
+    with session_scope() as session:
+        notify_many(session, [])
+
+    with session_scope() as session:
+        notify_many(
+            session,
+            [
+                PendingNotification(
+                    user_id=user1.id,
+                    topic_action=NotificationTopicAction.badge__add,
+                    key="a",
+                    data=notification_data_pb2.BadgeAdd(badge_id="volunteer"),
+                ),
+                PendingNotification(
+                    user_id=user2.id,
+                    topic_action=NotificationTopicAction.badge__remove,
+                    key="b",
+                ),
+            ],
+        )
+
+    with session_scope() as session:
+        notifications = session.execute(select(Notification).order_by(Notification.id)).scalars().all()
+        assert [(n.user_id, n.topic_action, n.key) for n in notifications] == [
+            (user1.id, NotificationTopicAction.badge__add, "a"),
+            (user2.id, NotificationTopicAction.badge__remove, "b"),
+        ]
+        assert notification_data_pb2.BadgeAdd.FromString(notifications[0].data).badge_id == "volunteer"
+        assert notifications[1].data == b""
+
+        jobs = (
+            session.execute(
+                select(BackgroundJob)
+                .where(BackgroundJob.job_type == handle_notification.__name__)
+                .order_by(BackgroundJob.id)
+            )
+            .scalars()
+            .all()
+        )
+        assert [jobs_pb2.HandleNotificationPayload.FromString(job.payload).notification_id for job in jobs] == [
+            n.id for n in notifications
+        ]
 
 
 def test_RegisterMobilePushNotificationSubscription(db):
@@ -2105,7 +2149,7 @@ def test_web_push_gone_disables_subscription(db, frozen_timewarp, status_code):
 
 
 @pytest.mark.parametrize(("ttl", "expected"), [(0, "no-cache"), (3600, "cache")])
-def test_web_push_sends_wns_cache_policy(testconfig, ttl, expected):
+def test_web_push_sends_wns_cache_policy(ttl, expected):
     """WNS (Windows Notification Service, Edge's push backend) rejects a mismatched cache policy and ttl."""
     with patch("couchers.notifications.web_push_api.requests.post") as mock_post:
         send_web_push(

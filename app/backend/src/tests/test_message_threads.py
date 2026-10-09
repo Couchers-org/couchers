@@ -26,11 +26,6 @@ from tests.test_public_trips import _create_trip_directly
 from tests.test_requests import valid_request_text
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def _make_trip(user: User) -> tuple[int, int]:
     """Create a community + an active public trip for the given traveller."""
     with session_scope() as session:

@@ -27,11 +27,6 @@ from tests.fixtures.sessions import discussions_session, events_session, real_mo
 from tests.test_communities import create_community
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def test_threads_basic(db):
     user1, token1 = generate_user()
 

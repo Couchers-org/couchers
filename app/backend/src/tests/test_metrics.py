@@ -22,11 +22,6 @@ from tests.fixtures.db import generate_user
 from tests.test_communities import create_community
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def _populate(gauge):
     for registered_gauge, f in _set_hacky_labeled_gauges_funcs:
         if registered_gauge is gauge:

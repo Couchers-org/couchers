@@ -215,10 +215,10 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        color: "var(--mui-palette-text-primary)",
+        color: "var(--mui-palette-action-active)",
       }}
     >
-      <LanguageIcon fontSize="small" />
+      <LanguageIcon sx={{ fontSize: { xs: 20, md: 24 } }} />
     </Box>
   );
 

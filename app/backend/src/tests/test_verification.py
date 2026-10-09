@@ -17,11 +17,6 @@ from tests.fixtures.misc import PushCollector, process_jobs
 from tests.fixtures.sessions import account_session, api_session
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def test_ChangePhone(db, monkeypatch, push_collector: PushCollector):
     user, token = generate_user()
     user_id = user.id

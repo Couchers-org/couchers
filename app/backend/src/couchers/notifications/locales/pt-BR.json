@@ -86,7 +86,12 @@
   },
   "chat": {
     "message": {
-      "event_description": "Alguém envia uma mensagem para você"
+      "event_description": "Alguém envia uma mensagem para você",
+      "push_group": {
+        "title": "{{user}} • {{group}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "{{group}}"
+      }
     },
     "missed_messages": {
       "event_description": "Mensagens pendentes em uma conversa",

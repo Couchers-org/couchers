@@ -3,7 +3,6 @@ import os
 import re
 import subprocess
 from pathlib import Path
-from typing import Any
 
 import pytest
 from google.protobuf import empty_pb2
@@ -216,7 +215,7 @@ def migration_test_db(postgres_conn):
 
 
 @pytest.mark.skipif(not pg_dump_is_available(), reason="Can't run migration tests without pg_dump")
-def test_migrations(testconfig: dict[str, Any], migration_test_db) -> None:
+def test_migrations(migration_test_db) -> None:
     """
     Compares the database schema built up from migrations with the
     schema built by models.py. Both scenarios are started from an
@@ -297,7 +296,7 @@ def test_slugify(db):
         )
 
 
-def test_database_consistency_check(db, testconfig: dict[str, Any]) -> None:
+def test_database_consistency_check(db) -> None:
     """The database consistency check should pass with valid user/gallery setup"""
     # Create a few users (which auto-creates their profile galleries)
     generate_user()

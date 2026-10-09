@@ -37,11 +37,6 @@ from tests.fixtures.timewarp import Timewarp
 from tests.test_requests import valid_request_text
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def test_GetAccountInfo(db, fast_passwords):
     # with password
     user1, token1 = generate_user(hashed_password=hash_password(random_hex()), email="user@couchers.invalid")
@@ -413,6 +408,25 @@ def test_ChangeEmailV2_email_in_use(db, fast_passwords):
                 .where(User.new_email_token_expiry >= func.now())
             )
         ).scalar_one() == 0
+
+
+def test_ChangeEmailV2_deleted_user_email(db, fast_passwords):
+    password = random_hex()
+    user, token = generate_user(hashed_password=hash_password(password))
+    deleted_user, _ = generate_user(delete_user=True)
+    banned_user, _ = generate_user()
+
+    with session_scope() as session:
+        session.execute(
+            update(User).where(User.id == banned_user.id).values(deleted_at=func.now(), banned_at=func.now())
+        )
+
+    with account_session(token) as account:
+        with pytest.raises(grpc.RpcError) as e:
+            account.ChangeEmailV2(account_pb2.ChangeEmailV2Req(password=password, new_email=banned_user.email))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+        account.ChangeEmailV2(account_pb2.ChangeEmailV2Req(password=password, new_email=deleted_user.email))
 
 
 def test_ChangeEmailV2_no_change(db, fast_passwords):
