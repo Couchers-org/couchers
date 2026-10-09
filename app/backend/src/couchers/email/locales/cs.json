@@ -49,7 +49,8 @@
   "calendar_events": {
     "title_cancelled": "Zrušeno: {{ title }}",
     "host_requests": {
-      "title_host": "Hostování {{ name }}"
+      "title_host": "Hostování {{ name }}",
+      "title_surfer": "Surfování s {{ name }}"
     }
   },
   "plaintext_formats": {

@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-09-16 23:41+0000\n"
+"PO-Revision-Date: 2026-09-21 07:41+0000\n"
 "Last-Translator: Hakan Kartal <hakankartal4numara@gmail.com>\n"
 "Language-Team: Turkish <https://translate.couchershq.org/projects/couchers/glossary-key-terms/tr/>\n"
 "Language: tr\n"
@@ -21,3 +21,11 @@ msgstr "Hizmet Şartları"
 #. (noun) The https://help.couchers.org website.
 msgid "help_center"
 msgstr "Yardım Merkezi"
+
+#. (noun) A user's account password on Couchers.org.
+msgid "password"
+msgstr "şifre"
+
+#. (verb) The action of logging in to Couchers.org.
+msgid "log_in"
+msgstr "giriş yap"

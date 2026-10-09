@@ -29,13 +29,15 @@
       "guests_field_label": "Misafir sayısı",
       "sleeping_arrangement_filters": {
         "private": {
-          "label": "Özel alan"
+          "label": "Özel alan",
+          "description": " - örneğin kendine ait oda veya benzeri"
         },
         "shared_room": {
           "label": "Paylaşılan oda"
         },
         "common": {
-          "label": "Ortak oda"
+          "label": "Ortak oda",
+          "description": " - örneğin oturma odasındaki kanepe"
         }
       },
       "title": "Konaklama filtreleri",
@@ -49,7 +51,8 @@
       "has_strong_verification": "Kuvvetli doğrulamaya sahip",
       "same_gender_only": "Yalnızca aynı cinsiyetteki kişileri göster",
       "same_gender_only_helper_text": "Bu filtreyi yalnızca kuvvetli doğrulamaya sahip kullanıcılar kullanabilir.",
-      "get_strong_verification": "Buradan kuvvetli doğrulanın(ücretsiz)."
+      "get_strong_verification": "Buradan kuvvetli doğrulanın(ücretsiz).",
+      "has_references": "Referansları var"
     },
     "rules": {
       "title": "Kurallar",

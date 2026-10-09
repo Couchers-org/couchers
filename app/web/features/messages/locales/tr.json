@@ -137,7 +137,8 @@
     "reason_other_placeholder": "Lütfen bize daha fazla bilgi verin...",
     "privacy_notice": "Yanıtlarınız gizlidir ve kullanıcıyla paylaşılmayacaktır. Bunları, tüm kullanıcılar için geri bildirimi iyileştirmek amacıyla, diğer birçok yanıtla birleştirilmiş, toplu ve anonim bir biçimde kullanabiliriz.",
     "quality_label": "Bu talebi gizlice değerlendirin (İsteğe bağlı):",
-    "quality_high": "Yüksek kalite"
+    "quality_high": "Yüksek kalite",
+    "submit_button": "Gönder"
   },
   "surfer_confirm_box_title": "{{name}} isteğinizi kabul etti!",
   "surfer_confirm_box_description": "Konaklamanı kesinleştirmek için onayla ya da planların değiştiyse iptal et.",

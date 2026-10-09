@@ -13,17 +13,39 @@ import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import StyledLink from "components/StyledLink";
-import { DONATIONS_BOX_CURRENCY, DONATIONS_BOX_VALUES } from "features/donations/constants";
+import {
+  DONATIONS_BOX_CURRENCY,
+  DONATIONS_BOX_DEFAULT_VALUE_INDEX,
+  DONATIONS_BOX_VALUES,
+  DONATIONS_BOX_YEARLY_VALUES,
+} from "features/donations/constants";
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { DONATIONS } from "i18n/namespaces";
 import { useRouter } from "next/router";
+import { DonationFrequency } from "proto/donations_pb";
 import React, { PropsWithChildren, useEffect, useRef, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { service } from "service";
 import { theme } from "theme";
 
+type Frequency = "monthly" | "yearly" | "one-time";
+
+interface DonationFormData {
+  amount: number;
+  frequency: Frequency;
+}
+
 const SUB_GRID_ITEM_AMOUNT = 2;
+
+const FREQUENCIES: Record<Frequency, DonationFrequency> = {
+  monthly: DonationFrequency.DONATION_FREQUENCY_MONTHLY,
+  yearly: DonationFrequency.DONATION_FREQUENCY_YEARLY,
+  "one-time": DonationFrequency.DONATION_FREQUENCY_ONE_TIME,
+};
+
+const amountsForFrequency = (frequency: Frequency) =>
+  frequency === "yearly" ? DONATIONS_BOX_YEARLY_VALUES : DONATIONS_BOX_VALUES;
 
 const StyledForm = styled("form")(() => ({
   padding: theme.spacing(2),
@@ -39,7 +61,7 @@ const StyledFormGroup = styled(FormControl)(() => ({
 }));
 
 const StyledRadioGroup = styled(RadioGroup)(() => ({
-  gridTemplateColumns: "repeat( auto-fit, minmax(160px, 1fr) )",
+  gridTemplateColumns: "repeat( auto-fit, minmax(100px, 1fr) )",
   gridAutoRows: "2.75rem",
   display: "grid",
   gap: theme.spacing(2),
@@ -201,11 +223,6 @@ const StyledSubmitButton = styled(Button)(() => ({
   alignSelf: "stretch",
 }));
 
-interface DonationFormData {
-  amount: number;
-  recurring: "monthly" | "one-off";
-}
-
 export default function DonationsBox() {
   const { t } = useTranslation(DONATIONS);
 
@@ -226,8 +243,16 @@ export default function DonationsBox() {
     control,
     handleSubmit,
     reset: resetForm,
+    setValue,
     formState: { errors },
-  } = useForm<DonationFormData>();
+  } = useForm<DonationFormData>({
+    defaultValues: {
+      amount: DONATIONS_BOX_VALUES[DONATIONS_BOX_DEFAULT_VALUE_INDEX],
+      frequency: "monthly",
+    },
+  });
+
+  const frequency = useWatch({ control, name: "frequency" });
 
   const customAmountInput = useRef<HTMLInputElement>(null);
 
@@ -242,13 +267,13 @@ export default function DonationsBox() {
     isPending,
     mutate: initiateDonation,
   } = useMutation<void, RpcError, DonationFormData>({
-    mutationFn: async ({ amount, recurring }) => {
+    mutationFn: async ({ amount, frequency }) => {
       if (!checkForValidAmount(amount)) {
         throw Error(t("donations_box.amount_validation_error"));
       }
       const source = router.query.utm_source as string;
 
-      const sessionUrl = await service.donations.initiateDonation(amount, recurring === "monthly", source);
+      const sessionUrl = await service.donations.initiateDonation(amount, FREQUENCIES[frequency], source);
 
       // Redirect to Stripe Checkout
       window.location.href = sessionUrl;
@@ -271,6 +296,12 @@ export default function DonationsBox() {
       setIsPredefinedAmount(true);
     };
 
+  const handleFrequencyChange = (value: Frequency, onChange: (...event: unknown[]) => void) => {
+    onChange(value);
+    setValue("amount", amountsForFrequency(value)[DONATIONS_BOX_DEFAULT_VALUE_INDEX]);
+    setIsPredefinedAmount(true);
+  };
+
   const formatDonationValue = (val: number) =>
     new Intl.NumberFormat("en-US", {
       currency: "USD",
@@ -286,25 +317,25 @@ export default function DonationsBox() {
       <Typography variant="h3">{t("donations_box.title")}</Typography>
       <Controller
         control={control}
-        name="recurring"
+        name="frequency"
         rules={{
           required: t("donations_box.validation_message"),
         }}
-        defaultValue="monthly"
         render={({ field }) => (
           <StyledFormGroup variant="standard">
             <StyledRadioGroup
               {...field}
-              id="recurring"
+              id="frequency"
               aria-label={t("donations_box.recurrence_aria_label")}
-              name="recurring-radio"
-              onChange={(_, value) => field.onChange(value)}
+              name="frequency-radio"
+              onChange={(_, value) => handleFrequencyChange(value as Frequency, field.onChange)}
               value={field.value}
             >
               <StyledLabelledRadioButton value="monthly" label={t("donations_box.monthly_button_label")} />
+              <StyledLabelledRadioButton value="yearly" label={t("donations_box.yearly_button_label")} />
               <StyledLabelledRadioButton value="one-time" label={t("donations_box.one_time_button_label")} />
             </StyledRadioGroup>
-            <FormHelperText error={!!errors?.recurring?.message}>{errors?.recurring?.message}</FormHelperText>
+            <FormHelperText error={!!errors?.frequency?.message}>{errors?.frequency?.message}</FormHelperText>
           </StyledFormGroup>
         )}
       />
@@ -315,11 +346,10 @@ export default function DonationsBox() {
       <Controller
         name="amount"
         control={control}
-        defaultValue={DONATIONS_BOX_VALUES[2]}
         render={({ field }) => (
           <AmountGrid>
             {[
-              ...DONATIONS_BOX_VALUES.map((value) => {
+              ...amountsForFrequency(frequency).map((value) => {
                 return (
                   <StyledAmountButton
                     key={value}
@@ -344,7 +374,9 @@ export default function DonationsBox() {
                   min="1"
                   onChange={(e) => {
                     field.onChange(
-                      typeof e.target.valueAsNumber === "number" ? e.target.valueAsNumber : DONATIONS_BOX_VALUES[0],
+                      typeof e.target.valueAsNumber === "number"
+                        ? e.target.valueAsNumber
+                        : amountsForFrequency(frequency)[0],
                     );
                     setIsPredefinedAmount(false);
                   }}

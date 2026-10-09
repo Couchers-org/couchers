@@ -230,10 +230,20 @@
   },
   "host_request": {
     "accept": {
-      "event_description": "Quelqu'un.e accepte votre demande d'hébergement"
+      "event_description": "Quelqu'un.e accepte votre demande d'hébergement",
+      "push": {
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Demande d'hébergement acceptée",
+        "body": "{{user}} a accepté votre demande d'hébergement pour le {{date}}."
+      }
     },
     "cancel": {
-      "event_description": "Quelqu'un.e annule sa demande d'hébergement"
+      "event_description": "Quelqu'un.e annule sa demande d'hébergement",
+      "push": {
+        "title": "{{user}} a annulé sa demande d'hébergement",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Demande d'hébergement annulée"
+      }
     },
     "confirm": {
       "event_description": "Quelqu'un.e confirme sa demande d'hébergement"
@@ -245,7 +255,11 @@
       "event_description": "Quelqu’un.e envoie un message dans une demande d’hébergement"
     },
     "missed_messages": {
-      "event_description": "Vous manquez des messages dans une demande d'hébergement"
+      "event_description": "Vous manquez des messages dans une demande d'hébergement",
+      "push": {
+        "ios_subtitle": "Messages manqués",
+        "body": "Vous avez de nouveaux messages non lus de {{user}}."
+      }
     },
     "reject": {
       "event_description": "Quelqu'un.e refuse votre demande d'hébergement"

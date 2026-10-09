@@ -46,7 +46,8 @@
     },
     "complete_profile": {
       "title": "Complétez votre profil",
-      "button": "Éditer votre profil"
+      "button": "Éditer votre profil",
+      "description": "Remplissez la section \"Qui suis-je\" et téléchargez une photo de profil"
     },
     "strong_verification": {
       "description": "Vérifiez votre identité pour une communauté plus sûre",

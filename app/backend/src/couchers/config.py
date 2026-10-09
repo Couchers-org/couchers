@@ -58,6 +58,7 @@ class Config:
     STRIPE_API_KEY: str
     STRIPE_WEBHOOK_SECRET: str
     STRIPE_RECURRING_PRODUCT_ID: str
+    STRIPE_YEARLY_RECURRING_PRODUCT_ID: str
     # Strong verification through Iris ID (gated at runtime by the `strong_verification_enabled` feature flag)
     IRIS_ID_PUBKEY: str
     IRIS_ID_SECRET: str
@@ -207,7 +208,12 @@ class Config:
 
             # Donations are gated at runtime by the `donations_enabled` feature flag, which can be flipped on
             # remotely at any time, so prod must always have Stripe credentials present so the feature can run.
-            if not self.STRIPE_API_KEY or not self.STRIPE_WEBHOOK_SECRET or not self.STRIPE_RECURRING_PRODUCT_ID:
+            if (
+                not self.STRIPE_API_KEY
+                or not self.STRIPE_WEBHOOK_SECRET
+                or not self.STRIPE_RECURRING_PRODUCT_ID
+                or not self.STRIPE_YEARLY_RECURRING_PRODUCT_ID
+            ):
                 raise Exception("Stripe credentials must be configured in production")
 
             # Listmonk is gated at runtime by the `listmonk_enabled` feature flag, which can be flipped on
@@ -272,7 +278,7 @@ class Config:
             # mypy erroneously reports an error below (https://github.com/python/mypy/issues/15630)
             elif typing.get_origin(var_type) is Literal:  # type: ignore[comparison-overlap]
                 # list of allowed string values
-                options = typing.get_args(var_type)
+                options = typing.get_args(var_type)  # type: ignore[unreachable]
                 if env_value not in options:
                     raise ValueError(f"Invalid value for {var_name}, need one of {', '.join(options)}")
                 attr_value = env_value
@@ -300,7 +306,7 @@ class Config:
             raise KeyError(f"No such config key: {key}.")
 
         if typing.get_origin(var_type) is Literal:  # type: ignore[comparison-overlap]
-            options = typing.get_args(var_type)
+            options = typing.get_args(var_type)  # type: ignore[unreachable]
             if value not in options:
                 raise ValueError(f"Invalid value for {key}, need one of {', '.join(options)}")
         elif not isinstance(value, var_type):
