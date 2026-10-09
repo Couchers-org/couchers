@@ -82,6 +82,13 @@ export default function StrongVerificationSection({ hasStrongVerification }: Str
         status={hasStrongVerification ? "verified" : "not_verified"}
       />
 
+      {hasStrongVerification && (
+        <SuccessBanner>
+          <CheckCircle />
+          <Typography variant="body1">{t("verification_page.strong.verified_message")}</Typography>
+        </SuccessBanner>
+      )}
+
       <Box
         sx={(theme) => ({
           display: "flex",
@@ -141,15 +148,9 @@ export default function StrongVerificationSection({ hasStrongVerification }: Str
       </CardGrid>
 
       {hasStrongVerification ? (
-        <SectionBlock>
-          <SuccessBanner>
-            <CheckCircle />
-            <Typography variant="body1">{t("verification_page.strong.verified_message")}</Typography>
-          </SuccessBanner>
-          <ActionRow align="center">
-            <DeleteStrongVerificationDataButton variant="outlined" />
-          </ActionRow>
-        </SectionBlock>
+        <ActionRow align="center">
+          <DeleteStrongVerificationDataButton variant="outlined" />
+        </ActionRow>
       ) : (
         <SectionBlock>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 0.75 }}>
