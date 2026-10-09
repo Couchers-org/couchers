@@ -2,7 +2,7 @@
   "change_email_form": {
     "title": "Change email",
     "current_email_message": "Your email address is currently <strong>{{email}}</strong>.",
-    "success_message": "Your email change request has been received. Check your new email address to complete the change.",
+    "success_message": "We sent a confirmation link to your new email address. Click it to finish updating your account.",
     "current_password": "Current password",
     "new_email": "New email",
     "hide_current_password": "Hide current password",
