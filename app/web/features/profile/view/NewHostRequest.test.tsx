@@ -42,7 +42,7 @@ const [, hostUser] = users; // funnydog, userId=2
 const LONG_TEXT = "a".repeat(250);
 
 function renderNewHostRequest() {
-  render(
+  return render(
     <ProfileUserProvider user={hostUser}>
       <NewHostRequest setIsRequestSuccess={jest.fn()} setIsRequesting={jest.fn()} />
     </ProfileUserProvider>,
@@ -50,9 +50,18 @@ function renderNewHostRequest() {
   );
 }
 
+// Types a date into a date field, section by section as a keyboard user would
+async function typeDate(user: ReturnType<typeof userEvent.setup>, label: string, digits: string) {
+  await user.click(screen.getByRole("group", { name: label }));
+  await user.keyboard("{Control>}a{/Control}");
+  await user.keyboard(digits);
+}
+
 describe("NewHostRequest", () => {
   beforeEach(() => {
     addDefaultUser();
+    // drafts are kept in sessionStorage, so don't let one test's draft leak into the next
+    window.sessionStorage.clear();
     jest.useFakeTimers();
     jest.setSystemTime(new Date("2026-05-24"));
   });
@@ -218,5 +227,126 @@ describe("NewHostRequest", () => {
 
     expect(createHostRequestMock).toHaveBeenCalledTimes(1);
     expect(send).toBeDisabled();
+  });
+
+  it("keeps the request draft when the form is closed before sending", async () => {
+    // e.g. the mobile profile sheet being swiped closed mid-request
+    createHostRequestMock.mockResolvedValue(1);
+    const { unmount } = renderNewHostRequest();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+
+    const arrivalGroup = await screen.findByRole("group", {
+      name: t("profile:request_form.arrival_date"),
+    });
+    await user.click(arrivalGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("06012026");
+
+    const departureGroup = screen.getByRole("group", {
+      name: t("profile:request_form.departure_date"),
+    });
+    await user.click(departureGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("06052026");
+
+    await user.click(screen.getByLabelText(t("profile:request_form.request")));
+    await user.paste(LONG_TEXT);
+
+    unmount();
+    renderNewHostRequest();
+
+    expect(await screen.findByLabelText(t("profile:request_form.request"))).toHaveValue(LONG_TEXT);
+
+    // the restored dates go out with the request too
+    await user.click(screen.getByRole("button", { name: t("global:send") }));
+    await waitFor(() => expect(createHostRequestMock).toHaveBeenCalled());
+    const sent = createHostRequestMock.mock.calls[0][0];
+    expect(sent.text).toBe(LONG_TEXT);
+    expect(sent.fromDate.toString()).toBe("2026-06-01");
+    expect(sent.toDate.toString()).toBe("2026-06-05");
+  });
+
+  it("clears the request draft once the request is sent", async () => {
+    createHostRequestMock.mockResolvedValue(1);
+    const { unmount } = renderNewHostRequest();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+
+    const arrivalGroup = await screen.findByRole("group", {
+      name: t("profile:request_form.arrival_date"),
+    });
+    await user.click(arrivalGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("06012026");
+
+    const departureGroup = screen.getByRole("group", {
+      name: t("profile:request_form.departure_date"),
+    });
+    await user.click(departureGroup);
+    await user.keyboard("{Control>}a{/Control}");
+    await user.keyboard("06052026");
+
+    await user.click(screen.getByLabelText(t("profile:request_form.request")));
+    await user.paste(LONG_TEXT);
+
+    await user.click(screen.getByRole("button", { name: t("global:send") }));
+    await waitFor(() => expect(createHostRequestMock).toHaveBeenCalled());
+
+    unmount();
+    renderNewHostRequest();
+
+    expect(await screen.findByLabelText(t("profile:request_form.request"))).toHaveValue("");
+  });
+
+  it("keeps a departure date typed in full", async () => {
+    // Typing the year digit by digit briefly makes the departure year 0002, which used to
+    // trigger the departure being reset to the day after arrival.
+    createHostRequestMock.mockResolvedValue(1);
+    renderNewHostRequest();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await screen.findByRole("group", { name: t("profile:request_form.arrival_date") });
+
+    await typeDate(user, t("profile:request_form.arrival_date"), "06012026");
+    await typeDate(user, t("profile:request_form.departure_date"), "06052026");
+    await user.click(screen.getByLabelText(t("profile:request_form.request")));
+    await user.paste(LONG_TEXT);
+    await user.click(screen.getByRole("button", { name: t("global:send") }));
+
+    await waitFor(() => expect(createHostRequestMock).toHaveBeenCalled());
+    expect(createHostRequestMock.mock.calls[0][0].toDate.toString()).toBe("2026-06-05");
+  });
+
+  it("moves the departure date when the arrival date is changed past it", async () => {
+    createHostRequestMock.mockResolvedValue(1);
+    renderNewHostRequest();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await screen.findByRole("group", { name: t("profile:request_form.arrival_date") });
+
+    await typeDate(user, t("profile:request_form.arrival_date"), "06012026");
+    await typeDate(user, t("profile:request_form.departure_date"), "06052026");
+    await typeDate(user, t("profile:request_form.arrival_date"), "06102026");
+    await user.click(screen.getByLabelText(t("profile:request_form.request")));
+    await user.paste(LONG_TEXT);
+    await user.click(screen.getByRole("button", { name: t("global:send") }));
+
+    await waitFor(() => expect(createHostRequestMock).toHaveBeenCalled());
+    const sent = createHostRequestMock.mock.calls[0][0];
+    expect(sent.fromDate.toString()).toBe("2026-06-10");
+    expect(sent.toDate.toString()).toBe("2026-06-11");
+  });
+
+  it("shows an error instead of sending when the departure date isn't after the arrival date", async () => {
+    createHostRequestMock.mockResolvedValue(1);
+    renderNewHostRequest();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await screen.findByRole("group", { name: t("profile:request_form.arrival_date") });
+
+    await typeDate(user, t("profile:request_form.arrival_date"), "06052026");
+    await typeDate(user, t("profile:request_form.departure_date"), "06012026");
+    await user.click(screen.getByLabelText(t("profile:request_form.request")));
+    await user.paste(LONG_TEXT);
+    await user.click(screen.getByRole("button", { name: t("global:send") }));
+
+    expect(await screen.findByText(t("profile:request_form.departure_date_not_after_arrival"))).toBeInTheDocument();
+    expect(createHostRequestMock).not.toHaveBeenCalled();
   });
 });
