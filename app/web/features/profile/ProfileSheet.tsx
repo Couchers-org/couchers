@@ -212,7 +212,7 @@ export default function ProfileSheet() {
         )}
       </SheetHeader>
       {openGroupChatId ? (
-        <GroupChatView chatId={openGroupChatId} embedded />
+        <GroupChatView key={openGroupChatId} chatId={openGroupChatId} embedded />
       ) : selectedBadgeId ? (
         <ScrollContent sx={{ p: 2 }}>
           <BadgeDetail badgeId={selectedBadgeId} />
