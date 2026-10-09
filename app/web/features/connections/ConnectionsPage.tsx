@@ -26,7 +26,7 @@ function ConnectionsPage() {
         </Grid>
         <Grid size={{ xs: 12, md: 5 }}>
           <Stack spacing={2}>
-            <FriendRequestsReceived />
+            <FriendRequestsReceived isContentAboveLoaded={!isLoading} />
             <FriendRequestsSent />
             <BlockedUsersList refetchFriends={refetchFriends} />
           </Stack>
