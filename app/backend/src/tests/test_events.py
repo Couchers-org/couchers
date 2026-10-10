@@ -61,7 +61,8 @@ def test_CreateEvent(db, frozen_timewarp, push_collector: PushCollector, moderat
     with session_scope() as session:
         c_id = create_community(session, 0, 2, "Community", [mod_user], [], None).id
 
-    start_time = now() + timedelta(hours=2)
+    time_before = now()
+    start_time = to_event_time_granularity(time_before + timedelta(hours=2))
     end_time = start_time + timedelta(hours=3)
 
     # Can create an event
@@ -87,8 +88,8 @@ def test_CreateEvent(db, frozen_timewarp, push_collector: PushCollector, moderat
     assert create_res.location.lat == 0.1
     assert create_res.location.lng == 0.2
     assert create_res.location.address == "Near Null Island"
-    assert to_aware_datetime(create_res.created) == now()
-    assert to_aware_datetime(create_res.last_edited) == now()
+    assert time_before <= to_aware_datetime(create_res.created) <= now()
+    assert time_before <= to_aware_datetime(create_res.last_edited) <= now()
     assert create_res.creator_user_id == creator_user.id
     assert to_aware_datetime(create_res.start_time) == start_time
     assert to_aware_datetime(create_res.end_time) == end_time
@@ -118,8 +119,8 @@ def test_CreateEvent(db, frozen_timewarp, push_collector: PushCollector, moderat
     assert get_res.location.lat == 0.1
     assert get_res.location.lng == 0.2
     assert get_res.location.address == "Near Null Island"
-    assert to_aware_datetime(get_res.created) == now()
-    assert to_aware_datetime(get_res.last_edited) == now()
+    assert time_before <= to_aware_datetime(get_res.created) <= now()
+    assert time_before <= to_aware_datetime(get_res.last_edited) <= now()
     assert get_res.creator_user_id == creator_user.id
     assert to_aware_datetime(get_res.start_time) == start_time
     assert to_aware_datetime(get_res.end_time) == end_time
@@ -147,8 +148,8 @@ def test_CreateEvent(db, frozen_timewarp, push_collector: PushCollector, moderat
     assert other_get_res.location.lat == 0.1
     assert other_get_res.location.lng == 0.2
     assert other_get_res.location.address == "Near Null Island"
-    assert to_aware_datetime(other_get_res.created) == now()
-    assert to_aware_datetime(other_get_res.last_edited) == now()
+    assert time_before <= to_aware_datetime(other_get_res.created) <= now()
+    assert time_before <= to_aware_datetime(other_get_res.last_edited) <= now()
     assert other_get_res.creator_user_id == creator_user.id
     assert to_aware_datetime(other_get_res.start_time) == start_time
     assert to_aware_datetime(other_get_res.end_time) == end_time
