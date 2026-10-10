@@ -451,7 +451,7 @@ msgstr "public trips"
 msgid "public_trip.invitation"
 msgstr "invitation"
 
-#. (noun) Invitations sent by a hosts in response to a surfer's public trip.
+#. (noun) Invitations sent by hosts in response to a surfer's public trip.
 msgid "public_trip.invitations"
 msgstr "invitations"
 
