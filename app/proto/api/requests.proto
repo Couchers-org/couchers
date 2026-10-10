@@ -28,7 +28,7 @@ service Requests {
 
   // The caller's accepted or confirmed stays that haven't ended yet, soonest first (for the dashboard).
   // Throws INVALID_ARGUMENT if role is unspecified
-  rpc ListMyUpcomingStays(ListMyUpcomingStaysReq) returns (ListMyUpcomingStaysRes);
+  rpc ListStays(ListStaysReq) returns (ListStaysRes);
 
   // Get the messages and events (created, accepted, etc) for a host request
   // Throws NOT_FOUND if the user isn't part of the request or it doesn't exist
@@ -120,13 +120,13 @@ enum StayRole {
   STAY_ROLE_SURFING = 2;
 }
 
-message ListMyUpcomingStaysReq {
+message ListStaysReq {
   StayRole role = 1;
   uint32 page_size = 2;
   string page_token = 3;
 }
 
-message ListMyUpcomingStaysRes {
+message ListStaysRes {
   // only the stay fields are set: host_request_id, surfer_user_id, host_user_id, status, from_date,
   // to_date, hosting_city and public_trip_id
   repeated HostRequest host_requests = 1;

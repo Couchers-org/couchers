@@ -2842,11 +2842,11 @@ def _create_accepted_request(surfer_token: str, host_token: str, host_id: int, m
 
 def _upcoming_stay_ids(token: str, role: requests_pb2.StayRole.ValueType) -> list[int]:
     with requests_session(token) as api:
-        res = api.ListMyUpcomingStays(requests_pb2.ListMyUpcomingStaysReq(role=role))
+        res = api.ListStays(requests_pb2.ListStaysReq(role=role))
     return [hr.host_request_id for hr in res.host_requests]
 
 
-def test_ListMyUpcomingStays_by_role(db, moderator):
+def test_ListStays_by_role(db, moderator):
     surfer, surfer_token = generate_user()
     host, host_token = generate_user()
 
@@ -2858,7 +2858,7 @@ def test_ListMyUpcomingStays_by_role(db, moderator):
     assert _upcoming_stay_ids(surfer_token, requests_pb2.STAY_ROLE_HOSTING) == []
 
     with requests_session(host_token) as api:
-        res = api.ListMyUpcomingStays(requests_pb2.ListMyUpcomingStaysReq(role=requests_pb2.STAY_ROLE_HOSTING))
+        res = api.ListStays(requests_pb2.ListStaysReq(role=requests_pb2.STAY_ROLE_HOSTING))
     stay = res.host_requests[0]
     assert stay.surfer_user_id == surfer.id
     assert stay.host_user_id == host.id
@@ -2866,7 +2866,7 @@ def test_ListMyUpcomingStays_by_role(db, moderator):
     assert stay.from_date == (today() + timedelta(days=2)).isoformat()
 
 
-def test_ListMyUpcomingStays_public_trip_offer_by_stay_role(db, moderator):
+def test_ListStays_public_trip_offer_by_stay_role(db, moderator):
     """An offer is started by the host, but they're still the one hosting."""
     traveller, traveller_token = generate_user()
     _host, host_token = generate_user()
@@ -2901,11 +2901,11 @@ def test_ListMyUpcomingStays_public_trip_offer_by_stay_role(db, moderator):
     assert _upcoming_stay_ids(traveller_token, requests_pb2.STAY_ROLE_HOSTING) == []
 
     with requests_session(traveller_token) as api:
-        res = api.ListMyUpcomingStays(requests_pb2.ListMyUpcomingStaysReq(role=requests_pb2.STAY_ROLE_SURFING))
+        res = api.ListStays(requests_pb2.ListStaysReq(role=requests_pb2.STAY_ROLE_SURFING))
     assert res.host_requests[0].public_trip_id == trip_id
 
 
-def test_ListMyUpcomingStays_only_accepted_or_confirmed_and_not_ended(db, moderator):
+def test_ListStays_only_accepted_or_confirmed_and_not_ended(db, moderator):
     _surfer, surfer_token = generate_user()
     host, host_token = generate_user()
 
@@ -2948,7 +2948,7 @@ def test_ListMyUpcomingStays_only_accepted_or_confirmed_and_not_ended(db, modera
     assert _upcoming_stay_ids(surfer_token, requests_pb2.STAY_ROLE_SURFING) == [accepted_id, confirmed_id]
 
 
-def test_ListMyUpcomingStays_sorted_and_paginated(db, moderator):
+def test_ListStays_sorted_and_paginated(db, moderator):
     _surfer, surfer_token = generate_user()
     host, host_token = generate_user()
 
@@ -2958,14 +2958,12 @@ def test_ListMyUpcomingStays_sorted_and_paginated(db, moderator):
     middle_id = _create_accepted_request(surfer_token, host_token, host.id, moderator, days_ahead=5)
 
     with requests_session(host_token) as api:
-        page1 = api.ListMyUpcomingStays(
-            requests_pb2.ListMyUpcomingStaysReq(role=requests_pb2.STAY_ROLE_HOSTING, page_size=2)
-        )
+        page1 = api.ListStays(requests_pb2.ListStaysReq(role=requests_pb2.STAY_ROLE_HOSTING, page_size=2))
         assert [hr.host_request_id for hr in page1.host_requests] == [soonest_id, middle_id]
         assert page1.next_page_token
 
-        page2 = api.ListMyUpcomingStays(
-            requests_pb2.ListMyUpcomingStaysReq(
+        page2 = api.ListStays(
+            requests_pb2.ListStaysReq(
                 role=requests_pb2.STAY_ROLE_HOSTING, page_size=2, page_token=page1.next_page_token
             )
         )
@@ -2973,7 +2971,7 @@ def test_ListMyUpcomingStays_sorted_and_paginated(db, moderator):
         assert not page2.next_page_token
 
 
-def test_ListMyUpcomingStays_hides_blocked_users(db, moderator):
+def test_ListStays_hides_blocked_users(db, moderator):
     surfer, surfer_token = generate_user()
     host, host_token = generate_user()
 
@@ -2984,10 +2982,10 @@ def test_ListMyUpcomingStays_hides_blocked_users(db, moderator):
     assert _upcoming_stay_ids(surfer_token, requests_pb2.STAY_ROLE_SURFING) == []
 
 
-def test_ListMyUpcomingStays_requires_role(db):
+def test_ListStays_requires_role(db):
     _, token = generate_user()
 
     with requests_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
-            api.ListMyUpcomingStays(requests_pb2.ListMyUpcomingStaysReq())
+            api.ListStays(requests_pb2.ListStaysReq())
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
