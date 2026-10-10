@@ -207,5 +207,7 @@
   },
   "surfer_confirm_box_title": "{{name}} hat deine Anfrage angenommen!",
   "surfer_confirm_box_description": "Bestätige, um deinen Aufenthalt zu sichern, oder brich ab, falls sich deine Pläne geändert haben.",
-  "show_more_actions_button_a11y": "Mehr Aktionen anzeigen"
+  "show_more_actions_button_a11y": "Mehr Aktionen anzeigen",
+  "mark_all_read_button_text_public_trips": "Alle Öffentliche Trip Einladungen als gelesen markieren",
+  "invitation_respond_box_title": "Auf {{name}}'s Einladung antworten"
 }
