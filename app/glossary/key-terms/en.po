@@ -343,6 +343,24 @@ msgstr "friend"
 msgid "friends"
 msgstr "friends"
 
+#. (noun) A request to add another user as a friend.
+msgid "friend_request"
+msgstr "friend request"
+
+#. (noun) Requests to add other users as friends.
+msgid "friend_requests"
+msgstr "friend requests"
+
+#. (noun) A code that can be shared to invite people to join Couchers.org.
+msgid "invite_code"
+msgstr "invite code"
+
+#. (noun) Codes that can be shared to invite people to join Couchers.org.
+msgid "invite_codes"
+msgstr "invite codes"
+
+
+
 #. (noun) A user providing hospitality to other users.
 msgid "host.noun"
 msgstr "host"
@@ -370,23 +388,6 @@ msgstr "surfer"
 #. (noun) Users receiving hospitality from other users.
 msgid "surfers"
 msgstr "surfers"
-
-#. (noun) A code that can be shared to invite people to join Couchers.org.
-msgid "invite_code"
-msgstr "invite code"
-
-#. (noun) Codes that can be shared to invite people to join Couchers.org.
-msgid "invite_codes"
-msgstr "invite codes"
-
-
-#. (noun) A request to add another user as a friend.
-msgid "friend_request"
-msgstr "friend request"
-
-#. (noun) Requests to add other users as friends.
-msgid "friend_requests"
-msgstr "friend requests"
 
 #. (noun) The process of establishing a hosting relationship.
 msgid "host_request"
@@ -427,6 +428,44 @@ msgstr "cancel"
 #. (adj) The state of a host request that was cancelled by the surfer.
 msgid "host_request.cancelled"
 msgstr "cancelled"
+
+#. (noun) An agreement for a surfer to stay with a host over a date range.
+msgid "stay.noun"
+msgstr "stay"
+
+#. (noun) Agreements for a surfers to stay with hosts over specific date ranges.
+msgid "stays"
+msgstr "stays"
+
+
+
+#. (noun) A trip published by a surfer to solicit invitations from hosts.
+msgid "public_trip"
+msgstr "public trip"
+
+#. (noun) Trips published by surfers to solicit invitations from hosts.
+msgid "public_trips"
+msgstr "public trips"
+
+#. (noun) An invitation sent by a host in response to a surfer's public trip.
+msgid "public_trip.invitation"
+msgstr "invitation"
+
+#. (noun) Invitations sent by a hosts in response to a surfer's public trip.
+msgid "public_trip.invitations"
+msgstr "invitations"
+
+#. (verb) As a host, sending an invitation to a surfer in response to their public trip.
+msgid "public_trip.invite"
+msgstr "invite"
+
+#. (verb) As a host, sending an invitation to a surfer in response to their public trip.
+msgid "public_trip.inviting"
+msgstr "inviting"
+
+#. (adj) The state of a surfer who has received an invitation from a host.
+msgid "public_trip.invited"
+msgstr "invited"
 
 
 
