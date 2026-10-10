@@ -1,5 +1,5 @@
 import re
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
 import grpc
@@ -27,7 +27,8 @@ from couchers.models import (
 )
 from couchers.proto import editor_pb2, events_pb2, threads_pb2
 from couchers.tasks import enforce_community_memberships
-from couchers.utils import datetime_to_iso8601_local, now, to_aware_datetime
+from couchers.utils import datetime_to_iso8601_local, now, to_aware_datetime, today
+from tests.fixtures import api_helpers
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import EmailCollector, Moderator, PushCollector, process_jobs
 from tests.fixtures.sessions import events_session, real_editor_session, threads_session
@@ -53,298 +54,179 @@ def test_CreateEvent(db, frozen_timewarp, push_collector: PushCollector, moderat
     # can't create event that starts in the past
     # can create in different timezones
 
-    # event creator
-    user1, token1 = generate_user()
-    # community moderator
-    user2, token2 = generate_user()
-    # third party
-    user3, token3 = generate_user()
+    creator_user, creator_token = generate_user()
+    mod_user, mod_token = generate_user()
+    other_user, other_token = generate_user()
 
     with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+        c_id = create_community(session, 0, 2, "Community", [mod_user], [], None).id
 
-    time_before = now()
     start_time = now() + timedelta(hours=2)
     end_time = start_time + timedelta(hours=3)
 
     # Can create an event
-    with events_session(token1) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                photo_key=None,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
+    create_res = api_helpers.create_event(
+        token=creator_token,
+        title="Dummy Title",
+        content="Dummy content.",
+        location=events_pb2.EventLocation(
+            address="Near Null Island",
+            lat=0.1,
+            lng=0.2,
+        ),
+        start_date_time=(start_time.date(), start_time.time()),
+        end_date_time=(end_time.date(), end_time.time()),
+        approve_by=moderator,
+    )
+    assert create_res.is_next
+    assert create_res.title == "Dummy Title"
+    assert create_res.slug == "dummy-title"
+    assert create_res.content == "Dummy content."
+    assert not create_res.photo_url
+    assert create_res.HasField("location")
+    assert create_res.location.lat == 0.1
+    assert create_res.location.lng == 0.2
+    assert create_res.location.address == "Near Null Island"
+    assert to_aware_datetime(create_res.created) == now()
+    assert to_aware_datetime(create_res.last_edited) == now()
+    assert create_res.creator_user_id == creator_user.id
+    assert to_aware_datetime(create_res.start_time) == start_time
+    assert to_aware_datetime(create_res.end_time) == end_time
+    assert is_utc_or_gmt(create_res.timezone)
+    assert create_res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
+    assert create_res.organizer
+    assert create_res.subscriber
+    assert create_res.going_count == 1
+    assert create_res.organizer_count == 1
+    assert create_res.subscriber_count == 1
+    assert create_res.owner_user_id == creator_user.id
+    assert not create_res.owner_community_id
+    assert not create_res.owner_group_id
+    assert create_res.thread.thread_id
+    assert create_res.can_edit
+    assert not create_res.can_moderate
 
-        assert res.is_next
-        assert res.title == "Dummy Title"
-        assert res.slug == "dummy-title"
-        assert res.content == "Dummy content."
-        assert not res.photo_url
-        assert res.HasField("location")
-        assert res.location.lat == 0.1
-        assert res.location.lng == 0.2
-        assert res.location.address == "Near Null Island"
-        assert time_before <= to_aware_datetime(res.created) <= now()
-        assert time_before <= to_aware_datetime(res.last_edited) <= now()
-        assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
-        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
-        assert is_utc_or_gmt(res.timezone)
-        assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
-        assert res.organizer
-        assert res.subscriber
-        assert res.going_count == 1
-        assert res.organizer_count == 1
-        assert res.subscriber_count == 1
-        assert res.owner_user_id == user1.id
-        assert not res.owner_community_id
-        assert not res.owner_group_id
-        assert res.thread.thread_id
-        assert res.can_edit
-        assert not res.can_moderate
+    event_id = create_res.event_id
 
-        event_id = res.event_id
+    get_res = api_helpers.get_event(token=mod_token, event_id=event_id)
+    assert get_res.is_next
+    assert get_res.title == "Dummy Title"
+    assert get_res.slug == "dummy-title"
+    assert get_res.content == "Dummy content."
+    assert not get_res.photo_url
+    assert get_res.HasField("location")
+    assert get_res.location.lat == 0.1
+    assert get_res.location.lng == 0.2
+    assert get_res.location.address == "Near Null Island"
+    assert to_aware_datetime(get_res.created) == now()
+    assert to_aware_datetime(get_res.last_edited) == now()
+    assert get_res.creator_user_id == creator_user.id
+    assert to_aware_datetime(get_res.start_time) == start_time
+    assert to_aware_datetime(get_res.end_time) == end_time
+    assert is_utc_or_gmt(get_res.timezone)
+    assert get_res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
+    assert not get_res.organizer
+    assert not get_res.subscriber
+    assert get_res.going_count == 1
+    assert get_res.organizer_count == 1
+    assert get_res.subscriber_count == 1
+    assert get_res.owner_user_id == creator_user.id
+    assert not get_res.owner_community_id
+    assert not get_res.owner_group_id
+    assert get_res.thread.thread_id
+    assert get_res.can_edit
+    assert get_res.can_moderate
 
-    # Approve the event so other users can see it
-    moderator.approve_event_occurrence(event_id)
-
-    with events_session(token2) as api:
-        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
-
-        assert res.is_next
-        assert res.title == "Dummy Title"
-        assert res.slug == "dummy-title"
-        assert res.content == "Dummy content."
-        assert not res.photo_url
-        assert res.HasField("location")
-        assert res.location.lat == 0.1
-        assert res.location.lng == 0.2
-        assert res.location.address == "Near Null Island"
-        assert time_before <= to_aware_datetime(res.created) <= now()
-        assert time_before <= to_aware_datetime(res.last_edited) <= now()
-        assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
-        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
-        assert is_utc_or_gmt(res.timezone)
-        assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
-        assert not res.organizer
-        assert not res.subscriber
-        assert res.going_count == 1
-        assert res.organizer_count == 1
-        assert res.subscriber_count == 1
-        assert res.owner_user_id == user1.id
-        assert not res.owner_community_id
-        assert not res.owner_group_id
-        assert res.thread.thread_id
-        assert res.can_edit
-        assert res.can_moderate
-
-    with events_session(token3) as api:
-        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
-
-        assert res.is_next
-        assert res.title == "Dummy Title"
-        assert res.slug == "dummy-title"
-        assert res.content == "Dummy content."
-        assert not res.photo_url
-        assert res.HasField("location")
-        assert res.location.lat == 0.1
-        assert res.location.lng == 0.2
-        assert res.location.address == "Near Null Island"
-        assert time_before <= to_aware_datetime(res.created) <= now()
-        assert time_before <= to_aware_datetime(res.last_edited) <= now()
-        assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
-        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
-        assert is_utc_or_gmt(res.timezone)
-        assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
-        assert not res.organizer
-        assert not res.subscriber
-        assert res.going_count == 1
-        assert res.organizer_count == 1
-        assert res.subscriber_count == 1
-        assert res.owner_user_id == user1.id
-        assert not res.owner_community_id
-        assert not res.owner_group_id
-        assert res.thread.thread_id
-        assert not res.can_edit
-        assert not res.can_moderate
+    other_get_res = api_helpers.get_event(token=other_token, event_id=event_id)
+    assert other_get_res.is_next
+    assert other_get_res.title == "Dummy Title"
+    assert other_get_res.slug == "dummy-title"
+    assert other_get_res.content == "Dummy content."
+    assert not other_get_res.photo_url
+    assert other_get_res.HasField("location")
+    assert other_get_res.location.lat == 0.1
+    assert other_get_res.location.lng == 0.2
+    assert other_get_res.location.address == "Near Null Island"
+    assert to_aware_datetime(other_get_res.created) == now()
+    assert to_aware_datetime(other_get_res.last_edited) == now()
+    assert other_get_res.creator_user_id == creator_user.id
+    assert to_aware_datetime(other_get_res.start_time) == start_time
+    assert to_aware_datetime(other_get_res.end_time) == end_time
+    assert is_utc_or_gmt(other_get_res.timezone)
+    assert other_get_res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
+    assert not other_get_res.organizer
+    assert not other_get_res.subscriber
+    assert other_get_res.going_count == 1
+    assert other_get_res.organizer_count == 1
+    assert other_get_res.subscriber_count == 1
+    assert other_get_res.owner_user_id == creator_user.id
+    assert not other_get_res.owner_community_id
+    assert not other_get_res.owner_group_id
+    assert other_get_res.thread.thread_id
+    assert not other_get_res.can_edit
+    assert not other_get_res.can_moderate
 
     # Failure cases
-    with events_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.CreateEvent(
-                events_pb2.CreateEventReq(
-                    # title="Dummy Title",
-                    content="Dummy content.",
-                    photo_key=None,
-                    location=events_pb2.EventLocation(
-                        address="Near Null Island",
-                        lat=0.1,
-                        lng=0.2,
-                    ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Missing event title."
+    with pytest.raises(grpc.RpcError) as e:
+        api_helpers.create_event(token=creator_token, title=None)
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == "Missing event title."
 
-        with pytest.raises(grpc.RpcError) as e:
-            api.CreateEvent(
-                events_pb2.CreateEventReq(
-                    title="Dummy Title",
-                    # content="Dummy content.",
-                    photo_key=None,
-                    location=events_pb2.EventLocation(
-                        address="Near Null Island",
-                        lat=0.1,
-                        lng=0.2,
-                    ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Missing event content."
+    with pytest.raises(grpc.RpcError) as e:
+        api_helpers.create_event(token=creator_token, content=None)
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == "Missing event content."
 
-        with pytest.raises(grpc.RpcError) as e:
-            api.CreateEvent(
-                events_pb2.CreateEventReq(
-                    title="Dummy Title",
-                    content="Dummy content.",
-                    photo_key="nonexistent",
-                    location=events_pb2.EventLocation(
-                        address="Near Null Island",
-                        lat=0.1,
-                        lng=0.2,
-                    ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Photo not found."
+    with pytest.raises(grpc.RpcError) as e:
+        api_helpers.create_event(token=creator_token, photo_key="nonexistent")
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == "Photo not found."
 
-        with pytest.raises(grpc.RpcError) as e:
-            api.CreateEvent(
-                events_pb2.CreateEventReq(
-                    title="Dummy Title",
-                    content="Dummy content.",
-                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Missing event address or location."
+    with pytest.raises(grpc.RpcError) as e:
+        api_helpers.create_event(token=creator_token, location=None)
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == "Missing event address or location."
 
-        with pytest.raises(grpc.RpcError) as e:
-            api.CreateEvent(
-                events_pb2.CreateEventReq(
-                    title="Dummy Title",
-                    content="Dummy content.",
-                    location=events_pb2.EventLocation(
-                        address="Near Null Island",
-                    ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Invalid coordinate."
+    with pytest.raises(grpc.RpcError) as e:
+        api_helpers.create_event(token=creator_token, location=events_pb2.EventLocation(address="Near Null Island"))
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == "Invalid coordinate."
 
-        with pytest.raises(grpc.RpcError) as e:
-            api.CreateEvent(
-                events_pb2.CreateEventReq(
-                    title="Dummy Title",
-                    content="Dummy content.",
-                    location=events_pb2.EventLocation(
-                        lat=0.1,
-                        lng=0.1,
-                    ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Missing event address or location."
+    with pytest.raises(grpc.RpcError) as e:
+        api_helpers.create_event(token=creator_token, location=events_pb2.EventLocation(lat=0.1, lng=0.1))
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == "Missing event address or location."
 
-        with pytest.raises(grpc.RpcError) as e:
-            api.CreateEvent(
-                events_pb2.CreateEventReq(
-                    title="Dummy Title",
-                    content="Dummy content.",
-                    location=events_pb2.EventLocation(
-                        address="Near Null Island",
-                        lat=0.1,
-                        lng=0.2,
-                    ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_local(now() - timedelta(hours=2)),
-                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "The event must be in the future."
+    with pytest.raises(grpc.RpcError) as e:
+        api_helpers.create_event(token=creator_token, start_date_time=(today() - timedelta(days=1), time(0, 0)))
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == "The event must be in the future."
 
-        with pytest.raises(grpc.RpcError) as e:
-            api.CreateEvent(
-                events_pb2.CreateEventReq(
-                    title="Dummy Title",
-                    content="Dummy content.",
-                    location=events_pb2.EventLocation(
-                        address="Near Null Island",
-                        lat=0.1,
-                        lng=0.2,
-                    ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-                    end_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "The event must end after it starts."
+    with pytest.raises(grpc.RpcError) as e:
+        api_helpers.create_event(
+            token=creator_token,
+            start_date_time=(today() + timedelta(days=2), time(0, 0)),
+            end_date_time=(today() + timedelta(days=1), time(0, 0)),
+        )
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == "The event must end after it starts."
 
-        with pytest.raises(grpc.RpcError) as e:
-            api.CreateEvent(
-                events_pb2.CreateEventReq(
-                    title="Dummy Title",
-                    content="Dummy content.",
-                    location=events_pb2.EventLocation(
-                        address="Near Null Island",
-                        lat=0.1,
-                        lng=0.2,
-                    ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(days=500, hours=2)),
-                    end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(days=500, hours=5)),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "The event needs to start within the next year."
+    with pytest.raises(grpc.RpcError) as e:
+        api_helpers.create_event(
+            token=creator_token,
+            start_date_time=(today() + timedelta(days=400), time(0, 0)),
+        )
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == "The event needs to start within the next year."
 
-        with pytest.raises(grpc.RpcError) as e:
-            api.CreateEvent(
-                events_pb2.CreateEventReq(
-                    title="Dummy Title",
-                    content="Dummy content.",
-                    location=events_pb2.EventLocation(
-                        address="Near Null Island",
-                        lat=0.1,
-                        lng=0.2,
-                    ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                    end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(days=100)),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Events cannot last longer than 7 days."
+    with pytest.raises(grpc.RpcError) as e:
+        api_helpers.create_event(
+            token=creator_token,
+            start_date_time=(today() + timedelta(days=1), time(0, 0)),
+            end_date_time=(today() + timedelta(days=9), time(0, 0)),
+        )
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == "Events cannot last longer than 7 days."
 
 
 def test_CreateEvent_incomplete_profile(db):
