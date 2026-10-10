@@ -14,6 +14,7 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     String,
+    and_,
     func,
     text,
 )
@@ -164,7 +165,7 @@ class HostRequest(Base, kw_only=True):
             public_trip_id,
             initiator_user_id,
             unique=True,
-            postgresql_where=(status != HostRequestStatus.cancelled),
+            postgresql_where=and_(public_trip_id != None, status != HostRequestStatus.cancelled),
         ),
     )
 

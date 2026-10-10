@@ -36,7 +36,7 @@ def upgrade() -> None:
             "host_requests",
             ["public_trip_id", "initiator_user_id"],
             unique=True,
-            postgresql_where="status != 'cancelled'",
+            postgresql_where="public_trip_id IS NOT NULL AND status != 'cancelled'",
             postgresql_concurrently=True,
         )
 
