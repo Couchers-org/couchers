@@ -30,6 +30,7 @@ Other instructions for body text:
 import re
 from dataclasses import dataclass, replace
 from datetime import UTC, date, datetime, tzinfo
+from decimal import Decimal
 from typing import Self, assert_never
 from zoneinfo import ZoneInfo
 
@@ -52,6 +53,7 @@ from couchers.i18n import LocalizationContext
 from couchers.i18n.localize import format_phone_number
 from couchers.markup import html_link, html_mailto_link, markdown_to_plaintext
 from couchers.notifications.quick_links import generate_quick_decline_link
+from couchers.notifications.utils import get_donation_amount
 from couchers.proto import events_pb2, messages_pb2, notification_data_pb2
 from couchers.utils import now, to_aware_datetime
 
@@ -537,7 +539,8 @@ class DiscussionCommentEmail(EmailBase):
 class DonationReceivedEmail(EmailBase):
     """Sent to a user to thank them for a donation."""
 
-    amount: int
+    amount: Decimal
+    currency_iso4217: str
     receipt_url: str
 
     @property
@@ -546,7 +549,9 @@ class DonationReceivedEmail(EmailBase):
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context, default_closing=False)
-        builder.para(".purpose", {"amount_with_currency": f"${self.amount}"})
+        builder.para(
+            ".purpose", {"amount_with_currency": loc_context.localize_currency(self.amount, self.currency_iso4217)}
+        )
         builder.para(".contribution_impact")
         builder.para(".invoice_receipt_info")
         builder.action(self.receipt_url, ".download_invoice")
@@ -558,11 +563,19 @@ class DonationReceivedEmail(EmailBase):
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.DonationReceived, *, user_name: str) -> Self:
-        return cls(user_name=user_name, amount=data.amount, receipt_url=data.receipt_url)
+        amount, currency_iso4217 = get_donation_amount(data)
+        return cls(user_name=user_name, amount=amount, currency_iso4217=currency_iso4217, receipt_url=data.receipt_url)
 
     @classmethod
     def test_instances(cls) -> list[Self]:
-        return [cls(user_name="Alice", amount=25, receipt_url="https://couchers.org/receipts/123")]
+        return [
+            cls(
+                user_name="Alice",
+                amount=Decimal("25.50"),
+                currency_iso4217="USD",
+                receipt_url="https://couchers.org/receipts/123",
+            )
+        ]
 
 
 @dataclass(kw_only=True, slots=True)

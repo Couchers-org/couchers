@@ -1,8 +1,10 @@
 import json
 import logging
+from decimal import Decimal
 
 import grpc
 import stripe
+from babel.numbers import get_currency_precision
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -204,6 +206,9 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                 # amount comes in cents
                 observe_revenue("donation", int(data_object["amount"]))
                 amount = int(data_object["amount"]) // 100
+                currency_iso4217 = data_object["currency"].upper()
+                # Stripe amounts are in the currency's minor units (e.g. cents)
+                amount_decimal = Decimal(int(data_object["amount"])).scaleb(-get_currency_precision(currency_iso4217))
                 receipt_url = data_object["receipt_url"]
                 payment_intent_id = data_object["payment_intent"]
 
@@ -224,8 +229,9 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                     topic_action=NotificationTopicAction.donation__received,
                     key="",
                     data=notification_data_pb2.DonationReceived(
-                        amount=amount,
                         receipt_url=receipt_url,
+                        amount_decimal=str(amount_decimal),
+                        currency_iso4217=currency_iso4217,
                     ),
                 )
 

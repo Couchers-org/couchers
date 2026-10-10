@@ -1,9 +1,11 @@
 from datetime import UTC, date, datetime, time
+from decimal import Decimal
 from zoneinfo import ZoneInfo
 
 import babel
 
 from couchers.i18n.localize import (
+    localize_currency,
     localize_date,
     localize_datetime,
     localize_list,
@@ -41,6 +43,20 @@ def test_localize_region_name() -> None:
     assert try_localize_region_name_from_iso3166("USA", [babel_en]) == "United States"  # alpha3 code
 
     assert try_localize_region_name_from_iso3166("xx", [babel_en]) is None
+
+
+def test_localize_currency() -> None:
+    assert localize_currency(Decimal("25.50"), "USD", babel_en) == "$25.50"
+    assert localize_currency(Decimal("25.50"), "EUR", babel_en) == "€25.50"
+    assert localize_currency(Decimal("25.50"), "USD", babel_fr) == "25,50\xa0$US"
+    assert localize_currency(Decimal("1234.5"), "EUR", babel_es) == "1.234,50\xa0€"
+
+    # Whole amounts drop their decimals unless asked to keep them
+    assert localize_currency(Decimal("25"), "USD", babel_en) == "$25"
+    assert localize_currency(Decimal("25.00"), "USD", babel_en) == "$25"
+    assert localize_currency(Decimal("25"), "USD", babel_fr) == "25\xa0$US"
+    assert localize_currency(Decimal("1000"), "USD", babel_en) == "$1,000"
+    assert localize_currency(Decimal("25"), "USD", babel_en, keep_trailing_zeros=True) == "$25.00"
 
 
 def test_localize_date() -> None:

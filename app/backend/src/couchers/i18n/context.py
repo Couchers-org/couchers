@@ -1,6 +1,7 @@
 from collections.abc import Sequence
 from dataclasses import FrozenInstanceError
 from datetime import UTC, date, datetime, time, tzinfo
+from decimal import Decimal
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -16,6 +17,7 @@ from couchers.i18n.locales import (
     to_supported_locale,
 )
 from couchers.i18n.localize import (
+    localize_currency,
     localize_date,
     localize_datetime,
     localize_list,
@@ -78,6 +80,11 @@ class LocalizationContext:
 
     def localize_list(self, items: Sequence[str]) -> str:
         return localize_list(items, self.babel_locale_list)
+
+    def localize_currency(self, amount: Decimal, currency_iso4217: str, *, keep_trailing_zeros: bool = False) -> str:
+        return localize_currency(
+            amount, currency_iso4217, self.preferred_babel_locale, keep_trailing_zeros=keep_trailing_zeros
+        )
 
     def localize_date(
         self, value: date | datetime, *, abbrev: bool = False, with_year: bool = True, with_day_of_week: bool = False

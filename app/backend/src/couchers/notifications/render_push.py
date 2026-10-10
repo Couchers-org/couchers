@@ -16,6 +16,7 @@ from couchers.i18n.localize import format_phone_number
 from couchers.models import Notification, NotificationTopicAction
 from couchers.notifications.locales import get_notifs_i18next
 from couchers.notifications.push import PushNotificationContent
+from couchers.notifications.utils import get_donation_amount
 from couchers.proto import api_pb2, notification_data_pb2
 
 logger = logging.getLogger(__name__)
@@ -310,11 +311,11 @@ def _render_chat__missed_messages(
 def _render_donation__received(
     data: notification_data_pb2.DonationReceived, loc_context: LocalizationContext
 ) -> PushNotificationContent:
+    amount, currency_iso4217 = get_donation_amount(data)
     return _get_content(
         NotificationTopicAction.donation__received,
         loc_context,
-        # Other currencies are not yet supported
-        substitutions={"amount_with_currency": f"${data.amount}"},
+        substitutions={"amount_with_currency": loc_context.localize_currency(amount, currency_iso4217)},
         action_url=data.receipt_url,
     )
 
