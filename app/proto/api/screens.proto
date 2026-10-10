@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package org.couchers.api.dashboard;
+package org.couchers.api.screens;
 
 import "annotations.proto";
 import "account.proto";
@@ -8,7 +8,7 @@ import "discussions.proto";
 import "events.proto";
 import "requests.proto";
 
-service Dashboard {
+service Screens {
   option (auth_level) = AUTH_LEVEL_SECURE;
 
   rpc GetDashboard(GetDashboardReq) returns (GetDashboardRes) {

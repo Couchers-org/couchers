@@ -3,12 +3,12 @@ from sqlalchemy.orm import Session
 
 from couchers.context import CouchersContext
 from couchers.proto import (
-    dashboard_pb2,
-    dashboard_pb2_grpc,
     discussions_pb2,
     events_pb2,
     messages_pb2,
     requests_pb2,
+    screens_pb2,
+    screens_pb2_grpc,
 )
 from couchers.servicers.account import Account
 from couchers.servicers.discussions import Discussions
@@ -19,10 +19,10 @@ from couchers.servicers.requests import Requests
 DASHBOARD_PAGE_SIZE = 3
 
 
-class Dashboard(dashboard_pb2_grpc.DashboardServicer):
+class Screens(screens_pb2_grpc.ScreensServicer):
     def GetDashboard(
-        self, request: dashboard_pb2.GetDashboardReq, context: CouchersContext, session: Session
-    ) -> dashboard_pb2.GetDashboardRes:
+        self, request: screens_pb2.GetDashboardReq, context: CouchersContext, session: Session
+    ) -> screens_pb2.GetDashboardRes:
         def upcoming_host_requests_req(*, surfing: bool) -> requests_pb2.ListHostRequestsReq:
             return requests_pb2.ListHostRequestsReq(
                 only_sent=surfing,
@@ -35,7 +35,7 @@ class Dashboard(dashboard_pb2_grpc.DashboardServicer):
                 sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
             )
 
-        return dashboard_pb2.GetDashboardRes(
+        return screens_pb2.GetDashboardRes(
             reminders=Account().GetReminders(empty_pb2.Empty(), context, session),
             surfing=Requests().ListHostRequests(upcoming_host_requests_req(surfing=True), context, session),
             hosting=Requests().ListHostRequests(upcoming_host_requests_req(surfing=False), context, session),

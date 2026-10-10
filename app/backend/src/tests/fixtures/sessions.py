@@ -26,7 +26,6 @@ from couchers.proto import (
     bugs_pb2_grpc,
     communities_pb2_grpc,
     conversations_pb2_grpc,
-    dashboard_pb2_grpc,
     discussions_pb2_grpc,
     donations_pb2_grpc,
     editor_pb2_grpc,
@@ -47,6 +46,7 @@ from couchers.proto import (
     reporting_pb2_grpc,
     requests_pb2_grpc,
     resources_pb2_grpc,
+    screens_pb2_grpc,
     search_pb2_grpc,
     stripe_pb2_grpc,
     threads_pb2_grpc,
@@ -59,7 +59,6 @@ from couchers.servicers.blocking import Blocking
 from couchers.servicers.bugs import Bugs
 from couchers.servicers.communities import Communities
 from couchers.servicers.conversations import Conversations
-from couchers.servicers.dashboard import Dashboard
 from couchers.servicers.discussions import Discussions
 from couchers.servicers.donations import Donations, Stripe
 from couchers.servicers.editor import Editor
@@ -79,6 +78,7 @@ from couchers.servicers.references import References
 from couchers.servicers.reporting import Reporting
 from couchers.servicers.requests import Requests
 from couchers.servicers.resources import Resources
+from couchers.servicers.screens import Screens
 from couchers.servicers.search import Search
 from couchers.servicers.threads import Threads
 from tests.fixtures import query_log
@@ -455,10 +455,10 @@ def discussions_session(token: str):
 
 
 @contextmanager
-def dashboard_session(token: str):
+def screens_session(token: str):
     channel = FakeChannel(token)
-    dashboard_pb2_grpc.add_DashboardServicer_to_server(Dashboard(), channel)
-    yield dashboard_pb2_grpc.DashboardStub(channel)
+    screens_pb2_grpc.add_ScreensServicer_to_server(Screens(), channel)
+    yield screens_pb2_grpc.ScreensStub(channel)
 
 
 @contextmanager

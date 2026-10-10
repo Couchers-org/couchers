@@ -3,15 +3,15 @@ from datetime import timedelta
 from google.protobuf import empty_pb2
 
 from couchers.db import session_scope
-from couchers.proto import dashboard_pb2, discussions_pb2, events_pb2, messages_pb2, requests_pb2
+from couchers.proto import discussions_pb2, events_pb2, messages_pb2, requests_pb2, screens_pb2
 from couchers.utils import datetime_to_iso8601_local, now, today
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import (
     account_session,
-    dashboard_session,
     discussions_session,
     events_session,
     requests_session,
+    screens_session,
 )
 from tests.test_communities import create_community
 from tests.test_requests import valid_request_text
@@ -83,8 +83,8 @@ def test_GetDashboard_matches_individual_rpcs(db, moderator):
     with account_session(token1) as api:
         reminders = api.GetReminders(empty_pb2.Empty())
 
-    with dashboard_session(token1) as api:
-        res = api.GetDashboard(dashboard_pb2.GetDashboardReq())
+    with screens_session(token1) as api:
+        res = api.GetDashboard(screens_pb2.GetDashboardReq())
 
     assert res.reminders == reminders
     assert res.surfing == surfing
@@ -115,8 +115,8 @@ def test_GetDashboard_buckets_by_role(db, moderator):
         )
 
     # the host sees the upcoming stay under hosting, nothing under surfing
-    with dashboard_session(token2) as api:
-        res = api.GetDashboard(dashboard_pb2.GetDashboardReq())
+    with screens_session(token2) as api:
+        res = api.GetDashboard(screens_pb2.GetDashboardReq())
     assert len(res.hosting.host_requests) == 1
     assert res.hosting.host_requests[0].host_request_id == host_request_id
     assert len(res.surfing.host_requests) == 0
@@ -160,8 +160,8 @@ def test_GetDashboard_community_events_excludes_attending(db, moderator):
             events_pb2.SetEventAttendanceReq(event_id=e_attending, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
         )
 
-    with dashboard_session(token1) as api:
-        res = api.GetDashboard(dashboard_pb2.GetDashboardReq())
+    with screens_session(token1) as api:
+        res = api.GetDashboard(screens_pb2.GetDashboardReq())
 
     # the attended event shows under my_events (which with no flags includes all relationships)...
     assert e_attending in {e.event_id for e in res.my_events.events}
@@ -171,8 +171,8 @@ def test_GetDashboard_community_events_excludes_attending(db, moderator):
 
 def test_GetDashboard_empty(db):
     user, token = generate_user()
-    with dashboard_session(token) as api:
-        res = api.GetDashboard(dashboard_pb2.GetDashboardReq())
+    with screens_session(token) as api:
+        res = api.GetDashboard(screens_pb2.GetDashboardReq())
     assert len(res.surfing.host_requests) == 0
     assert len(res.hosting.host_requests) == 0
     assert len(res.my_events.events) == 0
