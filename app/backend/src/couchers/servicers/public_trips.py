@@ -43,6 +43,27 @@ def _is_description_long_enough(text: str) -> bool:
     return text_length_utf16 >= PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16
 
 
+def _has_overlapping_public_trip(
+    session: Session,
+    user_id: int,
+    node_id: int,
+    from_date: date,
+    to_date: date,
+    exclude_trip_id: int | None = None,
+) -> bool:
+    query = (
+        select(PublicTrip.id)
+        .where(PublicTrip.user_id == user_id)
+        .where(PublicTrip.node_id == node_id)
+        .where(PublicTrip.status == PublicTripStatus.searching_for_host)
+        .where(PublicTrip.to_date >= from_date)
+        .where(PublicTrip.from_date <= to_date)
+    )
+    if exclude_trip_id is not None:
+        query = query.where(PublicTrip.id != exclude_trip_id)
+    return session.execute(select(query.exists())).scalar_one()
+
+
 def _parse_page_token(page_token: str) -> tuple[date | None, int | None]:
     """Parse a page token into (from_date, trip_id). Returns (None, None) for first page."""
     if not page_token:
@@ -131,7 +152,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         if from_date < today:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_before_today")
 
-        if from_date > to_date:
+        if from_date >= to_date:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_after_to")
 
         if from_date - today > timedelta(days=365):
@@ -153,16 +174,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         if len(request.description) > PUBLIC_TRIP_DESCRIPTION_MAX_LENGTH:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_description_too_long")
 
-        # Disallow overlapping active trips by the same user in the same community
-        existing = session.execute(
-            select(PublicTrip)
-            .where(PublicTrip.user_id == context.user_id)
-            .where(PublicTrip.node_id == node.id)
-            .where(PublicTrip.status == PublicTripStatus.searching_for_host)
-            .where(PublicTrip.to_date >= from_date)
-            .where(PublicTrip.from_date <= to_date)
-        ).scalar_one_or_none()
-        if existing:
+        if _has_overlapping_public_trip(session, context.user_id, node.id, from_date, to_date):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "overlapping_public_trip_exists")
 
         public_trip: PublicTrip | None = None
@@ -391,7 +403,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             if new_from_date < today_local:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_before_today")
 
-            if new_from_date > new_to_date:
+            if new_from_date >= new_to_date:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_after_to")
 
             if new_from_date - today_local > timedelta(days=365):
@@ -426,9 +438,24 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
                 today_local = today_in_timezone(public_trip.node.timezone)
                 if public_trip.from_date < today_local:
                     context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "public_trip_in_past")
+                if public_trip.from_date >= public_trip.to_date:
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_after_to")
             elif new_status != PublicTripStatus.closed:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_public_trip_status")
             public_trip.status = new_status
+
+        if public_trip.status == PublicTripStatus.searching_for_host and (
+            request.HasField("from_date") or request.HasField("to_date") or request.HasField("status")
+        ):
+            if _has_overlapping_public_trip(
+                session,
+                context.user_id,
+                public_trip.node_id,
+                public_trip.from_date,
+                public_trip.to_date,
+                exclude_trip_id=public_trip.id,
+            ):
+                context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "overlapping_public_trip_exists")
 
         log_event(
             context,
