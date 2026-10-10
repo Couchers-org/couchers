@@ -1,5 +1,5 @@
 import re
-from datetime import date, datetime, time, timedelta
+from datetime import datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
 import grpc
@@ -203,9 +203,11 @@ def test_CreateEvent(db, frozen_timewarp, push_collector: PushCollector, moderat
     assert e.value.details() == "The event must be in the future."
 
     with pytest.raises(grpc.RpcError) as e:
-        api_helpers.create_event(token=creator_token,
+        api_helpers.create_event(
+            token=creator_token,
             start_date_time=(today() + timedelta(days=2), time(0, 0)),
-            end_date_time=(today() + timedelta(days=1), time(0, 0)))
+            end_date_time=(today() + timedelta(days=1), time(0, 0)),
+        )
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
     assert e.value.details() == "The event must end after it starts."
 
