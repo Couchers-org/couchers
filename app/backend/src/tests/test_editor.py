@@ -18,9 +18,10 @@ from couchers.models import (
 )
 from couchers.proto import editor_pb2, events_pb2
 from couchers.tasks import enforce_community_memberships
-from couchers.utils import datetime_to_iso8601_local, now
+from couchers.utils import local_date_time, now
+from tests.fixtures import api_helpers
 from tests.fixtures.db import generate_user
-from tests.fixtures.sessions import events_session, real_editor_session
+from tests.fixtures.sessions import real_editor_session
 from tests.test_communities import create_1d_point, create_community
 
 VALID_GEOJSON_MULTIPOLYGON = """
@@ -847,18 +848,12 @@ def test_LookupUsersForDebug(db):
 
 
 def _create_event_in_community(token: str, community_id: int, lat: float, lng: float) -> int:
-    with events_session(token) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                parent_community_id=community_id,
-                location=events_pb2.EventLocation(address="Somewhere", lat=lat, lng=lng),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=3)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=4)),
-            )
-        )
-        return int(res.event_id)
+    res = api_helpers.create_event(
+        token=token,
+        parent_community_id=community_id,
+        location=events_pb2.EventLocation(address="Somewhere", lat=lat, lng=lng),
+    )
+    return int(res.event_id)
 
 
 @pytest.fixture
@@ -977,16 +972,13 @@ def test_MoveEventToCommunity_explicit_community(event_in_wrong_community):
 def test_MoveEventToCommunity_moves_all_occurrences(event_in_wrong_community):
     editor_token, creator_token, event_id, country_id, city_id = event_in_wrong_community
 
-    with events_session(creator_token) as api:
-        other_occurrence_id = api.ScheduleEvent(
-            events_pb2.ScheduleEventReq(
-                event_id=event_id,
-                content="Dummy content.",
-                location=events_pb2.EventLocation(address="Somewhere", lat=3, lng=1),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(days=1)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(days=1, hours=1)),
-            )
-        ).event_id
+    other_occurrence_id = api_helpers.schedule_event(
+        token=creator_token,
+        event_id=event_id,
+        location=events_pb2.EventLocation(address="Somewhere", lat=3, lng=1),
+        start_date_time=local_date_time(now() + timedelta(days=1)),
+        end_date_time=local_date_time(now() + timedelta(days=1, hours=1)),
+    ).event_id
 
     with real_editor_session(editor_token) as api:
         res = api.MoveEventToCommunity(
