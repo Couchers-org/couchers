@@ -51,6 +51,7 @@ export const settingsRoute = "/account-settings";
 export const notificationSettingsRoute = `${settingsRoute}/notifications`;
 export const loginsSettingsRoute = `${settingsRoute}/logins`;
 export const strongVerificationRoute = "/strong-verification";
+export const verificationRoute = "/verification";
 
 export const translateRoute = "/translate";
 
@@ -166,8 +167,6 @@ export const howToRespondRequestGuideUrl =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1715125658-what-are-some-things-i-should-think-about-before-responding-to-a-request";
 export const howToWriteRequestGuideUrl =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1725943310-quick-reference-writing-great-requests";
-export const howToDonateUrl =
-  "https://help.couchers.org/hc/couchersorg-help-center/articles/1715125658-how-do-i-donate-money-to-couchers-org";
 export const howToCompleteProfileUrl =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1725919152-why-do-i-need-to-complete-my-profile-to-use-some-features";
 export const howToInviteCommunityUrl =

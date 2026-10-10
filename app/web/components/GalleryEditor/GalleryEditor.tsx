@@ -15,7 +15,7 @@ import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
 import Sentry from "platform/sentry";
 import React, { useEffect, useRef, useState } from "react";
-import { settingsRoute } from "routes";
+import { verificationRoute } from "routes";
 import { service } from "service";
 import { base64ToFile, useNativeImagePicker } from "utils/nativeLink";
 
@@ -510,7 +510,7 @@ export default function GalleryEditor({
                 >
                   {t("profile:gallery.verification_required_for_more_photos")}{" "}
                   <a
-                    href={`${settingsRoute}#strong-verification`}
+                    href={verificationRoute}
                     style={{ color: "var(--mui-palette-primary-main)" }}
                     target="_blank"
                     rel="noopener noreferrer"
