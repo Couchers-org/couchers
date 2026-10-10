@@ -20,6 +20,9 @@ class Screens(screens_pb2_grpc.ScreensServicer):
     def GetDashboard(
         self, request: screens_pb2.GetDashboardReq, context: CouchersContext, session: Session
     ) -> screens_pb2.GetDashboardRes:
+        # the dashboard shows a small preview of each section
+        page_size = 3
+
         def upcoming_host_requests_req(*, surfing: bool) -> requests_pb2.ListHostRequestsReq:
             return requests_pb2.ListHostRequestsReq(
                 only_sent=surfing,
@@ -37,13 +40,13 @@ class Screens(screens_pb2_grpc.ScreensServicer):
             surfing=Requests().ListHostRequests(upcoming_host_requests_req(surfing=True), context, session),
             hosting=Requests().ListHostRequests(upcoming_host_requests_req(surfing=False), context, session),
             my_events=Events().ListMyEvents(
-                events_pb2.ListMyEventsReq(page_size=3),
+                events_pb2.ListMyEventsReq(page_size=page_size),
                 context,
                 session,
             ),
             community_events=Events().ListMyEvents(
                 events_pb2.ListMyEventsReq(
-                    page_size=3,
+                    page_size=page_size,
                     my_communities=True,
                     my_communities_exclude_global=True,
                     exclude_attending=True,
@@ -52,7 +55,7 @@ class Screens(screens_pb2_grpc.ScreensServicer):
                 session,
             ),
             discussions=Discussions().ListMyCommunitiesDiscussions(
-                discussions_pb2.ListMyCommunitiesDiscussionsReq(page_size=3),
+                discussions_pb2.ListMyCommunitiesDiscussionsReq(page_size=page_size),
                 context,
                 session,
             ),

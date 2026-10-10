@@ -13,7 +13,7 @@ service Screens {
 
   rpc GetDashboard(GetDashboardReq) returns (GetDashboardRes) {
     // Fetch all the content needed to render the dashboard in a single call, instead of fanning out
-    // to the individual RPCs. Each field mirrors the response of the RPC that previously populated it.
+    // to the individual RPCs.
   }
 }
 
