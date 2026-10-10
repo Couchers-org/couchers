@@ -1,10 +1,13 @@
 import { render, screen } from "@testing-library/react";
 import { User } from "proto/api_pb";
 import { service } from "service";
+import galleryFixtures from "test/fixtures/gallery.json";
 import wrapper from "test/hookWrapper";
 import { getLanguages, getRegions } from "test/serviceMockDefaults";
 
 import About from "./About";
+
+const getGalleryMock = service.gallery.getGallery as jest.MockedFunction<typeof service.gallery.getGallery>;
 
 const getLanguagesMock = service.resources.getLanguages as jest.MockedFunction<typeof service.resources.getLanguages>;
 
@@ -13,6 +16,7 @@ const getRegionsMock = service.resources.getRegions as jest.MockedFunction<typeo
 beforeEach(() => {
   getLanguagesMock.mockImplementation(getLanguages);
   getRegionsMock.mockImplementation(getRegions);
+  getGalleryMock.mockResolvedValue(galleryFixtures.galleries[0]);
 });
 
 function renderAbout(user?: User.AsObject) {
