@@ -13,8 +13,6 @@ Here are all the steps that need to be done for each official Couchers release.
 - [] Create markdown file blog post for new release in `app/web/markdown/blog` within the correct year, month and day folders. Either write it in there, or if a non-dev has written the post, paste it in and fix up the markdown formatting.
 - [] Add any CouchOps accomplishments that are not included in the PRs to the post. Update the "Volunteer Needs at Couchers" section as needed.
 - [] Take screenshots of any new relevant features. Make sure no sensitive user data is in the screenshots and use staging if necessary. Add these to the markdown blog post, look at previous posts for how to do it and center them.
-- [] Create a new entry in `app/web/dashboardNews.json` at the top
-- [] Add or replace current dashboard news widget in `app/web/features/dashboard/Dashboard.tsx`
 - [] Update the `activeness_probe.latest_release` string in `app/backend/src/couchers/email/locales/en.json` so it has the most relevant top few recent features.
 - [] Merge blog post PR with the above changes and deploy via `ops.couchershq.org`
 - [] Update `LATEST_RELEASE_BLOG_URL` in `app/backend/src/couchers/constants.py` to the url of the blog post for the latest release.
