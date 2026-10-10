@@ -1,5 +1,5 @@
 import re
-from datetime import UTC, date, datetime, time, timedelta
+from datetime import date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
 import grpc
@@ -27,7 +27,7 @@ from couchers.models import (
 )
 from couchers.proto import editor_pb2, events_pb2, threads_pb2
 from couchers.tasks import enforce_community_memberships
-from couchers.utils import datetime_to_iso8601_local, now, to_aware_datetime
+from couchers.utils import datetime_to_iso8601_local, now, to_aware_datetime, today
 from tests.fixtures import api_helpers
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import EmailCollector, Moderator, PushCollector, process_jobs
@@ -47,7 +47,7 @@ def is_utc_or_gmt(timezone: str) -> bool:
     return timezone in ("Etc/UTC", "Etc/GMT")
 
 
-def test_CreateEvent(db, frozen_timewarp_y2k, push_collector: PushCollector, moderator: Moderator):
+def test_CreateEvent(db, frozen_timewarp, push_collector: PushCollector, moderator: Moderator):
     # test cases:
     # can create event
     # cannot create event with missing details
@@ -61,25 +61,32 @@ def test_CreateEvent(db, frozen_timewarp_y2k, push_collector: PushCollector, mod
     with session_scope() as session:
         c_id = create_community(session, 0, 2, "Community", [mod_user], [], None).id
 
-    start_time = datetime(2000, 1, 2, 12, 0, tzinfo=UTC)
-    end_time = datetime(2000, 1, 2, 13, 0, tzinfo=UTC)
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
 
     # Can create an event
     create_res = api_helpers.create_event(
         token=creator_token,
+        title="Dummy Title",
+        content="Dummy content.",
+        location=events_pb2.EventLocation(
+            address="Near Null Island",
+            lat=0.1,
+            lng=0.2,
+        ),
         start_date_time=(start_time.date(), start_time.time()),
         end_date_time=(end_time.date(), end_time.time()),
         approve_by=moderator,
     )
     assert create_res.is_next
-    assert create_res.title == api_helpers.DEFAULT_EVENT_TITLE
-    assert create_res.slug == api_helpers.DEFAULT_EVENT_SLUG
-    assert create_res.content == api_helpers.DEFAULT_EVENT_CONTENT
+    assert create_res.title == "Dummy Title"
+    assert create_res.slug == "dummy-title"
+    assert create_res.content == "Dummy content."
     assert not create_res.photo_url
     assert create_res.HasField("location")
-    assert create_res.location.lat == api_helpers.DEFAULT_EVENT_LOCATION.lat
-    assert create_res.location.lng == api_helpers.DEFAULT_EVENT_LOCATION.lng
-    assert create_res.location.address == api_helpers.DEFAULT_EVENT_LOCATION.address
+    assert create_res.location.lat == 0.1
+    assert create_res.location.lng == 0.2
+    assert create_res.location.address == "Near Null Island"
     assert to_aware_datetime(create_res.created) == now()
     assert to_aware_datetime(create_res.last_edited) == now()
     assert create_res.creator_user_id == creator_user.id
@@ -103,14 +110,14 @@ def test_CreateEvent(db, frozen_timewarp_y2k, push_collector: PushCollector, mod
 
     get_res = api_helpers.get_event(token=mod_token, event_id=event_id)
     assert get_res.is_next
-    assert get_res.title == api_helpers.DEFAULT_EVENT_TITLE
-    assert get_res.slug == api_helpers.DEFAULT_EVENT_SLUG
-    assert get_res.content == api_helpers.DEFAULT_EVENT_CONTENT
+    assert get_res.title == "Dummy Title"
+    assert get_res.slug == "dummy-title"
+    assert get_res.content == "Dummy content."
     assert not get_res.photo_url
     assert get_res.HasField("location")
-    assert get_res.location.lat == api_helpers.DEFAULT_EVENT_LOCATION.lat
-    assert get_res.location.lng == api_helpers.DEFAULT_EVENT_LOCATION.lng
-    assert get_res.location.address == api_helpers.DEFAULT_EVENT_LOCATION.address
+    assert get_res.location.lat == 0.1
+    assert get_res.location.lng == 0.2
+    assert get_res.location.address == "Near Null Island"
     assert to_aware_datetime(get_res.created) == now()
     assert to_aware_datetime(get_res.last_edited) == now()
     assert get_res.creator_user_id == creator_user.id
@@ -132,14 +139,14 @@ def test_CreateEvent(db, frozen_timewarp_y2k, push_collector: PushCollector, mod
 
     other_get_res = api_helpers.get_event(token=other_token, event_id=event_id)
     assert other_get_res.is_next
-    assert other_get_res.title == api_helpers.DEFAULT_EVENT_TITLE
-    assert other_get_res.slug == api_helpers.DEFAULT_EVENT_SLUG
-    assert other_get_res.content == api_helpers.DEFAULT_EVENT_CONTENT
+    assert other_get_res.title == "Dummy Title"
+    assert other_get_res.slug == "dummy-title"
+    assert other_get_res.content == "Dummy content."
     assert not other_get_res.photo_url
     assert other_get_res.HasField("location")
-    assert other_get_res.location.lat == api_helpers.DEFAULT_EVENT_LOCATION.lat
-    assert other_get_res.location.lng == api_helpers.DEFAULT_EVENT_LOCATION.lng
-    assert other_get_res.location.address == api_helpers.DEFAULT_EVENT_LOCATION.address
+    assert other_get_res.location.lat == 0.1
+    assert other_get_res.location.lng == 0.2
+    assert other_get_res.location.address == "Near Null Island"
     assert to_aware_datetime(other_get_res.created) == now()
     assert to_aware_datetime(other_get_res.last_edited) == now()
     assert other_get_res.creator_user_id == creator_user.id
@@ -191,20 +198,21 @@ def test_CreateEvent(db, frozen_timewarp_y2k, push_collector: PushCollector, mod
     assert e.value.details() == "Missing event address or location."
 
     with pytest.raises(grpc.RpcError) as e:
-        api_helpers.create_event(token=creator_token, start_date_time=(date(1999, 12, 31), time(0, 0)))
+        api_helpers.create_event(token=creator_token, start_date_time=(today() - timedelta(days=1), time(0, 0)))
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
     assert e.value.details() == "The event must be in the future."
 
     with pytest.raises(grpc.RpcError) as e:
-        api_helpers.create_event(token=creator_token, end_date_time=(date(1999, 12, 31), time(0, 0)))
+        api_helpers.create_event(token=creator_token,
+            start_date_time=(today() + timedelta(days=2), time(0, 0)),
+            end_date_time=(today() + timedelta(days=1), time(0, 0)))
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
     assert e.value.details() == "The event must end after it starts."
 
     with pytest.raises(grpc.RpcError) as e:
         api_helpers.create_event(
             token=creator_token,
-            start_date_time=(date(2001, 1, 2), time(0, 0)),
-            end_date_time=(date(2001, 1, 2), time(1, 0)),
+            start_date_time=(today() + timedelta(days=400), time(0, 0)),
         )
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
     assert e.value.details() == "The event needs to start within the next year."
@@ -212,8 +220,8 @@ def test_CreateEvent(db, frozen_timewarp_y2k, push_collector: PushCollector, mod
     with pytest.raises(grpc.RpcError) as e:
         api_helpers.create_event(
             token=creator_token,
-            start_date_time=(date(2000, 1, 2), time(0, 0)),
-            end_date_time=(date(2000, 1, 10), time(0, 0)),
+            start_date_time=(today() + timedelta(days=1), time(0, 0)),
+            end_date_time=(today() + timedelta(days=9), time(0, 0)),
         )
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
     assert e.value.details() == "Events cannot last longer than 7 days."

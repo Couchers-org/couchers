@@ -92,10 +92,6 @@ class FrozenTimewarp(Clock):
         self._refuse_mid_transaction()
         self.frozen_at = when.astimezone(UTC)
 
-    def freeze_at_y2k(self) -> None:
-        """Stops the clock at 2000-01-01T00:00:00Z instead of wherever it was stopped before."""
-        self.freeze_at(datetime(2000, 1, 1, tzinfo=UTC))
-
     def advance(self, delta: timedelta) -> None:
         """Moves the clock forwards, or backwards if delta is negative."""
         self._refuse_mid_transaction()

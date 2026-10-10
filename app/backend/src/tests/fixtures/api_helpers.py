@@ -5,19 +5,16 @@ from couchers.utils import today
 from tests.fixtures.misc import Moderator
 from tests.fixtures.sessions import events_session
 
-DEFAULT_EVENT_TITLE = "Dummy Title"
-DEFAULT_EVENT_SLUG = "dummy-title"
-DEFAULT_EVENT_CONTENT = "Dummy content."
-DEFAULT_EVENT_LOCATION = events_pb2.EventLocation(address="Near Null Island", lat=0.1, lng=0.2)
+_DEFAULT_EVENT_LOCATION = events_pb2.EventLocation(address="Near Null Island", lat=0.1, lng=0.2)
 
 
 def create_event(
     *,
     token: str,
-    title: str | None = DEFAULT_EVENT_TITLE,
-    content: str | None = DEFAULT_EVENT_CONTENT,
+    title: str | None = "Dummy Title",
+    content: str | None = "Dummy content.",
     photo_key: str | None = None,
-    location: events_pb2.EventLocation | None = DEFAULT_EVENT_LOCATION,
+    location: events_pb2.EventLocation | None = _DEFAULT_EVENT_LOCATION,
     # API accepts local times so don't take datetime, which are usually tz-aware.
     start_date_time: tuple[date, time] | None = None,
     end_date_time: tuple[date, time] | None = None,
