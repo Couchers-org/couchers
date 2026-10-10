@@ -22,7 +22,7 @@ import {
 } from "@react-navigation/native";
 import * as Sentry from "@sentry/react-native";
 import * as Notifications from "expo-notifications";
-import { Href, router, Stack } from "expo-router";
+import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
@@ -35,14 +35,12 @@ import { AuthProvider, useAuthContext } from "@/features/auth/AuthContext";
 import NativeUpdatePrompt from "@/features/diagnostics/NativeUpdatePrompt";
 import { useNativeDiagnostics } from "@/features/diagnostics/useNativeDiagnostics";
 import FeatureFlagProvider from "@/features/experimentation/FeatureFlagProvider";
+import { useNotificationObserver } from "@/features/notifications/useNotificationObserver";
 import { useRegisterPushNotifications } from "@/features/notifications/useRegisterPushNotifications";
 import { appVariant } from "@/service/buildInfo";
 import { reconfigureApiClient } from "@/service/client";
 import { currentActiveWebPathRef } from "@/state/webViewState";
 import { getNotificationPath } from "@/utils/getNotificationPath";
-
-// Module-level Set to track handled notification IDs (persists across component remounts)
-const handledNotificationIds = new Set<string>();
 
 // Suppress foreground notification banners when the user is already viewing
 // the relevant content. Badge and notification list always update regardless.
@@ -69,17 +67,23 @@ Notifications.setNotificationHandler({
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
+function NotificationObserver() {
+  useNotificationObserver();
+  return null;
+}
+
 function RootNavigator({ fontsLoaded }: { fontsLoaded: boolean }) {
   const { authenticated, checkedAuthStatus } = useAuthContext();
   const featuresReady = useGrowthBook().ready;
+  const isReady = fontsLoaded && checkedAuthStatus && featuresReady;
 
   useEffect(() => {
-    if (fontsLoaded && checkedAuthStatus && featuresReady) {
+    if (isReady) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, checkedAuthStatus, featuresReady]);
+  }, [isReady]);
 
-  if (!fontsLoaded || !checkedAuthStatus || !featuresReady) {
+  if (!isReady) {
     return null;
   }
 
@@ -89,19 +93,24 @@ function RootNavigator({ fontsLoaded }: { fontsLoaded: boolean }) {
   // - Resets the navigation state appropriately
   // - Prevents back navigation to screens that shouldn't be accessible
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Protected guard={authenticated}>
-        <Stack.Screen name="(tabs)" />
-      </Stack.Protected>
-      <Stack.Protected guard={!authenticated}>
-        <Stack.Screen name="login" />
-        <Stack.Screen name="signup" />
-        <Stack.Screen name="complete-password-reset" />
-      </Stack.Protected>
-      {/* Accessible regardless of auth state */}
-      <Stack.Screen name="confirm-email" />
-      <Stack.Screen name="dev-settings" options={{ presentation: "modal" }} />
-    </Stack>
+    <>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Protected guard={authenticated}>
+          <Stack.Screen name="(tabs)" />
+        </Stack.Protected>
+        <Stack.Protected guard={!authenticated}>
+          <Stack.Screen name="login" />
+          <Stack.Screen name="signup" />
+          <Stack.Screen name="complete-password-reset" />
+        </Stack.Protected>
+        {/* Accessible regardless of auth state */}
+        <Stack.Screen name="confirm-email" />
+        <Stack.Screen name="dev-settings" options={{ presentation: "modal" }} />
+      </Stack>
+      {/* Rendered alongside the Stack so it only acts once there's a navigator: a
+          notification tap that cold-starts the app is otherwise lost. */}
+      {authenticated && <NotificationObserver />}
+    </>
   );
 }
 
@@ -153,79 +162,8 @@ function RootLayout() {
 
 export default sentryEnabled ? Sentry.wrap(RootLayout) : RootLayout;
 
-/**
- * Generates a unique ID for a notification response to prevent duplicate handling.
- */
-function getNotificationResponseId(
-  response: Notifications.NotificationResponse,
-): string {
-  return response.notification.request.identifier + response.notification.date;
-}
-
-/**
- * Handles navigation from a notification response.
- * Uses module-level Set to track handled notifications (persists across remounts).
- */
-function handleNotificationResponse(
-  response: Notifications.NotificationResponse,
-): void {
-  if (response.actionIdentifier !== Notifications.DEFAULT_ACTION_IDENTIFIER) {
-    return;
-  }
-
-  const responseId = getNotificationResponseId(response);
-
-  // Skip if already handled
-  if (handledNotificationIds.has(responseId)) {
-    return;
-  }
-  handledNotificationIds.add(responseId);
-
-  const url = response.notification.request.content.data?.url as
-    | string
-    | undefined;
-  const path = getNotificationPath(url);
-
-  if (path) {
-    router.push(path as Href);
-  }
-}
-
-/**
- * Handles push notification deep linking using Expo's listener-based pattern.
- * - Cold start: getLastNotificationResponse() called once when auth is ready
- * - Foreground/background: addNotificationResponseReceivedListener for interactions
- * @see https://docs.expo.dev/versions/latest/sdk/notifications/#notification-event-listeners
- */
-function useNotificationObserver() {
-  const { authenticated, checkedAuthStatus } = useAuthContext();
-
-  useEffect(() => {
-    // Wait for auth to be checked and user to be authenticated
-    if (!checkedAuthStatus || !authenticated) return;
-
-    // Handle cold start: check if app was opened from a notification tap
-    const initialResponse = Notifications.getLastNotificationResponse();
-    if (initialResponse) {
-      handleNotificationResponse(initialResponse);
-    }
-
-    // Handle foreground/background: listen for notification interactions
-    const subscription = Notifications.addNotificationResponseReceivedListener(
-      (response) => {
-        handleNotificationResponse(response);
-      },
-    );
-
-    return () => {
-      subscription.remove();
-    };
-  }, [authenticated, checkedAuthStatus]);
-}
-
 function PushNotificationsRegistrar() {
   useRegisterPushNotifications();
-  useNotificationObserver();
   const { prompt, dismiss } = useNativeDiagnostics();
   return <NativeUpdatePrompt prompt={prompt} onDismiss={dismiss} />;
 }
