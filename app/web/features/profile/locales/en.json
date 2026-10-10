@@ -221,6 +221,7 @@
     "arrival_date_before_host_today": "This date has already passed for {{name}}.",
     "departure_date": "Departure Date",
     "departure_date_empty": "Please specify a departure date.",
+    "departure_date_not_after_arrival": "Departure date needs to be after arrival date.",
     "request": "Request",
     "request_description": "Share your plans for the visit and include why you're requesting to stay with this particular host.",
     "request_description_empty": "Please write a request message.",
