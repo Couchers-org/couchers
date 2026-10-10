@@ -15,9 +15,6 @@ from couchers.servicers.discussions import Discussions
 from couchers.servicers.events import Events
 from couchers.servicers.requests import Requests
 
-# the dashboard shows a small preview of each section
-DASHBOARD_PAGE_SIZE = 3
-
 
 class Screens(screens_pb2_grpc.ScreensServicer):
     def GetDashboard(
@@ -40,13 +37,13 @@ class Screens(screens_pb2_grpc.ScreensServicer):
             surfing=Requests().ListHostRequests(upcoming_host_requests_req(surfing=True), context, session),
             hosting=Requests().ListHostRequests(upcoming_host_requests_req(surfing=False), context, session),
             my_events=Events().ListMyEvents(
-                events_pb2.ListMyEventsReq(page_size=DASHBOARD_PAGE_SIZE),
+                events_pb2.ListMyEventsReq(page_size=3),
                 context,
                 session,
             ),
             community_events=Events().ListMyEvents(
                 events_pb2.ListMyEventsReq(
-                    page_size=DASHBOARD_PAGE_SIZE,
+                    page_size=3,
                     my_communities=True,
                     my_communities_exclude_global=True,
                     exclude_attending=True,
@@ -55,7 +52,7 @@ class Screens(screens_pb2_grpc.ScreensServicer):
                 session,
             ),
             discussions=Discussions().ListMyCommunitiesDiscussions(
-                discussions_pb2.ListMyCommunitiesDiscussionsReq(page_size=DASHBOARD_PAGE_SIZE),
+                discussions_pb2.ListMyCommunitiesDiscussionsReq(page_size=3),
                 context,
                 session,
             ),
