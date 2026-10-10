@@ -3,11 +3,11 @@ from sqlalchemy.orm import Session
 
 from couchers.context import CouchersContext
 from couchers.proto import (
-    conversations_pb2,
     dashboard_pb2,
     dashboard_pb2_grpc,
     discussions_pb2,
     events_pb2,
+    messages_pb2,
     requests_pb2,
 )
 from couchers.servicers.account import Account
@@ -30,8 +30,8 @@ class Dashboard(dashboard_pb2_grpc.DashboardServicer):
                     only_sent=True,
                     only_active=True,
                     status_in=[
-                        conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
-                        conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED,
+                        messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                        messages_pb2.HOST_REQUEST_STATUS_CONFIRMED,
                     ],
                     sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
                 ),
@@ -43,8 +43,8 @@ class Dashboard(dashboard_pb2_grpc.DashboardServicer):
                     only_received=True,
                     only_active=True,
                     status_in=[
-                        conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
-                        conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED,
+                        messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                        messages_pb2.HOST_REQUEST_STATUS_CONFIRMED,
                     ],
                     sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
                 ),

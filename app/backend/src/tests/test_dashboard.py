@@ -1,12 +1,10 @@
 from datetime import timedelta
 
-import pytest
 from google.protobuf import empty_pb2
 
-from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.db import session_scope
-from couchers.proto import conversations_pb2, dashboard_pb2, discussions_pb2, events_pb2, requests_pb2
-from couchers.utils import Timestamp_from_datetime, now, today
+from couchers.proto import dashboard_pb2, discussions_pb2, events_pb2, messages_pb2, requests_pb2
+from couchers.utils import datetime_to_iso8601_local, now, today
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import (
     account_session,
@@ -16,25 +14,12 @@ from tests.fixtures.sessions import (
     requests_session,
 )
 from tests.test_communities import create_community
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
+from tests.test_requests import valid_request_text
 
 UPCOMING_STATUSES = [
-    conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
-    conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED,
+    messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+    messages_pb2.HOST_REQUEST_STATUS_CONFIRMED,
 ]
-
-
-def valid_request_text(text: str = "Test request") -> str:
-    """Pads a request text to a valid length (measured in utf-16 code units, matching the frontend)."""
-    utf16_length = len(text.encode("utf-16-le")) // 2
-    if utf16_length >= HOST_REQUEST_MIN_LENGTH_UTF16:
-        return text
-    return text + ("_" * (HOST_REQUEST_MIN_LENGTH_UTF16 - utf16_length))
 
 
 def _setup_accepted_host_request(token_surfer, host_user_id, moderator):
@@ -62,7 +47,7 @@ def test_GetDashboardV2_matches_individual_rpcs(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
                 text="Sure, come on over!",
             )
         )
@@ -111,7 +96,7 @@ def test_GetDashboardV2_matches_individual_rpcs(db, moderator):
     # the surfer sees their upcoming trip under surfing, nothing under hosting
     assert len(res.surfing.host_requests) == 1
     assert res.surfing.host_requests[0].host_request_id == host_request_id
-    assert res.surfing.host_requests[0].status == conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+    assert res.surfing.host_requests[0].status == messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
     assert len(res.hosting.host_requests) == 0
 
 
@@ -124,7 +109,7 @@ def test_GetDashboardV2_buckets_by_role(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
                 text="Sure, come on over!",
             )
         )
@@ -159,9 +144,8 @@ def test_GetDashboardV2_community_events_excludes_attending(db, moderator):
             content="Test content.",
             location=events_pb2.EventLocation(address="Near Null Island", lat=0.1, lng=0.2),
             parent_community_id=community_id,
-            timezone="UTC",
-            start_time=Timestamp_from_datetime(start + timedelta(hours=hours)),
-            end_time=Timestamp_from_datetime(start + timedelta(hours=hours + 1)),
+            start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=hours)),
+            end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=hours + 1)),
         )
 
     with events_session(token2) as api:
