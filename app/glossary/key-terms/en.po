@@ -433,7 +433,7 @@ msgstr "cancelled"
 msgid "stay.noun"
 msgstr "stay"
 
-#. (noun) Agreements for a surfers to stay with hosts over specific date ranges.
+#. (noun) Agreements for surfers to stay with hosts over specific date ranges.
 msgid "stays"
 msgstr "stays"
 
