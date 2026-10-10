@@ -78,9 +78,7 @@
     "manage_link": "管理",
     "when_now": "現在",
     "empty_description": "準備出發？在社群中發布公開行程，即可收到附近接待者的邀請。",
-    "same_gender_only_indicator": "同性別",
-    "offers_count_other": "{{count}}個接待邀請",
-    "no_offers": "尚無接待邀請"
+    "same_gender_only_indicator": "同性別"
   },
   "stays": {
     "upcoming_trips_header": "您即將入住的住宿",

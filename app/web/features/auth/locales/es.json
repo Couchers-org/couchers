@@ -140,7 +140,7 @@
     }
   },
   "logged_out_message": "Se ha cerrado tu sesión.",
-  "sign_up_completed_prompt": "Hemos enviado un enlace de verificación a tu dirección de correo electrónico. Por favor, pincha en el enlace para activar tu cuenta.",
+  "sign_up_completed_prompt": "Hemos enviado un correo electrónico con un enlace de verificación a tu dirección de correo electrónico: <strong>{{email}}</strong>. Haz clic en el enlace para activar tu cuenta.",
   "sign_up_completed_title": "¡Gracias por registrarte!",
   "sign_up_confirmed_prompt": "¡Todo listo! Si el navegador no te redirecciona automáticamente, intenta iniciar sesión.",
   "reset_password": "Restablecer contraseña",
@@ -404,5 +404,12 @@
       "most": "<strong>La mayoría</strong>: muestra toda la sección \"Sobre mí\" excepto \"Información adicional\"",
       "full_profile": "<strong>Perfil completo</strong>: muestra mi perfil completo (excepto las referencias)"
     }
-  }
+  },
+  "change_signup_email_form": {
+    "title": "Cambiar correo electrónico de registro",
+    "current_email_message": "Tu dirección de correo electrónico actual es <strong>{{email}}</strong>.",
+    "success_message": "Hemos recibido tu cambio de correo electrónico. Revisa tu nuevo correo electrónico para confirmarlo.",
+    "signup_change_email": "Cambiar dirección de correo electrónico"
+  },
+  "sign_up_change_email": "¿Escribiste mal tu dirección de correo electrónico? Introduce aquí tu dirección de correo electrónico correcta:"
 }
