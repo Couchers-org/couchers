@@ -1,7 +1,6 @@
 from datetime import timedelta
 from typing import Any
 
-import pytest
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 from sqlalchemy.sql import func
@@ -24,11 +23,6 @@ from tests.fixtures.sessions import notifications_session
 
 CAMPAIGN_KEY = "host_my_home_nudge"
 FLAG_KEY = "host_my_home_nudge_days_after_signup"
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
 
 
 def _make_eligible_user(**overrides: Any):

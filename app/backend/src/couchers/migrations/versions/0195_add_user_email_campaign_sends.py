@@ -1,7 +1,7 @@
 """Add user_email_campaign_sends table
 
-Revision ID: 0190
-Revises: 0189
+Revision ID: 0195
+Revises: 0194
 Create Date: 2026-06-01 12:00:00.000000
 
 """
@@ -9,8 +9,8 @@ Create Date: 2026-06-01 12:00:00.000000
 import sqlalchemy as sa
 from alembic import op
 
-revision = "0190"
-down_revision = "0189"
+revision = "0195"
+down_revision = "0194"
 branch_labels = None
 depends_on = None
 
