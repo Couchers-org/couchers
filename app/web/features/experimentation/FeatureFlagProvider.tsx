@@ -36,6 +36,35 @@ const growthbook = new GrowthBook({
   },
 });
 
+export type FeatureFlagSnapshot = {
+  targeting: Record<string, unknown>;
+  values: Record<string, unknown>;
+};
+
+declare global {
+  interface Window {
+    readonly couchersFlags?: FeatureFlagSnapshot;
+  }
+}
+
+export function getFeatureFlagSnapshot(): FeatureFlagSnapshot {
+  const targeting = growthbook.getAttributes();
+  const probe = new GrowthBook({ attributes: targeting });
+  probe.initSync({ payload: growthbook.getDecryptedPayload() });
+  return {
+    targeting,
+    values: Object.fromEntries(
+      Object.keys(probe.getFeatures())
+        .sort()
+        .map((key) => [key, probe.evalFeature(key).value]),
+    ),
+  };
+}
+
+if (typeof window !== "undefined") {
+  Object.defineProperty(window, "couchersFlags", { get: getFeatureFlagSnapshot, configurable: true });
+}
+
 export default function FeatureFlagProvider({ children }: { children: ReactNode }) {
   const { authState } = useAuthContext();
 

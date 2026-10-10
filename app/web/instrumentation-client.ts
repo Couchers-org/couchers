@@ -28,6 +28,10 @@ Sentry.init({
       ...event.tags,
       is_chrome_translated: classList.contains("translated-ltr") || classList.contains("translated-rtl"),
     };
+    const flags = window.couchersFlags;
+    if (flags) {
+      event.contexts = { ...event.contexts, feature_flags: flags };
+    }
     return event;
   },
 

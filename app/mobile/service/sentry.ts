@@ -1,6 +1,7 @@
 import * as Sentry from "@sentry/react-native";
 
 import { getDefaultApiBaseUrl, getDefaultWebBaseUrl } from "@/config/urls";
+import { getFeatureFlagSnapshot } from "@/features/experimentation/FeatureFlagProvider";
 import {
   appVariant,
   createdAt,
@@ -52,6 +53,14 @@ if (sentryEnabled) {
       Sentry.mobileReplayIntegration(),
       Sentry.feedbackIntegration(),
     ],
+
+    beforeSend(event) {
+      event.contexts = {
+        ...event.contexts,
+        feature_flags: getFeatureFlagSnapshot(),
+      };
+      return event;
+    },
   });
 
   // Set via the bridged setters rather than initialScope, which never reaches
