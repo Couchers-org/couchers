@@ -38,7 +38,7 @@ def _setup_accepted_host_request(token_surfer, host_user_id, moderator):
     return host_request_id
 
 
-def test_GetDashboardV2_matches_individual_rpcs(db, moderator):
+def test_GetDashboard_matches_individual_rpcs(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -84,7 +84,7 @@ def test_GetDashboardV2_matches_individual_rpcs(db, moderator):
         reminders = api.GetReminders(empty_pb2.Empty())
 
     with dashboard_session(token1) as api:
-        res = api.GetDashboardV2(dashboard_pb2.GetDashboardV2Req())
+        res = api.GetDashboard(dashboard_pb2.GetDashboardReq())
 
     assert res.reminders == reminders
     assert res.surfing == surfing
@@ -100,7 +100,7 @@ def test_GetDashboardV2_matches_individual_rpcs(db, moderator):
     assert len(res.hosting.host_requests) == 0
 
 
-def test_GetDashboardV2_buckets_by_role(db, moderator):
+def test_GetDashboard_buckets_by_role(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -116,13 +116,13 @@ def test_GetDashboardV2_buckets_by_role(db, moderator):
 
     # the host sees the upcoming stay under hosting, nothing under surfing
     with dashboard_session(token2) as api:
-        res = api.GetDashboardV2(dashboard_pb2.GetDashboardV2Req())
+        res = api.GetDashboard(dashboard_pb2.GetDashboardReq())
     assert len(res.hosting.host_requests) == 1
     assert res.hosting.host_requests[0].host_request_id == host_request_id
     assert len(res.surfing.host_requests) == 0
 
 
-def test_GetDashboardV2_community_events_excludes_attending(db, moderator):
+def test_GetDashboard_community_events_excludes_attending(db, moderator):
     # Pins the exclude_attending parameter the web frontend sends: an event the user is
     # attending shows under my_events and must not also duplicate into community_events.
     user1, token1 = generate_user()
@@ -161,7 +161,7 @@ def test_GetDashboardV2_community_events_excludes_attending(db, moderator):
         )
 
     with dashboard_session(token1) as api:
-        res = api.GetDashboardV2(dashboard_pb2.GetDashboardV2Req())
+        res = api.GetDashboard(dashboard_pb2.GetDashboardReq())
 
     # the attended event shows under my_events (which with no flags includes all relationships)...
     assert e_attending in {e.event_id for e in res.my_events.events}
@@ -169,10 +169,10 @@ def test_GetDashboardV2_community_events_excludes_attending(db, moderator):
     assert [e.event_id for e in res.community_events.events] == [e_community_only]
 
 
-def test_GetDashboardV2_empty(db):
+def test_GetDashboard_empty(db):
     user, token = generate_user()
     with dashboard_session(token) as api:
-        res = api.GetDashboardV2(dashboard_pb2.GetDashboardV2Req())
+        res = api.GetDashboard(dashboard_pb2.GetDashboardReq())
     assert len(res.surfing.host_requests) == 0
     assert len(res.hosting.host_requests) == 0
     assert len(res.my_events.events) == 0

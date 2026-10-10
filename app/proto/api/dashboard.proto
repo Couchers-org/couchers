@@ -11,15 +11,15 @@ import "requests.proto";
 service Dashboard {
   option (auth_level) = AUTH_LEVEL_SECURE;
 
-  rpc GetDashboardV2(GetDashboardV2Req) returns (GetDashboardV2Res) {
+  rpc GetDashboard(GetDashboardReq) returns (GetDashboardRes) {
     // Fetch all the content needed to render the dashboard in a single call, instead of fanning out
     // to the individual RPCs. Each field mirrors the response of the RPC that previously populated it.
   }
 }
 
-message GetDashboardV2Req {}
+message GetDashboardReq {}
 
-message GetDashboardV2Res {
+message GetDashboardRes {
   org.couchers.api.account.GetRemindersRes reminders = 1;
   org.couchers.api.requests.ListHostRequestsRes surfing = 2;
   org.couchers.api.requests.ListHostRequestsRes hosting = 3;
