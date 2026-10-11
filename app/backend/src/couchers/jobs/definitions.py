@@ -26,6 +26,7 @@ from couchers.jobs.handlers import (
     update_randomized_locations,
     update_recommendation_scores,
 )
+from couchers.jobs.user_email_campaigns import run_user_email_campaigns
 from couchers.materialized_views import refresh_materialized_views, refresh_materialized_views_rapid
 from couchers.notifications.background import handle_email_digests, handle_notification
 from couchers.notifications.send_raw_push_notification import send_raw_push_notification_v2
@@ -87,6 +88,7 @@ _JOBS_LIST = [
     Job(send_message_notifications, schedule=timedelta(minutes=3)),
     Job(send_request_notifications, schedule=timedelta(minutes=3)),
     Job(send_onboarding_emails, schedule=timedelta(hours=1)),
+    Job(run_user_email_campaigns, schedule=timedelta(hours=1)),
     Job(send_reference_reminders, schedule=timedelta(hours=1)),
     Job(send_host_request_reminders, schedule=timedelta(minutes=15)),
     Job(add_users_to_email_list, schedule=timedelta(hours=1)),
