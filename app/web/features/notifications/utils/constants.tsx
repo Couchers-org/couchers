@@ -36,6 +36,7 @@ const mapNotificationSettingsTypeToIcon: { [key: string]: JSX.Element } = {
   reference: <PenIcon fontSize="large" color="action" />,
   friend_request: <SinglePersonIcon fontSize="large" color="action" />,
   host_request: <CouchFilledIcon fontSize="large" color="action" />,
+  public_trip_offer: <CouchFilledIcon fontSize="large" color="action" />,
   discussion: <CommentIcon fontSize="large" color="action" />,
   reply: <SegmentIcon fontSize="large" color="action" />,
 };
@@ -240,6 +241,26 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
     </Box>
   ),
   host_request: (
+    <Box
+      sx={{
+        backgroundColor: theme.palette.primary.main,
+        width: theme.spacing(2.5),
+        height: theme.spacing(2.5),
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        borderRadius: "50%",
+      }}
+    >
+      <CouchFilledIcon
+        sx={{
+          color: theme.palette.common.white,
+          fontSize: "0.9rem",
+        }}
+      />
+    </Box>
+  ),
+  public_trip_offer: (
     <Box
       sx={{
         backgroundColor: theme.palette.primary.main,

@@ -27,6 +27,12 @@ HOST_REQUEST_NOTIFICATION_TOPIC_ACTIONS = [
     NotificationTopicAction.host_request__message,
     NotificationTopicAction.host_request__missed_messages,
     NotificationTopicAction.host_request__reminder,
+    NotificationTopicAction.public_trip_offer__create,
+    NotificationTopicAction.public_trip_offer__accept,
+    NotificationTopicAction.public_trip_offer__reject,
+    NotificationTopicAction.public_trip_offer__confirm,
+    NotificationTopicAction.public_trip_offer__cancel,
+    NotificationTopicAction.public_trip_offer__reminder,
 ]
 
 

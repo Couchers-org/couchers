@@ -6,14 +6,16 @@ from urllib.parse import parse_qs, urlparse
 
 import grpc
 import pytest
+from google.protobuf import empty_pb2
 from sqlalchemy import func, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy_utils import refresh_materialized_view
 
-from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
+from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16, HOST_REQUEST_REMINDER_INTERVAL
 from couchers.crypto import b64decode
 from couchers.db import session_scope
 from couchers.i18n import LocalizationContext
+from couchers.jobs.handlers import send_host_request_reminders
 from couchers.materialized_views import UserResponseRate
 from couchers.models import (
     Cluster,
@@ -43,7 +45,7 @@ from couchers.proto.internal import unsubscribe_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_multi, today
 from tests.fixtures.db import backdate_conversations, generate_user, make_user_block
-from tests.fixtures.misc import EmailCollector, PushCollector
+from tests.fixtures.misc import EmailCollector, Moderator, PushCollector
 from tests.fixtures.sessions import api_session, auth_api_session, requests_session
 from tests.test_public_trips import _create_trip_directly, _make_node
 
@@ -3039,3 +3041,175 @@ def test_ListStays_requires_role(db):
         with pytest.raises(grpc.RpcError) as e:
             api.ListStays(requests_pb2.ListStaysReq())
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+
+def _create_offer(
+    host_token: str, surfer_id: int, trip_id: int, from_date: date, to_date: date, moderator: Moderator
+) -> int:
+    with requests_session(host_token) as api:
+        host_request_id: int = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer_id,
+                from_date=from_date.isoformat(),
+                to_date=to_date.isoformat(),
+                text=valid_request_text("happy to host you"),
+                public_trip_id=trip_id,
+            )
+        ).host_request_id
+    moderator.approve_host_request(host_request_id)
+    return host_request_id
+
+
+def _respond(token: str, host_request_id: int, status) -> None:
+    with requests_session(token) as api:
+        api.RespondHostRequest(requests_pb2.RespondHostRequestReq(host_request_id=host_request_id, status=status))
+
+
+def test_public_trip_offer_notifications(db, email_collector: EmailCollector, push_collector: PushCollector, moderator):
+    surfer, surfer_token = generate_user(complete_profile=True)
+    host, host_token = generate_user(complete_profile=True)
+    host2, host2_token = generate_user(complete_profile=True)
+
+    surfer_loc_context = LocalizationContext.from_user(surfer)
+
+    from_date = today() + timedelta(days=2)
+    to_date = today() + timedelta(days=3)
+    trip_id = _create_public_trip(surfer.id, from_date, to_date)
+
+    hr_id = _create_offer(host_token, surfer.id, trip_id, from_date, to_date, moderator)
+
+    email = email_collector.pop_for_recipient(surfer.email, last=True)
+    assert email.subject == f"[TEST] {host.name} offered to host you"
+    assert "happy to host you" in email.plain
+    assert "quick decline" in email.plain.lower()
+    assert surfer_loc_context.localize_date(from_date, with_year=False) in email.plain
+    assert surfer_loc_context.localize_date(to_date, with_year=False) in email.plain
+    assert f"http://localhost:3000/messages/request/{hr_id}" in email.plain
+    assert not email.attachments
+    push = push_collector.pop_for_user(surfer.id, last=True)
+    assert push.topic_action == "public_trip_offer:create"
+    assert push.content.title == f"{host.name} offered to host you"
+
+    _respond(surfer_token, hr_id, messages_pb2.HOST_REQUEST_STATUS_ACCEPTED)
+
+    email = email_collector.pop_for_recipient(host.email, last=True)
+    assert email.subject == f"[TEST] {surfer.name} accepted your offer to host them"
+    assert len(email.attachments or []) == 1
+    push = push_collector.pop_for_user(host.id, last=True)
+    assert push.topic_action == "public_trip_offer:accept"
+    assert push.content.title == f"{surfer.name} accepted your hosting offer"
+
+    _respond(host_token, hr_id, messages_pb2.HOST_REQUEST_STATUS_CONFIRMED)
+
+    email = email_collector.pop_for_recipient(surfer.email, last=True)
+    assert email.subject == f"[TEST] {host.name} confirmed they will host you"
+    assert len(email.attachments or []) == 1
+    push = push_collector.pop_for_user(surfer.id, last=True)
+    assert push.topic_action == "public_trip_offer:confirm"
+    assert push.content.title == f"{host.name} confirmed they will host you"
+
+    _respond(surfer_token, hr_id, messages_pb2.HOST_REQUEST_STATUS_REJECTED)
+
+    email = email_collector.pop_for_recipient(host.email, last=True)
+    assert email.subject == f"[TEST] {surfer.name} declined your offer to host them"
+    assert not email.attachments
+    push = push_collector.pop_for_user(host.id, last=True)
+    assert push.topic_action == "public_trip_offer:reject"
+    assert push.content.title == f"{surfer.name} declined your hosting offer"
+
+    hr2_id = _create_offer(host2_token, surfer.id, trip_id, from_date, to_date, moderator)
+    email_collector.pop_for_recipient(surfer.email, last=True)
+    push_collector.pop_for_user(surfer.id, last=True)
+
+    _respond(host2_token, hr2_id, messages_pb2.HOST_REQUEST_STATUS_CANCELLED)
+
+    email = email_collector.pop_for_recipient(surfer.email, last=True)
+    assert email.subject == f"[TEST] {host2.name} cancelled their offer to host you"
+    assert len(email.attachments or []) == 1
+    push = push_collector.pop_for_user(surfer.id, last=True)
+    assert push.topic_action == "public_trip_offer:cancel"
+    assert push.content.title == f"{host2.name} cancelled their hosting offer"
+
+    with session_scope() as session:
+        topic_actions = set(
+            session.execute(select(Notification.topic_action).where(Notification.key.in_([str(hr_id), str(hr2_id)])))
+            .scalars()
+            .all()
+        )
+    assert all(topic_action.topic == "public_trip_offer" for topic_action in topic_actions)
+
+
+def test_normal_request_notifications_unaffected_by_offers(db, push_collector: PushCollector, moderator):
+    surfer, surfer_token = generate_user(complete_profile=True)
+    host, host_token = generate_user(complete_profile=True)
+
+    hr_id = _create_host_request_via_api(surfer_token, host.id, moderator)
+    assert push_collector.pop_for_user(host.id, last=True).topic_action == "host_request:create"
+
+    _respond(host_token, hr_id, messages_pb2.HOST_REQUEST_STATUS_ACCEPTED)
+    assert push_collector.pop_for_user(surfer.id, last=True).topic_action == "host_request:accept"
+
+
+def test_public_trip_offer_quick_decline(db, email_collector: EmailCollector, moderator):
+    surfer, surfer_token = generate_user(complete_profile=True)
+    host, host_token = generate_user(complete_profile=True)
+
+    from_date = today() + timedelta(days=2)
+    to_date = today() + timedelta(days=3)
+    trip_id = _create_public_trip(surfer.id, from_date, to_date)
+
+    hr_id = _create_offer(host_token, surfer.id, trip_id, from_date, to_date, moderator)
+
+    email = email_collector.pop_for_recipient(surfer.email, last=True)
+
+    for link in re.findall(r'<a href="(.*?)"', email.html):
+        if "payload" not in link:
+            continue
+        params = parse_qs(urlparse(html.unescape(link)).query)
+        payload = unsubscribe_pb2.UnsubscribePayload.FromString(b64decode(params["payload"][0]))
+        if payload.HasField("host_request_quick_decline"):
+            assert payload.user_id == surfer.id
+            with auth_api_session() as (auth_api, metadata_interceptor):
+                auth_api.Unsubscribe(
+                    auth_pb2.UnsubscribeReq(
+                        payload=b64decode(params["payload"][0]),
+                        sig=b64decode(params["sig"][0]),
+                    )
+                )
+            break
+    else:
+        raise Exception("Didn't find link")
+
+    with requests_session(host_token) as api:
+        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=hr_id))
+        assert res.status == messages_pb2.HOST_REQUEST_STATUS_REJECTED
+
+
+def test_public_trip_offer_reminder(db, email_collector: EmailCollector, push_collector: PushCollector, moderator):
+    surfer, surfer_token = generate_user(complete_profile=True)
+    host, host_token = generate_user(complete_profile=True)
+
+    from_date = today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=1)
+    to_date = from_date + timedelta(days=1)
+    trip_id = _create_public_trip(surfer.id, from_date, to_date)
+
+    hr_id = _create_offer(host_token, surfer.id, trip_id, from_date, to_date, moderator)
+    email_collector.pop_for_recipient(surfer.email, last=True)
+    push_collector.pop_for_user(surfer.id, last=True)
+
+    with session_scope() as session:
+        session.execute(
+            update(HostRequest)
+            .where(HostRequest.conversation_id == hr_id)
+            .values(last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL)
+        )
+
+    send_host_request_reminders(empty_pb2.Empty())
+
+    email = email_collector.pop_for_recipient(surfer.email, last=True)
+    assert email.subject == f"[TEST] You have a pending offer to host you from {host.name}"
+    assert "quick decline" in email.plain.lower()
+    push = push_collector.pop_for_user(surfer.id, last=True)
+    assert push.topic_action == "public_trip_offer:reminder"
+    assert push.content.title == f"Pending hosting offer from {host.name}"
+    assert email_collector.count_for_recipient(host.email) == 0

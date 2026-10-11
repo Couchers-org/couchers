@@ -431,6 +431,63 @@
       }
     }
   },
+  "public_trip_offer": {
+    "accept": {
+      "event_description": "Someone accepts your offer to host them",
+      "push": {
+        "title": "{{user}} accepted your hosting offer",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Hosting Offer Accepted",
+        "body": "{{user}} accepted your offer to host them from {{date}}. Please confirm to finalize."
+      }
+    },
+    "cancel": {
+      "event_description": "Someone cancels their offer to host you",
+      "push": {
+        "title": "{{user}} cancelled their hosting offer",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Hosting Offer Cancelled",
+        "body": "{{user}} cancelled their offer to host you from {{date}}."
+      }
+    },
+    "confirm": {
+      "event_description": "Someone confirms they will host you",
+      "push": {
+        "title": "{{user}} confirmed they will host you",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Hosting Offer Confirmed",
+        "body": "{{user}} confirmed they will host you from {{date}}."
+      }
+    },
+    "create": {
+      "event_description": "Someone offers to host you on one of your public trips",
+      "push": {
+        "title": "{{user}} offered to host you",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "New Hosting Offer",
+        "body_one": "{{user}} offered to host you from {{start_date}} for {{count}} night.",
+        "body_other": "{{user}} offered to host you from {{start_date}} for {{count}} nights."
+      }
+    },
+    "reject": {
+      "event_description": "Someone declines your offer to host them",
+      "push": {
+        "title": "{{user}} declined your hosting offer",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Hosting Offer Declined",
+        "body": "{{user}} declined your offer to host them from {{date}}."
+      }
+    },
+    "reminder": {
+      "event_description": "You haven't responded to a pending offer to host you",
+      "push": {
+        "title": "Pending hosting offer from {{user}}",
+        "ios_title": "Hosting Offer Pending",
+        "ios_subtitle": "{{user}}",
+        "body": "{{user}} is waiting for your response, please accept or decline their offer."
+      }
+    }
+  },
   "reference": {
     "_receive_any": {
       "push": {

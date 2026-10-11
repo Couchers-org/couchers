@@ -121,6 +121,18 @@ def render_push_notification(notification: Notification, loc_context: Localizati
             return _render_postal_verification__success(loc_context)
         case NotificationTopicAction.postal_verification__failed:
             return _render_postal_verification__failed(data, loc_context)
+        case NotificationTopicAction.public_trip_offer__create:
+            return _render_public_trip_offer__create(data, loc_context)
+        case NotificationTopicAction.public_trip_offer__reminder:
+            return _render_public_trip_offer__reminder(data, loc_context)
+        case NotificationTopicAction.public_trip_offer__accept:
+            return _render_public_trip_offer__accept(data, loc_context)
+        case NotificationTopicAction.public_trip_offer__reject:
+            return _render_public_trip_offer__reject(data, loc_context)
+        case NotificationTopicAction.public_trip_offer__cancel:
+            return _render_public_trip_offer__cancel(data, loc_context)
+        case NotificationTopicAction.public_trip_offer__confirm:
+            return _render_public_trip_offer__confirm(data, loc_context)
         case NotificationTopicAction.reference__receive_friend:
             return _render_reference__receive_friend(data, loc_context)
         case NotificationTopicAction.reference__receive_hosted:
@@ -733,6 +745,95 @@ def _render_postal_verification__failed(
         loc_context,
         body=_get_string(NotificationTopicAction.postal_verification__failed, body_key, loc_context),
         action_url=urls.account_settings_link(),
+    )
+
+
+def _render_public_trip_offer__create(
+    data: notification_data_pb2.PublicTripOfferCreate, loc_context: LocalizationContext
+) -> PushNotificationContent:
+    night_count = (date.fromisoformat(data.host_request.to_date) - date.fromisoformat(data.host_request.from_date)).days
+    return _get_content(
+        NotificationTopicAction.public_trip_offer__create,
+        loc_context,
+        substitutions={
+            "user": data.host.name,
+            "start_date": _format_host_request_start_date(data.host_request.from_date, loc_context),
+            "count": night_count,
+        },
+        icon_user=data.host,
+        action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
+    )
+
+
+def _render_public_trip_offer__reminder(
+    data: notification_data_pb2.PublicTripOfferReminder, loc_context: LocalizationContext
+) -> PushNotificationContent:
+    return _get_content(
+        NotificationTopicAction.public_trip_offer__reminder,
+        loc_context,
+        substitutions={"user": data.host.name},
+        icon_user=data.host,
+        action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
+    )
+
+
+def _render_public_trip_offer__accept(
+    data: notification_data_pb2.PublicTripOfferAccept, loc_context: LocalizationContext
+) -> PushNotificationContent:
+    return _get_content(
+        NotificationTopicAction.public_trip_offer__accept,
+        loc_context,
+        substitutions={
+            "user": data.surfer.name,
+            "date": _format_host_request_start_date(data.host_request.from_date, loc_context),
+        },
+        icon_user=data.surfer,
+        action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
+    )
+
+
+def _render_public_trip_offer__reject(
+    data: notification_data_pb2.PublicTripOfferReject, loc_context: LocalizationContext
+) -> PushNotificationContent:
+    return _get_content(
+        NotificationTopicAction.public_trip_offer__reject,
+        loc_context,
+        substitutions={
+            "user": data.surfer.name,
+            "date": _format_host_request_start_date(data.host_request.from_date, loc_context),
+        },
+        icon_user=data.surfer,
+        action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
+    )
+
+
+def _render_public_trip_offer__cancel(
+    data: notification_data_pb2.PublicTripOfferCancel, loc_context: LocalizationContext
+) -> PushNotificationContent:
+    return _get_content(
+        NotificationTopicAction.public_trip_offer__cancel,
+        loc_context,
+        substitutions={
+            "user": data.host.name,
+            "date": _format_host_request_start_date(data.host_request.from_date, loc_context),
+        },
+        icon_user=data.host,
+        action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
+    )
+
+
+def _render_public_trip_offer__confirm(
+    data: notification_data_pb2.PublicTripOfferConfirm, loc_context: LocalizationContext
+) -> PushNotificationContent:
+    return _get_content(
+        NotificationTopicAction.public_trip_offer__confirm,
+        loc_context,
+        substitutions={
+            "user": data.host.name,
+            "date": _format_host_request_start_date(data.host_request.from_date, loc_context),
+        },
+        icon_user=data.host,
+        action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
     )
 
 

@@ -76,10 +76,10 @@ def generate_unsub_topic_action(notification: Notification) -> str:
     )
 
 
-def generate_quick_decline_link(host_request: requests_pb2.HostRequest) -> str:
+def generate_quick_decline_link(host_request: requests_pb2.HostRequest, *, recipient_user_id: int) -> str:
     return _generate_quick_link(
         unsubscribe_pb2.UnsubscribePayload(
-            user_id=host_request.host_user_id,
+            user_id=recipient_user_id,
             host_request_quick_decline=unsubscribe_pb2.HostRequestQuickDecline(
                 host_request_id=host_request.host_request_id,
             ),

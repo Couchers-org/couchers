@@ -621,17 +621,30 @@ def send_host_request_reminders(payload: empty_pb2.Empty) -> None:
             host_request.last_sent_request_reminder_time = now()
 
             context = make_notification_user_context(user_id=host_request.recipient_user_id)
-            notify(
-                session,
-                user_id=host_request.recipient_user_id,
-                topic_action=NotificationTopicAction.host_request__reminder,
-                key=str(host_request.conversation_id),
-                data=notification_data_pb2.HostRequestReminder(
-                    host_request=host_request_to_pb(host_request, session, context),
-                    surfer=user_model_to_pb(host_request.initiator, session, context),
-                ),
-                moderation_state_id=host_request.moderation_state_id,
-            )
+            if host_request.public_trip_id is not None:
+                notify(
+                    session,
+                    user_id=host_request.recipient_user_id,
+                    topic_action=NotificationTopicAction.public_trip_offer__reminder,
+                    key=str(host_request.conversation_id),
+                    data=notification_data_pb2.PublicTripOfferReminder(
+                        host_request=host_request_to_pb(host_request, session, context),
+                        host=user_model_to_pb(host_request.initiator, session, context),
+                    ),
+                    moderation_state_id=host_request.moderation_state_id,
+                )
+            else:
+                notify(
+                    session,
+                    user_id=host_request.recipient_user_id,
+                    topic_action=NotificationTopicAction.host_request__reminder,
+                    key=str(host_request.conversation_id),
+                    data=notification_data_pb2.HostRequestReminder(
+                        host_request=host_request_to_pb(host_request, session, context),
+                        surfer=user_model_to_pb(host_request.initiator, session, context),
+                    ),
+                    moderation_state_id=host_request.moderation_state_id,
+                )
 
             session.commit()
 

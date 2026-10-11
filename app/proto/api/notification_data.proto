@@ -55,6 +55,39 @@ message HostRequestReminder {
   org.couchers.api.core.User surfer = 2;
 }
 
+// An offer on a public trip is a host request where the host is the initiator and the traveller the recipient
+
+message PublicTripOfferCreate {
+  org.couchers.api.requests.HostRequest host_request = 1;
+  org.couchers.api.core.User host = 2;
+  string text = 3;
+}
+
+message PublicTripOfferAccept {
+  org.couchers.api.requests.HostRequest host_request = 1;
+  org.couchers.api.core.User surfer = 2;
+}
+
+message PublicTripOfferReject {
+  org.couchers.api.requests.HostRequest host_request = 1;
+  org.couchers.api.core.User surfer = 2;
+}
+
+message PublicTripOfferConfirm {
+  org.couchers.api.requests.HostRequest host_request = 1;
+  org.couchers.api.core.User host = 2;
+}
+
+message PublicTripOfferCancel {
+  org.couchers.api.requests.HostRequest host_request = 1;
+  org.couchers.api.core.User host = 2;
+}
+
+message PublicTripOfferReminder {
+  org.couchers.api.requests.HostRequest host_request = 1;
+  org.couchers.api.core.User host = 2;
+}
+
 message BadgeAdd {
   string badge_id = 1;
   string badge_name = 2;
