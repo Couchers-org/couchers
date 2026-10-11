@@ -1,4 +1,4 @@
-from datetime import UTC, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta, timezone
 
 from google.protobuf.timestamp_pb2 import Timestamp
 from sqlalchemy import select, update
@@ -6,7 +6,16 @@ from sqlalchemy.sql import func
 
 from couchers.db import session_scope
 from couchers.models import User
-from couchers.utils import dt_from_page_token, dt_to_page_token, http_date, now, to_timezone, wrap_coordinate
+from couchers.utils import (
+    date_id_from_page_token,
+    date_id_to_page_token,
+    dt_from_page_token,
+    dt_to_page_token,
+    http_date,
+    now,
+    to_timezone,
+    wrap_coordinate,
+)
 from tests.fixtures.db import generate_user
 from tests.fixtures.timewarp import FrozenTimewarp
 
@@ -14,6 +23,10 @@ from tests.fixtures.timewarp import FrozenTimewarp
 def test_page_token_time_python():
     now_ = now()
     assert now_ == dt_from_page_token(dt_to_page_token(now_))
+
+
+def test_page_token_date_id():
+    assert date_id_from_page_token(date_id_to_page_token(date(2026, 6, 1), 123)) == (date(2026, 6, 1), 123)
 
 
 def test_page_token_time_db(db):

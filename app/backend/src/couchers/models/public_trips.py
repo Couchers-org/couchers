@@ -84,8 +84,7 @@ class PublicTrip(Base, kw_only=True):
     moderation_state: Mapped[ModerationState] = relationship(init=False)
 
     __table_args__ = (
-        # Ensure from_date is not after to_date
-        CheckConstraint("from_date <= to_date", name="valid_date_range"),
+        CheckConstraint("from_date < to_date", name="valid_date_range"),
         # Index for querying active trips in a community
         # Using partial index since we mostly query for active trips
         Index(

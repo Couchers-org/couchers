@@ -26,6 +26,10 @@ service Requests {
 
   rpc ListHostRequests(ListHostRequestsReq) returns (ListHostRequestsRes);
 
+  // The caller's accepted or confirmed stays that haven't ended yet, soonest first (for the dashboard).
+  // Throws INVALID_ARGUMENT if role is unspecified
+  rpc ListStays(ListStaysReq) returns (ListStaysRes);
+
   // Get the messages and events (created, accepted, etc) for a host request
   // Throws NOT_FOUND if the user isn't part of the request or it doesn't exist
   rpc GetHostRequestMessages(GetHostRequestMessagesReq) returns (GetHostRequestMessagesRes);
@@ -107,6 +111,26 @@ message SetHostRequestArchiveStatusReq {
 message SetHostRequestArchiveStatusRes {
   int64 host_request_id = 1;
   bool is_archived = 2;
+}
+
+// The caller's role in the stay (reversed from who sent the request for public-trip offers)
+enum StayRole {
+  STAY_ROLE_UNSPECIFIED = 0;
+  STAY_ROLE_HOSTING = 1;
+  STAY_ROLE_SURFING = 2;
+}
+
+message ListStaysReq {
+  StayRole role = 1;
+  uint32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListStaysRes {
+  // only the stay fields are set: host_request_id, surfer_user_id, host_user_id, status, from_date,
+  // to_date, hosting_city and public_trip_id
+  repeated HostRequest host_requests = 1;
+  string next_page_token = 2;
 }
 
 enum HostRequestSortBy {

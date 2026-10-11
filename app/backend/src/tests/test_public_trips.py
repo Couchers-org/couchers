@@ -4,6 +4,7 @@ from unittest.mock import patch
 import grpc
 import pytest
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
 from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.db import session_scope
@@ -312,7 +313,7 @@ def test_create_public_trip_minimum_stay(db, nights):
             with pytest.raises(grpc.RpcError) as e:
                 api.CreatePublicTrip(request)
             assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-            assert e.value.details() == "From date can't be after to date."
+            assert e.value.details() == "The end date must be later than the start date."
         else:
             assert api.CreatePublicTrip(request).trip_id > 0
 
@@ -337,7 +338,7 @@ def test_create_public_trip_multiple_overlaps(db):
         assert e.value.details() == "You already have an active public trip in this community with overlapping dates."
 
 
-@pytest.mark.parametrize("start,end", [(4, 5), (10, 11), (6, 9), (4, 11)])
+@pytest.mark.parametrize("start,end", [(4, 6), (9, 11), (6, 9), (4, 11), (5, 10)])
 def test_create_public_trip_overlap_boundaries(db, start, end):
     user, token = generate_user()
     node_id = _make_node()
@@ -354,6 +355,34 @@ def test_create_public_trip_overlap_boundaries(db, start, end):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+
+@pytest.mark.parametrize("start,end", [(4, 5), (10, 11)])
+def test_create_public_trip_back_to_back(db, start, end):
+    user, token = generate_user()
+    node_id = _make_node()
+    _create_trip_directly(user.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+
+    with public_trips_session(token) as api:
+        res = api.CreatePublicTrip(
+            public_trips_pb2.CreatePublicTripReq(
+                community_id=node_id,
+                from_date=(today() + timedelta(days=start)).isoformat(),
+                to_date=(today() + timedelta(days=end)).isoformat(),
+                description=VALID_DESCRIPTION,
+            )
+        )
+        assert res.trip_id > 0
+
+
+@pytest.mark.parametrize("nights", [-1, 0])
+def test_public_trip_date_constraint(db, nights):
+    user, _ = generate_user()
+    node_id = _make_node()
+    from_date = today() + timedelta(days=5)
+
+    with pytest.raises(IntegrityError, match="ck_public_trips_valid_date_range"):
+        _create_trip_directly(user.id, node_id, from_date, from_date + timedelta(days=nights))
 
 
 def test_create_public_trip_overlap(db):
@@ -760,11 +789,35 @@ def test_update_public_trip_rejects_overlap(db, start, end, status, changes):
         assert e.value.details() == "You already have an active public trip in this community with overlapping dates."
 
     with session_scope() as session:
-        trip = session.get(PublicTrip, trip_id)
-        assert trip is not None
+        trip = session.execute(select(PublicTrip).where(PublicTrip.id == trip_id)).scalar_one()
         assert trip.from_date == original_from
         assert trip.to_date == original_to
         assert trip.status == status
+
+
+@pytest.mark.parametrize("start,end", [(4, 5), (10, 11)])
+@pytest.mark.parametrize("reopen", [False, True])
+def test_update_public_trip_back_to_back(db, start, end, reopen):
+    user, token = generate_user()
+    node_id = _make_node()
+    _create_trip_directly(user.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    status = PublicTripStatus.closed if reopen else PublicTripStatus.searching_for_host
+    trip_id = _create_trip_directly(
+        user.id, node_id, today() + timedelta(days=15), today() + timedelta(days=20), status=status
+    )
+    request = public_trips_pb2.UpdatePublicTripReq(
+        trip_id=trip_id,
+        from_date=(today() + timedelta(days=start)).isoformat(),
+        to_date=(today() + timedelta(days=end)).isoformat(),
+    )
+    if reopen:
+        request.status = public_trips_pb2.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST
+
+    with public_trips_session(token) as api:
+        res = api.UpdatePublicTrip(request)
+        assert res.from_date == request.from_date
+        assert res.to_date == request.to_date
+        assert res.status == public_trips_pb2.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST
 
 
 @pytest.mark.parametrize("other_trip", ["different_user", "different_community", "closed"])
@@ -847,20 +900,30 @@ def test_update_public_trip_rejects_same_day(db, field):
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
-def test_update_public_trip_cant_reopen_same_day(db):
+def test_update_public_trip_cant_reopen_with_same_day_dates(db):
     user, token = generate_user()
     node_id = _make_node()
     trip_date = today() + timedelta(days=5)
-    trip_id = _create_trip_directly(user.id, node_id, trip_date, trip_date, status=PublicTripStatus.closed)
+    trip_id = _create_trip_directly(
+        user.id, node_id, trip_date, trip_date + timedelta(days=1), status=PublicTripStatus.closed
+    )
 
     with public_trips_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.UpdatePublicTrip(
                 public_trips_pb2.UpdatePublicTripReq(
-                    trip_id=trip_id, status=public_trips_pb2.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST
+                    trip_id=trip_id,
+                    to_date=trip_date.isoformat(),
+                    status=public_trips_pb2.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST,
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "The end date must be later than the start date."
+
+    with session_scope() as session:
+        trip = session.execute(select(PublicTrip).where(PublicTrip.id == trip_id)).scalar_one()
+        assert trip.status == PublicTripStatus.closed
+        assert trip.to_date == trip_date + timedelta(days=1)
 
 
 def test_update_public_trip_not_owner(db):
