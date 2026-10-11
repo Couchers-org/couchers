@@ -130,6 +130,7 @@
     "invalid_phone": "Phone number must be in international format without punctuation.",
     "invalid_recipients": "Invalid recipients list.",
     "invalid_region": "Invalid region.",
+    "invalid_stay_role": "Invalid stay role.",
     "invalid_thread_category": "Invalid message thread category.",
     "invalid_token": "Invalid token.",
     "invalid_username": "Invalid username.",
