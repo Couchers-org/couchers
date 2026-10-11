@@ -24,7 +24,6 @@
   "comment_deleted": "Цей коментар було видалено.",
   "edit_comment": "Редагувати коментар",
   "delete_comment": "Видалити коментар",
-  "comment_edited_date": "Відредаговано {{timeAgo}} тому",
   "comments": "Коментарі",
   "comments_count": "Коментарі | {{count}}",
   "fill_out_comment": "Ви маєте спочатку щось написати!",
@@ -35,7 +34,6 @@
   "edit_info_page_success_message": "Сторінка спільноти була успішно оновлена.",
   "community_tabs_a11y_label": "Вкладки для дочірніх сторінок спільноти",
   "discussion_creation_date": "Створено {{dateOnly}}",
-  "discussion_edited_date": "Відредаговано {{timeAgo}} тому",
   "discussion_deleted": "Це обговорення було видалено.",
   "delete_discussion": "Видалити обговорення",
   "delete_discussion_dialog": {

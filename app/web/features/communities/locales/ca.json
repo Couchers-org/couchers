@@ -127,8 +127,6 @@
   "comment_deleted": "Aquest comentari s'ha eliminat.",
   "edit_comment": "Edita el comentari",
   "delete_comment": "Elimina el comentari",
-  "comment_edited_date": "Editat {{timeAgo}}",
-  "discussion_edited_date": "Editat {{timeAgo}}",
   "discussion_deleted": "Aquesta conversa s'ha suprimit.",
   "delete_discussion": "Suprimeix la conversa",
   "delete_discussion_dialog": {
