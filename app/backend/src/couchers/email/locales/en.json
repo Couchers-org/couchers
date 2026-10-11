@@ -271,17 +271,16 @@
     "created": {
       "subject": "{{host_name}} offered to host you",
       "purpose": "<b>{{host_name}}</b> saw your public trip and offered to host you:",
-      "respond_encouragement": "Please respond to this offer. Even a quick decline is better than no response!"
+      "respond_encouragement": "Please respond to this offer by accepting or declining it."
     },
     "generic": {
       "date_range": "From <b>{{from_date}}</b> to <b>{{to_date}}</b>.",
       "view_action": "View offer",
-      "quick_decline_action": "Quick decline",
       "do_not_reply_request": "Do not reply to this email. Use one of the buttons above to reply to this offer."
     },
     "reminder": {
       "subject": "You have a pending offer to host you from {{host_name}}",
-      "purpose": "<b>{{host_name}}</b> is waiting for your response to their offer to host you. Even a quick decline is better than no response!"
+      "purpose": "<b>{{host_name}}</b> is waiting for your response to their offer to host you. Please accept or decline it."
     },
     "status_changed": {
       "accepted_by_surfer": {

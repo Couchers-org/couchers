@@ -3081,7 +3081,7 @@ def test_public_trip_offer_notifications(db, email_collector: EmailCollector, pu
     email = email_collector.pop_for_recipient(surfer.email, last=True)
     assert email.subject == f"[TEST] {host.name} offered to host you"
     assert "happy to host you" in email.plain
-    assert "quick decline" in email.plain.lower()
+    assert "quick decline" not in email.plain.lower()
     assert surfer_loc_context.localize_date(from_date, with_year=False) in email.plain
     assert surfer_loc_context.localize_date(to_date, with_year=False) in email.plain
     assert f"http://localhost:3000/messages/request/{hr_id}" in email.plain
@@ -3150,41 +3150,6 @@ def test_normal_request_notifications_unaffected_by_offers(db, push_collector: P
     assert push_collector.pop_for_user(surfer.id, last=True).topic_action == "host_request:accept"
 
 
-def test_public_trip_offer_quick_decline(db, email_collector: EmailCollector, moderator):
-    surfer, surfer_token = generate_user(complete_profile=True)
-    host, host_token = generate_user(complete_profile=True)
-
-    from_date = today() + timedelta(days=2)
-    to_date = today() + timedelta(days=3)
-    trip_id = _create_public_trip(surfer.id, from_date, to_date)
-
-    hr_id = _create_offer(host_token, surfer.id, trip_id, from_date, to_date, moderator)
-
-    email = email_collector.pop_for_recipient(surfer.email, last=True)
-
-    for link in re.findall(r'<a href="(.*?)"', email.html):
-        if "payload" not in link:
-            continue
-        params = parse_qs(urlparse(html.unescape(link)).query)
-        payload = unsubscribe_pb2.UnsubscribePayload.FromString(b64decode(params["payload"][0]))
-        if payload.HasField("host_request_quick_decline"):
-            assert payload.user_id == surfer.id
-            with auth_api_session() as (auth_api, metadata_interceptor):
-                auth_api.Unsubscribe(
-                    auth_pb2.UnsubscribeReq(
-                        payload=b64decode(params["payload"][0]),
-                        sig=b64decode(params["sig"][0]),
-                    )
-                )
-            break
-    else:
-        raise Exception("Didn't find link")
-
-    with requests_session(host_token) as api:
-        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=hr_id))
-        assert res.status == messages_pb2.HOST_REQUEST_STATUS_REJECTED
-
-
 def test_public_trip_offer_reminder(db, email_collector: EmailCollector, push_collector: PushCollector, moderator):
     surfer, surfer_token = generate_user(complete_profile=True)
     host, host_token = generate_user(complete_profile=True)
@@ -3208,7 +3173,7 @@ def test_public_trip_offer_reminder(db, email_collector: EmailCollector, push_co
 
     email = email_collector.pop_for_recipient(surfer.email, last=True)
     assert email.subject == f"[TEST] You have a pending offer to host you from {host.name}"
-    assert "quick decline" in email.plain.lower()
+    assert "quick decline" not in email.plain.lower()
     push = push_collector.pop_for_user(surfer.id, last=True)
     assert push.topic_action == "public_trip_offer:reminder"
     assert push.content.title == f"Pending hosting offer from {host.name}"

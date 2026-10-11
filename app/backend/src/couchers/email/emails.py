@@ -1229,9 +1229,7 @@ class HostRequestCreatedEmail(EmailBase):
             to_date=date.fromisoformat(data.host_request.to_date),
             text=data.text,
             view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
-            quick_decline_link=generate_quick_decline_link(
-                data.host_request, recipient_user_id=data.host_request.host_user_id
-            ),
+            quick_decline_link=generate_quick_decline_link(data.host_request),
         )
 
     @classmethod
@@ -1290,9 +1288,7 @@ class HostRequestReminderEmail(EmailBase):
             from_date=date.fromisoformat(data.host_request.from_date),
             to_date=date.fromisoformat(data.host_request.to_date),
             view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
-            quick_decline_link=generate_quick_decline_link(
-                data.host_request, recipient_user_id=data.host_request.host_user_id
-            ),
+            quick_decline_link=generate_quick_decline_link(data.host_request),
         )
 
     @classmethod
@@ -1538,7 +1534,6 @@ class PublicTripOfferCreatedEmail(EmailBase):
     to_date: date
     text: str
     view_link: str
-    quick_decline_link: str
 
     @property
     def string_key_base(self) -> str:
@@ -1563,7 +1558,6 @@ class PublicTripOfferCreatedEmail(EmailBase):
         )
         builder.quote(self.text, markdown=False)
         builder.action(self.view_link, "public_trip_offers.generic.view_action")
-        builder.action(self.quick_decline_link, "public_trip_offers.generic.quick_decline_action")
         builder.para(".respond_encouragement")
         builder.para("public_trip_offers.generic.do_not_reply_request", epilogue=True)
         return builder.build()
@@ -1577,9 +1571,6 @@ class PublicTripOfferCreatedEmail(EmailBase):
             to_date=date.fromisoformat(data.host_request.to_date),
             text=data.text,
             view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
-            quick_decline_link=generate_quick_decline_link(
-                data.host_request, recipient_user_id=data.host_request.surfer_user_id
-            ),
         )
 
     @classmethod
@@ -1592,7 +1583,6 @@ class PublicTripOfferCreatedEmail(EmailBase):
                 to_date=date(2025, 6, 7),
                 text="Hey, I saw your trip and would be happy to host you!",
                 view_link="https://couchers.org/requests/123",
-                quick_decline_link="https://couchers.org/requests/123/decline?token=xxx",
             )
         ]
 
@@ -1605,7 +1595,6 @@ class PublicTripOfferReminderEmail(EmailBase):
     from_date: date
     to_date: date
     view_link: str
-    quick_decline_link: str
 
     @property
     def string_key_base(self) -> str:
@@ -1626,7 +1615,6 @@ class PublicTripOfferReminderEmail(EmailBase):
             },
         )
         builder.action(self.view_link, "public_trip_offers.generic.view_action")
-        builder.action(self.quick_decline_link, "public_trip_offers.generic.quick_decline_action")
         builder.para("public_trip_offers.generic.do_not_reply_request", epilogue=True)
         return builder.build()
 
@@ -1638,9 +1626,6 @@ class PublicTripOfferReminderEmail(EmailBase):
             from_date=date.fromisoformat(data.host_request.from_date),
             to_date=date.fromisoformat(data.host_request.to_date),
             view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
-            quick_decline_link=generate_quick_decline_link(
-                data.host_request, recipient_user_id=data.host_request.surfer_user_id
-            ),
         )
 
     @classmethod
@@ -1652,7 +1637,6 @@ class PublicTripOfferReminderEmail(EmailBase):
                 from_date=date(2025, 6, 1),
                 to_date=date(2025, 6, 7),
                 view_link="https://couchers.org/requests/123",
-                quick_decline_link="https://couchers.org/requests/123/decline?token=xxx",
             )
         ]
 
