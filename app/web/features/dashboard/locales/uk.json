@@ -6,10 +6,10 @@
   "load_more": "Більше",
   "welcome": "Ласкаво просимо на Couchers.org!",
   "new_pill": "Нові",
-  "communities_intro": "За допомогою Спільнот люди по всьому світу можуть організовувати локальні події та обговорення<strong>Ви завжди перебуваєте у місцевих спільнотах, але ви можете <browseCommunitiesLink>долучитися до будь-якої спільноти!</browseCommunitiesLink></strong>",
+  "communities_intro": "За допомогою Спільнот люди по всьому світу можуть організовувати локальні події та обговорення. <strong>Ви завжди перебуваєте у місцевих спільнотах, але ви можете <browseCommunitiesLink>долучитися до будь-якої спільноти!</browseCommunitiesLink></strong>",
   "community_builder": "Хочете бути провідником для вашої спільноти та допомогти їй зростати? Станьте <communityBuilderLink>Архітектором спільноти!</communityBuilderLink>",
   "find_your_community": "Знайти спільноту",
-  "find_your_community_intro_simplified": "Знайдіть вашу спільноту або перегляньте список нижче.<requestCommunityLink>Не бачите вашої? Подайте запит на створення!</requestCommunityLink>",
+  "find_your_community_intro_simplified": "Знайдіть вашу спільноту або перегляньте список нижче. <requestCommunityLink>Не бачите вашої? Подайте запит на створення!</requestCommunityLink>",
   "browse_communities": "Переглянути Спільноти",
   "browse_all_communities": "Переглянути усі Спільноти",
   "browse_communities_text": "Натисність на назву регіону аби побачити нижче усі спільноти всередині нього. Натиснить на посилання аби відвідати сторінку спільноти цього міста чи регіону.",
@@ -48,8 +48,12 @@
     "my_trips_header": "Ваші публічні подорожі",
     "manage_link": "Керувати",
     "when_now": "Зараз",
-    "empty_description": "Прямуєте кудись ? Створіть публічну подорож, аби місцеві могли запросити вас у гості.",
-    "same_gender_only_indicator": "Однакової статі"
+    "empty_description": "Прямуєте кудись? Створіть публічну подорож на сторінці спільноти, аби місцеві могли запросити вас у гості.",
+    "same_gender_only_indicator": "Однакової статі",
+    "invitations_count_one": "{{count}} запрошення",
+    "invitations_count_few": "{{count}} запрошення",
+    "invitations_count_many": "{{count}} запрошень",
+    "no_invitations": "Поки що немає запрошень"
   },
   "stays": {
     "upcoming_trips_header": "Ваші майбутні подорожі",
@@ -90,7 +94,7 @@
     "confirm_host_request": {
       "title": "Підтвердіть ваш намір бути гостем у {{name}}",
       "description": "{{name}} прийняв(ла) ваш запит. Підтвердіть ваш намір аби запланувати візит.",
-      "button": "Підтвердити"
+      "button": "Підтвердити візит"
     },
     "carousel_dismiss_button_a11y": "Приховати нагадування",
     "carousel_scroller": {
