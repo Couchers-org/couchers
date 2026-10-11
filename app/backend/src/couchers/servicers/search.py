@@ -69,6 +69,33 @@ TRI_SIMILARITY_THRESHOLD = 0.6
 TRI_SIMILARITY_WEIGHT = 5
 
 
+def _within_rectangle(geom: Any, rect: search_pb2.RectArea) -> Any:
+    """
+    Builds a geometry filter for a lat/lng rectangle, splitting it in two when it wraps over the antimeridian
+    (lng_min > lng_max), since ST_MakeEnvelope can't represent a wrapping box.
+    """
+
+    def within(lng_min: float, lng_max: float) -> Any:
+        return func.ST_Within(
+            geom,
+            func.ST_MakeEnvelope(lng_min, rect.lat_min, lng_max, rect.lat_max, 4326),
+        )
+
+    if rect.lng_min > rect.lng_max:
+        # Antimeridian-crossing rectangles must be queried as two envelopes.
+        return or_(
+            within(rect.lng_min, 180),
+            within(-180, rect.lng_max),
+            and_(
+                func.ST_X(geom).in_((-180, 180)),
+                func.ST_Y(geom) > rect.lat_min,
+                func.ST_Y(geom) < rect.lat_max,
+            ),
+        )
+
+    return within(rect.lng_min, rect.lng_max)
+
+
 def _join_with_space(coalesces: list[Any]) -> Any:
     # the objects in coalesces are not strings, so we can't do " ".join(coalesces). They're SQLAlchemy magic.
     if not coalesces:
@@ -546,18 +573,7 @@ def _user_search_inner(
                 )
             )
         if request.HasField("search_in_rectangle"):
-            statement = statement.where(
-                func.ST_Within(
-                    User.geom,
-                    func.ST_MakeEnvelope(
-                        request.search_in_rectangle.lng_min,
-                        request.search_in_rectangle.lat_min,
-                        request.search_in_rectangle.lng_max,
-                        request.search_in_rectangle.lat_max,
-                        4326,
-                    ),
-                )
-            )
+            statement = statement.where(_within_rectangle(User.geom, request.search_in_rectangle))
         if request.HasField("search_in_community_id"):
             # could do a join here as well, but this is just simpler
             node = session.execute(select(Node).where(Node.id == request.search_in_community_id)).scalar_one_or_none()
@@ -888,18 +904,7 @@ class Search(search_pb2_grpc.SearchServicer):
                 )
             )
         if request.HasField("search_in_rectangle"):
-            statement = statement.where(
-                func.ST_Within(
-                    EventOccurrence.geom,
-                    func.ST_MakeEnvelope(
-                        request.search_in_rectangle.lng_min,
-                        request.search_in_rectangle.lat_min,
-                        request.search_in_rectangle.lng_max,
-                        request.search_in_rectangle.lat_max,
-                        4326,
-                    ),
-                )
-            )
+            statement = statement.where(_within_rectangle(EventOccurrence.geom, request.search_in_rectangle))
         if request.HasField("search_in_community_id"):
             # could do a join here as well, but this is just simpler
             node = session.execute(select(Node).where(Node.id == request.search_in_community_id)).scalar_one_or_none()
