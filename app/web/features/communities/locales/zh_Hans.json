@@ -127,8 +127,6 @@
   "comment_deleted": "该评论已被删除。",
   "edit_comment": "编辑评论",
   "delete_comment": "删除评论",
-  "comment_edited_date": "已编辑{{timeAgo}}",
-  "discussion_edited_date": "已编辑{{timeAgo}}",
   "discussion_deleted": "此讨论已被删除。",
   "delete_discussion": "删除讨论",
   "delete_discussion_dialog": {

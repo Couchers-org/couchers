@@ -208,5 +208,18 @@
     "request_duration_many": "{{count}} ночей"
   },
   "unknown_user": "Невідомий користувач",
-  "show_more_actions_button_a11y": "Показати більше дій"
+  "show_more_actions_button_a11y": "Показати більше дій",
+  "mark_all_read_button_text_public_trips": "Позначити прочитаними усі запрошення у публічній подорожі",
+  "invitation_respond_box_title": "Відповісти на запрошення {{name}}",
+  "invitation_respond_box_description": "Приймаючи запрошення, ви дасте знати {{name}} що ви хотіли б завітати до нього(неї). У будь-якому разі можете продовжити розмову щоб уточнити деталі.",
+  "invitation_accept_confirmation": "Ви прийняли запрошення {{name}}. Привітайтеся та уточніть деталі зустрічі.",
+  "cancel_accepted_invitation_stay_button": "Скасувати візит",
+  "cancel_accepted_invitation_stay_dialog_title": "Скасувати ваш візит до {{name}} ?",
+  "cancel_accepted_invitation_stay_dialog_message": "{{name}} буде поінформовано. Це незворотна дія.",
+  "cancel_accepted_invitation_stay_dialog_confirm_button": "Скасувати візит",
+  "cancel_accepted_invitation_stay_dialog_dismiss_button": "Не скасовувати візит",
+  "invitation_sent_box_title": "Запрошення відправлено",
+  "invitation_sent_box_description": "{{name}} ще не відповів(ла). Ми повідомимо вам, коли відповідь надійде.",
+  "invitation_host_accepted_box_title": "{{name}} прийняв(ла) ваше запрошення",
+  "invitation_host_accepted_box_description": "Підтвердіть щоб запланувати ваш візит, або скасуйте якщо ваші плани змінились."
 }

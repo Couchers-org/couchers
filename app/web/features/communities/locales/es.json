@@ -129,8 +129,6 @@
   "comment_deleted": "Este comentario ha sido eliminado.",
   "edit_comment": "Editar comentario",
   "delete_comment": "Eliminar comentario",
-  "comment_edited_date": "Editado {{timeAgo}}",
-  "discussion_edited_date": "Editado {{timeAgo}}",
   "discussion_deleted": "Esta discusión ha sido eliminada.",
   "delete_discussion": "Eliminar discusión",
   "delete_discussion_dialog": {
