@@ -8,7 +8,8 @@
       "chats": "Chats",
       "hosting": "Hosten",
       "surfing": "Surfen",
-      "unread": "Ungelesen"
+      "unread": "Ungelesen",
+      "public_trips": "Meine öffentlichen Trips"
     },
     "title": "Nachrichten"
   },
@@ -146,7 +147,11 @@
       "confirmed": "Viel Spaß! {{name}} hat diese Anfrage angenommen und du hast sie bestätigt.",
       "rejected": "Deine Anfrage wurde abgelehnt"
     },
-    "expired": "Diese Anfrage ist ausgelaufen"
+    "expired": "Diese Anfrage ist ausgelaufen",
+    "public_trip_chip": "Öffentlicher Trip",
+    "invitation_host_status": {
+      "pending": "Warte auf {{name}}'s Antwort"
+    }
   },
   "host_request_view": {
     "error_message": "Ungültige Host-Anfrage-ID",
@@ -207,5 +212,18 @@
   },
   "surfer_confirm_box_title": "{{name}} hat deine Anfrage angenommen!",
   "surfer_confirm_box_description": "Bestätige, um deinen Aufenthalt zu sichern, oder brich ab, falls sich deine Pläne geändert haben.",
-  "show_more_actions_button_a11y": "Mehr Aktionen anzeigen"
+  "show_more_actions_button_a11y": "Mehr Aktionen anzeigen",
+  "mark_all_read_button_text_public_trips": "Alle Öffentliche Trip Einladungen als gelesen markieren",
+  "invitation_respond_box_title": "Auf {{name}}'s Einladung antworten",
+  "invitation_accept_confirmation": "Du hast die Einladung von {{name}} angenommen. Sag Hallo und klärt die Ankunft Details.",
+  "cancel_accepted_invitation_stay_dialog_message": "{{name}} wird benachrichtigt. Du kannst das nicht rückgängig machen.",
+  "invitation_sent_box_description": "{{name}} hat noch nicht geantwortet. Du wirst benachrichtigt, sobald jemand antwortet.",
+  "invitation_host_confirmed_box_title": "Du hostest {{name}}",
+  "status_bar_edit_button": "Bearbeiten",
+  "status_bar_cancel_edit_button": "Abbrechen",
+  "status_bar_close_button": "Schließen",
+  "my_public_trips": {
+    "nights_one": "{{count}} Nacht",
+    "nights_other": "{{count}} Nächte"
+  }
 }

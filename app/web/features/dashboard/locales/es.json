@@ -95,11 +95,7 @@
     "manage_link": "Administrar",
     "when_now": "Ahora",
     "empty_description": "¿Vas a algún sitio? Publica un viaje público en una comunidad para recibir ofertas de anfitriones cercanos.",
-    "same_gender_only_indicator": "Mismo género",
-    "offers_count_one": "{{count}} ofrecimiento",
-    "offers_count_many": "{{count}} de ofrecimientos",
-    "offers_count_other": "{{count}} ofrecimientos",
-    "no_offers": "Ningún ofrecimiento todavía"
+    "same_gender_only_indicator": "Mismo género"
   },
   "today_label": "Hoy"
 }

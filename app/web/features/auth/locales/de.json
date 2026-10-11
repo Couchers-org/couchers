@@ -256,9 +256,6 @@
     "settings_page_link": "Aktuelle Anmeldungen verwalten",
     "description": "Auf dieser Seite werden aktive Anmeldungen aufgelistet. Du kannst dich von jeder davon abmelden, indem du auf die Schaltfläche neben der Anmeldung klickst oder nach unten scrollst und auf die Schaltfläche klickst, um dich von allen außer dieser Sitzung abzumelden.",
     "login_header": "Angemeldet am {{login_datetime}}",
-    "location": "In der Nähe von <strong>{{approximate_location}}</strong>",
-    "last_activity": "Letzte Aktivität <strong>{{last_activity_ago}}</strong>",
-    "expiry": "Läuft ab am <strong>{{expiry_datetime}}</strong>",
     "log_out_of_session": "Melde dich von dieser Sitzung ab",
     "log_out_of_all_session": "Melde dich von allen anderen Sitzungen ab"
   },
@@ -408,7 +405,8 @@
   "change_signup_email_form": {
     "title": "Anmelde-E-Mail ändern",
     "current_email_message": "Deine aktuelle E-Mail-Adresse lautet <strong>{{email}}</strong>.",
-    "signup_change_email": "E-Mail-Adresse ändern"
+    "signup_change_email": "E-Mail-Adresse ändern",
+    "success_message": "Deine E-Mail-Änderung ist eingegangen. Sieh in deinem E-Mail-Postfach nach, um deine E-Mail zu bestätigen."
   },
   "sign_up_change_email": "Hast du dich bei deiner E-Mail-Adresse vertippt? Gib hier deine korrekte E-Mail-Adresse ein:"
 }

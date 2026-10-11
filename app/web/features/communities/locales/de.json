@@ -130,8 +130,6 @@
   "comment_deleted": "Dieser Kommentar wurde gelöscht.",
   "edit_comment": "Kommentar bearbeiten",
   "delete_comment": "Kommentar löschen",
-  "comment_edited_date": "Bearbeitet {{timeAgo}}",
-  "discussion_edited_date": "Bearbeitet {{timeAgo}}",
   "discussion_deleted": "Dieser Beitrag wurde gelöscht.",
   "delete_discussion": "Beitrag löschen",
   "delete_discussion_dialog": {
