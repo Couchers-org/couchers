@@ -121,6 +121,18 @@ settings_layout = [
                 ],
             ),
             (
+                "public_trip_offer",
+                "Public trip offers",
+                [
+                    NotificationTopicAction.public_trip_offer__create,
+                    NotificationTopicAction.public_trip_offer__accept,
+                    NotificationTopicAction.public_trip_offer__confirm,
+                    NotificationTopicAction.public_trip_offer__reject,
+                    NotificationTopicAction.public_trip_offer__cancel,
+                    NotificationTopicAction.public_trip_offer__reminder,
+                ],
+            ),
+            (
                 "activeness",
                 "Activity Check-in",
                 [

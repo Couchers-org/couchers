@@ -1526,6 +1526,221 @@ class HostRequestStatusChangedEmail(EmailBase):
 
 
 @dataclass(kw_only=True, slots=True)
+class PublicTripOfferCreatedEmail(EmailBase):
+    """Sent to a traveller when a host offers to host them on one of their public trips."""
+
+    host: UserInfo
+    from_date: date
+    to_date: date
+    text: str
+    view_link: str
+
+    @property
+    def string_key_base(self) -> str:
+        return "public_trip_offers.created"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, ".subject", {"host_name": self.host.name})
+
+    def get_preview_line(self, loc_context: LocalizationContext) -> str | None:
+        return self.text
+
+    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
+        builder = self._body_builder(loc_context)
+        builder.para(".purpose", {"host_name": self.host.name})
+        builder.user(
+            self.host,
+            "public_trip_offers.generic.date_range",
+            {
+                "from_date": _localize_host_request_date(self.from_date, loc_context),
+                "to_date": _localize_host_request_date(self.to_date, loc_context),
+            },
+        )
+        builder.quote(self.text, markdown=False)
+        builder.action(self.view_link, "public_trip_offers.generic.view_action")
+        builder.para(".respond_encouragement")
+        builder.para("public_trip_offers.generic.do_not_reply_request", epilogue=True)
+        return builder.build()
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.PublicTripOfferCreate, *, user_name: str) -> Self:
+        return cls(
+            user_name,
+            host=UserInfo.from_protobuf(data.host),
+            from_date=date.fromisoformat(data.host_request.from_date),
+            to_date=date.fromisoformat(data.host_request.to_date),
+            text=data.text,
+            view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
+        )
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                host=UserInfo.dummy_bob(),
+                from_date=date(2025, 6, 1),
+                to_date=date(2025, 6, 7),
+                text="Hey, I saw your trip and would be happy to host you!",
+                view_link="https://couchers.org/requests/123",
+            )
+        ]
+
+
+@dataclass(kw_only=True, slots=True)
+class PublicTripOfferReminderEmail(EmailBase):
+    """Sent to a traveller as a reminder to respond to a pending offer on their public trip."""
+
+    host: UserInfo
+    from_date: date
+    to_date: date
+    view_link: str
+
+    @property
+    def string_key_base(self) -> str:
+        return "public_trip_offers.reminder"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, ".subject", {"host_name": self.host.name})
+
+    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
+        builder = self._body_builder(loc_context)
+        builder.para(".purpose", {"host_name": self.host.name})
+        builder.user(
+            self.host,
+            "public_trip_offers.generic.date_range",
+            {
+                "from_date": _localize_host_request_date(self.from_date, loc_context),
+                "to_date": _localize_host_request_date(self.to_date, loc_context),
+            },
+        )
+        builder.action(self.view_link, "public_trip_offers.generic.view_action")
+        builder.para("public_trip_offers.generic.do_not_reply_request", epilogue=True)
+        return builder.build()
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.PublicTripOfferReminder, *, user_name: str) -> Self:
+        return cls(
+            user_name,
+            host=UserInfo.from_protobuf(data.host),
+            from_date=date.fromisoformat(data.host_request.from_date),
+            to_date=date.fromisoformat(data.host_request.to_date),
+            view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
+        )
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                host=UserInfo.dummy_bob(),
+                from_date=date(2025, 6, 1),
+                to_date=date(2025, 6, 7),
+                view_link="https://couchers.org/requests/123",
+            )
+        ]
+
+
+@dataclass(kw_only=True, slots=True)
+class PublicTripOfferStatusChangedEmail(EmailBase):
+    """Sent when an offer on a public trip is accepted, declined, confirmed, or cancelled."""
+
+    other_user: UserInfo
+    from_date: date
+    to_date: date
+    new_status: messages_pb2.HostRequestStatus.ValueType
+    view_link: str
+
+    @property
+    def string_key_base(self) -> str:
+        base_key = "public_trip_offers.status_changed"
+        match self.new_status:
+            case messages_pb2.HOST_REQUEST_STATUS_ACCEPTED:
+                return f"{base_key}.accepted_by_surfer"
+            case messages_pb2.HOST_REQUEST_STATUS_REJECTED:
+                return f"{base_key}.declined_by_surfer"
+            case messages_pb2.HOST_REQUEST_STATUS_CONFIRMED:
+                return f"{base_key}.confirmed_by_host"
+            case messages_pb2.HOST_REQUEST_STATUS_CANCELLED:
+                return f"{base_key}.cancelled_by_host"
+            case _:
+                raise ValueError(f"Unexpected public trip offer status: {self.new_status}")
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, ".subject", {"other_name": self.other_user.name})
+
+    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
+        builder = self._body_builder(loc_context)
+        builder.para(".purpose", {"other_name": self.other_user.name})
+        builder.user(
+            self.other_user,
+            "public_trip_offers.generic.date_range",
+            {
+                "from_date": _localize_host_request_date(self.from_date, loc_context),
+                "to_date": _localize_host_request_date(self.to_date, loc_context),
+            },
+        )
+        builder.action(self.view_link, "public_trip_offers.generic.view_action")
+        builder.para("public_trip_offers.generic.do_not_reply_request", epilogue=True)
+        return builder.build()
+
+    @classmethod
+    def from_notification(
+        cls,
+        data: notification_data_pb2.PublicTripOfferAccept
+        | notification_data_pb2.PublicTripOfferReject
+        | notification_data_pb2.PublicTripOfferConfirm
+        | notification_data_pb2.PublicTripOfferCancel,
+        *,
+        user_name: str,
+    ) -> Self:
+        other_user: UserInfo
+        new_status: messages_pb2.HostRequestStatus.ValueType
+        match data:
+            case notification_data_pb2.PublicTripOfferAccept():
+                other_user = UserInfo.from_protobuf(data.surfer)
+                new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED
+            case notification_data_pb2.PublicTripOfferReject():
+                other_user = UserInfo.from_protobuf(data.surfer)
+                new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_REJECTED
+            case notification_data_pb2.PublicTripOfferConfirm():
+                other_user = UserInfo.from_protobuf(data.host)
+                new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED
+            case notification_data_pb2.PublicTripOfferCancel():
+                other_user = UserInfo.from_protobuf(data.host)
+                new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED
+            case _:
+                # Enable mypy's exhaustiveness checking
+                assert_never("Unexpected public trip offer status changed notification data type.")
+
+        return cls(
+            user_name,
+            other_user=other_user,
+            from_date=date.fromisoformat(data.host_request.from_date),
+            to_date=date.fromisoformat(data.host_request.to_date),
+            new_status=new_status,
+            view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
+        )
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        prototype = cls(
+            user_name="Alice",
+            other_user=UserInfo.dummy_bob(),
+            from_date=date(2025, 6, 1),
+            to_date=date(2025, 6, 7),
+            new_status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+            view_link="https://couchers.org/requests/123",
+        )
+        return [
+            replace(prototype, new_status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED),
+            replace(prototype, new_status=messages_pb2.HOST_REQUEST_STATUS_REJECTED),
+            replace(prototype, new_status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED),
+            replace(prototype, new_status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED),
+        ]
+
+
+@dataclass(kw_only=True, slots=True)
 class HostReferenceReceivedEmail(EmailBase):
     """Sent to a user when they receive a reference from a past host or surfer."""
 

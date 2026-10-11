@@ -337,18 +337,32 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         session.flush()
 
         recipient_context = make_notification_user_context(user_id=host_request.recipient_user_id)
-        notify(
-            session,
-            user_id=host_request.recipient_user_id,
-            topic_action=NotificationTopicAction.host_request__create,
-            key=str(host_request.conversation_id),
-            data=notification_data_pb2.HostRequestCreate(
-                host_request=host_request_to_pb(host_request, session, recipient_context),
-                surfer=user_model_to_pb(host_request.initiator, session, recipient_context),
-                text=request.text,
-            ),
-            moderation_state_id=moderation_state.id,
-        )
+        if public_trip_id is not None:
+            notify(
+                session,
+                user_id=host_request.recipient_user_id,
+                topic_action=NotificationTopicAction.public_trip_offer__create,
+                key=str(host_request.conversation_id),
+                data=notification_data_pb2.PublicTripOfferCreate(
+                    host_request=host_request_to_pb(host_request, session, recipient_context),
+                    host=user_model_to_pb(host_request.initiator, session, recipient_context),
+                    text=request.text,
+                ),
+                moderation_state_id=moderation_state.id,
+            )
+        else:
+            notify(
+                session,
+                user_id=host_request.recipient_user_id,
+                topic_action=NotificationTopicAction.host_request__create,
+                key=str(host_request.conversation_id),
+                data=notification_data_pb2.HostRequestCreate(
+                    host_request=host_request_to_pb(host_request, session, recipient_context),
+                    surfer=user_model_to_pb(host_request.initiator, session, recipient_context),
+                    text=request.text,
+                ),
+                moderation_state_id=moderation_state.id,
+            )
 
         host_requests_sent_counter.labels(user.gender, recipient.gender).inc()
         sent_messages_counter.labels(user.gender, "host request send").inc()
@@ -673,17 +687,30 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             session.flush()
 
             recipient_context = make_notification_user_context(user_id=host_request.initiator_user_id)
-            notify(
-                session,
-                user_id=host_request.initiator_user_id,
-                topic_action=NotificationTopicAction.host_request__accept,
-                key=str(host_request.conversation_id),
-                data=notification_data_pb2.HostRequestAccept(
-                    host_request=host_request_to_pb(host_request, session, recipient_context),
-                    host=user_model_to_pb(host_request.recipient, session, recipient_context),
-                ),
-                moderation_state_id=host_request.moderation_state_id,
-            )
+            if host_request.public_trip_id is not None:
+                notify(
+                    session,
+                    user_id=host_request.initiator_user_id,
+                    topic_action=NotificationTopicAction.public_trip_offer__accept,
+                    key=str(host_request.conversation_id),
+                    data=notification_data_pb2.PublicTripOfferAccept(
+                        host_request=host_request_to_pb(host_request, session, recipient_context),
+                        surfer=user_model_to_pb(host_request.recipient, session, recipient_context),
+                    ),
+                    moderation_state_id=host_request.moderation_state_id,
+                )
+            else:
+                notify(
+                    session,
+                    user_id=host_request.initiator_user_id,
+                    topic_action=NotificationTopicAction.host_request__accept,
+                    key=str(host_request.conversation_id),
+                    data=notification_data_pb2.HostRequestAccept(
+                        host_request=host_request_to_pb(host_request, session, recipient_context),
+                        host=user_model_to_pb(host_request.recipient, session, recipient_context),
+                    ),
+                    moderation_state_id=host_request.moderation_state_id,
+                )
 
             count_host_response(host_request.initiator_user_id, "accepted")
             log_event(
@@ -715,17 +742,30 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             session.flush()
 
             recipient_context = make_notification_user_context(user_id=host_request.initiator_user_id)
-            notify(
-                session,
-                user_id=host_request.initiator_user_id,
-                topic_action=NotificationTopicAction.host_request__reject,
-                key=str(host_request.conversation_id),
-                data=notification_data_pb2.HostRequestReject(
-                    host_request=host_request_to_pb(host_request, session, recipient_context),
-                    host=user_model_to_pb(host_request.recipient, session, recipient_context),
-                ),
-                moderation_state_id=host_request.moderation_state_id,
-            )
+            if host_request.public_trip_id is not None:
+                notify(
+                    session,
+                    user_id=host_request.initiator_user_id,
+                    topic_action=NotificationTopicAction.public_trip_offer__reject,
+                    key=str(host_request.conversation_id),
+                    data=notification_data_pb2.PublicTripOfferReject(
+                        host_request=host_request_to_pb(host_request, session, recipient_context),
+                        surfer=user_model_to_pb(host_request.recipient, session, recipient_context),
+                    ),
+                    moderation_state_id=host_request.moderation_state_id,
+                )
+            else:
+                notify(
+                    session,
+                    user_id=host_request.initiator_user_id,
+                    topic_action=NotificationTopicAction.host_request__reject,
+                    key=str(host_request.conversation_id),
+                    data=notification_data_pb2.HostRequestReject(
+                        host_request=host_request_to_pb(host_request, session, recipient_context),
+                        host=user_model_to_pb(host_request.recipient, session, recipient_context),
+                    ),
+                    moderation_state_id=host_request.moderation_state_id,
+                )
 
             count_host_response(host_request.initiator_user_id, "rejected")
 
@@ -757,17 +797,30 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             session.flush()
 
             recipient_context = make_notification_user_context(user_id=host_request.recipient_user_id)
-            notify(
-                session,
-                user_id=host_request.recipient_user_id,
-                topic_action=NotificationTopicAction.host_request__confirm,
-                key=str(host_request.conversation_id),
-                data=notification_data_pb2.HostRequestConfirm(
-                    host_request=host_request_to_pb(host_request, session, recipient_context),
-                    surfer=user_model_to_pb(host_request.initiator, session, recipient_context),
-                ),
-                moderation_state_id=host_request.moderation_state_id,
-            )
+            if host_request.public_trip_id is not None:
+                notify(
+                    session,
+                    user_id=host_request.recipient_user_id,
+                    topic_action=NotificationTopicAction.public_trip_offer__confirm,
+                    key=str(host_request.conversation_id),
+                    data=notification_data_pb2.PublicTripOfferConfirm(
+                        host_request=host_request_to_pb(host_request, session, recipient_context),
+                        host=user_model_to_pb(host_request.initiator, session, recipient_context),
+                    ),
+                    moderation_state_id=host_request.moderation_state_id,
+                )
+            else:
+                notify(
+                    session,
+                    user_id=host_request.recipient_user_id,
+                    topic_action=NotificationTopicAction.host_request__confirm,
+                    key=str(host_request.conversation_id),
+                    data=notification_data_pb2.HostRequestConfirm(
+                        host_request=host_request_to_pb(host_request, session, recipient_context),
+                        surfer=user_model_to_pb(host_request.initiator, session, recipient_context),
+                    ),
+                    moderation_state_id=host_request.moderation_state_id,
+                )
 
             count_host_response(host_request.recipient_user_id, "confirmed")
             log_event(
@@ -798,17 +851,30 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             session.flush()
 
             recipient_context = make_notification_user_context(user_id=host_request.recipient_user_id)
-            notify(
-                session,
-                user_id=host_request.recipient_user_id,
-                topic_action=NotificationTopicAction.host_request__cancel,
-                key=str(host_request.conversation_id),
-                data=notification_data_pb2.HostRequestCancel(
-                    host_request=host_request_to_pb(host_request, session, recipient_context),
-                    surfer=user_model_to_pb(host_request.initiator, session, recipient_context),
-                ),
-                moderation_state_id=host_request.moderation_state_id,
-            )
+            if host_request.public_trip_id is not None:
+                notify(
+                    session,
+                    user_id=host_request.recipient_user_id,
+                    topic_action=NotificationTopicAction.public_trip_offer__cancel,
+                    key=str(host_request.conversation_id),
+                    data=notification_data_pb2.PublicTripOfferCancel(
+                        host_request=host_request_to_pb(host_request, session, recipient_context),
+                        host=user_model_to_pb(host_request.initiator, session, recipient_context),
+                    ),
+                    moderation_state_id=host_request.moderation_state_id,
+                )
+            else:
+                notify(
+                    session,
+                    user_id=host_request.recipient_user_id,
+                    topic_action=NotificationTopicAction.host_request__cancel,
+                    key=str(host_request.conversation_id),
+                    data=notification_data_pb2.HostRequestCancel(
+                        host_request=host_request_to_pb(host_request, session, recipient_context),
+                        surfer=user_model_to_pb(host_request.initiator, session, recipient_context),
+                    ),
+                    moderation_state_id=host_request.moderation_state_id,
+                )
 
             count_host_response(host_request.recipient_user_id, "cancelled")
             log_event(

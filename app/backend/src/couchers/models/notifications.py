@@ -87,6 +87,14 @@ class NotificationTopicAction(enum.Enum):
     host_request__missed_messages = ("host_request:missed_messages", [dt.email], False, nd.HostRequestMissedMessages)
     host_request__reminder = ("host_request:reminder", dt_all, False, nd.HostRequestReminder)
 
+    # offers on public trips, messages in the offer thread use the host_request ones
+    public_trip_offer__create = ("public_trip_offer:create", dt_all, False, nd.PublicTripOfferCreate)
+    public_trip_offer__accept = ("public_trip_offer:accept", dt_all, False, nd.PublicTripOfferAccept)
+    public_trip_offer__reject = ("public_trip_offer:reject", dt_all, False, nd.PublicTripOfferReject)
+    public_trip_offer__confirm = ("public_trip_offer:confirm", dt_all, False, nd.PublicTripOfferConfirm)
+    public_trip_offer__cancel = ("public_trip_offer:cancel", dt_all, False, nd.PublicTripOfferCancel)
+    public_trip_offer__reminder = ("public_trip_offer:reminder", dt_all, False, nd.PublicTripOfferReminder)
+
     activeness__probe = ("activeness:probe", dt_sec, True, nd.ActivenessProbe)
 
     # you receive a friend ref

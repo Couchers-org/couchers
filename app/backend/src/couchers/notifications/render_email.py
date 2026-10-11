@@ -145,6 +145,17 @@ def get_notification_email(notification: Notification, *, user_name: str) -> Ema
             return emails.PostalVerificationPostcardSentEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.postal_verification__success:
             return emails.PostalVerificationSucceededEmail(user_name=user_name)
+        case NotificationTopicAction.public_trip_offer__create:
+            return emails.PublicTripOfferCreatedEmail.from_notification(data, user_name=user_name)
+        case NotificationTopicAction.public_trip_offer__reminder:
+            return emails.PublicTripOfferReminderEmail.from_notification(data, user_name=user_name)
+        case (
+            NotificationTopicAction.public_trip_offer__accept
+            | NotificationTopicAction.public_trip_offer__reject
+            | NotificationTopicAction.public_trip_offer__cancel
+            | NotificationTopicAction.public_trip_offer__confirm
+        ):
+            return emails.PublicTripOfferStatusChangedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.reference__receive_friend:
             return emails.FriendReferenceReceivedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.reference__receive_hosted:
@@ -198,6 +209,19 @@ def get_ics_attachment(notification: Notification, loc_context: LocalizationCont
         return create_host_request_attachment(
             data.host_request, other_name=data.surfer.name, hosting=True, loc_context=loc_context
         )
+    elif notification.topic_action == NotificationTopicAction.public_trip_offer__accept:
+        # Same caveat as host_request__accept: the host confirms next but gets no email for it.
+        return create_host_request_attachment(
+            data.host_request, other_name=data.surfer.name, hosting=True, loc_context=loc_context
+        )
+    elif notification.topic_action == NotificationTopicAction.public_trip_offer__confirm:
+        return create_host_request_attachment(
+            data.host_request, other_name=data.host.name, hosting=False, loc_context=loc_context
+        )
+    elif notification.topic_action == NotificationTopicAction.public_trip_offer__cancel:
+        return create_host_request_attachment(
+            data.host_request, other_name=data.host.name, hosting=False, loc_context=loc_context
+        )
     else:
         return None
 
@@ -239,6 +263,18 @@ def get_topic_action_unsubscribe_text(topic_action: NotificationTopicAction) -> 
             return "cancelled host requests"
         case NotificationTopicAction.host_request__reminder:
             return "Pending host request reminders"
+        case NotificationTopicAction.public_trip_offer__create:
+            return "new offers to host you"
+        case NotificationTopicAction.public_trip_offer__accept:
+            return "accepted hosting offers"
+        case NotificationTopicAction.public_trip_offer__reject:
+            return "declined hosting offers"
+        case NotificationTopicAction.public_trip_offer__confirm:
+            return "confirmed hosting offers"
+        case NotificationTopicAction.public_trip_offer__cancel:
+            return "cancelled hosting offers"
+        case NotificationTopicAction.public_trip_offer__reminder:
+            return "pending hosting offer reminders"
         case NotificationTopicAction.reference__receive_friend:
             return "new references from friends"
         case NotificationTopicAction.reference__receive_hosted:

@@ -26,6 +26,7 @@
         "event": "Events",
         "friend_request": "Friend requests",
         "host_request": "Host requests",
+        "public_trip_offer": "Public trip offers",
         "reference": "References",
         "discussion": "Discussions",
         "reply": "Replies"

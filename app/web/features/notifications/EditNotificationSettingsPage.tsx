@@ -16,6 +16,7 @@ export type NotificationType =
   | "reference"
   | "friend_request"
   | "host_request"
+  | "public_trip_offer"
   | "reply"
   | "general";
 
