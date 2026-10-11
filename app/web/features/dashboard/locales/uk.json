@@ -49,11 +49,7 @@
     "manage_link": "Керувати",
     "when_now": "Зараз",
     "empty_description": "Прямуєте кудись ? Створіть публічну подорож, аби місцеві могли запросити вас у гості.",
-    "same_gender_only_indicator": "Однакової статі",
-    "offers_count_one": "{{count}} запрошення",
-    "offers_count_few": "{{count}} запрошення",
-    "offers_count_many": "{{count}} запрошень",
-    "no_offers": "Поки запрошень немає"
+    "same_gender_only_indicator": "Однакової статі"
   },
   "stays": {
     "upcoming_trips_header": "Ваші майбутні подорожі",

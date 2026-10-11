@@ -45,6 +45,5 @@
   "num_users2_many": "{{count}} учасників",
   "num_countries2_one": "{{count}}+ країна",
   "num_countries2_few": "{{count}}+ країни",
-  "num_countries2_many": "{{count}}+ країн",
-  "last_signup": "Остання реєстрація {{timeAgo}}"
+  "num_countries2_many": "{{count}}+ країн"
 }

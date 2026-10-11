@@ -92,10 +92,7 @@
     "manage_link": "Verwalten",
     "when_now": "Jetzt",
     "empty_description": "Wohin des Weges? Poste einen öffentlichen Trip in einer Community, um Angebote von Hosts in der Nähe zu erhalten.",
-    "same_gender_only_indicator": "Gleiches Geschlecht",
-    "offers_count_one": "{{count}} Angebot",
-    "offers_count_other": "{{count}} Angebote",
-    "no_offers": "Noch keine Angebote"
+    "same_gender_only_indicator": "Gleiches Geschlecht"
   },
   "today_label": "Heute"
 }

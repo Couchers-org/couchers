@@ -44,6 +44,5 @@
   "num_users2_other": "{{count}} utenti",
   "num_countries2_one": "{{count}}+ paesi",
   "num_countries2_many": "{{count}}+ di paesi",
-  "num_countries2_other": "{{count}}+ paesi",
-  "last_signup": "Ultima iscrizione {{timeAgo}}"
+  "num_countries2_other": "{{count}}+ paesi"
 }

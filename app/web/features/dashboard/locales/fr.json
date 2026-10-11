@@ -79,10 +79,6 @@
     "my_trips_header": "Vos voyages publics",
     "manage_link": "Gérer",
     "when_now": "Maintenant",
-    "offers_count_one": "{{count}} offre",
-    "offers_count_many": "{{count}} d'offres",
-    "offers_count_other": "{{count}} offres",
-    "no_offers": "Pas encore d'offres",
     "empty_description": "Vous partez quelque part ? Publiez un voyage public dans la communauté pour recevoir des offres d'hôtes à proximité.",
     "same_gender_only_indicator": "Même genre"
   },

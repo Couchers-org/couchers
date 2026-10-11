@@ -256,9 +256,6 @@
     "settings_page_link": "Aktuelle Anmeldungen verwalten",
     "description": "Auf dieser Seite werden aktive Anmeldungen aufgelistet. Du kannst dich von jeder davon abmelden, indem du auf die Schaltfläche neben der Anmeldung klickst oder nach unten scrollst und auf die Schaltfläche klickst, um dich von allen außer dieser Sitzung abzumelden.",
     "login_header": "Angemeldet am {{login_datetime}}",
-    "location": "In der Nähe von <strong>{{approximate_location}}</strong>",
-    "last_activity": "Letzte Aktivität <strong>{{last_activity_ago}}</strong>",
-    "expiry": "Läuft ab am <strong>{{expiry_datetime}}</strong>",
     "log_out_of_session": "Melde dich von dieser Sitzung ab",
     "log_out_of_all_session": "Melde dich von allen anderen Sitzungen ab"
   },
