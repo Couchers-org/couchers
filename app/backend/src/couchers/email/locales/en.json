@@ -213,57 +213,69 @@
     "subject": "Your gender was changed",
     "purpose": "Your gender on Couchers.org was changed to <b>{{ gender }}</b> by an admin."
   },
-  "host_requests": {
+  "stays": {
     "created": {
-      "subject": "{{surfer_name}} sent you a host request",
-      "purpose": "<b>{{surfer_name}}</b> sent you a host request:",
-      "respond_encouragement": "Please respond to this request. Even a quick decline is better than no response!"
+      "host_request": {
+        "subject": "{{initiator}} sent you a host request",
+        "purpose": "<b>{{initiator}}</b> sent you a host request:",
+        "respond_encouragement": "Please respond to this request. Even a quick decline is better than no response!"
+      }
     },
     "generic": {
       "date_range": "From <b>{{from_date}}</b> to <b>{{to_date}}</b>.",
-      "view_action": "View host request",
-      "quick_decline_action": "Quick decline"
+      "quick_decline_action": "Quick decline",
+      "host_request": {
+        "view_action": "View host request"
+      }
     },
     "reminder": {
-      "subject": "You have a pending host request from {{surfer_name}}",
-      "purpose": "<b>{{surfer_name}}</b> is waiting for your response. Even a quick decline is better than no response!"
+      "host_request": {
+        "subject": "You have a pending host request from {{initiator}}",
+        "purpose": "<b>{{initiator}}</b> is waiting for your response. Even a quick decline is better than no response!"
+      }
     },
     "message": {
-      "from_host": {
-        "subject": "{{other_name}} sent you a message in your host request",
-        "purpose": "<b>{{other_name}}</b> sent you a message in your host request:"
-      },
-      "from_surfer": {
-        "subject": "{{other_name}} sent you a message in their host request",
-        "purpose": "<b>{{other_name}}</b> sent you a message in their host request:"
+      "host_request": {
+        "from_initiator": {
+          "subject": "{{counterparty}} sent you a message in their host request",
+          "purpose": "<b>{{counterparty}}</b> sent you a message in their host request:"
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}} sent you a message in your host request",
+          "purpose": "<b>{{counterparty}}</b> sent you a message in your host request:"
+        }
       }
     },
     "missed_messages": {
-      "from_host": {
-        "subject": "{{other_name}} sent you message(s) in your host request",
-        "purpose": "<b>{{other_name}}</b> sent you one or more messages in your host request:"
-      },
-      "from_surfer": {
-        "subject": "{{other_name}} sent you message(s) in their host request",
-        "purpose": "<b>{{other_name}}</b> sent you one or more messages in their host request:"
+      "host_request": {
+        "from_initiator": {
+          "subject": "{{counterparty}} sent you message(s) in their host request",
+          "purpose": "<b>{{counterparty}}</b> sent you one or more messages in their host request:"
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}} sent you message(s) in your host request",
+          "purpose": "<b>{{counterparty}}</b> sent you one or more messages in your host request:"
+        }
       }
     },
     "status_changed": {
-      "accepted_by_host": {
-        "subject": "{{other_name}} accepted your host request",
-        "purpose": "<b>{{other_name}}</b> accepted your host request:"
-      },
-      "declined_by_host": {
-        "subject": "{{other_name}} declined your host request",
-        "purpose": "<b>{{other_name}}</b> declined your host request:"
-      },
-      "confirmed_by_surfer": {
-        "subject": "{{other_name}} confirmed their host request",
-        "purpose": "<b>{{other_name}}</b> confirmed their host request:"
-      },
-      "cancelled_by_surfer": {
-        "subject": "{{other_name}} cancelled their host request",
-        "purpose": "<b>{{other_name}}</b> cancelled their host request:"
+      "host_request": {
+        "accepted_by_recipient": {
+          "subject": "{{counterparty}} accepted your host request",
+          "purpose": "<b>{{counterparty}}</b> accepted your host request:"
+        },
+        "declined_by_recipient": {
+          "subject": "{{counterparty}} declined your host request",
+          "purpose": "<b>{{counterparty}}</b> declined your host request:"
+        },
+        "confirmed_by_initiator": {
+          "subject": "{{counterparty}} confirmed their host request",
+          "purpose": "<b>{{counterparty}}</b> confirmed their host request:"
+        },
+        "cancelled_by_initiator": {
+          "subject": "{{counterparty}} cancelled their host request",
+          "purpose": "<b>{{counterparty}}</b> cancelled their host request:"
+        }
       }
     }
   },
