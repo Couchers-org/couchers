@@ -27,21 +27,22 @@ from couchers.models import (
 )
 from couchers.proto import editor_pb2, events_pb2, threads_pb2
 from couchers.tasks import enforce_community_memberships
-from couchers.utils import local_date_time, now, to_aware_datetime
+from couchers.utils import now, to_aware_datetime
 from tests.fixtures import api_helpers
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import EmailCollector, Moderator, PushCollector, process_jobs
 from tests.fixtures.sessions import events_session, real_editor_session, threads_session
 from tests.fixtures.timewarp import FrozenTimewarp
 from tests.test_communities import create_community, create_group
+from tests.utils import local_date_time
 
 
-def to_event_time_granularity(value: datetime) -> datetime:
+def _to_event_time_granularity(value: datetime) -> datetime:
     """Events are scheduled at the minute granularity."""
     return value.replace(second=0, microsecond=0)
 
 
-def is_utc_or_gmt(timezone: str) -> bool:
+def _is_utc_or_gmt(timezone: str) -> bool:
     # Our lightweight "timezone_areas.sql-fake" uses Etc/UTC, whereas the real file uses Etc/GMT.
     # Tests should be agnostic to which one we're using.
     return timezone in ("Etc/UTC", "Etc/GMT")
@@ -62,7 +63,7 @@ def test_CreateEvent(db, frozen_timewarp, push_collector: PushCollector, moderat
         c_id = create_community(session, 0, 2, "Community", [mod_user], [], None).id
 
     time_before = now()
-    start_time = to_event_time_granularity(time_before + timedelta(hours=2))
+    start_time = _to_event_time_granularity(time_before + timedelta(hours=2))
     end_time = start_time + timedelta(hours=3)
 
     # Can create an event
@@ -93,7 +94,7 @@ def test_CreateEvent(db, frozen_timewarp, push_collector: PushCollector, moderat
     assert create_res.creator_user_id == creator_user.id
     assert to_aware_datetime(create_res.start_time) == start_time
     assert to_aware_datetime(create_res.end_time) == end_time
-    assert is_utc_or_gmt(create_res.timezone)
+    assert _is_utc_or_gmt(create_res.timezone)
     assert create_res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
     assert create_res.organizer
     assert create_res.subscriber
@@ -124,7 +125,7 @@ def test_CreateEvent(db, frozen_timewarp, push_collector: PushCollector, moderat
     assert get_res.creator_user_id == creator_user.id
     assert to_aware_datetime(get_res.start_time) == start_time
     assert to_aware_datetime(get_res.end_time) == end_time
-    assert is_utc_or_gmt(get_res.timezone)
+    assert _is_utc_or_gmt(get_res.timezone)
     assert get_res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
     assert not get_res.organizer
     assert not get_res.subscriber
@@ -153,7 +154,7 @@ def test_CreateEvent(db, frozen_timewarp, push_collector: PushCollector, moderat
     assert other_get_res.creator_user_id == creator_user.id
     assert to_aware_datetime(other_get_res.start_time) == start_time
     assert to_aware_datetime(other_get_res.end_time) == end_time
-    assert is_utc_or_gmt(other_get_res.timezone)
+    assert _is_utc_or_gmt(other_get_res.timezone)
     assert other_get_res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
     assert not other_get_res.organizer
     assert not other_get_res.subscriber
@@ -189,7 +190,7 @@ def test_CreateEvent(db, frozen_timewarp, push_collector: PushCollector, moderat
     assert e.value.details() == "Missing event address or location."
 
     with pytest.raises(grpc.RpcError) as e:
-        api_helpers.create_event(token=creator_token, location=events_pb2.EventLocation(address="Near Null Island"))
+        api_helpers.create_event(token=creator_token, location=events_pb2.EventLocation(address="Address only"))
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
     assert e.value.details() == "Invalid coordinate."
 
@@ -254,7 +255,7 @@ def test_ScheduleEvent(db, frozen_timewarp):
         c_id = create_community(session, 0, 2, "Community", [user], [], None).id
 
     time_before = now()
-    start_time = to_event_time_granularity(now() + timedelta(hours=2))
+    start_time = _to_event_time_granularity(now() + timedelta(hours=2))
     end_time = start_time + timedelta(hours=3)
 
     create_res = api_helpers.create_event(
@@ -264,7 +265,7 @@ def test_ScheduleEvent(db, frozen_timewarp):
         end_date_time=local_date_time(end_time),
     )
 
-    new_start_time = to_event_time_granularity(now() + timedelta(hours=6))
+    new_start_time = _to_event_time_granularity(now() + timedelta(hours=6))
     new_end_time = new_start_time + timedelta(hours=2)
 
     schedule_res = api_helpers.schedule_event(
@@ -300,7 +301,7 @@ def test_ScheduleEvent(db, frozen_timewarp):
     assert res.creator_user_id == user.id
     assert to_aware_datetime(res.start_time) == new_start_time
     assert to_aware_datetime(res.end_time) == new_end_time
-    assert is_utc_or_gmt(res.timezone)
+    assert _is_utc_or_gmt(res.timezone)
     assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
     assert res.organizer
     assert res.subscriber
@@ -334,12 +335,6 @@ def test_cannot_overlap_occurrences_schedule(db):
         api_helpers.schedule_event(
             token=token,
             event_id=res.event_id,
-            content="New event occurrence",
-            location=events_pb2.EventLocation(
-                address="A bit further but still near Null Island",
-                lat=0.3,
-                lng=0.2,
-            ),
             start_date_time=local_date_time(start + timedelta(hours=2)),
             end_date_time=local_date_time(start + timedelta(hours=6)),
         )
@@ -414,12 +409,17 @@ def test_UpdateEvent_single(db, frozen_timewarp: FrozenTimewarp, moderator: Mode
         c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
 
     time_before = now()
-    start_time = to_event_time_granularity(now() + timedelta(hours=2))
+    start_time = _to_event_time_granularity(now() + timedelta(hours=2))
     end_time = start_time + timedelta(hours=3)
 
     res = api_helpers.create_event(
         token=token1,
         parent_community_id=c_id,
+        location=events_pb2.EventLocation(
+            address="Near Null Island",
+            lat=0.1,
+            lng=0.2,
+        ),
         start_date_time=local_date_time(start_time),
         end_date_time=local_date_time(end_time),
         approve_by=moderator,
@@ -460,7 +460,7 @@ def test_UpdateEvent_single(db, frozen_timewarp: FrozenTimewarp, moderator: Mode
     assert res.creator_user_id == user1.id
     assert to_aware_datetime(res.start_time) == start_time
     assert to_aware_datetime(res.end_time) == end_time
-    assert is_utc_or_gmt(res.timezone)
+    assert _is_utc_or_gmt(res.timezone)
     assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
     assert res.organizer
     assert res.subscriber
@@ -490,7 +490,7 @@ def test_UpdateEvent_single(db, frozen_timewarp: FrozenTimewarp, moderator: Mode
     assert res.creator_user_id == user1.id
     assert to_aware_datetime(res.start_time) == start_time
     assert to_aware_datetime(res.end_time) == end_time
-    assert is_utc_or_gmt(res.timezone)
+    assert _is_utc_or_gmt(res.timezone)
     assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
     assert not res.organizer
     assert not res.subscriber
@@ -520,7 +520,7 @@ def test_UpdateEvent_single(db, frozen_timewarp: FrozenTimewarp, moderator: Mode
     assert res.creator_user_id == user1.id
     assert to_aware_datetime(res.start_time) == start_time
     assert to_aware_datetime(res.end_time) == end_time
-    assert is_utc_or_gmt(res.timezone)
+    assert _is_utc_or_gmt(res.timezone)
     assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
     assert not res.organizer
     assert not res.subscriber
@@ -769,12 +769,17 @@ def test_GetEvent(db, frozen_timewarp, moderator: Moderator):
         c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
 
     time_before = now()
-    start_time = to_event_time_granularity(now() + timedelta(hours=2))
+    start_time = _to_event_time_granularity(now() + timedelta(hours=2))
     end_time = start_time + timedelta(hours=3)
 
     # in person event
     res = api_helpers.create_event(
         token=token1,
+        location=events_pb2.EventLocation(
+            address="Near Null Island",
+            lat=0.1,
+            lng=0.2,
+        ),
         start_date_time=local_date_time(start_time),
         end_date_time=local_date_time(end_time),
         approve_by=moderator,
@@ -809,7 +814,7 @@ def test_GetEvent(db, frozen_timewarp, moderator: Moderator):
     assert res.creator_user_id == user1.id
     assert to_aware_datetime(res.start_time) == start_time
     assert to_aware_datetime(res.end_time) == end_time
-    assert is_utc_or_gmt(res.timezone)
+    assert _is_utc_or_gmt(res.timezone)
     assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
     assert res.organizer
     assert res.subscriber
@@ -839,7 +844,7 @@ def test_GetEvent(db, frozen_timewarp, moderator: Moderator):
     assert res.creator_user_id == user1.id
     assert to_aware_datetime(res.start_time) == start_time
     assert to_aware_datetime(res.end_time) == end_time
-    assert is_utc_or_gmt(res.timezone)
+    assert _is_utc_or_gmt(res.timezone)
     assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
     assert not res.organizer
     assert not res.subscriber
@@ -869,7 +874,7 @@ def test_GetEvent(db, frozen_timewarp, moderator: Moderator):
     assert res.creator_user_id == user1.id
     assert to_aware_datetime(res.start_time) == start_time
     assert to_aware_datetime(res.end_time) == end_time
-    assert is_utc_or_gmt(res.timezone)
+    assert _is_utc_or_gmt(res.timezone)
     assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
     assert not res.organizer
     assert not res.subscriber
@@ -1714,6 +1719,13 @@ def test_GetEventCalendarFile(db, moderator: Moderator):
     created_event: events_pb2.Event = api_helpers.create_event(
         token=token1,
         parent_community_id=c_id,
+        title="Dummy Title",
+        content="Dummy content.",
+        location=events_pb2.EventLocation(
+            address="Near Null Island",
+            lat=0.1,
+            lng=0.2,
+        ),
         start_date_time=local_date_time(start_time),
         end_date_time=local_date_time(end_time),
     )
@@ -2190,11 +2202,6 @@ def test_update_event_should_notify_queues_job():
     create_res = api_helpers.create_event(
         token=token,
         parent_community_id=c_id,
-        location=events_pb2.EventLocation(
-            address="Near Null Island",
-            lat=1.0,
-            lng=2.0,
-        ),
         start_date_time=local_date_time(start + timedelta(hours=3)),
         end_date_time=local_date_time(start + timedelta(hours=6)),
     )
@@ -2281,8 +2288,7 @@ def test_event_timezone(db):
     create_res: events_pb2.Event = api_helpers.create_event(
         token=token,
         parent_community_id=c_id,
-        # timezone_areas.sql-fake has a region for Europe/Helsinki
-        location=events_pb2.EventLocation(address="Helsinki", lat=60.192059, lng=24.945831),
+        location=api_helpers.EVENT_LOCATION_HELSINKI,
         # Should result in YYYY-MM-DDT00:00 (midnight local time)
         start_date_time=local_date_time(start_time),
         end_date_time=local_date_time(end_time),
@@ -2298,8 +2304,7 @@ def test_event_timezone(db):
     update_res: events_pb2.Event = api_helpers.update_event(
         token=token,
         event_id=create_res.event_id,
-        # timezone_areas.sql-fake has a region for America/New_York
-        location=events_pb2.EventLocation(address="New York", lat=40.712776, lng=-74.005974),
+        location=api_helpers.EVENT_LOCATION_NEW_YORK,
     )
 
     # The user didn't touch the datetime components on the frontend,

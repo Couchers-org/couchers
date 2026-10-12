@@ -2,7 +2,7 @@ import http.cookies
 import re
 import typing
 from collections.abc import Mapping, Sequence
-from datetime import UTC, date, datetime, time, timedelta, tzinfo
+from datetime import UTC, date, datetime, timedelta, tzinfo
 from email.utils import formatdate
 from typing import TYPE_CHECKING, Any, overload
 from zoneinfo import ZoneInfo
@@ -142,14 +142,6 @@ def datetime_to_iso8601_local(value: datetime) -> str:
     This loses information and requires parsers to assume a timezone, so use with care.
     """
     return value.replace(tzinfo=None).isoformat()
-
-
-def local_date_time(value: datetime) -> tuple[date, time]:
-    """
-    Splits a datetime into its local (date, time), without timezone information.
-    This loses information and requires consumers to assume a timezone, so use with care.
-    """
-    return value.date(), value.time()
 
 
 def _mockable_now() -> datetime:

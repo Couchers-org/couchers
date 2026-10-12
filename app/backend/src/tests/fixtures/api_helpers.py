@@ -1,3 +1,8 @@
+"""
+Exposes typed functions mapping 1-to-1 to backend APIs, encapsulating protobuf encoding boilerplate.
+Functions have neutral defaults for tests that don't need specific parameter values.
+"""
+
 from datetime import date, datetime, time, timedelta
 
 from google.protobuf import wrappers_pb2
@@ -7,7 +12,11 @@ from couchers.utils import today
 from tests.fixtures.misc import Moderator
 from tests.fixtures.sessions import events_session
 
-_DEFAULT_EVENT_LOCATION = events_pb2.EventLocation(address="Near Null Island", lat=0.1, lng=0.2)
+# Event location constants which timezone_areas.sql-fake has regions for.
+# Neutral default location. Resolves to Etc/GMT with real dataset and Etc/UTC with fake dataset.
+EVENT_LOCATION_DEFAULT_UTC = events_pb2.EventLocation(address="Near Null Island", lat=0.1, lng=0.2)
+EVENT_LOCATION_HELSINKI = events_pb2.EventLocation(address="Helsinki, Finland", lat=60.192059, lng=24.945831)
+EVENT_LOCATION_NEW_YORK = events_pb2.EventLocation(address="New York, New York", lat=40.712776, lng=-74.005974)
 
 
 def _date_time_to_iso8601(value: tuple[date, time]) -> str:
@@ -30,8 +39,9 @@ def create_event(
     content: str | None = "Dummy content.",
     photo_key: str | None = None,
     parent_community_id: int | None = None,
-    location: events_pb2.EventLocation | None = _DEFAULT_EVENT_LOCATION,
-    # API accepts local times so don't take datetime, which are usually tz-aware.
+    location: events_pb2.EventLocation | None = EVENT_LOCATION_DEFAULT_UTC,
+    # Force callers to provide local date/times, not datetimes with timezones,
+    # since the API accepts local times and resolves the timezone from the location.
     start_date_time: tuple[date, time] | None = None,
     end_date_time: tuple[date, time] | None = None,
     approve_by: Moderator | None = None,
@@ -66,8 +76,9 @@ def schedule_event(
     event_id: int,
     content: str | None = "Dummy content.",
     photo_key: str | None = None,
-    location: events_pb2.EventLocation | None = _DEFAULT_EVENT_LOCATION,
-    # Required since occurrences of the same event can't overlap, so there's no safe default.
+    location: events_pb2.EventLocation | None = EVENT_LOCATION_DEFAULT_UTC,
+    # Force callers to provide local date/times, not datetimes with timezones,
+    # since the API accepts local times and resolves the timezone from the location.
     start_date_time: tuple[date, time],
     end_date_time: tuple[date, time] | None = None,
     approve_by: Moderator | None = None,
