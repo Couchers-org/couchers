@@ -40,7 +40,7 @@
     "replies_count_label_many": "{{count}} повідомлень"
   },
   "events": {
-    "your_upcoming_header": "Ваші прийдешні події",
+    "your_upcoming_header": "Ваші майбутні події",
     "your_upcoming_empty_message": "Наразі немає подій. Чому б вам не <createEventLink>створити</createEventLink> свою✨?",
     "community_header": "Події у ваших спільнотах"
   },

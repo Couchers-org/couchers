@@ -230,7 +230,10 @@
     "login_header": "Вхід о {{login_datetime}}",
     "current_session": "Це ваша поточна сесія.",
     "log_out_of_session": "Вийти із цієї сесії",
-    "log_out_of_all_session": "Вийти із усіх інших сесій"
+    "log_out_of_all_session": "Вийти із усіх інших сесій",
+    "location2": "Біля <location/>",
+    "last_activity2": "Остання активність <timeAgo/>",
+    "expiry2": "Протерміновується <datetime/>"
   },
   "strong_verification": {
     "learn_more": "Дізнатися про Офіційну верифікацію <a>тут</a>.",
