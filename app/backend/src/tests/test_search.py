@@ -10,13 +10,14 @@ from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views, refresh_materialized_views_rapid
 from couchers.models import EventOccurrence, HostingStatus, LanguageAbility, LanguageFluency, MeetupStatus
 from couchers.proto import api_pb2, communities_pb2, events_pb2, search_pb2
-from couchers.utils import Timestamp_from_datetime, create_coordinate, local_date_time, now
+from couchers.utils import Timestamp_from_datetime, create_coordinate, now
 from tests.fixtures import api_helpers
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import Moderator
 from tests.fixtures.sessions import communities_session, events_session, search_session
 from tests.test_communities import create_community, testing_communities  # noqa
 from tests.test_references import create_friend_reference
+from tests.utils import local_date_time
 
 
 class TestSearchInCommunities:

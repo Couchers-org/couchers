@@ -26,7 +26,7 @@ from couchers.models import (
 )
 from couchers.proto import api_pb2, auth_pb2, communities_pb2, discussions_pb2, events_pb2, pages_pb2
 from couchers.tasks import enforce_community_memberships
-from couchers.utils import create_coordinate, create_polygon_lat_lng, local_date_time, now, to_multi
+from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_multi
 from tests.fixtures import api_helpers
 from tests.fixtures.db import generate_user, get_user_id_and_token
 from tests.fixtures.misc import Moderator
@@ -38,6 +38,7 @@ from tests.fixtures.sessions import (
     pages_session,
 )
 from tests.test_auth import get_session_cookie_tokens
+from tests.utils import local_date_time
 
 # For testing purposes, restrict ourselves to a 1D-world, consisting of "intervals" that have width 2, and coordinates
 # that are points at (x, 1).
