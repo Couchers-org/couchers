@@ -150,5 +150,7 @@
   "select_sublocality": "Оберіть район",
   "select_sub_community": "Оберіть спільноту",
   "sub_community_search_placeholder": "Місцевість",
-  "sub_community_dropdown_a11y": "Переглянути більш специфічні спільноти"
+  "sub_community_dropdown_a11y": "Переглянути більш специфічні спільноти",
+  "comment_edited_date2": "Відредаговано <timeAgo/>",
+  "discussion_edited_date2": "Відредаговано <timeAgo/>"
 }
