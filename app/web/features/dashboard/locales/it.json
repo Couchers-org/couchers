@@ -48,11 +48,7 @@
     "manage_link": "Gestisci",
     "when_now": "Adesso",
     "empty_description": "Vai da qualche parte? Pubblica un viaggio pubblico in una community per ricevere offerte dagli host nelle vicinanze.",
-    "same_gender_only_indicator": "Stesso genere",
-    "offers_count_one": "{{count}} offerta",
-    "offers_count_many": "{{count}} di offerte",
-    "offers_count_other": "{{count}} offerte",
-    "no_offers": "Nessuna offerta da mostrare"
+    "same_gender_only_indicator": "Stesso genere"
   },
   "stays": {
     "upcoming_trips_header": "I tuoi prossimi soggiorni",

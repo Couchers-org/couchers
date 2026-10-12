@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-10-04 21:41+0000\n"
+"PO-Revision-Date: 2026-10-10 21:41+0000\n"
 "Last-Translator: Oleh S <olewa@protonmail.com>\n"
 "Language-Team: Ukrainian <https://translate.couchershq.org/projects/couchers/glossary-key-terms/uk/>\n"
 "Language: uk\n"
@@ -40,7 +40,7 @@ msgstr "учасник"
 
 #. (noun) Users who have indicated their intention to attend an event.
 msgid "events.attendees"
-msgstr "учасники"
+msgstr "відвідувачі"
 
 #. (noun) The Couchers.org blog.
 msgid "blog"
@@ -175,7 +175,6 @@ msgid "friend"
 msgstr "друг"
 
 #. (noun) A reference from a friend.
-#, fuzzy
 msgid "friend_reference"
 msgstr "відгук друга"
 
@@ -192,12 +191,10 @@ msgid "friends"
 msgstr "друзі"
 
 #. (noun) A named thread for messages between three or more users.
-#, fuzzy
 msgid "group_chat"
 msgstr "групова розмова"
 
 #. (noun) A named thread for messages between three or more users.
-#, fuzzy
 msgid "group_chats"
 msgstr "групові розмови"
 
@@ -424,3 +421,91 @@ msgstr "волонтер"
 #. (noun) A person volunteering with Couchers.org.
 msgid "volunteers"
 msgstr "волонтери"
+
+#. (noun) A post on the Couchers.org blog.
+msgid "blog.post"
+msgstr "допис"
+
+#. (verb) As a user, the action of deleting one's account.
+msgid "account.delete"
+msgstr "видалити"
+
+#. (adj) The state of a user's account which has been deleted.
+msgid "account.deleted"
+msgstr "видалений"
+
+#. (noun) An invitation sent by a host in response to a surfer's public trip.
+msgid "public_trip.invitation"
+msgstr "запрошення"
+
+#. (noun) Invitations sent by hosts in response to a surfer's public trip.
+msgid "public_trip.invitations"
+msgstr "запрошення"
+
+#. (verb) As a host, sending an invitation to a surfer in response to their public trip.
+msgid "public_trip.invite"
+msgstr "запросити у гості"
+
+#. (noun) A code that can be shared to invite people to join Couchers.org.
+msgid "invite_code"
+msgstr "код запрошення"
+
+#. (noun) Codes that can be shared to invite people to join Couchers.org.
+msgid "invite_codes"
+msgstr "коди запрошення"
+
+#. (adj) The state of a surfer who has received an invitation from a host.
+msgid "public_trip.invited"
+msgstr "запрошено"
+
+#. (verb) As a host, sending an invitation to a surfer in response to their public trip.
+msgid "public_trip.inviting"
+msgstr "запрошує"
+
+#. (noun) A moderator from the Couchers.org team.
+msgid "moderator"
+msgstr "модератор"
+
+#. (noun) A note sent to a user by a moderator.
+msgid "moderator_note"
+msgstr "повідомлення модератора"
+
+#. (noun) Notes sent to a user by a moderator.
+msgid "moderator_notes"
+msgstr "повідомлення модератора"
+
+#. (noun) Moderators from the Couchers.org team.
+msgid "moderators"
+msgstr "модератори"
+
+#. (noun) A process and the resulting status for verifying a user's phone number.
+msgid "phone_verification"
+msgstr "Перевірка телефону"
+
+#. (noun) A trip published by a surfer to solicit invitations from hosts.
+msgid "public_trip"
+msgstr "публічна подорож"
+
+#. (noun) Trips published by surfers to solicit invitations from hosts.
+msgid "public_trips"
+msgstr "публічні подорожі"
+
+#. (verb) As a user, the action of recovering a previously deleted account.
+msgid "account.recover"
+msgstr "відновити"
+
+#. (adj) The state of a user's account which has been recovered.
+msgid "account.recovered"
+msgstr "відновлено"
+
+#. (verb) The action of resetting one's password.
+msgid "password.reset"
+msgstr "скинути"
+
+#. (noun) An agreement for a surfer to stay with a host over a date range.
+msgid "stay.noun"
+msgstr "візит"
+
+#. (noun) Agreements for surfers to stay with hosts over specific date ranges.
+msgid "stays"
+msgstr "візити"

@@ -123,6 +123,11 @@ ANTIBOT_FREQ = timedelta(hours=48)
 
 EVENT_REMINDER_TIMEDELTA = timedelta(hours=24)
 
+# How far ahead (or how many occurrences, whichever is more)
+# recurring events should have occurrences scheduled.
+EVENT_RECURRENCE_SCHEDULE_WINDOW = timedelta(weeks=2)
+EVENT_RECURRENCE_MIN_SCHEDULED_OCCURRENCES = 2
+
 COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD = 0.35
 
 UNKNOWN_ERROR_MESSAGE = "An unknown backend error occurred. Please consider filing a bug!"

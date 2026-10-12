@@ -80,10 +80,7 @@
     "manage_link": "Beheren",
     "when_now": "Nu",
     "empty_description": "Ga je ergens heen? Maak een openbare trip in een community om uitnodigingen te krijgen van hosts in de buurt.",
-    "same_gender_only_indicator": "Zelfde gender",
-    "offers_count_one": "{{count}} uitnodiging",
-    "offers_count_other": "{{count}} uitnodigingen",
-    "no_offers": "Nog geen uitnodigingen"
+    "same_gender_only_indicator": "Zelfde gender"
   },
   "stays": {
     "upcoming_trips_header": "Je aankomende verblijven",
