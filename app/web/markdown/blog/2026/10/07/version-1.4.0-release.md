@@ -32,7 +32,7 @@ It's been a busy few months since the spring release! The mobile app has been ou
 
 ## Messages and conversations
 
-Chats and host requests now live together in one inbox. You can switch between them with filter pills, show only unread conversations, archive the ones you're done with, and mark everything as read in one go. Chat bubbles have clearer alignment, spacing and timestamps, and conversations no longer stretch across the whole screen on wide monitors.
+We have simplified the Messages page, which now shows all chats and host requests by default. You can filter them to show only unread conversations, archive the ones you're done with, and mark everything as read. Chat bubbles have clearer alignment, spacing and timestamps, and conversations no longer stretch across the whole screen on wide monitors.
 
 <div style="text-align: center">
 
@@ -40,7 +40,7 @@ Chats and host requests now live together in one inbox. You can switch between t
 
 </div>
 
-You can now send someone a first message straight from their profile. To cut down on spam, there's now a limit on how many brand-new conversations someone can start, but replying in existing chats isn't affected.
+You can now send someone a first message straight from their profile.
 
 We also fixed a lot of small things in the inbox: unread badges now clear as soon as you read a message, group chat counts stay right after you leave or rejoin a chat, and the helper text on closed host requests no longer shows up as if it were a real message.
 
@@ -48,15 +48,23 @@ We also fixed a lot of small things in the inbox: unread badges now clear as soo
 
 ## Communities and discussions
 
-The Communities page has a new "My communities" section showing the communities you've joined, and community lists now show your most local communities first. On any community page, a searchable dropdown takes you straight to a more specific community, such as a country, city or neighborhood. The list of recently created communities is also more accurate.
+You can now edit or delete your own discussions, comments and replies. The rest of the conversation (such as responses) is not deleted when you delete one item.
 
-You can now edit or delete your own discussions, comments and replies. When you delete something, the rest of the conversation stays.
+On the individual community pages we added a searchable dropdown to the breadcrumbs at the top. This makes navigation easier by taking you straight tro the more specific communities available.
+
+<div style="text-align: center">
+
+![Community breadcrumbs with a searchable dropdown of local communities](/img/blog/20261007-communities.png)
+
+</div>
+
+On the Communities page and dashboard widget, the community lists now show your most local communities first.
 
 **Thanks to** [Nicole](https://couchers.org/user/unsettleddown), [Kevin](https://couchers.org/user/kevinortiz43), [Aapeli](https://couchers.org/user/aapeli), [Tristan](https://couchers.org/user/tristanlabelle), [Jesse](https://couchers.org/user/jesse) and [Alexey](https://couchers.org/user/ptz)!
 
 ## Events
 
-Event pages look better with lots of attendees: the attendee list wraps across the page, you can page through it, and the counts are clearer. There's a new copy link button to make sharing easier, the edit and manage options are simpler, and when you create an event the end date and time fill in for you.
+Events with many attendees are easier to navigate: the attendee list is paginated and now uses two columns, and the number of attendees is highlighted.
 
 <div style="text-align: center">
 
@@ -64,9 +72,19 @@ Event pages look better with lots of attendees: the attendee list wraps across t
 
 </div>
 
-Couchers is about meeting people in person, so we've removed online events. All community events are now in-person.
+There's a new copy link option to make sharing easier, the edit and manage options are simpler, and when you create an event the end date and time fill in for you.
 
-Event search can now hide events you're already going to or organizing, and those events won't show up again in your suggestions or get you a duplicate invite. Event times are now saved and shown in the event's own timezone, even if you created it from somewhere else. We also fixed pages skipping or repeating events.
+<div style="text-align: center">
+
+![Event page options menu with Copy link](/img/blog/20261007-event-copy-link.png)
+
+</div>
+
+We have removed online events: these were a stopgap during the COVID pandemic, and this simplifies our event backend logic significantly.
+
+The dashboard event widgets now hide events you're already going to or organizing to reduce clutter. Those events won't show up again in your suggestions or get you a duplicate invite. Event times are now saved and shown in the event's own timezone, even if you created it from somewhere else.
+
+We also fixed a pagination bug where the event list would sometimes skip or repeat events.
 
 **Thanks to** [Valeria](https://couchers.org/user/waleria), [Christian](https://couchers.org/user/chris_saavedra), [Nick](https://couchers.org/user/bknicholas), [Nicole](https://couchers.org/user/unsettleddown), [Tristan](https://couchers.org/user/tristanlabelle), [Aapeli](https://couchers.org/user/aapeli), [Jesse](https://couchers.org/user/jesse) and [Alexey](https://couchers.org/user/ptz)!
 
@@ -136,7 +154,7 @@ Behind the scenes, we fixed duplicate host request notifications and emails that
 
 As Couchers grows, we want new features to stay safe from day one. Discussion and event pages now have a report button, and you need to finish your profile before posting in community discussions. Moderators also have better tools for keeping notes and tracking their work.
 
-**Thanks to** [Aapeli](https://couchers.org/user/aapeli), [Kevin](https://couchers.org/user/kevinortiz43), [Tristan](https://couchers.org/user/tristanlabelle) and [Alexey](https://couchers.org/user/ptz)!
+**Thanks to** [Aapeli](https://couchers.org/user/aapeli), [Kevin](https://couchers.org/user/kevinortiz43), [Tristan](https://couchers.org/user/tristanlabelle), [Alexey](https://couchers.org/user/ptz), [Jesse](https://couchers.org/user/jesse) and [Nick](https://couchers.org/user/bknicholas)!
 
 ## Site improvements
 
