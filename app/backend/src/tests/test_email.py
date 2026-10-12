@@ -435,27 +435,6 @@ This is a security email, you cannot unsubscribe from it.
     assert email.source_data and ("donation:received" in email.source_data)
 
 
-# TODO(#9883): Remove once there are no more notifications without amount_decimal.
-def test_send_donation_email_legacy_amount(db, email_collector: EmailCollector):
-    # Notifications created before amount_decimal was introduced only carry a whole USD amount
-    user, _ = generate_user(email="testing@couchers.org.invalid")
-
-    with session_scope() as session:
-        notify(
-            session,
-            user_id=user.id,
-            topic_action=NotificationTopicAction.donation__received,
-            key="",
-            data=notification_data_pb2.DonationReceived(
-                amount_usd=20,
-                receipt_url="https://example.com/receipt/12345",
-            ),
-        )
-
-    email = email_collector.pop_for_recipient(user.email, last=True)
-    assert "Thank you so much for your donation of $20 to Couchers.org." in email.plain
-
-
 def test_chat_missed_messages_list_unsubscribe_header(db, email_collector: EmailCollector):
     """
     Regression test: chat__missed_messages has key="" (it's a summary, not tied to a single chat).

@@ -81,7 +81,7 @@ class LocalizationContext:
     def localize_list(self, items: Sequence[str]) -> str:
         return localize_list(items, self.babel_locale_list)
 
-    def localize_currency(self, amount: Decimal, currency_iso4217: str, *, keep_trailing_zeros: bool = False) -> str:
+    def localize_currency(self, amount: int | Decimal, currency_iso4217: str, *, keep_trailing_zeros: bool = False) -> str:
         return localize_currency(
             amount, currency_iso4217, self.preferred_babel_locale, keep_trailing_zeros=keep_trailing_zeros
         )

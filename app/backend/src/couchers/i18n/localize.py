@@ -175,12 +175,15 @@ def _combine_cldr_date_time_patterns(locale: babel.Locale, date_pattern: str, ti
 
 
 def localize_currency(
-    amount: Decimal, currency_iso4217: str, locale: babel.Locale, *, keep_trailing_zeros: bool = False
+    amount: int | Decimal, currency_iso4217: str, locale: babel.Locale, *, keep_trailing_zeros: bool = False
 ) -> str:
     """
     Formats a monetary amount with its currency for the given locale, e.g. "$25.50" or "25,50 $US".
     Whole amounts are formatted without decimals ("$25") unless keep_trailing_zeros is set.
     """
+    if isinstance(amount, int):
+        amount = Decimal(amount)
+
     if amount == amount.to_integral_value() and not keep_trailing_zeros:
         # Tweak the format to remove decimal places
         pattern = copy(parse_number_pattern(locale.currency_formats["standard"]))
