@@ -51,7 +51,8 @@ from couchers.proto import (
     threads_pb2,
 )
 from couchers.servicers.threads import pack_thread_id
-from couchers.utils import Timestamp_from_datetime, datetime_to_iso8601_local, now, today
+from couchers.utils import Timestamp_from_datetime, now, today
+from tests.fixtures import api_helpers
 from tests.fixtures.db import backdate_conversations, generate_user, make_friends
 from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
 from tests.fixtures.sessions import (
@@ -2941,25 +2942,8 @@ def test_event_moderation_state_content(db):
     with session_scope() as session:
         create_community(session, 0, 2, "Community", [user], [], None)
 
-    start_time = now() + timedelta(hours=2)
-    end_time = start_time + timedelta(hours=3)
-
-    with events_session(token) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="My Event Title",
-                content="My event description.",
-                photo_key=None,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
-        event_id = res.event_id
+    res = api_helpers.create_event(token=token, title="My Event Title", content="My event description.")
+    event_id = res.event_id
 
     with session_scope() as session:
         occurrence = session.execute(select(EventOccurrence).where(EventOccurrence.id == event_id)).scalar_one()
@@ -3075,23 +3059,7 @@ def test_SetUserContentVisibility_event_occurrence(db):
     with session_scope() as session:
         create_community(session, 0, 2, "Community", [creator], [], None)
 
-    start_time = now() + timedelta(hours=2)
-    end_time = start_time + timedelta(hours=3)
-    with events_session(creator_token) as api:
-        event_id = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Event",
-                content="Event description.",
-                photo_key=None,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        ).event_id
+    event_id = api_helpers.create_event(token=creator_token).event_id
 
     with real_moderation_session(super_token) as api:
         res = api.SetUserContentVisibility(
@@ -3877,20 +3845,6 @@ def _get_moderated_object(token, moderation_state_id):
         return api.GetModeratedObject(moderation_pb2.GetModeratedObjectReq(moderation_state_id=moderation_state_id))
 
 
-def _create_event(token, title):
-    start_time = now() + timedelta(hours=2)
-    with events_session(token) as api:
-        return api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title=title,
-                content="Event description.",
-                location=events_pb2.EventLocation(address="Near Null Island", lat=0.1, lng=0.2),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(start_time + timedelta(hours=3)),
-            )
-        )
-
-
 def _post_reply(token, thread_id, content):
     with threads_session(token) as api:
         return api.PostReply(threads_pb2.PostReplyReq(thread_id=thread_id, content=content)).thread_id
@@ -3926,7 +3880,7 @@ def test_GetModeratedObject_event_occurrence_in_group(db):
         community_id = community.id
         group_id = group.id
 
-    event = _create_event(token, "Group Picnic")
+    event = api_helpers.create_event(token=token)
     with events_session(token) as api:
         api.TransferEvent(events_pb2.TransferEventReq(event_id=event.event_id, new_owner_group_id=group_id))
 
@@ -3951,7 +3905,7 @@ def test_GetModeratedObject_event_occurrence_transferred_to_group_elsewhere(db):
         other_community_id = other_community.id
         group_id = group.id
 
-    event = _create_event(token, "Group Picnic")
+    event = api_helpers.create_event(token=token)
     with events_session(token) as api:
         api.TransferEvent(events_pb2.TransferEventReq(event_id=event.event_id, new_owner_group_id=group_id))
 
@@ -4054,7 +4008,7 @@ def test_GetModeratedObject_reply_on_event(db):
     with session_scope() as session:
         community_id = create_community(session, 0, 2, "Event Community", [user], [], None).id
 
-    event = _create_event(token, "Board Games")
+    event = api_helpers.create_event(token=token, title="Board Games")
     comment_thread_id = _post_reply(token, event.thread.thread_id, "Can I bring a friend?")
     reply_thread_id = _post_reply(token, comment_thread_id, "Sure")
 
@@ -4202,7 +4156,7 @@ def test_GetModeratedObject_event_occurrence_owned_by_user(db):
     with session_scope() as session:
         community_id = create_community(session, 0, 2, "Event Community", [user], [], None).id
 
-    event = _create_event(token, "Picnic")
+    event = api_helpers.create_event(token=token)
 
     res = _get_moderated_object(
         super_token, _moderation_state_id(ModerationObjectType.event_occurrence, event.event_id)
@@ -4222,7 +4176,7 @@ def test_GetModeratedObject_event_occurrence_transferred_to_community(db):
         create_community(session, 0, 2, "Location Community", [user], [], None)
         other_community_id = create_community(session, 5, 7, "Other Community", [user], [], None).id
 
-    event = _create_event(token, "Picnic")
+    event = api_helpers.create_event(token=token)
     with events_session(token) as api:
         api.TransferEvent(
             events_pb2.TransferEventReq(event_id=event.event_id, new_owner_community_id=other_community_id)
