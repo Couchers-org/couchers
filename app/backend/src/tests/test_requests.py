@@ -292,7 +292,7 @@ def test_create_request_records_host_timezone(db, frozen_timewarp, moderator):
         assert get_res.timezone == "Europe/Helsinki"
 
     # The host request timezone shouldn't change if the host then moves to a different timezone
-    # Otherwise this would affect all historical host requests.
+    # Otherwise this would affect all historical host requests
     with api_session(host_token) as api:
         api.UpdateProfile(
             api_pb2.UpdateProfileReq(lat=wrappers_pb2.DoubleValue(value=0.01), lng=wrappers_pb2.DoubleValue(value=0.01))
