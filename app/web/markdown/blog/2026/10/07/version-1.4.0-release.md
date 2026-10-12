@@ -94,7 +94,7 @@ The dashboard now shows your upcoming stays and guests. Events are split into th
 
 <div style="text-align: center">
 
-![Dashboard with upcoming stays and events](/img/blog/20261007-dashboard.png)
+![Dashboard with upcoming guests, stays, events and community discussions](/img/blog/20261007-dashboard.png)
 
 </div>
 
