@@ -4,6 +4,7 @@ import { service } from "service";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
+import { getDashboard } from "test/serviceMockDefaults";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
 
 import CommunityEvents from "./CommunityEvents";
@@ -13,14 +14,15 @@ const { t } = i18n;
 const nonCancelledEvents = events.filter((event) => !event.isCancelled);
 
 const listMyEventsMock = service.events.listMyEvents as jest.MockedFunction<typeof service.events.listMyEvents>;
+const getDashboardMock = service.dashboard.getDashboard as jest.MockedFunction<typeof service.dashboard.getDashboard>;
 
 describe("Community events", () => {
   beforeEach(() => {
-    listMyEventsMock.mockResolvedValue({
-      eventsList: nonCancelledEvents,
-      nextPageToken: "",
-      totalItems: nonCancelledEvents.length,
-    });
+    getDashboardMock.mockImplementation(() =>
+      getDashboard({
+        communityEvents: { eventsList: nonCancelledEvents, nextPageToken: "", totalItems: nonCancelledEvents.length },
+      }),
+    );
   });
 
   it("renders the section correctly", async () => {
@@ -35,21 +37,12 @@ describe("Community events", () => {
     ).toBeVisible();
     // 3 event row links (no "Browse all" link — navigation uses arrow buttons)
     expect(screen.getAllByRole("link")).toHaveLength(3);
-    expect(listMyEventsMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        pageSize: 3,
-        myCommunities: true,
-        myCommunitiesExcludeGlobal: true,
-      }),
-    );
+    // the first page comes from the dashboard, not a separate request
+    expect(listMyEventsMock).not.toHaveBeenCalled();
   });
 
   it("renders the empty state if there are no events", async () => {
-    listMyEventsMock.mockResolvedValue({
-      eventsList: [],
-      nextPageToken: "",
-      totalItems: 0,
-    });
+    getDashboardMock.mockImplementation(() => getDashboard());
     render(<CommunityEvents />, { wrapper });
 
     expect(
@@ -65,7 +58,7 @@ describe("Community events", () => {
   it("shows an error alert if the events failed to load", async () => {
     mockConsoleError();
     const errorMessage = "Error listing community events";
-    listMyEventsMock.mockRejectedValue(new Error(errorMessage));
+    getDashboardMock.mockRejectedValue(new Error(errorMessage));
     render(<CommunityEvents />, { wrapper });
 
     await assertErrorAlert(errorMessage);
@@ -75,11 +68,21 @@ describe("Community events", () => {
     const firstPage = nonCancelledEvents.slice(0, 2);
     const secondPage = nonCancelledEvents.slice(2);
 
-    listMyEventsMock.mockImplementation(async ({ pageToken }) => ({
-      eventsList: pageToken ? secondPage : firstPage,
-      nextPageToken: pageToken ? "" : "page2_token",
+    // the first page comes with the dashboard, later pages from the widget's own RPC
+    getDashboardMock.mockImplementation(() =>
+      getDashboard({
+        communityEvents: {
+          eventsList: firstPage,
+          nextPageToken: "page2_token",
+          totalItems: firstPage.length + secondPage.length,
+        },
+      }),
+    );
+    listMyEventsMock.mockResolvedValue({
+      eventsList: secondPage,
+      nextPageToken: "",
       totalItems: firstPage.length + secondPage.length,
-    }));
+    });
 
     render(<CommunityEvents />, { wrapper });
 

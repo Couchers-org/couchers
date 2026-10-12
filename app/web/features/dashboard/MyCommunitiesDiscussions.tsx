@@ -10,6 +10,7 @@ import { service } from "service";
 
 import { listMyCommunitiesDiscussionsKey } from "../queryKeys";
 import DiscussionListRow, { DiscussionListContainer, DiscussionListRowSkeleton } from "./DiscussionListRow";
+import useGetDashboardSection from "./useGetDashboardSection";
 
 const SectionHeader = styled("div")({
   display: "flex",
@@ -32,17 +33,21 @@ export default function MyCommunitiesDiscussions() {
   const { t } = useTranslation([DASHBOARD]);
 
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
+  const getDashboardSection = useGetDashboardSection();
 
+  // @TODO(NA) - Need to remove this and make backend page size dynamic.
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery<
     ListMyCommunitiesDiscussionsRes.AsObject,
     RpcError
   >({
     queryKey: [listMyCommunitiesDiscussionsKey],
     queryFn: ({ pageParam: pageToken }) =>
-      service.communities.listMyCommunitiesDiscussions({
-        pageToken: pageToken as string | undefined,
-        pageSize: 3,
-      }),
+      pageToken
+        ? service.communities.listMyCommunitiesDiscussions({
+            pageToken: pageToken as string,
+            pageSize: 3,
+          })
+        : getDashboardSection("discussions"),
     getNextPageParam: (lastPage) => (lastPage.nextPageToken ? lastPage.nextPageToken : undefined),
     initialPageParam: undefined as string | undefined,
   });

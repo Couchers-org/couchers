@@ -6,6 +6,7 @@ import * as blocking from "./blocking";
 import * as bugs from "./bugs";
 import * as communities from "./communities";
 import * as conversations from "./conversations";
+import * as dashboard from "./dashboard";
 import * as discussions from "./discussions";
 import * as donations from "./donations";
 import * as events from "./events";
@@ -34,6 +35,7 @@ export const service = {
   blocking,
   communities,
   conversations,
+  dashboard,
   discussions,
   donations,
   events,

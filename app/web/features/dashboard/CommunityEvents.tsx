@@ -13,6 +13,7 @@ import { service } from "service";
 import { routeToNewEvent } from "../../routes";
 import { myCommunityEventsKey } from "../queryKeys";
 import EventListRow, { EventListContainer, EventListRowSkeleton } from "./EventListRow";
+import useGetDashboardSection from "./useGetDashboardSection";
 
 const SectionHeader = styled("div")({
   display: "flex",
@@ -35,20 +36,24 @@ export default function CommunityEvents() {
   const { t } = useTranslation([DASHBOARD]);
 
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
+  const getDashboardSection = useGetDashboardSection();
 
+  // @TODO(NA) - Need to remove this and make backend page size dynamic.
   const { data, error, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery<
     ListMyEventsRes.AsObject,
     RpcError
   >({
     queryKey: myCommunityEventsKey("upcoming"),
     queryFn: ({ pageParam: pageToken }) =>
-      service.events.listMyEvents({
-        pageToken: pageToken as string | undefined,
-        pageSize: 3,
-        myCommunities: true,
-        myCommunitiesExcludeGlobal: true,
-        excludeAttending: true,
-      }),
+      pageToken
+        ? service.events.listMyEvents({
+            pageToken: pageToken as string,
+            pageSize: 3,
+            myCommunities: true,
+            myCommunitiesExcludeGlobal: true,
+            excludeAttending: true,
+          })
+        : getDashboardSection("communityEvents"),
     getNextPageParam: (lastPage) => (lastPage.nextPageToken ? lastPage.nextPageToken : undefined),
     initialPageParam: undefined as string | undefined,
   });

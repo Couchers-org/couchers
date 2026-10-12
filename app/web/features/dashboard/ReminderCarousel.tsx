@@ -9,11 +9,11 @@ import { useTranslation } from "next-i18next";
 import { usePersistedState } from "platform/usePersistedState";
 import { GetRemindersRes, Reminder } from "proto/account_pb";
 import { useEffect, useRef, useState } from "react";
-import { service } from "service";
 
 import { DASHBOARD } from "../../i18n/namespaces";
 import { theme } from "../../theme";
 import { remindersKey } from "../queryKeys";
+import useGetDashboardSection from "./useGetDashboardSection";
 import ReminderItem from "./ReminderItem";
 
 const CARD_WIDTH_DESKTOP = 280;
@@ -100,9 +100,10 @@ const StyledArrow = styled(IconButton)({
 export default function ReminderCarousel() {
   const { t } = useTranslation(DASHBOARD);
 
+  const getDashboardSection = useGetDashboardSection();
   const { data, error } = useQuery<GetRemindersRes.AsObject, RpcError>({
     queryKey: [remindersKey],
-    queryFn: () => service.account.getReminders(),
+    queryFn: () => getDashboardSection("reminders"),
   });
 
   const [dismissedReminders, setDismissedReminders] = usePersistedState<Record<string, number>>(

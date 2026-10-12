@@ -15,6 +15,7 @@ import { routeToEditProfile, searchRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 
+import useGetDashboardSection from "./useGetDashboardSection";
 import UpcomingStayCard, { UpcomingStayCardSkeleton } from "./UpcomingStayCard";
 
 interface UpcomingStaysWidgetProps {
@@ -189,7 +190,9 @@ const UPCOMING_STATUSES = [
 
 export default function UpcomingStays() {
   const { t } = useTranslation([DASHBOARD]);
+  const getDashboardSection = useGetDashboardSection();
 
+  // @TODO(NA) - Need to remove this and make backend page size dynamic.
   const {
     data: tripsData,
     isLoading: tripsLoading,
@@ -197,13 +200,15 @@ export default function UpcomingStays() {
   } = useInfiniteQuery<ListHostRequestsRes.AsObject, RpcError>({
     queryKey: hostRequestsListKey({ type: "surfing", onlyActive: true }),
     queryFn: ({ pageParam }) =>
-      service.requests.listHostRequests({
-        pageToken: pageParam as string | undefined,
-        type: "surfing",
-        onlyActive: true,
-        statusIn: UPCOMING_STATUSES,
-        sortBy: HostRequestSortBy.HOST_REQUEST_SORT_BY_FROM_DATE,
-      }),
+      pageParam
+        ? service.requests.listHostRequests({
+            pageToken: pageParam as string,
+            type: "surfing",
+            onlyActive: true,
+            statusIn: UPCOMING_STATUSES,
+            sortBy: HostRequestSortBy.HOST_REQUEST_SORT_BY_FROM_DATE,
+          })
+        : getDashboardSection("surfing"),
     initialPageParam: undefined,
     getNextPageParam: (lastPage) => (lastPage.noMore ? undefined : lastPage.nextPageToken),
   });
@@ -215,13 +220,15 @@ export default function UpcomingStays() {
   } = useInfiniteQuery<ListHostRequestsRes.AsObject, RpcError>({
     queryKey: hostRequestsListKey({ type: "hosting", onlyActive: true }),
     queryFn: ({ pageParam }) =>
-      service.requests.listHostRequests({
-        pageToken: pageParam as string | undefined,
-        type: "hosting",
-        onlyActive: true,
-        statusIn: UPCOMING_STATUSES,
-        sortBy: HostRequestSortBy.HOST_REQUEST_SORT_BY_FROM_DATE,
-      }),
+      pageParam
+        ? service.requests.listHostRequests({
+            pageToken: pageParam as string,
+            type: "hosting",
+            onlyActive: true,
+            statusIn: UPCOMING_STATUSES,
+            sortBy: HostRequestSortBy.HOST_REQUEST_SORT_BY_FROM_DATE,
+          })
+        : getDashboardSection("hosting"),
     initialPageParam: undefined,
     getNextPageParam: (lastPage) => (lastPage.noMore ? undefined : lastPage.nextPageToken),
   });
