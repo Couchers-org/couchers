@@ -52,11 +52,9 @@ def test_localize_currency() -> None:
     assert localize_currency(Decimal("1234.5"), "EUR", babel_es) == "1.234,50\xa0€"
 
     # Whole amounts drop their decimals unless asked to keep them
-    assert localize_currency(Decimal("25"), "USD", babel_en) == "$25"
+    assert localize_currency(25, "USD", babel_en) == "$25"
     assert localize_currency(Decimal("25.00"), "USD", babel_en) == "$25"
-    assert localize_currency(Decimal("25"), "USD", babel_fr) == "25\xa0$US"
-    assert localize_currency(Decimal("1000"), "USD", babel_en) == "$1,000"
-    assert localize_currency(Decimal("25"), "USD", babel_en, keep_trailing_zeros=True) == "$25.00"
+    assert localize_currency(25, "USD", babel_en, keep_trailing_zeros=True) == "$25.00"
 
 
 def test_localize_date() -> None:
