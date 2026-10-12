@@ -348,8 +348,7 @@ def test_email_prefix_config(db, email_collector: EmailCollector):
             key="",
             data=notification_data_pb2.DonationReceived(
                 receipt_url="https://example.com/receipt/12345",
-                amount_decimal="20",
-                currency_iso4217="USD",
+                amount=20,
             ),
         )
 
@@ -370,8 +369,7 @@ def test_email_prefix_config(db, email_collector: EmailCollector):
             key="",
             data=notification_data_pb2.DonationReceived(
                 receipt_url="https://example.com/receipt/12345",
-                amount_decimal="20",
-                currency_iso4217="USD",
+                amount=20,
             ),
         )
 
@@ -392,8 +390,7 @@ def test_send_donation_email(db, email_collector: EmailCollector):
             key="",
             data=notification_data_pb2.DonationReceived(
                 receipt_url="https://example.com/receipt/12345",
-                amount_decimal="20.00",
-                currency_iso4217="USD",
+                amount=20,
             ),
         )
 
