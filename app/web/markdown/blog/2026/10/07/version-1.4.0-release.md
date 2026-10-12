@@ -134,7 +134,9 @@ Behind the scenes, we fixed duplicate host request notifications and emails that
 
 ## Moderation and safety
 
-As Couchers grows, we want new features to stay safe from day one. Discussion and event pages now have a report button, and you need to finish your profile before posting in community discussions. Moderators also have better tools for keeping notes and tracking their work.
+As Couchers grows, we want new features to stay safe from day one. Discussion and event pages now have a report button, and you need to finish your profile before posting in community discussions. 
+
+There is a lot going on behind the scenes to improve our moderation tooling, which helps to increase safety, reduce spam and problematic content, while also improving response time and scalability.
 
 **Thanks to** [Aapeli](https://couchers.org/user/aapeli), [Kevin](https://couchers.org/user/kevinortiz43), [Tristan](https://couchers.org/user/tristanlabelle) and [Alexey](https://couchers.org/user/ptz)!
 
