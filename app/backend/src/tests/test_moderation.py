@@ -54,7 +54,7 @@ from couchers.servicers.threads import pack_thread_id
 from couchers.utils import Timestamp_from_datetime, now, today
 from tests.fixtures import api_helpers
 from tests.fixtures.api_helpers import valid_request_text
-from tests.fixtures.communities import create_community, create_group
+from tests.fixtures.communities import create_community, create_group, create_root_community
 from tests.fixtures.db import backdate_conversations, generate_user, make_friends
 from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
 from tests.fixtures.public_trips import VALID_TRIP_DESCRIPTION
@@ -2585,8 +2585,7 @@ def test_event_moderation_state_content(db):
     super_user, super_token = generate_user(is_superuser=True)
     user, token = generate_user()
 
-    with session_scope() as session:
-        create_community(session, 0, 2, "Community", [user], [], None)
+    create_root_community("Community", [user])
 
     res = api_helpers.create_event(token=token, title="My Event Title", content="My event description.")
     event_id = res.event_id
@@ -2691,8 +2690,7 @@ def test_SetUserContentVisibility_event_occurrence(db):
     super_user, super_token = generate_user(is_superuser=True)
     creator, creator_token = generate_user()
 
-    with session_scope() as session:
-        create_community(session, 0, 2, "Community", [creator], [], None)
+    create_root_community("Community", [creator])
 
     event_id = api_helpers.create_event(token=creator_token).event_id
 
@@ -3461,8 +3459,7 @@ def test_GetModeratedObject_comment_on_discussion(db):
     super_user, super_token = generate_user(is_superuser=True)
     user, token = generate_user()
 
-    with session_scope() as session:
-        community_id = create_community(session, 0, 2, "Discussion Community", [user], [], None).id
+    community_id = create_root_community("Discussion Community", [user])
 
     with discussions_session(token) as api:
         discussion = api.CreateDiscussion(
@@ -3544,8 +3541,7 @@ def test_GetModeratedObject_reply_on_event(db):
     super_user, super_token = generate_user(is_superuser=True)
     user, token = generate_user()
 
-    with session_scope() as session:
-        community_id = create_community(session, 0, 2, "Event Community", [user], [], None).id
+    community_id = create_root_community("Event Community", [user])
 
     event = api_helpers.create_event(token=token, title="Board Games")
     comment_thread_id = _post_reply(token, event.thread.thread_id, "Can I bring a friend?")
@@ -3654,8 +3650,7 @@ def test_GetModeratedObject_public_trip(db):
     super_user, super_token = generate_user(is_superuser=True)
     user, token = generate_user()
 
-    with session_scope() as session:
-        community_id = create_community(session, 0, 2, "Trip Community", [user], [], None).id
+    community_id = create_root_community("Trip Community", [user])
 
     with public_trips_session(token) as api:
         trip_id = api.CreatePublicTrip(
@@ -3690,8 +3685,7 @@ def test_GetModeratedObject_event_occurrence_owned_by_user(db):
     super_user, super_token = generate_user(is_superuser=True)
     user, token = generate_user()
 
-    with session_scope() as session:
-        community_id = create_community(session, 0, 2, "Event Community", [user], [], None).id
+    community_id = create_root_community("Event Community", [user])
 
     event = api_helpers.create_event(token=token)
 
@@ -3709,9 +3703,8 @@ def test_GetModeratedObject_event_occurrence_transferred_to_community(db):
     super_user, super_token = generate_user(is_superuser=True)
     user, token = generate_user()
 
-    with session_scope() as session:
-        create_community(session, 0, 2, "Location Community", [user], [], None)
-        other_community_id = create_community(session, 5, 7, "Other Community", [user], [], None).id
+    create_root_community("Location Community", [user])
+    other_community_id = create_root_community("Other Community", [user], interval=(5, 7))
 
     event = api_helpers.create_event(token=token)
     with events_session(token) as api:

@@ -20,7 +20,7 @@ from couchers.models import (
 )
 from couchers.proto import pages_pb2
 from couchers.utils import create_polygon_lat_lng, now, to_aware_datetime, to_multi
-from tests.fixtures.communities import create_community
+from tests.fixtures.communities import create_root_community
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import pages_session
 from tests.fixtures.timewarp import FrozenTimewarp
@@ -28,8 +28,7 @@ from tests.fixtures.timewarp import FrozenTimewarp
 
 def test_create_place_errors(db):
     user, token = generate_user()
-    with session_scope() as session:
-        create_community(session, 0, 2, "Root node", [user], [], None)
+    create_root_community("Root node", [user])
 
     with pages_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -94,8 +93,7 @@ def test_create_place_errors(db):
 
 def test_create_guide_errors(db):
     user, token = generate_user()
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Root node", [user], [], None).id
+    c_id = create_root_community("Root node", [user])
 
     with pages_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -176,8 +174,7 @@ def test_create_guide_errors(db):
 
 def test_create_page_place(db, frozen_timewarp):
     user, token = generate_user()
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Root node", [user], [], None).id
+    c_id = create_root_community("Root node", [user])
 
     with pages_session(token) as api:
         time_before = now()
@@ -214,8 +211,7 @@ def test_create_page_place(db, frozen_timewarp):
 
 def test_create_page_guide(db, frozen_timewarp):
     user, token = generate_user()
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Root node", [user], [], None).id
+    c_id = create_root_community("Root node", [user])
 
     with pages_session(token) as api:
         time_before = now()
@@ -281,8 +277,7 @@ def test_create_page_guide(db, frozen_timewarp):
 def test_get_page(db, frozen_timewarp):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Root node", [user1], [], None).id
+    c_id = create_root_community("Root node", [user1])
 
     with pages_session(token1) as api:
         time_before_create = now()
@@ -323,8 +318,7 @@ def test_get_page(db, frozen_timewarp):
 
 def test_update_page(db, frozen_timewarp: FrozenTimewarp):
     user, token = generate_user()
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Root node", [user], [], None).id
+    c_id = create_root_community("Root node", [user])
 
     with pages_session(token) as api:
         time_before_create = now()
@@ -473,8 +467,7 @@ def test_owner_not_moderator(db):
     """
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Root node", [user1], [], None).id
+    c_id = create_root_community("Root node", [user1])
 
     # user2 makes page, is owner but not moderator, so can edit, not moderate
     with pages_session(token2) as api:
@@ -529,8 +522,7 @@ def test_owner_not_moderator(db):
 
 def test_update_page_errors(db):
     user, token = generate_user()
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Root node", [user], [], None).id
+    c_id = create_root_community("Root node", [user])
 
     with pages_session(token) as api:
         page_id = api.CreatePlace(
@@ -838,8 +830,7 @@ def test_page_transfer(db):
 
 def test_page_photo(db):
     user, token = generate_user()
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Root node", [user], [], None).id
+    c_id = create_root_community("Root node", [user])
 
     with pages_session(token) as api:
         key1 = random_hex(32)
@@ -949,8 +940,7 @@ def test_page_photo(db):
 
 def test_list_user_places(db):
     user1, token1 = generate_user()
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Root node", [user1], [], None).id
+    c_id = create_root_community("Root node", [user1])
 
     with pages_session(token1) as api:
         place1_id = api.CreatePlace(
@@ -985,8 +975,7 @@ def test_list_user_places(db):
 def test_list_other_user_places(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Root node", [user1], [], None).id
+    c_id = create_root_community("Root node", [user1])
 
     with pages_session(token1) as api:
         place1_id = api.CreatePlace(
@@ -1020,8 +1009,7 @@ def test_list_other_user_places(db):
 
 def test_list_user_guides(db):
     user1, token1 = generate_user()
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Root node", [user1], [], None).id
+    c_id = create_root_community("Root node", [user1])
 
     with pages_session(token1) as api:
         guide1_id = api.CreateGuide(
@@ -1058,8 +1046,7 @@ def test_list_user_guides(db):
 def test_list_other_user_guides(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Root node", [user1], [], None).id
+    c_id = create_root_community("Root node", [user1])
 
     with pages_session(token1) as api:
         guide1_id = api.CreateGuide(

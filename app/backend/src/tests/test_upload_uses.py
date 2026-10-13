@@ -7,7 +7,7 @@ from couchers.helpers.upload_uses import UploadUseType, get_upload_uses, get_upl
 from couchers.models import Base, EventOccurrence, Page, PageType, PhotoGallery, PhotoGalleryItem, Upload
 from couchers.proto import pages_pb2
 from tests.fixtures import api_helpers
-from tests.fixtures.communities import create_community
+from tests.fixtures.communities import create_root_community
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import pages_session
 
@@ -57,8 +57,7 @@ def test_get_upload_uses_profile_gallery(db):
 def test_get_upload_uses_event(db):
     user, token = generate_user()
 
-    with session_scope() as session:
-        create_community(session, 0, 2, "Community", [user], [], None)
+    create_root_community("Community", [user])
     _add_upload(user.id, "event_key")
 
     res = api_helpers.create_event(
@@ -92,8 +91,7 @@ def test_get_upload_uses_event(db):
 
 def test_get_upload_uses_page(db):
     user, token = generate_user()
-    with session_scope() as session:
-        create_community(session, 0, 2, "Root node", [user], [], None)
+    create_root_community("Root node", [user])
 
     key = random_hex(32)
     _add_upload(user.id, key)
@@ -130,8 +128,7 @@ def test_get_upload_uses_page(db):
 
 def test_get_upload_uses_community_page(db):
     user, _ = generate_user()
-    with session_scope() as session:
-        node_id = create_community(session, 0, 2, "Community", [user], [], None).id
+    node_id = create_root_community("Community", [user])
 
     key = random_hex(32)
     _add_upload(user.id, key)
@@ -154,8 +151,7 @@ def test_get_upload_uses_community_page(db):
 def test_get_upload_uses_multiple(db):
     """An upload can be used in several places at once; all are returned."""
     user, token = generate_user()
-    with session_scope() as session:
-        create_community(session, 0, 2, "Root node", [user], [], None)
+    create_root_community("Root node", [user])
 
     key = random_hex(32)
     _add_upload(user.id, key)

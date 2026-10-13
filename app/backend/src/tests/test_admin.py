@@ -40,7 +40,7 @@ from couchers.proto import (
 )
 from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date
 from tests.fixtures import api_helpers
-from tests.fixtures.communities import create_community
+from tests.fixtures.communities import create_root_community
 from tests.fixtures.db import (
     add_users_to_new_moderation_list,
     backdate_conversations,
@@ -739,8 +739,7 @@ def test_DeleteEvent(db):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, normal_token = generate_user()
 
-    with session_scope() as session:
-        create_community(session, 0, 2, "Community", [normal_user], [], None)
+    create_root_community("Community", [normal_user])
 
     res = api_helpers.create_event(token=normal_token)
     event_id = res.event_id

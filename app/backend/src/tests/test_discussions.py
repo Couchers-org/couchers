@@ -8,7 +8,7 @@ from couchers.models import ModerationObjectType, ModerationState, ModerationVis
 from couchers.models.discussions import ContentChangeType, DiscussionVersion
 from couchers.proto import admin_pb2, communities_pb2, discussions_pb2, moderation_pb2, notifications_pb2, threads_pb2
 from couchers.utils import now, to_aware_datetime
-from tests.fixtures.communities import create_community, create_group
+from tests.fixtures.communities import create_community, create_group, create_root_community
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import Moderator, PushCollector, process_jobs
 from tests.fixtures.sessions import (
@@ -153,9 +153,7 @@ def test_create_and_get_discussion(db, frozen_timewarp, push_collector: PushColl
 
 def test_update_discussion(db):
     user, token = generate_user()
-    with session_scope() as session:
-        community = create_community(session, 0, 1, "Testing Community", [user], [], None)
-        community_id = community.id
+    community_id = create_root_community("Testing Community", [user], interval=(0, 1))
 
     with discussions_session(token) as api:
         res = api.CreateDiscussion(
@@ -192,9 +190,7 @@ def test_update_discussion(db):
 def test_update_discussion_permission_denied(db):
     user, token = generate_user()
     other_user, other_token = generate_user()
-    with session_scope() as session:
-        community = create_community(session, 0, 1, "Testing Community", [user], [other_user], None)
-        community_id = community.id
+    community_id = create_root_community("Testing Community", [user], extra_members=[other_user], interval=(0, 1))
 
     with discussions_session(token) as api:
         res = api.CreateDiscussion(
@@ -219,9 +215,7 @@ def test_update_discussion_permission_denied(db):
 
 def test_update_deleted_discussion(db):
     user, token = generate_user()
-    with session_scope() as session:
-        community = create_community(session, 0, 1, "Testing Community", [user], [], None)
-        community_id = community.id
+    community_id = create_root_community("Testing Community", [user], interval=(0, 1))
 
     with discussions_session(token) as api:
         res = api.CreateDiscussion(
@@ -243,9 +237,7 @@ def test_update_deleted_discussion(db):
 
 def test_delete_discussion_by_creator(db):
     user, token = generate_user()
-    with session_scope() as session:
-        community = create_community(session, 0, 1, "Testing Community", [user], [], None)
-        community_id = community.id
+    community_id = create_root_community("Testing Community", [user], interval=(0, 1))
 
     with discussions_session(token) as api:
         res = api.CreateDiscussion(
@@ -271,11 +263,9 @@ def test_delete_discussion_permission_denied_for_non_creator(db):
     creator, creator_token = generate_user()
     community_admin, community_admin_token = generate_user()
     random_user, random_token = generate_user()
-    with session_scope() as session:
-        community = create_community(
-            session, 0, 1, "Testing Community", [community_admin], [creator, random_user], None
-        )
-        community_id = community.id
+    community_id = create_root_community(
+        "Testing Community", [community_admin], extra_members=[creator, random_user], interval=(0, 1)
+    )
 
     with discussions_session(creator_token) as api:
         res = api.CreateDiscussion(
@@ -301,9 +291,7 @@ def test_delete_discussion_permission_denied_for_non_creator(db):
 
 def test_deleted_discussion_not_in_list(db):
     user, token = generate_user()
-    with session_scope() as session:
-        community = create_community(session, 0, 1, "Testing Community", [user], [], None)
-        community_id = community.id
+    community_id = create_root_community("Testing Community", [user], interval=(0, 1))
 
     with discussions_session(token) as api:
         res = api.CreateDiscussion(
@@ -335,9 +323,7 @@ def test_deleted_discussion_not_in_list(db):
 def test_deleted_discussion_thread_still_accessible(db, moderator: Moderator):
     user, token = generate_user()
     commenter, commenter_token = generate_user()
-    with session_scope() as session:
-        community = create_community(session, 0, 1, "Testing Community", [user], [commenter], None)
-        community_id = community.id
+    community_id = create_root_community("Testing Community", [user], extra_members=[commenter], interval=(0, 1))
 
     with discussions_session(token) as api:
         res = api.CreateDiscussion(
@@ -373,9 +359,9 @@ def test_delete_comment_shows_placeholder_with_replies(db, moderator: Moderator)
     user, token = generate_user()
     commenter, commenter_token = generate_user()
     replier, replier_token = generate_user()
-    with session_scope() as session:
-        community = create_community(session, 0, 1, "Testing Community", [user], [commenter, replier], None)
-        community_id = community.id
+    community_id = create_root_community(
+        "Testing Community", [user], extra_members=[commenter, replier], interval=(0, 1)
+    )
 
     with discussions_session(token) as api:
         discussion = api.CreateDiscussion(
@@ -432,9 +418,7 @@ def test_delete_comment_shows_placeholder_with_replies(db, moderator: Moderator)
 def test_admin_delete_discussion(db):
     user, token = generate_user()
     admin, admin_token = generate_user(is_superuser=True)
-    with session_scope() as session:
-        community = create_community(session, 0, 1, "Testing Community", [user], [], None)
-        community_id = community.id
+    community_id = create_root_community("Testing Community", [user], interval=(0, 1))
 
     with discussions_session(token) as api:
         res = api.CreateDiscussion(
@@ -521,9 +505,7 @@ def test_discussion_notifications_regression(db, push_collector: PushCollector, 
 def test_create_discussion_creates_moderation_state(db):
     user, token = generate_user()
 
-    with session_scope() as session:
-        community = create_community(session, 0, 1, "Testing Community", [user], [], None)
-        community_id = community.id
+    community_id = create_root_community("Testing Community", [user], interval=(0, 1))
 
     with discussions_session(token) as api:
         res = api.CreateDiscussion(
@@ -548,9 +530,7 @@ def test_shadowed_discussion_visible_to_author_only(db):
     author, author_token = generate_user()
     _, other_token = generate_user()
 
-    with session_scope() as session:
-        community = create_community(session, 0, 1, "Testing Community", [author], [], None)
-        community_id = community.id
+    community_id = create_root_community("Testing Community", [author], interval=(0, 1))
 
     with discussions_session(author_token) as api:
         res = api.CreateDiscussion(
@@ -578,9 +558,7 @@ def test_shadowed_discussion_excluded_from_listings(db):
     author, author_token = generate_user()
     other, other_token = generate_user()
 
-    with session_scope() as session:
-        community = create_community(session, 0, 1, "Testing Community", [author, other], [], None)
-        community_id = community.id
+    community_id = create_root_community("Testing Community", [author, other], interval=(0, 1))
 
     with discussions_session(author_token) as api:
         api.CreateDiscussion(
@@ -601,9 +579,7 @@ def test_approved_discussion_visible_to_others(db, moderator: Moderator):
     author, author_token = generate_user()
     _, other_token = generate_user()
 
-    with session_scope() as session:
-        community = create_community(session, 0, 1, "Testing Community", [author], [], None)
-        community_id = community.id
+    community_id = create_root_community("Testing Community", [author], interval=(0, 1))
 
     with discussions_session(author_token) as api:
         res = api.CreateDiscussion(
@@ -626,9 +602,7 @@ def test_hidden_discussion_filtered_for_author_too(db, moderator: Moderator):
     """Once admin hides a discussion, even the author cannot read it."""
     author, author_token = generate_user()
 
-    with session_scope() as session:
-        community = create_community(session, 0, 1, "Testing Community", [author], [], None)
-        community_id = community.id
+    community_id = create_root_community("Testing Community", [author], interval=(0, 1))
 
     with discussions_session(author_token) as api:
         res = api.CreateDiscussion(
@@ -668,9 +642,7 @@ def test_list_my_communities_discussions_respects_moderation(db, moderator: Mode
     author, author_token = generate_user()
     other, other_token = generate_user()
 
-    with session_scope() as session:
-        community = create_community(session, 0, 1, "Testing Community", [author, other], [], None)
-        community_id = community.id
+    community_id = create_root_community("Testing Community", [author, other], interval=(0, 1))
 
     with discussions_session(author_token) as api:
         discussion_id = api.CreateDiscussion(
@@ -701,9 +673,7 @@ def test_list_my_communities_discussions_respects_moderation(db, moderator: Mode
 
 def test_update_discussion_creates_version_record(db):
     user, token = generate_user()
-    with session_scope() as session:
-        community = create_community(session, 0, 1, "Testing Community", [user], [], None)
-        community_id = community.id
+    community_id = create_root_community("Testing Community", [user], interval=(0, 1))
 
     with discussions_session(token) as api:
         res = api.CreateDiscussion(
@@ -742,9 +712,7 @@ def test_update_discussion_creates_version_record(db):
 
 def test_update_discussion_multiple_edits_creates_multiple_version_records(db):
     user, token = generate_user()
-    with session_scope() as session:
-        community = create_community(session, 0, 1, "Testing Community", [user], [], None)
-        community_id = community.id
+    community_id = create_root_community("Testing Community", [user], interval=(0, 1))
 
     with discussions_session(token) as api:
         discussion_id = api.CreateDiscussion(
@@ -792,9 +760,7 @@ def test_update_discussion_multiple_edits_creates_multiple_version_records(db):
 
 def test_delete_discussion_creates_version_record(db):
     user, token = generate_user()
-    with session_scope() as session:
-        community = create_community(session, 0, 1, "Testing Community", [user], [], None)
-        community_id = community.id
+    community_id = create_root_community("Testing Community", [user], interval=(0, 1))
 
     with discussions_session(token) as api:
         discussion_id = api.CreateDiscussion(
@@ -825,9 +791,7 @@ def test_delete_discussion_creates_version_record(db):
 def test_admin_delete_discussion_creates_version_record(db):
     user, token = generate_user()
     admin, admin_token = generate_user(is_superuser=True)
-    with session_scope() as session:
-        community = create_community(session, 0, 1, "Testing Community", [user], [], None)
-        community_id = community.id
+    community_id = create_root_community("Testing Community", [user], interval=(0, 1))
 
     with discussions_session(token) as api:
         discussion_id = api.CreateDiscussion(
@@ -859,8 +823,7 @@ def test_create_discussion_incomplete_profile(db):
     user, token = generate_user(complete_profile=False)
     user2, token2 = generate_user()
 
-    with session_scope() as session:
-        community_id = create_community(session, 0, 1, "Testing Community", [user2], [], None).id
+    community_id = create_root_community("Testing Community", [user2], interval=(0, 1))
 
     with discussions_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:

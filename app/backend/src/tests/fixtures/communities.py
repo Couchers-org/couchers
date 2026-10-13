@@ -116,6 +116,22 @@ def create_community(
     return node
 
 
+def create_root_community(
+    name: str,
+    admins: list[User],
+    extra_members: list[User] | None = None,
+    *,
+    interval: tuple[int, int] = (0, 2),
+) -> int:
+    """
+    Creates a top-level community in its own transaction and returns its node id.
+
+    The shorthand for the common `create_community(session, 0, 2, name, admins, [], None).id`.
+    """
+    with session_scope() as session:
+        return create_community(session, interval[0], interval[1], name, admins, extra_members or [], None).id
+
+
 def create_group(
     session: Session, name: str, admins: list[User], members: list[User], parent_community: Node | None
 ) -> Cluster:

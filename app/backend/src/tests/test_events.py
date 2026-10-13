@@ -29,7 +29,7 @@ from couchers.proto import editor_pb2, events_pb2, threads_pb2
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import now, to_aware_datetime
 from tests.fixtures import api_helpers
-from tests.fixtures.communities import create_community, create_group
+from tests.fixtures.communities import create_community, create_group, create_root_community
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import EmailCollector, Moderator, PushCollector, process_jobs
 from tests.fixtures.sessions import events_session, real_editor_session, threads_session
@@ -59,8 +59,7 @@ def test_CreateEvent(db, frozen_timewarp, push_collector: PushCollector, moderat
     mod_user, mod_token = generate_user()
     other_user, other_token = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [mod_user], [], None).id
+    c_id = create_root_community("Community", [mod_user])
 
     time_before = now()
     start_time = _to_event_time_granularity(time_before + timedelta(hours=2))
@@ -236,8 +235,7 @@ def test_CreateEvent_incomplete_profile(db):
     user1, token1 = generate_user(complete_profile=False)
     user2, token2 = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+    c_id = create_root_community("Community", [user2])
 
     with pytest.raises(grpc.RpcError) as e:
         api_helpers.create_event(token=token1)
@@ -251,8 +249,7 @@ def test_ScheduleEvent(db, frozen_timewarp):
 
     user, token = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
+    c_id = create_root_community("Community", [user])
 
     time_before = now()
     start_time = _to_event_time_granularity(now() + timedelta(hours=2))
@@ -319,8 +316,7 @@ def test_ScheduleEvent(db, frozen_timewarp):
 def test_cannot_overlap_occurrences_schedule(db):
     user, token = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
+    c_id = create_root_community("Community", [user])
 
     start = now()
 
@@ -345,8 +341,7 @@ def test_cannot_overlap_occurrences_schedule(db):
 def test_cannot_overlap_occurrences_update(db):
     user, token = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
+    c_id = create_root_community("Community", [user])
 
     start = now()
 
@@ -405,8 +400,7 @@ def test_UpdateEvent_single(db, frozen_timewarp: FrozenTimewarp, moderator: Mode
     user5, token5 = generate_user()
     user6, token6 = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+    c_id = create_root_community("Community", [user2])
 
     time_before = now()
     start_time = _to_event_time_granularity(now() + timedelta(hours=2))
@@ -563,8 +557,7 @@ def test_UpdateEvent_all(db, frozen_timewarp: FrozenTimewarp, moderator: Moderat
     user5, token5 = generate_user()
     user6, token6 = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+    c_id = create_root_community("Community", [user2])
 
     time_before = now()
     start_time = now() + timedelta(hours=1)
@@ -651,8 +644,7 @@ def test_UpdateEvent_all_leaves_other_events_alone(db, moderator: Moderator):
     # community moderator, so that neither creator has edit rights on the other's event
     user3, token3 = generate_user()
 
-    with session_scope() as session:
-        create_community(session, 0, 2, "Community", [user3], [], None)
+    create_root_community("Community", [user3])
 
     start_time = now() + timedelta(hours=1)
 
@@ -722,8 +714,7 @@ def test_UpdateEvent_all_cant_change_times(db, moderator: Moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    with session_scope() as session:
-        create_community(session, 0, 2, "Community", [user2], [], None)
+    create_root_community("Community", [user2])
 
     start_time = now() + timedelta(hours=1)
 
@@ -765,8 +756,7 @@ def test_GetEvent(db, frozen_timewarp, moderator: Moderator):
     user5, token5 = generate_user()
     user6, token6 = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+    c_id = create_root_community("Community", [user2])
 
     time_before = now()
     start_time = _to_event_time_granularity(now() + timedelta(hours=2))
@@ -900,8 +890,7 @@ def test_CancelEvent(db, moderator: Moderator):
     user5, token5 = generate_user()
     user6, token6 = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+    c_id = create_root_community("Community", [user2])
 
     res = api_helpers.create_event(
         token=token1,
@@ -999,8 +988,7 @@ def test_ListEventAttendees(db, moderator: Moderator):
     user5, token5 = generate_user()
     user6, token6 = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
+    c_id = create_root_community("Community", [user1])
 
     event_id = api_helpers.create_event(
         token=token1,
@@ -1041,8 +1029,7 @@ def test_ListEventSubscribers(db, moderator: Moderator):
     user5, token5 = generate_user()
     user6, token6 = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
+    c_id = create_root_community("Community", [user1])
 
     event_id = api_helpers.create_event(
         token=token1,
@@ -1081,8 +1068,7 @@ def test_ListEventOrganizers(db, moderator: Moderator):
     user5, token5 = generate_user()
     user6, token6 = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
+    c_id = create_root_community("Community", [user1])
 
     event_id = api_helpers.create_event(
         token=token1,
@@ -1177,8 +1163,7 @@ def test_SetEventSubscription(db, moderator: Moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
+    c_id = create_root_community("Community", [user1])
 
     event_id = api_helpers.create_event(
         token=token1,
@@ -1197,8 +1182,7 @@ def test_SetEventAttendance(db, moderator: Moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
+    c_id = create_root_community("Community", [user1])
 
     event_id = api_helpers.create_event(
         token=token1,
@@ -1229,8 +1213,7 @@ def test_InviteEventOrganizer(db, moderator: Moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
+    c_id = create_root_community("Community", [user1])
 
     event_id = api_helpers.create_event(
         token=token1,
@@ -1258,8 +1241,7 @@ def test_ListEventOccurrences(db):
     user2, token2 = generate_user()
     user3, token3 = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+    c_id = create_root_community("Community", [user2])
 
     start = now()
 
@@ -1477,8 +1459,7 @@ def _paginate_my_events(api, page_size: int) -> list[int]:
 def test_ListMyEvents_pagination_overlapping_durations(db, moderator: Moderator):
     user, token = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
+    c_id = create_root_community("Community", [user])
 
     start = now()
 
@@ -1503,8 +1484,7 @@ def test_ListMyEvents_pagination_overlapping_durations(db, moderator: Moderator)
 def test_ListMyEvents_pagination_identical_start_times(db, moderator: Moderator):
     user, token = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
+    c_id = create_root_community("Community", [user])
 
     start = now()
 
@@ -1529,9 +1509,7 @@ def test_list_my_events_exclude_attending(db, moderator: Moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    with session_scope() as session:
-        c = create_community(session, 0, 100, "Community", [user1, user2], [], None)
-        c_id = c.id
+    c_id = create_root_community("Community", [user1, user2], interval=(0, 100))
 
     def make_event(token: str) -> int:
         return api_helpers.create_event(token=token, parent_community_id=c_id, approve_by=moderator).event_id
@@ -1582,8 +1560,7 @@ def test_RemoveEventOrganizer(db, moderator: Moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
+    c_id = create_root_community("Community", [user1])
 
     event_id = api_helpers.create_event(
         token=token1,
@@ -1676,8 +1653,7 @@ def test_ListEventAttendees_regression(db):
     user4, token4 = generate_user()
     user5, token5 = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
+    c_id = create_root_community("Community", [user1])
 
     res = api_helpers.create_event(
         token=token1,
@@ -1710,8 +1686,7 @@ def test_GetEventCalendarFile(db, moderator: Moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+    c_id = create_root_community("Community", [user2])
 
     start_time = now() + timedelta(hours=2)
     end_time = start_time + timedelta(hours=3)
@@ -1819,8 +1794,7 @@ def test_can_overlap_other_events_schedule_regression(db):
     # we had a bug where we were checking overlapping for *all* occurrences of *all* events, not just the ones for this event
     user, token = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
+    c_id = create_root_community("Community", [user])
 
     start = now()
 
@@ -1858,8 +1832,7 @@ def test_can_overlap_other_events_schedule_regression(db):
 def test_can_overlap_other_events_update_regression(db):
     user, token = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
+    c_id = create_root_community("Community", [user])
 
     start = now()
 
@@ -1911,8 +1884,7 @@ def test_list_past_events_regression(db):
     # test for a bug where listing past events didn't work if they didn't have a future occurrence
     user, token = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
+    c_id = create_root_community("Community", [user])
 
     start = now()
 
@@ -2195,8 +2167,7 @@ def test_update_event_should_notify_queues_job():
     user, token = generate_user()
     start = now()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
+    c_id = create_root_community("Community", [user])
 
     # create an event
     create_res = api_helpers.create_event(
@@ -2237,8 +2208,8 @@ def test_event_photo_key(db):
     user, token = generate_user()
 
     # Create a community and an upload for the event photo
+    create_root_community("Community", [user])
     with session_scope() as session:
-        create_community(session, 0, 2, "Community", [user], [], None)
         upload = Upload(
             key="test_event_photo_key_123",
             filename="test_event_photo_key_123.jpg",
@@ -2278,8 +2249,7 @@ def test_event_photo_key(db):
 def test_event_timezone(db):
     user, token = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
+    c_id = create_root_community("Community", [user])
 
     # Midnight future day, UTC timezone
     start_time = (now() + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
@@ -2326,8 +2296,7 @@ def test_event_created_with_shadowed_visibility(db):
     """Events start in SHADOWED state when created."""
     user, token = generate_user()
 
-    with session_scope() as session:
-        create_community(session, 0, 2, "Community", [user], [], None)
+    create_root_community("Community", [user])
 
     res = api_helpers.create_event(
         token=token,
@@ -2350,8 +2319,7 @@ def test_shadowed_event_visible_to_creator_only(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    with session_scope() as session:
-        create_community(session, 0, 2, "Community", [user1], [], None)
+    create_root_community("Community", [user1])
 
     res = api_helpers.create_event(
         token=token1,
@@ -2376,8 +2344,7 @@ def test_event_visible_after_approval(db, moderator: Moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    with session_scope() as session:
-        create_community(session, 0, 2, "Community", [user1], [], None)
+    create_root_community("Community", [user1])
 
     res = api_helpers.create_event(
         token=token1,
@@ -2405,8 +2372,7 @@ def test_shadowed_event_hidden_from_list_for_non_creator(db, moderator: Moderato
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    with session_scope() as session:
-        create_community(session, 0, 2, "Community", [user1], [], None)
+    create_root_community("Community", [user1])
 
     res = api_helpers.create_event(
         token=token1,
@@ -2488,8 +2454,7 @@ def test_event_update_notification_has_moderation_state(db, push_collector: Push
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+    c_id = create_root_community("Community", [user2])
 
     res = api_helpers.create_event(
         token=token1,
@@ -2529,8 +2494,7 @@ def test_event_cancel_notification_has_moderation_state(db, push_collector: Push
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+    c_id = create_root_community("Community", [user2])
 
     res = api_helpers.create_event(
         token=token1,
@@ -2571,8 +2535,7 @@ def test_event_update_and_cancel_notifications_not_sent_to_actor(
     organizer_user, organizer_token = generate_user()
     attendee_user, attendee_token = generate_user()
 
-    with session_scope() as session:
-        create_community(session, 0, 2, "Community", [attendee_user], [], None)
+    create_root_community("Community", [attendee_user])
 
     res = api_helpers.create_event(
         token=organizer_token,
@@ -2608,8 +2571,7 @@ def test_event_reminder_notification_has_moderation_state(db, push_collector: Pu
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+    c_id = create_root_community("Community", [user2])
 
     # Create event starting 23 hours from now (within 24h reminder window)
     start_time = now() + timedelta(hours=23)
@@ -2654,8 +2616,7 @@ def test_event_reminder_not_sent_for_cancelled_event(db, push_collector: PushCol
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    with session_scope() as session:
-        create_community(session, 0, 2, "Community", [user2], [], None)
+    create_root_community("Community", [user2])
 
     # Create event starting 23 hours from now (within 24h reminder window)
     start_time = now() + timedelta(hours=23)
@@ -2706,8 +2667,7 @@ def test_event_reminder_not_sent_for_invisible_attendee(
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    with session_scope() as session:
-        create_community(session, 0, 2, "Community", [user2], [], None)
+    create_root_community("Community", [user2])
 
     start_time = now() + timedelta(hours=23)
     end_time = start_time + timedelta(hours=1)
@@ -2746,8 +2706,7 @@ def test_ListEventOccurrences_does_not_leak_other_events(db, moderator: Moderato
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user1, user2], [], None).id
+    c_id = create_root_community("Community", [user1, user2])
 
     start = now()
 
@@ -2815,8 +2774,7 @@ def test_event_comment_notification_has_moderation_state(db, push_collector: Pus
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+    c_id = create_root_community("Community", [user2])
 
     res = api_helpers.create_event(
         token=token1,
@@ -2862,8 +2820,7 @@ def test_event_thread_reply_notification_has_moderation_state(db, push_collector
     user2, token2 = generate_user()
     user3, token3 = generate_user()
 
-    with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user2, user3], [], None).id
+    c_id = create_root_community("Community", [user2, user3])
 
     res = api_helpers.create_event(
         token=token1,
