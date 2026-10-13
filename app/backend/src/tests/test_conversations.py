@@ -23,6 +23,7 @@ from couchers.proto import api_pb2, conversations_pb2, notification_data_pb2, no
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.servicers import conversations
 from couchers.utils import Duration_from_timedelta, now, to_aware_datetime
+from tests.fixtures import api_helpers
 from tests.fixtures.db import generate_user, make_friends, make_user_block, make_user_invisible
 from tests.fixtures.misc import EmailCollector, Moderator, PushCollector, process_jobs
 from tests.fixtures.sessions import api_session, conversations_session, notifications_session
@@ -42,19 +43,18 @@ def test_list_group_chats(db, moderator):
         res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq())
         assert len(res.group_chats) == 0
 
-        # create some group chats with messages
-        res = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(
-                recipient_user_ids=[user2.id], title=wrappers_pb2.StringValue(value="Test title")
-            )
-        )
-        group_chat1_id = res.group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=res.group_chat_id, text="Test message 1"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=res.group_chat_id, text="Test message 2"))
-        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id]))
-        group_chat2_id = res.group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=res.group_chat_id, text="Test group message 1"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=res.group_chat_id, text="Test group message 2"))
+    # create some group chats with messages
+    group_chat1_id = api_helpers.create_group_chat(
+        token=token1,
+        recipient_user_ids=[user2.id],
+        title="Test title",
+        messages=["Test message 1", "Test message 2"],
+    )
+    group_chat2_id = api_helpers.create_group_chat(
+        token=token1,
+        recipient_user_ids=[user2.id, user3.id],
+        messages=["Test group message 1", "Test group message 2"],
+    )
 
     moderator.approve_group_chat(group_chat1_id)
     moderator.approve_group_chat(group_chat2_id)
@@ -117,11 +117,11 @@ def test_list_empty_group_chats(db, moderator):
         res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq())
         assert len(res.group_chats) == 0
 
-        res1 = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
-        res2 = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id]))
+    group_chat1_id = api_helpers.create_group_chat(token=token1, recipient_user_ids=[user2.id])
+    group_chat2_id = api_helpers.create_group_chat(token=token1, recipient_user_ids=[user2.id, user3.id])
 
-    moderator.approve_group_chat(res1.group_chat_id)
-    moderator.approve_group_chat(res2.group_chat_id)
+    moderator.approve_group_chat(group_chat1_id)
+    moderator.approve_group_chat(group_chat2_id)
 
     with conversations_session(token1) as c:
         res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq())
@@ -160,51 +160,30 @@ def test_list_group_chats_ordering(db, moderator):
     make_friends(user3, user4)
     make_friends(user, user4)
 
-    chat_ids = []
-
-    with conversations_session(token2) as c:
-        res = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(
-                recipient_user_ids=[user.id], title=wrappers_pb2.StringValue(value="Chat 0")
-            )
-        )
-        chat_ids.append(res.group_chat_id)
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=res.group_chat_id, text="Test message"))
-        res = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(
-                recipient_user_ids=[user.id, user3.id], title=wrappers_pb2.StringValue(value="Chat 1")
-            )
-        )
-        chat_ids.append(res.group_chat_id)
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=res.group_chat_id, text="Test message"))
-        res = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(
-                recipient_user_ids=[user.id, user3.id], title=wrappers_pb2.StringValue(value="Chat 2")
-            )
-        )
-        chat_ids.append(res.group_chat_id)
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=res.group_chat_id, text="Test message"))
-
-    with conversations_session(token3) as c:
-        res = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(
-                recipient_user_ids=[user.id, user2.id, user4.id], title=wrappers_pb2.StringValue(value="Chat 3")
-            )
-        )
-        chat_ids.append(res.group_chat_id)
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=res.group_chat_id, text="Test message"))
+    chat_ids = [
+        api_helpers.create_group_chat(
+            token=token2, recipient_user_ids=[user.id], title="Chat 0", messages=["Test message"]
+        ),
+        api_helpers.create_group_chat(
+            token=token2, recipient_user_ids=[user.id, user3.id], title="Chat 1", messages=["Test message"]
+        ),
+        api_helpers.create_group_chat(
+            token=token2, recipient_user_ids=[user.id, user3.id], title="Chat 2", messages=["Test message"]
+        ),
+        api_helpers.create_group_chat(
+            token=token3, recipient_user_ids=[user.id, user2.id, user4.id], title="Chat 3", messages=["Test message"]
+        ),
+    ]
 
     for chat_id in chat_ids:
         moderator.approve_group_chat(chat_id)
 
+    chat4_id = api_helpers.create_group_chat(
+        token=token, recipient_user_ids=[user2.id, user3.id, user4.id], title="Chat 4", approve_by=moderator
+    )
+
     with conversations_session(token) as c:
-        res = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(
-                recipient_user_ids=[user2.id, user3.id, user4.id], title=wrappers_pb2.StringValue(value="Chat 4")
-            )
-        )
-        moderator.approve_group_chat(res.group_chat_id)
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=res.group_chat_id, text="Test message"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat4_id, text="Test message"))
         res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq())
         assert len(res.group_chats) == 5
         assert res.group_chats[0].title == "Chat 4"
@@ -247,53 +226,28 @@ def test_list_group_chats_ordering_after_left(db, moderator):
     make_friends(user3, user4)
     make_friends(user, user4)
 
-    chat_ids = []
+    chat0_id = api_helpers.create_group_chat(
+        token=token2, recipient_user_ids=[user.id], title="Chat 0", messages=["Test message"]
+    )
+    left_chat_id = api_helpers.create_group_chat(
+        token=token2, recipient_user_ids=[user.id, user3.id], title="Left Chat 1", messages=["Test message"]
+    )
+    chat2_id = api_helpers.create_group_chat(
+        token=token2, recipient_user_ids=[user.id, user3.id], title="Chat 2", messages=["Test message"]
+    )
+    chat3_id = api_helpers.create_group_chat(
+        token=token3, recipient_user_ids=[user.id, user2.id, user4.id], title="Chat 3", messages=["Test message"]
+    )
 
-    with conversations_session(token2) as c:
-        res = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(
-                recipient_user_ids=[user.id], title=wrappers_pb2.StringValue(value="Chat 0")
-            )
-        )
-        chat_ids.append(res.group_chat_id)
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=res.group_chat_id, text="Test message"))
-        res = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(
-                recipient_user_ids=[user.id, user3.id], title=wrappers_pb2.StringValue(value="Left Chat 1")
-            )
-        )
-        left_chat_id = res.group_chat_id
-        chat_ids.append(left_chat_id)
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=left_chat_id, text="Test message"))
-        res = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(
-                recipient_user_ids=[user.id, user3.id], title=wrappers_pb2.StringValue(value="Chat 2")
-            )
-        )
-        chat2_id = res.group_chat_id
-        chat_ids.append(chat2_id)
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat2_id, text="Test message"))
-
-    with conversations_session(token3) as c:
-        res = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(
-                recipient_user_ids=[user.id, user2.id, user4.id], title=wrappers_pb2.StringValue(value="Chat 3")
-            )
-        )
-        chat_ids.append(res.group_chat_id)
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=res.group_chat_id, text="Test message"))
-
-    for chat_id in chat_ids:
+    for chat_id in [chat0_id, left_chat_id, chat2_id, chat3_id]:
         moderator.approve_group_chat(chat_id)
 
+    chat4_id = api_helpers.create_group_chat(
+        token=token, recipient_user_ids=[user2.id, user3.id, user4.id], title="Chat 4", approve_by=moderator
+    )
+
     with conversations_session(token) as c:
-        res = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(
-                recipient_user_ids=[user2.id, user3.id, user4.id], title=wrappers_pb2.StringValue(value="Chat 4")
-            )
-        )
-        moderator.approve_group_chat(res.group_chat_id)
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=res.group_chat_id, text="Test message"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat4_id, text="Test message"))
 
         # leave chat
         c.LeaveGroupChat(conversations_pb2.LeaveGroupChatReq(group_chat_id=left_chat_id))
@@ -331,13 +285,12 @@ def test_get_group_chat_messages(db):
 
     make_friends(user1, user2)
 
-    with conversations_session(token1) as c:
-        # create some threads with messages
-        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
-        group_chat_id = res.group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=res.group_chat_id, text="Test message 1"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=res.group_chat_id, text="Test message 2"))
+    # create some threads with messages
+    group_chat_id = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id], messages=["Test message 1", "Test message 2"]
+    )
 
+    with conversations_session(token1) as c:
         res = c.GetGroupChatMessages(conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id))
         # created + 2 normal
         assert len(res.messages) == 3
@@ -358,13 +311,9 @@ def test_get_group_chat_messages_pagination(db, moderator):
     user2, token2 = generate_user()
     make_friends(user1, user2)
 
-    with conversations_session(token1) as c:
-        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
-        group_chat_id = res.group_chat_id
-        for i in range(30):
-            c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text=str(i)))
-
-    moderator.approve_group_chat(group_chat_id)
+    group_chat_id = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id], messages=[str(i) for i in range(30)], approve_by=moderator
+    )
 
     with conversations_session(token2) as c:
         res = c.GetGroupChatMessages(conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id))
@@ -393,11 +342,11 @@ def test_get_group_chat_messages_joined_left(db, moderator):
     make_friends(user1, user3)
     make_friends(user1, user4)
 
-    with conversations_session(token1) as c:
-        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user4.id]))
-        group_chat_id = res.group_chat_id
-        moderator.approve_group_chat(group_chat_id)
+    group_chat_id = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id, user4.id], approve_by=moderator
+    )
 
+    with conversations_session(token1) as c:
         for i in range(10):
             c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text=str(i)))
 
@@ -449,21 +398,20 @@ def test_get_group_chat_info(db):
     make_friends(user1, user2)
     make_friends(user3, user1)
 
-    with conversations_session(token1) as c:
-        # create some threads with messages
-        res = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(
-                recipient_user_ids=[user2.id], title=wrappers_pb2.StringValue(value="Test title")
-            )
-        )
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=res.group_chat_id, text="Test message 1"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=res.group_chat_id, text="Test message 2"))
-        group_chat1_id = res.group_chat_id
-        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id]))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=res.group_chat_id, text="Test group message 1"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=res.group_chat_id, text="Test group message 2"))
-        group_chat2_id = res.group_chat_id
+    # create some threads with messages
+    group_chat1_id = api_helpers.create_group_chat(
+        token=token1,
+        recipient_user_ids=[user2.id],
+        title="Test title",
+        messages=["Test message 1", "Test message 2"],
+    )
+    group_chat2_id = api_helpers.create_group_chat(
+        token=token1,
+        recipient_user_ids=[user2.id, user3.id],
+        messages=["Test group message 1", "Test group message 2"],
+    )
 
+    with conversations_session(token1) as c:
         res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat1_id))
         assert res.title == "Test title"
         assert user2.id in res.member_user_ids
@@ -493,15 +441,10 @@ def test_get_group_chat_info_denied(db):
     make_friends(user1, user2)
     make_friends(user3, user1)
 
-    with conversations_session(token1) as c:
-        # create a group chat with messages
-        res = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(
-                recipient_user_ids=[user2.id, user3.id], title=wrappers_pb2.StringValue(value="Test title")
-            )
-        )
-        group_chat_id = res.group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
+    # create a group chat with messages
+    group_chat_id = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id, user3.id], title="Test title", messages=["Test message 1"]
+    )
 
     with conversations_session(token4) as c:
         with pytest.raises(grpc.RpcError) as e:
@@ -519,15 +462,12 @@ def test_get_group_chat_info_left(db, moderator):
     make_friends(user3, user1)
     make_friends(user1, user4)
 
+    # create a group chat with messages
+    group_chat_id = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id, user3.id], title="Test title", approve_by=moderator
+    )
+
     with conversations_session(token1) as c:
-        # create a group chat with messages
-        res = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(
-                recipient_user_ids=[user2.id, user3.id], title=wrappers_pb2.StringValue(value="Test title")
-            )
-        )
-        group_chat_id = res.group_chat_id
-        moderator.approve_group_chat(group_chat_id)
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
 
     with conversations_session(token3) as c:
@@ -582,16 +522,11 @@ def test_edit_group_chat(db, moderator):
     user3, token3 = generate_user()
     make_friends(user1, user2)
 
-    with conversations_session(token1) as c:
-        # create some threads with messages
-        res = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(
-                recipient_user_ids=[user2.id], title=wrappers_pb2.StringValue(value="Test title")
-            )
-        )
-        group_chat_id = res.group_chat_id
-        moderator.approve_group_chat(group_chat_id)
+    group_chat_id = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id], title="Test title", approve_by=moderator
+    )
 
+    with conversations_session(token1) as c:
         c.EditGroupChat(
             conversations_pb2.EditGroupChatReq(
                 group_chat_id=group_chat_id,
@@ -637,12 +572,11 @@ def test_make_remove_group_chat_admin(db, moderator):
     make_friends(user1, user3)
     make_friends(user2, user3)
 
-    with conversations_session(token1) as c:
-        # create some threads with messages
-        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id]))
-        group_chat_id = res.group_chat_id
-        moderator.approve_group_chat(group_chat_id)
+    group_chat_id = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id, user3.id], approve_by=moderator
+    )
 
+    with conversations_session(token1) as c:
         # shouldn't be able to remove only admin
         with pytest.raises(grpc.RpcError) as e:
             c.RemoveGroupChatAdmin(
@@ -704,15 +638,11 @@ def test_send_message(db, moderator: Moderator, push_collector: PushCollector, e
     message1 = "Test message 1"
 
     # Let user1 create a group chat with user2 and send a message
-    with conversations_session(token1) as c:
-        res = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(
-                title=wrappers_pb2.StringValue(value=group_chat_title), recipient_user_ids=[user2.id]
-            )
-        )
-        group_chat_id = res.group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text=message1))
+    group_chat_id = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id], title=group_chat_title, messages=[message1]
+    )
 
+    with conversations_session(token1) as c:
         # Sender can already see group chat
         res = c.GetGroupChatMessages(conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id))
         assert res.messages[0].text.text == message1
@@ -951,10 +881,11 @@ def test_leave_invite_to_group_chat(db, moderator):
     make_user_block(user1, user7)
     make_user_block(user8, user1)
 
+    group_chat_id = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id, user5.id], approve_by=moderator
+    )
+
     with conversations_session(token1) as c:
-        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user5.id]))
-        group_chat_id = res.group_chat_id
-        moderator.approve_group_chat(group_chat_id)
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
 
     # other user not in chat
@@ -1039,10 +970,11 @@ def test_group_chats_with_messages_before_join(db, moderator):
     make_friends(user2, user3)
     make_friends(user1, user4)
 
+    group_chat_id = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id, user4.id], approve_by=moderator
+    )
+
     with conversations_session(token1) as c:
-        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user4.id]))
-        group_chat_id = res.group_chat_id
-        moderator.approve_group_chat(group_chat_id)
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
 
     with conversations_session(token2) as c:
@@ -1070,11 +1002,11 @@ def test_invite_to_dm(db):
     make_friends(user1, user3)
     make_friends(user2, user3)
 
-    with conversations_session(token1) as c:
-        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
-        group_chat_id = res.group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
+    group_chat_id = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id], messages=["Test message 1"]
+    )
 
+    with conversations_session(token1) as c:
         # dm, shou;dn't be able to invite someone else
         with pytest.raises(grpc.RpcError) as e:
             c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user3.id))
@@ -1091,10 +1023,11 @@ def test_sole_admin_leaves(db, moderator):
     make_friends(user1, user3)
     make_friends(user2, user3)
 
+    group_chat_id = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id, user3.id], approve_by=moderator
+    )
+
     with conversations_session(token1) as c:
-        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id]))
-        group_chat_id = res.group_chat_id
-        moderator.approve_group_chat(group_chat_id)
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
 
         # sole admin can't leave group chat
@@ -1122,16 +1055,15 @@ def test_search_messages(db, moderator):
     make_friends(user1, user2)
     make_friends(user1, user3)
 
-    with conversations_session(token1) as c:
-        # create some threads with messages
-        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
-        gc1_id = res.group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gc1_id, text="Test message 1"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gc1_id, text="Test message 2"))
-        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id]))
-        gc2_id = res.group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gc2_id, text="Test group message 3"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gc2_id, text="Test group message 4"))
+    # create some threads with messages
+    gc1_id = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id], messages=["Test message 1", "Test message 2"]
+    )
+    gc2_id = api_helpers.create_group_chat(
+        token=token1,
+        recipient_user_ids=[user2.id, user3.id],
+        messages=["Test group message 3", "Test group message 4"],
+    )
 
     # Approve group chats so they appear in search results
     moderator.approve_group_chat(gc1_id)
@@ -1160,10 +1092,11 @@ def test_search_messages_left_joined(db, moderator):
     make_friends(user1, user3)
     make_friends(user1, user4)
 
+    group_chat_id = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id, user4.id], approve_by=moderator
+    )
+
     with conversations_session(token1) as c:
-        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user4.id]))
-        group_chat_id = res.group_chat_id
-        moderator.approve_group_chat(group_chat_id)
         for i in range(10):
             c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message " + str(i)))
 
@@ -1207,11 +1140,9 @@ def test_admin_behaviour(db, moderator):
     make_friends(user1, user3)
     make_friends(user2, user3)
 
+    gcid = api_helpers.create_group_chat(token=token1, recipient_user_ids=[user2.id, user3.id], approve_by=moderator)
+
     with conversations_session(token1) as c:
-        gcid = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
-        ).group_chat_id
-        moderator.approve_group_chat(gcid)
         c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(group_chat_id=gcid, user_id=user2.id))
         res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
         assert len(res.admin_user_ids) == 2
@@ -1302,11 +1233,9 @@ def test_add_remove_admin_failures(db):
     make_friends(user1, user4)
     make_friends(user1, user5)
 
-    with conversations_session(token1) as c:
-        gcid = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id, user4.id, user5.id])
-        ).group_chat_id
+    gcid = api_helpers.create_group_chat(token=token1, recipient_user_ids=[user2.id, user3.id, user4.id, user5.id])
 
+    with conversations_session(token1) as c:
         make_user_invisible(user3.id)
         make_user_block(user1, user4)
         make_user_block(user5, user1)
@@ -1384,19 +1313,14 @@ def test_last_seen(db, moderator):
     make_friends(user1, user3)
     make_friends(user2, user3)
 
-    with conversations_session(token3) as c:
-        # this is just here to mess up any issues we get if we pretend there's only one group chat ever
-        gcid_distraction = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user1.id])
-        ).group_chat_id
-        moderator.approve_group_chat(gcid_distraction)
+    # this is just here to mess up any issues we get if we pretend there's only one group chat ever
+    gcid_distraction = api_helpers.create_group_chat(
+        token=token3, recipient_user_ids=[user2.id, user1.id], approve_by=moderator
+    )
+
+    gcid = api_helpers.create_group_chat(token=token1, recipient_user_ids=[user2.id, user3.id], approve_by=moderator)
 
     with conversations_session(token1) as c:
-        gcid = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
-        ).group_chat_id
-        moderator.approve_group_chat(gcid)
-
         message_ids = []
 
         for i in range(6):
@@ -1451,14 +1375,9 @@ def test_mark_last_seen_clears_notifications(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    with conversations_session(token1) as c:
-        gcid = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(
-                recipient_user_ids=[user2.id], title=wrappers_pb2.StringValue(value="Test chat")
-            )
-        ).group_chat_id
-
-    moderator.approve_group_chat(gcid)
+    gcid = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id], title="Test chat", approve_by=moderator
+    )
 
     with conversations_session(token1) as c:
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text="Hello"))
@@ -1506,14 +1425,9 @@ def test_mark_last_seen_clears_missed_messages_notification(db, moderator, timew
             )
         )
 
-    with conversations_session(token1) as c:
-        gcid = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(
-                recipient_user_ids=[user2.id], title=wrappers_pb2.StringValue(value="Test chat")
-            )
-        ).group_chat_id
-
-    moderator.approve_group_chat(gcid)
+    gcid = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id], title="Test chat", approve_by=moderator
+    )
 
     with conversations_session(token1) as c:
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text="Hello!"))
@@ -1656,19 +1570,14 @@ def test_total_unseen(db, moderator):
     # distractions
     make_friends(user1, user4)
 
+    # distractions
+    gcid_distraction = api_helpers.create_group_chat(token=token1, recipient_user_ids=[user4.id], approve_by=moderator)
     with conversations_session(token1) as c:
-        # distractions
-        gcid_distraction = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user4.id])
-        ).group_chat_id
-        moderator.approve_group_chat(gcid_distraction)
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid_distraction, text="distraction..."))
 
-        gcid = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
-        ).group_chat_id
-        moderator.approve_group_chat(gcid)
+    gcid = api_helpers.create_group_chat(token=token1, recipient_user_ids=[user2.id, user3.id], approve_by=moderator)
 
+    with conversations_session(token1) as c:
         for i in range(6):
             c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text=f"test message {i}"))
 
@@ -1734,11 +1643,11 @@ def test_left_group_chat_unseen_count_excludes_unreachable_messages(db, moderato
     make_friends(user1, user2)
     make_friends(user2, user3)
 
+    group_chat_id = api_helpers.create_group_chat(
+        token=token2, recipient_user_ids=[user1.id, user3.id], approve_by=moderator
+    )
+
     with conversations_session(token2) as c:
-        group_chat_id = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user1.id, user3.id])
-        ).group_chat_id
-        moderator.approve_group_chat(group_chat_id)
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="hi"))
         c.RemoveGroupChatUser(conversations_pb2.RemoveGroupChatUserReq(group_chat_id=group_chat_id, user_id=user1.id))
         for _ in range(3):
@@ -1766,11 +1675,11 @@ def test_left_group_chat_can_be_marked_seen(db, moderator):
     make_friends(user1, user2)
     make_friends(user2, user3)
 
+    group_chat_id = api_helpers.create_group_chat(
+        token=token2, recipient_user_ids=[user1.id, user3.id], approve_by=moderator
+    )
+
     with conversations_session(token2) as c:
-        group_chat_id = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user1.id, user3.id])
-        ).group_chat_id
-        moderator.approve_group_chat(group_chat_id)
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="hi"))
         c.RemoveGroupChatUser(conversations_pb2.RemoveGroupChatUserReq(group_chat_id=group_chat_id, user_id=user1.id))
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="after you left"))
@@ -1809,11 +1718,11 @@ def test_rejoined_group_chat_ping_reads_newest_subscription(db, moderator):
     make_friends(user1, user2)
     make_friends(user2, user3)
 
+    group_chat_id = api_helpers.create_group_chat(
+        token=token2, recipient_user_ids=[user1.id, user3.id], approve_by=moderator
+    )
+
     with conversations_session(token2) as c:
-        group_chat_id = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user1.id, user3.id])
-        ).group_chat_id
-        moderator.approve_group_chat(group_chat_id)
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="hi"))
         # removed rather than leaving, so user1's first subscription is left behind with unread messages
         c.RemoveGroupChatUser(conversations_pb2.RemoveGroupChatUserReq(group_chat_id=group_chat_id, user_id=user1.id))
@@ -1850,11 +1759,11 @@ def test_rejoined_group_chat_only_unseen_matches_the_badge(db, moderator):
     make_friends(user1, user2)
     make_friends(user2, user3)
 
+    group_chat_id = api_helpers.create_group_chat(
+        token=token2, recipient_user_ids=[user1.id, user3.id], approve_by=moderator
+    )
+
     with conversations_session(token2) as c:
-        group_chat_id = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user1.id, user3.id])
-        ).group_chat_id
-        moderator.approve_group_chat(group_chat_id)
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="hi"))
         c.RemoveGroupChatUser(conversations_pb2.RemoveGroupChatUserReq(group_chat_id=group_chat_id, user_id=user1.id))
         c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user1.id))
@@ -1889,11 +1798,11 @@ def test_rejoined_group_chat_archived_filter_reads_newest_subscription(db, moder
     make_friends(user1, user2)
     make_friends(user2, user3)
 
+    group_chat_id = api_helpers.create_group_chat(
+        token=token2, recipient_user_ids=[user1.id, user3.id], approve_by=moderator
+    )
+
     with conversations_session(token2) as c:
-        group_chat_id = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user1.id, user3.id])
-        ).group_chat_id
-        moderator.approve_group_chat(group_chat_id)
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="hi"))
 
     with conversations_session(token1) as c:
@@ -1930,18 +1839,17 @@ def test_regression_ListGroupChats_pagination(db, moderator, monkeypatch):
         # tuples of (group_chat_id, message_id)
         group_chat_and_message_ids = []
         for i in range(7):
-            res1 = c.CreateGroupChat(
-                conversations_pb2.CreateGroupChatReq(
-                    recipient_user_ids=[user2.id, user3.id], title=wrappers_pb2.StringValue(value=f"Chat {i}")
-                )
+            group_chat_id = api_helpers.create_group_chat(
+                token=token1,
+                recipient_user_ids=[user2.id, user3.id],
+                title=f"Chat {i}",
+                messages=[f"Test message {i}"],
             )
 
-            c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=res1.group_chat_id, text=f"Test message {i}"))
-
-            res2 = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=res1.group_chat_id))
+            res2 = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
 
             group_chat_and_message_ids.append((res2.group_chat_id, res2.latest_message.message_id))
-            moderator.approve_group_chat(res1.group_chat_id)
+            moderator.approve_group_chat(group_chat_id)
 
         seen_group_chat_ids = []
 
@@ -1969,18 +1877,10 @@ def test_muting(db, moderator):
     make_friends(user1, user3)
     make_friends(user2, user3)
 
-    with conversations_session(token3) as c:
-        # this is just here to mess up any issues we get if we pretend there's only one group chat ever
-        gcid_distraction = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user1.id])
-        ).group_chat_id
-        moderator.approve_group_chat(gcid_distraction)
+    # this is just here to mess up any issues we get if we pretend there's only one group chat ever
+    api_helpers.create_group_chat(token=token3, recipient_user_ids=[user2.id, user1.id], approve_by=moderator)
 
-    with conversations_session(token1) as c:
-        gcid = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
-        ).group_chat_id
-        moderator.approve_group_chat(gcid)
+    gcid = api_helpers.create_group_chat(token=token1, recipient_user_ids=[user2.id, user3.id], approve_by=moderator)
 
     with conversations_session(token2) as c:
         res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
@@ -2020,17 +1920,9 @@ def test_archiving(db, moderator):
     make_friends(user2, user3)
 
     # Create a distraction chat to ensure we're testing the right one
-    with conversations_session(token3) as c:
-        gcid_distraction = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user1.id])
-        ).group_chat_id
-        moderator.approve_group_chat(gcid_distraction)
+    api_helpers.create_group_chat(token=token3, recipient_user_ids=[user2.id, user1.id], approve_by=moderator)
 
-    with conversations_session(token1) as c:
-        gcid = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
-        ).group_chat_id
-        moderator.approve_group_chat(gcid)
+    gcid = api_helpers.create_group_chat(token=token1, recipient_user_ids=[user2.id, user3.id], approve_by=moderator)
 
     # Test basic archive/unarchive functionality
     with conversations_session(token2) as c:
@@ -2068,10 +1960,9 @@ def test_archiving_per_user(db, moderator):
 
     make_friends(user1, user2)
 
-    with conversations_session(token1) as c:
-        gcid = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])).group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text="Hello"))
-        moderator.approve_group_chat(gcid)
+    gcid = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id], messages=["Hello"], approve_by=moderator
+    )
 
     # User1 archives the chat
     with conversations_session(token1) as c:
@@ -2116,21 +2007,16 @@ def test_archiving_with_list_group_chats(db, moderator):
     make_friends(user1, user2)
     make_friends(user1, user3)
 
-    with conversations_session(token1) as c:
-        # Create 3 chats
-        gcid1 = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])).group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid1, text="Chat 1"))
-        moderator.approve_group_chat(gcid1)
-
-        gcid2 = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user3.id])).group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid2, text="Chat 2"))
-        moderator.approve_group_chat(gcid2)
-
-        gcid3 = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
-        ).group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid3, text="Chat 3"))
-        moderator.approve_group_chat(gcid3)
+    # Create 3 chats
+    gcid1 = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id], messages=["Chat 1"], approve_by=moderator
+    )
+    gcid2 = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user3.id], messages=["Chat 2"], approve_by=moderator
+    )
+    gcid3 = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id, user3.id], messages=["Chat 3"], approve_by=moderator
+    )
 
     with conversations_session(token1) as c:
         # Initially all 3 chats should be visible
@@ -2204,10 +2090,9 @@ def test_archiving_chat_not_found(db, moderator):
 
     make_friends(user1, user2)
 
-    with conversations_session(token1) as c:
-        gcid = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])).group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text="Hello"))
-        moderator.approve_group_chat(gcid)
+    gcid = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id], messages=["Hello"], approve_by=moderator
+    )
 
     # User3 is not in the chat - should get NOT_FOUND
     with conversations_session(token3) as c:
@@ -2236,12 +2121,9 @@ def test_archiving_after_leaving_chat(db, moderator):
     make_friends(user1, user3)
     make_friends(user2, user3)
 
-    with conversations_session(token1) as c:
-        gcid = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
-        ).group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text="Hello"))
-        moderator.approve_group_chat(gcid)
+    gcid = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id, user3.id], messages=["Hello"], approve_by=moderator
+    )
 
     # User2 leaves the chat
     with conversations_session(token2) as c:
@@ -2263,12 +2145,12 @@ def test_archiving_dm(db, moderator):
 
     make_friends(user1, user2)
 
-    with conversations_session(token1) as c:
-        # Create a DM
-        gcid = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])).group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text="Hello"))
-        moderator.approve_group_chat(gcid)
+    # Create a DM
+    gcid = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id], messages=["Hello"], approve_by=moderator
+    )
 
+    with conversations_session(token1) as c:
         # Verify it's a DM
         res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
         assert res.is_dm
@@ -2298,11 +2180,11 @@ def test_archiving_idempotent(db, moderator):
 
     make_friends(user1, user2)
 
-    with conversations_session(token1) as c:
-        gcid = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])).group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text="Hello"))
-        moderator.approve_group_chat(gcid)
+    gcid = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id], messages=["Hello"], approve_by=moderator
+    )
 
+    with conversations_session(token1) as c:
         # Archive twice - should work without error
         c.SetGroupChatArchiveStatus(
             conversations_pb2.SetGroupChatArchiveStatusReq(group_chat_id=gcid, is_archived=True)
@@ -2364,15 +2246,14 @@ def test_chat_notifications(db, moderator):
                 )
             )
 
-    group_chat_id = None
+    group_chat_id = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id, user3.id, user4.id], approve_by=moderator
+    )
 
     def send_msg(c, i):
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text=f"Test message {i}"))
 
     with conversations_session(token1) as c:
-        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id, user4.id]))
-        group_chat_id = res.group_chat_id
-        moderator.approve_group_chat(group_chat_id)
         c.EditGroupChat(
             conversations_pb2.EditGroupChatReq(
                 group_chat_id=group_chat_id, only_admins_invite=wrappers_pb2.BoolValue(value=False)

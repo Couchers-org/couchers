@@ -644,11 +644,9 @@ def test_send_message_notifications_basic(db, moderator, timewarp: Timewarp):
             == 0
         )
 
-    with conversations_session(token1) as c:
-        group_chat_id1 = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
-        ).group_chat_id
-    moderator.approve_group_chat(group_chat_id1)
+    group_chat_id1 = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id, user3.id], approve_by=moderator
+    )
 
     with conversations_session(token1) as c:
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id1, text="Test message 1"))
@@ -656,11 +654,7 @@ def test_send_message_notifications_basic(db, moderator, timewarp: Timewarp):
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id1, text="Test message 3"))
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id1, text="Test message 4"))
 
-    with conversations_session(token3) as c:
-        group_chat_id2 = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
-        ).group_chat_id
-    moderator.approve_group_chat(group_chat_id2)
+    group_chat_id2 = api_helpers.create_group_chat(token=token3, recipient_user_ids=[user2.id], approve_by=moderator)
 
     with conversations_session(token3) as c:
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id2, text="Test message 5"))
@@ -720,11 +714,9 @@ def test_send_message_notifications_ignores_abandoned_subscription(db, moderator
     make_friends(user1, user3)
     make_friends(user2, user3)
 
-    with conversations_session(token1) as c:
-        group_chat_id = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
-        ).group_chat_id
-    moderator.approve_group_chat(group_chat_id)
+    group_chat_id = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id, user3.id], approve_by=moderator
+    )
 
     with conversations_session(token1) as c:
         # unread and un-notified for user2 when they get removed below
@@ -779,11 +771,9 @@ def test_send_message_notifications_muted(db, moderator, timewarp: Timewarp):
             == 0
         )
 
-    with conversations_session(token1) as c:
-        group_chat_id = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
-        ).group_chat_id
-    moderator.approve_group_chat(group_chat_id)
+    group_chat_id = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id, user3.id], approve_by=moderator
+    )
 
     with conversations_session(token3) as c:
         # mute it for user 3
@@ -795,11 +785,8 @@ def test_send_message_notifications_muted(db, moderator, timewarp: Timewarp):
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 3"))
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 4"))
 
+    group_chat_id = api_helpers.create_group_chat(token=token3, recipient_user_ids=[user2.id], approve_by=moderator)
     with conversations_session(token3) as c:
-        group_chat_id = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
-        ).group_chat_id
-        moderator.approve_group_chat(group_chat_id)
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 5"))
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 6"))
 
@@ -845,11 +832,7 @@ def test_send_message_notifications_muted(db, moderator, timewarp: Timewarp):
 
 
 def _send_one_chat_message(token: str, recipient_id: int, moderator) -> None:
-    with conversations_session(token) as c:
-        group_chat_id = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_id])
-        ).group_chat_id
-    moderator.approve_group_chat(group_chat_id)
+    group_chat_id = api_helpers.create_group_chat(token=token, recipient_user_ids=[recipient_id], approve_by=moderator)
 
     with conversations_session(token) as c:
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
@@ -1065,11 +1048,8 @@ def test_send_message_notifications_seen(db, moderator, timewarp: Timewarp):
             == 0
         )
 
+    group_chat_id = api_helpers.create_group_chat(token=token1, recipient_user_ids=[user2.id], approve_by=moderator)
     with conversations_session(token1) as c:
-        group_chat_id = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
-        ).group_chat_id
-        moderator.approve_group_chat(group_chat_id)
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 2"))
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 3"))
@@ -1761,14 +1741,8 @@ def test_send_message_notifications_blocked_users_no_notification(db, moderator,
 
     make_friends(user1, user2)
 
-    # Create a group chat and send messages
-    with conversations_session(token1) as c:
-        group_chat_id = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
-        ).group_chat_id
-
-    # Approve the group chat so it's visible for notifications
-    moderator.approve_group_chat(group_chat_id)
+    # Create a group chat, approved so it's visible for notifications, and send messages
+    group_chat_id = api_helpers.create_group_chat(token=token1, recipient_user_ids=[user2.id], approve_by=moderator)
 
     with conversations_session(token1) as c:
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))

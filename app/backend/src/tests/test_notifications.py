@@ -51,6 +51,7 @@ from couchers.proto import (
 from couchers.proto.internal import jobs_pb2, unsubscribe_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.utils import not_none, now
+from tests.fixtures import api_helpers
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
 from tests.fixtures.sessions import (
@@ -361,10 +362,8 @@ def test_list_notifications(db, push_collector: PushCollector, moderator):
     assert n.icon.startswith("http://localhost:5001/img/thumbnail/")
     assert n.url == f"http://localhost:3000/connections/friends/?from={user2.id}"
 
+    group_chat_id = api_helpers.create_group_chat(token=token2, recipient_user_ids=[user1.id], approve_by=moderator)
     with conversations_session(token2) as c:
-        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user1.id]))
-        group_chat_id = res.group_chat_id
-        moderator.approve_group_chat(group_chat_id)
         for i in range(17):
             c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text=f"Test message {i}"))
 
@@ -496,11 +495,9 @@ def test_notifications_follow_the_visibility_of_their_content(db, moderator, vis
     other, other_token = generate_user()
     sender, sender_token = generate_user()
 
-    with conversations_session(author_token) as c:
-        group_chat_id = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[other.id, sender.id])
-        ).group_chat_id
-    moderator.approve_group_chat(group_chat_id)
+    group_chat_id = api_helpers.create_group_chat(
+        token=author_token, recipient_user_ids=[other.id, sender.id], approve_by=moderator
+    )
 
     with conversations_session(sender_token) as c:
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message"))

@@ -34,14 +34,6 @@ def _make_trip(user: User) -> tuple[int, int]:
     return node_id, trip_id
 
 
-def _create_group_chat(token: str, recipient_ids: list[int], moderator, text: str = "hi") -> int:
-    with conversations_session(token) as c:
-        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=recipient_ids))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=res.group_chat_id, text=text))
-    moderator.approve_group_chat(res.group_chat_id)
-    return int(res.group_chat_id)
-
-
 def test_has_unseen_host_request_messages_is_false_for_a_non_party(db, moderator):
     user1, _token1 = generate_user()
     _user2, token2 = generate_user()
@@ -153,9 +145,15 @@ def test_list_message_threads_can_message(db, moderator):
     user2, token2 = generate_user()
     user3, token3 = generate_user()
 
-    blocked_dm_id = _create_group_chat(token1, [user2.id], moderator)
-    departed_dm_id = _create_group_chat(token1, [user3.id], moderator)
-    chat_id = _create_group_chat(token1, [user2.id, user3.id], moderator)
+    blocked_dm_id = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id], messages=["hi"], approve_by=moderator
+    )
+    departed_dm_id = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user3.id], messages=["hi"], approve_by=moderator
+    )
+    chat_id = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id, user3.id], messages=["hi"], approve_by=moderator
+    )
 
     def can_message_by_chat(token: str) -> dict[int, bool]:
         with conversations_session(token) as c:
@@ -176,7 +174,9 @@ def test_list_message_threads_interleaves_chats_and_requests(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    chat_id = _create_group_chat(token1, [user2.id], moderator)
+    chat_id = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id], messages=["hi"], approve_by=moderator
+    )
     # user2 sends a host request to user1 (user1 is the host)
     request_id = api_helpers.create_host_request(
         token=token2,
@@ -210,7 +210,11 @@ def test_list_message_threads_single_cursor_pagination_across_kinds(db, moderato
     expected_request_ids = set()
     # interleave creating group chats and host requests so both kinds straddle page boundaries
     for other, other_token in others:
-        expected_chat_ids.add(_create_group_chat(token1, [other.id], moderator))
+        expected_chat_ids.add(
+            api_helpers.create_group_chat(
+                token=token1, recipient_user_ids=[other.id], messages=["hi"], approve_by=moderator
+            )
+        )
         expected_request_ids.add(
             api_helpers.create_host_request(
                 token=other_token,
@@ -252,7 +256,9 @@ def test_list_message_threads_chats_filter_excludes_host_requests(db, moderator)
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    chat_id = _create_group_chat(token1, [user2.id], moderator)
+    chat_id = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id], messages=["hi"], approve_by=moderator
+    )
     api_helpers.create_host_request(
         token=token2,
         host_user_id=user1.id,
@@ -280,7 +286,9 @@ def test_list_message_threads_roster_is_frozen_for_a_departed_viewer(db, moderat
     member, _member_token = generate_user()
     latecomer, _latecomer_token = generate_user()
 
-    chat_id = _create_group_chat(admin_token, [viewer.id, member.id], moderator)
+    chat_id = api_helpers.create_group_chat(
+        token=admin_token, recipient_user_ids=[viewer.id, member.id], messages=["hi"], approve_by=moderator
+    )
 
     with conversations_session(admin_token) as c:
         c.RemoveGroupChatUser(conversations_pb2.RemoveGroupChatUserReq(group_chat_id=chat_id, user_id=viewer.id))
@@ -340,7 +348,9 @@ def test_list_message_threads_archived_is_orthogonal(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    chat_id = _create_group_chat(token1, [user2.id], moderator)
+    chat_id = api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id], messages=["hi"], approve_by=moderator
+    )
 
     with conversations_session(token1) as c:
         # archive the chat
@@ -453,7 +463,9 @@ def test_mark_all_threads_seen_respects_categories(db, moderator):
     _user2, token2 = generate_user()
 
     # an unread group chat and an unread host request, both from user2
-    _create_group_chat(token2, [user1.id], moderator, text="hello there")
+    api_helpers.create_group_chat(
+        token=token2, recipient_user_ids=[user1.id], messages=["hello there"], approve_by=moderator
+    )
     api_helpers.create_host_request(
         token=token2,
         host_user_id=user1.id,
@@ -486,8 +498,12 @@ def test_mark_all_threads_seen_respects_unread_and_archived_filters(db, moderato
     _user2, token2 = generate_user()
     _user3, token3 = generate_user()
 
-    archived_chat_id = _create_group_chat(token2, [user1.id], moderator, text="archived")
-    _create_group_chat(token3, [user1.id], moderator, text="not archived")
+    archived_chat_id = api_helpers.create_group_chat(
+        token=token2, recipient_user_ids=[user1.id], messages=["archived"], approve_by=moderator
+    )
+    api_helpers.create_group_chat(
+        token=token3, recipient_user_ids=[user1.id], messages=["not archived"], approve_by=moderator
+    )
 
     with conversations_session(token1) as c:
         c.SetGroupChatArchiveStatus(
@@ -523,7 +539,9 @@ def test_departed_group_chat_unseen_count_agrees_with_ping_and_clears(db, modera
     _user2, token2 = generate_user()
     user3, _token3 = generate_user()
 
-    chat_id = _create_group_chat(token2, [user1.id, user3.id], moderator)
+    chat_id = api_helpers.create_group_chat(
+        token=token2, recipient_user_ids=[user1.id, user3.id], messages=["hi"], approve_by=moderator
+    )
 
     with conversations_session(token2) as c:
         c.RemoveGroupChatUser(conversations_pb2.RemoveGroupChatUserReq(group_chat_id=chat_id, user_id=user1.id))
@@ -557,7 +575,9 @@ def test_rejoined_group_chat_reads_the_current_subscription(db, moderator):
     _user2, token2 = generate_user()
     user3, _token3 = generate_user()
 
-    chat_id = _create_group_chat(token2, [user1.id, user3.id], moderator)
+    chat_id = api_helpers.create_group_chat(
+        token=token2, recipient_user_ids=[user1.id, user3.id], messages=["hi"], approve_by=moderator
+    )
 
     # removed rather than leaving, so user1's first subscription is left behind with unread messages
     with conversations_session(token2) as c:
@@ -614,7 +634,9 @@ def test_mark_all_threads_seen_clears_missed_messages_notification(db, moderator
             )
         )
 
-    _create_group_chat(token1, [user2.id], moderator, text="hello there")
+    api_helpers.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id], messages=["hello there"], approve_by=moderator
+    )
 
     # the job only picks up messages that have been unseen for five minutes
     timewarp.advance(MISSED_MESSAGES_DELAY)

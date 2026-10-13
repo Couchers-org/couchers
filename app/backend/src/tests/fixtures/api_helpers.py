@@ -8,10 +8,10 @@ from datetime import date, datetime, time, timedelta
 from google.protobuf import wrappers_pb2
 
 from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
-from couchers.proto import events_pb2, requests_pb2
+from couchers.proto import conversations_pb2, events_pb2, requests_pb2
 from couchers.utils import today
 from tests.fixtures.misc import Moderator
-from tests.fixtures.sessions import events_session, requests_session
+from tests.fixtures.sessions import conversations_session, events_session, requests_session
 
 # Event location constants which timezone_areas.sql-fake has regions for.
 # Neutral default location. Resolves to Etc/GMT with real dataset and Etc/UTC with fake dataset.
@@ -187,3 +187,25 @@ def create_host_request(
         approve_by.approve_host_request(host_request_id)
 
     return host_request_id
+
+
+def create_group_chat(
+    *,
+    token: str,
+    recipient_user_ids: list[int],
+    title: str | None = None,
+    messages: list[str] | None = None,
+    approve_by: Moderator | None = None,
+) -> int:
+    """Creates a group chat as the user with `token`, sends `messages` into it, then has `approve_by` approve it."""
+    with conversations_session(token) as api:
+        group_chat_id: int = api.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=recipient_user_ids, title=_string_value(title))
+        ).group_chat_id
+        for message in messages or []:
+            api.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text=message))
+
+    if approve_by is not None:
+        approve_by.approve_group_chat(group_chat_id)
+
+    return group_chat_id
