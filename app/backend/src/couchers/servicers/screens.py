@@ -20,8 +20,11 @@ class Screens(screens_pb2_grpc.ScreensServicer):
     def GetDashboard(
         self, request: screens_pb2.GetDashboardReq, context: CouchersContext, session: Session
     ) -> screens_pb2.GetDashboardRes:
-        # the dashboard shows a small preview of each section
-        page_size = 3
+        # How many items each dashboard section returns. We want a few screens' worth rather than a single page.
+        stays_page_size = 10
+        my_events_page_size = 9
+        community_events_page_size = 9
+        discussions_page_size = 9
 
         def upcoming_host_requests_req(*, surfing: bool) -> requests_pb2.ListHostRequestsReq:
             return requests_pb2.ListHostRequestsReq(
@@ -33,6 +36,7 @@ class Screens(screens_pb2_grpc.ScreensServicer):
                     messages_pb2.HOST_REQUEST_STATUS_CONFIRMED,
                 ],
                 sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
+                number=stays_page_size,
             )
 
         return screens_pb2.GetDashboardRes(
@@ -40,13 +44,13 @@ class Screens(screens_pb2_grpc.ScreensServicer):
             surfing=Requests().ListHostRequests(upcoming_host_requests_req(surfing=True), context, session),
             hosting=Requests().ListHostRequests(upcoming_host_requests_req(surfing=False), context, session),
             my_events=Events().ListMyEvents(
-                events_pb2.ListMyEventsReq(page_size=page_size),
+                events_pb2.ListMyEventsReq(page_size=my_events_page_size),
                 context,
                 session,
             ),
             community_events=Events().ListMyEvents(
                 events_pb2.ListMyEventsReq(
-                    page_size=page_size,
+                    page_size=community_events_page_size,
                     my_communities=True,
                     my_communities_exclude_global=True,
                     exclude_attending=True,
@@ -55,7 +59,7 @@ class Screens(screens_pb2_grpc.ScreensServicer):
                 session,
             ),
             discussions=Discussions().ListMyCommunitiesDiscussions(
-                discussions_pb2.ListMyCommunitiesDiscussionsReq(page_size=page_size),
+                discussions_pb2.ListMyCommunitiesDiscussionsReq(page_size=discussions_page_size),
                 context,
                 session,
             ),
