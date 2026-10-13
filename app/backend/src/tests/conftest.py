@@ -305,6 +305,7 @@ def _testconfig() -> Generator[None]:
     config.BACKEND_BASE_URL = "http://localhost:8888"
     config.CONSOLE_BASE_URL = "http://localhost:8888"
     config.COOKIE_DOMAIN = "localhost"
+    config.COOKIE_SAMESITE = "Strict"
 
     config.SMS_SENDER_ID = "invalid"
 
