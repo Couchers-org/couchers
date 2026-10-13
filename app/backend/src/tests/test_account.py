@@ -24,6 +24,7 @@ from couchers.models import (
 )
 from couchers.proto import account_pb2, api_pb2, auth_pb2, messages_pb2, requests_pb2
 from couchers.utils import now, today
+from tests.fixtures import api_helpers
 from tests.fixtures.api_helpers import valid_request_text
 from tests.fixtures.db import backdate_conversations, generate_user, make_volunteer
 from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
@@ -1009,18 +1010,9 @@ def test_reminders(db, moderator):
             "complete_profile_reminder",
         ]
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-    with requests_session(req_user_token1) as api:
-        host_request1_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text("Test request 1"),
-            )
-        ).host_request_id
-    moderator.approve_host_request(host_request1_id)
+    host_request1_id = api_helpers.create_host_request(
+        token=req_user_token1, host_user_id=user.id, text=valid_request_text("Test request 1"), approve_by=moderator
+    )
 
     with account_session(token) as account:
         reminders = account.GetReminders(empty_pb2.Empty()).reminders
@@ -1031,16 +1023,9 @@ def test_reminders(db, moderator):
         assert reminders[0].respond_to_host_request_reminder.host_request_id == host_request1_id
         assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
 
-    with requests_session(req_user_token2) as api:
-        host_request2_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text("Test request 2"),
-            )
-        ).host_request_id
-    moderator.approve_host_request(host_request2_id)
+    host_request2_id = api_helpers.create_host_request(
+        token=req_user_token2, host_user_id=user.id, text=valid_request_text("Test request 2"), approve_by=moderator
+    )
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
     with account_session(token) as account:
@@ -1056,16 +1041,9 @@ def test_reminders(db, moderator):
         assert reminders[1].respond_to_host_request_reminder.surfer_user.user_id == req_user2.id
 
     backdate_conversations()
-    with requests_session(req_user_token1) as api:
-        host_request3_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text("Test request 3"),
-            )
-        ).host_request_id
-    moderator.approve_host_request(host_request3_id)
+    host_request3_id = api_helpers.create_host_request(
+        token=req_user_token1, host_user_id=user.id, text=valid_request_text("Test request 3"), approve_by=moderator
+    )
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
     with account_session(token) as account:
@@ -1141,19 +1119,14 @@ def test_confirm_host_request_reminder(db, moderator):
     host, host_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
 
-    today_plus_10 = (today() + timedelta(days=10)).isoformat()
-    today_plus_12 = (today() + timedelta(days=12)).isoformat()
-
-    with requests_session(surfer_token) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=today_plus_10,
-                to_date=today_plus_12,
-                text=valid_request_text("Please host me"),
-            )
-        ).host_request_id
-    moderator.approve_host_request(host_request_id)
+    host_request_id = api_helpers.create_host_request(
+        token=surfer_token,
+        host_user_id=host.id,
+        from_date=today() + timedelta(days=10),
+        to_date=today() + timedelta(days=12),
+        text=valid_request_text("Please host me"),
+        approve_by=moderator,
+    )
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
     with account_session(surfer_token) as account:

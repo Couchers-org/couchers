@@ -8,10 +8,10 @@ from datetime import date, datetime, time, timedelta
 from google.protobuf import wrappers_pb2
 
 from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
-from couchers.proto import events_pb2
+from couchers.proto import events_pb2, requests_pb2
 from couchers.utils import today
 from tests.fixtures.misc import Moderator
-from tests.fixtures.sessions import events_session
+from tests.fixtures.sessions import events_session, requests_session
 
 # Event location constants which timezone_areas.sql-fake has regions for.
 # Neutral default location. Resolves to Etc/GMT with real dataset and Etc/UTC with fake dataset.
@@ -154,3 +154,36 @@ def valid_request_text(text: str = "Test request") -> str:
         return text
     padding_length = HOST_REQUEST_MIN_LENGTH_UTF16 - utf16_length
     return text + ("_" * padding_length)  # Each "_" adds one utf16 code unit.
+
+
+def create_host_request(
+    *,
+    token: str,
+    host_user_id: int,
+    from_date: date | None = None,
+    to_date: date | None = None,
+    text: str | None = None,
+    public_trip_id: int | None = None,
+    approve_by: Moderator | None = None,
+) -> int:
+    """Sends a host request from the user with `token`, by default for a night starting in two days."""
+    if from_date is None:
+        from_date = today() + timedelta(days=2)
+    if to_date is None:
+        to_date = from_date + timedelta(days=1)
+
+    with requests_session(token) as api:
+        host_request_id: int = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host_user_id,
+                from_date=from_date.isoformat(),
+                to_date=to_date.isoformat(),
+                text=text if text is not None else valid_request_text(),
+                public_trip_id=public_trip_id,
+            )
+        ).host_request_id
+
+    if approve_by is not None:
+        approve_by.approve_host_request(host_request_id)
+
+    return host_request_id

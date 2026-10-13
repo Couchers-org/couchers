@@ -20,6 +20,7 @@ from couchers.models import (
 )
 from couchers.proto import api_pb2, messages_pb2, moderation_pb2, references_pb2, requests_pb2
 from couchers.utils import now, to_aware_datetime, today
+from tests.fixtures import api_helpers
 from tests.fixtures.api_helpers import valid_request_text
 from tests.fixtures.db import generate_user, make_friends, make_user_block
 from tests.fixtures.misc import EmailCollector, PushCollector
@@ -1133,18 +1134,9 @@ def test_regression_disappearing_refs(db, hs, moderator):
     """
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    req_start = (today() + timedelta(days=2)).isoformat()
-    req_end = (today() + timedelta(days=3)).isoformat()
+    host_request_id = api_helpers.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
+
     with requests_session(token1) as api:
-        res = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=req_start, to_date=req_end, text=valid_request_text()
-            )
-        )
-        host_request_id = res.host_request_id
-
-        moderator.approve_host_request(host_request_id)
-
         assert (
             api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
             .host_requests[0]
