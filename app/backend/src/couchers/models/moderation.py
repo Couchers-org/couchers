@@ -71,6 +71,8 @@ class ModerationAction(enum.Enum):
     unflag = enum.auto()
     # Change a flag's priority
     set_priority = enum.auto()
+    # Change or clear a flag's auto-approve deadline
+    set_auto_approve = enum.auto()
     # Bulk visibility change applied to every item authored by a user
     bulk_set_visibility = enum.auto()
 
@@ -155,6 +157,10 @@ class ModerationQueueItem(Base, kw_only=True):
 
     data: Mapped[Any | None] = mapped_column(JSONB(none_as_null=True), default=None)
 
+    # The earliest of these across a state's open items is when the auto-approver approves its content if still
+    # shadowed, and bumps the priority of those items
+    auto_approve_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+
     # When resolved, this links to the log entry that resolved it
     resolved_by_log_id: Mapped[int | None] = mapped_column(ForeignKey("moderation_log.id"), index=True, default=None)
 
@@ -168,6 +174,11 @@ class ModerationQueueItem(Base, kw_only=True):
             moderation_state_id,
             time_created,
             postgresql_where=resolved_by_log_id.is_(None),
+        ),
+        Index(
+            "ix_moderation_queue_open_auto_approve_at",
+            auto_approve_at,
+            postgresql_where=resolved_by_log_id.is_(None) & auto_approve_at.is_not(None),
         ),
     )
 
@@ -199,6 +210,7 @@ class ModerationLog(Base, kw_only=True):
     # State changes (nullable - only include fields that changed)
     new_visibility: Mapped[ModerationVisibility | None] = mapped_column(Enum(ModerationVisibility), default=None)
     new_priority: Mapped[int | None] = mapped_column(Integer, default=None)
+    new_auto_approve_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
     # The queue item (flag) this action concerned, for flag-level actions
     queue_item_id: Mapped[int | None] = mapped_column(ForeignKey("moderation_queue.id"), index=True, default=None)

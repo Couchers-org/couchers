@@ -3,7 +3,7 @@ Comprehensive tests for the Unified Moderation System (UMS)
 """
 
 import json
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import grpc
 import pytest
@@ -2202,493 +2202,425 @@ def test_group_chat_moderation_shadow(db):
 # ============================================================================
 
 
-def test_auto_approve_moderation_queue_disabled_when_zero(db, email_collector: EmailCollector):
-    """Test that auto-approval is disabled when deadline is 0"""
-    moderator, mod_token = generate_user(is_superuser=True)
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
-    # Create a host request
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
-
-        # No email should have been sent (request is shadowed)
-        assert email_collector.count_for_recipient(user2.email) == 0
-
-        # Ensure deadline is 0 (disabled)
-        config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 0
-
-        # Run the job
-        auto_approve_moderation_queue(empty_pb2.Empty())
-
-        # Surfer (author) can see the request via API
-        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
-        assert res.host_request_id == host_request_id
-
-        # Author can see their SHADOWED request in their sent list
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
-        assert len(res.host_requests) == 1
-        assert res.host_requests[0].host_request_id == host_request_id
-
-    # Host cannot see the request (it's shadowed from them)
-    with requests_session(token2) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-
-        # Host doesn't see it in their received list either
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
-        assert len(res.host_requests) == 0
-
-    # Moderator can still see the item in the moderation queue
-    with real_moderation_session(mod_token) as api:
-        res = api.GetModerationQueue(moderation_pb2.GetModerationQueueReq(unresolved_only=True))
-        assert len(res.queue_items) == 1
-        assert res.queue_items[0].trigger == moderation_pb2.MODERATION_TRIGGER_INITIAL_REVIEW
-
-        # Moderator can check the state is still SHADOWED
-        state_res = api.GetModerationState(
-            moderation_pb2.GetModerationStateReq(
-                object_type=moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST,
-                object_id=host_request_id,
-            )
-        )
-        assert state_res.moderation_state.visibility == moderation_pb2.MODERATION_VISIBILITY_SHADOWED
-
-
-def test_auto_approve_moderation_queue_approves_old_items(
-    db, email_collector: EmailCollector, push_collector: PushCollector
-):
-    """Test that auto-approval approves items older than the deadline"""
-    moderator, mod_token = generate_user(is_superuser=True)
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
-    # Create a host request
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text("Test request for auto-approval"),
-            )
-        ).host_request_id
-
-        # No email sent initially (shadowed)
-        assert email_collector.count_for_recipient(user2.email) == 0
-
-    # Host cannot see the request yet
-    with requests_session(token2) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-
-    # Make the queue item appear old by backdating its time_created
-    with session_scope() as session:
-        host_request = session.execute(
-            select(HostRequest).where(HostRequest.conversation_id == host_request_id)
-        ).scalar_one()
-        queue_item = session.execute(
-            select(ModerationQueueItem)
-            .where(ModerationQueueItem.moderation_state_id == host_request.moderation_state_id)
-            .where(ModerationQueueItem.resolved_by_log_id.is_(None))
-        ).scalar_one()
-        # Backdate the queue item by 2 minutes
-        queue_item.time_created = datetime.now(queue_item.time_created.tzinfo) - timedelta(minutes=2)
-
-    # Set deadline to 60 seconds (items older than 60 seconds will be auto-approved)
-    config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 60
-    config.MODERATION_BOT_USER_ID = moderator.id
-
-    # Run the job
-    auto_approve_moderation_queue(empty_pb2.Empty())
-
-    # Now host can see the request via API
-    with requests_session(token2) as api:
-        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
-        assert res.host_request_id == host_request_id
-        assert res.latest_message.text.text == valid_request_text("Test request for auto-approval")
-
-        # Host sees it in their received list
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
-        assert len(res.host_requests) == 1
-        assert res.host_requests[0].host_request_id == host_request_id
-
-    # Surfer sees it in their sent list
-    with requests_session(token1) as api:
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
-        assert len(res.host_requests) == 1
-        assert res.host_requests[0].host_request_id == host_request_id
-
-    with real_moderation_session(mod_token) as api:
-        res = api.GetModerationQueue(moderation_pb2.GetModerationQueueReq(unresolved_only=True))
-        assert len(res.queue_items) == 1
-        flag_item = res.queue_items[0]
-        assert flag_item.trigger == moderation_pb2.MODERATION_TRIGGER_MACHINE_FLAG
-        assert flag_item.priority == MODERATION_AUTO_APPROVE_FLAG_PRIORITY
-
-        state_res = api.GetModerationState(
-            moderation_pb2.GetModerationStateReq(
-                object_type=moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST,
-                object_id=host_request_id,
-            )
-        )
-        assert state_res.moderation_state.visibility == moderation_pb2.MODERATION_VISIBILITY_VISIBLE
-
-        log_res = api.GetModerationLog(
-            moderation_pb2.GetModerationLogReq(moderation_state_id=state_res.moderation_state.moderation_state_id)
-        )
-        approve_entries = [e for e in log_res.log_entries if e.action == moderation_pb2.MODERATION_ACTION_APPROVE]
-        assert len(approve_entries) == 1
-        assert "Auto-approved" in approve_entries[0].reason
-        assert "60 seconds" in approve_entries[0].reason
-        assert approve_entries[0].moderator_user_id == moderator.id
-
-        flag_entries = [e for e in log_res.log_entries if e.action == moderation_pb2.MODERATION_ACTION_FLAG]
-        assert len(flag_entries) == 1
-        assert flag_entries[0].moderator_user_id == moderator.id
-
-
-def test_auto_approve_does_not_approve_recent_items(db, email_collector: EmailCollector):
-    """Test that auto-approval does not approve items that are newer than the deadline"""
-    moderator, mod_token = generate_user(is_superuser=True)
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
-    # Create a host request
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
-
-        # No email sent (shadowed)
-        assert email_collector.count_for_recipient(user2.email) == 0
-
-    # Set deadline to 1 hour (items older than 1 hour will be auto-approved)
-    config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 3600
-    config.MODERATION_BOT_USER_ID = moderator.id
-
-    # Run the job - the item was just created, so it shouldn't be approved
-    auto_approve_moderation_queue(empty_pb2.Empty())
-
-    # Still no email sent
-    assert email_collector.count_for_recipient(user2.email) == 0
-
-    # Host still cannot see the request
-    with requests_session(token2) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-
-        # Not in host's received list
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
-        assert len(res.host_requests) == 0
-
-    # Moderator sees it still in queue unresolved
-    with real_moderation_session(mod_token) as api:
-        res = api.GetModerationQueue(moderation_pb2.GetModerationQueueReq(unresolved_only=True))
-        assert len(res.queue_items) == 1
-
-        # State is still SHADOWED
-        state_res = api.GetModerationState(
-            moderation_pb2.GetModerationStateReq(
-                object_type=moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST,
-                object_id=host_request_id,
-            )
-        )
-        assert state_res.moderation_state.visibility == moderation_pb2.MODERATION_VISIBILITY_SHADOWED
-
-
-def test_auto_approve_does_not_approve_already_approved(db):
-    """Test that auto-approval does not re-approve already visible content"""
-    moderator, mod_token = generate_user(is_superuser=True)
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
-    # Create a host request
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
-
-    # Moderator approves it manually
-    with real_moderation_session(mod_token) as api:
-        state_res = api.GetModerationState(
-            moderation_pb2.GetModerationStateReq(
-                object_type=moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST,
-                object_id=host_request_id,
-            )
-        )
-        state_id = state_res.moderation_state.moderation_state_id
-
-        api.ModerateContent(
-            moderation_pb2.ModerateContentReq(
-                moderation_state_id=state_id,
-                action=moderation_pb2.MODERATION_ACTION_APPROVE,
-                visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
-                reason="Approved by moderator",
-                clear_flags=True,
-            )
-        )
-
-    # Host can now see it
-    with requests_session(token2) as api:
-        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
-        assert res.host_request_id == host_request_id
-
-    # Get log count before auto-approval
-    with real_moderation_session(mod_token) as api:
-        log_res_before = api.GetModerationLog(moderation_pb2.GetModerationLogReq(moderation_state_id=state_id))
-        log_count_before = len(log_res_before.log_entries)
-
-    # Set deadline to 1 second
-    config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 1
-    config.MODERATION_BOT_USER_ID = moderator.id
-
-    # Run the job
-    auto_approve_moderation_queue(empty_pb2.Empty())
-
-    # No new log entries should be created (already approved, queue item resolved)
-    with real_moderation_session(mod_token) as api:
-        log_res_after = api.GetModerationLog(moderation_pb2.GetModerationLogReq(moderation_state_id=state_id))
-        assert len(log_res_after.log_entries) == log_count_before
-
-        # Queue should be empty (item was resolved when moderator approved)
-        queue_res = api.GetModerationQueue(moderation_pb2.GetModerationQueueReq(unresolved_only=True))
-        assert len(queue_res.queue_items) == 0
-
-
-def test_auto_approve_does_not_approve_moderator_shadowed_items(db):
-    """Test that auto-approval does not approve items that were explicitly shadowed by a moderator"""
-    moderator, mod_token = generate_user(is_superuser=True)
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
-    # Create a host request
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
-
-    # Moderator explicitly shadows the content (keeping it shadowed but resolving the queue item)
-    with real_moderation_session(mod_token) as api:
-        state_res = api.GetModerationState(
-            moderation_pb2.GetModerationStateReq(
-                object_type=moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST,
-                object_id=host_request_id,
-            )
-        )
-        state_id = state_res.moderation_state.moderation_state_id
-
-        # Set to SHADOWED explicitly with clear_flags - this resolves the INITIAL_REVIEW queue item
-        api.ModerateContent(
-            moderation_pb2.ModerateContentReq(
-                moderation_state_id=state_id,
-                action=moderation_pb2.MODERATION_ACTION_HIDE,
-                visibility=moderation_pb2.MODERATION_VISIBILITY_SHADOWED,
-                reason="Keeping shadowed for review",
-                clear_flags=True,
-            )
-        )
-
-    # Backdate to ensure it would be old enough for auto-approval
-    with session_scope() as session:
-        queue_item = session.execute(
-            select(ModerationQueueItem).where(ModerationQueueItem.moderation_state_id == state_id)
-        ).scalar_one()
-        queue_item.time_created = datetime.now(queue_item.time_created.tzinfo) - timedelta(minutes=10)
-
-    # Set deadline to 1 second
-    config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 1
-    config.MODERATION_BOT_USER_ID = moderator.id
-
-    # Get log count before
-    with real_moderation_session(mod_token) as api:
-        log_res_before = api.GetModerationLog(moderation_pb2.GetModerationLogReq(moderation_state_id=state_id))
-        log_count_before = len(log_res_before.log_entries)
-
-    # Run the job
-    auto_approve_moderation_queue(empty_pb2.Empty())
-
-    # No new log entries - the queue item was resolved when moderator shadowed it
-    with real_moderation_session(mod_token) as api:
-        log_res_after = api.GetModerationLog(moderation_pb2.GetModerationLogReq(moderation_state_id=state_id))
-        assert len(log_res_after.log_entries) == log_count_before
-
-        # State should still be SHADOWED (not auto-approved to VISIBLE)
-        state_res = api.GetModerationState(
-            moderation_pb2.GetModerationStateReq(
-                object_type=moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST,
-                object_id=host_request_id,
-            )
-        )
-        assert state_res.moderation_state.visibility == moderation_pb2.MODERATION_VISIBILITY_SHADOWED
-
-    # Host still cannot see the request
-    with requests_session(token2) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-
-
-def test_auto_approve_skips_shadowed_user_authored_items(db):
-    """Auto-approval must not promote content authored by a currently-shadowed user."""
-    moderator, mod_token = generate_user(is_superuser=True)
-    surfer, surfer_token = generate_user()
-    host, host_token = generate_user()
-
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
+def _create_host_request(surfer_token, host_user_id):
+    """Creates a host request and returns (host_request_id, moderation_state_id)"""
     with requests_session(surfer_token) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
+                host_user_id=host_user_id,
+                from_date=(today() + timedelta(days=2)).isoformat(),
+                to_date=(today() + timedelta(days=3)).isoformat(),
                 text=valid_request_text(),
             )
         ).host_request_id
-
-    # Shadow the surfer after the host request was created
     with session_scope() as session:
-        session.execute(select(User).where(User.id == surfer.id)).scalar_one().shadowed_at = now()
+        state_id = session.execute(
+            select(HostRequest.moderation_state_id).where(HostRequest.conversation_id == host_request_id)
+        ).scalar_one()
+    return host_request_id, state_id
 
-    # Backdate the queue item to make it eligible for auto-approval
+
+def _visibility(state_id):
     with session_scope() as session:
-        host_request = session.execute(
-            select(HostRequest).where(HostRequest.conversation_id == host_request_id)
-        ).scalar_one()
-        queue_item = session.execute(
-            select(ModerationQueueItem)
-            .where(ModerationQueueItem.moderation_state_id == host_request.moderation_state_id)
-            .where(ModerationQueueItem.resolved_by_log_id.is_(None))
-        ).scalar_one()
-        queue_item.time_created = datetime.now(queue_item.time_created.tzinfo) - timedelta(minutes=10)
+        return session.execute(select(ModerationState.visibility).where(ModerationState.id == state_id)).scalar_one()
 
-    config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 60
-    config.MODERATION_BOT_USER_ID = moderator.id
 
-    auto_approve_moderation_queue(empty_pb2.Empty())
+def _queue_item(queue_item_id):
+    """Returns (resolved, priority, auto_approve_at) for a queue item"""
+    with session_scope() as session:
+        item = session.execute(select(ModerationQueueItem).where(ModerationQueueItem.id == queue_item_id)).scalar_one()
+        return item.resolved_by_log_id is not None, item.priority, item.auto_approve_at
 
-    # State should remain SHADOWED — the auto-approve job must skip shadowed-user content
-    with real_moderation_session(mod_token) as api:
-        state_res = api.GetModerationState(
-            moderation_pb2.GetModerationStateReq(
-                object_type=moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST,
-                object_id=host_request_id,
+
+def _log_actions(state_id):
+    with session_scope() as session:
+        return (
+            session.execute(
+                select(ModerationLog.action)
+                .where(ModerationLog.moderation_state_id == state_id)
+                .where(ModerationLog.action != ModerationAction.create)
+                .order_by(ModerationLog.id)
             )
+            .scalars()
+            .all()
         )
-        assert state_res.moderation_state.visibility == moderation_pb2.MODERATION_VISIBILITY_SHADOWED
-
-    # Host still cannot see the request
-    with requests_session(host_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-
-    # But the (shadowed) author can still see their own request
-    with requests_session(surfer_token) as api:
-        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
-        assert res.host_request_id == host_request_id
 
 
-def test_auto_approve_preserves_other_open_flags(db):
-    """Auto-approval supersedes only the INITIAL_REVIEW item; other open flags survive and a high-prio flag is added."""
-    moderator, mod_token = generate_user(is_superuser=True)
-    surfer, surfer_token = generate_user()
-    host, _ = generate_user()
-
-    state_id = create_test_host_request_with_moderation(surfer_token, host.id)
-
+def _flag(mod_token, state_id, *, priority=0, auto_approve_at=None):
     with real_moderation_session(mod_token) as api:
         api.ModerateContent(
             moderation_pb2.ModerateContentReq(
                 moderation_state_id=state_id,
                 action=moderation_pb2.MODERATION_ACTION_FLAG,
                 trigger=moderation_pb2.MODERATION_TRIGGER_USER_FLAG,
-                priority=5,
+                priority=priority,
                 reason="user reported this",
+                auto_approve_at=Timestamp_from_datetime(auto_approve_at) if auto_approve_at else None,
             )
         )
-
     with session_scope() as session:
-        initial_item = session.execute(
-            select(ModerationQueueItem)
+        return session.execute(
+            select(ModerationQueueItem.id)
             .where(ModerationQueueItem.moderation_state_id == state_id)
-            .where(ModerationQueueItem.trigger == ModerationTrigger.initial_review)
+            .where(ModerationQueueItem.trigger == ModerationTrigger.user_flag)
         ).scalar_one()
-        initial_item_id = initial_item.id
-        initial_item.time_created = datetime.now(initial_item.time_created.tzinfo) - timedelta(minutes=10)
 
+
+def test_auto_approve_deadline_not_set_when_disabled(db):
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    _, state_id = _create_host_request(token1, user2.id)
+
+    _, _, auto_approve_at = _queue_item(_open_queue_item_id(state_id))
+    assert auto_approve_at is None
+
+
+def test_auto_approve_deadline_set_on_initial_review(db):
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 3600
+
+    before = now()
+    _, state_id = _create_host_request(token1, user2.id)
+
+    _, _, auto_approve_at = _queue_item(_open_queue_item_id(state_id))
+    assert before + timedelta(seconds=3600) <= auto_approve_at <= now() + timedelta(seconds=3600)
+
+
+def test_auto_approve_moderation_queue_disabled_when_zero(db, timewarp):
+    """Setting the default deadline to 0 also stops the job firing deadlines that are already set"""
+    moderator, _ = generate_user(is_superuser=True)
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
     config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 60
     config.MODERATION_BOT_USER_ID = moderator.id
 
+    _, state_id = _create_host_request(token1, user2.id)
+
+    timewarp.advance(timedelta(minutes=2))
+    config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 0
     auto_approve_moderation_queue(empty_pb2.Empty())
 
-    with session_scope() as session:
-        assert (
-            session.execute(select(ModerationQueueItem).where(ModerationQueueItem.id == initial_item_id))
-            .scalar_one()
-            .resolved_by_log_id
-            is not None
+    assert _visibility(state_id) == ModerationVisibility.shadowed
+    assert _log_actions(state_id) == []
+
+
+def test_auto_approve_moderation_queue_approves_old_items(
+    db, timewarp, email_collector: EmailCollector, push_collector: PushCollector
+):
+    """Content still shadowed past its deadline is approved, and the item stays open at high priority"""
+    moderator, mod_token = generate_user(is_superuser=True)
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 60
+    config.MODERATION_BOT_USER_ID = moderator.id
+
+    host_request_id, state_id = _create_host_request(token1, user2.id)
+    initial_item_id = _open_queue_item_id(state_id)
+
+    with requests_session(token2) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+    timewarp.advance(timedelta(minutes=2))
+    auto_approve_moderation_queue(empty_pb2.Empty())
+
+    with requests_session(token2) as api:
+        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert res.host_request_id == host_request_id
+
+    assert _visibility(state_id) == ModerationVisibility.visible
+    assert _queue_item(initial_item_id) == (False, MODERATION_AUTO_APPROVE_FLAG_PRIORITY, None)
+
+    with real_moderation_session(mod_token) as api:
+        res = api.GetModerationQueue(moderation_pb2.GetModerationQueueReq(unresolved_only=True))
+        assert len(res.queue_items) == 1
+        assert res.queue_items[0].queue_item_id == initial_item_id
+        assert res.queue_items[0].trigger == moderation_pb2.MODERATION_TRIGGER_INITIAL_REVIEW
+        assert not res.queue_items[0].HasField("auto_approve_at")
+
+        log_res = api.GetModerationLog(moderation_pb2.GetModerationLogReq(moderation_state_id=state_id))
+        bot_entries = [e for e in log_res.log_entries if e.moderator_user_id == moderator.id]
+        assert {e.action for e in bot_entries} == {
+            moderation_pb2.MODERATION_ACTION_APPROVE,
+            moderation_pb2.MODERATION_ACTION_SET_AUTO_APPROVE,
+            moderation_pb2.MODERATION_ACTION_SET_PRIORITY,
+        }
+        assert all(e.queue_item_id == initial_item_id for e in bot_entries if e.queue_item_id)
+
+    # Already fired, so running again does nothing
+    log_count = len(_log_actions(state_id))
+    timewarp.advance(timedelta(minutes=2))
+    auto_approve_moderation_queue(empty_pb2.Empty())
+    assert len(_log_actions(state_id)) == log_count
+
+
+def test_auto_approve_does_not_approve_recent_items(db):
+    moderator, _ = generate_user(is_superuser=True)
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 3600
+    config.MODERATION_BOT_USER_ID = moderator.id
+
+    _, state_id = _create_host_request(token1, user2.id)
+
+    auto_approve_moderation_queue(empty_pb2.Empty())
+
+    assert _visibility(state_id) == ModerationVisibility.shadowed
+    assert _log_actions(state_id) == []
+
+
+@pytest.mark.parametrize(
+    "visibility",
+    [moderation_pb2.MODERATION_VISIBILITY_VISIBLE, moderation_pb2.MODERATION_VISIBILITY_SHADOWED],
+)
+def test_auto_approve_ignores_items_resolved_by_moderator(db, timewarp, visibility):
+    moderator, mod_token = generate_user(is_superuser=True)
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 60
+    config.MODERATION_BOT_USER_ID = moderator.id
+
+    _, state_id = _create_host_request(token1, user2.id)
+
+    with real_moderation_session(mod_token) as api:
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=state_id,
+                action=moderation_pb2.MODERATION_ACTION_APPROVE
+                if visibility == moderation_pb2.MODERATION_VISIBILITY_VISIBLE
+                else moderation_pb2.MODERATION_ACTION_HIDE,
+                visibility=visibility,
+                reason="Decided by moderator",
+                clear_flags=True,
+            )
         )
-        assert (
-            session.execute(select(ModerationState).where(ModerationState.id == state_id)).scalar_one().visibility
-            == ModerationVisibility.visible
+    log_count = len(_log_actions(state_id))
+    visibility_before = _visibility(state_id)
+
+    timewarp.advance(timedelta(minutes=10))
+    auto_approve_moderation_queue(empty_pb2.Empty())
+
+    assert len(_log_actions(state_id)) == log_count
+    assert _visibility(state_id) == visibility_before
+
+
+def test_auto_approve_does_not_unhide_hidden_content(db, timewarp):
+    """A moderator hid the content without resolving the item; the deadline fires but the content stays hidden"""
+    moderator, mod_token = generate_user(is_superuser=True)
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 60
+    config.MODERATION_BOT_USER_ID = moderator.id
+
+    _, state_id = _create_host_request(token1, user2.id)
+    initial_item_id = _open_queue_item_id(state_id)
+
+    with real_moderation_session(mod_token) as api:
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=state_id,
+                action=moderation_pb2.MODERATION_ACTION_HIDE,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
+                reason="Hidden",
+                clear_flags=False,
+            )
         )
 
-        open_items = (
-            session.execute(
-                select(ModerationQueueItem)
-                .where(ModerationQueueItem.moderation_state_id == state_id)
-                .where(ModerationQueueItem.resolved_by_log_id.is_(None))
+    timewarp.advance(timedelta(minutes=2))
+    auto_approve_moderation_queue(empty_pb2.Empty())
+
+    assert _visibility(state_id) == ModerationVisibility.hidden
+    assert _queue_item(initial_item_id) == (False, MODERATION_AUTO_APPROVE_FLAG_PRIORITY, None)
+    assert ModerationAction.approve not in _log_actions(state_id)
+
+
+def test_auto_approve_skips_shadowed_user_authored_items(db, timewarp):
+    """Content by a shadowed author is never approved, and doesn't stop other due items from firing"""
+    moderator, _ = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    other_surfer, other_surfer_token = generate_user()
+    host, host_token = generate_user()
+    config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 60
+    config.MODERATION_BOT_USER_ID = moderator.id
+
+    host_request_id, state_id = _create_host_request(surfer_token, host.id)
+    _, other_state_id = _create_host_request(other_surfer_token, host.id)
+
+    with session_scope() as session:
+        session.execute(select(User).where(User.id == surfer.id)).scalar_one().shadowed_at = now()
+
+    timewarp.advance(timedelta(minutes=2))
+    auto_approve_moderation_queue(empty_pb2.Empty())
+
+    assert _visibility(state_id) == ModerationVisibility.shadowed
+    assert _log_actions(state_id) == []
+    assert _visibility(other_state_id) == ModerationVisibility.visible
+
+    with requests_session(host_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+    with requests_session(surfer_token) as api:
+        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert res.host_request_id == host_request_id
+
+
+def test_auto_approve_ignores_flags_without_deadline(db, timewarp):
+    """An open flag without a deadline doesn't hold the content back, and is left untouched when the deadline fires"""
+    moderator, mod_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+    config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 60
+    config.MODERATION_BOT_USER_ID = moderator.id
+
+    _, state_id = _create_host_request(surfer_token, host.id)
+    initial_item_id = _open_queue_item_id(state_id)
+    flag_id = _flag(mod_token, state_id, priority=5)
+
+    timewarp.advance(timedelta(minutes=2))
+    auto_approve_moderation_queue(empty_pb2.Empty())
+
+    assert _visibility(state_id) == ModerationVisibility.visible
+    assert _queue_item(initial_item_id) == (False, MODERATION_AUTO_APPROVE_FLAG_PRIORITY, None)
+    assert _queue_item(flag_id) == (False, 5, None)
+
+
+def test_auto_approve_earliest_deadline_wins(db, timewarp):
+    """Content is approved at the earliest deadline among its open items, and all of them fire together"""
+    moderator, mod_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+    config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 3600
+    config.MODERATION_BOT_USER_ID = moderator.id
+
+    _, state_id = _create_host_request(surfer_token, host.id)
+    initial_item_id = _open_queue_item_id(state_id)
+    flag_id = _flag(mod_token, state_id, priority=5, auto_approve_at=now() + timedelta(minutes=1))
+
+    timewarp.advance(timedelta(minutes=2))
+    auto_approve_moderation_queue(empty_pb2.Empty())
+
+    assert _visibility(state_id) == ModerationVisibility.visible
+    assert _queue_item(initial_item_id) == (False, MODERATION_AUTO_APPROVE_FLAG_PRIORITY, None)
+    assert _queue_item(flag_id) == (False, MODERATION_AUTO_APPROVE_FLAG_PRIORITY, None)
+    assert _log_actions(state_id).count(ModerationAction.approve) == 1
+
+
+def test_auto_approve_flag_on_visible_content(db, timewarp):
+    """A flag on content that's already visible just lapses: the deadline clears and its priority is bumped"""
+    moderator, mod_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+    config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 60
+    config.MODERATION_BOT_USER_ID = moderator.id
+
+    _, state_id = _create_host_request(surfer_token, host.id)
+    with real_moderation_session(mod_token) as api:
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=state_id,
+                action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+                reason="Looks fine",
+                clear_flags=True,
             )
-            .scalars()
-            .all()
         )
-        open_by_trigger = {item.trigger: item for item in open_items}
-        assert open_by_trigger.keys() == {ModerationTrigger.user_flag, ModerationTrigger.machine_flag}
-        assert open_by_trigger[ModerationTrigger.user_flag].priority == 5
-        assert open_by_trigger[ModerationTrigger.machine_flag].priority == MODERATION_AUTO_APPROVE_FLAG_PRIORITY
+    flag_id = _flag(mod_token, state_id, priority=5, auto_approve_at=now() + timedelta(minutes=1))
+
+    timewarp.advance(timedelta(minutes=2))
+    auto_approve_moderation_queue(empty_pb2.Empty())
+
+    assert _visibility(state_id) == ModerationVisibility.visible
+    assert _queue_item(flag_id) == (False, MODERATION_AUTO_APPROVE_FLAG_PRIORITY, None)
+    assert _log_actions(state_id).count(ModerationAction.approve) == 1
+
+
+def test_ModerateContent_set_auto_approve(db):
+    moderator, mod_token = generate_user(is_superuser=True)
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    _, state_id = _create_host_request(token1, user2.id)
+    queue_item_id = _open_queue_item_id(state_id)
+    deadline = now() + timedelta(hours=3)
+
+    with real_moderation_session(mod_token) as api:
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=state_id,
+                action=moderation_pb2.MODERATION_ACTION_SET_AUTO_APPROVE,
+                queue_item_id=queue_item_id,
+                auto_approve_at=Timestamp_from_datetime(deadline),
+                reason="give it a few hours",
+            )
+        )
+        res = api.GetModerationQueue(moderation_pb2.GetModerationQueueReq(unresolved_only=True))
+        item = next(i for i in res.queue_items if i.queue_item_id == queue_item_id)
+        assert item.auto_approve_at == Timestamp_from_datetime(deadline)
+
+        log_res = api.GetModerationLog(moderation_pb2.GetModerationLogReq(moderation_state_id=state_id))
+        entry = next(e for e in log_res.log_entries if e.action == moderation_pb2.MODERATION_ACTION_SET_AUTO_APPROVE)
+        assert entry.queue_item_id == queue_item_id
+        assert entry.new_auto_approve_at == Timestamp_from_datetime(deadline)
+
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=state_id,
+                action=moderation_pb2.MODERATION_ACTION_SET_AUTO_APPROVE,
+                queue_item_id=queue_item_id,
+                reason="never auto-approve",
+            )
+        )
+
+    assert _queue_item(queue_item_id) == (False, 0, None)
+    assert _visibility(state_id) == ModerationVisibility.shadowed
+
+
+def test_ModerateContent_auto_approve_at_only_on_flag_actions(db):
+    moderator, mod_token = generate_user(is_superuser=True)
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    _, state_id = _create_host_request(token1, user2.id)
+
+    with real_moderation_session(mod_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.ModerateContent(
+                moderation_pb2.ModerateContentReq(
+                    moderation_state_id=state_id,
+                    action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                    visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+                    auto_approve_at=Timestamp_from_datetime(now()),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+
+def test_ModerateContent_cannot_auto_approve_user_state(db):
+    moderator, mod_token = generate_user(is_superuser=True)
+    user, _ = generate_user()
+
+    with real_moderation_session(mod_token) as api:
+        user_state_id = api.GetModerationState(
+            moderation_pb2.GetModerationStateReq(
+                object_type=moderation_pb2.MODERATION_OBJECT_TYPE_USER,
+                object_id=user.id,
+            )
+        ).moderation_state.moderation_state_id
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.ModerateContent(
+                moderation_pb2.ModerateContentReq(
+                    moderation_state_id=user_state_id,
+                    action=moderation_pb2.MODERATION_ACTION_FLAG,
+                    trigger=moderation_pb2.MODERATION_TRIGGER_USER_FLAG,
+                    reason="reported",
+                    auto_approve_at=Timestamp_from_datetime(now()),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 # ============================================================================

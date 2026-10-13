@@ -1,8 +1,10 @@
 {
   "errors": {
     "action_must_be_specified": "Action must be specified.",
+    "auto_approve_only_allowed_on_flag": "An auto-approve time can only be set when flagging or setting the auto-approve time.",
     "blog_blurb_too_long": "The blog post blurb is too long.",
     "blog_title_too_long": "The blog post title is too long.",
+    "cannot_auto_approve_state": "This object type cannot be auto-approved, its visibility is not decided by the moderation system.",
     "cannot_edit_badge": "Admins cannot edit that badge.",
     "cannot_reinstate_and_set_stopped_date": "Cannot reinstate a volunteer and set a stopped date at the same time.",
     "cannot_set_visibility_on_state": "This object type cannot be approved or hidden, its visibility is not decided by the moderation system.",
