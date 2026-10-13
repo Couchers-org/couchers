@@ -15,14 +15,17 @@ from couchers.servicers.discussions import Discussions
 from couchers.servicers.events import Events
 from couchers.servicers.requests import Requests
 
+# How many items each dashboard section returns. We want a few screens' worth rather than a single page.
+STAYS_PAGE_SIZE = 10
+MY_EVENTS_PAGE_SIZE = 9
+COMMUNITY_EVENTS_PAGE_SIZE = 9
+DISCUSSIONS_PAGE_SIZE = 9
+
 
 class Screens(screens_pb2_grpc.ScreensServicer):
     def GetDashboard(
         self, request: screens_pb2.GetDashboardReq, context: CouchersContext, session: Session
     ) -> screens_pb2.GetDashboardRes:
-        # the dashboard shows a small preview of each section
-        page_size = 3
-
         def upcoming_host_requests_req(*, surfing: bool) -> requests_pb2.ListHostRequestsReq:
             return requests_pb2.ListHostRequestsReq(
                 only_sent=surfing,
@@ -33,6 +36,7 @@ class Screens(screens_pb2_grpc.ScreensServicer):
                     messages_pb2.HOST_REQUEST_STATUS_CONFIRMED,
                 ],
                 sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
+                number=STAYS_PAGE_SIZE,
             )
 
         return screens_pb2.GetDashboardRes(
@@ -40,13 +44,13 @@ class Screens(screens_pb2_grpc.ScreensServicer):
             surfing=Requests().ListHostRequests(upcoming_host_requests_req(surfing=True), context, session),
             hosting=Requests().ListHostRequests(upcoming_host_requests_req(surfing=False), context, session),
             my_events=Events().ListMyEvents(
-                events_pb2.ListMyEventsReq(page_size=page_size),
+                events_pb2.ListMyEventsReq(page_size=MY_EVENTS_PAGE_SIZE),
                 context,
                 session,
             ),
             community_events=Events().ListMyEvents(
                 events_pb2.ListMyEventsReq(
-                    page_size=page_size,
+                    page_size=COMMUNITY_EVENTS_PAGE_SIZE,
                     my_communities=True,
                     my_communities_exclude_global=True,
                     exclude_attending=True,
@@ -55,7 +59,7 @@ class Screens(screens_pb2_grpc.ScreensServicer):
                 session,
             ),
             discussions=Discussions().ListMyCommunitiesDiscussions(
-                discussions_pb2.ListMyCommunitiesDiscussionsReq(page_size=page_size),
+                discussions_pb2.ListMyCommunitiesDiscussionsReq(page_size=DISCUSSIONS_PAGE_SIZE),
                 context,
                 session,
             ),
