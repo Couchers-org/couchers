@@ -20,10 +20,10 @@ from couchers.models import (
 )
 from couchers.proto import pages_pb2
 from couchers.utils import create_polygon_lat_lng, now, to_aware_datetime, to_multi
+from tests.fixtures.communities import create_community
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import pages_session
 from tests.fixtures.timewarp import FrozenTimewarp
-from tests.test_communities import create_community
 
 
 def test_create_place_errors(db):

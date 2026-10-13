@@ -7,9 +7,9 @@ from couchers.helpers.upload_uses import UploadUseType, get_upload_uses, get_upl
 from couchers.models import Base, EventOccurrence, Page, PageType, PhotoGallery, PhotoGalleryItem, Upload
 from couchers.proto import pages_pb2
 from tests.fixtures import api_helpers
+from tests.fixtures.communities import create_community
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import pages_session
-from tests.test_communities import create_community
 
 
 def _add_upload(user_id, key):

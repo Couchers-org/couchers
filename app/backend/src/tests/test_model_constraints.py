@@ -20,8 +20,8 @@ from couchers.models import (
     Thread,
 )
 from couchers.utils import create_polygon_lat_lng, to_multi
+from tests.fixtures.communities import create_1d_polygon, create_community
 from tests.fixtures.db import generate_user
-from tests.test_communities import create_1d_polygon, create_community
 
 
 def test_node_constraints(db):

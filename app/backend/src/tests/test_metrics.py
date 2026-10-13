@@ -18,8 +18,8 @@ from couchers.metrics import (
 )
 from couchers.models import ClientPlatform, HostingStatus, User, UserActivity
 from couchers.utils import now
+from tests.fixtures.communities import create_community
 from tests.fixtures.db import generate_user
-from tests.test_communities import create_community
 
 
 def _populate(gauge):

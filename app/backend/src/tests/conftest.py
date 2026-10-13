@@ -47,6 +47,7 @@ from couchers.db import _get_base_engine  # noqa: E402
 from couchers.models import Base  # noqa: E402
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS  # noqa: E402
 from tests.fixtures import query_log  # noqa: E402
+from tests.fixtures.communities import testing_communities  # noqa: E402, F401
 from tests.fixtures.db import (  # noqa: E402
     autocommit_engine,
     create_schema_from_models,

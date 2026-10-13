@@ -26,6 +26,7 @@ from couchers.proto import (
 )
 from couchers.utils import create_coordinate, today
 from tests.fixtures import api_helpers
+from tests.fixtures.communities import create_community
 from tests.fixtures.db import generate_user, make_friends
 from tests.fixtures.sessions import (
     MockGrpcContext,
@@ -38,7 +39,6 @@ from tests.fixtures.sessions import (
     requests_session,
     search_session,
 )
-from tests.test_communities import create_community
 
 
 @pytest.fixture(autouse=True)

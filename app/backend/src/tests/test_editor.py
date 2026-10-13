@@ -20,9 +20,9 @@ from couchers.proto import editor_pb2, events_pb2
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import now
 from tests.fixtures import api_helpers
+from tests.fixtures.communities import create_1d_point, create_community
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import real_editor_session
-from tests.test_communities import create_1d_point, create_community
 from tests.utils import local_date_time
 
 VALID_GEOJSON_MULTIPOLYGON = """

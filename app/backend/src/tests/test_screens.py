@@ -5,6 +5,7 @@ from google.protobuf import empty_pb2
 from couchers.db import session_scope
 from couchers.proto import discussions_pb2, events_pb2, messages_pb2, requests_pb2, screens_pb2
 from couchers.utils import datetime_to_iso8601_local, now, today
+from tests.fixtures.communities import create_community
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import (
     account_session,
@@ -13,7 +14,6 @@ from tests.fixtures.sessions import (
     requests_session,
     screens_session,
 )
-from tests.test_communities import create_community
 from tests.test_requests import valid_request_text
 
 UPCOMING_STATUSES = [

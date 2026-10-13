@@ -21,10 +21,10 @@ from couchers.proto import discussions_pb2, moderation_pb2, threads_pb2
 from couchers.servicers.threads import pack_thread_id
 from couchers.utils import now
 from tests.fixtures import api_helpers
+from tests.fixtures.communities import create_community
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import Moderator
 from tests.fixtures.sessions import discussions_session, real_moderation_session, threads_session
-from tests.test_communities import create_community
 
 
 def test_threads_basic(db):

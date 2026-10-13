@@ -8,6 +8,7 @@ from couchers.models import ModerationObjectType, ModerationState, ModerationVis
 from couchers.models.discussions import ContentChangeType, DiscussionVersion
 from couchers.proto import admin_pb2, communities_pb2, discussions_pb2, moderation_pb2, notifications_pb2, threads_pb2
 from couchers.utils import now, to_aware_datetime
+from tests.fixtures.communities import create_community, create_group
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import Moderator, PushCollector, process_jobs
 from tests.fixtures.sessions import (
@@ -18,7 +19,6 @@ from tests.fixtures.sessions import (
     real_moderation_session,
     threads_session,
 )
-from tests.test_communities import create_community, create_group
 
 
 def test_create_discussion_errors(db):

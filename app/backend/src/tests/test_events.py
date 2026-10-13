@@ -29,11 +29,11 @@ from couchers.proto import editor_pb2, events_pb2, threads_pb2
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import now, to_aware_datetime
 from tests.fixtures import api_helpers
+from tests.fixtures.communities import create_community, create_group
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import EmailCollector, Moderator, PushCollector, process_jobs
 from tests.fixtures.sessions import events_session, real_editor_session, threads_session
 from tests.fixtures.timewarp import FrozenTimewarp
-from tests.test_communities import create_community, create_group
 from tests.utils import local_date_time
 
 

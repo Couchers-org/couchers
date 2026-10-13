@@ -12,6 +12,7 @@ from couchers.jobs.handlers import send_message_notifications
 from couchers.models import HostRequest, NotificationTopicAction, User
 from couchers.proto import api_pb2, conversations_pb2, messages_pb2, notifications_pb2, requests_pb2
 from couchers.utils import today
+from tests.fixtures.communities import create_community
 from tests.fixtures.db import generate_user, make_user_block
 from tests.fixtures.misc import process_jobs
 from tests.fixtures.sessions import (
@@ -21,7 +22,6 @@ from tests.fixtures.sessions import (
     requests_session,
 )
 from tests.fixtures.timewarp import Timewarp
-from tests.test_communities import create_community
 from tests.test_public_trips import _create_trip_directly
 from tests.test_requests import valid_request_text
 

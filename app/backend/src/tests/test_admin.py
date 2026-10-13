@@ -41,6 +41,7 @@ from couchers.proto import (
 )
 from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date
 from tests.fixtures import api_helpers
+from tests.fixtures.communities import create_community
 from tests.fixtures.db import (
     add_users_to_new_moderation_list,
     backdate_conversations,
@@ -57,7 +58,6 @@ from tests.fixtures.sessions import (
     reporting_session,
     requests_session,
 )
-from tests.test_communities import create_community
 from tests.test_references import create_host_reference
 from tests.test_requests import valid_request_text
 
