@@ -5,111 +5,35 @@ import grpc
 import pytest
 from sqlalchemy import select
 
-from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.db import session_scope
 from couchers.models import (
-    Cluster,
-    ClusterRole,
-    ClusterSubscription,
     ModerationObjectType,
     ModerationQueueItem,
     ModerationState,
     ModerationTrigger,
     ModerationVisibility,
-    Node,
     NodeType,
     User,
 )
 from couchers.models.host_requests import HostRequest, HostRequestStatus
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.proto import public_trips_pb2, requests_pb2
-from couchers.utils import create_polygon_lat_lng, now, to_multi, today
+from couchers.utils import now, today
+from tests.fixtures.api_helpers import valid_request_text
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import Moderator
-from tests.fixtures.sessions import public_trips_session, requests_session
-
-
-def _valid_request_text(text: str = "Offer to host") -> str:
-    utf16_length = len(text.encode("utf-16-le")) // 2
-    if utf16_length >= HOST_REQUEST_MIN_LENGTH_UTF16:
-        return text
-    return text + "_" * (HOST_REQUEST_MIN_LENGTH_UTF16 - utf16_length)
-
-
-# 150+ utf-16 code units to satisfy PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16.
-VALID_DESCRIPTION = (
-    "Visiting the area for a week for a music festival. I love meeting new people "
-    "and would really appreciate local tips. Happy to help with tasks in exchange."
+from tests.fixtures.public_trips import (
+    VALID_TRIP_DESCRIPTION,
+    add_community_admin,
+    create_public_trip,
+    create_trip_community,
 )
-
-
-def _make_node(node_type: NodeType = NodeType.locality, small_community_features_enabled: bool = True) -> int:
-    # Polygon inside the fake Europe/Helsinki timezone area so node.timezone resolves.
-    with session_scope() as session:
-        node = Node(
-            geom=to_multi(create_polygon_lat_lng([[60, 24], [60, 26], [62, 26], [62, 24], [60, 24]])),
-            node_type=node_type,
-        )
-        session.add(node)
-        session.flush()
-        cluster = Cluster(
-            name="Test community",
-            description="Test",
-            parent_node_id=node.id,
-            is_official_cluster=True,
-            small_community_features_enabled=small_community_features_enabled,
-        )
-        session.add(cluster)
-        session.flush()
-        return node.id
-
-
-def _make_node_admin(user_id: int, node_id: int):
-    with session_scope() as session:
-        cluster_id = session.execute(
-            select(Cluster.id).where(Cluster.parent_node_id == node_id).where(Cluster.is_official_cluster)
-        ).scalar_one()
-        session.add(ClusterSubscription(cluster_id=cluster_id, user_id=user_id, role=ClusterRole.admin))
-
-
-def _create_trip_directly(
-    user_id: int,
-    node_id: int,
-    from_date,
-    to_date,
-    *,
-    description: str = "Looking for a host!",
-    status=None,
-    same_gender_only: bool = False,
-    visibility: ModerationVisibility = ModerationVisibility.visible,
-) -> int:
-    with session_scope() as session:
-        moderation_state = ModerationState(
-            object_type=ModerationObjectType.public_trip,
-            object_id=0,  # placeholder, set after PublicTrip flush
-            visibility=visibility,
-        )
-        session.add(moderation_state)
-        session.flush()
-        trip = PublicTrip(
-            user_id=user_id,
-            node_id=node_id,
-            from_date=from_date,
-            to_date=to_date,
-            description=description,
-            status=status or PublicTripStatus.searching_for_host,
-            same_gender_only=same_gender_only,
-            moderation_state_id=moderation_state.id,
-        )
-        session.add(trip)
-        session.flush()
-        moderation_state.object_id = trip.id
-        return trip.id
+from tests.fixtures.sessions import public_trips_session, requests_session
 
 
 def test_create_public_trip(db):
     user, token = generate_user()
-    node_id = _make_node()
+    node_id = create_trip_community()
 
     from_date = today() + timedelta(days=5)
     to_date = today() + timedelta(days=10)
@@ -120,7 +44,7 @@ def test_create_public_trip(db):
                 community_id=node_id,
                 from_date=from_date.isoformat(),
                 to_date=to_date.isoformat(),
-                description=VALID_DESCRIPTION,
+                description=VALID_TRIP_DESCRIPTION,
             )
         )
 
@@ -131,7 +55,7 @@ def test_create_public_trip(db):
         assert res.community_name == "Test community"
         assert res.from_date == from_date.isoformat()
         assert res.to_date == to_date.isoformat()
-        assert res.description == VALID_DESCRIPTION
+        assert res.description == VALID_TRIP_DESCRIPTION
         assert res.status == public_trips_pb2.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST
 
     with session_scope() as session:
@@ -143,7 +67,7 @@ def test_create_public_trip(db):
 
 def test_create_public_trip_incomplete_profile(db):
     _, token = generate_user(complete_profile=False)
-    node_id = _make_node()
+    node_id = create_trip_community()
 
     with public_trips_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -178,7 +102,7 @@ def test_create_public_trip_community_not_found(db):
 
 def test_create_public_trip_not_enabled(db):
     _, token = generate_user()
-    node_id = _make_node(small_community_features_enabled=False)
+    node_id = create_trip_community(small_community_features_enabled=False)
 
     with public_trips_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -200,7 +124,7 @@ def test_create_public_trip_not_enabled(db):
 )
 def test_create_public_trip_allows_region_and_narrower(db, node_type):
     _, token = generate_user()
-    node_id = _make_node(node_type=node_type)
+    node_id = create_trip_community(node_type=node_type)
 
     with public_trips_session(token) as api:
         res = api.CreatePublicTrip(
@@ -208,7 +132,7 @@ def test_create_public_trip_allows_region_and_narrower(db, node_type):
                 community_id=node_id,
                 from_date=(today() + timedelta(days=5)).isoformat(),
                 to_date=(today() + timedelta(days=10)).isoformat(),
-                description=VALID_DESCRIPTION,
+                description=VALID_TRIP_DESCRIPTION,
             )
         )
         assert res.trip_id > 0
@@ -220,7 +144,7 @@ def test_create_public_trip_in_past_uses_node_timezone(db):
     # while NYC is still on 2026-01-15. A from_date of 2026-01-15 is "today" in NYC but
     # "yesterday" in Helsinki, and must be rejected because the check uses the node's tz.
     _, token = generate_user()
-    node_id = _make_node()
+    node_id = create_trip_community()
 
     fake_today_by_tz = {"America/New_York": date(2026, 1, 15), "Europe/Helsinki": date(2026, 1, 16)}
 
@@ -235,7 +159,7 @@ def test_create_public_trip_in_past_uses_node_timezone(db):
                         community_id=node_id,
                         from_date="2026-01-15",
                         to_date="2026-01-20",
-                        description=VALID_DESCRIPTION,
+                        description=VALID_TRIP_DESCRIPTION,
                     )
                 )
             assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -243,7 +167,7 @@ def test_create_public_trip_in_past_uses_node_timezone(db):
 
 def test_create_public_trip_date_errors(db):
     _, token = generate_user()
-    node_id = _make_node()
+    node_id = create_trip_community()
 
     with public_trips_session(token) as api:
         # from_date in the past
@@ -297,14 +221,9 @@ def test_create_public_trip_date_errors(db):
 
 def test_create_public_trip_overlap(db):
     user, token = generate_user()
-    node_id = _make_node()
+    node_id = create_trip_community()
 
-    _create_trip_directly(
-        user.id,
-        node_id,
-        today() + timedelta(days=5),
-        today() + timedelta(days=10),
-    )
+    create_public_trip(user.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id)
 
     with public_trips_session(token) as api:
         # overlapping dates should fail
@@ -314,7 +233,7 @@ def test_create_public_trip_overlap(db):
                     community_id=node_id,
                     from_date=(today() + timedelta(days=8)).isoformat(),
                     to_date=(today() + timedelta(days=12)).isoformat(),
-                    description=VALID_DESCRIPTION,
+                    description=VALID_TRIP_DESCRIPTION,
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
@@ -325,7 +244,7 @@ def test_create_public_trip_overlap(db):
                 community_id=node_id,
                 from_date=(today() + timedelta(days=20)).isoformat(),
                 to_date=(today() + timedelta(days=25)).isoformat(),
-                description=VALID_DESCRIPTION,
+                description=VALID_TRIP_DESCRIPTION,
             )
         )
         assert res.trip_id > 0
@@ -333,13 +252,13 @@ def test_create_public_trip_overlap(db):
 
 def test_create_public_trip_closed_trip_allows_new_overlap(db):
     user, token = generate_user()
-    node_id = _make_node()
+    node_id = create_trip_community()
 
-    _create_trip_directly(
+    create_public_trip(
         user.id,
-        node_id,
         today() + timedelta(days=5),
         today() + timedelta(days=10),
+        node_id=node_id,
         status=PublicTripStatus.closed,
     )
 
@@ -350,7 +269,7 @@ def test_create_public_trip_closed_trip_allows_new_overlap(db):
                 community_id=node_id,
                 from_date=(today() + timedelta(days=7)).isoformat(),
                 to_date=(today() + timedelta(days=12)).isoformat(),
-                description=VALID_DESCRIPTION,
+                description=VALID_TRIP_DESCRIPTION,
             )
         )
         assert res.trip_id > 0
@@ -358,8 +277,8 @@ def test_create_public_trip_closed_trip_allows_new_overlap(db):
 
 def test_get_public_trip(db):
     user, token = generate_user()
-    node_id = _make_node()
-    trip_id = _create_trip_directly(user.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    node_id = create_trip_community()
+    trip_id = create_public_trip(user.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id)
 
     with public_trips_session(token) as api:
         res = api.GetPublicTrip(public_trips_pb2.GetPublicTripReq(trip_id=trip_id))
@@ -380,10 +299,10 @@ def test_get_public_trip_not_found(db):
 def test_list_public_trips(db):
     traveler, _ = generate_user()
     _, host_token = generate_user()
-    node_id = _make_node()
+    node_id = create_trip_community()
 
-    trip1 = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
-    trip2 = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=20), today() + timedelta(days=25))
+    trip1 = create_public_trip(traveler.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id)
+    trip2 = create_public_trip(traveler.id, today() + timedelta(days=20), today() + timedelta(days=25), node_id=node_id)
 
     with public_trips_session(host_token) as api:
         res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
@@ -396,19 +315,19 @@ def test_list_public_trips(db):
 def test_list_public_trips_filters_closed_and_past(db):
     traveler, _ = generate_user()
     _, host_token = generate_user()
-    node_id = _make_node()
+    node_id = create_trip_community()
 
-    active = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    active = create_public_trip(traveler.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id)
     # closed trip - should be hidden
-    _create_trip_directly(
+    create_public_trip(
         traveler.id,
-        node_id,
         today() + timedelta(days=15),
         today() + timedelta(days=20),
+        node_id=node_id,
         status=PublicTripStatus.closed,
     )
     # past trip (to_date < today) - should be hidden
-    _create_trip_directly(traveler.id, node_id, today() - timedelta(days=10), today() - timedelta(days=1))
+    create_public_trip(traveler.id, today() - timedelta(days=10), today() - timedelta(days=1), node_id=node_id)
 
     with public_trips_session(host_token) as api:
         res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
@@ -418,9 +337,9 @@ def test_list_public_trips_filters_closed_and_past(db):
 def test_list_public_trips_hides_invisible_user(db):
     traveler, _ = generate_user()
     _, host_token = generate_user()
-    node_id = _make_node()
+    node_id = create_trip_community()
 
-    _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    create_public_trip(traveler.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id)
 
     # soft-delete the traveler
     with session_scope() as session:
@@ -435,11 +354,11 @@ def test_list_public_trips_hides_invisible_user(db):
 def test_list_public_trips_pagination(db):
     traveler, _ = generate_user()
     _, host_token = generate_user()
-    node_id = _make_node()
+    node_id = create_trip_community()
 
     trip_ids = [
-        _create_trip_directly(
-            traveler.id, node_id, today() + timedelta(days=5 + i * 10), today() + timedelta(days=10 + i * 10)
+        create_public_trip(
+            traveler.id, today() + timedelta(days=5 + i * 10), today() + timedelta(days=10 + i * 10), node_id=node_id
         )
         for i in range(5)
     ]
@@ -465,19 +384,21 @@ def test_list_public_trips_pagination(db):
 def test_list_public_trips_by_user_self_sees_all(db):
     user, token = generate_user()
     other, _ = generate_user()
-    node_id = _make_node()
+    node_id = create_trip_community()
 
-    mine_active = _create_trip_directly(user.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
-    mine_closed = _create_trip_directly(
+    mine_active = create_public_trip(
+        user.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id
+    )
+    mine_closed = create_public_trip(
         user.id,
-        node_id,
         today() + timedelta(days=15),
         today() + timedelta(days=20),
+        node_id=node_id,
         status=PublicTripStatus.closed,
     )
-    mine_past = _create_trip_directly(user.id, node_id, today() - timedelta(days=10), today() - timedelta(days=1))
+    mine_past = create_public_trip(user.id, today() - timedelta(days=10), today() - timedelta(days=1), node_id=node_id)
     # other user's trip should not be returned
-    _create_trip_directly(other.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    create_public_trip(other.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id)
 
     with public_trips_session(token) as api:
         res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=user.id))
@@ -487,19 +408,19 @@ def test_list_public_trips_by_user_self_sees_all(db):
 def test_list_public_trips_by_user_other_filters_inactive_and_past(db):
     traveler, _ = generate_user()
     _, viewer_token = generate_user()
-    node_id = _make_node()
+    node_id = create_trip_community()
 
-    active = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    active = create_public_trip(traveler.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id)
     # closed trip - hidden from others
-    _create_trip_directly(
+    create_public_trip(
         traveler.id,
-        node_id,
         today() + timedelta(days=15),
         today() + timedelta(days=20),
+        node_id=node_id,
         status=PublicTripStatus.closed,
     )
     # past trip - hidden from others
-    _create_trip_directly(traveler.id, node_id, today() - timedelta(days=10), today() - timedelta(days=1))
+    create_public_trip(traveler.id, today() - timedelta(days=10), today() - timedelta(days=1), node_id=node_id)
 
     with public_trips_session(viewer_token) as api:
         res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
@@ -509,9 +430,9 @@ def test_list_public_trips_by_user_other_filters_inactive_and_past(db):
 def test_list_public_trips_by_user_invisible_user(db):
     traveler, _ = generate_user()
     _, viewer_token = generate_user()
-    node_id = _make_node()
+    node_id = create_trip_community()
 
-    _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    create_public_trip(traveler.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id)
 
     # soft-delete the traveler
     with session_scope() as session:
@@ -525,8 +446,8 @@ def test_list_public_trips_by_user_invisible_user(db):
 
 def test_update_public_trip_close(db):
     user, token = generate_user()
-    node_id = _make_node()
-    trip_id = _create_trip_directly(user.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    node_id = create_trip_community()
+    trip_id = create_public_trip(user.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id)
 
     with public_trips_session(token) as api:
         res = api.UpdatePublicTrip(
@@ -544,12 +465,12 @@ def test_update_public_trip_close(db):
 
 def test_update_public_trip_reopen(db):
     user, token = generate_user()
-    node_id = _make_node()
-    trip_id = _create_trip_directly(
+    node_id = create_trip_community()
+    trip_id = create_public_trip(
         user.id,
-        node_id,
         today() + timedelta(days=5),
         today() + timedelta(days=10),
+        node_id=node_id,
         status=PublicTripStatus.closed,
     )
 
@@ -569,12 +490,12 @@ def test_update_public_trip_reopen(db):
 
 def test_update_public_trip_cant_reopen_past_trip(db):
     user, token = generate_user()
-    node_id = _make_node()
-    trip_id = _create_trip_directly(
+    node_id = create_trip_community()
+    trip_id = create_public_trip(
         user.id,
-        node_id,
         today() - timedelta(days=10),
         today() - timedelta(days=1),
+        node_id=node_id,
         status=PublicTripStatus.closed,
     )
 
@@ -592,8 +513,8 @@ def test_update_public_trip_cant_reopen_past_trip(db):
 def test_update_public_trip_close_past_trip_allowed(db):
     # Closing a trip whose dates are in the past is allowed, even though content edits are not.
     user, token = generate_user()
-    node_id = _make_node()
-    trip_id = _create_trip_directly(user.id, node_id, today() - timedelta(days=10), today() - timedelta(days=1))
+    node_id = create_trip_community()
+    trip_id = create_public_trip(user.id, today() - timedelta(days=10), today() - timedelta(days=1), node_id=node_id)
 
     with public_trips_session(token) as api:
         res = api.UpdatePublicTrip(
@@ -607,16 +528,16 @@ def test_update_public_trip_close_past_trip_allowed(db):
 
 def test_update_public_trip_description_only(db):
     user, token = generate_user()
-    node_id = _make_node()
-    trip_id = _create_trip_directly(
+    node_id = create_trip_community()
+    trip_id = create_public_trip(
         user.id,
-        node_id,
         today() + timedelta(days=5),
         today() + timedelta(days=10),
+        node_id=node_id,
         description="Original description",
     )
 
-    updated = VALID_DESCRIPTION + " Updated plans."
+    updated = VALID_TRIP_DESCRIPTION + " Updated plans."
 
     with public_trips_session(token) as api:
         res = api.UpdatePublicTrip(
@@ -638,8 +559,8 @@ def test_update_public_trip_description_only(db):
 
 def test_update_public_trip_dates(db):
     user, token = generate_user()
-    node_id = _make_node()
-    trip_id = _create_trip_directly(user.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    node_id = create_trip_community()
+    trip_id = create_public_trip(user.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id)
 
     new_from = today() + timedelta(days=7)
     new_to = today() + timedelta(days=14)
@@ -659,8 +580,8 @@ def test_update_public_trip_dates(db):
 def test_update_public_trip_not_owner(db):
     user, _ = generate_user()
     _, other_token = generate_user()
-    node_id = _make_node()
-    trip_id = _create_trip_directly(user.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    node_id = create_trip_community()
+    trip_id = create_public_trip(user.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id)
 
     with public_trips_session(other_token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -675,8 +596,8 @@ def test_update_public_trip_not_owner(db):
 
 def test_update_public_trip_in_past(db):
     user, token = generate_user()
-    node_id = _make_node()
-    trip_id = _create_trip_directly(user.id, node_id, today() - timedelta(days=10), today() - timedelta(days=2))
+    node_id = create_trip_community()
+    trip_id = create_public_trip(user.id, today() - timedelta(days=10), today() - timedelta(days=2), node_id=node_id)
 
     with public_trips_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -691,8 +612,8 @@ def test_update_public_trip_in_past(db):
 
 def test_update_public_trip_date_validation(db):
     user, token = generate_user()
-    node_id = _make_node()
-    trip_id = _create_trip_directly(user.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    node_id = create_trip_community()
+    trip_id = create_public_trip(user.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id)
 
     with public_trips_session(token) as api:
         # from_date after to_date (using the stored to_date of today+10)
@@ -718,7 +639,7 @@ def test_update_public_trip_date_validation(db):
 
 def test_create_public_trip_description_too_short(db):
     _, token = generate_user()
-    node_id = _make_node()
+    node_id = create_trip_community()
 
     with public_trips_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -736,8 +657,8 @@ def test_create_public_trip_description_too_short(db):
 
 def test_update_public_trip_description_too_short(db):
     user, token = generate_user()
-    node_id = _make_node()
-    trip_id = _create_trip_directly(user.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    node_id = create_trip_community()
+    trip_id = create_public_trip(user.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id)
 
     with public_trips_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -753,7 +674,7 @@ def test_update_public_trip_description_too_short(db):
 
 def test_same_gender_only_create_and_retrieve(db):
     user, token = generate_user(gender="Woman")
-    node_id = _make_node()
+    node_id = create_trip_community()
 
     from_date = today() + timedelta(days=5)
     to_date = today() + timedelta(days=10)
@@ -764,7 +685,7 @@ def test_same_gender_only_create_and_retrieve(db):
                 community_id=node_id,
                 from_date=from_date.isoformat(),
                 to_date=to_date.isoformat(),
-                description=VALID_DESCRIPTION,
+                description=VALID_TRIP_DESCRIPTION,
                 same_gender_only=True,
             )
         )
@@ -779,20 +700,13 @@ def test_same_gender_only_visibility_list_and_get(db):
     traveler, _ = generate_user(gender="Woman")
     _, same_gender_token = generate_user(gender="Woman")
     _, diff_gender_token = generate_user(gender="Man")
-    node_id = _make_node()
+    node_id = create_trip_community()
 
-    filtered_trip_id = _create_trip_directly(
-        traveler.id,
-        node_id,
-        today() + timedelta(days=5),
-        today() + timedelta(days=10),
-        same_gender_only=True,
+    filtered_trip_id = create_public_trip(
+        traveler.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id, same_gender_only=True
     )
-    open_trip_id = _create_trip_directly(
-        traveler.id,
-        node_id,
-        today() + timedelta(days=20),
-        today() + timedelta(days=25),
+    open_trip_id = create_public_trip(
+        traveler.id, today() + timedelta(days=20), today() + timedelta(days=25), node_id=node_id
     )
 
     with public_trips_session(same_gender_token) as api:
@@ -815,15 +729,11 @@ def test_same_gender_only_visibility_list_and_get(db):
 def test_same_gender_only_moderator_bypass(db):
     traveler, _ = generate_user(gender="Woman")
     mod, mod_token = generate_user(gender="Man")
-    node_id = _make_node()
-    _make_node_admin(mod.id, node_id)
+    node_id = create_trip_community()
+    add_community_admin(mod.id, node_id)
 
-    trip_id = _create_trip_directly(
-        traveler.id,
-        node_id,
-        today() + timedelta(days=5),
-        today() + timedelta(days=10),
-        same_gender_only=True,
+    trip_id = create_public_trip(
+        traveler.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id, same_gender_only=True
     )
 
     with public_trips_session(mod_token) as api:
@@ -837,14 +747,10 @@ def test_same_gender_only_moderator_bypass(db):
 def test_same_gender_only_owner_always_sees_own_trips(db):
     traveler, traveler_token = generate_user(gender="Woman")
     _, diff_gender_token = generate_user(gender="Man")
-    node_id = _make_node()
+    node_id = create_trip_community()
 
-    trip_id = _create_trip_directly(
-        traveler.id,
-        node_id,
-        today() + timedelta(days=5),
-        today() + timedelta(days=10),
-        same_gender_only=True,
+    trip_id = create_public_trip(
+        traveler.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id, same_gender_only=True
     )
 
     # Owner always sees their own trips (is_self path skips the gender filter)
@@ -860,8 +766,8 @@ def test_same_gender_only_owner_always_sees_own_trips(db):
 
 def test_same_gender_only_update(db):
     user, token = generate_user(gender="Woman")
-    node_id = _make_node()
-    trip_id = _create_trip_directly(user.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    node_id = create_trip_community()
+    trip_id = create_public_trip(user.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id)
 
     with public_trips_session(token) as api:
         res = api.UpdatePublicTrip(
@@ -887,11 +793,11 @@ def test_same_gender_only_update(db):
 
 def test_list_public_trips_by_user_ascending_order(db):
     user, token = generate_user()
-    node_id = _make_node()
+    node_id = create_trip_community()
 
-    trip_near = _create_trip_directly(user.id, node_id, today() + timedelta(days=3), today() + timedelta(days=5))
-    trip_far = _create_trip_directly(user.id, node_id, today() + timedelta(days=20), today() + timedelta(days=25))
-    trip_mid = _create_trip_directly(user.id, node_id, today() + timedelta(days=10), today() + timedelta(days=12))
+    trip_near = create_public_trip(user.id, today() + timedelta(days=3), today() + timedelta(days=5), node_id=node_id)
+    trip_far = create_public_trip(user.id, today() + timedelta(days=20), today() + timedelta(days=25), node_id=node_id)
+    trip_mid = create_public_trip(user.id, today() + timedelta(days=10), today() + timedelta(days=12), node_id=node_id)
 
     with public_trips_session(token) as api:
         res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=user.id, ascending=True))
@@ -907,11 +813,15 @@ def test_list_public_trips_by_user_ascending_order(db):
 
 def test_list_public_trips_by_user_status_filter(db):
     user, token = generate_user()
-    node_id = _make_node()
+    node_id = create_trip_community()
 
-    active = _create_trip_directly(user.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
-    closed = _create_trip_directly(
-        user.id, node_id, today() + timedelta(days=15), today() + timedelta(days=20), status=PublicTripStatus.closed
+    active = create_public_trip(user.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id)
+    closed = create_public_trip(
+        user.id,
+        today() + timedelta(days=15),
+        today() + timedelta(days=20),
+        node_id=node_id,
+        status=PublicTripStatus.closed,
     )
 
     with public_trips_session(token) as api:
@@ -941,11 +851,15 @@ def test_list_public_trips_by_user_status_filter(db):
 def test_list_public_trips_by_user_status_filter_ignored_for_others(db):
     traveler, _ = generate_user()
     _, viewer_token = generate_user()
-    node_id = _make_node()
+    node_id = create_trip_community()
 
-    active = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
-    _create_trip_directly(
-        traveler.id, node_id, today() + timedelta(days=15), today() + timedelta(days=20), status=PublicTripStatus.closed
+    active = create_public_trip(traveler.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id)
+    create_public_trip(
+        traveler.id,
+        today() + timedelta(days=15),
+        today() + timedelta(days=20),
+        node_id=node_id,
+        status=PublicTripStatus.closed,
     )
 
     with public_trips_session(viewer_token) as api:
@@ -962,9 +876,11 @@ def test_list_public_trips_by_user_status_filter_ignored_for_others(db):
 def test_list_public_trips_by_user_offers_count_owner(db, moderator: Moderator):
     traveler, traveler_token = generate_user()
     host, host_token = generate_user()
-    node_id = _make_node()
+    node_id = create_trip_community()
 
-    trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    trip_id = create_public_trip(
+        traveler.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id
+    )
 
     with public_trips_session(traveler_token) as api:
         res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
@@ -979,7 +895,7 @@ def test_list_public_trips_by_user_offers_count_owner(db, moderator: Moderator):
                 host_user_id=traveler.id,
                 from_date=(today() + timedelta(days=5)).isoformat(),
                 to_date=(today() + timedelta(days=10)).isoformat(),
-                text=_valid_request_text(),
+                text=valid_request_text("Offer to host"),
                 public_trip_id=trip_id,
             )
         ).host_request_id
@@ -1004,9 +920,11 @@ def test_list_public_trips_by_user_offers_count_excludes_invisible_offers(db, mo
     traveler, traveler_token = generate_user()
     _hidden_host, hidden_host_token = generate_user()
     banned_host, banned_host_token = generate_user()
-    node_id = _make_node()
+    node_id = create_trip_community()
 
-    trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    trip_id = create_public_trip(
+        traveler.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id
+    )
 
     offer_ids = []
     for token in (hidden_host_token, banned_host_token):
@@ -1017,7 +935,7 @@ def test_list_public_trips_by_user_offers_count_excludes_invisible_offers(db, mo
                         host_user_id=traveler.id,
                         from_date=(today() + timedelta(days=5)).isoformat(),
                         to_date=(today() + timedelta(days=10)).isoformat(),
-                        text=_valid_request_text(),
+                        text=valid_request_text("Offer to host"),
                         public_trip_id=trip_id,
                     )
                 ).host_request_id
@@ -1043,9 +961,9 @@ def test_list_public_trips_by_user_offers_count_excludes_invisible_offers(db, mo
 def test_list_public_trips_by_user_offers_count_not_set_for_others(db):
     traveler, _ = generate_user()
     _, viewer_token = generate_user()
-    node_id = _make_node()
+    node_id = create_trip_community()
 
-    _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    create_public_trip(traveler.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id)
 
     with public_trips_session(viewer_token) as api:
         res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
@@ -1056,9 +974,11 @@ def test_list_public_trips_by_user_offers_count_not_set_for_others(db):
 def test_list_public_trips_by_user_offers_count_excludes_cancelled(db, moderator: Moderator):
     traveler, traveler_token = generate_user()
     hosts = [generate_user() for _ in range(5)]
-    node_id = _make_node()
+    node_id = create_trip_community()
 
-    trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    trip_id = create_public_trip(
+        traveler.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id
+    )
 
     for _host, host_token in hosts:
         with requests_session(host_token) as api:
@@ -1067,7 +987,7 @@ def test_list_public_trips_by_user_offers_count_excludes_cancelled(db, moderator
                     host_user_id=traveler.id,
                     from_date=(today() + timedelta(days=5)).isoformat(),
                     to_date=(today() + timedelta(days=10)).isoformat(),
-                    text=_valid_request_text(),
+                    text=valid_request_text("Offer to host"),
                     public_trip_id=trip_id,
                 )
             ).host_request_id
@@ -1099,9 +1019,11 @@ def test_viewer_host_request_id_reflects_viewers_own_offer(db):
     traveler, _ = generate_user()
     host, host_token = generate_user()
     _, other_token = generate_user()
-    node_id = _make_node()
+    node_id = create_trip_community()
 
-    trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    trip_id = create_public_trip(
+        traveler.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id
+    )
 
     # Before offering, the host sees 0.
     with public_trips_session(host_token) as api:
@@ -1116,7 +1038,7 @@ def test_viewer_host_request_id_reflects_viewers_own_offer(db):
                 host_user_id=traveler.id,
                 from_date=(today() + timedelta(days=5)).isoformat(),
                 to_date=(today() + timedelta(days=10)).isoformat(),
-                text=_valid_request_text(),
+                text=valid_request_text("Offer to host"),
                 public_trip_id=trip_id,
             )
         )
@@ -1141,7 +1063,7 @@ def test_viewer_host_request_id_reflects_viewers_own_offer(db):
 def test_create_public_trip_creates_shadowed_moderation_state(db):
     """Creating a trip creates a ModerationState (shadowed) and an initial-review queue item."""
     user, token = generate_user()
-    node_id = _make_node()
+    node_id = create_trip_community()
 
     with public_trips_session(token) as api:
         res = api.CreatePublicTrip(
@@ -1149,7 +1071,7 @@ def test_create_public_trip_creates_shadowed_moderation_state(db):
                 community_id=node_id,
                 from_date=(today() + timedelta(days=5)).isoformat(),
                 to_date=(today() + timedelta(days=10)).isoformat(),
-                description=VALID_DESCRIPTION,
+                description=VALID_TRIP_DESCRIPTION,
             )
         )
 
@@ -1172,13 +1094,13 @@ def test_create_public_trip_creates_shadowed_moderation_state(db):
 def test_shadowed_public_trip_visible_to_author_hidden_from_others(db):
     traveler, traveler_token = generate_user()
     _, viewer_token = generate_user()
-    node_id = _make_node()
+    node_id = create_trip_community()
 
-    trip_id = _create_trip_directly(
+    trip_id = create_public_trip(
         traveler.id,
-        node_id,
         today() + timedelta(days=5),
         today() + timedelta(days=10),
+        node_id=node_id,
         visibility=ModerationVisibility.shadowed,
     )
 
@@ -1208,13 +1130,13 @@ def test_shadowed_public_trip_visible_to_author_hidden_from_others(db):
 def test_hidden_public_trip_invisible_to_everyone(db):
     traveler, traveler_token = generate_user()
     _, viewer_token = generate_user()
-    node_id = _make_node()
+    node_id = create_trip_community()
 
-    trip_id = _create_trip_directly(
+    trip_id = create_public_trip(
         traveler.id,
-        node_id,
         today() + timedelta(days=5),
         today() + timedelta(days=10),
+        node_id=node_id,
         visibility=ModerationVisibility.hidden,
     )
 
@@ -1235,7 +1157,7 @@ def test_hidden_public_trip_invisible_to_everyone(db):
 def test_moderator_approval_makes_public_trip_visible(db, moderator):
     user, token = generate_user()
     _, viewer_token = generate_user()
-    node_id = _make_node()
+    node_id = create_trip_community()
 
     with public_trips_session(token) as api:
         res = api.CreatePublicTrip(
@@ -1243,7 +1165,7 @@ def test_moderator_approval_makes_public_trip_visible(db, moderator):
                 community_id=node_id,
                 from_date=(today() + timedelta(days=5)).isoformat(),
                 to_date=(today() + timedelta(days=10)).isoformat(),
-                description=VALID_DESCRIPTION,
+                description=VALID_TRIP_DESCRIPTION,
             )
         )
 

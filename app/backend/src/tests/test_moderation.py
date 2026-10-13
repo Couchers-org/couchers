@@ -53,9 +53,12 @@ from couchers.proto import (
 from couchers.servicers.threads import pack_thread_id
 from couchers.utils import Timestamp_from_datetime, now, today
 from tests.fixtures import api_helpers
+from tests.fixtures.api_helpers import valid_request_text
 from tests.fixtures.communities import create_community, create_group
 from tests.fixtures.db import backdate_conversations, generate_user, make_friends
 from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
+from tests.fixtures.public_trips import VALID_TRIP_DESCRIPTION
+from tests.fixtures.references import create_friend_reference
 from tests.fixtures.sessions import (
     api_session,
     conversations_session,
@@ -68,9 +71,6 @@ from tests.fixtures.sessions import (
     requests_session,
     threads_session,
 )
-from tests.test_public_trips import VALID_DESCRIPTION as VALID_TRIP_DESCRIPTION
-from tests.test_references import create_friend_reference
-from tests.test_requests import valid_request_text
 
 
 def create_test_host_request_with_moderation(surfer_token, host_user_id):

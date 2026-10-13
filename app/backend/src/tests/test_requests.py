@@ -11,7 +11,6 @@ from sqlalchemy import func, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy_utils import refresh_materialized_view
 
-from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.crypto import b64decode
 from couchers.db import session_scope
 from couchers.i18n import LocalizationContext
@@ -24,11 +23,7 @@ from couchers.models import (
     HostRequestStatus,
     Message,
     MessageType,
-    ModerationObjectType,
-    ModerationState,
     ModerationVisibility,
-    Node,
-    NodeType,
     Notification,
     RateLimitAction,
     RateLimitViolation,
@@ -42,21 +37,12 @@ from couchers.proto import (
 )
 from couchers.proto.internal import unsubscribe_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
-from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_multi, today
+from couchers.utils import create_coordinate, now, today
+from tests.fixtures.api_helpers import valid_request_text
 from tests.fixtures.db import backdate_conversations, generate_user, make_user_block
 from tests.fixtures.misc import EmailCollector, PushCollector
+from tests.fixtures.public_trips import create_public_trip, create_trip_community
 from tests.fixtures.sessions import api_session, auth_api_session, requests_session
-from tests.test_public_trips import _create_trip_directly, _make_node
-
-
-def valid_request_text(text: str = "Test request") -> str:
-    """Pads a request text to a valid length."""
-    # Request lengths are measured in utf-16 code units to match the frontend.
-    utf16_length = len(text.encode("utf-16-le")) // 2
-    if utf16_length >= HOST_REQUEST_MIN_LENGTH_UTF16:
-        return text
-    padding_length = HOST_REQUEST_MIN_LENGTH_UTF16 - utf16_length
-    return text + ("_" * padding_length)  # Each "_" adds one utf16 code unit.
 
 
 def test_create_request(db, moderator):
@@ -432,8 +418,8 @@ def test_create_request_duplicate_window_ignores_public_trip_offers(db):
     trip_1_to = today() + timedelta(days=20)
     trip_2_from = today() + timedelta(days=40)
     trip_2_to = today() + timedelta(days=50)
-    trip_1_id = _create_public_trip(surfer.id, trip_1_from, trip_1_to)
-    trip_2_id = _create_public_trip(surfer.id, trip_2_from, trip_2_to)
+    trip_1_id = create_public_trip(surfer.id, trip_1_from, trip_1_to)
+    trip_2_id = create_public_trip(surfer.id, trip_2_from, trip_2_to)
 
     with requests_session(host_token) as api:
         assert api.CreateHostRequest(
@@ -1721,8 +1707,10 @@ def test_ping_role_based_counts_match_direction_without_offers(db, moderator):
 def test_ping_counts_public_trip_offer_by_role(db, moderator):
     traveler, traveler_token = generate_user()
     host, host_token = generate_user()
-    node_id = _make_node()
-    trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    node_id = create_trip_community()
+    trip_id = create_public_trip(
+        traveler.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id
+    )
 
     request_id = _create_host_request_via_api(host_token, traveler.id, moderator, public_trip_id=trip_id)
 
@@ -1751,8 +1739,10 @@ def test_ping_public_trip_offer_count_gated_by_flag(db, moderator, feature_flags
 
     traveler, traveler_token = generate_user()
     host, host_token = generate_user()
-    node_id = _make_node()
-    trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    node_id = create_trip_community()
+    trip_id = create_public_trip(
+        traveler.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id
+    )
 
     _create_host_request_via_api(host_token, traveler.id, moderator, public_trip_id=trip_id)
 
@@ -2039,8 +2029,10 @@ def test_response_rate(db, moderator):
 def test_response_rate_ignores_public_trip_offers(db, moderator):
     traveler, _ = generate_user()
     _, surfer_token = generate_user()
-    node_id = _make_node()
-    trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    node_id = create_trip_community()
+    trip_id = create_public_trip(
+        traveler.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id
+    )
 
     # the traveller leaves every offer on their trip unanswered
     for _ in range(3):
@@ -2333,47 +2325,6 @@ def _make_trip_node_admin(user_id: int, trip_id: int):
         session.add(ClusterSubscription(cluster_id=cluster.id, user_id=user_id, role=ClusterRole.admin))
 
 
-def _create_public_trip(
-    user_id: int,
-    from_date,
-    to_date,
-    *,
-    status=None,
-    same_gender_only: bool = False,
-    visibility: ModerationVisibility = ModerationVisibility.visible,
-):
-    with session_scope() as session:
-        node = session.execute(select(Node).limit(1)).scalar_one_or_none()
-        if node is None:
-            node = Node(
-                geom=to_multi(create_polygon_lat_lng([[0, 0], [0, 2], [2, 2], [2, 0], [0, 0]])),
-                node_type=NodeType.locality,
-            )
-            session.add(node)
-            session.flush()
-        moderation_state = ModerationState(
-            object_type=ModerationObjectType.public_trip,
-            object_id=0,  # placeholder, set after PublicTrip flush
-            visibility=visibility,
-        )
-        session.add(moderation_state)
-        session.flush()
-        trip = PublicTrip(
-            user_id=user_id,
-            node_id=node.id,
-            from_date=from_date,
-            to_date=to_date,
-            description="Looking for a host!",
-            status=status or PublicTripStatus.searching_for_host,
-            same_gender_only=same_gender_only,
-            moderation_state_id=moderation_state.id,
-        )
-        session.add(trip)
-        session.flush()
-        moderation_state.object_id = trip.id
-        return trip.id
-
-
 def test_create_request_with_public_trip(db, moderator):
     """Hosts can offer to host a public trip; offered dates must be within trip dates."""
     surfer, surfer_token = generate_user()
@@ -2381,7 +2332,7 @@ def test_create_request_with_public_trip(db, moderator):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+    trip_id = create_public_trip(surfer.id, trip_from, trip_to)
 
     with requests_session(host_token) as api:
         # Happy path: dates within trip window
@@ -2410,7 +2361,7 @@ def test_create_request_with_public_trip_hosting_snapshot(db, moderator):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+    trip_id = create_public_trip(surfer.id, trip_from, trip_to)
 
     with requests_session(host_token) as api:
         host_request_id = api.CreateHostRequest(
@@ -2440,7 +2391,7 @@ def test_public_trip_offer_stay_roles(db, moderator):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+    trip_id = create_public_trip(surfer.id, trip_from, trip_to)
 
     with requests_session(host_token) as api:
         host_request_id = api.CreateHostRequest(
@@ -2481,7 +2432,7 @@ def test_create_request_with_public_trip_dates_out_of_range(db):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+    trip_id = create_public_trip(surfer.id, trip_from, trip_to)
 
     with requests_session(host_token) as api:
         # from_date before trip starts
@@ -2519,7 +2470,7 @@ def test_create_request_with_public_trip_user_mismatch(db):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(trip_owner.id, trip_from, trip_to)
+    trip_id = create_public_trip(trip_owner.id, trip_from, trip_to)
 
     with requests_session(host_token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -2542,7 +2493,7 @@ def test_create_request_with_closed_public_trip(db):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(surfer.id, trip_from, trip_to, status=PublicTripStatus.closed)
+    trip_id = create_public_trip(surfer.id, trip_from, trip_to, status=PublicTripStatus.closed)
 
     with requests_session(host_token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -2584,7 +2535,7 @@ def test_create_request_with_shadowed_public_trip(db, moderator):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(surfer.id, trip_from, trip_to, visibility=ModerationVisibility.shadowed)
+    trip_id = create_public_trip(surfer.id, trip_from, trip_to, visibility=ModerationVisibility.shadowed)
 
     with requests_session(host_token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -2622,7 +2573,7 @@ def test_create_request_with_hidden_public_trip(db):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(surfer.id, trip_from, trip_to, visibility=ModerationVisibility.hidden)
+    trip_id = create_public_trip(surfer.id, trip_from, trip_to, visibility=ModerationVisibility.hidden)
 
     with requests_session(host_token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -2668,7 +2619,7 @@ def test_create_request_same_gender_only_wrong_gender_rejected(db):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(surfer.id, trip_from, trip_to, same_gender_only=True)
+    trip_id = create_public_trip(surfer.id, trip_from, trip_to, same_gender_only=True)
 
     with requests_session(host_token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -2690,7 +2641,7 @@ def test_create_request_same_gender_only_same_gender_allowed(db, moderator):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(surfer.id, trip_from, trip_to, same_gender_only=True)
+    trip_id = create_public_trip(surfer.id, trip_from, trip_to, same_gender_only=True)
 
     with requests_session(host_token) as api:
         res = api.CreateHostRequest(
@@ -2711,7 +2662,7 @@ def test_create_request_same_gender_only_moderator_bypass(db, moderator):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(surfer.id, trip_from, trip_to, same_gender_only=True)
+    trip_id = create_public_trip(surfer.id, trip_from, trip_to, same_gender_only=True)
     _make_trip_node_admin(host.id, trip_id)
 
     with requests_session(host_token) as api:
@@ -2733,7 +2684,7 @@ def test_create_request_duplicate_offer_rejected(db):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+    trip_id = create_public_trip(surfer.id, trip_from, trip_to)
 
     with requests_session(host_token) as api:
         api.CreateHostRequest(
@@ -2765,7 +2716,7 @@ def test_create_request_offer_allowed_after_withdrawal(db, moderator):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+    trip_id = create_public_trip(surfer.id, trip_from, trip_to)
 
     with requests_session(host_token) as api:
         request_id = api.CreateHostRequest(
@@ -2820,7 +2771,7 @@ def test_db_allows_one_active_offer_per_trip(db, moderator):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+    trip_id = create_public_trip(surfer.id, trip_from, trip_to)
 
     with requests_session(host_token) as api:
         withdrawn_id = api.CreateHostRequest(
@@ -2868,7 +2819,7 @@ def test_create_request_offer_blocked_after_traveller_declines(db, moderator):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+    trip_id = create_public_trip(surfer.id, trip_from, trip_to)
 
     with requests_session(host_token) as api:
         request_id = api.CreateHostRequest(
@@ -2963,7 +2914,7 @@ def test_ListStays_public_trip_offer_by_stay_role(db, moderator):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(traveller.id, trip_from, trip_to)
+    trip_id = create_public_trip(traveller.id, trip_from, trip_to)
 
     with requests_session(host_token) as api:
         offer_id = api.CreateHostRequest(

@@ -24,6 +24,7 @@ from couchers.models import (
 )
 from couchers.proto import account_pb2, api_pb2, auth_pb2, messages_pb2, requests_pb2
 from couchers.utils import now, today
+from tests.fixtures.api_helpers import valid_request_text
 from tests.fixtures.db import backdate_conversations, generate_user, make_volunteer
 from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
 from tests.fixtures.sessions import (
@@ -34,7 +35,6 @@ from tests.fixtures.sessions import (
     requests_session,
 )
 from tests.fixtures.timewarp import Timewarp
-from tests.test_requests import valid_request_text
 
 
 def test_GetAccountInfo(db, fast_passwords):

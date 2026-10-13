@@ -41,6 +41,7 @@ from couchers.proto import (
 )
 from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date
 from tests.fixtures import api_helpers
+from tests.fixtures.api_helpers import valid_request_text
 from tests.fixtures.communities import create_community
 from tests.fixtures.db import (
     add_users_to_new_moderation_list,
@@ -49,6 +50,7 @@ from tests.fixtures.db import (
     make_friends,
 )
 from tests.fixtures.misc import EmailCollector, Moderator, PushCollector
+from tests.fixtures.references import create_host_reference
 from tests.fixtures.sessions import (
     account_session,
     auth_api_session,
@@ -58,8 +60,6 @@ from tests.fixtures.sessions import (
     reporting_session,
     requests_session,
 )
-from tests.test_references import create_host_reference
-from tests.test_requests import valid_request_text
 
 
 def test_access_by_normal_user(db):

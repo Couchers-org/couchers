@@ -7,10 +7,10 @@ from couchers.email.calendar_events import create_event_ics_calendar, create_hos
 from couchers.i18n.context import LocalizationContext
 from couchers.proto import events_pb2, messages_pb2, requests_pb2
 from couchers.utils import Timestamp_from_datetime, today
+from tests.fixtures.api_helpers import valid_request_text
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import EmailCollector, Moderator
 from tests.fixtures.sessions import requests_session
-from tests.test_requests import valid_request_text
 
 
 def test_host_request_ics_content():

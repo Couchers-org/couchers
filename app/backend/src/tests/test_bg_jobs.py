@@ -67,12 +67,12 @@ from couchers.models import (
 from couchers.proto import conversations_pb2, messages_pb2, requests_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.utils import now, today
+from tests.fixtures.api_helpers import valid_request_text
 from tests.fixtures.db import generate_user, make_friends, make_user_block, make_volunteer
 from tests.fixtures.misc import PushCollector, process_jobs
+from tests.fixtures.references import create_host_reference, create_host_request, create_host_request_by_date
 from tests.fixtures.sessions import conversations_session, requests_session
 from tests.fixtures.timewarp import Timewarp
-from tests.test_references import create_host_reference, create_host_request, create_host_request_by_date
-from tests.test_requests import valid_request_text
 
 
 def _add_mobile_push_subscription(user_id: int, *, disabled: bool = False) -> None:

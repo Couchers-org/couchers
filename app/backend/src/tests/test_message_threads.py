@@ -12,9 +12,11 @@ from couchers.jobs.handlers import send_message_notifications
 from couchers.models import HostRequest, NotificationTopicAction, User
 from couchers.proto import api_pb2, conversations_pb2, messages_pb2, notifications_pb2, requests_pb2
 from couchers.utils import today
+from tests.fixtures.api_helpers import valid_request_text
 from tests.fixtures.communities import create_community
 from tests.fixtures.db import generate_user, make_user_block
 from tests.fixtures.misc import process_jobs
+from tests.fixtures.public_trips import create_public_trip
 from tests.fixtures.sessions import (
     conversations_session,
     notifications_session,
@@ -22,15 +24,13 @@ from tests.fixtures.sessions import (
     requests_session,
 )
 from tests.fixtures.timewarp import Timewarp
-from tests.test_public_trips import _create_trip_directly
-from tests.test_requests import valid_request_text
 
 
 def _make_trip(user: User) -> tuple[int, int]:
     """Create a community + an active public trip for the given traveller."""
     with session_scope() as session:
         node_id = create_community(session, 0, 2, "Test community", [user], [], None).id
-    trip_id = _create_trip_directly(user.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    trip_id = create_public_trip(user.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id)
     return node_id, trip_id
 
 

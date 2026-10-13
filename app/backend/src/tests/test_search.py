@@ -15,8 +15,8 @@ from tests.fixtures import api_helpers
 from tests.fixtures.communities import create_community
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import Moderator
+from tests.fixtures.references import create_friend_reference
 from tests.fixtures.sessions import communities_session, events_session, search_session
-from tests.test_references import create_friend_reference
 from tests.utils import local_date_time
 
 

@@ -7,6 +7,7 @@ from datetime import date, datetime, time, timedelta
 
 from google.protobuf import wrappers_pb2
 
+from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.proto import events_pb2
 from couchers.utils import today
 from tests.fixtures.misc import Moderator
@@ -143,3 +144,13 @@ def get_event(token: str, event_id: int) -> events_pb2.Event:
     with events_session(token) as api:
         event: events_pb2.Event = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
         return event
+
+
+def valid_request_text(text: str = "Test request") -> str:
+    """Pads a request text to a valid length."""
+    # Request lengths are measured in utf-16 code units to match the frontend.
+    utf16_length = len(text.encode("utf-16-le")) // 2
+    if utf16_length >= HOST_REQUEST_MIN_LENGTH_UTF16:
+        return text
+    padding_length = HOST_REQUEST_MIN_LENGTH_UTF16 - utf16_length
+    return text + ("_" * padding_length)  # Each "_" adds one utf16 code unit.
