@@ -129,8 +129,6 @@ message ListStaysReq {
 }
 
 message ListStaysRes {
-  // only the stay fields are set: host_request_id, surfer_user_id, host_user_id, status, from_date,
-  // to_date, hosting_city and public_trip_id
   repeated HostRequest host_requests = 1;
   string next_page_token = 2;
 }
