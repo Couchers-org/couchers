@@ -225,12 +225,31 @@ describe("WebEmbed", () => {
       const aboutBlank = capturedWebViewProps.onShouldStartLoadWithRequest?.({
         url: "about:blank",
       });
+      const blobUrl = capturedWebViewProps.onShouldStartLoadWithRequest?.({
+        url: "blob:https://couchers.org/1234",
+      });
+
+      expect(aboutBlank).toBe(true);
+      expect(blobUrl).toBe(true);
+    });
+
+    it("blocks javascript: and data: URLs without opening them externally", () => {
+      const openURLSpy = jest.spyOn(Linking, "openURL").mockResolvedValue(true);
+
+      render(<WebEmbed path="/dashboard" />);
+
+      const jsUrl = capturedWebViewProps.onShouldStartLoadWithRequest?.({
+        url: "javascript:alert(1)",
+      });
       const dataUrl = capturedWebViewProps.onShouldStartLoadWithRequest?.({
         url: "data:text/html,<h1>Test</h1>",
       });
 
-      expect(aboutBlank).toBe(true);
-      expect(dataUrl).toBe(true);
+      expect(jsUrl).toBe(false);
+      expect(dataUrl).toBe(false);
+      expect(openURLSpy).not.toHaveBeenCalled();
+
+      openURLSpy.mockRestore();
     });
   });
 
@@ -368,6 +387,34 @@ describe("WebEmbed", () => {
       });
 
       expect(openURLSpy).toHaveBeenCalledWith("https://example.com/external");
+
+      openURLSpy.mockRestore();
+    });
+
+    it("escapes internal target='_blank' URLs before injecting them", () => {
+      render(<WebEmbed path="/dashboard" />);
+
+      const targetUrl = `${mockWebBaseUrl}/x";alert(1);"`;
+      capturedWebViewProps.onOpenWindow?.({ nativeEvent: { targetUrl } });
+
+      expect(mockWebViewRef.injectJavaScript).toHaveBeenCalledWith(
+        `window.location.href = ${JSON.stringify(targetUrl)}; true;`,
+      );
+    });
+
+    it("ignores javascript: target='_blank' URLs", () => {
+      const openURLSpy = jest.spyOn(Linking, "openURL").mockResolvedValue(true);
+
+      render(<WebEmbed path="/dashboard" />);
+
+      capturedWebViewProps.onOpenWindow?.({
+        nativeEvent: { targetUrl: "javascript:alert(1)" },
+      });
+
+      expect(openURLSpy).not.toHaveBeenCalled();
+      expect(mockWebViewRef.injectJavaScript).not.toHaveBeenCalledWith(
+        expect.stringContaining("alert(1)"),
+      );
 
       openURLSpy.mockRestore();
     });
