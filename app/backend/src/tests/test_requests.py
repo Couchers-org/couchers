@@ -2949,6 +2949,11 @@ def test_ListStays_by_role(db, moderator):
     assert stay.host_user_id == host.id
     assert stay.status == messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
     assert stay.from_date == (today() + timedelta(days=2)).isoformat()
+    # built with host_request_to_pb, so it's as complete as GetHostRequest's
+    with requests_session(host_token) as api:
+        assert stay == api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=stay.host_request_id))
+    assert stay.timezone
+    assert stay.latest_message.message_id
 
 
 def test_ListStays_public_trip_offer_by_stay_role(db, moderator):
