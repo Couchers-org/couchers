@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import WebEmbed from "@/components/WebEmbed";
 import { useAuthContext } from "@/features/auth/AuthContext";
+import { useAddToCalendar } from "@/hooks/useAddToCalendar";
 import { useImagePicker } from "@/hooks/useImagePicker";
 import { useWebNavigation } from "@/hooks/useWebNavigation";
 
@@ -26,6 +27,7 @@ jest.mock("@/features/auth/AuthContext", () => ({
   useAuthContext: jest.fn(),
 }));
 
+jest.mock("@/hooks/useAddToCalendar");
 jest.mock("@/hooks/useImagePicker");
 jest.mock("@/hooks/useWebNavigation");
 
@@ -40,6 +42,7 @@ const mockWebViewRef = {
 let capturedWebViewProps: {
   source?: { uri: string };
   allowsBackForwardNavigationGestures?: boolean;
+  injectedJavaScriptObject?: object;
   onLoad?: () => void;
   onNavigationStateChange?: (navState: {
     url: string;
@@ -97,6 +100,7 @@ describe("WebEmbed", () => {
 
   // Mock return values for hooks
   const mockPickImage = jest.fn();
+  const mockAddToCalendar = jest.fn();
   const mockHandleNavigationStateChange = jest.fn();
   const mockPrepareGoBack = jest.fn();
   const mockCanGoBackRef = { current: false };
@@ -125,6 +129,10 @@ describe("WebEmbed", () => {
     // Mock useImagePicker
     (useImagePicker as jest.Mock).mockReturnValue({
       pickImage: mockPickImage,
+    });
+
+    (useAddToCalendar as jest.Mock).mockReturnValue({
+      addToCalendar: mockAddToCalendar,
     });
 
     // Mock useWebNavigation
@@ -251,6 +259,38 @@ describe("WebEmbed", () => {
       expect(mockAuthContext.setUserId).toHaveBeenCalledWith(123);
       expect(mockAuthContext.setJailed).toHaveBeenCalledWith(false);
       expect(mockAuthContext.markAuthenticated).toHaveBeenCalled();
+    });
+
+    it("handles REQUEST_ADD_TO_CALENDAR message", () => {
+      render(<WebEmbed path="/event/1/weekly-meetup" />);
+      const event = {
+        title: "Weekly Meetup",
+        startDate: "2021-06-29T02:37:00Z",
+        endDate: "2021-06-29T03:37:00Z",
+        timeZone: "Europe/Amsterdam",
+        location: "Concertgebouw",
+        notes: "Be there or be square!",
+      };
+
+      capturedWebViewProps.onMessage?.({
+        nativeEvent: {
+          data: JSON.stringify({
+            type: "REQUEST_ADD_TO_CALENDAR",
+            data: event,
+          }),
+        },
+      });
+
+      expect(mockAddToCalendar).toHaveBeenCalledWith(event);
+    });
+
+    it("tells the web app it can add to calendar", () => {
+      render(<WebEmbed path="/dashboard" />);
+
+      expect(capturedWebViewProps.injectedJavaScriptObject).toEqual({
+        isNativeEmbed: true,
+        capabilities: ["addToCalendar"],
+      });
     });
 
     it("handles LOGIN_SUCCESS message with jailed user", () => {
