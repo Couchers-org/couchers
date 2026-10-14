@@ -149,5 +149,8 @@
   "sub_community_dropdown_a11y": "Explora comunidades más específicas",
   "report_discussion_button_a11y": "Denunciar esta conversación",
   "report_event_button_a11y": "Denunciar este evento",
-  "new_discussion_button": "Nuevo debate"
+  "new_discussion_button": "Nuevo debate",
+  "comment_edited_date2": "Editado <timeAgo/>",
+  "discussion_edited_date2": "Editado <timeAgo/>",
+  "add_to_calendar": "Añadir al calendario"
 }
