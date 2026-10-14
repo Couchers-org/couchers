@@ -219,6 +219,11 @@
         "subject": "{{initiator}} sent you a host request",
         "purpose": "<b>{{initiator}}</b> sent you a host request:",
         "respond_encouragement": "Please respond to this request. Even a quick decline is better than no response!"
+      },
+      "invitation": {
+        "subject": "{{initiator}} sent you an invitation",
+        "purpose": "<b>{{initiator}}</b> sent you an invitation:",
+        "respond_encouragement": "Please respond to this invitation. Even a quick decline is better than no response!"
       }
     },
     "generic": {
@@ -226,11 +231,18 @@
       "quick_decline_action": "Quick decline",
       "host_request": {
         "view_action": "View host request"
+      },
+      "invitation": {
+        "view_action": "View invitation"
       }
     },
     "reminder": {
       "host_request": {
         "subject": "You have a pending host request from {{initiator}}",
+        "purpose": "<b>{{initiator}}</b> is waiting for your response. Even a quick decline is better than no response!"
+      },
+      "invitation": {
+        "subject": "You have a pending invitation from {{initiator}}",
         "purpose": "<b>{{initiator}}</b> is waiting for your response. Even a quick decline is better than no response!"
       }
     },
@@ -244,6 +256,16 @@
           "subject": "{{counterparty}} sent you a message in your host request",
           "purpose": "<b>{{counterparty}}</b> sent you a message in your host request:"
         }
+      },
+      "invitation": {
+        "from_initiator": {
+          "subject": "{{counterparty}} sent you a message in their invitation",
+          "purpose": "<b>{{counterparty}}</b> sent you a message in their invitation:"
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}} sent you a message in your invitation",
+          "purpose": "<b>{{counterparty}}</b> sent you a message in your invitation:"
+        }
       }
     },
     "missed_messages": {
@@ -255,6 +277,16 @@
         "from_recipient": {
           "subject": "{{counterparty}} sent you message(s) in your host request",
           "purpose": "<b>{{counterparty}}</b> sent you one or more messages in your host request:"
+        }
+      },
+      "invitation": {
+        "from_initiator": {
+          "subject": "{{counterparty}} sent you message(s) in their invitation",
+          "purpose": "<b>{{counterparty}}</b> sent you one or more messages in their invitation:"
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}} sent you message(s) in your invitation",
+          "purpose": "<b>{{counterparty}}</b> sent you one or more messages in your invitation:"
         }
       }
     },
@@ -275,6 +307,24 @@
         "cancelled_by_initiator": {
           "subject": "{{counterparty}} cancelled their host request",
           "purpose": "<b>{{counterparty}}</b> cancelled their host request:"
+        }
+      },
+      "invitation": {
+        "accepted_by_recipient": {
+          "subject": "{{counterparty}} accepted your invitation",
+          "purpose": "<b>{{counterparty}}</b> accepted your invitation:"
+        },
+        "declined_by_recipient": {
+          "subject": "{{counterparty}} declined your invitation",
+          "purpose": "<b>{{counterparty}}</b> declined your invitation:"
+        },
+        "confirmed_by_initiator": {
+          "subject": "{{counterparty}} confirmed their invitation",
+          "purpose": "<b>{{counterparty}}</b> confirmed their invitation:"
+        },
+        "cancelled_by_initiator": {
+          "subject": "{{counterparty}} cancelled their invitation",
+          "purpose": "<b>{{counterparty}}</b> cancelled their invitation:"
         }
       }
     }
