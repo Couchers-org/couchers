@@ -267,7 +267,9 @@ export async function getMyEvents(creatorUserId?: number): Promise<EventSearchRe
 }
 
 /** A GetDashboard response with every section empty, except the ones given. */
-export async function getDashboard(sections: Partial<GetDashboardRes.AsObject> = {}): Promise<GetDashboardRes.AsObject> {
+export async function getDashboard(
+  sections: Partial<GetDashboardRes.AsObject> = {},
+): Promise<GetDashboardRes.AsObject> {
   return {
     reminders: { remindersList: [] },
     surfing: { hostRequestsList: [], noMore: true, nextPageToken: "" },
