@@ -213,6 +213,7 @@ def _host_request_thread_to_pb(
         created=Timestamp_from_datetime(conversation.created),
         from_date=date_to_api(host_request.from_date),
         to_date=date_to_api(host_request.to_date),
+        timezone=host_request.timezone,
         last_seen_message_id=(
             host_request.initiator_last_seen_message_id
             if host_request.initiator_user_id == user_id

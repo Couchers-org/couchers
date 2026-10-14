@@ -215,9 +215,6 @@
     "settings_page_link": "管理目前登入中的裝置",
     "description": "這個頁面會列出目前仍有效的登入工作階段。您可以點擊各筆登入旁的按鈕登出單一工作階段，或在頁面底部登出除目前工作階段外的所有裝置。",
     "login_header": "登入於{{login_datetime}}",
-    "location": "靠近<strong>{{approximate_location}}</strong>",
-    "last_activity": "上次活動<strong>{{last_activity_ago}}</strong>",
-    "expiry": "過期時間<strong>{{expiry_datetime}}</strong>",
     "current_session": "這是您當前的會話。",
     "log_out_of_session": "退出此會話",
     "log_out_of_all_session": "退出其他所有會話"

@@ -1,4 +1,3 @@
-from datetime import timedelta
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlparse
 
@@ -31,7 +30,7 @@ from couchers.tasks import (
     send_email_changed_confirmation_to_new_email,
     send_signup_email,
 )
-from couchers.utils import datetime_to_iso8601_local, now
+from tests.fixtures import api_helpers
 from tests.fixtures.db import generate_user, get_friend_relationship, make_friends
 from tests.fixtures.misc import EmailCollector, Moderator, process_jobs
 from tests.fixtures.sessions import (
@@ -510,26 +509,9 @@ def test_email_deleted_users_regression(db, email_collector: EmailCollector, mod
 
     enforce_community_memberships()
 
-    start_time = now() + timedelta(hours=2)
-    end_time = start_time + timedelta(hours=3)
-    with events_session(creating_token) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                photo_key=None,
-                parent_community_id=c_id,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
-        event_id = res.event_id
-        assert not res.is_deleted
+    res = api_helpers.create_event(token=creating_token, parent_community_id=c_id)
+    event_id = res.event_id
+    assert not res.is_deleted
 
     moderator.approve_event_occurrence(event_id)
 

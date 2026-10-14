@@ -19,7 +19,6 @@ import UserPage from "./UserPage";
 const { t } = i18n;
 
 jest.mock("features/userQueries/useCurrentUser");
-jest.mock("react-simple-maps");
 
 const getUserMock = service.user.getUser as MockedService<typeof service.user.getUser>;
 const reportContentMock = service.reporting.reportContent as MockedService<typeof service.reporting.reportContent>;

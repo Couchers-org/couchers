@@ -43,6 +43,8 @@ class Config:
     SECRET: bytes
     # Domain that cookies should set as their domain value
     COOKIE_DOMAIN: str
+    # SameSite attribute for cookies
+    COOKIE_SAMESITE: Literal["Strict", "Lax", "None"] = "Lax"
     # SQLAlchemy database connection string
     DATABASE_CONNECTION_STRING: str
     # OTLP/HTTP traces endpoint to export spans to, e.g. https://traces.example.org/v1/traces
@@ -196,6 +198,9 @@ class Config:
                 f"exceed half of DB_POOL_SIZE ({DB_POOL_SIZE // 2}), or worker threads could exhaust the DB "
                 "connection pool"
             )
+
+        if self.DEV and self.COOKIE_SAMESITE == "None":
+            raise Exception("COOKIE_SAMESITE=None requires Secure cookies, which are only set outside DEV")
 
         if not self.DEV:
             # checks for prod

@@ -35,12 +35,12 @@ from couchers.proto import (
     admin_pb2,
     auth_pb2,
     blocking_pb2,
-    events_pb2,
     references_pb2,
     reporting_pb2,
     requests_pb2,
 )
-from couchers.utils import Timestamp_from_datetime, date_to_api, datetime_to_iso8601_local, now, parse_date
+from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date
+from tests.fixtures import api_helpers
 from tests.fixtures.db import (
     add_users_to_new_moderation_list,
     backdate_conversations,
@@ -52,7 +52,6 @@ from tests.fixtures.sessions import (
     account_session,
     auth_api_session,
     blocking_session,
-    events_session,
     real_admin_session,
     references_session,
     reporting_session,
@@ -774,25 +773,9 @@ def test_DeleteEvent(db):
     with session_scope() as session:
         create_community(session, 0, 2, "Community", [normal_user], [], None)
 
-    start_time = now() + timedelta(hours=2)
-    end_time = start_time + timedelta(hours=3)
-    with events_session(normal_token) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                photo_key=None,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
-        event_id = res.event_id
-        assert not res.is_deleted
+    res = api_helpers.create_event(token=normal_token)
+    event_id = res.event_id
+    assert not res.is_deleted
 
     with session_scope() as session:
         with real_admin_session(super_token) as api:

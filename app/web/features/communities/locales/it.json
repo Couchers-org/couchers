@@ -24,7 +24,6 @@
   "comment_deleted": "Questo commento è stato eliminato.",
   "edit_comment": "Modifica commento",
   "delete_comment": "Elimina commento",
-  "comment_edited_date": "Modificato {{timeAgo}}",
   "comments": "Commenti",
   "comments_count": "Commenti | {{count}}",
   "fill_out_comment": "Devi prima digitare qualcosa!",
@@ -35,7 +34,6 @@
   "edit_info_page_success_message": "La pagina della community è stata aggiornata con successo.",
   "community_tabs_a11y_label": "Schede per le sotto-pagine della community",
   "discussion_creation_date": "Creato il {{dateOnly}}",
-  "discussion_edited_date": "Modificato {{timeAgo}}",
   "discussion_deleted": "Questa discussione è stata eliminata.",
   "delete_discussion": "Elimina discussione",
   "delete_discussion_dialog": {

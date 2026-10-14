@@ -228,9 +228,6 @@
     "settings_page_link": "Alle sessies beheren",
     "description": "Je ziet hieronder je huidige sessies. Je kan per sessie uitloggen door op de knop te klikken. Of scroll naar beneden en klik op de knop om overal (behalve bij deze sessie) in een keer uit te loggen.",
     "login_header": "Ingelogd op {{login_datetime}}",
-    "location": "In de buurt van <strong>{{approximate_location}}</strong>",
-    "last_activity": "Laatste activiteit <strong>{{last_activity_ago}}</strong>",
-    "expiry": "Wordt uitgelogd op <strong>{{expiry_datetime}}</strong>",
     "current_session": "Dit is je huidige sessie.",
     "log_out_of_session": "Deze sessie uitloggen",
     "log_out_of_all_session": "Log alle andere sessies uit"
