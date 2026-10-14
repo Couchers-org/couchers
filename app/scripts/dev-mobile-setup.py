@@ -43,6 +43,8 @@ EXPO_PUBLIC_WEB_BASE_URL="https://next.couchershq.org"
 EXPO_PUBLIC_API_BASE_URL="https://dev-api.couchershq.org"
 EXPO_PUBLIC_GROWTHBOOK_API_HOST="https://gbapi.couchershq.org"
 EXPO_PUBLIC_GROWTHBOOK_CLIENT_KEY="sdk-f8lwseEODN02p"
+# When enabled, flags resolve from app/mobile/feature-flags.dev.json instead of GrowthBook (dev only)
+EXPO_PUBLIC_FEATURE_FLAGS_OVERRIDE=1
 
 # LOCAL:
 # EXPO_PUBLIC_COUCHERS_ENV=dev
@@ -114,6 +116,8 @@ def setup(ip: str) -> None:
         f"# EXPO_PUBLIC_API_BASE_URL=\"https://dev-api.couchershq.org\"\n"
         f"EXPO_PUBLIC_GROWTHBOOK_API_HOST=\"https://gbapi.couchershq.org\"\n"
         f"EXPO_PUBLIC_GROWTHBOOK_CLIENT_KEY=\"sdk-f8lwseEODN02p\"\n"
+        f"# When enabled, flags resolve from app/mobile/feature-flags.dev.json instead of GrowthBook (dev only)\n"
+        f"EXPO_PUBLIC_FEATURE_FLAGS_OVERRIDE=1\n"
         f"\n"
         f"# LOCAL:\n"
         f"EXPO_PUBLIC_COUCHERS_ENV=dev\n"
