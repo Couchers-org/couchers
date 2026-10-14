@@ -4,15 +4,17 @@ Background job servicers
 
 import logging
 from collections.abc import Sequence
-from datetime import date, timedelta
+from datetime import UTC, date, datetime, timedelta
 from math import cos, pi, sin, sqrt
 from random import sample
 from typing import Any
+from zoneinfo import ZoneInfo
 
 import requests
 from google.protobuf import empty_pb2
-from sqlalchemy import ColumnElement, Float, Function, Integer, select
-from sqlalchemy.orm import InstrumentedAttribute, aliased
+from psycopg.types.range import TimestamptzRange
+from sqlalchemy import ColumnElement, Date, Float, Function, Integer, select
+from sqlalchemy.orm import InstrumentedAttribute, Session, aliased
 from sqlalchemy.sql import (
     and_,
     case,
@@ -34,6 +36,8 @@ from couchers.constants import (
     ACTIVENESS_PROBE_EXPIRY_TIME,
     ACTIVENESS_PROBE_INACTIVITY_PERIOD,
     ACTIVENESS_PROBE_TIME_REMINDERS,
+    EVENT_RECURRENCE_MIN_SCHEDULED_OCCURRENCES,
+    EVENT_RECURRENCE_SCHEDULE_WINDOW,
     EVENT_REMINDER_TIMEDELTA,
     HOST_REQUEST_MAX_REMINDERS,
     HOST_REQUEST_REMINDER_INTERVAL,
@@ -54,6 +58,7 @@ from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
 from couchers.event_log import log_event
+from couchers.event_recurrence import make_every_nth_week_rrule, schedule_occurrences
 from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.helpers.group_chats import is_newest_subscription, is_unseen
@@ -71,11 +76,15 @@ from couchers.models import (
     AccountDeletionToken,
     ActivenessProbe,
     ActivenessProbeStatus,
+    AttendeeStatus,
     Cluster,
     ClusterRole,
     ClusterSubscription,
+    Event,
     EventOccurrence,
     EventOccurrenceAttendee,
+    EventOrganizer,
+    EventRecurrence,
     GroupChat,
     GroupChatSubscription,
     HostingMeetupStatusSource,
@@ -102,12 +111,14 @@ from couchers.models import (
     Reference,
     StrongVerificationAttempt,
     StrongVerificationAttemptStatus,
+    Thread,
     User,
     UserBadge,
     Volunteer,
     get_moderated_models,
 )
 from couchers.models.notifications import NotificationTopicAction
+from couchers.moderation.utils import create_moderation
 from couchers.notifications.expo_api import get_expo_push_receipts
 from couchers.notifications.notify import notify
 from couchers.postal.bypass import email_verification_code_instead_of_posting
@@ -115,7 +126,7 @@ from couchers.postal.my_postcard import get_order_ids, send_postcard
 from couchers.proto import moderation_pb2, notification_data_pb2
 from couchers.proto.internal import internal_pb2, jobs_pb2
 from couchers.resources import get_badge_dict, get_static_badge_dict
-from couchers.sentry import report_message
+from couchers.sentry import report_error, report_message
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.events import (
     event_to_pb,
@@ -137,6 +148,7 @@ from couchers.utils import (
     get_coordinates,
     not_none,
     now,
+    today_in_timezone,
 )
 
 logger = logging.getLogger(__name__)
@@ -1228,6 +1240,123 @@ def send_event_reminders(payload: empty_pb2.Empty) -> None:
 
                 attendee.reminder_sent = True
                 session.commit()
+
+
+def schedule_event_occurrences(payload: empty_pb2.Empty) -> None:
+    """
+    Schedules new occurrences for recurring events based on their recurrence rules.
+    """
+    logger.info("Scheduling recurring event occurrences")
+
+    with session_scope() as session:
+        recurrence_ids = (
+            session.execute(
+                select(EventRecurrence.id)
+                .join(Event, Event.id == EventRecurrence.event_id)
+                .join(User, User.id == Event.creator_user_id)
+                .where(User.is_visible)
+                .where(EventRecurrence.ends_on_date >= cast(func.timezone(EventRecurrence.timezone, now()), Date))
+                .order_by(EventRecurrence.id)
+            )
+            .scalars()
+            .all()
+        )
+
+    for recurrence_id in recurrence_ids:
+        try:
+            with session_scope() as session:
+                recurrence = session.execute(
+                    select(EventRecurrence).where(EventRecurrence.id == recurrence_id)
+                ).scalar_one()
+                _schedule_occurrences_for_recurrence(session, recurrence)
+        except Exception as e:
+            logger.exception(f"Failed to schedule occurrences for event recurrence {recurrence_id}")
+            report_error(e)
+
+
+def _schedule_occurrences_for_recurrence(session: Session, recurrence: EventRecurrence) -> None:
+    timezone = ZoneInfo(recurrence.timezone)
+
+    # All dates are local to the recurrence's timezone
+    rrule = make_every_nth_week_rrule(
+        start_date=recurrence.dtstart_date,
+        n=recurrence.rrule_interval,
+        end_date=recurrence.ends_on_date,
+    )
+    dates_to_schedule = schedule_occurrences(
+        rrule=rrule,
+        schedule_window=EVENT_RECURRENCE_SCHEDULE_WINDOW,
+        min_occurrences=EVENT_RECURRENCE_MIN_SCHEDULED_OCCURRENCES,
+        last_scheduled_date=recurrence.last_scheduled_date,
+        today=today_in_timezone(recurrence.timezone),
+    )
+
+    organizer_user_ids = (
+        session.execute(
+            select(EventOrganizer.user_id)
+            .join(User, User.id == EventOrganizer.user_id)
+            .where(EventOrganizer.event_id == recurrence.event_id)
+            .where(User.is_visible)
+        )
+        .scalars()
+        .all()
+    )
+
+    for occurrence_date in dates_to_schedule:
+        occurrence_start_datetime = datetime.combine(
+            occurrence_date, recurrence.start_time, tzinfo=timezone
+        ).astimezone(UTC)
+        occurrence_end_datetime = datetime.combine(
+            occurrence_date + timedelta(days=recurrence.day_delta), recurrence.end_time, tzinfo=timezone
+        ).astimezone(UTC)
+
+        thread = Thread()
+        session.add(thread)
+        session.flush()
+
+        def create_occurrence(
+            moderation_state_id: int,
+            *,
+            recurrence: EventRecurrence = recurrence,
+            start_datetime: datetime = occurrence_start_datetime,
+            end_datetime: datetime = occurrence_end_datetime,
+            thread: Thread = thread,
+        ) -> int:
+            occurrence = EventOccurrence(
+                event_id=recurrence.event_id,
+                content=recurrence.content,
+                geom=recurrence.geom,
+                address=recurrence.address,
+                timezone=recurrence.timezone,
+                # TODO(#9845): Initialize photo_key. Implies adding admin usage tracking infra.
+                during=TimestamptzRange(start_datetime, end_datetime),
+                creator_user_id=recurrence.event.creator_user_id,
+                moderation_state_id=moderation_state_id,
+                thread_id=thread.id,
+            )
+            session.add(occurrence)
+            session.flush()
+            return occurrence.id
+
+        moderation_state = create_moderation(
+            session=session,
+            object_type=ModerationObjectType.event_occurrence,
+            object_id=create_occurrence,
+            creator_user_id=recurrence.event.creator_user_id,
+        )
+
+        for organizer_user_id in organizer_user_ids:
+            session.add(
+                EventOccurrenceAttendee(
+                    user_id=organizer_user_id,
+                    occurrence_id=moderation_state.object_id,
+                    attendee_status=AttendeeStatus.going,
+                )
+            )
+        session.flush()
+
+    if dates_to_schedule:
+        recurrence.last_scheduled_date = dates_to_schedule[-1]
 
 
 def check_expo_push_receipts(payload: empty_pb2.Empty) -> None:

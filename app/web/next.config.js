@@ -89,7 +89,7 @@ const nextConfig = {
 // Injected content via Sentry wizard below
 
 // eslint-disable-next-line
-const { withSentryConfig } = require("@sentry/nextjs");
+const { withSentryConfig } = require("@sentry/nextjs/config");
 // eslint-disable-next-line
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
@@ -116,6 +116,8 @@ module.exports = withSentryConfig(module.exports, {
   // Also cover the shared chunks, which is where most of our code ends up
   widenClientFileUpload: true,
 
-  // Automatically tree-shake Sentry logger statements to reduce bundle size
-  disableLogger: true,
+  webpack: {
+    // Automatically tree-shake Sentry logger statements to reduce bundle size
+    treeshake: { removeDebugLogging: true },
+  },
 });

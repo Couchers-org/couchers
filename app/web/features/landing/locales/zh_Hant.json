@@ -1,9 +1,7 @@
 {
   "introduction_subtitle": "分享你的世界，走進他們的故事。真正的沙發衝浪體驗，源於信任，基於真實，而不是交易。",
   "signup_header": "加入Couchers.org社群",
-  "signup_description2_one": "與{{count}}位成員旅行、接待與連接。<aboutLink>進一步瞭解我們</aboutLink>。",
   "signup_description2_other": "與{{count}}位成員旅行、接待與連接。<aboutLink>進一步瞭解我們</aboutLink>。",
-  "signup_description_no_link2_one": "與{{count}}位成員旅行、接待與連接。",
   "signup_description_no_link2_other": "與{{count}}位成員旅行、接待與連接。",
   "introduction_title": "相遇為陌生，告別如老友",
   "what_couchsurfing_title": "Couchers.org：一種與眾不同的旅行方式",
@@ -37,9 +35,6 @@
   "non_transactional_why": "這與建立真實互動從根本上是不相容的。只給予或只接受都是健康的，我們也應該學會更自在地面對這種關係。",
   "why": "為什麼？",
   "map_section_title": "探索我們的全球社群",
-  "num_users2_one": "{{count}}位成員",
   "num_users2_other": "{{count}}位成員",
-  "num_countries2_one": "{{count}}+個國家",
-  "num_countries2_other": "{{count}}+個國家",
-  "last_signup": "最近一次註冊於{{timeAgo}}"
+  "num_countries2_other": "{{count}}+個國家"
 }

@@ -1,5 +1,5 @@
 import logging
-from datetime import date, timedelta
+from datetime import timedelta
 
 import grpc
 from sqlalchemy import ColumnElement, and_, func, or_, select
@@ -18,7 +18,14 @@ from couchers.moderation.utils import create_moderation
 from couchers.proto import public_trips_pb2, public_trips_pb2_grpc
 from couchers.servicers.api import user_model_to_pb
 from couchers.sql import to_bool, where_moderated_content_visible, where_users_column_visible
-from couchers.utils import Timestamp_from_datetime, date_to_api, parse_date, today_in_timezone
+from couchers.utils import (
+    Timestamp_from_datetime,
+    date_id_from_page_token,
+    date_id_to_page_token,
+    date_to_api,
+    parse_date,
+    today_in_timezone,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -41,14 +48,6 @@ def _is_description_long_enough(text: str) -> bool:
     # so the backend check aligns with the frontend character counter.
     text_length_utf16 = len(text.encode("utf-16-le")) // 2
     return text_length_utf16 >= PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16
-
-
-def _parse_page_token(page_token: str) -> tuple[date | None, int | None]:
-    """Parse a page token into (from_date, trip_id). Returns (None, None) for first page."""
-    if not page_token:
-        return None, None
-    date_str, id_str = decrypt_page_token(page_token).rsplit(":", 1)
-    return date.fromisoformat(date_str), int(id_str)
 
 
 def _same_gender_filter(context: CouchersContext) -> ColumnElement[bool]:
@@ -281,7 +280,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "public_trips_disabled")
 
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        cursor_date, cursor_id = _parse_page_token(request.page_token)
+        cursor = date_id_from_page_token(request.page_token) if request.page_token else None
         ascending = request.ascending
         is_self = request.user_id == context.user_id
 
@@ -319,7 +318,8 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
                 statement = statement.where(PublicTrip.status.in_(statuses))
 
         # Cursor-based pagination using (from_date, id) composite key
-        if cursor_date is not None and cursor_id is not None:
+        if cursor is not None:
+            cursor_date, cursor_id = cursor
             if ascending:
                 statement = statement.where(
                     or_(
@@ -345,7 +345,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         next_page_token = None
         if len(public_trips) > page_size:
             last = public_trips[page_size - 1]
-            next_page_token = encrypt_page_token(f"{last.from_date.isoformat()}:{last.id}")
+            next_page_token = date_id_to_page_token(last.from_date, last.id)
 
         return public_trips_pb2.ListPublicTripsByUserRes(
             public_trips=[public_trip_to_pb(trip, session, context) for trip in public_trips[:page_size]],

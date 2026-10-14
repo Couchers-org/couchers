@@ -215,9 +215,6 @@
     "settings_page_link": "管理当前登录",
     "description": "此页面列出了活跃登录会话。您可以通过单击登录旁边的按钮退出某个会话，或者滚动到底部并单击按钮退出除当前会话以外的所有会话。",
     "login_header": "登录于{{login_datetime}}",
-    "location": "靠近<strong>{{approximate_location}}</strong>",
-    "last_activity": "上次活动<strong>{{last_activity_ago}}</strong>",
-    "expiry": "过期时间<strong>{{expiry_datetime}}</strong>",
     "current_session": "这是您当前的会话。",
     "log_out_of_session": "退出此会话",
     "log_out_of_all_session": "退出其他所有会话"
