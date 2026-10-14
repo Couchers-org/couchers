@@ -5,8 +5,7 @@ import { CONNECTIONS } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import { FriendRequest } from "proto/api_pb";
-import { useEffect, useRef } from "react";
-import { useIsMounted, useSafeState } from "utils/hooks";
+import { useEffect, useRef, useState } from "react";
 
 import type { SetMutationError } from ".";
 import FriendSummaryView from "./FriendSummaryView";
@@ -70,8 +69,7 @@ interface FriendRequestsReceivedProps {
 }
 
 function FriendRequestsReceived({ isContentAboveLoaded = true }: FriendRequestsReceivedProps) {
-  const isMounted = useIsMounted();
-  const [mutationError, setMutationError] = useSafeState(isMounted, "");
+  const [mutationError, setMutationError] = useState("");
   const { data, isLoading, isError, errors } = useFriendRequests("received");
   const { t } = useTranslation([CONNECTIONS]);
   const router = useRouter();

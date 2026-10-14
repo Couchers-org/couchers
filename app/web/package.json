@@ -114,9 +114,5 @@
     "@types/react": "^19.2.1",
     "@types/react-dom": "^19.2.1"
   },
-  "packageManager": "yarn@1.22.22",
-  "overrides": {
-    "@types/react": "19.2.7",
-    "@types/react-dom": "19.2.3"
-  }
+  "packageManager": "yarn@1.22.22"
 }
