@@ -271,9 +271,6 @@
     "settings_page_link": "Správa aktuálních přihlášení",
     "description": "Na této stránce najdeš seznam aktivních přihlášení. Z kteréhokoli se můžeš odhlásit kliknutím na tlačítko vedle daného přihlášení, nebo sjeď dolů a odhlas se ze všech ostatních relací najednou.",
     "login_header": "Přihlášení {{login_datetime}}",
-    "location": "Poblíž <strong>{{approximate_location}}</strong>",
-    "last_activity": "Poslední aktivita <strong>{{last_activity_ago}}</strong>",
-    "expiry": "Vyprší dne <strong>{{expiry_datetime}}</strong>",
     "current_session": "Toto je tvoje aktuální relace.",
     "log_out_of_session": "Odhlásit se z této relace",
     "log_out_of_all_session": "Odhlásit ze všech ostatních relací"

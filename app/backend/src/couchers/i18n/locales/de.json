@@ -242,7 +242,8 @@
     "not_donated_postal": "Du musst an Couchers.org spenden, bevor du deine Adresse verifizieren kannst.",
     "signup_flow_email_verified": "Du hast deine E-Mail-Adresse bereits verifiziert.",
     "signup_flow_invalid_request": "Ungültige Registrierungsanfrage: Du kannst deine Registrierung nicht gleichzeitig wiederherstellen und fortsetzen.",
-    "undelete_email_reused": "Dieses Konto kann nicht wiederhergestellt werden, da seine E-Mail-Adresse jetzt von einem anderen Konto verwendet wird."
+    "undelete_email_reused": "Dieses Konto kann nicht wiederhergestellt werden, da seine E-Mail-Adresse jetzt von einem anderen Konto verwendet wird.",
+    "invalid_stay_role": "Ungültige Aufenthaltsrolle."
   },
   "quick_links": {
     "do_not_email": "Du wirst keine E-Mails mehr erhalten, die nicht sicherheitsrelevant sind, und dein Hosting-Status wurde zurückgesetzt. Der Newsletter muss separat abbestellt werden.",

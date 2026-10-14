@@ -31,7 +31,6 @@
   "non_transactional_description": "Las personas no se pagan entre ellas con dinero o en especies para participar en actividades de la comunidad. Ser invitada no te obliga a ser anfitriona en el futuro.",
   "non_transactional_why": "Las transacciones monetarias son incompatibles con tener interacciones genuinas. Es perfectamente sano solo dar o solo recibir, y deberíamos aprender a sentirnos cómodo con ello.",
   "map_section_title": "Explora nuestra comunidad global",
-  "last_signup": "Última sesión {{timeAgo}}",
   "community_led_title": "Dirigido por la comunidad",
   "why": "¿Por qué?",
   "signup_description2_one": "Viaja, hospeda y conecta con {{count}} miembro. <aboutLink>Conoce más sobre nosotros</aboutLink>.",
@@ -46,5 +45,6 @@
   "num_countries2_one": "{{count}}+ país",
   "num_countries2_many": "{{count}}+ de países",
   "num_countries2_other": "{{count}}+ países",
-  "animation_error": "Error al cargar la animación"
+  "animation_error": "Error al cargar la animación",
+  "last_signup2": "Último registro <timeAgo/>"
 }

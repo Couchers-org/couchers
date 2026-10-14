@@ -55,6 +55,11 @@ jest.mock("i18n/useLocaleInfos", () => ({
     error: null,
   }),
 }));
+jest.mock("react-simple-maps", () => ({
+  ComposableMap: () => null,
+  Geographies: () => null,
+  Geography: () => null,
+}));
 
 jest.setTimeout(10000);
 
