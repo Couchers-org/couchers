@@ -61,6 +61,7 @@ def test_GetDashboard_matches_individual_rpcs(db, moderator):
                 only_active=True,
                 status_in=UPCOMING_STATUSES,
                 sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
+                number=10,
             )
         )
         hosting = api.ListHostRequests(
@@ -69,17 +70,21 @@ def test_GetDashboard_matches_individual_rpcs(db, moderator):
                 only_active=True,
                 status_in=UPCOMING_STATUSES,
                 sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
+                number=10,
             )
         )
     with events_session(token1) as api:
-        my_events = api.ListMyEvents(events_pb2.ListMyEventsReq(page_size=3))
+        my_events = api.ListMyEvents(events_pb2.ListMyEventsReq(page_size=9))
         community_events = api.ListMyEvents(
             events_pb2.ListMyEventsReq(
-                page_size=3, my_communities=True, my_communities_exclude_global=True, exclude_attending=True
+                page_size=9,
+                my_communities=True,
+                my_communities_exclude_global=True,
+                exclude_attending=True,
             )
         )
     with discussions_session(token1) as api:
-        discussions = api.ListMyCommunitiesDiscussions(discussions_pb2.ListMyCommunitiesDiscussionsReq(page_size=3))
+        discussions = api.ListMyCommunitiesDiscussions(discussions_pb2.ListMyCommunitiesDiscussionsReq(page_size=9))
     with account_session(token1) as api:
         reminders = api.GetReminders(empty_pb2.Empty())
 
@@ -167,6 +172,40 @@ def test_GetDashboard_community_events_excludes_attending(db, moderator):
     assert e_attending in {e.event_id for e in res.my_events.events}
     # ...while community_events must exclude it (exclude_attending), showing only the rest
     assert [e.event_id for e in res.community_events.events] == [e_community_only]
+
+
+def test_GetDashboard_returns_several_pages_per_section(db, moderator):
+    # the client pages through each section locally, so a section returns a batch of items and a
+    # token for that section's own RPC when there are more
+    page_size = 9  # GetDashboard's my_events page size
+    user, token = generate_user()
+
+    with session_scope() as session:
+        community_id = create_community(session, 0, 100, "Community", [user], [], None).id
+
+    start = now()
+    with events_session(token) as api:
+        event_ids = [
+            api.CreateEvent(
+                events_pb2.CreateEventReq(
+                    title=f"Event {i}",
+                    content="Test content.",
+                    location=events_pb2.EventLocation(address="Near Null Island", lat=0.1, lng=0.2),
+                    parent_community_id=community_id,
+                    start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=i + 1)),
+                    end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=i + 2)),
+                )
+            ).event_id
+            for i in range(page_size + 1)
+        ]
+    for event_id in event_ids:
+        moderator.approve_event_occurrence(event_id)
+
+    with screens_session(token) as api:
+        res = api.GetDashboard(screens_pb2.GetDashboardReq())
+
+    assert [e.event_id for e in res.my_events.events] == event_ids[:page_size]
+    assert res.my_events.next_page_token
 
 
 def test_GetDashboard_empty(db):

@@ -64,7 +64,7 @@
   "load_earlier_comments": "Завантажити попередні коментарі",
   "load_earlier_replies": "Завантажити попередні відповіді",
   "load_more_moderators": "Завантажити більше Архітекторів спільноти",
-  "local_info_label": "Місцева інформація",
+  "local_info_label": "Довідкова інформація",
   "local_info_title": "Про {{name}}",
   "new_discussion_title": "Назва обговорення",
   "new_discussion_topic": "Тема обговорення",
@@ -125,7 +125,7 @@
   "past": "Минулі",
   "upcoming": "Майбутні",
   "your_events": "Ваші події",
-  "discover_events_title": "Дізнайтеся про події на Couchers.org",
+  "discover_events_title": "Дізнайтеся про події у спільноті Couchers.org",
   "created_by_me": "Створені мною",
   "notify_attendees": "Повідомити відвідувачів події про цю зміну",
   "make_co_organizer": {
@@ -150,5 +150,7 @@
   "select_sublocality": "Оберіть район",
   "select_sub_community": "Оберіть спільноту",
   "sub_community_search_placeholder": "Місцевість",
-  "sub_community_dropdown_a11y": "Переглянути більш специфічні спільноти"
+  "sub_community_dropdown_a11y": "Переглянути більш специфічні спільноти",
+  "comment_edited_date2": "Відредаговано <timeAgo/>",
+  "discussion_edited_date2": "Відредаговано <timeAgo/>"
 }

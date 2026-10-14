@@ -257,7 +257,10 @@
     "description": "Auf dieser Seite werden aktive Anmeldungen aufgelistet. Du kannst dich von jeder davon abmelden, indem du auf die Schaltfläche neben der Anmeldung klickst oder nach unten scrollst und auf die Schaltfläche klickst, um dich von allen außer dieser Sitzung abzumelden.",
     "login_header": "Angemeldet am {{login_datetime}}",
     "log_out_of_session": "Melde dich von dieser Sitzung ab",
-    "log_out_of_all_session": "Melde dich von allen anderen Sitzungen ab"
+    "log_out_of_all_session": "Melde dich von allen anderen Sitzungen ab",
+    "location2": "In der Nähe von <location/>",
+    "last_activity2": "Zuletzt aktiv <timeAgo/>",
+    "expiry2": "Läuft am <datetime/> ab"
   },
   "strong_verification": {
     "status": {

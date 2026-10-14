@@ -598,17 +598,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
         return requests_pb2.ListStaysRes(
             host_requests=[
-                requests_pb2.HostRequest(
-                    host_request_id=host_request.conversation_id,
-                    surfer_user_id=host_request.surfer_user_id,
-                    host_user_id=host_request.host_user_id,
-                    status=hostrequeststatus2api[host_request.status],
-                    from_date=date_to_api(host_request.from_date),
-                    to_date=date_to_api(host_request.to_date),
-                    hosting_city=host_request.hosting_city,
-                    public_trip_id=host_request.public_trip_id,
-                )
-                for host_request in host_requests[:page_size]
+                host_request_to_pb(host_request, session, context) for host_request in host_requests[:page_size]
             ],
             next_page_token=next_page_token,
         )
