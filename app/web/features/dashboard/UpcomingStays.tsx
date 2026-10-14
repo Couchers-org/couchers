@@ -1,22 +1,17 @@
 import { ArrowBack, ArrowForward, Luggage, MeetingRoom } from "@mui/icons-material";
 import { Box, IconButton, styled, Typography } from "@mui/material";
-import { useInfiniteQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
-import FadingScrollTrack from "components/FadingScrollTrack";
-import { hostRequestsListKey } from "features/queryKeys";
-import { RpcError } from "grpc-web";
+import FadingScrollTrack, { cardScrollDistance } from "components/FadingScrollTrack";
 import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
-import { HostRequestStatus } from "proto/messages_pb";
-import { HostRequest, HostRequestSortBy, ListHostRequestsRes } from "proto/requests_pb";
+import { HostRequest } from "proto/requests_pb";
 import { useEffect, useRef, useState } from "react";
 import { routeToEditProfile, searchRoute } from "routes";
-import { service } from "service";
 import { theme } from "theme";
 
-import useGetDashboardSection from "./useGetDashboardSection";
 import UpcomingStayCard, { UpcomingStayCardSkeleton } from "./UpcomingStayCard";
+import useGetDashboard from "./useGetDashboard";
 
 interface UpcomingStaysWidgetProps {
   icon: React.ReactNode;
@@ -77,10 +72,9 @@ function UpcomingStaysWidget({
   }, [requests.length, isLoading]);
 
   const scroll = (dir: 1 | -1) => {
-    scrollerRef.current?.scrollBy({
-      left: dir * (CARD_WIDTH + CARD_GAP) * 2,
-      behavior: "smooth",
-    });
+    const el = scrollerRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * cardScrollDistance(el, CARD_WIDTH, CARD_GAP), behavior: "smooth" });
   };
 
   return (
@@ -183,60 +177,16 @@ function UpcomingStaysWidget({
   );
 }
 
-const UPCOMING_STATUSES = [
-  HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED,
-  HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED,
-];
-
 export default function UpcomingStays() {
   const { t } = useTranslation([DASHBOARD]);
-  const getDashboardSection = useGetDashboardSection();
-
-  // @TODO(NA) - Need to remove this and make backend page size dynamic.
   const {
-    data: tripsData,
-    isLoading: tripsLoading,
-    error: tripsError,
-  } = useInfiniteQuery<ListHostRequestsRes.AsObject, RpcError>({
-    queryKey: hostRequestsListKey({ type: "surfing", onlyActive: true }),
-    queryFn: ({ pageParam }) =>
-      pageParam
-        ? service.requests.listHostRequests({
-            pageToken: pageParam as string,
-            type: "surfing",
-            onlyActive: true,
-            statusIn: UPCOMING_STATUSES,
-            sortBy: HostRequestSortBy.HOST_REQUEST_SORT_BY_FROM_DATE,
-          })
-        : getDashboardSection("surfing"),
-    initialPageParam: undefined,
-    getNextPageParam: (lastPage) => (lastPage.noMore ? undefined : lastPage.nextPageToken),
-  });
-
-  const {
-    data: guestsData,
-    isLoading: guestsLoading,
-    error: guestsError,
-  } = useInfiniteQuery<ListHostRequestsRes.AsObject, RpcError>({
-    queryKey: hostRequestsListKey({ type: "hosting", onlyActive: true }),
-    queryFn: ({ pageParam }) =>
-      pageParam
-        ? service.requests.listHostRequests({
-            pageToken: pageParam as string,
-            type: "hosting",
-            onlyActive: true,
-            statusIn: UPCOMING_STATUSES,
-            sortBy: HostRequestSortBy.HOST_REQUEST_SORT_BY_FROM_DATE,
-          })
-        : getDashboardSection("hosting"),
-    initialPageParam: undefined,
-    getNextPageParam: (lastPage) => (lastPage.noMore ? undefined : lastPage.nextPageToken),
-  });
-
-  const upcomingTrips = (tripsData?.pages ?? []).flatMap((page) => page.hostRequestsList);
-  const upcomingGuests = (guestsData?.pages ?? []).flatMap((page) => page.hostRequestsList);
-
-  const error = tripsError ?? guestsError;
+    data: { upcomingTrips, upcomingGuests } = { upcomingTrips: [], upcomingGuests: [] },
+    isLoading,
+    error,
+  } = useGetDashboard((dashboard) => ({
+    upcomingTrips: dashboard.surfing?.hostRequestsList ?? [],
+    upcomingGuests: dashboard.hosting?.hostRequestsList ?? [],
+  }));
 
   return (
     <div>
@@ -246,7 +196,7 @@ export default function UpcomingStays() {
         icon={<MeetingRoom sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />}
         title={t("dashboard:stays.upcoming_guests_header")}
         requests={upcomingGuests}
-        isLoading={guestsLoading}
+        isLoading={isLoading}
         emptyMessage={t("dashboard:stays.no_upcoming_guests")}
         emptyCtaLabel={t("dashboard:become_a_host")}
         emptyCtaHref={`${routeToEditProfile("about")}#preferences`}
@@ -258,7 +208,7 @@ export default function UpcomingStays() {
         icon={<Luggage sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />}
         title={t("dashboard:stays.upcoming_trips_header")}
         requests={upcomingTrips}
-        isLoading={tripsLoading}
+        isLoading={isLoading}
         emptyMessage={t("dashboard:stays.no_upcoming_trips")}
         emptyCtaLabel={t("dashboard:find_a_host")}
         emptyCtaHref={searchRoute}

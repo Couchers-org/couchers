@@ -6,7 +6,6 @@ import * as blocking from "./blocking";
 import * as bugs from "./bugs";
 import * as communities from "./communities";
 import * as conversations from "./conversations";
-import * as dashboard from "./dashboard";
 import * as discussions from "./discussions";
 import * as donations from "./donations";
 import * as events from "./events";
@@ -21,6 +20,7 @@ import * as references from "./references";
 import * as reporting from "./reporting";
 import * as requests from "./requests";
 import * as resources from "./resources";
+import * as screens from "./screens";
 import * as search from "./search";
 import * as threads from "./threads";
 import * as user from "./user";
@@ -35,7 +35,6 @@ export const service = {
   blocking,
   communities,
   conversations,
-  dashboard,
   discussions,
   donations,
   events,
@@ -50,6 +49,7 @@ export const service = {
   reporting,
   requests,
   resources,
+  screens,
   search,
   threads,
   user,

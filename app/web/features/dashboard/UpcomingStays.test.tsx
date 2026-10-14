@@ -12,7 +12,7 @@ const { t } = i18n;
 const listHostRequestsMock = service.requests.listHostRequests as jest.MockedFunction<
   typeof service.requests.listHostRequests
 >;
-const getDashboardMock = service.dashboard.getDashboard as jest.MockedFunction<typeof service.dashboard.getDashboard>;
+const getDashboardMock = service.screens.getDashboard as jest.MockedFunction<typeof service.screens.getDashboard>;
 
 describe("UpcomingStays", () => {
   beforeEach(() => {

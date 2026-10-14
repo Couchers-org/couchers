@@ -14,7 +14,7 @@ const { t } = i18n;
 const nonCancelledEvents = events.filter((event) => !event.isCancelled);
 
 const listMyEventsMock = service.events.listMyEvents as jest.MockedFunction<typeof service.events.listMyEvents>;
-const getDashboardMock = service.dashboard.getDashboard as jest.MockedFunction<typeof service.dashboard.getDashboard>;
+const getDashboardMock = service.screens.getDashboard as jest.MockedFunction<typeof service.screens.getDashboard>;
 
 describe("My events", () => {
   beforeEach(() => {

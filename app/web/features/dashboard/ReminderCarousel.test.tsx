@@ -15,7 +15,7 @@ const DISMISSED_REMINDERS_KEY = "dismissedReminders";
 
 const { t } = i18n;
 
-const getDashboardMock = service.dashboard.getDashboard as jest.MockedFunction<typeof service.dashboard.getDashboard>;
+const getDashboardMock = service.screens.getDashboard as jest.MockedFunction<typeof service.screens.getDashboard>;
 
 // Reminders load as part of the dashboard
 function mockReminders(reminders: GetRemindersRes.AsObject) {

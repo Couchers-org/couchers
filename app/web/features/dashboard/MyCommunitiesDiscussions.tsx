@@ -1,16 +1,11 @@
 import { ArrowBack, ArrowForward, Forum } from "@mui/icons-material";
 import { IconButton, styled, Typography } from "@mui/material";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
-import { ListMyCommunitiesDiscussionsRes } from "proto/discussions_pb";
 import { useState } from "react";
-import { service } from "service";
 
-import { listMyCommunitiesDiscussionsKey } from "../queryKeys";
 import DiscussionListRow, { DiscussionListContainer, DiscussionListRowSkeleton } from "./DiscussionListRow";
-import useGetDashboardSection from "./useGetDashboardSection";
+import useGetDashboard, { DASHBOARD_PAGE_SIZE } from "./useGetDashboard";
 
 const SectionHeader = styled("div")({
   display: "flex",
@@ -33,42 +28,15 @@ export default function MyCommunitiesDiscussions() {
   const { t } = useTranslation([DASHBOARD]);
 
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
-  const getDashboardSection = useGetDashboardSection();
 
-  // @TODO(NA) - Need to remove this and make backend page size dynamic.
-  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery<
-    ListMyCommunitiesDiscussionsRes.AsObject,
-    RpcError
-  >({
-    queryKey: [listMyCommunitiesDiscussionsKey],
-    queryFn: ({ pageParam: pageToken }) =>
-      pageToken
-        ? service.communities.listMyCommunitiesDiscussions({
-            pageToken: pageToken as string,
-            pageSize: 3,
-          })
-        : getDashboardSection("discussions"),
-    getNextPageParam: (lastPage) => (lastPage.nextPageToken ? lastPage.nextPageToken : undefined),
-    initialPageParam: undefined as string | undefined,
-  });
+  const { data: items = [], isLoading } = useGetDashboard((dashboard) => dashboard.discussions?.discussionsList ?? []);
 
-  const pages = data?.pages ?? [];
-  const isLastLoadedPage = pages.length === 0 || currentPageIndex === pages.length - 1;
-  const currentItems = pages[currentPageIndex]?.discussionsList;
-
-  const hasPrev = currentPageIndex > 0;
-  const hasForward = !isLastLoadedPage || !!hasNextPage;
-
-  const handleNext = () => {
-    if (!isLastLoadedPage) {
-      setCurrentPageIndex((i) => i + 1);
-    } else if (hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-      setCurrentPageIndex((i) => i + 1);
-    }
-  };
-
-  const showingSkeleton = isLoading || (isFetchingNextPage && currentItems === undefined);
+  const currentItems = items.slice(
+    currentPageIndex * DASHBOARD_PAGE_SIZE,
+    (currentPageIndex + 1) * DASHBOARD_PAGE_SIZE,
+  );
+  const hasPreviousPage = currentPageIndex > 0;
+  const hasNextPage = (currentPageIndex + 1) * DASHBOARD_PAGE_SIZE < items.length;
 
   return (
     <div>
@@ -81,24 +49,24 @@ export default function MyCommunitiesDiscussions() {
           <IconButton
             size="small"
             onClick={() => setCurrentPageIndex((i) => i - 1)}
-            disabled={!hasPrev}
-            color={hasPrev ? "primary" : "default"}
+            disabled={!hasPreviousPage}
+            color={hasPreviousPage ? "primary" : "default"}
             aria-label={t("dashboard:prev_page_button_a11y")}
           >
             <ArrowBack fontSize="small" />
           </IconButton>
           <IconButton
             size="small"
-            onClick={handleNext}
-            disabled={!hasForward || isFetchingNextPage}
-            color={hasForward ? "primary" : "default"}
+            onClick={() => setCurrentPageIndex((i) => i + 1)}
+            disabled={!hasNextPage}
+            color={hasNextPage ? "primary" : "default"}
             aria-label={t("dashboard:next_page_button_a11y")}
           >
             <ArrowForward fontSize="small" />
           </IconButton>
         </div>
       </SectionHeader>
-      {showingSkeleton ? (
+      {isLoading ? (
         <DiscussionListContainer>
           {[0, 1, 2].map((i) => (
             <DiscussionListRowSkeleton key={i} />

@@ -14,7 +14,7 @@ const { t } = i18n;
 const nonCancelledEvents = events.filter((event) => !event.isCancelled);
 
 const listMyEventsMock = service.events.listMyEvents as jest.MockedFunction<typeof service.events.listMyEvents>;
-const getDashboardMock = service.dashboard.getDashboard as jest.MockedFunction<typeof service.dashboard.getDashboard>;
+const getDashboardMock = service.screens.getDashboard as jest.MockedFunction<typeof service.screens.getDashboard>;
 
 describe("Community events", () => {
   beforeEach(() => {
@@ -64,47 +64,30 @@ describe("Community events", () => {
     await assertErrorAlert(errorMessage);
   });
 
-  it("navigates to the next page when the next arrow is clicked", async () => {
-    const firstPage = nonCancelledEvents.slice(0, 2);
-    const secondPage = nonCancelledEvents.slice(2);
-
-    // the first page comes with the dashboard, later pages from the widget's own RPC
+  it("pages through the dashboard's events without fetching more", async () => {
+    // GetDashboard returns a few pages' worth; a fourth event spills onto a second page of 3
+    const extraEvent = { ...nonCancelledEvents[0], eventId: 999, slug: "extra-event", title: "Extra event" };
+    const allEvents = [...nonCancelledEvents, extraEvent];
     getDashboardMock.mockImplementation(() =>
       getDashboard({
-        communityEvents: {
-          eventsList: firstPage,
-          nextPageToken: "page2_token",
-          totalItems: firstPage.length + secondPage.length,
-        },
+        communityEvents: { eventsList: allEvents, nextPageToken: "", totalItems: allEvents.length },
       }),
     );
-    listMyEventsMock.mockResolvedValue({
-      eventsList: secondPage,
-      nextPageToken: "",
-      totalItems: firstPage.length + secondPage.length,
-    });
 
     render(<CommunityEvents />, { wrapper });
 
-    await screen.findByText(firstPage[0].title);
-    expect(screen.getByText(firstPage[1].title)).toBeVisible();
-    expect(screen.queryByText(secondPage[0].title)).not.toBeInTheDocument();
+    await screen.findByText(allEvents[0].title);
+    expect(screen.queryByText(extraEvent.title)).not.toBeInTheDocument();
 
     const user = userEvent.setup();
-    await user.click(
-      screen.getByRole("button", {
-        name: t("dashboard:next_page_button_a11y"),
-      }),
-    );
+    const nextButton = screen.getByRole("button", { name: t("dashboard:next_page_button_a11y") });
+    await user.click(nextButton);
 
-    await screen.findByText(secondPage[0].title);
-    expect(screen.queryByText(firstPage[0].title)).not.toBeInTheDocument();
-    expect(listMyEventsMock).toHaveBeenCalledWith({
-      pageToken: "page2_token",
-      pageSize: 3,
-      myCommunities: true,
-      myCommunitiesExcludeGlobal: true,
-      excludeAttending: true,
-    });
+    expect(await screen.findByText(extraEvent.title)).toBeVisible();
+    expect(screen.queryByText(allEvents[0].title)).not.toBeInTheDocument();
+    // the last page: nothing further to page to, and no extra request was made
+    expect(nextButton).toBeDisabled();
+    expect(getDashboardMock).toHaveBeenCalledTimes(1);
+    expect(listMyEventsMock).not.toHaveBeenCalled();
   });
 });
