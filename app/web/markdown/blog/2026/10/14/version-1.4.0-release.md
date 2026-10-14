@@ -3,7 +3,7 @@ is_blog_post: true
 title: "Couchers.org v1.4 Release: A New Inbox, a Smarter Dashboard and More"
 slug: version-1.4.0-release
 description: "One inbox for all your conversations, a smarter dashboard, better translations and dozens of fixes in Couchers v1.4."
-date: 2026/10/07
+date: 2026/10/14
 author: Nicole
 author_username: unsettleddown
 has_custom_cta: true
