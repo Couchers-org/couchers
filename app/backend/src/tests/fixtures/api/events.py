@@ -4,13 +4,13 @@ from typing import cast
 from zoneinfo import ZoneInfo
 
 import grpc
-from google.api import httpbody_pb2  # type: ignore[import-untyped]
 from google.protobuf import wrappers_pb2
 from sqlalchemy import select
 
 from couchers.db import session_scope
 from couchers.models import EventOccurrence, EventRecurrence
 from couchers.proto import events_pb2, events_pb2_grpc
+from couchers.proto.google.api import httpbody_pb2
 from couchers.servicers.events import Events
 from couchers.utils import today
 from tests.fixtures.misc import Moderator
