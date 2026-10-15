@@ -41,7 +41,6 @@ from couchers.proto import (
     api_pb2,
     conversations_pb2,
     discussions_pb2,
-    events_pb2,
     messages_pb2,
     moderation_pb2,
     notifications_pb2,
@@ -52,14 +51,13 @@ from couchers.proto import (
 )
 from couchers.servicers.threads import pack_thread_id
 from couchers.utils import Timestamp_from_datetime, now, today
-from tests.fixtures import api_helpers
+from tests.fixtures.api import events as events_api
 from tests.fixtures.db import backdate_conversations, generate_user, make_friends
 from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
 from tests.fixtures.sessions import (
     api_session,
     conversations_session,
     discussions_session,
-    events_session,
     notifications_session,
     pages_session,
     public_trips_session,
@@ -2942,7 +2940,7 @@ def test_event_moderation_state_content(db):
     with session_scope() as session:
         create_community(session, 0, 2, "Community", [user], [], None)
 
-    res = api_helpers.create_event(token=token, title="My Event Title", content="My event description.")
+    res = events_api.create_event(token=token, title="My Event Title", content="My event description.")
     event_id = res.event_id
 
     with session_scope() as session:
@@ -3059,7 +3057,7 @@ def test_SetUserContentVisibility_event_occurrence(db):
     with session_scope() as session:
         create_community(session, 0, 2, "Community", [creator], [], None)
 
-    event_id = api_helpers.create_event(token=creator_token).event_id
+    event_id = events_api.create_event(token=creator_token).event_id
 
     with real_moderation_session(super_token) as api:
         res = api.SetUserContentVisibility(
@@ -3880,9 +3878,8 @@ def test_GetModeratedObject_event_occurrence_in_group(db):
         community_id = community.id
         group_id = group.id
 
-    event = api_helpers.create_event(token=token)
-    with events_session(token) as api:
-        api.TransferEvent(events_pb2.TransferEventReq(event_id=event.event_id, new_owner_group_id=group_id))
+    event = events_api.create_event(token=token)
+    events_api.transfer_event(token=token, event_id=event.event_id, new_owner_group_id=group_id)
 
     res = _get_moderated_object(
         super_token, _moderation_state_id(ModerationObjectType.event_occurrence, event.event_id)
@@ -3905,9 +3902,8 @@ def test_GetModeratedObject_event_occurrence_transferred_to_group_elsewhere(db):
         other_community_id = other_community.id
         group_id = group.id
 
-    event = api_helpers.create_event(token=token)
-    with events_session(token) as api:
-        api.TransferEvent(events_pb2.TransferEventReq(event_id=event.event_id, new_owner_group_id=group_id))
+    event = events_api.create_event(token=token)
+    events_api.transfer_event(token=token, event_id=event.event_id, new_owner_group_id=group_id)
 
     res = _get_moderated_object(
         super_token, _moderation_state_id(ModerationObjectType.event_occurrence, event.event_id)
@@ -4008,7 +4004,7 @@ def test_GetModeratedObject_reply_on_event(db):
     with session_scope() as session:
         community_id = create_community(session, 0, 2, "Event Community", [user], [], None).id
 
-    event = api_helpers.create_event(token=token, title="Board Games")
+    event = events_api.create_event(token=token, title="Board Games")
     comment_thread_id = _post_reply(token, event.thread.thread_id, "Can I bring a friend?")
     reply_thread_id = _post_reply(token, comment_thread_id, "Sure")
 
@@ -4156,7 +4152,7 @@ def test_GetModeratedObject_event_occurrence_owned_by_user(db):
     with session_scope() as session:
         community_id = create_community(session, 0, 2, "Event Community", [user], [], None).id
 
-    event = api_helpers.create_event(token=token)
+    event = events_api.create_event(token=token)
 
     res = _get_moderated_object(
         super_token, _moderation_state_id(ModerationObjectType.event_occurrence, event.event_id)
@@ -4176,11 +4172,8 @@ def test_GetModeratedObject_event_occurrence_transferred_to_community(db):
         create_community(session, 0, 2, "Location Community", [user], [], None)
         other_community_id = create_community(session, 5, 7, "Other Community", [user], [], None).id
 
-    event = api_helpers.create_event(token=token)
-    with events_session(token) as api:
-        api.TransferEvent(
-            events_pb2.TransferEventReq(event_id=event.event_id, new_owner_community_id=other_community_id)
-        )
+    event = events_api.create_event(token=token)
+    events_api.transfer_event(token=token, event_id=event.event_id, new_owner_community_id=other_community_id)
 
     res = _get_moderated_object(
         super_token, _moderation_state_id(ModerationObjectType.event_occurrence, event.event_id)
