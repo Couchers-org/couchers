@@ -294,5 +294,6 @@
     "be_safe_guideline": "Lee los perfiles, las referencias y los recursos. Denuncia cualquier contenido o comportamiento inapropiado.",
     "no_money_title": "Mantén el dinero lejos de esto",
     "no_money_guideline": "Mantén las cosas fuera de lo transaccional. No intercambies dinero mientras te hospedes o recibas a alguien. Couchers.org se trata de aprender, vivir experiencias y conocer gente."
-  }
+  },
+  "ambiguous_language_display_format": "{{name}} ({{code}})"
 }
