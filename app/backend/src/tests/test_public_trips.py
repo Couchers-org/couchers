@@ -421,7 +421,7 @@ def test_list_public_trips_uses_timezone(db, frozen_timewarp):
     frozen_timewarp.freeze_at(datetime(1999, 12, 31, 23, 30, tzinfo=UTC))
     traveler, _ = generate_user()
     _, host_token = generate_user()
-    node_id = _make_node() # Europe/Helsinki timezone
+    node_id = _make_node()  # Europe/Helsinki timezone
 
     # First trip is over in Europe/Helsinki, second trip is ongoing
     _create_trip_directly(traveler.id, node_id, date(1999, 12, 30), date(1999, 12, 31))
