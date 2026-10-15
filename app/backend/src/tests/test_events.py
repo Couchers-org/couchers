@@ -1320,7 +1320,7 @@ def _paginate_my_events(token: str, page_size: int) -> list[int]:
     event_ids = []
     page_token = ""
     for _ in range(10):
-        res = events_api.list_my_events(token=token, page_number=page_size, page_token=page_token)
+        res = events_api.list_my_events(token=token, page_size=page_size, page_token=page_token)
         event_ids += [event.event_id for event in res.events]
         page_token = res.next_page_token
         if not page_token:
@@ -1417,7 +1417,7 @@ def test_list_my_events_exclude_attending(db, moderator: Moderator):
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
     # user2 has no attendance/organizing relationship with e_community_only, so exclude_attending has no effect on it
-    events_api.list_my_events(token=token2, my_communities=True, exclude_attending=True)
+    res = events_api.list_my_events(token=token2, my_communities=True, exclude_attending=True)
     # user2 organizes e_attending, e_community_only, e_both — all excluded except e_own (user2 has no relation)
     assert [e.event_id for e in res.events] == [e_own]
 
