@@ -288,5 +288,6 @@
     "be_kind_title": "Seid freundlich zueinander",
     "be_kind_guideline": "Couchers.org ist eine inklusive Community, in der Menschen aller Kulturen und Hintergründe zusammenkommen. Behandle alle mit gegenseitigem Respekt und Würde.",
     "no_money_guideline": "Halte es unkommerziell. Tausche kein Geld während des Surfens oder beim Hosten. Couchers.org dreht sich um Lernen, Erfahrungen und das Kennenlernen von Menschen."
-  }
+  },
+  "ambiguous_language_display_format": "{{name}} ({{code}})"
 }
