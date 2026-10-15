@@ -12,6 +12,16 @@ export function daysBetween(date1: Temporal.PlainDate, date2: Temporal.PlainDate
   return date1.until(date2, { largestUnit: "days" }).days;
 }
 
+/** The instant at which a date starts in the given timezone. */
+export function startOfDay(date: Temporal.PlainDate, timezone: string): Temporal.Instant {
+  return date.toZonedDateTime(timezone).toInstant();
+}
+
+/** The (exclusive) instant at which a date ends in the given timezone. */
+export function endOfDay(date: Temporal.PlainDate, timezone: string): Temporal.Instant {
+  return startOfDay(date.add({ days: 1 }), timezone);
+}
+
 /** Converts a protobuf Timestamp to a Temporal.Instant value (timezone-agnostic). */
 export function timestampToInstant(timestamp: Timestamp.AsObject): Temporal.Instant {
   // By protobuf, seconds and nanos should be integers.
