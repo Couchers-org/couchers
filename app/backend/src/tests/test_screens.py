@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import time, timedelta
 
 from google.protobuf import empty_pb2
 
@@ -168,23 +168,16 @@ def test_GetDashboard_returns_several_pages_per_section(db, moderator):
     with session_scope() as session:
         community_id = create_community(session, 0, 100, "Community", [user], [], None).id
 
-    start = now()
-    with events_session(token) as api:
-        event_ids = [
-            api.CreateEvent(
-                events_pb2.CreateEventReq(
-                    title=f"Event {i}",
-                    content="Test content.",
-                    location=events_pb2.EventLocation(address="Near Null Island", lat=0.1, lng=0.2),
-                    parent_community_id=community_id,
-                    start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=i + 1)),
-                    end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=i + 2)),
-                )
-            ).event_id
-            for i in range(page_size + 1)
-        ]
-    for event_id in event_ids:
-        moderator.approve_event_occurrence(event_id)
+    tomorrow = today() + timedelta(days=1)
+    event_ids = [
+        events_api.create_event(
+            token=token,
+            parent_community_id=community_id,
+            start_date_time=(tomorrow, time(i, 0)),
+            approve_by=moderator,
+        ).event_id
+        for i in range(page_size + 1)
+    ]
 
     with screens_session(token) as api:
         res = api.GetDashboard(screens_pb2.GetDashboardReq())
