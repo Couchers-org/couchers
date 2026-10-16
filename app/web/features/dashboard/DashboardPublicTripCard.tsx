@@ -253,7 +253,7 @@ export function DashboardPublicTripCard({
                       letterSpacing: "0.08em",
                     }}
                   >
-                    {t("publicTrips:you_overlay")}
+                    {t("publicTrips:trip_card.you_overlay")}
                   </Typography>
                 </Box>
               )}
