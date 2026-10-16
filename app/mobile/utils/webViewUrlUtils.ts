@@ -1,5 +1,33 @@
 import { privacyPolicyRoute, tosRoute } from "../routes";
 
+// Schemes that may load inside the WebView besides http(s) (iframes, object URLs)
+const IN_WEBVIEW_SCHEMES = ["about", "blob"];
+
+// Schemes that must never be loaded or handed off to the OS
+const UNSAFE_SCHEMES = ["javascript", "data", "file", "vbscript"];
+
+function getScheme(url: string): string | null {
+  const match = /^\s*([a-z][a-z0-9+.-]*):/i.exec(url);
+  return match ? match[1].toLowerCase() : null;
+}
+
+function isInternalUrl(url: string, webBaseUrl: string): boolean {
+  if (!url.startsWith(webBaseUrl)) {
+    return false;
+  }
+  // Require a boundary so e.g. https://couchers.org.evil.com doesn't match
+  const next = url.charAt(webBaseUrl.length);
+  return next === "" || next === "/" || next === "?" || next === "#";
+}
+
+/**
+ * Whether a URL must be neither loaded in the WebView nor opened externally
+ */
+export function isUnsafeUrl(url: string): boolean {
+  const scheme = getScheme(url);
+  return scheme !== null && UNSAFE_SCHEMES.includes(scheme);
+}
+
 /**
  * Determines whether a URL should load inside the WebView or be opened externally
  * @param url - The URL to check
@@ -18,19 +46,10 @@ export function shouldLoadInWebView(url: string, webBaseUrl: string): boolean {
   }
 
   // Internal app URLs
-  if (url.startsWith(webBaseUrl)) {
+  if (isInternalUrl(url, webBaseUrl)) {
     return true;
   }
 
-  // External protocol URLs that the OS should handle, not the WebView
-  if (url.startsWith("mailto:") || url.startsWith("tel:")) {
-    return false;
-  }
-
-  // Special browser URLs (about:blank, data:, blob:, javascript:)
-  if (!url.startsWith("http://") && !url.startsWith("https://")) {
-    return true;
-  }
-
-  return false;
+  const scheme = getScheme(url);
+  return scheme !== null && IN_WEBVIEW_SCHEMES.includes(scheme);
 }
