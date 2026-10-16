@@ -51,7 +51,7 @@
     "grpc-web": "2.1.1",
     "i18next": "^26.4.2",
     "intersection-observer": "^0.12.2",
-    "lottie-react": "^2.4.1",
+    "lottie-react": "^3.1.2",
     "luhn": "^2.4.1",
     "maplibre-gl": "^5.24.0",
     "markdown-it": "^15.0.2",

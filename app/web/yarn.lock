@@ -6851,14 +6851,14 @@ loose-envify@^1.4.0:
   dependencies:
     js-tokens "^3.0.0 || ^4.0.0"
 
-lottie-react@^2.4.1:
-  version "2.4.1"
-  resolved "https://registry.yarnpkg.com/lottie-react/-/lottie-react-2.4.1.tgz#4bd3f2a8a5e48edbd43c05ca5080fdd50f049d31"
-  integrity sha512-LQrH7jlkigIIv++wIyrOYFLHSKQpEY4zehPicL9bQsrt1rnoKRYCYgpCUe5maqylNtacy58/sQDZTkwMcTRxZw==
+lottie-react@^3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/lottie-react/-/lottie-react-3.1.2.tgz#fae1f68f1732c32217fde1cbcc8ec2f25fb8864f"
+  integrity sha512-otbTz+Kk1ksYzcWFAlcH8xFGBWkW/hUNEHy6gLvYf7kgEkZxyPT8lXJeBu/5o0xo0cdMwvd/lwkpuXCTSQmJdQ==
   dependencies:
-    lottie-web "^5.10.2"
+    lottie-web "^5.13.0"
 
-lottie-web@^5.10.2:
+lottie-web@^5.13.0:
   version "5.13.0"
   resolved "https://registry.yarnpkg.com/lottie-web/-/lottie-web-5.13.0.tgz#441d3df217cc8ba302338c3f168e1a3af0f221d3"
   integrity sha512-+gfBXl6sxXMPe8tKQm7qzLnUy5DUPJPKIyRHwtpCpyUEYjHYRJC/5gjUvdkuO2c3JllrPtHXH5UJJK8LRYl5yQ==
