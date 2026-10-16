@@ -1,6 +1,5 @@
 // Adds a calendar file to the user's calendar.
-// On web: downloads the .ics file
-// TODO(#9226): Mobile implementation (isNativeEmbed)
+// On web: downloads the .ics file (the native app uses sendNativeAddToCalendar instead)
 export async function addToCalendar(url: string, filename: string) {
   const response = await fetch(url, { credentials: "include" });
   if (!response.ok) {
