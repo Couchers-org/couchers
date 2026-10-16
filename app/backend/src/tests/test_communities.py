@@ -24,17 +24,16 @@ from couchers.models import (
     Thread,
     User,
 )
-from couchers.proto import api_pb2, auth_pb2, communities_pb2, discussions_pb2, events_pb2, pages_pb2
+from couchers.proto import api_pb2, auth_pb2, communities_pb2, discussions_pb2, pages_pb2
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_multi
-from tests.fixtures import api_helpers
+from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user, get_user_id_and_token
 from tests.fixtures.misc import Moderator
 from tests.fixtures.sessions import (
     auth_api_session,
     communities_session,
     discussions_session,
-    events_session,
     pages_session,
 )
 from tests.test_auth import get_session_cookie_tokens
@@ -201,21 +200,16 @@ def create_discussion(token: str, community_id: int | None, group_id: int | None
 def create_event(
     token: str, community_id: int | None, group_id: int | None, title: str, content: str, start_td: timedelta
 ) -> None:
-    res = api_helpers.create_event(
+    res = events_api.create_event(
         token=token,
         title=title,
         content=content,
         start_date_time=local_date_time(now() + start_td),
         end_date_time=local_date_time(now() + start_td + timedelta(hours=2)),
     )
-    with events_session(token) as api:
-        api.TransferEvent(
-            events_pb2.TransferEventReq(
-                event_id=res.event_id,
-                new_owner_community_id=community_id,
-                new_owner_group_id=group_id,
-            )
-        )
+    events_api.transfer_event(
+        token=token, event_id=res.event_id, new_owner_community_id=community_id, new_owner_group_id=group_id
+    )
 
 
 def get_community_id(session: Session, community_name: str) -> int:

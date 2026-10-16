@@ -6,7 +6,7 @@ from couchers.db import session_scope
 from couchers.helpers.upload_uses import UploadUseType, get_upload_uses, get_upload_uses_for_keys
 from couchers.models import Base, EventOccurrence, Page, PageType, PhotoGallery, PhotoGalleryItem, Upload
 from couchers.proto import pages_pb2
-from tests.fixtures import api_helpers
+from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import pages_session
 from tests.test_communities import create_community
@@ -61,11 +61,7 @@ def test_get_upload_uses_event(db):
         create_community(session, 0, 2, "Community", [user], [], None)
     _add_upload(user.id, "event_key")
 
-    res = api_helpers.create_event(
-        token=token,
-        photo_key="event_key",
-    )
-    event_id = res.event_id
+    event_id = events_api.create_event(token=token, photo_key="event_key").event_id
 
     with session_scope() as session:
         uses = get_upload_uses(session, "event_key")

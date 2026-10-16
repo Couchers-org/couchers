@@ -29,7 +29,6 @@ from couchers.proto import (
     discussions_pb2_grpc,
     donations_pb2_grpc,
     editor_pb2_grpc,
-    events_pb2_grpc,
     galleries_pb2_grpc,
     gis_pb2_grpc,
     groups_pb2_grpc,
@@ -62,7 +61,6 @@ from couchers.servicers.conversations import Conversations
 from couchers.servicers.discussions import Discussions
 from couchers.servicers.donations import Donations, Stripe
 from couchers.servicers.editor import Editor
-from couchers.servicers.events import Events
 from couchers.servicers.galleries import Galleries
 from couchers.servicers.gis import GIS
 from couchers.servicers.groups import Groups
@@ -548,13 +546,6 @@ def reporting_session(token: str):
     channel = FakeChannel(token)
     reporting_pb2_grpc.add_ReportingServicer_to_server(Reporting(), channel)
     yield reporting_pb2_grpc.ReportingStub(channel)
-
-
-@contextmanager
-def events_session(token: str):
-    channel = FakeChannel(token)
-    events_pb2_grpc.add_EventsServicer_to_server(Events(), channel)
-    yield events_pb2_grpc.EventsStub(channel)
 
 
 @contextmanager

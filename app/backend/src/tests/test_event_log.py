@@ -25,7 +25,7 @@ from couchers.proto import (
     search_pb2,
 )
 from couchers.utils import create_coordinate, today
-from tests.fixtures import api_helpers
+from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user, make_friends
 from tests.fixtures.sessions import (
     MockGrpcContext,
@@ -775,7 +775,7 @@ def test_event_created_event(db):
     with session_scope() as session:
         create_community(session, 0, 2, "Community", [user], [], None)
 
-    api_helpers.create_event(token=token)
+    events_api.create_event(token=token)
 
     with session_scope() as session:
         events = _get_events(session, "event.created")

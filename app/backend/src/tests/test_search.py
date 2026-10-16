@@ -11,10 +11,10 @@ from couchers.materialized_views import refresh_materialized_views, refresh_mate
 from couchers.models import EventOccurrence, HostingStatus, LanguageAbility, LanguageFluency, MeetupStatus
 from couchers.proto import api_pb2, communities_pb2, events_pb2, search_pb2
 from couchers.utils import Timestamp_from_datetime, create_coordinate, now
-from tests.fixtures import api_helpers
+from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import Moderator
-from tests.fixtures.sessions import communities_session, events_session, search_session
+from tests.fixtures.sessions import communities_session, search_session
 from tests.test_communities import create_community, testing_communities  # noqa
 from tests.test_references import create_friend_reference
 from tests.utils import local_date_time
@@ -424,9 +424,9 @@ def test_event_search_by_query(sample_community):
     """Test that EventSearch finds events by title (and content if query_title_only=False)."""
     user, token = generate_user()
 
-    event1 = api_helpers.create_event(token=token, title="Lorem Ipsum")
-    event2 = api_helpers.create_event(token=token, content="Lorem Ipsum")
-    api_helpers.create_event(token=token)
+    event1 = events_api.create_event(token=token, title="Lorem Ipsum")
+    event2 = events_api.create_event(token=token, content="Lorem Ipsum")
+    events_api.create_event(token=token)
 
     with search_session(token) as api:
         res = api.EventSearch(search_pb2.EventSearchReq(query=wrappers_pb2.StringValue(value="Ipsum")))
@@ -444,17 +444,17 @@ def test_event_search_by_time(sample_community):
     """Test that EventSearch filters with the given time range."""
     user, token = generate_user()
 
-    event1 = api_helpers.create_event(
+    event1 = events_api.create_event(
         token=token,
         start_date_time=local_date_time(now() + timedelta(hours=1)),
         end_date_time=local_date_time(now() + timedelta(hours=2)),
     )
-    event2 = api_helpers.create_event(
+    event2 = events_api.create_event(
         token=token,
         start_date_time=local_date_time(now() + timedelta(hours=4)),
         end_date_time=local_date_time(now() + timedelta(hours=5)),
     )
-    event3 = api_helpers.create_event(
+    event3 = events_api.create_event(
         token=token,
         start_date_time=local_date_time(now() + timedelta(hours=7)),
         end_date_time=local_date_time(now() + timedelta(hours=8)),
@@ -485,7 +485,7 @@ def test_event_search_by_circle(sample_community):
 
     inside_pts = [(0.1, 0.01), (0.01, 0.1)]
     for i, (lat, lng) in enumerate(inside_pts):
-        api_helpers.create_event(
+        events_api.create_event(
             token=token,
             title=f"Inside area {i}",
             location=events_pb2.EventLocation(lat=lat, lng=lng, address=f"Inside area {i}"),
@@ -493,7 +493,7 @@ def test_event_search_by_circle(sample_community):
 
     outside_pts = [(1, 0.1), (0.1, 1), (10, 1)]
     for i, (lat, lng) in enumerate(outside_pts):
-        api_helpers.create_event(
+        events_api.create_event(
             token=token,
             title=f"Outside area {i}",
             location=events_pb2.EventLocation(lat=lat, lng=lng, address=f"Outside area {i}"),
@@ -511,7 +511,7 @@ def test_event_search_by_rectangle(sample_community):
 
     inside_pts = [(0.1, 0.2), (1.2, 0.2)]
     for i, (lat, lng) in enumerate(inside_pts):
-        api_helpers.create_event(
+        events_api.create_event(
             token=token,
             title=f"Inside area {i}",
             location=events_pb2.EventLocation(lat=lat, lng=lng, address=f"Inside area {i}"),
@@ -519,7 +519,7 @@ def test_event_search_by_rectangle(sample_community):
 
     outside_pts = [(-1, 0.1), (0.1, 0.01), (-0.01, 0.01), (0.1, 1.2), (10, 1)]
     for i, (lat, lng) in enumerate(outside_pts):
-        api_helpers.create_event(
+        events_api.create_event(
             token=token,
             title=f"Outside area {i}",
             location=events_pb2.EventLocation(lat=lat, lng=lng, address=f"Outside area {i}"),
@@ -547,7 +547,7 @@ def test_event_search_pagination(sample_community):
 
     anchor_time = now().replace(second=0, microsecond=0)  # Events are created at minute granularity
     for i in range(5):
-        api_helpers.create_event(
+        events_api.create_event(
             token=token,
             title=f"Event {i + 1}",
             start_date_time=local_date_time(anchor_time + timedelta(hours=i + 1)),
@@ -599,7 +599,7 @@ def test_event_search_pagination_with_page_number(sample_community):
 
     anchor_time = now()
     for i in range(5):
-        api_helpers.create_event(
+        events_api.create_event(
             token=token,
             title=f"Event {i + 1}",
             start_date_time=local_date_time(anchor_time + timedelta(hours=i + 1)),
@@ -641,10 +641,10 @@ def test_event_search_filter_subscription_attendance_organizing_my_communities(s
     with session_scope() as session:
         create_community(session, 55, 60, "Other community", [other_user], [], None)
 
-    e_subscribed = api_helpers.create_event(token=other_token, title="Subscribed event")
-    e_attending = api_helpers.create_event(token=other_token, title="Attending event")
-    api_helpers.create_event(token=other_token, title="Community event")
-    api_helpers.create_event(
+    e_subscribed = events_api.create_event(token=other_token, title="Subscribed event")
+    e_attending = events_api.create_event(token=other_token, title="Attending event")
+    events_api.create_event(token=other_token, title="Community event")
+    events_api.create_event(
         token=other_token,
         title="Other community event",
         location=events_pb2.EventLocation(lat=58, lng=1, address="Somewhere"),
@@ -656,14 +656,11 @@ def test_event_search_filter_subscription_attendance_organizing_my_communities(s
     for oid in occurrence_ids:
         moderator.approve_event_occurrence(oid)
 
-    with events_session(token) as api:
-        api_helpers.create_event(token=token, title="Organized event")
-        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=e_subscribed.event_id, subscribe=True))
-        api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(
-                event_id=e_attending.event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING
-            )
-        )
+    events_api.create_event(token=token, title="Organized event")
+    events_api.set_event_subscription(token=token, event_id=e_subscribed.event_id, subscribe=True)
+    events_api.set_event_attendance(
+        token=token, event_id=e_attending.event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING
+    )
 
     with search_session(token) as api:
         res = api.EventSearch(search_pb2.EventSearchReq())
@@ -707,9 +704,9 @@ def test_event_search_exclude_attending(sample_community, moderator: Moderator):
     with session_scope() as session:
         create_community(session, 55, 60, "Other community", [other_user], [], None)
 
-    e_attending = api_helpers.create_event(token=other_token, title="Attending event")
-    e_community_only = api_helpers.create_event(token=other_token, title="Community only event")
-    api_helpers.create_event(
+    e_attending = events_api.create_event(token=other_token, title="Attending event")
+    e_community_only = events_api.create_event(token=other_token, title="Community only event")
+    events_api.create_event(
         token=other_token,
         title="Other community event",
         location=events_pb2.EventLocation(lat=58, lng=1, address="Somewhere"),
@@ -720,13 +717,10 @@ def test_event_search_exclude_attending(sample_community, moderator: Moderator):
     for oid in occurrence_ids:
         moderator.approve_event_occurrence(oid)
 
-    with events_session(token) as api:
-        e_organized = api_helpers.create_event(token=token, title="Organized event")
-        api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(
-                event_id=e_attending.event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING
-            )
-        )
+    e_organized = events_api.create_event(token=token, title="Organized event")
+    events_api.set_event_attendance(
+        token=token, event_id=e_attending.event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING
+    )
 
     with search_session(token) as api:
         # baseline: my_communities returns all community events including attended/organized
