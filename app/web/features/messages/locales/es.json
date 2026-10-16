@@ -208,5 +208,22 @@
   },
   "surfer_confirm_box_title": "¡{{name}} ha aceptado tu solicitud!",
   "surfer_confirm_box_description": "Confirma para asegurar tu estancia, o cancela si tus planes han cambiado.",
-  "show_more_actions_button_a11y": "Mostrar más acciones"
+  "show_more_actions_button_a11y": "Mostrar más acciones",
+  "mark_all_read_button_text_public_trips": "Marcar todas las invitaciones a viajes públicos como leídas",
+  "invitation_respond_box_title": "Responder a la invitación de {{name}}",
+  "invitation_respond_box_description": "Al aceptar, {{name}} sabrá que te gustaría quedarte. En cualquier caso puedes seguir chateando para concretar los detalles.",
+  "invitation_accept_confirmation": "Aceptaste la invitación de {{name}}. Envíale un saludo y coordina los detalles de tu llegada.",
+  "cancel_accepted_invitation_stay_button": "Cancelar estancia",
+  "cancel_accepted_invitation_stay_dialog_title": "¿Cancelar tu estancia con {{name}}?",
+  "cancel_accepted_invitation_stay_dialog_message": "Se notificará a {{name}}. No puedes deshacer esta acción.",
+  "cancel_accepted_invitation_stay_dialog_confirm_button": "Cancelar estancia",
+  "cancel_accepted_invitation_stay_dialog_dismiss_button": "Mantener la estancia",
+  "invitation_sent_box_title": "Invitación enviada",
+  "invitation_sent_box_description": "{{name}} aún no ha respondido. Te avisaremos cuando responda.",
+  "invitation_host_accepted_box_title": "{{name}} aceptó tu invitación",
+  "invitation_host_accepted_box_description": "Confirma para asegurar la estancia, o desiste si tus planes han cambiado.",
+  "invitation_host_confirmed_box_title": "Estás hospedando a {{name}}",
+  "invitation_host_confirmed_box_description": "Si tus planes cambian aún puedes retirar tu invitación. Se notificará a {{name}}.",
+  "withdraw_invitation_button": "Retirar invitación",
+  "withdraw_invitation_dialog_title": "¿Retirar tu invitación?"
 }

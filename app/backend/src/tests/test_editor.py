@@ -973,12 +973,13 @@ def test_MoveEventToCommunity_explicit_community(event_in_wrong_community):
 def test_MoveEventToCommunity_moves_all_occurrences(event_in_wrong_community):
     editor_token, creator_token, event_id, country_id, city_id = event_in_wrong_community
 
+    # the fixture's occurrence is tomorrow at noon, so schedule this one after it
     other_occurrence_id = api_helpers.schedule_event(
         token=creator_token,
         event_id=event_id,
         location=events_pb2.EventLocation(address="Somewhere", lat=3, lng=1),
-        start_date_time=local_date_time(now() + timedelta(days=1)),
-        end_date_time=local_date_time(now() + timedelta(days=1, hours=1)),
+        start_date_time=local_date_time(now() + timedelta(days=2)),
+        end_date_time=local_date_time(now() + timedelta(days=2, hours=1)),
     ).event_id
 
     with real_editor_session(editor_token) as api:
