@@ -117,8 +117,8 @@ HOST_REQUEST_DUPLICATE_WINDOW_HOURS = 3
 
 # Note: Javascript's string.length is in utf16 code units, Python's len(str) is in utf8 code units.
 HOST_REQUEST_MIN_LENGTH_UTF16 = 250  # Must match frontend
-PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16 = 150  # Must match frontend
-PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16 = 100  # Must match frontend
+PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16 = 150  # Traveller's trip description. Must match frontend
+PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16 = 100  # Host's message offering to host a trip. Must match frontend
 
 ANTIBOT_FREQ = timedelta(hours=48)
 
