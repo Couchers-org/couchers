@@ -74,9 +74,9 @@ const CommunitiesPage = () => {
           <PageTitle>{t("nav.communities")}</PageTitle>
         </HeaderRow>
       </div>
-      <StyledTypography>
+      <div>
         <CommunitiesList />
-      </StyledTypography>
+      </div>
       <StyledTypography variant="body1">
         <Trans
           i18nKey="dashboard:community_builder"
