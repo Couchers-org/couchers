@@ -33,4 +33,4 @@ if ! command -v rsync >/dev/null 2>&1; then
 fi
 
 make protos
-npx next build
+yarn build
