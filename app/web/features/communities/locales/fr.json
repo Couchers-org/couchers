@@ -70,9 +70,7 @@
   "comment_deleted": "Ce commentaire a été supprimé.",
   "edit_comment": "Éditer le commentaire",
   "delete_comment": "Supprimer le commentaire",
-  "comment_edited_date": "Modifié il y a {{timeAgo}}",
   "discussion_creation_date": "Créé le {{dateOnly}}",
-  "discussion_edited_date": "Edité {{timeAgo}}",
   "discussion_deleted": "Cette discussion a été supprimée.",
   "delete_discussion": "Supprimer la discussion",
   "delete_discussion_dialog": {
@@ -96,5 +94,16 @@
   "event_image_input_alt": "Ajout d'images de l'événement",
   "events_label": "Événements",
   "events_title": "Événements",
-  "event_title_label": "Titre"
+  "event_title_label": "Titre",
+  "make_co_organizer": {
+    "title": "Rendre co-organisateur.rice",
+    "dialog_title": "Rendre {{name}} co-organisateur.rice",
+    "dialog_text": "Êtes-vous sûr.e de vouloir rendre {{name}} co-organisateur.ice de {{event}} ?"
+  },
+  "remove_as_co_organizer": {
+    "title": "Retirer comme co-organisateur.rice",
+    "dialog_title": "Retirer {{name}} comme co-organisateur.ice",
+    "dialog_text": "Êtes-vous sûr.e de vouloir retirer {{name}} comme co-organisateur.rice de {{event}} ?"
+  },
+  "local_info_label": "Informations locales"
 }

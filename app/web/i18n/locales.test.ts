@@ -59,14 +59,14 @@ describe("getLocaleInfos", () => {
 
   it("maps Weblate-sourced languages, converting underscores to hyphens", () => {
     const weblateLanguages: WeblateLanguage[] = [
-      { code: "es_419", name: "Spanish (Latin America)", translated_percent: 90 },
+      { code: "zh_Hans", name: "Chinese (Simplified)", translated_percent: 90 },
     ];
 
     const locales = getLocaleInfos(weblateLanguages);
 
     expect(locales).toContainEqual({
-      code: "es-419",
-      autonym: LOCALE_AUTONYMS["es-419"],
+      code: "zh-Hans",
+      autonym: LOCALE_AUTONYMS["zh-Hans"],
       stringAvailabilityPercent: 90,
     });
   });

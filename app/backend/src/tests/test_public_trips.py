@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import UTC, date, datetime, timedelta
 from unittest.mock import patch
 
 import grpc
@@ -34,11 +34,6 @@ def _valid_request_text(text: str = "Offer to host") -> str:
     if utf16_length >= HOST_REQUEST_MIN_LENGTH_UTF16:
         return text
     return text + "_" * (HOST_REQUEST_MIN_LENGTH_UTF16 - utf16_length)
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
 
 
 # 150+ utf-16 code units to satisfy PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16.
@@ -372,6 +367,7 @@ def test_get_public_trip(db):
         assert res.user.user_id == user.id
         assert res.community_slug == "test-community"
         assert res.community_name == "Test community"
+        assert res.timezone == "Europe/Helsinki"
 
 
 def test_get_public_trip_not_found(db):
@@ -418,6 +414,23 @@ def test_list_public_trips_filters_closed_and_past(db):
     with public_trips_session(host_token) as api:
         res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
         assert [t.trip_id for t in res.public_trips] == [active]
+
+
+def test_list_public_trips_uses_timezone(db, frozen_timewarp):
+    # 1999-12-31 23:30 UTC == 2000-01-01 01:30 Helsinki
+    frozen_timewarp.freeze_at(datetime(1999, 12, 31, 23, 30, tzinfo=UTC))
+    traveler, _ = generate_user()
+    _, host_token = generate_user()
+    node_id = _make_node()  # Europe/Helsinki timezone
+
+    # First trip is over in Europe/Helsinki, second trip is ongoing
+    _create_trip_directly(traveler.id, node_id, date(1999, 12, 30), date(1999, 12, 31))
+    ongoing = _create_trip_directly(traveler.id, node_id, date(2000, 1, 1), date(2000, 1, 2))
+
+    with public_trips_session(host_token) as api:
+        res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
+        assert [t.trip_id for t in res.public_trips] == [ongoing]
+        assert res.public_trips[0].timezone == "Europe/Helsinki"
 
 
 def test_list_public_trips_hides_invisible_user(db):

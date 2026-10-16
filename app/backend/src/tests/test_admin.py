@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import grpc
 import pytest
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.sql import func
 
 from couchers.db import session_scope
@@ -35,12 +35,12 @@ from couchers.proto import (
     admin_pb2,
     auth_pb2,
     blocking_pb2,
-    events_pb2,
     references_pb2,
     reporting_pb2,
     requests_pb2,
 )
-from couchers.utils import Timestamp_from_datetime, date_to_api, datetime_to_iso8601_local, now, parse_date
+from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date
+from tests.fixtures import api_helpers
 from tests.fixtures.db import (
     add_users_to_new_moderation_list,
     backdate_conversations,
@@ -52,7 +52,6 @@ from tests.fixtures.sessions import (
     account_session,
     auth_api_session,
     blocking_session,
-    events_session,
     real_admin_session,
     references_session,
     reporting_session,
@@ -61,11 +60,6 @@ from tests.fixtures.sessions import (
 from tests.test_communities import create_community
 from tests.test_references import create_host_reference
 from tests.test_requests import valid_request_text
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
 
 
 def test_access_by_normal_user(db):
@@ -622,6 +616,43 @@ def test_RecoverDeletedUser_after_user_initiated_deletion(db, push_collector: Pu
         assert user.undelete_until is None
 
 
+def test_RecoverDeletedUser_email_reused(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == normal_user.id).values(deleted_at=func.now()))
+
+    new_user, _ = generate_user(email=normal_user.email)
+
+    with real_admin_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.email))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert (
+            e.value.details()
+            == "That email address is used by more than one user, look them up by username or ID instead."
+        )
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.RecoverDeletedUser(admin_pb2.RecoverDeletedUserReq(user=normal_user.username))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+
+def test_SearchUsers_exact_email(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    deleted_user, _ = generate_user(email="first_last@couchers.org.invalid", delete_user=True)
+    live_user, _ = generate_user(email="first_last@couchers.org.invalid")
+    wildcard_match, _ = generate_user(email="firstxlast@couchers.org.invalid")
+
+    with real_admin_session(super_token) as api:
+        res = api.SearchUsers(admin_pb2.SearchUsersReq(email="first_last@couchers.org.invalid"))
+        assert {u.user_id for u in res.users} == {deleted_user.id, live_user.id, wildcard_match.id}
+
+        res = api.SearchUsers(admin_pb2.SearchUsersReq(exact_email="First_Last@couchers.org.invalid"))
+        assert {u.user_id for u in res.users} == {deleted_user.id, live_user.id}
+
+
 def test_CreateApiKey(db, email_collector: EmailCollector, push_collector: PushCollector):
     with session_scope() as session:
         super_user, super_token = generate_user(is_superuser=True)
@@ -742,25 +773,9 @@ def test_DeleteEvent(db):
     with session_scope() as session:
         create_community(session, 0, 2, "Community", [normal_user], [], None)
 
-    start_time = now() + timedelta(hours=2)
-    end_time = start_time + timedelta(hours=3)
-    with events_session(normal_token) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                photo_key=None,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
-        event_id = res.event_id
-        assert not res.is_deleted
+    res = api_helpers.create_event(token=normal_token)
+    event_id = res.event_id
+    assert not res.is_deleted
 
     with session_scope() as session:
         with real_admin_session(super_token) as api:
@@ -1423,7 +1438,10 @@ def test_admin_actions_on_mutations(db, push_collector: PushCollector):
         # SendModNote with notify
         res = api.SendModNote(
             admin_pb2.SendModNoteReq(
-                user=normal_user.username, content="Please update your profile", internal_id="test1"
+                user=normal_user.username,
+                content="Please update your profile",
+                internal_id="test1",
+                notification=admin_pb2.MOD_NOTE_NOTIFICATION_NOTIFY,
             )
         )
         assert any(
@@ -1431,17 +1449,31 @@ def test_admin_actions_on_mutations(db, push_collector: PushCollector):
             for a in res.admin_actions
         )
 
-        # SendModNote with do_not_notify
+        # SendModNote without notifying
         res = api.SendModNote(
             admin_pb2.SendModNoteReq(
                 user=normal_user.username,
                 content="Silent note",
                 internal_id="test2",
-                do_not_notify=True,
+                notification=admin_pb2.MOD_NOTE_NOTIFICATION_NONE,
             )
         )
         assert any(
             a.action_type == "send_mod_note" and a.note == "Notify user: No\n\nSilent note" for a in res.admin_actions
+        )
+
+        # SendModNote including the note text in the email
+        res = api.SendModNote(
+            admin_pb2.SendModNoteReq(
+                user=normal_user.username,
+                content="Emailed note",
+                internal_id="test3",
+                notification=admin_pb2.MOD_NOTE_NOTIFICATION_NOTIFY_WITH_CONTENT,
+            )
+        )
+        assert any(
+            a.action_type == "send_mod_note" and a.note == "Notify user: Yes, including the note text\n\nEmailed note"
+            for a in res.admin_actions
         )
 
         # DeleteUser

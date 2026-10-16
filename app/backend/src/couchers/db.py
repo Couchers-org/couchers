@@ -128,7 +128,7 @@ def are_friends(session: Session, context: CouchersContext, other_user: int) -> 
     return session.execute(query).scalar_one_or_none() is not None
 
 
-def get_parent_node_at_location(session: Session, shape: WKBElement) -> Node | None:
+def get_parent_node_at_location(session: Session, shape: Geom) -> Node | None:
     """
     Finds the smallest node containing the shape.
 

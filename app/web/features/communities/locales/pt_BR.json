@@ -127,8 +127,6 @@
   "comment_deleted": "Este comentário foi excluído.",
   "edit_comment": "Editar comentário",
   "delete_comment": "Excluir comentário",
-  "comment_edited_date": "Editado há {{timeAgo}}",
-  "discussion_edited_date": "Editado há {{timeAgo}}",
   "discussion_deleted": "Esta discussão foi excluída.",
   "delete_discussion": "Excluir discussão",
   "delete_discussion_dialog": {
@@ -150,5 +148,6 @@
   "select_sublocality": "Selecionar bairro",
   "select_sub_community": "Selecionar comunidade",
   "sub_community_search_placeholder": "Localização",
-  "sub_community_dropdown_a11y": "Navegar comunidades mais específicas"
+  "sub_community_dropdown_a11y": "Navegar comunidades mais específicas",
+  "new_discussion_button": "Nova discussão"
 }

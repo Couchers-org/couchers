@@ -143,6 +143,13 @@ def abort_on_invalid_password(password: str, context: CouchersContext) -> None:
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "insecure_password")
 
 
+def abort_if_email_reused(context: CouchersContext, session: Session, user: User) -> None:
+    if session.execute(
+        select(User.id).where(User.email == user.email).where(User.reserves_email).where(User.id != user.id)
+    ).first():
+        context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "undelete_email_reused")
+
+
 def _volunteer_info_to_pb(volunteer: Volunteer, username: str) -> account_pb2.GetMyVolunteerInfoRes:
     return account_pb2.GetMyVolunteerInfoRes(
         display_name=volunteer.display_name,
@@ -247,7 +254,7 @@ class Account(account_pb2_grpc.AccountServicer):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_email")
 
         # email already in use (possibly by this user)
-        if session.execute(select(User).where(User.email == request.new_email)).scalar_one_or_none():
+        if session.execute(select(User.id).where(User.email == request.new_email).where(User.reserves_email)).first():
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_email")
 
         user.new_email = request.new_email

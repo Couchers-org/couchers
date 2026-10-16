@@ -25,7 +25,7 @@
       "collapse_all": "Réduisez tout",
       "description": "Toute modification apportée ci-dessous est enregistrée automatiquement. Veuillez noter que vous pouvez toujours recevoir des notifications importantes concernant votre compte et votre contenu, en dehors de vos paramètres de notification préférés.",
       "channels": {
-        "email_label": "Email",
+        "email_label": "E-mail",
         "push_label": "Notifications push"
       }
     },

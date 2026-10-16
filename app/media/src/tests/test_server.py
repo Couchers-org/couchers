@@ -1,5 +1,6 @@
 import io
 import json
+import shutil
 from base64 import urlsafe_b64encode
 from concurrent import futures
 from contextlib import contextmanager
@@ -72,9 +73,10 @@ def client_with_secrets(tmp_path):
         media_server_base_url="https://testing.couchers.invalid",
         main_server_address="localhost:8088",
         main_server_use_ssl=False,
-        media_upload_location=tmp_path,
+        media_upload_location=tmp_path / "uploads",
         media_cors_origin="*",
         thumbnail_size=200,
+        media_seed_location=tmp_path / "seed",
     )
 
     with app.test_client() as client:
@@ -602,6 +604,18 @@ def test_cache_headers(client_with_secrets):
     # Test with mismatching Etag
     rv = client.get(f"/img/full/{key}.jpg", headers=[("If-None-Match", "strunt")])
     assert rv.status_code == 200
+
+
+def test_seed_location(client_with_secrets, tmp_path):
+    client, secret_key, bearer_token = client_with_secrets
+    (tmp_path / "seed").mkdir()
+    shutil.copy(DATADIR / "5000x1000.jpg", tmp_path / "seed" / "seeded.jpg")
+
+    rv = client.get("/img/full/seeded.jpg")
+    assert rv.data == (tmp_path / "seed" / "seeded.jpg").read_bytes()
+
+    rv = client.get("/img/thumbnail/seeded.jpg")
+    assert Image.open(io.BytesIO(rv.data)).size == (200, 200)
 
 
 def exif_source_bytes():

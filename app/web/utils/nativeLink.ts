@@ -71,7 +71,7 @@ export function sendNativeRequestReview() {
 
 // Image picker bridge for native mobile app
 export type ImagePickResult =
-  | { success: true; imageBase64: string; mimeType: string }
+  | { success: true; imageBase64: string; mimeType: string; fileName?: string }
   | { success: false; canceled?: boolean; error?: string };
 
 type ImagePickCallback = (result: ImagePickResult) => void;

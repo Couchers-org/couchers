@@ -1,6 +1,3 @@
-from datetime import timedelta
-
-import pytest
 from google.protobuf import wrappers_pb2
 from sqlalchemy import select
 
@@ -8,17 +5,11 @@ from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.helpers.upload_uses import UploadUseType, get_upload_uses, get_upload_uses_for_keys
 from couchers.models import Base, EventOccurrence, Page, PageType, PhotoGallery, PhotoGalleryItem, Upload
-from couchers.proto import events_pb2, pages_pb2
-from couchers.utils import datetime_to_iso8601_local, now
-from tests.conftest import testconfig  # noqa
+from couchers.proto import pages_pb2
+from tests.fixtures import api_helpers
 from tests.fixtures.db import generate_user
-from tests.fixtures.sessions import events_session, pages_session
+from tests.fixtures.sessions import pages_session
 from tests.test_communities import create_community
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
 
 
 def _add_upload(user_id, key):
@@ -65,24 +56,15 @@ def test_get_upload_uses_profile_gallery(db):
 
 def test_get_upload_uses_event(db):
     user, token = generate_user()
-    start_time = now() + timedelta(hours=2)
-    end_time = start_time + timedelta(hours=3)
 
     with session_scope() as session:
         create_community(session, 0, 2, "Community", [user], [], None)
     _add_upload(user.id, "event_key")
 
-    with events_session(token) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Event With Photo",
-                content="content",
-                photo_key="event_key",
-                location=events_pb2.EventLocation(address="Null Island", lat=0.1, lng=0.2),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
+    res = api_helpers.create_event(
+        token=token,
+        photo_key="event_key",
+    )
     event_id = res.event_id
 
     with session_scope() as session:

@@ -50,6 +50,8 @@ from couchers.servicers.api import response_rate_to_pb, user_model_to_pb
 from couchers.sql import to_bool, users_visible, where_moderated_content_visible, where_users_column_visible
 from couchers.utils import (
     Timestamp_from_datetime,
+    date_id_from_page_token,
+    date_id_to_page_token,
     date_to_api,
     get_coordinates,
     now,
@@ -114,6 +116,7 @@ def host_request_to_pb(
         created=Timestamp_from_datetime(initial_message.time),
         from_date=date_to_api(host_request.from_date),
         to_date=date_to_api(host_request.to_date),
+        timezone=host_request.timezone,
         last_seen_message_id=(
             host_request.initiator_last_seen_message_id
             if context.user_id == host_request.initiator_user_id
@@ -187,7 +190,14 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if not from_date or not to_date:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_date")
 
-        today = today_in_timezone(recipient.timezone)
+        # If this is an offer in response to a public trip, it's validated further down
+        public_trip_id = request.public_trip_id if request.HasField("public_trip_id") else None
+
+        # an offer on a public trip reverses the roles: the caller is the host and the recipient is the traveller
+        surfer_user, host_user = (user, recipient) if public_trip_id is None else (recipient, user)
+
+        # the dates are in the timezone at the host's location
+        today = today_in_timezone(host_user.timezone or "Etc/UTC")
 
         # request starts from the past
         if from_date < today:
@@ -222,9 +232,6 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 "host_request_rate_limit2",
                 substitutions={"count": RATE_LIMIT_HOURS},
             )
-
-        # If this is an offer in response to a public trip, validate it
-        public_trip_id = request.public_trip_id if request.HasField("public_trip_id") else None
 
         # Offers on public trips are deduplicated per trip further down instead
         if public_trip_id is None:
@@ -271,17 +278,17 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 and user.gender != recipient.gender
             ):
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "public_trip_same_gender_only")
-            # Prevent duplicate offers on the same trip
+            # Prevent duplicate offers on the same trip. A withdrawn offer doesn't count, so a host
+            # can offer again after withdrawing, e.g. to renegotiate dates.
             existing_offer = session.execute(
-                select(HostRequest)
+                select(HostRequest.conversation_id)
                 .where(HostRequest.public_trip_id == public_trip_id)
                 .where(HostRequest.initiator_user_id == context.user_id)
+                .where(HostRequest.status != HostRequestStatus.cancelled)
+                .limit(1)
             ).scalar_one_or_none()
-            if existing_offer:
+            if existing_offer is not None:
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "duplicate_host_request_for_trip")
-
-        # an offer on a public trip reverses the roles: the caller is the host and the recipient is the traveller
-        surfer_user, host_user = (recipient, user) if public_trip_id is not None else (user, recipient)
 
         conversation = Conversation()
         session.add(conversation)
@@ -321,8 +328,6 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             to_date=to_date,
             status=HostRequestStatus.pending,
             initiator_last_seen_message_id=message.id,
-            # TODO: tz
-            # timezone=recipient.timezone,
             hosting_city=host_user.city,
             hosting_location=host_user.geom,
             hosting_radius=host_user.geom_radius,
@@ -514,6 +519,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     created=Timestamp_from_datetime(result.Conversation.created),
                     from_date=date_to_api(result.HostRequest.from_date),
                     to_date=date_to_api(result.HostRequest.to_date),
+                    timezone=result.HostRequest.timezone,
                     last_seen_message_id=(
                         result.HostRequest.initiator_last_seen_message_id
                         if context.user_id == result.HostRequest.initiator_user_id
@@ -541,6 +547,60 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
         return requests_pb2.ListHostRequestsRes(
             next_page_token=next_page_token, no_more=no_more, host_requests=host_requests
+        )
+
+    def ListStays(
+        self, request: requests_pb2.ListStaysReq, context: CouchersContext, session: Session
+    ) -> requests_pb2.ListStaysRes:
+        if request.role == requests_pb2.STAY_ROLE_HOSTING:
+            role_column = HostRequest.host_user_id
+        elif request.role == requests_pb2.STAY_ROLE_SURFING:
+            role_column = HostRequest.surfer_user_id
+        else:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_stay_role")
+
+        page_size = min(MAX_PAGE_SIZE, request.page_size or DEFAULT_PAGINATION_LENGTH)
+
+        statement = where_moderated_content_visible(
+            where_users_column_visible(
+                where_users_column_visible(select(HostRequest), context, HostRequest.initiator_user_id),
+                context,
+                HostRequest.recipient_user_id,
+            ),
+            context,
+            HostRequest,
+            is_list_operation=True,
+        ).where(
+            role_column == context.user_id,
+            HostRequest.status.in_([HostRequestStatus.accepted, HostRequestStatus.confirmed]),
+            HostRequest.end_time >= func.now(),
+        )
+
+        if request.page_token:
+            token_date, token_id = date_id_from_page_token(request.page_token)
+            statement = statement.where(
+                or_(
+                    HostRequest.from_date > token_date,
+                    and_(HostRequest.from_date == token_date, HostRequest.conversation_id > token_id),
+                )
+            )
+
+        host_requests = (
+            session.execute(statement.order_by(HostRequest.from_date, HostRequest.conversation_id).limit(page_size + 1))
+            .scalars()
+            .all()
+        )
+
+        next_page_token = ""
+        if len(host_requests) > page_size:
+            last = host_requests[page_size - 1]
+            next_page_token = date_id_to_page_token(last.from_date, last.conversation_id)
+
+        return requests_pb2.ListStaysRes(
+            host_requests=[
+                host_request_to_pb(host_request, session, context) for host_request in host_requests[:page_size]
+            ],
+            next_page_token=next_page_token,
         )
 
     def RespondHostRequest(

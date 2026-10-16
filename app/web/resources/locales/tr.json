@@ -251,7 +251,6 @@
     "board_member": "Yönetim Kurulu Üyesi"
   },
   "language_names": {
-    "es-419": "İspanyolca",
     "fr": "Fransızca (Fransa)",
     "he": "İbranice",
     "hi": "Hintçe",
@@ -300,5 +299,6 @@
   "ok": "Tamam",
   "close_button_a11y": "Kapat",
   "app_store_badge_a11y": "App Store'dan İndirin",
-  "google_play_badge_a11y": "İndirin Google Play"
+  "google_play_badge_a11y": "İndirin Google Play",
+  "more_options_a11y": "Daha fazla seçenek"
 }

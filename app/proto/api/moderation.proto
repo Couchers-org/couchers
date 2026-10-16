@@ -21,6 +21,8 @@ service Moderation {
   rpc SetUserContentVisibility(SetUserContentVisibilityReq) returns (SetUserContentVisibilityRes) {}
 
   rpc ListModerationStates(ListModerationStatesReq) returns (ListModerationStatesRes) {}
+
+  rpc GetModeratedObject(GetModeratedObjectReq) returns (GetModeratedObjectRes) {}
 }
 
 
@@ -205,4 +207,41 @@ message ListModerationStatesReq {
 message ListModerationStatesRes {
   repeated ModerationStateInfo moderation_states = 1;
   string next_page_token = 2;
+}
+
+message ModeratedObjectCommunity {
+  int64 community_id = 1;
+  string community_name = 2;
+  // Set when the object belongs to a group within the community
+  int64 group_id = 3;
+  string group_name = 4;
+}
+
+// What a comment thread is attached to
+message ModeratedThreadParent {
+  oneof parent {
+    int64 event_occurrence_id = 1;
+    int64 discussion_id = 2;
+    int64 page_id = 3;
+  }
+  string title = 4;
+}
+
+message GetModeratedObjectReq {
+  int64 moderation_state_id = 1;
+}
+
+message GetModeratedObjectRes {
+  ModerationStateInfo moderation_state = 1;
+  // Web link to the object, or to what it's attached to; empty if there is none
+  string url = 2;
+  // Not set if the object doesn't belong to a community
+  ModeratedObjectCommunity community = 3;
+  // Only set for comments and replies whose thread is attached to something
+  ModeratedThreadParent thread_parent = 4;
+  // Only set for replies
+  int64 parent_comment_id = 5;
+  string parent_comment_content = 6;
+  // Users the object is aimed at besides its author, e.g. the host of a host request or the members of a group chat
+  repeated int64 involved_user_ids = 7;
 }

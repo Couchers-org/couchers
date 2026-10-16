@@ -1,11 +1,9 @@
-from datetime import timedelta
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlparse
 
 import pytest
 from sqlalchemy import func, select, update
 
-import couchers.jobs.handlers
 from couchers.config import config
 from couchers.context import make_background_user_context, make_logged_out_context
 from couchers.crypto import b64decode, random_hex, urlsafe_secure_token
@@ -32,7 +30,7 @@ from couchers.tasks import (
     send_email_changed_confirmation_to_new_email,
     send_signup_email,
 )
-from couchers.utils import datetime_to_iso8601_local, now
+from tests.fixtures import api_helpers
 from tests.fixtures.db import generate_user, get_friend_relationship, make_friends
 from tests.fixtures.misc import EmailCollector, Moderator, process_jobs
 from tests.fixtures.sessions import (
@@ -43,11 +41,6 @@ from tests.fixtures.sessions import (
     real_editor_session,
 )
 from tests.test_communities import create_community
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
 
 
 def test_signup_verification_email(db, email_collector: EmailCollector):
@@ -344,7 +337,7 @@ def test_do_not_email_non_security_unsublink(db, email_collector: EmailCollector
     assert "/quick-link?payload=" in email.html
 
 
-def test_email_prefix_config(db, email_collector: EmailCollector, monkeypatch):
+def test_email_prefix_config(db, email_collector: EmailCollector):
     user, _ = generate_user()
 
     with session_scope() as session:
@@ -364,12 +357,9 @@ def test_email_prefix_config(db, email_collector: EmailCollector, monkeypatch):
     assert email1.sender_email == "notify@couchers.org.invalid"
     assert email1.subject == "[TEST] Thank you for your donation to Couchers.org!"
 
-    new_config = config.copy()
-    new_config.NOTIFICATION_EMAIL_SENDER = "TestCo"
-    new_config.NOTIFICATION_EMAIL_ADDRESS = "testco@testing.co.invalid"
-    new_config.NOTIFICATION_PREFIX = ""
-
-    monkeypatch.setattr(couchers.notifications.render_email, "config", new_config)
+    config.NOTIFICATION_EMAIL_SENDER = "TestCo"
+    config.NOTIFICATION_EMAIL_ADDRESS = "testco@testing.co.invalid"
+    config.NOTIFICATION_PREFIX = ""
 
     with session_scope() as session:
         notify(
@@ -389,13 +379,10 @@ def test_email_prefix_config(db, email_collector: EmailCollector, monkeypatch):
     assert email2.subject == "Thank you for your donation to Couchers.org!"
 
 
-def test_send_donation_email(db, monkeypatch):
+def test_send_donation_email(db):
     user, _ = generate_user(name="Testy von Test", email="testing@couchers.org.invalid")
 
-    new_config = config.copy()
-    new_config.ENABLE_EMAIL = True
-
-    monkeypatch.setattr(couchers.jobs.handlers, "config", new_config)
+    config.ENABLE_EMAIL = True
 
     with session_scope() as session:
         notify(
@@ -522,26 +509,9 @@ def test_email_deleted_users_regression(db, email_collector: EmailCollector, mod
 
     enforce_community_memberships()
 
-    start_time = now() + timedelta(hours=2)
-    end_time = start_time + timedelta(hours=3)
-    with events_session(creating_token) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                photo_key=None,
-                parent_community_id=c_id,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
-        event_id = res.event_id
-        assert not res.is_deleted
+    res = api_helpers.create_event(token=creating_token, parent_community_id=c_id)
+    event_id = res.event_id
+    assert not res.is_deleted
 
     moderator.approve_event_occurrence(event_id)
 

@@ -26,20 +26,17 @@ jest.mock("next/router", () => {
     },
   };
 });
-// Mock next/dynamic to skip the dynamic part
-// This works by extracting the require("path/to/component")
-// It needs to be in the form dynamic(() => import("components/MarkdownNoSSR"))
-// This is hacky. Really we need to just ditch any non-ssr components
+// The markdown components load via next/dynamic (ssr: false), which doesn't render
+// synchronously in tests, so render the real client-only components instead.
 /// TODO: Get an SSR-friendly markdown editor
-jest.mock("next/dynamic", () => ({
+jest.mock("components/Markdown", () => ({
+  ...jest.requireActual("components/Markdown"),
   __esModule: true,
-  default: (...props: unknown[]) => {
-    const matchedPath = /require\("(.*)"\)/.exec(`${props[0]}`);
-    if (matchedPath) {
-      const Component = require(matchedPath[1]).default; //eslint-disable-line
-      return Component;
-    } else throw Error(`Couldn't resolve dynamic component: ${matchedPath}`);
-  },
+  default: jest.requireActual("components/MarkdownNoSSR").default,
+}));
+jest.mock("components/MarkdownInput/MarkdownInput", () => ({
+  __esModule: true,
+  default: jest.requireActual("components/MarkdownInput/MarkdownInputNoSSR").default,
 }));
 jest.mock("react-gtm-module");
 jest.mock("i18n/useLocaleInfos", () => ({
@@ -47,7 +44,7 @@ jest.mock("i18n/useLocaleInfos", () => ({
   useLocaleInfos: () => ({
     data: [
       { code: "en", autonym: "English", stringAvailabilityPercent: 100 },
-      { code: "es", autonym: "Español (España)", stringAvailabilityPercent: 85 },
+      { code: "es", autonym: "Español", stringAvailabilityPercent: 85 },
       { code: "fr", autonym: "Français", stringAvailabilityPercent: 75 },
       { code: "de", autonym: "Deutsch", stringAvailabilityPercent: 60 },
       { code: "it", autonym: "Italiano", stringAvailabilityPercent: 45 },
@@ -57,6 +54,11 @@ jest.mock("i18n/useLocaleInfos", () => ({
     isLoading: false,
     error: null,
   }),
+}));
+jest.mock("react-simple-maps", () => ({
+  ComposableMap: () => null,
+  Geographies: () => null,
+  Geography: () => null,
 }));
 
 jest.setTimeout(10000);

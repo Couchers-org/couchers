@@ -8,7 +8,12 @@ from couchers import experimentation
 from couchers.config import config
 from couchers.context import make_background_user_context, make_logged_out_context
 from couchers.db import session_scope
-from couchers.experimentation import GrowthBookUnavailableError, _record_feature_usage, setup_experimentation
+from couchers.experimentation import (
+    GrowthBookUnavailableError,
+    _load_local_flags,
+    _record_feature_usage,
+    setup_experimentation,
+)
 from couchers.i18n import LocalizationContext
 from couchers.metrics import feature_flag_evaluations_counter
 from couchers.models.logging import ExperimentExposure, ExposureSource, FeatureUsage
@@ -256,14 +261,14 @@ def test_flags_boolean_value(flags):
 def test_load_local_flags_from_file(tmp_path):
     path = tmp_path / "flags.json"
     path.write_text(json.dumps({"flag_a": True, "flag_b": "hello", "flag_c": 42}))
-    assert experimentation._load_local_flags(str(path)) == {"flag_a": True, "flag_b": "hello", "flag_c": 42}
+    assert _load_local_flags(str(path)) == {"flag_a": True, "flag_b": "hello", "flag_c": 42}
 
 
 def test_load_local_flags_rejects_non_object(tmp_path):
     path = tmp_path / "flags.json"
     path.write_text(json.dumps(["not", "an", "object"]))
     with pytest.raises(ValueError, match="must contain a JSON object"):
-        experimentation._load_local_flags(str(path))
+        _load_local_flags(str(path))
 
 
 def test_setup_in_local_file_mode_loads_file_and_skips_growthbook(monkeypatch, tmp_path):
@@ -276,5 +281,5 @@ def test_setup_in_local_file_mode_loads_file_and_skips_growthbook(monkeypatch, t
 
     setup_experimentation()
 
-    assert experimentation._load_local_flags(str(path)) == {"flag_x": "from_file"}
+    assert _load_local_flags(str(path)) == {"flag_x": "from_file"}
     assert experimentation._refresh_thread is None

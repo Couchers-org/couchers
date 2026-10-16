@@ -127,8 +127,6 @@
   "comment_deleted": "Этот комментарий был удалён.",
   "edit_comment": "Редактировать комментарий",
   "delete_comment": "Удалить комментарий",
-  "comment_edited_date": "Изменено {{timeAgo}}",
-  "discussion_edited_date": "Изменено {{timeAgo}}",
   "discussion_deleted": "Это обсуждение было удалено.",
   "delete_discussion": "Удалить обсуждение",
   "delete_discussion_dialog": {
@@ -150,5 +148,9 @@
   "select_sublocality": "Выбрать район",
   "select_sub_community": "Выбрать сообщество",
   "report_discussion_button_a11y": "Пожаловаться на это обсуждение",
-  "report_event_button_a11y": "Пожаловаться на это мероприятие"
+  "report_event_button_a11y": "Пожаловаться на это мероприятие",
+  "new_discussion_button": "Новое обсуждение",
+  "comment_edited_date2": "Изменено <timeAgo/>",
+  "discussion_edited_date2": "Изменено <timeAgo/>",
+  "add_to_calendar": "Добавить в календарь"
 }

@@ -76,7 +76,9 @@ def process_job() -> bool:
 
         job_def = JOBS[job.job_type]
 
-        jobs_queued_histogram.labels(str(job.priority)).observe((now() - job.queued).total_seconds())
+        jobs_queued_histogram.labels(str(job.priority)).observe(
+            max((now() - job.next_attempt_after).total_seconds(), 0.0)
+        )
         try:
             with tracer.start_as_current_span(job.job_type) as rollspan:
                 start = perf_counter_ns()

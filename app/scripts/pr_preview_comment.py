@@ -10,24 +10,23 @@ rebuilt only some artifacts keeps the others' items from an earlier commit.
 Modes:
   --stub          post a "building" placeholder if no comment exists yet
   --items a,b,c   (re)build these items and upsert them (keys: see ITEM_BUILDERS)
+  --pr N          target this PR instead of looking it up from CI_COMMIT_SHA
 
 Pure stdlib so it runs on any python3 without pip. Requires GITHUB_PREVIEW_TOKEN;
 no-ops (exit 0) when there is no open PR for the commit.
 """
 
 import argparse
-import json
 import os
 import sys
 import time
 import urllib.error
 import urllib.parse
-import urllib.request
 
-MARKER = "<!-- couchers-preview-bot -->"
-GITHUB_API = "https://api.github.com"
+from sticky_comment import find_marker_comments, find_open_pr, http_json, marker_for, upsert_comment
+
+MARKER = marker_for("couchers-preview-bot")
 VERCEL_API = "https://api.vercel.com"
-USER_AGENT = "couchers-preview-bot"
 
 # (heading, style, item keys) - items render in this order; a group with no
 # present items is dropped. "rich" renders the item bodies under the heading;
@@ -46,51 +45,6 @@ def env(name, default=None, *, required=False):
     if required and not value:
         sys.exit(f"missing required env var {name}")
     return value
-
-
-def http_json(method, url, headers, *, params=None, body=None):
-    if params:
-        url += "?" + urllib.parse.urlencode(params)
-    data = json.dumps(body).encode() if body is not None else None
-    req = urllib.request.Request(url, data=data, method=method, headers={**headers, "User-Agent": USER_AGENT})
-    if data is not None:
-        req.add_header("Content-Type", "application/json")
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        raw = resp.read()
-    return json.loads(raw) if raw else None
-
-
-def gh(method, path, token, **kwargs):
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Accept": "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28",
-    }
-    return http_json(method, f"{GITHUB_API}{path}", headers, **kwargs)
-
-
-def find_open_pr(repo, sha, token):
-    for pr in gh("GET", f"/repos/{repo}/commits/{sha}/pulls", token) or []:
-        if pr.get("state") == "open":
-            return pr["number"]
-    return None
-
-
-def find_marker_comments(repo, pr, token):
-    comments = gh("GET", f"/repos/{repo}/issues/{pr}/comments", token, params={"per_page": 100}) or []
-    return [c for c in comments if MARKER in (c.get("body") or "")]
-
-
-def upsert_comment(repo, pr, body, marked, token):
-    if marked:
-        existing, *duplicates = marked
-        # concurrent pipelines can race the check above and double-post
-        for duplicate in duplicates:
-            gh("DELETE", f"/repos/{repo}/issues/comments/{duplicate['id']}", token)
-        result = gh("PATCH", f"/repos/{repo}/issues/comments/{existing['id']}", token, body={"body": body})
-    else:
-        result = gh("POST", f"/repos/{repo}/issues/{pr}/comments", token, body={"body": body})
-    return (result or {}).get("html_url")
 
 
 def vercel_get(path, params, token):
@@ -296,19 +250,20 @@ def main():
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--stub", action="store_true", help="post the building placeholder if no comment exists yet")
     mode.add_argument("--items", help="comma-separated item keys to (re)build")
+    parser.add_argument("--pr", type=int, help="PR number; looked up from CI_COMMIT_SHA if omitted")
     args = parser.parse_args()
 
     token = env("GITHUB_PREVIEW_TOKEN", required=True)
     repo = env("GITHUB_REPO", "Couchers-org/couchers")
-    sha = env("CI_COMMIT_SHA", required=True)
+    sha = env("CI_COMMIT_SHA", required=not args.pr)
 
-    pr = find_open_pr(repo, sha, token)
+    pr = args.pr or find_open_pr(repo, sha, token)
     if not pr:
         print(f"No open PR for {sha} - skipping preview comment.")
         return
 
     # the resource_group serializes comment writes, so this read is race-free
-    marked = find_marker_comments(repo, pr, token)
+    marked = find_marker_comments(repo, pr, MARKER, token)
 
     if args.stub:
         if marked:
@@ -326,7 +281,7 @@ def main():
         existing_body = marked[0]["body"] if marked else ""
         body = build_body(existing_body, updates)
 
-    url = upsert_comment(repo, pr, body, marked, token)
+    url = upsert_comment(repo, pr, MARKER, body, token, marked)
     print(f"Posted {'stub' if args.stub else args.items} to PR #{pr}: {url}")
 
 

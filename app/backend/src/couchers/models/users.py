@@ -127,7 +127,7 @@ class User(Base, kw_only=True):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     username: Mapped[str] = mapped_column(String, unique=True)
-    email: Mapped[str] = mapped_column(String, unique=True)
+    email: Mapped[str] = mapped_column(String, index=True)
     # stored in libsodium hash format, can be null for email login
     hashed_password: Mapped[bytes] = mapped_column(Binary)
     # phone number in E.164 format with leading +, for example "+46701740605"
@@ -400,6 +400,12 @@ class User(Base, kw_only=True):
             unique=True,
             postgresql_where=phone_verification_verified != None,
         ),
+        Index(
+            "ix_users_unique_email",
+            email,
+            unique=True,
+            postgresql_where=deleted_at == None,
+        ),
         # These three are each looked up by equality as though the value named exactly one user, so the database
         # needs to enforce that; partial as the columns are null for almost every user
         Index(
@@ -593,6 +599,24 @@ class User(Base, kw_only=True):
     def _is_shadowed_expression(cls) -> ColumnElement[bool]:
         return cls.shadowed_at.is_not(None)
 
+    @hybrid_property
+    def is_banned(self) -> bool:
+        return self.banned_at is not None
+
+    @is_banned.inplace.expression
+    @classmethod
+    def _is_banned_expression(cls) -> ColumnElement[bool]:
+        return cls.banned_at.is_not(None)
+
+    @hybrid_property
+    def reserves_email(self) -> bool:
+        return self.deleted_at is None or self.banned_at is not None
+
+    @reserves_email.inplace.expression
+    @classmethod
+    def _reserves_email_expression(cls) -> ColumnElement[bool]:
+        return or_(cls.deleted_at.is_(None), cls.banned_at.is_not(None))
+
     @property
     def coordinates(self) -> tuple[float, float]:
         return get_coordinates(self.geom)
@@ -692,3 +716,24 @@ class HostingMeetupStatusHistory(Base, kw_only=True):
     user: Mapped[User] = relationship(init=False)
 
     __table_args__ = (Index("ix_hosting_meetup_status_history_user_id_time", user_id, time),)
+
+
+class UserEmailHistory(Base, kw_only=True):
+    """
+    Append-only log of users' email addresses. A row is written whenever a user's email is set, so a user's email at any
+    past time is that of their newest row at or before that time.
+    """
+
+    __tablename__ = "user_email_history"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    email: Mapped[str] = mapped_column(String)
+
+    user: Mapped[User] = relationship(init=False)
+
+    __table_args__ = (
+        Index("ix_user_email_history_user_id_time", user_id, time),
+        Index("ix_user_email_history_email", email),
+    )

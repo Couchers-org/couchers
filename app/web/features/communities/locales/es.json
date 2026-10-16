@@ -129,8 +129,6 @@
   "comment_deleted": "Este comentario ha sido eliminado.",
   "edit_comment": "Editar comentario",
   "delete_comment": "Eliminar comentario",
-  "comment_edited_date": "Editado {{timeAgo}}",
-  "discussion_edited_date": "Editado {{timeAgo}}",
   "discussion_deleted": "Esta discusión ha sido eliminada.",
   "delete_discussion": "Eliminar discusión",
   "delete_discussion_dialog": {
@@ -150,5 +148,9 @@
   "sub_community_search_placeholder": "Ubicación",
   "sub_community_dropdown_a11y": "Explora comunidades más específicas",
   "report_discussion_button_a11y": "Denunciar esta conversación",
-  "report_event_button_a11y": "Denunciar este evento"
+  "report_event_button_a11y": "Denunciar este evento",
+  "new_discussion_button": "Nuevo debate",
+  "comment_edited_date2": "Editado <timeAgo/>",
+  "discussion_edited_date2": "Editado <timeAgo/>",
+  "add_to_calendar": "Añadir al calendario"
 }

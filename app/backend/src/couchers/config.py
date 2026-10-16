@@ -43,6 +43,8 @@ class Config:
     SECRET: bytes
     # Domain that cookies should set as their domain value
     COOKIE_DOMAIN: str
+    # SameSite attribute for cookies
+    COOKIE_SAMESITE: Literal["Strict", "Lax", "None"] = "Lax"
     # SQLAlchemy database connection string
     DATABASE_CONNECTION_STRING: str
     # OTLP/HTTP traces endpoint to export spans to, e.g. https://traces.example.org/v1/traces
@@ -58,6 +60,7 @@ class Config:
     STRIPE_API_KEY: str
     STRIPE_WEBHOOK_SECRET: str
     STRIPE_RECURRING_PRODUCT_ID: str
+    STRIPE_YEARLY_RECURRING_PRODUCT_ID: str
     # Strong verification through Iris ID (gated at runtime by the `strong_verification_enabled` feature flag)
     IRIS_ID_PUBKEY: str
     IRIS_ID_SECRET: str
@@ -68,6 +71,9 @@ class Config:
     MYPOSTCARD_PASSWORD: str
     MYPOSTCARD_PRODUCT_CODE: str
     MYPOSTCARD_CAMPAIGN_ID: str
+    # Whether to email users their verification code instead of posting them a postcard. Hands postal
+    # verification to anyone who asks for it, so only non-prod deployments may set it.
+    POSTAL_VERIFICATION_BYPASS_POST_AND_EMAIL_CODE_FOR_TESTING: bool = False
     # SMS (gated at runtime by the `sms_enabled` feature flag)
     SMS_SENDER_ID: str
     # Email
@@ -76,6 +82,10 @@ class Config:
     NOTIFICATION_EMAIL_SENDER: str
     # Sender email, e.g. "notify@couchers.org"
     NOTIFICATION_EMAIL_ADDRESS: str
+    # Sender name for moderation emails users can reply to
+    MODERATION_EMAIL_SENDER: str
+    # Sender email for moderation emails, a monitored mailbox users can reply to
+    MODERATION_EMAIL_ADDRESS: str
     # An optional prefix for email subject, e.g. [STAGING]
     NOTIFICATION_PREFIX: str = ""
     # Address to send emails about reported users
@@ -189,6 +199,9 @@ class Config:
                 "connection pool"
             )
 
+        if self.DEV and self.COOKIE_SAMESITE == "None":
+            raise Exception("COOKIE_SAMESITE=None requires Secure cookies, which are only set outside DEV")
+
         if not self.DEV:
             # checks for prod
             if "https" not in self.BASE_URL:
@@ -200,7 +213,12 @@ class Config:
 
             # Donations are gated at runtime by the `donations_enabled` feature flag, which can be flipped on
             # remotely at any time, so prod must always have Stripe credentials present so the feature can run.
-            if not self.STRIPE_API_KEY or not self.STRIPE_WEBHOOK_SECRET or not self.STRIPE_RECURRING_PRODUCT_ID:
+            if (
+                not self.STRIPE_API_KEY
+                or not self.STRIPE_WEBHOOK_SECRET
+                or not self.STRIPE_RECURRING_PRODUCT_ID
+                or not self.STRIPE_YEARLY_RECURRING_PRODUCT_ID
+            ):
                 raise Exception("Stripe credentials must be configured in production")
 
             # Listmonk is gated at runtime by the `listmonk_enabled` feature flag, which can be flipped on
@@ -265,7 +283,7 @@ class Config:
             # mypy erroneously reports an error below (https://github.com/python/mypy/issues/15630)
             elif typing.get_origin(var_type) is Literal:  # type: ignore[comparison-overlap]
                 # list of allowed string values
-                options = typing.get_args(var_type)
+                options = typing.get_args(var_type)  # type: ignore[unreachable]
                 if env_value not in options:
                     raise ValueError(f"Invalid value for {var_name}, need one of {', '.join(options)}")
                 attr_value = env_value
@@ -293,7 +311,7 @@ class Config:
             raise KeyError(f"No such config key: {key}.")
 
         if typing.get_origin(var_type) is Literal:  # type: ignore[comparison-overlap]
-            options = typing.get_args(var_type)
+            options = typing.get_args(var_type)  # type: ignore[unreachable]
             if value not in options:
                 raise ValueError(f"Invalid value for {key}, need one of {', '.join(options)}")
         elif not isinstance(value, var_type):

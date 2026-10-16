@@ -32,6 +32,12 @@
     "preamble_block": "Biz küçük bir gönüllü ekibiyiz ve eski sürümleri desteklemek gerçekten zor, zahmet verdiğimiz için üzgünüz.",
     "preamble_banned": "Küçük bir gönüllü ekibiz ve bazen hatalar yapıyoruz, verdiğimiz zahmet için üzgünüz!",
     "action_update": "Şimdi güncelle",
-    "later": "Daha Sonra"
+    "later": "Daha Sonra",
+    "body_block": "Görünüşe göre uygulamanın eski bir sürümünü kullanıyorsun, uygulamayı güncellemeniz gerekli.",
+    "action_reinstall": "Yeni uygulamayı edinin",
+    "failed": "Güncelleme kurulamadı. Lütfen tekrar deneyin.",
+    "body_warn": "Görünüşe göre uygulamanın eski bir sürümünü kullanıyorsun, uygulamayı yakında güncellemen gerekecek.",
+    "body_banned": "Görünüşe göre sistemine uygulamanın hatalı bir sürümünü yüklemişiz, bu yüzden uygulamayı güncellemen gerekecek.",
+    "preamble_warn": "Biz küçük bir gönüllü ekibiyiz ve eski sürümleri desteklemek gerçekten zor, zahmet verdiğimiz için üzgünüz."
   }
 }

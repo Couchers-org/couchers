@@ -38,7 +38,7 @@ from couchers.models import (
 from couchers.models.notifications import NotificationTopicAction
 from couchers.models.static import TimezoneArea
 from couchers.moderation.utils import create_moderation
-from couchers.notifications.notify import notify
+from couchers.notifications.notify import PendingNotification, notify, notify_many
 from couchers.proto import events_pb2, events_pb2_grpc, notification_data_pb2
 from couchers.proto.google.api import httpbody_pb2
 from couchers.proto.internal import jobs_pb2
@@ -95,6 +95,21 @@ def _is_event_organizer(event: Event, user_id: int) -> bool:
     return event.organizers.where(EventOrganizer.user_id == user_id).one_or_none() is not None
 
 
+def _community_invite_requested(session: Session, occurrence: EventOccurrence, user_id: int) -> bool:
+
+    # Returns True if the given user has already requested a community invite
+    # for this event occurrence, or if one has already been approved.
+    return (
+        session.execute(
+            select(EventCommunityInviteRequest.id)
+            .where(EventCommunityInviteRequest.occurrence_id == occurrence.id)
+            .where(EventCommunityInviteRequest.user_id == user_id)
+            .limit(1)
+        ).scalar_one_or_none()
+        is not None
+    )
+
+
 def _can_moderate_event(session: Session, event: Event, user_id: int) -> bool:
     # if the event is owned by a cluster, then any moderator of that cluster can moderate this event
     if event.owner_cluster is not None and can_moderate_node(session, user_id, event.owner_cluster.parent_node_id):
@@ -135,6 +150,9 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
 
     can_moderate = _can_moderate_event(session, event, context.user_id)
     can_edit = _can_edit_event(session, event, context.user_id)
+    community_invite_requested = (
+        _community_invite_requested(session, occurrence, context.user_id) if can_edit else False
+    )
 
     going_count = session.execute(
         where_users_column_visible(
@@ -192,6 +210,7 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
         thread=thread_to_pb(session, context, occurrence.thread_id),
         can_edit=can_edit,
         can_moderate=can_moderate,
+        community_invite_requested=community_invite_requested,
     )
 
 
@@ -328,10 +347,19 @@ def occurrences_next_page_token(occurrences: Sequence[EventOccurrence], page_siz
     return dt_id_to_page_token(next_occurrence.start_time, next_occurrence.id)
 
 
-def get_users_to_notify_for_new_event(session: Session, occurrence: EventOccurrence) -> tuple[list[User], int | None]:
+def is_community_too_large_for_event_notifications(node: Node) -> bool:
+    return node.node_type.value <= NodeType.region.value
+
+
+def get_users_to_notify_for_new_event(
+    session: Session, occurrence: EventOccurrence, node: Node | None = None
+) -> tuple[list[User], int | None]:
     """
     Returns the users to notify, as well as the community id that is being notified (None if based on geo search)
+
+    Defaults to the event's current parent community.
     """
+    node = node or occurrence.event.parent_node
     # people already attending or organizing the event don't need an invite to it
     not_already_involved = User.id.not_in(
         select(EventOccurrenceAttendee.user_id)
@@ -339,11 +367,11 @@ def get_users_to_notify_for_new_event(session: Session, occurrence: EventOccurre
         .union(select(EventOrganizer.user_id).where(EventOrganizer.event_id == occurrence.event_id))
     )
 
-    cluster = occurrence.event.parent_node.official_cluster
+    cluster = node.official_cluster
     creator = aliased(User)
-    if occurrence.event.parent_node.node_type.value <= NodeType.region.value:
-        logger.info("Global, macroregion, and region communities are too big for email notifications.")
-        return [], occurrence.event.parent_node_id
+    if is_community_too_large_for_event_notifications(node):
+        logger.info(f"Community {node.id} is a {node.node_type} and too big for email notifications.")
+        return [], node.id
     elif occurrence.creator_user in cluster.admins or cluster.is_leaf:
         members = (
             session.execute(
@@ -357,7 +385,7 @@ def get_users_to_notify_for_new_event(session: Session, occurrence: EventOccurre
             .scalars()
             .all()
         )
-        return list(members), occurrence.event.parent_node_id
+        return list(members), node.id
     else:
         max_radius = 20000  # m
         users = (
@@ -385,6 +413,7 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
 
     logger.info(f"Fanning out notifications for event occurrence id = {payload.occurrence_id}")
 
+    notifications = []
     with session_scope() as session:
         event, occurrence = _get_event_and_occurrence_one(session, occurrence_id=payload.occurrence_id)
 
@@ -403,22 +432,29 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
                 if payload.approved
                 else NotificationTopicAction.event__create_any
             )
-            notify(
-                session,
-                user_id=user.id,
-                topic_action=topic_action,
-                key=str(payload.occurrence_id),
-                data=notification_data_pb2.EventCreate(
-                    event=event_to_pb(session, occurrence, context),
-                    inviting_user=user_model_to_pb(inviting_user, session, context),
-                    nearby=True if node_id is None else None,
-                    in_community=community_to_pb(session, event.parent_node, context) if node_id is not None else None,
-                ),
-                moderation_state_id=occurrence.moderation_state_id,
+            notifications.append(
+                PendingNotification(
+                    user_id=user.id,
+                    topic_action=topic_action,
+                    key=str(payload.occurrence_id),
+                    data=notification_data_pb2.EventCreate(
+                        event=event_to_pb(session, occurrence, context),
+                        inviting_user=user_model_to_pb(inviting_user, session, context),
+                        nearby=True if node_id is None else None,
+                        in_community=community_to_pb(session, event.parent_node, context)
+                        if node_id is not None
+                        else None,
+                    ),
+                    moderation_state_id=occurrence.moderation_state_id,
+                )
             )
+
+    with session_scope() as session:
+        notify_many(session, notifications)
 
 
 def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNotificationsPayload) -> None:
+    notifications = []
     with session_scope() as session:
         event, occurrence = _get_event_and_occurrence_one(session, occurrence_id=payload.occurrence_id)
 
@@ -431,23 +467,29 @@ def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNot
             if is_not_visible(session, user_id, updating_user.id):
                 continue
             context = make_notification_user_context(user_id=user_id)
-            notify(
-                session,
-                user_id=user_id,
-                topic_action=NotificationTopicAction.event__update,
-                key=str(payload.occurrence_id),
-                data=notification_data_pb2.EventUpdate(
-                    event=event_to_pb(session, occurrence, context),
-                    updating_user=user_model_to_pb(updating_user, session, context),
-                    updated_enum_items=(
-                        notification_data_pb2.EventUpdateItem.ValueType(value) for value in payload.updated_enum_items
+            notifications.append(
+                PendingNotification(
+                    user_id=user_id,
+                    topic_action=NotificationTopicAction.event__update,
+                    key=str(payload.occurrence_id),
+                    data=notification_data_pb2.EventUpdate(
+                        event=event_to_pb(session, occurrence, context),
+                        updating_user=user_model_to_pb(updating_user, session, context),
+                        updated_enum_items=(
+                            notification_data_pb2.EventUpdateItem.ValueType(value)
+                            for value in payload.updated_enum_items
+                        ),
                     ),
-                ),
-                moderation_state_id=occurrence.moderation_state_id,
+                    moderation_state_id=occurrence.moderation_state_id,
+                )
             )
+
+    with session_scope() as session:
+        notify_many(session, notifications)
 
 
 def generate_event_cancel_notifications(payload: jobs_pb2.GenerateEventCancelNotificationsPayload) -> None:
+    notifications = []
     with session_scope() as session:
         event, occurrence = _get_event_and_occurrence_one(session, occurrence_id=payload.occurrence_id)
 
@@ -460,20 +502,25 @@ def generate_event_cancel_notifications(payload: jobs_pb2.GenerateEventCancelNot
             if is_not_visible(session, user_id, cancelling_user.id):
                 continue
             context = make_notification_user_context(user_id=user_id)
-            notify(
-                session,
-                user_id=user_id,
-                topic_action=NotificationTopicAction.event__cancel,
-                key=str(payload.occurrence_id),
-                data=notification_data_pb2.EventCancel(
-                    event=event_to_pb(session, occurrence, context),
-                    cancelling_user=user_model_to_pb(cancelling_user, session, context),
-                ),
-                moderation_state_id=occurrence.moderation_state_id,
+            notifications.append(
+                PendingNotification(
+                    user_id=user_id,
+                    topic_action=NotificationTopicAction.event__cancel,
+                    key=str(payload.occurrence_id),
+                    data=notification_data_pb2.EventCancel(
+                        event=event_to_pb(session, occurrence, context),
+                        cancelling_user=user_model_to_pb(cancelling_user, session, context),
+                    ),
+                    moderation_state_id=occurrence.moderation_state_id,
+                )
             )
+
+    with session_scope() as session:
+        notify_many(session, notifications)
 
 
 def generate_event_delete_notifications(payload: jobs_pb2.GenerateEventDeleteNotificationsPayload) -> None:
+    notifications = []
     with session_scope() as session:
         event, occurrence = _get_event_and_occurrence_one(
             session, occurrence_id=payload.occurrence_id, include_deleted=True
@@ -484,16 +531,20 @@ def generate_event_delete_notifications(payload: jobs_pb2.GenerateEventDeleteNot
 
         for user_id in set(subscribed_user_ids + attending_user_ids):
             context = make_notification_user_context(user_id=user_id)
-            notify(
-                session,
-                user_id=user_id,
-                topic_action=NotificationTopicAction.event__delete,
-                key=str(payload.occurrence_id),
-                data=notification_data_pb2.EventDelete(
-                    event=event_to_pb(session, occurrence, context),
-                ),
-                moderation_state_id=occurrence.moderation_state_id,
+            notifications.append(
+                PendingNotification(
+                    user_id=user_id,
+                    topic_action=NotificationTopicAction.event__delete,
+                    key=str(payload.occurrence_id),
+                    data=notification_data_pb2.EventDelete(
+                        event=event_to_pb(session, occurrence, context),
+                    ),
+                    moderation_state_id=occurrence.moderation_state_id,
+                )
             )
+
+    with session_scope() as session:
+        notify_many(session, notifications)
 
 
 class Events(events_pb2_grpc.EventsServicer):
@@ -923,7 +974,6 @@ class Events(events_pb2_grpc.EventsServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "event_cant_update_old_event")
 
         this_user_reqs = [req for req in occurrence.community_invite_requests if req.user_id == context.user_id]
-
         if len(this_user_reqs) > 0:
             context.abort_with_error_code(
                 grpc.StatusCode.FAILED_PRECONDITION, "event_community_invite_already_requested"

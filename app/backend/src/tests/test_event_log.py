@@ -18,14 +18,14 @@ from couchers.proto import (
     api_pb2,
     auth_pb2,
     conversations_pb2,
-    events_pb2,
     messages_pb2,
     references_pb2,
     reporting_pb2,
     requests_pb2,
     search_pb2,
 )
-from couchers.utils import create_coordinate, datetime_to_iso8601_local, now, today
+from couchers.utils import create_coordinate, today
+from tests.fixtures import api_helpers
 from tests.fixtures.db import generate_user, make_friends
 from tests.fixtures.sessions import (
     MockGrpcContext,
@@ -33,7 +33,6 @@ from tests.fixtures.sessions import (
     api_session,
     auth_api_session,
     conversations_session,
-    events_session,
     references_session,
     reporting_session,
     requests_session,
@@ -43,7 +42,7 @@ from tests.test_communities import create_community
 
 
 @pytest.fixture(autouse=True)
-def _(testconfig, fast_passwords):
+def _(fast_passwords):
     pass
 
 
@@ -776,23 +775,7 @@ def test_event_created_event(db):
     with session_scope() as session:
         create_community(session, 0, 2, "Community", [user], [], None)
 
-    start_time = now() + timedelta(days=1)
-    end_time = start_time + timedelta(hours=2)
-
-    with events_session(token) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Test Meetup",
-                content="Let's hang out",
-                location=events_pb2.EventLocation(
-                    address="123 Main St",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
+    api_helpers.create_event(token=token)
 
     with session_scope() as session:
         events = _get_events(session, "event.created")

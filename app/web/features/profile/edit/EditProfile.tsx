@@ -27,7 +27,7 @@ import { howToMakeGreatProfileUrl, settingsRoute } from "routes";
 import { UpdateUserProfileData } from "service/index";
 import isGrpcError from "service/utils/isGrpcError";
 import { theme } from "theme";
-import { useIsMounted, useSafeState, useUnsavedChangesWarning } from "utils/hooks";
+import { useUnsavedChangesWarning } from "utils/hooks";
 import { useIsNativeEmbed } from "utils/nativeLink";
 import { nameMaxLength, nameMinLength, profileAboutMeMinLength, validateNameChars } from "utils/validation";
 
@@ -225,8 +225,7 @@ export default function EditProfileForm() {
     error: updateMutationError,
   } = useUpdateUserProfile();
   const { data: user } = useCurrentUser();
-  const isMounted = useIsMounted();
-  const [errorMessage, setErrorMessage] = useSafeState<string | null>(isMounted, null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showIncompleteProfileDialog, setShowIncompleteProfileDialog] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const galleryEditorRef = useRef<HTMLDivElement>(null);

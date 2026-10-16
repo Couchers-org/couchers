@@ -46,11 +46,11 @@
     "my_trips_header": "Your public trips",
     "manage_link": "Manage",
     "when_now": "Now",
-    "empty_description": "Heading somewhere? Post a public trip in a community to receive offers from nearby hosts.",
+    "empty_description": "Heading somewhere? Post a public trip in a community to receive invitations from nearby hosts.",
     "same_gender_only_indicator": "Same gender",
-    "offers_count_one": "{{count}} offer",
-    "offers_count_other": "{{count}} offers",
-    "no_offers": "No offers yet"
+    "invitations_count_one": "{{count}} invitation",
+    "invitations_count_other": "{{count}} invitations",
+    "no_invitations": "No invitations yet"
   },
   "stays": {
     "upcoming_trips_header": "Your upcoming stays",

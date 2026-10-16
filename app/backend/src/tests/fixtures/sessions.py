@@ -46,6 +46,7 @@ from couchers.proto import (
     reporting_pb2_grpc,
     requests_pb2_grpc,
     resources_pb2_grpc,
+    screens_pb2_grpc,
     search_pb2_grpc,
     stripe_pb2_grpc,
     threads_pb2_grpc,
@@ -77,6 +78,7 @@ from couchers.servicers.references import References
 from couchers.servicers.reporting import Reporting
 from couchers.servicers.requests import Requests
 from couchers.servicers.resources import Resources
+from couchers.servicers.screens import Screens
 from couchers.servicers.search import Search
 from couchers.servicers.threads import Threads
 from tests.fixtures import query_log
@@ -405,8 +407,8 @@ def gis_session(token: str):
 
 
 @contextmanager
-def public_session():
-    channel = FakeChannel()
+def public_session(token: str | None = None):
+    channel = FakeChannel(token)
     public_pb2_grpc.add_PublicServicer_to_server(Public(), channel)
     yield public_pb2_grpc.PublicStub(channel)
 
@@ -450,6 +452,13 @@ def discussions_session(token: str):
     channel = FakeChannel(token)
     discussions_pb2_grpc.add_DiscussionsServicer_to_server(Discussions(), channel)
     yield discussions_pb2_grpc.DiscussionsStub(channel)
+
+
+@contextmanager
+def screens_session(token: str):
+    channel = FakeChannel(token)
+    screens_pb2_grpc.add_ScreensServicer_to_server(Screens(), channel)
+    yield screens_pb2_grpc.ScreensStub(channel)
 
 
 @contextmanager

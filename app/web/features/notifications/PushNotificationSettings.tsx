@@ -38,7 +38,7 @@ export default function PushNotificationSettings() {
       try {
         setIsPushEnabled(await checkPushEnabled());
       } catch (e) {
-        setErrorMessage(t("notification_settings.push_notifications.error_unsupported"));
+        setErrorMessage("notifications:notification_settings.push_notifications.error_unsupported");
         Sentry.captureException(e, {
           tags: {
             component: "PushNotificationPermission",
@@ -51,7 +51,7 @@ export default function PushNotificationSettings() {
     };
 
     checkPushEnabledWrap();
-  }, [t, isNativeEmbed]);
+  }, [isNativeEmbed]);
 
   const turnPushNotificationsOnWrap = async () => {
     setIsLoading(true);

@@ -26,11 +26,6 @@ from tests.fixtures.timewarp import FrozenTimewarp
 from tests.test_communities import create_community
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def test_create_place_errors(db):
     user, token = generate_user()
     with session_scope() as session:

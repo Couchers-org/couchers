@@ -6,7 +6,7 @@
  */
 
 import { allLanguages } from "i18n/allLanguages";
-import { getBrowserLocaleFromHeader } from "middleware";
+import { config, getBrowserLocaleFromHeader } from "middleware";
 
 describe("Middleware locale detection logic", () => {
   describe("Browser language detection", () => {
@@ -178,5 +178,26 @@ describe("Middleware locale detection logic", () => {
         expect(result).toBe(true); // MUST be true for auto-detection
       });
     });
+  });
+});
+
+describe("Middleware matcher", () => {
+  const matches = (pathname: string) => new RegExp(`^${config.matcher[0]}$`).test(pathname);
+
+  it("should not run on the service worker, which cannot be served behind a redirect", () => {
+    expect(matches("/service-worker.js")).toBe(false);
+  });
+
+  it("should not run on static assets fetched without following redirects", () => {
+    expect(matches("/.well-known/apple-app-site-association")).toBe(false);
+    expect(matches("/manifest.json")).toBe(false);
+    expect(matches("/blog/rss.xml")).toBe(false);
+    expect(matches("/logo192.png")).toBe(false);
+  });
+
+  it("should still run on pages", () => {
+    expect(matches("/")).toBe(true);
+    expect(matches("/dashboard")).toBe(true);
+    expect(matches("/user/aapeli")).toBe(true);
   });
 });
