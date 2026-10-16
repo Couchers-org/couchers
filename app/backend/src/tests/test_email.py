@@ -31,6 +31,7 @@ from couchers.tasks import (
     send_signup_email,
 )
 from tests.fixtures import api_helpers
+from tests.fixtures.communities import create_community
 from tests.fixtures.db import generate_user, get_friend_relationship, make_friends
 from tests.fixtures.misc import EmailCollector, Moderator, process_jobs
 from tests.fixtures.sessions import (
@@ -40,7 +41,6 @@ from tests.fixtures.sessions import (
     notifications_session,
     real_editor_session,
 )
-from tests.test_communities import create_community
 
 
 def test_signup_verification_email(db, email_collector: EmailCollector):

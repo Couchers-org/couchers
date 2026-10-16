@@ -22,13 +22,13 @@ from couchers.utils import (
     parse_date,
 )
 from tests.conftest import TEST_DB_NAME
+from tests.fixtures.communities import create_1d_point, get_community_id
 from tests.fixtures.db import (
     create_schema_from_models,
     drop_database,
     generate_user,
     pg_dump_is_available,
 )
-from tests.test_communities import create_1d_point, get_community_id, testing_communities  # noqa
 
 
 def test_is_valid_user_id() -> None:

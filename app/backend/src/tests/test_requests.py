@@ -11,7 +11,6 @@ from sqlalchemy import func, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy_utils import refresh_materialized_view
 
-from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.crypto import b64decode
 from couchers.db import session_scope
 from couchers.i18n import LocalizationContext
@@ -24,11 +23,7 @@ from couchers.models import (
     HostRequestStatus,
     Message,
     MessageType,
-    ModerationObjectType,
-    ModerationState,
     ModerationVisibility,
-    Node,
-    NodeType,
     Notification,
     RateLimitAction,
     RateLimitViolation,
@@ -42,21 +37,13 @@ from couchers.proto import (
 )
 from couchers.proto.internal import unsubscribe_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
-from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_multi, today
+from couchers.utils import create_coordinate, now, today
+from tests.fixtures import api_helpers
+from tests.fixtures.api_helpers import valid_request_text
 from tests.fixtures.db import backdate_conversations, generate_user, make_user_block
 from tests.fixtures.misc import EmailCollector, PushCollector
+from tests.fixtures.public_trips import create_public_trip, create_trip_community
 from tests.fixtures.sessions import api_session, auth_api_session, requests_session
-from tests.test_public_trips import _create_trip_directly, _make_node
-
-
-def valid_request_text(text: str = "Test request") -> str:
-    """Pads a request text to a valid length."""
-    # Request lengths are measured in utf-16 code units to match the frontend.
-    utf16_length = len(text.encode("utf-16-le")) // 2
-    if utf16_length >= HOST_REQUEST_MIN_LENGTH_UTF16:
-        return text
-    padding_length = HOST_REQUEST_MIN_LENGTH_UTF16 - utf16_length
-    return text + ("_" * padding_length)  # Each "_" adds one utf16 code unit.
 
 
 def test_create_request(db, moderator):
@@ -432,8 +419,8 @@ def test_create_request_duplicate_window_ignores_public_trip_offers(db):
     trip_1_to = today() + timedelta(days=20)
     trip_2_from = today() + timedelta(days=40)
     trip_2_to = today() + timedelta(days=50)
-    trip_1_id = _create_public_trip(surfer.id, trip_1_from, trip_1_to)
-    trip_2_id = _create_public_trip(surfer.id, trip_2_from, trip_2_to)
+    trip_1_id = create_public_trip(surfer.id, trip_1_from, trip_1_to)
+    trip_2_id = create_public_trip(surfer.id, trip_2_from, trip_2_to)
 
     with requests_session(host_token) as api:
         assert api.CreateHostRequest(
@@ -593,18 +580,10 @@ def test_GetHostRequest(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
-    today_plus_2 = today() + timedelta(days=2)
-    today_plus_3 = today() + timedelta(days=3)
+    host_request_id = api_helpers.create_host_request(
+        token=token1, host_user_id=user2.id, text=valid_request_text("Test request 1")
+    )
     with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("Test request 1"),
-            )
-        ).host_request_id
-
         with pytest.raises(grpc.RpcError) as e:
             api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=999))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
@@ -622,26 +601,12 @@ def test_ListHostRequests(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
-    today_plus_2 = today() + timedelta(days=2)
-    today_plus_3 = today() + timedelta(days=3)
-    with requests_session(token1) as api:
-        host_request_1 = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("Test request 1"),
-            )
-        ).host_request_id
-
-        host_request_2 = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user3.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("Test request 2"),
-            )
-        ).host_request_id
+    host_request_1 = api_helpers.create_host_request(
+        token=token1, host_user_id=user2.id, text=valid_request_text("Test request 1")
+    )
+    host_request_2 = api_helpers.create_host_request(
+        token=token1, host_user_id=user3.id, text=valid_request_text("Test request 2")
+    )
 
     moderator.approve_host_request(host_request_1)
     moderator.approve_host_request(host_request_2)
@@ -667,16 +632,9 @@ def test_ListHostRequests(db, moderator):
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
         assert res.host_requests[0].latest_message.text.text == "Test request 1 message 3"
 
-        host_request_3 = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user1.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("Test request 3"),
-            )
-        ).host_request_id
-
-    moderator.approve_host_request(host_request_3)
+    host_request_3 = api_helpers.create_host_request(
+        token=token2, host_user_id=user1.id, text=valid_request_text("Test request 3"), approve_by=moderator
+    )
 
     add_message(db, "Test request 2 message 1", user1.id, host_request_2)
     add_message(db, "Test request 2 message 2", user3.id, host_request_2)
@@ -701,37 +659,17 @@ def test_ListHostRequests_pagination_regression(db, moderator):
     """
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    today_plus_2 = today() + timedelta(days=2)
-    today_plus_3 = today() + timedelta(days=3)
-    with requests_session(token1) as api:
-        host_request_1 = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("Test request 1"),
-            )
-        ).host_request_id
-        backdate_conversations()
-
-        host_request_2 = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("Test request 2"),
-            )
-        ).host_request_id
-        backdate_conversations()
-
-        host_request_3 = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("Test request 3"),
-            )
-        ).host_request_id
+    host_request_1 = api_helpers.create_host_request(
+        token=token1, host_user_id=user2.id, text=valid_request_text("Test request 1")
+    )
+    backdate_conversations()
+    host_request_2 = api_helpers.create_host_request(
+        token=token1, host_user_id=user2.id, text=valid_request_text("Test request 2")
+    )
+    backdate_conversations()
+    host_request_3 = api_helpers.create_host_request(
+        token=token1, host_user_id=user2.id, text=valid_request_text("Test request 3")
+    )
 
     moderator.approve_host_request(host_request_1)
     moderator.approve_host_request(host_request_2)
@@ -798,39 +736,27 @@ def test_ListHostRequests_pagination_regression(db, moderator):
 def test_ListHostRequests_sort_by_from_date(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    today_plus_2 = today() + timedelta(days=2)
-    today_plus_3 = today() + timedelta(days=3)
     today_plus_5 = today() + timedelta(days=5)
     today_plus_7 = today() + timedelta(days=7)
     today_plus_10 = today() + timedelta(days=10)
 
-    with requests_session(token1) as api:
-        hr_late = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_7.isoformat(),
-                to_date=today_plus_10.isoformat(),
-                text=valid_request_text("Late request"),
-            )
-        ).host_request_id
-
-        hr_early = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("Early request"),
-            )
-        ).host_request_id
-
-        hr_mid = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_5.isoformat(),
-                to_date=today_plus_7.isoformat(),
-                text=valid_request_text("Mid request"),
-            )
-        ).host_request_id
+    hr_late = api_helpers.create_host_request(
+        token=token1,
+        host_user_id=user2.id,
+        from_date=today_plus_7,
+        to_date=today_plus_10,
+        text=valid_request_text("Late request"),
+    )
+    hr_early = api_helpers.create_host_request(
+        token=token1, host_user_id=user2.id, text=valid_request_text("Early request")
+    )
+    hr_mid = api_helpers.create_host_request(
+        token=token1,
+        host_user_id=user2.id,
+        from_date=today_plus_5,
+        to_date=today_plus_7,
+        text=valid_request_text("Mid request"),
+    )
 
     moderator.approve_host_request(hr_late)
     moderator.approve_host_request(hr_early)
@@ -857,40 +783,22 @@ def test_ListHostRequests_sort_by_from_date_pagination(db, moderator):
     """Pagination cursor correctly handles both different and identical from_dates."""
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    today_plus_2 = today() + timedelta(days=2)
-    today_plus_3 = today() + timedelta(days=3)
     today_plus_5 = today() + timedelta(days=5)
 
-    with requests_session(token1) as api:
-        hr_a = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("Request A"),
-            )
-        ).host_request_id
-        backdate_conversations()
+    hr_a = api_helpers.create_host_request(token=token1, host_user_id=user2.id, text=valid_request_text("Request A"))
+    backdate_conversations()
 
-        # Same from_date as A — tiebreaker by conversation_id
-        hr_b = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("Request B"),
-            )
-        ).host_request_id
-        backdate_conversations()
+    # Same from_date as A — tiebreaker by conversation_id
+    hr_b = api_helpers.create_host_request(token=token1, host_user_id=user2.id, text=valid_request_text("Request B"))
+    backdate_conversations()
 
-        hr_c = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_5.isoformat(),
-                to_date=(today_plus_5 + timedelta(days=2)).isoformat(),
-                text=valid_request_text("Request C"),
-            )
-        ).host_request_id
+    hr_c = api_helpers.create_host_request(
+        token=token1,
+        host_user_id=user2.id,
+        from_date=today_plus_5,
+        to_date=today_plus_5 + timedelta(days=2),
+        text=valid_request_text("Request C"),
+    )
 
     moderator.approve_host_request(hr_a)
     moderator.approve_host_request(hr_b)
@@ -936,20 +844,9 @@ def test_ListHostRequests_sort_by_from_date_pagination(db, moderator):
 def test_ListHostRequests_active_filter(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    today_plus_2 = today() + timedelta(days=2)
-    today_plus_3 = today() + timedelta(days=3)
-
-    with requests_session(token1) as api:
-        request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("Test request 1"),
-            )
-        ).host_request_id
-
-    moderator.approve_host_request(request_id)
+    request_id = api_helpers.create_host_request(
+        token=token1, host_user_id=user2.id, text=valid_request_text("Test request 1"), approve_by=moderator
+    )
 
     with requests_session(token1) as api:
         api.RespondHostRequest(
@@ -969,20 +866,9 @@ def test_ListHostRequests_active_filter_excludes_past(db, moderator):
     """only_active must exclude requests whose end date has passed (regression test for <= bug)."""
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    today_plus_2 = today() + timedelta(days=2)
-    today_plus_3 = today() + timedelta(days=3)
-
-    with requests_session(token1) as api:
-        request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("Past stay regression"),
-            )
-        ).host_request_id
-
-    moderator.approve_host_request(request_id)
+    request_id = api_helpers.create_host_request(
+        token=token1, host_user_id=user2.id, text=valid_request_text("Past stay regression"), approve_by=moderator
+    )
 
     with requests_session(token2) as api:
         api.RespondHostRequest(
@@ -1018,36 +904,19 @@ def test_ListHostRequests_status_in_filter(db, moderator):
     """status_in must return only requests with the specified statuses."""
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    today_plus_2 = today() + timedelta(days=2)
-    today_plus_3 = today() + timedelta(days=3)
-    today_plus_4 = today() + timedelta(days=4)
-    today_plus_5 = today() + timedelta(days=5)
-
     # Create a pending request
-    with requests_session(token1) as api:
-        pending_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("Pending"),
-            )
-        ).host_request_id
-
-    moderator.approve_host_request(pending_id)
+    api_helpers.create_host_request(
+        token=token1, host_user_id=user2.id, text=valid_request_text("Pending"), approve_by=moderator
+    )
 
     # Create an accepted request
-    with requests_session(token1) as api:
-        accepted_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_4.isoformat(),
-                to_date=today_plus_5.isoformat(),
-                text=valid_request_text("Accepted"),
-            )
-        ).host_request_id
-
-    moderator.approve_host_request(accepted_id)
+    accepted_id = api_helpers.create_host_request(
+        token=token1,
+        host_user_id=user2.id,
+        from_date=today() + timedelta(days=4),
+        text=valid_request_text("Accepted"),
+        approve_by=moderator,
+    )
 
     with requests_session(token2) as api:
         api.RespondHostRequest(
@@ -1108,20 +977,9 @@ def test_RespondHostRequests(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
-    today_plus_2 = today() + timedelta(days=2)
-    today_plus_3 = today() + timedelta(days=3)
-
-    with requests_session(token1) as api:
-        request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("Test request 1"),
-            )
-        ).host_request_id
-
-    moderator.approve_host_request(request_id)
+    request_id = api_helpers.create_host_request(
+        token=token1, host_user_id=user2.id, text=valid_request_text("Test request 1"), approve_by=moderator
+    )
 
     # another user can't access
     with requests_session(token3) as api:
@@ -1239,20 +1097,9 @@ def test_RespondHostRequests(db, moderator):
 def test_get_host_request_messages(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    today_plus_2 = today() + timedelta(days=2)
-    today_plus_3 = today() + timedelta(days=3)
-    with requests_session(token1) as api:
-        res = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("Test request 1"),
-            )
-        )
-        conversation_id = res.host_request_id
-
-    moderator.approve_host_request(conversation_id)
+    conversation_id = api_helpers.create_host_request(
+        token=token1, host_user_id=user2.id, text=valid_request_text("Test request 1"), approve_by=moderator
+    )
 
     add_message(db, "Test request 1 message 1", user1.id, conversation_id)
     add_message(db, "Test request 1 message 2", user1.id, conversation_id)
@@ -1312,19 +1159,9 @@ def test_SendHostRequestMessage(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
-    today_plus_2 = today() + timedelta(days=2)
-    today_plus_3 = today() + timedelta(days=3)
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("Test request 1"),
-            )
-        ).host_request_id
-
-    moderator.approve_host_request(host_request_id)
+    host_request_id = api_helpers.create_host_request(
+        token=token1, host_user_id=user2.id, text=valid_request_text("Test request 1"), approve_by=moderator
+    )
 
     with requests_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -1404,19 +1241,9 @@ def test_get_updates(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
-    today_plus_2 = today() + timedelta(days=2)
-    today_plus_3 = today() + timedelta(days=3)
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("Test message 0"),
-            )
-        ).host_request_id
-
-    moderator.approve_host_request(host_request_id)
+    host_request_id = api_helpers.create_host_request(
+        token=token1, host_user_id=user2.id, text=valid_request_text("Test message 0"), approve_by=moderator
+    )
 
     with requests_session(token1) as api:
         api.SendHostRequestMessage(
@@ -1434,14 +1261,7 @@ def test_get_updates(db, moderator):
         )
 
         backdate_conversations()
-        api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("Test message 4"),
-            )
-        )
+        api_helpers.create_host_request(token=token1, host_user_id=user2.id, text=valid_request_text("Test message 4"))
 
         res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(host_request_id=host_request_id))
         assert len(res.messages) == 6
@@ -1487,19 +1307,11 @@ def test_archive_host_request(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    today_plus_2 = today() + timedelta(days=2)
-    today_plus_3 = today() + timedelta(days=3)
+    host_request_id = api_helpers.create_host_request(
+        token=token1, host_user_id=user2.id, text=valid_request_text("Test message 0")
+    )
 
     with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("Test message 0"),
-            )
-        ).host_request_id
-
         api.SendHostRequestMessage(
             requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 1")
         )
@@ -1541,16 +1353,7 @@ def test_host_request_unseen_message_count(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=(today() + timedelta(days=2)).isoformat(),
-                to_date=(today() + timedelta(days=3)).isoformat(),
-                text=valid_request_text(),
-            )
-        ).host_request_id
-    moderator.approve_host_request(host_request_id)
+    host_request_id = api_helpers.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
 
     with requests_session(token1) as api:
         api.SendHostRequestMessage(
@@ -1585,27 +1388,13 @@ def test_mark_last_seen(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
-    today_plus_2 = today() + timedelta(days=2)
-    today_plus_3 = today() + timedelta(days=3)
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("Test message 0"),
-            )
-        ).host_request_id
-        backdate_conversations()
-
-        host_request_id_2 = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("Test message 0a"),
-            )
-        ).host_request_id
+    host_request_id = api_helpers.create_host_request(
+        token=token1, host_user_id=user2.id, text=valid_request_text("Test message 0")
+    )
+    backdate_conversations()
+    host_request_id_2 = api_helpers.create_host_request(
+        token=token1, host_user_id=user2.id, text=valid_request_text("Test message 0a")
+    )
 
     moderator.approve_host_request(host_request_id)
     moderator.approve_host_request(host_request_id_2)
@@ -1653,17 +1442,10 @@ def test_mark_last_seen(db, moderator):
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == "You can't unsee messages."
 
-        # this will be used to test sent request notifications
-        host_request_id_3 = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user1.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("Another test request"),
-            )
-        ).host_request_id
-
-    moderator.approve_host_request(host_request_id_3)
+    # this will be used to test sent request notifications
+    host_request_id_3 = api_helpers.create_host_request(
+        token=token2, host_user_id=user1.id, text=valid_request_text("Another test request"), approve_by=moderator
+    )
 
     with requests_session(token2) as api:
         # this should make id_2 all read
@@ -1686,27 +1468,18 @@ def test_mark_last_seen(db, moderator):
         assert api.Ping(api_pb2.PingReq()).unseen_sent_host_request_count == 1
 
 
-def _create_host_request_via_api(surfer_token: str, host_id: int, moderator, public_trip_id: int | None = None) -> int:
-    with requests_session(surfer_token) as api:
-        res = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host_id,
-                from_date=(today() + timedelta(days=5)).isoformat(),
-                to_date=(today() + timedelta(days=10)).isoformat(),
-                text=valid_request_text(),
-                public_trip_id=public_trip_id,
-            )
-        )
-    moderator.approve_host_request(res.host_request_id)
-    return int(res.host_request_id)
-
-
 def test_ping_role_based_counts_match_direction_without_offers(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
     # user2 surfs with user1 -> user1 is the host of the stay
-    _create_host_request_via_api(token2, user1.id, moderator)
+    api_helpers.create_host_request(
+        token=token2,
+        host_user_id=user1.id,
+        from_date=today() + timedelta(days=5),
+        to_date=today() + timedelta(days=10),
+        approve_by=moderator,
+    )
 
     with api_session(token1) as api:
         res = api.Ping(api_pb2.PingReq())
@@ -1721,10 +1494,19 @@ def test_ping_role_based_counts_match_direction_without_offers(db, moderator):
 def test_ping_counts_public_trip_offer_by_role(db, moderator):
     traveler, traveler_token = generate_user()
     host, host_token = generate_user()
-    node_id = _make_node()
-    trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    node_id = create_trip_community()
+    trip_id = create_public_trip(
+        traveler.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id
+    )
 
-    request_id = _create_host_request_via_api(host_token, traveler.id, moderator, public_trip_id=trip_id)
+    request_id = api_helpers.create_host_request(
+        token=host_token,
+        host_user_id=traveler.id,
+        from_date=today() + timedelta(days=5),
+        to_date=today() + timedelta(days=10),
+        public_trip_id=trip_id,
+        approve_by=moderator,
+    )
 
     # the traveller (recipient) has the offer's create message unseen: counts as surfing + public-trip offer
     with api_session(traveler_token) as api:
@@ -1751,10 +1533,19 @@ def test_ping_public_trip_offer_count_gated_by_flag(db, moderator, feature_flags
 
     traveler, traveler_token = generate_user()
     host, host_token = generate_user()
-    node_id = _make_node()
-    trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    node_id = create_trip_community()
+    trip_id = create_public_trip(
+        traveler.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id
+    )
 
-    _create_host_request_via_api(host_token, traveler.id, moderator, public_trip_id=trip_id)
+    api_helpers.create_host_request(
+        token=host_token,
+        host_user_id=traveler.id,
+        from_date=today() + timedelta(days=5),
+        to_date=today() + timedelta(days=10),
+        public_trip_id=trip_id,
+        approve_by=moderator,
+    )
 
     with api_session(traveler_token) as api:
         res = api.Ping(api_pb2.PingReq())
@@ -1767,20 +1558,9 @@ def test_ping_public_trip_offer_count_gated_by_flag(db, moderator, feature_flags
 def test_mark_last_seen_clears_notifications(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    today_plus_2 = today() + timedelta(days=2)
-    today_plus_3 = today() + timedelta(days=3)
-
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("Test message"),
-            )
-        ).host_request_id
-
-    moderator.approve_host_request(host_request_id)
+    host_request_id = api_helpers.create_host_request(
+        token=token1, host_user_id=user2.id, text=valid_request_text("Test message"), approve_by=moderator
+    )
 
     def unseen_notification_count(user_id):
         with session_scope() as session:
@@ -1807,9 +1587,6 @@ def test_response_rate(db, moderator):
     user2, token2 = generate_user()
     user3, token3 = generate_user(delete_user=True)
 
-    today_plus_2 = today() + timedelta(days=2)
-    today_plus_3 = today() + timedelta(days=3)
-
     with session_scope() as session:
         refresh_materialized_view(session, "user_response_rates")
 
@@ -1825,15 +1602,9 @@ def test_response_rate(db, moderator):
         assert res.HasField("insufficient_data")
 
         # send a request and back date it by 36 hours
-        host_request_1 = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("Test request"),
-            )
-        ).host_request_id
-        moderator.approve_host_request(host_request_1)
+        host_request_1 = api_helpers.create_host_request(
+            token=token1, host_user_id=user2.id, text=valid_request_text("Test request"), approve_by=moderator
+        )
         backdate_conversations()
         with session_scope() as session:
             session.execute(
@@ -1848,15 +1619,9 @@ def test_response_rate(db, moderator):
         assert res.HasField("insufficient_data")
 
         # send a request and back date it by 35 hours
-        host_request_2 = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("Test request"),
-            )
-        ).host_request_id
-        moderator.approve_host_request(host_request_2)
+        host_request_2 = api_helpers.create_host_request(
+            token=token1, host_user_id=user2.id, text=valid_request_text("Test request"), approve_by=moderator
+        )
         backdate_conversations()
         with session_scope() as session:
             session.execute(
@@ -1871,15 +1636,9 @@ def test_response_rate(db, moderator):
         assert res.HasField("insufficient_data")
 
         # send a request and back date it by 34 hours
-        host_request_3 = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("Test request"),
-            )
-        ).host_request_id
-        moderator.approve_host_request(host_request_3)
+        host_request_3 = api_helpers.create_host_request(
+            token=token1, host_user_id=user2.id, text=valid_request_text("Test request"), approve_by=moderator
+        )
         backdate_conversations()
         with session_scope() as session:
             session.execute(
@@ -1953,15 +1712,9 @@ def test_response_rate(db, moderator):
         assert res.almost_all.response_time_p66.ToTimedelta() == timedelta(hours=35)
 
         # send a request and back date it by 2 hours
-        host_request_4 = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("Test request"),
-            )
-        ).host_request_id
-        moderator.approve_host_request(host_request_4)
+        host_request_4 = api_helpers.create_host_request(
+            token=token1, host_user_id=user2.id, text=valid_request_text("Test request"), approve_by=moderator
+        )
         backdate_conversations()
         with session_scope() as session:
             session.execute(
@@ -1972,15 +1725,9 @@ def test_response_rate(db, moderator):
             refresh_materialized_view(session, "user_response_rates")
 
         # send a request and back date it by 4 hours
-        host_request_5 = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("Test request"),
-            )
-        ).host_request_id
-        moderator.approve_host_request(host_request_5)
+        host_request_5 = api_helpers.create_host_request(
+            token=token1, host_user_id=user2.id, text=valid_request_text("Test request"), approve_by=moderator
+        )
         backdate_conversations()
         with session_scope() as session:
             session.execute(
@@ -2039,16 +1786,31 @@ def test_response_rate(db, moderator):
 def test_response_rate_ignores_public_trip_offers(db, moderator):
     traveler, _ = generate_user()
     _, surfer_token = generate_user()
-    node_id = _make_node()
-    trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    node_id = create_trip_community()
+    trip_id = create_public_trip(
+        traveler.id, today() + timedelta(days=5), today() + timedelta(days=10), node_id=node_id
+    )
 
     # the traveller leaves every offer on their trip unanswered
     for _ in range(3):
         _, host_token = generate_user()
-        _create_host_request_via_api(host_token, traveler.id, moderator, public_trip_id=trip_id)
+        api_helpers.create_host_request(
+            token=host_token,
+            host_user_id=traveler.id,
+            from_date=today() + timedelta(days=5),
+            to_date=today() + timedelta(days=10),
+            public_trip_id=trip_id,
+            approve_by=moderator,
+        )
 
     # a regular request to the traveller as a host still counts
-    _create_host_request_via_api(surfer_token, traveler.id, moderator)
+    api_helpers.create_host_request(
+        token=surfer_token,
+        host_user_id=traveler.id,
+        from_date=today() + timedelta(days=5),
+        to_date=today() + timedelta(days=10),
+        approve_by=moderator,
+    )
 
     with session_scope() as session:
         refresh_materialized_view(session, "user_response_rates")
@@ -2069,17 +1831,14 @@ def test_request_notifications(db, email_collector: EmailCollector, push_collect
     today_plus_2 = today() + timedelta(days=2)
     today_plus_3 = today() + timedelta(days=3)
 
-    with requests_session(surfer_token) as api:
-        hr_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("can i stay plz"),
-            )
-        ).host_request_id
-
-    moderator.approve_host_request(hr_id)
+    hr_id = api_helpers.create_host_request(
+        token=surfer_token,
+        host_user_id=host.id,
+        from_date=today_plus_2,
+        to_date=today_plus_3,
+        text=valid_request_text("can i stay plz"),
+        approve_by=moderator,
+    )
 
     email = email_collector.pop_for_recipient(host.email, last=True)
     assert email.recipient == host.email
@@ -2140,17 +1899,14 @@ def test_quick_decline(db, email_collector: EmailCollector, push_collector: Push
     today_plus_2 = today() + timedelta(days=2)
     today_plus_3 = today() + timedelta(days=3)
 
-    with requests_session(surfer_token) as api:
-        hr_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("can i stay plz"),
-            )
-        ).host_request_id
-
-    moderator.approve_host_request(hr_id)
+    hr_id = api_helpers.create_host_request(
+        token=surfer_token,
+        host_user_id=host.id,
+        from_date=today_plus_2,
+        to_date=today_plus_3,
+        text=valid_request_text("can i stay plz"),
+        approve_by=moderator,
+    )
 
     email = email_collector.pop_for_recipient(host.email, last=True)
     assert email.recipient == host.email
@@ -2206,34 +1962,15 @@ def test_host_req_feedback(db, moderator):
     host3, host3_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
 
-    today_plus_2 = today() + timedelta(days=2)
-    today_plus_3 = today() + timedelta(days=3)
-
-    with requests_session(surfer_token) as api:
-        hr_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("can i stay plz"),
-            )
-        ).host_request_id
-        hr2_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host2.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("can i stay plz"),
-            )
-        ).host_request_id
-        hr3_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host3.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
-                text=valid_request_text("can i stay plz"),
-            )
-        ).host_request_id
+    hr_id = api_helpers.create_host_request(
+        token=surfer_token, host_user_id=host.id, text=valid_request_text("can i stay plz")
+    )
+    hr2_id = api_helpers.create_host_request(
+        token=surfer_token, host_user_id=host2.id, text=valid_request_text("can i stay plz")
+    )
+    hr3_id = api_helpers.create_host_request(
+        token=surfer_token, host_user_id=host3.id, text=valid_request_text("can i stay plz")
+    )
 
     moderator.approve_host_request(hr_id)
     moderator.approve_host_request(hr2_id)
@@ -2333,47 +2070,6 @@ def _make_trip_node_admin(user_id: int, trip_id: int):
         session.add(ClusterSubscription(cluster_id=cluster.id, user_id=user_id, role=ClusterRole.admin))
 
 
-def _create_public_trip(
-    user_id: int,
-    from_date,
-    to_date,
-    *,
-    status=None,
-    same_gender_only: bool = False,
-    visibility: ModerationVisibility = ModerationVisibility.visible,
-):
-    with session_scope() as session:
-        node = session.execute(select(Node).limit(1)).scalar_one_or_none()
-        if node is None:
-            node = Node(
-                geom=to_multi(create_polygon_lat_lng([[0, 0], [0, 2], [2, 2], [2, 0], [0, 0]])),
-                node_type=NodeType.locality,
-            )
-            session.add(node)
-            session.flush()
-        moderation_state = ModerationState(
-            object_type=ModerationObjectType.public_trip,
-            object_id=0,  # placeholder, set after PublicTrip flush
-            visibility=visibility,
-        )
-        session.add(moderation_state)
-        session.flush()
-        trip = PublicTrip(
-            user_id=user_id,
-            node_id=node.id,
-            from_date=from_date,
-            to_date=to_date,
-            description="Looking for a host!",
-            status=status or PublicTripStatus.searching_for_host,
-            same_gender_only=same_gender_only,
-            moderation_state_id=moderation_state.id,
-        )
-        session.add(trip)
-        session.flush()
-        moderation_state.object_id = trip.id
-        return trip.id
-
-
 def test_create_request_with_public_trip(db, moderator):
     """Hosts can offer to host a public trip; offered dates must be within trip dates."""
     surfer, surfer_token = generate_user()
@@ -2381,7 +2077,7 @@ def test_create_request_with_public_trip(db, moderator):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+    trip_id = create_public_trip(surfer.id, trip_from, trip_to)
 
     with requests_session(host_token) as api:
         # Happy path: dates within trip window
@@ -2410,7 +2106,7 @@ def test_create_request_with_public_trip_hosting_snapshot(db, moderator):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+    trip_id = create_public_trip(surfer.id, trip_from, trip_to)
 
     with requests_session(host_token) as api:
         host_request_id = api.CreateHostRequest(
@@ -2440,20 +2136,16 @@ def test_public_trip_offer_stay_roles(db, moderator):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+    trip_id = create_public_trip(surfer.id, trip_from, trip_to)
 
-    with requests_session(host_token) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=surfer.id,
-                from_date=trip_from.isoformat(),
-                to_date=trip_to.isoformat(),
-                text=valid_request_text(),
-                public_trip_id=trip_id,
-            )
-        ).host_request_id
-
-    moderator.approve_host_request(host_request_id)
+    host_request_id = api_helpers.create_host_request(
+        token=host_token,
+        host_user_id=surfer.id,
+        from_date=trip_from,
+        to_date=trip_to,
+        public_trip_id=trip_id,
+        approve_by=moderator,
+    )
 
     with session_scope() as session:
         host_request = session.execute(
@@ -2481,7 +2173,7 @@ def test_create_request_with_public_trip_dates_out_of_range(db):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+    trip_id = create_public_trip(surfer.id, trip_from, trip_to)
 
     with requests_session(host_token) as api:
         # from_date before trip starts
@@ -2519,7 +2211,7 @@ def test_create_request_with_public_trip_user_mismatch(db):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(trip_owner.id, trip_from, trip_to)
+    trip_id = create_public_trip(trip_owner.id, trip_from, trip_to)
 
     with requests_session(host_token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -2542,7 +2234,7 @@ def test_create_request_with_closed_public_trip(db):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(surfer.id, trip_from, trip_to, status=PublicTripStatus.closed)
+    trip_id = create_public_trip(surfer.id, trip_from, trip_to, status=PublicTripStatus.closed)
 
     with requests_session(host_token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -2584,7 +2276,7 @@ def test_create_request_with_shadowed_public_trip(db, moderator):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(surfer.id, trip_from, trip_to, visibility=ModerationVisibility.shadowed)
+    trip_id = create_public_trip(surfer.id, trip_from, trip_to, visibility=ModerationVisibility.shadowed)
 
     with requests_session(host_token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -2622,7 +2314,7 @@ def test_create_request_with_hidden_public_trip(db):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(surfer.id, trip_from, trip_to, visibility=ModerationVisibility.hidden)
+    trip_id = create_public_trip(surfer.id, trip_from, trip_to, visibility=ModerationVisibility.hidden)
 
     with requests_session(host_token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -2668,7 +2360,7 @@ def test_create_request_same_gender_only_wrong_gender_rejected(db):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(surfer.id, trip_from, trip_to, same_gender_only=True)
+    trip_id = create_public_trip(surfer.id, trip_from, trip_to, same_gender_only=True)
 
     with requests_session(host_token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -2690,7 +2382,7 @@ def test_create_request_same_gender_only_same_gender_allowed(db, moderator):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(surfer.id, trip_from, trip_to, same_gender_only=True)
+    trip_id = create_public_trip(surfer.id, trip_from, trip_to, same_gender_only=True)
 
     with requests_session(host_token) as api:
         res = api.CreateHostRequest(
@@ -2711,7 +2403,7 @@ def test_create_request_same_gender_only_moderator_bypass(db, moderator):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(surfer.id, trip_from, trip_to, same_gender_only=True)
+    trip_id = create_public_trip(surfer.id, trip_from, trip_to, same_gender_only=True)
     _make_trip_node_admin(host.id, trip_id)
 
     with requests_session(host_token) as api:
@@ -2733,7 +2425,7 @@ def test_create_request_duplicate_offer_rejected(db):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+    trip_id = create_public_trip(surfer.id, trip_from, trip_to)
 
     with requests_session(host_token) as api:
         api.CreateHostRequest(
@@ -2765,20 +2457,16 @@ def test_create_request_offer_allowed_after_withdrawal(db, moderator):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+    trip_id = create_public_trip(surfer.id, trip_from, trip_to)
 
-    with requests_session(host_token) as api:
-        request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=surfer.id,
-                from_date=trip_from.isoformat(),
-                to_date=trip_to.isoformat(),
-                text=valid_request_text(),
-                public_trip_id=trip_id,
-            )
-        ).host_request_id
-
-    moderator.approve_host_request(request_id)
+    request_id = api_helpers.create_host_request(
+        token=host_token,
+        host_user_id=surfer.id,
+        from_date=trip_from,
+        to_date=trip_to,
+        public_trip_id=trip_id,
+        approve_by=moderator,
+    )
 
     with requests_session(host_token) as api:
         api.RespondHostRequest(
@@ -2820,20 +2508,16 @@ def test_db_allows_one_active_offer_per_trip(db, moderator):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+    trip_id = create_public_trip(surfer.id, trip_from, trip_to)
 
-    with requests_session(host_token) as api:
-        withdrawn_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=surfer.id,
-                from_date=trip_from.isoformat(),
-                to_date=trip_to.isoformat(),
-                text=valid_request_text(),
-                public_trip_id=trip_id,
-            )
-        ).host_request_id
-
-    moderator.approve_host_request(withdrawn_id)
+    withdrawn_id = api_helpers.create_host_request(
+        token=host_token,
+        host_user_id=surfer.id,
+        from_date=trip_from,
+        to_date=trip_to,
+        public_trip_id=trip_id,
+        approve_by=moderator,
+    )
 
     with requests_session(host_token) as api:
         api.RespondHostRequest(
@@ -2841,14 +2525,8 @@ def test_db_allows_one_active_offer_per_trip(db, moderator):
                 host_request_id=withdrawn_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
             )
         )
-        api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=surfer.id,
-                from_date=trip_from.isoformat(),
-                to_date=trip_to.isoformat(),
-                text=valid_request_text(),
-                public_trip_id=trip_id,
-            )
+        api_helpers.create_host_request(
+            token=host_token, host_user_id=surfer.id, from_date=trip_from, to_date=trip_to, public_trip_id=trip_id
         )
 
     # reviving the withdrawn offer would leave the host with two active offers on the trip
@@ -2868,20 +2546,16 @@ def test_create_request_offer_blocked_after_traveller_declines(db, moderator):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+    trip_id = create_public_trip(surfer.id, trip_from, trip_to)
 
-    with requests_session(host_token) as api:
-        request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=surfer.id,
-                from_date=trip_from.isoformat(),
-                to_date=trip_to.isoformat(),
-                text=valid_request_text(),
-                public_trip_id=trip_id,
-            )
-        ).host_request_id
-
-    moderator.approve_host_request(request_id)
+    request_id = api_helpers.create_host_request(
+        token=host_token,
+        host_user_id=surfer.id,
+        from_date=trip_from,
+        to_date=trip_to,
+        public_trip_id=trip_id,
+        approve_by=moderator,
+    )
 
     # the traveller is the recipient on an offer, so they are the one who declines
     with requests_session(surfer_token) as api:
@@ -2906,23 +2580,19 @@ def test_create_request_offer_blocked_after_traveller_declines(db, moderator):
 
 
 def _create_accepted_request(surfer_token: str, host_token: str, host_id: int, moderator, days_ahead: int = 2) -> int:
-    with requests_session(surfer_token) as api:
-        request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host_id,
-                from_date=(today() + timedelta(days=days_ahead)).isoformat(),
-                to_date=(today() + timedelta(days=days_ahead + 1)).isoformat(),
-                text=valid_request_text(),
-            )
-        ).host_request_id
-    moderator.approve_host_request(request_id)
+    request_id = api_helpers.create_host_request(
+        token=surfer_token,
+        host_user_id=host_id,
+        from_date=today() + timedelta(days=days_ahead),
+        approve_by=moderator,
+    )
     with requests_session(host_token) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
             )
         )
-    return int(request_id)
+    return request_id
 
 
 def _upcoming_stay_ids(token: str, role: requests_pb2.StayRole.ValueType) -> list[int]:
@@ -2963,19 +2633,16 @@ def test_ListStays_public_trip_offer_by_stay_role(db, moderator):
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(traveller.id, trip_from, trip_to)
+    trip_id = create_public_trip(traveller.id, trip_from, trip_to)
 
-    with requests_session(host_token) as api:
-        offer_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=traveller.id,
-                from_date=trip_from.isoformat(),
-                to_date=trip_to.isoformat(),
-                text=valid_request_text(),
-                public_trip_id=trip_id,
-            )
-        ).host_request_id
-    moderator.approve_host_request(offer_id)
+    offer_id = api_helpers.create_host_request(
+        token=host_token,
+        host_user_id=traveller.id,
+        from_date=trip_from,
+        to_date=trip_to,
+        public_trip_id=trip_id,
+        approve_by=moderator,
+    )
 
     # the traveller is the recipient of an offer, so they accept it
     with requests_session(traveller_token) as api:
@@ -3018,16 +2685,9 @@ def test_ListStays_only_accepted_or_confirmed_and_not_ended(db, moderator):
         )
 
     # a pending request isn't upcoming yet
-    with requests_session(surfer_token) as api:
-        pending_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=(today() + timedelta(days=10)).isoformat(),
-                to_date=(today() + timedelta(days=11)).isoformat(),
-                text=valid_request_text(),
-            )
-        ).host_request_id
-    moderator.approve_host_request(pending_id)
+    api_helpers.create_host_request(
+        token=surfer_token, host_user_id=host.id, from_date=today() + timedelta(days=10), approve_by=moderator
+    )
 
     with session_scope() as session:
         hr = session.execute(select(HostRequest).where(HostRequest.conversation_id == ended_id)).scalar_one()

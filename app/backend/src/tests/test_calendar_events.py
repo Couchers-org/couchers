@@ -7,10 +7,11 @@ from couchers.email.calendar_events import create_event_ics_calendar, create_hos
 from couchers.i18n.context import LocalizationContext
 from couchers.proto import events_pb2, messages_pb2, requests_pb2
 from couchers.utils import Timestamp_from_datetime, today
+from tests.fixtures import api_helpers
+from tests.fixtures.api_helpers import valid_request_text
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import EmailCollector, Moderator
 from tests.fixtures.sessions import requests_session
-from tests.test_requests import valid_request_text
 
 
 def test_host_request_ics_content():
@@ -148,17 +149,14 @@ def test_host_request_attachments(db, email_collector: EmailCollector, moderator
     to_date = today() + timedelta(days=3)
 
     # Send the host request, no calendar attachment yet
-    with requests_session(surfer_token) as api:
-        hr_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=from_date.isoformat(),
-                to_date=to_date.isoformat(),
-                text=valid_request_text("can i stay plz"),
-            )
-        ).host_request_id
-
-    moderator.approve_host_request(hr_id)
+    hr_id = api_helpers.create_host_request(
+        token=surfer_token,
+        host_user_id=host.id,
+        from_date=from_date,
+        to_date=to_date,
+        text=valid_request_text("can i stay plz"),
+        approve_by=moderator,
+    )
 
     email = email_collector.pop_for_recipient(host.email, last=True)
     assert "request" in email.subject and surfer.name in email.subject
@@ -223,20 +221,9 @@ def test_host_request_attachments_disabled(db, email_collector: EmailCollector, 
     host, host_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
 
-    from_date = today() + timedelta(days=2)
-    to_date = today() + timedelta(days=3)
-
-    with requests_session(surfer_token) as api:
-        hr_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=from_date.isoformat(),
-                to_date=to_date.isoformat(),
-                text=valid_request_text("can i stay plz"),
-            )
-        ).host_request_id
-
-    moderator.approve_host_request(hr_id)
+    hr_id = api_helpers.create_host_request(
+        token=surfer_token, host_user_id=host.id, text=valid_request_text("can i stay plz"), approve_by=moderator
+    )
 
     email_collector.pop_for_recipient(host.email, last=True)
 

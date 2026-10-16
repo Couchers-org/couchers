@@ -28,8 +28,8 @@ from couchers.servicers.public import _get_donation_stats, _get_public_users, _g
 from couchers.utils import now
 from tests.fixtures.db import generate_user, make_friends, make_volunteer
 from tests.fixtures.misc import process_jobs
+from tests.fixtures.references import create_friend_reference, create_host_reference
 from tests.fixtures.sessions import public_session
-from tests.test_references import create_friend_reference, create_host_reference
 
 
 def test_GetPublicMapLayer(db):
