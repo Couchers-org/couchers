@@ -1,0 +1,26 @@
+pg_replication_wal:
+  query: |
+    SELECT
+      application_name,
+      client_addr,
+      state,
+      pg_wal_lsn_diff(pg_current_wal_lsn(), sent_lsn) AS not_yet_sent_bytes,
+      pg_wal_lsn_diff(sent_lsn, flush_lsn) AS in_flight_bytes
+    FROM pg_stat_replication
+  master: true
+  metrics:
+    - application_name:
+        usage: "LABEL"
+        description: "Name the receiver connected with"
+    - client_addr:
+        usage: "LABEL"
+        description: "Address of the receiver"
+    - state:
+        usage: "LABEL"
+        description: "State of the WAL sender"
+    - not_yet_sent_bytes:
+        usage: "GAUGE"
+        description: "WAL written on the primary but not yet sent to this receiver"
+    - in_flight_bytes:
+        usage: "GAUGE"
+        description: "WAL sent to this receiver but not yet flushed to disk by it"
