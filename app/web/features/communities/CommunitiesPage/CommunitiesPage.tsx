@@ -69,14 +69,10 @@ const CommunitiesPage = () => {
   const { data: accountInfo } = useAccountInfo();
   return (
     <>
-      <div>
-        <HeaderRow>
-          <PageTitle>{t("nav.communities")}</PageTitle>
-        </HeaderRow>
-      </div>
-      <div>
-        <CommunitiesList />
-      </div>
+      <HeaderRow>
+        <PageTitle>{t("nav.communities")}</PageTitle>
+      </HeaderRow>
+      <CommunitiesList />
       <StyledTypography variant="body1">
         <Trans
           i18nKey="dashboard:community_builder"
