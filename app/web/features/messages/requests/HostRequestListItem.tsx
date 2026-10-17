@@ -19,6 +19,7 @@ import React, { useState } from "react";
 import { service } from "service";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
+import { isHostRequestPast } from "utils/hostRequests";
 import { firstName } from "utils/names";
 
 import HostRequestStatusText from "./HostRequestStatusText";
@@ -121,9 +122,7 @@ export default function HostRequestListItem({ hostRequest, className, isArchived
         `${capitalize(authorName)}: ${hostRequest.latestMessage.text?.text || ""}`
     : "";
 
-  const isPast =
-    hostRequest &&
-    Temporal.PlainDate.compare(Temporal.PlainDate.from(hostRequest.toDate), Temporal.Now.plainDateISO()) < 0;
+  const isPast = hostRequest && isHostRequestPast(hostRequest);
 
   const queryClient = useQueryClient();
 
