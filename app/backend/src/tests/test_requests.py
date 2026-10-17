@@ -11,7 +11,7 @@ from sqlalchemy import func, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy_utils import refresh_materialized_view
 
-from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
+from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16, PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16
 from couchers.crypto import b64decode
 from couchers.db import session_scope
 from couchers.i18n import LocalizationContext
@@ -2401,6 +2401,35 @@ def test_create_request_with_public_trip(db, moderator):
     with requests_session(host_token) as api:
         hr = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
         assert hr.public_trip_id == trip_id
+
+
+def test_public_trip_offer_min_length(db):
+    """Offers on public trips have a shorter minimum length than regular host requests."""
+    surfer, _ = generate_user()
+    host, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+
+    def offer(text: str) -> None:
+        with requests_session(host_token) as api:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=surfer.id,
+                    from_date=trip_from.isoformat(),
+                    to_date=trip_to.isoformat(),
+                    text=text,
+                    public_trip_id=trip_id,
+                )
+            )
+
+    with pytest.raises(grpc.RpcError) as e:
+        offer("a" * (PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16 - 1))
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+    # Shorter than a regular host request, but long enough for an offer
+    offer("a" * PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16)
 
 
 def test_create_request_with_public_trip_hosting_snapshot(db, moderator):

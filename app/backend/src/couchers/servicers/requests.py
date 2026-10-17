@@ -7,7 +7,11 @@ from sqlalchemy import exists, select
 from sqlalchemy.orm import Session, aliased
 from sqlalchemy.sql import and_, func, or_
 
-from couchers.constants import HOST_REQUEST_DUPLICATE_WINDOW_HOURS, HOST_REQUEST_MIN_LENGTH_UTF16
+from couchers.constants import (
+    HOST_REQUEST_DUPLICATE_WINDOW_HOURS,
+    HOST_REQUEST_MIN_LENGTH_UTF16,
+    PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16,
+)
 from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import can_moderate_node
 from couchers.event_log import log_event
@@ -166,6 +170,11 @@ def _is_host_request_long_enough(text: str) -> bool:
     return text_length_utf16 >= HOST_REQUEST_MIN_LENGTH_UTF16
 
 
+def _is_public_trip_offer_long_enough(text: str) -> bool:
+    # Measured in utf16 code units to match the frontend, see _is_host_request_long_enough
+    return len(text.encode("utf-16-le")) // 2 >= PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16
+
+
 class Requests(requests_pb2_grpc.RequestsServicer):
     def CreateHostRequest(
         self, request: requests_pb2.CreateHostRequestReq, context: CouchersContext, session: Session
@@ -216,11 +225,18 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_after_one_year")
 
         # Check minimum length
-        if not _is_host_request_long_enough(request.text):
+        if public_trip_id is None:
+            if not _is_host_request_long_enough(request.text):
+                context.abort_with_error_code(
+                    grpc.StatusCode.INVALID_ARGUMENT,
+                    "host_request_too_short2",
+                    substitutions={"count": HOST_REQUEST_MIN_LENGTH_UTF16},
+                )
+        elif not _is_public_trip_offer_long_enough(request.text):
             context.abort_with_error_code(
                 grpc.StatusCode.INVALID_ARGUMENT,
                 "host_request_too_short2",
-                substitutions={"count": HOST_REQUEST_MIN_LENGTH_UTF16},
+                substitutions={"count": PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16},
             )
 
         # Check if user has been sending host requests excessively
