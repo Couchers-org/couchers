@@ -102,6 +102,8 @@ export default function LoginScreen() {
         applicationNameForUserAgent={applicationNameForUserAgent}
         injectedJavaScriptObject={{ isNativeEmbed: true }}
         sharedCookiesEnabled
+        // On the new architecture an unset rate reaches iOS as 0, killing scroll momentum.
+        decelerationRate="normal"
         onMessage={handleMessage}
         onShouldStartLoadWithRequest={(event) => {
           if (shouldLoadInWebView(event.url, WEB_BASE_URL)) {

@@ -40,6 +40,7 @@ const mockWebViewRef = {
 let capturedWebViewProps: {
   source?: { uri: string };
   allowsBackForwardNavigationGestures?: boolean;
+  decelerationRate?: string;
   onLoad?: () => void;
   onNavigationStateChange?: (navState: {
     url: string;
@@ -188,6 +189,12 @@ describe("WebEmbed", () => {
       expect(capturedWebViewProps.allowsBackForwardNavigationGestures).toBe(
         true,
       );
+    });
+
+    it("keeps native iOS scroll momentum", () => {
+      render(<WebEmbed path="/dashboard" />);
+
+      expect(capturedWebViewProps.decelerationRate).toBe("normal");
     });
   });
 
