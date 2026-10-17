@@ -20,6 +20,7 @@ from couchers.metrics import (
     host_request_first_response_histogram,
     host_request_responses_counter,
     host_requests_sent_counter,
+    public_trip_offers_sent_counter,
     sent_messages_counter,
 )
 from couchers.models import (
@@ -143,6 +144,10 @@ def _possibly_observe_first_response_time(
 ) -> None:
     # if this is the first response then there's nothing by this user yet
     assert host_request.recipient_user_id == user_id
+
+    # on a public trip offer the recipient is the traveller, so this isn't a host's response time
+    if host_request.public_trip_id is not None:
+        return
 
     number_messages_by_host = session.execute(
         select(func.count())
@@ -350,11 +355,15 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             moderation_state_id=moderation_state.id,
         )
 
-        host_requests_sent_counter.labels(user.gender, recipient.gender).inc()
+        # the host request metrics assume the sender is the surfer, which is backwards on a public trip offer
+        if public_trip_id is None:
+            host_requests_sent_counter.labels(user.gender, recipient.gender).inc()
+            account_age_on_host_request_create_histogram.labels(surfer_user.gender, host_user.gender).observe(
+                (now() - user.joined).total_seconds()
+            )
+        else:
+            public_trip_offers_sent_counter.labels(user.gender, recipient.gender).inc()
         sent_messages_counter.labels(user.gender, "host request send").inc()
-        account_age_on_host_request_create_histogram.labels(surfer_user.gender, host_user.gender).observe(
-            (now() - user.joined).total_seconds()
-        )
         log_event(
             context,
             session,
@@ -606,10 +615,12 @@ class Requests(requests_pb2_grpc.RequestsServicer):
     def RespondHostRequest(
         self, request: requests_pb2.RespondHostRequestReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
-        def count_host_response(other_user_id: int, response_type: str) -> None:
+        def count_host_response(host_request: HostRequest, other_user_id: int, response_type: str) -> None:
             user_gender = session.execute(select(User.gender).where(User.id == context.user_id)).scalar_one()
             other_gender = session.execute(select(User.gender).where(User.id == other_user_id)).scalar_one()
-            host_request_responses_counter.labels(user_gender, other_gender, response_type).inc()
+            # the response types assume the recipient is the host, which is backwards on a public trip offer
+            if host_request.public_trip_id is None:
+                host_request_responses_counter.labels(user_gender, other_gender, response_type).inc()
             sent_messages_counter.labels(user_gender, "host request response").inc()
 
         host_request = session.execute(
@@ -676,7 +687,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 moderation_state_id=host_request.moderation_state_id,
             )
 
-            count_host_response(host_request.initiator_user_id, "accepted")
+            count_host_response(host_request, host_request.initiator_user_id, "accepted")
             log_event(
                 context,
                 session,
@@ -718,7 +729,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 moderation_state_id=host_request.moderation_state_id,
             )
 
-            count_host_response(host_request.initiator_user_id, "rejected")
+            count_host_response(host_request, host_request.initiator_user_id, "rejected")
 
             log_event(
                 context,
@@ -760,7 +771,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 moderation_state_id=host_request.moderation_state_id,
             )
 
-            count_host_response(host_request.recipient_user_id, "confirmed")
+            count_host_response(host_request, host_request.recipient_user_id, "confirmed")
             log_event(
                 context,
                 session,
@@ -801,7 +812,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 moderation_state_id=host_request.moderation_state_id,
             )
 
-            count_host_response(host_request.recipient_user_id, "cancelled")
+            count_host_response(host_request, host_request.recipient_user_id, "cancelled")
             log_event(
                 context,
                 session,
