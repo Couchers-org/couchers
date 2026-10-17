@@ -24,3 +24,18 @@ pg_replication_wal:
     - in_flight_bytes:
         usage: "GAUGE"
         description: "WAL sent to this receiver but not yet flushed to disk by it"
+
+pg_replication_slot:
+  query: |
+    SELECT
+      slot_name,
+      age(xmin) AS xmin_age
+    FROM pg_replication_slots
+  master: true
+  metrics:
+    - slot_name:
+        usage: "LABEL"
+        description: "Name of the replication slot"
+    - xmin_age:
+        usage: "GAUGE"
+        description: "Transactions since the oldest xmin this slot makes the primary keep, which vacuum cannot clean up past"
