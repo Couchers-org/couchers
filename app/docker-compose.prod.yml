@@ -128,7 +128,7 @@ services:
       - "--collector.stat_statements.include_query"
       # raise the 120-char default so long statements aren't cut off
       - "--collector.stat_statements.query_length=2048"
-      # per-receiver WAL not yet sent / in flight
+      # additional queries
       - "--extend.query-path=/etc/pgprom/queries.yaml"
     volumes:
       - "./pgprom/queries.yaml:/etc/pgprom/queries.yaml:ro"
