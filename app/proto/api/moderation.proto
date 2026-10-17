@@ -55,6 +55,7 @@ enum ModerationAction {
   MODERATION_ACTION_UNFLAG = 5;
   MODERATION_ACTION_BULK_SET_VISIBILITY = 6;
   MODERATION_ACTION_SET_PRIORITY = 7;
+  MODERATION_ACTION_SET_AUTO_APPROVE = 8;
 }
 
 enum ModerationObjectType {
@@ -95,6 +96,8 @@ message ModerationQueueItemInfo {
   ModerationStateInfo moderation_state = 8;
   int32 priority = 9;
   string data = 10;  // optional JSON payload
+  // Unset if this item never auto-approves
+  google.protobuf.Timestamp auto_approve_at = 11;
 }
 
 message ModerationLogEntryInfo {
@@ -107,6 +110,7 @@ message ModerationLogEntryInfo {
   string reason = 7;
   int32 new_priority = 8;
   int64 queue_item_id = 9;
+  google.protobuf.Timestamp new_auto_approve_at = 10;
 }
 
 message GetModerationQueueReq {
@@ -176,6 +180,8 @@ message ModerateContentReq {
   bool clear_flags = 9;
   // For FLAG: JSON object stored on the new flag
   string data = 10;
+  // For FLAG / SET_AUTO_APPROVE: when the flag auto-approves; unset means never
+  google.protobuf.Timestamp auto_approve_at = 11;
 }
 
 message ModerateContentRes {

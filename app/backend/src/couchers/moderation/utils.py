@@ -3,10 +3,13 @@ Utility functions for the Unified Moderation System (UMS)
 """
 
 from collections.abc import Callable
+from datetime import datetime, timedelta
 from typing import Any
 
+from sqlalchemy import ColumnElement, and_, exists, not_, or_
 from sqlalchemy.orm import Session
 
+from couchers.config import config
 from couchers.metrics import observe_moderation_action, observe_moderation_queue_item_created
 from couchers.models import (
     ModerationAction,
@@ -16,8 +19,10 @@ from couchers.models import (
     ModerationState,
     ModerationTrigger,
     ModerationVisibility,
+    User,
     get_moderated_models,
 )
+from couchers.utils import now
 
 
 def create_moderation(
@@ -71,6 +76,11 @@ def create_moderation(
                 trigger=ModerationTrigger.initial_review,
                 reason="Object created.",
                 data=data,
+                auto_approve_at=(
+                    now() + timedelta(seconds=config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS)
+                    if config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS > 0
+                    else None
+                ),
             )
         )
         observe_moderation_queue_item_created(ModerationTrigger.initial_review, object_type)
@@ -80,3 +90,25 @@ def create_moderation(
     session.flush()
 
     return moderation_state
+
+
+def auto_approve_due(cutoff: datetime) -> ColumnElement[bool]:
+    """
+    Open queue items whose auto-approve deadline passed before the cutoff, unless the content's author is shadowed.
+    """
+    author_shadowed = or_(
+        *(
+            exists().where(
+                entry.moderation_state_id_column == ModerationQueueItem.moderation_state_id,
+                entry.author_column == User.id,
+                User.is_shadowed,
+            )
+            for entry in get_moderated_models().values()
+            if not entry.has_own_visibility_mechanism
+        )
+    )
+    return and_(
+        ModerationQueueItem.resolved_by_log_id.is_(None),
+        ModerationQueueItem.auto_approve_at < cutoff,
+        not_(author_shadowed),
+    )

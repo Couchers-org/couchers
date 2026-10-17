@@ -46,7 +46,7 @@ from couchers.models import (
 )
 from couchers.proto import moderation_pb2, moderation_pb2_grpc
 from couchers.proto.internal import jobs_pb2
-from couchers.utils import Timestamp_from_datetime, not_none, now
+from couchers.utils import Timestamp_from_datetime, not_none, now, to_aware_datetime
 
 logger = logging.getLogger(__name__)
 
@@ -93,6 +93,7 @@ moderationaction2api = {
     ModerationAction.flag: moderation_pb2.MODERATION_ACTION_FLAG,
     ModerationAction.unflag: moderation_pb2.MODERATION_ACTION_UNFLAG,
     ModerationAction.set_priority: moderation_pb2.MODERATION_ACTION_SET_PRIORITY,
+    ModerationAction.set_auto_approve: moderation_pb2.MODERATION_ACTION_SET_AUTO_APPROVE,
     ModerationAction.bulk_set_visibility: moderation_pb2.MODERATION_ACTION_BULK_SET_VISIBILITY,
 }
 
@@ -104,6 +105,7 @@ moderationaction2sql = {
     moderation_pb2.MODERATION_ACTION_FLAG: ModerationAction.flag,
     moderation_pb2.MODERATION_ACTION_UNFLAG: ModerationAction.unflag,
     moderation_pb2.MODERATION_ACTION_SET_PRIORITY: ModerationAction.set_priority,
+    moderation_pb2.MODERATION_ACTION_SET_AUTO_APPROVE: ModerationAction.set_auto_approve,
     moderation_pb2.MODERATION_ACTION_BULK_SET_VISIBILITY: ModerationAction.bulk_set_visibility,
 }
 
@@ -577,6 +579,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
                 moderation_state=moderation_state_to_pb(mod_state, session),
                 priority=item.priority,
                 data=json.dumps(item.data) if item.data is not None else "",
+                auto_approve_at=Timestamp_from_datetime(item.auto_approve_at) if item.auto_approve_at else None,
             )
 
             queue_items_pb.append(queue_item_pb)
@@ -651,6 +654,8 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
                 log_entry_pb.new_priority = entry.new_priority
             if entry.queue_item_id is not None:
                 log_entry_pb.queue_item_id = entry.queue_item_id
+            if entry.new_auto_approve_at is not None:
+                log_entry_pb.new_auto_approve_at.CopyFrom(Timestamp_from_datetime(entry.new_auto_approve_at))
 
             log_entries_pb.append(log_entry_pb)
 
@@ -664,8 +669,8 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
     ) -> moderation_pb2.ModerateContentRes:
         """Single moderation entrypoint, dispatching on action.
 
-        APPROVE/HIDE act on the state's visibility; FLAG/SET_PRIORITY/UNFLAG act on a single
-        queue item. Every action appends a ModerationLog row.
+        APPROVE/HIDE act on the state's visibility; FLAG/SET_PRIORITY/SET_AUTO_APPROVE/UNFLAG act on a
+        single queue item. Every action appends a ModerationLog row.
         """
 
         moderation_state = session.execute(
@@ -689,6 +694,15 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
                 data = json.loads(request.data)
             except json.JSONDecodeError:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:data_must_be_valid_json")
+
+        auto_approve_at = to_aware_datetime(request.auto_approve_at) if request.HasField("auto_approve_at") else None
+        if auto_approve_at is not None:
+            if action not in (ModerationAction.flag, ModerationAction.set_auto_approve):
+                context.abort_with_error_code(
+                    grpc.StatusCode.INVALID_ARGUMENT, "admin:auto_approve_only_allowed_on_flag"
+                )
+            if get_moderated_models()[object_type].has_own_visibility_mechanism:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:cannot_auto_approve_state")
 
         if action in (ModerationAction.approve, ModerationAction.hide):
             if get_moderated_models()[object_type].has_own_visibility_mechanism:
@@ -743,6 +757,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
                 reason=reason,
                 priority=request.priority,
                 data=data,
+                auto_approve_at=auto_approve_at,
             )
             session.add(queue_item)
             session.flush()
@@ -752,6 +767,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
                 action=ModerationAction.flag,
                 moderator_user_id=context.user_id,
                 queue_item_id=queue_item.id,
+                new_auto_approve_at=auto_approve_at,
                 reason=reason,
             )
             session.add(log_entry)
@@ -788,6 +804,23 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
             session.flush()
 
             observe_moderation_action(ModerationAction.set_priority, object_type)
+
+        elif action == ModerationAction.set_auto_approve:
+            queue_item = self._get_queue_item_for_state(request, context, session, moderation_state.id)
+            queue_item.auto_approve_at = auto_approve_at
+
+            log_entry = ModerationLog(
+                moderation_state_id=moderation_state.id,
+                action=ModerationAction.set_auto_approve,
+                moderator_user_id=context.user_id,
+                queue_item_id=queue_item.id,
+                new_auto_approve_at=auto_approve_at,
+                reason=reason,
+            )
+            session.add(log_entry)
+            session.flush()
+
+            observe_moderation_action(ModerationAction.set_auto_approve, object_type)
 
         elif action == ModerationAction.unflag:
             queue_item = self._get_queue_item_for_state(request, context, session, moderation_state.id)

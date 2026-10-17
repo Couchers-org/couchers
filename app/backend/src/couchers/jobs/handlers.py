@@ -101,6 +101,7 @@ from couchers.models import (
     ModerationQueueItem,
     ModerationState,
     ModerationTrigger,
+    ModerationVisibility,
     PassportSex,
     PasswordResetToken,
     PhotoGallery,
@@ -118,7 +119,7 @@ from couchers.models import (
     get_moderated_models,
 )
 from couchers.models.notifications import NotificationTopicAction
-from couchers.moderation.utils import create_moderation
+from couchers.moderation.utils import auto_approve_due, create_moderation
 from couchers.notifications.expo_api import get_expo_push_receipts
 from couchers.notifications.notify import notify
 from couchers.postal.bypass import email_verification_code_instead_of_posting
@@ -1725,25 +1726,18 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
         if gc_reverse_mismatches:
             errors.append(f"GroupChat points to ModerationState with wrong type/object_id: {gc_reverse_mismatches}")
 
-        # Ensure auto-approve deadline isn't being exceeded by a significant margin
+        # Ensure auto-approve deadlines aren't being exceeded by a significant margin
         # The auto-approver runs every 15s, so allow 5 minutes grace before alerting
-        deadline_seconds = config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS
-        if deadline_seconds > 0:
-            grace_period = timedelta(minutes=5)
-            stale_initial_review_items = session.execute(
+        if config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS > 0:
+            stale_auto_approve_items = session.execute(
                 select(
                     ModerationQueueItem.id,
                     ModerationQueueItem.moderation_state_id,
-                    ModerationQueueItem.time_created,
-                )
-                .where(ModerationQueueItem.trigger == ModerationTrigger.initial_review)
-                .where(ModerationQueueItem.resolved_by_log_id.is_(None))
-                .where(ModerationQueueItem.time_created < now() - timedelta(seconds=deadline_seconds) - grace_period)
+                    ModerationQueueItem.auto_approve_at,
+                ).where(auto_approve_due(now() - timedelta(minutes=5)))
             ).all()
-            if stale_initial_review_items:
-                errors.append(
-                    f"INITIAL_REVIEW items exceeding auto-approve deadline by >5min: {stale_initial_review_items}"
-                )
+            if stale_auto_approve_items:
+                errors.append(f"Queue items exceeding auto-approve deadline by >5min: {stale_auto_approve_items}")
 
     if errors:
         raise DatabaseInconsistencyError("\n".join(errors))
@@ -1751,65 +1745,79 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
 
 def auto_approve_moderation_queue(payload: empty_pb2.Empty) -> None:
     """
-    Dead man's switch: approves unresolved INITIAL_REVIEW content older than the deadline to VISIBLE, then
-    re-flags it as a high-priority MACHINE_FLAG superseding only the INITIAL_REVIEW item. The switch only fires
-    when moderators are behind, so every auto-approved item stays in the queue for a human to check. Other open
-    flags are untouched, and items already actioned by moderators are left alone.
+    Dead man's switch: once the earliest auto_approve_at among a state's open queue items passes, approves its
+    content to VISIBLE if it's still SHADOWED, then clears the deadlines on all its open items and bumps them to high
+    priority. The switch only fires when moderators are behind, so every fired item stays in the queue for a human
+    to check. Content that was hidden or otherwise actioned by a moderator is left alone.
     """
-    deadline_seconds = config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS
-    if deadline_seconds <= 0:
+    if config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS <= 0:
         return
 
     with session_scope() as session:
         ctx = make_background_user_context(user_id=config.MODERATION_BOT_USER_ID)
 
-        items = (
-            Moderation()
-            .GetModerationQueue(
-                request=moderation_pb2.GetModerationQueueReq(
-                    triggers=[moderation_pb2.MODERATION_TRIGGER_INITIAL_REVIEW],
-                    unresolved_only=True,
-                    page_size=100,
-                    created_before=Timestamp_from_datetime(now() - timedelta(seconds=deadline_seconds)),
-                ),
-                context=ctx,
-                session=session,
+        state_ids = (
+            session.execute(
+                select(ModerationQueueItem.moderation_state_id)
+                .where(auto_approve_due(now()))
+                .group_by(ModerationQueueItem.moderation_state_id)
+                .order_by(func.min(ModerationQueueItem.auto_approve_at))
+                .limit(100)
             )
-            .queue_items
+            .scalars()
+            .all()
+        )
+        if not state_ids:
+            return
+
+        items = (
+            session.execute(
+                select(ModerationQueueItem)
+                .where(ModerationQueueItem.moderation_state_id.in_(state_ids))
+                .where(ModerationQueueItem.resolved_by_log_id.is_(None))
+                .where(ModerationQueueItem.auto_approve_at.is_not(None))
+                .order_by(ModerationQueueItem.auto_approve_at)
+            )
+            .scalars()
+            .all()
         )
 
-        if not items:
-            return
-
-        # Skip items whose author is shadowed; their content stays in shadowed state indefinitely
-        approvable = [item for item in items if not item.moderation_state.author.shadowed]
-        if not approvable:
-            return
-
-        logger.info(f"Auto-approving {len(approvable)} moderation queue items")
-        reason = f"Auto-approved: moderation deadline of {deadline_seconds} seconds exceeded."
-        for item in approvable:
+        logger.info(f"Auto-approve deadline passed for {len(state_ids)} moderation states")
+        approved_count = 0
+        for item in items:
+            if item.moderation_state.visibility == ModerationVisibility.shadowed:
+                Moderation().ModerateContent(
+                    request=moderation_pb2.ModerateContentReq(
+                        moderation_state_id=item.moderation_state_id,
+                        action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                        visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+                        reason=f"Auto-approved: auto-approve deadline of queue item {item.id} passed.",
+                        clear_flags=False,
+                    ),
+                    context=ctx,
+                    session=session,
+                )
+                approved_count += 1
             Moderation().ModerateContent(
                 request=moderation_pb2.ModerateContentReq(
                     moderation_state_id=item.moderation_state_id,
-                    action=moderation_pb2.MODERATION_ACTION_APPROVE,
-                    visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
-                    reason=reason,
-                    clear_flags=False,
+                    action=moderation_pb2.MODERATION_ACTION_SET_AUTO_APPROVE,
+                    queue_item_id=item.id,
+                    reason="Auto-approve deadline passed.",
                 ),
                 context=ctx,
                 session=session,
             )
-            Moderation().ModerateContent(
-                request=moderation_pb2.ModerateContentReq(
-                    moderation_state_id=item.moderation_state_id,
-                    action=moderation_pb2.MODERATION_ACTION_FLAG,
-                    trigger=moderation_pb2.MODERATION_TRIGGER_MACHINE_FLAG,
-                    priority=MODERATION_AUTO_APPROVE_FLAG_PRIORITY,
-                    reason=reason,
-                    supersede_queue_item_id=item.queue_item_id,
-                ),
-                context=ctx,
-                session=session,
-            )
-        moderation_auto_approved_counter.inc(len(approvable))
+            if item.priority < MODERATION_AUTO_APPROVE_FLAG_PRIORITY:
+                Moderation().ModerateContent(
+                    request=moderation_pb2.ModerateContentReq(
+                        moderation_state_id=item.moderation_state_id,
+                        action=moderation_pb2.MODERATION_ACTION_SET_PRIORITY,
+                        queue_item_id=item.id,
+                        priority=MODERATION_AUTO_APPROVE_FLAG_PRIORITY,
+                        reason="Auto-approve deadline passed, needs human review.",
+                    ),
+                    context=ctx,
+                    session=session,
+                )
+        moderation_auto_approved_counter.inc(approved_count)

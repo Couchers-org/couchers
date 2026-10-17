@@ -142,7 +142,7 @@ class Config:
     PYROSCOPE_ENABLED: bool
     PYROSCOPE_SERVER: str
     PYROSCOPE_AUTH_TOKEN: str
-    # Moderation auto-approval deadline in seconds (0 to disable auto-approval)
+    # Default auto-approve deadline for new content in seconds (0 to disable auto-approval entirely)
     MODERATION_AUTO_APPROVE_DEADLINE_SECONDS: int
     # User ID of the bot user for automated moderation actions
     MODERATION_BOT_USER_ID: int
