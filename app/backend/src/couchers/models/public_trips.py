@@ -13,17 +13,19 @@ from sqlalchemy import (
     Index,
     String,
     func,
+    select,
     text,
 )
 from sqlalchemy.orm import Mapped, column_property, mapped_column, relationship
 from sqlalchemy.sql import expression
 
 from couchers.models.base import Base
+from couchers.models.clusters import Node
 from couchers.models.moderation import ModerationObjectType
 from couchers.utils import date_in_timezone
 
 if TYPE_CHECKING:
-    from couchers.models import Node, User
+    from couchers.models import User
     from couchers.models.host_requests import HostRequest
     from couchers.models.moderation import ModerationState
 
@@ -51,10 +53,13 @@ class PublicTrip(Base, kw_only=True):
     # The community/location (city-level node)
     node_id: Mapped[int] = mapped_column(ForeignKey("nodes.id"), index=True)
 
-    # TODO: proper timezone handling
-    timezone = "Etc/UTC"
+    # Timezone at the location of the community.
+    # Not deferred because we always need it to interpret the dates.
+    timezone: Mapped[str] = column_property(
+        func.coalesce(select(Node.timezone).where(Node.id == node_id).scalar_subquery(), "Etc/UTC")
+    )
 
-    # Trip dates
+    # Trip dates, local to the community's timezone
     from_date: Mapped[date] = mapped_column(Date)
     to_date: Mapped[date] = mapped_column(Date)
 

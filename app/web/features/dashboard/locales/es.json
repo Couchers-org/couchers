@@ -94,8 +94,12 @@
     "my_trips_header": "Tus viajes públicos",
     "manage_link": "Administrar",
     "when_now": "Ahora",
-    "empty_description": "¿Vas a algún sitio? Publica un viaje público en una comunidad para recibir ofertas de anfitriones cercanos.",
-    "same_gender_only_indicator": "Mismo género"
+    "empty_description": "¿Vas a algún sitio? Publica un viaje público en una comunidad para recibir invitaciones de anfitriones cercanos.",
+    "same_gender_only_indicator": "Mismo género",
+    "invitations_count_one": "{{count}} invitación",
+    "invitations_count_many": "{{count}} de invitaciones",
+    "invitations_count_other": "{{count}} invitaciones",
+    "no_invitations": "Aún no tienes ninguna invitación"
   },
   "today_label": "Hoy"
 }

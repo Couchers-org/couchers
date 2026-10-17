@@ -3,7 +3,7 @@ is_blog_post: true
 title: "Couchers.org v1.4 Release: A New Inbox, a Smarter Dashboard and More"
 slug: version-1.4.0-release
 description: "One inbox for all your conversations, a smarter dashboard, better translations and dozens of fixes in Couchers v1.4."
-date: 2026/10/14
+date: 2026/10/15
 author: Nicole
 author_username: unsettleddown
 has_custom_cta: true
@@ -27,6 +27,7 @@ has_custom_cta: true
 - [Bug fixes](#bug-fixes)
 - [Performance and reliability](#performance-and-reliability)
 - [Features in progress](#features-in-progress)
+- [Current Volunteer Needs at Couchers](#current-volunteer-needs-at-couchers)
 
 It's been a busy few months since the spring release! The mobile app has been out in the world, lots of new members have joined, and our volunteers have been hard at work making Couchers easier, safer and faster to use. Here's everything that's new in v1.4.
 
@@ -152,7 +153,7 @@ Behind the scenes, we fixed duplicate host request notifications and emails that
 
 ## Moderation and safety
 
-As Couchers grows, we want new features to stay safe from day one. Discussion and event pages now have a report button, and you need to finish your profile before posting in community discussions. 
+As Couchers grows, we want new features to stay safe from day one. Discussion and event pages now have a report button, and you need to finish your profile before posting in community discussions.
 
 There is a lot going on behind the scenes to improve our moderation tooling, which helps to increase safety, reduce spam and problematic content, while also improving response time and scalability.
 
@@ -194,8 +195,17 @@ A couple of big features are in the final round of testing and getting their fin
 
 **Thanks to** [Nicole](https://couchers.org/user/unsettleddown), [Aapeli](https://couchers.org/user/aapeli), [Tristan](https://couchers.org/user/tristanlabelle) and [Alexey](https://couchers.org/user/ptz) for working on these!
 
-## Want to help?
+## Current Volunteer Needs at Couchers
 
-Every feature in this release was built by volunteers. If you'd like to join them as a developer, translator, writer or community organizer, [we'd love to hear from you](https://couchers.org/volunteer). And if Couchers has helped you find a couch, a host or a friend, please consider [making a donation](https://couchers.org/donate) to keep the servers running.
+Want to help us make Couchers thrive? We especially need:
+
+* **Quarterly Blog Post Writer** Help us write this newsletter every quarter! You'd chat with developers, translators and operations teams to collect what's completed and put together the blog post every quarter. Our developers are doing it right now, but we're having trouble keeping up with it! This can expand to more communications tasks if desired.
+* **Content Creators for Instagram, Tiktok** Especially if you actively use Couchers to surf, host or run events. We could really use more POV content of the hosting, surfing and event experience.
+* **Product Manager** We have a strong engineering team, but we don't currently have enough people working on understanding what the most burning product needs and pain points are, and translating our longer term vision of being an awesome couch surfing platform and growing the community into a shorter term product roadmap.
+* **Data Scientists** Similar to the above but from the technical side: we sorely need some help in better understanding user behavior and figuring out how to improve the experience of using Couchers from a quantitative angle.
+* **Senior Frontend/Fullstack Engineers** We could use another 1-2 people able to help review frontend React and/or React Native PRs and do more significant feature work. Especially if you noticed an area of Couchers you'd like to improve.
+* **React Native Engineers for refactoring project** We did our mobile app using WebViews and would like to slowly migrate into more native screens. We have some specific challenges related to this we need to solve like how to avoid translators repeating web translations for mobile, how to not duplicate all our backend RPCs before we can start writing mobile React Native code.
+
+Every feature in this release was built by volunteers. [Interested? Apply here!](/volunteer/form)
 
 Thank you for being part of Couchers!
