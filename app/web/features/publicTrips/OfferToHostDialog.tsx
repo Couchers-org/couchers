@@ -187,37 +187,37 @@ export default function OfferToHostDialog({
               error={!!errors.fromDate}
               helperText={errors.fromDate?.message}
               id={`${DATE_FIELD_ID}-from`}
-              label={t("publicTrips:from_date_label")}
+              label={t("publicTrips:create_edit_dialog.from_date.label")}
               name="fromDate"
               minValue={earliest}
               maxValue={tripToDate}
-              rules={{ required: t("publicTrips:from_date_required") }}
+              rules={{ required: t("publicTrips:create_edit_dialog.from_date.required_error") }}
             />
             <Datepicker
               control={control}
               error={!!errors.toDate}
               helperText={errors.toDate?.message}
               id={`${DATE_FIELD_ID}-to`}
-              label={t("publicTrips:to_date_label")}
+              label={t("publicTrips:create_edit_dialog.to_date.label")}
               name="toDate"
               minValue={watchFromDate ?? earliest}
               maxValue={tripToDate}
-              rules={{ required: t("publicTrips:to_date_required") }}
+              rules={{ required: t("publicTrips:create_edit_dialog.to_date.required_error") }}
             />
           </DateRow>
           <TextField
             id="offer-to-host-message"
             {...register("text", {
-              required: t("publicTrips:offer_dialog_message_required"),
+              required: t("publicTrips:offer_to_host_dialog.message.required_error"),
               minLength: {
                 value: MESSAGE_MIN_LENGTH,
-                message: t("publicTrips:offer_dialog_chars_remaining", {
+                message: t("publicTrips:offer_to_host_dialog.message.chars_remaining", {
                   count: charsRemaining,
                 }),
               },
             })}
-            label={t("publicTrips:offer_dialog_message_label")}
-            placeholder={t("publicTrips:offer_dialog_message_placeholder")}
+            label={t("publicTrips:offer_to_host_dialog.message.label")}
+            placeholder={t("publicTrips:offer_to_host_dialog.message.placeholder")}
             minRows={6}
             multiline
             fullWidth
@@ -226,7 +226,7 @@ export default function OfferToHostDialog({
               errors.text?.message
                 ? errors.text.message
                 : charsRemaining > 0
-                  ? t("publicTrips:offer_dialog_chars_remaining", {
+                  ? t("publicTrips:offer_to_host_dialog.message.chars_remaining", {
                       count: charsRemaining,
                     })
                   : ""
@@ -244,7 +244,7 @@ export default function OfferToHostDialog({
   );
   const submitButton = (
     <Button type="submit" form={formId} loading={isPending}>
-      {t("publicTrips:offer_dialog_submit")}
+      {t("publicTrips:offer_to_host_dialog.submit_button")}
     </Button>
   );
 
@@ -252,7 +252,7 @@ export default function OfferToHostDialog({
     return (
       <StyledSheet anchor="bottom" open={open} onClose={handleClose} onOpen={() => {}} disableSwipeToOpen>
         <Puller />
-        <SheetTitle id={titleId}>{t("publicTrips:offer_dialog_title", { name: hostName })}</SheetTitle>
+        <SheetTitle id={titleId}>{t("publicTrips:offer_to_host_dialog.title", { name: hostName })}</SheetTitle>
         <SheetScrollContent>{formBody}</SheetScrollContent>
         <SheetActionBar>
           {cancelButton}
@@ -265,7 +265,7 @@ export default function OfferToHostDialog({
   return (
     <Dialog aria-labelledby={titleId} open={open} onClose={handleClose}>
       <DialogTitle id={titleId} onClose={handleClose}>
-        {t("publicTrips:offer_dialog_title", { name: hostName })}
+        {t("publicTrips:offer_to_host_dialog.title", { name: hostName })}
       </DialogTitle>
       <DialogContent>{formBody}</DialogContent>
       <DialogActions sx={{ padding: theme.spacing(0, 3, 2) }}>
