@@ -146,7 +146,7 @@ def where_user_columns_visible_to_each_other[T: tuple[Any, ...]](
 def where_moderated_content_visible_to_user_column[T: tuple[Any, ...]](
     query: Select[T],
     table: type[ModeratedContent],
-    user_id_column: InstrumentedAttribute[int],
+    user_id_column: InstrumentedAttribute[int] | int,
     is_list_operation: bool = False,
 ) -> Select[T]:
     entry = get_moderated_models()[table.__moderation_object_type__]
