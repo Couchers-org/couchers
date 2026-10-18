@@ -224,7 +224,7 @@
       "respond_encouragement": "Будь ласка, напишіть відповідь на цей запит. Навіть швидка відмова краща за вічне очікування!"
     },
     "generic": {
-      "date_range": "З<b>{{from_date}}</b> до <b>{{to_date}}</b>.",
+      "date_range": "З <b>{{from_date}}</b> до <b>{{to_date}}</b>.",
       "view_action": "Переглянути запит",
       "quick_decline_action": "Швидка відмова"
     },
