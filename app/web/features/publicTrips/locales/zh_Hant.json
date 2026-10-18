@@ -26,7 +26,6 @@
     "see_all_link": "查看所有公開行程"
   },
   "trip_card": {
-    "references_one": "{{count}}則評語",
     "references_other": "{{count}}則評語",
     "you_overlay": "您",
     "status_pills": {
@@ -63,7 +62,6 @@
       "label": "行程簡介",
       "placeholder": "您想做些什麼？會停留多久？還有什麼是接待者需要知道的？",
       "required_error": "請新增一段簡短的行程介紹。",
-      "chars_remaining_one": "還可輸入{{count}}個字元。",
       "chars_remaining_other": "還可輸入{{count}}個字元。"
     },
     "create_submit_button": "發布行程",
@@ -80,14 +78,8 @@
       "label": "您的留言",
       "placeholder": "介紹一下自己，並告訴對方您能提供怎樣的接待。",
       "required_error": "請填寫留言。",
-      "chars_remaining_one": "還需輸入{{count}}個字元。",
       "chars_remaining_other": "還需輸入{{count}}個字元。"
     },
     "submit_button": "傳送接待邀請"
-  },
-  "already_offered": "已發出接待邀請",
-  "offer_unavailable": "此行程已不再接受接待邀請。",
-  "offers_count_one": "{{count}}個接待邀請",
-  "offers_count_other": "{{count}}個接待邀請",
-  "no_offers": "尚無接待邀請"
+  }
 }
