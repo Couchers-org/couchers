@@ -1239,7 +1239,7 @@ class HostRequestCreatedEmail(EmailBase):
         return cls(
             user_name,
             proposal_type=StayProposalType.from_host_request(data.host_request),
-            initiator=UserInfo.from_protobuf(data.surfer),
+            initiator=UserInfo.from_protobuf(data.initiator),
             from_date=date.fromisoformat(data.host_request.from_date),
             to_date=date.fromisoformat(data.host_request.to_date),
             text=data.text,
@@ -1304,7 +1304,7 @@ class HostRequestReminderEmail(EmailBase):
         return cls(
             user_name,
             proposal_type=StayProposalType.from_host_request(data.host_request),
-            initiator=UserInfo.from_protobuf(data.surfer),
+            initiator=UserInfo.from_protobuf(data.initiator),
             from_date=date.fromisoformat(data.host_request.from_date),
             to_date=date.fromisoformat(data.host_request.to_date),
             view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
@@ -1372,10 +1372,8 @@ class HostRequestMessageEmail(EmailBase):
         return cls(
             user_name,
             proposal_type=StayProposalType.from_host_request(data.host_request),
-            counterparty=UserInfo.from_protobuf(data.user),
-            # If I am the host, then the counterparty is the initiator (the surfer)
-            # TODO: am_host needs to become counterparty_is_initiator
-            counterparty_is_initiator=data.am_host,
+            counterparty=UserInfo.from_protobuf(data.counterparty),
+            counterparty_is_initiator=data.counterparty_is_initiator,
             from_date=date.fromisoformat(data.host_request.from_date),
             to_date=date.fromisoformat(data.host_request.to_date),
             text=data.text,
@@ -1440,10 +1438,8 @@ class HostRequestMissedMessagesEmail(EmailBase):
         return cls(
             user_name,
             proposal_type=StayProposalType.from_host_request(data.host_request),
-            counterparty=UserInfo.from_protobuf(data.user),
-            # If I am the host, then the counterparty is the initiator (the surfer)
-            # TODO: am_host needs to become counterparty_is_initiator
-            counterparty_is_initiator=data.am_host,
+            counterparty=UserInfo.from_protobuf(data.counterparty),
+            counterparty_is_initiator=data.counterparty_is_initiator,
             from_date=date.fromisoformat(data.host_request.from_date),
             to_date=date.fromisoformat(data.host_request.to_date),
             view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
@@ -1526,16 +1522,16 @@ class HostRequestStatusChangedEmail(EmailBase):
         match data:
             # TODO: "host" and "surfer" fields need to be renamed "recipient" and "initiator"
             case notification_data_pb2.HostRequestAccept():
-                counterparty = UserInfo.from_protobuf(data.host)
+                counterparty = UserInfo.from_protobuf(data.recipient)
                 new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED
             case notification_data_pb2.HostRequestReject():
-                counterparty = UserInfo.from_protobuf(data.host)
+                counterparty = UserInfo.from_protobuf(data.recipient)
                 new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_REJECTED
             case notification_data_pb2.HostRequestConfirm():
-                counterparty = UserInfo.from_protobuf(data.surfer)
+                counterparty = UserInfo.from_protobuf(data.initiator)
                 new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED
             case notification_data_pb2.HostRequestCancel():
-                counterparty = UserInfo.from_protobuf(data.surfer)
+                counterparty = UserInfo.from_protobuf(data.initiator)
                 new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED
             case _:
                 # Enable mypy's exhaustiveness checking
