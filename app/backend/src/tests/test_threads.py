@@ -21,10 +21,10 @@ from couchers.proto import discussions_pb2, moderation_pb2, threads_pb2
 from couchers.servicers.threads import pack_thread_id
 from couchers.utils import now
 from tests.fixtures import api_helpers
+from tests.fixtures.communities import create_root_community
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import Moderator
 from tests.fixtures.sessions import discussions_session, real_moderation_session, threads_session
-from tests.test_communities import create_community
 
 
 def test_threads_basic(db):
@@ -550,8 +550,7 @@ def test_delete_reply_creates_version_record(db):
 
 def _create_event_and_get_thread_id(organizer, organizer_token: str) -> int:
     """Helper: create an Event via the API, return its (packed) thread_id."""
-    with session_scope() as session:
-        create_community(session, 0, 2, "Testing Community", [organizer], [], None)
+    create_root_community("Testing Community", [organizer])
 
     res = api_helpers.create_event(token=organizer_token)
     return int(res.thread.thread_id)
@@ -608,8 +607,7 @@ def test_post_reply_incomplete_profile_blocked_on_discussion_thread(db):
     admin, admin_token = generate_user()
     _commenter, commenter_token = generate_user(complete_profile=False)
 
-    with session_scope() as session:
-        community_id = create_community(session, 0, 1, "Testing Community", [admin], [], None).id
+    community_id = create_root_community("Testing Community", [admin], interval=(0, 1))
 
     with discussions_session(admin_token) as api:
         discussion = api.CreateDiscussion(

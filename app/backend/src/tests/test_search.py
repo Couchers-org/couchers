@@ -12,11 +12,11 @@ from couchers.models import EventOccurrence, HostingStatus, LanguageAbility, Lan
 from couchers.proto import api_pb2, communities_pb2, events_pb2, search_pb2
 from couchers.utils import Timestamp_from_datetime, create_coordinate, now
 from tests.fixtures import api_helpers
+from tests.fixtures.communities import create_root_community
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import Moderator
+from tests.fixtures.references import create_friend_reference
 from tests.fixtures.sessions import communities_session, events_session, search_session
-from tests.test_communities import create_community, testing_communities  # noqa
-from tests.test_references import create_friend_reference
 from tests.utils import local_date_time
 
 
@@ -416,8 +416,7 @@ def test_user_search_exactly_user_ids(db):
 def sample_community(db) -> int:
     """Create large community spanning from (-50, 0) to (50, 2) as events can only be created within communities."""
     user, _ = generate_user()
-    with session_scope() as session:
-        return create_community(session, -50, 50, "Community", [user], [], None).id
+    return create_root_community("Community", [user], interval=(-50, 50))
 
 
 def test_event_search_by_query(sample_community):
@@ -638,8 +637,7 @@ def test_event_search_filter_subscription_attendance_organizing_my_communities(s
     with communities_session(token) as api:
         api.JoinCommunity(communities_pb2.JoinCommunityReq(community_id=sample_community))
 
-    with session_scope() as session:
-        create_community(session, 55, 60, "Other community", [other_user], [], None)
+    create_root_community("Other community", [other_user], interval=(55, 60))
 
     e_subscribed = api_helpers.create_event(token=other_token, title="Subscribed event")
     e_attending = api_helpers.create_event(token=other_token, title="Attending event")
@@ -704,8 +702,7 @@ def test_event_search_exclude_attending(sample_community, moderator: Moderator):
     with communities_session(token) as api:
         api.JoinCommunity(communities_pb2.JoinCommunityReq(community_id=sample_community))
 
-    with session_scope() as session:
-        create_community(session, 55, 60, "Other community", [other_user], [], None)
+    create_root_community("Other community", [other_user], interval=(55, 60))
 
     e_attending = api_helpers.create_event(token=other_token, title="Attending event")
     e_community_only = api_helpers.create_event(token=other_token, title="Community only event")

@@ -16,10 +16,10 @@ from couchers.models import EventOccurrence, EventRecurrence, User
 from couchers.proto import events_pb2
 from couchers.servicers.auth import create_session
 from couchers.utils import datetime_to_iso8601_local, to_aware_datetime
+from tests.fixtures.communities import create_community
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import _MockCouchersContext, events_session
 from tests.fixtures.timewarp import FrozenTimewarp
-from tests.test_communities import create_community
 
 
 def _create_user_in_community() -> tuple[User, str]:

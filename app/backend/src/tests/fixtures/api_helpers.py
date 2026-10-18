@@ -7,10 +7,11 @@ from datetime import date, datetime, time, timedelta
 
 from google.protobuf import wrappers_pb2
 
-from couchers.proto import events_pb2
+from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
+from couchers.proto import conversations_pb2, events_pb2, requests_pb2
 from couchers.utils import today
 from tests.fixtures.misc import Moderator
-from tests.fixtures.sessions import events_session
+from tests.fixtures.sessions import conversations_session, events_session, requests_session
 
 # Event location constants which timezone_areas.sql-fake has regions for.
 # Neutral default location. Resolves to Etc/GMT with real dataset and Etc/UTC with fake dataset.
@@ -143,3 +144,68 @@ def get_event(token: str, event_id: int) -> events_pb2.Event:
     with events_session(token) as api:
         event: events_pb2.Event = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
         return event
+
+
+def valid_request_text(text: str = "Test request") -> str:
+    """Pads a request text to a valid length."""
+    # Request lengths are measured in utf-16 code units to match the frontend.
+    utf16_length = len(text.encode("utf-16-le")) // 2
+    if utf16_length >= HOST_REQUEST_MIN_LENGTH_UTF16:
+        return text
+    padding_length = HOST_REQUEST_MIN_LENGTH_UTF16 - utf16_length
+    return text + ("_" * padding_length)  # Each "_" adds one utf16 code unit.
+
+
+def create_host_request(
+    *,
+    token: str,
+    host_user_id: int,
+    from_date: date | None = None,
+    to_date: date | None = None,
+    text: str | None = None,
+    public_trip_id: int | None = None,
+    approve_by: Moderator | None = None,
+) -> int:
+    """Sends a host request from the user with `token`, by default for a night starting in two days."""
+    if from_date is None:
+        from_date = today() + timedelta(days=2)
+    if to_date is None:
+        to_date = from_date + timedelta(days=1)
+
+    with requests_session(token) as api:
+        host_request_id: int = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host_user_id,
+                from_date=from_date.isoformat(),
+                to_date=to_date.isoformat(),
+                text=text if text is not None else valid_request_text(),
+                public_trip_id=public_trip_id,
+            )
+        ).host_request_id
+
+    if approve_by is not None:
+        approve_by.approve_host_request(host_request_id)
+
+    return host_request_id
+
+
+def create_group_chat(
+    *,
+    token: str,
+    recipient_user_ids: list[int],
+    title: str | None = None,
+    messages: list[str] | None = None,
+    approve_by: Moderator | None = None,
+) -> int:
+    """Creates a group chat as the user with `token`, sends `messages` into it, then has `approve_by` approve it."""
+    with conversations_session(token) as api:
+        group_chat_id: int = api.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=recipient_user_ids, title=_string_value(title))
+        ).group_chat_id
+        for message in messages or []:
+            api.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text=message))
+
+    if approve_by is not None:
+        approve_by.approve_group_chat(group_chat_id)
+
+    return group_chat_id

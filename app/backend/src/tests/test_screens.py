@@ -4,7 +4,9 @@ from google.protobuf import empty_pb2
 
 from couchers.db import session_scope
 from couchers.proto import discussions_pb2, events_pb2, messages_pb2, requests_pb2, screens_pb2
-from couchers.utils import datetime_to_iso8601_local, now, today
+from couchers.utils import datetime_to_iso8601_local, now
+from tests.fixtures import api_helpers
+from tests.fixtures.communities import create_community
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import (
     account_session,
@@ -13,8 +15,6 @@ from tests.fixtures.sessions import (
     requests_session,
     screens_session,
 )
-from tests.test_communities import create_community
-from tests.test_requests import valid_request_text
 
 UPCOMING_STATUSES = [
     messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
@@ -22,27 +22,11 @@ UPCOMING_STATUSES = [
 ]
 
 
-def _setup_accepted_host_request(token_surfer, host_user_id, moderator):
-    from_date = today() + timedelta(days=2)
-    to_date = today() + timedelta(days=3)
-    with requests_session(token_surfer) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host_user_id,
-                from_date=from_date.isoformat(),
-                to_date=to_date.isoformat(),
-                text=valid_request_text(),
-            )
-        ).host_request_id
-    moderator.approve_host_request(host_request_id)
-    return host_request_id
-
-
 def test_GetDashboard_matches_individual_rpcs(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    host_request_id = _setup_accepted_host_request(token1, user2.id, moderator)
+    host_request_id = api_helpers.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
     with requests_session(token2) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
@@ -109,7 +93,7 @@ def test_GetDashboard_buckets_by_role(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    host_request_id = _setup_accepted_host_request(token1, user2.id, moderator)
+    host_request_id = api_helpers.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
     with requests_session(token2) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(

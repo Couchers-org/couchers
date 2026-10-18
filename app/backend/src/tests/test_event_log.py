@@ -26,6 +26,7 @@ from couchers.proto import (
 )
 from couchers.utils import create_coordinate, today
 from tests.fixtures import api_helpers
+from tests.fixtures.communities import create_root_community
 from tests.fixtures.db import generate_user, make_friends
 from tests.fixtures.sessions import (
     MockGrpcContext,
@@ -38,7 +39,6 @@ from tests.fixtures.sessions import (
     requests_session,
     search_session,
 )
-from tests.test_communities import create_community
 
 
 @pytest.fixture(autouse=True)
@@ -377,17 +377,14 @@ def test_host_request_status_change_events(db, moderator):
     from_date = today() + timedelta(days=2)
     to_date = today() + timedelta(days=5)
 
-    with requests_session(token1) as api:
-        res = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=from_date.isoformat(),
-                to_date=to_date.isoformat(),
-                text="a]" * 200 + "Hello! I would love to stay with you.",
-            )
-        )
-    host_request_id = res.host_request_id
-    moderator.approve_host_request(host_request_id)
+    host_request_id = api_helpers.create_host_request(
+        token=token1,
+        host_user_id=user2.id,
+        from_date=from_date,
+        to_date=to_date,
+        text="a]" * 200 + "Hello! I would love to stay with you.",
+        approve_by=moderator,
+    )
 
     # Host accepts
     with requests_session(token2) as api:
@@ -441,21 +438,18 @@ def test_host_request_rejected_event(db, moderator):
         geom_radius=200,
     )
 
-    with requests_session(token1) as api:
-        res = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=(today() + timedelta(days=2)).isoformat(),
-                to_date=(today() + timedelta(days=4)).isoformat(),
-                text="a]" * 200 + "Would love to visit!",
-            )
-        )
-    moderator.approve_host_request(res.host_request_id)
+    host_request_id = api_helpers.create_host_request(
+        token=token1,
+        host_user_id=user2.id,
+        to_date=today() + timedelta(days=4),
+        text="a]" * 200 + "Would love to visit!",
+        approve_by=moderator,
+    )
 
     with requests_session(token2) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=res.host_request_id,
+                host_request_id=host_request_id,
                 status=messages_pb2.HOST_REQUEST_STATUS_REJECTED,
             )
         )
@@ -478,21 +472,18 @@ def test_host_request_cancelled_event(db, moderator):
         geom_radius=200,
     )
 
-    with requests_session(token1) as api:
-        res = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=(today() + timedelta(days=2)).isoformat(),
-                to_date=(today() + timedelta(days=4)).isoformat(),
-                text="a]" * 200 + "Would love to visit!",
-            )
-        )
-    moderator.approve_host_request(res.host_request_id)
+    host_request_id = api_helpers.create_host_request(
+        token=token1,
+        host_user_id=user2.id,
+        to_date=today() + timedelta(days=4),
+        text="a]" * 200 + "Would love to visit!",
+        approve_by=moderator,
+    )
 
     with requests_session(token1) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=res.host_request_id,
+                host_request_id=host_request_id,
                 status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED,
             )
         )
@@ -514,17 +505,13 @@ def test_host_request_message_event(db, moderator):
         geom_radius=200,
     )
 
-    with requests_session(token1) as api:
-        res = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=(today() + timedelta(days=2)).isoformat(),
-                to_date=(today() + timedelta(days=4)).isoformat(),
-                text="a]" * 200 + "Hello!",
-            )
-        )
-    host_request_id = res.host_request_id
-    moderator.approve_host_request(host_request_id)
+    host_request_id = api_helpers.create_host_request(
+        token=token1,
+        host_user_id=user2.id,
+        to_date=today() + timedelta(days=4),
+        text="a]" * 200 + "Hello!",
+        approve_by=moderator,
+    )
 
     # Host sends a message
     with requests_session(token2) as api:
@@ -772,8 +759,7 @@ def test_event_created_event(db):
     """Creating an event logs event.created with community info."""
     user, token = generate_user()
 
-    with session_scope() as session:
-        create_community(session, 0, 2, "Community", [user], [], None)
+    create_root_community("Community", [user])
 
     api_helpers.create_event(token=token)
 
