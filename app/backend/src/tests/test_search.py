@@ -495,6 +495,25 @@ def test_user_search_pagination_with_noise(db):
     assert _user_search_order(token, page_size=3) == full_order
 
 
+def test_user_search_noise_scale_flag(db, flags):
+    _, token = generate_user()
+    user_ids = [generate_user()[0].id for _ in range(10)]
+
+    with session_scope() as session:
+        session.execute(update(User).values(recommendation_score=-User.id))
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+
+    def order() -> list[int]:
+        return [user_id for user_id in _user_search_order(token) if user_id in user_ids]
+
+    assert sorted(order()) == user_ids
+    assert order() != user_ids
+
+    flags.set_float("user_search_noise_scale", 0.0)
+    assert order() == user_ids
+
+
 @pytest.fixture
 def sample_community(db) -> int:
     """Create large community spanning from (-50, 0) to (50, 2) as events can only be created within communities."""

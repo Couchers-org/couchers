@@ -3,7 +3,7 @@ See //docs/search.md for an overview.
 """
 
 from hashlib import blake2b
-from math import sqrt
+from math import pi
 from typing import Any, cast
 
 import grpc
@@ -71,9 +71,8 @@ REGCONFIG = "english"
 TRI_SIMILARITY_THRESHOLD = 0.6
 TRI_SIMILARITY_WEIGHT = 5
 
-USER_SEARCH_NOISE_SCALE = 2.0
+DEFAULT_USER_SEARCH_NOISE_SCALE = 2.0
 USER_SEARCH_NOISE_PERIOD_DAYS = 7
-USER_SEARCH_NOISE_TRIALS = 5
 
 
 def _join_with_space(coalesces: list[Any]) -> Any:
@@ -418,18 +417,23 @@ def _search_clusters(
 
 def _user_search_noise(viewer_id: int) -> ColumnElement[float]:
     """
-    Approximately standard normal noise for each candidate user, different for each viewer and stable for a given
-    viewer over USER_SEARCH_NOISE_PERIOD_DAYS, so different viewers see a different ordering
+    Standard normal noise for each candidate user, different for each viewer and stable for a given viewer over
+    USER_SEARCH_NOISE_PERIOD_DAYS, so different viewers see a different ordering
     """
     # offset by viewer id so that viewers don't all reshuffle on the same day
     period = (today().toordinal() + viewer_id) // USER_SEARCH_NOISE_PERIOD_DAYS
-    seeds = [
-        int.from_bytes(blake2b(f"{viewer_id}:{period}:{trial}".encode(), digest_size=8).digest(), "big", signed=True)
-        for trial in range(USER_SEARCH_NOISE_TRIALS)
-    ]
-    # hashint8extended gives a uniform signed 64-bit int, map it to [0, 1)
-    uniforms = [func.hashint8extended(User.id, seed).cast(Float) / 2.0**64 + 0.5 for seed in seeds]
-    return type_coerce((sum(uniforms) - USER_SEARCH_NOISE_TRIALS / 2) / sqrt(USER_SEARCH_NOISE_TRIALS / 12), Float)
+
+    def uniform(trial: int) -> ColumnElement[Any]:
+        seed = int.from_bytes(
+            blake2b(f"{viewer_id}:{period}:{trial}".encode(), digest_size=8).digest(), "big", signed=True
+        )
+        # hashint8extended gives a uniform signed 64-bit int; keep the top 53 bits so it's exact as a double, and
+        # map into (0, 1] so ln() below is safe
+        bits = func.hashint8extended(User.id, seed).op(">>")(11)
+        return (bits + 2**52 + 1).cast(Float) / 2.0**53
+
+    # Box-Muller transform. Postgres' random_normal() can't be seeded per row, so we roll our own
+    return type_coerce(func.sqrt(-2 * func.ln(uniform(0))) * func.cos(2 * pi * uniform(1)), Float)
 
 
 def _user_search_inner(
@@ -614,7 +618,12 @@ def _user_search_inner(
     page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
     total_items = cast(int, session.execute(select(func.count()).select_from(statement.subquery())).scalar())
 
-    ranking_score = User.recommendation_score + USER_SEARCH_NOISE_SCALE * _user_search_noise(context.user_id)
+    noise_scale = context.get_float_value("user_search_noise_scale", DEFAULT_USER_SEARCH_NOISE_SCALE)
+    ranking_score = (
+        User.recommendation_score + noise_scale * _user_search_noise(context.user_id)
+        if noise_scale
+        else User.recommendation_score
+    )
     statement = statement.add_columns(ranking_score)
     if request.page_token:
         last_score, last_id = decrypt_page_token(request.page_token).split(",")
