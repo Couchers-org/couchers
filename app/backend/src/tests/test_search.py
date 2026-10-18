@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import date, timedelta
 
 import grpc
 import pytest
@@ -14,6 +14,9 @@ from couchers.models import (
     LanguageAbility,
     LanguageFluency,
     MeetupStatus,
+    PassportSex,
+    StrongVerificationAttempt,
+    StrongVerificationAttemptStatus,
     User,
     UserRankingOffset,
 )
@@ -333,6 +336,55 @@ def test_user_filter_strong_verification(db):
 
         res = api.UserSearchV2(search_pb2.UserSearchReq(only_with_strong_verification=True))
         assert [result.user_id for result in res.results] == [user2.id, user4.id, user5.id]
+
+
+def test_user_search_no_duplicates_from_multiple_matching_rows(db):
+    """
+    A user matching several requested languages, or with several valid strong verifications, is returned once.
+    """
+    languages = [("deu", LanguageFluency.fluent), ("jpn", LanguageFluency.fluent)]
+    user1, token1 = generate_user()
+    user2, _ = generate_user(strong_verification=True, language_abilities=languages)
+    user3, _ = generate_user(strong_verification=True, language_abilities=languages)
+
+    with session_scope() as session:
+        session.add(
+            StrongVerificationAttempt(
+                verification_attempt_token=f"second_verification_attempt_token_{user2.id}",
+                user_id=user2.id,
+                status=StrongVerificationAttemptStatus.succeeded,
+                has_full_data=True,
+                passport_encrypted_data=b"not real",
+                passport_date_of_birth=user2.birthdate,
+                passport_sex=PassportSex.unspecified,
+                has_minimal_data=True,
+                passport_expiry_date=date.today() + timedelta(days=20),
+                passport_nationality="UTO",
+                passport_last_three_document_chars="xyz",
+                iris_token=f"second_iris_token_{user2.id}",
+                iris_session_id=1000 + user2.id,
+            )
+        )
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
+
+    language_filter = [
+        api_pb2.LanguageAbility(code="deu", fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_CONVERSATIONAL),
+        api_pb2.LanguageAbility(code="jpn", fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_CONVERSATIONAL),
+    ]
+    with search_session(token1) as api:
+        for req in [
+            search_pb2.UserSearchReq(language_ability_filter=language_filter),
+            search_pb2.UserSearchReq(only_with_strong_verification=True),
+        ]:
+            res = api.UserSearch(req)
+            assert sorted(result.user.user_id for result in res.results) == [user2.id, user3.id]
+            assert res.total_items == 2
+
+            res = api.UserSearchV2(req)
+            assert sorted(result.user_id for result in res.results) == [user2.id, user3.id]
+            assert res.total_items == 2
 
 
 def test_regression_search_only_with_references(db):
