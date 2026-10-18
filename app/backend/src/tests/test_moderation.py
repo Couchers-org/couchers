@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 
 import grpc
 import pytest
-from google.protobuf import empty_pb2
+from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import select
 
@@ -15,7 +15,11 @@ from couchers import urls
 from couchers.config import config
 from couchers.constants import MODERATION_AUTO_APPROVE_FLAG_PRIORITY
 from couchers.db import session_scope
-from couchers.jobs.handlers import auto_approve_moderation_queue
+from couchers.jobs.handlers import (
+    DatabaseInconsistencyError,
+    auto_approve_moderation_queue,
+    check_database_consistency,
+)
 from couchers.jobs.worker import process_job
 from couchers.models import (
     AdminAction,
@@ -38,6 +42,7 @@ from couchers.models import (
 )
 from couchers.moderation.utils import create_moderation
 from couchers.proto import (
+    admin_pb2,
     api_pb2,
     conversations_pb2,
     discussions_pb2,
@@ -63,6 +68,7 @@ from tests.fixtures.sessions import (
     notifications_session,
     pages_session,
     public_trips_session,
+    real_admin_session,
     real_moderation_session,
     requests_session,
     threads_session,
@@ -2689,6 +2695,120 @@ def test_auto_approve_preserves_other_open_flags(db):
         assert open_by_trigger.keys() == {ModerationTrigger.user_flag, ModerationTrigger.machine_flag}
         assert open_by_trigger[ModerationTrigger.user_flag].priority == 5
         assert open_by_trigger[ModerationTrigger.machine_flag].priority == MODERATION_AUTO_APPROVE_FLAG_PRIORITY
+
+
+def _backdate_initial_review(state_id, delta):
+    with session_scope() as session:
+        queue_item = session.execute(
+            select(ModerationQueueItem)
+            .where(ModerationQueueItem.moderation_state_id == state_id)
+            .where(ModerationQueueItem.trigger == ModerationTrigger.initial_review)
+        ).scalar_one()
+        queue_item.time_created -= delta
+
+
+def _visibility(state_id):
+    with session_scope() as session:
+        return session.execute(select(ModerationState.visibility).where(ModerationState.id == state_id)).scalar_one()
+
+
+def _set_moderation_auto_approve(token, user, seconds):
+    with real_admin_session(token) as api:
+        api.SetModerationAutoApprove(
+            admin_pb2.SetModerationAutoApproveReq(
+                user=user.username,
+                auto_approve_seconds=wrappers_pb2.Int64Value(value=seconds) if seconds is not None else None,
+            )
+        )
+
+
+def test_auto_approve_uses_author_deadline(db):
+    """Lowering an author's deadline applies to their already pending content without touching other authors"""
+    moderator, mod_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    other_surfer, other_surfer_token = generate_user()
+    host, _ = generate_user()
+    config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 3600
+    config.MODERATION_BOT_USER_ID = moderator.id
+
+    state_id = create_test_host_request_with_moderation(surfer_token, host.id)
+    other_state_id = create_test_host_request_with_moderation(other_surfer_token, host.id)
+    _backdate_initial_review(state_id, timedelta(minutes=10))
+    _backdate_initial_review(other_state_id, timedelta(minutes=10))
+
+    auto_approve_moderation_queue(empty_pb2.Empty())
+    assert _visibility(state_id) == ModerationVisibility.shadowed
+    assert _visibility(other_state_id) == ModerationVisibility.shadowed
+
+    _set_moderation_auto_approve(mod_token, surfer, 300)
+
+    auto_approve_moderation_queue(empty_pb2.Empty())
+    assert _visibility(state_id) == ModerationVisibility.visible
+    assert _visibility(other_state_id) == ModerationVisibility.shadowed
+
+    with real_moderation_session(mod_token) as api:
+        log_res = api.GetModerationLog(moderation_pb2.GetModerationLogReq(moderation_state_id=state_id))
+        approve_entries = [e for e in log_res.log_entries if e.action == moderation_pb2.MODERATION_ACTION_APPROVE]
+        assert len(approve_entries) == 1
+        assert "300 seconds" in approve_entries[0].reason
+
+
+def test_auto_approve_author_deadline_holds_content(db):
+    """A long author deadline holds content past the default without tripping the consistency check"""
+    moderator, mod_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+    config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 60
+    config.MODERATION_BOT_USER_ID = moderator.id
+
+    _set_moderation_auto_approve(mod_token, surfer, 86400)
+    state_id = create_test_host_request_with_moderation(surfer_token, host.id)
+    _backdate_initial_review(state_id, timedelta(minutes=10))
+
+    auto_approve_moderation_queue(empty_pb2.Empty())
+    assert _visibility(state_id) == ModerationVisibility.shadowed
+    check_database_consistency(empty_pb2.Empty())
+
+    _set_moderation_auto_approve(mod_token, surfer, None)
+    with pytest.raises(DatabaseInconsistencyError, match="exceeding auto-approve deadline"):
+        check_database_consistency(empty_pb2.Empty())
+
+    auto_approve_moderation_queue(empty_pb2.Empty())
+    assert _visibility(state_id) == ModerationVisibility.visible
+    check_database_consistency(empty_pb2.Empty())
+
+
+def test_auto_approve_does_not_unhide_hidden_content(db):
+    """Content a moderator hid without resolving its initial review is left hidden"""
+    moderator, mod_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+    config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 60
+    config.MODERATION_BOT_USER_ID = moderator.id
+
+    state_id = create_test_host_request_with_moderation(surfer_token, host.id)
+    with real_moderation_session(mod_token) as api:
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=state_id,
+                action=moderation_pb2.MODERATION_ACTION_HIDE,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
+                reason="Hidden",
+                clear_flags=False,
+            )
+        )
+    _backdate_initial_review(state_id, timedelta(minutes=10))
+
+    auto_approve_moderation_queue(empty_pb2.Empty())
+
+    assert _visibility(state_id) == ModerationVisibility.hidden
+    with session_scope() as session:
+        initial_item = session.execute(
+            select(ModerationQueueItem)
+            .where(ModerationQueueItem.moderation_state_id == state_id)
+            .where(ModerationQueueItem.trigger == ModerationTrigger.initial_review)
+        ).scalar_one()
+        assert initial_item.resolved_by_log_id is None
 
 
 # ============================================================================

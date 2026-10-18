@@ -3,10 +3,13 @@ Utility functions for the Unified Moderation System (UMS)
 """
 
 from collections.abc import Callable
+from datetime import datetime, timedelta
 from typing import Any
 
+from sqlalchemy import Subquery, func, select, union_all
 from sqlalchemy.orm import Session
 
+from couchers.config import config
 from couchers.metrics import observe_moderation_action, observe_moderation_queue_item_created
 from couchers.models import (
     ModerationAction,
@@ -16,6 +19,7 @@ from couchers.models import (
     ModerationState,
     ModerationTrigger,
     ModerationVisibility,
+    User,
     get_moderated_models,
 )
 
@@ -80,3 +84,35 @@ def create_moderation(
     session.flush()
 
     return moderation_state
+
+
+def auto_approve_due_queue_items(cutoff: datetime) -> Subquery:
+    """
+    Open INITIAL_REVIEW items on still-shadowed content whose auto-approve deadline passed before the cutoff, as
+    (id, moderation_state_id, time_created, deadline). The deadline comes from the author's
+    moderation_auto_approve_after, falling back to MODERATION_AUTO_APPROVE_DEADLINE_SECONDS. Content by shadowed
+    authors is never due.
+    """
+    deadline = func.coalesce(
+        User.moderation_auto_approve_after, timedelta(seconds=config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS)
+    )
+    return union_all(
+        *(
+            select(
+                ModerationQueueItem.id,
+                ModerationQueueItem.moderation_state_id,
+                ModerationQueueItem.time_created,
+                deadline.label("deadline"),
+            )
+            .join(ModerationState, ModerationState.id == ModerationQueueItem.moderation_state_id)
+            .join(entry.model, entry.moderation_state_id_column == ModerationState.id)
+            .join(User, User.id == entry.author_column)
+            .where(ModerationQueueItem.trigger == ModerationTrigger.initial_review)
+            .where(ModerationQueueItem.resolved_by_log_id.is_(None))
+            .where(ModerationState.visibility == ModerationVisibility.shadowed)
+            .where(~User.is_shadowed)
+            .where(ModerationQueueItem.time_created + deadline < cutoff)
+            for entry in get_moderated_models().values()
+            if not entry.has_own_visibility_mechanism
+        )
+    ).subquery()

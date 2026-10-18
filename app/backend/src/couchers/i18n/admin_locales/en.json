@@ -1,6 +1,7 @@
 {
   "errors": {
     "action_must_be_specified": "Action must be specified.",
+    "auto_approve_seconds_negative": "The auto-approve time cannot be negative.",
     "blog_blurb_too_long": "The blog post blurb is too long.",
     "blog_title_too_long": "The blog post title is too long.",
     "cannot_edit_badge": "Admins cannot edit that badge.",

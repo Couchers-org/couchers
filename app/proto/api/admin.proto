@@ -46,6 +46,8 @@ service Admin {
 
   rpc UnshadowUser(UnshadowUserReq) returns (UserDetails) {}
 
+  rpc SetModerationAutoApprove(SetModerationAutoApproveReq) returns (UserDetails) {}
+
   rpc AddAdminNote(AddAdminNoteReq) returns (UserDetails) {}
 
   rpc GetContentReport(GetContentReportReq) returns (GetContentReportRes) {}
@@ -178,6 +180,9 @@ message UserDetails {
   double mod_score = 20;
 
   string ui_language_preference = 23;
+
+  // Unset when the user's content uses the default auto-approve deadline
+  google.protobuf.Int64Value moderation_auto_approve_seconds = 24;
 }
 
 message GetUserDetailsReq {
@@ -247,6 +252,13 @@ message RemoveBadgeReq {
 message SetPassportSexGenderExceptionReq {
   string user = 1;
   bool passport_sex_gender_exception = 2;
+}
+
+message SetModerationAutoApproveReq {
+  // username, email, or user id
+  string user = 1;
+  // Seconds after creation that the user's content is auto-approved if not yet reviewed; unset to use the default
+  google.protobuf.Int64Value auto_approve_seconds = 2;
 }
 
 message BanUserReq {

@@ -289,6 +289,11 @@ def _user_to_details(session: Session, user: User) -> admin_pb2.UserDetails:
         admin_tags=list(admin_tags),
         mod_score=user.mod_score,
         ui_language_preference=user.ui_language_preference,
+        moderation_auto_approve_seconds=(
+            Int64Value(value=int(user.moderation_auto_approve_after.total_seconds()))
+            if user.moderation_auto_approve_after is not None
+            else None
+        ),
     )
 
 
@@ -611,6 +616,29 @@ class Admin(admin_pb2_grpc.AdminServicer):
             moderator_user_id=context.user_id,
             from_visibilities={ModerationVisibility.shadowed},
             reason=f"User {user.id} unshadowed: {request.admin_note}",
+        )
+        return _user_to_details(session, user)
+
+    def SetModerationAutoApprove(
+        self, request: admin_pb2.SetModerationAutoApproveReq, context: CouchersContext, session: Session
+    ) -> admin_pb2.UserDetails:
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
+        auto_approve_after = (
+            timedelta(seconds=request.auto_approve_seconds.value) if request.HasField("auto_approve_seconds") else None
+        )
+        if auto_approve_after is not None and auto_approve_after < timedelta(0):
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:auto_approve_seconds_negative")
+        old_auto_approve_after = user.moderation_auto_approve_after
+        user.moderation_auto_approve_after = auto_approve_after
+        log_admin_action(
+            session,
+            context,
+            user,
+            "set_moderation_auto_approve",
+            note=(
+                f"Changed from {'default' if old_auto_approve_after is None else old_auto_approve_after} "
+                f"to {'default' if auto_approve_after is None else auto_approve_after}"
+            ),
         )
         return _user_to_details(session, user)
 
