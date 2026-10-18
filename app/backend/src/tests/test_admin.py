@@ -404,28 +404,29 @@ def test_SetModerationAutoApproveDeadline(db):
 
         res = api.SetModerationAutoApproveDeadline(
             admin_pb2.SetModerationAutoApproveDeadlineReq(
-                user=normal_user.username, auto_approve_seconds=wrappers_pb2.Int64Value(value=86400)
+                user=normal_user.username, auto_approve_seconds=wrappers_pb2.Int64Value(value=48 * 3600)
             )
         )
-        assert res.moderation_auto_approve_seconds.value == 86400
+        assert res.moderation_auto_approve_seconds.value == 48 * 3600
 
         res = api.SetModerationAutoApproveDeadline(
             admin_pb2.SetModerationAutoApproveDeadlineReq(user=normal_user.username)
         )
         assert not res.HasField("moderation_auto_approve_seconds")
 
-        with pytest.raises(grpc.RpcError) as e:
-            api.SetModerationAutoApproveDeadline(
-                admin_pb2.SetModerationAutoApproveDeadlineReq(
-                    user=normal_user.username, auto_approve_seconds=wrappers_pb2.Int64Value(value=-1)
+        for seconds in [-1, 48 * 3600 + 1, 2**63 - 1]:
+            with pytest.raises(grpc.RpcError) as e:
+                api.SetModerationAutoApproveDeadline(
+                    admin_pb2.SetModerationAutoApproveDeadlineReq(
+                        user=normal_user.username, auto_approve_seconds=wrappers_pb2.Int64Value(value=seconds)
+                    )
                 )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+            assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
     assert [(a.action_type, a.note) for a in res.admin_actions] == [
         ("set_moderation_auto_approve_deadline", "Changed from default to 0:00:00"),
-        ("set_moderation_auto_approve_deadline", "Changed from 0:00:00 to 1 day, 0:00:00"),
-        ("set_moderation_auto_approve_deadline", "Changed from 1 day, 0:00:00 to default"),
+        ("set_moderation_auto_approve_deadline", "Changed from 0:00:00 to 2 days, 0:00:00"),
+        ("set_moderation_auto_approve_deadline", "Changed from 2 days, 0:00:00 to default"),
     ]
 
 

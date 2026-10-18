@@ -13,6 +13,7 @@ from sqlalchemy.sql import and_, func, or_
 from user_agents import parse as user_agents_parse
 
 from couchers import urls
+from couchers.constants import MODERATION_AUTO_APPROVE_DEADLINE_MAX
 from couchers.context import CouchersContext
 from couchers.crypto import urlsafe_secure_token
 from couchers.helpers.badges import user_add_badge, user_remove_badge
@@ -623,11 +624,15 @@ class Admin(admin_pb2_grpc.AdminServicer):
         self, request: admin_pb2.SetModerationAutoApproveDeadlineReq, context: CouchersContext, session: Session
     ) -> admin_pb2.UserDetails:
         user = find_user_by_username_or_email_or_id(session, context, request.user)
-        auto_approve_after = (
-            timedelta(seconds=request.auto_approve_seconds.value) if request.HasField("auto_approve_seconds") else None
-        )
-        if auto_approve_after is not None and auto_approve_after < timedelta(0):
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:auto_approve_seconds_negative")
+        auto_approve_after = None
+        if request.HasField("auto_approve_seconds"):
+            if not 0 <= request.auto_approve_seconds.value <= MODERATION_AUTO_APPROVE_DEADLINE_MAX.total_seconds():
+                context.abort_with_error_code(
+                    grpc.StatusCode.INVALID_ARGUMENT,
+                    "admin:auto_approve_deadline_out_of_range",
+                    substitutions={"max_hours": int(MODERATION_AUTO_APPROVE_DEADLINE_MAX / timedelta(hours=1))},
+                )
+            auto_approve_after = timedelta(seconds=request.auto_approve_seconds.value)
         old_auto_approve_after = user.moderation_auto_approve_after
         user.moderation_auto_approve_after = auto_approve_after
         log_admin_action(

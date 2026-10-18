@@ -257,7 +257,8 @@ message SetPassportSexGenderExceptionReq {
 message SetModerationAutoApproveDeadlineReq {
   // username, email, or user id
   string user = 1;
-  // Seconds after creation that the user's content is auto-approved if not yet reviewed; unset to use the default
+  // Seconds after creation that the user's content is auto-approved if not yet reviewed, at most 48 hours; unset to
+  // use the default
   google.protobuf.Int64Value auto_approve_seconds = 2;
 }
 
