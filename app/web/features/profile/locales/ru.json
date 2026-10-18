@@ -176,7 +176,8 @@
     "request_chars_remaining_one": "Пожалуйста, напишите ещё как минимум {{count}} символ, чтобы отправить запрос хосту.",
     "request_chars_remaining_few": "Пожалуйста, напишите ещё как минимум {{count}} символа, чтобы отправить запрос хосту.",
     "request_chars_remaining_many": "Пожалуйста, напишите ещё как минимум {{count}} символов, чтобы отправить запрос хосту.",
-    "arrival_date_before_host_today": "Эта дата для {{name}} уже прошла."
+    "arrival_date_before_host_today": "Эта дата для {{name}} уже прошла.",
+    "departure_date_not_after_arrival": "Дата отъезда должна быть позже даты прибытия."
   },
   "message_form": {
     "hosting_request_hint": "Отправляете запрос на хостинг? Используйте кнопку <request>Отправить Запрос</request>.",

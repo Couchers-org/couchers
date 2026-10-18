@@ -130,8 +130,6 @@
   "comment_deleted": "Dieser Kommentar wurde gelöscht.",
   "edit_comment": "Kommentar bearbeiten",
   "delete_comment": "Kommentar löschen",
-  "comment_edited_date": "Bearbeitet {{timeAgo}}",
-  "discussion_edited_date": "Bearbeitet {{timeAgo}}",
   "discussion_deleted": "Dieser Beitrag wurde gelöscht.",
   "delete_discussion": "Beitrag löschen",
   "delete_discussion_dialog": {
@@ -151,5 +149,8 @@
   "sub_community_dropdown_a11y": "Weitere spezifische Communitys durchsuchen",
   "report_discussion_button_a11y": "Diesen Beitrag melden",
   "report_event_button_a11y": "Dieses Event melden",
-  "new_discussion_button": "Neuer Beitrag"
+  "new_discussion_button": "Neuer Beitrag",
+  "comment_edited_date2": "Bearbeitet <timeAgo/>",
+  "discussion_edited_date2": "Bearbeitet <timeAgo/>",
+  "add_to_calendar": "Zum Kalender hinzufügen"
 }

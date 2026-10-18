@@ -1,4 +1,5 @@
 {
+  "ambiguous_language_display_format": "{{name}} ({{code}})",
   "errors": {
     "account_not_found": "An account with that username or email was not found.",
     "account_suspended": "Your account is suspended.",
@@ -130,6 +131,7 @@
     "invalid_phone": "Phone number must be in international format without punctuation.",
     "invalid_recipients": "Invalid recipients list.",
     "invalid_region": "Invalid region.",
+    "invalid_stay_role": "Invalid stay role.",
     "invalid_thread_category": "Invalid message thread category.",
     "invalid_token": "Invalid token.",
     "invalid_username": "Invalid username.",

@@ -7,9 +7,6 @@ const generateBlogIndex = require("./scripts/generate-blog-index"); // eslint-di
 const nextConfig = {
   assetPrefix: process.env.ASSET_PREFIX,
   reactStrictMode: true,
-  eslint: {
-    dirs: ["components", "features", "i18n", "markdown", "pages", "resources", "service", "test", "types", "utils"],
-  },
   i18n,
   productionBrowserSourceMaps: true,
   // ESM-only packages with no CommonJS entry point - Next.js (and next/jest) need to
@@ -18,6 +15,8 @@ const nextConfig = {
   experimental: {
     // Trades slightly slower compiles for a lower webpack memory ceiling.
     webpackMemoryOptimizations: true,
+    // Default policy for `next upgrade --agent` reminders.
+    agentUpgrade: "latest",
   },
   webpack: (config, { isServer }) => {
     if (isServer) {
@@ -89,7 +88,7 @@ const nextConfig = {
 // Injected content via Sentry wizard below
 
 // eslint-disable-next-line
-const { withSentryConfig } = require("@sentry/nextjs");
+const { withSentryConfig } = require("@sentry/nextjs/config");
 // eslint-disable-next-line
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
@@ -116,6 +115,8 @@ module.exports = withSentryConfig(module.exports, {
   // Also cover the shared chunks, which is where most of our code ends up
   widenClientFileUpload: true,
 
-  // Automatically tree-shake Sentry logger statements to reduce bundle size
-  disableLogger: true,
+  webpack: {
+    // Automatically tree-shake Sentry logger statements to reduce bundle size
+    treeshake: { removeDebugLogging: true },
+  },
 });
