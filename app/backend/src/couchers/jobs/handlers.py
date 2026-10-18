@@ -5,7 +5,7 @@ Background job servicers
 import logging
 from collections.abc import Sequence
 from datetime import UTC, date, datetime, timedelta
-from math import cos, pi, sin, sqrt
+from math import cos, pi, sin
 from random import sample
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -740,13 +740,6 @@ def update_recommendation_scores(payload: empty_pb2.Empty) -> None:
     ]
     home_fields = [User.about_place, User.other_host_info, User.sleeping_details, User.area, User.house_rules]
 
-    def poor_man_gaussian() -> ColumnElement[float] | float:
-        """
-        Produces an approximatley std normal random variate
-        """
-        trials = 5
-        return (sum([func.random() for _ in range(trials)]) - trials / 2) / sqrt(trials / 12)
-
     def int_(stmt: Any) -> Function[int]:
         return func.coalesce(cast(stmt, Integer), 0)
 
@@ -873,13 +866,7 @@ def update_recommendation_scores(payload: empty_pb2.Empty) -> None:
         response_rate_points = -10 * int_(response_time_33p > 60 * 96.0) + 5 * int_(response_time_66p < 60 * 96.0)
 
         recommendation_score = (
-            hosting_status_points
-            + profile_points
-            + ref_score
-            + activeness_points
-            + other_points
-            + response_rate_points
-            + 2 * poor_man_gaussian()
+            hosting_status_points + profile_points + ref_score + activeness_points + other_points + response_rate_points
         )
 
         scores = (
