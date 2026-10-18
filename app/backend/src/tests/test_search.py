@@ -11,7 +11,7 @@ from couchers.materialized_views import refresh_materialized_views, refresh_mate
 from couchers.models import EventOccurrence, HostingStatus, LanguageAbility, LanguageFluency, MeetupStatus, User
 from couchers.proto import api_pb2, communities_pb2, events_pb2, search_pb2
 from couchers.servicers.search import USER_SEARCH_NOISE_PERIOD_DAYS
-from couchers.utils import Timestamp_from_datetime, create_coordinate, now
+from couchers.utils import Timestamp_from_datetime, create_coordinate, now, today
 from tests.fixtures import api_helpers
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import Moderator
@@ -461,8 +461,8 @@ def _user_search_order(token: str, page_size: int = 100) -> list[int]:
                 return order
 
 
-def test_user_search_noise_is_per_viewer_and_stable_within_period(db, timewarp):
-    _, token1 = generate_user()
+def test_user_search_noise_is_per_viewer_and_stable_within_period(db, frozen_timewarp):
+    viewer1, token1 = generate_user()
     _, token2 = generate_user()
     candidate_ids = {generate_user()[0].id for _ in range(20)}
 
@@ -476,7 +476,12 @@ def test_user_search_noise_is_per_viewer_and_stable_within_period(db, timewarp):
     assert _user_search_order(token1) == order1
     assert _user_search_order(token2) != order1
 
-    timewarp.advance(timedelta(days=USER_SEARCH_NOISE_PERIOD_DAYS))
+    # step a day at a time, which also keeps the short-lived session alive, until this viewer's period rolls over
+    days_left = USER_SEARCH_NOISE_PERIOD_DAYS - (today().toordinal() + viewer1.id) % USER_SEARCH_NOISE_PERIOD_DAYS
+    for _ in range(days_left - 1):
+        frozen_timewarp.advance(timedelta(days=1))
+        assert _user_search_order(token1) == order1
+    frozen_timewarp.advance(timedelta(days=1))
     assert _user_search_order(token1) != order1
 
 

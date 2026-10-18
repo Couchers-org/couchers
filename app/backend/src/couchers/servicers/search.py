@@ -2,7 +2,6 @@
 See //docs/search.md for an overview.
 """
 
-from hashlib import blake2b
 from math import pi
 from typing import Any, cast
 
@@ -13,7 +12,13 @@ from sqlalchemy.sql import and_, func, or_
 
 from couchers import urls
 from couchers.context import CouchersContext
-from couchers.crypto import decrypt_page_token, encrypt_page_token
+from couchers.crypto import (
+    USER_SEARCH_NOISE_KEY_NAME,
+    decrypt_page_token,
+    encrypt_page_token,
+    generate_hash_signature,
+    get_secret,
+)
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.helpers.strong_verification import has_strong_verification
@@ -415,11 +420,11 @@ def _search_clusters(
     ]
 
 
-def stable_normal_rv(column: SQLColumnExpression[int], seed: str) -> ColumnElement[float]:
+def stable_normal_rv(column: SQLColumnExpression[int], key: bytes, seed: bytes) -> ColumnElement[float]:
     """
-    Standard normal random variate for each value of a bigint column, deterministic given the seed
+    Standard normal random variate for each value of a bigint column, deterministic given the key and seed
     """
-    digest = blake2b(seed.encode(), digest_size=16).digest()
+    digest = generate_hash_signature(message=seed, key=key, digest_size=16)
     # hashint8extended gives a uniform signed 64-bit int; keep the top 53 bits so it's exact as a double, and map into
     # (0, 1] so it's safe to take ln() of
     seeds = (int.from_bytes(digest[i : i + 8], "big", signed=True) for i in (0, 8))
@@ -435,7 +440,7 @@ def _user_search_noise(viewer_id: int) -> ColumnElement[float]:
     """
     # offset by viewer id so that viewers don't all reshuffle on the same day
     period = (today().toordinal() + viewer_id) // USER_SEARCH_NOISE_PERIOD_DAYS
-    return stable_normal_rv(User.id, f"{viewer_id}:{period}")
+    return stable_normal_rv(User.id, get_secret(USER_SEARCH_NOISE_KEY_NAME), f"{viewer_id}|{period}".encode())
 
 
 def _user_search_inner(
