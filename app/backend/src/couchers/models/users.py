@@ -211,7 +211,6 @@ class User(Base, kw_only=True):
     banned_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
     shadowed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
-    # overrides MODERATION_AUTO_APPROVE_DEADLINE_SECONDS for content authored by this user
     moderation_auto_approve_after: Mapped[timedelta | None] = mapped_column(Interval, default=None)
 
     moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
