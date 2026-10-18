@@ -2,6 +2,6 @@
   "test_growthbook_integration": true,
   "show_moderator_badge": true,
   "public_trips_enabled": true,
-  "host_request_nudge": true,
+  "show_host_request_nudge": true,
   "global_message": { "severity": "info", "message": "" }
 }

@@ -46,7 +46,7 @@ export default function NewMessage({ setIsMessaging, onRequestInstead }: NewMess
   const { openGroupChat, openProfileUserId } = useProfileSheet();
   const logEvent = useLogEvent();
 
-  const isNudgeEnabled = useFeatureValue("host_request_nudge", false);
+  const isNudgeEnabled = useFeatureValue("show_host_request_nudge", false);
   const [hasNudged, setHasNudged] = useState(false);
 
   const {

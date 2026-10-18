@@ -32,7 +32,7 @@ const HOST_REQUEST_TEXT = "Could you host me from the 3rd to the 5th?";
 
 function renderNewMessage({ nudge = true } = {}) {
   const onRequestInstead = jest.fn();
-  const { wrapper } = getHookWrapperWithClient({ host_request_nudge: { defaultValue: nudge } });
+  const { wrapper } = getHookWrapperWithClient({ show_host_request_nudge: { defaultValue: nudge } });
   render(
     <ProfileUserProvider user={hostUser}>
       <NewMessage setIsMessaging={jest.fn()} onRequestInstead={onRequestInstead} />
