@@ -90,11 +90,11 @@ def auto_approve_due_queue_items(cutoff: datetime) -> Subquery:
     """
     Open INITIAL_REVIEW items on still-shadowed content whose auto-approve deadline passed before the cutoff, as
     (id, moderation_state_id, time_created, deadline). The deadline comes from the author's
-    moderation_auto_approve_after, falling back to MODERATION_AUTO_APPROVE_DEADLINE_SECONDS. Content by shadowed
-    authors, or authors whose moderation_auto_approve_after is zero, is never due.
+    moderation_auto_approve_deadline_seconds, falling back to MODERATION_AUTO_APPROVE_DEADLINE_SECONDS. Content by
+    shadowed authors, or authors whose moderation_auto_approve_deadline_seconds is zero, is never due.
     """
     deadline = func.coalesce(
-        User.moderation_auto_approve_after, timedelta(seconds=config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS)
+        User.moderation_auto_approve_deadline_seconds, config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS
     )
     return union_all(
         *(
@@ -111,8 +111,8 @@ def auto_approve_due_queue_items(cutoff: datetime) -> Subquery:
             .where(ModerationQueueItem.resolved_by_log_id.is_(None))
             .where(ModerationState.visibility == ModerationVisibility.shadowed)
             .where(~User.is_shadowed)
-            .where(User.moderation_auto_approve_after.is_distinct_from(timedelta(0)))
-            .where(ModerationQueueItem.time_created + deadline < cutoff)
+            .where(User.moderation_auto_approve_deadline_seconds.is_distinct_from(0))
+            .where(ModerationQueueItem.time_created + deadline * timedelta(seconds=1) < cutoff)
             for entry in get_moderated_models().values()
             if not entry.has_own_visibility_mechanism
         )

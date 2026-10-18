@@ -425,8 +425,8 @@ def test_SetModerationAutoApproveDeadline(db):
 
     assert [(a.action_type, a.note) for a in res.admin_actions] == [
         ("set_moderation_auto_approve_deadline", "Changed from default to never"),
-        ("set_moderation_auto_approve_deadline", "Changed from never to 2 days, 0:00:00"),
-        ("set_moderation_auto_approve_deadline", "Changed from 2 days, 0:00:00 to default"),
+        ("set_moderation_auto_approve_deadline", "Changed from never to 172800 seconds"),
+        ("set_moderation_auto_approve_deadline", "Changed from 172800 seconds to default"),
     ]
 
 

@@ -17,8 +17,8 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.add_column("users", sa.Column("moderation_auto_approve_after", sa.Interval(), nullable=True))
+    op.add_column("users", sa.Column("moderation_auto_approve_deadline_seconds", sa.Integer(), nullable=True))
 
 
 def downgrade() -> None:
-    op.drop_column("users", "moderation_auto_approve_after")
+    op.drop_column("users", "moderation_auto_approve_deadline_seconds")

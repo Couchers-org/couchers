@@ -1765,7 +1765,7 @@ def auto_approve_moderation_queue(payload: empty_pb2.Empty) -> None:
 
         logger.info(f"Auto-approving {len(items)} moderation queue items")
         for queue_item_id, moderation_state_id, deadline in items:
-            reason = f"Auto-approved: moderation deadline of {int(deadline.total_seconds())} seconds exceeded."
+            reason = f"Auto-approved: moderation deadline of {deadline} seconds exceeded."
             Moderation().ModerateContent(
                 request=moderation_pb2.ModerateContentReq(
                     moderation_state_id=moderation_state_id,
