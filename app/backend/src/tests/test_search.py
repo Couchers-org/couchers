@@ -413,11 +413,12 @@ def test_user_search_exactly_user_ids(db):
         assert [result.user_id for result in res.results] == [user1.id]
 
 
-def test_user_search_pagination_with_tied_scores(db):
+def test_user_search_pagination_with_tied_scores(db, flags):
     """
     Paging through tied recommendation scores, including a tie block larger than the page size, returns every user
     exactly once in a stable order.
     """
+    flags.set_float("user_search_noise_scale", 0.0)
     users = [generate_user()[0] for _ in range(7)]
     token = generate_user()[1]
     scores = [10.0, 5.0, 5.0, 5.0, 5.0, 5.0, -1.0]
