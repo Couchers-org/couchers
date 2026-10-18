@@ -7,7 +7,7 @@ from math import pi
 from typing import Any, cast
 
 import grpc
-from sqlalchemy import ColumnElement, Float, literal_column, select, tuple_, type_coerce
+from sqlalchemy import ColumnElement, Float, SQLColumnExpression, literal_column, select, tuple_, type_coerce
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import and_, func, or_
 
@@ -415,6 +415,19 @@ def _search_clusters(
     ]
 
 
+def stable_normal_rv(column: SQLColumnExpression[int], seed: str) -> ColumnElement[float]:
+    """
+    Standard normal random variate for each value of a bigint column, deterministic given the seed
+    """
+    digest = blake2b(seed.encode(), digest_size=16).digest()
+    # hashint8extended gives a uniform signed 64-bit int; keep the top 53 bits so it's exact as a double, and map into
+    # (0, 1] so it's safe to take ln() of
+    seeds = (int.from_bytes(digest[i : i + 8], "big", signed=True) for i in (0, 8))
+    u1, u2 = ((func.hashint8extended(column, seed).op(">>")(11) + 2**52 + 1).cast(Float) / 2.0**53 for seed in seeds)
+    # Box-Muller transform. Postgres' random_normal() can't be seeded per row, so we roll our own
+    return type_coerce(func.sqrt(-2 * func.ln(u1)) * func.cos(2 * pi * u2), Float)
+
+
 def _user_search_noise(viewer_id: int) -> ColumnElement[float]:
     """
     Standard normal noise for each candidate user, different for each viewer and stable for a given viewer over
@@ -422,22 +435,7 @@ def _user_search_noise(viewer_id: int) -> ColumnElement[float]:
     """
     # offset by viewer id so that viewers don't all reshuffle on the same day
     period = (today().toordinal() + viewer_id) // USER_SEARCH_NOISE_PERIOD_DAYS
-
-    def uniform(trial: str) -> ColumnElement[Any]:
-        seed = int.from_bytes(
-            blake2b(f"{viewer_id}:{period}:{trial}".encode(), digest_size=8).digest(), "big", signed=True
-        )
-        # hashint8extended gives a uniform signed 64-bit int; keep the top 53 bits so it's exact as a double, and
-        # map into (0, 1] so it's safe to take ln() of
-        bits = func.hashint8extended(User.id, seed).op(">>")(11)
-        return (bits + 2**52 + 1).cast(Float) / 2.0**53
-
-    def normal(trial: int) -> ColumnElement[float]:
-        # Box-Muller transform. Postgres' random_normal() can't be seeded per row, so we roll our own
-        u1, u2 = uniform(f"{trial}:0"), uniform(f"{trial}:1")
-        return type_coerce(func.sqrt(-2 * func.ln(u1)) * func.cos(2 * pi * u2), Float)
-
-    return normal(0)
+    return stable_normal_rv(User.id, f"{viewer_id}:{period}")
 
 
 def _user_search_inner(
