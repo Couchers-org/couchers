@@ -4,7 +4,8 @@ import { hostRequestEndInstant, hostRequestStartInstant } from "utils/hostReques
 
 export type WhenHappening = "future" | "soon" | "now" | "past";
 
-const SOON_DURATION = Temporal.Duration.from({ hours: 24 });
+/** How long before the start of the period do we report it as happening "soon". */
+const SOON_DURATION = Temporal.Duration.from({ hours: 48 });
 
 /**
  * Classifies whether a stay is in the future, soon, now, or past relative to the current time.
