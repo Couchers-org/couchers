@@ -592,11 +592,8 @@ def _user_search_inner(
     total_items = cast(int, session.execute(select(func.count()).select_from(statement.subquery())).scalar())
 
     if request.page_token:
-        last_score, _, last_id = decrypt_page_token(request.page_token).partition(",")
-        # tokens issued before the id tiebreaker have no id, this matches their old `score <= token` semantics
-        statement = statement.where(
-            tuple_(User.recommendation_score, User.id) < (float(last_score), int(last_id or 2**63 - 1))
-        )
+        last_score, last_id = decrypt_page_token(request.page_token).split(",")
+        statement = statement.where(tuple_(User.recommendation_score, User.id) < (float(last_score), int(last_id)))
 
     statement = statement.order_by(User.recommendation_score.desc(), User.id.desc()).limit(page_size + 1)
     res = session.execute(statement).all()

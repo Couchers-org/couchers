@@ -6,7 +6,6 @@ from google.protobuf import empty_pb2, wrappers_pb2
 from psycopg.types.range import TimestamptzRange
 from sqlalchemy import select, update
 
-from couchers.crypto import encrypt_page_token
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views, refresh_materialized_views_rapid
 from couchers.models import EventOccurrence, HostingStatus, LanguageAbility, LanguageFluency, MeetupStatus, User
@@ -447,24 +446,6 @@ def test_user_search_pagination_with_tied_scores(db):
                 break
 
     assert seen == expected
-
-
-def test_user_search_pagination_legacy_page_token(db):
-    """Page tokens issued before the id tiebreaker (bare score) still work, with the old `score <= token` semantics."""
-    user1, token = generate_user()
-    user2, _ = generate_user()
-    user3, _ = generate_user()
-
-    with session_scope() as session:
-        for user, score in [(user1, 3.0), (user2, 2.0), (user3, 1.0)]:
-            session.execute(update(User).where(User.id == user.id).values(recommendation_score=score))
-
-    refresh_materialized_views_rapid(empty_pb2.Empty())
-    refresh_materialized_views(empty_pb2.Empty())
-
-    with search_session(token) as api:
-        res = api.UserSearchV2(search_pb2.UserSearchReq(page_size=10, page_token=encrypt_page_token("2.0")))
-        assert [result.user_id for result in res.results] == [user2.id, user3.id]
 
 
 @pytest.fixture
