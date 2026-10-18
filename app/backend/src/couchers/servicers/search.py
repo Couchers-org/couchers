@@ -5,7 +5,7 @@ See //docs/search.md for an overview.
 from typing import Any, cast
 
 import grpc
-from sqlalchemy import literal_column, select
+from sqlalchemy import literal_column, select, tuple_
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import and_, func, or_
 
@@ -589,21 +589,23 @@ def _user_search_inner(
         # bool friends_only = 13;
 
     page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-    next_recommendation_score = float(decrypt_page_token(request.page_token)) if request.page_token else 1e10
     total_items = cast(int, session.execute(select(func.count()).select_from(statement.subquery())).scalar())
 
-    statement = (
-        statement.where(User.recommendation_score <= next_recommendation_score)
-        .order_by(User.recommendation_score.desc())
-        .limit(page_size + 1)
-    )
-    res = session.execute(statement).all()
-    users: list[int] = []
-    if res:
-        users, rec_scores = zip(*res)  # type: ignore[assignment]
+    if request.page_token:
+        last_score, _, last_id = decrypt_page_token(request.page_token).partition(",")
+        # tokens issued before the id tiebreaker have no id, this matches their old `score <= token` semantics
+        statement = statement.where(
+            tuple_(User.recommendation_score, User.id) < (float(last_score), int(last_id or 2**63 - 1))
+        )
 
-    next_page_token = encrypt_page_token(str(rec_scores[-1])) if len(users) > page_size else None
-    return users[:page_size], next_page_token, total_items
+    statement = statement.order_by(User.recommendation_score.desc(), User.id.desc()).limit(page_size + 1)
+    res = session.execute(statement).all()
+
+    next_page_token = None
+    if len(res) > page_size:
+        last_user_id, last_rec_score = res[page_size - 1]
+        next_page_token = encrypt_page_token(f"{last_rec_score},{last_user_id}")
+    return [user_id for user_id, _ in res[:page_size]], next_page_token, total_items
 
 
 class Search(search_pb2_grpc.SearchServicer):
