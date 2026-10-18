@@ -619,8 +619,8 @@ class Admin(admin_pb2_grpc.AdminServicer):
         )
         return _user_to_details(session, user)
 
-    def SetModerationAutoApprove(
-        self, request: admin_pb2.SetModerationAutoApproveReq, context: CouchersContext, session: Session
+    def SetModerationAutoApproveDeadline(
+        self, request: admin_pb2.SetModerationAutoApproveDeadlineReq, context: CouchersContext, session: Session
     ) -> admin_pb2.UserDetails:
         user = find_user_by_username_or_email_or_id(session, context, request.user)
         auto_approve_after = (
@@ -634,7 +634,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             session,
             context,
             user,
-            "set_moderation_auto_approve",
+            "set_moderation_auto_approve_deadline",
             note=(
                 f"Changed from {'default' if old_auto_approve_after is None else old_auto_approve_after} "
                 f"to {'default' if auto_approve_after is None else auto_approve_after}"

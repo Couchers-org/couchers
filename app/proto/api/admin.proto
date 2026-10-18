@@ -46,7 +46,7 @@ service Admin {
 
   rpc UnshadowUser(UnshadowUserReq) returns (UserDetails) {}
 
-  rpc SetModerationAutoApprove(SetModerationAutoApproveReq) returns (UserDetails) {}
+  rpc SetModerationAutoApproveDeadline(SetModerationAutoApproveDeadlineReq) returns (UserDetails) {}
 
   rpc AddAdminNote(AddAdminNoteReq) returns (UserDetails) {}
 
@@ -254,7 +254,7 @@ message SetPassportSexGenderExceptionReq {
   bool passport_sex_gender_exception = 2;
 }
 
-message SetModerationAutoApproveReq {
+message SetModerationAutoApproveDeadlineReq {
   // username, email, or user id
   string user = 1;
   // Seconds after creation that the user's content is auto-approved if not yet reviewed; unset to use the default

@@ -387,7 +387,7 @@ def test_UnshadowUser(db, moderator: Moderator):
         )
 
 
-def test_SetModerationAutoApprove(db):
+def test_SetModerationAutoApproveDeadline(db):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, _ = generate_user()
 
@@ -395,35 +395,37 @@ def test_SetModerationAutoApprove(db):
         res = api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.username))
         assert not res.HasField("moderation_auto_approve_seconds")
 
-        res = api.SetModerationAutoApprove(
-            admin_pb2.SetModerationAutoApproveReq(
+        res = api.SetModerationAutoApproveDeadline(
+            admin_pb2.SetModerationAutoApproveDeadlineReq(
                 user=normal_user.username, auto_approve_seconds=wrappers_pb2.Int64Value(value=0)
             )
         )
         assert res.moderation_auto_approve_seconds.value == 0
 
-        res = api.SetModerationAutoApprove(
-            admin_pb2.SetModerationAutoApproveReq(
+        res = api.SetModerationAutoApproveDeadline(
+            admin_pb2.SetModerationAutoApproveDeadlineReq(
                 user=normal_user.username, auto_approve_seconds=wrappers_pb2.Int64Value(value=86400)
             )
         )
         assert res.moderation_auto_approve_seconds.value == 86400
 
-        res = api.SetModerationAutoApprove(admin_pb2.SetModerationAutoApproveReq(user=normal_user.username))
+        res = api.SetModerationAutoApproveDeadline(
+            admin_pb2.SetModerationAutoApproveDeadlineReq(user=normal_user.username)
+        )
         assert not res.HasField("moderation_auto_approve_seconds")
 
         with pytest.raises(grpc.RpcError) as e:
-            api.SetModerationAutoApprove(
-                admin_pb2.SetModerationAutoApproveReq(
+            api.SetModerationAutoApproveDeadline(
+                admin_pb2.SetModerationAutoApproveDeadlineReq(
                     user=normal_user.username, auto_approve_seconds=wrappers_pb2.Int64Value(value=-1)
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
     assert [(a.action_type, a.note) for a in res.admin_actions] == [
-        ("set_moderation_auto_approve", "Changed from default to 0:00:00"),
-        ("set_moderation_auto_approve", "Changed from 0:00:00 to 1 day, 0:00:00"),
-        ("set_moderation_auto_approve", "Changed from 1 day, 0:00:00 to default"),
+        ("set_moderation_auto_approve_deadline", "Changed from default to 0:00:00"),
+        ("set_moderation_auto_approve_deadline", "Changed from 0:00:00 to 1 day, 0:00:00"),
+        ("set_moderation_auto_approve_deadline", "Changed from 1 day, 0:00:00 to default"),
     ]
 
 

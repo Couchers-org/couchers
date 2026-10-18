@@ -2712,10 +2712,10 @@ def _visibility(state_id):
         return session.execute(select(ModerationState.visibility).where(ModerationState.id == state_id)).scalar_one()
 
 
-def _set_moderation_auto_approve(token, user, seconds):
+def _set_moderation_auto_approve_deadline(token, user, seconds):
     with real_admin_session(token) as api:
-        api.SetModerationAutoApprove(
-            admin_pb2.SetModerationAutoApproveReq(
+        api.SetModerationAutoApproveDeadline(
+            admin_pb2.SetModerationAutoApproveDeadlineReq(
                 user=user.username,
                 auto_approve_seconds=wrappers_pb2.Int64Value(value=seconds) if seconds is not None else None,
             )
@@ -2740,7 +2740,7 @@ def test_auto_approve_uses_author_deadline(db):
     assert _visibility(state_id) == ModerationVisibility.shadowed
     assert _visibility(other_state_id) == ModerationVisibility.shadowed
 
-    _set_moderation_auto_approve(mod_token, surfer, 300)
+    _set_moderation_auto_approve_deadline(mod_token, surfer, 300)
 
     auto_approve_moderation_queue(empty_pb2.Empty())
     assert _visibility(state_id) == ModerationVisibility.visible
@@ -2761,7 +2761,7 @@ def test_auto_approve_author_deadline_holds_content(db):
     config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 60
     config.MODERATION_BOT_USER_ID = moderator.id
 
-    _set_moderation_auto_approve(mod_token, surfer, 86400)
+    _set_moderation_auto_approve_deadline(mod_token, surfer, 86400)
     state_id = create_test_host_request_with_moderation(surfer_token, host.id)
     _backdate_initial_review(state_id, timedelta(minutes=10))
 
@@ -2769,7 +2769,7 @@ def test_auto_approve_author_deadline_holds_content(db):
     assert _visibility(state_id) == ModerationVisibility.shadowed
     check_database_consistency(empty_pb2.Empty())
 
-    _set_moderation_auto_approve(mod_token, surfer, None)
+    _set_moderation_auto_approve_deadline(mod_token, surfer, None)
     with pytest.raises(DatabaseInconsistencyError, match="exceeding auto-approve deadline"):
         check_database_consistency(empty_pb2.Empty())
 
