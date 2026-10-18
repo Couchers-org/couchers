@@ -14,6 +14,7 @@ from sqlalchemy.sql import and_, func, or_
 from user_agents import parse as user_agents_parse
 
 from couchers import urls
+from couchers.constants import MODERATION_AUTO_APPROVE_DEADLINE_MAX_SECONDS
 from couchers.context import CouchersContext
 from couchers.crypto import urlsafe_secure_token
 from couchers.data_export import generate_user_data_export
@@ -291,7 +292,20 @@ def _user_to_details(session: Session, user: User) -> admin_pb2.UserDetails:
         admin_tags=list(admin_tags),
         mod_score=user.mod_score,
         ui_language_preference=user.ui_language_preference,
+        moderation_auto_approve_seconds=(
+            Int64Value(value=user.moderation_auto_approve_deadline_seconds)
+            if user.moderation_auto_approve_deadline_seconds is not None
+            else None
+        ),
     )
+
+
+def _format_auto_approve_deadline(deadline_seconds: int | None) -> str:
+    if deadline_seconds is None:
+        return "default"
+    if deadline_seconds == 0:
+        return "never"
+    return f"{deadline_seconds} seconds"
 
 
 def _content_report_to_pb(content_report: ContentReport) -> admin_pb2.ContentReport:
@@ -613,6 +627,33 @@ class Admin(admin_pb2_grpc.AdminServicer):
             moderator_user_id=context.user_id,
             from_visibilities={ModerationVisibility.shadowed},
             reason=f"User {user.id} unshadowed: {request.admin_note}",
+        )
+        return _user_to_details(session, user)
+
+    def SetModerationAutoApproveDeadline(
+        self, request: admin_pb2.SetModerationAutoApproveDeadlineReq, context: CouchersContext, session: Session
+    ) -> admin_pb2.UserDetails:
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
+        deadline_seconds = None
+        if request.HasField("auto_approve_seconds"):
+            deadline_seconds = request.auto_approve_seconds.value
+            if not 0 <= deadline_seconds <= MODERATION_AUTO_APPROVE_DEADLINE_MAX_SECONDS:
+                context.abort_with_error_code(
+                    grpc.StatusCode.INVALID_ARGUMENT,
+                    "admin:auto_approve_deadline_out_of_range",
+                    substitutions={"max_hours": MODERATION_AUTO_APPROVE_DEADLINE_MAX_SECONDS // 3600},
+                )
+        old_deadline_seconds = user.moderation_auto_approve_deadline_seconds
+        user.moderation_auto_approve_deadline_seconds = deadline_seconds
+        log_admin_action(
+            session,
+            context,
+            user,
+            "set_moderation_auto_approve_deadline",
+            note=(
+                f"Changed from {_format_auto_approve_deadline(old_deadline_seconds)} "
+                f"to {_format_auto_approve_deadline(deadline_seconds)}"
+            ),
         )
         return _user_to_details(session, user)
 
