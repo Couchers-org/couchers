@@ -4,11 +4,11 @@ import grpc
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 from psycopg.types.range import TimestamptzRange
-from sqlalchemy import select
+from sqlalchemy import select, update
 
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views, refresh_materialized_views_rapid
-from couchers.models import EventOccurrence, HostingStatus, LanguageAbility, LanguageFluency, MeetupStatus
+from couchers.models import EventOccurrence, HostingStatus, LanguageAbility, LanguageFluency, MeetupStatus, User
 from couchers.proto import api_pb2, communities_pb2, events_pb2, search_pb2
 from couchers.utils import Timestamp_from_datetime, create_coordinate, now
 from tests.fixtures import api_helpers
@@ -410,6 +410,42 @@ def test_user_search_exactly_user_ids(db):
 
         res = api.UserSearchV2(search_pb2.UserSearchReq(exactly_user_ids=[user1.id, user5.id]))
         assert [result.user_id for result in res.results] == [user1.id]
+
+
+def test_user_search_pagination_with_tied_scores(db):
+    """
+    Paging through tied recommendation scores, including a tie block larger than the page size, returns every user
+    exactly once in a stable order.
+    """
+    users = [generate_user()[0] for _ in range(7)]
+    token = generate_user()[1]
+    scores = [10.0, 5.0, 5.0, 5.0, 5.0, 5.0, -1.0]
+
+    with session_scope() as session:
+        for user, score in zip(users, scores):
+            session.execute(update(User).where(User.id == user.id).values(recommendation_score=score))
+        session.execute(update(User).where(User.id.not_in([u.id for u in users])).values(recommendation_score=0.0))
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
+
+    with session_scope() as session:
+        expected = list(
+            session.execute(select(User.id).order_by(User.recommendation_score.desc(), User.id.desc())).scalars()
+        )
+
+    with search_session(token) as api:
+        seen = []
+        page_token = ""
+        while True:
+            res = api.UserSearchV2(search_pb2.UserSearchReq(page_size=2, page_token=page_token))
+            seen += [result.user_id for result in res.results]
+            assert len(seen) <= len(expected)
+            page_token = res.next_page_token
+            if not page_token:
+                break
+
+    assert seen == expected
 
 
 @pytest.fixture
