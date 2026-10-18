@@ -423,17 +423,21 @@ def _user_search_noise(viewer_id: int) -> ColumnElement[float]:
     # offset by viewer id so that viewers don't all reshuffle on the same day
     period = (today().toordinal() + viewer_id) // USER_SEARCH_NOISE_PERIOD_DAYS
 
-    def uniform(trial: int) -> ColumnElement[Any]:
+    def uniform(trial: str) -> ColumnElement[Any]:
         seed = int.from_bytes(
             blake2b(f"{viewer_id}:{period}:{trial}".encode(), digest_size=8).digest(), "big", signed=True
         )
         # hashint8extended gives a uniform signed 64-bit int; keep the top 53 bits so it's exact as a double, and
-        # map into (0, 1] so ln() below is safe
+        # map into (0, 1] so it's safe to take ln() of
         bits = func.hashint8extended(User.id, seed).op(">>")(11)
         return (bits + 2**52 + 1).cast(Float) / 2.0**53
 
-    # Box-Muller transform. Postgres' random_normal() can't be seeded per row, so we roll our own
-    return type_coerce(func.sqrt(-2 * func.ln(uniform(0))) * func.cos(2 * pi * uniform(1)), Float)
+    def normal(trial: int) -> ColumnElement[float]:
+        # Box-Muller transform. Postgres' random_normal() can't be seeded per row, so we roll our own
+        u1, u2 = uniform(f"{trial}:0"), uniform(f"{trial}:1")
+        return type_coerce(func.sqrt(-2 * func.ln(u1)) * func.cos(2 * pi * u2), Float)
+
+    return normal(0)
 
 
 def _user_search_inner(
