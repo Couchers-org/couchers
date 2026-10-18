@@ -181,7 +181,7 @@ message UserDetails {
 
   string ui_language_preference = 23;
 
-  // Unset when the user's content uses the default auto-approve deadline
+  // Unset when the user's content uses the default auto-approve deadline, 0 if it's never auto-approved
   google.protobuf.Int64Value moderation_auto_approve_seconds = 24;
 }
 
@@ -257,8 +257,8 @@ message SetPassportSexGenderExceptionReq {
 message SetModerationAutoApproveDeadlineReq {
   // username, email, or user id
   string user = 1;
-  // Seconds after creation that the user's content is auto-approved if not yet reviewed, at most 48 hours; unset to
-  // use the default
+  // Seconds after creation that the user's content is auto-approved if not yet reviewed, at most 48 hours; 0 to never
+  // auto-approve it, unset to use the default
   google.protobuf.Int64Value auto_approve_seconds = 2;
 }
 

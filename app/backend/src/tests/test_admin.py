@@ -424,8 +424,8 @@ def test_SetModerationAutoApproveDeadline(db):
             assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
     assert [(a.action_type, a.note) for a in res.admin_actions] == [
-        ("set_moderation_auto_approve_deadline", "Changed from default to 0:00:00"),
-        ("set_moderation_auto_approve_deadline", "Changed from 0:00:00 to 2 days, 0:00:00"),
+        ("set_moderation_auto_approve_deadline", "Changed from default to never"),
+        ("set_moderation_auto_approve_deadline", "Changed from never to 2 days, 0:00:00"),
         ("set_moderation_auto_approve_deadline", "Changed from 2 days, 0:00:00 to default"),
     ]
 

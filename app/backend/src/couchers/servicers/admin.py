@@ -298,6 +298,14 @@ def _user_to_details(session: Session, user: User) -> admin_pb2.UserDetails:
     )
 
 
+def _format_auto_approve_deadline(auto_approve_after: timedelta | None) -> str:
+    if auto_approve_after is None:
+        return "default"
+    if not auto_approve_after:
+        return "never"
+    return str(auto_approve_after)
+
+
 def _content_report_to_pb(content_report: ContentReport) -> admin_pb2.ContentReport:
     return admin_pb2.ContentReport(
         content_report_id=content_report.id,
@@ -641,8 +649,8 @@ class Admin(admin_pb2_grpc.AdminServicer):
             user,
             "set_moderation_auto_approve_deadline",
             note=(
-                f"Changed from {'default' if old_auto_approve_after is None else old_auto_approve_after} "
-                f"to {'default' if auto_approve_after is None else auto_approve_after}"
+                f"Changed from {_format_auto_approve_deadline(old_auto_approve_after)} "
+                f"to {_format_auto_approve_deadline(auto_approve_after)}"
             ),
         )
         return _user_to_details(session, user)

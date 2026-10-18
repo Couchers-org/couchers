@@ -2753,15 +2753,16 @@ def test_auto_approve_uses_author_deadline(db):
         assert "300 seconds" in approve_entries[0].reason
 
 
-def test_auto_approve_author_deadline_holds_content(db):
-    """A long author deadline holds content past the default without tripping the consistency check"""
+@pytest.mark.parametrize("seconds", [0, 86400])
+def test_auto_approve_author_deadline_holds_content(db, seconds):
+    """A long or zero (never) author deadline holds content past the default without tripping the consistency check"""
     moderator, mod_token = generate_user(is_superuser=True)
     surfer, surfer_token = generate_user()
     host, _ = generate_user()
     config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 60
     config.MODERATION_BOT_USER_ID = moderator.id
 
-    _set_moderation_auto_approve_deadline(mod_token, surfer, 86400)
+    _set_moderation_auto_approve_deadline(mod_token, surfer, seconds)
     state_id = create_test_host_request_with_moderation(surfer_token, host.id)
     _backdate_initial_review(state_id, timedelta(minutes=10))
 
