@@ -49,6 +49,7 @@ from couchers.models import (
     BackgroundJobState,
     DeviceType,
     Email,
+    HostingStatus,
     HostRequest,
     HostRequestStatus,
     LoginToken,
@@ -1558,7 +1559,19 @@ def test_add_users_to_email_list(db, feature_flags):
 
 
 def test_update_recommendation_scores(db):
+    generate_user(complete_profile=True)
+    generate_user(hosting_status=HostingStatus.can_host)
+    generate_user()
+
+    def scores():
+        with session_scope() as session:
+            return session.execute(select(User.id, User.recommendation_score).order_by(User.id)).all()
+
     update_recommendation_scores(empty_pb2.Empty())
+    first = scores()
+    update_recommendation_scores(empty_pb2.Empty())
+    # search applies noise per viewer, so the stored score itself should be deterministic
+    assert scores() == first
 
 
 def test_update_badges(db, push_collector: PushCollector):

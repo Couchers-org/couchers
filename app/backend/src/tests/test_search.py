@@ -10,6 +10,7 @@ from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views, refresh_materialized_views_rapid
 from couchers.models import EventOccurrence, HostingStatus, LanguageAbility, LanguageFluency, MeetupStatus, User
 from couchers.proto import api_pb2, communities_pb2, events_pb2, search_pb2
+from couchers.servicers.search import USER_SEARCH_NOISE_PERIOD_DAYS
 from couchers.utils import Timestamp_from_datetime, create_coordinate, now
 from tests.fixtures import api_helpers
 from tests.fixtures.db import generate_user
@@ -446,6 +447,52 @@ def test_user_search_pagination_with_tied_scores(db):
                 break
 
     assert seen == expected
+
+
+def _user_search_order(token: str, page_size: int = 100) -> list[int]:
+    order: list[int] = []
+    page_token = ""
+    with search_session(token) as api:
+        while True:
+            res = api.UserSearch(search_pb2.UserSearchReq(page_size=page_size, page_token=page_token))
+            order += [result.user.user_id for result in res.results]
+            page_token = res.next_page_token
+            if not page_token:
+                return order
+
+
+def test_user_search_noise_is_per_viewer_and_stable_within_period(db, timewarp):
+    _, token1 = generate_user()
+    _, token2 = generate_user()
+    candidate_ids = {generate_user()[0].id for _ in range(20)}
+
+    with session_scope() as session:
+        session.execute(update(User).values(recommendation_score=0))
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+
+    order1 = _user_search_order(token1)
+    assert candidate_ids <= set(order1)
+    assert _user_search_order(token1) == order1
+    assert _user_search_order(token2) != order1
+
+    timewarp.advance(timedelta(days=USER_SEARCH_NOISE_PERIOD_DAYS))
+    assert _user_search_order(token1) != order1
+
+
+def test_user_search_pagination_with_noise(db):
+    _, token = generate_user()
+    for _ in range(10):
+        generate_user()
+
+    with session_scope() as session:
+        session.execute(update(User).values(recommendation_score=0))
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+
+    full_order = _user_search_order(token)
+    assert len(full_order) == 11
+    assert _user_search_order(token, page_size=3) == full_order
 
 
 @pytest.fixture

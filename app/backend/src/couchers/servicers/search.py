@@ -2,10 +2,12 @@
 See //docs/search.md for an overview.
 """
 
+from hashlib import blake2b
+from math import sqrt
 from typing import Any, cast
 
 import grpc
-from sqlalchemy import literal_column, select, tuple_
+from sqlalchemy import ColumnElement, Float, literal_column, select, tuple_, type_coerce
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import and_, func, or_
 
@@ -59,6 +61,7 @@ from couchers.utils import (
     get_coordinates,
     last_active_coarsen,
     to_aware_datetime,
+    today,
 )
 
 # searches are a bit expensive, we'd rather send back a bunch of results at once than lots of small pages
@@ -67,6 +70,10 @@ MAX_PAGINATION_LENGTH = 100
 REGCONFIG = "english"
 TRI_SIMILARITY_THRESHOLD = 0.6
 TRI_SIMILARITY_WEIGHT = 5
+
+USER_SEARCH_NOISE_SCALE = 2.0
+USER_SEARCH_NOISE_PERIOD_DAYS = 7
+USER_SEARCH_NOISE_TRIALS = 5
 
 
 def _join_with_space(coalesces: list[Any]) -> Any:
@@ -409,13 +416,29 @@ def _search_clusters(
     ]
 
 
+def _user_search_noise(viewer_id: int) -> ColumnElement[float]:
+    """
+    Approximately standard normal noise for each candidate user, different for each viewer and stable for a given
+    viewer over USER_SEARCH_NOISE_PERIOD_DAYS, so different viewers see a different ordering
+    """
+    # offset by viewer id so that viewers don't all reshuffle on the same day
+    period = (today().toordinal() + viewer_id) // USER_SEARCH_NOISE_PERIOD_DAYS
+    seeds = [
+        int.from_bytes(blake2b(f"{viewer_id}:{period}:{trial}".encode(), digest_size=8).digest(), "big", signed=True)
+        for trial in range(USER_SEARCH_NOISE_TRIALS)
+    ]
+    # hashint8extended gives a uniform signed 64-bit int, map it to [0, 1)
+    uniforms = [func.hashint8extended(User.id, seed).cast(Float) / 2.0**64 + 0.5 for seed in seeds]
+    return type_coerce((sum(uniforms) - USER_SEARCH_NOISE_TRIALS / 2) / sqrt(USER_SEARCH_NOISE_TRIALS / 12), Float)
+
+
 def _user_search_inner(
     request: search_pb2.UserSearchReq, context: CouchersContext, session: Session
 ) -> tuple[list[int], str | None, int]:
     user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
     # Base statement with visibility filter
-    statement = select(User.id, User.recommendation_score).where(users_visible(context))
+    statement = select(User.id).where(users_visible(context))
     # make sure that only users who are in LiteUser show up
     statement = statement.join(LiteUser, LiteUser.id == User.id)
 
@@ -591,11 +614,13 @@ def _user_search_inner(
     page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
     total_items = cast(int, session.execute(select(func.count()).select_from(statement.subquery())).scalar())
 
+    ranking_score = User.recommendation_score + USER_SEARCH_NOISE_SCALE * _user_search_noise(context.user_id)
+    statement = statement.add_columns(ranking_score)
     if request.page_token:
         last_score, last_id = decrypt_page_token(request.page_token).split(",")
-        statement = statement.where(tuple_(User.recommendation_score, User.id) < (float(last_score), int(last_id)))
+        statement = statement.where(tuple_(ranking_score, User.id) < (float(last_score), int(last_id)))
 
-    statement = statement.order_by(User.recommendation_score.desc(), User.id.desc()).limit(page_size + 1)
+    statement = statement.order_by(ranking_score.desc(), User.id.desc()).limit(page_size + 1)
     res = session.execute(statement).all()
 
     next_page_token = None
