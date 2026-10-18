@@ -67,10 +67,10 @@
     },
     "description": {
       "label": "About your trip",
-      "placeholder": "What are you hoping to do? How long are you staying? Anything hosts should know.",
+      "placeholder": "What are you hoping to do? How long are you staying? Anything hosts should know?",
       "required_error": "Please add a short description.",
-      "chars_remaining_one": "{{count}} character remaining.",
-      "chars_remaining_other": "{{count}} characters remaining."
+      "chars_remaining_one": "{{count}} more character needed.",
+      "chars_remaining_other": "{{count}} more characters needed."
     },
     "create_submit_button": "Post trip",
     "edit_submit_button": "Save changes"
