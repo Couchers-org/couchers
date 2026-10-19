@@ -31,6 +31,7 @@ from couchers.models import (
     Conversation,
     HostRequest,
     HostRequestFeedback,
+    HostRequestKind,
     HostRequestQuality,
     HostRequestStatus,
     Message,
@@ -215,10 +216,11 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_date")
 
         # If this is an offer in response to a public trip, it's validated further down
-        public_trip_id = request.public_trip_id if request.HasField("public_trip_id") else None
+        kind = HostRequestKind.public_trip_offer if request.HasField("public_trip_id") else HostRequestKind.request
+        public_trip_id = request.public_trip_id if kind == HostRequestKind.public_trip_offer else None
 
         # an offer on a public trip reverses the roles: the caller is the host and the recipient is the traveller
-        surfer_user, host_user = (user, recipient) if public_trip_id is None else (recipient, user)
+        surfer_user, host_user = (user, recipient) if kind == HostRequestKind.request else (recipient, user)
 
         # the dates are in the timezone at the host's location
         today = today_in_timezone(host_user.timezone or "Etc/UTC")
@@ -251,14 +253,13 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 substitutions={"count": RATE_LIMIT_HOURS},
             )
 
-        # Offers on public trips are deduplicated per trip further down instead
-        if public_trip_id is None:
+        if kind == HostRequestKind.request:
             recent_request = session.execute(
                 select(HostRequest.conversation_id)
                 .join(Conversation, HostRequest.conversation_id == Conversation.id)
                 .where(HostRequest.initiator_user_id == context.user_id)
                 .where(HostRequest.recipient_user_id == recipient.id)
-                .where(HostRequest.public_trip_id == None)
+                .where(HostRequest.kind == HostRequestKind.request)
                 .where(Conversation.created >= now() - timedelta(hours=HOST_REQUEST_DUPLICATE_WINDOW_HOURS))
                 # overlapping nights, so back-to-back stays are still allowed
                 .where(HostRequest.from_date < to_date)
@@ -271,8 +272,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     "duplicate_host_request",
                     substitutions={"count": HOST_REQUEST_DUPLICATE_WINDOW_HOURS},
                 )
-
-        if public_trip_id is not None:
+        else:
             public_trip = session.execute(
                 where_moderated_content_visible(select(PublicTrip), context, PublicTrip, is_list_operation=False).where(
                     PublicTrip.id == public_trip_id
@@ -349,6 +349,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             hosting_city=host_user.city,
             hosting_location=host_user.geom,
             hosting_radius=host_user.geom_radius,
+            kind=kind,
             public_trip_id=public_trip_id,
         )
         session.add(host_request)
