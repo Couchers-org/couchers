@@ -65,15 +65,15 @@ from couchers.models import (
     UserBlock,
     Volunteer,
 )
-from couchers.proto import conversations_pb2, messages_pb2, requests_pb2
+from couchers.proto import conversations_pb2, messages_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.utils import now, today
+from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user, make_friends, make_user_block, make_volunteer
 from tests.fixtures.misc import PushCollector, process_jobs
-from tests.fixtures.sessions import conversations_session, requests_session
+from tests.fixtures.sessions import conversations_session
 from tests.fixtures.timewarp import Timewarp
 from tests.test_references import create_host_reference, create_host_request, create_host_request_by_date
-from tests.test_requests import valid_request_text
 
 
 def _add_mobile_push_subscription(user_id: int, *, disabled: bool = False) -> None:
@@ -902,9 +902,6 @@ def test_send_request_notifications_host_request(db, moderator, timewarp: Timewa
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
     send_request_notifications(empty_pb2.Empty())
     process_jobs()
 
@@ -912,13 +909,7 @@ def test_send_request_notifications_host_request(db, moderator, timewarp: Timewa
     with session_scope() as session:
         assert session.execute(select(func.count()).select_from(BackgroundJob)).scalar_one() == 0
 
-    with requests_session(token1) as requests:
-        host_request_id = requests.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=valid_request_text()
-            )
-        ).host_request_id
-    moderator.approve_host_request(host_request_id)
+    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
 
     with session_scope() as session:
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
@@ -932,14 +923,12 @@ def test_send_request_notifications_host_request(db, moderator, timewarp: Timewa
     assert _count_queued_emails() == 0
 
     # test that responding to host request creates email
-    with requests_session(token2) as requests:
-        requests.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id,
-                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
-                text="Test request",
-            )
-        )
+    requests_api.respond_host_request(
+        token=token2,
+        host_request_id=host_request_id,
+        status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+        text="Test request",
+    )
 
     with session_scope() as session:
         # delete send_email BackgroundJob created by RespondHostRequest
@@ -971,22 +960,12 @@ def test_send_request_notifications_host_request_with_followup(db, moderator, ti
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
-    with requests_session(token1) as requests:
-        host_request_id = requests.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=valid_request_text()
-            )
-        ).host_request_id
-    moderator.approve_host_request(host_request_id)
+    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
 
     # surfer sends a follow-up message
-    with requests_session(token1) as requests:
-        requests.SendHostRequestMessage(
-            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Following up on my request!")
-        )
+    requests_api.send_host_request_message(
+        token=token1, host_request_id=host_request_id, text="Following up on my request!"
+    )
 
     with session_scope() as session:
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
@@ -1012,31 +991,15 @@ def test_send_request_notifications_two_requests_one_with_followup(db, moderator
     user2, token2 = generate_user()
     user3, token3 = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
     # request A: user1 -> user2, with a follow-up
-    with requests_session(token1) as requests:
-        host_request_a = requests.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=valid_request_text()
-            )
-        ).host_request_id
-    moderator.approve_host_request(host_request_a)
+    host_request_a = requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
 
-    with requests_session(token1) as requests:
-        requests.SendHostRequestMessage(
-            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_a, text="Sorry, meant Tuesday night!")
-        )
+    requests_api.send_host_request_message(
+        token=token1, host_request_id=host_request_a, text="Sorry, meant Tuesday night!"
+    )
 
     # request B: user3 -> user2, creation only (higher message IDs than A's follow-up)
-    with requests_session(token3) as requests:
-        host_request_b = requests.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=valid_request_text()
-            )
-        ).host_request_id
-    moderator.approve_host_request(host_request_b)
+    host_request_b = requests_api.create_host_request(token=token3, host_user_id=user2.id, approve_by=moderator)
 
     with session_scope() as session:
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
@@ -1057,25 +1020,14 @@ def test_send_request_notifications_delayed_for_push_capable_users(
     user2, token2 = generate_user()
     _add_mobile_push_subscription(user1.id)
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
 
-    with requests_session(token1) as requests:
-        host_request_id = requests.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=valid_request_text()
-            )
-        ).host_request_id
-    moderator.approve_host_request(host_request_id)
-
-    with requests_session(token2) as requests:
-        requests.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id,
-                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
-                text="Test request",
-            )
-        )
+    requests_api.respond_host_request(
+        token=token2,
+        host_request_id=host_request_id,
+        status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+        text="Test request",
+    )
 
     with session_scope() as session:
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
@@ -1699,17 +1651,8 @@ def test_send_request_notifications_blocked_users_no_notification(db, moderator,
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
     # Create a host request
-    with requests_session(token1) as requests:
-        host_request_id = requests.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=valid_request_text()
-            )
-        ).host_request_id
-    moderator.approve_host_request(host_request_id)
+    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
 
     with session_scope() as session:
         # delete send_email BackgroundJob created by CreateHostRequest
@@ -1734,14 +1677,12 @@ def test_send_request_notifications_blocked_users_no_notification(db, moderator,
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
     # Host responds
-    with requests_session(token2) as requests:
-        requests.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id,
-                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
-                text="Accepting your request",
-            )
-        )
+    requests_api.respond_host_request(
+        token=token2,
+        host_request_id=host_request_id,
+        status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+        text="Accepting your request",
+    )
 
     with session_scope() as session:
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))

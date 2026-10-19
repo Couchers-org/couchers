@@ -12,18 +12,17 @@ from couchers.jobs.handlers import send_message_notifications
 from couchers.models import HostRequest, NotificationTopicAction, User
 from couchers.proto import api_pb2, conversations_pb2, messages_pb2, notifications_pb2, requests_pb2
 from couchers.utils import today
+from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user, make_user_block
 from tests.fixtures.misc import process_jobs
 from tests.fixtures.sessions import (
     conversations_session,
     notifications_session,
     real_api_session,
-    requests_session,
 )
 from tests.fixtures.timewarp import Timewarp
 from tests.test_communities import create_community
 from tests.test_public_trips import _create_trip_directly
-from tests.test_requests import valid_request_text
 
 
 def _make_trip(user: User) -> tuple[int, int]:
@@ -42,27 +41,12 @@ def _create_group_chat(token: str, recipient_ids: list[int], moderator, text: st
     return int(res.group_chat_id)
 
 
-def _create_host_request(surfer_token: str, host_id: int, moderator, public_trip_id: int | None = None) -> int:
-    with requests_session(surfer_token) as api:
-        res = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host_id,
-                from_date=(today() + timedelta(days=5)).isoformat(),
-                to_date=(today() + timedelta(days=10)).isoformat(),
-                text=valid_request_text(),
-                public_trip_id=public_trip_id,
-            )
-        )
-    moderator.approve_host_request(res.host_request_id)
-    return int(res.host_request_id)
-
-
 def test_has_unseen_host_request_messages_is_false_for_a_non_party(db, moderator):
     user1, _token1 = generate_user()
     _user2, token2 = generate_user()
     outsider, _token3 = generate_user()
 
-    conversation_id = _create_host_request(token2, user1.id, moderator)
+    conversation_id = requests_api.create_host_request(token=token2, host_user_id=user1.id, approve_by=moderator)
 
     with session_scope() as session:
         unseen_for = {
@@ -84,17 +68,12 @@ def test_list_message_threads_latest_status_change_message(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    request_id = _create_host_request(token2, user1.id, moderator)
+    request_id = requests_api.create_host_request(token=token2, host_user_id=user1.id, approve_by=moderator)
 
     # user1 (the host) accepts, so the latest message becomes a status change
-    with requests_session(token1) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=request_id,
-                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
-                text="",
-            )
-        )
+    requests_api.respond_host_request(
+        token=token1, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+    )
 
     with conversations_session(token1) as c:
         res = c.ListMessageThreads(conversations_pb2.ListMessageThreadsReq())
@@ -110,7 +89,7 @@ def test_list_message_threads_need_host_request_feedback(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    request_id = _create_host_request(token2, user1.id, moderator)
+    request_id = requests_api.create_host_request(token=token2, host_user_id=user1.id, approve_by=moderator)
 
     def host_request_thread(token: str) -> requests_pb2.HostRequest:
         with conversations_session(token) as c:
@@ -122,25 +101,17 @@ def test_list_message_threads_need_host_request_feedback(db, moderator):
 
     assert not host_request_thread(token1).need_host_request_feedback
 
-    with requests_session(token1) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=request_id,
-                status=messages_pb2.HOST_REQUEST_STATUS_REJECTED,
-            )
-        )
+    requests_api.respond_host_request(
+        token=token1, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
+    )
 
     assert host_request_thread(token1).need_host_request_feedback
     # only the host is asked for feedback
     assert not host_request_thread(token2).need_host_request_feedback
 
-    with requests_session(token1) as api:
-        api.SendHostRequestFeedback(
-            requests_pb2.SendHostRequestFeedbackReq(
-                host_request_id=request_id,
-                host_request_quality=requests_pb2.HOST_REQUEST_QUALITY_LOW,
-            )
-        )
+    requests_api.send_host_request_feedback(
+        token=token1, host_request_id=request_id, host_request_quality=requests_pb2.HOST_REQUEST_QUALITY_LOW
+    )
 
     assert not host_request_thread(token1).need_host_request_feedback
 
@@ -150,16 +121,19 @@ def test_list_message_threads_no_feedback_for_declined_public_trip_offer(db, mod
     _host, host_token = generate_user()
     _, trip_id = _make_trip(traveller)
 
-    request_id = _create_host_request(host_token, traveller.id, moderator, public_trip_id=trip_id)
+    request_id = requests_api.create_host_request(
+        token=host_token,
+        host_user_id=traveller.id,
+        from_date=today() + timedelta(days=5),
+        to_date=today() + timedelta(days=10),
+        public_trip_id=trip_id,
+        approve_by=moderator,
+    )
 
     # the traveller is the recipient of an offer, so they're the one who declines
-    with requests_session(traveller_token) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=request_id,
-                status=messages_pb2.HOST_REQUEST_STATUS_REJECTED,
-            )
-        )
+    requests_api.respond_host_request(
+        token=traveller_token, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
+    )
 
     for token in (traveller_token, host_token):
         with conversations_session(token) as c:
@@ -198,7 +172,7 @@ def test_list_message_threads_interleaves_chats_and_requests(db, moderator):
 
     chat_id = _create_group_chat(token1, [user2.id], moderator)
     # user2 sends a host request to user1 (user1 is the host)
-    request_id = _create_host_request(token2, user1.id, moderator)
+    request_id = requests_api.create_host_request(token=token2, host_user_id=user1.id, approve_by=moderator)
 
     with conversations_session(token1) as c:
         res = c.ListMessageThreads(conversations_pb2.ListMessageThreadsReq())
@@ -225,7 +199,9 @@ def test_list_message_threads_single_cursor_pagination_across_kinds(db, moderato
     # interleave creating group chats and host requests so both kinds straddle page boundaries
     for other, other_token in others:
         expected_chat_ids.add(_create_group_chat(token1, [other.id], moderator))
-        expected_request_ids.add(_create_host_request(other_token, user1.id, moderator))
+        expected_request_ids.add(
+            requests_api.create_host_request(token=other_token, host_user_id=user1.id, approve_by=moderator)
+        )
 
     collected_chat_ids: list[int] = []
     collected_request_ids: list[int] = []
@@ -259,7 +235,7 @@ def test_list_message_threads_chats_filter_excludes_host_requests(db, moderator)
     user2, token2 = generate_user()
 
     chat_id = _create_group_chat(token1, [user2.id], moderator)
-    _create_host_request(token2, user1.id, moderator)
+    requests_api.create_host_request(token=token2, host_user_id=user1.id, approve_by=moderator)
 
     with conversations_session(token1) as c:
         res = c.ListMessageThreads(
@@ -318,7 +294,7 @@ def test_list_message_threads_unread_filter(db, moderator):
     user2, token2 = generate_user()
 
     # user2 sends a request to user1 -> user1 has unseen messages
-    request_id = _create_host_request(token2, user1.id, moderator)
+    request_id = requests_api.create_host_request(token=token2, host_user_id=user1.id, approve_by=moderator)
 
     with conversations_session(token1) as c:
         res = c.ListMessageThreads(conversations_pb2.ListMessageThreadsReq(only_unread=True))
@@ -357,7 +333,14 @@ def test_list_message_threads_public_trip_offer_role_based(db, moderator):
     _, trip_id = _make_trip(traveler)
 
     # host offers to host the traveller's public trip (role reversal)
-    request_id = _create_host_request(host_token, traveler.id, moderator, public_trip_id=trip_id)
+    request_id = requests_api.create_host_request(
+        token=host_token,
+        host_user_id=traveler.id,
+        from_date=today() + timedelta(days=5),
+        to_date=today() + timedelta(days=10),
+        public_trip_id=trip_id,
+        approve_by=moderator,
+    )
 
     # From the offering host's view: appears under HOSTING (role-based filter)
     with conversations_session(host_token) as c:
@@ -381,8 +364,7 @@ def test_list_message_threads_public_trip_offer_role_based(db, moderator):
         assert len(res.threads) == 0
 
     # the same request served by the Requests API has to agree on who's who
-    with requests_session(host_token) as api:
-        from_requests_api = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=request_id))
+    from_requests_api = requests_api.get_host_request(token=host_token, host_request_id=request_id)
     assert (from_requests_api.surfer_user_id, from_requests_api.host_user_id) == (hr.surfer_user_id, hr.host_user_id)
 
     # From the traveller's view: appears under SURFING and MY_PUBLIC_TRIPS (role-based filters)
@@ -441,7 +423,7 @@ def test_mark_all_threads_seen_respects_categories(db, moderator):
 
     # an unread group chat and an unread host request, both from user2
     _create_group_chat(token2, [user1.id], moderator, text="hello there")
-    _create_host_request(token2, user1.id, moderator)
+    requests_api.create_host_request(token=token2, host_user_id=user1.id, approve_by=moderator)
 
     def unseen() -> tuple[int, int]:
         with real_api_session(token1) as api:
