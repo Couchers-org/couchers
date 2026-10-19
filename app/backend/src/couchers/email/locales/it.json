@@ -217,57 +217,69 @@
     "subject": "Il tuo genere è stato modificato",
     "purpose": "Il tuo genere su Couchers.org è stato modificato in <b>{{ gender }}</b> da un amministratore."
   },
-  "host_requests": {
+  "stays": {
     "created": {
-      "subject": "{{surfer_name}} ti ha inviato una richiesta di soggiorno",
-      "purpose": "<b>{{surfer_name}}</b> ti ha inviato una richiesta di soggiorno:",
-      "respond_encouragement": "Per favore, rispondi a questa richiesta. Anche un rapido rifiuto è meglio di nessuna risposta!"
+      "host_request": {
+        "subject": "{{initiator}} ti ha inviato una richiesta di soggiorno",
+        "purpose": "<b>{{initiator}}</b> ti ha inviato una richiesta di soggiorno:",
+        "respond_encouragement": "Per favore, rispondi a questa richiesta. Anche un rapido rifiuto è meglio di nessuna risposta!"
+      }
     },
     "generic": {
       "date_range": "Da <b>{{from_date}}</b> a <b>{{to_date}}</b>.",
-      "view_action": "Visualizza richiesta di soggiorno",
+      "host_request": {
+        "view_action": "Visualizza richiesta di soggiorno"
+      },
       "quick_decline_action": "Rifiuta rapidamente"
     },
     "reminder": {
-      "subject": "Hai una richiesta di soggiorno in sospeso da {{surfer_name}}",
-      "purpose": "<b>{{surfer_name}}</b> è in attesa di una tua risposta. Anche un rapido rifiuto è meglio di nessuna risposta!"
+      "host_request": {
+        "subject": "Hai una richiesta di soggiorno in sospeso da {{initiator}}",
+        "purpose": "<b>{{initiator}}</b> è in attesa di una tua risposta. Anche un rapido rifiuto è meglio di nessuna risposta!"
+      }
     },
     "message": {
-      "from_host": {
-        "subject": "{{other_name}} ti ha inviato un messaggio riguardo alla tua richiesta di soggiorno",
-        "purpose": "<b>{{other_name}}</b> ti ha inviato un messaggio riguardo alla tua richiesta di soggiorno:"
-      },
-      "from_surfer": {
-        "subject": "{{other_name}} ti ha inviato un messaggio riguardo alla sua richiesta di soggiorno",
-        "purpose": "<b>{{other_name}}</b> ti ha inviato un messaggio riguardo alla sua richiesta di soggiorno:"
+      "host_request": {
+        "from_initiator": {
+          "subject": "{{counterparty}} ti ha inviato un messaggio riguardo alla sua richiesta di soggiorno",
+          "purpose": "<b>{{counterparty}}</b> ti ha inviato un messaggio riguardo alla sua richiesta di soggiorno:"
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}} ti ha inviato un messaggio riguardo alla tua richiesta di soggiorno",
+          "purpose": "<b>{{counterparty}}</b> ti ha inviato un messaggio riguardo alla tua richiesta di soggiorno:"
+        }
       }
     },
     "missed_messages": {
-      "from_host": {
-        "subject": "{{other_name}} ti ha inviato uno o più messaggi riguardo alla tua richiesta di soggiorno",
-        "purpose": "<b>{{other_name}}</b> ti ha inviato uno o più messaggi riguardo alla tua richiesta di soggiorno:"
-      },
-      "from_surfer": {
-        "subject": "{{other_name}} ti ha inviato dei messaggi riguardo alla sua richiesta di soggiorno",
-        "purpose": "<b>{{other_name}}</b> ti ha inviato uno o più messaggi nella sua richiesta di soggiorno:"
+      "host_request": {
+        "from_initiator": {
+          "subject": "{{counterparty}} ti ha inviato dei messaggi riguardo alla sua richiesta di soggiorno",
+          "purpose": "<b>{{counterparty}}</b> ti ha inviato uno o più messaggi nella sua richiesta di soggiorno:"
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}} ti ha inviato uno o più messaggi riguardo alla tua richiesta di soggiorno",
+          "purpose": "<b>{{counterparty}}</b> ti ha inviato uno o più messaggi riguardo alla tua richiesta di soggiorno:"
+        }
       }
     },
     "status_changed": {
-      "accepted_by_host": {
-        "subject": "{{other_name}} ha accettato la tua richiesta di soggiorno",
-        "purpose": "<b>{{other_name}}</b> ha accettato la tua richiesta di soggiorno:"
-      },
-      "declined_by_host": {
-        "subject": "{{other_name}} ha rifiutato la tua richiesta di soggiorno",
-        "purpose": "<b>{{other_name}}</b> ha rifiutato la tua richiesta di soggiorno:"
-      },
-      "confirmed_by_surfer": {
-        "subject": "{{other_name}} ha confermato la sua richiesta di soggiorno",
-        "purpose": "<b>{{other_name}}</b> ha confermato la sua richiesta di soggiorno:"
-      },
-      "cancelled_by_surfer": {
-        "subject": "{{other_name}} ha annullato la sua richiesta di soggiorno",
-        "purpose": "<b>{{other_name}}</b> ha annullato la sua richiesta di soggiorno:"
+      "host_request": {
+        "accepted_by_recipient": {
+          "subject": "{{counterparty}} ha accettato la tua richiesta di soggiorno",
+          "purpose": "<b>{{counterparty}}</b> ha accettato la tua richiesta di soggiorno:"
+        },
+        "declined_by_recipient": {
+          "subject": "{{counterparty}} ha rifiutato la tua richiesta di soggiorno",
+          "purpose": "<b>{{counterparty}}</b> ha rifiutato la tua richiesta di soggiorno:"
+        },
+        "confirmed_by_initiator": {
+          "subject": "{{counterparty}} ha confermato la sua richiesta di soggiorno",
+          "purpose": "<b>{{counterparty}}</b> ha confermato la sua richiesta di soggiorno:"
+        },
+        "cancelled_by_initiator": {
+          "subject": "{{counterparty}} ha annullato la sua richiesta di soggiorno",
+          "purpose": "<b>{{counterparty}}</b> ha annullato la sua richiesta di soggiorno:"
+        }
       }
     }
   },
