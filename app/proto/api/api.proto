@@ -11,8 +11,10 @@ import "requests.proto";
 
 service API {
   option (auth_level) = AUTH_LEVEL_SECURE;
+  option (rate_limit_aggregate) = { per_ip: 600, per_user: 600 };
 
   rpc Ping(PingReq) returns (PingRes) {
+    option (rate_limit) = { per_ip: 300, per_user: 300 };
     // Pings the server for updates and basic user info
   }
 
@@ -25,6 +27,7 @@ service API {
   }
 
   rpc GetLiteUsers(GetLiteUsersReq) returns (GetLiteUsersRes) {
+    option (rate_limit) = { per_ip: 600, per_user: 600 };
     // Get minimal info about a bunch of users
   }
 

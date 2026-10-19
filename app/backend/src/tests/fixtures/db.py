@@ -270,7 +270,8 @@ def generate_user(
         if delete_user:
             user.deleted_at = now()
 
-        user.recommendation_score = 1e10 - user.id
+        # spaced out well beyond the per-viewer search noise so search order follows creation order
+        user.recommendation_score = 1e10 - 100 * user.id
 
         if complete_profile:
             key = random_hex(32)

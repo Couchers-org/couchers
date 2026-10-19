@@ -2,16 +2,23 @@
 See //docs/search.md for an overview.
 """
 
+from math import pi
 from typing import Any, cast
 
 import grpc
-from sqlalchemy import literal_column, select
+from sqlalchemy import ColumnElement, Float, SQLColumnExpression, literal_column, select, tuple_, type_coerce
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import and_, func, or_
 
 from couchers import urls
 from couchers.context import CouchersContext
-from couchers.crypto import decrypt_page_token, encrypt_page_token
+from couchers.crypto import (
+    USER_SEARCH_NOISE_KEY_NAME,
+    decrypt_page_token,
+    encrypt_page_token,
+    generate_hash_signature,
+    get_secret,
+)
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.helpers.strong_verification import has_strong_verification
@@ -59,6 +66,7 @@ from couchers.utils import (
     get_coordinates,
     last_active_coarsen,
     to_aware_datetime,
+    today,
 )
 
 # searches are a bit expensive, we'd rather send back a bunch of results at once than lots of small pages
@@ -67,6 +75,9 @@ MAX_PAGINATION_LENGTH = 100
 REGCONFIG = "english"
 TRI_SIMILARITY_THRESHOLD = 0.6
 TRI_SIMILARITY_WEIGHT = 5
+
+DEFAULT_USER_SEARCH_NOISE_SCALE = 2.0
+USER_SEARCH_NOISE_PERIOD_DAYS = 7
 
 
 def _join_with_space(coalesces: list[Any]) -> Any:
@@ -409,13 +420,36 @@ def _search_clusters(
     ]
 
 
+def stable_normal_rv(column: SQLColumnExpression[int], key: bytes, seed: bytes) -> ColumnElement[float]:
+    """
+    Standard normal random variate for each value of a bigint column, deterministic given the key and seed
+    """
+    digest = generate_hash_signature(message=seed, key=key, digest_size=16)
+    # hashint8extended gives a uniform signed 64-bit int; keep the top 53 bits so it's exact as a double, and map into
+    # (0, 1] so it's safe to take ln() of
+    seeds = (int.from_bytes(digest[i : i + 8], "big", signed=True) for i in (0, 8))
+    u1, u2 = ((func.hashint8extended(column, seed).op(">>")(11) + 2**52 + 1).cast(Float) / 2.0**53 for seed in seeds)
+    # Box-Muller transform. Postgres' random_normal() can't be seeded per row, so we roll our own
+    return type_coerce(func.sqrt(-2 * func.ln(u1)) * func.cos(2 * pi * u2), Float)
+
+
+def _user_search_noise(viewer_id: int) -> ColumnElement[float]:
+    """
+    Standard normal noise for each candidate user, different for each viewer and stable for a given viewer over
+    USER_SEARCH_NOISE_PERIOD_DAYS, so different viewers see a different ordering
+    """
+    # offset by viewer id so that viewers don't all reshuffle on the same day
+    period = (today().toordinal() + viewer_id) // USER_SEARCH_NOISE_PERIOD_DAYS
+    return stable_normal_rv(User.id, get_secret(USER_SEARCH_NOISE_KEY_NAME), f"{viewer_id}|{period}".encode())
+
+
 def _user_search_inner(
     request: search_pb2.UserSearchReq, context: CouchersContext, session: Session
 ) -> tuple[list[int], str | None, int]:
     user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
     # Base statement with visibility filter
-    statement = select(User.id, User.recommendation_score).where(users_visible(context))
+    statement = select(User.id).where(users_visible(context))
     # make sure that only users who are in LiteUser show up
     statement = statement.join(LiteUser, LiteUser.id == User.id)
 
@@ -589,21 +623,27 @@ def _user_search_inner(
         # bool friends_only = 13;
 
     page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-    next_recommendation_score = float(decrypt_page_token(request.page_token)) if request.page_token else 1e10
     total_items = cast(int, session.execute(select(func.count()).select_from(statement.subquery())).scalar())
 
-    statement = (
-        statement.where(User.recommendation_score <= next_recommendation_score)
-        .order_by(User.recommendation_score.desc())
-        .limit(page_size + 1)
+    noise_scale = context.get_float_value("user_search_noise_scale", DEFAULT_USER_SEARCH_NOISE_SCALE)
+    ranking_score = (
+        User.recommendation_score + noise_scale * _user_search_noise(context.user_id)
+        if noise_scale
+        else User.recommendation_score
     )
-    res = session.execute(statement).all()
-    users: list[int] = []
-    if res:
-        users, rec_scores = zip(*res)  # type: ignore[assignment]
+    statement = statement.add_columns(ranking_score)
+    if request.page_token:
+        last_score, last_id = decrypt_page_token(request.page_token).split(",")
+        statement = statement.where(tuple_(ranking_score, User.id) < (float(last_score), int(last_id)))
 
-    next_page_token = encrypt_page_token(str(rec_scores[-1])) if len(users) > page_size else None
-    return users[:page_size], next_page_token, total_items
+    statement = statement.order_by(ranking_score.desc(), User.id.desc()).limit(page_size + 1)
+    res = session.execute(statement).all()
+
+    next_page_token = None
+    if len(res) > page_size:
+        last_user_id, last_rec_score = res[page_size - 1]
+        next_page_token = encrypt_page_token(f"{last_rec_score},{last_user_id}")
+    return [user_id for user_id, _ in res[:page_size]], next_page_token, total_items
 
 
 class Search(search_pb2_grpc.SearchServicer):

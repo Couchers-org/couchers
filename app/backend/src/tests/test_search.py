@@ -4,13 +4,14 @@ import grpc
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 from psycopg.types.range import TimestamptzRange
-from sqlalchemy import select
+from sqlalchemy import select, update
 
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views, refresh_materialized_views_rapid
-from couchers.models import EventOccurrence, HostingStatus, LanguageAbility, LanguageFluency, MeetupStatus
+from couchers.models import EventOccurrence, HostingStatus, LanguageAbility, LanguageFluency, MeetupStatus, User
 from couchers.proto import api_pb2, communities_pb2, events_pb2, search_pb2
-from couchers.utils import Timestamp_from_datetime, create_coordinate, now
+from couchers.servicers.search import USER_SEARCH_NOISE_PERIOD_DAYS
+from couchers.utils import Timestamp_from_datetime, create_coordinate, now, today
 from tests.fixtures import api_helpers
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import Moderator
@@ -410,6 +411,113 @@ def test_user_search_exactly_user_ids(db):
 
         res = api.UserSearchV2(search_pb2.UserSearchReq(exactly_user_ids=[user1.id, user5.id]))
         assert [result.user_id for result in res.results] == [user1.id]
+
+
+def test_user_search_pagination_with_tied_scores(db, flags):
+    """
+    Paging through tied recommendation scores, including a tie block larger than the page size, returns every user
+    exactly once in a stable order.
+    """
+    flags.set_float("user_search_noise_scale", 0.0)
+    users = [generate_user()[0] for _ in range(7)]
+    token = generate_user()[1]
+    scores = [10.0, 5.0, 5.0, 5.0, 5.0, 5.0, -1.0]
+
+    with session_scope() as session:
+        for user, score in zip(users, scores):
+            session.execute(update(User).where(User.id == user.id).values(recommendation_score=score))
+        session.execute(update(User).where(User.id.not_in([u.id for u in users])).values(recommendation_score=0.0))
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
+
+    with session_scope() as session:
+        expected = list(
+            session.execute(select(User.id).order_by(User.recommendation_score.desc(), User.id.desc())).scalars()
+        )
+
+    with search_session(token) as api:
+        seen = []
+        page_token = ""
+        while True:
+            res = api.UserSearchV2(search_pb2.UserSearchReq(page_size=2, page_token=page_token))
+            seen += [result.user_id for result in res.results]
+            assert len(seen) <= len(expected)
+            page_token = res.next_page_token
+            if not page_token:
+                break
+
+    assert seen == expected
+
+
+def _user_search_order(token: str, page_size: int = 100) -> list[int]:
+    order: list[int] = []
+    page_token = ""
+    with search_session(token) as api:
+        while True:
+            res = api.UserSearch(search_pb2.UserSearchReq(page_size=page_size, page_token=page_token))
+            order += [result.user.user_id for result in res.results]
+            page_token = res.next_page_token
+            if not page_token:
+                return order
+
+
+def test_user_search_noise_is_per_viewer_and_stable_within_period(db, frozen_timewarp):
+    viewer1, token1 = generate_user()
+    _, token2 = generate_user()
+    candidate_ids = {generate_user()[0].id for _ in range(20)}
+
+    with session_scope() as session:
+        session.execute(update(User).values(recommendation_score=0))
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+
+    order1 = _user_search_order(token1)
+    assert candidate_ids <= set(order1)
+    assert _user_search_order(token1) == order1
+    assert _user_search_order(token2) != order1
+
+    # step a day at a time, which also keeps the short-lived session alive, until this viewer's period rolls over
+    days_left = USER_SEARCH_NOISE_PERIOD_DAYS - (today().toordinal() + viewer1.id) % USER_SEARCH_NOISE_PERIOD_DAYS
+    for _ in range(days_left - 1):
+        frozen_timewarp.advance(timedelta(days=1))
+        assert _user_search_order(token1) == order1
+    frozen_timewarp.advance(timedelta(days=1))
+    assert _user_search_order(token1) != order1
+
+
+def test_user_search_pagination_with_noise(db):
+    _, token = generate_user()
+    for _ in range(10):
+        generate_user()
+
+    with session_scope() as session:
+        session.execute(update(User).values(recommendation_score=0))
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+
+    full_order = _user_search_order(token)
+    assert len(full_order) == 11
+    assert _user_search_order(token, page_size=3) == full_order
+
+
+def test_user_search_noise_scale_flag(db, flags):
+    _, token = generate_user()
+    user_ids = [generate_user()[0].id for _ in range(10)]
+
+    with session_scope() as session:
+        session.execute(update(User).values(recommendation_score=-User.id))
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+
+    def order() -> list[int]:
+        return [user_id for user_id in _user_search_order(token) if user_id in user_ids]
+
+    assert sorted(order()) == user_ids
+    assert order() != user_ids
+
+    flags.set_float("user_search_noise_scale", 0.0)
+    assert order() == user_ids
 
 
 @pytest.fixture
