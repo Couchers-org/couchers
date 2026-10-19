@@ -9,8 +9,8 @@ interface HostRequestStatusTextProps {
   requestStatus: HostRequestStatus;
   isPast: boolean;
   hostName?: string;
-  // Set for public-trip offers, where the copy is offer-specific and roles are
-  // reversed (the traveller accepts/declines; the offering host withdraws).
+  // Set for public-trip offers, where the copy is offer-specific: the traveller
+  // confirms or declines (cancels), and the offering host withdraws (rejects).
   isOffer?: boolean;
   // The other person's first name, used for offer copy in both roles.
   otherName?: string;
@@ -36,12 +36,12 @@ function offerStatusText(
         return t("host_request_item.invitation_host_status.accepted", {
           name: otherName,
         });
-      case HostRequestStatus.HOST_REQUEST_STATUS_REJECTED:
-        return t("host_request_item.invitation_host_status.rejected", {
+      case HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED:
+        return t("host_request_item.invitation_host_status.declined", {
           name: otherName,
         });
-      case HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED:
-        return t("host_request_item.invitation_host_status.cancelled");
+      case HostRequestStatus.HOST_REQUEST_STATUS_REJECTED:
+        return t("host_request_item.invitation_host_status.withdrawn");
     }
   } else {
     switch (requestStatus) {
@@ -50,10 +50,10 @@ function offerStatusText(
         return t("host_request_item.invitation_surfer_status.accepted", {
           name: otherName,
         });
-      case HostRequestStatus.HOST_REQUEST_STATUS_REJECTED:
-        return t("host_request_item.invitation_surfer_status.rejected");
       case HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED:
-        return t("host_request_item.invitation_surfer_status.cancelled", {
+        return t("host_request_item.invitation_surfer_status.declined");
+      case HostRequestStatus.HOST_REQUEST_STATUS_REJECTED:
+        return t("host_request_item.invitation_surfer_status.withdrawn", {
           name: otherName,
         });
     }

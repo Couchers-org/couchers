@@ -1103,13 +1103,13 @@ def test_list_public_trips_by_user_offers_count_excludes_cancelled(db, moderator
         offers[0].status = HostRequestStatus.pending
         offers[1].status = HostRequestStatus.accepted
         offers[2].status = HostRequestStatus.confirmed
-        offers[3].status = HostRequestStatus.rejected
-        offers[4].status = HostRequestStatus.cancelled
+        offers[3].status = HostRequestStatus.cancelled
+        offers[4].status = HostRequestStatus.rejected
 
     with public_trips_session(traveler_token) as api:
         res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
         trip = next(t for t in res.public_trips if t.trip_id == trip_id)
-        # pending, accepted, confirmed and rejected all count; cancelled does not
+        # pending, accepted, confirmed and cancelled (declined by the traveller) all count; rejected (withdrawn) does not
         assert trip.offers_count == 4
 
 

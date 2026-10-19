@@ -204,7 +204,7 @@ describe("HostRequestStatusBanner — public-trip offer", () => {
         isHost={isHost}
         isOffer
         hostName={HOST_NAME}
-        status={HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED}
+        status={HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED}
       />,
       { wrapper },
     );

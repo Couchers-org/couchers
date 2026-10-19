@@ -72,21 +72,21 @@ export const requestStatusChangedMessageToSelfTransKey = {
   [HostRequestStatus.HOST_REQUEST_STATUS_PENDING]: null,
 } as const;
 
-// Public-trip invitations reverse the roles, so the control messages need their own wording:
-// the traveller accepts/declines and the host withdraws.
+// Public-trip invitations are sent by the host, so the control messages need their own wording:
+// the traveller confirms or declines (cancels), and the host withdraws (rejects).
 export const invitationStatusChangedMessageToTransKey = {
   [HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED]: "control_message.invitation_status_changed.accepted",
-  [HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED]: "control_message.invitation_status_changed.cancelled",
+  [HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED]: "control_message.invitation_status_changed.declined",
   [HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED]: "control_message.invitation_status_changed.confirmed",
-  [HostRequestStatus.HOST_REQUEST_STATUS_REJECTED]: "control_message.invitation_status_changed.rejected",
+  [HostRequestStatus.HOST_REQUEST_STATUS_REJECTED]: "control_message.invitation_status_changed.withdrawn",
   [HostRequestStatus.HOST_REQUEST_STATUS_PENDING]: null,
 } as const;
 
 export const invitationStatusChangedMessageToSelfTransKey = {
   [HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED]: "control_message.invitation_status_changed.accepted_self",
-  [HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED]: "control_message.invitation_status_changed.cancelled_self",
+  [HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED]: "control_message.invitation_status_changed.declined_self",
   [HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED]: "control_message.invitation_status_changed.confirmed_self",
-  [HostRequestStatus.HOST_REQUEST_STATUS_REJECTED]: "control_message.invitation_status_changed.rejected_self",
+  [HostRequestStatus.HOST_REQUEST_STATUS_REJECTED]: "control_message.invitation_status_changed.withdrawn_self",
   [HostRequestStatus.HOST_REQUEST_STATUS_PENDING]: null,
 } as const;
 

@@ -21,7 +21,7 @@ describe("HostRequestStatusText (public-trip offers)", () => {
       <HostRequestStatusText
         isHost={false}
         isOffer
-        requestStatus={HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED}
+        requestStatus={HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED}
         isPast={false}
         otherName="Luca"
       />,
@@ -32,12 +32,23 @@ describe("HostRequestStatusText (public-trip offers)", () => {
       <HostRequestStatusText
         isHost={false}
         isOffer
-        requestStatus={HostRequestStatus.HOST_REQUEST_STATUS_REJECTED}
+        requestStatus={HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED}
         isPast={false}
         otherName="Luca"
       />,
     );
     expect(screen.getByText("You declined this invitation")).toBeVisible();
+
+    rerender(
+      <HostRequestStatusText
+        isHost={false}
+        isOffer
+        requestStatus={HostRequestStatus.HOST_REQUEST_STATUS_REJECTED}
+        isPast={false}
+        otherName="Luca"
+      />,
+    );
+    expect(screen.getByText("Luca withdrew their invitation")).toBeVisible();
   });
 
   it("shows the offering host offer copy", () => {
@@ -57,11 +68,22 @@ describe("HostRequestStatusText (public-trip offers)", () => {
       <HostRequestStatusText
         isHost
         isOffer
-        requestStatus={HostRequestStatus.HOST_REQUEST_STATUS_REJECTED}
+        requestStatus={HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED}
         isPast={false}
         otherName="Mateo"
       />,
     );
     expect(screen.getByText("Mateo declined your invitation")).toBeVisible();
+
+    rerender(
+      <HostRequestStatusText
+        isHost
+        isOffer
+        requestStatus={HostRequestStatus.HOST_REQUEST_STATUS_REJECTED}
+        isPast={false}
+        otherName="Mateo"
+      />,
+    );
+    expect(screen.getByText("You withdrew your invitation")).toBeVisible();
   });
 });

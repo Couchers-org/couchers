@@ -26,8 +26,8 @@ function statusMessage(status: HostRequestStatus, authorUserId: number): Message
   };
 }
 
-// On a public-trip invitation the host withdraws and the traveller accepts/declines, so the
-// control messages must say "invitation" rather than "request".
+// On a public-trip invitation the host withdraws (rejects) and the traveller confirms/declines (cancels),
+// so the control messages must say "invitation" rather than "request".
 describe("ControlMessageView", () => {
   beforeEach(() => {
     addDefaultUser();
@@ -35,12 +35,22 @@ describe("ControlMessageView", () => {
   });
 
   it("calls a withdrawn invitation an invitation", async () => {
+    render(<ControlMessageView message={statusMessage(HostRequestStatus.HOST_REQUEST_STATUS_REJECTED, 2)} isOffer />, {
+      wrapper,
+    });
+
+    expect(
+      await screen.findByText(t("messages:control_message.invitation_status_changed.withdrawn", { user: "Funny" })),
+    ).toBeVisible();
+  });
+
+  it("calls a cancelled invitation declined", async () => {
     render(<ControlMessageView message={statusMessage(HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED, 2)} isOffer />, {
       wrapper,
     });
 
     expect(
-      await screen.findByText(t("messages:control_message.invitation_status_changed.cancelled", { user: "Funny" })),
+      await screen.findByText(t("messages:control_message.invitation_status_changed.declined", { user: "Funny" })),
     ).toBeVisible();
   });
 
@@ -55,22 +65,22 @@ describe("ControlMessageView", () => {
   });
 
   it("uses the second person when the viewer withdrew their own invitation", async () => {
-    render(<ControlMessageView message={statusMessage(HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED, 1)} isOffer />, {
+    render(<ControlMessageView message={statusMessage(HostRequestStatus.HOST_REQUEST_STATUS_REJECTED, 1)} isOffer />, {
       wrapper,
     });
 
     expect(
-      await screen.findByText(t("messages:control_message.invitation_status_changed.cancelled_self")),
+      await screen.findByText(t("messages:control_message.invitation_status_changed.withdrawn_self")),
     ).toBeVisible();
   });
 
-  it("calls an accepted invitation an invitation", async () => {
-    render(<ControlMessageView message={statusMessage(HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED, 2)} isOffer />, {
+  it("calls a confirmed invitation a confirmed stay", async () => {
+    render(<ControlMessageView message={statusMessage(HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED, 2)} isOffer />, {
       wrapper,
     });
 
     expect(
-      await screen.findByText(t("messages:control_message.invitation_status_changed.accepted", { user: "Funny" })),
+      await screen.findByText(t("messages:control_message.invitation_status_changed.confirmed", { user: "Funny" })),
     ).toBeVisible();
   });
 });

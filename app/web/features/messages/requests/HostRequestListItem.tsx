@@ -190,7 +190,7 @@ export default function HostRequestListItem({ hostRequest, className, isArchived
           secondary={
             <>
               <StyledHostStatusContainer>
-                <StyledHostRequestStatusIcon status={hostRequest.status} isOffer={isOffer} />
+                <StyledHostRequestStatusIcon status={hostRequest.status} />
                 {isOtherUserLoading ? (
                   <Skeleton width={200} />
                 ) : (

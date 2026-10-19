@@ -103,16 +103,16 @@ describe("HostRequestView — public-trip offer", () => {
     expect(screen.queryByText(t("messages:invitation_sent_box_title"))).not.toBeInTheDocument();
   });
 
-  it("lets the offering host confirm once the surfer has accepted", async () => {
+  it("lets the offering host withdraw, but not confirm, once the surfer has accepted", async () => {
     renderView({
       hostUserId: CURRENT_USER,
       surferUserId: OTHER_USER,
       publicTripId: 7,
-      status: HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED,
+      status: HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED,
     });
 
-    expect(await screen.findByRole("button", { name: t("messages:confirm_request_button_text") })).toBeVisible();
-    expect(screen.getByRole("button", { name: t("messages:withdraw_invitation_button") })).toBeVisible();
+    expect(await screen.findByRole("button", { name: t("messages:withdraw_invitation_button") })).toBeVisible();
+    expect(screen.queryByRole("button", { name: t("messages:confirm_request_button_text") })).not.toBeInTheDocument();
   });
 
   it("shows the surfer a confirmation, not a confirm button, once they've accepted", async () => {
@@ -120,7 +120,7 @@ describe("HostRequestView — public-trip offer", () => {
       hostUserId: OTHER_USER,
       surferUserId: CURRENT_USER,
       publicTripId: 7,
-      status: HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED,
+      status: HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED,
     });
 
     expect(

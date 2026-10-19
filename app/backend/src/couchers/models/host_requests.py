@@ -170,13 +170,14 @@ class HostRequest(Base, kw_only=True):
             last_sent_request_reminder_time,
             from_date,
         ),
-        # A host can have at most one non-withdrawn offer per public trip
+        # A host can have at most one non-withdrawn offer per public trip. The host withdrawing an offer rejects it,
+        # while a traveller declining it cancels it and keeps the host from offering again
         Index(
             "ix_host_requests_one_active_offer_per_trip",
             public_trip_id,
             initiator_user_id,
             unique=True,
-            postgresql_where=and_(public_trip_id != None, status != HostRequestStatus.cancelled),
+            postgresql_where=and_(public_trip_id != None, status != HostRequestStatus.rejected),
         ),
     )
 

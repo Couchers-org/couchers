@@ -22,8 +22,6 @@
   "cancel_accepted_invitation_stay_dialog_dismiss_button": "Keep stay",
   "invitation_sent_box_title": "Invitation sent",
   "invitation_sent_box_description": "{{name}} hasn't responded yet. You'll be notified when they reply.",
-  "invitation_host_accepted_box_title": "{{name}} accepted your invitation",
-  "invitation_host_accepted_box_description": "Confirm to lock in the stay, or withdraw if your plans have changed.",
   "invitation_host_confirmed_box_title": "You're hosting {{name}}",
   "invitation_host_confirmed_box_description": "If your plans change, you can still withdraw your invitation. {{name}} will be notified.",
   "withdraw_invitation_button": "Withdraw invitation",
@@ -198,12 +196,12 @@
     "invitation_status_changed": {
       "accepted": "{{user}} has accepted the invitation",
       "accepted_self": "You have accepted the invitation",
-      "cancelled": "{{user}} has withdrawn the invitation",
-      "cancelled_self": "You have withdrawn the invitation",
+      "withdrawn": "{{user}} has withdrawn the invitation",
+      "withdrawn_self": "You have withdrawn the invitation",
       "confirmed": "{{user}} has confirmed the stay",
       "confirmed_self": "You have confirmed the stay",
-      "rejected": "{{user}} has declined the invitation",
-      "rejected_self": "You have declined the invitation"
+      "declined": "{{user}} has declined the invitation",
+      "declined_self": "You have declined the invitation"
     },
     "unknown_message_text": "Unknown control message"
   },
@@ -235,14 +233,14 @@
     "invitation_host_status": {
       "pending": "Awaiting {{name}}'s reply",
       "accepted": "{{name}} accepted your invitation",
-      "rejected": "{{name}} declined your invitation",
-      "cancelled": "You withdrew your invitation"
+      "declined": "{{name}} declined your invitation",
+      "withdrawn": "You withdrew your invitation"
     },
     "invitation_surfer_status": {
       "pending": "Invitation to host you · awaiting your reply",
       "accepted": "You accepted {{name}}'s invitation",
-      "rejected": "You declined this invitation",
-      "cancelled": "{{name}} withdrew their invitation"
+      "declined": "You declined this invitation",
+      "withdrawn": "{{name}} withdrew their invitation"
     }
   },
   "my_public_trips": {

@@ -82,7 +82,7 @@ def public_trip_to_pb(
             select(func.count())
             .select_from(HostRequest)
             .where(HostRequest.public_trip_id == public_trip.id)
-            .where(HostRequest.status != HostRequestStatus.cancelled)
+            .where(HostRequest.status != HostRequestStatus.rejected)
         )
         offers = where_users_column_visible(offers, context, HostRequest.initiator_user_id)
         offers = where_moderated_content_visible(offers, context, HostRequest, is_list_operation=True)
@@ -95,7 +95,7 @@ def public_trip_to_pb(
                 select(HostRequest.conversation_id)
                 .where(HostRequest.public_trip_id == public_trip.id)
                 .where(HostRequest.initiator_user_id == context.user_id)
-                .where(HostRequest.status != HostRequestStatus.cancelled)
+                .where(HostRequest.status != HostRequestStatus.rejected)
             ).scalar_one_or_none()
             or 0
         )

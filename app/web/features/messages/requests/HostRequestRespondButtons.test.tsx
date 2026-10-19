@@ -197,22 +197,34 @@ describe("HostRequestRespondButtons — public-trip offer", () => {
     expect(screen.queryByRole("button", { name: t("global:accept") })).not.toBeInTheDocument();
   });
 
-  it("withdrawing the offer opens a confirmation dialog", async () => {
-    render(
-      <HostRequestRespondButtons
-        isHost
-        isOffer
-        status={HostRequestStatus.HOST_REQUEST_STATUS_PENDING}
-        isLoading={false}
-        handleStatus={jest.fn().mockReturnValue(jest.fn())}
-        name="Aapeli"
-      />,
-      { wrapper },
-    );
-    const user = userEvent.setup();
-    await user.click(screen.getByRole("button", { name: t("messages:withdraw_invitation_button") }));
-    expect(screen.getByRole("dialog")).toBeVisible();
-  });
+  it.each([HostRequestStatus.HOST_REQUEST_STATUS_PENDING, HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED])(
+    "lets the offering host withdraw the offer (status %s) by declining it, behind a confirmation dialog",
+    async (status) => {
+      const withdrawCallback = jest.fn();
+      const handleStatus = jest
+        .fn()
+        .mockImplementation((s) =>
+          s === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED ? withdrawCallback : jest.fn(),
+        );
+      render(
+        <HostRequestRespondButtons
+          isHost
+          isOffer
+          status={status}
+          isLoading={false}
+          handleStatus={handleStatus}
+          name="Aapeli"
+        />,
+        { wrapper },
+      );
+      const user = userEvent.setup();
+      await user.click(screen.getByRole("button", { name: t("messages:withdraw_invitation_button") }));
+      expect(screen.getByRole("dialog")).toBeVisible();
+      expect(withdrawCallback).not.toHaveBeenCalled();
+      await user.click(screen.getByRole("button", { name: t("messages:withdraw_invitation_dialog_confirm_button") }));
+      expect(withdrawCallback).toHaveBeenCalledTimes(1);
+    },
+  );
 
   it("shows the traveller Accept/Decline, not Withdraw, while pending", () => {
     render(
@@ -239,12 +251,38 @@ describe("HostRequestRespondButtons — public-trip offer", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("the traveller accepts an offer by confirming it, and declines it by cancelling it", async () => {
+    const confirmCallback = jest.fn();
+    const cancelCallback = jest.fn();
+    const handleStatus = jest.fn().mockImplementation((s) => {
+      if (s === HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED) return confirmCallback;
+      if (s === HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED) return cancelCallback;
+      return jest.fn();
+    });
+    render(
+      <HostRequestRespondButtons
+        isHost={false}
+        isOffer
+        status={HostRequestStatus.HOST_REQUEST_STATUS_PENDING}
+        isLoading={false}
+        handleStatus={handleStatus}
+        name="Luca"
+      />,
+      { wrapper },
+    );
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: t("global:accept") }));
+    expect(confirmCallback).toHaveBeenCalledTimes(1);
+    await user.click(screen.getByRole("button", { name: t("messages:close_request_button_text") }));
+    expect(cancelCallback).toHaveBeenCalledTimes(1);
+  });
+
   it("shows the traveller a confirmation banner once they've accepted", () => {
     render(
       <HostRequestRespondButtons
         isHost={false}
         isOffer
-        status={HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED}
+        status={HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED}
         isLoading={false}
         handleStatus={jest.fn().mockReturnValue(jest.fn())}
         name="Luca"
@@ -254,35 +292,32 @@ describe("HostRequestRespondButtons — public-trip offer", () => {
     expect(screen.getByText(t("messages:invitation_accept_confirmation", { name: "Luca" }))).toBeInTheDocument();
   });
 
-  it.each([HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED, HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED])(
-    "lets the traveller cancel their stay after accepting (status %s), behind a confirmation dialog",
-    async (status) => {
-      const cancelCallback = jest.fn();
-      const handleStatus = jest
-        .fn()
-        .mockImplementation((s) => (s === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED ? cancelCallback : jest.fn()));
-      render(
-        <HostRequestRespondButtons
-          isHost={false}
-          isOffer
-          status={status}
-          isLoading={false}
-          handleStatus={handleStatus}
-          name="Luca"
-        />,
-        { wrapper },
-      );
-      const user = userEvent.setup();
-      await user.click(screen.getByRole("button", { name: t("messages:cancel_accepted_invitation_stay_button") }));
-      expect(cancelCallback).not.toHaveBeenCalled();
-      await user.click(
-        screen.getByRole("button", { name: t("messages:cancel_accepted_invitation_stay_dialog_confirm_button") }),
-      );
-      expect(cancelCallback).toHaveBeenCalledTimes(1);
-    },
-  );
+  it("lets the traveller cancel their stay after accepting, behind a confirmation dialog", async () => {
+    const cancelCallback = jest.fn();
+    const handleStatus = jest
+      .fn()
+      .mockImplementation((s) => (s === HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED ? cancelCallback : jest.fn()));
+    render(
+      <HostRequestRespondButtons
+        isHost={false}
+        isOffer
+        status={HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED}
+        isLoading={false}
+        handleStatus={handleStatus}
+        name="Luca"
+      />,
+      { wrapper },
+    );
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: t("messages:cancel_accepted_invitation_stay_button") }));
+    expect(cancelCallback).not.toHaveBeenCalled();
+    await user.click(
+      screen.getByRole("button", { name: t("messages:cancel_accepted_invitation_stay_dialog_confirm_button") }),
+    );
+    expect(cancelCallback).toHaveBeenCalledTimes(1);
+  });
 
-  it("drops the Confirm button for the offering host once the stay is confirmed", () => {
+  it("shows the offering host that they're hosting once the traveller has accepted, with no Confirm button", () => {
     render(
       <HostRequestRespondButtons
         isHost
@@ -298,6 +333,5 @@ describe("HostRequestRespondButtons — public-trip offer", () => {
     expect(screen.getByRole("button", { name: t("messages:withdraw_invitation_button") })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: t("messages:confirm_request_button_text") })).not.toBeInTheDocument();
     expect(screen.getByText(t("messages:invitation_host_confirmed_box_title", { name: "Aapeli" }))).toBeInTheDocument();
-    expect(screen.queryByText(t("messages:invitation_host_accepted_box_description"))).not.toBeInTheDocument();
   });
 });

@@ -44,7 +44,7 @@ from couchers.proto.internal import unsubscribe_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_multi, today
 from tests.fixtures.db import backdate_conversations, generate_user, make_user_block
-from tests.fixtures.misc import EmailCollector, PushCollector
+from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
 from tests.fixtures.sessions import api_session, auth_api_session, requests_session
 from tests.test_public_trips import _create_trip_directly, _make_node
 
@@ -2783,7 +2783,7 @@ def test_create_request_offer_allowed_after_withdrawal(db, moderator):
     with requests_session(host_token) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
+                host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
             )
         )
 
@@ -2838,7 +2838,7 @@ def test_db_allows_one_active_offer_per_trip(db, moderator):
     with requests_session(host_token) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=withdrawn_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
+                host_request_id=withdrawn_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
             )
         )
         api.CreateHostRequest(
@@ -2883,11 +2883,11 @@ def test_create_request_offer_blocked_after_traveller_declines(db, moderator):
 
     moderator.approve_host_request(request_id)
 
-    # the traveller is the recipient on an offer, so they are the one who declines
+    # the traveller is the surfer on an offer, so declining it cancels it
     with requests_session(surfer_token) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
+                host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
             )
         )
 
@@ -2903,6 +2903,96 @@ def test_create_request_offer_blocked_after_traveller_declines(db, moderator):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+
+def _create_offer(host_token: str, traveller_id: int, moderator) -> int:
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(traveller_id, trip_from, trip_to)
+    with requests_session(host_token) as api:
+        offer_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=traveller_id,
+                from_date=trip_from.isoformat(),
+                to_date=trip_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        ).host_request_id
+    moderator.approve_host_request(offer_id)
+    return int(offer_id)
+
+
+def _respond(token: str, host_request_id: int, status: messages_pb2.HostRequestStatus.ValueType) -> None:
+    with requests_session(token) as api:
+        api.RespondHostRequest(requests_pb2.RespondHostRequestReq(host_request_id=host_request_id, status=status))
+
+
+def _offer_status(token: str, host_request_id: int) -> messages_pb2.HostRequestStatus.ValueType:
+    with requests_session(token) as api:
+        return api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id)).status
+
+
+def test_offer_traveller_confirms_then_cancels(db, push_collector: PushCollector, moderator):
+    """The host commits by sending an offer, so the traveller confirms it directly and can cancel later."""
+    traveller, traveller_token = generate_user()
+    host, host_token = generate_user()
+
+    offer_id = _create_offer(host_token, traveller.id, moderator)
+
+    # nobody accepts an offer, and the host can't confirm their own offer
+    for token, status in [
+        (host_token, messages_pb2.HOST_REQUEST_STATUS_ACCEPTED),
+        (traveller_token, messages_pb2.HOST_REQUEST_STATUS_ACCEPTED),
+        (host_token, messages_pb2.HOST_REQUEST_STATUS_CONFIRMED),
+        (host_token, messages_pb2.HOST_REQUEST_STATUS_CANCELLED),
+        (traveller_token, messages_pb2.HOST_REQUEST_STATUS_REJECTED),
+    ]:
+        with pytest.raises(grpc.RpcError) as e:
+            _respond(token, offer_id, status)
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+
+    _respond(traveller_token, offer_id, messages_pb2.HOST_REQUEST_STATUS_CONFIRMED)
+    assert _offer_status(host_token, offer_id) == messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
+    assert (
+        push_collector.pop_for_user(host.id, last=True).content.title
+        == f"{traveller.name} confirmed their host request"
+    )
+
+    with pytest.raises(grpc.RpcError) as e:
+        _respond(traveller_token, offer_id, messages_pb2.HOST_REQUEST_STATUS_CONFIRMED)
+    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+
+    _respond(traveller_token, offer_id, messages_pb2.HOST_REQUEST_STATUS_CANCELLED)
+    assert _offer_status(host_token, offer_id) == messages_pb2.HOST_REQUEST_STATUS_CANCELLED
+    assert (
+        push_collector.pop_for_user(host.id, last=True).content.title
+        == f"{traveller.name} cancelled their host request"
+    )
+
+
+def test_offer_host_withdraws(db, push_collector: PushCollector, moderator):
+    """The host withdraws an offer by rejecting it, whether or not the traveller has confirmed it."""
+    traveller, traveller_token = generate_user()
+    host, host_token = generate_user()
+
+    pending_id = _create_offer(host_token, traveller.id, moderator)
+    confirmed_id = _create_offer(host_token, traveller.id, moderator)
+    _respond(traveller_token, confirmed_id, messages_pb2.HOST_REQUEST_STATUS_CONFIRMED)
+
+    for offer_id in [pending_id, confirmed_id]:
+        _respond(host_token, offer_id, messages_pb2.HOST_REQUEST_STATUS_REJECTED)
+        assert _offer_status(traveller_token, offer_id) == messages_pb2.HOST_REQUEST_STATUS_REJECTED
+
+        # declining feedback is for host requests, not for the host withdrawing their own offer
+        for token in [host_token, traveller_token]:
+            with requests_session(token) as api:
+                res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=offer_id))
+                assert not res.need_host_request_feedback
+
+    process_jobs()
+    titles = [push.content.title for push in push_collector.by_user[traveller.id]]
+    assert titles.count(f"{host.name} declined your host request") == 2
 
 
 def _create_accepted_request(surfer_token: str, host_token: str, host_id: int, moderator, days_ahead: int = 2) -> int:
@@ -2977,11 +3067,11 @@ def test_ListStays_public_trip_offer_by_stay_role(db, moderator):
         ).host_request_id
     moderator.approve_host_request(offer_id)
 
-    # the traveller is the recipient of an offer, so they accept it
+    # the traveller is the surfer on an offer, so they confirm it
     with requests_session(traveller_token) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=offer_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+                host_request_id=offer_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
             )
         )
 
