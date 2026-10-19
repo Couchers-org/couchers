@@ -627,9 +627,7 @@ def _user_search_inner(
     total_items = cast(int, session.execute(select(func.count()).select_from(statement.subquery())).scalar())
 
     ranking_score: SQLColumnExpression[float] = User.recommendation_score
-    ranking_offsets_variant = (
-        "" if request.exactly_user_ids else context.get_string_value("search_ranking_offsets_variant", "")
-    )
+    ranking_offsets_variant = context.get_string_value("search_ranking_offsets_variant", "")
     if ranking_offsets_variant:
         statement = statement.outerjoin(
             UserRankingOffset,
