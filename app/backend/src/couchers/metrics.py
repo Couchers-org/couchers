@@ -36,6 +36,7 @@ from couchers.models import (
     EventOccurrenceAttendee,
     HostingStatus,
     HostRequest,
+    HostRequestKind,
     Message,
     Node,
     NodeType,
@@ -616,7 +617,7 @@ sent_request_gauge: Gauge = _make_gauge_from_query(
         .join(User, User.id == HostRequest.initiator_user_id)
         .where(User.is_visible)
         # don't include public trip offers
-        .where(HostRequest.public_trip_id == None)
+        .where(HostRequest.kind == HostRequestKind.host_request)
     ),
 )
 
