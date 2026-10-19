@@ -67,15 +67,15 @@ def create_user_response_rates(host_requests_filter: str) -> None:
 
 
 def upgrade() -> None:
-    sa.Enum("request", "public_trip_offer", name="hostrequestkind").create(op.get_bind())
+    sa.Enum("host_request", "public_trip_offer", name="hostrequestkind").create(op.get_bind())
     op.add_column(
         "host_requests",
-        sa.Column("kind", sa.Enum("request", "public_trip_offer", name="hostrequestkind"), nullable=True),
+        sa.Column("kind", sa.Enum("host_request", "public_trip_offer", name="hostrequestkind"), nullable=True),
     )
     op.execute(
         """
         UPDATE host_requests
-        SET kind = CASE WHEN public_trip_id IS NULL THEN 'request' ELSE 'public_trip_offer' END::hostrequestkind
+        SET kind = CASE WHEN public_trip_id IS NULL THEN 'host_request' ELSE 'public_trip_offer' END::hostrequestkind
         """
     )
     op.alter_column("host_requests", "kind", nullable=False)
@@ -88,9 +88,9 @@ def upgrade() -> None:
         """
         ALTER TABLE host_requests
             ALTER COLUMN surfer_user_id SET EXPRESSION AS
-                (CASE WHEN kind = 'request' THEN initiator_user_id ELSE recipient_user_id END),
+                (CASE WHEN kind = 'host_request' THEN initiator_user_id ELSE recipient_user_id END),
             ALTER COLUMN host_user_id SET EXPRESSION AS
-                (CASE WHEN kind = 'request' THEN recipient_user_id ELSE initiator_user_id END)
+                (CASE WHEN kind = 'host_request' THEN recipient_user_id ELSE initiator_user_id END)
         """
     )
     op.drop_index("ix_host_requests_one_active_offer_per_trip", table_name="host_requests")
@@ -101,7 +101,7 @@ def upgrade() -> None:
         unique=True,
         postgresql_where="kind = 'public_trip_offer' AND status != 'cancelled'",
     )
-    create_user_response_rates("WHERE host_requests.kind = 'request'")
+    create_user_response_rates("WHERE host_requests.kind = 'host_request'")
 
 
 def downgrade() -> None:

@@ -46,7 +46,7 @@ class HostRequestStatus(enum.Enum):
 
 class HostRequestKind(enum.Enum):
     # a surfer asking a host to stay
-    request = enum.auto()
+    host_request = enum.auto()
     # a host offering to host the traveller of a public trip
     public_trip_offer = enum.auto()
 
@@ -85,13 +85,13 @@ class HostRequest(Base, kw_only=True):
 
     surfer_user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id"),
-        Computed("case when kind = 'request' then initiator_user_id else recipient_user_id end", persisted=True),
+        Computed("case when kind = 'host_request' then initiator_user_id else recipient_user_id end", persisted=True),
         index=True,
         init=False,
     )
     host_user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id"),
-        Computed("case when kind = 'request' then recipient_user_id else initiator_user_id end", persisted=True),
+        Computed("case when kind = 'host_request' then recipient_user_id else initiator_user_id end", persisted=True),
         index=True,
         init=False,
     )

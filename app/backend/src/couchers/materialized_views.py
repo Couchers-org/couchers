@@ -333,7 +333,7 @@ all_responses = union_all(
     .outerjoin(
         s, and_(s.c.conversation_id == HostRequest.conversation_id, s.c.author_id == HostRequest.recipient_user_id)
     )
-    .where(HostRequest.kind == HostRequestKind.request),
+    .where(HostRequest.kind == HostRequestKind.host_request),
     # activeness probes
     select(
         ActivenessProbe.user_id,
