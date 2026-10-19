@@ -39,6 +39,7 @@ from couchers.models import (
     GroupChatSubscription,
     HostRequest,
     HostRequestFeedback,
+    HostRequestKind,
     HostRequestStatus,
     Message,
 )
@@ -346,7 +347,7 @@ def _build_host_request_threads_pb(
     need_host_request_feedback = and_(
         HostRequest.recipient_user_id == context.user_id,
         HostRequest.status == HostRequestStatus.rejected,
-        HostRequest.public_trip_id == None,
+        HostRequest.kind == HostRequestKind.host_request,
         ~exists()
         .where(HostRequestFeedback.from_user_id == context.user_id)
         .where(HostRequestFeedback.host_request_id == HostRequest.conversation_id)

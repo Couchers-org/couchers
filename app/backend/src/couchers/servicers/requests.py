@@ -108,7 +108,7 @@ def host_request_to_pb(
     if (
         context.user_id == host_request.recipient_user_id
         and host_request.status == HostRequestStatus.rejected
-        and host_request.public_trip_id is None
+        and host_request.kind == HostRequestKind.host_request
     ):
         need_feedback = not session.execute(
             select(
@@ -156,7 +156,7 @@ def _possibly_observe_first_response_time(
     assert host_request.recipient_user_id == user_id
 
     # on a public trip offer the recipient is the traveller, so this isn't a host's response time
-    if host_request.public_trip_id is not None:
+    if host_request.kind == HostRequestKind.public_trip_offer:
         return
 
     number_messages_by_host = session.execute(
@@ -241,7 +241,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if to_date - from_date > timedelta(days=365):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_after_one_year")
 
-        _validate_request_text(request.text, public_trip_id is not None, context)
+        _validate_request_text(request.text, kind == HostRequestKind.public_trip_offer, context)
 
         # Check if user has been sending host requests excessively
         if process_rate_limits_and_check_abort(
@@ -370,7 +370,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         )
 
         # the host request metrics assume the sender is the surfer, which is backwards on a public trip offer
-        if public_trip_id is None:
+        if kind == HostRequestKind.host_request:
             host_requests_sent_counter.labels(user.gender, recipient.gender).inc()
             account_age_on_host_request_create_histogram.labels(surfer_user.gender, host_user.gender).observe(
                 (now() - user.joined).total_seconds()
@@ -635,7 +635,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             user_gender = session.execute(select(User.gender).where(User.id == context.user_id)).scalar_one()
             other_gender = session.execute(select(User.gender).where(User.id == other_user_id)).scalar_one()
             # the response types assume the recipient is the host, which is backwards on a public trip offer
-            if host_request.public_trip_id is None:
+            if host_request.kind == HostRequestKind.host_request:
                 host_request_responses_counter.labels(user_gender, other_gender, response_type).inc()
             sent_messages_counter.labels(user_gender, "host request response").inc()
 
@@ -1134,7 +1134,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             .where(HostRequest.conversation_id == request.host_request_id)
             .where(HostRequest.recipient_user_id == context.user_id)
             # public-trip offers don't take feedback
-            .where(HostRequest.public_trip_id == None)
+            .where(HostRequest.kind == HostRequestKind.host_request)
         ).scalar_one_or_none()
 
         if not host_request:
