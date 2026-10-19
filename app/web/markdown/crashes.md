@@ -43,6 +43,6 @@ Browse the upcoming Crashes below, pack your bags, and discover a new place thro
 ## Propose a Crash
 
 Want to post your Couch Crash here? 
-E-Mail [community.building@couchers.org](mailto:community.building@couchers.org) with information about your event. 
+Email [community.building@couchers.org](mailto:community.building@couchers.org) with information about your event. 
 
 If your community has one, be sure to reach out to your local community builder (you find them on the "Local Info" tab of your "[Community Page](https://couchers.org/communities))" to let them know and consider collaborating. Want to become a Community Builder? Learn more [here](https://help.couchers.org/hc/couchersorg-help-center/articles/1743977410-what-is-a-community-builder)!
