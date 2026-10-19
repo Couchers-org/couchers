@@ -8,7 +8,15 @@ from sqlalchemy import select, update
 
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views, refresh_materialized_views_rapid
-from couchers.models import EventOccurrence, HostingStatus, LanguageAbility, LanguageFluency, MeetupStatus, User
+from couchers.models import (
+    EventOccurrence,
+    HostingStatus,
+    LanguageAbility,
+    LanguageFluency,
+    MeetupStatus,
+    User,
+    UserRankingOffset,
+)
 from couchers.proto import api_pb2, communities_pb2, events_pb2, search_pb2
 from couchers.servicers.search import USER_SEARCH_NOISE_PERIOD_DAYS
 from couchers.utils import Timestamp_from_datetime, create_coordinate, now, today
@@ -517,6 +525,35 @@ def test_user_search_noise_scale_flag(db, flags):
     assert order() != user_ids
 
     flags.set_float("user_search_noise_scale", 0.0)
+    assert order() == user_ids
+
+
+def test_user_search_ranking_offsets_variant(db, flags):
+    flags.set_float("user_search_noise_scale", 0.0)
+    _, token = generate_user()
+    user_ids = [generate_user()[0].id for _ in range(5)]
+
+    with session_scope() as session:
+        session.execute(update(User).values(recommendation_score=-User.id))
+        # in variant "a", offsets reverse the order; variant "b" bumps only the last user to the top
+        for i, user_id in enumerate(user_ids):
+            session.add(UserRankingOffset(variant="a", user_id=user_id, offset=2.0 * i))
+        session.add(UserRankingOffset(variant="b", user_id=user_ids[-1], offset=100.0))
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+
+    def order() -> list[int]:
+        return [user_id for user_id in _user_search_order(token, page_size=2) if user_id in user_ids]
+
+    assert order() == user_ids
+
+    flags.set_string("search_ranking_offsets_variant", "a")
+    assert order() == user_ids[::-1]
+
+    flags.set_string("search_ranking_offsets_variant", "b")
+    assert order() == user_ids[-1:] + user_ids[:-1]
+
+    flags.set_string("search_ranking_offsets_variant", "nonexistent")
     assert order() == user_ids
 
 
