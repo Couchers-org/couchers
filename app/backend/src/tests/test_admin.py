@@ -38,10 +38,10 @@ from couchers.proto import (
     blocking_pb2,
     references_pb2,
     reporting_pb2,
-    requests_pb2,
 )
 from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date
 from tests.fixtures.api import events as events_api
+from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import (
     add_users_to_new_moderation_list,
     backdate_conversations,
@@ -56,11 +56,9 @@ from tests.fixtures.sessions import (
     real_admin_session,
     references_session,
     reporting_session,
-    requests_session,
 )
 from tests.test_communities import create_community
 from tests.test_references import create_host_reference
-from tests.test_requests import valid_request_text
 
 
 def test_access_by_normal_user(db):
@@ -293,18 +291,7 @@ def test_ShadowUser(db, moderator: Moderator):
     admin_note = "Spammer"
 
     # Create a host request from `surfer` and approve its moderation state to VISIBLE so we can verify the cascade
-    today_plus_2 = (date.today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (date.today() + timedelta(days=3)).isoformat()
-    with requests_session(surfer_token) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
-    moderator.approve_host_request(host_request_id)
+    host_request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host.id, approve_by=moderator)
 
     with real_admin_session(super_token) as api:
         res = api.ShadowUser(admin_pb2.ShadowUserReq(user=surfer.username, admin_note=admin_note))
@@ -332,26 +319,9 @@ def test_UnshadowUser(db, moderator: Moderator):
     surfer, surfer_token = generate_user()
     host, _ = generate_user()
 
-    today_plus_2 = (date.today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (date.today() + timedelta(days=3)).isoformat()
-    with requests_session(surfer_token) as api:
-        shadow_cascade_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
-        backdate_conversations()
-        admin_hidden_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    shadow_cascade_request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host.id)
+    backdate_conversations()
+    admin_hidden_request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host.id)
 
     moderator.hide_host_request(admin_hidden_request_id)
     with session_scope() as session:
