@@ -733,6 +733,7 @@ def test_search_creates_event(db):
         assert e.properties["has_filters"] is False
         assert "total_items" in e.properties
         assert e.properties["search_in"] is None
+        assert e.properties["ranking_offsets_variant"] == ""
 
 
 # ===== Integration tests: reference events =====

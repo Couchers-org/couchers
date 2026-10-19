@@ -39,6 +39,7 @@ from couchers.models import (
     Reference,
     StrongVerificationAttempt,
     User,
+    UserRankingOffset,
 )
 from couchers.proto import search_pb2, search_pb2_grpc
 from couchers.reranker import reranker
@@ -445,7 +446,7 @@ def _user_search_noise(viewer_id: int) -> ColumnElement[float]:
 
 def _user_search_inner(
     request: search_pb2.UserSearchReq, context: CouchersContext, session: Session
-) -> tuple[list[int], str | None, int]:
+) -> tuple[list[int], str | None, int, str]:
     user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
     # Base statement with visibility filter
@@ -625,12 +626,19 @@ def _user_search_inner(
     page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
     total_items = cast(int, session.execute(select(func.count()).select_from(statement.subquery())).scalar())
 
-    noise_scale = context.get_float_value("user_search_noise_scale", DEFAULT_USER_SEARCH_NOISE_SCALE)
-    ranking_score = (
-        User.recommendation_score + noise_scale * _user_search_noise(context.user_id)
-        if noise_scale
-        else User.recommendation_score
+    ranking_score: SQLColumnExpression[float] = User.recommendation_score
+    ranking_offsets_variant = (
+        "" if request.exactly_user_ids else context.get_string_value("search_ranking_offsets_variant", "")
     )
+    if ranking_offsets_variant:
+        statement = statement.outerjoin(
+            UserRankingOffset,
+            and_(UserRankingOffset.user_id == User.id, UserRankingOffset.variant == ranking_offsets_variant),
+        )
+        ranking_score = ranking_score + func.coalesce(UserRankingOffset.offset, 0.0)
+    noise_scale = context.get_float_value("user_search_noise_scale", DEFAULT_USER_SEARCH_NOISE_SCALE)
+    if noise_scale:
+        ranking_score = ranking_score + noise_scale * _user_search_noise(context.user_id)
     statement = statement.add_columns(ranking_score)
     if request.page_token:
         last_score, last_id = decrypt_page_token(request.page_token).split(",")
@@ -643,7 +651,7 @@ def _user_search_inner(
     if len(res) > page_size:
         last_user_id, last_rec_score = res[page_size - 1]
         next_page_token = encrypt_page_token(f"{last_rec_score},{last_user_id}")
-    return [user_id for user_id, _ in res[:page_size]], next_page_token, total_items
+    return [user_id for user_id, _ in res[:page_size]], next_page_token, total_items, ranking_offsets_variant
 
 
 class Search(search_pb2_grpc.SearchServicer):
@@ -700,7 +708,9 @@ class Search(search_pb2_grpc.SearchServicer):
     def UserSearch(
         self, request: search_pb2.UserSearchReq, context: CouchersContext, session: Session
     ) -> search_pb2.UserSearchRes:
-        user_ids_to_return, next_page_token, total_items = _user_search_inner(request, context, session)
+        user_ids_to_return, next_page_token, total_items, ranking_offsets_variant = _user_search_inner(
+            request, context, session
+        )
 
         log_event(
             context,
@@ -720,6 +730,7 @@ class Search(search_pb2_grpc.SearchServicer):
                     or request.only_with_strong_verification
                 ),
                 "total_items": total_items,
+                "ranking_offsets_variant": ranking_offsets_variant,
             },
         )
 
@@ -744,7 +755,7 @@ class Search(search_pb2_grpc.SearchServicer):
     def UserSearchV2(
         self, request: search_pb2.UserSearchReq, context: CouchersContext, session: Session
     ) -> search_pb2.UserSearchV2Res:
-        user_ids_to_return, next_page_token, total_items = _user_search_inner(request, context, session)
+        user_ids_to_return, next_page_token, total_items, _ = _user_search_inner(request, context, session)
 
         LiteUser_by_id = {
             lite_user.id: lite_user
