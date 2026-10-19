@@ -35,7 +35,7 @@ export type FilterOptions = {
   ageMin?: number | undefined;
   ageMax?: number | undefined;
   showEmptyProfile?: boolean;
-  drinkingAllowed?: boolean | undefined;
+  drinkingAllowed?: boolean | null;
   hasReferences?: boolean;
   hasStrongVerification?: boolean;
   hostingStatus?: HostingStatus[];
@@ -46,7 +46,7 @@ export type FilterOptions = {
   lat?: number;
   selectedUserId?: number;
   sleepingArrangement?: SleepingArrangementOptions[];
-  smokesAtHome?: boolean | undefined;
+  smokesAtHome?: boolean | null;
   sameGenderOnly?: boolean;
 };
 
