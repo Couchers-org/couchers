@@ -637,8 +637,7 @@ def _user_search_inner(
         )
         ranking_score = ranking_score + func.coalesce(UserRankingOffset.offset, 0.0)
     noise_scale = context.get_float_value("user_search_noise_scale", DEFAULT_USER_SEARCH_NOISE_SCALE)
-    if noise_scale:
-        ranking_score = ranking_score + noise_scale * _user_search_noise(context.user_id)
+    ranking_score = ranking_score + noise_scale * _user_search_noise(context.user_id)
     statement = statement.add_columns(ranking_score)
     if request.page_token:
         last_score, last_id = decrypt_page_token(request.page_token).split(",")
