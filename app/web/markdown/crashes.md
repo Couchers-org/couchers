@@ -1,12 +1,12 @@
 ---
-title: Couch Crashes & Global Gatherings
+title: Couch Crash Calendar
 description: Large-scale, multi-day, community-organized couch surfing events
   across the globe.
 crumb: Couch Crash Calendar
 type: general
 hide_title: true
 ---
-<style>
+`<style>
   /* --- COUCHERS.ORG DESIGN SYSTEM STYLES (DO NOT EDIT) --- */
   .cc-wrapper {
     font-family: 'Ubuntu', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -297,36 +297,36 @@ hide_title: true
   .cc-propose-box a:not(.cc-btn):hover {
     text-decoration: underline;
   }
-</style>
+</style>`
 
-<div class="cc-wrapper">
+`<div class="cc-wrapper">`
 
-  <!-- HERO SECTION WITH BANNER IMAGE -->
+`  <!-- HERO SECTION WITH BANNER IMAGE -->`
 
-  <div class="cc-hero">
+`  <div class="cc-hero">
     <img class="cc-hero-banner" src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1200&q=80" alt="Couchers community gathering" />
     <div class="cc-hero-body">
       <h1>Couch Crash Calendar</h1>
       <p>Browse upcoming Crashes below, pack your bags, and discover a new place through the eyes of locals while connecting with couch surfers from around the world!</p>
     </div>
-  </div>
+  </div>`
 
-  <!-- COLLAPSIBLE INFO & ACCOMMODATION NOTE -->
+`  <!-- COLLAPSIBLE INFO & ACCOMMODATION NOTE -->`
 
-  <details class="cc-drawer">
+`  <details class="cc-drawer">
     <summary>What is a Couch Crash & Note on Accommodation</summary>
     <div class="cc-drawer-content">
       <p>A Couch Crash (sometimes called an Invasion or Camp) is a multi-day couch surfing event organized by locals to welcome the global community. Whether structured like a city weekend or an outdoor festival, it is designed to showcase the hosts' corner of the world to visiting members.</p>
       <p>Unlike regular meetups and events, Couch Crashes usually feature a multi-day itinerary including tours, potlucks, and parties. Local couch surfers organize the events and host the influx of visiting couch surfers.</p>
       <p class="important-block"><strong>Note on Accommodation:</strong> A Couch Crash is a community gathering, not guaranteed lodging. Local members host when possible, but attendees are encouraged to send requests early or arrange backup accommodation (hostels, camping, or guesthouses).</p>
     </div>
-  </details>
+  </details>`
 
-  <!-- ================= UPCOMING CRASHES ================= -->
+`  <!-- ================= UPCOMING CRASHES ================= -->`
 
-  <h2 class="cc-section-title">Upcoming Crashes</h2>
+`  <h2 class="cc-section-title">Upcoming Crashes</h2>`
 
-  <h3 class="cc-month">December 2026</h3>
+`  <h3 class="cc-month">December 2026</h3>
   <div class="cc-grid">
   
     <div class="cc-card">
@@ -443,13 +443,13 @@ hide_title: true
           👤 Organized by <a href="https://couchers.org/user/chrisk">Jesse</a>
         </div>
       </div>
-    </div>
+    </div>`
 
-  </div>
+`  </div>`
 
-<!-- ================= PAST CRASHES ================= -->
+`<!-- ================= PAST CRASHES ================= -->`
 
-  <details class="cc-drawer" style="margin-top: 32px;">
+`  <details class="cc-drawer" style="margin-top: 32px;">
     <summary>Past Crashes</summary>
     <div class="cc-drawer-content">
       
@@ -489,40 +489,40 @@ hide_title: true
             </div>
           </div>
         </div>
-      </div>
+      </div>`
 
 ```
 
 ```
 
-  </details>
+`  </details>`
 
-  <!-- FLOATING PROPOSE BUTTON -->
+`  <!-- FLOATING PROPOSE BUTTON -->`
 
-  <div class="cc-fab-container" id="cc-floating-btn">
+`  <div class="cc-fab-container" id="cc-floating-btn">
     <a href="#propose-crash" class="cc-btn">Propose a Crash</a>
-  </div>
+  </div>`
 
-  <!-- ================= PROPOSE A CRASH SECTION ================= -->
+`  <!-- ================= PROPOSE A CRASH SECTION ================= -->`
 
-  <div id="propose-crash" class="cc-propose-box">
+`  <div id="propose-crash" class="cc-propose-box">
     <h3>Propose a Crash</h3>
     <p>Want your Couch Crash listed here? Send a message to <a href="https://couchers.org/user/chrisk">ChrisK</a> with the following line: <br />
 	<br />
-	<code>Couch Crash: \[Link to event]</code></p>
+	<code>Couch Crash: (Link to event)</code></p>
 	<p style="margin-top: 14px; margin-bottom: 0;">
       <a href="https://couchers.org/user/chrisk" class="cc-btn">Message ChrisK to Submit</a><br />
     </p>
     <p>If your community organizes a Couch Crash, be sure to reach out to your local <strong>Community Builder</strong> (found on the "Local Info" tab of your <a href="https://couchers.org/communities">Community Page</a>) to let them know and consider collaborating.</p>
-	<p>Want to become a Community Builder? <a href="https://help.couchers.org/hc/couchersorg-help-center/articles/1743977410-what-is-a-community-builder">Learn more here</a>.</p>
+	<p>Want to become a Community Builder? <a href="https://help.couchers.org/hc/couchersorg-help-center/articles/1743977410-what-is-a-community-builder">Learn more here</a>.</p>`
 
-  </div>
+`  </div>`
 
-</div>
+`</div>`
 
-<!-- Optional: Smoothly fades out the floating button when the Propose box enters the screen -->
+`<!-- Optional: Smoothly fades out the floating button when the Propose box enters the screen -->`
 
-<script>
+`<script>
   document.addEventListener("DOMContentLoaded", function() {
     var fab = document.getElementById('cc-floating-btn');
     var target = document.getElementById('propose-crash');
@@ -545,4 +545,4 @@ hide_title: true
       }
     }
   });
-</script>
+</script>`
