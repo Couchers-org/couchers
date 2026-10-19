@@ -1,7 +1,7 @@
 """Add host_requests.kind to distinguish requests from public trip offers
 
-Revision ID: 0197
-Revises: 0196
+Revision ID: 0198
+Revises: 0197
 Create Date: 2026-10-18 12:00:00.000000
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "0197"
-down_revision = "0196"
+revision = "0198"
+down_revision = "0197"
 branch_labels = None
 depends_on = None
 
