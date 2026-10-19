@@ -66,8 +66,8 @@
       "label": "Über deinen Trip",
       "placeholder": "Was hast du vor? Wie lange bleibst du? Gibt es etwas, das Hosts wissen sollten?",
       "required_error": "Bitte füge eine kurze Beschreibung hinzu.",
-      "chars_remaining_one": "Noch {{count}} Zeichen.",
-      "chars_remaining_other": "Noch {{count}} Zeichen."
+      "chars_remaining_one": "Noch {{count}} Zeichen erforderlich.",
+      "chars_remaining_other": "Noch {{count}} Zeichen erforderlich."
     },
     "create_submit_button": "Trip posten",
     "edit_submit_button": "Änderungen speichern"
@@ -84,7 +84,7 @@
     "submit_button": "Einladung senden"
   },
   "community_section": {
-    "intro": "Reisende posten ihre bevorstehenden Trips hier, damit lokale Hosts sie durchsehen und anbieten können, sie zu hosten. Wenn du einen Trip siehst, der dich interessiert, melde dich und biete deine Couch an!"
+    "intro": "Reisende posten ihre bevorstehenden Trips hier. Du kannst anbieten sie zu hosten oder dich mit ihnen zu treffen, wenn du einen Trip siehst, der dich interessiert!"
   },
   "close_dialog": {
     "title": "Diesen Trip schließen?",
