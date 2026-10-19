@@ -1,5 +1,5 @@
 ---
-title: "Couch Crashes & Gatherings"
+title: "Couch Crashes & Global Gatherings"
 description: "Community-organized gatherings and couch crashes across the globe."
 crumb: Crash Calendar
 type: general
