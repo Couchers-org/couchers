@@ -217,57 +217,69 @@
     "subject": "Ваш гендер було змінено",
     "purpose": "Ваш гендер на Couchers.org було зміненом адміном на <b>{{ gender }}</b>."
   },
-  "host_requests": {
+  "stays": {
     "created": {
-      "subject": "{{surfer_name}} запитує, чи можна завітати до вас у гості",
-      "purpose": "<b>{{surfer_name}}</b> відправив(ла) вам запит:",
-      "respond_encouragement": "Будь ласка, напишіть відповідь на цей запит. Навіть швидка відмова краща за вічне очікування!"
+      "host_request": {
+        "subject": "{{initiator}} запитує, чи можна завітати до вас у гості",
+        "purpose": "<b>{{initiator}}</b> відправив(ла) вам запит:",
+        "respond_encouragement": "Будь ласка, напишіть відповідь на цей запит. Навіть швидка відмова краща за вічне очікування!"
+      }
     },
     "generic": {
       "date_range": "З <b>{{from_date}}</b> до <b>{{to_date}}</b>.",
-      "view_action": "Переглянути запит",
+      "host_request": {
+        "view_action": "Переглянути запит"
+      },
       "quick_decline_action": "Швидка відмова"
     },
     "reminder": {
-      "subject": "{{surfer_name}} досі очікує вашої відповіді на запит",
-      "purpose": "<b>{{surfer_name}}</b> очікує на вашу відповідь, чи ви можете прийняти його(її) у гості. Навіть швидка відмова краща за вічне очікування!"
+      "host_request": {
+        "subject": "{{initiator}} досі очікує вашої відповіді на запит",
+        "purpose": "<b>{{initiator}}</b> очікує на вашу відповідь, чи ви можете прийняти його(її) у гості. Навіть швидка відмова краща за вічне очікування!"
+      }
     },
     "message": {
-      "from_host": {
-        "subject": "{{other_name}} відправив(ла) вам повідомлення стосовно вашого запиту",
-        "purpose": "<b>{{other_name}}</b> відправив(ла) вам повідомлення стосовно вашого запиту:"
-      },
-      "from_surfer": {
-        "subject": "{{other_name}} відправив(ла) вам повідомлення стосовно свого запиту",
-        "purpose": "<b>{{other_name}}</b> відправив(ла) вам повідомлення стосовно свого запиту:"
+      "host_request": {
+        "from_initiator": {
+          "subject": "{{counterparty}} відправив(ла) вам повідомлення стосовно свого запиту",
+          "purpose": "<b>{{counterparty}}</b> відправив(ла) вам повідомлення стосовно свого запиту:"
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}} відправив(ла) вам повідомлення стосовно вашого запиту",
+          "purpose": "<b>{{counterparty}}</b> відправив(ла) вам повідомлення стосовно вашого запиту:"
+        }
       }
     },
     "missed_messages": {
-      "from_host": {
-        "subject": "{{other_name}} відправив(ла) вам повідомлення стосовно вашого запиту",
-        "purpose": "<b>{{other_name}}</b> відправив(ла) вам одне чи більше повідомлень стосовно вашого запиту:"
-      },
-      "from_surfer": {
-        "subject": "{{other_name}} відправив(ла) вам повідомлення щодо свого запиту",
-        "purpose": "<b>{{other_name}}</b> відправив(ла) вам одне чи більше повідомлень щодо свого запиту:"
+      "host_request": {
+        "from_initiator": {
+          "subject": "{{counterparty}} відправив(ла) вам повідомлення щодо свого запиту",
+          "purpose": "<b>{{counterparty}}</b> відправив(ла) вам одне чи більше повідомлень щодо свого запиту:"
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}} відправив(ла) вам повідомлення стосовно вашого запиту",
+          "purpose": "<b>{{counterparty}}</b> відправив(ла) вам одне чи більше повідомлень стосовно вашого запиту:"
+        }
       }
     },
     "status_changed": {
-      "accepted_by_host": {
-        "subject": "{{other_name}} прийняв(ла) ваш запит",
-        "purpose": "<b>{{other_name}}</b> прийняв(ла) ваш запит:"
-      },
-      "declined_by_host": {
-        "subject": "{{other_name}} відхилив(ла) ваш запит",
-        "purpose": "<b>{{other_name}}</b> відхилив(ла) ваш запит:"
-      },
-      "confirmed_by_surfer": {
-        "subject": "{{other_name}} підтвердив(ла) свій запит",
-        "purpose": "<b>{{other_name}}</b> підтвердив(ла) свій запит:"
-      },
-      "cancelled_by_surfer": {
-        "subject": "{{other_name}} скасував(ла) свій запит",
-        "purpose": "<b>{{other_name}}</b> скасував(ла) свій запит:"
+      "host_request": {
+        "accepted_by_recipient": {
+          "subject": "{{counterparty}} прийняв(ла) ваш запит",
+          "purpose": "<b>{{counterparty}}</b> прийняв(ла) ваш запит:"
+        },
+        "declined_by_recipient": {
+          "subject": "{{counterparty}} відхилив(ла) ваш запит",
+          "purpose": "<b>{{counterparty}}</b> відхилив(ла) ваш запит:"
+        },
+        "confirmed_by_initiator": {
+          "subject": "{{counterparty}} підтвердив(ла) свій запит",
+          "purpose": "<b>{{counterparty}}</b> підтвердив(ла) свій запит:"
+        },
+        "cancelled_by_initiator": {
+          "subject": "{{counterparty}} скасував(ла) свій запит",
+          "purpose": "<b>{{counterparty}}</b> скасував(ла) свій запит:"
+        }
       }
     }
   },
