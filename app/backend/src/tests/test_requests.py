@@ -1,7 +1,7 @@
 import html
 import re
 from datetime import date, timedelta
-from unittest.mock import patch
+from unittest.mock import DEFAULT, patch
 from urllib.parse import parse_qs, urlparse
 
 import grpc
@@ -2931,6 +2931,97 @@ def test_db_allows_one_active_offer_per_trip(db, moderator):
                 .where(HostRequest.conversation_id == withdrawn_id)
                 .values(status=HostRequestStatus.pending)
             )
+
+
+def test_public_trip_offer_responses_arent_host_response_metrics(db, moderator):
+    """The traveller answering an offer on their trip isn't a host responding, so it's left out of host metrics."""
+    traveller, traveller_token = generate_user()
+    _, host_token = generate_user()
+    other_host, other_host_token = generate_user()
+    trip_id = _create_public_trip(traveller.id, today() + timedelta(days=5), today() + timedelta(days=10))
+    offer_id = _create_host_request_via_api(host_token, traveller.id, moderator, public_trip_id=trip_id)
+    request_id = _create_host_request_via_api(traveller_token, other_host.id, moderator)
+
+    with patch.multiple(
+        "couchers.servicers.requests",
+        host_request_first_response_histogram=DEFAULT,
+        host_request_responses_counter=DEFAULT,
+    ) as metrics:
+        with requests_session(traveller_token) as api:
+            api.SendHostRequestMessage(
+                requests_pb2.SendHostRequestMessageReq(host_request_id=offer_id, text="Thanks for the offer!")
+            )
+            api.RespondHostRequest(
+                requests_pb2.RespondHostRequestReq(
+                    host_request_id=offer_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+                )
+            )
+        metrics["host_request_first_response_histogram"].labels.assert_not_called()
+        metrics["host_request_responses_counter"].labels.assert_not_called()
+
+        # a host answering a regular request is still counted
+        with requests_session(other_host_token) as api:
+            api.RespondHostRequest(
+                requests_pb2.RespondHostRequestReq(
+                    host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+                )
+            )
+        metrics["host_request_first_response_histogram"].labels.assert_called_once()
+        metrics["host_request_responses_counter"].labels.assert_called_once()
+
+
+def test_public_trip_offers_are_counted_separately_from_host_requests(db, moderator):
+    traveller, traveller_token = generate_user(gender="Woman")
+    _, host_token = generate_user(gender="Man")
+    other_host, _ = generate_user(gender="Non-binary")
+    trip_id = _create_public_trip(traveller.id, today() + timedelta(days=5), today() + timedelta(days=10))
+
+    with patch.multiple(
+        "couchers.servicers.requests",
+        host_requests_sent_counter=DEFAULT,
+        account_age_on_host_request_create_histogram=DEFAULT,
+        public_trip_offers_sent_counter=DEFAULT,
+    ) as metrics:
+        _create_host_request_via_api(host_token, traveller.id, moderator, public_trip_id=trip_id)
+        metrics["host_requests_sent_counter"].labels.assert_not_called()
+        metrics["account_age_on_host_request_create_histogram"].labels.assert_not_called()
+        metrics["public_trip_offers_sent_counter"].labels.assert_called_once_with("Man", "Woman")
+
+        _create_host_request_via_api(traveller_token, other_host.id, moderator)
+        metrics["host_requests_sent_counter"].labels.assert_called_once_with("Woman", "Non-binary")
+        metrics["account_age_on_host_request_create_histogram"].labels.assert_called_once_with("Woman", "Non-binary")
+        metrics["public_trip_offers_sent_counter"].labels.assert_called_once()
+
+
+def test_excessive_public_trip_offers_report_the_traveller_as_recipient(
+    db, low_rate_limits, email_collector: EmailCollector
+):
+    host, host_token = generate_user()
+    rate_limit_definition = RATE_LIMIT_DEFINITIONS[RateLimitAction.host_request]
+    trip_from = today() + timedelta(days=5)
+    trip_to = today() + timedelta(days=10)
+
+    travellers = []
+    with requests_session(host_token) as api:
+        for _ in range(rate_limit_definition.warning_limit + 1):
+            traveller, _ = generate_user()
+            travellers.append(traveller)
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=traveller.id,
+                    from_date=trip_from.isoformat(),
+                    to_date=trip_to.isoformat(),
+                    text=valid_request_text(),
+                    public_trip_id=_create_public_trip(traveller.id, trip_from, trip_to),
+                )
+            )
+
+    email = email_collector.pop_for_reports(last=True)
+    assert email.plain.startswith(f"User {host.username} has sent {rate_limit_definition.warning_limit} host requests")
+    assert "recipient username" in email.plain
+    assert "public trip ID" in email.plain
+    assert "host username" not in email.plain
+    assert travellers[0].username in email.plain
 
 
 def test_create_request_offer_blocked_after_traveller_declines(db, moderator):
