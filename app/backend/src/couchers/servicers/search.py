@@ -532,8 +532,9 @@ def _user_search_inner(
                         (LanguageAbility.fluency >= (fluency_sql_value)),
                     )
                 )
-            statement = statement.join(LanguageAbility, LanguageAbility.user_id == User.id)
-            statement = statement.where(or_(*language_options))
+            statement = statement.where(
+                select(LanguageAbility).where(LanguageAbility.user_id == User.id).where(or_(*language_options)).exists()
+            )
 
         if request.HasField("profile_completed"):
             statement = statement.where(has_completed_profile_expression() == request.profile_completed.value)
@@ -613,12 +614,11 @@ def _user_search_inner(
             statement = statement.join(references, references.c.user_id == User.id)
 
         if request.only_with_strong_verification:
-            statement = statement.join(
-                StrongVerificationAttempt,
-                and_(
-                    StrongVerificationAttempt.user_id == User.id,
-                    StrongVerificationAttempt.has_strong_verification(User),
-                ),
+            statement = statement.where(
+                select(StrongVerificationAttempt)
+                .where(StrongVerificationAttempt.user_id == User.id)
+                .where(StrongVerificationAttempt.has_strong_verification(User))
+                .exists()
             )
         # TODO:
         # bool friends_only = 13;
