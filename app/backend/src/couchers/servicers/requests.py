@@ -162,17 +162,22 @@ def _possibly_observe_first_response_time(
         )
 
 
-def _is_host_request_long_enough(text: str) -> bool:
+def _validate_request_text(text: str, is_public_trip_offer: bool, context: CouchersContext) -> None:
+    min_length, error_code = (
+        (PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16, "public_trip_offer_too_short")
+        if is_public_trip_offer
+        else (HOST_REQUEST_MIN_LENGTH_UTF16, "host_request_too_short2")
+    )
     # Python's len(str) does not match Javascript's string.length.
     # e.g. len("é") == 2 but "é".length == 1.
     # To match the frontend's validation, measure the string in utf16 code units.
     text_length_utf16 = len(text.encode("utf-16-le")) // 2  # utf-16-le does not include a prefix BOM code unit.
-    return text_length_utf16 >= HOST_REQUEST_MIN_LENGTH_UTF16
-
-
-def _is_public_trip_offer_long_enough(text: str) -> bool:
-    # Measured in utf16 code units to match the frontend, see _is_host_request_long_enough
-    return len(text.encode("utf-16-le")) // 2 >= PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16
+    if text_length_utf16 < min_length:
+        context.abort_with_error_code(
+            grpc.StatusCode.INVALID_ARGUMENT,
+            error_code,
+            substitutions={"count": min_length},
+        )
 
 
 class Requests(requests_pb2_grpc.RequestsServicer):
@@ -224,20 +229,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if to_date - from_date > timedelta(days=365):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_after_one_year")
 
-        # Check minimum length
-        if public_trip_id is None:
-            if not _is_host_request_long_enough(request.text):
-                context.abort_with_error_code(
-                    grpc.StatusCode.INVALID_ARGUMENT,
-                    "host_request_too_short2",
-                    substitutions={"count": HOST_REQUEST_MIN_LENGTH_UTF16},
-                )
-        elif not _is_public_trip_offer_long_enough(request.text):
-            context.abort_with_error_code(
-                grpc.StatusCode.INVALID_ARGUMENT,
-                "host_request_too_short2",
-                substitutions={"count": PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16},
-            )
+        _validate_request_text(request.text, public_trip_id is not None, context)
 
         # Check if user has been sending host requests excessively
         if process_rate_limits_and_check_abort(

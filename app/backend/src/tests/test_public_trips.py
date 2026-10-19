@@ -29,7 +29,7 @@ from tests.fixtures.misc import Moderator
 from tests.fixtures.sessions import public_trips_session, requests_session
 
 
-def _valid_request_text(text: str = "Offer to host") -> str:
+def _valid_trip_offer_text(text: str = "Offer to host") -> str:
     utf16_length = len(text.encode("utf-16-le")) // 2
     if utf16_length >= PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16:
         return text
@@ -979,7 +979,7 @@ def test_list_public_trips_by_user_offers_count_owner(db, moderator: Moderator):
                 host_user_id=traveler.id,
                 from_date=(today() + timedelta(days=5)).isoformat(),
                 to_date=(today() + timedelta(days=10)).isoformat(),
-                text=_valid_request_text(),
+                text=_valid_trip_offer_text(),
                 public_trip_id=trip_id,
             )
         ).host_request_id
@@ -1017,7 +1017,7 @@ def test_list_public_trips_by_user_offers_count_excludes_invisible_offers(db, mo
                         host_user_id=traveler.id,
                         from_date=(today() + timedelta(days=5)).isoformat(),
                         to_date=(today() + timedelta(days=10)).isoformat(),
-                        text=_valid_request_text(),
+                        text=_valid_trip_offer_text(),
                         public_trip_id=trip_id,
                     )
                 ).host_request_id
@@ -1067,7 +1067,7 @@ def test_list_public_trips_by_user_offers_count_excludes_cancelled(db, moderator
                     host_user_id=traveler.id,
                     from_date=(today() + timedelta(days=5)).isoformat(),
                     to_date=(today() + timedelta(days=10)).isoformat(),
-                    text=_valid_request_text(),
+                    text=_valid_trip_offer_text(),
                     public_trip_id=trip_id,
                 )
             ).host_request_id
@@ -1116,7 +1116,7 @@ def test_viewer_host_request_id_reflects_viewers_own_offer(db):
                 host_user_id=traveler.id,
                 from_date=(today() + timedelta(days=5)).isoformat(),
                 to_date=(today() + timedelta(days=10)).isoformat(),
-                text=_valid_request_text(),
+                text=_valid_trip_offer_text(),
                 public_trip_id=trip_id,
             )
         )

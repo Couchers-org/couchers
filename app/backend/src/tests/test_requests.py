@@ -2427,6 +2427,7 @@ def test_public_trip_offer_min_length(db):
     with pytest.raises(grpc.RpcError) as e:
         offer("a" * (PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16 - 1))
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == "Your offer to host cannot be shorter than 100 characters."
 
     # Shorter than a regular host request, but long enough for an offer
     offer("a" * PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16)
