@@ -751,4 +751,3 @@ class UserRankingOffset(Base, kw_only=True):
     variant: Mapped[str] = mapped_column(String, primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
     offset: Mapped[float] = mapped_column(Float)
-    updated: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
