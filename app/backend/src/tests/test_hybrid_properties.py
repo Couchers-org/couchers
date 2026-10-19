@@ -308,7 +308,7 @@ def _host_request(
         conversation_id=conversation.id,
         initiator_user_id=surfer_id,
         recipient_user_id=host_id,
-        kind=HostRequestKind.request,
+        kind=HostRequestKind.host_request,
         moderation_state_id=moderation_state.id,
         from_date=to_date - timedelta(days=2),
         to_date=to_date,

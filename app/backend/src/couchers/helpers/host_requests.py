@@ -33,7 +33,7 @@ HOST_REQUEST_NOTIFICATION_TOPIC_ACTIONS = [
 def is_hosting_party(user_id: int) -> ColumnElement[bool]:
     """The viewer is the host of the stay: a normal request they received, or an offer they sent."""
     return or_(
-        and_(HostRequest.kind == HostRequestKind.request, HostRequest.recipient_user_id == user_id),
+        and_(HostRequest.kind == HostRequestKind.host_request, HostRequest.recipient_user_id == user_id),
         and_(HostRequest.kind == HostRequestKind.public_trip_offer, HostRequest.initiator_user_id == user_id),
     )
 
@@ -41,7 +41,7 @@ def is_hosting_party(user_id: int) -> ColumnElement[bool]:
 def is_surfing_party(user_id: int) -> ColumnElement[bool]:
     """The viewer is the guest of the stay: a normal request they sent, or an offer they received."""
     return or_(
-        and_(HostRequest.kind == HostRequestKind.request, HostRequest.initiator_user_id == user_id),
+        and_(HostRequest.kind == HostRequestKind.host_request, HostRequest.initiator_user_id == user_id),
         and_(HostRequest.kind == HostRequestKind.public_trip_offer, HostRequest.recipient_user_id == user_id),
     )
 
