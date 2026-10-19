@@ -31,12 +31,12 @@ from couchers.proto import (
     requests_pb2,
     threads_pb2,
 )
-from couchers.utils import datetime_to_iso8601_local, not_none, now, today
+from couchers.utils import not_none, now, today
+from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user, make_friends, make_user_block, make_user_invisible
 from tests.fixtures.sessions import (
     conversations_session,
     discussions_session,
-    events_session,
     public_trips_session,
     real_admin_session,
     references_session,
@@ -46,6 +46,7 @@ from tests.fixtures.sessions import (
 from tests.test_communities import create_community
 from tests.test_public_trips import VALID_DESCRIPTION as TRIP_DESCRIPTION
 from tests.test_requests import valid_request_text
+from tests.utils import local_date_time
 
 
 def _export(super_token: str, user: User) -> Any:
@@ -266,16 +267,14 @@ def test_ExportUserData_covers_content_across_the_site(db, moderator):
         )
 
     start_time = now() + timedelta(hours=2)
-    with events_session(token) as api:
-        event = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="export event",
-                content="export event content",
-                location=events_pb2.EventLocation(address="Near Null Island", lat=0.1, lng=0.2),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(start_time + timedelta(hours=3)),
-            )
-        )
+    event = events_api.create_event(
+        token=token,
+        title="export event",
+        content="export event content",
+        location=events_pb2.EventLocation(address="Near Null Island", lat=0.1, lng=0.2),
+        start_date_time=local_date_time(start_time),
+        end_date_time=local_date_time(start_time + timedelta(hours=3)),
+    )
 
     with threads_session(token) as api:
         comment_thread_id = api.PostReply(
