@@ -59,7 +59,7 @@
     },
     "location_label": "Ort:",
     "same_gender_only": {
-      "label": "Nur gleiches Geschlecht",
+      "label": "Nur gleichgeschlechtliche",
       "description": "Diesen Trip nur Benutzern desselben Geschlechts anzeigen."
     },
     "description": {
