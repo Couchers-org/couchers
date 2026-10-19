@@ -47,6 +47,25 @@ describe("ReminderCarousel", () => {
     expect(screen.getByText(t("dashboard:reminder.strong_verification.title"))).toBeVisible();
   });
 
+  it("renders public trip offer reminders", async () => {
+    const [host, traveller] = liteUsers;
+    getReminders.mockResolvedValue({
+      remindersList: [
+        { respondToPublicTripOfferReminder: { hostRequestId: 42, hostUser: host } },
+        { confirmPublicTripOfferReminder: { hostRequestId: 99, surferUser: traveller } },
+      ],
+    });
+
+    render(<ReminderCarousel />, { wrapper });
+
+    expect(
+      await screen.findByText(t("dashboard:reminder.respond_to_public_trip_offer.title", { name: host.name })),
+    ).toBeVisible();
+    expect(
+      screen.getByText(t("dashboard:reminder.confirm_public_trip_offer.title", { name: traveller.name })),
+    ).toBeVisible();
+  });
+
   it("shows an error alert when the API call fails", async () => {
     mockConsoleError();
     getDashboardMock.mockRejectedValue(new Error("Failed to fetch reminders"));
