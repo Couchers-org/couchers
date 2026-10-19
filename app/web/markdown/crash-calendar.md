@@ -22,35 +22,27 @@ Browse the upcoming Crashes below, pack your bags, and discover a new place thro
 
 ### December 2026
 
-* **Wrocław CS Winter Camp**
+* **[Wrocław CS Winter Camp](https://couchers.org/event/7766/wroclaw-cs-winter-camp)**
    * 📍 Wrocław, Poland
    * 📅 December 30, 2026 – January 4, 2027
-   * 👤 Organized by Chris & Others
-   * 🔗 [View Event](https://couchers.org/event/7766/wroclaw-cs-winter-camp)
-   
-### July 2027
-
-* **Brisbane Christmas in July Couch Crash 2027**
-  * 📍 Brisbane, Australia
-  * 📅 July 23 – 26, 2027
-  * 👤 Organized by ChrisK
-  * 🔗 [Join Event](https://couchers.org/events)
+   * 👤 Organized by [Chris](https://couchers.org/user/christr) & Others
 
 ---
 
 ## Past Crashes
 
+### 2026
+
 * **Brisbane Christmas in July Couch Crash 2026**
   * 📍 Brisbane, Australia
   * 📅 July 23 – 26, 2026
-  * 👤 Organized by ChrisK
-  * 🔗 [Join Event](https://couchers.org/events)
+  * 👤 Organized by [ChrisK](https://couchers.org/user/chrisk)
 
 ---
 
 ## Propose a Crash
 
 Want to post your Couch Crash here? 
-E-Mail [support@example.com](mailto:support@example.com) with information about your event. 
+E-Mail [community.building@couchers.org](mailto:community.building@couchers.org) with information about your event. 
 
 If your community has one, be sure to reach out to your local community builder (you find them on the "Local Info" tab of your "[Community Page](https://couchers.org/communities))" to let them know and consider collaborating. Want to become a Community Builder? Learn more [here](https://help.couchers.org/hc/couchersorg-help-center/articles/1743977410-what-is-a-community-builder)!
