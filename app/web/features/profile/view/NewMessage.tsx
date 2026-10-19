@@ -1,5 +1,5 @@
 import { useFeatureValue } from "@growthbook/growthbook-react";
-import { CardActions, Skeleton, styled, Typography } from "@mui/material";
+import { AlertTitle, CardActions, Skeleton, styled, Typography } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -13,7 +13,8 @@ import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { HostingStatus } from "proto/api_pb";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { routeToGroupChat } from "routes";
 import { service } from "service";
@@ -28,11 +29,18 @@ const StyledMessageField = styled(TextField)(() => ({
   marginTop: theme.spacing(2),
 }));
 
+const StyledNudgeBenefits = styled("ul")(() => ({
+  margin: theme.spacing(1, 0, 2),
+  paddingInlineStart: theme.spacing(2.5),
+}));
+
 const StyledSendActions = styled(CardActions)(() => ({
   display: "flex",
   justifyContent: "flex-end",
   marginTop: theme.spacing(2),
 }));
+
+const NUDGE_DEBOUNCE_MS = 500;
 
 interface NewMessageProps {
   setIsMessaging: (value: boolean) => void;
@@ -47,15 +55,33 @@ export default function NewMessage({ setIsMessaging, onRequestInstead }: NewMess
   const logEvent = useLogEvent();
 
   const isNudgeEnabled = useFeatureValue("show_host_request_nudge", false);
-  const [hasNudged, setHasNudged] = useState(false);
+  const canNudge = isNudgeEnabled && user.hostingStatus !== HostingStatus.HOSTING_STATUS_CANT_HOST;
+  const [isNudgeShown, setIsNudgeShown] = useState(false);
+  const hasLoggedNudge = useRef(false);
 
   const {
     getValues,
     handleSubmit,
     register,
     reset,
+    watch,
     formState: { errors },
   } = useForm<{ text: string }>();
+
+  const text = watch("text") ?? "";
+
+  useEffect(() => {
+    if (!canNudge) return;
+    const timeout = setTimeout(() => setIsNudgeShown(looksLikeHostRequest(text)), NUDGE_DEBOUNCE_MS);
+    return () => clearTimeout(timeout);
+  }, [canNudge, text]);
+
+  useEffect(() => {
+    if (isNudgeShown && !hasLoggedNudge.current) {
+      hasLoggedNudge.current = true;
+      logEvent("host_request_nudge.shown", { host_user_id: user.userId });
+    }
+  }, [isNudgeShown, logEvent, user.userId]);
 
   const { error, mutate, isPending } = useMutation<number, Error, { text: string }>({
     mutationFn: (data) => service.conversations.sendDirectMessage(user.userId, data.text),
@@ -73,9 +99,9 @@ export default function NewMessage({ setIsMessaging, onRequestInstead }: NewMess
   const { isLoading: userLoading, error: userError } = useLiteUser(user.userId);
 
   const onSubmit = handleSubmit((data) => {
-    if (isNudgeEnabled && !hasNudged && looksLikeHostRequest(data.text)) {
-      setHasNudged(true);
-      logEvent("host_request_nudge.shown", { host_user_id: user.userId });
+    // Catches a message sent before the debounced check has had a chance to run.
+    if (canNudge && !isNudgeShown && looksLikeHostRequest(data.text)) {
+      setIsNudgeShown(true);
       return;
     }
     mutate(data);
@@ -86,7 +112,8 @@ export default function NewMessage({ setIsMessaging, onRequestInstead }: NewMess
     doAntibot("host_request");
     onRequestInstead(getValues("text"));
     reset();
-    setHasNudged(false);
+    setIsNudgeShown(false);
+    hasLoggedNudge.current = false;
   };
 
   return (
@@ -112,17 +139,18 @@ export default function NewMessage({ setIsMessaging, onRequestInstead }: NewMess
             error={!!errors.text}
             helperText={errors.text?.message}
           />
-          {hasNudged && (
-            <Alert
-              severity="info"
-              sx={{ marginTop: theme.spacing(2) }}
-              action={
-                <Button onClick={requestInstead} size="small">
-                  {t("profile:message_form.request_instead")}
-                </Button>
-              }
-            >
-              {t("profile:message_form.host_request_nudge", { name: user.name })}
+          {isNudgeShown && (
+            <Alert severity="info" sx={{ marginTop: theme.spacing(2) }}>
+              <AlertTitle>{t("profile:message_form.host_request_nudge.title", { name: user.name })}</AlertTitle>
+              {t("profile:message_form.host_request_nudge.intro")}
+              <StyledNudgeBenefits>
+                <li>{t("profile:message_form.host_request_nudge.benefit_dates", { name: user.name })}</li>
+                <li>{t("profile:message_form.host_request_nudge.benefit_response_rate")}</li>
+                <li>{t("profile:message_form.host_request_nudge.benefit_references")}</li>
+              </StyledNudgeBenefits>
+              <Button onClick={requestInstead} size="small">
+                {t("profile:message_form.host_request_nudge.request_instead_button")}
+              </Button>
             </Alert>
           )}
           <StyledSendActions>
@@ -130,7 +158,7 @@ export default function NewMessage({ setIsMessaging, onRequestInstead }: NewMess
               {t("global:cancel")}
             </Button>
             <Button type="submit" onClick={onSubmit} loading={isPending}>
-              {hasNudged ? t("profile:message_form.send_as_message") : t("global:send")}
+              {isNudgeShown ? t("profile:message_form.host_request_nudge.send_as_message_button") : t("global:send")}
             </Button>
           </StyledSendActions>
           <Typography variant="body2" sx={{ textAlign: "center" }}>
