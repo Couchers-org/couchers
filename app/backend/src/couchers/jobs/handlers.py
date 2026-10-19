@@ -400,7 +400,8 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                     data=notification_data_pb2.HostRequestMissedMessages(
                         host_request=host_request_to_pb(host_request, session, context),
                         counterparty=user_model_to_pb(host_request.recipient, session, context),
-                        am_host=host_request.host_user_id == user.id,
+                        # Notification to the recipient == message from the initiator
+                        counterparty_is_initiator=user.id == host_request.recipient_user_id,
                     ),
                 )
 
@@ -443,7 +444,8 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                     data=notification_data_pb2.HostRequestMissedMessages(
                         host_request=host_request_to_pb(host_request, session, context),
                         counterparty=user_model_to_pb(host_request.initiator, session, context),
-                        am_host=host_request.host_user_id == user.id,
+                        # Notification to the recipient == message from the initiator
+                        counterparty_is_initiator=user.id == host_request.recipient_user_id,
                     ),
                 )
 
