@@ -508,7 +508,6 @@ hide_title: true
   <div id="propose-crash" class="cc-propose-box">
     <h3>Propose a Crash</h3>
     <p>Want your Couch Crash listed here? Send a message to <a href="https://couchers.org/user/chrisk">ChrisK</a> with the following line: <br />
-	<br />
 	<code>Couch Crash: (Link to event)</code></p>
 	<p style="margin-top: 14px; margin-bottom: 0;">
       <a href="https://couchers.org/user/chrisk" class="cc-btn">Message ChrisK to Submit</a><br />
