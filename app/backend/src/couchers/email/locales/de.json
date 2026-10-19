@@ -213,57 +213,69 @@
     "subject": "Dein Geschlecht wurde geändert",
     "purpose": "Dein Geschlecht auf Couchers.org wurde von einem Administrator zu <b>{{ gender }}</b> geändert."
   },
-  "host_requests": {
+  "stays": {
     "created": {
-      "subject": "{{surfer_name}} hat dir eine Host-Anfrage gesendet",
-      "purpose": "<b>{{surfer_name}}</b> hat dir eine Host-Anfrage gesendet:",
-      "respond_encouragement": "Bitte antworte auf diese Anfrage. Selbst eine schnelle Absage ist besser als gar keine Antwort!"
+      "host_request": {
+        "subject": "{{initiator}} hat dir eine Host-Anfrage gesendet",
+        "purpose": "<b>{{initiator}}</b> hat dir eine Host-Anfrage gesendet:",
+        "respond_encouragement": "Bitte antworte auf diese Anfrage. Selbst eine schnelle Absage ist besser als gar keine Antwort!"
+      }
     },
     "generic": {
       "date_range": "Von <b>{{from_date}}</b> bis <b>{{to_date}}</b>.",
-      "view_action": "Host-Anfrage ansehen",
+      "host_request": {
+        "view_action": "Host-Anfrage ansehen"
+      },
       "quick_decline_action": "Schnelle Absage"
     },
     "reminder": {
-      "subject": "Du hast eine ausstehende Host-Anfrage von {{surfer_name}}",
-      "purpose": "<b>{{surfer_name}}</b> wartet auf deine Antwort. Selbst eine schnelle Absage ist besser als gar keine Antwort!"
+      "host_request": {
+        "subject": "Du hast eine ausstehende Host-Anfrage von {{initiator}}",
+        "purpose": "<b>{{initiator}}</b> wartet auf deine Antwort. Selbst eine schnelle Absage ist besser als gar keine Antwort!"
+      }
     },
     "message": {
-      "from_host": {
-        "subject": "{{other_name}} hat dir eine Nachricht in deiner Host-Anfrage gesendet",
-        "purpose": "<b>{{other_name}}</b> hat dir eine Nachricht in deiner Host-Anfrage gesendet:"
-      },
-      "from_surfer": {
-        "subject": "{{other_name}} hat dir eine Nachricht in der Host-Anfrage gesendet",
-        "purpose": "<b>{{other_name}}</b> hat dir eine Nachricht in der Host-Anfrage gesendet:"
+      "host_request": {
+        "from_initiator": {
+          "subject": "{{counterparty}} hat dir eine Nachricht in der Host-Anfrage gesendet",
+          "purpose": "<b>{{counterparty}}</b> hat dir eine Nachricht in der Host-Anfrage gesendet:"
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}} hat dir eine Nachricht in deiner Host-Anfrage gesendet",
+          "purpose": "<b>{{counterparty}}</b> hat dir eine Nachricht in deiner Host-Anfrage gesendet:"
+        }
       }
     },
     "missed_messages": {
-      "from_host": {
-        "subject": "{{other_name}} hat dir Nachricht(en) in deiner Host-Anfrage gesendet",
-        "purpose": "<b>{{other_name}}</b> hat dir eine oder mehrere Nachrichten in deiner Host-Anfrage gesendet:"
-      },
-      "from_surfer": {
-        "subject": "{{other_name}} hat dir Nachricht(en) in der Host-Anfrage gesendet",
-        "purpose": "<b>{{other_name}}</b> hat dir eine oder mehrere Nachrichten in der Host-Anfrage gesendet:"
+      "host_request": {
+        "from_initiator": {
+          "subject": "{{counterparty}} hat dir Nachricht(en) in der Host-Anfrage gesendet",
+          "purpose": "<b>{{counterparty}}</b> hat dir eine oder mehrere Nachrichten in der Host-Anfrage gesendet:"
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}} hat dir Nachricht(en) in deiner Host-Anfrage gesendet",
+          "purpose": "<b>{{counterparty}}</b> hat dir eine oder mehrere Nachrichten in deiner Host-Anfrage gesendet:"
+        }
       }
     },
     "status_changed": {
-      "accepted_by_host": {
-        "subject": "{{other_name}} hat deine Host-Anfrage angenommen",
-        "purpose": "<b>{{other_name}}</b> hat deine Host-Anfrage angenommen:"
-      },
-      "declined_by_host": {
-        "subject": "{{other_name}} hat deine Host-Anfrage abgelehnt",
-        "purpose": "<b>{{other_name}}</b> hat deine Host-Anfrage abgelehnt:"
-      },
-      "confirmed_by_surfer": {
-        "subject": "{{other_name}} hat die Host-Anfrage bestätigt",
-        "purpose": "<b>{{other_name}}</b> hat die Host-Anfrage bestätigt:"
-      },
-      "cancelled_by_surfer": {
-        "subject": "{{other_name}} hat die Host-Anfrage zurückgezogen",
-        "purpose": "<b>{{other_name}}</b> hat die Host-Anfrage zurückgezogen:"
+      "host_request": {
+        "accepted_by_recipient": {
+          "subject": "{{counterparty}} hat deine Host-Anfrage angenommen",
+          "purpose": "<b>{{counterparty}}</b> hat deine Host-Anfrage angenommen:"
+        },
+        "declined_by_recipient": {
+          "subject": "{{counterparty}} hat deine Host-Anfrage abgelehnt",
+          "purpose": "<b>{{counterparty}}</b> hat deine Host-Anfrage abgelehnt:"
+        },
+        "confirmed_by_initiator": {
+          "subject": "{{counterparty}} hat die Host-Anfrage bestätigt",
+          "purpose": "<b>{{counterparty}}</b> hat die Host-Anfrage bestätigt:"
+        },
+        "cancelled_by_initiator": {
+          "subject": "{{counterparty}} hat die Host-Anfrage zurückgezogen",
+          "purpose": "<b>{{counterparty}}</b> hat die Host-Anfrage zurückgezogen:"
+        }
       }
     }
   },

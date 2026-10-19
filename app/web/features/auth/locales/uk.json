@@ -45,7 +45,7 @@
     "show_confirm_password": "Показати підтвердження пароля"
   },
   "reset_password_form": {
-    "enter_email": "Введіть вашу назву користувача/електронну пошту",
+    "enter_email": "Введіть вашу назву акаунта/електронну пошту",
     "success_message": "Посилання на скидання пароля було відправлено на електронну пошту до якої прив'язано цей акаунт, якшо він існує та активний. Зауважте що лист може потрапити у спам."
   },
   "login_page": {
@@ -53,7 +53,7 @@
     "header": "Вітаємо!",
     "no_account_prompt": "Ще не маєте акаунта?<signupLink>Приєднуйтесь!</signupLink>",
     "form": {
-      "username_field_label": "Електронна пошта/Назва користувача",
+      "username_field_label": "Електронна пошта/Назва акаунта",
       "password_field_label": "Пароль",
       "remember_me": "Запам'ятати мене",
       "forgot_password": "Забули пароль?",
@@ -68,11 +68,11 @@
   "account_form": {
     "header": "Дані вашого акаунта",
     "username": {
-      "field_label": "Назва користувача",
-      "helper_text": "Це лише назва користувача, не ім'я у вашому профілі.",
-      "required_error": "Введіть вашу назву користувача",
-      "username_taken_error": "Ця назва користувача вже кимось використовується.",
-      "validation_error": "Назва користувача може містити лише букви, цифри або _, і має починатися із букви."
+      "field_label": "Назва акаунта",
+      "helper_text": "Це лише назва акаунта (нікнейм), а не ваше ім'я у профілі.",
+      "required_error": "Введіть вашу назву акаунта",
+      "username_taken_error": "Ця назва акаунта вже кимось використовується.",
+      "validation_error": "Назва акаунта може містити лише букви, цифри або _, і має починатися із букви."
     },
     "password": {
       "field_label": "Пароль",
@@ -197,9 +197,9 @@
       "explanation": "Цей час і часовий пояс визначені відповідно до розташування вашої домівки. Будь ласка повідомте про помилку, якшо це невірно."
     },
     "username_section": {
-      "title": "Назва користувача",
-      "description": "Ваша назва користувача - <strong>{{username}}</strong>.",
-      "explanation": "Ваша назва користувача визначається при створенні акаунта."
+      "title": "Назва акаунта",
+      "description": "Ваша назва акаунта - <strong>{{username}}</strong>.",
+      "explanation": "Ваша назва акаунта визначається при його створенні."
     },
     "appearance_section": {
       "title": "Стиль",
@@ -332,9 +332,9 @@
     "request": {
       "title": "Видалити акаунт",
       "description": "Щоб видалити ваш акаунт, будь ласка виконайте кроки нижче. Ми відправимо вам підтвердження електронною поштою.",
-      "confirm_username_explanation": "Ваша назва користувача - <strong>{{ username }}</strong>, будь ласка введіть її нижче щоб підтвердити видалення акаунта.",
-      "confirm_username_label": "Підтвердження назви користувача",
-      "username_mismatch": "Назва користувача не співпадає.",
+      "confirm_username_explanation": "Ваша назва акаунта - <strong>{{ username }}</strong>, будь ласка введіть її нижче щоб підтвердити його видалення.",
+      "confirm_username_label": "Підтвердження назви акаунта",
+      "username_mismatch": "Назва акаунта не співпадає.",
       "reason_explanation": "Будь ласка допоможіть нам покращити платформу, розповівши нам чому ви вирішили видалити акаунт.",
       "reason_label": "Причина видалення акаунта",
       "success_message": "Розпочато видалення акаунта. Щоб завершити видалення, будь ласка підтвердіть його через електронний лист, який ми вам відправили."
@@ -391,12 +391,12 @@
       "link_text_linkedin_placeholder": "jane-doe-a1b2c3",
       "link_text_email_placeholder": "your@email.com",
       "link_text_website_placeholder": "https://your-website.com",
-      "link_text_linkedin_helper": "Ваша назва користувача із вашого URL профіля (e.g. linkedin.com/in/jane-doe-a1b2c3)",
+      "link_text_linkedin_helper": "Ваша назва акаунта із URL профіля (e.g. linkedin.com/in/jane-doe-a1b2c3)",
       "link_text_email_helper": "Ваша електронна адреса",
       "link_text_website_helper": "Текст для відображення у посиланні",
       "link_text_required": "Будь ласка визначте зміст посилання",
       "link_text_email_invalid": "Будь ласка введіть коректну електронну пошту",
-      "link_text_linkedin_invalid": "Будь ласка введіть коректу назву користувача LinkedIn (букви, цифри, дефіси)",
+      "link_text_linkedin_invalid": "Будь ласка введіть коректу назву акаунта у LinkedIn (букви, цифри, дефіси)",
       "link_url_label": "URL посилання",
       "link_url_placeholder": "https://your-website.com",
       "link_url_helper": "Повний URL на який має вести посилання",

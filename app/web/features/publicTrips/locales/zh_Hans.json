@@ -26,7 +26,6 @@
     "see_all_link": "查看所有公开行程"
   },
   "trip_card": {
-    "references_one": "{{count}}条评价",
     "references_other": "{{count}}条评价",
     "you_overlay": "您",
     "status_pills": {
@@ -63,7 +62,6 @@
       "label": "行程简介",
       "placeholder": "您想做些什么？会停留多久？还有什么是接待者需要知道的？",
       "required_error": "请添加一段简短的行程介绍。",
-      "chars_remaining_one": "还可输入{{count}}个字符。",
       "chars_remaining_other": "还可输入{{count}}个字符。"
     },
     "create_submit_button": "发布行程",
@@ -80,14 +78,8 @@
       "label": "您的留言",
       "placeholder": "介绍一下自己，并告诉对方您能提供怎样的接待。",
       "required_error": "请填写留言。",
-      "chars_remaining_one": "还需输入{{count}}个字符。",
       "chars_remaining_other": "还需输入{{count}}个字符。"
     },
     "submit_button": "发送接待邀请"
-  },
-  "already_offered": "已发出接待邀请",
-  "offer_unavailable": "此行程已不再接受接待邀请。",
-  "offers_count_one": "{{count}}个接待邀请",
-  "offers_count_other": "{{count}}个接待邀请",
-  "no_offers": "尚无接待邀请"
+  }
 }
