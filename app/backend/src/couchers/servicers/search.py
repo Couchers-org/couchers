@@ -626,7 +626,8 @@ def _user_search_inner(
     page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
     total_items = cast(int, session.execute(select(func.count()).select_from(statement.subquery())).scalar())
 
-    ranking_score: SQLColumnExpression[float] = User.recommendation_score
+    noise_scale = context.get_float_value("user_search_noise_scale", DEFAULT_USER_SEARCH_NOISE_SCALE)
+    ranking_score = User.recommendation_score + noise_scale * _user_search_noise(context.user_id)
     ranking_offsets_variant = context.get_string_value("search_ranking_offsets_variant", "")
     if ranking_offsets_variant:
         statement = statement.outerjoin(
@@ -634,8 +635,6 @@ def _user_search_inner(
             and_(UserRankingOffset.user_id == User.id, UserRankingOffset.variant == ranking_offsets_variant),
         )
         ranking_score = ranking_score + func.coalesce(UserRankingOffset.offset, 0.0)
-    noise_scale = context.get_float_value("user_search_noise_scale", DEFAULT_USER_SEARCH_NOISE_SCALE)
-    ranking_score = ranking_score + noise_scale * _user_search_noise(context.user_id)
     statement = statement.add_columns(ranking_score)
     if request.page_token:
         last_score, last_id = decrypt_page_token(request.page_token).split(",")
