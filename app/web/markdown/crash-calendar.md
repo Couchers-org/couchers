@@ -1,18 +1,18 @@
 ---
 title: "Couch Crashes & Global Gatherings"
-description: "Community-organized gatherings and couch crashes across the globe."
-crumb: Crash Calendar
+description: "Large-scale, multi-day, community-organized couch surfing events across the globe."
+crumb: Couch Crash Calendar
 type: general
 hide_title: true
 ---
 
-# Couch Crashes & Gatherings
+# What is a Couch Crash?
 
-Think of it as a city unlocking its secret doors just for you.
+A Couch Crash (sometimes called an Invasion or Camp) is a multi-day couch surfing event or festival organized by local couch surfers to show off their city or region to members from around the world.
 
-For several days, you are not a tourist checking off sights. You are immersed in the local rhythm, wandering through back alleys, gathering around crowded kitchen tables, and talking late into the night with people who were strangers that morning.
+Unlike regular meetups and events, Couch Crashes usually feature a multi-day itinerary, often including tours, potlucks, and parties, with local couch surfers organizing the events and hosting the influx of visiting couch surfers attending the Couch Crash.
 
-A Couch Crash is never a scripted event. It is a shared pulse, built entirely by the local members who live there. It offers an invitation to experience a hometown through the eyes of the people who love it best, surrounded by a global family that makes the entire world feel comfortably small.
+Browse the upcoming Crashes below, pack your bags, and discover a new place through the eyes of locals while connecting with couch surfers from around the world!
 
 > **Note on Accommodation:** Attending a crash is a community gathering, not guaranteed lodging. Local members host when possible, but attendees are encouraged to connect early or arrange backup accommodation (hostels, camping, or guesthouses).
 
@@ -20,7 +20,15 @@ A Couch Crash is never a scripted event. It is a shared pulse, built entirely by
 
 ## Upcoming Crashes
 
-### October 2026
+### December 2026
+
+* **Wrocław CS Winter Camp**
+   * 📍 Wrocław, Poland
+   * 📅 December 30, 2026 – January 4, 2027
+   * 👤 Organized by Chris & Others
+   * 🔗 [View Event](https://couchers.org/event/7766/wroclaw-cs-winter-camp)
+   
+### July 2027
 
 * **Brisbane Christmas in July Couch Crash 2027**
   * 📍 Brisbane, Australia
@@ -42,5 +50,7 @@ A Couch Crash is never a scripted event. It is a shared pulse, built entirely by
 
 ## Propose a Crash
 
-Want to show off your hometown and host Couchers from around the world? 
-Reach out to your community builder (you find them on the "Local Info" tab of your "[Community Page](https://couchers.org/communities))"!
+Want to post your Couch Crash here? 
+E-Mail [support@example.com](mailto:support@example.com) with information about your event. 
+
+If your community has one, be sure to reach out to your local community builder (you find them on the "Local Info" tab of your "[Community Page](https://couchers.org/communities))" to let them know and consider collaborating. Want to become a Community Builder? Learn more [here](https://help.couchers.org/hc/couchersorg-help-center/articles/1743977410-what-is-a-community-builder)!
