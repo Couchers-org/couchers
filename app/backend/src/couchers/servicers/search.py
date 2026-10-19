@@ -434,14 +434,14 @@ def stable_normal_rv(column: SQLColumnExpression[int], key: bytes, seed: bytes) 
     return type_coerce(func.sqrt(-2 * func.ln(u1)) * func.cos(2 * pi * u2), Float)
 
 
-def _user_search_noise(viewer_id: int) -> ColumnElement[float]:
+def _user_search_noise(column: SQLColumnExpression[int], viewer_id: int) -> ColumnElement[float]:
     """
-    Standard normal noise for each candidate user, different for each viewer and stable for a given viewer over
+    Standard normal noise for each value of the column, different for each viewer and stable for a given viewer over
     USER_SEARCH_NOISE_PERIOD_DAYS, so different viewers see a different ordering
     """
     # offset by viewer id so that viewers don't all reshuffle on the same day
     period = (today().toordinal() + viewer_id) // USER_SEARCH_NOISE_PERIOD_DAYS
-    return stable_normal_rv(User.id, get_secret(USER_SEARCH_NOISE_KEY_NAME), f"{viewer_id}|{period}".encode())
+    return stable_normal_rv(column, get_secret(USER_SEARCH_NOISE_KEY_NAME), f"{viewer_id}|{period}".encode())
 
 
 def _user_search_inner(
@@ -627,7 +627,7 @@ def _user_search_inner(
     total_items = cast(int, session.execute(select(func.count()).select_from(statement.subquery())).scalar())
 
     noise_scale = context.get_float_value("user_search_noise_scale", DEFAULT_USER_SEARCH_NOISE_SCALE)
-    ranking_score = User.recommendation_score + noise_scale * _user_search_noise(context.user_id)
+    ranking_score = User.recommendation_score + noise_scale * _user_search_noise(User.id, context.user_id)
     ranking_offsets_variant = context.get_string_value("search_ranking_offsets_variant", "")
     if ranking_offsets_variant:
         statement = statement.outerjoin(
