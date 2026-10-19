@@ -41,7 +41,7 @@ from couchers.proto import (
     requests_pb2,
 )
 from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date
-from tests.fixtures import api_helpers
+from tests.fixtures.api import events as events_api
 from tests.fixtures.db import (
     add_users_to_new_moderation_list,
     backdate_conversations,
@@ -817,7 +817,7 @@ def test_DeleteEvent(db):
     with session_scope() as session:
         create_community(session, 0, 2, "Community", [normal_user], [], None)
 
-    res = api_helpers.create_event(token=normal_token)
+    res = events_api.create_event(token=normal_token)
     event_id = res.event_id
     assert not res.is_deleted
 
