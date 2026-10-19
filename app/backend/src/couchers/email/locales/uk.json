@@ -223,6 +223,11 @@
         "subject": "{{initiator}} запитує, чи можна завітати до вас у гості",
         "purpose": "<b>{{initiator}}</b> відправив(ла) вам запит:",
         "respond_encouragement": "Будь ласка, напишіть відповідь на цей запит. Навіть швидка відмова краща за вічне очікування!"
+      },
+      "invitation": {
+        "subject": "{{initiator}} відправив(ла) вам запрошення у гості",
+        "purpose": "<b>{{initiator}}</b> відправив(ла) вам запрошення у гості:",
+        "respond_encouragement": "Будь ласка, напишіть відповідь на це запрошення. Навіть швидка відмова краща за мовчання!"
       }
     },
     "generic": {
@@ -230,12 +235,19 @@
       "host_request": {
         "view_action": "Переглянути запит"
       },
-      "quick_decline_action": "Швидка відмова"
+      "quick_decline_action": "Швидка відмова",
+      "invitation": {
+        "view_action": "Переглянути запрошення"
+      }
     },
     "reminder": {
       "host_request": {
         "subject": "{{initiator}} досі очікує вашої відповіді на запит",
         "purpose": "<b>{{initiator}}</b> очікує на вашу відповідь, чи ви можете прийняти його(її) у гості. Навіть швидка відмова краща за вічне очікування!"
+      },
+      "invitation": {
+        "subject": "{{initiator}} досі чекає вашої відповіді на своє запрошення",
+        "purpose": "<b>{{initiator}}</b> досі чекає відповіді на своє запрошення. Навіть швидка відмова краща за мовчання!"
       }
     },
     "message": {
@@ -248,6 +260,16 @@
           "subject": "{{counterparty}} відправив(ла) вам повідомлення стосовно вашого запиту",
           "purpose": "<b>{{counterparty}}</b> відправив(ла) вам повідомлення стосовно вашого запиту:"
         }
+      },
+      "invitation": {
+        "from_initiator": {
+          "subject": "{{counterparty}} відправив(ла) вам повідомлення стосовно свого запрошення",
+          "purpose": "<b>{{counterparty}}</b> відправив(ла) вам повідомлення стосовно свого запрошення:"
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}} відправив(ла) вам повідомлення стосовно вашого запрошення",
+          "purpose": "<b>{{counterparty}}</b> відправив(ла) вам повідомлення стосовно вашого запрошення:"
+        }
       }
     },
     "missed_messages": {
@@ -259,6 +281,16 @@
         "from_recipient": {
           "subject": "{{counterparty}} відправив(ла) вам повідомлення стосовно вашого запиту",
           "purpose": "<b>{{counterparty}}</b> відправив(ла) вам одне чи більше повідомлень стосовно вашого запиту:"
+        }
+      },
+      "invitation": {
+        "from_initiator": {
+          "subject": "{{counterparty}} відправив(ла) вам повідомлення стосовно свого запрошення",
+          "purpose": "<b>{{counterparty}}</b> відправив(ла) вам одне чи більше повідомлень стосовно свого запрошення:"
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}} відправив(ла) вам повідомлення стосовно вашого запрошення",
+          "purpose": "<b>{{counterparty}}</b> відправив(ла) вам одне чи більше повідомлень стосовно вашого запрошення:"
         }
       }
     },
@@ -279,6 +311,24 @@
         "cancelled_by_initiator": {
           "subject": "{{counterparty}} скасував(ла) свій запит",
           "purpose": "<b>{{counterparty}}</b> скасував(ла) свій запит:"
+        }
+      },
+      "invitation": {
+        "accepted_by_recipient": {
+          "subject": "{{counterparty}} прийняв(ла) ваше запрошення у гості",
+          "purpose": "<b>{{counterparty}}</b> прийняв(ла) ваше запрошення у гості:"
+        },
+        "declined_by_recipient": {
+          "subject": "{{counterparty}} відмовився(лась) від вашого запрошення",
+          "purpose": "<b>{{counterparty}}</b> відмовився(лась) від вашого запрошення:"
+        },
+        "confirmed_by_initiator": {
+          "subject": "{{counterparty}} підтвердив(ла) своє запрошення у гості",
+          "purpose": "<b>{{counterparty}}</b> підтвердив(ла) своє запрошення у гості:"
+        },
+        "cancelled_by_initiator": {
+          "subject": "{{counterparty}} скасував(ла) своє запрошення у гості",
+          "purpose": "<b>{{counterparty}}</b> скасував(ла) своє запрошення у гості:"
         }
       }
     }
