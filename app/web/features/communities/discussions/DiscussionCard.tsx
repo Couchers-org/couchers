@@ -1,12 +1,12 @@
 import { Card, CardContent, Skeleton, styled, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
+import RelativeTime from "components/RelativeTime";
 import { contentRefs } from "features/contentRefs";
 import FlagButton from "features/FlagButton";
 import CopyOnClick from "features/mod/CopyOnClick";
 import ModVisibleComponent from "features/mod/ModVisibleComponent";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
-import { localizeRelativeTime } from "i18n/datetimes";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
 import { Discussion } from "proto/discussions_pb";
@@ -70,13 +70,9 @@ export default function DiscussionCard({
   discussion: Discussion.AsObject;
   className?: string;
 }) {
-  const {
-    t,
-    i18n: { language: locale },
-  } = useTranslation([GLOBAL, COMMUNITIES]);
+  const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const { data: creator } = useLiteUser(discussion.deleted ? undefined : discussion.creatorUserId);
 
-  const postedTime = discussion.created ? localizeRelativeTime(discussion.created, locale) : null;
   const truncatedContent = useMemo(
     () =>
       getContentSummary({
@@ -107,7 +103,11 @@ export default function DiscussionCard({
                   ) : (
                     <Skeleton sx={{ display: "inline-block", width: 80 }} />
                   )}{" "}
-                  {postedTime && `• ${postedTime}`}
+                  {discussion.created && (
+                    <>
+                      • <RelativeTime instant={discussion.created} />
+                    </>
+                  )}
                   <ModVisibleComponent>
                     {" "}
                     •{" "}

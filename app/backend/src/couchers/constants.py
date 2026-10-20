@@ -8,7 +8,7 @@ GUIDELINES_VERSION = 1
 
 # When updating this, also update the "activeness_probe" notification strings in
 # src/couchers/email/locales/en.json
-LATEST_RELEASE_BLOG_URL = "https://couchers.org/blog/2026/05/25/couchers-spring-release"
+LATEST_RELEASE_BLOG_URL = "https://couchers.org/blog/2026/10/15/version-1.4.0-release"
 
 # Keep the frontend in sync at app/web/utils/validation.ts
 EMAIL_REGEX = r"^[0-9a-z]([0-9a-z\-\_\+]|(\.[0-9a-z\-\_\+]))*@([0-9a-z\-]+\.)*[0-9a-z\-]+\.[a-z]{2,}$"
@@ -117,11 +117,17 @@ HOST_REQUEST_DUPLICATE_WINDOW_HOURS = 3
 
 # Note: Javascript's string.length is in utf16 code units, Python's len(str) is in utf8 code units.
 HOST_REQUEST_MIN_LENGTH_UTF16 = 250  # Must match frontend
-PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16 = 150  # Must match frontend
+PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16 = 150  # Traveller's trip description. Must match frontend
+PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16 = 100  # Host's message offering to host a trip. Must match frontend
 
 ANTIBOT_FREQ = timedelta(hours=48)
 
 EVENT_REMINDER_TIMEDELTA = timedelta(hours=24)
+
+# How far ahead (or how many occurrences, whichever is more)
+# recurring events should have occurrences scheduled.
+EVENT_RECURRENCE_SCHEDULE_WINDOW = timedelta(weeks=2)
+EVENT_RECURRENCE_MIN_SCHEDULED_OCCURRENCES = 2
 
 COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD = 0.35
 
@@ -154,3 +160,4 @@ STABLE_THRESHOLD_SECONDS = 5 * 60
 RATE_LIMIT_WINDOW_SECONDS = 60
 
 MODERATION_AUTO_APPROVE_FLAG_PRIORITY = 1000
+MODERATION_AUTO_APPROVE_DEADLINE_MAX_SECONDS = 48 * 3600

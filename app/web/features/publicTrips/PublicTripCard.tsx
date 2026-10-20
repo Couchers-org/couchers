@@ -226,9 +226,9 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
       <StyledCard id={id} elevation={0} sx={{ opacity: isDimmed ? 0.65 : 1 }}>
         {ownerView && (
           <ConfirmationDialogWrapper
-            title={t("publicTrips:close_dialog_title")}
-            message={t("publicTrips:close_dialog_message")}
-            confirmButtonLabel={t("publicTrips:close_dialog_confirm")}
+            title={t("publicTrips:close_dialog.title")}
+            message={t("publicTrips:close_dialog.message")}
+            confirmButtonLabel={t("publicTrips:close_dialog.confirm_button")}
             onConfirm={() =>
               updateTrip({
                 tripId: trip.tripId,
@@ -242,21 +242,21 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
                   ? [
                       {
                         icon: WavingHandOutlined,
-                        label: t("publicTrips:view_invitations"),
+                        label: t("publicTrips:trip_card.view_invitations_button"),
                         onClick: () => router.push(routeToPublicTripOffers(trip.tripId)),
                       },
                     ]
                   : []),
                 {
                   icon: EditIcon,
-                  label: t("publicTrips:edit"),
+                  label: t("publicTrips:trip_card.edit_button"),
                   onClick: () => setShowEditDialog(true),
                 },
                 ...(!isClosed
                   ? [
                       {
                         icon: CheckCircleIcon,
-                        label: t("publicTrips:close"),
+                        label: t("publicTrips:trip_card.close_button"),
                         onClick: () => setConfirmOpen(true),
                       },
                     ]
@@ -265,7 +265,7 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
                   ? [
                       {
                         icon: ReopenIcon,
-                        label: t("publicTrips:reopen"),
+                        label: t("publicTrips:trip_card.reopen_button"),
                         onClick: () =>
                           updateTrip({
                             tripId: trip.tripId,
@@ -323,7 +323,7 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
                       letterSpacing: "0.08em",
                     }}
                   >
-                    {t("publicTrips:you_overlay")}
+                    {t("publicTrips:trip_card.you_overlay")}
                   </Typography>
                 </Box>
               )}
@@ -336,7 +336,7 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
               {user.gender ? `, ${user.gender}` : ""}
             </UserDetails>
             <UserDetails variant="body2">
-              {t("publicTrips:references", {
+              {t("publicTrips:trip_card.references", {
                 count: user.numReferences,
               })}
             </UserDetails>
@@ -366,7 +366,7 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
               {trip.sameGenderOnly && (
                 <MetaItem>
                   <VisibilityIcon />
-                  {t("publicTrips:same_gender_only_indicator")}
+                  {t("publicTrips:trip_card.same_gender_only_indicator")}
                 </MetaItem>
               )}
             </MetaRow>
@@ -392,7 +392,7 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
                   mt: 0.5,
                 }}
               >
-                {expanded ? t("publicTrips:show_less") : t("publicTrips:show_more")}
+                {expanded ? t("publicTrips:trip_card.show_less_action") : t("publicTrips:trip_card.show_more_action")}
                 {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
               </Typography>
             )}
@@ -409,11 +409,16 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
                 {ownerView ? (
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     {isClosed ? (
-                      <Chip label={t("publicTrips:status_closed")} size="small" />
+                      <Chip label={t("publicTrips:trip_card.status_pills.closed")} size="small" />
                     ) : isPast ? (
-                      <Chip label={t("publicTrips:status_past")} size="small" />
+                      <Chip label={t("publicTrips:trip_card.status_pills.past")} size="small" />
                     ) : (
-                      <Chip label={t("publicTrips:status_active")} size="small" color="primary" variant="outlined" />
+                      <Chip
+                        label={t("publicTrips:trip_card.status_pills.active")}
+                        size="small"
+                        color="primary"
+                        variant="outlined"
+                      />
                     )}
                     {isOwnTrip && (
                       <Box
@@ -442,17 +447,17 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
                           <HourglassEmptyOutlined sx={{ fontSize: "1rem" }} />
                         )}
                         {(trip.offersCount ?? 0) > 0
-                          ? t("publicTrips:invitations_count", {
+                          ? t("publicTrips:trip_card.invitations_count", {
                               count: trip.offersCount ?? 0,
                             })
-                          : t("publicTrips:no_invitations")}
+                          : t("publicTrips:trip_card.no_invitations")}
                       </Box>
                     )}
                   </Box>
                 ) : (
                   <>
                     <ProfileLink userId={user.userId} username={user.username} openInNewTab={!isNativeEmbed}>
-                      {t("publicTrips:view_profile")}
+                      {t("publicTrips:trip_card.view_profile_button")}
                     </ProfileLink>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                       <FlagButton contentRef={contentRefs.publicTrip(trip)} authorUser={user.userId} />
@@ -464,7 +469,7 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
                           endIcon={<ChevronRightIcon />}
                           sx={{ whiteSpace: "nowrap" }}
                         >
-                          {t("publicTrips:already_invited")}
+                          {t("publicTrips:trip_card.already_invited_indicator")}
                         </Button>
                       ) : isDimmed ? (
                         // Closed/past trips can't be offered on (the backend
@@ -472,16 +477,16 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
                         // but guard against the trip closing/expiring while the
                         // card is on screen. Tooltip needs a wrapper since
                         // disabled buttons don't emit hover events.
-                        <Tooltip title={t("publicTrips:invitations_unavailable")}>
+                        <Tooltip title={t("publicTrips:trip_card.offer_to_host_button_disabled_tooltip")}>
                           <span>
                             <Button startIcon={<CouchIcon />} disabled>
-                              {t("publicTrips:offer_to_host")}
+                              {t("publicTrips:trip_card.offer_to_host_button")}
                             </Button>
                           </span>
                         </Tooltip>
                       ) : (
                         <Button startIcon={<CouchIcon />} onClick={handleOfferToHost}>
-                          {t("publicTrips:offer_to_host")}
+                          {t("publicTrips:trip_card.offer_to_host_button")}
                         </Button>
                       )}
                     </Box>

@@ -32,7 +32,6 @@
   "non_transactional_description": "Não há pagamentos em dinheiro nem de qualquer tipo para participar de atividades ou da comunidade. Quando você se hospeda na casa de alguém, não é obrigado a hospedar no futuro.",
   "why": "Por quê?",
   "map_section_title": "Explore nossa comunidade global",
-  "last_signup": "Último login {{timeAgo}}",
   "non_transactional_why": "Isso é fundamentalmente incompatível com interações genuínas. É saudável apenas dar ou apenas receber e deveríamos aprender a ficar mais confortáveis com isso.",
   "signup_description2_one": "Viaje, hospede e conecte-se com {{count}} membro. <aboutLink>Saiba mais sobre nós<aboutLink>.",
   "signup_description2_many": "Viaje, hospede e conecte-se com {{count}} membros. <aboutLink>Saiba mais sobre nós<aboutLink>.",
@@ -46,5 +45,6 @@
   "num_countries2_one": "Mais de {{count}} país",
   "num_countries2_many": "Mais de {{count}} países",
   "num_countries2_other": "Mais de {{count}} países",
-  "animation_error": "Erro ao carregar animação"
+  "animation_error": "Erro ao carregar animação",
+  "last_signup2": "Último cadastro <timeAgo/>"
 }

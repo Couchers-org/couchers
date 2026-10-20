@@ -29,7 +29,6 @@ from couchers.proto import (
     discussions_pb2_grpc,
     donations_pb2_grpc,
     editor_pb2_grpc,
-    events_pb2_grpc,
     galleries_pb2_grpc,
     gis_pb2_grpc,
     groups_pb2_grpc,
@@ -46,6 +45,7 @@ from couchers.proto import (
     reporting_pb2_grpc,
     requests_pb2_grpc,
     resources_pb2_grpc,
+    screens_pb2_grpc,
     search_pb2_grpc,
     stripe_pb2_grpc,
     threads_pb2_grpc,
@@ -61,7 +61,6 @@ from couchers.servicers.conversations import Conversations
 from couchers.servicers.discussions import Discussions
 from couchers.servicers.donations import Donations, Stripe
 from couchers.servicers.editor import Editor
-from couchers.servicers.events import Events
 from couchers.servicers.galleries import Galleries
 from couchers.servicers.gis import GIS
 from couchers.servicers.groups import Groups
@@ -77,6 +76,7 @@ from couchers.servicers.references import References
 from couchers.servicers.reporting import Reporting
 from couchers.servicers.requests import Requests
 from couchers.servicers.resources import Resources
+from couchers.servicers.screens import Screens
 from couchers.servicers.search import Search
 from couchers.servicers.threads import Threads
 from tests.fixtures import query_log
@@ -453,6 +453,13 @@ def discussions_session(token: str):
 
 
 @contextmanager
+def screens_session(token: str):
+    channel = FakeChannel(token)
+    screens_pb2_grpc.add_ScreensServicer_to_server(Screens(), channel)
+    yield screens_pb2_grpc.ScreensStub(channel)
+
+
+@contextmanager
 def donations_session(token: str):
     channel = FakeChannel(token)
     donations_pb2_grpc.add_DonationsServicer_to_server(Donations(), channel)
@@ -539,13 +546,6 @@ def reporting_session(token: str):
     channel = FakeChannel(token)
     reporting_pb2_grpc.add_ReportingServicer_to_server(Reporting(), channel)
     yield reporting_pb2_grpc.ReportingStub(channel)
-
-
-@contextmanager
-def events_session(token: str):
-    channel = FakeChannel(token)
-    events_pb2_grpc.add_EventsServicer_to_server(Events(), channel)
-    yield events_pb2_grpc.EventsStub(channel)
 
 
 @contextmanager

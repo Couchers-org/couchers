@@ -84,13 +84,13 @@
   "public_trips": {
     "when_now": "Сейчас",
     "same_gender_only_indicator": "Тот же пол",
-    "offers_count_one": "{{count}} предложение",
-    "offers_count_few": "{{count}} предложения",
-    "offers_count_many": "{{count}} предложений",
-    "no_offers": "Пока нет предложений",
     "my_trips_header": "Ваши публичные поездки",
     "manage_link": "Управлять",
-    "empty_description": "Куда-то собираетесь? Опубликуйте публичную поездку в сообществе, чтобы получать предложения от хозяев поблизости."
+    "empty_description": "Куда-то собираетесь? Опубликуйте публичную поездку в сообществе, чтобы получать предложения от хозяев поблизости.",
+    "invitations_count_one": "{{count}} приглашение",
+    "invitations_count_few": "{{count}} приглашеня",
+    "invitations_count_many": "{{count}} приглашений",
+    "no_invitations": "Приглашений пока нет"
   },
   "stays": {
     "upcoming_trips_header": "Ваши предстоящие поездки",
