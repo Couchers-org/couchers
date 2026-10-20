@@ -13,6 +13,7 @@ export interface NativeCalendarEvent {
   endDate: string; // ISO 8601
   timeZone: string;
   location: string;
+  url: string;
   notes: string;
 }
 
@@ -31,6 +32,8 @@ function getNativeEmbedInfo(): NativeEmbedInfo | undefined {
   }
 }
 
+// Not exported: calling this during render causes a hydration mismatch (it's always false on the server).
+// Components should use useIsNativeEmbed instead.
 function isNativeEmbed(): boolean {
   const webview = getReactNativeWebView();
   if (!webview) return false;

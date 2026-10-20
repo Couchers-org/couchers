@@ -21,6 +21,7 @@ const event = {
   endDate: "2021-06-29T03:37:00Z",
   timeZone: "Europe/Amsterdam",
   location: "Concertgebouw",
+  url: "https://couchers.org/event/1/weekly-meetup",
   notes: "Be there or be square!\n\nhttps://couchers.org/event/1/weekly-meetup",
 };
 
@@ -50,6 +51,7 @@ describe("useAddToCalendar", () => {
       endDate: new Date("2021-06-29T03:37:00Z"),
       timeZone: "Europe/Amsterdam",
       location: "Concertgebouw",
+      url: "https://couchers.org/event/1/weekly-meetup",
       notes: event.notes,
     });
     expect(Calendar.requestCalendarPermissionsAsync).not.toHaveBeenCalled();

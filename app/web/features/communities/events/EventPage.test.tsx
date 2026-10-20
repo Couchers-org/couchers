@@ -262,7 +262,8 @@ describe("Event page", () => {
           endDate: "2021-06-29T03:37:00Z",
           timeZone: firstEvent.timezone,
           location: firstEvent.location.address,
-          notes: `Be there or be square!\n\n${window.location.href}`,
+          url: `${window.location.origin}/event/1/weekly-meetup`,
+          notes: `Be there or be square!\n\n${window.location.origin}/event/1/weekly-meetup`,
         },
       });
     });

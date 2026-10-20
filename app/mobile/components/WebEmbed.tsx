@@ -477,6 +477,8 @@ export default function WebEmbed({
           </View>
         )}
         injectedJavaScriptObject={NATIVE_EMBED_INFO}
+        // No-op: Android only re-injects the object above on each page load when this is set
+        injectedJavaScriptBeforeContentLoaded="true;"
         onLoad={() => {
           hasLoadedRef.current = true;
         }}

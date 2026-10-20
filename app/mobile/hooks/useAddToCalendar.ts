@@ -13,6 +13,7 @@ export interface CalendarEventData {
   endDate: string;
   timeZone: string;
   location: string;
+  url: string;
   notes: string;
 }
 
@@ -63,6 +64,7 @@ export function useAddToCalendar() {
           endDate: new Date(event.endDate),
           timeZone: event.timeZone,
           location: event.location,
+          url: event.url,
           notes: event.notes,
         });
       } catch (error) {
