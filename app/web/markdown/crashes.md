@@ -1,52 +1,468 @@
 ---
-title: "Couch Crashes & Global Gatherings"
-description: "Large-scale, multi-day, community-organized couch surfing events across the globe."
+title: Couch Crashes & Global Gatherings
+description: Large-scale, multi-day, community-organized couch surfing events
+  across the globe.
 crumb: Couch Crash Calendar
 type: general
 hide_title: true
 ---
+<style>
+/* --- 1. DEFAULT LIGHT MODE VARIABLES --- */
+.cc-wrapper {
+  --cc-font: 'Ubuntu', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --cc-text: #313539;
+  --cc-text-muted: #4a5568;
+  --cc-text-light: #666666;
+  --cc-heading: #313539;
+  --cc-card-bg: #ffffff;
+  --cc-border: #e0e0e0;
+  --cc-border-light: #eeeeee;
+  --cc-muted-bg: #f4f5f7;
+  --cc-date-bg: #e6f6f5;
+  --cc-date-text: #007a72;
+  --cc-propose-bg: #fdf8f3;
+  --cc-propose-border: #f9d8b6;
+  --cc-past-border: #9e9e9e;
+  --cc-primary: #00A398;
+  --cc-primary-hover: #00877e;
+  --cc-overlap-bg: #fdf1e6;
+  --cc-overlap-text: #E47701;
+  --cc-overlap-border: #f9d8b6;
+  color-scheme: inherit;
+  font-family: var(--cc-font);
+  color: var(--cc-text);
+  line-height: 1.5;
+  max-width: 100%;
+  position: relative;
+}
+/* --- 2. EXPLICIT SITE DARK MODE TOGGLE (MUI, Next.js & Standard CMS Hooks) --- */
+:is(
+  .dark,
+  .dark-mode,
+  .theme-dark,
+  [data-theme="dark"],
+  [data-color-scheme="dark"],
+  [data-mui-color-scheme="dark"]
+) .cc-wrapper {
+  --cc-text: #e2e8f0;
+  --cc-text-muted: #94a3b8;
+  --cc-text-light: #94a3b8;
+  --cc-heading: #f8fafc;
+  --cc-card-bg: #1e293b;
+  --cc-border: #334155;
+  --cc-border-light: #273548;
+  --cc-muted-bg: #334155;
+  --cc-date-bg: #042f2e;
+  --cc-date-text: #2dd4bf;
+  --cc-propose-bg: #1a2332;
+  --cc-propose-border: #78350f;
+  --cc-past-border: #64748b;
+  --cc-primary: #2dd4bf;
+  --cc-primary-hover: #14b8a6;
+  --cc-overlap-bg: #381d09;
+  --cc-overlap-text: #fb923c;
+  --cc-overlap-border: #9a3412;
+}
+/* --- 3. SYSTEM DARK MODE (Only if user hasn't forced Light Mode on the site) --- */
+@media (prefers-color-scheme: dark) {
+  :root:not(:is(
+    .light,
+    .light-mode,
+    .theme-light,
+    [data-theme="light"],
+    [data-color-scheme="light"],
+    [data-mui-color-scheme="light"]
+  )) body:not(:is(
+    .light,
+    .light-mode,
+    .theme-light,
+    [data-theme="light"],
+    [data-color-scheme="light"],
+    [data-mui-color-scheme="light"]
+  )) .cc-wrapper {
+    --cc-text: #e2e8f0;
+    --cc-text-muted: #94a3b8;
+    --cc-text-light: #94a3b8;
+    --cc-heading: #f8fafc;
+    --cc-card-bg: #1e293b;
+    --cc-border: #334155;
+    --cc-border-light: #273548;
+    --cc-muted-bg: #334155;
+    --cc-date-bg: #042f2e;
+    --cc-date-text: #2dd4bf;
+    --cc-propose-bg: #1a2332;
+    --cc-propose-border: #78350f;
+    --cc-past-border: #64748b;
+    --cc-primary: #2dd4bf;
+    --cc-primary-hover: #14b8a6;
+    --cc-overlap-bg: #381d09;
+    --cc-overlap-text: #fb923c;
+    --cc-overlap-border: #9a3412;
+  }
+}
+/* --- HERO SECTION --- */
+.cc-hero {
+  position: relative;
+  height: 300px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 24px;
+  border: 1px solid var(--cc-border);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 28px 24px;
+  box-sizing: border-box;
+}
+.cc-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.65) 100%);
+  z-index: 1;
+}
+.cc-hero-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+.cc-hero h1,
+.cc-hero p:not(.cc-hero-credit) {
+  position: relative;
+  z-index: 2;
+  color: #ffffff;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+}
+.cc-hero h1 {
+  font-size: 2.75rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+.cc-hero p:not(.cc-hero-credit) {
+  font-size: 1.05rem;
+  max-width: 720px;
+}
+.cc-hero-credit {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.5);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.75rem;
+  padding: 3px 8px;
+  margin: 0;
+  border-top-left-radius: 4px;
+  z-index: 3;
+}
+.cc-hero-credit a { color: #ffffff; text-decoration: underline; }
+@media (max-width: 600px) {
+  .cc-hero { height: 240px; padding: 32px 16px; }
+  .cc-hero h1 { font-size: 2rem; }
+  .cc-hero p:not(.cc-hero-credit) { font-size: 0.95rem; }
+}
+/* --- EXPANDABLE DRAWERS --- */
+.cc-drawer {
+  background: var(--cc-card-bg);
+  border: 1px solid var(--cc-border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+.cc-drawer-past { margin-top: 32px; }
+.cc-drawer summary {
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 1.25rem;
+  color: var(--cc-primary);
+  outline: none;
+}
+.cc-drawer summary:hover { text-decoration: underline; }
+.cc-drawer[open] summary {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--cc-border-light);
+}
+.cc-drawer p {
+  font-size: 0.95rem;
+  color: var(--cc-text-muted);
+  margin: 0 0 10px 0;
+}
+.cc-drawer p:last-child { margin-bottom: 0; }
+.cc-drawer .important-block {
+  padding: 10px 14px;
+  background: var(--cc-muted-bg);
+  border-left: 4px solid var(--cc-primary);
+  border-radius: 4px;
+  color: var(--cc-text);
+}
+/* --- HEADERS & GRID (UL/LI) --- */
+.cc-section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--cc-heading);
+  margin: 32px 0 8px 0;
+}
+.cc-month, .cc-year {
+  margin: 24px 0 12px 0;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--cc-border-light);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--cc-primary);
+}
+.cc-drawer .cc-year:first-of-type { margin-top: 0; }
+.cc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 16px;
+  margin: 8px 0 24px 0;
+  padding: 0;
+  list-style: none;
+}
+.cc-drawer .cc-grid:last-child { margin-bottom: 0; }
+/* --- EVENT CARDS --- */
+.cc-card {
+  background: var(--cc-card-bg);
+  border: 1px solid var(--cc-border);
+  border-top: 4px solid var(--cc-primary);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  margin: 0;
+}
+.cc-card:hover {
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+.cc-card.overlap { border-top-color: var(--cc-overlap-text); }
+.cc-card.past { border-top-color: var(--cc-past-border); }
+.cc-card-img {
+  width: calc(100% + 32px);
+  margin: -16px -16px 14px -16px;
+  height: 145px;
+  object-fit: cover;
+  display: block;
+  border-bottom: 1px solid var(--cc-border-light);
+}
+.cc-date-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.cc-date {
+  background: var(--cc-date-bg);
+  color: var(--cc-date-text);
+  font-weight: 500;
+  font-size: 0.85rem;
+  padding: 3px 10px;
+  border-radius: 4px;
+}
+.cc-card.past .cc-date {
+  background: var(--cc-muted-bg);
+  color: var(--cc-text-muted);
+}
+.cc-overlap-tag {
+  background: var(--cc-overlap-bg);
+  color: var(--cc-overlap-text);
+  border: 1px solid var(--cc-overlap-border);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.cc-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+}
+.cc-title a { color: var(--cc-heading); text-decoration: none; }
+.cc-title a:hover { color: var(--cc-primary); text-decoration: underline; }
+.cc-meta {
+  font-size: 0.92rem;
+  color: var(--cc-text-muted);
+  margin: 0 0 14px 0;
+}
+.cc-organizer {
+  margin: auto 0 0 0;
+  font-size: 0.85rem;
+  color: var(--cc-text-light);
+  border-top: 1px solid var(--cc-border-light);
+  padding-top: 10px;
+}
+.cc-organizer a,
+.cc-propose-box a:not(.cc-btn) {
+  color: var(--cc-primary);
+  font-weight: 500;
+  text-decoration: none;
+}
+.cc-organizer a:hover,
+.cc-propose-box a:not(.cc-btn):hover { text-decoration: underline; }
+/* --- BUTTONS & FLOATING CTA --- */
+.cc-btn {
+  display: inline-block;
+  background-color: var(--cc-primary);
+  color: #ffffff !important;
+  font-weight: 500;
+  font-size: 0.92rem;
+  padding: 8px 18px;
+  border-radius: 6px;
+  text-decoration: none !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.14);
+  transition: background-color 0.2s ease, transform 0.15s ease, opacity 0.25s ease;
+}
+.cc-btn:hover {
+  background-color: var(--cc-primary-hover);
+  transform: translateY(-1px);
+}
+.cc-fab {
+  position: sticky;
+  bottom: 24px;
+  float: right;
+  z-index: 999;
+  margin-top: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.22);
+}
+.cc-fab-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+/* --- PROPOSE BOX --- */
+.cc-propose-box {
+  clear: both;
+  background: var(--cc-propose-bg);
+  border: 1px solid var(--cc-propose-border);
+  border-left: 6px solid var(--cc-overlap-text);
+  border-radius: 8px;
+  padding: 20px 24px;
+  margin-top: 24px;
+}
+.cc-propose-box h3 {
+  margin: 0 0 8px 0;
+  color: var(--cc-heading);
+  font-size: 1.25rem;
+}
+.cc-propose-box p { margin: 14px 0 0 0; }
+.cc-propose-box code {
+  background: var(--cc-muted-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+}
+</style>
 
-# What is a Couch Crash?
-
-A Couch Crash (sometimes called an Invasion or Camp) is a multi-day couch surfing event organized by locals to welcome the global community. Whether structured like a city weekend or an outdoor festival, it is designed to showcase the hosts' corner of the world to visiting members.
-
-Unlike regular meetups and events, Couch Crashes usually feature a multi-day itinerary including tours, potlucks, and parties. Local couch surfers organize the events and host the influx of visiting couch surfers.
-
-Browse the upcoming Crashes below, pack your bags, and discover a new place through the eyes of locals while connecting with couch surfers from around the world!
-
-> **Note on Accommodation:** A Couch Crash is a community gathering, not guaranteed lodging. Local members host when possible, but attendees are encouraged to send requests early or arrange backup accommodation (hostels, camping, or guesthouses).
-
----
-
-## Propose a Crash
-
-Want your Couch Crash listed here?\
-Send a message to [ChrisK](https://couchers.org/user/chrisk) with:\
-Couch Crash: [Link to event} 
-
-If your community organizes a Couch Crash, be sure to reach out to your local Community Builder (you find them on the "Local Info" tab of your "[Community Page](https://couchers.org/communities)") to let them know and consider collaborating.
-
-Want to become a Community Builder? Learn more [here](https://help.couchers.org/hc/couchersorg-help-center/articles/1743977410-what-is-a-community-builder)!
-
----
-
-## Upcoming Crashes
-
-### December 2026
-
-* **[Wrocław CS Winter Camp](https://couchers.org/event/7766/wroclaw-cs-winter-camp)**\
-  📍 Wrocław, Poland\
-  📅 December 30, 2026 – January 4, 2027\
-  👤 Organized by [Chris](https://couchers.org/user/christr)
-
----
-
-## Past Crashes
-
-### 2026
-
-* **Brisbane Christmas in July Couch Crash 2026**\
-  📍 Brisbane, Australia\
-  📅 July 23 – 26, 2026\
-  👤 Organized by [ChrisK](https://couchers.org/user/chrisk)
-
+<div class="cc-wrapper">
+<!-- HERO SECTION -->
+<div class="cc-hero">
+  <img class="cc-hero-img" sizes="100vw" alt="Couchers community" srcset="https://cdn.couchers.org/img/hero/1024.jpeg 1024w, https://cdn.couchers.org/img/hero/2048.jpeg 2048w, https://cdn.couchers.org/img/hero/4096.jpeg 4096w" src="https://cdn.couchers.org/img/hero/2048.jpeg">
+  <h1>Couch Crash Calendar</h1>
+  <p>Discover upcoming multi-day Couch Crashes and connect with local hosts and travelers around the world.</p>
+  <p class="cc-hero-credit">Photo by <a href="https://unsplash.com/@directormesut?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText" rel="noreferrer noopener" target="_blank">Mesut Kaya</a> on <a href="https://unsplash.com/?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText" rel="noreferrer noopener" target="_blank">Unsplash</a></p>
+</div>
+<!-- COLLAPSIBLE INFO -->
+<details class="cc-drawer">
+  <summary>What is a Couch Crash &amp; Note on Accommodation</summary>
+  <p>A Couch Crash (sometimes called an Invasion or Camp) is a multi-day couch surfing event organized by locals to welcome the global community. Whether structured like a city weekend or an outdoor festival, it is designed to showcase the hosts' corner of the world to visiting members.</p>
+  <p>Unlike regular meetups and events, Couch Crashes usually feature a multi-day itinerary including tours, potlucks, and parties. Local couch surfers organize the events and host the influx of visiting couch surfers.</p>
+  <p class="important-block"><strong>Note on Accommodation:</strong> A Couch Crash is a community gathering, not guaranteed lodging. Local members host when possible, but attendees are encouraged to send requests early or arrange backup accommodation (hostels, camping, or guesthouses).</p>
+</details>
+<!-- UPCOMING CRASHES -->
+<h2 class="cc-section-title">Upcoming Crashes</h2>
+<h3 class="cc-month">December 2026</h3>
+<ul class="cc-grid">
+  <li class="cc-card">
+    <img class="cc-card-img" src="https://images.unsplash.com/photo-1519197924294-4ba991a11128?auto=format&fit=crop&w=600&q=80" alt="Awesome Event">
+    <div class="cc-date-row"><span class="cc-date">📅 November 24 – 29, 2026</span></div>
+    <h4 class="cc-title"><a href="https://couchers.org/event/7766/wroclaw-cs-winter-camp">Awesome Event</a></h4>
+    <p class="cc-meta">📍 NYC, United States</p>
+    <p class="cc-organizer">👤 Organized by <a href="https://couchers.org/user/aapeli">Aapeli</a></p>
+  </li>
+  <!-- -->
+  <li class="cc-card">
+    <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/7aca5034aa9bbcfc7752467ee812246b4257b864656b5f81f2450d5b23dfe232.jpg" alt="Wrocław CS Winter Camp">
+    <div class="cc-date-row"><span class="cc-date">📅 Dec 30, 2026 – Jan 4, 2027</span></div>
+    <h4 class="cc-title"><a href="https://couchers.org/event/7766/wroclaw-cs-winter-camp">Wrocław CS Winter Camp</a></h4>
+    <p class="cc-meta">📍 Wrocław, Poland</p>
+    <p class="cc-organizer">👤 Organized by <a href="https://couchers.org/user/christr">Chris</a></p>
+  </li>
+</ul>
+<!-- -->
+<h3 class="cc-month">January 2027</h3>
+<ul class="cc-grid">
+  <li class="cc-card overlap">
+    <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/9158c0ae91ed57e09caa203a5d415a3edaa8172a273ee1cc1e6bd7a4a937f477.jpg" alt="New Years Event Berlin">
+    <div class="cc-date-row">
+      <span class="cc-date">📅 January 6 – 10, 2027</span>
+      <span class="cc-overlap-tag">Same Weekend</span>
+    </div>
+    <h4 class="cc-title"><a href="https://couchers.org/event/7766/wroclaw-cs-winter-camp">New Years Event Berlin</a></h4>
+    <p class="cc-meta">📍 Berlin, Germany</p>
+    <p class="cc-organizer">👤 Organized by <a href="https://couchers.org/user/chrisk">ChrisK</a></p>
+  </li>
+  <!-- -->
+  <li class="cc-card overlap">
+    <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/7ecbd262e071ea0539d4614c6ecba42ac96eddd61479677d0e396273c7e64b5e.jpg" alt="New Years Event Leipzig">
+    <div class="cc-date-row">
+      <span class="cc-date">📅 January 7 – 10, 2027</span>
+      <span class="cc-overlap-tag">Same Weekend</span>
+    </div>
+    <h4 class="cc-title"><a href="https://couchers.org/event/7766/wroclaw-cs-winter-camp">New Years Event Leipzig</a></h4>
+    <p class="cc-meta">📍 Leipzig, Germany</p>
+    <p class="cc-organizer">👤 Organized by <a href="https://couchers.org/user/chrisk">Iason</a></p>
+  </li>
+  <!-- -->
+  <li class="cc-card">
+    <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/4af3edfd5e38c45967ca81b1475e2da608be6f77842919a35113f88c0f323491.jpg" alt="Sydney Summer Crash">
+    <div class="cc-date-row"><span class="cc-date">📅 January 21 – 24, 2027</span></div>
+    <h4 class="cc-title"><a href="https://couchers.org/event/7684/couchers-fortnight-meet-greet">Sydney Summer Crash</a></h4>
+    <p class="cc-meta">📍 Sydney, Australia</p>
+    <p class="cc-organizer">👤 Organized by <a href="https://couchers.org/user/chrisk">Jesse</a></p>
+  </li>
+</ul>
+<!-- PAST CRASHES -->
+<details class="cc-drawer cc-drawer-past">
+  <summary>Past Crashes</summary>
+  <h4 class="cc-year">2026</h4>
+  <ul class="cc-grid">
+    <li class="cc-card past">
+      <img class="cc-card-img" src="https://images.unsplash.com/photo-1519197924294-4ba991a11128?auto=format&fit=crop&w=600&q=80" alt="Brisbane Christmas in July">
+      <div class="cc-date-row"><span class="cc-date">📅 Jul 23 – 26, 2026</span></div>
+      <h4 class="cc-title">Brisbane Christmas in July Couch Crash 2026</h4>
+      <p class="cc-meta">📍 Brisbane, Australia</p>
+      <p class="cc-organizer">👤 Organized by <a href="https://couchers.org/user/chrisk">ChrisK</a></p>
+    </li>
+  </ul>
+  <h4 class="cc-year">2025</h4>
+  <ul class="cc-grid">
+    <li class="cc-card past">
+      <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/37e6f814d49027a6fff6f07b8fe271f09f1651385bfbe3d7859e40018c59fef9.jpg" alt="Perth Christmas in July">
+      <div class="cc-date-row"><span class="cc-date">📅 Jul 23 – 26, 2025</span></div>
+      <h4 class="cc-title">Perth Christmas in July Couch Crash 2025</h4>
+      <p class="cc-meta">📍 Perth, Australia</p>
+      <p class="cc-organizer">👤 Organized by <a href="https://couchers.org/user/chrisk">ChrisK</a></p>
+    </li>
+  </ul>
+</details>
+<!-- FLOATING PROPOSE BUTTON -->
+<a href="#propose-crash" class="cc-btn cc-fab" id="cc-floating-btn">Propose a Crash</a>
+<!-- PROPOSE A CRASH SECTION -->
+<div id="propose-crash" class="cc-propose-box">
+  <h3>Propose a Crash</h3>
+  <p>Want your Couch Crash listed here? Send a message to <a href="https://couchers.org/user/chrisk">ChrisK</a> with the following line:</p>
+  <p><code>Couch Crash: (Link to event)</code></p>
+  <p><a href="https://couchers.org/user/chrisk" class="cc-btn">Message ChrisK to Submit</a></p>
+  <p>If your community organizes a Couch Crash, be sure to reach out to your local <strong>Community Builder</strong> (found on the "Local Info" tab of your <a href="https://couchers.org/communities">Community Page</a>) to let them know and consider collaborating.</p>
+  <p>Want to become a Community Builder? <a href="https://help.couchers.org/hc/couchersorg-help-center/articles/1743977410-what-is-a-community-builder">Learn more here</a>.</p>
+</div>
+</div>
