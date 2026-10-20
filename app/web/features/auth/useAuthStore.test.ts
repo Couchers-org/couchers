@@ -3,6 +3,7 @@ import { act, renderHook } from "@testing-library/react";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { StatusCode } from "grpc-web";
 import { useClearablePersistedState } from "platform/usePersistedState";
+import TagManager from "react-gtm-module";
 import { service } from "service";
 
 import wrapper from "../../test/hookWrapper";
@@ -21,6 +22,7 @@ const getIsJailedMock = service.jail.getIsJailed as jest.Mock;
 const logoutMock = service.user.logout as jest.Mock;
 const getAccountInfoMock = service.account.getAccountInfo as jest.Mock;
 const captureExceptionMock = captureException as jest.Mock;
+const dataLayerMock = TagManager.dataLayer as jest.Mock;
 
 describe("useClearablePersistedState hook", () => {
   it("uses a default value", () => {
@@ -325,6 +327,7 @@ describe("updateSignupState action", () => {
     expect(result.current.authState.jailed).toBe(false);
     expect(result.current.authState.authenticated).toBe(false);
     expect(result.current.authState.flowState?.flowToken).toBe("dummy-token");
+    expect(dataLayerMock).not.toHaveBeenCalled();
   });
 
   it("sets state correctly if success", async () => {
@@ -356,6 +359,10 @@ describe("updateSignupState action", () => {
     expect(result.current.authState.jailed).toBe(false);
     expect(result.current.authState.authenticated).toBe(true);
     expect(result.current.authState.flowState).toBe(null);
+    expect(dataLayerMock).toHaveBeenCalledTimes(1);
+    expect(dataLayerMock).toHaveBeenCalledWith({
+      dataLayer: expect.objectContaining({ event: "sign_up", signupMethod: "email", userId: 51 }),
+    });
   });
 });
 
