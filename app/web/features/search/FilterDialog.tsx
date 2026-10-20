@@ -26,7 +26,7 @@ import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { HostingStatus, MeetupStatus, SleepingArrangement } from "proto/api_pb";
 import { theme } from "theme";
 
-import { settingsRoute } from "../../routes";
+import { verificationRoute } from "../../routes";
 import { FilterOptions } from "./SearchPage";
 import { useMapSearchActions } from "./state/useMapSearchActions";
 import { DEFAULT_AGE_MAX, DEFAULT_AGE_MIN, lastActiveOptions, SleepingArrangementOptions } from "./utils/constants";
@@ -406,7 +406,7 @@ const FilterDialog = ({ filters, isOpen, onCloseDialog, resetFilters, updateFilt
               >
                 {t("search:form.general_filters.same_gender_only_helper_text")}{" "}
                 <a
-                  href={`${settingsRoute}#strong-verification`}
+                  href={verificationRoute}
                   style={{ color: "var(--mui-palette-primary-main)" }}
                   target="_blank"
                   rel="noopener noreferrer"
