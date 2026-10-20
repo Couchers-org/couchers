@@ -330,7 +330,6 @@ hide_title: true
     <div class="cc-card">
       <img class="cc-card-img" src="https://images.unsplash.com/photo-1519197924294-4ba991a11128?auto=format&fit=crop&w=600&q=80" alt="Awesome Event" />
       <div class="cc-card-body">
-        <div>
           <div class="cc-date-row">
             <span class="cc-date">📅 November 24 – 29, 2026</span>
           </div>
@@ -342,7 +341,6 @@ hide_title: true
             <span class="cc-tag">City & Culture</span>
             <span class="cc-tag">Nightlife</span>
           </div>
-        </div>
         <div class="cc-organizer">
           👤 Organized by <a href="https://couchers.org/user/aapeli">Aapeli</a>
         </div>
@@ -352,7 +350,6 @@ hide_title: true
     <div class="cc-card">
       <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/7aca5034aa9bbcfc7752467ee812246b4257b864656b5f81f2450d5b23dfe232.jpg" alt="Wrocław CS Winter Camp" />
       <div class="cc-card-body">
-        <div>
           <div class="cc-date-row">
             <span class="cc-date">📅 Dec 30, 2026 – Jan 4, 2027</span>
           </div>
@@ -364,7 +361,6 @@ hide_title: true
             <span class="cc-tag">Winter Camp</span>
             <span class="cc-tag">City & Culture</span>
           </div>
-        </div>
         <div class="cc-organizer">
           👤 Organized by <a href="https://couchers.org/user/christr">Chris</a>
         </div>
@@ -377,7 +373,6 @@ hide_title: true
     <div class="cc-card overlap">
       <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/9158c0ae91ed57e09caa203a5d415a3edaa8172a273ee1cc1e6bd7a4a937f477.jpg" alt="New Years Event Berlin" />
       <div class="cc-card-body">
-        <div>
           <div class="cc-date-row">
             <span class="cc-date">📅 January 6 – 10, 2027</span>
             <span class="cc-overlap-tag">Same Weekend</span>
@@ -390,7 +385,6 @@ hide_title: true
             <span class="cc-tag">City & Culture</span>
             <span class="cc-tag">Winter</span>
           </div>
-        </div>
         <div class="cc-organizer">
           👤 Organized by <a href="https://couchers.org/user/chrisk">ChrisK</a>
         </div>
@@ -400,7 +394,6 @@ hide_title: true
     <div class="cc-card overlap">
       <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/7ecbd262e071ea0539d4614c6ecba42ac96eddd61479677d0e396273c7e64b5e.jpg" alt="New Years Event Leipzig" />
       <div class="cc-card-body">
-        <div>
           <div class="cc-date-row">
             <span class="cc-date">📅 January 7 – 10, 2027</span>
             <span class="cc-overlap-tag">Same Weekend</span>
@@ -413,7 +406,6 @@ hide_title: true
             <span class="cc-tag">New Year</span>
             <span class="cc-tag">Winter</span>
           </div>
-        </div>
         <div class="cc-organizer">
           👤 Organized by <a href="https://couchers.org/user/chrisk">Iason</a>
         </div>
@@ -423,7 +415,6 @@ hide_title: true
     <div class="cc-card">
       <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/4af3edfd5e38c45967ca81b1475e2da608be6f77842919a35113f88c0f323491.jpg" alt="Sydney Summer Crash" />
       <div class="cc-card-body">
-        <div>
           <div class="cc-date-row">
             <span class="cc-date">📅 January 21 – 24, 2027</span>
           </div>
@@ -435,7 +426,6 @@ hide_title: true
             <span class="cc-tag">Summer</span>
             <span class="cc-tag">City Beach</span>
           </div>
-        </div>
         <div class="cc-organizer">
           👤 Organized by <a href="https://couchers.org/user/chrisk">Jesse</a>
         </div>
@@ -453,13 +443,11 @@ hide_title: true
         <div class="cc-card" style="border-top-color: #9e9e9e;">
           <img class="cc-card-img" src="https://images.unsplash.com/photo-1519197924294-4ba991a11128?auto=format&fit=crop&w=600&q=80" alt="Brisbane Christmas in July" />
           <div class="cc-card-body">
-            <div>
               <div class="cc-date-row">
                 <span class="cc-date" style="background: #f4f5f7; color: #4a5568;">📅 Jul 23 – 26, 2026</span>
               </div>
               <h4 class="cc-title">Brisbane Christmas in July Couch Crash 2026</h4>
               <div class="cc-meta">📍 Brisbane, Australia</div>
-            </div>
             <div class="cc-organizer">
               👤 Organized by <a href="https://couchers.org/user/chrisk">ChrisK</a>
             </div>
@@ -472,13 +460,11 @@ hide_title: true
         <div class="cc-card" style="border-top-color: #9e9e9e;">
           <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/37e6f814d49027a6fff6f07b8fe271f09f1651385bfbe3d7859e40018c59fef9.jpg" alt="Perth Christmas in July" />
           <div class="cc-card-body">
-            <div>
               <div class="cc-date-row">
                 <span class="cc-date" style="background: #f4f5f7; color: #4a5568;">📅 Jul 23 – 26, 2025</span>
               </div>
               <h4 class="cc-title">Perth Christmas in July Couch Crash 2025</h4>
               <div class="cc-meta">📍 Perth, Australia</div>
-            </div>
             <div class="cc-organizer">
               👤 Organized by <a href="https://couchers.org/user/chrisk">ChrisK</a>
             </div>
@@ -525,7 +511,7 @@ hide_title: true
             fab.classList.remove('cc-fab-hidden');
           }
         });
-      }, { threshold: 0.2 });
+      }, { threshold: 0.6 });
       observer.observe(target);
     }
   });
