@@ -6,413 +6,470 @@ crumb: Couch Crash Calendar
 type: general
 hide_title: true
 ---
-```html
-<style>
-  /* --- COUCHERS.ORG DESIGN SYSTEM & LIGHT MODE DEFAULTS --- */
-  .cc-wrapper {
-    /* Default Light Mode Variables */
-    --cc-font: 'Ubuntu', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    --cc-text: #313539;
-    --cc-text-muted: #4a5568;
-    --cc-text-light: #666666;
-    --cc-heading: #313539;
-    --cc-card-bg: #ffffff;
-    --cc-border: #e0e0e0;
-    --cc-border-light: #eeeeee;
-    --cc-date-bg: #e6f6f5;
-    --cc-date-text: #007a72;
-    --cc-tag-bg: #f4f5f7;
-    --cc-tag-text: #4a5568;
-    --cc-propose-bg: #fdf8f3;
-    --cc-propose-border: #f9d8b6;
-    --cc-past-border: #9e9e9e;
+  <style>
+    /* --- COUCHERS.ORG DESIGN SYSTEM & LIGHT MODE DEFAULTS --- */
+    .cc-wrapper {
+      /* Default Light Mode Variables */
+      --cc-font: 'Ubuntu', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --cc-text: #313539;
+      --cc-text-muted: #4a5568;
+      --cc-text-light: #666666;
+      --cc-heading: #313539;
+      --cc-card-bg: #ffffff;
+      --cc-border: #e0e0e0;
+      --cc-border-light: #eeeeee;
+      --cc-date-bg: #e6f6f5;
+      --cc-date-text: #007a72;
+      --cc-tag-bg: #f4f5f7;
+      --cc-tag-text: #4a5568;
+      --cc-propose-bg: #fdf8f3;
+      --cc-propose-border: #f9d8b6;
+      --cc-past-border: #9e9e9e;
+      --cc-primary: #00A398;
+      --cc-primary-hover: #00877e;
+      --cc-overlap-bg: #fdf1e6;
+      --cc-overlap-text: #E47701;
+      --cc-overlap-border: #f9d8b6;
 
-    font-family: var(--cc-font);
-    color: var(--cc-text);
-    line-height: 1.5;
-    max-width: 100%;
-    position: relative;
-  }
+      font-family: var(--cc-font);
+      color: var(--cc-text);
+      line-height: 1.5;
+      max-width: 100%;
+      position: relative;
+    }
 
-  /* --- NATIVE DARK MODE TOGGLE HOOKS --- */
-  .dark .cc-wrapper,
-  .dark-mode .cc-wrapper,
-  .theme-dark .cc-wrapper,
-  [data-theme="dark"] .cc-wrapper,
-  html.dark .cc-wrapper,
-  body.dark .cc-wrapper {
-    --cc-text: #e2e8f0;
-    --cc-text-muted: #94a3b8;
-    --cc-text-light: #94a3b8;
-    --cc-heading: #f8fafc;
-    --cc-card-bg: #1e293b;
-    --cc-border: #334155;
-    --cc-border-light: #273548;
-    --cc-date-bg: #042f2e;
-    --cc-date-text: #2dd4bf;
-    --cc-tag-bg: #334155;
-    --cc-tag-text: #cbd5e1;
-    --cc-propose-bg: #221a12;
-    --cc-propose-border: #78350f;
-    --cc-past-border: #64748b;
-  }
+    /* --- COMPREHENSIVE NATIVE DARK MODE TOGGLE HOOKS --- */
+    .dark .cc-wrapper,
+    .dark-mode .cc-wrapper,
+    .theme-dark .cc-wrapper,
+    [data-theme="dark"] .cc-wrapper,
+    html.dark .cc-wrapper,
+    body.dark .cc-wrapper,
+    @media (prefers-color-scheme: dark) {
+      .cc-wrapper:not([data-theme="light"]) {
+        --cc-text: #e2e8f0;
+        --cc-text-muted: #94a3b8;
+        --cc-text-light: #94a3b8;
+        --cc-heading: #f8fafc;
+        --cc-card-bg: #1e293b;
+        --cc-border: #334155;
+        --cc-border-light: #273548;
+        --cc-date-bg: #042f2e;
+        --cc-date-text: #2dd4bf;
+        --cc-tag-bg: #334155;
+        --cc-tag-text: #cbd5e1;
+        --cc-propose-bg: #1a2332;
+        --cc-propose-border: #78350f;
+        --cc-past-border: #64748b;
+        --cc-primary: #2dd4bf;
+        --cc-primary-hover: #14b8a6;
+        --cc-overlap-bg: #381d09;
+        --cc-overlap-text: #fb923c;
+        --cc-overlap-border: #9a3412;
+      }
+    }
 
-  /* Couchers.org Hero Styles */
-  .cc-hero {
-    position: relative;
-    width: 100%;
-    height: 300px;
-    border-radius: 8px;
-    overflow: hidden;
-    margin-bottom: 24px;
-    background-color: var(--cc-card-bg);
-    border: 1px solid var(--cc-border);
-  }
-  .cc-hero-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-    display: block;
-  }
-  .cc-hero-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.65) 100%);
-    z-index: 1;
-  }
-  .cc-hero-credit {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    background: rgba(0, 0, 0, 0.5);
-    color: rgba(255, 255, 255, 0.85);
-    font-size: 0.75rem;
-    line-height: 1.4;
-    padding: 3px 8px;
-    margin: 0;
-    border-top-left-radius: 4px;
-    z-index: 3;
-  }
-  .cc-hero-credit a {
-    color: #ffffff;
-    text-decoration: underline;
-  }
-  .cc-hero-credit a:hover {
-    color: #00A398;
-  }
-  .cc-hero-content {
-    position: absolute;
-    bottom: 28px;
-    left: 24px;
-    right: 24px;
-    z-index: 2;
-  }
-  .cc-hero-content h1 {
-    font-size: 2.75rem;
-    font-weight: 700;
-    color: #ffffff;
-    margin: 0 0 8px 0;
-    line-height: 1.2;
-    letter-spacing: -0.01em;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
-  }
-  .cc-hero-content p {
-    font-size: 1.05rem;
-    color: rgba(255, 255, 255, 0.95);
-    margin: 0;
-    max-width: 720px;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
-  }
-  @media (max-width: 600px) {
+    /* Explicit class-based dark mode overrides for CMS environments */
+    .dark .cc-wrapper,
+    .dark-mode .cc-wrapper,
+    .theme-dark .cc-wrapper,
+    [data-theme="dark"] .cc-wrapper,
+    html.dark .cc-wrapper,
+    body.dark .cc-wrapper {
+      --cc-text: #e2e8f0;
+      --cc-text-muted: #94a3b8;
+      --cc-text-light: #94a3b8;
+      --cc-heading: #f8fafc;
+      --cc-card-bg: #1e293b;
+      --cc-border: #334155;
+      --cc-border-light: #273548;
+      --cc-date-bg: #042f2e;
+      --cc-date-text: #2dd4bf;
+      --cc-tag-bg: #334155;
+      --cc-tag-text: #cbd5e1;
+      --cc-propose-bg: #1a2332;
+      --cc-propose-border: #78350f;
+      --cc-past-border: #64748b;
+      --cc-primary: #2dd4bf;
+      --cc-primary-hover: #14b8a6;
+      --cc-overlap-bg: #381d09;
+      --cc-overlap-text: #fb923c;
+      --cc-overlap-border: #9a3412;
+    }
+
+    /* Couchers.org Hero Styles */
     .cc-hero {
-      height: 240px;
+      position: relative;
+      width: 100%;
+      height: 300px;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 24px;
+      background-color: var(--cc-card-bg);
+      border: 1px solid var(--cc-border);
+    }
+    .cc-hero-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+    .cc-hero-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.65) 100%);
+      z-index: 1;
+    }
+    .cc-hero-credit {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.5);
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 0.75rem;
+      line-height: 1.4;
+      padding: 3px 8px;
+      margin: 0;
+      border-top-left-radius: 4px;
+      z-index: 3;
+    }
+    .cc-hero-credit a {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+    .cc-hero-credit a:hover {
+      color: var(--cc-primary);
     }
     .cc-hero-content {
-      bottom: 32px;
-      left: 16px;
-      right: 16px;
+      position: absolute;
+      bottom: 28px;
+      left: 24px;
+      right: 24px;
+      z-index: 2;
     }
     .cc-hero-content h1 {
-      font-size: 2rem;
+      font-size: 2.75rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 0 0 8px 0;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
     }
     .cc-hero-content p {
-      font-size: 0.95rem;
+      font-size: 1.05rem;
+      color: rgba(255, 255, 255, 0.95);
+      margin: 0;
+      max-width: 720px;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
     }
-  }
+    @media (max-width: 600px) {
+      .cc-hero {
+        height: 240px;
+      }
+      .cc-hero-content {
+        bottom: 32px;
+        left: 16px;
+        right: 16px;
+      }
+      .cc-hero-content h1 {
+        font-size: 2rem;
+      }
+      .cc-hero-content p {
+        font-size: 0.95rem;
+      }
+    }
 
-  /* Expandable Info Drawers */
-  .cc-drawer {
-    background: var(--cc-card-bg);
-    border: 1px solid var(--cc-border);
-    border-radius: 8px;
-    padding: 12px 16px;
-    margin-bottom: 16px;
-  }
-  .cc-drawer.cc-drawer-past {
-    margin-top: 32px;
-  }
-  .cc-drawer summary {
-    font-weight: 500;
-    cursor: pointer;
-    font-size: 1.25rem;
-    color: #00A398;
-    outline: none;
-  }
-  .cc-drawer summary:hover {
-    text-decoration: underline;
-  }
-  .cc-drawer-content {
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid var(--cc-border-light);
-    font-size: 0.95rem;
-    color: var(--cc-text-muted);
-  }
-  .cc-drawer-content p {
-    margin: 0 0 10px 0;
-  }
-  .cc-drawer-content p:last-child {
-    margin-bottom: 0;
-  }
-  .cc-drawer-content p.important-block {
-    margin-left: 30px;
-  }
+    /* Expandable Info Drawers (Darkmode Compatible) */
+    .cc-drawer {
+      background: var(--cc-card-bg);
+      border: 1px solid var(--cc-border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+    .cc-drawer.cc-drawer-past {
+      margin-top: 32px;
+    }
+    .cc-drawer summary {
+      font-weight: 500;
+      cursor: pointer;
+      font-size: 1.25rem;
+      color: var(--cc-primary);
+      outline: none;
+    }
+    .cc-drawer summary:hover {
+      text-decoration: underline;
+    }
+    .cc-drawer-content {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--cc-border-light);
+      font-size: 0.95rem;
+      color: var(--cc-text-muted);
+    }
+    .cc-drawer-content p {
+      margin: 0 0 10px 0;
+    }
+    .cc-drawer-content p:last-child {
+      margin-bottom: 0;
+    }
+    .cc-drawer-content p.important-block {
+      margin-left: 0;
+      padding: 10px 14px;
+      background: var(--cc-tag-bg);
+      border-left: 4px solid var(--cc-primary);
+      border-radius: 4px;
+      color: var(--cc-text);
+    }
 
-  /* Section & Month Headers */
-  .cc-section-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--cc-heading);
-    margin: 32px 0 8px 0;
-  }
-  .cc-month, .cc-year {
-    margin: 24px 0 12px 0;
-    padding-bottom: 6px;
-    border-bottom: 2px solid var(--cc-border-light);
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #00A398;
-  }
-  .cc-year-first {
-    margin-top: 0;
-  }
+    /* Section & Month Headers */
+    .cc-section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--cc-heading);
+      margin: 32px 0 8px 0;
+    }
+    .cc-month, .cc-year {
+      margin: 24px 0 12px 0;
+      padding-bottom: 6px;
+      border-bottom: 2px solid var(--cc-border-light);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--cc-primary);
+    }
+    .cc-year-first {
+      margin-top: 0;
+    }
 
-  /* Responsive Card Grid */
-  .cc-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-    gap: 16px;
-    margin: 8px 0 24px 0;
-  }
-  .cc-grid-last {
-    margin-bottom: 0;
-  }
+    /* Responsive Card Grid */
+    .cc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 16px;
+      margin: 8px 0 24px 0;
+    }
+    .cc-grid-last {
+      margin-bottom: 0;
+    }
 
-  /* Individual Event Card */
-  .cc-card {
-    background: var(--cc-card-bg);
-    border: 1px solid var(--cc-border);
-    border-top: 4px solid #00A398;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    transition: box-shadow 0.2s ease, transform 0.2s ease;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-  .cc-card:hover {
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
-  }
-  .cc-card.overlap {
-    border-top-color: #E47701;
-  }
-  .cc-card.past {
-    border-top-color: var(--cc-past-border);
-  }
+    /* Individual Event Card (Fully Darkmode Compatible) */
+    .cc-card {
+      background: var(--cc-card-bg);
+      border: 1px solid var(--cc-border);
+      border-top: 4px solid var(--cc-primary);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      transition: box-shadow 0.2s ease, transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .cc-card:hover {
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+    .cc-card.overlap {
+      border-top-color: var(--cc-overlap-text);
+    }
+    .cc-card.past {
+      border-top-color: var(--cc-past-border);
+    }
 
-  /* Event Card Image */
-  .cc-card-img {
-    width: 100%;
-    height: 145px;
-    object-fit: cover;
-    display: block;
-    border-bottom: 1px solid var(--cc-border-light);
-  }
-  .cc-card-img[src=""] {
-    display: none;
-  }
+    /* Event Card Image */
+    .cc-card-img {
+      width: 100%;
+      height: 145px;
+      object-fit: cover;
+      display: block;
+      border-bottom: 1px solid var(--cc-border-light);
+    }
+    .cc-card-img[src=""] {
+      display: none;
+    }
 
-  .cc-card-body {
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    justify-content: space-between;
-  }
+    .cc-card-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      justify-content: space-between;
+    }
 
-  .cc-date-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-  .cc-date {
-    background: var(--cc-date-bg);
-    color: var(--cc-date-text);
-    font-weight: 500;
-    font-size: 0.85rem;
-    padding: 3px 10px;
-    border-radius: 4px;
-  }
-  .cc-date.past {
-    background: var(--cc-tag-bg);
-    color: var(--cc-tag-text);
-  }
-  .cc-overlap-tag {
-    background: #fdf1e6;
-    color: #E47701;
-    border: 1px solid #f9d8b6;
-    font-size: 0.75rem;
-    font-weight: 500;
-    padding: 2px 8px;
-    border-radius: 4px;
-  }
+    .cc-date-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .cc-date {
+      background: var(--cc-date-bg);
+      color: var(--cc-date-text);
+      font-weight: 500;
+      font-size: 0.85rem;
+      padding: 3px 10px;
+      border-radius: 4px;
+    }
+    .cc-date.past {
+      background: var(--cc-tag-bg);
+      color: var(--cc-tag-text);
+    }
+    .cc-overlap-tag {
+      background: var(--cc-overlap-bg);
+      color: var(--cc-overlap-text);
+      border: 1px solid var(--cc-overlap-border);
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
 
-  .cc-title {
-    font-size: 1.15rem;
-    font-weight: 700;
-    margin: 0 0 8px 0;
-  }
-  .cc-title a {
-    color: var(--cc-heading);
-    text-decoration: none;
-  }
-  .cc-title a:hover {
-    color: #00A398;
-    text-decoration: underline;
-  }
+    .cc-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+    }
+    .cc-title a {
+      color: var(--cc-heading);
+      text-decoration: none;
+    }
+    .cc-title a:hover {
+      color: var(--cc-primary);
+      text-decoration: underline;
+    }
 
-  .cc-meta {
-    font-size: 0.92rem;
-    color: var(--cc-text-muted);
-    margin-bottom: 12px;
-  }
+    .cc-meta {
+      font-size: 0.92rem;
+      color: var(--cc-text-muted);
+      margin-bottom: 12px;
+    }
 
-  .cc-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 14px;
-  }
-  .cc-tag {
-    background: var(--cc-tag-bg);
-    color: var(--cc-tag-text);
-    font-size: 0.78rem;
-    font-weight: 500;
-    padding: 3px 8px;
-    border-radius: 4px;
-  }
+    .cc-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .cc-tag {
+      background: var(--cc-tag-bg);
+      color: var(--cc-tag-text);
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
 
-  .cc-organizer {
-    font-size: 0.85rem;
-    color: var(--cc-text-light);
-    border-top: 1px solid var(--cc-border-light);
-    padding-top: 10px;
-  }
-  .cc-organizer a {
-    color: #00A398;
-    font-weight: 500;
-    text-decoration: none;
-  }
-  .cc-organizer a:hover {
-    text-decoration: underline;
-  }
+    .cc-organizer {
+      font-size: 0.85rem;
+      color: var(--cc-text-light);
+      border-top: 1px solid var(--cc-border-light);
+      padding-top: 10px;
+    }
+    .cc-organizer a {
+      color: var(--cc-primary);
+      font-weight: 500;
+      text-decoration: none;
+    }
+    .cc-organizer a:hover {
+      text-decoration: underline;
+    }
 
-  /* Button Style */
-  .cc-btn {
-    display: inline-block;
-    background-color: #00A398;
-    color: #ffffff !important;
-    font-family: 'Ubuntu', sans-serif;
-    font-weight: 500;
-    font-size: 0.92rem;
-    padding: 8px 18px;
-    border-radius: 6px;
-    text-decoration: none !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.14);
-    transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease, opacity 0.25s ease;
-  }
-  .cc-btn:hover {
-    background-color: #00877e;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transform: translateY(-1px);
-  }
+    /* Button Style */
+    .cc-btn {
+      display: inline-block;
+      background-color: var(--cc-primary);
+      color: #ffffff !important;
+      font-family: var(--cc-font);
+      font-weight: 500;
+      font-size: 0.92rem;
+      padding: 8px 18px;
+      border-radius: 6px;
+      text-decoration: none !important;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.14);
+      transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease, opacity 0.25s ease;
+    }
+    .cc-btn:hover {
+      background-color: var(--cc-primary-hover);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      transform: translateY(-1px);
+    }
 
-  /* Floating Wrapper */
-  .cc-fab-container {
-    position: sticky;
-    bottom: 24px;
-    display: flex;
-    justify-content: flex-end;
-    pointer-events: none;
-    z-index: 999;
-    margin-top: 16px;
-  }
-  .cc-fab-container .cc-btn {
-    pointer-events: auto;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.22);
-  }
-  .cc-fab-hidden {
-    opacity: 0;
-    pointer-events: none !important;
-  }
+    /* Floating Wrapper */
+    .cc-fab-container {
+      position: sticky;
+      bottom: 24px;
+      display: flex;
+      justify-content: flex-end;
+      pointer-events: none;
+      z-index: 999;
+      margin-top: 16px;
+    }
+    .cc-fab-container .cc-btn {
+      pointer-events: auto;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.22);
+    }
+    .cc-fab-hidden {
+      opacity: 0;
+      pointer-events: none !important;
+    }
 
-  /* Propose Box */
-  .cc-propose-box {
-    background: var(--cc-propose-bg);
-    border: 1px solid var(--cc-propose-border);
-    border-left: 6px solid #E47701;
-    border-radius: 8px;
-    padding: 20px 24px;
-    margin-top: 24px;
-  }
-  .cc-propose-box h3 {
-    margin: 0 0 8px 0;
-    color: var(--cc-heading);
-    font-size: 1.25rem;
-    font-weight: 700;
-  }
-  .cc-propose-box p {
-    color: var(--cc-text);
-  }
-  .cc-propose-box a:not(.cc-btn) {
-    color: #00A398;
-    font-weight: 500;
-    text-decoration: none;
-  }
-  .cc-propose-box a:not(.cc-btn):hover {
-    text-decoration: underline;
-  }
-  .cc-propose-spacing {
-    margin-top: 14px;
-    margin-bottom: 0;
-  }
-  .cc-propose-spacing-top {
-    margin-top: 14px;
-  }
-</style>
+    /* Propose Box */
+    .cc-propose-box {
+      background: var(--cc-propose-bg);
+      border: 1px solid var(--cc-propose-border);
+      border-left: 6px solid var(--cc-overlap-text);
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin-top: 24px;
+    }
+    .cc-propose-box h3 {
+      margin: 0 0 8px 0;
+      color: var(--cc-heading);
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+    .cc-propose-box p {
+      color: var(--cc-text);
+    }
+    .cc-propose-box a:not(.cc-btn) {
+      color: var(--cc-primary);
+      font-weight: 500;
+      text-decoration: none;
+    }
+    .cc-propose-box a:not(.cc-btn):hover {
+      text-decoration: underline;
+    }
+    .cc-propose-box code {
+      background: var(--cc-tag-bg);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      color: var(--cc-text);
+    }
+    .cc-propose-spacing {
+      margin-top: 14px;
+      margin-bottom: 0;
+    }
+    .cc-propose-spacing-top {
+      margin-top: 14px;
+    }
+  </style>
+
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 p-6">
 
 <div class="cc-wrapper">
 
   <!-- HERO SECTION -->
+
   <div class="cc-hero">
     <img class="cc-hero-img" sizes="100vw" alt="Couchers community" srcset="https://cdn.couchers.org/img/hero/1024.jpeg 1024w, https://cdn.couchers.org/img/hero/2048.jpeg 2048w, https://cdn.couchers.org/img/hero/4096.jpeg 4096w" src="https://cdn.couchers.org/img/hero/2048.jpeg">
     <div class="cc-hero-overlay"></div>
@@ -424,6 +481,7 @@ hide_title: true
   </div>
 
   <!-- COLLAPSIBLE INFO -->
+
   <details class="cc-drawer">
     <summary>What is a Couch Crash & Note on Accommodation</summary>
     <div class="cc-drawer-content">
@@ -434,6 +492,7 @@ hide_title: true
   </details>
 
   <!-- UPCOMING CRASHES -->
+
   <h2 class="cc-section-title">Upcoming Crashes</h2>
 
   <h3 class="cc-month">December 2026</h3>
@@ -545,6 +604,7 @@ hide_title: true
   </div>
 
   <!-- PAST CRASHES -->
+
   <details class="cc-drawer cc-drawer-past">
     <summary>Past Crashes</summary>
     <div class="cc-drawer-content">
@@ -585,11 +645,13 @@ hide_title: true
   </details>
 
   <!-- FLOATING PROPOSE BUTTON -->
+
   <div class="cc-fab-container" id="cc-floating-btn">
     <a href="#propose-crash" class="cc-btn">Propose a Crash</a>
   </div>
 
   <!-- PROPOSE A CRASH SECTION -->
+
   <div id="propose-crash" class="cc-propose-box">
     <h3>Propose a Crash</h3>
     <p>Want your Couch Crash listed here? Send a message to <a href="https://couchers.org/user/chrisk">ChrisK</a> with the following line: <br /><br />
@@ -604,6 +666,7 @@ hide_title: true
 </div>
 
 <!-- SCRIPT -->
+
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     var fab = document.getElementById('cc-floating-btn');
@@ -623,4 +686,3 @@ hide_title: true
     }
   });
 </script>
-```
