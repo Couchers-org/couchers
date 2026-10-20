@@ -37,10 +37,7 @@ function MapSearchProvider({
   const [mapSearchState, dispatch] = useReducer(mapSearchReducer, {
     ...initialState,
     hasActiveFilters: Object.keys(initialFilters).length > 0 ? true : false,
-    // initialFilters comes from the URL query and is sparse (often `{}`). It must be layered over
-    // initialState.filters, because getHasActiveFilters diffs against initialState: any key missing
-    // here (e.g. `lastActive: 0`) would otherwise read as an active filter as soon as
-    // hasActiveFilters is recomputed, and the page would search when it should be idle.
+    // getHasActiveFilters diffs against initialState, so missing keys would read as active
     filters: { ...initialState.filters, ...initialFilters },
     search: {
       query: initialLocationName,

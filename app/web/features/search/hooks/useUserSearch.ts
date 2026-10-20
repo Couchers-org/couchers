@@ -47,9 +47,6 @@ export function useUserSearch(searchParams: FilterOptions, mapSearchState: MapSe
     initialPageParam: mapSearchState.pageNumber > 1,
     placeholderData: keepPreviousData,
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
-    // Without any query, bbox or filter the backend falls back to sorting the
-    // entire visible user base, which takes several seconds. We discard those
-    // results below anyway, so don't ask for them in the first place.
     enabled: meetsSearchCriteria,
   });
 
