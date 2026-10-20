@@ -115,6 +115,7 @@ export const myCommunityEventsKey = (type: EventsType) => ["myCommunityEvents", 
 export const activeLoginsKey = "activeLogins";
 export const inviteCodesKey = "inviteCodes";
 export const remindersKey = "reminders";
+export const dashboardKey = "dashboard";
 
 // Badges
 interface BadgeUsersInput {

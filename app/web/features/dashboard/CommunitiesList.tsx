@@ -1,7 +1,7 @@
 import { ArrowBack, ArrowForward, Groups } from "@mui/icons-material";
 import { Box, IconButton, styled, Typography, TypographyProps, useMediaQuery, useTheme } from "@mui/material";
 import Alert from "components/Alert";
-import FadingScrollTrack from "components/FadingScrollTrack";
+import FadingScrollTrack, { cardScrollDistance } from "components/FadingScrollTrack";
 import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
 import { useListUserCommunities } from "features/communities/hooks";
@@ -90,10 +90,7 @@ export default function CommunitiesList() {
   const scroll = (dir: 1 | -1) => {
     const el = scrollerRef.current;
     if (!el) return;
-    el.scrollBy({
-      left: dir * (CARD_WIDTH + CARD_GAP) * cardsPerView,
-      behavior: "smooth",
-    });
+    el.scrollBy({ left: dir * cardScrollDistance(el, CARD_WIDTH, CARD_GAP, 3), behavior: "smooth" });
   };
 
   return (
