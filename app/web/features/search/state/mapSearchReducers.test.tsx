@@ -1,8 +1,9 @@
 import { act, renderHook } from "@testing-library/react";
+import { HostingStatus } from "proto/api_pb";
 import { ReactNode } from "react";
 import { GeocodeResult } from "utils/hooks";
 
-import { Coordinates } from "../utils/constants";
+import { Coordinates, MAX_MAP_ZOOM_LEVEL_FOR_SEARCH } from "../utils/constants";
 import { MapSearchProvider, useMapSearchDispatch, useMapSearchState } from "./mapSearchContext";
 import { initialState, mapSearchActionTypes, mapSearchReducer } from "./mapSearchReducers";
 
@@ -58,6 +59,20 @@ describe("mapSearchReducer", () => {
       expect(searched.hasActiveFilters).toBe(true);
     });
 
+    it("keeps the user's hosting status when searching a location", () => {
+      const withHostingStatus = mapSearchReducer(initialState, {
+        type: mapSearchActionTypes.SET_FILTERS,
+        payload: { hostingStatus: [HostingStatus.HOSTING_STATUS_CANT_HOST] },
+      });
+
+      const state = mapSearchReducer(withHostingStatus, {
+        type: mapSearchActionTypes.SET_SEARCH_INPUT_VALUE,
+        payload: { location: berlin, center: [13.4, 52.5], zoom: 10 },
+      });
+
+      expect(state.filters.hostingStatus).toEqual([HostingStatus.HOSTING_STATUS_CANT_HOST]);
+    });
+
     it("clears the searched area", () => {
       expect(cleared.search.bbox).toBeUndefined();
       expect(cleared.search.query).toBeUndefined();
@@ -98,6 +113,57 @@ describe("mapSearchReducer", () => {
     it("reports no active filters, so no search is performed", () => {
       expect(cleared.hasActiveFilters).toBe(false);
     });
+  });
+});
+
+describe("mapSearchReducer SET_MAP_QUERY_AREA", () => {
+  const zoomIn = (state: typeof initialState) =>
+    mapSearchReducer(state, {
+      type: mapSearchActionTypes.SET_MAP_QUERY_AREA,
+      payload: { bbox: BBOX, zoom: MAX_MAP_ZOOM_LEVEL_FOR_SEARCH, didCrossSearchThreshold: true },
+    });
+
+  const zoomOut = (state: typeof initialState) =>
+    mapSearchReducer(state, {
+      type: mapSearchActionTypes.SET_MAP_QUERY_AREA,
+      payload: { bbox: undefined, zoom: MAX_MAP_ZOOM_LEVEL_FOR_SEARCH - 1 },
+    });
+
+  const withUserFilters = mapSearchReducer(initialState, {
+    type: mapSearchActionTypes.SET_FILTERS,
+    payload: { hostingStatus: [HostingStatus.HOSTING_STATUS_CANT_HOST], acceptsPets: true },
+  });
+
+  it("applies the default filters when zooming in with none set", () => {
+    const state = zoomIn(initialState);
+
+    expect(state.filters.hostingStatus).toEqual([
+      HostingStatus.HOSTING_STATUS_CAN_HOST,
+      HostingStatus.HOSTING_STATUS_MAYBE,
+    ]);
+    expect(state.filters.showEmptyProfile).toBe(false);
+  });
+
+  it("keeps the user's hosting status when zooming in", () => {
+    const state = zoomIn(withUserFilters);
+
+    expect(state.filters.hostingStatus).toEqual([HostingStatus.HOSTING_STATUS_CANT_HOST]);
+  });
+
+  it("keeps the user's filters when zooming back out", () => {
+    const state = zoomOut(zoomIn(withUserFilters));
+
+    expect(state.filters.hostingStatus).toEqual([HostingStatus.HOSTING_STATUS_CANT_HOST]);
+    expect(state.filters.acceptsPets).toBe(true);
+    expect(state.hasActiveFilters).toBe(true);
+    expect(state.search.bbox).toBeUndefined();
+  });
+
+  it("drops the default filters when zooming back out", () => {
+    const state = zoomOut(zoomIn(initialState));
+
+    expect(state.filters).toEqual(initialState.filters);
+    expect(state.hasActiveFilters).toBe(false);
   });
 });
 
