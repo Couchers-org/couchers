@@ -79,8 +79,8 @@ hide_title: true
   .cc-drawer-content p:last-child {
     margin-bottom: 0;
   }
-   .cc-drawer-content p.important-block {
-            margin-left: 30px;
+  .cc-drawer-content p.important-block {
+    margin-left: 30px;
   }
 
   /* Section & Month Headers */
@@ -138,7 +138,7 @@ hide_title: true
     border-top-color: #E47701;
   }
 
-  /* Event Card Image (Automatically hides if src="" is left empty) */
+  /* Event Card Image */
   .cc-card-img {
     width: 100%;
     height: 145px;
@@ -234,7 +234,7 @@ hide_title: true
     text-decoration: underline;
   }
 
-  /* Unified Couchers MUI Button Style (Used for Both Propose & Submit) */
+  /* Button Style */
   .cc-btn {
     display: inline-block;
     background-color: #00A398;
@@ -254,8 +254,7 @@ hide_title: true
     transform: translateY(-1px);
   }
 
-  /* Sticky Floating Wrapper: Stays floating while scrolling events, 
-     naturally disappears once you reach the Propose Box at the bottom */
+  /* Floating Wrapper */
   .cc-fab-container {
     position: sticky;
     bottom: 24px;
@@ -274,7 +273,7 @@ hide_title: true
     pointer-events: none !important;
   }
 
-  /* Propose a Crash Callout Box */
+  /* Propose Box */
   .cc-propose-box {
     background: #fdf8f3;
     border: 1px solid #f9d8b6;
@@ -301,7 +300,7 @@ hide_title: true
 
 <div class="cc-wrapper">
 
-  <!-- HERO SECTION WITH BANNER IMAGE -->
+  <!-- HERO SECTION -->
 
   <div class="cc-hero">
     <img class="cc-hero-banner" src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1200&q=80" alt="Couchers community gathering" />
@@ -311,7 +310,7 @@ hide_title: true
     </div>
   </div>
 
-  <!-- COLLAPSIBLE INFO & ACCOMMODATION NOTE -->
+  <!-- COLLAPSIBLE INFO -->
 
   <details class="cc-drawer">
     <summary>What is a Couch Crash & Note on Accommodation</summary>
@@ -322,15 +321,14 @@ hide_title: true
     </div>
   </details>
 
-  <!-- ================= UPCOMING CRASHES ================= -->
+  <!-- UPCOMING CRASHES -->
 
   <h2 class="cc-section-title">Upcoming Crashes</h2>
 
   <h3 class="cc-month">December 2026</h3>
   <div class="cc-grid">
-  
     <div class="cc-card">
-      <img class="cc-card-img" src="https://images.unsplash.com/photo-1519197924294-4ba991a11128?auto=format&fit=crop&w=600&q=80" alt="EVENT 2" />
+      <img class="cc-card-img" src="https://images.unsplash.com/photo-1519197924294-4ba991a11128?auto=format&fit=crop&w=600&q=80" alt="Awesome Event" />
       <div class="cc-card-body">
         <div>
           <div class="cc-date-row">
@@ -376,9 +374,8 @@ hide_title: true
 	
   <h3 class="cc-month">January 2027</h3>
   <div class="cc-grid">
-	
     <div class="cc-card overlap">
-      <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/9158c0ae91ed57e09caa203a5d415a3edaa8172a273ee1cc1e6bd7a4a937f477.jpg" alt="EVENT 3" />
+      <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/9158c0ae91ed57e09caa203a5d415a3edaa8172a273ee1cc1e6bd7a4a937f477.jpg" alt="New Years Event Berlin" />
       <div class="cc-card-body">
         <div>
           <div class="cc-date-row">
@@ -401,7 +398,7 @@ hide_title: true
     </div>	
 	
     <div class="cc-card overlap">
-      <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/7ecbd262e071ea0539d4614c6ecba42ac96eddd61479677d0e396273c7e64b5e.jpg" alt="EVENT 4" />
+      <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/7ecbd262e071ea0539d4614c6ecba42ac96eddd61479677d0e396273c7e64b5e.jpg" alt="New Years Event Leipzig" />
       <div class="cc-card-body">
         <div>
           <div class="cc-date-row">
@@ -424,7 +421,7 @@ hide_title: true
     </div>
 		
     <div class="cc-card">
-      <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/4af3edfd5e38c45967ca81b1475e2da608be6f77842919a35113f88c0f323491.jpg" alt="EVENT 5" />
+      <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/4af3edfd5e38c45967ca81b1475e2da608be6f77842919a35113f88c0f323491.jpg" alt="Sydney Summer Crash" />
       <div class="cc-card-body">
         <div>
           <div class="cc-date-row">
@@ -444,15 +441,13 @@ hide_title: true
         </div>
       </div>
     </div>
-
   </div>
 
-<!-- ================= PAST CRASHES ================= -->
+  <!-- PAST CRASHES -->
 
   <details class="cc-drawer" style="margin-top: 32px;">
     <summary>Past Crashes</summary>
     <div class="cc-drawer-content">
-      
       <div class="cc-year" style="margin-top: 0;">2026</div>
       <div class="cc-grid" style="margin-top: 8px; margin-bottom: 24px;">
         <div class="cc-card" style="border-top-color: #9e9e9e;">
@@ -490,11 +485,7 @@ hide_title: true
           </div>
         </div>
       </div>
-
-```
-
-```
-
+    </div>
   </details>
 
   <!-- FLOATING PROPOSE BUTTON -->
@@ -503,45 +494,39 @@ hide_title: true
     <a href="#propose-crash" class="cc-btn">Propose a Crash</a>
   </div>
 
-  <!-- ================= PROPOSE A CRASH SECTION ================= -->
+  <!-- PROPOSE A CRASH SECTION -->
 
   <div id="propose-crash" class="cc-propose-box">
     <h3>Propose a Crash</h3>
-    <p>Want your Couch Crash listed here? Send a message to <a href="https://couchers.org/user/chrisk">ChrisK</a> with the following line: <br />
-	<code>Couch Crash: (Link to event)</code></p>
-	<p style="margin-top: 14px; margin-bottom: 0;">
-      <a href="https://couchers.org/user/chrisk" class="cc-btn">Message ChrisK to Submit</a><br />
+    <p>Want your Couch Crash listed here? Send a message to <a href="https://couchers.org/user/chrisk">ChrisK</a> with the following line: <br /><br />
+    <code>Couch Crash: (Link to event)</code></p>
+    <p style="margin-top: 14px; margin-bottom: 0;">
+      <a href="https://couchers.org/user/chrisk" class="cc-btn">Message ChrisK to Submit</a>
     </p>
-    <p>If your community organizes a Couch Crash, be sure to reach out to your local <strong>Community Builder</strong> (found on the "Local Info" tab of your <a href="https://couchers.org/communities">Community Page</a>) to let them know and consider collaborating.</p>
-	<p>Want to become a Community Builder? <a href="https://help.couchers.org/hc/couchersorg-help-center/articles/1743977410-what-is-a-community-builder">Learn more here</a>.</p>
-
+    <p style="margin-top: 14px;">If your community organizes a Couch Crash, be sure to reach out to your local <strong>Community Builder</strong> (found on the "Local Info" tab of your <a href="https://couchers.org/communities">Community Page</a>) to let them know and consider collaborating.</p>
+    <p>Want to become a Community Builder? <a href="https://help.couchers.org/hc/couchersorg-help-center/articles/1743977410-what-is-a-community-builder">Learn more here</a>.</p>
   </div>
 
 </div>
 
-<!-- Optional: Smoothly fades out the floating button when the Propose box enters the screen -->
+<!-- SCRIPT -->
 
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     var fab = document.getElementById('cc-floating-btn');
     var target = document.getElementById('propose-crash');
     
-    if (fab && target) {
-      if ('IntersectionObserver' in window) {
-        var observer = new IntersectionObserver(function(entries) {
-          entries.forEach(function(entry) {
-            if (entry.isIntersecting) {
-              fab.classList.add('cc-fab-hidden');
-            } else {
-              fab.classList.remove('cc-fab-hidden');
-            }
-          });
-        }, { threshold: 0.6 }); // Triggered when 60% of the propose box is visible
-        observer.observe(target);
-      } else {
-        // Fallback for older browsers if needed
-        fab.style.display = 'block';
-      }
+    if (fab && target && 'IntersectionObserver' in window) {
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            fab.classList.add('cc-fab-hidden');
+          } else {
+            fab.classList.remove('cc-fab-hidden');
+          }
+        });
+      }, { threshold: 0.2 });
+      observer.observe(target);
     }
   });
 </script>
