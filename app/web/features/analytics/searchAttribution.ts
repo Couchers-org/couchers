@@ -20,7 +20,7 @@ interface StoredSession {
  * Random 128-bit hex string. getRandomValues() works in insecure contexts,
  * unlike the other Web Crypto random helpers.
  */
-function randomToken(): string {
+export function randomToken(): string {
   const bytes = new Uint8Array(16);
   crypto.getRandomValues(bytes);
   return [...bytes].map((b) => b.toString(16).padStart(2, "0")).join("");

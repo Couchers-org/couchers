@@ -164,6 +164,59 @@ describe("AnalyticsProvider", () => {
     });
   });
 
+  describe("handoff tokens", () => {
+    it("logs the handoff token in session.started and removes it from the URL", () => {
+      setLocation("/signup", "?token=abc&ht=f00d&utm_source=x");
+
+      render(
+        <AnalyticsProvider>
+          <div />
+        </AnalyticsProvider>,
+      );
+
+      const sessionCall = mockLogEvent.mock.calls.find((call) => call[0] === "session.started");
+      const pageCall = mockLogEvent.mock.calls.find((call) => call[0] === "page.viewed");
+
+      expect(sessionCall![1].handoff_token).toBe("f00d");
+      expect(pageCall![1].search).toBe("token=abc");
+      expect(window.location.pathname).toBe("/signup");
+      expect(window.location.search).toBe("?token=abc&utm_source=x");
+    });
+
+    it("takes the handoff token from the install referrer forwarded by the app", () => {
+      setLocation("/login", `?install_referrer=${encodeURIComponent("ht=beef&utm_source=google-play")}`);
+
+      render(
+        <AnalyticsProvider>
+          <div />
+        </AnalyticsProvider>,
+      );
+
+      const sessionCall = mockLogEvent.mock.calls.find((call) => call[0] === "session.started");
+
+      expect(sessionCall![1]).toMatchObject({
+        handoff_token: "beef",
+        install_referrer: "ht=beef&utm_source=google-play",
+      });
+      expect(window.location.search).toBe("");
+    });
+
+    it("leaves the URL alone when there is no handoff token", () => {
+      setLocation("/search", "?q=paris");
+
+      render(
+        <AnalyticsProvider>
+          <div />
+        </AnalyticsProvider>,
+      );
+
+      const sessionCall = mockLogEvent.mock.calls.find((call) => call[0] === "session.started");
+
+      expect(sessionCall![1]).not.toHaveProperty("handoff_token");
+      expect(window.location.search).toBe("?q=paris");
+    });
+  });
+
   describe("route change tracking", () => {
     it("registers a routeChangeComplete listener on mount", () => {
       render(

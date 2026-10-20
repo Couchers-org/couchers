@@ -1,9 +1,10 @@
 import { Stack, styled, Typography, useMediaQuery } from "@mui/material";
 import Button from "components/Button";
+import { useGooglePlayLink } from "features/analytics/useGooglePlayLink";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { couchersAppStoreURL, couchersGooglePlayURL, signupRoute, whatIsCouchSurfingRoute } from "routes";
+import { couchersAppStoreURL, signupRoute, whatIsCouchSurfingRoute } from "routes";
 import { theme } from "theme";
 
 function AppStoreBadges({ appStoreHeight = 38 }: { appStoreHeight?: number }) {
@@ -11,6 +12,7 @@ function AppStoreBadges({ appStoreHeight = 38 }: { appStoreHeight?: number }) {
     t,
     i18n: { language: locale },
   } = useTranslation(GLOBAL);
+  const googlePlayLink = useGooglePlayLink();
   return (
     <Stack
       direction="row"
@@ -32,7 +34,7 @@ function AppStoreBadges({ appStoreHeight = 38 }: { appStoreHeight?: number }) {
           }}
         />
       </a>
-      <a href={couchersGooglePlayURL} target="_blank" rel="noopener noreferrer">
+      <a href={googlePlayLink.href} onClick={googlePlayLink.onClick} target="_blank" rel="noopener noreferrer">
         <img
           src={`/img/google-play-badge/${locale}.svg`}
           alt={t("google_play_badge_a11y")}

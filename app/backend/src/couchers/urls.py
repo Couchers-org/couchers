@@ -31,8 +31,8 @@ def edit_profile_link() -> str:
     return f"{config.BASE_URL}/profile/edit"
 
 
-def signup_link(*, token: str) -> str:
-    return f"{config.BASE_URL}/signup?token={token}"
+def signup_link(*, token: str, handoff_token: str) -> str:
+    return f"{config.BASE_URL}/signup?token={token}&ht={handoff_token}"
 
 
 def account_settings_link() -> str:

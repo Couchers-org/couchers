@@ -1,8 +1,14 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { Href, useRouter } from "expo-router";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { useCallback, useState } from "react";
-import { Appearance, BackHandler, Linking, useColorScheme } from "react-native";
+import { useCallback, useEffect, useState } from "react";
+import {
+  Appearance,
+  BackHandler,
+  Linking,
+  Platform,
+  useColorScheme,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
 
@@ -12,6 +18,7 @@ import { loginRoute } from "@/routes";
 import client from "@/service/client";
 import { lastLoginTimeRef } from "@/state/webViewState";
 import { theme } from "@/theme";
+import { takeInstallReferrer } from "@/utils/installReferrer";
 import { applicationNameForUserAgent } from "@/utils/userAgent";
 import { shouldLoadInWebView } from "@/utils/webViewUrlUtils";
 
@@ -44,6 +51,20 @@ export default function LoginScreen() {
   const router = useRouter();
   const colorScheme = useColorScheme();
   const [webViewKey, setWebViewKey] = useState<number>(0);
+  const [loginUri, setLoginUri] = useState<string | null>(
+    Platform.OS === "android" ? null : WEB_BASE_URL + loginRoute,
+  );
+
+  useEffect(() => {
+    if (loginUri) return;
+    takeInstallReferrer().then((referrer) =>
+      setLoginUri(
+        WEB_BASE_URL +
+          loginRoute +
+          (referrer ? `?install_referrer=${encodeURIComponent(referrer)}` : ""),
+      ),
+    );
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Prevent Android back button from navigating away from login screen
   useFocusEffect(
@@ -96,27 +117,29 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor }}>
-      <WebView
-        key={webViewKey}
-        source={{ uri: WEB_BASE_URL + loginRoute }}
-        applicationNameForUserAgent={applicationNameForUserAgent}
-        injectedJavaScriptObject={{ isNativeEmbed: true }}
-        sharedCookiesEnabled
-        onMessage={handleMessage}
-        onShouldStartLoadWithRequest={(event) => {
-          if (shouldLoadInWebView(event.url, WEB_BASE_URL)) {
-            return true;
-          }
-          Linking.openURL(event.url).catch(() => {});
-          return false;
-        }}
-        onOpenWindow={(syntheticEvent) => {
-          const { targetUrl } = syntheticEvent.nativeEvent;
-          if (!shouldLoadInWebView(targetUrl, WEB_BASE_URL)) {
-            Linking.openURL(targetUrl).catch(() => {});
-          }
-        }}
-      />
+      {loginUri && (
+        <WebView
+          key={webViewKey}
+          source={{ uri: loginUri }}
+          applicationNameForUserAgent={applicationNameForUserAgent}
+          injectedJavaScriptObject={{ isNativeEmbed: true }}
+          sharedCookiesEnabled
+          onMessage={handleMessage}
+          onShouldStartLoadWithRequest={(event) => {
+            if (shouldLoadInWebView(event.url, WEB_BASE_URL)) {
+              return true;
+            }
+            Linking.openURL(event.url).catch(() => {});
+            return false;
+          }}
+          onOpenWindow={(syntheticEvent) => {
+            const { targetUrl } = syntheticEvent.nativeEvent;
+            if (!shouldLoadInWebView(targetUrl, WEB_BASE_URL)) {
+              Linking.openURL(targetUrl).catch(() => {});
+            }
+          }}
+        />
+      )}
     </SafeAreaView>
   );
 }

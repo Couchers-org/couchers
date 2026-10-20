@@ -9,11 +9,12 @@ from couchers import urls
 from couchers.config import config
 from couchers.constants import SIGNUP_EMAIL_TOKEN_VALIDITY
 from couchers.context import CouchersContext
-from couchers.crypto import urlsafe_secure_token
+from couchers.crypto import random_hex, urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.email.blocks import EmailBase
 from couchers.email.emails import EmailChangeConfirmationEmail, SignupContinueEmail, SignupVerifyEmail
 from couchers.email.queuing import queue_system_email, queue_userless_email
+from couchers.event_log import log_event
 from couchers.models import (
     Cluster,
     ClusterRole,
@@ -38,21 +39,24 @@ logger = logging.getLogger(__name__)
 def send_signup_email(context: CouchersContext, session: Session, flow: SignupFlow) -> None:
     logger.info(f"Sending signup email to {flow.email=}:")
 
+    handoff_token = random_hex(16)
+    log_event(context, session, "handoff.created", {"token": handoff_token, "kind": "signup_email"})
+
     # whether we've sent an email at all yet
     email_sent_before = flow.email_sent
     if flow.email_verified:
         # we just send a link to continue, not a verification link
-        signup_link = urls.signup_link(token=flow.flow_token)
+        signup_link = urls.signup_link(token=flow.flow_token, handoff_token=handoff_token)
     elif flow.email_token and flow.token_is_valid:
         # if the verification email was sent and still is not expired, just resend the verification email
-        signup_link = urls.signup_link(token=flow.email_token)
+        signup_link = urls.signup_link(token=flow.email_token, handoff_token=handoff_token)
     else:
         # otherwise send a fresh email with a new token
         token = urlsafe_secure_token()
         flow.email_verified = False
         flow.email_token = token
         flow.email_token_expiry = now() + SIGNUP_EMAIL_TOKEN_VALIDITY
-        signup_link = urls.signup_link(token=flow.email_token)
+        signup_link = urls.signup_link(token=flow.email_token, handoff_token=handoff_token)
 
     flow.email_sent = True
 

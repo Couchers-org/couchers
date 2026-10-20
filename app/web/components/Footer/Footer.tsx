@@ -2,6 +2,7 @@ import { Box, Button, ButtonProps, Link as MuiLink, styled, Typography } from "@
 import ReportButton from "components/Navigation/ReportButton";
 import SocialMediaLinks from "components/SocialMediaLinks";
 import StyledLink from "components/StyledLink";
+import { useGooglePlayLink } from "features/analytics/useGooglePlayLink";
 import { Trans, useTranslation } from "i18n";
 import { localizeRelativeTime } from "i18n/datetimes";
 import { GLOBAL } from "i18n/namespaces";
@@ -12,7 +13,6 @@ import {
   builtWithRoute,
   contactRoute,
   couchersAppStoreURL,
-  couchersGooglePlayURL,
   donationsRoute,
   eventsRoute,
   faqRoute,
@@ -153,6 +153,7 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
     i18n: { language: locale },
   } = useTranslation(GLOBAL);
   const isNativeEmbed = useIsNativeEmbed();
+  const googlePlayLink = useGooglePlayLink();
 
   const version_text = process.env.NEXT_PUBLIC_DISPLAY_VERSION || "dev";
   const version_link = roadmapRoute;
@@ -230,7 +231,7 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
                   style={{ height: "26px", width: "auto", display: "block" }}
                 />
               </a>
-              <a href={couchersGooglePlayURL} target="_blank" rel="noopener noreferrer">
+              <a href={googlePlayLink.href} onClick={googlePlayLink.onClick} target="_blank" rel="noopener noreferrer">
                 <img
                   src={`/img/google-play-badge/${locale}.svg`}
                   alt={t("google_play_badge_a11y")}

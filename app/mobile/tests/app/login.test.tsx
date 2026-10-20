@@ -1,9 +1,11 @@
-import { act, render } from "@testing-library/react-native";
 import { useFocusEffect } from "@react-navigation/native";
+import { act, render } from "@testing-library/react-native";
 import { useRouter } from "expo-router";
+import { Platform } from "react-native";
 
 import LoginScreen from "@/app/login";
 import { useAuthContext } from "@/features/auth/AuthContext";
+import { takeInstallReferrer } from "@/utils/installReferrer";
 
 const mockWebBaseUrl = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
 
@@ -15,6 +17,10 @@ jest.mock("expo-router", () => ({
 jest.mock("@react-navigation/native", () => ({
   ...jest.requireActual("@react-navigation/native"),
   useFocusEffect: jest.fn(),
+}));
+
+jest.mock("@/utils/installReferrer", () => ({
+  takeInstallReferrer: jest.fn(),
 }));
 
 jest.mock("@/features/auth/AuthContext", () => ({
@@ -80,6 +86,41 @@ describe("LoginScreen", () => {
 
       expect(capturedWebViewProps.source?.uri).toContain(mockWebBaseUrl);
       expect(capturedWebViewProps.source?.uri).toContain("/login");
+    });
+
+    describe("on Android", () => {
+      const originalPlatformOS = Platform.OS;
+
+      beforeEach(() => {
+        Platform.OS = "android";
+        capturedWebViewProps = {};
+      });
+
+      afterEach(() => {
+        Platform.OS = originalPlatformOS;
+      });
+
+      it("passes the install referrer to the website", async () => {
+        (takeInstallReferrer as jest.Mock).mockResolvedValue("ht=abc");
+
+        render(<LoginScreen />);
+        await act(async () => {});
+
+        expect(capturedWebViewProps.source?.uri).toBe(
+          `${mockWebBaseUrl}/login?install_referrer=ht%3Dabc`,
+        );
+      });
+
+      it("loads the plain login URL without an install referrer", async () => {
+        (takeInstallReferrer as jest.Mock).mockResolvedValue(null);
+
+        render(<LoginScreen />);
+        await act(async () => {});
+
+        expect(capturedWebViewProps.source?.uri).toBe(
+          `${mockWebBaseUrl}/login`,
+        );
+      });
     });
   });
 

@@ -28,6 +28,7 @@ import { useRouter } from "next/router";
 import { ReactNode, useEffect, useRef } from "react";
 
 import { destroyCollector, initializeCollector, logEvent } from "./eventCollector";
+import { getHandoffProperties, HANDOFF_URL_PARAMS, removeHandoffParamsFromUrl } from "./handoff";
 
 /**
  * Extract UTM parameters from the URL for marketing attribution.
@@ -44,14 +45,14 @@ function getUtmParams(): Record<string, string> {
 }
 
 /**
- * Get query parameters excluding UTM params (for cleaner page.viewed events).
+ * Get query parameters excluding UTM and handoff params (for cleaner page.viewed events).
  * This keeps your analytics focused on actual page parameters, not marketing tags.
  */
 function getFilteredSearch(queryString: string): string | null {
   const params = new URLSearchParams(queryString);
   const filtered = new URLSearchParams();
   params.forEach((value, key) => {
-    if (!key.startsWith("utm_")) {
+    if (!key.startsWith("utm_") && !HANDOFF_URL_PARAMS.includes(key)) {
       filtered.set(key, value);
     }
   });
@@ -86,6 +87,7 @@ export default function AnalyticsProvider({ children }: { children: ReactNode })
 
     logEvent("session.started", {
       ...getUtmParams(),
+      ...getHandoffProperties(window.location.search),
       referrer: document.referrer || null,
       landing_page: window.location.pathname,
       user_agent: navigator.userAgent,
@@ -102,6 +104,8 @@ export default function AnalyticsProvider({ children }: { children: ReactNode })
       previous_path: null,
       time_on_previous_page: null,
     });
+
+    removeHandoffParamsFromUrl();
 
     previousPathRef.current = window.location.pathname;
     previousTimestampRef.current = Date.now();

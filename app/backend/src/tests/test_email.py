@@ -20,6 +20,7 @@ from couchers.models import (
     SignupFlow,
     User,
 )
+from couchers.models.logging import EventLog
 from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
 from couchers.proto import api_pb2, auth_pb2, editor_pb2, events_pb2, notification_data_pb2, notifications_pb2
@@ -57,6 +58,25 @@ def test_signup_verification_email(db, email_collector: EmailCollector):
     assert flow.email_token
     assert flow.email_token in email.html
     assert flow.email_token in email.html
+
+
+def test_signup_email_carries_logged_handoff_token(db, email_collector: EmailCollector):
+    request_email = f"{random_hex(12)}@couchers.org.invalid"
+
+    flow = SignupFlow(name="Frodo", email=request_email, flow_token="")
+
+    with session_scope() as session:
+        context = make_logged_out_context(LocalizationContext.en_utc())
+        send_signup_email(context, session, flow)
+
+    email = email_collector.pop_for_recipient(request_email, last=True)
+
+    with session_scope() as session:
+        event = session.execute(select(EventLog).where(EventLog.event_type == "handoff.created")).scalar_one()
+        assert event.properties["kind"] == "signup_email"
+        assert event.properties["token"] != flow.email_token
+        assert f"ht={event.properties['token']}" in email.html
+        assert f"/signup?token={flow.email_token}&ht={event.properties['token']}" in email.plain
 
 
 def test_signup_verification_email_with_token_ending_in_src(db, email_collector: EmailCollector):
