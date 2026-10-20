@@ -123,9 +123,10 @@ hide_title: true
 .cc-hero-img {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: fill;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  object-fit: cover;
   z-index: 0;
 }
 .cc-hero h1,
@@ -248,10 +249,11 @@ hide_title: true
 .cc-card.overlap { border-top-color: var(--cc-overlap-text); }
 .cc-card.past { border-top-color: var(--cc-past-border); }
 .cc-card-img {
-  width: calc(100% + 28px);
+  width: calc(100% + 28px) !important;
+  max-width: none !important;
   margin: -14px -14px 12px -14px;
-  height: 140px;
-  object-fit: fill;
+  height: 140px !important;
+  object-fit: cover;
   display: block;
   border-bottom: 1px solid var(--cc-border-light);
   flex-shrink: 0;
