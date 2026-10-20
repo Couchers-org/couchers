@@ -10,13 +10,14 @@ from couchers.db import session_scope
 from couchers.helpers.host_requests import has_unseen_host_request_messages
 from couchers.jobs.handlers import send_message_notifications
 from couchers.models import HostRequest, NotificationTopicAction, User
-from couchers.proto import api_pb2, conversations_pb2, messages_pb2, notifications_pb2, requests_pb2
+from couchers.proto import api_pb2, conversations_pb2, messages_pb2, notifications_pb2, public_trips_pb2, requests_pb2
 from couchers.utils import today
 from tests.fixtures.db import generate_user, make_user_block
 from tests.fixtures.misc import process_jobs
 from tests.fixtures.sessions import (
     conversations_session,
     notifications_session,
+    public_trips_session,
     real_api_session,
     requests_session,
 )
@@ -42,7 +43,7 @@ def _create_group_chat(token: str, recipient_ids: list[int], moderator, text: st
     return int(res.group_chat_id)
 
 
-def _create_host_request(surfer_token: str, host_id: int, moderator, public_trip_id: int | None = None) -> int:
+def _create_host_request(surfer_token: str, host_id: int, moderator) -> int:
     with requests_session(surfer_token) as api:
         res = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -50,7 +51,20 @@ def _create_host_request(surfer_token: str, host_id: int, moderator, public_trip
                 from_date=(today() + timedelta(days=5)).isoformat(),
                 to_date=(today() + timedelta(days=10)).isoformat(),
                 text=valid_request_text(),
-                public_trip_id=public_trip_id,
+            )
+        )
+    moderator.approve_host_request(res.host_request_id)
+    return int(res.host_request_id)
+
+
+def _offer_to_host_via_api(host_token: str, trip_id: int, moderator) -> int:
+    with public_trips_session(host_token) as api:
+        res = api.OfferToHost(
+            public_trips_pb2.OfferToHostReq(
+                trip_id=trip_id,
+                from_date=(today() + timedelta(days=5)).isoformat(),
+                to_date=(today() + timedelta(days=10)).isoformat(),
+                text=valid_request_text(),
             )
         )
     moderator.approve_host_request(res.host_request_id)
@@ -150,7 +164,7 @@ def test_list_message_threads_no_feedback_for_declined_public_trip_offer(db, mod
     _host, host_token = generate_user()
     _, trip_id = _make_trip(traveller)
 
-    request_id = _create_host_request(host_token, traveller.id, moderator, public_trip_id=trip_id)
+    request_id = _offer_to_host_via_api(host_token, trip_id, moderator)
 
     # the traveller is the recipient of an offer, so they're the one who declines
     with requests_session(traveller_token) as api:
@@ -357,7 +371,7 @@ def test_list_message_threads_public_trip_offer_role_based(db, moderator):
     _, trip_id = _make_trip(traveler)
 
     # host offers to host the traveller's public trip (role reversal)
-    request_id = _create_host_request(host_token, traveler.id, moderator, public_trip_id=trip_id)
+    request_id = _offer_to_host_via_api(host_token, trip_id, moderator)
 
     # From the offering host's view: appears under HOSTING (role-based filter)
     with conversations_session(host_token) as c:

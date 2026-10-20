@@ -311,6 +311,16 @@
         "body": "You have new unseen messages from {{user}}."
       }
     },
+    "offer": {
+      "event_description": "Someone offers to host you on your public trip",
+      "push": {
+        "title": "{{user}} offered to host you",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Offer to Host",
+        "body_one": "{{user}} offered to host you from {{start_date}} for {{count}} night.",
+        "body_other": "{{user}} offered to host you from {{start_date}} for {{count}} nights."
+      }
+    },
     "reject": {
       "event_description": "Someone declines your host request",
       "push": {

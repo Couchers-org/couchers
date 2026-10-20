@@ -33,9 +33,7 @@ const updatePublicTripMock = service.publicTrips.updatePublicTrip as MockedServi
 >;
 const getAccountInfoMock = service.account.getAccountInfo as MockedService<typeof service.account.getAccountInfo>;
 const getCommunityMock = service.communities.getCommunity as MockedService<typeof service.communities.getCommunity>;
-const createHostRequestMock = service.requests.createHostRequest as MockedService<
-  typeof service.requests.createHostRequest
->;
+const offerToHostMock = service.publicTrips.offerToHost as MockedService<typeof service.publicTrips.offerToHost>;
 
 // Use a real fixture description to satisfy the 150-utf16 min-length check.
 const VALID_DESCRIPTION = publicTrips[0].description;
@@ -426,9 +424,9 @@ describe("PublicTripsSection", () => {
       ).toBeEnabled();
     });
 
-    it("opens the offer form and submits createHostRequest with the public trip linked, then redirects to the thread", async () => {
+    it("opens the offer form and submits offerToHost for the trip, then redirects to the thread", async () => {
       const HOST_REQUEST_ID = 99;
-      createHostRequestMock.mockResolvedValue(HOST_REQUEST_ID);
+      offerToHostMock.mockResolvedValue(HOST_REQUEST_ID);
       // A single active trip owned by user 2.
       listPublicTripsMock.mockResolvedValue({
         publicTripsList: [activeTrip(publicTrips[0])],
@@ -464,10 +462,9 @@ describe("PublicTripsSection", () => {
       );
 
       await waitFor(() => {
-        expect(createHostRequestMock).toHaveBeenCalledWith(
+        expect(offerToHostMock).toHaveBeenCalledWith(
           expect.objectContaining({
-            hostUserId: 2,
-            publicTripId: 1,
+            tripId: 1,
             text,
           }),
         );

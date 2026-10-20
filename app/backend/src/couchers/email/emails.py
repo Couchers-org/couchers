@@ -1266,6 +1266,67 @@ class HostRequestCreatedEmail(EmailBase):
 
 
 @dataclass(kw_only=True, slots=True)
+class HostRequestOfferEmail(EmailBase):
+    """Sent to a traveler when a host offers to host them on their public trip."""
+
+    host: UserInfo
+    from_date: date
+    to_date: date
+    text: str
+    view_link: str
+
+    @property
+    def string_key_base(self) -> str:
+        return "host_requests.offer"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, ".subject", {"host_name": self.host.name})
+
+    def get_preview_line(self, loc_context: LocalizationContext) -> str | None:
+        return self.text
+
+    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
+        builder = self._body_builder(loc_context)
+        builder.para(".purpose", {"host_name": self.host.name})
+        builder.user(
+            self.host,
+            "host_requests.generic.date_range",
+            {
+                "from_date": _localize_host_request_date(self.from_date, loc_context),
+                "to_date": _localize_host_request_date(self.to_date, loc_context),
+            },
+        )
+        builder.quote(self.text, markdown=False)
+        builder.action(self.view_link, ".view_action")
+        builder.para(_do_not_reply_request_string_key, epilogue=True)
+        return builder.build()
+
+    @classmethod
+    def from_notification(cls, data: notification_data_pb2.HostRequestOffer, *, user_name: str) -> Self:
+        return cls(
+            user_name,
+            host=UserInfo.from_protobuf(data.host),
+            from_date=date.fromisoformat(data.host_request.from_date),
+            to_date=date.fromisoformat(data.host_request.to_date),
+            text=data.text,
+            view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
+        )
+
+    @classmethod
+    def test_instances(cls) -> list[Self]:
+        return [
+            cls(
+                user_name="Alice",
+                host=UserInfo.dummy_bob(),
+                from_date=date(2025, 6, 1),
+                to_date=date(2025, 6, 7),
+                text="Hi Alice, I saw your trip and would love to host you!",
+                view_link="https://couchers.org/requests/123",
+            )
+        ]
+
+
+@dataclass(kw_only=True, slots=True)
 class HostRequestReminderEmail(EmailBase):
     """Sent to a host as a reminder to respond to a pending host request."""
 

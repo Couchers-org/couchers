@@ -87,6 +87,8 @@ def render_push_notification(notification: Notification, loc_context: Localizati
             return _render_general__new_blog_post(data, loc_context)
         case NotificationTopicAction.host_request__create:
             return _render_host_request__create(data, loc_context)
+        case NotificationTopicAction.host_request__offer:
+            return _render_host_request__offer(data, loc_context)
         case NotificationTopicAction.host_request__message:
             return _render_host_request__message(data, loc_context)
         case NotificationTopicAction.host_request__missed_messages:
@@ -539,6 +541,23 @@ def _render_host_request__create(
             "count": night_count,
         },
         icon_user=data.surfer,
+        action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
+    )
+
+
+def _render_host_request__offer(
+    data: notification_data_pb2.HostRequestOffer, loc_context: LocalizationContext
+) -> PushNotificationContent:
+    night_count = (date.fromisoformat(data.host_request.to_date) - date.fromisoformat(data.host_request.from_date)).days
+    return _get_content(
+        NotificationTopicAction.host_request__offer,
+        loc_context,
+        substitutions={
+            "user": data.host.name,
+            "start_date": _format_host_request_start_date(data.host_request.from_date, loc_context),
+            "count": night_count,
+        },
+        icon_user=data.host,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
     )
 
