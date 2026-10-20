@@ -9,7 +9,7 @@
     "camera_permission_denied_permanently": "Camera access was denied. To take photos, you'll need to enable camera permission in your device Settings.",
     "calendar_permission_required": "Calendar Permission Required",
     "calendar_permission_explanation": "This app needs calendar access to add events. Please grant permission when prompted.",
-    "calendar_permission_denied_permanently": "Calendar access was denied. To add events to your calendar, you'll need to enable calendar permission in your device Settings.",
+    "calendar_permission_denied_permanently": "Calendar access was denied. To add events to your calendar, you'll need to enable calendar permission in your device settings.",
     "add_to_calendar_failed": "Couldn't open your calendar. Please try again."
   },
   "not_found": {
