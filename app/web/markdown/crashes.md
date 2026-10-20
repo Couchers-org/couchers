@@ -6,6 +6,7 @@ crumb: Couch Crash Calendar
 type: general
 hide_title: true
 ---
+```html
 <style>
   /* --- COUCHERS.ORG DESIGN SYSTEM & LIGHT MODE DEFAULTS --- */
   .cc-wrapper {
@@ -412,7 +413,6 @@ hide_title: true
 <div class="cc-wrapper">
 
   <!-- HERO SECTION -->
-
   <div class="cc-hero">
     <img class="cc-hero-img" sizes="100vw" alt="Couchers community" srcset="https://cdn.couchers.org/img/hero/1024.jpeg 1024w, https://cdn.couchers.org/img/hero/2048.jpeg 2048w, https://cdn.couchers.org/img/hero/4096.jpeg 4096w" src="https://cdn.couchers.org/img/hero/2048.jpeg">
     <div class="cc-hero-overlay"></div>
@@ -424,7 +424,6 @@ hide_title: true
   </div>
 
   <!-- COLLAPSIBLE INFO -->
-
   <details class="cc-drawer">
     <summary>What is a Couch Crash & Note on Accommodation</summary>
     <div class="cc-drawer-content">
@@ -435,7 +434,6 @@ hide_title: true
   </details>
 
   <!-- UPCOMING CRASHES -->
-
   <h2 class="cc-section-title">Upcoming Crashes</h2>
 
   <h3 class="cc-month">December 2026</h3>
@@ -547,7 +545,6 @@ hide_title: true
   </div>
 
   <!-- PAST CRASHES -->
-
   <details class="cc-drawer cc-drawer-past">
     <summary>Past Crashes</summary>
     <div class="cc-drawer-content">
@@ -588,13 +585,11 @@ hide_title: true
   </details>
 
   <!-- FLOATING PROPOSE BUTTON -->
-
   <div class="cc-fab-container" id="cc-floating-btn">
     <a href="#propose-crash" class="cc-btn">Propose a Crash</a>
   </div>
 
   <!-- PROPOSE A CRASH SECTION -->
-
   <div id="propose-crash" class="cc-propose-box">
     <h3>Propose a Crash</h3>
     <p>Want your Couch Crash listed here? Send a message to <a href="https://couchers.org/user/chrisk">ChrisK</a> with the following line: <br /><br />
@@ -609,7 +604,6 @@ hide_title: true
 </div>
 
 <!-- SCRIPT -->
-
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     var fab = document.getElementById('cc-floating-btn');
@@ -629,3 +623,4 @@ hide_title: true
     }
   });
 </script>
+```
