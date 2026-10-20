@@ -26,14 +26,15 @@ from couchers.models import (
     Upload,
     User,
 )
-from couchers.proto import editor_pb2, events_pb2, notifications_pb2, threads_pb2
+from couchers.proto import editor_pb2, events_pb2, threads_pb2
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import now, to_aware_datetime
 from tests.fixtures.api import events as events_api
+from tests.fixtures.api import notifications as notifications_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import EmailCollector, Moderator, PushCollector, process_jobs
 from tests.fixtures.rpc_errors import expect_rpc_error
-from tests.fixtures.sessions import notifications_session, real_editor_session, threads_session
+from tests.fixtures.sessions import real_editor_session, threads_session
 from tests.fixtures.timewarp import FrozenTimewarp
 from tests.test_communities import create_community, create_group
 from tests.utils import local_date_time
@@ -1666,15 +1667,13 @@ def test_event_threads(db, push_collector: PushCollector, email_collector: Email
     assert push.content.body == "hi"
     assert push.content.action_url == comment_url
     assert comment_url in email_collector.pop_for_recipient(creator_user.email, last=True).plain
-    with notifications_session(creator_token) as api:
-        assert api.ListNotifications(notifications_pb2.ListNotificationsReq()).notifications[0].url == comment_url
+    assert notifications_api.list_notifications(token=creator_token).notifications[0].url == comment_url
 
     push = push_collector.pop_for_user(commenter_user.id, last=True)
     assert push.content.title == f"{replier_user.name} • Dummy Title"
     assert push.content.action_url == nested_reply_url
     assert nested_reply_url in email_collector.pop_for_recipient(commenter_user.email, last=True).plain
-    with notifications_session(commenter_token) as api:
-        assert api.ListNotifications(notifications_pb2.ListNotificationsReq()).notifications[0].url == nested_reply_url
+    assert notifications_api.list_notifications(token=commenter_token).notifications[0].url == nested_reply_url
 
     assert push_collector.count_for_user(group_admin_user_id) == 0
 
