@@ -214,6 +214,61 @@ describe("Event page", () => {
     expect(clickSpy).toHaveBeenCalledTimes(1);
   });
 
+  describe("in the native app", () => {
+    const postMessage = jest.fn();
+
+    function mockNativeApp(capabilities: string[]) {
+      window.ReactNativeWebView = {
+        injectedObjectJson: () => JSON.stringify({ isNativeEmbed: true, capabilities }),
+        postMessage,
+      };
+    }
+
+    afterEach(() => {
+      delete window.ReactNativeWebView;
+    });
+
+    it("hides the 'add to calendar' item when the app can't add to calendar", async () => {
+      mockNativeApp([]);
+      renderEventPage();
+
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+      await user.click(await screen.findByTestId("event-page-more-options"));
+
+      expect(
+        screen.queryByRole("menuitem", {
+          name: t("communities:add_to_calendar"),
+        }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("asks the app to add the event to the calendar", async () => {
+      mockNativeApp(["addToCalendar"]);
+      renderEventPage();
+
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+      await user.click(await screen.findByTestId("event-page-more-options"));
+      await user.click(
+        await screen.findByRole("menuitem", {
+          name: t("communities:add_to_calendar"),
+        }),
+      );
+
+      expect(JSON.parse(postMessage.mock.calls[0][0])).toEqual({
+        type: "REQUEST_ADD_TO_CALENDAR",
+        data: {
+          title: firstEvent.title,
+          startDate: "2021-06-29T02:37:00Z",
+          endDate: "2021-06-29T03:37:00Z",
+          timeZone: firstEvent.timezone,
+          location: firstEvent.location.address,
+          url: `${window.location.origin}/event/1/weekly-meetup`,
+          notes: `Be there or be square!\n\n${window.location.origin}/event/1/weekly-meetup`,
+        },
+      });
+    });
+  });
+
   it("shows the 'edit event' button if the user has edit permission", async () => {
     getEventMock.mockResolvedValue({ ...firstEvent, canEdit: true });
     renderEventPage();

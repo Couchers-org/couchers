@@ -1,15 +1,15 @@
-from datetime import timedelta
+from datetime import time, timedelta
 
 from google.protobuf import empty_pb2
 
 from couchers.db import session_scope
 from couchers.proto import discussions_pb2, events_pb2, messages_pb2, requests_pb2, screens_pb2
-from couchers.utils import datetime_to_iso8601_local, now, today
+from couchers.utils import today
+from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import (
     account_session,
     discussions_session,
-    events_session,
     requests_session,
     screens_session,
 )
@@ -61,6 +61,7 @@ def test_GetDashboard_matches_individual_rpcs(db, moderator):
                 only_active=True,
                 status_in=UPCOMING_STATUSES,
                 sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
+                number=10,
             )
         )
         hosting = api.ListHostRequests(
@@ -69,17 +70,21 @@ def test_GetDashboard_matches_individual_rpcs(db, moderator):
                 only_active=True,
                 status_in=UPCOMING_STATUSES,
                 sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
+                number=10,
             )
         )
-    with events_session(token1) as api:
-        my_events = api.ListMyEvents(events_pb2.ListMyEventsReq(page_size=3))
-        community_events = api.ListMyEvents(
-            events_pb2.ListMyEventsReq(
-                page_size=3, my_communities=True, my_communities_exclude_global=True, exclude_attending=True
-            )
-        )
+
+    my_events = events_api.list_my_events(token=token1, page_size=9)
+    community_events = events_api.list_my_events(
+        token=token1,
+        page_size=9,
+        my_communities=True,
+        my_communities_exclude_global=True,
+        exclude_attending=True,
+    )
+
     with discussions_session(token1) as api:
-        discussions = api.ListMyCommunitiesDiscussions(discussions_pb2.ListMyCommunitiesDiscussionsReq(page_size=3))
+        discussions = api.ListMyCommunitiesDiscussions(discussions_pb2.ListMyCommunitiesDiscussionsReq(page_size=9))
     with account_session(token1) as api:
         reminders = api.GetReminders(empty_pb2.Empty())
 
@@ -136,29 +141,14 @@ def test_GetDashboard_community_events_excludes_attending(db, moderator):
         subregion = create_community(session, 0, 100, "Subregion", [user1, user2], [], region)
         community_id = subregion.id
 
-    start = now()
+    e_attending = events_api.create_event(token=token2, parent_community_id=community_id, approve_by=moderator).event_id
+    e_community_only = events_api.create_event(
+        token=token2, parent_community_id=community_id, approve_by=moderator
+    ).event_id
 
-    def make_event(hours: int) -> events_pb2.CreateEventReq:
-        return events_pb2.CreateEventReq(
-            title="Test Event",
-            content="Test content.",
-            location=events_pb2.EventLocation(address="Near Null Island", lat=0.1, lng=0.2),
-            parent_community_id=community_id,
-            start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=hours)),
-            end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=hours + 1)),
-        )
-
-    with events_session(token2) as api:
-        e_attending = api.CreateEvent(make_event(1)).event_id
-        e_community_only = api.CreateEvent(make_event(2)).event_id
-
-    moderator.approve_event_occurrence(e_attending)
-    moderator.approve_event_occurrence(e_community_only)
-
-    with events_session(token1) as api:
-        api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(event_id=e_attending, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
-        )
+    events_api.set_event_attendance(
+        token=token1, event_id=e_attending, attendance_state=events_pb2.ATTENDANCE_STATE_GOING
+    )
 
     with screens_session(token1) as api:
         res = api.GetDashboard(screens_pb2.GetDashboardReq())
@@ -167,6 +157,33 @@ def test_GetDashboard_community_events_excludes_attending(db, moderator):
     assert e_attending in {e.event_id for e in res.my_events.events}
     # ...while community_events must exclude it (exclude_attending), showing only the rest
     assert [e.event_id for e in res.community_events.events] == [e_community_only]
+
+
+def test_GetDashboard_returns_several_pages_per_section(db, moderator):
+    # the client pages through each section locally, so a section returns a batch of items and a
+    # token for that section's own RPC when there are more
+    page_size = 9  # GetDashboard's my_events page size
+    user, token = generate_user()
+
+    with session_scope() as session:
+        community_id = create_community(session, 0, 100, "Community", [user], [], None).id
+
+    tomorrow = today() + timedelta(days=1)
+    event_ids = [
+        events_api.create_event(
+            token=token,
+            parent_community_id=community_id,
+            start_date_time=(tomorrow, time(i, 0)),
+            approve_by=moderator,
+        ).event_id
+        for i in range(page_size + 1)
+    ]
+
+    with screens_session(token) as api:
+        res = api.GetDashboard(screens_pb2.GetDashboardReq())
+
+    assert [e.event_id for e in res.my_events.events] == event_ids[:page_size]
+    assert res.my_events.next_page_token
 
 
 def test_GetDashboard_empty(db):

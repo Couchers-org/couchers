@@ -149,5 +149,8 @@
   "select_sub_community": "Выбрать сообщество",
   "report_discussion_button_a11y": "Пожаловаться на это обсуждение",
   "report_event_button_a11y": "Пожаловаться на это мероприятие",
-  "new_discussion_button": "Новое обсуждение"
+  "new_discussion_button": "Новое обсуждение",
+  "comment_edited_date2": "Изменено <timeAgo/>",
+  "discussion_edited_date2": "Изменено <timeAgo/>",
+  "add_to_calendar": "Добавить в календарь"
 }

@@ -298,12 +298,8 @@ def _create_tasty_cookie(name: str, value: Any, expiry: datetime, httponly: bool
     cookie["domain"] = config.COOKIE_DOMAIN
     # path so that it's accessible for all API requests, otherwise defaults to something like /org.couchers.auth/
     cookie["path"] = "/"
-    if config.DEV:
-        # send only on requests from first-party domains
-        cookie["samesite"] = "Strict"
-    else:
-        # send on all requests, requires Secure
-        cookie["samesite"] = "None"
+    cookie["samesite"] = config.COOKIE_SAMESITE
+    if not config.DEV:
         # only set cookie on HTTPS sites in production
         cookie["secure"] = True
     # not accessible from javascript

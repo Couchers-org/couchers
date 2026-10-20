@@ -99,7 +99,7 @@ describe("PublicTripsSection", () => {
       render(<PublicTripsSection community={community} />, { wrapper });
 
       // Trips 1 and 4 in the fixture both have sameGenderOnly: true
-      const indicators = await screen.findAllByText(t("publicTrips:same_gender_only_indicator"));
+      const indicators = await screen.findAllByText(t("publicTrips:trip_card.same_gender_only_indicator"));
       expect(indicators).toHaveLength(2);
       indicators.forEach((el) => expect(el).toBeVisible());
     });
@@ -112,7 +112,7 @@ describe("PublicTripsSection", () => {
 
       render(<PublicTripsSection community={community} />, { wrapper });
 
-      expect(await screen.findByText(t("publicTrips:empty_state"))).toBeVisible();
+      expect(await screen.findByText(t("publicTrips:trip_list.empty_placeholder"))).toBeVisible();
     });
   });
 
@@ -134,14 +134,14 @@ describe("PublicTripsSection", () => {
 
       await user.click(
         await screen.findByRole("button", {
-          name: t("publicTrips:create_trip"),
+          name: t("publicTrips:create_trip_button"),
         }),
       );
 
       const dialog = await screen.findByRole("dialog");
-      expect(dialog).toHaveTextContent(t("publicTrips:create_dialog_title"));
+      expect(dialog).toHaveTextContent(t("publicTrips:create_edit_dialog.create_title"));
       // Location label + community name should both render inside the dialog
-      expect(dialog).toHaveTextContent(t("publicTrips:location_label"));
+      expect(dialog).toHaveTextContent(t("publicTrips:create_edit_dialog.location_label"));
       expect(dialog).toHaveTextContent(community.name);
     });
 
@@ -156,12 +156,12 @@ describe("PublicTripsSection", () => {
 
       // Wait for accountInfo to resolve so the handler picks it up
       await screen.findByRole("button", {
-        name: t("publicTrips:create_trip"),
+        name: t("publicTrips:create_trip_button"),
       });
 
       await user.click(
         screen.getByRole("button", {
-          name: t("publicTrips:create_trip"),
+          name: t("publicTrips:create_trip_button"),
         }),
       );
 
@@ -175,7 +175,7 @@ describe("PublicTripsSection", () => {
       // The create-trip form should NOT be present (description textarea is
       // unique to it, unlike the "Create public trip" text which also labels
       // the button that triggered this flow).
-      expect(screen.queryByLabelText(t("publicTrips:description_label"))).not.toBeInTheDocument();
+      expect(screen.queryByLabelText(t("publicTrips:create_edit_dialog.description.label"))).not.toBeInTheDocument();
     });
 
     it("blocks submission of a description shorter than the minimum", async () => {
@@ -184,16 +184,16 @@ describe("PublicTripsSection", () => {
 
       await user.click(
         await screen.findByRole("button", {
-          name: t("publicTrips:create_trip"),
+          name: t("publicTrips:create_trip_button"),
         }),
       );
 
-      const descriptionField = await screen.findByLabelText(t("publicTrips:description_label"));
+      const descriptionField = await screen.findByLabelText(t("publicTrips:create_edit_dialog.description.label"));
       await user.type(descriptionField, "too short");
 
       await user.click(
         screen.getByRole("button", {
-          name: t("publicTrips:create_dialog_submit"),
+          name: t("publicTrips:create_edit_dialog.create_submit_button"),
         }),
       );
 
@@ -207,7 +207,7 @@ describe("PublicTripsSection", () => {
 
       await user.click(
         await screen.findByRole("button", {
-          name: t("publicTrips:create_trip"),
+          name: t("publicTrips:create_trip_button"),
         }),
       );
 
@@ -217,24 +217,24 @@ describe("PublicTripsSection", () => {
       const departure = dateOffset(10);
 
       const arrivalGroup = await screen.findByRole("group", {
-        name: t("publicTrips:from_date_label"),
+        name: t("publicTrips:create_edit_dialog.from_date.label"),
       });
       await user.click(arrivalGroup);
       await user.keyboard("{Control>}a{/Control}");
       await user.keyboard(arrival.keystrokes);
 
       const departureGroup = await screen.findByRole("group", {
-        name: t("publicTrips:to_date_label"),
+        name: t("publicTrips:create_edit_dialog.to_date.label"),
       });
       await user.click(departureGroup);
       await user.keyboard("{Control>}a{/Control}");
       await user.keyboard(departure.keystrokes);
 
-      await user.type(screen.getByLabelText(t("publicTrips:description_label")), VALID_DESCRIPTION);
+      await user.type(screen.getByLabelText(t("publicTrips:create_edit_dialog.description.label")), VALID_DESCRIPTION);
 
       await user.click(
         screen.getByRole("button", {
-          name: t("publicTrips:create_dialog_submit"),
+          name: t("publicTrips:create_edit_dialog.create_submit_button"),
         }),
       );
 
@@ -267,7 +267,7 @@ describe("PublicTripsSection", () => {
       const moreButton = await screen.findByTestId("public-trip-6-more-options");
       await user.click(moreButton);
 
-      expect(await screen.findByRole("menuitem", { name: t("publicTrips:edit") })).toBeVisible();
+      expect(await screen.findByRole("menuitem", { name: t("publicTrips:trip_card.edit_button") })).toBeVisible();
     });
 
     it.skip("submits updated dates/description to updatePublicTrip and refetches the list", async () => {
@@ -277,18 +277,18 @@ describe("PublicTripsSection", () => {
 
       const moreButton = await screen.findByTestId("public-trip-6-more-options");
       await user.click(moreButton);
-      await user.click(await screen.findByRole("menuitem", { name: t("publicTrips:edit") }));
+      await user.click(await screen.findByRole("menuitem", { name: t("publicTrips:trip_card.edit_button") }));
 
       const dialog = await screen.findByRole("dialog");
-      expect(dialog).toHaveTextContent(t("publicTrips:edit_dialog_title"));
+      expect(dialog).toHaveTextContent(t("publicTrips:create_edit_dialog.edit_title"));
 
-      const descriptionField = within(dialog).getByLabelText(t("publicTrips:description_label"));
+      const descriptionField = within(dialog).getByLabelText(t("publicTrips:create_edit_dialog.description.label"));
       await user.clear(descriptionField);
       await user.type(descriptionField, VALID_DESCRIPTION);
 
       await user.click(
         within(dialog).getByRole("button", {
-          name: t("publicTrips:edit_dialog_submit"),
+          name: t("publicTrips:create_edit_dialog.edit_submit_button"),
         }),
       );
 
@@ -316,14 +316,14 @@ describe("PublicTripsSection", () => {
 
       const moreButton = await screen.findByTestId("public-trip-6-more-options");
       await user.click(moreButton);
-      await user.click(await screen.findByRole("menuitem", { name: t("publicTrips:close") }));
+      await user.click(await screen.findByRole("menuitem", { name: t("publicTrips:trip_card.close_button") }));
 
       const confirmDialog = await screen.findByRole("dialog");
-      expect(confirmDialog).toHaveTextContent(t("publicTrips:close_dialog_title"));
+      expect(confirmDialog).toHaveTextContent(t("publicTrips:close_dialog.title"));
 
       await user.click(
         within(confirmDialog).getByRole("button", {
-          name: t("publicTrips:close_dialog_confirm"),
+          name: t("publicTrips:close_dialog.confirm_button"),
         }),
       );
 
@@ -362,7 +362,7 @@ describe("PublicTripsSection", () => {
       const user = userEvent.setup();
 
       await user.click(await screen.findByTestId("public-trip-6-more-options"));
-      await user.click(await screen.findByRole("menuitem", { name: t("publicTrips:reopen") }));
+      await user.click(await screen.findByRole("menuitem", { name: t("publicTrips:trip_card.reopen_button") }));
 
       await waitFor(() => {
         expect(updatePublicTripMock).toHaveBeenCalledWith({
@@ -375,8 +375,10 @@ describe("PublicTripsSection", () => {
       // "Reopen" back to "Mark as closed".
       await waitFor(() => expect(listPublicTripsMock).toHaveBeenCalledTimes(2));
       await user.click(screen.getByTestId("public-trip-6-more-options"));
-      expect(await screen.findByRole("menuitem", { name: t("publicTrips:close") })).toBeVisible();
-      expect(screen.queryByRole("menuitem", { name: t("publicTrips:reopen") })).not.toBeInTheDocument();
+      expect(await screen.findByRole("menuitem", { name: t("publicTrips:trip_card.close_button") })).toBeVisible();
+      expect(
+        screen.queryByRole("menuitem", { name: t("publicTrips:trip_card.reopen_button") }),
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -400,17 +402,17 @@ describe("PublicTripsSection", () => {
 
       // Wait for the cards to render.
       await screen.findByRole("link", {
-        name: t("publicTrips:already_invited"),
+        name: t("publicTrips:trip_card.already_invited_indicator"),
       });
       const tripAlreadyOffered = document.getElementById("trip-1")!;
       // It's a link to the existing offer thread, not an offer button.
       const link = within(tripAlreadyOffered).getByRole("link", {
-        name: t("publicTrips:already_invited"),
+        name: t("publicTrips:trip_card.already_invited_indicator"),
       });
       expect(link).toHaveAttribute("href", routeToHostRequest(VIEWER_HOST_REQUEST_ID));
       expect(
         within(tripAlreadyOffered).queryByRole("button", {
-          name: t("publicTrips:offer_to_host"),
+          name: t("publicTrips:trip_card.offer_to_host_button"),
         }),
       ).not.toBeInTheDocument();
 
@@ -419,7 +421,7 @@ describe("PublicTripsSection", () => {
       const tripNotOffered = document.getElementById("trip-2")!;
       expect(
         within(tripNotOffered).getByRole("button", {
-          name: t("publicTrips:offer_to_host"),
+          name: t("publicTrips:trip_card.offer_to_host_button"),
         }),
       ).toBeEnabled();
     });
@@ -438,18 +440,18 @@ describe("PublicTripsSection", () => {
 
       // Trip 1 is owned by user 2, so the default user (1) sees the offer button.
       await screen.findAllByRole("button", {
-        name: t("publicTrips:offer_to_host"),
+        name: t("publicTrips:trip_card.offer_to_host_button"),
       });
       const tripCard = document.getElementById("trip-1")!;
       await user.click(
         within(tripCard).getByRole("button", {
-          name: t("publicTrips:offer_to_host"),
+          name: t("publicTrips:trip_card.offer_to_host_button"),
         }),
       );
 
       const dialog = await screen.findByRole("dialog");
       // Dates are pre-filled from the trip; just supply a long enough message.
-      const message = within(dialog).getByLabelText(t("publicTrips:offer_dialog_message_label"), {
+      const message = within(dialog).getByLabelText(t("publicTrips:offer_to_host_dialog.message.label"), {
         selector: "textarea",
       });
       const text = "a".repeat(260);
@@ -457,7 +459,7 @@ describe("PublicTripsSection", () => {
 
       await user.click(
         within(dialog).getByRole("button", {
-          name: t("publicTrips:offer_dialog_submit"),
+          name: t("publicTrips:offer_to_host_dialog.submit_button"),
         }),
       );
 
@@ -493,7 +495,7 @@ describe("PublicTripsSection", () => {
 
       expect(
         await screen.findByRole("button", {
-          name: t("publicTrips:offer_to_host"),
+          name: t("publicTrips:trip_card.offer_to_host_button"),
         }),
       ).toBeDisabled();
     });

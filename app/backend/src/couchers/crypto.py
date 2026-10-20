@@ -135,6 +135,7 @@ EMAIL_SOURCE_DATA_KEY_NAME = "email-source-data"
 PAGE_TOKEN_KEY_NAME = "pagination"
 SOFA_KEY_NAME = "sofa_cookie"
 USER_LOCATION_RANDOMIZATION_NAME = "user-location-randomization-v1"
+USER_SEARCH_NOISE_KEY_NAME = "user-search-noise"
 
 
 # AEAD: Authenticated Encryption with Associated Data

@@ -47,9 +47,11 @@ message PublicTrip {
   int64 trip_id = 1;
   org.couchers.api.core.User user = 2;
   int64 community_id = 3;
-  // Trip date range
+  // Trip date range, in the local timezone given by the timezone field
   string from_date = 4; // YYYY-MM-DD
   string to_date = 5; // YYYY-MM-DD
+  // IANA timezone identifier at the community's location.
+  string timezone = 14;
   // User's description of their trip
   string description = 6;
   PublicTripStatus status = 7;

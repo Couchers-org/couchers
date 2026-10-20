@@ -19,7 +19,7 @@ from couchers.models import (
 from couchers.proto import editor_pb2, events_pb2
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import now
-from tests.fixtures import api_helpers
+from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import real_editor_session
 from tests.test_communities import create_1d_point, create_community
@@ -848,15 +848,6 @@ def test_LookupUsersForDebug(db):
             assert e.value.details() == "The sofa prefix must be exactly 12 characters."
 
 
-def _create_event_in_community(token: str, community_id: int, lat: float, lng: float) -> int:
-    res = api_helpers.create_event(
-        token=token,
-        parent_community_id=community_id,
-        location=events_pb2.EventLocation(address="Somewhere", lat=lat, lng=lng),
-    )
-    return int(res.event_id)
-
-
 @pytest.fixture
 def event_in_wrong_community(db):
     """An event physically in "City" but parented to the far too large "Country" community."""
@@ -875,7 +866,11 @@ def event_in_wrong_community(db):
 
     enforce_community_memberships()
 
-    event_id = _create_event_in_community(creator_token, country_id, lat=3, lng=1)
+    event_id = events_api.create_event(
+        token=creator_token,
+        parent_community_id=country_id,
+        location=events_pb2.EventLocation(address="Somewhere", lat=3, lng=1),
+    ).event_id
 
     yield editor_token, creator_token, event_id, country_id, city_id
 
@@ -908,7 +903,11 @@ def test_GetEventCommunityInfo(event_in_wrong_community):
 def test_GetEventCommunityInfo_already_in_smallest_community(event_in_wrong_community):
     editor_token, creator_token, event_id, country_id, city_id = event_in_wrong_community
 
-    correctly_placed_event_id = _create_event_in_community(creator_token, city_id, lat=3, lng=1)
+    correctly_placed_event_id = events_api.create_event(
+        token=creator_token,
+        parent_community_id=city_id,
+        location=events_pb2.EventLocation(address="Somewhere", lat=3, lng=1),
+    ).event_id
 
     with real_editor_session(editor_token) as api:
         res = api.GetEventCommunityInfo(editor_pb2.GetEventCommunityInfoReq(event_id=correctly_placed_event_id))
@@ -973,12 +972,13 @@ def test_MoveEventToCommunity_explicit_community(event_in_wrong_community):
 def test_MoveEventToCommunity_moves_all_occurrences(event_in_wrong_community):
     editor_token, creator_token, event_id, country_id, city_id = event_in_wrong_community
 
-    other_occurrence_id = api_helpers.schedule_event(
+    # the fixture's occurrence is tomorrow at noon, so schedule this one after it
+    other_occurrence_id = events_api.schedule_event(
         token=creator_token,
         event_id=event_id,
         location=events_pb2.EventLocation(address="Somewhere", lat=3, lng=1),
-        start_date_time=local_date_time(now() + timedelta(days=1)),
-        end_date_time=local_date_time(now() + timedelta(days=1, hours=1)),
+        start_date_time=local_date_time(now() + timedelta(days=2)),
+        end_date_time=local_date_time(now() + timedelta(days=2, hours=1)),
     ).event_id
 
     with real_editor_session(editor_token) as api:
