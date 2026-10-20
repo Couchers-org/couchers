@@ -100,23 +100,17 @@ hide_title: true
     --cc-overlap-border: #9a3412;
   }
 }
-/* --- FULL-WIDTH HERO SECTION --- */
+/* --- HERO SECTION --- */
 .cc-hero {
   position: relative;
-  width: 100vw;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
   height: 300px;
   overflow: hidden;
   margin-bottom: 24px;
-  border-top: 1px solid var(--cc-border);
-  border-bottom: 1px solid var(--cc-border);
+  border: 1px solid var(--cc-border);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 28px max(24px, calc((100vw - 1200px) / 2 + 24px));
+  padding: 28px 24px;
   box-sizing: border-box;
 }
 .cc-hero::after {
@@ -131,7 +125,7 @@ hide_title: true
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: fill;
   z-index: 0;
 }
 .cc-hero h1,
@@ -228,6 +222,7 @@ hide_title: true
   margin: 8px 0 24px 0;
   padding: 0;
   list-style: none;
+  align-items: stretch;
 }
 .cc-drawer .cc-grid:last-child { margin-bottom: 0; }
 /* --- UNIFORM EVENT CARDS --- */
@@ -243,6 +238,8 @@ hide_title: true
   flex-direction: column;
   padding: 14px;
   margin: 0;
+  height: 100%;
+  box-sizing: border-box;
 }
 .cc-card:hover {
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
@@ -253,10 +250,11 @@ hide_title: true
 .cc-card-img {
   width: calc(100% + 28px);
   margin: -14px -14px 12px -14px;
-  height: 135px;
-  object-fit: cover;
+  height: 140px;
+  object-fit: fill;
   display: block;
   border-bottom: 1px solid var(--cc-border-light);
+  flex-shrink: 0;
 }
 .cc-date-row {
   display: flex;
