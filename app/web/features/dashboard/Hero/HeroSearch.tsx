@@ -78,7 +78,6 @@ export default function HeroSearch() {
                 location: value.simplifiedName,
                 hostingStatus: [HostingStatus.HOSTING_STATUS_CAN_HOST, HostingStatus.HOSTING_STATUS_MAYBE],
                 bbox: newBbox,
-                showEmptyProfile: false,
               });
 
               // Use startTransition in WebView to allow autocomplete to complete before navigation

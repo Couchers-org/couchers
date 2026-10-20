@@ -159,10 +159,9 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
         state.hasActiveFilters || state.search.bbox !== undefined || state.shouldSearchByUserId;
 
       const defaultFiltersActive =
-        state.filters.showEmptyProfile ||
-        (state.filters.hostingStatus?.includes(HostingStatus.HOSTING_STATUS_CAN_HOST) &&
-          state.filters.hostingStatus?.includes(HostingStatus.HOSTING_STATUS_MAYBE) &&
-          !state.filters.hostingStatus.includes(HostingStatus.HOSTING_STATUS_CANT_HOST));
+        state.filters.hostingStatus?.includes(HostingStatus.HOSTING_STATUS_CAN_HOST) &&
+        state.filters.hostingStatus?.includes(HostingStatus.HOSTING_STATUS_MAYBE) &&
+        !state.filters.hostingStatus.includes(HostingStatus.HOSTING_STATUS_CANT_HOST);
 
       return {
         ...state,
@@ -171,7 +170,6 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
           filters: {
             ...state.filters,
             hostingStatus: undefined,
-            showEmptyProfile: false,
           },
         }),
         search: {
@@ -198,10 +196,9 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
       };
     case mapSearchActionTypes.CLEAR_SEARCH_INPUT_VALUE:
       const areDefaultFiltersActive =
-        state.filters.showEmptyProfile ||
-        (state.filters.hostingStatus?.includes(HostingStatus.HOSTING_STATUS_CAN_HOST) &&
-          state.filters.hostingStatus?.includes(HostingStatus.HOSTING_STATUS_MAYBE) &&
-          !state.filters.hostingStatus.includes(HostingStatus.HOSTING_STATUS_CANT_HOST));
+        state.filters.hostingStatus?.includes(HostingStatus.HOSTING_STATUS_CAN_HOST) &&
+        state.filters.hostingStatus?.includes(HostingStatus.HOSTING_STATUS_MAYBE) &&
+        !state.filters.hostingStatus.includes(HostingStatus.HOSTING_STATUS_CANT_HOST);
 
       const clearedState = {
         ...state,
@@ -209,7 +206,6 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
           filters: {
             ...state.filters,
             hostingStatus: undefined,
-            showEmptyProfile: false,
           },
         }),
         search: {
@@ -246,7 +242,6 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
         filters: {
           ...state.filters,
           hostingStatus: [HostingStatus.HOSTING_STATUS_CAN_HOST, HostingStatus.HOSTING_STATUS_MAYBE], // Default to can host and maybe when searching a location
-          showEmptyProfile: false, // Default to not showing empty profiles when searching a location
         },
         search: {
           ...state.search,
@@ -286,7 +281,6 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
           filters: {
             ...state.filters,
             hostingStatus: [HostingStatus.HOSTING_STATUS_CAN_HOST, HostingStatus.HOSTING_STATUS_MAYBE],
-            showEmptyProfile: false,
           },
         }),
         search: {
@@ -325,7 +319,7 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
           updatedFilters.acceptsPets = action.payload[key] === false ? undefined : action.payload[key];
         }
         if (key === "showEmptyProfile") {
-          updatedFilters.showEmptyProfile = action.payload[key];
+          updatedFilters.showEmptyProfile = action.payload[key] === true ? undefined : action.payload[key];
         }
         if (key === "drinkingAllowed") {
           updatedFilters.drinkingAllowed = action.payload[key];

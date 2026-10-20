@@ -1,10 +1,10 @@
 import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
 import { Alert, Box, Button, IconButton, styled, Typography, useMediaQuery } from "@mui/material";
-import BetaFlag from "components/BetaFlag";
 import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
+import { HostingStatus } from "proto/api_pb";
 import { SearchUser } from "proto/search_pb";
 import { theme } from "theme";
 
@@ -85,7 +85,11 @@ const SearchResultListContent = ({
   const { setSearchFilters } = useMapSearchActions();
 
   const shouldShowSuggestion =
-    !showAlert && totalItems !== undefined && filters.showEmptyProfile === false && selectedUserId === undefined;
+    !showAlert &&
+    totalItems !== undefined &&
+    filters.hostingStatus !== undefined &&
+    !filters.hostingStatus.includes(HostingStatus.HOSTING_STATUS_CANT_HOST) &&
+    selectedUserId === undefined;
 
   const handleIncludeEmptyProfilesClick = () => {
     setSearchFilters({
@@ -173,10 +177,7 @@ const SearchResultListContent = ({
             marginBottom: theme.spacing(2),
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            <BetaFlag />
-            <Typography variant="body2">{t("search:search_result.few_results_suggestion")}</Typography>
-          </Box>
+          <Typography variant="body2">{t("search:search_result.cant_host_hidden_message")}</Typography>
           <Button variant="contained" size="small" onClick={handleIncludeEmptyProfilesClick}>
             {t("search:search_result.include_empty_profiles_button")}
           </Button>

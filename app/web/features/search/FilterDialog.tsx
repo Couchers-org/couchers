@@ -166,7 +166,7 @@ const FilterDialog = ({ filters, isOpen, onCloseDialog, resetFilters, updateFilt
   };
 
   const handleShowEmptyProfileChange = () => {
-    updateFilter({ showEmptyProfile: !filters.showEmptyProfile });
+    updateFilter({ showEmptyProfile: filters.showEmptyProfile === false });
   };
 
   const handleLastActiveSelect = (event: SelectChangeEvent<number>) => {
@@ -253,7 +253,7 @@ const FilterDialog = ({ filters, isOpen, onCloseDialog, resetFilters, updateFilt
         <FilterItemRow>
           <Typography>{t("search:form.empty_profile_filters.title")}</Typography>
           <CustomColorSwitch
-            checked={filters.showEmptyProfile || false}
+            checked={filters.showEmptyProfile !== false}
             onClick={handleShowEmptyProfileChange}
             customColor="var(--mui-palette-primary-main)"
           />
