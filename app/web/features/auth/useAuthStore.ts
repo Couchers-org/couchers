@@ -8,6 +8,7 @@ import Sentry from "platform/sentry";
 import { clearStorage, usePersistedState } from "platform/usePersistedState";
 import { AuthRes, SignupFlowRes } from "proto/auth_pb";
 import { useMemo, useRef, useState } from "react";
+import TagManager from "react-gtm-module";
 import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
 import { getCookie } from "utils/cookies";
@@ -138,6 +139,15 @@ export default function useAuthStore() {
         setFlowState(state);
         if (state.authRes) {
           setFlowState(null);
+          // The backend only returns authRes in the response that completes the signup, so this fires once per signup
+          TagManager.dataLayer({
+            dataLayer: {
+              event: "sign_up",
+              signupMethod: "email",
+              userId: state.authRes.userId,
+              "gtm.elementUrl": `${window.location.hostname}${window.location.pathname}`,
+            },
+          });
           authActions.firstLogin(state.authRes!);
           return;
         }
