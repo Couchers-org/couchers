@@ -170,8 +170,8 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
           hasActiveFilters: false,
           filters: {
             ...state.filters,
-            hostingStatus: undefined,
-            showEmptyProfile: false,
+            hostingStatus: initialState.filters.hostingStatus,
+            showEmptyProfile: initialState.filters.showEmptyProfile,
           },
         }),
         search: {
@@ -208,8 +208,8 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
         ...(areDefaultFiltersActive && {
           filters: {
             ...state.filters,
-            hostingStatus: undefined,
-            showEmptyProfile: false,
+            hostingStatus: initialState.filters.hostingStatus,
+            showEmptyProfile: initialState.filters.showEmptyProfile,
           },
         }),
         search: {
