@@ -13,7 +13,6 @@ expo-env.d.ts
 # ship their own ios/ and android/ sources, which must not be ignored.
 /ios/
 /android/
-modules/*/android/build/
 .kotlin/
 *.orig.*
 *.jks
