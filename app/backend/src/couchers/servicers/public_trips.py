@@ -71,6 +71,7 @@ def public_trip_to_pb(
         community_name=public_trip.node.official_cluster.name,
         from_date=date_to_api(public_trip.from_date),
         to_date=date_to_api(public_trip.to_date),
+        timezone=public_trip.timezone,
         description=public_trip.description,
         status=publictripstatus2api[public_trip.status],
         created=Timestamp_from_datetime(public_trip.created),
@@ -153,6 +154,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_description_too_long")
 
         # Disallow overlapping active trips by the same user in the same community
+        # They share the same timezone so comparing dates is ok
         existing = session.execute(
             select(PublicTrip)
             .where(PublicTrip.user_id == context.user_id)
@@ -368,7 +370,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         )
 
         if editing_content:
-            today_local = today_in_timezone(public_trip.node.timezone)
+            today_local = today_in_timezone(public_trip.timezone)
 
             if public_trip.to_date < today_local:
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "public_trip_in_past")
@@ -423,7 +425,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             new_status = publictripstatus2sql.get(request.status)
             if new_status == PublicTripStatus.searching_for_host:
                 # Reopening is only allowed if the trip hasn't started yet, matching creation logic.
-                today_local = today_in_timezone(public_trip.node.timezone)
+                today_local = today_in_timezone(public_trip.timezone)
                 if public_trip.from_date < today_local:
                     context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "public_trip_in_past")
             elif new_status != PublicTripStatus.closed:
