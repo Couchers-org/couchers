@@ -1,5 +1,5 @@
 ---
-title: Couch Crashes & Global Gatherings
+title: Couch Crash Calendar
 description: Large-scale, multi-day, community-organized couch surfing events
   across the globe.
 crumb: Couch Crash Calendar
@@ -35,7 +35,7 @@ hide_title: true
   max-width: 100%;
   position: relative;
 }
-/* --- 2. EXPLICIT SITE DARK MODE TOGGLE (MUI, Next.js & Standard CMS Hooks) --- */
+/* --- 2. EXPLICIT SITE DARK MODE TOGGLE --- */
 :is(
   .dark,
   .dark-mode,
@@ -63,7 +63,7 @@ hide_title: true
   --cc-overlap-text: #fb923c;
   --cc-overlap-border: #9a3412;
 }
-/* --- 3. SYSTEM DARK MODE (Only if user hasn't forced Light Mode on the site) --- */
+/* --- 3. SYSTEM DARK MODE --- */
 @media (prefers-color-scheme: dark) {
   :root:not(:is(
     .light,
@@ -100,18 +100,23 @@ hide_title: true
     --cc-overlap-border: #9a3412;
   }
 }
-/* --- HERO SECTION --- */
+/* --- FULL-WIDTH HERO SECTION --- */
 .cc-hero {
   position: relative;
+  width: 100vw;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
   height: 300px;
-  border-radius: 8px;
   overflow: hidden;
   margin-bottom: 24px;
-  border: 1px solid var(--cc-border);
+  border-top: 1px solid var(--cc-border);
+  border-bottom: 1px solid var(--cc-border);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 28px 24px;
+  padding: 28px max(24px, calc((100vw - 1200px) / 2 + 24px));
   box-sizing: border-box;
 }
 .cc-hero::after {
@@ -200,7 +205,7 @@ hide_title: true
   border-radius: 4px;
   color: var(--cc-text);
 }
-/* --- HEADERS & GRID (UL/LI) --- */
+/* --- HEADERS & 4-COLUMN GRID --- */
 .cc-section-title {
   font-size: 1.5rem;
   font-weight: 700;
@@ -218,14 +223,14 @@ hide_title: true
 .cc-drawer .cc-year:first-of-type { margin-top: 0; }
 .cc-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 16px;
   margin: 8px 0 24px 0;
   padding: 0;
   list-style: none;
 }
 .cc-drawer .cc-grid:last-child { margin-bottom: 0; }
-/* --- EVENT CARDS --- */
+/* --- UNIFORM EVENT CARDS --- */
 .cc-card {
   background: var(--cc-card-bg);
   border: 1px solid var(--cc-border);
@@ -236,7 +241,7 @@ hide_title: true
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   display: flex;
   flex-direction: column;
-  padding: 16px;
+  padding: 14px;
   margin: 0;
 }
 .cc-card:hover {
@@ -246,9 +251,9 @@ hide_title: true
 .cc-card.overlap { border-top-color: var(--cc-overlap-text); }
 .cc-card.past { border-top-color: var(--cc-past-border); }
 .cc-card-img {
-  width: calc(100% + 32px);
-  margin: -16px -16px 14px -16px;
-  height: 145px;
+  width: calc(100% + 28px);
+  margin: -14px -14px 12px -14px;
+  height: 135px;
   object-fit: cover;
   display: block;
   border-bottom: 1px solid var(--cc-border-light);
@@ -257,16 +262,16 @@ hide_title: true
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
-  gap: 8px;
+  margin-bottom: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 .cc-date {
   background: var(--cc-date-bg);
   color: var(--cc-date-text);
   font-weight: 500;
-  font-size: 0.85rem;
-  padding: 3px 10px;
+  font-size: 0.8rem;
+  padding: 2px 8px;
   border-radius: 4px;
 }
 .cc-card.past .cc-date {
@@ -277,29 +282,29 @@ hide_title: true
   background: var(--cc-overlap-bg);
   color: var(--cc-overlap-text);
   border: 1px solid var(--cc-overlap-border);
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 500;
-  padding: 2px 8px;
+  padding: 2px 6px;
   border-radius: 4px;
 }
 .cc-title {
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   font-weight: 700;
-  margin: 0 0 8px 0;
+  margin: 0 0 6px 0;
 }
 .cc-title a { color: var(--cc-heading); text-decoration: none; }
 .cc-title a:hover { color: var(--cc-primary); text-decoration: underline; }
 .cc-meta {
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   color: var(--cc-text-muted);
-  margin: 0 0 14px 0;
+  margin: 0 0 10px 0;
 }
 .cc-organizer {
   margin: auto 0 0 0;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--cc-text-light);
   border-top: 1px solid var(--cc-border-light);
-  padding-top: 10px;
+  padding-top: 8px;
 }
 .cc-organizer a,
 .cc-propose-box a:not(.cc-btn) {
@@ -466,3 +471,15 @@ hide_title: true
   <p>Want to become a Community Builder? <a href="https://help.couchers.org/hc/couchersorg-help-center/articles/1743977410-what-is-a-community-builder">Learn more here</a>.</p>
 </div>
 </div>
+<!-- OPTIONAL SCRIPT -->
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    var fab = document.getElementById('cc-floating-btn');
+    var target = document.getElementById('propose-crash');
+    if (fab && target && 'IntersectionObserver' in window) {
+      new IntersectionObserver(function(entries) {
+        fab.classList.toggle('cc-fab-hidden', entries[0].isIntersecting);
+      }, { threshold: 0.6 }).observe(target);
+    }
+  });
+</script>
