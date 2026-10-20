@@ -33,7 +33,6 @@
   "discussions_empty_state": "Nenhuma discussão no momento.",
   "discussions_title": "Discussões",
   "edit_event": "Editar evento",
-  "finished": "Finalizado",
   "edit_info_page_title": "Editar informações do local",
   "error_loading_community": "Erro ao carregar a comunidade.",
   "community_info_page_title": "Informações gerais",
@@ -45,7 +44,6 @@
   "local_info_label": "Informações do local",
   "new_discussion_title": "Título da discussão",
   "new_discussion_topic": "Tópico da discussão",
-  "new_post_label": "Novo post",
   "edit_info_page_success_message": "A página da comunidade foi atualizada com sucesso.",
   "community_tabs_a11y_label": "Guias para subpáginas da comunidade",
   "load_earlier_replies": "Carregar respostas mais antigas",
@@ -129,8 +127,6 @@
   "comment_deleted": "Este comentário foi excluído.",
   "edit_comment": "Editar comentário",
   "delete_comment": "Excluir comentário",
-  "comment_edited_date": "Editado há {{timeAgo}}",
-  "discussion_edited_date": "Editado há {{timeAgo}}",
   "discussion_deleted": "Esta discussão foi excluída.",
   "delete_discussion": "Excluir discussão",
   "delete_discussion_dialog": {
@@ -152,5 +148,6 @@
   "select_sublocality": "Selecionar bairro",
   "select_sub_community": "Selecionar comunidade",
   "sub_community_search_placeholder": "Localização",
-  "sub_community_dropdown_a11y": "Navegar comunidades mais específicas"
+  "sub_community_dropdown_a11y": "Navegar comunidades mais específicas",
+  "new_discussion_button": "Nova discussão"
 }

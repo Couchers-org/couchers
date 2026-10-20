@@ -3,7 +3,6 @@ import os
 import re
 import subprocess
 from pathlib import Path
-from typing import Any
 
 import pytest
 from google.protobuf import empty_pb2
@@ -22,6 +21,7 @@ from couchers.utils import (
     is_valid_username,
     parse_date,
 )
+from tests.conftest import TEST_DB_NAME
 from tests.fixtures.db import (
     create_schema_from_models,
     drop_database,
@@ -103,6 +103,9 @@ def test_is_valid_name() -> None:
     assert not is_valid_name(" leading whitespace")
     assert not is_valid_name("trailing whitespace ")
     assert not is_valid_name(" surrounding whitespace ")
+    assert not is_valid_name(chr(0xA0) + "Anne")  # leading non-breaking space
+    assert not is_valid_name("Anne" + chr(0xA0))  # trailing non-breaking space
+    assert not is_valid_name("\n")
     # invalid: disallowed characters
     assert not is_valid_name("digits123")
     assert not is_valid_name("email@domain.com")
@@ -187,18 +190,19 @@ def migration_test_db(postgres_conn):
     """
     Points everything at a scratch database for the duration of the test.
 
-    The schemas compared here should look like production's, and testdb doesn't: its column
-    defaults bind mock.now() so the timewarp fixture can shift the clock. Building somewhere else
-    keeps the mock out of both dumps and leaves testdb alone, which this test would otherwise
-    destroy and have to rebuild.
+    The schemas compared here should look like production's, and the test database doesn't: its
+    column defaults bind mock.now() so the timewarp fixture can shift the clock. Building somewhere
+    else keeps the mock out of both dumps and leaves the test database alone, which this test would
+    otherwise destroy and have to rebuild.
     """
-    postgres_conn.execute(text("DROP DATABASE IF EXISTS migrationtestdb WITH (FORCE)"))
-    postgres_conn.execute(text("CREATE DATABASE migrationtestdb"))
+    migration_db_name = f"{TEST_DB_NAME}_migrations"
+    postgres_conn.execute(text(f"DROP DATABASE IF EXISTS {migration_db_name} WITH (FORCE)"))
+    postgres_conn.execute(text(f"CREATE DATABASE {migration_db_name}"))
 
     previous_dsn = config.DATABASE_CONNECTION_STRING
-    config.DATABASE_CONNECTION_STRING = re.sub(r"/testdb$", "/migrationtestdb", previous_dsn)
-    # the cached engine still points at testdb, and clearing the cache would drop it with its
-    # pooled connections still open
+    config.DATABASE_CONNECTION_STRING = previous_dsn.rsplit("/", 1)[0] + "/" + migration_db_name
+    # the cached engine still points at the test database, and clearing the cache would drop it
+    # with its pooled connections still open
     _get_base_engine().dispose()
     _get_base_engine.cache_clear()
     try:
@@ -207,11 +211,11 @@ def migration_test_db(postgres_conn):
         _get_base_engine().dispose()
         config.DATABASE_CONNECTION_STRING = previous_dsn
         _get_base_engine.cache_clear()
-        postgres_conn.execute(text("DROP DATABASE IF EXISTS migrationtestdb WITH (FORCE)"))
+        postgres_conn.execute(text(f"DROP DATABASE IF EXISTS {migration_db_name} WITH (FORCE)"))
 
 
 @pytest.mark.skipif(not pg_dump_is_available(), reason="Can't run migration tests without pg_dump")
-def test_migrations(testconfig: dict[str, Any], migration_test_db) -> None:
+def test_migrations(migration_test_db) -> None:
     """
     Compares the database schema built up from migrations with the
     schema built by models.py. Both scenarios are started from an
@@ -292,7 +296,7 @@ def test_slugify(db):
         )
 
 
-def test_database_consistency_check(db, testconfig: dict[str, Any]) -> None:
+def test_database_consistency_check(db) -> None:
     """The database consistency check should pass with valid user/gallery setup"""
     # Create a few users (which auto-creates their profile galleries)
     generate_user()

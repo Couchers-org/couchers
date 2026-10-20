@@ -1,5 +1,5 @@
 # Only the last matching line's owners are added to the PR
 * @aapeliv
 /app/**/locales/*.json @tristanlabelle # Watch Weblate integrations
-/app/web/ @nabramow
+/app/web/ @nabramow @darrenvong @papeldeorigami
 /docs/ @aapeliv @nabramow

@@ -36,14 +36,22 @@ services:
       - 8000:8000
     depends_on:
       - postgres
+      - valkey
     links:
       - postgres
+      - valkey
+  valkey:
+    image: valkey/valkey:8-alpine
+    restart: unless-stopped
+    ports:
+      - 6379:6379
   media:
     build: media
     restart: unless-stopped
     env_file: media.dev.env
     volumes:
       - "./data/media/uploads/:/uploads/"
+      - "./backend/src/data/dummy_profile_images/:/seed/:ro"
     ports:
       - 5001:5001
     depends_on:

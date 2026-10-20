@@ -1,19 +1,18 @@
 import { styled, Tooltip, Typography } from "@mui/material";
-import { FlexboxProps, useMediaQuery } from "@mui/system";
+import { FlexboxProps } from "@mui/system";
 import Avatar from "components/Avatar";
 import ProfileLink from "components/ProfileLink/ProfileLink";
+import RelativeTime from "components/RelativeTime";
 import StrongVerificationBadge from "components/StrongVerificationBadge";
 import { useImpressionRef, useLogEvent } from "features/analytics/hooks";
 import { useSearchAnalytics } from "features/analytics/searchAnalyticsContext";
 import { makeResultId, setSearchReferrer } from "features/analytics/searchAttribution";
 import { ResponseRateText } from "features/profile/view/userLabels";
 import { useTranslation } from "i18n";
-import { localizeRelativeTime } from "i18n/datetimes";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { TFunction } from "i18next";
 import { SearchUser } from "proto/search_pb";
 import { MouseEvent } from "react";
-import LinesEllipsis from "react-lines-ellipsis";
 import { theme } from "theme";
 import { timestampToInstant } from "utils/date";
 import stripMarkdown from "utils/stripMarkdown";
@@ -135,7 +134,19 @@ const HaikuContainer = styled("div")(({ theme }) => ({
   flexGrow: 1,
 }));
 
-const generateAboutText = (user: SearchUser.AsObject, t: TFunction, isMobile: boolean) => {
+const ClampedAbout = styled("div")(({ theme }) => ({
+  display: "-webkit-box",
+  WebkitBoxOrient: "vertical",
+  WebkitLineClamp: 7,
+  overflow: "hidden",
+  overflowWrap: "break-word",
+
+  [theme.breakpoints.down("md")]: {
+    WebkitLineClamp: 3,
+  },
+}));
+
+const generateAboutText = (user: SearchUser.AsObject, t: TFunction) => {
   const missingAbout = user.profileSnippet.length === 0;
   const hasPhoto = user.avatarUrl.length > 0;
 
@@ -159,13 +170,7 @@ const generateAboutText = (user: SearchUser.AsObject, t: TFunction, isMobile: bo
       </HaikuContainer>
     );
   } else {
-    return (
-      <LinesEllipsis
-        maxLine={isMobile ? 3 : 7}
-        text={stripMarkdown(aboutText(user, t))}
-        style={{ wordBreak: "break-all", overflow: "hidden" }}
-      />
-    );
+    return <ClampedAbout>{stripMarkdown(aboutText(user, t))}</ClampedAbout>;
   }
 };
 
@@ -175,11 +180,7 @@ const SearchResultUserCard = ({
   position,
   user,
 }: SearchResultUserCardProps) => {
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const {
-    t,
-    i18n: { language: locale },
-  } = useTranslation([GLOBAL, PROFILE]);
+  const { t } = useTranslation([GLOBAL, PROFILE]);
 
   const analytics = useSearchAnalytics();
   const logEvent = useLogEvent();
@@ -282,17 +283,18 @@ const SearchResultUserCard = ({
           meetupStatus={user.meetupStatus}
           numberReferences={user.numReferences}
         />
-        {generateAboutText(user, t, isMobile)}
+        {generateAboutText(user, t)}
         <FlexRow alignItems="flex-end" justifyContent="space-between" sx={{ marginTop: 1.5 }}>
           <UserDetailsRow>
             <Typography variant="body2">
-              {user.lastActive
-                ? `${t("profile:active")}: ` +
-                  localizeRelativeTime(user.lastActive, locale, {
-                    smallestUnit: "hours",
-                    t,
-                  })
-                : t("last_active_false")}
+              {user.lastActive ? (
+                <>
+                  {t("profile:active")}:{" "}
+                  <RelativeTime instant={user.lastActive} smallestUnit="hours" capitalize={true} />
+                </>
+              ) : (
+                t("last_active_false")
+              )}
             </Typography>
             <Typography variant="body2" sx={{ display: "flex" }}>
               {`${t("profile:response_rate_label")}: `}

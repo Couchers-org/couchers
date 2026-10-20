@@ -47,6 +47,19 @@ def test_fingerprint_collapses_bulk_inlined_literals():
     assert len(a) < 100
 
 
+def test_fingerprint_keeps_the_text_between_two_literals():
+    """The gap between two literals is not a literal, however long it is: collapsing it merges distinct shapes."""
+    touch_user = (
+        "WITH touch_user AS (UPDATE users SET last_active=now() WHERE users.id = %(id_1)s "
+        "AND users.last_active < now() - interval '5 minutes' RETURNING users.id) "
+        "INSERT INTO user_activity (user_id, period) SELECT id, interval '1 hour' FROM touch_user"
+    )
+    assert "'...'" not in query_log._fingerprint(touch_user)
+    assert query_log._fingerprint(touch_user) != query_log._fingerprint(
+        touch_user.replace("RETURNING users.id", "RETURNING users.id, users.last_active")
+    )
+
+
 def test_fingerprint_is_capped():
     """The cap is what bounds the artifact: uncapped, the timezone_areas load took one CI node's dump to 495 MB."""
     huge = query_log._fingerprint("SELECT " + "x" * 100_000)

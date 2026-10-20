@@ -48,11 +48,6 @@ _FOOTER = EmailFooter(
 )
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 @pytest.mark.parametrize("email", [v for _, v in _VARIANTS], ids=[i for i, _ in _VARIANTS])
 def test_email_renders_in_english(email: EmailBase):
     loc_context = LocalizationContext(locale="en", timezone=UTC)

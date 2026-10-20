@@ -51,7 +51,7 @@ The render step cannot fail its job, and the comment item is added only when the
 Queries are grouped into spans, in the order they occurred:
 
 - `rpc` — the handler and its session, for both the `FakeChannel` sessions and the real-server ones
-- `auth` — the token lookup that precedes a handler, kept separate so a constant per-call cost is not mistaken for the handler's own work; this matches the boundary `couchers/perf.py` uses in production
+- `auth` — the token lookup that precedes a handler, kept separate so a constant per-call cost is not mistaken for the handler's own work; this matches the boundary `couchers/middleware/perf.py` uses in production
 - `job` — a `process_jobs()` drain, not split by job type
 - `body` — anything else: fixture setup, or a test using `session_scope()` directly
 

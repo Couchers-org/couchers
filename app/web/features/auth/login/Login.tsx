@@ -3,11 +3,13 @@ import Alert from "components/Alert";
 import HtmlMeta from "components/HtmlMeta";
 import StyledLink from "components/StyledLink";
 import { Trans, useTranslation } from "i18n";
+import { DEFAULT_LOCALE, LOCALE_COOKIE_NAME } from "i18n/locales";
 import { AUTH, GLOBAL, LANDING } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import CouchersTextLogo from "resources/CouchersTextLogo";
 import { dashboardRoute, signupRoute } from "routes";
+import { getCookie } from "utils/cookies";
 import stringOrFirstString from "utils/stringOrFirstString";
 
 import { useAuthContext } from "../AuthProvider";
@@ -46,15 +48,9 @@ export default function Login() {
   useEffect(() => {
     if (authenticated) {
       // Get the NEXT_LOCALE cookie to use the user's preferred language
-      const nextLocale =
-        typeof document !== "undefined"
-          ? document.cookie
-              .split("; ")
-              .find((row) => row.startsWith("NEXT_LOCALE="))
-              ?.split("=")[1]
-          : null;
+      const nextLocale = getCookie(LOCALE_COOKIE_NAME);
 
-      const targetLocale = nextLocale || router.locale || "en";
+      const targetLocale = nextLocale || router.locale || DEFAULT_LOCALE;
 
       // Navigate to destination with user's preferred locale
       router.push(redirectTo, undefined, { locale: targetLocale });

@@ -26,10 +26,11 @@
     "logo_aria_label": "Download logo assets",
     "mobile_images_aria_label": "Download mobile app assets"
   },
-  "team": {
-    "subheading": "Meet the team",
-    "extra_card_text": "We are passionate couch surfers and skilled professionals committed to creating an improved, safer, and more inclusive platform.",
-    "extra_card_link": "More about the team"
+  "board": {
+    "subheading": "Meet the Board",
+    "full_team_card_title": "The full team",
+    "full_team_card_text": "We are passionate couch surfers and skilled professionals committed to creating an improved, safer, and more inclusive platform.",
+    "full_team_card_link": "See all our volunteers"
   },
   "social_media_subheading": "Follow us",
   "press_coverage_subheading": "Featured Coverage"

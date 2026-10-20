@@ -22,9 +22,11 @@ from couchers.config import config
 from couchers.constants import (
     EMAIL_REGEX,
     PREFERRED_LANGUAGE_COOKIE_EXPIRY,
+    VALID_NAME_CHARACTERS_REGEX,
     VALID_NAME_MAX_LENGTH,
     VALID_NAME_MIN_LENGTH,
-    VALID_NAME_REGEX,
+    VALID_NAME_NO_SURROUNDING_WHITESPACE_REGEX,
+    VALID_USERNAME_REGEX,
 )
 from couchers.crypto import (
     create_sofa_id,
@@ -35,7 +37,8 @@ from couchers.crypto import (
 )
 from couchers.proto.internal import internal_pb2
 
-_VALID_NAME_PATTERN = regex.compile(VALID_NAME_REGEX, regex.UNICODE)
+_VALID_NAME_CHARACTERS_PATTERN = regex.compile(VALID_NAME_CHARACTERS_REGEX, regex.UNICODE)
+_VALID_NAME_NO_SURROUNDING_WHITESPACE_PATTERN = regex.compile(VALID_NAME_NO_SURROUNDING_WHITESPACE_REGEX, regex.UNICODE)
 
 if TYPE_CHECKING:
     from couchers.models import Geom
@@ -61,7 +64,7 @@ def is_valid_username(field: str) -> bool:
     Checks if it's an alphanumeric + underscore, lowercase string, at least
     two characters long, and starts with a letter, ends with alphanumeric
     """
-    return re.match(r"[a-z][0-9a-z_]*[a-z0-9]$", field) is not None
+    return re.fullmatch(VALID_USERNAME_REGEX, field) is not None
 
 
 def is_valid_name(field: str) -> bool:
@@ -75,7 +78,10 @@ def is_valid_name(field: str) -> bool:
     if len(field) > VALID_NAME_MAX_LENGTH or len(field) < VALID_NAME_MIN_LENGTH:
         return False
 
-    return _VALID_NAME_PATTERN.fullmatch(field) is not None
+    return (
+        _VALID_NAME_CHARACTERS_PATTERN.fullmatch(field) is not None
+        and _VALID_NAME_NO_SURROUNDING_WHITESPACE_PATTERN.fullmatch(field) is not None
+    )
 
 
 def is_valid_email(field: str) -> bool:
@@ -292,12 +298,8 @@ def _create_tasty_cookie(name: str, value: Any, expiry: datetime, httponly: bool
     cookie["domain"] = config.COOKIE_DOMAIN
     # path so that it's accessible for all API requests, otherwise defaults to something like /org.couchers.auth/
     cookie["path"] = "/"
-    if config.DEV:
-        # send only on requests from first-party domains
-        cookie["samesite"] = "Strict"
-    else:
-        # send on all requests, requires Secure
-        cookie["samesite"] = "None"
+    cookie["samesite"] = config.COOKIE_SAMESITE
+    if not config.DEV:
         # only set cookie on HTTPS sites in production
         cookie["secure"] = True
     # not accessible from javascript
@@ -409,7 +411,7 @@ def remove_duplicates_retain_order[T](list_: Sequence[T]) -> list[T]:
     return out
 
 
-def date_in_timezone(date_: Mapped[date | None], timezone: str) -> Function[Any]:
+def date_in_timezone(date_: Mapped[date | None], timezone: str | Mapped[str]) -> Function[Any]:
     """
     Given a naive postgres date object (postgres doesn't have tzd dates), returns a timezone-aware timestamp for the
     start of that date in that timezone. E.g., if postgres is in 'America/New_York',
@@ -467,6 +469,15 @@ def dt_id_to_page_token(dt: datetime, id_: int) -> str:
 def dt_id_from_page_token(page_token: str) -> tuple[datetime, int]:
     micros, id_ = decrypt_page_token(page_token).split(":")
     return datetime.fromtimestamp(int(micros) / 1_000_000, tz=UTC), int(id_)
+
+
+def date_id_to_page_token(date_: date, id_: int) -> str:
+    return encrypt_page_token(f"{date_.isoformat()}:{id_}")
+
+
+def date_id_from_page_token(page_token: str) -> tuple[date, int]:
+    date_str, id_ = decrypt_page_token(page_token).split(":")
+    return date.fromisoformat(date_str), int(id_)
 
 
 def last_active_coarsen(dt: datetime) -> datetime:

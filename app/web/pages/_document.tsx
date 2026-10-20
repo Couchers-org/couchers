@@ -1,11 +1,12 @@
 import InitColorSchemeScript from "@mui/material/InitColorSchemeScript";
 import { documentGetInitialProps, DocumentHeadTags, DocumentHeadTagsProps } from "@mui/material-nextjs/v15-pagesRouter";
+import { DEFAULT_LOCALE } from "i18n/locales";
 import { DocumentContext, DocumentProps, Head, Html, Main, NextScript } from "next/document";
 import { theme } from "theme";
 
 export default function MyDocument(props: DocumentProps & DocumentHeadTagsProps) {
   return (
-    <Html lang={props.locale ?? "en"}>
+    <Html lang={props.locale ?? DEFAULT_LOCALE}>
       <Head>
         <DocumentHeadTags {...props} />
 

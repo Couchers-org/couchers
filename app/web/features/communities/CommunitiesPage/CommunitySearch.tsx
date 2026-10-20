@@ -145,7 +145,6 @@ export default function CommunitySearch() {
           label={t("communities:search_communities")}
           variant="outlined"
           placeholder={t("communities:search_communities_placeholder")}
-          helperText={t("communities:search_communities_helper")}
           slotProps={{
             ...params.slotProps,
             input: {

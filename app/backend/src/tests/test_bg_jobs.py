@@ -6,6 +6,7 @@ import pytest
 import requests
 from google.protobuf import empty_pb2
 from google.protobuf.empty_pb2 import Empty
+from prometheus_client import REGISTRY
 from sqlalchemy import select, text
 from sqlalchemy.sql import delete, func
 
@@ -48,12 +49,15 @@ from couchers.models import (
     BackgroundJobState,
     DeviceType,
     Email,
+    HostingStatus,
     HostRequest,
     HostRequestStatus,
     LoginToken,
     Message,
     MessageType,
     PasswordResetToken,
+    PostalVerificationAttempt,
+    PostalVerificationStatus,
     PushNotificationPlatform,
     PushNotificationSubscription,
     User,
@@ -94,15 +98,18 @@ def _count_queued_emails() -> int:
         ).scalar_one()
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
-def _check_job_counter(job, status, attempt, exception):
-    metrics_string = requests.get("http://localhost:8000").text
+def _check_job_counter(port, job, status, attempt, exception):
+    metrics_string = requests.get(f"http://localhost:{port}").text
     string_to_check = f'attempt="{attempt}",exception="{exception}",job="{job}",status="{status}"'
     assert string_to_check in metrics_string
+
+
+def _queued_seconds_sum():
+    total = 0.0
+    for metric in REGISTRY.collect():
+        if metric.name == "couchers_background_jobs_queued_seconds":
+            total += sum(sample.value for sample in metric.samples if sample.name.endswith("_sum"))
+    return total
 
 
 def test_email_job(db):
@@ -452,13 +459,13 @@ def test_job_retry(db):
     MOCK_JOBS: dict[str, Job[Any]] = {
         "mock_job": Job(mock_job),
     }
-    create_prometheus_server(port=8000)
+    # port 0 so parallel test runs don't fight over the port
+    metrics_server = create_prometheus_server(port=0)
 
     # if IN_TEST is true, then the bg worker will raise on exceptions
-    new_config = config.copy()
-    new_config.IN_TEST = False
+    config.IN_TEST = False
 
-    with patch("couchers.jobs.worker.config", new_config), patch("couchers.jobs.worker.JOBS", MOCK_JOBS):
+    with patch("couchers.jobs.worker.JOBS", MOCK_JOBS):
         process_job()
         with session_scope() as session:
             assert (
@@ -507,8 +514,10 @@ def test_job_retry(db):
             == 0
         )
 
-    _check_job_counter("mock_job", "error", "4", "Exception")
-    _check_job_counter("mock_job", "failed", "5", "Exception")
+    _check_job_counter(metrics_server.server_port, "mock_job", "error", "4", "Exception")
+    _check_job_counter(metrics_server.server_port, "mock_job", "failed", "5", "Exception")
+    metrics_server.shutdown()
+    metrics_server.server_close()
 
 
 def test_job_retry_backs_off_from_now_not_from_a_stale_next_attempt_after(db):
@@ -522,10 +531,9 @@ def test_job_retry_backs_off_from_now_not_from_a_stale_next_attempt_after(db):
         session.flush()
         session.execute(select(BackgroundJob)).scalar_one().next_attempt_after = now() - timedelta(hours=1)
 
-    new_config = config.copy()
-    new_config.IN_TEST = False
+    config.IN_TEST = False
 
-    with patch("couchers.jobs.worker.config", new_config), patch("couchers.jobs.worker.JOBS", MOCK_JOBS):
+    with patch("couchers.jobs.worker.JOBS", MOCK_JOBS):
         assert process_job()
 
         with session_scope() as session:
@@ -535,6 +543,27 @@ def test_job_retry_backs_off_from_now_not_from_a_stale_next_attempt_after(db):
             assert now() + timedelta(seconds=25) < job.next_attempt_after < now() + timedelta(seconds=35)
 
         assert not process_job()
+
+
+def test_job_queued_latency_excludes_retry_backoff(db):
+    def mock_job(payload: empty_pb2.Empty) -> None:
+        pass
+
+    MOCK_JOBS: dict[str, Job[Any]] = {"mock_job": Job(mock_job)}
+
+    with session_scope() as session:
+        queue_job(session, job=mock_job, payload=empty_pb2.Empty())
+        session.flush()
+        job = session.execute(select(BackgroundJob)).scalar_one()
+        job.queued = now() - timedelta(hours=1)
+        job.next_attempt_after = now()
+
+    before = _queued_seconds_sum()
+
+    with patch("couchers.jobs.worker.JOBS", MOCK_JOBS):
+        assert process_job()
+
+    assert _queued_seconds_sum() - before < 60
 
 
 def test_job_dequeue_steps_over_other_workers_jobs(db):
@@ -1291,6 +1320,33 @@ def test_send_reference_reminders(db):
                 assert find in html, f"Expected to find string {find} in HTML email {subject} to {address}, didn't"
 
 
+def test_send_reference_reminders_public_trip_offer(db):
+    """An offer reverses initiator/recipient, so the reminders have to be picked by the stay role."""
+    surfer, _ = generate_user(email="surfer@couchers.org.invalid", name="Surfer")
+    host, _ = generate_user(email="host@couchers.org.invalid", name="Host")
+
+    with session_scope() as session:
+        create_host_request(session, surfer.id, host.id, timedelta(days=4), is_offer=True)
+
+    send_reference_reminders(empty_pb2.Empty())
+
+    while process_job():
+        pass
+
+    with session_scope() as session:
+        emails = {
+            email.recipient: (email.subject, email.plain) for email in session.execute(select(Email)).scalars().all()
+        }
+
+    assert set(emails) == {"surfer@couchers.org.invalid", "host@couchers.org.invalid"}
+    surfer_subject, surfer_plain = emails["surfer@couchers.org.invalid"]
+    assert surfer_subject == "[TEST] You have 14 days to write a reference for Host"
+    assert "from when you surfed with them" in surfer_plain
+    host_subject, host_plain = emails["host@couchers.org.invalid"]
+    assert host_subject == "[TEST] You have 14 days to write a reference for Surfer"
+    assert "from when you hosted them" in host_plain
+
+
 def test_send_host_request_reminders(db, moderator):
     user1, token1 = generate_user(email="user1@couchers.org.invalid", name="User 1")
     user2, token2 = generate_user(email="user2@couchers.org.invalid", name="User 2")
@@ -1445,67 +1501,77 @@ def test_send_host_request_reminders(db, moderator):
 
 def test_add_users_to_email_list(db, feature_flags):
     feature_flags.set("listmonk_enabled", True)
-    new_config = config.copy()
-    new_config.LISTMONK_BASE_URL = "https://example.com"
-    new_config.LISTMONK_API_USERNAME = "test_user"
-    new_config.LISTMONK_API_KEY = "dummy_api_key"
-    new_config.LISTMONK_LIST_ID = 6
+    config.LISTMONK_BASE_URL = "https://example.com"
+    config.LISTMONK_API_USERNAME = "test_user"
+    config.LISTMONK_API_KEY = "dummy_api_key"
+    config.LISTMONK_LIST_ID = 6
 
-    with patch("couchers.jobs.handlers.config", new_config):
-        with patch("couchers.jobs.handlers.requests.Session") as mock_session_cls:
-            mock_session_cls.return_value.post.return_value.status_code = 200
-            add_users_to_email_list(empty_pb2.Empty())
-        mock_session_cls.return_value.post.assert_not_called()
+    with patch("couchers.jobs.handlers.requests.Session") as mock_session_cls:
+        mock_session_cls.return_value.post.return_value.status_code = 200
+        add_users_to_email_list(empty_pb2.Empty())
+    mock_session_cls.return_value.post.assert_not_called()
 
-        generate_user(in_sync_with_newsletter=False, email="testing1@couchers.invalid", name="Tester1", id=15)
-        generate_user(in_sync_with_newsletter=True, email="testing2@couchers.invalid", name="Tester2")
-        generate_user(in_sync_with_newsletter=False, email="testing3@couchers.invalid", name="Tester3 von test", id=17)
-        generate_user(
-            in_sync_with_newsletter=False, email="testing4@couchers.invalid", name="Tester4", opt_out_of_newsletter=True
-        )
+    generate_user(in_sync_with_newsletter=False, email="testing1@couchers.invalid", name="Tester1", id=15)
+    generate_user(in_sync_with_newsletter=True, email="testing2@couchers.invalid", name="Tester2")
+    generate_user(in_sync_with_newsletter=False, email="testing3@couchers.invalid", name="Tester3 von test", id=17)
+    generate_user(
+        in_sync_with_newsletter=False, email="testing4@couchers.invalid", name="Tester4", opt_out_of_newsletter=True
+    )
 
-        with patch("couchers.jobs.handlers.requests.Session") as mock_session_cls:
-            mock_sess = mock_session_cls.return_value
-            mock_sess.post.return_value.status_code = 200
-            add_users_to_email_list(empty_pb2.Empty())
-        mock_sess.post.assert_has_calls(
-            [
-                call(
-                    "https://example.com/api/subscribers",
-                    json={
-                        "email": "testing1@couchers.invalid",
-                        "name": "Tester1",
-                        "lists": [6],
-                        "preconfirm_subscriptions": True,
-                        "attribs": {"couchers_user_id": 15},
-                        "status": "enabled",
-                    },
-                    timeout=10,
-                ),
-                call(
-                    "https://example.com/api/subscribers",
-                    json={
-                        "email": "testing3@couchers.invalid",
-                        "name": "Tester3 von test",
-                        "lists": [6],
-                        "preconfirm_subscriptions": True,
-                        "attribs": {"couchers_user_id": 17},
-                        "status": "enabled",
-                    },
-                    timeout=10,
-                ),
-            ],
-            any_order=True,
-        )
+    with patch("couchers.jobs.handlers.requests.Session") as mock_session_cls:
+        mock_sess = mock_session_cls.return_value
+        mock_sess.post.return_value.status_code = 200
+        add_users_to_email_list(empty_pb2.Empty())
+    mock_sess.post.assert_has_calls(
+        [
+            call(
+                "https://example.com/api/subscribers",
+                json={
+                    "email": "testing1@couchers.invalid",
+                    "name": "Tester1",
+                    "lists": [6],
+                    "preconfirm_subscriptions": True,
+                    "attribs": {"couchers_user_id": 15},
+                    "status": "enabled",
+                },
+                timeout=10,
+            ),
+            call(
+                "https://example.com/api/subscribers",
+                json={
+                    "email": "testing3@couchers.invalid",
+                    "name": "Tester3 von test",
+                    "lists": [6],
+                    "preconfirm_subscriptions": True,
+                    "attribs": {"couchers_user_id": 17},
+                    "status": "enabled",
+                },
+                timeout=10,
+            ),
+        ],
+        any_order=True,
+    )
 
-        with patch("couchers.jobs.handlers.requests.Session") as mock_session_cls:
-            mock_session_cls.return_value.post.return_value.status_code = 200
-            add_users_to_email_list(empty_pb2.Empty())
-        mock_session_cls.return_value.post.assert_not_called()
+    with patch("couchers.jobs.handlers.requests.Session") as mock_session_cls:
+        mock_session_cls.return_value.post.return_value.status_code = 200
+        add_users_to_email_list(empty_pb2.Empty())
+    mock_session_cls.return_value.post.assert_not_called()
 
 
 def test_update_recommendation_scores(db):
+    generate_user(complete_profile=True)
+    generate_user(hosting_status=HostingStatus.can_host)
+    generate_user()
+
+    def scores():
+        with session_scope() as session:
+            return session.execute(select(User.id, User.recommendation_score).order_by(User.id)).all()
+
     update_recommendation_scores(empty_pb2.Empty())
+    first = scores()
+    update_recommendation_scores(empty_pb2.Empty())
+    # search applies noise per viewer, so the stored score itself should be deterministic
+    assert scores() == first
 
 
 def test_update_badges(db, push_collector: PushCollector):
@@ -1518,6 +1584,18 @@ def test_update_badges(db, push_collector: PushCollector):
 
     with session_scope() as session:
         session.add(UserBadge(user_id=user5.id, badge_id="board_member"))
+        session.add(
+            PostalVerificationAttempt(
+                user_id=user6.id,
+                address_line_1="123 Main St",
+                city="Test City",
+                country_code="US",
+                status=PostalVerificationStatus.succeeded,
+                verification_code="ABC123",
+                postcard_sent_at=func.now(),
+                verified_at=func.now(),
+            )
+        )
 
     update_badges(empty_pb2.Empty())
     process_jobs()
@@ -1534,6 +1612,7 @@ def test_update_badges(db, push_collector: PushCollector):
         (user2.id, "board_member"),
         (user4.id, "phone_verified"),
         (user5.id, "phone_verified"),
+        (user6.id, "postal_verified"),
     ]
 
     assert badge_tuples == expected  # type: ignore[comparison-overlap]

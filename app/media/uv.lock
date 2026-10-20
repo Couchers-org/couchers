@@ -109,6 +109,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "backoff" },
+    { name = "exifread" },
     { name = "flask" },
     { name = "grpcio" },
     { name = "pillow" },
@@ -129,6 +130,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "backoff" },
+    { name = "exifread" },
     { name = "flask" },
     { name = "grpcio" },
     { name = "pillow" },
@@ -144,6 +146,15 @@ requires-dist = [
 dev = [
     { name = "pytest" },
     { name = "ruff" },
+]
+
+[[package]]
+name = "exifread"
+version = "3.5.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/e2/4e/d8fce8810d819db47f5b159e75223511c5ccd7ad07c2feca64cf7fab2477/exifread-3.5.1.tar.gz", hash = "sha256:9f998f80d3062741c976dfc4fd033424bc40932937994e4d2181eb70c4b6aedd", size = 56552, upload-time = "2025-08-23T21:59:18.123Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e2/a3/20e34a55c7b225110d3822d07c3cab9e8653d9c179e36783f2ed632a96a7/exifread-3.5.1-py3-none-any.whl", hash = "sha256:e5426ce2857423ad401e575ea9d159dc97449dc041fb6e61b35109caea72c311", size = 59742, upload-time = "2025-08-23T21:59:16.633Z" },
 ]
 
 [[package]]

@@ -26,10 +26,8 @@
     "logo_aria_label": "下載標誌資源",
     "mobile_images_aria_label": "下載行動應用程式素材"
   },
-  "team": {
-    "subheading": "認識團隊",
-    "extra_card_text": "我們是一群熱愛沙發衝浪的專業人士，致力於打造一個更完善、更安全、更包容的平台。",
-    "extra_card_link": "更多關於團隊的信息"
+  "board": {
+    "full_team_card_text": "我們是一群熱愛沙發衝浪的專業人士，致力於打造一個更完善、更安全、更包容的平台。"
   },
   "social_media_subheading": "關注我們",
   "press_coverage_subheading": "專題報導"

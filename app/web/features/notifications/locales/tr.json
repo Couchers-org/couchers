@@ -25,7 +25,10 @@
       },
       "expand_all": "Tümünü genişlet",
       "collapse_all": "Tümünü daralt",
-      "error_loading": "Bildirim ayarlarını yüklemede hata oluştu"
+      "error_loading": "Bildirim ayarlarını yüklemede hata oluştu",
+      "channels": {
+        "email_label": "E-posta"
+      }
     },
     "push_notifications": {
       "title": "Anlık Bildirimler",
@@ -51,5 +54,9 @@
   "push_notification_banner": {
     "message": "İstekleri, yanıtları veya mesajları kaçırmamak için sana anlık bildirimleri gönderebilir miyiz?",
     "confirm": "Evet, lütfen!"
+  },
+  "notifications_filters": {
+    "all_button": "Tümü",
+    "unread_button": "Okunmamış"
   }
 }

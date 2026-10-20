@@ -1,11 +1,39 @@
 import { useCallback, useSyncExternalStore } from "react";
 
+// Set by the app's WebEmbed (app/mobile/components/WebEmbed.tsx)
+type NativeCapability = "addToCalendar";
+interface NativeEmbedInfo {
+  capabilities?: NativeCapability[];
+}
+
+// Handled by the app's useAddToCalendar (app/mobile/hooks/useAddToCalendar.ts)
+export interface NativeCalendarEvent {
+  title: string;
+  startDate: string; // ISO 8601
+  endDate: string; // ISO 8601
+  timeZone: string;
+  location: string;
+  url: string;
+  notes: string;
+}
+
 function getReactNativeWebView(): typeof window.ReactNativeWebView {
   if (typeof window !== "undefined" && window.ReactNativeWebView) {
     return window.ReactNativeWebView;
   }
 }
 
+function getNativeEmbedInfo(): NativeEmbedInfo | undefined {
+  try {
+    return JSON.parse(getReactNativeWebView()?.injectedObjectJson?.() ?? "null") ?? undefined;
+  } catch {
+    // Parsing failed or method not available
+    return undefined;
+  }
+}
+
+// Not exported: calling this during render causes a hydration mismatch (it's always false on the server).
+// Components should use useIsNativeEmbed instead.
 function isNativeEmbed(): boolean {
   const webview = getReactNativeWebView();
   if (!webview) return false;
@@ -25,6 +53,12 @@ function isNativeEmbed(): boolean {
   return true;
 }
 
+// Always true on web. In the app, only if it handles the feature, since older app versions
+// ignore messages they don't know.
+function isSupportedInApp(capability: NativeCapability): boolean {
+  return !isNativeEmbed() || !!getNativeEmbedInfo()?.capabilities?.includes(capability);
+}
+
 export function useIsNativeEmbed(): boolean {
   return useSyncExternalStore(
     // Subscribe function - no-op since value doesn't change after initial load
@@ -36,13 +70,22 @@ export function useIsNativeEmbed(): boolean {
   );
 }
 
+export function useIsSupportedInApp(capability: NativeCapability): boolean {
+  return useSyncExternalStore(
+    () => () => {},
+    () => isSupportedInApp(capability),
+    () => false,
+  );
+}
+
 type MessageType =
   | "sendState"
   | "clearState"
   | "REQUEST_IMAGE_PICK"
   | "NATIVE_BACK"
   | "LANGUAGE_CHANGE"
-  | "REQUEST_REVIEW";
+  | "REQUEST_REVIEW"
+  | "REQUEST_ADD_TO_CALENDAR";
 
 function sendToNative(type: MessageType, data: unknown) {
   if (!isNativeEmbed()) return;
@@ -69,9 +112,13 @@ export function sendNativeRequestReview() {
   sendToNative("REQUEST_REVIEW", {});
 }
 
+export function sendNativeAddToCalendar(event: NativeCalendarEvent) {
+  sendToNative("REQUEST_ADD_TO_CALENDAR", event);
+}
+
 // Image picker bridge for native mobile app
 export type ImagePickResult =
-  | { success: true; imageBase64: string; mimeType: string }
+  | { success: true; imageBase64: string; mimeType: string; fileName?: string }
   | { success: false; canceled?: boolean; error?: string };
 
 type ImagePickCallback = (result: ImagePickResult) => void;

@@ -24,25 +24,20 @@ from couchers.models import (
     Thread,
     User,
 )
-from couchers.proto import api_pb2, auth_pb2, communities_pb2, discussions_pb2, events_pb2, pages_pb2
+from couchers.proto import api_pb2, auth_pb2, communities_pb2, discussions_pb2, pages_pb2
 from couchers.tasks import enforce_community_memberships
-from couchers.utils import create_coordinate, create_polygon_lat_lng, datetime_to_iso8601_local, now, to_multi
+from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_multi
+from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user, get_user_id_and_token
 from tests.fixtures.misc import Moderator
 from tests.fixtures.sessions import (
     auth_api_session,
     communities_session,
     discussions_session,
-    events_session,
     pages_session,
 )
 from tests.test_auth import get_session_cookie_tokens
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
+from tests.utils import local_date_time
 
 # For testing purposes, restrict ourselves to a 1D-world, consisting of "intervals" that have width 2, and coordinates
 # that are points at (x, 1).
@@ -205,27 +200,16 @@ def create_discussion(token: str, community_id: int | None, group_id: int | None
 def create_event(
     token: str, community_id: int | None, group_id: int | None, title: str, content: str, start_td: timedelta
 ) -> None:
-    with events_session(token) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title=title,
-                content=content,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + start_td),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + start_td + timedelta(hours=2)),
-            )
-        )
-        api.TransferEvent(
-            events_pb2.TransferEventReq(
-                event_id=res.event_id,
-                new_owner_community_id=community_id,
-                new_owner_group_id=group_id,
-            )
-        )
+    res = events_api.create_event(
+        token=token,
+        title=title,
+        content=content,
+        start_date_time=local_date_time(now() + start_td),
+        end_date_time=local_date_time(now() + start_td + timedelta(hours=2)),
+    )
+    events_api.transfer_event(
+        token=token, event_id=res.event_id, new_owner_community_id=community_id, new_owner_group_id=group_id
+    )
 
 
 def get_community_id(session: Session, community_name: str) -> int:
@@ -241,7 +225,7 @@ def get_group_id(session: Session, group_name: str) -> int:
 
 
 @pytest.fixture(scope="class")
-def testing_communities(db_class, testconfig):
+def testing_communities(db_class):
     user1, token1 = generate_user(username="user1", geom=create_1d_point(1), geom_radius=0.1)
     user2, token2 = generate_user(username="user2", geom=create_1d_point(2), geom_radius=0.1)
     user3, token3 = generate_user(username="user3", geom=create_1d_point(3), geom_radius=0.1)
@@ -1264,7 +1248,7 @@ def test_LeaveCommunity_regression(db):
         assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c2_id)).member
 
 
-def test_enforce_community_memberships_for_user(testing_communities):
+def test_enforce_community_memberships_for_user(testing_communities, fast_passwords):
     """
     Make sure the user is added to the right communities on signup
     """

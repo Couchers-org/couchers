@@ -8,16 +8,22 @@ GUIDELINES_VERSION = 1
 
 # When updating this, also update the "activeness_probe" notification strings in
 # src/couchers/email/locales/en.json
-LATEST_RELEASE_BLOG_URL = "https://couchers.org/blog/2026/05/25/couchers-spring-release"
+LATEST_RELEASE_BLOG_URL = "https://couchers.org/blog/2026/10/15/version-1.4.0-release"
 
+# Keep the frontend in sync at app/web/utils/validation.ts
 EMAIL_REGEX = r"^[0-9a-z]([0-9a-z\-\_\+]|(\.[0-9a-z\-\_\+]))*@([0-9a-z\-]+\.)*[0-9a-z\-]+\.[a-z]{2,}$"
 
-# Must match the frontend values in app/web/utils/validation.ts
+# Letters, diacritics, internal spaces, quotes, dashes, commas, dots, and's for names. See tests!
+# The surrounding whitespace rule could be encoded using a lookbehind assertion,
+# but the frontend counterpart would not be supported on older browsers (Safari < 16.4).
+# Keep the frontend in sync at app/web/utils/validation.ts
+VALID_NAME_CHARACTERS_REGEX = r"""^[\p{L}\p{M}\p{Zs}\p{Pi}\p{Pf}\p{Pd},.'"·・&/|]+$"""
+VALID_NAME_NO_SURROUNDING_WHITESPACE_REGEX = r"^\P{Zs}(?:[\s\S]*\P{Zs})?$"
 VALID_NAME_MIN_LENGTH = 2
 VALID_NAME_MAX_LENGTH = 100
 
-# Letters, diacritics, internal spaces, quotes, dashes, commas, dots, and's for two names. See tests!
-VALID_NAME_REGEX = r"""^(?!\p{Zs})[\p{L}\p{M}\p{Zs}\p{Pi}\p{Pf}\p{Pd},.'"·・&/|]+(?<!\p{Zs})$"""
+# Keep the frontend in sync at app/web/utils/validation.ts
+VALID_USERNAME_REGEX = r"^[a-z][0-9a-z_]*[a-z0-9]$"
 
 BANNED_USERNAME_PHRASES = [
     "admin",
@@ -111,11 +117,17 @@ HOST_REQUEST_DUPLICATE_WINDOW_HOURS = 3
 
 # Note: Javascript's string.length is in utf16 code units, Python's len(str) is in utf8 code units.
 HOST_REQUEST_MIN_LENGTH_UTF16 = 250  # Must match frontend
-PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16 = 150  # Must match frontend
+PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16 = 150  # Traveller's trip description. Must match frontend
+PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16 = 100  # Host's message offering to host a trip. Must match frontend
 
 ANTIBOT_FREQ = timedelta(hours=48)
 
 EVENT_REMINDER_TIMEDELTA = timedelta(hours=24)
+
+# How far ahead (or how many occurrences, whichever is more)
+# recurring events should have occurrences scheduled.
+EVENT_RECURRENCE_SCHEDULE_WINDOW = timedelta(weeks=2)
+EVENT_RECURRENCE_MIN_SCHEDULED_OCCURRENCES = 2
 
 COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD = 0.35
 
@@ -131,6 +143,8 @@ CALL_CANCELLED_ERROR_MESSAGE = "Call cancelled."
 UNAUTHORIZED_ERROR_MESSAGE = "Unauthorized"
 PERMISSION_DENIED_ERROR_MESSAGE = "Permission denied"
 
+RATE_LIMIT_ERROR_MESSAGE = "Too many requests. Please slow down and try again shortly."
+
 GHOST_USERNAME = "ghost"
 
 # Photo gallery limits
@@ -142,4 +156,8 @@ COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH = 150
 # How long a container must run uninterrupted before /status reports stable=true
 STABLE_THRESHOLD_SECONDS = 5 * 60
 
+# window length for the API rate limiter's fixed-window counters, in seconds
+RATE_LIMIT_WINDOW_SECONDS = 60
+
 MODERATION_AUTO_APPROVE_FLAG_PRIORITY = 1000
+MODERATION_AUTO_APPROVE_DEADLINE_MAX_SECONDS = 48 * 3600

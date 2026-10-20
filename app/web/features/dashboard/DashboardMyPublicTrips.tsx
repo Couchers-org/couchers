@@ -1,7 +1,7 @@
 import { ArrowBack, ArrowForward, TravelExplore } from "@mui/icons-material";
 import { Box, IconButton, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
-import FadingScrollTrack from "components/FadingScrollTrack";
+import FadingScrollTrack, { cardScrollDistance } from "components/FadingScrollTrack";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useListPublicTripsByUser } from "features/publicTrips/useListPublicTrips";
 import { useTranslation } from "i18n";
@@ -73,10 +73,9 @@ export default function DashboardMyPublicTrips() {
   }, [activeTrips.length, isLoading]);
 
   const scroll = (dir: 1 | -1) => {
-    scrollerRef.current?.scrollBy({
-      left: dir * (CARD_WIDTH + CARD_GAP) * 2,
-      behavior: "smooth",
-    });
+    const el = scrollerRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * cardScrollDistance(el, CARD_WIDTH, CARD_GAP), behavior: "smooth" });
   };
 
   return (

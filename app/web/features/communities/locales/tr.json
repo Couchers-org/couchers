@@ -22,7 +22,6 @@
   "create_new_discussion_title": "Yeni gönderi oluştur",
   "edit_event": "Etkinliği düzenle",
   "edit_info_page_title": "Yerel bilgi düzenle",
-  "finished": "Bitti",
   "comments_count": "{{count}} | Yorum",
   "community_image_input_alt": "Topluluk görsel girişi",
   "upload_helper_text_replace": "Fotoğraf değiştirmek için tıkla",
@@ -64,18 +63,26 @@
   "discussion_creation_date": "{{dateOnly}} tarihinde oluşturuldu",
   "discussion_deleted": "Bu tartışma silindi.",
   "delete_discussion_dialog": {
-    "cancel": "İptal Et"
+    "cancel": "İptal Et",
+    "title": "Tartışmayı sil",
+    "message": "Bu tartışmayı silmek istediğinden emin misin? Yorumlar görünür kalmaya devam edecek.",
+    "confirm": "Sil"
   },
   "edit_discussion": "Tartışmayı düzenle",
   "duplicate_event": "Etkinliği kopyala",
   "community_info_page_title": "Genel bilgiler",
   "new_discussion_topic": "Tartışma konusu",
-  "new_post_label": "Yeni gönderi",
   "no_comments": "Bu tartışmada şu anda hiç yorum yok.",
   "no_moderators": "Anlık olarak burada hiç Topluluk Mimarı yok.",
   "my_communities": "Topluluklarım",
   "overview_label": "Genel Bakış",
   "page_content_field_label": "Sayfa içeriği",
   "page_content_required": "Lütfen sayfa içeriğini doldurun",
-  "places_empty_state": "Henüz gösterilecek yer yok."
+  "end_time": "Bitiş zamanı",
+  "end_date_error": "Etkinlik bitiş tarihi, başlangıç tarihinden sonra olmalıdır.",
+  "end_time_error": "Etkinlik bitiş tarihi başlangıç tarihinden sonra olmalıdır.",
+  "event_details": "Etkinlik detayları",
+  "comment_deleted": "Bu yorum silinmiş.",
+  "edit_comment": "Yorumu düzenle",
+  "delete_discussion": "Tartışmayı sil"
 }

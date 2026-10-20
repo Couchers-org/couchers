@@ -343,5 +343,6 @@
     "close_viewer": "Chiudi visualizzatore foto",
     "report_photo": "Segnala foto"
   },
-  "local_time_with_time_zone_text": "{{ time }} (<timeZone/>)"
+  "local_time_with_time_zone_text": "{{ time }} (<timeZone/>)",
+  "open_profile_a11y": "Apri profilo"
 }

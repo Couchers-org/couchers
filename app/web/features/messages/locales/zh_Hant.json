@@ -171,8 +171,7 @@
     "back_button_a11y_label": "返回",
     "title_for_host": "來自{{user}}的請求- {{status}}",
     "title_for_surfer": "向{{user}}發出的請求- {{status}}",
-    "request_duration_other": "{{count}}晚",
-    "request_duration_one": "{{count}}晚"
+    "request_duration_other": "{{count}}晚"
   },
   "past_request_help_text": "此請求已過期，您仍可傳送訊息，但無法再進行其他修改。",
   "unknown_user": "未知使用者",
@@ -182,9 +181,6 @@
   },
   "respond_box_title": "發送回覆",
   "respond_box_description": "選擇一個回覆以立即告知{{name}}。歡迎留言跟進。",
-  "status_bar_edit_button": "編輯",
-  "status_bar_cancel_edit_button": "取消",
-  "status_bar_close_button": "關閉",
   "surfer_bar_pending": "您已傳送接待請求，正在等待{{name}}回覆。",
   "cancel_request_button": "取消請求",
   "cancel_request_dialog_title": "取消請求？",
@@ -192,7 +188,6 @@
   "cancel_request_dialog_confirm_button": "是的，取消",
   "cancel_request_dialog_dismiss_button": "否",
   "private_feedback_card": {
-    "title": "對此請求的回饋",
     "quality_label": "私下評價此請求（可選）：",
     "quality_high": "高品質",
     "quality_okay": "一般",
@@ -207,8 +202,6 @@
     "reason_other_placeholder": "請告訴我們更多...",
     "privacy_notice": "您的回覆是私人的，不會與用戶分享。我們可能會以匯總和匿名的形式使用它們（與許多其他形式結合），以改善所有使用者的回饋。",
     "skip_button": "跳過",
-    "next_button": "下一步",
-    "back_button": "返回",
     "submit_button": "提交"
   },
   "surfer_confirm_box_title": "{{name}}接受了您的請求！",

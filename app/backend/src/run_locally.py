@@ -29,6 +29,7 @@ def update_env() -> None:
         "SMTP_HOST": "localhost",
         "OPENTELEMETRY_ENDPOINT": "http://localhost:4318/v1/traces",
         "DATABASE_CONNECTION_STRING": f"postgresql://postgres:{db_password}@localhost:6545/postgres",
+        "VALKEY_HOST": "localhost",
     }
 
     os.environ.update(envs)

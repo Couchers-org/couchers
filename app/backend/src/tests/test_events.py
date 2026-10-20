@@ -27,328 +27,209 @@ from couchers.models import (
 )
 from couchers.proto import editor_pb2, events_pb2, threads_pb2
 from couchers.tasks import enforce_community_memberships
-from couchers.utils import datetime_to_iso8601_local, now, to_aware_datetime
+from couchers.utils import now, to_aware_datetime
+from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import EmailCollector, Moderator, PushCollector, process_jobs
-from tests.fixtures.sessions import events_session, real_editor_session, threads_session
+from tests.fixtures.sessions import real_editor_session, threads_session
+from tests.fixtures.timewarp import FrozenTimewarp
 from tests.test_communities import create_community, create_group
+from tests.utils import local_date_time
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
-def to_event_time_granularity(value: datetime) -> datetime:
+def _to_event_time_granularity(value: datetime) -> datetime:
     """Events are scheduled at the minute granularity."""
     return value.replace(second=0, microsecond=0)
 
 
-def is_utc_or_gmt(timezone: str) -> bool:
+def _is_utc_or_gmt(timezone: str) -> bool:
     # Our lightweight "timezone_areas.sql-fake" uses Etc/UTC, whereas the real file uses Etc/GMT.
     # Tests should be agnostic to which one we're using.
     return timezone in ("Etc/UTC", "Etc/GMT")
 
 
-def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
+def test_CreateEvent(db, frozen_timewarp, push_collector: PushCollector, moderator: Moderator):
     # test cases:
     # can create event
     # cannot create event with missing details
     # can't create event that starts in the past
     # can create in different timezones
 
-    # event creator
-    user1, token1 = generate_user()
-    # community moderator
-    user2, token2 = generate_user()
-    # third party
-    user3, token3 = generate_user()
+    creator_user, creator_token = generate_user()
+    mod_user, mod_token = generate_user()
+    other_user, other_token = generate_user()
 
     with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+        c_id = create_community(session, 0, 2, "Community", [mod_user], [], None).id
 
     time_before = now()
-    start_time = now() + timedelta(hours=2)
+    start_time = _to_event_time_granularity(time_before + timedelta(hours=2))
     end_time = start_time + timedelta(hours=3)
 
     # Can create an event
-    with events_session(token1) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                photo_key=None,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
+    create_res = events_api.create_event(
+        token=creator_token,
+        title="Dummy Title",
+        content="Dummy content.",
+        location=events_pb2.EventLocation(
+            address="Near Null Island",
+            lat=0.1,
+            lng=0.2,
+        ),
+        start_date_time=local_date_time(start_time),
+        end_date_time=local_date_time(end_time),
+        approve_by=moderator,
+    )
+    assert create_res.is_next
+    assert create_res.title == "Dummy Title"
+    assert create_res.slug == "dummy-title"
+    assert create_res.content == "Dummy content."
+    assert not create_res.photo_url
+    assert create_res.HasField("location")
+    assert create_res.location.lat == 0.1
+    assert create_res.location.lng == 0.2
+    assert create_res.location.address == "Near Null Island"
+    assert time_before <= to_aware_datetime(create_res.created) <= now()
+    assert time_before <= to_aware_datetime(create_res.last_edited) <= now()
+    assert create_res.creator_user_id == creator_user.id
+    assert to_aware_datetime(create_res.start_time) == start_time
+    assert to_aware_datetime(create_res.end_time) == end_time
+    assert _is_utc_or_gmt(create_res.timezone)
+    assert create_res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
+    assert create_res.organizer
+    assert create_res.subscriber
+    assert create_res.going_count == 1
+    assert create_res.organizer_count == 1
+    assert create_res.subscriber_count == 1
+    assert create_res.owner_user_id == creator_user.id
+    assert not create_res.owner_community_id
+    assert not create_res.owner_group_id
+    assert create_res.thread.thread_id
+    assert create_res.can_edit
+    assert not create_res.can_moderate
 
-        assert res.is_next
-        assert res.title == "Dummy Title"
-        assert res.slug == "dummy-title"
-        assert res.content == "Dummy content."
-        assert not res.photo_url
-        assert res.HasField("location")
-        assert res.location.lat == 0.1
-        assert res.location.lng == 0.2
-        assert res.location.address == "Near Null Island"
-        assert time_before <= to_aware_datetime(res.created) <= now()
-        assert time_before <= to_aware_datetime(res.last_edited) <= now()
-        assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
-        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
-        assert is_utc_or_gmt(res.timezone)
-        assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
-        assert res.organizer
-        assert res.subscriber
-        assert res.going_count == 1
-        assert res.organizer_count == 1
-        assert res.subscriber_count == 1
-        assert res.owner_user_id == user1.id
-        assert not res.owner_community_id
-        assert not res.owner_group_id
-        assert res.thread.thread_id
-        assert res.can_edit
-        assert not res.can_moderate
+    event_id = create_res.event_id
 
-        event_id = res.event_id
+    get_res = events_api.get_event(token=mod_token, event_id=event_id)
+    assert get_res.is_next
+    assert get_res.title == "Dummy Title"
+    assert get_res.slug == "dummy-title"
+    assert get_res.content == "Dummy content."
+    assert not get_res.photo_url
+    assert get_res.HasField("location")
+    assert get_res.location.lat == 0.1
+    assert get_res.location.lng == 0.2
+    assert get_res.location.address == "Near Null Island"
+    assert time_before <= to_aware_datetime(get_res.created) <= now()
+    assert time_before <= to_aware_datetime(get_res.last_edited) <= now()
+    assert get_res.creator_user_id == creator_user.id
+    assert to_aware_datetime(get_res.start_time) == start_time
+    assert to_aware_datetime(get_res.end_time) == end_time
+    assert _is_utc_or_gmt(get_res.timezone)
+    assert get_res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
+    assert not get_res.organizer
+    assert not get_res.subscriber
+    assert get_res.going_count == 1
+    assert get_res.organizer_count == 1
+    assert get_res.subscriber_count == 1
+    assert get_res.owner_user_id == creator_user.id
+    assert not get_res.owner_community_id
+    assert not get_res.owner_group_id
+    assert get_res.thread.thread_id
+    assert get_res.can_edit
+    assert get_res.can_moderate
 
-    # Approve the event so other users can see it
-    moderator.approve_event_occurrence(event_id)
-
-    with events_session(token2) as api:
-        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
-
-        assert res.is_next
-        assert res.title == "Dummy Title"
-        assert res.slug == "dummy-title"
-        assert res.content == "Dummy content."
-        assert not res.photo_url
-        assert res.HasField("location")
-        assert res.location.lat == 0.1
-        assert res.location.lng == 0.2
-        assert res.location.address == "Near Null Island"
-        assert time_before <= to_aware_datetime(res.created) <= now()
-        assert time_before <= to_aware_datetime(res.last_edited) <= now()
-        assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
-        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
-        assert is_utc_or_gmt(res.timezone)
-        assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
-        assert not res.organizer
-        assert not res.subscriber
-        assert res.going_count == 1
-        assert res.organizer_count == 1
-        assert res.subscriber_count == 1
-        assert res.owner_user_id == user1.id
-        assert not res.owner_community_id
-        assert not res.owner_group_id
-        assert res.thread.thread_id
-        assert res.can_edit
-        assert res.can_moderate
-
-    with events_session(token3) as api:
-        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
-
-        assert res.is_next
-        assert res.title == "Dummy Title"
-        assert res.slug == "dummy-title"
-        assert res.content == "Dummy content."
-        assert not res.photo_url
-        assert res.HasField("location")
-        assert res.location.lat == 0.1
-        assert res.location.lng == 0.2
-        assert res.location.address == "Near Null Island"
-        assert time_before <= to_aware_datetime(res.created) <= now()
-        assert time_before <= to_aware_datetime(res.last_edited) <= now()
-        assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
-        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
-        assert is_utc_or_gmt(res.timezone)
-        assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
-        assert not res.organizer
-        assert not res.subscriber
-        assert res.going_count == 1
-        assert res.organizer_count == 1
-        assert res.subscriber_count == 1
-        assert res.owner_user_id == user1.id
-        assert not res.owner_community_id
-        assert not res.owner_group_id
-        assert res.thread.thread_id
-        assert not res.can_edit
-        assert not res.can_moderate
+    other_get_res = events_api.get_event(token=other_token, event_id=event_id)
+    assert other_get_res.is_next
+    assert other_get_res.title == "Dummy Title"
+    assert other_get_res.slug == "dummy-title"
+    assert other_get_res.content == "Dummy content."
+    assert not other_get_res.photo_url
+    assert other_get_res.HasField("location")
+    assert other_get_res.location.lat == 0.1
+    assert other_get_res.location.lng == 0.2
+    assert other_get_res.location.address == "Near Null Island"
+    assert time_before <= to_aware_datetime(other_get_res.created) <= now()
+    assert time_before <= to_aware_datetime(other_get_res.last_edited) <= now()
+    assert other_get_res.creator_user_id == creator_user.id
+    assert to_aware_datetime(other_get_res.start_time) == start_time
+    assert to_aware_datetime(other_get_res.end_time) == end_time
+    assert _is_utc_or_gmt(other_get_res.timezone)
+    assert other_get_res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
+    assert not other_get_res.organizer
+    assert not other_get_res.subscriber
+    assert other_get_res.going_count == 1
+    assert other_get_res.organizer_count == 1
+    assert other_get_res.subscriber_count == 1
+    assert other_get_res.owner_user_id == creator_user.id
+    assert not other_get_res.owner_community_id
+    assert not other_get_res.owner_group_id
+    assert other_get_res.thread.thread_id
+    assert not other_get_res.can_edit
+    assert not other_get_res.can_moderate
 
     # Failure cases
-    with events_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.CreateEvent(
-                events_pb2.CreateEventReq(
-                    # title="Dummy Title",
-                    content="Dummy content.",
-                    photo_key=None,
-                    location=events_pb2.EventLocation(
-                        address="Near Null Island",
-                        lat=0.1,
-                        lng=0.2,
-                    ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Missing event title."
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.create_event(token=creator_token, title=None)
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == "Missing event title."
 
-        with pytest.raises(grpc.RpcError) as e:
-            api.CreateEvent(
-                events_pb2.CreateEventReq(
-                    title="Dummy Title",
-                    # content="Dummy content.",
-                    photo_key=None,
-                    location=events_pb2.EventLocation(
-                        address="Near Null Island",
-                        lat=0.1,
-                        lng=0.2,
-                    ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Missing event content."
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.create_event(token=creator_token, content=None)
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == "Missing event content."
 
-        with pytest.raises(grpc.RpcError) as e:
-            api.CreateEvent(
-                events_pb2.CreateEventReq(
-                    title="Dummy Title",
-                    content="Dummy content.",
-                    photo_key="nonexistent",
-                    location=events_pb2.EventLocation(
-                        address="Near Null Island",
-                        lat=0.1,
-                        lng=0.2,
-                    ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Photo not found."
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.create_event(token=creator_token, photo_key="nonexistent")
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == "Photo not found."
 
-        with pytest.raises(grpc.RpcError) as e:
-            api.CreateEvent(
-                events_pb2.CreateEventReq(
-                    title="Dummy Title",
-                    content="Dummy content.",
-                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Missing event address or location."
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.create_event(token=creator_token, location=None)
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == "Missing event address or location."
 
-        with pytest.raises(grpc.RpcError) as e:
-            api.CreateEvent(
-                events_pb2.CreateEventReq(
-                    title="Dummy Title",
-                    content="Dummy content.",
-                    location=events_pb2.EventLocation(
-                        address="Near Null Island",
-                    ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Invalid coordinate."
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.create_event(token=creator_token, location=events_pb2.EventLocation(address="Address only"))
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == "Invalid coordinate."
 
-        with pytest.raises(grpc.RpcError) as e:
-            api.CreateEvent(
-                events_pb2.CreateEventReq(
-                    title="Dummy Title",
-                    content="Dummy content.",
-                    location=events_pb2.EventLocation(
-                        lat=0.1,
-                        lng=0.1,
-                    ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Missing event address or location."
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.create_event(token=creator_token, location=events_pb2.EventLocation(lat=0.1, lng=0.1))
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == "Missing event address or location."
 
-        with pytest.raises(grpc.RpcError) as e:
-            api.CreateEvent(
-                events_pb2.CreateEventReq(
-                    title="Dummy Title",
-                    content="Dummy content.",
-                    location=events_pb2.EventLocation(
-                        address="Near Null Island",
-                        lat=0.1,
-                        lng=0.2,
-                    ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_local(now() - timedelta(hours=2)),
-                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "The event must be in the future."
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.create_event(token=creator_token, start_date_time=local_date_time(now() - timedelta(hours=2)))
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == "The event must be in the future."
 
-        with pytest.raises(grpc.RpcError) as e:
-            api.CreateEvent(
-                events_pb2.CreateEventReq(
-                    title="Dummy Title",
-                    content="Dummy content.",
-                    location=events_pb2.EventLocation(
-                        address="Near Null Island",
-                        lat=0.1,
-                        lng=0.2,
-                    ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-                    end_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "The event must end after it starts."
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.create_event(
+            token=creator_token,
+            start_date_time=local_date_time(end_time),
+            end_date_time=local_date_time(start_time),
+        )
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == "The event must end after it starts."
 
-        with pytest.raises(grpc.RpcError) as e:
-            api.CreateEvent(
-                events_pb2.CreateEventReq(
-                    title="Dummy Title",
-                    content="Dummy content.",
-                    location=events_pb2.EventLocation(
-                        address="Near Null Island",
-                        lat=0.1,
-                        lng=0.2,
-                    ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(days=500, hours=2)),
-                    end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(days=500, hours=5)),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "The event needs to start within the next year."
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.create_event(
+            token=creator_token,
+            start_date_time=local_date_time(now() + timedelta(days=500, hours=2)),
+            end_date_time=local_date_time(now() + timedelta(days=500, hours=5)),
+        )
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == "The event needs to start within the next year."
 
-        with pytest.raises(grpc.RpcError) as e:
-            api.CreateEvent(
-                events_pb2.CreateEventReq(
-                    title="Dummy Title",
-                    content="Dummy content.",
-                    location=events_pb2.EventLocation(
-                        address="Near Null Island",
-                        lat=0.1,
-                        lng=0.2,
-                    ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                    end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(days=100)),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Events cannot last longer than 7 days."
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.create_event(
+            token=creator_token,
+            start_date_time=local_date_time(start_time),
+            end_date_time=local_date_time(now() + timedelta(days=100)),
+        )
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == "Events cannot last longer than 7 days."
 
 
 def test_CreateEvent_incomplete_profile(db):
@@ -358,30 +239,13 @@ def test_CreateEvent_incomplete_profile(db):
     with session_scope() as session:
         c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
 
-    start_time = now() + timedelta(hours=2)
-    end_time = start_time + timedelta(hours=3)
-
-    with events_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.CreateEvent(
-                events_pb2.CreateEventReq(
-                    title="Dummy Title",
-                    content="Dummy content.",
-                    photo_key=None,
-                    location=events_pb2.EventLocation(
-                        address="Near Null Island",
-                        lat=0.1,
-                        lng=0.2,
-                    ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                    end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You have to complete your profile before you can create an event."
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.create_event(token=token1)
+    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+    assert e.value.details() == "You have to complete your profile before you can create an event."
 
 
-def test_ScheduleEvent(db):
+def test_ScheduleEvent(db, frozen_timewarp):
     # test cases:
     # can schedule a new event occurrence
 
@@ -391,71 +255,65 @@ def test_ScheduleEvent(db):
         c_id = create_community(session, 0, 2, "Community", [user], [], None).id
 
     time_before = now()
-    start_time = now() + timedelta(hours=2)
+    start_time = _to_event_time_granularity(now() + timedelta(hours=2))
     end_time = start_time + timedelta(hours=3)
 
-    with events_session(token) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                parent_community_id=c_id,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
+    create_res = events_api.create_event(
+        token=token,
+        parent_community_id=c_id,
+        start_date_time=local_date_time(start_time),
+        end_date_time=local_date_time(end_time),
+    )
 
-        new_start_time = now() + timedelta(hours=6)
-        new_end_time = new_start_time + timedelta(hours=2)
+    new_start_time = _to_event_time_granularity(now() + timedelta(hours=6))
+    new_end_time = new_start_time + timedelta(hours=2)
 
-        res = api.ScheduleEvent(
-            events_pb2.ScheduleEventReq(
-                event_id=res.event_id,
-                content="New event occurrence",
-                location=events_pb2.EventLocation(
-                    address="A bit further but still near Null Island",
-                    lat=0.3,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(new_start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(new_end_time),
-            )
-        )
+    schedule_res = events_api.schedule_event(
+        token=token,
+        event_id=create_res.event_id,
+        content="New event occurrence",
+        location=events_pb2.EventLocation(
+            address="A bit further but still near Null Island",
+            lat=0.3,
+            lng=0.2,
+        ),
+        start_date_time=local_date_time(new_start_time),
+        end_date_time=local_date_time(new_end_time),
+    )
 
-        res = api.GetEvent(events_pb2.GetEventReq(event_id=res.event_id))
+    # Each occurrence is independent and has an independent thread
+    assert schedule_res.event_id != create_res.event_id
+    assert schedule_res.thread.thread_id != create_res.thread.thread_id
 
-        assert not res.is_next
-        assert res.title == "Dummy Title"
-        assert res.slug == "dummy-title"
-        assert res.content == "New event occurrence"
-        assert not res.photo_url
-        assert res.HasField("location")
-        assert res.location.lat == 0.3
-        assert res.location.lng == 0.2
-        assert res.location.address == "A bit further but still near Null Island"
-        assert time_before <= to_aware_datetime(res.created) <= now()
-        assert time_before <= to_aware_datetime(res.last_edited) <= now()
-        assert res.creator_user_id == user.id
-        assert to_aware_datetime(res.start_time) == to_event_time_granularity(new_start_time)
-        assert to_aware_datetime(res.end_time) == to_event_time_granularity(new_end_time)
-        assert is_utc_or_gmt(res.timezone)
-        assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
-        assert res.organizer
-        assert res.subscriber
-        assert res.going_count == 1
-        assert res.organizer_count == 1
-        assert res.subscriber_count == 1
-        assert res.owner_user_id == user.id
-        assert not res.owner_community_id
-        assert not res.owner_group_id
-        assert res.thread.thread_id
-        assert res.can_edit
-        assert res.can_moderate
+    res = events_api.get_event(token=token, event_id=schedule_res.event_id)
+
+    assert not res.is_next
+    assert res.title == "Dummy Title"
+    assert res.slug == "dummy-title"
+    assert res.content == "New event occurrence"
+    assert not res.photo_url
+    assert res.HasField("location")
+    assert res.location.lat == 0.3
+    assert res.location.lng == 0.2
+    assert res.location.address == "A bit further but still near Null Island"
+    assert time_before <= to_aware_datetime(res.created) <= now()
+    assert time_before <= to_aware_datetime(res.last_edited) <= now()
+    assert res.creator_user_id == user.id
+    assert to_aware_datetime(res.start_time) == new_start_time
+    assert to_aware_datetime(res.end_time) == new_end_time
+    assert _is_utc_or_gmt(res.timezone)
+    assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
+    assert res.organizer
+    assert res.subscriber
+    assert res.going_count == 1
+    assert res.organizer_count == 1
+    assert res.subscriber_count == 1
+    assert res.owner_user_id == user.id
+    assert not res.owner_community_id
+    assert not res.owner_group_id
+    assert res.thread.thread_id
+    assert res.can_edit
+    assert res.can_moderate
 
 
 def test_cannot_overlap_occurrences_schedule(db):
@@ -466,38 +324,22 @@ def test_cannot_overlap_occurrences_schedule(db):
 
     start = now()
 
-    with events_session(token) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                parent_community_id=c_id,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=3)),
-            )
-        )
+    res = events_api.create_event(
+        token=token,
+        parent_community_id=c_id,
+        start_date_time=local_date_time(start + timedelta(hours=1)),
+        end_date_time=local_date_time(start + timedelta(hours=3)),
+    )
 
-        with pytest.raises(grpc.RpcError) as e:
-            api.ScheduleEvent(
-                events_pb2.ScheduleEventReq(
-                    event_id=res.event_id,
-                    content="New event occurrence",
-                    location=events_pb2.EventLocation(
-                        address="A bit further but still near Null Island",
-                        lat=0.3,
-                        lng=0.2,
-                    ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=2)),
-                    end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=6)),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "An event cannot have overlapping occurrences."
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.schedule_event(
+            token=token,
+            event_id=res.event_id,
+            start_date_time=local_date_time(start + timedelta(hours=2)),
+            end_date_time=local_date_time(start + timedelta(hours=6)),
+        )
+    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+    assert e.value.details() == "An event cannot have overlapping occurrences."
 
 
 def test_cannot_overlap_occurrences_update(db):
@@ -508,66 +350,46 @@ def test_cannot_overlap_occurrences_update(db):
 
     start = now()
 
-    with events_session(token) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                parent_community_id=c_id,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=3)),
-            )
+    res = events_api.create_event(
+        token=token,
+        parent_community_id=c_id,
+        start_date_time=local_date_time(start + timedelta(hours=1)),
+        end_date_time=local_date_time(start + timedelta(hours=3)),
+    )
+
+    event_id = events_api.schedule_event(
+        token=token,
+        event_id=res.event_id,
+        content="New event occurrence",
+        location=events_pb2.EventLocation(
+            address="A bit further but still near Null Island",
+            lat=0.3,
+            lng=0.2,
+        ),
+        start_date_time=local_date_time(start + timedelta(hours=4)),
+        end_date_time=local_date_time(start + timedelta(hours=6)),
+    ).event_id
+
+    # can overlap with this current existing occurrence
+    events_api.update_event(
+        token=token,
+        event_id=event_id,
+        start_date_time=local_date_time(start + timedelta(hours=5)),
+        end_date_time=local_date_time(start + timedelta(hours=6)),
+    )
+
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.update_event(
+            token=token,
+            event_id=event_id,
+            start_date_time=local_date_time(start + timedelta(hours=2)),
+            end_date_time=local_date_time(start + timedelta(hours=4)),
         )
-
-        event_id = api.ScheduleEvent(
-            events_pb2.ScheduleEventReq(
-                event_id=res.event_id,
-                content="New event occurrence",
-                location=events_pb2.EventLocation(
-                    address="A bit further but still near Null Island",
-                    lat=0.3,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=4)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=6)),
-            )
-        ).event_id
-
-        # can overlap with this current existing occurrence
-        api.UpdateEvent(
-            events_pb2.UpdateEventReq(
-                event_id=event_id,
-                start_datetime_iso8601_local=wrappers_pb2.StringValue(
-                    value=datetime_to_iso8601_local(start + timedelta(hours=5))
-                ),
-                end_datetime_iso8601_local=wrappers_pb2.StringValue(
-                    value=datetime_to_iso8601_local(start + timedelta(hours=6))
-                ),
-            )
-        )
-
-        with pytest.raises(grpc.RpcError) as e:
-            api.UpdateEvent(
-                events_pb2.UpdateEventReq(
-                    event_id=event_id,
-                    start_datetime_iso8601_local=wrappers_pb2.StringValue(
-                        value=datetime_to_iso8601_local(start + timedelta(hours=2))
-                    ),
-                    end_datetime_iso8601_local=wrappers_pb2.StringValue(
-                        value=datetime_to_iso8601_local(start + timedelta(hours=4))
-                    ),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "An event cannot have overlapping occurrences."
+    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+    assert e.value.details() == "An event cannot have overlapping occurrences."
 
 
-def test_UpdateEvent_single(db, moderator: Moderator):
+def test_UpdateEvent_single(db, frozen_timewarp: FrozenTimewarp, moderator: Moderator):
     # test cases:
     # owner can update
     # community owner can update
@@ -587,164 +409,142 @@ def test_UpdateEvent_single(db, moderator: Moderator):
         c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
 
     time_before = now()
-    start_time = now() + timedelta(hours=2)
+    start_time = _to_event_time_granularity(now() + timedelta(hours=2))
     end_time = start_time + timedelta(hours=3)
 
-    with events_session(token1) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                parent_community_id=c_id,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
+    res = events_api.create_event(
+        token=token1,
+        parent_community_id=c_id,
+        location=events_pb2.EventLocation(
+            address="Near Null Island",
+            lat=0.1,
+            lng=0.2,
+        ),
+        start_date_time=local_date_time(start_time),
+        end_date_time=local_date_time(end_time),
+        approve_by=moderator,
+    )
 
-        event_id = res.event_id
+    event_id = res.event_id
 
-    moderator.approve_event_occurrence(event_id)
+    events_api.set_event_subscription(token=token4, event_id=event_id, subscribe=True)
+    events_api.set_event_attendance(token=token5, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
+    events_api.set_event_subscription(token=token6, event_id=event_id, subscribe=True)
 
-    with events_session(token4) as api:
-        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
-
-    with events_session(token5) as api:
-        api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
-        )
-
-    with events_session(token6) as api:
-        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
-
+    # the clock is stopped, so the edit below needs the test to move it on for last_edited to change
+    frozen_timewarp.advance(timedelta(minutes=1))
     time_before_update = now()
 
-    with events_session(token1) as api:
-        res = api.UpdateEvent(
-            events_pb2.UpdateEventReq(
-                event_id=event_id,
-            )
-        )
+    res = events_api.update_event(token=token1, event_id=event_id)
+    res = events_api.get_event(token=token1, event_id=event_id)
 
-    with events_session(token1) as api:
-        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
+    assert res.is_next
+    assert res.title == "Dummy Title"
+    assert res.slug == "dummy-title"
+    assert res.content == "Dummy content."
+    assert not res.photo_url
+    assert res.HasField("location")
+    assert res.location.lat == 0.1
+    assert res.location.lng == 0.2
+    assert res.location.address == "Near Null Island"
+    assert time_before <= to_aware_datetime(res.created) <= time_before_update
+    assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
+    assert res.creator_user_id == user1.id
+    assert to_aware_datetime(res.start_time) == start_time
+    assert to_aware_datetime(res.end_time) == end_time
+    assert _is_utc_or_gmt(res.timezone)
+    assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
+    assert res.organizer
+    assert res.subscriber
+    assert res.going_count == 2
+    assert res.organizer_count == 1
+    assert res.subscriber_count == 3
+    assert res.owner_user_id == user1.id
+    assert not res.owner_community_id
+    assert not res.owner_group_id
+    assert res.thread.thread_id
+    assert res.can_edit
+    assert not res.can_moderate
 
-        assert res.is_next
-        assert res.title == "Dummy Title"
-        assert res.slug == "dummy-title"
-        assert res.content == "Dummy content."
-        assert not res.photo_url
-        assert res.HasField("location")
-        assert res.location.lat == 0.1
-        assert res.location.lng == 0.2
-        assert res.location.address == "Near Null Island"
-        assert time_before <= to_aware_datetime(res.created) <= time_before_update
-        assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
-        assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
-        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
-        assert is_utc_or_gmt(res.timezone)
-        assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
-        assert res.organizer
-        assert res.subscriber
-        assert res.going_count == 2
-        assert res.organizer_count == 1
-        assert res.subscriber_count == 3
-        assert res.owner_user_id == user1.id
-        assert not res.owner_community_id
-        assert not res.owner_group_id
-        assert res.thread.thread_id
-        assert res.can_edit
-        assert not res.can_moderate
+    res = events_api.get_event(token=token2, event_id=event_id)
 
-    with events_session(token2) as api:
-        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
+    assert res.is_next
+    assert res.title == "Dummy Title"
+    assert res.slug == "dummy-title"
+    assert res.content == "Dummy content."
+    assert not res.photo_url
+    assert res.HasField("location")
+    assert res.location.lat == 0.1
+    assert res.location.lng == 0.2
+    assert res.location.address == "Near Null Island"
+    assert time_before <= to_aware_datetime(res.created) <= time_before_update
+    assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
+    assert res.creator_user_id == user1.id
+    assert to_aware_datetime(res.start_time) == start_time
+    assert to_aware_datetime(res.end_time) == end_time
+    assert _is_utc_or_gmt(res.timezone)
+    assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
+    assert not res.organizer
+    assert not res.subscriber
+    assert res.going_count == 2
+    assert res.organizer_count == 1
+    assert res.subscriber_count == 3
+    assert res.owner_user_id == user1.id
+    assert not res.owner_community_id
+    assert not res.owner_group_id
+    assert res.thread.thread_id
+    assert res.can_edit
+    assert res.can_moderate
 
-        assert res.is_next
-        assert res.title == "Dummy Title"
-        assert res.slug == "dummy-title"
-        assert res.content == "Dummy content."
-        assert not res.photo_url
-        assert res.HasField("location")
-        assert res.location.lat == 0.1
-        assert res.location.lng == 0.2
-        assert res.location.address == "Near Null Island"
-        assert time_before <= to_aware_datetime(res.created) <= time_before_update
-        assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
-        assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
-        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
-        assert is_utc_or_gmt(res.timezone)
-        assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
-        assert not res.organizer
-        assert not res.subscriber
-        assert res.going_count == 2
-        assert res.organizer_count == 1
-        assert res.subscriber_count == 3
-        assert res.owner_user_id == user1.id
-        assert not res.owner_community_id
-        assert not res.owner_group_id
-        assert res.thread.thread_id
-        assert res.can_edit
-        assert res.can_moderate
+    res = events_api.get_event(token=token3, event_id=event_id)
 
-    with events_session(token3) as api:
-        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
+    assert res.is_next
+    assert res.title == "Dummy Title"
+    assert res.slug == "dummy-title"
+    assert res.content == "Dummy content."
+    assert not res.photo_url
+    assert res.HasField("location")
+    assert res.location.lat == 0.1
+    assert res.location.lng == 0.2
+    assert res.location.address == "Near Null Island"
+    assert time_before <= to_aware_datetime(res.created) <= time_before_update
+    assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
+    assert res.creator_user_id == user1.id
+    assert to_aware_datetime(res.start_time) == start_time
+    assert to_aware_datetime(res.end_time) == end_time
+    assert _is_utc_or_gmt(res.timezone)
+    assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
+    assert not res.organizer
+    assert not res.subscriber
+    assert res.going_count == 2
+    assert res.organizer_count == 1
+    assert res.subscriber_count == 3
+    assert res.owner_user_id == user1.id
+    assert not res.owner_community_id
+    assert not res.owner_group_id
+    assert res.thread.thread_id
+    assert not res.can_edit
+    assert not res.can_moderate
 
-        assert res.is_next
-        assert res.title == "Dummy Title"
-        assert res.slug == "dummy-title"
-        assert res.content == "Dummy content."
-        assert not res.photo_url
-        assert res.HasField("location")
-        assert res.location.lat == 0.1
-        assert res.location.lng == 0.2
-        assert res.location.address == "Near Null Island"
-        assert time_before <= to_aware_datetime(res.created) <= time_before_update
-        assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
-        assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
-        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
-        assert is_utc_or_gmt(res.timezone)
-        assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
-        assert not res.organizer
-        assert not res.subscriber
-        assert res.going_count == 2
-        assert res.organizer_count == 1
-        assert res.subscriber_count == 3
-        assert res.owner_user_id == user1.id
-        assert not res.owner_community_id
-        assert not res.owner_group_id
-        assert res.thread.thread_id
-        assert not res.can_edit
-        assert not res.can_moderate
+    res = events_api.update_event(
+        token=token1,
+        event_id=event_id,
+        location=events_pb2.EventLocation(
+            address="Nearer Null Island",
+            lat=0.01,
+            lng=0.02,
+        ),
+    )
 
-    with events_session(token1) as api:
-        res = api.UpdateEvent(
-            events_pb2.UpdateEventReq(
-                event_id=event_id,
-                location=events_pb2.EventLocation(
-                    address="Nearer Null Island",
-                    lat=0.01,
-                    lng=0.02,
-                ),
-            )
-        )
+    res = events_api.get_event(token=token3, event_id=event_id)
 
-    with events_session(token3) as api:
-        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
-
-        assert res.HasField("location")
-        assert res.location.address == "Nearer Null Island"
-        assert res.location.lat == 0.01
-        assert res.location.lng == 0.02
+    assert res.HasField("location")
+    assert res.location.address == "Nearer Null Island"
+    assert res.location.lat == 0.01
+    assert res.location.lng == 0.02
 
 
-def test_UpdateEvent_all(db, moderator: Moderator):
+def test_UpdateEvent_all(db, frozen_timewarp: FrozenTimewarp, moderator: Moderator):
     # event creator
     user1, token1 = generate_user()
     # community moderator
@@ -764,93 +564,175 @@ def test_UpdateEvent_all(db, moderator: Moderator):
 
     event_ids = []
 
-    with events_session(token1) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="0th occurrence",
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
+    event_id = events_api.create_event(
+        token=token1,
+        content="0th occurrence",
+        start_date_time=local_date_time(start_time),
+        end_date_time=local_date_time(end_time),
+        approve_by=moderator,
+    ).event_id
+    event_ids.append(event_id)
 
-        event_id = res.event_id
-        event_ids.append(event_id)
+    events_api.set_event_subscription(token=token4, event_id=event_id, subscribe=True)
+    events_api.set_event_attendance(token=token5, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
+    events_api.set_event_subscription(token=token6, event_id=event_id, subscribe=True)
 
-    moderator.approve_event_occurrence(event_id)
-
-    with events_session(token4) as api:
-        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
-
-    with events_session(token5) as api:
-        api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
-        )
-
-    with events_session(token6) as api:
-        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
-
-    with events_session(token1) as api:
-        for i in range(5):
-            res = api.ScheduleEvent(
-                events_pb2.ScheduleEventReq(
-                    event_id=event_ids[-1],
-                    content=f"{i + 1}th occurrence",
-                    location=events_pb2.EventLocation(
-                        address="Near Null Island",
-                        lat=0.1,
-                        lng=0.2,
-                    ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_local(start_time + timedelta(hours=2 + i)),
-                    end_datetime_iso8601_local=datetime_to_iso8601_local(start_time + timedelta(hours=2.5 + i)),
-                )
-            )
-
-            event_ids.append(res.event_id)
-
-    # Approve all scheduled occurrences
-    for eid in event_ids[1:]:
-        moderator.approve_event_occurrence(eid)
+    for i in range(5):
+        occurrence_id = events_api.schedule_event(
+            token=token1,
+            event_id=event_ids[-1],
+            content=f"{i + 1}th occurrence",
+            start_date_time=local_date_time(start_time + timedelta(hours=2 + i)),
+            end_date_time=local_date_time(start_time + timedelta(hours=2.5 + i)),
+            approve_by=moderator,
+        ).event_id
+        event_ids.append(occurrence_id)
 
     updated_event_id = event_ids[3]
 
+    # the clock is stopped, so the edit below needs the test to move it on for last_edited to change
+    frozen_timewarp.advance(timedelta(minutes=1))
     time_before_update = now()
 
-    with events_session(token1) as api:
-        res = api.UpdateEvent(
-            events_pb2.UpdateEventReq(
-                event_id=updated_event_id,
-                title=wrappers_pb2.StringValue(value="New Title"),
-                content=wrappers_pb2.StringValue(value="New content."),
-                location=events_pb2.EventLocation(
-                    address="Not so near Null Island",
-                    lat=0.2,
-                    lng=0.2,
-                ),
-                update_all_future=True,
-            )
-        )
+    res = events_api.update_event(
+        token=token1,
+        event_id=updated_event_id,
+        title="New Title",
+        content="New content.",
+        location=events_pb2.EventLocation(
+            address="Not so near Null Island",
+            lat=0.2,
+            lng=0.2,
+        ),
+        update_all_future=True,
+    )
 
     time_after_update = now()
 
-    with events_session(token2) as api:
-        for i in range(3):
-            res = api.GetEvent(events_pb2.GetEventReq(event_id=event_ids[i]))
-            assert res.content == f"{i}th occurrence"
-            assert time_before <= to_aware_datetime(res.last_edited) <= time_before_update
+    for i in range(3):
+        res = events_api.get_event(token=token2, event_id=event_ids[i])
+        assert res.content == f"{i}th occurrence"
+        assert time_before <= to_aware_datetime(res.last_edited) <= time_before_update
 
-        for i in range(3, 6):
-            res = api.GetEvent(events_pb2.GetEventReq(event_id=event_ids[i]))
-            assert res.content == "New content."
-            assert time_before_update <= to_aware_datetime(res.last_edited) <= time_after_update
+    for i in range(3, 6):
+        res = events_api.get_event(token=token2, event_id=event_ids[i])
+        assert res.content == "New content."
+        assert time_before_update <= to_aware_datetime(res.last_edited) <= time_after_update
 
 
-def test_GetEvent(db, moderator: Moderator):
+def test_UpdateEvent_all_leaves_other_events_alone(db, moderator: Moderator):
+    """update_all_future must only touch the occurrences of the event being edited."""
+    # creator of the event that gets edited
+    user1, token1 = generate_user()
+    # creator of an unrelated event in the same time window
+    user2, token2 = generate_user()
+    # community moderator, so that neither creator has edit rights on the other's event
+    user3, token3 = generate_user()
+
+    with session_scope() as session:
+        create_community(session, 0, 2, "Community", [user3], [], None)
+
+    start_time = now() + timedelta(hours=1)
+
+    edited_id = events_api.create_event(
+        token=token1,
+        title="Edited Event",
+        content="0th occurrence",
+        start_date_time=local_date_time(start_time),
+        end_date_time=local_date_time(start_time + timedelta(hours=1)),
+        approve_by=moderator,
+    ).event_id
+
+    second_id = events_api.schedule_event(
+        token=token1,
+        event_id=edited_id,
+        content="1th occurrence",
+        start_date_time=local_date_time(start_time + timedelta(hours=2)),
+        end_date_time=local_date_time(start_time + timedelta(hours=3)),
+        approve_by=moderator,
+    ).event_id
+
+    # an occurrence of a different event, starting after the edited one and ending well after the cutoff
+    other_id = events_api.create_event(
+        token=token2,
+        title="Other Event",
+        content="Other content.",
+        location=events_pb2.EventLocation(
+            address="Somewhere else entirely",
+            lat=0.5,
+            lng=0.5,
+        ),
+        start_date_time=local_date_time(start_time + timedelta(hours=4)),
+        end_date_time=local_date_time(start_time + timedelta(hours=5)),
+        approve_by=moderator,
+    ).event_id
+
+    other_before = events_api.get_event(token=token2, event_id=other_id)
+
+    events_api.update_event(
+        token=token1,
+        event_id=edited_id,
+        content="New content.",
+        location=events_pb2.EventLocation(
+            address="Not so near Null Island",
+            lat=0.2,
+            lng=0.2,
+        ),
+        update_all_future=True,
+    )
+
+    for occurrence_id in (edited_id, second_id):
+        res = events_api.get_event(token=token3, event_id=occurrence_id)
+        assert res.content == "New content."
+        assert res.location.address == "Not so near Null Island"
+
+    res = events_api.get_event(token=token3, event_id=other_id)
+    assert res.content == "Other content."
+    assert res.location.address == "Somewhere else entirely"
+    assert res.location.lat == 0.5
+    assert res.location.lng == 0.5
+    assert res.timezone == other_before.timezone
+    assert res.last_edited == other_before.last_edited
+
+
+def test_UpdateEvent_all_cant_change_times(db, moderator: Moderator):
+    """Every future occurrence would get the same times, which the exclusion constraint forbids."""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        create_community(session, 0, 2, "Community", [user2], [], None)
+
+    start_time = now() + timedelta(hours=1)
+
+    event_id = events_api.create_event(
+        token=token1,
+        content="0th occurrence",
+        start_date_time=local_date_time(start_time),
+        end_date_time=local_date_time(start_time + timedelta(hours=1)),
+    ).event_id
+
+    events_api.schedule_event(
+        token=token1,
+        event_id=event_id,
+        content="1th occurrence",
+        start_date_time=local_date_time(start_time + timedelta(hours=2)),
+        end_date_time=local_date_time(start_time + timedelta(hours=3)),
+    )
+
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.update_event(
+            token=token1,
+            event_id=event_id,
+            start_date_time=local_date_time(start_time + timedelta(minutes=30)),
+            end_date_time=local_date_time(start_time + timedelta(hours=1, minutes=30)),
+            update_all_future=True,
+        )
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == "You cannot update all events if you're modifying start or end times."
+
+
+def test_GetEvent(db, frozen_timewarp, moderator: Moderator):
     # event creator
     user1, token1 = generate_user()
     # community moderator
@@ -865,132 +747,117 @@ def test_GetEvent(db, moderator: Moderator):
         c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
 
     time_before = now()
-    start_time = now() + timedelta(hours=2)
+    start_time = _to_event_time_granularity(now() + timedelta(hours=2))
     end_time = start_time + timedelta(hours=3)
 
-    with events_session(token1) as api:
-        # in person event
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
+    # in person event
+    res = events_api.create_event(
+        token=token1,
+        location=events_pb2.EventLocation(
+            address="Near Null Island",
+            lat=0.1,
+            lng=0.2,
+        ),
+        start_date_time=local_date_time(start_time),
+        end_date_time=local_date_time(end_time),
+        approve_by=moderator,
+    )
 
-        event_id = res.event_id
+    event_id = res.event_id
 
-    moderator.approve_event_occurrence(event_id)
+    events_api.set_event_subscription(token=token4, event_id=event_id, subscribe=True)
+    events_api.set_event_attendance(token=token5, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
+    events_api.set_event_subscription(token=token6, event_id=event_id, subscribe=True)
 
-    with events_session(token4) as api:
-        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
+    res = events_api.get_event(token=token1, event_id=event_id)
 
-    with events_session(token5) as api:
-        api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
-        )
+    assert res.is_next
+    assert res.title == "Dummy Title"
+    assert res.slug == "dummy-title"
+    assert res.content == "Dummy content."
+    assert not res.photo_url
+    assert res.HasField("location")
+    assert res.location.lat == 0.1
+    assert res.location.lng == 0.2
+    assert res.location.address == "Near Null Island"
+    assert time_before <= to_aware_datetime(res.created) <= now()
+    assert time_before <= to_aware_datetime(res.last_edited) <= now()
+    assert res.creator_user_id == user1.id
+    assert to_aware_datetime(res.start_time) == start_time
+    assert to_aware_datetime(res.end_time) == end_time
+    assert _is_utc_or_gmt(res.timezone)
+    assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
+    assert res.organizer
+    assert res.subscriber
+    assert res.going_count == 2
+    assert res.organizer_count == 1
+    assert res.subscriber_count == 3
+    assert res.owner_user_id == user1.id
+    assert not res.owner_community_id
+    assert not res.owner_group_id
+    assert res.thread.thread_id
+    assert res.can_edit
+    assert not res.can_moderate
 
-    with events_session(token6) as api:
-        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
+    res = events_api.get_event(token=token2, event_id=event_id)
 
-    with events_session(token1) as api:
-        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
+    assert res.is_next
+    assert res.title == "Dummy Title"
+    assert res.slug == "dummy-title"
+    assert res.content == "Dummy content."
+    assert not res.photo_url
+    assert res.HasField("location")
+    assert res.location.lat == 0.1
+    assert res.location.lng == 0.2
+    assert res.location.address == "Near Null Island"
+    assert time_before <= to_aware_datetime(res.created) <= now()
+    assert time_before <= to_aware_datetime(res.last_edited) <= now()
+    assert res.creator_user_id == user1.id
+    assert to_aware_datetime(res.start_time) == start_time
+    assert to_aware_datetime(res.end_time) == end_time
+    assert _is_utc_or_gmt(res.timezone)
+    assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
+    assert not res.organizer
+    assert not res.subscriber
+    assert res.going_count == 2
+    assert res.organizer_count == 1
+    assert res.subscriber_count == 3
+    assert res.owner_user_id == user1.id
+    assert not res.owner_community_id
+    assert not res.owner_group_id
+    assert res.thread.thread_id
+    assert res.can_edit
+    assert res.can_moderate
 
-        assert res.is_next
-        assert res.title == "Dummy Title"
-        assert res.slug == "dummy-title"
-        assert res.content == "Dummy content."
-        assert not res.photo_url
-        assert res.HasField("location")
-        assert res.location.lat == 0.1
-        assert res.location.lng == 0.2
-        assert res.location.address == "Near Null Island"
-        assert time_before <= to_aware_datetime(res.created) <= now()
-        assert time_before <= to_aware_datetime(res.last_edited) <= now()
-        assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
-        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
-        assert is_utc_or_gmt(res.timezone)
-        assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
-        assert res.organizer
-        assert res.subscriber
-        assert res.going_count == 2
-        assert res.organizer_count == 1
-        assert res.subscriber_count == 3
-        assert res.owner_user_id == user1.id
-        assert not res.owner_community_id
-        assert not res.owner_group_id
-        assert res.thread.thread_id
-        assert res.can_edit
-        assert not res.can_moderate
+    res = events_api.get_event(token=token3, event_id=event_id)
 
-    with events_session(token2) as api:
-        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
-
-        assert res.is_next
-        assert res.title == "Dummy Title"
-        assert res.slug == "dummy-title"
-        assert res.content == "Dummy content."
-        assert not res.photo_url
-        assert res.HasField("location")
-        assert res.location.lat == 0.1
-        assert res.location.lng == 0.2
-        assert res.location.address == "Near Null Island"
-        assert time_before <= to_aware_datetime(res.created) <= now()
-        assert time_before <= to_aware_datetime(res.last_edited) <= now()
-        assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
-        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
-        assert is_utc_or_gmt(res.timezone)
-        assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
-        assert not res.organizer
-        assert not res.subscriber
-        assert res.going_count == 2
-        assert res.organizer_count == 1
-        assert res.subscriber_count == 3
-        assert res.owner_user_id == user1.id
-        assert not res.owner_community_id
-        assert not res.owner_group_id
-        assert res.thread.thread_id
-        assert res.can_edit
-        assert res.can_moderate
-
-    with events_session(token3) as api:
-        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
-
-        assert res.is_next
-        assert res.title == "Dummy Title"
-        assert res.slug == "dummy-title"
-        assert res.content == "Dummy content."
-        assert not res.photo_url
-        assert res.HasField("location")
-        assert res.location.lat == 0.1
-        assert res.location.lng == 0.2
-        assert res.location.address == "Near Null Island"
-        assert time_before <= to_aware_datetime(res.created) <= now()
-        assert time_before <= to_aware_datetime(res.last_edited) <= now()
-        assert res.creator_user_id == user1.id
-        assert to_aware_datetime(res.start_time) == to_event_time_granularity(start_time)
-        assert to_aware_datetime(res.end_time) == to_event_time_granularity(end_time)
-        assert is_utc_or_gmt(res.timezone)
-        assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
-        assert not res.organizer
-        assert not res.subscriber
-        assert res.going_count == 2
-        assert res.organizer_count == 1
-        assert res.subscriber_count == 3
-        assert res.owner_user_id == user1.id
-        assert not res.owner_community_id
-        assert not res.owner_group_id
-        assert res.thread.thread_id
-        assert not res.can_edit
-        assert not res.can_moderate
+    assert res.is_next
+    assert res.title == "Dummy Title"
+    assert res.slug == "dummy-title"
+    assert res.content == "Dummy content."
+    assert not res.photo_url
+    assert res.HasField("location")
+    assert res.location.lat == 0.1
+    assert res.location.lng == 0.2
+    assert res.location.address == "Near Null Island"
+    assert time_before <= to_aware_datetime(res.created) <= now()
+    assert time_before <= to_aware_datetime(res.last_edited) <= now()
+    assert res.creator_user_id == user1.id
+    assert to_aware_datetime(res.start_time) == start_time
+    assert to_aware_datetime(res.end_time) == end_time
+    assert _is_utc_or_gmt(res.timezone)
+    assert res.attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
+    assert not res.organizer
+    assert not res.subscriber
+    assert res.going_count == 2
+    assert res.organizer_count == 1
+    assert res.subscriber_count == 3
+    assert res.owner_user_id == user1.id
+    assert not res.owner_community_id
+    assert not res.owner_group_id
+    assert res.thread.thread_id
+    assert not res.can_edit
+    assert not res.can_moderate
 
 
 def test_CancelEvent(db, moderator: Moderator):
@@ -1007,111 +874,56 @@ def test_CancelEvent(db, moderator: Moderator):
     with session_scope() as session:
         c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
 
-    start_time = now() + timedelta(hours=2)
-    end_time = start_time + timedelta(hours=3)
+    event_id = events_api.create_event(token=token1, approve_by=moderator).event_id
 
-    with events_session(token1) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
+    events_api.set_event_subscription(token=token4, event_id=event_id, subscribe=True)
+    events_api.set_event_attendance(token=token5, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
+    events_api.set_event_subscription(token=token6, event_id=event_id, subscribe=True)
+
+    events_api.cancel_event(token=token1, event_id=event_id)
+    assert events_api.get_event(token=token1, event_id=event_id).is_cancelled
+
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.update_event(token=token1, event_id=event_id, title="New Title")
+    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+    assert e.value.details() == "You can't modify, subscribe to, or attend to an event that's been cancelled."
+
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.invite_event_organizer(token=token1, event_id=event_id, user_id=user3.id)
+    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+    assert e.value.details() == "You can't modify, subscribe to, or attend to an event that's been cancelled."
+
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.transfer_event(token=token1, event_id=event_id, new_owner_community_id=c_id)
+    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+    assert e.value.details() == "You can't modify, subscribe to, or attend to an event that's been cancelled."
+
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.set_event_subscription(token=token3, event_id=event_id, subscribe=True)
+    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+    assert e.value.details() == "You can't modify, subscribe to, or attend to an event that's been cancelled."
+
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.set_event_attendance(
+            token=token3, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING
         )
+    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+    assert e.value.details() == "You can't modify, subscribe to, or attend to an event that's been cancelled."
 
-        event_id = res.event_id
+    for include_cancelled in [True, False]:
+        occurrences = events_api.list_event_occurrences(
+            token=token1, event_id=event_id, include_cancelled=include_cancelled
+        ).events
+        if include_cancelled:
+            assert len(occurrences) > 0
+        else:
+            assert len(occurrences) == 0
 
-    moderator.approve_event_occurrence(event_id)
-
-    with events_session(token4) as api:
-        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
-
-    with events_session(token5) as api:
-        api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
-        )
-
-    with events_session(token6) as api:
-        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
-
-    with events_session(token1) as api:
-        res = api.CancelEvent(
-            events_pb2.CancelEventReq(
-                event_id=event_id,
-            )
-        )
-
-    with events_session(token1) as api:
-        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
-        assert res.is_cancelled
-
-    with events_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.UpdateEvent(
-                events_pb2.UpdateEventReq(
-                    event_id=event_id,
-                    title=wrappers_pb2.StringValue(value="New Title"),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == "You can't modify, subscribe to, or attend to an event that's been cancelled."
-
-        with pytest.raises(grpc.RpcError) as e:
-            api.InviteEventOrganizer(
-                events_pb2.InviteEventOrganizerReq(
-                    event_id=event_id,
-                    user_id=user3.id,
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == "You can't modify, subscribe to, or attend to an event that's been cancelled."
-
-        with pytest.raises(grpc.RpcError) as e:
-            api.TransferEvent(events_pb2.TransferEventReq(event_id=event_id, new_owner_community_id=c_id))
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == "You can't modify, subscribe to, or attend to an event that's been cancelled."
-
-    with events_session(token3) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == "You can't modify, subscribe to, or attend to an event that's been cancelled."
-
-        with pytest.raises(grpc.RpcError) as e:
-            api.SetEventAttendance(
-                events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
-            )
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == "You can't modify, subscribe to, or attend to an event that's been cancelled."
-
-    with events_session(token1) as api:
-        for include_cancelled in [True, False]:
-            res = api.ListEventOccurrences(
-                events_pb2.ListEventOccurrencesReq(
-                    event_id=event_id,
-                    include_cancelled=include_cancelled,
-                )
-            )
-            if include_cancelled:
-                assert len(res.events) > 0
-            else:
-                assert len(res.events) == 0
-
-            res = api.ListMyEvents(
-                events_pb2.ListMyEventsReq(
-                    include_cancelled=include_cancelled,
-                )
-            )
-            if include_cancelled:
-                assert len(res.events) > 0
-            else:
-                assert len(res.events) == 0
+        mine = events_api.list_my_events(token=token1, include_cancelled=include_cancelled).events
+        if include_cancelled:
+            assert len(mine) > 0
+        else:
+            assert len(mine) == 0
 
 
 def test_ListEventAttendees(db, moderator: Moderator):
@@ -1127,45 +939,24 @@ def test_ListEventAttendees(db, moderator: Moderator):
     with session_scope() as session:
         c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
 
-    with events_session(token1) as api:
-        event_id = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
-            )
-        ).event_id
-
-    moderator.approve_event_occurrence(event_id)
+    event_id = events_api.create_event(token=token1, approve_by=moderator).event_id
 
     for token in [token2, token3, token4, token5]:
-        with events_session(token) as api:
-            api.SetEventAttendance(
-                events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
-            )
-
-    with events_session(token6) as api:
-        assert api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).going_count == 5
-
-        res = api.ListEventAttendees(events_pb2.ListEventAttendeesReq(event_id=event_id, page_size=2))
-        assert res.attendee_user_ids == [user1.id, user2.id]
-
-        res = api.ListEventAttendees(
-            events_pb2.ListEventAttendeesReq(event_id=event_id, page_size=2, page_token=res.next_page_token)
+        events_api.set_event_attendance(
+            token=token, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING
         )
-        assert res.attendee_user_ids == [user3.id, user4.id]
 
-        res = api.ListEventAttendees(
-            events_pb2.ListEventAttendeesReq(event_id=event_id, page_size=2, page_token=res.next_page_token)
-        )
-        assert res.attendee_user_ids == [user5.id]
-        assert not res.next_page_token
+    assert events_api.get_event(token=token6, event_id=event_id).going_count == 5
+
+    res = events_api.list_event_attendees(token=token6, event_id=event_id, page_size=2)
+    assert res.attendee_user_ids == [user1.id, user2.id]
+
+    res = events_api.list_event_attendees(token=token6, event_id=event_id, page_size=2, page_token=res.next_page_token)
+    assert res.attendee_user_ids == [user3.id, user4.id]
+
+    res = events_api.list_event_attendees(token=token6, event_id=event_id, page_size=2, page_token=res.next_page_token)
+    assert res.attendee_user_ids == [user5.id]
+    assert not res.next_page_token
 
 
 def test_ListEventSubscribers(db, moderator: Moderator):
@@ -1181,43 +972,26 @@ def test_ListEventSubscribers(db, moderator: Moderator):
     with session_scope() as session:
         c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
 
-    with events_session(token1) as api:
-        event_id = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
-            )
-        ).event_id
-
-    moderator.approve_event_occurrence(event_id)
+    event_id = events_api.create_event(token=token1, approve_by=moderator).event_id
 
     for token in [token2, token3, token4, token5]:
-        with events_session(token) as api:
-            api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
+        events_api.set_event_subscription(token=token, event_id=event_id, subscribe=True)
 
-    with events_session(token6) as api:
-        assert api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).subscriber_count == 5
+    assert events_api.get_event(token=token6, event_id=event_id).subscriber_count == 5
 
-        res = api.ListEventSubscribers(events_pb2.ListEventSubscribersReq(event_id=event_id, page_size=2))
-        assert res.subscriber_user_ids == [user1.id, user2.id]
+    res = events_api.list_event_subscribers(token=token6, event_id=event_id, page_size=2)
+    assert res.subscriber_user_ids == [user1.id, user2.id]
 
-        res = api.ListEventSubscribers(
-            events_pb2.ListEventSubscribersReq(event_id=event_id, page_size=2, page_token=res.next_page_token)
-        )
-        assert res.subscriber_user_ids == [user3.id, user4.id]
+    res = events_api.list_event_subscribers(
+        token=token6, event_id=event_id, page_size=2, page_token=res.next_page_token
+    )
+    assert res.subscriber_user_ids == [user3.id, user4.id]
 
-        res = api.ListEventSubscribers(
-            events_pb2.ListEventSubscribersReq(event_id=event_id, page_size=2, page_token=res.next_page_token)
-        )
-        assert res.subscriber_user_ids == [user5.id]
-        assert not res.next_page_token
+    res = events_api.list_event_subscribers(
+        token=token6, event_id=event_id, page_size=2, page_token=res.next_page_token
+    )
+    assert res.subscriber_user_ids == [user5.id]
+    assert not res.next_page_token
 
 
 def test_ListEventOrganizers(db, moderator: Moderator):
@@ -1233,43 +1007,22 @@ def test_ListEventOrganizers(db, moderator: Moderator):
     with session_scope() as session:
         c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
 
-    with events_session(token1) as api:
-        event_id = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
-            )
-        ).event_id
+    event_id = events_api.create_event(token=token1, approve_by=moderator).event_id
 
-    moderator.approve_event_occurrence(event_id)
+    for user_id in [user2.id, user3.id, user4.id, user5.id]:
+        events_api.invite_event_organizer(token=token1, event_id=event_id, user_id=user_id)
 
-    with events_session(token1) as api:
-        for user_id in [user2.id, user3.id, user4.id, user5.id]:
-            api.InviteEventOrganizer(events_pb2.InviteEventOrganizerReq(event_id=event_id, user_id=user_id))
+    assert events_api.get_event(token=token6, event_id=event_id).organizer_count == 5
 
-    with events_session(token6) as api:
-        assert api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).organizer_count == 5
+    res = events_api.list_event_organizers(token=token6, event_id=event_id, page_size=2)
+    assert res.organizer_user_ids == [user1.id, user2.id]
 
-        res = api.ListEventOrganizers(events_pb2.ListEventOrganizersReq(event_id=event_id, page_size=2))
-        assert res.organizer_user_ids == [user1.id, user2.id]
+    res = events_api.list_event_organizers(token=token6, event_id=event_id, page_size=2, page_token=res.next_page_token)
+    assert res.organizer_user_ids == [user3.id, user4.id]
 
-        res = api.ListEventOrganizers(
-            events_pb2.ListEventOrganizersReq(event_id=event_id, page_size=2, page_token=res.next_page_token)
-        )
-        assert res.organizer_user_ids == [user3.id, user4.id]
-
-        res = api.ListEventOrganizers(
-            events_pb2.ListEventOrganizersReq(event_id=event_id, page_size=2, page_token=res.next_page_token)
-        )
-        assert res.organizer_user_ids == [user5.id]
-        assert not res.next_page_token
+    res = events_api.list_event_organizers(token=token6, event_id=event_id, page_size=2, page_token=res.next_page_token)
+    assert res.organizer_user_ids == [user5.id]
+    assert not res.next_page_token
 
 
 def test_TransferEvent(db):
@@ -1284,74 +1037,27 @@ def test_TransferEvent(db):
         c_id = c.id
         h_id = h.id
 
-    with events_session(token1) as api:
-        event_id = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
-            )
-        ).event_id
+    event_id = events_api.create_event(token=token1).event_id
+    events_api.transfer_event(token=token1, event_id=event_id, new_owner_community_id=c_id)
 
-        api.TransferEvent(
-            events_pb2.TransferEventReq(
-                event_id=event_id,
-                new_owner_community_id=c_id,
-            )
-        )
+    # remove ourselves as organizer, otherwise we can still edit it
+    events_api.remove_event_organizer(token=token1, event_id=event_id)
 
-        # remove ourselves as organizer, otherwise we can still edit it
-        api.RemoveEventOrganizer(events_pb2.RemoveEventOrganizerReq(event_id=event_id))
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.transfer_event(token=token1, event_id=event_id, new_owner_group_id=h_id)
+    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+    assert e.value.details() == "You're not allowed to transfer that event."
 
-        with pytest.raises(grpc.RpcError) as e:
-            api.TransferEvent(
-                events_pb2.TransferEventReq(
-                    event_id=event_id,
-                    new_owner_group_id=h_id,
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == "You're not allowed to transfer that event."
+    event_id = events_api.create_event(token=token1).event_id
+    events_api.transfer_event(token=token1, event_id=event_id, new_owner_group_id=h_id)
 
-        event_id = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
-            )
-        ).event_id
+    # remove ourselves as organizer, otherwise we can still edit it
+    events_api.remove_event_organizer(token=token1, event_id=event_id)
 
-        api.TransferEvent(
-            events_pb2.TransferEventReq(
-                event_id=event_id,
-                new_owner_group_id=h_id,
-            )
-        )
-
-        # remove ourselves as organizer, otherwise we can still edit it
-        api.RemoveEventOrganizer(events_pb2.RemoveEventOrganizerReq(event_id=event_id))
-
-        with pytest.raises(grpc.RpcError) as e:
-            api.TransferEvent(
-                events_pb2.TransferEventReq(
-                    event_id=event_id,
-                    new_owner_community_id=c_id,
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == "You're not allowed to transfer that event."
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.transfer_event(token=token1, event_id=event_id, new_owner_community_id=c_id)
+    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+    assert e.value.details() == "You're not allowed to transfer that event."
 
 
 def test_SetEventSubscription(db, moderator: Moderator):
@@ -1361,29 +1067,16 @@ def test_SetEventSubscription(db, moderator: Moderator):
     with session_scope() as session:
         c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
 
-    with events_session(token1) as api:
-        event_id = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
-            )
-        ).event_id
+    event_id = events_api.create_event(
+        token=token1,
+        approve_by=moderator,
+    ).event_id
 
-    moderator.approve_event_occurrence(event_id)
-
-    with events_session(token2) as api:
-        assert not api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).subscriber
-        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
-        assert api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).subscriber
-        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=False))
-        assert not api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).subscriber
+    assert not events_api.get_event(token=token2, event_id=event_id).subscriber
+    events_api.set_event_subscription(token=token2, event_id=event_id, subscribe=True)
+    assert events_api.get_event(token=token2, event_id=event_id).subscriber
+    events_api.set_event_subscription(token=token2, event_id=event_id, subscribe=False)
+    assert not events_api.get_event(token=token2, event_id=event_id).subscriber
 
 
 def test_SetEventAttendance(db, moderator: Moderator):
@@ -1393,42 +1086,22 @@ def test_SetEventAttendance(db, moderator: Moderator):
     with session_scope() as session:
         c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
 
-    with events_session(token1) as api:
-        event_id = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
-            )
-        ).event_id
+    event_id = events_api.create_event(
+        token=token1,
+        approve_by=moderator,
+    ).event_id
 
-    moderator.approve_event_occurrence(event_id)
-
-    with events_session(token2) as api:
-        assert (
-            api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).attendance_state
-            == events_pb2.ATTENDANCE_STATE_NOT_GOING
-        )
-        api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
-        )
-        assert (
-            api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).attendance_state
-            == events_pb2.ATTENDANCE_STATE_GOING
-        )
-        api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_NOT_GOING)
-        )
-        assert (
-            api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).attendance_state
-            == events_pb2.ATTENDANCE_STATE_NOT_GOING
-        )
+    assert (
+        events_api.get_event(token=token2, event_id=event_id).attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
+    )
+    events_api.set_event_attendance(token=token2, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
+    assert events_api.get_event(token=token2, event_id=event_id).attendance_state == events_pb2.ATTENDANCE_STATE_GOING
+    events_api.set_event_attendance(
+        token=token2, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_NOT_GOING
+    )
+    assert (
+        events_api.get_event(token=token2, event_id=event_id).attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
+    )
 
 
 def test_InviteEventOrganizer(db, moderator: Moderator):
@@ -1438,100 +1111,67 @@ def test_InviteEventOrganizer(db, moderator: Moderator):
     with session_scope() as session:
         c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
 
-    with events_session(token1) as api:
-        event_id = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
-            )
-        ).event_id
+    event_id = events_api.create_event(
+        token=token1,
+        approve_by=moderator,
+    ).event_id
 
-    moderator.approve_event_occurrence(event_id)
+    assert not events_api.get_event(token=token2, event_id=event_id).organizer
 
-    with events_session(token2) as api:
-        assert not api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).organizer
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.invite_event_organizer(token=token2, event_id=event_id, user_id=user1.id)
+    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+    assert e.value.details() == "You're not allowed to edit that event."
 
-        with pytest.raises(grpc.RpcError) as e:
-            api.InviteEventOrganizer(events_pb2.InviteEventOrganizerReq(event_id=event_id, user_id=user1.id))
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == "You're not allowed to edit that event."
+    assert not events_api.get_event(token=token2, event_id=event_id).organizer
 
-        assert not api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).organizer
-
-    with events_session(token1) as api:
-        api.InviteEventOrganizer(events_pb2.InviteEventOrganizerReq(event_id=event_id, user_id=user2.id))
-
-    with events_session(token2) as api:
-        assert api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).organizer
+    events_api.invite_event_organizer(token=token1, event_id=event_id, user_id=user2.id)
+    assert events_api.get_event(token=token2, event_id=event_id).organizer
 
 
 def test_ListEventOccurrences(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    user3, token3 = generate_user()
 
     with session_scope() as session:
         c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
 
     start = now()
 
-    event_ids = []
+    event_ids = [
+        events_api.create_event(
+            token=token1,
+            title="First occurrence",
+            parent_community_id=c_id,
+            start_date_time=local_date_time(start + timedelta(hours=1)),
+            end_date_time=local_date_time(start + timedelta(hours=1.5)),
+        ).event_id
+    ]
 
-    with events_session(token1) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="First occurrence",
-                content="Dummy content.",
-                parent_community_id=c_id,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1.5)),
-            )
+    for i in range(5):
+        event_ids.append(
+            events_api.schedule_event(
+                token=token1,
+                event_id=event_ids[-1],
+                content=f"{i}th occurrence",
+                start_date_time=local_date_time(start + timedelta(hours=2 + i)),
+                end_date_time=local_date_time(start + timedelta(hours=2.5 + i)),
+            ).event_id
         )
 
-        event_ids.append(res.event_id)
+    res = events_api.list_event_occurrences(token=token1, event_id=event_ids[-1], page_size=2)
+    assert [event.event_id for event in res.events] == event_ids[:2]
 
-        for i in range(5):
-            res = api.ScheduleEvent(
-                events_pb2.ScheduleEventReq(
-                    event_id=event_ids[-1],
-                    content=f"{i}th occurrence",
-                    location=events_pb2.EventLocation(
-                        address="Near Null Island",
-                        lat=0.1,
-                        lng=0.2,
-                    ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=2 + i)),
-                    end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=2.5 + i)),
-                )
-            )
+    res = events_api.list_event_occurrences(
+        token=token1, event_id=event_ids[-1], page_size=2, page_token=res.next_page_token
+    )
+    assert [event.event_id for event in res.events] == event_ids[2:4]
 
-            event_ids.append(res.event_id)
-
-        res = api.ListEventOccurrences(events_pb2.ListEventOccurrencesReq(event_id=event_ids[-1], page_size=2))
-        assert [event.event_id for event in res.events] == event_ids[:2]
-
-        res = api.ListEventOccurrences(
-            events_pb2.ListEventOccurrencesReq(event_id=event_ids[-1], page_size=2, page_token=res.next_page_token)
-        )
-        assert [event.event_id for event in res.events] == event_ids[2:4]
-
-        res = api.ListEventOccurrences(
-            events_pb2.ListEventOccurrencesReq(event_id=event_ids[-1], page_size=2, page_token=res.next_page_token)
-        )
-        assert [event.event_id for event in res.events] == event_ids[4:6]
-        assert not res.next_page_token
+    res = events_api.list_event_occurrences(
+        token=token1, event_id=event_ids[-1], page_size=2, page_token=res.next_page_token
+    )
+    assert [event.event_id for event in res.events] == event_ids[4:6]
+    assert not res.next_page_token
 
 
 def test_ListMyEvents(db, moderator: Moderator):
@@ -1559,174 +1199,128 @@ def test_ListMyEvents(db, moderator: Moderator):
 
     start = now()
 
-    def new_event(hours_from_now: int, community_id: int) -> events_pb2.CreateEventReq:
-        return events_pb2.CreateEventReq(
-            title="Dummy Title",
-            content="Dummy content.",
-            location=events_pb2.EventLocation(
-                address="Near Null Island",
-                lat=0.1,
-                lng=0.2,
-            ),
+    def new_event(token: str, hours_from_now: int, community_id: int) -> int:
+        return events_api.create_event(
+            token=token,
             parent_community_id=community_id,
-            start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=hours_from_now)),
-            end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=hours_from_now + 0.5)),
-        )
+            start_date_time=local_date_time(start + timedelta(hours=hours_from_now)),
+            end_date_time=local_date_time(start + timedelta(hours=hours_from_now + 0.5)),
+            approve_by=moderator,
+        ).event_id
 
-    with events_session(token1) as api:
-        e2 = api.CreateEvent(new_event(2, c_id)).event_id
+    e2 = new_event(token1, 2, c_id)
+    e1 = new_event(token2, 1, c_id)
+    e3 = new_event(token1, 3, c_id)
+    e5 = new_event(token2, 5, c_id)
+    e4 = new_event(token3, 4, c_id)
+    e6 = new_event(token4, 6, c2_id)
 
-    moderator.approve_event_occurrence(e2)
+    events_api.invite_event_organizer(token=token1, event_id=e3, user_id=user3.id)
 
-    with events_session(token2) as api:
-        e1 = api.CreateEvent(new_event(1, c_id)).event_id
+    events_api.set_event_attendance(token=token1, event_id=e1, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
+    events_api.set_event_subscription(token=token1, event_id=e4, subscribe=True)
+    events_api.set_event_attendance(token=token2, event_id=e3, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
+    events_api.set_event_subscription(token=token3, event_id=e2, subscribe=True)
 
-    moderator.approve_event_occurrence(e1)
+    # test pagination with token first
+    list_res = events_api.list_my_events(token=token1, page_size=2)
+    assert [event.event_id for event in list_res.events] == [e1, e2]
+    list_res = events_api.list_my_events(token=token1, page_size=2, page_token=list_res.next_page_token)
+    assert [event.event_id for event in list_res.events] == [e3, e4]
+    assert not list_res.next_page_token
 
-    with events_session(token1) as api:
-        e3 = api.CreateEvent(new_event(3, c_id)).event_id
+    listed_events = events_api.list_my_events(token=token1, subscribed=True, attending=True, organizing=True).events
+    assert [event.event_id for event in listed_events] == [e1, e2, e3, e4]
 
-    moderator.approve_event_occurrence(e3)
+    listed_events = events_api.list_my_events(token=token1).events
+    assert [event.event_id for event in listed_events] == [e1, e2, e3, e4]
 
-    with events_session(token2) as api:
-        e5 = api.CreateEvent(new_event(5, c_id)).event_id
+    listed_events = events_api.list_my_events(token=token1, subscribed=True).events
+    assert [event.event_id for event in listed_events] == [e2, e3, e4]
 
-    moderator.approve_event_occurrence(e5)
+    listed_events = events_api.list_my_events(token=token1, attending=True).events
+    assert [event.event_id for event in listed_events] == [e1, e2, e3]
 
-    with events_session(token3) as api:
-        e4 = api.CreateEvent(new_event(4, c_id)).event_id
+    listed_events = events_api.list_my_events(token=token1, organizing=True).events
+    assert [event.event_id for event in listed_events] == [e2, e3]
 
-    moderator.approve_event_occurrence(e4)
+    # Test pagination with page_number and verify total_items as user1
+    list_res = events_api.list_my_events(
+        token=token1, subscribed=True, attending=True, organizing=True, page_size=2, page_number=1
+    )
+    assert [event.event_id for event in list_res.events] == [e1, e2]
+    assert list_res.total_items == 4
 
-    with events_session(token4) as api:
-        e6 = api.CreateEvent(new_event(6, c2_id)).event_id
+    list_res = events_api.list_my_events(
+        token=token1, subscribed=True, attending=True, organizing=True, page_size=2, page_number=2
+    )
+    assert [event.event_id for event in list_res.events] == [e3, e4]
+    assert list_res.total_items == 4
 
-    moderator.approve_event_occurrence(e6)
+    # Verify no more pages
+    list_res = events_api.list_my_events(
+        token=token1, subscribed=True, attending=True, organizing=True, page_size=2, page_number=3
+    )
+    assert not list_res.events
+    assert list_res.total_items == 4
 
-    with events_session(token1) as api:
-        api.InviteEventOrganizer(events_pb2.InviteEventOrganizerReq(event_id=e3, user_id=user3.id))
+    # Verify as user2
+    listed_events = events_api.list_my_events(token=token2).events
+    assert [event.event_id for event in listed_events] == [e1, e3, e5]
 
-    with events_session(token1) as api:
-        api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(event_id=e1, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
-        )
-        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=e4, subscribe=True))
+    listed_events = events_api.list_my_events(token=token2, subscribed=True).events
+    assert [event.event_id for event in listed_events] == [e1, e5]
 
-    with events_session(token2) as api:
-        api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(event_id=e3, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
-        )
+    listed_events = events_api.list_my_events(token=token2, attending=True).events
+    assert [event.event_id for event in listed_events] == [e1, e3, e5]
 
-    with events_session(token3) as api:
-        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=e2, subscribe=True))
+    listed_events = events_api.list_my_events(token=token2, organizing=True).events
+    assert [event.event_id for event in listed_events] == [e1, e5]
 
-    with events_session(token1) as api:
-        # test pagination with token first
-        res = api.ListMyEvents(events_pb2.ListMyEventsReq(page_size=2))
-        assert [event.event_id for event in res.events] == [e1, e2]
-        res = api.ListMyEvents(events_pb2.ListMyEventsReq(page_size=2, page_token=res.next_page_token))
-        assert [event.event_id for event in res.events] == [e3, e4]
-        assert not res.next_page_token
+    # user3 is member of both global (c_id) and child (c2_id) communities
+    listed_events = events_api.list_my_events(token=token3).events
+    assert [event.event_id for event in listed_events] == [e1, e2, e3, e4, e5, e6]
 
-        res = api.ListMyEvents(
-            events_pb2.ListMyEventsReq(
-                subscribed=True,
-                attending=True,
-                organizing=True,
-            )
-        )
-        assert [event.event_id for event in res.events] == [e1, e2, e3, e4]
+    listed_events = events_api.list_my_events(token=token3, subscribed=True).events
+    assert [event.event_id for event in listed_events] == [e2, e4]
 
-        res = api.ListMyEvents(events_pb2.ListMyEventsReq())
-        assert [event.event_id for event in res.events] == [e1, e2, e3, e4]
+    listed_events = events_api.list_my_events(token=token3, attending=True).events
+    assert [event.event_id for event in listed_events] == [e4]
 
-        res = api.ListMyEvents(events_pb2.ListMyEventsReq(subscribed=True))
-        assert [event.event_id for event in res.events] == [e2, e3, e4]
+    listed_events = events_api.list_my_events(token=token3, organizing=True).events
+    assert [event.event_id for event in listed_events] == [e3, e4]
 
-        res = api.ListMyEvents(events_pb2.ListMyEventsReq(attending=True))
-        assert [event.event_id for event in res.events] == [e1, e2, e3]
+    # my_communities returns events from both communities user3 is a member of
+    listed_events = events_api.list_my_events(token=token3, my_communities=True).events
+    assert [event.event_id for event in listed_events] == [e1, e2, e3, e4, e5, e6]
 
-        res = api.ListMyEvents(events_pb2.ListMyEventsReq(organizing=True))
-        assert [event.event_id for event in res.events] == [e2, e3]
+    # my_communities_exclude_global filters out events from global community (node_id=1)
+    listed_events = events_api.list_my_events(
+        token=token3, my_communities=True, my_communities_exclude_global=True
+    ).events
+    assert [event.event_id for event in listed_events] == [e6]
 
-    with events_session(token1) as api:
-        # Test pagination with page_number and verify total_items
-        res = api.ListMyEvents(
-            events_pb2.ListMyEventsReq(page_size=2, page_number=1, subscribed=True, attending=True, organizing=True)
-        )
-        assert [event.event_id for event in res.events] == [e1, e2]
-        assert res.total_items == 4
+    # my_communities_exclude_global works independently of my_communities flag
+    listed_events = events_api.list_my_events(token=token3, my_communities_exclude_global=True).events
+    assert [event.event_id for event in listed_events] == [e6]
 
-        res = api.ListMyEvents(
-            events_pb2.ListMyEventsReq(page_size=2, page_number=2, subscribed=True, attending=True, organizing=True)
-        )
-        assert [event.event_id for event in res.events] == [e3, e4]
-        assert res.total_items == 4
+    # my_communities_exclude_global filters organizing results too
+    listed_events = events_api.list_my_events(token=token3, organizing=True, my_communities_exclude_global=True).events
+    assert [event.event_id for event in listed_events] == []
 
-        # Verify no more pages
-        res = api.ListMyEvents(
-            events_pb2.ListMyEventsReq(page_size=2, page_number=3, subscribed=True, attending=True, organizing=True)
-        )
-        assert not res.events
-        assert res.total_items == 4
+    # my_communities_exclude_global filters subscribed results too
+    listed_events = events_api.list_my_events(token=token3, subscribed=True, my_communities_exclude_global=True).events
+    assert [event.event_id for event in listed_events] == []
 
-    with events_session(token2) as api:
-        res = api.ListMyEvents(events_pb2.ListMyEventsReq())
-        assert [event.event_id for event in res.events] == [e1, e3, e5]
-
-        res = api.ListMyEvents(events_pb2.ListMyEventsReq(subscribed=True))
-        assert [event.event_id for event in res.events] == [e1, e5]
-
-        res = api.ListMyEvents(events_pb2.ListMyEventsReq(attending=True))
-        assert [event.event_id for event in res.events] == [e1, e3, e5]
-
-        res = api.ListMyEvents(events_pb2.ListMyEventsReq(organizing=True))
-        assert [event.event_id for event in res.events] == [e1, e5]
-
-    with events_session(token3) as api:
-        # user3 is member of both global (c_id) and child (c2_id) communities
-        res = api.ListMyEvents(events_pb2.ListMyEventsReq())
-        assert [event.event_id for event in res.events] == [e1, e2, e3, e4, e5, e6]
-
-        res = api.ListMyEvents(events_pb2.ListMyEventsReq(subscribed=True))
-        assert [event.event_id for event in res.events] == [e2, e4]
-
-        res = api.ListMyEvents(events_pb2.ListMyEventsReq(attending=True))
-        assert [event.event_id for event in res.events] == [e4]
-
-        res = api.ListMyEvents(events_pb2.ListMyEventsReq(organizing=True))
-        assert [event.event_id for event in res.events] == [e3, e4]
-
-        # my_communities returns events from both communities user3 is a member of
-        res = api.ListMyEvents(events_pb2.ListMyEventsReq(my_communities=True))
-        assert [event.event_id for event in res.events] == [e1, e2, e3, e4, e5, e6]
-
-        # my_communities_exclude_global filters out events from global community (node_id=1)
-        res = api.ListMyEvents(events_pb2.ListMyEventsReq(my_communities=True, my_communities_exclude_global=True))
-        assert [event.event_id for event in res.events] == [e6]
-
-        # my_communities_exclude_global works independently of my_communities flag
-        res = api.ListMyEvents(events_pb2.ListMyEventsReq(my_communities_exclude_global=True))
-        assert [event.event_id for event in res.events] == [e6]
-
-        # my_communities_exclude_global filters organizing results too
-        res = api.ListMyEvents(events_pb2.ListMyEventsReq(organizing=True, my_communities_exclude_global=True))
-        assert [event.event_id for event in res.events] == []
-
-        # my_communities_exclude_global filters subscribed results too
-        res = api.ListMyEvents(events_pb2.ListMyEventsReq(subscribed=True, my_communities_exclude_global=True))
-        assert [event.event_id for event in res.events] == []
-
-    with events_session(token5) as api:
-        res = api.ListAllEvents(events_pb2.ListAllEventsReq())
-        assert [event.event_id for event in res.events] == [e1, e2, e3, e4, e5, e6]
+    listed_events = events_api.list_all_events(token=token5).events
+    assert [event.event_id for event in listed_events] == [e1, e2, e3, e4, e5, e6]
 
 
-def _paginate_my_events(api, page_size: int) -> list[int]:
+def _paginate_my_events(token: str, page_size: int) -> list[int]:
     event_ids = []
     page_token = ""
     for _ in range(10):
-        res = api.ListMyEvents(events_pb2.ListMyEventsReq(page_size=page_size, page_token=page_token))
+        res = events_api.list_my_events(token=token, page_size=page_size, page_token=page_token)
         event_ids += [event.event_id for event in res.events]
         page_token = res.next_page_token
         if not page_token:
@@ -1742,33 +1336,21 @@ def test_ListMyEvents_pagination_overlapping_durations(db, moderator: Moderator)
 
     start = now()
 
-    def new_event(start_offset: timedelta, duration: timedelta) -> events_pb2.CreateEventReq:
-        return events_pb2.CreateEventReq(
-            title="Dummy Title",
-            content="Dummy content.",
-            location=events_pb2.EventLocation(
-                address="Near Null Island",
-                lat=0.1,
-                lng=0.2,
-            ),
+    def new_event(start_offset: timedelta, duration: timedelta) -> int:
+        return events_api.create_event(
+            token=token,
             parent_community_id=c_id,
-            start_datetime_iso8601_local=datetime_to_iso8601_local(start + start_offset),
-            end_datetime_iso8601_local=datetime_to_iso8601_local(start + start_offset + duration),
-        )
+            start_date_time=local_date_time(start + start_offset),
+            end_date_time=local_date_time(start + start_offset + duration),
+            approve_by=moderator,
+        ).event_id
 
-    with events_session(token) as api:
-        # a multi-day event overlapping all the short events below: it ends last but starts first,
-        # so an end time based cursor would repeat it on every page and skip the short events
-        long_event = api.CreateEvent(new_event(timedelta(hours=1), timedelta(days=3))).event_id
-        short_events = [
-            api.CreateEvent(new_event(timedelta(hours=2 + i), timedelta(hours=1))).event_id for i in range(4)
-        ]
+    # a multi-day event overlapping all the short events below: it ends last but starts first,
+    # so an end time based cursor would repeat it on every page and skip the short events
+    long_event = new_event(timedelta(hours=1), timedelta(days=3))
+    short_events = [new_event(timedelta(hours=2 + i), timedelta(hours=1)) for i in range(4)]
 
-    for event_id in [long_event, *short_events]:
-        moderator.approve_event_occurrence(event_id)
-
-    with events_session(token) as api:
-        assert _paginate_my_events(api, page_size=2) == [long_event, *short_events]
+    assert _paginate_my_events(token, page_size=2) == [long_event, *short_events]
 
 
 def test_ListMyEvents_pagination_identical_start_times(db, moderator: Moderator):
@@ -1779,30 +1361,18 @@ def test_ListMyEvents_pagination_identical_start_times(db, moderator: Moderator)
 
     start = now()
 
-    with events_session(token) as api:
-        event_ids = [
-            api.CreateEvent(
-                events_pb2.CreateEventReq(
-                    title="Dummy Title",
-                    content="Dummy content.",
-                    location=events_pb2.EventLocation(
-                        address="Near Null Island",
-                        lat=0.1,
-                        lng=0.2,
-                    ),
-                    parent_community_id=c_id,
-                    start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1)),
-                    end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=2)),
-                )
-            ).event_id
-            for _ in range(5)
-        ]
+    event_ids = [
+        events_api.create_event(
+            token=token,
+            parent_community_id=c_id,
+            start_date_time=local_date_time(start + timedelta(hours=1)),
+            end_date_time=local_date_time(start + timedelta(hours=2)),
+            approve_by=moderator,
+        ).event_id
+        for _ in range(5)
+    ]
 
-    for event_id in event_ids:
-        moderator.approve_event_occurrence(event_id)
-
-    with events_session(token) as api:
-        assert _paginate_my_events(api, page_size=2) == event_ids
+    assert _paginate_my_events(token, page_size=2) == event_ids
 
 
 def test_list_my_events_exclude_attending(db, moderator: Moderator):
@@ -1813,70 +1383,43 @@ def test_list_my_events_exclude_attending(db, moderator: Moderator):
         c = create_community(session, 0, 100, "Community", [user1, user2], [], None)
         c_id = c.id
 
-    start = now()
-
-    def make_event(hours):
-        return events_pb2.CreateEventReq(
-            title="Test Event",
-            content="Test content.",
-            location=events_pb2.EventLocation(
-                address="Near Null Island",
-                lat=0.1,
-                lng=0.2,
-            ),
-            parent_community_id=c_id,
-            start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=hours)),
-            end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=hours + 1)),
-        )
+    def make_event(token: str) -> int:
+        return events_api.create_event(token=token, parent_community_id=c_id, approve_by=moderator).event_id
 
     # user1 organizes e_own; user2 organizes e_attending and e_community_only
-    with events_session(token1) as api:
-        e_own = api.CreateEvent(make_event(1)).event_id
-
-    with events_session(token2) as api:
-        e_attending = api.CreateEvent(make_event(2)).event_id
-        e_community_only = api.CreateEvent(make_event(3)).event_id
-        # e_both: user1 will be both organizer and attendee
-        e_both = api.CreateEvent(make_event(4)).event_id
-
-    moderator.approve_event_occurrence(e_own)
-    moderator.approve_event_occurrence(e_attending)
-    moderator.approve_event_occurrence(e_community_only)
-    moderator.approve_event_occurrence(e_both)
+    e_own = make_event(token1)
+    e_attending = make_event(token2)
+    e_community_only = make_event(token2)
+    # e_both: user1 will be both organizer and attendee
+    e_both = make_event(token2)
 
     # invite user1 as organizer of e_both
-    with events_session(token2) as api:
-        api.InviteEventOrganizer(events_pb2.InviteEventOrganizerReq(event_id=e_both, user_id=user1.id))
+    events_api.invite_event_organizer(token=token2, event_id=e_both, user_id=user1.id)
 
     # user1 RSVPs to e_attending and e_both
-    with events_session(token1) as api:
-        api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(event_id=e_attending, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
-        )
-        api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(event_id=e_both, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
-        )
+    events_api.set_event_attendance(
+        token=token1, event_id=e_attending, attendance_state=events_pb2.ATTENDANCE_STATE_GOING
+    )
+    events_api.set_event_attendance(token=token1, event_id=e_both, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
 
-    with events_session(token1) as api:
-        # baseline: all four community events visible
-        res = api.ListMyEvents(events_pb2.ListMyEventsReq(my_communities=True))
-        assert {e.event_id for e in res.events} == {e_own, e_attending, e_community_only, e_both}
+    # baseline: all four community events visible
+    res = events_api.list_my_events(token=token1, my_communities=True)
+    assert {e.event_id for e in res.events} == {e_own, e_attending, e_community_only, e_both}
 
-        # exclude_attending removes events user1 is attending (e_attending, e_both)
-        # and events user1 is organizing (e_own, e_both) — leaving only e_community_only
-        res = api.ListMyEvents(events_pb2.ListMyEventsReq(my_communities=True, exclude_attending=True))
-        assert [e.event_id for e in res.events] == [e_community_only]
+    # exclude_attending removes events user1 is attending (e_attending, e_both)
+    # and events user1 is organizing (e_own, e_both) — leaving only e_community_only
+    res = events_api.list_my_events(token=token1, my_communities=True, exclude_attending=True)
+    assert [e.event_id for e in res.events] == [e_community_only]
 
-        # exclude_attending with attending=True: invalid combination
-        with pytest.raises(grpc.RpcError) as e:
-            api.ListMyEvents(events_pb2.ListMyEventsReq(attending=True, exclude_attending=True))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    # exclude_attending with attending=True: invalid combination
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.list_my_events(token=token1, attending=True, exclude_attending=True)
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
     # user2 has no attendance/organizing relationship with e_community_only, so exclude_attending has no effect on it
-    with events_session(token2) as api:
-        res = api.ListMyEvents(events_pb2.ListMyEventsReq(my_communities=True, exclude_attending=True))
-        # user2 organizes e_attending, e_community_only, e_both — all excluded except e_own (user2 has no relation)
-        assert [e.event_id for e in res.events] == [e_own]
+    res = events_api.list_my_events(token=token2, my_communities=True, exclude_attending=True)
+    # user2 organizes e_attending, e_community_only, e_both — all excluded except e_own (user2 has no relation)
+    assert [e.event_id for e in res.events] == [e_own]
 
 
 def test_RemoveEventOrganizer(db, moderator: Moderator):
@@ -1886,87 +1429,61 @@ def test_RemoveEventOrganizer(db, moderator: Moderator):
     with session_scope() as session:
         c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
 
-    with events_session(token1) as api:
-        event_id = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
-            )
-        ).event_id
+    event_id = events_api.create_event(token=token1, approve_by=moderator).event_id
 
-    moderator.approve_event_occurrence(event_id)
+    assert not events_api.get_event(token=token2, event_id=event_id).organizer
 
-    with events_session(token2) as api:
-        assert not api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).organizer
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.remove_event_organizer(token=token2, event_id=event_id)
+    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+    assert e.value.details() == "You're not allowed to edit that event."
 
-        with pytest.raises(grpc.RpcError) as e:
-            api.RemoveEventOrganizer(events_pb2.RemoveEventOrganizerReq(event_id=event_id))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You're not allowed to edit that event."
+    assert not events_api.get_event(token=token2, event_id=event_id).organizer
 
-        assert not api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).organizer
+    events_api.invite_event_organizer(token=token1, event_id=event_id, user_id=user2.id)
 
-    with events_session(token1) as api:
-        api.InviteEventOrganizer(events_pb2.InviteEventOrganizerReq(event_id=event_id, user_id=user2.id))
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.remove_event_organizer(token=token1, event_id=event_id)
+    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+    assert e.value.details() == "You cannot remove the event owner as an organizer."
 
-        with pytest.raises(grpc.RpcError) as e:
-            api.RemoveEventOrganizer(events_pb2.RemoveEventOrganizerReq(event_id=event_id))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You cannot remove the event owner as an organizer."
+    res = events_api.get_event(token=token2, event_id=event_id)
+    assert res.organizer
+    assert res.organizer_count == 2
 
-    with events_session(token2) as api:
-        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
-        assert res.organizer
-        assert res.organizer_count == 2
-        api.RemoveEventOrganizer(events_pb2.RemoveEventOrganizerReq(event_id=event_id))
-        assert not api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).organizer
+    events_api.remove_event_organizer(token=token2, event_id=event_id)
+    assert not events_api.get_event(token=token2, event_id=event_id).organizer
 
-        with pytest.raises(grpc.RpcError) as e:
-            api.RemoveEventOrganizer(events_pb2.RemoveEventOrganizerReq(event_id=event_id))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You're not allowed to edit that event."
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.remove_event_organizer(token=token2, event_id=event_id)
+    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+    assert e.value.details() == "You're not allowed to edit that event."
 
-        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
-        assert not res.organizer
-        assert res.organizer_count == 1
+    res = events_api.get_event(token=token2, event_id=event_id)
+    assert not res.organizer
+    assert res.organizer_count == 1
 
     # Test that event owner can remove co-organizers
-    with events_session(token1) as api:
-        # Add user2 back as organizer
-        api.InviteEventOrganizer(events_pb2.InviteEventOrganizerReq(event_id=event_id, user_id=user2.id))
 
-        # Verify user2 is now an organizer
-        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
-        assert res.organizer_count == 2
+    # Add user2 back as organizer and verify
+    events_api.invite_event_organizer(token=token1, event_id=event_id, user_id=user2.id)
+    res = events_api.get_event(token=token1, event_id=event_id)
+    assert res.organizer_count == 2
 
-        # Event owner can remove co-organizer
-        api.RemoveEventOrganizer(
-            events_pb2.RemoveEventOrganizerReq(event_id=event_id, user_id=wrappers_pb2.Int64Value(value=user2.id))
-        )
-
-        # Verify user2 is no longer an organizer
-        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
-        assert res.organizer_count == 1
+    # Event owner can remove co-organizer
+    events_api.remove_event_organizer(token=token1, event_id=event_id, user_id=user2.id)
+    res = events_api.get_event(token=token1, event_id=event_id)
+    assert res.organizer_count == 1
 
     # Test that non-organizers cannot remove other organizers
-    with events_session(token2) as api:
-        # User2 cannot invite themselves as organizer (not the owner)
-        with pytest.raises(grpc.RpcError) as e:
-            api.InviteEventOrganizer(events_pb2.InviteEventOrganizerReq(event_id=event_id, user_id=user2.id))
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == "You're not allowed to edit that event."
+    # User2 cannot invite themselves as organizer (not the owner)
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.invite_event_organizer(token=token2, event_id=event_id, user_id=user2.id)
+    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+    assert e.value.details() == "You're not allowed to edit that event."
 
     # Test that non-organizers cannot remove other organizers (user1 adds user2 back first)
-    with events_session(token1) as api:
-        # Add user2 back as organizer
-        api.InviteEventOrganizer(events_pb2.InviteEventOrganizerReq(event_id=event_id, user_id=user2.id))
+    events_api.invite_event_organizer(token=token1, event_id=event_id, user_id=user2.id)
 
 
 def test_ListEventAttendees_regression(db):
@@ -1984,52 +1501,21 @@ def test_ListEventAttendees_regression(db):
     # `ListEventAttendees` returns another user's ID. This ID seems to be determined from the row's auto increment ID in `event_occurrence_attendees` in the database
 
     user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    user3, token3 = generate_user()
-    user4, token4 = generate_user()
-    user5, token5 = generate_user()
 
     with session_scope() as session:
         c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
 
-    start_time = now() + timedelta(hours=2)
-    end_time = start_time + timedelta(hours=3)
+    event_id = events_api.create_event(token=token1, parent_community_id=c_id).event_id
+    event_id = events_api.transfer_event(token=token1, event_id=event_id, new_owner_community_id=c_id).event_id
 
-    with events_session(token1) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                parent_community_id=c_id,
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
+    events_api.set_event_attendance(
+        token=token1, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_NOT_GOING
+    )
+    events_api.set_event_attendance(token=token1, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
 
-        res = api.TransferEvent(
-            events_pb2.TransferEventReq(
-                event_id=res.event_id,
-                new_owner_community_id=c_id,
-            )
-        )
-
-        event_id = res.event_id
-
-        api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_NOT_GOING)
-        )
-        api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
-        )
-
-        res = api.ListEventAttendees(events_pb2.ListEventAttendeesReq(event_id=event_id))
-        assert len(res.attendee_user_ids) == 1
-        assert res.attendee_user_ids[0] == user1.id
+    attendee_user_ids = events_api.list_event_attendees(token=token1, event_id=event_id).attendee_user_ids
+    assert len(attendee_user_ids) == 1
+    assert attendee_user_ids[0] == user1.id
 
 
 def test_GetEventCalendarFile(db, moderator: Moderator):
@@ -2042,48 +1528,43 @@ def test_GetEventCalendarFile(db, moderator: Moderator):
     start_time = now() + timedelta(hours=2)
     end_time = start_time + timedelta(hours=3)
 
-    with events_session(token1) as api:
-        created_event: events_pb2.Event = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                parent_community_id=c_id,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
-        event_id = created_event.event_id
+    event_id = events_api.create_event(
+        token=token1,
+        parent_community_id=c_id,
+        title="Dummy Title",
+        content="Dummy content.",
+        location=events_pb2.EventLocation(
+            address="Near Null Island",
+            lat=0.1,
+            lng=0.2,
+        ),
+        start_date_time=local_date_time(start_time),
+        end_date_time=local_date_time(end_time),
+        approve_by=moderator,
+    ).event_id
 
-    moderator.approve_event_occurrence(event_id)
+    file_res = events_api.get_event_calendar_file(token=token1, event_id=event_id)
+    assert file_res.content_type == "text/calendar"
+    ics_string = file_res.data.decode("utf-8")
+    assert "SUMMARY:Dummy Title" in ics_string
+    assert "DESCRIPTION:Dummy content." in ics_string
+    assert "LOCATION:Near Null Island" in ics_string
+    assert "STATUS:CANCELLED" not in ics_string
+    pre_cancel_match = re.search(r"SEQUENCE:(\d+)", ics_string)
+    assert pre_cancel_match is not None
+    pre_cancel_sequence = int(pre_cancel_match.group(1))
 
-    with events_session(token1) as api:
-        file_res = api.GetEventCalendarFile(events_pb2.GetEventCalendarFileReq(event_id=event_id))
-        assert file_res.content_type == "text/calendar"
-        ics_string = file_res.data.decode("utf-8")
-        assert "SUMMARY:Dummy Title" in ics_string
-        assert "DESCRIPTION:Dummy content." in ics_string
-        assert "LOCATION:Near Null Island" in ics_string
-        assert "STATUS:CANCELLED" not in ics_string
-        pre_cancel_match = re.search(r"SEQUENCE:(\d+)", ics_string)
-        assert pre_cancel_match is not None
-        pre_cancel_sequence = int(pre_cancel_match.group(1))
+    events_api.cancel_event(token=token1, event_id=event_id)
 
-        api.CancelEvent(events_pb2.CancelEventReq(event_id=event_id))
-
-        file_res = api.GetEventCalendarFile(events_pb2.GetEventCalendarFileReq(event_id=event_id))
-        ics_string = file_res.data.decode("utf-8")
-        assert "SUMMARY:Cancelled: Dummy Title" in ics_string
-        assert "STATUS:CANCELLED" in ics_string
-        post_cancel_match = re.search(r"SEQUENCE:(\d+)", ics_string)
-        assert post_cancel_match is not None
-        post_cancel_sequence = int(post_cancel_match.group(1))
-        # Ideally the sequence number are strictly ascending, but they are based on timestamps so in tests they could be equal.
-        assert post_cancel_sequence >= pre_cancel_sequence
+    file_res = events_api.get_event_calendar_file(token=token1, event_id=event_id)
+    ics_string = file_res.data.decode("utf-8")
+    assert "SUMMARY:Cancelled: Dummy Title" in ics_string
+    assert "STATUS:CANCELLED" in ics_string
+    post_cancel_match = re.search(r"SEQUENCE:(\d+)", ics_string)
+    assert post_cancel_match is not None
+    post_cancel_sequence = int(post_cancel_match.group(1))
+    # Ideally the sequence number are strictly ascending, but they are based on timestamps so in tests they could be equal.
+    assert post_cancel_sequence >= pre_cancel_sequence
 
 
 def test_event_threads(db, push_collector: PushCollector, moderator: Moderator):
@@ -2099,31 +1580,18 @@ def test_event_threads(db, push_collector: PushCollector, moderator: Moderator):
         h_id = h.id
         user4_id = user4.id
 
-    with events_session(token1) as api:
-        event = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=2)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=5)),
-            )
-        )
-
-    moderator.approve_event_occurrence(event.event_id)
+    event = events_api.create_event(
+        token=token1,
+        approve_by=moderator,
+    )
 
     with threads_session(token2) as api:
         reply_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=event.thread.thread_id, content="hi")).thread_id
 
     moderator.approve_thread_post(reply_id)
 
-    with events_session(token3) as api:
-        res = api.GetEvent(events_pb2.GetEventReq(event_id=event.event_id))
-        assert res.thread.num_responses == 1
+    res = events_api.get_event(token=token3, event_id=event.event_id)
+    assert res.thread.num_responses == 1
 
     with threads_session(token3) as api:
         ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=res.thread.thread_id))
@@ -2164,53 +1632,35 @@ def test_can_overlap_other_events_schedule_regression(db):
 
     start = now()
 
-    with events_session(token) as api:
-        # create another event, should be able to overlap with this one
-        api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                parent_community_id=c_id,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=5)),
-            )
-        )
+    # create another event, should be able to overlap with this one
+    events_api.create_event(
+        token=token,
+        parent_community_id=c_id,
+        start_date_time=local_date_time(start + timedelta(hours=1)),
+        end_date_time=local_date_time(start + timedelta(hours=5)),
+    )
 
-        # this event
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                parent_community_id=c_id,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=2)),
-            )
-        )
+    # this event
+    res = events_api.create_event(
+        token=token,
+        parent_community_id=c_id,
+        start_date_time=local_date_time(start + timedelta(hours=1)),
+        end_date_time=local_date_time(start + timedelta(hours=2)),
+    )
 
-        # this doesn't overlap with the just created event, but does overlap with the occurrence from earlier; which should be no problem
-        api.ScheduleEvent(
-            events_pb2.ScheduleEventReq(
-                event_id=res.event_id,
-                content="New event occurrence",
-                location=events_pb2.EventLocation(
-                    address="A bit further but still near Null Island",
-                    lat=0.3,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=3)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=6)),
-            )
-        )
+    # this doesn't overlap with the just created event, but does overlap with the occurrence from earlier; which should be no problem
+    events_api.schedule_event(
+        token=token,
+        event_id=res.event_id,
+        content="New event occurrence",
+        location=events_pb2.EventLocation(
+            address="A bit further but still near Null Island",
+            lat=0.3,
+            lng=0.2,
+        ),
+        start_date_time=local_date_time(start + timedelta(hours=3)),
+        end_date_time=local_date_time(start + timedelta(hours=6)),
+    )
 
 
 def test_can_overlap_other_events_update_regression(db):
@@ -2221,76 +1671,48 @@ def test_can_overlap_other_events_update_regression(db):
 
     start = now()
 
-    with events_session(token) as api:
-        # create another event, should be able to overlap with this one
-        api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                parent_community_id=c_id,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=3)),
-            )
-        )
+    # create another event, should be able to overlap with this one
+    events_api.create_event(
+        token=token,
+        parent_community_id=c_id,
+        start_date_time=local_date_time(start + timedelta(hours=1)),
+        end_date_time=local_date_time(start + timedelta(hours=3)),
+    )
 
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                parent_community_id=c_id,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=7)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=8)),
-            )
-        )
+    res = events_api.create_event(
+        token=token,
+        parent_community_id=c_id,
+        start_date_time=local_date_time(start + timedelta(hours=7)),
+        end_date_time=local_date_time(start + timedelta(hours=8)),
+    )
 
-        event_id = api.ScheduleEvent(
-            events_pb2.ScheduleEventReq(
-                event_id=res.event_id,
-                content="New event occurrence",
-                location=events_pb2.EventLocation(
-                    address="A bit further but still near Null Island",
-                    lat=0.3,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=4)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=6)),
-            )
-        ).event_id
+    event_id = events_api.schedule_event(
+        token=token,
+        event_id=res.event_id,
+        content="New event occurrence",
+        location=events_pb2.EventLocation(
+            address="A bit further but still near Null Island",
+            lat=0.3,
+            lng=0.2,
+        ),
+        start_date_time=local_date_time(start + timedelta(hours=4)),
+        end_date_time=local_date_time(start + timedelta(hours=6)),
+    ).event_id
 
-        # can overlap with this current existing occurrence
-        api.UpdateEvent(
-            events_pb2.UpdateEventReq(
-                event_id=event_id,
-                start_datetime_iso8601_local=wrappers_pb2.StringValue(
-                    value=datetime_to_iso8601_local(start + timedelta(hours=5))
-                ),
-                end_datetime_iso8601_local=wrappers_pb2.StringValue(
-                    value=datetime_to_iso8601_local(start + timedelta(hours=6))
-                ),
-            )
-        )
+    # can overlap with this current existing occurrence
+    events_api.update_event(
+        token=token,
+        event_id=event_id,
+        start_date_time=local_date_time(start + timedelta(hours=5)),
+        end_date_time=local_date_time(start + timedelta(hours=6)),
+    )
 
-        api.UpdateEvent(
-            events_pb2.UpdateEventReq(
-                event_id=event_id,
-                start_datetime_iso8601_local=wrappers_pb2.StringValue(
-                    value=datetime_to_iso8601_local(start + timedelta(hours=2))
-                ),
-                end_datetime_iso8601_local=wrappers_pb2.StringValue(
-                    value=datetime_to_iso8601_local(start + timedelta(hours=4))
-                ),
-            )
-        )
+    events_api.update_event(
+        token=token,
+        event_id=event_id,
+        start_date_time=local_date_time(start + timedelta(hours=2)),
+        end_date_time=local_date_time(start + timedelta(hours=4)),
+    )
 
 
 def test_list_past_events_regression(db):
@@ -2302,21 +1724,12 @@ def test_list_past_events_regression(db):
 
     start = now()
 
-    with events_session(token) as api:
-        api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                parent_community_id=c_id,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=3)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=4)),
-            )
-        )
+    events_api.create_event(
+        token=token,
+        parent_community_id=c_id,
+        start_date_time=local_date_time(start + timedelta(hours=3)),
+        end_date_time=local_date_time(start + timedelta(hours=4)),
+    )
 
     with session_scope() as session:
         session.execute(
@@ -2325,9 +1738,8 @@ def test_list_past_events_regression(db):
             )
         )
 
-    with events_session(token) as api:
-        res = api.ListAllEvents(events_pb2.ListAllEventsReq(past=True))
-        assert len(res.events) == 1
+    res = events_api.list_all_events(token=token, past=True)
+    assert len(res.events) == 1
 
 
 def test_community_invite_requests(db, email_collector: EmailCollector, moderator: Moderator):
@@ -2345,52 +1757,46 @@ def test_community_invite_requests(db, email_collector: EmailCollector, moderato
 
     enforce_community_memberships()
 
-    with events_session(token1) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                parent_community_id=c_id,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=3)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=4)),
-            )
-        )
-        user_url = f"http://localhost:3000/user/{user1.username}"
-        event_url = f"http://localhost:3000/event/{res.event_id}/{res.slug}"
+    res = events_api.create_event(token=token1, parent_community_id=c_id, approve_by=moderator)
 
-        event_id = res.event_id
+    user_url = f"http://localhost:3000/user/{user1.username}"
+    event_url = f"http://localhost:3000/event/{res.event_id}/{res.slug}"
 
-    moderator.approve_event_occurrence(event_id)
+    event_id = res.event_id
+    assert res.community_invite_requested is False
 
-    with events_session(token1) as api:
-        api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
+    res = events_api.get_event(token=token1, event_id=event_id)
+    assert res.community_invite_requested is False
 
-        email = email_collector.pop_for_mods(last=True)
+    events_api.request_community_invite(token=token1, event_id=event_id)
+    res = events_api.get_event(token=token1, event_id=event_id)
+    assert res.community_invite_requested is True
 
-        assert user_url in email.plain
-        assert event_url in email.plain
+    email = email_collector.pop_for_mods(last=True)
+    assert user_url in email.plain
+    assert event_url in email.plain
 
-        # can't send another req
-        with pytest.raises(grpc.RpcError) as err:
-            api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
-        assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert err.value.details() == "You have already requested a community invite for this event."
+    # can't send another req
+    with pytest.raises(grpc.RpcError) as err:
+        events_api.request_community_invite(token=token1, event_id=event_id)
+    assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+    assert err.value.details() == "You have already requested a community invite for this event."
 
     # another user can send one though
-    with events_session(token3) as api:
-        api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
+    # api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
+    res = events_api.get_event(token=token3, event_id=event_id)
+    assert res.community_invite_requested is False
+
+    events_api.request_community_invite(token=token3, event_id=event_id)
+
+    res = events_api.get_event(token=token3, event_id=event_id)
+    assert res.community_invite_requested is True
 
     # but not a non-admin
-    with events_session(token2) as api:
-        with pytest.raises(grpc.RpcError) as err:
-            api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
-        assert err.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert err.value.details() == "You're not allowed to edit that event."
+    with pytest.raises(grpc.RpcError) as err:
+        events_api.request_community_invite(token=token2, event_id=event_id)
+    assert err.value.code() == grpc.StatusCode.PERMISSION_DENIED
+    assert err.value.details() == "You're not allowed to edit that event."
 
     with real_editor_session(token5) as editor:
         res = editor.ListEventCommunityInviteRequests(editor_pb2.ListEventCommunityInviteRequestsReq())
@@ -2415,12 +1821,16 @@ def test_community_invite_requests(db, email_collector: EmailCollector, moderato
             )
         )
 
+    # Once a request is approved, the event still reports that a
+    # community invite has been requested.
+    res = events_api.get_event(token=token1, event_id=event_id)
+    assert res.community_invite_requested is True
+
     # not after approve
-    with events_session(token4) as api:
-        with pytest.raises(grpc.RpcError) as err:
-            api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
-        assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert err.value.details() == "A community invite has already been sent out for this event."
+    with pytest.raises(grpc.RpcError) as err:
+        events_api.request_community_invite(token=token4, event_id=event_id)
+    assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+    assert err.value.details() == "A community invite has already been sent out for this event."
 
 
 def test_list_decided_community_invite_requests(db, moderator: Moderator):
@@ -2438,24 +1848,13 @@ def test_list_decided_community_invite_requests(db, moderator: Moderator):
     enforce_community_memberships()
 
     def create_event_and_request_invite(token: str, title: str) -> str:
-        with events_session(token) as api:
-            res = api.CreateEvent(
-                events_pb2.CreateEventReq(
-                    title=title,
-                    content="Dummy content.",
-                    parent_community_id=c_id,
-                    location=events_pb2.EventLocation(
-                        address="Near Null Island",
-                        lat=0.1,
-                        lng=0.2,
-                    ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=3)),
-                    end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=4)),
-                )
-            )
-        moderator.approve_event_occurrence(res.event_id)
-        with events_session(token) as api:
-            api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=res.event_id))
+        res = events_api.create_event(
+            token=token,
+            title=title,
+            parent_community_id=c_id,
+            approve_by=moderator,
+        )
+        events_api.request_community_invite(token=token, event_id=res.event_id)
         return f"http://localhost:3000/event/{res.event_id}/{res.slug}"
 
     event1_url = create_event_and_request_invite(token1, "Approved Event")
@@ -2550,32 +1949,18 @@ def test_community_invite_not_sent_to_attendees_or_organizers(db, moderator: Mod
 
     enforce_community_memberships()
 
-    with events_session(organizer_token) as api:
-        event_id = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                parent_community_id=c_id,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=3)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=4)),
-            )
-        ).event_id
-
-    moderator.approve_event_occurrence(event_id)
+    event_id = events_api.create_event(
+        token=organizer_token,
+        parent_community_id=c_id,
+        approve_by=moderator,
+    ).event_id
 
     # the attendee RSVPs before the community invite is approved
-    with events_session(attendee_token) as api:
-        api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
-        )
+    events_api.set_event_attendance(
+        token=attendee_token, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING
+    )
 
-    with events_session(organizer_token) as api:
-        api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
+    events_api.request_community_invite(token=organizer_token, event_id=event_id)
 
     with real_editor_session(superuser_token) as editor:
         res = editor.ListEventCommunityInviteRequests(editor_pb2.ListEventCommunityInviteRequestsReq())
@@ -2609,23 +1994,14 @@ def test_update_event_should_notify_queues_job():
         c_id = create_community(session, 0, 2, "Community", [user], [], None).id
 
     # create an event
-    with events_session(token) as api:
-        create_res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                parent_community_id=c_id,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=1.0,
-                    lng=2.0,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=3)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=6)),
-            )
-        )
+    create_res = events_api.create_event(
+        token=token,
+        parent_community_id=c_id,
+        start_date_time=local_date_time(start + timedelta(hours=3)),
+        end_date_time=local_date_time(start + timedelta(hours=6)),
+    )
 
-        event_id = create_res.event_id
+    event_id = create_res.event_id
 
     # measure initial background job queue length
     with session_scope() as session:
@@ -2633,14 +2009,8 @@ def test_update_event_should_notify_queues_job():
         job_length_before_update = len(jobs)
 
     # update with should_notify=False, expect no change in background job queue
-    api.UpdateEvent(
-        events_pb2.UpdateEventReq(
-            event_id=event_id,
-            start_datetime_iso8601_local=wrappers_pb2.StringValue(
-                value=datetime_to_iso8601_local(start + timedelta(hours=4))
-            ),
-            should_notify=False,
-        )
+    events_api.update_event(
+        token=token, event_id=event_id, start_date_time=local_date_time(start + timedelta(hours=4)), should_notify=False
     )
 
     with session_scope() as session:
@@ -2648,14 +2018,8 @@ def test_update_event_should_notify_queues_job():
         assert len(jobs) == job_length_before_update
 
     # update with should_notify=True, expect one new background job added
-    api.UpdateEvent(
-        events_pb2.UpdateEventReq(
-            event_id=event_id,
-            start_datetime_iso8601_local=wrappers_pb2.StringValue(
-                value=datetime_to_iso8601_local(start + timedelta(hours=5))
-            ),
-            should_notify=True,
-        )
+    events_api.update_event(
+        token=token, event_id=event_id, start_date_time=local_date_time(start + timedelta(hours=5)), should_notify=True
     )
 
     with session_scope() as session:
@@ -2667,9 +2031,6 @@ def test_event_photo_key(db):
     """Test that events return the photo_key field when a photo is set."""
     user, token = generate_user()
 
-    start_time = now() + timedelta(hours=2)
-    end_time = start_time + timedelta(hours=3)
-
     # Create a community and an upload for the event photo
     with session_scope() as session:
         create_community(session, 0, 2, "Community", [user], [], None)
@@ -2680,51 +2041,26 @@ def test_event_photo_key(db):
         )
         session.add(upload)
 
-    with events_session(token) as api:
-        # Create event without photo
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Event Without Photo",
-                content="No photo content.",
-                photo_key=None,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
+    # Create event without photo
+    res = events_api.create_event(token=token)
+    assert res.photo_key == ""
+    assert res.photo_url == ""
 
-        assert res.photo_key == ""
-        assert res.photo_url == ""
+    # Create event with photo
+    res_with_photo = events_api.create_event(
+        token=token,
+        photo_key="test_event_photo_key_123",
+    )
 
-        # Create event with photo
-        res_with_photo = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Event With Photo",
-                content="Has photo content.",
-                photo_key="test_event_photo_key_123",
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time + timedelta(days=1)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time + timedelta(days=1)),
-            )
-        )
+    assert res_with_photo.photo_key == "test_event_photo_key_123"
+    assert "test_event_photo_key_123" in res_with_photo.photo_url
 
-        assert res_with_photo.photo_key == "test_event_photo_key_123"
-        assert "test_event_photo_key_123" in res_with_photo.photo_url
+    event_id = res_with_photo.event_id
 
-        event_id = res_with_photo.event_id
-
-        # Verify photo_key is returned when getting the event
-        get_res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
-        assert get_res.photo_key == "test_event_photo_key_123"
-        assert "test_event_photo_key_123" in get_res.photo_url
+    # Verify photo_key is returned when getting the event
+    get_res = events_api.get_event(token=token, event_id=event_id)
+    assert get_res.photo_key == "test_event_photo_key_123"
+    assert "test_event_photo_key_123" in get_res.photo_url
 
 
 def test_event_timezone(db):
@@ -2737,53 +2073,40 @@ def test_event_timezone(db):
     start_time = (now() + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
     end_time = start_time + timedelta(days=1)
 
-    with events_session(token) as api:
-        create_res: events_pb2.Event = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                photo_key=None,
-                parent_community_id=c_id,
-                # timezone_areas.sql-fake has a region for Europe/Helsinki
-                location=events_pb2.EventLocation(address="Helsinki", lat=60.192059, lng=24.945831),
-                # Should result in YYYY-MM-DDT00:00 (midnight local time)
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
+    create_res = events_api.create_event(
+        token=token,
+        parent_community_id=c_id,
+        location=events_api.EVENT_LOCATION_HELSINKI,
+        # Should result in YYYY-MM-DDT00:00 (midnight local time)
+        start_date_time=local_date_time(start_time),
+        end_date_time=local_date_time(end_time),
+    )
 
-        # Backend should have deduced the helsinki timezone when creating the event,
-        # so the datetime in Helsinki should be at midnight, but it shouldn't in UTC.
-        assert create_res.timezone == "Europe/Helsinki"
-        assert to_aware_datetime(create_res.start_time).hour != 0
-        assert create_res.start_time.ToDatetime(tzinfo=ZoneInfo("Europe/Helsinki")).hour == 0
+    # Backend should have deduced the helsinki timezone when creating the event,
+    # so the datetime in Helsinki should be at midnight, but it shouldn't in UTC.
+    assert create_res.timezone == "Europe/Helsinki"
+    assert to_aware_datetime(create_res.start_time).hour != 0
+    assert create_res.start_time.ToDatetime(tzinfo=ZoneInfo("Europe/Helsinki")).hour == 0
 
-        # Now update its location such that it gets a new timezone
-        update_res: events_pb2.Event = api.UpdateEvent(
-            events_pb2.UpdateEventReq(
-                event_id=create_res.event_id,
-                # timezone_areas.sql-fake has a region for America/New_York
-                location=events_pb2.EventLocation(address="New York", lat=40.712776, lng=-74.005974),
-            )
-        )
+    # Now update its location such that it gets a new timezone
+    update_res = events_api.update_event(
+        token=token,
+        event_id=create_res.event_id,
+        location=events_api.EVENT_LOCATION_NEW_YORK,
+    )
 
-        # The user didn't touch the datetime components on the frontend,
-        # so they expect the event to be at the same local time (midnight),
-        # but now in the New York timezone.
-        assert update_res.timezone == "America/New_York"
-        assert update_res.start_time != create_res.start_time
-        assert update_res.start_time.ToDatetime(tzinfo=ZoneInfo("Europe/Helsinki")).hour != 0
-        assert update_res.start_time.ToDatetime(tzinfo=ZoneInfo("America/New_York")).hour == 0
+    # The user didn't touch the datetime components on the frontend,
+    # so they expect the event to be at the same local time (midnight),
+    # but now in the New York timezone.
+    assert update_res.timezone == "America/New_York"
+    assert update_res.start_time != create_res.start_time
+    assert update_res.start_time.ToDatetime(tzinfo=ZoneInfo("Europe/Helsinki")).hour != 0
+    assert update_res.start_time.ToDatetime(tzinfo=ZoneInfo("America/New_York")).hour == 0
 
-        # Also validate GetEvent
-        get_res: events_pb2.Event = api.GetEvent(
-            events_pb2.GetEventReq(
-                event_id=create_res.event_id,
-            )
-        )
-
-        assert get_res.timezone == update_res.timezone
-        assert get_res.start_time == update_res.start_time
+    # Also validate GetEvent
+    get_res = events_api.get_event(token=token, event_id=create_res.event_id)
+    assert get_res.timezone == update_res.timezone
+    assert get_res.start_time == update_res.start_time
 
 
 def test_event_created_with_shadowed_visibility(db):
@@ -2793,24 +2116,7 @@ def test_event_created_with_shadowed_visibility(db):
     with session_scope() as session:
         create_community(session, 0, 2, "Community", [user], [], None)
 
-    start_time = now() + timedelta(hours=2)
-    end_time = start_time + timedelta(hours=3)
-
-    with events_session(token) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Test UMS Event",
-                content="UMS content.",
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
-        event_id = res.event_id
+    event_id = events_api.create_event(token=token).event_id
 
     with session_scope() as session:
         occurrence = session.execute(select(EventOccurrence).where(EventOccurrence.id == event_id)).scalar_one()
@@ -2828,35 +2134,16 @@ def test_shadowed_event_visible_to_creator_only(db):
     with session_scope() as session:
         create_community(session, 0, 2, "Community", [user1], [], None)
 
-    start_time = now() + timedelta(hours=2)
-    end_time = start_time + timedelta(hours=3)
-
-    with events_session(token1) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Shadowed Event",
-                content="Content.",
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
-        event_id = res.event_id
+    event_id = events_api.create_event(token=token1, title="Shadowed Event").event_id
 
     # Creator can see it
-    with events_session(token1) as api:
-        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
-        assert res.title == "Shadowed Event"
+    res = events_api.get_event(token=token1, event_id=event_id)
+    assert res.title == "Shadowed Event"
 
     # Other user cannot
-    with events_session(token2) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.get_event(token=token2, event_id=event_id)
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_event_visible_after_approval(db, moderator: Moderator):
@@ -2867,38 +2154,19 @@ def test_event_visible_after_approval(db, moderator: Moderator):
     with session_scope() as session:
         create_community(session, 0, 2, "Community", [user1], [], None)
 
-    start_time = now() + timedelta(hours=2)
-    end_time = start_time + timedelta(hours=3)
-
-    with events_session(token1) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Approved Event",
-                content="Content.",
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
-        event_id = res.event_id
+    event_id = events_api.create_event(token=token1, title="Approved Event").event_id
 
     # Other user cannot see it yet
-    with events_session(token2) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.get_event(token=token2, event_id=event_id)
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
     # Approve the event
     moderator.approve_event_occurrence(event_id)
 
     # Now other user can see it
-    with events_session(token2) as api:
-        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
-        assert res.title == "Approved Event"
+    res = events_api.get_event(token=token2, event_id=event_id)
+    assert res.title == "Approved Event"
 
 
 def test_shadowed_event_hidden_from_list_for_non_creator(db, moderator: Moderator):
@@ -2909,44 +2177,26 @@ def test_shadowed_event_hidden_from_list_for_non_creator(db, moderator: Moderato
     with session_scope() as session:
         create_community(session, 0, 2, "Community", [user1], [], None)
 
-    start_time = now() + timedelta(hours=2)
-    end_time = start_time + timedelta(hours=3)
+    res = events_api.create_event(token=token1)
 
-    with events_session(token1) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="List Test Event",
-                content="Content.",
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
-        event_id = res.event_id
+    event_id = res.event_id
 
     # Creator can see their own SHADOWED event in lists
-    with events_session(token1) as api:
-        list_res = api.ListAllEvents(events_pb2.ListAllEventsReq())
-        event_ids = [e.event_id for e in list_res.events]
-        assert event_id in event_ids
+    list_res = events_api.list_all_events(token=token1)
+    event_ids = [e.event_id for e in list_res.events]
+    assert event_id in event_ids
 
     # Other user cannot see the SHADOWED event in lists
-    with events_session(token2) as api:
-        list_res = api.ListAllEvents(events_pb2.ListAllEventsReq())
-        event_ids = [e.event_id for e in list_res.events]
-        assert event_id not in event_ids
+    list_res = events_api.list_all_events(token=token2)
+    event_ids = [e.event_id for e in list_res.events]
+    assert event_id not in event_ids
 
     # After approval, other user can see it
     moderator.approve_event_occurrence(event_id)
 
-    with events_session(token2) as api:
-        list_res = api.ListAllEvents(events_pb2.ListAllEventsReq())
-        event_ids = [e.event_id for e in list_res.events]
-        assert event_id in event_ids
+    list_res = events_api.list_all_events(token=token2)
+    event_ids = [e.event_id for e in list_res.events]
+    assert event_id in event_ids
 
 
 def test_event_create_notification_deferred_until_approval(db, push_collector: PushCollector, moderator: Moderator):
@@ -2961,24 +2211,7 @@ def test_event_create_notification_deferred_until_approval(db, push_collector: P
         region = create_community(session, 0, 5, "Region", [user1], [], macroregion)
         create_community(session, 0, 2, "Child", [user2], [], region)
 
-    start_time = now() + timedelta(hours=2)
-    end_time = start_time + timedelta(hours=3)
-
-    with events_session(token1) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Deferred Event",
-                content="Content.",
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
-        event_id = res.event_id
+    event_id = events_api.create_event(token=token1).event_id
 
     # Process all jobs — notification should be deferred (event is SHADOWED)
     process_jobs()
@@ -3014,44 +2247,18 @@ def test_event_update_notification_has_moderation_state(db, push_collector: Push
     with session_scope() as session:
         c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
 
-    start_time = now() + timedelta(hours=2)
-    end_time = start_time + timedelta(hours=3)
+    event_id = events_api.create_event(token=token1, title="Update Test", approve_by=moderator).event_id
 
-    with events_session(token1) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Update Test",
-                content="Content.",
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
-        event_id = res.event_id
-
-    moderator.approve_event_occurrence(event_id)
     process_jobs()
     # Clear any create notifications
     while push_collector.count_for_user(user2.id):
         push_collector.pop_for_user(user2.id)
 
     # User2 subscribes to the event
-    with events_session(token2) as api:
-        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
+    events_api.set_event_subscription(token=token2, event_id=event_id, subscribe=True)
 
     # User1 updates the event with should_notify=True
-    with events_session(token1) as api:
-        api.UpdateEvent(
-            events_pb2.UpdateEventReq(
-                event_id=event_id,
-                title=wrappers_pb2.StringValue(value="Updated Title"),
-                should_notify=True,
-            )
-        )
+    events_api.update_event(token=token1, event_id=event_id, title="Updated Title", should_notify=True)
 
     process_jobs()
 
@@ -3074,37 +2281,17 @@ def test_event_cancel_notification_has_moderation_state(db, push_collector: Push
     with session_scope() as session:
         c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
 
-    start_time = now() + timedelta(hours=2)
-    end_time = start_time + timedelta(hours=3)
+    event_id = events_api.create_event(token=token1, approve_by=moderator).event_id
 
-    with events_session(token1) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Cancel Test",
-                content="Content.",
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
-        event_id = res.event_id
-
-    moderator.approve_event_occurrence(event_id)
     process_jobs()
     while push_collector.count_for_user(user2.id):
         push_collector.pop_for_user(user2.id)
 
     # User2 subscribes
-    with events_session(token2) as api:
-        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
+    events_api.set_event_subscription(token=token2, event_id=event_id, subscribe=True)
 
     # User1 cancels the event
-    with events_session(token1) as api:
-        api.CancelEvent(events_pb2.CancelEventReq(event_id=event_id))
+    events_api.cancel_event(token=token1, event_id=event_id)
 
     process_jobs()
 
@@ -3128,42 +2315,16 @@ def test_event_update_and_cancel_notifications_not_sent_to_actor(
     with session_scope() as session:
         create_community(session, 0, 2, "Community", [attendee_user], [], None)
 
-    start_time = now() + timedelta(hours=2)
-    end_time = start_time + timedelta(hours=3)
+    event_id = events_api.create_event(token=organizer_token, title="Actor Test", approve_by=moderator).event_id
 
-    with events_session(organizer_token) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Actor Test",
-                content="Content.",
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
-        event_id = res.event_id
-
-    moderator.approve_event_occurrence(event_id)
     process_jobs()
 
     # The attendee subscribes to notifications
-    with events_session(attendee_token) as api:
-        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
+    events_api.set_event_subscription(token=attendee_token, event_id=event_id, subscribe=True)
 
     # The organizer updates and then cancels their own event
-    with events_session(organizer_token) as api:
-        api.UpdateEvent(
-            events_pb2.UpdateEventReq(
-                event_id=event_id,
-                title=wrappers_pb2.StringValue(value="Updated Title"),
-                should_notify=True,
-            )
-        )
-        api.CancelEvent(events_pb2.CancelEventReq(event_id=event_id))
+    events_api.update_event(token=organizer_token, event_id=event_id, title="Updated Title", should_notify=True)
+    events_api.cancel_event(token=organizer_token, event_id=event_id)
 
     process_jobs()
 
@@ -3187,32 +2348,20 @@ def test_event_reminder_notification_has_moderation_state(db, push_collector: Pu
     start_time = now() + timedelta(hours=23)
     end_time = start_time + timedelta(hours=1)
 
-    with events_session(token1) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Reminder Test",
-                content="Content.",
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
-        event_id = res.event_id
+    res = events_api.create_event(
+        token=token1,
+        start_date_time=local_date_time(start_time),
+        end_date_time=local_date_time(end_time),
+        approve_by=moderator,
+    )
 
-    moderator.approve_event_occurrence(event_id)
+    event_id = res.event_id
     process_jobs()
     while push_collector.count_for_user(user2.id):
         push_collector.pop_for_user(user2.id)
 
     # User2 marks attendance
-    with events_session(token2) as api:
-        api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
-        )
+    events_api.set_event_attendance(token=token2, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
 
     # Run the event reminder handler
     send_event_reminders(empty_pb2.Empty())
@@ -3240,34 +2389,20 @@ def test_event_reminder_not_sent_for_cancelled_event(db, push_collector: PushCol
     start_time = now() + timedelta(hours=23)
     end_time = start_time + timedelta(hours=1)
 
-    with events_session(token1) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Cancelled Reminder Test",
-                content="Content.",
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
-        event_id = res.event_id
+    event_id = events_api.create_event(
+        token=token1,
+        start_date_time=local_date_time(start_time),
+        end_date_time=local_date_time(end_time),
+        approve_by=moderator,
+    ).event_id
 
-    moderator.approve_event_occurrence(event_id)
     process_jobs()
 
     # User2 marks attendance
-    with events_session(token2) as api:
-        api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
-        )
+    events_api.set_event_attendance(token=token2, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
 
     # User1 cancels the event
-    with events_session(token1) as api:
-        api.CancelEvent(events_pb2.CancelEventReq(event_id=event_id))
+    events_api.cancel_event(token=token1, event_id=event_id)
 
     process_jobs()
     # Drain any cancellation-related notifications so we can cleanly assert on reminders
@@ -3298,29 +2433,16 @@ def test_event_reminder_not_sent_for_invisible_attendee(
     start_time = now() + timedelta(hours=23)
     end_time = start_time + timedelta(hours=1)
 
-    with events_session(token1) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Invisible Attendee Reminder Test",
-                content="Content.",
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
-        event_id = res.event_id
+    event_id = events_api.create_event(
+        token=token1,
+        start_date_time=local_date_time(start_time),
+        end_date_time=local_date_time(end_time),
+        approve_by=moderator,
+    ).event_id
 
-    moderator.approve_event_occurrence(event_id)
     process_jobs()
 
-    with events_session(token2) as api:
-        api.SetEventAttendance(
-            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
-        )
+    events_api.set_event_attendance(token=token2, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
 
     with session_scope() as session:
         session.execute(update(User).where(User.id == user2.id).values({invisible_field: now()}))
@@ -3345,86 +2467,61 @@ def test_ListEventOccurrences_does_not_leak_other_events(db, moderator: Moderato
     start = now()
 
     # User1 creates event A with 3 occurrences
-    event_a_ids = []
-    with events_session(token1) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Event A",
-                content="Content A.",
-                parent_community_id=c_id,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=1.5)),
-            )
+    event_a_ids = [
+        events_api.create_event(
+            token=token1,
+            title="Event A",
+            content="Content A.",
+            parent_community_id=c_id,
+            start_date_time=local_date_time(start + timedelta(hours=1)),
+            end_date_time=local_date_time(start + timedelta(hours=1.5)),
+            approve_by=moderator,
+        ).event_id
+    ]
+
+    for i in range(2):
+        event_a_ids.append(
+            events_api.schedule_event(
+                token=token1,
+                event_id=event_a_ids[-1],
+                content=f"A occurrence {i}",
+                start_date_time=local_date_time(start + timedelta(hours=2 + i)),
+                end_date_time=local_date_time(start + timedelta(hours=2.5 + i)),
+            ).event_id
         )
-        event_a_ids.append(res.event_id)
-        for i in range(2):
-            res = api.ScheduleEvent(
-                events_pb2.ScheduleEventReq(
-                    event_id=event_a_ids[-1],
-                    content=f"A occurrence {i}",
-                    location=events_pb2.EventLocation(
-                        address="Near Null Island",
-                        lat=0.1,
-                        lng=0.2,
-                    ),
-                    start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=2 + i)),
-                    end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=2.5 + i)),
-                )
-            )
-            event_a_ids.append(res.event_id)
 
     # User2 creates event B with 2 occurrences
-    event_b_ids = []
-    with events_session(token2) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Event B",
-                content="Content B.",
-                parent_community_id=c_id,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=10)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=10.5)),
-            )
-        )
-        event_b_ids.append(res.event_id)
-        res = api.ScheduleEvent(
-            events_pb2.ScheduleEventReq(
-                event_id=event_b_ids[-1],
-                content="B occurrence 1",
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=11)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(start + timedelta(hours=11.5)),
-            )
-        )
-        event_b_ids.append(res.event_id)
+    event_b_ids = [
+        events_api.create_event(
+            token=token2,
+            title="Event B",
+            content="Content B.",
+            parent_community_id=c_id,
+            start_date_time=local_date_time(start + timedelta(hours=10)),
+            end_date_time=local_date_time(start + timedelta(hours=10.5)),
+            approve_by=moderator,
+        ).event_id
+    ]
 
-    moderator.approve_event_occurrence(event_a_ids[0])
-    moderator.approve_event_occurrence(event_b_ids[0])
+    event_b_ids.append(
+        events_api.schedule_event(
+            token=token2,
+            event_id=event_b_ids[-1],
+            content="B occurrence 1",
+            start_date_time=local_date_time(start + timedelta(hours=11)),
+            end_date_time=local_date_time(start + timedelta(hours=11.5)),
+        ).event_id
+    )
 
     # List occurrences for event A — should only get event A's 3 occurrences
-    with events_session(token1) as api:
-        res = api.ListEventOccurrences(events_pb2.ListEventOccurrencesReq(event_id=event_a_ids[-1]))
-        returned_ids = [e.event_id for e in res.events]
-        assert sorted(returned_ids) == sorted(event_a_ids)
+    listed_occurrences = events_api.list_event_occurrences(token=token1, event_id=event_a_ids[-1]).events
+    returned_ids = [e.event_id for e in listed_occurrences]
+    assert sorted(returned_ids) == sorted(event_a_ids)
 
     # List occurrences for event B — should only get event B's 2 occurrences
-    with events_session(token2) as api:
-        res = api.ListEventOccurrences(events_pb2.ListEventOccurrencesReq(event_id=event_b_ids[-1]))
-        returned_ids = [e.event_id for e in res.events]
-        assert sorted(returned_ids) == sorted(event_b_ids)
+    listed_occurrences = events_api.list_event_occurrences(token=token2, event_id=event_b_ids[-1]).events
+    returned_ids = [e.event_id for e in listed_occurrences]
+    assert sorted(returned_ids) == sorted(event_b_ids)
 
 
 def test_event_comment_notification_has_moderation_state(db, push_collector: PushCollector, moderator: Moderator):
@@ -3435,35 +2532,16 @@ def test_event_comment_notification_has_moderation_state(db, push_collector: Pus
     with session_scope() as session:
         c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
 
-    start_time = now() + timedelta(hours=2)
-    end_time = start_time + timedelta(hours=3)
+    res = events_api.create_event(token=token1, parent_community_id=c_id, approve_by=moderator)
+    event_id = res.event_id
+    thread_id = res.thread.thread_id
 
-    with events_session(token1) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Comment Test",
-                content="Content.",
-                parent_community_id=c_id,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
-        event_id = res.event_id
-        thread_id = res.thread.thread_id
-
-    moderator.approve_event_occurrence(event_id)
     process_jobs()
     while push_collector.count_for_user(user1.id):
         push_collector.pop_for_user(user1.id)
 
     # User1 subscribes (creator is auto-subscribed, but let's be explicit)
-    with events_session(token1) as api:
-        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
+    events_api.set_event_subscription(token=token1, event_id=event_id, subscribe=True)
 
     # User2 posts a top-level comment on the event thread
     with threads_session(token2) as api:
@@ -3493,27 +2571,10 @@ def test_event_thread_reply_notification_has_moderation_state(db, push_collector
     with session_scope() as session:
         c_id = create_community(session, 0, 2, "Community", [user2, user3], [], None).id
 
-    start_time = now() + timedelta(hours=2)
-    end_time = start_time + timedelta(hours=3)
+    res = events_api.create_event(token=token1, approve_by=moderator)
+    event_id = res.event_id
+    thread_id = res.thread.thread_id
 
-    with events_session(token1) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Reply Test",
-                content="Content.",
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
-        event_id = res.event_id
-        thread_id = res.thread.thread_id
-
-    moderator.approve_event_occurrence(event_id)
     process_jobs()
     while push_collector.count_for_user(user1.id):
         push_collector.pop_for_user(user1.id)

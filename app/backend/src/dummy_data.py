@@ -6,6 +6,7 @@ from typing import Any, cast
 
 from dateutil import parser
 from sqlalchemy import select
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
@@ -34,11 +35,13 @@ from couchers.models import (
     PageType,
     PageVersion,
     PhotoGallery,
+    PhotoGalleryItem,
     Reference,
     ReferenceType,
     RegionLived,
     RegionVisited,
     Thread,
+    Upload,
     User,
     Volunteer,
 )
@@ -54,6 +57,50 @@ logger = logging.getLogger(__name__)
 SRC_DIR = os.path.dirname(__file__)
 
 
+def _add_dummy_user(session: Session, user: Any) -> User:
+    new_user: User | None = None
+
+    def create_user(moderation_state_id: int) -> int:
+        nonlocal new_user
+        new_user = User(
+            username=user["username"],
+            email=user["email"],
+            hashed_password=hash_password(f"{user['name']}'s password"),
+            name=user["name"],
+            city=user["location"]["city"],
+            geom=create_coordinate(user["location"]["lat"], user["location"]["lng"]),
+            geom_radius=user["location"]["radius"],
+            community_standing=user["community_standing"],
+            birthdate=date(
+                year=user["birthdate"]["year"], month=user["birthdate"]["month"], day=user["birthdate"]["day"]
+            ),
+            gender=user["gender"],
+            occupation=user["occupation"],
+            about_me=user["about_me"],
+            about_place=user["about_place"],
+            hosting_status=hostingstatus2sql[  # type: ignore[arg-type]
+                HostingStatus.Value(user["hosting_status"] if "hosting_status" in user else "HOSTING_STATUS_CANT_HOST")
+            ],
+            accepted_tos=TOS_VERSION,
+            moderation_state_id=moderation_state_id,
+        )
+        new_user.accepted_community_guidelines = GUIDELINES_VERSION
+        new_user.is_superuser = user.get("is_superuser", False)
+        new_user.is_editor = user.get("is_editor", user.get("is_superuser", False))
+
+        session.add(new_user)
+        session.flush()
+        return new_user.id
+
+    create_moderation(
+        session=session,
+        object_type=ModerationObjectType.user,
+        object_id=create_user,
+    )
+    assert new_user is not None
+    return new_user
+
+
 def add_dummy_users() -> None:
     logger.info("Adding dummy users")
     with session_scope() as session:
@@ -65,41 +112,29 @@ def add_dummy_users() -> None:
             data = json.loads(f.read())
 
         for user in data["users"]:
-            new_user = User(
-                username=user["username"],
-                email=user["email"],
-                hashed_password=hash_password(f"{user['name']}'s password"),
-                name=user["name"],
-                city=user["location"]["city"],
-                geom=create_coordinate(user["location"]["lat"], user["location"]["lng"]),
-                geom_radius=user["location"]["radius"],
-                community_standing=user["community_standing"],
-                birthdate=date(
-                    year=user["birthdate"]["year"], month=user["birthdate"]["month"], day=user["birthdate"]["day"]
-                ),
-                gender=user["gender"],
-                occupation=user["occupation"],
-                about_me=user["about_me"],
-                about_place=user["about_place"],
-                hosting_status=hostingstatus2sql[  # type: ignore[arg-type]
-                    HostingStatus.Value(
-                        user["hosting_status"] if "hosting_status" in user else "HOSTING_STATUS_CANT_HOST"
-                    )
-                ],
-                accepted_tos=TOS_VERSION,
-            )
-            new_user.accepted_community_guidelines = GUIDELINES_VERSION
-            new_user.is_superuser = user.get("is_superuser", False)
-            new_user.is_editor = user.get("is_editor", user.get("is_superuser", False))
-
-            session.add(new_user)
-            session.flush()
+            new_user = _add_dummy_user(session, user)
 
             # Create profile gallery for the user (same as in signup flow)
             profile_gallery = PhotoGallery(owner_user_id=new_user.id)
             session.add(profile_gallery)
             session.flush()
             new_user.profile_gallery_id = profile_gallery.id
+
+            avatar_key = f"dummy-{new_user.username}-avatar"
+            session.add(
+                Upload(
+                    key=avatar_key,
+                    filename=user["avatar_filename"],
+                    creator_user_id=new_user.id,
+                )
+            )
+            session.add(
+                PhotoGalleryItem(
+                    gallery_id=profile_gallery.id,
+                    upload_key=avatar_key,
+                    position=0,
+                )
+            )
 
             for language in user["languages"]:
                 session.add(

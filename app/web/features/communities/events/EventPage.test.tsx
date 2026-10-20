@@ -157,6 +157,118 @@ describe("Event page", () => {
     await waitFor(() => expect(mockRouter.push).toHaveBeenCalledWith("/events"));
   });
 
+  it("shows the 'add to calendar' item for a non-cancelled event", async () => {
+    renderEventPage();
+
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await user.click(await screen.findByTestId("event-page-more-options"));
+
+    expect(
+      await screen.findByRole("menuitem", {
+        name: t("communities:add_to_calendar"),
+      }),
+    ).toBeVisible();
+  });
+
+  it("hides the 'add to calendar' item for cancelled events", async () => {
+    getEventMock.mockResolvedValue({ ...firstEvent, isCancelled: true });
+    renderEventPage();
+
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await user.click(await screen.findByTestId("event-page-more-options"));
+
+    expect(
+      screen.queryByRole("menuitem", {
+        name: t("communities:add_to_calendar"),
+      }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("downloads a calendar file with the event's filename when 'add to calendar' is clicked", async () => {
+    const mockBlob = new Blob(["BEGIN:VCALENDAR"]);
+    global.fetch = jest.fn().mockResolvedValue({ ok: true, blob: jest.fn().mockResolvedValue(mockBlob) });
+    jest.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock-url");
+    URL.revokeObjectURL = jest.fn();
+
+    renderEventPage();
+
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await user.click(await screen.findByTestId("event-page-more-options"));
+
+    const clickSpy = jest.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (
+      this: HTMLAnchorElement,
+    ) {
+      expect(this.href).toBe("blob:mock-url");
+      expect(this.download).toBe(`${firstEvent.slug}.ics`);
+    });
+
+    await user.click(
+      await screen.findByRole("menuitem", {
+        name: t("communities:add_to_calendar"),
+      }),
+    );
+
+    expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining(`/events/${firstEvent.eventId}/calendar`), {
+      credentials: "include",
+    });
+    expect(clickSpy).toHaveBeenCalledTimes(1);
+  });
+
+  describe("in the native app", () => {
+    const postMessage = jest.fn();
+
+    function mockNativeApp(capabilities: string[]) {
+      window.ReactNativeWebView = {
+        injectedObjectJson: () => JSON.stringify({ isNativeEmbed: true, capabilities }),
+        postMessage,
+      };
+    }
+
+    afterEach(() => {
+      delete window.ReactNativeWebView;
+    });
+
+    it("hides the 'add to calendar' item when the app can't add to calendar", async () => {
+      mockNativeApp([]);
+      renderEventPage();
+
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+      await user.click(await screen.findByTestId("event-page-more-options"));
+
+      expect(
+        screen.queryByRole("menuitem", {
+          name: t("communities:add_to_calendar"),
+        }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("asks the app to add the event to the calendar", async () => {
+      mockNativeApp(["addToCalendar"]);
+      renderEventPage();
+
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+      await user.click(await screen.findByTestId("event-page-more-options"));
+      await user.click(
+        await screen.findByRole("menuitem", {
+          name: t("communities:add_to_calendar"),
+        }),
+      );
+
+      expect(JSON.parse(postMessage.mock.calls[0][0])).toEqual({
+        type: "REQUEST_ADD_TO_CALENDAR",
+        data: {
+          title: firstEvent.title,
+          startDate: "2021-06-29T02:37:00Z",
+          endDate: "2021-06-29T03:37:00Z",
+          timeZone: firstEvent.timezone,
+          location: firstEvent.location.address,
+          url: `${window.location.origin}/event/1/weekly-meetup`,
+          notes: `Be there or be square!\n\n${window.location.origin}/event/1/weekly-meetup`,
+        },
+      });
+    });
+  });
+
   it("shows the 'edit event' button if the user has edit permission", async () => {
     getEventMock.mockResolvedValue({ ...firstEvent, canEdit: true });
     renderEventPage();

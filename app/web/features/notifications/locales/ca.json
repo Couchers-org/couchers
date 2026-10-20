@@ -16,8 +16,12 @@
         "friend_request": "Sol·licituds d'amistat",
         "host_request": "Sol·licituds d'allotjament",
         "reference": "Referències",
-        "discussion": "Discussions",
+        "discussion": "Debats",
         "reply": "Respostes"
+      },
+      "channels": {
+        "email_label": "Correu electrònic",
+        "push_label": "Notificacions push"
       }
     },
     "title": "Configuració de notificacions",
@@ -59,5 +63,9 @@
   "error_updating_notifications": "Error en actualitzar les notificacions",
   "mark_unread": "Marca com a no llegit",
   "mark_all_read": "Marca-ho tot com a llegit",
-  "no_new_notifications": "No hi ha notificacions noves"
+  "no_new_notifications": "No hi ha notificacions noves",
+  "notifications_filters": {
+    "all_button": "Totes",
+    "unread_button": "No llegides"
+  }
 }

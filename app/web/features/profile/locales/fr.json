@@ -140,7 +140,7 @@
     "regions_lived": "Régions où j'ai habité",
     "languages_spoken": "Langues que je maîtrise",
     "meetup_status": "Statut de se réunir",
-    "hosting_status": "Statut d'acceuil",
+    "hosting_status": "Statut d'hébergement",
     "pronouns": "Pronoms d'usage",
     "name": "Prénom",
     "hometown": "Grandi.e à/en",
@@ -272,7 +272,7 @@
   "hosting_status": {
     "can_host_description": "J'aimerais héberger les membres",
     "maybe_host_description": "Je pourrais héberger, selon les circonstances",
-    "cannot_host_description": "Je ne peur pas héberger de voyageurs en ce moment"
+    "cannot_host_description": "Je ne peux pas héberger de voyageurs en ce moment"
   },
   "search_indicator": "Le début de cette section est visible dans les résultats de recherche lorsque d'autres membres vous cherchent",
   "meetup_status": {

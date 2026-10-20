@@ -98,7 +98,7 @@ const getCurrentSubscription = async () => {
 export const checkPushEnabled = async () => {
   // Return false if service workers or push notifications aren't supported
   // (e.g., in mobile WebViews, Safari private browsing, etc.)
-  if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+  if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
     return false;
   }
 
@@ -109,7 +109,7 @@ export const checkPushEnabled = async () => {
 export const turnPushNotificationsOn = async (
   setShouldPromptAllow: (on: boolean) => void,
 ): Promise<PushNotificationPermissionResponse> => {
-  if (Notification.permission !== "denied") {
+  if ("Notification" in window && Notification.permission !== "denied") {
     setShouldPromptAllow(true);
     const result = await Notification.requestPermission();
     setShouldPromptAllow(false);
@@ -140,8 +140,9 @@ export const useMarkAllNotificationsSeen = () => {
   const { error, mutate, isPending } = useMutation({
     mutationFn: async ({ latestNotificationId }: { latestNotificationId: number }) =>
       await service.notifications.markAllNotificationsSeen(latestNotificationId),
-    onMutate: () => {
-      queryClient.cancelQueries({
+    onMutate: async () => {
+      // Awaited so an in-flight refetch can't land after the optimistic write.
+      await queryClient.cancelQueries({
         queryKey: [listNotificationsQueryKey],
       });
 
@@ -166,12 +167,6 @@ export const useMarkAllNotificationsSeen = () => {
         },
       );
     },
-    onSuccess: () => {
-      // Invalidate the ping query to update the notification badge count
-      queryClient.invalidateQueries({
-        queryKey: [pingQueryKey],
-      });
-    },
     onError: (error) => {
       Sentry.captureException(error, {
         tags: {
@@ -179,6 +174,11 @@ export const useMarkAllNotificationsSeen = () => {
           action: "onMutate",
         },
       });
+    },
+    onSettled: () => {
+      // Runs on failure too, reverting the optimistic write; ping carries the unread count.
+      queryClient.invalidateQueries({ queryKey: [listNotificationsQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [pingQueryKey] });
     },
   });
 
@@ -191,8 +191,9 @@ export const useMarkSingleNotificationIsSeen = () => {
   const { error, mutate, isPending } = useMutation({
     mutationFn: async ({ notificationId, isSeen }: { notificationId: number; isSeen: boolean }) =>
       await service.notifications.markNotificationSeen(notificationId, isSeen),
-    onMutate: ({ notificationId, isSeen }) => {
-      queryClient.cancelQueries({
+    onMutate: async ({ notificationId, isSeen }) => {
+      // Awaited so an in-flight refetch can't land after the optimistic write.
+      await queryClient.cancelQueries({
         queryKey: [listNotificationsQueryKey],
       });
 
@@ -223,6 +224,11 @@ export const useMarkSingleNotificationIsSeen = () => {
           action: "onMutate",
         },
       });
+    },
+    onSettled: () => {
+      // Runs on failure too, reverting the optimistic write; ping carries the unread count.
+      queryClient.invalidateQueries({ queryKey: [listNotificationsQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [pingQueryKey] });
     },
   });
 

@@ -36,7 +36,6 @@
   "comment_deleted": "Tento komentář byl smazán.",
   "edit_comment": "Upravit komentář",
   "delete_comment": "Smazat komentář",
-  "comment_edited_date": "Upraveno {{timeAgo}}",
   "select_sub_community": "Vybrat komunitu",
   "sub_community_search_placeholder": "Poloha",
   "select_locality": "Vybrat město",
@@ -44,7 +43,6 @@
   "select_subregion": "Vybrat oblast",
   "select_region": "Zvolit zemi",
   "select_macroregion": "Vybrat oblast",
-  "discussion_edited_date": "Upraveno {{timeAgo}}",
   "discussion_deleted": "Tato diskuse byla smazána.",
   "delete_discussion": "Smazat diskuzi",
   "delete_discussion_dialog": {
@@ -61,7 +59,6 @@
   "edit_event": "Upravit událost",
   "edit_info_page_title": "Upravit místní informace",
   "error_loading_community": "Chyba při načítání komunity.",
-  "finished": "Dokončeno",
   "community_info_page_title": "Obecné informace",
   "invalid_community_id": "Neplatné ID komunity.",
   "join_community": "Připojit se ke komunitě",
@@ -73,7 +70,6 @@
   "local_info_title": "O {{name}}",
   "new_discussion_title": "Název diskuse",
   "new_discussion_topic": "Téma diskuze",
-  "new_post_label": "Nový příspěvek",
   "no_comments": "V této diskuzi momentálně nejsou žádné komentáře.",
   "no_moderators": "Momentálně zde nejsou žádní tvůrci komunity.",
   "my_communities": "Moje komunity",
@@ -152,5 +148,6 @@
   "report_discussion_button_a11y": "Nahlásit tuto diskuzi",
   "report_event_button_a11y": "Nahlásit tuto událost",
   "event_image_input_alt": "Vložiť obrázek události",
-  "community_image_input_alt": "Vložení obrázku komunity"
+  "community_image_input_alt": "Vložení obrázku komunity",
+  "new_discussion_button": "Nová diskuse"
 }

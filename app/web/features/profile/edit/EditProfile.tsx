@@ -27,9 +27,9 @@ import { howToMakeGreatProfileUrl, settingsRoute } from "routes";
 import { UpdateUserProfileData } from "service/index";
 import isGrpcError from "service/utils/isGrpcError";
 import { theme } from "theme";
-import { useIsMounted, useSafeState, useUnsavedChangesWarning } from "utils/hooks";
+import { useUnsavedChangesWarning } from "utils/hooks";
 import { useIsNativeEmbed } from "utils/nativeLink";
-import { nameMaxLength, nameMinLength, nameValidationPattern, profileAboutMeMinLength } from "utils/validation";
+import { nameMaxLength, nameMinLength, profileAboutMeMinLength, validateNameChars } from "utils/validation";
 
 import StatusCardGroup from "./StatusCard";
 
@@ -225,8 +225,7 @@ export default function EditProfileForm() {
     error: updateMutationError,
   } = useUpdateUserProfile();
   const { data: user } = useCurrentUser();
-  const isMounted = useIsMounted();
-  const [errorMessage, setErrorMessage] = useSafeState<string | null>(isMounted, null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showIncompleteProfileDialog, setShowIncompleteProfileDialog] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const galleryEditorRef = useRef<HTMLDivElement>(null);
@@ -459,10 +458,8 @@ export default function EditProfileForm() {
                       value: nameMaxLength,
                       message: t("auth:basic_form.name.max_length_error"),
                     },
-                    pattern: {
-                      value: nameValidationPattern,
-                      message: t("auth:basic_form.name.invalid_characters_error"),
-                    },
+                    validate: (value: string) =>
+                      validateNameChars(value) || t("auth:basic_form.name.invalid_characters_error"),
                   })}
                   label={t("profile:edit_profile_headings.name")}
                   defaultValue={user.name}

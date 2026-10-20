@@ -76,7 +76,9 @@ def process_job() -> bool:
 
         job_def = JOBS[job.job_type]
 
-        jobs_queued_histogram.labels(str(job.priority)).observe((now() - job.queued).total_seconds())
+        jobs_queued_histogram.labels(str(job.priority)).observe(
+            max((now() - job.next_attempt_after).total_seconds(), 0.0)
+        )
         try:
             with tracer.start_as_current_span(job.job_type) as rollspan:
                 start = perf_counter_ns()
@@ -89,18 +91,17 @@ def process_job() -> bool:
             logger.info(f"Job #{job.id} complete on try number {job.try_count}")
         except Exception as e:
             finished = perf_counter_ns()
-            # not sentry_sdk.set_tag: that writes to the thread's isolation scope, where the tags stick to
-            # every later report from this thread. logger.exception is in here so its event is tagged too
-            with sentry_sdk.new_scope() as scope:
-                scope.set_tag("context", "job")
-                scope.set_tag("job", job.job_type)
-                logger.exception(e)
-                sentry_sdk.capture_exception(e)
+            logger.exception(e)
 
             if job.try_count >= job.max_tries:
                 # if we already tried max_tries times, it's permanently failed
                 job.state = BackgroundJobState.failed
                 logger.info(f"Job #{job.id} failed on try number {job.try_count}")
+                # a new scope keeps these tags on this report only, not on every later one from this thread
+                with sentry_sdk.new_scope() as scope:
+                    scope.set_tag("context", "job")
+                    scope.set_tag("job", job.job_type)
+                    sentry_sdk.capture_exception(e)
             else:
                 job.state = BackgroundJobState.error
                 # exponential backoff

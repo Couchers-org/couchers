@@ -7,7 +7,14 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import GroupChatSendField from "features/messages/groupchats/GroupChatSendField";
 import useMarkLastSeen, { MarkLastSeenVariables } from "features/messages/useMarkLastSeen";
 import { groupChatTitleText } from "features/messages/utils";
-import { groupChatKey, groupChatMessagesKey, groupChatsListKey, pingQueryKey } from "features/queryKeys";
+import {
+  groupChatKey,
+  groupChatMessagesKey,
+  groupChatsListKey,
+  listNotificationsQueryKey,
+  messageThreadsListKey,
+  pingQueryKey,
+} from "features/queryKeys";
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
@@ -50,11 +57,11 @@ const StyledPageWrapper = styled("div")<{
         // Use dvh (dynamic viewport height) which adjusts for mobile keyboard
         // Use CSS custom property set by Navigation component for actual height
         height: isNativeEmbed
-          ? "calc(100dvh - var(--nav-height, 3.5rem))"
-          : `calc(100dvh - var(--nav-height, 3.5rem) - ${BOTTOM_NAV_BASE_HEIGHT}px - env(safe-area-inset-bottom, 0px))`,
+          ? "calc(100dvh - var(--nav-height, 3.5rem) - var(--cookie-banner-height, 0px))"
+          : `calc(100dvh - var(--nav-height, 3.5rem) - ${BOTTOM_NAV_BASE_HEIGHT}px - env(safe-area-inset-bottom, 0px) - var(--cookie-banner-height, 0px))`,
 
         [theme.breakpoints.up("md")]: {
-          height: "calc(100dvh - var(--nav-height, 4rem))",
+          height: "calc(100dvh - var(--nav-height, 4rem) - var(--cookie-banner-height, 0px))",
         },
       }),
 }));
@@ -116,7 +123,8 @@ export default function GroupChatView({ chatId, embedded = false }: { chatId: nu
     mutationFn: (text) => service.conversations.sendMessage(chatId, text),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: groupChatMessagesKey(chatId) });
-      queryClient.invalidateQueries({ queryKey: [groupChatsListKey] });
+      queryClient.invalidateQueries({ queryKey: groupChatsListKey() });
+      queryClient.invalidateQueries({ queryKey: messageThreadsListKey() });
       queryClient.invalidateQueries({ queryKey: groupChatKey(chatId) });
     },
   });
@@ -125,7 +133,10 @@ export default function GroupChatView({ chatId, embedded = false }: { chatId: nu
     mutationFn: (messageId) => service.conversations.markLastSeenGroupChat(chatId, messageId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: groupChatKey(chatId) });
+      queryClient.invalidateQueries({ queryKey: messageThreadsListKey() });
       queryClient.invalidateQueries({ queryKey: [pingQueryKey] });
+      // The backend also marks the related notifications seen, so refresh the feed.
+      queryClient.invalidateQueries({ queryKey: [listNotificationsQueryKey] });
     },
   });
   const { markLastSeen } = useMarkLastSeen(markLastSeenGroupChat, groupChat?.lastSeenMessageId);

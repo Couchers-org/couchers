@@ -2,17 +2,24 @@
 Comprehensive tests for the Unified Moderation System (UMS)
 """
 
+import json
 from datetime import datetime, timedelta
 
 import grpc
 import pytest
-from google.protobuf import empty_pb2
+from google.protobuf import empty_pb2, wrappers_pb2
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import select
 
+from couchers import urls
 from couchers.config import config
 from couchers.constants import MODERATION_AUTO_APPROVE_FLAG_PRIORITY
 from couchers.db import session_scope
-from couchers.jobs.handlers import auto_approve_moderation_queue
+from couchers.jobs.handlers import (
+    DatabaseInconsistencyError,
+    auto_approve_moderation_queue,
+    check_database_consistency,
+)
 from couchers.jobs.worker import process_job
 from couchers.models import (
     AdminAction,
@@ -27,36 +34,47 @@ from couchers.models import (
     ModerationState,
     ModerationTrigger,
     ModerationVisibility,
+    Page,
+    PageType,
+    Reply,
     User,
+    get_moderated_models,
 )
 from couchers.moderation.utils import create_moderation
 from couchers.proto import (
+    admin_pb2,
     api_pb2,
     conversations_pb2,
-    events_pb2,
+    discussions_pb2,
     messages_pb2,
     moderation_pb2,
     notifications_pb2,
+    pages_pb2,
+    public_trips_pb2,
     requests_pb2,
+    threads_pb2,
 )
-from couchers.utils import Timestamp_from_datetime, datetime_to_iso8601_local, now, today
+from couchers.servicers.threads import pack_thread_id
+from couchers.utils import Timestamp_from_datetime, now, today
+from tests.fixtures.api import events as events_api
 from tests.fixtures.db import backdate_conversations, generate_user, make_friends
 from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
 from tests.fixtures.sessions import (
     api_session,
     conversations_session,
-    events_session,
+    discussions_session,
     notifications_session,
+    pages_session,
+    public_trips_session,
+    real_admin_session,
     real_moderation_session,
     requests_session,
+    threads_session,
 )
-from tests.test_communities import create_community
+from tests.test_communities import create_community, create_group
+from tests.test_public_trips import VALID_DESCRIPTION as VALID_TRIP_DESCRIPTION
+from tests.test_references import create_friend_reference
 from tests.test_requests import valid_request_text
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
 
 
 def create_test_host_request_with_moderation(surfer_token, host_user_id):
@@ -171,6 +189,130 @@ def test_add_to_moderation_queue(db):
             .where(ModerationLog.action == ModerationAction.flag)
         ).scalar_one()
         assert flag_log.queue_item_id == flag.id
+
+
+def test_flag_with_data(db):
+    """A flag can carry a JSON payload"""
+    super_user, super_token = generate_user(is_superuser=True)
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    state_id = create_test_host_request_with_moderation(token1, user2.id)
+
+    with real_moderation_session(super_token) as api:
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=state_id,
+                action=moderation_pb2.MODERATION_ACTION_FLAG,
+                trigger=moderation_pb2.MODERATION_TRIGGER_MACHINE_FLAG,
+                reason="Automod",
+                data=json.dumps({"classifier": "spam", "score": 0.97, "matches": ["buy now"]}),
+            )
+        )
+
+        res = api.GetModerationQueue(
+            moderation_pb2.GetModerationQueueReq(triggers=[moderation_pb2.MODERATION_TRIGGER_MACHINE_FLAG])
+        )
+        assert len(res.queue_items) == 1
+        assert json.loads(res.queue_items[0].data) == {
+            "classifier": "spam",
+            "score": 0.97,
+            "matches": ["buy now"],
+        }
+
+    with session_scope() as session:
+        flag = session.execute(
+            select(ModerationQueueItem)
+            .where(ModerationQueueItem.moderation_state_id == state_id)
+            .where(ModerationQueueItem.trigger == ModerationTrigger.machine_flag)
+        ).scalar_one()
+        assert flag.data == {"classifier": "spam", "score": 0.97, "matches": ["buy now"]}
+
+
+def test_flag_without_data(db):
+    """A flag with no data serializes as an empty string"""
+    super_user, super_token = generate_user(is_superuser=True)
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    state_id = create_test_host_request_with_moderation(token1, user2.id)
+
+    with real_moderation_session(super_token) as api:
+        res = api.GetModerationQueue(moderation_pb2.GetModerationQueueReq())
+        assert len(res.queue_items) == 1
+        assert res.queue_items[0].data == ""
+
+    with session_scope() as session:
+        item = session.execute(
+            select(ModerationQueueItem).where(ModerationQueueItem.moderation_state_id == state_id)
+        ).scalar_one()
+        assert item.data is None
+
+
+def test_flag_with_invalid_data(db):
+    """Flag data must be valid JSON"""
+    super_user, super_token = generate_user(is_superuser=True)
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    state_id = create_test_host_request_with_moderation(token1, user2.id)
+
+    with real_moderation_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.ModerateContent(
+                moderation_pb2.ModerateContentReq(
+                    moderation_state_id=state_id,
+                    action=moderation_pb2.MODERATION_ACTION_FLAG,
+                    trigger=moderation_pb2.MODERATION_TRIGGER_MACHINE_FLAG,
+                    reason="Automod",
+                    data="not json",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "The moderation data must be valid JSON."
+
+
+def test_data_rejected_on_non_flag_action(db):
+    """Data has nowhere to go on actions that don't create a queue item"""
+    super_user, super_token = generate_user(is_superuser=True)
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    state_id = create_test_host_request_with_moderation(token1, user2.id)
+
+    with real_moderation_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.ModerateContent(
+                moderation_pb2.ModerateContentReq(
+                    moderation_state_id=state_id,
+                    action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                    visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+                    reason="Looks fine",
+                    data=json.dumps({"score": 0.1}),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "Moderation data can only be set when flagging."
+
+
+def test_create_moderation_with_data(db):
+    """create_moderation can attach data to the initial review item"""
+    user, _ = generate_user()
+
+    with session_scope() as session:
+        moderation_state = create_moderation(
+            session=session,
+            object_type=ModerationObjectType.host_request,
+            object_id=123,
+            creator_user_id=user.id,
+            data={"classifier": "spam", "score": 0.42},
+        )
+
+        item = session.execute(
+            select(ModerationQueueItem).where(ModerationQueueItem.moderation_state_id == moderation_state.id)
+        ).scalar_one()
+        assert item.trigger == ModerationTrigger.initial_review
+        assert item.data == {"classifier": "spam", "score": 0.42}
 
 
 def test_moderate_content(db):
@@ -1349,6 +1491,42 @@ def test_GetModerationQueue_pagination_newest_first(db):
         assert page1_ids.isdisjoint(page2_ids), "Pages should not have overlapping items"
 
 
+def test_GetModerationQueue_pagination_ignores_time_created(db):
+    """Backfilled queue items were given ids out of a separate range, so time_created and id disagree."""
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, normal_token = generate_user()
+    host, _ = generate_user()
+
+    first_state_id = create_test_host_request_with_moderation(normal_token, host.id)
+    create_test_host_request_with_moderation(normal_token, host.id)
+    create_test_host_request_with_moderation(normal_token, host.id)
+
+    with session_scope() as session:
+        item = session.execute(
+            select(ModerationQueueItem).where(ModerationQueueItem.moderation_state_id == first_state_id)
+        ).scalar_one()
+        item.time_created = now() + timedelta(days=1)
+
+    paged_ids = []
+    page_token = ""
+    with real_moderation_session(super_token) as api:
+        while True:
+            res = api.GetModerationQueue(
+                moderation_pb2.GetModerationQueueReq(page_size=2, page_token=page_token, newest_first=True)
+            )
+            paged_ids += [item.queue_item_id for item in res.queue_items]
+            page_token = res.next_page_token
+            if not page_token:
+                break
+
+    with session_scope() as session:
+        expected = list(
+            session.execute(select(ModerationQueueItem.id).order_by(ModerationQueueItem.id.desc())).scalars().all()
+        )
+
+    assert paged_ids == expected
+
+
 def test_GetModerationLog(db):
     """Test getting moderation log for a state via API"""
     super_user, super_token = generate_user(is_superuser=True)
@@ -2517,6 +2695,121 @@ def test_auto_approve_preserves_other_open_flags(db):
         assert open_by_trigger[ModerationTrigger.machine_flag].priority == MODERATION_AUTO_APPROVE_FLAG_PRIORITY
 
 
+def _backdate_initial_review(state_id, delta):
+    with session_scope() as session:
+        queue_item = session.execute(
+            select(ModerationQueueItem)
+            .where(ModerationQueueItem.moderation_state_id == state_id)
+            .where(ModerationQueueItem.trigger == ModerationTrigger.initial_review)
+        ).scalar_one()
+        queue_item.time_created -= delta
+
+
+def _visibility(state_id):
+    with session_scope() as session:
+        return session.execute(select(ModerationState.visibility).where(ModerationState.id == state_id)).scalar_one()
+
+
+def _set_moderation_auto_approve_deadline(token, user, seconds):
+    with real_admin_session(token) as api:
+        api.SetModerationAutoApproveDeadline(
+            admin_pb2.SetModerationAutoApproveDeadlineReq(
+                user=user.username,
+                auto_approve_seconds=wrappers_pb2.Int64Value(value=seconds) if seconds is not None else None,
+            )
+        )
+
+
+def test_auto_approve_uses_author_deadline(db):
+    """Lowering an author's deadline applies to their already pending content without touching other authors"""
+    moderator, mod_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    other_surfer, other_surfer_token = generate_user()
+    host, _ = generate_user()
+    config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 3600
+    config.MODERATION_BOT_USER_ID = moderator.id
+
+    state_id = create_test_host_request_with_moderation(surfer_token, host.id)
+    other_state_id = create_test_host_request_with_moderation(other_surfer_token, host.id)
+    _backdate_initial_review(state_id, timedelta(minutes=10))
+    _backdate_initial_review(other_state_id, timedelta(minutes=10))
+
+    auto_approve_moderation_queue(empty_pb2.Empty())
+    assert _visibility(state_id) == ModerationVisibility.shadowed
+    assert _visibility(other_state_id) == ModerationVisibility.shadowed
+
+    _set_moderation_auto_approve_deadline(mod_token, surfer, 300)
+
+    auto_approve_moderation_queue(empty_pb2.Empty())
+    assert _visibility(state_id) == ModerationVisibility.visible
+    assert _visibility(other_state_id) == ModerationVisibility.shadowed
+
+    with real_moderation_session(mod_token) as api:
+        log_res = api.GetModerationLog(moderation_pb2.GetModerationLogReq(moderation_state_id=state_id))
+        approve_entries = [e for e in log_res.log_entries if e.action == moderation_pb2.MODERATION_ACTION_APPROVE]
+        assert len(approve_entries) == 1
+        assert "300 seconds" in approve_entries[0].reason
+
+
+@pytest.mark.parametrize("seconds", [0, 86400])
+def test_auto_approve_author_deadline_holds_content(db, seconds):
+    """A long or zero (never) author deadline holds content past the default without tripping the consistency check"""
+    moderator, mod_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+    config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 60
+    config.MODERATION_BOT_USER_ID = moderator.id
+
+    _set_moderation_auto_approve_deadline(mod_token, surfer, seconds)
+    state_id = create_test_host_request_with_moderation(surfer_token, host.id)
+    _backdate_initial_review(state_id, timedelta(minutes=10))
+
+    auto_approve_moderation_queue(empty_pb2.Empty())
+    assert _visibility(state_id) == ModerationVisibility.shadowed
+    check_database_consistency(empty_pb2.Empty())
+
+    _set_moderation_auto_approve_deadline(mod_token, surfer, None)
+    with pytest.raises(DatabaseInconsistencyError, match="exceeding auto-approve deadline"):
+        check_database_consistency(empty_pb2.Empty())
+
+    auto_approve_moderation_queue(empty_pb2.Empty())
+    assert _visibility(state_id) == ModerationVisibility.visible
+    check_database_consistency(empty_pb2.Empty())
+
+
+def test_auto_approve_does_not_unhide_hidden_content(db):
+    """Content a moderator hid without resolving its initial review is left hidden"""
+    moderator, mod_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+    config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 60
+    config.MODERATION_BOT_USER_ID = moderator.id
+
+    state_id = create_test_host_request_with_moderation(surfer_token, host.id)
+    with real_moderation_session(mod_token) as api:
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=state_id,
+                action=moderation_pb2.MODERATION_ACTION_HIDE,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
+                reason="Hidden",
+                clear_flags=False,
+            )
+        )
+    _backdate_initial_review(state_id, timedelta(minutes=10))
+
+    auto_approve_moderation_queue(empty_pb2.Empty())
+
+    assert _visibility(state_id) == ModerationVisibility.hidden
+    with session_scope() as session:
+        initial_item = session.execute(
+            select(ModerationQueueItem)
+            .where(ModerationQueueItem.moderation_state_id == state_id)
+            .where(ModerationQueueItem.trigger == ModerationTrigger.initial_review)
+        ).scalar_one()
+        assert initial_item.resolved_by_log_id is None
+
+
 # ============================================================================
 # Notification Suppression Tests
 # ============================================================================
@@ -2768,25 +3061,8 @@ def test_event_moderation_state_content(db):
     with session_scope() as session:
         create_community(session, 0, 2, "Community", [user], [], None)
 
-    start_time = now() + timedelta(hours=2)
-    end_time = start_time + timedelta(hours=3)
-
-    with events_session(token) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="My Event Title",
-                content="My event description.",
-                photo_key=None,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
-        event_id = res.event_id
+    res = events_api.create_event(token=token, title="My Event Title", content="My event description.")
+    event_id = res.event_id
 
     with session_scope() as session:
         occurrence = session.execute(select(EventOccurrence).where(EventOccurrence.id == event_id)).scalar_one()
@@ -2902,23 +3178,7 @@ def test_SetUserContentVisibility_event_occurrence(db):
     with session_scope() as session:
         create_community(session, 0, 2, "Community", [creator], [], None)
 
-    start_time = now() + timedelta(hours=2)
-    end_time = start_time + timedelta(hours=3)
-    with events_session(creator_token) as api:
-        event_id = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Event",
-                content="Event description.",
-                photo_key=None,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        ).event_id
+    event_id = events_api.create_event(token=creator_token).event_id
 
     with real_moderation_session(super_token) as api:
         res = api.SetUserContentVisibility(
@@ -3379,12 +3639,22 @@ def test_SetUserContentVisibility_from_visibility_unspecified_rejected(db):
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
-def test_ListModerationStates_empty(db):
+def _content_state_ids(res: moderation_pb2.ListModerationStatesRes) -> list[int]:
+    """Every user has a moderation state, so listings mix them in with the content states."""
+    return [
+        s.moderation_state_id
+        for s in res.moderation_states
+        if s.object_type != moderation_pb2.MODERATION_OBJECT_TYPE_USER
+    ]
+
+
+def test_ListModerationStates_with_no_content(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with real_moderation_session(super_token) as api:
         res = api.ListModerationStates(moderation_pb2.ListModerationStatesReq())
-    assert len(res.moderation_states) == 0
+    assert [s.object_id for s in res.moderation_states] == [super_user.id]
+    assert _content_state_ids(res) == []
     assert res.next_page_token == ""
 
 
@@ -3399,10 +3669,10 @@ def test_ListModerationStates_returns_states_chronologically(db):
 
     with real_moderation_session(super_token) as api:
         res = api.ListModerationStates(moderation_pb2.ListModerationStatesReq())
-        assert [s.moderation_state_id for s in res.moderation_states] == [state1_id, state2_id, state3_id]
+        assert _content_state_ids(res) == [state1_id, state2_id, state3_id]
 
         res_newest = api.ListModerationStates(moderation_pb2.ListModerationStatesReq(newest_first=True))
-        assert [s.moderation_state_id for s in res_newest.moderation_states] == [state3_id, state2_id, state1_id]
+        assert _content_state_ids(res_newest) == [state3_id, state2_id, state1_id]
 
 
 def test_ListModerationStates_filter_by_author(db):
@@ -3417,10 +3687,12 @@ def test_ListModerationStates_filter_by_author(db):
 
     with real_moderation_session(super_token) as api:
         res = api.ListModerationStates(moderation_pb2.ListModerationStatesReq(author_user_id=surfer1.id))
-        assert {s.moderation_state_id for s in res.moderation_states} == {state1_id, state3_id}
+        assert set(_content_state_ids(res)) == {state1_id, state3_id}
+        user_states = [s for s in res.moderation_states if s.object_type == moderation_pb2.MODERATION_OBJECT_TYPE_USER]
+        assert [s.object_id for s in user_states] == [surfer1.id]
 
         res = api.ListModerationStates(moderation_pb2.ListModerationStatesReq(author_user_id=surfer2.id))
-        assert [s.moderation_state_id for s in res.moderation_states] == [state2_id]
+        assert _content_state_ids(res) == [state2_id]
 
 
 def test_ListModerationStates_pagination(db):
@@ -3428,15 +3700,614 @@ def test_ListModerationStates_pagination(db):
     surfer, surfer_token = generate_user()
     host, _ = generate_user()
 
-    state_ids = [create_test_host_request_with_moderation(surfer_token, host.id) for _ in range(3)]
+    for _ in range(3):
+        create_test_host_request_with_moderation(surfer_token, host.id)
 
     with real_moderation_session(super_token) as api:
-        res = api.ListModerationStates(moderation_pb2.ListModerationStatesReq(page_size=2))
-        assert [s.moderation_state_id for s in res.moderation_states] == state_ids[:2]
-        assert res.next_page_token != ""
+        # 3 users plus 3 host requests
+        all_ids = [
+            s.moderation_state_id
+            for s in api.ListModerationStates(moderation_pb2.ListModerationStatesReq()).moderation_states
+        ]
+        assert len(all_ids) == 6
 
-        res2 = api.ListModerationStates(
-            moderation_pb2.ListModerationStatesReq(page_size=2, page_token=res.next_page_token)
+        paged_ids = []
+        page_token = ""
+        while True:
+            res = api.ListModerationStates(moderation_pb2.ListModerationStatesReq(page_size=2, page_token=page_token))
+            assert len(res.moderation_states) == 2
+            paged_ids += [s.moderation_state_id for s in res.moderation_states]
+            page_token = res.next_page_token
+            if not page_token:
+                break
+
+        assert paged_ids == all_ids
+
+
+def test_ListModerationStates_pagination_ignores_created(db):
+    """Backfilled states carry the migration's timestamp, so created and id disagree on their order."""
+    super_user, super_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+
+    first_state_id = create_test_host_request_with_moderation(surfer_token, host.id)
+    create_test_host_request_with_moderation(surfer_token, host.id)
+    create_test_host_request_with_moderation(surfer_token, host.id)
+
+    with session_scope() as session:
+        state = session.execute(select(ModerationState).where(ModerationState.id == first_state_id)).scalar_one()
+        state.created = now() + timedelta(days=1)
+
+    paged_ids = []
+    page_token = ""
+    with real_moderation_session(super_token) as api:
+        while True:
+            res = api.ListModerationStates(
+                moderation_pb2.ListModerationStatesReq(page_size=2, page_token=page_token, newest_first=True)
+            )
+            paged_ids += [s.moderation_state_id for s in res.moderation_states]
+            page_token = res.next_page_token
+            if not page_token:
+                break
+
+    with session_scope() as session:
+        expected = list(session.execute(select(ModerationState.id).order_by(ModerationState.id.desc())).scalars().all())
+
+    assert paged_ids == expected
+
+
+# ============================================================================
+# Tests for user account moderation states
+# ============================================================================
+
+
+def test_user_moderation_state_created_with_the_account(db):
+    user, _ = generate_user()
+
+    with session_scope() as session:
+        state = session.execute(
+            select(ModerationState)
+            .where(ModerationState.object_type == ModerationObjectType.user)
+            .where(ModerationState.object_id == user.id)
+        ).scalar_one()
+
+        assert state.visibility is None
+        assert session.execute(select(User.moderation_state_id).where(User.id == user.id)).scalar_one() == state.id
+
+        log_entries = (
+            session.execute(select(ModerationLog).where(ModerationLog.moderation_state_id == state.id)).scalars().all()
         )
-        assert [s.moderation_state_id for s in res2.moderation_states] == [state_ids[2]]
-        assert res2.next_page_token == ""
+        assert len(log_entries) == 1
+        assert log_entries[0].action == ModerationAction.create
+        assert log_entries[0].moderator_user_id == user.id
+
+        queue_items = (
+            session.execute(select(ModerationQueueItem).where(ModerationQueueItem.moderation_state_id == state.id))
+            .scalars()
+            .all()
+        )
+        assert queue_items == []
+
+
+def test_GetModerationState_for_user(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user, _ = generate_user()
+
+    with real_moderation_session(super_token) as api:
+        state = api.GetModerationState(
+            moderation_pb2.GetModerationStateReq(
+                object_type=moderation_pb2.MODERATION_OBJECT_TYPE_USER,
+                object_id=user.id,
+            )
+        ).moderation_state
+        assert state.object_type == moderation_pb2.MODERATION_OBJECT_TYPE_USER
+        assert state.object_id == user.id
+        assert state.author_user_id == user.id
+        assert state.author.user_id == user.id
+        assert state.content == f"@{user.username} / {user.id}"
+        assert state.visibility == moderation_pb2.MODERATION_VISIBILITY_UNSPECIFIED
+
+
+def test_GetModerationState_for_nonexistent_user(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    with real_moderation_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetModerationState(
+                moderation_pb2.GetModerationStateReq(
+                    object_type=moderation_pb2.MODERATION_OBJECT_TYPE_USER,
+                    object_id=999999,
+                )
+            )
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+
+def test_flag_user_shows_up_in_queue_and_author_filters(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+    other, _ = generate_user()
+
+    content_state_id = create_test_host_request_with_moderation(surfer_token, host.id)
+
+    with real_moderation_session(super_token) as api:
+        user_state_id = api.GetModerationState(
+            moderation_pb2.GetModerationStateReq(
+                object_type=moderation_pb2.MODERATION_OBJECT_TYPE_USER,
+                object_id=surfer.id,
+            )
+        ).moderation_state.moderation_state_id
+
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=user_state_id,
+                action=moderation_pb2.MODERATION_ACTION_FLAG,
+                trigger=moderation_pb2.MODERATION_TRIGGER_USER_FLAG,
+                reason="Reported for spamming hosts",
+            )
+        )
+
+        res = api.GetModerationQueue(moderation_pb2.GetModerationQueueReq(item_author_user_id=surfer.id))
+        assert {item.moderation_state_id for item in res.queue_items} == {content_state_id, user_state_id}
+        user_item = next(item for item in res.queue_items if item.moderation_state_id == user_state_id)
+        assert user_item.trigger == moderation_pb2.MODERATION_TRIGGER_USER_FLAG
+        assert user_item.reason == "Reported for spamming hosts"
+        assert user_item.moderation_state.author.user_id == surfer.id
+
+        res = api.GetModerationQueue(moderation_pb2.GetModerationQueueReq(item_author_user_id=other.id))
+        assert len(res.queue_items) == 0
+
+        res = api.ListModerationStates(moderation_pb2.ListModerationStatesReq(author_user_id=surfer.id))
+        assert {s.moderation_state_id for s in res.moderation_states} == {content_state_id, user_state_id}
+
+        res = api.ListModerationStates(moderation_pb2.ListModerationStatesReq(author_user_id=other.id))
+        assert [s.object_id for s in res.moderation_states] == [other.id]
+
+
+@pytest.mark.parametrize("action", [moderation_pb2.MODERATION_ACTION_APPROVE, moderation_pb2.MODERATION_ACTION_HIDE])
+def test_ModerateContent_cannot_set_visibility_on_user_state(db, action):
+    super_user, super_token = generate_user(is_superuser=True)
+    user, _ = generate_user()
+
+    with real_moderation_session(super_token) as api:
+        user_state_id = api.GetModerationState(
+            moderation_pb2.GetModerationStateReq(
+                object_type=moderation_pb2.MODERATION_OBJECT_TYPE_USER,
+                object_id=user.id,
+            )
+        ).moderation_state.moderation_state_id
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.ModerateContent(
+                moderation_pb2.ModerateContentReq(
+                    moderation_state_id=user_state_id,
+                    action=action,
+                    visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
+                )
+            )
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+    with session_scope() as session:
+        state = session.execute(select(ModerationState).where(ModerationState.id == user_state_id)).scalar_one()
+        assert state.visibility is None
+
+
+def test_SetUserContentVisibility_leaves_user_state_alone(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+
+    content_state_id = create_test_host_request_with_moderation(surfer_token, host.id)
+
+    with real_moderation_session(super_token) as api:
+        user_state_id = api.GetModerationState(
+            moderation_pb2.GetModerationStateReq(
+                object_type=moderation_pb2.MODERATION_OBJECT_TYPE_USER,
+                object_id=surfer.id,
+            )
+        ).moderation_state.moderation_state_id
+
+        res = api.SetUserContentVisibility(
+            moderation_pb2.SetUserContentVisibilityReq(
+                user_id=surfer.id,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
+            )
+        )
+        assert res.updated_count == 1
+
+    with session_scope() as session:
+        content_state = session.execute(
+            select(ModerationState).where(ModerationState.id == content_state_id)
+        ).scalar_one()
+        assert content_state.visibility == ModerationVisibility.hidden
+
+        user_state = session.execute(select(ModerationState).where(ModerationState.id == user_state_id)).scalar_one()
+        assert user_state.visibility is None
+
+
+# ============================================================================
+# Tests for the moderation model metadata
+# ============================================================================
+
+
+def test_every_object_type_has_a_model():
+    """A type in the enum with no model behind it is accepted everywhere and understood nowhere."""
+    assert set(get_moderated_models()) == set(ModerationObjectType)
+
+
+@pytest.mark.parametrize("object_type", list(ModerationObjectType))
+def test_visibility_check_constraint_matches_the_models(db, object_type):
+    """The check constraint spells out the types with their own visibility mechanism; this makes sure it agrees with the models."""
+    has_own_visibility_mechanism = get_moderated_models()[object_type].has_own_visibility_mechanism
+
+    def add_state(object_id: int, visibility: ModerationVisibility | None) -> None:
+        with session_scope() as session:
+            session.add(ModerationState(object_type=object_type, object_id=object_id, visibility=visibility))
+
+    if has_own_visibility_mechanism:
+        add_state(1, None)
+        with pytest.raises(IntegrityError):
+            add_state(2, ModerationVisibility.visible)
+    else:
+        add_state(1, ModerationVisibility.visible)
+        with pytest.raises(IntegrityError):
+            add_state(2, None)
+
+
+# ============================================================================
+# Tests for GetModeratedObject
+# ============================================================================
+
+
+def _get_moderated_object(token, moderation_state_id):
+    with real_moderation_session(token) as api:
+        return api.GetModeratedObject(moderation_pb2.GetModeratedObjectReq(moderation_state_id=moderation_state_id))
+
+
+def _post_reply(token, thread_id, content):
+    with threads_session(token) as api:
+        return api.PostReply(threads_pb2.PostReplyReq(thread_id=thread_id, content=content)).thread_id
+
+
+def _moderation_state_id(object_type, object_id):
+    with session_scope() as session:
+        return _get_moderation_state(session, object_type, object_id).id
+
+
+def test_GetModeratedObject_host_request(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+
+    state_id = create_test_host_request_with_moderation(surfer_token, host.id)
+
+    res = _get_moderated_object(super_token, state_id)
+    assert res.moderation_state.moderation_state_id == state_id
+    assert res.involved_user_ids == [host.id]
+    assert res.url == ""
+    assert not res.HasField("community")
+    assert not res.HasField("thread_parent")
+
+
+def test_GetModeratedObject_event_occurrence_in_group(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user, token = generate_user()
+
+    with session_scope() as session:
+        community = create_community(session, 0, 2, "Event Community", [user], [], None)
+        group = create_group(session, "Event Group", [user], [], community)
+        community_id = community.id
+        group_id = group.id
+
+    event = events_api.create_event(token=token)
+    events_api.transfer_event(token=token, event_id=event.event_id, new_owner_group_id=group_id)
+
+    res = _get_moderated_object(
+        super_token, _moderation_state_id(ModerationObjectType.event_occurrence, event.event_id)
+    )
+    assert res.url == urls.event_link(occurrence_id=event.event_id, slug=event.slug)
+    assert res.community.community_id == community_id
+    assert res.community.community_name == "Event Community"
+    assert res.community.group_id == group_id
+    assert res.community.group_name == "Event Group"
+
+
+def test_GetModeratedObject_event_occurrence_transferred_to_group_elsewhere(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user, token = generate_user()
+
+    with session_scope() as session:
+        create_community(session, 0, 2, "Location Community", [user], [], None)
+        other_community = create_community(session, 5, 7, "Other Community", [user], [], None)
+        group = create_group(session, "Other Group", [user], [], other_community)
+        other_community_id = other_community.id
+        group_id = group.id
+
+    event = events_api.create_event(token=token)
+    events_api.transfer_event(token=token, event_id=event.event_id, new_owner_group_id=group_id)
+
+    res = _get_moderated_object(
+        super_token, _moderation_state_id(ModerationObjectType.event_occurrence, event.event_id)
+    )
+    assert res.community.community_id == other_community_id
+    assert res.community.community_name == "Other Community"
+    assert res.community.group_id == group_id
+    assert res.community.group_name == "Other Group"
+
+
+def test_GetModeratedObject_comment_on_discussion(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user, token = generate_user()
+
+    with session_scope() as session:
+        community_id = create_community(session, 0, 2, "Discussion Community", [user], [], None).id
+
+    with discussions_session(token) as api:
+        discussion = api.CreateDiscussion(
+            discussions_pb2.CreateDiscussionReq(
+                title="Where to eat?", content="Discussion body.", owner_community_id=community_id
+            )
+        )
+    comment_thread_id = _post_reply(token, discussion.thread.thread_id, "Try the noodle place")
+
+    res = _get_moderated_object(
+        super_token, _moderation_state_id(ModerationObjectType.comment, comment_thread_id // 10)
+    )
+    assert res.thread_parent.discussion_id == discussion.discussion_id
+    assert res.thread_parent.title == "Where to eat?"
+    assert res.url == urls.discussion_link(discussion_id=str(discussion.discussion_id), slug=discussion.slug)
+    assert res.community.community_id == community_id
+    assert res.community.group_id == 0
+
+
+def test_GetModeratedObject_comment_on_page(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user, token = generate_user()
+
+    with session_scope() as session:
+        community_id = create_community(session, 0, 2, "Page Community", [user], [], None).id
+        page_id, page_thread_id = session.execute(
+            select(Page.id, Page.thread_id)
+            .where(Page.parent_node_id == community_id)
+            .where(Page.type == PageType.main_page)
+        ).one()
+
+    comment_thread_id = _post_reply(token, pack_thread_id(page_thread_id, 0), "Nice page")
+
+    res = _get_moderated_object(
+        super_token, _moderation_state_id(ModerationObjectType.comment, comment_thread_id // 10)
+    )
+    assert res.thread_parent.page_id == page_id
+    assert res.thread_parent.title == "Main page for the Page Community community"
+    assert res.url == ""
+    assert res.community.community_id == community_id
+
+
+def test_GetModeratedObject_comment_on_page_transferred_to_group_elsewhere(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user, token = generate_user()
+
+    with session_scope() as session:
+        create_community(session, 0, 2, "Location Community", [user], [], None)
+        other_community = create_community(session, 5, 7, "Other Community", [user], [], None)
+        group = create_group(session, "Other Group", [user], [], other_community)
+        other_community_id = other_community.id
+        group_id = group.id
+
+    with pages_session(token) as api:
+        place = api.CreatePlace(
+            pages_pb2.CreatePlaceReq(
+                title="Old Lighthouse",
+                content="Place description.",
+                address="Near Null Island",
+                location=pages_pb2.Coordinate(lat=1, lng=1),
+            )
+        )
+        api.TransferPage(pages_pb2.TransferPageReq(page_id=place.page_id, new_owner_group_id=group_id))
+
+    comment_thread_id = _post_reply(token, place.thread.thread_id, "Is it open to visitors?")
+
+    res = _get_moderated_object(
+        super_token, _moderation_state_id(ModerationObjectType.comment, comment_thread_id // 10)
+    )
+    assert res.thread_parent.page_id == place.page_id
+    assert res.thread_parent.title == "Old Lighthouse"
+    assert res.community.community_id == other_community_id
+    assert res.community.community_name == "Other Community"
+    assert res.community.group_id == group_id
+    assert res.community.group_name == "Other Group"
+
+
+def test_GetModeratedObject_reply_on_event(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user, token = generate_user()
+
+    with session_scope() as session:
+        community_id = create_community(session, 0, 2, "Event Community", [user], [], None).id
+
+    event = events_api.create_event(token=token, title="Board Games")
+    comment_thread_id = _post_reply(token, event.thread.thread_id, "Can I bring a friend?")
+    reply_thread_id = _post_reply(token, comment_thread_id, "Sure")
+
+    with session_scope() as session:
+        reply_state_id = session.execute(
+            select(Reply.moderation_state_id).where(Reply.id == reply_thread_id // 10)
+        ).scalar_one()
+
+    res = _get_moderated_object(super_token, reply_state_id)
+    assert res.parent_comment_id == comment_thread_id // 10
+    assert res.parent_comment_content == "Can I bring a friend?"
+    assert res.thread_parent.event_occurrence_id == event.event_id
+    assert res.thread_parent.title == "Board Games"
+    assert res.url == urls.event_link(occurrence_id=event.event_id, slug=event.slug)
+    assert res.community.community_id == community_id
+
+
+def test_GetModeratedObject_group_chat(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    creator, creator_token = generate_user()
+    member, _ = generate_user()
+    removed, _ = generate_user()
+    make_friends(creator, member)
+    make_friends(creator, removed)
+
+    with conversations_session(creator_token) as api:
+        group_chat_id = api.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[member.id, removed.id])
+        ).group_chat_id
+        api.RemoveGroupChatUser(
+            conversations_pb2.RemoveGroupChatUserReq(group_chat_id=group_chat_id, user_id=removed.id)
+        )
+
+    res = _get_moderated_object(super_token, _moderation_state_id(ModerationObjectType.group_chat, group_chat_id))
+    assert res.moderation_state.author_user_id == creator.id
+    assert res.involved_user_ids == [member.id]
+    assert res.url == ""
+    assert not res.HasField("community")
+
+
+def test_GetModeratedObject_friend_request(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    sender, sender_token = generate_user()
+    recipient, _ = generate_user()
+
+    with api_session(sender_token) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=recipient.id))
+
+    with session_scope() as session:
+        friend_request_id = session.execute(
+            select(FriendRelationship.id).where(FriendRelationship.from_user_id == sender.id)
+        ).scalar_one()
+
+    res = _get_moderated_object(
+        super_token, _moderation_state_id(ModerationObjectType.friend_request, friend_request_id)
+    )
+    assert res.involved_user_ids == [recipient.id]
+    assert res.url == ""
+    assert not res.HasField("community")
+
+
+def test_GetModeratedObject_discussion_in_group(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user, token = generate_user()
+
+    with session_scope() as session:
+        community = create_community(session, 0, 2, "Discussion Community", [user], [], None)
+        group = create_group(session, "Discussion Group", [user], [], community)
+        community_id = community.id
+        group_id = group.id
+
+    with discussions_session(token) as api:
+        discussion = api.CreateDiscussion(
+            discussions_pb2.CreateDiscussionReq(
+                title="Group hike?", content="Discussion body.", owner_group_id=group_id
+            )
+        )
+
+    res = _get_moderated_object(
+        super_token, _moderation_state_id(ModerationObjectType.discussion, discussion.discussion_id)
+    )
+    assert res.url == urls.discussion_link(discussion_id=str(discussion.discussion_id), slug=discussion.slug)
+    assert res.community.community_id == community_id
+    assert res.community.community_name == "Discussion Community"
+    assert res.community.group_id == group_id
+    assert res.community.group_name == "Discussion Group"
+    assert not res.HasField("thread_parent")
+
+
+def test_GetModeratedObject_reference(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    from_user, _ = generate_user()
+    to_user, _ = generate_user()
+
+    with session_scope() as session:
+        reference_id = create_friend_reference(session, from_user.id, to_user.id, timedelta(days=1))
+
+    res = _get_moderated_object(super_token, _moderation_state_id(ModerationObjectType.reference, reference_id))
+    assert res.moderation_state.author_user_id == from_user.id
+    assert res.url == urls.user_link(username=to_user.username)
+    assert res.involved_user_ids == [to_user.id]
+    assert not res.HasField("community")
+
+
+def test_GetModeratedObject_public_trip(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user, token = generate_user()
+
+    with session_scope() as session:
+        community_id = create_community(session, 0, 2, "Trip Community", [user], [], None).id
+
+    with public_trips_session(token) as api:
+        trip_id = api.CreatePublicTrip(
+            public_trips_pb2.CreatePublicTripReq(
+                community_id=community_id,
+                from_date=(today() + timedelta(days=5)).isoformat(),
+                to_date=(today() + timedelta(days=10)).isoformat(),
+                description=VALID_TRIP_DESCRIPTION,
+            )
+        ).trip_id
+
+    res = _get_moderated_object(super_token, _moderation_state_id(ModerationObjectType.public_trip, trip_id))
+    assert res.community.community_id == community_id
+    assert res.community.community_name == "Trip Community"
+    assert res.community.group_id == 0
+    assert res.url == ""
+    assert not res.involved_user_ids
+
+
+def test_GetModeratedObject_user(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user, _ = generate_user()
+
+    res = _get_moderated_object(super_token, _moderation_state_id(ModerationObjectType.user, user.id))
+    assert res.moderation_state.author_user_id == user.id
+    assert res.url == urls.user_link(username=user.username)
+    assert not res.involved_user_ids
+    assert not res.HasField("community")
+
+
+def test_GetModeratedObject_event_occurrence_owned_by_user(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user, token = generate_user()
+
+    with session_scope() as session:
+        community_id = create_community(session, 0, 2, "Event Community", [user], [], None).id
+
+    event = events_api.create_event(token=token)
+
+    res = _get_moderated_object(
+        super_token, _moderation_state_id(ModerationObjectType.event_occurrence, event.event_id)
+    )
+    assert res.url == urls.event_link(occurrence_id=event.event_id, slug=event.slug)
+    assert res.community.community_id == community_id
+    assert res.community.community_name == "Event Community"
+    assert res.community.group_id == 0
+    assert not res.HasField("thread_parent")
+
+
+def test_GetModeratedObject_event_occurrence_transferred_to_community(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user, token = generate_user()
+
+    with session_scope() as session:
+        create_community(session, 0, 2, "Location Community", [user], [], None)
+        other_community_id = create_community(session, 5, 7, "Other Community", [user], [], None).id
+
+    event = events_api.create_event(token=token)
+    events_api.transfer_event(token=token, event_id=event.event_id, new_owner_community_id=other_community_id)
+
+    res = _get_moderated_object(
+        super_token, _moderation_state_id(ModerationObjectType.event_occurrence, event.event_id)
+    )
+    assert res.community.community_id == other_community_id
+    assert res.community.community_name == "Other Community"
+    assert res.community.group_id == 0
+
+
+def test_GetModeratedObject_not_found(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    with real_moderation_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetModeratedObject(moderation_pb2.GetModeratedObjectReq(moderation_state_id=999_999_999))
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND

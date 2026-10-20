@@ -19,7 +19,6 @@ from couchers import sentry, urls
 from couchers.config import config
 from couchers.constants import STABLE_THRESHOLD_SECONDS
 from couchers.context import CouchersContext
-from couchers.descriptor_pool import get_descriptors_pb
 from couchers.metrics import (
     observe_native_banned_bundle_hit,
     observe_native_binary_age,
@@ -28,6 +27,7 @@ from couchers.metrics import (
     observe_native_ota_manifest_request,
     observe_native_update_decision,
 )
+from couchers.middleware.descriptor_pool import get_descriptors_pb
 from couchers.models import NativeClientUser, User
 from couchers.models.logging import EventLog, EventSource, ExperimentExposure, ExposureSource
 from couchers.models.ota import OTAPackage, OTAPlatform

@@ -50,7 +50,6 @@
   "edit_event": "Редактировать мероприятие",
   "edit_info_page_title": "Редактировать локальную информацию",
   "events_empty_state": "В данный момент нет мероприятий. Почему бы вам не <createEventLink>создать</createEventLink> одно ✨?",
-  "finished": "Завершено",
   "community_info_page_title": "Общая информация",
   "join_community": "Присоединиться к сообществу",
   "leave_community": "Покинуть сообщество",
@@ -58,7 +57,6 @@
   "load_earlier_replies": "Загрузить предыдущие ответы",
   "local_info_title": "О {{name}}",
   "load_more_moderators": "Загрузить больше Создателей Сообщества",
-  "new_post_label": "Новый пост",
   "no_moderators": "В данный момент здесь нет ни одного создателя сообщества.",
   "overview_label": "Детали профиля",
   "page_content_field_label": "Содержимое страницы",
@@ -129,8 +127,6 @@
   "comment_deleted": "Этот комментарий был удалён.",
   "edit_comment": "Редактировать комментарий",
   "delete_comment": "Удалить комментарий",
-  "comment_edited_date": "Изменено {{timeAgo}}",
-  "discussion_edited_date": "Изменено {{timeAgo}}",
   "discussion_deleted": "Это обсуждение было удалено.",
   "delete_discussion": "Удалить обсуждение",
   "delete_discussion_dialog": {
@@ -152,5 +148,9 @@
   "select_sublocality": "Выбрать район",
   "select_sub_community": "Выбрать сообщество",
   "report_discussion_button_a11y": "Пожаловаться на это обсуждение",
-  "report_event_button_a11y": "Пожаловаться на это мероприятие"
+  "report_event_button_a11y": "Пожаловаться на это мероприятие",
+  "new_discussion_button": "Новое обсуждение",
+  "comment_edited_date2": "Изменено <timeAgo/>",
+  "discussion_edited_date2": "Изменено <timeAgo/>",
+  "add_to_calendar": "Добавить в календарь"
 }

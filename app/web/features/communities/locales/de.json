@@ -30,7 +30,6 @@
   "error_loading_community": "Fehler beim Laden der Community.",
   "events_empty_state": "Aktuell gibt es keine Events. Warum <createEventLink>erstellst</createEventLink> du nicht eins ✨?",
   "community_info_page_title": "Allgemeine Infos",
-  "finished": "Beendet",
   "load_earlier_replies": "Frühere Antworten laden",
   "invalid_community_id": "Ungültige Community ID.",
   "join_community": "Community beitreten",
@@ -41,7 +40,6 @@
   "local_info_title": "Über {{name}}",
   "new_discussion_title": "Beitragsstitel",
   "new_discussion_topic": "Beitragsthema",
-  "new_post_label": "Neuer Beitrag",
   "no_comments": "Aktuell gibt es keine Kommentare zu diesem Beitrag.",
   "overview_label": "Übersicht",
   "post": "Post",
@@ -132,8 +130,6 @@
   "comment_deleted": "Dieser Kommentar wurde gelöscht.",
   "edit_comment": "Kommentar bearbeiten",
   "delete_comment": "Kommentar löschen",
-  "comment_edited_date": "Bearbeitet {{timeAgo}}",
-  "discussion_edited_date": "Bearbeitet {{timeAgo}}",
   "discussion_deleted": "Dieser Beitrag wurde gelöscht.",
   "delete_discussion": "Beitrag löschen",
   "delete_discussion_dialog": {
@@ -152,5 +148,9 @@
   "sub_community_search_placeholder": "Standort",
   "sub_community_dropdown_a11y": "Weitere spezifische Communitys durchsuchen",
   "report_discussion_button_a11y": "Diesen Beitrag melden",
-  "report_event_button_a11y": "Dieses Event melden"
+  "report_event_button_a11y": "Dieses Event melden",
+  "new_discussion_button": "Neuer Beitrag",
+  "comment_edited_date2": "Bearbeitet <timeAgo/>",
+  "discussion_edited_date2": "Bearbeitet <timeAgo/>",
+  "add_to_calendar": "Zum Kalender hinzufügen"
 }

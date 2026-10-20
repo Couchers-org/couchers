@@ -406,7 +406,7 @@ export default function Navigation() {
                 gap: 2,
               }}
             >
-              {shouldShowLanguagePickerSelect && <LanguagePickerSelect />}
+              {shouldShowLanguagePickerSelect && <LanguagePickerSelect displayMode="icon" />}
               {!isLoginPage && (
                 <Button
                   variant="outlined"

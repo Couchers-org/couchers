@@ -10,6 +10,9 @@ __pycache__/
 
 .envrc
 
+# Build intermediates and outputs
+*.gen.*
+
 # helps Lennart configure his vim
 pyrightconfig.json
 
@@ -19,3 +22,4 @@ pyrightconfig.json
 !/.claude/tools/**
 !/.claude/skills/
 !/.claude/skills/**
+/tmp/

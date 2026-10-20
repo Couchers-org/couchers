@@ -2,15 +2,30 @@ import enum
 from datetime import date, datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import BigInteger, Boolean, CheckConstraint, Date, DateTime, Enum, ForeignKey, Index, String, func
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import (
+    BigInteger,
+    Boolean,
+    CheckConstraint,
+    Date,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Index,
+    String,
+    func,
+    select,
+    text,
+)
+from sqlalchemy.orm import Mapped, column_property, mapped_column, relationship
 from sqlalchemy.sql import expression
 
 from couchers.models.base import Base
+from couchers.models.clusters import Node
 from couchers.models.moderation import ModerationObjectType
+from couchers.utils import date_in_timezone
 
 if TYPE_CHECKING:
-    from couchers.models import Node, User
+    from couchers.models import User
     from couchers.models.host_requests import HostRequest
     from couchers.models.moderation import ModerationState
 
@@ -28,6 +43,7 @@ class PublicTrip(Base, kw_only=True):
     __tablename__ = "public_trips"
     __moderation_author_column__ = "user_id"
     __moderation_object_type__ = ModerationObjectType.public_trip
+    __moderation_has_own_visibility_mechanism__ = False
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
@@ -37,9 +53,18 @@ class PublicTrip(Base, kw_only=True):
     # The community/location (city-level node)
     node_id: Mapped[int] = mapped_column(ForeignKey("nodes.id"), index=True)
 
-    # Trip dates
+    # Timezone at the location of the community.
+    # Not deferred because we always need it to interpret the dates.
+    timezone: Mapped[str] = column_property(
+        func.coalesce(select(Node.timezone).where(Node.id == node_id).scalar_subquery(), "Etc/UTC")
+    )
+
+    # Trip dates, local to the community's timezone
     from_date: Mapped[date] = mapped_column(Date)
     to_date: Mapped[date] = mapped_column(Date)
+
+    # timezone-aware end time of the trip, can be compared to now()
+    end_time = column_property(date_in_timezone(to_date, timezone) + text("interval '1 days'"))
 
     # User's message about their trip
     description: Mapped[str] = mapped_column(String)

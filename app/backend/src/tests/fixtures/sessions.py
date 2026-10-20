@@ -9,15 +9,14 @@ from grpc._server import _validate_generic_rpc_handlers
 
 from couchers.context import make_interactive_context
 from couchers.db import session_scope
-from couchers.descriptor_pool import get_descriptor_pool
 from couchers.i18n import LocalizationContext
 from couchers.i18n.locales import DEFAULT_LOCALE
-from couchers.interceptors import (
+from couchers.middleware.interceptors import (
     CouchersMiddlewareInterceptor,
     _try_get_and_update_user_details,
     check_permissions,
-    find_auth_level,
 )
+from couchers.middleware.proto_annotations import get_proto_annotations
 from couchers.proto import (
     account_pb2_grpc,
     admin_pb2_grpc,
@@ -30,7 +29,6 @@ from couchers.proto import (
     discussions_pb2_grpc,
     donations_pb2_grpc,
     editor_pb2_grpc,
-    events_pb2_grpc,
     galleries_pb2_grpc,
     gis_pb2_grpc,
     groups_pb2_grpc,
@@ -47,6 +45,7 @@ from couchers.proto import (
     reporting_pb2_grpc,
     requests_pb2_grpc,
     resources_pb2_grpc,
+    screens_pb2_grpc,
     search_pb2_grpc,
     stripe_pb2_grpc,
     threads_pb2_grpc,
@@ -62,7 +61,6 @@ from couchers.servicers.conversations import Conversations
 from couchers.servicers.discussions import Discussions
 from couchers.servicers.donations import Donations, Stripe
 from couchers.servicers.editor import Editor
-from couchers.servicers.events import Events
 from couchers.servicers.galleries import Galleries
 from couchers.servicers.gis import GIS
 from couchers.servicers.groups import Groups
@@ -78,6 +76,7 @@ from couchers.servicers.references import References
 from couchers.servicers.reporting import Reporting
 from couchers.servicers.requests import Requests
 from couchers.servicers.resources import Resources
+from couchers.servicers.screens import Screens
 from couchers.servicers.search import Search
 from couchers.servicers.threads import Threads
 from tests.fixtures import query_log
@@ -90,6 +89,9 @@ class _MockCouchersContext:
 
     def get_header(self, name):
         return None
+
+    def set_cookies(self, cookies):
+        pass
 
 
 class CookieMetadataPlugin(grpc.AuthMetadataPlugin):
@@ -187,7 +189,6 @@ class FakeChannel:
         self.handlers: dict[str, Any] = {}
         self._token = token
         self._locale = locale or DEFAULT_LOCALE
-        self._pool = get_descriptor_pool()
 
     def add_generic_rpc_handlers(self, generic_rpc_handlers: Any):
         _validate_generic_rpc_handlers(generic_rpc_handlers)
@@ -206,7 +207,7 @@ class FakeChannel:
                     sofa=None,
                     client_platform=None,
                 )
-            auth_level = find_auth_level(self._pool, method)
+            auth_level = get_proto_annotations().auth_level(method)
             check_permissions(auth_info, auth_level)
 
             # Do a full serialization cycle on the request and the
@@ -214,7 +215,7 @@ class FakeChannel:
             request = handler.request_deserializer(request_serializer(request))
 
             # Span covers the handler and its session but not the auth lookup above, matching the boundary
-            # couchers.perf uses in prod and the real-server sessions below.
+            # couchers.middleware.perf uses in prod and the real-server sessions below.
             with query_log.span("rpc", method), session_scope() as session:
                 context = make_interactive_context(
                     grpc_context=MockGrpcContext(),
@@ -404,8 +405,8 @@ def gis_session(token: str):
 
 
 @contextmanager
-def public_session():
-    channel = FakeChannel()
+def public_session(token: str | None = None):
+    channel = FakeChannel(token)
     public_pb2_grpc.add_PublicServicer_to_server(Public(), channel)
     yield public_pb2_grpc.PublicStub(channel)
 
@@ -449,6 +450,13 @@ def discussions_session(token: str):
     channel = FakeChannel(token)
     discussions_pb2_grpc.add_DiscussionsServicer_to_server(Discussions(), channel)
     yield discussions_pb2_grpc.DiscussionsStub(channel)
+
+
+@contextmanager
+def screens_session(token: str):
+    channel = FakeChannel(token)
+    screens_pb2_grpc.add_ScreensServicer_to_server(Screens(), channel)
+    yield screens_pb2_grpc.ScreensStub(channel)
 
 
 @contextmanager
@@ -538,13 +546,6 @@ def reporting_session(token: str):
     channel = FakeChannel(token)
     reporting_pb2_grpc.add_ReportingServicer_to_server(Reporting(), channel)
     yield reporting_pb2_grpc.ReportingStub(channel)
-
-
-@contextmanager
-def events_session(token: str):
-    channel = FakeChannel(token)
-    events_pb2_grpc.add_EventsServicer_to_server(Events(), channel)
-    yield events_pb2_grpc.EventsStub(channel)
 
 
 @contextmanager

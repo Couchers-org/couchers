@@ -122,7 +122,7 @@
   "unhandled_sign_up_state": "Stato del flusso di iscrizione non gestito.",
   "login_prompt": "Clicca qui per accedere",
   "reset_password": "Ripristina password",
-  "sign_up_completed_prompt": "Abbiamo inviato una e-mail con un collegamento per la verifica del tuo indirizzo e-mail. Per favore, clicca il collegamento per attivare la tua utenza.",
+  "sign_up_completed_prompt": "Abbiamo inviato un'email con un link di verifica al tuo indirizzo email: <strong>{{email}}</strong>. Fai clic sul link per attivare il tuo account.",
   "feature_preview": {
     "title": "Anteprima caratteristica",
     "explanation": "Questa pagina ti permette di provare caratteristiche che sono ancora in sviluppo prima che siano pronte per l'uso di tutti.",
@@ -243,12 +243,12 @@
     "login_header": "Accesso effettuato il {{login_datetime}}",
     "settings_page_link": "Gestisci gli accessi correnti",
     "description": "Questa pagina elenca gli accessi attivi, puoi disconnetterti da uno qualsiasi di essi cliccando sul pulsante accanto all'accesso oppure scorrendo fino in fondo alla pagina e cliccando sul pulsante per disconnetterti da tutte le sessioni tranne questa.",
-    "location": "Vicino a <strong>{{approximate_location}}</strong>",
-    "last_activity": "Ultima attività <strong>{{last_activity_ago}}</strong>",
-    "expiry": "Scade il <strong>{{expiry_datetime}}</strong>",
     "current_session": "Questa è la tua sessione attuale.",
     "log_out_of_session": "Disconnetti da questa sessione",
-    "log_out_of_all_session": "Disconnetti tutte le altre sessioni"
+    "log_out_of_all_session": "Disconnetti tutte le altre sessioni",
+    "location2": "Vicino a <location/>",
+    "last_activity2": "Ultima attività <timeAgo/>",
+    "expiry2": "Scade il <datetime/>"
   },
   "strong_verification": {
     "donation_message1": "La verifica è gratis per te, ma ha un costo per noi. Come non-profit gestita da volontari, ci affidiamo alle donazioni per coprire spese come tenere attivi i server, il sistema di verifica e gli strumenti per i volontari e creatori di community.",
@@ -404,5 +404,12 @@
       "link_url_invalid": "Per favore inserisci un URL valido che inizi con http:// o https://",
       "save_button": "Salva modifiche"
     }
-  }
+  },
+  "change_signup_email_form": {
+    "title": "Modifica l'email di registrazione",
+    "current_email_message": "Il tuo indirizzo e-mail attuale è <strong>{{email}}</strong>.",
+    "success_message": "La modifica del tuo indirizzo email è stata ricevuta. Controlla la tua nuova casella di posta per confermare.",
+    "signup_change_email": "Modifica indirizzo email"
+  },
+  "sign_up_change_email": "Hai digitato male il tuo indirizzo email? Inserisci qui l'indirizzo email corretto:"
 }

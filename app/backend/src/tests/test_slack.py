@@ -1,16 +1,7 @@
 from unittest.mock import patch
 
-import pytest
-
 from couchers.config import config
 from couchers.slack import send_slack_message
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    # testconfig saves/restores the global config dict, so any mutations
-    # (e.g. setting SLACK_ENABLED=True) are automatically reverted after each test
-    pass
 
 
 def test_send_slack_message_disabled():

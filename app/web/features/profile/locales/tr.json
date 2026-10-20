@@ -96,7 +96,10 @@
     "occupation": "Meslek",
     "education": "Eğitim",
     "basic_information": "Temel Bilgiler",
-    "name": "İsim"
+    "name": "İsim",
+    "basic_information_subtitle": "İsminizi, fotoğrafınızı ve konumunuzu ekleyerek başlayın",
+    "preferences": "Tercihler",
+    "personal_information": "Kişisel Bilgiler"
   },
   "edit_profile_helper_text": "Nereden başlayağına karar vermek için ilham mı arıyorsun? <guideLink>Harika bir profil yaratmak üzerine olan rehberimize bak</guideLink>.",
   "smoking_location": {

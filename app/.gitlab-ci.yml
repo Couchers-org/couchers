@@ -28,6 +28,12 @@ variables:
   BACKEND_QUERY_LOG: "true"
   PREVIEW_DOMAIN: preview.couchershq.org
   GIT_DEPTH: 1  # Speed up the checkout.
+  # buildkit >=0.32 exports the provenance attestation as an OCI artifact whose subject is
+  # the image manifest, which forces the push to be an index. GitLab's registry rejects the
+  # index while that subject manifest is still new to it, as "blob unknown to registry -
+  # <the image manifest digest>". We don't consume provenance, so don't export it.
+  # See moby/buildkit#7007.
+  BUILDX_NO_DEFAULT_ATTESTATIONS: "1"
   DOCKER_HOST: tcp://docker:2376
   DOCKER_TLS_CERTDIR: "/certs"
   RELEASE_BRANCH: develop
@@ -146,7 +152,10 @@ protos:
     # the grpc container doesn't have docker, no need to login
     default: false
   script:
-    - cd app && ./generate_protos.sh
+    # The container doesn't have Make, so call the generate scripts directly
+    - app/proto/generate_python.sh
+    - app/proto/generate_ts.sh
+    - app/copy_generated_protos.sh
   artifacts:
     paths:
       - app/
@@ -159,7 +168,7 @@ build:deploy-manifest:
   script:
     - sh app/deployment/build_manifest.sh app/backend/src/couchers/migrations/versions/ artifacts/deploy-info
     - mkdir -p artifacts/deploy-info/protos
-    - cp app/proto/gen/descriptors.pb "artifacts/deploy-info/protos/${SLUG}.pb"
+    - cp app/proto/gen/python/descriptors.pb "artifacts/deploy-info/protos/${SLUG}.pb"
   artifacts:
     paths:
       - artifacts/deploy-info
@@ -348,9 +357,15 @@ test:backend:
         "-c", "wal_keep_size=100MB",
         "-c", "max_wal_senders=0",
       ]
+    # the rate limiter's Valkey integration tests skip unless this is reachable
+    - name: valkey/valkey:8-alpine
+      alias: valkey
+      command: ["valkey-server", "--save", "", "--appendonly", "no"]
   variables:
     POSTGRES_PASSWORD: c765064a49d18a95
     DATABASE_CONNECTION_STRING: "postgresql://postgres:c765064a49d18a95@postgres/testdb"
+    VALKEY_TEST_HOST: valkey
+    VALKEY_TEST_PORT: "6379"
     COVERAGE_FILE: /app/.coverage.$CI_NODE_INDEX
   script:
     # --query-log records every SQL query into test_artifacts/queries/data.$CI_NODE_INDEX.json.gz, which the
@@ -1390,12 +1405,12 @@ preview:protos:
   before_script:
     - apt-get update -qq && apt-get install -y --no-install-recommends python3
   script:
-    - python_sum=$(sha256sum app/proto/gen/python.tar.gz | head -c 64)
-    - ts_sum=$(sha256sum app/proto/gen/ts.tar.gz | head -c 64)
-    - pb_sum=$(sha256sum app/proto/gen/descriptors.pb | head -c 64)
-    - aws s3 cp app/proto/gen/python.tar.gz s3://$AWS_PREVIEW_BUCKET/by-sha/protos/$python_sum/python.tar.gz
-    - aws s3 cp app/proto/gen/ts.tar.gz s3://$AWS_PREVIEW_BUCKET/by-sha/protos/$ts_sum/ts.tar.gz
-    - aws s3 cp app/proto/gen/descriptors.pb s3://$AWS_PREVIEW_BUCKET/by-sha/protos/$pb_sum/descriptors.pb
+    - python_sum=$(sha256sum app/proto/gen/python/python.tar.gz | head -c 64)
+    - ts_sum=$(sha256sum app/proto/gen/ts/ts.tar.gz | head -c 64)
+    - pb_sum=$(sha256sum app/proto/gen/python/descriptors.pb | head -c 64)
+    - aws s3 cp app/proto/gen/python/python.tar.gz s3://$AWS_PREVIEW_BUCKET/by-sha/protos/$python_sum/python.tar.gz
+    - aws s3 cp app/proto/gen/ts/ts.tar.gz s3://$AWS_PREVIEW_BUCKET/by-sha/protos/$ts_sum/ts.tar.gz
+    - aws s3 cp app/proto/gen/python/descriptors.pb s3://$AWS_PREVIEW_BUCKET/by-sha/protos/$pb_sum/descriptors.pb
     - aws s3api put-object --bucket $AWS_PREVIEW_BUCKET --key protos/$CI_COMMIT_REF_SLUG/ts.tar.gz --website-redirect-location https://protos--by-sha.$PREVIEW_DOMAIN/$ts_sum/ts.tar.gz
     - aws s3api put-object --bucket $AWS_PREVIEW_BUCKET --key protos/$CI_COMMIT_REF_SLUG/python.tar.gz --website-redirect-location https://protos--by-sha.$PREVIEW_DOMAIN/$python_sum/python.tar.gz
     - aws s3api put-object --bucket $AWS_PREVIEW_BUCKET --key protos/$CI_COMMIT_REF_SLUG/descriptors.pb --website-redirect-location https://protos--by-sha.$PREVIEW_DOMAIN/$pb_sum/descriptors.pb

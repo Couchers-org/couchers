@@ -20,6 +20,7 @@ describe("MotivationsForm", () => {
       "auth.flowState",
       JSON.stringify({
         flowToken: "dummy-token",
+        email: "test@example.com",
         needBasic: false,
         needAccount: false,
         needFeedback: false,
@@ -38,6 +39,7 @@ describe("MotivationsForm", () => {
   it("submits with selected motivations", async () => {
     signupFlowMotivationsMock.mockResolvedValue({
       flowToken: "dummy-token",
+      email: "test@example.com",
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: false,
@@ -62,6 +64,7 @@ describe("MotivationsForm", () => {
   it("submits with no motivations selected", async () => {
     signupFlowMotivationsMock.mockResolvedValue({
       flowToken: "dummy-token",
+      email: "test@example.com",
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: false,

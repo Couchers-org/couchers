@@ -26,11 +26,6 @@ from tests.test_public_trips import _create_trip_directly
 from tests.test_requests import valid_request_text
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def _make_trip(user: User) -> tuple[int, int]:
     """Create a community + an active public trip for the given traveller."""
     with session_scope() as session:
@@ -148,6 +143,29 @@ def test_list_message_threads_need_host_request_feedback(db, moderator):
         )
 
     assert not host_request_thread(token1).need_host_request_feedback
+
+
+def test_list_message_threads_no_feedback_for_declined_public_trip_offer(db, moderator):
+    traveller, traveller_token = generate_user()
+    _host, host_token = generate_user()
+    _, trip_id = _make_trip(traveller)
+
+    request_id = _create_host_request(host_token, traveller.id, moderator, public_trip_id=trip_id)
+
+    # the traveller is the recipient of an offer, so they're the one who declines
+    with requests_session(traveller_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=request_id,
+                status=messages_pb2.HOST_REQUEST_STATUS_REJECTED,
+            )
+        )
+
+    for token in (traveller_token, host_token):
+        with conversations_session(token) as c:
+            res = c.ListMessageThreads(conversations_pb2.ListMessageThreadsReq())
+        thread = next(t.host_request for t in res.threads if t.host_request.host_request_id == request_id)
+        assert not thread.need_host_request_feedback
 
 
 def test_list_message_threads_can_message(db, moderator):

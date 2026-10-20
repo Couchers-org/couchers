@@ -2,6 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import CommunityGuidelinesForm from "features/auth/signup/CommunityGuidelinesForm";
 import { StatusCode } from "grpc-web";
+import TagManager from "react-gtm-module";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
@@ -22,6 +23,7 @@ describe("community guidelines signup form", () => {
       "auth.flowState",
       JSON.stringify({
         flowToken: "dummy-token",
+        email: "test@example.com",
         needBasic: false,
         needAccount: true,
         needFeedback: false,
@@ -48,6 +50,7 @@ describe("community guidelines signup form", () => {
   it("works only with all boxes checked", async () => {
     signupFlowCommunityGuidelinesMock.mockResolvedValue({
       flowToken: "dummy-token",
+      email: "test@example.com",
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: false,
@@ -74,6 +77,7 @@ describe("community guidelines signup form", () => {
     await waitFor(() => {
       expect(signupFlowCommunityGuidelinesMock).toHaveBeenCalledWith("dummy-token", true);
     });
+    expect(TagManager.dataLayer).not.toHaveBeenCalled();
   });
 
   it("does not allow submit when checkbox left blank", async () => {

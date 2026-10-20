@@ -32,7 +32,7 @@ const StyledCard = styled(Box)(({ theme }) => ({
   },
 }));
 
-const DaysChip = styled("span")<{ imminent: boolean }>(({ theme, imminent }) => ({
+const DaysChip = styled("span")(({ theme }) => ({
   fontSize: 11,
   fontWeight: 700,
   borderRadius: 999,
@@ -40,8 +40,8 @@ const DaysChip = styled("span")<{ imminent: boolean }>(({ theme, imminent }) => 
   whiteSpace: "nowrap",
   flexShrink: 0,
   marginLeft: "auto",
-  background: imminent ? alpha(theme.palette.secondary.main, 0.12) : "var(--mui-palette-grey-50)",
-  color: imminent ? "var(--mui-palette-secondary-dark)" : "var(--mui-palette-text-secondary)",
+  background: alpha(theme.palette.secondary.main, 0.12),
+  color: "var(--mui-palette-secondary-dark)",
 }));
 
 const IdentityRow = styled("div")(({ theme }) => ({
@@ -128,11 +128,13 @@ export default function UpcomingStayCard({ hostRequest }: UpcomingStayCardProps)
   const nights = daysBetween(fromDate, toDate);
   const daysUntil = daysBetween(today, fromDate);
   const daysUntilEnd = daysBetween(today, toDate);
-  const isOngoing = daysUntil <= 0 && daysUntilEnd >= 0;
-  const isImminent = daysUntil <= 3;
-  const relativeDaysLabel = localizeRelativeTimeUnit(daysUntil, "days", locale, {
-    capitalize: true,
-  });
+  // Stays are date-only, so there is no time to say "now" from: anything covering today reads "Today".
+  const isToday = daysUntil <= 0 && daysUntilEnd >= 0;
+  const whenLabel = isToday
+    ? t("dashboard:today_label")
+    : daysUntil <= 3
+      ? localizeRelativeTimeUnit(daysUntil, "days", locale, { capitalize: true })
+      : null;
 
   const dateRange = localizeDateRange(fromDate, toDate, locale, {
     includeYear: "auto",
@@ -188,7 +190,7 @@ export default function UpcomingStayCard({ hostRequest }: UpcomingStayCardProps)
               )}
             </Typography>
           </TextBlock>
-          {isImminent && <DaysChip imminent>{isOngoing ? t("dashboard:now_label") : relativeDaysLabel}</DaysChip>}
+          {whenLabel && <DaysChip>{whenLabel}</DaysChip>}
         </IdentityRow>
         <MetaRow>
           <MetaDate>

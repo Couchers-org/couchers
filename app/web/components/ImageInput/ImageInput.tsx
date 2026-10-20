@@ -151,7 +151,7 @@ function ImageInput(props: RectImgInputProps) {
       if (result.success) {
         const dataUrl = `data:${result.mimeType};base64,${result.imageBase64}`;
         const extension = result.mimeType.split("/")[1] || "jpg";
-        const file = base64ToFile(result.imageBase64, result.mimeType, `image.${extension}`);
+        const file = base64ToFile(result.imageBase64, result.mimeType, result.fileName ?? `image.${extension}`);
 
         // Check file size before uploading
         if (file.size > MAX_FILE_SIZE) {

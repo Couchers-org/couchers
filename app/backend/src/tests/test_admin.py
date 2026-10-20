@@ -4,7 +4,8 @@ from unittest.mock import patch
 
 import grpc
 import pytest
-from sqlalchemy import select
+from google.protobuf import wrappers_pb2
+from sqlalchemy import select, update
 from sqlalchemy.sql import func
 
 from couchers.db import session_scope
@@ -14,6 +15,7 @@ from couchers.models import (
     EventOccurrence,
     FriendRelationship,
     FriendStatus,
+    HostRequest,
     ModerationObjectType,
     ModerationState,
     ModerationUserList,
@@ -34,36 +36,31 @@ from couchers.proto import (
     admin_pb2,
     auth_pb2,
     blocking_pb2,
-    events_pb2,
     references_pb2,
     reporting_pb2,
     requests_pb2,
 )
-from couchers.utils import Timestamp_from_datetime, datetime_to_iso8601_local, now, parse_date
+from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date
+from tests.fixtures.api import events as events_api
 from tests.fixtures.db import (
     add_users_to_new_moderation_list,
     backdate_conversations,
     generate_user,
     make_friends,
 )
-from tests.fixtures.misc import EmailCollector, PushCollector
+from tests.fixtures.misc import EmailCollector, Moderator, PushCollector
 from tests.fixtures.sessions import (
     account_session,
     auth_api_session,
     blocking_session,
-    events_session,
     real_admin_session,
     references_session,
     reporting_session,
     requests_session,
 )
 from tests.test_communities import create_community
+from tests.test_references import create_host_reference
 from tests.test_requests import valid_request_text
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
 
 
 def test_access_by_normal_user(db):
@@ -289,7 +286,7 @@ def test_UnbanUser(db):
     assert res.admin_actions[0].level == admin_pb2.ADMIN_ACTION_LEVEL_HIGH
 
 
-def test_ShadowUser(db):
+def test_ShadowUser(db, moderator: Moderator):
     super_user, super_token = generate_user(is_superuser=True)
     surfer, surfer_token = generate_user()
     host, _ = generate_user()
@@ -307,13 +304,7 @@ def test_ShadowUser(db):
                 text=valid_request_text(),
             )
         ).host_request_id
-    with session_scope() as session:
-        state = session.execute(
-            select(ModerationState)
-            .where(ModerationState.object_type == ModerationObjectType.host_request)
-            .where(ModerationState.object_id == host_request_id)
-        ).scalar_one()
-        state.visibility = ModerationVisibility.visible
+    moderator.approve_host_request(host_request_id)
 
     with real_admin_session(super_token) as api:
         res = api.ShadowUser(admin_pb2.ShadowUserReq(user=surfer.username, admin_note=admin_note))
@@ -336,7 +327,7 @@ def test_ShadowUser(db):
         assert state.visibility == ModerationVisibility.shadowed
 
 
-def test_UnshadowUser(db):
+def test_UnshadowUser(db, moderator: Moderator):
     super_user, super_token = generate_user(is_superuser=True)
     surfer, surfer_token = generate_user()
     host, _ = generate_user()
@@ -362,18 +353,9 @@ def test_UnshadowUser(db):
             )
         ).host_request_id
 
+    moderator.hide_host_request(admin_hidden_request_id)
     with session_scope() as session:
         session.execute(select(User).where(User.id == surfer.id)).scalar_one().shadowed_at = now()
-        session.execute(
-            select(ModerationState)
-            .where(ModerationState.object_type == ModerationObjectType.host_request)
-            .where(ModerationState.object_id == shadow_cascade_request_id)
-        ).scalar_one().visibility = ModerationVisibility.shadowed
-        session.execute(
-            select(ModerationState)
-            .where(ModerationState.object_type == ModerationObjectType.host_request)
-            .where(ModerationState.object_id == admin_hidden_request_id)
-        ).scalar_one().visibility = ModerationVisibility.hidden
 
     with real_admin_session(super_token) as api:
         res = api.UnshadowUser(admin_pb2.UnshadowUserReq(user=surfer.username, admin_note="rehabilitated"))
@@ -403,6 +385,49 @@ def test_UnshadowUser(db):
             .visibility
             == ModerationVisibility.hidden
         )
+
+
+def test_SetModerationAutoApproveDeadline(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        res = api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.username))
+        assert not res.HasField("moderation_auto_approve_seconds")
+
+        res = api.SetModerationAutoApproveDeadline(
+            admin_pb2.SetModerationAutoApproveDeadlineReq(
+                user=normal_user.username, auto_approve_seconds=wrappers_pb2.Int64Value(value=0)
+            )
+        )
+        assert res.moderation_auto_approve_seconds.value == 0
+
+        res = api.SetModerationAutoApproveDeadline(
+            admin_pb2.SetModerationAutoApproveDeadlineReq(
+                user=normal_user.username, auto_approve_seconds=wrappers_pb2.Int64Value(value=48 * 3600)
+            )
+        )
+        assert res.moderation_auto_approve_seconds.value == 48 * 3600
+
+        res = api.SetModerationAutoApproveDeadline(
+            admin_pb2.SetModerationAutoApproveDeadlineReq(user=normal_user.username)
+        )
+        assert not res.HasField("moderation_auto_approve_seconds")
+
+        for seconds in [-1, 48 * 3600 + 1, 2**63 - 1]:
+            with pytest.raises(grpc.RpcError) as e:
+                api.SetModerationAutoApproveDeadline(
+                    admin_pb2.SetModerationAutoApproveDeadlineReq(
+                        user=normal_user.username, auto_approve_seconds=wrappers_pb2.Int64Value(value=seconds)
+                    )
+                )
+            assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+    assert [(a.action_type, a.note) for a in res.admin_actions] == [
+        ("set_moderation_auto_approve_deadline", "Changed from default to never"),
+        ("set_moderation_auto_approve_deadline", "Changed from never to 172800 seconds"),
+        ("set_moderation_auto_approve_deadline", "Changed from 172800 seconds to default"),
+    ]
 
 
 def test_ShadowUser_blank_note(db):
@@ -635,6 +660,43 @@ def test_RecoverDeletedUser_after_user_initiated_deletion(db, push_collector: Pu
         assert user.undelete_until is None
 
 
+def test_RecoverDeletedUser_email_reused(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == normal_user.id).values(deleted_at=func.now()))
+
+    new_user, _ = generate_user(email=normal_user.email)
+
+    with real_admin_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.email))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert (
+            e.value.details()
+            == "That email address is used by more than one user, look them up by username or ID instead."
+        )
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.RecoverDeletedUser(admin_pb2.RecoverDeletedUserReq(user=normal_user.username))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+
+def test_SearchUsers_exact_email(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    deleted_user, _ = generate_user(email="first_last@couchers.org.invalid", delete_user=True)
+    live_user, _ = generate_user(email="first_last@couchers.org.invalid")
+    wildcard_match, _ = generate_user(email="firstxlast@couchers.org.invalid")
+
+    with real_admin_session(super_token) as api:
+        res = api.SearchUsers(admin_pb2.SearchUsersReq(email="first_last@couchers.org.invalid"))
+        assert {u.user_id for u in res.users} == {deleted_user.id, live_user.id, wildcard_match.id}
+
+        res = api.SearchUsers(admin_pb2.SearchUsersReq(exact_email="First_Last@couchers.org.invalid"))
+        assert {u.user_id for u in res.users} == {deleted_user.id, live_user.id}
+
+
 def test_CreateApiKey(db, email_collector: EmailCollector, push_collector: PushCollector):
     with session_scope() as session:
         super_user, super_token = generate_user(is_superuser=True)
@@ -755,25 +817,9 @@ def test_DeleteEvent(db):
     with session_scope() as session:
         create_community(session, 0, 2, "Community", [normal_user], [], None)
 
-    start_time = now() + timedelta(hours=2)
-    end_time = start_time + timedelta(hours=3)
-    with events_session(normal_token) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                photo_key=None,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
-        event_id = res.event_id
-        assert not res.is_deleted
+    res = events_api.create_event(token=normal_token)
+    event_id = res.event_id
+    assert not res.is_deleted
 
     with session_scope() as session:
         with real_admin_session(super_token) as api:
@@ -912,7 +958,19 @@ def test_GetUserReferences(db):
         assert res.references_from[0].reference_id == ref1.reference_id
         assert res.references_from[0].from_user_id == user1.id
         assert res.references_from[0].to_user_id == user2.id
+        assert res.references_from[0].from_user.user_id == user1.id
+        assert res.references_from[0].from_user.username == user1.username
+        assert res.references_from[0].to_user.user_id == user2.id
+        assert res.references_from[0].to_user.username == user2.username
+        assert res.references_from[0].reference_type == "friend"
         assert res.references_from[0].text == "Reference from user1 to user2"
+        # freshly written content starts out shadowed
+        assert res.references_from[0].moderation_visibility == "shadowed"
+        assert res.references_from[0].host_request_id == 0
+        assert res.references_from[0].hosting_city == ""
+        assert res.references_from[0].from_date == ""
+        assert res.references_from[0].to_date == ""
+        assert res.references_from[0].status == ""
 
         # user1 received 2 references
         assert len(res.references_to) == 2
@@ -923,6 +981,54 @@ def test_GetUserReferences(db):
         assert res.references_to[1].reference_id == ref2.reference_id
         assert res.references_to[1].private_text == "Private note"
         assert res.references_to[1].rating == 0.8
+
+
+def test_GetUserReferences_host_request(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+
+    with session_scope() as session:
+        surfed_ref_id, host_request_id = create_host_reference(session, user1.id, user2.id, timedelta(days=2))
+        hosted_ref_id, _ = create_host_reference(
+            session, user2.id, user1.id, timedelta(days=2), host_request_id=host_request_id
+        )
+        host_request = session.execute(
+            select(HostRequest).where(HostRequest.conversation_id == host_request_id)
+        ).scalar_one()
+        from_date = date_to_api(host_request.from_date)
+        to_date = date_to_api(host_request.to_date)
+
+    with real_admin_session(super_token) as admin_api:
+        res = admin_api.GetUserReferences(admin_pb2.GetUserReferencesReq(user=user1.username))
+
+    assert len(res.references_from) == 1
+    surfed_ref = res.references_from[0]
+    assert surfed_ref.reference_id == surfed_ref_id
+    assert surfed_ref.reference_type == "surfed"
+    assert surfed_ref.from_user.user_id == user1.id
+    assert surfed_ref.from_user.username == user1.username
+    assert surfed_ref.to_user.user_id == user2.id
+    assert surfed_ref.to_user.username == user2.username
+    assert surfed_ref.moderation_visibility == "visible"
+    assert surfed_ref.host_request_id == host_request_id
+    assert surfed_ref.hosting_city == "Test City"
+    assert surfed_ref.from_date == from_date
+    assert surfed_ref.to_date == to_date
+    assert surfed_ref.status == "confirmed"
+
+    assert len(res.references_to) == 1
+    hosted_ref = res.references_to[0]
+    assert hosted_ref.reference_id == hosted_ref_id
+    assert hosted_ref.reference_type == "hosted"
+    assert hosted_ref.from_user.user_id == user2.id
+    assert hosted_ref.to_user.user_id == user1.id
+    assert hosted_ref.host_request_id == host_request_id
+    assert hosted_ref.hosting_city == "Test City"
+    assert hosted_ref.from_date == from_date
+    assert hosted_ref.to_date == to_date
+    assert hosted_ref.status == "confirmed"
 
 
 def test_GetUserReferences_not_found(db):
@@ -1376,7 +1482,10 @@ def test_admin_actions_on_mutations(db, push_collector: PushCollector):
         # SendModNote with notify
         res = api.SendModNote(
             admin_pb2.SendModNoteReq(
-                user=normal_user.username, content="Please update your profile", internal_id="test1"
+                user=normal_user.username,
+                content="Please update your profile",
+                internal_id="test1",
+                notification=admin_pb2.MOD_NOTE_NOTIFICATION_NOTIFY,
             )
         )
         assert any(
@@ -1384,17 +1493,31 @@ def test_admin_actions_on_mutations(db, push_collector: PushCollector):
             for a in res.admin_actions
         )
 
-        # SendModNote with do_not_notify
+        # SendModNote without notifying
         res = api.SendModNote(
             admin_pb2.SendModNoteReq(
                 user=normal_user.username,
                 content="Silent note",
                 internal_id="test2",
-                do_not_notify=True,
+                notification=admin_pb2.MOD_NOTE_NOTIFICATION_NONE,
             )
         )
         assert any(
             a.action_type == "send_mod_note" and a.note == "Notify user: No\n\nSilent note" for a in res.admin_actions
+        )
+
+        # SendModNote including the note text in the email
+        res = api.SendModNote(
+            admin_pb2.SendModNoteReq(
+                user=normal_user.username,
+                content="Emailed note",
+                internal_id="test3",
+                notification=admin_pb2.MOD_NOTE_NOTIFICATION_NOTIFY_WITH_CONTENT,
+            )
+        )
+        assert any(
+            a.action_type == "send_mod_note" and a.note == "Notify user: Yes, including the note text\n\nEmailed note"
+            for a in res.admin_actions
         )
 
         # DeleteUser
@@ -1697,6 +1820,43 @@ def test_ListUserUploads(db):
     assert upload0.full_url.endswith("/img/full/photo0.jpg")
     assert upload0.thumbnail_url.endswith("/img/thumbnail/photo0.jpg")
     assert upload0.HasField("created")
+
+
+def test_ListUserUploads_metadata(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user, _ = generate_user(complete_profile=False)
+
+    with session_scope() as session:
+        session.add(
+            Upload(
+                key="with_metadata",
+                filename="photo.jpg",
+                creator_user_id=user.id,
+                metadata_exif=b"\x01\x02\x03",
+                metadata_parsed={"Image Make": "Canon", "EXIF LensModel": "50mm"},
+                original_filename="IMG_1234.HEIC",
+                original_format="heif",
+                original_size=123456,
+                original_width=4032,
+                original_height=3024,
+            )
+        )
+        session.add(Upload(key="without_metadata", filename="old.jpg", creator_user_id=user.id))
+
+    with real_admin_session(super_token) as api:
+        res = api.ListUserUploads(admin_pb2.ListUserUploadsReq(user=user.username))
+
+    uploads = {u.key: u for u in res.uploads}
+    assert uploads["without_metadata"].metadata == admin_pb2.UploadMetadata()
+
+    metadata = uploads["with_metadata"].metadata
+    assert json.loads(metadata.parsed_json) == {"Image Make": "Canon", "EXIF LensModel": "50mm"}
+    assert metadata.parse_error == ""
+    assert metadata.original_filename == "IMG_1234.HEIC"
+    assert metadata.original_format == "heif"
+    assert metadata.original_size == 123456
+    assert metadata.original_width == 4032
+    assert metadata.original_height == 3024
 
 
 def test_ListUserUploads_pagination(db):

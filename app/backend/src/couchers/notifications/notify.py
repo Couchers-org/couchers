@@ -1,5 +1,6 @@
 import logging
 from collections.abc import Sequence
+from dataclasses import dataclass
 
 from google.protobuf import empty_pb2
 from google.protobuf.message import Message
@@ -12,6 +13,15 @@ from couchers.models.notifications import NotificationTopicAction
 from couchers.proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True, kw_only=True)
+class PendingNotification:
+    user_id: int
+    topic_action: NotificationTopicAction
+    key: str
+    data: Message | None = None
+    moderation_state_id: int | None = None
 
 
 def notify(
@@ -43,27 +53,49 @@ def notify(
     The key parameter is required. Pass key="" for notifications that intentionally don't have a key
     (e.g., security notifications like password changes, or aggregated notifications like chat:missed_messages).
     """
-    logger.info(f"Generating notification of type {topic_action.display} for user {user_id}")
+    notify_many(
+        session,
+        [
+            PendingNotification(
+                user_id=user_id,
+                topic_action=topic_action,
+                key=key,
+                data=data,
+                moderation_state_id=moderation_state_id,
+            )
+        ],
+    )
+
+
+def notify_many(session: Session, notifications: Sequence[PendingNotification]) -> None:
     # Import here to avoid circular dependency
     from couchers.notifications.background import handle_notification  # noqa: PLC0415
 
-    notification = Notification(
-        user_id=user_id,
-        topic_action=topic_action,
-        key=key,
-        data=(data or empty_pb2.Empty()).SerializeToString(),
-        moderation_state_id=moderation_state_id,
-    )
-    session.add(notification)
+    rows = []
+    for notification in notifications:
+        logger.info(
+            f"Generating notification of type {notification.topic_action.display} for user {notification.user_id}"
+        )
+        rows.append(
+            Notification(
+                user_id=notification.user_id,
+                topic_action=notification.topic_action,
+                key=notification.key,
+                data=(notification.data or empty_pb2.Empty()).SerializeToString(),
+                moderation_state_id=notification.moderation_state_id,
+            )
+        )
+    session.add_all(rows)
     session.flush()
 
-    queue_job(
-        session,
-        job=handle_notification,
-        payload=jobs_pb2.HandleNotificationPayload(
-            notification_id=notification.id,
-        ),
-    )
+    for row in rows:
+        queue_job(
+            session,
+            job=handle_notification,
+            payload=jobs_pb2.HandleNotificationPayload(
+                notification_id=row.id,
+            ),
+        )
 
 
 def mark_notifications_seen(

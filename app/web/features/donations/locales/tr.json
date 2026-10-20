@@ -31,6 +31,7 @@
   "benefactor_contact": "1000$ üzeri bir bağış yapmak isterseniz, lütfen bize daha düşük işlem ücretli bir tranfer sağlamamız için <emailLink>{{email}}</emailLink> 'den yazın.",
   "logged_out": {
     "login_button": "Bağış yapmak için giriş yap",
-    "signup_prompt": "Hesabınız yok mu? <signupLink>Kaydolun</signupLink>"
+    "signup_prompt": "Hesabınız yok mu? <signupLink>Kaydolun</signupLink>",
+    "title": "Bağış Miktarı"
   }
 }

@@ -18,6 +18,7 @@ from couchers.db import session_scope
 from couchers.jobs.handlers import check_expo_push_receipts
 from couchers.jobs.worker import process_job
 from couchers.models import (
+    BackgroundJob,
     DeviceType,
     HostingStatus,
     MeetupStatus,
@@ -33,14 +34,17 @@ from couchers.models import (
 )
 from couchers.notifications.background import handle_notification
 from couchers.notifications.expo_api import get_expo_push_receipts
-from couchers.notifications.notify import notify
+from couchers.notifications.notify import PendingNotification, notify, notify_many
+from couchers.notifications.send_raw_push_notification import PushNotificationError, send_raw_push_notification_v2
 from couchers.notifications.settings import get_topic_actions_by_delivery_type, reset_preference
+from couchers.notifications.web_push_api import decode_key, send_web_push
 from couchers.proto import (
     api_pb2,
     auth_pb2,
     conversations_pb2,
     editor_pb2,
     events_pb2,
+    moderation_pb2,
     notification_data_pb2,
     notifications_pb2,
 )
@@ -56,11 +60,6 @@ from tests.fixtures.sessions import (
     notifications_session,
     real_editor_session,
 )
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
 
 
 @pytest.mark.parametrize("enabled", [True, False])
@@ -483,6 +482,41 @@ def test_unseen_notification_count_excludes_ums_hidden(db, moderator):
         assert api.Ping(api_pb2.PingReq()).unseen_notification_count == 1
 
 
+@pytest.mark.parametrize(
+    "visibility,author_sees,other_sees",
+    [
+        (moderation_pb2.MODERATION_VISIBILITY_VISIBLE, 1, 1),
+        (moderation_pb2.MODERATION_VISIBILITY_UNLISTED, 1, 1),
+        (moderation_pb2.MODERATION_VISIBILITY_SHADOWED, 1, 0),
+        (moderation_pb2.MODERATION_VISIBILITY_HIDDEN, 0, 0),
+    ],
+)
+def test_notifications_follow_the_visibility_of_their_content(db, moderator, visibility, author_sees, other_sees):
+    author, author_token = generate_user()
+    other, other_token = generate_user()
+    sender, sender_token = generate_user()
+
+    with conversations_session(author_token) as c:
+        group_chat_id = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[other.id, sender.id])
+        ).group_chat_id
+    moderator.approve_group_chat(group_chat_id)
+
+    with conversations_session(sender_token) as c:
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message"))
+
+    process_jobs()
+
+    moderator.set_group_chat_visibility(group_chat_id, visibility)
+
+    for token, expected in [(author_token, author_sees), (other_token, other_sees)]:
+        with api_session(token) as api:
+            assert api.Ping(api_pb2.PingReq()).unseen_notification_count == expected
+        with notifications_session(token) as notifications:
+            res = notifications.ListNotifications(notifications_pb2.ListNotificationsReq())
+            assert len(res.notifications) == expected
+
+
 def test_GetVapidPublicKey(db):
     _, token = generate_user()
 
@@ -739,6 +773,54 @@ def test_event_reminder_email_sent(db, email_collector: EmailCollector):
     assert expected_time_str in email.plain
 
 
+def test_notify_many(db):
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+
+    with session_scope() as session:
+        notify_many(session, [])
+
+    with session_scope() as session:
+        notify_many(
+            session,
+            [
+                PendingNotification(
+                    user_id=user1.id,
+                    topic_action=NotificationTopicAction.badge__add,
+                    key="a",
+                    data=notification_data_pb2.BadgeAdd(badge_id="volunteer"),
+                ),
+                PendingNotification(
+                    user_id=user2.id,
+                    topic_action=NotificationTopicAction.badge__remove,
+                    key="b",
+                ),
+            ],
+        )
+
+    with session_scope() as session:
+        notifications = session.execute(select(Notification).order_by(Notification.id)).scalars().all()
+        assert [(n.user_id, n.topic_action, n.key) for n in notifications] == [
+            (user1.id, NotificationTopicAction.badge__add, "a"),
+            (user2.id, NotificationTopicAction.badge__remove, "b"),
+        ]
+        assert notification_data_pb2.BadgeAdd.FromString(notifications[0].data).badge_id == "volunteer"
+        assert notifications[1].data == b""
+
+        jobs = (
+            session.execute(
+                select(BackgroundJob)
+                .where(BackgroundJob.job_type == handle_notification.__name__)
+                .order_by(BackgroundJob.id)
+            )
+            .scalars()
+            .all()
+        )
+        assert [jobs_pb2.HandleNotificationPayload.FromString(job.payload).notification_id for job in jobs] == [
+            n.id for n in notifications
+        ]
+
+
 def test_RegisterMobilePushNotificationSubscription(db):
     user, token = generate_user()
 
@@ -964,7 +1046,7 @@ def test_check_expo_push_receipts_success(db):
         assert sub.disabled_at == DATETIME_INFINITY
 
 
-def test_check_expo_push_receipts_device_not_registered(db):
+def test_check_expo_push_receipts_device_not_registered(db, frozen_timewarp):
     """Test batch receipt checking with DeviceNotRegistered error disables subscription."""
     user, token = generate_user()
 
@@ -989,7 +1071,7 @@ def test_check_expo_push_receipts_device_not_registered(db):
         session.add(attempt)
         session.flush()
         # Make the attempt old enough to be checked
-        attempt.time = now() - timedelta(minutes=15)
+        attempt.time = now() - timedelta(minutes=20)
         attempt_id = attempt.id
         sub_id = sub.id
 
@@ -1020,7 +1102,7 @@ def test_check_expo_push_receipts_device_not_registered(db):
         sub = session.execute(
             select(PushNotificationSubscription).where(PushNotificationSubscription.id == sub_id)
         ).scalar_one()
-        assert sub.disabled_at <= now()
+        assert sub.disabled_at == now()
 
 
 def test_check_expo_push_receipts_not_found(db):
@@ -1957,3 +2039,193 @@ def test_handle_notification_multiple_delivery_types(
                 assert delivery.delivered is not None
             elif delivery.delivery_type == NotificationDeliveryType.digest:
                 assert delivery.delivered is None
+
+
+# a real uncompressed P-256 point, so the aes128gcm encryption in send_web_push actually runs
+_P256DH_KEY = decode_key("BK7Rp8og3eFJPqm0ofR8F-l2mtNCCCWYo6f_5kSs8jPEFiKetnZHNOglvC6IrgU9vHmgFHlG7gHGtB1HM599sy0")
+
+
+def _make_web_push_sub(user_id: int) -> int:
+    with session_scope() as session:
+        sub = PushNotificationSubscription(
+            user_id=user_id,
+            platform=PushNotificationPlatform.web_push,
+            endpoint="https://updates.push.services.mozilla.com/wpush/v2/sometoken",
+            auth_key=b"0123456789abcdef",
+            p256dh_key=b"0123456789abcdef0123456789abcdef",
+            full_subscription_info="{}",
+            user_agent="Mozilla/5.0",
+        )
+        session.add(sub)
+        session.flush()
+        return sub.id
+
+
+def test_web_push_bad_request_is_permanent_message_failure(db):
+    """A rejected request won't be accepted on a retry, so don't retry it."""
+    user, _ = generate_user()
+    sub_id = _make_web_push_sub(user.id)
+
+    with patch("couchers.notifications.send_raw_push_notification.send_web_push") as mock_send:
+        mock_send.return_value = Mock(status_code=400, text="bad request", headers={})
+        send_raw_push_notification_v2(
+            jobs_pb2.SendRawPushNotificationPayloadV2(
+                push_notification_subscription_id=sub_id,
+                title="title",
+                body="body",
+            )
+        )
+
+    with session_scope() as session:
+        attempt = session.execute(
+            select(PushNotificationDeliveryAttempt).where(
+                PushNotificationDeliveryAttempt.push_notification_subscription_id == sub_id
+            )
+        ).scalar_one()
+        assert attempt.outcome == PushNotificationDeliveryOutcome.permanent_message_failure
+        assert attempt.status_code == 400
+
+        # the subscription itself is still fine
+        sub = session.execute(
+            select(PushNotificationSubscription).where(PushNotificationSubscription.id == sub_id)
+        ).scalar_one()
+        assert sub.disabled_at == DATETIME_INFINITY
+
+
+@pytest.mark.parametrize("status_code", [401, 403, 413, 429, 500, 502, 503])
+def test_web_push_transient_error_is_retried(db, status_code):
+    """Anything we don't recognise as permanent stays retryable."""
+    user, _ = generate_user()
+    sub_id = _make_web_push_sub(user.id)
+
+    with patch("couchers.notifications.send_raw_push_notification.send_web_push") as mock_send:
+        mock_send.return_value = Mock(status_code=status_code, text="try again later", headers={})
+        with pytest.raises(PushNotificationError):
+            send_raw_push_notification_v2(
+                jobs_pb2.SendRawPushNotificationPayloadV2(
+                    push_notification_subscription_id=sub_id,
+                    title="title",
+                    body="body",
+                )
+            )
+
+    with session_scope() as session:
+        attempt = session.execute(
+            select(PushNotificationDeliveryAttempt).where(
+                PushNotificationDeliveryAttempt.push_notification_subscription_id == sub_id
+            )
+        ).scalar_one()
+        assert attempt.outcome == PushNotificationDeliveryOutcome.transient_failure
+        assert attempt.status_code == status_code
+
+
+@pytest.mark.parametrize("status_code", [404, 410])
+def test_web_push_gone_disables_subscription(db, frozen_timewarp, status_code):
+    user, _ = generate_user()
+    sub_id = _make_web_push_sub(user.id)
+
+    with patch("couchers.notifications.send_raw_push_notification.send_web_push") as mock_send:
+        mock_send.return_value = Mock(status_code=status_code, text="gone", headers={})
+        send_raw_push_notification_v2(
+            jobs_pb2.SendRawPushNotificationPayloadV2(
+                push_notification_subscription_id=sub_id,
+                title="title",
+                body="body",
+            )
+        )
+
+    with session_scope() as session:
+        attempt = session.execute(
+            select(PushNotificationDeliveryAttempt).where(
+                PushNotificationDeliveryAttempt.push_notification_subscription_id == sub_id
+            )
+        ).scalar_one()
+        assert attempt.outcome == PushNotificationDeliveryOutcome.permanent_subscription_failure
+
+        sub = session.execute(
+            select(PushNotificationSubscription).where(PushNotificationSubscription.id == sub_id)
+        ).scalar_one()
+        assert sub.disabled_at == now()
+
+
+@pytest.mark.parametrize(("ttl", "expected"), [(0, "no-cache"), (3600, "cache")])
+def test_web_push_sends_wns_cache_policy(ttl, expected):
+    """WNS (Windows Notification Service, Edge's push backend) rejects a mismatched cache policy and ttl."""
+    with patch("couchers.notifications.web_push_api.requests.post") as mock_post:
+        send_web_push(
+            b"data",
+            "https://wns2-par02p.notify.windows.com/w/?token=abc",
+            b"0123456789abcdef",
+            _P256DH_KEY,
+            "mailto:testing@couchers.org.invalid",
+            config.PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY,
+            ttl=ttl,
+        )
+
+    headers = mock_post.call_args.kwargs["headers"]
+    assert headers["ttl"] == str(ttl)
+    assert headers["x-wns-cache-policy"] == expected
+
+
+def test_web_push_bad_request_reports_wns_error_to_sentry(db):
+    """WNS explains a rejection in headers with an empty body, and the drop is silent otherwise."""
+    user, _ = generate_user()
+    sub_id = _make_web_push_sub(user.id)
+
+    with (
+        patch("couchers.notifications.send_raw_push_notification.send_web_push") as mock_send,
+        patch("couchers.notifications.send_raw_push_notification.sentry_sdk") as mock_sentry,
+    ):
+        mock_send.return_value = Mock(
+            status_code=400,
+            text="",
+            headers={
+                "X-WNS-Error-Description": "Ttl value conflicts with X-WNS-Cache-Policy.",
+                "X-WNS-Status": "dropped",
+                "Content-Length": "0",
+            },
+        )
+        send_raw_push_notification_v2(
+            jobs_pb2.SendRawPushNotificationPayloadV2(
+                push_notification_subscription_id=sub_id,
+                title="title",
+                body="body",
+            )
+        )
+
+    reported = mock_sentry.capture_exception.call_args[0][0]
+    assert reported.response_headers["X-WNS-Error-Description"] == "Ttl value conflicts with X-WNS-Cache-Policy."
+    # unrelated headers aren't worth reporting
+    assert "Content-Length" not in reported.response_headers
+    # the message carries them too, so they show up in the Sentry issue itself
+    assert "Ttl value conflicts" in str(reported)
+
+    scope = mock_sentry.new_scope.return_value.__enter__.return_value
+    context = scope.set_context.call_args[0][1]
+    assert context["status_code"] == 400
+    assert context["response_headers"]["X-WNS-Status"] == "dropped"
+
+
+def test_web_push_success_records_body_verbatim(db):
+    """response holds the body exactly as received, never a wrapper around it."""
+    user, _ = generate_user()
+    sub_id = _make_web_push_sub(user.id)
+
+    with patch("couchers.notifications.send_raw_push_notification.send_web_push") as mock_send:
+        mock_send.return_value = Mock(status_code=201, text="ok", headers={"X-WNS-Status": "received"})
+        send_raw_push_notification_v2(
+            jobs_pb2.SendRawPushNotificationPayloadV2(
+                push_notification_subscription_id=sub_id,
+                title="title",
+                body="body",
+            )
+        )
+
+    with session_scope() as session:
+        attempt = session.execute(
+            select(PushNotificationDeliveryAttempt).where(
+                PushNotificationDeliveryAttempt.push_notification_subscription_id == sub_id
+            )
+        ).scalar_one()
+        assert attempt.outcome == PushNotificationDeliveryOutcome.success
+        assert attempt.response == "ok"

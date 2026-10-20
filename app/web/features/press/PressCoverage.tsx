@@ -1,18 +1,29 @@
 import { Box, Card, Link, styled, Typography } from "@mui/material";
 import { useTranslation } from "i18n";
+import { localizeDateOnly } from "i18n/datetimes";
 import { PRESS } from "i18n/namespaces";
+import { Temporal } from "temporal-polyfill";
 
 import SectionHeading from "./SectionHeading";
 import SectionWrapper from "./SectionWrapper";
 
 const articlesData = [
   {
+    imgPath: "/img/press/travel-massive-logo.svg",
+    altText: "Travel Massive",
+    bgColor: "#fff",
+    padding: "0.5rem",
+    date: "2026-08-28",
+    headline:
+      "Couchers is a free couch surfing platform connecting travelers and locals in 180+ countries around the world",
+    href: "https://www.travelmassive.com/posts/couchers-is-a-free-couch-surfing-platform-connecting-travelers-and-locals-in-180-countries-around-the-world-371378167",
+  },
+  {
     imgPath: "/img/press/travel-noir-logo.webp",
     altText: "Travel Noir",
     bgColor: "#001d2e",
     padding: "1rem",
-    publishedDate: "April 1, 2025",
-    dateTime: "2025-04-01",
+    date: "2025-04-01",
     headline: "Couchsurfing vs. house sitting: how to stay for free around the world",
     href: "https://travelnoire.com/couchsurfing-house-sitting-travel",
   },
@@ -21,8 +32,7 @@ const articlesData = [
     altText: "Adventure Uncovered",
     bgColor: "#1d1d1d",
     padding: "1rem",
-    publishedDate: "October 6, 2022",
-    dateTime: "2022-10-06",
+    date: "2022-10-06",
     headline: "The couchsurfing crossroads",
     href: "https://adventureuncovered.com/stories/the-couchsurfing-crossroads/",
   },
@@ -31,8 +41,7 @@ const articlesData = [
     altText: "Input",
     bgColor: undefined,
     padding: undefined,
-    publishedDate: "September 15, 2021",
-    dateTime: "2021-09-15",
+    date: "2021-09-15",
     headline: "Paradise lost: The rise and ruin of Couchsurfing.com",
     href: "https://www.inverse.com/input/features/rise-and-ruin-of-couchsurfing",
   },
@@ -88,13 +97,16 @@ const StyledLink = styled(Link)(({ theme }) => ({
 }));
 
 export default function PressCoverage() {
-  const { t } = useTranslation([PRESS]);
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation([PRESS]);
 
   return (
     <SectionWrapper>
       <SectionHeading>{t("press_coverage_subheading")}</SectionHeading>
       <StyledContainer>
-        {articlesData.map(({ imgPath, altText, bgColor, padding, publishedDate, dateTime, headline, href }) => (
+        {articlesData.map(({ imgPath, altText, bgColor, padding, date, headline, href }) => (
           <StyledCard key={altText}>
             <Box
               sx={{
@@ -103,8 +115,8 @@ export default function PressCoverage() {
             >
               <StyledImage src={imgPath} alt={altText} loading="lazy" bgColor={bgColor} padding={padding} />
             </Box>
-            <Typography component="time" dateTime={dateTime}>
-              {publishedDate}
+            <Typography component="time" dateTime={date}>
+              {localizeDateOnly(Temporal.PlainDate.from(date), locale)}
             </Typography>
             <Typography
               sx={{

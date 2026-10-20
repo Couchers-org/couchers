@@ -119,6 +119,7 @@ describe("Signup", () => {
         "auth.flowState",
         JSON.stringify({
           flowToken: "token",
+          email: "test@example.com",
           needBasic: true,
           needAccount: true,
           needAcceptCommunityGuidelines: true,
@@ -129,6 +130,7 @@ describe("Signup", () => {
       );
       startSignupMock.mockResolvedValue({
         flowToken: "token",
+        email: "test@example.com",
         needBasic: false,
         needAccount: true,
         needAcceptCommunityGuidelines: true,
@@ -151,6 +153,7 @@ describe("Signup", () => {
         "auth.flowState",
         JSON.stringify({
           flowToken: "token",
+          email: "test@example.com",
           needBasic: false,
           needAccount: true,
           needAcceptCommunityGuidelines: true,
@@ -161,6 +164,7 @@ describe("Signup", () => {
       );
       signupFlowAccountMock.mockResolvedValue({
         flowToken: "token",
+        email: "test@example.com",
         needBasic: false,
         needAccount: false,
         needAcceptCommunityGuidelines: true,
@@ -201,6 +205,7 @@ describe("Signup", () => {
         "auth.flowState",
         JSON.stringify({
           flowToken: "token",
+          email: "test@example.com",
           needBasic: false,
           needAccount: false,
           needAcceptCommunityGuidelines: true,
@@ -211,6 +216,7 @@ describe("Signup", () => {
       );
       signupFlowCommunityGuidelinesMock.mockResolvedValue({
         flowToken: "token",
+        email: "test@example.com",
         needBasic: false,
         needAccount: false,
         needAcceptCommunityGuidelines: false,
@@ -240,6 +246,7 @@ describe("Signup", () => {
         "auth.flowState",
         JSON.stringify({
           flowToken: "token",
+          email: "test@example.com",
           needBasic: false,
           needAccount: false,
           needAcceptCommunityGuidelines: false,
@@ -251,6 +258,7 @@ describe("Signup", () => {
       signupFlowMotivationsMock.mockResolvedValue({
         flowToken: "token",
         authRes: { userId: 1, jailed: false },
+        email: "test@example.com",
         needBasic: false,
         needAccount: false,
         needAcceptCommunityGuidelines: false,
@@ -275,6 +283,7 @@ describe("Signup", () => {
       "auth.flowState",
       JSON.stringify({
         flowToken: "token",
+        email: "test@example.com",
         needBasic: true,
         needAccount: true,
         needAcceptCommunityGuidelines: true,
@@ -294,6 +303,7 @@ describe("Signup", () => {
 
     startSignupMock.mockResolvedValue({
       flowToken: "token",
+      email: "test@example.com",
       needBasic: false,
       needAccount: true,
       needAcceptCommunityGuidelines: true,
@@ -333,6 +343,7 @@ describe("Signup", () => {
 
   it("displays the basic form if it is needed", async () => {
     const state: SignupFlowRes.AsObject = {
+      email: "test@example.com",
       needBasic: true,
       needAccount: true,
       needAcceptCommunityGuidelines: true,
@@ -348,6 +359,7 @@ describe("Signup", () => {
 
   it("displays the account form when account, feedback, guidelines and email are pending", async () => {
     const state: SignupFlowRes.AsObject = {
+      email: "test@example.com",
       needBasic: false,
       needAccount: true,
       needFeedback: false,
@@ -363,6 +375,7 @@ describe("Signup", () => {
 
   it("displays the account form when account, guidelines and email are pending", async () => {
     const state: SignupFlowRes.AsObject = {
+      email: "test@example.com",
       needBasic: false,
       needAccount: true,
       needAcceptCommunityGuidelines: true,
@@ -378,6 +391,7 @@ describe("Signup", () => {
 
   it("displays the account form when only account is pending", async () => {
     const state: SignupFlowRes.AsObject = {
+      email: "test@example.com",
       needBasic: false,
       needAccount: true,
       needAcceptCommunityGuidelines: false,
@@ -393,6 +407,7 @@ describe("Signup", () => {
 
   it("displays the guidelines form when guidelines, feedback and email are pending", async () => {
     const state: SignupFlowRes.AsObject = {
+      email: "test@example.com",
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: true,
@@ -408,6 +423,7 @@ describe("Signup", () => {
 
   it("displays the guidelines form when only it and feedback are pending", async () => {
     const state: SignupFlowRes.AsObject = {
+      email: "test@example.com",
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: true,
@@ -423,6 +439,7 @@ describe("Signup", () => {
 
   it("displays the motivations form when only motivations is pending", async () => {
     const state: SignupFlowRes.AsObject = {
+      email: "test@example.com",
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: false,
@@ -438,6 +455,7 @@ describe("Signup", () => {
 
   it("displays the verify email message when email is pending", async () => {
     const state: SignupFlowRes.AsObject = {
+      email: "test@example.com",
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: false,
@@ -447,12 +465,22 @@ describe("Signup", () => {
       flowToken: "token",
     };
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
+
     render(<View />, { wrapper });
-    expect(screen.getByText(t("auth:sign_up_completed_prompt"))).toBeVisible();
+
+    expect(
+      await screen.findByText((_, element) => {
+        return (
+          element?.textContent ===
+          `We have sent an email with a verification link to your email address: test@example.com. Please click the link to activate your account.`
+        );
+      }),
+    ).toBeVisible();
   });
 
   it("displays the redirect message when nothing is pending and has authRes", async () => {
     const state: SignupFlowRes.AsObject = {
+      email: "test@example.com",
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: false,
@@ -469,6 +497,7 @@ describe("Signup", () => {
 
   it("throws an error if nothing is pending but there is no authres", async () => {
     const state: SignupFlowRes.AsObject = {
+      email: "test@example.com",
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: false,
@@ -484,6 +513,7 @@ describe("Signup", () => {
 
   it("sets the email flow state correctly when given a url token", async () => {
     signupFlowEmailTokenMock.mockResolvedValue({
+      email: "test@example.com",
       needBasic: false,
       needAccount: true,
       needAcceptCommunityGuidelines: true,
@@ -493,6 +523,7 @@ describe("Signup", () => {
       flowToken: "token",
     });
     const state: SignupFlowRes.AsObject = {
+      email: "test@example.com",
       needBasic: false,
       needAccount: true,
       needAcceptCommunityGuidelines: true,
@@ -519,6 +550,7 @@ describe("Signup", () => {
       message: "Invalid token",
     });
     const state: SignupFlowRes.AsObject = {
+      email: "test@example.com",
       needBasic: false,
       needAccount: true,
       needAcceptCommunityGuidelines: true,

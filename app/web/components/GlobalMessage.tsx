@@ -1,51 +1,82 @@
-import { Alert as MuiAlert } from "@mui/material";
+import { JSONValue } from "@growthbook/growthbook";
+import { useFeatureValue } from "@growthbook/growthbook-react";
+import { Alert as MuiAlert, AlertColor } from "@mui/material";
+import Sentry from "platform/sentry";
 import { usePersistedState } from "platform/usePersistedState";
 import React, { useEffect } from "react";
 
-interface GlobalMessageData {
-  // the unix timestamp (as a string with milliseconds) when the message was issued
-  epoch: string;
-  severity: "success" | "info" | "warning" | "error";
-  message: string;
+type GlobalMessageData = { severity: AlertColor; message: string };
+
+const SEVERITIES: readonly AlertColor[] = ["success", "info", "warning", "error"];
+
+// { "severity": "info", "message": "Logins are <b>down</b>" }
+function parseGlobalMessage(flag: JSONValue): GlobalMessageData | null {
+  if (flag === null) {
+    return null;
+  }
+
+  if (typeof flag !== "object" || Array.isArray(flag)) {
+    throw new Error("global_message is not an object");
+  }
+
+  const { severity, message } = flag;
+
+  if (message === undefined || message === "") {
+    return null;
+  }
+
+  if (typeof message !== "string") {
+    throw new Error("global_message.message is not a string");
+  }
+
+  const alertColor = SEVERITIES.find((s) => s === severity);
+
+  if (alertColor === undefined) {
+    throw new Error("global_message.severity is not a known severity");
+  }
+
+  return { severity: alertColor, message };
 }
 
-const TIME_BETWEEN_CHECKS_MS = 300_000; // 5 min
-
 export function GlobalMessage() {
-  // data from the global message file
-  const [data, setData] = usePersistedState<GlobalMessageData | null>("globalmessage.data", null);
-  // last time we queried it
-  const [lastCheck, setLastCheck] = usePersistedState<number | null>("globalmessage.lastcheck", null);
-  // the epoch value of the last message we dismissed
-  const [dismissedEpoch, setDismissedEpoch] = usePersistedState<string | null>("globalmessage.dismissed", null);
+  const flag = useFeatureValue<JSONValue>("global_message", null);
+  // dismissal is keyed on the banner's contents, so publishing anything different re-shows it
+  const [dismissed, setDismissed] = usePersistedState<string | null>("globalmessage.dismissed", null);
 
+  const flagJson = JSON.stringify(flag);
+
+  let data: GlobalMessageData | null = null;
+  let error: string | null = null;
+
+  try {
+    data = parseGlobalMessage(flag);
+  } catch (e) {
+    error = (e as Error).message;
+  }
+
+  // deps are strings because GrowthBook rebuilds the flag object on every refresh
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(process.env.NEXT_PUBLIC_GLOBAL_MESSAGE_URL);
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        setData(await response.json());
-        setLastCheck(new Date().getTime());
-      } catch (error) {
-        console.error("Error fetching global message:", error);
-      }
-    };
-    if (!lastCheck || new Date().getTime() - lastCheck > TIME_BETWEEN_CHECKS_MS) {
-      fetchData();
+    if (error !== null) {
+      Sentry.captureException(new Error(error), {
+        tags: { component: "GlobalMessage" },
+        extra: { flag: flagJson },
+      });
     }
-  }, [setData, setLastCheck, lastCheck]);
+  }, [error, flagJson]);
 
-  const dismiss = () => {
-    if (!data) return;
-    setDismissedEpoch(data!.epoch);
-  };
+  if (data === null) {
+    return null;
+  }
 
-  return data && data.epoch && data.epoch != dismissedEpoch ? (
-    <MuiAlert severity={data.severity} onClose={dismiss}>
+  const key = `${data.severity}:${data.message}`;
+
+  if (key === dismissed) {
+    return null;
+  }
+
+  return (
+    <MuiAlert severity={data.severity} onClose={() => setDismissed(key)}>
       <span dangerouslySetInnerHTML={{ __html: data.message }} />
     </MuiAlert>
-  ) : null;
+  );
 }

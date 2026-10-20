@@ -1,7 +1,21 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import BigInteger, DateTime, Float, ForeignKey, String, UniqueConstraint, exists, func, literal, select
+from sqlalchemy import (
+    BigInteger,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    UniqueConstraint,
+    exists,
+    func,
+    literal,
+    select,
+)
+from sqlalchemy import LargeBinary as Binary
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
 from sqlalchemy.sql.elements import ColumnElement
@@ -54,6 +68,19 @@ class Upload(Base, kw_only=True):
 
     # photo credit, etc
     credit: Mapped[str | None] = mapped_column(String, default=None)
+
+    metadata_exif: Mapped[bytes | None] = mapped_column(Binary, deferred=True, default=None)
+    metadata_xmp: Mapped[bytes | None] = mapped_column(Binary, deferred=True, default=None)
+    metadata_iptc: Mapped[bytes | None] = mapped_column(Binary, deferred=True, default=None)
+    metadata_parsed: Mapped[Any | None] = mapped_column(JSONB(none_as_null=True), deferred=True, default=None)
+
+    metadata_parse_error: Mapped[str | None] = mapped_column(String, deferred=True, default=None)
+
+    original_filename: Mapped[str | None] = mapped_column(String, deferred=True, default=None)
+    original_format: Mapped[str | None] = mapped_column(String, deferred=True, default=None)
+    original_size: Mapped[int | None] = mapped_column(BigInteger, deferred=True, default=None)
+    original_width: Mapped[int | None] = mapped_column(Integer, deferred=True, default=None)
+    original_height: Mapped[int | None] = mapped_column(Integer, deferred=True, default=None)
 
     creator_user: Mapped[User] = relationship(init=False, backref="uploads", foreign_keys="Upload.creator_user_id")
 

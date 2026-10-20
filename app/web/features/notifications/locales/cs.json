@@ -27,7 +27,9 @@
     },
     "push_notifications": {
       "title": "Push notifikace",
-      "description": "Push notifikace pro Couchers.org můžeš zapnout na svém zařízení. Pracujeme na rozšíření této funkce."
+      "description": "Push notifikace pro Couchers.org můžeš zapnout na svém zařízení. Pracujeme na rozšíření této funkce.",
+      "enabled_message": "Aktuálně máš push notifikace <strong>zapnuté</strong>.",
+      "disabled_message": "Aktuálně máš push notifikace <strong>vypnuté</strong>."
     }
   },
   "error_loading": "Chyba při načítání oznámení",

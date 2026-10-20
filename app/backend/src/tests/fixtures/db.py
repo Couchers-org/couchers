@@ -38,6 +38,7 @@ from couchers.models import (
     UserSession,
     Volunteer,
 )
+from couchers.moderation.utils import create_moderation
 from couchers.servicers.auth import create_session
 from couchers.utils import create_coordinate, now
 from tests.fixtures.sessions import _MockCouchersContext
@@ -111,9 +112,12 @@ def populate_testing_resources(conn: Connection) -> None:
     conn.execute(
         text("""
         INSERT INTO languages (code, name) VALUES
+        ('aka', 'Akan'),
         ('arb', 'Arabic (Standard)'),
         ('deu', 'German'),
         ('eng', 'English'),
+        ('fat', 'Fanti'),
+        ('fil', 'Filipino'),
         ('fin', 'Finnish'),
         ('fra', 'French'),
         ('heb', 'Hebrew'),
@@ -121,6 +125,8 @@ def populate_testing_resources(conn: Connection) -> None:
         ('jpn', 'Japanese'),
         ('pol', 'Polish'),
         ('swe', 'Swedish'),
+        ('tgl', 'Tagalog'),
+        ('twi', 'Twi'),
         ('cmn', 'Chinese (Mandarin)')
     """)
     )
@@ -165,10 +171,12 @@ def autocommit_engine(url: str):
     engine.dispose()
 
 
-def make_user(**kwargs: Any) -> User:
+def make_user(moderation_state_id: int = 0, **kwargs: Any) -> User:
+    """Build an unsaved user. Pass a real moderation_state_id if you intend to save it."""
     username = "test_user_" + random_hex(16)
 
     user = User(
+        moderation_state_id=moderation_state_id,
         username=username,
         email=f"{username}@dev.couchers.org",
         hashed_password=b"$argon2id$v=19$m=65536,t=2,p=1$4cjGg1bRaZ10k+7XbIDmFg$tZG7JaLrkfyfO7cS233ocq7P8rf3znXR7SAfUt34kJg",
@@ -223,10 +231,21 @@ def generate_user(
     Use this most of the time
     """
     with session_scope() as session:
-        user = make_user(**kwargs)
+        user: User | None = None
 
-        session.add(user)
-        session.flush()
+        def create_user(moderation_state_id: int) -> int:
+            nonlocal user
+            user = make_user(moderation_state_id=moderation_state_id, **kwargs)
+            session.add(user)
+            session.flush()
+            return user.id
+
+        create_moderation(
+            session=session,
+            object_type=ModerationObjectType.user,
+            object_id=create_user,
+        )
+        assert user is not None
 
         # Create a profile gallery for the user and link it
         profile_gallery = PhotoGallery(owner_user_id=user.id)
@@ -251,7 +270,8 @@ def generate_user(
         if delete_user:
             user.deleted_at = now()
 
-        user.recommendation_score = 1e10 - user.id
+        # spaced out well beyond the per-viewer search noise so search order follows creation order
+        user.recommendation_score = 1e10 - 100 * user.id
 
         if complete_profile:
             key = random_hex(32)

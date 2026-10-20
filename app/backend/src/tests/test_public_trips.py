@@ -1,11 +1,11 @@
-from datetime import date, timedelta
+from datetime import UTC, date, datetime, timedelta
 from unittest.mock import patch
 
 import grpc
 import pytest
 from sqlalchemy import select
 
-from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
+from couchers.constants import PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16
 from couchers.db import session_scope
 from couchers.models import (
     Cluster,
@@ -25,19 +25,15 @@ from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.proto import public_trips_pb2, requests_pb2
 from couchers.utils import create_polygon_lat_lng, now, to_multi, today
 from tests.fixtures.db import generate_user
+from tests.fixtures.misc import Moderator
 from tests.fixtures.sessions import public_trips_session, requests_session
 
 
-def _valid_request_text(text: str = "Offer to host") -> str:
+def _valid_trip_offer_text(text: str = "Offer to host") -> str:
     utf16_length = len(text.encode("utf-16-le")) // 2
-    if utf16_length >= HOST_REQUEST_MIN_LENGTH_UTF16:
+    if utf16_length >= PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16:
         return text
-    return text + "_" * (HOST_REQUEST_MIN_LENGTH_UTF16 - utf16_length)
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
+    return text + "_" * (PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16 - utf16_length)
 
 
 # 150+ utf-16 code units to satisfy PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16.
@@ -371,6 +367,7 @@ def test_get_public_trip(db):
         assert res.user.user_id == user.id
         assert res.community_slug == "test-community"
         assert res.community_name == "Test community"
+        assert res.timezone == "Europe/Helsinki"
 
 
 def test_get_public_trip_not_found(db):
@@ -417,6 +414,23 @@ def test_list_public_trips_filters_closed_and_past(db):
     with public_trips_session(host_token) as api:
         res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
         assert [t.trip_id for t in res.public_trips] == [active]
+
+
+def test_list_public_trips_uses_timezone(db, frozen_timewarp):
+    # 1999-12-31 23:30 UTC == 2000-01-01 01:30 Helsinki
+    frozen_timewarp.freeze_at(datetime(1999, 12, 31, 23, 30, tzinfo=UTC))
+    traveler, _ = generate_user()
+    _, host_token = generate_user()
+    node_id = _make_node()  # Europe/Helsinki timezone
+
+    # First trip is over in Europe/Helsinki, second trip is ongoing
+    _create_trip_directly(traveler.id, node_id, date(1999, 12, 30), date(1999, 12, 31))
+    ongoing = _create_trip_directly(traveler.id, node_id, date(2000, 1, 1), date(2000, 1, 2))
+
+    with public_trips_session(host_token) as api:
+        res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
+        assert [t.trip_id for t in res.public_trips] == [ongoing]
+        assert res.public_trips[0].timezone == "Europe/Helsinki"
 
 
 def test_list_public_trips_hides_invisible_user(db):
@@ -963,7 +977,7 @@ def test_list_public_trips_by_user_status_filter_ignored_for_others(db):
         assert [t.trip_id for t in res.public_trips] == [active]
 
 
-def test_list_public_trips_by_user_offers_count_owner(db):
+def test_list_public_trips_by_user_offers_count_owner(db, moderator: Moderator):
     traveler, traveler_token = generate_user()
     host, host_token = generate_user()
     node_id = _make_node()
@@ -978,21 +992,70 @@ def test_list_public_trips_by_user_offers_count_owner(db):
 
     # Host creates an offer via a host request linked to the trip
     with requests_session(host_token) as api:
-        api.CreateHostRequest(
+        host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=traveler.id,
                 from_date=(today() + timedelta(days=5)).isoformat(),
                 to_date=(today() + timedelta(days=10)).isoformat(),
-                text=_valid_request_text(),
+                text=_valid_trip_offer_text(),
                 public_trip_id=trip_id,
             )
-        )
+        ).host_request_id
+
+    with public_trips_session(traveler_token) as api:
+        res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
+        trip = next(t for t in res.public_trips if t.trip_id == trip_id)
+        assert trip.HasField("offers_count")
+        assert trip.offers_count == 0
+
+    moderator.approve_host_request(host_request_id)
 
     with public_trips_session(traveler_token) as api:
         res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
         trip = next(t for t in res.public_trips if t.trip_id == trip_id)
         assert trip.HasField("offers_count")
         assert trip.offers_count == 1
+
+
+def test_list_public_trips_by_user_offers_count_excludes_invisible_offers(db, moderator: Moderator):
+    """The count only covers offers the owner can open."""
+    traveler, traveler_token = generate_user()
+    _hidden_host, hidden_host_token = generate_user()
+    banned_host, banned_host_token = generate_user()
+    node_id = _make_node()
+
+    trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+
+    offer_ids = []
+    for token in (hidden_host_token, banned_host_token):
+        with requests_session(token) as api:
+            offer_ids.append(
+                api.CreateHostRequest(
+                    requests_pb2.CreateHostRequestReq(
+                        host_user_id=traveler.id,
+                        from_date=(today() + timedelta(days=5)).isoformat(),
+                        to_date=(today() + timedelta(days=10)).isoformat(),
+                        text=_valid_trip_offer_text(),
+                        public_trip_id=trip_id,
+                    )
+                ).host_request_id
+            )
+    hidden_offer_id = offer_ids[0]
+
+    for offer_id in offer_ids:
+        moderator.approve_host_request(offer_id)
+
+    with public_trips_session(traveler_token) as api:
+        res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
+        assert next(t for t in res.public_trips if t.trip_id == trip_id).offers_count == 2
+
+    moderator.hide_host_request(hidden_offer_id)
+    with session_scope() as session:
+        session.execute(select(User).where(User.id == banned_host.id)).scalar_one().banned_at = now()
+
+    with public_trips_session(traveler_token) as api:
+        res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
+        assert next(t for t in res.public_trips if t.trip_id == trip_id).offers_count == 0
 
 
 def test_list_public_trips_by_user_offers_count_not_set_for_others(db):
@@ -1008,7 +1071,7 @@ def test_list_public_trips_by_user_offers_count_not_set_for_others(db):
         assert not res.public_trips[0].HasField("offers_count")
 
 
-def test_list_public_trips_by_user_offers_count_excludes_cancelled(db):
+def test_list_public_trips_by_user_offers_count_excludes_cancelled(db, moderator: Moderator):
     traveler, traveler_token = generate_user()
     hosts = [generate_user() for _ in range(5)]
     node_id = _make_node()
@@ -1017,15 +1080,16 @@ def test_list_public_trips_by_user_offers_count_excludes_cancelled(db):
 
     for _host, host_token in hosts:
         with requests_session(host_token) as api:
-            api.CreateHostRequest(
+            offer_id = api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
                     host_user_id=traveler.id,
                     from_date=(today() + timedelta(days=5)).isoformat(),
                     to_date=(today() + timedelta(days=10)).isoformat(),
-                    text=_valid_request_text(),
+                    text=_valid_trip_offer_text(),
                     public_trip_id=trip_id,
                 )
-            )
+            ).host_request_id
+        moderator.approve_host_request(offer_id)
 
     # Set one offer per status, so we cover every status the count has to consider.
     with session_scope() as session:
@@ -1070,7 +1134,7 @@ def test_viewer_host_request_id_reflects_viewers_own_offer(db):
                 host_user_id=traveler.id,
                 from_date=(today() + timedelta(days=5)).isoformat(),
                 to_date=(today() + timedelta(days=10)).isoformat(),
-                text=_valid_request_text(),
+                text=_valid_trip_offer_text(),
                 public_trip_id=trip_id,
             )
         )

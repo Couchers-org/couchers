@@ -14,7 +14,6 @@ from couchers.jobs.enqueue import queue_job
 from couchers.models import (
     Comment,
     Discussion,
-    Event,
     EventOccurrence,
     ModerationObjectType,
     Reply,
@@ -24,7 +23,7 @@ from couchers.models import (
 from couchers.models.discussions import CommentVersion, ContentChangeType, ReplyVersion
 from couchers.models.notifications import NotificationTopicAction
 from couchers.moderation.utils import create_moderation
-from couchers.notifications.notify import notify
+from couchers.notifications.notify import PendingNotification, notify_many
 from couchers.proto import notification_data_pb2, threads_pb2, threads_pb2_grpc
 from couchers.proto.internal import jobs_pb2
 from couchers.servicers.api import user_model_to_pb
@@ -66,20 +65,19 @@ def total_num_responses(session: Session, context: CouchersContext, database_id:
         Comment,
         is_list_operation=True,
     )
-    replies = where_moderated_content_visible(
-        where_users_column_visible(
-            select(func.count())
-            .select_from(Reply)
-            .join(Comment, Comment.id == Reply.comment_id)
-            .where(Comment.thread_id == database_id)
-            .where(Reply.deleted == None),
-            context,
-            Reply.author_user_id,
-        ),
-        context,
-        Reply,
-        is_list_operation=True,
+    # the comment a reply hangs off is filtered too, but not on Comment.deleted: GetThread lists a
+    # deleted comment as a stub and still renders its replies
+    replies = (
+        select(func.count())
+        .select_from(Reply)
+        .join(Comment, Comment.id == Reply.comment_id)
+        .where(Comment.thread_id == database_id)
+        .where(Reply.deleted == None)
     )
+    replies = where_users_column_visible(replies, context, Reply.author_user_id)
+    replies = where_users_column_visible(replies, context, Comment.author_user_id)
+    replies = where_moderated_content_visible(replies, context, Reply, is_list_operation=True)
+    replies = where_moderated_content_visible(replies, context, Comment, is_list_operation=True)
     return session.execute(comments).scalar_one() + session.execute(replies).scalar_one()
 
 
@@ -95,6 +93,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
     from couchers.servicers.discussions import discussion_to_pb  # noqa: PLC0415
     from couchers.servicers.events import event_to_pb  # noqa: PLC0415
 
+    notifications = []
     with session_scope() as session:
         database_id, depth = unpack_thread_id(payload.thread_id)
         if depth == 1:
@@ -110,14 +109,16 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                 created_time=Timestamp_from_datetime(comment.created),
                 num_replies=0,
             )
-            # figure out if the thread is related to an event or discussion
-            event = session.execute(select(Event).where(Event.thread_id == thread.id)).scalar_one_or_none()
+            # figure out if the thread is related to an event occurrence or discussion
+            occurrence = session.execute(
+                select(EventOccurrence).where(EventOccurrence.thread_id == thread.id)
+            ).scalar_one_or_none()
             discussion = session.execute(
                 select(Discussion).where(Discussion.thread_id == thread.id)
             ).scalar_one_or_none()
-            if event:
-                # thread is an event thread
-                occurrence = event.occurrences.order_by(EventOccurrence.id.desc()).limit(1).one()
+            if occurrence:
+                # thread is an event occurrence thread
+                event = occurrence.event
                 subscribed_user_ids = [user.id for user in event.subscribers]
                 attending_user_ids = [user.user_id for user in occurrence.attendances]
 
@@ -127,17 +128,18 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                     if user_id == comment.author_user_id:
                         continue
                     context = make_notification_user_context(user_id=user_id)
-                    notify(
-                        session,
-                        user_id=user_id,
-                        topic_action=NotificationTopicAction.event__comment,
-                        key=str(occurrence.id),
-                        data=notification_data_pb2.EventComment(
-                            reply=reply,
-                            event=event_to_pb(session, occurrence, context),
-                            author=user_model_to_pb(author_user, session, context),
-                        ),
-                        moderation_state_id=comment.moderation_state_id,
+                    notifications.append(
+                        PendingNotification(
+                            user_id=user_id,
+                            topic_action=NotificationTopicAction.event__comment,
+                            key=str(occurrence.id),
+                            data=notification_data_pb2.EventComment(
+                                reply=reply,
+                                event=event_to_pb(session, occurrence, context),
+                                author=user_model_to_pb(author_user, session, context),
+                            ),
+                            moderation_state_id=comment.moderation_state_id,
+                        )
                     )
             elif discussion:
                 # community discussion thread
@@ -153,17 +155,18 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                         continue
 
                     context = make_notification_user_context(user_id=user_id)
-                    notify(
-                        session,
-                        user_id=user_id,
-                        topic_action=NotificationTopicAction.discussion__comment,
-                        key=str(discussion.id),
-                        data=notification_data_pb2.DiscussionComment(
-                            reply=reply,
-                            discussion=discussion_to_pb(session, discussion, context),
-                            author=user_model_to_pb(author_user, session, context),
-                        ),
-                        moderation_state_id=comment.moderation_state_id,
+                    notifications.append(
+                        PendingNotification(
+                            user_id=user_id,
+                            topic_action=NotificationTopicAction.discussion__comment,
+                            key=str(discussion.id),
+                            data=notification_data_pb2.DiscussionComment(
+                                reply=reply,
+                                discussion=discussion_to_pb(session, discussion, context),
+                                author=user_model_to_pb(author_user, session, context),
+                            ),
+                            moderation_state_id=comment.moderation_state_id,
+                        )
                     )
             else:
                 raise NotImplementedError("I can only do event and discussion threads for now")
@@ -200,49 +203,53 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                 num_replies=0,
             )
 
-            event = session.execute(
-                select(Event).where(Event.thread_id == parent_comment.thread_id)
+            occurrence = session.execute(
+                select(EventOccurrence).where(EventOccurrence.thread_id == parent_comment.thread_id)
             ).scalar_one_or_none()
             discussion = session.execute(
                 select(Discussion).where(Discussion.thread_id == parent_comment.thread_id)
             ).scalar_one_or_none()
-            if event:
-                # thread is an event thread
-                occurrence = event.occurrences.order_by(EventOccurrence.id.desc()).limit(1).one()
+            if occurrence:
+                # thread is an event occurrence thread
                 for user_id in user_ids_to_notify:
                     context = make_notification_user_context(user_id=user_id)
-                    notify(
-                        session,
-                        user_id=user_id,
-                        topic_action=NotificationTopicAction.thread__reply,
-                        key=str(occurrence.id),
-                        data=notification_data_pb2.ThreadReply(
-                            reply=reply,
-                            event=event_to_pb(session, occurrence, context),
-                            author=user_model_to_pb(author_user, session, context),
-                        ),
-                        moderation_state_id=db_reply.moderation_state_id,
+                    notifications.append(
+                        PendingNotification(
+                            user_id=user_id,
+                            topic_action=NotificationTopicAction.thread__reply,
+                            key=str(occurrence.id),
+                            data=notification_data_pb2.ThreadReply(
+                                reply=reply,
+                                event=event_to_pb(session, occurrence, context),
+                                author=user_model_to_pb(author_user, session, context),
+                            ),
+                            moderation_state_id=db_reply.moderation_state_id,
+                        )
                     )
             elif discussion:
                 # community discussion thread
                 for user_id in user_ids_to_notify:
                     context = make_notification_user_context(user_id=user_id)
-                    notify(
-                        session,
-                        user_id=user_id,
-                        topic_action=NotificationTopicAction.thread__reply,
-                        key=str(discussion.id),
-                        data=notification_data_pb2.ThreadReply(
-                            reply=reply,
-                            discussion=discussion_to_pb(session, discussion, context),
-                            author=user_model_to_pb(author_user, session, context),
-                        ),
-                        moderation_state_id=db_reply.moderation_state_id,
+                    notifications.append(
+                        PendingNotification(
+                            user_id=user_id,
+                            topic_action=NotificationTopicAction.thread__reply,
+                            key=str(discussion.id),
+                            data=notification_data_pb2.ThreadReply(
+                                reply=reply,
+                                discussion=discussion_to_pb(session, discussion, context),
+                                author=user_model_to_pb(author_user, session, context),
+                            ),
+                            moderation_state_id=db_reply.moderation_state_id,
+                        )
                     )
             else:
                 raise NotImplementedError("I can only do event and discussion threads for now")
         else:
             raise Exception("Unknown depth")
+
+    with session_scope() as session:
+        notify_many(session, notifications)
 
 
 class Threads(threads_pb2_grpc.ThreadsServicer):

@@ -1,4 +1,3 @@
-import pytest
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 
@@ -6,11 +5,6 @@ from couchers.db import session_scope
 from couchers.models import Language
 from couchers.resources import copy_resources_to_database
 from tests.fixtures.sessions import resources_session
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
 
 
 def test_GetTermsOfService():
@@ -50,8 +44,14 @@ def test_GetLanguages(db):
     with resources_session() as api:
         languages = api.GetLanguages(empty_pb2.Empty()).languages
         languages_list = [(r.code, r.name) for r in languages]
+        assert ("aka", "Akan (aka)") in languages_list
+        assert ("eng", "English") in languages_list
+        assert ("fat", "Akan (fat)") in languages_list
+        assert ("fil", "Filipino (fil)") in languages_list
         assert ("fin", "Finnish") in languages_list
         assert ("swe", "Swedish") in languages_list
+        assert ("tgl", "Filipino (tgl)") in languages_list
+        assert ("twi", "Akan (twi)") in languages_list
         assert ("???", "Nonexistent language") not in languages_list
 
     with resources_session(locale="es") as api:
@@ -86,6 +86,7 @@ def test_GetBadges(db):
             "past_volunteer",
             "donor",
             "phone_verified",
+            "postal_verified",
             "strong_verification",
             "swagster",
         }

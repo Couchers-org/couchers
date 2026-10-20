@@ -5,12 +5,16 @@
     "new_email": "Nouvelle adresse mail",
     "current_password": "Mot de passe actuel",
     "success_message": "Votre changement d’adresse mail a été pris en compte. Veuillez vérifier votre nouvelle adresse mail pour finaliser la procédure.",
-    "hide_current_password": "Masquer le mot de passe actuel"
+    "hide_current_password": "Masquer le mot de passe actuel",
+    "show_current_password": "Montrer le mot de passe actuel"
   },
   "basic_form": {
     "name": {
       "field_label": "Votre prénom",
-      "required_error": "Ce champ ne peut pas être vide."
+      "required_error": "Ce champ ne peut pas être vide",
+      "min_length_error": "Le nom doit faire au moins deux caractères",
+      "max_length_error": "Le nom ne peut pas faire plus de 100 caractères",
+      "invalid_characters_error": "Le nom ne peut contenir que des lettres, espaces, tirets et apostrophes"
     },
     "email": {
       "field_label": "Adresse mail",
@@ -41,7 +45,13 @@
     "reset_password_error": "Erreur lors de la réinitialisation du mot de passe : {{message}}",
     "password_mismatch_error": "Les mots de passe ne correspondent pas.",
     "user_logged_error": "Vous ne pouvez pas réinitialiser votre mot de passe si vous êtes connecté.e. Vous pouvez changer votre mot de passe dans les paramètres ou si vous déconnecter pour le réinitialiser.",
-    "token_error": "Une erreur s'est produite lors du traitement du jeton de réinitialisation du mot de passe, veuillez réessayer d'ouvrir le lien dans le mail que vous avez reçu."
+    "token_error": "Une erreur s'est produite lors du traitement du jeton de réinitialisation du mot de passe, veuillez réessayer d'ouvrir le lien dans le mail que vous avez reçu.",
+    "hide_old_password": "Masquer l'ancien mot de passe",
+    "show_old_password": "Montrer l'ancien mot de passe",
+    "hide_new_password": "Masquer le nouveau mot de passe",
+    "show_new_password": "Montrer le nouveau mot de passe",
+    "hide_confirm_password": "Masquer la confirmation du mot de passe",
+    "show_confirm_password": "Montrer la confirmation du mot de passe"
   },
   "basic_sign_up_form": {
     "existing_user_prompt": "Déjà inscrit·e ? <loginLink>Se connecter</loginLink>",
@@ -70,7 +80,7 @@
       "no_emails_disable_text": "Réactiver les mails"
     },
     "title": "Veuillez ne pas m'envoyer de mail",
-    "caveat": "En activant cette option, votre compte sera configuré pour refuser les demandes d'hébergement. Vous continuerez de recevoir les mails de sécurité (comme ceux pour la réinitialisation de votre mot de passe). La newsletter continuera de vous être envoyée ; vous pouvez vous désabonner de celle-ci en utilisant le lien dans le pied de page de la newsletter."
+    "caveat": "En activant cette option, votre compte sera configuré pour refuser les demandes d'hébergement. Vous continuerez de recevoir les mails de sécurité (comme ceux pour la réinitialisation de votre mot de passe). Vous continuerez à recevoir la newsletter ; vous pouvez vous désabonner de celle-ci en utilisant le lien dans le pied de page de la newsletter."
   },
   "reset_password_form": {
     "success_message": "Un lien de réinitialiser votre mot de passe a été envoyé à votre adresse mail à ce compte, si elle existe et est active. Veuillez noter que ce mail peut parfois se retrouver dans vos courriers indésirables.",
@@ -98,6 +108,14 @@
       "title": "Nom d’utilisateur",
       "description": "Votre nom d'utilisateur est <strong>{{username}}</strong>.",
       "explanation": "Votre nom d'utilisateur est défini lors de la création de votre compte."
+    },
+    "appearance_section": {
+      "click_to_change": "Cliquez sur le bouton ci-dessous pour basculer entre les modes clair, sombre et système.",
+      "modes": {
+        "light": "Mode clair",
+        "dark": "Mode sombre",
+        "system": "Mode système (selon votre appareil)"
+      }
     }
   },
   "login_prompt": "Cliquez ici pour vous connecter",
@@ -107,9 +125,9 @@
     "tos_prompt": "Pour continuer, veuillez lire et accepter <tosLink></tosLink>.",
     "header": "Détails de votre compte",
     "hosting_status": {
-      "maybe": "Probable d'héberger",
-      "can_host": "Possible d'héberger",
-      "cant_host": "Pas possible d'héberger",
+      "maybe": "Peut peut-être héberger",
+      "can_host": "Peut d'héberger",
+      "cant_host": "Ne peut pas héberger",
       "field_label": "Statut d’hébergement"
     },
     "gender": {
@@ -117,13 +135,15 @@
       "required_error": "Veuillez sélectionner votre genre",
       "man": "Homme",
       "non_binary": "Non binaire",
-      "woman": "Femme"
+      "woman": "Femme",
+      "selector_a11y": "Genre"
     },
     "username": {
       "required_error": "Entrez votre nom d’utilisateur",
       "username_taken_error": "Ce nom d’utilisateur est déjà pris.",
       "field_label": "Nom d’utilisateur",
-      "validation_error": "Le nom d’utilisateur ne peut contenir que des chiffres, de lettres ou/et commencer par une lettre."
+      "validation_error": "Le nom d’utilisateur ne peut contenir que des chiffres, de lettres ou/et commencer par une lettre.",
+      "helper_text": "Il s'agit de votre nom d'utilisateur public, pas de votre nom de profil."
     },
     "birthday": {
       "field_label": "Date de naissance",
@@ -168,7 +188,7 @@
       "note": "Nous mettrons à jour votre profil pour correspondre à ce choix !"
     },
     "mod_note_section": {
-      "note_title": "Note de modération reçue à {{time}} :",
+      "note_title": "Note de modération reçue à {{time}} :",
       "acknowledge": "Accuser réception de la note",
       "title": "Vous avez reçu une note des modérateurs",
       "description": "Les modérateurs vous ont envoyé la note suivante. Veuillez la lire attentivement et confirmer que vous l'avez lue et comprise avant de continuer."
@@ -189,14 +209,25 @@
       "step4": "Si vous êtes demandé.e, ouvrez l’application et scannez à nouveau le code QR",
       "step5": "Sélectionnez <strong>Passeport</strong> (les cartes d'identité ne sont pas acceptées)",
       "step6": "Prenez une photo claire de la page du passeport avec les numéros d'identification en bas",
-      "step7": "Placez votre portable contre la page du passeport contenant la puce NFC (voir les conseils ci-dessous)",
+      "step7": "Placez votre portable contre la page du passeport contenant la puce NFC et <strong> restez immobile pendant au moins 5 secondes</strong> — bouger trop rapidement est la cause d'échec la plus courante",
       "download_app_store": "Télécharger sur l’App Store",
       "download_google_play": "Télécharger-le sur Google Play",
       "chip_location": {
         "heading": "Trouver la puce NFC de votre passeport",
         "us_germany_mexico": "<strong>le Brésil, les États-Unis, l'Allemagne (2016), l'Indonésie, le Mexique :</strong> Page en arrière",
         "finland_germany_new": "<strong>la Finlande, l'Allemagne (2017+), la Russie :</strong> Page de photo",
-        "australia": "<strong>l'Australie :</strong> Page du milieu (marquée avec le symbole + \"nom de la puce\")"
+        "australia": "<strong>l'Australie :</strong> Page du milieu (marquée avec le symbole + \"nom de la puce\")",
+        "description": "L'emplacement de la puce varie selon le pays. Il se peut que vous deviez essayer plusieurs pages. Voici quelques exemples d'emplacement :"
+      },
+      "scanning_tips": {
+        "heading": "Conseils pour scanner la puce NFC avec succès",
+        "description": "Le scan NFC est la partie la plus délicate. Ces conseils vous aideront grandement :"
+      },
+      "before_you_start": {
+        "heading": "Avant de commencer"
+      },
+      "didnt_work": {
+        "contact": "Si vous rencontrez encore des problèmes, <supportLink> contactez-nous</supportLink> et nous vous aiderons."
       }
     },
     "status": {
@@ -218,7 +249,7 @@
     "donation_message2": "Si vous le pouvez, veuillez envisager de faire un don pour aider Couchers.org à continuer de fonctionner et de se développer.",
     "donate_button": "Faire un don pour soutenir Couchers.org"
   },
-  "sign_up_need_verification_title": "On y est presque là, mais encore une dernière chose !",
+  "sign_up_need_verification_title": "Une dernière chose : confirme ton e-mail.",
   "sign_up_resend_verification_email_help": "N'avez-vous pas reçu le mail ? Cliquez <resendLink>ici pour renvoyer le lien de vérification</resendLink>.",
   "sign_up_resend_verification_done": "C'est fait ! Nous vous avons envoyé un autre mail.",
   "feature_preview": {
@@ -234,14 +265,11 @@
     "heading": "Utilisateurs connectés actuels",
     "settings_page_link": "Gérer les connexions actuelles",
     "description": "Cette page montre les connexions actives. Vous pouvez vous déconnecter de l’une d’elles en cliquant sur le bouton à côté de la connexion, ou faire défiler jusqu’en bas et cliquer sur le bouton pour vous déconnecter de toutes connexions sauf cette session.",
-    "login_header": "Conneté.e à {{login_datetime}}",
-    "location": "Près de <strong>{{approximate_location}}</strong>",
-    "last_activity": "Dernière activité il y a <strong>{{last_activity_ago}}</strong>",
+    "login_header": "Connexion le {{login_datetime}}",
     "current_session": "Ceci est votre session actuelle.",
     "log_out_of_session": "Déconnectez-vous de cette session",
     "log_out_of_all_session": "Déconnectez-vous de toutes les autres sessions",
-    "settings_page_text": "Voir où vous êtes connecté.e et déconnectez-vous des autres sessions",
-    "expiry": "Expire à <strong>{{expiry_datetime}}</strong>"
+    "settings_page_text": "Voir où vous êtes connecté.e et déconnectez-vous des autres sessions"
   },
   "delete_account": {
     "request": {
@@ -266,7 +294,7 @@
       "button_text": "Récupérer votre compte",
       "success": "Votre compte a été récupéré, vous pouvez à nouveau vous connecter. Nous sommes ravis de vous retrouver !"
     },
-    "missing_token": "Erreur"
+    "missing_token": "Erreur : token manquant"
   },
   "profile_visibility": {
     "visiblility_options": {
@@ -310,6 +338,46 @@
     "not_a_volunteer_message": "Selon notre base de données, vous n'êtes pas un bénévole actuel ou passé. Si cela est incorrect, veuillez nous en informer en remplissant <formLink>ce formulaire</formLink>.",
     "current_volunteer": "Bénévole depuis {{startDate}}.",
     "past_volunteer": "Bénévole de {{startDate}} à {{endDate}}.",
-    "shown_on_team_page_current": "Affiché sur la page de l'équipe comme membre d'équipe actuel."
+    "shown_on_team_page_current": "Affiché sur la page de l'équipe comme membre d'équipe actuel.",
+    "shown_on_team_page_past": "Affiché sur la page d'équipe comme un ancien bénévole.",
+    "not_shown_on_team_page": "Masqué de la page d'équipe.",
+    "update_success": "Vos informations de bénévole ont été mises à jour.",
+    "form": {
+      "title": "Mettre à jour vos informations de bénévole",
+      "override_name_label": "Utiliser un nom différent sur la page d'équipe (au lieu de \"{{profileName}}\")",
+      "link_type_label": "Type de lien",
+      "link_type_couchers": "Profil Couchers",
+      "link_type_email": "E-mail",
+      "link_type_linkedin": "LinkedIn",
+      "link_type_website": "Site web",
+      "link_text_label": "Valeur du lien",
+      "link_text_linkedin_placeholder": "jane-doe-a1b2c3",
+      "link_text_email_placeholder": "votre@email.com",
+      "link_text_website_placeholder": "https://votre-site‐web.com",
+      "link_text_linkedin_helper": "Le nom d'utilisateur du lien URL de votre profil (e.g. linkedin.com/in/jane-doe-a1b2c3)",
+      "link_text_email_helper": "Votre adresse e-mail",
+      "link_text_website_helper": "Le texte à afficher pour le lien",
+      "link_text_required": "Veuillez spécifier la valeur du lien",
+      "link_text_email_invalid": "Veuillez utiliser une adresse e-mail valide",
+      "link_text_linkedin_invalid": "Veuillez spécifier un nom d'utilisateur LinkedIn valide (lettres, nombres et tirets seulement)",
+      "link_url_label": "URL du lien",
+      "link_url_placeholder": "https://votre-site‐web.com",
+      "link_url_helper": "L'URL complet vers lequel le lien devrait emmener",
+      "link_url_required": "Entrez un lien URL pour le site web",
+      "link_url_invalid": "Veuillez entrer un URL valide commençant par http:// or https://",
+      "save_button": "Enregistrer les modifications"
+    }
+  },
+  "motivations_form": {
+    "header": "Qu'est-ce qui vous amène sur Couchers ?",
+    "surfing_description": "Je planifie un voyage et recherche un hôte",
+    "hosting": "Héberger",
+    "hosting_description": "J'aimerais héberger et accueillir des voyageurs dans ma ville",
+    "events": "Les événements",
+    "events_description": "J'aimerais participer à des événements et rencontrer la communauté",
+    "community_organizing": "Organiser une communauté",
+    "community_organizing_description": "Je veux organiser des événements et activités sur la plateforme",
+    "something_else": "Autre",
+    "something_else_description": "J'explore ou je n'ai pas encore décidé"
   }
 }

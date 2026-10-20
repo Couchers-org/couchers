@@ -1,4 +1,51 @@
+import { MessageThreadCategory } from "proto/conversations_pb";
 import { HostRequestStatus } from "proto/messages_pb";
+import { MessageFilterType } from "routes";
+import { assertNever } from "utils/assertNever";
+
+// Maps a URL filter slug to the unified ListMessageThreads request params.
+// categories, onlyUnread and onlyArchived are orthogonal; an empty categories
+// list means all categories.
+export function messageFilterToRequest(filter: MessageFilterType): {
+  categories: MessageThreadCategory[];
+  onlyUnread: boolean;
+  onlyArchived: boolean;
+} {
+  switch (filter) {
+    case "unread":
+      return { categories: [], onlyUnread: true, onlyArchived: false };
+    case "chats":
+      return {
+        categories: [MessageThreadCategory.MESSAGE_THREAD_CATEGORY_CHATS],
+        onlyUnread: false,
+        onlyArchived: false,
+      };
+    case "hosting":
+      return {
+        categories: [MessageThreadCategory.MESSAGE_THREAD_CATEGORY_HOSTING],
+        onlyUnread: false,
+        onlyArchived: false,
+      };
+    case "surfing":
+      return {
+        categories: [MessageThreadCategory.MESSAGE_THREAD_CATEGORY_SURFING],
+        onlyUnread: false,
+        onlyArchived: false,
+      };
+    case "public-trips":
+      return {
+        categories: [MessageThreadCategory.MESSAGE_THREAD_CATEGORY_MY_PUBLIC_TRIPS],
+        onlyUnread: false,
+        onlyArchived: false,
+      };
+    case "archived":
+      return { categories: [], onlyUnread: false, onlyArchived: true };
+    case "all":
+      return { categories: [], onlyUnread: false, onlyArchived: false };
+    default:
+      return assertNever(filter);
+  }
+}
 
 export const requestStatusToTransKey = {
   [HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED]: "host_request_status.accepted",
@@ -22,6 +69,24 @@ export const requestStatusChangedMessageToSelfTransKey = {
   [HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED]: "control_message.host_request_status_changed.cancelled_self",
   [HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED]: "control_message.host_request_status_changed.confirmed_self",
   [HostRequestStatus.HOST_REQUEST_STATUS_REJECTED]: "control_message.host_request_status_changed.rejected_self",
+  [HostRequestStatus.HOST_REQUEST_STATUS_PENDING]: null,
+} as const;
+
+// Public-trip invitations reverse the roles, so the control messages need their own wording:
+// the traveller accepts/declines and the host withdraws.
+export const invitationStatusChangedMessageToTransKey = {
+  [HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED]: "control_message.invitation_status_changed.accepted",
+  [HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED]: "control_message.invitation_status_changed.cancelled",
+  [HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED]: "control_message.invitation_status_changed.confirmed",
+  [HostRequestStatus.HOST_REQUEST_STATUS_REJECTED]: "control_message.invitation_status_changed.rejected",
+  [HostRequestStatus.HOST_REQUEST_STATUS_PENDING]: null,
+} as const;
+
+export const invitationStatusChangedMessageToSelfTransKey = {
+  [HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED]: "control_message.invitation_status_changed.accepted_self",
+  [HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED]: "control_message.invitation_status_changed.cancelled_self",
+  [HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED]: "control_message.invitation_status_changed.confirmed_self",
+  [HostRequestStatus.HOST_REQUEST_STATUS_REJECTED]: "control_message.invitation_status_changed.rejected_self",
   [HostRequestStatus.HOST_REQUEST_STATUS_PENDING]: null,
 } as const;
 

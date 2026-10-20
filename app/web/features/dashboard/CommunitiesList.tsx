@@ -1,7 +1,7 @@
 import { ArrowBack, ArrowForward, Groups } from "@mui/icons-material";
 import { Box, IconButton, styled, Typography, TypographyProps, useMediaQuery, useTheme } from "@mui/material";
 import Alert from "components/Alert";
-import FadingScrollTrack from "components/FadingScrollTrack";
+import FadingScrollTrack, { cardScrollDistance } from "components/FadingScrollTrack";
 import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
 import { useListUserCommunities } from "features/communities/hooks";
@@ -26,6 +26,10 @@ const CardSlot = styled(Box)({
   minWidth: 0,
   scrollSnapAlign: "start",
 });
+
+const StyledBrowseCommunitiesLink = styled(StyledLink)(() => ({
+  verticalAlign: "baseline",
+}));
 
 const CommunityCard = styled(StyledLink)(({ theme }) => ({
   display: "flex",
@@ -60,10 +64,6 @@ const SkeletonCard = styled("div")(({ theme }) => ({
   background: "var(--mui-palette-background-paper)",
 }));
 
-const StyledBrowseCommunitiesLink = styled(StyledLink)(() => ({
-  verticalAlign: "baseline",
-}));
-
 export default function CommunitiesList() {
   const { t } = useTranslation([DASHBOARD]);
   const theme = useTheme();
@@ -90,10 +90,7 @@ export default function CommunitiesList() {
   const scroll = (dir: 1 | -1) => {
     const el = scrollerRef.current;
     if (!el) return;
-    el.scrollBy({
-      left: dir * (CARD_WIDTH + CARD_GAP) * cardsPerView,
-      behavior: "smooth",
-    });
+    el.scrollBy({ left: dir * cardScrollDistance(el, CARD_WIDTH, CARD_GAP, 3), behavior: "smooth" });
   };
 
   return (
@@ -103,6 +100,7 @@ export default function CommunitiesList() {
           <Groups sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />
           {t("dashboard:your_communities_heading")}
         </Typography>
+
         <div>
           <IconButton
             size="small"
@@ -124,14 +122,9 @@ export default function CommunitiesList() {
           </IconButton>
         </div>
       </SectionHeader>
-      <Typography
-        variant="body1"
-        sx={{
-          marginBottom: "16px",
-        }}
-      >
+      <Typography variant="body1" sx={{ paddingBottom: theme.spacing(2) }}>
         <Trans
-          i18nKey="dashboard:your_communities_helper_text"
+          i18nKey="dashboard:communities_intro"
           components={{
             browseCommunitiesLink: <StyledBrowseCommunitiesLink href="/communities" underline="hover" />,
           }}

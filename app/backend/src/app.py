@@ -18,6 +18,7 @@ if __name__ == "__main__":
 
 import sentry_sdk
 from sentry_sdk.integrations import excepthook
+from sentry_sdk.integrations.logging import LoggingIntegration
 from sqlalchemy.sql import text
 
 from couchers.config import config
@@ -99,6 +100,9 @@ def common_init() -> None:
             # The global excepthook picks up already handled gRPC errors (e.g. grpc.StatusCode.NOT_FOUND)
             disabled_integrations=[
                 excepthook.ExcepthookIntegration(),
+            ],
+            integrations=[
+                LoggingIntegration(event_level=logging.CRITICAL),
             ],
         )
 

@@ -14,7 +14,9 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     String,
+    and_,
     func,
+    select,
     text,
 )
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -23,6 +25,7 @@ from sqlalchemy.sql import expression
 
 from couchers.models.base import Base, Geom
 from couchers.models.moderation import ModerationObjectType
+from couchers.models.static import TimezoneArea
 from couchers.utils import date_in_timezone, now
 
 if TYPE_CHECKING:
@@ -64,6 +67,7 @@ class HostRequest(Base, kw_only=True):
     __tablename__ = "host_requests"
     __moderation_author_column__ = "initiator_user_id"
     __moderation_object_type__ = ModerationObjectType.host_request
+    __moderation_has_own_visibility_mechanism__ = False
 
     conversation_id: Mapped[int] = mapped_column("id", ForeignKey("conversations.id"), primary_key=True)
     initiator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
@@ -89,12 +93,21 @@ class HostRequest(Base, kw_only=True):
     hosting_location: Mapped[Geom] = mapped_column(Geometry("POINT", srid=4326))
     hosting_radius: Mapped[float] = mapped_column(Float)
 
-    # TODO: proper timezone handling
-    timezone = "Etc/UTC"
-
-    # dates in the timezone above
+    # from/to dates, local to the stay's timezone
     from_date: Mapped[date] = mapped_column(Date)
     to_date: Mapped[date] = mapped_column(Date)
+
+    # Timezone at the location of the stay.
+    # Not deferred because we always need it to interpret the dates.
+    timezone: Mapped[str] = column_property(
+        func.coalesce(
+            select(TimezoneArea.tzid)
+            .where(func.ST_Contains(TimezoneArea.geom, hosting_location))
+            .limit(1)
+            .scalar_subquery(),
+            "Etc/UTC",
+        )
+    )
 
     # timezone-aware start and end times of the request, can be compared to now()
     start_time = column_property(date_in_timezone(from_date, timezone))
@@ -156,6 +169,14 @@ class HostRequest(Base, kw_only=True):
             recipient_sent_request_reminders,
             last_sent_request_reminder_time,
             from_date,
+        ),
+        # A host can have at most one non-withdrawn offer per public trip
+        Index(
+            "ix_host_requests_one_active_offer_per_trip",
+            public_trip_id,
+            initiator_user_id,
+            unique=True,
+            postgresql_where=and_(public_trip_id != None, status != HostRequestStatus.cancelled),
         ),
     )
 

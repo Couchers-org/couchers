@@ -40,6 +40,7 @@ class GroupChat(Base, kw_only=True):
     __tablename__ = "group_chats"
     __moderation_author_column__ = "creator_id"
     __moderation_object_type__ = ModerationObjectType.group_chat
+    __moderation_has_own_visibility_mechanism__ = False
 
     conversation_id: Mapped[int] = mapped_column("id", ForeignKey("conversations.id"), primary_key=True)
 
