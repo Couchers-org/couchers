@@ -36,7 +36,6 @@ from couchers.proto import (
     jail_pb2_grpc,
     media_pb2_grpc,
     moderation_pb2_grpc,
-    notifications_pb2_grpc,
     pages_pb2_grpc,
     postal_verification_pb2_grpc,
     public_pb2_grpc,
@@ -67,7 +66,6 @@ from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.moderation import Moderation
-from couchers.servicers.notifications import Notifications
 from couchers.servicers.pages import Pages
 from couchers.servicers.postal_verification import PostalVerification
 from couchers.servicers.public import Public
@@ -492,13 +490,6 @@ def blocking_session(token: str):
     channel = FakeChannel(token)
     blocking_pb2_grpc.add_BlockingServicer_to_server(Blocking(), channel)
     yield blocking_pb2_grpc.BlockingStub(channel)
-
-
-@contextmanager
-def notifications_session(token: str):
-    channel = FakeChannel(token)
-    notifications_pb2_grpc.add_NotificationsServicer_to_server(Notifications(), channel)
-    yield notifications_pb2_grpc.NotificationsStub(channel)
 
 
 @contextmanager
