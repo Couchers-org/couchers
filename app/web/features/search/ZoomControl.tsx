@@ -10,7 +10,7 @@ interface ZoomControlProps {
   mapRef: React.RefObject<MapRef | null>;
   onZoomIn: (newZoom: number) => void;
   onZoomOut: (newZoom: number) => void;
-  isZoomFromControlRef: React.MutableRefObject<boolean>;
+  isZoomFromControlRef: React.RefObject<boolean>;
 }
 
 const StyledIconButton = styled(IconButton)(({ theme }) => ({
@@ -24,12 +24,7 @@ const StyledIconButton = styled(IconButton)(({ theme }) => ({
   },
 }));
 
-const ZoomControl = ({
-  mapRef,
-  onZoomIn,
-  onZoomOut,
-  isZoomFromControlRef,
-}: ZoomControlProps) => {
+const ZoomControl = ({ mapRef, onZoomIn, onZoomOut, isZoomFromControlRef }: ZoomControlProps) => {
   const handleZoomIn = () => {
     if (mapRef.current) {
       const map = mapRef.current.getMap();

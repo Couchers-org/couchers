@@ -12,8 +12,7 @@ import ConfirmChangeEmail from "./ConfirmChangeEmail";
 
 const { t } = i18n;
 
-const confirmChangeEmailMock = service.account
-  .confirmChangeEmail as MockedService<
+const confirmChangeEmailMock = service.account.confirmChangeEmail as MockedService<
   typeof service.account.confirmChangeEmail
 >;
 
@@ -27,11 +26,7 @@ describe("ConfirmChangeEmail", () => {
     confirmChangeEmailMock.mockImplementation(() => new Promise(() => void 0));
     renderPage();
 
-    expect(
-      await screen.findByText(
-        t("auth:change_email_confirmation.change_in_progress"),
-      ),
-    ).toBeVisible();
+    expect(await screen.findByText(t("auth:change_email_confirmation.change_in_progress"))).toBeVisible();
   });
 
   describe("when the change email completes successfully", () => {
@@ -43,21 +38,15 @@ describe("ConfirmChangeEmail", () => {
     it("shows the success alert", async () => {
       const successAlert = await screen.findByRole("alert");
       expect(successAlert).toBeVisible();
-      expect(successAlert).toHaveTextContent(
-        t("auth:change_email_confirmation.success_message"),
-      );
+      expect(successAlert).toHaveTextContent(t("auth:change_email_confirmation.success_message"));
       expect(confirmChangeEmailMock).toHaveBeenCalledTimes(1);
-      expect(confirmChangeEmailMock).toHaveBeenLastCalledWith(
-        "Em4iLR3seTtok3n",
-      );
+      expect(confirmChangeEmailMock).toHaveBeenLastCalledWith("Em4iLR3seTtok3n");
     });
 
     it("shows a link that takes you to the login page when clicked", async () => {
       const user = userEvent.setup();
 
-      await user.click(
-        await screen.findByRole("link", { name: t("auth:login_prompt") }),
-      );
+      await user.click(await screen.findByRole("link", { name: t("auth:login_prompt") }));
 
       expect(mockRouter.pathname).toBe(loginRoute);
     });

@@ -21,9 +21,10 @@ export function PushNotificationBanner() {
   const { t } = useTranslation(NOTIFICATIONS);
   const isNativeEmbed = useIsNativeEmbed();
   // the epoch value of the last time this banner was dismissed
-  const [lastDismissedEpoch, setLastDismissedEpoch] = usePersistedState<
-    number | null
-  >("notification_banner.dismissed", null);
+  const [lastDismissedEpoch, setLastDismissedEpoch] = usePersistedState<number | null>(
+    "notification_banner.dismissed",
+    null,
+  );
   const [bannerVisible, setBannerVisible] = useState<boolean>(false);
   const [shouldPromptAllow, setShouldPromptAllow] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -41,18 +42,12 @@ export function PushNotificationBanner() {
 
       try {
         if (!(await checkPushEnabled())) {
-          setBannerVisible(
-            !lastDismissedEpoch ||
-              new Date().getTime() - lastDismissedEpoch > TIME_BETWEEN_NAGS_MS,
-          );
+          setBannerVisible(!lastDismissedEpoch || new Date().getTime() - lastDismissedEpoch > TIME_BETWEEN_NAGS_MS);
         }
       } catch (error) {
         // Only log errors for web browsers, not mobile WebView
         if (isNativeEmbed) {
-          console.debug(
-            "Push notifications not available in mobile app:",
-            error,
-          );
+          console.debug("Push notifications not available in mobile app:", error);
         } else {
           console.error("Error checking for push notification state:", error);
         }
@@ -91,11 +86,7 @@ export function PushNotificationBanner() {
       {t("notifications:notification_settings.push_notifications.allow_push")}
     </Alert>
   ) : (
-    <Alert
-      severity="info"
-      onClose={dismiss}
-      sx={{ alignItems: "center", ".MuiAlert-message": { width: "100%" } }}
-    >
+    <Alert severity="info" onClose={dismiss} sx={{ alignItems: "center", ".MuiAlert-message": { width: "100%" } }}>
       <Wrapper>
         <Trans i18nKey="notifications:push_notification_banner.message" />
         <Button

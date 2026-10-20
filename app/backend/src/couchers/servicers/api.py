@@ -7,16 +7,26 @@ import google.protobuf.message
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import select
-from sqlalchemy.orm import Session, selectinload
-from sqlalchemy.sql import and_, delete, exists, func, intersect, or_, union
+from sqlalchemy.orm import Session, selectinload, undefer
+from sqlalchemy.sql import and_, case, delete, func, intersect, or_, union
 
 from couchers import urls
+from couchers.abuse import maybe_log_nonvisible_user_access
 from couchers.config import config
 from couchers.constants import GHOST_USERNAME
 from couchers.context import CouchersContext, make_notification_user_context
 from couchers.crypto import b64encode, generate_hash_signature, random_hex
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
+from couchers.helpers.group_chats import is_newest_subscription, is_unseen
+from couchers.helpers.host_requests import (
+    has_unseen_host_request_messages,
+    is_hosting_party,
+    is_public_trip_offer_recipient,
+    is_surfing_party,
+)
+from couchers.helpers.hosting_meetup_status import record_hosting_meetup_status
+from couchers.helpers.references import where_reference_user_visible, where_references_not_hidden_by_reciprocity
 from couchers.helpers.strong_verification import get_strong_verification_fields
 from couchers.materialized_views import LiteUser, UserResponseRate
 from couchers.models import (
@@ -24,6 +34,7 @@ from couchers.models import (
     FriendStatus,
     GroupChat,
     GroupChatSubscription,
+    HostingMeetupStatusSource,
     HostingStatus,
     HostRequest,
     InitiatedUpload,
@@ -32,6 +43,7 @@ from couchers.models import (
     MeetupStatus,
     Message,
     ModerationObjectType,
+    NonvisibleUserAccessType,
     Notification,
     NotificationDeliveryType,
     ParkingDetails,
@@ -184,48 +196,50 @@ class API(api_pb2_grpc.APIServicer):
                 selectinload(User.regions_visited),
                 selectinload(User.regions_lived),
                 selectinload(User.language_abilities),
+                # deferred, and user_model_to_pb below reads it; loading it here saves a round trip on
+                # what is the most frequently polled endpoint we have
+                undefer(User.timezone),
             )
         ).scalar_one()
 
-        sent_reqs_query = select(HostRequest.conversation_id, HostRequest.initiator_last_seen_message_id).where(
-            HostRequest.initiator_user_id == context.user_id
+        # One pass over the requests the viewer is a party to that have unread messages, tallied both by
+        # direction (sent/received) and by stay-role. The role-based tallies bucket public-trip offers
+        # correctly despite the role reversal: the offering host counts under hosting, the traveller
+        # under surfing.
+        other_party_user_id = case(
+            (HostRequest.initiator_user_id == context.user_id, HostRequest.recipient_user_id),
+            else_=HostRequest.initiator_user_id,
         )
-        sent_reqs_query = where_users_column_visible(sent_reqs_query, context, HostRequest.recipient_user_id)
-        sent_reqs_query = where_moderated_content_visible(sent_reqs_query, context, HostRequest, is_list_operation=True)
-        sent_reqs_last_seen_message_ids = sent_reqs_query.subquery()
-
-        unseen_sent_host_request_count = session.execute(
-            select(func.count())
-            .select_from(sent_reqs_last_seen_message_ids)
+        unseen_host_request_counts_query = (
+            select(
+                func.count().filter(HostRequest.initiator_user_id == context.user_id).label("sent"),
+                func.count().filter(HostRequest.recipient_user_id == context.user_id).label("received"),
+                func.count().filter(is_hosting_party(context.user_id)).label("hosting"),
+                func.count().filter(is_surfing_party(context.user_id)).label("surfing"),
+                func.count().filter(is_public_trip_offer_recipient(context.user_id)).label("public_trip_offer"),
+            )
+            .select_from(HostRequest)
             .where(
-                exists(
-                    select(1)
-                    .where(Message.conversation_id == sent_reqs_last_seen_message_ids.c.conversation_id)
-                    .where(Message.id > sent_reqs_last_seen_message_ids.c.initiator_last_seen_message_id)
+                or_(
+                    HostRequest.initiator_user_id == context.user_id,
+                    HostRequest.recipient_user_id == context.user_id,
                 )
             )
-        ).scalar_one()
-
-        received_reqs_query = select(HostRequest.conversation_id, HostRequest.recipient_last_seen_message_id).where(
-            HostRequest.recipient_user_id == context.user_id
+            .where(has_unseen_host_request_messages(context.user_id))
         )
-        received_reqs_query = where_users_column_visible(received_reqs_query, context, HostRequest.initiator_user_id)
-        received_reqs_query = where_moderated_content_visible(
-            received_reqs_query, context, HostRequest, is_list_operation=True
+        unseen_host_request_counts_query = where_users_column_visible(
+            unseen_host_request_counts_query, context, other_party_user_id
         )
-        received_reqs_last_seen_message_ids = received_reqs_query.subquery()
+        unseen_host_request_counts_query = where_moderated_content_visible(
+            unseen_host_request_counts_query, context, HostRequest, is_list_operation=True
+        )
+        unseen_host_request_counts = session.execute(unseen_host_request_counts_query).one()
 
-        unseen_received_host_request_count = session.execute(
-            select(func.count())
-            .select_from(received_reqs_last_seen_message_ids)
-            .where(
-                exists(
-                    select(1)
-                    .where(Message.conversation_id == received_reqs_last_seen_message_ids.c.conversation_id)
-                    .where(Message.id > received_reqs_last_seen_message_ids.c.recipient_last_seen_message_id)
-                )
-            )
-        ).scalar_one()
+        unseen_public_trip_offer_count = (
+            unseen_host_request_counts.public_trip_offer
+            if context.get_boolean_value("public_trips_enabled", False)
+            else 0
+        )
 
         unseen_message_query = (
             select(func.count(Message.id))
@@ -237,9 +251,8 @@ class API(api_pb2_grpc.APIServicer):
         )
         unseen_message_query = (
             unseen_message_query.where(GroupChatSubscription.user_id == context.user_id)
-            .where(Message.time >= GroupChatSubscription.joined)
-            .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
-            .where(Message.id > GroupChatSubscription.last_seen_message_id)
+            .where(is_newest_subscription(context.user_id))
+            .where(is_unseen(Message, GroupChatSubscription))
         )
         unseen_message_count = session.execute(unseen_message_query).scalar_one()
 
@@ -273,8 +286,11 @@ class API(api_pb2_grpc.APIServicer):
         return api_pb2.PingRes(
             user=user_model_to_pb(user, session, context),
             unseen_message_count=unseen_message_count,
-            unseen_sent_host_request_count=unseen_sent_host_request_count,
-            unseen_received_host_request_count=unseen_received_host_request_count,
+            unseen_sent_host_request_count=unseen_host_request_counts.sent,
+            unseen_received_host_request_count=unseen_host_request_counts.received,
+            unseen_hosting_host_request_count=unseen_host_request_counts.hosting,
+            unseen_surfing_host_request_count=unseen_host_request_counts.surfing,
+            unseen_public_trip_offer_count=unseen_public_trip_offer_count,
             pending_friend_request_count=pending_friend_request_count,
             unseen_notification_count=unseen_notification_count,
         )
@@ -423,6 +439,12 @@ class API(api_pb2_grpc.APIServicer):
             if user.do_not_email and request.meetup_status != api_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP:
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "do_not_email_cannot_meet")
             user.meetup_status = meetupstatus2sql[request.meetup_status]  # type: ignore[assignment]
+
+        if (
+            request.hosting_status != api_pb2.HOSTING_STATUS_UNSPECIFIED
+            or request.meetup_status != api_pb2.MEETUP_STATUS_UNSPECIFIED
+        ):
+            record_hosting_meetup_status(session, user, HostingMeetupStatusSource.profile_edit)
 
         if request.HasField("language_abilities"):
             # delete all existing abilities
@@ -1023,12 +1045,11 @@ def get_num_references(session: Session, context: CouchersContext, user_ids: Ite
     query = where_moderated_content_visible(
         select(Reference.to_user_id, func.count(Reference.id)), context, Reference, is_list_operation=True
     )
-    query = (
-        query.where(Reference.to_user_id.in_(user_ids))
-        .join(User, User.id == Reference.from_user_id)
-        .where(User.is_visible)
-        .group_by(Reference.to_user_id)
-    )
+    # exclude references still hidden by the reciprocal-reference rule, matching ListReferences
+    query = where_references_not_hidden_by_reciprocity(query)
+    query = where_reference_user_visible(
+        query.where(Reference.to_user_id.in_(user_ids)), context, Reference.from_user_id
+    ).group_by(Reference.to_user_id)
     return cast(dict[int, int], dict(session.execute(query).all()))  # type: ignore[arg-type]
 
 
@@ -1049,6 +1070,12 @@ def user_model_to_pb(
     ):
         # User is not visible (deleted, banned, or blocked)
         if is_get_user_return_ghosts:
+            maybe_log_nonvisible_user_access(
+                context,
+                db_user,
+                access_type=NonvisibleUserAccessType.ghost_served,
+                actor_user_id=viewer_user_id,
+            )
             # Return an anonymized "ghost" user profile
             return api_pb2.User(
                 user_id=db_user.id,
@@ -1059,7 +1086,7 @@ def user_model_to_pb(
             )
         raise GhostUserSerializationError(
             f"Tried to serialize ghost profile in user_model_to_pb without appropriate flags. "
-            f"Context user_id: {context.user_id}, db_user id: {db_user.id} (username: {db_user.username})"
+            f"Context user_id: {viewer_user_id}, db_user id: {db_user.id} (username: {db_user.username})"
         )
 
     num_references = get_num_references(session, context, [db_user.id]).get(db_user.id, 0)

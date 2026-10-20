@@ -26,11 +26,19 @@ backup_time=$(date +%s)
 # really not sure what's wrong with aws cli not getting env vars the normal way
 
 echo "Backing up config..."
-tar cf - *.prod.env \
+
+crontab -l > crontab.bak 2>/dev/null || true
+
+pgdata=$(echo data/postgres/*/*)
+
+sudo tar cf - *.prod.env crontab.bak \
+  -C "$pgdata" pg_hba.conf pg_ident.conf postgresql.auto.conf \
   | age -r $CONFIG_FILE_AGE_PUBKEY \
   | AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
     aws s3 cp - s3://$AWS_BACKUP_BUCKET_NAME/config/config-$backup_time.tar.age \
   && echo "Done."
+
+rm -f crontab.bak
 
 echo "Backing up database config..."
 docker exec -i app-postgres-1 pg_dumpall -U postgres --roles-only \

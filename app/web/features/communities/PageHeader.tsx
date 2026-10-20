@@ -21,24 +21,12 @@ const StyledWrapper = styled("div")(({ theme }) => ({
   },
   [theme.breakpoints.up("md")]: {
     height: "16rem",
-    marginTop: theme.spacing(-2),
   },
 }));
 
-export default function PageHeader({
-  page,
-  className,
-}: {
-  page: Page.AsObject;
-  className?: string;
-}) {
+export default function PageHeader({ page, className }: { page: Page.AsObject; className?: string }) {
   if (page.photoUrl) {
-    return (
-      <StyledWrapper
-        className={className}
-        style={{ backgroundImage: `url(${page.photoUrl})` }}
-      />
-    );
+    return <StyledWrapper className={className} style={{ backgroundImage: `url(${page.photoUrl})` }} />;
   }
 
   //display a map if there's no image

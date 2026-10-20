@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from dataclasses import FrozenInstanceError
 from datetime import UTC, date, datetime, time, tzinfo
 from typing import Any
@@ -6,17 +7,18 @@ from zoneinfo import ZoneInfo
 import babel
 from google.protobuf.timestamp_pb2 import Timestamp
 
-from couchers.i18n.i18next import I18Next
+from couchers.i18n.i18next import I18Next, SubstitutionDict
 from couchers.i18n.locales import (
     DEFAULT_LOCALE,
     get_babel_locale,
-    get_locale_fallbacks,
+    get_locale_chain,
     get_main_i18next,
-    is_supported_locale,
+    to_supported_locale,
 )
 from couchers.i18n.localize import (
     localize_date,
     localize_datetime,
+    localize_list,
     localize_time,
     localize_timezone,
 )
@@ -28,46 +30,54 @@ class LocalizationContext:
     """
     Specifies regional settings used for localization of strings and date/times.
     Future settings like 12/24h or format preferences would go here as well.
+    Only represents locale we support on the backend.
     """
 
-    # The locale code (e.g. 'en', 'pt-BR'), used to lookup translations and format dates/numbers.
-    # Note that a locale doesn't necessarily specify a region.
-    locale: str
-
-    # The locale code and all of its fallbacks.
+    # The locales to be used from most to least preferred, for example: pt-BR, pt, en.
     locale_list: list[str]
+
+    # Babel objects for the locales in locale_list.
+    # In some cases we might remap locales.
+    # For example "en" could use the "en-001" babel locale for international date formats.
+    babel_locale_list: list[babel.Locale]
 
     # The timezone to use when formatting date-times and instants.
     timezone: tzinfo
 
-    # The Babel locale used for datetime formatting and other Unicode CLDR usage.
-    babel_locale: babel.Locale
-
     def __init__(self, locale: str, timezone: tzinfo) -> None:
-        if not is_supported_locale(locale):
-            raise ValueError(f"Unsupported locale {locale}.")
+        locale = to_supported_locale(locale)
 
-        self.locale = locale
-        self.locale_list = [self.locale] + get_locale_fallbacks(self.locale)
+        self.locale_list = get_locale_chain(locale)
+        self.babel_locale_list = list(map(get_babel_locale, self.locale_list))
         self.timezone = timezone
-        self.babel_locale = get_babel_locale(locale)
 
     def __setattr__(self, name: str, value: Any) -> None:
         # Freeze after initialization. We can't use @dataclass(frozen=True) because then
         # we need the default initializer and some of our fields shouldn't be parameters.
-        if hasattr(self, "babel_locale"):
+        if hasattr(self, "timezone"):
             raise FrozenInstanceError(f"Cannot modify attribute {name}.")
         return object.__setattr__(self, name, value)
 
     @property
+    def preferred_locale(self) -> str:
+        return self.locale_list[0]
+
+    @property
+    def preferred_babel_locale(self) -> babel.Locale:
+        return self.babel_locale_list[0]
+
+    @property
     def localized_timezone(self) -> str:
-        return localize_timezone(self.timezone, self.babel_locale)
+        return localize_timezone(self.timezone, self.babel_locale_list)
 
     def localize_string(
-        self, key: str, *, i18next: I18Next | None = None, substitutions: dict[str, str | int] | None = None
+        self, key: str, *, i18next: I18Next | None = None, substitutions: SubstitutionDict | None = None
     ) -> str:
         i18next = i18next or get_main_i18next()
-        return i18next.localize(key, self.locale, substitutions=substitutions)
+        return i18next.localize(key, self.locale_list, substitutions=substitutions)
+
+    def localize_list(self, items: Sequence[str]) -> str:
+        return localize_list(items, self.babel_locale_list)
 
     def localize_date(
         self, value: date | datetime, *, abbrev: bool = False, with_year: bool = True, with_day_of_week: bool = False
@@ -75,7 +85,7 @@ class LocalizationContext:
         if isinstance(value, datetime):
             value = to_timezone(value, self.timezone).date()
         return localize_date(
-            value, self.babel_locale, abbrev=abbrev, with_year=with_year, with_day_of_week=with_day_of_week
+            value, self.preferred_babel_locale, abbrev=abbrev, with_year=with_year, with_day_of_week=with_day_of_week
         )
 
     def localize_date_from_iso(
@@ -92,14 +102,27 @@ class LocalizationContext:
         self,
         value: datetime | Timestamp,
         *,
+        display_timezone: tzinfo | None = None,
         abbrev: bool = False,
         with_year: bool = True,
         with_day_of_week: bool = False,
         with_seconds: bool = False,
     ) -> str:
+        """
+        Formats a date and time according to this localization context.
+
+        Params:
+          value: An instant in time to be formatted in date and time components.
+                 datetimes should be timezone-aware so they represent an unambiguous instant,
+                 but their timezones are irrelevant for formatting.
+          display_timezone: The timezone to use when formatting the datetime.
+                            Defaults to the value from this localization context.
+        """
         return localize_datetime(
-            to_timezone(value, self.timezone),
-            self.babel_locale,
+            # By default we display the datetime in the user's timezone.
+            # The "timezone" parameter overrides this behavior.
+            to_timezone(value, display_timezone or self.timezone),
+            self.preferred_babel_locale,
             abbrev=abbrev,
             with_year=with_year,
             with_day_of_week=with_day_of_week,
@@ -109,7 +132,7 @@ class LocalizationContext:
     def localize_time(self, value: datetime | time, *, with_seconds: bool = False) -> str:
         if isinstance(value, datetime):
             value = to_timezone(value, self.timezone).time()
-        return localize_time(value, self.babel_locale, with_seconds=with_seconds)
+        return localize_time(value, self.preferred_babel_locale, with_seconds=with_seconds)
 
     @staticmethod
     def en_utc() -> LocalizationContext:

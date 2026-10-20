@@ -21,11 +21,6 @@ from tests.fixtures.sessions import (
 from tests.test_communities import create_community, create_group
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def test_create_discussion_errors(db):
     user, token = generate_user()
     with discussions_session(token) as api:
@@ -51,7 +46,7 @@ def test_create_discussion_errors(db):
         assert e.value.details() == "Missing discussion content."
 
 
-def test_create_and_get_discussion(db, push_collector: PushCollector, moderator: Moderator):
+def test_create_and_get_discussion(db, frozen_timewarp, push_collector: PushCollector, moderator: Moderator):
     generate_user()
     user, token = generate_user()
     user2, token2 = generate_user()
@@ -474,7 +469,6 @@ def test_discussion_notifications_regression(db, push_collector: PushCollector, 
         user2_id = user2.id
 
     with discussions_session(token) as api:
-        time_before_create = now()
         res = api.CreateDiscussion(
             discussions_pb2.CreateDiscussionReq(
                 title="dummy title",
@@ -482,12 +476,10 @@ def test_discussion_notifications_regression(db, push_collector: PushCollector, 
                 owner_community_id=community_id,
             )
         )
-        time_after_create = now()
 
         assert res.title == "dummy title"
         assert res.content == "dummy content"
         assert res.slug == "dummy-title"
-        assert time_before_create <= to_aware_datetime(res.created) <= time_after_create
         assert res.creator_user_id == user.id
         assert res.owner_community_id == community_id
 
@@ -861,3 +853,23 @@ def test_admin_delete_discussion_creates_version_record(db):
         assert v.old_title == "Admin will delete this"
         assert v.new_title is None
         assert v.editor_user_id == admin.id
+
+
+def test_create_discussion_incomplete_profile(db):
+    user, token = generate_user(complete_profile=False)
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        community_id = create_community(session, 0, 1, "Testing Community", [user2], [], None).id
+
+    with discussions_session(token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateDiscussion(
+                discussions_pb2.CreateDiscussionReq(
+                    title="dummy title",
+                    content="dummy content",
+                    owner_community_id=community_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "You have to complete your profile before you can start a discussion."

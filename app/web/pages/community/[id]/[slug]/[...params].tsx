@@ -2,7 +2,8 @@ import { appGetLayout } from "components/AppRoute";
 import CommunityPageComponent from "features/communities/CommunityPage";
 import NotFoundPage from "features/NotFoundPage";
 import { appServerSideTranslations } from "i18n/appServerSideTranslations";
-import { COMMUNITIES, GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
+import { DEFAULT_LOCALE } from "i18n/locales";
+import { COMMUNITIES, GLOBAL, NOTIFICATIONS, PUBLIC_TRIPS } from "i18n/namespaces";
 import { GetStaticPaths, GetStaticProps } from "next";
 import { useRouter } from "next/router";
 import { communityTabs } from "routes";
@@ -15,11 +16,7 @@ export const getStaticPaths: GetStaticPaths = () => ({
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
-    ...(await appServerSideTranslations(locale ?? "en", [
-      GLOBAL,
-      COMMUNITIES,
-      NOTIFICATIONS,
-    ])),
+    ...(await appServerSideTranslations(locale ?? DEFAULT_LOCALE, [GLOBAL, COMMUNITIES, NOTIFICATIONS, PUBLIC_TRIPS])),
   },
 });
 
@@ -38,13 +35,7 @@ export default function CommunityPage() {
   }
   const edit = router.query.params?.[1] === "edit";
 
-  return (
-    <CommunityPageComponent
-      communityId={parsedId}
-      tab={parsedTab}
-      edit={edit}
-    />
-  );
+  return <CommunityPageComponent communityId={parsedId} tab={parsedTab} edit={edit} />;
 }
 
 CommunityPage.getLayout = appGetLayout();

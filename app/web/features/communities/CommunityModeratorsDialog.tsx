@@ -1,11 +1,5 @@
 import Button from "components/Button";
-import {
-  AccessibleDialogProps,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-} from "components/Dialog";
+import { AccessibleDialogProps, Dialog, DialogActions, DialogContent, DialogTitle } from "components/Dialog";
 import UsersList from "components/UsersList";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
@@ -27,14 +21,14 @@ export default function CommunityModeratorsDialog({
   open = false,
 }: CommunityModeratorsDialogProps) {
   const { t } = useTranslation([COMMUNITIES]);
-  const { adminIds, error, fetchNextPage, isFetchingNextPage, hasNextPage } =
-    useListAdmins(community.communityId, "all");
+  const { adminIds, error, fetchNextPage, isFetchingNextPage, hasNextPage } = useListAdmins(
+    community.communityId,
+    "all",
+  );
 
   return (
     <Dialog aria-labelledby={DIALOG_LABEL_ID} open={open} onClose={onClose}>
-      <DialogTitle id={DIALOG_LABEL_ID}>
-        {t("communities:community_moderators")}
-      </DialogTitle>
+      <DialogTitle id={DIALOG_LABEL_ID}>{t("communities:community_moderators")}</DialogTitle>
       <DialogContent>
         <UsersList userIds={adminIds} error={error} />
       </DialogContent>

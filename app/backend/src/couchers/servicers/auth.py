@@ -2,47 +2,57 @@ import logging
 from datetime import datetime, timedelta
 
 import grpc
-import requests
 from google.protobuf import empty_pb2
-from sqlalchemy import select
+from sqlalchemy import exists, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import delete, func, or_
 
 from couchers import urls
-from couchers.config import config
+from couchers.abuse import maybe_log_nonvisible_user_access
 from couchers.constants import ANTIBOT_FREQ, BANNED_USERNAME_PHRASES, GUIDELINES_VERSION, TOS_VERSION, UNDELETE_DAYS
 from couchers.context import CouchersContext
 from couchers.crypto import cookiesafe_secure_token, hash_password, urlsafe_secure_token, verify_password
 from couchers.event_log import log_event
+from couchers.helpers.hosting_meetup_status import record_hosting_meetup_status
 from couchers.metrics import (
     account_deletion_completions_counter,
     account_recoveries_counter,
+    antibot_score_histogram,
+    antibots_assessed_counter,
     logins_counter,
     password_reset_completions_counter,
     password_reset_initiations_counter,
-    recaptcha_score_histogram,
-    recaptchas_assessed_counter,
+    signup_account_filled_counter,
     signup_completions_counter,
+    signup_email_changes_counter,
+    signup_email_verified_counter,
+    signup_guidelines_accepted_counter,
     signup_initiations_counter,
+    signup_motivations_filled_counter,
     signup_time_histogram,
 )
 from couchers.models import (
     AccountDeletionToken,
     AntiBotLog,
     ContributorForm,
+    HostingMeetupStatusSource,
     InviteCode,
+    ModerationObjectType,
+    NonvisibleUserAccessType,
     PasswordResetToken,
     PhotoGallery,
     SignupFlow,
     User,
+    UserEmailHistory,
     UserSession,
 )
 from couchers.models.notifications import NotificationTopicAction
 from couchers.models.uploads import get_avatar_upload
+from couchers.moderation.utils import create_moderation
 from couchers.notifications.notify import notify
 from couchers.notifications.quick_links import decode_quick_link
 from couchers.proto import auth_pb2, auth_pb2_grpc, notification_data_pb2
-from couchers.servicers.account import abort_on_invalid_password, contributeoption2sql
+from couchers.servicers.account import abort_if_email_reused, abort_on_invalid_password, contributeoption2sql
 from couchers.servicers.api import hostingstatus2sql
 from couchers.servicers.auth_unsubscribe import handle_unsubscribe
 from couchers.sql import username_or_email
@@ -95,6 +105,13 @@ def create_session(
     token, expiry = create_session(...)
     ```
     """
+    maybe_log_nonvisible_user_access(
+        context,
+        user,
+        access_type=NonvisibleUserAccessType.login_attempt,
+        actor_user_id=user.id,
+    )
+
     if user.banned_at is not None:
         context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "account_suspended")
 
@@ -115,14 +132,20 @@ def create_session(
         user_session.expiry = func.now() + duration
 
     session.add(user_session)
+
+    # read off the user before the commit expires it: every attribute touched after the commit re-selects the
+    # whole row, and this is on the path of every single login
+    user_id = user.id
+    user_gender = user.gender
+
     session.commit()
 
-    logger.debug(f"Handing out {token=} to {user=}")
+    logger.debug("Handing out %s to user %s", token, user_id)
 
     if set_cookie:
-        context.set_cookies(create_session_cookies(token, user.id, user_session.expiry))
+        context.set_cookies(create_session_cookies(token, user_id, user_session.expiry))
 
-    logins_counter.labels(user.gender).inc()
+    logins_counter.labels(user_gender).inc()
 
     return token, user_session.expiry
 
@@ -174,6 +197,24 @@ class Auth(auth_pb2_grpc.AuthServicer):
     def SignupFlow(
         self, request: auth_pb2.SignupFlowReq, context: CouchersContext, session: Session
     ) -> auth_pb2.SignupFlowRes:
+        # this is a bit ugly, probably one RPC for this mega-mutation of signup flows is not ideal
+        has_signup_step = (
+            request.HasField("basic")
+            or request.HasField("account")
+            or request.HasField("feedback")
+            or request.HasField("motivations")
+            or request.HasField("accept_community_guidelines")
+        )
+        has_recovery_step = request.HasField("change_email") or request.resend_verification_email
+
+        # if we have the token then we ignore all the other stuff, so better just error to the client
+        if request.email_token and (has_signup_step or has_recovery_step):
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "signup_flow_invalid_request")
+
+        # just for safety
+        if has_signup_step and has_recovery_step:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "signup_flow_invalid_request")
+
         if request.email_token:
             # the email token can either be for verification or just to find an existing signup
             flow = session.execute(
@@ -189,6 +230,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 flow.email_token_expiry = None
 
                 session.flush()
+                signup_email_verified_counter.inc()
+                log_event(context, session, "account.signup_email_verified", {"signup_flow_id": flow.id})
             else:
                 # just try to find the flow by flow token, no verification is done
                 flow = session.execute(
@@ -197,22 +240,21 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 if not flow:
                     context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_token")
         else:
-            if not request.flow_token:
-                # fresh signup
-                if not request.HasField("basic"):
-                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "signup_flow_basic_needed")
+
+            def _check_email_is_available_and_valid(new_email: str) -> None:
                 # TODO: unique across both tables
-                existing_user = session.execute(
-                    select(User).where(User.email == request.basic.email)
-                ).scalar_one_or_none()
-                if existing_user:
-                    if not existing_user.is_visible:
-                        context.abort_with_error_code(
-                            grpc.StatusCode.FAILED_PRECONDITION, "signup_email_cannot_be_used"
-                        )
+                is_banned, is_taken = session.execute(
+                    select(
+                        exists().where(User.email == new_email).where(User.is_banned),
+                        exists().where(User.email == new_email).where(User.reserves_email),
+                    )
+                ).one()
+                if is_banned:
+                    context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_email_cannot_be_used")
+                if is_taken:
                     context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_email_taken")
                 existing_flow = session.execute(
-                    select(SignupFlow).where(SignupFlow.email == request.basic.email)
+                    select(SignupFlow).where(SignupFlow.email == new_email)
                 ).scalar_one_or_none()
                 if existing_flow:
                     send_signup_email(context, session, existing_flow)
@@ -221,8 +263,14 @@ class Auth(auth_pb2_grpc.AuthServicer):
                         grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_email_started_signup"
                     )
 
-                if not is_valid_email(request.basic.email):
+                if not is_valid_email(new_email):
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_email")
+
+            if not request.flow_token:
+                # fresh signup
+                if not request.HasField("basic"):
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "signup_flow_basic_needed")
+                _check_email_is_available_and_valid(request.basic.email)
                 if not is_valid_name(request.basic.name):
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_name")
 
@@ -248,7 +296,12 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 session.add(flow)
                 session.flush()
                 signup_initiations_counter.inc()
-                log_event(context, session, "account.signup_initiated", {"has_invite_code": invite_id is not None})
+                log_event(
+                    context,
+                    session,
+                    "account.signup_initiated",
+                    {"has_invite_code": invite_id is not None, "signup_flow_id": flow.id},
+                )
             else:
                 # not fresh signup
                 flow = session.execute(
@@ -260,6 +313,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_basic_filled")
 
             # we've found and/or created a new flow, now sort out other parts
+
             if request.HasField("account"):
                 if flow.account_is_filled:
                     context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_account_filled")
@@ -298,6 +352,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 flow.accepted_tos = TOS_VERSION
                 flow.opt_out_of_newsletter = request.account.opt_out_of_newsletter
                 session.flush()
+                signup_account_filled_counter.inc()
 
             if request.HasField("feedback"):
                 if flow.filled_feedback:
@@ -321,11 +376,35 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 flow.heard_about_couchers = request.motivations.heard_about_couchers or None
                 flow.signup_motivations = list(request.motivations.motivations)
                 session.flush()
+                signup_motivations_filled_counter.inc()
 
             if request.HasField("accept_community_guidelines"):
                 if not request.accept_community_guidelines.value:
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "must_accept_community_guidelines")
+                if flow.accepted_community_guidelines < GUIDELINES_VERSION:
+                    signup_guidelines_accepted_counter.inc()
                 flow.accepted_community_guidelines = GUIDELINES_VERSION
+                session.flush()
+
+            if request.HasField("change_email"):
+                # can't change after verifying
+                if flow.email_verified:
+                    context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_email_verified")
+                # can't resend verification at the same time
+                if request.resend_verification_email:
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "signup_flow_invalid_request")
+
+                # this will error if the email is not different from the current one
+                _check_email_is_available_and_valid(request.change_email.new_email)
+
+                flow.email = request.change_email.new_email
+                flow.email_verified = False
+                flow.email_sent = False
+                flow.email_token = None
+                flow.email_token_expiry = None
+                flow.email_changed_count += 1
+                signup_email_changes_counter.inc()
+
                 session.flush()
 
             # send verification email if needed
@@ -336,30 +415,46 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         # finish the signup if done
         if flow.is_completed:
-            user = User(
-                name=flow.name,
-                email=flow.email,
-                username=not_none(flow.username),
-                hashed_password=not_none(flow.hashed_password),
-                birthdate=not_none(flow.birthdate),
-                gender=not_none(flow.gender),
-                hosting_status=not_none(flow.hosting_status),
-                city=not_none(flow.city),
-                geom=is_geom(flow.geom),
-                geom_radius=not_none(flow.geom_radius),
-                accepted_tos=not_none(flow.accepted_tos),
-                last_onboarding_email_sent=func.now(),
-                invite_code_id=flow.invite_code_id,
-                heard_about_couchers=flow.heard_about_couchers,
-                signup_motivations=flow.signup_motivations if flow.filled_motivations else None,
+            user: User | None = None
+
+            def create_user(moderation_state_id: int) -> int:
+                nonlocal user
+                user = User(
+                    name=flow.name,
+                    email=flow.email,
+                    username=not_none(flow.username),
+                    hashed_password=not_none(flow.hashed_password),
+                    birthdate=not_none(flow.birthdate),
+                    gender=not_none(flow.gender),
+                    hosting_status=not_none(flow.hosting_status),
+                    city=not_none(flow.city),
+                    geom=is_geom(flow.geom),
+                    geom_radius=not_none(flow.geom_radius),
+                    accepted_tos=not_none(flow.accepted_tos),
+                    last_onboarding_email_sent=func.now(),
+                    invite_code_id=flow.invite_code_id,
+                    heard_about_couchers=flow.heard_about_couchers,
+                    signup_motivations=flow.signup_motivations if flow.filled_motivations else None,
+                    moderation_state_id=moderation_state_id,
+                )
+
+                user.accepted_community_guidelines = flow.accepted_community_guidelines
+                user.onboarding_emails_sent = 1
+                user.opt_out_of_newsletter = not_none(flow.opt_out_of_newsletter)
+
+                session.add(user)
+                session.flush()
+                return user.id
+
+            create_moderation(
+                session=session,
+                object_type=ModerationObjectType.user,
+                object_id=create_user,
             )
+            assert user is not None
 
-            user.accepted_community_guidelines = flow.accepted_community_guidelines
-            user.onboarding_emails_sent = 1
-            user.opt_out_of_newsletter = not_none(flow.opt_out_of_newsletter)
-
-            session.add(user)
-            session.flush()
+            record_hosting_meetup_status(session, user, HostingMeetupStatusSource.signup)
+            session.add(UserEmailHistory(user_id=user.id, email=user.email))
 
             # Create a profile gallery for the user
             profile_gallery = PhotoGallery(owner_user_id=user.id)
@@ -412,6 +507,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     "city": flow.city,
                     "has_invite_code": flow.invite_code_id is not None,
                     "filled_contributor_form": user.filled_contributor_form,
+                    "signup_flow_id": flow.id,
                 },
                 _override_user_id=user.id,
             )
@@ -423,6 +519,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         else:
             return auth_pb2.SignupFlowRes(
                 flow_token=flow.flow_token,
+                email=flow.email,
                 need_account=not flow.account_is_filled,
                 need_feedback=False,
                 need_verify_email=not flow.email_verified,
@@ -607,6 +704,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         user.new_email_token = None
         user.new_email_token_created = None
         user.new_email_token_expiry = None
+        session.add(UserEmailHistory(user_id=user.id, email=user.email))
 
         notify(
             session,
@@ -680,6 +778,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_token")
 
+        abort_if_email_reused(context, session, user)
+
         user.deleted_at = None
         user.undelete_token = None
         user.undelete_until = None
@@ -709,28 +809,12 @@ class Auth(auth_pb2_grpc.AuthServicer):
         return auth_pb2.UnsubscribeRes(response=handle_unsubscribe(payload, context, session))
 
     def AntiBot(self, request: auth_pb2.AntiBotReq, context: CouchersContext, session: Session) -> auth_pb2.AntiBotRes:
-        if not context.get_boolean_value("recaptcha_enabled", default=False):
+        if not context.get_boolean_value("antibot_enabled", default=False):
             return auth_pb2.AntiBotRes()
 
         ip_address = context.get_header("x-couchers-real-ip")
         user_agent = context.get_header("user-agent")
         user_id = context.user_id if context.is_logged_in() else None
-
-        resp = requests.post(
-            f"https://recaptchaenterprise.googleapis.com/v1/projects/{config.RECAPTHCA_PROJECT_ID}/assessments?key={config.RECAPTHCA_API_KEY}",
-            json={
-                "event": {
-                    "token": request.token,
-                    "siteKey": config.RECAPTHCA_SITE_KEY,
-                    "userAgent": user_agent,
-                    "userIpAddress": ip_address,
-                    "expectedAction": request.action,
-                    "userInfo": {"accountId": str(user_id) if user_id else None},
-                }
-            },
-        )
-
-        resp.raise_for_status()
 
         log = AntiBotLog(
             token=request.token,
@@ -738,15 +822,16 @@ class Auth(auth_pb2_grpc.AuthServicer):
             ip_address=ip_address,
             action=request.action,
             user_id=user_id,
-            score=resp.json()["riskAnalysis"]["score"],
-            provider_data=resp.json(),
+            # placeholders: there is currently no provider assessing requests
+            score=0.0,
+            provider_data={},
         )
 
         session.add(log)
         session.flush()
 
-        recaptchas_assessed_counter.labels(log.action).inc()
-        recaptcha_score_histogram.labels(log.action).observe(log.score)
+        antibots_assessed_counter.labels(log.action).inc()
+        antibot_score_histogram.labels(log.action).observe(log.score)
 
         if context.is_logged_in():
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
@@ -757,7 +842,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
     def AntiBotPolicy(
         self, request: auth_pb2.AntiBotPolicyReq, context: CouchersContext, session: Session
     ) -> auth_pb2.AntiBotPolicyRes:
-        if context.get_boolean_value("recaptcha_enabled", default=False):
+        if context.get_boolean_value("antibot_enabled", default=False):
             if context.is_logged_in():
                 user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
                 if now() - user.last_antibot > ANTIBOT_FREQ:

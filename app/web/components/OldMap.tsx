@@ -2,12 +2,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 
 import { styled, Typography } from "@mui/material";
 import { useTranslation } from "i18n";
-import {
-  LngLat,
-  Map as MaplibreMap,
-  NavigationControl,
-  RequestParameters,
-} from "maplibre-gl";
+import { LngLat, Map as MaplibreMap, NavigationControl, RequestParameters } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
 
 import { SEARCH } from "../i18n/namespaces";

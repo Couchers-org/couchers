@@ -7,17 +7,24 @@ from sqlalchemy import exists, select
 from sqlalchemy.orm import Session, aliased
 from sqlalchemy.sql import and_, func, or_
 
-from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
+from couchers.constants import (
+    HOST_REQUEST_DUPLICATE_WINDOW_HOURS,
+    HOST_REQUEST_MIN_LENGTH_UTF16,
+    PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16,
+)
 from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import can_moderate_node
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
+from couchers.helpers.host_requests import HOST_REQUEST_NOTIFICATION_TOPIC_ACTIONS, unseen_host_request_message_count
+from couchers.helpers.messages import api2hostrequeststatus, hostrequeststatus2api, message_to_pb
 from couchers.materialized_views import UserResponseRate
 from couchers.metrics import (
     account_age_on_host_request_create_histogram,
     host_request_first_response_histogram,
     host_request_responses_counter,
     host_requests_sent_counter,
+    public_trip_offers_sent_counter,
     sent_messages_counter,
 )
 from couchers.models import (
@@ -36,13 +43,20 @@ from couchers.models.notifications import NotificationTopicAction
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.moderation.utils import create_moderation
 from couchers.notifications.notify import mark_notifications_seen, notify
-from couchers.proto import conversations_pb2, notification_data_pb2, requests_pb2, requests_pb2_grpc
+from couchers.proto import (
+    messages_pb2,
+    notification_data_pb2,
+    requests_pb2,
+    requests_pb2_grpc,
+)
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
 from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
 from couchers.servicers.api import response_rate_to_pb, user_model_to_pb
 from couchers.sql import to_bool, users_visible, where_moderated_content_visible, where_users_column_visible
 from couchers.utils import (
     Timestamp_from_datetime,
+    date_id_from_page_token,
+    date_id_to_page_token,
     date_to_api,
     get_coordinates,
     now,
@@ -56,58 +70,11 @@ DEFAULT_PAGINATION_LENGTH = 10
 MAX_PAGE_SIZE = 50
 
 
-hostrequeststatus2api = {
-    HostRequestStatus.pending: conversations_pb2.HOST_REQUEST_STATUS_PENDING,
-    HostRequestStatus.accepted: conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
-    HostRequestStatus.rejected: conversations_pb2.HOST_REQUEST_STATUS_REJECTED,
-    HostRequestStatus.confirmed: conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED,
-    HostRequestStatus.cancelled: conversations_pb2.HOST_REQUEST_STATUS_CANCELLED,
-}
-
-api2hostrequeststatus = {
-    conversations_pb2.HOST_REQUEST_STATUS_PENDING: HostRequestStatus.pending,
-    conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED: HostRequestStatus.accepted,
-    conversations_pb2.HOST_REQUEST_STATUS_REJECTED: HostRequestStatus.rejected,
-    conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED: HostRequestStatus.confirmed,
-    conversations_pb2.HOST_REQUEST_STATUS_CANCELLED: HostRequestStatus.cancelled,
-}
-
 hostrequestquality2sql = {
     requests_pb2.HOST_REQUEST_QUALITY_UNSPECIFIED: HostRequestQuality.high_quality,
     requests_pb2.HOST_REQUEST_QUALITY_LOW: HostRequestQuality.okay_quality,
     requests_pb2.HOST_REQUEST_QUALITY_OKAY: HostRequestQuality.low_quality,
 }
-
-
-def message_to_pb(message: Message) -> conversations_pb2.Message:
-    """
-    Turns the given message to a protocol buffer
-    """
-    if message.is_normal_message:
-        return conversations_pb2.Message(
-            message_id=message.id,
-            author_user_id=message.author_id,
-            time=Timestamp_from_datetime(message.time),
-            text=conversations_pb2.MessageContentText(text=message.text),
-        )
-    else:
-        return conversations_pb2.Message(
-            message_id=message.id,
-            author_user_id=message.author_id,
-            time=Timestamp_from_datetime(message.time),
-            chat_created=(
-                conversations_pb2.MessageContentChatCreated()
-                if message.message_type == MessageType.chat_created
-                else None
-            ),
-            host_request_status_changed=(
-                conversations_pb2.MessageContentHostRequestStatusChanged(
-                    status=hostrequeststatus2api[message.host_request_status_target]  # type: ignore[index]
-                )
-                if message.message_type == MessageType.host_request_status_changed
-                else None
-            ),
-        )
 
 
 def host_request_to_pb(
@@ -127,10 +94,21 @@ def host_request_to_pb(
         .limit(1)
     ).scalar_one()
 
+    unseen_message_count = session.execute(
+        select(unseen_host_request_message_count(context.user_id)).where(
+            HostRequest.conversation_id == host_request.conversation_id
+        )
+    ).scalar_one()
+
     lat, lng = get_coordinates(host_request.hosting_location)
 
+    # public-trip offers aren't asked for feedback: their recipient is the traveller, not a host
     need_feedback = False
-    if context.user_id == host_request.recipient_user_id and host_request.status == HostRequestStatus.rejected:
+    if (
+        context.user_id == host_request.recipient_user_id
+        and host_request.status == HostRequestStatus.rejected
+        and host_request.public_trip_id is None
+    ):
         need_feedback = not session.execute(
             select(
                 exists().where(
@@ -142,12 +120,13 @@ def host_request_to_pb(
 
     return requests_pb2.HostRequest(
         host_request_id=host_request.conversation_id,
-        surfer_user_id=host_request.initiator_user_id,
-        host_user_id=host_request.recipient_user_id,
+        surfer_user_id=host_request.surfer_user_id,
+        host_user_id=host_request.host_user_id,
         status=hostrequeststatus2api[host_request.status],
         created=Timestamp_from_datetime(initial_message.time),
         from_date=date_to_api(host_request.from_date),
         to_date=date_to_api(host_request.to_date),
+        timezone=host_request.timezone,
         last_seen_message_id=(
             host_request.initiator_last_seen_message_id
             if context.user_id == host_request.initiator_user_id
@@ -165,6 +144,7 @@ def host_request_to_pb(
             else host_request.is_initiator_archived
         ),
         public_trip_id=host_request.public_trip_id,
+        unseen_message_count=unseen_message_count,
     )
 
 
@@ -174,6 +154,10 @@ def _possibly_observe_first_response_time(
     # if this is the first response then there's nothing by this user yet
     assert host_request.recipient_user_id == user_id
 
+    # on a public trip offer the recipient is the traveller, so this isn't a host's response time
+    if host_request.public_trip_id is not None:
+        return
+
     number_messages_by_host = session.execute(
         select(func.count())
         .where(Message.conversation_id == host_request.conversation_id)
@@ -181,21 +165,29 @@ def _possibly_observe_first_response_time(
     ).scalar_one_or_none()
 
     if number_messages_by_host == 0:
-        host_gender = session.execute(select(User.gender).where(User.id == host_request.recipient_user_id)).scalar_one()
-        surfer_gender = session.execute(
-            select(User.gender).where(User.id == host_request.initiator_user_id)
-        ).scalar_one()
+        host_gender = session.execute(select(User.gender).where(User.id == host_request.host_user_id)).scalar_one()
+        surfer_gender = session.execute(select(User.gender).where(User.id == host_request.surfer_user_id)).scalar_one()
         host_request_first_response_histogram.labels(host_gender, surfer_gender, response_type).observe(
             (now() - host_request.conversation.created).total_seconds()
         )
 
 
-def _is_host_request_long_enough(text: str) -> bool:
+def _validate_request_text(text: str, is_public_trip_offer: bool, context: CouchersContext) -> None:
+    min_length, error_code = (
+        (PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16, "public_trip_offer_too_short")
+        if is_public_trip_offer
+        else (HOST_REQUEST_MIN_LENGTH_UTF16, "host_request_too_short2")
+    )
     # Python's len(str) does not match Javascript's string.length.
     # e.g. len("é") == 2 but "é".length == 1.
     # To match the frontend's validation, measure the string in utf16 code units.
     text_length_utf16 = len(text.encode("utf-16-le")) // 2  # utf-16-le does not include a prefix BOM code unit.
-    return text_length_utf16 >= HOST_REQUEST_MIN_LENGTH_UTF16
+    if text_length_utf16 < min_length:
+        context.abort_with_error_code(
+            grpc.StatusCode.INVALID_ARGUMENT,
+            error_code,
+            substitutions={"count": min_length},
+        )
 
 
 class Requests(requests_pb2_grpc.RequestsServicer):
@@ -222,7 +214,14 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if not from_date or not to_date:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_date")
 
-        today = today_in_timezone(recipient.timezone)
+        # If this is an offer in response to a public trip, it's validated further down
+        public_trip_id = request.public_trip_id if request.HasField("public_trip_id") else None
+
+        # an offer on a public trip reverses the roles: the caller is the host and the recipient is the traveller
+        surfer_user, host_user = (user, recipient) if public_trip_id is None else (recipient, user)
+
+        # the dates are in the timezone at the host's location
+        today = today_in_timezone(host_user.timezone or "Etc/UTC")
 
         # request starts from the past
         if from_date < today:
@@ -240,13 +239,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if to_date - from_date > timedelta(days=365):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_after_one_year")
 
-        # Check minimum length
-        if not _is_host_request_long_enough(request.text):
-            context.abort_with_error_code(
-                grpc.StatusCode.INVALID_ARGUMENT,
-                "host_request_too_short2",
-                substitutions={"count": HOST_REQUEST_MIN_LENGTH_UTF16},
-            )
+        _validate_request_text(request.text, public_trip_id is not None, context)
 
         # Check if user has been sending host requests excessively
         if process_rate_limits_and_check_abort(
@@ -258,11 +251,32 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 substitutions={"count": RATE_LIMIT_HOURS},
             )
 
-        # If this is an offer in response to a public trip, validate it
-        public_trip_id = request.public_trip_id if request.HasField("public_trip_id") else None
+        # Offers on public trips are deduplicated per trip further down instead
+        if public_trip_id is None:
+            recent_request = session.execute(
+                select(HostRequest.conversation_id)
+                .join(Conversation, HostRequest.conversation_id == Conversation.id)
+                .where(HostRequest.initiator_user_id == context.user_id)
+                .where(HostRequest.recipient_user_id == recipient.id)
+                .where(HostRequest.public_trip_id == None)
+                .where(Conversation.created >= now() - timedelta(hours=HOST_REQUEST_DUPLICATE_WINDOW_HOURS))
+                # overlapping nights, so back-to-back stays are still allowed
+                .where(HostRequest.from_date < to_date)
+                .where(HostRequest.to_date > from_date)
+                .limit(1)
+            ).scalar_one_or_none()
+            if recent_request is not None:
+                context.abort_with_error_code(
+                    grpc.StatusCode.FAILED_PRECONDITION,
+                    "duplicate_host_request",
+                    substitutions={"count": HOST_REQUEST_DUPLICATE_WINDOW_HOURS},
+                )
+
         if public_trip_id is not None:
             public_trip = session.execute(
-                select(PublicTrip).where(PublicTrip.id == public_trip_id)
+                where_moderated_content_visible(select(PublicTrip), context, PublicTrip, is_list_operation=False).where(
+                    PublicTrip.id == public_trip_id
+                )
             ).scalar_one_or_none()
             if not public_trip:
                 context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "public_trip_not_found")
@@ -282,13 +296,16 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 and user.gender != recipient.gender
             ):
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "public_trip_same_gender_only")
-            # Prevent duplicate offers on the same trip
+            # Prevent duplicate offers on the same trip. A withdrawn offer doesn't count, so a host
+            # can offer again after withdrawing, e.g. to renegotiate dates.
             existing_offer = session.execute(
-                select(HostRequest)
+                select(HostRequest.conversation_id)
                 .where(HostRequest.public_trip_id == public_trip_id)
                 .where(HostRequest.initiator_user_id == context.user_id)
+                .where(HostRequest.status != HostRequestStatus.cancelled)
+                .limit(1)
             ).scalar_one_or_none()
-            if existing_offer:
+            if existing_offer is not None:
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "duplicate_host_request_for_trip")
 
         conversation = Conversation()
@@ -329,11 +346,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             to_date=to_date,
             status=HostRequestStatus.pending,
             initiator_last_seen_message_id=message.id,
-            # TODO: tz
-            # timezone=recipient.timezone,
-            hosting_city=recipient.city,
-            hosting_location=recipient.geom,
-            hosting_radius=recipient.geom_radius,
+            hosting_city=host_user.city,
+            hosting_location=host_user.geom,
+            hosting_radius=host_user.geom_radius,
             public_trip_id=public_trip_id,
         )
         session.add(host_request)
@@ -353,21 +368,26 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             moderation_state_id=moderation_state.id,
         )
 
-        host_requests_sent_counter.labels(user.gender, recipient.gender).inc()
+        # the host request metrics assume the sender is the surfer, which is backwards on a public trip offer
+        if public_trip_id is None:
+            host_requests_sent_counter.labels(user.gender, recipient.gender).inc()
+            account_age_on_host_request_create_histogram.labels(surfer_user.gender, host_user.gender).observe(
+                (now() - user.joined).total_seconds()
+            )
+        else:
+            public_trip_offers_sent_counter.labels(user.gender, recipient.gender).inc()
         sent_messages_counter.labels(user.gender, "host request send").inc()
-        account_age_on_host_request_create_histogram.labels(user.gender, recipient.gender).observe(
-            (now() - user.joined).total_seconds()
-        )
         log_event(
             context,
             session,
             "host_request.created",
             {
                 "host_request_id": host_request.conversation_id,
-                "host_id": recipient.id,
-                "surfer_gender": user.gender,
-                "host_gender": recipient.gender,
-                "city": recipient.city,
+                "surfer_id": surfer_user.id,
+                "host_id": host_user.id,
+                "surfer_gender": surfer_user.gender,
+                "host_gender": host_user.gender,
+                "city": host_user.city,
                 "from_date": str(from_date),
                 "to_date": str(to_date),
                 "nights": (to_date - from_date).days,
@@ -405,6 +425,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
         return host_request_to_pb(host_request, session, context)
 
+    # TODO(#7722): remove after FE migrates to ListMessageThreads
     def ListHostRequests(
         self, request: requests_pb2.ListHostRequestsReq, context: CouchersContext, session: Session
     ) -> requests_pb2.ListHostRequestsRes:
@@ -421,7 +442,12 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         statement = where_moderated_content_visible(
             where_users_column_visible(
                 where_users_column_visible(
-                    select(Message, HostRequest, Conversation)
+                    select(
+                        Message,
+                        HostRequest,
+                        Conversation,
+                        unseen_host_request_message_count(context.user_id).label("unseen_message_count"),
+                    )
                     .outerjoin(
                         message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id)
                     )
@@ -458,10 +484,11 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if request.page_token:
                 statement = statement.where(Message.id < int(request.page_token))
 
+        # filter by stay role, so a public-trip offer (started by the host) lands on the right side
         if request.only_sent:
-            statement = statement.where(HostRequest.initiator_user_id == context.user_id)
+            statement = statement.where(HostRequest.surfer_user_id == context.user_id)
         elif request.only_received:
-            statement = statement.where(HostRequest.recipient_user_id == context.user_id)
+            statement = statement.where(HostRequest.host_user_id == context.user_id)
         elif request.HasField("only_archived"):
             statement = statement.where(
                 or_(
@@ -509,12 +536,13 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             host_requests.append(
                 requests_pb2.HostRequest(
                     host_request_id=result.HostRequest.conversation_id,
-                    surfer_user_id=result.HostRequest.initiator_user_id,
-                    host_user_id=result.HostRequest.recipient_user_id,
+                    surfer_user_id=result.HostRequest.surfer_user_id,
+                    host_user_id=result.HostRequest.host_user_id,
                     status=hostrequeststatus2api[result.HostRequest.status],
                     created=Timestamp_from_datetime(result.Conversation.created),
                     from_date=date_to_api(result.HostRequest.from_date),
                     to_date=date_to_api(result.HostRequest.to_date),
+                    timezone=result.HostRequest.timezone,
                     last_seen_message_id=(
                         result.HostRequest.initiator_last_seen_message_id
                         if context.user_id == result.HostRequest.initiator_user_id
@@ -525,6 +553,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     hosting_lat=lat,
                     hosting_lng=lng,
                     hosting_radius=result.HostRequest.hosting_radius,
+                    public_trip_id=result.HostRequest.public_trip_id,
+                    unseen_message_count=result.unseen_message_count,
                 )
             )
 
@@ -543,13 +573,69 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             next_page_token=next_page_token, no_more=no_more, host_requests=host_requests
         )
 
+    def ListStays(
+        self, request: requests_pb2.ListStaysReq, context: CouchersContext, session: Session
+    ) -> requests_pb2.ListStaysRes:
+        if request.role == requests_pb2.STAY_ROLE_HOSTING:
+            role_column = HostRequest.host_user_id
+        elif request.role == requests_pb2.STAY_ROLE_SURFING:
+            role_column = HostRequest.surfer_user_id
+        else:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_stay_role")
+
+        page_size = min(MAX_PAGE_SIZE, request.page_size or DEFAULT_PAGINATION_LENGTH)
+
+        statement = where_moderated_content_visible(
+            where_users_column_visible(
+                where_users_column_visible(select(HostRequest), context, HostRequest.initiator_user_id),
+                context,
+                HostRequest.recipient_user_id,
+            ),
+            context,
+            HostRequest,
+            is_list_operation=True,
+        ).where(
+            role_column == context.user_id,
+            HostRequest.status.in_([HostRequestStatus.accepted, HostRequestStatus.confirmed]),
+            HostRequest.end_time >= func.now(),
+        )
+
+        if request.page_token:
+            token_date, token_id = date_id_from_page_token(request.page_token)
+            statement = statement.where(
+                or_(
+                    HostRequest.from_date > token_date,
+                    and_(HostRequest.from_date == token_date, HostRequest.conversation_id > token_id),
+                )
+            )
+
+        host_requests = (
+            session.execute(statement.order_by(HostRequest.from_date, HostRequest.conversation_id).limit(page_size + 1))
+            .scalars()
+            .all()
+        )
+
+        next_page_token = ""
+        if len(host_requests) > page_size:
+            last = host_requests[page_size - 1]
+            next_page_token = date_id_to_page_token(last.from_date, last.conversation_id)
+
+        return requests_pb2.ListStaysRes(
+            host_requests=[
+                host_request_to_pb(host_request, session, context) for host_request in host_requests[:page_size]
+            ],
+            next_page_token=next_page_token,
+        )
+
     def RespondHostRequest(
         self, request: requests_pb2.RespondHostRequestReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
-        def count_host_response(other_user_id: int, response_type: str) -> None:
+        def count_host_response(host_request: HostRequest, other_user_id: int, response_type: str) -> None:
             user_gender = session.execute(select(User.gender).where(User.id == context.user_id)).scalar_one()
             other_gender = session.execute(select(User.gender).where(User.id == other_user_id)).scalar_one()
-            host_request_responses_counter.labels(user_gender, other_gender, response_type).inc()
+            # the response types assume the recipient is the host, which is backwards on a public trip offer
+            if host_request.public_trip_id is None:
+                host_request_responses_counter.labels(user_gender, other_gender, response_type).inc()
             sent_messages_counter.labels(user_gender, "host request response").inc()
 
         host_request = session.execute(
@@ -575,7 +661,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if host_request.initiator_user_id != context.user_id and host_request.recipient_user_id != context.user_id:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "host_request_not_found")
 
-        if request.status == conversations_pb2.HOST_REQUEST_STATUS_PENDING:
+        if request.status == messages_pb2.HOST_REQUEST_STATUS_PENDING:
             context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
 
         if host_request.end_time < now():
@@ -587,7 +673,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             author_id=context.user_id,
         )
 
-        if request.status == conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED:
+        if request.status == messages_pb2.HOST_REQUEST_STATUS_ACCEPTED:
             # only host can accept
             if context.user_id != host_request.recipient_user_id:
                 context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "not_the_host")
@@ -616,24 +702,24 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 moderation_state_id=host_request.moderation_state_id,
             )
 
-            count_host_response(host_request.initiator_user_id, "accepted")
+            count_host_response(host_request, host_request.initiator_user_id, "accepted")
             log_event(
                 context,
                 session,
                 "host_request.accepted",
                 {
                     "host_request_id": host_request.conversation_id,
-                    "surfer_id": host_request.initiator_user_id,
-                    "host_id": host_request.recipient_user_id,
-                    "surfer_gender": host_request.initiator.gender,
-                    "host_gender": host_request.recipient.gender,
+                    "surfer_id": host_request.surfer_user_id,
+                    "host_id": host_request.host_user_id,
+                    "surfer_gender": host_request.surfer.gender,
+                    "host_gender": host_request.host.gender,
                     "from_date": str(host_request.from_date),
                     "to_date": str(host_request.to_date),
                     "host_city": host_request.hosting_city,
                 },
             )
 
-        if request.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED:
+        if request.status == messages_pb2.HOST_REQUEST_STATUS_REJECTED:
             # only host can reject
             if context.user_id != host_request.recipient_user_id:
                 context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
@@ -658,7 +744,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 moderation_state_id=host_request.moderation_state_id,
             )
 
-            count_host_response(host_request.initiator_user_id, "rejected")
+            count_host_response(host_request, host_request.initiator_user_id, "rejected")
 
             log_event(
                 context,
@@ -666,17 +752,17 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 "host_request.rejected",
                 {
                     "host_request_id": host_request.conversation_id,
-                    "surfer_id": host_request.initiator_user_id,
-                    "host_id": host_request.recipient_user_id,
-                    "surfer_gender": host_request.initiator.gender,
-                    "host_gender": host_request.recipient.gender,
+                    "surfer_id": host_request.surfer_user_id,
+                    "host_id": host_request.host_user_id,
+                    "surfer_gender": host_request.surfer.gender,
+                    "host_gender": host_request.host.gender,
                     "from_date": str(host_request.from_date),
                     "to_date": str(host_request.to_date),
                     "host_city": host_request.hosting_city,
                 },
             )
 
-        if request.status == conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED:
+        if request.status == messages_pb2.HOST_REQUEST_STATUS_CONFIRMED:
             # only surfer can confirm
             if context.user_id != host_request.initiator_user_id:
                 context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
@@ -700,24 +786,24 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 moderation_state_id=host_request.moderation_state_id,
             )
 
-            count_host_response(host_request.recipient_user_id, "confirmed")
+            count_host_response(host_request, host_request.recipient_user_id, "confirmed")
             log_event(
                 context,
                 session,
                 "host_request.confirmed",
                 {
                     "host_request_id": host_request.conversation_id,
-                    "surfer_id": host_request.initiator_user_id,
-                    "host_id": host_request.recipient_user_id,
-                    "surfer_gender": host_request.initiator.gender,
-                    "host_gender": host_request.recipient.gender,
+                    "surfer_id": host_request.surfer_user_id,
+                    "host_id": host_request.host_user_id,
+                    "surfer_gender": host_request.surfer.gender,
+                    "host_gender": host_request.host.gender,
                     "from_date": str(host_request.from_date),
                     "to_date": str(host_request.to_date),
                     "host_city": host_request.hosting_city,
                 },
             )
 
-        if request.status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED:
+        if request.status == messages_pb2.HOST_REQUEST_STATUS_CANCELLED:
             # only surfer can cancel
             if context.user_id != host_request.initiator_user_id:
                 context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
@@ -741,17 +827,17 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 moderation_state_id=host_request.moderation_state_id,
             )
 
-            count_host_response(host_request.recipient_user_id, "cancelled")
+            count_host_response(host_request, host_request.recipient_user_id, "cancelled")
             log_event(
                 context,
                 session,
                 "host_request.cancelled",
                 {
                     "host_request_id": host_request.conversation_id,
-                    "surfer_id": host_request.initiator_user_id,
-                    "host_id": host_request.recipient_user_id,
-                    "surfer_gender": host_request.initiator.gender,
-                    "host_gender": host_request.recipient.gender,
+                    "surfer_id": host_request.surfer_user_id,
+                    "host_id": host_request.host_user_id,
+                    "surfer_gender": host_request.surfer.gender,
+                    "host_gender": host_request.host.gender,
                     "from_date": str(host_request.from_date),
                     "to_date": str(host_request.to_date),
                     "host_city": host_request.hosting_city,
@@ -865,7 +951,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     host_request=host_request_to_pb(host_request, session, recipient_context),
                     user=user_model_to_pb(host_request.initiator, session, recipient_context),
                     text=request.text,
-                    am_host=True,
+                    am_host=host_request.host_user_id == host_request.recipient_user_id,
                 ),
                 moderation_state_id=host_request.moderation_state_id,
             )
@@ -883,7 +969,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     host_request=host_request_to_pb(host_request, session, recipient_context),
                     user=user_model_to_pb(host_request.recipient, session, recipient_context),
                     text=request.text,
-                    am_host=False,
+                    am_host=host_request.host_user_id == host_request.initiator_user_id,
                 ),
                 moderation_state_id=host_request.moderation_state_id,
             )
@@ -898,9 +984,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             "host_request.message_sent",
             {
                 "host_request_id": host_request.conversation_id,
-                "surfer_id": host_request.initiator_user_id,
-                "host_id": host_request.recipient_user_id,
-                "role": "host" if context.user_id == host_request.recipient_user_id else "surfer",
+                "surfer_id": host_request.surfer_user_id,
+                "host_id": host_request.host_user_id,
+                "role": "host" if context.user_id == host_request.host_user_id else "surfer",
                 "host_city": host_request.hosting_city,
             },
         )
@@ -990,16 +1076,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         mark_notifications_seen(
             session,
             user_id=context.user_id,
-            key=str(host_request.conversation_id),
-            topic_actions=[
-                NotificationTopicAction.host_request__create,
-                NotificationTopicAction.host_request__accept,
-                NotificationTopicAction.host_request__reject,
-                NotificationTopicAction.host_request__confirm,
-                NotificationTopicAction.host_request__cancel,
-                NotificationTopicAction.host_request__message,
-                NotificationTopicAction.host_request__missed_messages,
-                NotificationTopicAction.host_request__reminder,
+            topic_actions_and_keys=[
+                (HOST_REQUEST_NOTIFICATION_TOPIC_ACTIONS, [str(host_request.conversation_id)]),
             ],
         )
 
@@ -1054,6 +1132,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             where_moderated_content_visible(select(HostRequest), context, HostRequest, is_list_operation=False)
             .where(HostRequest.conversation_id == request.host_request_id)
             .where(HostRequest.recipient_user_id == context.user_id)
+            # public-trip offers don't take feedback
+            .where(HostRequest.public_trip_id == None)
         ).scalar_one_or_none()
 
         if not host_request:
@@ -1084,8 +1164,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             "host_request.feedback_submitted",
             {
                 "host_request_id": host_request.conversation_id,
-                "surfer_id": host_request.initiator_user_id,
-                "host_id": host_request.recipient_user_id,
+                "surfer_id": host_request.surfer_user_id,
+                "host_id": host_request.host_user_id,
                 "request_quality": quality.name if quality else None,
                 "has_decline_reason": bool(request.decline_reason),
                 "host_city": host_request.hosting_city,

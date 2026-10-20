@@ -1,4 +1,4 @@
-import { ArchiveOutlined, UnarchiveOutlined } from "@mui/icons-material";
+import { ArchiveOutlined, Groups, Person, UnarchiveOutlined } from "@mui/icons-material";
 import {
   ListItemAvatar,
   ListItemButton,
@@ -20,7 +20,7 @@ import {
   isControlMessage,
   messageTargetId,
 } from "features/messages/utils";
-import { groupChatsListKey } from "features/queryKeys";
+import { messageThreadsListKey } from "features/queryKeys";
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -62,11 +62,7 @@ interface GroupChatListItemProps extends ListItemProps {
   isArchived?: boolean;
 }
 
-export default function GroupChatListItem({
-  groupChat,
-  className,
-  isArchived = false,
-}: GroupChatListItemProps) {
+export default function GroupChatListItem({ groupChat, className, isArchived = false }: GroupChatListItemProps) {
   const { t } = useTranslation(MESSAGES);
   const currentUserId = useAuthContext().authState.userId!;
   const latestMessageAuthorId = groupChat.latestMessage?.authorUserId;
@@ -75,36 +71,17 @@ export default function GroupChatListItem({
 
   //It is possible the last message is sent by someone who has left
   //so include it just in case
-  const groupChatMembersQuery = useLiteUsers([
-    ...groupChat.memberUserIdsList,
-    latestMessageAuthorId,
-  ]);
+  const groupChatMembersQuery = useLiteUsers([...groupChat.memberUserIdsList, latestMessageAuthorId]);
 
-  //the avatar is of the latest message author (if it's not the logged in user),
-  //otherwise any user that's not the logged in user, otherwise logged in user
-  const avatarUserId =
-    latestMessageAuthorId !== null && latestMessageAuthorId !== currentUserId
-      ? latestMessageAuthorId
-      : (groupChat.memberUserIdsList.find((id) => id !== currentUserId) ??
-        currentUserId);
+  const dmOtherMemberUserId = groupChat.memberUserIdsList.find((id) => id !== currentUserId);
+  const dmOtherMember = groupChatMembersQuery.data?.get(dmOtherMemberUserId);
   //title is the chat title, or all the member's names except current user joined together
-  const title = groupChatTitleText(
-    groupChat,
-    groupChatMembersQuery,
-    currentUserId,
-    t,
-  );
+  const title = groupChatTitleText(groupChat, groupChatMembersQuery, currentUserId, t);
   //text is the control message text or message text
   let text = "";
-  const authorName = firstName(
-    groupChatMembersQuery.data?.get(groupChat.latestMessage?.authorUserId)
-      ?.name,
-  );
+  const authorName = firstName(groupChatMembersQuery.data?.get(groupChat.latestMessage?.authorUserId)?.name);
   if (groupChat.latestMessage && isControlMessage(groupChat.latestMessage)) {
-    const targetName = firstName(
-      groupChatMembersQuery.data?.get(messageTargetId(groupChat.latestMessage))
-        ?.name,
-    );
+    const targetName = firstName(groupChatMembersQuery.data?.get(messageTargetId(groupChat.latestMessage))?.name);
     text = controlMessage({
       user: authorName,
       target_user: targetName,
@@ -117,9 +94,7 @@ export default function GroupChatListItem({
 
   const queryClient = useQueryClient();
 
-  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(
-    null,
-  );
+  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(null);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -136,28 +111,23 @@ export default function GroupChatListItem({
 
   const archiveMutation = useMutation<void, RpcError>({
     mutationFn: async () => {
-      await service.conversations.setGroupChatArchiveStatus(
-        groupChat.groupChatId,
-        !isArchived,
-      );
+      await service.conversations.setGroupChatArchiveStatus(groupChat.groupChatId, !isArchived);
     },
     onMutate: async () => {
       handleMenuClose();
       // Cancel outgoing refetches so they don't overwrite our optimistic update
-      await queryClient.cancelQueries({ queryKey: groupChatsListKey() });
+      await queryClient.cancelQueries({ queryKey: messageThreadsListKey() });
     },
     onSettled: () => {
       // Refetch after mutation completes (success or error)
-      queryClient.invalidateQueries({ queryKey: groupChatsListKey() });
+      queryClient.invalidateQueries({ queryKey: messageThreadsListKey() });
     },
   });
 
   const menuItems: EllipsisMenuItem[] = [
     {
       icon: isArchived ? UnarchiveOutlined : ArchiveOutlined,
-      label: isArchived
-        ? t("archive.unarchive_button")
-        : t("archive.archive_button"),
+      label: isArchived ? t("archive.unarchive_button") : t("archive.archive_button"),
       onClick: () => archiveMutation.mutate(),
     },
   ];
@@ -168,11 +138,14 @@ export default function GroupChatListItem({
         <ListItemAvatar>
           {groupChatMembersQuery.isLoading ? (
             <Skeleton />
+          ) : groupChat.isDm ? (
+            <Avatar user={dmOtherMember} isProfileLink={false}>
+              <Person />
+            </Avatar>
           ) : (
-            <Avatar
-              user={groupChatMembersQuery.data?.get(avatarUserId)}
-              isProfileLink={false}
-            />
+            <Avatar isProfileLink={false}>
+              <Groups />
+            </Avatar>
           )}
         </ListItemAvatar>
         <ListItemText

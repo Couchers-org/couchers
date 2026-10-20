@@ -1,5 +1,4 @@
-import { Dayjs } from "dayjs";
-import { HostRequestStatus } from "proto/conversations_pb";
+import { HostRequestStatus } from "proto/messages_pb";
 import {
   CreateHostRequestReq,
   GetHostRequestMessagesReq,
@@ -14,6 +13,7 @@ import {
   SendHostRequestMessageReq,
   SetHostRequestArchiveStatusReq,
 } from "proto/requests_pb";
+import { Temporal } from "temporal-polyfill";
 
 import client from "./client";
 
@@ -76,11 +76,7 @@ export async function sendHostRequestMessage(id: number, text: string) {
   return messageId;
 }
 
-export async function respondHostRequest(
-  id: number,
-  status: HostRequestStatus,
-  text: string,
-) {
+export async function respondHostRequest(id: number, status: HostRequestStatus, text: string) {
   const req = new RespondHostRequestReq();
   req.setHostRequestId(id);
   req.setStatus(status);
@@ -88,11 +84,7 @@ export async function respondHostRequest(
   await client.requests.respondHostRequest(req);
 }
 
-export async function getHostRequestMessages(
-  id: number,
-  lastMessageId = 0,
-  count = 20,
-) {
+export async function getHostRequestMessages(id: number, lastMessageId = 0, count = 20) {
   const req = new GetHostRequestMessagesReq();
   req.setHostRequestId(id);
   req.setLastMessageId(lastMessageId);
@@ -105,18 +97,25 @@ export async function getHostRequestMessages(
 
 export type CreateHostRequestWrapper = Omit<
   Required<CreateHostRequestReq.AsObject>,
-  "toDate" | "fromDate"
-> & { toDate: Dayjs; fromDate: Dayjs; stayType: number };
+  "toDate" | "fromDate" | "publicTripId"
+> & {
+  toDate: Temporal.PlainDate;
+  fromDate: Temporal.PlainDate;
+  stayType: number;
+  publicTripId?: number;
+};
 
 export async function createHostRequest(data: CreateHostRequestWrapper) {
   const req = new CreateHostRequestReq();
   req.setHostUserId(data.hostUserId);
-  // Dayjs.format() uses the browser timezone,
-  // which matches the timezone we used to create the
-  // Dayjs object from the year/month/date input fields.
-  req.setFromDate(data.fromDate.format().split("T")[0]);
-  req.setToDate(data.toDate.format().split("T")[0]);
+  req.setFromDate(data.fromDate.toString());
+  req.setToDate(data.toDate.toString());
   req.setText(data.text);
+  // Set when this host request is an "offer to host" made in response to a
+  // public trip, so the backend links the offer back to the trip.
+  if (data.publicTripId) {
+    req.setPublicTripId(data.publicTripId);
+  }
 
   const response = await client.requests.createHostRequest(req);
 
@@ -149,10 +148,7 @@ export async function sendHostRequestFeedback(
   await client.requests.sendHostRequestFeedback(req);
 }
 
-export async function setHostRequestArchiveStatus(
-  hostRequestId: number,
-  isArchived: boolean,
-) {
+export async function setHostRequestArchiveStatus(hostRequestId: number, isArchived: boolean) {
   const req = new SetHostRequestArchiveStatusReq();
   req.setHostRequestId(hostRequestId);
   req.setIsArchived(isArchived);

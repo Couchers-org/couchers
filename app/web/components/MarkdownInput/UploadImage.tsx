@@ -1,11 +1,6 @@
 import { Emitter } from "@toast-ui/editor";
 import Button from "components/Button";
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-} from "components/Dialog";
+import { Dialog, DialogActions, DialogContent, DialogTitle } from "components/Dialog";
 import ImageInput from "components/ImageInput";
 import TextField from "components/TextField";
 import { useTranslation } from "i18n";
@@ -14,11 +9,7 @@ import React, { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { ImageInputValues } from "service/api";
 
-import {
-  IMAGE_DESCRIPTION,
-  IMAGE_UPLOAD_INPUT_ALT,
-  UPLOAD_IMAGE,
-} from "./constants";
+import { IMAGE_DESCRIPTION, IMAGE_UPLOAD_INPUT_ALT, UPLOAD_IMAGE } from "./constants";
 
 interface UploadImageProps {
   emitter?: Emitter;
@@ -26,11 +17,7 @@ interface UploadImageProps {
   onClose: () => void;
 }
 
-export default function UploadImage({
-  emitter,
-  open,
-  onClose,
-}: UploadImageProps) {
+export default function UploadImage({ emitter, open, onClose }: UploadImageProps) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const alt = useRef("");
   const { control } = useForm();

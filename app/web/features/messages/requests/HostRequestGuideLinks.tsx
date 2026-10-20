@@ -2,7 +2,7 @@ import { styled, Typography } from "@mui/material";
 import StyledLink from "components/StyledLink";
 import { Trans, useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
-import { HostRequestStatus } from "proto/conversations_pb";
+import { HostRequestStatus } from "proto/messages_pb";
 import React from "react";
 import { howToRespondRequestGuideUrl, howToWriteRequestGuideUrl } from "routes";
 
@@ -24,24 +24,20 @@ export default function HostRequestGuideLinks({
 }) {
   const { t } = useTranslation([MESSAGES]);
 
-  const isHostPending =
-    !isPast &&
-    isHost &&
-    status === HostRequestStatus.HOST_REQUEST_STATUS_PENDING;
+  const isHostPending = !isPast && isHost && status === HostRequestStatus.HOST_REQUEST_STATUS_PENDING;
 
-  const isSurferRejected =
-    !isHost && status === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED;
+  const isSurferRejected = !isHost && status === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED;
 
   if (isHostPending) {
     return (
       <StyledHelpTextContainer>
         <Typography variant="body1">
-          <Trans i18nKey="messages:host_pending_request_help_text">
-            <StyledLink variant="body1" href={howToRespondRequestGuideUrl}>
-              Things to consider
-            </StyledLink>{" "}
-            before responding.
-          </Trans>
+          <Trans
+            i18nKey="messages:host_pending_request_help_text"
+            components={{
+              guideLink: <StyledLink variant="body1" href={howToRespondRequestGuideUrl} />,
+            }}
+          />
         </Typography>
       </StyledHelpTextContainer>
     );
@@ -49,21 +45,19 @@ export default function HostRequestGuideLinks({
     return (
       <StyledHelpTextContainer>
         <Typography variant="body1">
-          <Trans i18nKey="messages:surfer_declined_request_help_text">
-            <StyledLink variant="body1" href={howToWriteRequestGuideUrl}>
-              Read our guide
-            </StyledLink>{" "}
-            on how to write a request that will get accepted.
-          </Trans>
+          <Trans
+            i18nKey="messages:surfer_declined_request_help_text"
+            components={{
+              guideLink: <StyledLink variant="body1" href={howToWriteRequestGuideUrl} />,
+            }}
+          />
         </Typography>
       </StyledHelpTextContainer>
     );
   } else if (isPast) {
     return (
       <StyledHelpTextContainer>
-        <Typography variant="body1">
-          {t("messages:past_request_help_text")}
-        </Typography>
+        <Typography variant="body1">{t("messages:past_request_help_text")}</Typography>
       </StyledHelpTextContainer>
     );
   } else {

@@ -26,37 +26,39 @@ jest.mock("next/router", () => {
     },
   };
 });
-// Mock next/dynamic to skip the dynamic part
-// This works by extracting the require("path/to/component")
-// It needs to be in the form dynamic(() => import("components/MarkdownNoSSR"))
-// This is hacky. Really we need to just ditch any non-ssr components
+// The markdown components load via next/dynamic (ssr: false), which doesn't render
+// synchronously in tests, so render the real client-only components instead.
 /// TODO: Get an SSR-friendly markdown editor
-jest.mock("next/dynamic", () => ({
+jest.mock("components/Markdown", () => ({
+  ...jest.requireActual("components/Markdown"),
   __esModule: true,
-  default: (...props: unknown[]) => {
-    const matchedPath = /require\("(.*)"\)/.exec(`${props[0]}`);
-    if (matchedPath) {
-      const Component = require(matchedPath[1]).default; //eslint-disable-line
-      return Component;
-    } else throw Error(`Couldn't resolve dynamic component: ${matchedPath}`);
-  },
+  default: jest.requireActual("components/MarkdownNoSSR").default,
+}));
+jest.mock("components/MarkdownInput/MarkdownInput", () => ({
+  __esModule: true,
+  default: jest.requireActual("components/MarkdownInput/MarkdownInputNoSSR").default,
 }));
 jest.mock("react-gtm-module");
-jest.mock("features/weblate/useWeblateStats", () => ({
+jest.mock("i18n/useLocaleInfos", () => ({
   __esModule: true,
-  useWeblateStats: () => ({
+  useLocaleInfos: () => ({
     data: [
-      { code: "en", name: "English", translated_percent: 100 },
-      { code: "es", name: "Spanish", translated_percent: 85 },
-      { code: "fr", name: "French", translated_percent: 75 },
-      { code: "de", name: "German", translated_percent: 60 },
-      { code: "it", name: "Italian", translated_percent: 45 },
-      { code: "pt", name: "Portuguese", translated_percent: 30 },
-      { code: "ru", name: "Russian", translated_percent: 15 },
+      { code: "en", autonym: "English", stringAvailabilityPercent: 100 },
+      { code: "es", autonym: "Español", stringAvailabilityPercent: 85 },
+      { code: "fr", autonym: "Français", stringAvailabilityPercent: 75 },
+      { code: "de", autonym: "Deutsch", stringAvailabilityPercent: 60 },
+      { code: "it", autonym: "Italiano", stringAvailabilityPercent: 45 },
+      { code: "pt", autonym: "Português (Portugal)", stringAvailabilityPercent: 30 },
+      { code: "ru", autonym: "Русский", stringAvailabilityPercent: 15 },
     ],
     isLoading: false,
     error: null,
   }),
+}));
+jest.mock("react-simple-maps", () => ({
+  ComposableMap: () => null,
+  Geographies: () => null,
+  Geography: () => null,
 }));
 
 jest.setTimeout(10000);
@@ -106,10 +108,10 @@ global.ResizeObserver = class ResizeObserver {
 };
 
 declare global {
-  /* eslint-disable no-var */ // Disable the rule for this block
+  // Disable the rule for this block
   var defaultUser: typeof user;
   var testKit: ReturnType<typeof sentryTestkit>["testkit"];
-  /* eslint-enable no-var */ // Re-enable the rule
+  // Re-enable the rule
 }
 
 function createWebStorageMock() {

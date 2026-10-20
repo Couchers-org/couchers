@@ -2,13 +2,7 @@ import { DialogProps, Link as MuiLink } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-} from "components/Dialog";
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "components/Dialog";
 import { eventKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
@@ -40,15 +34,9 @@ export default function InviteCommunityDialog({
 
   return (
     <Dialog {...props} aria-labelledby="invite-community-dialog-title">
-      <DialogTitle id="invite-community-dialog-title">
-        {t("communities:invite_community_dialog.title")}
-      </DialogTitle>
+      <DialogTitle id="invite-community-dialog-title">{t("communities:invite_community_dialog.title")}</DialogTitle>
       <DialogContent>
-        {inviteCommunityMutation.error && (
-          <Alert severity="error">
-            {inviteCommunityMutation.error?.message}
-          </Alert>
-        )}
+        {inviteCommunityMutation.error && <Alert severity="error">{inviteCommunityMutation.error?.message}</Alert>}
         <DialogContentText>
           {t("communities:invite_community_dialog.message")}
           <br />
@@ -65,16 +53,11 @@ export default function InviteCommunityDialog({
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button
-          onClick={inviteCommunity}
-          loading={inviteCommunityMutation.isPending}
-        >
+        <Button onClick={inviteCommunity} loading={inviteCommunityMutation.isPending}>
           {t("communities:invite_community_dialog_buttons.confirm")}
         </Button>
         <Button
-          onClick={() =>
-            props.onClose ? props.onClose({}, "escapeKeyDown") : null
-          }
+          onClick={() => (props.onClose ? props.onClose({}, "escapeKeyDown") : null)}
           loading={inviteCommunityMutation.isPending}
         >
           {t("communities:invite_community_dialog_buttons.close")}

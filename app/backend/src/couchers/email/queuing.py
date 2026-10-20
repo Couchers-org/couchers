@@ -6,8 +6,8 @@ from sqlalchemy.orm.session import Session
 
 from couchers.config import config
 from couchers.context import CouchersContext
-from couchers.email.emails import EmailBase
-from couchers.email.rendering import EmailFooter, render_html_body, render_plaintext_body
+from couchers.email.blocks import EmailBase, EmailFooter
+from couchers.email.rendering import render_email
 from couchers.i18n import LocalizationContext
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import emails_counter
@@ -28,7 +28,7 @@ def _queue_email(session: Session, payload: jobs_pb2.SendEmailPayload) -> None:
         session,
         job=send_email,
         payload=payload,
-        priority=5,
+        priority=15,
     )
 
     emails_counter.inc()
@@ -48,19 +48,11 @@ def queue_userless_email(
     """
 
     loc_context = context.localization
-    if not context.get_boolean_value("notification_translations_enabled", default=False):
+    if not context.get_boolean_value("notification_translations_enabled", default=True):
         loc_context = LocalizationContext(locale="en", timezone=loc_context.timezone)
 
-    subject = email.get_subject_line(loc_context)
-    preview = email.get_preview_line(loc_context)
-    body_blocks = email.get_body_blocks(loc_context)
-
     footer = EmailFooter(timezone_name=loc_context.localized_timezone, copyright_year=now().year, unsubscribe_info=None)
-
-    body_plaintext = render_plaintext_body(blocks=body_blocks, footer=footer, loc_context=loc_context)
-    body_html = render_html_body(
-        subject=subject, preview=preview, blocks=body_blocks, footer=footer, loc_context=loc_context
-    )
+    rendered = render_email(email, footer, loc_context)
 
     queue_email(
         session,
@@ -68,9 +60,10 @@ def queue_userless_email(
             sender_name=config.NOTIFICATION_EMAIL_SENDER,
             sender_email=config.NOTIFICATION_EMAIL_ADDRESS,
             recipient=recipient,
-            subject=config.NOTIFICATION_PREFIX + subject,
-            plain=body_plaintext,
-            html=body_html,
+            subject=config.NOTIFICATION_PREFIX + rendered.subject,
+            plain=rendered.body_plaintext,
+            html=rendered.body_html,
+            html_related_parts=rendered.html_image_parts,
             source_data=f"{source_data_header}; version={config.VERSION}",
         ),
     )
@@ -79,7 +72,13 @@ def queue_userless_email(
 _system_email_templates_dir = Path(__file__).parent / ".." / ".." / ".." / "templates" / "system"
 
 
-def queue_system_email(session: Session, recipient: str, template_name: str, template_args: dict[str, Any]) -> None:
+def queue_system_email(
+    session: Session,
+    recipient: str,
+    template_name: str,
+    template_args: dict[str, Any],
+    attachments: list[jobs_pb2.EmailPart] | None = None,
+) -> None:
     source = (_system_email_templates_dir / f"{template_name}.md").read_text(encoding="utf8")
     _, frontmatter_source, text_source = source.split("---", 2)
 
@@ -97,5 +96,6 @@ def queue_system_email(session: Session, recipient: str, template_name: str, tem
             subject=config.NOTIFICATION_PREFIX + frontmatter["subject"],
             plain=plain,
             source_data=template_name,
+            attachments=attachments or [],
         ),
     )

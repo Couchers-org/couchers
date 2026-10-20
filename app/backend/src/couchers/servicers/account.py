@@ -68,11 +68,7 @@ from couchers.servicers.api import lite_user_to_pb
 from couchers.servicers.public import format_volunteer_link
 from couchers.servicers.references import get_pending_references_to_write, reftype2api
 from couchers.sql import where_moderated_content_visible, where_users_column_visible
-from couchers.tasks import (
-    maybe_send_contributor_form_email,
-    send_account_deletion_report_email,
-    send_email_changed_confirmation_to_new_email,
-)
+from couchers.tasks import maybe_send_contributor_form_email, send_email_changed_confirmation_to_new_email
 from couchers.utils import (
     Timestamp_from_datetime,
     create_lang_cookie,
@@ -145,6 +141,13 @@ def abort_on_invalid_password(password: str, context: CouchersContext) -> None:
     # check for the most common weak passwords (not meant to be an exhaustive check!)
     if password.lower() in ("password", "12345678", "couchers", "couchers1"):
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "insecure_password")
+
+
+def abort_if_email_reused(context: CouchersContext, session: Session, user: User) -> None:
+    if session.execute(
+        select(User.id).where(User.email == user.email).where(User.reserves_email).where(User.id != user.id)
+    ).first():
+        context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "undelete_email_reused")
 
 
 def _volunteer_info_to_pb(volunteer: Volunteer, username: str) -> account_pb2.GetMyVolunteerInfoRes:
@@ -251,7 +254,7 @@ class Account(account_pb2_grpc.AccountServicer):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_email")
 
         # email already in use (possibly by this user)
-        if session.execute(select(User).where(User.email == request.new_email)).scalar_one_or_none():
+        if session.execute(select(User.id).where(User.email == request.new_email).where(User.reserves_email)).first():
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_email")
 
         user.new_email = request.new_email
@@ -575,10 +578,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
         reason = request.reason.strip()
         if reason:
-            deletion_reason = AccountDeletionReason(user_id=user.id, reason=reason)
-            session.add(deletion_reason)
-            session.flush()
-            send_account_deletion_report_email(session, deletion_reason)
+            session.add(AccountDeletionReason(user_id=user.id, reason=reason))
 
         token = AccountDeletionToken(token=urlsafe_secure_token(), user_id=user.id, expiry=now() + timedelta(hours=2))
 
@@ -914,7 +914,7 @@ class Iris(iris_pb2_grpc.IrisServicer):
                 session,
                 job=finalize_strong_verification,
                 payload=jobs_pb2.FinalizeStrongVerificationPayload(verification_attempt_id=verification_attempt.id),
-                priority=8,
+                priority=18,
             )
         elif iris_status in ["FAILED", "ABORTED", "REJECTED"]:
             verification_attempt.status = StrongVerificationAttemptStatus.failed

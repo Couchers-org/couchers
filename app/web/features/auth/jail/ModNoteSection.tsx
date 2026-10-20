@@ -11,27 +11,15 @@ interface ModNoteSectionProps {
   className?: string;
 }
 
-export default function ModNoteSection({
-  pendingModNotes,
-  updateJailed,
-  className,
-}: ModNoteSectionProps) {
+export default function ModNoteSection({ pendingModNotes, updateJailed, className }: ModNoteSectionProps) {
   const { t } = useTranslation([AUTH, GLOBAL]);
 
   return (
     <div className={className}>
-      <Typography variant="h2">
-        {t("auth:jail.mod_note_section.title")}
-      </Typography>
-      <Typography variant="body1">
-        {t("auth:jail.mod_note_section.description")}
-      </Typography>
+      <Typography variant="h2">{t("auth:jail.mod_note_section.title")}</Typography>
+      <Typography variant="body1">{t("auth:jail.mod_note_section.description")}</Typography>
       {pendingModNotes.map((note) => (
-        <ModNoteCard
-          key={note.noteId}
-          note={note}
-          updateJailed={updateJailed}
-        />
+        <ModNoteCard key={note.noteId} note={note} updateJailed={updateJailed} />
       ))}
     </div>
   );

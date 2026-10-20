@@ -3,8 +3,6 @@ title: "Event Organizer"
 description: "Organize events for the Couchers.org community!"
 ---
 
-## [Apply Here](/volunteer/form)
-
 ## Position Description
 
 **This is a remote volunteer position**
@@ -35,8 +33,9 @@ Prior couch surfing community event-planning experience is not required.
 
 - Flexible, event-based commitment with no minimum frequency
 - Events may be organized in the volunteer’s home city or while traveling
-- Must uphold Couchers Community Guidelines, Rules, and Terms of Service, and contribute to a positive, safe community environment that is welcome to all
+- Must uphold [Couchers Community Guidelines](https://help.couchers.org/hc/couchersorg-help-center/articles/1715121703-couchers-org-community-guidelines), Rules, and [Terms of Service](https://couchers.org/terms), and contribute to a positive, safe community environment that is welcome to all
 - Expected to communicate clearly, follow through reliably, and coordinate with the Community Builder Team when necessary
 
 This role offers a low-responsibility way to contribute. Recurring (eg. weekly or monthly) events are great, but even occasional events are valuable to the community!
+Have questions or need a hand? Reach out to your local Community Builder! You can find them on the Community Page under Local Info.
 

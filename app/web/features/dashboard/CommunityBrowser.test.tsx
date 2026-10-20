@@ -9,10 +9,10 @@ import CommunityBrowser from "./CommunityBrowser";
 
 const { t } = i18n;
 
-const getCommunityMock = service.communities
-  .getCommunity as jest.MockedFunction<typeof service.communities.getCommunity>;
-const listCommunitiesMock = service.communities
-  .listCommunities as jest.MockedFunction<
+const getCommunityMock = service.communities.getCommunity as jest.MockedFunction<
+  typeof service.communities.getCommunity
+>;
+const listCommunitiesMock = service.communities.listCommunities as jest.MockedFunction<
   typeof service.communities.listCommunities
 >;
 
@@ -70,9 +70,7 @@ describe("Community browser", () => {
 
     //deselecting the previous column
     await user.click(button112);
-    expect(
-      screen.queryByRole("button", { name: "1121" }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "1121" })).not.toBeInTheDocument();
 
     //switching the first column
     const button12 = screen.getByRole("button", { name: "12" });
@@ -99,8 +97,6 @@ describe("Community browser", () => {
 
     await user.click(await screen.findByRole("button", { name: "11" }));
     await user.click(await screen.findByRole("button", { name: "111" }));
-    expect(
-      await screen.findByText(t("dashboard:no_sub_communities")),
-    ).toBeVisible();
+    expect(await screen.findByText(t("dashboard:no_sub_communities"))).toBeVisible();
   });
 });

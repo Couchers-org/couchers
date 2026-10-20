@@ -16,8 +16,12 @@
         "friend_request": "Sol·licituds d'amistat",
         "host_request": "Sol·licituds d'allotjament",
         "reference": "Referències",
-        "discussion": "Discussions",
+        "discussion": "Debats",
         "reply": "Respostes"
+      },
+      "channels": {
+        "email_label": "Correu electrònic",
+        "push_label": "Notificacions push"
       }
     },
     "title": "Configuració de notificacions",
@@ -25,8 +29,8 @@
     "push_notifications": {
       "title": "Notificacions push",
       "allow_push": "Fes clic al botó \"Permet\" a la finestra emergent del teu navegador per activar les notificacions push.",
-      "enabled_message": "Actualment tens les notificacions push <1>activades</1>.",
-      "disabled_message": "Actualment tens les notificacions push <1>desactivades</1>.",
+      "enabled_message": "Actualment tens les notificacions push <strong>activades</strong>.",
+      "disabled_message": "Actualment tens les notificacions push <strong>desactivades</strong>.",
       "error_generic": "S'ha produït un error durant la subscripció a les notificacions push",
       "error_not_granted": "No has donat permís per enviar notificacions push.",
       "permission_denied": {
@@ -55,11 +59,13 @@
     "confirm": "Sí, sisplau!",
     "message": "No et perdis sol·licituds, respostes o missatges; vols que t'enviem notificacions push?"
   },
-  "all": "Totes",
-  "unread": "No llegit",
   "error_loading": "Error en carregar les notificacions",
   "error_updating_notifications": "Error en actualitzar les notificacions",
   "mark_unread": "Marca com a no llegit",
   "mark_all_read": "Marca-ho tot com a llegit",
-  "no_new_notifications": "No hi ha notificacions noves"
+  "no_new_notifications": "No hi ha notificacions noves",
+  "notifications_filters": {
+    "all_button": "Totes",
+    "unread_button": "No llegides"
+  }
 }

@@ -27,5 +27,18 @@
     "take_photo": "拍照",
     "choose_from_library": "從相簿中選擇",
     "open_settings": "開啟設定"
+  },
+  "update": {
+    "required_title": "需要更新",
+    "body_warn": "您似乎運行的是舊版本的應用程序，因此您需要盡快更新。",
+    "body_block": "您似乎正在運行舊版本的應用程序，因此您現在需要更新它。",
+    "body_banned": "我們似乎向您提供了該應用程式的有缺陷版本，因此您需要更新它。",
+    "preamble_warn": "我們是一個小型志工團隊，支援舊版確實很困難，對於給您帶來的麻煩，我們深表歉意。",
+    "preamble_block": "我們是一個小型志工團隊，支援舊版確實很困難，對於給您帶來的麻煩，我們深表歉意。",
+    "preamble_banned": "我們是一個小志工團隊，有時我們會犯錯，給您帶來的麻煩我們深表歉意！",
+    "action_update": "立即更新",
+    "action_reinstall": "取得新應用程式",
+    "later": "稍後",
+    "failed": "無法套用更新。請再試一次。"
   }
 }

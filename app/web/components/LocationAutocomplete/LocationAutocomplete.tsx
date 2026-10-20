@@ -29,10 +29,7 @@ interface LocationAutocompleteProps {
   sx?: SxProps<Theme>;
 }
 
-const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(
-  props: LocationAutocompleteProps,
-  ref,
-) {
+const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(props: LocationAutocompleteProps, ref) {
   const {
     className,
     control,
@@ -62,23 +59,13 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(
       required,
       validate: {
         didSelect: (value) =>
-          value === "" || typeof value !== "string"
-            ? true
-            : t("location_autocomplete.select_location_hint"),
-        isSpecific: (value) =>
-          !value?.isRegion || !disableRegions
-            ? true
-            : t("location_autocomplete.more_specific"),
+          value === "" || typeof value !== "string" ? true : t("location_autocomplete.select_location_hint"),
+        isSpecific: (value) => (!value?.isRegion || !disableRegions ? true : t("location_autocomplete.more_specific")),
       },
     },
   });
 
-  const {
-    query,
-    results: options,
-    error: geocodeError,
-    isLoading,
-  } = useGeocodeQuery();
+  const { query, results: options, error: geocodeError, isLoading } = useGeocodeQuery();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleChange = (value: GeocodeResult | string | null) => {
@@ -94,10 +81,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(
     });
   };
 
-  const searchSubmit = (
-    value: GeocodeResult | string | null,
-    reason: AutocompleteChangeReason,
-  ) => {
+  const searchSubmit = (value: GeocodeResult | string | null, reason: AutocompleteChangeReason) => {
     //just close if the menu is clicked away
     if (reason === "blur") {
       setIsOpen(false);

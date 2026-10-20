@@ -2,6 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import CommunityGuidelinesForm from "features/auth/signup/CommunityGuidelinesForm";
 import { StatusCode } from "grpc-web";
+import TagManager from "react-gtm-module";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
@@ -9,12 +10,10 @@ import { MockedService } from "test/utils";
 
 const { t } = i18n;
 
-const signupFlowCommunityGuidelinesMock = service.auth
-  .signupFlowCommunityGuidelines as MockedService<
+const signupFlowCommunityGuidelinesMock = service.auth.signupFlowCommunityGuidelines as MockedService<
   typeof service.auth.signupFlowCommunityGuidelines
 >;
-const getCommunityGuidelinesMock = service.resources
-  .getCommunityGuidelines as MockedService<
+const getCommunityGuidelinesMock = service.resources.getCommunityGuidelines as MockedService<
   typeof service.resources.getCommunityGuidelines
 >;
 
@@ -24,6 +23,7 @@ describe("community guidelines signup form", () => {
       "auth.flowState",
       JSON.stringify({
         flowToken: "dummy-token",
+        email: "test@example.com",
         needBasic: false,
         needAccount: true,
         needFeedback: false,
@@ -50,6 +50,7 @@ describe("community guidelines signup form", () => {
   it("works only with all boxes checked", async () => {
     signupFlowCommunityGuidelinesMock.mockResolvedValue({
       flowToken: "dummy-token",
+      email: "test@example.com",
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: false,
@@ -59,9 +60,7 @@ describe("community guidelines signup form", () => {
     });
     render(<CommunityGuidelinesForm />, { wrapper });
 
-    const checkboxes = await screen.findAllByLabelText(
-      t("auth:community_guidelines_form.guideline.checkbox_label"),
-    );
+    const checkboxes = await screen.findAllByLabelText(t("auth:community_guidelines_form.guideline.checkbox_label"));
     const button = await screen.findByRole("button", {
       name: t("global:submit"),
     });
@@ -69,18 +68,16 @@ describe("community guidelines signup form", () => {
 
     checkboxes.forEach(async (checkbox) => {
       expect(button).toBeDisabled();
-      expect(signupFlowCommunityGuidelinesMock).not.toBeCalled();
+      expect(signupFlowCommunityGuidelinesMock).not.toHaveBeenCalled();
       await user.click(checkbox);
     });
     await waitFor(() => expect(button).not.toBeDisabled());
     await user.click(button);
 
     await waitFor(() => {
-      expect(signupFlowCommunityGuidelinesMock).toBeCalledWith(
-        "dummy-token",
-        true,
-      );
+      expect(signupFlowCommunityGuidelinesMock).toHaveBeenCalledWith("dummy-token", true);
     });
+    expect(TagManager.dataLayer).not.toHaveBeenCalled();
   });
 
   it("does not allow submit when checkbox left blank", async () => {
@@ -92,9 +89,7 @@ describe("community guidelines signup form", () => {
       wrapper,
     });
 
-    const checkboxes = await screen.findAllByLabelText(
-      t("auth:community_guidelines_form.guideline.checkbox_label"),
-    );
+    const checkboxes = await screen.findAllByLabelText(t("auth:community_guidelines_form.guideline.checkbox_label"));
     const user = userEvent.setup();
 
     const button = screen.getByRole("button", { name: t("global:submit") });
@@ -103,9 +98,7 @@ describe("community guidelines signup form", () => {
     });
     await waitFor(() => expect(button).not.toBeDisabled());
 
-    expect(
-      screen.queryByText("All checkboxes are required"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText("All checkboxes are required")).not.toBeInTheDocument();
 
     const lastCheckbox = checkboxes[checkboxes.length - 1];
 

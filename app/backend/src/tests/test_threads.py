@@ -17,16 +17,14 @@ from couchers.models import (
     User,
 )
 from couchers.models.discussions import CommentVersion, ContentChangeType, ReplyVersion
-from couchers.proto import moderation_pb2, threads_pb2
+from couchers.proto import discussions_pb2, moderation_pb2, threads_pb2
 from couchers.servicers.threads import pack_thread_id
 from couchers.utils import now
+from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user
-from tests.fixtures.sessions import real_moderation_session, threads_session
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
+from tests.fixtures.misc import Moderator
+from tests.fixtures.sessions import discussions_session, real_moderation_session, threads_session
+from tests.test_communities import create_community
 
 
 def test_threads_basic(db):
@@ -236,20 +234,14 @@ def test_shadowed_comment_visible_to_author_only(db):
         assert len(ret.replies) == 0
 
 
-def test_shadowed_reply_visible_to_author_only(db):
+def test_shadowed_reply_visible_to_author_only(db, moderator: Moderator):
     """A shadowed reply is visible to its author but not to other users."""
     author, author_token = generate_user()
     other, other_token = generate_user()
 
     _, comment_thread_id = _make_thread_and_comment(author_token, content="hi")
     # Approve the comment so the parent comment is visible to others (otherwise they can't see the comment context anyway)
-    comment_db_id = comment_thread_id // 10
-    with session_scope() as session:
-        comment = session.execute(select(Comment).where(Comment.id == comment_db_id)).scalar_one()
-        state = session.execute(
-            select(ModerationState).where(ModerationState.id == comment.moderation_state_id)
-        ).scalar_one()
-        state.visibility = ModerationVisibility.visible
+    moderator.approve_thread_post(comment_thread_id)
 
     with threads_session(author_token) as api:
         api.PostReply(threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="my reply"))
@@ -266,23 +258,13 @@ def test_shadowed_reply_visible_to_author_only(db):
         assert len(ret.replies) == 0
 
 
-def _approve(session, moderation_state_id):
-    session.execute(
-        select(ModerationState).where(ModerationState.id == moderation_state_id)
-    ).scalar_one().visibility = ModerationVisibility.visible
-
-
-def test_comment_by_invisible_user_hidden(db):
+def test_comment_by_invisible_user_hidden(db, moderator: Moderator):
     """A comment by a deleted/banned user is hidden from others even when its moderation state is visible."""
     author, author_token = generate_user()
     other, other_token = generate_user()
 
     parent_thread_id, comment_thread_id = _make_thread_and_comment(author_token, content="from invisible user")
-    comment_db_id = comment_thread_id // 10
-
-    with session_scope() as session:
-        comment = session.execute(select(Comment).where(Comment.id == comment_db_id)).scalar_one()
-        _approve(session, comment.moderation_state_id)
+    moderator.approve_thread_post(comment_thread_id)
 
     # while the author is visible, the comment shows
     with threads_session(other_token) as api:
@@ -297,7 +279,7 @@ def test_comment_by_invisible_user_hidden(db):
         assert len(api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_thread_id)).replies) == 0
 
 
-def test_reply_by_invisible_user_hidden(db):
+def test_reply_by_invisible_user_hidden(db, moderator: Moderator):
     """A reply by a deleted/banned user is hidden from others even when its moderation state is visible."""
     commenter, commenter_token = generate_user()
     replier, replier_token = generate_user()
@@ -305,19 +287,13 @@ def test_reply_by_invisible_user_hidden(db):
 
     # comment by a user who stays visible, so the parent comment can still be navigated to
     parent_thread_id, comment_thread_id = _make_thread_and_comment(commenter_token, content="hi")
-    comment_db_id = comment_thread_id // 10
-    with session_scope() as session:
-        comment = session.execute(select(Comment).where(Comment.id == comment_db_id)).scalar_one()
-        _approve(session, comment.moderation_state_id)
+    moderator.approve_thread_post(comment_thread_id)
 
     with threads_session(replier_token) as api:
         reply_thread_id = api.PostReply(
             threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="my reply")
         ).thread_id
-    reply_db_id = reply_thread_id // 10
-    with session_scope() as session:
-        reply = session.execute(select(Reply).where(Reply.id == reply_db_id)).scalar_one()
-        _approve(session, reply.moderation_state_id)
+    moderator.approve_thread_post(reply_thread_id)
 
     # while the replier is visible, the reply shows and is counted on the parent comment
     with threads_session(viewer_token) as api:
@@ -371,36 +347,19 @@ def test_admin_can_approve_comment(db):
         assert ret.replies[0].content == "approved comment"
 
 
-def test_admin_can_hide_comment(db):
+def test_admin_can_hide_comment(db, moderator: Moderator):
     """A moderator can hide an approved comment, removing it from non-author views."""
     author, author_token = generate_user()
     other, other_token = generate_user()
-    _moderator, moderator_token = generate_user(is_superuser=True)
 
     parent_thread_id, comment_thread_id = _make_thread_and_comment(author_token, content="bad comment")
-    comment_db_id = comment_thread_id // 10
-
-    with session_scope() as session:
-        comment = session.execute(select(Comment).where(Comment.id == comment_db_id)).scalar_one()
-        state_id = comment.moderation_state_id
-        # Pretend the comment was previously approved
-        state = session.execute(select(ModerationState).where(ModerationState.id == state_id)).scalar_one()
-        state.visibility = ModerationVisibility.visible
+    moderator.approve_thread_post(comment_thread_id)
 
     # Other user sees it
     with threads_session(other_token) as api:
         assert len(api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_thread_id)).replies) == 1
 
-    # Moderator hides it
-    with real_moderation_session(moderator_token) as api:
-        api.ModerateContent(
-            moderation_pb2.ModerateContentReq(
-                moderation_state_id=state_id,
-                action=moderation_pb2.MODERATION_ACTION_HIDE,
-                visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
-                reason="Inappropriate",
-            )
-        )
+    moderator.set_thread_post_visibility(comment_thread_id, moderation_pb2.MODERATION_VISIBILITY_HIDDEN)
 
     # Other user no longer sees it
     with threads_session(other_token) as api:
@@ -410,13 +369,13 @@ def test_admin_can_hide_comment(db):
         assert len(api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_thread_id)).replies) == 0
 
 
-def test_total_num_responses_excludes_shadowed(db):
+def test_total_num_responses_excludes_shadowed(db, moderator: Moderator):
     from couchers.context import make_background_user_context  # noqa: PLC0415
     from couchers.servicers.threads import total_num_responses  # noqa: PLC0415
 
     author, author_token = generate_user()
     viewer, _ = generate_user()
-    parent_thread_id, _ = _make_thread_and_comment(author_token, content="one")
+    parent_thread_id, comment_thread_id = _make_thread_and_comment(author_token, content="one")
     viewer_context = make_background_user_context(user_id=viewer.id)
 
     parent_db_id, _ = divmod(parent_thread_id, 10)
@@ -424,14 +383,7 @@ def test_total_num_responses_excludes_shadowed(db):
     with session_scope() as session:
         assert total_num_responses(session, viewer_context, parent_db_id) == 0
 
-    with session_scope() as session:
-        state = session.execute(
-            select(ModerationState).where(
-                ModerationState.object_type == ModerationObjectType.comment,
-                ModerationState.object_id == session.execute(select(Comment.id)).scalar_one(),
-            )
-        ).scalar_one()
-        state.visibility = ModerationVisibility.visible
+    moderator.approve_thread_post(comment_thread_id)
 
     with session_scope() as session:
         assert total_num_responses(session, viewer_context, parent_db_id) == 1
@@ -451,6 +403,63 @@ def test_total_num_responses_includes_own_shadowed(db):
 
     with session_scope() as session:
         assert total_num_responses(session, author_context, parent_db_id) == 1
+
+
+def test_total_num_responses_excludes_replies_under_hidden_comment(db, moderator: Moderator):
+    """A reply only counts while the comment it hangs off is visible."""
+    from couchers.context import make_background_user_context  # noqa: PLC0415
+    from couchers.servicers.threads import total_num_responses  # noqa: PLC0415
+
+    author, author_token = generate_user()
+    viewer, viewer_token = generate_user()
+    parent_thread_id, comment_thread_id = _make_thread_and_comment(author_token, content="comment")
+    viewer_context = make_background_user_context(user_id=viewer.id)
+    parent_db_id, _ = divmod(parent_thread_id, 10)
+
+    with threads_session(author_token) as api:
+        reply_thread_id = api.PostReply(
+            threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="reply")
+        ).thread_id
+
+    moderator.approve_thread_post(comment_thread_id)
+    moderator.approve_thread_post(reply_thread_id)
+
+    with session_scope() as session:
+        assert total_num_responses(session, viewer_context, parent_db_id) == 2
+
+    moderator.set_thread_post_visibility(comment_thread_id, moderation_pb2.MODERATION_VISIBILITY_HIDDEN)
+
+    with threads_session(viewer_token) as api:
+        assert len(api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_thread_id)).replies) == 0
+    with session_scope() as session:
+        assert total_num_responses(session, viewer_context, parent_db_id) == 0
+
+
+def test_total_num_responses_excludes_replies_under_someone_elses_shadowed_comment(db, moderator: Moderator):
+    """A reply's own author doesn't count it while the comment above it is still shadowed to them."""
+    from couchers.context import make_background_user_context  # noqa: PLC0415
+    from couchers.servicers.threads import total_num_responses  # noqa: PLC0415
+
+    author, author_token = generate_user()
+    replier, replier_token = generate_user()
+    parent_thread_id, comment_thread_id = _make_thread_and_comment(author_token, content="comment")
+    replier_context = make_background_user_context(user_id=replier.id)
+    parent_db_id, _ = divmod(parent_thread_id, 10)
+
+    with threads_session(replier_token) as api:
+        reply_thread_id = api.PostReply(
+            threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="reply")
+        ).thread_id
+
+    moderator.approve_thread_post(reply_thread_id)
+
+    with session_scope() as session:
+        assert total_num_responses(session, replier_context, parent_db_id) == 0
+
+    moderator.approve_thread_post(comment_thread_id)
+
+    with session_scope() as session:
+        assert total_num_responses(session, replier_context, parent_db_id) == 2
 
 
 def test_edit_comment_creates_version_record(db):
@@ -537,6 +546,85 @@ def test_delete_reply_creates_version_record(db):
         assert v.old_content == "reply to delete"
         assert v.new_content is None
         assert v.editor_user_id == user.id
+
+
+def _create_event_and_get_thread_id(organizer, organizer_token: str) -> int:
+    """Helper: create an Event via the API, return its (packed) thread_id."""
+    with session_scope() as session:
+        create_community(session, 0, 2, "Testing Community", [organizer], [], None)
+
+    res = events_api.create_event(token=organizer_token)
+    return int(res.thread.thread_id)
+
+
+def test_post_reply_incomplete_profile_blocked_on_event_comment(db):
+    """An incomplete-profile user cannot post a top-level comment on an event's thread."""
+    organizer, organizer_token = generate_user()
+    _commenter, commenter_token = generate_user(complete_profile=False)
+
+    event_thread_id = _create_event_and_get_thread_id(organizer, organizer_token)
+
+    with threads_session(commenter_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.PostReply(threads_pb2.PostReplyReq(thread_id=event_thread_id, content="hello"))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+
+def test_post_reply_incomplete_profile_blocked_on_event_reply(db):
+    """An incomplete-profile user cannot post a nested reply within an event's thread."""
+    organizer, organizer_token = generate_user()
+    _commenter, commenter_token = generate_user()
+    _replier, replier_token = generate_user(complete_profile=False)
+
+    event_thread_id = _create_event_and_get_thread_id(organizer, organizer_token)
+
+    with threads_session(commenter_token) as api:
+        comment_thread_id = api.PostReply(
+            threads_pb2.PostReplyReq(thread_id=event_thread_id, content="top-level comment")
+        ).thread_id
+
+    with threads_session(replier_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.PostReply(threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="a reply"))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+
+def test_post_reply_complete_profile_allowed_on_event_comment(db):
+    """A complete-profile user can post a comment on an event's thread."""
+    organizer, organizer_token = generate_user()
+    _commenter, commenter_token = generate_user()
+
+    event_thread_id = _create_event_and_get_thread_id(organizer, organizer_token)
+
+    with threads_session(commenter_token) as api:
+        comment_thread_id = api.PostReply(
+            threads_pb2.PostReplyReq(thread_id=event_thread_id, content="hello")
+        ).thread_id
+    assert comment_thread_id
+
+
+def test_post_reply_incomplete_profile_blocked_on_discussion_thread(db):
+    """An incomplete-profile user cannot post a comment on a discussion thread."""
+    admin, admin_token = generate_user()
+    _commenter, commenter_token = generate_user(complete_profile=False)
+
+    with session_scope() as session:
+        community_id = create_community(session, 0, 1, "Testing Community", [admin], [], None).id
+
+    with discussions_session(admin_token) as api:
+        discussion = api.CreateDiscussion(
+            discussions_pb2.CreateDiscussionReq(
+                title="A discussion",
+                content="Content",
+                owner_community_id=community_id,
+            )
+        )
+        discussion_thread_id = discussion.thread.thread_id
+
+    with threads_session(commenter_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.PostReply(threads_pb2.PostReplyReq(thread_id=discussion_thread_id, content="hello"))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
 def test_edit_comment_multiple_edits_creates_multiple_version_records(db):

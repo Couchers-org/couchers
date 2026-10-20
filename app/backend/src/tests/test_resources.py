@@ -1,12 +1,10 @@
-import pytest
 from google.protobuf import empty_pb2
+from sqlalchemy import select
 
+from couchers.db import session_scope
+from couchers.models import Language
+from couchers.resources import copy_resources_to_database
 from tests.fixtures.sessions import resources_session
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
 
 
 def test_GetTermsOfService():
@@ -35,14 +33,42 @@ def test_GetRegions(db):
         assert ("SWE", "Sweden") in regions_list
         assert ("???", "Nonexistent region") not in regions_list
 
+    with resources_session(locale="es") as api:
+        regions = api.GetRegions(empty_pb2.Empty()).regions
+        regions_list = [(r.alpha3, r.name) for r in regions]
+        assert ("FIN", "Finlandia") in regions_list
+        assert ("FIN", "Finland") not in regions_list
+
 
 def test_GetLanguages(db):
     with resources_session() as api:
         languages = api.GetLanguages(empty_pb2.Empty()).languages
         languages_list = [(r.code, r.name) for r in languages]
+        assert ("aka", "Akan (aka)") in languages_list
+        assert ("eng", "English") in languages_list
+        assert ("fat", "Akan (fat)") in languages_list
+        assert ("fil", "Filipino (fil)") in languages_list
         assert ("fin", "Finnish") in languages_list
         assert ("swe", "Swedish") in languages_list
+        assert ("tgl", "Filipino (tgl)") in languages_list
+        assert ("twi", "Akan (twi)") in languages_list
         assert ("???", "Nonexistent language") not in languages_list
+
+    with resources_session(locale="es") as api:
+        languages = api.GetLanguages(empty_pb2.Empty()).languages
+        languages_list = [(r.code, r.name) for r in languages]
+        assert ("swe", "Sueco") in languages_list
+        assert ("swe", "Swedish") not in languages_list
+
+
+def test_languages_resource_drops_deprecated_ajp(db):
+    # Load the real languages.json (not the hardcoded testing fixture) so a future bad code is caught.
+    # Mirrors test_add_dummy_data's pattern of calling copy_resources_to_database directly.
+    with session_scope() as session:
+        copy_resources_to_database(session)
+        codes = set(session.execute(select(Language.code)).scalars().all())
+    assert "ajp" not in codes  # deprecated; ISO 639-3 CR 2022-006 merged it into apc
+    assert "apc" in codes
 
 
 def test_GetBadges(db):
@@ -60,6 +86,7 @@ def test_GetBadges(db):
             "past_volunteer",
             "donor",
             "phone_verified",
+            "postal_verified",
             "strong_verification",
             "swagster",
         }

@@ -29,10 +29,7 @@ describe("useCancelFriendRequest hook", () => {
         sent: true,
       },
     ]);
-    client.setQueryData<FriendRequest.AsObject[]>(
-      friendRequestKey("received"),
-      [],
-    );
+    client.setQueryData<FriendRequest.AsObject[]>(friendRequestKey("received"), []);
   });
 
   it("invalidates the friend request sent list if the mutation succeeded", async () => {

@@ -1,10 +1,5 @@
 import { StringValue } from "google-protobuf/google/protobuf/wrappers_pb";
-import {
-  CreateDiscussionReq,
-  DeleteDiscussionReq,
-  GetDiscussionReq,
-  UpdateDiscussionReq,
-} from "proto/discussions_pb";
+import { CreateDiscussionReq, DeleteDiscussionReq, GetDiscussionReq, UpdateDiscussionReq } from "proto/discussions_pb";
 
 import client from "./client";
 
@@ -36,11 +31,7 @@ export async function getDiscussion(discussionId: number) {
   return response.toObject();
 }
 
-export async function updateDiscussion(
-  discussionId: number,
-  title?: string,
-  content?: string,
-) {
+export async function updateDiscussion(discussionId: number, title?: string, content?: string) {
   const req = new UpdateDiscussionReq();
   req.setDiscussionId(discussionId);
   if (title !== undefined) {

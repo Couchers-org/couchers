@@ -3,9 +3,11 @@ import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
 import { routeToEditEvent, routeToEvent } from "routes";
 import { service } from "service";
+import { Temporal } from "temporal-polyfill";
 import events from "test/fixtures/events.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import i18n from "test/i18n";
+import { server } from "test/restMock";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
 
 import EditEventPage from "./EditEventPage";
@@ -22,12 +24,8 @@ jest.mock("@mui/x-date-pickers", () => {
   };
 });
 
-const getEventMock = service.events.getEvent as jest.MockedFunction<
-  typeof service.events.getEvent
->;
-const updateEventMock = service.events.updateEvent as jest.MockedFunction<
-  typeof service.events.updateEvent
->;
+const getEventMock = service.events.getEvent as jest.MockedFunction<typeof service.events.getEvent>;
+const updateEventMock = service.events.updateEvent as jest.MockedFunction<typeof service.events.updateEvent>;
 
 function renderPage() {
   mockRouter.setCurrentUrl(routeToEditEvent(1, "weekly-meetup"));
@@ -37,6 +35,14 @@ function renderPage() {
 }
 
 describe("Edit event page", () => {
+  beforeAll(() => {
+    server.listen();
+  });
+
+  afterAll(() => {
+    server.close();
+  });
+
   beforeEach(() => {
     getEventMock.mockResolvedValue(events[0]);
     updateEventMock.mockResolvedValue(events[0]);
@@ -53,9 +59,7 @@ describe("Edit event page", () => {
     renderPage();
 
     // Brief sanity check that the form has existing data
-    const titleField = await screen.findByLabelText(
-      t("communities:event_title_label"),
-    );
+    const titleField = await screen.findByLabelText(t("communities:event_title_label"));
     expect(titleField).toHaveValue("Weekly Meetup");
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
@@ -64,29 +68,22 @@ describe("Edit event page", () => {
 
     expect(titleField).toHaveValue("Weekly Meetup in the dam");
 
-    const virtualEventCheckBox = screen.getByLabelText(
-      t("communities:virtual_event"),
-    ) as HTMLInputElement;
+    const locationInput = screen.getByLabelText(t("communities:location")) as HTMLInputElement;
 
-    await user.click(virtualEventCheckBox);
+    await user.clear(locationInput);
+    await user.type(locationInput, "tes{enter}");
 
-    expect(virtualEventCheckBox.checked).toBe(true);
+    expect(locationInput).toHaveValue("tes");
 
-    const eventLinkInput = (await screen.findByLabelText(
-      t("communities:event_link"),
-    )) as HTMLInputElement;
-
-    await user.type(eventLinkInput, "https://couchers.org/amsterdam-social");
-
-    expect(eventLinkInput).toHaveValue("https://couchers.org/amsterdam-social");
+    await user.click(await screen.findByText("test city, test county, test country"));
 
     const eventDetails = screen.getByLabelText(t("communities:event_details"));
 
     await user.clear(eventDetails);
 
-    await user.type(eventDetails, "We are going virtual this week!");
+    await user.type(eventDetails, "Here are some more details!");
 
-    expect(eventDetails).toHaveValue("We are going virtual this week!");
+    expect(eventDetails).toHaveValue("Here are some more details!");
 
     const endDateGroup = await screen.findByRole("group", {
       name: t("communities:end_date"),
@@ -106,11 +103,12 @@ describe("Edit event page", () => {
     // Check it only sends the updated field to the backend
     expect(updateEventMock).toHaveBeenCalledWith({
       eventId: 1,
-      isOnline: true,
       title: "Weekly Meetup in the dam",
-      content: "We are going virtual this week!",
-      link: "https://couchers.org/amsterdam-social",
-      endTime: new Date("2021-07-01 03:37"),
+      content: "Here are some more details!",
+      address: "test city, test county, test country",
+      lat: 2,
+      lng: 1,
+      endTime: Temporal.PlainDateTime.from("2021-07-01T03:37"),
     });
 
     // Verifies that success re-directs user
@@ -140,8 +138,7 @@ describe("Edit event page", () => {
 
     expect(updateEventMock).toHaveBeenCalledWith({
       eventId: 1,
-      isOnline: false,
-      startTime: new Date("2021-08-01 02:37"),
+      startTime: Temporal.PlainDateTime.from("2021-08-01T02:37"),
     });
   });
 
@@ -173,8 +170,7 @@ describe("Edit event page", () => {
 
     expect(updateEventMock).toHaveBeenCalledWith({
       eventId: 1,
-      isOnline: false,
-      startTime: new Date("2021-06-29 00:00"),
+      startTime: Temporal.PlainDateTime.from("2021-06-29T00:00"),
     });
   });
 
@@ -185,9 +181,7 @@ describe("Edit event page", () => {
     renderPage();
 
     await assertErrorAlert(errorMessage);
-    expect(
-      screen.queryByLabelText(t("communities:event_title_label")),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(t("communities:event_title_label"))).not.toBeInTheDocument();
   });
 
   it("should show error if startDate after endDate", async () => {

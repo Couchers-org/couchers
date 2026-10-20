@@ -4,7 +4,9 @@
       "event_description": "Je account is verwijderd",
       "push": {
         "title": "Account verwijderd",
-        "ios_title": "Account verwijderd"
+        "ios_title": "Account verwijderd",
+        "body_one": "Je kan het binnen {{count}} dag herstellen via de link die we je hebben gemaild.",
+        "body_other": "Je kan het binnen {{count}} dagen herstellen via de link die we je hebben gemaild."
       }
     },
     "recovered": {
@@ -70,130 +72,311 @@
       "event_description": "Je hebt berichten in een chat gemist",
       "push": {
         "title_one": "{{count}} gemist bericht",
-        "title_other": "{{count}} gemiste berichten"
+        "title_other": "{{count}} gemiste berichten",
+        "ios_title_one": "{{count}} gemist bericht",
+        "ios_title_other": "{{count}} gemiste berichten",
+        "body": "Je hebt nieuwe ongelezen berichten."
       }
     }
   },
   "discussion": {
     "comment": {
-      "event_description": "Iemand reageert op een discussie die je volgt"
+      "event_description": "Iemand reageert op een discussie die je volgt",
+      "push": {
+        "title": "{{user}} • {{title}}"
+      }
     },
     "create": {
-      "event_description": "Iemand heeft een discussie gestart in een community waar je lid van bent"
+      "event_description": "Iemand heeft een discussie gestart in een community waar je lid van bent",
+      "push": {
+        "title": "Nieuwe discussie: {{title}}",
+        "ios_title": "Nieuwe discussie",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} is de discussie in {{group_or_community}} gestart."
+      }
     }
   },
   "donation": {
     "received": {
-      "event_description": "Je donatie is ontvangen"
+      "event_description": "Je donatie is ontvangen",
+      "push": {
+        "title": "Donatie ontvangen",
+        "ios_title": "Donatie ontvangen",
+        "body": "Heel erg bedankt voor je donatie van {{amount_with_currency}}!"
+      }
     }
   },
   "email_address": {
     "change": {
-      "event_description": "E-mailwijziging is gestart"
+      "event_description": "E-mailwijziging is gestart",
+      "push": {
+        "title": "Wijziging e-mailadres aangevraagd",
+        "ios_title": "Wijziging e-mailadres aangevraagd",
+        "body": "Gebruik de link die we naar {{email}} hebben gestuurd om je nieuwe adres te bevestigen."
+      }
     },
     "verify": {
-      "event_description": "Je nieuwe e-mailadres is geverifieerd"
+      "event_description": "Je nieuwe e-mailadres is geverifieerd",
+      "push": {
+        "title": "E-mail geverifieerd",
+        "ios_title": "E-mail geverifieerd",
+        "body": "Je nieuwe e-mailadres is geverifieerd."
+      }
     }
   },
   "event": {
     "cancel": {
-      "event_description": "Een event waar jij heen zou gaan is geannuleerd"
+      "event_description": "Een event waar jij heen zou gaan is geannuleerd",
+      "push": {
+        "title": "Event geannuleerd: {{title}}",
+        "ios_title": "Event geannuleerd",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} heeft het event geannuleerd."
+      }
     },
     "comment": {
-      "event_description": "Een gebruiker reageert op een event waar je naartoe gaat"
+      "event_description": "Een gebruiker reageert op een event waar je naartoe gaat",
+      "push": {
+        "title": "{{user}} • {{title}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Gereageerd op {{title}}"
+      }
     },
     "create_any": {
-      "event_description": "Een gebruiker maakt een event aan in jouw community (niet gecontroleerd door een admin)"
+      "event_description": "Een gebruiker maakt een event aan in jouw community (niet gecontroleerd door een admin)",
+      "push": {
+        "title": "Nieuw event: {{title}}",
+        "ios_title": "Nieuw event",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} heeft het event op {{date_and_time}} aangemaakt."
+      }
     },
     "create_approved": {
-      "event_description": "Een event dat is goedgekeurd door de moderators is aangemaakt in jouw community"
+      "event_description": "Een event dat is goedgekeurd door de moderators is aangemaakt in jouw community",
+      "push": {
+        "title": "Nieuw event: {{title}}",
+        "ios_title": "Nieuw event",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} heeft je uitgenodigd voor het event op {{date_and_time}}."
+      }
     },
     "delete": {
-      "event_description": "Een event waar jij heen zou gaan is verwijderd"
+      "event_description": "Een event waar jij heen zou gaan is verwijderd",
+      "push": {
+        "title": "Event verwijderd: {{title}}",
+        "ios_title": "Event verwijderd",
+        "ios_subtitle": "{{title}}",
+        "body": "Een moderator heeft het event verwijderd."
+      }
     },
     "invite_organizer": {
-      "event_description": "Iemand nodigt je uit om samen een event te organiseren"
+      "event_description": "Iemand nodigt je uit om samen een event te organiseren",
+      "push": {
+        "title": "Event bijgewerkt: {{title}}",
+        "ios_title": "Event bijgewerkt",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} heeft jou als medeorganisator voor dit event toegevoegd."
+      }
     },
     "reminder": {
-      "event_description": "Herinnering: een event waar je naartoe gaat, gaat bijna beginnen"
+      "event_description": "Herinnering: een event waar je naartoe gaat, gaat bijna beginnen",
+      "push": {
+        "title": "Aankomend event: {{title}}",
+        "ios_title": "Aankomend event",
+        "ios_subtitle": "{{title}}",
+        "body": "Het event begint op {{date_and_time}}."
+      }
     },
     "update": {
-      "event_description": "Een event waar jij heen gaat is bijgewerkt"
+      "event_description": "Een event waar jij heen gaat is bijgewerkt",
+      "push": {
+        "title": "Event bijgewerkt: {{title}}",
+        "ios_title": "Event bijgewerkt",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} heeft het event bijgewerkt."
+      }
     }
   },
   "friend_request": {
     "accept": {
-      "event_description": "Iemand heeft je vriendschapsverzoek geaccepteerd"
+      "event_description": "Iemand heeft je vriendschapsverzoek geaccepteerd",
+      "push": {
+        "title": "{{friend}} heeft je vriendschapsverzoek geaccepteerd",
+        "ios_title": "{{friend}}",
+        "ios_subtitle": "Vriendschapsverzoek geaccepteerd",
+        "body": "Je bent nu vrienden met {{friend}}."
+      }
     },
     "create": {
-      "event_description": "Iemand heeft je een vriendschapsverzoek gestuurd"
+      "event_description": "Iemand heeft je een vriendschapsverzoek gestuurd",
+      "push": {
+        "title": "Vriendschapsverzoek van {{from_user}}",
+        "ios_title": "{{from_user}}",
+        "ios_subtitle": "Vriendschapsverzoek",
+        "body": "{{from_user}} wil vrienden met je worden."
+      }
     }
   },
   "gender": {
     "change": {
-      "event_description": "Je gender op je profiel is aangepast"
+      "event_description": "Je gender op je profiel is aangepast",
+      "push": {
+        "title": "Gender gewijzigd",
+        "ios_title": "Gender gewijzigd",
+        "body": "Een admin heeft je gender gewijzigd naar {{gender}}."
+      }
     }
   },
   "general": {
     "new_blog_post": {
-      "event_description": "Er is een nieuwe blog"
+      "event_description": "Er is een nieuwe blog",
+      "push": {
+        "title": "Nieuwe blog: {{title}}",
+        "ios_title": "Nieuwe blog",
+        "ios_subtitle": "{{title}}"
+      }
     }
   },
   "host_request": {
     "accept": {
-      "event_description": "Iemand heeft je hostingverzoek geaccepteerd"
+      "event_description": "Iemand heeft je hostingverzoek geaccepteerd",
+      "push": {
+        "title": "{{user}} heeft je hostverzoek geaccepteerd",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Hostverzoek geaccepteerd",
+        "body": "{{user}} heeft je hostverzoek voor {{date}} geaccepteerd."
+      }
     },
     "cancel": {
-      "event_description": "Iemand heeft zijn hostingverzoek geannuleerd"
+      "event_description": "Iemand heeft zijn hostingverzoek geannuleerd",
+      "push": {
+        "title": "{{user}} heeft het hostverzoek geannuleerd",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Hostverzoek geannuleerd",
+        "body": "{{user}} heeft het hostverzoek voor {{date}} geannuleerd."
+      }
     },
     "confirm": {
-      "event_description": "Iemand heeft zijn hostingverzoek bevestigd"
+      "event_description": "Iemand heeft zijn hostingverzoek bevestigd",
+      "push": {
+        "title": "{{user}} heeft het hostverzoek bevestigd",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Hostverzoek bevestigd",
+        "body": "{{user}} heeft het hostverzoek voor {{date}} bevestigd."
+      }
     },
     "create": {
-      "event_description": "Iemand heeft je een hostingverzoek gestuurd"
+      "event_description": "Iemand heeft je een hostingverzoek gestuurd",
+      "push": {
+        "body_one": "{{user}} wil graag vanaf {{start_date}} voor {{count}} nachtje komen logeren.",
+        "body_other": "{{user}} wil graag vanaf {{start_date}} voor {{count}} nachten komen logeren.",
+        "title": "Nieuw hostverzoek van {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Nieuw hostverzoek"
+      }
     },
     "message": {
       "event_description": "Iemand heeft een bericht gestuurd bij een hostingverzoek"
     },
     "missed_messages": {
-      "event_description": "Je hebt berichten gemist bij een hostingverzoek"
+      "event_description": "Je hebt berichten gemist bij een hostingverzoek",
+      "push": {
+        "title": "Nieuwe berichten van {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Gemiste berichten",
+        "body": "Je hebt nieuwe ongelezen berichten van {{user}}."
+      }
     },
     "reject": {
-      "event_description": "Iemand heeft je hostingverzoek afgewezen"
+      "event_description": "Iemand heeft je hostingverzoek afgewezen",
+      "push": {
+        "title": "{{user}} heeft je hostverzoek afgewezen",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Hostverzoek afgewezen",
+        "body": "{{user}} heeft je hostverzoek voor {{date}} afgewezen."
+      }
     },
     "reminder": {
-      "event_description": "Je hebt nog niet gereageerd op een hostingverzoek"
+      "event_description": "Je hebt nog niet gereageerd op een hostingverzoek",
+      "push": {
+        "title": "Openstaand verzoek van {{user}}",
+        "ios_title": "Hostverzoek in behandeling",
+        "ios_subtitle": "{{user}}",
+        "body": "{{user}} wacht op je reactie, accepteer het verzoek of wijs het af."
+      }
     }
   },
   "onboarding": {
     "reminder": {
-      "event_description": "Vergeet niet na het aanmelden om je profiel verder in te vullen"
+      "event_description": "Vergeet niet na het aanmelden om je profiel verder in te vullen",
+      "push": {
+        "first": {
+          "title": "Welkom bij Couchers!",
+          "ios_title": "Welkom bij Couchers!",
+          "body": "Vul je profiel aan met een foto en een korte tekst over jezelf."
+        },
+        "subsequent": {
+          "title": "Vergeet niet om je profiel te voltooien",
+          "ios_title": "Profiel-herinnering",
+          "body": "Vul je profiel aan met een foto en een korte tekst over jezelf."
+        }
+      }
     }
   },
   "password": {
     "change": {
-      "event_description": "Je wachtwoord is aangepast"
+      "event_description": "Je wachtwoord is aangepast",
+      "push": {
+        "title": "Wachtwoord gewijzigd",
+        "ios_title": "Wachtwoord gewijzigd",
+        "body": "Je wachtwoord is gewijzigd."
+      }
     }
   },
   "password_reset": {
     "complete": {
-      "event_description": "Wachtwoord is gereset"
+      "event_description": "Wachtwoord is gereset",
+      "push": {
+        "title": "Wachtwoord opnieuw ingesteld",
+        "ios_title": "Wachtwoord opnieuw ingesteld",
+        "body": "Je wachtwoord is opnieuw ingesteld."
+      }
     },
     "start": {
-      "event_description": "Wachtwoordreset is begonnen"
+      "event_description": "Wachtwoordreset is begonnen",
+      "push": {
+        "title": "Wachtwoord-reset aangevraagd",
+        "ios_title": "Wachtwoord-reset aangevraagd",
+        "body": "Gebruik de link die we je gemaild hebben om het proces af te maken."
+      }
     }
   },
   "phone_number": {
     "change": {
-      "event_description": "Je telefoonnummer is gewijzigd"
+      "event_description": "Je telefoonnummer is gewijzigd",
+      "push": {
+        "title": "Telefoonverificatie gestart",
+        "ios_title": "Telefoonverificatie gestart",
+        "body": "Je bent begonnen met de verificatie van je telefoonnummer met het nummer {{phone_number}}."
+      }
     },
     "verify": {
-      "event_description": "Je telefoonnummer is geverifieerd"
+      "event_description": "Je telefoonnummer is geverifieerd",
+      "push": {
+        "title": "Telefoonnummerverificatie voltooid",
+        "ios_title": "Telefoonnummerverificatie voltooid",
+        "body": "Je telefoonnummer {{phone_number}} is succesvol geverifieerd."
+      }
     }
   },
   "reference": {
     "receive_friend": {
-      "event_description": "Je hebt een referentie gekregen van een vriend"
+      "event_description": "Je hebt een referentie gekregen van een vriend",
+      "push": {
+        "title": "Nieuwe vriendreferentie van {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Nieuwe vriendreferentie"
+      }
     },
     "receive_hosted": {
       "event_description": "Je krijgt een referentie van iemand die je gehost heeft"
@@ -206,11 +389,33 @@
     },
     "reminder_surfed": {
       "event_description": "Herinnering om een referentie te schrijven over iemand die jou gehost heeft"
+    },
+    "_reminder_any": {
+      "push": {
+        "body_one": "Je hebt nog {{count}} dag om een referentie voor {{user}} te schrijven.",
+        "body_other": "Je hebt nog {{count}} dagen om een referentie voor {{user}} te schrijven.",
+        "title": "Schrijf je referentie voor {{user}}",
+        "ios_title": "Schrijf je referentie",
+        "ios_subtitle": "{{user}}"
+      }
+    },
+    "_receive_any": {
+      "push": {
+        "title": "Nieuwe referentie van {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Nieuwe referentie",
+        "body_must_write_yours": "{{user}} heeft een referentie voor je achtergelaten, nu is het jouw beurt om eentje te schrijven!"
+      }
     }
   },
   "thread": {
     "reply": {
-      "event_description": "Iemand reageert op jouw comment"
+      "event_description": "Iemand reageert op jouw comment",
+      "push": {
+        "title": "{{user}} • {{title}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "{{title}}"
+      }
     }
   },
   "_adhoc": {
@@ -229,6 +434,64 @@
         "title": "Wil je nog steeds hosten?",
         "ios_title": "Wil je nog steeds hosten?",
         "body": "Meld je aan om je hosting-status te bevestigen."
+      }
+    }
+  },
+  "modnote": {
+    "create": {
+      "event_description": "Een moderator heeft je een bericht gestuurd",
+      "push": {
+        "title": "Nieuw bericht van moderator",
+        "ios_title": "Nieuw bericht van moderator",
+        "body": "Je hebt een bericht van een moderator ontvangen. Lees en bevestig het als je dit platform wilt blijven gebruiken."
+      }
+    }
+  },
+  "postal_verification": {
+    "failed": {
+      "event_description": "Je adresverificatie is mislukt",
+      "push": {
+        "title": "Adresverificatie mislukt",
+        "ios_title": "Adresverificatie mislukt",
+        "body_code_expired": "Je verificatiecode is verlopen. Codes zijn 90 dagen geldig nadat de briefkaart is verzonden. Je kunt een nieuwe briefkaart aanvragen.",
+        "body_too_many_attempts": "Te veel foute pogingen om de code in te voeren. Je kunt een nieuwe briefkaart aanvragen.",
+        "body_generic": "Je adresverificatie is mislukt. Je kunt een nieuwe briefkaart aanvragen."
+      }
+    },
+    "postcard_sent": {
+      "event_description": "Je briefkaart voor verificatie is verzonden",
+      "push": {
+        "title": "Adresverificatie gestart",
+        "ios_title": "Adresverificatie gestart",
+        "body": "Je briefkaart is onderweg naar {{city}}, {{country}}. Je kunt hem binnen 1 tot 3 weken verwachten."
+      }
+    },
+    "success": {
+      "event_description": "Je adresverificatie is gelukt",
+      "push": {
+        "title": "Adresverificatie voltooid",
+        "ios_title": "Adresverificatie voltooid",
+        "body": "Je adres is nu geverifieerd."
+      }
+    }
+  },
+  "verification": {
+    "sv_fail": {
+      "event_description": "Je sterke verificatie is mislukt",
+      "push": {
+        "title": "Sterke verificatie mislukt",
+        "ios_title": "Sterke verificatie mislukt",
+        "body_wrong_birthdate_gender": "De geboortedatum of gender op je profiel komt niet overeen met de geboortedatum of gender op je paspoort. Neem contact op met onze helpdesk om je geboortedatum of gender bij te werken, of als je gender op je paspoort niet overeenkomt met je genderidentiteit.",
+        "body_not_a_passport": "Je hebt een ander document dan een paspoort gebruikt. Je kunt alleen een paspoort gebruiken voor sterke verificatie.",
+        "body_duplicate": "Je hebt een paspoort gebruikt dat al eerder is gebruikt voor verificatie. Gebruik een ander paspoort."
+      }
+    },
+    "sv_success": {
+      "event_description": "Je sterke verificatie is geslaagd",
+      "push": {
+        "title": "Sterke verificatie voltooid",
+        "ios_title": "Sterke verificatie voltooid",
+        "body": "Je bent geverifieerd met sterke verificatie."
       }
     }
   }

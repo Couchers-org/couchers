@@ -63,14 +63,7 @@ const SearchThisAreaButton = styled(Button, {
 
 const DEFAULT_USERS: SearchUser.AsObject[] = [];
 
-const MapView = ({
-  isDrawerExpanded,
-  isLoading,
-  mapRef,
-  onZoomIn,
-  onZoomOut,
-  users = DEFAULT_USERS,
-}: MapViewProps) => {
+const MapView = ({ isDrawerExpanded, isLoading, mapRef, onZoomIn, onZoomOut, users = DEFAULT_USERS }: MapViewProps) => {
   const { t } = useTranslation([SEARCH]);
 
   const pins = usersToGeoJSON(users);
@@ -86,18 +79,10 @@ const MapView = ({
     uiOnly: { zoom },
   } = useMapSearchState();
 
-  const {
-    setMapQueryArea,
-    setMoveMapUIOnly,
-    setSelectedUserId,
-    setShowSearchThisAreaButton,
-  } = useMapSearchActions();
+  const { setMapQueryArea, setMoveMapUIOnly, setSelectedUserId, setShowSearchThisAreaButton } = useMapSearchActions();
 
   const meetsSearchCriteria =
-    hasActiveFilters ||
-    searchQueryBbox !== undefined ||
-    query !== undefined ||
-    shouldSearchByUserId;
+    hasActiveFilters || searchQueryBbox !== undefined || query !== undefined || shouldSearchByUserId;
 
   // If zoomed in, has a location searched or has active filters, use the memoized pins form api query in SearchPage
   const pinsSource = meetsSearchCriteria ? memoizedPins : zoomedOutDataSource;
@@ -120,13 +105,9 @@ const MapView = ({
       clearMapFeatureState(mapRef);
 
       if (isCluster) {
-        const source = mapRef.current?.getSource(
-          USERS_SOURCE_ID,
-        ) as GeoJSONSource;
+        const source = mapRef.current?.getSource(USERS_SOURCE_ID) as GeoJSONSource;
 
-        let newZoom = await source.getClusterExpansionZoom(
-          feature.properties.cluster_id,
-        );
+        let newZoom = await source.getClusterExpansionZoom(feature.properties.cluster_id);
 
         // prevent it from hyper zooming rapidly
         if (newZoom - zoom > 6) {

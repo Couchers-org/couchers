@@ -1,12 +1,11 @@
 import logging
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from couchers.db import session_scope
 from couchers.i18n import LocalizationContext
 from couchers.models import (
-    NotificationDelivery,
     NotificationDeliveryType,
     NotificationPreference,
     NotificationTopicAction,
@@ -62,15 +61,12 @@ def reset_preference(
     topic_action: NotificationTopicAction,
     delivery_type: NotificationDeliveryType,
 ) -> None:
-    current_pref = session.execute(
-        select(NotificationPreference)
+    session.execute(
+        delete(NotificationPreference)
         .where(NotificationPreference.user_id == user_id)
         .where(NotificationPreference.topic_action == topic_action)
-        .where(NotificationDelivery.delivery_type == delivery_type)
-    ).scalar_one_or_none()
-    if current_pref:
-        session.delete(current_pref)
-        session.flush()
+        .where(NotificationPreference.delivery_type == delivery_type)
+    )
 
 
 class PreferenceNotUserEditableError(Exception):
@@ -337,7 +333,7 @@ def get_user_setting_groups(
                 actions = []
                 for topic_action in items:
                     delivery_types = get_preference(session, user_id, topic_action)
-                    description = get_topic_action_description(topic_action, locale=loc_context.locale)
+                    description = get_topic_action_description(topic_action, locales=loc_context.locale_list)
                     actions.append(
                         notifications_pb2.NotificationItem(
                             action=topic_action.action,

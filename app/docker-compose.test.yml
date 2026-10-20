@@ -24,6 +24,14 @@ services:
       timeout: 10s
       start_period: 5s
       retries: 10
+  # only the rate limiter's Valkey integration tests use this; they skip if it isn't up. Port 6545 rather than
+  # the default 6379 so it can't collide with a dev-stack valkey.
+  valkey_tests:
+    image: valkey/valkey:8-alpine
+    command: ["valkey-server", "--port", "6545", "--save", "", "--appendonly", "no"]
+    restart: unless-stopped
+    ports:
+      - 6545:6545
   backend_test_runner:
     build: backend
     env_file: backend.test.env

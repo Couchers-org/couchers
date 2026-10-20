@@ -1,7 +1,4 @@
-import {
-  Autocomplete as MuiAutocomplete,
-  AutocompleteProps as MuiAutocompleteProps,
-} from "@mui/material";
+import { Autocomplete as MuiAutocomplete, AutocompleteProps as MuiAutocompleteProps } from "@mui/material";
 import { SignupAccountInputs } from "features/auth/signup/AccountForm";
 import { EditProfileFormValues } from "features/profile/edit/EditProfile";
 import React from "react";
@@ -14,10 +11,7 @@ type AutocompleteProps<
   Multiple extends boolean | undefined,
   DisableClearable extends boolean | undefined,
   FreeSolo extends boolean | undefined,
-> = Omit<
-  MuiAutocompleteProps<T, Multiple, DisableClearable, FreeSolo>,
-  "renderInput"
-> & {
+> = Omit<MuiAutocompleteProps<T, Multiple, DisableClearable, FreeSolo>, "renderInput"> & {
   id: string;
   error?: string;
   endAdornment?: React.ReactNode;
@@ -78,11 +72,12 @@ export default function Autocomplete<
           placeholder={placeholder}
           helperText={error || helperText}
           slotProps={{
+            ...params.slotProps,
             input: {
-              ...params.InputProps,
+              ...params.slotProps.input,
               endAdornment: (
                 <>
-                  {params.InputProps.endAdornment}
+                  {params.slotProps.input.endAdornment}
                   {endAdornment}
                 </>
               ),

@@ -1,16 +1,5 @@
 import { Cancel, CheckCircle, Help, InfoOutlined } from "@mui/icons-material";
-import {
-  Box,
-  DialogContent,
-  FormControlLabel,
-  List,
-  ListItem,
-  Radio,
-  RadioGroup,
-  styled,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Box, DialogContent, List, ListItem, styled, Tooltip, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
@@ -20,7 +9,6 @@ import EditLocationMap from "components/EditLocationMap";
 import GalleryEditor from "components/GalleryEditor/GalleryEditor";
 import Snackbar from "components/Snackbar";
 import StyledLink from "components/StyledLink";
-import TextField from "components/TextField";
 import { useLanguages } from "features/profile/hooks/useLanguages";
 import { useRegions } from "features/profile/hooks/useRegions";
 import useUpdateUserProfile from "features/profile/hooks/useUpdateUserProfile";
@@ -39,23 +27,10 @@ import { howToMakeGreatProfileUrl, settingsRoute } from "routes";
 import { UpdateUserProfileData } from "service/index";
 import isGrpcError from "service/utils/isGrpcError";
 import { theme } from "theme";
-import {
-  useIsMounted,
-  useSafeState,
-  useUnsavedChangesWarning,
-} from "utils/hooks";
+import { useUnsavedChangesWarning } from "utils/hooks";
 import { useIsNativeEmbed } from "utils/nativeLink";
-import {
-  nameMaxLength,
-  nameMinLength,
-  nameValidationPattern,
-} from "utils/validation";
+import { nameMaxLength, nameMinLength, profileAboutMeMinLength, validateNameChars } from "utils/validation";
 
-import {
-  ABOUT_ME_MIN_LENGTH,
-  DEFAULT_ABOUT_ME_HEADINGS,
-  DEFAULT_HOBBIES_HEADINGS,
-} from "./constants";
 import StatusCardGroup from "./StatusCard";
 
 export type EditProfileFormValues = Omit<
@@ -100,14 +75,6 @@ const SectionSubtitle = styled(Typography)(({ theme }) => ({
 
 const FieldGroup = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(3),
-}));
-
-const RadioGroupContainer = styled(Box)(({ theme }) => ({
-  marginTop: theme.spacing(1),
-  "& .MuiFormControlLabel-root": {
-    marginRight: theme.spacing(3),
-    marginBottom: theme.spacing(1),
-  },
 }));
 
 const HelpTextContainer = styled(Box)(({ theme }) => ({
@@ -230,9 +197,7 @@ const BottomSpacer = styled(Box)(({ theme }) => ({
   },
 }));
 
-const styledField = <C extends React.ComponentType<React.ComponentProps<C>>>(
-  component: C,
-) => {
+const styledField = <C extends React.ComponentType<React.ComponentProps<C>>>(component: C) => {
   return styled(component)(() => ({
     [theme.breakpoints.up("md")]: {
       "& > .MuiInputBase-root": {
@@ -248,15 +213,6 @@ const StyledProfileTextInput = styledField(ProfileTextInput);
 
 const StyledProfileMarkdownInput = styledField(ProfileMarkdownInput);
 
-const StyledRadioGroup = styled(RadioGroup)(() => ({
-  display: "flex",
-  flexDirection: "column",
-  [theme.breakpoints.up("sm")]: {
-    display: "grid",
-    gridTemplateColumns: "repeat(3, 1fr)",
-  },
-}));
-
 export default function EditProfileForm() {
   const { t } = useTranslation([GLOBAL, AUTH, PROFILE]);
   const router = useRouter();
@@ -269,17 +225,12 @@ export default function EditProfileForm() {
     error: updateMutationError,
   } = useUpdateUserProfile();
   const { data: user } = useCurrentUser();
-  const isMounted = useIsMounted();
-  const [errorMessage, setErrorMessage] = useSafeState<string | null>(
-    isMounted,
-    null,
-  );
-  const [showIncompleteProfileDialog, setShowIncompleteProfileDialog] =
-    useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showIncompleteProfileDialog, setShowIncompleteProfileDialog] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const galleryEditorRef = useRef<HTMLDivElement>(null);
-  const { regions, regionsLookup } = useRegions();
-  const { languages, languagesLookup } = useLanguages();
+  const { regions } = useRegions();
+  const { languages } = useLanguages();
 
   const initialFormValues =
     user && languages && regions
@@ -291,17 +242,11 @@ export default function EditProfileForm() {
           education: user.education,
           hostingStatus: user.hostingStatus,
           meetupStatus: user.meetupStatus,
-          fluentLanguages: user.languageAbilitiesList
-            .map((ability) => languages[ability.code] || "")
-            .filter(Boolean),
-          regionsVisited: user.regionsVisitedList
-            .map((region) => regions[region] || "")
-            .filter(Boolean),
-          regionsLived: user.regionsLivedList
-            .map((region) => regions[region] || "")
-            .filter(Boolean),
+          fluentLanguages: user.languageAbilitiesList.map((ability) => ability.code).filter(Boolean),
+          regionsVisited: user.regionsVisitedList,
+          regionsLived: user.regionsLivedList,
           aboutMe: user.aboutMe,
-          thingsILike: user.thingsILike || DEFAULT_HOBBIES_HEADINGS,
+          thingsILike: user.thingsILike,
           additionalInformation: user.additionalInformation,
           location: {
             city: user.city,
@@ -344,8 +289,7 @@ export default function EditProfileForm() {
           setTimeout(() => {
             if (galleryEditorRef.current) {
               const rect = galleryEditorRef.current.getBoundingClientRect();
-              const scrollTop =
-                window.pageYOffset || document.documentElement.scrollTop;
+              const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
               const targetPosition = rect.top + scrollTop - 100;
               window.scrollTo({
                 top: targetPosition,
@@ -367,59 +311,50 @@ export default function EditProfileForm() {
     warningMessage: t("profile:unsaved_changes_warning"),
   });
 
-  const onSubmit = handleSubmit(
-    ({ regionsLived, regionsVisited, fluentLanguages, ...data }) => {
-      resetUpdate();
+  const onSubmit = handleSubmit(({ regionsLived, regionsVisited, fluentLanguages, ...data }) => {
+    resetUpdate();
 
-      const { location, ...restData } = data;
+    const { location, ...restData } = data;
 
-      updateUserProfile(
-        {
-          profileData: {
-            ...location,
-            ...restData,
-            regionsVisited: regionsVisited.map(
-              (region) => (regionsLookup || {})[region],
-            ),
-            regionsLived: regionsLived.map(
-              (region) => (regionsLookup || {})[region],
-            ),
-            languageAbilities: {
-              valueList: fluentLanguages.map((language) => ({
-                code: (languagesLookup || {})[language],
-                fluency: LanguageAbility.Fluency.FLUENCY_FLUENT,
-              })),
-            },
-            thingsILike: DEFAULT_HOBBIES_HEADINGS.includes(data.thingsILike)
-              ? ""
-              : data.thingsILike,
-          },
-          setMutationError: setErrorMessage,
-          onSuccess: () => {
-            // Reset form dirty state to hide save bar
-            const currentValues = getValues();
-            reset(currentValues, { keepValues: true, keepDirty: false });
-            setShowSuccessToast(true);
+    updateUserProfile(
+      {
+        profileData: {
+          ...location,
+          ...restData,
+          regionsVisited,
+          regionsLived,
+          languageAbilities: {
+            valueList: fluentLanguages.map((language) => ({
+              code: language,
+              fluency: LanguageAbility.Fluency.FLUENCY_FLUENT,
+            })),
           },
         },
-        {
-          // Scoll to top on submission error
-          onError: () => {
-            window.scroll({ top: 0, behavior: "smooth" });
-          },
+        setMutationError: setErrorMessage,
+        onSuccess: () => {
+          // Reset form dirty state to hide save bar
+          const currentValues = getValues();
+          reset(currentValues, { keepValues: true, keepDirty: false });
+          setShowSuccessToast(true);
         },
-      );
+      },
+      {
+        // Scoll to top on submission error
+        onError: () => {
+          window.scroll({ top: 0, behavior: "smooth" });
+        },
+      },
+    );
 
-      if (showIncompleteProfileDialog) {
-        setShowIncompleteProfileDialog(false);
-      }
-    },
-  );
+    if (showIncompleteProfileDialog) {
+      setShowIncompleteProfileDialog(false);
+    }
+  });
 
   const handleSubmitButtonClick = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (aboutMeField.length < ABOUT_ME_MIN_LENGTH || !user?.avatarUrl) {
+    if (aboutMeField.length < profileAboutMeMinLength || !user?.avatarUrl) {
       setShowIncompleteProfileDialog(true);
     } else {
       onSubmit();
@@ -438,66 +373,44 @@ export default function EditProfileForm() {
       {updateError && (
         <Alert severity="error">
           {errorMessage || t("global:error.unknown")}
-          {isGrpcError(updateMutationError) &&
-            updateMutationError.code === StatusCode.FAILED_PRECONDITION && (
-              <>
-                {" "}
-                <StyledLink href={`${settingsRoute}#do-not-email`}>
-                  {t("profile:do_not_email_error_link")}
-                </StyledLink>
-              </>
-            )}
+          {isGrpcError(updateMutationError) && updateMutationError.code === StatusCode.FAILED_PRECONDITION && (
+            <>
+              {" "}
+              <StyledLink href={`${settingsRoute}#do-not-email`}>{t("profile:do_not_email_error_link")}</StyledLink>
+            </>
+          )}
         </Alert>
       )}
       {!user?.avatarUrl && (
-        <StyledAlert severity="warning">
-          {t("profile:helper_text.missing_profile_photo")}
-        </StyledAlert>
+        <StyledAlert severity="warning">{t("profile:helper_text.missing_profile_photo")}</StyledAlert>
       )}
       {user && languages && regions ? (
         <>
           <HelpTextContainer>
             <Typography>
-              <Trans i18nKey="profile:edit_profile_helper_text">
-                Looking for some inspiration on where to start?{" "}
-                <StyledLink variant="body1" href={howToMakeGreatProfileUrl}>
-                  Check out our guide on creating an awesome profile
-                </StyledLink>
-                .
-              </Trans>
+              <Trans
+                i18nKey="profile:edit_profile_helper_text"
+                components={{
+                  guideLink: <StyledLink variant="body1" href={howToMakeGreatProfileUrl} />,
+                }}
+              />
             </Typography>
           </HelpTextContainer>
 
           <form onSubmit={handleSubmitButtonClick}>
             {/* Basic Information Section */}
             <ProfileSection>
-              <SectionTitle>
-                {t("profile:edit_profile_headings.basic_information")}
-              </SectionTitle>
-              <SectionSubtitle>
-                {t("profile:edit_profile_headings.basic_information_subtitle")}
-              </SectionSubtitle>
+              <SectionTitle>{t("profile:edit_profile_headings.basic_information")}</SectionTitle>
+              <SectionSubtitle>{t("profile:edit_profile_headings.basic_information_subtitle")}</SectionSubtitle>
 
               <AvatarContainer>
                 <AvatarImageWrapper>
                   {user.avatarUrl ? (
-                    <Avatar
-                      user={user}
-                      isProfileLink={false}
-                      style={{ width: 120, height: 120 }}
-                    />
+                    <Avatar user={user} isProfileLink={false} style={{ width: 120, height: 120 }} />
                   ) : (
-                    <Tooltip
-                      title={t("profile:click_to_add_photo")}
-                      arrow
-                      placement="top"
-                    >
+                    <Tooltip title={t("profile:click_to_add_photo")} arrow placement="top">
                       <ClickableAvatarWrapper onClick={handleAvatarClick}>
-                        <Avatar
-                          user={user}
-                          isProfileLink={false}
-                          style={{ width: 120, height: 120 }}
-                        />
+                        <Avatar user={user} isProfileLink={false} style={{ width: 120, height: 120 }} />
                       </ClickableAvatarWrapper>
                     </Tooltip>
                   )}
@@ -514,17 +427,9 @@ export default function EditProfileForm() {
                       }}
                     />
                     {user.avatarUrl ? (
-                      <Trans
-                        t={t}
-                        i18nKey="profile:avatar_photo_info"
-                        components={{ bold: <strong /> }}
-                      />
+                      <Trans t={t} i18nKey="profile:avatar_photo_info" components={{ bold: <strong /> }} />
                     ) : (
-                      <Trans
-                        t={t}
-                        i18nKey="profile:avatar_placeholder_info"
-                        components={{ bold: <strong /> }}
-                      />
+                      <Trans t={t} i18nKey="profile:avatar_placeholder_info" components={{ bold: <strong /> }} />
                     )}
                   </Typography>
                 </AvatarTextWrapper>
@@ -553,12 +458,8 @@ export default function EditProfileForm() {
                       value: nameMaxLength,
                       message: t("auth:basic_form.name.max_length_error"),
                     },
-                    pattern: {
-                      value: nameValidationPattern,
-                      message: t(
-                        "auth:basic_form.name.invalid_characters_error",
-                      ),
-                    },
+                    validate: (value: string) =>
+                      validateNameChars(value) || t("auth:basic_form.name.invalid_characters_error"),
                   })}
                   label={t("profile:edit_profile_headings.name")}
                   defaultValue={user.name}
@@ -568,9 +469,17 @@ export default function EditProfileForm() {
               </FieldGroup>
 
               <FieldGroup>
-                <SectionSubtitle>
-                  {t("profile:edit_profile_headings.location_subtitle")}
-                </SectionSubtitle>
+                <StyledProfileTextInput
+                  id="pronouns"
+                  {...register("pronouns")}
+                  label={t("profile:edit_profile_headings.pronouns")}
+                  defaultValue={user.pronouns}
+                  placeholder={t("profile:edit_profile_pronouns_placeholder")}
+                />
+              </FieldGroup>
+
+              <FieldGroup>
+                <SectionSubtitle>{t("profile:edit_profile_headings.location_subtitle")}</SectionSubtitle>
 
                 <Controller
                   defaultValue={{
@@ -616,12 +525,8 @@ export default function EditProfileForm() {
 
             {/* Preferences Section */}
             <ProfileSection id="preferences">
-              <SectionTitle>
-                {t("profile:edit_profile_headings.preferences")}
-              </SectionTitle>
-              <SectionSubtitle>
-                {t("profile:edit_profile_headings.preferences_subtitle")}
-              </SectionSubtitle>
+              <SectionTitle>{t("profile:edit_profile_headings.preferences")}</SectionTitle>
+              <SectionSubtitle>{t("profile:edit_profile_headings.preferences_subtitle")}</SectionSubtitle>
 
               <FieldGroup>
                 <Controller
@@ -637,16 +542,13 @@ export default function EditProfileForm() {
                         {
                           value: HostingStatus.HOSTING_STATUS_CAN_HOST,
                           title: t("global:hosting_status.can_host"),
-                          description: t(
-                            "profile:hosting_status.can_host_description",
-                          ),
+                          description: t("profile:hosting_status.can_host_description"),
                           icon: (
                             <CheckCircle
                               sx={{
                                 fontSize: 32,
                                 color:
-                                  field.value ===
-                                  HostingStatus.HOSTING_STATUS_CAN_HOST
+                                  field.value === HostingStatus.HOSTING_STATUS_CAN_HOST
                                     ? "var(--mui-palette-primary-main)"
                                     : "var(--mui-palette-grey-100)",
                               }}
@@ -656,16 +558,13 @@ export default function EditProfileForm() {
                         {
                           value: HostingStatus.HOSTING_STATUS_MAYBE,
                           title: t("global:hosting_status.maybe"),
-                          description: t(
-                            "profile:hosting_status.maybe_host_description",
-                          ),
+                          description: t("profile:hosting_status.maybe_host_description"),
                           icon: (
                             <Help
                               sx={{
                                 fontSize: 32,
                                 color:
-                                  field.value ===
-                                  HostingStatus.HOSTING_STATUS_MAYBE
+                                  field.value === HostingStatus.HOSTING_STATUS_MAYBE
                                     ? "var(--mui-palette-primary-main)"
                                     : "var(--mui-palette-grey-100)",
                               }}
@@ -675,16 +574,13 @@ export default function EditProfileForm() {
                         {
                           value: HostingStatus.HOSTING_STATUS_CANT_HOST,
                           title: t("global:hosting_status.cant_host"),
-                          description: t(
-                            "profile:hosting_status.cannot_host_description",
-                          ),
+                          description: t("profile:hosting_status.cannot_host_description"),
                           icon: (
                             <Cancel
                               sx={{
                                 fontSize: 32,
                                 color:
-                                  field.value ===
-                                  HostingStatus.HOSTING_STATUS_CANT_HOST
+                                  field.value === HostingStatus.HOSTING_STATUS_CANT_HOST
                                     ? "var(--mui-palette-primary-main)"
                                     : "var(--mui-palette-grey-100)",
                               }}
@@ -711,16 +607,13 @@ export default function EditProfileForm() {
                         {
                           value: MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP,
                           title: t("global:meetup_status.wants_to_meetup"),
-                          description: t(
-                            "profile:meetup_status.wants_to_meetup_description",
-                          ),
+                          description: t("profile:meetup_status.wants_to_meetup_description"),
                           icon: (
                             <CheckCircle
                               sx={{
                                 fontSize: 32,
                                 color:
-                                  field.value ===
-                                  MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP
+                                  field.value === MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP
                                     ? "var(--mui-palette-primary-main)"
                                     : "var(--mui-palette-grey-100)",
                               }}
@@ -730,16 +623,13 @@ export default function EditProfileForm() {
                         {
                           value: MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP,
                           title: t("global:meetup_status.open_to_meetup"),
-                          description: t(
-                            "profile:meetup_status.open_to_meetup_description",
-                          ),
+                          description: t("profile:meetup_status.open_to_meetup_description"),
                           icon: (
                             <Help
                               sx={{
                                 fontSize: 32,
                                 color:
-                                  field.value ===
-                                  MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP
+                                  field.value === MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP
                                     ? "var(--mui-palette-primary-main)"
                                     : "var(--mui-palette-grey-100)",
                               }}
@@ -747,21 +637,15 @@ export default function EditProfileForm() {
                           ),
                         },
                         {
-                          value:
-                            MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP,
-                          title: t(
-                            "global:meetup_status.does_not_want_to_meetup",
-                          ),
-                          description: t(
-                            "profile:meetup_status.does_not_want_to_meetup_description",
-                          ),
+                          value: MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP,
+                          title: t("global:meetup_status.does_not_want_to_meetup"),
+                          description: t("profile:meetup_status.does_not_want_to_meetup_description"),
                           icon: (
                             <Cancel
                               sx={{
                                 fontSize: 32,
                                 color:
-                                  field.value ===
-                                  MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP
+                                  field.value === MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP
                                     ? "var(--mui-palette-primary-main)"
                                     : "var(--mui-palette-grey-100)",
                               }}
@@ -777,89 +661,22 @@ export default function EditProfileForm() {
 
             {/* Personal Information Section */}
             <ProfileSection>
-              <SectionTitle>
-                {t("profile:edit_profile_headings.personal_information")}
-              </SectionTitle>
-              <SectionSubtitle>
-                {t(
-                  "profile:edit_profile_headings.personal_information_subtitle",
-                )}
-              </SectionSubtitle>
-
-              <FieldGroup>
-                <Typography variant="h3" gutterBottom>
-                  {t("profile:edit_profile_headings.pronouns")}
-                </Typography>
-                <Controller
-                  control={control}
-                  defaultValue={user.pronouns}
-                  name="pronouns"
-                  render={({ field }) => {
-                    const other =
-                      field.value === t("profile:pronouns.woman") ||
-                      field.value === t("profile:pronouns.man")
-                        ? ""
-                        : field.value;
-                    return (
-                      <RadioGroupContainer>
-                        <StyledRadioGroup
-                          {...field}
-                          row
-                          aria-label={t(
-                            "profile:edit_profile_headings.pronouns",
-                          )}
-                          name="pronouns"
-                          value={field.value}
-                          onChange={(_, value) => field.onChange(value)}
-                        >
-                          <FormControlLabel
-                            value={t("profile:pronouns.woman")}
-                            control={<Radio />}
-                            label={t("profile:pronouns.woman")}
-                          />
-                          <FormControlLabel
-                            value={t("profile:pronouns.man")}
-                            control={<Radio />}
-                            label={t("profile:pronouns.man")}
-                          />
-                          <FormControlLabel
-                            value={other}
-                            control={<Radio />}
-                            label={
-                              <TextField
-                                id="pronouns-other"
-                                variant="standard"
-                                onChange={(event) =>
-                                  field.onChange(event.target.value)
-                                }
-                                value={other}
-                              />
-                            }
-                          />
-                        </StyledRadioGroup>
-                      </RadioGroupContainer>
-                    );
-                  }}
-                />
-              </FieldGroup>
+              <SectionTitle>{t("profile:edit_profile_headings.personal_information")}</SectionTitle>
+              <SectionSubtitle>{t("profile:edit_profile_headings.personal_information_subtitle")}</SectionSubtitle>
 
               {languages && (
                 <FieldGroup>
                   <Controller
                     control={control}
-                    defaultValue={user.languageAbilitiesList.map(
-                      (ability) => languages[ability.code],
-                    )}
+                    defaultValue={user.languageAbilitiesList.map((ability) => ability.code)}
                     name="fluentLanguages"
                     render={({ field }) => (
                       <ProfileTagInput
                         inputFieldProps={field}
                         onChange={(_, value) => field.onChange(value)}
                         value={field.value}
-                        options={Object.values(languages)}
-                        label={t(
-                          "profile:edit_profile_headings.languages_spoken",
-                        )}
+                        options={languages}
+                        label={t("profile:edit_profile_headings.languages_spoken")}
                         id="fluentLanguages"
                       />
                     )}
@@ -902,7 +719,7 @@ export default function EditProfileForm() {
                 <Trans
                   i18nKey="profile:edit_profile_headings.about_me_subtitle"
                   components={{
-                    1: (
+                    guideLink: (
                       <StyledLink
                         variant="body1"
                         href="https://help.couchers.org/hc/couchersorg-help-center/articles/1725919197-how-do-i-create-a-great-profile"
@@ -919,15 +736,15 @@ export default function EditProfileForm() {
                   id="aboutMe"
                   label={t("profile:heading.about_me")}
                   name="aboutMe"
-                  placeholder={DEFAULT_ABOUT_ME_HEADINGS}
+                  placeholder={t("profile:about_me_textbox_placeholder")}
                   defaultValue={user.aboutMe}
                   control={control}
-                  warning={aboutMeField.length < ABOUT_ME_MIN_LENGTH}
+                  warning={aboutMeField.length < profileAboutMeMinLength}
                   helperText={
                     <Trans
                       i18nKey="profile:helper_text.characters_remaining"
                       values={{
-                        count: ABOUT_ME_MIN_LENGTH - aboutMeField.length,
+                        count: profileAboutMeMinLength - aboutMeField.length,
                       }}
                       components={{ bold: <strong /> }}
                     />
@@ -946,9 +763,7 @@ export default function EditProfileForm() {
                         fontSize: "0.875rem",
                       }}
                     >
-                      <InfoOutlined
-                        sx={{ color: "var(--mui-palette-primary-main)" }}
-                      />
+                      <InfoOutlined sx={{ color: "var(--mui-palette-primary-main)" }} />
                       {t("profile:search_indicator")}
                     </Typography>
                   }
@@ -960,7 +775,8 @@ export default function EditProfileForm() {
                   id="thingsILike"
                   label={t("profile:heading.hobbies_section")}
                   name="thingsILike"
-                  defaultValue={user.thingsILike || DEFAULT_HOBBIES_HEADINGS}
+                  defaultValue={user.thingsILike}
+                  placeholder={t("profile:hobbies_textbox_placeholder")}
                   control={control}
                 />
               </FieldGroup>
@@ -979,31 +795,21 @@ export default function EditProfileForm() {
             {/* Travel Experience Section */}
             {regions && (
               <ProfileSection>
-                <SectionTitle>
-                  {t("profile:edit_profile_headings.travel_experience")}
-                </SectionTitle>
-                <SectionSubtitle>
-                  {t(
-                    "profile:edit_profile_headings.travel_experience_subtitle",
-                  )}
-                </SectionSubtitle>
+                <SectionTitle>{t("profile:edit_profile_headings.travel_experience")}</SectionTitle>
+                <SectionSubtitle>{t("profile:edit_profile_headings.travel_experience_subtitle")}</SectionSubtitle>
 
                 <FieldGroup>
                   <Controller
                     control={control}
-                    defaultValue={user.regionsVisitedList.map(
-                      (region) => regions[region],
-                    )}
+                    defaultValue={user.regionsVisitedList}
                     name="regionsVisited"
                     render={({ field }) => (
                       <ProfileTagInput
                         inputFieldProps={field}
                         onChange={(_, values) => field.onChange(values)}
                         value={field.value}
-                        options={Object.values(regions)}
-                        label={t(
-                          "profile:edit_profile_headings.regions_visited",
-                        )}
+                        options={regions}
+                        label={t("profile:edit_profile_headings.regions_visited")}
                         id="regions-visited"
                       />
                     )}
@@ -1013,16 +819,14 @@ export default function EditProfileForm() {
                 <FieldGroup>
                   <Controller
                     control={control}
-                    defaultValue={user.regionsLivedList.map(
-                      (region) => regions[region],
-                    )}
+                    defaultValue={user.regionsLivedList}
                     name="regionsLived"
                     render={({ field }) => (
                       <ProfileTagInput
                         inputFieldProps={field}
                         onChange={(_, values) => field.onChange(values)}
                         value={field.value}
-                        options={Object.values(regions)}
+                        options={regions}
                         label={t("profile:edit_profile_headings.regions_lived")}
                         id="regions-lived"
                       />
@@ -1033,10 +837,7 @@ export default function EditProfileForm() {
             )}
 
             {showSuccessToast && (
-              <Snackbar
-                severity="success"
-                onClose={() => setShowSuccessToast(false)}
-              >
+              <Snackbar severity="success" onClose={() => setShowSuccessToast(false)}>
                 {t("profile:profile_changes_saved_message")}
               </Snackbar>
             )}
@@ -1078,16 +879,14 @@ export default function EditProfileForm() {
                 >
                   {t("profile:incomplete_dialog.description")}
                 </Typography>
-                {aboutMeField.length < ABOUT_ME_MIN_LENGTH && (
+                {aboutMeField.length < profileAboutMeMinLength && (
                   <ListItem key={1} style={{ display: "list-item" }}>
                     {`• ${t("profile:incomplete_dialog.about_me_message")}`}
                   </ListItem>
                 )}
                 {!user.avatarUrl && (
                   <ListItem key={2} style={{ display: "list-item" }}>
-                    {`• ${t(
-                      "profile:incomplete_dialog.missing_photo_message",
-                    )}`}
+                    {`• ${t("profile:incomplete_dialog.missing_photo_message")}`}
                   </ListItem>
                 )}
               </List>
@@ -1096,9 +895,7 @@ export default function EditProfileForm() {
               <Button onClick={() => setShowIncompleteProfileDialog(false)}>
                 {t("profile:incomplete_dialog.continue_editing")}
               </Button>
-              <Button onClick={onSubmit}>
-                {t("profile:incomplete_dialog.save_anyway")}
-              </Button>
+              <Button onClick={onSubmit}>{t("profile:incomplete_dialog.save_anyway")}</Button>
             </DialogActions>
           </Dialog>
         </>

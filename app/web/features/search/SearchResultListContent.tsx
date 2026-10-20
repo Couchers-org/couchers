@@ -1,13 +1,5 @@
 import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
-import {
-  Alert,
-  Box,
-  Button,
-  IconButton,
-  styled,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
+import { Alert, Box, Button, IconButton, styled, Typography, useMediaQuery } from "@mui/material";
 import BetaFlag from "components/BetaFlag";
 import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import { RpcError } from "grpc-web";
@@ -93,10 +85,7 @@ const SearchResultListContent = ({
   const { setSearchFilters } = useMapSearchActions();
 
   const shouldShowSuggestion =
-    !showAlert &&
-    totalItems !== undefined &&
-    filters.showEmptyProfile === false &&
-    selectedUserId === undefined;
+    !showAlert && totalItems !== undefined && filters.showEmptyProfile === false && selectedUserId === undefined;
 
   const handleIncludeEmptyProfilesClick = () => {
     setSearchFilters({
@@ -133,11 +122,7 @@ const SearchResultListContent = ({
         </Alert>
       )}
       <CenteredRow>
-        {users?.length === 0 && (
-          <Typography>
-            {t("search:search_result.no_user_result_message")}
-          </Typography>
-        )}
+        {users?.length === 0 && <Typography>{t("search:search_result.no_user_result_message")}</Typography>}
         {(users ?? []).length > 0 && (
           <Typography variant="body2">
             {t("search:search_result.people_range_message", {
@@ -156,9 +141,7 @@ const SearchResultListContent = ({
                 onSetMapView(MapViews.LIST_ONLY);
               }
             }}
-            aria-label={t(
-              `global:${mapView === MapViews.LIST_ONLY ? "retract" : "expand"}`,
-            )}
+            aria-label={t(`global:${mapView === MapViews.LIST_ONLY ? "retract" : "expand"}`)}
             sx={{
               fontSize: "24px",
               backgroundColor: "var(--mui-palette-background-paper)",
@@ -175,11 +158,7 @@ const SearchResultListContent = ({
               },
             }}
           >
-            {mapView === MapViews.LIST_ONLY ? (
-              <KeyboardArrowDown />
-            ) : (
-              <KeyboardArrowUp />
-            )}
+            {mapView === MapViews.LIST_ONLY ? <KeyboardArrowDown /> : <KeyboardArrowUp />}
           </IconButton>
         )}
       </CenteredRow>
@@ -196,25 +175,16 @@ const SearchResultListContent = ({
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
             <BetaFlag />
-            <Typography variant="body2">
-              {t("search:search_result.few_results_suggestion")}
-            </Typography>
+            <Typography variant="body2">{t("search:search_result.few_results_suggestion")}</Typography>
           </Box>
-          <Button
-            variant="contained"
-            size="small"
-            onClick={handleIncludeEmptyProfilesClick}
-          >
+          <Button variant="contained" size="small" onClick={handleIncludeEmptyProfilesClick}>
             {t("search:search_result.include_empty_profiles_button")}
           </Button>
         </Box>
       )}
       <UserCardsWrapper>
         {users?.map((user, index) => (
-          <StyledCardWrapper
-            key={user?.userId}
-            id={`search-result-${user?.userId}`}
-          >
+          <StyledCardWrapper key={user?.userId} id={`search-result-${user?.userId}`}>
             <SearchResultUserCard
               isHighlighted={selectedUserId === user.userId}
               onUserCardClick={onUserCardClick}

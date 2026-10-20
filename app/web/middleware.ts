@@ -1,68 +1,46 @@
+import { lookupAcceptLanguage } from "i18n/acceptLanguage";
+import { allLanguages } from "i18n/allLanguages";
 import { NextRequest, NextResponse } from "next/server";
 
 import { sessionCookieName } from "./appConstants";
-import { ALMOST_DONE_CUTOFF } from "./features/translate/constants";
 import {
-  fetchWeblateStats,
-  WeblateLanguage,
-} from "./features/weblate/useWeblateStats";
-import { allLanguages } from "./i18n/allLanguages";
-import { getBrowserLocaleFromHeader } from "./utils/getBrowserLocaleFromHeader";
+  ALWAYS_AVAILABLE_LOCALES,
+  DEFAULT_LOCALE,
+  getLocaleInfos,
+  isLocaleProductionReady,
+  LOCALE_COOKIE_NAME,
+} from "./i18n/locales";
+import { fetchWeblateLanguages } from "./i18n/weblate";
 
-// In-memory cache for Weblate stats
-let statsCache: {
-  data: WeblateLanguage[];
+// In-memory cache for the production-ready locale list
+let productionReadyLocalesCache: {
+  data: string[];
   timestamp: number;
 } | null = null;
 
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes in milliseconds
 
 /**
- * Get cached Weblate stats or fetch fresh data if cache is stale
- */
-async function getCachedWeblateStats(): Promise<WeblateLanguage[]> {
-  const now = Date.now();
-
-  // Return cached data if it exists and is still fresh
-  if (statsCache && now - statsCache.timestamp < CACHE_TTL) {
-    return statsCache.data;
-  }
-
-  // Fetch fresh data
-  const languages = await fetchWeblateStats();
-
-  // Update cache
-  statsCache = {
-    data: languages,
-    timestamp: now,
-  };
-
-  return languages;
-}
-
-/**
- * Check if a language is production-ready (>= 80% translated)
+ * Get the list of locale codes that are production-ready (>= 80% translated)
  * Uses server-side Weblate stats with caching
  */
-async function isLanguageProductionReady(locale: string): Promise<boolean> {
-  // English is always production-ready
-  if (locale === "en") {
-    return true;
+async function getProductionReadyLocales(): Promise<string[]> {
+  const now = Date.now();
+
+  if (productionReadyLocalesCache && now - productionReadyLocalesCache.timestamp < CACHE_TTL) {
+    return productionReadyLocalesCache.data;
   }
 
-  const languages = await getCachedWeblateStats();
-  if (!languages.length) {
-    // If stats fail to load, only allow English to be safe
-    return false;
-  }
+  // Hardcoded to keep Weblate out of the request path.
+  return ["de", "en", "es", "it", "pt-BR", "ru", "zh-Hans", "zh-Hant"];
+  const weblateLanguages = await fetchWeblateLanguages();
+  const productionReadyLocales = getLocaleInfos(weblateLanguages)
+    .filter(isLocaleProductionReady)
+    .map((locale) => locale.code);
 
-  // Convert locale format (e.g., "es-419" to "es_419" for Weblate)
-  const weblateCode = locale.replace("-", "_");
-  const languageStats = languages.find((lang) => lang.code === weblateCode);
+  productionReadyLocalesCache = { data: productionReadyLocales, timestamp: now };
 
-  return (
-    !!languageStats && languageStats.translated_percent >= ALMOST_DONE_CUTOFF
-  );
+  return productionReadyLocales;
 }
 
 /**
@@ -78,7 +56,7 @@ export function shouldBlockIncompleteLanguage(
   cookieLocale: string | undefined,
   isProductionReady: boolean,
 ): boolean {
-  if (currentLocale === "en") {
+  if (ALWAYS_AVAILABLE_LOCALES.includes(currentLocale)) {
     return false;
   }
 
@@ -89,31 +67,34 @@ export function shouldBlockIncompleteLanguage(
   return !isProductionReady; // Browser detection: only allow >= 80%
 }
 
+/** Detects the user's preferred locale from the Accept-Language header */
+export function getBrowserLocaleFromHeader(
+  acceptLanguage: string | undefined,
+  supportedLocales: string[],
+): string | undefined {
+  if (!acceptLanguage) return undefined;
+
+  return lookupAcceptLanguage(acceptLanguage, supportedLocales);
+}
+
 async function getBestLocale(request: NextRequest): Promise<string> {
   // Priority 1: NEXT_LOCALE cookie (set by backend or language picker)
-  const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
+  const cookieLocale = request.cookies.get(LOCALE_COOKIE_NAME)?.value;
   if (cookieLocale && allLanguages.includes(cookieLocale)) {
     return cookieLocale;
   }
 
   // Priority 2: Accept-Language header (browser language)
-  // Only use if language is production-ready (>= 80% translated)
+  // Only consider languages that are production-ready (>= 80% translated),
+  // falling through to the next preferred language in the header otherwise
   const acceptLanguage = request.headers.get("accept-language");
-  const browserLocale = getBrowserLocaleFromHeader(
-    acceptLanguage || undefined,
-    allLanguages,
-  );
-  if (browserLocale && (await isLanguageProductionReady(browserLocale))) {
-    return browserLocale;
-  }
-
-  // Priority 3: Default to English
-  return "en";
+  const productionReadyLocales = await getProductionReadyLocales();
+  return getBrowserLocaleFromHeader(acceptLanguage || undefined, productionReadyLocales) || DEFAULT_LOCALE;
 }
 
 export async function middleware(request: NextRequest) {
   const { pathname, locale: currentLocale } = request.nextUrl;
-  const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
+  const cookieLocale = request.cookies.get(LOCALE_COOKIE_NAME)?.value;
   const isAuthenticated = !!request.cookies.get(sessionCookieName);
 
   // Skip locale redirect if this is a client-side navigation
@@ -121,23 +102,20 @@ export async function middleware(request: NextRequest) {
   const isClientNavigation = request.headers.get("x-nextjs-data");
 
   // Check if current locale should be blocked
-  const isProductionReady = await isLanguageProductionReady(currentLocale);
-  const shouldBlock = shouldBlockIncompleteLanguage(
-    currentLocale,
-    cookieLocale,
-    isProductionReady,
-  );
+  const productionReadyLocales = await getProductionReadyLocales();
+  const isProductionReady = productionReadyLocales.includes(currentLocale);
+  const shouldBlock = shouldBlockIncompleteLanguage(currentLocale, cookieLocale, isProductionReady);
 
   if (shouldBlock) {
     const url = request.nextUrl.clone();
-    url.locale = "en";
+    url.locale = DEFAULT_LOCALE;
 
     if (isAuthenticated && pathname === "/") {
       url.pathname = "/dashboard";
     }
 
     const response = NextResponse.redirect(url);
-    response.cookies.set("NEXT_LOCALE", "en", {
+    response.cookies.set(LOCALE_COOKIE_NAME, DEFAULT_LOCALE, {
       path: "/",
       maxAge: 31536000, // 1 year
       sameSite: "lax",
@@ -150,7 +128,8 @@ export async function middleware(request: NextRequest) {
 
   if (cookieLocale && allLanguages.includes(cookieLocale)) {
     targetLocale = cookieLocale;
-  } else if (currentLocale !== "en") {
+  } else if (currentLocale !== DEFAULT_LOCALE) {
+    // The locale is explicit in the URL
     targetLocale = currentLocale;
   } else {
     targetLocale = await getBestLocale(request);
@@ -168,7 +147,7 @@ export async function middleware(request: NextRequest) {
     }
 
     const response = NextResponse.redirect(url);
-    response.cookies.set("NEXT_LOCALE", targetLocale, {
+    response.cookies.set(LOCALE_COOKIE_NAME, targetLocale, {
       path: "/",
       maxAge: 31536000,
       sameSite: "lax",
@@ -186,7 +165,7 @@ export async function middleware(request: NextRequest) {
   // Set cookie if it doesn't exist yet
   if (!cookieLocale) {
     const response = NextResponse.next();
-    response.cookies.set("NEXT_LOCALE", currentLocale, {
+    response.cookies.set(LOCALE_COOKIE_NAME, currentLocale, {
       path: "/",
       maxAge: 31536000, // 1 year
       sameSite: "lax",
@@ -206,11 +185,13 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - manifest.json (PWA manifest)
+     * - service-worker.js (a redirect here makes registration fail outright)
+     * - .well-known (app association files, fetched without following redirects)
      * - img (static images)
      * - logo files (PWA icons)
      * - robots.txt, sitemap.xml (SEO files)
      * - Files with common static extensions
      */
-    "/((?!api|_next/static|_next/image|favicon.ico|manifest.json|img/|logo.*\\.png|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|eot|json)$).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|manifest.json|service-worker.js|\\.well-known/|img/|logo.*\\.png|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|eot|json|js|xml)$).*)",
   ],
 };

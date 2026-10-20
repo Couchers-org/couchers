@@ -11,9 +11,11 @@ from sqlalchemy.sql import or_
 from couchers.config import config
 from couchers.constants import DATETIME_INFINITY
 from couchers.context import CouchersContext
+from couchers.helpers.hosting_meetup_status import record_hosting_meetup_status
 from couchers.i18n import LocalizationContext
 from couchers.models import (
     DeviceType,
+    HostingMeetupStatusSource,
     HostingStatus,
     MeetupStatus,
     Notification,
@@ -80,6 +82,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         if request.enable_do_not_email:
             user.hosting_status = HostingStatus.cant_host
             user.meetup_status = MeetupStatus.does_not_want_to_meetup
+            record_hosting_meetup_status(session, user, HostingMeetupStatusSource.do_not_email)
         for preference in request.preferences:
             topic_action = enum_from_topic_action.get((preference.topic, preference.action), None)
             if not topic_action:

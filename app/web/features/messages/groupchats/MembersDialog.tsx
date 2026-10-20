@@ -2,12 +2,7 @@ import { DialogProps, List, ListItem, styled } from "@mui/material";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-} from "components/Dialog";
+import { Dialog, DialogActions, DialogContent, DialogTitle } from "components/Dialog";
 import TextBody from "components/TextBody";
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
@@ -28,13 +23,7 @@ const StyledMemberListItemContainer = styled(ListItem)(() => ({
   justifyContent: "flex-start",
 }));
 
-function MemberListItem({
-  member,
-  memberIsAdmin,
-}: {
-  member: LiteUser.AsObject;
-  memberIsAdmin: boolean;
-}) {
+function MemberListItem({ member, memberIsAdmin }: { member: LiteUser.AsObject; memberIsAdmin: boolean }) {
   return (
     <StyledMemberListItemContainer dense>
       <StyledAvatar user={member} />
@@ -46,18 +35,13 @@ function MemberListItem({
   );
 }
 
-export default function MembersDialog({
-  groupChat,
-  ...props
-}: DialogProps & { groupChat?: GroupChat.AsObject }) {
+export default function MembersDialog({ groupChat, ...props }: DialogProps & { groupChat?: GroupChat.AsObject }) {
   const { t } = useTranslation([GLOBAL, MESSAGES]);
   const members = useLiteUsers(groupChat?.memberUserIdsList ?? []);
 
   return (
     <Dialog {...props} aria-labelledby="members-dialog-title">
-      <DialogTitle id="members-dialog-title">
-        {t("messages:members_dialog.title")}
-      </DialogTitle>
+      <DialogTitle id="members-dialog-title">{t("messages:members_dialog.title")}</DialogTitle>
       <DialogContent>
         <List>
           {members.isLoading ? (
@@ -68,9 +52,7 @@ export default function MembersDialog({
                 <MemberListItem
                   key={`members-dialog-${user.userId}`}
                   member={user}
-                  memberIsAdmin={
-                    groupChat?.adminUserIdsList.includes(user.userId) ?? false
-                  }
+                  memberIsAdmin={groupChat?.adminUserIdsList.includes(user.userId) ?? false}
                 />
               ) : null,
             )
@@ -78,13 +60,7 @@ export default function MembersDialog({
         </List>
       </DialogContent>
       <DialogActions>
-        <Button
-          onClick={() =>
-            props.onClose ? props.onClose({}, "escapeKeyDown") : null
-          }
-        >
-          {t("global:ok")}
-        </Button>
+        <Button onClick={() => (props.onClose ? props.onClose({}, "escapeKeyDown") : null)}>{t("global:ok")}</Button>
       </DialogActions>
     </Dialog>
   );

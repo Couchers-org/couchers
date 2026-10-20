@@ -2,8 +2,7 @@ import ErrorFallback from "components/ErrorFallback";
 import Sentry, { SentryErrorBoundaryProps } from "platform/sentry";
 import React, { PropsWithChildren } from "react";
 
-interface ErrorBoundaryProps
-  extends Omit<SentryErrorBoundaryProps, "beforeCapture" | "fallback"> {
+interface ErrorBoundaryProps extends Omit<SentryErrorBoundaryProps, "beforeCapture" | "fallback"> {
   isFatal?: boolean;
 }
 

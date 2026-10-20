@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.13"
 resolution-markers = [
     "python_full_version >= '3.14' and platform_python_implementation != 'PyPy'",
@@ -221,6 +221,7 @@ dependencies = [
     { name = "openai" },
     { name = "pydantic" },
     { name = "pygithub" },
+    { name = "requests" },
 ]
 
 [package.metadata]
@@ -229,6 +230,7 @@ requires-dist = [
     { name = "openai", specifier = ">=2.7.1" },
     { name = "pydantic", specifier = ">=2.12.4" },
     { name = "pygithub", specifier = ">=2.8.1" },
+    { name = "requests", specifier = ">=2.32.5" },
 ]
 
 [[package]]

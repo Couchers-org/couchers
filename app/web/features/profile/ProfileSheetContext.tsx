@@ -1,12 +1,4 @@
-import {
-  createContext,
-  ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from "react";
 
 interface ProfileSheetContextType {
   openProfileSheet: (userId: number) => void;
@@ -25,9 +17,7 @@ interface ProfileSheetContextType {
 const ProfileSheetContext = createContext<ProfileSheetContextType | null>(null);
 
 export function ProfileSheetProvider({ children }: { children: ReactNode }) {
-  const [openProfileUserId, setOpenProfileUserId] = useState<number | null>(
-    null,
-  );
+  const [openProfileUserId, setOpenProfileUserId] = useState<number | null>(null);
   const [profileHistory, setProfileHistory] = useState<number[]>([]);
   const [openGroupChatId, setOpenGroupChatId] = useState<number | null>(null);
   const [selectedBadgeId, setSelectedBadgeId] = useState<string | null>(null);

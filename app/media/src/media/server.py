@@ -14,6 +14,7 @@ from sentry_sdk.integrations import logging as sentry_logging
 from werkzeug.utils import secure_filename
 
 from media.crypto import verify_hash_signature
+from media.metadata import extract_metadata
 from media.proto import media_pb2, media_pb2_grpc
 
 logger = logging.getLogger(__name__)
@@ -49,6 +50,7 @@ def create_app(
     media_upload_location: Path,
     media_cors_origin: str,
     thumbnail_size: int,
+    media_seed_location: Path | None = None,
 ) -> Flask:
     # Create the directories
     media_upload_location.mkdir(exist_ok=True, parents=True)
@@ -68,11 +70,17 @@ def create_app(
     def get_path(filename: str, size: str = "full") -> str:
         return str(media_upload_location / size / filename)
 
+    def find_full_path(filename: str) -> str | None:
+        for directory in [media_upload_location / "full", media_seed_location]:
+            if directory and (directory / filename).is_file():
+                return str(directory / filename)
+        return None
+
     def _is_available(e) -> bool:
         return e.code() != grpc.StatusCode.UNAVAILABLE
 
     @backoff.on_exception(backoff.expo, grpc.RpcError, max_time=1, giveup=_is_available)
-    def send_confirmation_to_main_server(key: str, filename: str):
+    def send_confirmation_to_main_server(key: str, filename: str, upload_metadata: media_pb2.UploadMetadata):
         logger.warning(f"Notifying main server about new upload at {main_server_address}")
 
         if main_server_use_ssl:
@@ -85,6 +93,7 @@ def create_app(
         req = media_pb2.UploadConfirmationReq(
             key=key,
             filename=filename,
+            metadata=upload_metadata,
         )
         media_stub.UploadConfirmation(req, metadata=(("authorization", f"Bearer {media_server_bearer_token}"),))
 
@@ -129,10 +138,14 @@ def create_app(
             abort(500, "Unsupported upload type")
 
         # handle image uploads
+        image_bytes = request_file.read()
+
         try:
-            img = pyvips.Image.new_from_buffer(request_file.read(), options="")
+            img = pyvips.Image.new_from_buffer(image_bytes, options="")
         except pyvips.Error:
             abort(400, "Invalid image")
+
+        upload_metadata = extract_metadata(img, image_bytes, request_file.filename)
 
         width = img.get("width")
         height = img.get("height")
@@ -150,7 +163,7 @@ def create_app(
 
         # let the main server know the upload succeeded, or delete the file
         try:
-            send_confirmation_to_main_server(req.key, filename)
+            send_confirmation_to_main_server(req.key, filename, upload_metadata)
             return {
                 "ok": True,
                 "key": req.key,
@@ -164,8 +177,8 @@ def create_app(
 
     @app.route("/img/full/<key>.jpg")
     def full(key: str):
-        path = get_path(key + ".jpg")
-        if not os.path.isfile(path):
+        path = find_full_path(key + ".jpg")
+        if not path:
             abort(404, "Not found")
 
         return send_file(path, mimetype="image/jpeg", conditional=True, max_age=7776000)
@@ -173,8 +186,8 @@ def create_app(
     @app.route("/img/thumbnail/<key>.jpg")
     def thumbnail(key: str):
         filename = key + ".jpg"
-        full_path = get_path(filename)
-        if not os.path.isfile(full_path):
+        full_path = find_full_path(filename)
+        if not full_path:
             abort(404, "Not found")
 
         thumbnail_path = get_path(filename, size="thumbnail")
@@ -224,6 +237,9 @@ def create_app_from_env() -> Flask:
 
     MEDIA_UPLOAD_LOCATION = Path(os.environ["MEDIA_UPLOAD_LOCATION"])
 
+    # read-only fallback directory of images to serve (dummy data in dev), optional
+    MEDIA_SEED_LOCATION = Path(p) if (p := os.environ.get("MEDIA_SEED_LOCATION")) else None
+
     # CORS allowed origin
     MEDIA_CORS_ORIGIN = os.environ["MEDIA_CORS_ORIGIN"]
 
@@ -238,6 +254,7 @@ def create_app_from_env() -> Flask:
         MEDIA_UPLOAD_LOCATION,
         MEDIA_CORS_ORIGIN,
         THUMBNAIL_SIZE,
+        MEDIA_SEED_LOCATION,
     )
 
 

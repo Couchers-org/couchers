@@ -2,6 +2,7 @@ import { appGetLayout } from "components/AppRoute";
 import PagePageComponent from "features/communities/PagePage";
 import NotFoundPage from "features/NotFoundPage";
 import { appServerSideTranslations } from "i18n/appServerSideTranslations";
+import { DEFAULT_LOCALE } from "i18n/locales";
 import { GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
 import { GetStaticPaths, GetStaticProps } from "next";
 import { useRouter } from "next/router";
@@ -15,29 +16,19 @@ export const getStaticPaths: GetStaticPaths = () => ({
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
-    ...(await appServerSideTranslations(locale ?? "en", [
-      GLOBAL,
-      NOTIFICATIONS,
-    ])),
+    ...(await appServerSideTranslations(locale ?? DEFAULT_LOCALE, [GLOBAL, NOTIFICATIONS])),
   },
 });
 export default function PagePage() {
   const router = useRouter();
 
-  if (!process.env.NEXT_PUBLIC_IS_COMMUNITIES_PART2_ENABLED)
-    return <NotFoundPage />;
+  if (!process.env.NEXT_PUBLIC_IS_COMMUNITIES_PART2_ENABLED) return <NotFoundPage />;
 
   const parsedId = Number.parseInt(stringOrFirstString(router.query.id) ?? "");
   if (isNaN(parsedId)) return <NotFoundPage />;
   const slug = stringOrFirstString(router.query.slug);
 
-  return (
-    <PagePageComponent
-      pageType={PageType.PAGE_TYPE_PLACE}
-      pageId={parsedId}
-      pageSlug={slug}
-    />
-  );
+  return <PagePageComponent pageType={PageType.PAGE_TYPE_PLACE} pageId={parsedId} pageSlug={slug} />;
 }
 
 PagePage.getLayout = appGetLayout();

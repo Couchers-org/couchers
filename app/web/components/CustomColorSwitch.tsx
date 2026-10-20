@@ -75,19 +75,8 @@ export default function CustomColorSwitch({
   }, []);
 
   const Icon = () => (
-    <StyledCircle
-      size={size}
-      checked={checked}
-      customColor={customColor}
-      isLoading={isLoading}
-    >
-      {isLoading && (
-        <CircularProgress
-          size={size === "medium" ? 14 : 12}
-          style={{ color: "white" }}
-          thickness={6}
-        />
-      )}
+    <StyledCircle size={size} checked={checked} customColor={customColor} isLoading={isLoading}>
+      {isLoading && <CircularProgress size={size === "medium" ? 14 : 12} style={{ color: "white" }} thickness={6} />}
     </StyledCircle>
   );
 

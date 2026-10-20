@@ -1,23 +1,17 @@
-import {
-  ChevronLeft as ChevronLeftIcon,
-  ChevronRight as ChevronRightIcon,
-} from "@mui/icons-material";
+import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from "@mui/icons-material";
 import { Box, styled, useMediaQuery } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import FadingScrollTrack from "components/FadingScrollTrack";
 import IconButton from "components/IconButton";
-import { RpcError } from "grpc-web";
 import { useTranslation } from "next-i18next";
 import { usePersistedState } from "platform/usePersistedState";
-import { GetRemindersRes, Reminder } from "proto/account_pb";
+import { Reminder } from "proto/account_pb";
 import { useEffect, useRef, useState } from "react";
-import { service } from "service";
 
 import { DASHBOARD } from "../../i18n/namespaces";
 import { theme } from "../../theme";
-import { remindersKey } from "../queryKeys";
 import ReminderItem from "./ReminderItem";
+import useGetDashboard from "./useGetDashboard";
 
 const CARD_WIDTH_DESKTOP = 280;
 const CARD_WIDTH_MOBILE = 200;
@@ -57,9 +51,7 @@ function pruneStaleEntries(
   currentDismissalTime: number,
 ): Record<string, number> {
   const out: Record<string, number> = {};
-  for (const [reminderId, dismissalTime] of Object.entries(
-    dismissedReminders,
-  )) {
+  for (const [reminderId, dismissalTime] of Object.entries(dismissedReminders)) {
     if (currentDismissalTime - dismissalTime < ONE_WEEK_MS) {
       out[reminderId] = dismissalTime;
     }
@@ -67,10 +59,7 @@ function pruneStaleEntries(
   return out;
 }
 
-function isStillDismissed(
-  dismissedReminders: Record<string, number>,
-  key: string,
-): boolean {
+function isStillDismissed(dismissedReminders: Record<string, number>, key: string): boolean {
   const now = Date.now();
   const ts = dismissedReminders[key];
   if (ts === undefined) return false;
@@ -108,14 +97,12 @@ const StyledArrow = styled(IconButton)({
 export default function ReminderCarousel() {
   const { t } = useTranslation(DASHBOARD);
 
-  const { data, error } = useQuery<GetRemindersRes.AsObject, RpcError>({
-    queryKey: [remindersKey],
-    queryFn: () => service.account.getReminders(),
-  });
+  const { data, error } = useGetDashboard((dashboard) => dashboard.reminders);
 
-  const [dismissedReminders, setDismissedReminders] = usePersistedState<
-    Record<string, number>
-  >("dismissedReminders", {});
+  const [dismissedReminders, setDismissedReminders] = usePersistedState<Record<string, number>>(
+    "dismissedReminders",
+    {},
+  );
 
   const scrollerRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -152,11 +139,7 @@ export default function ReminderCarousel() {
 
   const scrollByCard = (direction: 1 | -1) => {
     scrollerRef.current?.scrollBy({
-      left:
-        direction *
-        (isMobile
-          ? CARD_WIDTH_MOBILE + CARD_GAP
-          : CARD_WIDTH_DESKTOP + CARD_GAP),
+      left: direction * (isMobile ? CARD_WIDTH_MOBILE + CARD_GAP : CARD_WIDTH_DESKTOP + CARD_GAP),
       behavior: "smooth",
     });
   };
@@ -167,7 +150,7 @@ export default function ReminderCarousel() {
   return (
     <StyledContainer>
       <StyledArrow
-        aria-label={t("dashboard:carousel_scroller.left_arrow_a11y")}
+        aria-label={t("dashboard:reminder.carousel_scroller.left_arrow_a11y")}
         size={isMobile ? "small" : "medium"}
         onClick={() => scrollByCard(-1)}
         disabled={!canScrollLeft}
@@ -184,23 +167,18 @@ export default function ReminderCarousel() {
         sx={{
           flex: 1,
           minWidth: 0,
-          ...(isMobile && visibleReminders.length === 1
-            ? { justifyContent: "center" }
-            : {}),
+          ...(isMobile && visibleReminders.length === 1 ? { justifyContent: "center" } : {}),
         }}
       >
         {visibleReminders.map(({ id, reminder }) => (
           <StyledCardSlot key={id}>
-            <ReminderItem
-              reminder={reminder}
-              onDismiss={() => handleDismiss(id)}
-            />
+            <ReminderItem reminder={reminder} onDismiss={() => handleDismiss(id)} />
           </StyledCardSlot>
         ))}
       </FadingScrollTrack>
 
       <StyledArrow
-        aria-label={t("dashboard:carousel_scroller.right_arrow_a11y")}
+        aria-label={t("dashboard:reminder.carousel_scroller.right_arrow_a11y")}
         size={isMobile ? "small" : "medium"}
         onClick={() => scrollByCard(1)}
         disabled={!canScrollRight}

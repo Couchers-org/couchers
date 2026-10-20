@@ -9,9 +9,7 @@ import Login from "./Login";
 
 const { t } = i18n;
 
-const passwordLoginMock = service.user.passwordLogin as jest.MockedFunction<
-  typeof service.user.passwordLogin
->;
+const passwordLoginMock = service.user.passwordLogin as jest.MockedFunction<typeof service.user.passwordLogin>;
 
 describe("Login", () => {
   it("shows the known gRPC error from the API", async () => {
@@ -24,18 +22,8 @@ describe("Login", () => {
 
     const user = userEvent.setup();
 
-    await user.type(
-      await screen.findByLabelText(
-        t("auth:login_page.form.username_field_label"),
-      ),
-      "invalid",
-    );
-    await user.type(
-      await screen.findByLabelText(
-        t("auth:login_page.form.password_field_label"),
-      ),
-      "wrongpwd",
-    );
+    await user.type(await screen.findByLabelText(t("auth:login_page.form.username_field_label")), "invalid");
+    await user.type(await screen.findByLabelText(t("auth:login_page.form.password_field_label")), "wrongpwd");
     await user.click(screen.getByRole("button", { name: t("global:login") }));
 
     await assertErrorAlert(errorMessage);
@@ -50,18 +38,8 @@ describe("Login", () => {
 
     const user = userEvent.setup();
 
-    await user.type(
-      await screen.findByLabelText(
-        t("auth:login_page.form.username_field_label"),
-      ),
-      "invalid",
-    );
-    await user.type(
-      await screen.findByLabelText(
-        t("auth:login_page.form.password_field_label"),
-      ),
-      "wrongpwd",
-    );
+    await user.type(await screen.findByLabelText(t("auth:login_page.form.username_field_label")), "invalid");
+    await user.type(await screen.findByLabelText(t("auth:login_page.form.password_field_label")), "wrongpwd");
     await user.click(screen.getByRole("button", { name: t("global:login") }));
 
     await assertErrorAlert(t("global:error.fatal_message"));

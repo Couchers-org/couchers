@@ -31,12 +31,8 @@ const StatusCard = styled(Paper, {
 })<{ selected?: boolean }>(({ theme, selected }) => ({
   padding: theme.spacing(2),
   cursor: "pointer",
-  border: selected
-    ? `2px solid var(--mui-palette-primary-main)`
-    : `1px solid var(--mui-palette-grey-200)`,
-  backgroundColor: selected
-    ? `var(--mui-palette-primary-main)15`
-    : "var(--mui-palette-background-paper)",
+  border: selected ? `2px solid var(--mui-palette-primary-main)` : `1px solid var(--mui-palette-grey-200)`,
+  backgroundColor: selected ? `var(--mui-palette-primary-main)15` : "var(--mui-palette-background-paper)",
   transition: "all 0.2s ease-in-out",
   height: "100%",
   display: "flex",
@@ -47,9 +43,7 @@ const StatusCard = styled(Paper, {
 
   "&:hover": {
     borderColor: "var(--mui-palette-primary-main)",
-    backgroundColor: selected
-      ? "var(--mui-palette-primary-main)20"
-      : "var(--mui-palette-grey-50)",
+    backgroundColor: selected ? "var(--mui-palette-primary-main)20" : "var(--mui-palette-grey-50)",
     transform: "translateY(-2px)",
     boxShadow: "0 8px 25px rgba(0, 0, 0, 0.15)",
   },
@@ -104,9 +98,7 @@ const StatusTitle = styled(Typography, {
 })<{ selected?: boolean }>(({ theme, selected }) => ({
   fontSize: "1rem",
   fontWeight: 600,
-  color: selected
-    ? "var(--mui-palette-primary-main)"
-    : "var(--mui-palette-text-primary)",
+  color: selected ? "var(--mui-palette-primary-main)" : "var(--mui-palette-text-primary)",
   marginBottom: 0,
   textAlign: "left",
 
@@ -148,9 +140,7 @@ export default function StatusCardGroup<T extends string | number>({
             <StatusCardContent>
               {option.icon}
               <StatusTextContainer>
-                <StatusTitle selected={selectedValue === option.value}>
-                  {option.title}
-                </StatusTitle>
+                <StatusTitle selected={selectedValue === option.value}>{option.title}</StatusTitle>
                 <StatusDescription>{option.description}</StatusDescription>
               </StatusTextContainer>
             </StatusCardContent>

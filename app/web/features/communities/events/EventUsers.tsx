@@ -42,9 +42,7 @@ export interface EventUsersProps {
     handlePreviousPageClick: () => void;
     handleNextPageClick: () => void;
   };
-  getUserMenuItems?: (
-    user: LiteUser.AsObject,
-  ) => EllipsisMenuItem[] | undefined;
+  getUserMenuItems?: (user: LiteUser.AsObject) => EllipsisMenuItem[] | undefined;
   attendeeCount?: number;
 }
 
@@ -92,14 +90,10 @@ export default function EventUsers({
         userIds={userIds}
         endChildren={
           hasNextPage && !pagination ? (
-            <StyledSeeAllButton onClick={onSeeAllClick}>
-              {t("communities:see_all")}
-            </StyledSeeAllButton>
+            <StyledSeeAllButton onClick={onSeeAllClick}>{t("communities:see_all")}</StyledSeeAllButton>
           ) : null
         }
-        emptyListChildren={
-          <Typography variant="body1">{emptyState}</Typography>
-        }
+        emptyListChildren={<Typography variant="body1">{emptyState}</Typography>}
         getUserMenuItems={getUserMenuItems}
         layout={layout}
       />

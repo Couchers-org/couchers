@@ -1,11 +1,6 @@
-import {
-  Box,
-  ImageList,
-  ImageListItem,
-  styled,
-  Typography,
-} from "@mui/material";
+import { Box, ImageList, ImageListItem, styled, Typography } from "@mui/material";
 import CircularProgress from "components/CircularProgress";
+import { contentRefs } from "features/contentRefs";
 import FlagButton from "features/FlagButton";
 import { useGallery } from "features/profile/hooks/useGallery";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
@@ -69,9 +64,7 @@ const FlagButtonWrapper = styled(Box)(({ theme }) => ({
   },
 }));
 
-export default function ProfilePhotoGallery({
-  galleryId,
-}: ProfilePhotoGalleryProps) {
+export default function ProfilePhotoGallery({ galleryId }: ProfilePhotoGalleryProps) {
   const { t } = useTranslation([PROFILE]);
   const { data: gallery, isLoading } = useGallery(galleryId);
   const profileUser = useProfileUser();
@@ -124,8 +117,7 @@ export default function ProfilePhotoGallery({
             role="button"
             tabIndex={0}
             aria-label={
-              photo.caption ||
-              `${t("profile:gallery.photo_item_a11y")} ${index + 1} of ${gallery.photosList.length}`
+              photo.caption || `${t("profile:gallery.photo_item_a11y")} ${index + 1} of ${gallery.photosList.length}`
             }
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
@@ -135,21 +127,14 @@ export default function ProfilePhotoGallery({
             }}
           >
             <ThumbnailContainer>
-              <img
-                src={photo.thumbnailUrl || photo.fullUrl}
-                alt={photo.caption || ""}
-                loading="lazy"
-              />
+              <img src={photo.thumbnailUrl || photo.fullUrl} alt={photo.caption || ""} loading="lazy" />
               <FlagButtonWrapper
                 onClick={(e) => {
                   e.stopPropagation();
                 }}
                 aria-label={t("profile:gallery.report_photo")}
               >
-                <FlagButton
-                  contentRef={`photo/${photo.itemId}`}
-                  authorUser={profileUser.userId}
-                />
+                <FlagButton contentRef={contentRefs.photo(photo)} authorUser={profileUser.userId} />
               </FlagButtonWrapper>
             </ThumbnailContainer>
           </StyledImageListItem>
@@ -157,12 +142,7 @@ export default function ProfilePhotoGallery({
       </StyledImageList>
 
       <PhotoLightbox
-        photos={gallery.photosList.map((photo) => ({
-          fullUrl: photo.fullUrl,
-          thumbnailUrl: photo.thumbnailUrl,
-          caption: photo.caption,
-          itemId: photo.itemId,
-        }))}
+        photos={gallery.photosList}
         initialIndex={selectedPhotoIndex}
         open={lightboxOpen}
         onClose={handleCloseLightbox}

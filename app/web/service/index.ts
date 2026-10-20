@@ -15,10 +15,12 @@ import * as jail from "./jail";
 import * as notifications from "./notifications";
 import * as pages from "./pages";
 import * as publicApi from "./public";
+import * as publicTrips from "./publicTrips";
 import * as references from "./references";
 import * as reporting from "./reporting";
 import * as requests from "./requests";
 import * as resources from "./resources";
+import * as screens from "./screens";
 import * as search from "./search";
 import * as threads from "./threads";
 import * as user from "./user";
@@ -42,10 +44,12 @@ export const service = {
   notifications,
   pages,
   publicApi,
+  publicTrips,
   references,
   reporting,
   requests,
   resources,
+  screens,
   search,
   threads,
   user,

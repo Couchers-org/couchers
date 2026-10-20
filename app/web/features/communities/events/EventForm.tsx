@@ -14,8 +14,8 @@ import { LngLat } from "maplibre-gl";
 import { Event } from "proto/events_pb";
 import { useRef } from "react";
 import { DeepMap, useForm } from "react-hook-form";
+import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
-import { Dayjs } from "utils/dayjs";
 import type { GeocodeResult } from "utils/hooks";
 
 import EventTimeChanger from "./EventTimeChanger";
@@ -45,44 +45,27 @@ const StyledLocationContainer = styled("div")(() => ({
   minHeight: theme.typography.pxToRem(66),
 }));
 
-const StyledIsOnlineCheckboxWrapper = styled("div")(() => ({
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "center",
-}));
-
 const StyledEventDetailsContainer = styled("div")(() => ({
   display: "grid",
   gridTemplateColumns: "minmax(0, 1fr)",
   rowGap: theme.spacing(1),
 }));
 
-interface BaseEventData {
+interface EventData {
   content: string;
   title: string;
-  startDate: Dayjs;
-  endDate: Dayjs;
-  startTime: Dayjs;
-  endTime: Dayjs;
-  isOnline: boolean;
+  startDate: Temporal.PlainDate;
+  endDate: Temporal.PlainDate;
+  startTime: Temporal.PlainTime;
+  endTime: Temporal.PlainTime;
   shouldNotify: boolean;
   eventImage?: string;
   parentCommunityId?: number;
   link?: string;
-  location?: GeocodeResult;
-}
-interface OfflineEventData extends BaseEventData {
-  isOnline: false;
   location: GeocodeResult;
 }
 
-interface OnlineEventData extends BaseEventData {
-  isOnline: true;
-  link: string;
-  parentCommunityId: number;
-}
-
-export type CreateEventData = OfflineEventData | OnlineEventData;
+export type CreateEventData = EventData;
 
 export type CreateEventVariables = CreateEventData & {
   dirtyFields: DeepMap<CreateEventData, true>;
@@ -92,12 +75,7 @@ interface EventFormProps {
   children(data: { isMutationLoading: boolean }): React.ReactNode;
   event?: Event.AsObject;
   error: RpcError | null;
-  mutate: UseMutateFunction<
-    Event.AsObject,
-    RpcError,
-    CreateEventVariables,
-    unknown
-  >;
+  mutate: UseMutateFunction<Event.AsObject, RpcError, CreateEventVariables, unknown>;
   isMutationLoading: boolean;
   title: string;
   isEdit: boolean;
@@ -120,20 +98,17 @@ export default function EventForm({
     getValues,
     register,
     setValue,
-    watch,
     formState: { dirtyFields, errors },
-  } = useForm<CreateEventData>({ mode: "onBlur" });
+  } = useForm<CreateEventData>({
+    mode: "onBlur",
+  });
 
-  const isOnline = watch("isOnline", false);
   const locationDefaultValue = useRef(
-    event?.offlineInformation
+    event?.location
       ? {
-          name: event.offlineInformation.address,
-          simplifiedName: event.offlineInformation.address,
-          location: new LngLat(
-            event.offlineInformation.lng,
-            event.offlineInformation.lat,
-          ),
+          name: event.location.address,
+          simplifiedName: event.location.address,
+          location: new LngLat(event.location.lng, event.location.lat),
           bbox: [0, 0, 0, 0] as Coordinates,
         }
       : ("" as const),
@@ -167,14 +142,10 @@ export default function EventForm({
         height={"200px"}
         width={"100%"}
       />
-      <StyledImageUploadHelperText variant="body1">
-        {t("communities:upload_helper_text")}
-      </StyledImageUploadHelperText>
+      <StyledImageUploadHelperText variant="body1">{t("communities:upload_helper_text")}</StyledImageUploadHelperText>
       <PageTitle>{title}</PageTitle>
       {(error || errors.eventImage) && (
-        <Alert severity="error">
-          {error?.message || errors.eventImage?.message || ""}
-        </Alert>
+        <Alert severity="error">{error?.message || errors.eventImage?.message || ""}</Alert>
       )}
       <StyledForm onSubmit={onSubmit}>
         <TextField
@@ -197,57 +168,21 @@ export default function EventForm({
           dirtyFields={dirtyFields}
         />
         <StyledLocationContainer>
-          {isOnline ? (
-            <TextField
-              id="link"
-              {...register("link", {
-                required: t("communities:link_required"),
-              })}
-              defaultValue={event?.onlineInformation?.link}
-              error={!!errors.link?.message}
-              helperText={errors.link?.message || ""}
-              fullWidth
-              label={t("communities:virtual_event_link")}
-              variant="standard"
-            />
-          ) : (
-            <LocationAutocomplete
-              control={control}
-              name="location"
-              defaultValue={locationDefaultValue}
-              fieldError={errors.location?.message}
-              fullWidth
-              label={t("communities:location")}
-              required={t("communities:location_required")}
-              showFullDisplayName
-              autocompleteContext="create-event-form"
-            />
-          )}
-          <StyledIsOnlineCheckboxWrapper>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  {...register("isOnline")}
-                  defaultChecked={!!event?.onlineInformation}
-                  name="isOnline"
-                />
-              }
-              label={t("communities:virtual_event")}
-            />
-            <Typography variant="body2">
-              {t("communities:virtual_events_subtext")}
-            </Typography>
-          </StyledIsOnlineCheckboxWrapper>
+          <LocationAutocomplete
+            control={control}
+            name="location"
+            defaultValue={locationDefaultValue}
+            fieldError={errors.location?.message}
+            fullWidth
+            label={t("communities:location")}
+            required={t("communities:location_required")}
+            showFullDisplayName
+            autocompleteContext="create-event-form"
+          />
 
           {isEdit && (
             <FormControlLabel
-              control={
-                <Checkbox
-                  {...register("shouldNotify")}
-                  defaultChecked={false}
-                  name="shouldNotify"
-                />
-              }
+              control={<Checkbox {...register("shouldNotify")} defaultChecked={false} name="shouldNotify" />}
               label={t("communities:notify_attendees")}
             />
           )}

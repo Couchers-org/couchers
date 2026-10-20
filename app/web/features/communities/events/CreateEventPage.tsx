@@ -16,10 +16,9 @@ import { dashboardRoute, eventsRoute, routeToEvent } from "routes";
 import { service } from "service";
 import type { CreateEventInput } from "service/events";
 import { theme } from "theme";
-import dayjs from "utils/dayjs";
+import { sendNativeBack, useIsNativeEmbed } from "utils/nativeLink";
 import stringOrFirstString from "utils/stringOrFirstString";
 
-import { sendNativeBack, useIsNativeEmbed } from "../../../utils/nativeLink";
 import { communityEventsBaseKey } from "../../queryKeys";
 import EventForm, { CreateEventVariables } from "./EventForm";
 import { useEvent } from "./hooks";
@@ -37,18 +36,14 @@ export default function CreateEventPage() {
   const isNativeEmbed = useIsNativeEmbed();
 
   const urlCommunityIdString =
-    typeof window !== "undefined"
-      ? stringOrFirstString(router.query.communityId)
-      : undefined;
+    typeof window !== "undefined" ? stringOrFirstString(router.query.communityId) : undefined;
   const urlCommunityId =
     urlCommunityIdString && !isNaN(Number.parseInt(urlCommunityIdString))
       ? Number.parseInt(urlCommunityIdString)
       : undefined;
 
   const duplicateEventIdString =
-    typeof window !== "undefined"
-      ? stringOrFirstString(router.query.duplicateEventId)
-      : undefined;
+    typeof window !== "undefined" ? stringOrFirstString(router.query.duplicateEventId) : undefined;
   const duplicateEventId =
     duplicateEventIdString && !isNaN(Number.parseInt(duplicateEventIdString))
       ? Number.parseInt(duplicateEventIdString)
@@ -65,57 +60,22 @@ export default function CreateEventPage() {
     mutate: createEvent,
     error,
     isPending,
-  } = useMutation<
-    Event.AsObject,
-    RpcError,
-    CreateEventVariables,
-    { parentCommunityId?: number }
-  >({
+  } = useMutation<Event.AsObject, RpcError, CreateEventVariables, { parentCommunityId?: number }>({
     mutationFn: (data) => {
-      let createEventInput: CreateEventInput;
-      const startTime = dayjs(data.startTime);
-      const endTime = dayjs(data.endTime);
-      const finalStartDate = data.startDate
-        .startOf("day")
-        .add(startTime.get("hour"), "hour")
-        .add(startTime.get("minute"), "minute")
-        .toDate();
-      const finalEndDate = data.endDate
-        .startOf("day")
-        .add(endTime.get("hour"), "hour")
-        .add(endTime.get("minute"), "minute")
-        .toDate();
-
       // Use uploaded photo, or reuse photo from event being duplicated
-      const photoKey =
-        data.eventImage || eventToDuplicate?.photoKey || undefined;
+      const photoKey = data.eventImage || eventToDuplicate?.photoKey || undefined;
 
-      if (data.isOnline) {
-        createEventInput = {
-          isOnline: data.isOnline,
-          title: data.title,
-          content: data.content,
-          photoKey,
-          startTime: finalStartDate,
-          endTime: finalEndDate,
-          // TODO: not hardcode this and allow user to specify community ID?
-          parentCommunityId: 1,
-          link: data.link,
-        };
-      } else {
-        createEventInput = {
-          isOnline: data.isOnline,
-          title: data.title,
-          content: data.content,
-          photoKey,
-          startTime: finalStartDate,
-          endTime: finalEndDate,
-          address: data.location.name,
-          lat: data.location.location.lat,
-          lng: data.location.location.lng,
-          parentCommunityId: urlCommunityId,
-        };
-      }
+      const createEventInput: CreateEventInput = {
+        title: data.title,
+        content: data.content,
+        photoKey,
+        startTime: data.startDate.toPlainDateTime(data.startTime),
+        endTime: data.endDate.toPlainDateTime(data.endTime),
+        address: data.location.name,
+        lat: data.location.location.lat,
+        lng: data.location.location.lng,
+        parentCommunityId: urlCommunityId,
+      };
       return service.events.createEvent(createEventInput);
     },
 
@@ -127,9 +87,7 @@ export default function CreateEventPage() {
     onSuccess(event, __, context) {
       queryClient.invalidateQueries({
         queryKey: [
-          context?.parentCommunityId
-            ? [communityEventsBaseKey, context.parentCommunityId]
-            : communityEventsBaseKey,
+          context?.parentCommunityId ? [communityEventsBaseKey, context.parentCommunityId] : communityEventsBaseKey,
         ],
       });
       router.push(routeToEvent(event.eventId, event.slug));
@@ -139,8 +97,7 @@ export default function CreateEventPage() {
     },
   });
 
-  const { data: accountInfo, isLoading: isAccountInfoLoading } =
-    useAccountInfo();
+  const { data: accountInfo, isLoading: isAccountInfoLoading } = useAccountInfo();
 
   const handleBackClick = () => {
     if (isNativeEmbed) {
@@ -179,11 +136,7 @@ export default function CreateEventPage() {
       >
         {({ isMutationLoading }) => (
           <>
-            <Button
-              loading={isMutationLoading}
-              type="submit"
-              sx={{ justifySelf: "start" }}
-            >
+            <Button loading={isMutationLoading} type="submit" sx={{ justifySelf: "start" }}>
               {t("global:create")}
             </Button>
             <Typography variant="body1" sx={{ color: theme.palette.grey[600] }}>

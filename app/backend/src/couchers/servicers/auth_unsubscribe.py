@@ -10,9 +10,11 @@ from sqlalchemy.orm import Session
 
 from couchers.constants import DATETIME_INFINITY
 from couchers.context import CouchersContext, make_one_off_interactive_user_context
+from couchers.helpers.hosting_meetup_status import record_hosting_meetup_status
 from couchers.models import (
     GroupChat,
     GroupChatSubscription,
+    HostingMeetupStatusSource,
     HostingStatus,
     MeetupStatus,
     NotificationDeliveryType,
@@ -20,7 +22,7 @@ from couchers.models import (
 )
 from couchers.notifications import settings
 from couchers.notifications.utils import enum_from_topic_action
-from couchers.proto import conversations_pb2, requests_pb2
+from couchers.proto import messages_pb2, requests_pb2
 from couchers.proto.internal import unsubscribe_pb2
 from couchers.servicers.requests import Requests
 from couchers.sql import where_moderated_content_visible
@@ -39,6 +41,7 @@ def handle_unsubscribe(payload: unsubscribe_pb2.UnsubscribePayload, context: Cou
         user.do_not_email = True
         user.hosting_status = HostingStatus.cant_host
         user.meetup_status = MeetupStatus.does_not_want_to_meetup
+        record_hosting_meetup_status(session, user, HostingMeetupStatusSource.unsubscribe_link)
         return context.localization.localize_string("quick_links.do_not_email")
 
     if payload.HasField("topic_action"):
@@ -83,7 +86,7 @@ def handle_unsubscribe(payload: unsubscribe_pb2.UnsubscribePayload, context: Cou
         Requests().RespondHostRequest(
             request=requests_pb2.RespondHostRequestReq(
                 host_request_id=payload.host_request_quick_decline.host_request_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_REJECTED,
             ),
             context=make_one_off_interactive_user_context(couchers_context=context, user_id=payload.user_id),
             session=session,

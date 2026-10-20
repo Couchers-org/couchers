@@ -19,31 +19,17 @@ const StyledWrapper = styled("div")(({ theme }) => ({
   },
 }));
 
-export default function CommunityBase({
-  children,
-  communityId,
-}: CommunityBaseProps) {
+export default function CommunityBase({ children, communityId }: CommunityBaseProps) {
   const { t } = useTranslation([COMMUNITIES]);
 
-  const {
-    isLoading: isCommunityLoading,
-    error: communityError,
-    data: community,
-  } = useCommunity(communityId);
+  const { isLoading: isCommunityLoading, error: communityError, data: community } = useCommunity(communityId);
 
-  if (!communityId)
-    return (
-      <Alert severity="error">{t("communities:invalid_community_id")}</Alert>
-    );
+  if (!communityId) return <Alert severity="error">{t("communities:invalid_community_id")}</Alert>;
 
   if (isCommunityLoading) return <CenteredSpinner />;
 
   if (!community || communityError)
-    return (
-      <Alert severity="error">
-        {communityError?.message || t("communities:error_loading_community")}
-      </Alert>
-    );
+    return <Alert severity="error">{communityError?.message || t("communities:error_loading_community")}</Alert>;
 
   return <StyledWrapper>{children({ community })}</StyledWrapper>;
 }

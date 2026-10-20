@@ -33,7 +33,7 @@ def test_all_notifications_appear_in_settings() -> None:
 def test_all_notifications_have_descriptions() -> None:
     for topic_action in NotificationTopicAction:
         # Will throw if there's no string
-        assert get_topic_action_description(topic_action, locale=DEFAULT_LOCALE) != ""
+        assert get_topic_action_description(topic_action, locales=[DEFAULT_LOCALE]) != ""
 
 
 def test_topic_action_unsubscribe_text_iff_unsubscribable() -> None:

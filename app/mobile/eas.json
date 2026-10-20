@@ -57,6 +57,13 @@
       "android": {
         "buildType": "apk"
       }
+    },
+    "devtool-simulator": {
+      "extends": "devtool",
+      "distribution": "internal",
+      "ios": {
+        "simulator": true
+      }
     }
   },
   "submit": {

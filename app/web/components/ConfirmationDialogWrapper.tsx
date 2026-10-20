@@ -2,13 +2,7 @@ import { useTranslation } from "i18n";
 import React, { ReactElement, useState } from "react";
 
 import Button from "./Button";
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-} from "./Dialog";
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "./Dialog";
 
 interface ConfirmationDialogWrapperProps {
   children: (setIsOpen: (value: boolean) => void) => ReactElement;
@@ -46,9 +40,7 @@ export default function ConfirmationDialogWrapper({
           <Button variant="outlined" onClick={() => setIsOpen(false)}>
             {cancelButtonLabel ?? t("cancel")}
           </Button>
-          <Button onClick={handleConfirm}>
-            {confirmButtonLabel ? confirmButtonLabel : t("confirm")}
-          </Button>
+          <Button onClick={handleConfirm}>{confirmButtonLabel ? confirmButtonLabel : t("confirm")}</Button>
         </DialogActions>
       </Dialog>
     </>

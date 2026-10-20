@@ -4,7 +4,7 @@ import ControlMessageView from "features/messages/messagelist/ControlMessageView
 import { isControlMessage } from "features/messages/utils";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
-import { Message } from "proto/conversations_pb";
+import { Message } from "proto/messages_pb";
 import * as React from "react";
 import { theme } from "theme";
 
@@ -35,6 +35,7 @@ interface MessageListProps {
   markLastSeen(messageId: number): void;
   className?: string;
   isDm?: boolean;
+  isOffer?: boolean;
 }
 
 export default function MessageList({
@@ -42,6 +43,7 @@ export default function MessageList({
   messages,
   className,
   isDm = false,
+  isOffer = false,
 }: MessageListProps) {
   const { t } = useTranslation(MESSAGES);
 
@@ -54,6 +56,7 @@ export default function MessageList({
               key={message.messageId}
               onVisible={() => markLastSeen(message.messageId)}
               message={message}
+              isOffer={isOffer}
             />
           ) : (
             <MessageWrapper

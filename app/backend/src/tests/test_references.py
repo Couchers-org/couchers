@@ -19,22 +19,57 @@ from couchers.models import (
     ModerationObjectType,
     ModerationState,
     ModerationVisibility,
+    Node,
+    NodeType,
     Reference,
     ReferenceType,
     User,
 )
+from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.moderation.utils import create_moderation
-from couchers.proto import conversations_pb2, moderation_pb2, references_pb2, requests_pb2
-from couchers.utils import create_coordinate, now, to_aware_datetime, today
+from couchers.proto import api_pb2, messages_pb2, moderation_pb2, references_pb2, requests_pb2
+from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_aware_datetime, to_multi, today
 from tests.fixtures.db import generate_user, make_friends, make_user_block
 from tests.fixtures.misc import EmailCollector, PushCollector
-from tests.fixtures.sessions import account_session, real_moderation_session, references_session, requests_session
+from tests.fixtures.sessions import (
+    account_session,
+    api_session,
+    real_moderation_session,
+    references_session,
+    requests_session,
+)
 from tests.test_requests import valid_request_text
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
+def create_public_trip(session: Session, user_id: int, from_date: date, to_date: date) -> int:
+    node = session.execute(select(Node).limit(1)).scalar_one_or_none()
+    if node is None:
+        node = Node(
+            geom=to_multi(create_polygon_lat_lng([[0, 0], [0, 2], [2, 2], [2, 0], [0, 0]])),
+            node_type=NodeType.locality,
+        )
+        session.add(node)
+        session.flush()
+    moderation_state = ModerationState(
+        object_type=ModerationObjectType.public_trip,
+        object_id=0,
+        visibility=ModerationVisibility.visible,
+    )
+    session.add(moderation_state)
+    session.flush()
+    trip = PublicTrip(
+        user_id=user_id,
+        node_id=node.id,
+        from_date=from_date,
+        to_date=to_date,
+        description="Looking for a host!",
+        status=PublicTripStatus.searching_for_host,
+        moderation_state_id=moderation_state.id,
+    )
+    session.add(trip)
+    session.flush()
+    moderation_state.object_id = trip.id
+    return trip.id
 
 
 def create_host_request(
@@ -45,20 +80,33 @@ def create_host_request(
     status: HostRequestStatus = HostRequestStatus.confirmed,
     host_reason_didnt_meetup: str | None = None,
     surfer_reason_didnt_meetup: str | None = None,
+    is_offer: bool = False,
 ) -> int:
     """
     Create a host request that's `host_request_age` old
+
+    If `is_offer`, it's an offer on a public trip, so the host initiated it and the surfer received it.
     """
     from_date = today() - host_request_age - timedelta(days=2)
     to_date = today() - host_request_age
     fake_created = now() - host_request_age - timedelta(days=3)
+
+    if is_offer:
+        initiator_user_id, recipient_user_id = host_user_id, surfer_user_id
+        initiator_reason, recipient_reason = host_reason_didnt_meetup, surfer_reason_didnt_meetup
+    else:
+        initiator_user_id, recipient_user_id = surfer_user_id, host_user_id
+        initiator_reason, recipient_reason = surfer_reason_didnt_meetup, host_reason_didnt_meetup
+
+    public_trip_id = create_public_trip(session, surfer_user_id, from_date, to_date) if is_offer else None
+
     conversation = Conversation()
     session.add(conversation)
     session.flush()
 
     msg1 = Message(
         conversation_id=conversation.id,
-        author_id=surfer_user_id,
+        author_id=initiator_user_id,
         message_type=MessageType.chat_created,
     )
     msg1.time = fake_created + timedelta(seconds=1)
@@ -66,8 +114,8 @@ def create_host_request(
 
     msg2 = Message(
         conversation_id=conversation.id,
-        author_id=surfer_user_id,
-        text="Hi, I'm requesting to be hosted.",
+        author_id=initiator_user_id,
+        text="Hi, I'm requesting to be hosted." if not is_offer else "Hi, I'd love to host you.",
         message_type=MessageType.text,
     )
     msg2.time = fake_created + timedelta(seconds=2)
@@ -78,23 +126,24 @@ def create_host_request(
         session,
         ModerationObjectType.host_request,
         conversation.id,
-        surfer_user_id,
+        initiator_user_id,
     )
 
     host_request = HostRequest(
         conversation_id=conversation.id,
-        initiator_user_id=surfer_user_id,
-        recipient_user_id=host_user_id,
+        initiator_user_id=initiator_user_id,
+        recipient_user_id=recipient_user_id,
         from_date=from_date,
         to_date=to_date,
         status=status,
         initiator_last_seen_message_id=msg2.id,
-        recipient_reason_didnt_meetup=host_reason_didnt_meetup,
-        initiator_reason_didnt_meetup=surfer_reason_didnt_meetup,
+        recipient_reason_didnt_meetup=recipient_reason,
+        initiator_reason_didnt_meetup=initiator_reason,
         hosting_city="Test City",
         hosting_location=create_coordinate(0, 0),
         hosting_radius=10,
         moderation_state_id=moderation_state.id,
+        public_trip_id=public_trip_id,
     )
     session.add(host_request)
     session.commit()
@@ -410,6 +459,50 @@ def test_ListPagination(db):
         assert [ref.reference_id for ref in res.references] == [ref5]
         assert not res.next_page_token
 
+    with api_session(token2) as api:
+        # the reference count matches the 9 references visible in the list; ref6hidden is excluded
+        # because it's still hidden by the reciprocal-reference rule
+        assert api.GetUser(api_pb2.GetUserReq(user=user1.username)).num_references == 9
+        # user8 received ref8c, visible because both references of the pair were written
+        assert api.GetUser(api_pb2.GetUserReq(user=user8.username)).num_references == 1
+        # user6 wrote references but received none
+        assert api.GetUser(api_pb2.GetUserReq(user=user6.username)).num_references == 0
+
+
+def test_num_references_matches_visible_list(db):
+    # Regression test: the reference count (User.num_references) must not include references that
+    # are still hidden by the reciprocal-reference rule, otherwise the count leaks the existence
+    # of a hidden reference and disagrees with what ListReferences shows.
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        # user2 wrote user1 a reference for a recent stay; the 2-week window is still open and
+        # user1 has not written their reciprocal reference yet, so this reference is hidden.
+        create_host_reference(session, user2.id, user1.id, timedelta(days=3), surfing=False)
+
+    with references_session(token2) as api:
+        res = api.ListReferences(references_pb2.ListReferencesReq(to_user_id=user1.id))
+        assert len(res.references) == 0
+
+    with api_session(token2) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
+        # count must agree with the (empty) list, not leak the hidden reference
+        assert res.num_references == 0
+
+    with session_scope() as session:
+        host_request_id = session.execute(select(HostRequest.conversation_id)).scalar_one()
+        # user1 writes the reciprocal reference: now both references become visible
+        create_host_reference(session, user1.id, user2.id, timedelta(days=2), host_request_id=host_request_id)
+
+    with references_session(token2) as api:
+        res = api.ListReferences(references_pb2.ListReferencesReq(to_user_id=user1.id))
+        assert len(res.references) == 1
+
+    with api_session(token2) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
+        assert res.num_references == 1
+
 
 def test_ListReference_banned_deleted_users(db):
     user1, token1 = generate_user()
@@ -428,6 +521,9 @@ def test_ListReference_banned_deleted_users(db):
         assert len(refs_rec) == 2
         assert len(refs_sent) == 2
 
+    with api_session(token1) as api:
+        assert api.GetUser(api_pb2.GetUserReq(user=user1.username)).num_references == 2
+
     # ban user2
     with session_scope() as session:
         session.execute(update(User).where(User.username == user2.username).values(banned_at=func.now()))
@@ -439,6 +535,9 @@ def test_ListReference_banned_deleted_users(db):
         assert len(refs_rec) == 1
         assert len(refs_sent) == 1
 
+    with api_session(token1) as api:
+        assert api.GetUser(api_pb2.GetUserReq(user=user1.username)).num_references == 1
+
     # delete user3
     with session_scope() as session:
         session.execute(update(User).where(User.username == user3.username).values(deleted_at=func.now()))
@@ -449,6 +548,48 @@ def test_ListReference_banned_deleted_users(db):
         refs_sent = api.ListReferences(references_pb2.ListReferencesReq(from_user_id=user1.id)).references
         assert len(refs_rec) == 1
         assert len(refs_sent) == 1
+
+    with api_session(token1) as api:
+        assert api.GetUser(api_pb2.GetUserReq(user=user1.username)).num_references == 1
+
+
+def test_ListReference_blocked_shadowed_users(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+
+    with session_scope() as session:
+        create_friend_reference(session, user2.id, user1.id, timedelta(days=15))
+        create_friend_reference(session, user3.id, user1.id, timedelta(days=16))
+
+    # user1 blocks user2: reference from blocked user remains in both list and count
+    make_user_block(user1, user2)
+
+    with references_session(token1) as api:
+        refs_rec = api.ListReferences(references_pb2.ListReferencesReq(to_user_id=user1.id)).references
+        assert len(refs_rec) == 2
+
+    with api_session(token1) as api:
+        assert api.GetUser(api_pb2.GetUserReq(user=user1.username)).num_references == 2
+
+    # shadow user3: their reference is hidden from both list and count
+    with session_scope() as session:
+        session.execute(update(User).where(User.username == user3.username).values(shadowed_at=func.now()))
+
+    with references_session(token1) as api:
+        refs_rec = api.ListReferences(references_pb2.ListReferencesReq(to_user_id=user1.id)).references
+        assert len(refs_rec) == 1
+
+    with api_session(token1) as api:
+        assert api.GetUser(api_pb2.GetUserReq(user=user1.username)).num_references == 1
+
+    # the shadowed author still sees their own reference in both, so the shadow ban isn't leaked
+    with references_session(token3) as api:
+        refs_rec = api.ListReferences(references_pb2.ListReferencesReq(to_user_id=user1.id)).references
+        assert len(refs_rec) == 2
+
+    with api_session(token3) as api:
+        assert api.GetUser(api_pb2.GetUserReq(user=user1.username)).num_references == 2
 
 
 def test_WriteFriendReference(db, moderator):
@@ -711,6 +852,65 @@ def test_host_request_states_references(db, moderator):
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == "You can't write a reference for that host request, or it wasn't found."
+
+
+def test_public_trip_offer_reference_roles(db, moderator):
+    """An offer reverses initiator/recipient, so the reference types have to come from the stay role."""
+    surfer, surfer_token = generate_user()
+    host, host_token = generate_user()
+
+    with session_scope() as session:
+        host_request_id = create_host_request(session, surfer.id, host.id, timedelta(days=7), is_offer=True)
+
+    moderator.approve_host_request(host_request_id)
+    # ListPendingReferencesToWrite reads the other user out of the LiteUser matview
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+
+    with references_session(surfer_token) as api:
+        available = api.AvailableWriteReferences(
+            references_pb2.AvailableWriteReferencesReq(to_user_id=host.id)
+        ).available_write_references
+        assert [r.reference_type for r in available] == [references_pb2.REFERENCE_TYPE_SURFED]
+        pending = api.ListPendingReferencesToWrite(empty_pb2.Empty()).pending_references
+        assert [r.reference_type for r in pending] == [references_pb2.REFERENCE_TYPE_SURFED]
+
+        api.WriteHostRequestReference(
+            references_pb2.WriteHostRequestReferenceReq(
+                host_request_id=host_request_id,
+                text="Thanks for having me!",
+                was_appropriate=True,
+                rating=0.9,
+            )
+        )
+
+    with references_session(host_token) as api:
+        available = api.AvailableWriteReferences(
+            references_pb2.AvailableWriteReferencesReq(to_user_id=surfer.id)
+        ).available_write_references
+        assert [r.reference_type for r in available] == [references_pb2.REFERENCE_TYPE_HOSTED]
+        pending = api.ListPendingReferencesToWrite(empty_pb2.Empty()).pending_references
+        assert [r.reference_type for r in pending] == [references_pb2.REFERENCE_TYPE_HOSTED]
+
+        api.WriteHostRequestReference(
+            references_pb2.WriteHostRequestReferenceReq(
+                host_request_id=host_request_id,
+                text="Great guest!",
+                was_appropriate=True,
+                rating=0.9,
+            )
+        )
+
+    with session_scope() as session:
+        references = {
+            reference.from_user_id: reference
+            for reference in session.execute(
+                select(Reference).where(Reference.host_request_id == host_request_id)
+            ).scalars()
+        }
+        assert references[surfer.id].reference_type == ReferenceType.surfed
+        assert references[surfer.id].to_user_id == host.id
+        assert references[host.id].reference_type == ReferenceType.hosted
+        assert references[host.id].to_user_id == surfer.id
 
 
 def test_WriteHostRequestReference(db, moderator):
@@ -1215,14 +1415,14 @@ def test_regression_disappearing_refs(db, hs, moderator):
     with requests_session(token2) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+                host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
             )
         )
 
     with requests_session(token1) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
+                host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
             )
         )
 

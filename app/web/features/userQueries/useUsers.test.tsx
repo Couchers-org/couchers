@@ -120,9 +120,7 @@ describe("when useUsers has loaded", () => {
   it("returns isError as true and some user data with the errors if some getUser queries failed", async () => {
     mockConsoleError();
     getUserMock.mockImplementation((userId: string) => {
-      return userId === "2"
-        ? Promise.reject(new Error(`Error fetching user ${userId}`))
-        : getUser(userId);
+      return userId === "2" ? Promise.reject(new Error(`Error fetching user ${userId}`)) : getUser(userId);
     });
 
     const { result } = renderHook(() => useUsers([1, 2, 3]), {
@@ -159,11 +157,7 @@ describe("when useUsers has loaded", () => {
         [2, undefined],
         [3, undefined],
       ]),
-      errors: [
-        "Error fetching user data",
-        "Error fetching user data",
-        "Error fetching user data",
-      ],
+      errors: ["Error fetching user data", "Error fetching user data", "Error fetching user data"],
       isError: true,
       isFetching: false,
       isLoading: false,
@@ -207,7 +201,7 @@ describe("cached data", () => {
         }),
       ),
     );
-    await waitFor(() => expect(getUserMock).toBeCalledTimes(3));
+    await waitFor(() => expect(getUserMock).toHaveBeenCalledTimes(3));
   });
 
   it("is returned when stale if subsequent refetch queries fail", async () => {
@@ -225,11 +219,7 @@ describe("cached data", () => {
         [2, users[1]],
         [3, users[2]],
       ]),
-      errors: [
-        "Error fetching user data",
-        "Error fetching user data",
-        "Error fetching user data",
-      ],
+      errors: ["Error fetching user data", "Error fetching user data", "Error fetching user data"],
       isError: true,
       isFetching: false,
       isLoading: false,
@@ -290,7 +280,7 @@ describe("cached data", () => {
     getUserMock.mockClear();
     act(() => result.current.setIds([1, 2]));
 
-    expect(getUserMock).toBeCalledTimes(2);
+    expect(getUserMock).toHaveBeenCalledTimes(2);
   });
 
   it("returns isRefetching as true when new IDs are being added", async () => {

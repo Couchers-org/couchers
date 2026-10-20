@@ -73,8 +73,7 @@ describe("updateProfile", () => {
   });
 
   it("updates the profile correctly when repeated value fields exist", async () => {
-    const { regionsLivedList, regionsVisitedList, languageAbilitiesList } =
-      user;
+    const { regionsLivedList, regionsVisitedList, languageAbilitiesList } = user;
     await updateProfile({
       ...nonEmptyUserValues,
       regionsLived: regionsLivedList,

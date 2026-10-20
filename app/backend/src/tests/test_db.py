@@ -3,14 +3,14 @@ import os
 import re
 import subprocess
 from pathlib import Path
-from typing import Any
 
 import pytest
 from google.protobuf import empty_pb2
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.sql import func
 
 from couchers.config import config
+from couchers.constants import VALID_NAME_MAX_LENGTH
 from couchers.db import _get_base_engine, apply_migrations, get_parent_node_at_location, session_scope
 from couchers.jobs.handlers import DatabaseInconsistencyError, check_database_consistency
 from couchers.models import User
@@ -21,12 +21,12 @@ from couchers.utils import (
     is_valid_username,
     parse_date,
 )
+from tests.conftest import TEST_DB_NAME
 from tests.fixtures.db import (
     create_schema_from_models,
     drop_database,
     generate_user,
     pg_dump_is_available,
-    populate_testing_resources,
 )
 from tests.test_communities import create_1d_point, get_community_id, testing_communities  # noqa
 
@@ -66,28 +66,54 @@ def test_is_valid_username() -> None:
 
 
 def test_is_valid_name() -> None:
-    # valid names
+    # Basics
     assert is_valid_name("ab")
     assert is_valid_name("a b")
-    assert is_valid_name("O'Connor")
     assert is_valid_name("Jean-Luc")
-    assert is_valid_name("老子")
 
-    # invalid: too short
+    # OK punctuation
+    assert is_valid_name("King K. Rool")
+    assert is_valid_name("Doe, John")
+    assert is_valid_name("Alice & Bob")
+    assert is_valid_name("Alice / Bob")
+    assert is_valid_name("Alice | Bob")
+
+    # Apostrophes and Quotes
+    assert is_valid_name("O'Connor")
+    assert is_valid_name("William “Bill” Clinton")
+    assert is_valid_name("Sha’Nia Jenkins")
+
+    # Other scripts
+    assert is_valid_name("孙悟空")
+    assert is_valid_name("Combining Diặcritics")
+    assert is_valid_name("काव्य")  # Hindi combining diacritics
+    assert is_valid_name("Meritxell Col·lell")  # Catalan middle dot
+    assert is_valid_name("レオナルド・ディカプリオ")  # Japanese middle dot
+    assert is_valid_name("Lanaʻi")  # Hawaiian ʻokina glottal stop
+
+    # invalid: too short / too long
     assert not is_valid_name("a")
+    assert not is_valid_name("a" * (VALID_NAME_MAX_LENGTH + 1))
     # invalid: only whitespace
     assert not is_valid_name("	")
     assert not is_valid_name("")
     assert not is_valid_name(" ")
     assert not is_valid_name("  ")
     # invalid: leading/trailing whitespace
-    assert not is_valid_name(" ab")
-    assert not is_valid_name("ab ")
-    assert not is_valid_name(" ab ")
-    # invalid: contains characters outside of letters/whitespace/'/-
-    assert not is_valid_name("1")
-    # invalid: too long
-    assert not is_valid_name("a" * 101)
+    assert not is_valid_name(" leading whitespace")
+    assert not is_valid_name("trailing whitespace ")
+    assert not is_valid_name(" surrounding whitespace ")
+    assert not is_valid_name(chr(0xA0) + "Anne")  # leading non-breaking space
+    assert not is_valid_name("Anne" + chr(0xA0))  # trailing non-breaking space
+    assert not is_valid_name("\n")
+    # invalid: disallowed characters
+    assert not is_valid_name("digits123")
+    assert not is_valid_name("email@domain.com")
+    assert not is_valid_name("Frosty the ☃️")
+    assert not is_valid_name("exclamative!")
+    assert not is_valid_name("interrogative?")
+    assert not is_valid_name("under_score")
+    assert not is_valid_name("(╯‵□′)╯︵┻━┻")
 
 
 def test_parse_date() -> None:
@@ -160,24 +186,36 @@ def strip_leading_whitespace(lines: list[str]) -> list[str]:
 
 
 @pytest.fixture
-def restore_db_after_migration_test(db):
+def migration_test_db(postgres_conn):
+    """
+    Points everything at a scratch database for the duration of the test.
+
+    The schemas compared here should look like production's, and the test database doesn't: its
+    column defaults bind mock.now() so the timewarp fixture can shift the clock. Building somewhere
+    else keeps the mock out of both dumps and leaves the test database alone, which this test would
+    otherwise destroy and have to rebuild.
+    """
+    migration_db_name = f"{TEST_DB_NAME}_migrations"
+    postgres_conn.execute(text(f"DROP DATABASE IF EXISTS {migration_db_name} WITH (FORCE)"))
+    postgres_conn.execute(text(f"CREATE DATABASE {migration_db_name}"))
+
+    previous_dsn = config.DATABASE_CONNECTION_STRING
+    config.DATABASE_CONNECTION_STRING = previous_dsn.rsplit("/", 1)[0] + "/" + migration_db_name
+    # the cached engine still points at the test database, and clearing the cache would drop it
+    # with its pooled connections still open
+    _get_base_engine().dispose()
+    _get_base_engine.cache_clear()
     try:
         yield
     finally:
-        # Dispose the engine's connection pool since we dropped/recreated PostGIS extension,
-        # which invalidates cached operator OIDs in existing connections
-        engine = _get_base_engine()
-        engine.dispose()
-
-        # Restore test resources since we destroyed the database
-        # This is needed because setup_testdb is session-scoped and won't run again
-        with engine.connect() as conn:
-            populate_testing_resources(conn)
-            conn.commit()
+        _get_base_engine().dispose()
+        config.DATABASE_CONNECTION_STRING = previous_dsn
+        _get_base_engine.cache_clear()
+        postgres_conn.execute(text(f"DROP DATABASE IF EXISTS {migration_db_name} WITH (FORCE)"))
 
 
 @pytest.mark.skipif(not pg_dump_is_available(), reason="Can't run migration tests without pg_dump")
-def test_migrations(db, testconfig: dict[str, Any], restore_db_after_migration_test) -> None:
+def test_migrations(migration_test_db) -> None:
     """
     Compares the database schema built up from migrations with the
     schema built by models.py. Both scenarios are started from an
@@ -258,7 +296,7 @@ def test_slugify(db):
         )
 
 
-def test_database_consistency_check(db, testconfig: dict[str, Any]) -> None:
+def test_database_consistency_check(db) -> None:
     """The database consistency check should pass with valid user/gallery setup"""
     # Create a few users (which auto-creates their profile galleries)
     generate_user()

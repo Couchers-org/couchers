@@ -32,13 +32,5 @@ export function shouldLoadInWebView(url: string, webBaseUrl: string): boolean {
     return true;
   }
 
-  // reCAPTCHA (needed for form protection)
-  if (
-    url.includes("google.com/recaptcha") ||
-    url.includes("gstatic.com/recaptcha")
-  ) {
-    return true;
-  }
-
   return false;
 }

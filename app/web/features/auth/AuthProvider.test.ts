@@ -25,9 +25,7 @@ describe("AuthProvider", () => {
     const mockSetHandler = jest.fn((fn: (e: RpcError) => Promise<void>) => {
       handler = fn;
     });
-    jest
-      .spyOn(client, "setUnauthenticatedErrorHandler")
-      .mockImplementation(mockSetHandler);
+    jest.spyOn(client, "setUnauthenticatedErrorHandler").mockImplementation(mockSetHandler);
 
     const { result } = renderHook(() => useAuthContext(), {
       wrapper,
@@ -50,9 +48,7 @@ describe("AuthProvider", () => {
     const mockSetHandler = jest.fn((fn: (e: RpcError) => Promise<void>) => {
       handler = fn;
     });
-    jest
-      .spyOn(client, "setUnauthenticatedErrorHandler")
-      .mockImplementation(mockSetHandler);
+    jest.spyOn(client, "setUnauthenticatedErrorHandler").mockImplementation(mockSetHandler);
 
     const { result } = renderHook(() => useAuthContext(), {
       wrapper,

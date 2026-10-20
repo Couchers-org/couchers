@@ -1,10 +1,5 @@
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import {
-  FormControlLabel,
-  IconButton,
-  InputAdornment,
-  styled,
-} from "@mui/material";
+import { FormControlLabel, IconButton, InputAdornment, styled } from "@mui/material";
 import CustomColorSwitch from "components/CustomColorSwitch";
 import StyledLink from "components/StyledLink";
 import { doAntibot } from "features/antibot/antibot";
@@ -18,12 +13,7 @@ import { resetPasswordRoute } from "routes";
 import isGrpcError from "service/utils/isGrpcError";
 import { lowercaseAndTrimField } from "utils/validation";
 
-import {
-  StyledButton,
-  StyledForm,
-  StyledInputLabel,
-  StyledTextField,
-} from "../useAuthStyles";
+import { StyledButton, StyledForm, StyledInputLabel, StyledTextField } from "../useAuthStyles";
 
 const StyledFormControlLabel = styled(FormControlLabel)(({ theme }) => ({
   display: "block",
@@ -56,41 +46,31 @@ export default function LoginForm() {
     rememberDevice: boolean;
   }>();
 
-  const onSubmit = handleSubmit(
-    async (data: {
-      username: string;
-      password: string;
-      rememberDevice: boolean;
-    }) => {
-      setLoading(true);
-      authActions.clearError();
-      doAntibot("login");
-      try {
-        authActions.passwordLogin({
-          username: lowercaseAndTrimField(data.username),
-          password: data.password,
-          rememberDevice: data.rememberDevice,
-        });
-      } catch (e) {
-        Sentry.captureException(e, {
-          tags: {
-            featureArea: "auth/login",
-          },
-        });
-        authActions.authError(
-          isGrpcError(e) ? e.message : t("global:error.fatal_message"),
-        );
-      }
-      setLoading(false);
-    },
-  );
+  const onSubmit = handleSubmit(async (data: { username: string; password: string; rememberDevice: boolean }) => {
+    setLoading(true);
+    authActions.clearError();
+    doAntibot("login");
+    try {
+      authActions.passwordLogin({
+        username: lowercaseAndTrimField(data.username),
+        password: data.password,
+        rememberDevice: data.rememberDevice,
+      });
+    } catch (e) {
+      Sentry.captureException(e, {
+        tags: {
+          featureArea: "auth/login",
+        },
+      });
+      authActions.authError(isGrpcError(e) ? e.message : t("global:error.fatal_message"));
+    }
+    setLoading(false);
+  });
 
   return (
     <>
       <StyledForm onSubmit={onSubmit}>
-        <StyledInputLabel htmlFor="username">
-          {t("auth:login_page.form.username_field_label")}
-        </StyledInputLabel>
+        <StyledInputLabel htmlFor="username">{t("auth:login_page.form.username_field_label")}</StyledInputLabel>
         <StyledTextField
           id="username"
           {...register("username", { required: true })}
@@ -99,9 +79,7 @@ export default function LoginForm() {
           autoComplete="email"
           placeholder="you@couchers.org"
         />
-        <StyledInputLabel htmlFor="password">
-          {t("auth:login_page.form.password_field_label")}
-        </StyledInputLabel>
+        <StyledInputLabel htmlFor="password">{t("auth:login_page.form.password_field_label")}</StyledInputLabel>
         <StyledTextField
           id="password"
           {...register("password", { required: true })}
@@ -116,9 +94,7 @@ export default function LoginForm() {
                 <InputAdornment position="end" sx={{ marginRight: 1 }}>
                   <IconButton
                     aria-label={
-                      showPassword
-                        ? t("auth:login_page.form.hide_password")
-                        : t("auth:login_page.form.show_password")
+                      showPassword ? t("auth:login_page.form.hide_password") : t("auth:login_page.form.show_password")
                     }
                     onClick={() => setShowPassword(!showPassword)}
                     edge="end"
@@ -149,17 +125,9 @@ export default function LoginForm() {
               />
             )}
           />
-          <StyledLink href={resetPasswordRoute}>
-            {t("auth:login_page.form.forgot_password")}
-          </StyledLink>
+          <StyledLink href={resetPasswordRoute}>{t("auth:login_page.form.forgot_password")}</StyledLink>
         </StyledLoginOptions>
-        <StyledButton
-          loading={loading || authLoading}
-          onClick={onSubmit}
-          type="submit"
-          variant="contained"
-          fullWidth
-        >
+        <StyledButton loading={loading || authLoading} onClick={onSubmit} type="submit" variant="contained" fullWidth>
           {t("global:login")}
         </StyledButton>
       </StyledForm>

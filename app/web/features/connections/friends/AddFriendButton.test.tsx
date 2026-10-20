@@ -15,9 +15,7 @@ const sendFriendRequestMock = service.api.sendFriendRequest as jest.Mock<
   ReturnType<typeof service.api.sendFriendRequest>
 >;
 
-const getAccountInfoMock = service.account.getAccountInfo as MockedService<
-  typeof service.account.getAccountInfo
->;
+const getAccountInfoMock = service.account.getAccountInfo as MockedService<typeof service.account.getAccountInfo>;
 
 const accountInfo = {
   username: "tester",
@@ -81,11 +79,7 @@ describe("AddFriendButton", () => {
     const user = userEvent.setup();
     await user.click(button);
 
-    expect(
-      await screen.findByText(
-        t("connections:add_friend_confirmation_dialog.title"),
-      ),
-    ).toBeVisible();
+    expect(await screen.findByText(t("connections:add_friend_confirmation_dialog.title"))).toBeVisible();
     expect(sendFriendRequestMock).not.toHaveBeenCalled();
   });
 
@@ -99,9 +93,7 @@ describe("AddFriendButton", () => {
 
     const user = userEvent.setup();
     await user.click(button);
-    await screen.findByText(
-      t("connections:add_friend_confirmation_dialog.title"),
-    );
+    await screen.findByText(t("connections:add_friend_confirmation_dialog.title"));
 
     await user.click(screen.getByRole("button", { name: t("global:cancel") }));
     expect(sendFriendRequestMock).not.toHaveBeenCalled();
@@ -126,11 +118,7 @@ describe("AddFriendButton", () => {
     );
 
     await waitFor(() =>
-      expect(
-        screen.queryByText(
-          t("connections:add_friend_confirmation_dialog.title"),
-        ),
-      ).not.toBeInTheDocument(),
+      expect(screen.queryByText(t("connections:add_friend_confirmation_dialog.title"))).not.toBeInTheDocument(),
     );
     expect(screen.getByRole("progressbar")).toBeVisible();
   });
@@ -157,9 +145,7 @@ describe("AddFriendButton", () => {
 
   it("sets an error if the add friend action failed", async () => {
     jest.spyOn(console, "error").mockReturnValue(undefined);
-    sendFriendRequestMock.mockRejectedValue(
-      new Error("Failed to add funny dog"),
-    );
+    sendFriendRequestMock.mockRejectedValue(new Error("Failed to add funny dog"));
     render(<TestComponent />, { wrapper });
 
     const button = screen.getByRole("button", {
@@ -175,9 +161,7 @@ describe("AddFriendButton", () => {
       }),
     );
 
-    expect(
-      await screen.findByText("Failed to add funny dog"),
-    ).toBeInTheDocument();
+    expect(await screen.findByText("Failed to add funny dog")).toBeInTheDocument();
   });
 
   it("pops up incomplete profile note if profile is incomplete", async () => {
@@ -192,9 +176,7 @@ describe("AddFriendButton", () => {
     const user = userEvent.setup();
     await user.click(button);
 
-    expect(
-      await screen.findByLabelText(t("profile:complete_profile_dialog.title")),
-    ).toBeVisible();
+    expect(await screen.findByLabelText(t("profile:complete_profile_dialog.title"))).toBeVisible();
     expect(sendFriendRequestMock).not.toHaveBeenCalled();
   });
 });

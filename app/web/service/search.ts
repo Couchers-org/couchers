@@ -5,18 +5,9 @@ import {
   SleepingArrangementOptions,
 } from "features/search/utils/constants";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
-import {
-  BoolValue,
-  StringValue,
-  UInt32Value,
-} from "google-protobuf/google/protobuf/wrappers_pb";
+import { BoolValue, StringValue, UInt32Value } from "google-protobuf/google/protobuf/wrappers_pb";
 import { HostingStatus, MeetupStatus } from "proto/api_pb";
-import {
-  EventSearchReq,
-  EventSearchRes,
-  RectArea,
-  UserSearchReq,
-} from "proto/search_pb";
+import { EventSearchReq, EventSearchRes, RectArea, UserSearchReq } from "proto/search_pb";
 import client from "service/client";
 import { GeocodeResult } from "utils/hooks";
 
@@ -112,11 +103,7 @@ function constructUserSearchReq(
   }
 
   if (showEmptyProfile !== undefined) {
-    req.setProfileCompleted(
-      showEmptyProfile
-        ? undefined
-        : new BoolValue().setValue(!showEmptyProfile),
-    );
+    req.setProfileCompleted(showEmptyProfile ? undefined : new BoolValue().setValue(!showEmptyProfile));
   }
 
   if (hasReferences) {
@@ -183,19 +170,19 @@ export async function EventSearch({
   pageSize,
   pastEvents,
   isMyCommunities,
-  isOnlineOnly,
   searchLocation,
   attending,
   organizing,
+  excludeAttending,
 }: {
   pageNumber: number;
   pageSize: number;
   pastEvents?: boolean;
   isMyCommunities?: boolean;
-  isOnlineOnly?: boolean;
   searchLocation?: GeocodeResult | "";
   attending?: boolean;
   organizing?: boolean;
+  excludeAttending?: boolean;
 }): Promise<EventSearchRes.AsObject> {
   const req = new EventSearchReq();
   req.setPageSize(pageSize);
@@ -223,14 +210,14 @@ export async function EventSearch({
   if (isMyCommunities !== undefined) {
     req.setMyCommunities(isMyCommunities);
   }
-  if (isOnlineOnly !== undefined) {
-    req.setOnlyOnline(isOnlineOnly);
-  }
   if (attending !== undefined) {
     req.setAttending(attending);
   }
   if (organizing !== undefined) {
     req.setOrganizing(organizing);
+  }
+  if (excludeAttending !== undefined) {
+    req.setExcludeAttending(excludeAttending);
   }
 
   const res = await client.search.eventSearch(req);

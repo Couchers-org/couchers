@@ -22,11 +22,6 @@ from tests.fixtures.sessions import bugs_session, real_bugs_session
 EAS_CLIENT_ID = uuid.UUID("11111111-1111-1111-1111-111111111111")
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def test_bugs_disabled():
     with bugs_session() as bugs, pytest.raises(grpc.RpcError) as e:
         bugs.ReportBug(
@@ -69,7 +64,7 @@ results
             assert json == {
                 "title": "subject",
                 "body": expected_body,
-                "labels": ["bug tool", "bug: triage needed"],
+                "labels": ["bug: triage needed"],
             }
 
             class _PostReturn:
@@ -80,28 +75,26 @@ results
 
             return _PostReturn()
 
-        new_config = config.copy()
-        new_config.BUG_TOOL_ENABLED = True
+        config.BUG_TOOL_ENABLED = True
 
-        with patch("couchers.servicers.bugs.config", new_config):
-            with patch("couchers.servicers.bugs.requests.post", dud_post):
-                res = bugs.ReportBug(
-                    bugs_pb2.ReportBugReq(
-                        subject="subject",
-                        description="description",
-                        results="results",
-                        frontend_version="frontend_version",
-                        user_agent="user_agent",
-                        screen_resolution=bugs_pb2.ScreenResolution(width=1920, height=1080),
-                        page="page",
-                    )
+        with patch("couchers.servicers.bugs.requests.post", dud_post):
+            res = bugs.ReportBug(
+                bugs_pb2.ReportBugReq(
+                    subject="subject",
+                    description="description",
+                    results="results",
+                    frontend_version="frontend_version",
+                    user_agent="user_agent",
+                    screen_resolution=bugs_pb2.ScreenResolution(width=1920, height=1080),
+                    page="page",
                 )
+            )
 
     assert res.bug_id == "#11"
     assert res.bug_url == "https://github.com/org/repo/issues/11"
 
 
-def test_bugs_with_user(db):
+def test_bugs_with_user(db, frozen_timewarp):
     user, token = generate_user(username="testing_user")
 
     with bugs_session(token) as bugs:
@@ -125,12 +118,13 @@ results
 **Locale**: `en`
 **Screen resolution**: 390x844
 **Page**: page
-**User**: [@testing_user](http://localhost:3000/user/testing_user) (1) / `test_sofa_co`""".strip()
+**User**: [@testing_user](http://localhost:3000/user/testing_user) (1) / `test_sofa_co`
+**Sentry (this user)**: https://couchers.sentry.io/issues/?project=1234&query=user.id%3A1&start=2019-12-31T00%3A00%3A00&end=2020-01-01T01%3A00%3A00&utc=true""".strip()
 
             assert json == {
                 "title": "subject",
                 "body": expected_body,
-                "labels": ["bug tool", "bug: triage needed"],
+                "labels": ["bug: triage needed"],
             }
 
             class _PostReturn:
@@ -141,25 +135,100 @@ results
 
             return _PostReturn()
 
-        new_config = config.copy()
-        new_config.BUG_TOOL_ENABLED = True
+        config.BUG_TOOL_ENABLED = True
 
-        with patch("couchers.servicers.bugs.config", new_config):
-            with patch("couchers.servicers.bugs.requests.post", dud_post):
-                res = bugs.ReportBug(
-                    bugs_pb2.ReportBugReq(
-                        subject="subject",
-                        description="description",
-                        results="results",
-                        frontend_version="frontend_version",
-                        user_agent="user_agent",
-                        screen_resolution=bugs_pb2.ScreenResolution(width=390, height=844),
-                        page="page",
-                    )
+        with patch("couchers.servicers.bugs.requests.post", dud_post):
+            res = bugs.ReportBug(
+                bugs_pb2.ReportBugReq(
+                    subject="subject",
+                    description="description",
+                    results="results",
+                    frontend_version="frontend_version",
+                    user_agent="user_agent",
+                    screen_resolution=bugs_pb2.ScreenResolution(width=390, height=844),
+                    page="page",
                 )
+            )
 
     assert res.bug_id == "#11"
     assert res.bug_url == "https://github.com/org/repo/issues/11"
+
+
+def test_bugs_with_sentry_replay(db):
+    with bugs_session() as bugs:
+
+        def dud_post(url, auth, json):
+            expected_body = f"""
+# subject
+## Description
+description
+
+## Results
+results
+
+## Diagnostics
+**Backend version**: `{config.VERSION}`
+**Frontend version**: `frontend_version`
+**User Agent**: `user_agent`
+**Locale**: `en`
+**Screen resolution**: 1920x1080
+**Page**: page
+**User**: <not logged in> / `test_sofa_co`
+**Session replay**: https://couchers.sentry.io/replays/0123456789abcdef0123456789abcdef/?project=1234""".strip()
+
+            assert json["body"] == expected_body
+
+            class _PostReturn:
+                status_code = 201
+
+                def json(self):
+                    return {"number": 11}
+
+            return _PostReturn()
+
+        config.BUG_TOOL_ENABLED = True
+
+        with patch("couchers.servicers.bugs.requests.post", dud_post):
+            bugs.ReportBug(
+                bugs_pb2.ReportBugReq(
+                    subject="subject",
+                    description="description",
+                    results="results",
+                    frontend_version="frontend_version",
+                    user_agent="user_agent",
+                    screen_resolution=bugs_pb2.ScreenResolution(width=1920, height=1080),
+                    page="page",
+                    sentry_replay_id="0123456789abcdef0123456789abcdef",
+                )
+            )
+
+
+def test_bugs_invalid_sentry_replay_id_omitted(db):
+    # A malformed/garbage replay id must not be interpolated into the issue at all.
+    with bugs_session() as bugs:
+
+        def dud_post(url, auth, json):
+            assert "Session replay" not in json["body"]
+
+            class _PostReturn:
+                status_code = 201
+
+                def json(self):
+                    return {"number": 11}
+
+            return _PostReturn()
+
+        config.BUG_TOOL_ENABLED = True
+
+        with patch("couchers.servicers.bugs.requests.post", dud_post):
+            bugs.ReportBug(
+                bugs_pb2.ReportBugReq(
+                    subject="subject",
+                    description="description",
+                    results="results",
+                    sentry_replay_id="not-a-replay-id](https://evil.example)",
+                )
+            )
 
 
 def test_bugs_fails_on_network_error(db):
@@ -171,23 +240,21 @@ def test_bugs_fails_on_network_error(db):
 
             return _PostReturn()
 
-        new_config = config.copy()
-        new_config.BUG_TOOL_ENABLED = True
+        config.BUG_TOOL_ENABLED = True
 
-        with patch("couchers.servicers.bugs.config", new_config):
-            with patch("couchers.servicers.bugs.requests.post", dud_post):
-                with pytest.raises(grpc.RpcError) as e:
-                    res = bugs.ReportBug(
-                        bugs_pb2.ReportBugReq(
-                            subject="subject",
-                            description="description",
-                            results="results",
-                            frontend_version="frontend_version",
-                            user_agent="user_agent",
-                            page="page",
-                        )
+        with patch("couchers.servicers.bugs.requests.post", dud_post):
+            with pytest.raises(grpc.RpcError) as e:
+                res = bugs.ReportBug(
+                    bugs_pb2.ReportBugReq(
+                        subject="subject",
+                        description="description",
+                        results="results",
+                        frontend_version="frontend_version",
+                        user_agent="user_agent",
+                        page="page",
                     )
-                assert e.value.code() == grpc.StatusCode.INTERNAL
+                )
+            assert e.value.code() == grpc.StatusCode.INTERNAL
 
 
 def test_version():

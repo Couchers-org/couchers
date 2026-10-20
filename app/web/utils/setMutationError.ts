@@ -1,3 +1,1 @@
-export type SetMutationError = React.Dispatch<
-  React.SetStateAction<string | null>
->;
+export type SetMutationError = React.Dispatch<React.SetStateAction<string | null>>;

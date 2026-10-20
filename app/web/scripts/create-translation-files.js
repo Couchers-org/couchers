@@ -348,102 +348,9 @@ const LANGUAGE_NAMES = {
   nn: "Norwegian Nynorsk",
 };
 
-// Flag codes mapping (ISO 3166-1 alpha-2 country codes)
-const FLAG_CODES = {
-  sv: "SE",
-  uk: "UA",
-  de: "DE",
-  fr: "FR",
-  es: "ES",
-  it: "IT",
-  pt: "PT",
-  ru: "RU",
-  pl: "PL",
-  cs: "CZ",
-  sk: "SK",
-  hu: "HU",
-  ro: "RO",
-  bg: "BG",
-  hr: "HR",
-  sr: "RS",
-  bs: "BA",
-  mk: "MK",
-  sl: "SI",
-  et: "EE",
-  lv: "LV",
-  lt: "LT",
-  el: "GR",
-  mt: "MT",
-  ca: "ES", // Catalan uses Spanish flag
-  eu: "ES", // Basque uses Spanish flag
-  gl: "ES", // Galician uses Spanish flag
-  cy: "GB", // Welsh uses UK flag
-  ga: "IE",
-  gd: "GB", // Scottish Gaelic uses UK flag
-  is: "IS",
-  fo: "FO",
-  sq: "AL",
-  hy: "AM",
-  ka: "GE",
-  az: "AZ",
-  kk: "KZ",
-  ky: "KG",
-  uz: "UZ",
-  tk: "TM",
-  tt: "RU", // Tatar uses Russian flag
-  mn: "MN",
-  ko: "KR",
-  ja: "JP",
-  zh: "CN",
-  th: "TH",
-  vi: "VN",
-  km: "KH",
-  lo: "LA",
-  my: "MM",
-  bn: "BD",
-  ta: "IN",
-  te: "IN",
-  ml: "IN",
-  kn: "IN",
-  mr: "IN",
-  gu: "IN",
-  pa: "IN",
-  hi: "IN",
-  ur: "PK",
-  ne: "NP",
-  si: "LK",
-  dv: "MV",
-  ps: "AF",
-  fa: "IR",
-  he: "IL",
-  ar: "SA", // Arabic uses Saudi Arabia flag
-  tr: "TR",
-  id: "ID",
-  ms: "MY",
-  tl: "PH",
-  sw: "TZ",
-  am: "ET",
-  ti: "ER",
-  so: "SO",
-  ha: "NG",
-  yo: "NG",
-  ig: "NG",
-  zu: "ZA",
-  xh: "ZA",
-  af: "ZA",
-  nl: "NL",
-  da: "DK",
-  no: "NO",
-  fi: "FI",
-  nb: "NO",
-  nn: "NO",
-};
-
 function validateLanguageCode(code) {
   if (!code) {
-    throw new Error(
-      "❌ No language code provided. Usage: yarn create-translation-files <language-code>",
-    );
+    throw new Error("❌ No language code provided. Usage: yarn create-translation-files <language-code>");
   }
 
   if (!VALID_LANGUAGE_CODES.includes(code)) {
@@ -468,12 +375,7 @@ function findEnJsonFiles(dir, baseDir = "") {
 
       if (stat.isDirectory()) {
         // Skip node_modules and other common directories to avoid
-        if (
-          item === "node_modules" ||
-          item === ".git" ||
-          item === "dist" ||
-          item === "build"
-        ) {
+        if (item === "node_modules" || item === ".git" || item === "dist" || item === "build") {
           continue;
         }
         // Skip the mod folder
@@ -487,19 +389,14 @@ function findEnJsonFiles(dir, baseDir = "") {
     }
   } catch (error) {
     // Skip directories we can't read
-    console.warn(
-      `⚠️  Warning: Could not read directory ${dir}: ${error.message}`,
-    );
+    console.warn(`⚠️  Warning: Could not read directory ${dir}: ${error.message}`);
   }
 
   return files;
 }
 
 function createTranslationFile(filePath, languageCode) {
-  const targetPath = filePath.replace(
-    "en.json",
-    `${languageCode.replace("-", "_")}.json`,
-  );
+  const targetPath = filePath.replace("en.json", `${languageCode.replace("-", "_")}.json`);
 
   // Create directory if it doesn't exist
   const targetDir = path.dirname(targetPath);
@@ -520,20 +417,8 @@ function getLanguageName(code) {
   return LANGUAGE_NAMES[baseCode] || LANGUAGE_NAMES[code] || code;
 }
 
-function getFlagCode(code) {
-  // Handle variants like 'es-419', 'fr-CA', etc.
-  const baseCode = code.split("-")[0];
-  return FLAG_CODES[baseCode] || FLAG_CODES[code] || null;
-}
-
 function addToResourceLanguageNames(languageCode) {
-  const resourcesEnPath = path.join(
-    __dirname,
-    "..",
-    "resources",
-    "locales",
-    "en.json",
-  );
+  const resourcesEnPath = path.join(__dirname, "..", "resources", "locales", "en.json");
 
   try {
     const raw = fs.readFileSync(resourcesEnPath, "utf8");
@@ -544,9 +429,7 @@ function addToResourceLanguageNames(languageCode) {
     }
 
     if (json.language_names[languageCode]) {
-      console.log(
-        `⚠️  language_names already contains "${languageCode}" in resources en.json`,
-      );
+      console.log(`⚠️  language_names already contains "${languageCode}" in resources en.json`);
       return false;
     }
 
@@ -555,42 +438,29 @@ function addToResourceLanguageNames(languageCode) {
 
     // Write pretty-printed JSON with trailing newline
     fs.writeFileSync(resourcesEnPath, JSON.stringify(json, null, 2) + "\n");
-    console.log(
-      `✅ Added "${languageCode}": "${displayName}" to en.json translation file`,
-    );
+    console.log(`✅ Added "${languageCode}": "${displayName}" to en.json translation file`);
     return true;
   } catch (error) {
-    console.error(
-      `❌ Failed to update resources language_names: ${error.message}`,
-    );
+    console.error(`❌ Failed to update resources language_names: ${error.message}`);
     return false;
   }
 }
 
 function addToAllLanguages(languageCode) {
-  const allLanguagesPath = path.join(
-    __dirname,
-    "..",
-    "i18n",
-    "allLanguages.js",
-  );
+  const allLanguagesPath = path.join(__dirname, "..", "i18n", "allLanguages.js");
 
   try {
     let content = fs.readFileSync(allLanguagesPath, "utf8");
 
     // Check if language already exists
     if (content.includes(`"${languageCode}"`)) {
-      console.log(
-        `⚠️  Language "${languageCode}" already exists in allLanguages.js`,
-      );
+      console.log(`⚠️  Language "${languageCode}" already exists in allLanguages.js`);
       return false;
     }
 
     // Find the array and add the language code in alphabetical order
     const lines = content.split("\n");
-    const languageArrayStart = lines.findIndex((line) =>
-      line.includes("const allLanguages = ["),
-    );
+    const languageArrayStart = lines.findIndex((line) => line.includes("const allLanguages = ["));
 
     if (languageArrayStart === -1) {
       throw new Error("Could not find allLanguages array");
@@ -627,7 +497,7 @@ function addToAllLanguages(languageCode) {
   }
 }
 
-function addToConstants(languageCode, languageName, flagCode) {
+function addToConstants(languageCode, languageName) {
   const constantsPath = path.join(__dirname, "..", "i18n", "constants.ts");
 
   try {
@@ -635,17 +505,13 @@ function addToConstants(languageCode, languageName, flagCode) {
 
     // Check if language already exists
     if (content.includes(`${languageCode}: {`)) {
-      console.log(
-        `⚠️  Language "${languageCode}" already exists in constants.ts`,
-      );
+      console.log(`⚠️  Language "${languageCode}" already exists in constants.ts`);
       return false;
     }
 
     // Find the LANGUAGE_MAP object
     const lines = content.split("\n");
-    const mapStart = lines.findIndex((line) =>
-      line.includes("export const LANGUAGE_MAP: LanguageMap = {"),
-    );
+    const mapStart = lines.findIndex((line) => line.includes("export const LANGUAGE_MAP: LanguageMap = {"));
 
     if (mapStart === -1) {
       throw new Error("Could not find LANGUAGE_MAP");
@@ -672,8 +538,9 @@ function addToConstants(languageCode, languageName, flagCode) {
     const indent = "  ";
     const newEntry = [
       `${indent}"${languageCode}": {`,
-      `${indent}  name: "${languageName}",`,
-      `${indent}  flagIconCode: "${flagCode || "XX"}",`,
+      // Placeholder autonym — a maintainer should replace this with the
+      // language's name in its own language (shown in the language picker).
+      `${indent}  nativeName: "${languageName}",`,
       `${indent}},`,
     ];
 
@@ -735,12 +602,9 @@ function main() {
       createdCount++;
     }
 
-    console.log(
-      `\n🎉 Successfully created ${createdCount} translation files for ${languageCode}!`,
-    );
+    console.log(`\n🎉 Successfully created ${createdCount} translation files for ${languageCode}!`);
 
     // Get language info
-    const flagCode = getFlagCode(languageCode);
     const languageName = getLanguageName(languageCode);
 
     console.log("\n🔧 Adding language to translation system...");
@@ -749,11 +613,7 @@ function main() {
     const addedToAllLanguages = addToAllLanguages(languageCode);
 
     // Add to constants.ts
-    const addedToConstants = addToConstants(
-      languageCode,
-      languageName,
-      flagCode,
-    );
+    const addedToConstants = addToConstants(languageCode, languageName);
 
     // Also add to web resources language_names
     const addedToResourceNames = addToResourceLanguageNames(languageCode);
@@ -762,21 +622,12 @@ function main() {
     if (addedToAllLanguages && addedToConstants && addedToResourceNames) {
       console.log("✅ Language successfully added to translation system!");
     } else {
-      console.log(
-        "⚠️  Some files may already contain the language or had issues.",
-      );
-    }
-
-    if (!flagCode) {
-      console.log(
-        `⚠️  No flag code found for "${languageCode}". You may want to update the flag code in constants.ts manually.`,
-      );
+      console.log("⚠️  Some files may already contain the language or had issues.");
     }
 
     console.log("\n🎯 Next steps:");
     console.log("1. Start translating the created files!");
     console.log("2. Test the translations in your application.");
-    console.log("3. Update the flag code in constants.ts if needed.");
   } catch (error) {
     console.error(error.message);
     process.exit(1);

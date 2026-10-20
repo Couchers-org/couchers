@@ -11,11 +11,12 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 from sqlalchemy.orm import Session, aliased
-from sqlalchemy.sql import and_, func, literal, or_, union_all
+from sqlalchemy.sql import and_, or_, union_all
 
 from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import are_friends
 from couchers.event_log import log_event
+from couchers.helpers.references import where_reference_user_visible, where_references_not_hidden_by_reciprocity
 from couchers.materialized_views import LiteUser
 from couchers.models import HostRequest, ModerationObjectType, Reference, ReferenceType, User
 from couchers.models.notifications import NotificationTopicAction
@@ -87,9 +88,9 @@ def get_host_req_and_check_can_write_ref(
     ).scalar_one_or_none():
         context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "reference_already_given")
 
-    surfed = host_request.initiator_user_id == context.user_id
+    surfed = host_request.surfer_user_id == context.user_id
 
-    if surfed:
+    if host_request.initiator_user_id == context.user_id:
         my_reason = host_request.initiator_reason_didnt_meetup
     else:
         my_reason = host_request.recipient_reason_didnt_meetup
@@ -116,8 +117,11 @@ def check_valid_reference(
 def get_pending_references_to_write(
     session: Session, context: CouchersContext
 ) -> list[tuple[int, ReferenceType, datetime, LiteUser]]:
+    # the two halves split on the conversation role, since that's the axis the didnt_meetup columns live on
+    surfed_col = (HostRequest.surfer_user_id == context.user_id).label("surfed")
+
     q1 = (
-        select(literal(True), HostRequest, LiteUser)
+        select(surfed_col, HostRequest, LiteUser)
         .outerjoin(
             Reference,
             and_(
@@ -135,7 +139,7 @@ def get_pending_references_to_write(
     q1 = q1.where(HostRequest.initiator_reason_didnt_meetup == None)
 
     q2 = (
-        select(literal(False), HostRequest, LiteUser)
+        select(surfed_col, HostRequest, LiteUser)
         .outerjoin(
             Reference,
             and_(
@@ -177,28 +181,16 @@ class References(references_pb2_grpc.ReferencesServicer):
         if not request.from_user_id and not request.to_user_id:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "need_to_specify_at_least_one_user")
 
-        to_users = aliased(User)
-        from_users = aliased(User)
         statement = where_moderated_content_visible(select(Reference), context, Reference, is_list_operation=True)
         if request.from_user_id:
-            # join the to_users, because only interested if the recipient is visible
-            statement = (
-                statement.join(to_users, Reference.to_user_id == to_users.id)
-                .where(
-                    to_users.banned_at.is_(None)
-                )  # instead of where_users_visible; if user is deleted or blocked, reference still visible
-                .where(or_(to_users.shadowed_at.is_(None), to_users.id == context.user_id))
-                .where(Reference.from_user_id == request.from_user_id)
+            # only interested if the recipient is visible
+            statement = where_reference_user_visible(statement, context, Reference.to_user_id).where(
+                Reference.from_user_id == request.from_user_id
             )
         if request.to_user_id:
-            # join the from_users, because only interested if the writer is visible
-            statement = (
-                statement.join(from_users, Reference.from_user_id == from_users.id)
-                .where(
-                    from_users.banned_at.is_(None)
-                )  # instead of where_users_visible; if user is deleted or blocked, reference still visible
-                .where(or_(from_users.shadowed_at.is_(None), from_users.id == context.user_id))
-                .where(Reference.to_user_id == request.to_user_id)
+            # only interested if the writer is visible
+            statement = where_reference_user_visible(statement, context, Reference.from_user_id).where(
+                Reference.to_user_id == request.to_user_id
             )
         if len(request.reference_type_filter) > 0:
             statement = statement.where(
@@ -208,33 +200,13 @@ class References(references_pb2_grpc.ReferencesServicer):
         if next_reference_id:
             statement = statement.where(Reference.id <= next_reference_id)
 
-        # Reference visibility logic:
-        # A reference is visible if any of the following apply:
+        # Reference visibility logic (a reference is visible if any of the following apply):
         # 1. It is a friend reference
         # 2. Both references have been written
         # 3. It has been over 2 weeks since the host request ended
-
-        # we get the matching other references through this subquery
-        sub = select(Reference.id.label("sub_id"), Reference.host_request_id).where(
-            Reference.reference_type != ReferenceType.friend
-        )
-        if request.from_user_id:
-            sub = sub.where(Reference.to_user_id == request.from_user_id)
-        if request.to_user_id:
-            sub = sub.where(Reference.from_user_id == request.to_user_id)
-
-        query = sub.subquery()
-        statement = (
-            statement.outerjoin(query, query.c.host_request_id == Reference.host_request_id)
-            .outerjoin(HostRequest, HostRequest.conversation_id == Reference.host_request_id)
-            .where(
-                or_(
-                    Reference.reference_type == ReferenceType.friend,
-                    query.c.sub_id != None,
-                    HostRequest.end_time_to_write_reference < func.now(),
-                )
-            )
-        )
+        # This must stay in sync with the reference count (get_num_references); both use the
+        # shared where_references_not_hidden_by_reciprocity() helper.
+        statement = where_references_not_hidden_by_reciprocity(statement)
 
         statement = statement.order_by(Reference.id.desc()).limit(page_size + 1)
         references = session.execute(statement).scalars().all()
@@ -340,15 +312,13 @@ class References(references_pb2_grpc.ReferencesServicer):
         reference_text = request.text.strip()
 
         if surfed:
-            # we requested to surf with someone
+            # we surfed with someone
             reference_type = ReferenceType.surfed
-            to_user_id = host_request.recipient_user_id
-            assert context.user_id == host_request.initiator_user_id
+            to_user_id = host_request.host_user_id
         else:
             # we hosted someone
             reference_type = ReferenceType.hosted
-            to_user_id = host_request.initiator_user_id
-            assert context.user_id == host_request.recipient_user_id
+            to_user_id = host_request.surfer_user_id
 
         reference: Reference | None = None
 
@@ -456,8 +426,11 @@ class References(references_pb2_grpc.ReferencesServicer):
             ).scalar_one_or_none()
         ) is None
 
+        # the two halves split on the conversation role, since that's the axis the didnt_meetup columns live on
+        surfed_col = (HostRequest.surfer_user_id == context.user_id).label("surfed")
+
         q1 = (
-            select(literal(True), HostRequest)
+            select(surfed_col, HostRequest)
             .outerjoin(
                 Reference,
                 and_(
@@ -473,7 +446,7 @@ class References(references_pb2_grpc.ReferencesServicer):
         )
 
         q2 = (
-            select(literal(False), HostRequest)
+            select(surfed_col, HostRequest)
             .outerjoin(
                 Reference,
                 and_(

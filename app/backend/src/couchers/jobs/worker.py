@@ -3,6 +3,7 @@ Background job workers
 """
 
 import logging
+import threading
 import traceback
 from collections.abc import Callable
 from datetime import timedelta
@@ -12,20 +13,19 @@ from time import monotonic, perf_counter_ns, sleep
 from typing import Any
 
 import sentry_sdk
-import sqlalchemy.exc
 from google.protobuf import empty_pb2
 from opentelemetry import trace
 from sqlalchemy import select
 
 from couchers.config import config
-from couchers.db import db_post_fork, session_scope, worker_repeatable_read_session_scope
+from couchers.db import db_post_fork, session_scope
 from couchers.experimentation import setup_experimentation
+from couchers.i18n.locales import get_main_i18next
 from couchers.jobs.definitions import JOBS, Job
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import (
     background_jobs_got_job_counter,
     background_jobs_no_jobs_counter,
-    background_jobs_serialization_errors_counter,
     jobs_queued_histogram,
     observe_in_jobs_duration_histogram,
 )
@@ -45,27 +45,23 @@ def process_job() -> bool:
     """
     logger.debug("Looking for a job")
 
-    with worker_repeatable_read_session_scope() as session:
-        # a combination of REPEATABLE READ and SELECT ... FOR UPDATE SKIP LOCKED makes sure that only one transaction
-        # will modify the job at a time. SKIP UPDATE means that if the job is locked, then we ignore that row, it's
-        # easier to use SKIP LOCKED vs NOWAIT in the ORM, with NOWAIT you get an ugly exception from deep inside
-        # psycopg2 that's quite annoying to catch and deal with
-        try:
-            job = (
-                session.execute(
-                    select(BackgroundJob)
-                    .where(BackgroundJob.ready_for_retry)
-                    .order_by(BackgroundJob.priority.desc(), BackgroundJob.next_attempt_after.asc())
-                    .limit(1)
-                    .with_for_update(skip_locked=True)
-                )
-                .scalars()
-                .one_or_none()
+    with session_scope() as session:
+        # SELECT ... FOR UPDATE is what makes sure only one worker handles a given job: no two transactions can hold
+        # the row lock at once. SKIP LOCKED means an already-claimed job is passed over rather than waited on, so
+        # workers spread out across the queue. This must run at READ COMMITTED (the default): a stricter isolation
+        # level can't follow the update chain of a row another worker just committed, and aborts the whole dequeue
+        # with a serialization error instead of skipping the row
+        job = (
+            session.execute(
+                select(BackgroundJob)
+                .where(BackgroundJob.ready_for_retry)
+                .order_by(BackgroundJob.priority.desc(), BackgroundJob.next_attempt_after.asc())
+                .limit(1)
+                .with_for_update(skip_locked=True)
             )
-        except sqlalchemy.exc.OperationalError:
-            background_jobs_serialization_errors_counter.inc()
-            logger.debug("Serialization error")
-            return False
+            .scalars()
+            .one_or_none()
+        )
 
         if not job:
             background_jobs_no_jobs_counter.inc()
@@ -80,7 +76,9 @@ def process_job() -> bool:
 
         job_def = JOBS[job.job_type]
 
-        jobs_queued_histogram.labels(str(job.priority)).observe((now() - job.queued).total_seconds())
+        jobs_queued_histogram.labels(str(job.priority)).observe(
+            max((now() - job.next_attempt_after).total_seconds(), 0.0)
+        )
         try:
             with tracer.start_as_current_span(job.job_type) as rollspan:
                 start = perf_counter_ns()
@@ -94,18 +92,20 @@ def process_job() -> bool:
         except Exception as e:
             finished = perf_counter_ns()
             logger.exception(e)
-            sentry_sdk.set_tag("context", "job")
-            sentry_sdk.set_tag("job", job.job_type)
-            sentry_sdk.capture_exception(e)
 
             if job.try_count >= job.max_tries:
                 # if we already tried max_tries times, it's permanently failed
                 job.state = BackgroundJobState.failed
                 logger.info(f"Job #{job.id} failed on try number {job.try_count}")
+                # a new scope keeps these tags on this report only, not on every later one from this thread
+                with sentry_sdk.new_scope() as scope:
+                    scope.set_tag("context", "job")
+                    scope.set_tag("job", job.job_type)
+                    sentry_sdk.capture_exception(e)
             else:
                 job.state = BackgroundJobState.error
                 # exponential backoff
-                job.next_attempt_after += timedelta(seconds=15 * (2**job.try_count))
+                job.next_attempt_after = now() + timedelta(seconds=15 * (2**job.try_count))
                 logger.info(f"Job #{job.id} error on try number {job.try_count}, next try at {job.next_attempt_after}")
             observe_in_jobs_duration_histogram(
                 job.job_type, job.state.name, job.try_count, type(e).__name__, (finished - start) / 1e9
@@ -172,15 +172,18 @@ def run_scheduler() -> None:
     sched.run()
 
 
-def _run_forever(func: Callable[[], None], profile_instance: str | None = None) -> None:
+def _per_process_init(profile_instance: str | None) -> None:
     # Post-fork initialization: these services use threading/async internals that
-    # don't survive fork() and must be initialized fresh in each child process
+    # don't survive fork() and must be initialized fresh in each child process.
+    # Pyroscope in particular can only be initialized once per process.
     db_post_fork()
     setup_tracing()
     setup_experimentation()
     if profile_instance is not None:
         setup_profiling(role="worker", instance=profile_instance)
 
+
+def _run_forever(func: Callable[[], None]) -> None:
     while True:
         try:
             logger.info("Background worker starting")
@@ -191,16 +194,39 @@ def _run_forever(func: Callable[[], None], profile_instance: str | None = None) 
             sleep(60)
 
 
+def _scheduler_process_entry() -> None:
+    _per_process_init(None)
+    _run_forever(run_scheduler)
+
+
+def _worker_process_entry(profile_instance: str, threads_per_process: int) -> None:
+    _per_process_init(profile_instance)
+    # the lru_cache doesn't hold a lock across the load, so otherwise every thread parses all the locales
+    get_main_i18next()
+    # threads rather than processes: the handlers are I/O-bound, and a process costs ~200 MB
+    threads = [
+        threading.Thread(target=_run_forever, args=(service_jobs,), name=f"jobs-thread-{i}", daemon=True)
+        for i in range(threads_per_process)
+    ]
+    for t in threads:
+        t.start()
+    # the supervisor only watches processes, so a thread dying here would silently cut our capacity: exit
+    # instead and let it restart us
+    while all(t.is_alive() for t in threads):
+        sleep(1)
+    logger.critical("A jobs thread died, exiting so the supervisor restarts us")
+
+
 def start_jobs_scheduler() -> Process:
-    scheduler = Process(
-        target=_run_forever,
-        args=(run_scheduler,),
-    )
+    scheduler = Process(target=_scheduler_process_entry)
     scheduler.start()
     return scheduler
 
 
-def start_jobs_worker(index: int) -> Process:
-    worker = Process(target=_run_forever, args=(service_jobs,), kwargs={"profile_instance": f"worker-{index}"})
+def start_jobs_worker(index: int, threads_per_process: int) -> Process:
+    worker = Process(
+        target=_worker_process_entry,
+        args=(f"worker-{index}", threads_per_process),
+    )
     worker.start()
     return worker

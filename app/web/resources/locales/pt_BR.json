@@ -27,7 +27,7 @@
   "save": "Salvar",
   "save_changes": "Salvar alterações",
   "mod": "Moderação",
-  "cookie_message": "Usamos cookies para garantir a melhor experiência em nosso website. Ao continuar a usar este site, assumiremos que você está de acordo com isso. Você pode ler mai sobre nossos <1>Termos de Serviço</1>.",
+  "cookie_message": "Usamos cookies para garantir a melhor experiência em nosso website. Ao continuar a usar este site, assumiremos que você está de acordo com isso. Você pode ler mai sobre nossos <tosLink>Termos de Serviço</tosLink>.",
   "hosting_status": {
     "can_host": "Pode hospedar",
     "cant_host": "Não pode hospedar",
@@ -39,7 +39,6 @@
     "form_title": "Idioma",
     "translation_progress": {
       "just_started": "Acabou de começar",
-      "no_data": "Nenhum dado disponível sobre a tradução",
       "complete": "Concluído",
       "title": "Tradução em andamento",
       "description": "Veja o avanço das nossas traduções em diferentes idiomas. Ajude-nos a tornar o Couchers acessível para mais pessoas em todo o mundo!",
@@ -77,13 +76,14 @@
   "report": {
     "bug": {
       "title_label": "Reportar título",
-      "problem_label": "O que você fez para que o erro aparecesse?",
-      "expect_helper": "Breve descrição do que você esperava que acontecesse",
-      "warning_message": "Observe que esta informação, bem como informações de diagnóstico, incluindo em que página você está, qual navegador está usando e seu nome de usuário, será salva em uma lista pública de erros.",
-      "success_message2": "Agradecemos por relatar esse erro e melhorar o Couchers. Um relatório foi enviado para os desenvolvedores. O ID do erro é <id/>.",
+      "problem_label": "Como você encontrou o problema?",
+      "expect_helper": "Descreva o problema que você encontrou como resultado das suas etapas, incluindo mensagens de erro, e o que você esperava que acontecesse.",
+      "warning_message": "As informações fornecidas neste formulário, bem como informações de diagnóstico, incluindo a página em que você está, seu navegador e seu nome de usuário, serão registradas para que nossa equipe revise.",
+      "success_message2": "Agradecemos por relatar esse problema e melhorar o Couchers. Um relatório foi enviado para os desenvolvedores. Você pode consultar esse problema usando o ID <id/>.",
       "button_label": "Reportar um problema técnico",
-      "problem_helper": "Breve descrição do problema e como reproduzí-lo",
-      "expect_label": "O que aconteceu? O que deveria ter acontecido?"
+      "problem_helper": "Descreva as etapas que você realizou: em quais páginas você estava, onde você clicou etc.",
+      "expect_label": "O que aconteceu? O que deveria ter acontecido?",
+      "no_response_note": "<strong>Você não terá uma resposta.</strong> se precisar de suporte, entre em contato com <supportLink>support@couchers.org</supportLink>."
     },
     "label": "Reportar um problema",
     "content": {
@@ -103,7 +103,6 @@
       "description_required": "A descrição é obrigatória.",
       "description_label": "Descreva o problema",
       "description_helper": "Conte-nos porque você está reportando isso.",
-      "success": "Agradecemos por sua denúncia e por tornar o Couchers uma plataforma melhor para todos!",
       "reason": {
         "dating": "Comportamento de aplicativo de paquera/namoro ou semelhante",
         "external": "Incidente fora da plataforma",
@@ -126,7 +125,7 @@
     "read_file_error_message": "Não foi possível ler o arquivo"
   },
   "not_found_text_1": "Não foi possível encontrar o URL ou recurso solicitado",
-  "not_found_text_2": "Quer apenas voltar ao <1>painel inicial?</1>",
+  "not_found_text_2": "Quer apenas voltar ao <homeLink>painel inicial?</homeLink>",
   "not_found_alt": "Erro 404: recurso não encontrado",
   "change_time": "Alterar hora",
   "html_meta": {
@@ -197,7 +196,11 @@
     "invite_members": "Convidar membros",
     "merch_shop": "Produtos oficiais",
     "switch_to_light_mode": "Alternar para modo claro",
-    "switch_to_dark_mode": "Alternar para modo escuro"
+    "switch_to_dark_mode": "Alternar para modo escuro",
+    "close_menu_a11y": "Fechar menu",
+    "open_drawer_a11y": "Abrir menu hamburguer",
+    "close_drawer_a11y": "Fechar menu hamburguer",
+    "press": "Imprensa"
   },
   "invites": {
     "title": "Convidar membros",
@@ -216,7 +219,6 @@
       "fetch_invite_info": "Não foi possível obter detalhes do código de convite"
     }
   },
-  "contribute_title": "Cadastre-se para contribuir",
   "reply": "Responder",
   "yes": "Sim",
   "no": "Não",
@@ -237,7 +239,7 @@
   },
   "footer": {
     "non_profit_note": "O Couchers.org é um projeto do Couchers, Inc. uma organização sem fins lucrativos 501(c)(3) dos EUA e isenta de impostos.",
-    "version_info": "Versão <2>{{version}}</2>, última atualização <5>{{updated_ago}}</5>."
+    "version_info": "Versão <versionLink>{{version}}</versionLink>, última atualização <updatedAgoLink>{{updated_ago}}</updatedAgoLink>."
   },
   "what_is_cs": {
     "title": "O que é couch surfing?",
@@ -309,9 +311,9 @@
     "board_member": "Membros do conselho"
   },
   "blog": {
-    "byline_with_author": "Escrito por <1/>. Publicado em {{date}}.",
+    "byline_with_author": "Escrito por <authorList/>. Publicado em {{date}}.",
     "byline_without_author": "Publicado em {{date}}.",
-    "cta_message": "Quer ajudar a escrever nosso blog ou ser voluntário? <1>Cadastre-se</1> e nos avise. Voluntários e <3>doações</3> é o que torna o Couchers.org possível!"
+    "cta_message": "Quer ajudar a escrever nosso blog ou ser voluntário? <volunteerLink>Cadastre-se</volunteerLink> e nos avise. Voluntários e <donateLink>doações</donateLink> é o que torna o Couchers.org possível!"
   },
   "error_loading_languages": "Falha em carregar opções de idioma",
   "language_names": {
@@ -319,10 +321,8 @@
     "cs": "Tcheco",
     "de": "Alemão",
     "en": "Inglês",
-    "es": "Espanhol (Espanha)",
-    "es-419": "Espanhol",
-    "fr": "Francês (França)",
-    "fr-CA": "Francês (Candadá)",
+    "es": "Espanhol",
+    "fr": "Francês",
     "he": "Hebraico",
     "hi": "Hindi",
     "it": "Italiano",
@@ -339,5 +339,12 @@
     "zh-Hans": "Chinês (Simplificado)",
     "zh-Hant": "Chinês (Tradicional)",
     "hu": "Húngaro"
-  }
+  },
+  "close_button_a11y": "Fechar",
+  "app_store_badge_a11y": "Baixe na App Store",
+  "google_play_badge_a11y": "Baixe no Google Play",
+  "bar": {
+    "help_button_a11y": "Ajuda"
+  },
+  "more_options_a11y": "Mais opções"
 }

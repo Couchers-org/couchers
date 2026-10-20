@@ -5,8 +5,8 @@ import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 import { getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
 import { addDefaultUser } from "test/utils";
+import { profileAboutMeMinLength } from "utils/validation";
 
-import { ABOUT_ME_MIN_LENGTH } from "./constants";
 import EditProfilePage from "./EditProfilePage";
 
 const { t } = i18n;
@@ -14,25 +14,15 @@ const { t } = i18n;
 jest.mock("components/OldMap", () => () => "map");
 jest.mock("components/MarkdownInput");
 
-const getUserMock = service.user.getUser as jest.MockedFunction<
-  typeof service.user.getUser
->;
+const getUserMock = service.user.getUser as jest.MockedFunction<typeof service.user.getUser>;
 
-const getLanguagesMock = service.resources.getLanguages as jest.MockedFunction<
-  typeof service.resources.getLanguages
->;
+const getLanguagesMock = service.resources.getLanguages as jest.MockedFunction<typeof service.resources.getLanguages>;
 
-const getRegionsMock = service.resources.getRegions as jest.MockedFunction<
-  typeof service.resources.getRegions
->;
+const getRegionsMock = service.resources.getRegions as jest.MockedFunction<typeof service.resources.getRegions>;
 
-const updateProfileMock = service.user.updateProfile as jest.MockedFunction<
-  typeof service.user.updateProfile
->;
+const updateProfileMock = service.user.updateProfile as jest.MockedFunction<typeof service.user.updateProfile>;
 
-const uploadFileMock = service.api.uploadFile as jest.MockedFunction<
-  typeof service.api.uploadFile
->;
+const uploadFileMock = service.api.uploadFile as jest.MockedFunction<typeof service.api.uploadFile>;
 
 const renderPage = async () => {
   const result = render(<EditProfilePage />, { wrapper });
@@ -78,7 +68,10 @@ describe("Edit profile", () => {
 
     await user.clear(aboutMeInput);
     await waitFor(() => expect(aboutMeInput).toHaveValue(""));
-    await user.type(aboutMeInput, aboutMeText);
+    // Use paste instead of type for large text - much faster, avoids a
+    // re-render of the whole form per keystroke
+    await user.click(aboutMeInput);
+    await user.paste(aboutMeText);
 
     const saveButton = await screen.findByRole("button", {
       name: t("global:save_changes"),
@@ -93,9 +86,7 @@ describe("Edit profile", () => {
     }
 
     await waitFor(() =>
-      expect(updateProfileMock).toHaveBeenCalledWith(
-        expect.objectContaining({ aboutMe: aboutMeText }),
-      ),
+      expect(updateProfileMock).toHaveBeenCalledWith(expect.objectContaining({ aboutMe: aboutMeText })),
     );
 
     await screen.findByText(t("profile:profile_changes_saved_message"));
@@ -200,9 +191,7 @@ describe("Edit profile", () => {
     await user.paste(userContent);
 
     expect(
-      await screen.findByText(
-        /Please write at least 50 more characters to unlock messaging and requests/i,
-      ),
+      await screen.findByText(/Please write at least 50 more characters to unlock messaging and requests/i),
     ).toBeInTheDocument();
 
     const additionalContent = "a".repeat(50);
@@ -210,9 +199,7 @@ describe("Edit profile", () => {
 
     await waitFor(() => {
       expect(
-        screen.queryByText(
-          /Please write at least 50 more characters to unlock messaging and requests/i,
-        ),
+        screen.queryByText(/Please write at least 50 more characters to unlock messaging and requests/i),
       ).not.toBeInTheDocument();
     });
   }, 10000);
@@ -220,28 +207,22 @@ describe("Edit profile", () => {
   it("should reject names with invalid characters like !@#$", async () => {
     getUserMock.mockImplementation(async (user) => ({
       ...(await getUser(user)),
-      aboutMe: "a".repeat(ABOUT_ME_MIN_LENGTH),
+      aboutMe: "a".repeat(profileAboutMeMinLength),
     }));
 
     await renderPage();
 
     const user = userEvent.setup();
 
-    const nameInput = await screen.findByLabelText(
-      t("profile:edit_profile_headings.name"),
-    );
+    const nameInput = await screen.findByLabelText(t("profile:edit_profile_headings.name"));
 
     await user.clear(nameInput);
     await user.type(nameInput, "John!@#$");
 
-    await user.click(
-      await screen.findByRole("button", { name: t("global:save_changes") }),
-    );
+    await user.click(await screen.findByRole("button", { name: t("global:save_changes") }));
 
     await waitFor(() => {
-      expect(
-        screen.getByText(t("auth:basic_form.name.invalid_characters_error")),
-      ).toBeInTheDocument();
+      expect(screen.getByText(t("auth:basic_form.name.invalid_characters_error"))).toBeInTheDocument();
     });
 
     await waitFor(() => {
@@ -256,8 +237,6 @@ describe("Edit profile", () => {
 
     await renderPage();
 
-    expect(
-      screen.queryByRole("button", { name: t("global:save_changes") }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: t("global:save_changes") })).not.toBeInTheDocument();
   });
 });

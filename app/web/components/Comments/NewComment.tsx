@@ -1,6 +1,8 @@
 import { Box, Button, Grid, Link } from "@mui/material";
 import Markdown from "components/Markdown";
+import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
 import TextField from "components/TextField";
+import useAccountInfo from "features/auth/useAccountInfo";
 import React, { useState } from "react";
 
 interface NewCommentProps {
@@ -8,16 +10,27 @@ interface NewCommentProps {
 }
 
 export default function NewComment({ onComment }: NewCommentProps) {
+  const { data: accountInfo } = useAccountInfo();
   const [preview, setPreview] = useState(false);
   const [comment, setComment] = useState("");
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false);
 
   const handleSubmit = async () => {
+    if (accountInfo?.profileComplete === false) {
+      setProfileDialogOpen(true);
+      return;
+    }
     await onComment(comment);
     setComment("");
   };
 
   return (
     <>
+      <ProfileIncompleteDialog
+        open={profileDialogOpen}
+        onClose={() => setProfileDialogOpen(false)}
+        attempted_action="post_comment"
+      />
       <p>Write a comment:</p>
       <Grid container spacing={2}>
         <Grid size={{ xs: 12, md: preview ? 6 : 12 }}>

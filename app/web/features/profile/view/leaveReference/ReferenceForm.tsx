@@ -33,12 +33,7 @@ interface ReferenceRouteParams {
   step: ReferenceStep;
 }
 
-export default function ReferenceForm({
-  referenceType,
-  userId,
-  hostRequestId,
-  step,
-}: ReferenceRouteParams) {
+export default function ReferenceForm({ referenceType, userId, hostRequestId, step }: ReferenceRouteParams) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
 
   const [referenceData, setReferenceData] = useState<ReferenceContextFormData>({
@@ -55,15 +50,10 @@ export default function ReferenceForm({
     }));
   };
 
-  const isDidStaySkipped =
-    referenceData.didStay === undefined &&
-    step !== "did-stay" &&
-    referenceType !== "friend";
+  const isDidStaySkipped = referenceData.didStay === undefined && step !== "did-stay" && referenceType !== "friend";
 
   const isPrivateFeedbackSkipped =
-    referenceData.wasAppropriate === "" &&
-    step !== "private-feedback" &&
-    step !== "did-stay";
+    referenceData.wasAppropriate === "" && step !== "private-feedback" && step !== "did-stay";
 
   const redirectTo =
     referenceType === "friend"
@@ -114,10 +104,6 @@ export default function ReferenceForm({
     case "thank-you":
       return <ThankYouReference />;
     default:
-      return (
-        <Alert severity="error">
-          {t("profile:leave_reference.invalid_step")}
-        </Alert>
-      );
+      return <Alert severity="error">{t("profile:leave_reference.invalid_step")}</Alert>;
   }
 }

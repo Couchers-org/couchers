@@ -1,11 +1,5 @@
 import { ExpandMore } from "@mui/icons-material";
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  styled,
-  Typography,
-} from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, styled, Typography } from "@mui/material";
 import { NOTIFICATIONS } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { useEffect, useState } from "react";

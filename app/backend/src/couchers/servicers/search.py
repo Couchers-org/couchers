@@ -2,17 +2,23 @@
 See //docs/search.md for an overview.
 """
 
-from datetime import timedelta
+from math import pi
 from typing import Any, cast
 
 import grpc
-from sqlalchemy import literal_column, select
+from sqlalchemy import ColumnElement, Float, SQLColumnExpression, literal_column, select, tuple_, type_coerce
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import and_, func, or_
 
 from couchers import urls
 from couchers.context import CouchersContext
-from couchers.crypto import decrypt_page_token, encrypt_page_token
+from couchers.crypto import (
+    USER_SEARCH_NOISE_KEY_NAME,
+    decrypt_page_token,
+    encrypt_page_token,
+    generate_hash_signature,
+    get_secret,
+)
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.helpers.strong_verification import has_strong_verification
@@ -33,6 +39,7 @@ from couchers.models import (
     Reference,
     StrongVerificationAttempt,
     User,
+    UserRankingOffset,
 )
 from couchers.proto import search_pb2, search_pb2_grpc
 from couchers.reranker import reranker
@@ -50,19 +57,17 @@ from couchers.servicers.api import (
     user_model_to_pb,
 )
 from couchers.servicers.communities import community_to_pb
-from couchers.servicers.events import event_to_pb
+from couchers.servicers.events import apply_occurrence_pagination, event_to_pb, occurrences_next_page_token
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
 from couchers.sql import to_bool, users_visible, where_moderated_content_visible, where_users_column_visible
 from couchers.utils import (
     Timestamp_from_datetime,
     create_coordinate,
-    dt_from_millis,
     get_coordinates,
     last_active_coarsen,
-    millis_from_dt,
-    now,
     to_aware_datetime,
+    today,
 )
 
 # searches are a bit expensive, we'd rather send back a bunch of results at once than lots of small pages
@@ -71,6 +76,9 @@ MAX_PAGINATION_LENGTH = 100
 REGCONFIG = "english"
 TRI_SIMILARITY_THRESHOLD = 0.6
 TRI_SIMILARITY_WEIGHT = 5
+
+DEFAULT_USER_SEARCH_NOISE_SCALE = 2.0
+USER_SEARCH_NOISE_PERIOD_DAYS = 7
 
 
 def _join_with_space(coalesces: list[Any]) -> Any:
@@ -329,7 +337,7 @@ def _search_events(
         next_rank,
         page_size,
         [Event.title],
-        [EventOccurrence.address, EventOccurrence.link],
+        [EventOccurrence.address],
         [],
         [EventOccurrence.content],
     )
@@ -413,13 +421,36 @@ def _search_clusters(
     ]
 
 
+def stable_normal_rv(column: SQLColumnExpression[int], key: bytes, seed: bytes) -> ColumnElement[float]:
+    """
+    Standard normal random variate for each value of a bigint column, deterministic given the key and seed
+    """
+    digest = generate_hash_signature(message=seed, key=key, digest_size=16)
+    # hashint8extended gives a uniform signed 64-bit int; keep the top 53 bits so it's exact as a double, and map into
+    # (0, 1] so it's safe to take ln() of
+    seeds = (int.from_bytes(digest[i : i + 8], "big", signed=True) for i in (0, 8))
+    u1, u2 = ((func.hashint8extended(column, seed).op(">>")(11) + 2**52 + 1).cast(Float) / 2.0**53 for seed in seeds)
+    # Box-Muller transform. Postgres' random_normal() can't be seeded per row, so we roll our own
+    return type_coerce(func.sqrt(-2 * func.ln(u1)) * func.cos(2 * pi * u2), Float)
+
+
+def _user_search_noise(column: SQLColumnExpression[int], viewer_id: int) -> ColumnElement[float]:
+    """
+    Standard normal noise for each value of the column, different for each viewer and stable for a given viewer over
+    USER_SEARCH_NOISE_PERIOD_DAYS, so different viewers see a different ordering
+    """
+    # offset by viewer id so that viewers don't all reshuffle on the same day
+    period = (today().toordinal() + viewer_id) // USER_SEARCH_NOISE_PERIOD_DAYS
+    return stable_normal_rv(column, get_secret(USER_SEARCH_NOISE_KEY_NAME), f"{viewer_id}|{period}".encode())
+
+
 def _user_search_inner(
     request: search_pb2.UserSearchReq, context: CouchersContext, session: Session
-) -> tuple[list[int], str | None, int]:
+) -> tuple[list[int], str | None, int, str]:
     user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
     # Base statement with visibility filter
-    statement = select(User.id, User.recommendation_score).where(users_visible(context))
+    statement = select(User.id).where(users_visible(context))
     # make sure that only users who are in LiteUser show up
     statement = statement.join(LiteUser, LiteUser.id == User.id)
 
@@ -501,8 +532,9 @@ def _user_search_inner(
                         (LanguageAbility.fluency >= (fluency_sql_value)),
                     )
                 )
-            statement = statement.join(LanguageAbility, LanguageAbility.user_id == User.id)
-            statement = statement.where(or_(*language_options))
+            statement = statement.where(
+                select(LanguageAbility).where(LanguageAbility.user_id == User.id).where(or_(*language_options)).exists()
+            )
 
         if request.HasField("profile_completed"):
             statement = statement.where(has_completed_profile_expression() == request.profile_completed.value)
@@ -582,32 +614,40 @@ def _user_search_inner(
             statement = statement.join(references, references.c.user_id == User.id)
 
         if request.only_with_strong_verification:
-            statement = statement.join(
-                StrongVerificationAttempt,
-                and_(
-                    StrongVerificationAttempt.user_id == User.id,
-                    StrongVerificationAttempt.has_strong_verification(User),
-                ),
+            statement = statement.where(
+                select(StrongVerificationAttempt)
+                .where(StrongVerificationAttempt.user_id == User.id)
+                .where(StrongVerificationAttempt.has_strong_verification(User))
+                .exists()
             )
         # TODO:
         # bool friends_only = 13;
 
     page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-    next_recommendation_score = float(decrypt_page_token(request.page_token)) if request.page_token else 1e10
     total_items = cast(int, session.execute(select(func.count()).select_from(statement.subquery())).scalar())
 
-    statement = (
-        statement.where(User.recommendation_score <= next_recommendation_score)
-        .order_by(User.recommendation_score.desc())
-        .limit(page_size + 1)
-    )
-    res = session.execute(statement).all()
-    users: list[int] = []
-    if res:
-        users, rec_scores = zip(*res)  # type: ignore[assignment]
+    noise_scale = context.get_float_value("user_search_noise_scale", DEFAULT_USER_SEARCH_NOISE_SCALE)
+    ranking_score = User.recommendation_score + noise_scale * _user_search_noise(User.id, context.user_id)
+    ranking_offsets_variant = context.get_string_value("search_ranking_offsets_variant", "")
+    if ranking_offsets_variant:
+        statement = statement.outerjoin(
+            UserRankingOffset,
+            and_(UserRankingOffset.user_id == User.id, UserRankingOffset.variant == ranking_offsets_variant),
+        )
+        ranking_score = ranking_score + func.coalesce(UserRankingOffset.offset, 0.0)
+    statement = statement.add_columns(ranking_score)
+    if request.page_token:
+        last_score, last_id = decrypt_page_token(request.page_token).split(",")
+        statement = statement.where(tuple_(ranking_score, User.id) < (float(last_score), int(last_id)))
 
-    next_page_token = encrypt_page_token(str(rec_scores[-1])) if len(users) > page_size else None
-    return users[:page_size], next_page_token, total_items
+    statement = statement.order_by(ranking_score.desc(), User.id.desc()).limit(page_size + 1)
+    res = session.execute(statement).all()
+
+    next_page_token = None
+    if len(res) > page_size:
+        last_user_id, last_rec_score = res[page_size - 1]
+        next_page_token = encrypt_page_token(f"{last_rec_score},{last_user_id}")
+    return [user_id for user_id, _ in res[:page_size]], next_page_token, total_items, ranking_offsets_variant
 
 
 class Search(search_pb2_grpc.SearchServicer):
@@ -664,7 +704,9 @@ class Search(search_pb2_grpc.SearchServicer):
     def UserSearch(
         self, request: search_pb2.UserSearchReq, context: CouchersContext, session: Session
     ) -> search_pb2.UserSearchRes:
-        user_ids_to_return, next_page_token, total_items = _user_search_inner(request, context, session)
+        user_ids_to_return, next_page_token, total_items, ranking_offsets_variant = _user_search_inner(
+            request, context, session
+        )
 
         log_event(
             context,
@@ -684,6 +726,7 @@ class Search(search_pb2_grpc.SearchServicer):
                     or request.only_with_strong_verification
                 ),
                 "total_items": total_items,
+                "ranking_offsets_variant": ranking_offsets_variant,
             },
         )
 
@@ -708,7 +751,7 @@ class Search(search_pb2_grpc.SearchServicer):
     def UserSearchV2(
         self, request: search_pb2.UserSearchReq, context: CouchersContext, session: Session
     ) -> search_pb2.UserSearchV2Res:
-        user_ids_to_return, next_page_token, total_items = _user_search_inner(request, context, session)
+        user_ids_to_return, next_page_token, total_items, _ = _user_search_inner(request, context, session)
 
         LiteUser_by_id = {
             lite_user.id: lite_user
@@ -787,6 +830,10 @@ class Search(search_pb2_grpc.SearchServicer):
     def EventSearch(
         self, request: search_pb2.EventSearchReq, context: CouchersContext, session: Session
     ) -> search_pb2.EventSearchRes:
+        if request.attending and request.exclude_attending:
+            context.abort_with_error_code(
+                grpc.StatusCode.INVALID_ARGUMENT, "cannot_combine_attending_and_exclude_attending"
+            )
         statement = (
             select(EventOccurrence).join(Event, Event.id == EventOccurrence.event_id).where(~EventOccurrence.is_deleted)
         )
@@ -804,12 +851,13 @@ class Search(search_pb2_grpc.SearchServicer):
                     )
                 )
 
-        if request.only_online:
-            statement = statement.where(EventOccurrence.geom == None)
-        elif request.only_offline:
-            statement = statement.where(EventOccurrence.geom != None)
-
-        if request.subscribed or request.attending or request.organizing or request.my_communities:
+        if (
+            request.subscribed
+            or request.attending
+            or request.organizing
+            or request.my_communities
+            or request.exclude_attending
+        ):
             where_ = []
 
             if request.subscribed:
@@ -818,13 +866,27 @@ class Search(search_pb2_grpc.SearchServicer):
                     and_(EventSubscription.event_id == Event.id, EventSubscription.user_id == context.user_id),
                 )
                 where_.append(EventSubscription.user_id != None)
-            if request.organizing:
+            if request.organizing or request.attending:
+                if request.organizing:
+                    statement = statement.outerjoin(
+                        EventOrganizer,
+                        and_(EventOrganizer.event_id == Event.id, EventOrganizer.user_id == context.user_id),
+                    )
+                    where_.append(EventOrganizer.user_id != None)
+                if request.attending:
+                    statement = statement.outerjoin(
+                        EventOccurrenceAttendee,
+                        and_(
+                            EventOccurrenceAttendee.occurrence_id == EventOccurrence.id,
+                            EventOccurrenceAttendee.user_id == context.user_id,
+                        ),
+                    )
+                    where_.append(EventOccurrenceAttendee.user_id != None)
+            elif request.exclude_attending:
                 statement = statement.outerjoin(
                     EventOrganizer,
                     and_(EventOrganizer.event_id == Event.id, EventOrganizer.user_id == context.user_id),
                 )
-                where_.append(EventOrganizer.user_id != None)
-            if request.attending:
                 statement = statement.outerjoin(
                     EventOccurrenceAttendee,
                     and_(
@@ -832,7 +894,6 @@ class Search(search_pb2_grpc.SearchServicer):
                         EventOccurrenceAttendee.user_id == context.user_id,
                     ),
                 )
-                where_.append(EventOccurrenceAttendee.user_id != None)
             if request.my_communities:
                 my_communities = (
                     session.execute(
@@ -849,7 +910,11 @@ class Search(search_pb2_grpc.SearchServicer):
                 )
                 where_.append(Event.parent_node_id.in_(my_communities))
 
-            statement = statement.where(or_(*where_))
+            if where_:
+                statement = statement.where(or_(*where_))
+
+            if request.exclude_attending:
+                statement = statement.where(EventOccurrenceAttendee.user_id == None, EventOrganizer.user_id == None)
 
         if not request.include_cancelled:
             statement = statement.where(~EventOccurrence.is_cancelled)
@@ -897,20 +962,13 @@ class Search(search_pb2_grpc.SearchServicer):
             statement = statement.where(EventOccurrence.end_time < before_time)
 
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        # the page token is a unix timestamp of where we left off
-        page_token = (
-            dt_from_millis(int(request.page_token)) if request.page_token and not request.page_number else now()
-        )
+        # the page token is ignored when a page number is given
+        page_token = request.page_token if not request.page_number else ""
         page_number = request.page_number or 1
         # Calculate the offset for pagination
         offset = (page_number - 1) * page_size
 
-        if not request.past:
-            cutoff = page_token - timedelta(seconds=1)
-            statement = statement.where(EventOccurrence.end_time > cutoff).order_by(EventOccurrence.start_time.asc())
-        else:
-            cutoff = page_token + timedelta(seconds=1)
-            statement = statement.where(EventOccurrence.end_time < cutoff).order_by(EventOccurrence.start_time.desc())
+        statement = apply_occurrence_pagination(statement, page_token, request.past)
 
         total_items = session.execute(select(func.count()).select_from(statement.subquery())).scalar()
         # Apply pagination by page number
@@ -919,6 +977,6 @@ class Search(search_pb2_grpc.SearchServicer):
 
         return search_pb2.EventSearchRes(
             events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],
-            next_page_token=(str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None),
+            next_page_token=occurrences_next_page_token(occurrences, page_size),
             total_items=total_items,
         )

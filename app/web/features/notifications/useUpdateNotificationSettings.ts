@@ -23,8 +23,7 @@ export default function useUpdateNotificationSettings() {
       setMutationError: SetMutationError;
     }
   >({
-    mutationFn: ({ preferenceData }) =>
-      service.notifications.setNotificationSettingsPreference(preferenceData),
+    mutationFn: ({ preferenceData }) => service.notifications.setNotificationSettingsPreference(preferenceData),
     onError: (error, { setMutationError }) => {
       setMutationError(error.message);
     },

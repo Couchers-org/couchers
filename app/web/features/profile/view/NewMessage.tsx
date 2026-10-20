@@ -29,11 +29,7 @@ const StyledSendActions = styled(CardActions)(() => ({
   marginTop: theme.spacing(2),
 }));
 
-export default function NewMessage({
-  setIsMessaging,
-}: {
-  setIsMessaging: (value: boolean) => void;
-}) {
+export default function NewMessage({ setIsMessaging }: { setIsMessaging: (value: boolean) => void }) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
   const router = useRouter();
@@ -46,13 +42,8 @@ export default function NewMessage({
     formState: { errors },
   } = useForm<{ text: string }>();
 
-  const { error, mutate, isPending } = useMutation<
-    number,
-    Error,
-    { text: string }
-  >({
-    mutationFn: (data) =>
-      service.conversations.sendDirectMessage(user.userId, data.text),
+  const { error, mutate, isPending } = useMutation<number, Error, { text: string }>({
+    mutationFn: (data) => service.conversations.sendDirectMessage(user.userId, data.text),
     onSuccess: (groupChatId) => {
       reset();
       setIsMessaging(false);
@@ -73,11 +64,7 @@ export default function NewMessage({
   return (
     <>
       <StyledTitle variant="h1">
-        {userLoading ? (
-          <Skeleton width="100" />
-        ) : (
-          t("profile:message_form.send_message", { name: user.name })
-        )}
+        {userLoading ? <Skeleton width="100" /> : t("profile:message_form.send_message", { name: user.name })}
       </StyledTitle>
       {error && <Alert severity="error">{error.message}</Alert>}
       {userError ? (
@@ -106,10 +93,7 @@ export default function NewMessage({
             </Button>
           </StyledSendActions>
           <Typography variant="body2" sx={{ textAlign: "center" }}>
-            <Trans
-              i18nKey="profile:message_form.hosting_request_hint"
-              components={{ request: <strong /> }}
-            />
+            <Trans i18nKey="profile:message_form.hosting_request_hint" components={{ request: <strong /> }} />
           </Typography>
         </form>
       )}

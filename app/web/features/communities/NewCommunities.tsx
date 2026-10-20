@@ -44,10 +44,7 @@ export default function NewCommunities() {
   const { t } = useTranslation(DASHBOARD);
   const router = useRouter();
 
-  const { data, isLoading } = useQuery<
-    ListRecentCommunitiesRes.AsObject,
-    RpcError
-  >({
+  const { data, isLoading } = useQuery<ListRecentCommunitiesRes.AsObject, RpcError>({
     queryKey: ["recentCommunities", NEW_COMMUNITIES_LIMIT],
     queryFn: () => listRecentCommunities(NEW_COMMUNITIES_LIMIT),
   });
@@ -61,13 +58,7 @@ export default function NewCommunities() {
         </Label>
         <ChipsContainer>
           {Array.from({ length: NEW_COMMUNITIES_LIMIT }).map((_, i) => (
-            <Skeleton
-              key={i}
-              variant="rectangular"
-              width={100}
-              height={36}
-              sx={{ borderRadius: 2 }}
-            />
+            <Skeleton key={i} variant="rectangular" width={100} height={36} sx={{ borderRadius: 2 }} />
           ))}
         </ChipsContainer>
       </Container>
@@ -91,11 +82,7 @@ export default function NewCommunities() {
             key={community.communityId}
             label={community.name}
             clickable
-            onClick={() =>
-              router.push(
-                routeToCommunity(community.communityId, community.slug),
-              )
-            }
+            onClick={() => router.push(routeToCommunity(community.communityId, community.slug))}
             variant="outlined"
           />
         ))}

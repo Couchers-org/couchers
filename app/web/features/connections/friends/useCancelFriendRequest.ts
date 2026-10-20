@@ -20,8 +20,7 @@ export default function useCancelFriendRequest() {
     isSuccess,
     reset,
   } = useMutation<Empty, RpcError, CancelFriendRequestVariables>({
-    mutationFn: ({ friendRequestId }) =>
-      service.api.cancelFriendRequest(friendRequestId),
+    mutationFn: ({ friendRequestId }) => service.api.cancelFriendRequest(friendRequestId),
 
     onError: (error, { setMutationError }) => {
       setMutationError(error.message);

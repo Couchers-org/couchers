@@ -1,28 +1,21 @@
 import { styled, Tooltip, Typography } from "@mui/material";
-import { FlexboxProps, useMediaQuery } from "@mui/system";
+import { FlexboxProps } from "@mui/system";
 import Avatar from "components/Avatar";
-import { OpenInNewIcon } from "components/Icons";
 import ProfileLink from "components/ProfileLink/ProfileLink";
-import StyledLink from "components/StyledLink";
+import RelativeTime from "components/RelativeTime";
+import StrongVerificationBadge from "components/StrongVerificationBadge";
 import { useImpressionRef, useLogEvent } from "features/analytics/hooks";
 import { useSearchAnalytics } from "features/analytics/searchAnalyticsContext";
-import {
-  makeResultId,
-  setSearchReferrer,
-} from "features/analytics/searchAttribution";
+import { makeResultId, setSearchReferrer } from "features/analytics/searchAttribution";
 import { ResponseRateText } from "features/profile/view/userLabels";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { TFunction } from "i18next";
 import { SearchUser } from "proto/search_pb";
 import { MouseEvent } from "react";
-import LinesEllipsis from "react-lines-ellipsis";
-import { routeToUser } from "routes";
 import { theme } from "theme";
-import { timestamp2Date } from "utils/date";
-import { useIsNativeEmbed } from "utils/nativeLink";
+import { timestampToInstant } from "utils/date";
 import stripMarkdown from "utils/stripMarkdown";
-import { timeAgo, TimeUnit } from "utils/timeAgo";
 
 import HostMeetupReferenceStatus from "./HostMeetupReferenceStatus";
 import { aboutText, truncateWithEllipsis } from "./utils/constants";
@@ -42,12 +35,8 @@ function responseRateBucket(user: SearchUser.AsObject): string | null {
   return null;
 }
 
-function displayedAttributes(
-  user: SearchUser.AsObject,
-): Record<string, unknown> {
-  const lastActive = user.lastActive
-    ? timestamp2Date(user.lastActive).getTime()
-    : null;
+function displayedAttributes(user: SearchUser.AsObject): Record<string, unknown> {
+  const lastActive = user.lastActive ? timestampToInstant(user.lastActive).epochMilliseconds : null;
   return {
     has_avatar: user.avatarUrl.length > 0,
     has_about: user.profileSnippet.length > 0,
@@ -69,9 +58,7 @@ const StyledCard = styled("div", {
 })<{ isHighlighted: boolean }>(({ theme, isHighlighted }) => ({
   display: "flex",
   flexDirection: "column",
-  border: isHighlighted
-    ? `2px solid var(--mui-palette-secondary-main)`
-    : "none",
+  border: isHighlighted ? `2px solid var(--mui-palette-secondary-main)` : "none",
   borderRadius: 8,
   boxShadow: "0 0 4px var(--mui-palette-divider)",
   paddingTop: theme.spacing(1),
@@ -102,11 +89,6 @@ const StyledBottomContent = styled("div")(({ theme }) => ({
   [theme.breakpoints.down("sm")]: {
     fontSize: ".82rem",
   },
-}));
-
-const StyledOpenInNewIcon = styled(OpenInNewIcon)(() => ({
-  height: "1rem",
-  width: "1rem",
 }));
 
 const FlexRow = styled("div")<{
@@ -152,11 +134,19 @@ const HaikuContainer = styled("div")(({ theme }) => ({
   flexGrow: 1,
 }));
 
-const generateAboutText = (
-  user: SearchUser.AsObject,
-  t: TFunction,
-  isMobile: boolean,
-) => {
+const ClampedAbout = styled("div")(({ theme }) => ({
+  display: "-webkit-box",
+  WebkitBoxOrient: "vertical",
+  WebkitLineClamp: 7,
+  overflow: "hidden",
+  overflowWrap: "break-word",
+
+  [theme.breakpoints.down("md")]: {
+    WebkitLineClamp: 3,
+  },
+}));
+
+const generateAboutText = (user: SearchUser.AsObject, t: TFunction) => {
   const missingAbout = user.profileSnippet.length === 0;
   const hasPhoto = user.avatarUrl.length > 0;
 
@@ -180,14 +170,7 @@ const generateAboutText = (
       </HaikuContainer>
     );
   } else {
-    return (
-      <LinesEllipsis
-        maxLine={isMobile ? 3 : 7}
-        text={stripMarkdown(aboutText(user, t))}
-        basedOn="letters"
-        style={{ wordBreak: "break-all", overflow: "hidden" }}
-      />
-    );
+    return <ClampedAbout>{stripMarkdown(aboutText(user, t))}</ClampedAbout>;
   }
 };
 
@@ -197,19 +180,12 @@ const SearchResultUserCard = ({
   position,
   user,
 }: SearchResultUserCardProps) => {
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const isNativeEmbed = useIsNativeEmbed();
-  const {
-    t,
-    i18n: { language: locale },
-  } = useTranslation([GLOBAL, PROFILE]);
+  const { t } = useTranslation([GLOBAL, PROFILE]);
 
   const analytics = useSearchAnalytics();
   const logEvent = useLogEvent();
   const attrs = displayedAttributes(user);
-  const resultId = analytics
-    ? makeResultId(analytics.searchQueryId, user.userId, position)
-    : null;
+  const resultId = analytics ? makeResultId(analytics.searchQueryId, user.userId, position) : null;
 
   const impressionProps = analytics
     ? {
@@ -223,11 +199,10 @@ const SearchResultUserCard = ({
         ...attrs,
       }
     : {};
-  const impressionRef = useImpressionRef(
-    "search.result_impressed",
-    impressionProps,
-    { threshold: 0.5, minDurationMs: 250 },
-  );
+  const impressionRef = useImpressionRef("search.result_impressed", impressionProps, {
+    threshold: 0.5,
+    minDurationMs: 250,
+  });
 
   const handleUserCardClick = () => {
     onUserCardClick(user.userId);
@@ -252,11 +227,7 @@ const SearchResultUserCard = ({
       user_id: user.userId,
       position,
       surface: "list",
-      opened_in_new_tab:
-        anchor.getAttribute("target") === "_blank" ||
-        e.metaKey ||
-        e.ctrlKey ||
-        e.button === 1,
+      opened_in_new_tab: anchor.getAttribute("target") === "_blank" || e.metaKey || e.ctrlKey || e.button === 1,
       was_selected_on_map: isHighlighted,
       ...attrs,
     });
@@ -277,7 +248,6 @@ const SearchResultUserCard = ({
               <ProfileLink
                 userId={user.userId}
                 username={user.username}
-                aria-label={t("profile:open_profile_new_tab")}
                 openInNewTab
                 style={{ fontSize: "1.1rem", overflow: "hidden" }}
               >
@@ -293,26 +263,9 @@ const SearchResultUserCard = ({
                   {user.name}
                 </Typography>
               </ProfileLink>
+              {user.hasStrongVerification && <StrongVerificationBadge />}
             </FlexRow>
-            {!isNativeEmbed && !isMobile && (
-              <StyledLink
-                aria-label={t("profile:open_profile_new_tab")}
-                href={routeToUser(user.username)}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Tooltip title={t("profile:open_profile_new_tab")}>
-                  <StyledOpenInNewIcon
-                    sx={{
-                      "&:hover": {
-                        color: "var(--mui-palette-primary-dark)",
-                      },
-                    }}
-                  />
-                </Tooltip>
-              </StyledLink>
-            )}
+            <ProfileLink userId={user.userId} username={user.username} openInNewTab showOpenIcon />
           </FlexRow>
 
           <FlexRow justifyContent="space-between">
@@ -330,23 +283,18 @@ const SearchResultUserCard = ({
           meetupStatus={user.meetupStatus}
           numberReferences={user.numReferences}
         />
-        {generateAboutText(user, t, isMobile)}
-        <FlexRow
-          alignItems="flex-end"
-          justifyContent="space-between"
-          sx={{ marginTop: 1.5 }}
-        >
+        {generateAboutText(user, t)}
+        <FlexRow alignItems="flex-end" justifyContent="space-between" sx={{ marginTop: 1.5 }}>
           <UserDetailsRow>
             <Typography variant="body2">
-              {user.lastActive
-                ? `${t("profile:active")}: ` +
-                  timeAgo({
-                    since: timestamp2Date(user.lastActive),
-                    t,
-                    locale,
-                    minimumUnit: TimeUnit.Hours,
-                  })
-                : t("last_active_false")}
+              {user.lastActive ? (
+                <>
+                  {t("profile:active")}:{" "}
+                  <RelativeTime instant={user.lastActive} smallestUnit="hours" capitalize={true} />
+                </>
+              ) : (
+                t("last_active_false")
+              )}
             </Typography>
             <Typography variant="body2" sx={{ display: "flex" }}>
               {`${t("profile:response_rate_label")}: `}

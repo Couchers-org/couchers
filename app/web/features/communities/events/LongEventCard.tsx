@@ -1,26 +1,16 @@
 import { Group } from "@mui/icons-material";
-import {
-  Card,
-  CardContent,
-  CardMedia,
-  styled,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Card, CardContent, CardMedia, styled, Tooltip, Typography } from "@mui/material";
 import { eventImagePlaceholderUrl } from "appConstants";
 import Pill from "components/Pill";
+import { contentRefs } from "features/contentRefs";
 import FlagButton from "features/FlagButton";
 import { useTranslation } from "i18n";
+import { localizeDateTimeRange } from "i18n/datetimes";
 import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
 import { Event } from "proto/events_pb";
 import { routeToEvent } from "routes";
-import {
-  BROWSER_TIMEZONE,
-  localizeDateTimeRange,
-  timestamp2Date,
-} from "utils/date";
-import dayjs from "utils/dayjs";
+import { timestampToPlainDateTime } from "utils/date";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   margin: 0,
@@ -124,33 +114,24 @@ const CancelledPill = styled(Pill)(({ theme }) => ({
   color: "var(--mui-palette-common-white)",
 }));
 
-const LongEventCard = ({
-  event,
-  userId,
-}: {
-  event: Event.AsObject;
-  userId?: number | null | undefined;
-}) => {
+const LongEventCard = ({ event, userId }: { event: Event.AsObject; userId?: number | null | undefined }) => {
   const {
     t,
     i18n: { language: locale },
   } = useTranslation([COMMUNITIES]);
 
   const dateTimeRangeText = localizeDateTimeRange(
-    dayjs(timestamp2Date(event.startTime!)),
-    dayjs(timestamp2Date(event.endTime!)),
+    timestampToPlainDateTime(event.startTime!, event.timezone),
+    timestampToPlainDateTime(event.endTime!, event.timezone),
+    locale,
     {
-      // TODO(#8064): Should use the event.timezone, but it's currently incorrect.
-      timezone: BROWSER_TIMEZONE,
-      locale,
+      includeYear: "auto",
       includeDayOfWeek: true,
-      includeTime: true,
       capitalize: true,
     },
   );
 
   const isCreatedByMe = event.creatorUserId === userId;
-  const isOnline = event.onlineInformation?.link !== undefined;
   const isCancelled = event.isCancelled;
 
   return (
@@ -167,10 +148,7 @@ const LongEventCard = ({
           }}
         />
         <FlagWrapper>
-          <FlagButton
-            contentRef={`event/${event.eventId}`}
-            authorUser={event.creatorUserId}
-          />
+          <FlagButton contentRef={contentRefs.event(event)} authorUser={event.creatorUserId} />
         </FlagWrapper>
 
         <StyledCardContent>
@@ -179,25 +157,14 @@ const LongEventCard = ({
               <Title variant="h3">{event.title}</Title>
             </Tooltip>
             <Tags>
-              {isCreatedByMe && (
-                <Pill variant="rounded">{t("communities:created_by_me")}</Pill>
-              )}
-              {isOnline && (
-                <Pill variant="rounded">{t("communities:online")}</Pill>
-              )}
-              {isCancelled && (
-                <CancelledPill variant="rounded">
-                  {t("communities:cancelled")}
-                </CancelledPill>
-              )}
+              {isCreatedByMe && <Pill variant="rounded">{t("communities:created_by_me")}</Pill>}
+              {isCancelled && <CancelledPill variant="rounded">{t("communities:cancelled")}</CancelledPill>}
             </Tags>
           </Row>
 
           <Row>
             <EventInfo>
-              {event.offlineInformation
-                ? event.offlineInformation.address
-                : t("communities:virtual_event_location_placeholder")}
+              {event.location?.address}
               <div>{dateTimeRangeText}</div>
             </EventInfo>
             <ActivityStatsWrapper>

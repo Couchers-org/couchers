@@ -1,0 +1,105 @@
+{
+  "generic": {
+    "greeting_line": "Hoşgeldin {{name}},",
+    "do_not_reply_request": "Bu e-postayı yanıtlamayın. Bu isteği yanıtlamak için yukarıdaki butonlardan birini kullanın.",
+    "thanks": "Teşekkürler!",
+    "closing_lines": {
+      "default": "En iyi dileklerimizle,<br>Couchers.org Ekibi",
+      "founders": "Aapeli ve Itsi,<br>Couchers.org Kurucuları",
+      "emily": "Couchers.org'dan Emily<br>{{ email_link }}<br>{{ profile_link }}"
+    },
+    "footer": {
+      "received_because": "Bu e-postayı Couchers.org'a kaydolduğunuz için alıyorsunuz.",
+      "contact_support": "Destek ekibimize {{ email_link }} adresinden ulaşabilirsiniz.",
+      "timezone_note": "Tüm saatler, profil konumunuza göre {{ timezone }} cinsindendir.",
+      "donate_link": "Bağış Yap",
+      "volunteer_link": "Gönüllü Ol",
+      "blog_link": "Blog",
+      "nonprofit_note": "Couchers.org, ABD'de 501(c)(3) statüsünde kar amacı gütmeyen, vergiden muaf bir kuruluş olan Couchers, Inc.'in bir projesidir.",
+      "security_email_note": "Bu bir güvenlik e-postasıdır, bu e-postaya aboneliğini iptal edemezsin.",
+      "notification_settings_link": "Bildirim ayarlarını yönet",
+      "do_not_email_link": "Bana e-posta göndermeyin (Ev sahipliğini devre dışı bırakır)"
+    }
+  },
+  "account_deletion": {
+    "started": {
+      "confirm_action": "Hesap silme işlemini onayla",
+      "subject": "Hesabının silinmesini onayla"
+    },
+    "completed": {
+      "subject": "Hesabınız silindi",
+      "purpose": "Couchers.org hesabınızı başarıyla sildiniz.",
+      "farewell": "Gittiğini görmek bizi üzüyor, gelecekteki yolculuklarında sana en iyisini diliyoruz. Couchers.org platformuna geri dönmen her zaman memnuniyetle karşılanır :)"
+    },
+    "recovered": {
+      "login_instructions": "Tekrar giriş yapmak için bağlantıya tıklayın:",
+      "login_action": "Tekrar giriş yap",
+      "redelete_instructions": "Eğer fikrini değiştirirsen hesabını istediğin zaman silebilirsin.",
+      "subject": "Hesabınız kurtarıldı!",
+      "confirmation": "Couchers.org hesabınız başarıyla kurtarıldı. Kalmaya karar verdiğinize sevindik!"
+    }
+  },
+  "activeness_probe": {
+    "subject": "Hâlâ ev sahipliği yapmaya açık mısın?",
+    "purpose": "Bir süredir giriş yapmadığınızı fark ettik ve sörfçülere ev sahipliği yapmaya hâlâ açık olup olmadığınızı kontrol etmek istedik.",
+    "login_action": "Tekrar giriş yap"
+  },
+  "api_key_issued": {
+    "subject": "Couchers.org API anahtarınız",
+    "header": "Yakın zamanda Couchers.org için bir API anahtarı istediniz. Size aşağıdaki API anahtarını oluşturduk:"
+  },
+  "badges": {
+    "added": {
+      "subject": "{{ name }} rozeti profiline eklendi",
+      "purpose": "<b>{{ name }}</b> rozeti profiline eklendi."
+    },
+    "removed": {
+      "subject": "{{ name }} rozeti profilinizden kaldırıldı",
+      "purpose": "<b>{{ name }}</b> rozeti profilinden kaldırıldı."
+    }
+  },
+  "birthdate_changed": {
+    "subject": "Doğum tarihiniz değiştirildi"
+  },
+  "chat_messages": {
+    "missed": {
+      "view_action": "Mesajları görüntüle"
+    }
+  },
+  "discussions": {
+    "created": {
+      "subject": "{{author}} bir tartışma başlattı: {{title}}",
+      "view_action": "Tartışmayı görüntüle"
+    },
+    "comment": {
+      "view_action": "Tartışmayı görüntüle"
+    }
+  },
+  "donation_received": {
+    "subject": "Couchers.org'a yaptığınız bağış için teşekkür ederiz!",
+    "purpose": "Couchers.org'a olan <b>{{amount_with_currency}}</b> bağışınız için teşekkürler.",
+    "contribution_impact": "Katkınız Couchers.org topluluğunun büyümesine ve sürdürülmesine yardımcı olacak; ücretsiz ve kâr amacı gütmeyen bir kanepe sörfü platformu hedefimiz için hayati önem taşıyor.",
+    "invoice_receipt_info": "Bağışa ait fatura ve makbuzu buradan indirebilirsiniz:",
+    "download_invoice": "Faturayı indir"
+  },
+  "email_change": {
+    "verified": {
+      "purpose": "Yeni email adresiniz doğrulandı."
+    }
+  },
+  "events": {
+    "generic": {
+      "view_action": "Etkinliği görüntüle"
+    },
+    "created": {
+      "invitation": {
+        "subject": "{{user}} seni {{title}}'ya davet etti"
+      }
+    }
+  },
+  "calendar_events": {
+    "host_requests": {
+      "title_surfer": "{{ name }} ile sörf"
+    }
+  }
+}

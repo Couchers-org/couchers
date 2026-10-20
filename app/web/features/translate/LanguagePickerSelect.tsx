@@ -1,9 +1,9 @@
 import CheckIcon from "@mui/icons-material/Check";
 import ExpandMoreOutlinedIcon from "@mui/icons-material/ExpandMoreOutlined";
+import LanguageIcon from "@mui/icons-material/Language";
 import {
   Box,
   FormControl,
-  ListItemIcon,
   ListItemText,
   MenuItem,
   Select,
@@ -14,13 +14,12 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
-import { CatalanFlagIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
 import { useAuthContext } from "features/auth/AuthProvider";
-import { useWeblateStats } from "features/weblate/useWeblateStats";
 import { useTranslation } from "i18n";
-import { LANGUAGE_MAP } from "i18n/constants";
+import { isLocaleProductionReady, isLocaleSelectable } from "i18n/locales";
 import { GLOBAL } from "i18n/namespaces";
+import { useLocaleInfos } from "i18n/useLocaleInfos";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { translateRoute } from "routes";
@@ -28,18 +27,16 @@ import { service } from "service";
 import { theme } from "theme";
 import { sendLanguageChange } from "utils/nativeLink";
 
-import { ALMOST_DONE_CUTOFF } from "./constants";
 import { useShowAllLanguages } from "./useShowAllLanguages";
-import { getAvailableLanguages } from "./utils";
 
 interface StyledMuiSelectProps {
-  displayMode?: "round" | "rect";
+  displayMode?: "rounded" | "rect" | "icon";
 }
 
 const StyledSelect = styled(Select, {
   shouldForwardProp: (prop) => prop !== "displayMode",
 })<StyledMuiSelectProps>(({ theme, displayMode }) => ({
-  borderRadius: displayMode === "round" ? 999 : theme.shape.borderRadius,
+  borderRadius: displayMode === "rect" ? theme.shape.borderRadius : displayMode === "icon" ? "50%" : 999,
   backgroundColor: "var(--mui-palette-grey-200)",
   "& .MuiOutlinedInput-notchedOutline": {
     borderColor: "var(--mui-palette-grey-300)",
@@ -56,36 +53,44 @@ const StyledSelect = styled(Select, {
     top: "50%",
     transform: "translateY(-50%)",
     right: 10,
+    ...(displayMode === "icon" && { display: "none" }),
   },
   height: 41.25,
+  ...(displayMode === "icon" && {
+    width: 41.25,
+    minWidth: 41.25,
+    "& .MuiSelect-select": {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      paddingLeft: "0 !important",
+      paddingRight: "0 !important",
+    },
+  }),
 }));
 
 type LanguagePickerSelectProps = {
-  displayMode?: "round" | "rect";
+  displayMode?: "rounded" | "rect" | "icon";
   onNavigate?: () => void;
 };
 
-export default function LanguagePickerSelect({
-  displayMode = "round",
-  onNavigate,
-}: LanguagePickerSelectProps) {
+export default function LanguagePickerSelect({ displayMode = "rounded", onNavigate }: LanguagePickerSelectProps) {
   const router = useRouter();
   const { asPath, locale, pathname, query } = router;
   const { authState } = useAuthContext();
   const isAuthenticated = authState.authenticated;
 
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const { t } = useTranslation([GLOBAL]);
+  const { t, i18n } = useTranslation([GLOBAL]);
 
-  const { data: languages, isLoading, error } = useWeblateStats();
+  const { data: localeInfos, isLoading, error } = useLocaleInfos();
   const { showAllLanguages } = useShowAllLanguages();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isChangingLanguage, setIsChangingLanguage] = useState(false);
 
   const { mutate: changeLanguageMutation } = useMutation({
-    mutationFn: (newLanguage: string) =>
-      service.account.changeLanguage(newLanguage),
+    mutationFn: (newLanguage: string) => service.account.changeLanguage(newLanguage),
   });
 
   const handleChange = (event: SelectChangeEvent<unknown>) => {
@@ -124,41 +129,24 @@ export default function LanguagePickerSelect({
     router.push(translateRoute);
   };
 
-  const renderFlag = (flagCode: string, percent?: number) => {
-    const shouldGreyOut = percent !== undefined && percent < ALMOST_DONE_CUTOFF;
-    const commonStyles = {
-      filter: shouldGreyOut ? "grayscale(100%)" : "none",
-      opacity: shouldGreyOut ? 0.4 : 1,
-    } as const;
-
-    if (flagCode === "CAT") {
-      return (
-        <CatalanFlagIcon sx={{ width: 25, height: 18.75, ...commonStyles }} />
-      );
-    }
-
-    return (
-      <img
-        src={`https://cdn.couchers.org/img/language-icons/${flagCode}.svg`}
-        alt=""
-        style={{ width: 25, ...commonStyles }}
-      />
-    );
-  };
-  // Languages with < 50% translated are hidden from language selector (unless showAllLanguages is enabled)
-  // Languages with < 80% translated are greyed out
-  const availableLanguages = getAvailableLanguages(languages, showAllLanguages);
+  // Locales with < 50% translated are hidden from the language selector (unless showAllLanguages is enabled)
+  // Locales with < 80% translated are greyed out
+  const availableLocales = localeInfos
+    .filter((locale) => showAllLanguages || isLocaleSelectable(locale))
+    .sort((a, b) => {
+      const aReady = isLocaleProductionReady(a);
+      const bReady = isLocaleProductionReady(b);
+      if (aReady !== bReady) return aReady ? -1 : 1;
+      return a.code.localeCompare(b.code, i18n.language);
+    });
 
   const menuItems: React.ReactNode[] | undefined = isLoading
     ? []
-    : availableLanguages.map((language) => {
-        // language.code has underscore, we need to change to hyphen
-        const languageCode = language.code.replace("_", "-");
-
+    : availableLocales.map((localeInfo) => {
         return (
           <MenuItem
-            key={languageCode}
-            value={languageCode}
+            key={localeInfo.code}
+            value={localeInfo.code}
             sx={{
               display: "flex",
               alignItems: "center",
@@ -172,37 +160,27 @@ export default function LanguagePickerSelect({
             }}
           >
             <Stack
-              sx={{ width: "100%" }}
               direction="row"
-              alignItems="center"
-              justifyContent="space-between"
+              sx={{
+                alignItems: "center",
+                justifyContent: "space-between",
+                width: "100%",
+              }}
             >
               <Stack direction="row">
-                <ListItemIcon>
-                  {renderFlag(
-                    LANGUAGE_MAP[languageCode].flagIconCode,
-                    language.translated_percent,
-                  )}
-                </ListItemIcon>
                 <ListItemText
                   sx={{
-                    opacity:
-                      language.translated_percent < ALMOST_DONE_CUTOFF
-                        ? 0.4
-                        : 1,
+                    opacity: isLocaleProductionReady(localeInfo) ? 1 : 0.4,
                     fontWeight: "bold",
                     display: "inline",
                   }}
                 >
-                  {languageCode.toUpperCase()}
+                  {localeInfo.autonym}
                 </ListItemText>
               </Stack>
               <div>
-                {locale === languageCode && (
-                  <CheckIcon
-                    fontSize="small"
-                    sx={{ color: "var(--mui-palette-primary-main)" }}
-                  />
+                {locale === localeInfo.code && (
+                  <CheckIcon fontSize="small" sx={{ color: "var(--mui-palette-primary-main)" }} />
                 )}
               </div>
             </Stack>
@@ -211,9 +189,9 @@ export default function LanguagePickerSelect({
       });
 
   // renderValue function for what should be rendered after a selection is made
-  const renderValue = (value: unknown) => {
+  const renderRoundedValue = (value: unknown) => {
     const selected = value as string;
-    const selectedDisplay = (
+    return (
       <Box
         sx={{
           display: "flex",
@@ -224,45 +202,57 @@ export default function LanguagePickerSelect({
           fontWeight: "bold",
         }}
       >
-        {renderFlag(LANGUAGE_MAP[selected].flagIconCode)}
-        {selected.toUpperCase()}
+        <LanguageIcon fontSize="small" />
+        {localeInfos.find((localeInfo) => localeInfo.code === selected)?.autonym}
       </Box>
     );
-    return selectedDisplay;
   };
+
+  // Icon mode shows a generic language icon instead of the selected language
+  const renderIconValue = () => (
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "var(--mui-palette-action-active)",
+      }}
+    >
+      <LanguageIcon sx={{ fontSize: { xs: 20, md: 24 } }} />
+    </Box>
+  );
 
   return (
     <>
-      {error && (
-        <Snackbar severity="error">
-          {t("global:language_preference.error_loading_languages")}
-        </Snackbar>
-      )}
+      {error && <Snackbar severity="error">{t("global:language_preference.error_loading_languages")}</Snackbar>}
       <Box sx={{ minWidth: 40 }}>
         <FormControl
           variant="outlined"
           sx={{
-            width:
-              displayMode === "round"
-                ? "fit-content"
-                : !isMobile
-                  ? "241px"
-                  : "100%",
+            width: displayMode === "rect" ? (!isMobile ? "241px" : "100%") : "fit-content",
           }}
         >
-          {displayMode === "round" ? (
+          {displayMode !== "rect" ? (
             <StyledSelect
               id="language-select"
               value={isLoading ? "" : locale || ""}
               displayMode={displayMode}
               onChange={handleChange}
-              // Use renderValue to display the selected language in collapsed state
-              renderValue={renderValue}
+              // Use renderValue to display the selected language (or, in icon mode, a generic language icon) in collapsed state
+              renderValue={displayMode === "icon" ? renderIconValue : renderRoundedValue}
               IconComponent={ExpandMoreOutlinedIcon}
               disabled={isLoading || isChangingLanguage}
               open={isOpen}
               onOpen={() => setIsOpen(true)}
               onClose={() => setIsOpen(false)}
+              MenuProps={
+                displayMode === "icon"
+                  ? {
+                      anchorOrigin: { vertical: "bottom", horizontal: "right" },
+                      transformOrigin: { vertical: "top", horizontal: "right" },
+                    }
+                  : undefined
+              }
             >
               {menuItems}
               <Box
@@ -280,9 +270,11 @@ export default function LanguagePickerSelect({
                 }}
               >
                 <Typography
-                  color="var(--mui-palette-primary-main)"
-                  sx={{ fontWeight: "bold" }}
                   onClick={handleTranslationProgressClick}
+                  sx={{
+                    color: "var(--mui-palette-primary-main)",
+                    fontWeight: "bold",
+                  }}
                 >
                   {t("global:language_preference.translation_progress.title")}
                 </Typography>
@@ -317,8 +309,10 @@ export default function LanguagePickerSelect({
               >
                 <Typography
                   variant="body2"
-                  color="var(--mui-palette-primary-main)"
                   onClick={handleTranslationProgressClick}
+                  sx={{
+                    color: "var(--mui-palette-primary-main)",
+                  }}
                 >
                   {t("global:language_preference.translation_progress.title")}
                 </Typography>

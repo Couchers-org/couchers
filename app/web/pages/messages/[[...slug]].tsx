@@ -1,10 +1,11 @@
 import { appGetLayout } from "components/AppRoute";
+import PageContainer from "components/PageContainer";
 import AllMessagesTab from "features/messages/AllMessagesTab";
 import GroupChatView from "features/messages/groupchats/GroupChatView";
 import MessagesHeader from "features/messages/MessagesHeader";
 import HostRequestView from "features/messages/requests/HostRequestView";
 import NotFoundPage from "features/NotFoundPage";
-import { GLOBAL, MESSAGES, NOTIFICATIONS, PROFILE } from "i18n/namespaces";
+import { GLOBAL, MESSAGES, NOTIFICATIONS, PROFILE, PUBLIC_TRIPS } from "i18n/namespaces";
 import { translationStaticProps } from "i18n/server-side-translations";
 import { GetStaticPaths, GetStaticProps } from "next";
 import { useRouter } from "next/router";
@@ -20,8 +21,9 @@ export const getStaticProps: GetStaticProps = translationStaticProps([
   MESSAGES,
   NOTIFICATIONS,
   PROFILE,
+  PUBLIC_TRIPS,
 ]);
-export default function LeaveReferencePage() {
+function MessagesPageContent() {
   const router = useRouter();
   const slugs =
     typeof router.query.slug === "undefined"
@@ -48,7 +50,7 @@ export default function LeaveReferencePage() {
     if (isNaN(chatId)) {
       return <NotFoundPage />;
     }
-    return <GroupChatView chatId={chatId} />;
+    return <GroupChatView key={chatId} chatId={chatId} />;
   }
 
   // Route: /messages/request/123 (host request view)
@@ -57,14 +59,22 @@ export default function LeaveReferencePage() {
     if (isNaN(requestId)) {
       return <NotFoundPage />;
     }
-    return <HostRequestView hostRequestId={requestId} />;
+    return <HostRequestView key={requestId} hostRequestId={requestId} />;
   }
 
   // Invalid route - show 404
   return <NotFoundPage />;
 }
 
-LeaveReferencePage.getLayout = appGetLayout({
+export default function MessagesPage() {
+  return (
+    <PageContainer disableGutters>
+      <MessagesPageContent />
+    </PageContainer>
+  );
+}
+
+MessagesPage.getLayout = appGetLayout({
   variant: "full-width",
   noFooter: true,
 });

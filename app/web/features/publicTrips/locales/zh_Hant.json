@@ -1,0 +1,85 @@
+{
+  "heading": "公開行程",
+  "my_trips_heading": "我的公開行程",
+  "create_trip_button": "建立公開行程",
+  "view_my_trips_button": "查看我的公開行程",
+  "community_section": {
+    "intro": "旅行者會在這裡發布即將開始的行程，方便當地接待者瀏覽並發出接待邀請。如果您看到感興趣的行程，不妨聯絡對方並邀請他們來住！"
+  },
+  "trip_list": {
+    "filters": {
+      "active_option": "進行中",
+      "all_option": "全部",
+      "closed_option": "已關閉",
+      "past_option": "已結束",
+      "no_match_placeholder": "沒有符合此篩選條件的行程。"
+    },
+    "empty_placeholder": "目前沒有公開行程。",
+    "mine_empty_placeholder": "您還沒有發布任何公開行程。",
+    "pagination": {
+      "previous_button": "上一步",
+      "next_button": "下一步",
+      "next_button_a11y": "下一頁",
+      "previous_button_a11y": "上一頁",
+      "page_indicator": "第{{current}}頁"
+    },
+    "see_all_link": "查看所有公開行程"
+  },
+  "trip_card": {
+    "references_other": "{{count}}則評語",
+    "you_overlay": "您",
+    "status_pills": {
+      "active": "進行中",
+      "closed": "已關閉",
+      "past": "已結束"
+    },
+    "same_gender_only_indicator": "僅同性別使用者可見",
+    "show_less_action": "收起",
+    "show_more_action": "顯示更多",
+    "view_profile_button": "查看個人資料",
+    "edit_button": "編輯行程",
+    "close_button": "標記為已關閉",
+    "reopen_button": "重新開放行程",
+    "offer_to_host_button": "邀請接待"
+  },
+  "create_edit_dialog": {
+    "create_title": "建立公開行程",
+    "edit_title": "編輯公開行程",
+    "from_date": {
+      "label": "抵達日期",
+      "required_error": "請選擇抵達日期。"
+    },
+    "to_date": {
+      "label": "離開日期",
+      "required_error": "請選擇離開日期。"
+    },
+    "location_label": "地點：",
+    "same_gender_only": {
+      "label": "僅限同性別",
+      "description": "僅向同性別的使用者顯示此行程。"
+    },
+    "description": {
+      "label": "行程簡介",
+      "placeholder": "您想做些什麼？會停留多久？還有什麼是接待者需要知道的？",
+      "required_error": "請新增一段簡短的行程介紹。",
+      "chars_remaining_other": "還可輸入{{count}}個字元。"
+    },
+    "create_submit_button": "發布行程",
+    "edit_submit_button": "儲存變更"
+  },
+  "close_dialog": {
+    "title": "要關閉此行程嗎？",
+    "message": "關閉行程後，它將從社群列表中移除，也不會再收到新的接待邀請。",
+    "confirm_button": "關閉行程"
+  },
+  "offer_to_host_dialog": {
+    "title": "邀請接待{{name}}",
+    "message": {
+      "label": "您的留言",
+      "placeholder": "介紹一下自己，並告訴對方您能提供怎樣的接待。",
+      "required_error": "請填寫留言。",
+      "chars_remaining_other": "還需輸入{{count}}個字元。"
+    },
+    "submit_button": "傳送接待邀請"
+  }
+}

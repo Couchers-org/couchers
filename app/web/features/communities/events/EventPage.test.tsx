@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import useCurrentUser from "features/userQueries/useCurrentUser";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import mockRouter from "next-router-mock";
 import { User } from "proto/api_pb";
 import { AttendanceState } from "proto/events_pb";
@@ -10,13 +11,7 @@ import events from "test/fixtures/events.json";
 import users from "test/fixtures/users.json";
 import hookWrapper from "test/hookWrapper";
 import i18n from "test/i18n";
-import {
-  getEventAttendees,
-  getEventOrganizers,
-  getLiteUsers,
-  getThread,
-  getUser,
-} from "test/serviceMockDefaults";
+import { getEventAttendees, getEventOrganizers, getLiteUsers, getThread, getUser } from "test/serviceMockDefaults";
 import { addDefaultUser, assertErrorAlert, mockConsoleError } from "test/utils";
 
 import EventPage from "./EventPage";
@@ -25,36 +20,27 @@ const { t } = i18n;
 
 jest.mock("components/MarkdownInput");
 
-const [firstEvent, secondEvent, thirdEvent] = events;
+const [firstEvent, secondEvent] = events;
 
-const getEventMock = service.events.getEvent as jest.MockedFunction<
-  typeof service.events.getEvent
->;
-const listEventOrganizersMock = service.events
-  .listEventOrganizers as jest.MockedFunction<
+const getEventMock = service.events.getEvent as jest.MockedFunction<typeof service.events.getEvent>;
+const listEventOrganizersMock = service.events.listEventOrganizers as jest.MockedFunction<
   typeof service.events.listEventOrganizers
 >;
-const listEventAttendeesMock = service.events
-  .listEventAttendees as jest.MockedFunction<
+const listEventAttendeesMock = service.events.listEventAttendees as jest.MockedFunction<
   typeof service.events.listEventAttendees
 >;
-const getUserMock = service.user.getUser as jest.MockedFunction<
-  typeof service.user.getUser
->;
-const getThreadMock = service.threads.getThread as jest.MockedFunction<
-  typeof service.threads.getThread
->;
-const setEventAttendanceMock = service.events
-  .setEventAttendance as jest.MockedFunction<
+const getUserMock = service.user.getUser as jest.MockedFunction<typeof service.user.getUser>;
+const getThreadMock = service.threads.getThread as jest.MockedFunction<typeof service.threads.getThread>;
+const setEventAttendanceMock = service.events.setEventAttendance as jest.MockedFunction<
   typeof service.events.setEventAttendance
 >;
 jest.mock("features/userQueries/useCurrentUser");
-const useCurrentUserMock = useCurrentUser as jest.MockedFunction<
-  typeof useCurrentUser
->;
+const useCurrentUserMock = useCurrentUser as jest.MockedFunction<typeof useCurrentUser>;
 
-const getLiteUsersMock = service.user.getLiteUsers as jest.MockedFunction<
-  typeof service.user.getLiteUsers
+const getLiteUsersMock = service.user.getLiteUsers as jest.MockedFunction<typeof service.user.getLiteUsers>;
+
+const reportContentMock = service.reporting.reportContent as jest.MockedFunction<
+  typeof service.reporting.reportContent
 >;
 
 function renderEventPage(id = 1, slug = "weekly-meetup") {
@@ -86,17 +72,13 @@ describe("Event page", () => {
     jest.useRealTimers();
   });
 
-  it("renders an offline event successfully", async () => {
+  it("renders an event successfully", async () => {
     renderEventPage();
 
+    expect(await screen.findByRole("heading", { name: firstEvent.title })).toBeVisible();
+    expect(await screen.findByText(firstEvent.location!.address)).toBeVisible();
     expect(
-      await screen.findByRole("heading", { name: firstEvent.title }),
-    ).toBeVisible();
-    expect(
-      await screen.findByText(firstEvent.offlineInformation!.address),
-    ).toBeVisible();
-    expect(
-      await screen.findByText("Tuesday, June 29, 2021, 2:37 – 3:37 AM", {
+      await screen.findByText("Tuesday, June 29, 4:37 – 5:37 AM", {
         normalizer: (x) => x, // Match non-breaking spaces and en dashes exactly
       }),
     ).toBeVisible();
@@ -120,46 +102,22 @@ describe("Event page", () => {
     expect(screen.getByText("or be square!")).toBeVisible();
 
     // Basic checks that the organizers and attendees sections are rendered
-    expect(
-      screen.getByRole("heading", { name: t("communities:organizers") }),
-    ).toBeVisible();
-    expect(
-      screen.getByRole("heading", { name: t("communities:attendees") }),
-    ).toBeVisible();
+    expect(screen.getByRole("heading", { name: t("communities:organizers") })).toBeVisible();
+    expect(screen.getByRole("heading", { name: t("communities:attendees") })).toBeVisible();
 
     // Basic checks that the discussion has been rendered
-    expect(
-      screen.getByRole("heading", { name: t("communities:event_discussion") }),
-    ).toBeVisible();
-    expect(
-      screen.getByLabelText(t("communities:write_comment_a11y_label")),
-    ).toBeVisible();
-  });
-
-  it("renders an online event successfully", async () => {
-    getEventMock.mockResolvedValue(secondEvent);
-    renderEventPage(secondEvent.eventId, secondEvent.slug);
-
-    // Should be identical in structure as first test, so only assert on things that are different
-    expect(
-      await screen.findByText(t("communities:virtual_event")),
-    ).toBeVisible();
-    expect(
-      screen.getByRole("link", { name: t("communities:event_link") }),
-    ).toBeVisible();
+    expect(screen.getByRole("heading", { name: t("communities:event_discussion") })).toBeVisible();
+    expect(screen.getByLabelText(t("communities:write_comment_a11y_label"))).toBeVisible();
   });
 
   it("renders an event with a different start and end day correctly", async () => {
-    getEventMock.mockResolvedValue(thirdEvent);
-    renderEventPage(thirdEvent.eventId, thirdEvent.slug);
+    getEventMock.mockResolvedValue(secondEvent);
+    renderEventPage(secondEvent.eventId, secondEvent.slug);
 
     expect(
-      await screen.findByText(
-        "Tuesday, June 29, 2021 at 9:00 PM – Wednesday, June 30, 2021 at 2:00 AM",
-        {
-          normalizer: (x) => x, // Match non-breaking spaces and en dashes exactly
-        },
-      ),
+      await screen.findByText("Tuesday, June 29 at 11:00 PM – Wednesday, June 30 at 4:00 AM", {
+        normalizer: (x) => x, // Match non-breaking spaces and en dashes exactly
+      }),
     ).toBeVisible();
   });
 
@@ -176,9 +134,7 @@ describe("Event page", () => {
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    await user.click(
-      screen.getByRole("button", { name: t("communities:previous_page") }),
-    );
+    await user.click(screen.getByRole("button", { name: t("communities:previous_page") }));
 
     await waitFor(() => expect(mockRouter.back).toHaveBeenCalled());
   });
@@ -196,13 +152,121 @@ describe("Event page", () => {
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
+    await user.click(screen.getByRole("button", { name: t("communities:previous_page") }));
+
+    await waitFor(() => expect(mockRouter.push).toHaveBeenCalledWith("/events"));
+  });
+
+  it("shows the 'add to calendar' item for a non-cancelled event", async () => {
+    renderEventPage();
+
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await user.click(await screen.findByTestId("event-page-more-options"));
+
+    expect(
+      await screen.findByRole("menuitem", {
+        name: t("communities:add_to_calendar"),
+      }),
+    ).toBeVisible();
+  });
+
+  it("hides the 'add to calendar' item for cancelled events", async () => {
+    getEventMock.mockResolvedValue({ ...firstEvent, isCancelled: true });
+    renderEventPage();
+
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await user.click(await screen.findByTestId("event-page-more-options"));
+
+    expect(
+      screen.queryByRole("menuitem", {
+        name: t("communities:add_to_calendar"),
+      }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("downloads a calendar file with the event's filename when 'add to calendar' is clicked", async () => {
+    const mockBlob = new Blob(["BEGIN:VCALENDAR"]);
+    global.fetch = jest.fn().mockResolvedValue({ ok: true, blob: jest.fn().mockResolvedValue(mockBlob) });
+    jest.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock-url");
+    URL.revokeObjectURL = jest.fn();
+
+    renderEventPage();
+
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await user.click(await screen.findByTestId("event-page-more-options"));
+
+    const clickSpy = jest.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (
+      this: HTMLAnchorElement,
+    ) {
+      expect(this.href).toBe("blob:mock-url");
+      expect(this.download).toBe(`${firstEvent.slug}.ics`);
+    });
+
     await user.click(
-      screen.getByRole("button", { name: t("communities:previous_page") }),
+      await screen.findByRole("menuitem", {
+        name: t("communities:add_to_calendar"),
+      }),
     );
 
-    await waitFor(() =>
-      expect(mockRouter.push).toHaveBeenCalledWith("/events"),
-    );
+    expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining(`/events/${firstEvent.eventId}/calendar`), {
+      credentials: "include",
+    });
+    expect(clickSpy).toHaveBeenCalledTimes(1);
+  });
+
+  describe("in the native app", () => {
+    const postMessage = jest.fn();
+
+    function mockNativeApp(capabilities: string[]) {
+      window.ReactNativeWebView = {
+        injectedObjectJson: () => JSON.stringify({ isNativeEmbed: true, capabilities }),
+        postMessage,
+      };
+    }
+
+    afterEach(() => {
+      delete window.ReactNativeWebView;
+    });
+
+    it("hides the 'add to calendar' item when the app can't add to calendar", async () => {
+      mockNativeApp([]);
+      renderEventPage();
+
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+      await user.click(await screen.findByTestId("event-page-more-options"));
+
+      expect(
+        screen.queryByRole("menuitem", {
+          name: t("communities:add_to_calendar"),
+        }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("asks the app to add the event to the calendar", async () => {
+      mockNativeApp(["addToCalendar"]);
+      renderEventPage();
+
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+      await user.click(await screen.findByTestId("event-page-more-options"));
+      await user.click(
+        await screen.findByRole("menuitem", {
+          name: t("communities:add_to_calendar"),
+        }),
+      );
+
+      expect(JSON.parse(postMessage.mock.calls[0][0])).toEqual({
+        type: "REQUEST_ADD_TO_CALENDAR",
+        data: {
+          title: firstEvent.title,
+          startDate: "2021-06-29T02:37:00Z",
+          endDate: "2021-06-29T03:37:00Z",
+          timeZone: firstEvent.timezone,
+          location: firstEvent.location.address,
+          url: `${window.location.origin}/event/1/weekly-meetup`,
+          notes: `Be there or be square!\n\n${window.location.origin}/event/1/weekly-meetup`,
+        },
+      });
+    });
   });
 
   it("shows the 'edit event' button if the user has edit permission", async () => {
@@ -225,9 +289,7 @@ describe("Event page", () => {
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
     await user.click(await screen.findByTestId("event-page-more-options"));
 
-    expect(
-      screen.queryByRole("menuitem", { name: t("communities:edit_event") }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("menuitem", { name: t("communities:edit_event") })).not.toBeInTheDocument();
   });
 
   it("shows the 'duplicate event' button only for the event creator", async () => {
@@ -312,9 +374,7 @@ describe("Event page", () => {
     );
 
     await waitFor(() =>
-      expect(mockRouter.push).toHaveBeenCalledWith(
-        `/event/new?duplicateEventId=${firstEvent.eventId}`,
-      ),
+      expect(mockRouter.push).toHaveBeenCalledWith(`/event/new?duplicateEventId=${firstEvent.eventId}`),
     );
   });
 
@@ -334,9 +394,7 @@ describe("Event page", () => {
 
   it("shows the not found page if the user tries to find an event with an invalid ID in the URL", async () => {
     renderEventPage(0, "event");
-    expect(
-      await screen.findByRole("img", { name: "404 Error: Resource Not Found" }),
-    ).toBeVisible();
+    expect(await screen.findByRole("img", { name: "404 Error: Resource Not Found" })).toBeVisible();
   });
 
   it("shows an error alert if the event failed to load", async () => {
@@ -347,6 +405,34 @@ describe("Event page", () => {
     renderEventPage();
 
     await assertErrorAlert(errorMessage);
+  });
+
+  describe("when the report button is clicked", () => {
+    it("submits a report for the event itself", async () => {
+      reportContentMock.mockResolvedValue(new Empty());
+      getEventMock.mockResolvedValue({ ...firstEvent, creatorUserId: 2 });
+      renderEventPage();
+
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+      await user.click(
+        await screen.findByRole("button", {
+          name: t("communities:report_event_button_a11y"),
+        }),
+      );
+
+      const reason = t("global:report.flag.reason.spam");
+      await user.selectOptions(await screen.findByLabelText(t("global:report.flag.reason_label")), reason);
+      await user.click(screen.getByRole("button", { name: t("global:submit") }));
+
+      await waitFor(() => {
+        expect(reportContentMock).toHaveBeenCalledWith({
+          authorUser: 2,
+          contentRef: `event/${firstEvent.eventId}`,
+          description: "",
+          reason,
+        });
+      });
+    });
   });
 
   describe("when the event attendance button is clicked", () => {
@@ -375,9 +461,7 @@ describe("Event page", () => {
           name: t("communities:join_event"),
         }),
       ).toBeVisible();
-      expect(
-        screen.queryByRole("heading", { name: "Funny Cat current User" }),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByRole("heading", { name: "Funny Cat current User" })).not.toBeInTheDocument();
       expect(setEventAttendanceMock).toHaveBeenCalledTimes(1);
       expect(setEventAttendanceMock).toHaveBeenCalledWith({
         attendanceState: 0,

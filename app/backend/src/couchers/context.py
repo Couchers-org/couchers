@@ -4,6 +4,7 @@ import grpc
 
 from couchers import experimentation
 from couchers.i18n import LocalizationContext
+from couchers.i18n.locales import get_translation_component
 
 if TYPE_CHECKING:
     from growthbook import GrowthBook
@@ -122,17 +123,30 @@ class CouchersContext:
             context.abort(status_code, error_message)
 
     def abort_with_error_code(
-        self, status_code: grpc.StatusCode, error_message_id: str, *, substitutions: dict[str, str | int] | None = None
+        self,
+        status_code: grpc.StatusCode,
+        error_message_id: str,
+        *,
+        substitutions: dict[str, str | int] | None = None,
     ) -> NoReturn:
         """
         Raises an error that's returned to the user, but error_message_id should be an entry from translateable errors
+
+        error_message_id may be namespaced with a translation component, like i18next, e.g. "admin:object_not_found"
+        looks up "object_not_found" in the "admin" component (where admin/editor errors live). Without a prefix the
+        "main" component is used.
         """
         if not self.__is_interactive:
             raise NonInteractiveAbortException(status_code, error_message_id)
         else:
             context = cast(grpc.ServicerContext, self._grpc_context)
+            component, _, error_name = error_message_id.rpartition(":")
             # Get the translated error message using the user's language preference
-            error_message = self.localization.localize_string(f"errors.{error_message_id}", substitutions=substitutions)
+            error_message = self.localization.localize_string(
+                f"errors.{error_name}",
+                i18next=get_translation_component(component or "main"),
+                substitutions=substitutions,
+            )
             context.abort(status_code, error_message)
 
     def set_cookies(self, cookies: list[str]) -> None:

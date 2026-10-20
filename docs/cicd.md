@@ -4,7 +4,7 @@ This lists some of the stuff the [CI/CD](https://en.wikipedia.org/wiki/CI/CD) pi
 
 It runs on GitLab at [couchers/couchers](https://gitlab.com/couchers/couchers/). Their CI/CD is super awesome and we're supposed to be getting an open-source license to get even more of that good stuff.
 
-Note on slugs: each branch has a slug generated from the branch name, normally you just replace non-alphanumberic stuff with dashes, so a branch name of `web/feature/login` gets a slug of `web-feature-login`. The previews and artifacts can usually be identified based on this slug or the commit hash. (The slug is useful for use in places where you can't use slashes, e.g. URLs or docker image names).
+Note on slugs: each branch has a slug generated from the branch name, normally you just replace non-alphanumberic stuff with dashes, so a branch name of `jdoe/login` gets a slug of `jdoe-login`. The previews and artifacts can usually be identified based on this slug or the commit hash. (The slug is useful for use in places where you can't use slashes, e.g. URLs or docker image names).
 
 ## Quick links
 
@@ -13,6 +13,7 @@ Note on slugs: each branch has a slug generated from the branch name, normally y
 * Web as at `develop`: <https://develop--web.preview.couchershq.org/>
 * Current backend test coverage on `develop`: <https://develop--bcov.preview.couchershq.org/>
 * Current web test coverage on `develop`: <https://develop--wcov.preview.couchershq.org/>
+* SQL queries the backend tests issue on `develop`: <https://develop--test-artifacts.preview.couchershq.org/queries/index.html> (see [docs/query-log.md](query-log.md))
 
 ## Tests
 

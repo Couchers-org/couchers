@@ -1,48 +1,52 @@
 import html
 import re
 from datetime import date, timedelta
-from unittest.mock import patch
+from unittest.mock import DEFAULT, patch
 from urllib.parse import parse_qs, urlparse
 
 import grpc
 import pytest
-from sqlalchemy import func, select
+from google.protobuf import wrappers_pb2
+from sqlalchemy import func, select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy_utils import refresh_materialized_view
 
-from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
+from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16, PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16
 from couchers.crypto import b64decode
 from couchers.db import session_scope
 from couchers.i18n import LocalizationContext
+from couchers.materialized_views import UserResponseRate
 from couchers.models import (
     Cluster,
     ClusterRole,
     ClusterSubscription,
     HostRequest,
+    HostRequestStatus,
     Message,
     MessageType,
+    ModerationObjectType,
+    ModerationState,
+    ModerationVisibility,
     Node,
     NodeType,
     Notification,
     RateLimitAction,
+    RateLimitViolation,
 )
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.proto import (
     api_pb2,
     auth_pb2,
-    conversations_pb2,
+    messages_pb2,
     requests_pb2,
 )
 from couchers.proto.internal import unsubscribe_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_multi, today
-from tests.fixtures.db import generate_user
+from tests.fixtures.db import backdate_conversations, generate_user, make_user_block
 from tests.fixtures.misc import EmailCollector, PushCollector
 from tests.fixtures.sessions import api_session, auth_api_session, requests_session
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
+from tests.test_public_trips import _create_trip_directly, _make_node
 
 
 def valid_request_text(text: str = "Test request") -> str:
@@ -266,6 +270,204 @@ def test_create_host_request_date_valid_when_host_behind_requester(db):
             assert res.host_request_id
 
 
+def test_create_request_records_host_timezone(db, frozen_timewarp, moderator):
+    surfer, surfer_token = generate_user()  # default geom resolves to America/New_York
+    # geom inside the fake Europe/Helsinki timezone polygon used in tests
+    host, host_token = generate_user(geom=create_coordinate(61, 25))
+
+    with requests_session(surfer_token) as api:
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=(today() + timedelta(days=2)).isoformat(),
+                to_date=(today() + timedelta(days=3)).isoformat(),
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(host_request_id)
+
+    with requests_session(surfer_token) as api:
+        get_res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert get_res.timezone == "Europe/Helsinki"
+
+    # The host request timezone shouldn't change if the host then moves to a different timezone
+    # Otherwise this would affect all historical host requests
+    with api_session(host_token) as api:
+        api.UpdateProfile(
+            api_pb2.UpdateProfileReq(lat=wrappers_pb2.DoubleValue(value=0.01), lng=wrappers_pb2.DoubleValue(value=0.01))
+        )
+        assert api.GetUser(api_pb2.GetUserReq(user=host.username)).timezone != "Europe/Helsinki"
+
+    with requests_session(surfer_token) as api:
+        get_res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert get_res.timezone == "Europe/Helsinki"
+
+
+def test_create_request_duplicate_within_window(db):
+    """A second request to the same host for overlapping dates inside the window is rejected, so a
+    client that resends (or a user who re-taps Send) doesn't create a pile of duplicates."""
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    user3, _ = generate_user()
+    from_date = today() + timedelta(days=10)
+    to_date = today() + timedelta(days=15)
+
+    with requests_session(token1) as api:
+        assert api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=from_date.isoformat(),
+                to_date=to_date.isoformat(),
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=user2.id,
+                    from_date=from_date.isoformat(),
+                    to_date=to_date.isoformat(),
+                    text=valid_request_text(),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert "past 3 hours" in (e.value.details() or "")
+
+        # partly overlapping dates are blocked too
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=user2.id,
+                    from_date=(to_date - timedelta(days=1)).isoformat(),
+                    to_date=(to_date + timedelta(days=5)).isoformat(),
+                    text=valid_request_text(),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+        # a different host is unaffected
+        assert api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user3.id,
+                from_date=from_date.isoformat(),
+                to_date=to_date.isoformat(),
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+
+def test_create_request_duplicate_window_allows_other_dates(db):
+    """Only overlapping stays count as duplicates, including a stay starting the day another one
+    ends."""
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    from_date = today() + timedelta(days=10)
+    to_date = today() + timedelta(days=15)
+
+    with requests_session(token1) as api:
+        assert api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=from_date.isoformat(),
+                to_date=to_date.isoformat(),
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+        assert api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=to_date.isoformat(),
+                to_date=(to_date + timedelta(days=5)).isoformat(),
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+        assert api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=(from_date + timedelta(days=90)).isoformat(),
+                to_date=(to_date + timedelta(days=90)).isoformat(),
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+
+def test_create_request_duplicate_allowed_after_window(db):
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    from_date = today() + timedelta(days=10)
+    to_date = today() + timedelta(days=15)
+
+    with requests_session(token1) as api:
+        api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=from_date.isoformat(),
+                to_date=to_date.isoformat(),
+                text=valid_request_text(),
+            )
+        )
+        backdate_conversations()
+
+        assert api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=from_date.isoformat(),
+                to_date=to_date.isoformat(),
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+
+def test_create_request_duplicate_window_ignores_public_trip_offers(db):
+    """Offers on public trips are deduplicated per trip, so two offers to the same traveler for
+    two different trips must both go through."""
+    surfer, _ = generate_user()
+    host, host_token = generate_user()
+
+    trip_1_from = today() + timedelta(days=10)
+    trip_1_to = today() + timedelta(days=20)
+    trip_2_from = today() + timedelta(days=40)
+    trip_2_to = today() + timedelta(days=50)
+    trip_1_id = _create_public_trip(surfer.id, trip_1_from, trip_1_to)
+    trip_2_id = _create_public_trip(surfer.id, trip_2_from, trip_2_to)
+
+    with requests_session(host_token) as api:
+        assert api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=trip_1_from.isoformat(),
+                to_date=trip_1_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_1_id,
+            )
+        ).host_request_id
+
+        assert api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=trip_2_from.isoformat(),
+                to_date=trip_2_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_2_id,
+            )
+        ).host_request_id
+
+        # the window only counts non-trip requests, so trip offers don't block a plain request
+        # even for dates they cover
+        assert api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=(trip_1_from + timedelta(days=2)).isoformat(),
+                to_date=(trip_1_to - timedelta(days=2)).isoformat(),
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+
 def test_create_request_incomplete_profile(db):
     user1, token1 = generate_user(complete_profile=False)
     user2, _ = generate_user()
@@ -285,7 +487,7 @@ def test_create_request_incomplete_profile(db):
     assert e.value.details() == "You have to complete your profile before you can send a request."
 
 
-def test_excessive_requests_are_reported(db, email_collector: EmailCollector):
+def test_excessive_requests_are_reported(db, low_rate_limits, email_collector: EmailCollector):
     """Test that excessive host requests are first reported in a warning email and finally lead blocking of further requests."""
     user, token = generate_user()
     today_plus_2 = today() + timedelta(days=2)
@@ -355,6 +557,27 @@ def test_excessive_requests_are_reported(db, email_collector: EmailCollector):
             f"User {user.username} has sent {rate_limit_definition.hard_limit} host requests in the past {RATE_LIMIT_HOURS} hours."
         )
         assert "The user has been blocked from sending further host requests for now." in email.plain
+
+        with session_scope() as session:
+            assert session.execute(
+                select(RateLimitViolation.is_hard_limit)
+                .where(RateLimitViolation.user_id == user.id)
+                .order_by(RateLimitViolation.id)
+            ).scalars().all() == [False, True]
+
+        # still blocked once the hard violation is on record, without reporting again
+        host_user, _ = generate_user()
+        with pytest.raises(grpc.RpcError) as exc_info:
+            _ = api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=host_user.id,
+                    from_date=today_plus_2.isoformat(),
+                    to_date=today_plus_3.isoformat(),
+                    text=valid_request_text("Excessive test request"),
+                )
+            )
+        assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
+        assert email_collector.count_for_reports() == 0
 
 
 def add_message(db, text, author_id, conversation_id):
@@ -435,7 +658,7 @@ def test_ListHostRequests(db, moderator):
         assert res.host_requests[0].latest_message.text.text == valid_request_text("Test request 1")
         assert res.host_requests[0].surfer_user_id == user1.id
         assert res.host_requests[0].host_user_id == user2.id
-        assert res.host_requests[0].status == conversations_pb2.HOST_REQUEST_STATUS_PENDING
+        assert res.host_requests[0].status == messages_pb2.HOST_REQUEST_STATUS_PENDING
 
         add_message(db, "Test request 1 message 1", user2.id, host_request_1)
         add_message(db, "Test request 1 message 2", user2.id, host_request_1)
@@ -489,6 +712,7 @@ def test_ListHostRequests_pagination_regression(db, moderator):
                 text=valid_request_text("Test request 1"),
             )
         ).host_request_id
+        backdate_conversations()
 
         host_request_2 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -498,6 +722,7 @@ def test_ListHostRequests_pagination_regression(db, moderator):
                 text=valid_request_text("Test request 2"),
             )
         ).host_request_id
+        backdate_conversations()
 
         host_request_3 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -524,21 +749,21 @@ def test_ListHostRequests_pagination_regression(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_2,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
                 text="Accepting host request 2",
             )
         )
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_1,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
                 text="Accepting host request 1",
             )
         )
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_3,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
                 text="Accepting host request 3",
             )
         )
@@ -645,6 +870,7 @@ def test_ListHostRequests_sort_by_from_date_pagination(db, moderator):
                 text=valid_request_text("Request A"),
             )
         ).host_request_id
+        backdate_conversations()
 
         # Same from_date as A — tiebreaker by conversation_id
         hr_b = api.CreateHostRequest(
@@ -655,6 +881,7 @@ def test_ListHostRequests_sort_by_from_date_pagination(db, moderator):
                 text=valid_request_text("Request B"),
             )
         ).host_request_id
+        backdate_conversations()
 
         hr_c = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -727,7 +954,7 @@ def test_ListHostRequests_active_filter(db, moderator):
     with requests_session(token1) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
+                host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
             )
         )
 
@@ -761,7 +988,7 @@ def test_ListHostRequests_active_filter_excludes_past(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=request_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
             )
         )
 
@@ -826,7 +1053,7 @@ def test_ListHostRequests_status_in_filter(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=accepted_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
             )
         )
 
@@ -834,29 +1061,29 @@ def test_ListHostRequests_status_in_filter(db, moderator):
     with requests_session(token2) as api:
         res = api.ListHostRequests(
             requests_pb2.ListHostRequestsReq(
-                status_in=[conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED],
+                status_in=[messages_pb2.HOST_REQUEST_STATUS_ACCEPTED],
             )
         )
         assert len(res.host_requests) == 1
-        assert res.host_requests[0].status == conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+        assert res.host_requests[0].status == messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
 
     # Filter to pending only
     with requests_session(token2) as api:
         res = api.ListHostRequests(
             requests_pb2.ListHostRequestsReq(
-                status_in=[conversations_pb2.HOST_REQUEST_STATUS_PENDING],
+                status_in=[messages_pb2.HOST_REQUEST_STATUS_PENDING],
             )
         )
         assert len(res.host_requests) == 1
-        assert res.host_requests[0].status == conversations_pb2.HOST_REQUEST_STATUS_PENDING
+        assert res.host_requests[0].status == messages_pb2.HOST_REQUEST_STATUS_PENDING
 
     # Filter to accepted + pending — both appear
     with requests_session(token2) as api:
         res = api.ListHostRequests(
             requests_pb2.ListHostRequestsReq(
                 status_in=[
-                    conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
-                    conversations_pb2.HOST_REQUEST_STATUS_PENDING,
+                    messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                    messages_pb2.HOST_REQUEST_STATUS_PENDING,
                 ],
             )
         )
@@ -866,7 +1093,7 @@ def test_ListHostRequests_status_in_filter(db, moderator):
     with requests_session(token2) as api:
         res = api.ListHostRequests(
             requests_pb2.ListHostRequestsReq(
-                status_in=[conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED],
+                status_in=[messages_pb2.HOST_REQUEST_STATUS_CONFIRMED],
             )
         )
         assert len(res.host_requests) == 0
@@ -901,7 +1128,7 @@ def test_RespondHostRequests(db, moderator):
         with pytest.raises(grpc.RpcError) as e:
             api.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
-                    host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
+                    host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
                 )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
@@ -911,7 +1138,7 @@ def test_RespondHostRequests(db, moderator):
         with pytest.raises(grpc.RpcError) as e:
             api.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
-                    host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+                    host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
@@ -922,7 +1149,7 @@ def test_RespondHostRequests(db, moderator):
         with pytest.raises(grpc.RpcError) as e:
             api.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
-                    host_request_id=9999, status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
+                    host_request_id=9999, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
                 )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
@@ -931,7 +1158,7 @@ def test_RespondHostRequests(db, moderator):
         with pytest.raises(grpc.RpcError) as e:
             api.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
-                    host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
+                    host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
@@ -939,7 +1166,7 @@ def test_RespondHostRequests(db, moderator):
         with pytest.raises(grpc.RpcError) as e:
             api.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
-                    host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
+                    host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
@@ -948,18 +1175,18 @@ def test_RespondHostRequests(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=request_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_REJECTED,
                 text="Test rejection message",
             )
         )
         res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(host_request_id=request_id))
         assert res.messages[0].text.text == "Test rejection message"
         assert res.messages[1].WhichOneof("content") == "host_request_status_changed"
-        assert res.messages[1].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED
+        assert res.messages[1].host_request_status_changed.status == messages_pb2.HOST_REQUEST_STATUS_REJECTED
         # should be able to move from rejected -> accepted
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+                host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
             )
         )
 
@@ -968,7 +1195,7 @@ def test_RespondHostRequests(db, moderator):
         with pytest.raises(grpc.RpcError) as e:
             api.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
-                    host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_PENDING
+                    host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_PENDING
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
@@ -977,13 +1204,13 @@ def test_RespondHostRequests(db, moderator):
         # can confirm then cancel
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
+                host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
             )
         )
 
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
+                host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
             )
         )
 
@@ -991,7 +1218,7 @@ def test_RespondHostRequests(db, moderator):
         with pytest.raises(grpc.RpcError) as e:
             api.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
-                    host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
+                    host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
@@ -1002,10 +1229,10 @@ def test_RespondHostRequests(db, moderator):
     with requests_session(token1) as api:
         res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(host_request_id=request_id))
         assert len(res.messages) == 7
-        assert res.messages[0].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
-        assert res.messages[1].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
-        assert res.messages[2].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
-        assert res.messages[4].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED
+        assert res.messages[0].host_request_status_changed.status == messages_pb2.HOST_REQUEST_STATUS_CANCELLED
+        assert res.messages[1].host_request_status_changed.status == messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
+        assert res.messages[2].host_request_status_changed.status == messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+        assert res.messages[4].host_request_status_changed.status == messages_pb2.HOST_REQUEST_STATUS_REJECTED
         assert res.messages[6].WhichOneof("content") == "chat_created"
 
 
@@ -1034,7 +1261,7 @@ def test_get_host_request_messages(db, moderator):
     with requests_session(token2) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=conversation_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+                host_request_id=conversation_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
             )
         )
 
@@ -1043,7 +1270,7 @@ def test_get_host_request_messages(db, moderator):
 
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=conversation_id, status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED
+                host_request_id=conversation_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
             )
         )
 
@@ -1058,7 +1285,7 @@ def test_get_host_request_messages(db, moderator):
         )
         assert not res.no_more
         assert len(res.messages) == 3
-        assert res.messages[0].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED
+        assert res.messages[0].host_request_status_changed.status == messages_pb2.HOST_REQUEST_STATUS_REJECTED
         assert res.messages[0].WhichOneof("content") == "host_request_status_changed"
         assert res.messages[1].text.text == "Test request 1 message 5"
         assert res.messages[2].text.text == "Test request 1 message 4"
@@ -1072,7 +1299,7 @@ def test_get_host_request_messages(db, moderator):
         )
         assert res.no_more
         assert len(res.messages) == 6
-        assert res.messages[0].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+        assert res.messages[0].host_request_status_changed.status == messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
         assert res.messages[0].WhichOneof("content") == "host_request_status_changed"
         assert res.messages[1].text.text == "Test request 1 message 3"
         assert res.messages[2].text.text == "Test request 1 message 2"
@@ -1140,7 +1367,7 @@ def test_SendHostRequestMessage(db, moderator):
         # CAN send messages to a rejected, confirmed or cancelled request, and for accepted
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED
+                host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
             )
         )
         api.SendHostRequestMessage(
@@ -1149,14 +1376,14 @@ def test_SendHostRequestMessage(db, moderator):
 
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+                host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
             )
         )
 
     with requests_session(token1) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
+                host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
             )
         )
         api.SendHostRequestMessage(
@@ -1165,7 +1392,7 @@ def test_SendHostRequestMessage(db, moderator):
 
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
+                host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
             )
         )
         api.SendHostRequestMessage(
@@ -1201,11 +1428,12 @@ def test_get_updates(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED,
+                status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED,
                 text="Test message 3",
             )
         )
 
+        backdate_conversations()
         api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id,
@@ -1218,7 +1446,7 @@ def test_get_updates(db, moderator):
         res = api.GetHostRequestMessages(requests_pb2.GetHostRequestMessagesReq(host_request_id=host_request_id))
         assert len(res.messages) == 6
         assert res.messages[0].text.text == "Test message 3"
-        assert res.messages[1].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
+        assert res.messages[1].host_request_status_changed.status == messages_pb2.HOST_REQUEST_STATUS_CANCELLED
         assert res.messages[2].text.text == "Test message 2"
         assert res.messages[3].text.text == "Test message 1"
         assert res.messages[4].text.text == valid_request_text("Test message 0")
@@ -1236,20 +1464,18 @@ def test_get_updates(db, moderator):
         assert res.no_more
         assert len(res.updates) == 5
         assert res.updates[0].message.text.text == "Test message 2"
-        assert (
-            res.updates[1].message.host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
-        )
-        assert res.updates[1].status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
+        assert res.updates[1].message.host_request_status_changed.status == messages_pb2.HOST_REQUEST_STATUS_CANCELLED
+        assert res.updates[1].status == messages_pb2.HOST_REQUEST_STATUS_CANCELLED
         assert res.updates[2].message.text.text == "Test message 3"
         assert res.updates[3].message.WhichOneof("content") == "chat_created"
-        assert res.updates[3].status == conversations_pb2.HOST_REQUEST_STATUS_PENDING
+        assert res.updates[3].status == messages_pb2.HOST_REQUEST_STATUS_PENDING
         assert res.updates[4].message.text.text == valid_request_text("Test message 4")
 
         res = api.GetHostRequestUpdates(requests_pb2.GetHostRequestUpdatesReq(newest_message_id=message_id_1, number=1))
         assert not res.no_more
         assert len(res.updates) == 1
         assert res.updates[0].message.text.text == "Test message 2"
-        assert res.updates[0].status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
+        assert res.updates[0].status == messages_pb2.HOST_REQUEST_STATUS_CANCELLED
 
     with requests_session(token3) as api:
         # other user can't access
@@ -1288,13 +1514,13 @@ def test_archive_host_request(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED,
+                status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED,
                 text="Test message 3",
             )
         )
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
         assert len(res.host_requests) == 1
-        assert res.host_requests[0].status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
+        assert res.host_requests[0].status == messages_pb2.HOST_REQUEST_STATUS_CANCELLED
 
         # Verify is_archived is False before archiving
         res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
@@ -1309,6 +1535,50 @@ def test_archive_host_request(db, moderator):
         # Verify is_archived is True after archiving
         res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
         assert res.is_archived
+
+
+def test_host_request_unseen_message_count(db, moderator):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with requests_session(token1) as api:
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id,
+                from_date=(today() + timedelta(days=2)).isoformat(),
+                to_date=(today() + timedelta(days=3)).isoformat(),
+                text=valid_request_text(),
+            )
+        ).host_request_id
+    moderator.approve_host_request(host_request_id)
+
+    with requests_session(token1) as api:
+        api.SendHostRequestMessage(
+            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="and one more thing")
+        )
+        # sending marks your own messages seen
+        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert res.unseen_message_count == 0
+
+    with requests_session(token2) as api:
+        listed = api.ListHostRequests(requests_pb2.ListHostRequestsReq()).host_requests[0]
+        # the request's control message, its text, and the follow-up
+        assert listed.unseen_message_count == 3
+        assert (
+            api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id)).unseen_message_count
+            == 3
+        )
+
+        api.MarkLastSeenHostRequest(
+            requests_pb2.MarkLastSeenHostRequestReq(
+                host_request_id=host_request_id, last_seen_message_id=listed.latest_message.message_id
+            )
+        )
+        assert api.ListHostRequests(requests_pb2.ListHostRequestsReq()).host_requests[0].unseen_message_count == 0
+        assert (
+            api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id)).unseen_message_count
+            == 0
+        )
 
 
 def test_mark_last_seen(db, moderator):
@@ -1326,6 +1596,7 @@ def test_mark_last_seen(db, moderator):
                 text=valid_request_text("Test message 0"),
             )
         ).host_request_id
+        backdate_conversations()
 
         host_request_id_2 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -1349,7 +1620,7 @@ def test_mark_last_seen(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED,
+                status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED,
                 text="Test message 3",
             )
         )
@@ -1413,6 +1684,84 @@ def test_mark_last_seen(db, moderator):
     with api_session(token2) as api:
         assert api.Ping(api_pb2.PingReq()).unseen_received_host_request_count == 1
         assert api.Ping(api_pb2.PingReq()).unseen_sent_host_request_count == 1
+
+
+def _create_host_request_via_api(surfer_token: str, host_id: int, moderator, public_trip_id: int | None = None) -> int:
+    with requests_session(surfer_token) as api:
+        res = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host_id,
+                from_date=(today() + timedelta(days=5)).isoformat(),
+                to_date=(today() + timedelta(days=10)).isoformat(),
+                text=valid_request_text(),
+                public_trip_id=public_trip_id,
+            )
+        )
+    moderator.approve_host_request(res.host_request_id)
+    return int(res.host_request_id)
+
+
+def test_ping_role_based_counts_match_direction_without_offers(db, moderator):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    # user2 surfs with user1 -> user1 is the host of the stay
+    _create_host_request_via_api(token2, user1.id, moderator)
+
+    with api_session(token1) as api:
+        res = api.Ping(api_pb2.PingReq())
+        # with no public-trip offers, role-based counts equal the direction-based ones
+        assert res.unseen_received_host_request_count == 1
+        assert res.unseen_hosting_host_request_count == 1
+        assert res.unseen_sent_host_request_count == 0
+        assert res.unseen_surfing_host_request_count == 0
+        assert res.unseen_public_trip_offer_count == 0
+
+
+def test_ping_counts_public_trip_offer_by_role(db, moderator):
+    traveler, traveler_token = generate_user()
+    host, host_token = generate_user()
+    node_id = _make_node()
+    trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+
+    request_id = _create_host_request_via_api(host_token, traveler.id, moderator, public_trip_id=trip_id)
+
+    # the traveller (recipient) has the offer's create message unseen: counts as surfing + public-trip offer
+    with api_session(traveler_token) as api:
+        res = api.Ping(api_pb2.PingReq())
+        assert res.unseen_surfing_host_request_count == 1
+        assert res.unseen_public_trip_offer_count == 1
+        assert res.unseen_hosting_host_request_count == 0
+
+    # the traveller replies, so now the offering host has an unseen message under hosting
+    with requests_session(traveler_token) as api:
+        api.SendHostRequestMessage(
+            requests_pb2.SendHostRequestMessageReq(host_request_id=request_id, text="thanks for the offer")
+        )
+
+    with api_session(host_token) as api:
+        res = api.Ping(api_pb2.PingReq())
+        assert res.unseen_hosting_host_request_count == 1
+        assert res.unseen_surfing_host_request_count == 0
+        assert res.unseen_public_trip_offer_count == 0
+
+
+def test_ping_public_trip_offer_count_gated_by_flag(db, moderator, feature_flags):
+    feature_flags.set("public_trips_enabled", False)
+
+    traveler, traveler_token = generate_user()
+    host, host_token = generate_user()
+    node_id = _make_node()
+    trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+
+    _create_host_request_via_api(host_token, traveler.id, moderator, public_trip_id=trip_id)
+
+    with api_session(traveler_token) as api:
+        res = api.Ping(api_pb2.PingReq())
+        # the dedicated offer count is gated off...
+        assert res.unseen_public_trip_offer_count == 0
+        # ...but the offer is a real conversation and still surfaces under surfing
+        assert res.unseen_surfing_host_request_count == 1
 
 
 def test_mark_last_seen_clears_notifications(db, moderator):
@@ -1485,6 +1834,7 @@ def test_response_rate(db, moderator):
             )
         ).host_request_id
         moderator.approve_host_request(host_request_1)
+        backdate_conversations()
         with session_scope() as session:
             session.execute(
                 select(Message)
@@ -1507,6 +1857,7 @@ def test_response_rate(db, moderator):
             )
         ).host_request_id
         moderator.approve_host_request(host_request_2)
+        backdate_conversations()
         with session_scope() as session:
             session.execute(
                 select(Message)
@@ -1529,6 +1880,7 @@ def test_response_rate(db, moderator):
             )
         ).host_request_id
         moderator.approve_host_request(host_request_3)
+        backdate_conversations()
         with session_scope() as session:
             session.execute(
                 select(Message)
@@ -1546,7 +1898,7 @@ def test_response_rate(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_2,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
                 text="Accepting host request",
             )
         )
@@ -1565,7 +1917,7 @@ def test_response_rate(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_3,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
                 text="Accepting host request",
             )
         )
@@ -1585,7 +1937,7 @@ def test_response_rate(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_1,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
                 text="Accepting host request",
             )
         )
@@ -1610,6 +1962,7 @@ def test_response_rate(db, moderator):
             )
         ).host_request_id
         moderator.approve_host_request(host_request_4)
+        backdate_conversations()
         with session_scope() as session:
             session.execute(
                 select(Message)
@@ -1628,6 +1981,7 @@ def test_response_rate(db, moderator):
             )
         ).host_request_id
         moderator.approve_host_request(host_request_5)
+        backdate_conversations()
         with session_scope() as session:
             session.execute(
                 select(Message)
@@ -1646,7 +2000,7 @@ def test_response_rate(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_5,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
                 text="Accepting host request",
             )
         )
@@ -1666,7 +2020,7 @@ def test_response_rate(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_4,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
                 text="Accepting host request",
             )
         )
@@ -1680,6 +2034,29 @@ def test_response_rate(db, moderator):
         assert res.HasField("almost_all")
         assert res.almost_all.response_time_p33.ToTimedelta() == timedelta(hours=4)
         assert res.almost_all.response_time_p66.ToTimedelta() == timedelta(hours=35)
+
+
+def test_response_rate_ignores_public_trip_offers(db, moderator):
+    traveler, _ = generate_user()
+    _, surfer_token = generate_user()
+    node_id = _make_node()
+    trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+
+    # the traveller leaves every offer on their trip unanswered
+    for _ in range(3):
+        _, host_token = generate_user()
+        _create_host_request_via_api(host_token, traveler.id, moderator, public_trip_id=trip_id)
+
+    # a regular request to the traveller as a host still counts
+    _create_host_request_via_api(surfer_token, traveler.id, moderator)
+
+    with session_scope() as session:
+        refresh_materialized_view(session, "user_response_rates")
+        response_rate = session.execute(
+            select(UserResponseRate).where(UserResponseRate.user_id == traveler.id)
+        ).scalar_one()
+        assert response_rate.requests == 1
+        assert response_rate.response_rate == 0
 
 
 def test_request_notifications(db, email_collector: EmailCollector, push_collector: PushCollector, moderator):
@@ -1729,7 +2106,7 @@ def test_request_notifications(db, email_collector: EmailCollector, push_collect
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=hr_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
                 text="Accepting host request",
             )
         )
@@ -1820,7 +2197,7 @@ def test_quick_decline(db, email_collector: EmailCollector, push_collector: Push
 
     with requests_session(surfer_token) as api:
         res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=hr_id))
-        assert res.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED
+        assert res.status == messages_pb2.HOST_REQUEST_STATUS_REJECTED
 
 
 def test_host_req_feedback(db, moderator):
@@ -1869,7 +2246,7 @@ def test_host_req_feedback(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=hr_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_REJECTED,
             )
         )
 
@@ -1913,9 +2290,7 @@ def test_host_req_feedback(db, moderator):
 
     with requests_session(host2_token) as api:
         api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=hr2_id, status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED
-            )
+            requests_pb2.RespondHostRequestReq(host_request_id=hr2_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED)
         )
         # can't leave feedback on the wrong one
         with pytest.raises(grpc.RpcError) as e:
@@ -1932,9 +2307,7 @@ def test_host_req_feedback(db, moderator):
 
     with requests_session(host3_token) as api:
         api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=hr3_id, status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED
-            )
+            requests_pb2.RespondHostRequestReq(host_request_id=hr3_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED)
         )
 
         api.SendHostRequestFeedback(
@@ -1960,7 +2333,15 @@ def _make_trip_node_admin(user_id: int, trip_id: int):
         session.add(ClusterSubscription(cluster_id=cluster.id, user_id=user_id, role=ClusterRole.admin))
 
 
-def _create_public_trip(user_id: int, from_date, to_date, *, status=None, same_gender_only: bool = False):
+def _create_public_trip(
+    user_id: int,
+    from_date,
+    to_date,
+    *,
+    status=None,
+    same_gender_only: bool = False,
+    visibility: ModerationVisibility = ModerationVisibility.visible,
+):
     with session_scope() as session:
         node = session.execute(select(Node).limit(1)).scalar_one_or_none()
         if node is None:
@@ -1970,6 +2351,13 @@ def _create_public_trip(user_id: int, from_date, to_date, *, status=None, same_g
             )
             session.add(node)
             session.flush()
+        moderation_state = ModerationState(
+            object_type=ModerationObjectType.public_trip,
+            object_id=0,  # placeholder, set after PublicTrip flush
+            visibility=visibility,
+        )
+        session.add(moderation_state)
+        session.flush()
         trip = PublicTrip(
             user_id=user_id,
             node_id=node.id,
@@ -1978,9 +2366,11 @@ def _create_public_trip(user_id: int, from_date, to_date, *, status=None, same_g
             description="Looking for a host!",
             status=status or PublicTripStatus.searching_for_host,
             same_gender_only=same_gender_only,
+            moderation_state_id=moderation_state.id,
         )
         session.add(trip)
         session.flush()
+        moderation_state.object_id = trip.id
         return trip.id
 
 
@@ -2011,6 +2401,107 @@ def test_create_request_with_public_trip(db, moderator):
     with requests_session(host_token) as api:
         hr = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
         assert hr.public_trip_id == trip_id
+
+
+def test_public_trip_offer_min_length(db):
+    """Offers on public trips have a shorter minimum length than regular host requests."""
+    surfer, _ = generate_user()
+    host, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+
+    def offer(text: str) -> None:
+        with requests_session(host_token) as api:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=surfer.id,
+                    from_date=trip_from.isoformat(),
+                    to_date=trip_to.isoformat(),
+                    text=text,
+                    public_trip_id=trip_id,
+                )
+            )
+
+    with pytest.raises(grpc.RpcError) as e:
+        offer("a" * (PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16 - 1))
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == "Your offer to host cannot be shorter than 100 characters."
+
+    # Shorter than a regular host request, but long enough for an offer
+    offer("a" * PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16)
+
+
+def test_create_request_with_public_trip_hosting_snapshot(db, moderator):
+    """An offer snapshots the offering host's place, not the traveller's."""
+    surfer, _ = generate_user(city="Surfer city", geom=create_coordinate(1, 1), geom_radius=11)
+    host, host_token = generate_user(city="Host city", geom=create_coordinate(2, 2), geom_radius=22)
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+
+    with requests_session(host_token) as api:
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=trip_from.isoformat(),
+                to_date=trip_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(host_request_id)
+
+    with requests_session(host_token) as api:
+        hr = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert hr.hosting_city == "Host city"
+        assert round(hr.hosting_lat, 4) == 2
+        assert round(hr.hosting_lng, 4) == 2
+        assert hr.hosting_radius == 22
+
+
+def test_public_trip_offer_stay_roles(db, moderator):
+    """An offer reverses initiator/recipient, but the surfer and host are still the traveller and the host."""
+    surfer, surfer_token = generate_user()
+    host, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+
+    with requests_session(host_token) as api:
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=trip_from.isoformat(),
+                to_date=trip_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(host_request_id)
+
+    with session_scope() as session:
+        host_request = session.execute(
+            select(HostRequest).where(HostRequest.conversation_id == host_request_id)
+        ).scalar_one()
+        assert host_request.initiator_user_id == host.id
+        assert host_request.recipient_user_id == surfer.id
+        assert host_request.surfer_user_id == surfer.id
+        assert host_request.host_user_id == host.id
+
+    for token in (surfer_token, host_token):
+        with requests_session(token) as api:
+            hr = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+            assert hr.surfer_user_id == surfer.id
+            assert hr.host_user_id == host.id
+
+            listed = api.ListHostRequests(requests_pb2.ListHostRequestsReq()).host_requests
+            assert [(r.surfer_user_id, r.host_user_id) for r in listed] == [(surfer.id, host.id)]
 
 
 def test_create_request_with_public_trip_dates_out_of_range(db):
@@ -2116,6 +2607,68 @@ def test_create_request_with_nonexistent_public_trip(db):
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
+def test_create_request_with_shadowed_public_trip(db, moderator):
+    """A trip awaiting moderation can't be offered on until it's approved."""
+    surfer, _ = generate_user()
+    host, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to, visibility=ModerationVisibility.shadowed)
+
+    with requests_session(host_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=surfer.id,
+                    from_date=(trip_from + timedelta(days=1)).isoformat(),
+                    to_date=(trip_to - timedelta(days=1)).isoformat(),
+                    text=valid_request_text(),
+                    public_trip_id=trip_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == "Couldn't find that public trip."
+
+    moderator.approve_public_trip(trip_id)
+
+    with requests_session(host_token) as api:
+        res = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=(trip_from + timedelta(days=1)).isoformat(),
+                to_date=(trip_to - timedelta(days=1)).isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        )
+        assert res.host_request_id
+
+
+def test_create_request_with_hidden_public_trip(db):
+    """A hidden trip can't be offered on."""
+    surfer, _ = generate_user()
+    host, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to, visibility=ModerationVisibility.hidden)
+
+    with requests_session(host_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=surfer.id,
+                    from_date=(trip_from + timedelta(days=1)).isoformat(),
+                    to_date=(trip_to - timedelta(days=1)).isoformat(),
+                    text=valid_request_text(),
+                    public_trip_id=trip_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == "Couldn't find that public trip."
+
+
 def test_create_request_without_public_trip_id_unchanged(db, moderator):
     """Existing flow without public_trip_id still works (backwards compatibility)."""
     surfer, _ = generate_user()
@@ -2204,6 +2757,48 @@ def test_create_request_same_gender_only_moderator_bypass(db, moderator):
         assert res.host_request_id > 0
 
 
+def test_list_host_requests_public_trip_offer_by_stay_role(db, moderator):
+    """only_sent/only_received follow the stay roles, so an offer the host started is hosting for them."""
+    traveller, traveller_token = generate_user()
+    host, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(traveller.id, trip_from, trip_to)
+
+    with requests_session(host_token) as api:
+        offer_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=traveller.id,
+                from_date=trip_from.isoformat(),
+                to_date=trip_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(offer_id)
+
+    def listed_ids(token: str, req: requests_pb2.ListHostRequestsReq) -> list[int]:
+        with requests_session(token) as api:
+            res = api.ListHostRequests(req)
+        return [hr.host_request_id for hr in res.host_requests]
+
+    hosting = requests_pb2.ListHostRequestsReq(only_received=True)
+    surfing = requests_pb2.ListHostRequestsReq(only_sent=True)
+
+    # the host offered, but they're the one hosting
+    assert listed_ids(host_token, hosting) == [offer_id]
+    assert listed_ids(host_token, surfing) == []
+    # the traveller received the offer, but they're the one surfing
+    assert listed_ids(traveller_token, surfing) == [offer_id]
+    assert listed_ids(traveller_token, hosting) == []
+
+    with requests_session(traveller_token) as api:
+        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq())
+    assert res.host_requests[0].public_trip_id == trip_id
+
+
 def test_create_request_duplicate_offer_rejected(db):
     surfer, _ = generate_user()
     _, host_token = generate_user()
@@ -2233,3 +2828,462 @@ def test_create_request_duplicate_offer_rejected(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+
+def test_create_request_offer_allowed_after_withdrawal(db, moderator):
+    """Withdrawing an offer frees the host to offer again, e.g. to renegotiate dates."""
+    surfer, _ = generate_user()
+    _, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+
+    with requests_session(host_token) as api:
+        request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=trip_from.isoformat(),
+                to_date=trip_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(request_id)
+
+    with requests_session(host_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
+            )
+        )
+
+        # a second offer on shorter dates now goes through
+        res = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=trip_from.isoformat(),
+                to_date=(trip_to - timedelta(days=2)).isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        )
+        assert res.host_request_id != request_id
+
+        # ...but that new offer is active, so a third is still blocked
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=surfer.id,
+                    from_date=trip_from.isoformat(),
+                    to_date=trip_to.isoformat(),
+                    text=valid_request_text(),
+                    public_trip_id=trip_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+
+def test_no_feedback_for_declined_public_trip_offer(db, moderator):
+    """Decline feedback is a host's view of a surfer's request, so a traveller declining an offer isn't asked."""
+    surfer, surfer_token = generate_user()
+    _, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+
+    with requests_session(host_token) as api:
+        request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=trip_from.isoformat(),
+                to_date=trip_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(request_id)
+
+    with requests_session(surfer_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
+            )
+        )
+        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=request_id))
+        assert not res.need_host_request_feedback
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.SendHostRequestFeedback(
+                requests_pb2.SendHostRequestFeedbackReq(
+                    host_request_id=request_id,
+                    host_request_quality=requests_pb2.HOST_REQUEST_QUALITY_LOW,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+    with requests_session(host_token) as api:
+        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=request_id))
+        assert not res.need_host_request_feedback
+
+
+def test_db_allows_one_active_offer_per_trip(db, moderator):
+    """The database backs up the duplicate-offer check, e.g. against two concurrent offers."""
+    surfer, _ = generate_user()
+    _, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+
+    with requests_session(host_token) as api:
+        withdrawn_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=trip_from.isoformat(),
+                to_date=trip_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(withdrawn_id)
+
+    with requests_session(host_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=withdrawn_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
+            )
+        )
+        api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=trip_from.isoformat(),
+                to_date=trip_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        )
+
+    # reviving the withdrawn offer would leave the host with two active offers on the trip
+    with pytest.raises(IntegrityError):
+        with session_scope() as session:
+            session.execute(
+                update(HostRequest)
+                .where(HostRequest.conversation_id == withdrawn_id)
+                .values(status=HostRequestStatus.pending)
+            )
+
+
+def test_public_trip_offer_responses_arent_host_response_metrics(db, moderator):
+    """The traveller answering an offer on their trip isn't a host responding, so it's left out of host metrics."""
+    traveller, traveller_token = generate_user()
+    _, host_token = generate_user()
+    other_host, other_host_token = generate_user()
+    trip_id = _create_public_trip(traveller.id, today() + timedelta(days=5), today() + timedelta(days=10))
+    offer_id = _create_host_request_via_api(host_token, traveller.id, moderator, public_trip_id=trip_id)
+    request_id = _create_host_request_via_api(traveller_token, other_host.id, moderator)
+
+    with patch.multiple(
+        "couchers.servicers.requests",
+        host_request_first_response_histogram=DEFAULT,
+        host_request_responses_counter=DEFAULT,
+    ) as metrics:
+        with requests_session(traveller_token) as api:
+            api.SendHostRequestMessage(
+                requests_pb2.SendHostRequestMessageReq(host_request_id=offer_id, text="Thanks for the offer!")
+            )
+            api.RespondHostRequest(
+                requests_pb2.RespondHostRequestReq(
+                    host_request_id=offer_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+                )
+            )
+        metrics["host_request_first_response_histogram"].labels.assert_not_called()
+        metrics["host_request_responses_counter"].labels.assert_not_called()
+
+        # a host answering a regular request is still counted
+        with requests_session(other_host_token) as api:
+            api.RespondHostRequest(
+                requests_pb2.RespondHostRequestReq(
+                    host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+                )
+            )
+        metrics["host_request_first_response_histogram"].labels.assert_called_once()
+        metrics["host_request_responses_counter"].labels.assert_called_once()
+
+
+def test_public_trip_offers_are_counted_separately_from_host_requests(db, moderator):
+    traveller, traveller_token = generate_user(gender="Woman")
+    _, host_token = generate_user(gender="Man")
+    other_host, _ = generate_user(gender="Non-binary")
+    trip_id = _create_public_trip(traveller.id, today() + timedelta(days=5), today() + timedelta(days=10))
+
+    with patch.multiple(
+        "couchers.servicers.requests",
+        host_requests_sent_counter=DEFAULT,
+        account_age_on_host_request_create_histogram=DEFAULT,
+        public_trip_offers_sent_counter=DEFAULT,
+    ) as metrics:
+        _create_host_request_via_api(host_token, traveller.id, moderator, public_trip_id=trip_id)
+        metrics["host_requests_sent_counter"].labels.assert_not_called()
+        metrics["account_age_on_host_request_create_histogram"].labels.assert_not_called()
+        metrics["public_trip_offers_sent_counter"].labels.assert_called_once_with("Man", "Woman")
+
+        _create_host_request_via_api(traveller_token, other_host.id, moderator)
+        metrics["host_requests_sent_counter"].labels.assert_called_once_with("Woman", "Non-binary")
+        metrics["account_age_on_host_request_create_histogram"].labels.assert_called_once_with("Woman", "Non-binary")
+        metrics["public_trip_offers_sent_counter"].labels.assert_called_once()
+
+
+def test_excessive_public_trip_offers_report_the_traveller_as_recipient(
+    db, low_rate_limits, email_collector: EmailCollector
+):
+    host, host_token = generate_user()
+    rate_limit_definition = RATE_LIMIT_DEFINITIONS[RateLimitAction.host_request]
+    trip_from = today() + timedelta(days=5)
+    trip_to = today() + timedelta(days=10)
+
+    travellers = []
+    with requests_session(host_token) as api:
+        for _ in range(rate_limit_definition.warning_limit + 1):
+            traveller, _ = generate_user()
+            travellers.append(traveller)
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=traveller.id,
+                    from_date=trip_from.isoformat(),
+                    to_date=trip_to.isoformat(),
+                    text=valid_request_text(),
+                    public_trip_id=_create_public_trip(traveller.id, trip_from, trip_to),
+                )
+            )
+
+    email = email_collector.pop_for_reports(last=True)
+    assert email.plain.startswith(f"User {host.username} has sent {rate_limit_definition.warning_limit} host requests")
+    assert "recipient username" in email.plain
+    assert "public trip ID" in email.plain
+    assert "host username" not in email.plain
+    assert travellers[0].username in email.plain
+
+
+def test_create_request_offer_blocked_after_traveller_declines(db, moderator):
+    """Only the host withdrawing frees them to re-offer; being declined does not."""
+    surfer, surfer_token = generate_user()
+    _, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+
+    with requests_session(host_token) as api:
+        request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=trip_from.isoformat(),
+                to_date=trip_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(request_id)
+
+    # the traveller is the recipient on an offer, so they are the one who declines
+    with requests_session(surfer_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
+            )
+        )
+
+    with requests_session(host_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=surfer.id,
+                    from_date=trip_from.isoformat(),
+                    to_date=trip_to.isoformat(),
+                    text=valid_request_text(),
+                    public_trip_id=trip_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+
+def _create_accepted_request(surfer_token: str, host_token: str, host_id: int, moderator, days_ahead: int = 2) -> int:
+    with requests_session(surfer_token) as api:
+        request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host_id,
+                from_date=(today() + timedelta(days=days_ahead)).isoformat(),
+                to_date=(today() + timedelta(days=days_ahead + 1)).isoformat(),
+                text=valid_request_text(),
+            )
+        ).host_request_id
+    moderator.approve_host_request(request_id)
+    with requests_session(host_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+            )
+        )
+    return int(request_id)
+
+
+def _upcoming_stay_ids(token: str, role: requests_pb2.StayRole.ValueType) -> list[int]:
+    with requests_session(token) as api:
+        res = api.ListStays(requests_pb2.ListStaysReq(role=role))
+    return [hr.host_request_id for hr in res.host_requests]
+
+
+def test_ListStays_by_role(db, moderator):
+    surfer, surfer_token = generate_user()
+    host, host_token = generate_user()
+
+    request_id = _create_accepted_request(surfer_token, host_token, host.id, moderator)
+
+    assert _upcoming_stay_ids(host_token, requests_pb2.STAY_ROLE_HOSTING) == [request_id]
+    assert _upcoming_stay_ids(host_token, requests_pb2.STAY_ROLE_SURFING) == []
+    assert _upcoming_stay_ids(surfer_token, requests_pb2.STAY_ROLE_SURFING) == [request_id]
+    assert _upcoming_stay_ids(surfer_token, requests_pb2.STAY_ROLE_HOSTING) == []
+
+    with requests_session(host_token) as api:
+        res = api.ListStays(requests_pb2.ListStaysReq(role=requests_pb2.STAY_ROLE_HOSTING))
+    stay = res.host_requests[0]
+    assert stay.surfer_user_id == surfer.id
+    assert stay.host_user_id == host.id
+    assert stay.status == messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+    assert stay.from_date == (today() + timedelta(days=2)).isoformat()
+    # built with host_request_to_pb, so it's as complete as GetHostRequest's
+    with requests_session(host_token) as api:
+        assert stay == api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=stay.host_request_id))
+    assert stay.timezone
+    assert stay.latest_message.message_id
+
+
+def test_ListStays_public_trip_offer_by_stay_role(db, moderator):
+    """An offer is started by the host, but they're still the one hosting."""
+    traveller, traveller_token = generate_user()
+    _host, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(traveller.id, trip_from, trip_to)
+
+    with requests_session(host_token) as api:
+        offer_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=traveller.id,
+                from_date=trip_from.isoformat(),
+                to_date=trip_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        ).host_request_id
+    moderator.approve_host_request(offer_id)
+
+    # the traveller is the recipient of an offer, so they accept it
+    with requests_session(traveller_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=offer_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+            )
+        )
+
+    assert _upcoming_stay_ids(host_token, requests_pb2.STAY_ROLE_HOSTING) == [offer_id]
+    assert _upcoming_stay_ids(host_token, requests_pb2.STAY_ROLE_SURFING) == []
+    assert _upcoming_stay_ids(traveller_token, requests_pb2.STAY_ROLE_SURFING) == [offer_id]
+    assert _upcoming_stay_ids(traveller_token, requests_pb2.STAY_ROLE_HOSTING) == []
+
+    with requests_session(traveller_token) as api:
+        res = api.ListStays(requests_pb2.ListStaysReq(role=requests_pb2.STAY_ROLE_SURFING))
+    assert res.host_requests[0].public_trip_id == trip_id
+
+
+def test_ListStays_only_accepted_or_confirmed_and_not_ended(db, moderator):
+    _surfer, surfer_token = generate_user()
+    host, host_token = generate_user()
+
+    accepted_id = _create_accepted_request(surfer_token, host_token, host.id, moderator, days_ahead=2)
+    confirmed_id = _create_accepted_request(surfer_token, host_token, host.id, moderator, days_ahead=4)
+    rejected_id = _create_accepted_request(surfer_token, host_token, host.id, moderator, days_ahead=6)
+    ended_id = _create_accepted_request(surfer_token, host_token, host.id, moderator, days_ahead=8)
+
+    with requests_session(surfer_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=confirmed_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
+            )
+        )
+    with requests_session(host_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=rejected_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
+            )
+        )
+
+    # a pending request isn't upcoming yet
+    with requests_session(surfer_token) as api:
+        pending_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=(today() + timedelta(days=10)).isoformat(),
+                to_date=(today() + timedelta(days=11)).isoformat(),
+                text=valid_request_text(),
+            )
+        ).host_request_id
+    moderator.approve_host_request(pending_id)
+
+    with session_scope() as session:
+        hr = session.execute(select(HostRequest).where(HostRequest.conversation_id == ended_id)).scalar_one()
+        hr.from_date = today() - timedelta(days=3)
+        hr.to_date = today() - timedelta(days=2)
+
+    assert _upcoming_stay_ids(host_token, requests_pb2.STAY_ROLE_HOSTING) == [accepted_id, confirmed_id]
+    assert _upcoming_stay_ids(surfer_token, requests_pb2.STAY_ROLE_SURFING) == [accepted_id, confirmed_id]
+
+
+def test_ListStays_sorted_and_paginated(db, moderator):
+    _surfer, surfer_token = generate_user()
+    host, host_token = generate_user()
+
+    # created out of order, listed soonest first
+    later_id = _create_accepted_request(surfer_token, host_token, host.id, moderator, days_ahead=9)
+    soonest_id = _create_accepted_request(surfer_token, host_token, host.id, moderator, days_ahead=2)
+    middle_id = _create_accepted_request(surfer_token, host_token, host.id, moderator, days_ahead=5)
+
+    with requests_session(host_token) as api:
+        page1 = api.ListStays(requests_pb2.ListStaysReq(role=requests_pb2.STAY_ROLE_HOSTING, page_size=2))
+        assert [hr.host_request_id for hr in page1.host_requests] == [soonest_id, middle_id]
+        assert page1.next_page_token
+
+        page2 = api.ListStays(
+            requests_pb2.ListStaysReq(
+                role=requests_pb2.STAY_ROLE_HOSTING, page_size=2, page_token=page1.next_page_token
+            )
+        )
+        assert [hr.host_request_id for hr in page2.host_requests] == [later_id]
+        assert not page2.next_page_token
+
+
+def test_ListStays_hides_blocked_users(db, moderator):
+    surfer, surfer_token = generate_user()
+    host, host_token = generate_user()
+
+    _create_accepted_request(surfer_token, host_token, host.id, moderator)
+    make_user_block(host, surfer)
+
+    assert _upcoming_stay_ids(host_token, requests_pb2.STAY_ROLE_HOSTING) == []
+    assert _upcoming_stay_ids(surfer_token, requests_pb2.STAY_ROLE_SURFING) == []
+
+
+def test_ListStays_requires_role(db):
+    _, token = generate_user()
+
+    with requests_session(token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.ListStays(requests_pb2.ListStaysReq())
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT

@@ -1,27 +1,17 @@
 import { Group } from "@mui/icons-material";
-import {
-  Card,
-  CardContent,
-  CardMedia,
-  Chip,
-  styled,
-  Typography,
-} from "@mui/material";
+import { Card, CardContent, CardMedia, Chip, styled, Typography } from "@mui/material";
 import { eventImagePlaceholderUrl } from "appConstants";
 import Divider from "components/Divider";
+import { contentRefs } from "features/contentRefs";
 import FlagButton from "features/FlagButton";
 import { useTranslation } from "i18n";
+import { localizeDateTimeRange } from "i18n/datetimes";
 import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
 import { Event } from "proto/events_pb";
 import { useMemo } from "react";
 import { routeToEvent } from "routes";
-import {
-  BROWSER_TIMEZONE,
-  localizeDateTimeRange,
-  timestamp2Date,
-} from "utils/date";
-import dayjs from "utils/dayjs";
+import { timestampToPlainDateTime } from "utils/date";
 import stripMarkdown from "utils/stripMarkdown";
 
 const StyledCard = styled(Card, {
@@ -133,31 +123,23 @@ export default function EventCard({ event, className }: EventCardProps) {
   } = useTranslation([COMMUNITIES]);
 
   const dateTimeRangeText = localizeDateTimeRange(
-    dayjs(timestamp2Date(event.startTime!)),
-    dayjs(timestamp2Date(event.endTime!)),
+    timestampToPlainDateTime(event.startTime!, event.timezone),
+    timestampToPlainDateTime(event.endTime!, event.timezone),
+    locale,
     {
-      // TODO(#8064): Should use the event.timezone, but it's currently incorrect.
-      timezone: BROWSER_TIMEZONE,
-      locale,
+      includeYear: "auto",
       includeDayOfWeek: true,
       abbreviate: true,
       capitalize: true,
     },
   );
 
-  const strippedContent = useMemo(
-    () => stripMarkdown(event.content),
-    [event.content],
-  );
+  const strippedContent = useMemo(() => stripMarkdown(event.content), [event.content]);
 
   const eventImageSrc = event.photoUrl || eventImagePlaceholderUrl;
 
   return (
-    <StyledCard
-      className={className}
-      isCancelled={event.isCancelled}
-      data-testid={EVENT_CARD_TEST_ID}
-    >
+    <StyledCard className={className} isCancelled={event.isCancelled} data-testid={EVENT_CARD_TEST_ID}>
       <StyledLink href={routeToEvent(event.eventId, event.slug)}>
         <CardMedia
           component="div"
@@ -167,33 +149,17 @@ export default function EventCard({ event, className }: EventCardProps) {
             backgroundColor: "var(--mui-palette-grey-200)",
             height: { xs: 80, sm: 100, md: 120 },
             backgroundImage: `url(${eventImageSrc})`,
-            backgroundSize:
-              eventImageSrc === eventImagePlaceholderUrl ? "contain" : "cover",
+            backgroundSize: eventImageSrc === eventImagePlaceholderUrl ? "contain" : "cover",
             backgroundRepeat: "no-repeat",
             backgroundPosition: "center",
           }}
         >
-          {event.onlineInformation && (
-            <Chip
-              size="medium"
-              label={t("communities:online")}
-              sx={{ borderRadius: 1, fontWeight: "bold" }}
-            />
-          )}
           <FlagButtonWrapper>
-            <FlagButton
-              contentRef={`event/${event.eventId}`}
-              authorUser={event.creatorUserId}
-            />
+            <FlagButton contentRef={contentRefs.event(event)} authorUser={event.creatorUserId} />
           </FlagButtonWrapper>
         </CardMedia>
         <StyledCardContent>
-          <EventTime
-            variant="body2"
-            color="textSecondary"
-            gutterBottom
-            title={dateTimeRangeText}
-          >
+          <EventTime variant="body2" color="textSecondary" gutterBottom title={dateTimeRangeText}>
             {dateTimeRangeText}
           </EventTime>
           <Title variant="h3" gutterBottom>
@@ -207,23 +173,15 @@ export default function EventCard({ event, className }: EventCardProps) {
               maxWidth: "25em",
             }}
           >
-            {event.offlineInformation
-              ? event.offlineInformation.address
-              : t("communities:virtual_event_location_placeholder")}
+            {event.location?.address}
           </Typography>
-          {event.isCancelled && (
-            <CancelledChip label={t("communities:cancelled")} />
-          )}
+          {event.isCancelled && <CancelledChip label={t("communities:cancelled")} />}
           <Divider spacing={1} />
           <ContentWrapper>
             <Content>{strippedContent}</Content>
 
             <ActivityStatsWrapper>
-              <Typography
-                variant="body2"
-                color="textSecondary"
-                sx={{ display: "flex", alignItems: "center" }}
-              >
+              <Typography variant="body2" color="textSecondary" sx={{ display: "flex", alignItems: "center" }}>
                 <Group fontSize="small" sx={{ marginRight: "0.25rem" }} />
                 {event.goingCount}
               </Typography>

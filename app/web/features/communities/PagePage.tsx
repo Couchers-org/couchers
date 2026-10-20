@@ -35,10 +35,7 @@ export default function PagePage({
       setLoading(true);
       try {
         const page = await service.pages.getPage(pageId);
-        if (
-          page.slug !== pageSlug ||
-          (page.type !== pageType && typeof window !== "undefined")
-        ) {
+        if (page.slug !== pageSlug || (page.type !== pageType && typeof window !== "undefined")) {
           // if the address is wrong, redirect to the right place
           router.push(
             pageType === PageType.PAGE_TYPE_PLACE
@@ -81,8 +78,7 @@ export default function PagePage({
             Created at {page.created?.seconds} by {page.creatorUserId}
           </p>
           <p>
-            Address: {page.address} (coords: {page.location!.lat},{" "}
-            {page.location!.lng})
+            Address: {page.address} (coords: {page.location!.lat}, {page.location!.lng})
           </p>
           <Markdown source={page.content} />
           <p>

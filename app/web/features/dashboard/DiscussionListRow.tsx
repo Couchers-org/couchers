@@ -1,28 +1,16 @@
-import {
-  ChatBubbleOutline,
-  ChevronRight,
-  Place,
-  Schedule,
-} from "@mui/icons-material";
+import { ChatBubbleOutlined, ChevronRight, Place, Schedule } from "@mui/icons-material";
 import { Skeleton, styled } from "@mui/material";
+import RelativeTime from "components/RelativeTime";
 import getContentSummary from "features/communities/getContentSummary";
 import { useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
 import { Discussion } from "proto/discussions_pb";
 import { routeToDiscussion } from "routes";
-import { timestamp2Date } from "utils/date";
-import { timeAgo } from "utils/timeAgo";
 
 type DiscussionSummary = Pick<
   Discussion.AsObject,
-  | "discussionId"
-  | "slug"
-  | "title"
-  | "ownerTitle"
-  | "created"
-  | "thread"
-  | "content"
+  "discussionId" | "slug" | "title" | "ownerTitle" | "created" | "thread" | "content"
 >;
 
 interface DiscussionListRowProps {
@@ -110,19 +98,9 @@ export function DiscussionListRowSkeleton() {
   );
 }
 
-export default function DiscussionListRow({
-  discussion,
-}: DiscussionListRowProps) {
-  const {
-    t,
-    i18n: { language: locale },
-  } = useTranslation([DASHBOARD, GLOBAL]);
+export default function DiscussionListRow({ discussion }: DiscussionListRowProps) {
+  const { t } = useTranslation([DASHBOARD, GLOBAL]);
 
-  const createdDate = discussion.created
-    ? timestamp2Date(discussion.created)
-    : new Date();
-
-  const timeStr = timeAgo({ since: createdDate, t, locale });
   const commentCount = discussion.thread?.numResponses ?? 0;
   const teaser = getContentSummary({
     originalContent: discussion.content?.replace(/\n/g, " "),
@@ -139,9 +117,9 @@ export default function DiscussionListRow({
           <MetaText>{discussion.ownerTitle}</MetaText>
           <MetaDot>·</MetaDot>
           <Schedule sx={{ fontSize: "11px", flexShrink: 0 }} />
-          <span style={{ flexShrink: 0 }}>{timeStr}</span>
+          <span style={{ flexShrink: 0 }}>{discussion.created && <RelativeTime instant={discussion.created} />}</span>
           <MetaDot>·</MetaDot>
-          <ChatBubbleOutline sx={{ fontSize: "11px", flexShrink: 0 }} />
+          <ChatBubbleOutlined sx={{ fontSize: "11px", flexShrink: 0 }} />
           <span style={{ flexShrink: 0 }}>
             {t("dashboard:discussions.replies_count_label", {
               count: commentCount,

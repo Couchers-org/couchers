@@ -23,6 +23,7 @@ if TYPE_CHECKING:
 
 
 class AdminActionLevel(enum.Enum):
+    trace = enum.auto()
     debug = enum.auto()
     normal = enum.auto()
     high = enum.auto()

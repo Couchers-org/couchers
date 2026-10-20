@@ -11,21 +11,15 @@ import JoinCommunityButton from "./JoinCommunityButton";
 
 const { t } = i18n;
 
-const getCommunityMock = service.communities.getCommunity as MockedService<
-  typeof service.communities.getCommunity
->;
-const joinCommunityMock = service.communities.joinCommunity as MockedService<
-  typeof service.communities.joinCommunity
->;
+const getCommunityMock = service.communities.getCommunity as MockedService<typeof service.communities.getCommunity>;
+const joinCommunityMock = service.communities.joinCommunity as MockedService<typeof service.communities.joinCommunity>;
 const leaveCommunityMock = service.communities.leaveCommunity as MockedService<
   typeof service.communities.leaveCommunity
 >;
 
 function View() {
   const community = useCommunity(2);
-  return community.data ? (
-    <JoinCommunityButton community={community.data} />
-  ) : null;
+  return community.data ? <JoinCommunityButton community={community.data} /> : null;
 }
 
 describe("JoinCommunityButton", () => {

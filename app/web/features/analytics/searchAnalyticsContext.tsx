@@ -24,11 +24,7 @@ export function SearchAnalyticsProvider({
     () => ({ searchSessionId, searchQueryId, pageNumber }),
     [searchSessionId, searchQueryId, pageNumber],
   );
-  return (
-    <SearchAnalyticsContext.Provider value={value}>
-      {children}
-    </SearchAnalyticsContext.Provider>
-  );
+  return <SearchAnalyticsContext.Provider value={value}>{children}</SearchAnalyticsContext.Provider>;
 }
 
 export function useSearchAnalytics(): SearchAnalyticsValue | null {

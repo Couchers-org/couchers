@@ -69,23 +69,14 @@ export function makeSearchQueryId(): string {
   return randomToken();
 }
 
-export function makeResultId(
-  searchQueryId: string,
-  userId: number,
-  position: number,
-): string {
+export function makeResultId(searchQueryId: string, userId: number, position: number): string {
   return `${searchQueryId}:${userId}:${position}`;
 }
 
-export function setSearchReferrer(
-  referrer: Omit<SearchReferrer, "setAt">,
-): void {
+export function setSearchReferrer(referrer: Omit<SearchReferrer, "setAt">): void {
   if (typeof window === "undefined") return;
   try {
-    window.sessionStorage.setItem(
-      REFERRER_KEY,
-      JSON.stringify({ ...referrer, setAt: Date.now() }),
-    );
+    window.sessionStorage.setItem(REFERRER_KEY, JSON.stringify({ ...referrer, setAt: Date.now() }));
   } catch {
     // sessionStorage unavailable — drop silently
   }
@@ -105,9 +96,7 @@ export function readSearchReferrer(userId: number): SearchReferrer | null {
   }
 }
 
-export function referrerToProperties(
-  referrer: SearchReferrer | null,
-): Record<string, unknown> {
+export function referrerToProperties(referrer: SearchReferrer | null): Record<string, unknown> {
   if (!referrer) return {};
   return {
     referrer_search_session_id: referrer.searchSessionId,

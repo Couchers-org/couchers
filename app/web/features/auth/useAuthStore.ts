@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { userKey } from "features/queryKeys";
+import { StatusCode } from "grpc-web";
 import { useTranslation } from "i18n";
 import { allLanguages } from "i18n/allLanguages";
 import { GLOBAL } from "i18n/namespaces";
@@ -7,8 +8,10 @@ import Sentry from "platform/sentry";
 import { clearStorage, usePersistedState } from "platform/usePersistedState";
 import { AuthRes, SignupFlowRes } from "proto/auth_pb";
 import { useMemo, useRef, useState } from "react";
+import TagManager from "react-gtm-module";
 import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
+import { getCookie } from "utils/cookies";
 
 /**
  * Sync the NEXT_LOCALE cookie with the user's language preference from the backend
@@ -18,20 +21,10 @@ async function syncLanguagePreference() {
     const accountInfo = await service.account.getAccountInfo();
     const userLanguage = accountInfo.uiLanguagePreference;
 
-    const currentCookieLocale =
-      typeof document !== "undefined"
-        ? document.cookie
-            .split("; ")
-            .find((row) => row.startsWith("NEXT_LOCALE="))
-            ?.split("=")[1]
-        : null;
+    const currentCookieLocale = getCookie("NEXT_LOCALE");
 
     // Only update cookie if user has a valid language preference and it differs from current cookie
-    if (
-      userLanguage &&
-      allLanguages.includes(userLanguage) &&
-      userLanguage !== currentCookieLocale
-    ) {
+    if (userLanguage && allLanguages.includes(userLanguage) && userLanguage !== currentCookieLocale) {
       document.cookie = `NEXT_LOCALE=${userLanguage}; path=/; max-age=31536000; samesite=lax`;
     }
   } catch (e) {
@@ -46,19 +39,12 @@ async function syncLanguagePreference() {
 }
 
 export default function useAuthStore() {
-  const [authenticated, setAuthenticated] = usePersistedState(
-    "auth.authenticated",
-    false,
-  );
+  const [authenticated, setAuthenticated] = usePersistedState("auth.authenticated", false);
   const [jailed, setJailed] = usePersistedState("auth.jailed", false);
-  const [userId, setUserId] = usePersistedState<number | null>(
-    "auth.userId",
-    null,
-  );
+  const [userId, setUserId] = usePersistedState<number | null>("auth.userId", null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [flowState, setFlowState] =
-    usePersistedState<SignupFlowRes.AsObject | null>("auth.flowState", null);
+  const [flowState, setFlowState] = usePersistedState<SignupFlowRes.AsObject | null>("auth.flowState", null);
 
   //this is used to set the current user in the user cache
   //may as well not waste the api call since it is needed for userId
@@ -94,9 +80,7 @@ export default function useAuthStore() {
         setUserId(null);
         Sentry.setUser({ id: undefined });
         if (window.ReactNativeWebView) {
-          window.ReactNativeWebView.postMessage(
-            JSON.stringify({ type: "LOGOUT" }),
-          );
+          window.ReactNativeWebView.postMessage(JSON.stringify({ type: "LOGOUT" }));
         }
         clearStorage();
         setLoading(false);
@@ -113,11 +97,7 @@ export default function useAuthStore() {
         setError(null);
         setLoading(true);
         try {
-          const auth = await service.user.passwordLogin(
-            username,
-            password,
-            rememberDevice,
-          );
+          const auth = await service.user.passwordLogin(username, password, rememberDevice);
           setUserId(auth.userId);
           Sentry.setUser({ id: auth.userId.toString() });
 
@@ -142,12 +122,15 @@ export default function useAuthStore() {
             );
           }
         } catch (e) {
-          Sentry.captureException(e, {
-            tags: {
-              component: "auth/useAuthStore",
-              action: "passwordLogin",
-            },
-          });
+          // Wrong password / account not found are normal login outcomes, not bugs - don't spam Sentry with them
+          if (!(isGrpcError(e) && e.code === StatusCode.NOT_FOUND)) {
+            Sentry.captureException(e, {
+              tags: {
+                component: "auth/useAuthStore",
+                action: "passwordLogin",
+              },
+            });
+          }
           setError(isGrpcError(e) ? e.message : fatalErrorMessage.current);
         }
         setLoading(false);
@@ -156,6 +139,15 @@ export default function useAuthStore() {
         setFlowState(state);
         if (state.authRes) {
           setFlowState(null);
+          // The backend only returns authRes in the response that completes the signup, so this fires once per signup
+          TagManager.dataLayer({
+            dataLayer: {
+              event: "sign_up",
+              signupMethod: "email",
+              userId: state.authRes.userId,
+              "gtm.elementUrl": `${window.location.hostname}${window.location.pathname}`,
+            },
+          });
           authActions.firstLogin(state.authRes!);
           return;
         }
@@ -207,7 +199,7 @@ export default function useAuthStore() {
         setLoading(false);
       },
     }),
-    //note: there should be no dependenices on the state or t, or
+    //note: there should be no dependencies on the state or t, or
     //some useEffects will break. Eg. the token login in Login.tsx
     [setAuthenticated, setJailed, setUserId, setFlowState, queryClient],
   );

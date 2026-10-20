@@ -2,6 +2,7 @@ import { Box, Container, styled, useMediaQuery } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
+import PageContainer from "components/PageContainer";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
@@ -38,9 +39,9 @@ export default function LandingPage() {
   return (
     <>
       <HtmlMeta />
-      <Container component="section" maxWidth="lg">
+      <PageContainer component="section">
         <HeroSection />
-      </Container>
+      </PageContainer>
       <StyledSpacer />
       <Container
         component="section"
@@ -55,17 +56,17 @@ export default function LandingPage() {
         <SocialProof />
       </Container>
       <StyledSpacer />
-      <Container component="section" maxWidth="lg">
+      <PageContainer component="section">
         <WhyCouchersSection />
-      </Container>
+      </PageContainer>
       <StyledSpacer />
-      <Container component="section" maxWidth="lg">
+      <PageContainer component="section">
         <MapSection />
-      </Container>
+      </PageContainer>
       <StyledSpacer />
-      <Container component="section" maxWidth="lg">
+      <PageContainer component="section">
         <CouchersMission />
-      </Container>
+      </PageContainer>
       {isMobile && !authState.authenticated && (
         <Box
           sx={{

@@ -21,26 +21,28 @@ jest.mock("features/auth/useAuthStore", () => ({
   }),
 }));
 
-jest.mock("features/weblate/useWeblateStats", () => ({
+jest.mock("i18n/useLocaleInfos", () => ({
   __esModule: true,
-  useWeblateStats: () => ({
+  useLocaleInfos: () => ({
     data: [
-      { code: "en", name: "English", translated_percent: 100 },
-      { code: "es", name: "Spanish", translated_percent: 85 },
-      { code: "fr", name: "French", translated_percent: 75 },
-      { code: "de", name: "German", translated_percent: 60 },
-      { code: "it", name: "Italian", translated_percent: 45 },
-      { code: "pt", name: "Portuguese", translated_percent: 30 },
-      { code: "ru", name: "Russian", translated_percent: 15 },
+      { code: "en", autonym: "English", stringAvailabilityPercent: 100 },
+      { code: "es", autonym: "Español", stringAvailabilityPercent: 85 },
+      { code: "fr", autonym: "Français", stringAvailabilityPercent: 75 },
+      { code: "de", autonym: "Deutsch", stringAvailabilityPercent: 60 },
+      // Both Chinese variants are shown so we can assert they are distinct
+      // (issue #8523: zh-Hant must not be conflated with zh-Hans / the China flag)
+      { code: "zh-Hans", autonym: "中文（简体）", stringAvailabilityPercent: 90 },
+      { code: "zh-Hant", autonym: "中文（繁體）", stringAvailabilityPercent: 90 },
+      { code: "it", autonym: "Italiano", stringAvailabilityPercent: 45 },
+      { code: "pt", autonym: "Português (Portugal)", stringAvailabilityPercent: 30 },
+      { code: "ru", autonym: "Русский", stringAvailabilityPercent: 15 },
     ],
     isLoading: false,
     error: null,
   }),
 }));
 
-const changeLanguageMock = service.account.changeLanguage as MockedService<
-  typeof service.account.changeLanguage
->;
+const changeLanguageMock = service.account.changeLanguage as MockedService<typeof service.account.changeLanguage>;
 
 describe("LanguagePickerSelect", () => {
   beforeEach(() => {
@@ -60,19 +62,41 @@ describe("LanguagePickerSelect", () => {
 
     const listBox = await screen.findByRole("listbox");
 
-    // Only languages with >= 50% translation should be shown
-    const expectedLanguages = ["EN", "ES", "FR", "DE"];
+    // Languages with >= 50% translation are shown by their autonym (the name in
+    // their own language), regardless of the current UI language — no flags.
+    const expectedLanguages = ["English", "Español", "Français", "Deutsch"];
     expectedLanguages.forEach((language) => {
       within(listBox).getByText(language);
     });
 
     // Languages < 50% should not be shown
-    expect(within(listBox).queryByText("RU")).not.toBeInTheDocument();
-    expect(within(listBox).queryByText("IT")).not.toBeInTheDocument();
-    expect(within(listBox).queryByText("PT")).not.toBeInTheDocument();
+    expect(within(listBox).queryByText("Русский")).not.toBeInTheDocument();
+    expect(within(listBox).queryByText("Italiano")).not.toBeInTheDocument();
+    expect(within(listBox).queryByText("Português (Portugal)")).not.toBeInTheDocument();
+
+    // No flag images are rendered (issue #8523)
+    expect(within(listBox).queryByRole("img")).not.toBeInTheDocument();
 
     // Wait for MUI transitions to complete
     await waitFor(() => expect(select).toBeInTheDocument());
+  });
+
+  it("shows the two Chinese variants as distinct named entries without flags", async () => {
+    render(<LanguagePickerSelect />, { wrapper });
+
+    const select = screen.getByRole("combobox");
+    const user = userEvent.setup();
+    await user.click(select);
+
+    const listBox = await screen.findByRole("listbox");
+
+    // zh-Hant and zh-Hans render as separate, distinctly-named options (by their
+    // autonyms) instead of both bearing the China flag (the bug in issue #8523).
+    expect(within(listBox).getByText("中文（繁體）")).toBeInTheDocument();
+    expect(within(listBox).getByText("中文（简体）")).toBeInTheDocument();
+
+    // No flags anywhere in the list
+    expect(within(listBox).queryByRole("img")).not.toBeInTheDocument();
   });
 
   it("calls changeLanguage and re-routes with locale on selection", async () => {
@@ -96,14 +120,12 @@ describe("LanguagePickerSelect", () => {
     await user.click(select);
 
     const listBox = await screen.findByRole("listbox");
-    const spanishOption = within(listBox).getByText("ES");
+    const spanishOption = within(listBox).getByText("Español");
 
     await user.click(spanishOption);
 
     // Should set cookie client-side for authenticated users too
-    expect(cookieSetter).toHaveBeenCalledWith(
-      "NEXT_LOCALE=es; path=/; max-age=31536000; samesite=lax",
-    );
+    expect(cookieSetter).toHaveBeenCalledWith("NEXT_LOCALE=es; path=/; max-age=31536000; samesite=lax");
 
     // Should also call backend API for authenticated users
     expect(changeLanguageMock).toHaveBeenCalledWith("es");
@@ -137,14 +159,12 @@ describe("LanguagePickerSelect", () => {
     await user.click(select);
 
     const listBox = await screen.findByRole("listbox");
-    const frenchOption = within(listBox).getByText("FR");
+    const frenchOption = within(listBox).getByText("Français");
 
     await user.click(frenchOption);
 
     // Should set cookie client-side
-    expect(cookieSetter).toHaveBeenCalledWith(
-      "NEXT_LOCALE=fr; path=/; max-age=31536000; samesite=lax",
-    );
+    expect(cookieSetter).toHaveBeenCalledWith("NEXT_LOCALE=fr; path=/; max-age=31536000; samesite=lax");
 
     // Should NOT call backend API for logged-out users
     expect(changeLanguageMock).not.toHaveBeenCalled();
@@ -198,7 +218,7 @@ describe("LanguagePickerSelect", () => {
     // First language change
     await user.click(select);
     const listBox = await screen.findByRole("listbox");
-    const spanishOption = within(listBox).getByText("ES");
+    const spanishOption = within(listBox).getByText("Español");
     await user.click(spanishOption);
 
     // Verify first change went through
@@ -213,7 +233,7 @@ describe("LanguagePickerSelect", () => {
     // Second change should work after first completes
     await user.click(select);
     const listBox2 = await screen.findByRole("listbox");
-    const frenchOption = within(listBox2).getByText("FR");
+    const frenchOption = within(listBox2).getByText("Français");
     await user.click(frenchOption);
 
     // Second change should succeed

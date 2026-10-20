@@ -30,24 +30,19 @@ export function DonationBanner() {
   const { t } = useTranslation(GLOBAL);
   const router = useRouter();
 
-  const [lastDismissedEpoch, setLastDismissedEpoch] = usePersistedState<
-    number | null
-  >("donation_banner.dismissed", null);
+  const [lastDismissedEpoch, setLastDismissedEpoch] = usePersistedState<number | null>(
+    "donation_banner.dismissed",
+    null,
+  );
   const [bannerVisible, setBannerVisible] = useState<boolean>(false);
 
-  const { data: accountInfo, isLoading: isAccountInfoLoading } =
-    useAccountInfo();
+  const { data: accountInfo, isLoading: isAccountInfoLoading } = useAccountInfo();
 
   useEffect(() => {
     const notDismissedRecently =
-      !lastDismissedEpoch ||
-      new Date().getTime() - lastDismissedEpoch > TIME_BETWEEN_NAGS_MS;
+      !lastDismissedEpoch || new Date().getTime() - lastDismissedEpoch > TIME_BETWEEN_NAGS_MS;
 
-    if (
-      !isAccountInfoLoading &&
-      accountInfo?.shouldShowDonationBanner &&
-      notDismissedRecently
-    ) {
+    if (!isAccountInfoLoading && accountInfo?.shouldShowDonationBanner && notDismissedRecently) {
       setBannerVisible(true);
     } else {
       setBannerVisible(false);

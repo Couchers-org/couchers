@@ -2,9 +2,8 @@
   "actions": {
     "back_to_dashboard": "Göstergeye geri dön",
     "message_label": "Mesaj",
-    "accept_friend_label": "Kabul et",
-    "decline_friend_label": "Reddet",
-    "request": "İstek"
+    "request": "İstek",
+    "add_friend": "Arkadaş ekle"
   },
   "heading": {
     "about_me": "Benim hakkımda",
@@ -30,7 +29,8 @@
     "age_verification_verified": "Bu kullanıcı doğum tarihini doğruladı",
     "hometown": "Büyüdüğü yer",
     "joined": "Kanepe sörfüne başlama tarihi",
-    "gender_verification_mismatch": "Doğrulanan cinsiyet ile kullanıcının verdiği cinsiyet uyuşmamakta"
+    "gender_verification_mismatch": "Doğrulanan cinsiyet ile kullanıcının verdiği cinsiyet uyuşmamakta",
+    "photos_section": "Fotoğraflar"
   },
   "active": "Aktif",
   "my_connections": "Bağlantılarım",
@@ -96,13 +96,15 @@
     "occupation": "Meslek",
     "education": "Eğitim",
     "basic_information": "Temel Bilgiler",
-    "name": "İsim"
+    "name": "İsim",
+    "basic_information_subtitle": "İsminizi, fotoğrafınızı ve konumunuzu ekleyerek başlayın",
+    "preferences": "Tercihler",
+    "personal_information": "Kişisel Bilgiler"
   },
-  "edit_profile_helper_text": "Nereden başlayağına karar vermek için ilham mı arıyorsun? <2>Harika bir profil yaratmak üzerine olan rehberimize bak</2>.",
+  "edit_profile_helper_text": "Nereden başlayağına karar vermek için ilham mı arıyorsun? <guideLink>Harika bir profil yaratmak üzerine olan rehberimize bak</guideLink>.",
   "smoking_location": {
     "yes": "Evet"
   },
-  "edit_profile_name_required": "İsim gerekli",
   "edit_home_questions": {
     "accept_drinking": "İnsanların içki içmesiyle sorunum yok",
     "accept_pets": "Evcil hayvanı olan kişilere ev sahipliği yapar"
@@ -112,9 +114,9 @@
     "request_chars_remaining_other": "konaklanma isteği göndermek için lütfen en az {{count}} karakter daha yazın."
   },
   "complete_profile_dialog": {
-    "title": "Neredeyse vardın: devam etmek için lütfen profilini tamamla!",
-    "description_1": "{{action_name}}'yı yapabilmeden önce, profilinde <4>kendin hakkında biraz yazman<4> ve <7>bir profil fotoğrafı yüklemen<7> gerekli.",
-    "description_2": "Bu, güvenilir bir topluluk kurmamıza ve spamı azaltmamıza yardım ediyor. Daha fazla bilgi için, <2>lütfen bu destek sayfasına bak</2>. Yardımın için teşekkürler!",
+    "title": "Neredeyse bitti: devam etmek için lütfen profilini tamamla!",
+    "description_1": "{{action_name}}'yı yapabilmeden önce, profilinde <strong>kendin hakkında biraz yazman<strong> ve <strong>bir profil fotoğrafı yüklemen<strong> gerekli.",
+    "description_2": "Bu, güvenilir bir topluluk kurmamıza ve spamı azaltmamıza yardım ediyor. Daha fazla bilgi için, <helpLink>lütfen bu destek sayfasına bak</helpLink>. Yardımın için teşekkürler!",
     "actions": {
       "send_request": "Bir istek gönder",
       "send_message": "Bir mesaj gönder",
@@ -123,5 +125,11 @@
     },
     "edit_profile_button": "Profilini şimdi düzenle",
     "cancel_button": "Boş ver"
-  }
+  },
+  "reference_amounts": {
+    "count_references_one": "{{count}} referans",
+    "count_references_other": "{{count}} referans"
+  },
+  "do_not_email_error_link": "Bunu yeniden etkinleştirmek için e-posta ayarlarınızı güncelleyin.",
+  "hobbies_textbox_placeholder": "örn. Aktiviteler, kitaplar, filmler, müzik..."
 }

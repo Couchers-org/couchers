@@ -1,13 +1,6 @@
-import {
-  CheckCircleOutlineRounded,
-  DoDisturb,
-  PendingRounded,
-} from "@mui/icons-material";
+import { CheckCircleOutlineRounded, DoDisturb, PendingRounded } from "@mui/icons-material";
 import { styled, Typography } from "@mui/material";
-import {
-  hostingStatusLabels,
-  meetupStatusLabels,
-} from "features/profile/constants";
+import { hostingStatusLabels, meetupStatusLabels } from "features/profile/constants";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
 import { TFunction } from "i18next";
@@ -28,9 +21,7 @@ const StyledTypography = styled(Typography, {
   display: "flex",
   alignItems: "center",
   fontWeight: 600,
-  color: isNegative
-    ? "var(--mui-palette-grey-600)"
-    : "var(--mui-palette-text-primary)",
+  color: isNegative ? "var(--mui-palette-grey-600)" : "var(--mui-palette-text-primary)",
   fontSize: "0.875rem",
 
   [theme.breakpoints.down("md")]: {
@@ -70,7 +61,7 @@ const HostMeetupReferenceStatus = ({
   return (
     <Wrapper>
       <StyledTypography
-        display="inline"
+        sx={{ display: "inline" }}
         variant="body1"
         isNegative={hostingStatus === HostingStatus.HOSTING_STATUS_CANT_HOST}
       >
@@ -108,11 +99,9 @@ const HostMeetupReferenceStatus = ({
       </StyledTypography>
       <VerticalLine>|</VerticalLine>
       <StyledTypography
-        display="inline"
+        sx={{ display: "inline" }}
         variant="body1"
-        isNegative={
-          meetupStatus === MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP
-        }
+        isNegative={meetupStatus === MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP}
       >
         {meetupStatus === MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP && (
           <CheckCircleOutlineRounded
@@ -124,8 +113,7 @@ const HostMeetupReferenceStatus = ({
             }}
           />
         )}
-        {meetupStatus ===
-          MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP && (
+        {meetupStatus === MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP && (
           <DoDisturb
             fontSize="small"
             sx={{

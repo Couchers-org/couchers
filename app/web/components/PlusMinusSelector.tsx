@@ -16,10 +16,12 @@ const PlusMinusSelector = ({ onChange, value }: PlusMinusSelectorProps) => {
 
   return (
     <Box
-      display="flex"
-      alignItems="center"
-      justifyContent="space-evenly"
-      gap={2}
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-evenly",
+        gap: 2,
+      }}
     >
       <IconButton
         onClick={handleDecrease}
@@ -33,11 +35,7 @@ const PlusMinusSelector = ({ onChange, value }: PlusMinusSelectorProps) => {
       >
         <RemoveIcon />
       </IconButton>
-
-      <Typography sx={{ textAlign: "center" }}>
-        {!value ? t("search:any") : value}
-      </Typography>
-
+      <Typography sx={{ textAlign: "center" }}>{!value ? t("search:any") : value}</Typography>
       <IconButton
         onClick={handleIncrease}
         sx={{

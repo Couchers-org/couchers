@@ -2,22 +2,10 @@ import { Coordinates } from "features/search/utils/constants";
 import { LngLat } from "maplibre-gl";
 import { useRouter } from "next/router";
 import Sentry from "platform/sentry";
-import {
-  Dispatch,
-  MutableRefObject,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { service } from "service";
-import {
-  filterDuplicatePlaces,
-  NominatimPlace,
-  simplifyPlaceDisplayName,
-} from "utils/nominatim";
+import { filterDuplicatePlaces, NominatimPlace, simplifyPlaceDisplayName } from "utils/nominatim";
 
 // Locations having one of these keys are considered non-regions.
 // https://nominatim.org/release-docs/latest/api/Output/#addressdetails
@@ -32,41 +20,6 @@ const nonRegionKeys = [
   "suburb",
   "subdivision",
 ];
-
-/**
- * @deprecated use useIsClient instead. This pattern should only be used as a last resort
- * (e.g. to avoid hydration errors) as in most cases, render logic should not depend on the client being mounted.
- */
-function useIsMounted() {
-  const isMounted = useRef(false);
-
-  useEffect(() => {
-    isMounted.current = true;
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
-
-  return isMounted;
-}
-
-function useSafeState<State>(
-  isMounted: MutableRefObject<boolean>,
-  initialState: State | (() => State),
-): [State, Dispatch<SetStateAction<State>>] {
-  const [state, setState] = useState(initialState);
-
-  const safeSetState = useCallback(
-    (newState: SetStateAction<State>) => {
-      if (isMounted.current) {
-        setState(newState);
-      }
-    },
-    [isMounted],
-  );
-
-  return [state, safeSetState];
-}
 
 function useIsClient() {
   const [isClient, setIsClient] = useState(false);
@@ -85,19 +38,12 @@ export interface GeocodeResult {
 const NOMINATIM_URL = process.env.NEXT_PUBLIC_NOMINATIM_URL;
 
 const useGeocodeQuery = () => {
-  const isMounted = useIsMounted();
   const {
     i18n: { languages: locales },
   } = useTranslation();
-  const [isLoading, setIsLoading] = useSafeState(isMounted, false);
-  const [error, setError] = useSafeState<string | undefined>(
-    isMounted,
-    undefined,
-  );
-  const [results, setResults] = useSafeState<GeocodeResult[] | undefined>(
-    isMounted,
-    undefined,
-  );
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | undefined>(undefined);
+  const [results, setResults] = useState<GeocodeResult[] | undefined>(undefined);
 
   const query = useCallback(
     async (value: string) => {
@@ -142,10 +88,7 @@ const useGeocodeQuery = () => {
             result["boundingbox"].unshift(lastElem);
 
             return {
-              location: new LngLat(
-                Number(result["lon"]),
-                Number(result["lat"]),
-              ),
+              location: new LngLat(Number(result["lon"]), Number(result["lat"])),
               name: result["display_name"],
               simplifiedName: simplifyPlaceDisplayName(result),
               isRegion: !nonRegionKeys.some((k) => k in result.address),
@@ -212,10 +155,4 @@ function useUnsavedChangesWarning({
   }, [isDirty, router.events, isSubmitted, warningMessage]);
 }
 
-export {
-  useGeocodeQuery,
-  useIsClient,
-  useIsMounted,
-  useSafeState,
-  useUnsavedChangesWarning,
-};
+export { useGeocodeQuery, useIsClient, useUnsavedChangesWarning };

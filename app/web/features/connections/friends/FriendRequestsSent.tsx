@@ -1,11 +1,8 @@
-import { Box, IconButton } from "@mui/material";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import { CloseIcon } from "components/Icons";
+import Button from "components/Button";
 import { CONNECTIONS } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { FriendRequest } from "proto/api_pb";
-import React from "react";
-import { useIsMounted, useSafeState } from "utils/hooks";
+import React, { useState } from "react";
 
 import type { SetMutationError } from ".";
 import FriendSummaryView from "./FriendSummaryView";
@@ -26,42 +23,33 @@ function CancelFriendRequestAction({
   setMutationError,
   userId,
 }: CancelFriendRequestActionProps) {
-  const { cancelFriendRequest, isPending, isSuccess, reset } =
-    useCancelFriendRequest();
+  const { cancelFriendRequest, isPending, isSuccess, reset } = useCancelFriendRequest();
   const { t } = useTranslation(CONNECTIONS);
 
   return state === FriendRequest.FriendRequestStatus.PENDING ? (
-    <Box>
-      {isPending || isSuccess ? (
-        <CenteredSpinner />
-      ) : (
-        <IconButton
-          aria-label={t("connections:cancel_request_button_a11y")}
-          onClick={() => {
-            reset();
-            cancelFriendRequest({ friendRequestId, setMutationError, userId });
-          }}
-          size="large"
-        >
-          <CloseIcon />
-        </IconButton>
-      )}
-    </Box>
+    <Button
+      aria-label={t("connections:cancel_request_button_a11y")}
+      variant="outlined"
+      loading={isPending || isSuccess}
+      onClick={() => {
+        reset();
+        cancelFriendRequest({ friendRequestId, setMutationError, userId });
+      }}
+    >
+      {t("connections:cancel_request_button_a11y")}
+    </Button>
   ) : null;
 }
 
 function FriendRequestsSent() {
-  const isMounted = useIsMounted();
-  const [mutationError, setMutationError] = useSafeState(isMounted, "");
+  const [mutationError, setMutationError] = useState("");
   const { data, isLoading, isError, errors } = useFriendRequests("sent");
   const { t } = useTranslation([CONNECTIONS]);
 
   return (
     <FriendTile
       title={t("connections:friend_requests_sent")}
-      errorMessage={
-        isError ? errors.join("\n") : mutationError ? mutationError : null
-      }
+      errorMessage={isError ? errors.join("\n") : mutationError ? mutationError : null}
       isLoading={isLoading}
       hasData={!!data?.length}
       noDataMessage={t("connections:no_friend_requests_sent")}

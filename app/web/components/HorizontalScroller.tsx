@@ -9,25 +9,23 @@ interface CustomWrapperProps {
   isBelowBreakpoint: boolean;
 }
 
-const StyledWrapper = styled("div")<CustomWrapperProps>(
-  ({ theme, isBelowBreakpoint }) => ({
-    ...(isBelowBreakpoint && {
-      alignItems: "stretch",
-      display: "inline-flex",
-      flexDirection: "row",
-      height: "100%",
-      width: "100vw",
-      padding: theme.spacing(2),
-      WebkitOverflowScrolling: "touch",
-      overflowX: "scroll",
-      scrollSnapType: "x mandatory",
-      scrollPadding: theme.spacing(1.5),
-      "& > *": {
-        flexShrink: 0,
-      },
-    }),
+const StyledWrapper = styled("div")<CustomWrapperProps>(({ theme, isBelowBreakpoint }) => ({
+  ...(isBelowBreakpoint && {
+    alignItems: "stretch",
+    display: "inline-flex",
+    flexDirection: "row",
+    height: "100%",
+    width: "100vw",
+    padding: theme.spacing(2),
+    WebkitOverflowScrolling: "touch",
+    overflowX: "scroll",
+    scrollSnapType: "x mandatory",
+    scrollPadding: theme.spacing(1.5),
+    "& > *": {
+      flexShrink: 0,
+    },
   }),
-);
+}));
 
 const StyledLoaderContainer = styled("div")(({ theme }) => ({
   display: "flex",
@@ -62,11 +60,7 @@ export default function HorizontalScroller({
       {children}
       {fetchNext && hasMore && (
         <StyledLoaderContainer>
-          {isFetching ? (
-            <CircularProgress />
-          ) : (
-            <CircularProgress variant="determinate" value={0} ref={loaderRef} />
-          )}
+          {isFetching ? <CircularProgress /> : <CircularProgress variant="determinate" value={0} ref={loaderRef} />}
         </StyledLoaderContainer>
       )}
     </StyledWrapper>

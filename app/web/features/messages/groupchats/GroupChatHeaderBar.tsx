@@ -1,9 +1,4 @@
-import {
-  ArchiveOutlined,
-  NotificationsActive,
-  NotificationsOff,
-  UnarchiveOutlined,
-} from "@mui/icons-material";
+import { ArchiveOutlined, NotificationsActive, NotificationsOff, UnarchiveOutlined } from "@mui/icons-material";
 import { Skeleton, styled, useMediaQuery } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Avatar from "components/Avatar";
@@ -75,11 +70,9 @@ export default function GroupChatHeaderBar({
   const queryClient = useQueryClient();
   const { t } = useTranslation([GLOBAL, MESSAGES]);
   const username = getDmUsername(groupChatMembersQuery, currentUserId);
-  const dmUser = (
-    Array.from(groupChatMembersQuery.data?.values() ?? []) as Array<
-      LiteUser.AsObject | undefined
-    >
-  ).find((user) => user?.userId !== currentUserId);
+  const dmUser = (Array.from(groupChatMembersQuery.data?.values() ?? []) as Array<LiteUser.AsObject | undefined>).find(
+    (user) => user?.userId !== currentUserId,
+  );
   const dmUserId = dmUser?.userId;
 
   const isNativeEmbed = useIsNativeEmbed();
@@ -116,10 +109,7 @@ export default function GroupChatHeaderBar({
 
   const archiveMutation = useMutation<void, RpcError>({
     mutationFn: async () => {
-      await service.conversations.setGroupChatArchiveStatus(
-        chatId,
-        !groupChat?.isArchived,
-      );
+      await service.conversations.setGroupChatArchiveStatus(chatId, !groupChat?.isArchived);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [groupChatsListKey()] });
@@ -187,9 +177,7 @@ export default function GroupChatHeaderBar({
               {dmTitleContent}
             </ProfileLink>
           ) : (
-            <Link href={username ? routeToUser(username) : ""}>
-              {dmTitleContent}
-            </Link>
+            <Link href={username ? routeToUser(username) : ""}>{dmTitleContent}</Link>
           )}
           {unmuteMutation.isPending ? (
             <CircularProgress size="1.5rem" />
@@ -258,11 +246,7 @@ export default function GroupChatHeaderBar({
               </MenuItem>
             ) : null,
             groupChat ? (
-              <MenuItem
-                onClick={() => archiveMutation.mutate()}
-                key="archive"
-                disabled={archiveMutation.isPending}
-              >
+              <MenuItem onClick={() => archiveMutation.mutate()} key="archive" disabled={archiveMutation.isPending}>
                 {groupChat.isArchived ? (
                   <>
                     <UnarchiveOutlined fontSize="small" sx={{ mr: 1 }} />
@@ -279,40 +263,20 @@ export default function GroupChatHeaderBar({
             !groupChat?.isDm
               ? [
                   !groupChat?.onlyAdminsInvite || isChatAdmin ? (
-                    <MenuItem
-                      onClick={() => handleClick("invite")}
-                      key="invite"
-                    >
-                      {t(
-                        "messages:chat_view.actions_menu.items.invite_members",
-                      )}
+                    <MenuItem onClick={() => handleClick("invite")} key="invite">
+                      {t("messages:chat_view.actions_menu.items.invite_members")}
                     </MenuItem>
                   ) : null,
-                  <MenuItem
-                    onClick={() => handleClick("members")}
-                    key="members"
-                  >
-                    {t(
-                      "messages:chat_view.actions_menu.items.show_all_members",
-                    )}
+                  <MenuItem onClick={() => handleClick("members")} key="members">
+                    {t("messages:chat_view.actions_menu.items.show_all_members")}
                   </MenuItem>,
                   isChatAdmin
                     ? [
-                        <MenuItem
-                          onClick={() => handleClick("admins")}
-                          key="admins"
-                        >
-                          {t(
-                            "messages:chat_view.actions_menu.items.manage_admins",
-                          )}
+                        <MenuItem onClick={() => handleClick("admins")} key="admins">
+                          {t("messages:chat_view.actions_menu.items.manage_admins")}
                         </MenuItem>,
-                        <MenuItem
-                          onClick={() => handleClick("settings")}
-                          key="settings"
-                        >
-                          {t(
-                            "messages:chat_view.actions_menu.items.chat_settings",
-                          )}
+                        <MenuItem onClick={() => handleClick("settings")} key="settings">
+                          {t("messages:chat_view.actions_menu.items.chat_settings")}
                         </MenuItem>,
                       ]
                     : null,
@@ -328,26 +292,10 @@ export default function GroupChatHeaderBar({
         </Menu>
         {groupChat && (
           <>
-            <MuteDialog
-              open={isOpen.mute}
-              onClose={() => handleClose("mute")}
-              groupChatId={chatId}
-            />
-            <InviteDialog
-              open={isOpen.invite}
-              onClose={() => handleClose("invite")}
-              groupChat={groupChat}
-            />
-            <MembersDialog
-              open={isOpen.members}
-              onClose={() => handleClose("members")}
-              groupChat={groupChat}
-            />
-            <AdminsDialog
-              open={isOpen.admins}
-              onClose={() => handleClose("admins")}
-              groupChat={groupChat}
-            />
+            <MuteDialog open={isOpen.mute} onClose={() => handleClose("mute")} groupChatId={chatId} />
+            <InviteDialog open={isOpen.invite} onClose={() => handleClose("invite")} groupChat={groupChat} />
+            <MembersDialog open={isOpen.members} onClose={() => handleClose("members")} groupChat={groupChat} />
+            <AdminsDialog open={isOpen.admins} onClose={() => handleClose("admins")} groupChat={groupChat} />
             <GroupChatSettingsDialog
               open={isOpen.settings}
               onClose={() => handleClose("settings")}
@@ -355,11 +303,7 @@ export default function GroupChatHeaderBar({
             />
           </>
         )}
-        <LeaveDialog
-          open={isOpen.leave}
-          onClose={() => handleClose("leave")}
-          groupChatId={chatId}
-        />
+        <LeaveDialog open={isOpen.leave} onClose={() => handleClose("leave")} groupChatId={chatId} />
       </>
     </>
   );

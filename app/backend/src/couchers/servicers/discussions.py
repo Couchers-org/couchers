@@ -3,23 +3,23 @@ import logging
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 
 from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import can_moderate_node, session_scope
 from couchers.event_log import log_event
+from couchers.helpers.completed_profile import has_completed_profile
 from couchers.jobs.enqueue import queue_job
 from couchers.models import Cluster, ClusterSubscription, Discussion, ModerationObjectType, Thread, User
 from couchers.models.discussions import ContentChangeType, DiscussionVersion
 from couchers.models.notifications import NotificationTopicAction
 from couchers.moderation.utils import create_moderation
-from couchers.notifications.notify import notify
+from couchers.notifications.notify import PendingNotification, notify_many
 from couchers.proto import discussions_pb2, discussions_pb2_grpc, notification_data_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.servicers.api import user_model_to_pb
-from couchers.servicers.blocking import is_not_visible
 from couchers.servicers.threads import thread_to_pb
-from couchers.sql import where_moderated_content_visible
+from couchers.sql import users_visible_to_each_other, where_moderated_content_visible
 from couchers.utils import Timestamp_from_datetime, now
 
 logger = logging.getLogger(__name__)
@@ -66,6 +66,7 @@ def discussion_to_pb(session: Session, discussion: Discussion, context: Couchers
 
 
 def generate_create_discussion_notifications(payload: jobs_pb2.GenerateCreateDiscussionNotificationsPayload) -> None:
+    notifications = []
     with session_scope() as session:
         discussion = session.execute(select(Discussion).where(Discussion.id == payload.discussion_id)).scalar_one()
 
@@ -74,21 +75,35 @@ def generate_create_discussion_notifications(payload: jobs_pb2.GenerateCreateDis
         if not cluster.is_official_cluster:
             raise NotImplementedError("Shouldn't have discussions under groups, only communities")
 
-        for user in list(cluster.members.where(User.is_visible)):
-            if is_not_visible(session, user.id, discussion.creator_user_id):
-                continue
-            context = make_notification_user_context(user_id=user.id)
-            notify(
-                session,
-                user_id=user.id,
-                topic_action=NotificationTopicAction.discussion__create,
-                key=str(payload.discussion_id),
-                data=notification_data_pb2.DiscussionCreate(
-                    author=user_model_to_pb(discussion.creator_user, session, context),
-                    discussion=discussion_to_pb(session, discussion, context),
-                ),
-                moderation_state_id=discussion.moderation_state_id,
+        creator = aliased(User)
+        members = (
+            session.execute(
+                select(User)
+                .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
+                .join_from(User, creator, creator.id == discussion.creator_user_id)
+                .where(ClusterSubscription.cluster_id == cluster.id)
+                .where(users_visible_to_each_other(self_user=User, other_user=creator))
             )
+            .scalars()
+            .all()
+        )
+        for user in members:
+            context = make_notification_user_context(user_id=user.id)
+            notifications.append(
+                PendingNotification(
+                    user_id=user.id,
+                    topic_action=NotificationTopicAction.discussion__create,
+                    key=str(payload.discussion_id),
+                    data=notification_data_pb2.DiscussionCreate(
+                        author=user_model_to_pb(discussion.creator_user, session, context),
+                        discussion=discussion_to_pb(session, discussion, context),
+                    ),
+                    moderation_state_id=discussion.moderation_state_id,
+                )
+            )
+
+    with session_scope() as session:
+        notify_many(session, notifications)
 
 
 class Discussions(discussions_pb2_grpc.DiscussionsServicer):
@@ -118,6 +133,10 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
 
         if not cluster.small_community_features_enabled:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cannot_create_discussion")
+
+        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        if not has_completed_profile(session, user):
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "incomplete_profile_create_discussion")
 
         thread = Thread()
         session.add(thread)

@@ -1,11 +1,9 @@
-from datetime import timedelta
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlparse
 
 import pytest
 from sqlalchemy import func, select, update
 
-import couchers.jobs.handlers
 from couchers.config import config
 from couchers.context import make_background_user_context, make_logged_out_context
 from couchers.crypto import b64decode, random_hex, urlsafe_secure_token
@@ -24,7 +22,7 @@ from couchers.models import (
 )
 from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
-from couchers.proto import api_pb2, auth_pb2, editor_pb2, events_pb2, notification_data_pb2, notifications_pb2
+from couchers.proto import api_pb2, auth_pb2, editor_pb2, notification_data_pb2, notifications_pb2
 from couchers.tasks import (
     enforce_community_memberships,
     maybe_send_reference_report_email,
@@ -32,22 +30,16 @@ from couchers.tasks import (
     send_email_changed_confirmation_to_new_email,
     send_signup_email,
 )
-from couchers.utils import Timestamp_from_datetime, now
+from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user, get_friend_relationship, make_friends
 from tests.fixtures.misc import EmailCollector, Moderator, process_jobs
 from tests.fixtures.sessions import (
     api_session,
     auth_api_session,
-    events_session,
     notifications_session,
     real_editor_session,
 )
 from tests.test_communities import create_community
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
 
 
 def test_signup_verification_email(db, email_collector: EmailCollector):
@@ -64,6 +56,26 @@ def test_signup_verification_email(db, email_collector: EmailCollector):
     assert flow.email_token
     assert flow.email_token in email.html
     assert flow.email_token in email.html
+
+
+def test_signup_verification_email_with_token_ending_in_src(db, email_collector: EmailCollector):
+    """
+    Signup tokens are base64 encoded, so their "=" padding makes roughly one in 65k of them end in "src=".
+    The token goes into the button's `<a href="..." style="...">`, where it must not be mistaken for an image.
+    """
+    request_email = f"{random_hex(12)}@couchers.org.invalid"
+    token = "a-token-ending-in-src="
+
+    flow = SignupFlow(name="Frodo", email=request_email, flow_token="")
+
+    with session_scope() as session:
+        context = make_logged_out_context(LocalizationContext.en_utc())
+        with patch("couchers.tasks.urlsafe_secure_token", return_value=token):
+            send_signup_email(context, session, flow)
+
+    email = email_collector.pop_for_recipient(request_email, last=True)
+    assert flow.email_token == token
+    assert token in email.html
 
 
 def test_report_email(db, email_collector: EmailCollector):
@@ -238,8 +250,8 @@ def test_email_changed_confirmation_sent_to_new_email(db, email_collector: Email
     assert user.name in email.html
     assert user.email in email.plain
     assert user.email in email.html
-    assert "Your old email address is" in email.plain
-    assert "Your old email address is" in email.html
+    assert "You requested that your email be changed from " in email.plain
+    assert "You requested that your email be changed from " in email.html
     assert f"http://localhost:3000/confirm-email?token={confirmation_token}" in email.plain
     assert f"http://localhost:3000/confirm-email?token={confirmation_token}" in email.html
     assert "support@couchers.org" in email.plain
@@ -324,7 +336,7 @@ def test_do_not_email_non_security_unsublink(db, email_collector: EmailCollector
     assert "/quick-link?payload=" in email.html
 
 
-def test_email_prefix_config(db, email_collector: EmailCollector, monkeypatch):
+def test_email_prefix_config(db, email_collector: EmailCollector):
     user, _ = generate_user()
 
     with session_scope() as session:
@@ -344,12 +356,9 @@ def test_email_prefix_config(db, email_collector: EmailCollector, monkeypatch):
     assert email1.sender_email == "notify@couchers.org.invalid"
     assert email1.subject == "[TEST] Thank you for your donation to Couchers.org!"
 
-    new_config = config.copy()
-    new_config.NOTIFICATION_EMAIL_SENDER = "TestCo"
-    new_config.NOTIFICATION_EMAIL_ADDRESS = "testco@testing.co.invalid"
-    new_config.NOTIFICATION_PREFIX = ""
-
-    monkeypatch.setattr(couchers.notifications.background, "config", new_config)
+    config.NOTIFICATION_EMAIL_SENDER = "TestCo"
+    config.NOTIFICATION_EMAIL_ADDRESS = "testco@testing.co.invalid"
+    config.NOTIFICATION_PREFIX = ""
 
     with session_scope() as session:
         notify(
@@ -369,13 +378,10 @@ def test_email_prefix_config(db, email_collector: EmailCollector, monkeypatch):
     assert email2.subject == "Thank you for your donation to Couchers.org!"
 
 
-def test_send_donation_email(db, monkeypatch):
+def test_send_donation_email(db):
     user, _ = generate_user(name="Testy von Test", email="testing@couchers.org.invalid")
 
-    new_config = config.copy()
-    new_config.ENABLE_EMAIL = True
-
-    monkeypatch.setattr(couchers.jobs.handlers, "config", new_config)
+    config.ENABLE_EMAIL = True
 
     with session_scope() as session:
         notify(
@@ -401,7 +407,7 @@ def test_send_donation_email(db, monkeypatch):
 
 Thank you so much for your donation of $20 to Couchers.org.
 
-Your contribution will go towards building and sustaining the Couchers.org platform and community, and is vital for our goal of a completely free and non-profit generation of couch surfing.
+Your contribution will go towards building and sustaining the Couchers.org community, and is vital for our goal of a free and non-profit couch surfing platform.
 
 You can download an invoice and receipt for the donation here:
 
@@ -410,8 +416,6 @@ Download invoice: https://example.com/receipt/12345
 Couchers, Inc. is a 501(c)(3) nonprofit (EIN: 87-1734577) registered in the United States. No goods or services were provided in exchange for this contribution.
 
 If you have any questions about your donation, please email us at donations@couchers.org.
-
-Your generosity will help deliver the platform for everyone.
 
 Thank you!
 
@@ -424,7 +428,7 @@ This is a security email, you cannot unsubscribe from it.
 """
         )
 
-        assert "Thank you so much for your donation of $20 to Couchers.org." in email.html
+        assert "Thank you so much for your donation of <b>$20</b> to Couchers.org." in email.html
         assert email.sender_name == "Couchers.org"
         assert email.sender_email == "notify@couchers.org.invalid"
         assert email.recipient == "testing@couchers.org.invalid"
@@ -450,9 +454,9 @@ def test_chat_missed_messages_list_unsubscribe_header(db, email_collector: Email
                 messages=[
                     notification_data_pb2.ChatMessage(
                         author=api_pb2.User(name="Test User", user_id=2, username="testuser"),
-                        message="You missed 1 message(s) from Test User",
                         text="Hello!",
                         group_chat_id=99,
+                        unseen_count=1,
                     ),
                 ],
             ),
@@ -504,40 +508,19 @@ def test_email_deleted_users_regression(db, email_collector: EmailCollector, mod
 
     enforce_community_memberships()
 
-    start_time = now() + timedelta(hours=2)
-    end_time = start_time + timedelta(hours=3)
-    with events_session(creating_token) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                photo_key=None,
-                parent_community_id=c_id,
-                offline_information=events_pb2.OfflineEventInformation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_time=Timestamp_from_datetime(start_time),
-                end_time=Timestamp_from_datetime(end_time),
-                timezone="UTC",
-            )
-        )
-        event_id = res.event_id
-        assert not res.is_deleted
+    res = events_api.create_event(token=creating_token, parent_community_id=c_id, approve_by=moderator)
+    event_id = res.event_id
+    assert not res.is_deleted
 
-    moderator.approve_event_occurrence(event_id)
-
-    with events_session(creating_token) as api:
-        api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
-
+    events_api.request_community_invite(token=creating_token, event_id=event_id)
     email_collector.pop_for_mods(last=True)
 
     with real_editor_session(super_token) as editor:
         res = editor.ListEventCommunityInviteRequests(editor_pb2.ListEventCommunityInviteRequestsReq())
         assert len(res.requests) == 1
-        # this will count everyone
-        assert res.requests[0].approx_users_to_notify == 5
+        # creating_user organizes the event, so they're excluded; counts super_user, normal_user,
+        # ban_user and delete_user
+        assert res.requests[0].approx_users_to_notify == 4
 
     with session_scope() as session:
         session.execute(update(User).where(User.id == ban_user.id).values(banned_at=func.now()))
@@ -546,8 +529,9 @@ def test_email_deleted_users_regression(db, email_collector: EmailCollector, mod
     with real_editor_session(super_token) as editor:
         res = editor.ListEventCommunityInviteRequests(editor_pb2.ListEventCommunityInviteRequestsReq())
         assert len(res.requests) == 1
-        # should only notify creating_user, super_user and normal_user
-        assert res.requests[0].approx_users_to_notify == 3
+        # the approximate count excludes banned/deleted users and the organizer, leaving super_user
+        # and normal_user
+        assert res.requests[0].approx_users_to_notify == 2
 
         editor.DecideEventCommunityInviteRequest(
             editor_pb2.DecideEventCommunityInviteRequestReq(
@@ -556,4 +540,6 @@ def test_email_deleted_users_regression(db, email_collector: EmailCollector, mod
             )
         )
 
-    assert email_collector.count() == 3
+    # only super_user and normal_user get emailed: creating_user organizes (and attends) the
+    # event, so they're excluded from the invite fan-out
+    assert email_collector.count() == 2

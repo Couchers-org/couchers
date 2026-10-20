@@ -31,23 +31,18 @@ interface GroupChatSendFieldProps {
   currentUserId: number;
 }
 
-export default function GroupChatSendField({
-  sendMutation,
-  chatId,
-  currentUserId,
-}: GroupChatSendFieldProps) {
+export default function GroupChatSendField({ sendMutation, chatId, currentUserId }: GroupChatSendFieldProps) {
   const { t } = useTranslation([GLOBAL, MESSAGES]);
 
   const { mutate: handleSend, isPending } = sendMutation;
 
   const { register, handleSubmit, reset, watch } = useForm<MessageFormData>();
 
-  const [persistedMessage, setPersistedMessage, clearPersistedMessage] =
-    useClearablePersistedState(
-      `messages.${currentUserId}.${chatId}`,
-      "",
-      "sessionStorage",
-    );
+  const [persistedMessage, setPersistedMessage, clearPersistedMessage] = useClearablePersistedState(
+    `messages.${currentUserId}.${chatId}`,
+    "",
+    "sessionStorage",
+  );
 
   const messageText = watch("text", persistedMessage ?? "");
 

@@ -1,0 +1,277 @@
+import { styled, SwipeableDrawer } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import Alert from "components/Alert";
+import Button from "components/Button";
+import Datepicker from "components/Datepicker";
+import { Dialog, DialogActions, DialogContent, DialogTitle } from "components/Dialog";
+import TextField from "components/TextField";
+import { publicTripsBaseKey, publicTripsByUserBaseKey } from "features/queryKeys";
+import { useTranslation } from "i18n";
+import { GLOBAL, PUBLIC_TRIPS } from "i18n/namespaces";
+import { useRouter } from "next/router";
+import { useForm } from "react-hook-form";
+import { routeToHostRequest } from "routes";
+import { service } from "service";
+import { Temporal } from "temporal-polyfill";
+import { theme } from "theme";
+import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
+
+// Must match the backend PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16.
+const MESSAGE_MIN_LENGTH = 100;
+
+const DATE_FIELD_ID = "offer-to-host-dates";
+
+interface FormValues {
+  fromDate: Temporal.PlainDate | null;
+  toDate: Temporal.PlainDate | null;
+  text: string;
+}
+
+interface OfferToHostDialogProps {
+  open: boolean;
+  onClose: () => void;
+  tripId: number;
+  hostUserId: number;
+  hostName: string;
+  tripFromDate: Temporal.PlainDate;
+  tripToDate: Temporal.PlainDate;
+}
+
+const StyledSheet = styled(SwipeableDrawer)(({ theme }) => ({
+  "& .MuiDrawer-paper": {
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    maxHeight: "90vh",
+    display: "flex",
+    flexDirection: "column",
+    overflow: "hidden",
+    backgroundColor: "var(--mui-palette-background-paper)",
+    padding: theme.spacing(0, 2),
+  },
+}));
+
+const Puller = styled("div")({
+  width: 30,
+  height: 6,
+  backgroundColor: "var(--mui-palette-grey-300)",
+  borderRadius: 3,
+  margin: "8px auto",
+  flexShrink: 0,
+});
+
+const SheetScrollContent = styled("div")({
+  overflowY: "auto",
+  flexGrow: 1,
+  WebkitOverflowScrolling: "touch",
+});
+
+const SheetActionBar = styled("div")(({ theme }) => ({
+  display: "flex",
+  gap: theme.spacing(1),
+  padding: theme.spacing(1.5, 0),
+  paddingBottom: `calc(${theme.spacing(2)} + env(safe-area-inset-bottom, 0px))`,
+  borderTop: `1px solid ${theme.palette.divider}`,
+  flexShrink: 0,
+  "& > *": { flex: 1 },
+}));
+
+const SheetTitle = styled("h2")(({ theme }) => ({
+  ...theme.typography.h2,
+  margin: theme.spacing(1, 0, 2),
+  flexShrink: 0,
+}));
+
+const FieldStack = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  gap: theme.spacing(2),
+}));
+
+const DateRow = styled("div")(({ theme }) => ({
+  display: "flex",
+  gap: theme.spacing(2),
+  [theme.breakpoints.down("sm")]: {
+    flexDirection: "column",
+  },
+}));
+
+export default function OfferToHostDialog({
+  open,
+  onClose,
+  tripId,
+  hostUserId,
+  hostName,
+  tripFromDate,
+  tripToDate,
+}: OfferToHostDialogProps) {
+  const { t } = useTranslation([PUBLIC_TRIPS, GLOBAL]);
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const today = Temporal.Now.plainDateISO();
+  // The host can offer within the trip's window (shorten, not extend), and
+  // never in the past. The backend enforces these too.
+  const earliest = Temporal.PlainDate.compare(tripFromDate, today) > 0 ? tripFromDate : today;
+
+  const {
+    control,
+    handleSubmit,
+    register,
+    reset,
+    watch,
+    formState: { errors },
+  } = useForm<FormValues>({
+    mode: "onBlur",
+    defaultValues: {
+      fromDate: tripFromDate,
+      toDate: tripToDate,
+      text: "",
+    },
+  });
+
+  const watchFromDate = watch("fromDate");
+  const text = watch("text") ?? "";
+  const charsRemaining = MESSAGE_MIN_LENGTH - text.length;
+
+  const {
+    mutate,
+    isPending,
+    error,
+    reset: resetMutation,
+  } = useMutation({
+    mutationFn: ({ fromDate, toDate, text }: FormValues) =>
+      service.requests.createHostRequest({
+        hostUserId,
+        // Both are required by the form, so non-null at submit time.
+        fromDate: fromDate!,
+        toDate: toDate!,
+        text: text.trim(),
+        publicTripId: tripId,
+        stayType: 0,
+      }),
+    onSuccess: (hostRequestId) => {
+      // Refetch trips so the card's viewerHostRequestId updates (the button
+      // flips to "Already offered") next time the list is shown.
+      queryClient.invalidateQueries({ queryKey: [publicTripsBaseKey] });
+      queryClient.invalidateQueries({ queryKey: [publicTripsByUserBaseKey] });
+      reset();
+      onClose();
+      router.push(routeToHostRequest(hostRequestId));
+    },
+  });
+
+  const handleClose = () => {
+    reset();
+    resetMutation();
+    onClose();
+  };
+
+  const onSubmit = handleSubmit((data) => mutate(data));
+
+  const isMobile = useIsScreenSizeOrSmaller("mobile");
+  const titleId = "offer-to-host-dialog-title";
+  const formId = "offer-to-host-form";
+
+  const formBody = (
+    <>
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error.message}
+        </Alert>
+      )}
+      <form id={formId} onSubmit={onSubmit} noValidate>
+        <FieldStack>
+          <DateRow>
+            <Datepicker
+              control={control}
+              error={!!errors.fromDate}
+              helperText={errors.fromDate?.message}
+              id={`${DATE_FIELD_ID}-from`}
+              label={t("publicTrips:create_edit_dialog.from_date.label")}
+              name="fromDate"
+              minValue={earliest}
+              maxValue={tripToDate}
+              rules={{ required: t("publicTrips:create_edit_dialog.from_date.required_error") }}
+            />
+            <Datepicker
+              control={control}
+              error={!!errors.toDate}
+              helperText={errors.toDate?.message}
+              id={`${DATE_FIELD_ID}-to`}
+              label={t("publicTrips:create_edit_dialog.to_date.label")}
+              name="toDate"
+              minValue={watchFromDate ?? earliest}
+              maxValue={tripToDate}
+              rules={{ required: t("publicTrips:create_edit_dialog.to_date.required_error") }}
+            />
+          </DateRow>
+          <TextField
+            id="offer-to-host-message"
+            {...register("text", {
+              required: t("publicTrips:offer_to_host_dialog.message.required_error"),
+              minLength: {
+                value: MESSAGE_MIN_LENGTH,
+                message: t("publicTrips:offer_to_host_dialog.message.chars_remaining", {
+                  count: charsRemaining,
+                }),
+              },
+            })}
+            label={t("publicTrips:offer_to_host_dialog.message.label")}
+            placeholder={t("publicTrips:offer_to_host_dialog.message.placeholder")}
+            minRows={6}
+            multiline
+            fullWidth
+            error={!!errors.text}
+            helperText={
+              errors.text?.message
+                ? errors.text.message
+                : charsRemaining > 0
+                  ? t("publicTrips:offer_to_host_dialog.message.chars_remaining", {
+                      count: charsRemaining,
+                    })
+                  : ""
+            }
+          />
+        </FieldStack>
+      </form>
+    </>
+  );
+
+  const cancelButton = (
+    <Button variant="outlined" onClick={handleClose}>
+      {t("global:cancel")}
+    </Button>
+  );
+  const submitButton = (
+    <Button type="submit" form={formId} loading={isPending}>
+      {t("publicTrips:offer_to_host_dialog.submit_button")}
+    </Button>
+  );
+
+  if (isMobile) {
+    return (
+      <StyledSheet anchor="bottom" open={open} onClose={handleClose} onOpen={() => {}} disableSwipeToOpen>
+        <Puller />
+        <SheetTitle id={titleId}>{t("publicTrips:offer_to_host_dialog.title", { name: hostName })}</SheetTitle>
+        <SheetScrollContent>{formBody}</SheetScrollContent>
+        <SheetActionBar>
+          {cancelButton}
+          {submitButton}
+        </SheetActionBar>
+      </StyledSheet>
+    );
+  }
+
+  return (
+    <Dialog aria-labelledby={titleId} open={open} onClose={handleClose}>
+      <DialogTitle id={titleId} onClose={handleClose}>
+        {t("publicTrips:offer_to_host_dialog.title", { name: hostName })}
+      </DialogTitle>
+      <DialogContent>{formBody}</DialogContent>
+      <DialogActions sx={{ padding: theme.spacing(0, 3, 2) }}>
+        {cancelButton}
+        {submitButton}
+      </DialogActions>
+    </Dialog>
+  );
+}

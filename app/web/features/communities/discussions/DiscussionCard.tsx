@@ -1,5 +1,7 @@
 import { Card, CardContent, Skeleton, styled, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
+import RelativeTime from "components/RelativeTime";
+import { contentRefs } from "features/contentRefs";
 import FlagButton from "features/FlagButton";
 import CopyOnClick from "features/mod/CopyOnClick";
 import ModVisibleComponent from "features/mod/ModVisibleComponent";
@@ -11,8 +13,6 @@ import { Discussion } from "proto/discussions_pb";
 import { useMemo } from "react";
 import { routeToDiscussion } from "routes";
 import { theme } from "theme";
-import { timestamp2Date } from "utils/date";
-import { timeAgo } from "utils/timeAgo";
 
 import getContentSummary from "../getContentSummary";
 
@@ -70,18 +70,9 @@ export default function DiscussionCard({
   discussion: Discussion.AsObject;
   className?: string;
 }) {
-  const {
-    t,
-    i18n: { language: locale },
-  } = useTranslation([GLOBAL, COMMUNITIES]);
-  const { data: creator } = useLiteUser(
-    discussion.deleted ? undefined : discussion.creatorUserId,
-  );
+  const { t } = useTranslation([GLOBAL, COMMUNITIES]);
+  const { data: creator } = useLiteUser(discussion.deleted ? undefined : discussion.creatorUserId);
 
-  const date = discussion.created
-    ? timestamp2Date(discussion.created)
-    : undefined;
-  const postedTime = date ? timeAgo({ since: date, t, locale }) : null;
   const truncatedContent = useMemo(
     () =>
       getContentSummary({
@@ -91,11 +82,7 @@ export default function DiscussionCard({
     [discussion.content],
   );
 
-  const contentRef =
-    (discussion.ownerCommunityId != 0
-      ? `community/${discussion.ownerCommunityId}`
-      : `group/${discussion.ownerGroupId}`) +
-    `/discussion/${discussion.discussionId}`;
+  const contentRef = contentRefs.discussion(discussion);
 
   return (
     <StyledCard className={className} data-testid={DISCUSSION_CARD_TEST_ID}>
@@ -103,29 +90,24 @@ export default function DiscussionCard({
         <StyledCardContent>
           <StyledAvatarFlagContainer>
             <StyledAvatar user={creator} isProfileLink={false} />
-            <FlagButton
-              contentRef={contentRef}
-              authorUser={discussion.creatorUserId}
-            />
+            <FlagButton contentRef={contentRef} authorUser={discussion.creatorUserId} />
           </StyledAvatarFlagContainer>
           <StyledDiscussionSummary>
             {discussion.deleted ? (
-              <StyledDeletedTitle variant="body1">
-                {t("communities:discussion_deleted")}
-              </StyledDeletedTitle>
+              <StyledDeletedTitle variant="body1">{t("communities:discussion_deleted")}</StyledDeletedTitle>
             ) : (
               <>
-                <Typography
-                  variant="body2"
-                  component="p"
-                  sx={{ marginBottom: theme.spacing(0.5) }}
-                >
+                <Typography variant="body2" component="p" sx={{ marginBottom: theme.spacing(0.5) }}>
                   {creator ? (
                     t("communities:by_creator", { name: creator.name })
                   ) : (
                     <Skeleton sx={{ display: "inline-block", width: 80 }} />
                   )}{" "}
-                  {postedTime && `• ${postedTime}`}
+                  {discussion.created && (
+                    <>
+                      • <RelativeTime instant={discussion.created} />
+                    </>
+                  )}
                   <ModVisibleComponent>
                     {" "}
                     •{" "}

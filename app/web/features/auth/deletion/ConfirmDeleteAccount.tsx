@@ -21,11 +21,7 @@ export default function ConfirmDeleteAccount() {
   const router = useRouter();
   const token = stringOrFirstString(router.query.token);
 
-  const { error, isPending, isSuccess, mutate } = useMutation<
-    void,
-    RpcError,
-    ConfirmDeleteAccountParams
-  >({
+  const { error, isPending, isSuccess, mutate } = useMutation<void, RpcError, ConfirmDeleteAccountParams>({
     mutationFn: async ({ token }) => {
       if (token === undefined) {
         throw Error(t("auth:delete_account.missing_token"));
@@ -49,11 +45,7 @@ export default function ConfirmDeleteAccount() {
           })}
         </Alert>
       )}
-      {isSuccess && (
-        <Alert severity="success">
-          {t("auth:delete_account.confirm.account_deleted")}
-        </Alert>
-      )}
+      {isSuccess && <Alert severity="success">{t("auth:delete_account.confirm.account_deleted")}</Alert>}
       <Button onClick={() => mutate({ token })} loading={isPending}>
         {t("auth:delete_account.confirm.button_text")}
       </Button>

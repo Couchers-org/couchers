@@ -2,16 +2,16 @@
 
 ---
 
-{% if footer_email_is_critical %}
-This is a security email, you cannot unsubscribe from it.
+{% if is_critical %}
+{{ security_email_note }}
 {% else %}
-Edit your notification settings at <{{footer_manage_notifications_link}}>
-{% if footer_notification_topic_action %}
-Turn off emails for {{footer_notification_topic_action}}: <{{footer_notification_topic_action_link}}>
+{{ notification_settings_link }}: <{{ manage_notifications_url }}>
+{% if topic_action_description %}
+Turn off emails for {{ topic_action_description }}: <{{ unsubscribe_topic_action_url }}>
 {% endif %}
-{% if footer_notification_topic_key %}
-Turn off emails for {{footer_notification_topic_key}}: <{{footer_notification_topic_key_link}}>
+{% if topic_key_description %}
+Turn off emails for {{ topic_key_description }}: <{{ unsubscribe_topic_key_url }}>
 {% endif %}
 
-Do not email me (disables hosting): <{{footer_do_not_email_link}}>
+{{ do_not_email_link }}: <{{ do_not_email_url }}>
 {% endif %}

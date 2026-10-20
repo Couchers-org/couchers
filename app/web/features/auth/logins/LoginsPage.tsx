@@ -1,10 +1,5 @@
 import { ButtonProps, styled, Typography } from "@mui/material";
-import {
-  InfiniteData,
-  useInfiniteQuery,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { InfiniteData, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -14,7 +9,7 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { ListActiveSessionsRes } from "proto/account_pb";
 import { service } from "service";
-import { timestamp2Date } from "utils/date";
+import { timestampToInstant } from "utils/date";
 
 import LoginCard from "./LoginCard";
 
@@ -38,14 +33,7 @@ export default function LoginsPage() {
   const { t } = useTranslation([GLOBAL, AUTH]);
   const queryClient = useQueryClient();
 
-  const {
-    isLoading,
-    error,
-    data,
-    hasNextPage,
-    fetchNextPage,
-    isFetchingNextPage,
-  } = useInfiniteQuery<
+  const { isLoading, error, data, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery<
     ListActiveSessionsRes.AsObject,
     RpcError,
     InfiniteData<ListActiveSessionsRes.AsObject>,
@@ -85,32 +73,18 @@ export default function LoginsPage() {
         {t("auth:active_logins.description")}
       </Typography>
       {error && <Alert severity="error">{error.message}</Alert>}
-      {logoutAllError && (
-        <Alert severity="error">{logoutAllError?.message}</Alert>
-      )}
+      {logoutAllError && <Alert severity="error">{logoutAllError?.message}</Alert>}
       {isLoading ? (
         <CenteredSpinner />
       ) : (
-        sessions.map((session) => (
-          <LoginCard
-            key={timestamp2Date(session.created!).toString()}
-            session={session}
-          />
-        ))
+        sessions.map((session) => <LoginCard key={timestampToInstant(session.created!).toString()} session={session} />)
       )}
       {hasNextPage && (
-        <StyledButton
-          loading={isFetchingNextPage}
-          onClick={() => fetchNextPage()}
-        >
+        <StyledButton loading={isFetchingNextPage} onClick={() => fetchNextPage()}>
           {t("global:load_more")}
         </StyledButton>
       )}
-      <StyledButton
-        color="secondary"
-        loading={logoutAllIsLoading}
-        onClick={() => logoutAll()}
-      >
+      <StyledButton color="secondary" loading={logoutAllIsLoading} onClick={() => logoutAll()}>
         {t("auth:active_logins.log_out_of_all_session")}
       </StyledButton>
     </StyledLoginsContainer>

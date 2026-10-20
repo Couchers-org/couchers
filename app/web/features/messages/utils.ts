@@ -1,23 +1,22 @@
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { TFunction } from "i18next";
-import { GroupChat, Message } from "proto/conversations_pb";
+import { GroupChat } from "proto/conversations_pb";
+import { Message } from "proto/messages_pb";
 import { HostRequest } from "proto/requests_pb";
 import { firstName } from "utils/names";
 
 import {
+  invitationStatusChangedMessageToSelfTransKey,
+  invitationStatusChangedMessageToTransKey,
   requestStatusChangedMessageToSelfTransKey,
   requestStatusChangedMessageToTransKey,
 } from "./constants";
 
 type Conversation = GroupChat.AsObject | HostRequest.AsObject;
 
-export function hasUnreadMessages<T extends Conversation>(
-  conversation: T,
-): conversation is T & { latestMessage: Message.AsObject } {
-  return (
-    conversation.latestMessage !== undefined &&
-    conversation.lastSeenMessageId < conversation.latestMessage.messageId
-  );
+export function hasUnreadMessages(conversation: Conversation) {
+  // Use the server's count: it excludes messages sent while the user was out of the chat.
+  return conversation.unseenMessageCount > 0;
 }
 
 export function isControlMessage(message: Message.AsObject) {
@@ -40,12 +39,14 @@ export function controlMessage({
   message,
   t,
   isCurrentUser,
+  isOffer,
 }: {
   user: string;
   target_user?: string;
   message: Message.AsObject;
   t: TFunction<"messages", undefined>;
   isCurrentUser?: boolean;
+  isOffer?: boolean;
 }) {
   const userCap = user.charAt(0).toUpperCase() + user.slice(1);
   if (message.chatCreated) {
@@ -70,10 +71,9 @@ export function controlMessage({
       target_user,
     });
   } else if (message.hostRequestStatusChanged) {
-    const map = isCurrentUser
-      ? requestStatusChangedMessageToSelfTransKey
-      : requestStatusChangedMessageToTransKey;
-    const transKey = map[message.hostRequestStatusChanged.status];
+    const selfKeys = isOffer ? invitationStatusChangedMessageToSelfTransKey : requestStatusChangedMessageToSelfTransKey;
+    const otherKeys = isOffer ? invitationStatusChangedMessageToTransKey : requestStatusChangedMessageToTransKey;
+    const transKey = (isCurrentUser ? selfKeys : otherKeys)[message.hostRequestStatusChanged.status];
     if (transKey == null) {
       throw Error(t("control_message.unknown_message_text"));
     }
@@ -97,23 +97,16 @@ export function groupChatTitleText(
           .filter((user) => user?.userId !== currentUserId)
           .map((user) => {
             const firstNameUser = firstName(user?.name);
-            return firstNameUser === ""
-              ? t("messages:unknown_user")
-              : firstNameUser;
+            return firstNameUser === "" ? t("messages:unknown_user") : firstNameUser;
           })
           .join(", ");
 }
 
 /** Returns the other user's username, or null if there are more than 2 users. */
-export function getDmUsername(
-  groupChatMembersQuery: ReturnType<typeof useLiteUsers>,
-  currentUserId: number,
-) {
+export function getDmUsername(groupChatMembersQuery: ReturnType<typeof useLiteUsers>, currentUserId: number) {
   const users = Array.from(groupChatMembersQuery.data?.values() ?? []);
   if (users.length === 2) {
-    const username = users.find(
-      (user) => user?.userId !== currentUserId,
-    )?.username;
+    const username = users.find((user) => user?.userId !== currentUserId)?.username;
     return username ?? null;
   } else {
     return null;
