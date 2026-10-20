@@ -150,14 +150,6 @@ const initialState: MapSearchState = {
   },
 };
 
-// Applied when searching a location or zooming in, unless the user picked a hosting status
-const DEFAULT_HOSTING_STATUS = [HostingStatus.HOSTING_STATUS_CAN_HOST, HostingStatus.HOSTING_STATUS_MAYBE];
-
-const isDefaultHostingStatus = (hostingStatus: HostingStatus[] | undefined) =>
-  !!hostingStatus?.includes(HostingStatus.HOSTING_STATUS_CAN_HOST) &&
-  hostingStatus.includes(HostingStatus.HOSTING_STATUS_MAYBE) &&
-  !hostingStatus.includes(HostingStatus.HOSTING_STATUS_CANT_HOST);
-
 const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSearchState => {
   // State is read-only. Don’t modify any objects or arrays in state directly 🚩.
   // Instead, always return new objects from your reducer ✅.
@@ -167,7 +159,10 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
         state.hasActiveFilters || state.search.bbox !== undefined || state.shouldSearchByUserId;
 
       const defaultFiltersActive =
-        state.filters.showEmptyProfile || isDefaultHostingStatus(state.filters.hostingStatus);
+        state.filters.showEmptyProfile ||
+        (state.filters.hostingStatus?.includes(HostingStatus.HOSTING_STATUS_CAN_HOST) &&
+          state.filters.hostingStatus?.includes(HostingStatus.HOSTING_STATUS_MAYBE) &&
+          !state.filters.hostingStatus.includes(HostingStatus.HOSTING_STATUS_CANT_HOST));
 
       return {
         ...state,
@@ -203,7 +198,10 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
       };
     case mapSearchActionTypes.CLEAR_SEARCH_INPUT_VALUE:
       const areDefaultFiltersActive =
-        state.filters.showEmptyProfile || isDefaultHostingStatus(state.filters.hostingStatus);
+        state.filters.showEmptyProfile ||
+        (state.filters.hostingStatus?.includes(HostingStatus.HOSTING_STATUS_CAN_HOST) &&
+          state.filters.hostingStatus?.includes(HostingStatus.HOSTING_STATUS_MAYBE) &&
+          !state.filters.hostingStatus.includes(HostingStatus.HOSTING_STATUS_CANT_HOST));
 
       const clearedState = {
         ...state,
@@ -247,8 +245,8 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
         ...state,
         filters: {
           ...state.filters,
-          hostingStatus: state.filters.hostingStatus ?? [...DEFAULT_HOSTING_STATUS],
-          showEmptyProfile: state.filters.showEmptyProfile ?? false,
+          hostingStatus: [HostingStatus.HOSTING_STATUS_CAN_HOST, HostingStatus.HOSTING_STATUS_MAYBE], // Default to can host and maybe when searching a location
+          showEmptyProfile: false, // Default to not showing empty profiles when searching a location
         },
         search: {
           ...state.search,
@@ -278,13 +276,16 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
 
       // If we zoom out below the threshold, reset the state to initial but keep the user's own filters
       if (didZoomBelowThreshold) {
+        const isDefaultHostingStatus =
+          state.filters.hostingStatus?.includes(HostingStatus.HOSTING_STATUS_CAN_HOST) &&
+          state.filters.hostingStatus?.includes(HostingStatus.HOSTING_STATUS_MAYBE) &&
+          !state.filters.hostingStatus.includes(HostingStatus.HOSTING_STATUS_CANT_HOST);
+
         const zoomedOutState = {
           ...initialState,
           filters: {
             ...state.filters,
-            ...(isDefaultHostingStatus(state.filters.hostingStatus) && {
-              hostingStatus: initialState.filters.hostingStatus,
-            }),
+            ...(isDefaultHostingStatus && { hostingStatus: initialState.filters.hostingStatus }),
             ...(state.filters.showEmptyProfile === false && {
               showEmptyProfile: initialState.filters.showEmptyProfile,
             }),
@@ -303,7 +304,10 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
           hasActiveFilters: true,
           filters: {
             ...state.filters,
-            hostingStatus: state.filters.hostingStatus ?? [...DEFAULT_HOSTING_STATUS],
+            hostingStatus: state.filters.hostingStatus ?? [
+              HostingStatus.HOSTING_STATUS_CAN_HOST,
+              HostingStatus.HOSTING_STATUS_MAYBE,
+            ],
             showEmptyProfile: state.filters.showEmptyProfile ?? false,
           },
         }),

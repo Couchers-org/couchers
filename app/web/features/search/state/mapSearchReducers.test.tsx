@@ -59,20 +59,6 @@ describe("mapSearchReducer", () => {
       expect(searched.hasActiveFilters).toBe(true);
     });
 
-    it("keeps the user's hosting status when searching a location", () => {
-      const withHostingStatus = mapSearchReducer(initialState, {
-        type: mapSearchActionTypes.SET_FILTERS,
-        payload: { hostingStatus: [HostingStatus.HOSTING_STATUS_CANT_HOST] },
-      });
-
-      const state = mapSearchReducer(withHostingStatus, {
-        type: mapSearchActionTypes.SET_SEARCH_INPUT_VALUE,
-        payload: { location: berlin, center: [13.4, 52.5], zoom: 10 },
-      });
-
-      expect(state.filters.hostingStatus).toEqual([HostingStatus.HOSTING_STATUS_CANT_HOST]);
-    });
-
     it("clears the searched area", () => {
       expect(cleared.search.bbox).toBeUndefined();
       expect(cleared.search.query).toBeUndefined();
