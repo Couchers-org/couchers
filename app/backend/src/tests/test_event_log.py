@@ -208,7 +208,7 @@ def test_log_event_multiple_events(db):
 
 
 def test_signup_flow_creates_events(db):
-    """Full signup flow creates account.signup_initiated and account.signup_completed events."""
+    """Full signup flow creates signup_initiated, signup_email_verified and signup_completed events sharing a flow id."""
     with auth_api_session() as (auth_api, metadata_interceptor):
         res = auth_api.SignupFlow(
             auth_pb2.SignupFlowReq(
@@ -222,6 +222,8 @@ def test_signup_flow_creates_events(db):
         events = _get_events(session, "account.signup_initiated")
         assert len(events) == 1
         assert events[0].properties["has_invite_code"] is False
+        flow_id = session.execute(select(SignupFlow.id).where(SignupFlow.flow_token == flow_token)).scalar_one()
+        assert events[0].properties["signup_flow_id"] == flow_id
 
     # complete signup: get email token, verify, fill account, etc.
     with session_scope() as session:
@@ -235,6 +237,11 @@ def test_signup_flow_creates_events(db):
                 email_token=email_token,
             )
         )
+
+    with session_scope() as session:
+        events = _get_events(session, "account.signup_email_verified")
+        assert len(events) == 1
+        assert events[0].properties == {"signup_flow_id": flow_id}
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         auth_api.SignupFlow(
@@ -285,6 +292,7 @@ def test_signup_flow_creates_events(db):
         assert e.properties["has_invite_code"] is False
         assert isinstance(e.properties["signup_duration_s"], (int, float))
         assert "filled_contributor_form" in e.properties
+        assert e.properties["signup_flow_id"] == flow_id
 
 
 def test_login_creates_event(db):

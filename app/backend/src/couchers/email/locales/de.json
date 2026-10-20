@@ -219,6 +219,11 @@
         "subject": "{{initiator}} hat dir eine Host-Anfrage gesendet",
         "purpose": "<b>{{initiator}}</b> hat dir eine Host-Anfrage gesendet:",
         "respond_encouragement": "Bitte antworte auf diese Anfrage. Selbst eine schnelle Absage ist besser als gar keine Antwort!"
+      },
+      "invitation": {
+        "subject": "{{initiator}} hat dir eine Einladung geschickt",
+        "purpose": "<b>{{initiator}}</b> hat dir eine Einladung geschickt:",
+        "respond_encouragement": "Bitte antworte auf diese Einladung. Selbst eine schnelle Absage ist besser als gar keine Antwort!"
       }
     },
     "generic": {
@@ -226,11 +231,18 @@
       "host_request": {
         "view_action": "Host-Anfrage ansehen"
       },
-      "quick_decline_action": "Schnelle Absage"
+      "quick_decline_action": "Schnelle Absage",
+      "invitation": {
+        "view_action": "Einladung anzeigen"
+      }
     },
     "reminder": {
       "host_request": {
         "subject": "Du hast eine ausstehende Host-Anfrage von {{initiator}}",
+        "purpose": "<b>{{initiator}}</b> wartet auf deine Antwort. Selbst eine schnelle Absage ist besser als gar keine Antwort!"
+      },
+      "invitation": {
+        "subject": "Du hast eine ausstehende Einladung von {{initiator}}",
         "purpose": "<b>{{initiator}}</b> wartet auf deine Antwort. Selbst eine schnelle Absage ist besser als gar keine Antwort!"
       }
     },
@@ -244,6 +256,16 @@
           "subject": "{{counterparty}} hat dir eine Nachricht in deiner Host-Anfrage gesendet",
           "purpose": "<b>{{counterparty}}</b> hat dir eine Nachricht in deiner Host-Anfrage gesendet:"
         }
+      },
+      "invitation": {
+        "from_initiator": {
+          "subject": "{{counterparty}} hat dir eine Nachricht in der Einladung geschrieben",
+          "purpose": "<b>{{counterparty}}</b> hat dir eine Nachricht in der Einladung geschrieben:"
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}} hat dir eine Nachricht in deiner Einladung geschrieben",
+          "purpose": "<b>{{counterparty}}</b> hat dir eine Nachricht in deiner Einladung geschrieben:"
+        }
       }
     },
     "missed_messages": {
@@ -255,6 +277,16 @@
         "from_recipient": {
           "subject": "{{counterparty}} hat dir Nachricht(en) in deiner Host-Anfrage gesendet",
           "purpose": "<b>{{counterparty}}</b> hat dir eine oder mehrere Nachrichten in deiner Host-Anfrage gesendet:"
+        }
+      },
+      "invitation": {
+        "from_initiator": {
+          "subject": "{{counterparty}} hat dir Nachricht(en) in der Einladung geschrieben",
+          "purpose": "<b>{{counterparty}}</b> hat dir eine oder mehrere Nachrichten in der Einladung gesendet:"
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}} hat dir Nachricht(en) in deiner Einladung geschrieben",
+          "purpose": "<b>{{counterparty}}</b> hat dir eine oder mehrere Nachrichten in deiner Einladung gesendet:"
         }
       }
     },
@@ -275,6 +307,24 @@
         "cancelled_by_initiator": {
           "subject": "{{counterparty}} hat die Host-Anfrage zurückgezogen",
           "purpose": "<b>{{counterparty}}</b> hat die Host-Anfrage zurückgezogen:"
+        }
+      },
+      "invitation": {
+        "accepted_by_recipient": {
+          "subject": "{{counterparty}} hat deine Einladung angenommen",
+          "purpose": "<b>{{counterparty}}</b> hat deine Einladung angenommen:"
+        },
+        "declined_by_recipient": {
+          "subject": "{{counterparty}} hat deine Einladung abgelehnt",
+          "purpose": "<b>{{counterparty}}</b> hat deine Einladung abgelehnt:"
+        },
+        "confirmed_by_initiator": {
+          "subject": "{{counterparty}} hat die Einladung bestätigt",
+          "purpose": "<b>{{counterparty}}</b> hat die Einladung bestätigt:"
+        },
+        "cancelled_by_initiator": {
+          "subject": "{{counterparty}} hat die Einladung abgebrochen",
+          "purpose": "<b>{{counterparty}}</b> hat die Einladung abgebrochen:"
         }
       }
     }
