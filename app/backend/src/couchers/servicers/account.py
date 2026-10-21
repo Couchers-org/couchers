@@ -753,7 +753,7 @@ class Account(account_pb2_grpc.AccountServicer):
         host_has_sent_message = select(1).where(
             Message.conversation_id == HostRequest.conversation_id, Message.author_id == HostRequest.recipient_user_id
         )
-        query = select(HostRequest.conversation_id, LiteUser).join(
+        query = select(HostRequest.conversation_id, HostRequest.public_trip_id, LiteUser).join(
             LiteUser, LiteUser.id == HostRequest.initiator_user_id
         )
         query = where_users_column_visible(query, context, HostRequest.initiator_user_id)
@@ -767,16 +767,23 @@ class Account(account_pb2_grpc.AccountServicer):
         ).all()
         reminders = [
             account_pb2.Reminder(
+                respond_to_public_trip_offer_reminder=account_pb2.RespondToPublicTripOfferReminder(
+                    host_request_id=host_request_id,
+                    host_user=lite_user_to_pb(session, lite_user, context),
+                )
+            )
+            if public_trip_id is not None
+            else account_pb2.Reminder(
                 respond_to_host_request_reminder=account_pb2.RespondToHostRequestReminder(
                     host_request_id=host_request_id,
                     surfer_user=lite_user_to_pb(session, lite_user, context),
                 )
             )
-            for host_request_id, lite_user in pending_host_requests
+            for host_request_id, public_trip_id, lite_user in pending_host_requests
         ]
 
-        # surfer needs to confirm accepted requests
-        confirm_query = select(HostRequest.conversation_id, LiteUser).join(
+        # the initiator needs to confirm accepted requests: the surfer on a normal request, the host on an offer
+        confirm_query = select(HostRequest.conversation_id, HostRequest.public_trip_id, LiteUser).join(
             LiteUser, LiteUser.id == HostRequest.recipient_user_id
         )
         confirm_query = where_users_column_visible(confirm_query, context, HostRequest.recipient_user_id)
@@ -789,12 +796,19 @@ class Account(account_pb2_grpc.AccountServicer):
         ).all()
         reminders += [
             account_pb2.Reminder(
+                confirm_public_trip_offer_reminder=account_pb2.ConfirmPublicTripOfferReminder(
+                    host_request_id=host_request_id,
+                    surfer_user=lite_user_to_pb(session, lite_user, context),
+                )
+            )
+            if public_trip_id is not None
+            else account_pb2.Reminder(
                 confirm_host_request_reminder=account_pb2.ConfirmHostRequestReminder(
                     host_request_id=host_request_id,
                     host_user=lite_user_to_pb(session, lite_user, context),
                 )
             )
-            for host_request_id, lite_user in accepted_host_requests
+            for host_request_id, public_trip_id, lite_user in accepted_host_requests
         ]
 
         # references come second, in order of deadline, desc
