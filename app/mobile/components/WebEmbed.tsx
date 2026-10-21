@@ -452,7 +452,7 @@ export default function WebEmbed({
         applicationNameForUserAgent={applicationNameForUserAgent}
         allowsBackForwardNavigationGestures // iOS swipe back/forward
         // On the new architecture an unset rate reaches iOS as 0, killing scroll momentum.
-        decelerationRate="normal"
+        decelerationRate={Platform.OS === "ios" ? "normal" : undefined}
         sharedCookiesEnabled
         cacheEnabled={true}
         cacheMode="LOAD_DEFAULT" // Revalidates on normal loads, uses cache for back nav (preserves cookies)
