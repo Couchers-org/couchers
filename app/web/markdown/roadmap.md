@@ -163,7 +163,7 @@ hide_title: true
     </tr>
     <tr>
 	  <td colspan="3"</td>
-	  <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Couch Crash Board</td>
+	  <td colspan="2" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Couch Crash Calendar</td>
     </tr>
     <tr>
 	  <td colspan="4"</td>
