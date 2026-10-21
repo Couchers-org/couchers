@@ -376,7 +376,7 @@ hide_title: true
   <p class="cc-hero-credit">Photo by <a href="https://unsplash.com/@directormesut?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText" rel="noreferrer noopener" target="_blank">Mesut Kaya</a> on <a href="https://unsplash.com/?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText" rel="noreferrer noopener" target="_blank">Unsplash</a></p>
 </div>
 <!-- COLLAPSIBLE INFO -->
-<details class="cc-drawer">
+<details class="cc-drawer" open>
   <summary>What is a Couch Crash &amp; Note on Accommodation</summary>
   <p>A Couch Crash (sometimes called an Invasion or Camp) is a multi-day couch surfing event organized by locals to welcome the global community. Whether structured like a city weekend or an outdoor festival, it is designed to showcase the hosts' corner of the world to visiting members.</p>
   <p>Unlike regular meetups and events, Couch Crashes usually feature a multi-day itinerary including tours, potlucks, and parties. Local couch surfers organize the events and host the influx of visiting couch surfers.</p>
@@ -387,13 +387,12 @@ hide_title: true
 <h3 class="cc-month">December 2026</h3>
 <ul class="cc-grid">
   <li class="cc-card">
-    <img class="cc-card-img" src="https://images.unsplash.com/photo-1519197924294-4ba991a11128?auto=format&fit=crop&w=600&q=80" alt="Awesome Event">
-    <div class="cc-date-row"><span class="cc-date">📅 November 24 – 29, 2026</span></div>
-    <h4 class="cc-title"><a href="https://couchers.org/event/7766/wroclaw-cs-winter-camp">Awesome Event</a></h4>
-    <p class="cc-meta">📍 NYC, United States</p>
-    <p class="cc-organizer">👤 Organized by <a href="https://couchers.org/user/aapeli">Aapeli</a></p>
+    <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/424761af69e6c7078869b78915e7e59fdd2c695e920171899e93e317935d5767.jpg" alt="Sporty Winter Crash in Szklarska Poręba">
+    <div class="cc-date-row"><span class="cc-date">📅 Dec 27 – Dec 29, 2026</span></div>
+    <h4 class="cc-title"><a href="https://couchers.org/event/7768/sporty-winter-crash-in-szklarska-poreba-an-active-pre-nye-camp">Sporty Winter Crash in Szklarska Poręba</a></h4>
+    <p class="cc-meta">📍 Szklarska Poręba, Poland</p>
+    <p class="cc-organizer">👤 Organized by <a href="https://couchers.org/user/christr">Chris</a></p>
   </li>
-  <!-- -->
   <li class="cc-card">
     <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/7aca5034aa9bbcfc7752467ee812246b4257b864656b5f81f2450d5b23dfe232.jpg" alt="Wrocław CS Winter Camp">
     <div class="cc-date-row"><span class="cc-date">📅 Dec 30, 2026 – Jan 4, 2027</span></div>
@@ -402,63 +401,28 @@ hide_title: true
     <p class="cc-organizer">👤 Organized by <a href="https://couchers.org/user/christr">Chris</a></p>
   </li>
 </ul>
-<!-- -->
-<h3 class="cc-month">January 2027</h3>
-<ul class="cc-grid">
-  <li class="cc-card overlap">
-    <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/9158c0ae91ed57e09caa203a5d415a3edaa8172a273ee1cc1e6bd7a4a937f477.jpg" alt="New Years Event Berlin">
-    <div class="cc-date-row">
-      <span class="cc-date">📅 January 6 – 10, 2027</span>
-      <span class="cc-overlap-tag">Same Weekend</span>
-    </div>
-    <h4 class="cc-title"><a href="https://couchers.org/event/7766/wroclaw-cs-winter-camp">New Years Event Berlin</a></h4>
-    <p class="cc-meta">📍 Berlin, Germany</p>
-    <p class="cc-organizer">👤 Organized by <a href="https://couchers.org/user/chrisk">ChrisK</a></p>
-  </li>
-  <!-- -->
-  <li class="cc-card overlap">
-    <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/7ecbd262e071ea0539d4614c6ecba42ac96eddd61479677d0e396273c7e64b5e.jpg" alt="New Years Event Leipzig">
-    <div class="cc-date-row">
-      <span class="cc-date">📅 January 7 – 10, 2027</span>
-      <span class="cc-overlap-tag">Same Weekend</span>
-    </div>
-    <h4 class="cc-title"><a href="https://couchers.org/event/7766/wroclaw-cs-winter-camp">New Years Event Leipzig</a></h4>
-    <p class="cc-meta">📍 Leipzig, Germany</p>
-    <p class="cc-organizer">👤 Organized by <a href="https://couchers.org/user/chrisk">Iason</a></p>
-  </li>
-  <!-- -->
-  <li class="cc-card">
-    <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/4af3edfd5e38c45967ca81b1475e2da608be6f77842919a35113f88c0f323491.jpg" alt="Sydney Summer Crash">
-    <div class="cc-date-row"><span class="cc-date">📅 January 21 – 24, 2027</span></div>
-    <h4 class="cc-title"><a href="https://couchers.org/event/7684/couchers-fortnight-meet-greet">Sydney Summer Crash</a></h4>
-    <p class="cc-meta">📍 Sydney, Australia</p>
-    <p class="cc-organizer">👤 Organized by <a href="https://couchers.org/user/chrisk">Jesse</a></p>
-  </li>
-</ul>
-<!-- PAST CRASHES -->
+<!-- PAST CRASHES 
 <details class="cc-drawer cc-drawer-past">
   <summary>Past Crashes</summary>
   <h4 class="cc-year">2026</h4>
   <ul class="cc-grid">
+	<li class="cc-card past">
+	  <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/424761af69e6c7078869b78915e7e59fdd2c695e920171899e93e317935d5767.jpg" alt="Sporty Winter Crash in Szklarska Poręba">
+	  <div class="cc-date-row"><span class="cc-date">📅 Dec 27 – Dec 29, 2026</span></div>
+	  <h4 class="cc-title"><a href="https://couchers.org/event/7768/sporty-winter-crash-in-szklarska-poreba-an-active-pre-nye-camp">Sporty Winter Crash in Szklarska Poręba</a></h4>
+	  <p class="cc-meta">📍 Szklarska Poręba, Poland</p>
+	  <p class="cc-organizer">👤 Organized by <a href="https://couchers.org/user/christr">Chris</a></p>
+	</li>
     <li class="cc-card past">
-      <img class="cc-card-img" src="https://images.unsplash.com/photo-1519197924294-4ba991a11128?auto=format&fit=crop&w=600&q=80" alt="Brisbane Christmas in July">
-      <div class="cc-date-row"><span class="cc-date">📅 Jul 23 – 26, 2026</span></div>
-      <h4 class="cc-title">Brisbane Christmas in July Couch Crash 2026</h4>
-      <p class="cc-meta">📍 Brisbane, Australia</p>
-      <p class="cc-organizer">👤 Organized by <a href="https://couchers.org/user/chrisk">ChrisK</a></p>
-    </li>
-  </ul>
-  <h4 class="cc-year">2025</h4>
-  <ul class="cc-grid">
-    <li class="cc-card past">
-      <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/37e6f814d49027a6fff6f07b8fe271f09f1651385bfbe3d7859e40018c59fef9.jpg" alt="Perth Christmas in July">
-      <div class="cc-date-row"><span class="cc-date">📅 Jul 23 – 26, 2025</span></div>
-      <h4 class="cc-title">Perth Christmas in July Couch Crash 2025</h4>
-      <p class="cc-meta">📍 Perth, Australia</p>
-      <p class="cc-organizer">👤 Organized by <a href="https://couchers.org/user/chrisk">ChrisK</a></p>
+      <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/7aca5034aa9bbcfc7752467ee812246b4257b864656b5f81f2450d5b23dfe232.jpg" alt="Wrocław CS Winter Camp">
+      <div class="cc-date-row"><span class="cc-date">📅 Dec 30, 2026 – Jan 4, 2027</span></div>
+	  <h4 class="cc-title"><a href="https://couchers.org/event/7766/wroclaw-cs-winter-camp">Wrocław CS Winter Camp</a></h4>
+	  <p class="cc-meta">📍 Wrocław, Poland</p>
+	  <p class="cc-organizer">👤 Organized by <a href="https://couchers.org/user/christr">Chris</a></p>
     </li>
   </ul>
 </details>
+-->
 <!-- FLOATING PROPOSE BUTTON -->
 <a href="#propose-crash" class="cc-btn cc-fab" id="cc-floating-btn">Propose a Crash</a>
 <!-- PROPOSE A CRASH SECTION -->
