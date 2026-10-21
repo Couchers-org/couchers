@@ -27,8 +27,9 @@ from couchers.models import (
 )
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.moderation.utils import create_moderation
-from couchers.proto import api_pb2, messages_pb2, moderation_pb2, references_pb2, requests_pb2
+from couchers.proto import api_pb2, messages_pb2, moderation_pb2, references_pb2
 from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_aware_datetime, to_multi, today
+from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user, make_friends, make_user_block
 from tests.fixtures.misc import EmailCollector, PushCollector
 from tests.fixtures.sessions import (
@@ -36,9 +37,7 @@ from tests.fixtures.sessions import (
     api_session,
     real_moderation_session,
     references_session,
-    requests_session,
 )
-from tests.test_requests import valid_request_text
 
 
 def create_public_trip(session: Session, user_id: int, from_date: date, to_date: date) -> int:
@@ -1393,38 +1392,19 @@ def test_regression_disappearing_refs(db, hs, moderator):
     """
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    req_start = (today() + timedelta(days=2)).isoformat()
-    req_end = (today() + timedelta(days=3)).isoformat()
-    with requests_session(token1) as api:
-        res = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=req_start, to_date=req_end, text=valid_request_text()
-            )
-        )
-        host_request_id = res.host_request_id
+    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
 
-        moderator.approve_host_request(host_request_id)
+    assert (
+        requests_api.list_host_requests(token=token1, only_sent=True).host_requests[0].latest_message.text.text
+        == requests_api.REQUEST_TEXT_DEFAULT
+    )
 
-        assert (
-            api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
-            .host_requests[0]
-            .latest_message.text.text
-            == valid_request_text()
-        )
-
-    with requests_session(token2) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
-            )
-        )
-
-    with requests_session(token1) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
-            )
-        )
+    requests_api.respond_host_request(
+        token=token2, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+    )
+    requests_api.respond_host_request(
+        token=token1, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
+    )
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
 

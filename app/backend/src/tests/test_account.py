@@ -22,8 +22,9 @@ from couchers.models import (
     Upload,
     User,
 )
-from couchers.proto import account_pb2, api_pb2, auth_pb2, messages_pb2, requests_pb2
+from couchers.proto import account_pb2, api_pb2, auth_pb2, messages_pb2
 from couchers.utils import now, today
+from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import backdate_conversations, generate_user, make_volunteer
 from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
 from tests.fixtures.sessions import (
@@ -31,10 +32,8 @@ from tests.fixtures.sessions import (
     auth_api_session,
     public_session,
     real_account_session,
-    requests_session,
 )
 from tests.fixtures.timewarp import Timewarp
-from tests.test_requests import valid_request_text
 
 
 def test_GetAccountInfo(db, fast_passwords):
@@ -1009,18 +1008,9 @@ def test_reminders(db, moderator):
             "complete_profile_reminder",
         ]
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-    with requests_session(req_user_token1) as api:
-        host_request1_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text("Test request 1"),
-            )
-        ).host_request_id
-    moderator.approve_host_request(host_request1_id)
+    host_request1_id = requests_api.create_host_request(
+        token=req_user_token1, host_user_id=user.id, approve_by=moderator
+    )
 
     with account_session(token) as account:
         reminders = account.GetReminders(empty_pb2.Empty()).reminders
@@ -1031,16 +1021,9 @@ def test_reminders(db, moderator):
         assert reminders[0].respond_to_host_request_reminder.host_request_id == host_request1_id
         assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
 
-    with requests_session(req_user_token2) as api:
-        host_request2_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text("Test request 2"),
-            )
-        ).host_request_id
-    moderator.approve_host_request(host_request2_id)
+    host_request2_id = requests_api.create_host_request(
+        token=req_user_token2, host_user_id=user.id, approve_by=moderator
+    )
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
     with account_session(token) as account:
@@ -1056,16 +1039,9 @@ def test_reminders(db, moderator):
         assert reminders[1].respond_to_host_request_reminder.surfer_user.user_id == req_user2.id
 
     backdate_conversations()
-    with requests_session(req_user_token1) as api:
-        host_request3_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text("Test request 3"),
-            )
-        ).host_request_id
-    moderator.approve_host_request(host_request3_id)
+    host_request3_id = requests_api.create_host_request(
+        token=req_user_token1, host_user_id=user.id, approve_by=moderator
+    )
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
     with account_session(token) as account:
@@ -1084,12 +1060,9 @@ def test_reminders(db, moderator):
         assert reminders[2].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
 
     # accept req
-    with requests_session(token) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request1_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
-            )
-        )
+    requests_api.respond_host_request(
+        token=token, host_request_id=host_request1_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+    )
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
     with account_session(token) as account:
@@ -1105,10 +1078,7 @@ def test_reminders(db, moderator):
         assert reminders[1].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
 
     # host replies to req2 with a message: reminder should clear even though it's still pending
-    with requests_session(token) as api:
-        api.SendHostRequestMessage(
-            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request2_id, text="Let me think about it")
-        )
+    requests_api.send_host_request_message(token=token, host_request_id=host_request2_id, text="Let me think about it")
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
     with account_session(token) as account:
@@ -1121,10 +1091,7 @@ def test_reminders(db, moderator):
         assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
 
     # surfer sending a message should not clear the reminder
-    with requests_session(req_user_token1) as api:
-        api.SendHostRequestMessage(
-            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request3_id, text="Any update?")
-        )
+    requests_api.send_host_request_message(token=req_user_token1, host_request_id=host_request3_id, text="Any update?")
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
     with account_session(token) as account:
@@ -1141,30 +1108,20 @@ def test_confirm_host_request_reminder(db, moderator):
     host, host_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
 
-    today_plus_10 = (today() + timedelta(days=10)).isoformat()
-    today_plus_12 = (today() + timedelta(days=12)).isoformat()
+    today_plus_10 = today() + timedelta(days=10)
+    today_plus_12 = today() + timedelta(days=12)
 
-    with requests_session(surfer_token) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=today_plus_10,
-                to_date=today_plus_12,
-                text=valid_request_text("Please host me"),
-            )
-        ).host_request_id
-    moderator.approve_host_request(host_request_id)
+    host_request_id = requests_api.create_host_request(
+        token=surfer_token, host_user_id=host.id, from_date=today_plus_10, to_date=today_plus_12, approve_by=moderator
+    )
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
     with account_session(surfer_token) as account:
         assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == []
 
-    with requests_session(host_token) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
-            )
-        )
+    requests_api.respond_host_request(
+        token=host_token, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+    )
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
     with account_session(surfer_token) as account:
@@ -1174,12 +1131,9 @@ def test_confirm_host_request_reminder(db, moderator):
         assert reminders[0].confirm_host_request_reminder.host_user.user_id == host.id
 
     # after surfer confirms, reminder should clear
-    with requests_session(surfer_token) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
-            )
-        )
+    requests_api.respond_host_request(
+        token=surfer_token, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
+    )
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
     with account_session(surfer_token) as account:

@@ -6,15 +6,14 @@ from couchers.db import session_scope
 from couchers.proto import discussions_pb2, events_pb2, messages_pb2, requests_pb2, screens_pb2
 from couchers.utils import today
 from tests.fixtures.api import events as events_api
+from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import (
     account_session,
     discussions_session,
-    requests_session,
     screens_session,
 )
 from tests.test_communities import create_community
-from tests.test_requests import valid_request_text
 
 UPCOMING_STATUSES = [
     messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
@@ -22,57 +21,33 @@ UPCOMING_STATUSES = [
 ]
 
 
-def _setup_accepted_host_request(token_surfer, host_user_id, moderator):
-    from_date = today() + timedelta(days=2)
-    to_date = today() + timedelta(days=3)
-    with requests_session(token_surfer) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host_user_id,
-                from_date=from_date.isoformat(),
-                to_date=to_date.isoformat(),
-                text=valid_request_text(),
-            )
-        ).host_request_id
-    moderator.approve_host_request(host_request_id)
-    return host_request_id
-
-
 def test_GetDashboard_matches_individual_rpcs(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    host_request_id = _setup_accepted_host_request(token1, user2.id, moderator)
-    with requests_session(token2) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id,
-                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
-                text="Sure, come on over!",
-            )
-        )
+    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
+    requests_api.respond_host_request(
+        token=token2, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+    )
 
     # the dashboard response must be identical to fanning out to the individual RPCs with the
     # same parameters the web frontend uses
-    with requests_session(token1) as api:
-        surfing = api.ListHostRequests(
-            requests_pb2.ListHostRequestsReq(
-                only_sent=True,
-                only_active=True,
-                status_in=UPCOMING_STATUSES,
-                sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
-                number=10,
-            )
-        )
-        hosting = api.ListHostRequests(
-            requests_pb2.ListHostRequestsReq(
-                only_received=True,
-                only_active=True,
-                status_in=UPCOMING_STATUSES,
-                sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
-                number=10,
-            )
-        )
+    surfing = requests_api.list_host_requests(
+        token=token1,
+        only_sent=True,
+        only_active=True,
+        status_in=UPCOMING_STATUSES,
+        sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
+        number=10,
+    )
+    hosting = requests_api.list_host_requests(
+        token=token1,
+        only_received=True,
+        only_active=True,
+        status_in=UPCOMING_STATUSES,
+        sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
+        number=10,
+    )
 
     my_events = events_api.list_my_events(token=token1, page_size=9)
     community_events = events_api.list_my_events(
@@ -109,15 +84,10 @@ def test_GetDashboard_buckets_by_role(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    host_request_id = _setup_accepted_host_request(token1, user2.id, moderator)
-    with requests_session(token2) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id,
-                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
-                text="Sure, come on over!",
-            )
-        )
+    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
+    requests_api.respond_host_request(
+        token=token2, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+    )
 
     # the host sees the upcoming stay under hosting, nothing under surfing
     with screens_session(token2) as api:
