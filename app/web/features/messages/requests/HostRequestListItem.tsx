@@ -179,6 +179,7 @@ export default function HostRequestListItem({ hostRequest, className, isArchived
         className={className}
         sx={{
           color: isPast ? "var(--mui-palette-grey-500)" : "var(--mui-palette-text-primary)",
+          width: "auto",
         }}
       >
         <ListItemAvatar>
