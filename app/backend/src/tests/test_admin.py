@@ -32,7 +32,6 @@ from couchers.models import (
     UserSession,
 )
 from couchers.proto import (
-    account_pb2,
     admin_pb2,
     auth_pb2,
     blocking_pb2,
@@ -41,6 +40,7 @@ from couchers.proto import (
     requests_pb2,
 )
 from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date
+from tests.fixtures.api import account as account_api
 from tests.fixtures.api import events as events_api
 from tests.fixtures.db import (
     add_users_to_new_moderation_list,
@@ -50,7 +50,6 @@ from tests.fixtures.db import (
 )
 from tests.fixtures.misc import EmailCollector, Moderator, PushCollector
 from tests.fixtures.sessions import (
-    account_session,
     auth_api_session,
     blocking_session,
     real_admin_session,
@@ -628,8 +627,7 @@ def test_RecoverDeletedUser_after_user_initiated_deletion(db, push_collector: Pu
     user_id = normal_user.id
 
     # User initiates account deletion
-    with account_session(normal_token) as account:
-        account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True))
+    account_api.delete_account(token=normal_token, confirm=True)
 
     # Get the deletion confirmation token
     with session_scope() as session:
