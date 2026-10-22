@@ -20,6 +20,7 @@ from couchers.models import (
     NonvisibleUserAccessType,
     NonvisibleUserState,
     RateLimitAction,
+    RateLimitViolation,
     User,
     UserBadge,
 )
@@ -40,11 +41,6 @@ from tests.fixtures.sessions import (
 from tests.fixtures.sessions import (
     real_admin_session as admin_session,
 )
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
 
 
 def test_ping(db):
@@ -923,7 +919,7 @@ def test_friend_request_flow(db, email_collector: EmailCollector, push_collector
 
     email = email_collector.pop_for_recipient(user2.email, last=True)
     assert email.recipient == user2.email
-    assert email.subject == f"[TEST] {user1.name} wants to be your friend on Couchers.org!"
+    assert email.subject == f"[TEST] {user1.name} wants to be your friend"
     assert user2.name in email.plain
     assert user2.name in email.html
     assert user1.name in email.plain
@@ -966,7 +962,7 @@ def test_friend_request_flow(db, email_collector: EmailCollector, push_collector
 
     email = email_collector.pop_for_recipient(user1.email, last=True)
     assert email.recipient == user1.email
-    assert email.subject == f"[TEST] {user2.name} accepted your friend request!"
+    assert email.subject == f"[TEST] {user2.name} accepted your friend request"
     assert user1.name in email.plain
     assert user1.name in email.html
     assert user2.name in email.plain
@@ -1118,7 +1114,7 @@ def test_cant_friend_request_incomplete_profile(db):
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
 
 
-def test_excessive_friend_requests_are_reported(db, email_collector: EmailCollector):
+def test_excessive_friend_requests_are_reported(db, low_rate_limits, email_collector: EmailCollector):
     """Test that excessive friend requests are first reported in a warning email and finally lead blocking of further requests."""
     user, token = generate_user()
     rate_limit_definition = RATE_LIMIT_DEFINITIONS[RateLimitAction.friend_request]
@@ -1157,6 +1153,20 @@ def test_excessive_friend_requests_are_reported(db, email_collector: EmailCollec
             f"User {user.username} has sent {rate_limit_definition.hard_limit} friend requests in the past {RATE_LIMIT_HOURS} hours."
         )
         assert "The user has been blocked from sending further friend requests for now." in email.plain
+
+        with session_scope() as session:
+            assert session.execute(
+                select(RateLimitViolation.is_hard_limit)
+                .where(RateLimitViolation.user_id == user.id)
+                .order_by(RateLimitViolation.id)
+            ).scalars().all() == [False, True]
+
+        # still blocked once the hard violation is on record, without reporting again
+        friend_user, _ = generate_user()
+        with pytest.raises(grpc.RpcError) as exc_info:
+            _ = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=friend_user.id))
+        assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
+        assert email_collector.count_for_reports() == 0
 
 
 def test_ListFriends(db, moderator):

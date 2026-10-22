@@ -1,17 +1,8 @@
-import {
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select as MuiSelect,
-  SelectChangeEvent,
-  SelectProps,
-} from "@mui/material";
+import { FormControl, InputLabel, MenuItem, Select as MuiSelect, SelectChangeEvent, SelectProps } from "@mui/material";
 import React, { forwardRef } from "react";
 import { theme } from "theme";
 
-const Select = forwardRef(function Select<
-  T extends Record<string | number, string>,
->(
+const Select = forwardRef(function Select<T extends Record<string | number, string>>(
   {
     id,
     className,
@@ -26,9 +17,7 @@ const Select = forwardRef(function Select<
   }: Omit<SelectProps, "children"> & {
     id: string;
     options: Extract<keyof T, string | number>[];
-    value?: T extends undefined
-      ? string | number | number[]
-      : keyof T | Array<keyof T>;
+    value?: T extends undefined ? string | number | number[] : keyof T | Array<keyof T>;
     menuItems?: boolean;
     optionLabelMap: T;
     onChange?: (event: SelectChangeEvent<T>) => void;

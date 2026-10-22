@@ -8,6 +8,7 @@ from sqlalchemy import (
     BigInteger,
     Boolean,
     CheckConstraint,
+    Computed,
     Date,
     DateTime,
     Enum,
@@ -41,6 +42,7 @@ from couchers.constants import (
 from couchers.models.activeness_probe import ActivenessProbe
 from couchers.models.base import Base, Geom
 from couchers.models.mod_note import ModNote
+from couchers.models.moderation import ModerationObjectType, ModerationState
 from couchers.models.static import Language, Region, TimezoneArea
 from couchers.utils import get_coordinates, last_active_coarsen, now
 
@@ -62,6 +64,21 @@ class MeetupStatus(enum.Enum):
     wants_to_meetup = enum.auto()
     open_to_meetup = enum.auto()
     does_not_want_to_meetup = enum.auto()
+
+
+class HostingMeetupStatusSource(enum.Enum):
+    # the statuses the account was created with
+    signup = enum.auto()
+    # the user edited their profile
+    profile_edit = enum.auto()
+    # the user enabled "do not email" in their notification settings
+    do_not_email = enum.auto()
+    # the user used the "do not email" quick link in an email
+    unsubscribe_link = enum.auto()
+    # the user responded to an activeness probe
+    activeness_probe_response = enum.auto()
+    # the user let an activeness probe expire, so we downgraded them
+    activeness_probe_expired = enum.auto()
 
 
 class SmokingLocation(enum.Enum):
@@ -103,11 +120,14 @@ class User(Base, kw_only=True):
     """
 
     __tablename__ = "users"
+    __moderation_author_column__ = "id"
+    __moderation_object_type__ = ModerationObjectType.user
+    __moderation_has_own_visibility_mechanism__ = True
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     username: Mapped[str] = mapped_column(String, unique=True)
-    email: Mapped[str] = mapped_column(String, unique=True)
+    email: Mapped[str] = mapped_column(String, index=True)
     # stored in libsodium hash format, can be null for email login
     hashed_password: Mapped[bytes] = mapped_column(Binary)
     # phone number in E.164 format with leading +, for example "+46701740605"
@@ -176,6 +196,11 @@ class User(Base, kw_only=True):
 
     # "Who I am" under "About Me" tab
     about_me: Mapped[str | None] = mapped_column(String, default=None)  # CommonMark without images
+    # kept in sync by the database so profile-completeness checks never detoast about_me; doing so was the dominant
+    # cost of both the lite_users refresh and the profile metrics, which scan every user several times a minute
+    about_me_length: Mapped[int] = mapped_column(
+        Integer, Computed("coalesce(character_length(about_me), 0)", persisted=True), init=False
+    )
     # "What I do in my free time" under "About Me" tab
     things_i_like: Mapped[str | None] = mapped_column(String, default=None)  # CommonMark without images
     # "About my home" under "My Home" tab
@@ -186,6 +211,10 @@ class User(Base, kw_only=True):
     banned_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
     shadowed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+    moderation_auto_approve_deadline_seconds: Mapped[int | None] = mapped_column(Integer, default=None)
+
+    moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
+
     is_superuser: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
     is_editor: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
 
@@ -362,6 +391,8 @@ class User(Base, kw_only=True):
 
     public_trips: Mapped[list[PublicTrip]] = relationship(init=False, back_populates="user")
 
+    moderation_state: Mapped[ModerationState] = relationship(init=False)
+
     __table_args__ = (
         # Verified phone numbers should be unique
         Index(
@@ -369,6 +400,32 @@ class User(Base, kw_only=True):
             phone,
             unique=True,
             postgresql_where=phone_verification_verified != None,
+        ),
+        Index(
+            "ix_users_unique_email",
+            email,
+            unique=True,
+            postgresql_where=deleted_at == None,
+        ),
+        # These three are each looked up by equality as though the value named exactly one user, so the database
+        # needs to enforce that; partial as the columns are null for almost every user
+        Index(
+            "ix_users_unique_undelete_token",
+            undelete_token,
+            unique=True,
+            postgresql_where=undelete_token != None,
+        ),
+        Index(
+            "ix_users_unique_new_email_token",
+            new_email_token,
+            unique=True,
+            postgresql_where=new_email_token != None,
+        ),
+        Index(
+            "ix_users_unique_stripe_customer_id",
+            stripe_customer_id,
+            unique=True,
+            postgresql_where=stripe_customer_id != None,
         ),
         Index(
             "ix_users_active",
@@ -402,7 +459,7 @@ class User(Base, kw_only=True):
                 banned_at.is_(None),
                 deleted_at.is_(None),
                 profile_gallery_id.isnot(None),
-                func.coalesce(func.character_length(about_me), 0) >= COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH,
+                about_me_length >= COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH,
             ),
         ),
         # There are two possible states for new_email_token, new_email_token_created, and new_email_token_expiry
@@ -543,6 +600,24 @@ class User(Base, kw_only=True):
     def _is_shadowed_expression(cls) -> ColumnElement[bool]:
         return cls.shadowed_at.is_not(None)
 
+    @hybrid_property
+    def is_banned(self) -> bool:
+        return self.banned_at is not None
+
+    @is_banned.inplace.expression
+    @classmethod
+    def _is_banned_expression(cls) -> ColumnElement[bool]:
+        return cls.banned_at.is_not(None)
+
+    @hybrid_property
+    def reserves_email(self) -> bool:
+        return self.deleted_at is None or self.banned_at is not None
+
+    @reserves_email.inplace.expression
+    @classmethod
+    def _reserves_email_expression(cls) -> ColumnElement[bool]:
+        return or_(cls.deleted_at.is_(None), cls.banned_at.is_not(None))
+
     @property
     def coordinates(self) -> tuple[float, float]:
         return get_coordinates(self.geom)
@@ -622,3 +697,57 @@ class RegionLived(Base, kw_only=True):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     region_code: Mapped[str] = mapped_column(ForeignKey("regions.code", deferrable=True))
+
+
+class HostingMeetupStatusHistory(Base, kw_only=True):
+    """
+    Append-only snapshot log of users' hosting and meetup statuses. A row is written whenever either status changes, so
+    a user's statuses at any past time are those of their newest row at or before that time.
+    """
+
+    __tablename__ = "hosting_meetup_status_history"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    source: Mapped[HostingMeetupStatusSource] = mapped_column(Enum(HostingMeetupStatusSource))
+    hosting_status: Mapped[HostingStatus] = mapped_column(Enum(HostingStatus))
+    meetup_status: Mapped[MeetupStatus] = mapped_column(Enum(MeetupStatus))
+
+    user: Mapped[User] = relationship(init=False)
+
+    __table_args__ = (Index("ix_hosting_meetup_status_history_user_id_time", user_id, time),)
+
+
+class UserEmailHistory(Base, kw_only=True):
+    """
+    Append-only log of users' email addresses. A row is written whenever a user's email is set, so a user's email at any
+    past time is that of their newest row at or before that time.
+    """
+
+    __tablename__ = "user_email_history"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    email: Mapped[str] = mapped_column(String)
+
+    user: Mapped[User] = relationship(init=False)
+
+    __table_args__ = (
+        Index("ix_user_email_history_user_id_time", user_id, time),
+        Index("ix_user_email_history_email", email),
+    )
+
+
+class UserRankingOffset(Base, kw_only=True):
+    """
+    Offsets added to users' recommendation_score in user search for viewers on a given variant (picked by the
+    search_ranking_offsets_variant flag).
+    """
+
+    __tablename__ = "user_ranking_offsets"
+
+    variant: Mapped[str] = mapped_column(String, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    offset: Mapped[float] = mapped_column(Float)

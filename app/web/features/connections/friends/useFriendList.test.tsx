@@ -118,14 +118,8 @@ describe("with cached user data", () => {
     const sharedClient = new QueryClient({
       defaultOptions: { queries: { retry: false } },
     });
-    const sharedClientWrapper = ({
-      children,
-    }: {
-      children: React.ReactNode;
-    }) => (
-      <QueryClientProvider client={sharedClient}>
-        {children}
-      </QueryClientProvider>
+    const sharedClientWrapper = ({ children }: { children: React.ReactNode }) => (
+      <QueryClientProvider client={sharedClient}>{children}</QueryClientProvider>
     );
     const initialResult = renderHook(() => useFriendList(), {
       wrapper: sharedClientWrapper,

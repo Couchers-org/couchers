@@ -6,17 +6,17 @@ from geoalchemy2.shape import from_shape
 from google.protobuf import empty_pb2
 from shapely.geometry import shape
 from shapely.geometry.base import BaseGeometry
-from sqlalchemy import select
+from sqlalchemy import select, tuple_
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import exists, update
 
 from couchers import urls
 from couchers.context import CouchersContext
-from couchers.db import session_scope
+from couchers.db import get_parent_node_at_location, session_scope
 from couchers.helpers.clusters import CHILD_NODE_TYPE, create_cluster, create_node
 from couchers.jobs.enqueue import queue_job
 from couchers.materialized_views import LiteUser
-from couchers.models import EventCommunityInviteRequest, Node, User, Volunteer
+from couchers.models import EventCommunityInviteRequest, EventOccurrence, Node, User, UserActivity, Volunteer
 from couchers.models.notifications import NotificationTopicAction
 from couchers.models.postal_verification import PostalVerificationAttempt
 from couchers.notifications.notify import notify
@@ -25,10 +25,22 @@ from couchers.proto import communities_pb2, editor_pb2, editor_pb2_grpc, notific
 from couchers.proto.internal import jobs_pb2
 from couchers.resources import get_static_badge_dict
 from couchers.servicers.communities import community_to_pb
-from couchers.servicers.events import generate_event_create_notifications, get_users_to_notify_for_new_event
+from couchers.servicers.events import (
+    generate_event_create_notifications,
+    get_users_to_notify_for_new_event,
+    is_community_too_large_for_event_notifications,
+)
 from couchers.servicers.postal_verification import postalverificationstatus2pb
 from couchers.servicers.public import format_volunteer_link
-from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date
+from couchers.utils import (
+    Timestamp_from_datetime,
+    date_to_api,
+    dt_id_from_page_token,
+    dt_id_to_page_token,
+    not_none,
+    now,
+    parse_date,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -39,9 +51,55 @@ def load_community_geom(geojson: str, context: CouchersContext) -> BaseGeometry:
     geom = shape(json.loads(geojson))
 
     if geom.geom_type != "MultiPolygon":
-        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "no_multipolygon")
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:no_multipolygon")
 
     return geom
+
+
+def _get_event_occurrence(session: Session, occurrence_id: int, context: CouchersContext) -> EventOccurrence:
+    # unfiltered by moderation state and deletion: editors need to fix up any event
+    occurrence = session.execute(
+        select(EventOccurrence).where(EventOccurrence.id == occurrence_id)
+    ).scalar_one_or_none()
+    if not occurrence:
+        context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
+    return occurrence
+
+
+def _event_community_candidate_to_pb(
+    session: Session, occurrence: EventOccurrence, node: Node, context: CouchersContext
+) -> editor_pb2.EventCommunityCandidate:
+    users_to_notify, node_id = get_users_to_notify_for_new_event(session, occurrence, node)
+    return editor_pb2.EventCommunityCandidate(
+        community=community_to_pb(session, node, context),
+        approx_users_to_notify=len(users_to_notify),
+        too_large_for_notifications=is_community_too_large_for_event_notifications(node),
+        notifies_by_proximity=node_id is None,
+    )
+
+
+def event_community_info_to_pb(
+    session: Session, occurrence: EventOccurrence, context: CouchersContext
+) -> editor_pb2.EventCommunityInfo:
+    event = occurrence.event
+    smallest_local_node = get_parent_node_at_location(session, occurrence.geom)
+
+    return editor_pb2.EventCommunityInfo(
+        event_id=occurrence.id,
+        title=event.title,
+        event_url=urls.event_link(occurrence_id=occurrence.id, slug=event.slug),
+        creator_user_id=occurrence.creator_user_id,
+        address=occurrence.address,
+        occurrence_count=event.occurrences.count(),
+        current=_event_community_candidate_to_pb(session, occurrence, event.parent_node, context),
+        smallest_local=(
+            _event_community_candidate_to_pb(session, occurrence, smallest_local_node, context)
+            if smallest_local_node
+            else None
+        ),
+        is_in_smallest_local_community=smallest_local_node is not None
+        and smallest_local_node.id == event.parent_node_id,
+    )
 
 
 def volunteer_to_pb(session: Session, volunteer: Volunteer) -> editor_pb2.Volunteer:
@@ -92,7 +150,7 @@ class Editor(editor_pb2_grpc.EditorServicer):
         if parent_node_id is not None:
             parent_node = session.execute(select(Node).where(Node.id == parent_node_id)).scalar_one_or_none()
             if not parent_node:
-                context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "parent_node_not_found")
+                context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "admin:parent_node_not_found")
             parent_type = parent_node.node_type
         else:
             parent_type = None
@@ -160,6 +218,48 @@ class Editor(editor_pb2_grpc.EditorServicer):
             next_page_token=str(requests[-1].id) if len(requests) > page_size else None,
         )
 
+    def ListDecidedEventCommunityInviteRequests(
+        self, request: editor_pb2.ListDecidedEventCommunityInviteRequestsReq, context: CouchersContext, session: Session
+    ) -> editor_pb2.ListDecidedEventCommunityInviteRequestsRes:
+        page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+
+        query = (
+            select(EventCommunityInviteRequest)
+            .where(EventCommunityInviteRequest.decided.is_not(None))
+            .order_by(EventCommunityInviteRequest.decided.desc(), EventCommunityInviteRequest.id.desc())
+            .limit(page_size + 1)
+        )
+
+        if request.HasField("approved"):
+            query = query.where(EventCommunityInviteRequest.approved == request.approved.value)
+
+        if request.page_token:
+            decided, request_id = dt_id_from_page_token(request.page_token)
+            query = query.where(
+                tuple_(EventCommunityInviteRequest.decided, EventCommunityInviteRequest.id) <= (decided, request_id)
+            )
+
+        requests = session.execute(query).scalars().all()
+
+        return editor_pb2.ListDecidedEventCommunityInviteRequestsRes(
+            requests=[
+                editor_pb2.DecidedEventCommunityInviteRequest(
+                    event_community_invite_request_id=req.id,
+                    user_id=req.user_id,
+                    event_url=urls.event_link(occurrence_id=req.occurrence.id, slug=req.occurrence.event.slug),
+                    community_id=req.occurrence.event.parent_node_id,
+                    created=Timestamp_from_datetime(req.created),
+                    decided=Timestamp_from_datetime(not_none(req.decided)),
+                    decided_by_user_id=not_none(req.decided_by_user_id),
+                    approved=not_none(req.approved),
+                )
+                for req in requests[:page_size]
+            ],
+            next_page_token=dt_id_to_page_token(not_none(requests[page_size].decided), requests[page_size].id)
+            if len(requests) > page_size
+            else None,
+        )
+
     def DecideEventCommunityInviteRequest(
         self, request: editor_pb2.DecideEventCommunityInviteRequestReq, context: CouchersContext, session: Session
     ) -> editor_pb2.DecideEventCommunityInviteRequestRes:
@@ -170,10 +270,12 @@ class Editor(editor_pb2_grpc.EditorServicer):
         ).scalar_one_or_none()
 
         if not req:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_community_invite_not_found")
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "admin:event_community_invite_not_found")
 
         if req.decided:
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "event_community_invite_already_decided")
+            context.abort_with_error_code(
+                grpc.StatusCode.FAILED_PRECONDITION, "admin:event_community_invite_already_decided"
+            )
 
         decided = now()
         req.decided = decided
@@ -204,13 +306,40 @@ class Editor(editor_pb2_grpc.EditorServicer):
 
         return editor_pb2.DecideEventCommunityInviteRequestRes()
 
+    def GetEventCommunityInfo(
+        self, request: editor_pb2.GetEventCommunityInfoReq, context: CouchersContext, session: Session
+    ) -> editor_pb2.EventCommunityInfo:
+        occurrence = _get_event_occurrence(session, request.event_id, context)
+        return event_community_info_to_pb(session, occurrence, context)
+
+    def MoveEventToCommunity(
+        self, request: editor_pb2.MoveEventToCommunityReq, context: CouchersContext, session: Session
+    ) -> editor_pb2.EventCommunityInfo:
+        occurrence = _get_event_occurrence(session, request.event_id, context)
+
+        if request.WhichOneof("new_parent_community") == "community_id":
+            node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
+        elif request.WhichOneof("new_parent_community") == "smallest_local_community":
+            node = get_parent_node_at_location(session, occurrence.geom)
+        else:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:event_move_target_must_be_specified")
+
+        if not node:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
+
+        # assign the relationship, not the id, or we read a stale parent_node below
+        occurrence.event.parent_node = node
+        session.flush()
+
+        return event_community_info_to_pb(session, occurrence, context)
+
     def SendBlogPostNotification(
         self, request: editor_pb2.SendBlogPostNotificationReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
         if len(request.title) > 50:
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin_blog_title_too_long")
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin:blog_title_too_long")
         if len(request.blurb) > 100:
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin_blog_blurb_too_long")
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin:blog_blurb_too_long")
         queue_job(
             session,
             job=generate_new_blog_post_notifications,
@@ -231,14 +360,16 @@ class Editor(editor_pb2_grpc.EditorServicer):
 
         # Check if user is already a volunteer
         if session.execute(select(exists().where(Volunteer.user_id == request.user_id))).scalar():
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "user_already_volunteer")
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin:user_already_volunteer")
 
         # Parse started_volunteering date
         started_volunteering = None
         if request.started_volunteering:
             started_volunteering = parse_date(request.started_volunteering)
             if not started_volunteering:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_started_volunteering_date")
+                context.abort_with_error_code(
+                    grpc.StatusCode.INVALID_ARGUMENT, "admin:invalid_started_volunteering_date"
+                )
 
         # Create a volunteer record
         volunteer = Volunteer(
@@ -259,7 +390,7 @@ class Editor(editor_pb2_grpc.EditorServicer):
         # Check if volunteer exists
         volunteer = session.execute(select(Volunteer).where(Volunteer.user_id == request.user_id)).scalar_one_or_none()
         if not volunteer:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "volunteer_not_found")
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "admin:volunteer_not_found")
 
         # Update role if provided
         if request.HasField("role"):
@@ -273,18 +404,24 @@ class Editor(editor_pb2_grpc.EditorServicer):
         if request.HasField("started_volunteering"):
             started_volunteering = parse_date(request.started_volunteering.value)
             if not started_volunteering:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_started_volunteering_date")
+                context.abort_with_error_code(
+                    grpc.StatusCode.INVALID_ARGUMENT, "admin:invalid_started_volunteering_date"
+                )
             volunteer.started_volunteering = started_volunteering
 
         # Reinstate (clear stopped_volunteering) or update stopped_volunteering
         if request.reinstate_volunteer and request.HasField("stopped_volunteering"):
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "cannot_reinstate_and_set_stopped_date")
+            context.abort_with_error_code(
+                grpc.StatusCode.INVALID_ARGUMENT, "admin:cannot_reinstate_and_set_stopped_date"
+            )
         if request.reinstate_volunteer:
             volunteer.stopped_volunteering = None
         elif request.HasField("stopped_volunteering"):
             stopped_volunteering = parse_date(request.stopped_volunteering.value)
             if not stopped_volunteering:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_stopped_volunteering_date")
+                context.abort_with_error_code(
+                    grpc.StatusCode.INVALID_ARGUMENT, "admin:invalid_stopped_volunteering_date"
+                )
             volunteer.stopped_volunteering = stopped_volunteering
 
         # Update show_on_team_page if provided
@@ -377,7 +514,36 @@ class Editor(editor_pb2_grpc.EditorServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "postal_verification_attempt_not_found")
 
         if not attempt.mypostcard_job_id:
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "postcard_not_sent")
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin:postcard_not_sent")
 
         pdf_data = download_pdf(attempt.mypostcard_job_id)
         return editor_pb2.DownloadPostcardPdfRes(pdf=pdf_data)
+
+    def LookupUsersForDebug(
+        self, request: editor_pb2.LookupUsersForDebugReq, context: CouchersContext, session: Session
+    ) -> editor_pb2.LookupUsersForDebugRes:
+        sofa_prefix = request.sofa_prefix.strip()
+        if len(sofa_prefix) != 12:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:invalid_sofa_prefix")
+
+        users = session.execute(
+            select(User.id, User.banned_at, User.deleted_at, User.shadowed_at)
+            .where(
+                User.id.in_(
+                    select(UserActivity.user_id).where(UserActivity.sofa.startswith(sofa_prefix, autoescape=True))
+                )
+            )
+            .order_by(User.id)
+        ).all()
+
+        return editor_pb2.LookupUsersForDebugRes(
+            users=[
+                editor_pb2.LookupUser(
+                    user_id=user_id,
+                    banned=banned_at is not None,
+                    deleted=deleted_at is not None,
+                    shadowed=shadowed_at is not None,
+                )
+                for user_id, banned_at, deleted_at, shadowed_at in users
+            ]
+        )

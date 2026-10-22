@@ -1,30 +1,39 @@
-from datetime import date, timedelta
+from datetime import UTC, date, datetime, timedelta
 from unittest.mock import patch
 
 import grpc
 import pytest
 from sqlalchemy import select
 
-from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
+from couchers.constants import PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16
 from couchers.db import session_scope
-from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, NodeType, User
+from couchers.models import (
+    Cluster,
+    ClusterRole,
+    ClusterSubscription,
+    ModerationObjectType,
+    ModerationQueueItem,
+    ModerationState,
+    ModerationTrigger,
+    ModerationVisibility,
+    Node,
+    NodeType,
+    User,
+)
+from couchers.models.host_requests import HostRequest, HostRequestStatus
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.proto import public_trips_pb2, requests_pb2
 from couchers.utils import create_polygon_lat_lng, now, to_multi, today
 from tests.fixtures.db import generate_user
+from tests.fixtures.misc import Moderator
 from tests.fixtures.sessions import public_trips_session, requests_session
 
 
-def _valid_request_text(text: str = "Offer to host") -> str:
+def _valid_trip_offer_text(text: str = "Offer to host") -> str:
     utf16_length = len(text.encode("utf-16-le")) // 2
-    if utf16_length >= HOST_REQUEST_MIN_LENGTH_UTF16:
+    if utf16_length >= PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16:
         return text
-    return text + "_" * (HOST_REQUEST_MIN_LENGTH_UTF16 - utf16_length)
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
+    return text + "_" * (PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16 - utf16_length)
 
 
 # 150+ utf-16 code units to satisfy PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16.
@@ -72,8 +81,16 @@ def _create_trip_directly(
     description: str = "Looking for a host!",
     status=None,
     same_gender_only: bool = False,
+    visibility: ModerationVisibility = ModerationVisibility.visible,
 ) -> int:
     with session_scope() as session:
+        moderation_state = ModerationState(
+            object_type=ModerationObjectType.public_trip,
+            object_id=0,  # placeholder, set after PublicTrip flush
+            visibility=visibility,
+        )
+        session.add(moderation_state)
+        session.flush()
         trip = PublicTrip(
             user_id=user_id,
             node_id=node_id,
@@ -82,9 +99,11 @@ def _create_trip_directly(
             description=description,
             status=status or PublicTripStatus.searching_for_host,
             same_gender_only=same_gender_only,
+            moderation_state_id=moderation_state.id,
         )
         session.add(trip)
         session.flush()
+        moderation_state.object_id = trip.id
         return trip.id
 
 
@@ -348,6 +367,7 @@ def test_get_public_trip(db):
         assert res.user.user_id == user.id
         assert res.community_slug == "test-community"
         assert res.community_name == "Test community"
+        assert res.timezone == "Europe/Helsinki"
 
 
 def test_get_public_trip_not_found(db):
@@ -394,6 +414,23 @@ def test_list_public_trips_filters_closed_and_past(db):
     with public_trips_session(host_token) as api:
         res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
         assert [t.trip_id for t in res.public_trips] == [active]
+
+
+def test_list_public_trips_uses_timezone(db, frozen_timewarp):
+    # 1999-12-31 23:30 UTC == 2000-01-01 01:30 Helsinki
+    frozen_timewarp.freeze_at(datetime(1999, 12, 31, 23, 30, tzinfo=UTC))
+    traveler, _ = generate_user()
+    _, host_token = generate_user()
+    node_id = _make_node()  # Europe/Helsinki timezone
+
+    # First trip is over in Europe/Helsinki, second trip is ongoing
+    _create_trip_directly(traveler.id, node_id, date(1999, 12, 30), date(1999, 12, 31))
+    ongoing = _create_trip_directly(traveler.id, node_id, date(2000, 1, 1), date(2000, 1, 2))
+
+    with public_trips_session(host_token) as api:
+        res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
+        assert [t.trip_id for t in res.public_trips] == [ongoing]
+        assert res.public_trips[0].timezone == "Europe/Helsinki"
 
 
 def test_list_public_trips_hides_invisible_user(db):
@@ -940,7 +977,7 @@ def test_list_public_trips_by_user_status_filter_ignored_for_others(db):
         assert [t.trip_id for t in res.public_trips] == [active]
 
 
-def test_list_public_trips_by_user_offers_count_owner(db):
+def test_list_public_trips_by_user_offers_count_owner(db, moderator: Moderator):
     traveler, traveler_token = generate_user()
     host, host_token = generate_user()
     node_id = _make_node()
@@ -955,21 +992,70 @@ def test_list_public_trips_by_user_offers_count_owner(db):
 
     # Host creates an offer via a host request linked to the trip
     with requests_session(host_token) as api:
-        api.CreateHostRequest(
+        host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=traveler.id,
                 from_date=(today() + timedelta(days=5)).isoformat(),
                 to_date=(today() + timedelta(days=10)).isoformat(),
-                text=_valid_request_text(),
+                text=_valid_trip_offer_text(),
                 public_trip_id=trip_id,
             )
-        )
+        ).host_request_id
+
+    with public_trips_session(traveler_token) as api:
+        res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
+        trip = next(t for t in res.public_trips if t.trip_id == trip_id)
+        assert trip.HasField("offers_count")
+        assert trip.offers_count == 0
+
+    moderator.approve_host_request(host_request_id)
 
     with public_trips_session(traveler_token) as api:
         res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
         trip = next(t for t in res.public_trips if t.trip_id == trip_id)
         assert trip.HasField("offers_count")
         assert trip.offers_count == 1
+
+
+def test_list_public_trips_by_user_offers_count_excludes_invisible_offers(db, moderator: Moderator):
+    """The count only covers offers the owner can open."""
+    traveler, traveler_token = generate_user()
+    _hidden_host, hidden_host_token = generate_user()
+    banned_host, banned_host_token = generate_user()
+    node_id = _make_node()
+
+    trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+
+    offer_ids = []
+    for token in (hidden_host_token, banned_host_token):
+        with requests_session(token) as api:
+            offer_ids.append(
+                api.CreateHostRequest(
+                    requests_pb2.CreateHostRequestReq(
+                        host_user_id=traveler.id,
+                        from_date=(today() + timedelta(days=5)).isoformat(),
+                        to_date=(today() + timedelta(days=10)).isoformat(),
+                        text=_valid_trip_offer_text(),
+                        public_trip_id=trip_id,
+                    )
+                ).host_request_id
+            )
+    hidden_offer_id = offer_ids[0]
+
+    for offer_id in offer_ids:
+        moderator.approve_host_request(offer_id)
+
+    with public_trips_session(traveler_token) as api:
+        res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
+        assert next(t for t in res.public_trips if t.trip_id == trip_id).offers_count == 2
+
+    moderator.hide_host_request(hidden_offer_id)
+    with session_scope() as session:
+        session.execute(select(User).where(User.id == banned_host.id)).scalar_one().banned_at = now()
+
+    with public_trips_session(traveler_token) as api:
+        res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
+        assert next(t for t in res.public_trips if t.trip_id == trip_id).offers_count == 0
 
 
 def test_list_public_trips_by_user_offers_count_not_set_for_others(db):
@@ -983,3 +1069,221 @@ def test_list_public_trips_by_user_offers_count_not_set_for_others(db):
         res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
         assert len(res.public_trips) == 1
         assert not res.public_trips[0].HasField("offers_count")
+
+
+def test_list_public_trips_by_user_offers_count_excludes_cancelled(db, moderator: Moderator):
+    traveler, traveler_token = generate_user()
+    hosts = [generate_user() for _ in range(5)]
+    node_id = _make_node()
+
+    trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+
+    for _host, host_token in hosts:
+        with requests_session(host_token) as api:
+            offer_id = api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=traveler.id,
+                    from_date=(today() + timedelta(days=5)).isoformat(),
+                    to_date=(today() + timedelta(days=10)).isoformat(),
+                    text=_valid_trip_offer_text(),
+                    public_trip_id=trip_id,
+                )
+            ).host_request_id
+        moderator.approve_host_request(offer_id)
+
+    # Set one offer per status, so we cover every status the count has to consider.
+    with session_scope() as session:
+        offers = (
+            session.execute(
+                select(HostRequest).where(HostRequest.public_trip_id == trip_id).order_by(HostRequest.conversation_id)
+            )
+            .scalars()
+            .all()
+        )
+        offers[0].status = HostRequestStatus.pending
+        offers[1].status = HostRequestStatus.accepted
+        offers[2].status = HostRequestStatus.confirmed
+        offers[3].status = HostRequestStatus.rejected
+        offers[4].status = HostRequestStatus.cancelled
+
+    with public_trips_session(traveler_token) as api:
+        res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
+        trip = next(t for t in res.public_trips if t.trip_id == trip_id)
+        # pending, accepted, confirmed and rejected all count; cancelled does not
+        assert trip.offers_count == 4
+
+
+def test_viewer_host_request_id_reflects_viewers_own_offer(db):
+    traveler, _ = generate_user()
+    host, host_token = generate_user()
+    _, other_token = generate_user()
+    node_id = _make_node()
+
+    trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+
+    # Before offering, the host sees 0.
+    with public_trips_session(host_token) as api:
+        res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
+        trip = next(t for t in res.public_trips if t.trip_id == trip_id)
+        assert trip.viewer_host_request_id == 0
+
+    # The host makes an offer on the trip.
+    with requests_session(host_token) as api:
+        create_res = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=traveler.id,
+                from_date=(today() + timedelta(days=5)).isoformat(),
+                to_date=(today() + timedelta(days=10)).isoformat(),
+                text=_valid_trip_offer_text(),
+                public_trip_id=trip_id,
+            )
+        )
+    host_request_id = create_res.host_request_id
+
+    with public_trips_session(host_token) as api:
+        # The offering host now sees their own host request id (List and Get).
+        res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
+        trip = next(t for t in res.public_trips if t.trip_id == trip_id)
+        assert trip.viewer_host_request_id == host_request_id
+
+        get_res = api.GetPublicTrip(public_trips_pb2.GetPublicTripReq(trip_id=trip_id))
+        assert get_res.viewer_host_request_id == host_request_id
+
+    # A different viewer who hasn't offered still sees 0.
+    with public_trips_session(other_token) as api:
+        res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
+        trip = next(t for t in res.public_trips if t.trip_id == trip_id)
+        assert trip.viewer_host_request_id == 0
+
+
+def test_create_public_trip_creates_shadowed_moderation_state(db):
+    """Creating a trip creates a ModerationState (shadowed) and an initial-review queue item."""
+    user, token = generate_user()
+    node_id = _make_node()
+
+    with public_trips_session(token) as api:
+        res = api.CreatePublicTrip(
+            public_trips_pb2.CreatePublicTripReq(
+                community_id=node_id,
+                from_date=(today() + timedelta(days=5)).isoformat(),
+                to_date=(today() + timedelta(days=10)).isoformat(),
+                description=VALID_DESCRIPTION,
+            )
+        )
+
+    with session_scope() as session:
+        trip = session.execute(select(PublicTrip).where(PublicTrip.id == res.trip_id)).scalar_one()
+        state = session.execute(
+            select(ModerationState).where(ModerationState.id == trip.moderation_state_id)
+        ).scalar_one()
+        assert state.object_type == ModerationObjectType.public_trip
+        assert state.object_id == trip.id
+        assert state.visibility == ModerationVisibility.shadowed
+
+        queue_item = session.execute(
+            select(ModerationQueueItem).where(ModerationQueueItem.moderation_state_id == state.id)
+        ).scalar_one()
+        assert queue_item.trigger == ModerationTrigger.initial_review
+        assert queue_item.resolved_by_log_id is None
+
+
+def test_shadowed_public_trip_visible_to_author_hidden_from_others(db):
+    traveler, traveler_token = generate_user()
+    _, viewer_token = generate_user()
+    node_id = _make_node()
+
+    trip_id = _create_trip_directly(
+        traveler.id,
+        node_id,
+        today() + timedelta(days=5),
+        today() + timedelta(days=10),
+        visibility=ModerationVisibility.shadowed,
+    )
+
+    # Author can fetch their own shadowed trip
+    with public_trips_session(traveler_token) as api:
+        res = api.GetPublicTrip(public_trips_pb2.GetPublicTripReq(trip_id=trip_id))
+        assert res.trip_id == trip_id
+
+    # Author sees their shadowed trip in their own listing
+    with public_trips_session(traveler_token) as api:
+        res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
+        assert any(t.trip_id == trip_id for t in res.public_trips)
+
+    # Other viewers can't see it
+    with public_trips_session(viewer_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetPublicTrip(public_trips_pb2.GetPublicTripReq(trip_id=trip_id))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+        list_res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
+        assert not any(t.trip_id == trip_id for t in list_res.public_trips)
+
+        by_user_res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
+        assert not any(t.trip_id == trip_id for t in by_user_res.public_trips)
+
+
+def test_hidden_public_trip_invisible_to_everyone(db):
+    traveler, traveler_token = generate_user()
+    _, viewer_token = generate_user()
+    node_id = _make_node()
+
+    trip_id = _create_trip_directly(
+        traveler.id,
+        node_id,
+        today() + timedelta(days=5),
+        today() + timedelta(days=10),
+        visibility=ModerationVisibility.hidden,
+    )
+
+    # Even author can't read a hidden trip via the public API
+    with public_trips_session(traveler_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetPublicTrip(public_trips_pb2.GetPublicTripReq(trip_id=trip_id))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+        by_user_res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
+        assert not any(t.trip_id == trip_id for t in by_user_res.public_trips)
+
+    with public_trips_session(viewer_token) as api:
+        list_res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
+        assert not any(t.trip_id == trip_id for t in list_res.public_trips)
+
+
+def test_moderator_approval_makes_public_trip_visible(db, moderator):
+    user, token = generate_user()
+    _, viewer_token = generate_user()
+    node_id = _make_node()
+
+    with public_trips_session(token) as api:
+        res = api.CreatePublicTrip(
+            public_trips_pb2.CreatePublicTripReq(
+                community_id=node_id,
+                from_date=(today() + timedelta(days=5)).isoformat(),
+                to_date=(today() + timedelta(days=10)).isoformat(),
+                description=VALID_DESCRIPTION,
+            )
+        )
+
+    # Before approval (shadowed): hidden from other users
+    with public_trips_session(viewer_token) as api:
+        list_res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
+        assert not any(t.trip_id == res.trip_id for t in list_res.public_trips)
+
+    moderator.approve_public_trip(res.trip_id)
+
+    # After approval: visible to everyone
+    with public_trips_session(viewer_token) as api:
+        list_res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
+        assert any(t.trip_id == res.trip_id for t in list_res.public_trips)
+
+        get_res = api.GetPublicTrip(public_trips_pb2.GetPublicTripReq(trip_id=res.trip_id))
+        assert get_res.trip_id == res.trip_id
+
+    # ... and the initial-review queue item is resolved, so the trip leaves the queue
+    with session_scope() as session:
+        trip = session.execute(select(PublicTrip).where(PublicTrip.id == res.trip_id)).scalar_one()
+        queue_item = session.execute(
+            select(ModerationQueueItem).where(ModerationQueueItem.moderation_state_id == trip.moderation_state_id)
+        ).scalar_one()
+        assert queue_item.resolved_by_log_id is not None

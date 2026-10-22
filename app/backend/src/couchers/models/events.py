@@ -1,5 +1,5 @@
 import enum
-from datetime import datetime
+from datetime import date, datetime, time
 from typing import TYPE_CHECKING, cast
 
 from geoalchemy2 import Geometry
@@ -8,11 +8,14 @@ from sqlalchemy import (
     BigInteger,
     Boolean,
     CheckConstraint,
+    Date,
     DateTime,
     Enum,
     ForeignKey,
     Index,
+    Integer,
     String,
+    Time,
     UniqueConstraint,
     and_,
     func,
@@ -75,12 +78,10 @@ class Event(Base, kw_only=True):
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     owner_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), index=True, default=None)
     owner_cluster_id: Mapped[int | None] = mapped_column(ForeignKey("clusters.id"), index=True, default=None)
-    thread_id: Mapped[int] = mapped_column(ForeignKey("threads.id"), unique=True)
 
     parent_node: Mapped[Node] = relationship(
         init=False, backref="child_events", remote_side="Node.id", foreign_keys="Event.parent_node_id"
     )
-    thread: Mapped[Thread] = relationship(init=False, backref="event", uselist=False)
     subscribers: DynamicMapped[User] = relationship(
         init=False, backref="subscribed_events", secondary="event_subscriptions", lazy="dynamic", viewonly=True
     )
@@ -100,6 +101,7 @@ class Event(Base, kw_only=True):
         foreign_keys="Event.owner_cluster_id",
     )
     occurrences: DynamicMapped[EventOccurrence] = relationship(init=False, lazy="dynamic")
+    recurrence: Mapped[EventRecurrence | None] = relationship(init=False, back_populates="event", uselist=False)
 
     __table_args__ = (
         # Only one of owner_user and owner_cluster should be set
@@ -114,12 +116,14 @@ class EventOccurrence(Base, kw_only=True):
     __tablename__ = "event_occurrences"
     __moderation_author_column__ = "creator_user_id"
     __moderation_object_type__ = ModerationObjectType.event_occurrence
+    __moderation_has_own_visibility_mechanism__ = False
 
     id: Mapped[int] = mapped_column(
         BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value(), init=False
     )
     event_id: Mapped[int] = mapped_column(ForeignKey("events.id"), index=True)
     moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
+    thread_id: Mapped[int] = mapped_column(ForeignKey("threads.id"), unique=True)
 
     # the user that created this particular occurrence of a repeating event (same as event.creator_user_id if single event)
     creator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
@@ -129,14 +133,13 @@ class EventOccurrence(Base, kw_only=True):
     is_cancelled: Mapped[bool] = mapped_column(Boolean, default=False, server_default=expression.false())
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, server_default=expression.false())
 
-    # a null geom is an online-only event
-    geom: Mapped[Geom | None] = mapped_column(Geometry(geometry_type="POINT", srid=4326), default=None)
-    # physical address, iff geom is not null
-    address: Mapped[str | None] = mapped_column(String, default=None)
-    # videoconferencing link, etc, must be specified if no geom, otherwise optional
-    link: Mapped[str | None] = mapped_column(String, default=None)
+    # The GPS coordinates of the event location
+    geom: Mapped[Geom] = mapped_column(Geometry(geometry_type="POINT", srid=4326))
+    # The physical address string. Legacy online events have been migrated to put the link in here.
+    address: Mapped[str] = mapped_column(String)
 
-    timezone = "Etc/UTC"
+    # IANA timezone identifier of the event
+    timezone: Mapped[str] = mapped_column(String)
 
     # time during which the event takes place; this is a range type (instead of separate start+end times) which
     # simplifies database constraints, etc
@@ -148,6 +151,7 @@ class EventOccurrence(Base, kw_only=True):
     creator_user: Mapped[User] = relationship(
         init=False, backref="created_event_occurrences", foreign_keys="EventOccurrence.creator_user_id"
     )
+    thread: Mapped[Thread] = relationship(init=False, backref="event_occurrence", uselist=False)
     event: Mapped[Event] = relationship(
         init=False,
         back_populates="occurrences",
@@ -165,24 +169,12 @@ class EventOccurrence(Base, kw_only=True):
     moderation_state: Mapped[ModerationState] = relationship(init=False)
 
     __table_args__ = (
-        # Geom and address go together
-        CheckConstraint(
-            # geom and address are either both null or neither of them are null
-            "(geom IS NULL) = (address IS NULL)",
-            name="geom_iff_address",
-        ),
-        # Online-only events need a link, note that online events may also have a link
-        CheckConstraint(
-            # exactly oen of geom or link is non-null
-            "(geom IS NULL) <> (link IS NULL)",
-            name="link_or_geom",
-        ),
         # Can't have overlapping occurrences in the same Event
         ExcludeConstraint(("event_id", "="), ("during", "&&"), name="event_occurrences_event_id_during_excl"),
     )
 
     @property
-    def coordinates(self) -> tuple[float, float] | None:
+    def coordinates(self) -> tuple[float, float]:
         # returns (lat, lng) or None
         return get_coordinates(self.geom)
 
@@ -203,6 +195,81 @@ class EventOccurrence(Base, kw_only=True):
     @classmethod
     def _end_time_expression(cls) -> ColumnElement[datetime]:
         return cast(ColumnElement[datetime], func.upper(cls.during))
+
+
+class EventRecurrence(Base, kw_only=True):
+    """
+    Defines a template for future event occurrences and a recurrence rule for its parent Event.
+
+    The recurrence rule is based on a subset of the time-tested iCalendar RRULE standard (RFC 5545).
+    Docs: https://icalendar.org/iCalendar-RFC-5545/3-3-10-recurrence-rule.html
+    Online demo: https://jkbrzt.github.io/rrule/
+
+    We use RRULEs for generating dates only (DTSTART is at 00:00), so they are timezone-agnostic.
+    We separately apply a start + end time to generated occurrence dates.
+
+    We currently support weekly and biweekly events using the following properties:
+    - DTSTART (date-only): For specifying the seed day for weekly events.
+        It replaces RRULE.BYDAY for events that occur once weekly,
+        and allows disambiguating which week is skipped for biweekly events.
+    - RRULE.FREQ: Implicitly WEEKLY, so not stored
+    - RRULE.INTERVAL: 1 for weekly, 2 for biweekly
+
+    Future rule extensibility:
+    - Multiple days a week: Add RRULE.BYDAY supporting multiple values (e.g. "MO,TH")
+    - nth <weekday> of month: Store RRULE.FREQ to support MONTHLY, add RRULE.BYDAY with "1MO" (first Monday)
+    """
+
+    __tablename__ = "event_recurrences"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+    event_id: Mapped[int] = mapped_column(ForeignKey("events.id"), unique=True)
+
+    # Properties acting as templates for future EventOccurrence's
+    # TODO(#9845): Add photo_key and photo. Implies adding admin infra for tracking uses.
+    content: Mapped[str] = mapped_column(String)  # CommonMark without images
+    geom: Mapped[Geom] = mapped_column(Geometry(geometry_type="POINT", srid=4326))
+    address: Mapped[str] = mapped_column(String)
+    timezone: Mapped[str] = mapped_column(String)
+
+    # Date part of the DTSTART in local time based on timezone.
+    # Seeds the RRULE and disambiguates which week to skip for biweekly events.
+    # Typically the date of latest occurrence where the RRULE.INTERVAL was changed.
+    dtstart_date: Mapped[date] = mapped_column(Date)
+
+    # Start time of the event in local time based on timezone.
+    start_time: Mapped[time] = mapped_column(Time)
+
+    # Number of days to the end of the event (typically zero) and local end time on that day.
+    # This representation maintains the same end time for occurrences crossing a DST change.
+    day_delta: Mapped[int] = mapped_column(Integer)
+    end_time: Mapped[time] = mapped_column(Time)
+
+    # RRULE.INTERVAL: 1 for weekly, 2 for biweekly (FREQ=WEEKLY is implicit)
+    rrule_interval: Mapped[int] = mapped_column(Integer)
+
+    # Last day on which an occurrence was scheduled, in local time based on timezone.
+    # New occurrences are only scheduled for dates strictly after this.
+    # Updated whenever an occurrence is scheduled to ensure idempotence.
+    last_scheduled_date: Mapped[date] = mapped_column(Date)
+
+    # Last day on which an occurrence can be scheduled, in local time based on timezone.
+    # Prevents unbounded recurrence. Feeds into the RRULE UNTIL property.
+    ends_on_date: Mapped[date] = mapped_column(Date)
+
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+
+    event: Mapped[Event] = relationship(init=False, back_populates="recurrence")
+
+    __table_args__ = (
+        # Only weekly (1) and biweekly (2) are supported for now; see the class docstring.
+        CheckConstraint("rrule_interval IN (1, 2)", name="rrule_interval_weekly_or_biweekly"),
+    )
+
+    @property
+    def coordinates(self) -> tuple[float, float]:
+        # returns (lat, lng) or None
+        return get_coordinates(self.geom)
 
 
 class EventSubscription(Base, kw_only=True):

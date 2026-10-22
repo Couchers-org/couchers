@@ -1,9 +1,4 @@
-import {
-  render,
-  screen,
-  waitForElementToBeRemoved,
-  within,
-} from "@testing-library/react";
+import { render, screen, waitForElementToBeRemoved, within } from "@testing-library/react";
 import mockRouter from "next-router-mock";
 import { GetHostRequestReferenceStatusRes } from "proto/references_pb";
 import { leaveReferenceBaseRoute, ReferenceStep } from "routes";
@@ -17,43 +12,25 @@ import LeaveReferencePage from "./LeaveReferencePage";
 
 const { t } = i18n;
 
-const getAvailableReferencesMock = service.references
-  .getAvailableReferences as MockedService<
+const getAvailableReferencesMock = service.references.getAvailableReferences as MockedService<
   typeof service.references.getAvailableReferences
 >;
-const getUserMock = service.user.getUser as MockedService<
-  typeof service.user.getUser
->;
+const getUserMock = service.user.getUser as MockedService<typeof service.user.getUser>;
 const getHostRequestReferenceStatusMock = service.references
   .getHostRequestReferenceStatus as unknown as jest.MockedFunction<
   (hostRequestId: number) => Promise<GetHostRequestReferenceStatusRes.AsObject>
 >;
 
-function renderLeaveFriendReferencePage(
-  referenceType: string,
-  userId: number,
-  step?: ReferenceStep,
-) {
+function renderLeaveFriendReferencePage(referenceType: string, userId: number, step?: ReferenceStep) {
   if (step) {
-    mockRouter.setCurrentUrl(
-      `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${step}`,
-    );
+    mockRouter.setCurrentUrl(`${leaveReferenceBaseRoute}/${referenceType}/${userId}/${step}`);
   } else {
-    mockRouter.setCurrentUrl(
-      `${leaveReferenceBaseRoute}/${referenceType}/${userId}`,
-    );
+    mockRouter.setCurrentUrl(`${leaveReferenceBaseRoute}/${referenceType}/${userId}`);
   }
 
-  render(
-    <LeaveReferencePage
-      referenceType={referenceType}
-      userId={userId}
-      step={step}
-    />,
-    {
-      wrapper,
-    },
-  );
+  render(<LeaveReferencePage referenceType={referenceType} userId={userId} step={step} />, {
+    wrapper,
+  });
 }
 
 function renderLeaveRequestReferencePage(
@@ -63,22 +40,13 @@ function renderLeaveRequestReferencePage(
   step?: ReferenceStep,
 ) {
   if (step) {
-    mockRouter.setCurrentUrl(
-      `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}/${step}`,
-    );
+    mockRouter.setCurrentUrl(`${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}/${step}`);
   } else {
-    mockRouter.setCurrentUrl(
-      `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}`,
-    );
+    mockRouter.setCurrentUrl(`${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}`);
   }
 
   render(
-    <LeaveReferencePage
-      referenceType={referenceType}
-      userId={userId}
-      hostRequestId={hostRequestId}
-      step={step}
-    />,
+    <LeaveReferencePage referenceType={referenceType} userId={userId} hostRequestId={hostRequestId} step={step} />,
     { wrapper },
   );
 }
@@ -102,11 +70,7 @@ describe("LeaveReferencePage", () => {
 
     it("Returns an error", async () => {
       const errorAlert = await screen.findByRole("alert");
-      expect(
-        within(errorAlert).getByText(
-          t("profile:leave_reference.invalid_reference_type"),
-        ),
-      ).toBeVisible();
+      expect(within(errorAlert).getByText(t("profile:leave_reference.invalid_reference_type"))).toBeVisible();
     });
 
     it("does not show the form", () => {
@@ -152,9 +116,7 @@ describe("LeaveReferencePage", () => {
       it("Returns a not-friends error", async () => {
         const errorAlert = await screen.findByRole("alert");
         expect(
-          within(errorAlert).getByText(
-            t("profile:leave_reference.friend_reference_requires_friendship"),
-          ),
+          within(errorAlert).getByText(t("profile:leave_reference.friend_reference_requires_friendship")),
         ).toBeVisible();
       });
 
@@ -183,11 +145,7 @@ describe("LeaveReferencePage", () => {
 
       it("Returns already wrote friend reference error", async () => {
         const errorAlert = await screen.findByRole("alert");
-        expect(
-          within(errorAlert).getByText(
-            t("profile:leave_reference.already_wrote_friend_reference"),
-          ),
-        ).toBeVisible();
+        expect(within(errorAlert).getByText(t("profile:leave_reference.already_wrote_friend_reference"))).toBeVisible();
       });
 
       it("does not show the form", () => {
@@ -216,9 +174,7 @@ describe("LeaveReferencePage", () => {
       });
 
       it("displays the form", async () => {
-        expect(
-          await screen.findByText("Did you host Friendly Cow?"),
-        ).toBeVisible();
+        expect(await screen.findByText("Did you host Friendly Cow?")).toBeVisible();
       });
     });
 
@@ -234,11 +190,7 @@ describe("LeaveReferencePage", () => {
 
       it("Returns an error", async () => {
         const errorAlert = await screen.findByRole("alert");
-        expect(
-          within(errorAlert).getByText(
-            t("profile:leave_reference.reference_type_not_available"),
-          ),
-        ).toBeVisible();
+        expect(within(errorAlert).getByText(t("profile:leave_reference.reference_type_not_available"))).toBeVisible();
       });
 
       it("does not show the form", () => {
@@ -275,15 +227,9 @@ describe("LeaveReferencePage", () => {
 
       it("shows the already-wrote info alert and hides the form", async () => {
         const alert = await screen.findByRole("alert");
-        expect(
-          within(alert).getByText(
-            t("profile:leave_reference.already_wrote_reference_for_stay"),
-          ),
-        ).toBeVisible();
+        expect(within(alert).getByText(t("profile:leave_reference.already_wrote_reference_for_stay"))).toBeVisible();
 
-        expect(
-          screen.queryByText("Did you host Friendly Cow?"),
-        ).not.toBeInTheDocument();
+        expect(screen.queryByText("Did you host Friendly Cow?")).not.toBeInTheDocument();
       });
     });
 
@@ -300,14 +246,10 @@ describe("LeaveReferencePage", () => {
 
       it("does not show the already-wrote alert and renders the form", async () => {
         expect(
-          screen.queryByText(
-            t("profile:leave_reference.already_wrote_reference_for_stay"),
-          ),
+          screen.queryByText(t("profile:leave_reference.already_wrote_reference_for_stay")),
         ).not.toBeInTheDocument();
 
-        expect(
-          await screen.findByText("Did you host Friendly Cow?"),
-        ).toBeVisible();
+        expect(await screen.findByText("Did you host Friendly Cow?")).toBeVisible();
       });
     });
   });

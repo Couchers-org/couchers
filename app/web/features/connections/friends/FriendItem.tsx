@@ -1,5 +1,4 @@
 import { Block, PersonRemove } from "@mui/icons-material";
-import EllipsisMenu from "components/EllipsisMenu";
 import { useTranslation } from "i18n";
 import { CONNECTIONS, GLOBAL } from "i18n/namespaces";
 import { LiteUser } from "proto/api_pb";
@@ -17,14 +16,7 @@ interface FriendItemProps {
 const FriendItem = ({ friend, onError }: FriendItemProps) => {
   const { t } = useTranslation([GLOBAL, CONNECTIONS]);
 
-  const [openDialog, setOpenDialog] = useState<
-    "remove-friend" | "block-user" | null
-  >(null);
-  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(
-    null,
-  );
-
-  const isMenuOpen = Boolean(menuAnchorEl);
+  const [openDialog, setOpenDialog] = useState<"remove-friend" | "block-user" | null>(null);
 
   const { blockUserMutation, isPending: isBlocking } = useBlockUser();
 
@@ -39,14 +31,6 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
 
   const handleBlockUser = () => {
     setOpenDialog("block-user");
-  };
-
-  const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>): void => {
-    setMenuAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = (): void => {
-    setMenuAnchorEl(null);
   };
 
   const handleRemoveFriend = () => {
@@ -67,39 +51,32 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
     setOpenDialog(null);
   };
 
+  // The friends list has the full width of the main column, so it keeps the wide row;
+  // UserSummary handles the compact mobile layout.
   return (
-    <FriendSummaryView friend={friend}>
-      <EllipsisMenu
-        idName="friend-item"
-        isMenuOpen={isMenuOpen}
-        menuAnchorEl={menuAnchorEl}
-        onMenuOpen={handleMenuOpen}
-        onMenuClose={handleMenuClose}
-        items={[
-          {
-            icon: PersonRemove,
-            label: t("connections:remove_friend"),
-            onClick: handleRemoveFriend,
-            id: "remove-friend",
-          },
-          {
-            icon: Block,
-            label: t("connections:block_user"),
-            onClick: handleBlockUser,
-            id: "block-user",
-          },
-        ]}
-      />
+    <FriendSummaryView
+      friend={friend}
+      isCompact={false}
+      menuItems={[
+        {
+          icon: PersonRemove,
+          label: t("connections:remove_friend"),
+          onClick: handleRemoveFriend,
+          id: "remove-friend",
+        },
+        {
+          icon: Block,
+          label: t("connections:block_user"),
+          onClick: handleBlockUser,
+          id: "block-user",
+        },
+      ]}
+    >
       {openDialog === "remove-friend" && (
         <ConnectionActionDialog
-          dialogConfirm={t(
-            "connections:remove_friend_confirmation_dialog.confirm",
-          )}
+          dialogConfirm={t("connections:remove_friend_confirmation_dialog.confirm")}
           dialogId="friend-item--confirmation-dialog"
-          dialogMessage={t(
-            "connections:remove_friend_confirmation_dialog.message",
-            { name: friend.name },
-          )}
+          dialogMessage={t("connections:remove_friend_confirmation_dialog.message", { name: friend.name })}
           dialogTitle={t("connections:remove_friend_confirmation_dialog.title")}
           isLoading={isRemoving}
           onConfirm={handleConfirmRemoveFriend}
@@ -109,13 +86,9 @@ const FriendItem = ({ friend, onError }: FriendItemProps) => {
       )}
       {openDialog === "block-user" && (
         <ConnectionActionDialog
-          dialogConfirm={t(
-            "connections:block_user_confirmation_dialog.confirm",
-          )}
+          dialogConfirm={t("connections:block_user_confirmation_dialog.confirm")}
           dialogId="block-user--confirmation-dialog"
-          dialogMessage={t(
-            "connections:block_user_confirmation_dialog.message",
-          )}
+          dialogMessage={t("connections:block_user_confirmation_dialog.message")}
           dialogTitle={t("connections:block_user_confirmation_dialog.title", {
             name: friend.name,
           })}

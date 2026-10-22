@@ -1,12 +1,14 @@
+import { Pause, PlayArrow } from "@mui/icons-material";
 import { Box, Skeleton, styled, Typography } from "@mui/material";
 import { useTranslation } from "i18n";
 import { LANDING } from "i18n/namespaces";
-import Lottie from "lottie-react";
+import { Lottie, LottieHandle, LottieState } from "lottie-react";
 import Sentry from "platform/sentry";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { theme } from "theme";
 
 import Alert from "./Alert";
+import IconButton from "./IconButton";
 
 const AnimationContainer = styled("div")(({ theme }) => ({
   width: "595px",
@@ -33,25 +35,34 @@ const Attribution = styled(Typography)(({ theme }) => ({
   zIndex: 2,
 }));
 
+// WCAG 2.2.2: a looping animation that starts by itself needs a way to pause it
+const StyledPlayPauseButton = styled(IconButton)(({ theme }) => ({
+  position: "absolute",
+  bottom: theme.spacing(1),
+  left: theme.spacing(1),
+  zIndex: 2,
+  backgroundColor: "var(--mui-palette-background-paper)",
+}));
+
 export default function MapAnimation() {
   const { t } = useTranslation([LANDING]);
   const [animationData, setAnimationData] = useState(null);
   const [error, setError] = useState<Error | null>(null);
+  const lottieRef = useRef<LottieHandle>(null);
+  // starts false: the library doesn't autoplay when the device asks for reduced motion
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     fetch("https://cdn.couchers.org/img/hero/hero-animation.json")
       .then((res) => {
         if (!res.ok) {
-          Sentry.captureException(
-            `Failed to load map animation: ${res.statusText}`,
-            {
-              tags: {
-                component: "auth/useAuthStore",
-                action: "logout",
-                status: res.status,
-              },
+          Sentry.captureException(`Failed to load map animation: ${res.statusText}`, {
+            tags: {
+              component: "auth/useAuthStore",
+              action: "logout",
+              status: res.status,
             },
-          );
+          });
         }
         return res.json();
       })
@@ -83,7 +94,22 @@ export default function MapAnimation() {
             },
           }}
         >
-          <Lottie animationData={animationData} loop={true} />
+          <Lottie
+            src={animationData}
+            autoplay
+            loop
+            lottieRef={lottieRef}
+            subscriptions={{ newState: ({ state }) => setIsPlaying(state === LottieState.playing) }}
+          />
+          <StyledPlayPauseButton
+            size="small"
+            aria-label={
+              isPlaying ? t("landing:hero_animation_pause_button_a11y") : t("landing:hero_animation_play_button_a11y")
+            }
+            onClick={() => (isPlaying ? lottieRef.current?.pause() : lottieRef.current?.play())}
+          >
+            {isPlaying ? <Pause fontSize="small" /> : <PlayArrow fontSize="small" />}
+          </StyledPlayPauseButton>
           <Attribution variant="caption">Map data © 2025 Google</Attribution>
         </Box>
       ) : (

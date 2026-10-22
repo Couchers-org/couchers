@@ -24,12 +24,11 @@ interface EventAttendeesProps {
 const PAGE_SIZE = 9;
 
 export default function EventAttendees({ event }: EventAttendeesProps) {
-  const { data, error, hasNextPage, fetchNextPage, isLoading } =
-    useEventAttendees({
-      eventId: event.eventId,
-      type: "summary",
-      pageSize: PAGE_SIZE,
-    });
+  const { data, error, hasNextPage, fetchNextPage, isLoading } = useEventAttendees({
+    eventId: event.eventId,
+    type: "summary",
+    pageSize: PAGE_SIZE,
+  });
 
   const [pageIndex, setPageIndex] = useState(0);
   const currentPage = data?.pages?.[pageIndex];
@@ -80,19 +79,12 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
   const { t } = useTranslation([COMMUNITIES]);
   const queryClient = useQueryClient();
 
-  const [userToPromote, setUserToPromote] = useState<
-    undefined | LiteUser.AsObject
-  >();
+  const [userToPromote, setUserToPromote] = useState<undefined | LiteUser.AsObject>();
 
   const [isCoOrganizerDialogOpen, setIsCoOrganizerDialogOpen] = useState(false);
 
-  const { mutate: makeEventOrganizer, error: mutationError } = useMutation<
-    Empty.AsObject,
-    RpcError,
-    number
-  >({
-    mutationFn: (userId) =>
-      service.events.inviteEventOrganizer(event.eventId, userId),
+  const { mutate: makeEventOrganizer, error: mutationError } = useMutation<Empty.AsObject, RpcError, number>({
+    mutationFn: (userId) => service.events.inviteEventOrganizer(event.eventId, userId),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: eventOrganizersKey({ eventId: event.eventId, type: "all" }),
@@ -100,13 +92,8 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
     },
   });
 
-  const getUserMenuItems = (
-    user: LiteUser.AsObject,
-  ): EllipsisMenuItem[] | undefined => {
-    if (
-      user.userId === currentUser.data?.userId ||
-      organizerIdSet.has(user.userId)
-    ) {
+  const getUserMenuItems = (user: LiteUser.AsObject): EllipsisMenuItem[] | undefined => {
+    if (user.userId === currentUser.data?.userId || organizerIdSet.has(user.userId)) {
       return undefined;
     }
 
@@ -138,9 +125,7 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
           handlePreviousPageClick: handlePreviousPageClick,
           handleNextPageClick: handleNextPageClick,
         }}
-        getUserMenuItems={
-          isCoOrganizedByCurrentUser ? getUserMenuItems : undefined
-        }
+        getUserMenuItems={isCoOrganizedByCurrentUser ? getUserMenuItems : undefined}
         attendeeCount={event.goingCount}
       />
       <MakeCoOrganizerDialog
@@ -155,9 +140,7 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
           setIsCoOrganizerDialogOpen(false);
         }}
       />
-      {mutationError && (
-        <Snackbar severity="error">{mutationError?.message}</Snackbar>
-      )}
+      {mutationError && <Snackbar severity="error">{mutationError?.message}</Snackbar>}
     </>
   );
 }

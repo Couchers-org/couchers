@@ -86,7 +86,12 @@
   },
   "chat": {
     "message": {
-      "event_description": "Alguém envia uma mensagem para você"
+      "event_description": "Alguém envia uma mensagem para você",
+      "push_group": {
+        "title": "{{user}} • {{group}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "{{group}}"
+      }
     },
     "missed_messages": {
       "event_description": "Mensagens pendentes em uma conversa",
@@ -157,7 +162,7 @@
       }
     },
     "comment": {
-      "event_description": " Um usuário comenta em um evento que você irá participar",
+      "event_description": "Um usuário comenta em um evento que você irá participar",
       "push": {
         "ios_title": "{{user}}",
         "title": "{{user}} • {{title}}",
@@ -293,9 +298,9 @@
         "ios_title": "{{user}}",
         "ios_subtitle": "Nova solicitação de hospedagem",
         "title": "Nova solicitação de hospedagem de {{user}}",
-        "body_one": "{{user}} quer se hospedar a partir de {{start_date}} por {{count}} dia.",
-        "body_many": "{{user}} quer se hospedar a partir de {{start_date}} por {{count}} dias.",
-        "body_other": "{{user}} quer se hospedar a partir de {{start_date}} por {{count}} dias."
+        "body_one": "{{user}} quer se hospedar a partir de {{start_date}} por {{count}} noite.",
+        "body_many": "{{user}} quer se hospedar a partir de {{start_date}} por {{count}} noites.",
+        "body_other": "{{user}} quer se hospedar a partir de {{start_date}} por {{count}} noites."
       }
     },
     "message": {

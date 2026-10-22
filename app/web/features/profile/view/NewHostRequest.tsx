@@ -7,29 +7,27 @@ import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
 import { createForegroundTracker } from "features/analytics/foregroundTracker";
 import { useLogEvent } from "features/analytics/hooks";
-import {
-  readSearchReferrer,
-  referrerToProperties,
-} from "features/analytics/searchAttribution";
+import { readSearchReferrer, referrerToProperties } from "features/analytics/searchAttribution";
+import { useAuthContext } from "features/auth/AuthProvider";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
-import React, { MutableRefObject, useEffect, useRef } from "react";
+import { useClearablePersistedState } from "platform/usePersistedState";
+import React, { RefObject, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { howToWriteRequestGuideUrl } from "routes";
 import { service } from "service";
 import { CreateHostRequestWrapper } from "service/requests";
+import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
-import { isSameOrFutureDate } from "utils/date";
-import dayjs from "utils/dayjs";
 
 const TYPING_GAP_CAP_MS = 3000;
 
 interface FormValuesSnapshot {
   text: string;
-  fromDate: dayjs.Dayjs | null;
-  toDate: dayjs.Dayjs | null;
+  fromDate: Temporal.PlainDate | null;
+  toDate: Temporal.PlainDate | null;
 }
 
 function isFormField(target: EventTarget | null): boolean {
@@ -54,7 +52,7 @@ function useHostRequestFormTracking({
   getLatestValues,
 }: {
   hostUserId: number;
-  formRef: MutableRefObject<HTMLFormElement | null>;
+  formRef: RefObject<HTMLFormElement | null>;
   getSubmitted: () => boolean;
   getLatestValues: () => FormValuesSnapshot;
 }) {
@@ -97,10 +95,7 @@ function useHostRequestFormTracking({
     formEl?.addEventListener("keydown", onKeyDown);
 
     return () => {
-      document.removeEventListener(
-        "visibilitychange",
-        tracker.onVisibilityChange,
-      );
+      document.removeEventListener("visibilitychange", tracker.onVisibilityChange);
       formEl?.removeEventListener("focusin", onFocusIn);
       formEl?.removeEventListener("focusout", onFocusOut);
       formEl?.removeEventListener("keydown", onKeyDown);
@@ -109,9 +104,7 @@ function useHostRequestFormTracking({
       const { foregroundMs, totalMs } = tracker.finalize();
 
       const { text, fromDate, toDate } = getLatestValues();
-      const referrerProps = referrerToProperties(
-        readSearchReferrer(hostUserId),
-      );
+      const referrerProps = referrerToProperties(readSearchReferrer(hostUserId));
 
       logEvent("host_request.form_closed", {
         host_user_id: hostUserId,
@@ -122,8 +115,8 @@ function useHostRequestFormTracking({
         active_typing_ms: Math.round(activeTypingMs),
         keystroke_count: keystrokeCount,
         text_length: text.length,
-        from_date: fromDate ? fromDate.format("YYYY-MM-DD") : null,
-        to_date: toDate ? toDate.format("YYYY-MM-DD") : null,
+        from_date: fromDate?.toString(),
+        to_date: toDate?.toString(),
         ...referrerProps,
       });
     };
@@ -170,17 +163,29 @@ const StyledSendActions = styled(CardActions)(() => ({
 
 const MIN_LENGTH = 250; // Must match backend
 
+// Dates are stored as "yyyy-mm-dd" since Temporal objects don't survive JSON
+interface HostRequestDraft {
+  text: string;
+  fromDate: string | null;
+  toDate: string | null;
+}
+
 interface NewHostRequestProps {
   setIsRequestSuccess: (value: boolean) => void;
   setIsRequesting: (value: boolean) => void;
 }
 
-export default function NewHostRequest({
-  setIsRequestSuccess,
-  setIsRequesting,
-}: NewHostRequestProps) {
+export default function NewHostRequest({ setIsRequestSuccess, setIsRequesting }: NewHostRequestProps) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
+  const currentUserId = useAuthContext().authState.userId;
+
+  // Keep the draft across unmounts (e.g. the mobile profile sheet being swiped closed)
+  const [draft, setDraft, clearDraft] = useClearablePersistedState<HostRequestDraft | null>(
+    `hostRequestDraft.${currentUserId}.${user.userId}`,
+    null,
+    "sessionStorage",
+  );
 
   const {
     control,
@@ -188,12 +193,30 @@ export default function NewHostRequest({
     handleSubmit,
     register,
     setValue,
+    subscribe,
     watch,
     reset,
     formState: { errors },
   } = useForm<CreateHostRequestWrapper>({
-    defaultValues: { hostUserId: user.userId },
+    defaultValues: {
+      hostUserId: user.userId,
+      text: draft?.text ?? "",
+      fromDate: draft?.fromDate ? Temporal.PlainDate.from(draft.fromDate) : undefined,
+      toDate: draft?.toDate ? Temporal.PlainDate.from(draft.toDate) : undefined,
+    },
   });
+
+  useEffect(
+    () =>
+      subscribe({
+        formState: { values: true },
+        callback: ({ values: { text, fromDate, toDate } }) => {
+          if (!text && !fromDate && !toDate) return clearDraft();
+          setDraft({ text, fromDate: fromDate?.toString() ?? null, toDate: toDate?.toString() ?? null });
+        },
+      }),
+    [subscribe, setDraft, clearDraft],
+  );
 
   const textField = watch("text") ?? "";
 
@@ -217,7 +240,7 @@ export default function NewHostRequest({
     getLatestValues: () => latestValuesRef.current,
   });
 
-  const { error, mutate } = useMutation({
+  const { error, isPending, mutate } = useMutation({
     mutationFn: (data: CreateHostRequestWrapper) => {
       return service.requests.createHostRequest(data);
     },
@@ -225,6 +248,7 @@ export default function NewHostRequest({
     onSuccess: () => {
       submittedRef.current = true;
       reset();
+      clearDraft();
       setIsRequesting(false);
       setIsRequestSuccess(true);
     },
@@ -233,35 +257,29 @@ export default function NewHostRequest({
   const { isLoading: hostLoading, error: hostError } = useLiteUser(user.userId);
 
   const onSubmit = handleSubmit((data) => {
+    // The disabled button doesn't cover submitting with Enter from the date fields
+    if (isPending) return;
     mutate(data);
   });
 
-  const hostToday = user.timezone
-    ? dayjs().tz(user.timezone).startOf("day")
-    : dayjs().startOf("day");
+  const hostToday = Temporal.Now.plainDateISO(user.timezone || Temporal.Now.timeZoneId());
 
   const watchFromDate = watch("fromDate", undefined);
-  const arrivalBeforeHostToday =
-    !!watchFromDate && dayjs(watchFromDate).isBefore(hostToday);
+  const arrivalBeforeHostToday = !!watchFromDate && Temporal.PlainDate.compare(watchFromDate, hostToday) < 0;
 
-  useEffect(() => {
-    if (
-      watchFromDate &&
-      getValues("toDate") &&
-      isSameOrFutureDate(watchFromDate, getValues("toDate"))
-    ) {
-      setValue("toDate", watchFromDate.add(1, "day"));
+  // Only react to the arrival date changing: adjusting on every render also fired while the
+  // departure year was half-typed (e.g. year 0002), overwriting the departure being entered.
+  const pushDepartureAfterArrival = (fromDate: Temporal.PlainDate | null) => {
+    const toDate = getValues("toDate");
+    if (fromDate && toDate && Temporal.PlainDate.compare(fromDate, toDate) >= 0) {
+      setValue("toDate", fromDate.add({ days: 1 }));
     }
-  });
+  };
 
   return (
     <>
       <StyledTitle variant="h1">
-        {hostLoading ? (
-          <Skeleton width="100" />
-        ) : (
-          t("profile:request_form.send_request", { name: user.name })
-        )}
+        {hostLoading ? <Skeleton width="100" /> : t("profile:request_form.send_request", { name: user.name })}
       </StyledTitle>
       {error && <Alert severity="error">{error.message}</Alert>}
       {hostError ? (
@@ -277,15 +295,15 @@ export default function NewHostRequest({
                 id="from-date"
                 label={t("profile:request_form.arrival_date")}
                 name="fromDate"
-                defaultValue={null}
-                minDate={hostToday}
+                minValue={hostToday}
+                onPostChange={pushDepartureAfterArrival}
                 rules={{
                   required: t("profile:request_form.arrival_date_empty"),
                   validate: {
                     notEmpty: (date) => !date || date !== "",
                     notBeforeHostToday: (date) =>
                       !date ||
-                      !dayjs(date).isBefore(hostToday) ||
+                      Temporal.PlainDate.compare(Temporal.PlainDate.from(date), hostToday) >= 0 ||
                       t("profile:request_form.arrival_date_before_host_today", {
                         name: user.name,
                       }),
@@ -305,23 +323,33 @@ export default function NewHostRequest({
                 helperText={errors?.toDate?.message}
                 id="to-date"
                 label={t("profile:request_form.departure_date")}
-                minDate={watchFromDate ? watchFromDate.add(1, "day") : dayjs()}
+                minValue={watchFromDate ? watchFromDate.add({ days: 1 }) : Temporal.Now.plainDateISO()}
                 name="toDate"
-                defaultValue={null}
                 rules={{
                   required: t("profile:request_form.departure_date_empty"),
-                  validate: (stringDate) => stringDate !== "",
+                  validate: {
+                    notEmpty: (stringDate) => stringDate !== "",
+                    afterArrival: (date) => {
+                      const fromDate = getValues("fromDate");
+                      return (
+                        !date ||
+                        !fromDate ||
+                        Temporal.PlainDate.compare(Temporal.PlainDate.from(date), fromDate) > 0 ||
+                        t("profile:request_form.departure_date_not_after_arrival")
+                      );
+                    },
+                  },
                 }}
               />
             </StyledDateRow>
           </StyledRequestRow>
           <StyledHelpText variant="body1">
-            <Trans i18nKey="profile:request_form.guide_link_help_text">
-              <StyledLink variant="body1" href={howToWriteRequestGuideUrl}>
-                Read our guide
-              </StyledLink>{" "}
-              on how to write a request that will get accepted.
-            </Trans>
+            <Trans
+              i18nKey="profile:request_form.guide_link_help_text"
+              components={{
+                guideLink: <StyledLink variant="body1" href={howToWriteRequestGuideUrl} />,
+              }}
+            />
           </StyledHelpText>
 
           <StyledRequestField
@@ -355,7 +383,7 @@ export default function NewHostRequest({
             <Button onClick={() => setIsRequesting(false)} variant="outlined">
               {t("global:cancel")}
             </Button>
-            <Button type="submit" onClick={onSubmit}>
+            <Button type="submit" loading={isPending} onClick={onSubmit}>
               {t("global:send")}
             </Button>
           </StyledSendActions>

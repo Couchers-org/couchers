@@ -36,19 +36,58 @@ const growthbook = new GrowthBook({
   },
 });
 
-export default function FeatureFlagProvider({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export type FeatureFlagSnapshot = {
+  targeting: Record<string, unknown>;
+  values: Record<string, unknown>;
+};
+
+declare global {
+  interface Window {
+    readonly couchersFlags?: FeatureFlagSnapshot;
+  }
+}
+
+export function getFeatureFlagSnapshot(): FeatureFlagSnapshot {
+  const targeting = growthbook.getAttributes();
+  const probe = new GrowthBook({ attributes: targeting });
+  probe.initSync({ payload: growthbook.getDecryptedPayload() });
+  return {
+    targeting,
+    values: Object.fromEntries(
+      Object.keys(probe.getFeatures())
+        .sort()
+        .map((key) => [key, probe.evalFeature(key).value]),
+    ),
+  };
+}
+
+if (typeof window !== "undefined") {
+  Object.defineProperty(window, "couchersFlags", { get: getFeatureFlagSnapshot, configurable: true });
+}
+
+export default function FeatureFlagProvider({ children }: { children: ReactNode }) {
   const { authState } = useAuthContext();
 
   useEffect(() => {
+    // Dev-only: when set, flags resolve from feature-flags.dev.json instead of GrowthBook,
+    // mirroring the backend's FEATURE_FLAGS_FILE_OVERRIDE_PATH. Overridden flags return the file
+    // value; unknown flags fall through to their in-code default. GrowthBook is never contacted in
+    // this mode. The inline NODE_ENV check lets webpack compile the whole branch out of production
+    // builds, keeping the file out of production bundles.
+    if (process.env.NODE_ENV === "development" && process.env.NEXT_PUBLIC_FEATURE_FLAGS_OVERRIDE === "1") {
+      void import("feature-flags.dev.json").then((mod) => {
+        const overrides = mod.default as Record<string, unknown>;
+        // Avoid initSync. It is meant to be used as new GrowthBook(...).initSync(...),
+        // so it assumes there are no users and doesn't notify them.
+        // Hence React components can wait on useGrowthBook().ready forever.
+        void growthbook.setPayload({
+          features: Object.fromEntries(Object.entries(overrides).map(([key, value]) => [key, { defaultValue: value }])),
+        });
+      });
+      return;
+    }
     void growthbook.init({ timeout: INIT_TIMEOUT_MS });
-    const id = setInterval(
-      () => void growthbook.refreshFeatures(),
-      REFRESH_INTERVAL_MS,
-    );
+    const id = setInterval(() => void growthbook.refreshFeatures(), REFRESH_INTERVAL_MS);
     return () => clearInterval(id);
   }, []);
 
@@ -57,7 +96,5 @@ export default function FeatureFlagProvider({
     growthbook.setAttributes(userId != null ? { id: userId.toString() } : {});
   }, [authState.userId]);
 
-  return (
-    <GrowthBookProvider growthbook={growthbook}>{children}</GrowthBookProvider>
-  );
+  return <GrowthBookProvider growthbook={growthbook}>{children}</GrowthBookProvider>;
 }

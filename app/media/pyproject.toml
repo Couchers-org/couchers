@@ -5,6 +5,7 @@ description = "Media service for Couchers"
 requires-python = ">=3.13"
 dependencies = [
     "backoff",
+    "ExifRead",
     "Flask",
     "grpcio",
     "pillow",

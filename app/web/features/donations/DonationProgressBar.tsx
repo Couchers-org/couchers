@@ -37,11 +37,7 @@ export default function DonationProgressBar() {
     return (
       <ProgressRow>
         <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-          <Skeleton
-            variant="rounded"
-            height={14}
-            sx={{ borderRadius: "7px" }}
-          />
+          <Skeleton variant="rounded" height={14} sx={{ borderRadius: "7px" }} />
         </Box>
         <Skeleton variant="text" width={100} />
       </ProgressRow>
@@ -52,10 +48,7 @@ export default function DonationProgressBar() {
     return null;
   }
 
-  const progress = Math.min(
-    (donationStats.totalDonatedYtd / donationStats.goal) * 100,
-    100,
-  );
+  const progress = Math.min((donationStats.totalDonatedYtd / donationStats.goal) * 100, 100);
 
   const currencyFormatter = new Intl.NumberFormat(i18n.language, {
     style: "currency",
@@ -64,19 +57,13 @@ export default function DonationProgressBar() {
     maximumFractionDigits: 0,
   });
 
-  const formattedRaised = currencyFormatter.format(
-    donationStats.totalDonatedYtd,
-  );
+  const formattedRaised = currencyFormatter.format(donationStats.totalDonatedYtd);
   const formattedGoal = currencyFormatter.format(donationStats.goal);
 
   return (
     <ProgressRow>
       <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-        <StyledLinearProgress
-          variant="determinate"
-          value={progress}
-          aria-label={t("donation_banner.progress_label")}
-        />
+        <StyledLinearProgress variant="determinate" value={progress} aria-label={t("donation_banner.progress_label")} />
       </Box>
       <ProgressLabel>
         {formattedRaised} / {formattedGoal}

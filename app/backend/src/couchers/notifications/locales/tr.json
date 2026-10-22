@@ -180,7 +180,13 @@
       }
     },
     "invite_organizer": {
-      "event_description": "Birisi sizi bir etkinliği birlikte düzenlemeye davet ediyor"
+      "event_description": "Birisi sizi bir etkinliği birlikte düzenlemeye davet ediyor",
+      "push": {
+        "title": "Etkinlik güncellendi: {{title}}",
+        "ios_title": "Etkinlik Güncellendi",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} sizi bir ortak organizatör olarak ekledi."
+      }
     },
     "reminder": {
       "event_description": "Katılacağınız bir etkinlik yakında başlayacak",
@@ -241,9 +247,9 @@
       }
     },
     "create": {
-      "event_description": "Birisi sana bir ev sahipliği isteği gönderince",
+      "event_description": "Birisi sana bir ev sahipliği isteği gönderdiğinde",
       "push": {
-        "title": "{{user}}'dan yeni ev sahipliği isteği",
+        "title": "{{user}}'dan yeni konaklama isteği",
         "ios_title": "{{user}}",
         "ios_subtitle": "Yeni Ev Sahipliği İsteği",
         "body_one": "{{user}}, {{start_date}} tarihinden itibaren {{count}} gece kalmak istiyor.",
@@ -293,7 +299,10 @@
       "event_description": "Telefon numaranız değiştirildi"
     },
     "verify": {
-      "event_description": "Telefon numaranız doğrulandı"
+      "event_description": "Telefon numaranız doğrulandı",
+      "push": {
+        "body": "Telefon numaranız {{phone_number}} olarak başarıyla doğrulandı."
+      }
     }
   },
   "reference": {
@@ -363,6 +372,11 @@
         "title": "Şifre sıfırlandı"
       },
       "event_description": "Şifre sıfırlama tamamlandı"
+    }
+  },
+  "postal_verification": {
+    "failed": {
+      "event_description": "Posta doğrulamanız başarısız oldu"
     }
   }
 }

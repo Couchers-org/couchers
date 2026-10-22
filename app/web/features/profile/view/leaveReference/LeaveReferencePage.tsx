@@ -62,16 +62,11 @@ export default function LeaveReferencePage({
 
   const { data: statusRes } = useQuery({
     queryKey: [hasGivenHostRequestReferenceKey, hostRequestId],
-    queryFn: () =>
-      service.references.getHostRequestReferenceStatus(hostRequestId!),
+    queryFn: () => service.references.getHostRequestReferenceStatus(hostRequestId!),
     enabled: !!hostRequestId,
   });
 
-  const {
-    data: user,
-    isLoading: isUserLoading,
-    error: userError,
-  } = useUser(userId);
+  const { data: user, isLoading: isUserLoading, error: userError } = useUser(userId);
   const {
     data: availableReferences,
     isLoading: isAvailableReferencesLoading,
@@ -81,31 +76,21 @@ export default function LeaveReferencePage({
   const referenceTypeValid = referenceType in ReferenceTypeStrings;
 
   if (!referenceTypeValid) {
-    return (
-      <Alert severity="error">
-        {t("profile:leave_reference.invalid_reference_type")}
-      </Alert>
-    );
+    return <Alert severity="error">{t("profile:leave_reference.invalid_reference_type")}</Alert>;
   }
 
   if (userError || availableReferencesError) {
-    return (
-      <Alert severity="error">
-        {userError || availableReferencesError?.message || ""}
-      </Alert>
-    );
+    return <Alert severity="error">{userError || availableReferencesError?.message || ""}</Alert>;
   }
   if (isUserLoading || isAvailableReferencesLoading) {
     return <CenteredSpinner />;
   }
 
   // Compute availability booleans
-  const isFriendType =
-    referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND];
+  const isFriendType = referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND];
   const canWriteFriendRef = !!availableReferences?.canWriteFriendReference;
   const isFriendsWithUser = user?.friends === User.FriendshipStatus.FRIENDS;
-  const canWriteFriendReferenceForUser =
-    isFriendType && canWriteFriendRef && isFriendsWithUser;
+  const canWriteFriendReferenceForUser = isFriendType && canWriteFriendRef && isFriendsWithUser;
 
   const canWriteHostRequestReference =
     !!hostRequestId &&
@@ -113,23 +98,14 @@ export default function LeaveReferencePage({
       ({ hostRequestId: availableId }) => availableId === hostRequestId,
     );
 
-  const canWriteReference =
-    canWriteFriendReferenceForUser || canWriteHostRequestReference;
+  const canWriteReference = canWriteFriendReferenceForUser || canWriteHostRequestReference;
 
   if (isFriendType && !isFriendsWithUser) {
-    return (
-      <Alert severity="error">
-        {t("profile:leave_reference.friend_reference_requires_friendship")}
-      </Alert>
-    );
+    return <Alert severity="error">{t("profile:leave_reference.friend_reference_requires_friendship")}</Alert>;
   }
 
   if (isFriendType && isFriendsWithUser && !canWriteFriendRef) {
-    return (
-      <Alert severity="info">
-        {t("profile:leave_reference.already_wrote_friend_reference")}
-      </Alert>
-    );
+    return <Alert severity="info">{t("profile:leave_reference.already_wrote_friend_reference")}</Alert>;
   }
 
   const alreadyWroteThisStay = !!hostRequestId && !!statusRes?.hasGiven;
@@ -138,35 +114,19 @@ export default function LeaveReferencePage({
   const didntStay = !!hostRequestId && !!statusRes && statusRes.didntStay;
 
   if (alreadyWroteThisStay) {
-    return (
-      <Alert severity="info">
-        {t("profile:leave_reference.already_wrote_reference_for_stay")}
-      </Alert>
-    );
+    return <Alert severity="info">{t("profile:leave_reference.already_wrote_reference_for_stay")}</Alert>;
   }
 
   if (!!hostRequestId && didntStay) {
-    return (
-      <Alert severity="error">
-        {t("profile:leave_reference.cant_write_reference_didnt_stay")}
-      </Alert>
-    );
+    return <Alert severity="error">{t("profile:leave_reference.cant_write_reference_didnt_stay")}</Alert>;
   }
 
   if (!!hostRequestId && isExpired) {
-    return (
-      <Alert severity="error">
-        {t("profile:leave_reference.cant_write_reference_expired")}
-      </Alert>
-    );
+    return <Alert severity="error">{t("profile:leave_reference.cant_write_reference_expired")}</Alert>;
   }
 
   if (!canWriteReference) {
-    return (
-      <Alert severity="error">
-        {t("profile:leave_reference.reference_type_not_available")}
-      </Alert>
-    );
+    return <Alert severity="error">{t("profile:leave_reference.reference_type_not_available")}</Alert>;
   }
 
   return (
@@ -174,12 +134,7 @@ export default function LeaveReferencePage({
       <ProfileUserProvider user={user!}>
         {!isMobile && <UserOverview showHostAndMeetAvailability={false} />}
         <StyledFormWrapper>
-          <ReferenceForm
-            hostRequestId={hostRequestId}
-            referenceType={referenceType}
-            userId={userId}
-            step={step}
-          />
+          <ReferenceForm hostRequestId={hostRequestId} referenceType={referenceType} userId={userId} step={step} />
         </StyledFormWrapper>
       </ProfileUserProvider>
     </StyledRoot>

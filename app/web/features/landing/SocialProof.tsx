@@ -1,62 +1,25 @@
 import { Favorite, Language, Star } from "@mui/icons-material";
-import {
-  Box,
-  Divider,
-  Skeleton,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
-import { useTranslation } from "i18n";
+import { Box, Divider, Skeleton, Typography, useMediaQuery } from "@mui/material";
+import RelativeTime from "components/RelativeTime";
+import { Trans, useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
-import { useEffect, useState } from "react";
+import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
-import { timeAgo } from "utils/timeAgo";
-
-interface SignupInfo {
-  userCount: string;
-  lastSignup: string | Date;
-  lastLocation: string;
-}
+import useSignupPageInfo from "utils/useSignupPageInfo";
 
 const SocialProof = () => {
-  const {
-    t,
-    i18n: { language: locale },
-  } = useTranslation([GLOBAL, LANDING]);
+  const { t } = useTranslation([GLOBAL, LANDING]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const [signupInfo, setSignupInfo] = useState<SignupInfo | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchSignupInfo = async () => {
-      try {
-        const response = await fetch(
-          "https://couchers.org/api/public/signup-page-info",
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch signup info");
-        }
-        const data = await response.json();
-        setSignupInfo(data);
-      } catch (error) {
-        console.error("Error fetching signup info:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchSignupInfo();
-  }, []);
+  const { signupInfo, isLoading } = useSignupPageInfo();
 
   return (
     <Box
       sx={{
+        maxWidth: "lg",
         padding: theme.spacing(8, 4),
         textAlign: "center",
       }}
-      maxWidth="lg"
     >
       <Typography
         sx={{
@@ -87,14 +50,22 @@ const SocialProof = () => {
         }}
       />
       <Box
-        display="flex"
-        flexDirection={isMobile ? "column" : "row"}
-        alignItems="center"
-        justifyContent="center"
-        sx={{ marginTop: 4, width: "100%" }}
-        gap={3}
+        sx={{
+          display: "flex",
+          flexDirection: isMobile ? "column" : "row",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 3,
+          marginTop: 4,
+          width: "100%",
+        }}
       >
-        <Box display="flex" alignItems="center">
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
           <Favorite
             sx={{
               marginRight: 1,
@@ -105,10 +76,7 @@ const SocialProof = () => {
           {isLoading ? (
             <Box sx={{ width: 120 }}>
               <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
-                <Box
-                  component="span"
-                  sx={{ display: "inline-block", width: "100%" }}
-                >
+                <Box component="span" sx={{ display: "inline-block", width: "100%" }}>
                   <Skeleton variant="text" width="100%" height={36} />
                 </Box>
               </Typography>
@@ -122,7 +90,12 @@ const SocialProof = () => {
             </Typography>
           )}
         </Box>
-        <Box display="flex" alignItems="center">
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
           <Language
             sx={{
               marginRight: 1,
@@ -134,7 +107,12 @@ const SocialProof = () => {
             {t("landing:num_countries2", { count: 180 })}
           </Typography>
         </Box>
-        <Box display="flex" alignItems={isMobile ? "flex-start" : "center"}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: isMobile ? "flex-start" : "center",
+          }}
+        >
           <Star
             sx={{
               marginRight: 1,
@@ -145,10 +123,7 @@ const SocialProof = () => {
           {isLoading ? (
             <Box sx={{ width: 220 }}>
               <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
-                <Box
-                  component="span"
-                  sx={{ display: "inline-block", width: "100%" }}
-                >
+                <Box component="span" sx={{ display: "inline-block", width: "100%" }}>
                   <Skeleton variant="text" width="100%" height={36} />
                 </Box>
               </Typography>
@@ -162,13 +137,13 @@ const SocialProof = () => {
                   fontWeight: 500,
                 }}
               >
-                {t("landing:last_signup", {
-                  timeAgo: timeAgo({
-                    since: new Date(signupInfo.lastSignup),
-                    t,
-                    locale,
-                  }),
-                })}
+                <Trans
+                  t={t}
+                  i18nKey="landing:last_signup2"
+                  components={{
+                    timeAgo: <RelativeTime instant={Temporal.Instant.from(signupInfo.lastSignup)} />,
+                  }}
+                />
               </Typography>
             )
           )}

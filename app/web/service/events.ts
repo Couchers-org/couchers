@@ -1,34 +1,26 @@
-import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
-import {
-  Int64Value,
-  StringValue,
-} from "google-protobuf/google/protobuf/wrappers_pb";
+import { Int64Value, StringValue } from "google-protobuf/google/protobuf/wrappers_pb";
 import { ListEventsReq } from "proto/communities_pb";
 import {
   AttendanceState,
   CancelEventReq,
   CreateEventReq,
+  EventLocation,
   GetEventReq,
   InviteEventOrganizerReq,
   ListAllEventsReq,
   ListEventAttendeesReq,
   ListEventOrganizersReq,
   ListMyEventsReq,
-  OfflineEventInformation,
-  OnlineEventInformation,
   RemoveEventOrganizerReq,
   RequestCommunityInviteReq,
   SetEventAttendanceReq,
   UpdateEventReq,
 } from "proto/events_pb";
+import { Temporal } from "temporal-polyfill";
 
 import client from "./client";
 
-export async function listCommunityEvents(
-  communityId: number,
-  pageToken?: string,
-  pageSize?: number,
-) {
+export async function listCommunityEvents(communityId: number, pageToken?: string, pageSize?: number) {
   const req = new ListEventsReq();
   req.setCommunityId(communityId);
   if (pageToken) {
@@ -67,11 +59,7 @@ interface ListEventUsersInput {
   pageToken?: string;
 }
 
-export async function listEventOrganizers({
-  eventId,
-  pageSize,
-  pageToken,
-}: ListEventUsersInput) {
+export async function listEventOrganizers({ eventId, pageSize, pageToken }: ListEventUsersInput) {
   const req = new ListEventOrganizersReq();
   req.setEventId(eventId);
   if (pageSize) {
@@ -84,11 +72,7 @@ export async function listEventOrganizers({
   return res.toObject();
 }
 
-export async function listEventAttendees({
-  eventId,
-  pageSize,
-  pageToken,
-}: ListEventUsersInput) {
+export async function listEventAttendees({ eventId, pageSize, pageToken }: ListEventUsersInput) {
   const req = new ListEventAttendeesReq();
   req.setEventId(eventId);
   if (pageSize) {
@@ -119,70 +103,45 @@ interface EventInput {
   content: string;
   photoKey?: string;
   title: string;
-  startTime: Date;
-  endTime: Date;
-}
-
-interface OnlineEventInput extends EventInput {
-  isOnline: true;
-  parentCommunityId: number;
-  link: string;
-}
-
-interface OfflineEventInput extends EventInput {
-  isOnline: false;
+  startTime: Temporal.PlainDateTime;
+  endTime: Temporal.PlainDateTime;
   address: string;
   lat: number;
   lng: number;
   parentCommunityId?: number;
 }
 
-export type CreateEventInput = OnlineEventInput | OfflineEventInput;
+export type CreateEventInput = EventInput;
 
 export async function createEvent(input: CreateEventInput) {
   const req = new CreateEventReq();
   req.setTitle(input.title);
   req.setContent(input.content);
-  req.setStartTime(Timestamp.fromDate(input.startTime));
-  req.setEndTime(Timestamp.fromDate(input.endTime));
+  req.setStartDatetimeIso8601Local(input.startTime.toString());
+  req.setEndDatetimeIso8601Local(input.endTime.toString());
 
   if (input.photoKey) {
     req.setPhotoKey(input.photoKey);
   }
 
-  if (input.isOnline) {
-    const onlineEventInfo = new OnlineEventInformation();
-    onlineEventInfo.setLink(input.link);
-    req.setParentCommunityId(input.parentCommunityId);
-    req.setOnlineInformation(onlineEventInfo);
-  } else {
-    const offlineEventInfo = new OfflineEventInformation();
-    offlineEventInfo.setAddress(input.address);
-    offlineEventInfo.setLat(input.lat);
-    offlineEventInfo.setLng(input.lng);
-    req.setOfflineInformation(offlineEventInfo);
+  const location = new EventLocation();
+  location.setAddress(input.address);
+  location.setLat(input.lat);
+  location.setLng(input.lng);
+  req.setLocation(location);
 
-    if (input.parentCommunityId) {
-      req.setParentCommunityId(input.parentCommunityId);
-    }
+  if (input.parentCommunityId) {
+    req.setParentCommunityId(input.parentCommunityId);
   }
 
   const res = await client.events.createEvent(req);
   return res.toObject();
 }
 
-export interface UpdateOnlineEventInput
-  extends Partial<Omit<OnlineEventInput, "parentCommunityId">> {
-  isOnline: true;
+export interface UpdateEventInput extends Partial<Omit<EventInput, "parentCommunityId">> {
+  eventId: number;
+  shouldNotify: boolean;
 }
-export interface UpdateOfflineEventInput
-  extends Partial<Omit<OfflineEventInput, "parentCommunityId">> {
-  isOnline: false;
-}
-export type UpdateEventInput = (
-  | UpdateOnlineEventInput
-  | UpdateOfflineEventInput
-) & { eventId: number; shouldNotify: boolean };
 
 export async function updateEvent(input: UpdateEventInput) {
   const req = new UpdateEventReq();
@@ -194,28 +153,22 @@ export async function updateEvent(input: UpdateEventInput) {
     req.setContent(new StringValue().setValue(input.content));
   }
   if (input.startTime) {
-    req.setStartTime(Timestamp.fromDate(input.startTime));
+    req.setStartDatetimeIso8601Local(new StringValue().setValue(input.startTime.toString()));
   }
   if (input.endTime) {
-    req.setEndTime(Timestamp.fromDate(input.endTime));
+    req.setEndDatetimeIso8601Local(new StringValue().setValue(input.endTime.toString()));
   }
 
   if (input.photoKey) {
     req.setPhotoKey(new StringValue().setValue(input.photoKey));
   }
 
-  if (input.isOnline) {
-    if (input.link) {
-      const onlineEventInfo = new OnlineEventInformation();
-      onlineEventInfo.setLink(input.link);
-      req.setOnlineInformation(onlineEventInfo);
-    }
-  } else if (input.address && input.lat && input.lng) {
-    const offlineEventInfo = new OfflineEventInformation();
-    offlineEventInfo.setAddress(input.address);
-    offlineEventInfo.setLat(input.lat);
-    offlineEventInfo.setLng(input.lng);
-    req.setOfflineInformation(offlineEventInfo);
+  if (input.address && input.lat && input.lng) {
+    const location = new EventLocation();
+    location.setAddress(input.address);
+    location.setLat(input.lat);
+    location.setLng(input.lng);
+    req.setLocation(location);
   }
 
   if (input.shouldNotify) {
@@ -233,12 +186,7 @@ export interface ListAllEventsInput {
   showCancelled?: boolean;
 }
 
-export async function listAllEvents({
-  pastEvents = false,
-  pageSize,
-  pageToken,
-  showCancelled,
-}: ListAllEventsInput) {
+export async function listAllEvents({ pastEvents = false, pageSize, pageToken, showCancelled }: ListAllEventsInput) {
   const req = new ListAllEventsReq();
 
   if (pastEvents !== undefined) {
@@ -259,6 +207,7 @@ export async function listAllEvents({
 }
 
 export interface ListMyEventsInput {
+  excludeAttending?: boolean;
   myCommunities?: boolean;
   myCommunitiesExcludeGlobal?: boolean;
   pageNumber?: number;
@@ -269,6 +218,7 @@ export interface ListMyEventsInput {
 }
 
 export async function listMyEvents({
+  excludeAttending,
   myCommunities,
   myCommunitiesExcludeGlobal,
   pageNumber,
@@ -278,8 +228,13 @@ export async function listMyEvents({
   showCancelled,
 }: ListMyEventsInput) {
   const req = new ListMyEventsReq();
-  req.setAttending(true);
-  req.setOrganizing(true);
+
+  if (excludeAttending) {
+    req.setExcludeAttending(true);
+  } else {
+    req.setAttending(true);
+    req.setOrganizing(true);
+  }
 
   if (myCommunities !== undefined) {
     req.setMyCommunities(myCommunities);

@@ -1,12 +1,6 @@
-import {
-  Button as MuiButton,
-  ButtonProps,
-  styled,
-  useTheme,
-} from "@mui/material";
+import { Button as MuiButton, ButtonProps, styled, useTheme } from "@mui/material";
 import Sentry from "platform/sentry";
-import React, { ElementType, ForwardedRef, forwardRef } from "react";
-import { useIsMounted, useSafeState } from "utils/hooks";
+import React, { ElementType, ForwardedRef, forwardRef, useState } from "react";
 
 import CircularProgress from "../CircularProgress";
 
@@ -44,8 +38,7 @@ function InternalButton<D extends ElementType = "button">(
   }: ButtonProps<D>,
   ref: ForwardedRef<HTMLButtonElement>,
 ) {
-  const isMounted = useIsMounted();
-  const [waiting, setWaiting] = useSafeState(isMounted, false);
+  const [waiting, setWaiting] = useState(false);
   const theme = useTheme();
   async function asyncOnClick(event: React.MouseEvent<HTMLButtonElement>) {
     try {
@@ -74,9 +67,7 @@ function InternalButton<D extends ElementType = "button">(
       variant={variant}
       color={variant === "contained" ? color : undefined}
     >
-      {(loading || waiting) && (
-        <StyledCircularProgress size={theme.typography.button.fontSize} />
-      )}
+      {(loading || waiting) && <StyledCircularProgress size={theme.typography.button.fontSize} />}
       {children}
     </StyledMuiButton>
   );

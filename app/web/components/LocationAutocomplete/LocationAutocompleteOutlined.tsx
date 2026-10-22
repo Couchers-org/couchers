@@ -1,12 +1,5 @@
 import { Clear } from "@mui/icons-material";
-import {
-  alpha,
-  Autocomplete,
-  AutocompleteChangeReason,
-  InputAdornment,
-  InputProps,
-  styled,
-} from "@mui/material";
+import { alpha, Autocomplete, AutocompleteChangeReason, InputAdornment, InputProps, styled } from "@mui/material";
 import IconButton from "components/IconButton";
 import { SearchIcon } from "components/Icons";
 import TextField from "components/TextField";
@@ -80,12 +73,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
   const [inputValue, setInputValue] = useState<string>(defaultValue || "");
   const [selected, setSelected] = useState<GeocodeResult | null>(null);
 
-  const {
-    query,
-    results: options,
-    error: geocodeError,
-    isLoading,
-  } = useGeocodeQuery();
+  const { query, results: options, error: geocodeError, isLoading } = useGeocodeQuery();
 
   useEffect(() => {
     if (!hasSearchValue) {
@@ -115,10 +103,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     setIsOpen(true);
   };
 
-  const handleInputChange = (
-    event: React.SyntheticEvent<Element, Event>,
-    newValue: string,
-  ) => {
+  const handleInputChange = (event: React.SyntheticEvent<Element, Event>, newValue: string) => {
     if (inputValue !== newValue) {
       setInputValue(newValue);
     }
@@ -149,31 +134,32 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
           fullWidth={fullWidth}
           variant="outlined"
           placeholder={placeholder}
-          InputProps={{
-            ...params.InputProps,
-            endAdornment: (
-              <>
-                {params.InputProps.endAdornment}
-                <InputAdornment
-                  position="end"
-                  sx={{
-                    marginRight: inputValue === "" ? theme.spacing(1) : 0,
-                  }}
-                >
-                  <IconButton
-                    aria-label={t(
-                      "location_autocomplete.search_location_button",
-                    )}
-                    onClick={handleSearchSubmit}
-                    size="small"
-                    sx={{ marginRight: theme.spacing(1) }}
+          slotProps={{
+            ...params.slotProps,
+            input: {
+              ...params.slotProps.input,
+              endAdornment: (
+                <>
+                  {params.slotProps.input.endAdornment}
+                  <InputAdornment
+                    position="end"
+                    sx={{
+                      marginRight: inputValue === "" ? theme.spacing(1) : 0,
+                    }}
                   >
-                    <SearchIcon />
-                  </IconButton>
-                  {InputProps?.endAdornment}
-                </InputAdornment>
-              </>
-            ),
+                    <IconButton
+                      aria-label={t("location_autocomplete.search_location_button")}
+                      onClick={handleSearchSubmit}
+                      size="small"
+                      sx={{ marginRight: theme.spacing(1) }}
+                    >
+                      <SearchIcon />
+                    </IconButton>
+                    {InputProps?.endAdornment}
+                  </InputAdornment>
+                </>
+              ),
+            },
           }}
         />
       )}

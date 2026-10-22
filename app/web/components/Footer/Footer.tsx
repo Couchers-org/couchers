@@ -1,19 +1,9 @@
-import FacebookIcon from "@mui/icons-material/Facebook";
-import GitHubIcon from "@mui/icons-material/GitHub";
-import InstagramIcon from "@mui/icons-material/Instagram";
-import RedditIcon from "@mui/icons-material/Reddit";
-import {
-  Box,
-  Button,
-  ButtonProps,
-  Link as MuiLink,
-  styled,
-  Typography,
-} from "@mui/material";
-import { BlueSkyIcon, TikTokIcon } from "components/Icons";
+import { Box, Button, ButtonProps, Link as MuiLink, styled, Typography } from "@mui/material";
 import ReportButton from "components/Navigation/ReportButton";
+import SocialMediaLinks from "components/SocialMediaLinks";
 import StyledLink from "components/StyledLink";
 import { Trans, useTranslation } from "i18n";
+import { localizeRelativeTime } from "i18n/datetimes";
 import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
 import { ReactNode } from "react";
@@ -25,35 +15,30 @@ import {
   couchersGooglePlayURL,
   donationsRoute,
   eventsRoute,
-  facebookURL,
   faqRoute,
   foundationRoute,
   githubUpdatesURL,
-  githubURL,
   helpCenterURL,
-  instagramURL,
   landingRoute,
   missionRoute,
   newsletterSignupURL,
   planRoute,
-  redditURL,
+  pressRoute,
   roadmapRoute,
   shopRoute,
   teamRoute,
   tosRoute,
   volunteerRoute,
 } from "routes";
+import { Temporal } from "temporal-polyfill";
 import { useIsNativeEmbed } from "utils/nativeLink";
-import { timeAgo } from "utils/timeAgo";
 
-const StyledFooter = styled("footer")<{ bottomMargin?: string }>(
-  ({ bottomMargin }) => ({
-    display: "flex",
-    flexDirection: "column",
-    width: "100%",
-    marginBottom: bottomMargin,
-  }),
-);
+const StyledFooter = styled("footer")<{ bottomMargin?: string }>(({ bottomMargin }) => ({
+  display: "flex",
+  flexDirection: "column",
+  width: "100%",
+  marginBottom: bottomMargin,
+}));
 
 const StyledUpperOuterContainer = styled("div")(({ theme }) => ({
   display: "flex",
@@ -172,11 +157,13 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
   const version_text = process.env.NEXT_PUBLIC_DISPLAY_VERSION || "dev";
   const version_link = roadmapRoute;
   const updated_ago_text = process.env.NEXT_PUBLIC_COMMIT_TIMESTAMP
-    ? timeAgo({
-        since: new Date(process.env.NEXT_PUBLIC_COMMIT_TIMESTAMP),
-        t,
+    ? localizeRelativeTime(
+        Temporal.Instant.fromEpochMilliseconds(
+          // Parse with new Date() for backcompat with environment var format
+          new Date(process.env.NEXT_PUBLIC_COMMIT_TIMESTAMP).getTime(),
+        ),
         locale,
-      })
+      )
     : "unknown";
   const updated_ago_link = githubUpdatesURL;
 
@@ -192,9 +179,8 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
             <FooterLink href={faqRoute}>{t("nav.faq")}</FooterLink>
             <FooterLink href={missionRoute}>{t("nav.mission")}</FooterLink>
             <FooterLink href={helpCenterURL}>{t("nav.help_center")}</FooterLink>
-            <FooterLink href={roadmapRoute}>
-              {t("nav.roadmap_updates")}
-            </FooterLink>
+            <FooterLink href={roadmapRoute}>{t("nav.roadmap_updates")}</FooterLink>
+            <FooterLink href={pressRoute}>{t("nav.press")}</FooterLink>
           </div>
           <div>
             <Typography variant="h4" component="h4">
@@ -203,12 +189,8 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
             <FooterLink href={blogRoute}>{t("nav.blog")}</FooterLink>
             <FooterLink href={teamRoute}>{t("nav.our_team")}</FooterLink>
             <FooterLink href={landingRoute}>{t("nav.landing_page")}</FooterLink>
-            <FooterLink href={eventsRoute}>
-              {t("nav.show_all_events")}
-            </FooterLink>
-            <FooterLink href={newsletterSignupURL}>
-              {t("nav.newsletter")}
-            </FooterLink>
+            <FooterLink href={eventsRoute}>{t("nav.show_all_events")}</FooterLink>
+            <FooterLink href={newsletterSignupURL}>{t("nav.newsletter")}</FooterLink>
             <FooterLink href={shopRoute}>{t("nav.merch_shop")}</FooterLink>
           </div>
           <div>
@@ -223,20 +205,11 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
           </div>
           <StyledButtonContainer>
             {!isNativeEmbed && (
-              <StyledButton
-                component={Link}
-                href={donationsRoute}
-                variant="contained"
-              >
+              <StyledButton component={Link} href={donationsRoute} variant="contained">
                 {t("nav.donate")}
               </StyledButton>
             )}
-            <StyledButton
-              component={Link}
-              href={volunteerRoute}
-              variant="contained"
-              color="secondary"
-            >
+            <StyledButton component={Link} href={volunteerRoute} variant="contained" color="secondary">
               {t("nav.volunteer")}
             </StyledButton>
             <Box
@@ -250,22 +223,14 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
                 mb: 1,
               }}
             >
-              <a
-                href={couchersAppStoreURL}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href={couchersAppStoreURL} target="_blank" rel="noopener noreferrer">
                 <img
                   src={`/img/app-store-badge/${locale}.svg`}
                   alt={t("app_store_badge_a11y")}
                   style={{ height: "26px", width: "auto", display: "block" }}
                 />
               </a>
-              <a
-                href={couchersGooglePlayURL}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href={couchersGooglePlayURL} target="_blank" rel="noopener noreferrer">
                 <img
                   src={`/img/google-play-badge/${locale}.svg`}
                   alt={t("google_play_badge_a11y")}
@@ -274,60 +239,7 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
               </a>
             </Box>
             <StyledSocialIconsContainer>
-              <MuiLink
-                href={githubURL}
-                target="_blank"
-                rel="noopener"
-                aria-label="GitHub"
-                color="inherit"
-              >
-                <GitHubIcon />
-              </MuiLink>
-              <MuiLink
-                href={instagramURL}
-                target="_blank"
-                rel="noopener"
-                aria-label="Instagram"
-                color="inherit"
-              >
-                <InstagramIcon />
-              </MuiLink>
-              <MuiLink
-                href={redditURL}
-                target="_blank"
-                rel="noopener"
-                aria-label="Reddit"
-                color="inherit"
-              >
-                <RedditIcon />
-              </MuiLink>
-              <MuiLink
-                href="https://bsky.app/profile/couchers.bsky.social"
-                target="_blank"
-                rel="noopener"
-                aria-label="BlueSky"
-                color="inherit"
-              >
-                <BlueSkyIcon />
-              </MuiLink>
-              <MuiLink
-                href="https://www.tiktok.com/@couchersorg"
-                target="_blank"
-                rel="noopener"
-                aria-label="TikTok"
-                color="inherit"
-              >
-                <TikTokIcon />
-              </MuiLink>
-              <MuiLink
-                href={facebookURL}
-                target="_blank"
-                rel="noopener"
-                aria-label="Facebook"
-                color="inherit"
-              >
-                <FacebookIcon />
-              </MuiLink>
+              <SocialMediaLinks iconSize="1.5rem" />
             </StyledSocialIconsContainer>
           </StyledButtonContainer>
         </StyledUpperContainer>
@@ -335,9 +247,7 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
       <StyledMiddleOuterContainer>
         <StyledMiddleContainer>
           <Typography variant="body2">
-            <StyledLink href={foundationRoute}>
-              {t("footer.non_profit_note")}
-            </StyledLink>
+            <StyledLink href={foundationRoute}>{t("footer.non_profit_note")}</StyledLink>
           </Typography>
         </StyledMiddleContainer>
       </StyledMiddleOuterContainer>
@@ -352,25 +262,11 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
                 version: version_text,
                 updated_ago: updated_ago_text,
               }}
-            >
-              Version{" "}
-              <VersionLink
-                href={version_link}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {version_text}
-              </VersionLink>
-              , last updated{" "}
-              <VersionLink
-                href={updated_ago_link}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {updated_ago_text}
-              </VersionLink>
-              .
-            </Trans>
+              components={{
+                versionLink: <VersionLink href={version_link} target="_blank" rel="noopener noreferrer" />,
+                updatedAgoLink: <VersionLink href={updated_ago_link} target="_blank" rel="noopener noreferrer" />,
+              }}
+            />
           </Typography>
         </StyledLowerContainer>
       </StyledLowerOuterContainer>
@@ -382,13 +278,7 @@ function FooterLink({ href, children }: { href: string; children: ReactNode }) {
   if (href.startsWith("http")) {
     return (
       <Typography variant="body1">
-        <MuiLink
-          href={href}
-          color="textSecondary"
-          target="_blank"
-          rel="noopener"
-          underline="hover"
-        >
+        <MuiLink href={href} color="textSecondary" target="_blank" rel="noopener" underline="hover">
           {children}
         </MuiLink>
       </Typography>

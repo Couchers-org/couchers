@@ -29,7 +29,8 @@
         "field_label": "Věk hostitele"
       },
       "last_active_field_label": "Naposledy aktivní",
-      "meetup_status_field_label": "Stav setkání"
+      "meetup_status_field_label": "Stav setkání",
+      "hosting_status_field_label": "Stav hostování"
     },
     "accommodation_filters": {
       "title": "Filtry ubytování",
@@ -88,6 +89,5 @@
   },
   "location": "Poloha",
   "keyword": "Klíčové slovo",
-  "search_this_area": "Hledat v této oblasti",
-  "zoom_in_to_select_user": "Přibliž mapu pro výběr uživatele"
+  "search_this_area": "Hledat v této oblasti"
 }

@@ -1,24 +1,12 @@
 import InitColorSchemeScript from "@mui/material/InitColorSchemeScript";
-import {
-  documentGetInitialProps,
-  DocumentHeadTags,
-  DocumentHeadTagsProps,
-} from "@mui/material-nextjs/v15-pagesRouter";
-import {
-  DocumentContext,
-  DocumentProps,
-  Head,
-  Html,
-  Main,
-  NextScript,
-} from "next/document";
+import { documentGetInitialProps, DocumentHeadTags, DocumentHeadTagsProps } from "@mui/material-nextjs/v15-pagesRouter";
+import { DEFAULT_LOCALE } from "i18n/locales";
+import { DocumentContext, DocumentProps, Head, Html, Main, NextScript } from "next/document";
 import { theme } from "theme";
 
-export default function MyDocument(
-  props: DocumentProps & DocumentHeadTagsProps,
-) {
+export default function MyDocument(props: DocumentProps & DocumentHeadTagsProps) {
   return (
-    <Html lang={props.locale ?? "en"}>
+    <Html lang={props.locale ?? DEFAULT_LOCALE}>
       <Head>
         <DocumentHeadTags {...props} />
 
@@ -26,25 +14,19 @@ export default function MyDocument(
         <meta name="theme-color" content={theme.palette.primary.main} />
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/logo512.png" />
-        <link
-          rel="stylesheet"
-          href="https://cdn.couchers.org/fonts/ubuntu/ubuntu.css"
-        />
-        <link
-          rel="stylesheet"
-          href="https://cdn.couchers.org/fonts/wordmark/wordmark.css"
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.addEventListener('load',function(){var s=document.createElement('script');s.async=true;s.src='https://twdl.couchers.org/script.js';document.head.appendChild(s)})`,
-          }}
-        />
+        <link rel="stylesheet" href="https://cdn.couchers.org/fonts/ubuntu/ubuntu.css" />
+        <link rel="stylesheet" href="https://cdn.couchers.org/fonts/wordmark/wordmark.css" />
+        {/* Antibot script. Its fingerprint loop leaks WebGL contexts, so we skip it in dev. */}
+        {process.env.NODE_ENV !== "development" && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `window.addEventListener('load',function(){var s=document.createElement('script');s.async=true;s.src='https://twdl.couchers.org/script.js';document.head.appendChild(s)})`,
+            }}
+          />
+        )}
       </Head>
       <body>
-        <InitColorSchemeScript
-          defaultMode="system"
-          attribute="data-mui-color-scheme"
-        />
+        <InitColorSchemeScript defaultMode="system" attribute="data-mui-color-scheme" />
         <Main />
         <NextScript />
       </body>

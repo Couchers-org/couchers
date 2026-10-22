@@ -31,6 +31,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LLM_API_KEY: ${{ secrets.BOT_LLM_API_KEY }}
           LLM_MODEL: ${{ secrets.BOT_LLM_MODEL }}
+          SLACK_WEBHOOK_URL: ${{ secrets.BOT_SLACK_RELEASE_NOTES_WEBHOOK_URL }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPOSITORY: ${{ github.repository }}
         run: uv run pr_release_notes.py

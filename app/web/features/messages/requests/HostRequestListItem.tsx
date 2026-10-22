@@ -1,38 +1,24 @@
 import { ArchiveOutlined, UnarchiveOutlined } from "@mui/icons-material";
-import {
-  capitalize,
-  Chip,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-  Skeleton,
-  styled,
-  Typography,
-} from "@mui/material";
+import { capitalize, Chip, ListItem, ListItemAvatar, ListItemText, Skeleton, styled, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Avatar from "components/Avatar";
 import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
 import TextBody from "components/TextBody";
 import { useAuthContext } from "features/auth/AuthProvider";
 import HostRequestStatusIcon from "features/messages/requests/HostRequestStatusIcon";
-import {
-  controlMessage,
-  hasUnreadMessages,
-  isControlMessage,
-  messageTargetId,
-} from "features/messages/utils";
-import { hostRequestsListKey } from "features/queryKeys";
+import { controlMessage, hasUnreadMessages, isControlMessage, messageTargetId } from "features/messages/utils";
+import { messageThreadsListKey } from "features/queryKeys";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
+import { localizeDateRange } from "i18n/datetimes";
 import { MESSAGES } from "i18n/namespaces";
 import { HostRequest } from "proto/requests_pb";
 import React, { useState } from "react";
 import { service } from "service";
+import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
-import { localizeDateTimeRange, UTC_TIMEZONE } from "utils/date";
-import dayjs from "utils/dayjs";
 import { firstName } from "utils/names";
 
 import HostRequestStatusText from "./HostRequestStatusText";
@@ -42,11 +28,9 @@ const StyledHostStatusContainer = styled("div")({
   display: "flex",
 });
 
-const StyledHostRequestStatusIcon = styled(HostRequestStatusIcon)(
-  ({ theme }) => ({
-    marginInlineEnd: theme.spacing(1),
-  }),
-);
+const StyledHostRequestStatusIcon = styled(HostRequestStatusIcon)(({ theme }) => ({
+  marginInlineEnd: theme.spacing(1),
+}));
 
 const StyledListItemContainer = styled("div")(() => ({
   position: "relative",
@@ -68,27 +52,26 @@ const StyledDateAndBadgeContainer = styled("div")(({ theme }) => ({
   overflow: "hidden",
 }));
 
-const RequestTypeChip = styled(Chip)<{ ishost: "true" | "false" }>(
-  ({ theme, ishost }) => ({
-    height: 20,
-    fontSize: "0.75rem",
-    fontWeight: 500,
-    flexShrink: 0,
-    backgroundColor:
-      ishost === "true" ? "rgba(0, 163, 152, 0.1)" : "rgba(255, 138, 0, 0.1)",
-    color: ishost === "true" ? "var(--mui-palette-primary-main)" : "#FF8A00",
+const RequestTypeChip = styled(Chip, {
+  shouldForwardProp: (prop) => prop !== "isHost",
+})<{ isHost: boolean }>(({ theme, isHost }) => ({
+  height: 20,
+  fontSize: "0.75rem",
+  fontWeight: 500,
+  flexShrink: 0,
+  backgroundColor: isHost ? "rgba(0, 163, 152, 0.1)" : "rgba(255, 138, 0, 0.1)",
+  color: isHost ? "var(--mui-palette-primary-main)" : "#FF8A00",
+  "& .MuiChip-label": {
+    padding: theme.spacing(0, 1),
+  },
+  [theme.breakpoints.down("sm")]: {
+    height: 18,
+    fontSize: "0.65rem",
     "& .MuiChip-label": {
-      padding: theme.spacing(0, 1),
+      padding: theme.spacing(0, 0.5),
     },
-    [theme.breakpoints.down("sm")]: {
-      height: 18,
-      fontSize: "0.65rem",
-      "& .MuiChip-label": {
-        padding: theme.spacing(0, 0.5),
-      },
-    },
-  }),
-);
+  },
+}));
 
 interface HostRequestListItemProps {
   hostRequest: HostRequest.AsObject;
@@ -96,17 +79,16 @@ interface HostRequestListItemProps {
   isArchived?: boolean;
 }
 
-export default function HostRequestListItem({
-  hostRequest,
-  className,
-  isArchived = false,
-}: HostRequestListItemProps) {
+export default function HostRequestListItem({ hostRequest, className, isArchived = false }: HostRequestListItemProps) {
   const {
     t,
     i18n: { language: locale },
   } = useTranslation(MESSAGES);
   const { authState } = useAuthContext();
-  const isHost = authState.userId === hostRequest.hostUserId;
+  // surferUserId/hostUserId are generated stay-role columns, so the backend has already reversed
+  // them for public-trip offers: the viewer is the host if their id is the host id.
+  const isHost = hostRequest.hostUserId === authState.userId;
+  const isOffer = !!hostRequest.publicTripId;
   const { data: currentUser } = useCurrentUser();
   const { data: otherUser, isLoading: isOtherUserLoading } = useLiteUser(
     isHost ? hostRequest.surferUserId : hostRequest.hostUserId,
@@ -133,20 +115,19 @@ export default function HostRequestListItem({
           user: authorName,
           target_user: targetName,
           t,
+          isOffer,
         })
       : //if it's a normal message, show "<User's Name>: <The message>"
-        `${capitalize(authorName)}: ${
-          hostRequest.latestMessage.text?.text || ""
-        }`
+        `${capitalize(authorName)}: ${hostRequest.latestMessage.text?.text || ""}`
     : "";
 
-  const isPast = dayjs(hostRequest?.toDate).isBefore(dayjs(), "day");
+  const isPast =
+    hostRequest &&
+    Temporal.PlainDate.compare(Temporal.PlainDate.from(hostRequest.toDate), Temporal.Now.plainDateISO()) < 0;
 
   const queryClient = useQueryClient();
 
-  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(
-    null,
-  );
+  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(null);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -163,28 +144,23 @@ export default function HostRequestListItem({
 
   const archiveMutation = useMutation<void, RpcError>({
     mutationFn: async () => {
-      await service.requests.setHostRequestArchiveStatus(
-        hostRequest.hostRequestId,
-        !isArchived,
-      );
+      await service.requests.setHostRequestArchiveStatus(hostRequest.hostRequestId, !isArchived);
     },
     onMutate: async () => {
       handleMenuClose();
       // Cancel outgoing refetches so they don't overwrite our optimistic update
-      await queryClient.cancelQueries({ queryKey: hostRequestsListKey() });
+      await queryClient.cancelQueries({ queryKey: messageThreadsListKey() });
     },
     onSettled: () => {
       // Refetch after mutation completes (success or error)
-      queryClient.invalidateQueries({ queryKey: hostRequestsListKey() });
+      queryClient.invalidateQueries({ queryKey: messageThreadsListKey() });
     },
   });
 
   const menuItems: EllipsisMenuItem[] = [
     {
       icon: isArchived ? UnarchiveOutlined : ArchiveOutlined,
-      label: isArchived
-        ? t("archive.unarchive_button")
-        : t("archive.archive_button"),
+      label: isArchived ? t("archive.unarchive_button") : t("archive.archive_button"),
       onClick: () => {
         archiveMutation.mutate();
       },
@@ -196,9 +172,7 @@ export default function HostRequestListItem({
       <ListItem
         className={className}
         sx={{
-          color: isPast
-            ? "var(--mui-palette-grey-500)"
-            : "var(--mui-palette-text-primary)",
+          color: isPast ? "var(--mui-palette-grey-500)" : "var(--mui-palette-text-primary)",
           paddingRight: 7,
         }}
       >
@@ -209,21 +183,14 @@ export default function HostRequestListItem({
           sx={{ paddingRight: 5 }}
           disableTypography
           primary={
-            <Typography
-              variant="h2"
-              sx={
-                isPast && isUnread
-                  ? { color: "var(--mui-palette-text-primary)" }
-                  : undefined
-              }
-            >
+            <Typography variant="h2" sx={isPast && isUnread ? { color: "var(--mui-palette-text-primary)" } : undefined}>
               {!otherUser ? <Skeleton width={100} /> : otherUser.name}
             </Typography>
           }
           secondary={
             <>
               <StyledHostStatusContainer>
-                <StyledHostRequestStatusIcon hostRequest={hostRequest} />
+                <StyledHostRequestStatusIcon status={hostRequest.status} isOffer={isOffer} />
                 {isOtherUserLoading ? (
                   <Skeleton width={200} />
                 ) : (
@@ -231,31 +198,38 @@ export default function HostRequestListItem({
                     isHost={isHost}
                     requestStatus={hostRequest.status}
                     isPast={isPast}
+                    isOffer={isOffer}
+                    otherName={firstName(otherUser?.name)}
                     hostName={!isHost ? firstName(otherUser?.name) : undefined}
                   />
                 )}
               </StyledHostStatusContainer>
               <StyledDateAndBadgeContainer>
-                <Typography component="div" display="inline" variant="h3">
-                  {localizeDateTimeRange(
-                    // Host request are plain dates (no time),
-                    // just make sure to parse and format them in the same timezone.
-                    dayjs.tz(hostRequest.fromDate, UTC_TIMEZONE),
-                    dayjs.tz(hostRequest.toDate, UTC_TIMEZONE),
+                <Typography
+                  component="div"
+                  variant="h3"
+                  sx={{
+                    display: "inline",
+                  }}
+                >
+                  {localizeDateRange(
+                    Temporal.PlainDateTime.from(hostRequest.fromDate),
+                    Temporal.PlainDateTime.from(hostRequest.toDate),
+                    locale,
                     {
-                      timezone: UTC_TIMEZONE,
-                      locale,
-                      includeTime: false,
+                      includeYear: "auto",
                     },
                   )}
                 </Typography>
                 <RequestTypeChip
                   label={
-                    isHost
-                      ? t("messages_page.tabs.hosting")
-                      : t("messages_page.tabs.surfing")
+                    isOffer
+                      ? t("host_request_item.public_trip_chip")
+                      : isHost
+                        ? t("messages_page.tabs.hosting")
+                        : t("messages_page.tabs.surfing")
                   }
-                  ishost={isHost ? "true" : "false"}
+                  isHost={isOffer || isHost}
                   size="small"
                 />
               </StyledDateAndBadgeContainer>
@@ -263,16 +237,10 @@ export default function HostRequestListItem({
                 noWrap
                 sx={{
                   fontWeight: isUnread ? "bold" : "normal",
-                  ...(isPast && isUnread
-                    ? { color: "var(--mui-palette-text-primary)" }
-                    : {}),
+                  ...(isPast && isUnread ? { color: "var(--mui-palette-text-primary)" } : {}),
                 }}
               >
-                {isOtherUserLoading ? (
-                  <Skeleton width={100} />
-                ) : (
-                  latestMessageText
-                )}
+                {isOtherUserLoading ? <Skeleton width={100} /> : latestMessageText}
               </TextBody>
             </>
           }

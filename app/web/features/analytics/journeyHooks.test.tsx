@@ -1,12 +1,7 @@
 import { act, render, renderHook } from "@testing-library/react";
 import React from "react";
 
-import {
-  useFormInteraction,
-  useFunnelStep,
-  useHoverDwell,
-  useScrollDepth,
-} from "./journeyHooks";
+import { useFormInteraction, useFunnelStep, useHoverDwell, useScrollDepth } from "./journeyHooks";
 
 const mockLogEvent = jest.fn();
 jest.mock("./eventCollector", () => ({
@@ -46,17 +41,11 @@ describe("useFunnelStep", () => {
 
     unmount();
 
-    expect(mockLogEvent).toHaveBeenCalledWith(
-      "funnel.step_exited",
-      { funnel: "signup", step: "basic" },
-      5,
-    );
+    expect(mockLogEvent).toHaveBeenCalledWith("funnel.step_exited", { funnel: "signup", step: "basic" }, 5);
   });
 
   it("includes custom properties in both enter and exit events", () => {
-    const { unmount } = renderHook(() =>
-      useFunnelStep("onboarding", "profile", { variant: "A" }),
-    );
+    const { unmount } = renderHook(() => useFunnelStep("onboarding", "profile", { variant: "A" }));
 
     expect(mockLogEvent).toHaveBeenCalledWith("funnel.step_entered", {
       funnel: "onboarding",
@@ -77,9 +66,7 @@ describe("useFunnelStep", () => {
 
   it("uses the latest properties from ref on unmount", () => {
     let props = { variant: "A" };
-    const { rerender, unmount } = renderHook(() =>
-      useFunnelStep("signup", "basic", props),
-    );
+    const { rerender, unmount } = renderHook(() => useFunnelStep("signup", "basic", props));
 
     props = { variant: "B" };
     rerender();
@@ -97,9 +84,7 @@ describe("useFunnelStep", () => {
 
   it("does not re-run effect when properties object changes", () => {
     let props = { variant: "A" };
-    const { rerender } = renderHook(() =>
-      useFunnelStep("signup", "basic", props),
-    );
+    const { rerender } = renderHook(() => useFunnelStep("signup", "basic", props));
 
     // First mount fires step_entered
     expect(mockLogEvent).toHaveBeenCalledTimes(1);
@@ -189,11 +174,7 @@ describe("useScrollDepth", () => {
     unmount();
 
     // Should report max depth of 50%, not final 10%
-    expect(mockLogEvent).toHaveBeenCalledWith(
-      "scroll.depth",
-      expect.objectContaining({ max_depth: 50 }),
-      0.5,
-    );
+    expect(mockLogEvent).toHaveBeenCalledWith("scroll.depth", expect.objectContaining({ max_depth: 50 }), 0.5);
   });
 
   it("does not log if no scrolling occurred", () => {
@@ -206,11 +187,7 @@ describe("useScrollDepth", () => {
     unmount();
 
     // max_depth is 0 — still logs on unmount
-    expect(mockLogEvent).toHaveBeenCalledWith(
-      "scroll.depth",
-      expect.objectContaining({ max_depth: 0 }),
-      0,
-    );
+    expect(mockLogEvent).toHaveBeenCalledWith("scroll.depth", expect.objectContaining({ max_depth: 0 }), 0);
   });
 });
 
@@ -227,9 +204,7 @@ describe("useHoverDwell", () => {
   });
 
   it("returns stable onMouseEnter and onMouseLeave handlers", () => {
-    const { result, rerender } = renderHook(() =>
-      useHoverDwell("card.hovered", { card_id: "1" }),
-    );
+    const { result, rerender } = renderHook(() => useHoverDwell("card.hovered", { card_id: "1" }));
 
     const first = result.current;
     rerender();
@@ -238,9 +213,7 @@ describe("useHoverDwell", () => {
   });
 
   it("logs dwell time on mouse leave", () => {
-    const { result } = renderHook(() =>
-      useHoverDwell("card.hovered", { card_id: "42" }),
-    );
+    const { result } = renderHook(() => useHoverDwell("card.hovered", { card_id: "42" }));
 
     act(() => {
       result.current.onMouseEnter();
@@ -252,11 +225,7 @@ describe("useHoverDwell", () => {
       result.current.onMouseLeave();
     });
 
-    expect(mockLogEvent).toHaveBeenCalledWith(
-      "card.hovered",
-      { card_id: "42" },
-      2.5,
-    );
+    expect(mockLogEvent).toHaveBeenCalledWith("card.hovered", { card_id: "42" }, 2.5);
   });
 
   it("does nothing on mouse leave without prior enter", () => {
@@ -270,9 +239,7 @@ describe("useHoverDwell", () => {
   });
 
   it("tracks multiple hover cycles", () => {
-    const { result } = renderHook(() =>
-      useHoverDwell("item.hovered", { id: "1" }),
-    );
+    const { result } = renderHook(() => useHoverDwell("item.hovered", { id: "1" }));
 
     // First hover
     act(() => result.current.onMouseEnter());
@@ -286,25 +253,13 @@ describe("useHoverDwell", () => {
     act(() => result.current.onMouseLeave());
 
     expect(mockLogEvent).toHaveBeenCalledTimes(2);
-    expect(mockLogEvent).toHaveBeenNthCalledWith(
-      1,
-      "item.hovered",
-      { id: "1" },
-      1,
-    );
-    expect(mockLogEvent).toHaveBeenNthCalledWith(
-      2,
-      "item.hovered",
-      { id: "1" },
-      0.5,
-    );
+    expect(mockLogEvent).toHaveBeenNthCalledWith(1, "item.hovered", { id: "1" }, 1);
+    expect(mockLogEvent).toHaveBeenNthCalledWith(2, "item.hovered", { id: "1" }, 0.5);
   });
 
   it("uses latest properties from ref", () => {
     let props = { card_id: "1" };
-    const { result, rerender } = renderHook(() =>
-      useHoverDwell("card.hovered", props),
-    );
+    const { result, rerender } = renderHook(() => useHoverDwell("card.hovered", props));
 
     act(() => result.current.onMouseEnter());
 
@@ -314,11 +269,7 @@ describe("useHoverDwell", () => {
     mockNow = 2000;
     act(() => result.current.onMouseLeave());
 
-    expect(mockLogEvent).toHaveBeenCalledWith(
-      "card.hovered",
-      { card_id: "2" },
-      1,
-    );
+    expect(mockLogEvent).toHaveBeenCalledWith("card.hovered", { card_id: "2" }, 1);
   });
 });
 
@@ -366,9 +317,7 @@ describe("useFormInteraction", () => {
       result.current.trackFieldFocus("password");
     });
 
-    const interactionStartedCalls = mockLogEvent.mock.calls.filter(
-      (call) => call[0] === "form.interaction_started",
-    );
+    const interactionStartedCalls = mockLogEvent.mock.calls.filter((call) => call[0] === "form.interaction_started");
     expect(interactionStartedCalls).toHaveLength(1);
   });
 
@@ -451,9 +400,7 @@ describe("useFormInteraction", () => {
     mockNow = 5000;
     act(() => result.current.trackSubmit());
 
-    const submitCall = mockLogEvent.mock.calls.find(
-      (call) => call[0] === "form.submitted",
-    );
+    const submitCall = mockLogEvent.mock.calls.find((call) => call[0] === "form.submitted");
     expect(submitCall).toBeDefined();
     expect(submitCall![1].field_durations.name).toBe(2); // 1s + 1s
   });
@@ -493,9 +440,7 @@ describe("useFormInteraction", () => {
     mockNow = 12000;
     act(() => result.current.trackSubmit());
 
-    const submitCall = mockLogEvent.mock.calls.find(
-      (call) => call[0] === "form.submitted",
-    );
+    const submitCall = mockLogEvent.mock.calls.find((call) => call[0] === "form.submitted");
     expect(submitCall![1].field_durations).toEqual({ field2: 1 });
     expect(submitCall![2]).toBe(2); // 12000 - 10000 = 2s
   });

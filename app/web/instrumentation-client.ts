@@ -4,6 +4,9 @@ const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 const projectId = 5887585;
 
 Sentry.init({
+  // Locally there's nowhere to send events to, and the API instrumentation just adds overhead
+  enabled: process.env.NODE_ENV !== "development",
+
   dsn: `https://5594adb1a53e41bfbb9f2cc5c91e2dbd@o782870.ingest.sentry.io/${projectId}`,
 
   // Ad-blockers prevent events from being sent to Sentry. This is a workaround.
@@ -16,7 +19,22 @@ Sentry.init({
   // Adds request headers and IP for users, for more info visit:
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#sendDefaultPii
   sendDefaultPii: true,
-  integrations: [],
+
+  beforeSend(event) {
+    // Chrome's page translation swaps text nodes for <font> elements behind React's back, which
+    // causes DOM errors like "Failed to execute 'insertBefore' on 'Node'"
+    const { classList } = document.documentElement;
+    event.tags = {
+      ...event.tags,
+      is_chrome_translated: classList.contains("translated-ltr") || classList.contains("translated-rtl"),
+    };
+    const flags = window.couchersFlags;
+    if (flags) {
+      event.contexts = { ...event.contexts, feature_flags: flags };
+    }
+    return event;
+  },
+
   // Note: if you want to override the automatic release value, do not set a
   // `release` value here - use the environment variable `SENTRY_RELEASE`, so
   // that it will also get attached to your source maps

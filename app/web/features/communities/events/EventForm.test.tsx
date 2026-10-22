@@ -24,18 +24,8 @@ jest.mock("@mui/x-date-pickers", () => {
 });
 
 const serviceFn = jest.fn();
-function TestComponent({
-  event,
-  isEdit = false,
-}: {
-  event?: Event.AsObject;
-  isEdit?: boolean;
-}) {
-  const { error, mutate, isPending } = useMutation<
-    Event.AsObject,
-    RpcError,
-    CreateEventVariables
-  >({
+function TestComponent({ event, isEdit = false }: { event?: Event.AsObject; isEdit?: boolean }) {
+  const { error, mutate, isPending } = useMutation<Event.AsObject, RpcError, CreateEventVariables>({
     mutationFn: serviceFn,
   });
 
@@ -92,43 +82,24 @@ describe("Event form", () => {
     expect(screen.getByText(t("communities:upload_helper_text"))).toBeVisible();
     // In MUI X v8, empty date/time fields don't have easily testable values
     // So we just check that the fields exist and are rendered
-    expect(
-      screen.getByRole("group", { name: t("communities:start_date") }),
-    ).toHaveTextContent("MM/DD/YYYY");
+    expect(screen.getByRole("group", { name: t("communities:start_date") })).toHaveTextContent("MM/DD/YYYY");
 
-    expect(
-      screen.getByRole("group", { name: t("communities:start_time") }),
-    ).toHaveTextContent("hh:mm aa");
-    expect(
-      screen.getByRole("group", { name: t("communities:end_date") }),
-    ).toHaveTextContent("MM/DD/YYYY");
-    expect(
-      screen.getByRole("group", { name: t("communities:end_time") }),
-    ).toHaveTextContent("hh:mm aa");
-    assertFieldVisibleWithValue(
-      screen.getByLabelText(t("communities:location")),
-      "",
-    );
-    expect(screen.getByText(t("communities:virtual_event"))).toBeVisible();
-    expect(
-      screen.getByLabelText(t("communities:virtual_event")),
-    ).not.toBeChecked();
+    expect(screen.getByRole("group", { name: t("communities:start_time") })).toHaveTextContent("hh:mm aa");
+    expect(screen.getByRole("group", { name: t("communities:end_date") })).toHaveTextContent("MM/DD/YYYY");
+    expect(screen.getByRole("group", { name: t("communities:end_time") })).toHaveTextContent("hh:mm aa");
+    assertFieldVisibleWithValue(screen.getByLabelText(t("communities:location")), "");
     expect(screen.getByLabelText(t("communities:event_details"))).toBeVisible();
-    expect(
-      screen.getByRole("button", { name: t("global:create") }),
-    ).toBeVisible();
-    expect(
-      screen.getByRole("img", { name: t("communities:event_image_input_alt") }),
-    ).toHaveAttribute("src", "/img/imagePlaceholder.svg");
+    expect(screen.getByRole("button", { name: t("global:create") })).toBeVisible();
+    expect(screen.getByRole("img", { name: t("communities:event_image_input_alt") })).toHaveAttribute(
+      "src",
+      "/img/imagePlaceholder.svg",
+    );
   });
 
   it("renders the form correctly when passed an event", async () => {
     renderForm(events[0], true);
 
-    assertFieldVisibleWithValue(
-      await screen.findByLabelText(t("communities:event_title_label")),
-      "Weekly Meetup",
-    );
+    assertFieldVisibleWithValue(await screen.findByLabelText(t("communities:event_title_label")), "Weekly Meetup");
 
     const startDateGroup = screen.getByRole("group", {
       name: t("communities:start_date"),
@@ -144,28 +115,20 @@ describe("Event form", () => {
     });
 
     expect(startDateGroup).toHaveTextContent("06/29/2021");
-    expect(startTimeGroup).toHaveTextContent("02:37 am");
+    expect(startTimeGroup).toHaveTextContent("04:37 am");
     expect(endDateGroup).toHaveTextContent("06/29/2021");
-    expect(endTimeGroup).toHaveTextContent("03:37 am");
+    expect(endTimeGroup).toHaveTextContent("05:37 am");
 
-    assertFieldVisibleWithValue(
-      screen.getByLabelText(t("communities:location")),
-      "Concertgebouw",
+    assertFieldVisibleWithValue(screen.getByLabelText(t("communities:location")), "Concertgebouw");
+    assertFieldVisibleWithValue(screen.getByLabelText(t("communities:event_details")), "*Be there* or be square!");
+    expect(screen.getByRole("img", { name: t("communities:event_image_input_alt") })).toHaveAttribute(
+      "src",
+      "https://loremflickr.com/500/120/amsterdam",
     );
-    expect(
-      screen.getByLabelText(t("communities:virtual_event")),
-    ).not.toBeChecked();
-    assertFieldVisibleWithValue(
-      screen.getByLabelText(t("communities:event_details")),
-      "*Be there* or be square!",
-    );
-    expect(
-      screen.getByRole("img", { name: t("communities:event_image_input_alt") }),
-    ).toHaveAttribute("src", "https://loremflickr.com/500/120/amsterdam");
   });
 
   it("renders the image input for an event with no photo correctly", async () => {
-    renderForm(events[2], true);
+    renderForm(events[1], true);
 
     expect(
       await screen.findByRole("img", {
@@ -174,84 +137,26 @@ describe("Event form", () => {
     ).toHaveAttribute("src", "/img/imagePlaceholder.svg");
   });
 
-  it("should hide the location field when the virtual event checkbox is ticked", async () => {
-    renderForm();
-
-    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
-
-    const virtualEventCheckbox = screen.getByLabelText(
-      t("communities:virtual_event"),
-    );
-
-    await user.click(virtualEventCheckbox);
-
-    expect(screen.getByLabelText(t("communities:virtual_event"))).toBeChecked();
-    expect(screen.getByLabelText(t("communities:event_link"))).toBeVisible();
-    expect(
-      screen.queryByLabelText(t("communities:location")),
-    ).not.toBeInTheDocument();
-  });
-
   it("should not submit if the title is missing", async () => {
     renderForm();
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    await act(async () =>
-      user.click(screen.getByRole("button", { name: t("global:create") })),
-    );
+    await act(async () => user.click(screen.getByRole("button", { name: t("global:create") })));
 
     expect(serviceFn).not.toHaveBeenCalled();
   });
 
-  it("should not submit if location is missing for an offline event", async () => {
+  it("should not submit if location is missing for an event", async () => {
     renderForm();
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    await user.type(
-      screen.getByLabelText(t("communities:event_title_label")),
-      "Test event",
-    );
+    await user.type(screen.getByLabelText(t("communities:event_title_label")), "Test event");
 
-    await act(async () =>
-      user.click(screen.getByRole("button", { name: t("global:create") })),
-    );
+    await act(async () => user.click(screen.getByRole("button", { name: t("global:create") })));
 
-    expect(
-      await screen.findByText(t("communities:location_required")),
-    ).toBeVisible();
-    expect(serviceFn).not.toHaveBeenCalled();
-  });
-
-  it("should not submit if an event meeting link is missing for an online event", async () => {
-    renderForm();
-
-    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
-
-    await user.type(
-      screen.getByLabelText(t("communities:event_title_label")),
-      "Test event",
-    );
-
-    const virtualEventCheckbox = screen.getByLabelText(
-      t("communities:virtual_event"),
-    ) as HTMLInputElement;
-
-    await user.click(virtualEventCheckbox);
-
-    expect(virtualEventCheckbox.checked).toBe(true);
-
-    await act(async () =>
-      user.click(screen.getByRole("button", { name: t("global:create") })),
-    );
-
-    const linkRequiredHelperText = await screen.findByText(
-      t("communities:link_required"),
-    );
-
-    expect(linkRequiredHelperText).toBeVisible();
-
+    expect(await screen.findByText(t("communities:location_required"))).toBeVisible();
     expect(serviceFn).not.toHaveBeenCalled();
   });
 
@@ -260,9 +165,7 @@ describe("Event form", () => {
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    const titleInput = screen.getByLabelText(
-      t("communities:event_title_label"),
-    ) as HTMLInputElement;
+    const titleInput = screen.getByLabelText(t("communities:event_title_label")) as HTMLInputElement;
 
     await user.type(titleInput, "Test event");
 
@@ -296,49 +199,28 @@ describe("Event form", () => {
     await user.keyboard("{Control>}a{/Control}");
     await user.keyboard("0200 AM");
 
-    const virtualEventCheckbox = screen.getByLabelText(
-      t("communities:virtual_event"),
-    ) as HTMLInputElement;
+    const locationInput = await screen.getByLabelText(t("communities:location"));
+    await user.type(locationInput, "tes{enter}");
+    expect(locationInput).toHaveValue("tes");
+    await user.click(await screen.findByText("test city, test county, test country"));
 
-    await user.click(virtualEventCheckbox);
+    await user.type(screen.getByLabelText(t("communities:event_details")), "sick social!");
 
-    expect(virtualEventCheckbox.checked).toBe(true);
+    expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue("sick social!");
 
-    const eventLinkInput = await screen.findByLabelText(
-      t("communities:event_link"),
-    );
-
-    await user.type(eventLinkInput, "https://couchers.org/social");
-
-    expect(eventLinkInput).toHaveValue("https://couchers.org/social");
-
-    await user.type(
-      screen.getByLabelText(t("communities:event_details")),
-      "sick social!",
-    );
-
-    expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue(
-      "sick social!",
-    );
-
-    await act(async () =>
-      user.click(screen.getByRole("button", { name: t("global:create") })),
-    );
+    await act(async () => user.click(screen.getByRole("button", { name: t("global:create") })));
 
     expect(serviceFn).toHaveBeenCalledTimes(1);
 
     // Verify the submitted data contains the expected values
-    const submittedData = serviceFn.mock.calls[0][0];
+    const submittedData: CreateEventVariables = serviceFn.mock.calls[0][0];
     expect(submittedData.title).toBe("Test event");
-    expect(submittedData.isOnline).toBe(true);
-    expect(submittedData.link).toBe("https://couchers.org/social");
+    expect(submittedData.location.name).toBe("test city, test county, test country");
     expect(submittedData.content).toBe("sick social!");
-    expect(submittedData.startTime.toISOString()).toBe(
-      "2021-08-01T01:00:00.000Z",
-    );
-    expect(submittedData.endTime.toISOString()).toBe(
-      "2021-08-01T02:00:00.000Z",
-    );
+    expect(submittedData.startDate.toString()).toBe("2021-08-01");
+    expect(submittedData.startTime.toString()).toBe("01:00:00");
+    expect(submittedData.endDate.toString()).toBe("2021-08-01");
+    expect(submittedData.endTime.toString()).toBe("02:00:00");
   });
 
   it("should show an error alert if the form failed to submit", async () => {
@@ -350,14 +232,9 @@ describe("Event form", () => {
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    await user.type(
-      screen.getByLabelText(t("communities:event_title_label")),
-      "Test event",
-    );
+    await user.type(screen.getByLabelText(t("communities:event_title_label")), "Test event");
 
-    expect(
-      screen.getByLabelText(t("communities:event_title_label")),
-    ).toHaveValue("Test event");
+    expect(screen.getByLabelText(t("communities:event_title_label"))).toHaveValue("Test event");
 
     const startDateGroup = await screen.findByRole("group", {
       name: t("communities:start_date"),
@@ -387,41 +264,29 @@ describe("Event form", () => {
     await user.keyboard("{Control>}a{/Control}");
     await user.keyboard("0200 AM");
 
-    await user.click(screen.getByLabelText(t("communities:virtual_event")));
+    const locationInput = (await screen.findByLabelText(t("communities:location"))) as HTMLInputElement;
 
-    const eventLinkInput = (await screen.findByLabelText(
-      t("communities:event_link"),
-    )) as HTMLInputElement;
+    await user.type(locationInput, "tes{enter}");
+    expect(locationInput).toHaveValue("tes");
 
-    await user.type(eventLinkInput, "https://couchers.org/social");
+    await user.click(await screen.findByText("test city, test county, test country"));
 
-    expect(eventLinkInput).toHaveValue("https://couchers.org/social");
+    await user.type(screen.getByLabelText(t("communities:event_details")), "sick social!");
 
-    await user.type(
-      screen.getByLabelText(t("communities:event_details")),
-      "sick social!",
-    );
+    expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue("sick social!");
 
-    expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue(
-      "sick social!",
-    );
-
-    await act(async () =>
-      user.click(screen.getByRole("button", { name: t("global:create") })),
-    );
+    await act(async () => user.click(screen.getByRole("button", { name: t("global:create") })));
 
     expect(serviceFn).toHaveBeenCalledTimes(1);
     await assertErrorAlert(errorMessage);
   });
 
-  it("should submit an offline event successfully", async () => {
+  it("should submit an event successfully", async () => {
     renderForm();
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    const titleInput = screen.getByLabelText(
-      t("communities:event_title_label"),
-    ) as HTMLInputElement;
+    const titleInput = screen.getByLabelText(t("communities:event_title_label")) as HTMLInputElement;
 
     await user.type(titleInput, "Test event");
 
@@ -455,47 +320,30 @@ describe("Event form", () => {
     await user.keyboard("{Control>}a{/Control}");
     await user.keyboard("0200 AM");
 
-    await user.type(
-      screen.getByLabelText(t("communities:location")),
-      "tes{enter}",
-    );
+    await user.type(screen.getByLabelText(t("communities:location")), "tes{enter}");
 
     expect(screen.getByLabelText(t("communities:location"))).toHaveValue("tes");
 
-    await user.click(
-      await screen.findByText("test city, test county, test country"),
-    );
+    await user.click(await screen.findByText("test city, test county, test country"));
 
-    await user.type(
-      screen.getByLabelText(t("communities:event_details")),
-      "sick social!",
-    );
+    await user.type(screen.getByLabelText(t("communities:event_details")), "sick social!");
 
-    expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue(
-      "sick social!",
-    );
+    expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue("sick social!");
 
     jest.setSystemTime(new Date("2021-08-01 00:00"));
 
-    await act(async () =>
-      user.click(screen.getByRole("button", { name: t("global:create") })),
-    );
+    await act(async () => user.click(screen.getByRole("button", { name: t("global:create") })));
 
     expect(serviceFn).toHaveBeenCalledTimes(1);
 
     // Verify the submitted data contains the expected values
-    const submittedData = serviceFn.mock.calls[0][0];
+    const submittedData: CreateEventVariables = serviceFn.mock.calls[0][0];
     expect(submittedData.title).toBe("Test event");
-    expect(submittedData.isOnline).toBe(false);
-    expect(submittedData.location.name).toBe(
-      "test city, test county, test country",
-    );
+    expect(submittedData.location.name).toBe("test city, test county, test country");
     expect(submittedData.content).toBe("sick social!");
-    expect(submittedData.startTime.toISOString()).toBe(
-      "2021-08-01T01:00:00.000Z",
-    );
-    expect(submittedData.endTime.toISOString()).toBe(
-      "2021-08-01T02:00:00.000Z",
-    );
+    expect(submittedData.startDate.toString()).toBe("2021-08-01");
+    expect(submittedData.startTime.toString()).toBe("01:00:00");
+    expect(submittedData.endDate.toString()).toBe("2021-08-01");
+    expect(submittedData.endTime.toString()).toBe("02:00:00");
   });
 });

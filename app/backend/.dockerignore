@@ -9,6 +9,7 @@
 !templates
 !alembic.ini
 !pyproject.toml
+!feature-flags.dev.json
 
 # It's not included into the final image, but is still needed here
 # for "--mount=type=bind"

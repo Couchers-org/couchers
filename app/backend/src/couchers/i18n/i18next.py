@@ -28,9 +28,6 @@ class I18Next:
     def __init__(self) -> None:
         self.translations_by_locale: dict[str, Translation] = dict()
 
-        # The translation used to look up strings in unsupported locales.
-        self.default_translation: Translation | None = None
-
     def add_translation(self, locale: str, *, json_dict: dict[str, Any] | None = None) -> Translation:
         translation = Translation(babel_locale=babel.Locale.parse(locale, sep="-"))
         self.translations_by_locale[locale] = translation
@@ -38,35 +35,34 @@ class I18Next:
             translation.load_json_dict(json_dict)
         return translation
 
-    def find_string(self, key: str, locale: str, substitutions: SubstitutionDict | None = None) -> String | None:
-        """Find the string that will be localized, applying fallbacks and variant selection."""
-        translation = self.translations_by_locale.get(locale, self.default_translation)
-        candidate_translations = [translation] + translation.fallbacks if translation else []
-        for candidate_translation in candidate_translations:
-            if string := candidate_translation.find_string(key, substitutions):
-                if string.template.can_render(substitutions):
-                    return string
+    def find_string(self, key: str, locales: list[str], substitutions: SubstitutionDict | None = None) -> String | None:
+        """Find the string that will be localized, trying each locale in order."""
+        for locale in locales:
+            if t := self.translations_by_locale.get(locale):
+                if string := t.find_string(key, substitutions):
+                    if string.template.can_render(substitutions):
+                        return string
 
-        raise LocalizationError(locale, key)
+        raise LocalizationError(locales, key)
 
-    def localize(self, string_key: str, locale: str, substitutions: SubstitutionDict | None = None) -> str:
+    def localize(self, string_key: str, locales: list[str], substitutions: SubstitutionDict | None = None) -> str:
         """Finds a translated string in the best matching locale and performs substitutions."""
-        if string := self.find_string(string_key, locale, substitutions):
+        if string := self.find_string(string_key, locales, substitutions):
             return string.render(substitutions)
         else:
-            raise LocalizationError(locale, string_key)
+            raise LocalizationError(locales, string_key)
 
     def localize_with_markup(
-        self, string_key: str, locale: str, substitutions: SubstitutionDict | None = None
+        self, string_key: str, locales: list[str], substitutions: SubstitutionDict | None = None
     ) -> Markup:
         """
         Finds a translated string that might contain markup in the best matching locale,
         and performs substitutions in a way that results in a markup-safe string.
         """
-        if string := self.find_string(string_key, locale, substitutions):
+        if string := self.find_string(string_key, locales, substitutions):
             return string.render_with_markup(substitutions)
         else:
-            raise LocalizationError(locale, string_key)
+            raise LocalizationError(locales, string_key)
 
 
 class Translation:
@@ -76,7 +72,6 @@ class Translation:
         # The Babel library locale for this translation. Used to resolved plural forms.
         self.babel_locale = babel_locale
         self.strings_by_key: dict[str, String] = dict()
-        self.fallbacks: list[Translation] = []
 
     @property
     def locale(self) -> str:
@@ -116,13 +111,13 @@ class Translation:
     def localize(self, string_key: str, substitutions: SubstitutionDict | None = None) -> str:
         string = self.find_string(string_key, substitutions)
         if string is None:
-            raise LocalizationError(locale=self.locale, string_key=string_key)
+            raise LocalizationError(locales=[self.locale], string_key=string_key)
         return string.render(substitutions)
 
     def localize_with_markup(self, string_key: str, substitutions: SubstitutionDict | None = None) -> Markup:
         string = self.find_string(string_key, substitutions)
         if string is None:
-            raise LocalizationError(locale=self.locale, string_key=string_key)
+            raise LocalizationError(locales=[self.locale], string_key=string_key)
         return string.render_with_markup(substitutions)
 
 
@@ -203,12 +198,12 @@ class StringSegment:
 
 
 class LocalizationError(Exception):
-    """Raised failing to localize a string, e.g. if it is not found in any fallback locale."""
+    """Raised failing to localize a string, e.g. if it is not found in any of the given locales."""
 
-    def __init__(self, locale: str, string_key: str):
-        self.locale = locale
+    def __init__(self, locales: list[str], string_key: str):
+        self.locales = locales
         self.string_key = string_key
-        super().__init__(f"Could not localize string {string_key} for locale {locale}")
+        super().__init__(f"Could not localize string {string_key} for locales {locales}")
 
 
 def full_string_key(key: str, *, relative_base: str | None) -> str:

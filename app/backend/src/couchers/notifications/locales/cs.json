@@ -40,7 +40,8 @@
     "probe": {
       "push": {
         "title": "Stále máš zájem o hostování?",
-        "ios_title": "Stále máš zájem o hostování?"
+        "ios_title": "Stále máš zájem o hostování?",
+        "body": "Přihlaš se pro zjištění statusu hostování."
       },
       "event_description": "Přijímáte hosty, ale nějakou dobu jste se nepřihlásili"
     }
@@ -79,7 +80,8 @@
         "title": "Datum narození změněno",
         "ios_title": "Datum narození změněno",
         "body": "Administrátor změnil tvé datum narození na {{birthdate}}."
-      }
+      },
+      "event_description": "Tvé datum narození bylo změněno"
     }
   },
   "chat": {

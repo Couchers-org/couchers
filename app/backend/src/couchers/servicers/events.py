@@ -1,16 +1,20 @@
 import logging
+from collections.abc import Sequence
 from datetime import datetime, timedelta
 from typing import Any, cast
+from zoneinfo import ZoneInfo
 
 import grpc
+from geoalchemy2 import WKBElement
 from google.protobuf import empty_pb2
 from psycopg.types.range import TimestamptzRange
-from sqlalchemy import Select, select
-from sqlalchemy.orm import Session
-from sqlalchemy.sql import and_, func, or_, update
+from sqlalchemy import Select, func, select
+from sqlalchemy.orm import Session, aliased
+from sqlalchemy.sql import and_, func, or_, tuple_, update
 
 from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import can_moderate_node, get_parent_node_at_location, session_scope
+from couchers.email.calendar_events import create_event_ics_calendar
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.jobs.enqueue import queue_job
@@ -32,23 +36,31 @@ from couchers.models import (
     User,
 )
 from couchers.models.notifications import NotificationTopicAction
+from couchers.models.static import TimezoneArea
 from couchers.moderation.utils import create_moderation
-from couchers.notifications.notify import notify
+from couchers.notifications.notify import PendingNotification, notify, notify_many
 from couchers.proto import events_pb2, events_pb2_grpc, notification_data_pb2
+from couchers.proto.google.api import httpbody_pb2
 from couchers.proto.internal import jobs_pb2
+from couchers.sentry import report_message
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import is_not_visible
 from couchers.servicers.threads import thread_to_pb
-from couchers.sql import users_visible, where_moderated_content_visible, where_users_column_visible
+from couchers.sql import (
+    users_visible,
+    users_visible_to_each_other,
+    where_moderated_content_visible,
+    where_users_column_visible,
+)
 from couchers.tasks import send_event_community_invite_request_email
 from couchers.utils import (
     Timestamp_from_datetime,
     create_coordinate,
-    dt_from_millis,
-    millis_from_dt,
+    datetime_to_iso8601_local,
+    dt_id_from_page_token,
+    dt_id_to_page_token,
     not_none,
     now,
-    to_aware_datetime,
 )
 
 logger = logging.getLogger(__name__)
@@ -81,6 +93,21 @@ def _is_event_organizer(event: Event, user_id: int) -> bool:
     Checks whether the user is as an organizer of the event
     """
     return event.organizers.where(EventOrganizer.user_id == user_id).one_or_none() is not None
+
+
+def _community_invite_requested(session: Session, occurrence: EventOccurrence, user_id: int) -> bool:
+
+    # Returns True if the given user has already requested a community invite
+    # for this event occurrence, or if one has already been approved.
+    return (
+        session.execute(
+            select(EventCommunityInviteRequest.id)
+            .where(EventCommunityInviteRequest.occurrence_id == occurrence.id)
+            .where(EventCommunityInviteRequest.user_id == user_id)
+            .limit(1)
+        ).scalar_one_or_none()
+        is not None
+    )
 
 
 def _can_moderate_event(session: Session, event: Event, user_id: int) -> bool:
@@ -123,6 +150,9 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
 
     can_moderate = _can_moderate_event(session, event, context.user_id)
     can_edit = _can_edit_event(session, event, context.user_id)
+    community_invite_requested = (
+        _community_invite_requested(session, occurrence, context.user_id) if can_edit else False
+    )
 
     going_count = session.execute(
         where_users_column_visible(
@@ -159,21 +189,8 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
         content=occurrence.content,
         photo_url=occurrence.photo.full_url if occurrence.photo else None,
         photo_key=occurrence.photo_key or "",
-        online_information=(
-            events_pb2.OnlineEventInformation(
-                link=occurrence.link,
-            )
-            if occurrence.link
-            else None
-        ),
-        offline_information=(
-            events_pb2.OfflineEventInformation(
-                lat=not_none(occurrence.coordinates)[0],
-                lng=not_none(occurrence.coordinates)[1],
-                address=occurrence.address,
-            )
-            if occurrence.geom
-            else None
+        location=events_pb2.EventLocation(
+            lat=occurrence.coordinates[0], lng=occurrence.coordinates[1], address=occurrence.address
         ),
         created=Timestamp_from_datetime(occurrence.created),
         last_edited=Timestamp_from_datetime(occurrence.last_edited),
@@ -190,9 +207,10 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
         owner_user_id=event.owner_user_id,
         owner_community_id=owner_community_id,
         owner_group_id=owner_group_id,
-        thread=thread_to_pb(session, context, event.thread_id),
+        thread=thread_to_pb(session, context, occurrence.thread_id),
         can_edit=can_edit,
         can_moderate=can_moderate,
+        community_invite_requested=community_invite_requested,
     )
 
 
@@ -233,6 +251,60 @@ def _get_event_and_occurrence_one_or_none(
     return result._tuple() if result else None
 
 
+def _check_location(location: events_pb2.EventLocation | None, context: CouchersContext) -> tuple[WKBElement, str]:
+    # As protobuf parses a missing value as 0.0, this is not a permitted event coordinate value
+    if not location or not location.address:
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_address_or_location")
+    if location.lat == 0 and location.lng == 0:
+        # No events allowed on Null Island
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
+
+    geom = create_coordinate(location.lat, location.lng)
+    return (geom, location.address)
+
+
+def _check_timezone_at(geom: WKBElement, context: CouchersContext, session: Session) -> ZoneInfo:
+    timezone_id = session.execute(
+        select(TimezoneArea.tzid).where(func.ST_Contains(TimezoneArea.geom, func.ST_PointOnSurface(geom))).limit(1)
+    ).scalar_one_or_none()
+    if not timezone_id:
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_timezone_not_found")
+
+    return ZoneInfo(timezone_id)
+
+
+def _check_iso8601_local_datetime(value: str, timezone: ZoneInfo, context: CouchersContext) -> datetime:
+    if not value:
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_start_end_datetime")
+
+    try:
+        naive_datetime = datetime.fromisoformat(value)
+    except ValueError:
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_event_start_end_datetime")
+
+    if naive_datetime.tzinfo is not None:
+        # Expected a local datetime, otherwise we have two sources of timezones.
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_event_start_end_datetime")
+
+    return naive_datetime.replace(tzinfo=timezone).replace(second=0, microsecond=0)
+
+
+def _update_datetime(
+    new_iso8601_local: str | None,
+    new_timezone: ZoneInfo,
+    old_datetime: datetime,
+    old_timezone: ZoneInfo,
+    context: CouchersContext,
+) -> datetime:
+    if new_iso8601_local is None and new_timezone != old_timezone:
+        # Local time wasn't updated, but the timezone changed so the effective datetime/timestamp may have changed.
+        new_iso8601_local = datetime_to_iso8601_local(old_datetime.astimezone(old_timezone))
+    if new_iso8601_local is None:
+        return old_datetime  # No change
+    # New effective datetime/timestamp
+    return _check_iso8601_local_datetime(new_iso8601_local, new_timezone, context)
+
+
 def _check_occurrence_time_validity(start_time: datetime, end_time: datetime, context: CouchersContext) -> None:
     if start_time < now():
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_in_past")
@@ -244,25 +316,87 @@ def _check_occurrence_time_validity(start_time: datetime, end_time: datetime, co
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_too_far_in_future")
 
 
-def get_users_to_notify_for_new_event(session: Session, occurrence: EventOccurrence) -> tuple[list[User], int | None]:
+def apply_occurrence_pagination(
+    query: Select[tuple[EventOccurrence]], page_token: str, past: bool
+) -> Select[tuple[EventOccurrence]]:
+    """
+    Restricts to upcoming (not yet ended) or past occurrences, orders by start time (with id as
+    tiebreaker), and seeks to the (start_time, id) cursor from the page token, if given.
+    """
+    if not past:
+        query = query.where(EventOccurrence.end_time > now()).order_by(
+            EventOccurrence.start_time.asc(), EventOccurrence.id.asc()
+        )
+        if page_token:
+            start_time, occurrence_id = dt_id_from_page_token(page_token)
+            query = query.where(tuple_(EventOccurrence.start_time, EventOccurrence.id) >= (start_time, occurrence_id))
+    else:
+        query = query.where(EventOccurrence.end_time < now()).order_by(
+            EventOccurrence.start_time.desc(), EventOccurrence.id.desc()
+        )
+        if page_token:
+            start_time, occurrence_id = dt_id_from_page_token(page_token)
+            query = query.where(tuple_(EventOccurrence.start_time, EventOccurrence.id) <= (start_time, occurrence_id))
+    return query
+
+
+def occurrences_next_page_token(occurrences: Sequence[EventOccurrence], page_size: int) -> str | None:
+    if len(occurrences) <= page_size:
+        return None
+    next_occurrence = occurrences[page_size]
+    return dt_id_to_page_token(next_occurrence.start_time, next_occurrence.id)
+
+
+def is_community_too_large_for_event_notifications(node: Node) -> bool:
+    return node.node_type.value <= NodeType.region.value
+
+
+def get_users_to_notify_for_new_event(
+    session: Session, occurrence: EventOccurrence, node: Node | None = None
+) -> tuple[list[User], int | None]:
     """
     Returns the users to notify, as well as the community id that is being notified (None if based on geo search)
+
+    Defaults to the event's current parent community.
     """
-    cluster = occurrence.event.parent_node.official_cluster
-    if occurrence.event.parent_node.node_type.value <= NodeType.region.value:
-        logger.info("Global, macroregion, and region communities are too big for email notifications.")
-        return [], occurrence.event.parent_node_id
+    node = node or occurrence.event.parent_node
+    # people already attending or organizing the event don't need an invite to it
+    not_already_involved = User.id.not_in(
+        select(EventOccurrenceAttendee.user_id)
+        .where(EventOccurrenceAttendee.occurrence_id == occurrence.id)
+        .union(select(EventOrganizer.user_id).where(EventOrganizer.event_id == occurrence.event_id))
+    )
+
+    cluster = node.official_cluster
+    creator = aliased(User)
+    if is_community_too_large_for_event_notifications(node):
+        logger.info(f"Community {node.id} is a {node.node_type} and too big for email notifications.")
+        return [], node.id
     elif occurrence.creator_user in cluster.admins or cluster.is_leaf:
-        return list(cluster.members.where(User.is_visible)), occurrence.event.parent_node_id
+        members = (
+            session.execute(
+                select(User)
+                .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
+                .join_from(User, creator, creator.id == occurrence.creator_user_id)
+                .where(ClusterSubscription.cluster_id == cluster.id)
+                .where(users_visible_to_each_other(self_user=User, other_user=creator))
+                .where(not_already_involved)
+            )
+            .scalars()
+            .all()
+        )
+        return list(members), node.id
     else:
         max_radius = 20000  # m
         users = (
             session.execute(
                 select(User)
                 .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
-                .where(User.is_visible)
+                .join_from(User, creator, creator.id == occurrence.creator_user_id)
+                .where(users_visible_to_each_other(self_user=User, other_user=creator))
                 .where(ClusterSubscription.cluster_id == cluster.id)
                 .where(func.ST_DWithin(User.geom, occurrence.geom, max_radius / 111111))
+                .where(not_already_involved)
             )
             .scalars()
             .all()
@@ -279,43 +413,48 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
 
     logger.info(f"Fanning out notifications for event occurrence id = {payload.occurrence_id}")
 
+    notifications = []
     with session_scope() as session:
         event, occurrence = _get_event_and_occurrence_one(session, occurrence_id=payload.occurrence_id)
-        creator = occurrence.creator_user
 
         users, node_id = get_users_to_notify_for_new_event(session, occurrence)
 
         inviting_user = session.execute(select(User).where(User.id == payload.inviting_user_id)).scalar_one_or_none()
 
         if not inviting_user:
-            logger.error(f"Inviting user {payload.inviting_user_id} is gone while trying to send event notification?")
+            report_message(f"Inviting user {payload.inviting_user_id} is gone while trying to send event notification?")
             return
 
         for user in users:
-            if is_not_visible(session, user.id, creator.id):
-                continue
             context = make_notification_user_context(user_id=user.id)
             topic_action = (
                 NotificationTopicAction.event__create_approved
                 if payload.approved
                 else NotificationTopicAction.event__create_any
             )
-            notify(
-                session,
-                user_id=user.id,
-                topic_action=topic_action,
-                key=str(payload.occurrence_id),
-                data=notification_data_pb2.EventCreate(
-                    event=event_to_pb(session, occurrence, context),
-                    inviting_user=user_model_to_pb(inviting_user, session, context),
-                    nearby=True if node_id is None else None,
-                    in_community=community_to_pb(session, event.parent_node, context) if node_id is not None else None,
-                ),
-                moderation_state_id=occurrence.moderation_state_id,
+            notifications.append(
+                PendingNotification(
+                    user_id=user.id,
+                    topic_action=topic_action,
+                    key=str(payload.occurrence_id),
+                    data=notification_data_pb2.EventCreate(
+                        event=event_to_pb(session, occurrence, context),
+                        inviting_user=user_model_to_pb(inviting_user, session, context),
+                        nearby=True if node_id is None else None,
+                        in_community=community_to_pb(session, event.parent_node, context)
+                        if node_id is not None
+                        else None,
+                    ),
+                    moderation_state_id=occurrence.moderation_state_id,
+                )
             )
+
+    with session_scope() as session:
+        notify_many(session, notifications)
 
 
 def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNotificationsPayload) -> None:
+    notifications = []
     with session_scope() as session:
         event, occurrence = _get_event_and_occurrence_one(session, occurrence_id=payload.occurrence_id)
 
@@ -324,25 +463,33 @@ def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNot
         subscribed_user_ids = [user.id for user in event.subscribers]
         attending_user_ids = [user.user_id for user in occurrence.attendances]
 
-        for user_id in set(subscribed_user_ids + attending_user_ids):
+        for user_id in set(subscribed_user_ids + attending_user_ids) - {updating_user.id}:
             if is_not_visible(session, user_id, updating_user.id):
                 continue
             context = make_notification_user_context(user_id=user_id)
-            notify(
-                session,
-                user_id=user_id,
-                topic_action=NotificationTopicAction.event__update,
-                key=str(payload.occurrence_id),
-                data=notification_data_pb2.EventUpdate(
-                    event=event_to_pb(session, occurrence, context),
-                    updating_user=user_model_to_pb(updating_user, session, context),
-                    updated_items=payload.updated_items,
-                ),
-                moderation_state_id=occurrence.moderation_state_id,
+            notifications.append(
+                PendingNotification(
+                    user_id=user_id,
+                    topic_action=NotificationTopicAction.event__update,
+                    key=str(payload.occurrence_id),
+                    data=notification_data_pb2.EventUpdate(
+                        event=event_to_pb(session, occurrence, context),
+                        updating_user=user_model_to_pb(updating_user, session, context),
+                        updated_enum_items=(
+                            notification_data_pb2.EventUpdateItem.ValueType(value)
+                            for value in payload.updated_enum_items
+                        ),
+                    ),
+                    moderation_state_id=occurrence.moderation_state_id,
+                )
             )
+
+    with session_scope() as session:
+        notify_many(session, notifications)
 
 
 def generate_event_cancel_notifications(payload: jobs_pb2.GenerateEventCancelNotificationsPayload) -> None:
+    notifications = []
     with session_scope() as session:
         event, occurrence = _get_event_and_occurrence_one(session, occurrence_id=payload.occurrence_id)
 
@@ -351,24 +498,29 @@ def generate_event_cancel_notifications(payload: jobs_pb2.GenerateEventCancelNot
         subscribed_user_ids = [user.id for user in event.subscribers]
         attending_user_ids = [user.user_id for user in occurrence.attendances]
 
-        for user_id in set(subscribed_user_ids + attending_user_ids):
+        for user_id in set(subscribed_user_ids + attending_user_ids) - {cancelling_user.id}:
             if is_not_visible(session, user_id, cancelling_user.id):
                 continue
             context = make_notification_user_context(user_id=user_id)
-            notify(
-                session,
-                user_id=user_id,
-                topic_action=NotificationTopicAction.event__cancel,
-                key=str(payload.occurrence_id),
-                data=notification_data_pb2.EventCancel(
-                    event=event_to_pb(session, occurrence, context),
-                    cancelling_user=user_model_to_pb(cancelling_user, session, context),
-                ),
-                moderation_state_id=occurrence.moderation_state_id,
+            notifications.append(
+                PendingNotification(
+                    user_id=user_id,
+                    topic_action=NotificationTopicAction.event__cancel,
+                    key=str(payload.occurrence_id),
+                    data=notification_data_pb2.EventCancel(
+                        event=event_to_pb(session, occurrence, context),
+                        cancelling_user=user_model_to_pb(cancelling_user, session, context),
+                    ),
+                    moderation_state_id=occurrence.moderation_state_id,
+                )
             )
+
+    with session_scope() as session:
+        notify_many(session, notifications)
 
 
 def generate_event_delete_notifications(payload: jobs_pb2.GenerateEventDeleteNotificationsPayload) -> None:
+    notifications = []
     with session_scope() as session:
         event, occurrence = _get_event_and_occurrence_one(
             session, occurrence_id=payload.occurrence_id, include_deleted=True
@@ -379,16 +531,20 @@ def generate_event_delete_notifications(payload: jobs_pb2.GenerateEventDeleteNot
 
         for user_id in set(subscribed_user_ids + attending_user_ids):
             context = make_notification_user_context(user_id=user_id)
-            notify(
-                session,
-                user_id=user_id,
-                topic_action=NotificationTopicAction.event__delete,
-                key=str(payload.occurrence_id),
-                data=notification_data_pb2.EventDelete(
-                    event=event_to_pb(session, occurrence, context),
-                ),
-                moderation_state_id=occurrence.moderation_state_id,
+            notifications.append(
+                PendingNotification(
+                    user_id=user_id,
+                    topic_action=NotificationTopicAction.event__delete,
+                    key=str(payload.occurrence_id),
+                    data=notification_data_pb2.EventDelete(
+                        event=event_to_pb(session, occurrence, context),
+                    ),
+                    moderation_state_id=occurrence.moderation_state_id,
+                )
             )
+
+    with session_scope() as session:
+        notify_many(session, notifications)
 
 
 class Events(events_pb2_grpc.EventsServicer):
@@ -402,34 +558,12 @@ class Events(events_pb2_grpc.EventsServicer):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_title")
         if not request.content:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_content")
-        if request.HasField("online_information"):
-            online = True
-            geom = None
-            address = None
-            if not request.online_information.link:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "online_event_requires_link")
-            link = request.online_information.link
-        elif request.HasField("offline_information"):
-            online = False
-            # As protobuf parses a missing value as 0.0, this is not a permitted event coordinate value
-            if not (
-                request.offline_information.address
-                and request.offline_information.lat
-                and request.offline_information.lng
-            ):
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_address_or_location")
-            if request.offline_information.lat == 0 and request.offline_information.lng == 0:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
-            geom = create_coordinate(request.offline_information.lat, request.offline_information.lng)
-            address = request.offline_information.address
-            link = None
-        else:
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_address_location_or_link")
 
-        start_time = to_aware_datetime(request.start_time)
-        end_time = to_aware_datetime(request.end_time)
-
-        _check_occurrence_time_validity(start_time, end_time, context)
+        geom, address = _check_location(request.location if request.HasField("location") else None, context)
+        timezone = _check_timezone_at(geom, context, session)
+        start_datetime = _check_iso8601_local_datetime(request.start_datetime_iso8601_local, timezone, context)
+        end_datetime = _check_iso8601_local_datetime(request.end_datetime_iso8601_local, timezone, context)
+        _check_occurrence_time_validity(start_datetime, end_datetime, context)
 
         if request.parent_community_id:
             parent_node = session.execute(
@@ -439,8 +573,6 @@ class Events(events_pb2_grpc.EventsServicer):
             if not parent_node or not parent_node.official_cluster.small_community_features_enabled:
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "events_not_enabled")
         else:
-            if online:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "online_event_missing_parent_community")
             # parent community computed from geom
             parent_node = get_parent_node_at_location(session, not_none(geom))
 
@@ -453,18 +585,17 @@ class Events(events_pb2_grpc.EventsServicer):
         ):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "photo_not_found")
 
-        thread = Thread()
-        session.add(thread)
-        session.flush()
-
         event = Event(
             title=request.title,
             parent_node_id=parent_node.id,
             owner_user_id=context.user_id,
-            thread_id=thread.id,
             creator_user_id=context.user_id,
         )
         session.add(event)
+        session.flush()
+
+        thread = Thread()
+        session.add(thread)
         session.flush()
 
         occurrence: EventOccurrence | None = None
@@ -476,12 +607,12 @@ class Events(events_pb2_grpc.EventsServicer):
                 content=request.content,
                 geom=geom,
                 address=address,
-                link=link,
+                timezone=timezone.key,
                 photo_key=request.photo_key if request.photo_key != "" else None,
-                # timezone=timezone,
-                during=TimestamptzRange(start_time, end_time),
+                during=TimestamptzRange(start_datetime, end_datetime),
                 creator_user_id=context.user_id,
                 moderation_state_id=moderation_state_id,
+                thread_id=thread.id,
             )
             session.add(occurrence)
             session.flush()
@@ -529,7 +660,6 @@ class Events(events_pb2_grpc.EventsServicer):
                 "occurrence_id": occurrence.id,
                 "parent_community_id": parent_node.id,
                 "parent_community_name": parent_node.official_cluster.name,
-                "online": online,
             },
         )
 
@@ -551,29 +681,12 @@ class Events(events_pb2_grpc.EventsServicer):
     ) -> events_pb2.Event:
         if not request.content:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_content")
-        if request.HasField("online_information"):
-            geom = None
-            address = None
-            link = request.online_information.link
-        elif request.HasField("offline_information"):
-            if not (
-                request.offline_information.address
-                and request.offline_information.lat
-                and request.offline_information.lng
-            ):
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_address_or_location")
-            if request.offline_information.lat == 0 and request.offline_information.lng == 0:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
-            geom = create_coordinate(request.offline_information.lat, request.offline_information.lng)
-            address = request.offline_information.address
-            link = None
-        else:
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_address_location_or_link")
 
-        start_time = to_aware_datetime(request.start_time)
-        end_time = to_aware_datetime(request.end_time)
-
-        _check_occurrence_time_validity(start_time, end_time, context)
+        geom, address = _check_location(request.location if request.HasField("location") else None, context)
+        timezone = _check_timezone_at(geom, context, session)
+        start_datetime = _check_iso8601_local_datetime(request.start_datetime_iso8601_local, timezone, context)
+        end_datetime = _check_iso8601_local_datetime(request.end_datetime_iso8601_local, timezone, context)
+        _check_occurrence_time_validity(start_datetime, end_datetime, context)
 
         res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id, context=context)
         if not res:
@@ -593,7 +706,7 @@ class Events(events_pb2_grpc.EventsServicer):
         ):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "photo_not_found")
 
-        during = TimestamptzRange(start_time, end_time)
+        during = TimestamptzRange(start_datetime, end_datetime)
 
         # && is the overlap operator for ranges
         if (
@@ -609,6 +722,10 @@ class Events(events_pb2_grpc.EventsServicer):
         ):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "event_cant_overlap")
 
+        thread = Thread()
+        session.add(thread)
+        session.flush()
+
         new_occurrence: EventOccurrence | None = None
 
         def create_occurrence(moderation_state_id: int) -> int:
@@ -618,12 +735,12 @@ class Events(events_pb2_grpc.EventsServicer):
                 content=request.content,
                 geom=geom,
                 address=address,
-                link=link,
+                timezone=timezone.key,
                 photo_key=request.photo_key if request.photo_key != "" else None,
-                # timezone=timezone,
                 during=during,
                 creator_user_id=context.user_id,
                 moderation_state_id=moderation_state_id,
+                thread_id=thread.id,
             )
             session.add(new_occurrence)
             session.flush()
@@ -666,7 +783,7 @@ class Events(events_pb2_grpc.EventsServicer):
             context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "event_edit_permission_denied")
 
         # the things that were updated and need to be notified about
-        notify_updated = []
+        notify_updated: list[notification_data_pb2.EventUpdateItem.ValueType] = []
 
         if occurrence.is_cancelled:
             context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "event_cant_update_cancelled_event")
@@ -674,50 +791,62 @@ class Events(events_pb2_grpc.EventsServicer):
         occurrence_update: dict[str, Any] = {"last_edited": now()}
 
         if request.HasField("title"):
-            notify_updated.append("title")
+            notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_TITLE)
             event.title = request.title.value
 
         if request.HasField("content"):
-            notify_updated.append("content")
+            notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_CONTENT)
             occurrence_update["content"] = request.content.value
 
         if request.HasField("photo_key"):
             occurrence_update["photo_key"] = request.photo_key.value
 
-        if request.HasField("online_information"):
-            notify_updated.append("location")
-            if not request.online_information.link:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "online_event_requires_link")
-            occurrence_update["link"] = request.online_information.link
-            occurrence_update["geom"] = None
-            occurrence_update["address"] = None
-        elif request.HasField("offline_information"):
-            notify_updated.append("location")
-            occurrence_update["link"] = None
-            if request.offline_information.lat == 0 and request.offline_information.lng == 0:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
-            occurrence_update["geom"] = create_coordinate(
-                request.offline_information.lat, request.offline_information.lng
-            )
-            occurrence_update["address"] = request.offline_information.address
+        old_timezone = ZoneInfo(occurrence.timezone)
+        timezone: ZoneInfo = old_timezone
+        if request.HasField("location"):
+            notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_LOCATION)
+            geom, address = _check_location(request.location, context)
+            timezone = _check_timezone_at(geom, context, session)
+            occurrence_update["geom"] = geom
+            occurrence_update["address"] = address
+            occurrence_update["timezone"] = timezone.key
 
-        if request.HasField("start_time") or request.HasField("end_time"):
-            if request.update_all_future:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_cant_update_all_times")
-            if request.HasField("start_time"):
-                notify_updated.append("start time")
-                start_time = to_aware_datetime(request.start_time)
-            else:
-                start_time = occurrence.start_time
-            if request.HasField("end_time"):
-                notify_updated.append("end time")
-                end_time = to_aware_datetime(request.end_time)
-            else:
-                end_time = occurrence.end_time
+        if timezone != old_timezone and request.update_all_future:
+            # Not implemented: We'd need to change and recheck the datetimes on all existing occurrences
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_cant_update_all_times")
 
-            _check_occurrence_time_validity(start_time, end_time, context)
+        # Determine the new start/end datetimes, which may have changed explicitly or because of a timezone change
+        start_datetime = _update_datetime(
+            request.start_datetime_iso8601_local.value if request.HasField("start_datetime_iso8601_local") else None,
+            timezone,
+            old_datetime=occurrence.start_time,
+            old_timezone=old_timezone,
+            context=context,
+        )
+        if start_datetime != occurrence.start_time:
+            notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_START_TIME)
 
-            during = TimestamptzRange(start_time, end_time)
+        end_datetime = _update_datetime(
+            request.end_datetime_iso8601_local.value if request.HasField("end_datetime_iso8601_local") else None,
+            timezone,
+            old_datetime=occurrence.end_time,
+            old_timezone=old_timezone,
+            context=context,
+        )
+        if end_datetime != occurrence.end_time:
+            notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_END_TIME)
+
+        if request.update_all_future and (
+            start_datetime != occurrence.start_time or end_datetime != occurrence.end_time
+        ):
+            # Not implemented: every future occurrence would need its own times, rechecked against the others.
+            # Writing this one range to all of them violates the exclusion constraint on (event_id, during).
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_cant_update_all_times")
+
+        if start_datetime != occurrence.start_time or end_datetime != occurrence.end_time:
+            _check_occurrence_time_validity(start_datetime, end_datetime, context)
+
+            during = TimestamptzRange(start_datetime, end_datetime)
 
             # && is the overlap operator for ranges
             if (
@@ -736,10 +865,6 @@ class Events(events_pb2_grpc.EventsServicer):
 
             occurrence_update["during"] = during
 
-        # TODO
-        # if request.HasField("timezone"):
-        #     occurrence_update["timezone"] = request.timezone
-
         # allow editing any event which hasn't ended more than 24 hours before now
         # when editing all future events, we edit all which have not yet ended
 
@@ -747,6 +872,8 @@ class Events(events_pb2_grpc.EventsServicer):
         if request.update_all_future:
             session.execute(
                 update(EventOccurrence)
+                .where(EventOccurrence.event_id == event.id)
+                .where(~EventOccurrence.is_deleted)
                 .where(EventOccurrence.end_time >= cutoff_time)
                 .where(EventOccurrence.start_time >= occurrence.start_time)
                 .values(occurrence_update)
@@ -766,8 +893,9 @@ class Events(events_pb2_grpc.EventsServicer):
         session.flush()
 
         if notify_updated:
+            items_str = ",".join(notification_data_pb2.EventUpdateItem.Name(item) for item in notify_updated)
             if request.should_notify:
-                logger.info(f"Fields {','.join(notify_updated)} updated in event {event.id=}, notifying")
+                logger.info(f"Items {items_str} updated in event {event.id=}, notifying")
 
                 queue_job(
                     session,
@@ -775,13 +903,11 @@ class Events(events_pb2_grpc.EventsServicer):
                     payload=jobs_pb2.GenerateEventUpdateNotificationsPayload(
                         updating_user_id=user.id,
                         occurrence_id=occurrence.id,
-                        updated_items=notify_updated,
+                        updated_enum_items=notify_updated,
                     ),
                 )
             else:
-                logger.info(
-                    f"Fields {','.join(notify_updated)} updated in event {event.id=}, but skipping notifications"
-                )
+                logger.info(f"Items {items_str} updated in event {event.id=}, but skipping notifications")
 
         # since we have synchronize_session=False, we have to refresh the object
         session.refresh(occurrence)
@@ -848,7 +974,6 @@ class Events(events_pb2_grpc.EventsServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "event_cant_update_old_event")
 
         this_user_reqs = [req for req in occurrence.community_invite_requests if req.user_id == context.user_id]
-
         if len(this_user_reqs) > 0:
             context.abort_with_error_code(
                 grpc.StatusCode.FAILED_PRECONDITION, "event_community_invite_already_requested"
@@ -876,8 +1001,6 @@ class Events(events_pb2_grpc.EventsServicer):
         self, request: events_pb2.ListEventOccurrencesReq, context: CouchersContext, session: Session
     ) -> events_pb2.ListEventOccurrencesRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        # the page token is a unix timestamp of where we left off
-        page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
         initial_query = (
             select(EventOccurrence).where(EventOccurrence.id == request.event_id).where(~EventOccurrence.is_deleted)
         )
@@ -898,19 +1021,14 @@ class Events(events_pb2_grpc.EventsServicer):
         if not request.include_cancelled:
             query = query.where(~EventOccurrence.is_cancelled)
 
-        if not request.past:
-            cutoff = page_token - timedelta(seconds=1)
-            query = query.where(EventOccurrence.end_time > cutoff).order_by(EventOccurrence.start_time.asc())
-        else:
-            cutoff = page_token + timedelta(seconds=1)
-            query = query.where(EventOccurrence.end_time < cutoff).order_by(EventOccurrence.start_time.desc())
+        query = apply_occurrence_pagination(query, request.page_token, request.past)
 
         query = query.limit(page_size + 1)
         occurrences = session.execute(query).scalars().all()
 
         return events_pb2.ListEventOccurrencesRes(
             events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],
-            next_page_token=str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None,
+            next_page_token=occurrences_next_page_token(occurrences, page_size),
         )
 
     def ListEventAttendees(
@@ -1146,10 +1264,8 @@ class Events(events_pb2_grpc.EventsServicer):
         self, request: events_pb2.ListMyEventsReq, context: CouchersContext, session: Session
     ) -> events_pb2.ListMyEventsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        # the page token is a unix timestamp of where we left off
-        page_token = (
-            dt_from_millis(int(request.page_token)) if request.page_token and not request.page_number else now()
-        )
+        # the page token is ignored when a page number is given
+        page_token = request.page_token if not request.page_number else ""
         # the page number is the page number we are on
         page_number = request.page_number or 1
         # Calculate the offset for pagination
@@ -1165,6 +1281,11 @@ class Events(events_pb2_grpc.EventsServicer):
         include_attending = request.attending or include_all
         include_my_communities = request.my_communities or include_all
 
+        if include_attending and request.exclude_attending:
+            context.abort_with_error_code(
+                grpc.StatusCode.INVALID_ARGUMENT, "cannot_combine_attending_and_exclude_attending"
+            )
+
         where_ = []
 
         if include_subscribed:
@@ -1178,7 +1299,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 EventOrganizer, and_(EventOrganizer.event_id == Event.id, EventOrganizer.user_id == context.user_id)
             )
             where_.append(EventOrganizer.user_id != None)
-        if include_attending:
+        if include_attending or request.exclude_attending:
             query = query.outerjoin(
                 EventOccurrenceAttendee,
                 and_(
@@ -1186,7 +1307,15 @@ class Events(events_pb2_grpc.EventsServicer):
                     EventOccurrenceAttendee.user_id == context.user_id,
                 ),
             )
-            where_.append(EventOccurrenceAttendee.user_id != None)
+            if include_attending:
+                where_.append(EventOccurrenceAttendee.user_id != None)
+            elif request.exclude_attending:
+                if not include_organizing:
+                    query = query.outerjoin(
+                        EventOrganizer,
+                        and_(EventOrganizer.event_id == Event.id, EventOrganizer.user_id == context.user_id),
+                    )
+                query = query.where(EventOccurrenceAttendee.user_id == None, EventOrganizer.user_id == None)
         if include_my_communities:
             my_communities = (
                 session.execute(
@@ -1211,12 +1340,7 @@ class Events(events_pb2_grpc.EventsServicer):
         if not request.include_cancelled:
             query = query.where(~EventOccurrence.is_cancelled)
 
-        if not request.past:
-            cutoff = page_token - timedelta(seconds=1)
-            query = query.where(EventOccurrence.end_time > cutoff).order_by(EventOccurrence.start_time.asc())
-        else:
-            cutoff = page_token + timedelta(seconds=1)
-            query = query.where(EventOccurrence.end_time < cutoff).order_by(EventOccurrence.start_time.desc())
+        query = apply_occurrence_pagination(query, page_token, request.past)
         # Count the total number of items for pagination
         total_items = session.execute(select(func.count()).select_from(query.subquery())).scalar()
         # Apply pagination by page number
@@ -1225,7 +1349,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
         return events_pb2.ListMyEventsRes(
             events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],
-            next_page_token=str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None,
+            next_page_token=occurrences_next_page_token(occurrences, page_size),
             total_items=total_items,
         )
 
@@ -1233,8 +1357,6 @@ class Events(events_pb2_grpc.EventsServicer):
         self, request: events_pb2.ListAllEventsReq, context: CouchersContext, session: Session
     ) -> events_pb2.ListAllEventsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        # the page token is a unix timestamp of where we left off
-        page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
 
         query = select(EventOccurrence).where(~EventOccurrence.is_deleted)
         query = where_moderated_content_visible(query, context, EventOccurrence, is_list_operation=True)
@@ -1242,19 +1364,14 @@ class Events(events_pb2_grpc.EventsServicer):
         if not request.include_cancelled:
             query = query.where(~EventOccurrence.is_cancelled)
 
-        if not request.past:
-            cutoff = page_token - timedelta(seconds=1)
-            query = query.where(EventOccurrence.end_time > cutoff).order_by(EventOccurrence.start_time.asc())
-        else:
-            cutoff = page_token + timedelta(seconds=1)
-            query = query.where(EventOccurrence.end_time < cutoff).order_by(EventOccurrence.start_time.desc())
+        query = apply_occurrence_pagination(query, request.page_token, request.past)
 
         query = query.limit(page_size + 1)
         occurrences = session.execute(query).scalars().all()
 
         return events_pb2.ListAllEventsRes(
             events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],
-            next_page_token=str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None,
+            next_page_token=occurrences_next_page_token(occurrences, page_size),
         )
 
     def InviteEventOrganizer(
@@ -1343,3 +1460,16 @@ class Events(events_pb2_grpc.EventsServicer):
         session.delete(organizer_to_remove)
 
         return empty_pb2.Empty()
+
+    def GetEventCalendarFile(
+        self, request: events_pb2.GetEventCalendarFileReq, context: CouchersContext, session: Session
+    ) -> httpbody_pb2.HttpBody:
+        res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id, context=context)
+        if not res:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
+
+        _, occurrence_db = res
+
+        event_pb = event_to_pb(session, occurrence_db, context)
+        ics_data = create_event_ics_calendar(event_pb, context.localization).to_ical()
+        return httpbody_pb2.HttpBody(content_type="text/calendar", data=ics_data)

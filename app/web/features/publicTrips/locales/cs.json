@@ -1,0 +1,20 @@
+{
+  "offer_to_host_dialog": {
+    "submit_button": "Odeslat pozvánku",
+    "message": {
+      "chars_remaining_one": "Je potřeba ještě {{count}} znak.",
+      "chars_remaining_few": "Je potřeba ještě {{count}} znaky.",
+      "chars_remaining_other": "Je potřeba ještě {{count}} znaků.",
+      "required_error": "Napiš prosím zprávu.",
+      "label": "Tvá zpráva",
+      "placeholder": "Představ se a dej jim vědět, co můžeš nabídnout."
+    }
+  },
+  "create_edit_dialog": {
+    "edit_submit_button": "Uložit změny",
+    "same_gender_only": {
+      "label": "Pouze stejné pohlaví",
+      "description": "Zobrazit tuto cestu pouze uživatelům stejného pohlaví."
+    }
+  }
+}

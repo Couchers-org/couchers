@@ -45,11 +45,7 @@ import { logEvent } from "./eventCollector";
  * // With extra properties
  * useFunnelStep("signup", "profile-setup", { user_type: "host" });
  */
-export function useFunnelStep(
-  funnelName: string,
-  stepName: string,
-  properties: Record<string, unknown> = {},
-) {
+export function useFunnelStep(funnelName: string, stepName: string, properties: Record<string, unknown> = {}) {
   const propsRef = useRef(properties);
   propsRef.current = properties;
 
@@ -109,11 +105,7 @@ export function useScrollDepth<T extends HTMLElement = HTMLElement>(
     if (hasLoggedRef.current) return;
     hasLoggedRef.current = true;
     const depth = maxDepthRef.current;
-    logEvent(
-      eventType,
-      { ...propsRef.current, max_depth: Math.round(depth * 100) },
-      depth,
-    );
+    logEvent(eventType, { ...propsRef.current, max_depth: Math.round(depth * 100) }, depth);
   }, [eventType]);
 
   useEffect(() => {
@@ -166,10 +158,7 @@ export function useScrollDepth<T extends HTMLElement = HTMLElement>(
  * const hoverHandlers = useHoverDwell("feature.explored", { feature: "map" });
  * return <div {...hoverHandlers}>...</div>;
  */
-export function useHoverDwell(
-  eventType: string,
-  properties: Record<string, unknown> = {},
-) {
+export function useHoverDwell(eventType: string, properties: Record<string, unknown> = {}) {
   const propsRef = useRef(properties);
   propsRef.current = properties;
 
@@ -238,8 +227,7 @@ export function useFormInteraction(formName: string) {
       fieldStartRef.current = null;
       currentFieldRef.current = null;
 
-      fieldDurationsRef.current[fieldName] =
-        (fieldDurationsRef.current[fieldName] ?? 0) + durationS;
+      fieldDurationsRef.current[fieldName] = (fieldDurationsRef.current[fieldName] ?? 0) + durationS;
 
       logEvent("form.field_blurred", {
         form: formName,

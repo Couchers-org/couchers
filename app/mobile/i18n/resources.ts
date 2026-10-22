@@ -3,9 +3,7 @@ import cs from "@/i18n/locales/cs.json";
 import de from "@/i18n/locales/de.json";
 import en from "@/i18n/locales/en.json";
 import es from "@/i18n/locales/es.json";
-import es419 from "@/i18n/locales/es-419.json";
 import fr from "@/i18n/locales/fr.json";
-import frCA from "@/i18n/locales/fr-CA.json";
 import he from "@/i18n/locales/he.json";
 import hi from "@/i18n/locales/hi.json";
 import hu from "@/i18n/locales/hu.json";
@@ -29,9 +27,7 @@ const resources = {
   de: { translation: de },
   en: { translation: en },
   es: { translation: es },
-  "es-419": { translation: es419 },
   fr: { translation: fr },
-  "fr-CA": { translation: frCA },
   he: { translation: he },
   hi: { translation: hi },
   hu: { translation: hu },

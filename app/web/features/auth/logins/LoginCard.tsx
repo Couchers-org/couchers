@@ -1,59 +1,34 @@
-import {
-  Card,
-  CardActions,
-  CardContent,
-  styled,
-  Typography,
-} from "@mui/material";
+import { Card, CardActions, CardContent, styled, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import {
-  CalendarIcon,
-  ClockIcon,
-  InfoIcon,
-  LocationIcon,
-} from "components/Icons";
+import { CalendarIcon, ClockIcon, InfoIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
+import RelativeTime from "components/RelativeTime";
 import { activeLoginsKey } from "features/queryKeys";
 import { Trans } from "i18n";
+import { localizeDateOnly, localizeDateTime } from "i18n/datetimes";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { ActiveSession } from "proto/account_pb";
 import { service } from "service";
-import { localizeDateTime, timestamp2Date } from "utils/date";
-import { timeAgo } from "utils/timeAgo";
+import { timestampToPlainDateTime } from "utils/date";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   marginTop: theme.spacing(1),
   marginBottom: theme.spacing(1),
 }));
 
-export default function LoginsPage({
-  session,
-}: {
-  session: ActiveSession.AsObject;
-}) {
+export default function LoginsPage({ session }: { session: ActiveSession.AsObject }) {
   const {
     t,
     i18n: { language: locale },
   } = useTranslation([GLOBAL, AUTH]);
 
-  const lastSeenDisplay = timeAgo({
-    since: timestamp2Date(session.lastSeen!),
-    t,
-    locale,
-  });
-  const createdDisplay = localizeDateTime(timestamp2Date(session.created!), {
-    locale,
+  const createdDisplay = localizeDateTime(timestampToPlainDateTime(session.created!), locale, {
     includeSeconds: true,
-    abbreviate: true,
   });
-  const expiryDisplay = localizeDateTime(timestamp2Date(session.expiry!), {
-    locale,
-    includeTime: false,
-    abbreviate: true,
-  });
+  const expiryDisplay = localizeDateOnly(timestampToPlainDateTime(session.expiry!), locale);
   const queryClient = useQueryClient();
 
   const {
@@ -76,9 +51,7 @@ export default function LoginsPage({
     <StyledCard>
       <CardContent>
         <Typography variant="h2">
-          <Trans t={t} i18nKey="auth:active_logins.login_header">
-            Login on {{ login_datetime: createdDisplay }}
-          </Trans>
+          <Trans t={t} i18nKey="auth:active_logins.login_header" values={{ login_datetime: createdDisplay }} />
         </Typography>
         {error && <Alert severity="error">{error.message}</Alert>}
         <IconText
@@ -86,12 +59,11 @@ export default function LoginsPage({
           text={
             <Trans
               t={t}
-              i18nKey="auth:active_logins.location"
-              values={{ approximate_location: session.approximateLocation }}
-            >
-              {`Near `}
-              <strong>{session.approximateLocation}</strong>
-            </Trans>
+              i18nKey="auth:active_logins.location2"
+              components={{
+                location: <strong>{session.approximateLocation}</strong>,
+              }}
+            />
           }
         />
         <IconText
@@ -99,11 +71,15 @@ export default function LoginsPage({
           text={
             <Trans
               t={t}
-              i18nKey="auth:active_logins.last_activity"
-              values={{ last_activity_ago: lastSeenDisplay }}
-            >
-              Last activity <strong>{lastSeenDisplay}</strong>
-            </Trans>
+              i18nKey="auth:active_logins.last_activity2"
+              components={{
+                timeAgo: (
+                  <strong>
+                    <RelativeTime instant={session.lastSeen!} />
+                  </strong>
+                ),
+              }}
+            />
           }
         />
         <IconText
@@ -111,12 +87,11 @@ export default function LoginsPage({
           text={
             <Trans
               t={t}
-              i18nKey="auth:active_logins.expiry"
-              values={{ expiry_datetime: expiryDisplay }}
-            >
-              {`Expires on `}
-              <strong>{expiryDisplay}</strong>
-            </Trans>
+              i18nKey="auth:active_logins.expiry2"
+              components={{
+                datetime: <strong>{expiryDisplay}</strong>,
+              }}
+            />
           }
         />
         <IconText

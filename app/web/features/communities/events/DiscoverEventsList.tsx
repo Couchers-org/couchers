@@ -44,9 +44,7 @@ const StyledFilterTagContainer = styled("div")(() => ({
 const StyledFilterTag = styled(Typography, {
   shouldForwardProp: (propName) => propName !== "isSelected",
 })<{ isSelected: boolean }>(({ isSelected }) => ({
-  backgroundColor: isSelected
-    ? theme.palette.secondary.main
-    : theme.palette.grey[200],
+  backgroundColor: isSelected ? theme.palette.secondary.main : theme.palette.grey[200],
   color: isSelected ? theme.palette.common.white : theme.palette.text.primary,
   padding: theme.spacing(1, 2),
   textAlign: "center",
@@ -87,7 +85,6 @@ const DiscoverEventsList = () => {
 
   const [pageNumber, setPageNumber] = useState(1);
   const [isMyCommunities, setIsMyCommunities] = useState<boolean>(false);
-  const [isOnlineOnly, setIsOnlineOnly] = useState<boolean>(false);
   const [locationResult, setLocationResult] = useState<GeocodeResult | "">("");
 
   const { data, error, isLoading } = useEventSearch({
@@ -95,27 +92,19 @@ const DiscoverEventsList = () => {
     pageSize,
     pageNumber,
     isMyCommunities,
-    isOnlineOnly,
     searchLocation: locationResult,
+    excludeAttending: true,
   });
 
   const hasEvents = data && data.eventsList && data.eventsList.length > 0;
   const numPages = Math.ceil((data?.totalItems ?? 0) / pageSize) ?? 1;
 
-  const handlePageNumberChange = (
-    event: React.ChangeEvent<unknown>,
-    value: number,
-  ) => {
+  const handlePageNumberChange = (event: React.ChangeEvent<unknown>, value: number) => {
     setPageNumber(value);
   };
 
   const handleFilterIsMyCommunitiesClick = () => {
     setIsMyCommunities(!isMyCommunities);
-    setPageNumber(1);
-  };
-
-  const handleFilterIsOnlineOnlyClick = () => {
-    setIsOnlineOnly(!isOnlineOnly);
     setPageNumber(1);
   };
 
@@ -149,24 +138,11 @@ const DiscoverEventsList = () => {
   return (
     <>
       <StyledColumn>
-        <Typography variant="h2">
-          {t("communities:discover_events_title")}
-        </Typography>
+        <Typography variant="h2">{t("communities:discover_events_title")}</Typography>
         <StyledRow>
           <StyledFilterTagContainer>
-            <StyledFilterTag
-              isSelected={isMyCommunities}
-              variant="body2"
-              onClick={handleFilterIsMyCommunitiesClick}
-            >
+            <StyledFilterTag isSelected={isMyCommunities} variant="body2" onClick={handleFilterIsMyCommunitiesClick}>
               {t("communities:my_communities")}
-            </StyledFilterTag>
-            <StyledFilterTag
-              isSelected={isOnlineOnly}
-              variant="body2"
-              onClick={handleFilterIsOnlineOnlyClick}
-            >
-              {t("communities:online")}
             </StyledFilterTag>
           </StyledFilterTagContainer>
           {!isMobile && renderLocationAutoComplete()}
@@ -178,9 +154,7 @@ const DiscoverEventsList = () => {
           <Trans
             t={t}
             i18nKey="communities:events_empty_state"
-            components={[
-              <StyledLink key="create-link" href={routeToNewEvent()} />,
-            ]}
+            components={{ createEventLink: <StyledLink href={routeToNewEvent()} /> }}
           />
         </TextBody>
       )}

@@ -1,10 +1,12 @@
 {
   "change_email_form": {
     "title": "Emailini değiştir",
-    "current_email_message": "Email adresiniz şu anda <1>{{email}}</1>.",
+    "current_email_message": "Email adresiniz şu anda <strong>{{email}}</strong>.",
     "success_message": "Email değişiklik isteğiniz alındı. Değişimi tamamlamak için yeni mailinizi kontrol edin.",
-    "current_password": "Şimdiki şifre",
-    "new_email": "Yeni email"
+    "current_password": "Mevcut şifre",
+    "new_email": "Yeni email",
+    "hide_current_password": "Mevcut şifreyi gizle",
+    "show_current_password": "Mevcut şifreyi göster"
   },
   "change_email_confirmation": {
     "change_in_progress": "Email değişikliği ilerleme altında…",
@@ -18,8 +20,8 @@
     },
     "title": "Bana email gönderme",
     "status": {
-      "no_emails_enabled_message": "Hesabın için emailler şu anda <1>kapalı</1>.",
-      "no_emails_disabled_message": "Emailler şuanda hesabın için <1>açık</1>."
+      "no_emails_enabled_message": "Hesabın için emailler şu anda <strong>kapalı</strong>.",
+      "no_emails_disabled_message": "Emailler şuanda hesabın için <strong>açık</strong>."
     },
     "caveat": "Bu ayarı açınca, hesabın ev sahipliği isteklerini kabul etmeyecek. Güvenlik emaillerini (Şifreni sıfırlamak gibi) almaya devam edeceksin. Zaten alıyorsan haber bültenimizi almaya devam edebilirsin, bülteni istemiyorsan bültenin altındaki abonelikten çıkmak için olan linke tıklayabilirsin."
   },
@@ -34,20 +36,25 @@
     "token_error": "Şifre sıfırlama tokenini işlemede bir hata oluştu, lütfen emaildeki linki tekrar açmayı deneyin.",
     "title": "Şifreyi değiştir",
     "subtitle": "Giriş şifreni bu form ile sıfırla.",
-    "confirm_password": "Şifreyi onayla"
+    "confirm_password": "Şifreyi onayla",
+    "hide_old_password": "Eski şifreyi gizle",
+    "show_old_password": "Eski şifreyi göster",
+    "hide_new_password": "Yeni şifreyi gizle",
+    "show_new_password": "Yeni şifreyi göster"
   },
   "login_page": {
-    "no_account_prompt": "Daha hesabınız yok mu? <2> Bize katıl</2>",
+    "no_account_prompt": "Daha hesabınız yok mu? <signupLink> Bize katıl</signupLink>",
     "form": {
       "username_field_label": "Email/Kullanıcı Adı",
       "remember_me": "Beni hatırla",
       "password_field_label": "Şifre",
       "forgot_password": "Şifrenizi mi unuttunuz?"
     },
-    "title": "Giriş yap"
+    "title": "Giriş yap",
+    "header": "Tekrardan hoşgeldin!"
   },
   "basic_sign_up_form": {
-    "existing_user_prompt": "Zaten hesabın var mı? <2>Giriş yap</2>"
+    "existing_user_prompt": "Zaten hesabın var mı? <loginLink>Giriş yap</loginLink>"
   },
   "reset_password_form": {
     "enter_email": "Kullanıcı adınızı/e-posta adresinizi girin",
@@ -57,14 +64,22 @@
     "username": {
       "required_error": "Kullanıcı adınızı girin",
       "username_taken_error": "Bu kullanıcı adı alınmış.",
-      "validation_error": "Kullanıcı adları sadece harfler, numaralar ve ''_'' içerebilir ve bir harfle başlamalıdır."
+      "validation_error": "Kullanıcı adları sadece harfler, numaralar ve ''_'' içerebilir ve bir harfle başlamalıdır.",
+      "field_label": "Kullanıcı Adı",
+      "helper_text": "Bu profil adın değil, herkese açık kullanıcı adın."
     },
     "gender": {
-      "woman": "Kadın"
+      "woman": "Kadın",
+      "man": "Erkek"
     },
     "opt_in_newsletter": "Topluluk güncellemeleri hakkında olan haber bültenimize abone olun.",
-    "tos_prompt": "Devam etmek için lütfen <1></1>'nı okuyup kabul edin.",
-    "tos_accept_label": "Hizmet Şartlarını kabul ediyorum."
+    "tos_prompt": "Devam etmek için lütfen <tosLink></tosLink>'nı okuyup kabul edin.",
+    "tos_accept_label": "Hizmet Şartlarını kabul ediyorum.",
+    "header": "Hesap bilgileriniz",
+    "password": {
+      "field_label": "Şifre",
+      "required_error": "Bir şifre girin"
+    }
   },
   "basic_form": {
     "name": {
@@ -89,7 +104,8 @@
     }
   },
   "motivations_form": {
-    "header": "Seni Couchers'a ne getirdi?"
+    "header": "Seni Couchers'a ne getirdi?",
+    "surfing_description": "Bir seyahat planlıyorum ve bir ev sahibi arıyorum"
   },
   "jail": {
     "location_section": {

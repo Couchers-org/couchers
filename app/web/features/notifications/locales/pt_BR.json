@@ -19,7 +19,11 @@
       },
       "title": "Preferências de Notificações",
       "expand_all": "Expandir tudo",
-      "collapse_all": "Recolher tudo"
+      "collapse_all": "Recolher tudo",
+      "channels": {
+        "email_label": "E-mail",
+        "push_label": "Notificação por push"
+      }
     },
     "push_notifications": {
       "permission_denied": {
@@ -45,8 +49,8 @@
       "title": "Notificações por Push",
       "error_generic": "Erro durante a inscrição para notificações por push",
       "error_unsupported": "Não há suporte para notificações por push ou Service Workers neste navegador.",
-      "enabled_message": "Atualmente as notificações por push estão <1>habilitadas</1>.",
-      "disabled_message": "Atualmente as notificações por push estão <1>desabilitadas</1>.",
+      "enabled_message": "Atualmente as notificações por push estão <strong>habilitadas</strong>.",
+      "disabled_message": "Atualmente as notificações por push estão <strong>desabilitadas</strong>.",
       "error_not_granted": "Você não deu permissão para envio de notificações por push."
     },
     "go_to_button": "Gerenciar preferências de notificações"
@@ -55,11 +59,13 @@
     "message": "Não perca solicitações, respostas ou mensagens. Podemos enviar notificações por push para você?",
     "confirm": "Sim, por favor!"
   },
-  "unread": "Não lidas",
   "mark_unread": "Marcar como não lida",
   "mark_all_read": "Marcar todas como lidas",
   "no_new_notifications": "Nenhuma nova notificação",
   "error_loading": "Erro ao carregar notificações",
-  "all": "Todas",
-  "error_updating_notifications": "Erro ao atualizar notificações"
+  "error_updating_notifications": "Erro ao atualizar notificações",
+  "notifications_filters": {
+    "all_button": "Todas",
+    "unread_button": "Não lidas"
+  }
 }

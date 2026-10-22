@@ -1,9 +1,4 @@
-import {
-  render,
-  screen,
-  waitForElementToBeRemoved,
-  within,
-} from "@testing-library/react";
+import { render, screen, waitForElementToBeRemoved, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
 import { routeToCommunity } from "routes";
@@ -20,11 +15,8 @@ import EventsSection from "./EventsSection";
 
 const { t } = i18n;
 
-const getUserMock = service.user.getUser as jest.MockedFunction<
-  typeof service.user.getUser
->;
-const listCommunityEventsMock = service.events
-  .listCommunityEvents as jest.MockedFunction<
+const getUserMock = service.user.getUser as jest.MockedFunction<typeof service.user.getUser>;
+const listCommunityEventsMock = service.events.listCommunityEvents as jest.MockedFunction<
   typeof service.events.listCommunityEvents
 >;
 const [firstEvent, secondEvent, thirdEvent] = events;
@@ -49,23 +41,17 @@ describe("Events section", () => {
 
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    expect(
-      screen.getByRole("heading", { name: t("communities:events_title") }),
-    ).toBeVisible();
+    expect(screen.getByRole("heading", { name: t("communities:events_title") })).toBeVisible();
 
     const eventCards = screen.getAllByTestId(EVENT_CARD_TEST_ID);
     expect(eventCards).toHaveLength(2);
 
     // Basic checks only as more detailed checks covered in EventCard
     const firstCard = within(eventCards[0]);
-    expect(
-      firstCard.getByRole("heading", { name: firstEvent.title }),
-    ).toBeVisible();
+    expect(firstCard.getByRole("heading", { name: firstEvent.title })).toBeVisible();
 
     const secondCard = within(eventCards[1]);
-    expect(
-      secondCard.getByRole("heading", { name: secondEvent.title }),
-    ).toBeVisible();
+    expect(secondCard.getByRole("heading", { name: secondEvent.title })).toBeVisible();
   });
 
   it("renders the empty state if there are no events", async () => {
@@ -79,10 +65,7 @@ describe("Events section", () => {
     expect(
       screen.getByText((content, element) => {
         // Match text split across multiple elements by checking the full text content
-        return (
-          element?.textContent ===
-          "No events at the moment. Why don't you create one ✨?"
-        );
+        return element?.textContent === "No events at the moment. Why don't you create one ✨?";
       }),
     ).toBeVisible();
     // Check that there's a link to create a new event
@@ -100,9 +83,7 @@ describe("Events section", () => {
       }),
     );
 
-    expect(mockRouter.pathname).toBe(
-      routeToCommunity(community.communityId, community.slug, "events"),
-    );
+    expect(mockRouter.pathname).toBe(routeToCommunity(community.communityId, community.slug, "events"));
   });
 
   it("shows an error alert if the events fail to load", async () => {

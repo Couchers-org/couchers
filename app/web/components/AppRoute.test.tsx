@@ -27,9 +27,7 @@ jest.mock("features/notifications/PushNotificationBanner", () => ({
   ),
 }));
 
-const mockUseAuthStore = useAuthStore as jest.MockedFunction<
-  typeof useAuthStore
->;
+const mockUseAuthStore = useAuthStore as jest.MockedFunction<typeof useAuthStore>;
 
 describe("AppRoute", () => {
   beforeEach(() => {
@@ -60,9 +58,7 @@ describe("AppRoute", () => {
     render(appGetLayout({ isPrivate: false })(<div>content</div>), { wrapper });
 
     await waitFor(() => {
-      expect(
-        screen.getByLabelText("Push notification banner"),
-      ).toBeInTheDocument();
+      expect(screen.getByLabelText("Push notification banner")).toBeInTheDocument();
     });
   });
 
@@ -89,8 +85,6 @@ describe("AppRoute", () => {
 
     render(appGetLayout({ isPrivate: false })(<div>content</div>), { wrapper });
 
-    expect(
-      screen.queryByLabelText("Push notification banner"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Push notification banner")).not.toBeInTheDocument();
   });
 });

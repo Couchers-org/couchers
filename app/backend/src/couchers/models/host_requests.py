@@ -3,13 +3,29 @@ from datetime import date, datetime
 from typing import TYPE_CHECKING, Any
 
 from geoalchemy2 import Geometry
-from sqlalchemy import BigInteger, Boolean, Date, DateTime, Enum, Float, ForeignKey, Index, String, func, text
+from sqlalchemy import (
+    BigInteger,
+    Boolean,
+    Computed,
+    Date,
+    DateTime,
+    Enum,
+    Float,
+    ForeignKey,
+    Index,
+    String,
+    and_,
+    func,
+    select,
+    text,
+)
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, column_property, mapped_column, relationship
 from sqlalchemy.sql import expression
 
 from couchers.models.base import Base, Geom
 from couchers.models.moderation import ModerationObjectType
+from couchers.models.static import TimezoneArea
 from couchers.utils import date_in_timezone, now
 
 if TYPE_CHECKING:
@@ -37,16 +53,38 @@ class HostRequest(Base, kw_only=True):
     """
     A request to stay with a host.
 
-    In a normal host request, initiator = surfer and recipient = host.
+    There are two independent role axes here, and they only coincide for a normal host request:
+
+    * initiator/recipient is the conversation role: who proposed the stay and who responds to it. The whole
+      status state machine, unread tracking and archiving key off this axis.
+    * surfer/host is the stay role: whose couch it is. References, feedback, response rates and metrics key
+      off this axis.
+
+    An offer on a public trip reverses them: the host initiates and the traveller responds. surfer_user_id
+    and host_user_id are generated from that so the stay role can never drift out of sync.
     """
 
     __tablename__ = "host_requests"
     __moderation_author_column__ = "initiator_user_id"
     __moderation_object_type__ = ModerationObjectType.host_request
+    __moderation_has_own_visibility_mechanism__ = False
 
     conversation_id: Mapped[int] = mapped_column("id", ForeignKey("conversations.id"), primary_key=True)
     initiator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     recipient_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+
+    surfer_user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"),
+        Computed("case when public_trip_id is null then initiator_user_id else recipient_user_id end", persisted=True),
+        index=True,
+        init=False,
+    )
+    host_user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"),
+        Computed("case when public_trip_id is null then recipient_user_id else initiator_user_id end", persisted=True),
+        index=True,
+        init=False,
+    )
 
     # Unified Moderation System
     moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
@@ -55,12 +93,21 @@ class HostRequest(Base, kw_only=True):
     hosting_location: Mapped[Geom] = mapped_column(Geometry("POINT", srid=4326))
     hosting_radius: Mapped[float] = mapped_column(Float)
 
-    # TODO: proper timezone handling
-    timezone = "Etc/UTC"
-
-    # dates in the timezone above
+    # from/to dates, local to the stay's timezone
     from_date: Mapped[date] = mapped_column(Date)
     to_date: Mapped[date] = mapped_column(Date)
+
+    # Timezone at the location of the stay.
+    # Not deferred because we always need it to interpret the dates.
+    timezone: Mapped[str] = column_property(
+        func.coalesce(
+            select(TimezoneArea.tzid)
+            .where(func.ST_Contains(TimezoneArea.geom, hosting_location))
+            .limit(1)
+            .scalar_subquery(),
+            "Etc/UTC",
+        )
+    )
 
     # timezone-aware start and end times of the request, can be compared to now()
     start_time = column_property(date_in_timezone(from_date, timezone))
@@ -98,6 +145,9 @@ class HostRequest(Base, kw_only=True):
     recipient: Mapped[User] = relationship(
         init=False, backref="host_requests_received", foreign_keys="HostRequest.recipient_user_id"
     )
+    # viewonly since the underlying columns are generated and can't be written through
+    surfer: Mapped[User] = relationship(init=False, foreign_keys="HostRequest.surfer_user_id", viewonly=True)
+    host: Mapped[User] = relationship(init=False, foreign_keys="HostRequest.host_user_id", viewonly=True)
     conversation: Mapped[Conversation] = relationship(init=False)
     moderation_state: Mapped[ModerationState] = relationship(init=False)
     public_trip: Mapped[PublicTrip | None] = relationship(init=False, back_populates="host_requests")
@@ -119,6 +169,14 @@ class HostRequest(Base, kw_only=True):
             recipient_sent_request_reminders,
             last_sent_request_reminder_time,
             from_date,
+        ),
+        # A host can have at most one non-withdrawn offer per public trip
+        Index(
+            "ix_host_requests_one_active_offer_per_trip",
+            public_trip_id,
+            initiator_user_id,
+            unique=True,
+            postgresql_where=and_(public_trip_id != None, status != HostRequestStatus.cancelled),
         ),
     )
 

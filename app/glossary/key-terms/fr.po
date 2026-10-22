@@ -1,0 +1,287 @@
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2026-09-10 22:05+0000\n"
+"Last-Translator: Tristan Labelle <couchers@tristanlabelle.com>\n"
+"Language-Team: French <https://translate.couchershq.org/projects/couchers/glossary-key-terms/fr/>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 5.15.2\n"
+
+#. (verb) As a host, the act of accepting a surfer's host request.
+msgid "host_request.accept"
+msgstr "accepter"
+
+#. (adj) The state of a host request that was accepted by the host.
+msgid "host_request.accepted"
+msgstr "accepté/acceptée"
+
+#. (noun) A user account on Couchers.org.
+msgid "account"
+msgstr "compte"
+
+#. (noun) A user's account settings (notifications, theme, language, etc.).
+msgid "account_settings"
+msgstr "paramètres du compte / de votre compte"
+
+#. (noun) A user who has indicated their intention to attend an event.
+msgid "events.attendee"
+msgstr "participant.e"
+
+#. (noun) Users who have indicated their intention to attend an event.
+msgid "events.attendees"
+msgstr "participant.e.s"
+
+#. (noun) The Couchers.org blog.
+msgid "blog"
+msgstr "blog"
+
+#. (verb) As a surfer, the act of cancelling a host request.
+msgid "host_request.cancel"
+msgstr "annuler"
+
+#. (verb) The act of cancelling an event.
+msgid "events.cancel"
+msgstr "annuler"
+
+#. (adj) The state of a host request that was cancelled by the surfer.
+msgid "host_request.cancelled"
+msgstr "annulée / annulées"
+
+#. (adj) The state of an event that has been cancelled.
+msgid "events.cancelled"
+msgstr "annulé / annulés"
+
+#. A user status whereby a user is willing to host surfers.
+msgid "status.can_host"
+msgstr "peut héberger"
+
+#. A user status whereby a user is unwilling to host surfers.
+msgid "status.cant_host"
+msgstr "ne peut pas héberger"
+
+#. (noun) A top-level reply on a discussion or event.
+msgid "discussions.comment.noun"
+msgstr "commentaire"
+
+#. (noun) The act of adding a top-level comment on a discussion or event.
+msgid "discussions.comment.verb"
+msgstr "commenter"
+
+#. (noun) Top-level replies on a discussion or event.
+msgid "discussions.comments"
+msgstr "commentaires"
+
+#. (noun) Geographical communities with local discussions, events, etc.
+msgid "communities"
+msgstr "communautés"
+
+#. (noun) A geographical community with local discussions, events, etc.
+msgid "community"
+msgstr "communauté"
+
+#. (verb) As a surfer, the act of confirming a host request that was accepted by the host.
+msgid "host_request.confirm"
+msgstr "confirmer"
+
+#. (adj) The state of a host request that was confirmed by the surfer after being accepted by the host.
+msgid "host_request.confirmed"
+msgstr "confirmé / confirmée"
+
+#. (noun) Other users which are friends or have pending friend requests.
+msgid "connections"
+msgstr "connexions"
+
+#. (noun) The team behind Couchers.org.
+msgid "couchers_org_team"
+msgstr "l'équipe Couchers.org"
+
+#. (noun) The activity of free hospitality welcome/exchange. Platform-agnostic.
+msgid "couch surfing"
+msgstr "couch surfing"
+
+#. (noun) A community or event discussion that supports replies.
+msgid "discussion"
+msgstr "discussion"
+
+#. (noun) Community or event discussions that support replies.
+msgid "discussions"
+msgstr "discussions"
+
+#. (verb) The act of donating money to Couchers.org.
+msgid "donate"
+msgstr "faire un don"
+
+#. (verb) The act of donating money to Couchers.org.
+msgid "donating"
+msgstr "faire un don"
+
+#. (noun) Money donated to Couchers.org.
+msgid "donation"
+msgstr "don"
+
+#. (noun) Money donated to Couchers.org.
+msgid "donations"
+msgstr "dons"
+
+#. (noun) An event created by a user for others to attend.
+msgid "event"
+msgstr "événement"
+
+#. (noun) Events created by users for others to attend.
+msgid "events"
+msgstr "événements"
+
+#. (noun) Another user confirmed as a friend using the friend feature.
+msgid "friend"
+msgstr "ami"
+
+#. (noun) A request to add another user as a friend.
+msgid "friend_request"
+msgstr "demande d'ami"
+
+#. (noun) Requests to add other users as friends.
+msgid "friend_requests"
+msgstr "demandes d'ami"
+
+#. (noun) Other users confirmed as friends using the friend feature.
+msgid "friends"
+msgstr "amis"
+
+#. (noun) A user providing hospitality to other users.
+msgid "host.noun"
+msgstr "hôte"
+
+#. (verb) As a host, the act of offering hospitality to other users.
+msgid "host.verb"
+msgstr "héberger"
+
+#. (adjective) As a surfer, the state of receiving hospitality from a host.
+msgid "hosted"
+msgstr "hébergé*"
+
+#. (verb) As a host, the act of offering hospitality to other users.
+msgid "hosting"
+msgstr "héberger"
+
+#. (noun) The process of establishing a hosting relationship.
+msgid "host_request"
+msgstr "demande d'hébergement"
+
+#. (noun) The process of establishing a hosting relationship.
+msgid "host_requests"
+msgstr "Demandes d'hébergement"
+
+#. (noun) Users providing hospitality to other users.
+msgid "hosts.noun"
+msgstr "hôtes"
+
+#. A user status whereby a user is potentially willing to host surfers.
+msgid "status.may_host"
+msgstr "peut peut-être héberger"
+
+#. (noun) A message sent from a user to another user or to a group chat.
+msgid "message.noun"
+msgstr "message"
+
+#. (verb) The act of sending a message to another user or to a group chat.
+msgid "message.verb"
+msgstr "envoyer un message"
+
+#. (noun) Messages sent between users or to group chats.
+msgid "messages"
+msgstr "messages"
+
+#. (noun) An email or push notifications sent to a user.
+msgid "notification"
+msgstr "notification"
+
+#. (noun) Email or push notifications sent to a user.
+msgid "notifications"
+msgstr "notifications"
+
+#. (noun) A user listed as an organizer on an event.
+msgid "events.organizer"
+msgstr "organisateur.rice"
+
+#. (noun) Users listed as organizers on an event.
+msgid "events.organizers"
+msgstr "organisateur.rice.s"
+
+#. (noun) A user's account password on Couchers.org.
+msgid "password"
+msgstr "mot de passe"
+
+#. (noun) A profile picture.
+msgid "photo"
+msgstr "photo"
+
+#. (noun) Profile pictures.
+msgid "photos"
+msgstr "photos"
+
+#. (noun) A problem with the platform reported by a user.
+msgid "report_problem.problem"
+msgstr "problème"
+
+#. (noun) Problems with the platform reported by a user.
+msgid "report_problem.problems"
+msgstr "problèmes"
+
+#. (noun) A notifications sent to a user's phone or browser.
+msgid "push_notification"
+msgstr "notification push"
+
+#. (noun) Notifications sent to a user's phone or browser.
+msgid "push_notifications"
+msgstr "notifications push"
+
+#. (noun) As a user, the act of reporting a problem with the platform.
+msgid "report_problem.report"
+msgstr "signaler"
+
+#. (noun) A website/app session, from logging in to logging out.
+msgid "session"
+msgstr "session"
+
+#. (noun) Website/app sessions, from logging in to logging out.
+msgid "sessions"
+msgstr "sessions"
+
+#. (noun) A grouping of settings (account, notifications, etc.)
+msgid "settings"
+msgstr "paramètres"
+
+#. (noun) The team behind Couchers.org, short form.
+msgid "team"
+msgstr "équipe"
+
+#. (noun) The document outlining the legal agreement for using Couchers.org.
+msgid "terms_of_service"
+msgstr "conditions d'utilisation"
+
+#. (noun) Someone with an account on Couchers.org.
+msgid "user"
+msgstr "utilisateur.rice"
+
+#. (noun) A user's account identifier on Couchers.org.
+msgid "username"
+msgstr "nom d'utilisateur.rice"
+
+#. (noun) Someone with an account on Couchers.org.
+msgid "users"
+msgstr "utilisateur.rice.s"
+
+#. (verb) The act of volunteering with Couchers.org.
+msgid "volunteer.verb"
+msgstr "devenir bénévole"
+
+#. (noun) A person volunteering with Couchers.org.
+msgid "volunteer.noun"
+msgstr "bénévole"
+
+#. (noun) A person volunteering with Couchers.org.
+msgid "volunteers"
+msgstr "bénévoles"

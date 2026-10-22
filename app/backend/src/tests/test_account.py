@@ -22,9 +22,9 @@ from couchers.models import (
     Upload,
     User,
 )
-from couchers.proto import account_pb2, api_pb2, auth_pb2, conversations_pb2, requests_pb2
+from couchers.proto import account_pb2, api_pb2, auth_pb2, messages_pb2, requests_pb2
 from couchers.utils import now, today
-from tests.fixtures.db import generate_user, make_volunteer
+from tests.fixtures.db import backdate_conversations, generate_user, make_volunteer
 from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
 from tests.fixtures.sessions import (
     account_session,
@@ -33,12 +33,9 @@ from tests.fixtures.sessions import (
     real_account_session,
     requests_session,
 )
+from tests.fixtures.timewarp import Timewarp
+from tests.test_references import create_public_trip
 from tests.test_requests import valid_request_text
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
 
 
 def test_GetAccountInfo(db, fast_passwords):
@@ -414,6 +411,25 @@ def test_ChangeEmailV2_email_in_use(db, fast_passwords):
         ).scalar_one() == 0
 
 
+def test_ChangeEmailV2_deleted_user_email(db, fast_passwords):
+    password = random_hex()
+    user, token = generate_user(hashed_password=hash_password(password))
+    deleted_user, _ = generate_user(delete_user=True)
+    banned_user, _ = generate_user()
+
+    with session_scope() as session:
+        session.execute(
+            update(User).where(User.id == banned_user.id).values(deleted_at=func.now(), banned_at=func.now())
+        )
+
+    with account_session(token) as account:
+        with pytest.raises(grpc.RpcError) as e:
+            account.ChangeEmailV2(account_pb2.ChangeEmailV2Req(password=password, new_email=banned_user.email))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+        account.ChangeEmailV2(account_pb2.ChangeEmailV2Req(password=password, new_email=deleted_user.email))
+
+
 def test_ChangeEmailV2_no_change(db, fast_passwords):
     password = random_hex()
     user, token = generate_user(hashed_password=hash_password(password))
@@ -468,13 +484,7 @@ def test_ChangeEmailV2_wrong_token(db, fast_passwords):
         assert user_updated.email == user.email
 
 
-def test_ChangeEmailV2_tokens_two_hour_window(db):
-    def two_hours_one_minute_in_future():
-        return now() + timedelta(hours=2, minutes=1)
-
-    def one_minute_ago():
-        return now() - timedelta(minutes=1)
-
+def test_ChangeEmailV2_tokens_two_hour_window(db, fast_passwords, timewarp: Timewarp):
     password = random_hex()
     new_email = f"{random_hex()}@couchers.org.invalid"
     user, token = generate_user(hashed_password=hash_password(password))
@@ -490,37 +500,39 @@ def test_ChangeEmailV2_tokens_two_hour_window(db):
     with session_scope() as session:
         new_email_token = session.execute(select(User.new_email_token).where(User.id == user.id)).scalar_one()
 
-    with patch("couchers.servicers.auth.now", one_minute_ago):
-        with auth_api_session() as (auth_api, metadata_interceptor):
-            with pytest.raises(grpc.RpcError) as e:
-                auth_api.ConfirmChangeEmailV2(auth_pb2.ConfirmChangeEmailV2Req())
-            assert e.value.code() == grpc.StatusCode.NOT_FOUND
-            assert e.value.details() == "Invalid token."
+    # before the token was issued
+    timewarp.advance(-timedelta(minutes=1))
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.ConfirmChangeEmailV2(auth_pb2.ConfirmChangeEmailV2Req())
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == "Invalid token."
 
-            with pytest.raises(grpc.RpcError) as e:
-                auth_api.ConfirmChangeEmailV2(
-                    auth_pb2.ConfirmChangeEmailV2Req(
-                        change_email_token=new_email_token,
-                    )
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.ConfirmChangeEmailV2(
+                auth_pb2.ConfirmChangeEmailV2Req(
+                    change_email_token=new_email_token,
                 )
-            assert e.value.code() == grpc.StatusCode.NOT_FOUND
-            assert e.value.details() == "Invalid token."
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == "Invalid token."
 
-    with patch("couchers.servicers.auth.now", two_hours_one_minute_in_future):
-        with auth_api_session() as (auth_api, metadata_interceptor):
-            with pytest.raises(grpc.RpcError) as e:
-                auth_api.ConfirmChangeEmailV2(auth_pb2.ConfirmChangeEmailV2Req())
-            assert e.value.code() == grpc.StatusCode.NOT_FOUND
-            assert e.value.details() == "Invalid token."
+    # and a minute after the two hour window closed
+    timewarp.advance(timedelta(hours=2, minutes=1))
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.ConfirmChangeEmailV2(auth_pb2.ConfirmChangeEmailV2Req())
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == "Invalid token."
 
-            with pytest.raises(grpc.RpcError) as e:
-                auth_api.ConfirmChangeEmailV2(
-                    auth_pb2.ConfirmChangeEmailV2Req(
-                        change_email_token=new_email_token,
-                    )
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.ConfirmChangeEmailV2(
+                auth_pb2.ConfirmChangeEmailV2Req(
+                    change_email_token=new_email_token,
                 )
-            assert e.value.code() == grpc.StatusCode.NOT_FOUND
-            assert e.value.details() == "Invalid token."
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == "Invalid token."
 
 
 def test_ChangeEmailV2(db, fast_passwords, push_collector: PushCollector):
@@ -593,10 +605,8 @@ def test_ChangeEmailV2_sends_proper_emails(db, fast_passwords, push_collector: P
     with session_scope() as session:
         jobs = session.execute(select(BackgroundJob).where(BackgroundJob.job_type == "send_email")).scalars().all()
         assert len(jobs) == 2
-        uq_str1 = b"An email change to the email"
-        uq_str2 = (
-            b"You requested that your email be changed to this email address on Couchers.org. Your old email address is"
-        )
+        uq_str1 = b"Email address change initiated"
+        uq_str2 = b"You requested that your email be changed from"
         assert (uq_str1 in jobs[0].payload and uq_str2 in jobs[1].payload) or (
             uq_str2 in jobs[0].payload and uq_str1 in jobs[1].payload
         )
@@ -651,7 +661,7 @@ def test_DeleteAccount_start(db, email_collector: EmailCollector):
     with account_session(token) as account:
         account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True, reason=None))
         email = email_collector.pop_for_recipient(user.email, last=True)
-        assert email.subject == "[TEST] Confirm your Couchers.org account deletion"
+        assert email.subject == "[TEST] Confirm your account deletion"
 
     with session_scope() as session:
         deletion_token: AccountDeletionToken = session.execute(
@@ -690,10 +700,10 @@ def test_full_delete_account_with_recovery(db, email_collector: EmailCollector, 
         account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True))
 
     email = email_collector.pop_for_recipient(user.email, last=True)
-    assert email.subject == "[TEST] Confirm your Couchers.org account deletion"
+    assert email.subject == "[TEST] Confirm your account deletion"
     assert email.recipient == user.email
     assert "account deletion" in email.subject.lower()
-    unique_string = "You requested that we delete your account from Couchers.org."
+    unique_string = "You requested that we delete your Couchers.org account."
     assert unique_string in email.plain
     assert unique_string in email.html
     assert "support@couchers.org" in email.plain
@@ -729,7 +739,7 @@ def test_full_delete_account_with_recovery(db, email_collector: EmailCollector, 
     email = email_collector.pop_for_recipient(user.email, last=True)
     assert email.recipient == user.email
     assert "account has been deleted" in email.subject.lower()
-    unique_string = "You have successfully deleted your account from Couchers.org."
+    unique_string = "You have successfully deleted your Couchers.org account."
     assert unique_string in email.plain
     assert unique_string in email.html
     assert "7 days" in email.plain
@@ -766,7 +776,7 @@ def test_full_delete_account_with_recovery(db, email_collector: EmailCollector, 
     email = email_collector.pop_for_recipient(user.email, last=True)
     assert email.recipient == user.email
     assert "account has been recovered" in email.subject.lower()
-    unique_string = "Your account on Couchers.org has been successfully recovered!"
+    unique_string = "Your Couchers.org account has been successfully recovered."
     assert unique_string in email.plain
     assert unique_string in email.html
     assert "support@couchers.org" in email.plain
@@ -1046,6 +1056,7 @@ def test_reminders(db, moderator):
         assert reminders[1].respond_to_host_request_reminder.host_request_id == host_request2_id
         assert reminders[1].respond_to_host_request_reminder.surfer_user.user_id == req_user2.id
 
+    backdate_conversations()
     with requests_session(req_user_token1) as api:
         host_request3_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -1077,7 +1088,7 @@ def test_reminders(db, moderator):
     with requests_session(token) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request1_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+                host_request_id=host_request1_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
             )
         )
 
@@ -1152,7 +1163,7 @@ def test_confirm_host_request_reminder(db, moderator):
     with requests_session(host_token) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED
+                host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
             )
         )
 
@@ -1167,13 +1178,82 @@ def test_confirm_host_request_reminder(db, moderator):
     with requests_session(surfer_token) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED
+                host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
             )
         )
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
     with account_session(surfer_token) as account:
         assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == []
+
+
+def test_public_trip_offer_reminders(db, moderator):
+    traveller, traveller_token = generate_user(complete_profile=True)
+    host1, host1_token = generate_user(complete_profile=True)
+    host2, host2_token = generate_user(complete_profile=True)
+
+    from_date = today() + timedelta(days=5)
+    to_date = today() + timedelta(days=10)
+    with session_scope() as session:
+        trip_id = create_public_trip(session, traveller.id, from_date, to_date)
+
+    def offer(host_token: str) -> int:
+        with requests_session(host_token) as api:
+            host_request_id = api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=traveller.id,
+                    from_date=from_date.isoformat(),
+                    to_date=to_date.isoformat(),
+                    text=valid_request_text("I'd love to host you"),
+                    public_trip_id=trip_id,
+                )
+            ).host_request_id
+        moderator.approve_host_request(host_request_id)
+        return host_request_id
+
+    def get_reminders(token: str):
+        refresh_materialized_views_rapid(empty_pb2.Empty())
+        with account_session(token) as account:
+            return account.GetReminders(empty_pb2.Empty()).reminders
+
+    offer1_id = offer(host1_token)
+    offer2_id = offer(host2_token)
+
+    reminders = get_reminders(traveller_token)
+    assert [reminder.WhichOneof("reminder") for reminder in reminders] == [
+        "respond_to_public_trip_offer_reminder",
+        "respond_to_public_trip_offer_reminder",
+    ]
+    assert reminders[0].respond_to_public_trip_offer_reminder.host_request_id == offer1_id
+    assert reminders[0].respond_to_public_trip_offer_reminder.host_user.user_id == host1.id
+    assert reminders[1].respond_to_public_trip_offer_reminder.host_request_id == offer2_id
+    assert reminders[1].respond_to_public_trip_offer_reminder.host_user.user_id == host2.id
+    assert list(get_reminders(host1_token)) == []
+
+    with requests_session(traveller_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=offer1_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+            )
+        )
+
+    reminders = get_reminders(traveller_token)
+    assert [reminder.WhichOneof("reminder") for reminder in reminders] == ["respond_to_public_trip_offer_reminder"]
+    assert reminders[0].respond_to_public_trip_offer_reminder.host_request_id == offer2_id
+
+    reminders = get_reminders(host1_token)
+    assert [reminder.WhichOneof("reminder") for reminder in reminders] == ["confirm_public_trip_offer_reminder"]
+    assert reminders[0].confirm_public_trip_offer_reminder.host_request_id == offer1_id
+    assert reminders[0].confirm_public_trip_offer_reminder.surfer_user.user_id == traveller.id
+
+    with requests_session(host1_token) as api:
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=offer1_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
+            )
+        )
+
+    assert list(get_reminders(host1_token)) == []
 
 
 def test_my_home_reminder(db):

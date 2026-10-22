@@ -1,17 +1,11 @@
 import json
 
-import pytest
 from google.protobuf import empty_pb2
 
 from couchers.materialized_views import refresh_materialized_views, refresh_materialized_views_rapid
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import gis_session
 from tests.test_communities import testing_communities  # noqa
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
 
 
 class TestGIS:

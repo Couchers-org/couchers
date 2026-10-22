@@ -22,7 +22,13 @@ export default function CursorPagination({
   const { t } = useTranslation([GLOBAL]);
 
   return (
-    <Box display="flex" justifyContent="center" mt={2}>
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        mt: 2,
+      }}
+    >
       <Stack direction="row" spacing={2}>
         <Button
           variant="outlined"
@@ -32,12 +38,7 @@ export default function CursorPagination({
         >
           {t("previous")}
         </Button>
-        <Button
-          variant="outlined"
-          endIcon={<ChevronRightIcon />}
-          onClick={onNext}
-          disabled={!hasNextPage || isLoading}
-        >
+        <Button variant="outlined" endIcon={<ChevronRightIcon />} onClick={onNext} disabled={!hasNextPage || isLoading}>
           {t("next")}
         </Button>
       </Stack>

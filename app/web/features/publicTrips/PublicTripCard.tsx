@@ -1,0 +1,502 @@
+import { HourglassEmptyOutlined, PlaceOutlined, WavingHandOutlined } from "@mui/icons-material";
+import { Box, Card, CardContent, Chip, styled, Tooltip, Typography } from "@mui/material";
+import Avatar from "components/Avatar";
+import Button from "components/Button";
+import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
+import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
+import {
+  CalendarIcon,
+  CheckCircleIcon,
+  ChevronRightIcon,
+  CouchIcon,
+  EditIcon,
+  ExpandLessIcon,
+  ExpandMoreIcon,
+  ReopenIcon,
+  VisibilityIcon,
+} from "components/Icons";
+import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
+import ProfileLink from "components/ProfileLink/ProfileLink";
+import StyledLink from "components/StyledLink";
+import { useAuthContext } from "features/auth/AuthProvider";
+import useAccountInfo from "features/auth/useAccountInfo";
+import { contentRefs } from "features/contentRefs";
+import FlagButton from "features/FlagButton";
+import { useTranslation } from "i18n";
+import { localizeDateRange } from "i18n/datetimes";
+import { PUBLIC_TRIPS } from "i18n/namespaces";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { PublicTripStatus } from "proto/public_trips_pb";
+import { useEffect, useState } from "react";
+import { routeToCommunity, routeToHostRequest, routeToPublicTripOffers, routeToUser } from "routes";
+import { Temporal } from "temporal-polyfill";
+import { useIsNativeEmbed } from "utils/nativeLink";
+
+import OfferToHostDialog from "./OfferToHostDialog";
+import PublicTripDialog from "./PublicTripDialog";
+import { PublicTrip, useUpdatePublicTrip } from "./useListPublicTrips";
+
+interface PublicTripCardProps {
+  trip: PublicTrip;
+  // When true, renders the owner's view: hides Offer-to-host / View profile /
+  // Flag, shows Edit / Close actions and a status chip for closed trips.
+  ownerView?: boolean;
+  id?: string;
+}
+
+const StyledCard = styled(Card)(({ theme }) => ({
+  border: `1px solid var(--mui-palette-grey-300)`,
+  borderRadius: theme.spacing(1),
+  position: "relative",
+}));
+
+const OwnerMenuContainer = styled("div")(({ theme }) => ({
+  position: "absolute",
+  top: theme.spacing(0.5),
+  right: theme.spacing(0.5),
+  zIndex: 1,
+}));
+
+const StyledCardContent = styled(CardContent)(({ theme }) => ({
+  display: "flex",
+  gap: theme.spacing(2),
+  padding: theme.spacing(2.5),
+  "&:last-child": {
+    paddingBottom: theme.spacing(2.5),
+  },
+  [theme.breakpoints.down("sm")]: {
+    flexDirection: "column",
+    gap: theme.spacing(1.5),
+  },
+}));
+
+const UserSection = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: theme.spacing(0.5),
+  width: theme.spacing(14),
+  minWidth: theme.spacing(14),
+  [theme.breakpoints.down("sm")]: {
+    flexDirection: "row",
+    width: "auto",
+    minWidth: "auto",
+    gap: theme.spacing(1.5),
+    paddingRight: theme.spacing(5),
+  },
+}));
+
+const UserName = styled(Typography)({
+  maxWidth: "100%",
+  textAlign: "left",
+  overflowWrap: "break-word",
+});
+
+const UserDetails = styled(Typography)({
+  color: "var(--mui-palette-text-secondary)",
+  textAlign: "left",
+  maxWidth: "100%",
+  overflowWrap: "break-word",
+});
+
+const ContentSection = styled("div")({
+  display: "flex",
+  flexDirection: "column",
+  flex: 1,
+  minWidth: 0,
+});
+
+const MetaRow = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  gap: theme.spacing(2),
+  marginBottom: theme.spacing(1),
+  flexWrap: "wrap",
+  [theme.breakpoints.down("sm")]: {
+    gap: theme.spacing(1),
+  },
+}));
+
+const MetaItem = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  gap: theme.spacing(0.5),
+  color: "var(--mui-palette-text-secondary)",
+  fontSize: "0.875rem",
+  "& svg": {
+    fontSize: "1rem",
+  },
+}));
+
+const Description = styled(Typography, {
+  shouldForwardProp: (prop) => prop !== "expanded",
+})<{ expanded: boolean }>(({ expanded, theme }) => ({
+  // Descriptions come from a plain textarea, so keep the author's line breaks
+  // (outside the clamp block so they survive expanding too).
+  whiteSpace: "pre-line",
+  ...(!expanded && {
+    display: "-webkit-box",
+    WebkitLineClamp: 3,
+    WebkitBoxOrient: "vertical" as const,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    [theme.breakpoints.down("sm")]: {
+      WebkitLineClamp: 2,
+    },
+  }),
+}));
+
+export default function PublicTripCard({ trip, ownerView = false, id }: PublicTripCardProps) {
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation([PUBLIC_TRIPS]);
+  const [expanded, setExpanded] = useState(false);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+  const [descriptionEl, setDescriptionEl] = useState<HTMLElement | null>(null);
+  // Whether the clamped text overflows depends on layout, so re-measure on any
+  // resize (width changes, late-loading fonts) rather than once on mount.
+  // Skipped while expanded: the clamp is off then, so nothing ever overflows.
+  useEffect(() => {
+    if (!descriptionEl || expanded) return;
+    const measure = () => setIsOverflowing(descriptionEl.scrollHeight > descriptionEl.clientHeight);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(descriptionEl);
+    return () => observer.disconnect();
+  }, [descriptionEl, expanded, trip.description]);
+  const [showIncompleteDialog, setShowIncompleteDialog] = useState(false);
+  const [showOfferDialog, setShowOfferDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const { data: accountInfo } = useAccountInfo();
+  const { authState } = useAuthContext();
+  const isNativeEmbed = useIsNativeEmbed();
+  const router = useRouter();
+  const { mutate: updateTrip } = useUpdatePublicTrip();
+  const isOwnTrip = trip.user?.userId === authState.userId;
+
+  // The backend sets viewerHostRequestId to the viewer's own existing offer on
+  // this trip (0 if none), scoped per-trip so it's correct at any scale.
+  const alreadyOffered = trip.viewerHostRequestId > 0;
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    setMenuAnchorEl(event.currentTarget);
+  };
+  const handleMenuClose = () => setMenuAnchorEl(null);
+
+  const isClosed = trip.status === PublicTripStatus.PUBLIC_TRIP_STATUS_CLOSED;
+  const isPast = Temporal.PlainDate.compare(Temporal.PlainDate.from(trip.toDate), Temporal.Now.plainDateISO()) < 0;
+  const isDimmed = isClosed || isPast;
+  const showOwnMarker = isOwnTrip && !ownerView;
+
+  const handleOfferToHost = () => {
+    if (!accountInfo?.profileComplete) {
+      setShowIncompleteDialog(true);
+    } else {
+      setShowOfferDialog(true);
+    }
+  };
+
+  // The backend always populates user, but the proto type is optional.
+  const { user } = trip;
+  if (!user) return null;
+
+  return (
+    <>
+      {showIncompleteDialog && (
+        <ProfileIncompleteDialog open onClose={() => setShowIncompleteDialog(false)} attempted_action="send_request" />
+      )}
+      {!ownerView && user && (
+        <OfferToHostDialog
+          open={showOfferDialog}
+          onClose={() => setShowOfferDialog(false)}
+          tripId={trip.tripId}
+          hostUserId={user.userId}
+          hostName={user.name}
+          tripFromDate={Temporal.PlainDate.from(trip.fromDate)}
+          tripToDate={Temporal.PlainDate.from(trip.toDate)}
+        />
+      )}
+      {ownerView && (
+        <PublicTripDialog mode="edit" trip={trip} open={showEditDialog} onClose={() => setShowEditDialog(false)} />
+      )}
+      <StyledCard id={id} elevation={0} sx={{ opacity: isDimmed ? 0.65 : 1 }}>
+        {ownerView && (
+          <ConfirmationDialogWrapper
+            title={t("publicTrips:close_dialog.title")}
+            message={t("publicTrips:close_dialog.message")}
+            confirmButtonLabel={t("publicTrips:close_dialog.confirm_button")}
+            onConfirm={() =>
+              updateTrip({
+                tripId: trip.tripId,
+                status: PublicTripStatus.PUBLIC_TRIP_STATUS_CLOSED,
+              })
+            }
+          >
+            {(setConfirmOpen) => {
+              const menuItems: EllipsisMenuItem[] = [
+                ...(trip.offersCount && (trip.offersCount ?? 0) > 0
+                  ? [
+                      {
+                        icon: WavingHandOutlined,
+                        label: t("publicTrips:trip_card.view_invitations_button"),
+                        onClick: () => router.push(routeToPublicTripOffers(trip.tripId)),
+                      },
+                    ]
+                  : []),
+                {
+                  icon: EditIcon,
+                  label: t("publicTrips:trip_card.edit_button"),
+                  onClick: () => setShowEditDialog(true),
+                },
+                ...(!isClosed
+                  ? [
+                      {
+                        icon: CheckCircleIcon,
+                        label: t("publicTrips:trip_card.close_button"),
+                        onClick: () => setConfirmOpen(true),
+                      },
+                    ]
+                  : []),
+                ...(isClosed && !isPast
+                  ? [
+                      {
+                        icon: ReopenIcon,
+                        label: t("publicTrips:trip_card.reopen_button"),
+                        onClick: () =>
+                          updateTrip({
+                            tripId: trip.tripId,
+                            status: PublicTripStatus.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST,
+                          }),
+                      },
+                    ]
+                  : []),
+              ];
+              return (
+                <OwnerMenuContainer>
+                  <EllipsisMenu
+                    idName={`public-trip-${trip.tripId}`}
+                    isMenuOpen={!!menuAnchorEl}
+                    menuAnchorEl={menuAnchorEl}
+                    onMenuOpen={handleMenuOpen}
+                    onMenuClose={handleMenuClose}
+                    items={menuItems}
+                  />
+                </OwnerMenuContainer>
+              );
+            }}
+          </ConfirmationDialogWrapper>
+        )}
+        <StyledCardContent>
+          <UserSection>
+            <Box
+              sx={{
+                position: "relative",
+                width: "3rem",
+                height: "3rem",
+                flexShrink: 0,
+              }}
+            >
+              <Avatar user={user} isProfileLink />
+              {showOwnMarker && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    borderRadius: "50%",
+                    bgcolor: "rgba(0,0,0,0.55)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    pointerEvents: "none",
+                    zIndex: 1,
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      color: "white",
+                      fontWeight: 700,
+                      fontSize: "0.65rem",
+                      letterSpacing: "0.08em",
+                    }}
+                  >
+                    {t("publicTrips:trip_card.you_overlay")}
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+            <StyledLink href={routeToUser(user.username)}>
+              <UserName variant="h3">{user.name}</UserName>
+            </StyledLink>
+            <UserDetails variant="body2">
+              {user.age}
+              {user.gender ? `, ${user.gender}` : ""}
+            </UserDetails>
+            <UserDetails variant="body2">
+              {t("publicTrips:trip_card.references", {
+                count: user.numReferences,
+              })}
+            </UserDetails>
+          </UserSection>
+
+          <ContentSection>
+            <MetaRow>
+              <MetaItem>
+                <CalendarIcon />
+                {localizeDateRange(
+                  Temporal.PlainDateTime.from(trip.fromDate),
+                  Temporal.PlainDateTime.from(trip.toDate),
+                  locale,
+                  {
+                    abbreviate: true,
+                  },
+                )}
+              </MetaItem>
+              {trip.communityName && (
+                <MetaItem>
+                  <PlaceOutlined sx={{ fontSize: "1rem" }} />
+                  <StyledLink href={routeToCommunity(trip.communityId, trip.communitySlug)}>
+                    {trip.communityName}
+                  </StyledLink>
+                </MetaItem>
+              )}
+              {trip.sameGenderOnly && (
+                <MetaItem>
+                  <VisibilityIcon />
+                  {t("publicTrips:trip_card.same_gender_only_indicator")}
+                </MetaItem>
+              )}
+            </MetaRow>
+            <Description
+              variant="body1"
+              ref={setDescriptionEl}
+              expanded={expanded}
+              onClick={isOverflowing || expanded ? () => setExpanded((e) => !e) : undefined}
+              sx={{ cursor: isOverflowing || expanded ? "pointer" : "default" }}
+            >
+              {trip.description}
+            </Description>
+            {(isOverflowing || expanded) && (
+              <Typography
+                variant="body2"
+                onClick={() => setExpanded((e) => !e)}
+                sx={{
+                  cursor: "pointer",
+                  color: "var(--mui-palette-primary-main)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.25,
+                  mt: 0.5,
+                }}
+              >
+                {expanded ? t("publicTrips:trip_card.show_less_action") : t("publicTrips:trip_card.show_more_action")}
+                {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+              </Typography>
+            )}
+            {!showOwnMarker && (
+              <Box
+                sx={{
+                  mt: 1.5,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 1,
+                }}
+              >
+                {ownerView ? (
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    {isClosed ? (
+                      <Chip label={t("publicTrips:trip_card.status_pills.closed")} size="small" />
+                    ) : isPast ? (
+                      <Chip label={t("publicTrips:trip_card.status_pills.past")} size="small" />
+                    ) : (
+                      <Chip
+                        label={t("publicTrips:trip_card.status_pills.active")}
+                        size="small"
+                        color="primary"
+                        variant="outlined"
+                      />
+                    )}
+                    {isOwnTrip && (
+                      <Box
+                        component={(trip.offersCount ?? 0) > 0 ? Link : "span"}
+                        href={(trip.offersCount ?? 0) > 0 ? routeToPublicTripOffers(trip.tripId) : undefined}
+                        sx={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "3px",
+                          fontSize: "0.8125rem",
+                          fontWeight: 700,
+                          textDecoration: "none",
+                          color:
+                            (trip.offersCount ?? 0) > 0
+                              ? "var(--mui-palette-primary-main)"
+                              : "var(--mui-palette-text-secondary)",
+                          ...((trip.offersCount ?? 0) > 0 && {
+                            cursor: "pointer",
+                            "&:hover": { textDecoration: "underline" },
+                          }),
+                        }}
+                      >
+                        {(trip.offersCount ?? 0) > 0 ? (
+                          <WavingHandOutlined sx={{ fontSize: "1rem" }} />
+                        ) : (
+                          <HourglassEmptyOutlined sx={{ fontSize: "1rem" }} />
+                        )}
+                        {(trip.offersCount ?? 0) > 0
+                          ? t("publicTrips:trip_card.invitations_count", {
+                              count: trip.offersCount ?? 0,
+                            })
+                          : t("publicTrips:trip_card.no_invitations")}
+                      </Box>
+                    )}
+                  </Box>
+                ) : (
+                  <>
+                    <ProfileLink userId={user.userId} username={user.username} openInNewTab={!isNativeEmbed}>
+                      {t("publicTrips:trip_card.view_profile_button")}
+                    </ProfileLink>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <FlagButton contentRef={contentRefs.publicTrip(trip)} authorUser={user.userId} />
+                      {alreadyOffered ? (
+                        // Link to the existing offer thread.
+                        <Button
+                          component={Link}
+                          href={routeToHostRequest(trip.viewerHostRequestId)}
+                          endIcon={<ChevronRightIcon />}
+                          sx={{ whiteSpace: "nowrap" }}
+                        >
+                          {t("publicTrips:trip_card.already_invited_indicator")}
+                        </Button>
+                      ) : isDimmed ? (
+                        // Closed/past trips can't be offered on (the backend
+                        // rejects it). These shouldn't normally reach this list,
+                        // but guard against the trip closing/expiring while the
+                        // card is on screen. Tooltip needs a wrapper since
+                        // disabled buttons don't emit hover events.
+                        <Tooltip title={t("publicTrips:trip_card.offer_to_host_button_disabled_tooltip")}>
+                          <span>
+                            <Button startIcon={<CouchIcon />} disabled>
+                              {t("publicTrips:trip_card.offer_to_host_button")}
+                            </Button>
+                          </span>
+                        </Tooltip>
+                      ) : (
+                        <Button startIcon={<CouchIcon />} onClick={handleOfferToHost}>
+                          {t("publicTrips:trip_card.offer_to_host_button")}
+                        </Button>
+                      )}
+                    </Box>
+                  </>
+                )}
+              </Box>
+            )}
+          </ContentSection>
+        </StyledCardContent>
+      </StyledCard>
+    </>
+  );
+}

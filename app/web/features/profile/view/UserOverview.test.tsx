@@ -47,10 +47,8 @@ describe("UserOverview", () => {
     });
 
     describe("hosting and meeting status", () => {
-      const expectedLabelHosting =
-        hostingStatusLabels(t)[defaultUser.hostingStatus as HostingStatus];
-      const expectedLabelMeeting =
-        meetupStatusLabels(t)[defaultUser.meetupStatus as MeetupStatus];
+      const expectedLabelHosting = hostingStatusLabels(t)[defaultUser.hostingStatus as HostingStatus];
+      const expectedLabelMeeting = meetupStatusLabels(t)[defaultUser.meetupStatus as MeetupStatus];
 
       it("should display the hosting and meeting status when showHostAndMeetAvailability is true", () => {
         render(
@@ -70,21 +68,15 @@ describe("UserOverview", () => {
           </ProfileUserProvider>,
           { wrapper },
         );
-        expect(
-          screen.queryByText(expectedLabelHosting),
-        ).not.toBeInTheDocument();
-        expect(
-          screen.queryByText(expectedLabelMeeting),
-        ).not.toBeInTheDocument();
+        expect(screen.queryByText(expectedLabelHosting)).not.toBeInTheDocument();
+        expect(screen.queryByText(expectedLabelMeeting)).not.toBeInTheDocument();
       });
     });
 
     it("should display the community and verification scores when the feature flag is enabled", () => {
-      const previousEnvValueVerificationEnabled =
-        process.env.NEXT_PUBLIC_IS_VERIFICATION_ENABLED;
+      const previousEnvValueVerificationEnabled = process.env.NEXT_PUBLIC_IS_VERIFICATION_ENABLED;
       process.env.NEXT_PUBLIC_IS_VERIFICATION_ENABLED = "true";
-      const previousEnvValuePostBetaEnabled =
-        process.env.NEXT_PUBLIC_IS_POST_BETA_ENABLED;
+      const previousEnvValuePostBetaEnabled = process.env.NEXT_PUBLIC_IS_POST_BETA_ENABLED;
       process.env.NEXT_PUBLIC_IS_POST_BETA_ENABLED = "true";
 
       const expectedLabelCommunity = t("global:community_standing");
@@ -99,10 +91,8 @@ describe("UserOverview", () => {
       expect(screen.getByText(expectedLabelCommunity)).toBeInTheDocument();
       expect(screen.getByText(expectedLabelVerification)).toBeInTheDocument();
 
-      process.env.NEXT_PUBLIC_IS_VERIFICATION_ENABLED =
-        previousEnvValueVerificationEnabled;
-      process.env.NEXT_PUBLIC_IS_POST_BETA_ENABLED =
-        previousEnvValuePostBetaEnabled;
+      process.env.NEXT_PUBLIC_IS_VERIFICATION_ENABLED = previousEnvValueVerificationEnabled;
+      process.env.NEXT_PUBLIC_IS_POST_BETA_ENABLED = previousEnvValuePostBetaEnabled;
     });
 
     it("should render the action buttons", () => {
@@ -124,9 +114,7 @@ describe("UserOverview", () => {
 
     it("should not show badge when no strong verification", () => {
       render(
-        <ProfileUserProvider
-          user={{ ...defaultUser, hasStrongVerification: false }}
-        >
+        <ProfileUserProvider user={{ ...defaultUser, hasStrongVerification: false }}>
           <UserOverview showHostAndMeetAvailability={false} />
         </ProfileUserProvider>,
         { wrapper },
@@ -138,9 +126,7 @@ describe("UserOverview", () => {
 
     it("should show badge when user has strong verification", () => {
       render(
-        <ProfileUserProvider
-          user={{ ...defaultUser, hasStrongVerification: true }}
-        >
+        <ProfileUserProvider user={{ ...defaultUser, hasStrongVerification: true }}>
           <UserOverview showHostAndMeetAvailability={false} />
         </ProfileUserProvider>,
         { wrapper },

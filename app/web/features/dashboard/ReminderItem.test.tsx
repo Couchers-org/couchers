@@ -9,7 +9,7 @@ import ReminderItem from "./ReminderItem";
 
 const { t } = i18n;
 
-const [, surferUser] = liteUsers;
+const [hostUser, surferUser] = liteUsers;
 
 describe("ReminderItem", () => {
   it("renders a 'respond to host request' card with the surfer's name and a link to the request", () => {
@@ -46,6 +46,74 @@ describe("ReminderItem", () => {
     ).toHaveAttribute("href", "/messages/request/42");
   });
 
+  it("renders a 'respond to public trip offer' card with the host's name and a link to the invitation", () => {
+    render(
+      <ReminderItem
+        reminder={{
+          respondToPublicTripOfferReminder: {
+            hostRequestId: 43,
+            hostUser,
+          },
+        }}
+      />,
+      { wrapper },
+    );
+
+    expect(
+      screen.getByText(
+        t("dashboard:reminder.respond_to_public_trip_offer.title", {
+          name: hostUser.name,
+        }),
+      ),
+    ).toBeVisible();
+    expect(
+      screen.getByText(
+        t("dashboard:reminder.respond_to_public_trip_offer.description", {
+          name: hostUser.name,
+        }),
+      ),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("link", {
+        name: t("dashboard:reminder.respond_to_public_trip_offer.button"),
+      }),
+    ).toHaveAttribute("href", "/messages/request/43");
+  });
+
+  it("renders a 'confirm public trip offer' card with the traveller's name and a link to the invitation", () => {
+    render(
+      <ReminderItem
+        reminder={{
+          confirmPublicTripOfferReminder: {
+            hostRequestId: 44,
+            surferUser,
+          },
+        }}
+      />,
+      { wrapper },
+    );
+
+    expect(
+      screen.getByText(
+        t("dashboard:reminder.confirm_public_trip_offer.title", {
+          name: surferUser.name,
+        }),
+      ),
+    ).toBeVisible();
+    expect(
+      screen.getByText(
+        t("dashboard:reminder.confirm_public_trip_offer.description", {
+          name: surferUser.name,
+        }),
+      ),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("link", {
+        name: t("dashboard:reminder.confirm_public_trip_offer.button"),
+      }),
+    ).toHaveAttribute("href", "/messages/request/44");
+  });
+
   it("renders a 'write reference' card with the other user's name and a link to leave the reference", () => {
     render(
       <ReminderItem
@@ -60,9 +128,7 @@ describe("ReminderItem", () => {
       { wrapper },
     );
 
-    expect(
-      screen.getByText(t("dashboard:reminder.write_reference.title")),
-    ).toBeVisible();
+    expect(screen.getByText(t("dashboard:reminder.write_reference.title"))).toBeVisible();
     expect(
       screen.getByText(
         t("dashboard:reminder.write_reference.description_hosted", {
@@ -74,10 +140,7 @@ describe("ReminderItem", () => {
       screen.getByRole("link", {
         name: t("dashboard:reminder.write_reference.button"),
       }),
-    ).toHaveAttribute(
-      "href",
-      `/leave-reference/hosted/${surferUser.userId}/99`,
-    );
+    ).toHaveAttribute("href", `/leave-reference/hosted/${surferUser.userId}/99`);
   });
 
   it("renders a 'complete my home' card with a link to the home edit tab", () => {
@@ -85,12 +148,8 @@ describe("ReminderItem", () => {
       wrapper,
     });
 
-    expect(
-      screen.getByText(t("dashboard:reminder.complete_my_home.title")),
-    ).toBeVisible();
-    expect(
-      screen.getByText(t("dashboard:reminder.complete_my_home.description")),
-    ).toBeVisible();
+    expect(screen.getByText(t("dashboard:reminder.complete_my_home.title"))).toBeVisible();
+    expect(screen.getByText(t("dashboard:reminder.complete_my_home.description"))).toBeVisible();
     expect(
       screen.getByRole("link", {
         name: t("dashboard:reminder.complete_my_home.button"),
@@ -103,12 +162,8 @@ describe("ReminderItem", () => {
       wrapper,
     });
 
-    expect(
-      screen.getByText(t("dashboard:reminder.complete_profile.title")),
-    ).toBeVisible();
-    expect(
-      screen.getByText(t("dashboard:reminder.complete_profile.description")),
-    ).toBeVisible();
+    expect(screen.getByText(t("dashboard:reminder.complete_profile.title"))).toBeVisible();
+    expect(screen.getByText(t("dashboard:reminder.complete_profile.description"))).toBeVisible();
     expect(
       screen.getByRole("link", {
         name: t("dashboard:reminder.complete_profile.button"),
@@ -121,12 +176,8 @@ describe("ReminderItem", () => {
       wrapper,
     });
 
-    expect(
-      screen.getByText(t("dashboard:reminder.strong_verification.title")),
-    ).toBeVisible();
-    expect(
-      screen.getByText(t("dashboard:reminder.strong_verification.description")),
-    ).toBeVisible();
+    expect(screen.getByText(t("dashboard:reminder.strong_verification.title"))).toBeVisible();
+    expect(screen.getByText(t("dashboard:reminder.strong_verification.description"))).toBeVisible();
     expect(
       screen.getByRole("link", {
         name: t("dashboard:reminder.strong_verification.button"),
@@ -143,13 +194,7 @@ describe("ReminderItem", () => {
   it("calls onDismiss when the dismiss button is clicked", async () => {
     const user = userEvent.setup();
     const onDismiss = jest.fn();
-    render(
-      <ReminderItem
-        reminder={{ completeProfileReminder: {} }}
-        onDismiss={onDismiss}
-      />,
-      { wrapper },
-    );
+    render(<ReminderItem reminder={{ completeProfileReminder: {} }} onDismiss={onDismiss} />, { wrapper });
 
     await user.click(
       screen.getByRole("button", {

@@ -1,10 +1,7 @@
 import { styled, useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import {
-  useWriteFriendReference,
-  useWriteHostReference,
-} from "features/profile/hooks/referencesHooks";
+import { useWriteFriendReference, useWriteHostReference } from "features/profile/hooks/referencesHooks";
 import ReferenceOverview from "features/profile/view/leaveReference/formSteps/submit/ReferenceOverview";
 import { ReferenceContextFormData } from "features/profile/view/leaveReference/ReferenceForm";
 import { useTranslation } from "i18n";
@@ -12,15 +9,8 @@ import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { ReferenceType } from "proto/references_pb";
 import { useForm } from "react-hook-form";
-import {
-  leaveReferenceBaseRoute,
-  referenceStepStrings,
-  referenceTypeRoute,
-} from "routes";
-import {
-  WriteFriendReferenceInput,
-  WriteHostRequestReferenceInput,
-} from "service/references";
+import { leaveReferenceBaseRoute, referenceStepStrings, referenceTypeRoute } from "routes";
+import { WriteFriendReferenceInput, WriteHostRequestReferenceInput } from "service/references";
 import { theme } from "theme";
 
 import ReferenceStepHeader from "../ReferenceStepHeader";
@@ -38,12 +28,7 @@ const StyledButtonContainer = styled("div")(({ theme }) => ({
   paddingTop: theme.spacing(1),
 }));
 
-export default function SubmitReference({
-  referenceData,
-  referenceType,
-  hostRequestId,
-  userId,
-}: SubmitReferenceProps) {
+export default function SubmitReference({ referenceData, referenceType, hostRequestId, userId }: SubmitReferenceProps) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
 
   const {
@@ -98,11 +83,7 @@ export default function SubmitReference({
   };
 
   const onHostReferenceSubmit = () => {
-    if (
-      hostRequestId &&
-      !isNaN(hostRequestId) &&
-      referenceData.rating !== undefined
-    ) {
+    if (hostRequestId && !isNaN(hostRequestId) && referenceData.rating !== undefined) {
       const formData: WriteHostRequestReferenceInput =
         referenceData.wasAppropriate === "true"
           ? {
@@ -138,12 +119,8 @@ export default function SubmitReference({
   const redirectToThankYouPage = () => {
     const rating = referenceData.rating ?? 0;
     const ratingParam = `?rating=${rating}`;
-    if (
-      referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
-    ) {
-      router.push(
-        `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${referenceStepStrings[4]}${ratingParam}`,
-      );
+    if (referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]) {
+      router.push(`${leaveReferenceBaseRoute}/${referenceType}/${userId}/${referenceStepStrings[4]}${ratingParam}`);
     } else {
       router.push(
         `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}/${referenceStepStrings[4]}${ratingParam}`,

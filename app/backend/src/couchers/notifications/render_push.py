@@ -5,6 +5,7 @@ Renders a Notification model into a localized push notification.
 import logging
 from datetime import date
 from typing import Any, assert_never
+from zoneinfo import ZoneInfo
 
 from google.protobuf.timestamp_pb2 import Timestamp
 
@@ -195,7 +196,7 @@ def _get_string(
         full_key = f"{string_group.topic}.{string_group.action}.push.{key}"
     else:
         full_key = f"{string_group}.{key}"
-    return get_notifs_i18next().localize(full_key, loc_context.locale, substitutions)
+    return get_notifs_i18next().localize(full_key, loc_context.locale_list, substitutions)
 
 
 def _avatar_url_or_default(user: api_pb2.User) -> str:
@@ -268,7 +269,17 @@ def _render_birthdate__change(
 def _render_chat__message(
     data: notification_data_pb2.ChatMessage, loc_context: LocalizationContext
 ) -> PushNotificationContent:
-    # All strings are dynamic, no need to use _get_content
+    if data.group_chat_title:
+        # Group chat message: title/subtitle specifies user and group
+        return _get_content(
+            "chat.message.push_group",
+            loc_context,
+            body=data.text,
+            substitutions={"user": data.author.name, "group": data.group_chat_title},
+            icon_user=data.author,
+            action_url=urls.chat_link(chat_id=data.group_chat_id),
+        )
+    # Direct message: all strings are dynamic, no need to use _get_content
     return PushNotificationContent(
         title=data.author.name,
         ios_title=data.author.name,
@@ -367,7 +378,7 @@ def _render_event__create_any(
         substitutions={
             "title": data.event.title,
             "user": data.inviting_user.name,
-            "date_and_time": _format_event_start_datetime(data.event.start_time, loc_context),
+            "date_and_time": _format_event_start_datetime(data.event.start_time, data.event.timezone, loc_context),
         },
         action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
     )
@@ -382,7 +393,7 @@ def _render_event__create_approved(
         substitutions={
             "title": data.event.title,
             "user": data.inviting_user.name,
-            "date_and_time": _format_event_start_datetime(data.event.start_time, loc_context),
+            "date_and_time": _format_event_start_datetime(data.event.start_time, data.event.timezone, loc_context),
         },
         action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
     )
@@ -442,7 +453,7 @@ def _render_event__reminder(
         loc_context,
         substitutions={
             "title": data.event.title,
-            "date_and_time": _format_event_start_datetime(data.event.start_time, loc_context),
+            "date_and_time": _format_event_start_datetime(data.event.start_time, data.event.timezone, loc_context),
         },
         action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
     )
@@ -871,7 +882,10 @@ def _format_host_request_start_date(date: str, loc_context: LocalizationContext)
     return loc_context.localize_date_from_iso(date, with_year=False, with_day_of_week=True)
 
 
-def _format_event_start_datetime(timestamp: Timestamp, loc_context: LocalizationContext) -> str:
+def _format_event_start_datetime(timestamp: Timestamp, timezone: str, loc_context: LocalizationContext) -> str:
     # Events are typically in the near future future,
     # so the year is not useful but the day of week is.
-    return loc_context.localize_datetime(timestamp, with_year=False, with_day_of_week=True)
+    # Event start/end times are displayed in their local timezone.
+    return loc_context.localize_datetime(
+        timestamp, display_timezone=ZoneInfo(timezone), with_year=False, with_day_of_week=True
+    )

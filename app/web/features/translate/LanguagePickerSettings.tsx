@@ -1,6 +1,5 @@
 import { Checkbox, FormControlLabel, Link, Typography } from "@mui/material";
 import { Trans, useTranslation } from "i18n";
-import { LANGUAGE_MAP } from "i18n/constants";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { translateJobURL, translateRoute } from "routes";
@@ -13,21 +12,15 @@ interface ChangeLanguageProps {
   className?: string;
 }
 
-export default function LanguagePickerSettings({
-  className,
-}: ChangeLanguageProps) {
-  const { t } = useTranslation([GLOBAL]);
+export default function LanguagePickerSettings({ className }: ChangeLanguageProps) {
+  const { t, i18n } = useTranslation([GLOBAL]);
   const router = useRouter();
-  const { locale } = router;
-  const languageName = LANGUAGE_MAP[locale || "en"]?.name;
-  const { isAvailable, showAllLanguages, setShowAllLanguages } =
-    useShowAllLanguages();
+  const languageName = t(`global:language_names.${i18n.language}`);
+  const { isAvailable, showAllLanguages, setShowAllLanguages } = useShowAllLanguages();
 
   return (
     <div className={className}>
-      <Typography variant="h2">
-        {t("global:language_preference.form_title")}
-      </Typography>
+      <Typography variant="h2">{t("global:language_preference.form_title")}</Typography>
       <>
         <Typography variant="body1">
           <Trans
@@ -43,12 +36,7 @@ export default function LanguagePickerSettings({
             marginBottom: "16px",
           }}
         >
-          <Link
-            href={translateJobURL}
-            target="_blank"
-            rel="noreferrer noopener"
-            underline="hover"
-          >
+          <Link href={translateJobURL} target="_blank" rel="noreferrer noopener" underline="hover">
             <strong>{t("global:language_preference.help_translate")}</strong>
           </Link>
         </Typography>
@@ -65,21 +53,25 @@ export default function LanguagePickerSettings({
         </Typography>
         {isAvailable && (
           <FormControlLabel
-            control={
-              <Checkbox
-                checked={showAllLanguages}
-                onChange={(e) => setShowAllLanguages(e.target.checked)}
-              />
-            }
+            control={<Checkbox checked={showAllLanguages} onChange={(e) => setShowAllLanguages(e.target.checked)} />}
             label={
               <div>
-                <Typography variant="body1" component="span" fontWeight="bold">
+                <Typography
+                  variant="body1"
+                  component="span"
+                  sx={{
+                    fontWeight: "bold",
+                  }}
+                >
                   {t("global:language_preference.show_all_languages")}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {t(
-                    "global:language_preference.show_all_languages_description",
-                  )}
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "text.secondary",
+                  }}
+                >
+                  {t("global:language_preference.show_all_languages_description")}
                 </Typography>
               </div>
             }

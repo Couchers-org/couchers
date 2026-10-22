@@ -89,6 +89,5 @@
     "last_year": "El último año"
   },
   "choose_search_criteria": "Escribe una ubicación o aplica un filtro para buscar.",
-  "error_loading_users": "Error al cargar usuarios",
-  "zoom_in_to_select_user": "Haz zoom para seleccionar un usuario"
+  "error_loading_users": "Error al cargar usuarios"
 }

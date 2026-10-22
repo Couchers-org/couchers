@@ -1,11 +1,5 @@
 import { DeleteOutlined, EditOutlined } from "@mui/icons-material";
-import {
-  Card,
-  CircularProgress,
-  Skeleton,
-  styled,
-  Typography,
-} from "@mui/material";
+import { Card, CircularProgress, Skeleton, styled, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Avatar from "components/Avatar";
@@ -14,22 +8,22 @@ import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
 import Markdown from "components/Markdown";
 import MarkdownInput, { MarkdownInputProps } from "components/MarkdownInput";
+import RelativeTime from "components/RelativeTime";
+import { contentRefs } from "features/contentRefs";
 import FlagButton from "features/FlagButton";
 import CopyOnClick from "features/mod/CopyOnClick";
 import ModVisibleComponent from "features/mod/ModVisibleComponent";
 import { discussionKey, threadKey } from "features/queryKeys";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
+import { Trans, useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { Reply } from "proto/threads_pb";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { service } from "service";
 import { theme } from "theme";
-import { timestamp2Date } from "utils/date";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
-import { timeAgo } from "utils/timeAgo";
 
 import { useThread } from "../hooks";
 import CommentForm from "./CommentForm";
@@ -131,22 +125,12 @@ interface EditCommentData {
   content: string;
 }
 
-export default function Comment({
-  topLevel = false,
-  comment,
-  parentThreadId,
-  discussionId,
-}: CommentProps) {
-  const {
-    t,
-    i18n: { language: locale },
-  } = useTranslation([GLOBAL, COMMUNITIES]);
+export default function Comment({ topLevel = false, comment, parentThreadId, discussionId }: CommentProps) {
+  const { t } = useTranslation([GLOBAL, COMMUNITIES]);
 
   const queryClient = useQueryClient();
 
-  const { data: user, isLoading: isUserLoading } = useLiteUser(
-    comment.authorUserId,
-  );
+  const { data: user, isLoading: isUserLoading } = useLiteUser(comment.authorUserId);
 
   const {
     data: comments,
@@ -161,8 +145,7 @@ export default function Comment({
 
   const [showCommentForm, setShowCommentForm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [ellipsisMenuAnchorEl, setEllipsisMenuAnchorEl] =
-    useState<Element | null>(null);
+  const [ellipsisMenuAnchorEl, setEllipsisMenuAnchorEl] = useState<Element | null>(null);
   const commentFormRef = useRef<HTMLFormElement>(null);
   const resetInputRef: MarkdownInputProps["resetInputRef"] = useRef(null);
 
@@ -185,8 +168,7 @@ export default function Comment({
     error: updateError,
     isPending: isUpdating,
   } = useMutation<Reply.AsObject, RpcError, EditCommentData>({
-    mutationFn: ({ content }) =>
-      service.threads.updateReply(comment.threadId, content),
+    mutationFn: ({ content }) => service.threads.updateReply(comment.threadId, content),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: threadKey(parentThreadId) });
       if (discussionId) {
@@ -198,10 +180,7 @@ export default function Comment({
     },
   });
 
-  const { mutate: deleteReply, isPending: isDeleting } = useMutation<
-    void,
-    RpcError
-  >({
+  const { mutate: deleteReply, isPending: isDeleting } = useMutation<void, RpcError>({
     mutationFn: () => service.threads.deleteReply(comment.threadId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: threadKey(parentThreadId) });
@@ -217,11 +196,6 @@ export default function Comment({
     reset();
     setIsEditing(false);
   };
-
-  const replyDate = comment.createdTime
-    ? timestamp2Date(comment.createdTime)
-    : undefined;
-  const postedTime = replyDate ? timeAgo({ since: replyDate, t, locale }) : "";
 
   const ellipsisMenuItems: EllipsisMenuItem[] = comment.canEdit
     ? [
@@ -250,15 +224,10 @@ export default function Comment({
         {!comment.deleted && (
           <StyledButtonsContainer>
             <StyledAvatar user={user} />
-            <FlagButton
-              contentRef={`comment/${comment.threadId}`}
-              authorUser={comment.authorUserId}
-            />
+            <FlagButton contentRef={contentRefs.comment(comment)} authorUser={comment.authorUserId} />
           </StyledButtonsContainer>
         )}
-        <StyledCommentContent
-          sx={comment.deleted ? { gridColumn: "1 / -1" } : undefined}
-        >
+        <StyledCommentContent sx={comment.deleted ? { gridColumn: "1 / -1" } : undefined}>
           {comment.deleted ? (
             <Typography
               variant="body2"
@@ -278,18 +247,23 @@ export default function Comment({
                   {t("communities:by_creator", {
                     name: user?.name ?? t("communities:unknown_user"),
                   })}
-                  {postedTime && ` • ${postedTime}`}
+                  {comment.createdTime && (
+                    <>
+                      {" "}
+                      {"•"} <RelativeTime instant={comment.createdTime} />
+                    </>
+                  )}
                   {comment.lastEdited && (
                     <>
                       {" "}
                       {"•"}{" "}
-                      {t("communities:comment_edited_date", {
-                        timeAgo: timeAgo({
-                          since: timestamp2Date(comment.lastEdited),
-                          t,
-                          locale,
-                        }),
-                      })}
+                      <Trans
+                        t={t}
+                        i18nKey="communities:comment_edited_date2"
+                        components={{
+                          timeAgo: <RelativeTime instant={comment.lastEdited} />,
+                        }}
+                      />
                     </>
                   )}
                   <ModVisibleComponent>
@@ -303,12 +277,8 @@ export default function Comment({
                 </Typography>
               )}
               {isEditing ? (
-                <StyledEditForm
-                  onSubmit={handleSubmit((data) => updateReply(data))}
-                >
-                  {updateError && (
-                    <Alert severity="error">{updateError.message}</Alert>
-                  )}
+                <StyledEditForm onSubmit={handleSubmit((data) => updateReply(data))}>
+                  {updateError && <Alert severity="error">{updateError.message}</Alert>}
                   <span
                     style={{
                       height: 1,
@@ -346,42 +316,33 @@ export default function Comment({
             </>
           )}
         </StyledCommentContent>
-        {(topLevel || ellipsisMenuItems.length > 0) &&
-          !isEditing &&
-          !comment.deleted && (
-            <StyledActionsContainer>
-              {ellipsisMenuItems.length > 0 && (
-                <EllipsisMenu
-                  idName={`comment-${comment.threadId}`}
-                  isMenuOpen={Boolean(ellipsisMenuAnchorEl)}
-                  menuAnchorEl={ellipsisMenuAnchorEl}
-                  onMenuOpen={(e) => setEllipsisMenuAnchorEl(e.currentTarget)}
-                  onMenuClose={() => setEllipsisMenuAnchorEl(null)}
-                  items={ellipsisMenuItems}
-                />
-              )}
-              {topLevel && (
-                <StyledReplyButton onClick={() => setShowCommentForm(true)}>
-                  {t("global:reply")}
-                </StyledReplyButton>
-              )}
-            </StyledActionsContainer>
-          )}
+        {(topLevel || ellipsisMenuItems.length > 0) && !isEditing && !comment.deleted && (
+          <StyledActionsContainer>
+            {ellipsisMenuItems.length > 0 && (
+              <EllipsisMenu
+                idName={`comment-${comment.threadId}`}
+                isMenuOpen={Boolean(ellipsisMenuAnchorEl)}
+                menuAnchorEl={ellipsisMenuAnchorEl}
+                onMenuOpen={(e) => setEllipsisMenuAnchorEl(e.currentTarget)}
+                onMenuClose={() => setEllipsisMenuAnchorEl(null)}
+                items={ellipsisMenuItems}
+              />
+            )}
+            {topLevel && (
+              <StyledReplyButton onClick={() => setShowCommentForm(true)}>{t("global:reply")}</StyledReplyButton>
+            )}
+          </StyledActionsContainer>
+        )}
       </StyledCommentContainer>
       {isCommentsLoading ? (
         <CenteredSpinner />
       ) : (
         <StyledNestedCommentsContainer>
-          {!showLoadMoreButton && isCommentsRefetching && (
-            <CircularProgress data-testid={REFETCH_LOADING_TEST_ID} />
-          )}
+          {!showLoadMoreButton && isCommentsRefetching && <CircularProgress data-testid={REFETCH_LOADING_TEST_ID} />}
           {hasAtLeastOnePage(comments, "repliesList") && (
             <>
               {showLoadMoreButton && (
-                <StyledLoadEarlierRepliesButton
-                  loading={isFetchingNextPage}
-                  onClick={() => fetchNextPage()}
-                >
+                <StyledLoadEarlierRepliesButton loading={isFetchingNextPage} onClick={() => fetchNextPage()}>
                   {t("communities:load_earlier_replies")}
                 </StyledLoadEarlierRepliesButton>
               )}
@@ -389,13 +350,7 @@ export default function Comment({
                 .flatMap((page) => page.repliesList)
                 .reverse()
                 .map((reply) => {
-                  return (
-                    <Comment
-                      key={reply.threadId}
-                      comment={reply}
-                      parentThreadId={comment.threadId}
-                    />
-                  );
+                  return <Comment key={reply.threadId} comment={reply} parentThreadId={comment.threadId} />;
                 })}
             </>
           )}

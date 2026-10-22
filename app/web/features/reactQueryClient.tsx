@@ -20,9 +20,7 @@ const queryClient = new QueryClient({
   },
 });
 
-export function ReactQueryClientProvider({
-  children,
-}: ReactQueryClientProviderProps) {
+export function ReactQueryClientProvider({ children }: ReactQueryClientProviderProps) {
   useEffect(() => {
     const asyncStoragePersister = createAsyncStoragePersister({
       storage: localStorage,

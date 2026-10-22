@@ -1,14 +1,11 @@
 import { appGetLayout } from "components/AppRoute";
-import MarkdownPage, {
-  MarkdownPageProps,
-} from "features/markdown/MarkdownPage";
+import MarkdownPage, { MarkdownPageProps } from "features/markdown/MarkdownPage";
 import { appServerSideTranslations } from "i18n/appServerSideTranslations";
-import { AUTH, GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
+import { DEFAULT_LOCALE } from "i18n/locales";
+import { AUTH, COMMUNITIES, GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
 import { GetStaticPaths, GetStaticProps } from "next";
 
-async function getMarkdownPageBySlug(
-  slug: Array<string>,
-): Promise<MarkdownPageProps> {
+async function getMarkdownPageBySlug(slug: Array<string>): Promise<MarkdownPageProps> {
   const md = await import(`markdown/${slug.join("/")}.md`);
   return { slug, frontmatter: md.attributes, content: md.html };
 }
@@ -28,11 +25,7 @@ export const getStaticProps: GetStaticProps = async ({ locale, params }) => {
   try {
     return {
       props: {
-        ...(await appServerSideTranslations(locale ?? "en", [
-          GLOBAL,
-          AUTH,
-          NOTIFICATIONS,
-        ])),
+        ...(await appServerSideTranslations(locale ?? DEFAULT_LOCALE, [GLOBAL, AUTH, COMMUNITIES, NOTIFICATIONS])),
         page: await getMarkdownPageBySlug(slug),
       },
     };

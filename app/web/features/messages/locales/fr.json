@@ -44,8 +44,8 @@
     }
   },
   "past_request_help_text": "Cette demande est passée ; vous pourrez toujours envoyer des messages, mais vous ne pourrez pas la modifier autrement.",
-  "host_pending_request_help_text": "<0>Les choses à prendre en compte</0> avant de répondre.",
-  "surfer_declined_request_help_text": "<0>Consultez notre guide</0> sur la façon de rédiger une demande d'hébergement qui augmentera la chance d'être acceptée.",
+  "host_pending_request_help_text": "<guideLink>Les choses à prendre en compte</guideLink> avant de répondre.",
+  "surfer_declined_request_help_text": "<guideLink>Consultez notre guide</guideLink> sur la façon de rédiger une demande d'hébergement qui augmentera la chance d'être acceptée.",
   "admins_dialog": {
     "step_down_confirmation_dialog": {
       "title": "Démissionner en tant qu'administrateur ?",
@@ -148,5 +148,11 @@
   "unknown_user": "Utilisateur.trice inconnu.e",
   "mark_all_read_button_text_chats": "Marquez toutes les discussions comme lues",
   "mark_all_read_button_text_hosting": "Marquer toutes les demandes d'hébergement comme lues",
-  "mark_all_read_button_text_surfing": "Marquer toutes les demandes de surf comme lues"
+  "mark_all_read_button_text_surfing": "Marquer toutes les demandes de surf comme lues",
+  "private_feedback_card": {
+    "decline_reason_options": {
+      "dont_want_to_host": "Je ne veux pas héberger cette personne",
+      "not_available": "Je ne suis pas disponible pour héberger à ce moment"
+    }
+  }
 }

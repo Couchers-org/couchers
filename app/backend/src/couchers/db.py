@@ -19,7 +19,8 @@ from sqlalchemy.pool import QueuePool
 from sqlalchemy.sql import and_, func, literal, or_
 
 from couchers.config import config
-from couchers.constants import SERVER_THREADS
+from couchers.constants import DB_POOL_SIZE
+from couchers.middleware.perf import register_perf_listeners
 from couchers.models import (
     Cluster,
     ClusterRole,
@@ -31,7 +32,6 @@ from couchers.models import (
     TimezoneArea,
     User,
 )
-from couchers.perf import register_perf_listeners
 from couchers.sql import where_users_column_visible
 
 if TYPE_CHECKING:
@@ -69,8 +69,9 @@ def _get_base_engine() -> Engine:
         # one connection per thread
         poolclass=QueuePool,
         # each process keeps its own pool, so total connections ~= process count * pool_size, kept under postgres
-        # max_connections. ~2 per thread since a request can hold two connections at once (handler + _store_log).
-        pool_size=2 * SERVER_THREADS + 4,
+        # max_connections. ~2 per thread since a thread can hold two connections at once (handler + _log_call,
+        # or the jobs worker's own session_scope + the handler's).
+        pool_size=DB_POOL_SIZE,
         max_overflow=0,
     )
     register_perf_listeners(engine)
@@ -106,42 +107,6 @@ def session_scope() -> Generator[Session]:
                     logger.debug(f"SScope: closed {backend_pid=}")
 
 
-@contextmanager
-def worker_repeatable_read_session_scope() -> Generator[Session]:
-    """
-    This is a separate session scope that is isolated from the main one since otherwise we end up nesting transactions,
-    this causes two different connections to be used
-
-    This operates in a `REPEATABLE READ` isolation level so that we can do a `SELECT ... FOR UPDATE SKIP LOCKED` in the
-    background worker, effectively using postgres as a queueing system.
-    """
-    with tracer.start_as_current_span("worker_session_scope") as rollspan:
-        with Session(_get_base_engine().execution_options(isolation_level="REPEATABLE READ")) as session:
-            session.begin()
-            try:
-                if logger.isEnabledFor(logging.DEBUG):
-                    try:
-                        frame = inspect.stack()[2]
-                        filename_line = f"{frame.filename}:{frame.lineno}"
-                    except Exception as e:
-                        filename_line = "{unknown file}"
-                    backend_pid = session.execute(text("SELECT pg_backend_pid();")).scalar_one()
-                    logger.debug(f"SScope (worker): got {backend_pid=} at {filename_line}")
-                    rollspan.set_attribute("db.backend_pid", backend_pid)
-                    rollspan.set_attribute("db.filename_line", filename_line)
-                rollspan.set_attribute("rpc.thread", get_ident())
-                rollspan.set_attribute("rpc.pid", getpid())
-
-                yield session
-                session.commit()
-            except:
-                session.rollback()
-                raise
-            finally:
-                if logger.isEnabledFor(logging.DEBUG):
-                    logger.debug(f"SScope (worker): closed {backend_pid=}")
-
-
 def db_post_fork() -> None:
     """
     Fix post-fork issues with sqlalchemy
@@ -163,7 +128,7 @@ def are_friends(session: Session, context: CouchersContext, other_user: int) -> 
     return session.execute(query).scalar_one_or_none() is not None
 
 
-def get_parent_node_at_location(session: Session, shape: WKBElement) -> Node | None:
+def get_parent_node_at_location(session: Session, shape: Geom) -> Node | None:
     """
     Finds the smallest node containing the shape.
 

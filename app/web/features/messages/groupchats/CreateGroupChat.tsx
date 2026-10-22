@@ -1,20 +1,10 @@
-import {
-  ListItemAvatar,
-  ListItemButton,
-  ListItemText,
-  styled,
-} from "@mui/material";
+import { ListItemAvatar, ListItemButton, ListItemText, styled } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Autocomplete from "components/Autocomplete";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-} from "components/Dialog";
+import { Dialog, DialogActions, DialogContent, DialogTitle } from "components/Dialog";
 import { AddIcon } from "components/Icons";
 import TextField from "components/TextField";
 import useFriendList from "features/connections/friends/useFriendList";
@@ -39,9 +29,7 @@ const StyledTextField = styled(TextField)(() => ({
   },
 }));
 
-const StyledAutocomplete = styled(
-  Autocomplete<LiteUser.AsObject, true, false, undefined>,
-)(() => ({
+const StyledAutocomplete = styled(Autocomplete<LiteUser.AsObject, true, false, undefined>)(() => ({
   marginTop: theme.spacing(1),
   "& .MuiInputBase-root": {
     width: "100%",
@@ -84,17 +72,10 @@ export default function CreateGroupChat({ className }: { className?: string }) {
   const router = useRouter();
   const createMessageToUsername = stringOrFirstString(router.query.to);
   const [isOpen, setIsOpen] = useState(!!createMessageToUsername);
-  const createMessageToUserQuery = useUserByUsername(
-    createMessageToUsername ?? "",
-  );
+  const createMessageToUserQuery = useUserByUsername(createMessageToUsername ?? "");
 
   const friends = useFriendList();
-  const {
-    control,
-    register,
-    handleSubmit,
-    reset: resetForm,
-  } = useForm<CreateGroupChatFormData>();
+  const { control, register, handleSubmit, reset: resetForm } = useForm<CreateGroupChatFormData>();
 
   const queryClient = useQueryClient();
   const {
@@ -103,8 +84,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
     error: createError,
     reset: resetMutationStatus,
   } = useMutation<number, RpcError, CreateGroupChatFormData>({
-    mutationFn: ({ title, users }) =>
-      service.conversations.createGroupChat(title, users),
+    mutationFn: ({ title, users }) => service.conversations.createGroupChat(title, users),
     onSuccess: (chatId) => {
       queryClient.invalidateQueries({
         queryKey: [groupChatsListKey],
@@ -115,9 +95,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
     },
   });
 
-  const onSubmit = handleSubmit(({ title, users }: CreateGroupChatFormData) =>
-    createGroupChat({ title, users }),
-  );
+  const onSubmit = handleSubmit(({ title, users }: CreateGroupChatFormData) => createGroupChat({ title, users }));
 
   const handleClose = () => {
     setIsOpen(false);
@@ -131,10 +109,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
 
   return (
     <>
-      <StyledListItemButton
-        onClick={() => setIsOpen(true)}
-        className={className}
-      >
+      <StyledListItemButton onClick={() => setIsOpen(true)} className={className}>
         <ListItemAvatar>
           <StyledAvatar>
             <AddIcon />
@@ -153,14 +128,10 @@ export default function CreateGroupChat({ className }: { className?: string }) {
       >
         <form onSubmit={onSubmit}>
           <DialogTitle id="create-dialog-title">
-            {isGroup
-              ? t("messages:create_chat.group_title")
-              : t("messages:create_chat.dm_title")}
+            {isGroup ? t("messages:create_chat.group_title") : t("messages:create_chat.dm_title")}
           </DialogTitle>
           <DialogContent>
-            {!!errors.length && (
-              <Alert severity={"error"}>{errors.join("\n")}</Alert>
-            )}
+            {!!errors.length && <Alert severity={"error"}>{errors.join("\n")}</Alert>}
             {isGroup && (
               <StyledTextField
                 {...register("title")}
@@ -168,9 +139,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
                 label={t("messages:create_chat.title_label")}
               />
             )}
-            {createMessageToUserQuery.error && (
-              <Alert severity="error">{createMessageToUserQuery.error}</Alert>
-            )}
+            {createMessageToUserQuery.error && <Alert severity="error">{createMessageToUserQuery.error}</Alert>}
             {
               // need to mount the autocomplete with the correct default value
               // of the "to" user, display a dummy loader until then
@@ -178,11 +147,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
                 <Controller
                   control={control}
                   name="users"
-                  defaultValue={
-                    createMessageToUserQuery.data
-                      ? [createMessageToUserQuery.data]
-                      : []
-                  }
+                  defaultValue={createMessageToUserQuery.data ? [createMessageToUserQuery.data] : []}
                   render={({ field }) => {
                     return (
                       <StyledAutocomplete
@@ -197,16 +162,11 @@ export default function CreateGroupChat({ className }: { className?: string }) {
                         multiple
                         loading={friends.isLoading}
                         options={friends.data ?? []}
-                        noOptionsText={t(
-                          "messages:create_chat.no_friends_found_message",
-                        )}
+                        noOptionsText={t("messages:create_chat.no_friends_found_message")}
                         getOptionLabel={(friend) => {
-                          const friendHasNameKey =
-                            typeof friend === "object" && friend !== null;
+                          const friendHasNameKey = typeof friend === "object" && friend !== null;
 
-                          return friendHasNameKey
-                            ? friend.name
-                            : t("messages:create_chat.user_load_error_message");
+                          return friendHasNameKey ? friend.name : t("messages:create_chat.user_load_error_message");
                         }}
                         label={t("messages:create_chat.friends_input_label")}
                         value={field.value ?? []}
@@ -227,22 +187,14 @@ export default function CreateGroupChat({ className }: { className?: string }) {
             }
           </DialogContent>
           <DialogActions>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              onClick={onSubmit}
-              loading={isCreateLoading}
-            >
+            <Button type="submit" variant="contained" color="primary" onClick={onSubmit} loading={isCreateLoading}>
               {t("messages:create_chat.create_button")}
             </Button>
             {createMessageToUsername && (
               <Button
                 variant="outlined"
                 color="primary"
-                onClick={() =>
-                  router.push(routeToUser(createMessageToUsername))
-                }
+                onClick={() => router.push(routeToUser(createMessageToUsername))}
               >
                 {t("messages:create_chat.back_button")}
               </Button>

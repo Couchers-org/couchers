@@ -1,10 +1,4 @@
-import {
-  render,
-  renderHook,
-  screen,
-  waitFor,
-  within,
-} from "@testing-library/react";
+import { render, renderHook, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EditLocationMapProps } from "components/EditLocationMap";
 import useAuthStore from "features/auth/useAuthStore";
@@ -48,34 +42,22 @@ async function selectBirthdate(
   await user.click(await within(dialog).findByRole("gridcell", { name: day }));
 }
 
-const startSignupMock = service.auth.startSignup as MockedService<
-  typeof service.auth.startSignup
->;
-const signupFlowAccountMock = service.auth.signupFlowAccount as MockedService<
-  typeof service.auth.signupFlowAccount
->;
-const getCommunityGuidelinesMock = service.resources
-  .getCommunityGuidelines as MockedService<
+const startSignupMock = service.auth.startSignup as MockedService<typeof service.auth.startSignup>;
+const signupFlowAccountMock = service.auth.signupFlowAccount as MockedService<typeof service.auth.signupFlowAccount>;
+const getCommunityGuidelinesMock = service.resources.getCommunityGuidelines as MockedService<
   typeof service.resources.getCommunityGuidelines
 >;
-const signupFlowCommunityGuidelinesMock = service.auth
-  .signupFlowCommunityGuidelines as MockedService<
+const signupFlowCommunityGuidelinesMock = service.auth.signupFlowCommunityGuidelines as MockedService<
   typeof service.auth.signupFlowCommunityGuidelines
 >;
-const signupFlowMotivationsMock = service.auth
-  .signupFlowMotivations as MockedService<
+const signupFlowMotivationsMock = service.auth.signupFlowMotivations as MockedService<
   typeof service.auth.signupFlowMotivations
 >;
-const signupFlowEmailTokenMock = service.auth
-  .signupFlowEmailToken as MockedService<
+const signupFlowEmailTokenMock = service.auth.signupFlowEmailToken as MockedService<
   typeof service.auth.signupFlowEmailToken
 >;
-const validateUsernameMock = service.auth.validateUsername as MockedService<
-  typeof service.auth.validateUsername
->;
-const getInviteCodeInfoMock = service.auth.getInviteCodeInfo as MockedService<
-  typeof service.auth.getInviteCodeInfo
->;
+const validateUsernameMock = service.auth.validateUsername as MockedService<typeof service.auth.validateUsername>;
+const getInviteCodeInfoMock = service.auth.getInviteCodeInfo as MockedService<typeof service.auth.getInviteCodeInfo>;
 
 const View = () => {
   return <Signup />;
@@ -137,6 +119,7 @@ describe("Signup", () => {
         "auth.flowState",
         JSON.stringify({
           flowToken: "token",
+          email: "test@example.com",
           needBasic: true,
           needAccount: true,
           needAcceptCommunityGuidelines: true,
@@ -147,6 +130,7 @@ describe("Signup", () => {
       );
       startSignupMock.mockResolvedValue({
         flowToken: "token",
+        email: "test@example.com",
         needBasic: false,
         needAccount: true,
         needAcceptCommunityGuidelines: true,
@@ -159,19 +143,9 @@ describe("Signup", () => {
 
       const user = userEvent.setup();
 
-      await user.type(
-        await screen.findByLabelText(t("auth:basic_form.name.field_label")),
-        "Test user",
-      );
-      await user.type(
-        screen.getByLabelText(t("auth:basic_form.email.field_label")),
-        "test@example.com{enter}",
-      );
-      expect(
-        await screen.findByLabelText(
-          t("auth:account_form.username.field_label"),
-        ),
-      ).toBeVisible();
+      await user.type(await screen.findByLabelText(t("auth:basic_form.name.field_label")), "Test user");
+      await user.type(screen.getByLabelText(t("auth:basic_form.email.field_label")), "test@example.com{enter}");
+      expect(await screen.findByLabelText(t("auth:account_form.username.field_label"))).toBeVisible();
     });
 
     it("account -> guidelines form works", async () => {
@@ -179,6 +153,7 @@ describe("Signup", () => {
         "auth.flowState",
         JSON.stringify({
           flowToken: "token",
+          email: "test@example.com",
           needBasic: false,
           needAccount: true,
           needAcceptCommunityGuidelines: true,
@@ -189,6 +164,7 @@ describe("Signup", () => {
       );
       signupFlowAccountMock.mockResolvedValue({
         flowToken: "token",
+        email: "test@example.com",
         needBasic: false,
         needAccount: false,
         needAcceptCommunityGuidelines: true,
@@ -202,42 +178,24 @@ describe("Signup", () => {
 
       const user = userEvent.setup();
 
+      await user.type(await screen.findByLabelText(t("auth:account_form.username.field_label")), "test");
       await user.type(
-        await screen.findByLabelText(
-          t("auth:account_form.username.field_label"),
-        ),
-        "test",
-      );
-      await user.type(
-        await screen.findByLabelText(
-          t("auth:account_form.password.field_label"),
-        ),
+        await screen.findByLabelText(t("auth:account_form.password.field_label")),
         "a very insecure password",
       );
       await selectBirthdate(user, { year: "1990", month: "January", day: "1" });
 
-      await user.type(
-        screen.getByTestId("edit-location-map"),
-        "test city, test country",
-      );
+      await user.type(screen.getByTestId("edit-location-map"), "test city, test country");
 
       await user.selectOptions(
-        screen.getByLabelText(
-          t("auth:account_form.hosting_status.field_label"),
-        ),
+        screen.getByLabelText(t("auth:account_form.hosting_status.field_label")),
         hostingStatusLabels(t)[HostingStatus.HOSTING_STATUS_CAN_HOST],
       );
 
-      await user.click(
-        screen.getByLabelText(t("auth:account_form.gender.woman")),
-      );
-      await user.click(
-        await screen.findByLabelText(t("auth:account_form.tos_accept_label")),
-      );
+      await user.click(screen.getByLabelText(t("auth:account_form.gender.woman")));
+      await user.click(await screen.findByLabelText(t("auth:account_form.tos_accept_label")));
 
-      await user.click(
-        screen.getByRole("button", { name: t("global:sign_up") }),
-      );
+      await user.click(screen.getByRole("button", { name: t("global:sign_up") }));
 
       expect(await screen.findByText("Guideline 1")).toBeVisible();
     });
@@ -247,6 +205,7 @@ describe("Signup", () => {
         "auth.flowState",
         JSON.stringify({
           flowToken: "token",
+          email: "test@example.com",
           needBasic: false,
           needAccount: false,
           needAcceptCommunityGuidelines: true,
@@ -257,6 +216,7 @@ describe("Signup", () => {
       );
       signupFlowCommunityGuidelinesMock.mockResolvedValue({
         flowToken: "token",
+        email: "test@example.com",
         needBasic: false,
         needAccount: false,
         needAcceptCommunityGuidelines: false,
@@ -268,9 +228,7 @@ describe("Signup", () => {
 
       const user = userEvent.setup({});
 
-      const checkboxes = await screen.findAllByLabelText(
-        t("auth:community_guidelines_form.guideline.checkbox_label"),
-      );
+      const checkboxes = await screen.findAllByLabelText(t("auth:community_guidelines_form.guideline.checkbox_label"));
       checkboxes.forEach(async (checkbox) => await user.click(checkbox));
       const button = await screen.findByRole("button", {
         name: t("global:submit"),
@@ -280,9 +238,7 @@ describe("Signup", () => {
 
       await user.click(button);
 
-      expect(
-        await screen.findByText(t("auth:motivations_form.header")),
-      ).toBeVisible();
+      expect(await screen.findByText(t("auth:motivations_form.header"))).toBeVisible();
     });
 
     it("motivations -> success", async () => {
@@ -290,6 +246,7 @@ describe("Signup", () => {
         "auth.flowState",
         JSON.stringify({
           flowToken: "token",
+          email: "test@example.com",
           needBasic: false,
           needAccount: false,
           needAcceptCommunityGuidelines: false,
@@ -301,6 +258,7 @@ describe("Signup", () => {
       signupFlowMotivationsMock.mockResolvedValue({
         flowToken: "token",
         authRes: { userId: 1, jailed: false },
+        email: "test@example.com",
         needBasic: false,
         needAccount: false,
         needAcceptCommunityGuidelines: false,
@@ -312,13 +270,9 @@ describe("Signup", () => {
 
       const user = userEvent.setup();
 
-      await user.click(
-        await screen.findByText(t("auth:motivations_form.surfing")),
-      );
+      await user.click(await screen.findByText(t("auth:motivations_form.surfing")));
 
-      await user.click(
-        screen.getByRole("button", { name: t("global:continue") }),
-      );
+      await user.click(screen.getByRole("button", { name: t("global:continue") }));
 
       await waitFor(() => expect(mockRouter.pathname).toBe(dashboardRoute));
     });
@@ -329,6 +283,7 @@ describe("Signup", () => {
       "auth.flowState",
       JSON.stringify({
         flowToken: "token",
+        email: "test@example.com",
         needBasic: true,
         needAccount: true,
         needAcceptCommunityGuidelines: true,
@@ -348,6 +303,7 @@ describe("Signup", () => {
 
     startSignupMock.mockResolvedValue({
       flowToken: "token",
+      email: "test@example.com",
       needBasic: false,
       needAccount: true,
       needAcceptCommunityGuidelines: true,
@@ -359,21 +315,11 @@ describe("Signup", () => {
     render(<View />, { wrapper });
     const user = userEvent.setup();
 
-    await user.type(
-      await screen.findByLabelText(t("auth:basic_form.name.field_label")),
-      "Test user",
-    );
-    await user.type(
-      screen.getByLabelText(t("auth:basic_form.email.field_label")),
-      "test@example.com{enter}",
-    );
+    await user.type(await screen.findByLabelText(t("auth:basic_form.name.field_label")), "Test user");
+    await user.type(screen.getByLabelText(t("auth:basic_form.email.field_label")), "test@example.com{enter}");
 
     await waitFor(() => {
-      expect(startSignupMock).toHaveBeenCalledWith(
-        "Test user",
-        "test@example.com",
-        "INV12345",
-      );
+      expect(startSignupMock).toHaveBeenCalledWith("Test user", "test@example.com", "INV12345");
     });
   });
 
@@ -387,24 +333,17 @@ describe("Signup", () => {
     });
     render(<View />, { wrapper });
 
-    expect(
-      await screen.findByText(
-        t("global:invites.banner.invited_you", { name: "Alice" }),
-      ),
-    ).toBeVisible();
+    expect(await screen.findByText(t("global:invites.banner.invited_you", { name: "Alice" }))).toBeVisible();
   });
 
   it("does not show inviter banner if no inviteCode is present", async () => {
     render(<View />, { wrapper });
-    expect(
-      screen.queryByText(
-        t("global:invites.banner.invited_you", { name: expect.any(String) }),
-      ),
-    ).toBeNull();
+    expect(screen.queryByText(t("global:invites.banner.invited_you", { name: expect.any(String) }))).toBeNull();
   });
 
   it("displays the basic form if it is needed", async () => {
     const state: SignupFlowRes.AsObject = {
+      email: "test@example.com",
       needBasic: true,
       needAccount: true,
       needAcceptCommunityGuidelines: true,
@@ -415,13 +354,12 @@ describe("Signup", () => {
     };
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
     render(<View />, { wrapper });
-    expect(
-      screen.getByLabelText(t("auth:basic_form.email.field_label")),
-    ).toBeVisible();
+    expect(screen.getByLabelText(t("auth:basic_form.email.field_label"))).toBeVisible();
   });
 
   it("displays the account form when account, feedback, guidelines and email are pending", async () => {
     const state: SignupFlowRes.AsObject = {
+      email: "test@example.com",
       needBasic: false,
       needAccount: true,
       needFeedback: false,
@@ -432,13 +370,12 @@ describe("Signup", () => {
     };
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
     render(<View />, { wrapper });
-    expect(
-      screen.getByLabelText(t("auth:account_form.username.field_label")),
-    ).toBeVisible();
+    expect(screen.getByLabelText(t("auth:account_form.username.field_label"))).toBeVisible();
   });
 
   it("displays the account form when account, guidelines and email are pending", async () => {
     const state: SignupFlowRes.AsObject = {
+      email: "test@example.com",
       needBasic: false,
       needAccount: true,
       needAcceptCommunityGuidelines: true,
@@ -449,13 +386,12 @@ describe("Signup", () => {
     };
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
     render(<View />, { wrapper });
-    expect(
-      screen.getByLabelText(t("auth:account_form.username.field_label")),
-    ).toBeVisible();
+    expect(screen.getByLabelText(t("auth:account_form.username.field_label"))).toBeVisible();
   });
 
   it("displays the account form when only account is pending", async () => {
     const state: SignupFlowRes.AsObject = {
+      email: "test@example.com",
       needBasic: false,
       needAccount: true,
       needAcceptCommunityGuidelines: false,
@@ -466,13 +402,12 @@ describe("Signup", () => {
     };
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
     render(<View />, { wrapper });
-    expect(
-      screen.getByLabelText(t("auth:account_form.username.field_label")),
-    ).toBeVisible();
+    expect(screen.getByLabelText(t("auth:account_form.username.field_label"))).toBeVisible();
   });
 
   it("displays the guidelines form when guidelines, feedback and email are pending", async () => {
     const state: SignupFlowRes.AsObject = {
+      email: "test@example.com",
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: true,
@@ -488,6 +423,7 @@ describe("Signup", () => {
 
   it("displays the guidelines form when only it and feedback are pending", async () => {
     const state: SignupFlowRes.AsObject = {
+      email: "test@example.com",
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: true,
@@ -503,6 +439,7 @@ describe("Signup", () => {
 
   it("displays the motivations form when only motivations is pending", async () => {
     const state: SignupFlowRes.AsObject = {
+      email: "test@example.com",
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: false,
@@ -513,13 +450,12 @@ describe("Signup", () => {
     };
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
     render(<View />, { wrapper });
-    expect(
-      await screen.findByText(t("auth:motivations_form.header")),
-    ).toBeVisible();
+    expect(await screen.findByText(t("auth:motivations_form.header"))).toBeVisible();
   });
 
   it("displays the verify email message when email is pending", async () => {
     const state: SignupFlowRes.AsObject = {
+      email: "test@example.com",
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: false,
@@ -529,12 +465,22 @@ describe("Signup", () => {
       flowToken: "token",
     };
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
+
     render(<View />, { wrapper });
-    expect(screen.getByText(t("auth:sign_up_completed_prompt"))).toBeVisible();
+
+    expect(
+      await screen.findByText((_, element) => {
+        return (
+          element?.textContent ===
+          `We have sent an email with a verification link to your email address: test@example.com. Please click the link to activate your account.`
+        );
+      }),
+    ).toBeVisible();
   });
 
   it("displays the redirect message when nothing is pending and has authRes", async () => {
     const state: SignupFlowRes.AsObject = {
+      email: "test@example.com",
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: false,
@@ -546,13 +492,12 @@ describe("Signup", () => {
     };
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
     render(<View />, { wrapper });
-    expect(
-      await screen.findByText(t("auth:sign_up_confirmed_prompt")),
-    ).toBeVisible();
+    expect(await screen.findByText(t("auth:sign_up_confirmed_prompt"))).toBeVisible();
   });
 
   it("throws an error if nothing is pending but there is no authres", async () => {
     const state: SignupFlowRes.AsObject = {
+      email: "test@example.com",
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: false,
@@ -568,6 +513,7 @@ describe("Signup", () => {
 
   it("sets the email flow state correctly when given a url token", async () => {
     signupFlowEmailTokenMock.mockResolvedValue({
+      email: "test@example.com",
       needBasic: false,
       needAccount: true,
       needAcceptCommunityGuidelines: true,
@@ -577,6 +523,7 @@ describe("Signup", () => {
       flowToken: "token",
     });
     const state: SignupFlowRes.AsObject = {
+      email: "test@example.com",
       needBasic: false,
       needAccount: true,
       needAcceptCommunityGuidelines: true,
@@ -591,10 +538,8 @@ describe("Signup", () => {
     render(<View />, {
       wrapper,
     });
-    expect(
-      await screen.findByLabelText(t("auth:account_form.username.field_label")),
-    ).toBeVisible();
-    expect(signupFlowEmailTokenMock).toBeCalledWith("fakeEmailToken");
+    expect(await screen.findByLabelText(t("auth:account_form.username.field_label"))).toBeVisible();
+    expect(signupFlowEmailTokenMock).toHaveBeenCalledWith("fakeEmailToken");
     const { result } = renderHook(() => useAuthStore(), { wrapper });
     expect(result.current.authState.flowState?.needVerifyEmail).toBe(false);
   });
@@ -605,6 +550,7 @@ describe("Signup", () => {
       message: "Invalid token",
     });
     const state: SignupFlowRes.AsObject = {
+      email: "test@example.com",
       needBasic: false,
       needAccount: true,
       needAcceptCommunityGuidelines: true,

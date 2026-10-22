@@ -20,27 +20,31 @@
         "other_notifications": "其他通知"
       },
       "expand_all": "全部展開",
-      "collapse_all": "全部摺疊"
+      "collapse_all": "全部摺疊",
+      "channels": {
+        "email_label": "電子郵件",
+        "push_label": "推送"
+      }
     },
     "push_notifications": {
       "title": "推送通知",
       "description": "您可以在設備上為Couchers.org啟用推送通知。我們正在擴展此功能。",
       "allow_push": "點擊瀏覽器彈出的“允許”按鈕以啟用推送通知。",
-      "enabled_message": "您當前已<1>啟用</1>推送通知。",
-      "disabled_message": "您當前已<1>禁用</1>推送通知。",
+      "enabled_message": "您當前已<strong>啟用</strong>推送通知。",
+      "disabled_message": "您當前已<strong>禁用</strong>推送通知。",
       "error_generic": "訂閱推送通知時出錯",
       "error_unsupported": "此瀏覽器不支持推送通知或服務工作線程。",
       "permission_denied": {
         "platform_settings_description": "啟用瀏覽器通知後仍有問題？您可能需要調整設備的通知權限設定。",
         "instructions": {
           "chrome": "您已封鎖通知。請在瀏覽器設定中啟用通知。在Chrome中，點擊URL欄中的鎖圖標，然後調整“通知”設定。",
-          "firefox": "您已封鎖通知。請在瀏覽器設定中啟用通知。在Firefox中，進入設定 > 隱私與安全 > 權限 > 通知，修改相關網站權限。",
-          "safari": "您已封鎖通知。請在Safari的偏好設定 > 網站 > 通知中調整權限。",
+          "firefox": "您已封鎖通知。請在瀏覽器設定中啟用通知。在Firefox中，進入設定>隱私與安全>權限>通知，修改相關網站權限。",
+          "safari": "您已封鎖通知。請在Safari的偏好設定>網站>通知中調整權限。",
           "generic": "您已封鎖通知。請在瀏覽器設定中啟用通知。",
-          "macos": "在 macOS 中，前往 系統設定 > 通知，並修改應用的權限。",
-          "windows": "在 Windows 中，前往 設定 > 系統 > 通知和操作，調整應用或網站的權限。",
+          "macos": "在macOS中，前往 系統設定>通知，並修改應用的權限。",
+          "windows": "在Windows中，前往 設定>系統>通知和操作，調整應用或網站的權限。",
           "linux": {
-            "gnome": "在 GNOME 中，前往 設定 > 通知，調整應用的權限。"
+            "gnome": "在GNOME中，前往 設定>通知，調整應用的權限。"
           },
           "mobile": {
             "browser": "在您的移動瀏覽器設定中，調整此網站的通知權限。",
@@ -55,11 +59,13 @@
     "message": "不要錯過請求、回覆或訊息；我們可以向您發送推送通知嗎？",
     "confirm": "好的！"
   },
-  "unread": "未讀",
   "mark_unread": "標記為未讀",
   "mark_all_read": "全部標記為已讀",
   "no_new_notifications": "沒有新通知",
-  "all": "全部",
   "error_loading": "載入通知時發生錯誤",
-  "error_updating_notifications": "更新通知時出錯"
+  "error_updating_notifications": "更新通知時出錯",
+  "notifications_filters": {
+    "all_button": "全部",
+    "unread_button": "未讀"
+  }
 }

@@ -1,3 +1,4 @@
+import { DEFAULT_LOCALE } from "i18n/locales";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useIsNativeEmbed } from "utils/nativeLink";
@@ -19,23 +20,17 @@ export default function NativeMobileNavigationHandler() {
         const payload = event.data;
 
         // Handle both string and object payloads
-        const data =
-          typeof payload === "string" ? JSON.parse(payload) : payload;
+        const data = typeof payload === "string" ? JSON.parse(payload) : payload;
 
         if (data?.type === "MOBILE_NAVIGATE" && data?.path) {
           // Extract locale and path (e.g., "/de/dashboard" -> locale="de", pathname="/dashboard")
           const localeMatch = data.path.match(/^\/([a-z]{2}(-[A-Z][a-z]+)?)\//);
-          const locale = localeMatch ? localeMatch[1] : "en";
-          const pathname = localeMatch
-            ? data.path.replace(/^\/[a-z]{2}(-[A-Z][a-z]+)?/, "")
-            : data.path;
+          const locale = localeMatch ? localeMatch[1] : DEFAULT_LOCALE;
+          const pathname = localeMatch ? data.path.replace(/^\/[a-z]{2}(-[A-Z][a-z]+)?/, "") : data.path;
 
           // Skip if already on the target route — prevents double-loading on initial render
           // when the source URL already loaded the page and MOBILE_NAVIGATE arrives late
-          if (
-            router.pathname === pathname &&
-            (router.locale || "en") === locale
-          ) {
+          if (router.pathname === pathname && (router.locale || DEFAULT_LOCALE) === locale) {
             return;
           }
 

@@ -2,14 +2,8 @@ import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import React from "react";
 
-import {
-  ParkingDetails,
-  SleepingArrangement,
-  SmokingLocation,
-  User,
-} from "../../../proto/api_pb";
+import { ParkingDetails, SleepingArrangement, SmokingLocation, User } from "../../../proto/api_pb";
 import { HostingPreferenceData } from "../../../service/user";
-import { DEFAULT_ABOUT_HOME_HEADINGS } from "./constants";
 import EditHostingPreferenceForm from "./EditHostingPreferenceForm";
 
 export default function EditHostingPreference() {
@@ -24,12 +18,9 @@ export default function EditHostingPreference() {
       acceptsPets: !!user.acceptsPets?.value,
       drinkingAllowed: !!user.drinkingAllowed?.value,
       maxGuests: user.maxGuests?.value ?? 1,
-      smokingAllowed:
-        user.smokingAllowed || SmokingLocation.SMOKING_LOCATION_UNKNOWN,
-      aboutPlace: user.aboutPlace || DEFAULT_ABOUT_HOME_HEADINGS,
-      sleepingArrangement:
-        user.sleepingArrangement ||
-        SleepingArrangement.SLEEPING_ARRANGEMENT_UNKNOWN,
+      smokingAllowed: user.smokingAllowed || SmokingLocation.SMOKING_LOCATION_UNKNOWN,
+      aboutPlace: user.aboutPlace ?? "",
+      sleepingArrangement: user.sleepingArrangement || SleepingArrangement.SLEEPING_ARRANGEMENT_UNKNOWN,
       hasHousemates: !!user.hasHousemates?.value,
       housemateDetails: user.housemateDetails?.value ?? "",
       hasKids: !!user.hasKids?.value,
@@ -37,8 +28,7 @@ export default function EditHostingPreference() {
       hasPets: !!user.hasPets?.value,
       petDetails: user.petDetails?.value ?? "",
       parking: !!user.parking?.value,
-      parkingDetails:
-        user.parkingDetails || ParkingDetails.PARKING_DETAILS_UNKNOWN,
+      parkingDetails: user.parkingDetails || ParkingDetails.PARKING_DETAILS_UNKNOWN,
       drinksAtHome: !!user.drinksAtHome?.value,
       smokesAtHome: !!user.smokesAtHome?.value,
       area: user.area?.value ?? "",

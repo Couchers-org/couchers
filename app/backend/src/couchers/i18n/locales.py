@@ -1,4 +1,5 @@
 import json
+from collections.abc import Callable
 from functools import lru_cache
 from pathlib import Path
 
@@ -10,26 +11,34 @@ from couchers.i18n.i18next import I18Next
 # Note: "en" is a valid locale even if it doesn't include a region.
 DEFAULT_LOCALE = "en"
 
+# Locales that we support for regional formatting,
+# but don't have dedicated translations.
+NON_TRANSLATED_LOCALES: list[str] = ["en-US"]
+
 # Locale fallbacks (for those that don't fallback to English).
 # If a string is not found in the requested language, we try the provided one before English
 # Some mutually intelligible language variants fallback to each other.
-_LOCALE_FALLBACKS: dict[str, str] = {
-    "pt-BR": "pt",
-    "pt": "pt-BR",
-    "es-419": "es",
-    "es": "es-419",
-    "fr-CA": "fr",
-}
+_LOCALE_FALLBACKS: dict[str, str] = {"pt-BR": "pt", "pt": "pt-BR"}
 
 
-def get_supported_locales() -> list[str]:
-    """Gets the list of supported locales (i.e., for which we have translations)."""
+def get_locales_with_translations() -> list[str]:
+    """Gets the list of locales which have translations."""
     return list(get_main_i18next().translations_by_locale.keys())
 
 
-def is_supported_locale(locale: str) -> bool:
-    """Checks if a locale is supported (i.e., if we have translations for it)."""
+def is_locale_with_translations(locale: str) -> bool:
+    """Checks if we have translations for a given locale."""
     return locale in get_main_i18next().translations_by_locale.keys()
+
+
+def get_supported_locales() -> list[str]:
+    """Gets the list of locales supported."""
+    return get_locales_with_translations() + NON_TRANSLATED_LOCALES
+
+
+def is_supported_locale(locale: str) -> bool:
+    """Checks if a locale is supported."""
+    return is_locale_with_translations(locale) or locale in NON_TRANSLATED_LOCALES
 
 
 def to_supported_locale(locale: str) -> str:
@@ -62,13 +71,13 @@ def to_supported_locale(locale: str) -> str:
     return DEFAULT_LOCALE
 
 
-def get_locale_fallbacks(locale: str) -> list[str]:
-    """Gets the list of locales to which to fallback to if the given one is unavailable."""
+def get_locale_chain(locale: str) -> list[str]:
+    """Gets the ordered list of locales to try when looking up a string, starting with the given locale."""
     if fallback := _LOCALE_FALLBACKS.get(locale):
-        return [fallback, DEFAULT_LOCALE]
+        return [locale, fallback, DEFAULT_LOCALE]
     if locale == DEFAULT_LOCALE:
-        return []
-    return [DEFAULT_LOCALE]
+        return [locale]
+    return [locale, DEFAULT_LOCALE]
 
 
 def get_babel_locale(locale: str) -> babel.Locale:
@@ -76,6 +85,7 @@ def get_babel_locale(locale: str) -> babel.Locale:
     Returns the babel locale object for a given locale string.
     Guaranteed by tests to succeed for supported locales.
     """
+    # TODO(#9184): Once we have en-US available, "en" should return the babel locale for "en-001" (Global English)
     return babel.Locale.parse(locale, sep="-")
 
 
@@ -98,12 +108,6 @@ def load_locales(directory: Path) -> I18Next:
     default_translation = i18next.translations_by_locale.get(DEFAULT_LOCALE)
     if default_translation is None:
         raise RuntimeError("English translations must be loaded")
-    i18next.default_translation = default_translation
-
-    # Apply fallbacks
-    for translation in i18next.translations_by_locale.values():
-        for fallback_locale in get_locale_fallbacks(translation.locale):
-            translation.fallbacks.append(i18next.translations_by_locale[fallback_locale])
 
     return i18next
 
@@ -112,3 +116,22 @@ def load_locales(directory: Path) -> I18Next:
 def get_main_i18next() -> I18Next:
     """Gets the I18Next instance for the main locales files."""
     return load_locales(Path(__file__).parent / "locales")
+
+
+@lru_cache(maxsize=1)
+def get_admin_i18next() -> I18Next:
+    """Gets the I18Next instance for the admin/editor locales files (English only)."""
+    return load_locales(Path(__file__).parent / "admin_locales")
+
+
+# Maps a translation component name to the I18Next instance that holds its strings. Servicers select
+# the component when localizing (e.g. admin/editor errors live in their own English-only component).
+_TRANSLATION_COMPONENTS: dict[str, Callable[[], I18Next]] = {
+    "main": get_main_i18next,
+    "admin": get_admin_i18next,
+}
+
+
+def get_translation_component(component: str) -> I18Next:
+    """Gets the I18Next instance for a named translation component."""
+    return _TRANSLATION_COMPONENTS[component]()

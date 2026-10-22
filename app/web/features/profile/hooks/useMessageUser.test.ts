@@ -46,9 +46,7 @@ describe("useMessageUser", () => {
       openGroupChatId: null,
       closeGroupChat: jest.fn(),
     });
-    (service.conversations.getDirectMessage as jest.Mock).mockResolvedValue(
-      123,
-    );
+    (service.conversations.getDirectMessage as jest.Mock).mockResolvedValue(123);
 
     const { result } = renderHook(
       () =>
@@ -66,9 +64,7 @@ describe("useMessageUser", () => {
   });
 
   it("navigates to group chat route when sheet is not open and thread exists", async () => {
-    (service.conversations.getDirectMessage as jest.Mock).mockResolvedValue(
-      123,
-    );
+    (service.conversations.getDirectMessage as jest.Mock).mockResolvedValue(123);
 
     const { result } = renderHook(
       () =>
@@ -86,9 +82,7 @@ describe("useMessageUser", () => {
   });
 
   it("opens inline compose form when no thread exists", async () => {
-    (service.conversations.getDirectMessage as jest.Mock).mockResolvedValue(
-      false,
-    );
+    (service.conversations.getDirectMessage as jest.Mock).mockResolvedValue(false);
 
     const { result } = renderHook(
       () =>

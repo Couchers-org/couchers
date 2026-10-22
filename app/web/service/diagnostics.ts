@@ -10,10 +10,7 @@ export interface DiagnosticEvent {
   occurred: Date;
 }
 
-export async function reportDiagnostics(
-  events: DiagnosticEvent[],
-  frontendVersion: string,
-) {
+export async function reportDiagnostics(events: DiagnosticEvent[], frontendVersion: string) {
   const req = new ReportDiagnosticsReq();
   req.setFrontendVersion(frontendVersion);
 

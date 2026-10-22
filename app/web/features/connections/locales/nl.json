@@ -30,5 +30,12 @@
   },
   "block_user": "Gebruiker blokkeren",
   "accept": "Accepteren",
-  "decline": "Afwijzen"
+  "add_friend_confirmation_dialog": {
+    "title": "Ken je deze persoon?",
+    "message": "Stuur alsjeblieft alleen vriendschapsverzoeken aan mensen die je al kent of hebt ontmoet tijdens een reis. De meeste mensen vinden het leuk om te connecten nadat ze iemand ontmoet hebben. <helpCenterLink>Lees meer over vriendschapsverzoeken bij onze Helpdesk.</helpCenterLink>",
+    "confirm": "Ja, ik ken deze persoon. Verzoek versturen!"
+  },
+  "friend_requests_dismiss_button": "Negeren",
+  "friend_request_no_longer_available": "Dit vriendschapsverzoek is niet meer beschikbaar.",
+  "cancel_request_button_a11y": "Verzoek annuleren"
 }

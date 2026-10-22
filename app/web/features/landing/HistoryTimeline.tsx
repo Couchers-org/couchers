@@ -1,5 +1,6 @@
 import { ChevronRightRounded } from "@mui/icons-material";
-import { Box, Container, Stack, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
+import PageContainer from "components/PageContainer";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -25,7 +26,13 @@ const TimelineTab = memo(function TimelineTab({
   registerRef,
 }: TimelineTabProps) {
   return (
-    <Stack alignItems="center" sx={{ minWidth: 180, position: "relative" }}>
+    <Stack
+      sx={{
+        alignItems: "center",
+        minWidth: 180,
+        position: "relative",
+      }}
+    >
       <Box
         aria-hidden
         sx={{
@@ -59,21 +66,15 @@ const TimelineTab = memo(function TimelineTab({
           width: active ? 20 : 14,
           height: active ? 20 : 14,
           border: "none",
-          background: active
-            ? "var(--mui-palette-secondary-main)"
-            : "var(--mui-palette-grey-300)",
+          background: active ? "var(--mui-palette-secondary-main)" : "var(--mui-palette-grey-300)",
           borderRadius: "50%",
-          boxShadow: active
-            ? `${"var(--mui-palette-secondary-light)"} 0 0 0 4px`
-            : `transparent 0 0 0 4px`,
+          boxShadow: active ? `${"var(--mui-palette-secondary-light)"} 0 0 0 4px` : `transparent 0 0 0 4px`,
           transition: "all .25s ease",
           position: "relative",
           zIndex: 1,
           outline: "none",
           "&:hover": {
-            background: active
-              ? "var(--mui-palette-secondary-main)"
-              : "var(--mui-palette-grey-400)",
+            background: active ? "var(--mui-palette-secondary-main)" : "var(--mui-palette-grey-400)",
           },
           "&:focus-visible": {
             boxShadow: `${"var(--mui-palette-secondary-main)"} 0 0 0 3px, ${"var(--mui-palette-secondary-light)"} 0 0 0 5px`,
@@ -86,9 +87,7 @@ const TimelineTab = memo(function TimelineTab({
           mt: active ? 1 : 1.375,
           fontSize: { xs: "1rem", md: "1.1rem" },
           fontWeight: active ? 700 : 500,
-          color: active
-            ? "var(--mui-palette-secondary-main)"
-            : "var(--mui-palette-text-primary)",
+          color: active ? "var(--mui-palette-secondary-main)" : "var(--mui-palette-text-primary)",
           transition: "color .25s, margin-top .25s",
         }}
       >
@@ -180,7 +179,7 @@ export default function HistoryTimeline() {
         minHeight: 450,
       }}
     >
-      <Container maxWidth="lg">
+      <PageContainer>
         <Typography
           variant="h2"
           sx={{
@@ -204,11 +203,7 @@ export default function HistoryTimeline() {
             },
           }}
           ref={timelineRef}
-          onScroll={(e) =>
-            setTimelineNudge(
-              (e.currentTarget as HTMLDivElement).scrollLeft === 0,
-            )
-          }
+          onScroll={(e) => setTimelineNudge((e.currentTarget as HTMLDivElement).scrollLeft === 0)}
         >
           <Box
             sx={{
@@ -245,18 +240,18 @@ export default function HistoryTimeline() {
           <Stack
             direction="row"
             spacing={4}
+            role="tablist"
+            aria-label={t("what_is_cs.timeline_title")}
+            aria-orientation="horizontal"
+            onKeyDown={handleKeyNav}
             sx={{
+              alignItems: "flex-start",
               position: "relative",
               px: 2,
               py: 3,
               width: "fit-content",
               mx: "auto",
             }}
-            alignItems="flex-start"
-            role="tablist"
-            aria-label={t("what_is_cs.timeline_title")}
-            aria-orientation="horizontal"
-            onKeyDown={handleKeyNav}
           >
             <Box
               sx={{
@@ -320,7 +315,7 @@ export default function HistoryTimeline() {
             {items[activeIndex].text}
           </Typography>
         </Box>
-      </Container>
+      </PageContainer>
     </Box>
   );
 }

@@ -1,9 +1,7 @@
 import { UserDetails } from "proto/admin_pb";
 import * as React from "react";
 
-const ModUserDetailsContext = React.createContext<UserDetails.AsObject>(
-  {} as UserDetails.AsObject,
-);
+const ModUserDetailsContext = React.createContext<UserDetails.AsObject>({} as UserDetails.AsObject);
 ModUserDetailsContext.displayName = "ModUserDetailsContext";
 
 interface ModUserDetailsProps {
@@ -12,9 +10,5 @@ interface ModUserDetailsProps {
 }
 
 export function ModUserDetails({ children, userDetails }: ModUserDetailsProps) {
-  return (
-    <ModUserDetailsContext.Provider value={userDetails}>
-      {children}
-    </ModUserDetailsContext.Provider>
-  );
+  return <ModUserDetailsContext.Provider value={userDetails}>{children}</ModUserDetailsContext.Provider>;
 }

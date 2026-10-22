@@ -12,11 +12,15 @@ import { BackIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import MarkdownInput from "components/MarkdownInput";
 import PageTitle from "components/PageTitle";
+import RelativeTime from "components/RelativeTime";
 import TextField from "components/TextField";
+import { contentRefs } from "features/contentRefs";
+import FlagButton from "features/FlagButton";
 import { discussionKey } from "features/queryKeys";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
+import { Trans, useTranslation } from "i18n";
+import { localizeDateOnly } from "i18n/datetimes";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Discussion } from "proto/discussions_pb";
@@ -24,8 +28,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { service } from "service";
 import { theme } from "theme";
-import { localizeDateTime, timestamp2Date } from "utils/date";
-import { timeAgo } from "utils/timeAgo";
+import { timestampToPlainDateTime } from "utils/date";
 
 import { sendNativeBack, useIsNativeEmbed } from "../../../utils/nativeLink";
 import CommunityBase from "../CommunityBase";
@@ -92,13 +95,15 @@ const StyledActionButtons = styled("div")(() => ({
   justifyContent: "flex-end",
 }));
 
+const StyledTitleRowButtons = styled("div")(() => ({
+  alignItems: "center",
+  display: "flex",
+  flexShrink: 0,
+}));
+
 export const CREATOR_TEST_ID = "creator";
 
-export default function DiscussionPage({
-  discussionId,
-}: {
-  discussionId: number;
-}) {
+export default function DiscussionPage({ discussionId }: { discussionId: number }) {
   const {
     t,
     i18n: { language: locale },
@@ -107,8 +112,7 @@ export default function DiscussionPage({
   const isNativeEmbed = useIsNativeEmbed();
   const queryClient = useQueryClient();
 
-  const [ellipsisMenuAnchorEl, setEllipsisMenuAnchorEl] =
-    useState<Element | null>(null);
+  const [ellipsisMenuAnchorEl, setEllipsisMenuAnchorEl] = useState<Element | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -127,21 +131,17 @@ export default function DiscussionPage({
     discussion?.deleted ? undefined : discussion?.creatorUserId,
   );
 
-  const { control, handleSubmit, register, reset } =
-    useForm<EditDiscussionFormData>({
-      mode: "onBlur",
-      values: discussion
-        ? { title: discussion.title, content: discussion.content }
-        : undefined,
-    });
+  const { control, handleSubmit, register, reset } = useForm<EditDiscussionFormData>({
+    mode: "onBlur",
+    values: discussion ? { title: discussion.title, content: discussion.content } : undefined,
+  });
 
   const {
     mutate: updateDiscussion,
     error: updateError,
     isPending: isUpdating,
   } = useMutation<Discussion.AsObject, RpcError, EditDiscussionFormData>({
-    mutationFn: ({ title, content }) =>
-      service.discussions.updateDiscussion(discussionId, title, content),
+    mutationFn: ({ title, content }) => service.discussions.updateDiscussion(discussionId, title, content),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: discussionKey(discussionId) });
       setIsEditing(false);
@@ -172,7 +172,7 @@ export default function DiscussionPage({
           },
         ] as EllipsisMenuItem[])
       : []),
-    ...((discussion?.canEdit || discussion?.canModerate) && !discussion?.deleted
+    ...(discussion?.canEdit && !discussion?.deleted
       ? ([
           {
             icon: DeleteOutlined,
@@ -195,53 +195,42 @@ export default function DiscussionPage({
           <CommunityBase communityId={discussion.ownerCommunityId}>
             {({ community }) => (
               <>
-                {community.mainPage && (
-                  <StyledPageHeader page={community.mainPage} />
-                )}
-                <CommunityPageSubHeader
-                  community={community}
-                  tab="discussions"
-                />
+                {community.mainPage && <StyledPageHeader page={community.mainPage} />}
+                <CommunityPageSubHeader community={community} tab="discussions" />
                 <StyledDiscussionBodyWrapper>
-                  <HeaderButton
-                    onClick={handleBackClick}
-                    aria-label={t("communities:previous_page")}
-                  >
+                  <HeaderButton onClick={handleBackClick} aria-label={t("communities:previous_page")}>
                     <BackIcon />
                   </HeaderButton>
                   <StyledTitleRow>
-                    <PageTitle>
-                      {discussion.deleted
-                        ? t("communities:discussion_deleted")
-                        : discussion.title}
-                    </PageTitle>
-                    {ellipsisMenuItems.length > 0 && !isEditing && (
-                      <EllipsisMenu
-                        idName="discussion-page"
-                        isMenuOpen={isEllipsisMenuOpen}
-                        menuAnchorEl={ellipsisMenuAnchorEl}
-                        onMenuOpen={(e) =>
-                          setEllipsisMenuAnchorEl(e.currentTarget)
-                        }
-                        onMenuClose={() => setEllipsisMenuAnchorEl(null)}
-                        items={ellipsisMenuItems}
-                      />
+                    <PageTitle>{discussion.deleted ? t("communities:discussion_deleted") : discussion.title}</PageTitle>
+                    {!isEditing && (
+                      <StyledTitleRowButtons>
+                        {!discussion.deleted && (
+                          <FlagButton
+                            contentRef={contentRefs.discussion(discussion)}
+                            authorUser={discussion.creatorUserId}
+                            ariaLabel={t("communities:report_discussion_button_a11y")}
+                          />
+                        )}
+                        {ellipsisMenuItems.length > 0 && (
+                          <EllipsisMenu
+                            idName="discussion-page"
+                            isMenuOpen={isEllipsisMenuOpen}
+                            menuAnchorEl={ellipsisMenuAnchorEl}
+                            onMenuOpen={(e) => setEllipsisMenuAnchorEl(e.currentTarget)}
+                            onMenuClose={() => setEllipsisMenuAnchorEl(null)}
+                            items={ellipsisMenuItems}
+                          />
+                        )}
+                      </StyledTitleRowButtons>
                     )}
                   </StyledTitleRow>
                   <div>
                     {discussion.deleted ? (
-                      <StyledDeletedMessage variant="body1">
-                        {t("communities:discussion_deleted")}
-                      </StyledDeletedMessage>
+                      <StyledDeletedMessage variant="body1">{t("communities:discussion_deleted")}</StyledDeletedMessage>
                     ) : isEditing ? (
-                      <StyledEditForm
-                        onSubmit={handleSubmit((data) =>
-                          updateDiscussion(data),
-                        )}
-                      >
-                        {updateError && (
-                          <Alert severity="error">{updateError.message}</Alert>
-                        )}
+                      <StyledEditForm onSubmit={handleSubmit((data) => updateDiscussion(data))}>
+                        {updateError && <Alert severity="error">{updateError.message}</Alert>}
                         <TextField
                           id="title"
                           {...register("title", { required: true })}
@@ -277,8 +266,7 @@ export default function DiscussionPage({
                               <Skeleton width={100} />
                             ) : (
                               <Typography variant="body1">
-                                {discussionCreator?.name ??
-                                  t("communities:unknown_user")}
+                                {discussionCreator?.name ?? t("communities:unknown_user")}
                               </Typography>
                             )}
                             {isCreatorLoading ? (
@@ -286,27 +274,19 @@ export default function DiscussionPage({
                             ) : (
                               <Typography variant="body2">
                                 {t("communities:discussion_creation_date", {
-                                  dateOnly: localizeDateTime(
-                                    timestamp2Date(discussion.created!),
-                                    {
-                                      locale,
-                                      includeTime: false,
-                                    },
-                                  ),
+                                  dateOnly: localizeDateOnly(timestampToPlainDateTime(discussion.created!), locale),
                                 })}
                               </Typography>
                             )}
                             {discussion.lastEdited && (
                               <Typography variant="body2">
-                                {t("communities:discussion_edited_date", {
-                                  timeAgo: timeAgo({
-                                    since: timestamp2Date(
-                                      discussion.lastEdited,
-                                    ),
-                                    t,
-                                    locale,
-                                  }),
-                                })}
+                                <Trans
+                                  t={t}
+                                  i18nKey="communities:discussion_edited_date2"
+                                  components={{
+                                    timeAgo: <RelativeTime instant={discussion.lastEdited} />,
+                                  }}
+                                />
                               </Typography>
                             )}
                           </StyledCreatorDetailsContainer>
@@ -314,13 +294,8 @@ export default function DiscussionPage({
                       </>
                     )}
                   </div>
-                  <Typography variant="h2">
-                    {t("communities:comments")}
-                  </Typography>
-                  <CommentTree
-                    threadId={discussion.thread!.threadId}
-                    discussionId={discussionId}
-                  />
+                  <Typography variant="h2">{t("communities:comments")}</Typography>
+                  <CommentTree threadId={discussion.thread!.threadId} discussionId={discussionId} />
                 </StyledDiscussionBodyWrapper>
                 <DeleteDiscussionDialog
                   discussionId={discussionId}

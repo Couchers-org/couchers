@@ -6,7 +6,7 @@ import { Trans, useTranslation } from "i18n";
 import { usePersistedState } from "platform/usePersistedState";
 import { useEffect, useRef } from "react";
 import { tosRoute } from "routes";
-import { useIsMounted } from "utils/hooks";
+import { useIsClient } from "utils/hooks";
 import { useIsNativeEmbed } from "utils/nativeLink";
 
 const StyledWrapper = styled("div")(({ theme }) => ({
@@ -36,7 +36,7 @@ export default function CookieBanner() {
   const { t } = useTranslation();
   // since we are using localStorage, make sure don't render unless mounted
   // or there will be hydration mismatches
-  const isMounted = useIsMounted().current;
+  const isClient = useIsClient();
   const [hasSeen, setHasSeen] = usePersistedState("hasSeenCookieBanner", false);
   const isNativeEmbed = useIsNativeEmbed();
   const bannerRef = useRef<HTMLDivElement>(null);
@@ -45,10 +45,7 @@ export default function CookieBanner() {
     const el = bannerRef.current;
     if (!el) return;
     const updateHeight = () => {
-      document.documentElement.style.setProperty(
-        "--cookie-banner-height",
-        `${el.offsetHeight}px`,
-      );
+      document.documentElement.style.setProperty("--cookie-banner-height", `${el.offsetHeight}px`);
     };
     updateHeight();
     const observer = new ResizeObserver(updateHeight);
@@ -57,33 +54,25 @@ export default function CookieBanner() {
       observer.disconnect();
       document.documentElement.style.removeProperty("--cookie-banner-height");
     };
-  }, [hasSeen, isMounted]);
+  }, [hasSeen, isClient]);
 
   if (isNativeEmbed) return null;
 
   //specifically not using our snackbar, which is designed for alerts
-  return isMounted && !hasSeen ? (
+  return isClient && !hasSeen ? (
     <StyledWrapper ref={bannerRef} aria-live="polite">
-      <StyledCloseButton
-        aria-label={t("close")}
-        onClick={() => setHasSeen(true)}
-      >
+      <StyledCloseButton aria-label={t("close")} onClick={() => setHasSeen(true)}>
         <CloseIcon />
       </StyledCloseButton>
       <div className="content">
         <Typography variant="body2">
-          <Trans t={t} i18nKey="cookie_message">
-            We use cookies to ensure that we give you the best experience on our
-            website. If you continue to use this site, we will assume that you
-            are happy with it. You can read more about our
-            <StyledLink
-              href={tosRoute}
-              sx={{ color: "var(--mui-palette-secondary-light)" }}
-            >
-              Terms of Service
-            </StyledLink>
-            .
-          </Trans>
+          <Trans
+            t={t}
+            i18nKey="cookie_message"
+            components={{
+              tosLink: <StyledLink href={tosRoute} sx={{ color: "var(--mui-palette-secondary-light)" }} />,
+            }}
+          />
         </Typography>
       </div>
     </StyledWrapper>

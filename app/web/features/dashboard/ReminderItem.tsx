@@ -18,13 +18,7 @@ import {
 
 import { theme } from "../../theme";
 
-export default function ReminderItem({
-  reminder,
-  onDismiss,
-}: {
-  reminder: Reminder.AsObject;
-  onDismiss?: () => void;
-}) {
+export default function ReminderItem({ reminder, onDismiss }: { reminder: Reminder.AsObject; onDismiss?: () => void }) {
   const { t } = useTranslation([DASHBOARD]);
 
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -42,8 +36,7 @@ export default function ReminderItem({
     buttonText = t("reminder.respond_to_host_request.button");
     href = routeToHostRequest(hostRequestId);
   } else if (reminder.writeReferenceReminder?.otherUser) {
-    const { hostRequestId, otherUser, referenceType } =
-      reminder.writeReferenceReminder;
+    const { hostRequestId, otherUser, referenceType } = reminder.writeReferenceReminder;
     title = t("reminder.write_reference.title");
     description = t(
       referenceType === ReferenceType.REFERENCE_TYPE_SURFED
@@ -52,17 +45,27 @@ export default function ReminderItem({
       { name: otherUser.name },
     );
     buttonText = t("reminder.write_reference.button");
-    href = routeToLeaveReference(
-      referenceTypeRoute[referenceType],
-      otherUser.userId,
-      hostRequestId,
-    );
+    href = routeToLeaveReference(referenceTypeRoute[referenceType], otherUser.userId, hostRequestId);
   } else if (reminder.confirmHostRequestReminder) {
     const { hostRequestId, hostUser } = reminder.confirmHostRequestReminder;
     const name = hostUser?.name ?? "";
     title = t("reminder.confirm_host_request.title", { name });
     description = t("reminder.confirm_host_request.description", { name });
     buttonText = t("reminder.confirm_host_request.button");
+    href = routeToHostRequest(hostRequestId);
+  } else if (reminder.respondToPublicTripOfferReminder) {
+    const { hostRequestId, hostUser } = reminder.respondToPublicTripOfferReminder;
+    const name = hostUser?.name ?? "";
+    title = t("reminder.respond_to_public_trip_offer.title", { name });
+    description = t("reminder.respond_to_public_trip_offer.description", { name });
+    buttonText = t("reminder.respond_to_public_trip_offer.button");
+    href = routeToHostRequest(hostRequestId);
+  } else if (reminder.confirmPublicTripOfferReminder) {
+    const { hostRequestId, surferUser } = reminder.confirmPublicTripOfferReminder;
+    const name = surferUser?.name ?? "";
+    title = t("reminder.confirm_public_trip_offer.title", { name });
+    description = t("reminder.confirm_public_trip_offer.description", { name });
+    buttonText = t("reminder.confirm_public_trip_offer.button");
     href = routeToHostRequest(hostRequestId);
   } else if (reminder.completeMyHomeReminder) {
     title = t("reminder.complete_my_home.title");
@@ -101,10 +104,7 @@ export default function ReminderItem({
           marginBottom: isMobile ? "8px" : "16px",
         }}
       >
-        <Typography
-          variant={isMobile ? "h4" : "h3"}
-          sx={{ fontWeight: 800, flexGrow: 1 }}
-        >
+        <Typography variant={isMobile ? "h4" : "h3"} sx={{ fontWeight: 800, flexGrow: 1 }}>
           {title}
         </Typography>
         {onDismiss && (

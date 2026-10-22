@@ -7,22 +7,22 @@ from sqlalchemy import update
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views
 from couchers.metrics import (
+    _set_hacky_gauges_funcs,
     _set_hacky_labeled_gauges_funcs,
+    _set_hacky_multi_gauges_funcs,
     active_users_by_platform_gauge,
     active_users_by_platform_statement,
     active_users_by_recency_gauge,
     active_users_mobile_fraction_gauge,
+    sent_request_gauge,
+    users_gauges,
     users_per_community_gauge,
 )
-from couchers.models import ClientPlatform, User, UserActivity
-from couchers.utils import now
+from couchers.models import ClientPlatform, HostingStatus, User, UserActivity
+from couchers.utils import now, today
 from tests.fixtures.db import generate_user
 from tests.test_communities import create_community
-
-
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
+from tests.test_requests import _create_host_request_via_api, _create_public_trip
 
 
 def _populate(gauge):
@@ -33,9 +33,27 @@ def _populate(gauge):
     raise AssertionError("gauge is not a registered labeled gauge")
 
 
+def _query_value(gauge):
+    for registered_gauge, f in _set_hacky_gauges_funcs:
+        if registered_gauge is gauge:
+            return f()
+    raise AssertionError("gauge is not a registered gauge")
+
+
+def _populate_single_pass():
+    for f in _set_hacky_multi_gauges_funcs:
+        f()
+
+
 def _sample_values(gauge):
     return {
         sample.labels[gauge._labelnames[0]]: sample.value for metric in gauge.collect() for sample in metric.samples
+    }
+
+
+def _users_gauge_values():
+    return {
+        sample.name: sample.value for gauge in users_gauges for metric in gauge.collect() for sample in metric.samples
     }
 
 
@@ -82,11 +100,59 @@ def test_active_users_by_recency_gauge(db):
         for bucket, age in ages.items():
             session.execute(update(User).where(User.id == user_ids_by_bucket[bucket]).values(last_active=now() - age))
 
-    _populate(active_users_by_recency_gauge)
+    _populate_single_pass()
     values = _sample_values(active_users_by_recency_gauge)
 
     for bucket in ages:
         assert values[bucket] == 1
+
+
+def test_active_users_by_recency_gauge_emits_empty_buckets(db):
+    generate_user()
+
+    _populate_single_pass()
+    values = _sample_values(active_users_by_recency_gauge)
+
+    # every bucket is always emitted, even the ones with no users in them
+    assert set(values) == {"<1d", "1d-1w", "1w-1m", "1m-6m", "6m-12m", "12m-24m", "24m+"}
+    assert values["<1d"] == 1
+    assert values["24m+"] == 0
+
+
+def test_users_gauges(db):
+    generate_user(gender="Man", hosting_status=HostingStatus.can_host)
+    generate_user(gender="Woman", hosting_status=HostingStatus.cant_host)
+    generate_user(gender="Non-binary", hosting_status=HostingStatus.maybe)
+    generate_user(gender="Woman", hosting_status=HostingStatus.can_host, delete_user=True)
+
+    _populate_single_pass()
+    values = _users_gauge_values()
+
+    # the deleted user is excluded from every count
+    assert values["couchers_users"] == 3
+    assert values["couchers_active_users_5m"] == 3
+    assert values["couchers_users_man"] == 1
+    assert values["couchers_users_woman"] == 1
+    assert values["couchers_users_nonbinary"] == 1
+    assert values["couchers_users_can_host"] == 1
+    assert values["couchers_users_cant_host"] == 1
+    assert values["couchers_users_maybe"] == 1
+
+
+def test_users_completed_profile_gauge(db):
+    generate_user()
+    generate_user()
+    short_about_me, _ = generate_user()
+    # a long enough about me isn't sufficient on its own, there has to be a photo in the profile gallery too
+    generate_user(complete_profile=False, about_me="x" * 150)
+
+    # ...and neither is a photo without a long enough about me
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == short_about_me.id).values(about_me="too short"))
+
+    _populate_single_pass()
+
+    assert _users_gauge_values()["couchers_users_completed_profile"] == 2
 
 
 def _add_activity(user_id: int, client_platform: ClientPlatform | None, age: timedelta = timedelta(minutes=1)) -> None:
@@ -192,3 +258,17 @@ def test_active_users_mobile_fraction_gauge(db):
     # populating the breakdown gauge also sets the mobile fraction gauge: 3 of 4 active users are on mobile
     _populate(active_users_by_platform_gauge)
     assert _gauge_value(active_users_mobile_fraction_gauge) == pytest.approx(0.75)
+
+
+def test_sent_request_gauge_excludes_public_trip_offers(db, moderator):
+    _, surfer_token = generate_user()
+    host, host_token = generate_user()
+    traveller, _ = generate_user()
+
+    _create_host_request_via_api(surfer_token, host.id, moderator)
+
+    # the host offering to host a public trip hasn't sent a host request
+    trip_id = _create_public_trip(traveller.id, today() + timedelta(days=5), today() + timedelta(days=10))
+    _create_host_request_via_api(host_token, traveller.id, moderator, public_trip_id=trip_id)
+
+    assert _query_value(sent_request_gauge) == 1

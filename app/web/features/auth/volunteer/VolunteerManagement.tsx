@@ -17,34 +17,20 @@ type VolunteerManagementProps = {
   className?: string;
 };
 
-export default function VolunteerManagement({
-  className,
-  accountInfo,
-}: VolunteerManagementProps) {
+export default function VolunteerManagement({ className, accountInfo }: VolunteerManagementProps) {
   const { t } = useTranslation([AUTH]);
 
   // Non-volunteer view
   if (!accountInfo.isVolunteer) {
     return (
       <div className={className} id="volunteer-management">
-        <Typography variant="h2">
-          {t("auth:volunteer_management.title")}
-        </Typography>
+        <Typography variant="h2">{t("auth:volunteer_management.title")}</Typography>
         <Typography variant="body1" sx={{ marginTop: theme.spacing(1) }}>
           <Trans
             t={t}
             i18nKey="auth:volunteer_management.not_a_volunteer_message"
-            components={{
-              1: <StyledLink href={volunteerNotAVolunteerFormUrl} />,
-            }}
-          >
-            According to our records you are not a current or past volunteer. If
-            this is incorrect, please let us know by filling in{" "}
-            <StyledLink href={volunteerNotAVolunteerFormUrl}>
-              this form
-            </StyledLink>
-            .
-          </Trans>
+            components={{ formLink: <StyledLink href={volunteerNotAVolunteerFormUrl} /> }}
+          />
         </Typography>
       </div>
     );
@@ -55,18 +41,12 @@ export default function VolunteerManagement({
 
 function VolunteerManagementContent({ className }: { className?: string }) {
   const { t } = useTranslation([AUTH]);
-  const {
-    data: volunteerInfo,
-    error: volunteerInfoError,
-    isLoading: isVolunteerInfoLoading,
-  } = useVolunteerInfo();
+  const { data: volunteerInfo, error: volunteerInfoError, isLoading: isVolunteerInfoLoading } = useVolunteerInfo();
 
   if (isVolunteerInfoLoading) {
     return (
       <div className={className} id="volunteer-management">
-        <Typography variant="h2">
-          {t("auth:volunteer_management.title")}
-        </Typography>
+        <Typography variant="h2">{t("auth:volunteer_management.title")}</Typography>
         <CenteredSpinner />
       </div>
     );
@@ -75,9 +55,7 @@ function VolunteerManagementContent({ className }: { className?: string }) {
   if (volunteerInfoError) {
     return (
       <div className={className} id="volunteer-management">
-        <Typography variant="h2">
-          {t("auth:volunteer_management.title")}
-        </Typography>
+        <Typography variant="h2">{t("auth:volunteer_management.title")}</Typography>
         <Alert severity="error">{volunteerInfoError.message}</Alert>
       </div>
     );
@@ -89,9 +67,7 @@ function VolunteerManagementContent({ className }: { className?: string }) {
 
   return (
     <div className={className} id="volunteer-management">
-      <Typography variant="h2">
-        {t("auth:volunteer_management.title")}
-      </Typography>
+      <Typography variant="h2">{t("auth:volunteer_management.title")}</Typography>
       <Typography variant="body1" sx={{ marginTop: theme.spacing(1) }}>
         {t("auth:volunteer_management.description")}
       </Typography>

@@ -29,15 +29,8 @@ const clearMapFeatureState = (mapRef: React.RefObject<MapRef | null>) => {
   }
 };
 
-const setMapFeatureState = (
-  mapRef: React.RefObject<MapRef | null>,
-  id: string,
-  selected: boolean,
-) => {
-  mapRef.current?.setFeatureState(
-    { source: USERS_SOURCE_ID, id },
-    { selected },
-  );
+const setMapFeatureState = (mapRef: React.RefObject<MapRef | null>, id: string, selected: boolean) => {
+  mapRef.current?.setFeatureState({ source: USERS_SOURCE_ID, id }, { selected });
 };
 
 const loadMapUserPins = async (mapRef: React.RefObject<MapRef | null>) => {
@@ -52,10 +45,7 @@ const loadMapUserPins = async (mapRef: React.RefObject<MapRef | null>) => {
 };
 
 // @TODO(NA) - Maybe stringify state and initialState and compare them instead? As long as order is the same.
-const getHasActiveFilters = (
-  state: MapSearchState,
-  initialState: MapSearchState,
-) => {
+const getHasActiveFilters = (state: MapSearchState, initialState: MapSearchState) => {
   return (
     state.filters.ageMin !== initialState.filters.ageMin ||
     state.filters.ageMax !== initialState.filters.ageMax ||
@@ -64,14 +54,11 @@ const getHasActiveFilters = (
     state.filters.numGuests !== initialState.filters.numGuests ||
     state.filters.showEmptyProfile !== initialState.filters.showEmptyProfile ||
     state.filters.acceptsKids !== initialState.filters.acceptsKids ||
-    state.filters.acceptsLastMinRequests !==
-      initialState.filters.acceptsLastMinRequests ||
+    state.filters.acceptsLastMinRequests !== initialState.filters.acceptsLastMinRequests ||
     state.filters.drinkingAllowed !== initialState.filters.drinkingAllowed ||
     state.filters.hasReferences !== initialState.filters.hasReferences ||
-    state.filters.sleepingArrangement !==
-      initialState.filters.sleepingArrangement ||
-    state.filters.hasStrongVerification !==
-      initialState.filters.hasStrongVerification ||
+    state.filters.sleepingArrangement !== initialState.filters.sleepingArrangement ||
+    state.filters.hasStrongVerification !== initialState.filters.hasStrongVerification ||
     state.filters.smokesAtHome !== initialState.filters.smokesAtHome ||
     state.filters.lastActive !== initialState.filters.lastActive ||
     state.filters.sameGenderOnly !== initialState.filters.sameGenderOnly
@@ -87,11 +74,4 @@ const getMapBounds = (mapRef: React.RefObject<MapRef | null>) => {
   return bbox;
 };
 
-export {
-  clearMapFeatureState,
-  getHasActiveFilters,
-  getMapBounds,
-  loadMapUserPins,
-  setMapFeatureState,
-  usersToGeoJSON,
-};
+export { clearMapFeatureState, getHasActiveFilters, getMapBounds, loadMapUserPins, setMapFeatureState, usersToGeoJSON };

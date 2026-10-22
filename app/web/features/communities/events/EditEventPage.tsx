@@ -14,7 +14,6 @@ import { useRouter } from "next/router";
 import { service } from "service";
 import type { UpdateEventInput } from "service/events";
 import { theme } from "theme";
-import dayjs from "utils/dayjs";
 import { sendNativeBack, useIsNativeEmbed } from "utils/nativeLink";
 
 import { Event } from "../../../proto/events_pb";
@@ -46,67 +45,32 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
     }
   };
 
-  const {
-    data: event,
-    error: eventError,
-    isLoading: isEventLoading,
-    isValidEventId,
-  } = useEvent({ eventId });
+  const { data: event, error: eventError, isLoading: isEventLoading, isValidEventId } = useEvent({ eventId });
 
   const queryClient = useQueryClient();
   const {
     mutate: updateEvent,
     error,
     isPending,
-  } = useMutation<
-    Event.AsObject,
-    RpcError,
-    CreateEventVariables,
-    { parentCommunityId?: number }
-  >({
+  } = useMutation<Event.AsObject, RpcError, CreateEventVariables, { parentCommunityId?: number }>({
     mutationFn: (data) => {
-      let updateEventInput: UpdateEventInput;
-      const startTime = dayjs(data.startTime);
-      const endTime = dayjs(data.endTime);
-      const finalStartDate = data.startDate
-        .startOf("day")
-        .add(startTime.get("hour"), "hour")
-        .add(startTime.get("minute"), "minute")
-        .toDate();
-      const finalEndDate = data.endDate
-        .startOf("day")
-        .add(endTime.get("hour"), "hour")
-        .add(endTime.get("minute"), "minute")
-        .toDate();
-
-      updateEventInput = {
+      const updateEventInput: UpdateEventInput = {
         eventId,
-        isOnline: data.isOnline,
         title: data.dirtyFields.title ? data.title : undefined,
         content: data.dirtyFields.content ? data.content : undefined,
         photoKey: data.dirtyFields.eventImage ? data.eventImage : undefined,
         startTime:
-          data.dirtyFields.startTime || data.dirtyFields.startDate
-            ? finalStartDate
+          data.dirtyFields.startDate || data.dirtyFields.startTime
+            ? data.startDate.toPlainDateTime(data.startTime)
             : undefined,
         endTime:
-          data.dirtyFields.endTime || data.dirtyFields.endDate
-            ? finalEndDate
-            : undefined,
+          data.dirtyFields.endDate || data.dirtyFields.endTime ? data.endDate.toPlainDateTime(data.endTime) : undefined,
         shouldNotify: data.dirtyFields.shouldNotify,
+        address: data.dirtyFields.location ? data.location.name : undefined,
+        lat: data.dirtyFields.location ? data.location.location.lat : undefined,
+        lng: data.dirtyFields.location ? data.location.location.lng : undefined,
       };
 
-      if (data.isOnline) {
-        updateEventInput = Object.assign(updateEventInput, {
-          link: data.dirtyFields.link ? data.link : undefined,
-        });
-      } else if (data.dirtyFields.location) {
-        updateEventInput = Object.assign(updateEventInput, {
-          address: data.location.name,
-          lat: data.location.location.lat,
-          lng: data.location.location.lng,
-        });
-      }
       return service.events.updateEvent(updateEventInput);
     },
 
@@ -121,9 +85,7 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
       });
       queryClient.invalidateQueries({
         queryKey: [
-          context?.parentCommunityId
-            ? [communityEventsBaseKey, context.parentCommunityId]
-            : communityEventsBaseKey,
+          context?.parentCommunityId ? [communityEventsBaseKey, context.parentCommunityId] : communityEventsBaseKey,
         ],
       });
       router.push(routeToEvent(updatedEvent.eventId, updatedEvent.slug));
@@ -141,10 +103,7 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
     ) : (
       <>
         <HtmlMeta title={t("communities:edit_event")} />
-        <StyledBackButton
-          onClick={handleBackClick}
-          aria-label={t("communities:previous_page")}
-        >
+        <StyledBackButton onClick={handleBackClick} aria-label={t("communities:previous_page")}>
           <BackIcon />
         </StyledBackButton>
         <EventForm
@@ -156,11 +115,7 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
           isEdit
         >
           {({ isMutationLoading }) => (
-            <Button
-              loading={isMutationLoading}
-              type="submit"
-              sx={{ justifySelf: "start" }}
-            >
+            <Button loading={isMutationLoading} type="submit" sx={{ justifySelf: "start" }}>
               {t("global:update")}
             </Button>
           )}

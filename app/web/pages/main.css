@@ -1,0 +1,4 @@
+html {
+  /* Add spacing between CJK and Western characters for readability. */
+  text-autospace: normal;
+}

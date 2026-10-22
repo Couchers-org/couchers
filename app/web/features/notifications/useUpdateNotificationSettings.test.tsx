@@ -39,9 +39,7 @@ describe("useUpdateNotificationSettings", () => {
       enabled: true,
     };
 
-    (
-      service.notifications.setNotificationSettingsPreference as jest.Mock
-    ).mockResolvedValue(
+    (service.notifications.setNotificationSettingsPreference as jest.Mock).mockResolvedValue(
       {}, // Mocked successful response
     );
 
@@ -58,25 +56,17 @@ describe("useUpdateNotificationSettings", () => {
       });
     });
 
-    expect(
-      service.notifications.setNotificationSettingsPreference,
-    ).toHaveBeenCalledWith(mockData);
+    expect(service.notifications.setNotificationSettingsPreference).toHaveBeenCalledWith(mockData);
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
       queryKey: [notificationSettingsQueryKey],
     });
   });
 
   it("Should handle errors correctly", async () => {
-    const mockError = new RpcError(
-      StatusCode.CANCELLED,
-      "Test error message",
-      {},
-    );
+    const mockError = new RpcError(StatusCode.CANCELLED, "Test error message", {});
     const setMutationError = jest.fn();
 
-    (
-      service.notifications.setNotificationSettingsPreference as jest.Mock
-    ).mockRejectedValue(mockError);
+    (service.notifications.setNotificationSettingsPreference as jest.Mock).mockRejectedValue(mockError);
 
     const { result } = renderHook(() => useUpdateNotificationSettings(), {
       wrapper,

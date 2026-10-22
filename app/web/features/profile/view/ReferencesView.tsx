@@ -69,18 +69,12 @@ export default function ReferencesView({
 
   return (
     <>
-      {referencesError && (
-        <Alert severity="error">{referencesError.message}</Alert>
-      )}
+      {referencesError && <Alert severity="error">{referencesError.message}</Alert>}
       {isReferenceUsersLoading || isReferencesLoading ? (
         <CenteredSpinner />
       ) : hasAtLeastOnePage(referencesRes, "referencesList") ? (
         <>
-          <ReferenceList
-            isReceived={isReceived}
-            referencePages={referencesRes.pages}
-            referenceUsers={referenceUsers}
-          />
+          <ReferenceList isReceived={isReceived} referencePages={referencesRes.pages} referenceUsers={referenceUsers} />
           {hasNextPage && (
             <SeeMoreReferencesButtonContainer>
               <Button loading={isFetchingNextPage} onClick={handleFetchMore}>
@@ -90,9 +84,7 @@ export default function ReferencesView({
           )}
         </>
       ) : (
-        <TextBody sx={{ marginBlockStart: theme.spacing(1) }}>
-          {t("profile:no_references")}
-        </TextBody>
+        <TextBody sx={{ marginBlockStart: theme.spacing(1) }}>{t("profile:no_references")}</TextBody>
       )}
     </>
   );

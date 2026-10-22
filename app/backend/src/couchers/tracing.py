@@ -2,7 +2,7 @@ from collections.abc import Sequence
 
 from opentelemetry import trace
 from opentelemetry.context import Context
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.grpc import GrpcInstrumentorServer
 from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 from opentelemetry.instrumentation.threading import ThreadingInstrumentor
@@ -56,8 +56,11 @@ def setup_tracing() -> None:
             resource=Resource(attributes={"service.name": "backend"}),
             sampler=ParentBased(root=FeatureFlagRatioSampler()),
         )
+        headers = (
+            {"authorization": f"Bearer {config.OPENTELEMETRY_AUTH_TOKEN}"} if config.OPENTELEMETRY_AUTH_TOKEN else None
+        )
         tracer.add_span_processor(
-            BatchSpanProcessor(OTLPSpanExporter(endpoint=config.OPENTELEMETRY_ENDPOINT, insecure=True))
+            BatchSpanProcessor(OTLPSpanExporter(endpoint=config.OPENTELEMETRY_ENDPOINT, headers=headers))
         )
 
         trace.set_tracer_provider(tracer)

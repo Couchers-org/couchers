@@ -56,25 +56,16 @@ write_index() {
 </head>
 <body style="font-family: sans-serif; max-width: 36rem; margin: 3rem auto; padding: 0 1rem; line-height: 1.5">
 <h1>Couchers Dev Tool</h1>
-<p>A development build of the Couchers app. Install it once, then load any branch over
-the air with <code>npx expo start</code> or a pull request's QR code — pure JS/TS changes
-never need a fresh install.</p>
-
-<h2>iPhone / iPad</h2>
-<p>Install from <strong>TestFlight</strong> — ask a maintainer for an invite. A signed
-device build can't be sideloaded outside TestFlight.</p>
-
-<h2>iOS Simulator (macOS)</h2>
-<p><a href="./ios-simulator/${SIM_NAME}">Download the latest simulator build</a>, then:</p>
-<pre>tar xf ${SIM_NAME}
-open -a Simulator
-xcrun simctl install booted "Couchers Dev Tool.app"</pre>
+<p>A development build of the Couchers app. See our <a href="https://github.com/Couchers-org/couchers/blob/develop/app/mobile/README.md">readme</a>.</p>
 
 <h2>Android</h2>
-<p><a href="./android/${APK_NAME}">Download the latest APK</a>. Enable "install from
-unknown sources" to sideload.</p>
+<p><a href="./android/${APK_NAME}">Download the latest APK</a>. Enable "install from unknown sources" to sideload.</p>
 
-<p style="color: #666; margin-top: 2rem">Re-download to grab newer builds.</p>
+<h2>iPhone / iPad</h2>
+<p>Install from <strong>TestFlight</strong>: ask a mobile dev lead for an invite.</p>
+
+<h2>iOS Simulator (macOS)</h2>
+<p><a href="./ios-simulator/${SIM_NAME}">Download the latest simulator build</a>, then extract the .app file somewhere, and drag and drop it into the simulator window to install.</p>
 </body>
 </html>
 HTML

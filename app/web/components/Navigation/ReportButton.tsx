@@ -1,14 +1,8 @@
-import {
-  darken,
-  styled,
-  SxProps,
-  Theme,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
+import { darken, styled, SxProps, Theme, Typography, useMediaQuery } from "@mui/material";
 import Button from "components/Button";
 import { BugIcon } from "components/Icons";
 import { useTranslation } from "i18n";
+import { GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
 import { theme } from "theme";
 
@@ -40,7 +34,7 @@ export default function ReportButton({
   isMenuLink?: boolean;
   sx?: SxProps<Theme>;
 }) {
-  const { t } = useTranslation("global");
+  const { t } = useTranslation(GLOBAL);
   const isBelowMd = useMediaQuery(theme.breakpoints.down("md"));
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -74,10 +68,7 @@ export default function ReportButton({
           {(!isResponsive || !isBelowMd) && t("report.label")}
         </StyledReportButton>
       )}
-      <ReportDialog
-        open={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-      />
+      <ReportDialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)} />
     </>
   );
 }

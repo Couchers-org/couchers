@@ -21,8 +21,7 @@ export default function useUpdateHostingPreferences() {
     isError,
     status,
   } = useMutation<Empty, Error, UpdateHostingPreferencesVariables>({
-    mutationFn: ({ preferenceData }) =>
-      service.user.updateHostingPreference(preferenceData),
+    mutationFn: ({ preferenceData }) => service.user.updateHostingPreference(preferenceData),
     onError: (error, { setMutationError }) => {
       setMutationError(error.message);
     },

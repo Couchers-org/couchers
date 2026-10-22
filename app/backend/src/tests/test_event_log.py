@@ -18,13 +18,14 @@ from couchers.proto import (
     api_pb2,
     auth_pb2,
     conversations_pb2,
-    events_pb2,
+    messages_pb2,
     references_pb2,
     reporting_pb2,
     requests_pb2,
     search_pb2,
 )
-from couchers.utils import Timestamp_from_datetime, create_coordinate, now, today
+from couchers.utils import create_coordinate, today
+from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user, make_friends
 from tests.fixtures.sessions import (
     MockGrpcContext,
@@ -32,7 +33,6 @@ from tests.fixtures.sessions import (
     api_session,
     auth_api_session,
     conversations_session,
-    events_session,
     references_session,
     reporting_session,
     requests_session,
@@ -42,7 +42,7 @@ from tests.test_communities import create_community
 
 
 @pytest.fixture(autouse=True)
-def _(testconfig, fast_passwords):
+def _(fast_passwords):
     pass
 
 
@@ -208,7 +208,7 @@ def test_log_event_multiple_events(db):
 
 
 def test_signup_flow_creates_events(db):
-    """Full signup flow creates account.signup_initiated and account.signup_completed events."""
+    """Full signup flow creates signup_initiated, signup_email_verified and signup_completed events sharing a flow id."""
     with auth_api_session() as (auth_api, metadata_interceptor):
         res = auth_api.SignupFlow(
             auth_pb2.SignupFlowReq(
@@ -222,6 +222,8 @@ def test_signup_flow_creates_events(db):
         events = _get_events(session, "account.signup_initiated")
         assert len(events) == 1
         assert events[0].properties["has_invite_code"] is False
+        flow_id = session.execute(select(SignupFlow.id).where(SignupFlow.flow_token == flow_token)).scalar_one()
+        assert events[0].properties["signup_flow_id"] == flow_id
 
     # complete signup: get email token, verify, fill account, etc.
     with session_scope() as session:
@@ -235,6 +237,11 @@ def test_signup_flow_creates_events(db):
                 email_token=email_token,
             )
         )
+
+    with session_scope() as session:
+        events = _get_events(session, "account.signup_email_verified")
+        assert len(events) == 1
+        assert events[0].properties == {"signup_flow_id": flow_id}
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         auth_api.SignupFlow(
@@ -285,6 +292,7 @@ def test_signup_flow_creates_events(db):
         assert e.properties["has_invite_code"] is False
         assert isinstance(e.properties["signup_duration_s"], (int, float))
         assert "filled_contributor_form" in e.properties
+        assert e.properties["signup_flow_id"] == flow_id
 
 
 def test_login_creates_event(db):
@@ -394,7 +402,7 @@ def test_host_request_status_change_events(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
             )
         )
 
@@ -417,7 +425,7 @@ def test_host_request_status_change_events(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=host_request_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED,
+                status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED,
             )
         )
 
@@ -456,7 +464,7 @@ def test_host_request_rejected_event(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=res.host_request_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED,
+                status=messages_pb2.HOST_REQUEST_STATUS_REJECTED,
             )
         )
 
@@ -493,7 +501,7 @@ def test_host_request_cancelled_event(db, moderator):
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=res.host_request_id,
-                status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED,
+                status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED,
             )
         )
 
@@ -733,6 +741,7 @@ def test_search_creates_event(db):
         assert e.properties["has_filters"] is False
         assert "total_items" in e.properties
         assert e.properties["search_in"] is None
+        assert e.properties["ranking_offsets_variant"] == ""
 
 
 # ===== Integration tests: reference events =====
@@ -769,30 +778,13 @@ def test_friend_reference_event(db):
 
 
 def test_event_created_event(db):
-    """Creating an event logs event.created with community info and online status."""
+    """Creating an event logs event.created with community info."""
     user, token = generate_user()
 
     with session_scope() as session:
         create_community(session, 0, 2, "Community", [user], [], None)
 
-    start_time = now() + timedelta(days=1)
-    end_time = start_time + timedelta(hours=2)
-
-    with events_session(token) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Test Meetup",
-                content="Let's hang out",
-                offline_information=events_pb2.OfflineEventInformation(
-                    address="123 Main St",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_time=Timestamp_from_datetime(start_time),
-                end_time=Timestamp_from_datetime(end_time),
-                timezone="UTC",
-            )
-        )
+    events_api.create_event(token=token)
 
     with session_scope() as session:
         events = _get_events(session, "event.created")
@@ -803,7 +795,6 @@ def test_event_created_event(db):
         assert e.properties["occurrence_id"] is not None
         assert e.properties["parent_community_id"] is not None
         assert e.properties["parent_community_name"] is not None
-        assert e.properties["online"] is False
 
 
 # ===== Integration tests: password change =====

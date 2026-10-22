@@ -153,6 +153,7 @@ def make_lite_users_selectable(create: bool = False) -> Select[Any]:
     strong_verification_subquery = (
         select(User.id, literal(True).label("true"))
         .select_from(StrongVerificationAttempt)
+        .join(User, User.id == StrongVerificationAttempt.user_id)
         .where(StrongVerificationAttempt.has_strong_verification(User))
         .distinct()
         .subquery(name="sv_subquery")
@@ -330,7 +331,8 @@ all_responses = union_all(
     .join(t, t.c.conversation_id == HostRequest.conversation_id)
     .outerjoin(
         s, and_(s.c.conversation_id == HostRequest.conversation_id, s.c.author_id == HostRequest.recipient_user_id)
-    ),
+    )
+    .where(HostRequest.public_trip_id == None),
     # activeness probes
     select(
         ActivenessProbe.user_id,

@@ -1,7 +1,7 @@
 {
   "change_email_form": {
     "title": "メールアドレスを変更する",
-    "current_email_message": "現在のメールアドレスは<2>1{{email}}</2>です。",
+    "current_email_message": "現在のメールアドレスは<strong>{{email}}</strong>です。",
     "current_password": "現在のパスワード",
     "new_email": "新たなメールアドレス",
     "success_message": "メールアドレスの変更が確認されました。新たに使用するアドレスを開き、変更を完了してください。"
@@ -26,11 +26,11 @@
   "login_page": {
     "title": "ログイン",
     "header": "おかえりなさい！",
-    "no_account_prompt": "まだアカウントを持っていませんか？<2>Join us</2>"
+    "no_account_prompt": "まだアカウントを持っていませんか？<signupLink>Join us</signupLink>"
   },
   "basic_sign_up_form": {
-    "existing_user_prompt": "すでにアカウントを持っていますか？<2>Log in</2>",
-    "sign_up_agreement_explainer": "続行するには、クッキー、メールアドレス、データ処理に関する規約<2>Terms of Service</2>に同意してください。"
+    "existing_user_prompt": "すでにアカウントを持っていますか？<loginLink>Log in</loginLink>",
+    "sign_up_agreement_explainer": "続行するには、クッキー、メールアドレス、データ処理に関する規約<tosLink>Terms of Service</tosLink>に同意してください。"
   },
   "account_form": {
     "header": "アカウントの詳細",
@@ -58,7 +58,7 @@
       "man": "男性",
       "field_label": "私は..."
     },
-    "tos_prompt": "続行するためには、<1></1>を読み受け入れてください。",
+    "tos_prompt": "続行するためには、<tosLink></tosLink>を読み受け入れてください。",
     "tos_accept_label": "$t(global:terms_of_service)を受け入れます。"
   },
   "basic_form": {
@@ -87,7 +87,6 @@
   "sign_up_completed_title": "ご登録ありがとうございます！",
   "unhandled_sign_up_state": "未完了の登録ステップです。",
   "login_prompt": "ログインするにはこちらをクリック",
-  "about_us": "私たちについて",
   "sign_up_confirmed_prompt": "設定が完了しました！リダイレクトしていなければ、ログインしてください。",
   "reset_password": "パスワードのリセット",
   "feature_preview": {

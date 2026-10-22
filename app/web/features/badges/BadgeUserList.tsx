@@ -12,8 +12,7 @@ interface BadgeUserListProps {
 export default function BadgeUserList({ badgeId }: BadgeUserListProps) {
   const { t } = useTranslation([PROFILE]);
 
-  const { badgeUserIds, hasNextPage, isFetchingNextPage, fetchNextPage } =
-    useBadgeUsers(badgeId);
+  const { badgeUserIds, hasNextPage, isFetchingNextPage, fetchNextPage } = useBadgeUsers(badgeId);
 
   return (
     <UsersList
@@ -25,9 +24,7 @@ export default function BadgeUserList({ badgeId }: BadgeUserListProps) {
           </Button>
         )
       }
-      emptyListChildren={
-        <Typography variant="body1">{t("profile:badges.no_people")}</Typography>
-      }
+      emptyListChildren={<Typography variant="body1">{t("profile:badges.no_people")}</Typography>}
     />
   );
 }

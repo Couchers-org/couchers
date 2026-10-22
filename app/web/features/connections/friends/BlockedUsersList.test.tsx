@@ -10,8 +10,7 @@ import BlockedUsersList from "./BlockedUsersList";
 
 const { t } = i18n;
 
-const getBlockedUsersMock = service.blocking
-  .getBlockedUsers as jest.MockedFunction<
+const getBlockedUsersMock = service.blocking.getBlockedUsers as jest.MockedFunction<
   typeof service.blocking.getBlockedUsers
 >;
 
@@ -53,23 +52,17 @@ describe("BlockedUsersList", () => {
 
     render(<BlockedUsersList refetchFriends={jest.fn()} />, { wrapper });
 
-    expect(
-      await screen.findByText(t("connections:no_blocked_users")),
-    ).toBeVisible();
+    expect(await screen.findByText(t("connections:no_blocked_users"))).toBeVisible();
     expect(screen.queryByTestId("friend-item")).not.toBeInTheDocument();
   });
 
   it("shows an error alert if blocked users failed to load", async () => {
-    getBlockedUsersMock.mockRejectedValue(
-      new Error("Error loading blocked users"),
-    );
+    getBlockedUsersMock.mockRejectedValue(new Error("Error loading blocked users"));
     jest.spyOn(console, "error").mockReturnValue(undefined);
     render(<BlockedUsersList refetchFriends={jest.fn()} />, { wrapper });
 
     const errorAlert = await screen.findByRole("alert");
-    expect(
-      within(errorAlert).getByText("Error loading blocked users"),
-    ).toBeVisible();
+    expect(within(errorAlert).getByText("Error loading blocked users")).toBeVisible();
   });
 
   it("calls refetchFriends to requery friends when unblocked", async () => {
@@ -84,19 +77,16 @@ describe("BlockedUsersList", () => {
 
     expect(await screen.findByText(liteUsers[1].name)).toBeVisible();
 
-    const moreOptionsButtons = await screen.findAllByTestId(
-      "blocked-user-item-more-options",
-    );
+    const moreOptionsButtons = await screen.findAllByRole("button", { name: t("global:more_options_a11y") });
 
     await user.click(moreOptionsButtons[1]);
 
-    const unblockButtons = await screen.findAllByTestId(
-      "blocked-user-item-unblock-user",
-    );
+    // Only the clicked row's menu opens; the other rows keep theirs closed.
+    const unblockButtons = await screen.findAllByRole("menuitem", { name: t("connections:unblock_user") });
 
-    expect(unblockButtons).toHaveLength(3);
+    expect(unblockButtons).toHaveLength(1);
 
-    await user.click(unblockButtons[1]);
+    await user.click(unblockButtons[0]);
 
     expect(
       await screen.findByText(

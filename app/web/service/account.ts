@@ -1,9 +1,6 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
-import {
-  BoolValue,
-  StringValue,
-} from "google-protobuf/google/protobuf/wrappers_pb";
+import { BoolValue, StringValue } from "google-protobuf/google/protobuf/wrappers_pb";
 import {
   ChangeEmailV2Req,
   ChangeLanguagePreferenceReq,
@@ -42,10 +39,7 @@ export function resetPassword(userId: string) {
   return client.auth.resetPassword(req);
 }
 
-export function CompletePasswordResetV2(
-  resetToken: string,
-  newPassword: string,
-) {
+export function CompletePasswordResetV2(resetToken: string, newPassword: string) {
   const req = new CompletePasswordResetV2Req();
   req.setPasswordResetToken(resetToken);
   req.setNewPassword(newPassword);
@@ -91,9 +85,7 @@ export async function getContributorFormInfo() {
 
 export async function fillContributorForm(form: ContributorFormPb.AsObject) {
   const res = await client.account.fillContributorForm(
-    new FillContributorFormReq().setContributorForm(
-      contributorFormFromObject(form),
-    ),
+    new FillContributorFormReq().setContributorForm(contributorFormFromObject(form)),
   );
   return res.toObject();
 }

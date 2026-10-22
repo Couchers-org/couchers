@@ -7,6 +7,8 @@ import typing
 from collections.abc import Mapping
 from typing import Any, Literal
 
+from couchers.constants import DB_POOL_SIZE
+
 
 # Not a dataclass. Not all attributes must be initialized.
 class Config:
@@ -22,7 +24,9 @@ class Config:
     # (servicing background jobs). Can also be set to `all` to do all three simultaneously
     ROLE: Literal["api", "scheduler", "worker", "all"] = "all"
     # number of bg worker processes, requires worker or all above
-    BACKGROUND_WORKER_COUNT: int = 2
+    BACKGROUND_WORKER_PROCESSES: int = 1
+    # threads per worker process; in-flight jobs is the product of the two
+    BACKGROUND_WORKER_THREADS_PER_PROCESS: int = 2
     # Version string
     VERSION: str = "unknown"
     # ISO 8601 timestamp of the deployed commit (CI_COMMIT_TIMESTAMP), empty outside CI builds
@@ -39,10 +43,14 @@ class Config:
     SECRET: bytes
     # Domain that cookies should set as their domain value
     COOKIE_DOMAIN: str
+    # SameSite attribute for cookies
+    COOKIE_SAMESITE: Literal["Strict", "Lax", "None"] = "Lax"
     # SQLAlchemy database connection string
     DATABASE_CONNECTION_STRING: str
-    # OpenTelemetry endpoint to send traces to
+    # OTLP/HTTP traces endpoint to export spans to, e.g. https://traces.example.org/v1/traces
     OPENTELEMETRY_ENDPOINT: str = ""
+    # Bearer token for the traces endpoint; empty for an unauthenticated collector (e.g. in dev)
+    OPENTELEMETRY_AUTH_TOKEN: str = ""
     # Path to a GeoLite2-City.mmdb file for geocoding IPs in user session info
     GEOLITE2_CITY_MMDB_FILE_LOCATION: str = ""
     GEOLITE2_ASN_MMDB_FILE_LOCATION: str = ""
@@ -52,6 +60,7 @@ class Config:
     STRIPE_API_KEY: str
     STRIPE_WEBHOOK_SECRET: str
     STRIPE_RECURRING_PRODUCT_ID: str
+    STRIPE_YEARLY_RECURRING_PRODUCT_ID: str
     # Strong verification through Iris ID (gated at runtime by the `strong_verification_enabled` feature flag)
     IRIS_ID_PUBKEY: str
     IRIS_ID_SECRET: str
@@ -62,6 +71,9 @@ class Config:
     MYPOSTCARD_PASSWORD: str
     MYPOSTCARD_PRODUCT_CODE: str
     MYPOSTCARD_CAMPAIGN_ID: str
+    # Whether to email users their verification code instead of posting them a postcard. Hands postal
+    # verification to anyone who asks for it, so only non-prod deployments may set it.
+    POSTAL_VERIFICATION_BYPASS_POST_AND_EMAIL_CODE_FOR_TESTING: bool = False
     # SMS (gated at runtime by the `sms_enabled` feature flag)
     SMS_SENDER_ID: str
     # Email
@@ -70,6 +82,10 @@ class Config:
     NOTIFICATION_EMAIL_SENDER: str
     # Sender email, e.g. "notify@couchers.org"
     NOTIFICATION_EMAIL_ADDRESS: str
+    # Sender name for moderation emails users can reply to
+    MODERATION_EMAIL_SENDER: str
+    # Sender email for moderation emails, a monitored mailbox users can reply to
+    MODERATION_EMAIL_ADDRESS: str
     # An optional prefix for email subject, e.g. [STAGING]
     NOTIFICATION_PREFIX: str = ""
     # Address to send emails about reported users
@@ -97,6 +113,9 @@ class Config:
     # Sentry
     SENTRY_ENABLED: bool
     SENTRY_URL: str
+    # Sentry project id the web frontend reports to, used to deep-link bug reports to the
+    # reporter's errors and session replay
+    SENTRY_FRONTEND_PROJECT_ID: str
     # Push notifications
     PUSH_NOTIFICATIONS_ENABLED: bool
     PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY: str
@@ -123,7 +142,7 @@ class Config:
     PYROSCOPE_ENABLED: bool
     PYROSCOPE_SERVER: str
     PYROSCOPE_AUTH_TOKEN: str
-    # Moderation auto-approval deadline in seconds (0 to disable auto-approval)
+    # Default moderation auto-approval deadline in seconds, overridable per user (0 to disable auto-approval entirely)
     MODERATION_AUTO_APPROVE_DEADLINE_SECONDS: int
     # User ID of the bot user for automated moderation actions
     MODERATION_BOT_USER_ID: int
@@ -134,6 +153,11 @@ class Config:
     SLACK_BOT_TOKEN: str
     SLACK_DONATIONS_CHANNEL: str
     SLACK_MERCH_CHANNEL: str
+    # an empty host turns rate limiting off entirely, see docs/rate-limit-design.md
+    VALKEY_HOST: str = ""
+    VALKEY_PORT: int = 6379
+    # prefix length per-IP counters are keyed at for IPv6; IPv4 is always /32
+    RATE_LIMIT_IPV6_PREFIX: int = 64
 
     def __init__(self) -> None:
         # Initialize instance attributes with default values from class attributes.
@@ -167,6 +191,17 @@ class Config:
             if not hasattr(self, attr_name):
                 raise ValueError(f"Config value {attr_name} not set")
 
+        # each worker thread can hold two connections at once
+        if 2 * self.BACKGROUND_WORKER_THREADS_PER_PROCESS > DB_POOL_SIZE:
+            raise Exception(
+                f"BACKGROUND_WORKER_THREADS_PER_PROCESS ({self.BACKGROUND_WORKER_THREADS_PER_PROCESS}) must not "
+                f"exceed half of DB_POOL_SIZE ({DB_POOL_SIZE // 2}), or worker threads could exhaust the DB "
+                "connection pool"
+            )
+
+        if self.DEV and self.COOKIE_SAMESITE == "None":
+            raise Exception("COOKIE_SAMESITE=None requires Secure cookies, which are only set outside DEV")
+
         if not self.DEV:
             # checks for prod
             if "https" not in self.BASE_URL:
@@ -178,7 +213,12 @@ class Config:
 
             # Donations are gated at runtime by the `donations_enabled` feature flag, which can be flipped on
             # remotely at any time, so prod must always have Stripe credentials present so the feature can run.
-            if not self.STRIPE_API_KEY or not self.STRIPE_WEBHOOK_SECRET or not self.STRIPE_RECURRING_PRODUCT_ID:
+            if (
+                not self.STRIPE_API_KEY
+                or not self.STRIPE_WEBHOOK_SECRET
+                or not self.STRIPE_RECURRING_PRODUCT_ID
+                or not self.STRIPE_YEARLY_RECURRING_PRODUCT_ID
+            ):
                 raise Exception("Stripe credentials must be configured in production")
 
             # Listmonk is gated at runtime by the `listmonk_enabled` feature flag, which can be flipped on
@@ -243,7 +283,7 @@ class Config:
             # mypy erroneously reports an error below (https://github.com/python/mypy/issues/15630)
             elif typing.get_origin(var_type) is Literal:  # type: ignore[comparison-overlap]
                 # list of allowed string values
-                options = typing.get_args(var_type)
+                options = typing.get_args(var_type)  # type: ignore[unreachable]
                 if env_value not in options:
                     raise ValueError(f"Invalid value for {var_name}, need one of {', '.join(options)}")
                 attr_value = env_value
@@ -271,7 +311,7 @@ class Config:
             raise KeyError(f"No such config key: {key}.")
 
         if typing.get_origin(var_type) is Literal:  # type: ignore[comparison-overlap]
-            options = typing.get_args(var_type)
+            options = typing.get_args(var_type)  # type: ignore[unreachable]
             if value not in options:
                 raise ValueError(f"Invalid value for {key}, need one of {', '.join(options)}")
         elif not isinstance(value, var_type):

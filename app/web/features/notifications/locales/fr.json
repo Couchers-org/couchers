@@ -1,5 +1,4 @@
 {
-  "unread": "Non lu",
   "mark_unread": "Marquez comme non lu",
   "mark_all_read": "Marquez tout comme lu",
   "no_new_notifications": "Aucune nouvelle notification",
@@ -17,21 +16,25 @@
         "chat": "Messages",
         "event": "Événements",
         "friend_request": "Demandes d'amis",
-        "host_request": "Requêtes d'hébergements",
+        "host_request": "Demandes d'hébergement",
         "discussion": "Discussions",
         "reply": "Réponses",
         "reference": "Références"
       },
       "expand_all": "Gonflez tout",
       "collapse_all": "Réduisez tout",
-      "description": "Toute modification apportée ci-dessous est enregistrée automatiquement. Veuillez noter que vous pouvez toujours recevoir des notifications importantes concernant votre compte et votre contenu, en dehors de vos paramètres de notification préférés."
+      "description": "Toute modification apportée ci-dessous est enregistrée automatiquement. Veuillez noter que vous pouvez toujours recevoir des notifications importantes concernant votre compte et votre contenu, en dehors de vos paramètres de notification préférés.",
+      "channels": {
+        "email_label": "E-mail",
+        "push_label": "Notifications push"
+      }
     },
     "push_notifications": {
       "title": "Les notifications poussées",
       "description": "Vous pouvez activer les notifications poussées pour Couchers.org sur votre appareil. Nous travaillons à étendre cette fonctionnalité.",
       "error_generic": "Erreur lors de l’abonnement aux notifications poussées",
-      "disabled_message": "Les notifications poussées sont actuellement <1>désactivées</1>.",
-      "enabled_message": "Les notifications poussées sont actuellement <1>activées</1>.",
+      "disabled_message": "Les notifications poussées sont actuellement <strong>désactivées</strong>.",
+      "enabled_message": "Les notifications poussées sont actuellement <strong>activées</strong>.",
       "permission_denied": {
         "instructions": {
           "firefox": "Vous avez bloqué les notifications. Veuillez activer les notifications dans les paramètres de votre navigateur pour continuer. Dans Firefox, allez dans Préférences > Vie privée et sécurité > Permissions > Notifications, puis modifiez l'autorisation du site-web.",
@@ -55,7 +58,6 @@
       "error_not_granted": "Vous n'avez pas donné l'autorisation d'envoyer des notifications poussées."
     }
   },
-  "all": "Toutes",
   "error_loading": "Erreur de chargement des notifications",
   "error_updating_notifications": "Erreur lors de la mise à jour des notifications",
   "push_notification_banner": {

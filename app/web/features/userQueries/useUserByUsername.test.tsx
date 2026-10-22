@@ -119,7 +119,7 @@ describe("cached data", () => {
       wrapper: sharedClientWrapper,
     });
 
-    expect(getUserMock).toBeCalledTimes(1);
+    expect(getUserMock).toHaveBeenCalledTimes(1);
   });
 
   it("is returned when stale if subsequent refetch queries fail", async () => {

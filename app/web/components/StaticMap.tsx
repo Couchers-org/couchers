@@ -9,13 +9,7 @@ import {
 } from "features/search/utils/mapLayers";
 import { loadMapUserPins } from "features/search/utils/mapUtils";
 import React, { useRef } from "react";
-import {
-  Layer,
-  Map as MaplibreMap,
-  MapRef,
-  NavigationControl,
-  Source,
-} from "react-map-gl/maplibre";
+import { Layer, Map as MaplibreMap, MapRef, NavigationControl, Source } from "react-map-gl/maplibre";
 import { theme } from "theme";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;

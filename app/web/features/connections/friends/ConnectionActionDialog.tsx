@@ -1,10 +1,5 @@
 import Button from "components/Button";
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-} from "components/Dialog";
+import { Dialog, DialogActions, DialogContent, DialogTitle } from "components/Dialog";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 

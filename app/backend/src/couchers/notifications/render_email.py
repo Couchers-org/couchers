@@ -1,12 +1,13 @@
 import logging
 from dataclasses import dataclass
+from email.headerregistry import Address
 from typing import assert_never
 
 import couchers.email.emails as emails
 from couchers import urls
 from couchers.config import config
 from couchers.email.blocks import EmailBase, EmailFooter, UnsubscribeInfo, UnsubscribeLink
-from couchers.email.calendar_events import create_host_request_attachment, create_host_request_cancellation_attachment
+from couchers.email.calendar_events import create_host_request_attachment
 from couchers.email.rendering import render_email
 from couchers.i18n import LocalizationContext
 from couchers.models import Notification, NotificationTopicAction, User
@@ -38,9 +39,11 @@ def get_send_email_payload(
     else:
         attachment = None
 
+    sender = get_email_sender(notification)
+
     return SendEmailPayload(
-        sender_name=config.NOTIFICATION_EMAIL_SENDER,
-        sender_email=config.NOTIFICATION_EMAIL_ADDRESS,
+        sender_name=sender.display_name,
+        sender_email=sender.addr_spec,
         recipient=user.email,
         subject=config.NOTIFICATION_PREFIX + rendered_email.subject,
         plain=rendered_email.body_plaintext,
@@ -80,9 +83,9 @@ def get_notification_email(notification: Notification, *, user_name: str) -> Ema
         case NotificationTopicAction.donation__received:
             return emails.DonationReceivedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.email_address__change:
-            return emails.EmailAddressChangedEmail.from_notification(data, user_name=user_name)
+            return emails.EmailChangedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.email_address__verify:
-            return emails.EmailAddressVerifiedEmail(user_name=user_name)
+            return emails.EmailVerifiedEmail(user_name=user_name)
         case NotificationTopicAction.event__create_approved:
             return emails.EventCreatedEmail.from_notification(data, user_name=user_name, is_invite=True)
         case NotificationTopicAction.event__create_any:
@@ -123,7 +126,7 @@ def get_notification_email(notification: Notification, *, user_name: str) -> Ema
         case NotificationTopicAction.general__new_blog_post:
             return emails.NewBlogPostEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.modnote__create:
-            return emails.ModeratorNoteEmail(user_name=user_name)
+            return emails.ModeratorNoteEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.onboarding__reminder:
             return emails.OnboardingReminderEmail(user_name=user_name, initial=notification.key == "1")
         case NotificationTopicAction.password__change:
@@ -165,6 +168,14 @@ def get_notification_email(notification: Notification, *, user_name: str) -> Ema
             assert_never(notification.topic_action)
 
 
+def get_email_sender(notification: Notification) -> Address:
+    """Gets the address the email is sent from, which a notification can override to e.g. a monitored mailbox."""
+    if notification.topic_action == NotificationTopicAction.modnote__create:
+        # Moderator notes come from the moderation mailbox so that users can reply to them.
+        return Address(config.MODERATION_EMAIL_SENDER, addr_spec=config.MODERATION_EMAIL_ADDRESS)
+    return Address(config.NOTIFICATION_EMAIL_SENDER, addr_spec=config.NOTIFICATION_EMAIL_ADDRESS)
+
+
 def get_source_data_header(notification: Notification) -> str:
     return f"notification; topic-action={notification.topic_action}; version={config.VERSION}"
 
@@ -184,7 +195,7 @@ def get_ics_attachment(notification: Notification, loc_context: LocalizationCont
     elif notification.topic_action == NotificationTopicAction.host_request__cancel:
         # Caveat: only the party getting cancelled receives this notification,
         # we have no opportunity to provide the cancelling party with a cancelled ics attachment.
-        return create_host_request_cancellation_attachment(
+        return create_host_request_attachment(
             data.host_request, other_name=data.surfer.name, hosting=True, loc_context=loc_context
         )
     else:

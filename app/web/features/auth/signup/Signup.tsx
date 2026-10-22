@@ -1,16 +1,10 @@
-import {
-  alpha,
-  Box,
-  Container,
-  Skeleton,
-  styled,
-  Typography,
-} from "@mui/material";
+import { alpha, Box, Skeleton, styled, Typography } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Avatar from "components/Avatar";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
+import PageContainer from "components/PageContainer";
 import Redirect from "components/Redirect";
 import StyledLink from "components/StyledLink";
 import { RpcError } from "grpc-web";
@@ -68,18 +62,14 @@ export default function Signup() {
       if (urlToken) {
         setLoading(true);
         try {
-          authActions.updateSignupState(
-            await service.auth.signupFlowEmailToken(urlToken),
-          );
+          authActions.updateSignupState(await service.auth.signupFlowEmailToken(urlToken));
         } catch (err) {
           Sentry.captureException(err, {
             tags: {
               component: "auth/signup/Signup",
             },
           });
-          authActions.authError(
-            isGrpcError(err) ? err.message : t("global:error.fatal_message"),
-          );
+          authActions.authError(isGrpcError(err) ? err.message : t("global:error.fatal_message"));
           router.push(signupRoute);
           return;
         } finally {
@@ -118,9 +108,8 @@ export default function Signup() {
     <>
       {authenticated && <Redirect to={dashboardRoute} />}
       <HtmlMeta title={t("global:sign_up")} />
-      <Container
+      <PageContainer
         component="section"
-        maxWidth="lg"
         sx={{
           display: "flex",
           flexDirection: "column",
@@ -181,19 +170,15 @@ export default function Signup() {
               )}
             </Box>
           )}
-          {!isClient || loading ? (
-            <CenteredSpinner />
-          ) : (
-            <SignupFormContent inviteCode={inviteCode || undefined} />
-          )}
+          {!isClient || loading ? <CenteredSpinner /> : <SignupFormContent inviteCode={inviteCode || undefined} />}
           <Typography sx={{ marginTop: theme.spacing(2) }}>
-            <Trans i18nKey="auth:basic_sign_up_form.existing_user_prompt">
-              Already have an account?{" "}
-              <StyledLink href={loginRoute}>Log in</StyledLink>
-            </Trans>
+            <Trans
+              i18nKey="auth:basic_sign_up_form.existing_user_prompt"
+              components={{ loginLink: <StyledLink href={loginRoute} /> }}
+            />
           </Typography>
         </StyledFormWrapper>
-      </Container>
+      </PageContainer>
     </>
   );
 }

@@ -12,6 +12,7 @@ import { service } from "service";
 import { theme } from "theme";
 import { lowercaseAndTrimField } from "utils/validation";
 
+const DEFAULT_TEXTFIELD_WIDTH = "15.5rem";
 const StyledForm = styled("form")(() => ({
   marginBottom: theme.spacing(2),
   "& > * + *": {
@@ -29,19 +30,12 @@ interface DeleteAccountProps {
   className?: string;
 }
 
-export default function DeleteAccount({
-  className,
-  username,
-}: DeleteAccountProps) {
+export default function DeleteAccount({ className, username }: DeleteAccountProps) {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
 
-  const {
-    handleSubmit,
-    register,
-    reset: resetForm,
-  } = useForm<DeleteAccountForm>();
+  const { handleSubmit, register, reset: resetForm } = useForm<DeleteAccountForm>();
   const onSubmit = handleSubmit((data) => {
     deleteAccount(data);
   });
@@ -53,9 +47,7 @@ export default function DeleteAccount({
     mutate: deleteAccount,
   } = useMutation<Empty, RpcError, DeleteAccountForm>({
     mutationFn: ({ confirmUsername, reason }) => {
-      const confirm =
-        lowercaseAndTrimField(confirmUsername) ===
-        lowercaseAndTrimField(username);
+      const confirm = lowercaseAndTrimField(confirmUsername) === lowercaseAndTrimField(username);
       if (!confirm) {
         throw Error(t("auth:delete_account.request.username_mismatch"));
       }
@@ -66,45 +58,29 @@ export default function DeleteAccount({
     },
   });
 
+  const labelConfirmUsername = t("auth:delete_account.request.confirm_username_label");
+
   return (
     <div className={className}>
-      <Typography variant="h2">
-        {t("auth:delete_account.request.title")}
-      </Typography>
+      <Typography variant="h2">{t("auth:delete_account.request.title")}</Typography>
       <>
-        <Typography variant="body1">
-          {t("auth:delete_account.request.description")}
-        </Typography>
-        {deleteAccountError && (
-          <Alert severity="error">{deleteAccountError.message}</Alert>
-        )}
-        {isDeleteAccountSuccess && (
-          <Alert severity="success">
-            {t("auth:delete_account.request.success_message")}
-          </Alert>
-        )}
+        <Typography variant="body1">{t("auth:delete_account.request.description")}</Typography>
+        {deleteAccountError && <Alert severity="error">{deleteAccountError.message}</Alert>}
+        {isDeleteAccountSuccess && <Alert severity="success">{t("auth:delete_account.request.success_message")}</Alert>}
         <StyledForm onSubmit={onSubmit}>
           <Typography variant="subtitle1" sx={{ paddingBottom: 2 }}>
-            <Trans
-              t={t}
-              i18nKey="auth:delete_account.request.confirm_username_explanation"
-              values={{ username }}
-            >
-              {`Your username is `}
-              <strong>{username}</strong>
-              {`, please type it in below to confirm account deletion.`}
-            </Trans>
+            <Trans t={t} i18nKey="auth:delete_account.request.confirm_username_explanation" values={{ username }} />
           </Typography>
           <TextField
+            sx={{
+              display: "inline-flex",
+              width: isMdOrWider ? `max(${DEFAULT_TEXTFIELD_WIDTH}, ${labelConfirmUsername.length}ch)` : "100%",
+            }}
             id="confirmUsername"
             {...register("confirmUsername", { required: true })}
-            label={t("auth:delete_account.request.confirm_username_label")}
-            fullWidth={!isMdOrWider}
+            label={labelConfirmUsername}
           />
-          <Typography
-            variant="subtitle1"
-            sx={{ paddingTop: 2, paddingBottom: 2 }}
-          >
+          <Typography variant="subtitle1" sx={{ paddingTop: 2, paddingBottom: 2 }}>
             {t("auth:delete_account.request.reason_explanation")}
           </Typography>
           <TextField
@@ -116,11 +92,7 @@ export default function DeleteAccount({
             multiline
             fullWidth
           />
-          <Button
-            fullWidth={!isMdOrWider}
-            loading={isDeleteAccountLoading}
-            type="submit"
-          >
+          <Button fullWidth={!isMdOrWider} loading={isDeleteAccountLoading} type="submit">
             {t("global:submit")}
           </Button>
         </StyledForm>

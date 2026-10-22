@@ -1,9 +1,4 @@
-import {
-  render,
-  screen,
-  waitFor,
-  waitForElementToBeRemoved,
-} from "@testing-library/react";
+import { render, screen, waitFor, waitForElementToBeRemoved } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
 import { routeToNewEvent } from "routes";
@@ -19,17 +14,13 @@ import CommunityEventsList from "./CommunityEventsList";
 
 const { t } = i18n;
 
-const listCommunityEventsMock = service.events
-  .listCommunityEvents as jest.MockedFunction<
+const listCommunityEventsMock = service.events.listCommunityEvents as jest.MockedFunction<
   typeof service.events.listCommunityEvents
 >;
-const listEventAttendeesMock = service.events
-  .listEventAttendees as jest.MockedFunction<
+const listEventAttendeesMock = service.events.listEventAttendees as jest.MockedFunction<
   typeof service.events.listEventAttendees
 >;
-const getUserMock = service.user.getUser as jest.MockedFunction<
-  typeof service.user.getUser
->;
+const getUserMock = service.user.getUser as jest.MockedFunction<typeof service.user.getUser>;
 
 describe("Events list", () => {
   beforeEach(() => {
@@ -50,12 +41,8 @@ describe("Events list", () => {
     render(<CommunityEventsList community={community} />, { wrapper });
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    expect(
-      screen.getByRole("heading", { name: t("communities:events_title") }),
-    ).toBeVisible();
-    expect(
-      screen.getByRole("button", { name: t("communities:create_an_event") }),
-    ).toBeVisible();
+    expect(screen.getByRole("heading", { name: t("communities:events_title") })).toBeVisible();
+    expect(screen.getByRole("button", { name: t("communities:create_an_event") })).toBeVisible();
     // High level check that there are 3 events cards
     expect(screen.getAllByRole("link")).toHaveLength(3);
   });
@@ -72,9 +59,7 @@ describe("Events list", () => {
       screen.getByText((content, element) => {
         // Match text split across multiple elements by checking the full text content
         return (
-          element?.tagName === "P" &&
-          element?.textContent ===
-            "No events at the moment. Why don't you create one ✨?"
+          element?.tagName === "P" && element?.textContent === "No events at the moment. Why don't you create one ✨?"
         );
       }),
     ).toBeVisible();
@@ -82,16 +67,12 @@ describe("Events list", () => {
     expect(screen.getByRole("link", { name: "create" })).toBeInTheDocument();
   });
 
-  it(`takes user to the page if the "${t(
-    "communities:create_an_event",
-  )}" button is clicked`, async () => {
+  it(`takes user to the page if the "${t("communities:create_an_event")}" button is clicked`, async () => {
     render(<CommunityEventsList community={community} />, { wrapper });
 
     const user = userEvent.setup();
 
-    await user.click(
-      screen.getByRole("button", { name: t("communities:create_an_event") }),
-    );
+    await user.click(screen.getByRole("button", { name: t("communities:create_an_event") }));
 
     await waitFor(() => {
       expect(mockRouter.asPath).toBe(routeToNewEvent(2));
@@ -107,10 +88,7 @@ describe("Events list", () => {
     await assertErrorAlert(errorMessage);
     expect(
       screen.queryByText((content, element) => {
-        return (
-          element?.textContent ===
-          "No events at the moment. Why don't you create one ✨?"
-        );
+        return element?.textContent === "No events at the moment. Why don't you create one ✨?";
       }),
     ).not.toBeInTheDocument();
   });

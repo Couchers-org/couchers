@@ -9,9 +9,21 @@ import enum
 from dataclasses import dataclass
 from datetime import datetime
 from functools import cache
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 
-from sqlalchemy import BigInteger, ColumnElement, DateTime, Enum, ForeignKey, Index, String, func
+from sqlalchemy import (
+    BigInteger,
+    CheckConstraint,
+    ColumnElement,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    func,
+)
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from couchers.models.base import Base, moderation_seq
@@ -57,6 +69,8 @@ class ModerationAction(enum.Enum):
     flag = enum.auto()
     # Remove flag
     unflag = enum.auto()
+    # Change a flag's priority
+    set_priority = enum.auto()
     # Bulk visibility change applied to every item authored by a user
     bulk_set_visibility = enum.auto()
 
@@ -72,6 +86,8 @@ class ModerationObjectType(enum.Enum):
     reply = enum.auto()
     discussion = enum.auto()
     reference = enum.auto()
+    public_trip = enum.auto()
+    user = enum.auto()
 
 
 class ModerationState(Base, kw_only=True):
@@ -92,7 +108,7 @@ class ModerationState(Base, kw_only=True):
     object_type: Mapped[ModerationObjectType] = mapped_column(Enum(ModerationObjectType))
     object_id: Mapped[int] = mapped_column(BigInteger)
 
-    visibility: Mapped[ModerationVisibility] = mapped_column(Enum(ModerationVisibility))
+    visibility: Mapped[ModerationVisibility | None] = mapped_column(Enum(ModerationVisibility))
 
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     updated: Mapped[datetime] = mapped_column(
@@ -106,6 +122,10 @@ class ModerationState(Base, kw_only=True):
         Index("ix_moderation_states_id_visibility", id, visibility),
         # Fast filtering by object type and visibility
         Index("ix_moderation_states_type_visibility", object_type, visibility),
+        CheckConstraint(
+            "(object_type = 'user') = (visibility IS NULL)",
+            name="check_visibility_null_iff_own_mechanism",
+        ),
     )
 
     def __repr__(self) -> str:
@@ -130,6 +150,10 @@ class ModerationQueueItem(Base, kw_only=True):
     time_created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     trigger: Mapped[ModerationTrigger] = mapped_column(Enum(ModerationTrigger))
     reason: Mapped[str] = mapped_column(String)
+
+    priority: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0", default=0)
+
+    data: Mapped[Any | None] = mapped_column(JSONB(none_as_null=True), default=None)
 
     # When resolved, this links to the log entry that resolved it
     resolved_by_log_id: Mapped[int | None] = mapped_column(ForeignKey("moderation_log.id"), index=True, default=None)
@@ -174,6 +198,10 @@ class ModerationLog(Base, kw_only=True):
 
     # State changes (nullable - only include fields that changed)
     new_visibility: Mapped[ModerationVisibility | None] = mapped_column(Enum(ModerationVisibility), default=None)
+    new_priority: Mapped[int | None] = mapped_column(Integer, default=None)
+
+    # The queue item (flag) this action concerned, for flag-level actions
+    queue_item_id: Mapped[int | None] = mapped_column(ForeignKey("moderation_queue.id"), index=True, default=None)
 
     # Explanation for the action
     reason: Mapped[str] = mapped_column(String)
@@ -196,6 +224,7 @@ class ModeratedContent(Protocol):
 
     __moderation_object_type__: ModerationObjectType
     __moderation_author_column__: str
+    __moderation_has_own_visibility_mechanism__: bool
 
 
 @dataclass(frozen=True)
@@ -207,6 +236,8 @@ class ModeratedModel:
     author_column: ColumnElement[int]
     object_id_column: ColumnElement[int]
     moderation_state_id_column: ColumnElement[int]
+    # Visibility not determined by the moderation state, they have some other visibility logic
+    has_own_visibility_mechanism: bool
 
 
 @cache
@@ -216,9 +247,13 @@ def get_moderated_models() -> dict[ModerationObjectType, ModeratedModel]:
 
     Discovered from every mapped model that declares __moderation_object_type__, so the moderation
     metadata stays on the models themselves rather than in a separate hand-maintained list.
+
+    Ordered by model class name. registry.mappers is a frozenset, so iterating it orders Mapper objects by id(), which
+    varies per process; callers build one OR branch per entry, so without sorting the same logical query is emitted
+    with its branches in a different order in every process. That splits it across pg_stat_statements entries.
     """
     models: dict[ModerationObjectType, ModeratedModel] = {}
-    for mapper in Base.registry.mappers:
+    for mapper in sorted(Base.registry.mappers, key=lambda m: m.class_.__name__):
         cls = mapper.class_
         if not hasattr(cls, "__moderation_object_type__"):
             continue
@@ -229,5 +264,6 @@ def get_moderated_models() -> dict[ModerationObjectType, ModeratedModel]:
             author_column=mapper.columns[model.__moderation_author_column__],
             object_id_column=mapper.primary_key[0],
             moderation_state_id_column=mapper.columns["moderation_state_id"],
+            has_own_visibility_mechanism=model.__moderation_has_own_visibility_mechanism__,
         )
     return models

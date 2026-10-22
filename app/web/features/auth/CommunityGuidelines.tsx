@@ -22,7 +22,6 @@ import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
-import { useIsMounted, useSafeState } from "utils/hooks";
 
 interface CommunityGuidelinesProps {
   onSubmit: (accept: boolean) => Promise<void>;
@@ -54,14 +53,9 @@ const StyledButton = styled(Button)(({ theme }) => ({
   marginBlockStart: theme.spacing(2),
 }));
 
-export default function CommunityGuidelines({
-  onSubmit,
-  className,
-  title,
-}: CommunityGuidelinesProps) {
+export default function CommunityGuidelines({ onSubmit, className, title }: CommunityGuidelinesProps) {
   const { t } = useTranslation([AUTH, GLOBAL]);
-  const isMounted = useIsMounted();
-  const [completed, setCompleted] = useSafeState(isMounted, false);
+  const [completed, setCompleted] = useState(false);
   const [error, setError] = useState("");
 
   const {
@@ -120,63 +114,50 @@ export default function CommunityGuidelines({
         {error && <Alert severity="error">{error}</Alert>}
 
         <StyledGrid>
-          {data.communityGuidelinesList.map(
-            ({ title, guideline, iconSvg }, index) => (
-              <React.Fragment key={index}>
-                <StyledAvatar
-                  src={`data:image/svg+xml,${encodeURIComponent(iconSvg)}`}
-                />
-                <div>
-                  <Typography variant="h3" color="primary">
-                    {title}
-                  </Typography>
-                  <Typography variant="body1">{guideline}</Typography>
-                  <Controller
-                    control={control}
-                    name={`ok${index}`}
-                    defaultValue={false}
-                    rules={{
-                      required: t(
-                        "auth:community_guidelines_form.guideline.required_error",
-                      ),
-                    }}
-                    render={({ field }) => (
-                      <FormControl variant="standard">
-                        <FormControlLabel
-                          label={
-                            <Typography variant="body1">
-                              {t(
-                                "auth:community_guidelines_form.guideline.checkbox_label",
-                              )}
-                            </Typography>
-                          }
-                          control={
-                            <Checkbox
-                              {...field}
-                              checked={field.value}
-                              onChange={(_, checked) => field.onChange(checked)}
-                            />
-                          }
-                        />
+          {data.communityGuidelinesList.map(({ title, guideline, iconSvg }, index) => (
+            <React.Fragment key={index}>
+              <StyledAvatar src={`data:image/svg+xml,${encodeURIComponent(iconSvg)}`} />
+              <div>
+                <Typography variant="h3" color="primary">
+                  {title}
+                </Typography>
+                <Typography variant="body1">{guideline}</Typography>
+                <Controller
+                  control={control}
+                  name={`ok${index}`}
+                  defaultValue={false}
+                  rules={{
+                    required: t("auth:community_guidelines_form.guideline.required_error"),
+                  }}
+                  render={({ field }) => (
+                    <FormControl variant="standard">
+                      <FormControlLabel
+                        label={
+                          <Typography variant="body1">
+                            {t("auth:community_guidelines_form.guideline.checkbox_label")}
+                          </Typography>
+                        }
+                        control={
+                          <Checkbox
+                            {...field}
+                            checked={field.value}
+                            onChange={(_, checked) => field.onChange(checked)}
+                          />
+                        }
+                      />
 
-                        {errors?.[`ok${index}`]?.message && (
-                          <FormHelperText error={true}>
-                            {String(errors[`ok${index}`]?.message)}
-                          </FormHelperText>
-                        )}
-                      </FormControl>
-                    )}
-                  />
-                </div>
-              </React.Fragment>
-            ),
-          )}
+                      {errors?.[`ok${index}`]?.message && (
+                        <FormHelperText error={true}>{String(errors[`ok${index}`]?.message)}</FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
+                />
+              </div>
+            </React.Fragment>
+          ))}
         </StyledGrid>
 
-        <StyledButton
-          onClick={submit}
-          disabled={completed || !formState.isValid}
-        >
+        <StyledButton onClick={submit} disabled={completed || !formState.isValid}>
           {completed ? t("global:thanks") : t("global:submit")}
         </StyledButton>
       </form>

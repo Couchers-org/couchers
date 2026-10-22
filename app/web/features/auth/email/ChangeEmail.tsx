@@ -1,12 +1,5 @@
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import {
-  IconButton,
-  InputAdornment,
-  styled,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { IconButton, InputAdornment, styled, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -49,11 +42,7 @@ export default function ChangeEmail({ className, email }: ChangeEmailProps) {
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
   const [showPassword, setShowPassword] = useState(false);
 
-  const {
-    handleSubmit,
-    register,
-    reset: resetForm,
-  } = useForm<ChangeEmailFormData>();
+  const { handleSubmit, register, reset: resetForm } = useForm<ChangeEmailFormData>();
   const onSubmit = handleSubmit(({ currentPassword, newEmail }) => {
     changeEmail({ currentPassword, newEmail: lowercaseAndTrimField(newEmail) });
   });
@@ -64,8 +53,7 @@ export default function ChangeEmail({ className, email }: ChangeEmailProps) {
     isSuccess: isChangeEmailSuccess,
     mutate: changeEmail,
   } = useMutation<Empty, RpcError, ChangeEmailFormData>({
-    mutationFn: ({ currentPassword, newEmail }) =>
-      service.account.changeEmail(newEmail, currentPassword),
+    mutationFn: ({ currentPassword, newEmail }) => service.account.changeEmail(newEmail, currentPassword),
     onSuccess: () => {
       resetForm();
     },
@@ -76,23 +64,10 @@ export default function ChangeEmail({ className, email }: ChangeEmailProps) {
       <Typography variant="h2">{t("auth:change_email_form.title")}</Typography>
       <>
         <Typography variant="body1">
-          <Trans
-            i18nKey="auth:change_email_form.current_email_message"
-            values={{ email }}
-          >
-            {`Your email address is currently `}
-            <strong>{email}</strong>
-            {`.`}
-          </Trans>
+          <Trans i18nKey="auth:change_email_form.current_email_message" values={{ email }} />
         </Typography>
-        {changeEmailError && (
-          <Alert severity="error">{changeEmailError.message}</Alert>
-        )}
-        {isChangeEmailSuccess && (
-          <Alert severity="success">
-            {t("auth:change_email_form.success_message")}
-          </Alert>
-        )}
+        {changeEmailError && <Alert severity="error">{changeEmailError.message}</Alert>}
+        {isChangeEmailSuccess && <Alert severity="success">{t("auth:change_email_form.success_message")}</Alert>}
         <StyledForm onSubmit={onSubmit}>
           <TextField
             id="currentPassword"
@@ -127,11 +102,7 @@ export default function ChangeEmail({ className, email }: ChangeEmailProps) {
             name="newEmail"
             fullWidth
           />
-          <Button
-            fullWidth={!isMdOrWider}
-            loading={isChangeEmailLoading}
-            type="submit"
-          >
+          <Button fullWidth={!isMdOrWider} loading={isChangeEmailLoading} type="submit">
             {t("global:submit")}
           </Button>
         </StyledForm>

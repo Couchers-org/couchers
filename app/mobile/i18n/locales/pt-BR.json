@@ -27,5 +27,18 @@
     "take_photo": "Tirar Foto",
     "choose_from_library": "Escolher da Biblioteca",
     "open_settings": "Abrir configurações"
+  },
+  "update": {
+    "required_title": "Atualização necessária",
+    "body_warn": "Parece que você está usando uma versão antiga do app, por isso é necessário atualizá-lo em breve.",
+    "body_block": "Parece que você está usando uma versão antiga do app, por isso é necessário atualizá-lo agora.",
+    "body_banned": "Parece que publicamos uma versão do app com erros, por isso é necessário atualizá-lo.",
+    "preamble_warn": "Somos uma equipe pequena de voluntários e oferecer suporte a versões antigas é muito difícil. Sentimos muito pelo transtorno.",
+    "preamble_block": "Somos uma equipe pequena de voluntários e oferecer suporte a versões antigas é muito difícil. Sentimos muito pelo transtorno.",
+    "preamble_banned": "Somos uma equipe pequena de voluntários e às vezes cometemos erros. Sentimos muito pelo transtorno!",
+    "action_update": "Atualizar agora",
+    "action_reinstall": "Baixar o novo app",
+    "later": "Mais tarde",
+    "failed": "A atualização não pôde ser aplicada. Tente novamente."
   }
 }

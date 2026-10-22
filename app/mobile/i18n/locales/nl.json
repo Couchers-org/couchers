@@ -27,5 +27,18 @@
     "take_photo": "Foto maken",
     "choose_from_library": "Kiezen uit je galerij",
     "open_settings": "Instellingen openen"
+  },
+  "update": {
+    "required_title": "Update nodig",
+    "body_warn": "Het lijkt erop dat je een oude versie van de app gebruikt, zorg dat je die binnenkort update.",
+    "body_block": "Het lijkt erop dat je een oude versie van de app gebruikt, die moet je nu bijwerken.",
+    "body_banned": "Het lijkt erop dat deze versie van de app wat bugs heeft, dus je kan beter even updaten.",
+    "preamble_warn": "We zijn een klein team van vrijwilligers en kunnen dus geen oude versies blijven ondersteunen, sorry voor het gedoetje.",
+    "preamble_block": "We zijn een klein team van vrijwilligers en kunnen dus geen oude versies blijven ondersteunen, sorry voor het gedoetje.",
+    "preamble_banned": "We zijn een klein team van vrijwilligers en maken dus ook weleens fouten, duizend sorry!",
+    "action_update": "Nu updaten",
+    "action_reinstall": "Regel de nieuwe app",
+    "later": "Later",
+    "failed": "De update is mislukt. Probeer het alsjeblieft nog een keer."
   }
 }

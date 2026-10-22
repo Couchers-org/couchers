@@ -53,6 +53,25 @@ const growthbook = new GrowthBook({
   },
 });
 
+export type FeatureFlagSnapshot = {
+  targeting: Record<string, unknown>;
+  values: Record<string, unknown>;
+};
+
+export function getFeatureFlagSnapshot(): FeatureFlagSnapshot {
+  const targeting = growthbook.getAttributes();
+  const probe = new GrowthBook({ attributes: targeting });
+  probe.initSync({ payload: growthbook.getDecryptedPayload() });
+  return {
+    targeting,
+    values: Object.fromEntries(
+      Object.keys(probe.getFeatures())
+        .sort()
+        .map((key) => [key, probe.evalFeature(key).value]),
+    ),
+  };
+}
+
 export default function FeatureFlagProvider({
   children,
 }: {
@@ -61,6 +80,25 @@ export default function FeatureFlagProvider({
   const { userId } = useAuthContext();
 
   useEffect(() => {
+    // Dev-only: when set, flags resolve from feature-flags.dev.json instead of GrowthBook,
+    // mirroring web and the backend's FEATURE_FLAGS_FILE_OVERRIDE_PATH. Overridden flags return
+    // the file value; unknown flags fall through to their in-code default. GrowthBook is never
+    // contacted in this mode. The __DEV__ check lets Metro compile the whole branch out of
+    // release bundles.
+    if (__DEV__ && process.env.EXPO_PUBLIC_FEATURE_FLAGS_OVERRIDE === "1") {
+      void import("@/feature-flags.dev.json").then((mod) => {
+        const overrides = (mod.default ?? mod) as Record<string, unknown>;
+        void growthbook.setPayload({
+          features: Object.fromEntries(
+            Object.entries(overrides).map(([key, value]) => [
+              key,
+              { defaultValue: value },
+            ]),
+          ),
+        });
+      });
+      return;
+    }
     void growthbook.init({ timeout: INIT_TIMEOUT_MS });
     const id = setInterval(
       () => void growthbook.refreshFeatures(),

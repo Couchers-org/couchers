@@ -9,18 +9,13 @@ interface SnackbarProps {
   severity: "success" | "error";
 }
 
-export default function Snackbar({
-  children,
-  onClose = () => {},
-  severity,
-}: SnackbarProps) {
+export default function Snackbar({ children, onClose = () => {}, severity }: SnackbarProps) {
   const [open, setOpen] = useState(true);
 
   const oldErrorKey =
     typeof children === "string"
-      ? Object.keys(grpcErrorStrings).find<ObscureGrpcErrorMessages>(
-          (oldError): oldError is ObscureGrpcErrorMessages =>
-            children.includes(oldError),
+      ? Object.keys(grpcErrorStrings).find<ObscureGrpcErrorMessages>((oldError): oldError is ObscureGrpcErrorMessages =>
+          children.includes(oldError),
         )
       : null;
 

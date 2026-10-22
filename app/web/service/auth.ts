@@ -2,6 +2,7 @@ import { BoolValue } from "google-protobuf/google/protobuf/wrappers_pb";
 import { HostingStatus } from "proto/api_pb";
 import {
   AntiBotReq,
+  ChangeSignupEmail,
   ConfirmDeleteAccountReq,
   ContributorForm as ContributorFormPb,
   GetInviteCodeInfoReq,
@@ -13,14 +14,11 @@ import {
   UnsubscribeReq,
   UsernameValidReq,
 } from "proto/auth_pb";
+import { Temporal } from "temporal-polyfill";
 
 import client from "./client";
 
-export async function startSignup(
-  name: string,
-  email: string,
-  inviteCode?: string,
-) {
+export async function startSignup(name: string, email: string, inviteCode?: string) {
   const req = new SignupFlowReq();
   const basic = new SignupBasic();
 
@@ -47,7 +45,7 @@ interface AccountSignupData {
   flowToken: string;
   username: string;
   password?: string;
-  birthdate: string;
+  birthdate: Temporal.PlainDate;
   gender: string;
   acceptTOS: boolean;
   optOutOfNewsletter: boolean;
@@ -76,7 +74,7 @@ export async function signupFlowAccount({
   req.setFlowToken(flowToken);
   const account = new SignupAccount();
   account.setUsername(username);
-  account.setBirthdate(birthdate);
+  account.setBirthdate(birthdate.toString());
   account.setGender(gender);
   account.setAcceptTos(acceptTOS);
   account.setOptOutOfNewsletter(optOutOfNewsletter);
@@ -105,10 +103,7 @@ export function contributorFormFromObject(form: ContributorFormPb.AsObject) {
   return formData;
 }
 
-export async function signupFlowFeedback(
-  flowToken: string,
-  form: ContributorFormPb.AsObject,
-) {
+export async function signupFlowFeedback(flowToken: string, form: ContributorFormPb.AsObject) {
   const req = new SignupFlowReq();
   req.setFlowToken(flowToken);
   const formData = contributorFormFromObject(form);
@@ -124,10 +119,7 @@ export async function signupFlowEmailToken(emailToken: string) {
   return res.toObject();
 }
 
-export async function signupFlowMotivations(
-  flowToken: string,
-  motivations: string[],
-) {
+export async function signupFlowMotivations(flowToken: string, motivations: string[]) {
   const req = new SignupFlowReq();
   req.setFlowToken(flowToken);
   const signupMotivations = new SignupMotivations();
@@ -137,10 +129,7 @@ export async function signupFlowMotivations(
   return res.toObject();
 }
 
-export async function signupFlowCommunityGuidelines(
-  flowToken: string,
-  accept: boolean,
-) {
+export async function signupFlowCommunityGuidelines(flowToken: string, accept: boolean) {
   const req = new SignupFlowReq();
   req.setFlowToken(flowToken);
   req.setAcceptCommunityGuidelines(new BoolValue().setValue(accept));
@@ -152,6 +141,18 @@ export async function signupFlowResendVerificationEmail(flowToken: string) {
   const req = new SignupFlowReq();
   req.setFlowToken(flowToken);
   req.setResendVerificationEmail(true);
+  const res = await client.auth.signupFlow(req);
+  return res.toObject();
+}
+
+export async function signupFlowChangeEmail(flowToken: string, newEmail: string) {
+  const req = new SignupFlowReq();
+  const changeSignupEmail = new ChangeSignupEmail();
+
+  changeSignupEmail.setNewEmail(newEmail);
+  req.setFlowToken(flowToken);
+  req.setChangeEmail(changeSignupEmail);
+
   const res = await client.auth.signupFlow(req);
   return res.toObject();
 }

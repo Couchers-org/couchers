@@ -56,12 +56,11 @@ class BackgroundJob(Base, kw_only=True):
 
     __table_args__ = (
         # used in looking up background jobs to attempt
-        # create index on background_jobs(priority desc, next_attempt_after, (max_tries - try_count)) where state = 'pending' OR state = 'error';
+        # create index on background_jobs(priority desc, next_attempt_after) where state = 'pending' OR state = 'error';
         Index(
-            "ix_background_jobs_lookup",
+            "ix_background_jobs_priority_next_attempt_after_unfinished",
             priority.desc(),
             next_attempt_after,
-            (max_tries - try_count),
             postgresql_where=((state == BackgroundJobState.pending) | (state == BackgroundJobState.error)),
         ),
     )

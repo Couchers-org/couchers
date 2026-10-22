@@ -7,22 +7,19 @@ const generateBlogIndex = require("./scripts/generate-blog-index"); // eslint-di
 const nextConfig = {
   assetPrefix: process.env.ASSET_PREFIX,
   reactStrictMode: true,
-  eslint: {
-    dirs: [
-      "components",
-      "features",
-      "i18n",
-      "markdown",
-      "pages",
-      "resources",
-      "service",
-      "test",
-      "types",
-      "utils",
-    ],
-  },
   i18n,
   productionBrowserSourceMaps: true,
+  // ESM-only packages with no CommonJS entry point - Next.js (and next/jest) need to
+  // transpile these themselves rather than treating them as pre-built node_modules.
+  // react-simple-maps does have one, but it require()s the ESM-only d3 packages, which
+  // crashes the server on runtimes without require(esm), such as Vercel's.
+  transpilePackages: ["temporal-polyfill", "temporal-utils", "react-simple-maps"],
+  experimental: {
+    // Trades slightly slower compiles for a lower webpack memory ceiling.
+    webpackMemoryOptimizations: true,
+    // Default policy for `next upgrade --agent` reminders.
+    agentUpgrade: "latest",
+  },
   webpack: (config, { isServer }) => {
     if (isServer) {
       generateBlogIndex();
@@ -40,8 +37,7 @@ const nextConfig = {
       headers: [
         {
           key: "x-help-wanted",
-          value:
-            "Come help build the next generation platform for couch surfers at https://github.com/Couchers-org",
+          value: "Come help build the next generation platform for couch surfers at https://github.com/Couchers-org",
         },
         {
           key: "strict-transport-security",
@@ -94,7 +90,7 @@ const nextConfig = {
 // Injected content via Sentry wizard below
 
 // eslint-disable-next-line
-const { withSentryConfig } = require("@sentry/nextjs");
+const { withSentryConfig } = require("@sentry/nextjs/config");
 // eslint-disable-next-line
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
@@ -106,15 +102,23 @@ module.exports = withSentryConfig(module.exports, {
   // For all available options, see:
   // https://github.com/getsentry/sentry-webpack-plugin#options
   sourcemaps: {
-    disable: process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod",
+    // The auth token is only present in the deploy builds, and it's what the upload needs.
+    disable: !process.env.SENTRY_AUTH_TOKEN,
+    // productionBrowserSourceMaps serves them from the CDN too; don't pull them out from
+    // under the sourceMappingURL comments webpack leaves in the bundles.
+    deleteSourcemapsAfterUpload: false,
   },
 
   org: "couchers",
   project: "frontend",
 
-  // Only print logs for uploading source maps in CI
-  silent: !process.env.CI,
+  telemetry: false,
 
-  // Automatically tree-shake Sentry logger statements to reduce bundle size
-  disableLogger: true,
+  // Also cover the shared chunks, which is where most of our code ends up
+  widenClientFileUpload: true,
+
+  webpack: {
+    // Automatically tree-shake Sentry logger statements to reduce bundle size
+    treeshake: { removeDebugLogging: true },
+  },
 });

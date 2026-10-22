@@ -2,13 +2,8 @@ import { appGetLayout } from "components/AppRoute";
 import EventPageComponent from "features/communities/events/EventPage";
 import NotFoundPage from "features/NotFoundPage";
 import { appServerSideTranslations } from "i18n/appServerSideTranslations";
-import {
-  COMMUNITIES,
-  GLOBAL,
-  MESSAGES,
-  NOTIFICATIONS,
-  PROFILE,
-} from "i18n/namespaces";
+import { DEFAULT_LOCALE } from "i18n/locales";
+import { COMMUNITIES, GLOBAL, MESSAGES, NOTIFICATIONS, PROFILE } from "i18n/namespaces";
 import { GetStaticPaths, GetStaticProps } from "next";
 import { useRouter } from "next/router";
 import stringOrFirstString from "utils/stringOrFirstString";
@@ -20,7 +15,7 @@ export const getStaticPaths: GetStaticPaths = () => ({
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
-    ...(await appServerSideTranslations(locale ?? "en", [
+    ...(await appServerSideTranslations(locale ?? DEFAULT_LOCALE, [
       GLOBAL,
       COMMUNITIES,
       NOTIFICATIONS,

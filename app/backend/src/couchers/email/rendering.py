@@ -6,10 +6,9 @@ import re
 from dataclasses import asdict, dataclass
 from email.headerregistry import Address
 from functools import cache
-from html import unescape
 from pathlib import Path
+from typing import Any
 
-from markdown_it import MarkdownIt
 from markupsafe import Markup
 
 from couchers.config import config
@@ -17,14 +16,12 @@ from couchers.email.blocks import ActionBlock, EmailBase, EmailBlock, EmailFoote
 from couchers.email.locales import get_emails_i18next
 from couchers.email.smtp import embed_html_relative_images
 from couchers.i18n import LocalizationContext
+from couchers.i18n.i18next import SubstitutionDict, full_string_key
+from couchers.markup import html_mailto_link, html_to_plaintext, markdown_to_html
 from couchers.proto.internal import jobs_pb2
 from couchers.templating import Jinja2Template
 
 template_folder = Path(__file__).parent.parent.parent.parent / "templates" / "v2"
-
-_markdown = MarkdownIt("zero", {"typographer": True}).enable(
-    ["smartquotes", "heading", "hr", "list", "link", "emphasis"]
-)
 
 
 @dataclass(kw_only=True, slots=True)
@@ -77,10 +74,10 @@ def render_plaintext_body(*, blocks: list[EmailBlock], footer: EmailFooter, loc_
             case ParaBlock():
                 concat.append(_to_plaintext(block.text))
             case UserBlock():
-                line = get_emails_i18next().localize(
+                line = loc_context.localize_string(
                     "plaintext_formats.user",
-                    loc_context.locale,
-                    {"name": block.info.name, "age": str(block.info.age), "city": block.info.city},
+                    i18next=get_emails_i18next(),
+                    substitutions={"name": block.info.name, "age": str(block.info.age), "city": block.info.city},
                 )
                 concat.append(line)
                 if block.comment:
@@ -90,8 +87,10 @@ def render_plaintext_body(*, blocks: list[EmailBlock], footer: EmailFooter, loc_
                 for line in block.text.splitlines():
                     concat.append(f"> {line}")
             case ActionBlock():
-                line = get_emails_i18next().localize(
-                    "plaintext_formats.action", loc_context.locale, {"text": block.text, "url": block.target_url}
+                line = loc_context.localize_string(
+                    "plaintext_formats.action",
+                    i18next=get_emails_i18next(),
+                    substitutions={"text": block.text, "url": block.target_url},
                 )
                 concat.append(line)
             case _:
@@ -103,8 +102,10 @@ def render_plaintext_body(*, blocks: list[EmailBlock], footer: EmailFooter, loc_
     footer_template = Jinja2Template(
         source=(template_folder / "_footer.txt").read_text(encoding="utf8").strip(), html=False
     )
-    footer_template_args = footer.to_template_args()
-    return "".join(concat) + footer_template.render(footer_template_args)
+    footer_template_args = _get_footer_template_args(footer, loc_context)
+    concat.append(footer_template.render(footer_template_args))
+
+    return "".join(concat)
 
 
 def _to_plaintext(text: str | Markup) -> str:
@@ -112,24 +113,51 @@ def _to_plaintext(text: str | Markup) -> str:
     Converts any markup in its plaintext equivalent, allowing reuse of translations that have span-level markup
     like <b> when formatting as plaintext email bodies.
     """
-    if not isinstance(text, Markup):  # Markup derives from str so can't test for isinstance(, str)
+    if isinstance(text, Markup):
+        return html_to_plaintext(text)
+    else:
         return text
 
-    # Convert markup to its plaintext equivalent.
-    # This code is not security-sensitive since we're producing a plaintext string where markup will not be evaluated.
 
-    # Strip/convert any markup since we can't render it in plaintext.
-    text = text.replace("\n", "")  # Newlines are irrelevant in markup
-    text = re.sub(r"<br\s*/?>", "\n", text)  # But <br>'s should be newlines in plaintext
+def _get_footer_template_args(footer: EmailFooter, loc_context: LocalizationContext) -> dict[str, Any]:
+    i18n = get_emails_i18next()
 
-    # Keep the content of span-level markup (assume no nesting)
-    text = re.sub(
-        r"<(?P<name>\w+)(?P<attrs>[^>]*)>(?P<inner>.*?)</(?P=name)>", lambda match: match.group("inner"), text
-    )
-    text = re.sub(r"<\w+[^/>]*/>", "", text)  # Remove any other self-closing tag
+    def localize(key: str, substitutions: SubstitutionDict | None = None) -> Markup:
+        key = full_string_key(key, relative_base="generic.footer")
+        return i18n.localize_with_markup(key, loc_context.locale_list, substitutions)
 
-    # We've handled tags but still have escapes like "&gt;", convert those to plaintext.
-    return unescape(text)
+    args: dict[str, Any] = {
+        "received_because": localize(".received_because"),
+        "contact_support": localize(".contact_support", {"email_link": html_mailto_link("support@couchers.org")}),
+        "timezone_note": localize(".timezone_note", {"timezone": footer.timezone_name}),
+        "copyright_year": footer.copyright_year,
+        "donate_link": localize(".donate_link"),
+        "volunteer_link": localize(".volunteer_link"),
+        "blog_link": localize(".blog_link"),
+        "nonprofit_note": localize(".nonprofit_note"),
+        "is_critical": footer.unsubscribe_info is None,
+    }
+
+    if unsubscribe_info := footer.unsubscribe_info:
+        # TODO(#7420): Localize "Turn off emails for: " text, avoiding string concatenations.
+        args.update(
+            {
+                "notification_settings_link": localize(".notification_settings_link"),
+                "manage_notifications_url": unsubscribe_info.manage_notifications_url,
+                "do_not_email_link": localize(".do_not_email_link"),
+                "do_not_email_url": unsubscribe_info.do_not_email_url,
+                "topic_action_description": unsubscribe_info.topic_action_link.text,
+                "unsubscribe_topic_action_url": unsubscribe_info.topic_action_link.url,
+            }
+        )
+
+        if topic_key_link := unsubscribe_info.topic_key_link:
+            args["topic_key_description"] = topic_key_link.text
+            args["unsubscribe_topic_key_url"] = topic_key_link.url
+    else:
+        args["security_email_note"] = localize(".security_email_note")
+
+    return args
 
 
 def render_html_body(
@@ -212,13 +240,14 @@ class HTMLRenderer:
                                 "name": block.info.name,
                                 "age": block.info.age,
                                 "city": block.info.city,
+                                "profile_url": block.info.profile_url,
                                 "avatar_url": block.info.avatar_url,
                                 "comment": block.comment,
                             },
                         )
                     )
                 case QuoteBlock():
-                    args = {"text": Markup(_markdown.render(block.text)) if block.markdown else block.text}
+                    args = {"text": Markup(markdown_to_html(block.text)) if block.markdown else block.text}
                     concats.append(self.quote_block_template.render(args))
                 case ActionBlock():
                     concats.append(self.action_block_template.render(asdict(block)))
@@ -228,7 +257,7 @@ class HTMLRenderer:
                     raise TypeError(f"Unexpected email block type: {block.__class__}")
 
         # Render the footer
-        footer_template_args = footer.to_template_args()
+        footer_template_args = _get_footer_template_args(footer, loc_context)
         concats.append(self.footer_template.render(footer_template_args))
 
         return "\n".join(concats)

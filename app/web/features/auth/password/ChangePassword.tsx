@@ -1,12 +1,5 @@
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import {
-  IconButton,
-  InputAdornment,
-  styled,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { IconButton, InputAdornment, styled, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -74,8 +67,7 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
     isSuccess: isChangePasswordSuccess,
     mutate: changePassword,
   } = useMutation<Empty, RpcError, ChangePasswordVariables>({
-    mutationFn: ({ oldPassword, newPassword }) =>
-      service.account.changePassword(oldPassword, newPassword),
+    mutationFn: ({ oldPassword, newPassword }) => service.account.changePassword(oldPassword, newPassword),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [accountInfoQueryKey],
@@ -86,16 +78,10 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
 
   return (
     <div className={className}>
-      <Typography variant="h2">
-        {t("auth:change_password_form.title")}
-      </Typography>
-      {changePasswordError && (
-        <Alert severity="error">{changePasswordError.message}</Alert>
-      )}
+      <Typography variant="h2">{t("auth:change_password_form.title")}</Typography>
+      {changePasswordError && <Alert severity="error">{changePasswordError.message}</Alert>}
       {isChangePasswordSuccess && (
-        <Alert severity="success">
-          {t("auth:change_password_form.password_changed_success")}
-        </Alert>
+        <Alert severity="success">{t("auth:change_password_form.password_changed_success")}</Alert>
       )}
       <StyledForm onSubmit={onSubmit}>
         <TextField
@@ -155,8 +141,7 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
           id="passwordConfirmation"
           {...register("passwordConfirmation", {
             validate: (value) =>
-              value === getValues("newPassword") ||
-              t("auth:change_password_form.password_mismatch_error"),
+              value === getValues("newPassword") || t("auth:change_password_form.password_mismatch_error"),
           })}
           label={t("auth:change_password_form.confirm_password")}
           fullWidth
@@ -182,11 +167,7 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
             },
           }}
         />
-        <Button
-          fullWidth={!isMdOrWider}
-          loading={isChangePasswordLoading}
-          type="submit"
-        >
+        <Button fullWidth={!isMdOrWider} loading={isChangePasswordLoading} type="submit">
           {t("global:submit")}
         </Button>
       </StyledForm>

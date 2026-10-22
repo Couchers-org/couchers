@@ -40,10 +40,7 @@ export const simplifyPlaceDisplayName = (place: NominatimPlace) => {
   }
 
   // Administrative region (state/province level)
-  const adminRegion =
-    place.address.state ||
-    place.address.province ||
-    place.address.state_district;
+  const adminRegion = place.address.state || place.address.province || place.address.state_district;
 
   if (adminRegion) {
     addressParts.push(adminRegion);

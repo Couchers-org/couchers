@@ -17,7 +17,7 @@ x2 = (parent_folder / "certs" / "isrg-root-x2.pem").read_bytes()
 ROOTS_PEM = x1 + x2
 
 
-def get_client(api_key, server_address=DEFAULT_SERVER_ADDRESS, disable_tls=False):
+def get_client(api_key, server_address=DEFAULT_SERVER_ADDRESS, disable_tls=False, **kwargs):
     """
     Given an API key returns a client object.
 
@@ -33,6 +33,6 @@ def get_client(api_key, server_address=DEFAULT_SERVER_ADDRESS, disable_tls=False
 
     creds = grpc.composite_channel_credentials(creds, grpc.access_token_call_credentials(api_key))
 
-    channel = grpc.secure_channel(server_address, creds)
+    channel = grpc.secure_channel(server_address, creds, **kwargs)
     stubs = get_all_stubs(channel)
     return type("__Client", (), stubs)

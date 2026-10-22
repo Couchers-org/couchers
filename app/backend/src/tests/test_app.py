@@ -3,21 +3,15 @@ from multiprocessing import Process
 from typing import cast
 
 import grpc
-import pytest
 
 from couchers import supervisor
 from couchers.constants import GRACEFUL_SHUTDOWN_TIMEOUT
 from couchers.server import create_main_server, create_media_server
 
 
-@pytest.fixture(autouse=True)
-def _(testconfig):
-    pass
-
-
 def test_create_servers():
-    server = create_main_server(port=1751)
-    media_server = create_media_server(port=1753)
+    server = create_main_server(port=0)
+    media_server = create_media_server(port=0)
     server.start()
     media_server.start()
     server.stop(None).wait()

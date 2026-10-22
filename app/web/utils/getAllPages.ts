@@ -7,10 +7,7 @@ interface GetAllPagesParams<TData extends ObjectWithListValue<TData>, TParams> {
   hasMore: (previousData: TData) => boolean;
   maxPages?: number;
 }
-export default async function getAllPages<
-  TData extends ObjectWithListValue<TData>,
-  TParams,
->({
+export default async function getAllPages<TData extends ObjectWithListValue<TData>, TParams>({
   serviceFunction,
   params,
   listKey,

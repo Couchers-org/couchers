@@ -1,12 +1,19 @@
+import { captureException } from "@sentry/nextjs";
 import { act, renderHook } from "@testing-library/react";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { StatusCode } from "grpc-web";
 import { useClearablePersistedState } from "platform/usePersistedState";
+import TagManager from "react-gtm-module";
 import { service } from "service";
 
 import wrapper from "../../test/hookWrapper";
 import { addDefaultUser } from "../../test/utils";
 import useAuthStore from "./useAuthStore";
+
+jest.mock("@sentry/nextjs", () => ({
+  captureException: jest.fn(),
+  setUser: jest.fn(),
+}));
 
 const getUserMock = service.user.getUser as jest.Mock;
 const getCurrentUserMock = service.user.getCurrentUser as jest.Mock;
@@ -14,50 +21,40 @@ const passwordLoginMock = service.user.passwordLogin as jest.Mock;
 const getIsJailedMock = service.jail.getIsJailed as jest.Mock;
 const logoutMock = service.user.logout as jest.Mock;
 const getAccountInfoMock = service.account.getAccountInfo as jest.Mock;
+const captureExceptionMock = captureException as jest.Mock;
+const dataLayerMock = TagManager.dataLayer as jest.Mock;
 
 describe("useClearablePersistedState hook", () => {
   it("uses a default value", () => {
     const defaultValue = "Test string";
-    const { result } = renderHook(() =>
-      useClearablePersistedState("key", defaultValue),
-    );
+    const { result } = renderHook(() => useClearablePersistedState("key", defaultValue));
     expect(result.current[0]).toBe(defaultValue);
   });
 
   it("saves then loads a value", () => {
     const value = { test: "Test string" };
-    const { result } = renderHook(() =>
-      useClearablePersistedState("key", { test: "" }),
-    );
+    const { result } = renderHook(() => useClearablePersistedState("key", { test: "" }));
     expect(result.current[0]).toStrictEqual({ test: "" });
     act(() => result.current[1](value));
     expect(result.current[0]).toStrictEqual(value);
     expect(localStorage.getItem("key")).toBe(JSON.stringify(value));
-    const { result: result2 } = renderHook(() =>
-      useClearablePersistedState("key", { test: "" }),
-    );
+    const { result: result2 } = renderHook(() => useClearablePersistedState("key", { test: "" }));
     expect(result2.current[0]).toStrictEqual(value);
   });
 
   it("saves then loads a value from sessionStorage", () => {
     const value = { test: "session test" };
-    const { result } = renderHook(() =>
-      useClearablePersistedState("key", { test: "" }, "sessionStorage"),
-    );
+    const { result } = renderHook(() => useClearablePersistedState("key", { test: "" }, "sessionStorage"));
     expect(result.current[0]).toStrictEqual({ test: "" });
     act(() => result.current[1](value));
     expect(result.current[0]).toStrictEqual(value);
     expect(sessionStorage.getItem("key")).toBe(JSON.stringify(value));
-    const { result: result2 } = renderHook(() =>
-      useClearablePersistedState("key", { test: "" }, "sessionStorage"),
-    );
+    const { result: result2 } = renderHook(() => useClearablePersistedState("key", { test: "" }, "sessionStorage"));
     expect(result2.current[0]).toStrictEqual(value);
   });
 
   it("clears a value", () => {
-    const { result } = renderHook(() =>
-      useClearablePersistedState("key", { test: "" }, "sessionStorage"),
-    );
+    const { result } = renderHook(() => useClearablePersistedState("key", { test: "" }, "sessionStorage"));
     expect(result.current[0]).toStrictEqual({ test: "" });
     act(() => result.current[2]());
     expect(result.current[0]).toStrictEqual(undefined);
@@ -140,9 +137,7 @@ describe("passwordLogin action", () => {
       }),
     );
 
-    expect(cookieSetter).toHaveBeenCalledWith(
-      "NEXT_LOCALE=es; path=/; max-age=31536000; samesite=lax",
-    );
+    expect(cookieSetter).toHaveBeenCalledWith("NEXT_LOCALE=es; path=/; max-age=31536000; samesite=lax");
   });
 
   it("does not update NEXT_LOCALE cookie if it matches user's language preference", async () => {
@@ -207,9 +202,58 @@ describe("passwordLogin action", () => {
       }),
     );
     expect(result.current.authState.authenticated).toBe(false);
-    expect(result.current.authState.error).toBe(
-      "Invalid username or password.",
+    expect(result.current.authState.error).toBe("Invalid username or password.");
+  });
+
+  it("does not report wrong username/password to Sentry", async () => {
+    passwordLoginMock.mockRejectedValue({
+      code: StatusCode.NOT_FOUND,
+      message: "Wrong username/email or password.",
+    });
+    const { result } = renderHook(() => useAuthStore(), { wrapper });
+    await act(() =>
+      result.current.authActions.passwordLogin({
+        password: "pass",
+        username: "user",
+        rememberDevice: true,
+      }),
     );
+    expect(result.current.authState.error).toBe("Wrong username/email or password.");
+    expect(captureExceptionMock).not.toHaveBeenCalled();
+  });
+
+  it("does not report account not found to Sentry", async () => {
+    passwordLoginMock.mockRejectedValue({
+      code: StatusCode.NOT_FOUND,
+      message: "An account with that username or email was not found.",
+    });
+    const { result } = renderHook(() => useAuthStore(), { wrapper });
+    await act(() =>
+      result.current.authActions.passwordLogin({
+        password: "pass",
+        username: "user",
+        rememberDevice: true,
+      }),
+    );
+    expect(result.current.authState.error).toBe("An account with that username or email was not found.");
+    expect(captureExceptionMock).not.toHaveBeenCalled();
+  });
+
+  it("still reports unexpected login errors to Sentry", async () => {
+    passwordLoginMock.mockRejectedValue({
+      code: StatusCode.UNKNOWN,
+      message: "Something went wrong.",
+    });
+    const { result } = renderHook(() => useAuthStore(), { wrapper });
+    await act(() =>
+      result.current.authActions.passwordLogin({
+        password: "pass",
+        username: "user",
+        rememberDevice: true,
+      }),
+    );
+    expect(result.current.authState.error).toBe("Something went wrong.");
+    expect(captureExceptionMock).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -254,9 +298,7 @@ describe("firstLogin action", () => {
       }),
     );
 
-    expect(cookieSetter).toHaveBeenCalledWith(
-      "NEXT_LOCALE=de; path=/; max-age=31536000; samesite=lax",
-    );
+    expect(cookieSetter).toHaveBeenCalledWith("NEXT_LOCALE=de; path=/; max-age=31536000; samesite=lax");
   });
 });
 
@@ -271,6 +313,7 @@ describe("updateSignupState action", () => {
     await act(() =>
       result.current.authActions.updateSignupState({
         flowToken: "dummy-token",
+        email: "test@example.com",
         needBasic: false,
         needAccount: true,
         needFeedback: false,
@@ -284,6 +327,7 @@ describe("updateSignupState action", () => {
     expect(result.current.authState.jailed).toBe(false);
     expect(result.current.authState.authenticated).toBe(false);
     expect(result.current.authState.flowState?.flowToken).toBe("dummy-token");
+    expect(dataLayerMock).not.toHaveBeenCalled();
   });
 
   it("sets state correctly if success", async () => {
@@ -301,6 +345,7 @@ describe("updateSignupState action", () => {
           userId: 51,
           jailed: false,
         },
+        email: "test@example.com",
         needBasic: false,
         needAccount: false,
         needFeedback: false,
@@ -314,6 +359,10 @@ describe("updateSignupState action", () => {
     expect(result.current.authState.jailed).toBe(false);
     expect(result.current.authState.authenticated).toBe(true);
     expect(result.current.authState.flowState).toBe(null);
+    expect(dataLayerMock).toHaveBeenCalledTimes(1);
+    expect(dataLayerMock).toHaveBeenCalledWith({
+      dataLayer: expect.objectContaining({ event: "sign_up", signupMethod: "email", userId: 51 }),
+    });
   });
 });
 

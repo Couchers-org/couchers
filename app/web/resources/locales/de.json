@@ -35,11 +35,12 @@
     "switch_to_light_mode": "Zum hellen Modus wechseln",
     "close_menu_a11y": "Menü schließen",
     "open_drawer_a11y": "Drawer-Menü öffnen",
-    "close_drawer_a11y": "Drawer-Menü schließen"
+    "close_drawer_a11y": "Drawer-Menü schließen",
+    "press": "Presse & Medien"
   },
   "footer": {
     "non_profit_note": "Couchers.org ist ein Projekt von Couchers, Inc., einer in den USA als 501(c)(3) anerkannten gemeinnützigen, steuerbefreiten Organisation.",
-    "version_info": "Version <2>{{version}}</2>, zuletzt aktualisiert <5>{{updated_ago}}</5>."
+    "version_info": "Version <versionLink>{{version}}</versionLink>, zuletzt aktualisiert <updatedAgoLink>{{updated_ago}}</updatedAgoLink>."
   },
   "team": {
     "title": "Das Team",
@@ -65,7 +66,7 @@
   "submit": "Absenden",
   "load_more": "Mehr laden",
   "read_more": "Mehr erfahren",
-  "next": "Weiter",
+  "next": "Nächste",
   "mod": "Moderation",
   "hosting_status": {
     "can_host": "Kann hosten",
@@ -83,7 +84,6 @@
       "help_translate": "Hilf dabei Couchers in deine Sprache zu übersetzen",
       "loading": "Übersetzungsfortschritt wird geladen...",
       "error_loading": "Das Laden des Übersetzungsfortschritts ist fehlgeschlagen",
-      "no_data": "Keine Übersetzungsdaten verfügbar",
       "complete": "Vollständig",
       "almost_there": "Fast geschafft",
       "early_stage": "Frühes Stadium",
@@ -106,13 +106,14 @@
     "label": "Ein Problem melden",
     "bug": {
       "title_label": "Report Titel",
-      "problem_label": "Was hast du getan, um den Fehler auszulösen?",
-      "problem_helper": "Kurze Beschreibung des Problems und wie es reproduziert werden kann",
+      "problem_label": "Wie bist du auf das Problem gestoßen?",
+      "problem_helper": "Beschreibe die Schritte, die du unternommen hast: auf welchen Seiten du warst, worauf du geklickt hast usw.",
       "expect_label": "Was ist passiert? Was hätte passieren sollen?",
-      "expect_helper": "Kurze Beschreibung, was du stattdessen erwartest hast",
+      "expect_helper": "Beschreibe das Problem, das nach deinen Schritten aufgetreten ist, einschließlich etwaiger Fehlermeldungen, und was du stattdessen erwartet hättest.",
       "button_label": "Ein technisches Problem melden",
-      "warning_message": "Bitte beachte, dass diese Informationen sowie diagnostische Daten, einschließlich der Seite, auf der du dich befindest, des von dir verwendeten Browsers und deines Benutzernamens, in einer öffentlichen Fehlerliste gespeichert werden.",
-      "success_message2": "Vielen Dank, dass du diesen Fehler gemeldet und Couchers verbessert hast. Ein Bericht wurde an die Entwickler gesendet! Die Fehler-ID ist <id/>."
+      "warning_message": "Die Informationen, die du in diesem Formular angibst, sowie Diagnosedaten – einschließlich der Seite, auf der du dich befindest, deines Browsers und deines Benutzernamens – werden zur Überprüfung durch unser Team aufgezeichnet.",
+      "success_message2": "Danke, dass du dieses Problem gemeldet und Couchers damit besser gemacht hast! Ein Bericht wurde an die Entwickler gesendet. Du kannst dich mit dieser ID auf das Problem beziehen: <id/>.",
+      "no_response_note": "<strong>Du erhältst keine Antwort.</strong> Wenn du Unterstützung brauchst, wende dich bitte an <supportLink>support@couchers.org</supportLink>."
     },
     "content": {
       "button_label": "Unangemessene Inhalte oder Verhaltensweisen melden",
@@ -137,7 +138,6 @@
         "scam": "Betrug, Fake oder irreführende Informationen",
         "sexualized": "Sexualisierte Inhalte oder Verhaltensweisen"
       },
-      "success": "Vielen Dank für deinen Bericht und dafür, dass du Couchers zu einer besseren Plattform für alle machst!",
       "block_user": "{{username}} blockieren",
       "profile_button_aria_label": "Inhalt melden oder Nutzer blockieren",
       "profile_title": "Melden oder blockieren",
@@ -146,7 +146,7 @@
     }
   },
   "previous": "Vorherige",
-  "not_found_text_2": "Willst du einfach nur <1>zur Startseite gehen?</1>",
+  "not_found_text_2": "Willst du einfach nur <homeLink>zur Startseite gehen?</homeLink>",
   "not_found_alt": "404 Fehler: Ressource nicht gefunden",
   "change_time": "Zeit ändern",
   "html_meta": {
@@ -201,16 +201,15 @@
   "expand": "Erweitern",
   "update": "Aktualisieren",
   "create": "Erstellen",
-  "terms_of_service": "Nutzungsbedingungen",
+  "terms_of_service": "Allgemeine Geschäftsbedingungen",
   "required": "Erforderlich",
   "accept": "Annehmen",
   "community_standing": "Community Status",
   "community_standing_description": "Berechnet aus verschiedenen Faktoren wie Referenzen und Community-Engagement.",
   "send": "Senden",
   "confirm": "Bestätigen",
-  "cookie_message": "Wir verwenden Cookies, um sicherzustellen, dass wir dir die bestmögliche Erfahrung auf unserer Website bieten. Wenn du diese Seite weiterhin nutzt, gehen wir davon aus, dass du damit einverstanden bist. Weitere Informationen findest du in unseren <1>Nutzungsbedingungen</1>.",
+  "cookie_message": "Wir verwenden Cookies, um sicherzustellen, dass wir dir die bestmögliche Erfahrung auf unserer Website bieten. Wenn du diese Seite weiterhin nutzt, gehen wir davon aus, dass du damit einverstanden bist. Weitere Informationen findest du in unseren <tosLink>Nutzungsbedingungen</tosLink>.",
   "not_found_text_1": "Wir konnten die von dir angeforderte URL oder Ressource nicht finden",
-  "contribute_title": "Melde dich an, um beizutragen",
   "strong_verification": {
     "helper_text": "Die Identität des Mitglieds wurde mit einem biometrischen Reisepass verifiziert"
   },
@@ -224,10 +223,8 @@
     "cs": "Tschechisch",
     "de": "Deutsch",
     "en": "Englisch",
-    "es": "Spanisch (Spanien)",
-    "es-419": "Spanisch",
-    "fr": "Französisch (Frankreich)",
-    "fr-CA": "Französisch (Kanada)",
+    "es": "Spanisch",
+    "fr": "Französisch",
     "hi": "Hindi",
     "it": "Italienisch",
     "nb-NO": "Norwegisch (Bokmål)",
@@ -329,8 +326,8 @@
     "progress_label": "Spendenfortschritt"
   },
   "blog": {
-    "cta_message": "Möchtest du bei unserem Blog mitschreiben oder dich ehrenamtlich engagieren? <1>Melde dich an</1> und lass es uns wissen. Freiwillige und <3>Spenden</3> machen Couchers.org erst möglich!",
-    "byline_with_author": "Geschrieben von <1/>. Veröffentlicht am {{date}}.",
+    "cta_message": "Möchtest du bei unserem Blog mitschreiben oder dich ehrenamtlich engagieren? <volunteerLink>Melde dich an</volunteerLink> und lass es uns wissen. Freiwillige und <donateLink>Spenden</donateLink> machen Couchers.org erst möglich!",
+    "byline_with_author": "Geschrieben von <authorList/>. Veröffentlicht am {{date}}.",
     "byline_without_author": "Veröffentlicht am {{date}}."
   },
   "image_input": {
@@ -346,5 +343,6 @@
   "close_button_a11y": "Schließen",
   "bar": {
     "help_button_a11y": "Hilfe"
-  }
+  },
+  "more_options_a11y": "Weitere Optionen"
 }

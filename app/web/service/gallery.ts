@@ -34,11 +34,7 @@ export async function getGalleryEditInfo(galleryId: number) {
 /**
  * Add a photo to a gallery
  */
-export async function addPhotoToGallery(
-  galleryId: number,
-  uploadKey: string,
-  caption?: string,
-) {
+export async function addPhotoToGallery(galleryId: number, uploadKey: string, caption?: string) {
   const req = new AddPhotoToGalleryReq();
   req.setGalleryId(galleryId);
   req.setUploadKey(uploadKey);
@@ -54,10 +50,7 @@ export async function addPhotoToGallery(
 /**
  * Remove a photo from a gallery
  */
-export async function removePhotoFromGallery(
-  galleryId: number,
-  itemId: number,
-) {
+export async function removePhotoFromGallery(galleryId: number, itemId: number) {
   const req = new RemovePhotoFromGalleryReq();
   req.setGalleryId(galleryId);
   req.setItemId(itemId);
@@ -70,11 +63,7 @@ export async function removePhotoFromGallery(
  * Move a photo to a new position in the gallery
  * @param afterItemId - ID of the photo to place after, or 0 to move to first position
  */
-export async function movePhoto(
-  galleryId: number,
-  itemId: number,
-  afterItemId: number,
-) {
+export async function movePhoto(galleryId: number, itemId: number, afterItemId: number) {
   const req = new MovePhotoReq();
   req.setGalleryId(galleryId);
   req.setItemId(itemId);
@@ -87,11 +76,7 @@ export async function movePhoto(
 /**
  * Update the caption of a photo
  */
-export async function updatePhotoCaption(
-  galleryId: number,
-  itemId: number,
-  caption: string,
-) {
+export async function updatePhotoCaption(galleryId: number, itemId: number, caption: string) {
   const req = new UpdatePhotoCaptionReq();
   req.setGalleryId(galleryId);
   req.setItemId(itemId);

@@ -16,12 +16,7 @@ function DashboardUserProfileSummaryActions() {
   const { t } = useTranslation([DASHBOARD]);
   return (
     <>
-      <Button
-        component={Link}
-        color="primary"
-        href={routeToEditProfile()}
-        startIcon={<Edit fontSize="small" />}
-      >
+      <Button component={Link} color="primary" href={routeToEditProfile()} startIcon={<Edit fontSize="small" />}>
         {t("dashboard:profile_summary_edit")}
       </Button>
       <Button component={Link} variant="outlined" href={routeToProfile()}>
@@ -33,9 +28,7 @@ function DashboardUserProfileSummaryActions() {
 
 export default function DashboardUserProfileSummary() {
   const { data: user, error, isLoading } = useCurrentUser();
-  const desktopMode = useMediaQuery((theme: Theme) =>
-    theme.breakpoints.up("sm"),
-  );
+  const desktopMode = useMediaQuery((theme: Theme) => theme.breakpoints.up("sm"));
   return (
     <>
       {error && <Alert severity="error">{error}</Alert>}
@@ -44,10 +37,7 @@ export default function DashboardUserProfileSummary() {
       ) : user ? (
         desktopMode ? (
           <ProfileUserProvider user={user}>
-            <UserOverview
-              actions={<DashboardUserProfileSummaryActions />}
-              showHostAndMeetAvailability
-            />
+            <UserOverview actions={<DashboardUserProfileSummaryActions />} showHostAndMeetAvailability />
           </ProfileUserProvider>
         ) : (
           <MinimalUserProfileCard user={user} />

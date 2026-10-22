@@ -5,7 +5,7 @@ import { useListAvailableReferences } from "features/profile/hooks/referencesHoo
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import Link from "next/link";
-import { HostRequestStatus } from "proto/conversations_pb";
+import { HostRequestStatus } from "proto/messages_pb";
 import { ReferenceType } from "proto/references_pb";
 import { HostRequest } from "proto/requests_pb";
 import { referenceTypeRoute, routeToLeaveReference } from "routes";
@@ -26,11 +26,7 @@ const StyledButtonRow = styled(Box)(({ theme }) => ({
   gap: theme.spacing(1),
 }));
 
-export default function HostRequestReferenceCard({
-  hostRequest,
-}: {
-  hostRequest: HostRequest.AsObject;
-}) {
+export default function HostRequestReferenceCard({ hostRequest }: { hostRequest: HostRequest.AsObject }) {
   const { t } = useTranslation(MESSAGES);
   const { authState } = useAuthContext();
 
@@ -50,11 +46,7 @@ export default function HostRequestReferenceCard({
   if (!isReferenceAvailable) return null;
 
   const referenceRoute = routeToLeaveReference(
-    referenceTypeRoute[
-      isHost
-        ? ReferenceType.REFERENCE_TYPE_HOSTED
-        : ReferenceType.REFERENCE_TYPE_SURFED
-    ],
+    referenceTypeRoute[isHost ? ReferenceType.REFERENCE_TYPE_HOSTED : ReferenceType.REFERENCE_TYPE_SURFED],
     isHost ? hostRequest.surferUserId : hostRequest.hostUserId,
     hostRequest.hostRequestId,
   );
@@ -63,7 +55,12 @@ export default function HostRequestReferenceCard({
     <StyledCard>
       <div>
         <Typography variant="subtitle2">{t("reference_card.title")}</Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           {t("reference_card.description")}
         </Typography>
       </div>
