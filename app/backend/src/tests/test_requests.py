@@ -33,6 +33,7 @@ from couchers.models import (
     RateLimitAction,
     RateLimitViolation,
 )
+from couchers.models.notifications import NotificationTopicAction
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.proto import (
     api_pb2,
@@ -44,7 +45,7 @@ from couchers.proto.internal import unsubscribe_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_multi, today
 from tests.fixtures.db import backdate_conversations, generate_user, make_user_block
-from tests.fixtures.misc import EmailCollector, PushCollector
+from tests.fixtures.misc import EmailCollector, Moderator, PushCollector
 from tests.fixtures.sessions import api_session, auth_api_session, requests_session
 from tests.test_public_trips import _create_trip_directly, _make_node
 
@@ -2374,7 +2375,9 @@ def _create_public_trip(
         return trip.id
 
 
-def test_create_request_with_public_trip(db, moderator):
+def test_create_request_with_public_trip(
+    db, moderator: Moderator, push_collector: PushCollector, email_collector: EmailCollector
+):
     """Hosts can offer to host a public trip; offered dates must be within trip dates."""
     surfer, surfer_token = generate_user()
     host, host_token = generate_user()
@@ -2401,6 +2404,14 @@ def test_create_request_with_public_trip(db, moderator):
     with requests_session(host_token) as api:
         hr = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
         assert hr.public_trip_id == trip_id
+
+    # Verify the surfer got notified (push + email)
+    push = push_collector.pop_for_user(surfer.id, last=True)
+    assert push.topic_action == NotificationTopicAction.host_request__create.display
+    assert f"New invitation from {host.name}" in push.content.title
+
+    email = email_collector.pop_for_recipient(surfer.email, last=True)
+    assert f"{host.name} sent you an invitation" in email.subject
 
 
 def test_public_trip_offer_min_length(db):

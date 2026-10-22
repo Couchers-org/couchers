@@ -330,6 +330,57 @@
       }
     }
   },
+  "invitation": {
+    "accept": {
+      "push": {
+        "title": "{{user}} accepted your invitation",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Invitation Accepted",
+        "body": "{{user}} accepted your invitation for {{date}}."
+      }
+    },
+    "cancel": {
+      "push": {
+        "title": "{{user}} cancelled their invitation",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Invitation Cancelled",
+        "body": "{{user}} cancelled their invitation for {{date}}."
+      }
+    },
+    "confirm": {
+      "push": {
+        "title": "{{user}} confirmed your stay",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Invitation Confirmed",
+        "body": "{{user}} confirmed your stay for {{date}}."
+      }
+    },
+    "create": {
+      "push": {
+        "title": "New invitation from {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "New Invitation",
+        "body_one": "{{user}} invited you to stay from {{start_date}} for {{count}} night.",
+        "body_other": "{{user}} invited you to stay from {{start_date}} for {{count}} nights."
+      }
+    },
+    "reject": {
+      "push": {
+        "title": "{{user}} declined your invitation",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Invitation Declined",
+        "body": "{{user}} declined your invitation for {{date}}."
+      }
+    },
+    "reminder": {
+      "push": {
+        "title": "Pending invitation from {{user}}",
+        "ios_title": "Invitation Pending",
+        "ios_subtitle": "{{user}}",
+        "body": "{{user}} is waiting for your response, please accept or decline the invitation."
+      }
+    }
+  },
   "modnote": {
     "create": {
       "event_description": "A moderator sends you a note",
