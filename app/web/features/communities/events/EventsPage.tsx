@@ -46,7 +46,7 @@ const EventsPage = () => {
           {t("communities:create_new_event")}
         </StyledButton>
       </StyledHeaderRow>
-      <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+      <Typography variant="body1" sx={{ mb: 2 }}>
         <Trans
           t={t}
           i18nKey="communities:couch_crashes_prompt"
