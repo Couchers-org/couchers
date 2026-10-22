@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 import grpc
 import pytest
+import stripe
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 
@@ -63,6 +64,9 @@ def test_one_time_donation_flow(db, stripe_config):
             email=user_email, metadata={"user_id": user_id}, api_key="dummy_api_key"
         )
 
+        with session_scope() as session:
+            donation_initiation_id = session.execute(select(DonationInitiation.id)).scalar_one()
+
         mock.checkout.Session.create.assert_called_once_with(
             client_reference_id=str(user_id),
             submit_type="donate",
@@ -85,6 +89,8 @@ def test_one_time_donation_flow(db, stripe_config):
                 }
             ],
             api_key="dummy_api_key",
+            payment_intent_data={"metadata": {"donation_initiation_id": str(donation_initiation_id)}},
+            subscription_data=None,
         )
 
     ## Stripe then makes some webhooks requests
@@ -92,8 +98,10 @@ def test_one_time_donation_flow(db, stripe_config):
     # evt_1P5EkZIfR5z29g5kRH0e4NVx:customer.created
     fire_stripe_event("evt_1P5EkZIfR5z29g5kRH0e4NVx")
 
-    # evt_3P5El3IfR5z29g5k0TLWlfHq:charge.succeeded
-    fire_stripe_event("evt_3P5El3IfR5z29g5k0TLWlfHq")
+    # evt_3P5El3IfR5z29g5k0TLWlfHq:charge.succeeded, captured before we tagged payments with their initiation
+    event = json.loads(STRIPE_WEBHOOK_EVENTS["evt_3P5El3IfR5z29g5k0TLWlfHq"])
+    event["data"]["object"]["metadata"]["donation_initiation_id"] = str(donation_initiation_id)
+    fire_stripe_event_data(event)
 
     # evt_1P5El5IfR5z29g5kNedLGqCz:checkout.session.completed
     fire_stripe_event("evt_1P5El5IfR5z29g5kNedLGqCz")
@@ -120,6 +128,8 @@ def test_one_time_donation_flow(db, stripe_config):
         assert invoice.amount == 100
         assert invoice.stripe_payment_intent_id == "pi_3P5El3IfR5z29g5k0N5TNa7R"
         assert invoice.invoice_type == InvoiceType.on_platform
+        assert invoice.donation_initiation_id == donation.id
+        assert invoice.donation_type == DonationType.one_time
         assert (
             invoice.stripe_receipt_url
             == "https://pay.stripe.com/receipts/payment/CAcaFwoVYWNjdF8xS0V6QnlJZlI1ejI5ZzVrKIqF7LAGMgbtNxpJulk6LBaePNy_2Q2RzXJsbk7t1jLwK26AQlG05P-4EPhG7AIIcqsQLgC09iDJ2srs"
@@ -161,6 +171,9 @@ def test_monthly_donation_flow(db, stripe_config):
             email=user_email, metadata={"user_id": user_id}, api_key="dummy_api_key"
         )
 
+        with session_scope() as session:
+            donation_initiation_id = session.execute(select(DonationInitiation.id)).scalar_one()
+
         mock.checkout.Session.create.assert_called_once_with(
             client_reference_id=str(user_id),
             customer="cus_Pv4w8dxBpTVUsQ",
@@ -176,6 +189,8 @@ def test_monthly_donation_flow(db, stripe_config):
                 }
             ],
             api_key="dummy_api_key",
+            payment_intent_data=None,
+            subscription_data={"metadata": {"donation_initiation_id": str(donation_initiation_id)}},
         )
 
     ## Stripe then makes some webhooks requests
@@ -184,7 +199,9 @@ def test_monthly_donation_flow(db, stripe_config):
     fire_stripe_event("evt_1P5EmWIfR5z29g5kdOMc8bxr")
 
     # evt_3P5EmzIfR5z29g5k0bA1H9Vg: charge.succeeded
-    fire_stripe_event("evt_3P5EmzIfR5z29g5k0bA1H9Vg")
+    with mock_subscription_invoice({"donation_initiation_id": str(donation_initiation_id)}) as mock_retrieve:
+        fire_stripe_event("evt_3P5EmzIfR5z29g5k0bA1H9Vg")
+    mock_retrieve.assert_called_once_with("in_1P5EmzIfR5z29g5kNwA5fIXq", api_key="dummy_api_key")
 
     # evt_1P5En1IfR5z29g5k89Az23Na: payment_method.attached
     fire_stripe_event("evt_1P5En1IfR5z29g5k89Az23Na")
@@ -238,6 +255,8 @@ def test_monthly_donation_flow(db, stripe_config):
         assert invoice.amount == 25
         assert invoice.stripe_payment_intent_id == "pi_3P5EmzIfR5z29g5k0uVvI3kX"
         assert invoice.invoice_type == InvoiceType.on_platform
+        assert invoice.donation_initiation_id == donation.id
+        assert invoice.donation_type == DonationType.monthly
         assert (
             invoice.stripe_receipt_url
             == "https://pay.stripe.com/receipts/invoices/CAcaFwoVYWNjdF8xS0V6QnlJZlI1ejI5ZzVrKIOG7LAGMgYTBIebo2c6LBYFs4BgdV7T4S5nHXQyHt4uh5azZ3_ss_S2wi27m52wbg4yQAoirZ9eBhbH?s=ap"
@@ -271,6 +290,9 @@ def test_yearly_donation_flow(db, stripe_config):
                 )
             )
 
+        with session_scope() as session:
+            donation_initiation_id = session.execute(select(DonationInitiation.id)).scalar_one()
+
         mock.checkout.Session.create.assert_called_once_with(
             client_reference_id=str(user_id),
             customer="cus_Pv4w8dxBpTVUsQ",
@@ -286,6 +308,8 @@ def test_yearly_donation_flow(db, stripe_config):
                 }
             ],
             api_key="dummy_api_key",
+            payment_intent_data=None,
+            subscription_data={"metadata": {"donation_initiation_id": str(donation_initiation_id)}},
         )
 
     with session_scope() as session:
@@ -481,7 +505,8 @@ def test_slack_notification_on_monthly_donation(db, stripe_config):
     # Fire the charge.succeeded webhook and check Slack message
     with patch("couchers.servicers.donations.send_slack_message") as mock_slack:
         # Captured Stripe test-mode event: charge.succeeded for recurring $25 donation
-        fire_stripe_event("evt_3P5EmzIfR5z29g5k0bA1H9Vg")
+        with mock_subscription_invoice({}):
+            fire_stripe_event("evt_3P5EmzIfR5z29g5k0bA1H9Vg")
         mock_slack.assert_called_once()
         call_args = mock_slack.call_args[0][1]
         assert "$25" in call_args
@@ -515,6 +540,78 @@ def test_revenue_metric_on_merch(db, stripe_config):
         # Captured Stripe test-mode event: charge.succeeded for a $50 merch purchase
         fire_stripe_event("evt_merch_charge_succeeded")
         mock_observe_revenue.assert_called_once_with("merch", 5000)
+
+
+def test_untagged_one_time_donation(db, stripe_config):
+    """One-time charges from checkouts started before we tagged them still record their frequency."""
+    generate_user(stripe_customer_id="cus_Pv4uq0gT0rDZWN")
+
+    fire_stripe_event("evt_3P5El3IfR5z29g5k0TLWlfHq")
+
+    with session_scope() as session:
+        invoice = session.execute(select(Invoice)).scalar_one()
+        assert invoice.donation_initiation_id is None
+        assert invoice.donation_type == DonationType.one_time
+
+
+def test_untagged_recurring_donation(db, stripe_config):
+    """Renewals of subscriptions started before we tagged them are recorded without an initiation or frequency."""
+    generate_user(stripe_customer_id="cus_Pv4w8dxBpTVUsQ")
+
+    with mock_subscription_invoice({}):
+        fire_stripe_event("evt_3P5EmzIfR5z29g5k0bA1H9Vg")
+
+    with session_scope() as session:
+        invoice = session.execute(select(Invoice)).scalar_one()
+        assert invoice.donation_initiation_id is None
+        assert invoice.donation_type is None
+
+
+def test_recurring_donation_renewal(db, stripe_config):
+    """Every renewal of a subscription is linked back to the initiation that started it."""
+    user, token = generate_user()
+
+    with donations_session(token) as donations:
+        with patch("couchers.servicers.donations.stripe") as mock:
+            mock.Customer.create.return_value = type("__MockCustomer", (), {"id": "cus_Pv4w8dxBpTVUsQ"})
+            mock.checkout.Session.create.return_value = type("__MockCheckoutSession", (), RECURRING_STRIPE_SESSION)
+            donations.InitiateDonation(
+                donations_pb2.InitiateDonationReq(amount=25, frequency=donations_pb2.DONATION_FREQUENCY_YEARLY)
+            )
+
+    with session_scope() as session:
+        donation_initiation_id = session.execute(select(DonationInitiation.id)).scalar_one()
+
+    event = json.loads(STRIPE_WEBHOOK_EVENTS["evt_3P5EmzIfR5z29g5k0bA1H9Vg"])
+    with mock_subscription_invoice({"donation_initiation_id": str(donation_initiation_id)}):
+        fire_stripe_event_data(event)
+        event["data"]["object"]["payment_intent"] = "pi_renewal"
+        fire_stripe_event_data(event)
+
+    with session_scope() as session:
+        invoices = session.execute(select(Invoice).order_by(Invoice.id)).scalars().all()
+        assert [invoice.stripe_payment_intent_id for invoice in invoices] == [
+            "pi_3P5EmzIfR5z29g5k0uVvI3kX",
+            "pi_renewal",
+        ]
+        for invoice in invoices:
+            assert invoice.donation_initiation_id == donation_initiation_id
+            assert invoice.donation_type == DonationType.yearly
+
+
+def mock_subscription_invoice(subscription_metadata):
+    return patch.object(
+        stripe.Invoice,
+        "retrieve",
+        return_value=stripe.Invoice.construct_from(
+            {
+                "id": "in_1P5EmzIfR5z29g5kNwA5fIXq",
+                "object": "invoice",
+                "parent": {"subscription_details": {"metadata": subscription_metadata}},
+            },
+            "dummy_api_key",
+        ),
+    )
 
 
 def fire_stripe_event(event_id):
