@@ -63,6 +63,15 @@
     "carousel_scroller": {
       "left_arrow_a11y": "Nach links scrollen",
       "right_arrow_a11y": "Nach rechts scrollen"
+    },
+    "respond_to_public_trip_offer": {
+      "title": "{{name}} antworten",
+      "button": "Einladung anzeigen"
+    },
+    "confirm_public_trip_offer": {
+      "title": "Bestätige {{name}} zu hosten",
+      "description": "{{name}} hat deine Einladung angenommen. Bestätige den Aufenthalt, um ihn einzuloggen.",
+      "button": "Aufenthalt bestätigen"
     }
   },
   "events": {
