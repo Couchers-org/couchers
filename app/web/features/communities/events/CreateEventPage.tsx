@@ -73,7 +73,6 @@ export default function CreateEventPage() {
         photoKey,
         startTime: data.startDate.toPlainDateTime(data.startTime),
         endTime: data.endDate.toPlainDateTime(data.endTime),
-        inviteCommunity: data.inviteCommunity,
         address: data.location.name,
         lat: data.location.location.lat,
         lng: data.location.location.lng,

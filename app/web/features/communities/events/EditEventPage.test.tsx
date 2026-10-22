@@ -261,7 +261,6 @@ describe("Edit event page", () => {
     expect(updateEventMock).toHaveBeenCalledWith(
       expect.objectContaining({
         eventId: 1,
-        inviteCommunity: true,
       }),
     );
 

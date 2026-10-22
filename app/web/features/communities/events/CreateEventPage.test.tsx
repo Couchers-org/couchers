@@ -85,7 +85,6 @@ describe("Create event page", () => {
       address: "test city, test county, test country",
       title: "Test event",
       content: "sick social!",
-      inviteCommunity: false,
       photoKey: undefined,
       startTime: Temporal.PlainDateTime.from("2021-08-01T01:00"),
       endTime: Temporal.PlainDateTime.from("2021-08-01T02:00"),
@@ -168,7 +167,6 @@ describe("Create event page", () => {
       photoKey: undefined,
       startTime: Temporal.PlainDateTime.from("2021-08-01T01:00"),
       endTime: Temporal.PlainDateTime.from("2021-08-01T02:00"),
-      inviteCommunity: false,
       parentCommunityId: 99,
     });
   });
@@ -223,36 +221,11 @@ describe("Create event page", () => {
     await act(async () => user.click(screen.getByRole("button", { name: t("global:create") })));
 
     await waitFor(() => {
-      expect(createEventMock).toHaveBeenCalledWith(
-        expect.objectContaining({
-          inviteCommunity: false,
-        }),
-      );
+        expect(createEventMock).toHaveBeenCalledTimes(1);
     });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
-  it("creates an event requesting a community invite when the checkbox is selected", async () => {
-    renderPageWithState();
-
-    const user = userEvent.setup({
-      advanceTimers: jest.advanceTimersByTime,
-    });
-
-    await fillRequiredEventFields(user);
-
-    await user.click(
-      screen.getByRole("checkbox", {
-        name: t("communities:invite_community_dialog:message_box"),
-      }),
-    );
-
-    await act(async () => user.click(screen.getByRole("button", { name: t("global:create") })));
-
-    expect(createEventMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        inviteCommunity: true,
-      }),
-    );
-  });
+  
   it("opens the invite community dialog after creating an event with invite community selected", async () => {
     renderPageWithState();
 
