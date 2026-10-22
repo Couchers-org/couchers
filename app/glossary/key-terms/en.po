@@ -55,6 +55,10 @@ msgstr "Safety Team"
 msgid "support_team"
 msgstr "Support Team"
 
+#. (noun) The logged-in landing page showing upcoming events, stays, etc.
+msgid "dashboard"
+msgstr "dashboard"
+
 #. (noun) The behavioral guidelines that new members must accept when joining Couchers.org.
 msgid "community_guidelines"
 msgstr "Community Guidelines"
@@ -85,8 +89,18 @@ msgid "couchsurfing_tm"
 msgstr "Couchsurfing™"
 
 #. (noun) The activity of free hospitality welcome/exchange. Platform-agnostic.
-msgid "couch surfing"
+msgid "couch_surfing"
 msgstr "couch surfing"
+
+#. (noun) A multi-day event organized by a community and published broadly.
+#, read-only
+msgid "couch_crash"
+msgstr "Couch Crash"
+
+#. (noun) Multi-day events organized by a community and published broadly.
+#, read-only
+msgid "couch_crashes"
+msgstr "Couch Crashes"
 
 #. (verb) The act of volunteering with Couchers.org.
 msgid "volunteer.verb"
