@@ -221,11 +221,11 @@ describe("Create event page", () => {
     await act(async () => user.click(screen.getByRole("button", { name: t("global:create") })));
 
     await waitFor(() => {
-        expect(createEventMock).toHaveBeenCalledTimes(1);
+      expect(createEventMock).toHaveBeenCalledTimes(1);
     });
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
-  
+
   it("opens the invite community dialog after creating an event with invite community selected", async () => {
     renderPageWithState();
 
