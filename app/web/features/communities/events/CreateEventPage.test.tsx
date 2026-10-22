@@ -255,7 +255,7 @@ function renderPageWithState(state?: { communityId: number }) {
   render(<CreateEventPage />, { wrapper });
 }
 
-async function fillRequiredEventFields(user: UserEvent) {
+async function fillRequiredEventFields( user: ReturnType<typeof userEvent.setup>) {
   const titleInput = (await screen.findByLabelText(t("communities:event_title_label"))) as HTMLInputElement;
 
   await user.type(titleInput, "Test event");
