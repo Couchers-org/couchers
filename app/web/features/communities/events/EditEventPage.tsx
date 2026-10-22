@@ -83,7 +83,6 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
         endTime:
           data.dirtyFields.endDate || data.dirtyFields.endTime ? data.endDate.toPlainDateTime(data.endTime) : undefined,
         shouldNotify: data.dirtyFields.shouldNotify,
-        inviteCommunity: data.dirtyFields.inviteCommunity,
         address: data.dirtyFields.location ? data.location.name : undefined,
         lat: data.dirtyFields.location ? data.location.location.lat : undefined,
         lng: data.dirtyFields.location ? data.location.location.lng : undefined,
