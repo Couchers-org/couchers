@@ -43,6 +43,12 @@ function getReminderId(reminder: Reminder.AsObject): string | null {
   if (reminder.confirmHostRequestReminder?.hostRequestId != null) {
     return `confirm_host_request:${reminder.confirmHostRequestReminder.hostRequestId}`;
   }
+  if (reminder.respondToPublicTripOfferReminder?.hostRequestId != null) {
+    return `respond_public_trip_offer:${reminder.respondToPublicTripOfferReminder.hostRequestId}`;
+  }
+  if (reminder.confirmPublicTripOfferReminder?.hostRequestId != null) {
+    return `confirm_public_trip_offer:${reminder.confirmPublicTripOfferReminder.hostRequestId}`;
+  }
   return null;
 }
 

@@ -53,6 +53,20 @@ export default function ReminderItem({ reminder, onDismiss }: { reminder: Remind
     description = t("reminder.confirm_host_request.description", { name });
     buttonText = t("reminder.confirm_host_request.button");
     href = routeToHostRequest(hostRequestId);
+  } else if (reminder.respondToPublicTripOfferReminder) {
+    const { hostRequestId, hostUser } = reminder.respondToPublicTripOfferReminder;
+    const name = hostUser?.name ?? "";
+    title = t("reminder.respond_to_public_trip_offer.title", { name });
+    description = t("reminder.respond_to_public_trip_offer.description", { name });
+    buttonText = t("reminder.respond_to_public_trip_offer.button");
+    href = routeToHostRequest(hostRequestId);
+  } else if (reminder.confirmPublicTripOfferReminder) {
+    const { hostRequestId, surferUser } = reminder.confirmPublicTripOfferReminder;
+    const name = surferUser?.name ?? "";
+    title = t("reminder.confirm_public_trip_offer.title", { name });
+    description = t("reminder.confirm_public_trip_offer.description", { name });
+    buttonText = t("reminder.confirm_public_trip_offer.button");
+    href = routeToHostRequest(hostRequestId);
   } else if (reminder.completeMyHomeReminder) {
     title = t("reminder.complete_my_home.title");
     description = t("reminder.complete_my_home.description");
