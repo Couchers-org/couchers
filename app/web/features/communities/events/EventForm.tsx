@@ -59,6 +59,7 @@ interface EventData {
   startTime: Temporal.PlainTime;
   endTime: Temporal.PlainTime;
   shouldNotify: boolean;
+  inviteCommunity: boolean;
   eventImage?: string;
   parentCommunityId?: number;
   link?: string;
@@ -113,7 +114,7 @@ export default function EventForm({
         }
       : ("" as const),
   ).current;
-
+  const inviteCommunity = event?.communityInviteRequested ?? false;
   const onSubmit = handleSubmit(
     (data) => {
       const eventVariables = {
@@ -200,7 +201,17 @@ export default function EventForm({
             required={t("communities:event_details_required")}
           />
         </StyledEventDetailsContainer>
-
+        <FormControlLabel
+          control={
+            <Checkbox
+              {...register("inviteCommunity")}
+              defaultChecked={inviteCommunity}
+              disabled={inviteCommunity}
+              name="inviteCommunity"
+            />
+          }
+          label={t("communities:invite_community_dialog:message_box")}
+        />
         {children({ isMutationLoading })}
       </StyledForm>
     </StyledWrapper>

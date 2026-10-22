@@ -47,6 +47,9 @@ function renderEventPage(id = 1, slug = "weekly-meetup") {
   mockRouter.setCurrentUrl(`${eventBaseRoute}/${id}/${slug}`);
   render(<EventPage eventId={id} eventSlug={slug} />, { wrapper: hookWrapper });
 }
+const requestCommunityInviteMock = service.events.RequestCommunityInvite as jest.MockedFunction<
+  typeof service.events.RequestCommunityInvite
+>;
 
 describe("Event page", () => {
   beforeEach(() => {
@@ -471,7 +474,6 @@ describe("Event page", () => {
       // using the updated event from mutation
       expect(getEventMock).toHaveBeenCalledTimes(1);
     });
-
     it("shows an error alert if the attendance state update failed", async () => {
       mockConsoleError();
       const errorMessage = "Error updating attendance state";
@@ -493,5 +495,102 @@ describe("Event page", () => {
 
       await assertErrorAlert(errorMessage);
     });
+  });
+  describe("when the event can have a Community Invite requested", () => {
+    it("shows the 'Invite Community' button", async () => {
+      getEventMock.mockResolvedValue({
+        ...firstEvent,
+        canEdit: true,
+        communityInviteRequested: false,
+      });
+
+      renderEventPage();
+
+      expect(
+        await screen.findByRole("button", {
+          name: t("communities:invite_community_dialog_buttons.open"),
+        }),
+      ).toBeVisible();
+    });
+  });
+  describe("when a Community Invite has been requested", () => {
+    it("hides the 'Invite Community' button", async () => {
+      getEventMock.mockResolvedValue({
+        ...firstEvent,
+        canEdit: true,
+        communityInviteRequested: true,
+      });
+
+      renderEventPage();
+
+      expect(
+        screen.queryByRole("button", {
+          name: t("communities:invite_community_dialog_buttons.open"),
+        }),
+      ).not.toBeInTheDocument();
+    });
+  });
+  describe("when a user cannot edit the event", () => {
+    it("hides the 'Invite Community' button", async () => {
+      getEventMock.mockResolvedValue({
+        ...firstEvent,
+        canEdit: false,
+        communityInviteRequested: false,
+      });
+
+      renderEventPage();
+
+      expect(
+        screen.queryByRole("button", {
+          name: t("communities:invite_community_dialog_buttons.open"),
+        }),
+      ).not.toBeInTheDocument();
+    });
+  });
+  it("opens the Invite Community dialog", async () => {
+    getEventMock.mockResolvedValue({
+      ...firstEvent,
+      canEdit: true,
+      communityInviteRequested: false,
+    });
+
+    renderEventPage();
+
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+
+    await user.click(
+      await screen.findByRole("button", {
+        name: t("communities:invite_community_dialog_buttons.open"),
+      }),
+    );
+
+    expect(await screen.findByRole("dialog")).toBeVisible();
+
+    expect(screen.getByText(t("communities:invite_community_dialog.title"))).toBeVisible();
+  });
+  it("does not request a community invite when the dialog is closed", async () => {
+    getEventMock.mockResolvedValue({
+      ...firstEvent,
+      canEdit: true,
+      communityInviteRequested: false,
+    });
+
+    renderEventPage();
+
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+
+    await user.click(
+      await screen.findByRole("button", {
+        name: t("communities:invite_community_dialog_buttons.open"),
+      }),
+    );
+
+    await user.click(
+      screen.getByRole("button", {
+        name: t("communities:invite_community_dialog_buttons.close"),
+      }),
+    );
+
+    expect(requestCommunityInviteMock).not.toHaveBeenCalled();
   });
 });

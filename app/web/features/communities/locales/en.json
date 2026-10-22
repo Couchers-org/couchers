@@ -10,6 +10,7 @@
   "invite_community_dialog": {
     "title": "Request a community invite for this event",
     "message": "Use this form to request that the moderators send a notification about this event to all nearby users.",
+    "message_box": "Ask moderators to promote this event to all nearby users. You can request promotion now or wait until closer to the event.",
     "toast_success": "Thanks, the request has been submitted",
     "link": "More information on this feature"
   },
