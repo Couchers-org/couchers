@@ -1,5 +1,6 @@
 import json
 import logging
+from typing import Any
 
 import grpc
 import stripe
@@ -66,9 +67,16 @@ class Donations(donations_pb2_grpc.DonationsServicer):
         if not user.stripe_customer_id:
             _create_stripe_customer(session, user)
 
+        # reserve the id up front so Stripe can be given it, the row is only inserted once the checkout session exists
+        donation_initiation_id = session.execute(select(DonationInitiation.next_id())).scalar_one()
+        # Stripe copies PaymentIntent metadata onto its charges, and subscription metadata onto its invoices
+        stripe_metadata = {"metadata": {"donation_initiation_id": str(donation_initiation_id)}}
+
         if donation_type == DonationType.one_time:
             mode = "payment"
             submit_type: str | None = "donate"
+            payment_intent_data: dict[str, Any] | None = stripe_metadata
+            subscription_data: dict[str, Any] | None = None
             item = {
                 "price_data": {
                     "currency": "usd",
@@ -83,6 +91,8 @@ class Donations(donations_pb2_grpc.DonationsServicer):
         else:
             mode = "subscription"
             submit_type = None
+            payment_intent_data = None
+            subscription_data = stripe_metadata
             recurring_price_ids = {
                 DonationType.monthly: config.STRIPE_RECURRING_PRODUCT_ID,
                 DonationType.yearly: config.STRIPE_YEARLY_RECURRING_PRODUCT_ID,
@@ -103,10 +113,13 @@ class Donations(donations_pb2_grpc.DonationsServicer):
             mode=mode,
             line_items=[item],  # type: ignore[list-item]
             api_key=config.STRIPE_API_KEY,
+            payment_intent_data=payment_intent_data,  # type: ignore[arg-type]
+            subscription_data=subscription_data,  # type: ignore[arg-type]
         )
 
         session.add(
             DonationInitiation(
+                id=donation_initiation_id,
                 user_id=user.id,
                 amount=request.amount,
                 stripe_checkout_session_id=checkout_session.id,
@@ -207,12 +220,39 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                 receipt_url = data_object["receipt_url"]
                 payment_intent_id = data_object["payment_intent"]
 
+                # Recurring donations go through Stripe invoices, one-time don't
+                is_recurring = data_object["invoice"] is not None
+                if is_recurring:
+                    # subscription charges don't carry the subscription's metadata, but their invoice has a snapshot
+                    stripe_invoice = stripe.Invoice.retrieve(data_object["invoice"], api_key=config.STRIPE_API_KEY)
+                    subscription_details = stripe_invoice.parent.subscription_details if stripe_invoice.parent else None
+                    subscription_metadata = subscription_details.metadata if subscription_details else None
+                    initiation_metadata = subscription_metadata.to_dict() if subscription_metadata else {}
+                else:
+                    initiation_metadata = metadata
+                donation_initiation = (
+                    session.execute(
+                        select(DonationInitiation).where(
+                            DonationInitiation.id == int(initiation_metadata["donation_initiation_id"])
+                        )
+                    ).scalar_one()
+                    if "donation_initiation_id" in initiation_metadata
+                    else None
+                )
+                if donation_initiation:
+                    invoice_donation_type: DonationType | None = donation_initiation.donation_type
+                else:
+                    # payments from before we tagged them with their initiation, e.g. older subscriptions renewing
+                    invoice_donation_type = None if is_recurring else DonationType.one_time
+
                 invoice = Invoice(
                     user_id=user.id,
                     amount=amount,
                     stripe_payment_intent_id=payment_intent_id,
                     stripe_receipt_url=receipt_url,
                     invoice_type=InvoiceType.on_platform,
+                    donation_initiation_id=donation_initiation.id if donation_initiation else None,
+                    donation_type=invoice_donation_type,
                 )
                 session.add(invoice)
                 session.flush()
@@ -229,8 +269,6 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                     ),
                 )
 
-                # Recurring donations go through Stripe invoices, one-time don't
-                is_recurring = data_object["invoice"] is not None
                 donation_type = "recurring" if is_recurring else "one-time"
                 user_link = urls.user_link(username=user.username)
                 try:
