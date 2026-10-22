@@ -3,7 +3,7 @@ import { Coordinates } from "features/search/utils/constants";
 import { LngLat } from "maplibre-gl";
 import { useRouter } from "next/router";
 import Sentry from "platform/sentry";
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { service } from "service";
 import {
@@ -115,7 +115,6 @@ const useGeocodeQuery = (options: {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
   const [results, setResults] = useState<GeocodeResult[] | undefined>(undefined);
-
 
   // Tracks the in-flight request so it can be aborted, and the latest request id
   // so late-arriving responses from superseded queries are discarded.
