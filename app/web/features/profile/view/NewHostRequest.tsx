@@ -173,9 +173,10 @@ interface HostRequestDraft {
 interface NewHostRequestProps {
   setIsRequestSuccess: (value: boolean) => void;
   setIsRequesting: (value: boolean) => void;
+  initialText?: string;
 }
 
-export default function NewHostRequest({ setIsRequestSuccess, setIsRequesting }: NewHostRequestProps) {
+export default function NewHostRequest({ setIsRequestSuccess, setIsRequesting, initialText }: NewHostRequestProps) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
   const currentUserId = useAuthContext().authState.userId;
@@ -217,6 +218,11 @@ export default function NewHostRequest({ setIsRequestSuccess, setIsRequesting }:
       }),
     [subscribe, setDraft, clearDraft],
   );
+
+  // In the profile sheet this form stays mounted while hidden, so the text can't go in through defaultValues.
+  useEffect(() => {
+    if (initialText && !getValues("text")) setValue("text", initialText);
+  }, [initialText, getValues, setValue]);
 
   const textField = watch("text") ?? "";
 

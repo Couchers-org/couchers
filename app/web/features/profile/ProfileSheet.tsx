@@ -99,12 +99,25 @@ export default function ProfileSheet() {
   const [isRequesting, setIsRequesting] = useState(false);
   const [isSuccessRequest, setIsSuccessRequest] = useState(false);
   const [isMessaging, setIsMessaging] = useState(false);
+  const [requestText, setRequestText] = useState<string>();
+
+  const requestInstead = (text: string) => {
+    setRequestText(text);
+    setIsMessaging(false);
+    setIsRequesting(true);
+  };
+
+  const openRequest = (value: boolean) => {
+    setRequestText(undefined);
+    setIsRequesting(value);
+  };
 
   useEffect(() => {
     setTab("about");
     setIsRequesting(false);
     setIsSuccessRequest(false);
     setIsMessaging(false);
+    setRequestText(undefined);
   }, [openProfileUserId]);
 
   useEffect(() => {
@@ -223,17 +236,21 @@ export default function ProfileSheet() {
           {isLoading && <ProfileSheetSkeleton />}
           {user && (
             <ProfileUserProvider user={user}>
-              <Overview setIsRequesting={setIsRequesting} setIsMessaging={setIsMessaging} tab={tab} isInSheet />
+              <Overview setIsRequesting={openRequest} setIsMessaging={setIsMessaging} tab={tab} isInSheet />
               <UserCard
                 tab={tab}
                 onTabChange={setTab}
                 top={
                   <>
                     <Collapse in={isRequesting}>
-                      <NewHostRequest setIsRequesting={setIsRequesting} setIsRequestSuccess={setIsSuccessRequest} />
+                      <NewHostRequest
+                        setIsRequesting={setIsRequesting}
+                        setIsRequestSuccess={setIsSuccessRequest}
+                        initialText={requestText}
+                      />
                     </Collapse>
                     <Collapse in={isMessaging}>
-                      <NewMessage setIsMessaging={setIsMessaging} />
+                      <NewMessage setIsMessaging={setIsMessaging} onRequestInstead={requestInstead} />
                     </Collapse>
                   </>
                 }
