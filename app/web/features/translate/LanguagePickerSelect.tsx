@@ -14,12 +14,15 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
-import Snackbar from "components/Snackbar";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useTranslation } from "i18n";
-import { isLocaleProductionReady, isLocaleSelectable } from "i18n/locales";
+import { LOCALE_AUTONYMS } from "i18n/locales";
 import { GLOBAL } from "i18n/namespaces";
-import { useLocaleInfos } from "i18n/useLocaleInfos";
+import {
+  getLocalePackagedTranslationReadiness,
+  PRODUCTION_READY_THRESHOLD,
+  SELECTABLE_THRESHOLD,
+} from "i18n/translationReadiness";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { translateRoute } from "routes";
@@ -27,6 +30,7 @@ import { service } from "service";
 import { theme } from "theme";
 import { sendLanguageChange } from "utils/nativeLink";
 
+import { allLanguages } from "../../i18n/allLanguages";
 import { useShowAllLanguages } from "./useShowAllLanguages";
 
 interface StyledMuiSelectProps {
@@ -83,7 +87,6 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { t, i18n } = useTranslation([GLOBAL]);
 
-  const { data: localeInfos, isLoading, error } = useLocaleInfos();
   const { showAllLanguages } = useShowAllLanguages();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -129,64 +132,66 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
     router.push(translateRoute);
   };
 
-  // Locales with < 50% translated are hidden from the language selector (unless showAllLanguages is enabled)
-  // Locales with < 80% translated are greyed out
-  const availableLocales = localeInfos
-    .filter((locale) => showAllLanguages || isLocaleSelectable(locale))
+  const availableLocales = allLanguages
+    .map((locale) => ({
+      code: locale,
+      autonym: LOCALE_AUTONYMS[locale],
+      readiness: getLocalePackagedTranslationReadiness(locale),
+    }))
+    .filter((entry) => showAllLanguages || entry.readiness >= SELECTABLE_THRESHOLD)
     .sort((a, b) => {
-      const aReady = isLocaleProductionReady(a);
-      const bReady = isLocaleProductionReady(b);
+      // First show production ready, then others
+      const aReady = a.readiness >= PRODUCTION_READY_THRESHOLD;
+      const bReady = b.readiness >= PRODUCTION_READY_THRESHOLD;
       if (aReady !== bReady) return aReady ? -1 : 1;
-      return a.code.localeCompare(b.code, i18n.language);
+      return a.autonym.localeCompare(b.autonym, i18n.language);
     });
 
-  const menuItems: React.ReactNode[] | undefined = isLoading
-    ? []
-    : availableLocales.map((localeInfo) => {
-        return (
-          <MenuItem
-            key={localeInfo.code}
-            value={localeInfo.code}
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: theme.spacing(1),
-              "& .Mui-selected": {
-                backgroundColor: "var(--mui-palette-action-selected)",
-              },
-              "& .Mui-selected:hover": {
-                backgroundColor: "var(--mui-palette-action-hover)",
-              },
-            }}
-          >
-            <Stack
-              direction="row"
+  const menuItems: React.ReactNode[] | undefined = availableLocales.map((localeInfo) => {
+    return (
+      <MenuItem
+        key={localeInfo.code}
+        value={localeInfo.code}
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: theme.spacing(1),
+          "& .Mui-selected": {
+            backgroundColor: "var(--mui-palette-action-selected)",
+          },
+          "& .Mui-selected:hover": {
+            backgroundColor: "var(--mui-palette-action-hover)",
+          },
+        }}
+      >
+        <Stack
+          direction="row"
+          sx={{
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+          }}
+        >
+          <Stack direction="row">
+            <ListItemText
               sx={{
-                alignItems: "center",
-                justifyContent: "space-between",
-                width: "100%",
+                opacity: localeInfo.readiness >= PRODUCTION_READY_THRESHOLD ? 1 : 0.4,
+                fontWeight: "bold",
+                display: "inline",
               }}
             >
-              <Stack direction="row">
-                <ListItemText
-                  sx={{
-                    opacity: isLocaleProductionReady(localeInfo) ? 1 : 0.4,
-                    fontWeight: "bold",
-                    display: "inline",
-                  }}
-                >
-                  {localeInfo.autonym}
-                </ListItemText>
-              </Stack>
-              <div>
-                {locale === localeInfo.code && (
-                  <CheckIcon fontSize="small" sx={{ color: "var(--mui-palette-primary-main)" }} />
-                )}
-              </div>
-            </Stack>
-          </MenuItem>
-        );
-      });
+              {localeInfo.autonym}
+            </ListItemText>
+          </Stack>
+          <div>
+            {locale === localeInfo.code && (
+              <CheckIcon fontSize="small" sx={{ color: "var(--mui-palette-primary-main)" }} />
+            )}
+          </div>
+        </Stack>
+      </MenuItem>
+    );
+  });
 
   // renderValue function for what should be rendered after a selection is made
   const renderRoundedValue = (value: unknown) => {
@@ -203,7 +208,7 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
         }}
       >
         <LanguageIcon fontSize="small" />
-        {localeInfos.find((localeInfo) => localeInfo.code === selected)?.autonym}
+        {LOCALE_AUTONYMS[selected]}
       </Box>
     );
   };
@@ -224,7 +229,6 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
 
   return (
     <>
-      {error && <Snackbar severity="error">{t("global:language_preference.error_loading_languages")}</Snackbar>}
       <Box sx={{ minWidth: 40 }}>
         <FormControl
           variant="outlined"
@@ -235,13 +239,13 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
           {displayMode !== "rect" ? (
             <StyledSelect
               id="language-select"
-              value={isLoading ? "" : locale || ""}
+              value={locale || ""}
               displayMode={displayMode}
               onChange={handleChange}
               // Use renderValue to display the selected language (or, in icon mode, a generic language icon) in collapsed state
               renderValue={displayMode === "icon" ? renderIconValue : renderRoundedValue}
               IconComponent={ExpandMoreOutlinedIcon}
-              disabled={isLoading || isChangingLanguage}
+              disabled={isChangingLanguage}
               open={isOpen}
               onOpen={() => setIsOpen(true)}
               onClose={() => setIsOpen(false)}
@@ -284,10 +288,10 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
             <StyledSelect
               id="newLanguage"
               displayMode={displayMode}
-              value={isLoading ? "" : locale}
+              value={locale}
               fullWidth={isMobile}
               onChange={handleChange}
-              disabled={isLoading || isChangingLanguage}
+              disabled={isChangingLanguage}
               open={isOpen}
               onOpen={() => setIsOpen(true)}
               onClose={() => setIsOpen(false)}

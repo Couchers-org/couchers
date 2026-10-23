@@ -3,44 +3,11 @@ import { allLanguages } from "i18n/allLanguages";
 import { NextRequest, NextResponse } from "next/server";
 
 import { sessionCookieName } from "./appConstants";
-import {
-  ALWAYS_AVAILABLE_LOCALES,
-  DEFAULT_LOCALE,
-  getLocaleInfos,
-  isLocaleProductionReady,
-  LOCALE_COOKIE_NAME,
-} from "./i18n/locales";
-import { fetchWeblateLanguages } from "./i18n/weblate";
+import { ALWAYS_AVAILABLE_LOCALES, DEFAULT_LOCALE, LOCALE_COOKIE_NAME } from "./i18n/locales";
+import { getLocalePackagedTranslationReadiness, PRODUCTION_READY_THRESHOLD } from "./i18n/translationReadiness";
 
-// In-memory cache for the production-ready locale list
-let productionReadyLocalesCache: {
-  data: string[];
-  timestamp: number;
-} | null = null;
-
-const CACHE_TTL = 10 * 60 * 1000; // 10 minutes in milliseconds
-
-/**
- * Get the list of locale codes that are production-ready (>= 80% translated)
- * Uses server-side Weblate stats with caching
- */
-async function getProductionReadyLocales(): Promise<string[]> {
-  const now = Date.now();
-
-  if (productionReadyLocalesCache && now - productionReadyLocalesCache.timestamp < CACHE_TTL) {
-    return productionReadyLocalesCache.data;
-  }
-
-  // Hardcoded to keep Weblate out of the request path.
-  return ["de", "en", "es", "it", "pt-BR", "ru", "zh-Hans", "zh-Hant"];
-  const weblateLanguages = await fetchWeblateLanguages();
-  const productionReadyLocales = getLocaleInfos(weblateLanguages)
-    .filter(isLocaleProductionReady)
-    .map((locale) => locale.code);
-
-  productionReadyLocalesCache = { data: productionReadyLocales, timestamp: now };
-
-  return productionReadyLocales;
+function getProductionReadyLocales(): string[] {
+  return allLanguages.filter((locale) => getLocalePackagedTranslationReadiness(locale) >= PRODUCTION_READY_THRESHOLD);
 }
 
 /**
@@ -88,7 +55,7 @@ async function getBestLocale(request: NextRequest): Promise<string> {
   // Only consider languages that are production-ready (>= 80% translated),
   // falling through to the next preferred language in the header otherwise
   const acceptLanguage = request.headers.get("accept-language");
-  const productionReadyLocales = await getProductionReadyLocales();
+  const productionReadyLocales = getProductionReadyLocales();
   return getBrowserLocaleFromHeader(acceptLanguage || undefined, productionReadyLocales) || DEFAULT_LOCALE;
 }
 
@@ -102,7 +69,7 @@ export async function middleware(request: NextRequest) {
   const isClientNavigation = request.headers.get("x-nextjs-data");
 
   // Check if current locale should be blocked
-  const productionReadyLocales = await getProductionReadyLocales();
+  const productionReadyLocales = getProductionReadyLocales();
   const isProductionReady = productionReadyLocales.includes(currentLocale);
   const shouldBlock = shouldBlockIncompleteLanguage(currentLocale, cookieLocale, isProductionReady);
 

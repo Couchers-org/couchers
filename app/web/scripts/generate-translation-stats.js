@@ -21,17 +21,10 @@ function main(args) {
 
 // Writes the translation stats to the given output path.
 function writeTranslationStats(appStats, outputFile) {
-  const stats = Object.entries(appStats)
-    .map(([code, { total, translated }]) => ({
-      code,
-      translated_percent: total === 0 ? 100 : Math.round((100 * translated) / total),
-    }))
-    .sort((a, b) => a.code.localeCompare(b.code));
-
   fs.mkdirSync(path.dirname(outputFile), { recursive: true });
-  fs.writeFileSync(outputFile, JSON.stringify(stats, null, 2) + "\n");
+  fs.writeFileSync(outputFile, JSON.stringify(appStats, null, 2) + "\n");
   console.log(
-    `Generated translation stats for ${stats.length} locales at ${path.relative(process.cwd(), outputFile)}.`,
+    `Generated translation stats for ${appStats.length} locales at ${path.relative(process.cwd(), outputFile)}.`,
   );
 }
 
