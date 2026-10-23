@@ -1,13 +1,13 @@
 import { styled, Tooltip } from "@mui/material";
 import { ChevronRightIcon, OpenInNewIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
+import useOpensProfileSheet from "features/profile/hooks/useOpensProfileSheet";
 import { useProfileSheet } from "features/profile/ProfileSheetContext";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
 import { MouseEvent, ReactNode } from "react";
 import { routeToUser } from "routes";
 import { useIsNativeEmbed } from "utils/nativeLink";
-import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
 interface ProfileLinkProps {
   userId?: number;
@@ -51,11 +51,10 @@ export default function ProfileLink({
   "aria-label": ariaLabel,
 }: ProfileLinkProps) {
   const isNativeEmbed = useIsNativeEmbed();
-  const isMobile = useIsScreenSizeOrSmaller("mobile");
   const { openProfileSheet } = useProfileSheet();
   const { t } = useTranslation(PROFILE);
-  const opensSheet = (isNativeEmbed || isMobile) && userId !== undefined;
-  const opensNewTab = !opensSheet && !!openInNewTab;
+  const opensSheet = useOpensProfileSheet() && userId !== undefined;
+  const opensNewTab = !opensSheet && !!openInNewTab && !isNativeEmbed;
 
   const handleClick = (e: MouseEvent) => {
     // Opening the profile always wins over whatever row or card this sits inside
