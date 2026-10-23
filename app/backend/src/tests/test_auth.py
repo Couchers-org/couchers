@@ -27,15 +27,15 @@ from couchers.models import (
     User,
     UserSession,
 )
-from couchers.proto import account_pb2, api_pb2, auth_pb2
+from couchers.proto import api_pb2, auth_pb2
 from couchers.servicers.auth import create_session
 from couchers.utils import now
+from tests.fixtures.api import account as account_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import EmailCollector, PushCollector
 from tests.fixtures.sessions import (
     MetadataKeeperInterceptor,
     _MockCouchersContext,
-    account_session,
     api_session,
     auth_api_session,
     real_api_session,
@@ -1893,8 +1893,7 @@ def test_banned_username(db):
 def test_GetInviteCodeInfo(db):
     user, token = generate_user(complete_profile=True)
 
-    with account_session(token) as account:
-        code = account.CreateInviteCode(account_pb2.CreateInviteCodeReq()).code
+    code = account_api.create_invite_code(token=token).code
 
     with auth_api_session() as (auth, _):
         res = auth.GetInviteCodeInfo(auth_pb2.GetInviteCodeInfoReq(code=code))
@@ -1911,8 +1910,7 @@ def test_GetInviteCodeInfo(db):
 def test_GetInviteCodeInfo_no_avatar(db):
     user, token = generate_user(complete_profile=False)
 
-    with account_session(token) as account:
-        code = account.CreateInviteCode(account_pb2.CreateInviteCodeReq()).code
+    code = account_api.create_invite_code(token=token).code
 
     with auth_api_session() as (auth, _):
         res = auth.GetInviteCodeInfo(auth_pb2.GetInviteCodeInfoReq(code=code))
@@ -1935,8 +1933,7 @@ def test_GetInviteCodeInfo_not_found(db):
 def test_SignupFlow_invite_code(db):
     user, token = generate_user()
 
-    with account_session(token) as account:
-        invite_code = account.CreateInviteCode(account_pb2.CreateInviteCodeReq()).code
+    invite_code = account_api.create_invite_code(token=token).code
 
     with auth_api_session() as (auth_api, _):
         # Signup basic step with invite code

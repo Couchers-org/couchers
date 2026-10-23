@@ -3,9 +3,10 @@ from sqlalchemy import select
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
 from couchers.models import User, UserEmailHistory
-from couchers.proto import account_pb2, auth_pb2
+from couchers.proto import auth_pb2
+from tests.fixtures.api import account as account_api
 from tests.fixtures.db import generate_user
-from tests.fixtures.sessions import account_session, auth_api_session
+from tests.fixtures.sessions import auth_api_session
 from tests.test_auth import _quick_signup
 
 
@@ -19,8 +20,7 @@ def get_history(user_id: int) -> list[str]:
 
 
 def change_email(token: str, password: str, new_email: str) -> None:
-    with account_session(token) as account:
-        account.ChangeEmailV2(account_pb2.ChangeEmailV2Req(password=password, new_email=new_email))
+    account_api.change_email(token=token, password=password, new_email=new_email)
 
     with session_scope() as session:
         change_email_token = session.execute(
@@ -53,9 +53,6 @@ def test_email_history_not_recorded_on_unconfirmed_email_change(db, fast_passwor
     password = random_hex()
     user, token = generate_user(hashed_password=hash_password(password))
 
-    with account_session(token) as account:
-        account.ChangeEmailV2(
-            account_pb2.ChangeEmailV2Req(password=password, new_email=f"{random_hex()}@couchers.org.invalid")
-        )
+    account_api.change_email(token=token, password=password, new_email=f"{random_hex()}@couchers.org.invalid")
 
     assert get_history(user.id) == []

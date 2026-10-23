@@ -502,16 +502,6 @@ def notifications_session(token: str):
 
 
 @contextmanager
-def account_session(token: str):
-    """
-    Create a Account API for testing, uses the token for auth
-    """
-    channel = FakeChannel(token)
-    account_pb2_grpc.add_AccountServicer_to_server(Account(), channel)
-    yield account_pb2_grpc.AccountStub(channel)
-
-
-@contextmanager
 def search_session(token: str):
     """
     Create a Search API for testing, uses the token for auth
