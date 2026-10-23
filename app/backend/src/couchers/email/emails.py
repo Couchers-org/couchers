@@ -538,7 +538,7 @@ class DiscussionCommentEmail(EmailBase):
 class DonationReceivedEmail(EmailBase):
     """Sent to a user to thank them for a donation."""
 
-    amount: int
+    amount_whole_usd: int
     receipt_url: str
 
     @property
@@ -547,7 +547,7 @@ class DonationReceivedEmail(EmailBase):
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context, default_closing=False)
-        builder.para(".purpose", {"amount_with_currency": f"${self.amount}"})
+        builder.para(".purpose", {"amount_with_currency": loc_context.localize_currency(self.amount_whole_usd, "USD")})
         builder.para(".contribution_impact")
         builder.para(".invoice_receipt_info")
         builder.action(self.receipt_url, ".download_invoice")
@@ -559,11 +559,17 @@ class DonationReceivedEmail(EmailBase):
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.DonationReceived, *, user_name: str) -> Self:
-        return cls(user_name=user_name, amount=data.amount, receipt_url=data.receipt_url)
+        return cls(user_name=user_name, amount_whole_usd=data.amount, receipt_url=data.receipt_url)
 
     @classmethod
     def test_instances(cls) -> list[Self]:
-        return [cls(user_name="Alice", amount=25, receipt_url="https://couchers.org/receipts/123")]
+        return [
+            cls(
+                user_name="Alice",
+                amount_whole_usd=25,
+                receipt_url="https://couchers.org/receipts/123",
+            )
+        ]
 
 
 @dataclass(kw_only=True, slots=True)
