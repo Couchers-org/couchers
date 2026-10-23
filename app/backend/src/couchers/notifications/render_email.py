@@ -307,7 +307,6 @@ def get_topic_key_unsubscribe_text(topic_action: NotificationTopicAction) -> str
 
 def get_email_footer(user: User, notification: Notification, loc_context: LocalizationContext) -> EmailFooter:
     return EmailFooter(
-        timezone_name=loc_context.localized_timezone,
         copyright_year=now().year,
         unsubscribe_info=UnsubscribeInfo(
             manage_notifications_url=urls.notification_settings_link(),

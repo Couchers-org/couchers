@@ -39,7 +39,6 @@ def _all_email_variants() -> list[tuple[str, EmailBase]]:
 _VARIANTS = _all_email_variants()
 
 _FOOTER = EmailFooter(
-    timezone_name="UTC",
     unsubscribe_info=UnsubscribeInfo(
         manage_notifications_url="https://example.com/manage-notifications",
         do_not_email_url="https://example.com/do-not-email",
