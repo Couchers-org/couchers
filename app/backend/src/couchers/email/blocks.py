@@ -154,6 +154,16 @@ class ActionBlock(EmailBlock):
     target_url: str
 
 
+@dataclass(kw_only=True, slots=True)
+class ActionPairBlock(EmailBlock):
+    """A pair of actions, with the primary action emphasized as the most common one."""
+
+    primary_text: str
+    primary_target_url: str
+    secondary_text: str
+    secondary_target_url: str
+
+
 class EmailBlocksBuilder:
     """
     Builder object for constructing a list of localized EmailBlock's to form the body of an email.
@@ -190,6 +200,18 @@ class EmailBlocksBuilder:
 
     def action(self, url: str, text_key: str, substitutions: SubstitutionDict | None = None) -> Self:
         return self.block(ActionBlock(text=self._text(text_key, substitutions), target_url=url))
+
+    def action_pair(
+        self, *, primary_url: str, primary_text_key: str, secondary_url: str, secondary_text_key: str
+    ) -> Self:
+        return self.block(
+            ActionPairBlock(
+                primary_text=self._text(primary_text_key),
+                primary_target_url=primary_url,
+                secondary_text=self._text(secondary_text_key),
+                secondary_target_url=secondary_url,
+            )
+        )
 
     def block(self, block: EmailBlock, epilogue: bool = False) -> Self:
         if epilogue:
