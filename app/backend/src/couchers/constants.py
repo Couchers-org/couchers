@@ -128,6 +128,8 @@ EVENT_REMINDER_TIMEDELTA = timedelta(hours=24)
 # recurring events should have occurrences scheduled.
 EVENT_RECURRENCE_SCHEDULE_WINDOW = timedelta(weeks=2)
 EVENT_RECURRENCE_MIN_SCHEDULED_OCCURRENCES = 2
+# How long after the first occurrence recurring events can keep having occurrences scheduled.
+EVENT_RECURRENCE_MAX_DURATION = timedelta(days=183)  # ~6 months
 
 COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD = 0.35
 

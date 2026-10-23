@@ -1,14 +1,10 @@
 from contextlib import contextmanager
 from datetime import date, datetime, time, timedelta
 from typing import cast
-from zoneinfo import ZoneInfo
 
 import grpc
 from google.protobuf import wrappers_pb2
-from sqlalchemy import select
 
-from couchers.db import session_scope
-from couchers.models import EventOccurrence, EventRecurrence
 from couchers.proto import events_pb2, events_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
 from couchers.servicers.events import Events
@@ -40,6 +36,10 @@ def _int64_value(value: int | None) -> wrappers_pb2.Int64Value | None:
     return wrappers_pb2.Int64Value(value=value) if value is not None else None
 
 
+def weekly_recurrence(*, interval: int = 1, ends_on_date: date) -> events_pb2.CreateEventRecurrence:
+    return events_pb2.CreateEventRecurrence(weekly_interval=interval, ends_on_date=ends_on_date.isoformat())
+
+
 @contextmanager
 def _events_session(token: str):
     channel = FakeChannel(token)
@@ -59,6 +59,7 @@ def create_event(
     # since the API accepts local times and resolves the timezone from the location.
     start_date_time: tuple[date, time] | None = None,
     end_date_time: tuple[date, time] | None = None,
+    recurrence: events_pb2.CreateEventRecurrence | None = None,
     approve_by: Moderator | None = None,
 ) -> events_pb2.Event:
     if start_date_time is None:
@@ -76,6 +77,7 @@ def create_event(
                 location=location,
                 start_datetime_iso8601_local=_date_time_to_iso8601(start_date_time),
                 end_datetime_iso8601_local=_date_time_to_iso8601(end_date_time),
+                recurrence=recurrence,
             )
         )
 
@@ -132,6 +134,7 @@ def update_event(
     end_date_time: tuple[date, time] | None = None,
     update_all_future: bool = False,
     should_notify: bool = False,
+    stop_recurrence: bool = False,
 ) -> events_pb2.Event:
     with _events_session(token) as session:
         event: events_pb2.Event = session.UpdateEvent(
@@ -149,6 +152,7 @@ def update_event(
                     _date_time_to_iso8601(end_date_time) if end_date_time is not None else None
                 ),
                 should_notify=should_notify,
+                stop_recurrence=stop_recurrence,
             )
         )
     return event
@@ -327,36 +331,3 @@ def list_my_events(
 def cancel_event(*, token: str, event_id: int) -> None:
     with _events_session(token) as session:
         session.CancelEvent(events_pb2.CancelEventReq(event_id=event_id))
-
-
-# "x" prefix because this is not yet an API, but must be accomplished through database manipulation
-def x_make_event_recurring(
-    event: events_pb2.Event,
-    *,
-    rrule_interval: int = 1,
-    ends_on_date: date,
-) -> None:
-    with session_scope() as session:
-        occurrence = session.execute(select(EventOccurrence).where(EventOccurrence.id == event.event_id)).scalar_one()
-
-        timezone = ZoneInfo(occurrence.timezone)
-        start_datetime_in_tz = occurrence.start_time.astimezone(timezone)
-        end_datetime_in_tz = occurrence.end_time.astimezone(timezone)
-        day_delta = (end_datetime_in_tz.date() - start_datetime_in_tz.date()).days
-        session.add(
-            EventRecurrence(
-                event_id=occurrence.event_id,
-                content=occurrence.content,
-                # TODO(#9845): Initialize photo_key. Implies adding admin usage tracking infra.
-                geom=occurrence.geom,
-                address=occurrence.address,
-                timezone=occurrence.timezone,
-                dtstart_date=start_datetime_in_tz.date(),
-                start_time=start_datetime_in_tz.time(),
-                day_delta=day_delta,
-                end_time=end_datetime_in_tz.time(),
-                rrule_interval=rrule_interval,
-                last_scheduled_date=start_datetime_in_tz.date(),
-                ends_on_date=ends_on_date,
-            )
-        )
