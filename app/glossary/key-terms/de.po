@@ -130,10 +130,6 @@ msgstr "Verbindungen"
 msgid "couchers_org_team"
 msgstr "Couchers.org-Team"
 
-#. (noun) The activity of free hospitality welcome/exchange. Platform-agnostic.
-msgid "couch surfing"
-msgstr "Couch-Surfing"
-
 #. (verb) As a host, the act of declining a surfer's host request.
 msgid "host_request.decline"
 msgstr "Ablehnen"

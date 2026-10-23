@@ -154,10 +154,6 @@ msgstr "kontakty"
 msgid "couchers_org_team"
 msgstr "Tým Couchers.org"
 
-#. (noun) The activity of free hospitality welcome/exchange. Platform-agnostic.
-msgid "couch surfing"
-msgstr "surfování"
-
 #. (verb) As a host, the act of declining a surfer's host request.
 msgid "host_request.decline"
 msgstr "odmítnout"
