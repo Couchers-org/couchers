@@ -534,11 +534,11 @@ def _render_host_request__create(
         NotificationTopicAction.host_request__create,
         loc_context,
         substitutions={
-            "user": data.surfer.name,
+            "user": data.initiator.name,
             "start_date": _format_host_request_start_date(data.host_request.from_date, loc_context),
             "count": night_count,
         },
-        icon_user=data.surfer,
+        icon_user=data.initiator,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
     )
 
@@ -548,11 +548,11 @@ def _render_host_request__message(
 ) -> PushNotificationContent:
     # All strings are dynamic, no need to use _get_content
     return PushNotificationContent(
-        title=data.user.name,
-        ios_title=data.user.name,
+        title=data.counterparty.name,
+        ios_title=data.counterparty.name,
         body=data.text,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
-        icon_url=_avatar_url_or_default(data.user),
+        icon_url=_avatar_url_or_default(data.counterparty),
     )
 
 
@@ -562,8 +562,8 @@ def _render_host_request__missed_messages(
     return _get_content(
         NotificationTopicAction.host_request__missed_messages,
         loc_context,
-        substitutions={"user": data.user.name},
-        icon_user=data.user,
+        substitutions={"user": data.counterparty.name},
+        icon_user=data.counterparty,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
     )
 
@@ -574,8 +574,8 @@ def _render_host_request__reminder(
     return _get_content(
         NotificationTopicAction.host_request__reminder,
         loc_context,
-        substitutions={"user": data.surfer.name},
-        icon_user=data.surfer,
+        substitutions={"user": data.initiator.name},
+        icon_user=data.initiator,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
     )
 
@@ -587,10 +587,10 @@ def _render_host_request__accept(
         NotificationTopicAction.host_request__accept,
         loc_context,
         substitutions={
-            "user": data.host.name,
+            "user": data.recipient.name,
             "date": _format_host_request_start_date(data.host_request.from_date, loc_context),
         },
-        icon_user=data.host,
+        icon_user=data.recipient,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
     )
 
@@ -602,10 +602,10 @@ def _render_host_request__reject(
         NotificationTopicAction.host_request__reject,
         loc_context,
         substitutions={
-            "user": data.host.name,
+            "user": data.recipient.name,
             "date": _format_host_request_start_date(data.host_request.from_date, loc_context),
         },
-        icon_user=data.host,
+        icon_user=data.recipient,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
     )
 
@@ -617,10 +617,10 @@ def _render_host_request__cancel(
         NotificationTopicAction.host_request__cancel,
         loc_context,
         substitutions={
-            "user": data.surfer.name,
+            "user": data.initiator.name,
             "date": _format_host_request_start_date(data.host_request.from_date, loc_context),
         },
-        icon_user=data.surfer,
+        icon_user=data.initiator,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
     )
 
@@ -632,10 +632,10 @@ def _render_host_request__confirm(
         NotificationTopicAction.host_request__confirm,
         loc_context,
         substitutions={
-            "user": data.surfer.name,
+            "user": data.initiator.name,
             "date": _format_host_request_start_date(data.host_request.from_date, loc_context),
         },
-        icon_user=data.surfer,
+        icon_user=data.initiator,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
     )
 
