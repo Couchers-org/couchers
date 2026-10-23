@@ -152,5 +152,6 @@
   "new_discussion_button": "Neuer Beitrag",
   "comment_edited_date2": "Bearbeitet <timeAgo/>",
   "discussion_edited_date2": "Bearbeitet <timeAgo/>",
-  "add_to_calendar": "Zum Kalender hinzufügen"
+  "add_to_calendar": "Zum Kalender hinzufügen",
+  "couch_crashes_prompt": "Suchst du etwas Größeres? <crashesLink>Sieh dir die kommenden Couch Crashes an</crashesLink>"
 }
