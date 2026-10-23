@@ -243,7 +243,7 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
       setShowInviteCommunitySuccess(true);
       router.replace(routeToEvent(eventId, eventSlug), undefined, { shallow: true });
     }
-  }, [router.isReady, router.query.inviteSuccess]);
+  }, [router, eventId, eventSlug]);
 
   useEffect(() => {
     if (event?.slug && event.slug !== eventSlug) {
