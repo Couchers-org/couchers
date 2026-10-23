@@ -51,13 +51,13 @@ from couchers.proto import (
 from couchers.proto.internal import jobs_pb2, unsubscribe_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.utils import not_none, now
+from tests.fixtures.api import notifications as notifications_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
 from tests.fixtures.sessions import (
     api_session,
     auth_api_session,
     conversations_session,
-    notifications_session,
     real_editor_session,
 )
 
@@ -69,19 +69,17 @@ def test_SetNotificationSettings_preferences_respected_editable(db, enabled):
     # enable a notification type and check it gets delivered
     topic_action = NotificationTopicAction.badge__add
 
-    with notifications_session(token) as notifications:
-        notifications.SetNotificationSettings(
-            notifications_pb2.SetNotificationSettingsReq(
-                preferences=[
-                    notifications_pb2.SingleNotificationPreference(
-                        topic=topic_action.topic,
-                        action=topic_action.action,
-                        delivery_method="push",
-                        enabled=enabled,
-                    )
-                ],
+    notifications_api.set_notification_settings(
+        token=token,
+        preferences=[
+            notifications_pb2.SingleNotificationPreference(
+                topic=topic_action.topic,
+                action=topic_action.action,
+                delivery_method="push",
+                enabled=enabled,
             )
-        )
+        ],
+    )
 
     with session_scope() as session:
         notify(
@@ -119,22 +117,20 @@ def test_SetNotificationSettings_preferences_not_editable(db):
     # enable a notification type and check it gets delivered
     topic_action = NotificationTopicAction.password_reset__start
 
-    with notifications_session(token) as notifications:
-        with pytest.raises(grpc.RpcError) as e:
-            notifications.SetNotificationSettings(
-                notifications_pb2.SetNotificationSettingsReq(
-                    preferences=[
-                        notifications_pb2.SingleNotificationPreference(
-                            topic=topic_action.topic,
-                            action=topic_action.action,
-                            delivery_method="push",
-                            enabled=False,
-                        )
-                    ],
+    with pytest.raises(grpc.RpcError) as e:
+        notifications_api.set_notification_settings(
+            token=token,
+            preferences=[
+                notifications_pb2.SingleNotificationPreference(
+                    topic=topic_action.topic,
+                    action=topic_action.action,
+                    delivery_method="push",
+                    enabled=False,
                 )
-            )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "That notification preference is not user editable."
+            ],
+        )
+    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+    assert e.value.details() == "That notification preference is not user editable."
 
 
 def test_unsubscribe(db, email_collector: EmailCollector):
@@ -145,20 +141,18 @@ def test_unsubscribe(db, email_collector: EmailCollector):
     topic_action = NotificationTopicAction.badge__add
 
     # first enable email notifs
-    with notifications_session(token) as notifications:
-        notifications.SetNotificationSettings(
-            notifications_pb2.SetNotificationSettingsReq(
-                preferences=[
-                    notifications_pb2.SingleNotificationPreference(
-                        topic=topic_action.topic,
-                        action=topic_action.action,
-                        delivery_method=method,
-                        enabled=enabled,
-                    )
-                    for method, enabled in [("email", True), ("digest", False), ("push", False)]
-                ],
+    notifications_api.set_notification_settings(
+        token=token,
+        preferences=[
+            notifications_pb2.SingleNotificationPreference(
+                topic=topic_action.topic,
+                action=topic_action.action,
+                delivery_method=method,
+                enabled=enabled,
             )
-        )
+            for method, enabled in [("email", True), ("digest", False), ("push", False)]
+        ],
+    )
 
     with session_scope() as session:
         notify(
@@ -200,8 +194,7 @@ def test_unsubscribe(db, email_collector: EmailCollector):
     else:
         raise Exception("Didn't find link")
 
-    with notifications_session(token) as notifications:
-        res = notifications.GetNotificationSettings(notifications_pb2.GetNotificationSettingsReq())
+    res = notifications_api.get_notification_settings(token=token)
 
     for group in res.groups:
         for topic in group.topics:
@@ -287,8 +280,7 @@ def test_get_do_not_email(db):
         user = session.execute(select(User)).scalar_one()
         user.do_not_email = False
 
-    with notifications_session(token) as notifications:
-        res = notifications.GetNotificationSettings(notifications_pb2.GetNotificationSettingsReq())
+    res = notifications_api.get_notification_settings(token=token)
     assert not res.do_not_email_enabled
 
     with session_scope() as session:
@@ -297,8 +289,7 @@ def test_get_do_not_email(db):
         user.hosting_status = HostingStatus.cant_host
         user.meetup_status = MeetupStatus.does_not_want_to_meetup
 
-    with notifications_session(token) as notifications:
-        res = notifications.GetNotificationSettings(notifications_pb2.GetNotificationSettingsReq())
+    res = notifications_api.get_notification_settings(token=token)
     assert res.do_not_email_enabled
 
 
@@ -311,15 +302,13 @@ def test_set_do_not_email(db):
         user.hosting_status = HostingStatus.can_host
         user.meetup_status = MeetupStatus.wants_to_meetup
 
-    with notifications_session(token) as notifications:
-        notifications.SetNotificationSettings(notifications_pb2.SetNotificationSettingsReq(enable_do_not_email=False))
+    notifications_api.set_notification_settings(token=token, enable_do_not_email=False)
 
     with session_scope() as session:
         user = session.execute(select(User)).scalar_one()
         assert not user.do_not_email
 
-    with notifications_session(token) as notifications:
-        notifications.SetNotificationSettings(notifications_pb2.SetNotificationSettingsReq(enable_do_not_email=True))
+    notifications_api.set_notification_settings(token=token, enable_do_not_email=True)
 
     with session_scope() as session:
         user = session.execute(select(User)).scalar_one()
@@ -327,8 +316,7 @@ def test_set_do_not_email(db):
         assert user.hosting_status == HostingStatus.cant_host
         assert user.meetup_status == MeetupStatus.does_not_want_to_meetup
 
-    with notifications_session(token) as notifications:
-        notifications.SetNotificationSettings(notifications_pb2.SetNotificationSettingsReq(enable_do_not_email=False))
+    notifications_api.set_notification_settings(token=token, enable_do_not_email=False)
 
     with session_scope() as session:
         user = session.execute(select(User)).scalar_one()
@@ -347,11 +335,10 @@ def test_list_notifications(db, push_collector: PushCollector, moderator):
     # Moderator approves the friend request so the notification is sent
     moderator.approve_friend_request(fr_id)
 
-    with notifications_session(token1) as notifications:
-        res = notifications.ListNotifications(notifications_pb2.ListNotificationsReq())
-        assert len(res.notifications) == 1
+    res = notifications_api.list_notifications(token=token1)
+    assert len(res.notifications) == 1
 
-        n = res.notifications[0]
+    n = res.notifications[0]
 
     assert n.topic == "friend_request"
     assert n.action == "create"
@@ -371,20 +358,14 @@ def test_list_notifications(db, push_collector: PushCollector, moderator):
     process_jobs()
 
     all_notifs = []
-    with notifications_session(token1) as notifications:
-        page_token = None
-        for _ in range(100):
-            res = notifications.ListNotifications(
-                notifications_pb2.ListNotificationsReq(
-                    page_size=5,
-                    page_token=page_token,
-                )
-            )
-            assert len(res.notifications) == 5 or not res.next_page_token
-            all_notifs += res.notifications
-            page_token = res.next_page_token
-            if not page_token:
-                break
+    page_token = None
+    for _ in range(100):
+        res = notifications_api.list_notifications(token=token1, page_size=5, page_token=page_token)
+        assert len(res.notifications) == 5 or not res.next_page_token
+        all_notifs += res.notifications
+        page_token = res.next_page_token
+        if not page_token:
+            break
 
     bodys = [f"Test message {16 - i}" for i in range(17)] + [f"{user2.name} wants to be your friend."]
     assert bodys == [n.body for n in all_notifs]
@@ -410,8 +391,8 @@ def test_notifications_seen(db, push_collector: PushCollector, moderator):
     moderator.approve_friend_request(fr_id2)
     moderator.approve_friend_request(fr_id3)
 
-    with notifications_session(token1) as notifications, api_session(token1) as api:
-        res = notifications.ListNotifications(notifications_pb2.ListNotificationsReq())
+    with api_session(token1) as api:
+        res = notifications_api.list_notifications(token=token1)
         assert len(res.notifications) == 2
         assert [n.is_seen for n in res.notifications] == [False, False]
         notification_ids = [n.notification_id for n in res.notifications]
@@ -428,34 +409,28 @@ def test_notifications_seen(db, push_collector: PushCollector, moderator):
     # Moderator approves the friend request so notification is sent
     moderator.approve_friend_request(fr_id4)
 
-    with notifications_session(token1) as notifications, api_session(token1) as api:
+    with api_session(token1) as api:
         # mark everything before just the last one as seen (pretend we didn't load the last one yet in the api)
-        notifications.MarkAllNotificationsSeen(
-            notifications_pb2.MarkAllNotificationsSeenReq(latest_notification_id=notification_ids[0])
-        )
+        notifications_api.mark_all_notifications_seen(token=token1, latest_notification_id=notification_ids[0])
 
         # last one is still unseen
         assert api.Ping(api_pb2.PingReq()).unseen_notification_count == 1
 
         # mark the first one unseen
-        notifications.MarkNotificationSeen(
-            notifications_pb2.MarkNotificationSeenReq(notification_id=notification_ids[1], set_seen=False)
-        )
+        notifications_api.mark_notification_seen(token=token1, notification_id=notification_ids[1], set_seen=False)
         assert api.Ping(api_pb2.PingReq()).unseen_notification_count == 2
 
         # mark the last one seen
-        res = notifications.ListNotifications(notifications_pb2.ListNotificationsReq())
+        res = notifications_api.list_notifications(token=token1)
         assert len(res.notifications) == 3
         assert [n.is_seen for n in res.notifications] == [False, True, False]
         notification_ids2 = [n.notification_id for n in res.notifications]
 
         assert api.Ping(api_pb2.PingReq()).unseen_notification_count == 2
 
-        notifications.MarkNotificationSeen(
-            notifications_pb2.MarkNotificationSeenReq(notification_id=notification_ids2[0], set_seen=True)
-        )
+        notifications_api.mark_notification_seen(token=token1, notification_id=notification_ids2[0], set_seen=True)
 
-        res = notifications.ListNotifications(notifications_pb2.ListNotificationsReq())
+        res = notifications_api.list_notifications(token=token1)
         assert len(res.notifications) == 3
         assert [n.is_seen for n in res.notifications] == [True, True, False]
 
@@ -512,19 +487,17 @@ def test_notifications_follow_the_visibility_of_their_content(db, moderator, vis
     for token, expected in [(author_token, author_sees), (other_token, other_sees)]:
         with api_session(token) as api:
             assert api.Ping(api_pb2.PingReq()).unseen_notification_count == expected
-        with notifications_session(token) as notifications:
-            res = notifications.ListNotifications(notifications_pb2.ListNotificationsReq())
-            assert len(res.notifications) == expected
+        res = notifications_api.list_notifications(token=token)
+        assert len(res.notifications) == expected
 
 
 def test_GetVapidPublicKey(db):
     _, token = generate_user()
 
-    with notifications_session(token) as notifications:
-        assert (
-            notifications.GetVapidPublicKey(empty_pb2.Empty()).vapid_public_key
-            == "BApMo2tGuon07jv-pEaAKZmVo6E_d4HfcdDeV6wx2k9wV8EovJ0ve00bdLzZm9fizDrGZXRYJFqCcRJUfBcgA0A"
-        )
+    assert (
+        notifications_api.get_vapid_public_key(token=token).vapid_public_key
+        == "BApMo2tGuon07jv-pEaAKZmVo6E_d4HfcdDeV6wx2k9wV8EovJ0ve00bdLzZm9fizDrGZXRYJFqCcRJUfBcgA0A"
+    )
 
 
 def test_RegisterPushNotificationSubscription(db):
@@ -539,12 +512,10 @@ def test_RegisterPushNotificationSubscription(db):
         },
     }
 
-    with notifications_session(token) as notifications:
-        res = notifications.RegisterPushNotificationSubscription(
-            notifications_pb2.RegisterPushNotificationSubscriptionReq(
-                full_subscription_json=json.dumps(subscription_info),
-            )
-        )
+    notifications_api.register_push_notification_subscription(
+        token=token,
+        full_subscription_json=json.dumps(subscription_info),
+    )
 
 
 def test_RegisterPushNotificationSubscription_invalid_endpoint(db):
@@ -559,21 +530,18 @@ def test_RegisterPushNotificationSubscription_invalid_endpoint(db):
         },
     }
 
-    with notifications_session(token) as notifications:
-        with pytest.raises(grpc.RpcError) as e:
-            notifications.RegisterPushNotificationSubscription(
-                notifications_pb2.RegisterPushNotificationSubscriptionReq(
-                    full_subscription_json=json.dumps(subscription_info),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    with pytest.raises(grpc.RpcError) as e:
+        notifications_api.register_push_notification_subscription(
+            token=token,
+            full_subscription_json=json.dumps(subscription_info),
+        )
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_SendTestPushNotification(db, push_collector: PushCollector):
     user, token = generate_user()
 
-    with notifications_session(token) as notifications:
-        notifications.SendTestPushNotification(empty_pb2.Empty())
+    notifications_api.send_test_push_notification(token=token)
 
     assert push_collector.count_for_user(user.id) == 1
     push = push_collector.pop_for_user(user.id, last=True)
@@ -592,33 +560,29 @@ def test_SendBlogPostNotification(db, email_collector: EmailCollector, push_coll
 
     topic_action = NotificationTopicAction.general__new_blog_post
 
-    with notifications_session(user2_token) as notifications:
-        notifications.SetNotificationSettings(
-            notifications_pb2.SetNotificationSettingsReq(
-                preferences=[
-                    notifications_pb2.SingleNotificationPreference(
-                        topic=topic_action.topic,
-                        action=topic_action.action,
-                        delivery_method="email",
-                        enabled=True,
-                    )
-                ],
+    notifications_api.set_notification_settings(
+        token=user2_token,
+        preferences=[
+            notifications_pb2.SingleNotificationPreference(
+                topic=topic_action.topic,
+                action=topic_action.action,
+                delivery_method="email",
+                enabled=True,
             )
-        )
+        ],
+    )
 
-    with notifications_session(user3_token) as notifications:
-        notifications.SetNotificationSettings(
-            notifications_pb2.SetNotificationSettingsReq(
-                preferences=[
-                    notifications_pb2.SingleNotificationPreference(
-                        topic=topic_action.topic,
-                        action=topic_action.action,
-                        delivery_method="push",
-                        enabled=False,
-                    )
-                ],
+    notifications_api.set_notification_settings(
+        token=user3_token,
+        preferences=[
+            notifications_pb2.SingleNotificationPreference(
+                topic=topic_action.topic,
+                action=topic_action.action,
+                delivery_method="push",
+                enabled=False,
             )
-        )
+        ],
+    )
 
     with real_editor_session(super_token) as editor_api:
         editor_api.SendBlogPostNotification(
@@ -662,25 +626,23 @@ def test_get_topic_actions_by_delivery_type(db):
     assert NotificationDeliveryType.push not in NotificationTopicAction.event__create_any.defaults
     assert NotificationDeliveryType.push not in NotificationTopicAction.discussion__create.defaults
 
-    with notifications_session(token) as notifications:
-        notifications.SetNotificationSettings(
-            notifications_pb2.SetNotificationSettingsReq(
-                preferences=[
-                    notifications_pb2.SingleNotificationPreference(
-                        topic=NotificationTopicAction.reference__receive_friend.topic,
-                        action=NotificationTopicAction.reference__receive_friend.action,
-                        delivery_method="push",
-                        enabled=False,
-                    ),
-                    notifications_pb2.SingleNotificationPreference(
-                        topic=NotificationTopicAction.event__create_any.topic,
-                        action=NotificationTopicAction.event__create_any.action,
-                        delivery_method="push",
-                        enabled=True,
-                    ),
-                ],
-            )
-        )
+    notifications_api.set_notification_settings(
+        token=token,
+        preferences=[
+            notifications_pb2.SingleNotificationPreference(
+                topic=NotificationTopicAction.reference__receive_friend.topic,
+                action=NotificationTopicAction.reference__receive_friend.action,
+                delivery_method="push",
+                enabled=False,
+            ),
+            notifications_pb2.SingleNotificationPreference(
+                topic=NotificationTopicAction.event__create_any.topic,
+                action=NotificationTopicAction.event__create_any.action,
+                delivery_method="push",
+                enabled=True,
+            ),
+        ],
+    )
 
     with session_scope() as session:
         deliver = get_topic_actions_by_delivery_type(session, user.id, NotificationDeliveryType.push)
@@ -700,8 +662,7 @@ def test_reset_preference(db):
     assert NotificationDeliveryType.email not in topic_action.defaults
 
     def get_setting() -> notifications_pb2.NotificationItem:
-        with notifications_session(token) as notifications:
-            res = notifications.GetNotificationSettings(notifications_pb2.GetNotificationSettingsReq())
+        res = notifications_api.get_notification_settings(token=token)
         items: list[notifications_pb2.NotificationItem] = [
             item
             for group in res.groups
@@ -713,20 +674,18 @@ def test_reset_preference(db):
         (item,) = items
         return item
 
-    with notifications_session(token) as notifications:
-        notifications.SetNotificationSettings(
-            notifications_pb2.SetNotificationSettingsReq(
-                preferences=[
-                    notifications_pb2.SingleNotificationPreference(
-                        topic=topic_action.topic,
-                        action=topic_action.action,
-                        delivery_method=delivery_method,
-                        enabled=True,
-                    )
-                    for delivery_method in ["push", "email"]
-                ]
+    notifications_api.set_notification_settings(
+        token=token,
+        preferences=[
+            notifications_pb2.SingleNotificationPreference(
+                topic=topic_action.topic,
+                action=topic_action.action,
+                delivery_method=delivery_method,
+                enabled=True,
             )
-        )
+            for delivery_method in ["push", "email"]
+        ],
+    )
 
     assert get_setting().push
     assert get_setting().email
@@ -824,14 +783,12 @@ def test_notify_many(db):
 def test_RegisterMobilePushNotificationSubscription(db):
     user, token = generate_user()
 
-    with notifications_session(token) as notifications:
-        notifications.RegisterMobilePushNotificationSubscription(
-            notifications_pb2.RegisterMobilePushNotificationSubscriptionReq(
-                token="ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]",
-                device_name="My iPhone",
-                device_type="ios",
-            )
-        )
+    notifications_api.register_mobile_push_notification_subscription(
+        token=token,
+        push_token="ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]",
+        device_name="My iPhone",
+        device_type="ios",
+    )
 
     # Check subscription was created
     with session_scope() as session:
@@ -848,14 +805,12 @@ def test_RegisterMobilePushNotificationSubscription(db):
 def test_RegisterMobilePushNotificationSubscription_android(db):
     user, token = generate_user()
 
-    with notifications_session(token) as notifications:
-        notifications.RegisterMobilePushNotificationSubscription(
-            notifications_pb2.RegisterMobilePushNotificationSubscriptionReq(
-                token="ExponentPushToken[yyyyyyyyyyyyyyyyyyyyyy]",
-                device_name="My Android",
-                device_type="android",
-            )
-        )
+    notifications_api.register_mobile_push_notification_subscription(
+        token=token,
+        push_token="ExponentPushToken[yyyyyyyyyyyyyyyyyyyyyy]",
+        device_name="My Android",
+        device_type="android",
+    )
 
     with session_scope() as session:
         sub = session.execute(
@@ -868,12 +823,10 @@ def test_RegisterMobilePushNotificationSubscription_android(db):
 def test_RegisterMobilePushNotificationSubscription_no_device_type(db):
     user, token = generate_user()
 
-    with notifications_session(token) as notifications:
-        notifications.RegisterMobilePushNotificationSubscription(
-            notifications_pb2.RegisterMobilePushNotificationSubscriptionReq(
-                token="ExponentPushToken[zzzzzzzzzzzzzzzzzzzzzz]",
-            )
-        )
+    notifications_api.register_mobile_push_notification_subscription(
+        token=token,
+        push_token="ExponentPushToken[zzzzzzzzzzzzzzzzzzzzzz]",
+    )
 
     with session_scope() as session:
         sub = session.execute(
@@ -902,14 +855,12 @@ def test_RegisterMobilePushNotificationSubscription_re_enable(db):
         sub_id = sub.id
 
     # Re-register with the same token
-    with notifications_session(token) as notifications:
-        notifications.RegisterMobilePushNotificationSubscription(
-            notifications_pb2.RegisterMobilePushNotificationSubscriptionReq(
-                token="ExponentPushToken[reeeeeeeeeeeeeeeeeeeee]",
-                device_name="New Device Name",
-                device_type="android",
-            )
-        )
+    notifications_api.register_mobile_push_notification_subscription(
+        token=token,
+        push_token="ExponentPushToken[reeeeeeeeeeeeeeeeeeeee]",
+        device_name="New Device Name",
+        device_type="android",
+    )
 
     # Check subscription was re-enabled and updated
     with session_scope() as session:
@@ -936,13 +887,11 @@ def test_RegisterMobilePushNotificationSubscription_already_exists(db):
         session.add(sub)
 
     # Try to register with the same token - should just return without error
-    with notifications_session(token) as notifications:
-        notifications.RegisterMobilePushNotificationSubscription(
-            notifications_pb2.RegisterMobilePushNotificationSubscriptionReq(
-                token="ExponentPushToken[existingtoken]",
-                device_name="Different Name",
-            )
-        )
+    notifications_api.register_mobile_push_notification_subscription(
+        token=token,
+        push_token="ExponentPushToken[existingtoken]",
+        device_name="Different Name",
+    )
 
     # Check subscription was NOT modified (already active)
     with session_scope() as session:
@@ -957,8 +906,7 @@ def test_RegisterMobilePushNotificationSubscription_already_exists(db):
 def test_SendTestMobilePushNotification(db, push_collector: PushCollector):
     user, token = generate_user()
 
-    with notifications_session(token) as notifications:
-        notifications.SendTestMobilePushNotification(empty_pb2.Empty())
+    notifications_api.send_test_mobile_push_notification(token=token)
 
     push = push_collector.pop_for_user(user.id, last=True)
     assert push.content.title == "Mobile notifications test"
@@ -1192,17 +1140,15 @@ def test_SendDevPushNotification_success(db, push_collector: PushCollector):
     # Enable dev APIs for this test
     config.ENABLE_DEV_APIS = True
 
-    with notifications_session(token) as notifications:
-        notifications.SendDevPushNotification(
-            notifications_pb2.SendDevPushNotificationReq(
-                title="Test Dev Title",
-                body="Test dev notification body",
-                icon="https://example.com/icon.png",
-                url="https://example.com/action",
-                key="test-key",
-                ttl=3600,
-            )
-        )
+    notifications_api.send_dev_push_notification(
+        token=token,
+        title="Test Dev Title",
+        body="Test dev notification body",
+        icon="https://example.com/icon.png",
+        url="https://example.com/action",
+        key="test-key",
+        ttl=3600,
+    )
 
     push = push_collector.pop_for_user(user.id, last=True)
     assert push.content.title == "Test Dev Title"
@@ -1220,13 +1166,11 @@ def test_SendDevPushNotification_minimal(db, push_collector: PushCollector):
 
     config.ENABLE_DEV_APIS = True
 
-    with notifications_session(token) as notifications:
-        notifications.SendDevPushNotification(
-            notifications_pb2.SendDevPushNotificationReq(
-                title="Minimal Title",
-                body="Minimal body",
-            )
-        )
+    notifications_api.send_dev_push_notification(
+        token=token,
+        title="Minimal Title",
+        body="Minimal body",
+    )
 
     push = push_collector.pop_for_user(user.id, last=True)
     assert push.content.title == "Minimal Title"
@@ -1241,16 +1185,14 @@ def test_SendDevPushNotification_disabled(db, push_collector: PushCollector):
     # Ensure dev APIs are disabled (default in tests)
     config.ENABLE_DEV_APIS = False
 
-    with notifications_session(token) as notifications:
-        with pytest.raises(grpc.RpcError) as e:
-            notifications.SendDevPushNotification(
-                notifications_pb2.SendDevPushNotificationReq(
-                    title="Should Fail",
-                    body="This should not be sent",
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.UNAVAILABLE
-        assert "Development APIs are not enabled" in not_none(e.value.details())
+    with pytest.raises(grpc.RpcError) as e:
+        notifications_api.send_dev_push_notification(
+            token=token,
+            title="Should Fail",
+            body="This should not be sent",
+        )
+    assert e.value.code() == grpc.StatusCode.UNAVAILABLE
+    assert "Development APIs are not enabled" in not_none(e.value.details())
 
     assert push_collector.count_for_user(user.id) == 0
 
@@ -1262,16 +1204,14 @@ def test_SendDevPushNotification_push_notifications_disabled(db, push_collector:
     config.ENABLE_DEV_APIS = True
     config.PUSH_NOTIFICATIONS_ENABLED = False
 
-    with notifications_session(token) as notifications:
-        with pytest.raises(grpc.RpcError) as e:
-            notifications.SendDevPushNotification(
-                notifications_pb2.SendDevPushNotificationReq(
-                    title="Should Fail",
-                    body="This should not be sent",
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.UNAVAILABLE
-        assert "Push notifications are currently disabled" in not_none(e.value.details())
+    with pytest.raises(grpc.RpcError) as e:
+        notifications_api.send_dev_push_notification(
+            token=token,
+            title="Should Fail",
+            body="This should not be sent",
+        )
+    assert e.value.code() == grpc.StatusCode.UNAVAILABLE
+    assert "Push notifications are currently disabled" in not_none(e.value.details())
 
     assert push_collector.count_for_user(user.id) == 0
 
@@ -1391,10 +1331,7 @@ def test_DebugRedeliverPushNotification_success(db, push_collector: PushCollecto
         notification_id = notification.id
 
     # Redeliver the notification
-    with notifications_session(token) as notifications:
-        notifications.DebugRedeliverPushNotification(
-            notifications_pb2.DebugRedeliverPushNotificationReq(notification_id=notification_id)
-        )
+    notifications_api.debug_redeliver_push_notification(token=token, notification_id=notification_id)
 
     # Verify a new push was sent
     push = push_collector.pop_for_user(user.id, last=True)
@@ -1409,13 +1346,10 @@ def test_DebugRedeliverPushNotification_not_found(db, push_collector: PushCollec
 
     config.ENABLE_DEV_APIS = True
 
-    with notifications_session(token) as notifications:
-        with pytest.raises(grpc.RpcError) as e:
-            notifications.DebugRedeliverPushNotification(
-                notifications_pb2.DebugRedeliverPushNotificationReq(notification_id=999999)
-            )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert "notification not found" in not_none(e.value.details()).lower()
+    with pytest.raises(grpc.RpcError) as e:
+        notifications_api.debug_redeliver_push_notification(token=token, notification_id=999999)
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    assert "notification not found" in not_none(e.value.details()).lower()
 
     assert push_collector.count_for_user(user.id) == 0
 
@@ -1449,13 +1383,10 @@ def test_DebugRedeliverPushNotification_wrong_user(db, push_collector: PushColle
         notification_id = notification.id
 
     # user2 tries to redeliver user1's notification
-    with notifications_session(token2) as notifications:
-        with pytest.raises(grpc.RpcError) as e:
-            notifications.DebugRedeliverPushNotification(
-                notifications_pb2.DebugRedeliverPushNotificationReq(notification_id=notification_id)
-            )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert "notification not found" in not_none(e.value.details()).lower()
+    with pytest.raises(grpc.RpcError) as e:
+        notifications_api.debug_redeliver_push_notification(token=token2, notification_id=notification_id)
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    assert "notification not found" in not_none(e.value.details()).lower()
 
     assert push_collector.count_for_user(user2.id) == 0
 
@@ -1466,13 +1397,10 @@ def test_DebugRedeliverPushNotification_disabled(db, push_collector: PushCollect
 
     config.ENABLE_DEV_APIS = False
 
-    with notifications_session(token) as notifications:
-        with pytest.raises(grpc.RpcError) as e:
-            notifications.DebugRedeliverPushNotification(
-                notifications_pb2.DebugRedeliverPushNotificationReq(notification_id=1)
-            )
-        assert e.value.code() == grpc.StatusCode.UNAVAILABLE
-        assert "Development APIs are not enabled" in not_none(e.value.details())
+    with pytest.raises(grpc.RpcError) as e:
+        notifications_api.debug_redeliver_push_notification(token=token, notification_id=1)
+    assert e.value.code() == grpc.StatusCode.UNAVAILABLE
+    assert "Development APIs are not enabled" in not_none(e.value.details())
 
     assert push_collector.count_for_user(user.id) == 0
 
@@ -1484,13 +1412,10 @@ def test_DebugRedeliverPushNotification_push_notifications_disabled(db, push_col
     config.ENABLE_DEV_APIS = True
     config.PUSH_NOTIFICATIONS_ENABLED = False
 
-    with notifications_session(token) as notifications:
-        with pytest.raises(grpc.RpcError) as e:
-            notifications.DebugRedeliverPushNotification(
-                notifications_pb2.DebugRedeliverPushNotificationReq(notification_id=1)
-            )
-        assert e.value.code() == grpc.StatusCode.UNAVAILABLE
-        assert "Push notifications are currently disabled" in not_none(e.value.details())
+    with pytest.raises(grpc.RpcError) as e:
+        notifications_api.debug_redeliver_push_notification(token=token, notification_id=1)
+    assert e.value.code() == grpc.StatusCode.UNAVAILABLE
+    assert "Push notifications are currently disabled" in not_none(e.value.details())
 
     assert push_collector.count_for_user(user.id) == 0
 
@@ -1502,19 +1427,17 @@ def test_handle_notification_email_delivery(db, email_collector: EmailCollector)
     topic_action = NotificationTopicAction.badge__add
 
     # Enable email notifications for this topic
-    with notifications_session(token) as notifications:
-        notifications.SetNotificationSettings(
-            notifications_pb2.SetNotificationSettingsReq(
-                preferences=[
-                    notifications_pb2.SingleNotificationPreference(
-                        topic=topic_action.topic,
-                        action=topic_action.action,
-                        delivery_method="email",
-                        enabled=True,
-                    )
-                ],
+    notifications_api.set_notification_settings(
+        token=token,
+        preferences=[
+            notifications_pb2.SingleNotificationPreference(
+                topic=topic_action.topic,
+                action=topic_action.action,
+                delivery_method="email",
+                enabled=True,
             )
-        )
+        ],
+    )
 
     with session_scope() as session:
         notify(
@@ -1583,25 +1506,23 @@ def test_handle_notification_digest_delivery(db):
     topic_action = NotificationTopicAction.badge__add
 
     # Enable only digest notifications for this topic
-    with notifications_session(token) as notifications:
-        notifications.SetNotificationSettings(
-            notifications_pb2.SetNotificationSettingsReq(
-                preferences=[
-                    notifications_pb2.SingleNotificationPreference(
-                        topic=topic_action.topic,
-                        action=topic_action.action,
-                        delivery_method="push",
-                        enabled=False,
-                    ),
-                    notifications_pb2.SingleNotificationPreference(
-                        topic=topic_action.topic,
-                        action=topic_action.action,
-                        delivery_method="digest",
-                        enabled=True,
-                    ),
-                ],
-            )
-        )
+    notifications_api.set_notification_settings(
+        token=token,
+        preferences=[
+            notifications_pb2.SingleNotificationPreference(
+                topic=topic_action.topic,
+                action=topic_action.action,
+                delivery_method="push",
+                enabled=False,
+            ),
+            notifications_pb2.SingleNotificationPreference(
+                topic=topic_action.topic,
+                action=topic_action.action,
+                delivery_method="digest",
+                enabled=True,
+            ),
+        ],
+    )
 
     with session_scope() as session:
         notify(
@@ -1636,19 +1557,17 @@ def test_handle_notification_banned_user_no_email(db, email_collector: EmailColl
     topic_action = NotificationTopicAction.badge__add
 
     # Enable email notifications
-    with notifications_session(token) as notifications:
-        notifications.SetNotificationSettings(
-            notifications_pb2.SetNotificationSettingsReq(
-                preferences=[
-                    notifications_pb2.SingleNotificationPreference(
-                        topic=topic_action.topic,
-                        action=topic_action.action,
-                        delivery_method="email",
-                        enabled=True,
-                    )
-                ],
+    notifications_api.set_notification_settings(
+        token=token,
+        preferences=[
+            notifications_pb2.SingleNotificationPreference(
+                topic=topic_action.topic,
+                action=topic_action.action,
+                delivery_method="email",
+                enabled=True,
             )
-        )
+        ],
+    )
 
     # Ban the user
     with session_scope() as session:
@@ -1678,19 +1597,17 @@ def test_handle_notification_deleted_user_no_regular_email(db, email_collector: 
     topic_action = NotificationTopicAction.badge__add
 
     # Enable email notifications
-    with notifications_session(token) as notifications:
-        notifications.SetNotificationSettings(
-            notifications_pb2.SetNotificationSettingsReq(
-                preferences=[
-                    notifications_pb2.SingleNotificationPreference(
-                        topic=topic_action.topic,
-                        action=topic_action.action,
-                        delivery_method="email",
-                        enabled=True,
-                    )
-                ],
+    notifications_api.set_notification_settings(
+        token=token,
+        preferences=[
+            notifications_pb2.SingleNotificationPreference(
+                topic=topic_action.topic,
+                action=topic_action.action,
+                delivery_method="email",
+                enabled=True,
             )
-        )
+        ],
+    )
 
     # Delete the user
     with session_scope() as session:
@@ -1747,19 +1664,17 @@ def test_handle_notification_do_not_email_respected(db, email_collector: EmailCo
     topic_action = NotificationTopicAction.badge__add
 
     # Enable email notifications
-    with notifications_session(token) as notifications:
-        notifications.SetNotificationSettings(
-            notifications_pb2.SetNotificationSettingsReq(
-                preferences=[
-                    notifications_pb2.SingleNotificationPreference(
-                        topic=topic_action.topic,
-                        action=topic_action.action,
-                        delivery_method="email",
-                        enabled=True,
-                    )
-                ],
+    notifications_api.set_notification_settings(
+        token=token,
+        preferences=[
+            notifications_pb2.SingleNotificationPreference(
+                topic=topic_action.topic,
+                action=topic_action.action,
+                delivery_method="email",
+                enabled=True,
             )
-        )
+        ],
+    )
 
     # Set do_not_email (requires hosting/meetup status to be set due to DB constraint)
     with session_scope() as session:
@@ -1972,31 +1887,29 @@ def test_handle_notification_multiple_delivery_types(
     topic_action = NotificationTopicAction.badge__add
 
     # Enable both email and push notifications
-    with notifications_session(token) as notifications:
-        notifications.SetNotificationSettings(
-            notifications_pb2.SetNotificationSettingsReq(
-                preferences=[
-                    notifications_pb2.SingleNotificationPreference(
-                        topic=topic_action.topic,
-                        action=topic_action.action,
-                        delivery_method="email",
-                        enabled=True,
-                    ),
-                    notifications_pb2.SingleNotificationPreference(
-                        topic=topic_action.topic,
-                        action=topic_action.action,
-                        delivery_method="push",
-                        enabled=True,
-                    ),
-                    notifications_pb2.SingleNotificationPreference(
-                        topic=topic_action.topic,
-                        action=topic_action.action,
-                        delivery_method="digest",
-                        enabled=True,
-                    ),
-                ],
-            )
-        )
+    notifications_api.set_notification_settings(
+        token=token,
+        preferences=[
+            notifications_pb2.SingleNotificationPreference(
+                topic=topic_action.topic,
+                action=topic_action.action,
+                delivery_method="email",
+                enabled=True,
+            ),
+            notifications_pb2.SingleNotificationPreference(
+                topic=topic_action.topic,
+                action=topic_action.action,
+                delivery_method="push",
+                enabled=True,
+            ),
+            notifications_pb2.SingleNotificationPreference(
+                topic=topic_action.topic,
+                action=topic_action.action,
+                delivery_method="digest",
+                enabled=True,
+            ),
+        ],
+    )
 
     with session_scope() as session:
         notify(
