@@ -226,6 +226,11 @@
         "respond_encouragement": "Please respond to this invitation. Even a quick decline is better than no response!"
       }
     },
+    "offer": {
+      "subject": "{{host_name}} offered to host you",
+      "purpose": "<b>{{host_name}}</b> offered to host you on your public trip:",
+      "view_action": "View offer"
+    },
     "generic": {
       "date_range": "From <b>{{from_date}}</b> to <b>{{to_date}}</b>.",
       "quick_decline_action": "Quick decline",

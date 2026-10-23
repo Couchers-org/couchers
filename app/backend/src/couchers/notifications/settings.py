@@ -111,6 +111,7 @@ settings_layout = [
                 "Host requests",
                 [
                     NotificationTopicAction.host_request__create,
+                    NotificationTopicAction.host_request__offer,
                     NotificationTopicAction.host_request__accept,
                     NotificationTopicAction.host_request__confirm,
                     NotificationTopicAction.host_request__reject,

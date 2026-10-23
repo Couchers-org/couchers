@@ -20,6 +20,7 @@ from couchers.models.notifications import NotificationTopicAction
 # topic actions whose notifications are marked seen alongside a host request being read
 HOST_REQUEST_NOTIFICATION_TOPIC_ACTIONS = [
     NotificationTopicAction.host_request__create,
+    NotificationTopicAction.host_request__offer,
     NotificationTopicAction.host_request__accept,
     NotificationTopicAction.host_request__reject,
     NotificationTopicAction.host_request__confirm,

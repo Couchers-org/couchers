@@ -409,7 +409,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                 session.flush()
 
                 # When a host request is created, the recipient immediately receives a
-                # host_request__create notification that includes the initial message text.
+                # host_request__create (or host_request__offer) notification that includes the initial message text.
                 # A few minutes later, this background job sees that same message as "unseen"
                 # (the recipient hasn't opened the request yet) and would send a duplicate
                 # missed_messages notification.
@@ -417,7 +417,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                 # To prevent this, we check if the only unseen text message in this host
                 # request is the very first text message in the conversation (i.e. the
                 # creation message). If so, we skip sending missed_messages — the user was
-                # already notified via host_request__create.
+                # already notified via host_request__create or host_request__offer.
                 #
                 # Advancing last_notified_request_message_id above is safe even when we skip
                 # the notification: this watermark is only ever advanced when we process all

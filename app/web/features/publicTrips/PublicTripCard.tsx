@@ -214,8 +214,7 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
           open={showOfferDialog}
           onClose={() => setShowOfferDialog(false)}
           tripId={trip.tripId}
-          hostUserId={user.userId}
-          hostName={user.name}
+          travelerName={user.name}
           tripFromDate={Temporal.PlainDate.from(trip.fromDate)}
           tripToDate={Temporal.PlainDate.from(trip.toDate)}
         />

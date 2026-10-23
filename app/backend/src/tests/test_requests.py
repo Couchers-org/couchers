@@ -38,6 +38,7 @@ from couchers.proto import (
     api_pb2,
     auth_pb2,
     messages_pb2,
+    public_trips_pb2,
     requests_pb2,
 )
 from couchers.proto.internal import unsubscribe_pb2
@@ -45,7 +46,7 @@ from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_
 from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_multi, today
 from tests.fixtures.db import backdate_conversations, generate_user, make_user_block
 from tests.fixtures.misc import EmailCollector, PushCollector
-from tests.fixtures.sessions import api_session, auth_api_session, requests_session
+from tests.fixtures.sessions import api_session, auth_api_session, public_trips_session, requests_session
 from tests.test_public_trips import _create_trip_directly, _make_node
 
 
@@ -435,27 +436,26 @@ def test_create_request_duplicate_window_ignores_public_trip_offers(db):
     trip_1_id = _create_public_trip(surfer.id, trip_1_from, trip_1_to)
     trip_2_id = _create_public_trip(surfer.id, trip_2_from, trip_2_to)
 
-    with requests_session(host_token) as api:
-        assert api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=surfer.id,
+    with public_trips_session(host_token) as api:
+        assert api.OfferToHost(
+            public_trips_pb2.OfferToHostReq(
+                trip_id=trip_1_id,
                 from_date=trip_1_from.isoformat(),
                 to_date=trip_1_to.isoformat(),
                 text=valid_request_text(),
-                public_trip_id=trip_1_id,
             )
         ).host_request_id
 
-        assert api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=surfer.id,
+        assert api.OfferToHost(
+            public_trips_pb2.OfferToHostReq(
+                trip_id=trip_2_id,
                 from_date=trip_2_from.isoformat(),
                 to_date=trip_2_to.isoformat(),
                 text=valid_request_text(),
-                public_trip_id=trip_2_id,
             )
         ).host_request_id
 
+    with requests_session(host_token) as api:
         # the window only counts non-trip requests, so trip offers don't block a plain request
         # even for dates they cover
         assert api.CreateHostRequest(
@@ -1686,7 +1686,7 @@ def test_mark_last_seen(db, moderator):
         assert api.Ping(api_pb2.PingReq()).unseen_sent_host_request_count == 1
 
 
-def _create_host_request_via_api(surfer_token: str, host_id: int, moderator, public_trip_id: int | None = None) -> int:
+def _create_host_request_via_api(surfer_token: str, host_id: int, moderator) -> int:
     with requests_session(surfer_token) as api:
         res = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -1694,7 +1694,20 @@ def _create_host_request_via_api(surfer_token: str, host_id: int, moderator, pub
                 from_date=(today() + timedelta(days=5)).isoformat(),
                 to_date=(today() + timedelta(days=10)).isoformat(),
                 text=valid_request_text(),
-                public_trip_id=public_trip_id,
+            )
+        )
+    moderator.approve_host_request(res.host_request_id)
+    return int(res.host_request_id)
+
+
+def _offer_to_host_via_api(host_token: str, trip_id: int, moderator) -> int:
+    with public_trips_session(host_token) as api:
+        res = api.OfferToHost(
+            public_trips_pb2.OfferToHostReq(
+                trip_id=trip_id,
+                from_date=(today() + timedelta(days=5)).isoformat(),
+                to_date=(today() + timedelta(days=10)).isoformat(),
+                text=valid_request_text(),
             )
         )
     moderator.approve_host_request(res.host_request_id)
@@ -1724,7 +1737,7 @@ def test_ping_counts_public_trip_offer_by_role(db, moderator):
     node_id = _make_node()
     trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
 
-    request_id = _create_host_request_via_api(host_token, traveler.id, moderator, public_trip_id=trip_id)
+    request_id = _offer_to_host_via_api(host_token, trip_id, moderator)
 
     # the traveller (recipient) has the offer's create message unseen: counts as surfing + public-trip offer
     with api_session(traveler_token) as api:
@@ -1747,14 +1760,14 @@ def test_ping_counts_public_trip_offer_by_role(db, moderator):
 
 
 def test_ping_public_trip_offer_count_gated_by_flag(db, moderator, feature_flags):
-    feature_flags.set("public_trips_enabled", False)
-
     traveler, traveler_token = generate_user()
     host, host_token = generate_user()
     node_id = _make_node()
     trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
 
-    _create_host_request_via_api(host_token, traveler.id, moderator, public_trip_id=trip_id)
+    _offer_to_host_via_api(host_token, trip_id, moderator)
+
+    feature_flags.set("public_trips_enabled", False)
 
     with api_session(traveler_token) as api:
         res = api.Ping(api_pb2.PingReq())
@@ -2045,7 +2058,7 @@ def test_response_rate_ignores_public_trip_offers(db, moderator):
     # the traveller leaves every offer on their trip unanswered
     for _ in range(3):
         _, host_token = generate_user()
-        _create_host_request_via_api(host_token, traveler.id, moderator, public_trip_id=trip_id)
+        _offer_to_host_via_api(host_token, trip_id, moderator)
 
     # a regular request to the traveller as a host still counts
     _create_host_request_via_api(surfer_token, traveler.id, moderator)
@@ -2374,7 +2387,7 @@ def _create_public_trip(
         return trip.id
 
 
-def test_create_request_with_public_trip(db, moderator):
+def test_offer_to_host(db, moderator):
     """Hosts can offer to host a public trip; offered dates must be within trip dates."""
     surfer, surfer_token = generate_user()
     host, host_token = generate_user()
@@ -2383,15 +2396,14 @@ def test_create_request_with_public_trip(db, moderator):
     trip_to = today() + timedelta(days=20)
     trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
 
-    with requests_session(host_token) as api:
+    with public_trips_session(host_token) as api:
         # Happy path: dates within trip window
-        res = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=surfer.id,
+        res = api.OfferToHost(
+            public_trips_pb2.OfferToHostReq(
+                trip_id=trip_id,
                 from_date=(trip_from + timedelta(days=1)).isoformat(),
                 to_date=(trip_to - timedelta(days=1)).isoformat(),
                 text=valid_request_text(),
-                public_trip_id=trip_id,
             )
         )
         host_request_id = res.host_request_id
@@ -2403,7 +2415,7 @@ def test_create_request_with_public_trip(db, moderator):
         assert hr.public_trip_id == trip_id
 
 
-def test_public_trip_offer_min_length(db):
+def test_offer_to_host_min_length(db):
     """Offers on public trips have a shorter minimum length than regular host requests."""
     surfer, _ = generate_user()
     host, host_token = generate_user()
@@ -2413,14 +2425,13 @@ def test_public_trip_offer_min_length(db):
     trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
 
     def offer(text: str) -> None:
-        with requests_session(host_token) as api:
-            api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=surfer.id,
+        with public_trips_session(host_token) as api:
+            api.OfferToHost(
+                public_trips_pb2.OfferToHostReq(
+                    trip_id=trip_id,
                     from_date=trip_from.isoformat(),
                     to_date=trip_to.isoformat(),
                     text=text,
-                    public_trip_id=trip_id,
                 )
             )
 
@@ -2433,7 +2444,7 @@ def test_public_trip_offer_min_length(db):
     offer("a" * PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16)
 
 
-def test_create_request_with_public_trip_hosting_snapshot(db, moderator):
+def test_offer_to_host_hosting_snapshot(db, moderator):
     """An offer snapshots the offering host's place, not the traveller's."""
     surfer, _ = generate_user(city="Surfer city", geom=create_coordinate(1, 1), geom_radius=11)
     host, host_token = generate_user(city="Host city", geom=create_coordinate(2, 2), geom_radius=22)
@@ -2442,14 +2453,13 @@ def test_create_request_with_public_trip_hosting_snapshot(db, moderator):
     trip_to = today() + timedelta(days=20)
     trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
 
-    with requests_session(host_token) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=surfer.id,
+    with public_trips_session(host_token) as api:
+        host_request_id = api.OfferToHost(
+            public_trips_pb2.OfferToHostReq(
+                trip_id=trip_id,
                 from_date=trip_from.isoformat(),
                 to_date=trip_to.isoformat(),
                 text=valid_request_text(),
-                public_trip_id=trip_id,
             )
         ).host_request_id
 
@@ -2472,14 +2482,13 @@ def test_public_trip_offer_stay_roles(db, moderator):
     trip_to = today() + timedelta(days=20)
     trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
 
-    with requests_session(host_token) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=surfer.id,
+    with public_trips_session(host_token) as api:
+        host_request_id = api.OfferToHost(
+            public_trips_pb2.OfferToHostReq(
+                trip_id=trip_id,
                 from_date=trip_from.isoformat(),
                 to_date=trip_to.isoformat(),
                 text=valid_request_text(),
-                public_trip_id=trip_id,
             )
         ).host_request_id
 
@@ -2504,7 +2513,7 @@ def test_public_trip_offer_stay_roles(db, moderator):
             assert [(r.surfer_user_id, r.host_user_id) for r in listed] == [(surfer.id, host.id)]
 
 
-def test_create_request_with_public_trip_dates_out_of_range(db):
+def test_offer_to_host_dates_out_of_range(db):
     """Offered dates outside the trip window are rejected."""
     surfer, _ = generate_user()
     host, host_token = generate_user()
@@ -2513,59 +2522,140 @@ def test_create_request_with_public_trip_dates_out_of_range(db):
     trip_to = today() + timedelta(days=20)
     trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
 
-    with requests_session(host_token) as api:
+    with public_trips_session(host_token) as api:
         # from_date before trip starts
         with pytest.raises(grpc.RpcError) as e:
-            api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=surfer.id,
+            api.OfferToHost(
+                public_trips_pb2.OfferToHostReq(
+                    trip_id=trip_id,
                     from_date=(trip_from - timedelta(days=1)).isoformat(),
                     to_date=(trip_from + timedelta(days=1)).isoformat(),
                     text=valid_request_text(),
-                    public_trip_id=trip_id,
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
         # to_date after trip ends
         with pytest.raises(grpc.RpcError) as e:
-            api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=surfer.id,
+            api.OfferToHost(
+                public_trips_pb2.OfferToHostReq(
+                    trip_id=trip_id,
                     from_date=(trip_to - timedelta(days=1)).isoformat(),
                     to_date=(trip_to + timedelta(days=1)).isoformat(),
                     text=valid_request_text(),
-                    public_trip_id=trip_id,
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
-def test_create_request_with_public_trip_user_mismatch(db):
-    """The host_user_id must match the public trip's traveler."""
-    trip_owner, _ = generate_user()
-    other_user, _ = generate_user()
-    host, host_token = generate_user()
+def test_offer_to_host_own_trip(db):
+    """A traveler can't offer to host their own trip."""
+    traveler, traveler_token = generate_user()
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
-    trip_id = _create_public_trip(trip_owner.id, trip_from, trip_to)
+    trip_id = _create_public_trip(traveler.id, trip_from, trip_to)
 
-    with requests_session(host_token) as api:
+    with public_trips_session(traveler_token) as api:
         with pytest.raises(grpc.RpcError) as e:
-            api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=other_user.id,  # not the trip owner
+            api.OfferToHost(
+                public_trips_pb2.OfferToHostReq(
+                    trip_id=trip_id,
                     from_date=(trip_from + timedelta(days=1)).isoformat(),
                     to_date=(trip_to - timedelta(days=1)).isoformat(),
                     text=valid_request_text(),
-                    public_trip_id=trip_id,
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "You can't offer to host your own trip."
 
 
-def test_create_request_with_closed_public_trip(db):
+def test_offer_to_host_disabled(db, feature_flags):
+    feature_flags.set("public_trips_enabled", False)
+
+    traveler, _ = generate_user()
+    _, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(traveler.id, trip_from, trip_to)
+
+    with public_trips_session(host_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.OfferToHost(
+                public_trips_pb2.OfferToHostReq(
+                    trip_id=trip_id,
+                    from_date=trip_from.isoformat(),
+                    to_date=trip_to.isoformat(),
+                    text=valid_request_text(),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.UNAVAILABLE
+
+
+def test_offer_to_host_incomplete_profile(db):
+    traveler, _ = generate_user()
+    _, host_token = generate_user(complete_profile=False)
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(traveler.id, trip_from, trip_to)
+
+    with public_trips_session(host_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.OfferToHost(
+                public_trips_pb2.OfferToHostReq(
+                    trip_id=trip_id,
+                    from_date=trip_from.isoformat(),
+                    to_date=trip_to.isoformat(),
+                    text=valid_request_text(),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "You have to complete your profile before you can offer to host."
+
+
+def test_offer_to_host_notifications(db, email_collector: EmailCollector, push_collector: PushCollector, moderator):
+    """The traveler is told the host offered to host them, not that the host wants to stay."""
+    traveler, _ = generate_user()
+    host, host_token = generate_user()
+
+    traveler_loc_context = LocalizationContext.from_user(traveler)
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(traveler.id, trip_from, trip_to)
+
+    with public_trips_session(host_token) as api:
+        hr_id = api.OfferToHost(
+            public_trips_pb2.OfferToHostReq(
+                trip_id=trip_id,
+                from_date=trip_from.isoformat(),
+                to_date=(trip_from + timedelta(days=3)).isoformat(),
+                text=valid_request_text("come stay with me"),
+            )
+        ).host_request_id
+
+    moderator.approve_host_request(hr_id)
+
+    email = email_collector.pop_for_recipient(traveler.email, last=True)
+    assert email.subject == f"{host.name} offered to host you"
+    assert host.name in email.plain
+    assert "come stay with me" in email.plain
+    assert "quick decline" not in email.plain.lower()
+    assert traveler_loc_context.localize_date(trip_from, with_year=False) in email.plain
+    assert f"http://localhost:3000/messages/request/{hr_id}" in email.plain
+
+    push = push_collector.pop_for_user(traveler.id, last=True)
+    assert push.topic_action == "host_request:offer"
+    assert push.content.title == f"{host.name} offered to host you"
+    assert "3 nights" in push.content.body
+
+    # the offering host isn't notified of their own offer
+    assert push_collector.count_for_user(host.id) == 0
+
+
+def test_offer_to_host_closed_public_trip(db):
     """Cannot offer to host a trip that's been closed."""
     surfer, _ = generate_user()
     host, host_token = generate_user()
@@ -2574,40 +2664,38 @@ def test_create_request_with_closed_public_trip(db):
     trip_to = today() + timedelta(days=20)
     trip_id = _create_public_trip(surfer.id, trip_from, trip_to, status=PublicTripStatus.closed)
 
-    with requests_session(host_token) as api:
+    with public_trips_session(host_token) as api:
         with pytest.raises(grpc.RpcError) as e:
-            api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=surfer.id,
+            api.OfferToHost(
+                public_trips_pb2.OfferToHostReq(
+                    trip_id=trip_id,
                     from_date=(trip_from + timedelta(days=1)).isoformat(),
                     to_date=(trip_to - timedelta(days=1)).isoformat(),
                     text=valid_request_text(),
-                    public_trip_id=trip_id,
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
-def test_create_request_with_nonexistent_public_trip(db):
+def test_offer_to_host_nonexistent_public_trip(db):
     """Nonexistent public trip ID returns NOT_FOUND."""
     surfer, _ = generate_user()
     host, host_token = generate_user()
 
-    with requests_session(host_token) as api:
+    with public_trips_session(host_token) as api:
         with pytest.raises(grpc.RpcError) as e:
-            api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=surfer.id,
+            api.OfferToHost(
+                public_trips_pb2.OfferToHostReq(
+                    trip_id=999999,
                     from_date=(today() + timedelta(days=2)).isoformat(),
                     to_date=(today() + timedelta(days=3)).isoformat(),
                     text=valid_request_text(),
-                    public_trip_id=999999,
                 )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
-def test_create_request_with_shadowed_public_trip(db, moderator):
+def test_offer_to_host_shadowed_public_trip(db, moderator):
     """A trip awaiting moderation can't be offered on until it's approved."""
     surfer, _ = generate_user()
     host, host_token = generate_user()
@@ -2616,15 +2704,14 @@ def test_create_request_with_shadowed_public_trip(db, moderator):
     trip_to = today() + timedelta(days=20)
     trip_id = _create_public_trip(surfer.id, trip_from, trip_to, visibility=ModerationVisibility.shadowed)
 
-    with requests_session(host_token) as api:
+    with public_trips_session(host_token) as api:
         with pytest.raises(grpc.RpcError) as e:
-            api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=surfer.id,
+            api.OfferToHost(
+                public_trips_pb2.OfferToHostReq(
+                    trip_id=trip_id,
                     from_date=(trip_from + timedelta(days=1)).isoformat(),
                     to_date=(trip_to - timedelta(days=1)).isoformat(),
                     text=valid_request_text(),
-                    public_trip_id=trip_id,
                 )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
@@ -2632,20 +2719,19 @@ def test_create_request_with_shadowed_public_trip(db, moderator):
 
     moderator.approve_public_trip(trip_id)
 
-    with requests_session(host_token) as api:
-        res = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=surfer.id,
+    with public_trips_session(host_token) as api:
+        res = api.OfferToHost(
+            public_trips_pb2.OfferToHostReq(
+                trip_id=trip_id,
                 from_date=(trip_from + timedelta(days=1)).isoformat(),
                 to_date=(trip_to - timedelta(days=1)).isoformat(),
                 text=valid_request_text(),
-                public_trip_id=trip_id,
             )
         )
         assert res.host_request_id
 
 
-def test_create_request_with_hidden_public_trip(db):
+def test_offer_to_host_hidden_public_trip(db):
     """A hidden trip can't be offered on."""
     surfer, _ = generate_user()
     host, host_token = generate_user()
@@ -2654,23 +2740,22 @@ def test_create_request_with_hidden_public_trip(db):
     trip_to = today() + timedelta(days=20)
     trip_id = _create_public_trip(surfer.id, trip_from, trip_to, visibility=ModerationVisibility.hidden)
 
-    with requests_session(host_token) as api:
+    with public_trips_session(host_token) as api:
         with pytest.raises(grpc.RpcError) as e:
-            api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=surfer.id,
+            api.OfferToHost(
+                public_trips_pb2.OfferToHostReq(
+                    trip_id=trip_id,
                     from_date=(trip_from + timedelta(days=1)).isoformat(),
                     to_date=(trip_to - timedelta(days=1)).isoformat(),
                     text=valid_request_text(),
-                    public_trip_id=trip_id,
                 )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
         assert e.value.details() == "Couldn't find that public trip."
 
 
-def test_create_request_without_public_trip_id_unchanged(db, moderator):
-    """Existing flow without public_trip_id still works (backwards compatibility)."""
+def test_create_request_has_no_public_trip_id(db, moderator):
+    """A plain host request isn't linked to a public trip."""
     surfer, _ = generate_user()
     host, host_token = generate_user()
 
@@ -2692,7 +2777,7 @@ def test_create_request_without_public_trip_id_unchanged(db, moderator):
         assert not hr.HasField("public_trip_id")
 
 
-def test_create_request_same_gender_only_wrong_gender_rejected(db):
+def test_offer_to_host_same_gender_only_wrong_gender_rejected(db):
     surfer, _ = generate_user(gender="Woman")
     _, host_token = generate_user(gender="Man")
 
@@ -2700,21 +2785,20 @@ def test_create_request_same_gender_only_wrong_gender_rejected(db):
     trip_to = today() + timedelta(days=20)
     trip_id = _create_public_trip(surfer.id, trip_from, trip_to, same_gender_only=True)
 
-    with requests_session(host_token) as api:
+    with public_trips_session(host_token) as api:
         with pytest.raises(grpc.RpcError) as e:
-            api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=surfer.id,
+            api.OfferToHost(
+                public_trips_pb2.OfferToHostReq(
+                    trip_id=trip_id,
                     from_date=trip_from.isoformat(),
                     to_date=trip_to.isoformat(),
                     text=valid_request_text(),
-                    public_trip_id=trip_id,
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
-def test_create_request_same_gender_only_same_gender_allowed(db, moderator):
+def test_offer_to_host_same_gender_only_same_gender_allowed(db, moderator):
     surfer, _ = generate_user(gender="Woman")
     _, host_token = generate_user(gender="Woman")
 
@@ -2722,20 +2806,19 @@ def test_create_request_same_gender_only_same_gender_allowed(db, moderator):
     trip_to = today() + timedelta(days=20)
     trip_id = _create_public_trip(surfer.id, trip_from, trip_to, same_gender_only=True)
 
-    with requests_session(host_token) as api:
-        res = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=surfer.id,
+    with public_trips_session(host_token) as api:
+        res = api.OfferToHost(
+            public_trips_pb2.OfferToHostReq(
+                trip_id=trip_id,
                 from_date=trip_from.isoformat(),
                 to_date=trip_to.isoformat(),
                 text=valid_request_text(),
-                public_trip_id=trip_id,
             )
         )
         assert res.host_request_id > 0
 
 
-def test_create_request_same_gender_only_moderator_bypass(db, moderator):
+def test_offer_to_host_same_gender_only_moderator_bypass(db, moderator):
     surfer, _ = generate_user(gender="Woman")
     host, host_token = generate_user(gender="Man")
 
@@ -2744,14 +2827,13 @@ def test_create_request_same_gender_only_moderator_bypass(db, moderator):
     trip_id = _create_public_trip(surfer.id, trip_from, trip_to, same_gender_only=True)
     _make_trip_node_admin(host.id, trip_id)
 
-    with requests_session(host_token) as api:
-        res = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=surfer.id,
+    with public_trips_session(host_token) as api:
+        res = api.OfferToHost(
+            public_trips_pb2.OfferToHostReq(
+                trip_id=trip_id,
                 from_date=trip_from.isoformat(),
                 to_date=trip_to.isoformat(),
                 text=valid_request_text(),
-                public_trip_id=trip_id,
             )
         )
         assert res.host_request_id > 0
@@ -2766,14 +2848,13 @@ def test_list_host_requests_public_trip_offer_by_stay_role(db, moderator):
     trip_to = today() + timedelta(days=20)
     trip_id = _create_public_trip(traveller.id, trip_from, trip_to)
 
-    with requests_session(host_token) as api:
-        offer_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=traveller.id,
+    with public_trips_session(host_token) as api:
+        offer_id = api.OfferToHost(
+            public_trips_pb2.OfferToHostReq(
+                trip_id=trip_id,
                 from_date=trip_from.isoformat(),
                 to_date=trip_to.isoformat(),
                 text=valid_request_text(),
-                public_trip_id=trip_id,
             )
         ).host_request_id
 
@@ -2799,7 +2880,7 @@ def test_list_host_requests_public_trip_offer_by_stay_role(db, moderator):
     assert res.host_requests[0].public_trip_id == trip_id
 
 
-def test_create_request_duplicate_offer_rejected(db):
+def test_offer_to_host_duplicate_offer_rejected(db):
     surfer, _ = generate_user()
     _, host_token = generate_user()
 
@@ -2807,30 +2888,28 @@ def test_create_request_duplicate_offer_rejected(db):
     trip_to = today() + timedelta(days=20)
     trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
 
-    with requests_session(host_token) as api:
-        api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=surfer.id,
+    with public_trips_session(host_token) as api:
+        api.OfferToHost(
+            public_trips_pb2.OfferToHostReq(
+                trip_id=trip_id,
                 from_date=trip_from.isoformat(),
                 to_date=trip_to.isoformat(),
                 text=valid_request_text(),
-                public_trip_id=trip_id,
             )
         )
         with pytest.raises(grpc.RpcError) as e:
-            api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=surfer.id,
+            api.OfferToHost(
+                public_trips_pb2.OfferToHostReq(
+                    trip_id=trip_id,
                     from_date=trip_from.isoformat(),
                     to_date=trip_to.isoformat(),
                     text=valid_request_text(),
-                    public_trip_id=trip_id,
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
-def test_create_request_offer_allowed_after_withdrawal(db, moderator):
+def test_offer_to_host_allowed_after_withdrawal(db, moderator):
     """Withdrawing an offer frees the host to offer again, e.g. to renegotiate dates."""
     surfer, _ = generate_user()
     _, host_token = generate_user()
@@ -2839,14 +2918,13 @@ def test_create_request_offer_allowed_after_withdrawal(db, moderator):
     trip_to = today() + timedelta(days=20)
     trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
 
-    with requests_session(host_token) as api:
-        request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=surfer.id,
+    with public_trips_session(host_token) as api:
+        request_id = api.OfferToHost(
+            public_trips_pb2.OfferToHostReq(
+                trip_id=trip_id,
                 from_date=trip_from.isoformat(),
                 to_date=trip_to.isoformat(),
                 text=valid_request_text(),
-                public_trip_id=trip_id,
             )
         ).host_request_id
 
@@ -2859,27 +2937,26 @@ def test_create_request_offer_allowed_after_withdrawal(db, moderator):
             )
         )
 
+    with public_trips_session(host_token) as api:
         # a second offer on shorter dates now goes through
-        res = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=surfer.id,
+        res = api.OfferToHost(
+            public_trips_pb2.OfferToHostReq(
+                trip_id=trip_id,
                 from_date=trip_from.isoformat(),
                 to_date=(trip_to - timedelta(days=2)).isoformat(),
                 text=valid_request_text(),
-                public_trip_id=trip_id,
             )
         )
         assert res.host_request_id != request_id
 
         # ...but that new offer is active, so a third is still blocked
         with pytest.raises(grpc.RpcError) as e:
-            api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=surfer.id,
+            api.OfferToHost(
+                public_trips_pb2.OfferToHostReq(
+                    trip_id=trip_id,
                     from_date=trip_from.isoformat(),
                     to_date=trip_to.isoformat(),
                     text=valid_request_text(),
-                    public_trip_id=trip_id,
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
@@ -2894,14 +2971,13 @@ def test_no_feedback_for_declined_public_trip_offer(db, moderator):
     trip_to = today() + timedelta(days=20)
     trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
 
-    with requests_session(host_token) as api:
-        request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=surfer.id,
+    with public_trips_session(host_token) as api:
+        request_id = api.OfferToHost(
+            public_trips_pb2.OfferToHostReq(
+                trip_id=trip_id,
                 from_date=trip_from.isoformat(),
                 to_date=trip_to.isoformat(),
                 text=valid_request_text(),
-                public_trip_id=trip_id,
             )
         ).host_request_id
 
@@ -2939,14 +3015,13 @@ def test_db_allows_one_active_offer_per_trip(db, moderator):
     trip_to = today() + timedelta(days=20)
     trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
 
-    with requests_session(host_token) as api:
-        withdrawn_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=surfer.id,
+    with public_trips_session(host_token) as api:
+        withdrawn_id = api.OfferToHost(
+            public_trips_pb2.OfferToHostReq(
+                trip_id=trip_id,
                 from_date=trip_from.isoformat(),
                 to_date=trip_to.isoformat(),
                 text=valid_request_text(),
-                public_trip_id=trip_id,
             )
         ).host_request_id
 
@@ -2958,13 +3033,14 @@ def test_db_allows_one_active_offer_per_trip(db, moderator):
                 host_request_id=withdrawn_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
             )
         )
-        api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=surfer.id,
+
+    with public_trips_session(host_token) as api:
+        api.OfferToHost(
+            public_trips_pb2.OfferToHostReq(
+                trip_id=trip_id,
                 from_date=trip_from.isoformat(),
                 to_date=trip_to.isoformat(),
                 text=valid_request_text(),
-                public_trip_id=trip_id,
             )
         )
 
@@ -2984,7 +3060,7 @@ def test_public_trip_offer_responses_arent_host_response_metrics(db, moderator):
     _, host_token = generate_user()
     other_host, other_host_token = generate_user()
     trip_id = _create_public_trip(traveller.id, today() + timedelta(days=5), today() + timedelta(days=10))
-    offer_id = _create_host_request_via_api(host_token, traveller.id, moderator, public_trip_id=trip_id)
+    offer_id = _offer_to_host_via_api(host_token, trip_id, moderator)
     request_id = _create_host_request_via_api(traveller_token, other_host.id, moderator)
 
     with patch.multiple(
@@ -3027,7 +3103,7 @@ def test_public_trip_offers_are_counted_separately_from_host_requests(db, modera
         account_age_on_host_request_create_histogram=DEFAULT,
         public_trip_offers_sent_counter=DEFAULT,
     ) as metrics:
-        _create_host_request_via_api(host_token, traveller.id, moderator, public_trip_id=trip_id)
+        _offer_to_host_via_api(host_token, trip_id, moderator)
         metrics["host_requests_sent_counter"].labels.assert_not_called()
         metrics["account_age_on_host_request_create_histogram"].labels.assert_not_called()
         metrics["public_trip_offers_sent_counter"].labels.assert_called_once_with("Man", "Woman")
@@ -3047,17 +3123,16 @@ def test_excessive_public_trip_offers_report_the_traveller_as_recipient(
     trip_to = today() + timedelta(days=10)
 
     travellers = []
-    with requests_session(host_token) as api:
+    with public_trips_session(host_token) as api:
         for _ in range(rate_limit_definition.warning_limit + 1):
             traveller, _ = generate_user()
             travellers.append(traveller)
-            api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=traveller.id,
+            api.OfferToHost(
+                public_trips_pb2.OfferToHostReq(
+                    trip_id=_create_public_trip(traveller.id, trip_from, trip_to),
                     from_date=trip_from.isoformat(),
                     to_date=trip_to.isoformat(),
                     text=valid_request_text(),
-                    public_trip_id=_create_public_trip(traveller.id, trip_from, trip_to),
                 )
             )
 
@@ -3069,7 +3144,7 @@ def test_excessive_public_trip_offers_report_the_traveller_as_recipient(
     assert travellers[0].username in email.plain
 
 
-def test_create_request_offer_blocked_after_traveller_declines(db, moderator):
+def test_offer_to_host_blocked_after_traveller_declines(db, moderator):
     """Only the host withdrawing frees them to re-offer; being declined does not."""
     surfer, surfer_token = generate_user()
     _, host_token = generate_user()
@@ -3078,14 +3153,13 @@ def test_create_request_offer_blocked_after_traveller_declines(db, moderator):
     trip_to = today() + timedelta(days=20)
     trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
 
-    with requests_session(host_token) as api:
-        request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=surfer.id,
+    with public_trips_session(host_token) as api:
+        request_id = api.OfferToHost(
+            public_trips_pb2.OfferToHostReq(
+                trip_id=trip_id,
                 from_date=trip_from.isoformat(),
                 to_date=trip_to.isoformat(),
                 text=valid_request_text(),
-                public_trip_id=trip_id,
             )
         ).host_request_id
 
@@ -3099,15 +3173,14 @@ def test_create_request_offer_blocked_after_traveller_declines(db, moderator):
             )
         )
 
-    with requests_session(host_token) as api:
+    with public_trips_session(host_token) as api:
         with pytest.raises(grpc.RpcError) as e:
-            api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=surfer.id,
+            api.OfferToHost(
+                public_trips_pb2.OfferToHostReq(
+                    trip_id=trip_id,
                     from_date=trip_from.isoformat(),
                     to_date=trip_to.isoformat(),
                     text=valid_request_text(),
-                    public_trip_id=trip_id,
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
@@ -3173,14 +3246,13 @@ def test_ListStays_public_trip_offer_by_stay_role(db, moderator):
     trip_to = today() + timedelta(days=20)
     trip_id = _create_public_trip(traveller.id, trip_from, trip_to)
 
-    with requests_session(host_token) as api:
-        offer_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=traveller.id,
+    with public_trips_session(host_token) as api:
+        offer_id = api.OfferToHost(
+            public_trips_pb2.OfferToHostReq(
+                trip_id=trip_id,
                 from_date=trip_from.isoformat(),
                 to_date=trip_to.isoformat(),
                 text=valid_request_text(),
-                public_trip_id=trip_id,
             )
         ).host_request_id
     moderator.approve_host_request(offer_id)

@@ -6,17 +6,20 @@ from sqlalchemy import ColumnElement, and_, func, or_, select
 from sqlalchemy.orm import Session, selectinload
 
 from couchers.constants import PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16
-from couchers.context import CouchersContext
+from couchers.context import CouchersContext, make_notification_user_context
 from couchers.crypto import decrypt_page_token, encrypt_page_token
 from couchers.db import can_moderate_node
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.models import ModerationObjectType, Node, User
 from couchers.models.host_requests import HostRequest, HostRequestStatus
+from couchers.models.notifications import NotificationTopicAction
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.moderation.utils import create_moderation
-from couchers.proto import public_trips_pb2, public_trips_pb2_grpc
+from couchers.notifications.notify import notify
+from couchers.proto import notification_data_pb2, public_trips_pb2, public_trips_pb2_grpc
 from couchers.servicers.api import user_model_to_pb
+from couchers.servicers.requests import create_host_request, host_request_to_pb, validate_new_host_request
 from couchers.sql import to_bool, where_moderated_content_visible, where_users_column_visible
 from couchers.utils import (
     Timestamp_from_datetime,
@@ -445,3 +448,91 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         )
 
         return public_trip_to_pb(public_trip, session, context)
+
+    def OfferToHost(
+        self, request: public_trips_pb2.OfferToHostReq, context: CouchersContext, session: Session
+    ) -> public_trips_pb2.OfferToHostRes:
+        if not context.get_boolean_value("public_trips_enabled", False):
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "public_trips_disabled")
+
+        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        if not has_completed_profile(session, user):
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "incomplete_profile_offer_to_host")
+
+        public_trip = session.execute(
+            where_moderated_content_visible(
+                where_users_column_visible(select(PublicTrip), context, PublicTrip.user_id),
+                context,
+                PublicTrip,
+                is_list_operation=False,
+            ).where(PublicTrip.id == request.trip_id)
+        ).scalar_one_or_none()
+        if not public_trip:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "public_trip_not_found")
+
+        if public_trip.user_id == context.user_id:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "cant_offer_to_host_own_trip")
+
+        if public_trip.status != PublicTripStatus.searching_for_host:
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "public_trip_not_active")
+
+        traveler = public_trip.user
+
+        from_date, to_date = validate_new_host_request(
+            session,
+            context,
+            host_user=user,
+            from_date_str=request.from_date,
+            to_date_str=request.to_date,
+            text=request.text,
+            is_public_trip_offer=True,
+        )
+
+        # The host can offer a shorter stay than the trip, but not a longer one
+        if from_date < public_trip.from_date or to_date > public_trip.to_date:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_dates_out_of_range")
+
+        if (
+            public_trip.same_gender_only
+            and not can_moderate_node(session, context.user_id, public_trip.node_id)
+            and user.gender != traveler.gender
+        ):
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "public_trip_same_gender_only")
+
+        # A withdrawn offer doesn't count, so a host can offer again after withdrawing, e.g. to renegotiate dates.
+        existing_offer = session.execute(
+            select(HostRequest.conversation_id)
+            .where(HostRequest.public_trip_id == public_trip.id)
+            .where(HostRequest.initiator_user_id == context.user_id)
+            .where(HostRequest.status != HostRequestStatus.cancelled)
+            .limit(1)
+        ).scalar_one_or_none()
+        if existing_offer is not None:
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "duplicate_host_request_for_trip")
+
+        host_request = create_host_request(
+            session,
+            context,
+            surfer_user=traveler,
+            host_user=user,
+            from_date=from_date,
+            to_date=to_date,
+            text=request.text,
+            public_trip_id=public_trip.id,
+        )
+
+        traveler_context = make_notification_user_context(user_id=traveler.id)
+        notify(
+            session,
+            user_id=traveler.id,
+            topic_action=NotificationTopicAction.host_request__offer,
+            key=str(host_request.conversation_id),
+            data=notification_data_pb2.HostRequestOffer(
+                host_request=host_request_to_pb(host_request, session, traveler_context),
+                host=user_model_to_pb(user, session, traveler_context),
+                text=request.text,
+            ),
+            moderation_state_id=host_request.moderation_state_id,
+        )
+
+        return public_trips_pb2.OfferToHostRes(host_request_id=host_request.conversation_id)

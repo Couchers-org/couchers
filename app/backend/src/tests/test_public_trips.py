@@ -22,11 +22,11 @@ from couchers.models import (
 )
 from couchers.models.host_requests import HostRequest, HostRequestStatus
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
-from couchers.proto import public_trips_pb2, requests_pb2
+from couchers.proto import public_trips_pb2
 from couchers.utils import create_polygon_lat_lng, now, to_multi, today
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import Moderator
-from tests.fixtures.sessions import public_trips_session, requests_session
+from tests.fixtures.sessions import public_trips_session
 
 
 def _valid_trip_offer_text(text: str = "Offer to host") -> str:
@@ -991,14 +991,13 @@ def test_list_public_trips_by_user_offers_count_owner(db, moderator: Moderator):
         assert trip.offers_count == 0
 
     # Host creates an offer via a host request linked to the trip
-    with requests_session(host_token) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=traveler.id,
+    with public_trips_session(host_token) as api:
+        host_request_id = api.OfferToHost(
+            public_trips_pb2.OfferToHostReq(
+                trip_id=trip_id,
                 from_date=(today() + timedelta(days=5)).isoformat(),
                 to_date=(today() + timedelta(days=10)).isoformat(),
                 text=_valid_trip_offer_text(),
-                public_trip_id=trip_id,
             )
         ).host_request_id
 
@@ -1028,15 +1027,14 @@ def test_list_public_trips_by_user_offers_count_excludes_invisible_offers(db, mo
 
     offer_ids = []
     for token in (hidden_host_token, banned_host_token):
-        with requests_session(token) as api:
+        with public_trips_session(token) as api:
             offer_ids.append(
-                api.CreateHostRequest(
-                    requests_pb2.CreateHostRequestReq(
-                        host_user_id=traveler.id,
+                api.OfferToHost(
+                    public_trips_pb2.OfferToHostReq(
+                        trip_id=trip_id,
                         from_date=(today() + timedelta(days=5)).isoformat(),
                         to_date=(today() + timedelta(days=10)).isoformat(),
                         text=_valid_trip_offer_text(),
-                        public_trip_id=trip_id,
                     )
                 ).host_request_id
             )
@@ -1079,14 +1077,13 @@ def test_list_public_trips_by_user_offers_count_excludes_cancelled(db, moderator
     trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
 
     for _host, host_token in hosts:
-        with requests_session(host_token) as api:
-            offer_id = api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=traveler.id,
+        with public_trips_session(host_token) as api:
+            offer_id = api.OfferToHost(
+                public_trips_pb2.OfferToHostReq(
+                    trip_id=trip_id,
                     from_date=(today() + timedelta(days=5)).isoformat(),
                     to_date=(today() + timedelta(days=10)).isoformat(),
                     text=_valid_trip_offer_text(),
-                    public_trip_id=trip_id,
                 )
             ).host_request_id
         moderator.approve_host_request(offer_id)
@@ -1128,14 +1125,13 @@ def test_viewer_host_request_id_reflects_viewers_own_offer(db):
         assert trip.viewer_host_request_id == 0
 
     # The host makes an offer on the trip.
-    with requests_session(host_token) as api:
-        create_res = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=traveler.id,
+    with public_trips_session(host_token) as api:
+        create_res = api.OfferToHost(
+            public_trips_pb2.OfferToHostReq(
+                trip_id=trip_id,
                 from_date=(today() + timedelta(days=5)).isoformat(),
                 to_date=(today() + timedelta(days=10)).isoformat(),
                 text=_valid_trip_offer_text(),
-                public_trip_id=trip_id,
             )
         )
     host_request_id = create_res.host_request_id

@@ -104,6 +104,8 @@ def get_notification_email(notification: Notification, *, user_name: str) -> Ema
             return emails.EventDeletedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.host_request__create:
             return emails.HostRequestCreatedEmail.from_notification(data, user_name=user_name)
+        case NotificationTopicAction.host_request__offer:
+            return emails.HostRequestOfferEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.host_request__reminder:
             return emails.HostRequestReminderEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.host_request__message:
@@ -227,6 +229,8 @@ def get_topic_action_unsubscribe_text(topic_action: NotificationTopicAction) -> 
             return "missed messages in host requests"
         case NotificationTopicAction.host_request__create:
             return "new host requests"
+        case NotificationTopicAction.host_request__offer:
+            return "offers to host your public trips"
         case NotificationTopicAction.host_request__message:
             return "messages in host request"
         case NotificationTopicAction.host_request__accept:

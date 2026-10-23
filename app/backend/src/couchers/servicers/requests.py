@@ -1,5 +1,5 @@
 import logging
-from datetime import timedelta
+from datetime import date, timedelta
 
 import grpc
 from google.protobuf import empty_pb2
@@ -13,7 +13,6 @@ from couchers.constants import (
     PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16,
 )
 from couchers.context import CouchersContext, make_notification_user_context
-from couchers.db import can_moderate_node
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.helpers.host_requests import HOST_REQUEST_NOTIFICATION_TOPIC_ACTIONS, unseen_host_request_message_count
@@ -40,7 +39,6 @@ from couchers.models import (
     User,
 )
 from couchers.models.notifications import NotificationTopicAction
-from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.moderation.utils import create_moderation
 from couchers.notifications.notify import mark_notifications_seen, notify
 from couchers.proto import (
@@ -190,6 +188,157 @@ def _validate_request_text(text: str, is_public_trip_offer: bool, context: Couch
         )
 
 
+def validate_new_host_request(
+    session: Session,
+    context: CouchersContext,
+    *,
+    host_user: User,
+    from_date_str: str,
+    to_date_str: str,
+    text: str,
+    is_public_trip_offer: bool,
+) -> tuple[date, date]:
+    """
+    Validates the dates and text of a new host request or offer, and checks the caller's rate limit.
+
+    Returns the parsed from and to dates.
+    """
+    from_date = parse_date(from_date_str)
+    to_date = parse_date(to_date_str)
+
+    if not from_date or not to_date:
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_date")
+
+    # the dates are in the timezone at the host's location
+    today = today_in_timezone(host_user.timezone or "Etc/UTC")
+
+    # request starts from the past
+    if from_date < today:
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_before_today")
+
+    # from_date is not >= to_date
+    if from_date >= to_date:
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_after_to")
+
+    # No need to check today > to_date
+
+    if from_date - today > timedelta(days=365):
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_after_one_year")
+
+    if to_date - from_date > timedelta(days=365):
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_after_one_year")
+
+    _validate_request_text(text, is_public_trip_offer, context)
+
+    # Check if user has been sending host requests excessively
+    if process_rate_limits_and_check_abort(
+        session=session, user_id=context.user_id, action=RateLimitAction.host_request
+    ):
+        context.abort_with_error_code(
+            grpc.StatusCode.RESOURCE_EXHAUSTED,
+            "host_request_rate_limit2",
+            substitutions={"count": RATE_LIMIT_HOURS},
+        )
+
+    return from_date, to_date
+
+
+def create_host_request(
+    session: Session,
+    context: CouchersContext,
+    *,
+    surfer_user: User,
+    host_user: User,
+    from_date: date,
+    to_date: date,
+    text: str,
+    public_trip_id: int | None,
+) -> HostRequest:
+    """
+    Creates a validated host request, or an offer to host if public_trip_id is set.
+
+    The caller sends the notification to the recipient.
+    """
+    # an offer on a public trip is initiated by the host, otherwise the surfer initiates
+    initiator, recipient = (surfer_user, host_user) if public_trip_id is None else (host_user, surfer_user)
+    assert initiator.id == context.user_id
+
+    conversation = Conversation()
+    session.add(conversation)
+    session.flush()
+
+    session.add(
+        Message(
+            conversation_id=conversation.id,
+            author_id=initiator.id,
+            message_type=MessageType.chat_created,
+        )
+    )
+
+    message = Message(
+        conversation_id=conversation.id,
+        author_id=initiator.id,
+        text=text,
+        message_type=MessageType.text,
+    )
+    session.add(message)
+    session.flush()
+
+    # Create moderation state for UMS (starts as SHADOWED)
+    moderation_state = create_moderation(
+        session=session,
+        object_type=ModerationObjectType.host_request,
+        object_id=conversation.id,
+        creator_user_id=initiator.id,
+    )
+
+    host_request = HostRequest(
+        conversation_id=conversation.id,
+        initiator_user_id=initiator.id,
+        recipient_user_id=recipient.id,
+        moderation_state_id=moderation_state.id,
+        from_date=from_date,
+        to_date=to_date,
+        status=HostRequestStatus.pending,
+        initiator_last_seen_message_id=message.id,
+        hosting_city=host_user.city,
+        hosting_location=host_user.geom,
+        hosting_radius=host_user.geom_radius,
+        public_trip_id=public_trip_id,
+    )
+    session.add(host_request)
+    session.flush()
+
+    # the host request metrics assume the sender is the surfer, which is backwards on a public trip offer
+    if public_trip_id is None:
+        host_requests_sent_counter.labels(initiator.gender, recipient.gender).inc()
+        account_age_on_host_request_create_histogram.labels(surfer_user.gender, host_user.gender).observe(
+            (now() - initiator.joined).total_seconds()
+        )
+    else:
+        public_trip_offers_sent_counter.labels(initiator.gender, recipient.gender).inc()
+    sent_messages_counter.labels(initiator.gender, "host request send").inc()
+    log_event(
+        context,
+        session,
+        "host_request.created",
+        {
+            "host_request_id": host_request.conversation_id,
+            "surfer_id": surfer_user.id,
+            "host_id": host_user.id,
+            "surfer_gender": surfer_user.gender,
+            "host_gender": host_user.gender,
+            "city": host_user.city,
+            "from_date": str(from_date),
+            "to_date": str(to_date),
+            "nights": (to_date - from_date).days,
+            "public_trip_id": public_trip_id,
+        },
+    )
+
+    return host_request
+
+
 class Requests(requests_pb2_grpc.RequestsServicer):
     def CreateHostRequest(
         self, request: requests_pb2.CreateHostRequestReq, context: CouchersContext, session: Session
@@ -201,197 +350,66 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if request.host_user_id == context.user_id:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "cant_request_self")
 
-        # just to check recipient exists and is visible
-        recipient = session.execute(
+        # just to check host exists and is visible
+        host = session.execute(
             select(User).where(users_visible(context, User)).where(User.id == request.host_user_id)
         ).scalar_one_or_none()
-        if not recipient:
+        if not host:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
-        from_date = parse_date(request.from_date)
-        to_date = parse_date(request.to_date)
-
-        if not from_date or not to_date:
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_date")
-
-        # If this is an offer in response to a public trip, it's validated further down
-        public_trip_id = request.public_trip_id if request.HasField("public_trip_id") else None
-
-        # an offer on a public trip reverses the roles: the caller is the host and the recipient is the traveller
-        surfer_user, host_user = (user, recipient) if public_trip_id is None else (recipient, user)
-
-        # the dates are in the timezone at the host's location
-        today = today_in_timezone(host_user.timezone or "Etc/UTC")
-
-        # request starts from the past
-        if from_date < today:
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_before_today")
-
-        # from_date is not >= to_date
-        if from_date >= to_date:
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_after_to")
-
-        # No need to check today > to_date
-
-        if from_date - today > timedelta(days=365):
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_after_one_year")
-
-        if to_date - from_date > timedelta(days=365):
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_after_one_year")
-
-        _validate_request_text(request.text, public_trip_id is not None, context)
-
-        # Check if user has been sending host requests excessively
-        if process_rate_limits_and_check_abort(
-            session=session, user_id=context.user_id, action=RateLimitAction.host_request
-        ):
-            context.abort_with_error_code(
-                grpc.StatusCode.RESOURCE_EXHAUSTED,
-                "host_request_rate_limit2",
-                substitutions={"count": RATE_LIMIT_HOURS},
-            )
-
-        # Offers on public trips are deduplicated per trip further down instead
-        if public_trip_id is None:
-            recent_request = session.execute(
-                select(HostRequest.conversation_id)
-                .join(Conversation, HostRequest.conversation_id == Conversation.id)
-                .where(HostRequest.initiator_user_id == context.user_id)
-                .where(HostRequest.recipient_user_id == recipient.id)
-                .where(HostRequest.public_trip_id == None)
-                .where(Conversation.created >= now() - timedelta(hours=HOST_REQUEST_DUPLICATE_WINDOW_HOURS))
-                # overlapping nights, so back-to-back stays are still allowed
-                .where(HostRequest.from_date < to_date)
-                .where(HostRequest.to_date > from_date)
-                .limit(1)
-            ).scalar_one_or_none()
-            if recent_request is not None:
-                context.abort_with_error_code(
-                    grpc.StatusCode.FAILED_PRECONDITION,
-                    "duplicate_host_request",
-                    substitutions={"count": HOST_REQUEST_DUPLICATE_WINDOW_HOURS},
-                )
-
-        if public_trip_id is not None:
-            public_trip = session.execute(
-                where_moderated_content_visible(select(PublicTrip), context, PublicTrip, is_list_operation=False).where(
-                    PublicTrip.id == public_trip_id
-                )
-            ).scalar_one_or_none()
-            if not public_trip:
-                context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "public_trip_not_found")
-            # The trip's traveler must be the recipient of this host request (role reversal)
-            if public_trip.user_id != recipient.id:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_user_mismatch")
-            # Trip must still be active
-            if public_trip.status != PublicTripStatus.searching_for_host:
-                context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "public_trip_not_active")
-            # Offered dates must fall within the trip's window (host can shorten, not extend)
-            if from_date < public_trip.from_date or to_date > public_trip.to_date:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_dates_out_of_range")
-            # Enforce same_gender_only restriction (community moderators bypass)
-            if (
-                public_trip.same_gender_only
-                and not can_moderate_node(session, context.user_id, public_trip.node_id)
-                and user.gender != recipient.gender
-            ):
-                context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "public_trip_same_gender_only")
-            # Prevent duplicate offers on the same trip. A withdrawn offer doesn't count, so a host
-            # can offer again after withdrawing, e.g. to renegotiate dates.
-            existing_offer = session.execute(
-                select(HostRequest.conversation_id)
-                .where(HostRequest.public_trip_id == public_trip_id)
-                .where(HostRequest.initiator_user_id == context.user_id)
-                .where(HostRequest.status != HostRequestStatus.cancelled)
-                .limit(1)
-            ).scalar_one_or_none()
-            if existing_offer is not None:
-                context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "duplicate_host_request_for_trip")
-
-        conversation = Conversation()
-        session.add(conversation)
-        session.flush()
-
-        session.add(
-            Message(
-                conversation_id=conversation.id,
-                author_id=context.user_id,
-                message_type=MessageType.chat_created,
-            )
-        )
-
-        message = Message(
-            conversation_id=conversation.id,
-            author_id=context.user_id,
+        from_date, to_date = validate_new_host_request(
+            session,
+            context,
+            host_user=host,
+            from_date_str=request.from_date,
+            to_date_str=request.to_date,
             text=request.text,
-            message_type=MessageType.text,
-        )
-        session.add(message)
-        session.flush()
-
-        # Create moderation state for UMS (starts as SHADOWED)
-        moderation_state = create_moderation(
-            session=session,
-            object_type=ModerationObjectType.host_request,
-            object_id=conversation.id,
-            creator_user_id=context.user_id,
+            is_public_trip_offer=False,
         )
 
-        host_request = HostRequest(
-            conversation_id=conversation.id,
-            initiator_user_id=context.user_id,
-            recipient_user_id=recipient.id,
-            moderation_state_id=moderation_state.id,
+        # Offers on public trips are deduplicated per trip instead
+        recent_request = session.execute(
+            select(HostRequest.conversation_id)
+            .join(Conversation, HostRequest.conversation_id == Conversation.id)
+            .where(HostRequest.initiator_user_id == context.user_id)
+            .where(HostRequest.recipient_user_id == host.id)
+            .where(HostRequest.public_trip_id == None)
+            .where(Conversation.created >= now() - timedelta(hours=HOST_REQUEST_DUPLICATE_WINDOW_HOURS))
+            # overlapping nights, so back-to-back stays are still allowed
+            .where(HostRequest.from_date < to_date)
+            .where(HostRequest.to_date > from_date)
+            .limit(1)
+        ).scalar_one_or_none()
+        if recent_request is not None:
+            context.abort_with_error_code(
+                grpc.StatusCode.FAILED_PRECONDITION,
+                "duplicate_host_request",
+                substitutions={"count": HOST_REQUEST_DUPLICATE_WINDOW_HOURS},
+            )
+
+        host_request = create_host_request(
+            session,
+            context,
+            surfer_user=user,
+            host_user=host,
             from_date=from_date,
             to_date=to_date,
-            status=HostRequestStatus.pending,
-            initiator_last_seen_message_id=message.id,
-            hosting_city=host_user.city,
-            hosting_location=host_user.geom,
-            hosting_radius=host_user.geom_radius,
-            public_trip_id=public_trip_id,
+            text=request.text,
+            public_trip_id=None,
         )
-        session.add(host_request)
-        session.flush()
 
-        recipient_context = make_notification_user_context(user_id=host_request.recipient_user_id)
+        host_context = make_notification_user_context(user_id=host.id)
         notify(
             session,
-            user_id=host_request.recipient_user_id,
+            user_id=host.id,
             topic_action=NotificationTopicAction.host_request__create,
             key=str(host_request.conversation_id),
             data=notification_data_pb2.HostRequestCreate(
-                host_request=host_request_to_pb(host_request, session, recipient_context),
-                surfer=user_model_to_pb(host_request.initiator, session, recipient_context),
+                host_request=host_request_to_pb(host_request, session, host_context),
+                surfer=user_model_to_pb(user, session, host_context),
                 text=request.text,
             ),
-            moderation_state_id=moderation_state.id,
-        )
-
-        # the host request metrics assume the sender is the surfer, which is backwards on a public trip offer
-        if public_trip_id is None:
-            host_requests_sent_counter.labels(user.gender, recipient.gender).inc()
-            account_age_on_host_request_create_histogram.labels(surfer_user.gender, host_user.gender).observe(
-                (now() - user.joined).total_seconds()
-            )
-        else:
-            public_trip_offers_sent_counter.labels(user.gender, recipient.gender).inc()
-        sent_messages_counter.labels(user.gender, "host request send").inc()
-        log_event(
-            context,
-            session,
-            "host_request.created",
-            {
-                "host_request_id": host_request.conversation_id,
-                "surfer_id": surfer_user.id,
-                "host_id": host_user.id,
-                "surfer_gender": surfer_user.gender,
-                "host_gender": host_user.gender,
-                "city": host_user.city,
-                "from_date": str(from_date),
-                "to_date": str(to_date),
-                "nights": (to_date - from_date).days,
-            },
+            moderation_state_id=host_request.moderation_state_id,
         )
 
         return requests_pb2.CreateHostRequestRes(host_request_id=host_request.conversation_id)

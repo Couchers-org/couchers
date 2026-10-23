@@ -2,6 +2,7 @@ import {
   CreatePublicTripReq,
   ListPublicTripsByUserReq,
   ListPublicTripsReq,
+  OfferToHostReq,
   PublicTripStatus,
   UpdatePublicTripReq,
 } from "proto/public_trips_pb";
@@ -102,4 +103,24 @@ export async function updatePublicTrip({
   if (sameGenderOnly !== undefined) req.setSameGenderOnly(sameGenderOnly);
   const res = await client.publicTrips.updatePublicTrip(req);
   return res.toObject();
+}
+
+export async function offerToHost({
+  tripId,
+  fromDate,
+  toDate,
+  text,
+}: {
+  tripId: number;
+  fromDate: string;
+  toDate: string;
+  text: string;
+}) {
+  const req = new OfferToHostReq();
+  req.setTripId(tripId);
+  req.setFromDate(fromDate);
+  req.setToDate(toDate);
+  req.setText(text);
+  const res = await client.publicTrips.offerToHost(req);
+  return res.getHostRequestId();
 }
