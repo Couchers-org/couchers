@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-10-22 17:20+0000\n"
+"PO-Revision-Date: 2026-10-23 08:41+0000\n"
 "Last-Translator: Chris Kreuz <ckreuz@users.noreply.translate.couchershq.org>\n"
 "Language-Team: German <https://translate.couchershq.org/projects/couchers/glossary-key-terms/de/>\n"
 "Language: de\n"
@@ -508,7 +508,7 @@ msgstr "Aufenthalte"
 
 #. (noun) The activity of free hospitality welcome/exchange. Platform-agnostic.
 msgid "couch_surfing"
-msgstr "Couchsurfing"
+msgstr "Couch-Surfing"
 
 #. (noun) The logged-in landing page showing upcoming events, stays, etc.
 msgid "dashboard"

@@ -125,7 +125,7 @@
   "donation_received": {
     "subject": "Vielen Dank für deine Spende an Couchers.org!",
     "purpose": "Vielen Dank für deine Spende von <b>{{amount_with_currency}}</b> an Couchers.org.",
-    "contribution_impact": "Dein Beitrag wird zum Aufbau und Erhalt der Couchers.org-Community verwendet und ist entscheidend für unser Ziel einer kostenlosen und gemeinnützigen Couchsurfing-Plattform.",
+    "contribution_impact": "Dein Beitrag wird zum Aufbau und Erhalt der Couchers.org-Community verwendet und ist entscheidend für unser Ziel einer kostenlosen und gemeinnützigen Couch-Surfing-Plattform.",
     "invoice_receipt_info": "Du kannst eine Rechnung und eine Quittung für die Spende hier herunterladen:",
     "download_invoice": "Rechnung herunterladen",
     "tax_acknowledgment": "Couchers, Inc. ist eine gemeinnützige Organisation gemäß 501(c)(3) (EIN: 87-1734577) mit Sitz in den Vereinigten Staaten. Im Gegenzug für diese Spende wurden keine Waren oder Dienstleistungen erbracht.",
@@ -344,8 +344,8 @@
   },
   "onboarding_reminder": {
     "initial": {
-      "subject": "Willkommen bei Couchers.org und der Zukunft des Couchsurfings",
-      "welcome": "Willkommen bei Couchers.org und unserer weltweiten Couchsurfing-Community!",
+      "subject": "Willkommen bei Couchers.org und der Zukunft des Couch-Surfings",
+      "welcome": "Willkommen bei Couchers.org und unserer weltweiten Couch-Surfing-Community!",
       "early_user_role": "Wir wachsen schnell, und wenn du zurückblickst, wirst du einer der ersten Nutzer gewesen sein. Du spielst daher eine entscheidende Rolle dabei, die Kultur und Atmosphäre der wachsenden Community und unserer Plattform zu prägen. Ich freue mich wirklich, dass du uns gefunden hast und dich entschieden hast, dabei zu sein!",
       "complete_profile_request": "Wenn du dich ein wenig umgesehen hast, vervollständige bitte dein Profil, indem du ein Foto hochlädst und ein wenig über dich schreibst (und über dein Zuhause, falls du hosten möchtest).",
       "profile_importance": "Ein Profil, das sich wie eine echte Person anfühlt, hilft anderen dabei, sich zu entscheiden, dass sie dich gerne treffen oder bei dir übernachten möchten. Versuch, der Community einen Eindruck von deinem Vibe zu geben! Denk nicht zu viel nach: Schreib einfach, wie du bist. Erzähl, worauf du stehst, wie du deine Zeit gerne verbringst und was dir wichtig ist.",
