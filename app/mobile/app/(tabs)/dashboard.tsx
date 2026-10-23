@@ -5,17 +5,6 @@ import { Platform } from "react-native";
 import WebEmbed from "@/components/WebEmbed";
 import { buildWebEmbedPath } from "@/utils/buildWebEmbedPath";
 
-// Set notification handler to show notifications when app is in foreground
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-  }),
-});
-
 // Set up notification channel for Android
 if (Platform.OS === "android") {
   Notifications.setNotificationChannelAsync("default", {
