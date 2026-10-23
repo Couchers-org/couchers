@@ -88,6 +88,9 @@ class CouchersContext:
         self.__cookies: list[str] = []
         self.__response_headers: list[tuple[str, str]] = []
         self._growthbook: GrowthBook | None = None
+        # per-request cache owned by couchers.servicers.blocking; None means not loaded yet
+        self._blocked_user_ids: frozenset[int] | None = None
+        self._viewer_is_hidden: bool = False
 
         if self.__is_interactive:
             if not self._grpc_context:
