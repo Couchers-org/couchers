@@ -239,6 +239,13 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
   };
 
   useEffect(() => {
+    if (router.isReady && router.query.inviteSuccess === "true") {
+      setShowInviteCommunitySuccess(true);
+      router.replace(routeToEvent(eventId, eventSlug), undefined, { shallow: true });
+    }
+  }, [router, eventId, eventSlug]);
+
+  useEffect(() => {
     if (event?.slug && event.slug !== eventSlug) {
       router.replace(routeToEvent(event.eventId, event.slug));
     }
@@ -342,7 +349,7 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
                   />
                 </StyledIconButtonGroup>
                 <StyledInviteAndAttendanceRow>
-                  {event.canEdit && (
+                  {event.canEdit && !event.communityInviteRequested && (
                     <Button
                       onClick={() => setInviteCommunityDialogIsOpen(true)}
                       variant="contained"

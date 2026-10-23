@@ -11,6 +11,7 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
+import { useState } from "react";
 import { service } from "service";
 import type { UpdateEventInput } from "service/events";
 import { theme } from "theme";
@@ -21,6 +22,7 @@ import { eventsRoute, routeToEvent } from "../../../routes";
 import { communityEventsBaseKey, eventKey } from "../../queryKeys";
 import EventForm, { CreateEventVariables } from "./EventForm";
 import { useEvent } from "./hooks";
+import InviteCommunityDialog from "./InviteCommunityDialog";
 
 const StyledBackButton = styled(HeaderButton)(() => ({
   width: "2.5rem",
@@ -32,7 +34,22 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES, PROFILE]);
   const router = useRouter();
   const isNativeEmbed = useIsNativeEmbed();
+  const handleEditCommunityInvite = (updatedEvent: Event.AsObject | undefined, requestCommunityInvite: boolean) => {
+    setInviteCommunityDialogIsOpen(false);
+    if (!updatedEvent) return;
+    const eventUrl = routeToEvent(updatedEvent.eventId, updatedEvent.slug);
 
+    if (requestCommunityInvite) {
+      router.push({
+        pathname: eventUrl,
+        query: {
+          inviteSuccess: "true",
+        },
+      });
+    } else {
+      router.push(eventUrl);
+    }
+  };
   const handleBackClick = () => {
     if (isNativeEmbed) {
       sendNativeBack();
@@ -44,7 +61,7 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
       router.push(eventsRoute);
     }
   };
-
+  const [inviteCommunityDialogIsOpen, setInviteCommunityDialogIsOpen] = useState(false);
   const { data: event, error: eventError, isLoading: isEventLoading, isValidEventId } = useEvent({ eventId });
 
   const queryClient = useQueryClient();
@@ -77,7 +94,8 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
     onMutate({ parentCommunityId }) {
       return { parentCommunityId };
     },
-    onSuccess(updatedEvent, _, context) {
+
+    onSuccess(updatedEvent, variables, context) {
       queryClient.setQueryData<Event.AsObject>(eventKey(eventId), updatedEvent);
       queryClient.invalidateQueries({
         queryKey: eventKey(eventId),
@@ -88,13 +106,16 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
           context?.parentCommunityId ? [communityEventsBaseKey, context.parentCommunityId] : communityEventsBaseKey,
         ],
       });
-      router.push(routeToEvent(updatedEvent.eventId, updatedEvent.slug));
+      if (variables.inviteCommunity) {
+        setInviteCommunityDialogIsOpen(true);
+      } else {
+        router.push(routeToEvent(updatedEvent.eventId, updatedEvent.slug));
+      }
     },
     onSettled() {
       window.scroll({ top: 0, behavior: "smooth" });
     },
   });
-
   return isValidEventId ? (
     eventError ? (
       <Alert severity="error">{eventError.message}</Alert>
@@ -120,6 +141,12 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
             </Button>
           )}
         </EventForm>
+        <InviteCommunityDialog
+          afterSuccess={() => handleEditCommunityInvite(event, true)}
+          open={inviteCommunityDialogIsOpen}
+          onClose={() => handleEditCommunityInvite(event, false)}
+          eventId={eventId}
+        />
       </>
     )
   ) : (
