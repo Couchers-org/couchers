@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-10-13 01:17+0000\n"
+"PO-Revision-Date: 2026-10-22 17:20+0000\n"
 "Last-Translator: Chris Kreuz <ckreuz@users.noreply.translate.couchershq.org>\n"
 "Language-Team: German <https://translate.couchershq.org/projects/couchers/glossary-key-terms/de/>\n"
 "Language: de\n"
@@ -509,3 +509,11 @@ msgstr "Aufenthalt"
 #. (noun) Agreements for surfers to stay with hosts over specific date ranges.
 msgid "stays"
 msgstr "Aufenthalte"
+
+#. (noun) The activity of free hospitality welcome/exchange. Platform-agnostic.
+msgid "couch_surfing"
+msgstr "Couchsurfing"
+
+#. (noun) The logged-in landing page showing upcoming events, stays, etc.
+msgid "dashboard"
+msgstr "Dashboard"
