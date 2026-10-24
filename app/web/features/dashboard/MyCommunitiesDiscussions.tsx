@@ -1,18 +1,12 @@
-import { ArrowBack, ArrowForward, Forum } from "@mui/icons-material";
-import { IconButton, styled, Typography } from "@mui/material";
+import { Forum } from "@mui/icons-material";
+import { styled, Typography } from "@mui/material";
 import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import { useState } from "react";
 
+import DashboardSectionHeader from "./DashboardSectionHeader";
 import DiscussionListRow, { DiscussionListContainer, DiscussionListRowSkeleton } from "./DiscussionListRow";
 import useGetDashboard, { DASHBOARD_PAGE_SIZE } from "./useGetDashboard";
-
-const SectionHeader = styled("div")({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  marginBottom: "8px",
-});
 
 const EmptyStateRow = styled("div")(({ theme }) => ({
   display: "flex",
@@ -40,32 +34,14 @@ export default function MyCommunitiesDiscussions() {
 
   return (
     <div>
-      <SectionHeader>
-        <Typography variant="h2" sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
-          <Forum sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />
-          {t("dashboard:discussions.community_header")}
-        </Typography>
-        <div>
-          <IconButton
-            size="small"
-            onClick={() => setCurrentPageIndex((i) => i - 1)}
-            disabled={!hasPreviousPage}
-            color={hasPreviousPage ? "primary" : "default"}
-            aria-label={t("dashboard:prev_page_button_a11y")}
-          >
-            <ArrowBack fontSize="small" />
-          </IconButton>
-          <IconButton
-            size="small"
-            onClick={() => setCurrentPageIndex((i) => i + 1)}
-            disabled={!hasNextPage}
-            color={hasNextPage ? "primary" : "default"}
-            aria-label={t("dashboard:next_page_button_a11y")}
-          >
-            <ArrowForward fontSize="small" />
-          </IconButton>
-        </div>
-      </SectionHeader>
+      <DashboardSectionHeader
+        icon={Forum}
+        title={t("dashboard:discussions.community_header")}
+        hasPrevious={hasPreviousPage}
+        hasNext={hasNextPage}
+        onPrevious={() => setCurrentPageIndex((i) => i - 1)}
+        onNext={() => setCurrentPageIndex((i) => i + 1)}
+      />
       {isLoading ? (
         <DiscussionListContainer>
           {[0, 1, 2].map((i) => (
