@@ -24,7 +24,7 @@ function writeTranslationStats(appStats, outputFile) {
   fs.mkdirSync(path.dirname(outputFile), { recursive: true });
   fs.writeFileSync(outputFile, JSON.stringify(appStats, null, 2) + "\n");
   console.log(
-    `Generated translation stats for ${appStats.length} locales at ${path.relative(process.cwd(), outputFile)}.`,
+    `Generated translation stats for ${Object.keys(appStats).length} locales at ${path.relative(process.cwd(), outputFile)}.`,
   );
 }
 
