@@ -2,6 +2,7 @@ from datetime import timedelta
 from typing import Any
 
 from google.protobuf import empty_pb2
+from growthbook import GrowthBook
 from sqlalchemy import select
 from sqlalchemy.sql import func
 
@@ -10,6 +11,7 @@ from couchers.db import session_scope
 from couchers.jobs.user_email_campaigns import run_user_email_campaigns
 from couchers.models import (
     BackgroundJob,
+    ExperimentExposure,
     HostingStatus,
     NotificationTopicAction,
     SleepingArrangement,
@@ -23,6 +25,14 @@ from tests.fixtures.sessions import notifications_session
 
 CAMPAIGN_KEY = "host_my_home_nudge"
 FLAG_KEY = "host_my_home_nudge_days_after_signup"
+EXPERIMENT_KEY = "host_my_home_nudge_ab"
+
+
+def _days_experiment(variations: list[int]) -> dict[str, Any]:
+    return {
+        "defaultValue": -1,
+        "rules": [{"key": EXPERIMENT_KEY, "seed": EXPERIMENT_KEY, "hashVersion": 2, "variations": variations}],
+    }
 
 
 def _make_eligible_user(**overrides: Any):
@@ -207,3 +217,58 @@ def test_campaign_renders_push_when_user_opts_in(db, feature_flags, push_collect
     push = push_collector.pop_for_user(user.id, last=True)
     assert push.content.title == "Get ready to host a couch surfer"
     assert push.content.action_url == urls.edit_home_link()
+
+
+def _arm(definition: dict[str, Any], user_id: int) -> int:
+    result = GrowthBook(attributes={"id": str(user_id)}, features={FLAG_KEY: definition}).eval_feature(FLAG_KEY)
+    assert result.experimentResult is not None
+    return result.experimentResult.variationId
+
+
+def _exposures() -> dict[int, int]:
+    with session_scope() as session:
+        return dict(
+            session.execute(
+                select(ExperimentExposure.user_id, ExperimentExposure.variation_id).where(
+                    ExperimentExposure.experiment_key == EXPERIMENT_KEY
+                )
+            )
+            .tuples()
+            .all()
+        )
+
+
+def _sent_to() -> set[int]:
+    with session_scope() as session:
+        return set(session.execute(select(UserEmailCampaignSend.user_id)).scalars().all())
+
+
+def test_host_my_home_nudge_ab_exposes_both_arms_and_emails_treatment(db, feature_flags):
+    definition = _days_experiment([-1, 14])
+    feature_flags.set_definition(FLAG_KEY, definition)
+    users = [_make_eligible_user()[0] for _ in range(20)]
+    # neither arm would email these, so they're not in the experiment
+    _make_eligible_user(joined=now() - timedelta(days=200))
+    _make_eligible_user(joined=now() - timedelta(days=5))
+
+    run_user_email_campaigns(empty_pb2.Empty())
+    run_user_email_campaigns(empty_pb2.Empty())
+
+    exposures = _exposures()
+    assert exposures == {user.id: _arm(definition, user.id) for user in users}
+    treated = {user_id for user_id, variation_id in exposures.items() if variation_id == 1}
+    assert 0 < len(treated) < len(users)
+    assert _sent_to() == treated
+
+
+def test_host_my_home_nudge_ab_exposes_when_any_arm_emails(db, feature_flags):
+    definition = _days_experiment([7, 14])
+    feature_flags.set_definition(FLAG_KEY, definition)
+    # past the start of the 7 day arm's window, but not yet the 14 day one's
+    users = [_make_eligible_user(joined=now() - timedelta(days=10))[0] for _ in range(20)]
+
+    run_user_email_campaigns(empty_pb2.Empty())
+
+    exposures = _exposures()
+    assert exposures == {user.id: _arm(definition, user.id) for user in users}
+    assert _sent_to() == {user_id for user_id, variation_id in exposures.items() if variation_id == 0}
