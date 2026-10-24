@@ -16,6 +16,8 @@ RUN cp .env.$environment env && \
     rm .env.* && \
     mv env .env.local
 
+RUN node scripts/generate-translation-stats.js i18n/translationStats.gen.json
+
 # These are used during yarn build by Next.js
 ARG version
 ENV NEXT_PUBLIC_VERSION=$version

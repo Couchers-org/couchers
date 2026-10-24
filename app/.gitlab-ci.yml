@@ -251,7 +251,6 @@ build:web-dev:
   variables:
     GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
-    - make -C app/web
     - *common_functions
     - build "$WEB_DEV_TAG" "$WEB_DEV_RELEASE_TAG" "web" "$SLUG" --build-arg environment=next -f app/web/Dockerfile
   rules:
@@ -270,7 +269,6 @@ build:web:
   variables:
     GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
-    - make -C app/web
     - - *common_functions
     # Add "--load" so that the image is saved locally for "docker create"
     - build "$WEB_TAG" "$WEB_RELEASE_TAG" "web" "$SLUG" --build-arg environment=production --build-arg pipeline_id=$CI_PIPELINE_ID -f app/web/Dockerfile.prod --load
@@ -299,7 +297,6 @@ build:web-next:
   variables:
     GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
-    - make -C app/web
     - *common_functions
     # Add "--load" so that the image is saved locally for "docker create"
     - build "$WEB_NEXT_TAG" "$WEB_NEXT_RELEASE_TAG" "web" "$SLUG-next" --build-arg environment=next --build-arg pipeline_id=$CI_PIPELINE_ID -f app/web/Dockerfile.prod --load
