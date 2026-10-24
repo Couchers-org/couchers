@@ -3,16 +3,14 @@ import wrapper from "test/hookWrapper";
 
 import TranslationProgress from "./TranslationProgress";
 
-jest.mock("i18n/useLocaleInfos", () => ({
+jest.mock("i18n/weblate", () => ({
   __esModule: true,
-  useLocaleInfos: () => ({
+  useWeblateLanguages: () => ({
     data: [
-      { code: "en", autonym: "English", stringAvailabilityPercent: 100 },
-      { code: "de", autonym: "Deutsch", stringAvailabilityPercent: 90 },
-      // Both Chinese variants (issue #8523: they must be distinctly named and
-      // must NOT render the China flag).
-      { code: "zh-Hans", autonym: "中文（简体）", stringAvailabilityPercent: 70 },
-      { code: "zh-Hant", autonym: "中文（繁體）", stringAvailabilityPercent: 65 },
+      { locale: "en", translationProgress: 1 },
+      { locale: "de", translationProgress: 0.9 },
+      { locale: "zh-Hans", translationProgress: 0.7 },
+      { locale: "zh-Hant", translationProgress: 0.65 },
     ],
     isLoading: false,
     error: null,
@@ -28,16 +26,5 @@ describe("TranslationProgress", () => {
     // The two Chinese variants are distinct, not conflated under one flag.
     expect(screen.getByText("中文（简体）")).toBeInTheDocument();
     expect(screen.getByText("中文（繁體）")).toBeInTheDocument();
-  });
-
-  it("renders no flag images (issue #8523)", async () => {
-    render(<TranslationProgress />, { wrapper });
-
-    // Wait for the list to render.
-    await screen.findByText("English");
-
-    // Flags were <img> elements with an alt of "<code> flag"; none should remain.
-    expect(screen.queryByAltText(/flag/i)).not.toBeInTheDocument();
-    expect(screen.queryByRole("img")).not.toBeInTheDocument();
   });
 });

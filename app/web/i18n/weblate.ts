@@ -1,22 +1,40 @@
+import { useQuery } from "@tanstack/react-query";
 import Sentry from "platform/sentry";
 
-/** A language tracked by weblate (either the base English language or a translated language). */
+/** Metadata about a Weblate language. */
 export interface WeblateLanguage {
-  /** The Weblate language code, based on ISO but using underscores, e.g. "pt_BR". */
-  code: string;
-  /** The English name of the language as reported by Weblate. */
-  name: string;
-  /** The progress percentage of the translation. */
-  translated_percent: number;
+  /** ISO locale code. */
+  locale: string;
+  /** Translation progress between 0 and 1. */
+  translationProgress: number;
 }
 
-/** Converts a Weblate language code (e.g. "pt_BR") to its ISO-style locale code (e.g. "pt-BR"). */
-export function weblateToISOLocale(code: string): string {
-  return code.replace("_", "-");
+// Stable reference so callers don't see a new array on every render while loading.
+const NO_LANGUAGES: WeblateLanguage[] = [];
+
+/** Gets the list of Weblate languages or an empty array while loading or on error. */
+export function useWeblateLanguages() {
+  const query = useQuery({
+    queryKey: ["weblate-stats"],
+    queryFn: () => fetchWeblateLanguages(),
+    staleTime: 10 * 60 * 1000, // 10 minutes - data considered fresh
+    gcTime: 10 * 60 * 1000, // 10 minutes - cache persists
+    retry: 1,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
+  return { ...query, data: query.data ?? NO_LANGUAGES };
 }
+
+/** The shape of the response from the Weblate languages API. */
+type LanguagesResponse = Array<{
+  code: string;
+  name: string;
+  translated_percent: number;
+}>;
 
 /** Queries Weblate for known languages and their translation progress. */
-export async function fetchWeblateLanguages(): Promise<WeblateLanguage[]> {
+async function fetchWeblateLanguages(): Promise<WeblateLanguage[]> {
   const response = await fetch("https://cdn.couchers.org/api/projects/couchers/languages/", {
     headers: {
       Accept: "application/json",
@@ -29,6 +47,15 @@ export async function fetchWeblateLanguages(): Promise<WeblateLanguage[]> {
     throw error;
   }
 
-  const languages: WeblateLanguage[] = await response.json();
-  return languages || [];
+  const entries = ((await response.json()) as LanguagesResponse) || [];
+  // Map to friendlier type
+  return entries.map((entry) => ({
+    locale: weblateToISOLocale(entry.code),
+    translationProgress: entry.translated_percent / 100,
+  }));
+}
+
+/** Converts a Weblate language code (e.g. "pt_BR") to its ISO-style locale code (e.g. "pt-BR"). */
+function weblateToISOLocale(code: string): string {
+  return code.replace("_", "-");
 }
