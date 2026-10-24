@@ -22,7 +22,7 @@ from couchers.constants import (
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
-from couchers.email.queuing import queue_email
+from couchers.email.queuing import _queue_email
 from couchers.jobs import handlers
 from couchers.jobs.definitions import Job
 from couchers.jobs.enqueue import queue_job
@@ -114,7 +114,7 @@ def _queued_seconds_sum():
 
 def test_email_job(db):
     with session_scope() as session:
-        queue_email(
+        _queue_email(
             session,
             jobs_pb2.SendEmailPayload(
                 sender_name="sender_name",
@@ -320,7 +320,7 @@ def test_refresh_materialized_views(db):
 
 def test_service_jobs(db):
     with session_scope() as session:
-        queue_email(
+        _queue_email(
             session,
             jobs_pb2.SendEmailPayload(
                 sender_name="sender_name",

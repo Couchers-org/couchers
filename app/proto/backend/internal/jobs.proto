@@ -17,6 +17,8 @@ message SendEmailPayload {
   reserved 9; // Previous "attachments" field, which had mime_type+filename subfields.
   repeated EmailPart attachments = 10;
   repeated EmailPart html_related_parts = 11; // MIME parts which are multipart/related to the HTML body.
+  // the notification this email was rendered from, if any (0 otherwise); only used for analytics logging
+  int64 notification_id = 12;
 }
 
 // A MIME part of an SMPT email, usable for attached files or inline images.
