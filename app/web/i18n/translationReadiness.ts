@@ -31,7 +31,8 @@ export function classifyTranslationReadiness(progress: number): TranslationReadi
   return TranslationReadiness.JustStarted;
 }
 
-export function getLocalePackagedTranslationProgress(locale: string): number {
+/** Gets the 0 to 1 translation progress on a locale based on bundled strings (not Weblate). */
+export function getLocaleBundledTranslationProgress(locale: string): number {
   if (ALWAYS_AVAILABLE_LOCALES.includes(locale)) return 1;
 
   const stats = (translationStats as TranslationStatsType)[locale];
@@ -39,8 +40,8 @@ export function getLocalePackagedTranslationProgress(locale: string): number {
   return stats.translated / stats.total;
 }
 
-/** Gets the translation readiness of a locale based on packaged strings (not Weblate). */
-export function getLocalePackagedTranslationReadiness(locale: string): TranslationReadiness {
-  const progress = getLocalePackagedTranslationProgress(locale);
+/** Gets the translation readiness of a locale based on bundled strings (not Weblate). */
+export function getLocaleBundledTranslationReadiness(locale: string): TranslationReadiness {
+  const progress = getLocaleBundledTranslationProgress(locale);
   return classifyTranslationReadiness(progress);
 }

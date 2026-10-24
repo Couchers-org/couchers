@@ -2,7 +2,7 @@ import { allLanguages } from "i18n/allLanguages";
 import { ALWAYS_AVAILABLE_LOCALES, LOCALE_AUTONYMS } from "i18n/locales";
 import {
   classifyTranslationReadiness,
-  getLocalePackagedTranslationReadiness,
+  getLocaleBundledTranslationReadiness,
   TranslationReadiness,
 } from "i18n/translationReadiness";
 
@@ -40,10 +40,10 @@ describe("classifyTranslationReadiness", () => {
   });
 });
 
-describe("getLocalePackagedTranslationReadiness", () => {
+describe("getLocaleBundledTranslationReadiness", () => {
   it("Returns complete for always available locales", () => {
     for (const locale of ALWAYS_AVAILABLE_LOCALES) {
-      expect(getLocalePackagedTranslationReadiness(locale)).toEqual(TranslationReadiness.Complete);
+      expect(getLocaleBundledTranslationReadiness(locale)).toEqual(TranslationReadiness.Complete);
     }
   });
 });

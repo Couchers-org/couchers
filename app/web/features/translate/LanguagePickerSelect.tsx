@@ -19,7 +19,7 @@ import { useTranslation } from "i18n";
 import { LOCALE_AUTONYMS } from "i18n/locales";
 import { GLOBAL } from "i18n/namespaces";
 import {
-  getLocalePackagedTranslationReadiness,
+  getLocaleBundledTranslationReadiness,
   PRODUCTION_READY_THRESHOLD,
   SELECTABLE_THRESHOLD,
 } from "i18n/translationReadiness";
@@ -136,7 +136,7 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
     .map((locale) => ({
       code: locale,
       autonym: LOCALE_AUTONYMS[locale],
-      readiness: getLocalePackagedTranslationReadiness(locale),
+      readiness: getLocaleBundledTranslationReadiness(locale),
     }))
     .filter((entry) => showAllLanguages || entry.readiness >= SELECTABLE_THRESHOLD)
     .sort((a, b) => {

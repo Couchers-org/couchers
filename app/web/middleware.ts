@@ -4,10 +4,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { sessionCookieName } from "./appConstants";
 import { ALWAYS_AVAILABLE_LOCALES, DEFAULT_LOCALE, LOCALE_COOKIE_NAME } from "./i18n/locales";
-import { getLocalePackagedTranslationReadiness, PRODUCTION_READY_THRESHOLD } from "./i18n/translationReadiness";
+import { getLocaleBundledTranslationReadiness, PRODUCTION_READY_THRESHOLD } from "./i18n/translationReadiness";
 
 function getProductionReadyLocales(): string[] {
-  return allLanguages.filter((locale) => getLocalePackagedTranslationReadiness(locale) >= PRODUCTION_READY_THRESHOLD);
+  return allLanguages.filter((locale) => getLocaleBundledTranslationReadiness(locale) >= PRODUCTION_READY_THRESHOLD);
 }
 
 /**
