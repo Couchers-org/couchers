@@ -542,6 +542,22 @@ def test_revenue_metric_on_merch(db, stripe_config):
         mock_observe_revenue.assert_called_once_with("merch", 5000)
 
 
+def test_duplicate_charge_webhook(db, stripe_config):
+    """Stripe may deliver the same charge.succeeded more than once, and it should only be recorded once."""
+    generate_user(stripe_customer_id="cus_Pv4uq0gT0rDZWN")
+
+    with patch("couchers.servicers.donations.send_slack_message") as mock_slack:
+        with patch("couchers.servicers.donations.observe_revenue") as mock_observe_revenue:
+            fire_stripe_event("evt_3P5El3IfR5z29g5k0TLWlfHq")
+            fire_stripe_event("evt_3P5El3IfR5z29g5k0TLWlfHq")
+    mock_slack.assert_called_once()
+    mock_observe_revenue.assert_called_once()
+
+    with session_scope() as session:
+        invoice = session.execute(select(Invoice)).scalar_one()
+        assert invoice.stripe_payment_intent_id == "pi_3P5El3IfR5z29g5k0N5TNa7R"
+
+
 def test_untagged_one_time_donation(db, stripe_config):
     """One-time charges from checkouts started before we tagged them still record their frequency."""
     generate_user(stripe_customer_id="cus_Pv4uq0gT0rDZWN")
