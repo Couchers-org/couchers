@@ -2,6 +2,7 @@ import json
 import logging
 from typing import Any
 
+import certifi
 import grpc
 import stripe
 from google.protobuf import empty_pb2
@@ -24,6 +25,9 @@ from couchers.slack import send_slack_message
 from couchers.utils import not_none
 
 logger = logging.getLogger(__name__)
+
+# stripe-python ships its own CA bundle, which it rarely updates, so use certifi's like the rest of the backend
+stripe.ca_bundle_path = certifi.where()
 
 
 donationfrequency2sql = {
