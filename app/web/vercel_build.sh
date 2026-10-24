@@ -32,5 +32,5 @@ if ! command -v rsync >/dev/null 2>&1; then
   dnf install -y rsync
 fi
 
-make protos
+make
 yarn build
