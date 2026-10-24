@@ -16,7 +16,7 @@
     "verify": {
       "thanks": "Děkujeme, že jste se zaregistrovali na Couchers.org!",
       "instructions": "Pokud chceš dokončit nastavení svého účtu, klikni prosím na následující odkaz:",
-      "confirm_action": "Potvrď svou e-mailovou adresu"
+      "confirm_action": "Potvrď svou emailovou adresu"
     }
   },
   "references": {
@@ -24,7 +24,7 @@
   },
   "generic": {
     "greeting_line": "Ahoj {{name}},",
-    "do_not_reply_request": "Neodpovídej na tento e-mail. K odpovědi na tuto žádost použij jedno z tlačítek výše.",
+    "do_not_reply_request": "Neodpovídej na tento email. K odpovědi na tuto žádost použij jedno z tlačítek výše.",
     "thanks": "Děkuji!",
     "security_warning_contact_support": "Pokud nedošlo k zahájení této akce z tvé strany, kontaktuj nás prosím na {{ email_link }}, abychom to mohli co nejdříve vyřešit.",
     "closing_lines": {
@@ -34,16 +34,16 @@
       "emily": "Emily z Couchers.org<br>{{ email_link }}<br>{{ profile_link }}"
     },
     "footer": {
-      "received_because": "Tento e-mail dostáváš, protože máš účet na Couchers.org.",
+      "received_because": "Tento email dostáváš, protože máš účet na Couchers.org.",
       "contact_support": "Náš tým podpory můžeš kontaktovat na {{ email_link }}.",
       "timezone_note": "Všechny časy jsou v {{ timezone }} podle polohy v tvém profilu.",
       "donate_link": "Přispět",
       "volunteer_link": "Dobrovolník",
       "blog_link": "Blog",
       "nonprofit_note": "Couchers.org je projekt společnosti Couchers, Inc., americké neziskové organizace s daňovým osvobozením podle paragrafu 501(c)(3).",
-      "security_email_note": "Toto je bezpečnostní e-mail, jeho odběr nelze zrušit.",
+      "security_email_note": "Toto je bezpečnostní email, jeho odběr nelze zrušit.",
       "notification_settings_link": "Spravovat předvolby oznámení",
-      "do_not_email_link": "Neposílat mi e-maily (zakáže hostování)"
+      "do_not_email_link": "Neposílat mi emaily (znemožní hostování)"
     }
   },
   "calendar_events": {

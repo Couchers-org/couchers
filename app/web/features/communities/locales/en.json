@@ -127,6 +127,7 @@
   "past": "Past",
   "upcoming": "Upcoming",
   "your_events": "Your events",
+  "couch_crashes_prompt": "Looking for something bigger? <crashesLink>See upcoming Couch Crashes</crashesLink>",
   "discover_events_title": "Discover Couchers.org events",
   "created_by_me": "Created by me",
   "notify_attendees": "Notify event attendees of this change",

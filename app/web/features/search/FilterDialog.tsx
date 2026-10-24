@@ -43,8 +43,10 @@ const StyledDialog = styled(Dialog)({
   "& .MuiDialog-paper": {
     borderRadius: "20px",
     width: "100%",
-    maxWidth: "50%",
     padding: theme.spacing(1),
+    [theme.breakpoints.up("md")]: {
+      maxWidth: "50%",
+    },
   },
 });
 
