@@ -18,20 +18,14 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import { useTranslation } from "i18n";
 import { LOCALE_AUTONYMS } from "i18n/locales";
 import { GLOBAL } from "i18n/namespaces";
-import {
-  getLocaleBundledTranslationReadiness,
-  PRODUCTION_READY_THRESHOLD,
-  SELECTABLE_THRESHOLD,
-} from "i18n/translationReadiness";
+import { PRODUCTION_READY_THRESHOLD } from "i18n/translationReadiness";
+import { useSelectableLocales } from "i18n/useSelectableLocales";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { translateRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 import { sendLanguageChange } from "utils/nativeLink";
-
-import { allLanguages } from "../../i18n/allLanguages";
-import { useShowAllLanguages } from "./useShowAllLanguages";
 
 interface StyledMuiSelectProps {
   displayMode?: "rounded" | "rect" | "icon";
@@ -87,7 +81,7 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { t, i18n } = useTranslation([GLOBAL]);
 
-  const { showAllLanguages } = useShowAllLanguages();
+  const selectableLocales = useSelectableLocales();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isChangingLanguage, setIsChangingLanguage] = useState(false);
@@ -132,66 +126,59 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
     router.push(translateRoute);
   };
 
-  const availableLocales = allLanguages
-    .map((locale) => ({
-      code: locale,
-      autonym: LOCALE_AUTONYMS[locale],
-      readiness: getLocaleBundledTranslationReadiness(locale),
-    }))
-    .filter((entry) => showAllLanguages || entry.readiness >= SELECTABLE_THRESHOLD)
+  const menuItems: React.ReactNode[] = selectableLocales
     .sort((a, b) => {
       // First show production ready, then others
       const aReady = a.readiness >= PRODUCTION_READY_THRESHOLD;
       const bReady = b.readiness >= PRODUCTION_READY_THRESHOLD;
       if (aReady !== bReady) return aReady ? -1 : 1;
       return a.autonym.localeCompare(b.autonym, i18n.language);
-    });
-
-  const menuItems: React.ReactNode[] = availableLocales.map((localeInfo) => {
-    return (
-      <MenuItem
-        key={localeInfo.code}
-        value={localeInfo.code}
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          gap: theme.spacing(1),
-          "& .Mui-selected": {
-            backgroundColor: "var(--mui-palette-action-selected)",
-          },
-          "& .Mui-selected:hover": {
-            backgroundColor: "var(--mui-palette-action-hover)",
-          },
-        }}
-      >
-        <Stack
-          direction="row"
+    })
+    .map((localeInfo) => {
+      return (
+        <MenuItem
+          key={localeInfo.code}
+          value={localeInfo.code}
           sx={{
+            display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
-            width: "100%",
+            gap: theme.spacing(1),
+            "& .Mui-selected": {
+              backgroundColor: "var(--mui-palette-action-selected)",
+            },
+            "& .Mui-selected:hover": {
+              backgroundColor: "var(--mui-palette-action-hover)",
+            },
           }}
         >
-          <Stack direction="row">
-            <ListItemText
-              sx={{
-                opacity: localeInfo.readiness >= PRODUCTION_READY_THRESHOLD ? 1 : 0.4,
-                fontWeight: "bold",
-                display: "inline",
-              }}
-            >
-              {localeInfo.autonym}
-            </ListItemText>
+          <Stack
+            direction="row"
+            sx={{
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
+            }}
+          >
+            <Stack direction="row">
+              <ListItemText
+                sx={{
+                  opacity: localeInfo.readiness >= PRODUCTION_READY_THRESHOLD ? 1 : 0.4,
+                  fontWeight: "bold",
+                  display: "inline",
+                }}
+              >
+                {localeInfo.autonym}
+              </ListItemText>
+            </Stack>
+            <div>
+              {locale === localeInfo.code && (
+                <CheckIcon fontSize="small" sx={{ color: "var(--mui-palette-primary-main)" }} />
+              )}
+            </div>
           </Stack>
-          <div>
-            {locale === localeInfo.code && (
-              <CheckIcon fontSize="small" sx={{ color: "var(--mui-palette-primary-main)" }} />
-            )}
-          </div>
-        </Stack>
-      </MenuItem>
-    );
-  });
+        </MenuItem>
+      );
+    });
 
   // renderValue function for what should be rendered after a selection is made
   const renderRoundedValue = (value: unknown) => {

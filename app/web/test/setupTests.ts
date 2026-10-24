@@ -39,22 +39,6 @@ jest.mock("components/MarkdownInput/MarkdownInput", () => ({
   default: jest.requireActual("components/MarkdownInput/MarkdownInputNoSSR").default,
 }));
 jest.mock("react-gtm-module");
-jest.mock("i18n/useLocaleInfos", () => ({
-  __esModule: true,
-  useLocaleInfos: () => ({
-    data: [
-      { code: "en", autonym: "English", stringAvailabilityPercent: 100 },
-      { code: "es", autonym: "Español", stringAvailabilityPercent: 85 },
-      { code: "fr", autonym: "Français", stringAvailabilityPercent: 75 },
-      { code: "de", autonym: "Deutsch", stringAvailabilityPercent: 60 },
-      { code: "it", autonym: "Italiano", stringAvailabilityPercent: 45 },
-      { code: "pt", autonym: "Português (Portugal)", stringAvailabilityPercent: 30 },
-      { code: "ru", autonym: "Русский", stringAvailabilityPercent: 15 },
-    ],
-    isLoading: false,
-    error: null,
-  }),
-}));
 jest.mock("react-simple-maps", () => ({
   ComposableMap: () => null,
   Geographies: () => null,
