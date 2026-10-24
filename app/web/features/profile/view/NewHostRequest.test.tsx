@@ -240,14 +240,14 @@ describe("NewHostRequest", () => {
     });
     await user.click(arrivalGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("06012026");
+    await user.keyboard("01062026");
 
     const departureGroup = screen.getByRole("group", {
       name: t("profile:request_form.departure_date"),
     });
     await user.click(departureGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("06052026");
+    await user.keyboard("05062026");
 
     await user.click(screen.getByLabelText(t("profile:request_form.request")));
     await user.paste(LONG_TEXT);
@@ -276,14 +276,14 @@ describe("NewHostRequest", () => {
     });
     await user.click(arrivalGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("06012026");
+    await user.keyboard("01062026");
 
     const departureGroup = screen.getByRole("group", {
       name: t("profile:request_form.departure_date"),
     });
     await user.click(departureGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("06052026");
+    await user.keyboard("05062026");
 
     await user.click(screen.getByLabelText(t("profile:request_form.request")));
     await user.paste(LONG_TEXT);
@@ -305,8 +305,8 @@ describe("NewHostRequest", () => {
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
     await screen.findByRole("group", { name: t("profile:request_form.arrival_date") });
 
-    await typeDate(user, t("profile:request_form.arrival_date"), "06012026");
-    await typeDate(user, t("profile:request_form.departure_date"), "06052026");
+    await typeDate(user, t("profile:request_form.arrival_date"), "01062026");
+    await typeDate(user, t("profile:request_form.departure_date"), "05062026");
     await user.click(screen.getByLabelText(t("profile:request_form.request")));
     await user.paste(LONG_TEXT);
     await user.click(screen.getByRole("button", { name: t("global:send") }));
@@ -321,9 +321,9 @@ describe("NewHostRequest", () => {
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
     await screen.findByRole("group", { name: t("profile:request_form.arrival_date") });
 
-    await typeDate(user, t("profile:request_form.arrival_date"), "06012026");
-    await typeDate(user, t("profile:request_form.departure_date"), "06052026");
-    await typeDate(user, t("profile:request_form.arrival_date"), "06102026");
+    await typeDate(user, t("profile:request_form.arrival_date"), "01062026");
+    await typeDate(user, t("profile:request_form.departure_date"), "05062026");
+    await typeDate(user, t("profile:request_form.arrival_date"), "10062026");
     await user.click(screen.getByLabelText(t("profile:request_form.request")));
     await user.paste(LONG_TEXT);
     await user.click(screen.getByRole("button", { name: t("global:send") }));
