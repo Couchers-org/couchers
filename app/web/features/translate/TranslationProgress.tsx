@@ -115,8 +115,8 @@ export default function TranslationProgress() {
   }
 
   // Show all locales with any progress, sorted by completion percentage
-  const availableLocales = weblateLanguages
-    .filter((locale) => locale.translationProgress > 0)
+  const filteredWeblateLanguages = weblateLanguages
+    .filter((language) => language.translationProgress > 0)
     .sort((a, b) => b.translationProgress - a.translationProgress);
 
   return (
@@ -153,14 +153,14 @@ export default function TranslationProgress() {
           {t("global:language_preference.translation_progress.info_text")}
         </Typography>
       </Box>
-      {availableLocales.map((localeInfo) => {
-        const languageCode = localeInfo.code;
-        const nativeName = LOCALE_AUTONYMS[localeInfo.code];
-        const percent = localeInfo.translationProgress * 100;
-        const readiness = classifyTranslationReadiness(localeInfo.translationProgress);
+      {filteredWeblateLanguages.map((weblateLanguage) => {
+        const locale = weblateLanguage.locale;
+        const nativeName = LOCALE_AUTONYMS[weblateLanguage.locale];
+        const percent = weblateLanguage.translationProgress * 100;
+        const readiness = classifyTranslationReadiness(weblateLanguage.translationProgress);
 
         return (
-          <React.Fragment key={localeInfo.code}>
+          <React.Fragment key={weblateLanguage.locale}>
             {isMobile && (
               <SmallLanguageCard readiness={readiness}>
                 <StyledCardContent
@@ -220,7 +220,7 @@ export default function TranslationProgress() {
                       {percent.toFixed(1)}%
                     </Typography>
                     <Typography variant="caption" sx={{ color: "text.secondary" }}>
-                      {languageCode.toUpperCase()}
+                      {locale.toUpperCase()}
                     </Typography>
                   </Box>
                   <Box sx={{ flex: 1, width: "100%" }}>
@@ -255,7 +255,7 @@ export default function TranslationProgress() {
                         color: "text.secondary",
                       }}
                     >
-                      {languageCode.toUpperCase()}
+                      {locale.toUpperCase()}
                     </Typography>
 
                     <Box sx={{ flex: 1, minWidth: 0 }} />

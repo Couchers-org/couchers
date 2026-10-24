@@ -4,7 +4,7 @@ import Sentry from "platform/sentry";
 /** Metadata about a Weblate language. */
 export interface WeblateLanguage {
   /** ISO locale code. */
-  code: string;
+  locale: string;
   /** Translation progress between 0 and 1. */
   translationProgress: number;
 }
@@ -12,7 +12,7 @@ export interface WeblateLanguage {
 export function useWeblateLanguages() {
   return useQuery({
     queryKey: ["weblate-stats"],
-    initialData: [],
+    placeholderData: [],
     queryFn: () => fetchWeblateLanguages(),
     staleTime: 10 * 60 * 1000, // 10 minutes - data considered fresh
     gcTime: 10 * 60 * 1000, // 10 minutes - cache persists
@@ -46,7 +46,7 @@ async function fetchWeblateLanguages(): Promise<WeblateLanguage[]> {
   const entries = ((await response.json()) as LanguagesResponse) || [];
   // Map to friendlier type
   return entries.map((entry) => ({
-    code: weblateToISOLocale(entry.code),
+    locale: weblateToISOLocale(entry.code),
     translationProgress: entry.translated_percent / 100,
   }));
 }
