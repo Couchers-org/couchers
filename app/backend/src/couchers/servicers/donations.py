@@ -215,6 +215,11 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                     )
                 except Exception as e:
                     report_error(e)
+            elif session.execute(
+                select(Invoice.id).where(Invoice.stripe_payment_intent_id == data_object["payment_intent"])
+            ).scalar_one_or_none():
+                # Stripe delivers webhooks at least once, so we may see the same charge again
+                logger.info(f"Already recorded payment {data_object['payment_intent']}, ignoring duplicate {event_id=}")
             else:
                 customer_id = data_object["customer"]
                 user = session.execute(select(User).where(User.stripe_customer_id == customer_id)).scalar_one()
