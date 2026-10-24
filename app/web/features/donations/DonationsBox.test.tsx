@@ -65,13 +65,13 @@ describe("DonationsBox", () => {
     });
     render(<DonationsBox />, { wrapper });
 
-    expect(screen.getByText("$42")).toBeVisible();
-    expect(screen.queryByText("$500")).not.toBeInTheDocument();
+    expect(screen.getByText("US$42")).toBeVisible();
+    expect(screen.queryByText("US$500")).not.toBeInTheDocument();
 
     await userEvent.click(screen.getByLabelText(t("donations:donations_box.yearly_button_label")));
 
-    expect(screen.getByText("$240")).toBeVisible();
-    expect(screen.queryByText("$1,000")).not.toBeInTheDocument();
+    expect(screen.getByText("US$240")).toBeVisible();
+    expect(screen.queryByText("US$1,000")).not.toBeInTheDocument();
 
     await userEvent.click(screen.getByRole("button", { name: t("donations:donations_box.action_button_label") }));
 
@@ -86,8 +86,8 @@ describe("DonationsBox", () => {
     });
     render(<DonationsBox />, { wrapper });
 
-    expect(screen.getByText("$3")).toBeVisible();
-    expect(screen.queryByText("$1")).not.toBeInTheDocument();
+    expect(screen.getByText("US$3")).toBeVisible();
+    expect(screen.queryByText("US$1")).not.toBeInTheDocument();
 
     await userEvent.click(screen.getByRole("button", { name: t("donations:donations_box.action_button_label") }));
 
