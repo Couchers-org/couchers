@@ -7,10 +7,10 @@ jest.mock("i18n/weblate", () => ({
   __esModule: true,
   useWeblateLanguages: () => ({
     data: [
-      { code: "en", translationProgress: 100 },
-      { code: "de", translationProgress: 90 },
-      { code: "zh-Hans", translationProgress: 70 },
-      { code: "zh-Hant", translationProgress: 65 },
+      { locale: "en", translationProgress: 1 },
+      { locale: "de", translationProgress: 0.9 },
+      { locale: "zh-Hans", translationProgress: 0.7 },
+      { locale: "zh-Hant", translationProgress: 0.65 },
     ],
     isLoading: false,
     error: null,

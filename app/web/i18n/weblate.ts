@@ -9,10 +9,13 @@ export interface WeblateLanguage {
   translationProgress: number;
 }
 
+// Stable reference so callers don't see a new array on every render while loading.
+const NO_LANGUAGES: WeblateLanguage[] = [];
+
+/** Gets the list of Weblate languages or an empty array while loading or on error. */
 export function useWeblateLanguages() {
-  return useQuery({
+  const query = useQuery({
     queryKey: ["weblate-stats"],
-    placeholderData: [],
     queryFn: () => fetchWeblateLanguages(),
     staleTime: 10 * 60 * 1000, // 10 minutes - data considered fresh
     gcTime: 10 * 60 * 1000, // 10 minutes - cache persists
@@ -20,6 +23,7 @@ export function useWeblateLanguages() {
     refetchOnWindowFocus: false,
     refetchOnMount: false,
   });
+  return { ...query, data: query.data ?? NO_LANGUAGES };
 }
 
 /** The shape of the response from the Weblate languages API. */
