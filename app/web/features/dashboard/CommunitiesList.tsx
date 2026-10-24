@@ -1,5 +1,5 @@
-import { ArrowBack, ArrowForward, Groups } from "@mui/icons-material";
-import { Box, IconButton, styled, Typography, TypographyProps, useMediaQuery, useTheme } from "@mui/material";
+import { Groups } from "@mui/icons-material";
+import { Box, styled, Typography, TypographyProps, useMediaQuery, useTheme } from "@mui/material";
 import Alert from "components/Alert";
 import FadingScrollTrack, { cardScrollDistance } from "components/FadingScrollTrack";
 import StyledLink from "components/StyledLink";
@@ -10,16 +10,11 @@ import { DASHBOARD } from "i18n/namespaces";
 import { useEffect, useRef, useState } from "react";
 import { routeToCommunity } from "routes";
 
+import DashboardSectionHeader from "./DashboardSectionHeader";
+
 const CARD_GAP = 12;
 const CARD_WIDTH = 200;
 const SCROLL_END_TOL = 6;
-
-const SectionHeader = styled("div")({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  marginBottom: "8px",
-});
 
 const CardSlot = styled(Box)({
   flex: `0 0 ${CARD_WIDTH}px`,
@@ -95,33 +90,14 @@ export default function CommunitiesList() {
 
   return (
     <div>
-      <SectionHeader>
-        <Typography variant="h2" sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
-          <Groups sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />
-          {t("dashboard:your_communities_heading")}
-        </Typography>
-
-        <div>
-          <IconButton
-            size="small"
-            onClick={() => scroll(-1)}
-            disabled={!canScrollLeft}
-            color={canScrollLeft ? "primary" : "default"}
-            aria-label={t("dashboard:prev_page_button_a11y")}
-          >
-            <ArrowBack fontSize="small" />
-          </IconButton>
-          <IconButton
-            size="small"
-            onClick={() => scroll(1)}
-            disabled={!canScrollRight}
-            color={canScrollRight ? "primary" : "default"}
-            aria-label={t("dashboard:next_page_button_a11y")}
-          >
-            <ArrowForward fontSize="small" />
-          </IconButton>
-        </div>
-      </SectionHeader>
+      <DashboardSectionHeader
+        icon={Groups}
+        title={t("dashboard:your_communities_heading")}
+        hasPrevious={canScrollLeft}
+        hasNext={canScrollRight}
+        onPrevious={() => scroll(-1)}
+        onNext={() => scroll(1)}
+      />
       <Typography variant="body1" sx={{ paddingBottom: theme.spacing(2) }}>
         <Trans
           i18nKey="dashboard:communities_intro"
