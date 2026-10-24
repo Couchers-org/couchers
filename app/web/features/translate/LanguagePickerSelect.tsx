@@ -147,7 +147,7 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
       return a.autonym.localeCompare(b.autonym, i18n.language);
     });
 
-  const menuItems: React.ReactNode[] | undefined = availableLocales.map((localeInfo) => {
+  const menuItems: React.ReactNode[] = availableLocales.map((localeInfo) => {
     return (
       <MenuItem
         key={localeInfo.code}
