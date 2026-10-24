@@ -30,7 +30,7 @@ import client from "@/service/client";
 import { dispatchEscapeRef, lastLoginTimeRef } from "@/state/webViewState";
 import { theme } from "@/theme";
 import { applicationNameForUserAgent } from "@/utils/userAgent";
-import { shouldLoadInWebView } from "@/utils/webViewUrlUtils";
+import { isUnsafeUrl, shouldLoadInWebView } from "@/utils/webViewUrlUtils";
 
 // Read by the web app (app/web/utils/nativeLink.ts). Capabilities let it show
 // features only to app versions that handle them.
@@ -402,6 +402,10 @@ export default function WebEmbed({
       return true;
     }
 
+    if (isUnsafeUrl(url)) {
+      return false;
+    }
+
     // External URLs (Stripe, etc.): open in device's browser.
     Linking.openURL(url).catch((err) => {
       if (__DEV__) {
@@ -416,9 +420,13 @@ export default function WebEmbed({
   }) => {
     const { targetUrl } = syntheticEvent.nativeEvent;
 
+    if (isUnsafeUrl(targetUrl)) {
+      return;
+    }
+
     if (shouldLoadInWebView(targetUrl, WEB_BASE_URL)) {
       webviewRef.current?.injectJavaScript(
-        `window.location.href = "${targetUrl}"; true;`,
+        `window.location.href = ${JSON.stringify(targetUrl)}; true;`,
       );
     } else {
       Linking.openURL(targetUrl).catch((err) => {

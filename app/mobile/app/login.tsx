@@ -13,7 +13,7 @@ import client from "@/service/client";
 import { lastLoginTimeRef } from "@/state/webViewState";
 import { theme } from "@/theme";
 import { applicationNameForUserAgent } from "@/utils/userAgent";
-import { shouldLoadInWebView } from "@/utils/webViewUrlUtils";
+import { isUnsafeUrl, shouldLoadInWebView } from "@/utils/webViewUrlUtils";
 
 // Polls getAuthState until the session cookie has synced from WKHTTPCookieStore
 // to NSHTTPCookieStorage. New WebViews (sharedCookiesEnabled) read from
@@ -107,12 +107,18 @@ export default function LoginScreen() {
           if (shouldLoadInWebView(event.url, WEB_BASE_URL)) {
             return true;
           }
+          if (isUnsafeUrl(event.url)) {
+            return false;
+          }
           Linking.openURL(event.url).catch(() => {});
           return false;
         }}
         onOpenWindow={(syntheticEvent) => {
           const { targetUrl } = syntheticEvent.nativeEvent;
-          if (!shouldLoadInWebView(targetUrl, WEB_BASE_URL)) {
+          if (
+            !shouldLoadInWebView(targetUrl, WEB_BASE_URL) &&
+            !isUnsafeUrl(targetUrl)
+          ) {
             Linking.openURL(targetUrl).catch(() => {});
           }
         }}
