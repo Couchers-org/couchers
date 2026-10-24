@@ -17,7 +17,8 @@ export enum TranslationReadiness {
 export const SELECTABLE_THRESHOLD = TranslationReadiness.Midway;
 export const PRODUCTION_READY_THRESHOLD = TranslationReadiness.AlmostDone;
 
-export function translationProgressToReadiness(progress: number): TranslationReadiness {
+/** Classifies a 0 to 1 translation progress into a readiness category. */
+export function classifyTranslationReadiness(progress: number): TranslationReadiness {
   const EARLY_STAGE_PROGRESS = 0.2;
   const MIDWAY_PROGRESS = 0.5;
   const ALMOST_DONE_PROGRESS = 0.8;
@@ -41,5 +42,5 @@ export function getLocalePackagedTranslationProgress(locale: string): number {
 /** Gets the translation readiness of a locale based on packaged strings (not Weblate). */
 export function getLocalePackagedTranslationReadiness(locale: string): TranslationReadiness {
   const progress = getLocalePackagedTranslationProgress(locale);
-  return translationProgressToReadiness(progress);
+  return classifyTranslationReadiness(progress);
 }

@@ -3,7 +3,7 @@ import { Box, Card, CardContent, Chip, Link, styled, Typography, useMediaQuery }
 import { useTranslation } from "i18n";
 import { LOCALE_AUTONYMS } from "i18n/locales";
 import { GLOBAL } from "i18n/namespaces";
-import { translationProgressToReadiness, TranslationReadiness } from "i18n/translationReadiness";
+import { classifyTranslationReadiness, TranslationReadiness } from "i18n/translationReadiness";
 import { useWeblateLanguages } from "i18n/weblate";
 import React from "react";
 import { translateJobURL } from "routes";
@@ -157,7 +157,7 @@ export default function TranslationProgress() {
         const languageCode = localeInfo.code;
         const nativeName = LOCALE_AUTONYMS[localeInfo.code];
         const percent = localeInfo.translationProgress * 100;
-        const readiness = translationProgressToReadiness(localeInfo.translationProgress);
+        const readiness = classifyTranslationReadiness(localeInfo.translationProgress);
 
         return (
           <React.Fragment key={localeInfo.code}>
