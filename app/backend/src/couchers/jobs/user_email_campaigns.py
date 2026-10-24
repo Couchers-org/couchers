@@ -7,9 +7,9 @@ import logging
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 
-from couchers.context import make_background_user_context
 from couchers.db import session_scope
 from couchers.email_campaigns import CAMPAIGNS
+from couchers.experimentation_sql import check_value_against_sdk, feature_value_sql, record_sql_exposures
 from couchers.models import (
     NotificationTopicAction,
     User,
@@ -24,18 +24,18 @@ def run_user_email_campaigns(payload: empty_pb2.Empty) -> None:
     """Hourly: walk each campaign, send to newly-eligible users, record the send."""
     for campaign in CAMPAIGNS:
         logger.info("Running user email campaign %s", campaign.key)
+        flag = feature_value_sql(campaign.flag_key, campaign.flag_default, User.id)
         with session_scope() as session:
             already_sent = (
                 select(UserEmailCampaignSend.user_id)
                 .where(UserEmailCampaignSend.campaign_key == campaign.key)
                 .scalar_subquery()
             )
-            candidates = session.execute(campaign.predicate().where(~User.id.in_(already_sent))).scalars().all()
-            for user in candidates:
-                if campaign.per_user_filter is not None:
-                    context = make_background_user_context(user_id=user.id)
-                    if not campaign.per_user_filter(context, user):
-                        continue
+            candidates = campaign.predicate().where(~User.id.in_(already_sent))
+            record_sql_exposures(session, flag, candidates, campaign.sends)
+            recipients = session.execute(candidates.add_columns(flag.value).where(campaign.sends(flag.value))).all()
+            for user, value in recipients:
+                check_value_against_sdk(flag, user.id, value)
                 notify(
                     session,
                     user_id=user.id,
