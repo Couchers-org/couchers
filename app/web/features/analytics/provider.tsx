@@ -8,7 +8,7 @@
  * - Session starts (when users first land on your site)
  * - Page views (including time spent on each page)
  * - Device info (screen size, browser, language)
- * - Marketing attribution (UTM parameters from ads/campaigns)
+ * - Marketing attribution (UTM parameters from ads/campaigns, refs from our emails)
  * - Referral sources (where users came from)
  *
  * HOW TO USE:
@@ -29,29 +29,32 @@ import { ReactNode, useEffect, useRef } from "react";
 
 import { destroyCollector, initializeCollector, logEvent } from "./eventCollector";
 
+// zz: added to links in our emails, see app/backend/src/couchers/email/zz.py
+const ATTRIBUTION_PARAMS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "zz"];
+
 /**
- * Extract UTM parameters from the URL for marketing attribution.
- * These help track which campaigns, ads, or links brought users to your site.
+ * Extract attribution parameters (UTM params and email refs) from the URL.
+ * These help track which campaigns, ads, emails, or links brought users to your site.
  */
-function getUtmParams(): Record<string, string> {
+function getAttributionParams(): Record<string, string> {
   const params = new URLSearchParams(window.location.search);
-  const utm: Record<string, string> = {};
-  for (const key of ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"]) {
+  const attribution: Record<string, string> = {};
+  for (const key of ATTRIBUTION_PARAMS) {
     const val = params.get(key);
-    if (val) utm[key] = val;
+    if (val) attribution[key] = val;
   }
-  return utm;
+  return attribution;
 }
 
 /**
- * Get query parameters excluding UTM params (for cleaner page.viewed events).
+ * Get query parameters excluding attribution params (for cleaner page.viewed events).
  * This keeps your analytics focused on actual page parameters, not marketing tags.
  */
 function getFilteredSearch(queryString: string): string | null {
   const params = new URLSearchParams(queryString);
   const filtered = new URLSearchParams();
   params.forEach((value, key) => {
-    if (!key.startsWith("utm_")) {
+    if (!key.startsWith("utm_") && !ATTRIBUTION_PARAMS.includes(key)) {
       filtered.set(key, value);
     }
   });
@@ -85,7 +88,7 @@ export default function AnalyticsProvider({ children }: { children: ReactNode })
     initializeCollector();
 
     logEvent("session.started", {
-      ...getUtmParams(),
+      ...getAttributionParams(),
       referrer: document.referrer || null,
       landing_page: window.location.pathname,
       user_agent: navigator.userAgent,
