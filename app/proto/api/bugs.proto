@@ -46,6 +46,13 @@ service Bugs {
     };
   }
 
+  rpc RecordEmailOpen(RecordEmailOpenReq) returns (google.api.HttpBody) {
+    // Email open pixel, see couchers/email/zz.py
+    option (google.api.http) = {
+      get : "/email/open/{zz}"
+    };
+  }
+
   rpc GeolocationSearchInfo(GeolocationSearchInfoReq) returns (google.protobuf.Empty) {}
 
   rpc GeolocationClickInfo(GeolocationClickInfoReq) returns (google.protobuf.Empty) {}
@@ -112,6 +119,10 @@ message GeolocationSearchInfoReq {
   string nominatim_result_json = 2;
   string formatted_result_json = 3;
   uint32 duration_ms = 4;
+}
+
+message RecordEmailOpenReq {
+  string zz = 1;
 }
 
 message GeolocationClickInfoReq {
