@@ -28,6 +28,7 @@ import {
   shopRoute,
   teamRoute,
   tosRoute,
+  verificationRoute,
   volunteerRoute,
 } from "routes";
 import { Temporal } from "temporal-polyfill";
@@ -190,6 +191,7 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
             <FooterLink href={teamRoute}>{t("nav.our_team")}</FooterLink>
             <FooterLink href={crashCalendarRoute}>{t("nav.couch_crashes")}</FooterLink>
             <FooterLink href={landingRoute}>{t("nav.landing_page")}</FooterLink>
+            <FooterLink href={verificationRoute}>{t("nav.verification")}</FooterLink>
             <FooterLink href={newsletterSignupURL}>{t("nav.newsletter")}</FooterLink>
             <FooterLink href={shopRoute}>{t("nav.merch_shop")}</FooterLink>
           </div>
