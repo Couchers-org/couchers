@@ -463,6 +463,9 @@ export default function WebEmbed({
         applicationNameForUserAgent={applicationNameForUserAgent}
         allowsBackForwardNavigationGestures // iOS swipe back/forward
         sharedCookiesEnabled
+        webviewDebuggingEnabled={
+          process.env.EXPO_PUBLIC_COUCHERS_ENV !== "prod"
+        }
         cacheEnabled={true}
         cacheMode="LOAD_DEFAULT" // Revalidates on normal loads, uses cache for back nav (preserves cookies)
         startInLoadingState
