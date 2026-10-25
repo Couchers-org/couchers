@@ -22,6 +22,7 @@ import { ReferencesPromiseClient } from "proto/references_grpc_web_pb";
 import { ReportingPromiseClient } from "proto/reporting_grpc_web_pb";
 import { RequestsPromiseClient } from "proto/requests_grpc_web_pb";
 import { ResourcesPromiseClient } from "proto/resources_grpc_web_pb";
+import { ScreensPromiseClient } from "proto/screens_grpc_web_pb";
 import { SearchPromiseClient } from "proto/search_grpc_web_pb";
 import { ThreadsPromiseClient } from "proto/threads_grpc_web_pb";
 import { getClientPlatform } from "utils/clientPlatform";
@@ -111,6 +112,7 @@ const client = {
   reporting: new ReportingPromiseClient(URL, null, opts),
   requests: new RequestsPromiseClient(URL, null, opts),
   resources: new ResourcesPromiseClient(URL, null, opts),
+  screens: new ScreensPromiseClient(URL, null, opts),
   search: new SearchPromiseClient(URL, null, opts),
   threads: new ThreadsPromiseClient(URL, null, opts),
 };
@@ -143,6 +145,7 @@ if (!IS_PROD && typeof window !== "undefined") {
     client.reporting,
     client.requests,
     client.resources,
+    client.screens,
     client.search,
     client.threads,
   ]);

@@ -1,4 +1,10 @@
-import { CancelOutlined, ContentCopyOutlined, EditOutlined, LinkOutlined } from "@mui/icons-material";
+import {
+  CancelOutlined,
+  ContentCopyOutlined,
+  EditOutlined,
+  EventAvailableOutlined,
+  LinkOutlined,
+} from "@mui/icons-material";
 import { Card, Chip, styled, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { eventImagePlaceholderUrl } from "appConstants";
@@ -27,8 +33,9 @@ import { eventsRoute, routeToDuplicateEvent, routeToEditEvent, routeToEvent } fr
 import { service } from "service";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
+import { useAddToCalendar } from "utils/addToCalendar";
 import { timestampToInstant, timestampToPlainDateTime } from "utils/date";
-import { sendNativeBack, useIsNativeEmbed } from "utils/nativeLink";
+import { sendNativeBack, useIsNativeEmbed, useIsSupportedInApp } from "utils/nativeLink";
 
 import { eventAttendeesBaseKey, eventKey } from "../../queryKeys";
 import CommentTree from "../discussions/CommentTree";
@@ -167,6 +174,8 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
   } = useTranslation([COMMUNITIES]);
   const router = useRouter();
   const isNativeEmbed = useIsNativeEmbed();
+  const isAddToCalendarSupported = useIsSupportedInApp("addToCalendar");
+  const addToCalendar = useAddToCalendar();
   const queryClient = useQueryClient();
   const currentUserId = useAuthContext().authState.userId;
   const { data: event, error: eventError, isLoading, isValidEventId } = useEvent({ eventId });
@@ -215,6 +224,8 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
 
   const isCreator = currentUserId === event?.creatorUserId;
 
+  const canAddToCalendar = !event?.isCancelled && !isPastEvent && isAddToCalendarSupported;
+
   const handleBackClick = () => {
     if (isNativeEmbed) {
       sendNativeBack();
@@ -243,6 +254,16 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
       },
       id: "copy-link",
     },
+    ...(canAddToCalendar
+      ? ([
+          {
+            icon: EventAvailableOutlined,
+            label: t("communities:add_to_calendar"),
+            onClick: () => addToCalendar(event!),
+            id: "add-to-calendar",
+          },
+        ] as EllipsisMenuItem[])
+      : []),
     ...(event?.canEdit && !event.isCancelled && !isPastEvent
       ? ([
           {

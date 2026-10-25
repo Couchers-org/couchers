@@ -13,6 +13,7 @@ import {
   contactRoute,
   couchersAppStoreURL,
   couchersGooglePlayURL,
+  crashCalendarRoute,
   donationsRoute,
   faqRoute,
   foundationRoute,
@@ -188,6 +189,7 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
             </Typography>
             <FooterLink href={blogRoute}>{t("nav.blog")}</FooterLink>
             <FooterLink href={teamRoute}>{t("nav.our_team")}</FooterLink>
+            <FooterLink href={crashCalendarRoute}>{t("nav.couch_crashes")}</FooterLink>
             <FooterLink href={landingRoute}>{t("nav.landing_page")}</FooterLink>
             <FooterLink href={verificationRoute}>{t("nav.verification")}</FooterLink>
             <FooterLink href={newsletterSignupURL}>{t("nav.newsletter")}</FooterLink>

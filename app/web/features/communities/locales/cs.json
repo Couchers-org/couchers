@@ -36,7 +36,6 @@
   "comment_deleted": "Tento komentář byl smazán.",
   "edit_comment": "Upravit komentář",
   "delete_comment": "Smazat komentář",
-  "comment_edited_date": "Upraveno {{timeAgo}}",
   "select_sub_community": "Vybrat komunitu",
   "sub_community_search_placeholder": "Poloha",
   "select_locality": "Vybrat město",
@@ -44,7 +43,6 @@
   "select_subregion": "Vybrat oblast",
   "select_region": "Zvolit zemi",
   "select_macroregion": "Vybrat oblast",
-  "discussion_edited_date": "Upraveno {{timeAgo}}",
   "discussion_deleted": "Tato diskuse byla smazána.",
   "delete_discussion": "Smazat diskuzi",
   "delete_discussion_dialog": {
@@ -151,5 +149,8 @@
   "report_event_button_a11y": "Nahlásit tuto událost",
   "event_image_input_alt": "Vložiť obrázek události",
   "community_image_input_alt": "Vložení obrázku komunity",
-  "new_discussion_button": "Nová diskuse"
+  "new_discussion_button": "Nová diskuse",
+  "comment_edited_date2": "Upraveno<timeAgo/>",
+  "discussion_edited_date2": "Upraveno<timeAgo/>",
+  "add_to_calendar": "Přidat do kalendáře"
 }

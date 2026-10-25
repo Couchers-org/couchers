@@ -615,6 +615,8 @@ sent_request_gauge: Gauge = _make_gauge_from_query(
         select(func.count(distinct(HostRequest.initiator_user_id)))
         .join(User, User.id == HostRequest.initiator_user_id)
         .where(User.is_visible)
+        # don't include public trip offers
+        .where(HostRequest.public_trip_id == None)
     ),
 )
 
@@ -744,6 +746,11 @@ strong_verification_data_deletions_counter: Counter = Counter(
 host_requests_sent_counter: Counter = Counter(
     "couchers_host_requests_total",
     "Number of host requests sent",
+    labelnames=["from_gender", "to_gender"],
+)
+public_trip_offers_sent_counter: Counter = Counter(
+    "couchers_public_trip_offers_total",
+    "Number of offers to host sent on public trips, from the host to the traveller",
     labelnames=["from_gender", "to_gender"],
 )
 host_request_responses_counter: Counter = Counter(

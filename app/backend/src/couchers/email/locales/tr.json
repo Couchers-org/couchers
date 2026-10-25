@@ -96,5 +96,10 @@
         "subject": "{{user}} seni {{title}}'ya davet etti"
       }
     }
+  },
+  "calendar_events": {
+    "host_requests": {
+      "title_surfer": "{{ name }} ile sörf"
+    }
   }
 }

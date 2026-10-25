@@ -17,7 +17,6 @@ interface FriendSummaryViewProps {
    */
   isCompact?: boolean;
   isProfileLink?: boolean;
-  cardRef?: React.Ref<HTMLDivElement>;
   menuItems?: EllipsisMenuItem[];
 }
 
@@ -50,16 +49,9 @@ const ButtonWrapper = styled("div", {
   isCompact ? fullWidthActions : { [theme.breakpoints.down("md")]: fullWidthActions },
 );
 
-function FriendSummaryView({
-  children,
-  friend,
-  isCompact = true,
-  isProfileLink,
-  cardRef,
-  menuItems,
-}: FriendSummaryViewProps) {
+function FriendSummaryView({ children, friend, isCompact = true, isProfileLink, menuItems }: FriendSummaryViewProps) {
   return friend ? (
-    <StyledFriendItem ref={cardRef} data-testid={FRIEND_ITEM_TEST_ID} isCompact={isCompact}>
+    <StyledFriendItem data-testid={FRIEND_ITEM_TEST_ID} isCompact={isCompact}>
       <UserSummary
         headlineComponent="h3"
         user={friend}

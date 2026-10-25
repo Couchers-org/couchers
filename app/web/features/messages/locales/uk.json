@@ -38,7 +38,7 @@
   "surfer_confirm_box_title": "{{name}} прийняв ваш запит!",
   "surfer_confirm_box_description": "Підтвердіть аби запланувати ваш візит, або скасуйте якщо ваші плани змінились.",
   "host_pending_request_help_text": "<guideLink>Зауважте ці деталі </guideLink> перед тим як відповісти.",
-  "surfer_declined_request_help_text": "<guideLink>Прочитайте наш порадник</guideLink> про те як писати запити, які зазвичай приймають.",
+  "surfer_declined_request_help_text": "<guideLink>Перегляньте наші поради</guideLink> про те як писати запити, які зазвичай приймають.",
   "past_request_help_text": "Це старий запит, ви досі можете спілкуватись, але не можете змінювати його.",
   "messages_page": {
     "title": "Повідомлення",
@@ -46,7 +46,8 @@
       "unread": "Непрочитані",
       "chats": "Розмови",
       "hosting": "Приймаю гостей",
-      "surfing": "Мандрую"
+      "surfing": "Мандрую",
+      "public_trips": "Мої публічні подорожі"
     }
   },
   "archive": {
@@ -171,7 +172,17 @@
       "rejected": "{{user}} відхилив(ла) цей запит",
       "rejected_self": "Ви відхилили цей запит"
     },
-    "unknown_message_text": "Невідоме повідомлення"
+    "unknown_message_text": "Невідоме повідомлення",
+    "invitation_status_changed": {
+      "accepted": "{{user}} прийняв(ла) запрошення",
+      "accepted_self": "Ви прийняли запрошення",
+      "cancelled": "{{user}} скасував(ла) своє запрошення",
+      "cancelled_self": "Ви скасували запрошення",
+      "confirmed": "{{user}} підтвердив(ла) свій візит",
+      "confirmed_self": "Ви підтвердили візит",
+      "rejected": "{{user}} відмовився(лась) від запрошення",
+      "rejected_self": "Ви відмовились від запрошення"
+    }
   },
   "host_request_status": {
     "accepted": "Прийнятий",
@@ -196,6 +207,19 @@
       "cancelled": "Ви скасували цей запит",
       "confirmed": "Бажаємо гарно провести час! {{name}} прийняв(ла) запит, а ви його підтвердили.",
       "rejected": "Ваш запит було відхилено"
+    },
+    "public_trip_chip": "Публічна подорож",
+    "invitation_host_status": {
+      "pending": "Очікуємо на відповідь {{name}}",
+      "accepted": "{{name}} прийняв(ла) ваше запрошення",
+      "rejected": "{{name}} відмовився(лась) від запрошення",
+      "cancelled": "Ви скасували ваше запрошення"
+    },
+    "invitation_surfer_status": {
+      "pending": "Запрошення у гості для вас - очікує на вашу відповідь",
+      "accepted": "Ви прийняли запрошення {{name}}",
+      "rejected": "Ви відмовились від цього запрошення",
+      "cancelled": "{{name}} скасував(ла) своє запрошення"
     }
   },
   "host_request_view": {
@@ -205,8 +229,42 @@
     "title_for_surfer": "Запит до {{user}} - {{status}}",
     "request_duration_one": "{{count}} ніч",
     "request_duration_few": "{{count}} ночі",
-    "request_duration_many": "{{count}} ночей"
+    "request_duration_many": "{{count}} ночей",
+    "invitation_title_for_surfer": "Запрошення від {{user}} · {{status}}",
+    "invitation_title_for_host": "Ваше запрошення у гості для {{user}} · {{status}}"
   },
   "unknown_user": "Невідомий користувач",
-  "show_more_actions_button_a11y": "Показати більше дій"
+  "show_more_actions_button_a11y": "Показати більше дій",
+  "mark_all_read_button_text_public_trips": "Позначити прочитаними усі запрошення у публічній подорожі",
+  "invitation_respond_box_title": "Відповісти на запрошення {{name}}",
+  "invitation_respond_box_description": "Приймаючи запрошення, ви дасте знати {{name}} що ви хотіли б завітати до нього(неї). У будь-якому разі можете продовжити розмову щоб уточнити деталі.",
+  "invitation_accept_confirmation": "Ви прийняли запрошення {{name}}. Привітайтеся та уточніть деталі зустрічі.",
+  "cancel_accepted_invitation_stay_button": "Скасувати візит",
+  "cancel_accepted_invitation_stay_dialog_title": "Скасувати ваш візит до {{name}} ?",
+  "cancel_accepted_invitation_stay_dialog_message": "Ми повідомимо {{name}}. Це незворотна дія.",
+  "cancel_accepted_invitation_stay_dialog_confirm_button": "Скасувати візит",
+  "cancel_accepted_invitation_stay_dialog_dismiss_button": "Не скасовувати візит",
+  "invitation_sent_box_title": "Запрошення відправлено",
+  "invitation_sent_box_description": "{{name}} ще не відповів(ла). Ми повідомимо вам, коли відповідь надійде.",
+  "invitation_host_accepted_box_title": "{{name}} прийняв(ла) ваше запрошення",
+  "invitation_host_accepted_box_description": "Підтвердіть щоб запланувати ваш візит, або скасуйте якщо ваші плани змінились.",
+  "invitation_host_confirmed_box_title": "Ви приймаєте {{name}} як гостя",
+  "invitation_host_confirmed_box_description": "Якщо ваші плани зміняться, ви все ще можете скасувати ваше запрошення. Ми повідомимо {{name}} про це.",
+  "withdraw_invitation_button": "Скасувати запрошення",
+  "withdraw_invitation_dialog_title": "Скасувати ваше запрошення ?",
+  "withdraw_invitation_dialog_message": "Це скасує ваше запрошення у гості для {{name}}, й ми повідомимо йому(їй) про це. Це незворотна дія.",
+  "withdraw_invitation_dialog_confirm_button": "Скасувати запрошення",
+  "withdraw_invitation_dialog_dismiss_button": "Не скасовувати запрошення",
+  "status_bar_edit_button": "Редагувати",
+  "status_bar_cancel_edit_button": "Скасувати",
+  "status_bar_close_button": "Закрити",
+  "my_public_trips": {
+    "empty_state": "Ви поки не отримали запрошень у гості у цій публічній подорожі.",
+    "nights_one": "{{count}} ніч",
+    "nights_few": "{{count}} ночі",
+    "nights_many": "{{count}} ночей",
+    "invitations_one": "{{count}} запрошення",
+    "invitations_few": "{{count}} запрошення",
+    "invitations_many": "{{count}} запрошень"
+  }
 }

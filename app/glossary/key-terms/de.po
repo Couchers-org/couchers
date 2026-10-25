@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-10-01 07:28+0000\n"
+"PO-Revision-Date: 2026-10-23 08:41+0000\n"
 "Last-Translator: Chris Kreuz <ckreuz@users.noreply.translate.couchershq.org>\n"
 "Language-Team: German <https://translate.couchershq.org/projects/couchers/glossary-key-terms/de/>\n"
 "Language: de\n"
@@ -129,10 +129,6 @@ msgstr "Verbindungen"
 #. (noun) The team behind Couchers.org.
 msgid "couchers_org_team"
 msgstr "Couchers.org-Team"
-
-#. (noun) The activity of free hospitality welcome/exchange. Platform-agnostic.
-msgid "couch surfing"
-msgstr "Couch-Surfing"
 
 #. (verb) As a host, the act of declining a surfer's host request.
 msgid "host_request.decline"
@@ -473,3 +469,47 @@ msgstr "Benachrichtigung"
 #. (noun) Email or push notifications sent to a user.
 msgid "notifications"
 msgstr "Benachrichtigungen"
+
+#. (noun) An invitation sent by a host in response to a surfer's public trip.
+msgid "public_trip.invitation"
+msgstr "Einladung"
+
+#. (noun) Invitations sent by hosts in response to a surfer's public trip.
+msgid "public_trip.invitations"
+msgstr "Einladungen"
+
+#. (verb) As a host, sending an invitation to a surfer in response to their public trip.
+msgid "public_trip.invite"
+msgstr "Einladen"
+
+#. (adj) The state of a surfer who has received an invitation from a host.
+msgid "public_trip.invited"
+msgstr "eingeladen"
+
+#. (verb) As a host, sending an invitation to a surfer in response to their public trip.
+msgid "public_trip.inviting"
+msgstr "einladen"
+
+#. (noun) A trip published by a surfer to solicit invitations from hosts.
+msgid "public_trip"
+msgstr "Öffentlicher Trip"
+
+#. (noun) Trips published by surfers to solicit invitations from hosts.
+msgid "public_trips"
+msgstr "Öffentliche Trips"
+
+#. (noun) An agreement for a surfer to stay with a host over a date range.
+msgid "stay.noun"
+msgstr "Aufenthalt"
+
+#. (noun) Agreements for surfers to stay with hosts over specific date ranges.
+msgid "stays"
+msgstr "Aufenthalte"
+
+#. (noun) The activity of free hospitality welcome/exchange. Platform-agnostic.
+msgid "couch_surfing"
+msgstr "Couch-Surfing"
+
+#. (noun) The logged-in landing page showing upcoming events, stays, etc.
+msgid "dashboard"
+msgstr "Dashboard"
