@@ -8245,10 +8245,10 @@ send@~0.19.0:
     range-parser "~1.2.1"
     statuses "2.0.1"
 
-sentry-testkit@^7.5.0:
-  version "7.5.0"
-  resolved "https://registry.yarnpkg.com/sentry-testkit/-/sentry-testkit-7.5.0.tgz#dfe48482810a3305667977ec86670ffa8a0eb1ee"
-  integrity sha512-xiGtbYbVHuyl6xU/OHxhTB9z7ftryolau4WE9icNWgaYJ28geZv7dpSWb5zMd8vToElzl+SapRkUSg7wkbMO1A==
+sentry-testkit@^7.6.0:
+  version "7.6.0"
+  resolved "https://registry.yarnpkg.com/sentry-testkit/-/sentry-testkit-7.6.0.tgz#f413272c8a911e936b0c469409ed1a320b04f803"
+  integrity sha512-X0Qi/7iDUCknzsIM0+OfwrVdJtnsJda6+se98jH5VNv9LmLVDKAbNhKOJc6eqcnnZzRFHLFAp/PSuU+ru7vk4w==
   dependencies:
     body-parser "^1.20.6"
     express "^4.21.2"
