@@ -1,0 +1,108 @@
+# Drives the app through each store screenshot. Run by run.mts, which passes:
+#   APP_ID, SCHEME, USERNAME, PASSWORD, COMMUNITY_ID
+# The waits look for text from the seeded data (backend/src/data/store_screenshots.json).
+# Screens are opened with deep links rather than tab taps, which are ambiguous to maestro inside web views.
+# Waits match substrings, as Android web views can join a heading's text with the text next to it.
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+# an "Open in ...?" prompt left over from an interrupted run survives relaunching the app
+- tapOn:
+    text: "Cancel"
+    optional: true
+- extendedWaitUntil:
+    visible: ".*Email/Username.*"
+    timeout: 60000
+# fields are found by their labels; Android web views don't expose placeholders
+- tapOn:
+    below: "Email/Username"
+    index: 0
+- inputText: ${USERNAME}
+- tapOn:
+    below: "Password"
+    index: 0
+- inputText: ${PASSWORD}
+- hideKeyboard
+- tapOn: "Log in"
+
+# dashboard, scrolled past the search hero and welcome so the stays and events fill the screen
+- extendedWaitUntil:
+    visible: ".*Your upcoming guests.*"
+    timeout: 60000
+- swipe:
+    start: 50%, 80%
+    end: 50%, 25%
+    duration: 1000
+- waitForAnimationToEnd
+- takeScreenshot: dashboard
+
+# search: Lisbon, framed so the seeded hosts fill the map
+- openLink: ${SCHEME}://search?location=Lisbon&bbox=-9.23&bbox=38.67&bbox=-9.08&bbox=38.79
+- runFlow: confirm-open.yaml
+- extendedWaitUntil:
+    visible: ".*Inês.*"
+    timeout: 60000
+- runFlow: wait-for-map.yaml
+- takeScreenshot: search
+
+- tapOn: "Search filters"
+- extendedWaitUntil:
+    visible: ".*Hosting status.*"
+    timeout: 30000
+# pick a few filters; "rightOf" keeps the taps inside the dialog rather than on the results behind it
+- tapOn:
+    text: "Can host"
+    rightOf: "Hosting status"
+- tapOn:
+    text: "Open to meet"
+    rightOf: "Meetup status"
+- waitForAnimationToEnd
+- takeScreenshot: filters
+
+# profile, from the top
+- openLink: ${SCHEME}://user/ines_s
+- runFlow: confirm-open.yaml
+- extendedWaitUntil:
+    visible: ".*@ines_s.*"
+    timeout: 60000
+- scrollUntilVisible:
+    element: "Inês"
+    direction: UP
+- swipe:
+    direction: DOWN
+- waitForAnimationToEnd
+- takeScreenshot: profile
+
+# inbox, then the conversation with Inês
+- openLink: ${SCHEME}://messages
+- runFlow: confirm-open.yaml
+- extendedWaitUntil:
+    visible: ".*Inês.*"
+    timeout: 60000
+- waitForAnimationToEnd
+- takeScreenshot: inbox
+- tapOn: "Inês"
+- extendedWaitUntil:
+    visible: ".*Can't wait.*"
+    timeout: 60000
+- waitForAnimationToEnd
+- takeScreenshot: messages
+
+- openLink: ${SCHEME}://events
+- runFlow: confirm-open.yaml
+- extendedWaitUntil:
+    visible: ".*Sunday picnic in Carlton Gardens.*"
+    timeout: 60000
+- waitForAnimationToEnd
+- takeScreenshot: events
+
+# Maya's local community, with its discussions
+- openLink: ${SCHEME}://community/${COMMUNITY_ID}/carlton/discussions
+- runFlow: confirm-open.yaml
+- extendedWaitUntil:
+    visible: ".*Hosting tips for small apartments.*"
+    timeout: 60000
+- runFlow: wait-for-map.yaml
+- takeScreenshot: community

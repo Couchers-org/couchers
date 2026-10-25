@@ -385,7 +385,7 @@ export default function Navigation() {
         </StyledNav>
         <StyledMenuContainer>
           <Box sx={{ display: "flex", gap: 0.5, marginRight: 0.5 }}>
-            {isNativeEmbed && <ReportButton />}
+            {isNativeEmbed && !process.env.NEXT_PUBLIC_STORE_SCREENSHOTS && <ReportButton />}
             <DarkModeToggle />
           </Box>
           {isAuthenticated ? (

@@ -9,3 +9,5 @@ package-lock.json
 README.md
 coverage/
 dist/
+scripts/store-screenshots/raw/
+scripts/store-screenshots/output/
