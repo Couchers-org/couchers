@@ -650,6 +650,41 @@ def _user_search_inner(
     return [user_id for user_id, _ in res[:page_size]], next_page_token, total_items, ranking_offsets_variant
 
 
+def _log_search_performed(
+    request: search_pb2.UserSearchReq,
+    context: CouchersContext,
+    session: Session,
+    total_items: int,
+    ranking_offsets_variant: str,
+) -> None:
+    non_filter_fields = {
+        "query",
+        "query_name_only",
+        "search_in_area",
+        "search_in_community_id",
+        "search_in_rectangle",
+        "exactly_user_ids",
+        "page_size",
+        "page_token",
+    }
+    filters = sorted(field.name for field, _ in request.ListFields() if field.name not in non_filter_fields)
+    log_event(
+        context,
+        session,
+        "search.performed",
+        {
+            "search_in": request.WhichOneof("search_in"),
+            "has_query": request.HasField("query"),
+            "has_filters": len(filters) > 0,
+            "filters": filters,
+            "is_selection": len(request.exactly_user_ids) > 0,
+            "has_page_token": bool(request.page_token),
+            "total_items": total_items,
+            "ranking_offsets_variant": ranking_offsets_variant,
+        },
+    )
+
+
 class Search(search_pb2_grpc.SearchServicer):
     def Search(self, request: search_pb2.SearchReq, context: CouchersContext, session: Session) -> search_pb2.SearchRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
@@ -708,27 +743,7 @@ class Search(search_pb2_grpc.SearchServicer):
             request, context, session
         )
 
-        log_event(
-            context,
-            session,
-            "search.performed",
-            {
-                "search_in": request.WhichOneof("search_in"),
-                "has_query": request.HasField("query"),
-                "has_filters": (
-                    len(request.hosting_status_filter) > 0
-                    or len(request.meetup_status_filter) > 0
-                    or len(request.smoking_location_filter) > 0
-                    or len(request.sleeping_arrangement_filter) > 0
-                    or len(request.parking_details_filter) > 0
-                    or len(request.language_ability_filter) > 0
-                    or request.only_with_references
-                    or request.only_with_strong_verification
-                ),
-                "total_items": total_items,
-                "ranking_offsets_variant": ranking_offsets_variant,
-            },
-        )
+        _log_search_performed(request, context, session, total_items, ranking_offsets_variant)
 
         user_ids_to_users: dict[int, User] = dict(
             session.execute(  # type: ignore[arg-type]
@@ -751,7 +766,11 @@ class Search(search_pb2_grpc.SearchServicer):
     def UserSearchV2(
         self, request: search_pb2.UserSearchReq, context: CouchersContext, session: Session
     ) -> search_pb2.UserSearchV2Res:
-        user_ids_to_return, next_page_token, total_items, _ = _user_search_inner(request, context, session)
+        user_ids_to_return, next_page_token, total_items, ranking_offsets_variant = _user_search_inner(
+            request, context, session
+        )
+
+        _log_search_performed(request, context, session, total_items, ranking_offsets_variant)
 
         LiteUser_by_id = {
             lite_user.id: lite_user
