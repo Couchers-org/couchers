@@ -41,10 +41,10 @@ const [, hostUser] = users; // funnydog, userId=2
 
 const LONG_TEXT = "a".repeat(250);
 
-function renderNewHostRequest() {
+function renderNewHostRequest(initialText?: string) {
   return render(
     <ProfileUserProvider user={hostUser}>
-      <NewHostRequest setIsRequestSuccess={jest.fn()} setIsRequesting={jest.fn()} />
+      <NewHostRequest setIsRequestSuccess={jest.fn()} setIsRequesting={jest.fn()} initialText={initialText} />
     </ProfileUserProvider>,
     { wrapper },
   );
@@ -348,5 +348,10 @@ describe("NewHostRequest", () => {
 
     expect(await screen.findByText(t("profile:request_form.departure_date_not_after_arrival"))).toBeInTheDocument();
     expect(createHostRequestMock).not.toHaveBeenCalled();
+  });
+
+  it("starts from the text of a message the user was writing", async () => {
+    renderNewHostRequest("Could you host me?");
+    expect(await screen.findByLabelText(t("profile:request_form.request"))).toHaveValue("Could you host me?");
   });
 });

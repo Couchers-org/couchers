@@ -1,0 +1,107 @@
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { HostingStatus } from "proto/api_pb";
+import { service } from "service";
+import users from "test/fixtures/users.json";
+import { getHookWrapperWithClient } from "test/hookWrapper";
+import i18n from "test/i18n";
+import { addDefaultUser, MockedService } from "test/utils";
+
+import { ProfileUserProvider } from "../hooks/useProfileUser";
+import NewMessage from "./NewMessage";
+
+const { t } = i18n;
+
+jest.mock("features/analytics/hooks", () => ({
+  useLogEvent: () => jest.fn(),
+}));
+
+jest.mock("features/antibot/antibot", () => ({
+  doAntibot: jest.fn(),
+}));
+
+jest.mock("features/userQueries/useLiteUsers", () => ({
+  useLiteUser: () => ({ isLoading: false, error: null }),
+}));
+
+const sendDirectMessageMock = service.conversations.sendDirectMessage as MockedService<
+  typeof service.conversations.sendDirectMessage
+>;
+
+const [, hostUser] = users;
+const HOST_REQUEST_TEXT = "Could you host me from the 3rd to the 5th?";
+
+function renderNewMessage({ nudge = true, hostingStatus = hostUser.hostingStatus } = {}) {
+  const onRequestInstead = jest.fn();
+  const { wrapper } = getHookWrapperWithClient({ show_host_request_nudge: { defaultValue: nudge } });
+  render(
+    <ProfileUserProvider user={{ ...hostUser, hostingStatus }}>
+      <NewMessage setIsMessaging={jest.fn()} onRequestInstead={onRequestInstead} />
+    </ProfileUserProvider>,
+    { wrapper },
+  );
+  return { onRequestInstead };
+}
+
+async function typeAndSend(text: string) {
+  const user = userEvent.setup();
+  await user.type(screen.getByLabelText(t("profile:message_form.message")), text);
+  await user.click(screen.getByRole("button", { name: t("global:send") }));
+  return user;
+}
+
+const requestInsteadButton = t("profile:message_form.host_request_nudge.request_instead_button");
+
+describe("NewMessage", () => {
+  beforeEach(() => {
+    addDefaultUser();
+    sendDirectMessageMock.mockResolvedValue(1);
+  });
+
+  it("nudges towards a request while the user is drafting", async () => {
+    renderNewMessage();
+    await userEvent.setup().type(screen.getByLabelText(t("profile:message_form.message")), HOST_REQUEST_TEXT);
+
+    expect(await screen.findByRole("button", { name: requestInsteadButton }, { timeout: 3000 })).toBeInTheDocument();
+  });
+
+  it("nudges towards a request when the user pastes their message", async () => {
+    renderNewMessage();
+    const user = userEvent.setup();
+    await user.click(screen.getByLabelText(t("profile:message_form.message")));
+    await user.paste(HOST_REQUEST_TEXT);
+
+    expect(await screen.findByRole("button", { name: requestInsteadButton }, { timeout: 3000 })).toBeInTheDocument();
+  });
+
+  it("nudges towards a request on send, and hands over the text", async () => {
+    const { onRequestInstead } = renderNewMessage();
+    const user = await typeAndSend(HOST_REQUEST_TEXT);
+
+    expect(sendDirectMessageMock).not.toHaveBeenCalled();
+    await user.click(screen.getByRole("button", { name: requestInsteadButton }));
+    expect(onRequestInstead).toHaveBeenCalledWith(HOST_REQUEST_TEXT);
+  });
+
+  it("sends the message if the user ignores the nudge", async () => {
+    renderNewMessage();
+    const user = await typeAndSend(HOST_REQUEST_TEXT);
+
+    await user.click(
+      screen.getByRole("button", { name: t("profile:message_form.host_request_nudge.send_as_message_button") }),
+    );
+    await waitFor(() => expect(sendDirectMessageMock).toHaveBeenCalledWith(hostUser.userId, HOST_REQUEST_TEXT));
+  });
+
+  it.each([
+    ["the message doesn't look like a request", { nudge: true }, "Fancy a coffee while I'm in Berlin?"],
+    ["the flag is off", { nudge: false }, HOST_REQUEST_TEXT],
+    ["the user can't host", { hostingStatus: HostingStatus.HOSTING_STATUS_CANT_HOST }, HOST_REQUEST_TEXT],
+  ])("sends straight away when %s", async (_, options, text) => {
+    renderNewMessage(options);
+    await typeAndSend(text);
+
+    await waitFor(() => expect(sendDirectMessageMock).toHaveBeenCalledWith(hostUser.userId, text));
+    expect(screen.queryByRole("button", { name: requestInsteadButton })).not.toBeInTheDocument();
+  });
+});

@@ -76,6 +76,18 @@ export default function UserPage({ username, tab = "about" }: { username: string
   const [isRequesting, setIsRequesting] = useState(false);
   const [isSuccessRequest, setIsSuccessRequest] = useState(false);
   const [isMessaging, setIsMessaging] = useState(false);
+  const [requestText, setRequestText] = useState<string>();
+
+  const requestInstead = (text: string) => {
+    setRequestText(text);
+    setIsMessaging(false);
+    setIsRequesting(true);
+  };
+
+  const openRequest = (value: boolean) => {
+    setRequestText(undefined);
+    setIsRequesting(value);
+  };
 
   useLayoutEffect(() => {
     if (isRequesting || isMessaging) {
@@ -96,7 +108,7 @@ export default function UserPage({ username, tab = "about" }: { username: string
       ) : user ? (
         <ProfileUserProvider user={user}>
           <StyledProfileRoot>
-            <Overview setIsRequesting={setIsRequesting} setIsMessaging={setIsMessaging} tab={tab} />
+            <Overview setIsRequesting={openRequest} setIsMessaging={setIsMessaging} tab={tab} />
             <UserCard
               tab={tab}
               onTabChange={(newTab) => {
@@ -107,10 +119,14 @@ export default function UserPage({ username, tab = "about" }: { username: string
               top={
                 <>
                   <Collapse in={isRequesting} mountOnEnter unmountOnExit>
-                    <NewHostRequest setIsRequesting={setIsRequesting} setIsRequestSuccess={setIsSuccessRequest} />
+                    <NewHostRequest
+                      setIsRequesting={setIsRequesting}
+                      setIsRequestSuccess={setIsSuccessRequest}
+                      initialText={requestText}
+                    />
                   </Collapse>
                   <Collapse in={isMessaging}>
-                    <NewMessage setIsMessaging={setIsMessaging} />
+                    <NewMessage setIsMessaging={setIsMessaging} onRequestInstead={requestInstead} />
                   </Collapse>
                 </>
               }

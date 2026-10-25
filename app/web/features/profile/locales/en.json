@@ -234,7 +234,16 @@
     "message": "Message",
     "message_description": "Write your message...",
     "message_empty": "Please write a message.",
-    "hosting_request_hint": "Sending a hosting request? Use the <request>Request</request> button instead."
+    "hosting_request_hint": "Sending a hosting request? Use the <request>Request</request> button instead.",
+    "host_request_nudge": {
+      "title": "Asking {{name}} to host you?",
+      "intro": "Send a host request instead of a message. That way:",
+      "benefit_dates": "By including dates in the request form, {{name}} can easily see whether they work",
+      "benefit_response_rate": "You are more likely to get a response, since host requests count towards the host's response rate",
+      "benefit_references": "You can leave each other references after the stay",
+      "request_instead_button": "Send a request instead",
+      "send_as_message_button": "Send as a message"
+    }
   },
   "reference_filter_label": {
     "friend": "From friends",
