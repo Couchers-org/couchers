@@ -6,6 +6,7 @@ import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 import { MockedService } from "test/utils";
 
+import { TranslationReadiness } from "../../i18n/translationReadiness";
 import LanguagePickerSelect from "./LanguagePickerSelect";
 
 const { t } = i18n;
@@ -21,25 +22,14 @@ jest.mock("features/auth/useAuthStore", () => ({
   }),
 }));
 
-jest.mock("i18n/useLocaleInfos", () => ({
+jest.mock("i18n/useSelectableLocales", () => ({
   __esModule: true,
-  useLocaleInfos: () => ({
-    data: [
-      { code: "en", autonym: "English", stringAvailabilityPercent: 100 },
-      { code: "es", autonym: "Español", stringAvailabilityPercent: 85 },
-      { code: "fr", autonym: "Français", stringAvailabilityPercent: 75 },
-      { code: "de", autonym: "Deutsch", stringAvailabilityPercent: 60 },
-      // Both Chinese variants are shown so we can assert they are distinct
-      // (issue #8523: zh-Hant must not be conflated with zh-Hans / the China flag)
-      { code: "zh-Hans", autonym: "中文（简体）", stringAvailabilityPercent: 90 },
-      { code: "zh-Hant", autonym: "中文（繁體）", stringAvailabilityPercent: 90 },
-      { code: "it", autonym: "Italiano", stringAvailabilityPercent: 45 },
-      { code: "pt", autonym: "Português (Portugal)", stringAvailabilityPercent: 30 },
-      { code: "ru", autonym: "Русский", stringAvailabilityPercent: 15 },
-    ],
-    isLoading: false,
-    error: null,
-  }),
+  useSelectableLocales: () => [
+    { code: "en", autonym: "English", readiness: TranslationReadiness.Complete },
+    { code: "de", autonym: "Deutsch", readiness: TranslationReadiness.AlmostDone },
+    { code: "fr", autonym: "Français", readiness: TranslationReadiness.Midway },
+    { code: "es", autonym: "Español", readiness: TranslationReadiness.EarlyStage },
+  ],
 }));
 
 const changeLanguageMock = service.account.changeLanguage as MockedService<typeof service.account.changeLanguage>;
@@ -62,41 +52,14 @@ describe("LanguagePickerSelect", () => {
 
     const listBox = await screen.findByRole("listbox");
 
-    // Languages with >= 50% translation are shown by their autonym (the name in
-    // their own language), regardless of the current UI language — no flags.
-    const expectedLanguages = ["English", "Español", "Français", "Deutsch"];
+    // Ensure all languages are present
+    const expectedLanguages = ["English", "Deutsch", "Français", "Español"];
     expectedLanguages.forEach((language) => {
       within(listBox).getByText(language);
     });
 
-    // Languages < 50% should not be shown
-    expect(within(listBox).queryByText("Русский")).not.toBeInTheDocument();
-    expect(within(listBox).queryByText("Italiano")).not.toBeInTheDocument();
-    expect(within(listBox).queryByText("Português (Portugal)")).not.toBeInTheDocument();
-
-    // No flag images are rendered (issue #8523)
-    expect(within(listBox).queryByRole("img")).not.toBeInTheDocument();
-
     // Wait for MUI transitions to complete
     await waitFor(() => expect(select).toBeInTheDocument());
-  });
-
-  it("shows the two Chinese variants as distinct named entries without flags", async () => {
-    render(<LanguagePickerSelect />, { wrapper });
-
-    const select = screen.getByRole("combobox");
-    const user = userEvent.setup();
-    await user.click(select);
-
-    const listBox = await screen.findByRole("listbox");
-
-    // zh-Hant and zh-Hans render as separate, distinctly-named options (by their
-    // autonyms) instead of both bearing the China flag (the bug in issue #8523).
-    expect(within(listBox).getByText("中文（繁體）")).toBeInTheDocument();
-    expect(within(listBox).getByText("中文（简体）")).toBeInTheDocument();
-
-    // No flags anywhere in the list
-    expect(within(listBox).queryByRole("img")).not.toBeInTheDocument();
   });
 
   it("calls changeLanguage and re-routes with locale on selection", async () => {

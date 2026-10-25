@@ -1,16 +1,17 @@
 import TranslateIcon from "@mui/icons-material/Translate";
 import { Box, Card, CardContent, Chip, Link, styled, Typography, useMediaQuery } from "@mui/material";
 import { useTranslation } from "i18n";
-import { getLocaleReadiness, LocaleReadiness } from "i18n/locales";
+import { LOCALE_AUTONYMS } from "i18n/locales";
 import { GLOBAL } from "i18n/namespaces";
-import { useLocaleInfos } from "i18n/useLocaleInfos";
+import { classifyTranslationReadiness, TranslationReadiness } from "i18n/translationReadiness";
+import { useWeblateLanguages } from "i18n/weblate";
 import React from "react";
 import { translateJobURL } from "routes";
 import { theme } from "theme";
 
 const ProgressBar = styled(Box, {
   shouldForwardProp: (prop) => prop !== "percent" && prop !== "readiness",
-})<{ percent: number; readiness: LocaleReadiness }>(({ theme, percent, readiness }) => ({
+})<{ percent: number; readiness: TranslationReadiness }>(({ theme, percent, readiness }) => ({
   width: "100%",
   height: 8,
   backgroundColor: theme.palette.grey[200],
@@ -25,11 +26,11 @@ const ProgressBar = styled(Box, {
     height: "100%",
     width: `${percent}%`,
     backgroundColor:
-      readiness >= LocaleReadiness.AlmostDone
+      readiness >= TranslationReadiness.AlmostDone
         ? theme.palette.success.main // Green
-        : readiness === LocaleReadiness.Midway
+        : readiness === TranslationReadiness.Midway
           ? "#FFC107" // Yellow (Material Design amber/yellow)
-          : readiness === LocaleReadiness.EarlyStage
+          : readiness === TranslationReadiness.EarlyStage
             ? theme.palette.error.main // Red
             : theme.palette.grey[500], // Grey
     transition: "width 0.3s ease-in-out",
@@ -38,10 +39,11 @@ const ProgressBar = styled(Box, {
 
 const LargeLanguageCard = styled(Card, {
   shouldForwardProp: (prop) => prop !== "readiness",
-})<{ readiness: LocaleReadiness }>(({ theme, readiness }) => ({
+})<{ readiness: TranslationReadiness }>(({ theme, readiness }) => ({
   width: "100%",
   transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
-  opacity: readiness === LocaleReadiness.JustStarted ? 0.35 : readiness === LocaleReadiness.EarlyStage ? 0.55 : 1,
+  opacity:
+    readiness === TranslationReadiness.JustStarted ? 0.35 : readiness === TranslationReadiness.EarlyStage ? 0.55 : 1,
   marginBottom: theme.spacing(2),
 
   "&:hover": {
@@ -52,26 +54,28 @@ const LargeLanguageCard = styled(Card, {
 
 const SmallLanguageCard = styled(Card, {
   shouldForwardProp: (prop) => prop !== "readiness",
-})<{ readiness: LocaleReadiness }>(({ theme, readiness }) => ({
+})<{ readiness: TranslationReadiness }>(({ theme, readiness }) => ({
   width: "100%",
   transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
-  opacity: readiness === LocaleReadiness.JustStarted ? 0.35 : readiness === LocaleReadiness.EarlyStage ? 0.55 : 1,
+  opacity:
+    readiness === TranslationReadiness.JustStarted ? 0.35 : readiness === TranslationReadiness.EarlyStage ? 0.55 : 1,
   marginBottom: theme.spacing(2),
 }));
 
-const getStatusColor = (readiness: LocaleReadiness): "success" | "info" | "warning" | "error" | "default" => {
-  if (readiness >= LocaleReadiness.AlmostDone) return "success"; // Green
-  if (readiness === LocaleReadiness.Midway) return "warning"; // Orange/Yellow
-  if (readiness === LocaleReadiness.EarlyStage) return "error"; // Red
+const getStatusColor = (readiness: TranslationReadiness): "success" | "info" | "warning" | "error" | "default" => {
+  if (readiness >= TranslationReadiness.AlmostDone) return "success"; // Green
+  if (readiness === TranslationReadiness.Midway) return "warning"; // Orange/Yellow
+  if (readiness === TranslationReadiness.EarlyStage) return "error"; // Red
   return "default"; // Grey
 };
 
-const getStatusText = (readiness: LocaleReadiness, t: (key: string) => string) => {
-  if (readiness === LocaleReadiness.Complete) return t("global:language_preference.translation_progress.complete");
-  if (readiness === LocaleReadiness.AlmostDone)
+const getStatusText = (readiness: TranslationReadiness, t: (key: string) => string) => {
+  if (readiness === TranslationReadiness.Complete) return t("global:language_preference.translation_progress.complete");
+  if (readiness === TranslationReadiness.AlmostDone)
     return t("global:language_preference.translation_progress.almost_there");
-  if (readiness === LocaleReadiness.Midway) return t("global:language_preference.translation_progress.midway");
-  if (readiness === LocaleReadiness.EarlyStage) return t("global:language_preference.translation_progress.early_stage");
+  if (readiness === TranslationReadiness.Midway) return t("global:language_preference.translation_progress.midway");
+  if (readiness === TranslationReadiness.EarlyStage)
+    return t("global:language_preference.translation_progress.early_stage");
   return t("global:language_preference.translation_progress.just_started");
 };
 
@@ -88,7 +92,7 @@ export default function TranslationProgress() {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { t } = useTranslation([GLOBAL]);
 
-  const { data: localeInfos, isLoading, error } = useLocaleInfos();
+  const { data: weblateLanguages, isLoading, error } = useWeblateLanguages();
 
   if (isLoading) {
     return (
@@ -111,9 +115,9 @@ export default function TranslationProgress() {
   }
 
   // Show all locales with any progress, sorted by completion percentage
-  const availableLocales = localeInfos
-    .filter((locale) => locale.stringAvailabilityPercent > 0)
-    .sort((a, b) => b.stringAvailabilityPercent - a.stringAvailabilityPercent);
+  const filteredWeblateLanguages = weblateLanguages
+    .filter((language) => language.translationProgress > 0)
+    .sort((a, b) => b.translationProgress - a.translationProgress);
 
   return (
     <Box sx={{ p: 2 }}>
@@ -149,14 +153,14 @@ export default function TranslationProgress() {
           {t("global:language_preference.translation_progress.info_text")}
         </Typography>
       </Box>
-      {availableLocales.map((localeInfo) => {
-        const languageCode = localeInfo.code;
-        const nativeName = localeInfo.autonym;
-        const percent = localeInfo.stringAvailabilityPercent;
-        const readiness = getLocaleReadiness(percent);
+      {filteredWeblateLanguages.map((weblateLanguage) => {
+        const locale = weblateLanguage.locale;
+        const nativeName = LOCALE_AUTONYMS[weblateLanguage.locale];
+        const percent = weblateLanguage.translationProgress * 100;
+        const readiness = classifyTranslationReadiness(weblateLanguage.translationProgress);
 
         return (
-          <React.Fragment key={localeInfo.code}>
+          <React.Fragment key={weblateLanguage.locale}>
             {isMobile && (
               <SmallLanguageCard readiness={readiness}>
                 <StyledCardContent
@@ -191,7 +195,7 @@ export default function TranslationProgress() {
                       color={getStatusColor(readiness)}
                       variant="outlined"
                       sx={{
-                        ...(readiness === LocaleReadiness.Midway && {
+                        ...(readiness === TranslationReadiness.Midway && {
                           borderColor: "#FFC107",
                           color: "#F57C00",
                         }),
@@ -209,14 +213,14 @@ export default function TranslationProgress() {
                     <Typography
                       variant="h5"
                       sx={{
-                        color: readiness === LocaleReadiness.JustStarted ? "text.secondary" : "primary.main",
+                        color: readiness === TranslationReadiness.JustStarted ? "text.secondary" : "primary.main",
                         fontWeight: "bold",
                       }}
                     >
                       {percent.toFixed(1)}%
                     </Typography>
                     <Typography variant="caption" sx={{ color: "text.secondary" }}>
-                      {languageCode.toUpperCase()}
+                      {locale.toUpperCase()}
                     </Typography>
                   </Box>
                   <Box sx={{ flex: 1, width: "100%" }}>
@@ -251,7 +255,7 @@ export default function TranslationProgress() {
                         color: "text.secondary",
                       }}
                     >
-                      {languageCode.toUpperCase()}
+                      {locale.toUpperCase()}
                     </Typography>
 
                     <Box sx={{ flex: 1, minWidth: 0 }} />
@@ -267,7 +271,7 @@ export default function TranslationProgress() {
                       <Typography
                         variant="h5"
                         sx={{
-                          color: readiness === LocaleReadiness.JustStarted ? "text.secondary" : "primary.main",
+                          color: readiness === TranslationReadiness.JustStarted ? "text.secondary" : "primary.main",
                           fontWeight: "bold",
                         }}
                       >
@@ -279,7 +283,7 @@ export default function TranslationProgress() {
                         color={getStatusColor(readiness)}
                         variant="outlined"
                         sx={{
-                          ...(readiness === LocaleReadiness.Midway && {
+                          ...(readiness === TranslationReadiness.Midway && {
                             borderColor: "#FFC107",
                             color: "#F57C00",
                           }),
