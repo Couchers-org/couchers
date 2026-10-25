@@ -2,5 +2,6 @@
   "test_growthbook_integration": true,
   "show_moderator_badge": true,
   "public_trips_enabled": true,
-  "global_message": { "severity": "info", "message": "" }
+  "global_message": { "severity": "info", "message": "" },
+  "celebration_100k_enabled": true
 }
