@@ -65,6 +65,7 @@ export default function LocationSection({ updateJailed, className }: LocationSec
           render={({ field }) => (
             <EditLocationMap
               {...field}
+              collapseToCity
               updateLocation={(location) => {
                 if (location) {
                   field.onChange({
