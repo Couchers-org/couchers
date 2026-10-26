@@ -66,7 +66,8 @@
     },
     "respond_to_public_trip_offer": {
       "title": "{{name}} antworten",
-      "button": "Einladung anzeigen"
+      "button": "Einladung anzeigen",
+      "description": "{{name}} hat angeboten, dich auf deinem Trip zu hosten. Gib Bescheid, ob du das Angebot annehmen möchtest."
     },
     "confirm_public_trip_offer": {
       "title": "Bestätige {{name}} zu hosten",
