@@ -64,6 +64,16 @@
     "carousel_scroller": {
       "left_arrow_a11y": "Desplazar a la izquierda",
       "right_arrow_a11y": "Desplazar a la derecha"
+    },
+    "respond_to_public_trip_offer": {
+      "title": "Responder a {{name}}",
+      "description": "{{name}} se ofreció a hospedarte durante tu viaje. Avísale si quieres aceptar.",
+      "button": "Ver invitación"
+    },
+    "confirm_public_trip_offer": {
+      "title": "Confirmar alojamiento de {{name}}",
+      "description": "{{name}} ha aceptado tu invitación. Confirma la estancia para asegurarla.",
+      "button": "Confirmar estancia"
     }
   },
   "events": {
