@@ -222,7 +222,8 @@
     "request_chars_remaining_many": "Escreva pelo menos mais {{count}} caracteres para enviar uma solicitação de hospedagem.",
     "request_chars_remaining_other": "Escreva pelo menos mais {{count}} caracteres a mais para enviar uma solicitação de hospedagem.",
     "success": "Solicitação enviada!",
-    "arrival_date_before_host_today": "Essa data já foi passada para {{name}}."
+    "arrival_date_before_host_today": "Essa data já foi passada para {{name}}.",
+    "departure_date_not_after_arrival": "A data de saída deve vir depois da data de chegada."
   },
   "message_form": {
     "hosting_request_hint": "Enviando uma solicitação de hospedagem? Use o botão <request>Solicitar</request> em vez disso.",

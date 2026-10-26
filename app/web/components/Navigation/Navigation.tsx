@@ -30,6 +30,7 @@ import {
   settingsRoute,
   shopRoute,
   signupRoute,
+  verificationRoute,
   volunteerRoute,
 } from "routes";
 import { theme } from "theme";
@@ -147,6 +148,11 @@ const loggedInMenuDropDown = (t: TFunction<"global", undefined>, isNativeEmbed: 
     type: "link",
     name: t("nav.invite_members"),
     route: inviteCodesRoute,
+  },
+  {
+    type: "link",
+    name: t("nav.user_menu_verification_link"),
+    route: verificationRoute,
     hasBottomDivider: true,
   },
   {

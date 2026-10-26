@@ -25,7 +25,7 @@ from couchers.proto import (
     search_pb2,
 )
 from couchers.utils import create_coordinate, today
-from tests.fixtures import api_helpers
+from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user, make_friends
 from tests.fixtures.sessions import (
     MockGrpcContext,
@@ -208,7 +208,7 @@ def test_log_event_multiple_events(db):
 
 
 def test_signup_flow_creates_events(db):
-    """Full signup flow creates account.signup_initiated and account.signup_completed events."""
+    """Full signup flow creates signup_initiated, signup_email_verified and signup_completed events sharing a flow id."""
     with auth_api_session() as (auth_api, metadata_interceptor):
         res = auth_api.SignupFlow(
             auth_pb2.SignupFlowReq(
@@ -222,6 +222,8 @@ def test_signup_flow_creates_events(db):
         events = _get_events(session, "account.signup_initiated")
         assert len(events) == 1
         assert events[0].properties["has_invite_code"] is False
+        flow_id = session.execute(select(SignupFlow.id).where(SignupFlow.flow_token == flow_token)).scalar_one()
+        assert events[0].properties["signup_flow_id"] == flow_id
 
     # complete signup: get email token, verify, fill account, etc.
     with session_scope() as session:
@@ -235,6 +237,11 @@ def test_signup_flow_creates_events(db):
                 email_token=email_token,
             )
         )
+
+    with session_scope() as session:
+        events = _get_events(session, "account.signup_email_verified")
+        assert len(events) == 1
+        assert events[0].properties == {"signup_flow_id": flow_id}
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         auth_api.SignupFlow(
@@ -285,6 +292,7 @@ def test_signup_flow_creates_events(db):
         assert e.properties["has_invite_code"] is False
         assert isinstance(e.properties["signup_duration_s"], (int, float))
         assert "filled_contributor_form" in e.properties
+        assert e.properties["signup_flow_id"] == flow_id
 
 
 def test_login_creates_event(db):
@@ -733,6 +741,54 @@ def test_search_creates_event(db):
         assert e.properties["has_filters"] is False
         assert "total_items" in e.properties
         assert e.properties["search_in"] is None
+        assert e.properties["ranking_offsets_variant"] == ""
+
+
+def test_search_v2_creates_event(db, flags):
+    user, token = generate_user()
+    flags.set_string("search_ranking_offsets_variant", "a")
+
+    with search_session(token) as api:
+        api.UserSearchV2(
+            search_pb2.UserSearchReq(
+                query=wrappers_pb2.StringValue(value="paris"),
+                search_in_rectangle=search_pb2.RectArea(lat_min=0, lat_max=1, lng_min=0, lng_max=1),
+                only_with_references=True,
+                age_min=wrappers_pb2.UInt32Value(value=25),
+                accepts_pets=wrappers_pb2.BoolValue(value=False),
+                page_size=10,
+            )
+        )
+
+    with session_scope() as session:
+        events = _get_events(session, "search.performed")
+        assert len(events) == 1
+        e = events[0]
+        assert e.user_id == user.id
+        assert e.properties["has_query"] is True
+        assert e.properties["has_filters"] is True
+        assert e.properties["filters"] == ["accepts_pets", "age_min", "only_with_references"]
+        assert e.properties["is_selection"] is False
+        assert e.properties["has_page_token"] is False
+        assert e.properties["total_items"] == 0
+        assert e.properties["search_in"] == "search_in_rectangle"
+        assert e.properties["ranking_offsets_variant"] == "a"
+
+
+def test_search_v2_selection_event(db):
+    user, token = generate_user()
+    other, _ = generate_user()
+
+    with search_session(token) as api:
+        api.UserSearchV2(search_pb2.UserSearchReq(exactly_user_ids=[other.id]))
+
+    with session_scope() as session:
+        events = _get_events(session, "search.performed")
+        assert len(events) == 1
+        e = events[0]
+        assert e.properties["is_selection"] is True
+        assert e.properties["has_filters"] is False
+        assert e.properties["filters"] == []
 
 
 # ===== Integration tests: reference events =====
@@ -775,7 +831,7 @@ def test_event_created_event(db):
     with session_scope() as session:
         create_community(session, 0, 2, "Community", [user], [], None)
 
-    api_helpers.create_event(token=token)
+    events_api.create_event(token=token)
 
     with session_scope() as session:
         events = _get_events(session, "event.created")

@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-10-14 00:41+0000\n"
+"PO-Revision-Date: 2026-10-18 00:21+0000\n"
 "Last-Translator: Oleh S <olewa@protonmail.com>\n"
 "Language-Team: Ukrainian <https://translate.couchershq.org/projects/couchers/glossary-key-terms/uk/>\n"
 "Language: uk\n"
@@ -125,10 +125,6 @@ msgstr "зв'язки / контакти"
 #. (noun) The team behind Couchers.org.
 msgid "couchers_org_team"
 msgstr "Команда Couchers.org"
-
-#. (noun) The activity of free hospitality welcome/exchange. Platform-agnostic.
-msgid "couch surfing"
-msgstr "кауч серфінг (активність та традиція) / платформа гостинності ( вебсайт та сервіс)"
 
 #. (verb) As a host, the act of declining a surfer's host request.
 msgid "host_request.decline"
@@ -404,7 +400,7 @@ msgstr "користувач"
 
 #. (noun) A user's account identifier on Couchers.org.
 msgid "username"
-msgstr "назва користувача"
+msgstr "назва акаунта"
 
 #. (noun) Someone with an account on Couchers.org.
 msgid "users"

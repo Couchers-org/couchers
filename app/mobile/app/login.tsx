@@ -110,6 +110,9 @@ export default function LoginScreen() {
         sharedCookiesEnabled
         // On the new architecture an unset rate reaches iOS as 0, killing scroll momentum.
         decelerationRate={Platform.OS === "ios" ? "normal" : undefined}
+        webviewDebuggingEnabled={
+          process.env.EXPO_PUBLIC_COUCHERS_ENV !== "prod"
+        }
         onMessage={handleMessage}
         onShouldStartLoadWithRequest={(event) => {
           if (shouldLoadInWebView(event.url, WEB_BASE_URL)) {
