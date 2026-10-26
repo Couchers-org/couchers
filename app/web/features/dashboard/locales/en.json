@@ -94,7 +94,7 @@
     },
     "respond_to_public_trip_offer": {
       "title": "Respond to {{name}}",
-      "description": "{{name}} invited you to stay with them on your trip. Let them know if you'd like to accept.",
+      "description": "{{name}} offered to host you on your trip. Let them know if you'd like to accept.",
       "button": "View invitation"
     },
     "confirm_public_trip_offer": {
