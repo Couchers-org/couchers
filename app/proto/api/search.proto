@@ -220,6 +220,8 @@ message UserSearchV2Res {
 
   string next_page_token = 2;
   uint32 total_items = 3;
+  // everyone matching the search area/query before filters, capped at 10,001
+  uint32 total_unfiltered_items = 4;
 }
 
 message EventSearchReq {
