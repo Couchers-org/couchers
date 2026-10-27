@@ -514,7 +514,7 @@ describe("Event page", () => {
     });
   });
   describe("when a Community Invite has been requested", () => {
-    it("hides the 'Invite Community' button", async () => {
+    it("disables the 'Invite Community' button and changes the text", async () => {
       getEventMock.mockResolvedValue({
         ...firstEvent,
         canEdit: true,
@@ -523,11 +523,12 @@ describe("Event page", () => {
 
       renderEventPage();
 
-      expect(
-        screen.queryByRole("button", {
-          name: t("communities:invite_community_dialog_buttons.open"),
-        }),
-      ).not.toBeInTheDocument();
+      const requestedButton = await screen.findByRole("button", {
+        name: t("communities:invite_community_dialog_buttons.open"),
+      });
+      expect(requestedButton).toBeVisible();
+      expect(requestedButton).toBeDisabled();
+      expect(requestedButton).toHaveTextContent(t("communities:invite_community_dialog_buttons.requested"));
     });
   });
   describe("when a user cannot edit the event", () => {
