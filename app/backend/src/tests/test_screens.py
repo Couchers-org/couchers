@@ -74,7 +74,7 @@ def test_GetDashboard_matches_individual_rpcs(db, moderator):
             )
         )
 
-    my_events = events_api.list_my_events(token=token1, page_size=9)
+    my_events = events_api.list_my_events(token=token1, page_size=9, attending=True, organizing=True)
     community_events = events_api.list_my_events(
         token=token1,
         page_size=9,
@@ -153,9 +153,8 @@ def test_GetDashboard_community_events_excludes_attending(db, moderator):
     with screens_session(token1) as api:
         res = api.GetDashboard(screens_pb2.GetDashboardReq())
 
-    # the attended event shows under my_events (which with no flags includes all relationships)...
-    assert e_attending in {e.event_id for e in res.my_events.events}
-    # ...while community_events must exclude it (exclude_attending), showing only the rest
+    # the attended event shows only under my_events, and the unjoined community event only under community_events
+    assert [e.event_id for e in res.my_events.events] == [e_attending]
     assert [e.event_id for e in res.community_events.events] == [e_community_only]
 
 

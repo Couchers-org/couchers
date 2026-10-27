@@ -88,7 +88,8 @@ msgstr "post"
 msgid "couchsurfing_tm"
 msgstr "Couchsurfing™"
 
-#. (noun) The activity of free hospitality welcome/exchange. Platform-agnostic.
+#. (noun) The activity of free hospitality welcome/exchange.
+#. Platform-agnostic. Avoid "Couchsurfing" (one word) as that is trademarked.
 msgid "couch_surfing"
 msgstr "couch surfing"
 

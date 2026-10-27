@@ -102,6 +102,9 @@ export default function LoginScreen() {
         applicationNameForUserAgent={applicationNameForUserAgent}
         injectedJavaScriptObject={{ isNativeEmbed: true }}
         sharedCookiesEnabled
+        webviewDebuggingEnabled={
+          process.env.EXPO_PUBLIC_COUCHERS_ENV !== "prod"
+        }
         onMessage={handleMessage}
         onShouldStartLoadWithRequest={(event) => {
           if (shouldLoadInWebView(event.url, WEB_BASE_URL)) {

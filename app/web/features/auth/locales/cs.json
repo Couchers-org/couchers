@@ -411,5 +411,10 @@
     "success_message": "Tvoje žádost o změnu emailu byla přijata. Zkontroluj svůj nový email a potvrď ho.",
     "signup_change_email": "Změnit emailovou adresu"
   },
-  "sign_up_change_email": "Překlep v emailové adrese? Zadej svou správnou emailovou adresu zde:"
+  "sign_up_change_email": "Překlep v emailové adrese? Zadej svou správnou emailovou adresu zde:",
+  "verification_page": {
+    "data_use": {
+      "header": "Jak používáme tvé data"
+    }
+  }
 }
