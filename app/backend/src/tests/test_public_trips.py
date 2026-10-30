@@ -1060,12 +1060,14 @@ def test_list_public_trips_by_user_include_past(db):
         )
         assert [t.trip_id for t in res.public_trips] == [past, ongoing, upcoming]
 
-    # only the owner can see their past trips
     with public_trips_session(other_token) as api:
+        res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=user.id, ascending=True))
+        assert [t.trip_id for t in res.public_trips] == [ongoing, upcoming]
+
         res = api.ListPublicTripsByUser(
             public_trips_pb2.ListPublicTripsByUserReq(user_id=user.id, ascending=True, include_past=True)
         )
-        assert [t.trip_id for t in res.public_trips] == [ongoing, upcoming]
+        assert [t.trip_id for t in res.public_trips] == [past, ongoing, upcoming]
 
 
 def test_list_public_trips_by_user_status_filter_ignored_for_others(db):

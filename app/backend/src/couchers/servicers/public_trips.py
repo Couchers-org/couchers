@@ -293,8 +293,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             is_list_operation=True,
         ).where(PublicTrip.user_id == request.user_id)
 
-        # Trips that have ended are only returned to their owner, on request
-        if not (is_self and request.include_past):
+        if not request.include_past:
             statement = statement.where(PublicTrip.end_time >= func.now())
 
         if not is_self:

@@ -25,8 +25,9 @@ service PublicTrips {
   rpc ListPublicTripsByUser(ListPublicTripsByUserReq) returns (ListPublicTripsByUserRes) {
     // List a user's public trips. Used for both the user's own dashboard and
     // for showing upcoming trips on another user's profile.
-    // - If user_id matches the caller, all trips are returned (past ones only with include_past).
-    // - Otherwise only active, upcoming trips are returned.
+    // Trips that have ended are only returned with include_past.
+    // - If user_id matches the caller, closed trips are returned too.
+    // - Otherwise only trips searching for a host are returned.
   }
 
   rpc ListMyCommunitiesPublicTrips(ListMyCommunitiesPublicTripsReq) returns (ListMyCommunitiesPublicTripsRes) {
@@ -108,7 +109,7 @@ message ListPublicTripsByUserReq {
   string page_token = 3;
 
   // If non-empty, only trips with these statuses are returned.
-  // Ignored when viewing another user's trips (always filtered to active+upcoming).
+  // Ignored when viewing another user's trips (always filtered to searching for a host).
   repeated PublicTripStatus statuses_in = 4;
 
   // If true, trips are sorted ascending by start date (soonest first).
@@ -116,7 +117,6 @@ message ListPublicTripsByUserReq {
   bool ascending = 5;
 
   // If true, trips that have already ended are included too.
-  // Ignored when viewing another user's trips.
   bool include_past = 6;
 }
 
