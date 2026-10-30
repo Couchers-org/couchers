@@ -4,4 +4,5 @@ Functions have neutral defaults for tests that don't need specific parameter val
 """
 
 # Reexport submodules such that tests can import "api" and then use "api.events.create_event".
+from . import account as account
 from . import events as events

@@ -24,9 +24,10 @@ from couchers.models import (
 )
 from couchers.proto import account_pb2, admin_pb2, api_pb2
 from couchers.proto.google.api import httpbody_pb2
+from tests.fixtures.api import account as account_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import PushCollector
-from tests.fixtures.sessions import account_session, api_session, real_admin_session, real_iris_session
+from tests.fixtures.sessions import api_session, real_admin_session, real_iris_session
 
 
 def _emulate_iris_callback(session_id, session_state, reference):
@@ -62,85 +63,83 @@ def do_and_check_sv(
     }
     iris_token = b64encode_unpadded(json.dumps(iris_token_data).encode("utf8"))
 
-    with account_session(token) as account:
-        # start by initiation
-        with patch("couchers.servicers.account.requests.post") as mock:
-            json_resp1 = {
-                "id": verification_id,
-                "token": iris_token,
-            }
-            mock.return_value = type(
-                "__MockResponse",
-                (),
-                {
-                    "status_code": 200,
-                    "text": json.dumps(json_resp1),
-                    "json": lambda: json_resp1,
-                },
-            )
-            res = account.InitiateStrongVerification(empty_pb2.Empty())
-        mock.assert_called_once_with(
-            "https://passportreader.app/api/v1/session.create",
-            auth=("dummy_pubkey", "dummy_secret"),
-            json={
-                "callback_url": "http://localhost:8888/iris/webhook",
-                "face_verification": False,
-                "passport_only": True,
-                "reference": ANY,
+    # start by initiation
+    with patch("couchers.servicers.account.requests.post") as mock:
+        json_resp1 = {
+            "id": verification_id,
+            "token": iris_token,
+        }
+        mock.return_value = type(
+            "__MockResponse",
+            (),
+            {
+                "status_code": 200,
+                "text": json.dumps(json_resp1),
+                "json": lambda: json_resp1,
             },
-            timeout=10,
-            verify="/etc/ssl/certs/ca-certificates.crt",
         )
-        reference_data = mock.call_args.kwargs["json"]["reference"]
-        verification_attempt_token = res.verification_attempt_token
-        return_url = f"http://localhost:3000/complete-strong-verification?verification_attempt_token={verification_attempt_token}"
-        assert res.redirect_url == "https://passportreader.app/open?" + urlencode(
-            {"token": iris_token, "redirect_url": return_url}
-        )
+        res = account_api.initiate_strong_verification(token=token)
+    mock.assert_called_once_with(
+        "https://passportreader.app/api/v1/session.create",
+        auth=("dummy_pubkey", "dummy_secret"),
+        json={
+            "callback_url": "http://localhost:8888/iris/webhook",
+            "face_verification": False,
+            "passport_only": True,
+            "reference": ANY,
+        },
+        timeout=10,
+        verify="/etc/ssl/certs/ca-certificates.crt",
+    )
+    reference_data = mock.call_args.kwargs["json"]["reference"]
+    verification_attempt_token = res.verification_attempt_token
+    return_url = (
+        f"http://localhost:3000/complete-strong-verification?verification_attempt_token={verification_attempt_token}"
+    )
+    assert res.redirect_url == "https://passportreader.app/open?" + urlencode(
+        {"token": iris_token, "redirect_url": return_url}
+    )
 
-        assert (
-            account.GetStrongVerificationAttemptStatus(
-                account_pb2.GetStrongVerificationAttemptStatusReq(verification_attempt_token=verification_attempt_token)
-            ).status
-            == account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_USER_TO_OPEN_APP
-        )
+    assert (
+        account_api.get_strong_verification_attempt_status(
+            token=token, verification_attempt_token=verification_attempt_token
+        ).status
+        == account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_USER_TO_OPEN_APP
+    )
 
     # ok, now the user downloads the app, scans their id, and Iris ID sends callbacks to the server
     _emulate_iris_callback(verification_id, "INITIATED", reference_data)
 
-    with account_session(token) as account:
-        assert (
-            account.GetStrongVerificationAttemptStatus(
-                account_pb2.GetStrongVerificationAttemptStatusReq(verification_attempt_token=verification_attempt_token)
-            ).status
-            == account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_USER_IN_APP
-        )
+    assert (
+        account_api.get_strong_verification_attempt_status(
+            token=token, verification_attempt_token=verification_attempt_token
+        ).status
+        == account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_USER_IN_APP
+    )
 
     if return_after == "INITIATED":
         return reference_data
 
     _emulate_iris_callback(verification_id, "COMPLETED", reference_data)
 
-    with account_session(token) as account:
-        assert (
-            account.GetStrongVerificationAttemptStatus(
-                account_pb2.GetStrongVerificationAttemptStatusReq(verification_attempt_token=verification_attempt_token)
-            ).status
-            == account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_BACKEND
-        )
+    assert (
+        account_api.get_strong_verification_attempt_status(
+            token=token, verification_attempt_token=verification_attempt_token
+        ).status
+        == account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_BACKEND
+    )
 
     if return_after == "COMPLETED":
         return reference_data
 
     _emulate_iris_callback(verification_id, "APPROVED", reference_data)
 
-    with account_session(token) as account:
-        assert (
-            account.GetStrongVerificationAttemptStatus(
-                account_pb2.GetStrongVerificationAttemptStatusReq(verification_attempt_token=verification_attempt_token)
-            ).status
-            == account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_BACKEND
-        )
+    assert (
+        account_api.get_strong_verification_attempt_status(
+            token=token, verification_attempt_token=verification_attempt_token
+        ).status
+        == account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_BACKEND
+    )
 
     if return_after == "APPROVED":
         return reference_data
@@ -186,13 +185,12 @@ def do_and_check_sv(
         verify="/etc/ssl/certs/ca-certificates.crt",
     )
 
-    with account_session(token) as account:
-        assert (
-            account.GetStrongVerificationAttemptStatus(
-                account_pb2.GetStrongVerificationAttemptStatusReq(verification_attempt_token=verification_attempt_token)
-            ).status
-            == account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_SUCCEEDED
-        )
+    assert (
+        account_api.get_strong_verification_attempt_status(
+            token=token, verification_attempt_token=verification_attempt_token
+        ).status
+        == account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_SUCCEEDED
+    )
 
     with session_scope() as session:
         verification_attempt = session.execute(
@@ -331,11 +329,10 @@ def test_strong_verification_happy_path(db, sv_config):
             == res.has_strong_verification
         )
 
-    with account_session(token) as account:
-        res = account.GetAccountInfo(empty_pb2.Empty())
-        assert not res.has_strong_verification
-        assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
-        assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_MISMATCH
+    res = account_api.get_account_info(token=token)
+    assert not res.has_strong_verification
+    assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
+    assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_MISMATCH
 
     # back to should have a badge
     with session_scope() as session:
@@ -430,8 +427,7 @@ def test_strong_verification_delete_data(db, sv_config):
         )
 
     # can remove SV data even if there is none, should do nothing
-    with account_session(token) as account:
-        account.DeleteStrongVerificationData(empty_pb2.Empty())
+    account_api.delete_strong_verification_data(token=token)
 
     do_and_check_sv(
         user,
@@ -456,8 +452,7 @@ def test_strong_verification_delete_data(db, sv_config):
         )
 
     # check removing SV data
-    with account_session(token) as account:
-        account.DeleteStrongVerificationData(empty_pb2.Empty())
+    account_api.delete_strong_verification_data(token=token)
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
 
@@ -619,11 +614,10 @@ def test_strong_verification_disabled(db, feature_flags):
     feature_flags.set("strong_verification_enabled", False)
     user, token = generate_user()
 
-    with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
-            account.InitiateStrongVerification(empty_pb2.Empty())
-        assert e.value.code() == grpc.StatusCode.UNAVAILABLE
-        assert e.value.details() == "Strong verification is currently disabled."
+    with pytest.raises(grpc.RpcError) as e:
+        account_api.initiate_strong_verification(token=token)
+    assert e.value.code() == grpc.StatusCode.UNAVAILABLE
+    assert e.value.details() == "Strong verification is currently disabled."
 
 
 def test_strong_verification_delete_data_cant_reverify(db, sv_config, push_collector: PushCollector):
@@ -665,8 +659,7 @@ def test_strong_verification_delete_data_cant_reverify(db, sv_config, push_colle
     push_collector.pop_for_user(user.id, last=True)
 
     # check removing SV data
-    with account_session(token) as account:
-        account.DeleteStrongVerificationData(empty_pb2.Empty())
+    account_api.delete_strong_verification_data(token=token)
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
 
@@ -788,8 +781,7 @@ def test_strong_verification_duplicate_other_user(db, sv_config, push_collector:
         )
 
     # can remove SV data even if there is none, should do nothing
-    with account_session(token) as account:
-        account.DeleteStrongVerificationData(empty_pb2.Empty())
+    account_api.delete_strong_verification_data(token=token)
 
     do_and_check_sv(
         user,
@@ -814,8 +806,7 @@ def test_strong_verification_duplicate_other_user(db, sv_config, push_collector:
         )
 
     # check removing SV data
-    with account_session(token) as account:
-        account.DeleteStrongVerificationData(empty_pb2.Empty())
+    account_api.delete_strong_verification_data(token=token)
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
 

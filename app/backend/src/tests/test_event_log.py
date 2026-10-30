@@ -14,7 +14,6 @@ from couchers.i18n import LocalizationContext
 from couchers.models import FriendRelationship, SignupFlow
 from couchers.models.logging import EventLog
 from couchers.proto import (
-    account_pb2,
     api_pb2,
     auth_pb2,
     conversations_pb2,
@@ -25,11 +24,11 @@ from couchers.proto import (
     search_pb2,
 )
 from couchers.utils import create_coordinate, today
+from tests.fixtures.api import account as account_api
 from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user, make_friends
 from tests.fixtures.sessions import (
     MockGrpcContext,
-    account_session,
     api_session,
     auth_api_session,
     conversations_session,
@@ -851,13 +850,7 @@ def test_password_change_event(db):
     """Changing password creates account.password_changed event."""
     user, token = generate_user(hashed_password=hash_password("oldpassword"))
 
-    with account_session(token) as api:
-        api.ChangePasswordV2(
-            account_pb2.ChangePasswordV2Req(
-                old_password="oldpassword",
-                new_password="a new very secure password",
-            )
-        )
+    account_api.change_password(token=token, old_password="oldpassword", new_password="a new very secure password")
 
     with session_scope() as session:
         events = _get_events(session, "account.password_changed")

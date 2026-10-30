@@ -1,14 +1,12 @@
 from datetime import time, timedelta
 
-from google.protobuf import empty_pb2
-
 from couchers.db import session_scope
 from couchers.proto import discussions_pb2, events_pb2, messages_pb2, requests_pb2, screens_pb2
 from couchers.utils import today
+from tests.fixtures.api import account as account_api
 from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import (
-    account_session,
     discussions_session,
     requests_session,
     screens_session,
@@ -85,8 +83,7 @@ def test_GetDashboard_matches_individual_rpcs(db, moderator):
 
     with discussions_session(token1) as api:
         discussions = api.ListMyCommunitiesDiscussions(discussions_pb2.ListMyCommunitiesDiscussionsReq(page_size=9))
-    with account_session(token1) as api:
-        reminders = api.GetReminders(empty_pb2.Empty())
+    reminders = account_api.get_reminders(token=token1)
 
     with screens_session(token1) as api:
         res = api.GetDashboard(screens_pb2.GetDashboardReq())

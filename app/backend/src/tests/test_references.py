@@ -29,10 +29,10 @@ from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.moderation.utils import create_moderation
 from couchers.proto import api_pb2, messages_pb2, moderation_pb2, references_pb2, requests_pb2
 from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_aware_datetime, to_multi, today
+from tests.fixtures.api import account as account_api
 from tests.fixtures.db import generate_user, make_friends, make_user_block
 from tests.fixtures.misc import EmailCollector, PushCollector
 from tests.fixtures.sessions import (
-    account_session,
     api_session,
     real_moderation_session,
     references_session,
@@ -1360,26 +1360,25 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db, moderator
         assert w.reference_type == references_pb2.REFERENCE_TYPE_HOSTED
         assert now() + timedelta(days=11) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=12)
 
-    with account_session(token1) as account:
-        reminders = account.GetReminders(empty_pb2.Empty()).reminders
-        assert [reminder.WhichOneof("reminder") for reminder in reminders] == [
-            "write_reference_reminder",
-            "write_reference_reminder",
-            "write_reference_reminder",
-            "write_reference_reminder",
-        ]
-        assert reminders[0].write_reference_reminder.host_request_id == hr3
-        assert reminders[0].write_reference_reminder.reference_type == references_pb2.REFERENCE_TYPE_HOSTED
-        assert reminders[0].write_reference_reminder.other_user.user_id == user3.id
-        assert reminders[1].write_reference_reminder.host_request_id == hr4
-        assert reminders[1].write_reference_reminder.reference_type == references_pb2.REFERENCE_TYPE_SURFED
-        assert reminders[1].write_reference_reminder.other_user.user_id == user4.id
-        assert reminders[2].write_reference_reminder.host_request_id == hr6
-        assert reminders[2].write_reference_reminder.reference_type == references_pb2.REFERENCE_TYPE_SURFED
-        assert reminders[2].write_reference_reminder.other_user.user_id == user10.id
-        assert reminders[3].write_reference_reminder.host_request_id == hr7
-        assert reminders[3].write_reference_reminder.reference_type == references_pb2.REFERENCE_TYPE_HOSTED
-        assert reminders[3].write_reference_reminder.other_user.user_id == user11.id
+    reminders = account_api.get_reminders(token=token1).reminders
+    assert [reminder.WhichOneof("reminder") for reminder in reminders] == [
+        "write_reference_reminder",
+        "write_reference_reminder",
+        "write_reference_reminder",
+        "write_reference_reminder",
+    ]
+    assert reminders[0].write_reference_reminder.host_request_id == hr3
+    assert reminders[0].write_reference_reminder.reference_type == references_pb2.REFERENCE_TYPE_HOSTED
+    assert reminders[0].write_reference_reminder.other_user.user_id == user3.id
+    assert reminders[1].write_reference_reminder.host_request_id == hr4
+    assert reminders[1].write_reference_reminder.reference_type == references_pb2.REFERENCE_TYPE_SURFED
+    assert reminders[1].write_reference_reminder.other_user.user_id == user4.id
+    assert reminders[2].write_reference_reminder.host_request_id == hr6
+    assert reminders[2].write_reference_reminder.reference_type == references_pb2.REFERENCE_TYPE_SURFED
+    assert reminders[2].write_reference_reminder.other_user.user_id == user10.id
+    assert reminders[3].write_reference_reminder.host_request_id == hr7
+    assert reminders[3].write_reference_reminder.reference_type == references_pb2.REFERENCE_TYPE_HOSTED
+    assert reminders[3].write_reference_reminder.other_user.user_id == user11.id
 
 
 @pytest.mark.parametrize("hs", ["host", "surfer"])
