@@ -153,11 +153,11 @@ describe("localizeDateTime", () => {
 describe("localizeDateTime-derived helpers", () => {
   // Sanity check. Testing is otherwise covered by localizeDateTime, which these functions delegate to.
   it("localizeDateOnly", () => {
-    expect(localizeDateOnly(janFirst2000.add({ hours: 7 }), "en")).toBe("January 1, 2000");
+    expect(localizeDateOnly(janFirst2000.add({ hours: 7 }), "en")).toBe("1 January 2000");
   });
 
   it("localizeTimeOnly", () => {
-    expect(localizeTimeOnly(janFirst2000.add({ hours: 7 }), "en")).toBe("7:00 AM");
+    expect(localizeTimeOnly(janFirst2000.add({ hours: 7 }), "en")).toBe("7:00 am");
   });
 
   // Sanity check. Testing is otherwise covered by localizeDateTime, which these functions delegate to.
@@ -411,7 +411,8 @@ describe("localizeTimeZone", () => {
 
 describe("getMuiDateFormat", () => {
   it("works for common locales", () => {
-    expect(getMuiDateFormat("en")).toEqual("MM/DD/YYYY");
+    expect(getMuiDateFormat("en")).toEqual("DD/MM/YYYY");
+    expect(getMuiDateFormat("en-US")).toEqual("MM/DD/YYYY");
     expect(getMuiDateFormat("de")).toEqual("DD.MM.YYYY");
     expect(getMuiDateFormat("ja-JP")).toEqual("YYYY/MM/DD");
     expect(getMuiDateFormat("fr-CA")).toEqual("YYYY-MM-DD");
@@ -430,6 +431,7 @@ describe("getMuiDateFormat", () => {
 describe("getMuiTimeFormat", () => {
   it("works for common locales", () => {
     expect(getMuiTimeFormat("en")).toEqual("h:mm a");
+    expect(getMuiTimeFormat("en-US")).toEqual("h:mm a");
     expect(getMuiTimeFormat("de")).toEqual("HH:mm");
     expect(getMuiTimeFormat("ja-JP")).toEqual("H:mm");
   });
