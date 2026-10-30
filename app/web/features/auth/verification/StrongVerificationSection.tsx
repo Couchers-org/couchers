@@ -2,7 +2,7 @@ import {
   CheckCircle,
   DeleteOutlineOutlined,
   EnhancedEncryptionOutlined,
-  ForumOutlined,
+  HandshakeOutlined,
   PhoneIphoneOutlined,
   PhotoLibraryOutlined,
   SearchOutlined,
@@ -11,12 +11,13 @@ import {
 } from "@mui/icons-material";
 import { alpha, Box, styled, Typography } from "@mui/material";
 import Button from "components/Button";
+import StyledLink from "components/StyledLink";
 import { GALLERY_MAX_PHOTOS_NOT_VERIFIED, GALLERY_MAX_PHOTOS_VERIFIED } from "features/auth/verification/constants";
 import { Trans, useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
 import Link from "next/link";
 import { ReactNode } from "react";
-import { strongVerificationRoute } from "routes";
+import { helpCenterStrongVerificationDataUrl, strongVerificationRoute } from "routes";
 
 import DeleteStrongVerificationDataButton from "./DeleteStrongVerificationDataButton";
 import { ActionRow, SectionBlock, SectionRoot, SuccessBanner, VerificationSectionHeader } from "./VerificationSection";
@@ -119,7 +120,7 @@ export default function StrongVerificationSection({ hasStrongVerification }: Str
             description={t("verification_page.strong.benefits.badge_description")}
           />
           <Benefit
-            icon={<ForumOutlined />}
+            icon={<HandshakeOutlined />}
             title={t("verification_page.strong.benefits.interactions_title")}
             description={t("verification_page.strong.benefits.interactions_description")}
           />
@@ -136,7 +137,11 @@ export default function StrongVerificationSection({ hasStrongVerification }: Str
         <DataNote>
           <EnhancedEncryptionOutlined />
           <Typography variant="body2">
-            <Trans t={t} i18nKey="verification_page.strong.data_notes.encryption" />
+            <Trans
+              t={t}
+              i18nKey="verification_page.strong.data_notes.encryption"
+              components={{ fieldsLink: <StyledLink href={helpCenterStrongVerificationDataUrl} target="_blank" /> }}
+            />
           </Typography>
         </DataNote>
         <DataNote>
