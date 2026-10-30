@@ -25,16 +25,16 @@ from couchers.models import (
     UserBadge,
 )
 from couchers.models.notifications import Notification
-from couchers.proto import admin_pb2, api_pb2, blocking_pb2, jail_pb2, notifications_pb2
+from couchers.proto import admin_pb2, api_pb2, blocking_pb2, jail_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.resources import get_badge_dict
 from couchers.utils import create_coordinate, now, to_aware_datetime
+from tests.fixtures.api import notifications as notifications_api
 from tests.fixtures.db import generate_user, make_friends, make_user_block
 from tests.fixtures.misc import EmailCollector, PushCollector
 from tests.fixtures.sessions import (
     api_session,
     blocking_session,
-    notifications_session,
     real_api_session,
     real_jail_session,
 )
@@ -672,8 +672,7 @@ def test_update_profile(db):
 def test_update_profile_do_not_email(db):
     user, token = generate_user()
 
-    with notifications_session(token) as notifications:
-        notifications.SetNotificationSettings(notifications_pb2.SetNotificationSettingsReq(enable_do_not_email=True))
+    notifications_api.set_notification_settings(token=token, enable_do_not_email=True)
 
     with api_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
