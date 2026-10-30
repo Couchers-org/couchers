@@ -72,6 +72,8 @@ from couchers.utils import (
 
 # searches are a bit expensive, we'd rather send back a bunch of results at once than lots of small pages
 MAX_PAGINATION_LENGTH = 100
+# past this the UI shows "10,000+", so big areas cost no more to count than a city
+MAX_UNFILTERED_COUNT = 10_000
 
 REGCONFIG = "english"
 TRI_SIMILARITY_THRESHOLD = 0.6
@@ -445,28 +447,30 @@ def _user_search_noise(column: SQLColumnExpression[int], viewer_id: int) -> Colu
 
 
 def _user_search_inner(
-    request: search_pb2.UserSearchReq, context: CouchersContext, session: Session
-) -> tuple[list[int], str | None, int, str]:
+    request: search_pb2.UserSearchReq, context: CouchersContext, session: Session, *, count_unfiltered: bool = False
+) -> tuple[list[int], str | None, int, int | None, str]:
     user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
     # Base statement with visibility filter
     statement = select(User.id).where(users_visible(context))
     # make sure that only users who are in LiteUser show up
     statement = statement.join(LiteUser, LiteUser.id == User.id)
+    unfiltered_statement = statement
+    # where to search (ids, query, area), shared with the unfiltered count
+    scope: list[ColumnElement[bool]] = []
 
     # If exactly_user_ids is present, only filter by those IDs and ignore all other filters
-    # This is a bit of a hacky feature to help with the frontend map implementation
     if len(request.exactly_user_ids) > 0:
-        statement = statement.where(User.id.in_(request.exactly_user_ids))
+        scope.append(User.id.in_(request.exactly_user_ids))
     else:
         # Apply all the normal filters
         if request.HasField("query"):
             if request.query_name_only:
-                statement = statement.where(
+                scope.append(
                     or_(User.name.ilike(f"%{request.query.value}%"), User.username.ilike(f"%{request.query.value}%"))
                 )
             else:
-                statement = statement.where(
+                scope.append(
                     or_(
                         User.name.ilike(f"%{request.query.value}%"),
                         User.username.ilike(f"%{request.query.value}%"),
@@ -570,7 +574,7 @@ def _user_search_inner(
             # we want to check whether two circles overlap, so check if the distance between their centers is less
             # than the sum of their radii, divided by 111111 m ~= 1 degree (at the equator)
             search_point = create_coordinate(request.search_in_area.lat, request.search_in_area.lng)
-            statement = statement.where(
+            scope.append(
                 func.ST_DWithin(
                     # old:
                     # User.geom, search_point, (User.geom_radius + request.search_in_area.radius) / 111111
@@ -582,7 +586,7 @@ def _user_search_inner(
                 )
             )
         if request.HasField("search_in_rectangle"):
-            statement = statement.where(
+            scope.append(
                 func.ST_Within(
                     User.geom,
                     func.ST_MakeEnvelope(
@@ -599,7 +603,7 @@ def _user_search_inner(
             node = session.execute(select(Node).where(Node.id == request.search_in_community_id)).scalar_one_or_none()
             if not node:
                 context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
-            statement = statement.where(func.ST_Contains(node.geom, User.geom))
+            scope.append(func.ST_Contains(node.geom, User.geom))
 
         if request.only_with_references:
             references = (
@@ -623,8 +627,16 @@ def _user_search_inner(
         # TODO:
         # bool friends_only = 13;
 
+    statement = statement.where(*scope)
+
     page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
     total_items = cast(int, session.execute(select(func.count()).select_from(statement.subquery())).scalar())
+    total_unfiltered_items = None
+    if count_unfiltered:
+        unfiltered_statement = unfiltered_statement.where(*scope).limit(MAX_UNFILTERED_COUNT + 1)
+        total_unfiltered_items = cast(
+            int, session.execute(select(func.count()).select_from(unfiltered_statement.subquery())).scalar()
+        )
 
     noise_scale = context.get_float_value("user_search_noise_scale", DEFAULT_USER_SEARCH_NOISE_SCALE)
     ranking_score = User.recommendation_score + noise_scale * _user_search_noise(User.id, context.user_id)
@@ -647,7 +659,13 @@ def _user_search_inner(
     if len(res) > page_size:
         last_user_id, last_rec_score = res[page_size - 1]
         next_page_token = encrypt_page_token(f"{last_rec_score},{last_user_id}")
-    return [user_id for user_id, _ in res[:page_size]], next_page_token, total_items, ranking_offsets_variant
+    return (
+        [user_id for user_id, _ in res[:page_size]],
+        next_page_token,
+        total_items,
+        total_unfiltered_items,
+        ranking_offsets_variant,
+    )
 
 
 def _log_search_performed(
@@ -739,7 +757,7 @@ class Search(search_pb2_grpc.SearchServicer):
     def UserSearch(
         self, request: search_pb2.UserSearchReq, context: CouchersContext, session: Session
     ) -> search_pb2.UserSearchRes:
-        user_ids_to_return, next_page_token, total_items, ranking_offsets_variant = _user_search_inner(
+        user_ids_to_return, next_page_token, total_items, _, ranking_offsets_variant = _user_search_inner(
             request, context, session
         )
 
@@ -766,8 +784,8 @@ class Search(search_pb2_grpc.SearchServicer):
     def UserSearchV2(
         self, request: search_pb2.UserSearchReq, context: CouchersContext, session: Session
     ) -> search_pb2.UserSearchV2Res:
-        user_ids_to_return, next_page_token, total_items, ranking_offsets_variant = _user_search_inner(
-            request, context, session
+        user_ids_to_return, next_page_token, total_items, total_unfiltered_items, ranking_offsets_variant = (
+            _user_search_inner(request, context, session, count_unfiltered=True)
         )
 
         _log_search_performed(request, context, session, total_items, ranking_offsets_variant)
@@ -844,6 +862,7 @@ class Search(search_pb2_grpc.SearchServicer):
             results=results,
             next_page_token=next_page_token,
             total_items=total_items,
+            total_unfiltered_items=total_unfiltered_items,
         )
 
     def EventSearch(

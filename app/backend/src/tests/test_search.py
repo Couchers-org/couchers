@@ -6,6 +6,7 @@ from google.protobuf import empty_pb2, wrappers_pb2
 from psycopg.types.range import TimestamptzRange
 from sqlalchemy import select, update
 
+import couchers.servicers.search
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views, refresh_materialized_views_rapid
 from couchers.models import (
@@ -178,6 +179,126 @@ def test_user_search_in_rectangle(db):
             )
         )
         assert [result.user_id for result in res.results] == [user3.id, user4.id]
+
+
+def test_user_search_counts_unfiltered_items(db):
+    """
+    total_unfiltered_items counts everyone in the area before filters, so the UI can show
+    "1–100 of 2 hosts · 5 members here"
+    """
+    _, token = generate_user(geom=create_coordinate(10, 10))
+    in_area = create_coordinate(0.5, 0.5)
+    can_host_complete, _ = generate_user(geom=in_area, hosting_status=HostingStatus.can_host)
+    maybe_complete, _ = generate_user(geom=in_area, hosting_status=HostingStatus.maybe)
+    generate_user(geom=in_area, hosting_status=HostingStatus.can_host, complete_profile=False)
+    generate_user(geom=in_area, hosting_status=HostingStatus.cant_host)
+    generate_user(geom=in_area, hosting_status=HostingStatus.cant_host, complete_profile=False)
+    generate_user(geom=create_coordinate(5, 5), hosting_status=HostingStatus.can_host)
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
+
+    req = search_pb2.UserSearchReq(
+        search_in_rectangle=search_pb2.RectArea(lat_min=0, lat_max=1, lng_min=0, lng_max=1),
+        hosting_status_filter=[api_pb2.HOSTING_STATUS_CAN_HOST, api_pb2.HOSTING_STATUS_MAYBE],
+        profile_completed=wrappers_pb2.BoolValue(value=True),
+        page_size=1,
+    )
+    with search_session(token) as api:
+        res = api.UserSearchV2(req)
+        assert res.total_items == 2
+        assert res.total_unfiltered_items == 5
+
+        page_2 = api.UserSearchV2(
+            search_pb2.UserSearchReq(
+                search_in_rectangle=req.search_in_rectangle,
+                hosting_status_filter=req.hosting_status_filter,
+                profile_completed=req.profile_completed,
+                page_size=1,
+                page_token=res.next_page_token,
+            )
+        )
+        assert {res.results[0].user_id, page_2.results[0].user_id} == {can_host_complete.id, maybe_complete.id}
+        assert page_2.total_items == 2
+        assert page_2.total_unfiltered_items == 5
+
+
+def test_user_search_counts_without_filters(db):
+    """With no filters, everything in the area matches"""
+    _, token = generate_user(geom=create_coordinate(10, 10))
+    generate_user(geom=create_coordinate(0.5, 0.5), hosting_status=HostingStatus.cant_host)
+    generate_user(geom=create_coordinate(0.5, 0.5), complete_profile=False)
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
+
+    with search_session(token) as api:
+        res = api.UserSearchV2(
+            search_pb2.UserSearchReq(
+                search_in_rectangle=search_pb2.RectArea(lat_min=0, lat_max=1, lng_min=0, lng_max=1),
+            )
+        )
+        assert res.total_items == 2
+        assert res.total_unfiltered_items == 2
+
+
+def test_user_search_counts_unfiltered_items_in_keyword_and_area(db):
+    """The unfiltered count still applies the keyword and search area, only the filters are dropped"""
+    _, token = generate_user(geom=create_coordinate(10, 10))
+    in_area = create_coordinate(0.5, 0.5)
+    generate_user(geom=in_area, things_i_like="Sourdough", hosting_status=HostingStatus.can_host)
+    generate_user(geom=in_area, things_i_like="Baking sourdough", hosting_status=HostingStatus.cant_host)
+    generate_user(geom=in_area, things_i_like="Kimchi", hosting_status=HostingStatus.can_host)
+    generate_user(geom=create_coordinate(5, 5), things_i_like="Sourdough", hosting_status=HostingStatus.can_host)
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
+
+    with search_session(token) as api:
+        res = api.UserSearchV2(
+            search_pb2.UserSearchReq(
+                query=wrappers_pb2.StringValue(value="sourdough"),
+                search_in_area=search_pb2.Area(lat=0.5, lng=0.5, radius=10000),
+                hosting_status_filter=[api_pb2.HOSTING_STATUS_CAN_HOST],
+            )
+        )
+        assert res.total_items == 1
+        assert res.total_unfiltered_items == 2
+
+
+def test_user_search_counts_exactly_user_ids(db):
+    _, token = generate_user()
+    user2, _ = generate_user(hosting_status=HostingStatus.cant_host)
+    user3, _ = generate_user()
+    generate_user()
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
+
+    with search_session(token) as api:
+        res = api.UserSearchV2(
+            search_pb2.UserSearchReq(
+                exactly_user_ids=[user2.id, user3.id],
+                hosting_status_filter=[api_pb2.HOSTING_STATUS_CAN_HOST],
+            )
+        )
+        assert res.total_items == 2
+        assert res.total_unfiltered_items == 2
+
+
+def test_user_search_unfiltered_items_capped(db, monkeypatch):
+    monkeypatch.setattr(couchers.servicers.search, "MAX_UNFILTERED_COUNT", 2)
+    _, token = generate_user()
+    for _ in range(4):
+        generate_user()
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
+
+    with search_session(token) as api:
+        res = api.UserSearchV2(search_pb2.UserSearchReq())
+        assert res.total_items == 5
+        assert res.total_unfiltered_items == 3
 
 
 def test_user_filter_complete_profile(db):
@@ -417,6 +538,8 @@ def test_regression_search_only_with_references(db):
 
         res = api.UserSearchV2(search_pb2.UserSearchReq(only_with_references=True))
         assert [result.user_id for result in res.results] == [user2.id]
+        assert res.total_items == 1
+        assert res.total_unfiltered_items == 3
 
 
 def test_user_search_exactly_user_ids(db):
