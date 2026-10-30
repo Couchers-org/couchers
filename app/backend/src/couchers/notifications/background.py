@@ -52,7 +52,7 @@ def _send_email_notification(session: Session, user: User, notification: Notific
         include_ics_attachments=context.get_boolean_value("email_ics_attachments_enabled", default=False),
     )
 
-    queue_email(session, payload)
+    queue_email(context, session, payload)
 
 
 def _send_push_notification(session: Session, user: User, notification: Notification) -> None:
