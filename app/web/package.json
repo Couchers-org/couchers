@@ -54,7 +54,7 @@
     "dayjs": "^1.11.23",
     "frontmatter-markdown-loader": "^3.7.0",
     "geojson": "^0.5.0",
-    "google-protobuf": "^3.21.4",
+    "google-protobuf": "^4.0.3",
     "grpc-web": "2.1.1",
     "i18next": "^26.4.2",
     "intersection-observer": "^0.12.2",
