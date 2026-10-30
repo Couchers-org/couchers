@@ -6,6 +6,7 @@ from couchers.proto import (
     discussions_pb2,
     events_pb2,
     messages_pb2,
+    public_trips_pb2,
     requests_pb2,
     screens_pb2,
     screens_pb2_grpc,
@@ -13,6 +14,7 @@ from couchers.proto import (
 from couchers.servicers.account import Account
 from couchers.servicers.discussions import Discussions
 from couchers.servicers.events import Events
+from couchers.servicers.public_trips import PublicTrips
 from couchers.servicers.requests import Requests
 
 
@@ -25,6 +27,7 @@ class Screens(screens_pb2_grpc.ScreensServicer):
         my_events_page_size = 9
         community_events_page_size = 9
         discussions_page_size = 9
+        public_trips_page_size = 10
 
         def upcoming_host_requests_req(*, surfing: bool) -> requests_pb2.ListHostRequestsReq:
             return requests_pb2.ListHostRequestsReq(
@@ -37,6 +40,25 @@ class Screens(screens_pb2_grpc.ScreensServicer):
                 ],
                 sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
                 number=stays_page_size,
+            )
+
+        my_public_trips = None
+        community_public_trips = None
+        if context.get_boolean_value("public_trips_enabled", default=False):
+            my_public_trips = PublicTrips().ListPublicTripsByUser(
+                public_trips_pb2.ListPublicTripsByUserReq(
+                    user_id=context.user_id,
+                    page_size=public_trips_page_size,
+                    statuses_in=[public_trips_pb2.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST],
+                    ascending=True,
+                ),
+                context,
+                session,
+            )
+            community_public_trips = PublicTrips().ListMyCommunitiesPublicTrips(
+                public_trips_pb2.ListMyCommunitiesPublicTripsReq(page_size=public_trips_page_size),
+                context,
+                session,
             )
 
         return screens_pb2.GetDashboardRes(
@@ -63,4 +85,6 @@ class Screens(screens_pb2_grpc.ScreensServicer):
                 context,
                 session,
             ),
+            my_public_trips=my_public_trips,
+            community_public_trips=community_public_trips,
         )

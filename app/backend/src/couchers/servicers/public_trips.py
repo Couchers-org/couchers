@@ -11,7 +11,7 @@ from couchers.crypto import decrypt_page_token, encrypt_page_token
 from couchers.db import can_moderate_node
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
-from couchers.models import ModerationObjectType, Node, User
+from couchers.models import Cluster, ClusterSubscription, ModerationObjectType, Node, User
 from couchers.models.host_requests import HostRequest, HostRequestStatus
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.moderation.utils import create_moderation
@@ -293,8 +293,11 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             is_list_operation=True,
         ).where(PublicTrip.user_id == request.user_id)
 
+        # Trips that have ended are only returned to their owner, on request
+        if not (is_self and request.include_past):
+            statement = statement.where(PublicTrip.end_time >= func.now())
+
         if not is_self:
-            # On other users' profiles show only active, upcoming trips that the viewer is allowed to see.
             # Check moderation against each distinct node the user has active trips in.
             active_node_ids = (
                 session.execute(
@@ -309,9 +312,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             )
             viewer_is_moderator = any(can_moderate_node(session, context.user_id, nid) for nid in active_node_ids)
 
-            statement = statement.where(PublicTrip.status == PublicTripStatus.searching_for_host).where(
-                PublicTrip.end_time >= func.now()
-            )
+            statement = statement.where(PublicTrip.status == PublicTripStatus.searching_for_host)
             if not viewer_is_moderator:
                 statement = statement.where(_same_gender_filter(context))
         elif request.statuses_in:
@@ -352,6 +353,43 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         return public_trips_pb2.ListPublicTripsByUserRes(
             public_trips=[public_trip_to_pb(trip, session, context) for trip in public_trips[:page_size]],
             next_page_token=next_page_token,
+        )
+
+    def ListMyCommunitiesPublicTrips(
+        self, request: public_trips_pb2.ListMyCommunitiesPublicTripsReq, context: CouchersContext, session: Session
+    ) -> public_trips_pb2.ListMyCommunitiesPublicTripsRes:
+        if not context.get_boolean_value("public_trips_enabled", False):
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "public_trips_disabled")
+
+        page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+        next_page_id = int(decrypt_page_token(request.page_token)) if request.page_token else 0
+
+        # @TODO(NA):Should we make same-gender ones visible to opposite gender moderators? For now, we don't
+        statement = (
+            where_moderated_content_visible(
+                where_users_column_visible(select(PublicTrip), context, PublicTrip.user_id),
+                context,
+                PublicTrip,
+                is_list_operation=True,
+            )
+            .join(Cluster, Cluster.parent_node_id == PublicTrip.node_id)
+            .join(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
+            .where(Cluster.is_official_cluster)
+            .where(ClusterSubscription.user_id == context.user_id)
+            .where(PublicTrip.user_id != context.user_id)
+            .where(PublicTrip.status == PublicTripStatus.searching_for_host)
+            .where(PublicTrip.end_time >= func.now())
+            .where(_same_gender_filter(context))
+            .where(or_(PublicTrip.id <= next_page_id, to_bool(next_page_id == 0)))
+            .order_by(PublicTrip.id.desc())
+            .limit(page_size + 1)
+            .options(selectinload(PublicTrip.node, Node.official_cluster))
+        )
+        public_trips = session.execute(statement).scalars().all()
+
+        return public_trips_pb2.ListMyCommunitiesPublicTripsRes(
+            public_trips=[public_trip_to_pb(trip, session, context) for trip in public_trips[:page_size]],
+            next_page_token=encrypt_page_token(str(public_trips[-1].id)) if len(public_trips) > page_size else None,
         )
 
     def UpdatePublicTrip(
