@@ -117,6 +117,7 @@ export default function MyPublicTripsMessages() {
     userId: userId ?? 0,
     pageToken: "",
     ascending: true,
+    includePast: true,
   });
 
   const offersQuery = useInfiniteQuery<ListMessageThreadsRes.AsObject, RpcError>({

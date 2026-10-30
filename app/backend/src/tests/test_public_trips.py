@@ -480,6 +480,92 @@ def test_list_public_trips_pagination(db):
         assert not res3.next_page_token
 
 
+def _join_community(user_id: int, node_id: int):
+    with session_scope() as session:
+        cluster_id = session.execute(
+            select(Cluster.id).where(Cluster.parent_node_id == node_id).where(Cluster.is_official_cluster)
+        ).scalar_one()
+        session.add(ClusterSubscription(cluster_id=cluster_id, user_id=user_id, role=ClusterRole.member))
+
+
+def test_list_my_communities_public_trips(db):
+    traveler, _ = generate_user()
+    viewer, viewer_token = generate_user()
+    joined_node_id = _make_node()
+    other_node_id = _make_node()
+    _join_community(viewer.id, joined_node_id)
+
+    older = _create_trip_directly(traveler.id, joined_node_id, today() + timedelta(days=5), today() + timedelta(days=8))
+    newer = _create_trip_directly(
+        traveler.id, joined_node_id, today() + timedelta(days=20), today() + timedelta(days=25)
+    )
+    # in a community the viewer hasn't joined
+    _create_trip_directly(traveler.id, other_node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    # the viewer's own trip
+    _create_trip_directly(viewer.id, joined_node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    _create_trip_directly(
+        traveler.id,
+        joined_node_id,
+        today() + timedelta(days=40),
+        today() + timedelta(days=45),
+        status=PublicTripStatus.closed,
+    )
+    _create_trip_directly(traveler.id, joined_node_id, today() - timedelta(days=10), today() - timedelta(days=1))
+
+    with public_trips_session(viewer_token) as api:
+        res = api.ListMyCommunitiesPublicTrips(public_trips_pb2.ListMyCommunitiesPublicTripsReq())
+        assert [t.trip_id for t in res.public_trips] == [newer, older]
+        assert not res.next_page_token
+
+
+def test_list_my_communities_public_trips_same_gender_only(db):
+    traveler, _ = generate_user(gender="Woman")
+    same_gender, same_gender_token = generate_user(gender="Woman")
+    diff_gender, diff_gender_token = generate_user(gender="Man")
+    node_id = _make_node()
+    _join_community(same_gender.id, node_id)
+    # community moderators don't bypass the rule here
+    _make_node_admin(diff_gender.id, node_id)
+
+    filtered = _create_trip_directly(
+        traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10), same_gender_only=True
+    )
+    open_trip = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=20), today() + timedelta(days=25))
+
+    with public_trips_session(same_gender_token) as api:
+        res = api.ListMyCommunitiesPublicTrips(public_trips_pb2.ListMyCommunitiesPublicTripsReq())
+        assert [t.trip_id for t in res.public_trips] == [open_trip, filtered]
+
+    with public_trips_session(diff_gender_token) as api:
+        res = api.ListMyCommunitiesPublicTrips(public_trips_pb2.ListMyCommunitiesPublicTripsReq())
+        assert [t.trip_id for t in res.public_trips] == [open_trip]
+
+
+def test_list_my_communities_public_trips_pagination(db):
+    traveler, _ = generate_user()
+    viewer, viewer_token = generate_user()
+    node_id = _make_node()
+    _join_community(viewer.id, node_id)
+
+    trip_ids = [
+        _create_trip_directly(
+            traveler.id, node_id, today() + timedelta(days=10 * i + 1), today() + timedelta(days=10 * i + 5)
+        )
+        for i in range(3)
+    ]
+
+    with public_trips_session(viewer_token) as api:
+        res = api.ListMyCommunitiesPublicTrips(public_trips_pb2.ListMyCommunitiesPublicTripsReq(page_size=2))
+        assert [t.trip_id for t in res.public_trips] == trip_ids[::-1][:2]
+        assert res.next_page_token
+
+        res = api.ListMyCommunitiesPublicTrips(
+            public_trips_pb2.ListMyCommunitiesPublicTripsReq(page_size=2, page_token=res.next_page_token)
+        )
+        assert [t.trip_id for t in res.public_trips] == [trip_ids[0]]
+        assert not res.next_page_token
+
+
 def test_list_public_trips_by_user_self_sees_all(db):
     user, token = generate_user()
     other, _ = generate_user()
@@ -498,7 +584,7 @@ def test_list_public_trips_by_user_self_sees_all(db):
     _create_trip_directly(other.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
 
     with public_trips_session(token) as api:
-        res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=user.id))
+        res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=user.id, include_past=True))
         assert {t.trip_id for t in res.public_trips} == {mine_active, mine_closed, mine_past}
 
 
@@ -954,6 +1040,34 @@ def test_list_public_trips_by_user_status_filter(db):
         # No filter returns all
         res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=user.id))
         assert {t.trip_id for t in res.public_trips} == {active, closed}
+
+
+def test_list_public_trips_by_user_include_past(db):
+    user, token = generate_user()
+    _, other_token = generate_user()
+    node_id = _make_node()
+
+    past = _create_trip_directly(user.id, node_id, today() - timedelta(days=10), today() - timedelta(days=1))
+    ongoing = _create_trip_directly(user.id, node_id, today() - timedelta(days=1), today() + timedelta(days=2))
+    upcoming = _create_trip_directly(user.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+
+    with public_trips_session(token) as api:
+        res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=user.id, ascending=True))
+        assert [t.trip_id for t in res.public_trips] == [ongoing, upcoming]
+
+        res = api.ListPublicTripsByUser(
+            public_trips_pb2.ListPublicTripsByUserReq(user_id=user.id, ascending=True, include_past=True)
+        )
+        assert [t.trip_id for t in res.public_trips] == [past, ongoing, upcoming]
+
+    with public_trips_session(other_token) as api:
+        res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=user.id, ascending=True))
+        assert [t.trip_id for t in res.public_trips] == [ongoing, upcoming]
+
+        res = api.ListPublicTripsByUser(
+            public_trips_pb2.ListPublicTripsByUserReq(user_id=user.id, ascending=True, include_past=True)
+        )
+        assert [t.trip_id for t in res.public_trips] == [past, ongoing, upcoming]
 
 
 def test_list_public_trips_by_user_status_filter_ignored_for_others(db):
