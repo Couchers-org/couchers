@@ -303,7 +303,7 @@ describe("VerificationPage", () => {
       expect(await screen.findByText(t("auth:verification_page.postal.code_form.wrong_code_message"))).toBeVisible();
       expect(verifyPostalCodeMock).toHaveBeenCalledWith("X7KM4Q");
       expect(
-        screen.getByText(t("auth:verification_page.postal.code_form.tries_left", { count: 4, max_tries: 5 })),
+        screen.getByText(t("auth:verification_page.postal.code_form.attempts_left", { remaining: 4, count: 5 })),
       ).toBeVisible();
     });
 

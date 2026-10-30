@@ -174,6 +174,8 @@ export const howToInviteCommunityUrl =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1720304409-how-does-the-invite-the-community-feature-work";
 export const howToMakeGreatProfileUrl =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1725919197-how-do-i-create-a-great-profile";
+export const helpCenterStrongVerificationDataUrl =
+  "https://help.couchers.org/hc/couchersorg-help-center/articles/1716502273-technical-description-of-strong-verification";
 export const helpCenterReportContentURL =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1715125657-how-do-i-report-someone-or-something-that-violates-the-community-guidelines-or-terms-of-use-to_u";
 export const helpCenterPrivateFeedbackUrl =
