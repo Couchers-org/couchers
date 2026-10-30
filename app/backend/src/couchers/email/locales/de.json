@@ -125,7 +125,7 @@
   "donation_received": {
     "subject": "Vielen Dank für deine Spende an Couchers.org!",
     "purpose": "Vielen Dank für deine Spende von <b>{{amount_with_currency}}</b> an Couchers.org.",
-    "contribution_impact": "Dein Beitrag wird zum Aufbau und Erhalt der Couchers.org-Community verwendet und ist entscheidend für unser Ziel einer kostenlosen und gemeinnützigen Couchsurfing-Plattform.",
+    "contribution_impact": "Dein Beitrag wird zum Aufbau und Erhalt der Couchers.org-Community verwendet und ist entscheidend für unser Ziel einer kostenlosen und gemeinnützigen Couch-Surfing-Plattform.",
     "invoice_receipt_info": "Du kannst eine Rechnung und eine Quittung für die Spende hier herunterladen:",
     "download_invoice": "Rechnung herunterladen",
     "tax_acknowledgment": "Couchers, Inc. ist eine gemeinnützige Organisation gemäß 501(c)(3) (EIN: 87-1734577) mit Sitz in den Vereinigten Staaten. Im Gegenzug für diese Spende wurden keine Waren oder Dienstleistungen erbracht.",
@@ -213,57 +213,119 @@
     "subject": "Dein Geschlecht wurde geändert",
     "purpose": "Dein Geschlecht auf Couchers.org wurde von einem Administrator zu <b>{{ gender }}</b> geändert."
   },
-  "host_requests": {
+  "stays": {
     "created": {
-      "subject": "{{surfer_name}} hat dir eine Host-Anfrage gesendet",
-      "purpose": "<b>{{surfer_name}}</b> hat dir eine Host-Anfrage gesendet:",
-      "respond_encouragement": "Bitte antworte auf diese Anfrage. Selbst eine schnelle Absage ist besser als gar keine Antwort!"
+      "host_request": {
+        "subject": "{{initiator}} hat dir eine Host-Anfrage gesendet",
+        "purpose": "<b>{{initiator}}</b> hat dir eine Host-Anfrage gesendet:",
+        "respond_encouragement": "Bitte antworte auf diese Anfrage. Selbst eine schnelle Absage ist besser als gar keine Antwort!"
+      },
+      "invitation": {
+        "subject": "{{initiator}} hat dir eine Einladung geschickt",
+        "purpose": "<b>{{initiator}}</b> hat dir eine Einladung geschickt:",
+        "respond_encouragement": "Bitte antworte auf diese Einladung. Selbst eine schnelle Absage ist besser als gar keine Antwort!"
+      }
     },
     "generic": {
       "date_range": "Von <b>{{from_date}}</b> bis <b>{{to_date}}</b>.",
-      "view_action": "Host-Anfrage ansehen",
-      "quick_decline_action": "Schnelle Absage"
+      "host_request": {
+        "view_action": "Host-Anfrage ansehen"
+      },
+      "quick_decline_action": "Schnelle Absage",
+      "invitation": {
+        "view_action": "Einladung anzeigen"
+      }
     },
     "reminder": {
-      "subject": "Du hast eine ausstehende Host-Anfrage von {{surfer_name}}",
-      "purpose": "<b>{{surfer_name}}</b> wartet auf deine Antwort. Selbst eine schnelle Absage ist besser als gar keine Antwort!"
+      "host_request": {
+        "subject": "Du hast eine ausstehende Host-Anfrage von {{initiator}}",
+        "purpose": "<b>{{initiator}}</b> wartet auf deine Antwort. Selbst eine schnelle Absage ist besser als gar keine Antwort!"
+      },
+      "invitation": {
+        "subject": "Du hast eine ausstehende Einladung von {{initiator}}",
+        "purpose": "<b>{{initiator}}</b> wartet auf deine Antwort. Selbst eine schnelle Absage ist besser als gar keine Antwort!"
+      }
     },
     "message": {
-      "from_host": {
-        "subject": "{{other_name}} hat dir eine Nachricht in deiner Host-Anfrage gesendet",
-        "purpose": "<b>{{other_name}}</b> hat dir eine Nachricht in deiner Host-Anfrage gesendet:"
+      "host_request": {
+        "from_initiator": {
+          "subject": "{{counterparty}} hat dir eine Nachricht in der Host-Anfrage gesendet",
+          "purpose": "<b>{{counterparty}}</b> hat dir eine Nachricht in der Host-Anfrage gesendet:"
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}} hat dir eine Nachricht in deiner Host-Anfrage gesendet",
+          "purpose": "<b>{{counterparty}}</b> hat dir eine Nachricht in deiner Host-Anfrage gesendet:"
+        }
       },
-      "from_surfer": {
-        "subject": "{{other_name}} hat dir eine Nachricht in der Host-Anfrage gesendet",
-        "purpose": "<b>{{other_name}}</b> hat dir eine Nachricht in der Host-Anfrage gesendet:"
+      "invitation": {
+        "from_initiator": {
+          "subject": "{{counterparty}} hat dir eine Nachricht in der Einladung geschrieben",
+          "purpose": "<b>{{counterparty}}</b> hat dir eine Nachricht in der Einladung geschrieben:"
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}} hat dir eine Nachricht in deiner Einladung geschrieben",
+          "purpose": "<b>{{counterparty}}</b> hat dir eine Nachricht in deiner Einladung geschrieben:"
+        }
       }
     },
     "missed_messages": {
-      "from_host": {
-        "subject": "{{other_name}} hat dir Nachricht(en) in deiner Host-Anfrage gesendet",
-        "purpose": "<b>{{other_name}}</b> hat dir eine oder mehrere Nachrichten in deiner Host-Anfrage gesendet:"
+      "host_request": {
+        "from_initiator": {
+          "subject": "{{counterparty}} hat dir Nachricht(en) in der Host-Anfrage gesendet",
+          "purpose": "<b>{{counterparty}}</b> hat dir eine oder mehrere Nachrichten in der Host-Anfrage gesendet:"
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}} hat dir Nachricht(en) in deiner Host-Anfrage gesendet",
+          "purpose": "<b>{{counterparty}}</b> hat dir eine oder mehrere Nachrichten in deiner Host-Anfrage gesendet:"
+        }
       },
-      "from_surfer": {
-        "subject": "{{other_name}} hat dir Nachricht(en) in der Host-Anfrage gesendet",
-        "purpose": "<b>{{other_name}}</b> hat dir eine oder mehrere Nachrichten in der Host-Anfrage gesendet:"
+      "invitation": {
+        "from_initiator": {
+          "subject": "{{counterparty}} hat dir Nachricht(en) in der Einladung geschrieben",
+          "purpose": "<b>{{counterparty}}</b> hat dir eine oder mehrere Nachrichten in der Einladung gesendet:"
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}} hat dir Nachricht(en) in deiner Einladung geschrieben",
+          "purpose": "<b>{{counterparty}}</b> hat dir eine oder mehrere Nachrichten in deiner Einladung gesendet:"
+        }
       }
     },
     "status_changed": {
-      "accepted_by_host": {
-        "subject": "{{other_name}} hat deine Host-Anfrage angenommen",
-        "purpose": "<b>{{other_name}}</b> hat deine Host-Anfrage angenommen:"
+      "host_request": {
+        "accepted_by_recipient": {
+          "subject": "{{counterparty}} hat deine Host-Anfrage angenommen",
+          "purpose": "<b>{{counterparty}}</b> hat deine Host-Anfrage angenommen:"
+        },
+        "declined_by_recipient": {
+          "subject": "{{counterparty}} hat deine Host-Anfrage abgelehnt",
+          "purpose": "<b>{{counterparty}}</b> hat deine Host-Anfrage abgelehnt:"
+        },
+        "confirmed_by_initiator": {
+          "subject": "{{counterparty}} hat die Host-Anfrage bestätigt",
+          "purpose": "<b>{{counterparty}}</b> hat die Host-Anfrage bestätigt:"
+        },
+        "cancelled_by_initiator": {
+          "subject": "{{counterparty}} hat die Host-Anfrage zurückgezogen",
+          "purpose": "<b>{{counterparty}}</b> hat die Host-Anfrage zurückgezogen:"
+        }
       },
-      "declined_by_host": {
-        "subject": "{{other_name}} hat deine Host-Anfrage abgelehnt",
-        "purpose": "<b>{{other_name}}</b> hat deine Host-Anfrage abgelehnt:"
-      },
-      "confirmed_by_surfer": {
-        "subject": "{{other_name}} hat die Host-Anfrage bestätigt",
-        "purpose": "<b>{{other_name}}</b> hat die Host-Anfrage bestätigt:"
-      },
-      "cancelled_by_surfer": {
-        "subject": "{{other_name}} hat die Host-Anfrage zurückgezogen",
-        "purpose": "<b>{{other_name}}</b> hat die Host-Anfrage zurückgezogen:"
+      "invitation": {
+        "accepted_by_recipient": {
+          "subject": "{{counterparty}} hat deine Einladung angenommen",
+          "purpose": "<b>{{counterparty}}</b> hat deine Einladung angenommen:"
+        },
+        "declined_by_recipient": {
+          "subject": "{{counterparty}} hat deine Einladung abgelehnt",
+          "purpose": "<b>{{counterparty}}</b> hat deine Einladung abgelehnt:"
+        },
+        "confirmed_by_initiator": {
+          "subject": "{{counterparty}} hat die Einladung bestätigt",
+          "purpose": "<b>{{counterparty}}</b> hat die Einladung bestätigt:"
+        },
+        "cancelled_by_initiator": {
+          "subject": "{{counterparty}} hat die Einladung abgebrochen",
+          "purpose": "<b>{{counterparty}}</b> hat die Einladung abgebrochen:"
+        }
       }
     }
   },
@@ -282,8 +344,8 @@
   },
   "onboarding_reminder": {
     "initial": {
-      "subject": "Willkommen bei Couchers.org und der Zukunft des Couchsurfings",
-      "welcome": "Willkommen bei Couchers.org und unserer weltweiten Couchsurfing-Community!",
+      "subject": "Willkommen bei Couchers.org und der Zukunft des Couch-Surfings",
+      "welcome": "Willkommen bei Couchers.org und unserer weltweiten Couch-Surfing-Community!",
       "early_user_role": "Wir wachsen schnell, und wenn du zurückblickst, wirst du einer der ersten Nutzer gewesen sein. Du spielst daher eine entscheidende Rolle dabei, die Kultur und Atmosphäre der wachsenden Community und unserer Plattform zu prägen. Ich freue mich wirklich, dass du uns gefunden hast und dich entschieden hast, dabei zu sein!",
       "complete_profile_request": "Wenn du dich ein wenig umgesehen hast, vervollständige bitte dein Profil, indem du ein Foto hochlädst und ein wenig über dich schreibst (und über dein Zuhause, falls du hosten möchtest).",
       "profile_importance": "Ein Profil, das sich wie eine echte Person anfühlt, hilft anderen dabei, sich zu entscheiden, dass sie dich gerne treffen oder bei dir übernachten möchten. Versuch, der Community einen Eindruck von deinem Vibe zu geben! Denk nicht zu viel nach: Schreib einfach, wie du bist. Erzähl, worauf du stehst, wie du deine Zeit gerne verbringst und was dir wichtig ist.",

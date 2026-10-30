@@ -243,7 +243,9 @@
     "signup_flow_email_verified": "Du hast deine E-Mail-Adresse bereits verifiziert.",
     "signup_flow_invalid_request": "Ungültige Registrierungsanfrage: Du kannst deine Registrierung nicht gleichzeitig wiederherstellen und fortsetzen.",
     "undelete_email_reused": "Dieses Konto kann nicht wiederhergestellt werden, da seine E-Mail-Adresse jetzt von einem anderen Konto verwendet wird.",
-    "invalid_stay_role": "Ungültige Aufenthaltsrolle."
+    "invalid_stay_role": "Ungültige Aufenthaltsrolle.",
+    "public_trip_offer_too_short_one": "Dein Angebot zu hosten darf nicht kürzer als {{count}} Zeichen sein.",
+    "public_trip_offer_too_short_other": "Dein Angebot zu hosten darf nicht kürzer als {{count}} Zeichen sein."
   },
   "quick_links": {
     "do_not_email": "Du wirst keine E-Mails mehr erhalten, die nicht sicherheitsrelevant sind, und dein Hosting-Status wurde zurückgesetzt. Der Newsletter muss separat abbestellt werden.",
@@ -277,7 +279,7 @@
     "phone_verified_description": "Dieser Nutzer hat seine Telefonnummer verifiziert",
     "strong_verification_name": "Starke Verifizierung",
     "postal_verified_name": "Verifizierte Adresse",
-    "postal_verified_description": "Die Adresse dieses Nutzers wurde mit einer physischer Postkarte verifiziert"
+    "postal_verified_description": "Die Adresse dieses Nutzers wurde mit einer physischen Postkarte verifiziert"
   },
   "community_guidelines": {
     "no_dating_title": "Dies ist keine Dating-App",

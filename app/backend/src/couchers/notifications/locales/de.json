@@ -263,7 +263,7 @@
   },
   "host_request": {
     "accept": {
-      "event_description": "Jemand akzeptiert deine Host-anfrage",
+      "event_description": "Jemand akzeptiert deine Host-Anfrage oder Einladung",
       "push": {
         "title": "{{user}} hat deine Host-Anfrage angenommen",
         "ios_title": "{{user}}",
@@ -272,7 +272,7 @@
       }
     },
     "cancel": {
-      "event_description": "Jemand storniert seine Host-anfrage",
+      "event_description": "Jemand storniert seine Host-Anfrage oder Einladung",
       "push": {
         "title": "{{user}} hat seine Host-Anfrage storniert",
         "ios_title": "{{user}}",
@@ -281,7 +281,7 @@
       }
     },
     "confirm": {
-      "event_description": "Jemand bestätigt seine Host-anfrage",
+      "event_description": "Jemand bestätigt deren Host-Anfrage oder Einladung",
       "push": {
         "title": "{{user}} hat die Host-Anfrage bestätigt",
         "ios_title": "{{user}}",
@@ -290,7 +290,7 @@
       }
     },
     "create": {
-      "event_description": "Jemand sendet dir eine Host-anfrage",
+      "event_description": "Jemand sendet dir eine Host-Anfrage oder Einladung",
       "push": {
         "body_one": "{{user}} möchte ab {{start_date}} für {{count}} Nacht bleiben.",
         "body_other": "{{user}} möchte ab {{start_date}} für {{count}} Nächte bleiben.",
@@ -300,10 +300,10 @@
       }
     },
     "message": {
-      "event_description": "Jemand sendet eine Nachricht in einer Host-anfrage"
+      "event_description": "Jemand sendet eine Nachricht in einer Host-Anfrage oder Einladung"
     },
     "missed_messages": {
-      "event_description": "Du verpasst Nachrichten in einer Host-anfrage",
+      "event_description": "Du verpasst Nachrichten in einer Host-Anfrage oder Einladung",
       "push": {
         "title": "Neue Nachrichten von {{user}}",
         "ios_title": "{{user}}",
@@ -312,7 +312,7 @@
       }
     },
     "reject": {
-      "event_description": "Jemand lehnt deine Host-anfrage ab",
+      "event_description": "Jemand lehnt deine Host-anfrage oder Einladung ab",
       "push": {
         "title": "{{user}} hat deine Host-Anfrage abgelehnt",
         "ios_title": "{{user}}",
@@ -321,7 +321,7 @@
       }
     },
     "reminder": {
-      "event_description": "Du antwortest nicht auf eine ausstehende Host-anfrage",
+      "event_description": "Du antwortest nicht auf eine ausstehende Host-Anfrage oder Einladung",
       "push": {
         "title": "Ausstehende Anfrage von {{user}}",
         "ios_title": "Host-Anfrage ausstehend",

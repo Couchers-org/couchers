@@ -5,6 +5,7 @@
 #
 # Usage: generate_ts.sh [--auto-container]
 #   --auto-container: run in the GRPC container if dependencies are not installed locally.
+#   On macOS it always runs in the container, with or without this flag.
 #
 # Set PROTOC_INCLUDE to add an include path for the well-known google/protobuf types
 # if they are not installed alongside protoc.
@@ -14,21 +15,28 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd -P)"
 GEN_DIR="$SCRIPT_DIR/gen/ts"
 PROTO_IMAGE=registry.gitlab.com/couchers/grpc
 
-if [ "$1" = "--auto-container" ]; then
-  shift
+USE_CONTAINER=
+if [ "$(uname -s)" = "Darwin" ]; then
+  # Always use the container on macOS: the steps below rely on GNU tar, which macOS lacks.
+  USE_CONTAINER=1
+elif [ "$1" = "--auto-container" ]; then
   # Keep running locally if all dependencies are installed, otherwise rerun in the container.
   if ! { command -v protoc \
     && command -v protoc-gen-js \
     && command -v protoc-gen-grpc-web; } >/dev/null 2>&1; then
-    if ! command -v docker >/dev/null 2>&1; then
-      echo "error: neither the typescript protoc dependencies nor docker are installed" >&2
-      exit 1
-    fi
-    docker pull -q "$PROTO_IMAGE" >/dev/null
-    # The container runs as root, so pass the host user to chown the generated files back.
-    exec docker run --rm -e HOST_UID="$(id -u)" -e HOST_GID="$(id -g)" \
-      -v "$SCRIPT_DIR:/app" -w /app "$PROTO_IMAGE" ./generate_ts.sh
+    USE_CONTAINER=1
   fi
+fi
+
+if [ -n "$USE_CONTAINER" ]; then
+  if ! command -v docker >/dev/null 2>&1; then
+    echo "error: docker is required to generate the typescript protos (always on macOS, otherwise when the protoc dependencies are missing)" >&2
+    exit 1
+  fi
+  docker pull -q "$PROTO_IMAGE" >/dev/null
+  # The container runs as root, so pass the host user to chown the generated files back.
+  exec docker run --rm -e HOST_UID="$(id -u)" -e HOST_GID="$(id -g)" \
+    -v "$SCRIPT_DIR:/app" -w /app "$PROTO_IMAGE" ./generate_ts.sh
 fi
 
 # Switch to script directory

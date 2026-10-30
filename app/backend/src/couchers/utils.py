@@ -302,6 +302,7 @@ def _create_tasty_cookie(name: str, value: Any, expiry: datetime, httponly: bool
     if not config.DEV:
         # only set cookie on HTTPS sites in production
         cookie["secure"] = True
+        cookie["partitioned"] = config.COOKIE_PARTITIONED
     # not accessible from javascript
     cookie["httponly"] = httponly
 

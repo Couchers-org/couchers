@@ -33,9 +33,9 @@ import { eventsRoute, routeToDuplicateEvent, routeToEditEvent, routeToEvent } fr
 import { service } from "service";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
-import { addToCalendar } from "utils/addToCalendar";
+import { useAddToCalendar } from "utils/addToCalendar";
 import { timestampToInstant, timestampToPlainDateTime } from "utils/date";
-import { sendNativeBack, useIsNativeEmbed } from "utils/nativeLink";
+import { sendNativeBack, useIsNativeEmbed, useIsSupportedInApp } from "utils/nativeLink";
 
 import { eventAttendeesBaseKey, eventKey } from "../../queryKeys";
 import CommentTree from "../discussions/CommentTree";
@@ -174,6 +174,8 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
   } = useTranslation([COMMUNITIES]);
   const router = useRouter();
   const isNativeEmbed = useIsNativeEmbed();
+  const isAddToCalendarSupported = useIsSupportedInApp("addToCalendar");
+  const addToCalendar = useAddToCalendar();
   const queryClient = useQueryClient();
   const currentUserId = useAuthContext().authState.userId;
   const { data: event, error: eventError, isLoading, isValidEventId } = useEvent({ eventId });
@@ -222,6 +224,8 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
 
   const isCreator = currentUserId === event?.creatorUserId;
 
+  const canAddToCalendar = !event?.isCancelled && !isPastEvent && isAddToCalendarSupported;
+
   const handleBackClick = () => {
     if (isNativeEmbed) {
       sendNativeBack();
@@ -250,16 +254,12 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
       },
       id: "copy-link",
     },
-    // TODO(#9226): Implement mobile native add to calendar.
-    ...(!event?.isCancelled && !isPastEvent && !isNativeEmbed
+    ...(canAddToCalendar
       ? ([
           {
             icon: EventAvailableOutlined,
             label: t("communities:add_to_calendar"),
-            onClick: () => {
-              const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/events/${event!.eventId}/calendar`;
-              addToCalendar(url, `${event!.slug || "event"}.ics`);
-            },
+            onClick: () => addToCalendar(event!),
             id: "add-to-calendar",
           },
         ] as EllipsisMenuItem[])

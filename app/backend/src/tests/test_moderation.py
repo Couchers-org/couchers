@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 
 import grpc
 import pytest
-from google.protobuf import empty_pb2
+from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import select
 
@@ -15,7 +15,11 @@ from couchers import urls
 from couchers.config import config
 from couchers.constants import MODERATION_AUTO_APPROVE_FLAG_PRIORITY
 from couchers.db import session_scope
-from couchers.jobs.handlers import auto_approve_moderation_queue
+from couchers.jobs.handlers import (
+    DatabaseInconsistencyError,
+    auto_approve_moderation_queue,
+    check_database_consistency,
+)
 from couchers.jobs.worker import process_job
 from couchers.models import (
     AdminAction,
@@ -38,10 +42,10 @@ from couchers.models import (
 )
 from couchers.moderation.utils import create_moderation
 from couchers.proto import (
+    admin_pb2,
     api_pb2,
     conversations_pb2,
     discussions_pb2,
-    events_pb2,
     messages_pb2,
     moderation_pb2,
     notifications_pb2,
@@ -52,17 +56,17 @@ from couchers.proto import (
 )
 from couchers.servicers.threads import pack_thread_id
 from couchers.utils import Timestamp_from_datetime, now, today
-from tests.fixtures import api_helpers
+from tests.fixtures.api import events as events_api
 from tests.fixtures.db import backdate_conversations, generate_user, make_friends
 from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
 from tests.fixtures.sessions import (
     api_session,
     conversations_session,
     discussions_session,
-    events_session,
     notifications_session,
     pages_session,
     public_trips_session,
+    real_admin_session,
     real_moderation_session,
     requests_session,
     threads_session,
@@ -2691,6 +2695,121 @@ def test_auto_approve_preserves_other_open_flags(db):
         assert open_by_trigger[ModerationTrigger.machine_flag].priority == MODERATION_AUTO_APPROVE_FLAG_PRIORITY
 
 
+def _backdate_initial_review(state_id, delta):
+    with session_scope() as session:
+        queue_item = session.execute(
+            select(ModerationQueueItem)
+            .where(ModerationQueueItem.moderation_state_id == state_id)
+            .where(ModerationQueueItem.trigger == ModerationTrigger.initial_review)
+        ).scalar_one()
+        queue_item.time_created -= delta
+
+
+def _visibility(state_id):
+    with session_scope() as session:
+        return session.execute(select(ModerationState.visibility).where(ModerationState.id == state_id)).scalar_one()
+
+
+def _set_moderation_auto_approve_deadline(token, user, seconds):
+    with real_admin_session(token) as api:
+        api.SetModerationAutoApproveDeadline(
+            admin_pb2.SetModerationAutoApproveDeadlineReq(
+                user=user.username,
+                auto_approve_seconds=wrappers_pb2.Int64Value(value=seconds) if seconds is not None else None,
+            )
+        )
+
+
+def test_auto_approve_uses_author_deadline(db):
+    """Lowering an author's deadline applies to their already pending content without touching other authors"""
+    moderator, mod_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    other_surfer, other_surfer_token = generate_user()
+    host, _ = generate_user()
+    config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 3600
+    config.MODERATION_BOT_USER_ID = moderator.id
+
+    state_id = create_test_host_request_with_moderation(surfer_token, host.id)
+    other_state_id = create_test_host_request_with_moderation(other_surfer_token, host.id)
+    _backdate_initial_review(state_id, timedelta(minutes=10))
+    _backdate_initial_review(other_state_id, timedelta(minutes=10))
+
+    auto_approve_moderation_queue(empty_pb2.Empty())
+    assert _visibility(state_id) == ModerationVisibility.shadowed
+    assert _visibility(other_state_id) == ModerationVisibility.shadowed
+
+    _set_moderation_auto_approve_deadline(mod_token, surfer, 300)
+
+    auto_approve_moderation_queue(empty_pb2.Empty())
+    assert _visibility(state_id) == ModerationVisibility.visible
+    assert _visibility(other_state_id) == ModerationVisibility.shadowed
+
+    with real_moderation_session(mod_token) as api:
+        log_res = api.GetModerationLog(moderation_pb2.GetModerationLogReq(moderation_state_id=state_id))
+        approve_entries = [e for e in log_res.log_entries if e.action == moderation_pb2.MODERATION_ACTION_APPROVE]
+        assert len(approve_entries) == 1
+        assert "300 seconds" in approve_entries[0].reason
+
+
+@pytest.mark.parametrize("seconds", [0, 86400])
+def test_auto_approve_author_deadline_holds_content(db, seconds):
+    """A long or zero (never) author deadline holds content past the default without tripping the consistency check"""
+    moderator, mod_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+    config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 60
+    config.MODERATION_BOT_USER_ID = moderator.id
+
+    _set_moderation_auto_approve_deadline(mod_token, surfer, seconds)
+    state_id = create_test_host_request_with_moderation(surfer_token, host.id)
+    _backdate_initial_review(state_id, timedelta(minutes=10))
+
+    auto_approve_moderation_queue(empty_pb2.Empty())
+    assert _visibility(state_id) == ModerationVisibility.shadowed
+    check_database_consistency(empty_pb2.Empty())
+
+    _set_moderation_auto_approve_deadline(mod_token, surfer, None)
+    with pytest.raises(DatabaseInconsistencyError, match="exceeding auto-approve deadline"):
+        check_database_consistency(empty_pb2.Empty())
+
+    auto_approve_moderation_queue(empty_pb2.Empty())
+    assert _visibility(state_id) == ModerationVisibility.visible
+    check_database_consistency(empty_pb2.Empty())
+
+
+def test_auto_approve_does_not_unhide_hidden_content(db):
+    """Content a moderator hid without resolving its initial review is left hidden"""
+    moderator, mod_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+    config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 60
+    config.MODERATION_BOT_USER_ID = moderator.id
+
+    state_id = create_test_host_request_with_moderation(surfer_token, host.id)
+    with real_moderation_session(mod_token) as api:
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=state_id,
+                action=moderation_pb2.MODERATION_ACTION_HIDE,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
+                reason="Hidden",
+                clear_flags=False,
+            )
+        )
+    _backdate_initial_review(state_id, timedelta(minutes=10))
+
+    auto_approve_moderation_queue(empty_pb2.Empty())
+
+    assert _visibility(state_id) == ModerationVisibility.hidden
+    with session_scope() as session:
+        initial_item = session.execute(
+            select(ModerationQueueItem)
+            .where(ModerationQueueItem.moderation_state_id == state_id)
+            .where(ModerationQueueItem.trigger == ModerationTrigger.initial_review)
+        ).scalar_one()
+        assert initial_item.resolved_by_log_id is None
+
+
 # ============================================================================
 # Notification Suppression Tests
 # ============================================================================
@@ -2942,7 +3061,7 @@ def test_event_moderation_state_content(db):
     with session_scope() as session:
         create_community(session, 0, 2, "Community", [user], [], None)
 
-    res = api_helpers.create_event(token=token, title="My Event Title", content="My event description.")
+    res = events_api.create_event(token=token, title="My Event Title", content="My event description.")
     event_id = res.event_id
 
     with session_scope() as session:
@@ -3059,7 +3178,7 @@ def test_SetUserContentVisibility_event_occurrence(db):
     with session_scope() as session:
         create_community(session, 0, 2, "Community", [creator], [], None)
 
-    event_id = api_helpers.create_event(token=creator_token).event_id
+    event_id = events_api.create_event(token=creator_token).event_id
 
     with real_moderation_session(super_token) as api:
         res = api.SetUserContentVisibility(
@@ -3880,9 +3999,8 @@ def test_GetModeratedObject_event_occurrence_in_group(db):
         community_id = community.id
         group_id = group.id
 
-    event = api_helpers.create_event(token=token)
-    with events_session(token) as api:
-        api.TransferEvent(events_pb2.TransferEventReq(event_id=event.event_id, new_owner_group_id=group_id))
+    event = events_api.create_event(token=token)
+    events_api.transfer_event(token=token, event_id=event.event_id, new_owner_group_id=group_id)
 
     res = _get_moderated_object(
         super_token, _moderation_state_id(ModerationObjectType.event_occurrence, event.event_id)
@@ -3905,9 +4023,8 @@ def test_GetModeratedObject_event_occurrence_transferred_to_group_elsewhere(db):
         other_community_id = other_community.id
         group_id = group.id
 
-    event = api_helpers.create_event(token=token)
-    with events_session(token) as api:
-        api.TransferEvent(events_pb2.TransferEventReq(event_id=event.event_id, new_owner_group_id=group_id))
+    event = events_api.create_event(token=token)
+    events_api.transfer_event(token=token, event_id=event.event_id, new_owner_group_id=group_id)
 
     res = _get_moderated_object(
         super_token, _moderation_state_id(ModerationObjectType.event_occurrence, event.event_id)
@@ -4008,7 +4125,7 @@ def test_GetModeratedObject_reply_on_event(db):
     with session_scope() as session:
         community_id = create_community(session, 0, 2, "Event Community", [user], [], None).id
 
-    event = api_helpers.create_event(token=token, title="Board Games")
+    event = events_api.create_event(token=token, title="Board Games")
     comment_thread_id = _post_reply(token, event.thread.thread_id, "Can I bring a friend?")
     reply_thread_id = _post_reply(token, comment_thread_id, "Sure")
 
@@ -4156,7 +4273,7 @@ def test_GetModeratedObject_event_occurrence_owned_by_user(db):
     with session_scope() as session:
         community_id = create_community(session, 0, 2, "Event Community", [user], [], None).id
 
-    event = api_helpers.create_event(token=token)
+    event = events_api.create_event(token=token)
 
     res = _get_moderated_object(
         super_token, _moderation_state_id(ModerationObjectType.event_occurrence, event.event_id)
@@ -4176,11 +4293,8 @@ def test_GetModeratedObject_event_occurrence_transferred_to_community(db):
         create_community(session, 0, 2, "Location Community", [user], [], None)
         other_community_id = create_community(session, 5, 7, "Other Community", [user], [], None).id
 
-    event = api_helpers.create_event(token=token)
-    with events_session(token) as api:
-        api.TransferEvent(
-            events_pb2.TransferEventReq(event_id=event.event_id, new_owner_community_id=other_community_id)
-        )
+    event = events_api.create_event(token=token)
+    events_api.transfer_event(token=token, event_id=event.event_id, new_owner_community_id=other_community_id)
 
     res = _get_moderated_object(
         super_token, _moderation_state_id(ModerationObjectType.event_occurrence, event.event_id)

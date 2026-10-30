@@ -189,57 +189,69 @@
       "closing": "Esperamos que você continue fazendo novos amigos!"
     }
   },
-  "host_requests": {
+  "stays": {
     "generic": {
-      "view_action": "Visualizar pedido de hospedagem",
+      "host_request": {
+        "view_action": "Visualizar pedido de hospedagem"
+      },
       "date_range": "De <b>{{from_date}}</b> a <b>{{to_date}}</b>.",
       "quick_decline_action": "Recusa rápida"
     },
     "created": {
-      "subject": "{{surfer_name}} te enviou um pedido de hospedagem",
-      "purpose": "<b>{{surfer_name}}</b> te enviou um pedido de hospedagem:",
-      "respond_encouragement": "Responda a esse pedido. Até mesmo uma recusa rápida é melhor do que não responder!"
+      "host_request": {
+        "subject": "{{initiator}} te enviou um pedido de hospedagem",
+        "purpose": "<b>{{initiator}}</b> te enviou um pedido de hospedagem:",
+        "respond_encouragement": "Responda a esse pedido. Até mesmo uma recusa rápida é melhor do que não responder!"
+      }
     },
     "reminder": {
-      "subject": "Você tem um pedido de hospedagem pendente de {{surfer_name}}",
-      "purpose": "<b>{{surfer_name}}</b> está esperando sua resposta. Até mesmo uma recusa rápida é melhor do que não responder!"
+      "host_request": {
+        "subject": "Você tem um pedido de hospedagem pendente de {{initiator}}",
+        "purpose": "<b>{{initiator}}</b> está esperando sua resposta. Até mesmo uma recusa rápida é melhor do que não responder!"
+      }
     },
     "message": {
-      "from_host": {
-        "subject": "{{other_name}} te enviou uma mensagem no seu pedido de hospedagem",
-        "purpose": "<b>{{other_name}}</b> te enviou uma mensagem no seu pedido de hospedagem:"
-      },
-      "from_surfer": {
-        "subject": "{{other_name}} te enviou uma mensagem no pedido de hospedagem que ele(a) enviou",
-        "purpose": "<b>{{other_name}}</b> te enviou uma mensagem no pedido de hospedagem que ele(a) enviou:"
+      "host_request": {
+        "from_initiator": {
+          "subject": "{{counterparty}} te enviou uma mensagem no pedido de hospedagem que ele(a) enviou",
+          "purpose": "<b>{{counterparty}}</b> te enviou uma mensagem no pedido de hospedagem que ele(a) enviou:"
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}} te enviou uma mensagem no seu pedido de hospedagem",
+          "purpose": "<b>{{counterparty}}</b> te enviou uma mensagem no seu pedido de hospedagem:"
+        }
       }
     },
     "missed_messages": {
-      "from_host": {
-        "subject": "{{other_name}} te enviou uma ou mais mensagens no seu pedido de hospedagem",
-        "purpose": "<b>{{other_name}}</b> te enviou uma ou mais mensagens no seu pedido de hospedagem:"
-      },
-      "from_surfer": {
-        "subject": "{{other_name}} te enviou uma ou mais mensagens no pedido de hospedagem que ele(a) enviou",
-        "purpose": "<b>{{other_name}}</b> te enviou uma ou mais mensagens no pedido de hospedagem que ele(a) enviou:"
+      "host_request": {
+        "from_initiator": {
+          "subject": "{{counterparty}} te enviou uma ou mais mensagens no pedido de hospedagem que ele(a) enviou",
+          "purpose": "<b>{{counterparty}}</b> te enviou uma ou mais mensagens no pedido de hospedagem que ele(a) enviou:"
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}} te enviou uma ou mais mensagens no seu pedido de hospedagem",
+          "purpose": "<b>{{counterparty}}</b> te enviou uma ou mais mensagens no seu pedido de hospedagem:"
+        }
       }
     },
     "status_changed": {
-      "accepted_by_host": {
-        "subject": "{{other_name}} aceitou seu pedido de hospedagem",
-        "purpose": "<b>{{other_name}}</b> aceitou seu pedido de hospedagem:"
-      },
-      "declined_by_host": {
-        "subject": "{{other_name}} recusou seu pedido de hospedagem",
-        "purpose": "<b>{{other_name}}</b> recusou seu pedido de hospedagem:"
-      },
-      "confirmed_by_surfer": {
-        "subject": "{{other_name}} confirmou o pedido de hospedagem que dele(a)",
-        "purpose": "<b>{{other_name}}</b> confirmou o pedido de hospedagem dele(a):"
-      },
-      "cancelled_by_surfer": {
-        "subject": "{{other_name}} cancelou o pedido de hospedagem",
-        "purpose": "<b>{{other_name}}</b> cancelou o pedido de hospedagem:"
+      "host_request": {
+        "accepted_by_recipient": {
+          "subject": "{{counterparty}} aceitou seu pedido de hospedagem",
+          "purpose": "<b>{{counterparty}}</b> aceitou seu pedido de hospedagem:"
+        },
+        "declined_by_recipient": {
+          "subject": "{{counterparty}} recusou seu pedido de hospedagem",
+          "purpose": "<b>{{counterparty}}</b> recusou seu pedido de hospedagem:"
+        },
+        "confirmed_by_initiator": {
+          "subject": "{{counterparty}} confirmou o pedido de hospedagem que dele(a)",
+          "purpose": "<b>{{counterparty}}</b> confirmou o pedido de hospedagem dele(a):"
+        },
+        "cancelled_by_initiator": {
+          "subject": "{{counterparty}} cancelou o pedido de hospedagem",
+          "purpose": "<b>{{counterparty}}</b> cancelou o pedido de hospedagem:"
+        }
       }
     }
   },

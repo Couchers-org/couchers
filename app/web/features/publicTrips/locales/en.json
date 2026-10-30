@@ -4,7 +4,7 @@
   "create_trip_button": "Create public trip",
   "view_my_trips_button": "View my public trips",
   "community_section": {
-    "intro": "Travelers post their upcoming trips here so local hosts can browse and offer to host them. If you see a trip that interests you, reach out and offer your couch!"
+    "intro": "Travelers post their upcoming trips here. You can offer to host them or meet up if you see an itinerary you like!"
   },
   "trip_list": {
     "filters": {
@@ -67,10 +67,10 @@
     },
     "description": {
       "label": "About your trip",
-      "placeholder": "What are you hoping to do? How long are you staying? Anything hosts should know.",
+      "placeholder": "What are you hoping to do? How long are you staying? Anything hosts should know?",
       "required_error": "Please add a short description.",
-      "chars_remaining_one": "{{count}} character remaining.",
-      "chars_remaining_other": "{{count}} characters remaining."
+      "chars_remaining_one": "{{count}} more character needed.",
+      "chars_remaining_other": "{{count}} more characters needed."
     },
     "create_submit_button": "Post trip",
     "edit_submit_button": "Save changes"

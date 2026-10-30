@@ -4,6 +4,7 @@ import { ListAdminsRes } from "proto/communities_pb";
 import { ListEventAttendeesRes, ListEventOrganizersRes } from "proto/events_pb";
 import { ListNotificationsRes } from "proto/notifications_pb";
 import { AvailableWriteReferencesRes, ReferenceType } from "proto/references_pb";
+import { GetDashboardRes } from "proto/screens_pb";
 import { EventSearchRes } from "proto/search_pb";
 import comments from "test/fixtures/comments.json";
 import events from "test/fixtures/events.json";
@@ -262,5 +263,20 @@ export async function getMyEvents(creatorUserId?: number): Promise<EventSearchRe
     eventsList: !creatorUserId ? events : events.filter((event) => event.creatorUserId === creatorUserId),
     totalItems: events.length,
     nextPageToken: "",
+  };
+}
+
+/** A GetDashboard response with every section empty, except the ones given. */
+export async function getDashboard(
+  sections: Partial<GetDashboardRes.AsObject> = {},
+): Promise<GetDashboardRes.AsObject> {
+  return {
+    reminders: { remindersList: [] },
+    surfing: { hostRequestsList: [], noMore: true, nextPageToken: "" },
+    hosting: { hostRequestsList: [], noMore: true, nextPageToken: "" },
+    myEvents: { eventsList: [], nextPageToken: "", totalItems: 0 },
+    communityEvents: { eventsList: [], nextPageToken: "", totalItems: 0 },
+    discussions: { discussionsList: [], nextPageToken: "" },
+    ...sections,
   };
 }

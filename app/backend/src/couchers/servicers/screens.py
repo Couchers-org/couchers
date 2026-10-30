@@ -44,7 +44,7 @@ class Screens(screens_pb2_grpc.ScreensServicer):
             surfing=Requests().ListHostRequests(upcoming_host_requests_req(surfing=True), context, session),
             hosting=Requests().ListHostRequests(upcoming_host_requests_req(surfing=False), context, session),
             my_events=Events().ListMyEvents(
-                events_pb2.ListMyEventsReq(page_size=my_events_page_size),
+                events_pb2.ListMyEventsReq(page_size=my_events_page_size, attending=True, organizing=True),
                 context,
                 session,
             ),

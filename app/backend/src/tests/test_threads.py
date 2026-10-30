@@ -20,7 +20,7 @@ from couchers.models.discussions import CommentVersion, ContentChangeType, Reply
 from couchers.proto import discussions_pb2, moderation_pb2, threads_pb2
 from couchers.servicers.threads import pack_thread_id
 from couchers.utils import now
-from tests.fixtures import api_helpers
+from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import Moderator
 from tests.fixtures.sessions import discussions_session, real_moderation_session, threads_session
@@ -553,7 +553,7 @@ def _create_event_and_get_thread_id(organizer, organizer_token: str) -> int:
     with session_scope() as session:
         create_community(session, 0, 2, "Testing Community", [organizer], [], None)
 
-    res = api_helpers.create_event(token=organizer_token)
+    res = events_api.create_event(token=organizer_token)
     return int(res.thread.thread_id)
 
 

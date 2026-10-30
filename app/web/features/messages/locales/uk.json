@@ -38,7 +38,7 @@
   "surfer_confirm_box_title": "{{name}} прийняв ваш запит!",
   "surfer_confirm_box_description": "Підтвердіть аби запланувати ваш візит, або скасуйте якщо ваші плани змінились.",
   "host_pending_request_help_text": "<guideLink>Зауважте ці деталі </guideLink> перед тим як відповісти.",
-  "surfer_declined_request_help_text": "<guideLink>Прочитайте наш порадник</guideLink> про те як писати запити, які зазвичай приймають.",
+  "surfer_declined_request_help_text": "<guideLink>Перегляньте наші поради</guideLink> про те як писати запити, які зазвичай приймають.",
   "past_request_help_text": "Це старий запит, ви досі можете спілкуватись, але не можете змінювати його.",
   "messages_page": {
     "title": "Повідомлення",

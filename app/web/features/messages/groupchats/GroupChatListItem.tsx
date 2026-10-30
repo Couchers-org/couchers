@@ -13,6 +13,7 @@ import Avatar from "components/Avatar";
 import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
 import { MuteIcon } from "components/Icons";
 import { useAuthContext } from "features/auth/AuthProvider";
+import ThreadTitleRow from "features/messages/ThreadTitleRow";
 import {
   controlMessage,
   groupChatTitleText,
@@ -134,7 +135,7 @@ export default function GroupChatListItem({ groupChat, className, isArchived = f
 
   return (
     <StyledListItemContainer>
-      <ListItemButton className={className} sx={{ paddingRight: 7 }}>
+      <ListItemButton className={className}>
         <ListItemAvatar>
           {groupChatMembersQuery.isLoading ? (
             <Skeleton />
@@ -149,22 +150,24 @@ export default function GroupChatListItem({ groupChat, className, isArchived = f
           )}
         </ListItemAvatar>
         <ListItemText
-          sx={{ paddingRight: 5 }}
           slotProps={{
             primary: { component: "span" },
-            secondary: { component: "span" },
+            // only the lines below the title share the row with the menu
+            secondary: { component: "span", sx: { paddingInlineEnd: 5 } },
           }}
           primary={
-            <StyledListItemTypography isUnread={isUnread} noWrap>
-              {groupChatMembersQuery.isLoading ? (
-                <Skeleton />
-              ) : (
-                <>
-                  <StyledTitle>{title}</StyledTitle>
-                  {groupChat.muteInfo?.muted && <StyledMuteIcon />}
-                </>
-              )}
-            </StyledListItemTypography>
+            <ThreadTitleRow latestMessageTime={groupChat.latestMessage?.time} isUnread={isUnread}>
+              <StyledListItemTypography isUnread={isUnread} noWrap>
+                {groupChatMembersQuery.isLoading ? (
+                  <Skeleton />
+                ) : (
+                  <>
+                    <StyledTitle>{title}</StyledTitle>
+                    {groupChat.muteInfo?.muted && <StyledMuteIcon />}
+                  </>
+                )}
+              </StyledListItemTypography>
+            </ThreadTitleRow>
           }
           secondary={
             <StyledListItemTypography isUnread={isUnread} noWrap>

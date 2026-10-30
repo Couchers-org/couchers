@@ -46,5 +46,7 @@
   "signup_description_no_link2_few": "Путешествуйте, принимайте гостей и общайтесь с {{count}} пользователями.",
   "signup_description_no_link2_many": "Путешествуйте, принимайте гостей и общайтесь с {{count}} пользователями.",
   "animation_error": "Ошибка загрузки анимации",
-  "last_signup2": "Последняя регистрация <timeAgo/>"
+  "last_signup2": "Последняя регистрация <timeAgo/>",
+  "hero_animation_pause_button_a11y": "Приостановить анимацию",
+  "hero_animation_play_button_a11y": "Воспроизвести анимацию"
 }

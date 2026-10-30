@@ -224,21 +224,21 @@ def get_topic_action_unsubscribe_text(topic_action: NotificationTopicAction) -> 
     # Not localized because the design will change so avoid useless work by translators.
     match topic_action:
         case NotificationTopicAction.host_request__missed_messages:
-            return "missed messages in host requests"
+            return "missed messages in host requests or invitations"
         case NotificationTopicAction.host_request__create:
-            return "new host requests"
+            return "new host requests or invitations"
         case NotificationTopicAction.host_request__message:
-            return "messages in host request"
+            return "messages in host request or invitations"
         case NotificationTopicAction.host_request__accept:
-            return "accepted host requests"
+            return "accepted host requests or invitations"
         case NotificationTopicAction.host_request__reject:
-            return "declined host requests"
+            return "declined host requests or invitations"
         case NotificationTopicAction.host_request__confirm:
-            return "confirmed host requests"
+            return "confirmed host requests or invitations"
         case NotificationTopicAction.host_request__cancel:
-            return "cancelled host requests"
+            return "cancelled host requests or invitations"
         case NotificationTopicAction.host_request__reminder:
-            return "Pending host request reminders"
+            return "Pending host request or invitations reminders"
         case NotificationTopicAction.reference__receive_friend:
             return "new references from friends"
         case NotificationTopicAction.reference__receive_hosted:

@@ -211,6 +211,7 @@ class User(Base, kw_only=True):
     banned_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
     shadowed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+    moderation_auto_approve_deadline_seconds: Mapped[int | None] = mapped_column(Integer, default=None)
 
     moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
 
@@ -737,3 +738,16 @@ class UserEmailHistory(Base, kw_only=True):
         Index("ix_user_email_history_user_id_time", user_id, time),
         Index("ix_user_email_history_email", email),
     )
+
+
+class UserRankingOffset(Base, kw_only=True):
+    """
+    Offsets added to users' recommendation_score in user search for viewers on a given variant (picked by the
+    search_ranking_offsets_variant flag).
+    """
+
+    __tablename__ = "user_ranking_offsets"
+
+    variant: Mapped[str] = mapped_column(String, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    offset: Mapped[float] = mapped_column(Float)
