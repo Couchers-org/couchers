@@ -39,9 +39,9 @@ from couchers.models import (
     GroupChatSubscription,
     HostRequest,
     HostRequestFeedback,
-    HostRequestKind,
     HostRequestStatus,
     Message,
+    StayProposalKind,
 )
 from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import mark_notifications_seen
@@ -347,7 +347,7 @@ def _build_host_request_threads_pb(
     need_host_request_feedback = and_(
         HostRequest.recipient_user_id == context.user_id,
         HostRequest.status == HostRequestStatus.rejected,
-        HostRequest.kind == HostRequestKind.host_request,
+        HostRequest.proposal_kind == StayProposalKind.request,
         ~exists()
         .where(HostRequestFeedback.from_user_id == context.user_id)
         .where(HostRequestFeedback.host_request_id == HostRequest.conversation_id)

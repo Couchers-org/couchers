@@ -1,7 +1,7 @@
-"""Add host_requests.kind to distinguish requests from public trip offers
+"""Add host_requests.proposal_kind to distinguish requests from invitations on public trips
 
-Revision ID: 0198
-Revises: 0197
+Revision ID: 0199
+Revises: 0198
 Create Date: 2026-10-18 12:00:00.000000
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "0198"
-down_revision = "0197"
+revision = "0199"
+down_revision = "0198"
 branch_labels = None
 depends_on = None
 
@@ -67,30 +67,30 @@ def create_user_response_rates(host_requests_filter: str) -> None:
 
 
 def upgrade() -> None:
-    sa.Enum("host_request", "public_trip_offer", name="hostrequestkind").create(op.get_bind())
+    sa.Enum("request", "invitation", name="stayproposalkind").create(op.get_bind())
     op.add_column(
         "host_requests",
-        sa.Column("kind", sa.Enum("host_request", "public_trip_offer", name="hostrequestkind"), nullable=True),
+        sa.Column("proposal_kind", sa.Enum("request", "invitation", name="stayproposalkind"), nullable=True),
     )
     op.execute(
         """
         UPDATE host_requests
-        SET kind = CASE WHEN public_trip_id IS NULL THEN 'host_request' ELSE 'public_trip_offer' END::hostrequestkind
+        SET proposal_kind = CASE WHEN public_trip_id IS NULL THEN 'request' ELSE 'invitation' END::stayproposalkind
         """
     )
-    op.alter_column("host_requests", "kind", nullable=False)
+    op.alter_column("host_requests", "proposal_kind", nullable=False)
     op.create_check_constraint(
-        "ck_host_requests_public_trip_id_iff_public_trip_offer",
+        op.f("ck_host_requests_public_trip_id_iff_invitation"),
         "host_requests",
-        "(kind = 'public_trip_offer') = (public_trip_id IS NOT NULL)",
+        "(proposal_kind = 'invitation') = (public_trip_id IS NOT NULL)",
     )
     op.execute(
         """
         ALTER TABLE host_requests
             ALTER COLUMN surfer_user_id SET EXPRESSION AS
-                (CASE WHEN kind = 'host_request' THEN initiator_user_id ELSE recipient_user_id END),
+                (CASE WHEN proposal_kind = 'request' THEN initiator_user_id ELSE recipient_user_id END),
             ALTER COLUMN host_user_id SET EXPRESSION AS
-                (CASE WHEN kind = 'host_request' THEN recipient_user_id ELSE initiator_user_id END)
+                (CASE WHEN proposal_kind = 'request' THEN recipient_user_id ELSE initiator_user_id END)
         """
     )
     op.drop_index("ix_host_requests_one_active_offer_per_trip", table_name="host_requests")
@@ -99,9 +99,9 @@ def upgrade() -> None:
         "host_requests",
         ["public_trip_id", "initiator_user_id"],
         unique=True,
-        postgresql_where="kind = 'public_trip_offer' AND status != 'cancelled'",
+        postgresql_where="proposal_kind = 'invitation' AND status != 'cancelled'",
     )
-    create_user_response_rates("WHERE host_requests.kind = 'host_request'")
+    create_user_response_rates("WHERE host_requests.proposal_kind = 'request'")
 
 
 def downgrade() -> None:
@@ -123,6 +123,6 @@ def downgrade() -> None:
                 (CASE WHEN public_trip_id IS NULL THEN recipient_user_id ELSE initiator_user_id END)
         """
     )
-    op.drop_constraint("ck_host_requests_public_trip_id_iff_public_trip_offer", "host_requests")
-    op.drop_column("host_requests", "kind")
-    sa.Enum(name="hostrequestkind").drop(op.get_bind())
+    op.drop_constraint(op.f("ck_host_requests_public_trip_id_iff_invitation"), "host_requests", type_="check")
+    op.drop_column("host_requests", "proposal_kind")
+    sa.Enum(name="stayproposalkind").drop(op.get_bind())

@@ -13,7 +13,6 @@ from couchers.models import (
     FriendRelationship,
     FriendStatus,
     HostRequest,
-    HostRequestKind,
     HostRequestStatus,
     Message,
     MessageType,
@@ -24,6 +23,7 @@ from couchers.models import (
     NodeType,
     Reference,
     ReferenceType,
+    StayProposalKind,
     User,
 )
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
@@ -134,7 +134,7 @@ def create_host_request(
         conversation_id=conversation.id,
         initiator_user_id=initiator_user_id,
         recipient_user_id=recipient_user_id,
-        kind=HostRequestKind.public_trip_offer if is_offer else HostRequestKind.host_request,
+        proposal_kind=StayProposalKind.invitation if is_offer else StayProposalKind.request,
         from_date=from_date,
         to_date=to_date,
         status=status,
@@ -196,7 +196,7 @@ def create_host_request_by_date(
         conversation_id=conversation.id,
         initiator_user_id=surfer_user_id,
         recipient_user_id=host_user_id,
-        kind=HostRequestKind.host_request,
+        proposal_kind=StayProposalKind.request,
         from_date=from_date,
         to_date=to_date,
         status=status,

@@ -31,13 +31,13 @@ from couchers.models import (
     Conversation,
     HostRequest,
     HostRequestFeedback,
-    HostRequestKind,
     HostRequestQuality,
     HostRequestStatus,
     Message,
     MessageType,
     ModerationObjectType,
     RateLimitAction,
+    StayProposalKind,
     User,
 )
 from couchers.models.notifications import NotificationTopicAction
@@ -108,7 +108,7 @@ def host_request_to_pb(
     if (
         context.user_id == host_request.recipient_user_id
         and host_request.status == HostRequestStatus.rejected
-        and host_request.kind == HostRequestKind.host_request
+        and host_request.proposal_kind == StayProposalKind.request
     ):
         need_feedback = not session.execute(
             select(
@@ -156,7 +156,7 @@ def _possibly_observe_first_response_time(
     assert host_request.recipient_user_id == user_id
 
     # on a public trip offer the recipient is the traveller, so this isn't a host's response time
-    if host_request.kind == HostRequestKind.public_trip_offer:
+    if host_request.proposal_kind == StayProposalKind.invitation:
         return
 
     number_messages_by_host = session.execute(
@@ -216,11 +216,11 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_date")
 
         # If this is an offer in response to a public trip, it's validated further down
-        kind = HostRequestKind.public_trip_offer if request.HasField("public_trip_id") else HostRequestKind.host_request
-        public_trip_id = request.public_trip_id if kind == HostRequestKind.public_trip_offer else None
+        proposal_kind = StayProposalKind.invitation if request.HasField("public_trip_id") else StayProposalKind.request
+        public_trip_id = request.public_trip_id if proposal_kind == StayProposalKind.invitation else None
 
         # an offer on a public trip reverses the roles: the caller is the host and the recipient is the traveller
-        surfer_user, host_user = (user, recipient) if kind == HostRequestKind.host_request else (recipient, user)
+        surfer_user, host_user = (user, recipient) if proposal_kind == StayProposalKind.request else (recipient, user)
 
         # the dates are in the timezone at the host's location
         today = today_in_timezone(host_user.timezone or "Etc/UTC")
@@ -241,7 +241,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if to_date - from_date > timedelta(days=365):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_after_one_year")
 
-        _validate_request_text(request.text, kind == HostRequestKind.public_trip_offer, context)
+        _validate_request_text(request.text, proposal_kind == StayProposalKind.invitation, context)
 
         # Check if user has been sending host requests excessively
         if process_rate_limits_and_check_abort(
@@ -253,13 +253,13 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 substitutions={"count": RATE_LIMIT_HOURS},
             )
 
-        if kind == HostRequestKind.host_request:
+        if proposal_kind == StayProposalKind.request:
             recent_request = session.execute(
                 select(HostRequest.conversation_id)
                 .join(Conversation, HostRequest.conversation_id == Conversation.id)
                 .where(HostRequest.initiator_user_id == context.user_id)
                 .where(HostRequest.recipient_user_id == recipient.id)
-                .where(HostRequest.kind == HostRequestKind.host_request)
+                .where(HostRequest.proposal_kind == StayProposalKind.request)
                 .where(Conversation.created >= now() - timedelta(hours=HOST_REQUEST_DUPLICATE_WINDOW_HOURS))
                 # overlapping nights, so back-to-back stays are still allowed
                 .where(HostRequest.from_date < to_date)
@@ -349,7 +349,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             hosting_city=host_user.city,
             hosting_location=host_user.geom,
             hosting_radius=host_user.geom_radius,
-            kind=kind,
+            proposal_kind=proposal_kind,
             public_trip_id=public_trip_id,
         )
         session.add(host_request)
@@ -370,7 +370,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         )
 
         # the host request metrics assume the sender is the surfer, which is backwards on a public trip offer
-        if kind == HostRequestKind.host_request:
+        if proposal_kind == StayProposalKind.request:
             host_requests_sent_counter.labels(user.gender, recipient.gender).inc()
             account_age_on_host_request_create_histogram.labels(surfer_user.gender, host_user.gender).observe(
                 (now() - user.joined).total_seconds()
@@ -635,7 +635,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             user_gender = session.execute(select(User.gender).where(User.id == context.user_id)).scalar_one()
             other_gender = session.execute(select(User.gender).where(User.id == other_user_id)).scalar_one()
             # the response types assume the recipient is the host, which is backwards on a public trip offer
-            if host_request.kind == HostRequestKind.host_request:
+            if host_request.proposal_kind == StayProposalKind.request:
                 host_request_responses_counter.labels(user_gender, other_gender, response_type).inc()
             sent_messages_counter.labels(user_gender, "host request response").inc()
 
@@ -1134,7 +1134,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             .where(HostRequest.conversation_id == request.host_request_id)
             .where(HostRequest.recipient_user_id == context.user_id)
             # public-trip offers don't take feedback
-            .where(HostRequest.kind == HostRequestKind.host_request)
+            .where(HostRequest.proposal_kind == StayProposalKind.request)
         ).scalar_one_or_none()
 
         if not host_request:
