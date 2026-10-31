@@ -313,8 +313,7 @@ def _render_donation__received(
     return _get_content(
         NotificationTopicAction.donation__received,
         loc_context,
-        # Other currencies are not yet supported
-        substitutions={"amount_with_currency": f"${data.amount}"},
+        substitutions={"amount_with_currency": loc_context.localize_currency(data.amount, "USD")},
         action_url=data.receipt_url,
     )
 
