@@ -126,7 +126,6 @@ default:
       fi
 
       # Use buildx, as "docker build" does not work with registry cache.
-      docker pull "$cache_tag" || true
       docker context create my-builder
       docker buildx create my-builder --driver docker-container --use
 

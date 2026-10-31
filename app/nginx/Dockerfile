@@ -1,4 +1,4 @@
-FROM nginx:1.31
+FROM nginx:1.31@sha256:5ab5b0b01097420873a3f3330f44248e34a3c2a3e8d5ee30658aeae8cb7435da
 
 # 'production' or 'preview'
 ARG environment=production
