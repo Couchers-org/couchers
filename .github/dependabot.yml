@@ -9,8 +9,16 @@ updates:
       - "1.topic backend"
       - "dependencies"
 
-  - package-ecosystem: "pip"
+  - package-ecosystem: "uv"
     directory: "/app/media"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "1.topic backend"
+      - "dependencies"
+
+  - package-ecosystem: "uv"
+    directory: "/app/client"
     schedule:
       interval: "monthly"
     labels:
