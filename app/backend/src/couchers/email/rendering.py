@@ -12,7 +12,16 @@ from typing import Any
 from markupsafe import Markup
 
 from couchers.config import config
-from couchers.email.blocks import ActionBlock, EmailBase, EmailBlock, EmailFooter, ParaBlock, QuoteBlock, UserBlock
+from couchers.email.blocks import (
+    ActionBlock,
+    ActionPairBlock,
+    EmailBase,
+    EmailBlock,
+    EmailFooter,
+    ParaBlock,
+    QuoteBlock,
+    UserBlock,
+)
 from couchers.email.locales import get_emails_i18next
 from couchers.email.smtp import embed_html_relative_images
 from couchers.i18n import LocalizationContext
@@ -61,14 +70,9 @@ def render_plaintext_body(*, blocks: list[EmailBlock], footer: EmailFooter, loc_
     """Renders the body of an email as plaintext."""
     concat: list[str] = []
 
-    previous_block: EmailBlock | None = None
-    for block in blocks:
-        # Blank line between every two blocks except subsequent actions.
-        if previous_block is not None:
-            if isinstance(block, ActionBlock) and isinstance(previous_block, ActionBlock):
-                concat.append("\n")
-            else:
-                concat.append("\n\n")
+    for block_index, block in enumerate(blocks):
+        if block_index > 0:
+            concat.append("\n\n")
 
         match block:
             case ParaBlock():
@@ -87,15 +91,13 @@ def render_plaintext_body(*, blocks: list[EmailBlock], footer: EmailFooter, loc_
                 for line in block.text.splitlines():
                     concat.append(f"> {line}")
             case ActionBlock():
-                line = loc_context.localize_string(
-                    "plaintext_formats.action",
-                    i18next=get_emails_i18next(),
-                    substitutions={"text": block.text, "url": block.target_url},
-                )
-                concat.append(line)
+                concat.append(_plaintext_action_line(block.text, block.target_url, loc_context))
+            case ActionPairBlock():
+                concat.append(_plaintext_action_line(block.primary_text, block.primary_target_url, loc_context))
+                concat.append("\n")
+                concat.append(_plaintext_action_line(block.secondary_text, block.secondary_target_url, loc_context))
             case _:
                 raise TypeError(f"Unexpected email block type: {block.__class__}")
-        previous_block = block
 
     concat.append("\n\n")
 
@@ -106,6 +108,14 @@ def render_plaintext_body(*, blocks: list[EmailBlock], footer: EmailFooter, loc_
     concat.append(footer_template.render(footer_template_args))
 
     return "".join(concat)
+
+
+def _plaintext_action_line(text: str, target_url: str, loc_context: LocalizationContext) -> str:
+    return loc_context.localize_string(
+        "plaintext_formats.action",
+        i18next=get_emails_i18next(),
+        substitutions={"text": text, "url": target_url},
+    )
 
 
 def _to_plaintext(text: str | Markup) -> str:
@@ -174,16 +184,6 @@ def render_html_body(
     )
 
 
-@dataclass(kw_only=True, slots=True)
-class TwoButtonHTMLBlock(EmailBlock):
-    """An HTML-only block used internally for rendering as side-by-side buttons."""
-
-    text_1: str
-    target_url_1: str
-    text_2: str
-    target_url_2: str
-
-
 # Matches a begin-block / end-block pair of comments in the html file containing template
 _block_regex = re.compile(
     r"""
@@ -205,7 +205,7 @@ class HTMLRenderer:
     user_block_template: Jinja2Template
     quote_block_template: Jinja2Template
     action_block_template: Jinja2Template
-    two_buttons_block_template: Jinja2Template
+    action_pair_block_template: Jinja2Template
 
     def render(
         self,
@@ -229,7 +229,7 @@ class HTMLRenderer:
         )
 
         # Render each block
-        for block in type(self)._merge_action_blocks(blocks):
+        for block in blocks:
             match block:
                 case ParaBlock():
                     concats.append(self.para_block_template.render(asdict(block)))
@@ -251,8 +251,17 @@ class HTMLRenderer:
                     concats.append(self.quote_block_template.render(args))
                 case ActionBlock():
                     concats.append(self.action_block_template.render(asdict(block)))
-                case TwoButtonHTMLBlock():
-                    concats.append(self.two_buttons_block_template.render(asdict(block)))
+                case ActionPairBlock():
+                    concats.append(
+                        self.action_pair_block_template.render(
+                            {
+                                "primary_text": block.primary_text,
+                                "primary_url": block.primary_target_url,
+                                "secondary_text": block.secondary_text,
+                                "secondary_url": block.secondary_target_url,
+                            },
+                        )
+                    )
                 case _:
                     raise TypeError(f"Unexpected email block type: {block.__class__}")
 
@@ -261,28 +270,6 @@ class HTMLRenderer:
         concats.append(self.footer_template.render(footer_template_args))
 
         return "\n".join(concats)
-
-    @staticmethod
-    def _merge_action_blocks(blocks: list[EmailBlock]) -> list[EmailBlock]:
-        """Merge any two subsequent action blocks into a single two-button block."""
-        blocks = blocks.copy()
-
-        block_index = 0
-        while block_index + 1 < len(blocks):
-            block = blocks[block_index]
-            next_block = blocks[block_index + 1]
-            if isinstance(block, ActionBlock) and isinstance(next_block, ActionBlock):
-                blocks[block_index] = TwoButtonHTMLBlock(
-                    target_url_1=block.target_url,
-                    text_1=block.text,
-                    target_url_2=next_block.target_url,
-                    text_2=next_block.text,
-                )
-                blocks.pop(block_index + 1)
-
-            block_index += 1
-
-        return blocks
 
     @cache
     @staticmethod
@@ -305,5 +292,5 @@ class HTMLRenderer:
             user_block_template=Jinja2Template(source=block_templates["user"], html=True),
             quote_block_template=Jinja2Template(source=block_templates["quote"], html=True),
             action_block_template=Jinja2Template(source=block_templates["action"], html=True),
-            two_buttons_block_template=Jinja2Template(source=block_templates["two-buttons"], html=True),
+            action_pair_block_template=Jinja2Template(source=block_templates["action-pair"], html=True),
         )
