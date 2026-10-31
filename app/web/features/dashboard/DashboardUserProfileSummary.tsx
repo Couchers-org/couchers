@@ -1,5 +1,5 @@
 import { Edit } from "@mui/icons-material";
-import { Alert, Theme, useMediaQuery } from "@mui/material";
+import { Alert, Box, Theme, useMediaQuery } from "@mui/material";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
@@ -15,14 +15,14 @@ import MinimalUserProfileCard from "./MinimalUserProfileCard";
 function DashboardUserProfileSummaryActions() {
   const { t } = useTranslation([DASHBOARD]);
   return (
-    <>
-      <Button component={Link} color="primary" href={routeToEditProfile()} startIcon={<Edit fontSize="small" />}>
-        {t("dashboard:profile_summary_edit")}
-      </Button>
+    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, "& > *": { flex: "1 1 auto" } }}>
       <Button component={Link} variant="outlined" href={routeToProfile()}>
         {t("dashboard:profile_summary_view")}
       </Button>
-    </>
+      <Button component={Link} href={routeToEditProfile()} startIcon={<Edit fontSize="small" />}>
+        {t("dashboard:profile_summary_edit")}
+      </Button>
+    </Box>
   );
 }
 
