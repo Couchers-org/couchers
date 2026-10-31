@@ -155,6 +155,15 @@ enum MeetupStatus {
   MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP = 4;
 }
 
+enum HostPool {
+  HOST_POOL_UNSPECIFIED = 0;
+  // not eligible for the newbie pool: has references, or too many or too slowly answered requests
+  HOST_POOL_NORMAL = 1;
+  HOST_POOL_NEWBIE = 2;
+  // eligible for the newbie pool, but needs to be able to host, complete their profile, and fill in "About my home"
+  HOST_POOL_INCOMPLETE = 3;
+}
+
 message LanguageAbility {
   enum Fluency {
     FLUENCY_UNKNOWN = 0;

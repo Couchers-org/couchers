@@ -60,6 +60,12 @@ class HostingStatus(enum.Enum):
     cant_host = enum.auto()
 
 
+class HostPool(enum.Enum):
+    normal = enum.auto()
+    newbie = enum.auto()
+    incomplete = enum.auto()
+
+
 class MeetupStatus(enum.Enum):
     wants_to_meetup = enum.auto()
     open_to_meetup = enum.auto()

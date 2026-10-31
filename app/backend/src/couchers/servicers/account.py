@@ -32,7 +32,7 @@ from couchers.helpers.geoip import geoip_approximate_location
 from couchers.helpers.strong_verification import get_strong_verification_fields
 from couchers.jobs.enqueue import queue_job
 from couchers.jobs.handlers import finalize_strong_verification
-from couchers.materialized_views import LiteUser
+from couchers.materialized_views import LiteUser, host_pool_expression
 from couchers.metrics import (
     account_deletion_initiations_counter,
     strong_verification_data_deletions_counter,
@@ -44,6 +44,7 @@ from couchers.models import (
     ContributeOption,
     ContributorForm,
     HostingStatus,
+    HostPool,
     HostRequest,
     HostRequestStatus,
     InviteCode,
@@ -61,7 +62,7 @@ from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
 from couchers.phone import sms
 from couchers.phone.check import is_e164_format, is_known_operator
-from couchers.proto import account_pb2, account_pb2_grpc, auth_pb2, iris_pb2_grpc, notification_data_pb2
+from couchers.proto import account_pb2, account_pb2_grpc, api_pb2, auth_pb2, iris_pb2_grpc, notification_data_pb2
 from couchers.proto.google.api import httpbody_pb2
 from couchers.proto.internal import internal_pb2, jobs_pb2
 from couchers.servicers.api import lite_user_to_pb
@@ -115,6 +116,12 @@ profilepublicitysetting2api = {
     ProfilePublicVisibility.full: account_pb2.PROFILE_PUBLIC_VISIBILITY_FULL,
 }
 
+hostpool2api = {
+    HostPool.normal: api_pb2.HOST_POOL_NORMAL,
+    HostPool.newbie: api_pb2.HOST_POOL_NEWBIE,
+    HostPool.incomplete: api_pb2.HOST_POOL_INCOMPLETE,
+}
+
 MAX_PAGINATION_LENGTH = 50
 
 
@@ -166,8 +173,10 @@ class Account(account_pb2_grpc.AccountServicer):
     def GetAccountInfo(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> account_pb2.GetAccountInfoRes:
-        user, volunteer = session.execute(
-            select(User, Volunteer).outerjoin(Volunteer, Volunteer.user_id == User.id).where(User.id == context.user_id)
+        user, volunteer, host_pool = session.execute(
+            select(User, Volunteer, host_pool_expression())
+            .outerjoin(Volunteer, Volunteer.user_id == User.id)
+            .where(User.id == context.user_id)
         ).one()
 
         # Test experimentation integration - check if user is in the test gate
@@ -198,6 +207,7 @@ class Account(account_pb2_grpc.AccountServicer):
             profile_public_visibility=profilepublicitysetting2api[user.public_visibility],
             is_volunteer=volunteer is not None,
             should_show_donation_banner=should_show_donation_banner,
+            host_pool=hostpool2api[host_pool],
             **get_strong_verification_fields(session, user),
         )
 

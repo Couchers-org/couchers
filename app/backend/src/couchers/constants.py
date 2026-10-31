@@ -153,6 +153,11 @@ GALLERY_MAX_PHOTOS_VERIFIED = 5
 
 COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH = 150
 
+# host pool criteria, see the lite_users materialized view
+HOST_POOL_NEWBIE_MIN_ABOUT_PLACE_LENGTH = 50
+HOST_POOL_NEWBIE_MAX_REQUESTS = 5
+HOST_POOL_NEWBIE_MAX_RESPONSE_TIME_66P = timedelta(hours=96)
+
 # How long a container must run uninterrupted before /status reports stable=true
 STABLE_THRESHOLD_SECONDS = 5 * 60
 
