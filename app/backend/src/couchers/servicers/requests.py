@@ -362,7 +362,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             key=str(host_request.conversation_id),
             data=notification_data_pb2.HostRequestCreate(
                 host_request=host_request_to_pb(host_request, session, recipient_context),
-                surfer=user_model_to_pb(host_request.initiator, session, recipient_context),
+                initiator=user_model_to_pb(host_request.initiator, session, recipient_context),
                 text=request.text,
             ),
             moderation_state_id=moderation_state.id,
@@ -697,7 +697,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestAccept(
                     host_request=host_request_to_pb(host_request, session, recipient_context),
-                    host=user_model_to_pb(host_request.recipient, session, recipient_context),
+                    recipient=user_model_to_pb(host_request.recipient, session, recipient_context),
                 ),
                 moderation_state_id=host_request.moderation_state_id,
             )
@@ -739,7 +739,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestReject(
                     host_request=host_request_to_pb(host_request, session, recipient_context),
-                    host=user_model_to_pb(host_request.recipient, session, recipient_context),
+                    recipient=user_model_to_pb(host_request.recipient, session, recipient_context),
                 ),
                 moderation_state_id=host_request.moderation_state_id,
             )
@@ -781,7 +781,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestConfirm(
                     host_request=host_request_to_pb(host_request, session, recipient_context),
-                    surfer=user_model_to_pb(host_request.initiator, session, recipient_context),
+                    initiator=user_model_to_pb(host_request.initiator, session, recipient_context),
                 ),
                 moderation_state_id=host_request.moderation_state_id,
             )
@@ -822,7 +822,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestCancel(
                     host_request=host_request_to_pb(host_request, session, recipient_context),
-                    surfer=user_model_to_pb(host_request.initiator, session, recipient_context),
+                    initiator=user_model_to_pb(host_request.initiator, session, recipient_context),
                 ),
                 moderation_state_id=host_request.moderation_state_id,
             )
@@ -949,9 +949,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestMessage(
                     host_request=host_request_to_pb(host_request, session, recipient_context),
-                    user=user_model_to_pb(host_request.initiator, session, recipient_context),
+                    counterparty=user_model_to_pb(host_request.initiator, session, recipient_context),
                     text=request.text,
-                    am_host=host_request.host_user_id == host_request.recipient_user_id,
+                    counterparty_is_initiator=True,
                 ),
                 moderation_state_id=host_request.moderation_state_id,
             )
@@ -967,9 +967,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestMessage(
                     host_request=host_request_to_pb(host_request, session, recipient_context),
-                    user=user_model_to_pb(host_request.recipient, session, recipient_context),
+                    counterparty=user_model_to_pb(host_request.recipient, session, recipient_context),
                     text=request.text,
-                    am_host=host_request.host_user_id == host_request.initiator_user_id,
+                    counterparty_is_initiator=False,
                 ),
                 moderation_state_id=host_request.moderation_state_id,
             )
