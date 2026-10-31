@@ -61,6 +61,14 @@ describe("Profile page", () => {
       });
     });
 
+    it("shows the saved message after coming back from editing, then clears it from the address", async () => {
+      mockRouter.setCurrentUrl("/profile/about?saved=profile");
+      render(<ProfilePage tab="about" />, { wrapper });
+
+      expect(await screen.findByText(t("profile:profile_changes_saved_message"))).toBeVisible();
+      expect(mockRouter).toMatchObject({ asPath: "/profile/about" });
+    });
+
     describe("and a tab is opened", () => {
       it("updates the url with the chosen tab value", async () => {
         renderProfilePage();
@@ -69,7 +77,7 @@ describe("Profile page", () => {
 
         const user = userEvent.setup();
 
-        const homeTab = await screen.findByText(t("profile:heading.home"));
+        const homeTab = await screen.findByRole("tab", { name: t("profile:heading.home") });
 
         await user.click(homeTab);
 

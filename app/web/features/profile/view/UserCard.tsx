@@ -98,7 +98,7 @@ export default function UserCard({
         />
         {top || null}
         <TabPanel value="about" sx={{ padding: 0 }}>
-          <About user={user} />
+          <About user={user} onShowHome={() => onTabChange("home")} />
         </TabPanel>
         {modPanel}
         <TabPanel value="home">
