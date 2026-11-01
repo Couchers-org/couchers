@@ -736,33 +736,6 @@ class Search(search_pb2_grpc.SearchServicer):
             next_page_token=str(all_results[page_size].rank) if len(all_results) > page_size else None,
         )
 
-    def UserSearch(
-        self, request: search_pb2.UserSearchReq, context: CouchersContext, session: Session
-    ) -> search_pb2.UserSearchRes:
-        user_ids_to_return, next_page_token, total_items, ranking_offsets_variant = _user_search_inner(
-            request, context, session
-        )
-
-        _log_search_performed(request, context, session, total_items, ranking_offsets_variant)
-
-        user_ids_to_users: dict[int, User] = dict(
-            session.execute(  # type: ignore[arg-type]
-                select(User.id, User).where(User.id.in_(user_ids_to_return))
-            ).all()
-        )
-
-        return search_pb2.UserSearchRes(
-            results=[
-                search_pb2.Result(
-                    rank=1,
-                    user=user_model_to_pb(user_ids_to_users[user_id], session, context),
-                )
-                for user_id in user_ids_to_return
-            ],
-            next_page_token=next_page_token,
-            total_items=total_items,
-        )
-
     def UserSearchV2(
         self, request: search_pb2.UserSearchReq, context: CouchersContext, session: Session
     ) -> search_pb2.UserSearchV2Res:

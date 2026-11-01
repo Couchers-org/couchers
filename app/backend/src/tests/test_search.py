@@ -70,9 +70,6 @@ class TestSearchInCommunities:
         refresh_materialized_views(empty_pb2.Empty())
 
         with search_session(token) as api:
-            res = api.UserSearch(search_pb2.UserSearchReq())
-            assert len(res.results) > 0
-            assert res.total_items == len(res.results)
             res = api.UserSearchV2(search_pb2.UserSearchReq())
             assert len(res.results) > 0
             assert res.total_items == len(res.results)
@@ -108,17 +105,6 @@ def test_regression_search_in_area(db):
     refresh_materialized_views(empty_pb2.Empty())
 
     with search_session(token5) as api:
-        res = api.UserSearch(
-            search_pb2.UserSearchReq(
-                search_in_area=search_pb2.Area(
-                    lat=0,
-                    lng=0,
-                    radius=100000,
-                )
-            )
-        )
-        assert [result.user.user_id for result in res.results] == [user3.id, user4.id]
-
         res = api.UserSearchV2(
             search_pb2.UserSearchReq(
                 search_in_area=search_pb2.Area(
@@ -155,18 +141,6 @@ def test_user_search_in_rectangle(db):
     refresh_materialized_views(empty_pb2.Empty())
 
     with search_session(token5) as api:
-        res = api.UserSearch(
-            search_pb2.UserSearchReq(
-                search_in_rectangle=search_pb2.RectArea(
-                    lat_min=0,
-                    lat_max=2,
-                    lng_min=0,
-                    lng_max=1,
-                )
-            )
-        )
-        assert [result.user.user_id for result in res.results] == [user3.id, user4.id]
-
         res = api.UserSearchV2(
             search_pb2.UserSearchReq(
                 search_in_rectangle=search_pb2.RectArea(
@@ -192,16 +166,10 @@ def test_user_filter_complete_profile(db):
     refresh_materialized_views(empty_pb2.Empty())
 
     with search_session(token7) as api:
-        res = api.UserSearch(search_pb2.UserSearchReq(profile_completed=wrappers_pb2.BoolValue(value=False)))
-        assert user_incomplete_profile.id in [result.user.user_id for result in res.results]
-
         res = api.UserSearchV2(search_pb2.UserSearchReq(profile_completed=wrappers_pb2.BoolValue(value=False)))
         assert user_incomplete_profile.id in [result.user_id for result in res.results]
 
     with search_session(token6) as api:
-        res = api.UserSearch(search_pb2.UserSearchReq(profile_completed=wrappers_pb2.BoolValue(value=True)))
-        assert [result.user.user_id for result in res.results] == [user_complete_profile.id]
-
         res = api.UserSearchV2(search_pb2.UserSearchReq(profile_completed=wrappers_pb2.BoolValue(value=True)))
         assert [result.user_id for result in res.results] == [user_complete_profile.id]
 
@@ -218,18 +186,10 @@ def test_user_filter_meetup_status(db):
     refresh_materialized_views(empty_pb2.Empty())
 
     with search_session(token8) as api:
-        res = api.UserSearch(search_pb2.UserSearchReq(meetup_status_filter=[api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP]))
-        assert user_wants_to_meetup.id in [result.user.user_id for result in res.results]
-
         res = api.UserSearchV2(search_pb2.UserSearchReq(meetup_status_filter=[api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP]))
         assert user_wants_to_meetup.id in [result.user_id for result in res.results]
 
     with search_session(token9) as api:
-        res = api.UserSearch(
-            search_pb2.UserSearchReq(meetup_status_filter=[api_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP])
-        )
-        assert [result.user.user_id for result in res.results] == [user_does_not_want_to_meet.id]
-
         res = api.UserSearchV2(
             search_pb2.UserSearchReq(meetup_status_filter=[api_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP])
         )
@@ -265,18 +225,6 @@ def test_user_filter_language(db):
     refresh_materialized_views(empty_pb2.Empty())
 
     with search_session(token11) as api:
-        res = api.UserSearch(
-            search_pb2.UserSearchReq(
-                language_ability_filter=[
-                    api_pb2.LanguageAbility(
-                        code="deu",
-                        fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT,
-                    )
-                ]
-            )
-        )
-        assert [result.user.user_id for result in res.results] == [user_with_german_fluent.id]
-
         res = api.UserSearchV2(
             search_pb2.UserSearchReq(
                 language_ability_filter=[
@@ -288,18 +236,6 @@ def test_user_filter_language(db):
             )
         )
         assert [result.user_id for result in res.results] == [user_with_german_fluent.id]
-
-        res = api.UserSearch(
-            search_pb2.UserSearchReq(
-                language_ability_filter=[
-                    api_pb2.LanguageAbility(
-                        code="jpn",
-                        fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_CONVERSATIONAL,
-                    )
-                ]
-            )
-        )
-        assert [result.user.user_id for result in res.results] == [user_with_japanese_conversational.id]
 
         res = api.UserSearchV2(
             search_pb2.UserSearchReq(
@@ -325,14 +261,8 @@ def test_user_filter_strong_verification(db):
     refresh_materialized_views(empty_pb2.Empty())
 
     with search_session(token1) as api:
-        res = api.UserSearch(search_pb2.UserSearchReq(only_with_strong_verification=False))
-        assert [result.user.user_id for result in res.results] == [user1.id, user2.id, user3.id, user4.id, user5.id]
-
         res = api.UserSearchV2(search_pb2.UserSearchReq(only_with_strong_verification=False))
         assert [result.user_id for result in res.results] == [user1.id, user2.id, user3.id, user4.id, user5.id]
-
-        res = api.UserSearch(search_pb2.UserSearchReq(only_with_strong_verification=True))
-        assert [result.user.user_id for result in res.results] == [user2.id, user4.id, user5.id]
 
         res = api.UserSearchV2(search_pb2.UserSearchReq(only_with_strong_verification=True))
         assert [result.user_id for result in res.results] == [user2.id, user4.id, user5.id]
@@ -378,10 +308,6 @@ def test_user_search_no_duplicates_from_multiple_matching_rows(db):
             search_pb2.UserSearchReq(language_ability_filter=language_filter),
             search_pb2.UserSearchReq(only_with_strong_verification=True),
         ]:
-            res = api.UserSearch(req)
-            assert sorted(result.user.user_id for result in res.results) == [user2.id, user3.id]
-            assert res.total_items == 2
-
             res = api.UserSearchV2(req)
             assert sorted(result.user_id for result in res.results) == [user2.id, user3.id]
             assert res.total_items == 2
@@ -406,14 +332,8 @@ def test_regression_search_only_with_references(db):
         create_friend_reference(session, user4.id, user3.id, timedelta(days=1))
 
     with search_session(token1) as api:
-        res = api.UserSearch(search_pb2.UserSearchReq(only_with_references=False))
-        assert [result.user.user_id for result in res.results] == [user1.id, user2.id, user3.id]
-
         res = api.UserSearchV2(search_pb2.UserSearchReq(only_with_references=False))
         assert [result.user_id for result in res.results] == [user1.id, user2.id, user3.id]
-
-        res = api.UserSearch(search_pb2.UserSearchReq(only_with_references=True))
-        assert [result.user.user_id for result in res.results] == [user2.id]
 
         res = api.UserSearchV2(search_pb2.UserSearchReq(only_with_references=True))
         assert [result.user_id for result in res.results] == [user2.id]
@@ -435,21 +355,10 @@ def test_user_search_exactly_user_ids(db):
 
     with search_session(token1) as api:
         # Test that exactly_user_ids returns only the specified users
-        res = api.UserSearch(search_pb2.UserSearchReq(exactly_user_ids=[user2.id, user3.id, user4.id]))
-        assert sorted([result.user.user_id for result in res.results]) == sorted([user2.id, user3.id, user4.id])
-
         res = api.UserSearchV2(search_pb2.UserSearchReq(exactly_user_ids=[user2.id, user3.id, user4.id]))
         assert sorted([result.user_id for result in res.results]) == sorted([user2.id, user3.id, user4.id])
 
         # Test that exactly_user_ids ignores other filters
-        res = api.UserSearch(
-            search_pb2.UserSearchReq(
-                exactly_user_ids=[user2.id, user3.id, user4.id],
-                only_with_strong_verification=True,  # This would normally filter out user3 and user4
-            )
-        )
-        assert sorted([result.user.user_id for result in res.results]) == sorted([user2.id, user3.id, user4.id])
-
         res = api.UserSearchV2(
             search_pb2.UserSearchReq(
                 exactly_user_ids=[user2.id, user3.id, user4.id],
@@ -459,16 +368,10 @@ def test_user_search_exactly_user_ids(db):
         assert sorted([result.user_id for result in res.results]) == sorted([user2.id, user3.id, user4.id])
 
         # Test with non-existent user IDs (should be ignored)
-        res = api.UserSearch(search_pb2.UserSearchReq(exactly_user_ids=[user1.id, 99999]))
-        assert [result.user.user_id for result in res.results] == [user1.id]
-
         res = api.UserSearchV2(search_pb2.UserSearchReq(exactly_user_ids=[user1.id, 99999]))
         assert [result.user_id for result in res.results] == [user1.id]
 
         # Test with deleted user ID (should be ignored due to visibility filter)
-        res = api.UserSearch(search_pb2.UserSearchReq(exactly_user_ids=[user1.id, user5.id]))
-        assert [result.user.user_id for result in res.results] == [user1.id]
-
         res = api.UserSearchV2(search_pb2.UserSearchReq(exactly_user_ids=[user1.id, user5.id]))
         assert [result.user_id for result in res.results] == [user1.id]
 
@@ -515,8 +418,8 @@ def _user_search_order(token: str, page_size: int = 100) -> list[int]:
     page_token = ""
     with search_session(token) as api:
         while True:
-            res = api.UserSearch(search_pb2.UserSearchReq(page_size=page_size, page_token=page_token))
-            order += [result.user.user_id for result in res.results]
+            res = api.UserSearchV2(search_pb2.UserSearchReq(page_size=page_size, page_token=page_token))
+            order += [result.user_id for result in res.results]
             page_token = res.next_page_token
             if not page_token:
                 return order
@@ -990,14 +893,6 @@ def test_user_filter_same_gender_only(db):
 
     # Test 1: Woman with strong verification should see only women when same_gender_only=True
     with search_session(token_woman_with_sv) as api:
-        res = api.UserSearch(search_pb2.UserSearchReq(same_gender_only=True))
-        result_ids = [result.user.user_id for result in res.results]
-        assert woman_with_sv.id in result_ids
-        assert woman_without_sv.id in result_ids
-        assert other_woman_with_sv.id in result_ids
-        assert man_with_sv.id not in result_ids
-        assert man_without_sv.id not in result_ids
-
         res = api.UserSearchV2(search_pb2.UserSearchReq(same_gender_only=True))
         result_ids = [result.user_id for result in res.results]
         assert woman_with_sv.id in result_ids
@@ -1008,14 +903,6 @@ def test_user_filter_same_gender_only(db):
 
     # Test 2: Man with strong verification should see only men when same_gender_only=True
     with search_session(token_man_with_sv) as api:
-        res = api.UserSearch(search_pb2.UserSearchReq(same_gender_only=True))
-        result_ids = [result.user.user_id for result in res.results]
-        assert man_with_sv.id in result_ids
-        assert man_without_sv.id in result_ids
-        assert woman_with_sv.id not in result_ids
-        assert woman_without_sv.id not in result_ids
-        assert other_woman_with_sv.id not in result_ids
-
         res = api.UserSearchV2(search_pb2.UserSearchReq(same_gender_only=True))
         result_ids = [result.user_id for result in res.results]
         assert man_with_sv.id in result_ids
@@ -1027,23 +914,11 @@ def test_user_filter_same_gender_only(db):
     # Test 3: Woman without strong verification should get an error
     with search_session(token_woman_without_sv) as api:
         with pytest.raises(Exception) as e:
-            api.UserSearch(search_pb2.UserSearchReq(same_gender_only=True))
-        assert "NEED_STRONG_VERIFICATION" in str(e.value) or "FAILED_PRECONDITION" in str(e.value)
-
-        with pytest.raises(Exception) as e:
             api.UserSearchV2(search_pb2.UserSearchReq(same_gender_only=True))
         assert "NEED_STRONG_VERIFICATION" in str(e.value) or "FAILED_PRECONDITION" in str(e.value)
 
     # Test 4: When same_gender_only=False, should see all users
     with search_session(token_woman_with_sv) as api:
-        res = api.UserSearch(search_pb2.UserSearchReq(same_gender_only=False))
-        result_ids = [result.user.user_id for result in res.results]
-        assert woman_with_sv.id in result_ids
-        assert woman_without_sv.id in result_ids
-        assert other_woman_with_sv.id in result_ids
-        assert man_with_sv.id in result_ids
-        assert man_without_sv.id in result_ids
-
         res = api.UserSearchV2(search_pb2.UserSearchReq(same_gender_only=False))
         result_ids = [result.user_id for result in res.results]
         assert woman_with_sv.id in result_ids
@@ -1067,15 +942,6 @@ def test_user_filter_same_gender_only_with_other_filters(db):
 
     # Test: Combine same_gender_only with hosting_status filter
     with search_session(token_woman) as api:
-        res = api.UserSearch(
-            search_pb2.UserSearchReq(same_gender_only=True, hosting_status_filter=[api_pb2.HOSTING_STATUS_CAN_HOST])
-        )
-        result_ids = [result.user.user_id for result in res.results]
-        # Should only see woman who can host
-        assert woman_host.id in result_ids
-        assert woman_cant_host.id not in result_ids
-        assert man_host.id not in result_ids
-
         res = api.UserSearchV2(
             search_pb2.UserSearchReq(same_gender_only=True, hosting_status_filter=[api_pb2.HOSTING_STATUS_CAN_HOST])
         )
