@@ -298,14 +298,11 @@ def _create_tasty_cookie(name: str, value: Any, expiry: datetime, httponly: bool
     cookie["domain"] = config.COOKIE_DOMAIN
     # path so that it's accessible for all API requests, otherwise defaults to something like /org.couchers.auth/
     cookie["path"] = "/"
-    if config.DEV:
-        # send only on requests from first-party domains
-        cookie["samesite"] = "Strict"
-    else:
-        # send on all requests, requires Secure
-        cookie["samesite"] = "None"
+    cookie["samesite"] = config.COOKIE_SAMESITE
+    if not config.DEV:
         # only set cookie on HTTPS sites in production
         cookie["secure"] = True
+        cookie["partitioned"] = config.COOKIE_PARTITIONED
     # not accessible from javascript
     cookie["httponly"] = httponly
 
@@ -415,7 +412,7 @@ def remove_duplicates_retain_order[T](list_: Sequence[T]) -> list[T]:
     return out
 
 
-def date_in_timezone(date_: Mapped[date | None], timezone: str) -> Function[Any]:
+def date_in_timezone(date_: Mapped[date | None], timezone: str | Mapped[str]) -> Function[Any]:
     """
     Given a naive postgres date object (postgres doesn't have tzd dates), returns a timezone-aware timestamp for the
     start of that date in that timezone. E.g., if postgres is in 'America/New_York',
@@ -473,6 +470,15 @@ def dt_id_to_page_token(dt: datetime, id_: int) -> str:
 def dt_id_from_page_token(page_token: str) -> tuple[datetime, int]:
     micros, id_ = decrypt_page_token(page_token).split(":")
     return datetime.fromtimestamp(int(micros) / 1_000_000, tz=UTC), int(id_)
+
+
+def date_id_to_page_token(date_: date, id_: int) -> str:
+    return encrypt_page_token(f"{date_.isoformat()}:{id_}")
+
+
+def date_id_from_page_token(page_token: str) -> tuple[date, int]:
+    date_str, id_ = decrypt_page_token(page_token).split(":")
+    return date.fromisoformat(date_str), int(id_)
 
 
 def last_active_coarsen(dt: datetime) -> datetime:

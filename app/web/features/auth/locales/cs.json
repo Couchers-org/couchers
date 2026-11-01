@@ -1,17 +1,17 @@
 {
   "change_email_form": {
-    "title": "Změnit e-mail",
-    "current_email_message": "Tvá současná e-mailová adresa je <strong>{{email}}</strong>.",
-    "success_message": "Žádost o změnu e-mailové adresy byla přijata. Pro dokončení změny prosím zkontroluj svou e-mailovou schránku.",
+    "title": "Změnit email",
+    "current_email_message": "Tvá současná emailová adresa je <strong>{{email}}</strong>.",
+    "success_message": "Žádost o změnu emailové adresy byla přijata. Pro dokončení změny prosím zkontroluj svou emailovou schránku.",
     "current_password": "Současné heslo",
-    "new_email": "Nový e-mail",
+    "new_email": "Nový email",
     "hide_current_password": "Skrýt aktuální heslo",
     "show_current_password": "Zobrazit aktuální heslo"
   },
   "change_email_confirmation": {
-    "success_message": "Změna e-mailu proběhla úspěšně!",
-    "change_in_progress": "Právě probíhá změna e-mailu…",
-    "error_message": "Nastala chyba při změně e-mailu: {{message}}"
+    "success_message": "Změna emailu proběhla úspěšně!",
+    "change_in_progress": "Právě probíhá změna emailu…",
+    "error_message": "Nastala chyba při změně emailu: {{message}}"
   },
   "change_password_form": {
     "title": "Změnit heslo",
@@ -23,7 +23,7 @@
     "reset_password_success": "Tvé heslo bylo úspěšně změněno!",
     "subtitle": "Použij tento formulář k obnovení svého přihlašovacího hesla.",
     "reset_password_error": "Chyba při resetování hesla: {{message}}",
-    "token_error": "Došlo k chybě při zpracování tokenu pro resetování hesla, zkus prosím znovu otevřít odkaz z e-mailu.",
+    "token_error": "Došlo k chybě při zpracování tokenu pro resetování hesla, zkus prosím znovu otevřít odkaz z emailu.",
     "user_logged_error": "Když jsi přihlášený, nemůžeš si resetovat heslo. Můžeš si ho změnit v nastavení, nebo se odhlásit a pak ho resetovat.",
     "hide_old_password": "Skrýt staré heslo",
     "show_old_password": "Zobrazit staré heslo",
@@ -33,8 +33,8 @@
     "show_confirm_password": "Zobrazit potvrzení hesla"
   },
   "reset_password_form": {
-    "enter_email": "Zadej své uživatelské jméno/e-mail",
-    "success_message": "Odkaz pro obnovení hesla byl odeslán na e-mailovou adresu spojenou s tímto účtem, pokud existuje a je aktivní. Upozorňujeme, že e-mail může někdy skončit ve spamu."
+    "enter_email": "Zadej své uživatelské jméno/email",
+    "success_message": "Odkaz pro obnovení hesla byl odeslán na emailovou adresu spojenou s tímto účtem, pokud existuje a je aktivní. Upozorňujeme, že email může někdy skončit ve spamu."
   },
   "login_page": {
     "title": "Přihlásit se",
@@ -42,7 +42,7 @@
     "no_account_prompt": "Nemáš ještě účet? <signupLink>Přidej se</signupLink>",
     "form": {
       "password_field_label": "Heslo",
-      "username_field_label": "E-mail/Uživatelské jméno",
+      "username_field_label": "Email/Uživatelské jméno",
       "forgot_password": "Zapomenuté heslo?",
       "remember_me": "Zamapatovat jméno a heslo",
       "show_password": "Zobrazit heslo",
@@ -51,7 +51,7 @@
   },
   "basic_sign_up_form": {
     "existing_user_prompt": "Máš už vytvořený účet? <loginLink>Log in</loginLink>",
-    "sign_up_agreement_explainer": "Pokračováním udělujete souhlas s <tosLink>Podmínkami použití</tosLink>, zpracováním dat, použitím cookies a k zasílání upozornění e-mailem."
+    "sign_up_agreement_explainer": "Pokračováním uděluješ souhlas s <tosLink>Podmínkami použití</tosLink>, zpracováním dat, použitím cookies a k zasílání upozornění emailem."
   },
   "account_form": {
     "header": "Podrobnosti o tvém účtu",
@@ -101,9 +101,9 @@
       "invalid_characters_error": "Jméno může obsahovat pouze písmena, mezery, pomlčky a apostrofy"
     },
     "email": {
-      "field_label": "E-mailová adresa",
-      "empty_error": "Zadej prosím platnou e-mailovou adresu",
-      "required_error": "E-mail nesmí být prázdný."
+      "field_label": "Emailová adresa",
+      "empty_error": "Zadej prosím platnou emailovou adresu",
+      "required_error": "Email nesmí být prázdný."
     }
   },
   "community_guidelines_form": {
@@ -151,10 +151,10 @@
       "confirm_username_label": "Potvrzení uživatelského jména",
       "username_mismatch": "Uživatelské jméno se neshoduje.",
       "reason_label": "Důvod k odstranění účtu",
-      "description": "Pokud chceš smazat svůj účet, postupuj podle níže uvedených kroků. Zašleme ti e-mailem potvrzení.",
+      "description": "Pokud chceš smazat svůj účet, postupuj podle níže uvedených kroků. Zašleme ti emailem potvrzení.",
       "confirm_username_explanation": "Tvoje uživatelské jméno je <strong>{{ username }}</strong>, zadej jej prosím níže pro potvrzení smazání účtu.",
       "reason_explanation": "Pomož nám prosím vylepšit naši platformu – dej nám vědět proč jsti se rozhodl smazat svůj účet.",
-      "success_message": "Smazání účtu bylo zahájeno. Pro dokončení smazání účtu jej prosím potvrď prostřednictvím e-mailu, který jsme ti zaslali."
+      "success_message": "Smazání účtu bylo zahájeno. Pro dokončení smazání účtu jej prosím potvrď prostřednictvím emailu, který jsme ti zaslali."
     },
     "confirm": {
       "title": "Potvrdit smazání účtu",
@@ -223,24 +223,24 @@
   "login_prompt": "Klikni zde pro přihlášení",
   "do_not_email": {
     "status": {
-      "no_emails_disabled_message": "E-maily jsou pro tvůj účet momentálně <strong>povoleny</strong>.",
-      "no_emails_enabled_message": "E-maily jsou pro tvůj účet momentálně <strong>zakázány</strong>."
+      "no_emails_disabled_message": "Emaily jsou pro tvůj účet momentálně <strong>povoleny</strong>.",
+      "no_emails_enabled_message": "Emaily jsou pro tvůj účet momentálně <strong>zakázány</strong>."
     },
-    "title": "Neposílejte mi e-maily",
+    "title": "Neposílejte mi emaily",
     "action_button": {
-      "no_emails_enable_text": "Neposílejte mi e-maily",
-      "no_emails_disable_text": "Znovu povolit e-maily"
+      "no_emails_enable_text": "Neposílejte mi emaily",
+      "no_emails_disable_text": "Znovu povolit emaily"
     },
-    "caveat": "Povolením tohoto nastavení bude tvůj účet nastaven tak, aby nepřijímal žádosti o hostování. Stále budeš dostávat bezpečnostní e-maily (například pro resetování hesla). Můžeš také nadále dostávat zpravodaj, ze kterého se můžeš odhlásit pomocí odkazu v patičce zpravodaje."
+    "caveat": "Povolením tohoto nastavení bude tvůj účet nastaven tak, aby nepřijímal žádosti o hostování. Stále budeš dostávat bezpečnostní emaily (například pro resetování hesla). Můžeš také nadále dostávat zpravodaj, ze kterého se můžeš odhlásit pomocí odkazu v patičce zpravodaje."
   },
   "location": {
     "field_label": "Tvá poloha",
     "validation_error": "Vyber prosím platnou lokalitu."
   },
-  "sign_up_completed_prompt": "Na tvou e-mailovou adresu jsme zaslali e-mail s ověřovacím odkazem. Pro aktivaci tvého účtu prosím klikni na odkaz.",
+  "sign_up_completed_prompt": "Na tvou emailovou adresu <strong>{{email}}</strong> jsme odeslali email s ověřovacím odkazem. Kliknutím na odkaz aktivuješ svůj účet.",
   "sign_up_confirmed_prompt": "Hotovo! Pokud nebudeš přesměrován/a, zkus se přihlásit.",
   "unhandled_sign_up_state": "Chyba: neošetřený stav registračního procesu.",
-  "sign_up_need_verification_title": "Ještě poslední věc: potvrď svůj e-mail.",
+  "sign_up_need_verification_title": "Ještě poslední věc: potvrď svůj email.",
   "feature_preview": {
     "title": "Náhled funkcionality",
     "explanation": "Na této stránce si můžeš vyzkoušet funkce, které jsou stále ve vývoji a ještě nejsou připravené pro všechny.",
@@ -250,7 +250,7 @@
       "explanation": "Momentálně nejsou k dispozici žádné aktivní funkce v předběžném přístupu. Zkus to prosím později."
     }
   },
-  "sign_up_resend_verification_done": "Hotovo! Poslali jsme ti další e-mail.",
+  "sign_up_resend_verification_done": "Hotovo! Poslali jsme ti další email.",
   "motivations_form": {
     "header": "Co tě přivádí na Couchers?",
     "surfing_description": "Plánuji výlet a hledám hostitele",
@@ -264,19 +264,19 @@
     "hosting": "Hostování",
     "hosting_description": "Chci ve svém městě hostovat a vítat cestovatele"
   },
-  "sign_up_resend_verification_email_help": "Nepřišel ti e-mail? Klikni <resendLink>sem pro opětovné odeslání ověřovacího odkazu</resendLink>.",
+  "sign_up_resend_verification_email_help": "Nepřišel ti email? Klikni <resendLink>sem pro opětovné odeslání ověřovacího odkazu</resendLink>.",
   "active_logins": {
     "heading": "Aktuální přihlášení",
     "settings_page_text": "Zobraz, kde jste přihlášeni a odhlaste se z ostatních relací",
     "settings_page_link": "Správa aktuálních přihlášení",
     "description": "Na této stránce najdeš seznam aktivních přihlášení. Z kteréhokoli se můžeš odhlásit kliknutím na tlačítko vedle daného přihlášení, nebo sjeď dolů a odhlas se ze všech ostatních relací najednou.",
     "login_header": "Přihlášení {{login_datetime}}",
-    "location": "Poblíž <strong>{{approximate_location}}</strong>",
-    "last_activity": "Poslední aktivita <strong>{{last_activity_ago}}</strong>",
-    "expiry": "Vyprší dne <strong>{{expiry_datetime}}</strong>",
     "current_session": "Toto je tvoje aktuální relace.",
     "log_out_of_session": "Odhlásit se z této relace",
-    "log_out_of_all_session": "Odhlásit ze všech ostatních relací"
+    "log_out_of_all_session": "Odhlásit ze všech ostatních relací",
+    "location2": "Poblíž <location/>",
+    "last_activity2": "Poslední aktivita <timeAgo/>",
+    "expiry2": "Platnost vyprší <datetime/>"
   },
   "strong_verification": {
     "learn_more": "Přečtěte si o silném ověření <a>zde</a>.",
@@ -288,7 +288,7 @@
     },
     "start_button": "Zahájit silné ověření",
     "complete_title": "Zpracováváme tvůj pokus o silné ověření",
-    "complete_message1": "Tvůj pas se právě ověřuje. Během několika minut obdržíš e-mail s výsledkem.",
+    "complete_message1": "Tvůj pas se právě ověřuje. Během několika minut obdržíš email s výsledkem.",
     "complete_message2": "Silné ověření vyprší v okamžiku, kdy skončí platnost tvého pasu, a ověření pak budeš muset provést znovu s novým pasem.",
     "delete_data_title": "Smazat data tvého pasu použitého pro silné ověření",
     "delete_information": "Svá data ze silného ověření (kromě země vydání, data platnosti a posledních tří číslic čísla dokladu) můžeš z našich serverů kdykoli smazat.",
@@ -348,7 +348,7 @@
     "donation_message1": "Ověření je pro tebe zdarma, ale nás něco stojí. Jsme nezisková organizace vedená dobrovolníky, a proto se spoléháme na příspěvky, které nám pomáhají pokrývat výdaje, jako je provoz našich serverů, ověřování a nástroje pro dobrovolníky a budovatele komunit."
   },
   "quick_links": {
-    "title": "Rychlá akce e-mailu",
+    "title": "Rychlá akce emailu",
     "button_text": "Potvrzovací akce",
     "error_message": "Chyba: {{message}}",
     "missing_payload_or_sig": "Neplatná URL"
@@ -388,10 +388,10 @@
       "link_type_linkedin": "LinkedIn",
       "link_type_website": "Webové stránky",
       "link_text_label": "Hodnota odkazu",
-      "link_text_email_helper": "Tvoje e-mailová adresa",
+      "link_text_email_helper": "Tvoje emailová adresa",
       "link_text_website_helper": "Text, který se zobrazí jako odkaz",
       "link_text_required": "Zadej prosím hodnotu pro odkaz",
-      "link_text_email_invalid": "Zadej prosím platnou e-mailovou adresu",
+      "link_text_email_invalid": "Zadej prosím platnou emailovou adresu",
       "link_text_linkedin_invalid": "Zadej prosím platné uživatelské jméno LinkedIn (pouze písmena, číslice a pomlčky)",
       "link_url_label": "URL odkazu",
       "link_url_placeholder": "https://tvuj-web.cz",
@@ -403,6 +403,18 @@
       "link_text_email_placeholder": "tvuj@email.cz",
       "link_text_website_placeholder": "https://tvuj-web.cz",
       "link_text_linkedin_helper": "Uživatelské jméno z URL adresy tvého profilu (např. linkedin.com/in/jan-novak-a1b2c3)"
+    }
+  },
+  "change_signup_email_form": {
+    "title": "Změnit registrační email",
+    "current_email_message": "Tvá současná emailová adresa je <strong>{{email}}</strong>.",
+    "success_message": "Tvoje žádost o změnu emailu byla přijata. Zkontroluj svůj nový email a potvrď ho.",
+    "signup_change_email": "Změnit emailovou adresu"
+  },
+  "sign_up_change_email": "Překlep v emailové adrese? Zadej svou správnou emailovou adresu zde:",
+  "verification_page": {
+    "data_use": {
+      "header": "Jak používáme tvé data"
     }
   }
 }

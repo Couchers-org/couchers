@@ -1,12 +1,23 @@
-from datetime import UTC, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta, timezone
 
 from google.protobuf.timestamp_pb2 import Timestamp
 from sqlalchemy import select, update
 from sqlalchemy.sql import func
 
+from couchers.config import config
 from couchers.db import session_scope
 from couchers.models import User
-from couchers.utils import dt_from_page_token, dt_to_page_token, http_date, now, to_timezone, wrap_coordinate
+from couchers.utils import (
+    create_session_cookies,
+    date_id_from_page_token,
+    date_id_to_page_token,
+    dt_from_page_token,
+    dt_to_page_token,
+    http_date,
+    now,
+    to_timezone,
+    wrap_coordinate,
+)
 from tests.fixtures.db import generate_user
 from tests.fixtures.timewarp import FrozenTimewarp
 
@@ -14,6 +25,10 @@ from tests.fixtures.timewarp import FrozenTimewarp
 def test_page_token_time_python():
     now_ = now()
     assert now_ == dt_from_page_token(dt_to_page_token(now_))
+
+
+def test_page_token_date_id():
+    assert date_id_from_page_token(date_id_to_page_token(date(2026, 6, 1), 123)) == (date(2026, 6, 1), 123)
 
 
 def test_page_token_time_db(db):
@@ -49,6 +64,20 @@ def test_http_date_without_datetime(frozen_timewarp: FrozenTimewarp):
     frozen_timewarp.freeze_at(datetime(2024, 3, 20, 14, 25, 30, tzinfo=UTC))
 
     assert http_date() == "Wed, 20 Mar 2024 14:25:30 GMT"
+
+
+def test_session_cookies_partitioned():
+    config.DEV = False
+    config.COOKIE_SAMESITE = "None"
+
+    config.COOKIE_PARTITIONED = False
+    for cookie in create_session_cookies("token", 1, now()):
+        assert "Partitioned" not in cookie
+
+    config.COOKIE_PARTITIONED = True
+    for cookie in create_session_cookies("token", 1, now()):
+        assert "; Partitioned;" in cookie
+        assert "; Secure" in cookie
 
 
 def test_wrap_coordinate():

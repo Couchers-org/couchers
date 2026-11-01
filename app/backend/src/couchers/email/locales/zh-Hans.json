@@ -209,57 +209,69 @@
     "subject": "您的性别已更改",
     "purpose": "您在Couchers.org上的性别已被管理员更改为<b>{{ gender }}</b>。"
   },
-  "host_requests": {
+  "stays": {
     "created": {
-      "subject": "{{surfer_name}}向您发送了接待请求",
-      "purpose": "<b>{{surfer_name}}</b>向您发送了接待请求：",
-      "respond_encouragement": "请回复此请求。即使快速拒绝，也比不回复更好！"
+      "host_request": {
+        "subject": "{{initiator}}向您发送了接待请求",
+        "purpose": "<b>{{initiator}}</b>向您发送了接待请求：",
+        "respond_encouragement": "请回复此请求。即使快速拒绝，也比不回复更好！"
+      }
     },
     "generic": {
       "date_range": "从<b>{{from_date}}</b>到<b>{{to_date}}</b>。",
-      "view_action": "查看接待请求",
+      "host_request": {
+        "view_action": "查看接待请求"
+      },
       "quick_decline_action": "快速拒绝"
     },
     "reminder": {
-      "subject": "您有一个来自{{surfer_name}}的待处理接待请求",
-      "purpose": "<b>{{surfer_name}}</b>正在等待您的回复。即使快速拒绝，也比不回复更好！"
+      "host_request": {
+        "subject": "您有一个来自{{initiator}}的待处理接待请求",
+        "purpose": "<b>{{initiator}}</b>正在等待您的回复。即使快速拒绝，也比不回复更好！"
+      }
     },
     "message": {
-      "from_host": {
-        "subject": "{{other_name}}在您的接待请求中向您发送了一条消息",
-        "purpose": "<b>{{other_name}}</b>在您的接待请求中向您发送了一条消息："
-      },
-      "from_surfer": {
-        "subject": "{{other_name}}在其接待请求中向您发送了一条消息",
-        "purpose": "<b>{{other_name}}</b>在其接待请求中向您发送了一条消息："
+      "host_request": {
+        "from_initiator": {
+          "subject": "{{counterparty}}在其接待请求中向您发送了一条消息",
+          "purpose": "<b>{{counterparty}}</b>在其接待请求中向您发送了一条消息："
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}}在您的接待请求中向您发送了一条消息",
+          "purpose": "<b>{{counterparty}}</b>在您的接待请求中向您发送了一条消息："
+        }
       }
     },
     "missed_messages": {
-      "from_host": {
-        "subject": "{{other_name}}在您的接待请求中向您发送了消息",
-        "purpose": "<b>{{other_name}}</b>在您的接待请求中向您发送了一条或多条消息："
-      },
-      "from_surfer": {
-        "subject": "{{other_name}}在其接待请求中向您发送了消息",
-        "purpose": "<b>{{other_name}}</b>在其接待请求中向您发送了一条或多条消息："
+      "host_request": {
+        "from_initiator": {
+          "subject": "{{counterparty}}在其接待请求中向您发送了消息",
+          "purpose": "<b>{{counterparty}}</b>在其接待请求中向您发送了一条或多条消息："
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}}在您的接待请求中向您发送了消息",
+          "purpose": "<b>{{counterparty}}</b>在您的接待请求中向您发送了一条或多条消息："
+        }
       }
     },
     "status_changed": {
-      "accepted_by_host": {
-        "subject": "{{other_name}}接受了您的接待请求",
-        "purpose": "<b>{{other_name}}</b>接受了您的接待请求："
-      },
-      "declined_by_host": {
-        "subject": "{{other_name}}拒绝了您的接待请求",
-        "purpose": "<b>{{other_name}}</b>拒绝了您的接待请求："
-      },
-      "confirmed_by_surfer": {
-        "subject": "{{other_name}}确认了他们的接待请求",
-        "purpose": "<b>{{other_name}}</b>确认了他们的接待请求："
-      },
-      "cancelled_by_surfer": {
-        "subject": "{{other_name}}取消了他们的接待请求",
-        "purpose": "<b>{{other_name}}</b>取消了他们的接待请求："
+      "host_request": {
+        "accepted_by_recipient": {
+          "subject": "{{counterparty}}接受了您的接待请求",
+          "purpose": "<b>{{counterparty}}</b>接受了您的接待请求："
+        },
+        "declined_by_recipient": {
+          "subject": "{{counterparty}}拒绝了您的接待请求",
+          "purpose": "<b>{{counterparty}}</b>拒绝了您的接待请求："
+        },
+        "confirmed_by_initiator": {
+          "subject": "{{counterparty}}确认了他们的接待请求",
+          "purpose": "<b>{{counterparty}}</b>确认了他们的接待请求："
+        },
+        "cancelled_by_initiator": {
+          "subject": "{{counterparty}}取消了他们的接待请求",
+          "purpose": "<b>{{counterparty}}</b>取消了他们的接待请求："
+        }
       }
     }
   },

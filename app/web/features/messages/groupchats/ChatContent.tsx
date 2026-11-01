@@ -61,6 +61,7 @@ const ChatContent = ({
         markLastSeen={markLastSeen}
         messages={messages.pages.map((page) => page.messagesList).flat()}
         isDm={isHostRequest || isDm}
+        isOffer={!!hostRequest?.publicTripId}
       />
       {footer}
     </StyledInfiniteMessageLoader>

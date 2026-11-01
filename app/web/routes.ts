@@ -36,6 +36,7 @@ export const donationsRoute = "/donate";
 export const builtWithRoute = "/open-source";
 export const contactRoute = "/contact";
 export const roadmapRoute = "/roadmap";
+export const crashCalendarRoute = "/crashes";
 export const shopRoute = "/shop";
 export const whatIsCouchSurfingRoute = "/what-is-couch-surfing";
 export const pressRoute = "/press";
@@ -51,6 +52,7 @@ export const settingsRoute = "/account-settings";
 export const notificationSettingsRoute = `${settingsRoute}/notifications`;
 export const loginsSettingsRoute = `${settingsRoute}/logins`;
 export const strongVerificationRoute = "/strong-verification";
+export const verificationRoute = "/verification";
 
 export const translateRoute = "/translate";
 
@@ -80,10 +82,13 @@ export const messagesRoute = "/messages";
 export const messageTypeStrings = ["all", "unread", "chats", "hosting", "surfing", "public-trips", "archived"] as const;
 export type MessageFilterType = (typeof messageTypeStrings)[number];
 export const groupChatsRoute = `${messagesRoute}/chats`;
+export const publicTripMessagesRoute = `${messagesRoute}/public-trips`;
 export const routeToCreateMessage = (username: string) => `${groupChatsRoute}?to=${username}`;
 const hostRequestRoute = `${messagesRoute}/request`;
 export const routeToGroupChat = (id: number) => `${groupChatsRoute}/${id}`;
 export const routeToHostRequest = (id: number) => `${hostRequestRoute}/${id}`;
+// The "My public trips" messages filter, focused on a specific trip's offers.
+export const routeToPublicTripOffers = (tripId: number) => `${publicTripMessagesRoute}?trip=${tripId}`;
 
 // REFERENCES
 export const leaveReferenceBaseRoute = "/leave-reference";
@@ -163,8 +168,6 @@ export const howToRespondRequestGuideUrl =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1715125658-what-are-some-things-i-should-think-about-before-responding-to-a-request";
 export const howToWriteRequestGuideUrl =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1725943310-quick-reference-writing-great-requests";
-export const howToDonateUrl =
-  "https://help.couchers.org/hc/couchersorg-help-center/articles/1715125658-how-do-i-donate-money-to-couchers-org";
 export const howToCompleteProfileUrl =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1725919152-why-do-i-need-to-complete-my-profile-to-use-some-features";
 export const howToInviteCommunityUrl =

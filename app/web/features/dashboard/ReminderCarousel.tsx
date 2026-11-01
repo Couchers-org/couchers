@@ -1,20 +1,17 @@
 import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from "@mui/icons-material";
 import { Box, styled, useMediaQuery } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import FadingScrollTrack from "components/FadingScrollTrack";
 import IconButton from "components/IconButton";
-import { RpcError } from "grpc-web";
 import { useTranslation } from "next-i18next";
 import { usePersistedState } from "platform/usePersistedState";
-import { GetRemindersRes, Reminder } from "proto/account_pb";
+import { Reminder } from "proto/account_pb";
 import { useEffect, useRef, useState } from "react";
-import { service } from "service";
 
 import { DASHBOARD } from "../../i18n/namespaces";
 import { theme } from "../../theme";
-import { remindersKey } from "../queryKeys";
 import ReminderItem from "./ReminderItem";
+import useGetDashboard from "./useGetDashboard";
 
 const CARD_WIDTH_DESKTOP = 280;
 const CARD_WIDTH_MOBILE = 200;
@@ -45,6 +42,12 @@ function getReminderId(reminder: Reminder.AsObject): string | null {
   }
   if (reminder.confirmHostRequestReminder?.hostRequestId != null) {
     return `confirm_host_request:${reminder.confirmHostRequestReminder.hostRequestId}`;
+  }
+  if (reminder.respondToPublicTripOfferReminder?.hostRequestId != null) {
+    return `respond_public_trip_offer:${reminder.respondToPublicTripOfferReminder.hostRequestId}`;
+  }
+  if (reminder.confirmPublicTripOfferReminder?.hostRequestId != null) {
+    return `confirm_public_trip_offer:${reminder.confirmPublicTripOfferReminder.hostRequestId}`;
   }
   return null;
 }
@@ -100,10 +103,7 @@ const StyledArrow = styled(IconButton)({
 export default function ReminderCarousel() {
   const { t } = useTranslation(DASHBOARD);
 
-  const { data, error } = useQuery<GetRemindersRes.AsObject, RpcError>({
-    queryKey: [remindersKey],
-    queryFn: () => service.account.getReminders(),
-  });
+  const { data, error } = useGetDashboard((dashboard) => dashboard.reminders);
 
   const [dismissedReminders, setDismissedReminders] = usePersistedState<Record<string, number>>(
     "dismissedReminders",
