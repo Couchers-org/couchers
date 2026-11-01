@@ -13,7 +13,7 @@ import {
   routeToEditProfile,
   routeToHostRequest,
   routeToLeaveReference,
-  strongVerificationRoute,
+  verificationRoute,
 } from "routes";
 
 import { theme } from "../../theme";
@@ -81,7 +81,7 @@ export default function ReminderItem({ reminder, onDismiss }: { reminder: Remind
     title = t("reminder.strong_verification.title");
     description = t("reminder.strong_verification.description");
     buttonText = t("reminder.strong_verification.button");
-    href = strongVerificationRoute;
+    href = verificationRoute;
   } else {
     return null;
   }

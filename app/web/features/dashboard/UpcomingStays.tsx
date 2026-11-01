@@ -1,5 +1,5 @@
-import { ArrowBack, ArrowForward, Luggage, MeetingRoom } from "@mui/icons-material";
-import { Box, IconButton, styled, Typography } from "@mui/material";
+import { Luggage, MeetingRoom, SvgIconComponent } from "@mui/icons-material";
+import { Box, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import FadingScrollTrack, { cardScrollDistance } from "components/FadingScrollTrack";
 import { useTranslation } from "i18n";
@@ -10,11 +10,12 @@ import { useEffect, useRef, useState } from "react";
 import { routeToEditProfile, searchRoute } from "routes";
 import { theme } from "theme";
 
+import DashboardSectionHeader from "./DashboardSectionHeader";
 import UpcomingStayCard, { UpcomingStayCardSkeleton } from "./UpcomingStayCard";
 import useGetDashboard from "./useGetDashboard";
 
 interface UpcomingStaysWidgetProps {
-  icon: React.ReactNode;
+  icon: SvgIconComponent;
   title: string;
   requests: HostRequest.AsObject[];
   isLoading: boolean;
@@ -25,14 +26,6 @@ interface UpcomingStaysWidgetProps {
 
 const CARD_WIDTH = 220;
 const CARD_GAP = 12;
-
-const SectionHeader = styled("div")({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  marginBottom: theme.spacing(1.5),
-  minHeight: 28,
-});
 
 const EmptyStateRow = styled("div")(({ theme }) => ({
   display: "flex",
@@ -53,7 +46,6 @@ function UpcomingStaysWidget({
   emptyCtaLabel,
   emptyCtaHref,
 }: UpcomingStaysWidgetProps) {
-  const { t } = useTranslation([DASHBOARD]);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -79,49 +71,15 @@ function UpcomingStaysWidget({
 
   return (
     <section>
-      <SectionHeader>
-        <Typography variant="h2" sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
-          {icon}
-          {title}
-          {!isLoading && requests.length > 0 && (
-            <Box
-              component="span"
-              sx={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: "var(--mui-palette-text-secondary)",
-                background: "var(--mui-palette-grey-50)",
-                borderRadius: 999,
-                px: 1.125,
-                lineHeight: "20px",
-                display: "inline-block",
-              }}
-            >
-              {requests.length}
-            </Box>
-          )}
-        </Typography>
-        <div>
-          <IconButton
-            size="small"
-            onClick={() => scroll(-1)}
-            disabled={!canScrollLeft}
-            color={canScrollLeft ? "primary" : "default"}
-            aria-label={t("dashboard:prev_page_button_a11y")}
-          >
-            <ArrowBack fontSize="small" />
-          </IconButton>
-          <IconButton
-            size="small"
-            onClick={() => scroll(1)}
-            disabled={!canScrollRight}
-            color={canScrollRight ? "primary" : "default"}
-            aria-label={t("dashboard:next_page_button_a11y")}
-          >
-            <ArrowForward fontSize="small" />
-          </IconButton>
-        </div>
-      </SectionHeader>
+      <DashboardSectionHeader
+        icon={icon}
+        title={title}
+        count={isLoading ? 0 : requests.length}
+        hasPrevious={canScrollLeft}
+        hasNext={canScrollRight}
+        onPrevious={() => scroll(-1)}
+        onNext={() => scroll(1)}
+      />
 
       {isLoading ? (
         <FadingScrollTrack $gap={CARD_GAP} $snapType="x proximity">
@@ -193,7 +151,7 @@ export default function UpcomingStays() {
       {error && <Alert severity="error">{error.message}</Alert>}
 
       <UpcomingStaysWidget
-        icon={<MeetingRoom sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />}
+        icon={MeetingRoom}
         title={t("dashboard:stays.upcoming_guests_header")}
         requests={upcomingGuests}
         isLoading={isLoading}
@@ -205,7 +163,7 @@ export default function UpcomingStays() {
       <Box sx={{ height: theme.spacing(3) }} />
 
       <UpcomingStaysWidget
-        icon={<Luggage sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />}
+        icon={Luggage}
         title={t("dashboard:stays.upcoming_trips_header")}
         requests={upcomingTrips}
         isLoading={isLoading}

@@ -1,14 +1,14 @@
 /**
- * Tests for middleware.ts locale detection logic
+ * Tests for proxy.ts locale detection logic
  *
  * These tests verify the browser language detection and locale resolution
- * functions used by the middleware to determine user's preferred language.
+ * functions used by the proxy to determine user's preferred language.
  */
 
 import { allLanguages } from "i18n/allLanguages";
-import { config, getBrowserLocaleFromHeader } from "middleware";
+import { config, getBrowserLocaleFromHeader } from "proxy";
 
-describe("Middleware locale detection logic", () => {
+describe("Proxy locale detection logic", () => {
   describe("Browser language detection", () => {
     it("should detect Russian from Accept-Language header", () => {
       const locale = getBrowserLocaleFromHeader("ru-RU,ru;q=0.9,en;q=0.8", allLanguages);
@@ -84,8 +84,8 @@ describe("Middleware locale detection logic", () => {
     ) => boolean;
 
     beforeEach(async () => {
-      const middlewareModule = await import("./middleware");
-      shouldBlockIncompleteLanguage = middlewareModule.shouldBlockIncompleteLanguage;
+      const proxyModule = await import("./proxy");
+      shouldBlockIncompleteLanguage = proxyModule.shouldBlockIncompleteLanguage;
     });
 
     describe("when current locale is English", () => {
@@ -165,8 +165,8 @@ describe("Middleware locale detection logic", () => {
       it("FAILS if cookie check is removed - manual selection of 60% language", () => {
         // This is the bug we're fixing:
         // User selects German (60%) from picker -> sets cookie
-        // Without checking cookie, middleware blocks it
-        // With cookie check, middleware allows it
+        // Without checking cookie, the proxy blocks it
+        // With cookie check, the proxy allows it
         const result = shouldBlockIncompleteLanguage("de", "de", false);
         expect(result).toBe(false); // MUST be false for manual selection
       });
@@ -181,7 +181,7 @@ describe("Middleware locale detection logic", () => {
   });
 });
 
-describe("Middleware matcher", () => {
+describe("Proxy matcher", () => {
   const matches = (pathname: string) => new RegExp(`^${config.matcher[0]}$`).test(pathname);
 
   it("should not run on the service worker, which cannot be served behind a redirect", () => {

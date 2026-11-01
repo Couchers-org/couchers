@@ -730,7 +730,7 @@ def test_search_creates_event(db):
     user, token = generate_user()
 
     with search_session(token) as api:
-        api.UserSearch(search_pb2.UserSearchReq())
+        api.UserSearchV2(search_pb2.UserSearchReq())
 
     with session_scope() as session:
         events = _get_events(session, "search.performed")
@@ -742,6 +742,53 @@ def test_search_creates_event(db):
         assert "total_items" in e.properties
         assert e.properties["search_in"] is None
         assert e.properties["ranking_offsets_variant"] == ""
+
+
+def test_search_v2_creates_event(db, flags):
+    user, token = generate_user()
+    flags.set_string("search_ranking_offsets_variant", "a")
+
+    with search_session(token) as api:
+        api.UserSearchV2(
+            search_pb2.UserSearchReq(
+                query=wrappers_pb2.StringValue(value="paris"),
+                search_in_rectangle=search_pb2.RectArea(lat_min=0, lat_max=1, lng_min=0, lng_max=1),
+                only_with_references=True,
+                age_min=wrappers_pb2.UInt32Value(value=25),
+                accepts_pets=wrappers_pb2.BoolValue(value=False),
+                page_size=10,
+            )
+        )
+
+    with session_scope() as session:
+        events = _get_events(session, "search.performed")
+        assert len(events) == 1
+        e = events[0]
+        assert e.user_id == user.id
+        assert e.properties["has_query"] is True
+        assert e.properties["has_filters"] is True
+        assert e.properties["filters"] == ["accepts_pets", "age_min", "only_with_references"]
+        assert e.properties["is_selection"] is False
+        assert e.properties["has_page_token"] is False
+        assert e.properties["total_items"] == 0
+        assert e.properties["search_in"] == "search_in_rectangle"
+        assert e.properties["ranking_offsets_variant"] == "a"
+
+
+def test_search_v2_selection_event(db):
+    user, token = generate_user()
+    other, _ = generate_user()
+
+    with search_session(token) as api:
+        api.UserSearchV2(search_pb2.UserSearchReq(exactly_user_ids=[other.id]))
+
+    with session_scope() as session:
+        events = _get_events(session, "search.performed")
+        assert len(events) == 1
+        e = events[0]
+        assert e.properties["is_selection"] is True
+        assert e.properties["has_filters"] is False
+        assert e.properties["filters"] == []
 
 
 # ===== Integration tests: reference events =====

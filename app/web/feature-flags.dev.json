@@ -4,5 +4,6 @@
   "public_trips_enabled": true,
   "geocode_provider": "auto",
   "geocode_telemetry_enabled": true,
+  "postal_verification_enabled": true,
   "global_message": { "severity": "info", "message": "" }
 }

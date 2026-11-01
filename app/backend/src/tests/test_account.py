@@ -1199,7 +1199,7 @@ def test_public_trip_offer_reminders(db, moderator):
 
     def offer(host_token: str) -> int:
         with requests_session(host_token) as api:
-            host_request_id = api.CreateHostRequest(
+            host_request_id: int = api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
                     host_user_id=traveller.id,
                     from_date=from_date.isoformat(),

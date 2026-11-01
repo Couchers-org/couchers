@@ -3,13 +3,14 @@ from datetime import time, timedelta
 from google.protobuf import empty_pb2
 
 from couchers.db import session_scope
-from couchers.proto import discussions_pb2, events_pb2, messages_pb2, requests_pb2, screens_pb2
+from couchers.proto import discussions_pb2, events_pb2, messages_pb2, public_trips_pb2, requests_pb2, screens_pb2
 from couchers.utils import today
 from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import (
     account_session,
     discussions_session,
+    public_trips_session,
     requests_session,
     screens_session,
 )
@@ -74,7 +75,7 @@ def test_GetDashboard_matches_individual_rpcs(db, moderator):
             )
         )
 
-    my_events = events_api.list_my_events(token=token1, page_size=9)
+    my_events = events_api.list_my_events(token=token1, page_size=9, attending=True, organizing=True)
     community_events = events_api.list_my_events(
         token=token1,
         page_size=9,
@@ -87,6 +88,18 @@ def test_GetDashboard_matches_individual_rpcs(db, moderator):
         discussions = api.ListMyCommunitiesDiscussions(discussions_pb2.ListMyCommunitiesDiscussionsReq(page_size=9))
     with account_session(token1) as api:
         reminders = api.GetReminders(empty_pb2.Empty())
+    with public_trips_session(token1) as api:
+        my_public_trips = api.ListPublicTripsByUser(
+            public_trips_pb2.ListPublicTripsByUserReq(
+                user_id=user1.id,
+                page_size=10,
+                statuses_in=[public_trips_pb2.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST],
+                ascending=True,
+            )
+        )
+        community_public_trips = api.ListMyCommunitiesPublicTrips(
+            public_trips_pb2.ListMyCommunitiesPublicTripsReq(page_size=10)
+        )
 
     with screens_session(token1) as api:
         res = api.GetDashboard(screens_pb2.GetDashboardReq())
@@ -97,6 +110,8 @@ def test_GetDashboard_matches_individual_rpcs(db, moderator):
     assert res.my_events == my_events
     assert res.community_events == community_events
     assert res.discussions == discussions
+    assert res.my_public_trips == my_public_trips
+    assert res.community_public_trips == community_public_trips
 
     # the surfer sees their upcoming trip under surfing, nothing under hosting
     assert len(res.surfing.host_requests) == 1
@@ -153,9 +168,8 @@ def test_GetDashboard_community_events_excludes_attending(db, moderator):
     with screens_session(token1) as api:
         res = api.GetDashboard(screens_pb2.GetDashboardReq())
 
-    # the attended event shows under my_events (which with no flags includes all relationships)...
-    assert e_attending in {e.event_id for e in res.my_events.events}
-    # ...while community_events must exclude it (exclude_attending), showing only the rest
+    # the attended event shows only under my_events, and the unjoined community event only under community_events
+    assert [e.event_id for e in res.my_events.events] == [e_attending]
     assert [e.event_id for e in res.community_events.events] == [e_community_only]
 
 
@@ -196,3 +210,18 @@ def test_GetDashboard_empty(db):
     assert len(res.community_events.events) == 0
     assert len(res.discussions.discussions) == 0
     assert len(res.reminders.reminders) == 0
+
+
+def test_GetDashboard_public_trips_behind_flag(db, flags):
+    user, token = generate_user()
+
+    with screens_session(token) as api:
+        res = api.GetDashboard(screens_pb2.GetDashboardReq())
+    assert res.HasField("my_public_trips")
+    assert res.HasField("community_public_trips")
+
+    flags.set_boolean("public_trips_enabled", False)
+    with screens_session(token) as api:
+        res = api.GetDashboard(screens_pb2.GetDashboardReq())
+    assert not res.HasField("my_public_trips")
+    assert not res.HasField("community_public_trips")
