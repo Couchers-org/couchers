@@ -1,6 +1,7 @@
-import { Card, CardActions, styled, Tooltip, Typography } from "@mui/material";
+import { Box, Card, CardActions, styled, Tooltip, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import BarWithHelp from "components/Bar/BarWithHelp";
+import CopyButton from "components/CopyButton";
 import Divider from "components/Divider";
 import { CouchIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
@@ -122,16 +123,13 @@ export default function UserOverview({
           {user.name}
           {user.hasStrongVerification && <StrongVerificationBadge />}
         </StyledIntro>
-        <StyledLink
-          href={routeToUser(user.username)}
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            marginBottom: 1,
-          }}
-        >
-          @{user.username}
-        </StyledLink>
+        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 0.5, marginBottom: 1 }}>
+          <StyledLink href={routeToUser(user.username)}>@{user.username}</StyledLink>
+          <CopyButton
+            text={`${typeof window !== "undefined" ? window.location.origin : ""}${routeToUser(user.username)}`}
+            label={t("profile:copy_profile_link.button_a11y")}
+          />
+        </Box>
         <StyledIntro>{user.city}</StyledIntro>
         <Badges user={user} />
       </StyledWrapper>
