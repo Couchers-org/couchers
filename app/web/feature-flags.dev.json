@@ -2,6 +2,8 @@
   "test_growthbook_integration": true,
   "show_moderator_badge": true,
   "public_trips_enabled": true,
+  "geocode_provider": "auto",
+  "geocode_telemetry_enabled": true,
   "postal_verification_enabled": true,
   "global_message": { "severity": "info", "message": "" }
 }
