@@ -1,2 +1,542 @@
 msgid ""
-msgstr "X-Generator: Weblate\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit"
+msgstr ""
+"Language: zh_Hans\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. (name) Our website and platform, untranslatable.
+#, read-only
+msgid "couchers_org"
+msgstr "Couchers.org"
+
+#. (name) Our legal organization.
+#, read-only
+msgid "couchers_inc"
+msgstr "Couchers, Inc."
+
+#. (noun) The team behind Couchers.org.
+msgid "couchers_org_team"
+msgstr "Couchers.org 团队"
+
+#. (noun) The team behind Couchers.org, short form.
+msgid "team"
+msgstr "团队"
+
+#. (noun) The Couchers.org safety team.
+msgid "safety_team"
+msgstr "安全团队"
+
+#. (noun) The Couchers.org support team.
+msgid "support_team"
+msgstr "支持团队"
+
+#. (noun) The logged-in landing page showing upcoming events, stays, etc.
+msgid "dashboard"
+msgstr "总览"
+
+#. (noun) The behavioral guidelines that new members must accept when joining Couchers.org.
+msgid "community_guidelines"
+msgstr "社区准则"
+
+#. (noun) The document outlining the legal agreement for using Couchers.org.
+msgid "terms_of_service"
+msgstr "服务条款"
+
+#. (noun) The https://help.couchers.org website.
+msgid "help_center"
+msgstr "帮助中心"
+
+#. (noun) The Couchers.org merchandise shop website.
+msgid "merch_shop"
+msgstr "周边商店"
+
+#. (noun) The Couchers.org blog.
+msgid "blog"
+msgstr "博客"
+
+#. (noun) A post on the Couchers.org blog.
+msgid "blog.post"
+msgstr "博文"
+
+#. (name) Alternative couch surfing platform. Always include ™.
+#, read-only
+msgid "couchsurfing_tm"
+msgstr "Couchsurfing™"
+
+#. (noun) The activity of free hospitality welcome/exchange.
+#. Platform-agnostic. Avoid "Couchsurfing" (one word) as that is trademarked.
+msgid "couch_surfing"
+msgstr "沙发旅行"
+
+#. (noun) A multi-day event organized by a community and published broadly.
+#, read-only
+msgid "couch_crash"
+msgstr "Couch Crash"
+
+#. (noun) Multi-day events organized by a community and published broadly.
+#, read-only
+msgid "couch_crashes"
+msgstr "Couch Crashes"
+
+#. (verb) The act of volunteering with Couchers.org.
+msgid "volunteer.verb"
+msgstr "做志愿者"
+
+#. (noun) A person volunteering with Couchers.org.
+msgid "volunteer.noun"
+msgstr "志愿者"
+
+#. (noun) A person volunteering with Couchers.org.
+msgid "volunteers"
+msgstr "志愿者"
+
+#. (verb) The act of donating money to Couchers.org.
+msgid "donate"
+msgstr "捐赠"
+
+#. (verb) The act of donating money to Couchers.org.
+msgid "donating"
+msgstr "捐赠"
+
+#. (noun) Money donated to Couchers.org.
+msgid "donation"
+msgstr "捐款"
+
+#. (noun) Money donated to Couchers.org.
+msgid "donations"
+msgstr "捐款"
+
+#. (noun) A problem with the platform reported by a user.
+msgid "report_problem.problem"
+msgstr "问题"
+
+#. (noun) Problems with the platform reported by a user.
+msgid "report_problem.problems"
+msgstr "问题"
+
+#. (noun) As a user, the act of reporting a problem with the platform.
+msgid "report_problem.report"
+msgstr "报告"
+
+#. (noun) A moderator from the Couchers.org team.
+msgid "moderator"
+msgstr "管理员"
+
+#. (noun) Moderators from the Couchers.org team.
+msgid "moderators"
+msgstr "管理员"
+
+#. (noun) A note sent to a user by a moderator.
+msgid "moderator_note"
+msgstr "管理员留言"
+
+#. (noun) Notes sent to a user by a moderator.
+msgid "moderator_notes"
+msgstr "管理员留言"
+
+#. (noun) A user account on Couchers.org.
+msgid "account"
+msgstr "账号"
+
+#. (verb) As a user, the action of deleting one's account.
+msgid "account.delete"
+msgstr "删除"
+
+#. (adj) The state of a user's account which has been deleted.
+msgid "account.deleted"
+msgstr "已删除"
+
+#. (verb) As a user, the action of recovering a previously deleted account.
+msgid "account.recover"
+msgstr "恢复"
+
+#. (adj) The state of a user's account which has been recovered.
+msgid "account.recovered"
+msgstr "已恢复"
+
+#. (noun) Someone with an account on Couchers.org.
+msgid "user"
+msgstr "用户"
+
+#. (noun) Someone with an account on Couchers.org.
+msgid "users"
+msgstr "用户"
+
+#. (noun) A user's account identifier on Couchers.org.
+msgid "username"
+msgstr "用户名"
+
+#. (noun) A user's account password on Couchers.org.
+msgid "password"
+msgstr "密码"
+
+#. (verb) The action of resetting one's password.
+msgid "password.reset"
+msgstr "重置"
+
+#. (verb) The action of logging in to Couchers.org.
+msgid "log_in"
+msgstr "登录"
+
+#. (verb) The action of logging in to Couchers.org.
+msgid "logging_in"
+msgstr "正在登录"
+
+#. (adj) The state of being logged in to Couchers.org.
+msgid "logged_in"
+msgstr "已登录"
+
+#. (verb) The action of logging in to Couchers.org after logging out.
+msgid "log_back_in"
+msgstr "重新登录"
+
+#. (verb) The action of logging out of Couchers.org.
+msgid "log_out"
+msgstr "退出登录"
+
+#. (verb) The action of logging out of Couchers.org.
+msgid "logging_out"
+msgstr "正在退出登录"
+
+#. (adj) The state of being logged out of Couchers.org.
+msgid "logged_out"
+msgstr "已退出登录"
+
+#. (noun) A website/app session, from logging in to logging out.
+msgid "session"
+msgstr "会话"
+
+#. (noun) Website/app sessions, from logging in to logging out.
+msgid "sessions"
+msgstr "会话"
+
+#. (noun) A secret code used to make programmatic operations (call APIs) on behalf of a user.
+msgid "api_key"
+msgstr "API 密钥"
+
+#. (noun) A grouping of settings (account, notifications, etc.)
+msgid "settings"
+msgstr "设置"
+
+#. (noun) A user's account settings (notifications, theme, language, etc.).
+msgid "account_settings"
+msgstr "账号设置"
+
+#. (noun) An email or push notifications sent to a user.
+msgid "notification"
+msgstr "通知"
+
+#. (noun) Email or push notifications sent to a user.
+msgid "notifications"
+msgstr "通知"
+
+#. (noun) A notifications sent to a user's phone or browser.
+msgid "push_notification"
+msgstr "推送通知"
+
+#. (noun) Notifications sent to a user's phone or browser.
+msgid "push_notifications"
+msgstr "推送通知"
+
+#. (noun) A process and the resulting status for verifying a user's identity.
+msgid "strong_verification"
+msgstr "强身份验证"
+
+#. (name) Our provider for identity document verification.
+#, read-only
+msgid "iris_id"
+msgstr "Iris ID"
+
+#. (noun) A process and the resulting status for verifying a user's phone number.
+msgid "phone_verification"
+msgstr "手机验证"
+
+#. The section of a user profile with information relating their person.
+msgid "profile.about_me"
+msgstr "关于我"
+
+#. The section of a user profile with information relating to their home.
+msgid "profile.my_home"
+msgstr "我的家"
+
+#. (noun) A profile picture.
+msgid "photo"
+msgstr "照片"
+
+#. (noun) Profile pictures.
+msgid "photos"
+msgstr "照片"
+
+#. A geographical location such as an address or the name of a city.
+msgid "location"
+msgstr "位置"
+
+#. A user's willingness to host surfers.
+msgid "hosting_status"
+msgstr "接待状态"
+
+#. A user status whereby a user is willing to host surfers.
+msgid "status.can_host"
+msgstr "可以接待"
+
+#. A user status whereby a user is potentially willing to host surfers.
+msgid "status.may_host"
+msgstr "可能接待"
+
+#. A user status whereby a user is unwilling to host surfers.
+msgid "status.cant_host"
+msgstr "无法接待"
+
+#. (noun) A message sent from a user to another user or to a group chat.
+msgid "message.noun"
+msgstr "消息"
+
+#. (verb) The act of sending a message to another user or to a group chat.
+msgid "message.verb"
+msgstr "发送消息"
+
+#. (noun) Messages sent between users or to group chats.
+msgid "messages"
+msgstr "消息"
+
+#. (noun) A thread for messages between two or more users.
+msgid "chat"
+msgstr "聊天"
+
+#. (noun) Threads for messages between two or more users.
+msgid "chats"
+msgstr "聊天"
+
+#. (noun) A named thread for messages between three or more users.
+msgid "group_chat"
+msgstr "群聊"
+
+#. (noun) A named thread for messages between three or more users.
+msgid "group_chats"
+msgstr "群聊"
+
+#. (noun) Other users which are friends or have pending friend requests.
+msgid "connections"
+msgstr "人脉"
+
+#. (noun) Another user confirmed as a friend using the friend feature.
+msgid "friend"
+msgstr "好友"
+
+#. (noun) Other users confirmed as friends using the friend feature.
+msgid "friends"
+msgstr "好友"
+
+#. (noun) A request to add another user as a friend.
+msgid "friend_request"
+msgstr "好友请求"
+
+#. (noun) Requests to add other users as friends.
+msgid "friend_requests"
+msgstr "好友请求"
+
+#. (noun) A code that can be shared to invite people to join Couchers.org.
+msgid "invite_code"
+msgstr "邀请码"
+
+#. (noun) Codes that can be shared to invite people to join Couchers.org.
+msgid "invite_codes"
+msgstr "邀请码"
+
+#. (noun) A user providing hospitality to other users.
+msgid "host.noun"
+msgstr "接待者"
+
+#. (noun) Users providing hospitality to other users.
+msgid "hosts.noun"
+msgstr "接待者"
+
+#. (verb) As a host, the act of offering hospitality to other users.
+msgid "host.verb"
+msgstr "接待"
+
+#. (verb) As a host, the act of offering hospitality to other users.
+msgid "hosting"
+msgstr "接待"
+
+#. (adjective) As a surfer, the state of receiving hospitality from a host.
+msgid "hosted"
+msgstr "被接待"
+
+#. (noun) A user receiving hospitality from other users.
+msgid "surfer"
+msgstr "沙发客"
+
+#. (noun) Users receiving hospitality from other users.
+msgid "surfers"
+msgstr "沙发客"
+
+#. (noun) The process of establishing a hosting relationship.
+msgid "host_request"
+msgstr "接待请求"
+
+#. (noun) The process of establishing a hosting relationship.
+msgid "host_requests"
+msgstr "接待请求"
+
+#. (verb) As a host, the act of accepting a surfer's host request.
+msgid "host_request.accept"
+msgstr "接受"
+
+#. (adj) The state of a host request that was accepted by the host.
+msgid "host_request.accepted"
+msgstr "已接受"
+
+#. (verb) As a host, the act of declining a surfer's host request.
+msgid "host_request.decline"
+msgstr "拒绝"
+
+#. (adj) The state of a host request that was declined by the host.
+msgid "host_request.declined"
+msgstr "已拒绝"
+
+#. (verb) As a surfer, the act of confirming a host request that was accepted by the host.
+msgid "host_request.confirm"
+msgstr "确认"
+
+#. (adj) The state of a host request that was confirmed by the surfer after being accepted by the host.
+msgid "host_request.confirmed"
+msgstr "已确认"
+
+#. (verb) As a surfer, the act of cancelling a host request.
+msgid "host_request.cancel"
+msgstr "取消"
+
+#. (adj) The state of a host request that was cancelled by the surfer.
+msgid "host_request.cancelled"
+msgstr "已取消"
+
+#. (noun) An agreement for a surfer to stay with a host over a date range.
+msgid "stay.noun"
+msgstr "住宿"
+
+#. (noun) Agreements for surfers to stay with hosts over specific date ranges.
+msgid "stays"
+msgstr "住宿"
+
+#. (noun) A trip published by a surfer to solicit invitations from hosts.
+msgid "public_trip"
+msgstr "公开行程"
+
+#. (noun) Trips published by surfers to solicit invitations from hosts.
+msgid "public_trips"
+msgstr "公开行程"
+
+#. (noun) An invitation sent by a host in response to a surfer's public trip.
+msgid "public_trip.invitation"
+msgstr "邀请"
+
+#. (noun) Invitations sent by hosts in response to a surfer's public trip.
+msgid "public_trip.invitations"
+msgstr "邀请"
+
+#. (verb) As a host, sending an invitation to a surfer in response to their public trip.
+msgid "public_trip.invite"
+msgstr "邀请"
+
+#. (verb) As a host, sending an invitation to a surfer in response to their public trip.
+msgid "public_trip.inviting"
+msgstr "正在邀请"
+
+#. (adj) The state of a surfer who has received an invitation from a host.
+msgid "public_trip.invited"
+msgstr "已受邀"
+
+#. (noun) A reference from a friend, host or surfer.
+msgid "reference"
+msgstr "评价"
+
+#. (noun) References from friends, hosts or surfers.
+msgid "references"
+msgstr "评价"
+
+#. (noun) A reference from a friend.
+msgid "friend_reference"
+msgstr "好友评价"
+
+#. (noun) A geographical community with local discussions, events, etc.
+msgid "community"
+msgstr "社区"
+
+#. (noun) Geographical communities with local discussions, events, etc.
+msgid "communities"
+msgstr "社区"
+
+#. (noun) A user recognized to be highly involved in a community, with special editing rights.
+msgid "community_builder"
+msgstr "社区建设者"
+
+#. (noun) Users recognized to be highly involved in a community, with special editing rights.
+msgid "community_builders"
+msgstr "社区建设者"
+
+#. (noun) A community or event discussion that supports replies.
+msgid "discussion"
+msgstr "讨论"
+
+#. (noun) Community or event discussions that support replies.
+msgid "discussions"
+msgstr "讨论"
+
+#. (noun) A top-level comment on a discussion or event.
+msgid "discussions.comment.noun"
+msgstr "评论"
+
+#. (verb) The act of adding a top-level comment on a discussion or event.
+msgid "discussions.comment.verb"
+msgstr "评论"
+
+#. (noun) Top-level comments on a discussion or event.
+msgid "discussions.comments"
+msgstr "评论"
+
+#. (noun) A reply on a top-level comment in a discussion or event.
+msgid "discussions.reply.noun"
+msgstr "回复"
+
+#. (verb) The act of replying to a top-level comment on a discussion or event.
+msgid "discussions.reply.verb"
+msgstr "回复"
+
+#. (noun) Replies on a top-level comment in a discussion or event.
+msgid "discussions.replies"
+msgstr "回复"
+
+#. (noun) An event created by a user for others to attend.
+msgid "event"
+msgstr "活动"
+
+#. (noun) Events created by users for others to attend.
+msgid "events"
+msgstr "活动"
+
+#. (noun) A user listed as an organizer on an event.
+msgid "events.organizer"
+msgstr "组织者"
+
+#. (noun) Users listed as organizers on an event.
+msgid "events.organizers"
+msgstr "组织者"
+
+#. (noun) A user who has indicated their intention to attend an event.
+msgid "events.attendee"
+msgstr "参与者"
+
+#. (noun) Users who have indicated their intention to attend an event.
+msgid "events.attendees"
+msgstr "参与者"
+
+#. (verb) The act of cancelling an event.
+msgid "events.cancel"
+msgstr "取消"
+
+#. (adj) The state of an event that has been cancelled.
+msgid "events.cancelled"
+msgstr "已取消"
