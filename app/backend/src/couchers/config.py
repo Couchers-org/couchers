@@ -45,6 +45,8 @@ class Config:
     COOKIE_DOMAIN: str
     # SameSite attribute for cookies
     COOKIE_SAMESITE: Literal["Strict", "Lax", "None"] = "Lax"
+    # Whether to set the Partitioned attribute (CHIPS) on cookies
+    COOKIE_PARTITIONED: bool = False
     # SQLAlchemy database connection string
     DATABASE_CONNECTION_STRING: str
     # OTLP/HTTP traces endpoint to export spans to, e.g. https://traces.example.org/v1/traces
@@ -201,6 +203,9 @@ class Config:
 
         if self.DEV and self.COOKIE_SAMESITE == "None":
             raise Exception("COOKIE_SAMESITE=None requires Secure cookies, which are only set outside DEV")
+
+        if self.DEV and self.COOKIE_PARTITIONED:
+            raise Exception("COOKIE_PARTITIONED requires Secure cookies, which are only set outside DEV")
 
         if not self.DEV:
             # checks for prod

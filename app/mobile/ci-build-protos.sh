@@ -50,7 +50,7 @@ esac
 # Versions should match backend scripts so the generated stubs stay compatible.
 PROTOC_VERSION=27.0
 GRPC_WEB_VERSION=1.5.0
-PROTOBUF_JS_VERSION=3.21.2
+PROTOBUF_JS_VERSION=4.0.3
 
 # Download protoc + grpc-web + JS runtime into a temp directory.
 DEPS_DIR="${TMP_DIR}/deps"

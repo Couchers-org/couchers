@@ -10,7 +10,7 @@
     "cannot_create_discussion": "V této skupině nebo komunitě nemůžeš vytvořit diskusi.",
     "cannot_edit_that_notification_preference": "Tuto předvolbu oznámení nelze upravit uživatelem.",
     "account_suspended": "Tvůj účet je pozastaven.",
-    "account_not_found": "Účet s tímto uživatelským jménem nebo e-mailem nebyl nalezen.",
+    "account_not_found": "Účet s tímto uživatelským jménem nebo emailem nebyl nalezen.",
     "address_line_1_required": "Řádek adresy 1 je povinný.",
     "at_least_two_users_required": "Musí být zadáni alespoň 2 uživatelé",
     "bug_tool_request_failed": "Požadavek selhal",
@@ -27,7 +27,7 @@
     "cant_unsub_topic": "Omlouváme se, momentálně se z tohoto tématu nemůžeš odhlásit.",
     "cant_invite_to_dm": "Nemůžeš pozvat ostatní uživatele do přímé zprávy.",
     "community_not_found": "Komunita nebyla nalezena.",
-    "do_not_email_cannot_meet": "Nemůžeš povolit setkávání se, pokud máš ve svém nastavení vypnuté e-maily.",
+    "do_not_email_cannot_meet": "Nemůžeš povolit setkávání se, pokud máš ve svém nastavení vypnuté emaily.",
     "donation_too_small": "Omlouváme se, nemůžeme přijímat dary menší než 2 dolary!",
     "donations_disabled": "Dary jsou momentálně vypnuté.",
     "event_cant_cancel_old_event": "Událost, která je starší než 1 den, nelze zrušit.",
@@ -50,7 +50,7 @@
     "discussions_not_enabled": "Diskuze nejsou v této skupině nebo komunitě povoleny.",
     "cant_request_self": "Nemůžeš požádat o ubytování u sebe.",
     "cant_unsee_messages": "Přečtené zprávy už nejde vzít zpět.",
-    "do_not_email_cannot_host": "Nemůžeš povolit hosting, pokud máš v nastavení vypnuté e-maily.",
+    "do_not_email_cannot_host": "Nemůžeš povolit hosting, pokud máš v nastavení vypnuté emaily.",
     "event_cant_overlap": "Událost nemůže mít překrývající se termíny.",
     "event_cant_update_all_times": "Nemůžeš aktualizovat všechny události, pokud měníš čas začátku nebo konce.",
     "event_cant_update_cancelled_event": "Nemůžeš upravit, přihlásit se k odběru nebo se zúčastnit události, která byla již zrušena.",
@@ -161,7 +161,10 @@
     "missing_page_address": "Chybí adresa stránky.",
     "missing_page_content": "Chybí text stránky.",
     "missing_page_parent": "Chybí nadřazená stránka.",
-    "missing_page_title": "Chybí název stránky."
+    "missing_page_title": "Chybí název stránky.",
+    "public_trip_offer_too_short_one": "Tvoje nabídka hostování nemůže být kratší než {{count}} znak.",
+    "public_trip_offer_too_short_few": "Tvoje nabídka hostování nemůže být kratší než {{count}} znaky.",
+    "public_trip_offer_too_short_other": "Tvoje nabídka hostování nemůže být kratší než {{count}} znaků."
   },
   "badges": {
     "postal_verified_name": "Ověřená adresa",

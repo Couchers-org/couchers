@@ -1,9 +1,11 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { GetRemindersRes } from "proto/account_pb";
 import { service } from "service";
 import liteUsers from "test/fixtures/liteUsers.json";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
+import { getDashboard } from "test/serviceMockDefaults";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
 
 import ReminderCarousel from "./ReminderCarousel";
@@ -13,7 +15,12 @@ const DISMISSED_REMINDERS_KEY = "dismissedReminders";
 
 const { t } = i18n;
 
-const getReminders = service.account.getReminders as jest.MockedFunction<typeof service.account.getReminders>;
+const getDashboardMock = service.screens.getDashboard as jest.MockedFunction<typeof service.screens.getDashboard>;
+
+// Reminders load as part of the dashboard
+function mockReminders(reminders: GetRemindersRes.AsObject) {
+  getDashboardMock.mockImplementation(() => getDashboard({ reminders }));
+}
 
 describe("ReminderCarousel", () => {
   beforeEach(() => {
@@ -21,16 +28,16 @@ describe("ReminderCarousel", () => {
   });
 
   it("renders nothing when backend returns no reminders", async () => {
-    getReminders.mockResolvedValue({ remindersList: [] });
+    mockReminders({ remindersList: [] });
 
     const { container } = render(<ReminderCarousel />, { wrapper });
 
-    await waitFor(() => expect(getReminders).toHaveBeenCalled());
+    await waitFor(() => expect(getDashboardMock).toHaveBeenCalled());
     expect(container).toBeEmptyDOMElement();
   });
 
   it("renders one card per reminder returned by the backend", async () => {
-    getReminders.mockResolvedValue({
+    mockReminders({
       remindersList: [{ completeProfileReminder: {} }, { completeVerificationReminder: {} }],
     });
 
@@ -42,7 +49,7 @@ describe("ReminderCarousel", () => {
 
   it("shows an error alert when the API call fails", async () => {
     mockConsoleError();
-    getReminders.mockRejectedValue(new Error("Failed to fetch reminders"));
+    getDashboardMock.mockRejectedValue(new Error("Failed to fetch reminders"));
 
     render(<ReminderCarousel />, { wrapper });
 
@@ -51,7 +58,7 @@ describe("ReminderCarousel", () => {
 
   it("dismisses a reminder via the dismiss control and persists the choice", async () => {
     const user = userEvent.setup();
-    getReminders.mockResolvedValue({
+    mockReminders({
       remindersList: [{ completeProfileReminder: {} }],
     });
 
@@ -81,13 +88,13 @@ describe("ReminderCarousel", () => {
       }),
     );
 
-    getReminders.mockResolvedValue({
+    mockReminders({
       remindersList: [{ completeProfileReminder: {} }],
     });
 
     const { container } = render(<ReminderCarousel />, { wrapper });
 
-    await waitFor(() => expect(getReminders).toHaveBeenCalled());
+    await waitFor(() => expect(getDashboardMock).toHaveBeenCalled());
     expect(container).toBeEmptyDOMElement();
   });
 
@@ -101,7 +108,7 @@ describe("ReminderCarousel", () => {
       }),
     );
 
-    getReminders.mockResolvedValue({
+    mockReminders({
       remindersList: [{ completeProfileReminder: {} }],
     });
 
@@ -121,7 +128,7 @@ describe("ReminderCarousel", () => {
       }),
     );
 
-    getReminders.mockResolvedValue({
+    mockReminders({
       remindersList: [{ completeProfileReminder: {} }],
     });
 
@@ -142,7 +149,7 @@ describe("ReminderCarousel", () => {
   it("dismissing one host request reminder does not dismiss another", async () => {
     const user = userEvent.setup();
     const [alice, bob] = liteUsers;
-    getReminders.mockResolvedValue({
+    mockReminders({
       remindersList: [
         {
           respondToHostRequestReminder: {

@@ -22,7 +22,7 @@ from couchers.models import (
 )
 from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
-from couchers.proto import api_pb2, auth_pb2, editor_pb2, events_pb2, notification_data_pb2, notifications_pb2
+from couchers.proto import api_pb2, auth_pb2, editor_pb2, notification_data_pb2, notifications_pb2
 from couchers.tasks import (
     enforce_community_memberships,
     maybe_send_reference_report_email,
@@ -30,13 +30,12 @@ from couchers.tasks import (
     send_email_changed_confirmation_to_new_email,
     send_signup_email,
 )
-from tests.fixtures import api_helpers
+from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user, get_friend_relationship, make_friends
 from tests.fixtures.misc import EmailCollector, Moderator, process_jobs
 from tests.fixtures.sessions import (
     api_session,
     auth_api_session,
-    events_session,
     notifications_session,
     real_editor_session,
 )
@@ -509,15 +508,11 @@ def test_email_deleted_users_regression(db, email_collector: EmailCollector, mod
 
     enforce_community_memberships()
 
-    res = api_helpers.create_event(token=creating_token, parent_community_id=c_id)
+    res = events_api.create_event(token=creating_token, parent_community_id=c_id, approve_by=moderator)
     event_id = res.event_id
     assert not res.is_deleted
 
-    moderator.approve_event_occurrence(event_id)
-
-    with events_session(creating_token) as api:
-        api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
-
+    events_api.request_community_invite(token=creating_token, event_id=event_id)
     email_collector.pop_for_mods(last=True)
 
     with real_editor_session(super_token) as editor:
