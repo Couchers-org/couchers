@@ -162,6 +162,9 @@ message GetAccountInfoRes {
   bool is_volunteer = 18;
 
   bool should_show_donation_banner = 20;
+
+  // which host pool the user falls into, refreshed periodically
+  org.couchers.api.core.HostPool host_pool = 21;
 }
 
 message ChangePasswordV2Req {
