@@ -1,5 +1,4 @@
-import { ContentCopyOutlined } from "@mui/icons-material";
-import { Box, Card, CardActions, IconButton, styled, Tooltip, Typography } from "@mui/material";
+import { Box, Card, CardActions, styled, Tooltip, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import BarWithHelp from "components/Bar/BarWithHelp";
 import Divider from "components/Divider";
@@ -11,7 +10,7 @@ import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import Link from "next/link";
 import { HostingStatus, MeetupStatus } from "proto/api_pb";
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import { routeToEditProfile, routeToUser } from "routes";
 
 import { useProfileUser } from "../hooks/useProfileUser";
@@ -88,52 +87,6 @@ const StyledInfo = styled(FactList)(({ theme }) => ({
   },
 }));
 
-function CopyProfileLinkButton({ username }: { username: string }) {
-  const { t } = useTranslation([PROFILE]);
-  const [copied, setCopied] = useState(false);
-  const timer = useRef<number | null>(null);
-
-  const copy = async () => {
-    await navigator.clipboard.writeText(`${window.location.origin}${routeToUser(username)}`);
-    setCopied(true);
-    if (timer.current) window.clearTimeout(timer.current);
-    timer.current = window.setTimeout(() => setCopied(false), 2000);
-  };
-
-  useEffect(
-    () => () => {
-      if (timer.current) window.clearTimeout(timer.current);
-    },
-    [],
-  );
-
-  return (
-    // the message sits beside the icon without taking space, so the centred username doesn't shift
-    <Box component="span" sx={{ position: "relative", display: "inline-flex" }}>
-      <Tooltip title={t("profile:copy_profile_link.button_a11y")} placement="top" arrow>
-        <IconButton size="small" color="primary" aria-label={t("profile:copy_profile_link.button_a11y")} onClick={copy}>
-          <ContentCopyOutlined sx={{ fontSize: 16 }} />
-        </IconButton>
-      </Tooltip>
-      <Typography
-        component="span"
-        role="status"
-        sx={{
-          position: "absolute",
-          left: "100%",
-          top: "50%",
-          transform: "translateY(-50%)",
-          whiteSpace: "nowrap",
-          fontSize: "0.8125rem",
-          color: "var(--mui-palette-text-secondary)",
-        }}
-      >
-        {copied && t("profile:copy_profile_link.copied_message")}
-      </Typography>
-    </Box>
-  );
-}
-
 type UserOverviewProps = {
   showHostAndMeetAvailability: boolean;
   actions?: React.ReactNode;
@@ -173,10 +126,16 @@ export default function UserOverview({
           {user.name}
           {user.hasStrongVerification && <StrongVerificationBadge />}
         </StyledIntro>
-        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 0.5, marginBottom: 1 }}>
-          <StyledLink href={routeToUser(user.username)}>@{user.username}</StyledLink>
-          <CopyProfileLinkButton username={user.username} />
-        </Box>
+        <StyledLink
+          href={routeToUser(user.username)}
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            marginBottom: 1,
+          }}
+        >
+          @{user.username}
+        </StyledLink>
         <StyledIntro>{user.city}</StyledIntro>
         <Badges user={user} />
       </StyledWrapper>

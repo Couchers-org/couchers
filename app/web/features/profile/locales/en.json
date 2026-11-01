@@ -350,10 +350,6 @@
     "heading": "{{first_name}}'s home",
     "see_more_button": "See more"
   },
-  "copy_profile_link": {
-    "button_a11y": "Copy profile link",
-    "copied_message": "Copied!"
-  },
   "edit_section_button_a11y": "Edit {{section_name}}",
   "home_facts": {
     "parking_no_text": "No parking",

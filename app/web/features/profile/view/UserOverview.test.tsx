@@ -1,5 +1,4 @@
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { HostingStatus, MeetupStatus } from "proto/api_pb";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
@@ -35,22 +34,6 @@ describe("UserOverview", () => {
         { wrapper },
       );
       expect(screen.getByText(`@${defaultUser.username}`)).toBeInTheDocument();
-    });
-
-    it("copies the profile link", async () => {
-      const writeText = jest.fn().mockResolvedValue(undefined);
-      Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
-      render(
-        <ProfileUserProvider user={defaultUser}>
-          <UserOverview showHostAndMeetAvailability={false} />
-        </ProfileUserProvider>,
-        { wrapper },
-      );
-
-      await userEvent.click(screen.getByRole("button", { name: t("profile:copy_profile_link.button_a11y") }));
-
-      expect(writeText).toHaveBeenCalledWith(`${window.location.origin}/user/${defaultUser.username}`);
-      expect(await screen.findByText(t("profile:copy_profile_link.copied_message"))).toBeVisible();
     });
 
     it("links the reference count to the references tab", () => {
