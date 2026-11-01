@@ -46,7 +46,8 @@ def queue_email_with_zz(context: CouchersContext, session: Session, payload: job
     """
     zz = generate_zz()
     if payload.html:
-        payload.html = add_zz_to_html_links(payload.html, zz)
+        if context.get_boolean_value("email_zz_links_enabled", default=False):
+            payload.html = add_zz_to_html_links(payload.html, zz)
         if context.get_boolean_value("email_open_pixel_enabled", default=False):
             payload.html = add_open_pixel(payload.html, zz)
 

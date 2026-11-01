@@ -48,7 +48,8 @@ def test_add_open_pixel():
     assert f'src="{open_pixel_url("abc")}"' in html
 
 
-def test_notification_email_gets_zz(db, email_collector: EmailCollector, moderator: Moderator):
+def test_notification_email_gets_zz(db, email_collector: EmailCollector, moderator: Moderator, feature_flags):
+    feature_flags.set("email_zz_links_enabled", True)
     to_user, _ = generate_user()
     from_user, from_token = generate_user()
 
@@ -80,7 +81,7 @@ def test_notification_email_gets_zz(db, email_collector: EmailCollector, moderat
     assert "/email/open/" not in email.html
 
 
-def test_userless_email_gets_zz_and_open_pixel(db, email_collector: EmailCollector, feature_flags):
+def test_userless_email_gets_open_pixel_without_zz_links(db, email_collector: EmailCollector, feature_flags):
     feature_flags.set("email_open_pixel_enabled", True)
     recipient = f"{random_hex(12)}@couchers.org.invalid"
 
@@ -98,7 +99,7 @@ def test_userless_email_gets_zz_and_open_pixel(db, email_collector: EmailCollect
         assert event.user_id is None
         zz = event.properties["zz"]
 
-    assert f"zz={zz}" in email.html
+    assert "zz=" not in email.html
     assert "zz=" not in email.plain
     assert f'src="{open_pixel_url(zz)}"' in email.html
 
