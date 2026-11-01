@@ -101,7 +101,7 @@
     "cross-env": "^10.1.0",
     "css-mediaquery": "^0.1.2",
     "eslint": "9.39.5",
-    "eslint-config-next": "16.4.1",
+    "eslint-config-next": "16.4.3",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jsonc": "^3.4.2",
     "eslint-plugin-simple-import-sort": "^14.0.0",
