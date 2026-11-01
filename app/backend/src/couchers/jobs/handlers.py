@@ -399,8 +399,9 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                     key=str(host_request.conversation_id),
                     data=notification_data_pb2.HostRequestMissedMessages(
                         host_request=host_request_to_pb(host_request, session, context),
-                        user=user_model_to_pb(host_request.recipient, session, context),
-                        am_host=host_request.host_user_id == user.id,
+                        counterparty=user_model_to_pb(host_request.recipient, session, context),
+                        # Notification to the recipient == message from the initiator
+                        counterparty_is_initiator=user.id == host_request.recipient_user_id,
                     ),
                 )
 
@@ -442,8 +443,9 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                     key=str(host_request.conversation_id),
                     data=notification_data_pb2.HostRequestMissedMessages(
                         host_request=host_request_to_pb(host_request, session, context),
-                        user=user_model_to_pb(host_request.initiator, session, context),
-                        am_host=host_request.host_user_id == user.id,
+                        counterparty=user_model_to_pb(host_request.initiator, session, context),
+                        # Notification to the recipient == message from the initiator
+                        counterparty_is_initiator=user.id == host_request.recipient_user_id,
                     ),
                 )
 
@@ -640,7 +642,7 @@ def send_host_request_reminders(payload: empty_pb2.Empty) -> None:
                 key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestReminder(
                     host_request=host_request_to_pb(host_request, session, context),
-                    surfer=user_model_to_pb(host_request.initiator, session, context),
+                    initiator=user_model_to_pb(host_request.initiator, session, context),
                 ),
                 moderation_state_id=host_request.moderation_state_id,
             )

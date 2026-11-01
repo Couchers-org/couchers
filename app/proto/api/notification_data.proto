@@ -13,46 +13,46 @@ import "threads.proto";
 
 message HostRequestCreate {
   org.couchers.api.requests.HostRequest host_request = 1;
-  org.couchers.api.core.User surfer = 2;
+  org.couchers.api.core.User initiator = 2;
   string text = 3;
 }
 
 message HostRequestAccept {
   org.couchers.api.requests.HostRequest host_request = 1;
-  org.couchers.api.core.User host = 2;
+  org.couchers.api.core.User recipient = 2;
 }
 
 message HostRequestReject {
   org.couchers.api.requests.HostRequest host_request = 1;
-  org.couchers.api.core.User host = 2;
+  org.couchers.api.core.User recipient = 2;
 }
 
 message HostRequestConfirm {
   org.couchers.api.requests.HostRequest host_request = 1;
-  org.couchers.api.core.User surfer = 2;
+  org.couchers.api.core.User initiator = 2;
 }
 
 message HostRequestCancel {
   org.couchers.api.requests.HostRequest host_request = 1;
-  org.couchers.api.core.User surfer = 2;
+  org.couchers.api.core.User initiator = 2;
 }
 
 message HostRequestMessage {
   org.couchers.api.requests.HostRequest host_request = 1;
-  org.couchers.api.core.User user = 2;
+  org.couchers.api.core.User counterparty = 2;
   string text = 3;
-  bool am_host = 4;
+  bool counterparty_is_initiator = 4;
 }
 
 message HostRequestMissedMessages {
   org.couchers.api.requests.HostRequest host_request = 1;
-  org.couchers.api.core.User user = 2;
-  bool am_host = 3;
+  org.couchers.api.core.User counterparty = 2;
+  bool counterparty_is_initiator = 3;
 }
 
 message HostRequestReminder {
   org.couchers.api.requests.HostRequest host_request = 1;
-  org.couchers.api.core.User surfer = 2;
+  org.couchers.api.core.User initiator = 2;
 }
 
 message BadgeAdd {
