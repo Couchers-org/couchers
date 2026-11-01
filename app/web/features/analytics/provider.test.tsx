@@ -192,6 +192,35 @@ describe("AnalyticsProvider", () => {
 
       expect(sessionCall![1]).not.toHaveProperty("zz");
     });
+
+    it("removes zz from the address bar and keeps other params and the hash", () => {
+      setLocation("/messages/chats/1", "?zz=abc123&tab=info#latest");
+
+      render(
+        <AnalyticsProvider>
+          <div />
+        </AnalyticsProvider>,
+      );
+
+      expect(window.location.pathname).toBe("/messages/chats/1");
+      expect(window.location.search).toBe("?tab=info");
+      expect(window.location.hash).toBe("#latest");
+    });
+
+    it("leaves the address bar alone when zz is not present", () => {
+      setLocation("/search", "?q=paris");
+      const replaceStateSpy = jest.spyOn(window.history, "replaceState");
+
+      render(
+        <AnalyticsProvider>
+          <div />
+        </AnalyticsProvider>,
+      );
+
+      expect(replaceStateSpy).not.toHaveBeenCalled();
+      expect(window.location.search).toBe("?q=paris");
+      replaceStateSpy.mockRestore();
+    });
   });
 
   describe("route change tracking", () => {

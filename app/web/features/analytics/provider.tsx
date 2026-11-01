@@ -63,6 +63,17 @@ function getFilteredSearch(queryString: string): string | null {
 }
 
 /**
+ * Remove zz from the address bar so it isn't shared, bookmarked or re-logged on reload.
+ */
+function removeZzFromAddressBar() {
+  const url = new URL(window.location.href);
+  if (!url.searchParams.has("zz")) return;
+  url.searchParams.delete("zz");
+  // bypass the Next router so this can't race with redirects (e.g. to login)
+  window.history.replaceState(window.history.state, "", url.toString());
+}
+
+/**
  * Provider component that enables automatic analytics tracking.
  *
  * Handles the complete analytics lifecycle:
@@ -105,6 +116,8 @@ export default function AnalyticsProvider({ children }: { children: ReactNode })
       previous_path: null,
       time_on_previous_page: null,
     });
+
+    removeZzFromAddressBar();
 
     previousPathRef.current = window.location.pathname;
     previousTimestampRef.current = Date.now();
