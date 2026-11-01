@@ -16,7 +16,7 @@ from couchers.i18n.localize import format_phone_number
 from couchers.models import Notification, NotificationTopicAction
 from couchers.notifications.locales import get_notifs_i18next
 from couchers.notifications.push import PushNotificationContent
-from couchers.proto import api_pb2, notification_data_pb2
+from couchers.proto import api_pb2, notification_data_pb2, requests_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -526,12 +526,19 @@ def _render_general__new_blog_post(
     )
 
 
+def _stay_string_group(
+    topic_action: NotificationTopicAction, host_request: requests_pb2.HostRequest
+) -> NotificationTopicAction | str:
+    key = "invitation" if host_request.public_trip_id else "host_request"
+    return f"{key}.{topic_action.action}.push"
+
+
 def _render_host_request__create(
     data: notification_data_pb2.HostRequestCreate, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     night_count = (date.fromisoformat(data.host_request.to_date) - date.fromisoformat(data.host_request.from_date)).days
     return _get_content(
-        NotificationTopicAction.host_request__create,
+        _stay_string_group(NotificationTopicAction.host_request__create, data.host_request),
         loc_context,
         substitutions={
             "user": data.initiator.name,
@@ -572,7 +579,7 @@ def _render_host_request__reminder(
     data: notification_data_pb2.HostRequestReminder, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.host_request__reminder,
+        _stay_string_group(NotificationTopicAction.host_request__reminder, data.host_request),
         loc_context,
         substitutions={"user": data.initiator.name},
         icon_user=data.initiator,
@@ -584,7 +591,7 @@ def _render_host_request__accept(
     data: notification_data_pb2.HostRequestAccept, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.host_request__accept,
+        _stay_string_group(NotificationTopicAction.host_request__accept, data.host_request),
         loc_context,
         substitutions={
             "user": data.recipient.name,
@@ -599,7 +606,7 @@ def _render_host_request__reject(
     data: notification_data_pb2.HostRequestReject, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.host_request__reject,
+        _stay_string_group(NotificationTopicAction.host_request__reject, data.host_request),
         loc_context,
         substitutions={
             "user": data.recipient.name,
@@ -614,7 +621,7 @@ def _render_host_request__cancel(
     data: notification_data_pb2.HostRequestCancel, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.host_request__cancel,
+        _stay_string_group(NotificationTopicAction.host_request__cancel, data.host_request),
         loc_context,
         substitutions={
             "user": data.initiator.name,
@@ -629,7 +636,7 @@ def _render_host_request__confirm(
     data: notification_data_pb2.HostRequestConfirm, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.host_request__confirm,
+        _stay_string_group(NotificationTopicAction.host_request__confirm, data.host_request),
         loc_context,
         substitutions={
             "user": data.initiator.name,
