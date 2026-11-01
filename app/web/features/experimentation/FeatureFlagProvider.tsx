@@ -65,6 +65,13 @@ if (typeof window !== "undefined") {
   Object.defineProperty(window, "couchersFlags", { get: getFeatureFlagSnapshot, configurable: true });
 }
 
+// set by app/mobile/scripts/store-screenshots, to turn off features that are on in dev but not live yet
+if (process.env.NEXT_PUBLIC_STORE_SCREENSHOTS_FORCED_FLAGS) {
+  growthbook.setForcedFeatures(
+    new Map(Object.entries(JSON.parse(process.env.NEXT_PUBLIC_STORE_SCREENSHOTS_FORCED_FLAGS))),
+  );
+}
+
 export default function FeatureFlagProvider({ children }: { children: ReactNode }) {
   const { authState } = useAuthContext();
 

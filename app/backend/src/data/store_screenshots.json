@@ -1,0 +1,1369 @@
+{
+  "demo_username": "maya_r",
+  "home_community": {
+    "name": "Carlton",
+    "parent": "Melbourne",
+    "coordinates": [
+      [
+        144.958,
+        -37.809
+      ],
+      [
+        144.976,
+        -37.809
+      ],
+      [
+        144.976,
+        -37.79
+      ],
+      [
+        144.958,
+        -37.79
+      ],
+      [
+        144.958,
+        -37.809
+      ]
+    ],
+    "description": "Travelers and locals in Carlton and the inner north of Melbourne.",
+    "content": "Welcome to the Carlton community! We're hosts, surfers and locals who love meeting people from all over the world. Join us for picnics in Carlton Gardens, language exchanges and our monthly potluck.",
+    "location": {
+      "lat": -37.8001,
+      "lng": 144.9671,
+      "address": "Carlton, Melbourne VIC, Australia"
+    }
+  },
+  "users": [
+    {
+      "username": "maya_r",
+      "name": "Maya",
+      "location": {
+        "city": "Carlton, Melbourne",
+        "lat": -37.8001,
+        "lng": 144.9671,
+        "radius": 500
+      },
+      "gender": "Woman",
+      "birthdate": {
+        "year": 1993,
+        "month": 4,
+        "day": 12
+      },
+      "occupation": "UX designer",
+      "hosting_status": "HOSTING_STATUS_MAYBE",
+      "languages": [
+        [
+          "eng",
+          "fluent"
+        ],
+        [
+          "spa",
+          "conversational"
+        ]
+      ],
+      "regions_visited": [
+        "PRT",
+        "MEX",
+        "JPN",
+        "ISL",
+        "MAR"
+      ],
+      "regions_lived": [
+        "AUS",
+        "ESP"
+      ],
+      "about_me": "Designer, slow traveler and enthusiastic home cook. I've surfed on four continents and host whenever my little Carlton apartment allows. Ask me about the best dumplings in Chinatown or where to get a proper flat white.",
+      "about_place": "A cozy one-bedroom near Carlton Gardens with a very comfortable couch and a very opinionated cat.",
+      "avatar": {
+        "skin": 2,
+        "hair": "curly",
+        "hair_color": "dark brown"
+      }
+    },
+    {
+      "username": "ines_s",
+      "name": "Inês",
+      "location": {
+        "city": "Lisbon, Portugal",
+        "lat": 38.7114,
+        "lng": -9.13,
+        "radius": 500
+      },
+      "gender": "Woman",
+      "birthdate": {
+        "year": 1990,
+        "month": 9,
+        "day": 3
+      },
+      "occupation": "Tile restorer",
+      "hosting_status": "HOSTING_STATUS_CAN_HOST",
+      "languages": [
+        [
+          "por",
+          "fluent"
+        ],
+        [
+          "eng",
+          "fluent"
+        ],
+        [
+          "fra",
+          "conversational"
+        ]
+      ],
+      "regions_visited": [
+        "ESP",
+        "FRA",
+        "ITA",
+        "BRA",
+        "CPV"
+      ],
+      "regions_lived": [
+        "PRT"
+      ],
+      "about_me": "I restore azulejos, Lisbon's painted tiles, in a small workshop in Alfama. I love showing guests the hidden miradouros, sharing a late dinner and swapping travel stories over vinho verde.",
+      "about_place": "A sunny flat at the top of a very steep street in Alfama. You'll have the sofa bed in the living room, with a view over the river.",
+      "avatar": {
+        "skin": 1,
+        "hair": "long",
+        "hair_color": "dark brown"
+      }
+    },
+    {
+      "username": "tiago_m",
+      "name": "Tiago",
+      "location": {
+        "city": "Lisbon, Portugal",
+        "lat": 38.7176,
+        "lng": -9.131,
+        "radius": 500
+      },
+      "gender": "Man",
+      "birthdate": {
+        "year": 1987,
+        "month": 1,
+        "day": 22
+      },
+      "occupation": "Chef",
+      "hosting_status": "HOSTING_STATUS_CAN_HOST",
+      "languages": [
+        [
+          "por",
+          "fluent"
+        ],
+        [
+          "eng",
+          "fluent"
+        ],
+        [
+          "spa",
+          "fluent"
+        ]
+      ],
+      "regions_visited": [
+        "ESP",
+        "PER",
+        "THA",
+        "VNM"
+      ],
+      "regions_lived": [
+        "PRT",
+        "ESP"
+      ],
+      "about_me": "I cook at a small tasca in Graça and I'm always happy to feed my guests. Markets, fado and long walks along the river are my favourite way to show off the city.",
+      "about_place": "Shared apartment with a guest room and a kitchen you are welcome to use.",
+      "avatar": {
+        "skin": 3,
+        "hair": "short",
+        "hair_color": "black"
+      }
+    },
+    {
+      "username": "amara_o",
+      "name": "Amara",
+      "location": {
+        "city": "Lisbon, Portugal",
+        "lat": 38.729,
+        "lng": -9.135,
+        "radius": 500
+      },
+      "gender": "Woman",
+      "birthdate": {
+        "year": 1995,
+        "month": 6,
+        "day": 30
+      },
+      "occupation": "Marine biologist",
+      "hosting_status": "HOSTING_STATUS_CAN_HOST",
+      "languages": [
+        [
+          "eng",
+          "fluent"
+        ],
+        [
+          "yor",
+          "fluent"
+        ],
+        [
+          "por",
+          "conversational"
+        ]
+      ],
+      "regions_visited": [
+        "NGA",
+        "GHA",
+        "ESP",
+        "IDN"
+      ],
+      "regions_lived": [
+        "NGA",
+        "GBR",
+        "PRT"
+      ],
+      "about_me": "I study dolphins in the Tagus estuary and spend weekends surfing. Happy to host fellow ocean lovers and anyone who wants to try the best pastéis de nata in Arroios.",
+      "about_place": "Bright guest room with its own desk, five minutes from the metro.",
+      "avatar": {
+        "skin": 5,
+        "hair": "bun",
+        "hair_color": "black"
+      }
+    },
+    {
+      "username": "jonas_b",
+      "name": "Jonas",
+      "location": {
+        "city": "Lisbon, Portugal",
+        "lat": 38.7135,
+        "lng": -9.16,
+        "radius": 500
+      },
+      "gender": "Man",
+      "birthdate": {
+        "year": 1984,
+        "month": 11,
+        "day": 8
+      },
+      "occupation": "Bike mechanic",
+      "hosting_status": "HOSTING_STATUS_MAYBE",
+      "languages": [
+        [
+          "deu",
+          "fluent"
+        ],
+        [
+          "eng",
+          "fluent"
+        ],
+        [
+          "por",
+          "conversational"
+        ]
+      ],
+      "regions_visited": [
+        "PRT",
+        "NLD",
+        "DNK",
+        "CHL"
+      ],
+      "regions_lived": [
+        "DEU",
+        "PRT"
+      ],
+      "about_me": "Moved from Hamburg for the light and stayed for the people. I can lend you a bike, tell you which hills to avoid and where to find the best bifana in town.",
+      "about_place": "Air mattress in the studio, bikes in the hallway.",
+      "avatar": {
+        "skin": 0,
+        "hair": "side",
+        "hair_color": "blond"
+      }
+    },
+    {
+      "username": "leila_k",
+      "name": "Leila",
+      "location": {
+        "city": "Lisbon, Portugal",
+        "lat": 38.705,
+        "lng": -9.177,
+        "radius": 500
+      },
+      "gender": "Woman",
+      "birthdate": {
+        "year": 1992,
+        "month": 3,
+        "day": 17
+      },
+      "occupation": "Architect",
+      "hosting_status": "HOSTING_STATUS_CAN_HOST",
+      "languages": [
+        [
+          "fas",
+          "fluent"
+        ],
+        [
+          "eng",
+          "fluent"
+        ],
+        [
+          "por",
+          "fluent"
+        ]
+      ],
+      "regions_visited": [
+        "TUR",
+        "GRC",
+        "ITA",
+        "PRT"
+      ],
+      "regions_lived": [
+        "IRN",
+        "PRT"
+      ],
+      "about_me": "I design homes and love talking about buildings, cities and food. Hosting has given me friends all over the world, and I always learn something from my guests.",
+      "about_place": "Private room in a renovated warehouse flat near the LX Factory.",
+      "avatar": {
+        "skin": 1,
+        "hair": "long",
+        "hair_color": "black"
+      }
+    },
+    {
+      "username": "rui_c",
+      "name": "Rui",
+      "location": {
+        "city": "Lisbon, Portugal",
+        "lat": 38.718,
+        "lng": -9.166,
+        "radius": 500
+      },
+      "gender": "Man",
+      "birthdate": {
+        "year": 1979,
+        "month": 7,
+        "day": 2
+      },
+      "occupation": "Jazz pianist",
+      "hosting_status": "HOSTING_STATUS_CAN_HOST",
+      "languages": [
+        [
+          "por",
+          "fluent"
+        ],
+        [
+          "eng",
+          "conversational"
+        ]
+      ],
+      "regions_visited": [
+        "USA",
+        "FRA",
+        "BEL"
+      ],
+      "regions_lived": [
+        "PRT"
+      ],
+      "about_me": "Musician, early riser and terrible at goodbyes. If you like music you're welcome at my Thursday jam sessions, and I'll happily point you to the best fado houses.",
+      "about_place": "Spare room above a bakery in Campo de Ourique. Yes, it smells amazing.",
+      "avatar": {
+        "skin": 1,
+        "hair": "buzz",
+        "hair_color": "grey"
+      }
+    },
+    {
+      "username": "sofia_p",
+      "name": "Luan",
+      "location": {
+        "city": "Lisbon, Portugal",
+        "lat": 38.6975,
+        "lng": -9.206,
+        "radius": 500
+      },
+      "gender": "Non-binary",
+      "birthdate": {
+        "year": 1998,
+        "month": 12,
+        "day": 19
+      },
+      "occupation": "History student",
+      "hosting_status": "HOSTING_STATUS_MAYBE",
+      "languages": [
+        [
+          "por",
+          "fluent"
+        ],
+        [
+          "eng",
+          "fluent"
+        ],
+        [
+          "spa",
+          "conversational"
+        ]
+      ],
+      "regions_visited": [
+        "ITA",
+        "ESP",
+        "ARG"
+      ],
+      "regions_lived": [
+        "BRA",
+        "PRT"
+      ],
+      "about_me": "Brazilian history student researching the Age of Discoveries, and happy to give an unofficial tour of Belém. I love meeting people from everywhere over a coffee and a pastel de nata.",
+      "about_place": "Couch in a shared student flat. Lively, friendly and close to the river.",
+      "avatar": {
+        "skin": 3,
+        "hair": "curly",
+        "hair_color": "dark brown"
+      }
+    },
+    {
+      "username": "kenji_t",
+      "name": "Kenji",
+      "location": {
+        "city": "Lisbon, Portugal",
+        "lat": 38.768,
+        "lng": -9.094,
+        "radius": 500
+      },
+      "gender": "Man",
+      "birthdate": {
+        "year": 1989,
+        "month": 5,
+        "day": 25
+      },
+      "occupation": "Software engineer",
+      "hosting_status": "HOSTING_STATUS_CAN_HOST",
+      "languages": [
+        [
+          "jpn",
+          "fluent"
+        ],
+        [
+          "eng",
+          "fluent"
+        ],
+        [
+          "por",
+          "beginner"
+        ]
+      ],
+      "regions_visited": [
+        "KOR",
+        "PRT",
+        "ESP",
+        "CAN"
+      ],
+      "regions_lived": [
+        "JPN",
+        "CAN",
+        "PRT"
+      ],
+      "about_me": "Remote worker, amateur photographer and ramen perfectionist. I moved here two years ago and love meeting travelers from everywhere and exploring new neighbourhoods.",
+      "about_place": "Guest room with a view of the Vasco da Gama bridge.",
+      "avatar": {
+        "skin": 1,
+        "hair": "short",
+        "hair_color": "black"
+      }
+    },
+    {
+      "username": "marta_l",
+      "name": "Marta",
+      "location": {
+        "city": "Almada, Portugal",
+        "lat": 38.679,
+        "lng": -9.157,
+        "radius": 500
+      },
+      "gender": "Woman",
+      "birthdate": {
+        "year": 1986,
+        "month": 8,
+        "day": 14
+      },
+      "occupation": "Surf instructor",
+      "hosting_status": "HOSTING_STATUS_CAN_HOST",
+      "languages": [
+        [
+          "por",
+          "fluent"
+        ],
+        [
+          "eng",
+          "fluent"
+        ],
+        [
+          "spa",
+          "conversational"
+        ]
+      ],
+      "regions_visited": [
+        "MAR",
+        "IDN",
+        "AUS",
+        "CRI"
+      ],
+      "regions_lived": [
+        "PRT"
+      ],
+      "about_me": "Across the river from Lisbon, ten minutes from the beach. I'll take you surfing if the waves are good and to my favourite seafood place in Cacilhas if they're not.",
+      "about_place": "Small house with a garden and a hammock.",
+      "avatar": {
+        "skin": 2,
+        "hair": "bob",
+        "hair_color": "brown"
+      }
+    },
+    {
+      "username": "daniel_a",
+      "name": "Daniel",
+      "location": {
+        "city": "Queens, New York",
+        "lat": 40.7282,
+        "lng": -73.7949,
+        "radius": 500
+      },
+      "gender": "Man",
+      "birthdate": {
+        "year": 1991,
+        "month": 2,
+        "day": 9
+      },
+      "occupation": "High school teacher",
+      "hosting_status": "HOSTING_STATUS_CAN_HOST",
+      "languages": [
+        [
+          "eng",
+          "fluent"
+        ],
+        [
+          "kor",
+          "fluent"
+        ]
+      ],
+      "regions_visited": [
+        "KOR",
+        "CAN",
+        "PRT"
+      ],
+      "regions_lived": [
+        "USA"
+      ],
+      "about_me": "Teacher by day, community organizer by weekend in Queens. I'm visiting Melbourne for a teaching conference and love meeting locals wherever I go, especially over good food.",
+      "about_place": "Guest room in a family house, close to the 7 train.",
+      "avatar": {
+        "skin": 1,
+        "hair": "short",
+        "hair_color": "black"
+      }
+    },
+    {
+      "username": "priya_n",
+      "name": "Priya",
+      "location": {
+        "city": "Brunswick, Melbourne",
+        "lat": -37.7667,
+        "lng": 144.96,
+        "radius": 500
+      },
+      "gender": "Woman",
+      "birthdate": {
+        "year": 1994,
+        "month": 10,
+        "day": 1
+      },
+      "occupation": "Doctor",
+      "hosting_status": "HOSTING_STATUS_MAYBE",
+      "languages": [
+        [
+          "eng",
+          "fluent"
+        ],
+        [
+          "hin",
+          "fluent"
+        ],
+        [
+          "fra",
+          "conversational"
+        ]
+      ],
+      "regions_visited": [
+        "IND",
+        "FRA",
+        "PRT",
+        "PER"
+      ],
+      "regions_lived": [
+        "IND",
+        "AUS"
+      ],
+      "about_me": "Doctor working night shifts, morning runner around Princes Park and a regular at our language exchange. I host when my schedule allows and always have time for a coffee with travelers.",
+      "about_place": "Couch in a sunny terrace house in Brunswick.",
+      "avatar": {
+        "skin": 3,
+        "hair": "long",
+        "hair_color": "black"
+      }
+    },
+    {
+      "username": "luca_r",
+      "name": "Omar",
+      "location": {
+        "city": "Collingwood, Melbourne",
+        "lat": -37.802,
+        "lng": 144.988,
+        "radius": 500
+      },
+      "gender": "Man",
+      "birthdate": {
+        "year": 1988,
+        "month": 4,
+        "day": 27
+      },
+      "occupation": "Photographer",
+      "hosting_status": "HOSTING_STATUS_CAN_HOST",
+      "languages": [
+        [
+          "arz",
+          "fluent"
+        ],
+        [
+          "eng",
+          "fluent"
+        ],
+        [
+          "fra",
+          "conversational"
+        ]
+      ],
+      "regions_visited": [
+        "JOR",
+        "GRC",
+        "PRT",
+        "MAR"
+      ],
+      "regions_lived": [
+        "EGY",
+        "AUS"
+      ],
+      "about_me": "I photograph the city at sunrise along the Yarra and lead the occasional bike ride. Originally from Alexandria, so I'll always find the best falafel in the neighbourhood and cook for you if you let me.",
+      "about_place": "Sofa bed in a warehouse apartment in Collingwood.",
+      "avatar": {
+        "skin": 3,
+        "hair": "short",
+        "hair_color": "black"
+      }
+    },
+    {
+      "username": "zoe_w",
+      "name": "Zoë",
+      "location": {
+        "city": "Fitzroy North, Melbourne",
+        "lat": -37.788,
+        "lng": 144.98,
+        "radius": 500
+      },
+      "gender": "Woman",
+      "birthdate": {
+        "year": 1997,
+        "month": 1,
+        "day": 15
+      },
+      "occupation": "Illustrator",
+      "hosting_status": "HOSTING_STATUS_CAN_HOST",
+      "languages": [
+        [
+          "eng",
+          "fluent"
+        ],
+        [
+          "spa",
+          "fluent"
+        ]
+      ],
+      "regions_visited": [
+        "MEX",
+        "COL",
+        "PRT"
+      ],
+      "regions_lived": [
+        "MEX",
+        "AUS"
+      ],
+      "about_me": "Illustrator and barista who bakes far too much for our potlucks. I love sketching with guests in Carlton Gardens and showing them the laneways and street art of Fitzroy.",
+      "about_place": "Air mattress and a lot of houseplants.",
+      "avatar": {
+        "skin": 4,
+        "hair": "curly",
+        "hair_color": "black"
+      }
+    },
+    {
+      "username": "felix_h",
+      "name": "Felix",
+      "location": {
+        "city": "Berlin, Germany",
+        "lat": 52.52,
+        "lng": 13.405,
+        "radius": 500
+      },
+      "gender": "Man",
+      "birthdate": {
+        "year": 1990,
+        "month": 6,
+        "day": 6
+      },
+      "occupation": "Sound engineer",
+      "hosting_status": "HOSTING_STATUS_CAN_HOST",
+      "languages": [
+        [
+          "deu",
+          "fluent"
+        ],
+        [
+          "eng",
+          "fluent"
+        ]
+      ],
+      "regions_visited": [
+        "USA",
+        "PRT",
+        "POL"
+      ],
+      "regions_lived": [
+        "DEU"
+      ],
+      "about_me": "Recording engineer from Berlin, visiting New York for a music festival. When I'm home I host in Kreuzberg and love taking guests to small concerts and flea markets.",
+      "about_place": "Couch in Kreuzberg, close to the canal.",
+      "avatar": {
+        "skin": 0,
+        "hair": "short",
+        "hair_color": "brown"
+      }
+    },
+    {
+      "username": "valeria_g",
+      "name": "Valeria",
+      "location": {
+        "city": "Roma Norte, Mexico City",
+        "lat": 19.4194,
+        "lng": -99.1626,
+        "radius": 500
+      },
+      "gender": "Woman",
+      "birthdate": {
+        "year": 1991,
+        "month": 2,
+        "day": 28
+      },
+      "occupation": "Food writer",
+      "hosting_status": "HOSTING_STATUS_CAN_HOST",
+      "languages": [
+        [
+          "spa",
+          "fluent"
+        ],
+        [
+          "eng",
+          "fluent"
+        ],
+        [
+          "fra",
+          "beginner"
+        ]
+      ],
+      "regions_visited": [
+        "COL",
+        "PER",
+        "ESP",
+        "AUS"
+      ],
+      "regions_lived": [
+        "MEX"
+      ],
+      "about_me": "I write about street food and know every taquería in Roma Norte. Guests get a tour of the market, my abuela's mole recipe and a strong opinion on salsa verde versus salsa roja.",
+      "about_place": "Guest room in a 1920s building with a little balcony full of plants.",
+      "avatar": {
+        "skin": 2,
+        "hair": "long",
+        "hair_color": "dark brown"
+      }
+    },
+    {
+      "username": "hana_k",
+      "name": "Hana",
+      "location": {
+        "city": "Seoul, South Korea",
+        "lat": 37.5665,
+        "lng": 126.978,
+        "radius": 500
+      },
+      "gender": "Woman",
+      "birthdate": {
+        "year": 1996,
+        "month": 9,
+        "day": 14
+      },
+      "occupation": "Product designer",
+      "hosting_status": "HOSTING_STATUS_CAN_HOST",
+      "languages": [
+        [
+          "kor",
+          "fluent"
+        ],
+        [
+          "eng",
+          "fluent"
+        ],
+        [
+          "jpn",
+          "conversational"
+        ]
+      ],
+      "regions_visited": [
+        "JPN",
+        "VNM",
+        "AUS",
+        "PRT"
+      ],
+      "regions_lived": [
+        "KOR"
+      ],
+      "about_me": "Product designer from Seoul on my first big trip to Australia. I love coffee, design museums and long walks, and I host in Mapo whenever friends from Couchers come through.",
+      "about_place": "Small apartment in Mapo with a floor mattress and a great view.",
+      "avatar": {
+        "skin": 1,
+        "hair": "bob",
+        "hair_color": "black"
+      }
+    }
+  ],
+  "community_members": [
+    "maya_r",
+    "priya_n",
+    "luca_r",
+    "zoe_w"
+  ],
+  "friendships": [
+    [
+      "maya_r",
+      "zoe_w"
+    ],
+    [
+      "maya_r",
+      "priya_n"
+    ],
+    [
+      "maya_r",
+      "luca_r"
+    ],
+    [
+      "ines_s",
+      "tiago_m"
+    ]
+  ],
+  "references": [
+    {
+      "from": "amara_o",
+      "to": "ines_s",
+      "type": "surfed",
+      "text": "Inês is the kind of host who makes you feel like you've lived in Lisbon for years. She took me to a miradouro I'd never have found and her workshop is magical."
+    },
+    {
+      "from": "felix_h",
+      "to": "ines_s",
+      "type": "surfed",
+      "text": "Warm, funny and a fantastic cook. The view from her living room is unreal. I can't wait to host her in Berlin."
+    },
+    {
+      "from": "tiago_m",
+      "to": "ines_s",
+      "type": "friend",
+      "text": "One of the kindest people I know. Every guest leaves as a friend."
+    },
+    {
+      "from": "kenji_t",
+      "to": "ines_s",
+      "type": "surfed",
+      "text": "Super easy to communicate with and so generous with her time. A perfect first couch surfing experience."
+    },
+    {
+      "from": "ines_s",
+      "to": "maya_r",
+      "type": "hosted",
+      "text": "Maya was a wonderful guest. Thoughtful, curious and she left the kitchen cleaner than she found it."
+    },
+    {
+      "from": "zoe_w",
+      "to": "maya_r",
+      "type": "friend",
+      "text": "Maya is the heart of our Carlton meetups. Always the first to welcome new people."
+    },
+    {
+      "from": "ines_s",
+      "to": "tiago_m",
+      "type": "friend",
+      "text": "Tiago cooked the best dinner of my trip and showed me fado in a tiny bar I'd never have found."
+    },
+    {
+      "from": "amara_o",
+      "to": "tiago_m",
+      "type": "friend",
+      "text": "Generous, funny and always up for a long walk around the city."
+    },
+    {
+      "from": "leila_k",
+      "to": "amara_o",
+      "type": "friend",
+      "text": "Amara knows every beach around Lisbon and is the most thoughtful friend."
+    },
+    {
+      "from": "kenji_t",
+      "to": "amara_o",
+      "type": "friend",
+      "text": "A wonderful person to explore the city with. Her enthusiasm is contagious."
+    },
+    {
+      "from": "marta_l",
+      "to": "jonas_b",
+      "type": "friend",
+      "text": "Jonas fixed my bike and then took me on the best ride along the river."
+    },
+    {
+      "from": "rui_c",
+      "to": "leila_k",
+      "type": "friend",
+      "text": "Leila is warm, curious and a brilliant host. Her flat is beautiful."
+    },
+    {
+      "from": "tiago_m",
+      "to": "leila_k",
+      "type": "friend",
+      "text": "Always welcoming and full of great recommendations."
+    },
+    {
+      "from": "leila_k",
+      "to": "rui_c",
+      "type": "friend",
+      "text": "Rui's Thursday sessions are the highlight of my week."
+    },
+    {
+      "from": "sofia_p",
+      "to": "rui_c",
+      "type": "friend",
+      "text": "Kind, funny and a fantastic musician. A true Lisbon character."
+    },
+    {
+      "from": "ines_s",
+      "to": "sofia_p",
+      "type": "friend",
+      "text": "Luan gave me the best history tour of Belém. So much knowledge and so much fun."
+    },
+    {
+      "from": "jonas_b",
+      "to": "kenji_t",
+      "type": "friend",
+      "text": "Kenji is thoughtful and easy-going, and makes incredible ramen."
+    },
+    {
+      "from": "amara_o",
+      "to": "kenji_t",
+      "type": "friend",
+      "text": "A calm, kind host with a great sense of humour."
+    },
+    {
+      "from": "ines_s",
+      "to": "marta_l",
+      "type": "friend",
+      "text": "Marta took me surfing for the first time and I've been hooked ever since."
+    },
+    {
+      "from": "kenji_t",
+      "to": "marta_l",
+      "type": "friend",
+      "text": "Her garden is a little paradise. Can't recommend her enough."
+    }
+  ],
+  "host_requests": [
+    {
+      "surfer": "maya_r",
+      "host": "ines_s",
+      "from_days": 18,
+      "nights": 4,
+      "status": "confirmed",
+      "messages": [
+        {
+          "author": "maya_r",
+          "minutes_ago": 4320,
+          "text": "Olá Inês! I'm visiting Lisbon for a design conference and would love to stay with you for a few nights. Your tile workshop sounds amazing, I'd love to hear how you restore azulejos. I'm tidy, cook a mean shakshuka and happy to fit around your schedule."
+        },
+        {
+          "author": "ines_s",
+          "minutes_ago": 4100,
+          "text": "Olá Maya! Those dates work perfectly. The sofa bed is yours 🙂 I'm at the workshop until 6 most days, but you're welcome to come by and see the tiles."
+        },
+        {
+          "author": "ines_s",
+          "minutes_ago": 4099,
+          "status_change": "accepted"
+        },
+        {
+          "author": "maya_r",
+          "minutes_ago": 4069,
+          "status_change": "confirmed"
+        },
+        {
+          "author": "maya_r",
+          "minutes_ago": 2900,
+          "text": "Amazing, thank you! I land at 2pm on the first day. Is it ok if I drop my bag around 4?"
+        },
+        {
+          "author": "ines_s",
+          "minutes_ago": 2700,
+          "text": "Of course. Take the 28 tram to Largo das Portas do Sol, my place is two minutes away. Tiago is also organising a sunset picnic while you're here, you should come!"
+        },
+        {
+          "author": "maya_r",
+          "minutes_ago": 45,
+          "text": "Yes please! Can't wait. Let me know if you'd like anything from Melbourne 🦘"
+        }
+      ]
+    },
+    {
+      "surfer": "maya_r",
+      "host": "valeria_g",
+      "from_days": 31,
+      "nights": 5,
+      "status": "confirmed",
+      "messages": [
+        {
+          "author": "maya_r",
+          "minutes_ago": 9000,
+          "text": "Hola Valeria! I'm heading to Mexico City after Lisbon and your food tours sound incredible. Could I stay with you for five nights?"
+        },
+        {
+          "author": "valeria_g",
+          "minutes_ago": 8800,
+          "text": "¡Hola Maya! Claro que sí. I'm running a taco walk that week, you're coming with me."
+        },
+        {
+          "author": "valeria_g",
+          "minutes_ago": 8799,
+          "status_change": "accepted"
+        },
+        {
+          "author": "maya_r",
+          "minutes_ago": 8700,
+          "status_change": "confirmed"
+        },
+        {
+          "author": "maya_r",
+          "minutes_ago": 8600,
+          "text": "I've been practising my Spanish just for this. ¡Gracias!"
+        }
+      ]
+    },
+    {
+      "surfer": "hana_k",
+      "host": "maya_r",
+      "from_days": 6,
+      "nights": 3,
+      "status": "confirmed",
+      "messages": [
+        {
+          "author": "hana_k",
+          "minutes_ago": 7000,
+          "text": "Hi Maya! I'm visiting Melbourne for the design festival and your place looks lovely. Could I stay for three nights?"
+        },
+        {
+          "author": "maya_r",
+          "minutes_ago": 6800,
+          "text": "Hi Hana! I'd love to have you. The couch is yours, the cat comes included."
+        },
+        {
+          "author": "maya_r",
+          "minutes_ago": 6799,
+          "status_change": "accepted"
+        },
+        {
+          "author": "hana_k",
+          "minutes_ago": 6700,
+          "status_change": "confirmed"
+        },
+        {
+          "author": "hana_k",
+          "minutes_ago": 300,
+          "text": "Thank you! I'll bring some snacks from Seoul for you (and treats for the cat)."
+        }
+      ]
+    },
+    {
+      "surfer": "daniel_a",
+      "host": "maya_r",
+      "from_days": 12,
+      "nights": 2,
+      "status": "confirmed",
+      "messages": [
+        {
+          "author": "daniel_a",
+          "minutes_ago": 5000,
+          "text": "Hi Maya, I'm in Melbourne for a teaching conference. Could I crash for two nights? Happy to cook dinner one evening."
+        },
+        {
+          "author": "maya_r",
+          "minutes_ago": 4900,
+          "text": "Sounds great Daniel, see you then! There's a potluck that weekend if you'd like to come."
+        },
+        {
+          "author": "maya_r",
+          "minutes_ago": 4899,
+          "status_change": "accepted"
+        },
+        {
+          "author": "daniel_a",
+          "minutes_ago": 4800,
+          "status_change": "confirmed"
+        }
+      ]
+    }
+  ],
+  "direct_messages": [
+    {
+      "with": "zoe_w",
+      "messages": [
+        {
+          "author": "zoe_w",
+          "minutes_ago": 200,
+          "text": "Are you coming to the potluck? I'm making empanadas again 🥟"
+        },
+        {
+          "author": "maya_r",
+          "minutes_ago": 150,
+          "text": "Wouldn't miss it! I'll bring a salad and my famous lemon cake."
+        },
+        {
+          "author": "zoe_w",
+          "minutes_ago": 20,
+          "text": "Yesss. See you there!"
+        }
+      ]
+    },
+    {
+      "with": "priya_n",
+      "messages": [
+        {
+          "author": "priya_n",
+          "minutes_ago": 1500,
+          "text": "Thanks for helping with the picnic sign-ups this week!"
+        },
+        {
+          "author": "maya_r",
+          "minutes_ago": 1440,
+          "text": "Anytime! Want me to bring the frisbees?"
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "title": "Sunday picnic in Carlton Gardens",
+      "community": "Carlton",
+      "organizer": "zoe_w",
+      "in_days": 1,
+      "start": "12:00",
+      "hours": 4,
+      "address": "Carlton Gardens, Melbourne",
+      "lat": -37.806,
+      "lng": 144.9714,
+      "attendees": [
+        "maya_r",
+        "priya_n",
+        "luca_r"
+      ],
+      "cover": "picnic",
+      "content": "Bring a blanket, something to share and a friend. We'll be near the fountain, look for the orange flag! Everyone is welcome, including newcomers and travelers passing through.",
+      "timezone": "Australia/Melbourne"
+    },
+    {
+      "title": "Language exchange night",
+      "community": "Carlton",
+      "organizer": "priya_n",
+      "in_days": 2,
+      "start": "19:00",
+      "hours": 3,
+      "address": "Lygon Street, Carlton",
+      "lat": -37.7983,
+      "lng": 144.9671,
+      "attendees": [
+        "luca_r",
+        "zoe_w"
+      ],
+      "cover": "language",
+      "content": "Practise Spanish, Italian, Korean, Arabic or anything else you're learning. Tables are grouped by language and we switch every 30 minutes.",
+      "timezone": "Australia/Melbourne"
+    },
+    {
+      "title": "Sunrise ride along the Yarra",
+      "community": "Carlton",
+      "organizer": "luca_r",
+      "in_days": 2,
+      "start": "06:30",
+      "hours": 3,
+      "address": "Federation Square, Melbourne",
+      "lat": -37.818,
+      "lng": 144.9691,
+      "attendees": [
+        "zoe_w"
+      ],
+      "cover": "bike",
+      "content": "An easy-paced ride along the river at sunrise, followed by coffee and pastries. Share bikes are fine!",
+      "timezone": "Australia/Melbourne"
+    },
+    {
+      "title": "Couchers potluck dinner",
+      "community": "Carlton",
+      "organizer": "zoe_w",
+      "in_days": 9,
+      "start": "18:30",
+      "hours": 4,
+      "address": "CERES Community Park, Brunswick East",
+      "lat": -37.765,
+      "lng": 144.985,
+      "attendees": [
+        "maya_r",
+        "priya_n",
+        "luca_r"
+      ],
+      "cover": "potluck",
+      "content": "Our monthly potluck! Bring a dish from your home town or your last trip and the story behind it.",
+      "timezone": "Australia/Melbourne"
+    },
+    {
+      "title": "Day hike in the Dandenong Ranges",
+      "community": "Carlton",
+      "organizer": "luca_r",
+      "in_days": 13,
+      "start": "08:00",
+      "hours": 8,
+      "address": "Flinders Street Station, Melbourne",
+      "lat": -37.8183,
+      "lng": 144.9671,
+      "attendees": [
+        "priya_n"
+      ],
+      "cover": "hike",
+      "content": "We'll take the train to Belgrave and walk the 1000 Steps and the forest trails. Moderate difficulty, bring water and good shoes.",
+      "timezone": "Australia/Melbourne"
+    },
+    {
+      "title": "Sunset picnic at Senhora do Monte",
+      "community": "Global",
+      "organizer": "tiago_m",
+      "in_days": 19,
+      "start": "18:30",
+      "hours": 3,
+      "address": "Miradouro da Senhora do Monte, Lisbon",
+      "lat": 38.7192,
+      "lng": -9.1329,
+      "attendees": [
+        "maya_r",
+        "ines_s",
+        "amara_o",
+        "kenji_t"
+      ],
+      "cover": "sunset",
+      "content": "The best view in Lisbon! Bring something to share and enjoy the sunset over the city with travelers and locals.",
+      "timezone": "Europe/Lisbon"
+    },
+    {
+      "title": "Taco walk in Roma Norte",
+      "community": "Global",
+      "organizer": "valeria_g",
+      "in_days": 33,
+      "start": "13:00",
+      "hours": 4,
+      "address": "Mercado Medellín, Mexico City",
+      "lat": 19.4127,
+      "lng": -99.1652,
+      "attendees": [
+        "maya_r"
+      ],
+      "cover": "tacos",
+      "content": "A walking tour of my favourite taquerías and markets in Roma Norte. Come hungry!",
+      "timezone": "America/Mexico_City"
+    }
+  ],
+  "discussions": [
+    {
+      "creator": "priya_n",
+      "title": "Best spots to take first-time visitors?",
+      "content": "I host a lot of first-time visitors and I'm always torn between the classics and somewhere more local. Where do you take your guests?",
+      "minutes_ago": 2600,
+      "comments": [
+        {
+          "author": "luca_r",
+          "minutes_ago": 2400,
+          "text": "The Royal Botanic Gardens at sunrise, then breakfast in Fitzroy. Works every time."
+        },
+        {
+          "author": "zoe_w",
+          "minutes_ago": 1900,
+          "text": "Hosier Lane for the street art, then a walk along the river to Southbank."
+        },
+        {
+          "author": "maya_r",
+          "minutes_ago": 400,
+          "text": "I always take guests to Queen Victoria Market on a Saturday morning. Bring an empty stomach!"
+        }
+      ]
+    },
+    {
+      "creator": "luca_r",
+      "title": "Free walking tours this month",
+      "content": "Collecting the free walking tours happening around the city this month so we can share them with surfers. Add yours below!",
+      "minutes_ago": 1500,
+      "comments": [
+        {
+          "author": "priya_n",
+          "minutes_ago": 1300,
+          "text": "There's a free laneways tour every Sunday at 10am from the State Library."
+        },
+        {
+          "author": "maya_r",
+          "minutes_ago": 95,
+          "text": "Adding the Carlton history walk on the 14th. I'll share the details here."
+        }
+      ]
+    },
+    {
+      "creator": "zoe_w",
+      "title": "Hosting tips for small apartments",
+      "content": "My place is tiny but I love hosting. What are your best tricks for making guests comfortable when space is tight?",
+      "minutes_ago": 700,
+      "comments": [
+        {
+          "author": "maya_r",
+          "minutes_ago": 600,
+          "text": "A good room divider and a spare set of towels go a long way."
+        },
+        {
+          "author": "priya_n",
+          "minutes_ago": 380,
+          "text": "I leave a little welcome note with the wifi password and my favourite cafes nearby."
+        },
+        {
+          "author": "luca_r",
+          "minutes_ago": 150,
+          "text": "Earplugs and an eye mask by the couch. Guests always thank me for those."
+        },
+        {
+          "author": "zoe_w",
+          "minutes_ago": 25,
+          "text": "These are great, thank you all! Trying the welcome note this weekend."
+        }
+      ]
+    }
+  ]
+}
