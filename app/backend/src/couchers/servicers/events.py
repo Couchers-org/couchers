@@ -1,6 +1,6 @@
 import logging
 from collections.abc import Sequence
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from typing import Any, cast
 from zoneinfo import ZoneInfo
 
@@ -12,6 +12,7 @@ from sqlalchemy import Select, func, select
 from sqlalchemy.orm import Session, aliased
 from sqlalchemy.sql import and_, func, or_, tuple_, update
 
+from couchers.constants import EVENT_RECURRENCE_MAX_DURATION
 from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import can_moderate_node, get_parent_node_at_location, session_scope
 from couchers.email.calendar_events import create_event_ics_calendar
@@ -27,6 +28,7 @@ from couchers.models import (
     EventOccurrence,
     EventOccurrenceAttendee,
     EventOrganizer,
+    EventRecurrence,
     EventSubscription,
     ModerationObjectType,
     Node,
@@ -56,11 +58,13 @@ from couchers.tasks import send_event_community_invite_request_email
 from couchers.utils import (
     Timestamp_from_datetime,
     create_coordinate,
+    date_to_api,
     datetime_to_iso8601_local,
     dt_id_from_page_token,
     dt_id_to_page_token,
     not_none,
     now,
+    parse_date,
 )
 
 logger = logging.getLogger(__name__)
@@ -211,6 +215,18 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
         can_edit=can_edit,
         can_moderate=can_moderate,
         community_invite_requested=community_invite_requested,
+        recurrence=_recurrence_to_pb(event.recurrence) if event.recurrence else None,
+    )
+
+
+def _recurrence_to_pb(recurrence: EventRecurrence) -> events_pb2.EventRecurrence:
+    return events_pb2.EventRecurrence(
+        weekly=events_pb2.WeeklyEventRecurrence(
+            # isoweekday() numbering matches the DayOfWeek enum
+            day_of_week=cast(events_pb2.DayOfWeek.ValueType, recurrence.dtstart_date.isoweekday()),
+            weekly_interval=recurrence.rrule_interval,
+        ),
+        ends_on_date=date_to_api(recurrence.ends_on_date),
     )
 
 
@@ -314,6 +330,51 @@ def _check_occurrence_time_validity(start_time: datetime, end_time: datetime, co
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_too_long")
     if start_time - now() > timedelta(days=365):
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_too_far_in_future")
+
+
+def _check_recurrence(
+    recurrence: events_pb2.CreateEventRecurrence, start_datetime: datetime, context: CouchersContext
+) -> tuple[int, date]:
+    """Returns the rrule_interval and ends_on_date of a new recurrence."""
+    # Only weekly and biweekly recurrences are supported for now, see EventRecurrence
+    if recurrence.WhichOneof("rule") != "weekly_interval" or recurrence.weekly_interval not in (1, 2):
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_event_recurrence_rule")
+
+    ends_on_date = parse_date(recurrence.ends_on_date)
+    if not ends_on_date:
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_event_recurrence_end_date")
+    # start_datetime is local to the event's timezone, like ends_on_date
+    if ends_on_date < start_datetime.date():
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "event_recurrence_ends_before_starts")
+    if ends_on_date > start_datetime.date() + EVENT_RECURRENCE_MAX_DURATION:
+        ends_on_date = start_datetime.date() + EVENT_RECURRENCE_MAX_DURATION
+
+    return recurrence.weekly_interval, ends_on_date
+
+
+def _create_recurrence(session: Session, occurrence: EventOccurrence, rrule_interval: int, ends_on_date: date) -> None:
+    """Makes the occurrence's event recur, using the occurrence as the template and first date."""
+    timezone = ZoneInfo(occurrence.timezone)
+    start_datetime = occurrence.start_time.astimezone(timezone)
+    end_datetime = occurrence.end_time.astimezone(timezone)
+    session.add(
+        EventRecurrence(
+            event_id=occurrence.event_id,
+            content=occurrence.content,
+            # TODO(#9845): Initialize photo_key. Implies adding admin usage tracking infra.
+            geom=occurrence.geom,
+            address=occurrence.address,
+            timezone=occurrence.timezone,
+            dtstart_date=start_datetime.date(),
+            start_time=start_datetime.time(),
+            day_delta=(end_datetime.date() - start_datetime.date()).days,
+            end_time=end_datetime.time(),
+            rrule_interval=rrule_interval,
+            # The first occurrence is already scheduled
+            last_scheduled_date=start_datetime.date(),
+            ends_on_date=ends_on_date,
+        )
+    )
 
 
 def apply_occurrence_pagination(
@@ -564,6 +625,9 @@ class Events(events_pb2_grpc.EventsServicer):
         start_datetime = _check_iso8601_local_datetime(request.start_datetime_iso8601_local, timezone, context)
         end_datetime = _check_iso8601_local_datetime(request.end_datetime_iso8601_local, timezone, context)
         _check_occurrence_time_validity(start_datetime, end_datetime, context)
+        recurrence = (
+            _check_recurrence(request.recurrence, start_datetime, context) if request.HasField("recurrence") else None
+        )
 
         if request.parent_community_id:
             parent_node = session.execute(
@@ -627,6 +691,10 @@ class Events(events_pb2_grpc.EventsServicer):
 
         assert occurrence is not None
 
+        if recurrence is not None:
+            rrule_interval, ends_on_date = recurrence
+            _create_recurrence(session, occurrence, rrule_interval, ends_on_date)
+
         session.add(
             EventOrganizer(
                 user_id=context.user_id,
@@ -660,6 +728,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 "occurrence_id": occurrence.id,
                 "parent_community_id": parent_node.id,
                 "parent_community_name": parent_node.official_cluster.name,
+                "recurring": recurrence is not None,
             },
         )
 
@@ -870,6 +939,13 @@ class Events(events_pb2_grpc.EventsServicer):
 
         cutoff_time = now() - timedelta(hours=24)
         if request.update_all_future:
+            if event.recurrence and not request.stop_recurrence:
+                # Occurrences scheduled in the future are based on the recurrence template, so update it too.
+                # Times can't change here (see above).
+                # TODO(#9845): Update photo_key.
+                for key in ("content", "geom", "address", "timezone"):
+                    if key in occurrence_update:
+                        setattr(event.recurrence, key, occurrence_update[key])
             session.execute(
                 update(EventOccurrence)
                 .where(EventOccurrence.event_id == event.id)
@@ -889,6 +965,13 @@ class Events(events_pb2_grpc.EventsServicer):
                 .values(occurrence_update)
                 .execution_options(synchronize_session=False)
             )
+
+        if request.stop_recurrence and event.recurrence:
+            session.delete(event.recurrence)
+            session.flush()
+            # The relationship isn't updated by the delete
+            session.expire(event, ["recurrence"])
+            log_event(context, session, "event.recurrence_stopped", {"event_id": event.id})
 
         session.flush()
 
