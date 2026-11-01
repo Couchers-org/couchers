@@ -7,7 +7,6 @@ import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { Dialog, DialogActions, DialogTitle } from "components/Dialog";
 import EditLocationMap from "components/EditLocationMap";
 import GalleryEditor from "components/GalleryEditor/GalleryEditor";
-import Snackbar from "components/Snackbar";
 import StyledLink from "components/StyledLink";
 import { useLanguages } from "features/profile/hooks/useLanguages";
 import { useRegions } from "features/profile/hooks/useRegions";
@@ -21,9 +20,9 @@ import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { HostingStatus, LanguageAbility, MeetupStatus } from "proto/api_pb";
-import React, { FormEvent, useEffect, useRef, useState } from "react";
+import React, { FormEvent, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { howToMakeGreatProfileUrl, settingsRoute } from "routes";
+import { howToMakeGreatProfileUrl, routeToProfile, settingsRoute } from "routes";
 import { UpdateUserProfileData } from "service/index";
 import isGrpcError from "service/utils/isGrpcError";
 import { theme } from "theme";
@@ -32,6 +31,7 @@ import { useIsNativeEmbed } from "utils/nativeLink";
 import { nameMaxLength, nameMinLength, profileAboutMeMinLength, validateNameChars } from "utils/validation";
 
 import StatusCardGroup from "./StatusCard";
+import useScrollToHash from "./useScrollToHash";
 
 export type EditProfileFormValues = Omit<
   UpdateUserProfileData,
@@ -227,7 +227,6 @@ export default function EditProfileForm() {
   const { data: user } = useCurrentUser();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showIncompleteProfileDialog, setShowIncompleteProfileDialog] = useState(false);
-  const [showSuccessToast, setShowSuccessToast] = useState(false);
   const galleryEditorRef = useRef<HTMLDivElement>(null);
   const { regions } = useRegions();
   const { languages } = useLanguages();
@@ -262,10 +261,8 @@ export default function EditProfileForm() {
     register,
     handleSubmit,
     setValue,
-    reset,
     formState: { errors, isDirty, isSubmitted },
     watch,
-    getValues,
   } = useForm<EditProfileFormValues>({
     shouldFocusError: true,
     mode: "onBlur",
@@ -273,35 +270,7 @@ export default function EditProfileForm() {
     resetOptions: { keepDirty: true },
   });
 
-  // Scroll to gallery editor if hash is #gallery (from ProfilePage avatar click)
-  useEffect(() => {
-    if (router.asPath.includes("#gallery") && galleryEditorRef.current) {
-      // Longer delay for mobile WebViews to ensure page is fully rendered
-      const timer = setTimeout(() => {
-        if (galleryEditorRef.current) {
-          // Try scrollIntoView first
-          galleryEditorRef.current.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-          });
-
-          // Fallback: Also try window.scrollTo as backup for WebViews
-          setTimeout(() => {
-            if (galleryEditorRef.current) {
-              const rect = galleryEditorRef.current.getBoundingClientRect();
-              const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-              const targetPosition = rect.top + scrollTop - 100;
-              window.scrollTo({
-                top: targetPosition,
-                behavior: "smooth",
-              });
-            }
-          }, 50);
-        }
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [router.asPath]);
+  useScrollToHash(!!user);
 
   const aboutMeField = watch("aboutMe") ?? "";
 
@@ -332,10 +301,7 @@ export default function EditProfileForm() {
         },
         setMutationError: setErrorMessage,
         onSuccess: () => {
-          // Reset form dirty state to hide save bar
-          const currentValues = getValues();
-          reset(currentValues, { keepValues: true, keepDirty: false });
-          setShowSuccessToast(true);
+          router.push(`${routeToProfile("about")}?saved=profile`);
         },
       },
       {
@@ -399,7 +365,7 @@ export default function EditProfileForm() {
 
           <form onSubmit={handleSubmitButtonClick}>
             {/* Basic Information Section */}
-            <ProfileSection>
+            <ProfileSection id="basic-information">
               <SectionTitle>{t("profile:edit_profile_headings.basic_information")}</SectionTitle>
               <SectionSubtitle>{t("profile:edit_profile_headings.basic_information_subtitle")}</SectionSubtitle>
 
@@ -435,7 +401,7 @@ export default function EditProfileForm() {
                 </AvatarTextWrapper>
               </AvatarContainer>
 
-              <FieldGroup ref={galleryEditorRef}>
+              <FieldGroup ref={galleryEditorRef} id="gallery">
                 <GalleryEditor
                   galleryId={user.profileGalleryId}
                   userId={user.userId}
@@ -660,7 +626,7 @@ export default function EditProfileForm() {
             </ProfileSection>
 
             {/* Personal Information Section */}
-            <ProfileSection>
+            <ProfileSection id="personal-information">
               <SectionTitle>{t("profile:edit_profile_headings.personal_information")}</SectionTitle>
               <SectionSubtitle>{t("profile:edit_profile_headings.personal_information_subtitle")}</SectionSubtitle>
 
@@ -794,7 +760,7 @@ export default function EditProfileForm() {
 
             {/* Travel Experience Section */}
             {regions && (
-              <ProfileSection>
+              <ProfileSection id="travel">
                 <SectionTitle>{t("profile:edit_profile_headings.travel_experience")}</SectionTitle>
                 <SectionSubtitle>{t("profile:edit_profile_headings.travel_experience_subtitle")}</SectionSubtitle>
 
@@ -834,12 +800,6 @@ export default function EditProfileForm() {
                   />
                 </FieldGroup>
               </ProfileSection>
-            )}
-
-            {showSuccessToast && (
-              <Snackbar severity="success" onClose={() => setShowSuccessToast(false)}>
-                {t("profile:profile_changes_saved_message")}
-              </Snackbar>
             )}
 
             {/* Bottom spacer to prevent content from being hidden behind sticky bar */}

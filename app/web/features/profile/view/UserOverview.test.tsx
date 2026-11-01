@@ -36,6 +36,19 @@ describe("UserOverview", () => {
       expect(screen.getByText(`@${defaultUser.username}`)).toBeInTheDocument();
     });
 
+    it("links the reference count to the references tab", () => {
+      render(
+        <ProfileUserProvider user={defaultUser}>
+          <UserOverview showHostAndMeetAvailability={false} />
+        </ProfileUserProvider>,
+        { wrapper },
+      );
+      const link = screen.getByRole("link", {
+        name: t("profile:reference_amounts.count_references", { count: defaultUser.numReferences }),
+      });
+      expect(link).toHaveAttribute("href", `/user/${defaultUser.username}/references`);
+    });
+
     it("should display the user location", () => {
       render(
         <ProfileUserProvider user={defaultUser}>

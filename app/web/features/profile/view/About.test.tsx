@@ -3,9 +3,13 @@ import { User } from "proto/api_pb";
 import { service } from "service";
 import galleryFixtures from "test/fixtures/gallery.json";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { getLanguages, getRegions } from "test/serviceMockDefaults";
+import { addDefaultUser } from "test/utils";
 
 import About from "./About";
+
+const { t } = i18n;
 
 const getGalleryMock = service.gallery.getGallery as jest.MockedFunction<typeof service.gallery.getGallery>;
 
@@ -81,6 +85,21 @@ describe("About (user)", () => {
     expect(checkIcons).toBeNull();
     const errorIcons = screen.queryAllByTestId("error-icon");
     expect(errorIcons.length).toEqual(2);
+  });
+
+  it("links each section to its place on the edit page, only on your own profile", () => {
+    const editAboutMe = {
+      name: t("profile:edit_section_button_a11y", { section_name: t("profile:heading.who_section") }),
+    };
+
+    addDefaultUser();
+    const { unmount } = renderAbout();
+    expect(screen.getByRole("link", editAboutMe)).toHaveAttribute("href", "/profile/edit/about#aboutMe");
+    unmount();
+
+    addDefaultUser(defaultUser.userId + 1);
+    renderAbout();
+    expect(screen.queryByRole("link", editAboutMe)).not.toBeInTheDocument();
   });
 
   it("displays None when there are no regions", async () => {
