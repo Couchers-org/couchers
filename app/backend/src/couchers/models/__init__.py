@@ -19,5 +19,6 @@ from .public_trips import *  # noqa: F401,F403
 from .rest import *  # noqa: F401,F403
 from .static import *  # noqa: F401,F403
 from .uploads import *  # noqa: F401,F403
+from .user_email_campaigns import *  # noqa: F401,F403
 from .users import *  # noqa: F401,F403
 from .verification import *  # noqa: F401,F403
