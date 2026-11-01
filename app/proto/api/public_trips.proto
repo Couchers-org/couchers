@@ -31,8 +31,7 @@ service PublicTrips {
   }
 
   rpc ListMyCommunitiesPublicTrips(ListMyCommunitiesPublicTripsReq) returns (ListMyCommunitiesPublicTripsRes) {
-    // List other members' active, upcoming public trips across the communities the caller has joined,
-    // newest first. Applies the same-gender visibility rule to everyone, including moderators.
+    // List other members' active, upcoming public trips across the communities the caller has joined
   }
 
   rpc UpdatePublicTrip(UpdatePublicTripReq) returns (PublicTrip) {

@@ -495,9 +495,12 @@ def test_list_my_communities_public_trips(db):
     other_node_id = _make_node()
     _join_community(viewer.id, joined_node_id)
 
-    older = _create_trip_directly(traveler.id, joined_node_id, today() + timedelta(days=5), today() + timedelta(days=8))
-    newer = _create_trip_directly(
+    # posted first, but starts later
+    later = _create_trip_directly(
         traveler.id, joined_node_id, today() + timedelta(days=20), today() + timedelta(days=25)
+    )
+    sooner = _create_trip_directly(
+        traveler.id, joined_node_id, today() + timedelta(days=5), today() + timedelta(days=8)
     )
     # in a community the viewer hasn't joined
     _create_trip_directly(traveler.id, other_node_id, today() + timedelta(days=5), today() + timedelta(days=10))
@@ -514,7 +517,7 @@ def test_list_my_communities_public_trips(db):
 
     with public_trips_session(viewer_token) as api:
         res = api.ListMyCommunitiesPublicTrips(public_trips_pb2.ListMyCommunitiesPublicTripsReq())
-        assert [t.trip_id for t in res.public_trips] == [newer, older]
+        assert [t.trip_id for t in res.public_trips] == [sooner, later]
         assert not res.next_page_token
 
 
@@ -534,7 +537,7 @@ def test_list_my_communities_public_trips_same_gender_only(db):
 
     with public_trips_session(same_gender_token) as api:
         res = api.ListMyCommunitiesPublicTrips(public_trips_pb2.ListMyCommunitiesPublicTripsReq())
-        assert [t.trip_id for t in res.public_trips] == [open_trip, filtered]
+        assert [t.trip_id for t in res.public_trips] == [filtered, open_trip]
 
     with public_trips_session(diff_gender_token) as api:
         res = api.ListMyCommunitiesPublicTrips(public_trips_pb2.ListMyCommunitiesPublicTripsReq())
@@ -547,22 +550,26 @@ def test_list_my_communities_public_trips_pagination(db):
     node_id = _make_node()
     _join_community(viewer.id, node_id)
 
-    trip_ids = [
-        _create_trip_directly(
-            traveler.id, node_id, today() + timedelta(days=10 * i + 1), today() + timedelta(days=10 * i + 5)
+    def trip_starting_in(days: int) -> int:
+        return _create_trip_directly(
+            traveler.id, node_id, today() + timedelta(days=days), today() + timedelta(days=days + 3)
         )
-        for i in range(3)
-    ]
+
+    # created out of date order, with two trips starting the same day
+    last = trip_starting_in(30)
+    first = trip_starting_in(1)
+    same_day_a = trip_starting_in(15)
+    same_day_b = trip_starting_in(15)
 
     with public_trips_session(viewer_token) as api:
         res = api.ListMyCommunitiesPublicTrips(public_trips_pb2.ListMyCommunitiesPublicTripsReq(page_size=2))
-        assert [t.trip_id for t in res.public_trips] == trip_ids[::-1][:2]
+        assert [t.trip_id for t in res.public_trips] == [first, same_day_a]
         assert res.next_page_token
 
         res = api.ListMyCommunitiesPublicTrips(
             public_trips_pb2.ListMyCommunitiesPublicTripsReq(page_size=2, page_token=res.next_page_token)
         )
-        assert [t.trip_id for t in res.public_trips] == [trip_ids[0]]
+        assert [t.trip_id for t in res.public_trips] == [same_day_b, last]
         assert not res.next_page_token
 
 

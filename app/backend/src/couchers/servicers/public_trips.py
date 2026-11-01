@@ -361,7 +361,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "public_trips_disabled")
 
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        next_page_id = int(decrypt_page_token(request.page_token)) if request.page_token else 0
+        cursor = date_id_from_page_token(request.page_token) if request.page_token else None
 
         # @TODO(NA):Should we make same-gender ones visible to opposite gender moderators? For now, we don't
         statement = (
@@ -379,16 +379,30 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             .where(PublicTrip.status == PublicTripStatus.searching_for_host)
             .where(PublicTrip.end_time >= func.now())
             .where(_same_gender_filter(context))
-            .where(or_(PublicTrip.id <= next_page_id, to_bool(next_page_id == 0)))
-            .order_by(PublicTrip.id.desc())
-            .limit(page_size + 1)
-            .options(selectinload(PublicTrip.node, Node.official_cluster))
         )
+
+        # Cursor-based pagination using (from_date, id) composite key, soonest first
+        if cursor is not None:
+            cursor_date, cursor_id = cursor
+            statement = statement.where(
+                or_(
+                    PublicTrip.from_date > cursor_date,
+                    and_(PublicTrip.from_date == cursor_date, PublicTrip.id > cursor_id),
+                )
+            )
+        statement = statement.order_by(PublicTrip.from_date.asc(), PublicTrip.id.asc())
+
+        statement = statement.limit(page_size + 1).options(selectinload(PublicTrip.node, Node.official_cluster))
         public_trips = session.execute(statement).scalars().all()
+
+        next_page_token = None
+        if len(public_trips) > page_size:
+            last = public_trips[page_size - 1]
+            next_page_token = date_id_to_page_token(last.from_date, last.id)
 
         return public_trips_pb2.ListMyCommunitiesPublicTripsRes(
             public_trips=[public_trip_to_pb(trip, session, context) for trip in public_trips[:page_size]],
-            next_page_token=encrypt_page_token(str(public_trips[-1].id)) if len(public_trips) > page_size else None,
+            next_page_token=next_page_token,
         )
 
     def UpdatePublicTrip(
