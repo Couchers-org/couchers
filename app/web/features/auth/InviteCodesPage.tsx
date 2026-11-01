@@ -21,6 +21,7 @@ import React from "react";
 import { inviteRoute } from "routes";
 import { service } from "service";
 import { timestampToPlainDateTime } from "utils/date";
+import useCopyToClipboard from "utils/useCopyToClipboard";
 
 import { inviteCodesKey } from "../queryKeys";
 
@@ -52,20 +53,7 @@ export default function InviteCodesPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: [inviteCodesKey] }),
   });
 
-  const [copiedCode, setCopiedCode] = React.useState<string | null>(null);
-  const copiedTimerRef = React.useRef<number | null>(null);
-
-  const copy = async (url: string, code: string) => {
-    await navigator.clipboard.writeText(url);
-    setCopiedCode(code);
-    if (copiedTimerRef.current) {
-      window.clearTimeout(copiedTimerRef.current);
-    }
-    copiedTimerRef.current = window.setTimeout(() => {
-      setCopiedCode(null);
-      copiedTimerRef.current = null;
-    }, 1500);
-  };
+  const { copy, status: copyStatus, copiedText } = useCopyToClipboard(1500);
 
   return (
     <Box sx={{ width: "100%", maxWidth: 800, mx: "auto", mt: 6, px: 2 }}>
@@ -113,15 +101,19 @@ export default function InviteCodesPage() {
                 secondaryAction={
                   <>
                     <Tooltip
-                      open={copiedCode === c.code}
-                      title={t("global:copy_button.copied_tooltip")}
+                      open={copiedText === shareUrl && copyStatus !== "idle"}
+                      title={
+                        copyStatus === "failed"
+                          ? t("global:copy_button.failed_message")
+                          : t("global:copy_button.copied_tooltip")
+                      }
                       placement="top"
                       arrow
                     >
                       <IconButton
                         edge="end"
                         aria-label={t("global:copy_button.a11y")}
-                        onClick={() => copy(shareUrl, c.code)}
+                        onClick={() => copy(shareUrl)}
                         disabled={!!c.disabled}
                       >
                         <ContentCopy />
