@@ -8,7 +8,7 @@ from couchers.config import config
 from couchers.context import CouchersContext
 from couchers.email.blocks import EmailBase, EmailFooter
 from couchers.email.rendering import render_email
-from couchers.email.zz import add_open_pixel, add_zz_to_html_links, add_zz_to_plaintext_links, generate_zz
+from couchers.email.zz import add_open_pixel, add_zz_to_html_links, generate_zz
 from couchers.event_log import log_event
 from couchers.i18n import LocalizationContext
 from couchers.jobs.enqueue import queue_job
@@ -36,9 +36,15 @@ def _queue_email(session: Session, payload: jobs_pb2.SendEmailPayload) -> None:
     emails_counter.inc()
 
 
-def queue_email(context: CouchersContext, session: Session, payload: jobs_pb2.SendEmailPayload) -> None:
+def queue_email(session: Session, payload: jobs_pb2.SendEmailPayload) -> None:
+    _queue_email(session, payload)
+
+
+def queue_email_with_zz(context: CouchersContext, session: Session, payload: jobs_pb2.SendEmailPayload) -> None:
+    """
+    Queues an email, adding a zz id to its html links (see couchers/email/zz.py) and logging it as sent.
+    """
     zz = generate_zz()
-    payload.plain = add_zz_to_plaintext_links(payload.plain, zz)
     if payload.html:
         payload.html = add_zz_to_html_links(payload.html, zz)
         if context.get_boolean_value("email_open_pixel_enabled", default=False):
@@ -49,7 +55,7 @@ def queue_email(context: CouchersContext, session: Session, payload: jobs_pb2.Se
         properties["notification_id"] = payload.notification_id
     log_event(context, session, "email.sent", properties)
 
-    _queue_email(session, payload)
+    queue_email(session, payload)
 
 
 def queue_userless_email(
@@ -68,7 +74,7 @@ def queue_userless_email(
     footer = EmailFooter(timezone_name=loc_context.localized_timezone, copyright_year=now().year, unsubscribe_info=None)
     rendered = render_email(email, footer, loc_context)
 
-    queue_email(
+    queue_email_with_zz(
         context,
         session,
         jobs_pb2.SendEmailPayload(
@@ -102,7 +108,7 @@ def queue_system_email(
 
     plain = Jinja2Template(source=text_source.strip(), html=False).render(template_args)
 
-    _queue_email(
+    queue_email(
         session,
         jobs_pb2.SendEmailPayload(
             sender_name=config.NOTIFICATION_EMAIL_SENDER,

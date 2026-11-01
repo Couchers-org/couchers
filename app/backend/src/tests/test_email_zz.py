@@ -9,7 +9,6 @@ from couchers.email.zz import (
     OPEN_PIXEL_GIF,
     add_open_pixel,
     add_zz_to_html_links,
-    add_zz_to_plaintext_links,
     generate_zz,
     open_pixel_url,
 )
@@ -23,28 +22,12 @@ from tests.fixtures.misc import EmailCollector, Moderator
 from tests.fixtures.sessions import api_session, real_bugs_session
 
 
-def test_add_zz_to_plaintext_links():
-    plain = (
-        "Open: http://localhost:3000/messages/chats/1\n"
-        "See http://localhost:3000/user/bob?tab=about#refs.\n"
-        "Settings: <http://localhost:3000/account-settings/notifications>\n"
-        "Home http://localhost:3000\n"
-        "Elsewhere: https://example.com/foo http://localhost:3000.evil.com/x"
-    )
-    assert add_zz_to_plaintext_links(plain, "abc") == (
-        "Open: http://localhost:3000/messages/chats/1?zz=abc\n"
-        "See http://localhost:3000/user/bob?tab=about&zz=abc#refs.\n"
-        "Settings: <http://localhost:3000/account-settings/notifications?zz=abc>\n"
-        "Home http://localhost:3000?zz=abc\n"
-        "Elsewhere: https://example.com/foo http://localhost:3000.evil.com/x"
-    )
-
-
 def test_add_zz_to_html_links():
     html = (
         '<a href="http://localhost:3000/quick-link?payload=x&amp;sig=y">a</a>'
         '<a href="http://localhost:3000/dashboard#top">b</a>'
         '<a href="https://example.com/">c</a>'
+        '<a href="http://localhost:3000.evil.com/x">d</a>'
         '<img src="http://localhost:3000/logo512.png">'
         "<p>http://localhost:3000/user/bob</p>"
     )
@@ -52,6 +35,7 @@ def test_add_zz_to_html_links():
         '<a href="http://localhost:3000/quick-link?payload=x&amp;sig=y&amp;zz=abc">a</a>'
         '<a href="http://localhost:3000/dashboard?zz=abc#top">b</a>'
         '<a href="https://example.com/">c</a>'
+        '<a href="http://localhost:3000.evil.com/x">d</a>'
         '<img src="http://localhost:3000/logo512.png">'
         "<p>http://localhost:3000/user/bob</p>"
     )
@@ -92,7 +76,7 @@ def test_notification_email_gets_zz(db, email_collector: EmailCollector, moderat
     hrefs = re.findall(r'href="(http://localhost:3000[^"]*)"', email.html)
     assert hrefs
     assert all(f"zz={zz}" in href for href in hrefs)
-    assert f"zz={zz}" in email.plain
+    assert "zz=" not in email.plain
     assert "/email/open/" not in email.html
 
 
@@ -115,7 +99,7 @@ def test_userless_email_gets_zz_and_open_pixel(db, email_collector: EmailCollect
         zz = event.properties["zz"]
 
     assert f"zz={zz}" in email.html
-    assert f"zz={zz}" in email.plain
+    assert "zz=" not in email.plain
     assert f'src="{open_pixel_url(zz)}"' in email.html
 
 

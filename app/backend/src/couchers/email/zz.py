@@ -16,16 +16,9 @@ ZZ_RE = re.compile(r"[A-Za-z0-9_-]{16}")
 
 OPEN_PIXEL_GIF = base64.b64decode("R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7")
 
-# trailing punctuation is far more likely to end the sentence than the URL
-_TRAILING_PUNCTUATION = ".,;:!?)"
-
 
 def generate_zz() -> str:
     return secrets.token_urlsafe(12)
-
-
-def _site_url_pattern() -> re.Pattern[str]:
-    return re.compile(re.escape(config.BASE_URL) + r"(?:[/?#][^\s<>\"']*)?(?![^\s<>\"'/?#])")
 
 
 def _add_param(url: str, zz: str) -> str:
@@ -34,17 +27,8 @@ def _add_param(url: str, zz: str) -> str:
     return urlunsplit(parts._replace(query=f"{parts.query}&{param}" if parts.query else param))
 
 
-def add_zz_to_plaintext_links(plain: str, zz: str) -> str:
-    def replace(match: re.Match[str]) -> str:
-        url = match.group(0)
-        stripped = url.rstrip(_TRAILING_PUNCTUATION)
-        return _add_param(stripped, zz) + url[len(stripped) :]
-
-    return _site_url_pattern().sub(replace, plain)
-
-
 def add_zz_to_html_links(body: str, zz: str) -> str:
-    href_re = re.compile(r'(href=")(' + _site_url_pattern().pattern + r')(")')
+    href_re = re.compile(r'(href=")(' + re.escape(config.BASE_URL) + r'(?:[/?#][^"]*)?)(")')
     return href_re.sub(lambda m: m.group(1) + html.escape(_add_param(html.unescape(m.group(2)), zz)) + m.group(3), body)
 
 
