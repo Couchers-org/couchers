@@ -5,7 +5,7 @@ import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import { HostRequestStatus } from "proto/messages_pb";
 
-const StyledBanner = styled(Box)(({ theme }) => ({
+export const StyledBanner = styled(Box)(({ theme }) => ({
   background: "var(--mui-palette-background-paper)",
   borderBottom: "1px solid var(--mui-palette-divider)",
   padding: theme.spacing(1.5, 2),
@@ -24,6 +24,7 @@ export default function HostRequestStatusBanner({
   onDecline,
   onCancel,
   hostName,
+  isOffer = false,
 }: {
   isHost: boolean;
   status: HostRequestStatus;
@@ -32,8 +33,13 @@ export default function HostRequestStatusBanner({
   onDecline: () => void;
   onCancel: () => void;
   hostName?: string;
+  isOffer?: boolean;
 }) {
   const { t } = useTranslation([MESSAGES, GLOBAL]);
+
+  // Public-trip offers have their own respond card + title; skip the quick banner
+  // (its copy assumes a normal request's roles).
+  if (isOffer) return null;
 
   if (isHost) {
     let message: string | null = null;

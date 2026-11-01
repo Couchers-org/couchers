@@ -108,7 +108,7 @@ export default function LanguagePickerSelect({ displayMode = "rounded", onNaviga
     sendLanguageChange(newLocale);
 
     // Set cookie client-side immediately for both authenticated and logged-out users
-    // This ensures the middleware sees the updated locale before navigation
+    // This ensures the proxy.ts sees the updated locale before navigation
     document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; samesite=lax`;
 
     if (isAuthenticated) {

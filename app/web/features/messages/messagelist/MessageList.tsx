@@ -35,9 +35,16 @@ interface MessageListProps {
   markLastSeen(messageId: number): void;
   className?: string;
   isDm?: boolean;
+  isOffer?: boolean;
 }
 
-export default function MessageList({ markLastSeen, messages, className, isDm = false }: MessageListProps) {
+export default function MessageList({
+  markLastSeen,
+  messages,
+  className,
+  isDm = false,
+  isOffer = false,
+}: MessageListProps) {
   const { t } = useTranslation(MESSAGES);
 
   return (
@@ -49,6 +56,7 @@ export default function MessageList({ markLastSeen, messages, className, isDm = 
               key={message.messageId}
               onVisible={() => markLastSeen(message.messageId)}
               message={message}
+              isOffer={isOffer}
             />
           ) : (
             <MessageWrapper

@@ -1,7 +1,7 @@
-import { ArrowBack, ArrowForward, TravelExplore } from "@mui/icons-material";
-import { Box, IconButton, styled, Typography } from "@mui/material";
+import { TravelExplore } from "@mui/icons-material";
+import { Box, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
-import FadingScrollTrack from "components/FadingScrollTrack";
+import FadingScrollTrack, { cardScrollDistance } from "components/FadingScrollTrack";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useListPublicTripsByUser } from "features/publicTrips/useListPublicTrips";
 import { useTranslation } from "i18n";
@@ -18,14 +18,7 @@ import {
   DashboardPublicTripCard,
   DashboardPublicTripCardSkeleton,
 } from "./DashboardPublicTripCard";
-
-const SectionHeader = styled("div")({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  marginBottom: "10px",
-  minHeight: "28px",
-});
+import DashboardSectionHeader from "./DashboardSectionHeader";
 
 const EmptyStateRow = styled("div")(({ theme }) => ({
   display: "flex",
@@ -73,37 +66,18 @@ export default function DashboardMyPublicTrips() {
   }, [activeTrips.length, isLoading]);
 
   const scroll = (dir: 1 | -1) => {
-    scrollerRef.current?.scrollBy({
-      left: dir * (CARD_WIDTH + CARD_GAP) * 2,
-      behavior: "smooth",
-    });
+    const el = scrollerRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * cardScrollDistance(el, CARD_WIDTH, CARD_GAP), behavior: "smooth" });
   };
 
   return (
     <section>
-      <SectionHeader>
-        <Typography variant="h2" sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
-          <TravelExplore sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />
-          {t("dashboard:public_trips.my_trips_header")}
-          {!isLoading && activeTrips.length > 0 && (
-            <Box
-              component="span"
-              sx={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: "var(--mui-palette-text-secondary)",
-                background: "var(--mui-palette-grey-50)",
-                borderRadius: 999,
-                px: 1.125,
-                lineHeight: "20px",
-                display: "inline-block",
-              }}
-            >
-              {activeTrips.length}
-            </Box>
-          )}
-        </Typography>
-        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+      <DashboardSectionHeader
+        icon={TravelExplore}
+        title={t("dashboard:public_trips.my_trips_header")}
+        count={isLoading ? 0 : activeTrips.length}
+        action={
           <Link href={myPublicTripsRoute} style={{ textDecoration: "none" }}>
             <Typography
               component="span"
@@ -117,26 +91,12 @@ export default function DashboardMyPublicTrips() {
               {t("dashboard:public_trips.manage_link")}
             </Typography>
           </Link>
-          <IconButton
-            size="small"
-            onClick={() => scroll(-1)}
-            disabled={!canScrollLeft}
-            color={canScrollLeft ? "primary" : "default"}
-            aria-label={t("dashboard:prev_page_button_a11y")}
-          >
-            <ArrowBack fontSize="small" />
-          </IconButton>
-          <IconButton
-            size="small"
-            onClick={() => scroll(1)}
-            disabled={!canScrollRight}
-            color={canScrollRight ? "primary" : "default"}
-            aria-label={t("dashboard:next_page_button_a11y")}
-          >
-            <ArrowForward fontSize="small" />
-          </IconButton>
-        </div>
-      </SectionHeader>
+        }
+        hasPrevious={canScrollLeft}
+        hasNext={canScrollRight}
+        onPrevious={() => scroll(-1)}
+        onNext={() => scroll(1)}
+      />
 
       {error && <Alert severity="error">{error.message}</Alert>}
 

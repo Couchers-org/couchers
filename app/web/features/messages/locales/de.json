@@ -8,7 +8,8 @@
       "chats": "Chats",
       "hosting": "Hosten",
       "surfing": "Surfen",
-      "unread": "Ungelesen"
+      "unread": "Ungelesen",
+      "public_trips": "Meine öffentlichen Trips"
     },
     "title": "Nachrichten"
   },
@@ -98,6 +99,16 @@
       "cancelled_self": "Du hast die Anfrage abgebrochen",
       "confirmed_self": "Du hast die Anfrage bestätigt",
       "rejected_self": "Du hast die Anfrage abgelehnt"
+    },
+    "invitation_status_changed": {
+      "accepted": "{{user}} hat die Einladung angenommen",
+      "accepted_self": "Du hast die Einladung angenommen",
+      "cancelled": "{{user}} hat die Einladung zurückgezogen",
+      "cancelled_self": "Du hast die Einladung zurückgezogen",
+      "confirmed": "{{user}} hat den Aufenthalt bestätigt",
+      "confirmed_self": "Du hast den Aufenthalt bestätigt",
+      "rejected": "{{user}} hat die Einladung abgelehnt",
+      "rejected_self": "Du hast die Einladung abgelehnt"
     }
   },
   "host_request_status": {
@@ -146,7 +157,20 @@
       "confirmed": "Viel Spaß! {{name}} hat diese Anfrage angenommen und du hast sie bestätigt.",
       "rejected": "Deine Anfrage wurde abgelehnt"
     },
-    "expired": "Diese Anfrage ist ausgelaufen"
+    "expired": "Diese Anfrage ist ausgelaufen",
+    "public_trip_chip": "Öffentlicher Trip",
+    "invitation_host_status": {
+      "pending": "Warte auf {{name}}'s Antwort",
+      "accepted": "{{name}} hat deine Einladung angenommen",
+      "rejected": "{{name}} hat deine Einladung abgelehnt",
+      "cancelled": "Du hast deine Einladung zurückgezogen"
+    },
+    "invitation_surfer_status": {
+      "pending": "Einladung, dich zu hosten · wartet auf deine Antwort",
+      "accepted": "Du hast die Einladung von {{name}} angenommen",
+      "rejected": "Du hast diese Einladung abgelehnt",
+      "cancelled": "{{name}} hat die Einladung zurückgezogen"
+    }
   },
   "host_request_view": {
     "error_message": "Ungültige Host-Anfrage-ID",
@@ -154,7 +178,9 @@
     "title_for_host": "Anfrage von {{user}} – {{status}}",
     "title_for_surfer": "Anfrage an {{user}} – {{status}}",
     "request_duration_one": "{{count}} Nacht",
-    "request_duration_other": "{{count}} Nächte"
+    "request_duration_other": "{{count}} Nächte",
+    "invitation_title_for_surfer": "Einladung von {{user}} · {{status}}",
+    "invitation_title_for_host": "Deine Einladung an {{user}} · {{status}}"
   },
   "surfer_declined_request_help_text": "<guideLink>Lies unseren Leitfaden</guideLink>, wie man eine Anfrage schreibt, die angenommen wird.",
   "past_request_help_text": "Diese Anfrage liegt in der Vergangenheit, du kannst weiterhin Nachrichten versenden, aber keine sonstige Änderungen vornehmen.",
@@ -178,7 +204,7 @@
   },
   "reference_card": {
     "title": "Schreibe eine Referenz",
-    "description": "Teile deine Erfahrung, um der Community zu helfen."
+    "description": "Teile deine Erfahrung, um die Community zu unterstützen."
   },
   "respond_box_title": "Sende eine Antwort",
   "respond_box_description": "Wähle eine Antwort, um {{name}} sofort zu informieren. Du kannst auch jederzeit eine Nachricht senden.",
@@ -207,5 +233,35 @@
   },
   "surfer_confirm_box_title": "{{name}} hat deine Anfrage angenommen!",
   "surfer_confirm_box_description": "Bestätige, um deinen Aufenthalt zu sichern, oder brich ab, falls sich deine Pläne geändert haben.",
-  "show_more_actions_button_a11y": "Mehr Aktionen anzeigen"
+  "show_more_actions_button_a11y": "Mehr Aktionen anzeigen",
+  "mark_all_read_button_text_public_trips": "Alle Öffentliche Trip Einladungen als gelesen markieren",
+  "invitation_respond_box_title": "Auf {{name}}'s Einladung antworten",
+  "invitation_accept_confirmation": "Du hast die Einladung von {{name}} angenommen. Sag Hallo und klärt die Ankunft Details.",
+  "cancel_accepted_invitation_stay_dialog_message": "{{name}} wird benachrichtigt. Du kannst das nicht rückgängig machen.",
+  "invitation_sent_box_description": "{{name}} hat noch nicht geantwortet. Du wirst benachrichtigt, sobald jemand antwortet.",
+  "invitation_host_confirmed_box_title": "Du hostest {{name}}",
+  "status_bar_edit_button": "Bearbeiten",
+  "status_bar_cancel_edit_button": "Abbrechen",
+  "status_bar_close_button": "Schließen",
+  "my_public_trips": {
+    "nights_one": "{{count}} Nacht",
+    "nights_other": "{{count}} Nächte",
+    "empty_state": "Noch keine Einladungen für deinen öffentlichen Trips.",
+    "invitations_one": "{{count}} Einladung",
+    "invitations_other": "{{count}} Einladungen"
+  },
+  "invitation_respond_box_description": "Wenn du annimmst, weiß {{name}}, dass du gerne bleiben möchtest. In jedem Fall könnt ihr weiter chatten, um die Details zu klären.",
+  "cancel_accepted_invitation_stay_button": "Aufenthalt abbrechen",
+  "cancel_accepted_invitation_stay_dialog_title": "Deinen Aufenthalt bei {{name}} abbrechen?",
+  "cancel_accepted_invitation_stay_dialog_confirm_button": "Aufenthalt abbrechen",
+  "cancel_accepted_invitation_stay_dialog_dismiss_button": "Aufenthalt beibehalten",
+  "invitation_sent_box_title": "Einladung gesendet",
+  "invitation_host_accepted_box_title": "{{name}} hat deine Einladung angenommen",
+  "invitation_host_accepted_box_description": "Bestätige den Aufenthalt, oder brech ab, falls sich deine Pläne geändert haben.",
+  "invitation_host_confirmed_box_description": "Wenn sich deine Pläne ändern, kannst du deine Einladung immer noch zurückziehen. {{name}} wird dann benachrichtigt.",
+  "withdraw_invitation_button": "Einladung zurückziehen",
+  "withdraw_invitation_dialog_title": "Deine Einladung zurückziehen?",
+  "withdraw_invitation_dialog_message": "Damit ziehst du deine Einladung, {{name}} zu hosten, zurück, und die Person wird darüber benachrichtigt. Du kannst das nicht rückgängig machen.",
+  "withdraw_invitation_dialog_confirm_button": "Einladung zurückziehen",
+  "withdraw_invitation_dialog_dismiss_button": "Einladung behalten"
 }

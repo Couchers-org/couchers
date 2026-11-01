@@ -149,9 +149,6 @@
     "settings_page_text": "Mira on has iniciat sessió i tanca sessió d'altres dispositius",
     "settings_page_link": "Gestiona els inicis de sessió actuals",
     "login_header": "Inici de sessió el {{login_datetime}}",
-    "location": "A prop de <strong>{{approximate_location}}</strong>",
-    "last_activity": "Darrera activitat <strong>{{last_activity_ago}}</strong>",
-    "expiry": "Caduca el <strong>{{expiry_datetime}}</strong>",
     "current_session": "Aquesta és la teva sessió actual.",
     "log_out_of_session": "Tanca aquesta sessió",
     "log_out_of_all_session": "Tanca totes les altres sessions"

@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-09-26 13:25+0000\n"
+"PO-Revision-Date: 2026-10-17 18:49+0000\n"
 "Last-Translator: Gabriel Alonso da Silva Ferreira <gab.asferreira08@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) <https://translate.couchershq.org/projects/couchers/glossary-key-terms/pt_BR/>\n"
 "Language: pt_BR\n"
@@ -41,10 +41,6 @@ msgstr "Central de ajuda"
 #. (noun) The Couchers.org blog.
 msgid "blog"
 msgstr "blog"
-
-#. (noun) The activity of free hospitality welcome/exchange. Platform-agnostic.
-msgid "couch surfing"
-msgstr "couch surfing"
 
 #. (verb) The act of volunteering with Couchers.org.
 msgid "volunteer.verb"
@@ -120,7 +116,7 @@ msgstr "conectado"
 
 #. (verb) The action of logging in to Couchers.org after logging out.
 msgid "log_back_in"
-msgstr "fazer login novamente"
+msgstr "acessar novamente"
 
 #. (verb) The action of logging out of Couchers.org.
 msgid "log_out"
@@ -473,3 +469,39 @@ msgstr "recuperado"
 #. (verb) The action of resetting one's password.
 msgid "password.reset"
 msgstr "redefinir"
+
+#. (noun) An invitation sent by a host in response to a surfer's public trip.
+msgid "public_trip.invitation"
+msgstr "convite"
+
+#. (noun) Invitations sent by hosts in response to a surfer's public trip.
+msgid "public_trip.invitations"
+msgstr "convites"
+
+#. (verb) As a host, sending an invitation to a surfer in response to their public trip.
+msgid "public_trip.invite"
+msgstr "convite"
+
+#. (adj) The state of a surfer who has received an invitation from a host.
+msgid "public_trip.invited"
+msgstr "convidado"
+
+#. (verb) As a host, sending an invitation to a surfer in response to their public trip.
+msgid "public_trip.inviting"
+msgstr "convidando"
+
+#. (noun) A trip published by a surfer to solicit invitations from hosts.
+msgid "public_trip"
+msgstr "viagem pública"
+
+#. (noun) Trips published by surfers to solicit invitations from hosts.
+msgid "public_trips"
+msgstr "viagens públicas"
+
+#. (noun) An agreement for a surfer to stay with a host over a date range.
+msgid "stay.noun"
+msgstr "estadia"
+
+#. (noun) Agreements for surfers to stay with hosts over specific date ranges.
+msgid "stays"
+msgstr "estadias"

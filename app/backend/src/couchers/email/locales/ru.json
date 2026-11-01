@@ -291,38 +291,48 @@
     "subject": "Ваш пол был изменён",
     "purpose": "Ваш пол на Couchers.org был изменён администратором на <b>{{ gender }}</b>."
   },
-  "host_requests": {
+  "stays": {
     "created": {
-      "subject": "{{surfer_name}} отправил вам запрос на хостинг",
-      "purpose": "<b>{{surfer_name}}</b> отправил вам запрос на хостинг:",
-      "respond_encouragement": "Пожалуйста, ответьте на этот запрос. Даже быстрый отказ лучше, чем отсутствие ответа!"
+      "host_request": {
+        "subject": "{{initiator}} отправил вам запрос на хостинг",
+        "purpose": "<b>{{initiator}}</b> отправил вам запрос на хостинг:",
+        "respond_encouragement": "Пожалуйста, ответьте на этот запрос. Даже быстрый отказ лучше, чем отсутствие ответа!"
+      }
     },
     "generic": {
       "date_range": "С <b>{{from_date}}</b> по <b>{{to_date}}</b>.",
-      "view_action": "Просмотреть запросы хосту",
+      "host_request": {
+        "view_action": "Просмотреть запросы хосту"
+      },
       "quick_decline_action": "Быстрый отказ"
     },
     "reminder": {
-      "subject": "У вас есть ожидающий рассмотрения запрос на размещение от {{surfer_name}}",
-      "purpose": "<b>{{surfer_name}}</b> ждёт вашего ответа. Даже быстрый отказ лучше, чем молчание!"
+      "host_request": {
+        "subject": "У вас есть ожидающий рассмотрения запрос на размещение от {{initiator}}",
+        "purpose": "<b>{{initiator}}</b> ждёт вашего ответа. Даже быстрый отказ лучше, чем молчание!"
+      }
     },
     "status_changed": {
-      "cancelled_by_surfer": {
-        "purpose": "<b>{{other_name}}</b> отменил(а) свой запрос на размещение:"
-      },
-      "accepted_by_host": {
-        "subject": "{{other_name}} принял ваш запрос на размещение",
-        "purpose": "<b>{{other_name}}</b> принял(а) ваш запрос на размещение:"
+      "host_request": {
+        "accepted_by_recipient": {
+          "subject": "{{counterparty}} принял ваш запрос на размещение",
+          "purpose": "<b>{{counterparty}}</b> принял(а) ваш запрос на размещение:"
+        },
+        "cancelled_by_initiator": {
+          "purpose": "<b>{{counterparty}}</b> отменил(а) свой запрос на размещение:"
+        }
       }
     },
     "message": {
-      "from_host": {
-        "subject": "{{other_name}} отправил(а) вам сообщение в вашем запросе на размещение",
-        "purpose": "<b>{{other_name}}</b> отправил(а) вам сообщение в вашем запросе на размещение:"
-      },
-      "from_surfer": {
-        "subject": "{{other_name}} отправил(а) вам сообщение в своём запросе на размещение",
-        "purpose": "<b>{{other_name}}</b> отправил(а) вам сообщение в своём запросе на размещение:"
+      "host_request": {
+        "from_initiator": {
+          "subject": "{{counterparty}} отправил(а) вам сообщение в своём запросе на размещение",
+          "purpose": "<b>{{counterparty}}</b> отправил(а) вам сообщение в своём запросе на размещение:"
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}} отправил(а) вам сообщение в вашем запросе на размещение",
+          "purpose": "<b>{{counterparty}}</b> отправил(а) вам сообщение в вашем запросе на размещение:"
+        }
       }
     }
   },

@@ -47,6 +47,7 @@ export function useUserSearch(searchParams: FilterOptions, mapSearchState: MapSe
     initialPageParam: mapSearchState.pageNumber > 1,
     placeholderData: keepPreviousData,
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+    enabled: meetsSearchCriteria,
   });
 
   // React-query will keep the previously fetched data in the cache, so return undefined if we don't meet the search criteria

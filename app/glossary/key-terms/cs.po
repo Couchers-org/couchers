@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-10-02 21:41+0000\n"
+"PO-Revision-Date: 2026-10-21 23:25+0000\n"
 "Last-Translator: Daniel Brvnišťan <daniel.brvnistan@gmail.com>\n"
 "Language-Team: Czech <https://translate.couchershq.org/projects/couchers/glossary-key-terms/cs/>\n"
 "Language: cs\n"
@@ -153,10 +153,6 @@ msgstr "kontakty"
 #. (noun) The team behind Couchers.org.
 msgid "couchers_org_team"
 msgstr "Tým Couchers.org"
-
-#. (noun) The activity of free hospitality welcome/exchange. Platform-agnostic.
-msgid "couch surfing"
-msgstr "surfování"
 
 #. (verb) As a host, the act of declining a surfer's host request.
 msgid "host_request.decline"
@@ -473,3 +469,39 @@ msgstr "obnovit přístup"
 #. (verb) The action of resetting one's password.
 msgid "password.reset"
 msgstr "resetovat"
+
+#. (noun) An invitation sent by a host in response to a surfer's public trip.
+msgid "public_trip.invitation"
+msgstr "pozvánka"
+
+#. (noun) Invitations sent by hosts in response to a surfer's public trip.
+msgid "public_trip.invitations"
+msgstr "pozvánky"
+
+#. (verb) As a host, sending an invitation to a surfer in response to their public trip.
+msgid "public_trip.invite"
+msgstr "pozvat"
+
+#. (adj) The state of a surfer who has received an invitation from a host.
+msgid "public_trip.invited"
+msgstr "pozvaný"
+
+#. (verb) As a host, sending an invitation to a surfer in response to their public trip.
+msgid "public_trip.inviting"
+msgstr "zvaní"
+
+#. (noun) A trip published by a surfer to solicit invitations from hosts.
+msgid "public_trip"
+msgstr "věřejná cesta"
+
+#. (noun) Trips published by surfers to solicit invitations from hosts.
+msgid "public_trips"
+msgstr "veřejné cesty"
+
+#. (noun) An agreement for a surfer to stay with a host over a date range.
+msgid "stay.noun"
+msgstr "pobyt"
+
+#. (noun) Agreements for surfers to stay with hosts over specific date ranges.
+msgid "stays"
+msgstr "pobyty"

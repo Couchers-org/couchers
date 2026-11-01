@@ -1,5 +1,5 @@
 import logging
-from datetime import date, timedelta
+from datetime import timedelta
 
 import grpc
 from sqlalchemy import ColumnElement, and_, func, or_, select
@@ -11,14 +11,21 @@ from couchers.crypto import decrypt_page_token, encrypt_page_token
 from couchers.db import can_moderate_node
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
-from couchers.models import ModerationObjectType, Node, User
+from couchers.models import Cluster, ClusterSubscription, ModerationObjectType, Node, User
 from couchers.models.host_requests import HostRequest, HostRequestStatus
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.moderation.utils import create_moderation
 from couchers.proto import public_trips_pb2, public_trips_pb2_grpc
 from couchers.servicers.api import user_model_to_pb
 from couchers.sql import to_bool, where_moderated_content_visible, where_users_column_visible
-from couchers.utils import Timestamp_from_datetime, date_to_api, parse_date, today_in_timezone
+from couchers.utils import (
+    Timestamp_from_datetime,
+    date_id_from_page_token,
+    date_id_to_page_token,
+    date_to_api,
+    parse_date,
+    today_in_timezone,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -43,14 +50,6 @@ def _is_description_long_enough(text: str) -> bool:
     return text_length_utf16 >= PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16
 
 
-def _parse_page_token(page_token: str) -> tuple[date | None, int | None]:
-    """Parse a page token into (from_date, trip_id). Returns (None, None) for first page."""
-    if not page_token:
-        return None, None
-    date_str, id_str = decrypt_page_token(page_token).rsplit(":", 1)
-    return date.fromisoformat(date_str), int(id_str)
-
-
 def _same_gender_filter(context: CouchersContext) -> ColumnElement[bool]:
     # Show the trip if same_gender_only is off or the viewer's gender matches the poster's gender.
     # Moderator bypass is handled by callers via can_moderate_node before applying this filter.
@@ -72,6 +71,7 @@ def public_trip_to_pb(
         community_name=public_trip.node.official_cluster.name,
         from_date=date_to_api(public_trip.from_date),
         to_date=date_to_api(public_trip.to_date),
+        timezone=public_trip.timezone,
         description=public_trip.description,
         status=publictripstatus2api[public_trip.status],
         created=Timestamp_from_datetime(public_trip.created),
@@ -154,6 +154,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_description_too_long")
 
         # Disallow overlapping active trips by the same user in the same community
+        # They share the same timezone so comparing dates is ok
         existing = session.execute(
             select(PublicTrip)
             .where(PublicTrip.user_id == context.user_id)
@@ -281,7 +282,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "public_trips_disabled")
 
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        cursor_date, cursor_id = _parse_page_token(request.page_token)
+        cursor = date_id_from_page_token(request.page_token) if request.page_token else None
         ascending = request.ascending
         is_self = request.user_id == context.user_id
 
@@ -292,8 +293,10 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             is_list_operation=True,
         ).where(PublicTrip.user_id == request.user_id)
 
+        if not request.include_past:
+            statement = statement.where(PublicTrip.end_time >= func.now())
+
         if not is_self:
-            # On other users' profiles show only active, upcoming trips that the viewer is allowed to see.
             # Check moderation against each distinct node the user has active trips in.
             active_node_ids = (
                 session.execute(
@@ -308,9 +311,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             )
             viewer_is_moderator = any(can_moderate_node(session, context.user_id, nid) for nid in active_node_ids)
 
-            statement = statement.where(PublicTrip.status == PublicTripStatus.searching_for_host).where(
-                PublicTrip.end_time >= func.now()
-            )
+            statement = statement.where(PublicTrip.status == PublicTripStatus.searching_for_host)
             if not viewer_is_moderator:
                 statement = statement.where(_same_gender_filter(context))
         elif request.statuses_in:
@@ -319,7 +320,8 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
                 statement = statement.where(PublicTrip.status.in_(statuses))
 
         # Cursor-based pagination using (from_date, id) composite key
-        if cursor_date is not None and cursor_id is not None:
+        if cursor is not None:
+            cursor_date, cursor_id = cursor
             if ascending:
                 statement = statement.where(
                     or_(
@@ -345,9 +347,60 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         next_page_token = None
         if len(public_trips) > page_size:
             last = public_trips[page_size - 1]
-            next_page_token = encrypt_page_token(f"{last.from_date.isoformat()}:{last.id}")
+            next_page_token = date_id_to_page_token(last.from_date, last.id)
 
         return public_trips_pb2.ListPublicTripsByUserRes(
+            public_trips=[public_trip_to_pb(trip, session, context) for trip in public_trips[:page_size]],
+            next_page_token=next_page_token,
+        )
+
+    def ListMyCommunitiesPublicTrips(
+        self, request: public_trips_pb2.ListMyCommunitiesPublicTripsReq, context: CouchersContext, session: Session
+    ) -> public_trips_pb2.ListMyCommunitiesPublicTripsRes:
+        if not context.get_boolean_value("public_trips_enabled", False):
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "public_trips_disabled")
+
+        page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+        cursor = date_id_from_page_token(request.page_token) if request.page_token else None
+
+        # @TODO(NA):Should we make same-gender ones visible to opposite gender moderators? For now, we don't
+        statement = (
+            where_moderated_content_visible(
+                where_users_column_visible(select(PublicTrip), context, PublicTrip.user_id),
+                context,
+                PublicTrip,
+                is_list_operation=True,
+            )
+            .join(Cluster, Cluster.parent_node_id == PublicTrip.node_id)
+            .join(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
+            .where(Cluster.is_official_cluster)
+            .where(ClusterSubscription.user_id == context.user_id)
+            .where(PublicTrip.user_id != context.user_id)
+            .where(PublicTrip.status == PublicTripStatus.searching_for_host)
+            .where(PublicTrip.end_time >= func.now())
+            .where(_same_gender_filter(context))
+        )
+
+        # Cursor-based pagination using (from_date, id) composite key, soonest first
+        if cursor is not None:
+            cursor_date, cursor_id = cursor
+            statement = statement.where(
+                or_(
+                    PublicTrip.from_date > cursor_date,
+                    and_(PublicTrip.from_date == cursor_date, PublicTrip.id > cursor_id),
+                )
+            )
+        statement = statement.order_by(PublicTrip.from_date.asc(), PublicTrip.id.asc())
+
+        statement = statement.limit(page_size + 1).options(selectinload(PublicTrip.node, Node.official_cluster))
+        public_trips = session.execute(statement).scalars().all()
+
+        next_page_token = None
+        if len(public_trips) > page_size:
+            last = public_trips[page_size - 1]
+            next_page_token = date_id_to_page_token(last.from_date, last.id)
+
+        return public_trips_pb2.ListMyCommunitiesPublicTripsRes(
             public_trips=[public_trip_to_pb(trip, session, context) for trip in public_trips[:page_size]],
             next_page_token=next_page_token,
         )
@@ -368,7 +421,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         )
 
         if editing_content:
-            today_local = today_in_timezone(public_trip.node.timezone)
+            today_local = today_in_timezone(public_trip.timezone)
 
             if public_trip.to_date < today_local:
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "public_trip_in_past")
@@ -423,7 +476,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             new_status = publictripstatus2sql.get(request.status)
             if new_status == PublicTripStatus.searching_for_host:
                 # Reopening is only allowed if the trip hasn't started yet, matching creation logic.
-                today_local = today_in_timezone(public_trip.node.timezone)
+                today_local = today_in_timezone(public_trip.timezone)
                 if public_trip.from_date < today_local:
                     context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "public_trip_in_past")
             elif new_status != PublicTripStatus.closed:

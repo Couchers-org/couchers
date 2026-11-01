@@ -43,6 +43,10 @@ class Config:
     SECRET: bytes
     # Domain that cookies should set as their domain value
     COOKIE_DOMAIN: str
+    # SameSite attribute for cookies
+    COOKIE_SAMESITE: Literal["Strict", "Lax", "None"] = "Lax"
+    # Whether to set the Partitioned attribute (CHIPS) on cookies
+    COOKIE_PARTITIONED: bool = False
     # SQLAlchemy database connection string
     DATABASE_CONNECTION_STRING: str
     # OTLP/HTTP traces endpoint to export spans to, e.g. https://traces.example.org/v1/traces
@@ -140,7 +144,7 @@ class Config:
     PYROSCOPE_ENABLED: bool
     PYROSCOPE_SERVER: str
     PYROSCOPE_AUTH_TOKEN: str
-    # Moderation auto-approval deadline in seconds (0 to disable auto-approval)
+    # Default moderation auto-approval deadline in seconds, overridable per user (0 to disable auto-approval entirely)
     MODERATION_AUTO_APPROVE_DEADLINE_SECONDS: int
     # User ID of the bot user for automated moderation actions
     MODERATION_BOT_USER_ID: int
@@ -196,6 +200,12 @@ class Config:
                 f"exceed half of DB_POOL_SIZE ({DB_POOL_SIZE // 2}), or worker threads could exhaust the DB "
                 "connection pool"
             )
+
+        if self.DEV and self.COOKIE_SAMESITE == "None":
+            raise Exception("COOKIE_SAMESITE=None requires Secure cookies, which are only set outside DEV")
+
+        if self.DEV and self.COOKIE_PARTITIONED:
+            raise Exception("COOKIE_PARTITIONED requires Secure cookies, which are only set outside DEV")
 
         if not self.DEV:
             # checks for prod

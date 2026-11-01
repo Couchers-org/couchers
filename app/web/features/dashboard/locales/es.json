@@ -64,6 +64,16 @@
     "carousel_scroller": {
       "left_arrow_a11y": "Desplazar a la izquierda",
       "right_arrow_a11y": "Desplazar a la derecha"
+    },
+    "respond_to_public_trip_offer": {
+      "title": "Responder a {{name}}",
+      "description": "{{name}} se ofreció a hospedarte durante tu viaje. Avísale si quieres aceptar.",
+      "button": "Ver invitación"
+    },
+    "confirm_public_trip_offer": {
+      "title": "Confirmar alojamiento de {{name}}",
+      "description": "{{name}} ha aceptado tu invitación. Confirma la estancia para asegurarla.",
+      "button": "Confirmar estancia"
     }
   },
   "events": {
@@ -94,12 +104,12 @@
     "my_trips_header": "Tus viajes públicos",
     "manage_link": "Administrar",
     "when_now": "Ahora",
-    "empty_description": "¿Vas a algún sitio? Publica un viaje público en una comunidad para recibir ofertas de anfitriones cercanos.",
+    "empty_description": "¿Vas a algún sitio? Publica un viaje público en una comunidad para recibir invitaciones de anfitriones cercanos.",
     "same_gender_only_indicator": "Mismo género",
-    "offers_count_one": "{{count}} ofrecimiento",
-    "offers_count_many": "{{count}} de ofrecimientos",
-    "offers_count_other": "{{count}} ofrecimientos",
-    "no_offers": "Ningún ofrecimiento todavía"
+    "invitations_count_one": "{{count}} invitación",
+    "invitations_count_many": "{{count}} de invitaciones",
+    "invitations_count_other": "{{count}} invitaciones",
+    "no_invitations": "Aún no tienes ninguna invitación"
   },
   "today_label": "Hoy"
 }

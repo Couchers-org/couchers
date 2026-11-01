@@ -248,7 +248,11 @@
     "not_donated_postal": "Necesitas donar a Couchers.org antes de poder verificar tu dirección.",
     "signup_flow_email_verified": "Ya has verificado tu correo electrónico.",
     "signup_flow_invalid_request": "Solicitud de registro no válida: no puedes recuperar tu registro y continuar con el registro al mismo tiempo.",
-    "undelete_email_reused": "Esta cuenta no se puede recuperar porque su dirección de correo electrónico ya está en uso en otra cuenta."
+    "undelete_email_reused": "Esta cuenta no se puede recuperar porque su dirección de correo electrónico ya está en uso en otra cuenta.",
+    "invalid_stay_role": "Rol de estancia no válido.",
+    "public_trip_offer_too_short_one": "Tu ofreciimiento para hospedar no puede tener menos de {{count}} carácter.",
+    "public_trip_offer_too_short_many": "Tu ofreciimiento para hospedar no puede tener menos de {{count}} de caracteres.",
+    "public_trip_offer_too_short_other": "Tu ofreciimiento para hospedar no puede tener menos de {{count}} caracteres."
   },
   "badges": {
     "volunteer_name": "Voluntario en activo",
@@ -293,5 +297,6 @@
     "be_safe_guideline": "Lee los perfiles, las referencias y los recursos. Denuncia cualquier contenido o comportamiento inapropiado.",
     "no_money_title": "Mantén el dinero lejos de esto",
     "no_money_guideline": "Mantén las cosas fuera de lo transaccional. No intercambies dinero mientras te hospedes o recibas a alguien. Couchers.org se trata de aprender, vivir experiencias y conocer gente."
-  }
+  },
+  "ambiguous_language_display_format": "{{name}} ({{code}})"
 }

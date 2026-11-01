@@ -1,20 +1,38 @@
-import { render, screen } from "@testing-library/react-native";
-import * as Notifications from "expo-notifications";
-import { Href, useRouter } from "expo-router";
+import { useGrowthBook } from "@growthbook/growthbook-react";
+import { act, render, screen } from "@testing-library/react-native";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
-import { Text, View } from "react-native";
+import { ReactNode } from "react";
 
+import RootLayout from "@/app/_layout";
 import { useAuthContext } from "@/features/auth/AuthContext";
-import { useRegisterPushNotifications } from "@/features/notifications/useRegisterPushNotifications";
-import { getNotificationPath } from "@/utils/getNotificationPath";
+import { useNotificationObserver } from "@/features/notifications/useNotificationObserver";
 
-jest.mock("expo-router", () => ({
-  ...jest.requireActual("expo-router"),
-  useRouter: jest.fn(),
-  Stack: {
-    Screen: jest.fn(() => null),
-  },
+// Side-effect imports at the top of the layout
+jest.mock("react-native-reanimated", () => ({}));
+jest.mock("@/i18n", () => ({}));
+jest.mock("@/service/sentry", () => ({}));
+jest.mock("@/service/updateExtraParams", () => ({}));
+
+// Render the Stack as plain elements: a guarded group only shows its screens when
+// its guard passes, and each screen shows its name.
+jest.mock("expo-router", () => {
+  const { Text: MockText } = jest.requireActual("react-native");
+  const Stack = ({ children }: { children: ReactNode }) => children;
+  Stack.Protected = ({
+    guard,
+    children,
+  }: {
+    guard: boolean;
+    children: ReactNode;
+  }) => (guard ? children : null);
+  Stack.Screen = ({ name }: { name: string }) => (
+    <MockText testID={`screen-${name}`}>{name}</MockText>
+  );
+  return { Stack };
+});
+
+jest.mock("react-native-safe-area-context", () => ({
+  SafeAreaProvider: ({ children }: { children: ReactNode }) => children,
 }));
 
 jest.mock("expo-splash-screen", () => ({
@@ -24,17 +42,6 @@ jest.mock("expo-splash-screen", () => ({
 
 jest.mock("expo-notifications", () => ({
   setNotificationHandler: jest.fn(),
-  useLastNotificationResponse: jest.fn(() => null),
-  DEFAULT_ACTION_IDENTIFIER: "expo.modules.notifications.actions.DEFAULT",
-}));
-
-jest.mock("@/features/auth/AuthContext", () => ({
-  useAuthContext: jest.fn(),
-  AuthProvider: ({ children }: { children: React.ReactNode }) => children,
-}));
-
-jest.mock("@/features/notifications/useRegisterPushNotifications", () => ({
-  useRegisterPushNotifications: jest.fn(),
 }));
 
 jest.mock("@expo-google-fonts/ubuntu", () => ({
@@ -49,270 +56,135 @@ jest.mock("@expo-google-fonts/ubuntu", () => ({
   Ubuntu_700Bold_Italic: {},
 }));
 
-// Test component mimicking RootNavigator auth-based routing
-function TestRootNavigator() {
-  const { authenticated, checkedAuthStatus } = useAuthContext();
+jest.mock("@growthbook/growthbook-react", () => ({
+  useGrowthBook: jest.fn(),
+}));
 
-  useEffect(() => {
-    if (checkedAuthStatus) {
-      SplashScreen.hideAsync();
-    }
-  }, [checkedAuthStatus]);
+jest.mock("@/features/auth/AuthContext", () => ({
+  useAuthContext: jest.fn(),
+  AuthProvider: ({ children }: { children: ReactNode }) => children,
+}));
 
-  if (!checkedAuthStatus) {
-    return (
-      <View testID="loading">
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
+jest.mock("@/features/experimentation/FeatureFlagProvider", () => ({
+  __esModule: true,
+  default: ({ children }: { children: ReactNode }) => children,
+}));
 
-  return (
-    <View testID="navigator">
-      <View testID="login-screen">
-        <Text testID="login-redirect">{String(authenticated)}</Text>
-      </View>
-      <View testID="tabs-screen">
-        <Text testID="tabs-redirect">{String(!authenticated)}</Text>
-      </View>
-    </View>
-  );
+jest.mock("@/features/notifications/useNotificationObserver", () => ({
+  useNotificationObserver: jest.fn(),
+}));
+
+jest.mock("@/features/notifications/useRegisterPushNotifications", () => ({
+  useRegisterPushNotifications: jest.fn(),
+}));
+
+jest.mock("@/features/diagnostics/useNativeDiagnostics", () => ({
+  useNativeDiagnostics: () => ({ prompt: null, dismiss: jest.fn() }),
+}));
+
+jest.mock("@/features/diagnostics/NativeUpdatePrompt", () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
+jest.mock("@/components/DevSettingsButton", () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
+jest.mock("@/config/urls", () => ({
+  hydrateUrlOverrides: jest.fn(() => Promise.resolve()),
+}));
+
+jest.mock("@/service/client", () => ({
+  reconfigureApiClient: jest.fn(),
+}));
+
+// Keep the export unwrapped by Sentry
+jest.mock("@/service/buildInfo", () => ({ appVariant: "development" }));
+
+const useAuthContextMock = useAuthContext as jest.Mock;
+const useGrowthBookMock = useGrowthBook as jest.Mock;
+
+function setState({
+  authenticated = true,
+  checkedAuthStatus = true,
+  featuresReady = true,
+}) {
+  useAuthContextMock.mockReturnValue({ authenticated, checkedAuthStatus });
+  useGrowthBookMock.mockReturnValue({ ready: featuresReady });
 }
 
-// Test component mimicking PushNotificationsRegistrar with useNotificationObserver
-function TestPushNotificationsRegistrar() {
-  const router = useRouter();
-  const lastNotificationResponse = Notifications.useLastNotificationResponse();
-  const { authenticated, checkedAuthStatus } = useAuthContext();
-  useRegisterPushNotifications();
-
-  useEffect(() => {
-    // Wait until navigation structure is ready
-    if (!authenticated || !checkedAuthStatus) return;
-
-    if (
-      lastNotificationResponse &&
-      lastNotificationResponse.actionIdentifier ===
-        Notifications.DEFAULT_ACTION_IDENTIFIER
-    ) {
-      const url = lastNotificationResponse.notification.request.content.data
-        ?.url as string | undefined;
-      const path = getNotificationPath(url);
-      if (path) {
-        router.push(path as Href);
-      }
-    }
-  }, [lastNotificationResponse, authenticated, checkedAuthStatus, router]);
-
-  return null;
+// The root layout loads persisted config before rendering anything, so let that settle
+async function renderRootLayout() {
+  const result = render(<RootLayout />);
+  await act(async () => {});
+  return result;
 }
 
-describe("RootNavigator", () => {
-  beforeEach(() => jest.clearAllMocks());
+describe("RootLayout", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    setState({});
+  });
 
-  it("shows loading state while checking auth status", () => {
-    (useAuthContext as jest.Mock).mockReturnValue({
-      authenticated: false,
-      checkedAuthStatus: false,
-    });
+  it("keeps the splash screen up while auth is being checked", async () => {
+    setState({ checkedAuthStatus: false });
 
-    render(<TestRootNavigator />);
+    await renderRootLayout();
 
-    expect(screen.getByTestId("loading")).toBeOnTheScreen();
+    expect(screen.queryByTestId("screen-(tabs)")).not.toBeOnTheScreen();
+    expect(screen.queryByTestId("screen-login")).not.toBeOnTheScreen();
     expect(SplashScreen.hideAsync).not.toHaveBeenCalled();
   });
 
-  it("hides splash screen when auth status is checked", () => {
-    (useAuthContext as jest.Mock).mockReturnValue({
-      authenticated: false,
-      checkedAuthStatus: true,
-    });
+  it("keeps the splash screen up while feature flags load", async () => {
+    setState({ featuresReady: false });
 
-    render(<TestRootNavigator />);
+    await renderRootLayout();
 
+    expect(screen.queryByTestId("screen-(tabs)")).not.toBeOnTheScreen();
+    expect(SplashScreen.hideAsync).not.toHaveBeenCalled();
+  });
+
+  it("shows the app and hides the splash screen once logged in and ready", async () => {
+    await renderRootLayout();
+
+    expect(await screen.findByTestId("screen-(tabs)")).toBeOnTheScreen();
+    expect(screen.queryByTestId("screen-login")).not.toBeOnTheScreen();
     expect(SplashScreen.hideAsync).toHaveBeenCalled();
   });
 
-  it("redirects login screen when authenticated", () => {
-    (useAuthContext as jest.Mock).mockReturnValue({
-      authenticated: true,
-      checkedAuthStatus: true,
-    });
+  it("shows the logged-out screens when not logged in", async () => {
+    setState({ authenticated: false });
 
-    render(<TestRootNavigator />);
+    await renderRootLayout();
 
-    expect(screen.getByTestId("login-redirect").props.children).toBe("true");
-    expect(screen.getByTestId("tabs-redirect").props.children).toBe("false");
+    expect(await screen.findByTestId("screen-login")).toBeOnTheScreen();
+    expect(screen.getByTestId("screen-signup")).toBeOnTheScreen();
+    expect(screen.queryByTestId("screen-(tabs)")).not.toBeOnTheScreen();
   });
 
-  it("redirects tabs screen when not authenticated", () => {
-    (useAuthContext as jest.Mock).mockReturnValue({
-      authenticated: false,
-      checkedAuthStatus: true,
-    });
+  it("only starts handling notification taps once the app's screens are shown", async () => {
+    // A tap that cold-starts the app can't navigate before the Stack exists,
+    // so the observer must wait for everything the Stack waits for.
+    setState({ featuresReady: false });
+    const { rerender } = await renderRootLayout();
+    expect(useNotificationObserver).not.toHaveBeenCalled();
 
-    render(<TestRootNavigator />);
+    setState({ featuresReady: true });
+    rerender(<RootLayout />);
 
-    expect(screen.getByTestId("login-redirect").props.children).toBe("false");
-    expect(screen.getByTestId("tabs-redirect").props.children).toBe("true");
-  });
-});
-
-describe("PushNotificationsRegistrar", () => {
-  const mockRouter = { push: jest.fn() };
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-    (useRouter as jest.Mock).mockReturnValue(mockRouter);
-    (useRegisterPushNotifications as jest.Mock).mockReturnValue(undefined);
-    // Default: authenticated and ready
-    (useAuthContext as jest.Mock).mockReturnValue({
-      authenticated: true,
-      checkedAuthStatus: true,
-    });
+    expect(await screen.findByTestId("screen-(tabs)")).toBeOnTheScreen();
+    expect(useNotificationObserver).toHaveBeenCalled();
   });
 
-  it("registers push notifications on mount", () => {
-    render(<TestPushNotificationsRegistrar />);
+  it("doesn't handle notification taps when logged out", async () => {
+    setState({ authenticated: false });
 
-    expect(useRegisterPushNotifications).toHaveBeenCalled();
-  });
+    await renderRootLayout();
 
-  it("navigates to path from notification URL when authenticated", () => {
-    (Notifications.useLastNotificationResponse as jest.Mock).mockReturnValue({
-      actionIdentifier: Notifications.DEFAULT_ACTION_IDENTIFIER,
-      notification: {
-        request: {
-          content: {
-            data: { url: "https://couchers.org/messages/requests/123" },
-          },
-        },
-      },
-    });
-
-    render(<TestPushNotificationsRegistrar />);
-
-    // Paths are extracted from URL and pushed directly
-    expect(mockRouter.push).toHaveBeenCalledWith("/messages/requests/123");
-  });
-
-  it("navigates to base path directly", () => {
-    (Notifications.useLastNotificationResponse as jest.Mock).mockReturnValue({
-      actionIdentifier: Notifications.DEFAULT_ACTION_IDENTIFIER,
-      notification: {
-        request: {
-          content: { data: { url: "https://couchers.org/messages" } },
-        },
-      },
-    });
-
-    render(<TestPushNotificationsRegistrar />);
-
-    expect(mockRouter.push).toHaveBeenCalledWith("/messages");
-  });
-
-  it("handles notification with path-only URL as fallback", () => {
-    (Notifications.useLastNotificationResponse as jest.Mock).mockReturnValue({
-      actionIdentifier: Notifications.DEFAULT_ACTION_IDENTIFIER,
-      notification: {
-        request: { content: { data: { url: "/messages/456" } } },
-      },
-    });
-
-    render(<TestPushNotificationsRegistrar />);
-
-    // Path-only URLs that fail URL parsing use fallback (push as-is)
-    expect(mockRouter.push).toHaveBeenCalledWith("/messages/456");
-  });
-
-  it("navigates to leave-reference paths correctly", () => {
-    (Notifications.useLastNotificationResponse as jest.Mock).mockReturnValue({
-      actionIdentifier: Notifications.DEFAULT_ACTION_IDENTIFIER,
-      notification: {
-        request: {
-          content: {
-            data: { url: "https://couchers.org/leave-reference/surfed/91/320" },
-          },
-        },
-      },
-    });
-
-    render(<TestPushNotificationsRegistrar />);
-
-    expect(mockRouter.push).toHaveBeenCalledWith(
-      "/leave-reference/surfed/91/320",
-    );
-  });
-
-  it("ignores notifications without URL", () => {
-    (Notifications.useLastNotificationResponse as jest.Mock).mockReturnValue({
-      actionIdentifier: Notifications.DEFAULT_ACTION_IDENTIFIER,
-      notification: { request: { content: { data: {} } } },
-    });
-
-    render(<TestPushNotificationsRegistrar />);
-
-    expect(mockRouter.push).not.toHaveBeenCalled();
-  });
-
-  it("does not navigate when not authenticated", () => {
-    (useAuthContext as jest.Mock).mockReturnValue({
-      authenticated: false,
-      checkedAuthStatus: true,
-    });
-    (Notifications.useLastNotificationResponse as jest.Mock).mockReturnValue({
-      actionIdentifier: Notifications.DEFAULT_ACTION_IDENTIFIER,
-      notification: {
-        request: {
-          content: {
-            data: { url: "https://couchers.org/leave-reference/surfed/91/320" },
-          },
-        },
-      },
-    });
-
-    render(<TestPushNotificationsRegistrar />);
-
-    // Should NOT navigate because user is not authenticated
-    expect(mockRouter.push).not.toHaveBeenCalled();
-  });
-
-  it("does not navigate while auth status is being checked", () => {
-    (useAuthContext as jest.Mock).mockReturnValue({
-      authenticated: false,
-      checkedAuthStatus: false,
-    });
-    (Notifications.useLastNotificationResponse as jest.Mock).mockReturnValue({
-      actionIdentifier: Notifications.DEFAULT_ACTION_IDENTIFIER,
-      notification: {
-        request: {
-          content: {
-            data: { url: "https://couchers.org/leave-reference/surfed/91/320" },
-          },
-        },
-      },
-    });
-
-    render(<TestPushNotificationsRegistrar />);
-
-    // Should NOT navigate because auth status hasn't been checked yet
-    expect(mockRouter.push).not.toHaveBeenCalled();
-  });
-
-  it("ignores non-default action notifications", () => {
-    (Notifications.useLastNotificationResponse as jest.Mock).mockReturnValue({
-      actionIdentifier: "some.other.action",
-      notification: {
-        request: {
-          content: {
-            data: { url: "https://couchers.org/messages/123" },
-          },
-        },
-      },
-    });
-
-    render(<TestPushNotificationsRegistrar />);
-
-    expect(mockRouter.push).not.toHaveBeenCalled();
+    expect(await screen.findByTestId("screen-login")).toBeOnTheScreen();
+    expect(useNotificationObserver).not.toHaveBeenCalled();
   });
 });

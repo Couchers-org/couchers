@@ -1,24 +1,21 @@
-import { ArrowBack, ArrowForward, Luggage, MeetingRoom } from "@mui/icons-material";
-import { Box, IconButton, styled, Typography } from "@mui/material";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { Luggage, MeetingRoom, SvgIconComponent } from "@mui/icons-material";
+import { Box, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
-import FadingScrollTrack from "components/FadingScrollTrack";
-import { hostRequestsListKey } from "features/queryKeys";
-import { RpcError } from "grpc-web";
+import FadingScrollTrack, { cardScrollDistance } from "components/FadingScrollTrack";
 import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
-import { HostRequestStatus } from "proto/messages_pb";
-import { HostRequest, HostRequestSortBy, ListHostRequestsRes } from "proto/requests_pb";
+import { HostRequest } from "proto/requests_pb";
 import { useEffect, useRef, useState } from "react";
 import { routeToEditProfile, searchRoute } from "routes";
-import { service } from "service";
 import { theme } from "theme";
 
+import DashboardSectionHeader from "./DashboardSectionHeader";
 import UpcomingStayCard, { UpcomingStayCardSkeleton } from "./UpcomingStayCard";
+import useGetDashboard from "./useGetDashboard";
 
 interface UpcomingStaysWidgetProps {
-  icon: React.ReactNode;
+  icon: SvgIconComponent;
   title: string;
   requests: HostRequest.AsObject[];
   isLoading: boolean;
@@ -29,14 +26,6 @@ interface UpcomingStaysWidgetProps {
 
 const CARD_WIDTH = 220;
 const CARD_GAP = 12;
-
-const SectionHeader = styled("div")({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  marginBottom: theme.spacing(1.5),
-  minHeight: 28,
-});
 
 const EmptyStateRow = styled("div")(({ theme }) => ({
   display: "flex",
@@ -57,7 +46,6 @@ function UpcomingStaysWidget({
   emptyCtaLabel,
   emptyCtaHref,
 }: UpcomingStaysWidgetProps) {
-  const { t } = useTranslation([DASHBOARD]);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -76,57 +64,22 @@ function UpcomingStaysWidget({
   }, [requests.length, isLoading]);
 
   const scroll = (dir: 1 | -1) => {
-    scrollerRef.current?.scrollBy({
-      left: dir * (CARD_WIDTH + CARD_GAP) * 2,
-      behavior: "smooth",
-    });
+    const el = scrollerRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * cardScrollDistance(el, CARD_WIDTH, CARD_GAP), behavior: "smooth" });
   };
 
   return (
     <section>
-      <SectionHeader>
-        <Typography variant="h2" sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
-          {icon}
-          {title}
-          {!isLoading && requests.length > 0 && (
-            <Box
-              component="span"
-              sx={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: "var(--mui-palette-text-secondary)",
-                background: "var(--mui-palette-grey-50)",
-                borderRadius: 999,
-                px: 1.125,
-                lineHeight: "20px",
-                display: "inline-block",
-              }}
-            >
-              {requests.length}
-            </Box>
-          )}
-        </Typography>
-        <div>
-          <IconButton
-            size="small"
-            onClick={() => scroll(-1)}
-            disabled={!canScrollLeft}
-            color={canScrollLeft ? "primary" : "default"}
-            aria-label={t("dashboard:prev_page_button_a11y")}
-          >
-            <ArrowBack fontSize="small" />
-          </IconButton>
-          <IconButton
-            size="small"
-            onClick={() => scroll(1)}
-            disabled={!canScrollRight}
-            color={canScrollRight ? "primary" : "default"}
-            aria-label={t("dashboard:next_page_button_a11y")}
-          >
-            <ArrowForward fontSize="small" />
-          </IconButton>
-        </div>
-      </SectionHeader>
+      <DashboardSectionHeader
+        icon={icon}
+        title={title}
+        count={isLoading ? 0 : requests.length}
+        hasPrevious={canScrollLeft}
+        hasNext={canScrollRight}
+        onPrevious={() => scroll(-1)}
+        onNext={() => scroll(1)}
+      />
 
       {isLoading ? (
         <FadingScrollTrack $gap={CARD_GAP} $snapType="x proximity">
@@ -182,64 +135,26 @@ function UpcomingStaysWidget({
   );
 }
 
-const UPCOMING_STATUSES = [
-  HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED,
-  HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED,
-];
-
 export default function UpcomingStays() {
   const { t } = useTranslation([DASHBOARD]);
-
   const {
-    data: tripsData,
-    isLoading: tripsLoading,
-    error: tripsError,
-  } = useInfiniteQuery<ListHostRequestsRes.AsObject, RpcError>({
-    queryKey: hostRequestsListKey({ type: "surfing", onlyActive: true }),
-    queryFn: ({ pageParam }) =>
-      service.requests.listHostRequests({
-        pageToken: pageParam as string | undefined,
-        type: "surfing",
-        onlyActive: true,
-        statusIn: UPCOMING_STATUSES,
-        sortBy: HostRequestSortBy.HOST_REQUEST_SORT_BY_FROM_DATE,
-      }),
-    initialPageParam: undefined,
-    getNextPageParam: (lastPage) => (lastPage.noMore ? undefined : lastPage.nextPageToken),
-  });
-
-  const {
-    data: guestsData,
-    isLoading: guestsLoading,
-    error: guestsError,
-  } = useInfiniteQuery<ListHostRequestsRes.AsObject, RpcError>({
-    queryKey: hostRequestsListKey({ type: "hosting", onlyActive: true }),
-    queryFn: ({ pageParam }) =>
-      service.requests.listHostRequests({
-        pageToken: pageParam as string | undefined,
-        type: "hosting",
-        onlyActive: true,
-        statusIn: UPCOMING_STATUSES,
-        sortBy: HostRequestSortBy.HOST_REQUEST_SORT_BY_FROM_DATE,
-      }),
-    initialPageParam: undefined,
-    getNextPageParam: (lastPage) => (lastPage.noMore ? undefined : lastPage.nextPageToken),
-  });
-
-  const upcomingTrips = (tripsData?.pages ?? []).flatMap((page) => page.hostRequestsList);
-  const upcomingGuests = (guestsData?.pages ?? []).flatMap((page) => page.hostRequestsList);
-
-  const error = tripsError ?? guestsError;
+    data: { upcomingTrips, upcomingGuests } = { upcomingTrips: [], upcomingGuests: [] },
+    isLoading,
+    error,
+  } = useGetDashboard((dashboard) => ({
+    upcomingTrips: dashboard.surfing?.hostRequestsList ?? [],
+    upcomingGuests: dashboard.hosting?.hostRequestsList ?? [],
+  }));
 
   return (
     <div>
       {error && <Alert severity="error">{error.message}</Alert>}
 
       <UpcomingStaysWidget
-        icon={<MeetingRoom sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />}
+        icon={MeetingRoom}
         title={t("dashboard:stays.upcoming_guests_header")}
         requests={upcomingGuests}
-        isLoading={guestsLoading}
+        isLoading={isLoading}
         emptyMessage={t("dashboard:stays.no_upcoming_guests")}
         emptyCtaLabel={t("dashboard:become_a_host")}
         emptyCtaHref={`${routeToEditProfile("about")}#preferences`}
@@ -248,10 +163,10 @@ export default function UpcomingStays() {
       <Box sx={{ height: theme.spacing(3) }} />
 
       <UpcomingStaysWidget
-        icon={<Luggage sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />}
+        icon={Luggage}
         title={t("dashboard:stays.upcoming_trips_header")}
         requests={upcomingTrips}
-        isLoading={tripsLoading}
+        isLoading={isLoading}
         emptyMessage={t("dashboard:stays.no_upcoming_trips")}
         emptyCtaLabel={t("dashboard:find_a_host")}
         emptyCtaHref={searchRoute}

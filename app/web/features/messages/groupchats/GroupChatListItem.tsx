@@ -13,6 +13,7 @@ import Avatar from "components/Avatar";
 import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
 import { MuteIcon } from "components/Icons";
 import { useAuthContext } from "features/auth/AuthProvider";
+import ThreadTitleRow from "features/messages/ThreadTitleRow";
 import {
   controlMessage,
   groupChatTitleText,
@@ -20,7 +21,7 @@ import {
   isControlMessage,
   messageTargetId,
 } from "features/messages/utils";
-import { groupChatsListKey } from "features/queryKeys";
+import { messageThreadsListKey } from "features/queryKeys";
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -116,11 +117,11 @@ export default function GroupChatListItem({ groupChat, className, isArchived = f
     onMutate: async () => {
       handleMenuClose();
       // Cancel outgoing refetches so they don't overwrite our optimistic update
-      await queryClient.cancelQueries({ queryKey: groupChatsListKey() });
+      await queryClient.cancelQueries({ queryKey: messageThreadsListKey() });
     },
     onSettled: () => {
       // Refetch after mutation completes (success or error)
-      queryClient.invalidateQueries({ queryKey: groupChatsListKey() });
+      queryClient.invalidateQueries({ queryKey: messageThreadsListKey() });
     },
   });
 
@@ -134,7 +135,7 @@ export default function GroupChatListItem({ groupChat, className, isArchived = f
 
   return (
     <StyledListItemContainer>
-      <ListItemButton className={className} sx={{ paddingRight: 7 }}>
+      <ListItemButton className={className}>
         <ListItemAvatar>
           {groupChatMembersQuery.isLoading ? (
             <Skeleton />
@@ -149,22 +150,24 @@ export default function GroupChatListItem({ groupChat, className, isArchived = f
           )}
         </ListItemAvatar>
         <ListItemText
-          sx={{ paddingRight: 5 }}
           slotProps={{
             primary: { component: "span" },
-            secondary: { component: "span" },
+            // only the lines below the title share the row with the menu
+            secondary: { component: "span", sx: { paddingInlineEnd: 5 } },
           }}
           primary={
-            <StyledListItemTypography isUnread={isUnread} noWrap>
-              {groupChatMembersQuery.isLoading ? (
-                <Skeleton />
-              ) : (
-                <>
-                  <StyledTitle>{title}</StyledTitle>
-                  {groupChat.muteInfo?.muted && <StyledMuteIcon />}
-                </>
-              )}
-            </StyledListItemTypography>
+            <ThreadTitleRow latestMessageTime={groupChat.latestMessage?.time} isUnread={isUnread}>
+              <StyledListItemTypography isUnread={isUnread} noWrap>
+                {groupChatMembersQuery.isLoading ? (
+                  <Skeleton />
+                ) : (
+                  <>
+                    <StyledTitle>{title}</StyledTitle>
+                    {groupChat.muteInfo?.muted && <StyledMuteIcon />}
+                  </>
+                )}
+              </StyledListItemTypography>
+            </ThreadTitleRow>
           }
           secondary={
             <StyledListItemTypography isUnread={isUnread} noWrap>
