@@ -1,6 +1,7 @@
 import { Group } from "@mui/icons-material";
 import { Card, CardContent, CardMedia, Chip, styled, Typography } from "@mui/material";
 import { eventImagePlaceholderUrl } from "appConstants";
+import { clampedTypographyWith } from "components/ClampedTypography";
 import Divider from "components/Divider";
 import { contentRefs } from "features/contentRefs";
 import FlagButton from "features/FlagButton";
@@ -30,32 +31,15 @@ const StyledCard = styled(Card, {
   }),
 }));
 
-const Title = styled(Typography)(({ theme }) => ({
-  display: "-webkit-box",
-  WebkitBoxOrient: "vertical",
-  WebkitLineClamp: 2,
-  overflow: "hidden",
+const Title = clampedTypographyWith({ WebkitLineClamp: 2 });
+
+const EventTime = styled(clampedTypographyWith({ WebkitLineClamp: 2 }))(({ theme }) => ({
+  [theme.breakpoints.up("sm")]: { WebkitLineClamp: 1 },
 }));
 
-const EventTime = styled(Typography)(({ theme }) => ({
-  display: "-webkit-box",
-  WebkitBoxOrient: "vertical",
-  WebkitLineClamp: 2,
-  overflow: "hidden",
-  [theme.breakpoints.up("sm")]: {
-    WebkitLineClamp: 1,
-  },
-}));
-
-const Content = styled(Typography)({
-  display: "-webkit-box",
-  WebkitBoxOrient: "vertical",
-  WebkitLineClamp: 3,
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-  wordBreak: "break-word",
+const Content = styled(clampedTypographyWith({ WebkitLineClamp: 3, ellipsis: true }))(() => ({
   maxHeight: "4.5em",
-});
+}));
 
 const CancelledChip = styled(Chip)(({ theme }) => ({
   backgroundColor: theme.palette.error.main,
