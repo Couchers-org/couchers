@@ -10,7 +10,7 @@ const { t } = i18n;
 
 jest.mock("lottie-react", () => ({
   __esModule: true,
-  default: () => <div data-testid="lottie-mock" />,
+  Lottie: () => <div data-testid="lottie-mock" />,
 }));
 
 describe("HeroSection", () => {

@@ -263,7 +263,7 @@
   },
   "host_request": {
     "accept": {
-      "event_description": "Someone accepts your host request",
+      "event_description": "Someone accepts your host request or invitation",
       "push": {
         "title": "{{user}} accepted your host request",
         "ios_title": "{{user}}",
@@ -272,7 +272,7 @@
       }
     },
     "cancel": {
-      "event_description": "Someone cancels their host request",
+      "event_description": "Someone cancels their host request or invitation",
       "push": {
         "title": "{{user}} cancelled their host request",
         "ios_title": "{{user}}",
@@ -281,7 +281,7 @@
       }
     },
     "confirm": {
-      "event_description": "Someone confirms their host request",
+      "event_description": "Someone confirms their host request or invitation",
       "push": {
         "title": "{{user}} confirmed their host request",
         "ios_title": "{{user}}",
@@ -290,7 +290,7 @@
       }
     },
     "create": {
-      "event_description": "Someone sends you a host request",
+      "event_description": "Someone sends you a host request or invitation",
       "push": {
         "title": "New host request from {{user}}",
         "ios_title": "{{user}}",
@@ -300,10 +300,10 @@
       }
     },
     "message": {
-      "event_description": "Someone sends a message in a host request"
+      "event_description": "Someone sends a message in a host request or invitation"
     },
     "missed_messages": {
-      "event_description": "You miss messages in a host request",
+      "event_description": "You miss messages in a host request or invitation",
       "push": {
         "title": "New messages from {{user}}",
         "ios_title": "{{user}}",
@@ -312,7 +312,7 @@
       }
     },
     "reject": {
-      "event_description": "Someone declines your host request",
+      "event_description": "Someone declines your host request or invitation",
       "push": {
         "title": "{{user}} declined your host request",
         "ios_title": "{{user}}",
@@ -321,7 +321,7 @@
       }
     },
     "reminder": {
-      "event_description": "You haven't responded to a pending host request",
+      "event_description": "You haven't responded to a pending host request or invitation",
       "push": {
         "title": "Pending request by {{user}}",
         "ios_title": "Host Request Pending",

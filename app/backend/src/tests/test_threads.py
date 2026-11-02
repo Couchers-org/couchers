@@ -1,6 +1,5 @@
 import string
 import textwrap
-from datetime import timedelta
 
 import grpc
 import pytest
@@ -18,12 +17,13 @@ from couchers.models import (
     User,
 )
 from couchers.models.discussions import CommentVersion, ContentChangeType, ReplyVersion
-from couchers.proto import discussions_pb2, events_pb2, moderation_pb2, threads_pb2
+from couchers.proto import discussions_pb2, moderation_pb2, threads_pb2
 from couchers.servicers.threads import pack_thread_id
-from couchers.utils import datetime_to_iso8601_local, now
+from couchers.utils import now
+from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import Moderator
-from tests.fixtures.sessions import discussions_session, events_session, real_moderation_session, threads_session
+from tests.fixtures.sessions import discussions_session, real_moderation_session, threads_session
 from tests.test_communities import create_community
 
 
@@ -553,22 +553,7 @@ def _create_event_and_get_thread_id(organizer, organizer_token: str) -> int:
     with session_scope() as session:
         create_community(session, 0, 2, "Testing Community", [organizer], [], None)
 
-    start_time = now() + timedelta(hours=2)
-    end_time = start_time + timedelta(hours=3)
-    with events_session(organizer_token) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy event",
-                content="Dummy content.",
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
+    res = events_api.create_event(token=organizer_token)
     return int(res.thread.thread_id)
 
 

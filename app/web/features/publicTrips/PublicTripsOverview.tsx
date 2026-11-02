@@ -77,7 +77,7 @@ export default function PublicTripsOverview({ community }: { community: Communit
     <StyledSection>
       <SectionHeader>
         <SectionTitle icon={<CouchIcon />} variant="h2">
-          {t("publicTrips:label")}
+          {t("publicTrips:heading")}
         </SectionTitle>
         {trips.length > 0 && (
           <Box sx={{ display: "flex", alignItems: "center", gap: "4px" }}>
@@ -86,7 +86,7 @@ export default function PublicTripsOverview({ community }: { community: Communit
               onClick={() => scroll(-1)}
               disabled={!canScrollLeft}
               color={canScrollLeft ? "primary" : "default"}
-              aria-label={t("publicTrips:prev_page_button_a11y")}
+              aria-label={t("publicTrips:trip_list.pagination.previous_button_a11y")}
             >
               <ArrowBack fontSize="small" />
             </IconButton>
@@ -95,7 +95,7 @@ export default function PublicTripsOverview({ community }: { community: Communit
               onClick={() => scroll(1)}
               disabled={!canScrollRight}
               color={canScrollRight ? "primary" : "default"}
-              aria-label={t("publicTrips:next_page_button_a11y")}
+              aria-label={t("publicTrips:trip_list.pagination.next_button_a11y")}
             >
               <ArrowForward fontSize="small" />
             </IconButton>
@@ -128,13 +128,13 @@ export default function PublicTripsOverview({ community }: { community: Communit
           ))}
         </FadingScrollTrack>
       ) : (
-        <TextBody>{t("publicTrips:empty_state")}</TextBody>
+        <TextBody>{t("publicTrips:trip_list.empty_placeholder")}</TextBody>
       )}
 
       <FooterRow>
         {trips.length > 0 && (
           <StyledLink href={routeToCommunity(community.communityId, community.slug, "public-trips")}>
-            {t("publicTrips:see_all")}
+            {t("publicTrips:trip_list.see_all_link")}
           </StyledLink>
         )}
       </FooterRow>

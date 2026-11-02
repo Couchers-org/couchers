@@ -20,7 +20,7 @@
   "member_count_many": "{{count}} учасників",
   "profile_summary_edit": "Редагувати профіль",
   "profile_summary_view": "Переглянути мій профіль",
-  "profile_mobile_summary_view": "Відвідати профіль",
+  "profile_mobile_summary_view": "Переглянути профіль",
   "find_a_host": "Знайти гостинність",
   "become_a_host": "Запросити гостей",
   "search_input_label": "Куди мандруєте?",
@@ -40,7 +40,7 @@
     "replies_count_label_many": "{{count}} повідомлень"
   },
   "events": {
-    "your_upcoming_header": "Ваші прийдешні події",
+    "your_upcoming_header": "Ваші майбутні події",
     "your_upcoming_empty_message": "Наразі немає подій. Чому б вам не <createEventLink>створити</createEventLink> свою✨?",
     "community_header": "Події у ваших спільнотах"
   },

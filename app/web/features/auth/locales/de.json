@@ -257,7 +257,10 @@
     "description": "Auf dieser Seite werden aktive Anmeldungen aufgelistet. Du kannst dich von jeder davon abmelden, indem du auf die Schaltfläche neben der Anmeldung klickst oder nach unten scrollst und auf die Schaltfläche klickst, um dich von allen außer dieser Sitzung abzumelden.",
     "login_header": "Angemeldet am {{login_datetime}}",
     "log_out_of_session": "Melde dich von dieser Sitzung ab",
-    "log_out_of_all_session": "Melde dich von allen anderen Sitzungen ab"
+    "log_out_of_all_session": "Melde dich von allen anderen Sitzungen ab",
+    "location2": "In der Nähe von <location/>",
+    "last_activity2": "Zuletzt aktiv <timeAgo/>",
+    "expiry2": "Läuft am <datetime/> ab"
   },
   "strong_verification": {
     "status": {
@@ -408,5 +411,108 @@
     "signup_change_email": "E-Mail-Adresse ändern",
     "success_message": "Deine E-Mail-Änderung ist eingegangen. Sieh in deinem E-Mail-Postfach nach, um deine E-Mail zu bestätigen."
   },
-  "sign_up_change_email": "Hast du dich bei deiner E-Mail-Adresse vertippt? Gib hier deine korrekte E-Mail-Adresse ein:"
+  "sign_up_change_email": "Hast du dich bei deiner E-Mail-Adresse vertippt? Gib hier deine korrekte E-Mail-Adresse ein:",
+  "verification_page": {
+    "title": "Verifizierung",
+    "intro": "Wenn du dich verifizierst, trägst du zur Sicherheit unserer Community bei, und Hosts sagen eher zu, während Surfer dir eher eine Anfrage schicken. Das ist kostenlos und immer freiwillig.",
+    "settings_link": {
+      "title": "Verifizierung",
+      "moved_message": "Suchst du nach der Verifizierung? Sie ist <verificationLink>hierher umgezogen</verificationLink>."
+    },
+    "status_pill": {
+      "verified": "Verifiziert",
+      "not_verified": "Nicht verifiziert",
+      "code_sent": "Code gesendet",
+      "in_progress": "In Bearbeitung"
+    },
+    "strong": {
+      "description": "Bestätige dein Geburtsdatum und dein Geschlecht mit deinem biometrischen Reisepass, ganz einfach mit deinem Handy.",
+      "benefits_header": "Funktionen, die du erhältst",
+      "benefits": {
+        "photos_title_one": "{{count}} Profilfoto",
+        "photos_title_other": "{{count}} Profilfotos",
+        "photos_description": "Anstatt {{unverified_count}}.",
+        "badge_title": "Ein Profilabzeichen",
+        "badge_description": "Alter und Geschlecht werden als geprüft angezeigt.",
+        "interactions_title": "Bessere Interaktionen",
+        "interactions_description": "Du bekommst eher eine Antwort.",
+        "visibility_title": "Mehr Sichtbarkeit",
+        "visibility_description": "Du wirst in den Suchergebnissen weiter oben angezeigt."
+      },
+      "start_hint": "Wir führen dich Schritt für Schritt durch den Scan deines Reisepasses.",
+      "verified_message": "Du bist verifiziert. Die Verifizierung läuft ab, wenn dein Reisepass abläuft.",
+      "data_notes": {
+        "third_party": "<strong>Gescannt von Iris ID.</strong> Deren App liest auf deinem Handy den Chip deines Reisepasses aus und übermittelt uns das Ergebnis.",
+        "encryption": "<strong>Im Ruhezustand verschlüsselt.</strong> Der Passdatensatz wird verschlüsselt, außerhalb des Systems aufbewahrt wird. Nur die für die Verifizierung mindestens erforderlichen Felder werden unverschlüsselt gespeichert.",
+        "deletion": "<strong>Lösche sie, wann immer du willst.</strong> Die Verifizierung läuft außerdem ab, sobald dein Reisepass abläuft."
+      },
+      "requirements_header": "Was du brauchst",
+      "requirements": {
+        "passport": "Ein biometrischer Reisepass mit dem goldenen Chipsymbol auf dem Einband",
+        "nfc_phone": "Ein Smartphone mit NFC, ohne Hülle",
+        "time": "Etwa fünf Minuten"
+      }
+    },
+    "phone": {
+      "header": "Telefonverifizierung",
+      "description": "Wir schicken dir einen Code per SMS. Deine Nummer wird nie in deinem Profil angezeigt und wir schreiben dir nicht darüber. Nur für Spender verfügbar, da uns der SMS-Versand Geld kostet.",
+      "code_sent_description": "Wir haben einen Code an <strong>{{phone_number}}</strong> gesendet. Gib ihn unten ein, um deine Nummer zu bestätigen.",
+      "use_another_number_button": "Andere Nummer verwenden",
+      "verified_message": "Verifiziert: <strong>{{phone_number}}</strong>."
+    },
+    "postal": {
+      "header": "Adress-Verifizierung",
+      "description": "Wir schicken dir einen Code per Postkarte, damit du bestätigen kannst, dass du dort wohnst, wo es in deinem Profil steht. Deine Adresse wird nur zum Versand der Karte verwendet. Verfügbar für Spender, da wir die Kosten für Druck und Porto übernehmen.",
+      "need_to_donate": "Du musst <donateLink>spenden</donateLink>, bevor du die Adress-Verifizierung abschließen kannst.",
+      "step_number": "Schritt {{step_number}}",
+      "steps": {
+        "address": "Deine Adresse",
+        "confirm": "Bestätigen",
+        "in_the_post": "In der Post",
+        "code": "Gib den Code ein"
+      },
+      "address_form": {
+        "description": "Straße, Stadt und Land sind Pflichtangaben. Bevor wir etwas drucken, prüfen wir, ob die Adresse zustellbar ist.",
+        "address_line_1_label": "Adresszeile 1",
+        "address_line_2_label": "Adresszeile 2 (optional)",
+        "address_line_2_placeholder": "Wohnung, Suite, Etage",
+        "city_label": "Stadt",
+        "state_label": "Bundesland oder Region (optional)",
+        "state_placeholder": "Falls in deinem Land verwendet",
+        "postal_code_label": "Postleitzahl",
+        "country_label": "Land",
+        "submit_button": "Überprüfe meine Adresse",
+        "required_field_error": "Dieses Feld wird benötigt"
+      },
+      "confirm": {
+        "corrected_description": "Wir haben deine Adresse an die Daten der Post angepasst. Bitte überprüfe sie, denn sobald du bestätigst, können wir nicht mehr ändern, wohin die Karte geschickt wird.",
+        "unchanged_description": "Überprüfe deine Adresse, denn sobald du bestätigst, können wir nicht mehr ändern, wohin die Karte geschickt wird.",
+        "entered_header": "Du hast eingegeben",
+        "will_post_to_header": "Wir senden zu",
+        "submit_button": "Sende meine Postkarte",
+        "edit_button": "Adresse bearbeiten"
+      },
+      "in_the_post": {
+        "sent_message": "Deine Postkarte wurde am {{date}} verschickt. Normalerweise dauert es ein bis drei Wochen, bis sie ankommt, und der Code ist {{code_lifetime_days}} Tage lang gültig.",
+        "queued_message": "Deine Postkarte wartet auf den Druck. Nach dem Versand dauert es in der Regel ein bis drei Wochen, bis sie ankommt, und der Code ist ab dem Versand {{code_lifetime_days}} Tage gültig."
+      },
+      "code_form": {
+        "description": "Gib die sechs Zeichen ein, die auf deiner Postkarte abgedruckt sind.",
+        "code_label": "Postkartencode",
+        "tries_left_one": "{{count}} von {{max_tries}} Versuche übrig.",
+        "tries_left_other": "{{count}} von {{max_tries}} Versuchen übrig.",
+        "wrong_code_message": "Dieser Code stimmt nicht. Bitte versuch es noch einmal.",
+        "submit_button": "Code bestätigen"
+      },
+      "cancel_button": "Diesen Versuch abbrechen",
+      "verified_message": "Deine Adresse ist verifiziert.",
+      "rate_limited_message": "Du kannst die Adress-Verifizierung per Post am {{date}} erneut starten.",
+      "failed_message": "Dieser Versuch der Verifizierung per Post hat leider nicht geklappt. Du kannst unten von vorne beginnen.",
+      "cancelled_message": "Du hast deinen letzten Versuch der Adress-Verifizierung per Post abgebrochen. Du kannst unten neu beginnen."
+    },
+    "data_use": {
+      "header": "Wie deine Daten verwendet werden",
+      "body": "Wir verwenden Verifizierungsdaten, um Missbrauch zu verhindern (zum Beispiel, indem wir sicherstellen, dass ein Reisepass nur zur Verifizierung eines einzigen Kontos verwendet wird). Wir geben Verifizierungsdaten an Behörden weiter (aber nicht an andere Mitglieder), falls dies im Rahmen einer offiziellen Untersuchung eines schwerwiegenden Fehlverhaltens erforderlich ist. Andere Mitglieder sehen immer nur, dass du verifiziert bist, niemals die Details."
+    }
+  }
 }

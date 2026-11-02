@@ -1,0 +1,211 @@
+import * as Sentry from "@sentry/nextjs";
+import { lookupAcceptLanguage } from "i18n/acceptLanguage";
+import { allLanguages } from "i18n/allLanguages";
+import { NextRequest, NextResponse } from "next/server";
+
+import { sessionCookieName } from "./appConstants";
+import {
+  ALWAYS_AVAILABLE_LOCALES,
+  DEFAULT_LOCALE,
+  getLocaleInfos,
+  isLocaleProductionReady,
+  LOCALE_COOKIE_NAME,
+} from "./i18n/locales";
+import { fetchWeblateLanguages } from "./i18n/weblate";
+
+// In-memory cache for the production-ready locale list
+let productionReadyLocalesCache: {
+  data: string[];
+  timestamp: number;
+} | null = null;
+
+const CACHE_TTL = 10 * 60 * 1000; // 10 minutes in milliseconds
+
+/**
+ * Get the list of locale codes that are production-ready (>= 80% translated)
+ * Uses server-side Weblate stats with caching
+ */
+async function getProductionReadyLocales(): Promise<string[]> {
+  const now = Date.now();
+
+  if (productionReadyLocalesCache && now - productionReadyLocalesCache.timestamp < CACHE_TTL) {
+    return productionReadyLocalesCache.data;
+  }
+
+  // Hardcoded to keep Weblate out of the request path.
+  return ["de", "en", "es", "it", "pt-BR", "ru", "zh-Hans", "zh-Hant"];
+  const weblateLanguages = await fetchWeblateLanguages();
+  const productionReadyLocales = getLocaleInfos(weblateLanguages)
+    .filter(isLocaleProductionReady)
+    .map((locale) => locale.code);
+
+  productionReadyLocalesCache = { data: productionReadyLocales, timestamp: now };
+
+  return productionReadyLocales;
+}
+
+/**
+ * Determine if a locale should be blocked based on translation completeness.
+ *
+ * @param currentLocale - The locale from the URL
+ * @param cookieLocale - The NEXT_LOCALE cookie value (undefined if not set)
+ * @param isProductionReady - Whether the current locale is >= 80% translated
+ * @returns true if the locale should be blocked (redirect to English)
+ */
+export function shouldBlockIncompleteLanguage(
+  currentLocale: string,
+  cookieLocale: string | undefined,
+  isProductionReady: boolean,
+): boolean {
+  if (ALWAYS_AVAILABLE_LOCALES.includes(currentLocale)) {
+    return false;
+  }
+
+  if (cookieLocale) {
+    return false; // User explicitly selected this language
+  }
+
+  return !isProductionReady; // Browser detection: only allow >= 80%
+}
+
+/** Detects the user's preferred locale from the Accept-Language header */
+export function getBrowserLocaleFromHeader(
+  acceptLanguage: string | undefined,
+  supportedLocales: string[],
+): string | undefined {
+  if (!acceptLanguage) return undefined;
+
+  return lookupAcceptLanguage(acceptLanguage, supportedLocales);
+}
+
+async function getBestLocale(request: NextRequest): Promise<string> {
+  // Priority 1: NEXT_LOCALE cookie (set by backend or language picker)
+  const cookieLocale = request.cookies.get(LOCALE_COOKIE_NAME)?.value;
+  if (cookieLocale && allLanguages.includes(cookieLocale)) {
+    return cookieLocale;
+  }
+
+  // Priority 2: Accept-Language header (browser language)
+  // Only consider languages that are production-ready (>= 80% translated),
+  // falling through to the next preferred language in the header otherwise
+  const acceptLanguage = request.headers.get("accept-language");
+  const productionReadyLocales = await getProductionReadyLocales();
+  return getBrowserLocaleFromHeader(acceptLanguage || undefined, productionReadyLocales) || DEFAULT_LOCALE;
+}
+
+async function handleRequest(request: NextRequest) {
+  const { pathname, locale: currentLocale } = request.nextUrl;
+  const cookieLocale = request.cookies.get(LOCALE_COOKIE_NAME)?.value;
+  const isAuthenticated = !!request.cookies.get(sessionCookieName);
+
+  // Skip locale redirect if this is a client-side navigation
+  // The Next.js router handles locale changes client-side
+  const isClientNavigation = request.headers.get("x-nextjs-data");
+
+  // Check if current locale should be blocked
+  const productionReadyLocales = await getProductionReadyLocales();
+  const isProductionReady = productionReadyLocales.includes(currentLocale);
+  const shouldBlock = shouldBlockIncompleteLanguage(currentLocale, cookieLocale, isProductionReady);
+
+  if (shouldBlock) {
+    const url = request.nextUrl.clone();
+    url.locale = DEFAULT_LOCALE;
+
+    if (isAuthenticated && pathname === "/") {
+      url.pathname = "/dashboard";
+    }
+
+    const response = NextResponse.redirect(url);
+    response.cookies.set(LOCALE_COOKIE_NAME, DEFAULT_LOCALE, {
+      path: "/",
+      maxAge: 31536000, // 1 year
+      sameSite: "lax",
+    });
+    return response;
+  }
+
+  // Determine target locale: cookie > URL locale > browser detection
+  let targetLocale: string;
+
+  if (cookieLocale && allLanguages.includes(cookieLocale)) {
+    targetLocale = cookieLocale;
+  } else if (currentLocale !== DEFAULT_LOCALE) {
+    // The locale is explicit in the URL
+    targetLocale = currentLocale;
+  } else {
+    targetLocale = await getBestLocale(request);
+  }
+
+  // Redirect to target locale if it differs from current
+  // BUT only on initial page loads, not during client-side navigations
+  if (currentLocale !== targetLocale && !isClientNavigation) {
+    const url = request.nextUrl.clone();
+    url.locale = targetLocale;
+
+    // Redirect authenticated users from root to dashboard
+    if (isAuthenticated && pathname === "/") {
+      url.pathname = "/dashboard";
+    }
+
+    const response = NextResponse.redirect(url);
+    response.cookies.set(LOCALE_COOKIE_NAME, targetLocale, {
+      path: "/",
+      maxAge: 31536000,
+      sameSite: "lax",
+    });
+    return response;
+  }
+
+  // Rewrite root path to dashboard for authenticated users
+  if (isAuthenticated && pathname === "/") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/dashboard";
+    return NextResponse.rewrite(url);
+  }
+
+  // Set cookie if it doesn't exist yet
+  if (!cookieLocale) {
+    const response = NextResponse.next();
+    response.cookies.set(LOCALE_COOKIE_NAME, currentLocale, {
+      path: "/",
+      maxAge: 31536000, // 1 year
+      sameSite: "lax",
+    });
+    return response;
+  }
+
+  return NextResponse.next();
+}
+
+export async function proxy(request: NextRequest) {
+  try {
+    return await handleRequest(request);
+  } catch (error) {
+    // Next only reports proxy errors to instrumentation.ts's onRequestError on the edge runtime, and the proxy runs
+    // on Node.js, so report them here. Remove once https://github.com/vercel/next.js/issues/83404 is fixed.
+    Sentry.captureException(error, { mechanism: { type: "proxy", handled: false } });
+    // send the event before the request ends, in case the process is frozen (e.g. a serverless function)
+    await Sentry.flush(2000);
+    throw error;
+  }
+}
+
+export const config = {
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - manifest.json (PWA manifest)
+     * - service-worker.js (a redirect here makes registration fail outright)
+     * - .well-known (app association files, fetched without following redirects)
+     * - img (static images)
+     * - logo files (PWA icons)
+     * - robots.txt, sitemap.xml (SEO files)
+     * - Files with common static extensions
+     */
+    "/((?!api|_next/static|_next/image|favicon.ico|manifest.json|service-worker.js|\\.well-known/|img/|logo.*\\.png|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|eot|json|js|xml)$).*)",
+  ],
+};

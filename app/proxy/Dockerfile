@@ -1,4 +1,4 @@
-FROM envoyproxy/envoy:v1.39-latest
+FROM envoyproxy/envoy:v1.40-latest@sha256:8de97e654644827d62afdbf7e1d3dc9fee01a8690d410dd1c63a30dc6b6cecbb
 
 COPY ./envoy.yaml /etc/envoy/envoy.yaml
 COPY ./descriptors.pb /etc/envoy/descriptors.pb

@@ -1,4 +1,5 @@
 {
+  "ambiguous_language_display_format": "{{name}} ({{code}})",
   "errors": {
     "account_not_found": "An account with that username or email was not found.",
     "account_suspended": "Your account is suspended.",
@@ -189,6 +190,8 @@
     "public_trip_description_too_long": "Your public trip description is too long.",
     "public_trip_description_too_short_one": "Public trip description cannot be shorter than {{count}} character.",
     "public_trip_description_too_short_other": "Public trip description cannot be shorter than {{count}} characters.",
+    "public_trip_offer_too_short_one": "Your offer to host cannot be shorter than {{count}} character.",
+    "public_trip_offer_too_short_other": "Your offer to host cannot be shorter than {{count}} characters.",
     "public_trip_in_past": "You can't edit a public trip that has already ended.",
     "duplicate_host_request_for_trip": "You have already offered to host this trip.",
     "public_trip_not_active": "This public trip is no longer accepting offers.",

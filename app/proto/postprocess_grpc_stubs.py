@@ -4,8 +4,12 @@ Modifies method arguments in GRPC stubs: we change them in our middleware. Servi
 CouchersContext, and a third parameter, "session: sqlalchemy.orm.Session", is added.
 """
 
+import re
 import sys
 from typing import Callable
+
+# mypy-protobuf <5 emits "grpc.ServicerContext", >=5 emits "_grpc.ServicerContext"
+CONTEXT_PARAM_RE = re.compile(r'^(\s*)context: _?grpc\.ServicerContext,$')
 
 
 def add_imports(lines: list[str]) -> list[str]:
@@ -36,34 +40,41 @@ def add_imports(lines: list[str]) -> list[str]:
     return lines
 
 
-def replace_context_parameter(lines: list[str]) -> list[str]:
+def replace_context_parameter(lines: list[str]) -> tuple[list[str], int]:
     """Replace 'context: grpc.ServicerContext,' with 'context: CouchersContext,\nsession: orm.Session'."""
     new_lines = []
+    replaced = 0
     for line in lines:
-        if 'context: grpc.ServicerContext,' in line:
-            # Get the indentation
-            indent = len(line) - len(line.lstrip())
-            # Replace the line
-            new_lines.append(' ' * indent + 'context: CouchersContext,\n')
-            new_lines.append(' ' * indent + 'session: orm.Session,\n')
+        match = CONTEXT_PARAM_RE.match(line.rstrip('\n'))
+        if match:
+            indent = match.group(1)
+            new_lines.append(indent + 'context: CouchersContext,\n')
+            new_lines.append(indent + 'session: orm.Session,\n')
+            replaced += 1
         else:
             new_lines.append(line)
-    return new_lines
+    return new_lines, replaced
 
 
-def postprocess(file_path: str, log: Callable[..., None]) -> None:
-    """Delete content between the marker lines in the file."""
+def postprocess(file_path: str, log: Callable[..., None]) -> int:
+    """Rewrites the servicer method signatures in the file, returning how many were replaced."""
     with open(file_path, 'r') as f:
         lines = f.readlines()
 
     new_lines = add_imports(lines)
-    new_lines = replace_context_parameter(new_lines)
+    new_lines, replaced = replace_context_parameter(new_lines)
+
+    # Files without services have nothing to replace, but any ServicerContext left over means the
+    # generated stub format changed and our pattern no longer matches it
+    if any('ServicerContext' in line for line in new_lines):
+        raise RuntimeError(f'{file_path}: found ServicerContext that was not replaced, update postprocess_grpc_stubs.py')
 
     # Write back to the original file
     with open(file_path, 'w') as f:
         f.writelines(new_lines)
 
-    log("Added imports and replaced context parameter.")
+    log(f'{file_path}: added imports and replaced {replaced} context parameters.')
+    return replaced
 
 
 def noop(*_, **__):
@@ -71,9 +82,12 @@ def noop(*_, **__):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python postprocess_grpc_stubs.py <file>")
+    files = [arg for arg in sys.argv[1:] if arg != "--verbose"]
+    if not files:
+        print("Usage: python postprocess_grpc_stubs.py [--verbose] <file>...")
         sys.exit(1)
 
-    file = sys.argv[1]
-    postprocess(file, log=print if "--verbose" in sys.argv else noop)
+    log = print if "--verbose" in sys.argv else noop
+    total = sum(postprocess(file, log=log) for file in files)
+    if total == 0:
+        raise RuntimeError("No context parameters were replaced in any file, update postprocess_grpc_stubs.py")

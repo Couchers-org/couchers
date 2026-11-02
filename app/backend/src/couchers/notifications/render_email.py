@@ -186,17 +186,17 @@ def get_ics_attachment(notification: Notification, loc_context: LocalizationCont
         # Caveat: The surfer technically still hasn't confirmed, but when they do they don't receive an email,
         # so the accept notification is our last opportunity to provide them with a calendar event.
         return create_host_request_attachment(
-            data.host_request, other_name=data.host.name, hosting=False, loc_context=loc_context
+            data.host_request, other_name=data.recipient.name, hosting=False, loc_context=loc_context
         )
     elif notification.topic_action == NotificationTopicAction.host_request__confirm:
         return create_host_request_attachment(
-            data.host_request, other_name=data.surfer.name, hosting=True, loc_context=loc_context
+            data.host_request, other_name=data.initiator.name, hosting=True, loc_context=loc_context
         )
     elif notification.topic_action == NotificationTopicAction.host_request__cancel:
         # Caveat: only the party getting cancelled receives this notification,
         # we have no opportunity to provide the cancelling party with a cancelled ics attachment.
         return create_host_request_attachment(
-            data.host_request, other_name=data.surfer.name, hosting=True, loc_context=loc_context
+            data.host_request, other_name=data.initiator.name, hosting=True, loc_context=loc_context
         )
     else:
         return None
@@ -224,21 +224,21 @@ def get_topic_action_unsubscribe_text(topic_action: NotificationTopicAction) -> 
     # Not localized because the design will change so avoid useless work by translators.
     match topic_action:
         case NotificationTopicAction.host_request__missed_messages:
-            return "missed messages in host requests"
+            return "missed messages in host requests or invitations"
         case NotificationTopicAction.host_request__create:
-            return "new host requests"
+            return "new host requests or invitations"
         case NotificationTopicAction.host_request__message:
-            return "messages in host request"
+            return "messages in host request or invitations"
         case NotificationTopicAction.host_request__accept:
-            return "accepted host requests"
+            return "accepted host requests or invitations"
         case NotificationTopicAction.host_request__reject:
-            return "declined host requests"
+            return "declined host requests or invitations"
         case NotificationTopicAction.host_request__confirm:
-            return "confirmed host requests"
+            return "confirmed host requests or invitations"
         case NotificationTopicAction.host_request__cancel:
-            return "cancelled host requests"
+            return "cancelled host requests or invitations"
         case NotificationTopicAction.host_request__reminder:
-            return "Pending host request reminders"
+            return "Pending host request or invitations reminders"
         case NotificationTopicAction.reference__receive_friend:
             return "new references from friends"
         case NotificationTopicAction.reference__receive_hosted:

@@ -1,2 +1,15 @@
 msgid ""
-msgstr "X-Generator: Weblate\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit"
+msgstr ""
+"PO-Revision-Date: 2026-10-25 16:24+0000\n"
+"Last-Translator: Henriëtte <henrietteklijnstra@gmail.com>\n"
+"Language-Team: Dutch <https://translate.couchershq.org/projects/couchers/glossary-key-terms/nl/>\n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.15.2\n"
+
+#. (noun) The logged-in landing page showing upcoming events, stays, etc.
+msgid "dashboard"
+msgstr "dashboard"

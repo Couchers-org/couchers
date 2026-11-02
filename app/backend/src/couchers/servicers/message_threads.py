@@ -41,6 +41,7 @@ from couchers.models import (
     HostRequestFeedback,
     HostRequestStatus,
     Message,
+    StayProposalKind,
 )
 from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import mark_notifications_seen
@@ -213,6 +214,7 @@ def _host_request_thread_to_pb(
         created=Timestamp_from_datetime(conversation.created),
         from_date=date_to_api(host_request.from_date),
         to_date=date_to_api(host_request.to_date),
+        timezone=host_request.timezone,
         last_seen_message_id=(
             host_request.initiator_last_seen_message_id
             if host_request.initiator_user_id == user_id
@@ -340,12 +342,12 @@ def _build_host_request_threads_pb(
     latest_message_ids = [thread.latest_message_id for thread in threads]
 
     # same rule as host_request_to_pb: the host is asked for feedback once they've rejected a request
-    # and haven't given any yet.
-    # TODO(#9347): the recipient-based logic is wrong for public-trip offers, where the recipient is
-    # the traveller rather than the host — same for the response-rate observation.
+    # and haven't given any yet. Public-trip offers aren't asked, as their recipient is the traveller.
+    # TODO(#9347): the recipient-based response-time observation is wrong for public-trip offers.
     need_host_request_feedback = and_(
         HostRequest.recipient_user_id == context.user_id,
         HostRequest.status == HostRequestStatus.rejected,
+        HostRequest.proposal_kind == StayProposalKind.request,
         ~exists()
         .where(HostRequestFeedback.from_user_id == context.user_id)
         .where(HostRequestFeedback.host_request_id == HostRequest.conversation_id)

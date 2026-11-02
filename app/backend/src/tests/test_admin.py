@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 import grpc
 import pytest
+from google.protobuf import wrappers_pb2
 from sqlalchemy import select, update
 from sqlalchemy.sql import func
 
@@ -35,12 +36,12 @@ from couchers.proto import (
     admin_pb2,
     auth_pb2,
     blocking_pb2,
-    events_pb2,
     references_pb2,
     reporting_pb2,
     requests_pb2,
 )
-from couchers.utils import Timestamp_from_datetime, date_to_api, datetime_to_iso8601_local, now, parse_date
+from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date
+from tests.fixtures.api import events as events_api
 from tests.fixtures.db import (
     add_users_to_new_moderation_list,
     backdate_conversations,
@@ -52,7 +53,6 @@ from tests.fixtures.sessions import (
     account_session,
     auth_api_session,
     blocking_session,
-    events_session,
     real_admin_session,
     references_session,
     reporting_session,
@@ -385,6 +385,49 @@ def test_UnshadowUser(db, moderator: Moderator):
             .visibility
             == ModerationVisibility.hidden
         )
+
+
+def test_SetModerationAutoApproveDeadline(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        res = api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.username))
+        assert not res.HasField("moderation_auto_approve_seconds")
+
+        res = api.SetModerationAutoApproveDeadline(
+            admin_pb2.SetModerationAutoApproveDeadlineReq(
+                user=normal_user.username, auto_approve_seconds=wrappers_pb2.Int64Value(value=0)
+            )
+        )
+        assert res.moderation_auto_approve_seconds.value == 0
+
+        res = api.SetModerationAutoApproveDeadline(
+            admin_pb2.SetModerationAutoApproveDeadlineReq(
+                user=normal_user.username, auto_approve_seconds=wrappers_pb2.Int64Value(value=48 * 3600)
+            )
+        )
+        assert res.moderation_auto_approve_seconds.value == 48 * 3600
+
+        res = api.SetModerationAutoApproveDeadline(
+            admin_pb2.SetModerationAutoApproveDeadlineReq(user=normal_user.username)
+        )
+        assert not res.HasField("moderation_auto_approve_seconds")
+
+        for seconds in [-1, 48 * 3600 + 1, 2**63 - 1]:
+            with pytest.raises(grpc.RpcError) as e:
+                api.SetModerationAutoApproveDeadline(
+                    admin_pb2.SetModerationAutoApproveDeadlineReq(
+                        user=normal_user.username, auto_approve_seconds=wrappers_pb2.Int64Value(value=seconds)
+                    )
+                )
+            assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+    assert [(a.action_type, a.note) for a in res.admin_actions] == [
+        ("set_moderation_auto_approve_deadline", "Changed from default to never"),
+        ("set_moderation_auto_approve_deadline", "Changed from never to 172800 seconds"),
+        ("set_moderation_auto_approve_deadline", "Changed from 172800 seconds to default"),
+    ]
 
 
 def test_ShadowUser_blank_note(db):
@@ -774,25 +817,9 @@ def test_DeleteEvent(db):
     with session_scope() as session:
         create_community(session, 0, 2, "Community", [normal_user], [], None)
 
-    start_time = now() + timedelta(hours=2)
-    end_time = start_time + timedelta(hours=3)
-    with events_session(normal_token) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                photo_key=None,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(start_time),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(end_time),
-            )
-        )
-        event_id = res.event_id
-        assert not res.is_deleted
+    res = events_api.create_event(token=normal_token)
+    event_id = res.event_id
+    assert not res.is_deleted
 
     with session_scope() as session:
         with real_admin_session(super_token) as api:

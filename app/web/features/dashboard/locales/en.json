@@ -92,6 +92,16 @@
       "description": "{{name}} has accepted your request. Confirm your stay to lock it in.",
       "button": "Confirm stay"
     },
+    "respond_to_public_trip_offer": {
+      "title": "Respond to {{name}}",
+      "description": "{{name}} offered to host you on your trip. Let them know if you'd like to accept.",
+      "button": "View invitation"
+    },
+    "confirm_public_trip_offer": {
+      "title": "Confirm hosting {{name}}",
+      "description": "{{name}} has accepted your invitation. Confirm the stay to lock it in.",
+      "button": "Confirm stay"
+    },
     "carousel_dismiss_button_a11y": "Dismiss reminder",
     "carousel_scroller": {
       "left_arrow_a11y": "Scroll left",
