@@ -5,8 +5,8 @@ import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 
 import { useAuthContext } from "@/features/auth/AuthContext";
-import { registerMobilePushNotificationSubscription } from "@/service/notifications";
 import { useRegisterPushNotifications } from "@/features/notifications/useRegisterPushNotifications";
+import { registerMobilePushNotificationSubscription } from "@/service/notifications";
 
 jest.mock("expo-device", () => ({
   isDevice: true,
@@ -236,6 +236,31 @@ describe("useRegisterPushNotifications", () => {
           }),
         );
       });
+    });
+
+    it("creates the channel before asking for permission", async () => {
+      (Notifications.setNotificationChannelAsync as jest.Mock).mockClear();
+      (Notifications.requestPermissionsAsync as jest.Mock).mockClear();
+      Platform.OS = "android";
+      (Notifications.getPermissionsAsync as jest.Mock).mockResolvedValue({
+        status: "undetermined",
+      });
+      (Notifications.requestPermissionsAsync as jest.Mock).mockResolvedValue({
+        status: "granted",
+      });
+
+      renderHook(() => useRegisterPushNotifications());
+
+      await waitFor(() => {
+        expect(Notifications.requestPermissionsAsync).toHaveBeenCalled();
+      });
+      expect(
+        (Notifications.setNotificationChannelAsync as jest.Mock).mock
+          .invocationCallOrder[0],
+      ).toBeLessThan(
+        (Notifications.requestPermissionsAsync as jest.Mock).mock
+          .invocationCallOrder[0],
+      );
     });
 
     it("skips channel configuration on iOS", async () => {

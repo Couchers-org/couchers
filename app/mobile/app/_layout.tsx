@@ -35,33 +35,15 @@ import { AuthProvider, useAuthContext } from "@/features/auth/AuthContext";
 import NativeUpdatePrompt from "@/features/diagnostics/NativeUpdatePrompt";
 import { useNativeDiagnostics } from "@/features/diagnostics/useNativeDiagnostics";
 import FeatureFlagProvider from "@/features/experimentation/FeatureFlagProvider";
+import { handleForegroundNotification } from "@/features/notifications/foregroundNotificationHandler";
 import { useNotificationObserver } from "@/features/notifications/useNotificationObserver";
 import { useRegisterPushNotifications } from "@/features/notifications/useRegisterPushNotifications";
 import { appVariant } from "@/service/buildInfo";
 import { reconfigureApiClient } from "@/service/client";
-import { currentActiveWebPathRef } from "@/state/webViewState";
-import { getNotificationPath } from "@/utils/getNotificationPath";
 
-// Suppress foreground notification banners when the user is already viewing
-// the relevant content. Badge and notification list always update regardless.
+// The app's only notification handler: setting another one anywhere replaces this one
 Notifications.setNotificationHandler({
-  handleNotification: async (notification) => {
-    const url = notification.request.content.data?.url as string | undefined;
-    const notificationPath = url ? getNotificationPath(url) : null;
-    const currentPath = currentActiveWebPathRef.current;
-
-    const isViewingTarget =
-      notificationPath !== null &&
-      currentPath !== null &&
-      currentPath.split("?")[0].startsWith(notificationPath.split("?")[0]);
-
-    return {
-      shouldShowBanner: !isViewingTarget,
-      shouldShowList: true,
-      shouldPlaySound: !isViewingTarget,
-      shouldSetBadge: true,
-    };
-  },
+  handleNotification: handleForegroundNotification,
 });
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
