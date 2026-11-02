@@ -12,7 +12,7 @@ from couchers.utils import today
 from tests.fixtures.db import generate_user
 from tests.test_public_trips import _create_trip_directly, _make_node
 
-minimum_stay_migration = import_module("couchers.migrations.versions.0195_require_public_trip_minimum_stay")
+minimum_stay_migration = import_module("couchers.migrations.versions.0200_require_public_trip_minimum_stay")
 
 
 @pytest.mark.parametrize("nights", [0, 1])
