@@ -4,13 +4,16 @@ from dataclasses import dataclass
 
 from google.protobuf import empty_pb2
 from google.protobuf.message import Message
-from sqlalchemy import and_, or_, update
+from sqlalchemy import and_, func, or_, select, update
 from sqlalchemy.orm import Session
 
+from couchers.context import CouchersContext
 from couchers.jobs.enqueue import queue_job
 from couchers.models import Notification
-from couchers.models.notifications import NotificationTopicAction
+from couchers.models.notifications import NotificationDeliveryType, NotificationTopicAction
+from couchers.notifications.settings import get_topic_actions_by_delivery_type
 from couchers.proto.internal import jobs_pb2
+from couchers.sql import moderation_state_column_visible
 
 logger = logging.getLogger(__name__)
 
@@ -117,3 +120,21 @@ def mark_notifications_seen(
     session.execute(
         update(Notification).values(is_seen=True).where(Notification.user_id == user_id).where(or_(*clauses))
     )
+
+
+def get_unseen_notification_count(session: Session, context: CouchersContext) -> int:
+    """
+    Counts the user's unseen notifications, matching what the notification feed lists.
+    """
+    return session.execute(
+        select(func.count())
+        .select_from(Notification)
+        .where(Notification.user_id == context.user_id)
+        .where(Notification.is_seen == False)
+        .where(
+            Notification.topic_action.in_(
+                get_topic_actions_by_delivery_type(session, context.user_id, NotificationDeliveryType.push)
+            )
+        )
+        .where(moderation_state_column_visible(context, Notification.moderation_state_id))
+    ).scalar_one()
