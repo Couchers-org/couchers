@@ -4,14 +4,13 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 from sqlalchemy.orm import Session, aliased
-from sqlalchemy.sql import func
 
 from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import can_moderate_node, session_scope
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.jobs.enqueue import queue_job
-from couchers.models import Cluster, ClusterSubscription, Comment, Discussion, ModerationObjectType, Thread, User
+from couchers.models import Cluster, ClusterSubscription, Discussion, ModerationObjectType, Thread, User
 from couchers.models.discussions import ContentChangeType, DiscussionVersion
 from couchers.models.notifications import NotificationTopicAction
 from couchers.moderation.utils import create_moderation
@@ -20,7 +19,7 @@ from couchers.proto import discussions_pb2, discussions_pb2_grpc, notification_d
 from couchers.proto.internal import jobs_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.threads import thread_to_pb
-from couchers.sql import users_visible_to_each_other, where_moderated_content_visible, where_users_column_visible
+from couchers.sql import users_visible_to_each_other, where_moderated_content_visible
 from couchers.utils import Timestamp_from_datetime, now
 
 logger = logging.getLogger(__name__)
