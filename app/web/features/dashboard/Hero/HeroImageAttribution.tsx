@@ -1,4 +1,4 @@
-import { Link as MuiLink, styled, StyledEngineProvider, ThemeProvider, Typography } from "@mui/material";
+import { Link as MuiLink, styled, ThemeProvider, Typography } from "@mui/material";
 import { Trans } from "next-i18next";
 import { theme } from "theme";
 
@@ -28,34 +28,26 @@ export default function HeroImageAttribution() {
   const heroBackgroundTheme = useHeroBackgroundTheme();
 
   return (
-    <StyledEngineProvider injectFirst>
-      <ThemeProvider theme={heroBackgroundTheme}>
-        <StyledAttribution color="textPrimary" variant="body2">
-          <Trans
-            i18nKey="dashboard:hero_image_attribution"
-            components={{
-              photographerLink: (
-                <MuiLink
-                  href={authorUrl}
-                  variant="inherit"
-                  rel="noreferrer noopener"
-                  target="_blank"
-                  underline="hover"
-                />
-              ),
-              unsplashLink: (
-                <MuiLink
-                  href={unsplashUrl}
-                  variant="inherit"
-                  rel="noreferrer noopener"
-                  target="_blank"
-                  underline="hover"
-                />
-              ),
-            }}
-          />
-        </StyledAttribution>
-      </ThemeProvider>
-    </StyledEngineProvider>
+    <ThemeProvider theme={heroBackgroundTheme}>
+      <StyledAttribution color="textPrimary" variant="body2">
+        <Trans
+          i18nKey="dashboard:hero_image_attribution"
+          components={{
+            photographerLink: (
+              <MuiLink href={authorUrl} variant="inherit" rel="noreferrer noopener" target="_blank" underline="hover" />
+            ),
+            unsplashLink: (
+              <MuiLink
+                href={unsplashUrl}
+                variant="inherit"
+                rel="noreferrer noopener"
+                target="_blank"
+                underline="hover"
+              />
+            ),
+          }}
+        />
+      </StyledAttribution>
+    </ThemeProvider>
   );
 }
