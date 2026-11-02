@@ -97,7 +97,7 @@
     "@types/react-gtm-module": "^2.0.4",
     "@typescript-eslint/eslint-plugin": "^8.65.0",
     "@typescript-eslint/parser": "^8.71.2",
-    "babel-jest": "^30.4.1",
+    "babel-jest": "^30.5.2",
     "cross-env": "^10.1.0",
     "css-mediaquery": "^0.1.2",
     "eslint": "9.39.5",
