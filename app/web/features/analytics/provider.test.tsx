@@ -31,6 +31,7 @@ beforeEach(() => {
 
   // Reset router to root
   mockRouter.setCurrentUrl("/");
+  mockRouter.isReady = true;
 
   setLocation("/");
 });
@@ -193,8 +194,9 @@ describe("AnalyticsProvider", () => {
       expect(sessionCall![1]).not.toHaveProperty("zz");
     });
 
-    it("removes zz from the address bar and keeps other params and the hash", () => {
+    it("removes zz from the URL, keeping other params and the hash, without logging a page view", () => {
       setLocation("/messages/chats/1", "?zz=abc123&tab=info#latest");
+      mockRouter.setCurrentUrl("/messages/chats/1?zz=abc123&tab=info#latest");
 
       render(
         <AnalyticsProvider>
@@ -202,14 +204,16 @@ describe("AnalyticsProvider", () => {
         </AnalyticsProvider>,
       );
 
-      expect(window.location.pathname).toBe("/messages/chats/1");
-      expect(window.location.search).toBe("?tab=info");
-      expect(window.location.hash).toBe("#latest");
+      expect(mockRouter.asPath).toBe("/messages/chats/1?tab=info#latest");
+      expect(mockRouter.query).toEqual({ tab: "info" });
+      const pageCalls = mockLogEvent.mock.calls.filter((call) => call[0] === "page.viewed");
+      expect(pageCalls).toHaveLength(1);
     });
 
-    it("leaves the address bar alone when zz is not present", () => {
-      setLocation("/search", "?q=paris");
-      const replaceStateSpy = jest.spyOn(window.history, "replaceState");
+    it("waits for the router to be ready before removing zz", () => {
+      setLocation("/messages/chats/1", "?zz=abc123&tab=info");
+      mockRouter.setCurrentUrl("/messages/chats/1");
+      mockRouter.isReady = false;
 
       render(
         <AnalyticsProvider>
@@ -217,9 +221,56 @@ describe("AnalyticsProvider", () => {
         </AnalyticsProvider>,
       );
 
-      expect(replaceStateSpy).not.toHaveBeenCalled();
-      expect(window.location.search).toBe("?q=paris");
-      replaceStateSpy.mockRestore();
+      expect(mockRouter.asPath).toBe("/messages/chats/1");
+
+      // hydration fills in the query from the address bar and marks the router ready
+      act(() => {
+        mockRouter.isReady = true;
+        mockRouter.replace("/messages/chats/1?zz=abc123&tab=info");
+      });
+
+      expect(mockRouter.asPath).toBe("/messages/chats/1?tab=info");
+      expect(mockRouter.query).toEqual({ tab: "info" });
+    });
+
+    it("logs page.viewed for a redirect that cancels the zz removal", () => {
+      setLocation("/messages/chats/1", "?zz=abc123");
+      mockRouter.setCurrentUrl("/messages/chats/1?zz=abc123");
+      // leave the zz removal in flight, as if a redirect cancelled it
+      const replaceSpy = jest.spyOn(mockRouter, "replace").mockResolvedValue(true);
+
+      render(
+        <AnalyticsProvider>
+          <div />
+        </AnalyticsProvider>,
+      );
+
+      expect(replaceSpy).toHaveBeenCalled();
+      replaceSpy.mockRestore();
+      mockLogEvent.mockClear();
+
+      act(() => {
+        mockRouter.push("/login");
+      });
+
+      const pageCall = mockLogEvent.mock.calls.find((call) => call[0] === "page.viewed");
+      expect(pageCall![1]).toMatchObject({ path: "/login", previous_path: "/messages/chats/1" });
+    });
+
+    it("leaves the URL alone when zz is not present", () => {
+      setLocation("/search", "?q=paris");
+      mockRouter.setCurrentUrl("/search?q=paris");
+      const replaceSpy = jest.spyOn(mockRouter, "replace");
+
+      render(
+        <AnalyticsProvider>
+          <div />
+        </AnalyticsProvider>,
+      );
+
+      expect(replaceSpy).not.toHaveBeenCalled();
+      expect(mockRouter.asPath).toBe("/search?q=paris");
+      replaceSpy.mockRestore();
     });
   });
 
