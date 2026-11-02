@@ -6,6 +6,7 @@ import "annotations.proto";
 import "account.proto";
 import "discussions.proto";
 import "events.proto";
+import "public_trips.proto";
 import "requests.proto";
 
 service Screens {
@@ -26,4 +27,6 @@ message GetDashboardRes {
   org.couchers.api.events.ListMyEventsRes my_events = 4;
   org.couchers.api.events.ListMyEventsRes community_events = 5;
   org.couchers.api.discussions.ListMyCommunitiesDiscussionsRes discussions = 6;
+  org.couchers.api.public_trips.ListMyCommunitiesPublicTripsRes community_public_trips = 7;
+  org.couchers.api.public_trips.ListPublicTripsByUserRes my_public_trips = 8;
 }
