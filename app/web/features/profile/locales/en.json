@@ -342,5 +342,27 @@
     },
     "edit_profile_button": "Edit your profile now",
     "cancel_button": "Never mind"
+  },
+  "overview_facts": {
+    "member_since_text": "Coucher since {{month_and_year}}"
+  },
+  "home_preview": {
+    "heading": "{{first_name}}'s home",
+    "see_more_button": "See more"
+  },
+  "edit_section_button_a11y": "Edit {{section_name}}",
+  "home_facts": {
+    "parking_no_text": "No parking",
+    "tent_camping_no_text": "No tent camping",
+    "wheelchair_no_text": "Not wheelchair accessible",
+    "housemates_no_text": "No housemates",
+    "kids_at_home_no_text": "No kids living here",
+    "pets_at_home_no_text": "No pets living here",
+    "drinking_at_home_no_text": "Host doesn't drink",
+    "smoking_at_home_no_text": "Host doesn't smoke",
+    "last_minute_no_text": "No last-minute requests",
+    "guest_kids_no_text": "No kids",
+    "guest_pets_no_text": "No pets",
+    "guest_drinking_no_text": "No alcohol"
   }
 }

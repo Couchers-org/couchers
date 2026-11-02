@@ -2,12 +2,14 @@ import { styled } from "@mui/material";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
+import Snackbar from "components/Snackbar";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import Overview from "features/profile/view/Overview";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import { routeToProfile, UserTab } from "routes";
 
 import UserCard from "./UserCard";
@@ -36,6 +38,17 @@ export default function ProfilePage({ tab = "about" }: { tab?: UserTab }) {
 
   const { data: user, error, isLoading } = useCurrentUser();
 
+  // the edit pages come back here with ?saved=profile or ?saved=home after saving
+  const [savedMessage, setSavedMessage] = useState<string | null>(null);
+  const saved = router.query.saved;
+  useEffect(() => {
+    if (saved !== "profile" && saved !== "home") return;
+    setSavedMessage(
+      saved === "home" ? t("profile:hosting_preferences_success_message") : t("profile:profile_changes_saved_message"),
+    );
+    router.replace(routeToProfile(tab), undefined, { shallow: true, scroll: false });
+  }, [saved, router, t, tab]);
+
   return (
     <>
       <HtmlMeta title={t("global:nav.profile")} />
@@ -57,6 +70,11 @@ export default function ProfilePage({ tab = "about" }: { tab?: UserTab }) {
           </StyledWrapper>
         </ProfileUserProvider>
       ) : null}
+      {savedMessage && (
+        <Snackbar severity="success" onClose={() => setSavedMessage(null)}>
+          {savedMessage}
+        </Snackbar>
+      )}
     </>
   );
 }

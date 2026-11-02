@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import mockRouter from "next-router-mock";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
@@ -30,7 +31,7 @@ describe("EditHostingPreference", () => {
     updateHostingPreferenceMock.mockResolvedValue(new Empty());
   });
 
-  it("should show success toast after successful update", async () => {
+  it("should go back to the profile after a successful update", async () => {
     // prevent the unsavedChanged pop up by mocking window.confirm
     jest.spyOn(window, "confirm").mockImplementation(() => true);
 
@@ -48,7 +49,8 @@ describe("EditHostingPreference", () => {
 
     // Now the save button should be visible
     await user.click(await screen.findByRole("button", { name: t("global:save_changes") }));
-    await waitFor(() => expect(screen.getByText(t("profile:hosting_preferences_success_message"))).toBeInTheDocument());
+    // saving goes back to the My home tab, which shows the success message
+    await waitFor(() => expect(mockRouter).toMatchObject({ asPath: "/profile/home?saved=home" }));
   });
 
   it(`should not submit the default headings for the '${t(

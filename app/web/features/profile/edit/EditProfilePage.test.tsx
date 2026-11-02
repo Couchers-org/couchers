@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import mockRouter from "next-router-mock";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
@@ -44,7 +45,7 @@ describe("Edit profile", () => {
     uploadFileMock.mockClear();
   });
 
-  it("Should update and show success toast when aboutMe and avatar filled out on first go", async () => {
+  it("Should update and go back to the profile when aboutMe and avatar filled out on first go", async () => {
     jest.spyOn(window, "confirm").mockImplementation(() => true);
 
     uploadFileMock.mockResolvedValue({
@@ -89,7 +90,7 @@ describe("Edit profile", () => {
       expect(updateProfileMock).toHaveBeenCalledWith(expect.objectContaining({ aboutMe: aboutMeText })),
     );
 
-    await screen.findByText(t("profile:profile_changes_saved_message"));
+    await waitFor(() => expect(mockRouter).toMatchObject({ asPath: "/profile/about?saved=profile" }));
   }, 20000);
 
   it(`should not submit the default headings for the '${t(
@@ -133,7 +134,7 @@ describe("Edit profile", () => {
       }),
     );
 
-    await screen.findByText(t("profile:profile_changes_saved_message"));
+    await waitFor(() => expect(mockRouter).toMatchObject({ asPath: "/profile/about?saved=profile" }));
   });
 
   it("Should not update profile automatically if the user has not filled out aboutMe section besides default headers", async () => {

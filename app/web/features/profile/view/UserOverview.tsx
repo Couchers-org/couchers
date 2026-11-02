@@ -1,9 +1,8 @@
-import { Card, CardActions, styled, Tooltip, Typography } from "@mui/material";
+import { Box, Card, CardActions, styled, Tooltip, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import BarWithHelp from "components/Bar/BarWithHelp";
 import Divider from "components/Divider";
 import { CouchIcon, LocationIcon } from "components/Icons";
-import IconText from "components/IconText";
 import StrongVerificationBadge from "components/StrongVerificationBadge";
 import StyledLink from "components/StyledLink";
 import { hostingStatusLabels, meetupStatusLabels } from "features/profile/constants";
@@ -16,7 +15,8 @@ import { routeToEditProfile, routeToUser } from "routes";
 
 import { useProfileUser } from "../hooks/useProfileUser";
 import { Badges } from "./Badges";
-import { ReferencesLastActiveLabels, ResponseRateLabel } from "./userLabels";
+import { Fact, FactList } from "./ProfileFacts";
+import { ActivityFacts } from "./userLabels";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   flexShrink: 0,
@@ -79,8 +79,12 @@ const StyledCardActions = styled(CardActions)(({ theme }) => ({
   },
 }));
 
-const StyledInfo = styled("div")(({ theme }) => ({
-  marginTop: theme.spacing(0.5),
+const StyledInfo = styled(FactList)(({ theme }) => ({
+  marginTop: theme.spacing(1.5),
+  // the card is narrow, so keep facts at the phone size even on desktop
+  "& .MuiTypography-root": {
+    fontSize: "0.875rem",
+  },
 }));
 
 type UserOverviewProps = {
@@ -140,20 +144,19 @@ export default function UserOverview({
 
       {actions && <StyledCardActions>{actions}</StyledCardActions>}
 
-      {showHostAndMeetAvailability && (
-        <>
-          <IconText
-            icon={CouchIcon}
-            text={hostingStatusLabels(t)[user.hostingStatus || HostingStatus.HOSTING_STATUS_UNKNOWN]}
-          />
-          <IconText
-            icon={LocationIcon}
-            text={meetupStatusLabels(t)[user.meetupStatus || MeetupStatus.MEETUP_STATUS_UNKNOWN]}
-          />
-        </>
-      )}
-
-      {Boolean(showHostAndMeetAvailability || actions) && <Divider spacing={3} />}
+      <StyledInfo>
+        {showHostAndMeetAvailability && (
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
+            <Fact icon={CouchIcon} muted={user.hostingStatus === HostingStatus.HOSTING_STATUS_CANT_HOST}>
+              {hostingStatusLabels(t)[user.hostingStatus || HostingStatus.HOSTING_STATUS_UNKNOWN]}
+            </Fact>
+            <Fact icon={LocationIcon}>
+              {meetupStatusLabels(t)[user.meetupStatus || MeetupStatus.MEETUP_STATUS_UNKNOWN]}
+            </Fact>
+          </Box>
+        )}
+        <ActivityFacts user={user} />
+      </StyledInfo>
 
       {process.env.NEXT_PUBLIC_IS_VERIFICATION_ENABLED && (
         <>
@@ -169,10 +172,6 @@ export default function UserOverview({
           />
         </>
       )}
-      <StyledInfo>
-        <ReferencesLastActiveLabels user={user} />
-        <ResponseRateLabel user={user} />
-      </StyledInfo>
     </StyledCard>
   );
 }

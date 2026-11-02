@@ -2,7 +2,6 @@ import { Box, Checkbox, FormControl, FormControlLabel, styled, Typography } from
 import Alert from "components/Alert";
 import Button from "components/Button";
 import Select from "components/Select";
-import Snackbar from "components/Snackbar";
 import {
   parkingDetailsLabels,
   sleepingArrangementLabelsShort,
@@ -13,13 +12,17 @@ import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
 import ProfileTextInput from "features/profile/ProfileTextInput";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
+import { useRouter } from "next/router";
 import { ParkingDetails, SleepingArrangement, SmokingLocation } from "proto/api_pb";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm, UseFormReturn } from "react-hook-form";
+import { routeToProfile } from "routes";
 import { HostingPreferenceData } from "service";
 import { theme } from "theme";
 import { useUnsavedChangesWarning } from "utils/hooks";
 import { useIsNativeEmbed } from "utils/nativeLink";
+
+import useScrollToHash from "./useScrollToHash";
 
 interface HostingPreferenceCheckboxProps {
   className?: string;
@@ -210,6 +213,8 @@ function HostingPreferenceCheckbox({ className, label, name, register, checked }
 export default function HostingPreferenceForm({ user }: { user: HostingPreferenceData }) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const isNativeEmbed = useIsNativeEmbed();
+  const router = useRouter();
+  useScrollToHash(true);
 
   const {
     updateHostingPreferences,
@@ -218,14 +223,12 @@ export default function HostingPreferenceForm({ user }: { user: HostingPreferenc
     isError: updateError,
   } = useUpdateHostingPreferences();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [showSuccessToast, setShowSuccessToast] = useState(false);
 
-  const { control, register, handleSubmit, formState, watch, setValue, reset, getValues } =
-    useForm<HostingPreferenceData>({
-      mode: "onBlur",
-      shouldFocusError: true,
-      defaultValues: user,
-    });
+  const { control, register, handleSubmit, formState, watch, setValue } = useForm<HostingPreferenceData>({
+    mode: "onBlur",
+    shouldFocusError: true,
+    defaultValues: user,
+  });
 
   const lastMinute = watch("lastMinute");
   const acceptsKids = watch("acceptsKids");
@@ -285,10 +288,7 @@ export default function HostingPreferenceForm({ user }: { user: HostingPreferenc
       },
       {
         onSuccess: () => {
-          // Reset form dirty state to hide save bar
-          const currentValues = getValues();
-          reset(currentValues, { keepValues: true, keepDirty: false });
-          setShowSuccessToast(true);
+          router.push(`${routeToProfile("home")}?saved=home`);
         },
         // Scroll to top on submission error
         onError: () => {
@@ -304,7 +304,7 @@ export default function HostingPreferenceForm({ user }: { user: HostingPreferenc
 
       <form onSubmit={onSubmit}>
         {/* Hosting Preferences Section */}
-        <ProfileSection>
+        <ProfileSection id="hosting-preferences">
           <SectionTitle>{t("profile:home_info_headings.hosting_preferences")}</SectionTitle>
           <SectionSubtitle>{t("profile:home_info_headings.hosting_preferences_subtitle")}</SectionSubtitle>
 
@@ -377,7 +377,7 @@ export default function HostingPreferenceForm({ user }: { user: HostingPreferenc
         </ProfileSection>
 
         {/* About Your Home Section */}
-        <ProfileSection>
+        <ProfileSection id="my-home">
           <SectionTitle>{t("profile:home_info_headings.my_home")}</SectionTitle>
           <SectionSubtitle>{t("profile:home_info_headings.about_home_subtitle")}</SectionSubtitle>
 
@@ -441,7 +441,7 @@ export default function HostingPreferenceForm({ user }: { user: HostingPreferenc
         </ProfileSection>
 
         {/* Household Details Section */}
-        <ProfileSection>
+        <ProfileSection id="household-details">
           <SectionTitle>{t("profile:home_info_headings.household_details")}</SectionTitle>
           <SectionSubtitle>{t("profile:home_info_headings.household_details_subtitle")}</SectionSubtitle>
 
@@ -632,12 +632,6 @@ export default function HostingPreferenceForm({ user }: { user: HostingPreferenc
             />
           </FieldGroup>
         </ProfileSection>
-
-        {showSuccessToast && (
-          <Snackbar severity="success" onClose={() => setShowSuccessToast(false)}>
-            {t("profile:hosting_preferences_success_message")}
-          </Snackbar>
-        )}
 
         {/* Bottom spacer to prevent content from being hidden behind sticky bar */}
         <BottomSpacer />
