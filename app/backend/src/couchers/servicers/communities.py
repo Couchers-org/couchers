@@ -12,6 +12,7 @@ from couchers.context import CouchersContext
 from couchers.crypto import decrypt_page_token, encrypt_page_token
 from couchers.db import can_moderate_node, get_node_parents_recursively, is_user_in_node_geography
 from couchers.event_log import log_event
+from couchers.helpers.discussions import get_discussions
 from couchers.materialized_views import ClusterAdminCount, ClusterSubscriptionCount
 from couchers.models import (
     Cluster,
@@ -453,56 +454,30 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],
             next_page_token=occurrences_next_page_token(occurrences, page_size),
         )
-
     def ListDiscussions(
         self, request: communities_pb2.ListDiscussionsReq, context: CouchersContext, session: Session
     ) -> communities_pb2.ListDiscussionsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_page_id = int(request.page_token) if request.page_token else 2**63 - 1
+
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
         if not node.official_cluster.small_community_features_enabled:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "discussions_not_enabled")
-        has_visible_comments = (
-            where_moderated_content_visible(
-                where_users_column_visible(
-                    select(func.count())
-                    .select_from(Comment)
-                    .where(Comment.thread_id == Discussion.thread_id)
-                    .where(Comment.deleted == None),
-                    context,
-                    Comment.author_user_id,
-                ),
-                context,
-                Comment,
-                is_list_operation=True,
-            )
-            .correlate(Discussion)
-            .scalar_subquery()
-        )
-        discussions = (
-            session.execute(
-                where_moderated_content_visible(
-                    select(Discussion)
-                    .where(Discussion.owner_cluster_id == node.official_cluster.id)
-                    .where((Discussion.deleted == None) | (has_visible_comments > 0))
-                    .where(Discussion.id <= next_page_id)
-                    .order_by(Discussion.id.desc())
-                    .limit(page_size + 1),
-                    context,
-                    Discussion,
-                    is_list_operation=True,
-                )
-            )
-            .scalars()
-            .all()
-        )
-        return communities_pb2.ListDiscussionsRes(
-            discussions=[discussion_to_pb(session, discussion, context) for discussion in discussions[:page_size]],
-            next_page_token=str(discussions[-1].id) if len(discussions) > page_size else None,
+
+        discussions, next_page_token = get_discussions(
+            session=session,
+            context=context,
+            page_size=page_size,
+            next_page_id=next_page_id,
+            owner_cluster_id=node.official_cluster.id,
         )
 
+        return communities_pb2.ListDiscussionsRes(
+            discussions=[discussion_to_pb(session, discussion, context) for discussion in discussions],
+            next_page_token=next_page_token,
+        )
     def JoinCommunity(
         self, request: communities_pb2.JoinCommunityReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
