@@ -58,7 +58,7 @@ describe("handleForegroundNotification", () => {
     ).resolves.toEqual(shown);
   });
 
-  it("shows the notification for a different chat whose id starts the same", async () => {
+  it("shows a notification from chat 4 while viewing chat 42", async () => {
     currentActiveWebPathRef.current = "/messages/chats/42";
 
     await expect(
