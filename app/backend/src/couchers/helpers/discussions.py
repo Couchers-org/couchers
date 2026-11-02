@@ -1,4 +1,4 @@
-from sqlalchemy import select, func
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from couchers.context import CouchersContext
@@ -34,7 +34,7 @@ def get_discussions(
 
     query = (
         select(Discussion)
-        .where((Discussion.deleted == None) | has_visible_comments )
+        .where((Discussion.deleted == None) | has_visible_comments)
         .where(Discussion.id <= next_page_id)
         .order_by(Discussion.id.desc())
         .limit(page_size + 1)

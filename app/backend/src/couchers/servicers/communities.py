@@ -18,8 +18,6 @@ from couchers.models import (
     Cluster,
     ClusterRole,
     ClusterSubscription,
-    Comment,
-    Discussion,
     Event,
     EventOccurrence,
     Node,
@@ -33,7 +31,7 @@ from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.events import apply_occurrence_pagination, event_to_pb, occurrences_next_page_token
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
-from couchers.sql import to_bool, users_visible, where_moderated_content_visible, where_users_column_visible
+from couchers.sql import to_bool, users_visible, where_moderated_content_visible
 from couchers.utils import Timestamp_from_datetime
 
 logger = logging.getLogger(__name__)
@@ -454,6 +452,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],
             next_page_token=occurrences_next_page_token(occurrences, page_size),
         )
+
     def ListDiscussions(
         self, request: communities_pb2.ListDiscussionsReq, context: CouchersContext, session: Session
     ) -> communities_pb2.ListDiscussionsRes:
@@ -478,6 +477,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             discussions=[discussion_to_pb(session, discussion, context) for discussion in discussions],
             next_page_token=next_page_token,
         )
+
     def JoinCommunity(
         self, request: communities_pb2.JoinCommunityReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:

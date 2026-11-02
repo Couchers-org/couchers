@@ -10,7 +10,6 @@ from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import can_moderate_node, session_scope
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
-from couchers.helpers.discussions import get_discussions
 from couchers.jobs.enqueue import queue_job
 from couchers.models import Cluster, ClusterSubscription, Comment, Discussion, ModerationObjectType, Thread, User
 from couchers.models.discussions import ContentChangeType, DiscussionVersion
