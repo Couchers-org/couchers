@@ -301,53 +301,20 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
         )
 
         return empty_pb2.Empty()
-
     def ListMyCommunitiesDiscussions(
         self, request: discussions_pb2.ListMyCommunitiesDiscussionsReq, context: CouchersContext, session: Session
     ) -> discussions_pb2.ListMyCommunitiesDiscussionsRes:
         page_size = min(MAX_PAGE_SIZE, request.page_size or MAX_PAGE_SIZE)
         next_page_id = int(request.page_token) if request.page_token else 2**63 - 1
 
-        has_visible_comments = (
-            where_moderated_content_visible(
-                where_users_column_visible(
-                    select(func.count())
-                    .select_from(Comment)
-                    .where(Comment.thread_id == Discussion.thread_id)
-                    .where(Comment.deleted == None),
-                    context,
-                    Comment.author_user_id,
-                ),
-                context,
-                Comment,
-                is_list_operation=True,
-            )
-            .correlate(Discussion)
-            .scalar_subquery()
-        )
-        discussions = (
-            session.execute(
-                where_moderated_content_visible(
-                    select(Discussion)
-                    .join(Cluster, Cluster.id == Discussion.owner_cluster_id)
-                    .join(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
-                    .where(ClusterSubscription.user_id == context.user_id)
-                    .where(Cluster.is_official_cluster)
-                    .where(Cluster.small_community_features_enabled)
-                    .where(Discussion.id <= next_page_id)
-                    .where((Discussion.deleted == None) | (has_visible_comments > 0))
-                    .order_by(Discussion.id.desc())
-                    .limit(page_size + 1),
-                    context,
-                    Discussion,
-                    is_list_operation=True,
-                )
-            )
-            .scalars()
-            .all()
+        discussions, next_page_token = list_my_communities_discussions(
+            session=session,
+            context=context,
+            page_size=page_size,
+            next_page_id=next_page_id,
         )
 
         return discussions_pb2.ListMyCommunitiesDiscussionsRes(
-            discussions=[discussion_to_pb(session, d, context) for d in discussions[:page_size]],
-            next_page_token=str(discussions[-1].id) if len(discussions) > page_size else None,
+            discussions=[discussion_to_pb(session, d, context) for d in discussions],
+            next_page_token=next_page_token,
         )
