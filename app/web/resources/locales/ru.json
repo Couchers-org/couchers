@@ -167,7 +167,9 @@
     "close_menu_a11y": "Закрыть меню",
     "open_drawer_a11y": "Открыть меню",
     "close_drawer_a11y": "Закрыть меню",
-    "press": "Пресса и СМИ"
+    "press": "Пресса и СМИ",
+    "user_menu_verification_link": "Пройти верификацию",
+    "couch_crashes": "Couch Crashes"
   },
   "team": {
     "title": "Команда",

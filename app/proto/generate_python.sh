@@ -82,7 +82,8 @@ sed -i -E 's/^from google.api/from ./' "$GEN_DIR/api/google/api"/*.py
 # delete TypeVar definitions and Stub classes from _grpc.pyi files
 # these are not used, and cause huge memory consumption when type-checking.
 # Also patches method parameters to accept CouchersContext and sqlalchemy Session.
-find "$GEN_DIR/api" -name '*_grpc.pyi' -type f -exec python3 postprocess_grpc_stubs.py {} \;
+# Uses "{} +" because find ignores the exit status of "-exec ... \;", which would hide postprocessing failures.
+find "$GEN_DIR/api" -name '*_grpc.pyi' -type f -exec python3 postprocess_grpc_stubs.py {} +
 
 (cd "$GEN_DIR" && tar czf python.tar.gz --transform 's,^api,proto,' api)
 

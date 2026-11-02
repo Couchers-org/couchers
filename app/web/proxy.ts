@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { lookupAcceptLanguage } from "i18n/acceptLanguage";
 import { allLanguages } from "i18n/allLanguages";
 import { NextRequest, NextResponse } from "next/server";
@@ -92,7 +93,7 @@ async function getBestLocale(request: NextRequest): Promise<string> {
   return getBrowserLocaleFromHeader(acceptLanguage || undefined, productionReadyLocales) || DEFAULT_LOCALE;
 }
 
-export async function middleware(request: NextRequest) {
+async function handleRequest(request: NextRequest) {
   const { pathname, locale: currentLocale } = request.nextUrl;
   const cookieLocale = request.cookies.get(LOCALE_COOKIE_NAME)?.value;
   const isAuthenticated = !!request.cookies.get(sessionCookieName);
@@ -174,6 +175,19 @@ export async function middleware(request: NextRequest) {
   }
 
   return NextResponse.next();
+}
+
+export async function proxy(request: NextRequest) {
+  try {
+    return await handleRequest(request);
+  } catch (error) {
+    // Next only reports proxy errors to instrumentation.ts's onRequestError on the edge runtime, and the proxy runs
+    // on Node.js, so report them here. Remove once https://github.com/vercel/next.js/issues/83404 is fixed.
+    Sentry.captureException(error, { mechanism: { type: "proxy", handled: false } });
+    // send the event before the request ends, in case the process is frozen (e.g. a serverless function)
+    await Sentry.flush(2000);
+    throw error;
+  }
 }
 
 export const config = {

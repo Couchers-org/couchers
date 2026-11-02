@@ -730,7 +730,7 @@ def test_search_creates_event(db):
     user, token = generate_user()
 
     with search_session(token) as api:
-        api.UserSearch(search_pb2.UserSearchReq())
+        api.UserSearchV2(search_pb2.UserSearchReq())
 
     with session_scope() as session:
         events = _get_events(session, "search.performed")

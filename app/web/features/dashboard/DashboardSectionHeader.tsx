@@ -19,20 +19,31 @@ interface DashboardSectionHeaderProps {
 
 const Header = styled("div")(({ theme }) => ({
   display: "flex",
-  alignItems: "center",
+  alignItems: "flex-start",
   justifyContent: "space-between",
   gap: theme.spacing(1),
   marginBottom: theme.spacing(1),
   minHeight: 28,
 }));
 
-const Controls = styled("div")({
+// one line of the title tall, so its content centres on the first line when the title wraps
+const FirstLine = styled("span")({
+  display: "inline-flex",
+  alignItems: "center",
+  height: "1lh",
+  flexShrink: 0,
+});
+
+const Controls = styled("div")(({ theme }) => ({
+  // title typography so 1lh matches the title's first line, keeping the arrows level with it
+  ...theme.typography.h2,
+  height: "1lh",
   display: "flex",
   alignItems: "center",
   gap: 4,
   // long translated titles must wrap rather than squash the arrows onto two lines
   flexShrink: 0,
-});
+}));
 
 export default function DashboardSectionHeader({
   icon: Icon,
@@ -48,12 +59,13 @@ export default function DashboardSectionHeader({
 
   return (
     <Header>
-      <Typography variant="h2" sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
-        <Icon sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />
-        {/* the badge flows inline so it stays after the last word when the title wraps */}
-        <span>
-          {title}
-          {!!count && (
+      <Typography variant="h2" sx={{ display: "flex", alignItems: "flex-start", gap: 1 }}>
+        <FirstLine>
+          <Icon sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />
+        </FirstLine>
+        <span>{title}</span>
+        {!!count && (
+          <FirstLine>
             <Box
               component="span"
               sx={{
@@ -63,16 +75,13 @@ export default function DashboardSectionHeader({
                 background: "var(--mui-palette-grey-50)",
                 borderRadius: 999,
                 px: 1.125,
-                ml: 1,
                 lineHeight: "20px",
-                display: "inline-block",
-                verticalAlign: "middle",
               }}
             >
               {count}
             </Box>
-          )}
-        </span>
+          </FirstLine>
+        )}
       </Typography>
       <Controls>
         {action}

@@ -462,6 +462,8 @@ export default function WebEmbed({
         source={{ uri: initialUri }}
         applicationNameForUserAgent={applicationNameForUserAgent}
         allowsBackForwardNavigationGestures // iOS swipe back/forward
+        // On the new architecture an unset rate reaches iOS as 0, killing scroll momentum.
+        decelerationRate={Platform.OS === "ios" ? "normal" : undefined}
         sharedCookiesEnabled
         webviewDebuggingEnabled={
           process.env.EXPO_PUBLIC_COUCHERS_ENV !== "prod"
