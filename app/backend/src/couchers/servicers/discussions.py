@@ -4,7 +4,7 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 from sqlalchemy.orm import Session, aliased
-from sqlalchemy.sql import and_, delete, func, or_
+from sqlalchemy.sql import func
 
 from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import can_moderate_node, session_scope
