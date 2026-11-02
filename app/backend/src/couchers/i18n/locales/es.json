@@ -249,7 +249,10 @@
     "signup_flow_email_verified": "Ya has verificado tu correo electrónico.",
     "signup_flow_invalid_request": "Solicitud de registro no válida: no puedes recuperar tu registro y continuar con el registro al mismo tiempo.",
     "undelete_email_reused": "Esta cuenta no se puede recuperar porque su dirección de correo electrónico ya está en uso en otra cuenta.",
-    "invalid_stay_role": "Rol de estancia no válido."
+    "invalid_stay_role": "Rol de estancia no válido.",
+    "public_trip_offer_too_short_one": "Tu ofreciimiento para hospedar no puede tener menos de {{count}} carácter.",
+    "public_trip_offer_too_short_many": "Tu ofreciimiento para hospedar no puede tener menos de {{count}} de caracteres.",
+    "public_trip_offer_too_short_other": "Tu ofreciimiento para hospedar no puede tener menos de {{count}} caracteres."
   },
   "badges": {
     "volunteer_name": "Voluntario en activo",

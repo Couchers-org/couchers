@@ -30,4 +30,14 @@ const FadingScrollTrack = styled(Box, {
   };
 });
 
+/**
+ * How far an arrow click should scroll a track of fixed-width cards: up to `maxCards`, but never more
+ * than fully fit in view, so narrow screens don't skip past a card.
+ */
+export function cardScrollDistance(track: HTMLElement, cardWidth: number, gap: number, maxCards = 2) {
+  const step = cardWidth + gap;
+  const cardsInView = Math.max(1, Math.floor((track.clientWidth + gap) / step));
+  return Math.min(maxCards, cardsInView) * step;
+}
+
 export default FadingScrollTrack;

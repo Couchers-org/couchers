@@ -22,7 +22,9 @@
   "continue": "Continue",
   "copy_button": {
     "a11y": "Copy",
-    "copied_tooltip": "Copied to clipboard"
+    "copied_tooltip": "Copied to clipboard",
+    "copied_message": "Copied!",
+    "failed_message": "Couldn't copy"
   },
   "thanks": "Thanks!",
   "donation_banner": {
@@ -192,6 +194,9 @@
     "our_team": "Our Team",
     "profile": "Profile",
     "show_all_events": "Show all events",
+    "verification": "Verification",
+    "user_menu_verification_link": "Get verified",
+    "couch_crashes": "Couch Crashes",
     "volunteer": "Volunteer",
     "legal_more": "Legal & More",
     "contact_us": "Contact Us",

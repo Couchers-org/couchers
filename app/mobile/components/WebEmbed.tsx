@@ -22,6 +22,7 @@ import { WebView, WebViewMessageEvent } from "react-native-webview";
 
 import { getWebBaseUrl } from "@/config/urls";
 import { useAuthContext } from "@/features/auth/AuthContext";
+import { useAddToCalendar } from "@/hooks/useAddToCalendar";
 import { useImagePicker } from "@/hooks/useImagePicker";
 import { useWebNavigation } from "@/hooks/useWebNavigation";
 import errorGraphic from "@/resources/404graphic.png";
@@ -30,6 +31,13 @@ import { dispatchEscapeRef, lastLoginTimeRef } from "@/state/webViewState";
 import { theme } from "@/theme";
 import { applicationNameForUserAgent } from "@/utils/userAgent";
 import { shouldLoadInWebView } from "@/utils/webViewUrlUtils";
+
+// Read by the web app (app/web/utils/nativeLink.ts). Capabilities let it show
+// features only to app versions that handle them.
+const NATIVE_EMBED_INFO = {
+  isNativeEmbed: true,
+  capabilities: ["addToCalendar"],
+};
 
 type WebEmbedProps = {
   path: string;
@@ -76,6 +84,7 @@ export default function WebEmbed({
   const backgroundTimeRef = useRef<number | null>(null);
 
   const { pickImage } = useImagePicker();
+  const { addToCalendar } = useAddToCalendar();
 
   const stripLocale = useCallback(
     (p: string) => p.replace(/^\/[a-z]{2,3}(-[A-Za-z0-9]+)?\//, "/"),
@@ -375,6 +384,8 @@ export default function WebEmbed({
         hasAction().then((canReview) => {
           if (canReview) requestReview();
         });
+      } else if (payload?.type === "REQUEST_ADD_TO_CALENDAR") {
+        addToCalendar(payload.data);
       }
     } catch (error) {
       // Ignore non-JSON messages from browser/WebView internals.
@@ -451,7 +462,12 @@ export default function WebEmbed({
         source={{ uri: initialUri }}
         applicationNameForUserAgent={applicationNameForUserAgent}
         allowsBackForwardNavigationGestures // iOS swipe back/forward
+        // On the new architecture an unset rate reaches iOS as 0, killing scroll momentum.
+        decelerationRate={Platform.OS === "ios" ? "normal" : undefined}
         sharedCookiesEnabled
+        webviewDebuggingEnabled={
+          process.env.EXPO_PUBLIC_COUCHERS_ENV !== "prod"
+        }
         cacheEnabled={true}
         cacheMode="LOAD_DEFAULT" // Revalidates on normal loads, uses cache for back nav (preserves cookies)
         startInLoadingState
@@ -465,7 +481,9 @@ export default function WebEmbed({
             />
           </View>
         )}
-        injectedJavaScriptObject={{ isNativeEmbed: true }}
+        injectedJavaScriptObject={NATIVE_EMBED_INFO}
+        // No-op: Android only re-injects the object above on each page load when this is set
+        injectedJavaScriptBeforeContentLoaded="true;"
         onLoad={() => {
           hasLoadedRef.current = true;
         }}

@@ -156,7 +156,10 @@
     "close_menu_a11y": "Cerrar menú",
     "open_drawer_a11y": "Abrir cajón",
     "close_drawer_a11y": "Cerrar cajón",
-    "press": "Prensa y medios"
+    "press": "Prensa y medios",
+    "verification": "Verificación",
+    "user_menu_verification_link": "Obtén la verificación",
+    "couch_crashes": "Couch Crashes"
   },
   "ok": "De acuerdo",
   "relative_time": {

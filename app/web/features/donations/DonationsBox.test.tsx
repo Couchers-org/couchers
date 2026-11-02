@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import DonationsBox from "features/donations/DonationsBox";
 import { DonationFrequency } from "proto/donations_pb";
 import { service } from "service";
-import wrapper from "test/hookWrapper";
+import wrapper, { getHookWrapperWithClient } from "test/hookWrapper";
 import i18n from "test/i18n";
 
 const { t } = i18n;
@@ -50,6 +50,44 @@ describe("DonationsBox", () => {
 
   it("initiates a monthly donation by default", async () => {
     render(<DonationsBox />, { wrapper });
+
+    await userEvent.click(screen.getByRole("button", { name: t("donations:donations_box.action_button_label") }));
+
+    await waitFor(() => {
+      expect(initiateDonationMock).toHaveBeenCalledWith(10, DonationFrequency.DONATION_FREQUENCY_MONTHLY, undefined);
+    });
+  });
+
+  it("takes the amounts and default from the flags", async () => {
+    const { wrapper } = getHookWrapperWithClient({
+      donation_amounts: { defaultValue: [7, 14, 21, 42] },
+      donation_amounts_yearly: { defaultValue: [60, 120, 240] },
+    });
+    render(<DonationsBox />, { wrapper });
+
+    expect(screen.getByText("$42")).toBeVisible();
+    expect(screen.queryByText("$500")).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByLabelText(t("donations:donations_box.yearly_button_label")));
+
+    expect(screen.getByText("$240")).toBeVisible();
+    expect(screen.queryByText("$1,000")).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: t("donations:donations_box.action_button_label") }));
+
+    await waitFor(() => {
+      expect(initiateDonationMock).toHaveBeenCalledWith(240, DonationFrequency.DONATION_FREQUENCY_YEARLY, undefined);
+    });
+  });
+
+  it("falls back to the built-in amounts when a flag is malformed", async () => {
+    const { wrapper } = getHookWrapperWithClient({
+      donation_amounts: { defaultValue: [1, 5, 10] },
+    });
+    render(<DonationsBox />, { wrapper });
+
+    expect(screen.getByText("$3")).toBeVisible();
+    expect(screen.queryByText("$1")).not.toBeInTheDocument();
 
     await userEvent.click(screen.getByRole("button", { name: t("donations:donations_box.action_button_label") }));
 

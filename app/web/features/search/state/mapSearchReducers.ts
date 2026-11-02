@@ -170,8 +170,8 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
           hasActiveFilters: false,
           filters: {
             ...state.filters,
-            hostingStatus: undefined,
-            showEmptyProfile: false,
+            hostingStatus: initialState.filters.hostingStatus,
+            showEmptyProfile: initialState.filters.showEmptyProfile,
           },
         }),
         search: {
@@ -208,8 +208,8 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
         ...(areDefaultFiltersActive && {
           filters: {
             ...state.filters,
-            hostingStatus: undefined,
-            showEmptyProfile: false,
+            hostingStatus: initialState.filters.hostingStatus,
+            showEmptyProfile: initialState.filters.showEmptyProfile,
           },
         }),
         search: {
@@ -274,9 +274,28 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
       const didZoomBelowThreshold =
         action.payload.zoom! < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH && state.uiOnly.zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
 
-      // If we zoom out below the threshold, reset the state to initial
+      // If we zoom out below the threshold, reset the state to initial but keep the user's own filters
       if (didZoomBelowThreshold) {
-        return initialState;
+        const isDefaultHostingStatus =
+          state.filters.hostingStatus?.includes(HostingStatus.HOSTING_STATUS_CAN_HOST) &&
+          state.filters.hostingStatus?.includes(HostingStatus.HOSTING_STATUS_MAYBE) &&
+          !state.filters.hostingStatus.includes(HostingStatus.HOSTING_STATUS_CANT_HOST);
+
+        const zoomedOutState = {
+          ...initialState,
+          filters: {
+            ...state.filters,
+            ...(isDefaultHostingStatus && { hostingStatus: initialState.filters.hostingStatus }),
+            ...(state.filters.showEmptyProfile === false && {
+              showEmptyProfile: initialState.filters.showEmptyProfile,
+            }),
+          },
+        };
+
+        return {
+          ...zoomedOutState,
+          hasActiveFilters: getHasActiveFilters(zoomedOutState, initialState),
+        };
       }
 
       return {
@@ -285,8 +304,11 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
           hasActiveFilters: true,
           filters: {
             ...state.filters,
-            hostingStatus: [HostingStatus.HOSTING_STATUS_CAN_HOST, HostingStatus.HOSTING_STATUS_MAYBE],
-            showEmptyProfile: false,
+            hostingStatus: state.filters.hostingStatus ?? [
+              HostingStatus.HOSTING_STATUS_CAN_HOST,
+              HostingStatus.HOSTING_STATUS_MAYBE,
+            ],
+            showEmptyProfile: state.filters.showEmptyProfile ?? false,
           },
         }),
         search: {

@@ -13,12 +13,8 @@ import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import StyledLink from "components/StyledLink";
-import {
-  DONATIONS_BOX_CURRENCY,
-  DONATIONS_BOX_DEFAULT_VALUE_INDEX,
-  DONATIONS_BOX_VALUES,
-  DONATIONS_BOX_YEARLY_VALUES,
-} from "features/donations/constants";
+import { DONATIONS_BOX_CURRENCY, DONATIONS_BOX_DEFAULT_VALUE_INDEX } from "features/donations/constants";
+import useDonationAmounts from "features/donations/useDonationAmounts";
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { DONATIONS } from "i18n/namespaces";
@@ -43,9 +39,6 @@ const FREQUENCIES: Record<Frequency, DonationFrequency> = {
   yearly: DonationFrequency.DONATION_FREQUENCY_YEARLY,
   "one-time": DonationFrequency.DONATION_FREQUENCY_ONE_TIME,
 };
-
-const amountsForFrequency = (frequency: Frequency) =>
-  frequency === "yearly" ? DONATIONS_BOX_YEARLY_VALUES : DONATIONS_BOX_VALUES;
 
 const StyledForm = styled("form")(() => ({
   padding: theme.spacing(2),
@@ -191,7 +184,7 @@ const StyledAmountInput = styled("input", {
 
 function AmountGrid(props: PropsWithChildren) {
   const children = React.Children.toArray(props.children);
-  const subGrids = new Array(children.length / SUB_GRID_ITEM_AMOUNT)
+  const subGrids = new Array(Math.ceil(children.length / SUB_GRID_ITEM_AMOUNT))
     .fill(0)
     .map((_, index) => (
       <StyledAmountSubGrid key={index}>
@@ -226,7 +219,10 @@ const StyledSubmitButton = styled(Button)(() => ({
 export default function DonationsBox() {
   const { t } = useTranslation(DONATIONS);
 
+  const donationAmounts = useDonationAmounts();
+
   const [isPredefinedAmount, setIsPredefinedAmount] = useState(true);
+  const [amountChosen, setAmountChosen] = useState(false);
 
   const router = useRouter();
   const [success, setSuccess] = useState(false);
@@ -247,12 +243,21 @@ export default function DonationsBox() {
     formState: { errors },
   } = useForm<DonationFormData>({
     defaultValues: {
-      amount: DONATIONS_BOX_VALUES[DONATIONS_BOX_DEFAULT_VALUE_INDEX],
+      amount: donationAmounts.monthly[DONATIONS_BOX_DEFAULT_VALUE_INDEX],
       frequency: "monthly",
     },
   });
 
   const frequency = useWatch({ control, name: "frequency" });
+  const amounts = frequency === "yearly" ? donationAmounts.yearly : donationAmounts.monthly;
+  const defaultAmount = amounts[DONATIONS_BOX_DEFAULT_VALUE_INDEX];
+
+  // flags can arrive after the form has already picked its default amount
+  useEffect(() => {
+    if (!amountChosen) {
+      setValue("amount", defaultAmount);
+    }
+  }, [amountChosen, defaultAmount, setValue]);
 
   const customAmountInput = useRef<HTMLInputElement>(null);
 
@@ -294,12 +299,13 @@ export default function DonationsBox() {
       if (customAmountInput.current) customAmountInput.current.value = "";
       onChange(amount);
       setIsPredefinedAmount(true);
+      setAmountChosen(true);
     };
 
   const handleFrequencyChange = (value: Frequency, onChange: (...event: unknown[]) => void) => {
     onChange(value);
-    setValue("amount", amountsForFrequency(value)[DONATIONS_BOX_DEFAULT_VALUE_INDEX]);
     setIsPredefinedAmount(true);
+    setAmountChosen(false);
   };
 
   const formatDonationValue = (val: number) =>
@@ -349,7 +355,7 @@ export default function DonationsBox() {
         render={({ field }) => (
           <AmountGrid>
             {[
-              ...amountsForFrequency(frequency).map((value) => {
+              ...amounts.map((value) => {
                 return (
                   <StyledAmountButton
                     key={value}
@@ -373,12 +379,9 @@ export default function DonationsBox() {
                   type="number"
                   min="1"
                   onChange={(e) => {
-                    field.onChange(
-                      typeof e.target.valueAsNumber === "number"
-                        ? e.target.valueAsNumber
-                        : amountsForFrequency(frequency)[0],
-                    );
+                    field.onChange(typeof e.target.valueAsNumber === "number" ? e.target.valueAsNumber : amounts[0]);
                     setIsPredefinedAmount(false);
+                    setAmountChosen(true);
                   }}
                   id="amount"
                 />

@@ -323,6 +323,18 @@ message ConfirmHostRequestReminder {
   org.couchers.api.core.LiteUser host_user = 2;
 }
 
+// a host offered to host one of the user's public trips, and the user hasn't responded yet
+message RespondToPublicTripOfferReminder {
+  int64 host_request_id = 1;
+  org.couchers.api.core.LiteUser host_user = 2;
+}
+
+// the traveller accepted the user's offer to host them, and the user needs to confirm the stay
+message ConfirmPublicTripOfferReminder {
+  int64 host_request_id = 1;
+  org.couchers.api.core.LiteUser surfer_user = 2;
+}
+
 message WriteReferenceReminder {
   int64 host_request_id = 1;
   org.couchers.api.core.LiteUser other_user = 2;
@@ -337,6 +349,8 @@ message Reminder {
     WriteReferenceReminder write_reference_reminder  = 4;
     CompleteMyHomeReminder complete_my_home_reminder = 5;
     ConfirmHostRequestReminder confirm_host_request_reminder = 6;
+    RespondToPublicTripOfferReminder respond_to_public_trip_offer_reminder = 7;
+    ConfirmPublicTripOfferReminder confirm_public_trip_offer_reminder = 8;
   }
 }
 

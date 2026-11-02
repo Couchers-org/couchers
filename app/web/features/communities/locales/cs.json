@@ -149,5 +149,8 @@
   "report_event_button_a11y": "Nahlásit tuto událost",
   "event_image_input_alt": "Vložiť obrázek události",
   "community_image_input_alt": "Vložení obrázku komunity",
-  "new_discussion_button": "Nová diskuse"
+  "new_discussion_button": "Nová diskuse",
+  "comment_edited_date2": "Upraveno<timeAgo/>",
+  "discussion_edited_date2": "Upraveno<timeAgo/>",
+  "add_to_calendar": "Přidat do kalendáře"
 }

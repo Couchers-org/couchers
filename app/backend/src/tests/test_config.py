@@ -26,6 +26,9 @@ def _complete_config(dev: bool) -> Config:
             setattr(cfg, var_name, "x")
 
     cfg.DEV = dev
+    if dev:
+        # partitioned cookies require Secure, which DEV doesn't set
+        cfg.COOKIE_PARTITIONED = False
     if not dev:
         # production invariants that aren't satisfiable by a generic truthy value
         cfg.BASE_URL = "https://example.com"
@@ -138,4 +141,15 @@ def test_check_rejects_too_many_worker_threads() -> None:
 
     cfg.BACKGROUND_WORKER_THREADS_PER_PROCESS = DB_POOL_SIZE // 2 + 1
     with pytest.raises(Exception, match="BACKGROUND_WORKER_THREADS_PER_PROCESS"):
+        cfg.check()
+
+
+def test_check_rejects_partitioned_cookies_in_dev() -> None:
+    cfg = _complete_config(dev=False)
+    cfg.COOKIE_PARTITIONED = True
+    cfg.check()
+
+    cfg = _complete_config(dev=True)
+    cfg.COOKIE_PARTITIONED = True
+    with pytest.raises(Exception, match="COOKIE_PARTITIONED"):
         cfg.check()

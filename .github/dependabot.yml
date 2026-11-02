@@ -1,21 +1,51 @@
 version: 2
+
+multi-ecosystem-groups:
+  backend:
+    schedule:
+      interval: "weekly"
+    labels:
+      - "1.topic backend"
+      - "dependencies"
+
+  infra:
+    schedule:
+      interval: "weekly"
+    labels:
+      - "1.topic devops"
+      - "dependencies"
+
 updates:
 
   - package-ecosystem: "uv"
     directory: "/app/backend"
-    schedule:
-      interval: "monthly"
-    labels:
-      - "1.topic backend"
-      - "dependencies"
+    patterns: ["*"]
+    multi-ecosystem-group: "backend"
 
-  - package-ecosystem: "pip"
+  - package-ecosystem: "uv"
     directory: "/app/media"
-    schedule:
-      interval: "monthly"
-    labels:
-      - "1.topic backend"
-      - "dependencies"
+    patterns: ["*"]
+    multi-ecosystem-group: "backend"
+
+  - package-ecosystem: "uv"
+    directory: "/app/client"
+    patterns: ["*"]
+    multi-ecosystem-group: "backend"
+
+  - package-ecosystem: "docker"
+    directories:
+      - "/app/backend"
+      - "/app/media"
+    patterns: ["*"]
+    multi-ecosystem-group: "backend"
+
+  - package-ecosystem: "docker"
+    directories:
+      - "/app/nginx"
+      - "/app/prometheus"
+      - "/app/proxy"
+    patterns: ["*"]
+    multi-ecosystem-group: "infra"
 
   - package-ecosystem: "npm"
     directory: "/app/web"
@@ -26,14 +56,7 @@ updates:
       - "dependencies"
 
   - package-ecosystem: "docker"
-    directories:
-      - "/app/backend"
-      - "/app/media"
-      - "/app/mobile/src"
-      - "/app/nginx"
-      - "/app/prometheus"
-      - "/app/proxy"
-      - "/app/web"
+    directory: "/app/web"
     schedule:
       interval: "monthly"
     labels:

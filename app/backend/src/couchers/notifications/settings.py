@@ -108,7 +108,7 @@ settings_layout = [
         [
             (
                 "host_request",
-                "Host requests",
+                "Host requests and invitations",
                 [
                     NotificationTopicAction.host_request__create,
                     NotificationTopicAction.host_request__accept,

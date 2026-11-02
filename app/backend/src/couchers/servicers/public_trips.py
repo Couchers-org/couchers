@@ -1,5 +1,5 @@
 import logging
-from datetime import timedelta
+from datetime import date, timedelta
 
 import grpc
 from sqlalchemy import ColumnElement, and_, func, or_, select
@@ -11,7 +11,7 @@ from couchers.crypto import decrypt_page_token, encrypt_page_token
 from couchers.db import can_moderate_node
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
-from couchers.models import ModerationObjectType, Node, User
+from couchers.models import Cluster, ClusterSubscription, ModerationObjectType, Node, User
 from couchers.models.host_requests import HostRequest, HostRequestStatus
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.moderation.utils import create_moderation
@@ -48,6 +48,27 @@ def _is_description_long_enough(text: str) -> bool:
     # so the backend check aligns with the frontend character counter.
     text_length_utf16 = len(text.encode("utf-16-le")) // 2
     return text_length_utf16 >= PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16
+
+
+def _has_overlapping_public_trip(
+    session: Session,
+    user_id: int,
+    node_id: int,
+    from_date: date,
+    to_date: date,
+    exclude_trip_id: int | None = None,
+) -> bool:
+    query = (
+        select(PublicTrip.id)
+        .where(PublicTrip.user_id == user_id)
+        .where(PublicTrip.node_id == node_id)
+        .where(PublicTrip.status == PublicTripStatus.searching_for_host)
+        .where(PublicTrip.to_date > from_date)
+        .where(PublicTrip.from_date < to_date)
+    )
+    if exclude_trip_id is not None:
+        query = query.where(PublicTrip.id != exclude_trip_id)
+    return session.execute(select(query.exists())).scalar_one()
 
 
 def _same_gender_filter(context: CouchersContext) -> ColumnElement[bool]:
@@ -131,8 +152,8 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         if from_date < today:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_before_today")
 
-        if from_date > to_date:
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_after_to")
+        if from_date >= to_date:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_not_after_from")
 
         if from_date - today > timedelta(days=365):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_after_one_year")
@@ -153,17 +174,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         if len(request.description) > PUBLIC_TRIP_DESCRIPTION_MAX_LENGTH:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_description_too_long")
 
-        # Disallow overlapping active trips by the same user in the same community
-        # They share the same timezone so comparing dates is ok
-        existing = session.execute(
-            select(PublicTrip)
-            .where(PublicTrip.user_id == context.user_id)
-            .where(PublicTrip.node_id == node.id)
-            .where(PublicTrip.status == PublicTripStatus.searching_for_host)
-            .where(PublicTrip.to_date >= from_date)
-            .where(PublicTrip.from_date <= to_date)
-        ).scalar_one_or_none()
-        if existing:
+        if _has_overlapping_public_trip(session, context.user_id, node.id, from_date, to_date):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "overlapping_public_trip_exists")
 
         public_trip: PublicTrip | None = None
@@ -293,8 +304,10 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             is_list_operation=True,
         ).where(PublicTrip.user_id == request.user_id)
 
+        if not request.include_past:
+            statement = statement.where(PublicTrip.end_time >= func.now())
+
         if not is_self:
-            # On other users' profiles show only active, upcoming trips that the viewer is allowed to see.
             # Check moderation against each distinct node the user has active trips in.
             active_node_ids = (
                 session.execute(
@@ -309,9 +322,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             )
             viewer_is_moderator = any(can_moderate_node(session, context.user_id, nid) for nid in active_node_ids)
 
-            statement = statement.where(PublicTrip.status == PublicTripStatus.searching_for_host).where(
-                PublicTrip.end_time >= func.now()
-            )
+            statement = statement.where(PublicTrip.status == PublicTripStatus.searching_for_host)
             if not viewer_is_moderator:
                 statement = statement.where(_same_gender_filter(context))
         elif request.statuses_in:
@@ -350,6 +361,57 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             next_page_token = date_id_to_page_token(last.from_date, last.id)
 
         return public_trips_pb2.ListPublicTripsByUserRes(
+            public_trips=[public_trip_to_pb(trip, session, context) for trip in public_trips[:page_size]],
+            next_page_token=next_page_token,
+        )
+
+    def ListMyCommunitiesPublicTrips(
+        self, request: public_trips_pb2.ListMyCommunitiesPublicTripsReq, context: CouchersContext, session: Session
+    ) -> public_trips_pb2.ListMyCommunitiesPublicTripsRes:
+        if not context.get_boolean_value("public_trips_enabled", False):
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "public_trips_disabled")
+
+        page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+        cursor = date_id_from_page_token(request.page_token) if request.page_token else None
+
+        # @TODO(NA):Should we make same-gender ones visible to opposite gender moderators? For now, we don't
+        statement = (
+            where_moderated_content_visible(
+                where_users_column_visible(select(PublicTrip), context, PublicTrip.user_id),
+                context,
+                PublicTrip,
+                is_list_operation=True,
+            )
+            .join(Cluster, Cluster.parent_node_id == PublicTrip.node_id)
+            .join(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
+            .where(Cluster.is_official_cluster)
+            .where(ClusterSubscription.user_id == context.user_id)
+            .where(PublicTrip.user_id != context.user_id)
+            .where(PublicTrip.status == PublicTripStatus.searching_for_host)
+            .where(PublicTrip.end_time >= func.now())
+            .where(_same_gender_filter(context))
+        )
+
+        # Cursor-based pagination using (from_date, id) composite key, soonest first
+        if cursor is not None:
+            cursor_date, cursor_id = cursor
+            statement = statement.where(
+                or_(
+                    PublicTrip.from_date > cursor_date,
+                    and_(PublicTrip.from_date == cursor_date, PublicTrip.id > cursor_id),
+                )
+            )
+        statement = statement.order_by(PublicTrip.from_date.asc(), PublicTrip.id.asc())
+
+        statement = statement.limit(page_size + 1).options(selectinload(PublicTrip.node, Node.official_cluster))
+        public_trips = session.execute(statement).scalars().all()
+
+        next_page_token = None
+        if len(public_trips) > page_size:
+            last = public_trips[page_size - 1]
+            next_page_token = date_id_to_page_token(last.from_date, last.id)
+
+        return public_trips_pb2.ListMyCommunitiesPublicTripsRes(
             public_trips=[public_trip_to_pb(trip, session, context) for trip in public_trips[:page_size]],
             next_page_token=next_page_token,
         )
@@ -393,8 +455,8 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             if new_from_date < today_local:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_before_today")
 
-            if new_from_date > new_to_date:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_after_to")
+            if new_from_date >= new_to_date:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_not_after_from")
 
             if new_from_date - today_local > timedelta(days=365):
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_after_one_year")
@@ -428,9 +490,24 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
                 today_local = today_in_timezone(public_trip.timezone)
                 if public_trip.from_date < today_local:
                     context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "public_trip_in_past")
+                if public_trip.from_date >= public_trip.to_date:
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_not_after_from")
             elif new_status != PublicTripStatus.closed:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_public_trip_status")
             public_trip.status = new_status
+
+        if public_trip.status == PublicTripStatus.searching_for_host and (
+            request.HasField("from_date") or request.HasField("to_date") or request.HasField("status")
+        ):
+            if _has_overlapping_public_trip(
+                session,
+                context.user_id,
+                public_trip.node_id,
+                public_trip.from_date,
+                public_trip.to_date,
+                exclude_trip_id=public_trip.id,
+            ):
+                context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "overlapping_public_trip_exists")
 
         log_event(
             context,

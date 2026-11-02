@@ -15,7 +15,7 @@
   "num_users2_one": "{{count}} člen",
   "num_users2_few": "{{count}} členové",
   "num_users2_other": "{{count}} členů",
-  "num_countries2_one": "{{count}}+ zemí",
+  "num_countries2_one": "{{count}}+ země",
   "num_countries2_few": "{{count}}+ země",
   "num_countries2_other": "{{count}}+ zemí",
   "what_couchsurfing_description": "Couchers.org je komunita a platforma vytvořená pro podporu skutečných setkání mezi cestovateli a místními, postavená na couchsurfingu – bezplatném, nekomerčním ubytování a setkávání – s důrazem na důvěru a bezpečí.",
@@ -45,5 +45,8 @@
   "non_transactional_why": "Je to ze své podstaty neslučitelné s autentickými mezilidskými kontakty. Je zdravé jen dávat nebo jen přijímat a měli bychom se naučit být s tím více v pohodě.",
   "why": "Proč?",
   "map_section_title": "Objev naši globální komunitu",
-  "animation_error": "Chyba při načítání animace"
+  "animation_error": "Chyba při načítání animace",
+  "hero_animation_pause_button_a11y": "Pozastavit animaci",
+  "hero_animation_play_button_a11y": "Přehrát animaci",
+  "last_signup2": "Poslední registrace <timeAgo/>"
 }
