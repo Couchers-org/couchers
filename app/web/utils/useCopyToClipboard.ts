@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 type CopyStatus = "idle" | "copied" | "failed";
 
 // status goes back to "idle" after resetAfterMs, so feedback like "Copied!" can be shown temporarily
+// copy resolves to whether it succeeded
 export default function useCopyToClipboard(resetAfterMs = 2000) {
   const [status, setStatus] = useState<CopyStatus>("idle");
   const [copiedText, setCopiedText] = useState<string | null>(null);
@@ -33,6 +34,7 @@ export default function useCopyToClipboard(resetAfterMs = 2000) {
         setStatus("idle");
         setCopiedText(null);
       }, resetAfterMs);
+      return result === "copied";
     },
     [resetAfterMs],
   );

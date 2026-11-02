@@ -11,6 +11,11 @@ import UserOverview from "./UserOverview";
 
 const { t } = i18n;
 
+const mockLogEvent = jest.fn();
+jest.mock("features/analytics/hooks", () => ({
+  useLogEvent: () => mockLogEvent,
+}));
+
 describe("UserOverview", () => {
   beforeEach(() => {
     addDefaultUser();
@@ -50,6 +55,11 @@ describe("UserOverview", () => {
       await userEvent.click(screen.getByRole("button", { name: t("profile:copy_profile_link.button_a11y") }));
 
       expect(writeText).toHaveBeenCalledWith(`${window.location.origin}/user/${defaultUser.username}`);
+      expect(mockLogEvent).toHaveBeenCalledWith("profile.link_copied", {
+        user_id: defaultUser.userId,
+        is_own_profile: false,
+        succeeded: true,
+      });
       expect(await screen.findByText(t("global:copy_button.copied_message"))).toBeVisible();
     });
 

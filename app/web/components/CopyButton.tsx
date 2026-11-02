@@ -8,9 +8,10 @@ import useCopyToClipboard from "utils/useCopyToClipboard";
 interface CopyButtonProps {
   text: string;
   label?: string;
+  onCopy?: (succeeded: boolean) => void;
 }
 
-export default function CopyButton({ text, label }: CopyButtonProps) {
+export default function CopyButton({ text, label, onCopy }: CopyButtonProps) {
   const { t } = useTranslation(GLOBAL);
   const { copy, status } = useCopyToClipboard();
   const a11yLabel = label ?? t("global:copy_button.a11y");
@@ -19,7 +20,15 @@ export default function CopyButton({ text, label }: CopyButtonProps) {
     // the message sits beside the icon without taking space, so surrounding content doesn't shift
     <Box component="span" sx={{ position: "relative", display: "inline-flex" }}>
       <Tooltip title={a11yLabel} placement="top" arrow>
-        <IconButton size="small" color="primary" aria-label={a11yLabel} onClick={() => copy(text)}>
+        <IconButton
+          size="small"
+          color="primary"
+          aria-label={a11yLabel}
+          onClick={async () => {
+            const succeeded = await copy(text);
+            onCopy?.(succeeded);
+          }}
+        >
           <ContentCopyOutlined sx={{ fontSize: 16 }} />
         </IconButton>
       </Tooltip>
