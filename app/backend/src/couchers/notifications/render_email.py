@@ -52,6 +52,7 @@ def get_send_email_payload(
         source_data=source_data_header,
         list_unsubscribe_header=list_unsubscribe_header,
         attachments=[attachment] if attachment else [],
+        notification_id=notification.id,
     )
 
 

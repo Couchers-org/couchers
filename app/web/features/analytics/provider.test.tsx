@@ -164,6 +164,65 @@ describe("AnalyticsProvider", () => {
     });
   });
 
+  describe("email ref", () => {
+    it("includes zz in session.started and strips it from page.viewed search", () => {
+      setLocation("/messages/chats/1", "?zz=abc123&tab=info");
+
+      render(
+        <AnalyticsProvider>
+          <div />
+        </AnalyticsProvider>,
+      );
+
+      const sessionCall = mockLogEvent.mock.calls.find((call) => call[0] === "session.started");
+      const pageCall = mockLogEvent.mock.calls.find((call) => call[0] === "page.viewed");
+
+      expect(sessionCall![1]).toMatchObject({ zz: "abc123" });
+      expect(pageCall![1].search).toBe("tab=info");
+    });
+
+    it("omits zz from session.started when not present", () => {
+      render(
+        <AnalyticsProvider>
+          <div />
+        </AnalyticsProvider>,
+      );
+
+      const sessionCall = mockLogEvent.mock.calls.find((call) => call[0] === "session.started");
+
+      expect(sessionCall![1]).not.toHaveProperty("zz");
+    });
+
+    it("removes zz from the address bar and keeps other params and the hash", () => {
+      setLocation("/messages/chats/1", "?zz=abc123&tab=info#latest");
+
+      render(
+        <AnalyticsProvider>
+          <div />
+        </AnalyticsProvider>,
+      );
+
+      expect(window.location.pathname).toBe("/messages/chats/1");
+      expect(window.location.search).toBe("?tab=info");
+      expect(window.location.hash).toBe("#latest");
+    });
+
+    it("leaves the address bar alone when zz is not present", () => {
+      setLocation("/search", "?q=paris");
+      const replaceStateSpy = jest.spyOn(window.history, "replaceState");
+
+      render(
+        <AnalyticsProvider>
+          <div />
+        </AnalyticsProvider>,
+      );
+
+      expect(replaceStateSpy).not.toHaveBeenCalled();
+      expect(window.location.search).toBe("?q=paris");
+      replaceStateSpy.mockRestore();
+    });
+  });
+
   describe("route change tracking", () => {
     it("registers a routeChangeComplete listener on mount", () => {
       render(

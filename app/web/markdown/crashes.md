@@ -290,7 +290,7 @@ hide_title: true
   border-radius: 4px;
 }
 .cc-title {
-  font-size: 1.05rem;
+  font-size: 1.25rem;
   font-weight: 700;
   margin: 0 0 6px 0;
 }
@@ -386,16 +386,6 @@ hide_title: true
 </details>
 <!-- UPCOMING CRASHES -->
 <h2 class="cc-section-title">Upcoming Crashes</h2>
-<h3 class="cc-month">October 2026</h3>
-<ul class="cc-grid">
-  <li class="cc-card">
-    <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/e89f35edd47a805f136286d142532a2a89aeb988cb140847f7bd885ad40f471f.jpg" alt="Philadelphia Crash October 2026">
-    <div class="cc-date-row"><span class="cc-date">📅 Oct 30 – Nov 1, 2026</span></div>
-    <h4 class="cc-title"><a href="https://couchers.org/de/event/7861/philadelphia-crash">Philadelphia Crash</a></h4>
-    <p class="cc-meta">📍 Philadelphia, USA</p>
-    <p class="cc-organizer">👤 Organized by <a href="https://couchers.org/user/christr">Chris</a>, <a href="https://couchers.org/de/user/umberto1">Umberto</a></p>
-  </li>
-</ul>
 <h3 class="cc-month">December 2026</h3>
 <ul class="cc-grid">
   <li class="cc-card">
@@ -413,17 +403,20 @@ hide_title: true
     <p class="cc-organizer">👤 Organized by <a href="https://couchers.org/user/christr">Chris</a></p>
   </li>
 </ul>
-<!-- PAST CRASHES 
+
+<!-- PAST CRASHES -->
+
 <details class="cc-drawer cc-drawer-past">
   <summary>Past Crashes</summary>
   <h4 class="cc-year">2026</h4>
   <ul class="cc-grid">
-    <li class="cc-card">
-      <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/e89f35edd47a805f136286d142532a2a89aeb988cb140847f7bd885ad40f471f.jpg" alt="Philadelphia Crash October 2026">
-      <div class="cc-date-row"><span class="cc-date">📅 Oct 30 – Nov 1, 2026</span></div>
-      <h4 class="cc-title"><a href="https://couchers.org/de/event/7861/philadelphia-crash">Philadelphia Crash</a></h4>
-      <p class="cc-meta">📍 Philadelphia, USA</p>
-      <p class="cc-organizer">👤 Organized by <a href="https://couchers.org/user/christr">Chris</a></p>
+<!-- 
+    <li class="cc-card past">
+      <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/7aca5034aa9bbcfc7752467ee812246b4257b864656b5f81f2450d5b23dfe232.jpg" alt="Wrocław CS Winter Camp">
+      <div class="cc-date-row"><span class="cc-date">📅 Dec 30, 2026 – Jan 4, 2027</span></div>
+	  <h4 class="cc-title"><a href="https://couchers.org/event/7766/wroclaw-cs-winter-camp">Wrocław CS Winter Camp</a></h4>
+	  <p class="cc-meta">📍 Wrocław, Poland</p>
+	  <p class="cc-organizer">👤 Organized by <a href="https://couchers.org/user/christr">Chris</a></p>
     </li>
 	<li class="cc-card past">
 	  <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/424761af69e6c7078869b78915e7e59fdd2c695e920171899e93e317935d5767.jpg" alt="Sporty Winter Crash in Szklarska Poręba">
@@ -432,16 +425,16 @@ hide_title: true
 	  <p class="cc-meta">📍 Szklarska Poręba, Poland</p>
 	  <p class="cc-organizer">👤 Organized by <a href="https://couchers.org/user/christr">Chris</a></p>
 	</li>
+-->
     <li class="cc-card past">
-      <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/7aca5034aa9bbcfc7752467ee812246b4257b864656b5f81f2450d5b23dfe232.jpg" alt="Wrocław CS Winter Camp">
-      <div class="cc-date-row"><span class="cc-date">📅 Dec 30, 2026 – Jan 4, 2027</span></div>
-	  <h4 class="cc-title"><a href="https://couchers.org/event/7766/wroclaw-cs-winter-camp">Wrocław CS Winter Camp</a></h4>
-	  <p class="cc-meta">📍 Wrocław, Poland</p>
-	  <p class="cc-organizer">👤 Organized by <a href="https://couchers.org/user/christr">Chris</a></p>
+      <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/e89f35edd47a805f136286d142532a2a89aeb988cb140847f7bd885ad40f471f.jpg" alt="Philadelphia Crash October 2026">
+      <div class="cc-date-row"><span class="cc-date">📅 Oct 30 – Nov 1, 2026</span></div>
+      <h4 class="cc-title"><a href="https://couchers.org/de/event/7861/philadelphia-crash">Philadelphia Crash</a></h4>
+      <p class="cc-meta">📍 Philadelphia, USA</p>
+      <p class="cc-organizer">👤 Organized by <a href="https://couchers.org/user/christr">Chris</a></p>
     </li>
   </ul>
 </details>
--->
 <!-- FLOATING PROPOSE BUTTON -->
 <a href="#propose-crash" class="cc-btn cc-fab" id="cc-floating-btn">Propose a Crash</a>
 <!-- PROPOSE A CRASH SECTION -->
