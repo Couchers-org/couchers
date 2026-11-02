@@ -67,4 +67,4 @@ def get_discussions(
 
     next_page_token = str(discussions[page_size].id) if len(discussions) > page_size else None
 
-    return discussions[:page_size], next_page_token
+    return list(discussions[:page_size]), next_page_token
