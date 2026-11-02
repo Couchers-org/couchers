@@ -56,7 +56,7 @@
     "geojson": "^0.5.0",
     "google-protobuf": "^4.0.3",
     "grpc-web": "2.1.1",
-    "i18next": "^26.4.2",
+    "i18next": "^26.5.11",
     "intersection-observer": "^0.12.2",
     "lottie-react": "^3.1.2",
     "luhn": "^2.4.1",
