@@ -164,7 +164,8 @@
     "missing_page_title": "Chybí název stránky.",
     "public_trip_offer_too_short_one": "Tvoje nabídka hostování nemůže být kratší než {{count}} znak.",
     "public_trip_offer_too_short_few": "Tvoje nabídka hostování nemůže být kratší než {{count}} znaky.",
-    "public_trip_offer_too_short_other": "Tvoje nabídka hostování nemůže být kratší než {{count}} znaků."
+    "public_trip_offer_too_short_other": "Tvoje nabídka hostování nemůže být kratší než {{count}} znaků.",
+    "date_to_not_after_from": "Konec musí být pozdější než začátek."
   },
   "badges": {
     "postal_verified_name": "Ověřená adresa",
