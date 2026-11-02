@@ -17,8 +17,12 @@ describe("useCopyToClipboard", () => {
     mockClipboard(writeText);
     const { result } = renderHook(() => useCopyToClipboard(1000));
 
-    await act(() => result.current.copy("hello"));
+    let succeeded: boolean | undefined;
+    await act(async () => {
+      succeeded = await result.current.copy("hello");
+    });
 
+    expect(succeeded).toBe(true);
     expect(writeText).toHaveBeenCalledWith("hello");
     expect(result.current.status).toBe("copied");
     expect(result.current.copiedText).toBe("hello");
@@ -33,8 +37,12 @@ describe("useCopyToClipboard", () => {
     mockClipboard(jest.fn().mockRejectedValue(new Error("denied")));
     const { result } = renderHook(() => useCopyToClipboard());
 
-    await act(() => result.current.copy("hello"));
+    let succeeded: boolean | undefined;
+    await act(async () => {
+      succeeded = await result.current.copy("hello");
+    });
 
+    expect(succeeded).toBe(false);
     expect(result.current.status).toBe("failed");
   });
 
