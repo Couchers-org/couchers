@@ -7,7 +7,7 @@ from sqlalchemy.sql import exists, func
 
 from couchers.context import make_background_user_context
 from couchers.db import session_scope
-from couchers.email.queuing import queue_email
+from couchers.email.queuing import queue_email_with_zz
 from couchers.i18n import LocalizationContext
 from couchers.models import (
     Notification,
@@ -52,7 +52,7 @@ def _send_email_notification(session: Session, user: User, notification: Notific
         include_ics_attachments=context.get_boolean_value("email_ics_attachments_enabled", default=False),
     )
 
-    queue_email(session, payload)
+    queue_email_with_zz(context, session, payload)
 
 
 def _send_push_notification(session: Session, user: User, notification: Notification) -> None:

@@ -8,6 +8,8 @@ from couchers.config import config
 from couchers.context import CouchersContext
 from couchers.email.blocks import EmailBase, EmailFooter
 from couchers.email.rendering import render_email
+from couchers.email.zz import add_open_pixel, add_zz_to_html_links, generate_zz
+from couchers.event_log import log_event
 from couchers.i18n import LocalizationContext
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import emails_counter
@@ -38,6 +40,25 @@ def queue_email(session: Session, payload: jobs_pb2.SendEmailPayload) -> None:
     _queue_email(session, payload)
 
 
+def queue_email_with_zz(context: CouchersContext, session: Session, payload: jobs_pb2.SendEmailPayload) -> None:
+    """
+    Queues an email, adding a zz id to its html links (see couchers/email/zz.py) and logging it as sent.
+    """
+    zz = generate_zz()
+    if payload.html:
+        if context.get_boolean_value("email_zz_links_enabled", default=False):
+            payload.html = add_zz_to_html_links(payload.html, zz)
+        if context.get_boolean_value("email_open_pixel_enabled", default=False):
+            payload.html = add_open_pixel(payload.html, zz)
+
+    properties: dict[str, str | int] = {"zz": zz, "source_data": payload.source_data}
+    if payload.notification_id:
+        properties["notification_id"] = payload.notification_id
+    log_event(context, session, "email.sent", properties)
+
+    queue_email(session, payload)
+
+
 def queue_userless_email(
     context: CouchersContext, session: Session, recipient: str, email: EmailBase, source_data_header: str
 ) -> None:
@@ -54,7 +75,8 @@ def queue_userless_email(
     footer = EmailFooter(timezone_name=loc_context.localized_timezone, copyright_year=now().year, unsubscribe_info=None)
     rendered = render_email(email, footer, loc_context)
 
-    queue_email(
+    queue_email_with_zz(
+        context,
         session,
         jobs_pb2.SendEmailPayload(
             sender_name=config.NOTIFICATION_EMAIL_SENDER,
