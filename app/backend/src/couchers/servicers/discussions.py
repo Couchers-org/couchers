@@ -301,6 +301,7 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
         )
 
         return empty_pb2.Empty()
+
     def ListMyCommunitiesDiscussions(
         self, request: discussions_pb2.ListMyCommunitiesDiscussionsReq, context: CouchersContext, session: Session
     ) -> discussions_pb2.ListMyCommunitiesDiscussionsRes:
