@@ -1,11 +1,13 @@
-import { Card, CardActions, styled, Tooltip, Typography } from "@mui/material";
+import { Box, Card, CardActions, styled, Tooltip, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import BarWithHelp from "components/Bar/BarWithHelp";
+import CopyButton from "components/CopyButton";
 import Divider from "components/Divider";
 import { CouchIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
 import StrongVerificationBadge from "components/StrongVerificationBadge";
 import StyledLink from "components/StyledLink";
+import { useLogEvent } from "features/analytics/hooks";
 import { hostingStatusLabels, meetupStatusLabels } from "features/profile/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
@@ -99,6 +101,7 @@ export default function UserOverview({
   isAvatarProfileLink = true,
 }: UserOverviewProps) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
+  const logEvent = useLogEvent();
   const user = useProfileUser();
 
   const shouldMakeAvatarClickable = isOwnProfile && !user.avatarUrl;
@@ -122,16 +125,16 @@ export default function UserOverview({
           {user.name}
           {user.hasStrongVerification && <StrongVerificationBadge />}
         </StyledIntro>
-        <StyledLink
-          href={routeToUser(user.username)}
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            marginBottom: 1,
-          }}
-        >
-          @{user.username}
-        </StyledLink>
+        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 0.5, marginBottom: 1 }}>
+          <StyledLink href={routeToUser(user.username)}>@{user.username}</StyledLink>
+          <CopyButton
+            text={`${typeof window !== "undefined" ? window.location.origin : ""}${routeToUser(user.username)}`}
+            label={t("profile:copy_profile_link.button_a11y")}
+            onCopy={(succeeded) =>
+              logEvent("profile.link_copied", { user_id: user.userId, is_own_profile: isOwnProfile, succeeded })
+            }
+          />
+        </Box>
         <StyledIntro>{user.city}</StyledIntro>
         <Badges user={user} />
       </StyledWrapper>
