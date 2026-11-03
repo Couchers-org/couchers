@@ -2,14 +2,15 @@ import type { Notification, NotificationBehavior } from "expo-notifications";
 
 import { currentActiveWebPathRef } from "@/state/webViewState";
 import { getInAppNotificationPath } from "@/utils/getNotificationPath";
+import { stripLocalePrefix } from "@/utils/stripLocalePrefix";
 
-function stripQuery(path: string) {
-  return path.split("?")[0];
+function normalizePath(path: string) {
+  return stripLocalePrefix(path.split("?")[0]);
 }
 
 function isViewing(currentPath: string, notificationPath: string) {
-  const current = stripQuery(currentPath);
-  const target = stripQuery(notificationPath);
+  const current = normalizePath(currentPath);
+  const target = normalizePath(notificationPath);
   // match whole path segments, so /messages/4 doesn't match /messages/42
   return current === target || current.startsWith(`${target}/`);
 }

@@ -48,12 +48,32 @@ describe("handleForegroundNotification", () => {
     ).resolves.toEqual(quiet);
   });
 
+  it("stays quiet when the page has a language prefix", async () => {
+    currentActiveWebPathRef.current = "/de/messages/request/425";
+
+    await expect(
+      handleForegroundNotification(
+        notificationFor("https://couchers.org/messages/request/425"),
+      ),
+    ).resolves.toEqual(quiet);
+  });
+
   it("shows the notification when the user is on another page", async () => {
     currentActiveWebPathRef.current = "/dashboard";
 
     await expect(
       handleForegroundNotification(
         notificationFor("https://couchers.org/messages/chats/42"),
+      ),
+    ).resolves.toEqual(shown);
+  });
+
+  it("shows a thread's notification while on the messages list", async () => {
+    currentActiveWebPathRef.current = "/de/messages";
+
+    await expect(
+      handleForegroundNotification(
+        notificationFor("https://couchers.org/messages/request/425"),
       ),
     ).resolves.toEqual(shown);
   });
