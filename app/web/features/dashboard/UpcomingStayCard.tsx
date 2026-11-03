@@ -5,13 +5,15 @@ import Avatar from "components/Avatar";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
-import { localizeDateRange, localizeRelativeTimeUnit } from "i18n/datetimes";
+import { localizeDateRange } from "i18n/datetimes";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import { HostRequest } from "proto/requests_pb";
 import { routeToHostRequest } from "routes";
 import { Temporal } from "temporal-polyfill";
 import { daysBetween } from "utils/date";
+
+import { classifyWhenHappening } from "./utils";
 
 const StyledCard = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -32,7 +34,7 @@ const StyledCard = styled(Box)(({ theme }) => ({
   },
 }));
 
-const DaysChip = styled("span")(({ theme }) => ({
+const WhenPill = styled("span")(({ theme }) => ({
   fontSize: 11,
   fontWeight: 700,
   borderRadius: 999,
@@ -124,22 +126,18 @@ export default function UpcomingStayCard({ hostRequest }: UpcomingStayCardProps)
 
   const fromDate = Temporal.PlainDate.from(hostRequest.fromDate);
   const toDate = Temporal.PlainDate.from(hostRequest.toDate);
-  const today = Temporal.Now.plainDateISO();
   const nights = daysBetween(fromDate, toDate);
-  const daysUntil = daysBetween(today, fromDate);
-  const daysUntilEnd = daysBetween(today, toDate);
-  // Stays are date-only, so there is no time to say "now" from: anything covering today reads "Today".
-  const isToday = daysUntil <= 0 && daysUntilEnd >= 0;
-  const whenLabel = isToday
-    ? t("dashboard:today_label")
-    : daysUntil <= 3
-      ? localizeRelativeTimeUnit(daysUntil, "days", locale, { capitalize: true })
-      : null;
-
   const dateRange = localizeDateRange(fromDate, toDate, locale, {
     includeYear: "auto",
     abbreviate: true,
   });
+  const whenHappening = classifyWhenHappening(hostRequest);
+  const whenPillText =
+    whenHappening === "now"
+      ? t("dashboard:happening_now_pill")
+      : whenHappening === "soon"
+        ? t("dashboard:happening_soon_pill")
+        : null;
 
   const primary = isLoading ? <Skeleton width={80} /> : (otherUser?.name ?? "—");
 
@@ -190,7 +188,7 @@ export default function UpcomingStayCard({ hostRequest }: UpcomingStayCardProps)
               )}
             </Typography>
           </TextBlock>
-          {whenLabel && <DaysChip>{whenLabel}</DaysChip>}
+          {whenPillText && <WhenPill>{whenPillText}</WhenPill>}
         </IdentityRow>
         <MetaRow>
           <MetaDate>
