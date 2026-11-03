@@ -1,0 +1,6 @@
+# iOS asks before a custom scheme link opens the app; Android doesn't
+appId: ${APP_ID}
+---
+- tapOn:
+    text: "Open"
+    optional: true

@@ -1,0 +1,7 @@
+# gives the map tiles time to draw; maestro has no plain sleep, so this waits for text that never appears
+appId: ${APP_ID}
+---
+- extendedWaitUntil:
+    visible: "wait-for-map-tiles"
+    timeout: 8000
+    optional: true

@@ -1,0 +1,5 @@
+node_modules/
+raw/
+output/
+photos/*
+!photos/manifest.example.json

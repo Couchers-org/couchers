@@ -18,6 +18,7 @@
     "test": "jest",
     "fingerprints:check": "node scripts/fingerprints.mjs check",
     "fingerprints:write": "node scripts/fingerprints.mjs write",
+    "store-screenshots": "npm ci --prefix scripts/store-screenshots --no-audit --no-fund --silent && node scripts/store-screenshots/run.mts",
     "release:ios:devtool": "eas build --platform ios --profile devtool --auto-submit",
     "release:ios:devtool:simulator": "eas build --platform ios --profile devtool-simulator",
     "release:ios:staging": "eas build --platform ios --profile staging --auto-submit",
