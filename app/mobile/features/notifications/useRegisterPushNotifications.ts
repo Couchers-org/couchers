@@ -34,13 +34,14 @@ async function getExpoPushToken(): Promise<string | null> {
     return null;
   }
 
+  // Android 13+ only shows the permission prompt once a channel exists
+  await configureAndroidChannel();
+
   const hasPermission = await ensureNotificationPermissions();
   if (!hasPermission) {
     console.warn("❌ Push notification permission not granted");
     return null;
   }
-
-  await configureAndroidChannel();
 
   const projectId =
     Constants.expoConfig?.extra?.eas?.projectId ??

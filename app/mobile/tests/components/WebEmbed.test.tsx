@@ -9,6 +9,7 @@ import { useAuthContext } from "@/features/auth/AuthContext";
 import { useAddToCalendar } from "@/hooks/useAddToCalendar";
 import { useImagePicker } from "@/hooks/useImagePicker";
 import { useWebNavigation } from "@/hooks/useWebNavigation";
+import { currentActiveWebPathRef } from "@/state/webViewState";
 
 const mockWebBaseUrl = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
 
@@ -411,6 +412,26 @@ describe("WebEmbed", () => {
       expect(openURLSpy).toHaveBeenCalledWith("https://example.com/external");
 
       openURLSpy.mockRestore();
+    });
+  });
+
+  describe("current page for notifications", () => {
+    it("records the screen's page when it comes into focus", () => {
+      currentActiveWebPathRef.current = "/events";
+      mockCurrentWebPathRef.current = "/messages";
+
+      render(<WebEmbed path="/messages" />);
+
+      expect(currentActiveWebPathRef.current).toBe("/messages");
+    });
+
+    it("forgets the screen's page when it loses focus", () => {
+      mockCurrentWebPathRef.current = "/messages";
+
+      render(<WebEmbed path="/messages" />);
+      focusEffectCleanups.forEach((cleanup) => cleanup());
+
+      expect(currentActiveWebPathRef.current).toBeNull();
     });
   });
 

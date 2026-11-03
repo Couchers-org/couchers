@@ -27,7 +27,11 @@ import { useImagePicker } from "@/hooks/useImagePicker";
 import { useWebNavigation } from "@/hooks/useWebNavigation";
 import errorGraphic from "@/resources/404graphic.png";
 import client from "@/service/client";
-import { dispatchEscapeRef, lastLoginTimeRef } from "@/state/webViewState";
+import {
+  currentActiveWebPathRef,
+  dispatchEscapeRef,
+  lastLoginTimeRef,
+} from "@/state/webViewState";
 import { theme } from "@/theme";
 import { applicationNameForUserAgent } from "@/utils/userAgent";
 import { shouldLoadInWebView } from "@/utils/webViewUrlUtils";
@@ -63,6 +67,7 @@ export default function WebEmbed({
   // Tracks the path we're syncing to so handleNavigationStateChange can
   // distinguish sync-triggered navigations from user-initiated ones.
   const syncTargetPathRef = useRef<string | null>(null);
+  const isFocusedRef = useRef(false);
 
   // Compute the initial URI once at mount using the current locale so the
   // WebView loads the correct language directly, without relying on the
@@ -100,6 +105,7 @@ export default function WebEmbed({
     webBaseUrl: WEB_BASE_URL,
     currentPath: path,
     syncTargetPathRef,
+    isFocusedRef,
     onRetryCountReset: () => {
       retryCountRef.current = 0;
     },
@@ -115,6 +121,20 @@ export default function WebEmbed({
         );
       };
     }, []),
+  );
+
+  // Tell the notification handler which page is on screen. Navigation events
+  // don't cover a tab's first page or switching back to a screen.
+  useFocusEffect(
+    useCallback(() => {
+      isFocusedRef.current = true;
+      currentActiveWebPathRef.current = currentWebPathRef.current;
+      return () => {
+        isFocusedRef.current = false;
+        // screens without a WebView (e.g. dev settings) don't record a page
+        currentActiveWebPathRef.current = null;
+      };
+    }, [currentWebPathRef]),
   );
 
   // Android hardware back button: go back in WebView if possible.
