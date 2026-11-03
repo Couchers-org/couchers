@@ -2229,3 +2229,59 @@ def test_web_push_success_records_body_verbatim(db):
         ).scalar_one()
         assert attempt.outcome == PushNotificationDeliveryOutcome.success
         assert attempt.response == "ok"
+
+
+def _make_expo_sub(user_id: int) -> int:
+    with session_scope() as session:
+        sub = PushNotificationSubscription(
+            user_id=user_id,
+            platform=PushNotificationPlatform.expo,
+            token=f"ExponentPushToken[{user_id}]",
+            device_name="Test phone",
+            device_type=DeviceType.ios,
+        )
+        session.add(sub)
+        session.flush()
+        return sub.id
+
+
+def test_expo_push_badge_is_unseen_notification_count(db):
+    user, token = generate_user()
+    sub_id = _make_expo_sub(user.id)
+
+    with session_scope() as session:
+        for _ in range(2):
+            notify(
+                session,
+                user_id=user.id,
+                topic_action=NotificationTopicAction.badge__add,
+                key="",
+                data=notification_data_pb2.BadgeAdd(
+                    badge_id="volunteer",
+                    badge_name="Active Volunteer",
+                    badge_description="This user is an active volunteer for Couchers.org",
+                ),
+            )
+
+    def send_push_and_get_badge() -> int:
+        with patch("couchers.notifications.expo_api.requests.post") as mock_post:
+            mock_post.return_value.json.return_value = {"data": {"status": "ok", "id": "ticket"}}
+            send_raw_push_notification_v2(
+                jobs_pb2.SendRawPushNotificationPayloadV2(
+                    push_notification_subscription_id=sub_id,
+                    title="title",
+                    body="body",
+                )
+            )
+        return int(mock_post.call_args.kwargs["json"]["badge"])
+
+    assert send_push_and_get_badge() == 2
+
+    with notifications_session(token) as notifications:
+        latest = notifications.ListNotifications(notifications_pb2.ListNotificationsReq()).notifications[0]
+        notifications.MarkAllNotificationsSeen(
+            notifications_pb2.MarkAllNotificationsSeenReq(latest_notification_id=latest.notification_id)
+        )
+
+    # 0 clears the badge
+    assert send_push_and_get_badge() == 0

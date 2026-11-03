@@ -44,8 +44,6 @@ from couchers.models import (
     Message,
     ModerationObjectType,
     NonvisibleUserAccessType,
-    Notification,
-    NotificationDeliveryType,
     ParkingDetails,
     RateLimitAction,
     Reference,
@@ -59,15 +57,13 @@ from couchers.models import (
 from couchers.models.notifications import NotificationTopicAction
 from couchers.models.uploads import get_avatar_upload
 from couchers.moderation.utils import create_moderation
-from couchers.notifications.notify import notify
-from couchers.notifications.settings import get_topic_actions_by_delivery_type
+from couchers.notifications.notify import get_unseen_notification_count, notify
 from couchers.proto import api_pb2, api_pb2_grpc, media_pb2, notification_data_pb2, requests_pb2
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
 from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
 from couchers.resources import get_badge_dict, language_is_allowed, region_is_allowed
 from couchers.servicers.blocking import is_not_visible
 from couchers.sql import (
-    moderation_state_column_visible,
     username_or_id,
     users_visible,
     where_moderated_content_visible,
@@ -270,18 +266,7 @@ class API(api_pb2_grpc.APIServicer):
         )
         pending_friend_request_count = session.execute(pending_friend_request_query).scalar_one()
 
-        unseen_notification_count = session.execute(
-            select(func.count())
-            .select_from(Notification)
-            .where(Notification.user_id == context.user_id)
-            .where(Notification.is_seen == False)
-            .where(
-                Notification.topic_action.in_(
-                    get_topic_actions_by_delivery_type(session, user.id, NotificationDeliveryType.push)
-                )
-            )
-            .where(moderation_state_column_visible(context, Notification.moderation_state_id))
-        ).scalar_one()
+        unseen_notification_count = get_unseen_notification_count(session, context)
 
         return api_pb2.PingRes(
             user=user_model_to_pb(user, session, context),
