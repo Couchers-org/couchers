@@ -6,9 +6,11 @@ from sqlalchemy.sql import not_, or_, union
 
 from couchers import urls
 from couchers.context import CouchersContext
+from couchers.materialized_views import LiteUser
 from couchers.models import Upload, User, UserBlock
 from couchers.models.uploads import get_avatar_photo_subquery
 from couchers.proto import blocking_pb2, blocking_pb2_grpc
+from couchers.utils import not_none
 
 
 def is_not_visible(
@@ -47,6 +49,49 @@ def is_not_visible(
         )
 
 
+def _load_viewer_visibility(session: Session, context: CouchersContext) -> None:
+    if context._blocked_user_ids is not None:
+        return
+
+    viewer_user_id = context.user_id if context.is_logged_in() else None
+    if viewer_user_id is None:
+        context._blocked_user_ids = frozenset()
+        context._viewer_is_hidden = False
+        return
+
+    blocked_users = select(UserBlock.blocked_user_id).where(UserBlock.blocking_user_id == viewer_user_id)
+    blocking_users = select(UserBlock.blocking_user_id).where(UserBlock.blocked_user_id == viewer_user_id)
+    # returns the viewer's own id iff their account is gone
+    viewer_hidden = select(User.id).where(User.id == viewer_user_id).where(not_(User.is_visible))
+
+    user_ids = set(session.execute(union(blocked_users, blocking_users, viewer_hidden)).scalars().all())
+
+    context._viewer_is_hidden = viewer_user_id in user_ids
+    context._blocked_user_ids = frozenset(user_ids - {viewer_user_id})
+
+
+def forget_viewer_visibility(context: CouchersContext) -> None:
+    context._blocked_user_ids = None
+    context._viewer_is_hidden = False
+
+
+def is_not_visible_to_viewer(session: Session, context: CouchersContext, user: User | LiteUser) -> bool:
+    """
+    Same as is_not_visible, but uses the already-loaded row and blocks cached on the context, avoiding a query per user.
+    """
+    viewer_user_id = context.user_id if context.is_logged_in() else None
+
+    if not user.is_visible:
+        return True
+    if user.id == viewer_user_id:
+        return False
+    if user.shadowed_at is not None and not context.serialize_shadowed:
+        return True
+
+    _load_viewer_visibility(session, context)
+    return context._viewer_is_hidden or user.id in not_none(context._blocked_user_ids)
+
+
 class Blocking(blocking_pb2_grpc.BlockingServicer):
     def BlockUser(
         self, request: blocking_pb2.BlockUserReq, context: CouchersContext, session: Session
@@ -76,6 +121,7 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
             )
             session.add(user_block)
             session.commit()
+            forget_viewer_visibility(context)
 
         return empty_pb2.Empty()
 
@@ -99,6 +145,7 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
 
         session.delete(user_block)
         session.commit()
+        forget_viewer_visibility(context)
 
         return empty_pb2.Empty()
 

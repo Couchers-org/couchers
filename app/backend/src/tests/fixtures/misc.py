@@ -1,10 +1,14 @@
+from collections.abc import Generator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Any
 from unittest.mock import patch
 
+from sqlalchemy import event
 from sqlalchemy.orm import Session
 
 from couchers.config import config
+from couchers.db import _get_base_engine
 from couchers.jobs.worker import process_job
 from couchers.models import User
 from couchers.notifications.push import PushNotificationContent
@@ -22,6 +26,22 @@ def process_jobs() -> None:
     with query_log.span("job", "process_jobs"):
         while process_job():
             pass
+
+
+@contextmanager
+def count_queries() -> Generator[list[str]]:
+    """Collects the SQL statements executed inside the block."""
+    engine = _get_base_engine()
+    statements: list[str] = []
+
+    def listener(conn: Any, cursor: Any, statement: str, *args: Any) -> None:
+        statements.append(statement)
+
+    event.listen(engine, "before_cursor_execute", listener)
+    try:
+        yield statements
+    finally:
+        event.remove(engine, "before_cursor_execute", listener)
 
 
 class EmailCollector:
