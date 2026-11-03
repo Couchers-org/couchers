@@ -22,7 +22,7 @@ from couchers.models import (
 )
 from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
-from couchers.proto import api_pb2, auth_pb2, editor_pb2, notification_data_pb2, notifications_pb2
+from couchers.proto import api_pb2, auth_pb2, editor_pb2, notification_data_pb2
 from couchers.tasks import (
     enforce_community_memberships,
     maybe_send_reference_report_email,
@@ -31,12 +31,12 @@ from couchers.tasks import (
     send_signup_email,
 )
 from tests.fixtures.api import events as events_api
+from tests.fixtures.api import notifications as notifications_api
 from tests.fixtures.db import generate_user, get_friend_relationship, make_friends
 from tests.fixtures.misc import EmailCollector, Moderator, process_jobs
 from tests.fixtures.sessions import (
     api_session,
     auth_api_session,
-    notifications_session,
     real_editor_session,
 )
 from tests.test_communities import create_community
@@ -263,8 +263,7 @@ def test_do_not_email_security(db, email_collector: EmailCollector):
 
     password_reset_token = urlsafe_secure_token()
 
-    with notifications_session(token) as notifications:
-        notifications.SetNotificationSettings(notifications_pb2.SetNotificationSettingsReq(enable_do_not_email=True))
+    notifications_api.set_notification_settings(token=token, enable_do_not_email=True)
 
     # make sure we still get security emails
 
@@ -303,8 +302,7 @@ def test_do_not_email_non_security(db, email_collector: EmailCollector):
     mod_user, mod_token = generate_user(is_superuser=True)
     moderator = Moderator(mod_user, mod_token)
 
-    with notifications_session(token1) as notifications:
-        notifications.SetNotificationSettings(notifications_pb2.SetNotificationSettingsReq(enable_do_not_email=True))
+    notifications_api.set_notification_settings(token=token1, enable_do_not_email=True)
 
     with api_session(token2) as api:
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user.id))
