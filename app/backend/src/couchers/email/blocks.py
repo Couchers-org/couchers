@@ -209,7 +209,6 @@ class EmailBlocksBuilder:
 
 @dataclass(kw_only=True)
 class EmailFooter:
-    timezone_name: str
     copyright_year: int = now().year
     unsubscribe_info: UnsubscribeInfo | None
 

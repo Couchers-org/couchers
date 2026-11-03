@@ -204,7 +204,8 @@ class APIKeyIssuedEmail(EmailBase):
         builder = self._body_builder(loc_context, security_warning=True)
         builder.para(".header")
         builder.quote(self.api_key, markdown=False)
-        builder.para(".expiry", {"datetime": loc_context.localize_datetime(self.expiry)})
+        # API keys are technical information so show in UTC (string emphasizes this).
+        builder.para(".expiry2", {"datetime_utc": loc_context.localize_datetime(self.expiry, display_timezone=UTC)})
         builder.para(".usage_warning")
         builder.para(".policy_warning", {"terms_url": urls.terms_of_service_url()})
         return builder.build()
@@ -644,7 +645,7 @@ class EventInfo:
 
     def get_details_block(self, loc_context: LocalizationContext) -> EmailBlock:
         # TODO(#8695): Support localized time ranges
-        # Force using the start/end time timezone (that of the event), not the user's.
+        # Event start/end date-times are always shown in the timezone at its location, not the user's.
         start_time_display = loc_context.localize_datetime(
             self.start_time, display_timezone=self.timezone, with_year=False, with_day_of_week=True
         )
