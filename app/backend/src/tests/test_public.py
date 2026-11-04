@@ -27,6 +27,7 @@ from couchers.proto import api_pb2, public_pb2
 from couchers.servicers.public import _get_donation_stats, _get_public_users, _get_signup_page_info, _get_volunteers
 from couchers.utils import now
 from tests.fixtures.db import generate_user, make_friends, make_volunteer
+from tests.fixtures.feature_flags import FeatureFlags
 from tests.fixtures.misc import process_jobs
 from tests.fixtures.sessions import public_session
 from tests.test_references import create_friend_reference, create_host_reference
@@ -107,7 +108,7 @@ def test_GetPublicMapLayer_excludes_shadowed(db):
     assert {feature["properties"]["username"] for feature in data["features"]} == {"visible"}
 
 
-def test_GetDonationStats_empty(db, feature_flags):
+def test_GetDonationStats_empty(db, feature_flags: FeatureFlags):
     """Test GetDonationStats with no donations returns zero and goal"""
     _get_donation_stats.cache_clear()
 
@@ -119,7 +120,7 @@ def test_GetDonationStats_empty(db, feature_flags):
         assert res.goal == 2500
 
 
-def test_GetDonationStats_with_donations(db, feature_flags):
+def test_GetDonationStats_with_donations(db, feature_flags: FeatureFlags):
     """Test GetDonationStats sums on_platform donations correctly"""
     _get_donation_stats.cache_clear()
     user, _ = generate_user()
@@ -162,7 +163,7 @@ def test_GetDonationStats_with_donations(db, feature_flags):
         assert res.goal == 5000
 
 
-def test_GetDonationStats_excludes_merch(db, feature_flags):
+def test_GetDonationStats_excludes_merch(db, feature_flags: FeatureFlags):
     """Test GetDonationStats excludes external_shop (merch) invoices"""
     _get_donation_stats.cache_clear()
     user, _ = generate_user()
@@ -198,7 +199,7 @@ def test_GetDonationStats_excludes_merch(db, feature_flags):
         assert res.goal == 5000
 
 
-def test_GetDonationStats_excludes_previous_years(db, feature_flags):
+def test_GetDonationStats_excludes_previous_years(db, feature_flags: FeatureFlags):
     """Test GetDonationStats only counts current year donations"""
     _get_donation_stats.cache_clear()
     user, _ = generate_user()
@@ -237,7 +238,7 @@ def test_GetDonationStats_excludes_previous_years(db, feature_flags):
         assert res.goal == 5000
 
 
-def test_GetDonationStats_uses_flags(db, feature_flags):
+def test_GetDonationStats_uses_flags(db, feature_flags: FeatureFlags):
     """Goal and offset come from the donation_goal_usd / donation_offset_usd flags when configured"""
     _get_donation_stats.cache_clear()
     user, _ = generate_user()
