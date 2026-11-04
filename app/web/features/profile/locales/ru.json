@@ -345,5 +345,8 @@
   "hobbies_textbox_placeholder": "например, занятия, книги, фильмы, музыка...",
   "edit_profile_pronouns_placeholder": "напр. она/её",
   "local_time_with_time_zone_text": "{{ time }} (<timeZone/>)",
-  "open_profile_a11y": "Открыть профиль"
+  "open_profile_a11y": "Открыть профиль",
+  "copy_profile_link": {
+    "button_a11y": "Скопировать ссылку на профиль"
+  }
 }
