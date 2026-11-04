@@ -1,5 +1,5 @@
 import re
-from datetime import datetime, timedelta
+from datetime import UTC, date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
 import grpc
@@ -168,7 +168,13 @@ def test_CreateEvent(db, frozen_timewarp, push_collector: PushCollector, moderat
     assert not other_get_res.can_edit
     assert not other_get_res.can_moderate
 
-    # Failure cases
+
+def test_CreateEvent_failure(db, frozen_timewarp, moderator: Moderator):
+    creator_user, creator_token = generate_user()
+
+    with session_scope() as session:
+        create_community(session, 0, 2, "Community", [creator_user], [], None)
+
     with pytest.raises(grpc.RpcError) as e:
         events_api.create_event(token=creator_token, title=None)
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -184,6 +190,7 @@ def test_CreateEvent(db, frozen_timewarp, push_collector: PushCollector, moderat
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
     assert e.value.details() == "Photo not found."
 
+    # Location
     with pytest.raises(grpc.RpcError) as e:
         events_api.create_event(token=creator_token, location=None)
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -199,16 +206,18 @@ def test_CreateEvent(db, frozen_timewarp, push_collector: PushCollector, moderat
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
     assert e.value.details() == "Missing event address or location."
 
+    # Dates
     with pytest.raises(grpc.RpcError) as e:
         events_api.create_event(token=creator_token, start_date_time=local_date_time(now() - timedelta(hours=2)))
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
     assert e.value.details() == "The event must be in the future."
 
+    valid_start_time = _to_event_time_granularity(now() + timedelta(days=2))
     with pytest.raises(grpc.RpcError) as e:
         events_api.create_event(
             token=creator_token,
-            start_date_time=local_date_time(end_time),
-            end_date_time=local_date_time(start_time),
+            start_date_time=local_date_time(valid_start_time + timedelta(hours=1)),
+            end_date_time=local_date_time(valid_start_time),
         )
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
     assert e.value.details() == "The event must end after it starts."
@@ -225,11 +234,69 @@ def test_CreateEvent(db, frozen_timewarp, push_collector: PushCollector, moderat
     with pytest.raises(grpc.RpcError) as e:
         events_api.create_event(
             token=creator_token,
-            start_date_time=local_date_time(start_time),
-            end_date_time=local_date_time(now() + timedelta(days=100)),
+            start_date_time=local_date_time(valid_start_time),
+            end_date_time=local_date_time(valid_start_time + timedelta(days=100)),
         )
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
     assert e.value.details() == "Events cannot last longer than 7 days."
+
+    # Recurrence
+    valid_start_date = valid_start_time.date()  # The default event location is in UTC
+    valid_ends_on_date = (valid_start_date + timedelta(days=30)).isoformat()
+    for invalid_rule in [
+        events_pb2.CreateEventRecurrence(ends_on_date=valid_ends_on_date),
+        events_pb2.CreateEventRecurrence(weekly_interval=0, ends_on_date=valid_ends_on_date),
+        events_pb2.CreateEventRecurrence(weekly_interval=3, ends_on_date=valid_ends_on_date),
+    ]:
+        with pytest.raises(grpc.RpcError) as e:
+            events_api.create_event(token=creator_token, recurrence=invalid_rule)
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "Only weekly and biweekly recurring events are supported."
+
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.create_event(
+            token=creator_token,
+            recurrence=events_pb2.CreateEventRecurrence(weekly_interval=1, ends_on_date="not a date"),
+        )
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == "Invalid recurring event end date."
+
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.create_event(
+            token=creator_token,
+            start_date_time=local_date_time(valid_start_time + timedelta(days=1)),
+            recurrence=events_api.weekly_recurrence(ends_on_date=valid_start_time.date()),
+        )
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    assert e.value.details() == "A recurring event must end on or after its first occurrence."
+
+
+def test_CreateEvent_recurring(db, frozen_timewarp: FrozenTimewarp):
+    user, token = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
+
+    # Set time to Wednesday, January 1, 2020
+    frozen_timewarp.freeze_at(datetime(2020, 1, 1, tzinfo=UTC))
+
+    event = events_api.create_event(
+        token=token,
+        start_date_time=(date(2020, 1, 2), time(12, 0)),
+        end_date_time=(date(2020, 1, 2), time(13, 0)),
+        recurrence=events_api.weekly_recurrence(interval=2, ends_on_date=date(2022, 1, 1)),
+    )
+
+    expected_recurrence = events_pb2.EventRecurrence(
+        weekly=events_pb2.WeeklyEventRecurrence(
+            day_of_week=events_pb2.DayOfWeek.DAY_OF_WEEK_THURSDAY,
+            weekly_interval=2,
+        ),
+        # Ends on date should have been clamped. We don't allow scheduling 2 years ahead.
+        ends_on_date="2020-07-03",
+    )
+    assert event.recurrence == expected_recurrence
+    assert events_api.get_event(token=token, event_id=event.event_id).recurrence == expected_recurrence
 
 
 def test_CreateEvent_incomplete_profile(db):
