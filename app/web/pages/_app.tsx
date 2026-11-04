@@ -1,7 +1,7 @@
 import "intersection-observer";
 import "./main.css";
 
-import { CssBaseline, StyledEngineProvider, ThemeProvider } from "@mui/material";
+import { CssBaseline, ThemeProvider } from "@mui/material";
 import { AppCacheProvider } from "@mui/material-nextjs/v15-pagesRouter";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -75,31 +75,29 @@ function MyApp(props: AppWithLayoutProps) {
 
   return (
     <AppCacheProvider {...props}>
-      <StyledEngineProvider injectFirst>
-        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={i18nToDayjsLocale(language)}>
-          <ThemeProvider theme={theme}>
-            <ErrorBoundary isFatal>
-              <AnalyticsProvider>
-                <ReactQueryClientProvider>
-                  <AuthProvider>
-                    <FeatureFlagProvider>
-                      <CssBaseline />
-                      <NativeColorSchemeSync />
-                      <NativeMobileNavigationHandler />
-                      <EnvironmentBanner />
-                      <HtmlMeta />
-                      <ProfileSheetProvider>
-                        {getLayout(<Component {...pageProps} />)}
-                        <ProfileSheet />
-                      </ProfileSheetProvider>
-                    </FeatureFlagProvider>
-                  </AuthProvider>
-                </ReactQueryClientProvider>
-              </AnalyticsProvider>
-            </ErrorBoundary>
-          </ThemeProvider>
-        </LocalizationProvider>
-      </StyledEngineProvider>
+      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={i18nToDayjsLocale(language)}>
+        <ThemeProvider theme={theme}>
+          <ErrorBoundary isFatal>
+            <AnalyticsProvider>
+              <ReactQueryClientProvider>
+                <AuthProvider>
+                  <FeatureFlagProvider>
+                    <CssBaseline />
+                    <NativeColorSchemeSync />
+                    <NativeMobileNavigationHandler />
+                    <EnvironmentBanner />
+                    <HtmlMeta />
+                    <ProfileSheetProvider>
+                      {getLayout(<Component {...pageProps} />)}
+                      <ProfileSheet />
+                    </ProfileSheetProvider>
+                  </FeatureFlagProvider>
+                </AuthProvider>
+              </ReactQueryClientProvider>
+            </AnalyticsProvider>
+          </ErrorBoundary>
+        </ThemeProvider>
+      </LocalizationProvider>
     </AppCacheProvider>
   );
 }
