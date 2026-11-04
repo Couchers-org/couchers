@@ -22,7 +22,9 @@
   "continue": "Continue",
   "copy_button": {
     "a11y": "Copy",
-    "copied_tooltip": "Copied to clipboard"
+    "copied_tooltip": "Copied to clipboard",
+    "copied_message": "Copied!",
+    "failed_message": "Couldn't copy"
   },
   "thanks": "Thanks!",
   "donation_banner": {

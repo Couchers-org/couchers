@@ -143,7 +143,12 @@
     "invitation_status_changed": {
       "accepted": "{{user}} ha aceptado la invitación",
       "accepted_self": "Has aceptado la invitación",
-      "cancelled": "{{user}} ha retirado la invitación"
+      "cancelled": "{{user}} ha retirado la invitación",
+      "cancelled_self": "Has retirado la invitación",
+      "confirmed": "{{user}} ha confirmado la estancia",
+      "confirmed_self": "Has confirmado la estancia",
+      "rejected": "{{user}} ha rechazado la invitación",
+      "rejected_self": "Has rechazado la invitación"
     }
   },
   "host_pending_request_help_text": "<guideLink>Cosas a considerar</guideLink> antes de responder.",
@@ -163,6 +168,13 @@
       "cancelled": "Has cancelado esta solicitud",
       "confirmed": "¡Diviértete! {{name}} aceptó y tu has confirmdo esta solicitud.",
       "rejected": "Tu solicitud fue declinada"
+    },
+    "public_trip_chip": "Viaje público",
+    "invitation_host_status": {
+      "pending": "Esperando la respuesta de {{name}}",
+      "accepted": "{{name}} aceptó tu invitación",
+      "rejected": "{{name}} rechazó tu invitación",
+      "cancelled": "Retiraste tu invitación"
     }
   },
   "past_request_help_text": "Esta solicitud está pasada, todavía puedes enviar mensajes pero no puedes modificarla.",

@@ -63,17 +63,6 @@ function getFilteredSearch(queryString: string): string | null {
 }
 
 /**
- * Remove zz from the address bar so it isn't shared, bookmarked or re-logged on reload.
- */
-function removeZzFromAddressBar() {
-  const url = new URL(window.location.href);
-  if (!url.searchParams.has("zz")) return;
-  url.searchParams.delete("zz");
-  // bypass the Next router so this can't race with redirects (e.g. to login)
-  window.history.replaceState(window.history.state, "", url.toString());
-}
-
-/**
  * Provider component that enables automatic analytics tracking.
  *
  * Handles the complete analytics lifecycle:
@@ -89,6 +78,7 @@ export default function AnalyticsProvider({ children }: { children: ReactNode })
   const previousPathRef = useRef<string | null>(null);
   const previousTimestampRef = useRef<number>(Date.now());
   const initializedRef = useRef(false);
+  const strippingZzRef = useRef(false);
 
   // Session start + initial page view (runs once on mount)
   useEffect(() => {
@@ -117,16 +107,35 @@ export default function AnalyticsProvider({ children }: { children: ReactNode })
       time_on_previous_page: null,
     });
 
-    removeZzFromAddressBar();
-
     previousPathRef.current = window.location.pathname;
     previousTimestampRef.current = Date.now();
   }, []);
+
+  // Remove zz from the URL so it isn't shared, bookmarked or re-logged on reload. This must go through the
+  // Next router after it's ready: hydration replaces the URL with the original one, and the router keeps zz in
+  // asPath/query (and history.state) otherwise, putting it back on later navigations.
+  useEffect(() => {
+    if (!router.isReady || !("zz" in router.query)) return;
+    const query = { ...router.query };
+    delete query.zz;
+    const as = new URL(router.asPath, window.location.origin);
+    as.searchParams.delete("zz");
+    strippingZzRef.current = true;
+    router.replace({ pathname: router.pathname, query }, as.pathname + as.search + as.hash, {
+      shallow: true,
+      scroll: false,
+    });
+  }, [router]);
 
   // Route change tracking
   useEffect(() => {
     const handleRouteChange = (url: string) => {
       const [path, queryString] = url.split("?");
+      if (strippingZzRef.current) {
+        strippingZzRef.current = false;
+        // the zz strip isn't a new page view, but a redirect that cancelled it is
+        if (path.split("#")[0] === previousPathRef.current) return;
+      }
       const now = Date.now();
       const timeOnPreviousPage = (now - previousTimestampRef.current) / 1000;
 
