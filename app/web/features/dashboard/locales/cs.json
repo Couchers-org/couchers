@@ -64,6 +64,16 @@
     "carousel_scroller": {
       "left_arrow_a11y": "Posunout doleva",
       "right_arrow_a11y": "Posunout doprava"
+    },
+    "respond_to_public_trip_offer": {
+      "title": "Odpovědět {{name}}",
+      "description": "{{name}} ti nabízí, že tě během cesty ubytuje. Dej vědět, jestli chceš nabídku přijmout.",
+      "button": "Zobrazit pozvánku"
+    },
+    "confirm_public_trip_offer": {
+      "title": "Potvrdit {{name}} hostování",
+      "description": "Pozvání pro {{name}} bylo přijato. Potvrď pobyt a máš ho jistý.",
+      "button": "Potvrď pobyt"
     }
   },
   "public_trips": {
