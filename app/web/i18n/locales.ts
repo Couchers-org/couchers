@@ -14,7 +14,7 @@ export const LOCALE_AUTONYMS: Record<string, string> = {
   ca: "Català",
   cs: "Čeština",
   de: "Deutsch",
-  en: "English (International)",
+  en: "English",
   "en-US": "English (US)",
   es: "Español",
   fr: "Français",
