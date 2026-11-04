@@ -330,7 +330,7 @@ def test_CreateEvent_recurring_disabled(db, frozen_timewarp: FrozenTimewarp, fea
 
     user, token = _create_user_in_community()
 
-    feature_flags.set_feature_flag("recurring_event_creation_enabled", False)
+    feature_flags.set("recurring_event_creation_enabled", False)
     with pytest.raises(grpc.RpcError) as e:
         events_api.create_event(
             token=token,
