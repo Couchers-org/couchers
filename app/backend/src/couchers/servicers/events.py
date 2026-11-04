@@ -336,6 +336,9 @@ def _check_recurrence(
     recurrence: events_pb2.CreateEventRecurrence, start_datetime: datetime, context: CouchersContext
 ) -> tuple[int, date]:
     """Returns the rrule_interval and ends_on_date of a new recurrence."""
+    if context.get_boolean_value("recurring_event_creation_enabled", default=False):
+        context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "recurring_event_creation_disabled")
+
     # Only weekly and biweekly recurrences are supported for now, see EventRecurrence
     if recurrence.WhichOneof("rule") != "weekly_interval" or recurrence.weekly_interval not in (1, 2):
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_event_recurrence_rule")

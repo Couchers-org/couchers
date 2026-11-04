@@ -325,6 +325,20 @@ def test_organizers_attend_scheduled_occurrences(db, frozen_timewarp: FrozenTime
     assert scheduled_occurrence.going_count == 2
 
 
+def test_CreateEvent_recurring_disabled(db, frozen_timewarp: FrozenTimewarp, feature_flags):
+    frozen_timewarp.freeze_at(datetime(2000, 1, 1, tzinfo=UTC))
+
+    user, token = _create_user_in_community()
+
+    feature_flags.set_feature_flag("recurring_event_creation_enabled", False)
+    with pytest.raises(grpc.RpcError) as e:
+        events_api.create_event(
+            token=token,
+            recurrence=events_api.weekly_recurrence(ends_on_date=date(2000, 6, 30)),
+        )
+    assert e.value.code() == grpc.StatusCode.UNAVAILABLE
+
+
 def test_UpdateEvent_all_future_recurring(db, frozen_timewarp: FrozenTimewarp):
     user, token = generate_user()
 
