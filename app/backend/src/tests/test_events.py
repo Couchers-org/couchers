@@ -9,6 +9,7 @@ from psycopg.types.range import TimestamptzRange
 from sqlalchemy import select
 from sqlalchemy.sql.expression import update
 
+from couchers import urls
 from couchers.db import session_scope
 from couchers.jobs.handlers import send_event_reminders
 from couchers.models import (
@@ -25,13 +26,13 @@ from couchers.models import (
     Upload,
     User,
 )
-from couchers.proto import editor_pb2, events_pb2, threads_pb2
+from couchers.proto import editor_pb2, events_pb2, notifications_pb2, threads_pb2
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import now, to_aware_datetime
 from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import EmailCollector, Moderator, PushCollector, process_jobs
-from tests.fixtures.sessions import real_editor_session, threads_session
+from tests.fixtures.sessions import notifications_session, real_editor_session, threads_session
 from tests.fixtures.timewarp import FrozenTimewarp
 from tests.test_communities import create_community, create_group
 from tests.utils import local_date_time
@@ -1567,7 +1568,7 @@ def test_GetEventCalendarFile(db, moderator: Moderator):
     assert post_cancel_sequence >= pre_cancel_sequence
 
 
-def test_event_threads(db, push_collector: PushCollector, moderator: Moderator):
+def test_event_threads(db, push_collector: PushCollector, email_collector: EmailCollector, moderator: Moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -1610,15 +1611,27 @@ def test_event_threads(db, push_collector: PushCollector, moderator: Moderator):
 
     process_jobs()
 
+    # push, email and notification feed all link to the comment
+    comment_url = urls.event_link(occurrence_id=event.event_id, slug=event.slug, comment_id=reply_id)
+    nested_reply_url = urls.event_link(occurrence_id=event.event_id, slug=event.slug, comment_id=nested_reply_id)
+
     push = push_collector.pop_for_user(user1.id, last=True)
     assert push.topic_action == NotificationTopicAction.event__comment.display
     assert push.content.title == f"{user2.name} • Dummy Title"
     assert push.content.ios_title == user2.name
     assert push.content.ios_subtitle == "Commented on Dummy Title"
     assert push.content.body == "hi"
+    assert push.content.action_url == comment_url
+    assert comment_url in email_collector.pop_for_recipient(user1.email, last=True).plain
+    with notifications_session(token1) as api:
+        assert api.ListNotifications(notifications_pb2.ListNotificationsReq()).notifications[0].url == comment_url
 
     push = push_collector.pop_for_user(user2.id, last=True)
     assert push.content.title == f"{user3.name} • Dummy Title"
+    assert push.content.action_url == nested_reply_url
+    assert nested_reply_url in email_collector.pop_for_recipient(user2.email, last=True).plain
+    with notifications_session(token2) as api:
+        assert api.ListNotifications(notifications_pb2.ListNotificationsReq()).notifications[0].url == nested_reply_url
 
     assert push_collector.count_for_user(user4_id) == 0
 

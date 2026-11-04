@@ -71,8 +71,11 @@ def chat_link(*, chat_id: int) -> str:
     return f"{config.BASE_URL}/messages/chats/{chat_id}"
 
 
-def event_link(*, occurrence_id: int, slug: str = "e") -> str:
-    return f"{config.BASE_URL}/event/{occurrence_id}/{slug}"
+def event_link(*, occurrence_id: int, slug: str = "e", comment_id: int | None = None) -> str:
+    url = f"{config.BASE_URL}/event/{occurrence_id}/{slug}"
+    if comment_id is not None:
+        url += f"?comment={comment_id}"
+    return url
 
 
 def community_link(*, node_id: int, slug: str = "e") -> str:
