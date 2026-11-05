@@ -1544,10 +1544,10 @@
   dependencies:
     "@tybys/wasm-util" "^0.10.3"
 
-"@next/bundle-analyzer@16.4.1":
-  version "16.4.1"
-  resolved "https://registry.yarnpkg.com/@next/bundle-analyzer/-/bundle-analyzer-16.4.1.tgz#cbbb46d9be4a2f74b8399456ee991c0aceea9f0f"
-  integrity sha512-d/Q9is3bTt9Qlf4yIPI1+0CqMJTPHKS6+XZeFVVL3QUAR3ppRhRbKU4Ce4AgFxOoA/oo3nSH8vqvJoezHSMJGA==
+"@next/bundle-analyzer@16.4.4":
+  version "16.4.4"
+  resolved "https://registry.yarnpkg.com/@next/bundle-analyzer/-/bundle-analyzer-16.4.4.tgz#8e89a7452a3a904f72585b6f6002fbd9995b8528"
+  integrity sha512-lStTzXqm6lboFH0wUEVoNzsm75AI5P+5G2kUKZqkyBYb97LD10J30zei0Pl38RO3faODl3uF6KT/Husue8QUTw==
   dependencies:
     webpack-bundle-analyzer "4.10.1"
 
