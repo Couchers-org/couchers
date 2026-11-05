@@ -339,7 +339,9 @@
   },
   "copy_button": {
     "a11y": "Kopieren",
-    "copied_tooltip": "In die Zwischenablage kopiert"
+    "copied_tooltip": "In die Zwischenablage kopiert",
+    "copied_message": "Kopiert!",
+    "failed_message": "Kopieren fehlgeschlagen"
   },
   "app_store_badge_a11y": "Laden im App Store",
   "google_play_badge_a11y": "Jetzt bei Google Play",
