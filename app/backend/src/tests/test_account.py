@@ -25,6 +25,7 @@ from couchers.models import (
 from couchers.proto import account_pb2, api_pb2, auth_pb2, messages_pb2, requests_pb2
 from couchers.utils import now, today
 from tests.fixtures.db import backdate_conversations, generate_user, make_volunteer
+from tests.fixtures.feature_flags import FeatureFlags
 from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
 from tests.fixtures.sessions import (
     account_session,
@@ -64,7 +65,7 @@ def test_donation_banner_no_drive(db):
         assert not res.should_show_donation_banner
 
 
-def test_donation_banner_never_donated(db, feature_flags):
+def test_donation_banner_never_donated(db, feature_flags: FeatureFlags):
     """Test that banner is shown when user has never donated and drive is active"""
     # Explicitly set last_donated=None since generate_user defaults to now()
     user, token = generate_user(last_donated=None)
@@ -76,7 +77,7 @@ def test_donation_banner_never_donated(db, feature_flags):
         assert res.should_show_donation_banner
 
 
-def test_donation_banner_donated_before_drive(db, feature_flags):
+def test_donation_banner_donated_before_drive(db, feature_flags: FeatureFlags):
     """Test that banner is shown when user donated before drive start"""
     user, token = generate_user()
 
@@ -92,7 +93,7 @@ def test_donation_banner_donated_before_drive(db, feature_flags):
         assert res.should_show_donation_banner
 
 
-def test_donation_banner_donated_after_drive(db, feature_flags):
+def test_donation_banner_donated_after_drive(db, feature_flags: FeatureFlags):
     """Test that banner is not shown when user donated after drive start"""
     user, token = generate_user()
 
@@ -108,7 +109,7 @@ def test_donation_banner_donated_after_drive(db, feature_flags):
         assert not res.should_show_donation_banner
 
 
-def test_donation_banner_donated_exactly_at_drive_start(db, feature_flags):
+def test_donation_banner_donated_exactly_at_drive_start(db, feature_flags: FeatureFlags):
     """Test that banner is not shown when user donated exactly at drive start time"""
     drive_start = datetime(2025, 11, 1, tzinfo=UTC)
 

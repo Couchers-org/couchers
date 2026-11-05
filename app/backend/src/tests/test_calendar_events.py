@@ -8,6 +8,7 @@ from couchers.i18n.context import LocalizationContext
 from couchers.proto import events_pb2, messages_pb2, requests_pb2
 from couchers.utils import Timestamp_from_datetime, today
 from tests.fixtures.db import generate_user
+from tests.fixtures.feature_flags import FeatureFlags
 from tests.fixtures.misc import EmailCollector, Moderator
 from tests.fixtures.sessions import requests_session
 from tests.test_requests import valid_request_text
@@ -217,7 +218,9 @@ def test_host_request_attachments(db, email_collector: EmailCollector, moderator
     assert cancelled_ics_event.get("status") == "CANCELLED"
 
 
-def test_host_request_attachments_disabled(db, email_collector: EmailCollector, feature_flags, moderator: Moderator):
+def test_host_request_attachments_disabled(
+    db, email_collector: EmailCollector, feature_flags: FeatureFlags, moderator: Moderator
+):
     feature_flags.set("email_ics_attachments_enabled", False)
 
     host, host_token = generate_user(complete_profile=True)
