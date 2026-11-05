@@ -2501,18 +2501,23 @@
   dependencies:
     remove-accents "0.5.0"
 
-"@tanstack/query-async-storage-persister@^5.104.1":
-  version "5.104.1"
-  resolved "https://registry.yarnpkg.com/@tanstack/query-async-storage-persister/-/query-async-storage-persister-5.104.1.tgz#8b09127e0521a1793066ddc0799057585a53f57e"
-  integrity sha512-wSs/HrangoSMVW3zLifawRT9lA+fbiilPQmaY+YhxBOM/VS9oqx+MQvROHpW+hKwDpdvFmhyBjWiyDhTHL1YXg==
+"@tanstack/query-async-storage-persister@^5.105.2":
+  version "5.105.2"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-async-storage-persister/-/query-async-storage-persister-5.105.2.tgz#8aab392d01fa2a256b2fe35baa89251c06380fa4"
+  integrity sha512-oqzKUQ6pufvTHatfifbKB2fuA5HtUeOugG78mMgli8FAZF4rVUAqwZujIG6Amnv9qoYRqO6bX08KBeyR//0MTQ==
   dependencies:
-    "@tanstack/query-core" "5.104.1"
-    "@tanstack/query-persist-client-core" "5.104.1"
+    "@tanstack/query-core" "5.105.2"
+    "@tanstack/query-persist-client-core" "5.105.2"
 
 "@tanstack/query-core@5.104.1":
   version "5.104.1"
   resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.104.1.tgz#c9819a22f8183e423bbe04b71780a4e17b42aff8"
   integrity sha512-TiRghcrGkUTE+M4JBxvpPSpBhxvIzQairw+cksrHYGr+2uwC77yW1SY9nYxnYRYOppvucf8rEg6b5byoz4rTpw==
+
+"@tanstack/query-core@5.105.2":
+  version "5.105.2"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.105.2.tgz#e02be24b677baf80a23950ad4a9473a1d876faae"
+  integrity sha512-cyZGOtI1ZZ79mm905PJ42ng43Mwbc9CeqB83XuJmj9ADj/C+dzUXcgMQucRQ8yZs7atHykMzqavAXXhjxAw50g==
 
 "@tanstack/query-devtools@5.104.1":
   version "5.104.1"
@@ -2537,6 +2542,13 @@
   integrity sha512-ONiadXqe56iNrw6RESqKILpTIVG9ZMI/DageTQnrBDt/nZ6WiP4G13iIiMwJEsiO12gQ3Gychx8tcFIPw4k25g==
   dependencies:
     "@tanstack/query-core" "5.104.1"
+
+"@tanstack/query-persist-client-core@5.105.2":
+  version "5.105.2"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-persist-client-core/-/query-persist-client-core-5.105.2.tgz#02727c7c55da3d3201267505619f9e78bc537327"
+  integrity sha512-qQa9wzw/2J1gWH5aMLJDpMH9iS98tTHzPc45L9NjrwF6KbkC24gC7YfFO66AOE5C5iGKaersjFfr/yMPERhwiQ==
+  dependencies:
+    "@tanstack/query-core" "5.105.2"
 
 "@tanstack/react-query-devtools@^5.104.1":
   version "5.104.1"
