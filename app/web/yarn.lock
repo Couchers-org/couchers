@@ -271,7 +271,7 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.29.7"
 
-"@babel/runtime@^7.12.5", "@babel/runtime@^7.18.3", "@babel/runtime@^7.23.2", "@babel/runtime@^7.29.2", "@babel/runtime@^7.29.7", "@babel/runtime@^7.5.5", "@babel/runtime@^7.8.7":
+"@babel/runtime@^7.12.5", "@babel/runtime@^7.18.3", "@babel/runtime@^7.23.2", "@babel/runtime@^7.29.7", "@babel/runtime@^7.5.5", "@babel/runtime@^7.8.7":
   version "7.29.7"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.29.7.tgz#12022450c45a4da6d8d8287b18a4ff2ddb23f768"
   integrity sha512-Nq8OhGWiZIZGV6hLHoyAKLLcJihP/xFeBMGJoUrxTX2psI8dCifzLhZISFb+VWS3wFMRDmCGw5R+dOySCqPLhw==
@@ -1407,15 +1407,15 @@
   dependencies:
     "@babel/runtime" "^7.29.7 || ^8.0.5"
 
-"@mui/lab@9.0.0-beta.6":
-  version "9.0.0-beta.6"
-  resolved "https://registry.yarnpkg.com/@mui/lab/-/lab-9.0.0-beta.6.tgz#9a663bd43eea7f75c4128d2c7f93ae3b9458164b"
-  integrity sha512-y92D7zcvX2OCzFFu4IbYKAVj3cayuFHX6OZm0LdsLDPlUi55zjUhjR9pjI23nCGAQXRPmWE/3BZjCyFiYYpNqQ==
+"@mui/lab@9.0.0-beta.10":
+  version "9.0.0-beta.10"
+  resolved "https://registry.yarnpkg.com/@mui/lab/-/lab-9.0.0-beta.10.tgz#c3eb4b14657a8ff3febb5ae18404717532eed86d"
+  integrity sha512-XLjMJRiOQfD2p5YIorNuymI3CZqrAIAZJsaaeoomMEwAp3p1VwpSmR072VZZr+PfB1r2aUvouxmCXQNGHyw4qw==
   dependencies:
-    "@babel/runtime" "^7.29.2"
-    "@mui/system" "^9.2.0"
-    "@mui/types" "^9.1.1"
-    "@mui/utils" "^9.2.0"
+    "@babel/runtime" "^7.29.7 || ^8.0.5"
+    "@mui/system" "^9.5.0"
+    "@mui/types" "^9.5.0"
+    "@mui/utils" "^9.5.0"
     clsx "^2.1.1"
     prop-types "^15.8.1"
 
@@ -1465,7 +1465,7 @@
     csstype "^3.2.3"
     prop-types "^15.8.1"
 
-"@mui/system@^9.2.0", "@mui/system@^9.3.0", "@mui/system@^9.5.0":
+"@mui/system@^9.3.0", "@mui/system@^9.5.0":
   version "9.5.0"
   resolved "https://registry.yarnpkg.com/@mui/system/-/system-9.5.0.tgz#43db6b26b0cedefe4c0e452713a5150d0c9470ec"
   integrity sha512-OZuAwvoiaaHpvn0a540VH1DUwwmojJubGfNmO2g+nb2ybNDP4/gF7t7aA6AMduELSuJ5yxwlzyFvUO3CfLv1Yg==
@@ -1479,14 +1479,14 @@
     csstype "^3.2.3"
     prop-types "^15.8.1"
 
-"@mui/types@^9.1.1", "@mui/types@^9.5.0":
+"@mui/types@^9.5.0":
   version "9.5.0"
   resolved "https://registry.yarnpkg.com/@mui/types/-/types-9.5.0.tgz#a317cd2685505ac6194210b03c2c946f3923b5d1"
   integrity sha512-O0S6xS80qEQqW2CYNrd4GlBEQ1xpMOHZ5b4zO/DaLu6NZmtthM6smEg0Gz/u9gX5vL+8NB3EiBIxmxSCcG590Q==
   dependencies:
     "@babel/runtime" "^7.29.7 || ^8.0.5"
 
-"@mui/utils@^9.2.0", "@mui/utils@^9.5.0":
+"@mui/utils@^9.5.0":
   version "9.5.0"
   resolved "https://registry.yarnpkg.com/@mui/utils/-/utils-9.5.0.tgz#984e40fbbf2f17ba98a4d9268c5e855330e7041f"
   integrity sha512-8m0LfSgE2pj58znY3kZ+anwRKbnBkcu/7AJPA8L/77wEjN0QnpX4/zRAccyplp1VEUnMsUBADeTRin5Mkf7epA==
