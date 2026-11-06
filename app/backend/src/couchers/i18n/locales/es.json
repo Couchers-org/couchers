@@ -252,7 +252,8 @@
     "invalid_stay_role": "Rol de estancia no válido.",
     "public_trip_offer_too_short_one": "Tu ofreciimiento para hospedar no puede tener menos de {{count}} carácter.",
     "public_trip_offer_too_short_many": "Tu ofreciimiento para hospedar no puede tener menos de {{count}} de caracteres.",
-    "public_trip_offer_too_short_other": "Tu ofreciimiento para hospedar no puede tener menos de {{count}} caracteres."
+    "public_trip_offer_too_short_other": "Tu ofreciimiento para hospedar no puede tener menos de {{count}} caracteres.",
+    "date_to_not_after_from": "La fecha de finalización debe ser posterior a la fecha de inicio."
   },
   "badges": {
     "volunteer_name": "Voluntario en activo",

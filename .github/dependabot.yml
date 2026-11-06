@@ -54,6 +54,10 @@ updates:
     labels:
       - "1.topic frontend"
       - "dependencies"
+    groups:
+      # react and react-dom must be the exact same version or the build fails
+      react:
+        patterns: ["react", "react-dom", "@types/react", "@types/react-dom"]
 
   - package-ecosystem: "docker"
     directory: "/app/web"
