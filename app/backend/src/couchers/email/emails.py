@@ -1607,7 +1607,7 @@ class HostReferenceReceivedEmail(EmailBase):
 
     @classmethod
     def from_notification(
-        cls, data: notification_data_pb2.ReferenceReceiveHostRequest, *, user_name: str, surfed: bool
+        cls, data: notification_data_pb2.ReferenceReceiveStay, *, user_name: str, surfed: bool
     ) -> Self:
         return cls(
             user_name=user_name,

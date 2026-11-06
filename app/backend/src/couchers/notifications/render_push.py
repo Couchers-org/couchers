@@ -750,7 +750,7 @@ def _render_reference__receive_friend(
 
 
 def _render_reference__receive(
-    data: notification_data_pb2.ReferenceReceiveHostRequest, leave_reference_type: str, loc_context: LocalizationContext
+    data: notification_data_pb2.ReferenceReceiveStay, leave_reference_type: str, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     body: str
     if data.text:
@@ -779,14 +779,14 @@ def _render_reference__receive(
 
 
 def _render_reference__receive_hosted(
-    data: notification_data_pb2.ReferenceReceiveHostRequest, loc_context: LocalizationContext
+    data: notification_data_pb2.ReferenceReceiveStay, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     # Receiving a hosted reminder means I need to leave a surfed reference
     return _render_reference__receive(data, leave_reference_type="surfed", loc_context=loc_context)
 
 
 def _render_reference__receive_surfed(
-    data: notification_data_pb2.ReferenceReceiveHostRequest, loc_context: LocalizationContext
+    data: notification_data_pb2.ReferenceReceiveStay, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _render_reference__receive(data, leave_reference_type="hosted", loc_context=loc_context)
 

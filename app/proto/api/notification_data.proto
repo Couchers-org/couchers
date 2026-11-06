@@ -177,7 +177,7 @@ message ReferenceReceiveFriend {
   string text = 2;
 }
 
-message ReferenceReceiveHostRequest {
+message ReferenceReceiveStay {
   int64 host_request_id = 1;
   org.couchers.api.core.User from_user = 2;
   // this is non-empty iff both have written a reference, so they are unhidden

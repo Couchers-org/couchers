@@ -92,9 +92,9 @@ class NotificationTopicAction(enum.Enum):
     # you receive a friend ref
     reference__receive_friend = ("reference:receive_friend", dt_all, False, nd.ReferenceReceiveFriend)
     # you receive a reference from ... the host
-    reference__receive_hosted = ("reference:receive_hosted", dt_all, False, nd.ReferenceReceiveHostRequest)
+    reference__receive_hosted = ("reference:receive_hosted", dt_all, False, nd.ReferenceReceiveStay)
     # ... the surfer
-    reference__receive_surfed = ("reference:receive_surfed", dt_all, False, nd.ReferenceReceiveHostRequest)
+    reference__receive_surfed = ("reference:receive_surfed", dt_all, False, nd.ReferenceReceiveStay)
 
     # you hosted
     reference__reminder_hosted = ("reference:reminder_hosted", dt_all, False, nd.ReferenceReminder)
