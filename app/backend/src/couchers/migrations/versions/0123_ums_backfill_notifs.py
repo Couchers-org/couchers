@@ -22,7 +22,7 @@ def upgrade() -> None:
     conn = op.get_bind()
 
     # Backfill key for host_request__reminder notifications
-    # Extract host_request_id from HostRequestReminder proto
+    # Extract host_request_id from StayReminder proto
     result = conn.execute(
         text("""
             SELECT n.id, n.data
@@ -35,7 +35,7 @@ def upgrade() -> None:
     updates = []
     for row in result:
         notification_id, data = row
-        reminder = notification_data_pb2.HostRequestReminder.FromString(bytes(data))
+        reminder = notification_data_pb2.StayReminder.FromString(bytes(data))
         host_request_id = reminder.host_request.host_request_id
         if host_request_id:
             updates.append({"key": str(host_request_id), "id": notification_id})
