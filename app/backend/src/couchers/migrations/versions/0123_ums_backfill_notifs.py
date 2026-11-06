@@ -47,7 +47,7 @@ def upgrade() -> None:
         )
 
     # Backfill key for reference__receive_surfed and reference__receive_hosted notifications
-    # Extract host_request_id from ReferenceReceiveHostRequest proto
+    # Extract host_request_id from ReferenceReceiveStay proto
     result = conn.execute(
         text("""
             SELECT n.id, n.data
@@ -60,7 +60,7 @@ def upgrade() -> None:
     updates = []
     for row in result:
         notification_id, data = row
-        ref_receive = notification_data_pb2.ReferenceReceiveHostRequest.FromString(bytes(data))
+        ref_receive = notification_data_pb2.ReferenceReceiveStay.FromString(bytes(data))
         host_request_id = ref_receive.host_request_id
         if host_request_id:
             updates.append({"key": str(host_request_id), "id": notification_id})
