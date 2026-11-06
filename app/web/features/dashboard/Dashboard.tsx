@@ -10,6 +10,7 @@ import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import { theme } from "theme";
 
 import CommunityEvents from "./CommunityEvents";
+import DashboardCommunityPublicTrips from "./DashboardCommunityPublicTrips";
 import DashboardMyPublicTrips from "./DashboardMyPublicTrips";
 import DashboardUserProfileSummary from "./DashboardUserProfileSummary";
 import Hero from "./Hero";
@@ -51,6 +52,15 @@ export default function Dashboard() {
 
             <UpcomingStays />
 
+            {isPublicTripsEnabled && (
+              <>
+                <Box sx={{ height: theme.spacing(3) }} />
+                <DashboardMyPublicTrips />
+                <Box sx={{ height: theme.spacing(3) }} />
+                <DashboardCommunityPublicTrips />
+              </>
+            )}
+
             <Box sx={{ height: theme.spacing(3) }} />
 
             <MyEvents />
@@ -58,13 +68,6 @@ export default function Dashboard() {
             <Box sx={{ height: theme.spacing(3) }} />
 
             <CommunityEvents />
-
-            {isPublicTripsEnabled && (
-              <>
-                <Box sx={{ height: theme.spacing(3) }} />
-                <DashboardMyPublicTrips />
-              </>
-            )}
 
             <Box sx={{ height: theme.spacing(3) }} />
 
