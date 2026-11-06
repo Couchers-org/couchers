@@ -12,6 +12,7 @@ import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Event } from "proto/events_pb";
+import { useState } from "react";
 import { dashboardRoute, eventsRoute, routeToEvent } from "routes";
 import { service } from "service";
 import type { CreateEventInput } from "service/events";
@@ -22,6 +23,7 @@ import stringOrFirstString from "utils/stringOrFirstString";
 import { communityEventsBaseKey } from "../../queryKeys";
 import EventForm, { CreateEventVariables } from "./EventForm";
 import { useEvent } from "./hooks";
+import InviteCommunityDialog from "./InviteCommunityDialog";
 
 const StyledBackButton = styled(HeaderButton)(() => ({
   gridArea: "backButton",
@@ -34,7 +36,6 @@ export default function CreateEventPage() {
   const { t } = useTranslation([GLOBAL, COMMUNITIES, PROFILE]);
   const router = useRouter();
   const isNativeEmbed = useIsNativeEmbed();
-
   const urlCommunityIdString =
     typeof window !== "undefined" ? stringOrFirstString(router.query.communityId) : undefined;
   const urlCommunityId =
@@ -54,14 +55,15 @@ export default function CreateEventPage() {
     isLoading: isDuplicateEventLoading,
     error: duplicateEventError,
   } = useEvent({ eventId: duplicateEventId!, enabled: !!duplicateEventId });
-
+  const [inviteCommunityDialogIsOpen, setInviteCommunityDialogIsOpen] = useState(false);
   const queryClient = useQueryClient();
   const {
     mutate: createEvent,
+    data: createdEvent,
     error,
     isPending,
   } = useMutation<Event.AsObject, RpcError, CreateEventVariables, { parentCommunityId?: number }>({
-    mutationFn: (data) => {
+    mutationFn: async (data) => {
       // Use uploaded photo, or reuse photo from event being duplicated
       const photoKey = data.eventImage || eventToDuplicate?.photoKey || undefined;
 
@@ -84,13 +86,18 @@ export default function CreateEventPage() {
         parentCommunityId: parentCommunityId ?? urlCommunityId,
       };
     },
-    onSuccess(event, __, context) {
+    onSuccess(event, variables, context) {
       queryClient.invalidateQueries({
         queryKey: [
           context?.parentCommunityId ? [communityEventsBaseKey, context.parentCommunityId] : communityEventsBaseKey,
         ],
       });
-      router.push(routeToEvent(event.eventId, event.slug));
+      //create the event and then, if the checkbox was checked, proceed to the inviteCommunity dialog
+      if (variables.inviteCommunity) {
+        setInviteCommunityDialogIsOpen(true);
+      } else {
+        router.push(routeToEvent(event.eventId, event.slug));
+      }
     },
     onSettled() {
       window.scroll({ top: 0, behavior: "smooth" });
@@ -132,7 +139,14 @@ export default function CreateEventPage() {
         mutate={createEvent}
         title={t("communities:create_event_page_title")}
         isEdit={false}
-        event={eventToDuplicate}
+        event={
+          eventToDuplicate
+            ? {
+                ...eventToDuplicate,
+                communityInviteRequested: false, //allow new invites for duplicated events
+              }
+            : undefined
+        }
       >
         {({ isMutationLoading }) => (
           <>
@@ -145,6 +159,23 @@ export default function CreateEventPage() {
           </>
         )}
       </EventForm>
+      {createdEvent && (
+        <InviteCommunityDialog
+          eventId={createdEvent.eventId}
+          open={inviteCommunityDialogIsOpen}
+          afterSuccess={() => {
+            setInviteCommunityDialogIsOpen(false);
+            router.push({
+              pathname: routeToEvent(createdEvent.eventId, createdEvent.slug),
+              query: { inviteSuccess: "true" },
+            });
+          }}
+          onClose={() => {
+            setInviteCommunityDialogIsOpen(false);
+            router.push(routeToEvent(createdEvent.eventId, createdEvent.slug));
+          }}
+        />
+      )}
     </>
   );
 }
