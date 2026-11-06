@@ -1,5 +1,7 @@
 import { Linking } from "react-native";
 
+import { getWebBaseUrl } from "@/config/urls";
+
 // Couchers domains that should be handled in-app
 const COUCHERS_HOSTS = [
   "couchers.org",
@@ -26,8 +28,12 @@ export function getNotificationPath(url: string | undefined): string | null {
   try {
     const urlObj = new URL(url);
 
-    // Check if this is a Couchers URL (should navigate in-app)
-    if (COUCHERS_HOSTS.includes(urlObj.host)) {
+    // Check if this is a Couchers URL (should navigate in-app), including the
+    // web address the app is using, e.g. a local dev server
+    if (
+      COUCHERS_HOSTS.includes(urlObj.host) ||
+      urlObj.host === new URL(getWebBaseUrl()).host
+    ) {
       return urlObj.pathname + urlObj.search;
     }
 
