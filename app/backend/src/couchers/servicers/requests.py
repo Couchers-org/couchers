@@ -361,7 +361,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             user_id=host_request.recipient_user_id,
             topic_action=NotificationTopicAction.host_request__create,
             key=str(host_request.conversation_id),
-            data=notification_data_pb2.StayCreate(
+            data=notification_data_pb2.HostRequestCreate(
                 host_request=host_request_to_pb(host_request, session, recipient_context),
                 initiator=user_model_to_pb(host_request.initiator, session, recipient_context),
                 text=request.text,
@@ -696,7 +696,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 user_id=host_request.initiator_user_id,
                 topic_action=NotificationTopicAction.host_request__accept,
                 key=str(host_request.conversation_id),
-                data=notification_data_pb2.StayAccept(
+                data=notification_data_pb2.HostRequestAccept(
                     host_request=host_request_to_pb(host_request, session, recipient_context),
                     recipient=user_model_to_pb(host_request.recipient, session, recipient_context),
                 ),
@@ -738,7 +738,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 user_id=host_request.initiator_user_id,
                 topic_action=NotificationTopicAction.host_request__reject,
                 key=str(host_request.conversation_id),
-                data=notification_data_pb2.StayReject(
+                data=notification_data_pb2.HostRequestReject(
                     host_request=host_request_to_pb(host_request, session, recipient_context),
                     recipient=user_model_to_pb(host_request.recipient, session, recipient_context),
                 ),
@@ -780,7 +780,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 user_id=host_request.recipient_user_id,
                 topic_action=NotificationTopicAction.host_request__confirm,
                 key=str(host_request.conversation_id),
-                data=notification_data_pb2.StayConfirm(
+                data=notification_data_pb2.HostRequestConfirm(
                     host_request=host_request_to_pb(host_request, session, recipient_context),
                     initiator=user_model_to_pb(host_request.initiator, session, recipient_context),
                 ),
@@ -821,7 +821,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 user_id=host_request.recipient_user_id,
                 topic_action=NotificationTopicAction.host_request__cancel,
                 key=str(host_request.conversation_id),
-                data=notification_data_pb2.StayCancel(
+                data=notification_data_pb2.HostRequestCancel(
                     host_request=host_request_to_pb(host_request, session, recipient_context),
                     initiator=user_model_to_pb(host_request.initiator, session, recipient_context),
                 ),
@@ -948,7 +948,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 user_id=host_request.recipient_user_id,
                 topic_action=NotificationTopicAction.host_request__message,
                 key=str(host_request.conversation_id),
-                data=notification_data_pb2.StayMessage(
+                data=notification_data_pb2.HostRequestMessage(
                     host_request=host_request_to_pb(host_request, session, recipient_context),
                     counterparty=user_model_to_pb(host_request.initiator, session, recipient_context),
                     text=request.text,
@@ -966,7 +966,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 user_id=host_request.initiator_user_id,
                 topic_action=NotificationTopicAction.host_request__message,
                 key=str(host_request.conversation_id),
-                data=notification_data_pb2.StayMessage(
+                data=notification_data_pb2.HostRequestMessage(
                     host_request=host_request_to_pb(host_request, session, recipient_context),
                     counterparty=user_model_to_pb(host_request.recipient, session, recipient_context),
                     text=request.text,

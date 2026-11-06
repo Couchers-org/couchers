@@ -365,7 +365,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             user_id=reference.to_user_id,
             topic_action=topic_action,
             key=str(host_request.conversation_id),
-            data=notification_data_pb2.ReferenceReceiveStay(
+            data=notification_data_pb2.ReferenceReceiveHostRequest(
                 host_request_id=host_request.conversation_id,
                 from_user=user_model_to_pb(user, session, make_notification_user_context(user_id=reference.to_user_id)),
                 text=reference_text if other_reference is not None else None,

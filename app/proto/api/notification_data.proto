@@ -11,46 +11,46 @@ import "events.proto";
 import "requests.proto";
 import "threads.proto";
 
-message StayCreate {
+message HostRequestCreate {
   org.couchers.api.requests.HostRequest host_request = 1;
   org.couchers.api.core.User initiator = 2;
   string text = 3;
 }
 
-message StayAccept {
+message HostRequestAccept {
   org.couchers.api.requests.HostRequest host_request = 1;
   org.couchers.api.core.User recipient = 2;
 }
 
-message StayReject {
+message HostRequestReject {
   org.couchers.api.requests.HostRequest host_request = 1;
   org.couchers.api.core.User recipient = 2;
 }
 
-message StayConfirm {
+message HostRequestConfirm {
   org.couchers.api.requests.HostRequest host_request = 1;
   org.couchers.api.core.User initiator = 2;
 }
 
-message StayCancel {
+message HostRequestCancel {
   org.couchers.api.requests.HostRequest host_request = 1;
   org.couchers.api.core.User initiator = 2;
 }
 
-message StayMessage {
+message HostRequestMessage {
   org.couchers.api.requests.HostRequest host_request = 1;
   org.couchers.api.core.User counterparty = 2;
   string text = 3;
   bool counterparty_is_initiator = 4;
 }
 
-message StayMissedMessages {
+message HostRequestMissedMessages {
   org.couchers.api.requests.HostRequest host_request = 1;
   org.couchers.api.core.User counterparty = 2;
   bool counterparty_is_initiator = 3;
 }
 
-message StayReminder {
+message HostRequestReminder {
   org.couchers.api.requests.HostRequest host_request = 1;
   org.couchers.api.core.User initiator = 2;
 }
@@ -177,7 +177,7 @@ message ReferenceReceiveFriend {
   string text = 2;
 }
 
-message ReferenceReceiveStay {
+message ReferenceReceiveHostRequest {
   int64 host_request_id = 1;
   org.couchers.api.core.User from_user = 2;
   // this is non-empty iff both have written a reference, so they are unhidden

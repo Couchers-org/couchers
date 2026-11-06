@@ -78,23 +78,23 @@ class NotificationTopicAction(enum.Enum):
     friend_request__accept = ("friend_request:accept", dt_all, False, nd.FriendRequestAccept)
 
     # host requests
-    host_request__create = ("host_request:create", dt_all, False, nd.StayCreate)
-    host_request__accept = ("host_request:accept", dt_all, False, nd.StayAccept)
-    host_request__reject = ("host_request:reject", dt_all, False, nd.StayReject)
-    host_request__confirm = ("host_request:confirm", dt_all, False, nd.StayConfirm)
-    host_request__cancel = ("host_request:cancel", dt_all, False, nd.StayCancel)
-    host_request__message = ("host_request:message", [dt.push, dt.digest], False, nd.StayMessage)
-    host_request__missed_messages = ("host_request:missed_messages", [dt.email], False, nd.StayMissedMessages)
-    host_request__reminder = ("host_request:reminder", dt_all, False, nd.StayReminder)
+    host_request__create = ("host_request:create", dt_all, False, nd.HostRequestCreate)
+    host_request__accept = ("host_request:accept", dt_all, False, nd.HostRequestAccept)
+    host_request__reject = ("host_request:reject", dt_all, False, nd.HostRequestReject)
+    host_request__confirm = ("host_request:confirm", dt_all, False, nd.HostRequestConfirm)
+    host_request__cancel = ("host_request:cancel", dt_all, False, nd.HostRequestCancel)
+    host_request__message = ("host_request:message", [dt.push, dt.digest], False, nd.HostRequestMessage)
+    host_request__missed_messages = ("host_request:missed_messages", [dt.email], False, nd.HostRequestMissedMessages)
+    host_request__reminder = ("host_request:reminder", dt_all, False, nd.HostRequestReminder)
 
     activeness__probe = ("activeness:probe", dt_sec, True, nd.ActivenessProbe)
 
     # you receive a friend ref
     reference__receive_friend = ("reference:receive_friend", dt_all, False, nd.ReferenceReceiveFriend)
     # you receive a reference from ... the host
-    reference__receive_hosted = ("reference:receive_hosted", dt_all, False, nd.ReferenceReceiveStay)
+    reference__receive_hosted = ("reference:receive_hosted", dt_all, False, nd.ReferenceReceiveHostRequest)
     # ... the surfer
-    reference__receive_surfed = ("reference:receive_surfed", dt_all, False, nd.ReferenceReceiveStay)
+    reference__receive_surfed = ("reference:receive_surfed", dt_all, False, nd.ReferenceReceiveHostRequest)
 
     # you hosted
     reference__reminder_hosted = ("reference:reminder_hosted", dt_all, False, nd.ReferenceReminder)

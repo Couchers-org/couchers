@@ -397,7 +397,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                     user_id=user.id,
                     topic_action=NotificationTopicAction.host_request__missed_messages,
                     key=str(host_request.conversation_id),
-                    data=notification_data_pb2.StayMissedMessages(
+                    data=notification_data_pb2.HostRequestMissedMessages(
                         host_request=host_request_to_pb(host_request, session, context),
                         counterparty=user_model_to_pb(host_request.recipient, session, context),
                         # Notification to the recipient == message from the initiator
@@ -441,7 +441,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                     user_id=user.id,
                     topic_action=NotificationTopicAction.host_request__missed_messages,
                     key=str(host_request.conversation_id),
-                    data=notification_data_pb2.StayMissedMessages(
+                    data=notification_data_pb2.HostRequestMissedMessages(
                         host_request=host_request_to_pb(host_request, session, context),
                         counterparty=user_model_to_pb(host_request.initiator, session, context),
                         # Notification to the recipient == message from the initiator
@@ -640,7 +640,7 @@ def send_host_request_reminders(payload: empty_pb2.Empty) -> None:
                 user_id=host_request.recipient_user_id,
                 topic_action=NotificationTopicAction.host_request__reminder,
                 key=str(host_request.conversation_id),
-                data=notification_data_pb2.StayReminder(
+                data=notification_data_pb2.HostRequestReminder(
                     host_request=host_request_to_pb(host_request, session, context),
                     initiator=user_model_to_pb(host_request.initiator, session, context),
                 ),
