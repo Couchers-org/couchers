@@ -11,46 +11,46 @@ import "events.proto";
 import "requests.proto";
 import "threads.proto";
 
-message HostRequestCreate {
+message StayCreate {
   org.couchers.api.requests.HostRequest host_request = 1;
   org.couchers.api.core.User initiator = 2;
   string text = 3;
 }
 
-message HostRequestAccept {
+message StayAccept {
   org.couchers.api.requests.HostRequest host_request = 1;
   org.couchers.api.core.User recipient = 2;
 }
 
-message HostRequestReject {
+message StayReject {
   org.couchers.api.requests.HostRequest host_request = 1;
   org.couchers.api.core.User recipient = 2;
 }
 
-message HostRequestConfirm {
+message StayConfirm {
   org.couchers.api.requests.HostRequest host_request = 1;
   org.couchers.api.core.User initiator = 2;
 }
 
-message HostRequestCancel {
+message StayCancel {
   org.couchers.api.requests.HostRequest host_request = 1;
   org.couchers.api.core.User initiator = 2;
 }
 
-message HostRequestMessage {
+message StayMessage {
   org.couchers.api.requests.HostRequest host_request = 1;
   org.couchers.api.core.User counterparty = 2;
   string text = 3;
   bool counterparty_is_initiator = 4;
 }
 
-message HostRequestMissedMessages {
+message StayMissedMessages {
   org.couchers.api.requests.HostRequest host_request = 1;
   org.couchers.api.core.User counterparty = 2;
   bool counterparty_is_initiator = 3;
 }
 
-message HostRequestReminder {
+message StayReminder {
   org.couchers.api.requests.HostRequest host_request = 1;
   org.couchers.api.core.User initiator = 2;
 }
