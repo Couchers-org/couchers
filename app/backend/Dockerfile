@@ -13,7 +13,7 @@ EOT
 
 FROM base AS build
 
-ENV UV_VERSION=0.9.21
+ENV UV_VERSION=0.13.7
 
 WORKDIR /deps
 RUN apt-get update -qy && apt-get install -qyy zstd wget build-essential \
