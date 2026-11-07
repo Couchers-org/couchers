@@ -13,7 +13,7 @@ def get_discussions(
     page_token: str,
     owner_cluster_id: int | None = None,
 ) -> tuple[list[Discussion], str | None]:
- 	next_page_id = int(page_token) if page_token else 2**63 - 1
+    next_page_id = int(page_token) if page_token else 2**63 - 1
     has_visible_comments = (
         where_moderated_content_visible(
             where_users_column_visible(
