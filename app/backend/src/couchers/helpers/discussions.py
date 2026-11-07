@@ -2,8 +2,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from couchers.context import CouchersContext
-from couchers.models import Cluster, ClusterSubscription, Comment, Discussion
+from couchers.models import Comment, Discussion
 from couchers.sql import where_moderated_content_visible, where_users_column_visible
+
 
 def get_discussions(
     session: Session,
