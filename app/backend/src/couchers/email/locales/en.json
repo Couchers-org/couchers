@@ -214,7 +214,7 @@
   },
   "stays": {
     "created": {
-      "host_request": {
+      "request": {
         "subject": "{{initiator}} sent you a host request",
         "purpose": "<b>{{initiator}}</b> sent you a host request:",
         "respond_encouragement": "Please respond to this request. Even a quick decline is better than no response!"
@@ -228,7 +228,7 @@
     "generic": {
       "date_range": "From <b>{{from_date}}</b> to <b>{{to_date}}</b>.",
       "quick_decline_action": "Quick decline",
-      "host_request": {
+      "request": {
         "view_action": "View host request"
       },
       "invitation": {
@@ -236,7 +236,7 @@
       }
     },
     "reminder": {
-      "host_request": {
+      "request": {
         "subject": "You have a pending host request from {{initiator}}",
         "purpose": "<b>{{initiator}}</b> is waiting for your response. Even a quick decline is better than no response!"
       },
@@ -246,7 +246,7 @@
       }
     },
     "message": {
-      "host_request": {
+      "request": {
         "from_initiator": {
           "subject": "{{counterparty}} sent you a message in their host request",
           "purpose": "<b>{{counterparty}}</b> sent you a message in their host request:"
@@ -268,7 +268,7 @@
       }
     },
     "missed_messages": {
-      "host_request": {
+      "request": {
         "from_initiator": {
           "subject": "{{counterparty}} sent you message(s) in their host request",
           "purpose": "<b>{{counterparty}}</b> sent you one or more messages in their host request:"
@@ -290,7 +290,7 @@
       }
     },
     "status_changed": {
-      "host_request": {
+      "request": {
         "accepted_by_recipient": {
           "subject": "{{counterparty}} accepted your host request",
           "purpose": "<b>{{counterparty}}</b> accepted your host request:"
