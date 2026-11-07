@@ -10,10 +10,10 @@ def get_discussions(
     session: Session,
     context: CouchersContext,
     page_size: int,
-    next_page_id: int,
+    page_token: str,
     owner_cluster_id: int | None = None,
-    user_id: int | None = None,
 ) -> tuple[list[Discussion], str | None]:
+ 	next_page_id = int(page_token) if page_token else 2**63 - 1
     has_visible_comments = (
         where_moderated_content_visible(
             where_users_column_visible(
@@ -42,15 +42,6 @@ def get_discussions(
 
     if owner_cluster_id is not None:
         query = query.where(Discussion.owner_cluster_id == owner_cluster_id)
-
-    if user_id is not None:
-        query = (
-            query.join(Cluster, Cluster.id == Discussion.owner_cluster_id)
-            .join(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
-            .where(ClusterSubscription.user_id == user_id)
-            .where(Cluster.is_official_cluster)
-            .where(Cluster.small_community_features_enabled)
-        )
 
     discussions = (
         session.execute(

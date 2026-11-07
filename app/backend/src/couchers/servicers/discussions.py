@@ -305,14 +305,11 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
     def ListMyCommunitiesDiscussions(
         self, request: discussions_pb2.ListMyCommunitiesDiscussionsReq, context: CouchersContext, session: Session
     ) -> discussions_pb2.ListMyCommunitiesDiscussionsRes:
-        page_size = min(MAX_PAGE_SIZE, request.page_size or MAX_PAGE_SIZE)
-        next_page_id = int(request.page_token) if request.page_token else 2**63 - 1
-
         discussions, next_page_token = get_discussions(
             session=session,
             context=context,
-            page_size=page_size,
-            next_page_id=next_page_id,
+            page_size=min(MAX_PAGE_SIZE, request.page_size or MAX_PAGE_SIZE),
+            page_token=request.page_token if request.page_token else None,
         )
 
         return discussions_pb2.ListMyCommunitiesDiscussionsRes(
