@@ -419,9 +419,10 @@ export default function PostalVerificationSection({ hasDonated }: { hasDonated: 
                 sx={{ "& input": { fontSize: "1.5rem", fontWeight: 700, letterSpacing: "10px" } }}
               />
               <Typography variant="body2" sx={{ color: "var(--mui-palette-text-secondary)" }}>
-                {t("verification_page.postal.code_form.tries_left", {
-                  count: remainingCodeAttempts ?? POSTAL_VERIFICATION_MAX_ATTEMPTS,
-                  max_tries: POSTAL_VERIFICATION_MAX_ATTEMPTS,
+                {/* pluralised on the total, as in "1 of 1 try left" */}
+                {t("verification_page.postal.code_form.attempts_left", {
+                  remaining: remainingCodeAttempts ?? POSTAL_VERIFICATION_MAX_ATTEMPTS,
+                  count: POSTAL_VERIFICATION_MAX_ATTEMPTS,
                 })}
               </Typography>
               {isCodeWrong && (
