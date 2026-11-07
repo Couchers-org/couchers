@@ -305,6 +305,8 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
     def ListMyCommunitiesDiscussions(
         self, request: discussions_pb2.ListMyCommunitiesDiscussionsReq, context: CouchersContext, session: Session
     ) -> discussions_pb2.ListMyCommunitiesDiscussionsRes:
+        page_size = min(MAX_PAGE_SIZE, request.page_size or MAX_PAGE_SIZE)
+        
         discussions, next_page_token = get_discussions(
             session=session,
             context=context,

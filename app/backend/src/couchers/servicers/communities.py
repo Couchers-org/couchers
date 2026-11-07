@@ -456,6 +456,8 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
     def ListDiscussions(
         self, request: communities_pb2.ListDiscussionsReq, context: CouchersContext, session: Session
     ) -> communities_pb2.ListDiscussionsRes:
+        page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+       
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
@@ -465,7 +467,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         discussions, next_page_token = get_discussions(
             session=session,
             context=context,
-            page_size=min(MAX_PAGE_SIZE, request.page_size or MAX_PAGE_SIZE),
+            page_size=page_size,
             page_token=request.page_token if request.page_token else None,
             owner_cluster_id=node.official_cluster.id,
         )
