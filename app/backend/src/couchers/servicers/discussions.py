@@ -9,6 +9,7 @@ from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import can_moderate_node, session_scope
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
+from couchers.helpers.discussions import get_discussions
 from couchers.jobs.enqueue import queue_job
 from couchers.models import Cluster, ClusterSubscription, Discussion, ModerationObjectType, Thread, User
 from couchers.models.discussions import ContentChangeType, DiscussionVersion
@@ -307,28 +308,14 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
         page_size = min(MAX_PAGE_SIZE, request.page_size or MAX_PAGE_SIZE)
         next_page_id = int(request.page_token) if request.page_token else 2**63 - 1
 
-        discussions = (
-            session.execute(
-                where_moderated_content_visible(
-                    select(Discussion)
-                    .join(Cluster, Cluster.id == Discussion.owner_cluster_id)
-                    .join(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
-                    .where(ClusterSubscription.user_id == context.user_id)
-                    .where(Cluster.is_official_cluster)
-                    .where(Cluster.small_community_features_enabled)
-                    .where(Discussion.id <= next_page_id)
-                    .order_by(Discussion.id.desc())
-                    .limit(page_size + 1),
-                    context,
-                    Discussion,
-                    is_list_operation=True,
-                )
-            )
-            .scalars()
-            .all()
+        discussions, next_page_token = get_discussions(
+            session=session,
+            context=context,
+            page_size=page_size,
+            next_page_id=next_page_id,
         )
 
         return discussions_pb2.ListMyCommunitiesDiscussionsRes(
-            discussions=[discussion_to_pb(session, d, context) for d in discussions[:page_size]],
-            next_page_token=str(discussions[-1].id) if len(discussions) > page_size else None,
+            discussions=[discussion_to_pb(session, d, context) for d in discussions],
+            next_page_token=next_page_token,
         )
