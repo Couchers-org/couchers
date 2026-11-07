@@ -457,7 +457,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         self, request: communities_pb2.ListDiscussionsReq, context: CouchersContext, session: Session
     ) -> communities_pb2.ListDiscussionsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-       
+
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
