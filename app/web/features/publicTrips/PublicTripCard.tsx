@@ -2,6 +2,7 @@ import { HourglassEmptyOutlined, PlaceOutlined, WavingHandOutlined } from "@mui/
 import { Box, Card, CardContent, Chip, styled, Tooltip, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
+import ClampedTypography from "components/ClampedTypography";
 import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
 import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
 import {
@@ -129,17 +130,14 @@ const MetaItem = styled("div")(({ theme }) => ({
   },
 }));
 
-const Description = styled(Typography, {
+const Description = styled(ClampedTypography, {
   shouldForwardProp: (prop) => prop !== "expanded",
 })<{ expanded: boolean }>(({ expanded, theme }) => ({
   // Descriptions come from a plain textarea, so keep the author's line breaks
   // (outside the clamp block so they survive expanding too).
   whiteSpace: "pre-line",
   ...(!expanded && {
-    display: "-webkit-box",
     WebkitLineClamp: 3,
-    WebkitBoxOrient: "vertical" as const,
-    overflow: "hidden",
     textOverflow: "ellipsis",
     [theme.breakpoints.down("sm")]: {
       WebkitLineClamp: 2,
