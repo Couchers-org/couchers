@@ -1,9 +1,7 @@
 import { useFeatureValue } from "@growthbook/growthbook-react";
-import { Box, Grid } from "@mui/material";
-import Divider from "components/Divider";
+import { Grid } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import PageContainer from "components/PageContainer";
-import PageTitle from "components/PageTitle";
 import CommunitiesList from "features/dashboard/CommunitiesList";
 import { useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
@@ -37,6 +35,10 @@ export default function Dashboard() {
           <Grid
             size={{ sm: 8, xs: 12 }}
             sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: theme.spacing(3),
+              marginTop: theme.spacing(3),
               [theme.breakpoints.up("sm")]: {
                 paddingLeft: theme.spacing(5),
               },
@@ -44,36 +46,22 @@ export default function Dashboard() {
           >
             <HtmlMeta title={t("global:nav.dashboard")} />
 
-            <PageTitle>{t("dashboard:welcome")}</PageTitle>
-
             <ReminderCarousel />
-
-            <Divider spacing={3} />
 
             <UpcomingStays />
 
             {isPublicTripsEnabled && (
               <>
-                <Box sx={{ height: theme.spacing(3) }} />
                 <DashboardMyPublicTrips />
-                <Box sx={{ height: theme.spacing(3) }} />
                 <DashboardCommunityPublicTrips />
               </>
             )}
 
-            <Box sx={{ height: theme.spacing(3) }} />
-
             <MyEvents />
-
-            <Box sx={{ height: theme.spacing(3) }} />
 
             <CommunityEvents />
 
-            <Box sx={{ height: theme.spacing(3) }} />
-
             <MyCommunitiesDiscussions />
-
-            <Box sx={{ height: theme.spacing(3) }} />
 
             <CommunitiesList />
           </Grid>
