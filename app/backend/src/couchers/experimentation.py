@@ -29,11 +29,13 @@ from typing import Any
 import urllib3
 from growthbook import GrowthBook
 from growthbook.common_types import Experiment, FeatureResult, Result
+from sqlalchemy import exists, select
 from sqlalchemy.dialects.postgresql import insert
 
 from couchers import metrics
 from couchers.config import config
 from couchers.db import session_scope
+from couchers.models import Volunteer
 from couchers.models.logging import ExperimentExposure, ExposureSource, FeatureUsage
 
 logger = logging.getLogger(__name__)
@@ -230,6 +232,23 @@ def _record_feature_usage(user_id: int, key: str, result: FeatureResult[Any], **
         session.add(FeatureUsage(user_id=user_id, feature_key=key, value=result.value))
 
 
+def get_user_attributes(user_id: int) -> dict[str, Any]:
+    """
+    The GrowthBook targeting attributes for a user. This is the single definition of what we target on:
+    the backend evaluates with it, and clients get it verbatim via GetAccountInfo.
+
+    Any attribute added here should also be declared under SDK Configuration -> Attributes in GrowthBook.
+    """
+    with session_scope() as session:
+        is_volunteer = session.execute(
+            select(exists().where(Volunteer.user_id == user_id).where(Volunteer.stopped_volunteering.is_(None)))
+        ).scalar_one()
+    return {
+        "id": str(user_id),
+        "is_volunteer": is_volunteer,
+    }
+
+
 def _create_evaluator(user_id: int | None) -> GrowthBook:
     """
     Build a per-request GrowthBook evaluator over the current feature snapshot.
@@ -260,7 +279,7 @@ def _create_evaluator(user_id: int | None) -> GrowthBook:
             _record_feature_usage(user_id, key, result)
 
     return GrowthBook(
-        attributes={"id": str(user_id)} if user_id is not None else {},
+        attributes=get_user_attributes(user_id) if user_id is not None else {},
         features=features,
         saved_groups=saved_groups,
         on_experiment_viewed=on_experiment_viewed,

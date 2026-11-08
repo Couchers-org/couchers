@@ -1,9 +1,12 @@
 import { configureCache, GrowthBook } from "@growthbook/growthbook";
 import { GrowthBookProvider } from "@growthbook/growthbook-react";
 import { useAuthContext } from "features/auth/AuthProvider";
+import useAccountInfo from "features/auth/useAccountInfo";
 import Sentry from "platform/sentry";
 import { ReactNode, useEffect } from "react";
 import { reportExposure } from "service/experiments";
+
+import { getTargetingAttributes } from "./targetingAttributes";
 
 const INIT_TIMEOUT_MS = 1500;
 const REFRESH_INTERVAL_MS = 60 * 1000;
@@ -67,6 +70,7 @@ if (typeof window !== "undefined") {
 
 export default function FeatureFlagProvider({ children }: { children: ReactNode }) {
   const { authState } = useAuthContext();
+  const { data: accountInfo } = useAccountInfo({ enabled: authState.authenticated && !authState.jailed });
 
   useEffect(() => {
     // Dev-only: when set, flags resolve from feature-flags.dev.json instead of GrowthBook,
@@ -91,10 +95,10 @@ export default function FeatureFlagProvider({ children }: { children: ReactNode 
     return () => clearInterval(id);
   }, []);
 
+  const attributesJson = accountInfo?.featureFlagAttributesJson;
   useEffect(() => {
-    const userId = authState.userId;
-    growthbook.setAttributes(userId != null ? { id: userId.toString() } : {});
-  }, [authState.userId]);
+    growthbook.setAttributes(getTargetingAttributes(authState.userId, attributesJson));
+  }, [authState.userId, attributesJson]);
 
   return <GrowthBookProvider growthbook={growthbook}>{children}</GrowthBookProvider>;
 }

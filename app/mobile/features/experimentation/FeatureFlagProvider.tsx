@@ -6,9 +6,11 @@ import {
 import { GrowthBookProvider } from "@growthbook/growthbook-react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Sentry from "@sentry/react-native";
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
 
 import { useAuthContext } from "@/features/auth/AuthContext";
+import { getTargetingAttributes } from "@/features/experimentation/targetingAttributes";
+import { getAccountInfo } from "@/service/account";
 import { reportExposure } from "@/service/experiments";
 
 const INIT_TIMEOUT_MS = 1500;
@@ -77,7 +79,8 @@ export default function FeatureFlagProvider({
 }: {
   children: ReactNode;
 }) {
-  const { userId } = useAuthContext();
+  const { authenticated, jailed, userId } = useAuthContext();
+  const [attributesJson, setAttributesJson] = useState<string>();
 
   useEffect(() => {
     // Dev-only: when set, flags resolve from feature-flags.dev.json instead of GrowthBook,
@@ -108,8 +111,19 @@ export default function FeatureFlagProvider({
   }, []);
 
   useEffect(() => {
-    growthbook.setAttributes(userId != null ? { id: userId.toString() } : {});
-  }, [userId]);
+    if (!authenticated || jailed || userId == null) return;
+    getAccountInfo()
+      .then((accountInfo) =>
+        setAttributesJson(accountInfo.featureFlagAttributesJson),
+      )
+      .catch((e) => {
+        Sentry.captureException(e);
+      });
+  }, [authenticated, jailed, userId]);
+
+  useEffect(() => {
+    growthbook.setAttributes(getTargetingAttributes(userId, attributesJson));
+  }, [userId, attributesJson]);
 
   return (
     <GrowthBookProvider growthbook={growthbook}>{children}</GrowthBookProvider>

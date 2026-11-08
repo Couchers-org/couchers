@@ -1,3 +1,4 @@
+import json
 from datetime import UTC, date, datetime, timedelta
 from unittest.mock import patch
 
@@ -52,6 +53,7 @@ def test_GetAccountInfo(db, fast_passwords):
         assert not res.is_superuser
         assert res.ui_language_preference == ""
         assert not res.is_volunteer
+        assert json.loads(res.feature_flag_attributes_json) == {"id": str(user1.id), "is_volunteer": False}
 
 
 def test_donation_banner_no_drive(db):
@@ -1269,6 +1271,7 @@ def test_volunteer_stuff(db):
     with account_session(token) as account:
         res = account.GetAccountInfo(empty_pb2.Empty())
         assert res.is_volunteer
+        assert json.loads(res.feature_flag_attributes_json)["is_volunteer"] is True
 
         res = account.GetMyVolunteerInfo(empty_pb2.Empty())
 

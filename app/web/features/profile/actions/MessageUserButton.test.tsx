@@ -38,6 +38,7 @@ const accountInfo = {
   isVolunteer: false,
   myHomeComplete: false,
   shouldShowDonationBanner: false,
+  featureFlagAttributesJson: "",
 };
 
 const incompleteAccountInfo = { ...accountInfo, profileComplete: false };

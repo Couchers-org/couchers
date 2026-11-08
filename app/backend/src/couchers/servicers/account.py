@@ -199,6 +199,7 @@ class Account(account_pb2_grpc.AccountServicer):
             profile_public_visibility=profilepublicitysetting2api[user.public_visibility],
             is_volunteer=volunteer is not None,
             should_show_donation_banner=should_show_donation_banner,
+            feature_flag_attributes_json=json.dumps(context.get_feature_flag_attributes()),
             **get_strong_verification_fields(session, user),
         )
 

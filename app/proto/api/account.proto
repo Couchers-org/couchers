@@ -162,6 +162,9 @@ message GetAccountInfoRes {
   bool is_volunteer = 18;
 
   bool should_show_donation_banner = 20;
+
+  // JSON object of GrowthBook targeting attributes for this user, to be passed verbatim to the client SDK
+  string feature_flag_attributes_json = 21;
 }
 
 message ChangePasswordV2Req {

@@ -1,6 +1,7 @@
 import { Request, RpcError, StatusCode } from "grpc-web";
 
 import { getApiBaseUrl } from "@/config/urls";
+import { AccountPromiseClient } from "@/proto/account_grpc_web_pb";
 import { AuthPromiseClient } from "@/proto/auth_grpc_web_pb";
 import { BugsPromiseClient } from "@/proto/bugs_grpc_web_pb";
 import { NotificationsPromiseClient } from "@/proto/notifications_grpc_web_pb";
@@ -104,6 +105,7 @@ function buildClients(url: string) {
     console.log("🔧 Environment:", process.env.EXPO_PUBLIC_COUCHERS_ENV);
   }
   return {
+    account: new AccountPromiseClient(url, null, opts),
     auth: new AuthPromiseClient(url, null, opts),
     bugs: new BugsPromiseClient(url, null, opts),
     notifications: new NotificationsPromiseClient(url, null, opts),
@@ -125,7 +127,12 @@ export function reconfigureApiClient(): void {
 if (!IS_PROD && typeof window !== "undefined") {
   // @ts-ignore
   const grpcWebTools = window.__GRPCWEB_DEVTOOLS__ || (() => {});
-  grpcWebTools([client.auth, client.bugs, client.notifications]);
+  grpcWebTools([
+    client.account,
+    client.auth,
+    client.bugs,
+    client.notifications,
+  ]);
 }
 
 export default client;

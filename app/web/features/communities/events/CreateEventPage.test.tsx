@@ -46,6 +46,7 @@ const accountInfo = {
   isVolunteer: false,
   myHomeComplete: false,
   shouldShowDonationBanner: false,
+  featureFlagAttributesJson: "",
 };
 
 describe("Create event page", () => {
@@ -246,6 +247,7 @@ describe("Create event page", () => {
       isVolunteer: false,
       myHomeComplete: false,
       shouldShowDonationBanner: false,
+      featureFlagAttributesJson: "",
     });
 
     render(<CreateEventPage />, { wrapper });
