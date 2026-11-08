@@ -1260,7 +1260,7 @@ class StayProposalReceivedEmail(EmailBase):
             view_link="https://couchers.org/requests/123",
             quick_decline_link="https://couchers.org/requests/123/decline?token=xxx",
         )
-        return [replace(prototype, proposal_type=proposal_type) for proposal_type in StayProposalType.request]
+        return [replace(prototype, proposal_type=proposal_type) for proposal_type in StayProposalType]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -1454,7 +1454,7 @@ class StayMissedMessagesEmail(EmailBase):
         return [
             replace(prototype, proposal_type=proposal_type, counterparty_is_initiator=counterparty_is_initiator)
             for counterparty_is_initiator in [False, True]
-            for proposal_type in StayProposalType.request
+            for proposal_type in StayProposalType
         ]
 
 
@@ -1560,7 +1560,7 @@ class StayStatusChangedEmail(EmailBase):
                 messages_pb2.HOST_REQUEST_STATUS_CONFIRMED,
                 messages_pb2.HOST_REQUEST_STATUS_CANCELLED,
             ]
-            for proposal_type in StayProposalType.request
+            for proposal_type in StayProposalType
         ]
 
 
@@ -1665,7 +1665,7 @@ class StayReferenceReminderEmail(EmailBase):
         builder.action(
             self.leave_reference_url,
             "references.write_action",
-            {"name": self.other_user.name},
+            {"name": self.counterparty.name},
         )
         builder.para(".no_meeting_note", {"name": self.counterparty.name})
         builder.para(".visibility_note")
@@ -1675,7 +1675,7 @@ class StayReferenceReminderEmail(EmailBase):
     def from_notification(cls, data: notification_data_pb2.ReferenceReminder, *, user_name: str, surfed: bool) -> Self:
         return cls(
             user_name=user_name,
-            other_user=UserInfo.from_proto(data.other_user),
+            counterparty=UserInfo.from_proto(data.other_user),
             days_left=data.days_left,
             surfed=surfed,
             leave_reference_url=urls.leave_reference_link(
@@ -1689,7 +1689,7 @@ class StayReferenceReminderEmail(EmailBase):
     def test_instances(cls) -> list[Self]:
         prototype = cls(
             user_name="Alice",
-            other_user=UserInfo.dummy_bob(),
+            counterparty=UserInfo.dummy_bob(),
             days_left=7,
             surfed=True,
             leave_reference_url="https://couchers.org/leave-reference/123",
