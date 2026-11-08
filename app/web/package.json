@@ -35,7 +35,7 @@
     "@emotion/server": "^11.11.0",
     "@emotion/styled": "^11.14.1",
     "@growthbook/growthbook": "^1.6.5",
-    "@growthbook/growthbook-react": "^1.8.0",
+    "@growthbook/growthbook-react": "^2.0.0",
     "@mui/icons-material": "^9.5.0",
     "@mui/lab": "9.0.0-beta.10",
     "@mui/material": "^9.5.0",
