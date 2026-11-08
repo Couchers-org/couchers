@@ -1260,10 +1260,7 @@ class StayProposalReceivedEmail(EmailBase):
             view_link="https://couchers.org/requests/123",
             quick_decline_link="https://couchers.org/requests/123/decline?token=xxx",
         )
-        return [
-            replace(prototype, proposal_type=proposal_type)
-            for proposal_type in StayProposalType.request
-        ]
+        return [replace(prototype, proposal_type=proposal_type) for proposal_type in StayProposalType.request]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -1323,10 +1320,7 @@ class StayProposalReminderEmail(EmailBase):
             view_link="https://couchers.org/requests/123",
             quick_decline_link="https://couchers.org/requests/123/decline?token=xxx",
         )
-        return [
-            replace(prototype, proposal_type=proposal_type)
-            for proposal_type in StayProposalType
-        ]
+        return [replace(prototype, proposal_type=proposal_type) for proposal_type in StayProposalType]
 
 
 @dataclass(kw_only=True, slots=True)
