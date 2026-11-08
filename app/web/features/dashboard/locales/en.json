@@ -50,7 +50,9 @@
     "same_gender_only_indicator": "Same gender",
     "invitations_count_one": "{{count}} invitation",
     "invitations_count_other": "{{count}} invitations",
-    "no_invitations": "No invitations yet"
+    "no_invitations": "No invitations yet",
+    "community_trips_header": "Public trips in your communities",
+    "community_trips_empty_description": "No one in your communities is looking for a host right now."
   },
   "stays": {
     "upcoming_trips_header": "Your upcoming stays",
