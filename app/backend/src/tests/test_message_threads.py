@@ -12,11 +12,11 @@ from couchers.jobs.handlers import send_message_notifications
 from couchers.models import HostRequest, NotificationTopicAction, User
 from couchers.proto import api_pb2, conversations_pb2, messages_pb2, notifications_pb2, requests_pb2
 from couchers.utils import today
+from tests.fixtures.api import notifications as notifications_api
 from tests.fixtures.db import generate_user, make_user_block
 from tests.fixtures.misc import process_jobs
 from tests.fixtures.sessions import (
     conversations_session,
-    notifications_session,
     real_api_session,
     requests_session,
 )
@@ -581,19 +581,17 @@ def test_mark_all_threads_seen_clears_missed_messages_notification(db, moderator
     user2, token2 = generate_user()
 
     # this notification is email-only by default, and the in-app feed only shows push-enabled ones
-    with notifications_session(token2) as n:
-        n.SetNotificationSettings(
-            notifications_pb2.SetNotificationSettingsReq(
-                preferences=[
-                    notifications_pb2.SingleNotificationPreference(
-                        topic=NotificationTopicAction.chat__missed_messages.topic,
-                        action=NotificationTopicAction.chat__missed_messages.action,
-                        delivery_method="push",
-                        enabled=True,
-                    )
-                ]
+    notifications_api.set_notification_settings(
+        token=token2,
+        preferences=[
+            notifications_pb2.SingleNotificationPreference(
+                topic=NotificationTopicAction.chat__missed_messages.topic,
+                action=NotificationTopicAction.chat__missed_messages.action,
+                delivery_method="push",
+                enabled=True,
             )
-        )
+        ],
+    )
 
     _create_group_chat(token1, [user2.id], moderator, text="hello there")
 
@@ -603,8 +601,7 @@ def test_mark_all_threads_seen_clears_missed_messages_notification(db, moderator
     process_jobs()
 
     def unseen_missed_messages():
-        with notifications_session(token2) as n:
-            res = n.ListNotifications(notifications_pb2.ListNotificationsReq(only_unread=True))
+        res = notifications_api.list_notifications(token=token2, only_unread=True)
         return [
             notification
             for notification in res.notifications

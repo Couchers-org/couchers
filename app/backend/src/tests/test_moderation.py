@@ -48,7 +48,6 @@ from couchers.proto import (
     discussions_pb2,
     messages_pb2,
     moderation_pb2,
-    notifications_pb2,
     pages_pb2,
     public_trips_pb2,
     requests_pb2,
@@ -57,13 +56,13 @@ from couchers.proto import (
 from couchers.servicers.threads import pack_thread_id
 from couchers.utils import Timestamp_from_datetime, now, today
 from tests.fixtures.api import events as events_api
+from tests.fixtures.api import notifications as notifications_api
 from tests.fixtures.db import backdate_conversations, generate_user, make_friends
 from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
 from tests.fixtures.sessions import (
     api_session,
     conversations_session,
     discussions_session,
-    notifications_session,
     pages_session,
     public_trips_session,
     real_admin_session,
@@ -588,10 +587,9 @@ def test_shadowed_notification_not_in_list_notifications(db):
         ).host_request_id
 
     # Host (recipient) should NOT see the notification in ListNotifications - it's for shadowed content
-    with notifications_session(token2) as api:
-        res = api.ListNotifications(notifications_pb2.ListNotificationsReq())
-        # Should be empty - the host request is still shadowed
-        assert len(res.notifications) == 0
+    res = notifications_api.list_notifications(token=token2)
+    # Should be empty - the host request is still shadowed
+    assert len(res.notifications) == 0
 
 
 def test_notification_visible_after_approval(db):
@@ -615,9 +613,8 @@ def test_notification_visible_after_approval(db):
         ).host_request_id
 
     # Host (recipient) should NOT see the notification initially
-    with notifications_session(token2) as api:
-        res = api.ListNotifications(notifications_pb2.ListNotificationsReq())
-        assert len(res.notifications) == 0
+    res = notifications_api.list_notifications(token=token2)
+    assert len(res.notifications) == 0
 
     # Get the moderation state ID and approve
     with session_scope() as session:
@@ -637,11 +634,10 @@ def test_notification_visible_after_approval(db):
         )
 
     # Now host SHOULD see the notification
-    with notifications_session(token2) as api:
-        res = api.ListNotifications(notifications_pb2.ListNotificationsReq())
-        assert len(res.notifications) == 1
-        assert res.notifications[0].topic == "host_request"
-        assert res.notifications[0].action == "create"
+    res = notifications_api.list_notifications(token=token2)
+    assert len(res.notifications) == 1
+    assert res.notifications[0].topic == "host_request"
+    assert res.notifications[0].action == "create"
 
 
 def test_shadowed_host_request_visible_to_author_only(db):

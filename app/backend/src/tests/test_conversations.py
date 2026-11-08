@@ -23,9 +23,10 @@ from couchers.proto import api_pb2, conversations_pb2, notification_data_pb2, no
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.servicers import conversations
 from couchers.utils import Duration_from_timedelta, now, to_aware_datetime
+from tests.fixtures.api import notifications as notifications_api
 from tests.fixtures.db import generate_user, make_friends, make_user_block, make_user_invisible
 from tests.fixtures.misc import EmailCollector, Moderator, PushCollector, process_jobs
-from tests.fixtures.sessions import api_session, conversations_session, notifications_session
+from tests.fixtures.sessions import api_session, conversations_session
 from tests.fixtures.timewarp import Timewarp
 
 
@@ -686,19 +687,17 @@ def test_send_message(db, moderator: Moderator, push_collector: PushCollector, e
     make_friends(user1, user3)
 
     # Let user2 receive email notifications for every chat message
-    with notifications_session(token2) as n:
-        n.SetNotificationSettings(
-            notifications_pb2.SetNotificationSettingsReq(
-                preferences=[
-                    notifications_pb2.SingleNotificationPreference(
-                        topic=NotificationTopicAction.chat__message.topic,
-                        action=NotificationTopicAction.chat__message.action,
-                        delivery_method="email",
-                        enabled=True,
-                    )
-                ]
+    notifications_api.set_notification_settings(
+        token=token2,
+        preferences=[
+            notifications_pb2.SingleNotificationPreference(
+                topic=NotificationTopicAction.chat__message.topic,
+                action=NotificationTopicAction.chat__message.action,
+                delivery_method="email",
+                enabled=True,
             )
-        )
+        ],
+    )
 
     group_chat_title = "My group chat"
     message1 = "Test message 1"
@@ -759,19 +758,17 @@ def test_send_direct_message(db, moderator: Moderator, push_collector: PushColle
     make_friends(user1, user2)
 
     # Let user2 receive email notifications for every chat message
-    with notifications_session(token2) as n:
-        n.SetNotificationSettings(
-            notifications_pb2.SetNotificationSettingsReq(
-                preferences=[
-                    notifications_pb2.SingleNotificationPreference(
-                        topic=NotificationTopicAction.chat__message.topic,
-                        action=NotificationTopicAction.chat__message.action,
-                        delivery_method="email",
-                        enabled=True,
-                    )
-                ]
+    notifications_api.set_notification_settings(
+        token=token2,
+        preferences=[
+            notifications_pb2.SingleNotificationPreference(
+                topic=NotificationTopicAction.chat__message.topic,
+                action=NotificationTopicAction.chat__message.action,
+                delivery_method="email",
+                enabled=True,
             )
-        )
+        ],
+    )
 
     # Let user1 send two DM's to user2
     message1 = "Hello, user2!"
@@ -1492,19 +1489,17 @@ def test_mark_last_seen_clears_missed_messages_notification(db, moderator, timew
     user2, token2 = generate_user()
 
     # this notification is email-only by default, and the in-app feed only shows push-enabled ones
-    with notifications_session(token2) as n:
-        n.SetNotificationSettings(
-            notifications_pb2.SetNotificationSettingsReq(
-                preferences=[
-                    notifications_pb2.SingleNotificationPreference(
-                        topic=NotificationTopicAction.chat__missed_messages.topic,
-                        action=NotificationTopicAction.chat__missed_messages.action,
-                        delivery_method="push",
-                        enabled=True,
-                    )
-                ]
+    notifications_api.set_notification_settings(
+        token=token2,
+        preferences=[
+            notifications_pb2.SingleNotificationPreference(
+                topic=NotificationTopicAction.chat__missed_messages.topic,
+                action=NotificationTopicAction.chat__missed_messages.action,
+                delivery_method="push",
+                enabled=True,
             )
-        )
+        ],
+    )
 
     with conversations_session(token1) as c:
         gcid = c.CreateGroupChat(
@@ -1524,8 +1519,7 @@ def test_mark_last_seen_clears_missed_messages_notification(db, moderator, timew
     process_jobs()
 
     def unseen_missed_messages():
-        with notifications_session(token2) as n:
-            res = n.ListNotifications(notifications_pb2.ListNotificationsReq(only_unread=True))
+        res = notifications_api.list_notifications(token=token2, only_unread=True)
         return [
             notification
             for notification in res.notifications
@@ -2349,20 +2343,18 @@ def test_chat_notifications(db, moderator):
         (token5, True),
         (token6, True),
     ]:
-        with notifications_session(token) as notifications:
-            notifications.SetNotificationSettings(
-                notifications_pb2.SetNotificationSettingsReq(
-                    preferences=[
-                        notifications_pb2.SingleNotificationPreference(
-                            topic=topic_action.topic,
-                            action=topic_action.action,
-                            delivery_method=delivery_method,
-                            enabled=enabled,
-                        )
-                        for delivery_method in ["push", "email", "digest"]
-                    ],
+        notifications_api.set_notification_settings(
+            token=token,
+            preferences=[
+                notifications_pb2.SingleNotificationPreference(
+                    topic=topic_action.topic,
+                    action=topic_action.action,
+                    delivery_method=delivery_method,
+                    enabled=enabled,
                 )
-            )
+                for delivery_method in ["push", "email", "digest"]
+            ],
+        )
 
     group_chat_id = None
 

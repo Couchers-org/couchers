@@ -8,12 +8,12 @@ from couchers.models import ModerationObjectType, ModerationState, ModerationVis
 from couchers.models.discussions import ContentChangeType, DiscussionVersion
 from couchers.proto import admin_pb2, communities_pb2, discussions_pb2, moderation_pb2, notifications_pb2, threads_pb2
 from couchers.utils import now, to_aware_datetime
+from tests.fixtures.api import notifications as notifications_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import Moderator, PushCollector, process_jobs
 from tests.fixtures.sessions import (
     communities_session,
     discussions_session,
-    notifications_session,
     real_admin_session,
     real_moderation_session,
     threads_session,
@@ -53,19 +53,17 @@ def test_create_and_get_discussion(db, frozen_timewarp, push_collector: PushColl
     generate_user()
     generate_user()
 
-    with notifications_session(token2) as notifications:
-        notifications.SetNotificationSettings(
-            notifications_pb2.SetNotificationSettingsReq(
-                preferences=[
-                    notifications_pb2.SingleNotificationPreference(
-                        topic="discussion",
-                        action="create",
-                        delivery_method="push",
-                        enabled=True,
-                    )
-                ],
+    notifications_api.set_notification_settings(
+        token=token2,
+        preferences=[
+            notifications_pb2.SingleNotificationPreference(
+                topic="discussion",
+                action="create",
+                delivery_method="push",
+                enabled=True,
             )
-        )
+        ],
+    )
 
     with session_scope() as session:
         community = create_community(session, 0, 1, "Testing Community", [user2], [], None)
