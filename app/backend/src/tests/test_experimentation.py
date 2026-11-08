@@ -2,6 +2,7 @@ import json
 from datetime import date
 
 import pytest
+from google.protobuf import empty_pb2
 from growthbook.common_types import FeatureResult
 from sqlalchemy import select
 
@@ -13,7 +14,7 @@ from couchers.experimentation import (
     GrowthBookUnavailableError,
     _load_local_flags,
     _record_feature_usage,
-    get_user_attributes,
+    get_targeting_attributes,
     setup_experimentation,
 )
 from couchers.i18n import LocalizationContext
@@ -92,7 +93,7 @@ def test_evaluating_an_experiment_flag_records_exactly_one_exposure(db, feature_
         assert rows[0].source == ExposureSource.backend
 
 
-def test_user_attributes(db):
+def test_targeting_attributes(db):
     user, _ = generate_user()
     volunteer, _ = generate_user()
     past_volunteer, _ = generate_user()
@@ -107,9 +108,14 @@ def test_user_attributes(db):
             )
         )
 
-    assert get_user_attributes(user.id) == {"id": str(user.id), "is_volunteer": False}
-    assert get_user_attributes(volunteer.id) == {"id": str(volunteer.id), "is_volunteer": True}
-    assert get_user_attributes(past_volunteer.id) == {"id": str(past_volunteer.id), "is_volunteer": False}
+    assert get_targeting_attributes(None) == {"logged_in": False}
+    assert get_targeting_attributes(user.id) == {"id": str(user.id), "logged_in": True, "is_volunteer": False}
+    assert get_targeting_attributes(volunteer.id) == {"id": str(volunteer.id), "logged_in": True, "is_volunteer": True}
+    assert get_targeting_attributes(past_volunteer.id) == {
+        "id": str(past_volunteer.id),
+        "logged_in": True,
+        "is_volunteer": False,
+    }
 
 
 def test_flag_targeted_at_volunteers(db, feature_flags: FeatureFlags):
@@ -123,6 +129,17 @@ def test_flag_targeted_at_volunteers(db, feature_flags: FeatureFlags):
     assert make_background_user_context(user.id).get_boolean_value("volunteers_flag", default=False) is False
     logged_out = make_logged_out_context(LocalizationContext.en_utc())
     assert logged_out.get_boolean_value("volunteers_flag", default=False) is False
+
+
+def test_get_feature_flag_attributes_servicer(db):
+    user, token = generate_user()
+    with bugs_session(token) as bugs:
+        res = bugs.GetFeatureFlagAttributes(empty_pb2.Empty())
+    assert json.loads(res.attributes_json) == {"id": str(user.id), "logged_in": True, "is_volunteer": False}
+
+    with bugs_session() as bugs:
+        res = bugs.GetFeatureFlagAttributes(empty_pb2.Empty())
+    assert json.loads(res.attributes_json) == {"logged_in": False}
 
 
 def test_evaluate_feature_flag_servicer_returns_value(feature_flags: FeatureFlags, db):

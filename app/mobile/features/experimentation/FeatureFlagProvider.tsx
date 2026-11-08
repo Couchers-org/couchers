@@ -3,14 +3,16 @@ import {
   GrowthBook,
   setPolyfills,
 } from "@growthbook/growthbook";
-import { GrowthBookProvider } from "@growthbook/growthbook-react";
+import {
+  GrowthBookProvider,
+  useGrowthBook,
+} from "@growthbook/growthbook-react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Sentry from "@sentry/react-native";
-import { ReactNode, useEffect, useState } from "react";
+import { createContext, ReactNode, useContext, useEffect } from "react";
 
 import { useAuthContext } from "@/features/auth/AuthContext";
-import { getTargetingAttributes } from "@/features/experimentation/targetingAttributes";
-import { getAccountInfo } from "@/service/account";
+import { useTargetingAttributes } from "@/features/experimentation/targetingAttributes";
 import { reportExposure } from "@/service/experiments";
 
 const INIT_TIMEOUT_MS = 1500;
@@ -55,6 +57,9 @@ const growthbook = new GrowthBook({
   },
 });
 
+// Defaults to ready so components rendered without the provider (e.g. in tests) aren't blocked
+const AttributesReadyContext = createContext(true);
+
 export type FeatureFlagSnapshot = {
   targeting: Record<string, unknown>;
   values: Record<string, unknown>;
@@ -79,8 +84,11 @@ export default function FeatureFlagProvider({
 }: {
   children: ReactNode;
 }) {
-  const { authenticated, jailed, userId } = useAuthContext();
-  const [attributesJson, setAttributesJson] = useState<string>();
+  const { checkedAuthStatus, userId } = useAuthContext();
+  const { attributes, ready: attributesReady } = useTargetingAttributes(
+    userId,
+    checkedAuthStatus,
+  );
 
   useEffect(() => {
     // Dev-only: when set, flags resolve from feature-flags.dev.json instead of GrowthBook,
@@ -111,21 +119,21 @@ export default function FeatureFlagProvider({
   }, []);
 
   useEffect(() => {
-    if (!authenticated || jailed || userId == null) return;
-    getAccountInfo()
-      .then((accountInfo) =>
-        setAttributesJson(accountInfo.featureFlagAttributesJson),
-      )
-      .catch((e) => {
-        Sentry.captureException(e);
-      });
-  }, [authenticated, jailed, userId]);
-
-  useEffect(() => {
-    growthbook.setAttributes(getTargetingAttributes(userId, attributesJson));
-  }, [userId, attributesJson]);
+    growthbook.setAttributes(attributes);
+  }, [attributes]);
 
   return (
-    <GrowthBookProvider growthbook={growthbook}>{children}</GrowthBookProvider>
+    <GrowthBookProvider growthbook={growthbook}>
+      <AttributesReadyContext.Provider value={attributesReady}>
+        {children}
+      </AttributesReadyContext.Provider>
+    </GrowthBookProvider>
   );
+}
+
+/** Whether flags can be evaluated: the GrowthBook payload and the user's targeting attributes are loaded or timed out. */
+export function useFeatureFlagsReady() {
+  const growthbookReady = useGrowthBook().ready;
+  const attributesReady = useContext(AttributesReadyContext);
+  return growthbookReady && attributesReady;
 }

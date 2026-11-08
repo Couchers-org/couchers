@@ -30,7 +30,6 @@ const accountInfo = {
   isVolunteer: false,
   myHomeComplete: false,
   shouldShowDonationBanner: false,
-  featureFlagAttributesJson: "",
 };
 
 describe("ChangeEmail", () => {

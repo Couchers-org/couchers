@@ -232,24 +232,28 @@ def _record_feature_usage(user_id: int, key: str, result: FeatureResult[Any], **
         session.add(FeatureUsage(user_id=user_id, feature_key=key, value=result.value))
 
 
-def get_user_attributes(user_id: int) -> dict[str, Any]:
+def get_targeting_attributes(user_id: int | None) -> dict[str, Any]:
     """
-    The GrowthBook targeting attributes for a user. This is the single definition of what we target on:
-    the backend evaluates with it, and clients get it verbatim via GetAccountInfo.
+    The GrowthBook targeting attributes for a user, or for a logged-out session when user_id is None. This is
+    the single definition of what we target on: the backend evaluates with it, and clients get it verbatim via
+    the GetFeatureFlagAttributes API.
 
     Any attribute added here should also be declared under SDK Configuration -> Attributes in GrowthBook.
     """
+    if user_id is None:
+        return {"logged_in": False}
     with session_scope() as session:
         is_volunteer = session.execute(
             select(exists().where(Volunteer.user_id == user_id).where(Volunteer.stopped_volunteering.is_(None)))
         ).scalar_one()
     return {
         "id": str(user_id),
+        "logged_in": True,
         "is_volunteer": is_volunteer,
     }
 
 
-def _create_evaluator(user_id: int | None) -> GrowthBook:
+def _create_evaluator(user_id: int | None, attributes: dict[str, Any]) -> GrowthBook:
     """
     Build a per-request GrowthBook evaluator over the current feature snapshot.
 
@@ -279,7 +283,7 @@ def _create_evaluator(user_id: int | None) -> GrowthBook:
             _record_feature_usage(user_id, key, result)
 
     return GrowthBook(
-        attributes=get_user_attributes(user_id) if user_id is not None else {},
+        attributes=attributes,
         features=features,
         saved_groups=saved_groups,
         on_experiment_viewed=on_experiment_viewed,
@@ -289,7 +293,7 @@ def _create_evaluator(user_id: int | None) -> GrowthBook:
 
 def _global_evaluator() -> GrowthBook:
     """Build an anonymous evaluator for flag evaluation with no user/request context."""
-    return _create_evaluator(None)
+    return _create_evaluator(None, {})
 
 
 # Single home of the gating logic, shared by the global functions below and by CouchersContext (which

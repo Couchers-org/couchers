@@ -46,7 +46,6 @@ const baseAccountInfo: GetAccountInfoRes.AsObject = {
   isVolunteer: false,
   myHomeComplete: false,
   shouldShowDonationBanner: false,
-  featureFlagAttributesJson: "",
 };
 
 const noPostalAttempt: GetPostalVerificationStatusRes.AsObject = {

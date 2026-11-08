@@ -32,7 +32,6 @@ const baseAccountInfo = {
   isVolunteer: false,
   myHomeComplete: false,
   shouldShowDonationBanner: false,
-  featureFlagAttributesJson: "",
 };
 
 describe("AdminPanelUserButton", () => {

@@ -1,12 +1,11 @@
 import { configureCache, GrowthBook } from "@growthbook/growthbook";
-import { GrowthBookProvider } from "@growthbook/growthbook-react";
+import { GrowthBookProvider, useGrowthBook } from "@growthbook/growthbook-react";
 import { useAuthContext } from "features/auth/AuthProvider";
-import useAccountInfo from "features/auth/useAccountInfo";
 import Sentry from "platform/sentry";
-import { ReactNode, useEffect } from "react";
+import { createContext, ReactNode, useContext, useEffect } from "react";
 import { reportExposure } from "service/experiments";
 
-import { getTargetingAttributes } from "./targetingAttributes";
+import { useTargetingAttributes } from "./targetingAttributes";
 
 const INIT_TIMEOUT_MS = 1500;
 const REFRESH_INTERVAL_MS = 60 * 1000;
@@ -39,6 +38,9 @@ const growthbook = new GrowthBook({
   },
 });
 
+// Defaults to ready so components rendered without the provider (e.g. in tests) aren't blocked
+const AttributesReadyContext = createContext(true);
+
 export type FeatureFlagSnapshot = {
   targeting: Record<string, unknown>;
   values: Record<string, unknown>;
@@ -70,7 +72,7 @@ if (typeof window !== "undefined") {
 
 export default function FeatureFlagProvider({ children }: { children: ReactNode }) {
   const { authState } = useAuthContext();
-  const { data: accountInfo } = useAccountInfo({ enabled: authState.authenticated && !authState.jailed });
+  const { attributes, ready: attributesReady } = useTargetingAttributes(authState.userId);
 
   useEffect(() => {
     // Dev-only: when set, flags resolve from feature-flags.dev.json instead of GrowthBook,
@@ -95,10 +97,20 @@ export default function FeatureFlagProvider({ children }: { children: ReactNode 
     return () => clearInterval(id);
   }, []);
 
-  const attributesJson = accountInfo?.featureFlagAttributesJson;
   useEffect(() => {
-    growthbook.setAttributes(getTargetingAttributes(authState.userId, attributesJson));
-  }, [authState.userId, attributesJson]);
+    growthbook.setAttributes(attributes);
+  }, [attributes]);
 
-  return <GrowthBookProvider growthbook={growthbook}>{children}</GrowthBookProvider>;
+  return (
+    <GrowthBookProvider growthbook={growthbook}>
+      <AttributesReadyContext.Provider value={attributesReady}>{children}</AttributesReadyContext.Provider>
+    </GrowthBookProvider>
+  );
+}
+
+/** Whether flags can be evaluated: the GrowthBook payload and the user's targeting attributes are loaded or timed out. */
+export function useFeatureFlagsReady() {
+  const growthbookReady = useGrowthBook().ready;
+  const attributesReady = useContext(AttributesReadyContext);
+  return growthbookReady && attributesReady;
 }
