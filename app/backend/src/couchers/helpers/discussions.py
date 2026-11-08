@@ -10,7 +10,7 @@ def get_discussions(
     session: Session,
     context: CouchersContext,
     page_size: int,
-    page_token: str,
+    page_token: str | None,
     owner_cluster_id: int | None = None,
 ) -> tuple[list[Discussion], str | None]:
     next_page_id = int(page_token) if page_token else 2**63 - 1
