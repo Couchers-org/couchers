@@ -190,7 +190,21 @@
     "not_in_community": "Nejsi v této komunitě.",
     "not_in_group": "Nejsi v této skupině.",
     "notification_not_found": "Notifikace nebyla nalezena.",
-    "only_admin_can_edit": "Upravovat chat mohou pouze administrátoři."
+    "only_admin_can_edit": "Upravovat chat mohou pouze administrátoři.",
+    "overlapping_public_trip_exists": "V této komunitě již máš aktivní veřejnou cestu s překrývajícími se termíny.",
+    "page_not_found": "Stránka nenalezena.",
+    "page_transfer_permission_denied": "Nemáš oprávnění tuto stránku převést.",
+    "page_update_permission_denied": "Nemáš oprávnění tuto stránku aktualizovat.",
+    "password_too_long": "Heslo musí mít méně než 256 znaků.",
+    "password_too_short": "Heslo musí mít alespoň 8 znaků.",
+    "photo_already_in_gallery": "Tato fotka již je v galerii.",
+    "photo_not_found": "Fotka nebyla nalezena.",
+    "public_trip_description_too_long": "Popis tvé veřejné cesty je příliš dlouhý.",
+    "public_trip_same_gender_only": "Tato cesta je otevřená pouze nabídkám od osob stejného pohlaví.",
+    "public_trip_not_found": "Tuto veřejnou cestu se nepodařilo najít.",
+    "public_trips_disabled": "Veřejné cesty jsou momentálně vypnuté.",
+    "public_trips_not_enabled": "Veřejné cesty nejsou v této komunitě zapnuté.",
+    "postal_address_invalid": "Adresu se nepodařilo ověřit."
   },
   "badges": {
     "postal_verified_name": "Ověřená adresa",
