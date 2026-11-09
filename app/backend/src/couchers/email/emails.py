@@ -1236,7 +1236,7 @@ class HostRequestCreatedEmail(EmailBase):
         return builder.build()
 
     @classmethod
-    def from_notification(cls, data: notification_data_pb2.HostRequestCreate, *, user_name: str) -> Self:
+    def from_notification(cls, data: notification_data_pb2.StayCreate, *, user_name: str) -> Self:
         return cls(
             user_name,
             proposal_type=StayProposalType.from_host_request(data.host_request),
@@ -1301,7 +1301,7 @@ class HostRequestReminderEmail(EmailBase):
         return builder.build()
 
     @classmethod
-    def from_notification(cls, data: notification_data_pb2.HostRequestReminder, *, user_name: str) -> Self:
+    def from_notification(cls, data: notification_data_pb2.StayReminder, *, user_name: str) -> Self:
         return cls(
             user_name,
             proposal_type=StayProposalType.from_host_request(data.host_request),
@@ -1369,7 +1369,7 @@ class HostRequestMessageEmail(EmailBase):
         return builder.build()
 
     @classmethod
-    def from_notification(cls, data: notification_data_pb2.HostRequestMessage, *, user_name: str) -> Self:
+    def from_notification(cls, data: notification_data_pb2.StayMessage, *, user_name: str) -> Self:
         return cls(
             user_name,
             proposal_type=StayProposalType.from_host_request(data.host_request),
@@ -1435,7 +1435,7 @@ class HostRequestMissedMessagesEmail(EmailBase):
         return builder.build()
 
     @classmethod
-    def from_notification(cls, data: notification_data_pb2.HostRequestMissedMessages, *, user_name: str) -> Self:
+    def from_notification(cls, data: notification_data_pb2.StayMissedMessages, *, user_name: str) -> Self:
         return cls(
             user_name,
             proposal_type=StayProposalType.from_host_request(data.host_request),
@@ -1511,10 +1511,10 @@ class HostRequestStatusChangedEmail(EmailBase):
     @classmethod
     def from_notification(
         cls,
-        data: notification_data_pb2.HostRequestAccept
-        | notification_data_pb2.HostRequestReject
-        | notification_data_pb2.HostRequestConfirm
-        | notification_data_pb2.HostRequestCancel,
+        data: notification_data_pb2.StayAccept
+        | notification_data_pb2.StayReject
+        | notification_data_pb2.StayConfirm
+        | notification_data_pb2.StayCancel,
         *,
         user_name: str,
     ) -> Self:
@@ -1522,16 +1522,16 @@ class HostRequestStatusChangedEmail(EmailBase):
         new_status: messages_pb2.HostRequestStatus.ValueType
         match data:
             # TODO: "host" and "surfer" fields need to be renamed "recipient" and "initiator"
-            case notification_data_pb2.HostRequestAccept():
+            case notification_data_pb2.StayAccept():
                 counterparty = UserInfo.from_protobuf(data.recipient)
                 new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED
-            case notification_data_pb2.HostRequestReject():
+            case notification_data_pb2.StayReject():
                 counterparty = UserInfo.from_protobuf(data.recipient)
                 new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_REJECTED
-            case notification_data_pb2.HostRequestConfirm():
+            case notification_data_pb2.StayConfirm():
                 counterparty = UserInfo.from_protobuf(data.initiator)
                 new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED
-            case notification_data_pb2.HostRequestCancel():
+            case notification_data_pb2.StayCancel():
                 counterparty = UserInfo.from_protobuf(data.initiator)
                 new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED
             case _:
@@ -1608,7 +1608,7 @@ class HostReferenceReceivedEmail(EmailBase):
 
     @classmethod
     def from_notification(
-        cls, data: notification_data_pb2.ReferenceReceiveHostRequest, *, user_name: str, surfed: bool
+        cls, data: notification_data_pb2.ReferenceReceiveStay, *, user_name: str, surfed: bool
     ) -> Self:
         return cls(
             user_name=user_name,
