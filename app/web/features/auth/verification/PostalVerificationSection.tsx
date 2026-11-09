@@ -5,12 +5,13 @@ import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
+import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Trans, useTranslation } from "i18n";
 import { localizeDateOnly } from "i18n/datetimes";
 import { AUTH } from "i18n/namespaces";
 import { PostalVerificationStatus } from "proto/postal_verification_pb";
 import { useMemo, useState } from "react";
-import { donationsRoute } from "routes";
+import { donationsRoute, routeToEditProfile } from "routes";
 import { PostalAddressData } from "service/postalVerification";
 import { timestampToPlainDateTime } from "utils/date";
 
@@ -97,8 +98,9 @@ const AddressCardLabel = styled("div")(({ theme }) => ({
   marginBottom: theme.spacing(1),
 }));
 
-function addressLines(address: PostalAddressData, countryName: string): string[] {
+function addressLines(address: PostalAddressData, countryName: string, recipientName?: string): string[] {
   return [
+    recipientName,
     address.addressLine1,
     address.addressLine2,
     [address.postalCode, address.city].filter(Boolean).join(" "),
@@ -127,6 +129,8 @@ export default function PostalVerificationSection({ hasDonated }: { hasDonated: 
     verifyCode,
     cancel,
   } = usePostalVerification();
+  // the backend addresses the postcard to the profile name
+  const { data: currentUser } = useCurrentUser();
 
   const countries = useMemo(() => getLocalizedCountries(language), [language]);
   const countryName = useMemo(() => {
@@ -236,6 +240,22 @@ export default function PostalVerificationSection({ hasDonated }: { hasDonated: 
                 </Typography>
                 <AddressFieldGrid>
                   <TextField
+                    id="postal-recipient-name"
+                    fullWidth
+                    label={t("verification_page.postal.address_form.recipient_name_label")}
+                    value={currentUser?.name ?? ""}
+                    // disabled on the input only, so the note and its link aren't greyed out too
+                    slotProps={{ input: { disabled: true } }}
+                    helperText={
+                      <Trans
+                        t={t}
+                        i18nKey="verification_page.postal.address_form.recipient_name_helper"
+                        components={{ editProfileLink: <StyledLink href={routeToEditProfile()} /> }}
+                      />
+                    }
+                    sx={{ gridColumn: "1 / -1" }}
+                  />
+                  <TextField
                     id="postal-address-line-1"
                     fullWidth
                     label={t("verification_page.postal.address_form.address_line_1_label")}
@@ -337,11 +357,13 @@ export default function PostalVerificationSection({ hasDonated }: { hasDonated: 
                       variant="body1"
                       sx={{ color: "var(--mui-palette-text-secondary)", textDecoration: "line-through" }}
                     >
-                      {addressLines(submittedAddress, countryName(submittedAddress.countryCode)).map((line) => (
-                        <Box component="span" key={line} sx={{ display: "block" }}>
-                          {line}
-                        </Box>
-                      ))}
+                      {addressLines(submittedAddress, countryName(submittedAddress.countryCode), currentUser?.name).map(
+                        (line) => (
+                          <Box component="span" key={line} sx={{ display: "block" }}>
+                            {line}
+                          </Box>
+                        ),
+                      )}
                     </Typography>
                   </Box>
                 )}
@@ -367,6 +389,7 @@ export default function PostalVerificationSection({ hasDonated }: { hasDonated: 
                         countryCode: status.address.countryCode,
                       },
                       countryName(status.address.countryCode),
+                      currentUser?.name,
                     ).map((line) => (
                       <Box component="span" key={line} sx={{ display: "block" }}>
                         {line}

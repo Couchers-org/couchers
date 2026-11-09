@@ -1,11 +1,13 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { GetAccountInfoRes } from "proto/account_pb";
 import { GetPostalVerificationStatusRes, PostalVerificationStatus } from "proto/postal_verification_pb";
 import { service } from "service";
+import users from "test/fixtures/users.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import i18n from "test/i18n";
-import { MockedService } from "test/utils";
+import { getUser } from "test/serviceMockDefaults";
+import { addDefaultUser, MockedService } from "test/utils";
 
 import VerificationPage from "./VerificationPage";
 
@@ -73,8 +75,13 @@ function renderPage({
   render(<VerificationPage />, { wrapper });
 }
 
+const getUserMock = service.user.getUser as jest.Mock;
+const profileName = users.find((user) => user.userId === defaultUser.userId)!.name;
+
 describe("VerificationPage", () => {
   beforeEach(() => {
+    addDefaultUser();
+    getUserMock.mockImplementation(getUser);
     getPostalStatusMock.mockResolvedValue(noPostalAttempt);
   });
 
@@ -211,8 +218,15 @@ describe("VerificationPage", () => {
       });
       renderPage({ isPostalEnabled: true });
 
+      // the name comes from their profile and can't be edited here
+      const nameField = await screen.findByLabelText(
+        t("auth:verification_page.postal.address_form.recipient_name_label"),
+      );
+      await waitFor(() => expect(nameField).toHaveValue(profileName));
+      expect(nameField).toBeDisabled();
+
       await user.type(
-        await screen.findByLabelText(t("auth:verification_page.postal.address_form.address_line_1_label")),
+        screen.getByLabelText(t("auth:verification_page.postal.address_form.address_line_1_label")),
         "12 rue de la paix",
       );
       await user.type(screen.getByLabelText(t("auth:verification_page.postal.address_form.city_label")), "paris");
@@ -243,6 +257,11 @@ describe("VerificationPage", () => {
       expect(
         await screen.findByRole("button", { name: t("auth:verification_page.postal.confirm.submit_button") }),
       ).toBeVisible();
+      // the confirm step shows who the card is addressed to
+      const willPostTo = screen.getByText(
+        t("auth:verification_page.postal.confirm.will_post_to_header"),
+      ).parentElement!;
+      expect(within(willPostTo).getByText(profileName)).toBeVisible();
     });
 
     it("confirms the corrected address", async () => {

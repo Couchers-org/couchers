@@ -17,7 +17,7 @@ import { Trans, useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
 import Link from "next/link";
 import { ReactNode } from "react";
-import { helpCenterStrongVerificationDataUrl, strongVerificationRoute } from "routes";
+import { helpCenterStrongVerificationDataUrl, irisIdUrl, strongVerificationRoute } from "routes";
 
 import DeleteStrongVerificationDataButton from "./DeleteStrongVerificationDataButton";
 import { ActionRow, SectionBlock, SectionRoot, SuccessBanner, VerificationSectionHeader } from "./VerificationSection";
@@ -131,7 +131,11 @@ export default function StrongVerificationSection({ hasStrongVerification }: Str
         <DataNote>
           <PhoneIphoneOutlined />
           <Typography variant="body2">
-            <Trans t={t} i18nKey="verification_page.strong.data_notes.third_party" />
+            <Trans
+              t={t}
+              i18nKey="verification_page.strong.data_notes.third_party"
+              components={{ irisIdLink: <StyledLink href={irisIdUrl} target="_blank" /> }}
+            />
           </Typography>
         </DataNote>
         <DataNote>
