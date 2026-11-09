@@ -1539,6 +1539,7 @@ def test_update_badges(db, push_collector: PushCollector):
         session.add(UserBadge(user_id=user5.id, badge_id="board_member"))
         session.add(
             PostalVerificationAttempt(
+                recipient_name="Test User",
                 user_id=user6.id,
                 address_line_1="123 Main St",
                 city="Test City",
