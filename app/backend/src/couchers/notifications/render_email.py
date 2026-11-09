@@ -104,20 +104,20 @@ def get_notification_email(notification: Notification, *, user_name: str) -> Ema
         case NotificationTopicAction.event__delete:
             return emails.EventDeletedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.host_request__create:
-            return emails.HostRequestCreatedEmail.from_notification(data, user_name=user_name)
+            return emails.StayProposalReceivedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.host_request__reminder:
-            return emails.HostRequestReminderEmail.from_notification(data, user_name=user_name)
+            return emails.StayProposalReminderEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.host_request__message:
-            return emails.HostRequestMessageEmail.from_notification(data, user_name=user_name)
+            return emails.StayMessageEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.host_request__missed_messages:
-            return emails.HostRequestMissedMessagesEmail.from_notification(data, user_name=user_name)
+            return emails.StayMissedMessagesEmail.from_notification(data, user_name=user_name)
         case (
             NotificationTopicAction.host_request__accept
             | NotificationTopicAction.host_request__reject
             | NotificationTopicAction.host_request__cancel
             | NotificationTopicAction.host_request__confirm
         ):
-            return emails.HostRequestStatusChangedEmail.from_notification(data, user_name=user_name)
+            return emails.StayStatusChangedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.friend_request__create:
             return emails.FriendRequestReceivedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.friend_request__accept:
@@ -150,14 +150,14 @@ def get_notification_email(notification: Notification, *, user_name: str) -> Ema
             return emails.FriendReferenceReceivedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.reference__receive_hosted:
             # Reference received from the host, so I'm the surfer
-            return emails.HostReferenceReceivedEmail.from_notification(data, user_name=user_name, surfed=True)
+            return emails.StayReferenceReceivedEmail.from_notification(data, user_name=user_name, surfed=True)
         case NotificationTopicAction.reference__receive_surfed:
-            return emails.HostReferenceReceivedEmail.from_notification(data, user_name=user_name, surfed=False)
+            return emails.StayReferenceReceivedEmail.from_notification(data, user_name=user_name, surfed=False)
         case NotificationTopicAction.reference__reminder_hosted:
             # Reminder to send a "hosted" reference, so I'm the host
-            return emails.HostReferenceReminderEmail.from_notification(data, user_name=user_name, surfed=False)
+            return emails.StayReferenceReminderEmail.from_notification(data, user_name=user_name, surfed=False)
         case NotificationTopicAction.reference__reminder_surfed:
-            return emails.HostReferenceReminderEmail.from_notification(data, user_name=user_name, surfed=True)
+            return emails.StayReferenceReminderEmail.from_notification(data, user_name=user_name, surfed=True)
         case NotificationTopicAction.thread__reply:
             return emails.ThreadReplyEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.verification__sv_fail:
