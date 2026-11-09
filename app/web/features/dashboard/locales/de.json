@@ -103,7 +103,9 @@
     "same_gender_only_indicator": "Gleiches Geschlecht",
     "invitations_count_one": "{{count}} Einladung",
     "invitations_count_other": "{{count}} Einladungen",
-    "no_invitations": "Noch keine Einladungen"
+    "no_invitations": "Noch keine Einladungen",
+    "community_trips_header": "Öffentliche Trips in deinen Communitys",
+    "community_trips_empty_description": "Gerade sucht niemand in deinen Communitys nach einem Host."
   },
   "today_label": "Heute"
 }

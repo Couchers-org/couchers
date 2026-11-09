@@ -69,7 +69,8 @@
     "subject": "Dein API-Schlüssel für Couchers.org",
     "header": "Du hast kürzlich einen API-Schlüssel für Couchers.org angefordert. Wir haben dir den folgenden API-Schlüssel ausgestellt:",
     "usage_warning": "Dieser API-Schlüssel ist einzigartig für dein Konto; teile ihn mit niemandem. Er gewährt vollständigen Zugriff auf dein Konto, und du bist für alle Aktionen verantwortlich, die mit diesem API-Schlüssel durchgeführt werden.",
-    "policy_warning": "Bitte denke daran, während der Nutzung unserer APIs unsere <a href=\"{{terms_url}}\">Nutzungsbedingungen</a>, unsere Community-Richtlinien und andere Richtlinien einzuhalten. Alle Zugriffe werden protokolliert und analysiert, und wir können deinen Zugriff oder dein Konto sperren, wenn du den Dienst missbrauchst."
+    "policy_warning": "Bitte denke daran, während der Nutzung unserer APIs unsere <a href=\"{{terms_url}}\">Nutzungsbedingungen</a>, unsere Community-Richtlinien und andere Richtlinien einzuhalten. Alle Zugriffe werden protokolliert und analysiert, und wir können deinen Zugriff oder dein Konto sperren, wenn du den Dienst missbrauchst.",
+    "expiry2": "Der Schlüssel läuft am <b>{{ datetime_utc }}</b> (UTC) ab."
   },
   "badges": {
     "added": {
