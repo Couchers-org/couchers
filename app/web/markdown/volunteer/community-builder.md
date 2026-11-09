@@ -13,7 +13,7 @@ This is an unpaid volunteer position where you will collaborate closely with our
 
 ### Mandatory Duties
 
-Before applying, please thoroughly read the [Community Builder Guide](/documents/community-builder) and the [Community Builder Toolkit](/documents/community-builder-toolkit) to understand the role and day-to-day expectations.
+Before applying, please thoroughly read the [Community Builder Guide](/documents/community-builder) to understand the role and day-to-day expectations.
 
 As you represent your community and Couchers.org as a Community Builder, you are expected to do the following:
 
