@@ -498,7 +498,7 @@ describe("LocationAutocomplete component", () => {
   });
 
   describe('the "use my location" button', () => {
-    const BUTTON = t("global:use_my_location.button");
+    const BUTTON = t("global:use_my_location.button_a11y");
     const REVERSE_URL = `${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/reverse`;
 
     const mockPosition = (granted: boolean, code = 1) => {
@@ -725,7 +725,7 @@ describe("LocationAutocomplete component", () => {
       renderForm("", () => {}, false, false, true, true);
       const user = userEvent.setup();
       const input = await screen.findByLabelText(LABEL);
-      const useMyLocation = t("global:use_my_location.button");
+      const useMyLocation = t("global:use_my_location.button_a11y");
 
       expect(await screen.findByRole("button", { name: useMyLocation })).toBeVisible();
 

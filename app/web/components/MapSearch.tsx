@@ -262,8 +262,8 @@ export default function MapSearch({ setError, setResult, inputFieldError, collap
         {/* Reverse geocode is Pelias-only — hide once forward search is on Nominatim. */}
         {provider === "pelias" && (
           <IconButton
-            aria-label={t("global:use_my_location.button")}
-            title={t("global:use_my_location.button")}
+            aria-label={t("global:use_my_location.button_a11y")}
+            title={t("global:use_my_location.button_a11y")}
             size="medium"
             disabled={isLocating}
             onClick={useMyLocationSubmit}
