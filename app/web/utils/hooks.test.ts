@@ -182,7 +182,7 @@ describe("useGeocodeQuery hook", () => {
     await act(() => i18n.changeLanguage(originalLanguage));
   });
 
-  describe("location bias (LOC-3)", () => {
+  describe("location bias", () => {
     const autocompleteUrl = `${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/autocomplete`;
     const getUserMock = service.user.getUser as jest.Mock;
 

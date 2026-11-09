@@ -7,10 +7,10 @@ import { PeliasError, reverse, toPeliasLanguage } from "utils/pelias";
 import { markGeolocationGranted } from "utils/useLocationBias";
 
 /**
- * LOC-4: the explicit "use my location" action — ask for the device position, then
+ * The explicit "use my location" action — ask for the device position, then
  * reverse-geocode it into the same `GeocodeResult` shape forward search produces.
  *
- * The deliberate counterpart to LOC-3's silent bias ([useLocationBias]): here the
+ * The deliberate counterpart to the silent bias ([useLocationBias]): here the
  * permission prompt is expected, because the user asked for it, and every failure
  * mode gets a message. It never blocks manual entry — on any error the caller's
  * field stays exactly as editable as it was, which is this story's acceptance note.
@@ -21,7 +21,7 @@ import { markGeolocationGranted } from "utils/useLocationBias";
  * "GPS in a desert" case. Only a genuinely empty response has nothing to fill in.
  */
 
-// The GPS fix itself. Longer timeout than LOC-3's passive read: the user is
+// The GPS fix itself. Longer timeout than the silent bias passive read: the user is
 // waiting on a spinner and expects a real answer, not a best-effort skip.
 const GEOLOCATION_OPTIONS: PositionOptions = {
   enableHighAccuracy: true,
@@ -88,7 +88,7 @@ export default function useMyLocation({
       if (isStale()) {
         return undefined;
       }
-      // Lets LOC-3's bias work on browsers that can't report permission state.
+      // Lets location bias work on browsers that can't report permission state.
       markGeolocationGranted();
 
       const { results } = await reverse(position.coords.latitude, position.coords.longitude, {

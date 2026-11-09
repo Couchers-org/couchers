@@ -41,10 +41,10 @@ interface LocationAutocompleteProps {
   disableRegions?: boolean;
   // Soft-promote city hits over a leading neighbourhood, macrocounty, venue, address etc.
   preferCity?: boolean;
-  // Rank places near the user's approximate location higher (LOC-3). Silent
+  // Rank places near the user's approximate location higher. Silent
   // best-effort: no permission prompt, unbiased results when unavailable
   biasToUserLocation?: boolean;
-  // Show the "use my location" button (LOC-4), which fills the field from the
+  // Show the "use my location" button, which fills the field from the
   // device's position. Prompts for permission, and always leaves manual typing
   // available on any failure.
   showUseMyLocation?: boolean;
@@ -132,9 +132,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
 
   // Geocode.earth is unavailable and we are serving results from the legacy
   // Nominatim fallback, which must not be queried as-you-type (OSM usage
-  // policy). Fall back to the pre-LOC-1 interaction: the user types, then
-  // submits with Enter or the search button.
-  // TODO(LOC-eval): remove along with the Nominatim fallback.
+  // policy). The user types, then submits with Enter or the search button.
   const isSubmitMode = provider === "nominatim";
 
   const debouncedQuery = useMemo(() => debounce((value: string) => query(value), SEARCH_DEBOUNCE_MS), [query]);
@@ -182,7 +180,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
     t("location_autocomplete.no_results"),
   );
 
-  // LOC-4: resolve the device position into a place and select it as if the user
+  // Resolve the device position into a place and select it as if the user
   // had picked it from the list. On any failure the hook surfaces a message and we
   // change nothing, so typing remains the way out.
   const handleUseMyLocation = async () => {
@@ -303,7 +301,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
         fieldError ||
         (isProviderUnavailable ? t("location_autocomplete.provider_unavailable") : geocodeError) ||
         // Never blocks typing: the field stays editable and the message clears on
-        // the next keystroke (LOC-4's no-dead-end acceptance note).
+        // the next keystroke.
         myLocationError
       }
       fullWidth={fullWidth}

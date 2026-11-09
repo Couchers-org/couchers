@@ -116,7 +116,7 @@ export const filterDuplicatePlaces = (places: NominatimPlace[] = []) => {
  * into the [maxLon, maxLat, minLon, minLat] ordering `GeocodeResult.bbox` uses.
  *
  * `id` is deliberately left unset: it is reserved for the Pelias `gid` used as
- * our stored location identity (LOC-6/LOC-12), and an OSM `place_id` does not
+ * our stored location identity (re: issue #10160), and an OSM `place_id` does not
  * belong in that namespace.
  */
 export const normalize = (place: NominatimPlace): GeocodeResult => {

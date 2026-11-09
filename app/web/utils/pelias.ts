@@ -28,7 +28,7 @@ export interface PeliasFeatureProperties {
   name: string;
   country?: string;
   // ISO 3166-1 alpha-3, e.g. "FRA".
-  // Note: Mapping to alpha-2 is deferred to the storage stories (LOC-6/LOC-12); LOC-1 only needs the display label + bbox.
+  // Note: Mapping to alpha-2 is deferred to the storage implementation (re: issue #10160); for now: display label + bbox.
   country_a?: string;
   macroregion?: string;
   region?: string;
@@ -75,7 +75,7 @@ export interface FocusPoint {
 // provider (timeout) from a missing API key (config) or a garbage 200 body.
 export type PeliasErrorKind = "http" | "network" | "timeout" | "aborted" | "config" | "invalid_response";
 
-// A clean, typed error the widget can map to the outage state (LOC-18 seam).
+// A clean, typed error the widget can map to the outage state.
 // We do NOT swallow it — the hook surfaces it and reports it to Sentry.
 export class PeliasError extends Error {
   // HTTP status of the failed response, when there was one. Undefined for
@@ -497,8 +497,7 @@ export async function reverse(
 
   const data = await fetchPelias(url, signal);
   const features = data.features ?? [];
-  // Reverse features are structurally identical to forward ones (verified against
-  // live responses), so LOC-1's normalizer is reused unchanged.
+  // Reverse features are structurally identical to forward ones.
   return {
     results: normalizeFeatures(features, collapseToCity),
     features,

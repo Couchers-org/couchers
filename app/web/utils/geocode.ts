@@ -9,7 +9,7 @@ import { autocomplete, PeliasError, toPeliasLanguage } from "utils/pelias";
  * Geocode.earth (Pelias) is the primary provider. While we evaluate it, the
  * legacy Nominatim path is kept as a fallback so a Geocode.earth outage (5xx,
  * rate limit, exhausted credits, network failure, missing key) degrades search
- * instead of breaking it. The consuming widget switches back to the pre-LOC-1
+ * instead of breaking it. The consuming widget switches back to the legacy
  * submit UI (search button + hint) when the fallback is in use. Nominatim is
  * never queried as-you-type (OSM usage policy): an outage only flips the
  * session into submit mode, and the next Nominatim request waits for submit.
@@ -18,13 +18,12 @@ import { autocomplete, PeliasError, toPeliasLanguage } from "utils/pelias";
  * `useGeocodeQuery`), with `NEXT_PUBLIC_GEOCODE_DEFAULT_PROVIDER` as the
  * last-resort default when GrowthBook has no value.
  *
- * TODO(LOC-eval): delete this module together with `utils/nominatim.ts`,
- * `NEXT_PUBLIC_NOMINATIM_URL` and the widget's fallback branch once the
- * Geocode.earth evaluation concludes.
+ * In case we switch completely to Pelias, delete this module together with `utils/nominatim.ts`,
+ * `NEXT_PUBLIC_NOMINATIM_URL` and the widget's fallback branch.
  *
  * Note: fallback results carry no `id`, since Nominatim cannot produce a Pelias
  * `gid`. A surface that *persists* the gid as our location identity
- * (LOC-6/LOC-12) must therefore fail closed rather than fall back — writing a
+ * (re: issue #10160) must therefore fail closed rather than fall back — writing a
  * location with no gid, or an id from another namespace, is not recoverable.
  * Those surfaces pass `allowFallback: false`, which guarantees results only ever
  * come from Pelias, including when a provider has been forced.
@@ -122,7 +121,7 @@ export interface GeocodeSearchOptions {
   language?: string;
   preferCity?: boolean;
   collapseToCity?: boolean; // only affects Pelias
-  // LOC-3: soft ranking bias toward the user's approximate location. Pelias only
+  // Soft ranking bias toward the user's approximate location. Pelias only
   // (Nominatim's viewbox is a different, harder mechanism we don't replicate for
   // the deprecated fallback path). Omitted entirely when unknown.
   focus?: FocusPoint;

@@ -197,7 +197,7 @@ describe("Edit location map", () => {
     });
   });
 
-  describe('the "use my location" button (LOC-4)', () => {
+  describe('the "use my location" button', () => {
     const BUTTON = t("global:use_my_location.button");
     const REVERSE_URL = `${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/reverse`;
 

@@ -2,16 +2,16 @@ import { MutableRefObject, useEffect, useRef } from "react";
 import type { FocusPoint } from "utils/pelias";
 
 /**
- * LOC-3: best-effort, silent acquisition of the user's approximate location, used
+ * Best-effort, silent acquisition of the user's approximate location, used
  * purely as a soft ranking signal (`focus.point`) on forward-geocoding requests.
  *
  * Deliberately never triggers a permission prompt: we only read the position when
- * the browser reports geolocation permission as already `granted`. A prompt on
- * homepage load for a background ranking nicety is not worth the interruption —
- * asking is LOC-4's job ("use my location" button), and once the user has granted
- * there, this hook starts biasing too. Everything else (permission `prompt`,
- * `denied`, no Permissions API, geolocation error, timeout) degrades silently to
- * no bias, i.e. normal unbiased autocomplete.
+ * the browser reports geolocation permission as already `granted`. A prompt is
+ * done on sign-up, later the user can also manually trigger a prompt by clicking
+ * the "use my location" button.
+ * Once the user has granted it, this hook starts biasing too. Everything else
+ * (permission `prompt`, `denied`, no Permissions API, geolocation error, timeout)
+ * degrades silently to no bias, i.e. normal unbiased autocomplete.
  *
  * Safari does not implement `permissions.query({ name: "geolocation" })`, so it
  * can't tell us the state. `markGeolocationGranted()` records a successful fix in
@@ -39,7 +39,7 @@ const GRANTED_STORAGE_KEY = "geolocationGranted";
 /**
  * Remember that the user has granted geolocation, for browsers whose Permissions
  * API cannot report it (Safari). Call this from any flow where a geolocation fix
- * succeeded after an explicit user action (e.g. LOC-4's "use my location").
+ * succeeded after an explicit user action (e.g. "use my location").
  */
 export function markGeolocationGranted() {
   try {
@@ -70,8 +70,8 @@ async function hasGeolocationPermission(): Promise<boolean> {
       if (status.state === "granted") {
         return true;
       }
-      // `prompt` / `denied`: never ask here (LOC-3 is a silent enhancement). A
-      // stale localStorage hint must not override a real `denied`/`prompt`.
+      // `prompt` / `denied`: never ask here.
+      // A stale localStorage hint must not override a real `denied`/`prompt`.
       return false;
     } catch {
       // Permission name unsupported (Safari) — fall through to the stored hint.

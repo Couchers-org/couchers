@@ -95,8 +95,7 @@ export default function MapSearch({ setError, setResult, inputFieldError, collap
 
   // Geocode.earth is unavailable and we are serving results from the legacy
   // Nominatim fallback, which must not be queried as-you-type (OSM usage
-  // policy). Fall back to the pre-LOC-1 interaction: the user types, then
-  // submits with Enter or the search button.
+  // policy). The user types, then submits with Enter or the search button.
   const isSubmitMode = provider === "nominatim";
 
   const debouncedQuery = useMemo(() => debounce((v: string) => query(v), SEARCH_DEBOUNCE_MS), [query]);
@@ -157,7 +156,7 @@ export default function MapSearch({ setError, setResult, inputFieldError, collap
     if (errorMessage) setOpen(false);
   }, [errorMessage, setError, setOpen]);
 
-  // LOC-4: fill the address field and move the pin from the device's position.
+  // Fill the address field and move the pin from the device's position.
   // On any failure the hook's message shows and nothing changes, so the user can
   // still search or type — no dead end.
   const useMyLocationSubmit = async () => {
