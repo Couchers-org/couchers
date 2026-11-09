@@ -59,6 +59,7 @@ export default function WebEmbed({
   const isOfflineRef = useRef(isOffline);
   isOfflineRef.current = isOffline;
   const [hasError, setHasError] = useState(false);
+  const [retryUri, setRetryUri] = useState<string | null>(null);
   const retryCountRef = useRef(0);
   const MAX_RETRIES = 2;
 
@@ -159,15 +160,6 @@ export default function WebEmbed({
       setHasError(false);
     }
   }, [isOffline]);
-
-  // Once a page has loaded, keep showing it when offline (the offline banner explains
-  // why it may be stale) instead of replacing it with the error screen.
-  const handleLoadError = () => {
-    if (hasLoadedRef.current && isOfflineRef.current) {
-      return;
-    }
-    setHasError(true);
-  };
 
   // Sync WebView when path prop changes (tab navigation).
   useEffect(() => {
@@ -463,7 +455,7 @@ export default function WebEmbed({
       <WebView
         ref={webviewRef}
         style={[styles.webview, { backgroundColor }]}
-        source={{ uri: initialUri }}
+        source={{ uri: retryUri ?? initialUri }}
         applicationNameForUserAgent={applicationNameForUserAgent}
         allowsBackForwardNavigationGestures // iOS swipe back/forward
         // On the new architecture an unset rate reaches iOS as 0, killing scroll momentum.
@@ -534,7 +526,11 @@ export default function WebEmbed({
             return;
           }
 
-          handleLoadError();
+          // The error screen replaces the WebView, so remount it on the page that failed
+          if (nativeEvent.url) {
+            setRetryUri(nativeEvent.url);
+          }
+          setHasError(true);
           if (__DEV__) {
             console.error("WebView error:", nativeEvent);
             console.error("URL:", WEB_BASE_URL + path);
@@ -551,7 +547,7 @@ export default function WebEmbed({
           }
         }}
         renderError={(errorDomain, errorCode, errorDesc) => {
-          handleLoadError();
+          setHasError(true);
           if (__DEV__) {
             console.error(
               "WebView render error:",

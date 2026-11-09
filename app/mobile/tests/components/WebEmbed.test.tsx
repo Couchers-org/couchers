@@ -417,15 +417,17 @@ describe("WebEmbed", () => {
     });
     afterEach(() => (console.error = originalConsoleError));
 
-    it("keeps showing the loaded page when a load fails", async () => {
+    it("shows the error screen when moving to a page that can't load", async () => {
       render(<WebEmbed path="/dashboard" />);
 
       await act(async () => {
         capturedWebViewProps.onLoad?.();
-        capturedWebViewProps.onError?.({ nativeEvent: { code: -1009 } });
+        capturedWebViewProps.onError?.({
+          nativeEvent: { code: -2, url: `${mockWebBaseUrl}/search` },
+        });
       });
 
-      expect(screen.queryByText("errors.failed_to_load")).toBeNull();
+      expect(screen.getByText("errors.failed_to_load")).toBeTruthy();
     });
 
     it("shows the error screen when nothing has loaded yet", async () => {
@@ -438,10 +440,13 @@ describe("WebEmbed", () => {
       expect(screen.getByText("errors.failed_to_load")).toBeTruthy();
     });
 
-    it("retries automatically when the connection comes back", async () => {
+    it("retries the page that failed when the connection comes back", async () => {
       const { rerender } = render(<WebEmbed path="/dashboard" />);
       await act(async () => {
-        capturedWebViewProps.onError?.({ nativeEvent: { code: -1009 } });
+        capturedWebViewProps.onLoad?.();
+        capturedWebViewProps.onError?.({
+          nativeEvent: { code: -2, url: `${mockWebBaseUrl}/search` },
+        });
       });
       expect(screen.getByText("errors.failed_to_load")).toBeTruthy();
 
@@ -452,6 +457,7 @@ describe("WebEmbed", () => {
       rerender(<WebEmbed path="/dashboard" />);
 
       expect(screen.queryByText("errors.failed_to_load")).toBeNull();
+      expect(capturedWebViewProps.source?.uri).toBe(`${mockWebBaseUrl}/search`);
     });
 
     it("loads pages from the cache", () => {
