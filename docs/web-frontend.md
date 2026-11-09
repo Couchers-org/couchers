@@ -7,13 +7,13 @@ cd ./app
 docker-compose up --build
 ```
 
-1. Clone the new frontend repo somewhere
+2. Clone the new frontend repo somewhere
 
 ```sh
 git clone git@github.com:Couchers-org/web-frontend.git
 ```
 
-1. Replace the `.env.development` with one that points to the local backend:
+3. Replace the `.env.development` with one that points to the local backend:
 
 ```
 NEXT_PUBLIC_COUCHERS_ENV=dev
@@ -35,13 +35,13 @@ NEXT_PUBLIC_IS_COMMUNITIES_PART2_ENABLED=true
 NEXT_PUBLIC_STRIPE_KEY="pk_test_51KEzByIfR5z29g5khFE5samD8XKOGLcCrM1lhCkfOomGPUFAEYOw8uAqI2Nkv33wYdPM2FgTQNTC07IiNfHY1kLJ00Jqm8Ppai"
 ```
 
-1. Run the new frontend
+4. Run the new frontend
 
 ```sh
 docker-compose up --build
 ```
 
-1. It should now work
+5. It should now work
 
 
 
