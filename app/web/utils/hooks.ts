@@ -38,6 +38,44 @@ export interface GeocodeResult {
   isRegion?: boolean;
 }
 
+interface GeocodeQueryOptions {
+  /**
+   * Required: pass `false` on any surface that persists the chosen location
+   * requiring a gid, since fallback results carry no Pelias `gid`. In that case
+   * it surfaces `isProviderUnavailable` on an outage instead of degraded
+   * results, and `provider` never leaves `"pelias"`.
+   */
+  allowFallback: boolean;
+  /**
+   * Homepage destination search: enables soft city ranking and dedupe by
+   * display string. Labels always keep the matched name (venue, address,
+   * street, …); only ranking changes. Other surfaces leave precise hits alone
+   * for address / event venue use.
+   */
+  preferCity?: boolean;
+  /**
+   * Forces labels to the containing city/locality regardless of what matched
+   * (street, venue, address, …), for approximate-location fields (a user's
+   * home) where the precise hit must never be shown. Independent of
+   * `preferCity`.
+   */
+  collapseToCity?: boolean;
+  /**
+   * Ranks results nearer the user's approximate location higher. The position
+   * comes from the browser when it will give it to us without a prompt (see
+   * `utils/useLocationBias.ts`), and otherwise falls back to the logged-in
+   * user's profile location (`utils/useProfileLocationBias.ts`). It is a soft
+   * signal only — distant places are still returned, and searches run unbiased
+   * whenever neither source has anything.
+   */
+  biasToUserLocation?: boolean;
+  /**
+   * Names the widget in `geocode.request` / `geocode.failover` telemetry (see
+   * `utils/geocodeTelemetry.ts`).
+   */
+  surface?: string;
+}
+
 /**
  * Forward-geocoding autocomplete backed by Geocode.earth (Pelias Cloud), with a
  * legacy Nominatim fallback for Geocode.earth outages (see `utils/geocode.ts`).
@@ -47,11 +85,6 @@ export interface GeocodeResult {
  * results are surfaced. Results are localized via the active `i18n.language`
  * passed to the provider.
  *
- * `preferCity` (homepage destination search) enables soft city ranking and
- * dedupe by display string. Labels always keep the matched name (venue,
- * address, street, …); only ranking changes. Other surfaces leave precise
- * hits alone for address / event venue use.
- *
  * The returned `provider` is sticky for the lifetime of the hook: once a query
  * has fallen back to Nominatim it stays there until remount, so the widget's UI
  * does not flip back and forth if Geocode.earth recovers intermittently.
@@ -59,34 +92,8 @@ export interface GeocodeResult {
  * `provider === "nominatim"`. The typeahead request that discovers an outage
  * does not query Nominatim; it only flips `provider` and leaves `results`
  * unset until the user submits.
- *
- * `allowFallback` is required: pass `false` on any surface that persists the
- * chosen location requiring a gid, since fallback results carry no Pelias `gid`.
- * In that case,  it surfaces `isProviderUnavailable` on an outage instead of degraded
- * results, and its `provider` never leaves `"pelias"`.
- *
- * `biasToUserLocation` ranks results nearer the user's approximate
- * location higher. The position comes from the browser when it will give it to
- * us without a prompt (see `utils/useLocationBias.ts`), and otherwise falls back
- * to the logged-in user's profile location (`utils/useProfileLocationBias.ts`).
- * It is a soft signal only — distant places are still returned, and searches run
- * unbiased whenever neither source has anything.
- *
- * `collapseToCity` forces labels to the containing city/locality regardless of
- * what matched (street, venue, address, …), for approximate-location fields (a
- * user's home) where the precise hit must never be shown. Independent of
- * `preferCity`.
- *
- * `surface` names the widget in `geocode.request` / `geocode.failover`
- * telemetry (see `utils/geocodeTelemetry.ts`).
  */
-const useGeocodeQuery = (options: {
-  allowFallback: boolean;
-  preferCity?: boolean;
-  collapseToCity?: boolean;
-  biasToUserLocation?: boolean;
-  surface?: string;
-}) => {
+const useGeocodeQuery = (options: GeocodeQueryOptions) => {
   const { allowFallback } = options;
   const surface = options.surface ?? "unknown";
   const preferCity = options.preferCity ?? false;
