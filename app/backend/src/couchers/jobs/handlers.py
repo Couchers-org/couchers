@@ -1427,10 +1427,11 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
     Sends the postcard via external API and updates attempt status.
     """
     with session_scope() as session:
+        # Locked until we've recorded the order, so a cancel can't slip in while MyPostcard is charging us
         attempt = session.execute(
-            select(PostalVerificationAttempt).where(
-                PostalVerificationAttempt.id == payload.postal_verification_attempt_id
-            )
+            select(PostalVerificationAttempt)
+            .where(PostalVerificationAttempt.id == payload.postal_verification_attempt_id)
+            .with_for_update()
         ).scalar_one_or_none()
 
         if not attempt or attempt.status != PostalVerificationStatus.in_progress:
