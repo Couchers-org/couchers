@@ -1,7 +1,6 @@
 {
   "dashboard": "Dashboard",
   "find_a_host": "Finde einen Host",
-  "browse_communities": "Communitys durchsuchen",
   "search_input_label": "Wo gehst du hin?",
   "search_input_placeholder": "Suche einen Ort",
   "become_a_host": "Werde ein Host",
@@ -9,7 +8,6 @@
   "no_community": "Du befindest dich aktuell in keiner Community.",
   "no_sub_communities": "Keine Sub-Communitys.",
   "load_more": "Mehr laden",
-  "welcome": "Willkommen bei Couchers.org!",
   "new_pill": "Neu",
   "member_count_one": "{{count}} Mitglied",
   "member_count_other": "{{count}} Mitglieder",
