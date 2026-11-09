@@ -14,6 +14,7 @@ from couchers.proto import api_pb2, conversations_pb2, messages_pb2, notificatio
 from couchers.utils import today
 from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user, make_user_block
+from tests.fixtures.feature_flags import FeatureFlags
 from tests.fixtures.misc import process_jobs
 from tests.fixtures.sessions import (
     conversations_session,
@@ -389,7 +390,7 @@ def test_list_message_threads_public_trip_offer_role_based(db, moderator):
         assert request_id in {t.host_request.host_request_id for t in res.threads}
 
 
-def test_list_message_threads_public_trips_filter_gated_by_flag(db, moderator, feature_flags):
+def test_list_message_threads_public_trips_filter_gated_by_flag(db, moderator, feature_flags: FeatureFlags):
     feature_flags.set("public_trips_enabled", False)
 
     traveler, traveler_token = generate_user()

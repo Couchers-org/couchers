@@ -8,6 +8,7 @@ from couchers.utils import today
 from tests.fixtures.api import events as events_api
 from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user
+from tests.fixtures.feature_flags import Flags
 from tests.fixtures.sessions import (
     account_session,
     discussions_session,
@@ -182,7 +183,7 @@ def test_GetDashboard_empty(db):
     assert len(res.reminders.reminders) == 0
 
 
-def test_GetDashboard_public_trips_behind_flag(db, flags):
+def test_GetDashboard_public_trips_behind_flag(db, flags: Flags):
     user, token = generate_user()
 
     with screens_session(token) as api:

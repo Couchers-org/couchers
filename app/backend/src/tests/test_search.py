@@ -25,6 +25,7 @@ from couchers.servicers.search import USER_SEARCH_NOISE_PERIOD_DAYS
 from couchers.utils import Timestamp_from_datetime, create_coordinate, now, today
 from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user
+from tests.fixtures.feature_flags import Flags
 from tests.fixtures.misc import Moderator
 from tests.fixtures.sessions import communities_session, search_session
 from tests.test_communities import create_community, testing_communities  # noqa
@@ -376,7 +377,7 @@ def test_user_search_exactly_user_ids(db):
         assert [result.user_id for result in res.results] == [user1.id]
 
 
-def test_user_search_pagination_with_tied_scores(db, flags):
+def test_user_search_pagination_with_tied_scores(db, flags: Flags):
     """
     Paging through tied recommendation scores, including a tie block larger than the page size, returns every user
     exactly once in a stable order.
@@ -464,7 +465,7 @@ def test_user_search_pagination_with_noise(db):
     assert _user_search_order(token, page_size=3) == full_order
 
 
-def test_user_search_noise_scale_flag(db, flags):
+def test_user_search_noise_scale_flag(db, flags: Flags):
     _, token = generate_user()
     user_ids = [generate_user()[0].id for _ in range(10)]
 
@@ -483,7 +484,7 @@ def test_user_search_noise_scale_flag(db, flags):
     assert order() == user_ids
 
 
-def test_user_search_ranking_offsets_variant(db, flags):
+def test_user_search_ranking_offsets_variant(db, flags: Flags):
     flags.set_float("user_search_noise_scale", 0.0)
     _, token = generate_user()
     user_ids = [generate_user()[0].id for _ in range(5)]

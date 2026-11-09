@@ -45,6 +45,7 @@ from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_
 from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_multi, today
 from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import backdate_conversations, generate_user, make_user_block
+from tests.fixtures.feature_flags import FeatureFlags
 from tests.fixtures.misc import EmailCollector, PushCollector
 from tests.fixtures.sessions import api_session, auth_api_session
 from tests.test_public_trips import _create_trip_directly, _make_node
@@ -1143,7 +1144,7 @@ def test_ping_counts_public_trip_offer_by_role(db, moderator):
         assert res.unseen_public_trip_offer_count == 0
 
 
-def test_ping_public_trip_offer_count_gated_by_flag(db, moderator, feature_flags):
+def test_ping_public_trip_offer_count_gated_by_flag(db, moderator, feature_flags: FeatureFlags):
     feature_flags.set("public_trips_enabled", False)
 
     traveler, traveler_token = generate_user()

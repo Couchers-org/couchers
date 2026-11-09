@@ -70,6 +70,7 @@ from couchers.proto.internal import jobs_pb2
 from couchers.utils import now, today
 from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user, make_friends, make_user_block, make_volunteer
+from tests.fixtures.feature_flags import FeatureFlags
 from tests.fixtures.misc import PushCollector, process_jobs
 from tests.fixtures.sessions import conversations_session
 from tests.fixtures.timewarp import Timewarp
@@ -1451,7 +1452,7 @@ def test_send_host_request_reminders(db, moderator):
             assert find in html, f"Expected to find string {find} in HTML email {subject} to {address}, didn't"
 
 
-def test_add_users_to_email_list(db, feature_flags):
+def test_add_users_to_email_list(db, feature_flags: FeatureFlags):
     feature_flags.set("listmonk_enabled", True)
     config.LISTMONK_BASE_URL = "https://example.com"
     config.LISTMONK_API_USERNAME = "test_user"
