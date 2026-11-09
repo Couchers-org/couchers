@@ -112,4 +112,4 @@ You are never alone in this role! Your primary points of contact are your Commun
 
 
 
-Thank you for being part of Couchers.org. We are excited to build this community alongside you!
+Thank you for being such an active part of Couchers.org. We are excited to build this community alongside you!
