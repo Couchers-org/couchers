@@ -80,6 +80,7 @@ You are never alone in this role! Your primary points of contact are your Commun
 
 **Helpful Links:**
 - [Help Center](https://help.couchers.org) — This page explains our policies, values, and how to use the platform.
+- [Logo & Brand Assets](https://help.couchers.org/hc/couchersorg-help-center/articles/1715125658-where-can-i-download-the-couchers-logo-or-wordmark) — Download the official Couchers.org logo, wordmark, fonts, and colors.
 - [Donate to Couchers.org](https://couchers.org/donate) — Financially support this non-profit project to keep it alive.
 - [Merch Shop](https://shop.couchershq.org/) — Official Couchers.org merchandise (clothing, stickers, flags, buttons, and more).
 - [Crash Calendar](https://couchers.org/crashes) — Lists large regional and international couch surfing events like Couch Crashes, Invasions, and Camps.
