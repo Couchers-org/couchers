@@ -16,6 +16,7 @@ import HeaderButton from "components/HeaderButton";
 import HtmlMeta from "components/HtmlMeta";
 import { BackIcon, CalendarIcon } from "components/Icons";
 import Markdown from "components/Markdown";
+import PullToRefresh from "components/PullToRefresh";
 import Snackbar from "components/Snackbar";
 import { useAuthContext } from "features/auth/AuthProvider";
 import EventAttendees from "features/communities/events/EventAttendees";
@@ -37,7 +38,7 @@ import { useAddToCalendar } from "utils/addToCalendar";
 import { timestampToInstant, timestampToPlainDateTime } from "utils/date";
 import { sendNativeBack, useIsNativeEmbed, useIsSupportedInApp } from "utils/nativeLink";
 
-import { eventAttendeesBaseKey, eventKey } from "../../queryKeys";
+import { eventAttendeesBaseKey, eventKey, eventOrganizersBaseKey, threadKey } from "../../queryKeys";
 import CommentTree from "../discussions/CommentTree";
 import AttendanceMenu from "./AttendanceMenu";
 import CancelEventDialog from "./CancelEventDialog";
@@ -303,6 +304,14 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
   return (
     <>
       <HtmlMeta title={event?.title} />
+      <PullToRefresh
+        queryKeys={[
+          eventKey(eventId),
+          [eventAttendeesBaseKey, eventId],
+          [eventOrganizersBaseKey, eventId],
+          ...(event ? [threadKey(event.thread!.threadId)] : []),
+        ]}
+      />
       {(eventError || setEventAttendanceError) && (
         <Alert severity="error">{eventError?.message || setEventAttendanceError?.message || ""}</Alert>
       )}

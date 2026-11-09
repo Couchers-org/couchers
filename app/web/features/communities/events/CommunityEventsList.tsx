@@ -3,8 +3,10 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { CalendarIcon } from "components/Icons";
+import PullToRefresh from "components/PullToRefresh";
 import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
+import { communityEventsBaseKey } from "features/queryKeys";
 import { Trans, useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { useRouter } from "next/router";
@@ -45,6 +47,7 @@ export default function CommunityEventsList({ community }: CommunityEventsListPr
 
   return (
     <>
+      <PullToRefresh queryKeys={[[communityEventsBaseKey, community.communityId]]} />
       <SectionTitle icon={<CalendarIcon />}>{t("communities:events_title")}</SectionTitle>
       <StyledCreateResourceButton onClick={() => router.push(routeToNewEvent(community.communityId))}>
         {t("communities:create_an_event")}

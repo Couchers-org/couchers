@@ -1,5 +1,7 @@
+import { useQuery } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { getHookWrapperWithClient } from "test/hookWrapper";
+import { pullToRefresh } from "test/utils";
 import { useIsNativeEmbed } from "utils/nativeLink";
 
 import PullToRefresh from "./PullToRefresh";
@@ -10,17 +12,17 @@ jest.mock("utils/nativeLink", () => ({
 
 const mockUseIsNativeEmbed = useIsNativeEmbed as jest.MockedFunction<typeof useIsNativeEmbed>;
 
-function pullDown(target: Element, distance: number) {
-  fireEvent.touchStart(target, { touches: [{ clientX: 100, clientY: 0 }] });
-  fireEvent.touchMove(target, { touches: [{ clientX: 100, clientY: distance }] });
-  fireEvent.touchEnd(target);
-}
-
 function renderPullToRefresh() {
   const { client, wrapper } = getHookWrapperWithClient();
-  const invalidateQueries = jest.spyOn(client, "invalidateQueries");
-  render(<PullToRefresh />, { wrapper });
-  return invalidateQueries;
+  const refetchQueries = jest.spyOn(client, "refetchQueries");
+  render(<PullToRefresh queryKeys={[["screen"]]} />, { wrapper });
+  return refetchQueries;
+}
+
+function ScreenWithAppWideQuery({ fetchScreen, fetchPing }: { fetchScreen: () => string; fetchPing: () => string }) {
+  useQuery({ queryKey: ["screen", 1], queryFn: fetchScreen });
+  useQuery({ queryKey: ["ping"], queryFn: fetchPing });
+  return <PullToRefresh queryKeys={[["screen", 1]]} />;
 }
 
 describe("PullToRefresh", () => {
@@ -28,12 +30,18 @@ describe("PullToRefresh", () => {
     mockUseIsNativeEmbed.mockReturnValue(true);
   });
 
-  it("refetches the page's data after a long enough pull", async () => {
-    const invalidateQueries = renderPullToRefresh();
+  it("refetches only the screen's queries after a long enough pull", async () => {
+    const fetchScreen = jest.fn(() => "screen");
+    const fetchPing = jest.fn(() => "ping");
+    const { wrapper } = getHookWrapperWithClient();
+    render(<ScreenWithAppWideQuery fetchScreen={fetchScreen} fetchPing={fetchPing} />, { wrapper });
+    await waitFor(() => expect(fetchScreen).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(fetchPing).toHaveBeenCalledTimes(1));
 
-    pullDown(document.body, 200);
+    pullToRefresh();
 
-    await waitFor(() => expect(invalidateQueries).toHaveBeenCalled());
+    await waitFor(() => expect(fetchScreen).toHaveBeenCalledTimes(2));
+    expect(fetchPing).toHaveBeenCalledTimes(1);
   });
 
   it("shows how far you've pulled", () => {
@@ -46,31 +54,31 @@ describe("PullToRefresh", () => {
   });
 
   it("does nothing after a short pull", () => {
-    const invalidateQueries = renderPullToRefresh();
+    const refetchQueries = renderPullToRefresh();
 
-    pullDown(document.body, 40);
+    pullToRefresh(document.body, 40);
 
-    expect(invalidateQueries).not.toHaveBeenCalled();
+    expect(refetchQueries).not.toHaveBeenCalled();
   });
 
   it("does nothing when the pull starts on a map", () => {
-    const invalidateQueries = renderPullToRefresh();
+    const refetchQueries = renderPullToRefresh();
     const map = document.createElement("div");
     map.className = "maplibregl-map";
     document.body.appendChild(map);
 
-    pullDown(map, 200);
+    pullToRefresh(map);
 
-    expect(invalidateQueries).not.toHaveBeenCalled();
+    expect(refetchQueries).not.toHaveBeenCalled();
     map.remove();
   });
 
   it("does nothing outside the mobile app", () => {
     mockUseIsNativeEmbed.mockReturnValue(false);
-    const invalidateQueries = renderPullToRefresh();
+    const refetchQueries = renderPullToRefresh();
 
-    pullDown(document.body, 200);
+    pullToRefresh();
 
-    expect(invalidateQueries).not.toHaveBeenCalled();
+    expect(refetchQueries).not.toHaveBeenCalled();
   });
 });

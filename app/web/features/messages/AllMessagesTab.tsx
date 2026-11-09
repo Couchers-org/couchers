@@ -4,6 +4,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import NotificationBadge from "components/NotificationBadge";
+import PullToRefresh from "components/PullToRefresh";
 import TextBody from "components/TextBody";
 import { messageFilterToRequest } from "features/messages/constants";
 import CreateGroupChat from "features/messages/groupchats/CreateGroupChat";
@@ -201,6 +202,7 @@ export default function AllMessagesTab() {
 
   return (
     <StyledWrapper>
+      <PullToRefresh queryKeys={[messageThreadsListKey(filter)]} />
       {!showArchived && !isGroupedView && <StyledCreateGroupChatButton />}
       <StyledFilterContainer>
         <NotificationBadge count={unseenAllCount}>

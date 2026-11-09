@@ -1,5 +1,5 @@
 import { CircularProgress, Paper } from "@mui/material";
-import { useQueryClient } from "@tanstack/react-query";
+import { QueryKey, useQueryClient } from "@tanstack/react-query";
 import { GLOBAL } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { useEffect, useRef, useState } from "react";
@@ -10,6 +10,11 @@ const MAX_PULL_PX = 100;
 // the indicator moves at half the finger's speed, so it feels like it resists
 const PULL_RESISTANCE = 0.5;
 const INDICATOR_SIZE_PX = 40;
+
+interface PullToRefreshProps {
+  // refetched by prefix, so ["event", 1] also covers ["event", 1, "summary"]
+  queryKeys: QueryKey[];
+}
 
 // Pulling on these should scroll or pan them, not refresh the page
 function startsInsideScrollable(target: EventTarget | null) {
@@ -24,8 +29,10 @@ function startsInsideScrollable(target: EventTarget | null) {
 /**
  * Pull down at the top of the page to refetch its data. Only in the mobile app:
  * mobile browsers have their own pull to refresh, and desktop has no pull gesture.
+ * Render it on screens with live content (messages, discussions), not on forms or settings.
+ * Only refetches the screen's own queryKeys, not app-wide ones like ping or the current user.
  */
-export default function PullToRefresh() {
+export default function PullToRefresh({ queryKeys }: PullToRefreshProps) {
   const { t } = useTranslation(GLOBAL);
   const isNativeEmbed = useIsNativeEmbed();
   const queryClient = useQueryClient();
@@ -34,6 +41,9 @@ export default function PullToRefresh() {
   const startRef = useRef<{ x: number; y: number } | null>(null);
   const pullRef = useRef(0);
   const isRefreshingRef = useRef(false);
+  // a ref so a new array each render doesn't re-attach the touch listeners
+  const queryKeysRef = useRef(queryKeys);
+  queryKeysRef.current = queryKeys;
 
   useEffect(() => {
     if (!isNativeEmbed) return;
@@ -76,7 +86,10 @@ export default function PullToRefresh() {
       isRefreshingRef.current = true;
       setIsRefreshing(true);
       try {
-        await queryClient.invalidateQueries();
+        // "active" skips cached variants nothing on screen uses; awaiting keeps the spinner until data is back
+        await Promise.all(
+          queryKeysRef.current.map((queryKey) => queryClient.refetchQueries({ queryKey, type: "active" })),
+        );
       } finally {
         isRefreshingRef.current = false;
         setIsRefreshing(false);

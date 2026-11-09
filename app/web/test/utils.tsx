@@ -7,6 +7,13 @@ export function addDefaultUser(userId?: number) {
   window.localStorage.setItem("auth.userId", JSON.stringify(userId ?? defaultUser.userId));
 }
 
+// drags down from the top of the page, like the mobile app's pull to refresh gesture
+export function pullToRefresh(target: Element = document.body, distance = 200) {
+  fireEvent.touchStart(target, { touches: [{ clientX: 100, clientY: 0 }] });
+  fireEvent.touchMove(target, { touches: [{ clientX: 100, clientY: distance }] });
+  fireEvent.touchEnd(target);
+}
+
 export async function assertErrorAlert(message: string) {
   const errorAlert = await screen.findByRole("alert");
   expect(errorAlert).toBeVisible();
