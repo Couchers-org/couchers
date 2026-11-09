@@ -48,7 +48,7 @@ def create_host_request(
         # Two days later is in the future no matter the host's timezone.
         from_date = today() + timedelta(days=2)
     if to_date is None:
-        to_date = (date_to_api(from_date) if isinstance(from_date, str) else from_date) + timedelta(days=1)
+        to_date = (date.fromisoformat(from_date) if isinstance(from_date, str) else from_date) + timedelta(days=1)
 
     with _requests_session(token) as session:
         res: requests_pb2.CreateHostRequestRes = session.CreateHostRequest(

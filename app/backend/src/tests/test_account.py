@@ -1151,27 +1151,22 @@ def test_public_trip_offer_reminders(db, moderator):
     with session_scope() as session:
         trip_id = create_public_trip(session, traveller.id, from_date, to_date)
 
-    def offer(host_token: str) -> int:
-        with requests_session(host_token) as api:
-            host_request_id: int = api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=traveller.id,
-                    from_date=from_date.isoformat(),
-                    to_date=to_date.isoformat(),
-                    text=valid_request_text("I'd love to host you"),
-                    public_trip_id=trip_id,
-                )
-            ).host_request_id
-        moderator.approve_host_request(host_request_id)
-        return host_request_id
-
     def get_reminders(token: str):
         refresh_materialized_views_rapid(empty_pb2.Empty())
         with account_session(token) as account:
             return account.GetReminders(empty_pb2.Empty()).reminders
 
-    offer1_id = offer(host1_token)
-    offer2_id = offer(host2_token)
+    offer1_id, offer2_id = (
+        requests_api.create_host_request(
+            token=token,
+            host_user_id=traveller.id,
+            from_date=from_date,
+            to_date=to_date,
+            public_trip_id=trip_id,
+            approve_by=moderator,
+        )
+        for token in (host1_token, host2_token)
+    )
 
     reminders = get_reminders(traveller_token)
     assert [reminder.WhichOneof("reminder") for reminder in reminders] == [
@@ -1184,13 +1179,9 @@ def test_public_trip_offer_reminders(db, moderator):
     assert reminders[1].respond_to_public_trip_offer_reminder.host_user.user_id == host2.id
     assert list(get_reminders(host1_token)) == []
 
-    with requests_session(traveller_token) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=offer1_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
-            )
-        )
-
+    requests_api.respond_host_request(
+        token=traveller_token, host_request_id=offer1_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+    )
     reminders = get_reminders(traveller_token)
     assert [reminder.WhichOneof("reminder") for reminder in reminders] == ["respond_to_public_trip_offer_reminder"]
     assert reminders[0].respond_to_public_trip_offer_reminder.host_request_id == offer2_id
@@ -1200,13 +1191,9 @@ def test_public_trip_offer_reminders(db, moderator):
     assert reminders[0].confirm_public_trip_offer_reminder.host_request_id == offer1_id
     assert reminders[0].confirm_public_trip_offer_reminder.surfer_user.user_id == traveller.id
 
-    with requests_session(host1_token) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=offer1_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
-            )
-        )
-
+    requests_api.respond_host_request(
+        token=host1_token, host_request_id=offer1_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
+    )
     assert list(get_reminders(host1_token)) == []
 
 
