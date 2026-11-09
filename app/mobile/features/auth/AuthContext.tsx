@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Sentry from "@sentry/react-native";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import {
@@ -24,6 +25,19 @@ type AuthContextValue = {
   setJailed: (jailed: boolean) => void;
 };
 
+type StoredAuthState = { userId: number | null; jailed: boolean };
+
+export const LAST_AUTH_STATE_KEY = "@couchers/lastAuthState";
+
+async function readStoredAuthState(): Promise<StoredAuthState | null> {
+  try {
+    const raw = await AsyncStorage.getItem(LAST_AUTH_STATE_KEY);
+    return raw ? (JSON.parse(raw) as StoredAuthState) : null;
+  } catch {
+    return null;
+  }
+}
+
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -36,9 +50,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // useState is async (batched renders), so a ref is needed here.
   const isAuthenticatedRef = useRef(false);
 
-  // Check auth status on mount - validates session cookie with backend
+  // On mount, show the last known auth state straight away (so the app opens
+  // offline), then validate the session cookie with the backend.
   useEffect(() => {
     async function checkAuthStatus() {
+      const stored = await readStoredAuthState();
+      if (stored) {
+        setUserIdState(stored.userId);
+        setJailedState(stored.jailed);
+        isAuthenticatedRef.current = true;
+        setAuthenticated(true);
+        setCheckedAuthStatus(true);
+      }
+
       try {
         // Call backend to check if session cookie is still valid
         const response = await client.auth.getAuthState(new Empty());
@@ -58,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setJailedState(false);
         }
       } catch (error) {
-        // Network error - user must log in again
+        // Couldn't reach the backend: keep the stored state, or show login if there is none
         if (__DEV__) {
           console.error("Error checking auth status:", error);
         }
@@ -69,6 +93,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     checkAuthStatus();
   }, []);
+
+  useEffect(() => {
+    if (!checkedAuthStatus) return;
+    if (authenticated) {
+      void AsyncStorage.setItem(
+        LAST_AUTH_STATE_KEY,
+        JSON.stringify({ userId, jailed } satisfies StoredAuthState),
+      );
+    } else {
+      void AsyncStorage.removeItem(LAST_AUTH_STATE_KEY);
+    }
+  }, [checkedAuthStatus, authenticated, userId, jailed]);
 
   useEffect(() => {
     Sentry.setUser(userId === null ? null : { id: String(userId) });

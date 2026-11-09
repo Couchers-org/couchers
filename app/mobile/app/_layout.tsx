@@ -30,11 +30,13 @@ import { useColorScheme } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import DevSettingsButton from "@/components/DevSettingsButton";
+import OfflineBanner from "@/components/OfflineBanner";
 import { hydrateUrlOverrides } from "@/config/urls";
 import { AuthProvider, useAuthContext } from "@/features/auth/AuthContext";
 import NativeUpdatePrompt from "@/features/diagnostics/NativeUpdatePrompt";
 import { useNativeDiagnostics } from "@/features/diagnostics/useNativeDiagnostics";
 import FeatureFlagProvider from "@/features/experimentation/FeatureFlagProvider";
+import { NetworkStatusProvider } from "@/features/network/NetworkStatusContext";
 import { useNotificationObserver } from "@/features/notifications/useNotificationObserver";
 import { useRegisterPushNotifications } from "@/features/notifications/useRegisterPushNotifications";
 import { appVariant } from "@/service/buildInfo";
@@ -150,9 +152,13 @@ function RootLayout() {
         <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
         <AuthProvider>
           <FeatureFlagProvider>
-            <PushNotificationsRegistrar />
-            <RootNavigator fontsLoaded={fontsLoaded} />
-            <DevSettingsButton />
+            <NetworkStatusProvider>
+              <PushNotificationsRegistrar />
+              <OfflineBanner>
+                <RootNavigator fontsLoaded={fontsLoaded} />
+              </OfflineBanner>
+              <DevSettingsButton />
+            </NetworkStatusProvider>
           </FeatureFlagProvider>
         </AuthProvider>
       </ThemeProvider>

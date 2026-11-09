@@ -275,7 +275,7 @@ export default function HostRequestView({ hostRequestId }: { hostRequestId: numb
           <BackIcon sx={{ fontSize: isMobile ? "small" : "medium" }} />
         </HeaderButton>
 
-        <StyledPageTitle>{!title || hostRequestError ? <Skeleton width="100" /> : title}</StyledPageTitle>
+        <StyledPageTitle>{!title ? <Skeleton width="100" /> : title}</StyledPageTitle>
 
         <HeaderButton
           onClick={() => setIsMenuOpen(true)}

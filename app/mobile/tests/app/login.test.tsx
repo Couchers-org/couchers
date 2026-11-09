@@ -1,9 +1,10 @@
-import { act, render } from "@testing-library/react-native";
+import { act, render, screen, userEvent } from "@testing-library/react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 
 import LoginScreen from "@/app/login";
 import { useAuthContext } from "@/features/auth/AuthContext";
+import { useNetworkStatus } from "@/features/network/NetworkStatusContext";
 
 const mockWebBaseUrl = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
 
@@ -19,6 +20,10 @@ jest.mock("@react-navigation/native", () => ({
 
 jest.mock("@/features/auth/AuthContext", () => ({
   useAuthContext: jest.fn(),
+}));
+
+jest.mock("@/features/network/NetworkStatusContext", () => ({
+  useNetworkStatus: jest.fn(),
 }));
 
 jest.mock("@/service/client", () => ({
@@ -38,6 +43,7 @@ jest.mock("@/service/client", () => ({
 let capturedWebViewProps: {
   source?: { uri: string };
   onMessage?: (event: { nativeEvent: { data: string } }) => void;
+  onError?: () => void;
 } = {};
 
 jest.mock("react-native-webview", () => ({
@@ -71,6 +77,10 @@ describe("LoginScreen", () => {
     jest.clearAllMocks();
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
     (useAuthContext as jest.Mock).mockReturnValue(mockAuthContext);
+    (useNetworkStatus as jest.Mock).mockReturnValue({
+      isOffline: false,
+      recheck: jest.fn(),
+    });
     (useFocusEffect as jest.Mock).mockImplementation((callback) => callback());
   });
 
@@ -80,6 +90,50 @@ describe("LoginScreen", () => {
 
       expect(capturedWebViewProps.source?.uri).toContain(mockWebBaseUrl);
       expect(capturedWebViewProps.source?.uri).toContain("/login");
+    });
+  });
+
+  describe("load errors", () => {
+    const failLoad = async () => {
+      await act(async () => {
+        capturedWebViewProps.onError?.();
+      });
+    };
+
+    it("shows an error instead of a blank screen", async () => {
+      render(<LoginScreen />);
+
+      await failLoad();
+
+      expect(screen.getByText("errors.failed_to_load")).toBeOnTheScreen();
+    });
+
+    it("reloads the login page on retry", async () => {
+      render(<LoginScreen />);
+      await failLoad();
+
+      await userEvent
+        .setup()
+        .press(screen.getByRole("button", { name: "errors.try_again" }));
+
+      expect(screen.queryByText("errors.failed_to_load")).not.toBeOnTheScreen();
+    });
+
+    it("reloads the login page when the connection comes back", async () => {
+      (useNetworkStatus as jest.Mock).mockReturnValue({
+        isOffline: true,
+        recheck: jest.fn(),
+      });
+      const { rerender } = render(<LoginScreen />);
+      await failLoad();
+
+      (useNetworkStatus as jest.Mock).mockReturnValue({
+        isOffline: false,
+        recheck: jest.fn(),
+      });
+      rerender(<LoginScreen />);
+
+      expect(screen.queryByText("errors.failed_to_load")).not.toBeOnTheScreen();
     });
   });
 

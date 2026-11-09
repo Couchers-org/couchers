@@ -6,7 +6,7 @@ import { useClearablePersistedState } from "platform/usePersistedState";
 import TagManager from "react-gtm-module";
 import { service } from "service";
 
-import wrapper from "../../test/hookWrapper";
+import wrapper, { getHookWrapperWithClient } from "../../test/hookWrapper";
 import { addDefaultUser } from "../../test/utils";
 import useAuthStore from "./useAuthStore";
 
@@ -91,6 +91,16 @@ describe("useAuthStore hook", () => {
     expect(sessionStorage.length).toBe(1);
     await act(() => result.current.authActions.logout());
     expect(sessionStorage.length).toBe(0);
+  });
+
+  it("clears cached data on logout so it isn't kept for offline use", async () => {
+    logoutMock.mockResolvedValue(new Empty());
+    addDefaultUser();
+    const { client, wrapper } = getHookWrapperWithClient();
+    client.setQueryData(["hostRequest", 1], { hostRequestId: 1 });
+    const { result } = renderHook(() => useAuthStore(), { wrapper });
+    await act(() => result.current.authActions.logout());
+    expect(client.getQueryData(["hostRequest", 1])).toBeUndefined();
   });
 });
 

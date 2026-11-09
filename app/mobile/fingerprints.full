@@ -2,7 +2,7 @@
 # Regenerate with `cd app/mobile && npm run fingerprints:write`
 devtool/ios=813042ee1df2da85921852088e347e981c9d44ca
 devtool/android=07e067b46b0f8038d740a0610f613b09c953f417
-staging/ios=d586618390bffee86b3fa02686c52a149c029d83
-staging/android=356904e8cb1b3ce2f50d9a33062b8f1d6c64a7da
-production/ios=1315aea661df7cf24aae9637d3a6a8a7bc3e94f6
-production/android=beba2675e685f39655ce29e1f655d135d4e536dd
+staging/ios=8daf880835f0092c8be212fb8adf5d2c8bbfa750
+staging/android=24ea99b301ca80eae4c65bf76be78fd38d409c4d
+production/ios=8a2134aebc6ba4186075166359dfb8fa3c914681
+production/android=14142e670ecbfa92f0dad78c4860eec38ffd243f

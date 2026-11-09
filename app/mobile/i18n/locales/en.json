@@ -3,6 +3,7 @@
     "failed_to_load": "Failed to load",
     "check_connection": "Check your internet connection and try again.",
     "try_again": "Try Again",
+    "no_connection": "No connection. Try again?",
     "camera_permission_denied": "Camera permission is required to take photos.",
     "camera_permission_required": "Camera Permission Required",
     "camera_permission_explanation": "This app needs camera access to take photos. Please grant permission when prompted.",
