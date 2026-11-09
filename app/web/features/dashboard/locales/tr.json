@@ -1,11 +1,9 @@
 {
   "dashboard": "Gösterge",
   "load_more": "Daha fazla yükle",
-  "welcome": "Couchers.org a hoşgeldin!",
   "profile_summary_view": "Profilimi görüntüle",
   "profile_mobile_summary_view": "Profile git",
   "new_pill": "Yeni",
-  "browse_communities": "Toplulukları Keşfet",
   "community_builder": "Topluluğunuzun elçisi olmak ve büyümesine yardımcı olmak ister misiniz? Bir <communityBuilderLink>Topluluk Mimarı</communityBuilderLink> olun!",
   "member_count_one": "{{count}} üye",
   "member_count_other": "{{count}} üye",

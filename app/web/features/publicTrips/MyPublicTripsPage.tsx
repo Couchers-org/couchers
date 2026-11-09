@@ -93,6 +93,7 @@ export default function MyPublicTripsPage() {
     userId: userId ?? 0,
     pageToken: currentToken,
     ascending: true,
+    includePast: true,
   });
 
   const filteredTrips = useMemo(() => {

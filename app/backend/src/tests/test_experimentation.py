@@ -18,6 +18,7 @@ from couchers.i18n import LocalizationContext
 from couchers.metrics import feature_flag_evaluations_counter
 from couchers.models.logging import ExperimentExposure, ExposureSource, FeatureUsage
 from couchers.proto import bugs_pb2
+from tests.fixtures.feature_flags import FeatureFlags, Flags
 from tests.fixtures.sessions import bugs_session
 
 
@@ -47,31 +48,31 @@ _EXPERIMENT_FLAG = {
 }
 
 
-def test_logged_in_user_is_bucketed_into_rollout(db, feature_flags):
+def test_logged_in_user_is_bucketed_into_rollout(db, feature_flags: FeatureFlags):
     feature_flags.set_definition("rollout_flag", _ROLLOUT_FLAG)
     context = make_background_user_context(123)
     assert context.get_string_value("rollout_flag", "fallback") == "treatment"
 
 
-def test_anonymous_user_excluded_from_rollout_gets_feature_default(feature_flags):
+def test_anonymous_user_excluded_from_rollout_gets_feature_default(feature_flags: FeatureFlags):
     feature_flags.set_definition("rollout_flag", _ROLLOUT_FLAG)
     context = make_logged_out_context(LocalizationContext.en_utc())
     # Previously this raised NotLoggedInContextException via context.user_id.
     assert context.get_string_value("rollout_flag", "fallback") == "control"
 
 
-def test_anonymous_user_still_gets_global_force_on_flag(feature_flags):
+def test_anonymous_user_still_gets_global_force_on_flag(feature_flags: FeatureFlags):
     feature_flags.set_definition("global_flag", _GLOBAL_FORCE_FLAG)
     context = make_logged_out_context(LocalizationContext.en_utc())
     assert context.get_boolean_value("global_flag", default=False) is True
 
 
-def test_unknown_feature_returns_in_code_default(feature_flags):
+def test_unknown_feature_returns_in_code_default(feature_flags: FeatureFlags):
     context = make_logged_out_context(LocalizationContext.en_utc())
     assert context.get_string_value("does_not_exist", "my_default") == "my_default"
 
 
-def test_evaluating_an_experiment_flag_records_exactly_one_exposure(db, feature_flags):
+def test_evaluating_an_experiment_flag_records_exactly_one_exposure(db, feature_flags: FeatureFlags):
     # Evaluating an experiment-backed flag for a bucketed user records exactly one exposure - this is
     # the whole point of per-flag evaluation: exposure is logged only for flags the user actually hits.
     feature_flags.set_definition("experiment_flag", _EXPERIMENT_FLAG)
@@ -85,14 +86,14 @@ def test_evaluating_an_experiment_flag_records_exactly_one_exposure(db, feature_
         assert rows[0].source == ExposureSource.backend
 
 
-def test_evaluate_feature_flag_servicer_returns_value(feature_flags, db):
+def test_evaluate_feature_flag_servicer_returns_value(feature_flags: FeatureFlags, db):
     feature_flags.set("global_flag", True)
     with bugs_session() as bugs:
         res = bugs.EvaluateFeatureFlag(bugs_pb2.EvaluateFeatureFlagReq(flag_key="global_flag"))
     assert res.value.bool_value is True
 
 
-def test_evaluate_feature_flag_servicer_unknown_leaves_value_unset(feature_flags, db):
+def test_evaluate_feature_flag_servicer_unknown_leaves_value_unset(feature_flags: FeatureFlags, db):
     with bugs_session() as bugs:
         res = bugs.EvaluateFeatureFlag(bugs_pb2.EvaluateFeatureFlagReq(flag_key="does_not_exist"))
     assert not res.HasField("value")
@@ -148,29 +149,29 @@ def test_record_feature_usage_none_value(db):
         assert rows[0].value is None
 
 
-def test_global_evaluation_excluded_from_rollout_gets_feature_default(feature_flags):
+def test_global_evaluation_excluded_from_rollout_gets_feature_default(feature_flags: FeatureFlags):
     # global (no-user) evaluation can't bucket into a rollout, so it gets the feature default
     feature_flags.set_definition("rollout_flag", _ROLLOUT_FLAG)
     assert experimentation.get_global_string_value("rollout_flag", "fallback") == "control"
 
 
-def test_global_evaluation_gets_global_force_on_flag(feature_flags):
+def test_global_evaluation_gets_global_force_on_flag(feature_flags: FeatureFlags):
     feature_flags.set_definition("global_flag", _GLOBAL_FORCE_FLAG)
     assert experimentation.get_global_boolean_value("global_flag", default=False) is True
 
 
-def test_global_evaluation_unknown_feature_returns_in_code_default(feature_flags):
+def test_global_evaluation_unknown_feature_returns_in_code_default(feature_flags: FeatureFlags):
     assert experimentation.get_global_string_value("does_not_exist", "my_default") == "my_default"
 
 
-def test_evaluation_increments_metric_with_source_and_value(feature_flags):
+def test_evaluation_increments_metric_with_source_and_value(feature_flags: FeatureFlags):
     feature_flags.set("metric_flag", "yes")
     before = _flag_eval_count("metric_flag", "defaultValue", "yes")
     assert experimentation.get_global_string_value("metric_flag", "no") == "yes"
     assert _flag_eval_count("metric_flag", "defaultValue", "yes") == before + 1
 
 
-def test_unknown_feature_increments_metric_with_unknown_source(feature_flags):
+def test_unknown_feature_increments_metric_with_unknown_source(feature_flags: FeatureFlags):
     before = _flag_eval_count("metric_unknown_flag", "unknownFeature", "fallback")
     assert experimentation.get_global_string_value("metric_unknown_flag", "fallback") == "fallback"
     assert _flag_eval_count("metric_unknown_flag", "unknownFeature", "fallback") == before + 1
@@ -241,18 +242,18 @@ def test_seconds_since_last_fetch_none_when_never_fetched(setup_isolation):
     assert experimentation.seconds_since_last_fetch() is None
 
 
-def test_flags_value_returned(flags):
+def test_flags_value_returned(flags: Flags):
     flags.set_string("my_flag", "from_file")
     context = make_logged_out_context(LocalizationContext.en_utc())
     assert context.get_string_value("my_flag", "fallback") == "from_file"
 
 
-def test_flags_missing_key_returns_in_code_default(flags):
+def test_flags_missing_key_returns_in_code_default(flags: Flags):
     context = make_logged_out_context(LocalizationContext.en_utc())
     assert context.get_string_value("missing_flag", "fallback") == "fallback"
 
 
-def test_flags_boolean_value(flags):
+def test_flags_boolean_value(flags: Flags):
     flags.set_boolean("bool_flag", False)
     context = make_logged_out_context(LocalizationContext.en_utc())
     assert context.get_boolean_value("bool_flag", default=True) is False

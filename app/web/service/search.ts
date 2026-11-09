@@ -153,12 +153,6 @@ function constructUserSearchReq(
   return req;
 }
 
-export async function userSearch(filters: UserSearchFilters, pageToken = "") {
-  const req = constructUserSearchReq(filters, pageToken);
-  const response = await client.search.userSearch(req);
-  return response.toObject();
-}
-
 export async function userSearchV2(filters: UserSearchFilters, pageToken = "") {
   const req = constructUserSearchReq(filters, pageToken);
   const response = await client.search.userSearchV2(req);

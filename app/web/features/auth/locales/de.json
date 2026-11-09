@@ -45,13 +45,13 @@
     },
     "opt_in_newsletter": "Abonnieren unseren gelegentlichen Newsletter über Community-Updates."
   },
-  "sign_up_completed_prompt": "Wir haben eine E-Mail mit einem Bestätigungslink an deine E-Mail-Adresse gesendet: <strong>{{email}}</strong>. Bitte klicke auf den Link, um deinen Account zu aktivieren.",
+  "sign_up_completed_prompt": "Wir haben einen Bestätigungslink an deine E-Mail-Adresse gesendet: <strong>{{email}}</strong>. Bitte klicke auf den Link, um dein Konto zu aktivieren.",
   "change_email_form": {
     "title": "E-Mail-Adresse ändern",
     "current_email_message": "Deine aktuelle E-Mail-Adresse lautet <strong>{{email}}</strong>.",
     "current_password": "Aktuelles Passwort",
     "new_email": "Neue E-Mail-Adresse",
-    "success_message": "Die Änderung deiner E-Mail-Adresse wurde empfangen. Überprüfe das Postfach deiner neuen E-Mail-Adresse, um die Änderung abzuschließen.",
+    "success_message": "Wir haben einen Bestätigungslink an deine neue E-Mail-Adresse gesendet. Klicke darauf, um die Aktualisierung deines Kontos abzuschließen.",
     "hide_current_password": "Aktuelles Passwort ausblenden",
     "show_current_password": "Aktuelles Passwort anzeigen"
   },
@@ -409,7 +409,7 @@
     "title": "Anmelde-E-Mail ändern",
     "current_email_message": "Deine aktuelle E-Mail-Adresse lautet <strong>{{email}}</strong>.",
     "signup_change_email": "E-Mail-Adresse ändern",
-    "success_message": "Deine E-Mail-Änderung ist eingegangen. Sieh in deinem E-Mail-Postfach nach, um deine E-Mail zu bestätigen."
+    "success_message": "Wir haben einen Bestätigungslink an deine neue E-Mail-Adresse gesendet. Klicke darauf, um deine E-Mail zu bestätigen."
   },
   "sign_up_change_email": "Hast du dich bei deiner E-Mail-Adresse vertippt? Gib hier deine korrekte E-Mail-Adresse ein:",
   "verification_page": {
@@ -499,7 +499,7 @@
       "code_form": {
         "description": "Gib die sechs Zeichen ein, die auf deiner Postkarte abgedruckt sind.",
         "code_label": "Postkartencode",
-        "tries_left_one": "{{count}} von {{max_tries}} Versuche übrig.",
+        "tries_left_one": "{{count}} von {{max_tries}} Versuch übrig.",
         "tries_left_other": "{{count}} von {{max_tries}} Versuchen übrig.",
         "wrong_code_message": "Dieser Code stimmt nicht. Bitte versuch es noch einmal.",
         "submit_button": "Code bestätigen"

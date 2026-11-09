@@ -345,5 +345,8 @@
   "hobbies_textbox_placeholder": "p. ej. Actividades, libros, películas, música...",
   "edit_profile_pronouns_placeholder": "p. ej. ella/la",
   "local_time_with_time_zone_text": "{{ time }} (<timeZone/>)",
-  "open_profile_a11y": "Abrir perfil"
+  "open_profile_a11y": "Abrir perfil",
+  "copy_profile_link": {
+    "button_a11y": "Copiar enlace del perfil"
+  }
 }

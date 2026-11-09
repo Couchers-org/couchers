@@ -527,115 +527,115 @@ def _render_general__new_blog_post(
 
 
 def _render_host_request__create(
-    data: notification_data_pb2.HostRequestCreate, loc_context: LocalizationContext
+    data: notification_data_pb2.StayCreate, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     night_count = (date.fromisoformat(data.host_request.to_date) - date.fromisoformat(data.host_request.from_date)).days
     return _get_content(
         NotificationTopicAction.host_request__create,
         loc_context,
         substitutions={
-            "user": data.surfer.name,
+            "user": data.initiator.name,
             "start_date": _format_host_request_start_date(data.host_request.from_date, loc_context),
             "count": night_count,
         },
-        icon_user=data.surfer,
+        icon_user=data.initiator,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
     )
 
 
 def _render_host_request__message(
-    data: notification_data_pb2.HostRequestMessage, loc_context: LocalizationContext
+    data: notification_data_pb2.StayMessage, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     # All strings are dynamic, no need to use _get_content
     return PushNotificationContent(
-        title=data.user.name,
-        ios_title=data.user.name,
+        title=data.counterparty.name,
+        ios_title=data.counterparty.name,
         body=data.text,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
-        icon_url=_avatar_url_or_default(data.user),
+        icon_url=_avatar_url_or_default(data.counterparty),
     )
 
 
 def _render_host_request__missed_messages(
-    data: notification_data_pb2.HostRequestMissedMessages, loc_context: LocalizationContext
+    data: notification_data_pb2.StayMissedMessages, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.host_request__missed_messages,
         loc_context,
-        substitutions={"user": data.user.name},
-        icon_user=data.user,
+        substitutions={"user": data.counterparty.name},
+        icon_user=data.counterparty,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
     )
 
 
 def _render_host_request__reminder(
-    data: notification_data_pb2.HostRequestReminder, loc_context: LocalizationContext
+    data: notification_data_pb2.StayReminder, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.host_request__reminder,
         loc_context,
-        substitutions={"user": data.surfer.name},
-        icon_user=data.surfer,
+        substitutions={"user": data.initiator.name},
+        icon_user=data.initiator,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
     )
 
 
 def _render_host_request__accept(
-    data: notification_data_pb2.HostRequestAccept, loc_context: LocalizationContext
+    data: notification_data_pb2.StayAccept, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.host_request__accept,
         loc_context,
         substitutions={
-            "user": data.host.name,
+            "user": data.recipient.name,
             "date": _format_host_request_start_date(data.host_request.from_date, loc_context),
         },
-        icon_user=data.host,
+        icon_user=data.recipient,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
     )
 
 
 def _render_host_request__reject(
-    data: notification_data_pb2.HostRequestReject, loc_context: LocalizationContext
+    data: notification_data_pb2.StayReject, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.host_request__reject,
         loc_context,
         substitutions={
-            "user": data.host.name,
+            "user": data.recipient.name,
             "date": _format_host_request_start_date(data.host_request.from_date, loc_context),
         },
-        icon_user=data.host,
+        icon_user=data.recipient,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
     )
 
 
 def _render_host_request__cancel(
-    data: notification_data_pb2.HostRequestCancel, loc_context: LocalizationContext
+    data: notification_data_pb2.StayCancel, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.host_request__cancel,
         loc_context,
         substitutions={
-            "user": data.surfer.name,
+            "user": data.initiator.name,
             "date": _format_host_request_start_date(data.host_request.from_date, loc_context),
         },
-        icon_user=data.surfer,
+        icon_user=data.initiator,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
     )
 
 
 def _render_host_request__confirm(
-    data: notification_data_pb2.HostRequestConfirm, loc_context: LocalizationContext
+    data: notification_data_pb2.StayConfirm, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.host_request__confirm,
         loc_context,
         substitutions={
-            "user": data.surfer.name,
+            "user": data.initiator.name,
             "date": _format_host_request_start_date(data.host_request.from_date, loc_context),
         },
-        icon_user=data.surfer,
+        icon_user=data.initiator,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
     )
 
@@ -750,7 +750,7 @@ def _render_reference__receive_friend(
 
 
 def _render_reference__receive(
-    data: notification_data_pb2.ReferenceReceiveHostRequest, leave_reference_type: str, loc_context: LocalizationContext
+    data: notification_data_pb2.ReferenceReceiveStay, leave_reference_type: str, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     body: str
     if data.text:
@@ -779,14 +779,14 @@ def _render_reference__receive(
 
 
 def _render_reference__receive_hosted(
-    data: notification_data_pb2.ReferenceReceiveHostRequest, loc_context: LocalizationContext
+    data: notification_data_pb2.ReferenceReceiveStay, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     # Receiving a hosted reminder means I need to leave a surfed reference
     return _render_reference__receive(data, leave_reference_type="surfed", loc_context=loc_context)
 
 
 def _render_reference__receive_surfed(
-    data: notification_data_pb2.ReferenceReceiveHostRequest, loc_context: LocalizationContext
+    data: notification_data_pb2.ReferenceReceiveStay, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _render_reference__receive(data, leave_reference_type="hosted", loc_context=loc_context)
 

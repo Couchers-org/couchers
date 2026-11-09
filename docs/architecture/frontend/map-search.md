@@ -87,4 +87,4 @@ Here's some common scenarios you might need to address with the map.
 - [] Add the value in the API format matching backend protos to `UserSearchFilters` type
 - [] Add the value in state-matching format to `FilterOptions` type
 - [] Update the `hasActiveFilters` logic if needed.
-- [] Pass the new filter to the backend via the `userSearch` api call in app/web/service/search.ts
+- [] Pass the new filter to the backend via the `userSearchV2` api call in app/web/service/search.ts

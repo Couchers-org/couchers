@@ -87,8 +87,7 @@
           <mj-divider border-color="#00a398" border-width="1px"></mj-divider>
           <mj-text align="center" font-size="10px" line-height="12px">
             {{ received_because }}<br />
-            {{ contact_support }}<br />
-            {{ timezone_note }}
+            {{ contact_support }}
           </mj-text>
           <mj-text align="center" font-size="10px">
             <a href="https://couchers.org/donate">{{ donate_link }}</a>

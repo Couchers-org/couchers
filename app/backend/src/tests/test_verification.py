@@ -13,6 +13,7 @@ from couchers.models import SMS, User
 from couchers.proto import account_pb2, api_pb2
 from couchers.utils import now
 from tests.fixtures.db import generate_user
+from tests.fixtures.feature_flags import FeatureFlags
 from tests.fixtures.misc import PushCollector, process_jobs
 from tests.fixtures.sessions import account_session, api_session
 
@@ -232,7 +233,7 @@ def test_send_sms(db, monkeypatch):
         assert sms.message == "Testing SMS message"
 
 
-def test_ChangePhone_sms_disabled(db, feature_flags):
+def test_ChangePhone_sms_disabled(db, feature_flags: FeatureFlags):
     feature_flags.set("sms_enabled", False)
     user, token = generate_user()
     with account_session(token) as account:
