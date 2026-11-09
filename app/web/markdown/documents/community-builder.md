@@ -86,8 +86,8 @@ You are never alone in this role! Your primary points of contact are your Commun
 - [Crash Calendar](https://couchers.org/crashes) — Lists large regional and international couch surfing events like Couch Crashes, Invasions, and Camps.
 - [Couchers.org Blog](https://couchers.org/blog) — Find all our blog posts here.
 - [Platform Roadmap](https://couchers.org/roadmap) — Find out what we're building and what's next here.
-- [Details about Couchers, Inc. (501(c)(3) Non-Profit Organization)](https://couchers.org/foundation) — Learn about our legal structure, governance, and non-profit status.
-- [FAQs about the Project](https://couchers.org/faq)) — Answers to common questions about Couchers.org.
+- [About Couchers, Inc.](https://couchers.org/foundation) — Learn about our legal structure, governance, and non-profit status.
+- [FAQs about the Project](https://couchers.org/faq) — Answers to common questions about Couchers.org.
 - [GitHub Repository](https://github.com/Couchers-org/couchers) — Our open-source code lives here.
 
 Thank you for being such an active part of Couchers.org. We are excited to build this community alongside you!
