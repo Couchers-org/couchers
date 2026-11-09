@@ -38,6 +38,7 @@ postalverificationstatus2pb = {
 
 def _attempt_to_address_pb(attempt: PostalVerificationAttempt) -> postal_verification_pb2.PostalAddress:
     return postal_verification_pb2.PostalAddress(
+        recipient_name=attempt.recipient_name,
         address_line_1=attempt.address_line_1,
         address_line_2=attempt.address_line_2 or "",
         city=attempt.city,
@@ -104,6 +105,9 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
             context.abort_with_error_code(grpc.StatusCode.RESOURCE_EXHAUSTED, "postal_verification_rate_limited")
 
         # Validate required fields
+        recipient_name = request.address.recipient_name.strip()
+        if not recipient_name:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "recipient_name_required")
         if not request.address.address_line_1:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "address_line_1_required")
         if not request.address.city:
@@ -131,6 +135,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         attempt = PostalVerificationAttempt(
             user_id=context.user_id,
             status=PostalVerificationStatus.pending_address_confirmation,
+            recipient_name=recipient_name,
             address_line_1=validated.address_line_1,
             address_line_2=validated.address_line_2,
             city=validated.city,
@@ -139,6 +144,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
             country_code=validated.country_code,
             original_address_json=json.dumps(
                 {
+                    "recipient_name": request.address.recipient_name,
                     "address_line_1": request.address.address_line_1,
                     "address_line_2": request.address.address_line_2,
                     "city": request.address.city,

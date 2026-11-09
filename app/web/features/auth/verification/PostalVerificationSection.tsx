@@ -11,7 +11,7 @@ import { localizeDateOnly } from "i18n/datetimes";
 import { AUTH } from "i18n/namespaces";
 import { PostalVerificationStatus } from "proto/postal_verification_pb";
 import { useMemo, useState } from "react";
-import { donationsRoute, routeToEditProfile } from "routes";
+import { donationsRoute } from "routes";
 import { PostalAddressData } from "service/postalVerification";
 import { timestampToPlainDateTime } from "utils/date";
 
@@ -31,7 +31,10 @@ import {
   VerificationSectionHeader,
 } from "./VerificationSection";
 
-const EMPTY_ADDRESS: PostalAddressData = {
+// the recipient name is tracked separately, since it's pre-filled from the profile once that loads
+type AddressFields = Omit<PostalAddressData, "recipientName">;
+
+const EMPTY_ADDRESS: AddressFields = {
   addressLine1: "",
   addressLine2: "",
   city: "",
@@ -98,9 +101,9 @@ const AddressCardLabel = styled("div")(({ theme }) => ({
   marginBottom: theme.spacing(1),
 }));
 
-function addressLines(address: PostalAddressData, countryName: string, recipientName?: string): string[] {
+function addressLines(address: PostalAddressData, countryName: string): string[] {
   return [
-    recipientName,
+    address.recipientName,
     address.addressLine1,
     address.addressLine2,
     [address.postalCode, address.city].filter(Boolean).join(" "),
@@ -129,7 +132,6 @@ export default function PostalVerificationSection({ hasDonated }: { hasDonated: 
     verifyCode,
     cancel,
   } = usePostalVerification();
-  // the backend addresses the postcard to the profile name
   const { data: currentUser } = useCurrentUser();
 
   const countries = useMemo(() => getLocalizedCountries(language), [language]);
@@ -138,21 +140,25 @@ export default function PostalVerificationSection({ hasDonated }: { hasDonated: 
     return (code: string) => byCode.get(code) ?? code;
   }, [countries]);
 
-  const [address, setAddress] = useState<PostalAddressData>(EMPTY_ADDRESS);
+  const [address, setAddress] = useState<AddressFields>(EMPTY_ADDRESS);
+  // null until edited, so it follows the profile name; editing only affects this postcard
+  const [editedRecipientName, setEditedRecipientName] = useState<string | null>(null);
+  const recipientName = editedRecipientName ?? currentUser?.name ?? "";
   const [showRequiredErrors, setShowRequiredErrors] = useState(false);
   const [code, setCode] = useState("");
 
-  const setField = (field: keyof PostalAddressData) => (value: string) =>
+  const setField = (field: keyof AddressFields) => (value: string) =>
     setAddress((previous) => ({ ...previous, [field]: value }));
 
-  const isMissing = (field: "addressLine1" | "city" | "countryCode") => showRequiredErrors && !address[field];
+  const isMissing = (field: "recipientName" | "addressLine1" | "city" | "countryCode") =>
+    showRequiredErrors && !(field === "recipientName" ? recipientName : address[field]).trim();
 
   const onSubmitAddress = () => {
-    if (!address.addressLine1 || !address.city || !address.countryCode) {
+    if (!recipientName.trim() || !address.addressLine1 || !address.city || !address.countryCode) {
       setShowRequiredErrors(true);
       return;
     }
-    initiate.mutate(address);
+    initiate.mutate({ ...address, recipientName });
   };
 
   const attemptId = status?.postalVerificationAttemptId ?? 0;
@@ -243,16 +249,15 @@ export default function PostalVerificationSection({ hasDonated }: { hasDonated: 
                   <TextField
                     id="postal-recipient-name"
                     fullWidth
+                    autoComplete="name"
                     label={t("verification_page.postal.address_form.recipient_name_label")}
-                    value={currentUser?.name ?? ""}
-                    // disabled on the input only, so the note and its link aren't greyed out too
-                    slotProps={{ input: { disabled: true } }}
+                    value={recipientName}
+                    onChange={(event) => setEditedRecipientName(event.target.value)}
+                    error={isMissing("recipientName")}
                     helperText={
-                      <Trans
-                        t={t}
-                        i18nKey="verification_page.postal.address_form.recipient_name_helper"
-                        components={{ editProfileLink: <StyledLink href={routeToEditProfile()} /> }}
-                      />
+                      isMissing("recipientName")
+                        ? t("verification_page.postal.address_form.required_field_error")
+                        : t("verification_page.postal.address_form.recipient_name_prefilled_helper")
                     }
                     sx={{ gridColumn: "1 / -1", mb: 2 }}
                   />
@@ -358,13 +363,11 @@ export default function PostalVerificationSection({ hasDonated }: { hasDonated: 
                       variant="body1"
                       sx={{ color: "var(--mui-palette-text-secondary)", textDecoration: "line-through" }}
                     >
-                      {addressLines(submittedAddress, countryName(submittedAddress.countryCode), currentUser?.name).map(
-                        (line) => (
-                          <Box component="span" key={line} sx={{ display: "block" }}>
-                            {line}
-                          </Box>
-                        ),
-                      )}
+                      {addressLines(submittedAddress, countryName(submittedAddress.countryCode)).map((line) => (
+                        <Box component="span" key={line} sx={{ display: "block" }}>
+                          {line}
+                        </Box>
+                      ))}
                     </Typography>
                   </Box>
                 )}
@@ -382,6 +385,7 @@ export default function PostalVerificationSection({ hasDonated }: { hasDonated: 
                   <Typography variant="body1">
                     {addressLines(
                       {
+                        recipientName: status.address.recipientName,
                         addressLine1: status.address.addressLine1,
                         addressLine2: status.address.addressLine2,
                         city: status.address.city,
@@ -390,7 +394,6 @@ export default function PostalVerificationSection({ hasDonated }: { hasDonated: 
                         countryCode: status.address.countryCode,
                       },
                       countryName(status.address.countryCode),
-                      currentUser?.name,
                     ).map((line) => (
                       <Box component="span" key={line} sx={{ display: "block" }}>
                         {line}

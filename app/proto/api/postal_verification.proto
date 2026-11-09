@@ -60,9 +60,11 @@ enum PostalVerificationStatus {
 }
 
 // Postal address for international mail delivery.
-// Required fields: address_line_1, city, country
+// Required fields: recipient_name, address_line_1, city, country
 // Optional fields: address_line_2, state, postal_code (varies by country)
 message PostalAddress {
+  // Required: full name printed on the postcard. Doesn't change the profile name.
+  string recipient_name = 7;
   // Required: street address, house number, building name, etc.
   string address_line_1 = 1;
   // Optional: apartment, suite, unit, floor, etc. Empty string if not provided.
