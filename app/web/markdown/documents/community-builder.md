@@ -50,11 +50,12 @@ Events are the heartbeat of local couch surfing communities. Host them yourself,
 2. **Choose the Right Location & Venue:** Try to find a relatively central or easily accessible location and pick a venue with flexibility. Generally, it is better to have too much space than too little. Ensure the noise level is not too loud and allows attendees to talk without needing to yell. Favor free public spaces or casual venues with no mandatory minimum spend. Be mindful of age restrictions (e.g. 21+ venues prevent younger members from joining), smoking areas (since most people don't like smoke), and pets (in case people have allergies).
 3. **Have a Backup Plan:** If the event is outdoors, pick a nearby indoor backup spot in case of bad weather, and clearly communicate the backup plan on the event page. Keep an eye on the weather forecast.
 4. **Include Location and Accessibility Info:** Clearly describe how to find the exact meeting spot. Post information on how to get there, including the closest public transit stop (and directions from there). Bike/car parking availability and accessibility for attendees with disabilities should also be mentioned.
-5. **Bring a Couchers.org Sign:** Print the Couchers.org logo to use as a sign or marker so people can easily find your group. You can find the official Couchers logo, wordmark, fonts, and colors [here](https://help.couchers.org/hc/couchersorg-help-center/articles/1715125658-where-can-i-download-the-couchers-logo-or-wordmark).
+5. **Bring a Couchers.org Sign:** Print the Couchers.org logo to use as a sign or marker so people can easily find your group. You can find the official Couchers logo, wordmark, fonts, and colors [here](https://help.couchers.org/hc/couchersorg-help-center/articles/1715125658-where-can-i-download-the-couchers-logo-or-wordmark). Please do not modify the official logo, and check with your CBPM before printing any custom local merchandise or promotional materials.
 6. **Promote the Event:**
    - Encourage the organizer to click the "Invite the community" button on the event page to send an email invitation to all members of the local community.
    - Send personalized invitations to new or active locals via direct message (be sure to include a link to the event!).
    - Cross-post in other couch surfing or travel groups (respecting their rules and keeping your audience in mind).
+   - Always ask attendees for permission before taking group photos at events, especially before posting them to external social media or chat groups.
    - Planning a Couch Crash, invasion, or other large-scale national/international event? Email community.building@couchers.org to request your event be added to the official [Couch Crash Calendar](https://couchers.org/crashes) and discuss other promotion ideas!
 
 ### 5. Outreach & Growing the Volunteer Team
@@ -69,7 +70,7 @@ Outside of Couchers.org, you play a key role in local outreach and bringing your
 
 ## PART 3: Support & Resources
 ### 6. Resources & Contacting the Team
-You are never alone in this role! Your primary points of contact are your Community Builder Program Managers (CBPMs). If you have questions, ideas, or need support with an event, reach out to your CBPMs or email us at community.building@couchers.org. You can also contact the Safety & Trust Team or Support Team directly via email.
+You are never alone in this role! Your primary points of contact are your Community Builder Program Managers (CBPMs). If you have questions, ideas, or need support with an event, reach out to your CBPMs or email us at community.building@couchers.org. You can also contact the Safety & Trust Team or Support Team directly via email. If life gets busy or you plan to travel long-term, simply let us know at community.building@couchers.org so we can pause your role or help transition your duties.
 
 **Important Contacts:**
 - community.building@couchers.org is the email for general community builder matters, event promotion, and community page updates.
@@ -84,8 +85,8 @@ You are never alone in this role! Your primary points of contact are your Commun
 - [Crash Calendar](https://couchers.org/crashes) — Lists large regional and international couch surfing events like Couch Crashes, Invasions, and Camps.
 - [Couchers.org Blog](https://couchers.org/blog) — Find all our blog posts here.
 - [Platform Roadmap](https://couchers.org/roadmap) — Find out what we're building and what's next here.
-- [Details about Couchers, Inc. (501(c)(3) Non-Profit Organization)](https://couchers.org/foundation)
-- [FAQs about the Project](https://couchers.org/faq)
+- [Details about Couchers, Inc. (501(c)(3) Non-Profit Organization)](https://couchers.org/foundation) — Learn about our legal structure, governance, and non-profit status.
+- [FAQs about the Project](https://couchers.org/faq)) — Answers to common questions about Couchers.org.
 - [GitHub Repository](https://github.com/Couchers-org/couchers) — Our open-source code lives here.
 
 Thank you for being such an active part of Couchers.org. We are excited to build this community alongside you!
