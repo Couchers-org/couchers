@@ -12,13 +12,7 @@ import { useMapSearchState } from "./state/mapSearchContext";
 import { useMapSearchActions } from "./state/useMapSearchActions";
 import { MAX_MAP_ZOOM_LEVEL_FOR_SEARCH } from "./utils/constants";
 import { UNCLUSTERED_LAYER_ID, USERS_SOURCE_ID } from "./utils/mapLayers";
-import {
-  clearMapFeatureState,
-  getMapBounds,
-  loadMapUserPins,
-  setMapFeatureState,
-  usersToGeoJSON,
-} from "./utils/mapUtils";
+import { clearMapFeatureState, getMapBounds, setMapFeatureState, usersToGeoJSON } from "./utils/mapUtils";
 
 interface MapViewProps {
   isDrawerExpanded: boolean;
@@ -132,9 +126,7 @@ const MapView = ({ isDrawerExpanded, isLoading, mapRef, onZoomIn, onZoomOut, use
     [mapRef, onZoomIn, selectedUserId, setSelectedUserId, zoom],
   );
 
-  const handleLoad = async () => {
-    await loadMapUserPins(mapRef);
-
+  const handleLoad = () => {
     // Zoom into initial bbox
     if (searchQueryBbox) {
       mapRef.current?.fitBounds(searchQueryBbox, {
