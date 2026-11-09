@@ -13,7 +13,6 @@
     "footer": {
       "received_because": "Stai ricevendo queste email perché hai fatto l'iscrizione a Couchers.org.",
       "contact_support": "Puoi contattare il nostro team di supporto all'indirizzo {{ email_link }}.",
-      "timezone_note": "Tutti gli orari sono in {{ timezone }}, in base alla posizione del tuo profilo.",
       "donate_link": "Dona",
       "volunteer_link": "Diventa volontario",
       "blog_link": "Blog",
@@ -71,7 +70,6 @@
   "api_key_issued": {
     "subject": "La tua chiave API per Couchers.org",
     "header": "Hai recentemente richiesto una chiave API per Couchers.org. Abbiamo creato per te la seguente chiave API:",
-    "expiry": "La chiave scade il <b>{{ datetime }}</b>.",
     "usage_warning": "Questa chiave API è univoca per il tuo account; non condividerla con nessuno. Fornisce accesso completo al tuo account e sei responsabile di qualsiasi azione eseguita utilizzando questa chiave API.",
     "policy_warning": "Ricorda di rispettare i nostri <a href=\"{{terms_url}}\">Termini di Servizio</a>, le nostre Linee Guida della community e le altre policy durante l'utilizzo delle nostre API. Tutti gli accessi vengono registrati e analizzati e potremmo revocare il tuo accesso o account in caso di abuso del servizio."
   },

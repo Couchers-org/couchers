@@ -24,6 +24,7 @@ from couchers.proto import postal_verification_pb2
 from couchers.resources import get_postcard_front_image
 from couchers.utils import now
 from tests.fixtures.db import generate_user
+from tests.fixtures.feature_flags import FeatureFlags
 from tests.fixtures.sessions import postal_verification_session
 
 
@@ -39,7 +40,7 @@ def test_generate_postal_verification_code():
             assert char not in code
 
 
-def test_postal_verification_disabled(db, feature_flags):
+def test_postal_verification_disabled(db, feature_flags: FeatureFlags):
     """Test that postal verification is disabled."""
     feature_flags.set("postal_verification_enabled", False)
     user, token = generate_user()
@@ -58,7 +59,7 @@ def test_postal_verification_disabled(db, feature_flags):
         assert e.value.code() == grpc.StatusCode.UNAVAILABLE
 
 
-def test_postal_verification_confirm_disabled(db, feature_flags):
+def test_postal_verification_confirm_disabled(db, feature_flags: FeatureFlags):
     """Confirming (which queues the paid postcard) must respect the flag, not just initiation."""
     feature_flags.set("postal_verification_enabled", False)
     user, token = generate_user()

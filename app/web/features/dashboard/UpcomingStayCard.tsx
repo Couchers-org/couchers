@@ -150,7 +150,6 @@ export default function UpcomingStayCard({ hostRequest }: UpcomingStayCardProps)
         display: "flex",
         textDecoration: "none",
         color: "inherit",
-        height: "100%",
         width: "100%",
       }}
     >
