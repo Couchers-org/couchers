@@ -174,6 +174,7 @@ export default function PostalVerificationSection({ hasDonated }: { hasDonated: 
         iconTint="primaryDark"
         title={t("verification_page.postal.header")}
         description={t("verification_page.postal.description")}
+        badgeId="postal_verified"
         status={isVerified ? "verified" : status?.hasActiveAttempt ? "in_progress" : "not_verified"}
       />
 
@@ -253,7 +254,7 @@ export default function PostalVerificationSection({ hasDonated }: { hasDonated: 
                         components={{ editProfileLink: <StyledLink href={routeToEditProfile()} /> }}
                       />
                     }
-                    sx={{ gridColumn: "1 / -1" }}
+                    sx={{ gridColumn: "1 / -1", mb: 2 }}
                   />
                   <TextField
                     id="postal-address-line-1"

@@ -320,6 +320,7 @@
   "verification_page": {
     "title": "Verification",
     "intro": "Verification helps other members trust that you are who you say you are. It's always optional.",
+    "earned_badge_caption": "Adds this badge to your profile:",
     "settings_link": {
       "title": "Verification",
       "moved_message": "Looking for verification? It's <verificationLink>moved here</verificationLink>."
@@ -339,8 +340,8 @@
         "photos_description": "Instead of {{unverified_count}}.",
         "visibility_title": "Higher visibility",
         "visibility_description": "You rank higher in search results.",
-        "badge_title": "A profile badge",
-        "badge_description": "Age and gender shown as checked.",
+        "badge_title": "A verified badge",
+        "badge_description": "Shown next to your name, with your age and gender marked as checked.",
         "interactions_title": "More trust",
         "interactions_description": "Members know you are who you say you are."
       },
