@@ -204,7 +204,8 @@ class APIKeyIssuedEmail(EmailBase):
         builder = self._body_builder(loc_context, security_warning=True)
         builder.para(".header")
         builder.quote(self.api_key, markdown=False)
-        builder.para(".expiry", {"datetime": loc_context.localize_datetime(self.expiry)})
+        # API keys are technical information so show in UTC (string emphasizes this).
+        builder.para(".expiry2", {"datetime_utc": loc_context.localize_datetime(self.expiry, display_timezone=UTC)})
         builder.para(".usage_warning")
         builder.para(".policy_warning", {"terms_url": urls.terms_of_service_url()})
         return builder.build()
@@ -644,7 +645,7 @@ class EventInfo:
 
     def get_details_block(self, loc_context: LocalizationContext) -> EmailBlock:
         # TODO(#8695): Support localized time ranges
-        # Force using the start/end time timezone (that of the event), not the user's.
+        # Event start/end date-times are always shown in the timezone at its location, not the user's.
         start_time_display = loc_context.localize_datetime(
             self.start_time, display_timezone=self.timezone, with_year=False, with_day_of_week=True
         )
@@ -1235,7 +1236,7 @@ class HostRequestCreatedEmail(EmailBase):
         return builder.build()
 
     @classmethod
-    def from_notification(cls, data: notification_data_pb2.HostRequestCreate, *, user_name: str) -> Self:
+    def from_notification(cls, data: notification_data_pb2.StayCreate, *, user_name: str) -> Self:
         return cls(
             user_name,
             proposal_type=StayProposalType.from_host_request(data.host_request),
@@ -1300,7 +1301,7 @@ class HostRequestReminderEmail(EmailBase):
         return builder.build()
 
     @classmethod
-    def from_notification(cls, data: notification_data_pb2.HostRequestReminder, *, user_name: str) -> Self:
+    def from_notification(cls, data: notification_data_pb2.StayReminder, *, user_name: str) -> Self:
         return cls(
             user_name,
             proposal_type=StayProposalType.from_host_request(data.host_request),
@@ -1368,7 +1369,7 @@ class HostRequestMessageEmail(EmailBase):
         return builder.build()
 
     @classmethod
-    def from_notification(cls, data: notification_data_pb2.HostRequestMessage, *, user_name: str) -> Self:
+    def from_notification(cls, data: notification_data_pb2.StayMessage, *, user_name: str) -> Self:
         return cls(
             user_name,
             proposal_type=StayProposalType.from_host_request(data.host_request),
@@ -1434,7 +1435,7 @@ class HostRequestMissedMessagesEmail(EmailBase):
         return builder.build()
 
     @classmethod
-    def from_notification(cls, data: notification_data_pb2.HostRequestMissedMessages, *, user_name: str) -> Self:
+    def from_notification(cls, data: notification_data_pb2.StayMissedMessages, *, user_name: str) -> Self:
         return cls(
             user_name,
             proposal_type=StayProposalType.from_host_request(data.host_request),
@@ -1510,10 +1511,10 @@ class HostRequestStatusChangedEmail(EmailBase):
     @classmethod
     def from_notification(
         cls,
-        data: notification_data_pb2.HostRequestAccept
-        | notification_data_pb2.HostRequestReject
-        | notification_data_pb2.HostRequestConfirm
-        | notification_data_pb2.HostRequestCancel,
+        data: notification_data_pb2.StayAccept
+        | notification_data_pb2.StayReject
+        | notification_data_pb2.StayConfirm
+        | notification_data_pb2.StayCancel,
         *,
         user_name: str,
     ) -> Self:
@@ -1521,16 +1522,16 @@ class HostRequestStatusChangedEmail(EmailBase):
         new_status: messages_pb2.HostRequestStatus.ValueType
         match data:
             # TODO: "host" and "surfer" fields need to be renamed "recipient" and "initiator"
-            case notification_data_pb2.HostRequestAccept():
+            case notification_data_pb2.StayAccept():
                 counterparty = UserInfo.from_protobuf(data.recipient)
                 new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED
-            case notification_data_pb2.HostRequestReject():
+            case notification_data_pb2.StayReject():
                 counterparty = UserInfo.from_protobuf(data.recipient)
                 new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_REJECTED
-            case notification_data_pb2.HostRequestConfirm():
+            case notification_data_pb2.StayConfirm():
                 counterparty = UserInfo.from_protobuf(data.initiator)
                 new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED
-            case notification_data_pb2.HostRequestCancel():
+            case notification_data_pb2.StayCancel():
                 counterparty = UserInfo.from_protobuf(data.initiator)
                 new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED
             case _:
@@ -1607,7 +1608,7 @@ class HostReferenceReceivedEmail(EmailBase):
 
     @classmethod
     def from_notification(
-        cls, data: notification_data_pb2.ReferenceReceiveHostRequest, *, user_name: str, surfed: bool
+        cls, data: notification_data_pb2.ReferenceReceiveStay, *, user_name: str, surfed: bool
     ) -> Self:
         return cls(
             user_name=user_name,

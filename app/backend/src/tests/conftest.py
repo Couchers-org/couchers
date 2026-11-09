@@ -53,6 +53,7 @@ from tests.fixtures.db import (  # noqa: E402
     generate_user,
     populate_testing_resources,
 )
+from tests.fixtures.feature_flags import FeatureFlags, Flags  # noqa: E402
 from tests.fixtures.misc import EmailCollector, Moderator, PushCollector  # noqa: E402
 from tests.fixtures.timewarp import (  # noqa: E402
     FROZEN_TEST_TIME,
@@ -419,28 +420,6 @@ def _isolate_config() -> Generator[None]:
     config.copy_from(prevconfig)
 
 
-class Flags:
-    """Test handle for setting feature flag values in file-override mode; see the `flags` fixture."""
-
-    def __init__(self, values: dict[str, Any]) -> None:
-        self._values = values
-
-    def set_boolean(self, key: str, value: bool) -> None:
-        self._values[key] = value
-
-    def set_string(self, key: str, value: str) -> None:
-        self._values[key] = value
-
-    def set_integer(self, key: str, value: int) -> None:
-        self._values[key] = value
-
-    def set_float(self, key: str, value: float) -> None:
-        self._values[key] = value
-
-    def set_object(self, key: str, value: Any) -> None:
-        self._values[key] = value
-
-
 @pytest.fixture
 def flags(monkeypatch) -> Flags:
     """
@@ -455,21 +434,6 @@ def flags(monkeypatch) -> Flags:
     monkeypatch.setattr(experimentation, "_load_local_flags", lambda _path: values)
     monkeypatch.setitem(config, "FEATURE_FLAGS_FILE_OVERRIDE_PATH", "feature-flags.dev.json")
     return Flags(values)
-
-
-class FeatureFlags:
-    """Test handle for controlling feature flag values; see the `feature_flags` fixture."""
-
-    def __init__(self, features: dict[str, Any]) -> None:
-        self._features = features
-
-    def set(self, key: str, value: Any) -> None:
-        """Make `key` resolve to `value` for every user (logged in or anonymous)."""
-        self._features[key] = {"defaultValue": value}
-
-    def set_definition(self, key: str, definition: dict[str, Any]) -> None:
-        """Set a raw GrowthBook feature definition, for exercising rollouts/experiments."""
-        self._features[key] = definition
 
 
 @pytest.fixture

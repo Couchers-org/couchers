@@ -13,7 +13,6 @@
     "footer": {
       "received_because": "您收到这封电子邮件是因为您注册了Couchers.org。",
       "contact_support": "您可以通过{{ email_link }}联系我们的支持团队。",
-      "timezone_note": "所有时间均根据您个人资料中的位置，以{{ timezone }}时区显示。",
       "donate_link": "捐赠",
       "volunteer_link": "志愿者",
       "blog_link": "博客",
@@ -67,7 +66,6 @@
   "api_key_issued": {
     "subject": "您的Couchers.org API密钥",
     "header": "您最近请求了Couchers.org的API密钥。我们已向您颁发以下API密钥：",
-    "expiry": "密钥将于<b>{{ datetime }}</b>到期。",
     "usage_warning": "该API密钥对于您的帐户是唯一的；不要与任何人分享。它提供对您帐户的完全访问权限，并且您对使用此API密钥采取的任何操作负责。",
     "policy_warning": "使用我们的API时，请记住遵守我们的<a href=\"{{terms_url}}\">服务条款</a>、我们的社区准则和其他政策。所有访问都会被记录和分析，如果您滥用服务，我们可能会终止您的访问或帐户。"
   },

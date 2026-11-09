@@ -169,7 +169,8 @@
     "close_drawer_a11y": "Закрыть меню",
     "press": "Пресса и СМИ",
     "user_menu_verification_link": "Пройти верификацию",
-    "couch_crashes": "Couch Crashes"
+    "couch_crashes": "Couch Crashes",
+    "verification": "Верификация"
   },
   "team": {
     "title": "Команда",
@@ -331,7 +332,9 @@
   },
   "copy_button": {
     "a11y": "Копировать",
-    "copied_tooltip": "Скопировано в буфер обмена"
+    "copied_tooltip": "Скопировано в буфер обмена",
+    "copied_message": "Скопировано!",
+    "failed_message": "Не удалось скопировать"
   },
   "image_input": {
     "select_button_a11y": "Выберите изображение",

@@ -129,7 +129,6 @@ def _get_footer_template_args(footer: EmailFooter, loc_context: LocalizationCont
     args: dict[str, Any] = {
         "received_because": localize(".received_because"),
         "contact_support": localize(".contact_support", {"email_link": html_mailto_link("support@couchers.org")}),
-        "timezone_note": localize(".timezone_note", {"timezone": footer.timezone_name}),
         "copyright_year": footer.copyright_year,
         "donate_link": localize(".donate_link"),
         "volunteer_link": localize(".volunteer_link"),

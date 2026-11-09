@@ -42,7 +42,7 @@ describe("UserOverview", () => {
       expect(screen.getByText(`@${defaultUser.username}`)).toBeInTheDocument();
     });
 
-    it("copies the profile link", async () => {
+    it("links the username to the profile and copies the link from the icon", async () => {
       const writeText = jest.fn().mockResolvedValue(undefined);
       Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
       render(
@@ -50,6 +50,11 @@ describe("UserOverview", () => {
           <UserOverview showHostAndMeetAvailability={false} />
         </ProfileUserProvider>,
         { wrapper },
+      );
+
+      expect(screen.getByRole("link", { name: `@${defaultUser.username}` })).toHaveAttribute(
+        "href",
+        `/user/${defaultUser.username}`,
       );
 
       await userEvent.click(screen.getByRole("button", { name: t("profile:copy_profile_link.button_a11y") }));

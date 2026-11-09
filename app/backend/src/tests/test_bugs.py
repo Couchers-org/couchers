@@ -17,6 +17,7 @@ from couchers.proto import bugs_pb2
 from couchers.proto.google.api import httpbody_pb2
 from couchers.servicers.bugs import _fetch_signed_manifest
 from tests.fixtures.db import generate_user
+from tests.fixtures.feature_flags import FeatureFlags
 from tests.fixtures.sessions import bugs_session, real_bugs_session
 
 EAS_CLIENT_ID = uuid.UUID("11111111-1111-1111-1111-111111111111")
@@ -604,7 +605,7 @@ def _add_ota_package(*, platform, fingerprint, version, created_at, banned=False
         session.flush()
 
 
-def test_native_update_manifest_serves_matching_package(db, feature_flags):
+def test_native_update_manifest_serves_matching_package(db, feature_flags: FeatureFlags):
     feature_flags.set("native_ota_cdn_root", _OTA_CDN_ROOT)
     _fetch_signed_manifest.cache_clear()
     _add_ota_package(
@@ -632,7 +633,7 @@ def test_native_update_manifest_serves_matching_package(db, feature_flags):
     assert metadata_interceptor.latest_headers["expo-sfv-version"] == "0"
 
 
-def test_native_update_manifest_resolves_per_platform(db, feature_flags):
+def test_native_update_manifest_resolves_per_platform(db, feature_flags: FeatureFlags):
     feature_flags.set("native_ota_cdn_root", _OTA_CDN_ROOT)
     _fetch_signed_manifest.cache_clear()
     _add_ota_package(
@@ -661,7 +662,7 @@ def test_native_update_manifest_resolves_per_platform(db, feature_flags):
     assert res.data.decode() == f"{_OTA_CDN_ROOT}/v1.3.1.android/android/manifest"
 
 
-def test_native_update_manifest_serves_newest_by_created_at(db, feature_flags):
+def test_native_update_manifest_serves_newest_by_created_at(db, feature_flags: FeatureFlags):
     feature_flags.set("native_ota_cdn_root", _OTA_CDN_ROOT)
     _fetch_signed_manifest.cache_clear()
     # the newer createdAt wins regardless of insertion order
@@ -691,7 +692,7 @@ def test_native_update_manifest_serves_newest_by_created_at(db, feature_flags):
     assert res.data.decode() == f"{_OTA_CDN_ROOT}/v1.3.2.newer/ios/manifest"
 
 
-def test_native_update_manifest_banned_package_excluded(db, feature_flags):
+def test_native_update_manifest_banned_package_excluded(db, feature_flags: FeatureFlags):
     feature_flags.set("native_ota_cdn_root", _OTA_CDN_ROOT)
     _fetch_signed_manifest.cache_clear()
     _add_ota_package(
