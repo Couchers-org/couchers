@@ -203,6 +203,7 @@
     "postal_address_invalid": "The address could not be validated.",
     "postal_address_undeliverable": "The address is not deliverable.",
     "postal_verification_already_in_progress": "You already have a postal verification attempt in progress.",
+    "postal_verification_postcard_being_ordered": "Your postcard is already being ordered, so this attempt can't be cancelled.",
     "postal_verification_attempt_not_found": "Postal verification attempt not found.",
     "postal_verification_cannot_cancel": "This postal verification attempt cannot be cancelled.",
     "postal_verification_code_expired": "The verification code has expired.",

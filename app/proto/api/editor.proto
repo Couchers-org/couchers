@@ -39,6 +39,12 @@ service Editor {
 
   rpc DownloadPostcardPdf(DownloadPostcardPdfReq) returns (DownloadPostcardPdfRes) {}
 
+  // For a stuck postcard that MyPostcard did take: records the order and marks the postcard sent
+  rpc RecordPostcardOrder(RecordPostcardOrderReq) returns (google.protobuf.Empty) {}
+
+  // For a stuck postcard that MyPostcard didn't take: orders it again
+  rpc ResendPostcard(ResendPostcardReq) returns (google.protobuf.Empty) {}
+
   rpc LookupUsersForDebug(LookupUsersForDebugReq) returns (LookupUsersForDebugRes) {}
 }
 
@@ -234,11 +240,23 @@ message PostcardInfo {
   google.protobuf.Timestamp created = 7;
   google.protobuf.Timestamp postcard_sent_at = 8;
   google.protobuf.Timestamp verified_at = 9;
+  // Set when we started ordering. With no postcard_sent_at, the order may or may not have gone through
+  google.protobuf.Timestamp postcard_order_started_at = 10;
 }
 
 message ListPostcardsRes {
   repeated PostcardInfo postcards = 1;
   string next_page_token = 2;
+}
+
+message RecordPostcardOrderReq {
+  int64 postal_verification_attempt_id = 1;
+  // The order's job ID from the MyPostcard dashboard
+  int64 mypostcard_job_id = 2;
+}
+
+message ResendPostcardReq {
+  int64 postal_verification_attempt_id = 1;
 }
 
 message DownloadPostcardPdfReq {

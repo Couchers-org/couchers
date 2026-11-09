@@ -54,6 +54,8 @@ const noPostalAttempt: GetPostalVerificationStatusRes.AsObject = {
   postalVerificationAttemptId: 0,
   status: PostalVerificationStatus.POSTAL_VERIFICATION_STATUS_UNKNOWN,
   canInitiateNewAttempt: true,
+  postcardDelayed: false,
+  addressRejected: false,
 };
 
 const parisAddress = {

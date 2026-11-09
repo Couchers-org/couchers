@@ -11,6 +11,7 @@ from couchers.constants import (
     POSTAL_VERIFICATION_CODE_LIFETIME,
     POSTAL_VERIFICATION_MAX_ATTEMPTS,
     POSTAL_VERIFICATION_RATE_LIMIT,
+    POSTCARD_STUCK_AFTER,
 )
 from couchers.context import CouchersContext
 from couchers.helpers.postal_verification import generate_postal_verification_code, has_postal_verification
@@ -18,7 +19,11 @@ from couchers.jobs.enqueue import queue_job
 from couchers.jobs.handlers import send_postal_verification_postcard
 from couchers.models import User
 from couchers.models.notifications import NotificationTopicAction
-from couchers.models.postal_verification import PostalVerificationAttempt, PostalVerificationStatus
+from couchers.models.postal_verification import (
+    PostalVerificationAttempt,
+    PostalVerificationFailReason,
+    PostalVerificationStatus,
+)
 from couchers.notifications.notify import notify
 from couchers.postal.address_validation import AddressValidationError, validate_address
 from couchers.proto import notification_data_pb2, postal_verification_pb2, postal_verification_pb2_grpc
@@ -284,6 +289,13 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
             res.created.CopyFrom(Timestamp_from_datetime(attempt.created))
             if attempt.postcard_sent_at:
                 res.postcard_sent_at.CopyFrom(Timestamp_from_datetime(attempt.postcard_sent_at))
+            # Same cutoff as the #monitoring alerts, so the member hears about it once we have
+            res.postcard_delayed = (
+                attempt.status == PostalVerificationStatus.in_progress
+                and attempt.address_confirmed_at is not None
+                and now() - attempt.address_confirmed_at > POSTCARD_STUCK_AFTER
+            )
+            res.address_rejected = attempt.fail_reason == PostalVerificationFailReason.address_rejected
 
         return res
 
@@ -309,6 +321,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         # Check code expiry
         if attempt.postcard_sent_at and (now() - attempt.postcard_sent_at) > POSTAL_VERIFICATION_CODE_LIFETIME:
             attempt.status = PostalVerificationStatus.failed
+            attempt.fail_reason = PostalVerificationFailReason.code_expired
             notify(
                 session,
                 user_id=context.user_id,
@@ -330,6 +343,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
 
             if remaining <= 0:
                 attempt.status = PostalVerificationStatus.failed
+                attempt.fail_reason = PostalVerificationFailReason.too_many_attempts
                 notify(
                     session,
                     user_id=context.user_id,
@@ -374,8 +388,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         """
         Cancels an active postal verification attempt.
         """
-        # Waits for a postcard job that's mid-send, so we see whether the card was sent (and counts towards the
-        # rate limit) rather than cancelling over it
+        # Locked so we can't race the postcard job claiming the attempt
         attempt = session.execute(
             select(PostalVerificationAttempt)
             .where(PostalVerificationAttempt.id == request.postal_verification_attempt_id)
@@ -385,6 +398,12 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
 
         if not attempt:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "postal_verification_attempt_not_found")
+
+        # Once we've started ordering it can't be undone, and the order may need checking by a person
+        if attempt.status == PostalVerificationStatus.in_progress and attempt.postcard_order_started_at is not None:
+            context.abort_with_error_code(
+                grpc.StatusCode.FAILED_PRECONDITION, "postal_verification_postcard_being_ordered"
+            )
 
         # Can cancel any active attempt (not terminal states)
         if attempt.status not in [

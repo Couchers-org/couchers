@@ -725,6 +725,8 @@ def _render_postal_verification__failed(
             body_key = "body_code_expired"
         case notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_TOO_MANY_ATTEMPTS:
             body_key = "body_too_many_attempts"
+        case notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_ADDRESS_REJECTED:
+            body_key = "body_address_rejected"
         case _:
             body_key = "body_generic"
 
