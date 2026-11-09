@@ -126,10 +126,6 @@ msgstr "зв'язки / контакти"
 msgid "couchers_org_team"
 msgstr "Команда Couchers.org"
 
-#. (noun) The activity of free hospitality welcome/exchange. Platform-agnostic.
-msgid "couch surfing"
-msgstr "кауч серфінг (активність та традиція) / платформа гостинності ( вебсайт та сервіс)"
-
 #. (verb) As a host, the act of declining a surfer's host request.
 msgid "host_request.decline"
 msgstr "відхилити"

@@ -11,8 +11,6 @@ import { routeToSearch } from "routes";
 import { GeocodeResult } from "utils/hooks";
 import { useIsNativeEmbed } from "utils/nativeLink";
 
-import HeroLinks from "./HeroLinks";
-
 const StyledSearchBoxContainer = styled("form")(({ theme }) => ({
   padding: theme.spacing(4, 6, 6, 6),
   borderRadius: "var(--mui-shape-borderRadius)",
@@ -42,7 +40,6 @@ export default function HeroSearch() {
 
   return (
     <StyledSearchBoxContainer>
-      <HeroLinks />
       <Typography
         variant="h2"
         component="label"

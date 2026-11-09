@@ -9,7 +9,8 @@
       "chats": "Conversaciones",
       "hosting": "Hospedar",
       "surfing": "Ser hospedado",
-      "unread": "No leídas"
+      "unread": "No leídas",
+      "public_trips": "Mis viajes públicos"
     }
   },
   "chat_view": {
@@ -138,6 +139,16 @@
       "cancelled_self": "Has cancelado la solicitud",
       "confirmed_self": "Has confirmado la solicitud",
       "rejected_self": "Has rechazado la solicitud"
+    },
+    "invitation_status_changed": {
+      "accepted": "{{user}} ha aceptado la invitación",
+      "accepted_self": "Has aceptado la invitación",
+      "cancelled": "{{user}} ha retirado la invitación",
+      "cancelled_self": "Has retirado la invitación",
+      "confirmed": "{{user}} ha confirmado la estancia",
+      "confirmed_self": "Has confirmado la estancia",
+      "rejected": "{{user}} ha rechazado la invitación",
+      "rejected_self": "Has rechazado la invitación"
     }
   },
   "host_pending_request_help_text": "<guideLink>Cosas a considerar</guideLink> antes de responder.",
@@ -157,6 +168,13 @@
       "cancelled": "Has cancelado esta solicitud",
       "confirmed": "¡Diviértete! {{name}} aceptó y tu has confirmdo esta solicitud.",
       "rejected": "Tu solicitud fue declinada"
+    },
+    "public_trip_chip": "Viaje público",
+    "invitation_host_status": {
+      "pending": "Esperando la respuesta de {{name}}",
+      "accepted": "{{name}} aceptó tu invitación",
+      "rejected": "{{name}} rechazó tu invitación",
+      "cancelled": "Retiraste tu invitación"
     }
   },
   "past_request_help_text": "Esta solicitud está pasada, todavía puedes enviar mensajes pero no puedes modificarla.",
@@ -179,7 +197,7 @@
   },
   "reference_card": {
     "title": "Escribe una referencia",
-    "description": "Comparte tu experiencia para ayudar a la comunidad."
+    "description": "Comparte tu experiencia para apoyar a la comunidad."
   },
   "respond_box_title": "Envía una respuesta",
   "respond_box_description": "Selecciona una respuesta para avisar a {{name}} de inmediato. Posteriormente si quieres podrás enviarle un mensaje.",
@@ -225,5 +243,11 @@
   "invitation_host_confirmed_box_title": "Estás hospedando a {{name}}",
   "invitation_host_confirmed_box_description": "Si tus planes cambian aún puedes retirar tu invitación. Se notificará a {{name}}.",
   "withdraw_invitation_button": "Retirar invitación",
-  "withdraw_invitation_dialog_title": "¿Retirar tu invitación?"
+  "withdraw_invitation_dialog_title": "¿Retirar tu invitación?",
+  "withdraw_invitation_dialog_message": "Esto retirará tu invitación para hospedar a {{name}} y se le notificará. No podrás deshacer esta acción.",
+  "withdraw_invitation_dialog_confirm_button": "Retirar invitación",
+  "withdraw_invitation_dialog_dismiss_button": "Mantener invitación",
+  "status_bar_edit_button": "Editar",
+  "status_bar_cancel_edit_button": "Cancelar",
+  "status_bar_close_button": "Cerrar"
 }

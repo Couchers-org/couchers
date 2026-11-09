@@ -9,7 +9,8 @@
       "chats": "Чаты",
       "hosting": "Гости",
       "surfing": "Хосты",
-      "unread": "Непрочитанные"
+      "unread": "Непрочитанные",
+      "public_trips": "Мои публичные поездки"
     }
   },
   "chat_view": {
@@ -67,6 +68,16 @@
       "cancelled_self": "Вы отклонили запрос",
       "confirmed_self": "Вы подтвердили запрос",
       "rejected_self": "Вы отклонили запрос"
+    },
+    "invitation_status_changed": {
+      "accepted": "{{user}} принял(а) приглашение",
+      "accepted_self": "Вы приняли приглашение",
+      "cancelled": "{{user}} отозвал(а) приглашение",
+      "cancelled_self": "Вы отозвали приглашение",
+      "confirmed_self": "Вы подтвердили проживание",
+      "rejected": "{{user}} отклонил(а) приглашение",
+      "rejected_self": "Вы отклонили приглашение",
+      "confirmed": "{{user}} подтвердил(а) пребывание"
     }
   },
   "host_request_status": {
@@ -106,7 +117,19 @@
       "accepted_waiting": "Вы приняли этот запрос — ждём подтверждения от сёрфера."
     },
     "expired": "Этот запрос истёк",
-    "pending": "Этот запрос все еще находится в ожидании"
+    "pending": "Этот запрос все еще находится в ожидании",
+    "public_trip_chip": "Публичная поездка",
+    "invitation_host_status": {
+      "pending": "Ожидание ответа от {{name}}",
+      "accepted": "{{name}} принял(а) ваше приглашение",
+      "rejected": "{{name}} отклонил(а) ваше приглашение",
+      "cancelled": "Вы отозвали своё приглашение"
+    },
+    "invitation_surfer_status": {
+      "accepted": "Вы приняли приглашение от {{name}}",
+      "rejected": "Вы отклонили это приглашение",
+      "cancelled": "{{name}} отозвал(а) своё приглашение"
+    }
   },
   "host_request_view": {
     "request_duration_one": "{{count}} ночь",
@@ -115,7 +138,9 @@
     "error_message": "Неверный ID запроса хоста",
     "back_button_a11y_label": "Назад",
     "title_for_host": "Запрос от {{user}} - {{status}}",
-    "title_for_surfer": "Запрос к {{user}} - {{status}}"
+    "title_for_surfer": "Запрос к {{user}} - {{status}}",
+    "invitation_title_for_surfer": "Приглашение от {{user}} · {{status}}",
+    "invitation_title_for_host": "Ваше приглашение для {{user}} · {{status}}"
   },
   "create_chat": {
     "user_load_error_message": "(Ошибка загрузки пользователя)",
@@ -179,7 +204,7 @@
   },
   "reference_card": {
     "title": "Написать отзыв",
-    "description": "Поделитесь своим опытом, чтобы помочь сообществу."
+    "description": "Поделитесь своим опытом, чтобы поддержать сообщество."
   },
   "respond_box_title": "Отправить ответ",
   "respond_box_description": "Выберите ответ, чтобы {{name}} сразу узнал. Вы можете дополнить его сообщением.",
@@ -210,5 +235,35 @@
   "show_more_actions_button_a11y": "Показать больше действий",
   "surfer_confirm_box_description": "Подтвердите поездку, чтобы закрепить её за собой, или отмените запрос, если ваши планы изменились.",
   "mark_all_read_button_text_public_trips": "Отметить все публичные приглашения в поездки как прочитанные",
-  "invitation_respond_box_title": "Ответить на приглашение {{name}}"
+  "invitation_respond_box_title": "Ответить на приглашение {{name}}",
+  "cancel_accepted_invitation_stay_dialog_title": "Отменить ваше пребывание у {{name}}?",
+  "cancel_accepted_invitation_stay_dialog_message": "{{name}} получит уведомление. Это действие нельзя отменить.",
+  "cancel_accepted_invitation_stay_dialog_confirm_button": "Отменить проживание",
+  "invitation_sent_box_title": "Приглашение отправлено",
+  "invitation_sent_box_description": "Ответа от {{name}} пока нет. Мы сообщим вам, когда придёт ответ.",
+  "invitation_host_accepted_box_title": "{{name}} принял(а) ваше приглашение",
+  "invitation_respond_box_description": "Если вы примете предложение, {{name}} узнает, что вы хотели бы остановиться. В любом случае вы можете продолжить переписку, чтобы обсудить детали.",
+  "invitation_accept_confirmation": "Вы приняли приглашение от {{name}}. Поздоровайтесь и обсудите детали прибытия.",
+  "cancel_accepted_invitation_stay_button": "Отменить проживание",
+  "cancel_accepted_invitation_stay_dialog_dismiss_button": "Остаться",
+  "invitation_host_accepted_box_description": "Подтвердите, чтобы закрепить проживание за собой, или откажитесь, если ваши планы изменились.",
+  "invitation_host_confirmed_box_description": "Если ваши планы изменятся, вы всё ещё можете отозвать приглашение. {{name}} получит уведомление.",
+  "withdraw_invitation_button": "Отозвать приглашение",
+  "withdraw_invitation_dialog_title": "Отозвать своё приглашение?",
+  "withdraw_invitation_dialog_message": "Ваше приглашение для {{name}} стать хостом будет отозвано, и пользователь получит уведомление. Это действие нельзя отменить.",
+  "withdraw_invitation_dialog_confirm_button": "Отозвать приглашение",
+  "withdraw_invitation_dialog_dismiss_button": "Оставить приглашение",
+  "status_bar_edit_button": "Редактировать",
+  "status_bar_cancel_edit_button": "Отменить",
+  "status_bar_close_button": "Закрыть",
+  "my_public_trips": {
+    "empty_state": "Для ваших публичных поездок пока нет приглашений.",
+    "toggle_group": "Переключить поездку",
+    "nights_one": "{{count}} ночь",
+    "nights_few": "{{count}} ночи",
+    "nights_many": "{{count}} ночей",
+    "invitations_one": "{{count}} приглашение",
+    "invitations_few": "{{count}} приглашения",
+    "invitations_many": "{{count}} приглашений"
+  }
 }

@@ -52,6 +52,7 @@ def get_send_email_payload(
         source_data=source_data_header,
         list_unsubscribe_header=list_unsubscribe_header,
         attachments=[attachment] if attachment else [],
+        notification_id=notification.id,
     )
 
 
@@ -103,20 +104,20 @@ def get_notification_email(notification: Notification, *, user_name: str) -> Ema
         case NotificationTopicAction.event__delete:
             return emails.EventDeletedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.host_request__create:
-            return emails.HostRequestCreatedEmail.from_notification(data, user_name=user_name)
+            return emails.StayProposalReceivedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.host_request__reminder:
-            return emails.HostRequestReminderEmail.from_notification(data, user_name=user_name)
+            return emails.StayProposalReminderEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.host_request__message:
-            return emails.HostRequestMessageEmail.from_notification(data, user_name=user_name)
+            return emails.StayMessageEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.host_request__missed_messages:
-            return emails.HostRequestMissedMessagesEmail.from_notification(data, user_name=user_name)
+            return emails.StayMissedMessagesEmail.from_notification(data, user_name=user_name)
         case (
             NotificationTopicAction.host_request__accept
             | NotificationTopicAction.host_request__reject
             | NotificationTopicAction.host_request__cancel
             | NotificationTopicAction.host_request__confirm
         ):
-            return emails.HostRequestStatusChangedEmail.from_notification(data, user_name=user_name)
+            return emails.StayStatusChangedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.friend_request__create:
             return emails.FriendRequestReceivedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.friend_request__accept:
@@ -149,14 +150,14 @@ def get_notification_email(notification: Notification, *, user_name: str) -> Ema
             return emails.FriendReferenceReceivedEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.reference__receive_hosted:
             # Reference received from the host, so I'm the surfer
-            return emails.HostReferenceReceivedEmail.from_notification(data, user_name=user_name, surfed=True)
+            return emails.StayReferenceReceivedEmail.from_notification(data, user_name=user_name, surfed=True)
         case NotificationTopicAction.reference__receive_surfed:
-            return emails.HostReferenceReceivedEmail.from_notification(data, user_name=user_name, surfed=False)
+            return emails.StayReferenceReceivedEmail.from_notification(data, user_name=user_name, surfed=False)
         case NotificationTopicAction.reference__reminder_hosted:
             # Reminder to send a "hosted" reference, so I'm the host
-            return emails.HostReferenceReminderEmail.from_notification(data, user_name=user_name, surfed=False)
+            return emails.StayReferenceReminderEmail.from_notification(data, user_name=user_name, surfed=False)
         case NotificationTopicAction.reference__reminder_surfed:
-            return emails.HostReferenceReminderEmail.from_notification(data, user_name=user_name, surfed=True)
+            return emails.StayReferenceReminderEmail.from_notification(data, user_name=user_name, surfed=True)
         case NotificationTopicAction.thread__reply:
             return emails.ThreadReplyEmail.from_notification(data, user_name=user_name)
         case NotificationTopicAction.verification__sv_fail:
@@ -186,17 +187,17 @@ def get_ics_attachment(notification: Notification, loc_context: LocalizationCont
         # Caveat: The surfer technically still hasn't confirmed, but when they do they don't receive an email,
         # so the accept notification is our last opportunity to provide them with a calendar event.
         return create_host_request_attachment(
-            data.host_request, other_name=data.host.name, hosting=False, loc_context=loc_context
+            data.host_request, other_name=data.recipient.name, hosting=False, loc_context=loc_context
         )
     elif notification.topic_action == NotificationTopicAction.host_request__confirm:
         return create_host_request_attachment(
-            data.host_request, other_name=data.surfer.name, hosting=True, loc_context=loc_context
+            data.host_request, other_name=data.initiator.name, hosting=True, loc_context=loc_context
         )
     elif notification.topic_action == NotificationTopicAction.host_request__cancel:
         # Caveat: only the party getting cancelled receives this notification,
         # we have no opportunity to provide the cancelling party with a cancelled ics attachment.
         return create_host_request_attachment(
-            data.host_request, other_name=data.surfer.name, hosting=True, loc_context=loc_context
+            data.host_request, other_name=data.initiator.name, hosting=True, loc_context=loc_context
         )
     else:
         return None
@@ -224,21 +225,21 @@ def get_topic_action_unsubscribe_text(topic_action: NotificationTopicAction) -> 
     # Not localized because the design will change so avoid useless work by translators.
     match topic_action:
         case NotificationTopicAction.host_request__missed_messages:
-            return "missed messages in host requests"
+            return "missed messages in host requests or invitations"
         case NotificationTopicAction.host_request__create:
-            return "new host requests"
+            return "new host requests or invitations"
         case NotificationTopicAction.host_request__message:
-            return "messages in host request"
+            return "messages in host request or invitations"
         case NotificationTopicAction.host_request__accept:
-            return "accepted host requests"
+            return "accepted host requests or invitations"
         case NotificationTopicAction.host_request__reject:
-            return "declined host requests"
+            return "declined host requests or invitations"
         case NotificationTopicAction.host_request__confirm:
-            return "confirmed host requests"
+            return "confirmed host requests or invitations"
         case NotificationTopicAction.host_request__cancel:
-            return "cancelled host requests"
+            return "cancelled host requests or invitations"
         case NotificationTopicAction.host_request__reminder:
-            return "Pending host request reminders"
+            return "Pending host request or invitations reminders"
         case NotificationTopicAction.reference__receive_friend:
             return "new references from friends"
         case NotificationTopicAction.reference__receive_hosted:
@@ -307,7 +308,6 @@ def get_topic_key_unsubscribe_text(topic_action: NotificationTopicAction) -> str
 
 def get_email_footer(user: User, notification: Notification, loc_context: LocalizationContext) -> EmailFooter:
     return EmailFooter(
-        timezone_name=loc_context.localized_timezone,
         copyright_year=now().year,
         unsubscribe_info=UnsubscribeInfo(
             manage_notifications_url=urls.notification_settings_link(),

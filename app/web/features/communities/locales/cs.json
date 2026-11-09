@@ -92,9 +92,9 @@
   "create_event_disclaimer": "Kliknutím na toto tlačítko zveřejníš svou událost pro celou komunitu Couchers.org.",
   "date_required": "Zadej prosím datum.",
   "time_required": "Zadej prosím čas.",
-  "end_date": "Datum ukončení",
+  "end_date": "Konec",
   "end_time": "Čas ukončení",
-  "end_date_error": "Datum konce události musí být pozdější než datum začátku.",
+  "end_date_error": "Konec události musí být pozdější než začátek.",
   "end_time_error": "Čas konce události musí být pozdější než čas začátku.",
   "event_details": "Podrobnosti události",
   "event_details_required": "Vyplň prosím podrobnosti o události.",
@@ -118,7 +118,7 @@
   "past_time_error": "Zadaný čas musí být v budoucnosti.",
   "see_all": "Zobrazit vše",
   "see_more_events_label": "Zobrazit další události",
-  "start_date": "Datum zahájení",
+  "start_date": "Začátek",
   "start_time": "Čas začátku",
   "title_required": "Zadej prosím název události.",
   "total_members": "celkem členů",
@@ -149,5 +149,9 @@
   "report_event_button_a11y": "Nahlásit tuto událost",
   "event_image_input_alt": "Vložiť obrázek události",
   "community_image_input_alt": "Vložení obrázku komunity",
-  "new_discussion_button": "Nová diskuse"
+  "new_discussion_button": "Nová diskuse",
+  "comment_edited_date2": "Upraveno<timeAgo/>",
+  "discussion_edited_date2": "Upraveno<timeAgo/>",
+  "add_to_calendar": "Přidat do kalendáře",
+  "couch_crashes_prompt": "Hledáš něco většího? <crashesLink>Zobrazit nadcházející Couch Crashes</crashesLink>"
 }

@@ -13,7 +13,6 @@
     "footer": {
       "received_because": "Du erhältst diese E-Mail, weil du dich bei Couchers.org registriert hast.",
       "contact_support": "Du erreichst unser Support-Team unter {{ email_link }}.",
-      "timezone_note": "Alle Zeiten sind in {{ timezone }}, basierend auf deinem Profilstandort.",
       "donate_link": "Spenden",
       "volunteer_link": "Helfen",
       "blog_link": "Blog",
@@ -69,9 +68,9 @@
   "api_key_issued": {
     "subject": "Dein API-Schlüssel für Couchers.org",
     "header": "Du hast kürzlich einen API-Schlüssel für Couchers.org angefordert. Wir haben dir den folgenden API-Schlüssel ausgestellt:",
-    "expiry": "Der Schlüssel läuft am <b>{{ datetime }}</b> ab.",
     "usage_warning": "Dieser API-Schlüssel ist einzigartig für dein Konto; teile ihn mit niemandem. Er gewährt vollständigen Zugriff auf dein Konto, und du bist für alle Aktionen verantwortlich, die mit diesem API-Schlüssel durchgeführt werden.",
-    "policy_warning": "Bitte denke daran, während der Nutzung unserer APIs unsere <a href=\"{{terms_url}}\">Nutzungsbedingungen</a>, unsere Community-Richtlinien und andere Richtlinien einzuhalten. Alle Zugriffe werden protokolliert und analysiert, und wir können deinen Zugriff oder dein Konto sperren, wenn du den Dienst missbrauchst."
+    "policy_warning": "Bitte denke daran, während der Nutzung unserer APIs unsere <a href=\"{{terms_url}}\">Nutzungsbedingungen</a>, unsere Community-Richtlinien und andere Richtlinien einzuhalten. Alle Zugriffe werden protokolliert und analysiert, und wir können deinen Zugriff oder dein Konto sperren, wenn du den Dienst missbrauchst.",
+    "expiry2": "Der Schlüssel läuft am <b>{{ datetime_utc }}</b> (UTC) ab."
   },
   "badges": {
     "added": {
@@ -125,7 +124,7 @@
   "donation_received": {
     "subject": "Vielen Dank für deine Spende an Couchers.org!",
     "purpose": "Vielen Dank für deine Spende von <b>{{amount_with_currency}}</b> an Couchers.org.",
-    "contribution_impact": "Dein Beitrag wird zum Aufbau und Erhalt der Couchers.org-Community verwendet und ist entscheidend für unser Ziel einer kostenlosen und gemeinnützigen Couchsurfing-Plattform.",
+    "contribution_impact": "Dein Beitrag wird zum Aufbau und Erhalt der Couchers.org-Community verwendet und ist entscheidend für unser Ziel einer kostenlosen und gemeinnützigen Couch-Surfing-Plattform.",
     "invoice_receipt_info": "Du kannst eine Rechnung und eine Quittung für die Spende hier herunterladen:",
     "download_invoice": "Rechnung herunterladen",
     "tax_acknowledgment": "Couchers, Inc. ist eine gemeinnützige Organisation gemäß 501(c)(3) (EIN: 87-1734577) mit Sitz in den Vereinigten Staaten. Im Gegenzug für diese Spende wurden keine Waren oder Dienstleistungen erbracht.",
@@ -344,8 +343,8 @@
   },
   "onboarding_reminder": {
     "initial": {
-      "subject": "Willkommen bei Couchers.org und der Zukunft des Couchsurfings",
-      "welcome": "Willkommen bei Couchers.org und unserer weltweiten Couchsurfing-Community!",
+      "subject": "Willkommen bei Couchers.org und der Zukunft des Couch-Surfings",
+      "welcome": "Willkommen bei Couchers.org und unserer weltweiten Couch-Surfing-Community!",
       "early_user_role": "Wir wachsen schnell, und wenn du zurückblickst, wirst du einer der ersten Nutzer gewesen sein. Du spielst daher eine entscheidende Rolle dabei, die Kultur und Atmosphäre der wachsenden Community und unserer Plattform zu prägen. Ich freue mich wirklich, dass du uns gefunden hast und dich entschieden hast, dabei zu sein!",
       "complete_profile_request": "Wenn du dich ein wenig umgesehen hast, vervollständige bitte dein Profil, indem du ein Foto hochlädst und ein wenig über dich schreibst (und über dein Zuhause, falls du hosten möchtest).",
       "profile_importance": "Ein Profil, das sich wie eine echte Person anfühlt, hilft anderen dabei, sich zu entscheiden, dass sie dich gerne treffen oder bei dir übernachten möchten. Versuch, der Community einen Eindruck von deinem Vibe zu geben! Denk nicht zu viel nach: Schreib einfach, wie du bist. Erzähl, worauf du stehst, wie du deine Zeit gerne verbringst und was dir wichtig ist.",

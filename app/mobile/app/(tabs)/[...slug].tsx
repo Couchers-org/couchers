@@ -3,6 +3,11 @@ import { Href, Redirect, useLocalSearchParams, useRouter } from "expo-router";
 import WebEmbed from "@/components/WebEmbed";
 import { detailRouteOriginRef } from "@/state/webViewState";
 
+// Where back goes from a page opened with nowhere to return to, e.g. from a push
+function getBackFallback(path: string): string {
+  return path.startsWith("/event/") ? "/events" : "/dashboard";
+}
+
 export default function CatchAllScreen() {
   const { slug, ...rest } = useLocalSearchParams<{ slug?: string[] }>();
   const router = useRouter();
@@ -31,10 +36,8 @@ export default function CatchAllScreen() {
       path={path}
       onNativeBackFallback={() => {
         const origin = detailRouteOriginRef.current;
-        if (origin) {
-          detailRouteOriginRef.current = null;
-          router.navigate(origin as Href);
-        }
+        detailRouteOriginRef.current = null;
+        router.navigate((origin || getBackFallback(path)) as Href);
       }}
     />
   );

@@ -1,31 +1,18 @@
-import { ArrowBack, ArrowForward, TravelExplore } from "@mui/icons-material";
-import { Box, IconButton, styled, Typography } from "@mui/material";
+import { TravelExplore } from "@mui/icons-material";
+import { styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
-import FadingScrollTrack, { cardScrollDistance } from "components/FadingScrollTrack";
+import CardTrack, { useCardTrack } from "components/CardTrack";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useListPublicTripsByUser } from "features/publicTrips/useListPublicTrips";
 import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import { PublicTripStatus } from "proto/public_trips_pb";
-import { useEffect, useRef, useState } from "react";
 import { myPublicTripsRoute } from "routes";
 import dayjs from "utils/dayjs";
 
-import {
-  CARD_GAP,
-  CARD_WIDTH,
-  DashboardPublicTripCard,
-  DashboardPublicTripCardSkeleton,
-} from "./DashboardPublicTripCard";
-
-const SectionHeader = styled("div")({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  marginBottom: "10px",
-  minHeight: "28px",
-});
+import { CARD_WIDTH, DashboardPublicTripCard, DashboardPublicTripCardSkeleton } from "./DashboardPublicTripCard";
+import DashboardSectionHeader from "./DashboardSectionHeader";
 
 const EmptyStateRow = styled("div")(({ theme }) => ({
   display: "flex",
@@ -51,58 +38,21 @@ export default function DashboardMyPublicTrips() {
     ascending: true,
   });
 
-  const scrollerRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-
-  const updateScrollState = () => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 0);
-    setCanScrollRight(Math.round(el.scrollLeft) < el.scrollWidth - el.clientWidth);
-  };
-
   const activeTrips = (data?.publicTripsList ?? []).filter(
     (trip) =>
       trip.status === PublicTripStatus.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST &&
       !dayjs(trip.toDate).isBefore(dayjs().startOf("day")),
   );
 
-  useEffect(() => {
-    updateScrollState();
-  }, [activeTrips.length, isLoading]);
-
-  const scroll = (dir: 1 | -1) => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    el.scrollBy({ left: dir * cardScrollDistance(el, CARD_WIDTH, CARD_GAP), behavior: "smooth" });
-  };
+  const track = useCardTrack();
 
   return (
     <section>
-      <SectionHeader>
-        <Typography variant="h2" sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
-          <TravelExplore sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />
-          {t("dashboard:public_trips.my_trips_header")}
-          {!isLoading && activeTrips.length > 0 && (
-            <Box
-              component="span"
-              sx={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: "var(--mui-palette-text-secondary)",
-                background: "var(--mui-palette-grey-50)",
-                borderRadius: 999,
-                px: 1.125,
-                lineHeight: "20px",
-                display: "inline-block",
-              }}
-            >
-              {activeTrips.length}
-            </Box>
-          )}
-        </Typography>
-        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+      <DashboardSectionHeader
+        icon={TravelExplore}
+        title={t("dashboard:public_trips.my_trips_header")}
+        count={isLoading ? 0 : activeTrips.length}
+        action={
           <Link href={myPublicTripsRoute} style={{ textDecoration: "none" }}>
             <Typography
               component="span"
@@ -116,52 +66,24 @@ export default function DashboardMyPublicTrips() {
               {t("dashboard:public_trips.manage_link")}
             </Typography>
           </Link>
-          <IconButton
-            size="small"
-            onClick={() => scroll(-1)}
-            disabled={!canScrollLeft}
-            color={canScrollLeft ? "primary" : "default"}
-            aria-label={t("dashboard:prev_page_button_a11y")}
-          >
-            <ArrowBack fontSize="small" />
-          </IconButton>
-          <IconButton
-            size="small"
-            onClick={() => scroll(1)}
-            disabled={!canScrollRight}
-            color={canScrollRight ? "primary" : "default"}
-            aria-label={t("dashboard:next_page_button_a11y")}
-          >
-            <ArrowForward fontSize="small" />
-          </IconButton>
-        </div>
-      </SectionHeader>
+        }
+        {...track.navProps}
+      />
 
       {error && <Alert severity="error">{error.message}</Alert>}
 
       {isLoading ? (
-        <FadingScrollTrack $gap={CARD_GAP} $snapType="x proximity">
+        <CardTrack cardWidth={CARD_WIDTH}>
           {[0, 1, 2].map((i) => (
-            <Box key={i} sx={{ flex: `0 0 ${CARD_WIDTH}px`, scrollSnapAlign: "start" }}>
-              <DashboardPublicTripCardSkeleton />
-            </Box>
+            <DashboardPublicTripCardSkeleton key={i} />
           ))}
-        </FadingScrollTrack>
+        </CardTrack>
       ) : activeTrips.length > 0 ? (
-        <FadingScrollTrack
-          ref={scrollerRef}
-          onScroll={updateScrollState}
-          $gap={CARD_GAP}
-          $snapType="x proximity"
-          $canScrollLeft={canScrollLeft}
-          $canScrollRight={canScrollRight}
-        >
+        <CardTrack track={track} cardWidth={CARD_WIDTH}>
           {activeTrips.map((trip) => (
-            <Box key={trip.tripId} sx={{ flex: `0 0 ${CARD_WIDTH}px`, scrollSnapAlign: "start" }}>
-              <DashboardPublicTripCard trip={trip} locale={locale} offersCount={trip.offersCount} />
-            </Box>
+            <DashboardPublicTripCard key={trip.tripId} trip={trip} locale={locale} offersCount={trip.offersCount} />
           ))}
-        </FadingScrollTrack>
+        </CardTrack>
       ) : (
         !error && (
           <EmptyStateRow>

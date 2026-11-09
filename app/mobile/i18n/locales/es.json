@@ -6,7 +6,11 @@
     "camera_permission_denied": "Se requiere el permiso de cámara para hacer fotos.",
     "camera_permission_required": "Permiso de cámara requerido",
     "camera_permission_explanation": "Esta aplicación necesita acceso a la cámara para poder hacer fotos. Por favor concede el permiso cuando se te solicite.",
-    "camera_permission_denied_permanently": "Se denegó el acceso a la cámara. Para hacer fotos necesitas habilitar el permiso de la cámara en los ajustes de tu dispositivo."
+    "camera_permission_denied_permanently": "Se denegó el acceso a la cámara. Para hacer fotos necesitas habilitar el permiso de la cámara en los ajustes de tu dispositivo.",
+    "calendar_permission_required": "Se requiere permiso de Calendario",
+    "calendar_permission_explanation": "Esta aplicación necesita acceso al Calendario para añadir eventos. Por favor concede el permiso cuando se te solicite.",
+    "calendar_permission_denied_permanently": "Se denegó el acceso al Calendario. Para añadir eventos a tu Calendario tendrás que activar el permiso de Calendario en los Ajustes de tu dispositivo.",
+    "add_to_calendar_failed": "No se pudo abrir tu Calendario. Por favor inténtalo de nuevo."
   },
   "not_found": {
     "title": "¡Ups!",

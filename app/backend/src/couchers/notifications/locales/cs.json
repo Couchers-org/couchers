@@ -14,9 +14,9 @@
       "push": {
         "title": "Účet smazán",
         "ios_title": "Účet smazán",
-        "body_one": "Můžeš jej obnovit do {{count}} dne pomocí odkazu, který jsme ti zaslali e-mailem.",
-        "body_few": "Můžeš jej obnovit do {{count}} dní pomocí odkazu, který jsme ti zaslali e-mailem.",
-        "body_other": "Můžeš jej obnovit do {{count}} dnů pomocí odkazu, který jsme ti zaslali e-mailem."
+        "body_one": "Můžeš jej obnovit do {{count}} dne pomocí odkazu, který jsme ti zaslali emailem.",
+        "body_few": "Můžeš jej obnovit do {{count}} dní pomocí odkazu, který jsme ti zaslali emailem.",
+        "body_other": "Můžeš jej obnovit do {{count}} dnů pomocí odkazu, který jsme ti zaslali emailem."
       }
     },
     "recovered": {
@@ -31,7 +31,7 @@
       "push": {
         "title": "Žádost o smazání účtu podána",
         "ios_title": "Žádost o smazání účtu byla odeslána",
-        "body": "Použij odkaz, který jsme ti poslali e-mailem k potvrzení."
+        "body": "Použij odkaz, který jsme ti poslali emailem k potvrzení."
       },
       "event_description": "Zahájili jste smazání účtu"
     }
@@ -52,7 +52,7 @@
       "push": {
         "title": "API klíč vytvořen",
         "ios_title": "API klíč vytvořen",
-        "body": "Podrobnosti ti byly zaslány e-mailem."
+        "body": "Podrobnosti ti byly zaslány emailem."
       }
     }
   },

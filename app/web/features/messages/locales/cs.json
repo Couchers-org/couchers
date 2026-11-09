@@ -85,7 +85,7 @@
   "cancel_request_dialog_confirm_button": "Ano, zrušit",
   "cancel_request_dialog_dismiss_button": "Ne",
   "private_feedback_card": {
-    "quality_label": "Ohodnoť tuto žádost soukromě (nepovinné):",
+    "quality_label": "Anonymně ohodnoť žádost (volitelné):",
     "quality_high": "Kvalitní",
     "quality_okay": "Dobrý",
     "decline_reason_options": {

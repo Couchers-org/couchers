@@ -1,5 +1,5 @@
-import { ArrowBack, ArrowForward, Event } from "@mui/icons-material";
-import { IconButton, styled, Typography } from "@mui/material";
+import { Event } from "@mui/icons-material";
+import { styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import StyledLink from "components/StyledLink";
 import { Trans, useTranslation } from "i18n";
@@ -7,15 +7,9 @@ import { DASHBOARD } from "i18n/namespaces";
 import { useState } from "react";
 
 import { routeToNewEvent } from "../../routes";
+import DashboardSectionHeader from "./DashboardSectionHeader";
 import EventListRow, { EventListContainer, EventListRowSkeleton } from "./EventListRow";
 import useGetDashboard, { DASHBOARD_PAGE_SIZE } from "./useGetDashboard";
-
-const SectionHeader = styled("div")({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  marginBottom: "8px",
-});
 
 const EmptyStateRow = styled("div")(({ theme }) => ({
   display: "flex",
@@ -47,32 +41,14 @@ export default function CommunityEvents() {
 
   return (
     <div>
-      <SectionHeader>
-        <Typography variant="h2" sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
-          <Event sx={{ fontSize: 20, color: "var(--mui-palette-primary-main)" }} />
-          {t("dashboard:events.community_header")}
-        </Typography>
-        <div>
-          <IconButton
-            size="small"
-            onClick={() => setCurrentPageIndex((i) => i - 1)}
-            disabled={!hasPreviousPage}
-            color={hasPreviousPage ? "primary" : "default"}
-            aria-label={t("dashboard:prev_page_button_a11y")}
-          >
-            <ArrowBack fontSize="small" />
-          </IconButton>
-          <IconButton
-            size="small"
-            onClick={() => setCurrentPageIndex((i) => i + 1)}
-            disabled={!hasNextPage}
-            color={hasNextPage ? "primary" : "default"}
-            aria-label={t("dashboard:next_page_button_a11y")}
-          >
-            <ArrowForward fontSize="small" />
-          </IconButton>
-        </div>
-      </SectionHeader>
+      <DashboardSectionHeader
+        icon={Event}
+        title={t("dashboard:events.community_header")}
+        hasPrevious={hasPreviousPage}
+        hasNext={hasNextPage}
+        onPrevious={() => setCurrentPageIndex((i) => i - 1)}
+        onNext={() => setCurrentPageIndex((i) => i + 1)}
+      />
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
         <EventListContainer>

@@ -6,6 +6,7 @@ from geoalchemy2 import Geometry
 from sqlalchemy import (
     BigInteger,
     Boolean,
+    CheckConstraint,
     Computed,
     Date,
     DateTime,
@@ -43,6 +44,13 @@ class HostRequestStatus(enum.Enum):
     cancelled = enum.auto()
 
 
+class StayProposalKind(enum.Enum):
+    # a surfer asking a host to stay
+    request = enum.auto()
+    # a host inviting the traveller of a public trip to stay
+    invitation = enum.auto()
+
+
 class HostRequestQuality(enum.Enum):
     high_quality = enum.auto()
     okay_quality = enum.auto()
@@ -60,8 +68,9 @@ class HostRequest(Base, kw_only=True):
     * surfer/host is the stay role: whose couch it is. References, feedback, response rates and metrics key
       off this axis.
 
-    An offer on a public trip reverses them: the host initiates and the traveller responds. surfer_user_id
-    and host_user_id are generated from that so the stay role can never drift out of sync.
+    An invitation on a public trip (proposal_kind == invitation) reverses them: the host initiates and the traveller
+    responds. surfer_user_id and host_user_id are generated from proposal_kind so the stay role can never drift out of
+    sync.
     """
 
     __tablename__ = "host_requests"
@@ -73,15 +82,21 @@ class HostRequest(Base, kw_only=True):
     initiator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     recipient_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
+    proposal_kind: Mapped[StayProposalKind] = mapped_column(Enum(StayProposalKind))
+
     surfer_user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id"),
-        Computed("case when public_trip_id is null then initiator_user_id else recipient_user_id end", persisted=True),
+        Computed(
+            "case when proposal_kind = 'request' then initiator_user_id else recipient_user_id end", persisted=True
+        ),
         index=True,
         init=False,
     )
     host_user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id"),
-        Computed("case when public_trip_id is null then recipient_user_id else initiator_user_id end", persisted=True),
+        Computed(
+            "case when proposal_kind = 'request' then recipient_user_id else initiator_user_id end", persisted=True
+        ),
         index=True,
         init=False,
     )
@@ -136,7 +151,7 @@ class HostRequest(Base, kw_only=True):
     recipient_reason_didnt_meetup: Mapped[str | None] = mapped_column(String, default=None)
     initiator_reason_didnt_meetup: Mapped[str | None] = mapped_column(String, default=None)
 
-    # Optional link to public trip if this request originated from one
+    # set exactly when proposal_kind == invitation
     public_trip_id: Mapped[int | None] = mapped_column(ForeignKey("public_trips.id"), index=True, default=None)
 
     initiator: Mapped[User] = relationship(
@@ -176,7 +191,11 @@ class HostRequest(Base, kw_only=True):
             public_trip_id,
             initiator_user_id,
             unique=True,
-            postgresql_where=and_(public_trip_id != None, status != HostRequestStatus.cancelled),
+            postgresql_where=and_(proposal_kind == StayProposalKind.invitation, status != HostRequestStatus.cancelled),
+        ),
+        CheckConstraint(
+            "(proposal_kind = 'invitation') = (public_trip_id IS NOT NULL)",
+            name="public_trip_id_iff_invitation",
         ),
     )
 
