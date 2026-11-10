@@ -22,14 +22,22 @@
       "collapse_all": "Sbalit vše",
       "expand_all": "Rozbalit vše",
       "channels": {
-        "email_label": "Email"
+        "email_label": "Email",
+        "push_label": "Push"
       }
     },
     "push_notifications": {
       "title": "Push notifikace",
       "description": "Push notifikace pro Couchers.org můžeš zapnout na svém zařízení. Pracujeme na rozšíření této funkce.",
       "enabled_message": "Aktuálně máš push notifikace <strong>zapnuté</strong>.",
-      "disabled_message": "Aktuálně máš push notifikace <strong>vypnuté</strong>."
+      "disabled_message": "Aktuálně máš push notifikace <strong>vypnuté</strong>.",
+      "allow_push": "Klikni na tlačítko „Povolit“ ve vyskakovacím okně prohlížeče a zapni si tak push notifikace.",
+      "error_generic": "Chyba při přihlašování k odběru push notifikací",
+      "error_unsupported": "Tvůj prohlížeč nepodporuje push notifikace nebo service workery.",
+      "error_not_granted": "Povolení k odesílání push notifikací nebylo uděleno.",
+      "permission_denied": {
+        "platform_settings_description": "Máš stále potíže i po povolení notifikací ve svém prohlížeči? Možná budeš muset upravit nastavení své platformy."
+      }
     }
   },
   "error_loading": "Chyba při načítání oznámení",

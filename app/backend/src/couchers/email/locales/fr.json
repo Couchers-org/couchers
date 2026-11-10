@@ -165,31 +165,9 @@
     }
   },
   "stays": {
-    "created": {
-      "host_request": {
-        "purpose": "<b>{{initiator}}</b> vous a envoyé une demande d'hébergement :"
-      }
-    },
     "generic": {
       "date_range": "Du <b>{{from_date}}</b> au <b>{{to_date}}</b>.",
-      "host_request": {
-        "view_action": "Voir la demande d'hébergement"
-      },
       "quick_decline_action": "Refus rapide"
-    },
-    "reminder": {
-      "host_request": {
-        "subject": "Vous avez une demande d'hébergement en attente de {{initiator}}",
-        "purpose": "<b>{{initiator}}</b> attend votre réponse. Même un refus rapide est préférable l'absence d'une réponse !"
-      }
-    },
-    "status_changed": {
-      "host_request": {
-        "cancelled_by_initiator": {
-          "subject": "{{counterparty}} a annulé sa demande d'hébergement",
-          "purpose": "<b>{{counterparty}}</b> a annulé sa demande d'hébergement :"
-        }
-      }
     }
   },
   "moderator_note": {
