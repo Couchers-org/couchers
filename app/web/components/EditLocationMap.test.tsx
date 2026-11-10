@@ -276,7 +276,7 @@ describe("Edit location map", () => {
 
       await user.click(await screen.findByRole("button", { name: BUTTON }));
 
-      expect(await screen.findByText(t("global:use_my_location.permission_denied"))).toBeVisible();
+      expect(await screen.findByText(t("global:use_my_location.permission_denied_error"))).toBeVisible();
 
       const addressField = screen.getByLabelText(t("global:components.edit_location_map.display_location_label"));
       await user.type(addressField, "Somewhere");

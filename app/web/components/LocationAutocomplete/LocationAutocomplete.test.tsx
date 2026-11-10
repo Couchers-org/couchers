@@ -637,13 +637,13 @@ describe("LocationAutocomplete component", () => {
 
       await user.click(await screen.findByRole("button", { name: BUTTON }));
 
-      expect(await screen.findByText(t("global:use_my_location.permission_denied"))).toBeVisible();
+      expect(await screen.findByText(t("global:use_my_location.permission_denied_error"))).toBeVisible();
 
       // No dead end: the field still works, and the message clears as they type.
       await user.type(input, "tes");
       expect(input).toHaveValue("tes");
       expect(await screen.findByText("test city, test country")).toBeVisible();
-      expect(screen.queryByText(t("global:use_my_location.permission_denied"))).not.toBeInTheDocument();
+      expect(screen.queryByText(t("global:use_my_location.permission_denied_error"))).not.toBeInTheDocument();
     });
 
     it("explains an unavailable position and still allows typing", async () => {
@@ -654,7 +654,7 @@ describe("LocationAutocomplete component", () => {
 
       await user.click(await screen.findByRole("button", { name: BUTTON }));
 
-      expect(await screen.findByText(t("global:use_my_location.position_unavailable"))).toBeVisible();
+      expect(await screen.findByText(t("global:use_my_location.position_unavailable_error"))).toBeVisible();
       await user.type(input, "tes");
       expect(input).toHaveValue("tes");
     });
@@ -668,7 +668,7 @@ describe("LocationAutocomplete component", () => {
 
       await user.click(await screen.findByRole("button", { name: BUTTON }));
 
-      expect(await screen.findByText(t("global:use_my_location.lookup_failed"))).toBeVisible();
+      expect(await screen.findByText(t("global:use_my_location.lookup_failed_error"))).toBeVisible();
       await user.type(input, "tes");
       expect(input).toHaveValue("tes");
     });
@@ -682,7 +682,7 @@ describe("LocationAutocomplete component", () => {
 
       await user.click(await screen.findByRole("button", { name: BUTTON }));
 
-      expect(await screen.findByText(t("global:use_my_location.no_address"))).toBeVisible();
+      expect(await screen.findByText(t("global:use_my_location.no_address_error"))).toBeVisible();
     });
   });
 

@@ -75,7 +75,7 @@ export default function useMyLocation({
 
     if (typeof navigator === "undefined" || !navigator.geolocation) {
       trackOutcome("unsupported");
-      setError(t("use_my_location.unsupported"));
+      setError(t("use_my_location.unsupported_error"));
       return undefined;
     }
 
@@ -102,7 +102,7 @@ export default function useMyLocation({
       }
       if (results.length === 0) {
         trackOutcome("no_result");
-        setError(t("use_my_location.no_address"));
+        setError(t("use_my_location.no_address_error"));
         return undefined;
       }
       trackOutcome("ok");
@@ -122,8 +122,8 @@ export default function useMyLocation({
         trackOutcome(code === 1 ? "denied" : code === 3 ? "timeout" : "position_unavailable");
         setError(
           code === 1 /* PERMISSION_DENIED */
-            ? t("use_my_location.permission_denied")
-            : t("use_my_location.position_unavailable"),
+            ? t("use_my_location.permission_denied_error")
+            : t("use_my_location.position_unavailable_error"),
         );
         return undefined;
       }
@@ -133,7 +133,7 @@ export default function useMyLocation({
         error_kind: caught instanceof PeliasError ? caught.kind : "other",
       });
       Sentry.captureException(caught, { tags: { hook: "useMyLocation" } });
-      setError(t("use_my_location.lookup_failed"));
+      setError(t("use_my_location.lookup_failed_error"));
       return undefined;
     } finally {
       if (!isStale()) {
