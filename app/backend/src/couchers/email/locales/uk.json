@@ -217,6 +217,11 @@
   },
   "stays": {
     "created": {
+      "request": {
+        "subject": "{{initiator}} запитує, чи можна завітати до вас у гості",
+        "purpose": "<b>{{initiator}}</b> відправив(ла) вам запит:",
+        "respond_encouragement": "Будь ласка, напишіть відповідь на цей запит. Навіть швидка відмова краща за вічне очікування!"
+      },
       "invitation": {
         "subject": "{{initiator}} відправив(ла) вам запрошення у гості",
         "purpose": "<b>{{initiator}}</b> відправив(ла) вам запрошення у гості:",
@@ -225,18 +230,35 @@
     },
     "generic": {
       "date_range": "З <b>{{from_date}}</b> до <b>{{to_date}}</b>.",
+      "request": {
+        "view_action": "Переглянути запит"
+      },
       "quick_decline_action": "Швидка відмова",
       "invitation": {
         "view_action": "Переглянути запрошення"
       }
     },
     "reminder": {
+      "request": {
+        "subject": "{{initiator}} досі очікує вашої відповіді на запит",
+        "purpose": "<b>{{initiator}}</b> очікує на вашу відповідь, чи ви можете прийняти його(її) у гості. Навіть швидка відмова краща за вічне очікування!"
+      },
       "invitation": {
         "subject": "{{initiator}} досі чекає вашої відповіді на своє запрошення",
         "purpose": "<b>{{initiator}}</b> досі чекає відповіді на своє запрошення. Навіть швидка відмова краща за мовчання!"
       }
     },
     "message": {
+      "request": {
+        "from_initiator": {
+          "subject": "{{counterparty}} відправив(ла) вам повідомлення стосовно свого запиту",
+          "purpose": "<b>{{counterparty}}</b> відправив(ла) вам повідомлення стосовно свого запиту:"
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}} відправив(ла) вам повідомлення стосовно вашого запиту",
+          "purpose": "<b>{{counterparty}}</b> відправив(ла) вам повідомлення стосовно вашого запиту:"
+        }
+      },
       "invitation": {
         "from_initiator": {
           "subject": "{{counterparty}} відправив(ла) вам повідомлення стосовно свого запрошення",
@@ -249,6 +271,16 @@
       }
     },
     "missed_messages": {
+      "request": {
+        "from_initiator": {
+          "subject": "{{counterparty}} відправив(ла) вам повідомлення щодо свого запиту",
+          "purpose": "<b>{{counterparty}}</b> відправив(ла) вам одне чи більше повідомлень щодо свого запиту:"
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}} відправив(ла) вам повідомлення стосовно вашого запиту",
+          "purpose": "<b>{{counterparty}}</b> відправив(ла) вам одне чи більше повідомлень стосовно вашого запиту:"
+        }
+      },
       "invitation": {
         "from_initiator": {
           "subject": "{{counterparty}} відправив(ла) вам повідомлення стосовно свого запрошення",
@@ -261,6 +293,24 @@
       }
     },
     "status_changed": {
+      "request": {
+        "accepted_by_recipient": {
+          "subject": "{{counterparty}} прийняв(ла) ваш запит",
+          "purpose": "<b>{{counterparty}}</b> прийняв(ла) ваш запит:"
+        },
+        "declined_by_recipient": {
+          "subject": "{{counterparty}} відхилив(ла) ваш запит",
+          "purpose": "<b>{{counterparty}}</b> відхилив(ла) ваш запит:"
+        },
+        "confirmed_by_initiator": {
+          "subject": "{{counterparty}} підтвердив(ла) свій запит",
+          "purpose": "<b>{{counterparty}}</b> підтвердив(ла) свій запит:"
+        },
+        "cancelled_by_initiator": {
+          "subject": "{{counterparty}} скасував(ла) свій запит",
+          "purpose": "<b>{{counterparty}}</b> скасував(ла) свій запит:"
+        }
+      },
       "invitation": {
         "accepted_by_recipient": {
           "subject": "{{counterparty}} прийняв(ла) ваше запрошення у гості",
