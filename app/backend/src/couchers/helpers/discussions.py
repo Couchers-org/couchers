@@ -12,6 +12,7 @@ def get_discussions(
     page_size: int,
     page_token: str | None,
     owner_cluster_id: int | None = None,
+    subscribing_user_id: int | None = None,
 ) -> tuple[list[Discussion], str | None]:
     next_page_id = int(page_token) if page_token else 2**63 - 1
     has_visible_comments = (
@@ -34,15 +35,19 @@ def get_discussions(
 
     query = (
         select(Discussion)
-        .where((Discussion.deleted == None) | has_visible_comments)
-        .where(Discussion.id <= next_page_id)
-        .order_by(Discussion.id.desc())
-        .limit(page_size + 1)
     )
 
     if owner_cluster_id is not None:
         query = query.where(Discussion.owner_cluster_id == owner_cluster_id)
 
+    query = (
+        query
+        .where((Discussion.deleted == None) | has_visible_comments)
+        .where(Discussion.id <= next_page_id)
+        .order_by(Discussion.id.desc())
+        .limit(page_size + 1)
+    )
+    
     discussions = (
         session.execute(
             where_moderated_content_visible(
