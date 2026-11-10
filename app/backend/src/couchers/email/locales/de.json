@@ -38,7 +38,7 @@
     "started": {
       "subject": "Bestätige die Löschung deines Kontos",
       "purpose": "Du hast beantragt, dass wir dein Couchers.org-Konto löschen. Um diesen Vorgang abzuschließen, klicke bitte auf den folgenden Link:",
-      "confirm_action": "Accountlöschung bestätigen"
+      "confirm_action": "Kontolöschung bestätigen"
     },
     "completed": {
       "subject": "Dein Konto wurde gelöscht",
@@ -223,6 +223,11 @@
         "subject": "{{initiator}} hat dir eine Einladung geschickt",
         "purpose": "<b>{{initiator}}</b> hat dir eine Einladung geschickt:",
         "respond_encouragement": "Bitte antworte auf diese Einladung. Selbst eine schnelle Absage ist besser als gar keine Antwort!"
+      },
+      "request": {
+        "subject": "{{initiator}} hat dir eine Host-Anfrage gesendet",
+        "purpose": "<b>{{initiator}}</b> hat dir eine Host-Anfrage gesendet:",
+        "respond_encouragement": "Bitte antworte auf diese Anfrage. Selbst eine schnelle Absage ist besser als gar keine Antwort!"
       }
     },
     "generic": {
@@ -233,6 +238,9 @@
       "quick_decline_action": "Schnelle Absage",
       "invitation": {
         "view_action": "Einladung anzeigen"
+      },
+      "request": {
+        "view_action": "Host-Anfrage anzeigen"
       }
     },
     "reminder": {
@@ -242,6 +250,10 @@
       },
       "invitation": {
         "subject": "Du hast eine ausstehende Einladung von {{initiator}}",
+        "purpose": "<b>{{initiator}}</b> wartet auf deine Antwort. Selbst eine schnelle Absage ist besser als gar keine Antwort!"
+      },
+      "request": {
+        "subject": "Du hast eine ausstehende Host-Anfrage von {{initiator}}",
         "purpose": "<b>{{initiator}}</b> wartet auf deine Antwort. Selbst eine schnelle Absage ist besser als gar keine Antwort!"
       }
     },
@@ -265,6 +277,16 @@
           "subject": "{{counterparty}} hat dir eine Nachricht in deiner Einladung geschrieben",
           "purpose": "<b>{{counterparty}}</b> hat dir eine Nachricht in deiner Einladung geschrieben:"
         }
+      },
+      "request": {
+        "from_initiator": {
+          "subject": "{{counterparty}} hat dir eine Nachricht in der Host-Anfrage gesendet",
+          "purpose": "<b>{{counterparty}}</b> hat dir eine Nachricht in der Host-Anfrage gesendet:"
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}} hat dir eine Nachricht in deiner Host-Anfrage gesendet",
+          "purpose": "<b>{{counterparty}}</b> hat dir eine Nachricht in deiner Host-Anfrage gesendet:"
+        }
       }
     },
     "missed_messages": {
@@ -286,6 +308,16 @@
         "from_recipient": {
           "subject": "{{counterparty}} hat dir Nachricht(en) in deiner Einladung geschrieben",
           "purpose": "<b>{{counterparty}}</b> hat dir eine oder mehrere Nachrichten in deiner Einladung gesendet:"
+        }
+      },
+      "request": {
+        "from_initiator": {
+          "subject": "{{counterparty}} hat dir Nachricht(en) in der Host-Anfrage gesendet",
+          "purpose": "<b>{{counterparty}}</b> hat dir eine oder mehrere Nachrichten in der Host-Anfrage gesendet:"
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}} hat dir Nachricht(en) in deiner Host-Anfrage gesendet",
+          "purpose": "<b>{{counterparty}}</b> hat dir eine oder mehrere Nachrichten in deiner Host-Anfrage gesendet:"
         }
       }
     },
@@ -324,6 +356,24 @@
         "cancelled_by_initiator": {
           "subject": "{{counterparty}} hat die Einladung abgebrochen",
           "purpose": "<b>{{counterparty}}</b> hat die Einladung abgebrochen:"
+        }
+      },
+      "request": {
+        "accepted_by_recipient": {
+          "subject": "{{counterparty}} hat deine Host-Anfrage angenommen",
+          "purpose": "<b>{{counterparty}}</b> hat deine Host-Anfrage angenommen:"
+        },
+        "declined_by_recipient": {
+          "subject": "{{counterparty}} hat deine Host-Anfrage abgelehnt",
+          "purpose": "<b>{{counterparty}}</b> hat deine Host-Anfrage abgelehnt:"
+        },
+        "confirmed_by_initiator": {
+          "subject": "{{counterparty}} hat die Host-Anfrage bestätigt",
+          "purpose": "<b>{{counterparty}}</b> hat die Host-Anfrage bestätigt:"
+        },
+        "cancelled_by_initiator": {
+          "subject": "{{counterparty}} hat die Host-Anfrage zurückgezogen",
+          "purpose": "<b>{{counterparty}}</b> hat die Host-Anfrage zurückgezogen:"
         }
       }
     }
