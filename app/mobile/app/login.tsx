@@ -1,23 +1,27 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { Href, useRouter } from "expo-router";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Appearance,
   BackHandler,
   Linking,
   Platform,
   useColorScheme,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
 
+import LoadError from "@/components/LoadError";
 import { getWebBaseUrl } from "@/config/urls";
 import { useAuthContext } from "@/features/auth/AuthContext";
+import { useNetworkStatus } from "@/features/network/NetworkStatusContext";
 import { loginRoute } from "@/routes";
 import client from "@/service/client";
 import { lastLoginTimeRef } from "@/state/webViewState";
 import { theme } from "@/theme";
+import { shouldLimitToAppBoundDomains } from "@/utils/appBoundDomains";
 import { applicationNameForUserAgent } from "@/utils/userAgent";
 import { shouldLoadInWebView } from "@/utils/webViewUrlUtils";
 
@@ -50,6 +54,14 @@ export default function LoginScreen() {
   const router = useRouter();
   const colorScheme = useColorScheme();
   const [webViewKey, setWebViewKey] = useState<number>(0);
+  const [hasError, setHasError] = useState(false);
+  const { isOffline } = useNetworkStatus();
+
+  useEffect(() => {
+    if (!isOffline) {
+      setHasError(false);
+    }
+  }, [isOffline]);
 
   // Prevent Android back button from navigating away from login screen
   useFocusEffect(
@@ -102,32 +114,44 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor }}>
-      <WebView
-        key={webViewKey}
-        source={{ uri: WEB_BASE_URL + loginRoute }}
-        applicationNameForUserAgent={applicationNameForUserAgent}
-        injectedJavaScriptObject={{ isNativeEmbed: true }}
-        sharedCookiesEnabled
-        // On the new architecture an unset rate reaches iOS as 0, killing scroll momentum.
-        decelerationRate={Platform.OS === "ios" ? "normal" : undefined}
-        webviewDebuggingEnabled={
-          process.env.EXPO_PUBLIC_COUCHERS_ENV !== "prod"
-        }
-        onMessage={handleMessage}
-        onShouldStartLoadWithRequest={(event) => {
-          if (shouldLoadInWebView(event.url, WEB_BASE_URL)) {
-            return true;
+      {hasError ? (
+        <LoadError onRetry={() => setHasError(false)} />
+      ) : (
+        <WebView
+          key={webViewKey}
+          source={{ uri: WEB_BASE_URL + loginRoute }}
+          applicationNameForUserAgent={applicationNameForUserAgent}
+          injectedJavaScriptObject={{ isNativeEmbed: true }}
+          sharedCookiesEnabled
+          limitsNavigationsToAppBoundDomains={shouldLimitToAppBoundDomains(
+            WEB_BASE_URL,
+          )}
+          // On the new architecture an unset rate reaches iOS as 0, killing scroll momentum.
+          decelerationRate={Platform.OS === "ios" ? "normal" : undefined}
+          webviewDebuggingEnabled={
+            process.env.EXPO_PUBLIC_COUCHERS_ENV !== "prod"
           }
-          Linking.openURL(event.url).catch(() => {});
-          return false;
-        }}
-        onOpenWindow={(syntheticEvent) => {
-          const { targetUrl } = syntheticEvent.nativeEvent;
-          if (!shouldLoadInWebView(targetUrl, WEB_BASE_URL)) {
-            Linking.openURL(targetUrl).catch(() => {});
-          }
-        }}
-      />
+          onMessage={handleMessage}
+          onError={() => setHasError(true)}
+          renderError={() => {
+            setHasError(true);
+            return <View />;
+          }}
+          onShouldStartLoadWithRequest={(event) => {
+            if (shouldLoadInWebView(event.url, WEB_BASE_URL)) {
+              return true;
+            }
+            Linking.openURL(event.url).catch(() => {});
+            return false;
+          }}
+          onOpenWindow={(syntheticEvent) => {
+            const { targetUrl } = syntheticEvent.nativeEvent;
+            if (!shouldLoadInWebView(targetUrl, WEB_BASE_URL)) {
+              Linking.openURL(targetUrl).catch(() => {});
+            }
+          }}
+        />
+      )}
     </SafeAreaView>
   );
 }

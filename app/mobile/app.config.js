@@ -100,6 +100,17 @@ const APP_VARIANT = process.env.APP_VARIANT || "devtool";
 const variant = VARIANTS[APP_VARIANT] ?? VARIANTS.production;
 const icons = ICON_SETS[variant.iconSet];
 
+// WKWebView only runs service workers (offline support) on app-bound domains. Once
+// WKAppBoundDomains is set, script injection and message handlers are also denied on
+// any other host, so the devtool variant (which loads arbitrary preview/LAN URLs) opts out.
+const APP_BOUND_DOMAINS = {
+  production: ["couchers.org", "api.couchers.org"],
+  staging: ["next.couchershq.org", "dev-api.couchershq.org"],
+  devtool: [],
+};
+const appBoundDomains =
+  APP_BOUND_DOMAINS[APP_VARIANT] ?? APP_BOUND_DOMAINS.production;
+
 const associatedDomains = [
   variant.linkHost && `applinks:${variant.linkHost}`,
   variant.webcredHost && `webcredentials:${variant.webcredHost}`,
@@ -172,6 +183,9 @@ export default {
       ITSAppUsesNonExemptEncryption: false,
       NSLocationWhenInUseUsageDescription:
         "Allow Couchers to access your location to search for users, events, and other activities near you",
+      ...(appBoundDomains.length > 0 && {
+        WKAppBoundDomains: appBoundDomains,
+      }),
     },
   },
   android: {
@@ -281,6 +295,7 @@ export default {
     displayVersion: getDisplayVersion(),
     debugVersion: getDebugVersion(),
     appVariant: APP_VARIANT,
+    appBoundDomains,
   },
   owner: "couchers-org",
 };

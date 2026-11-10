@@ -92,6 +92,15 @@ jest.mock("@/components/DevSettingsButton", () => ({
   default: () => null,
 }));
 
+jest.mock("@/components/OfflineBanner", () => ({
+  __esModule: true,
+  default: ({ children }: { children: ReactNode }) => children,
+}));
+
+jest.mock("@/features/network/NetworkStatusContext", () => ({
+  NetworkStatusProvider: ({ children }: { children: ReactNode }) => children,
+}));
+
 jest.mock("@/config/urls", () => ({
   hydrateUrlOverrides: jest.fn(() => Promise.resolve()),
 }));

@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import WebEmbed from "@/components/WebEmbed";
 import { useAuthContext } from "@/features/auth/AuthContext";
+import { useNetworkStatus } from "@/features/network/NetworkStatusContext";
 import { useAddToCalendar } from "@/hooks/useAddToCalendar";
 import { useImagePicker } from "@/hooks/useImagePicker";
 import { useWebNavigation } from "@/hooks/useWebNavigation";
@@ -27,6 +28,10 @@ jest.mock("@/features/auth/AuthContext", () => ({
   useAuthContext: jest.fn(),
 }));
 
+jest.mock("@/features/network/NetworkStatusContext", () => ({
+  useNetworkStatus: jest.fn(),
+}));
+
 jest.mock("@/hooks/useAddToCalendar");
 jest.mock("@/hooks/useImagePicker");
 jest.mock("@/hooks/useWebNavigation");
@@ -43,6 +48,7 @@ let capturedWebViewProps: {
   source?: { uri: string };
   allowsBackForwardNavigationGestures?: boolean;
   injectedJavaScriptObject?: object;
+  cacheMode?: string;
   onLoad?: () => void;
   onNavigationStateChange?: (navState: {
     url: string;
@@ -119,6 +125,10 @@ describe("WebEmbed", () => {
       right: 0,
     });
     (useAuthContext as jest.Mock).mockReturnValue(mockAuthContext);
+    (useNetworkStatus as jest.Mock).mockReturnValue({
+      isOffline: false,
+      recheck: jest.fn(),
+    });
     (useFocusEffect as jest.Mock).mockImplementation((callback) => {
       const cleanup = callback();
       if (typeof cleanup === "function") {
@@ -393,6 +403,67 @@ describe("WebEmbed", () => {
       );
 
       expect(screen.queryByText("errors.failed_to_load")).toBeNull();
+    });
+  });
+
+  describe("offline", () => {
+    const originalConsoleError = console.error;
+    beforeEach(() => {
+      console.error = jest.fn();
+      (useNetworkStatus as jest.Mock).mockReturnValue({
+        isOffline: true,
+        recheck: jest.fn(),
+      });
+    });
+    afterEach(() => (console.error = originalConsoleError));
+
+    it("shows the error screen when moving to a page that can't load", async () => {
+      render(<WebEmbed path="/dashboard" />);
+
+      await act(async () => {
+        capturedWebViewProps.onLoad?.();
+        capturedWebViewProps.onError?.({
+          nativeEvent: { code: -2, url: `${mockWebBaseUrl}/search` },
+        });
+      });
+
+      expect(screen.getByText("errors.failed_to_load")).toBeTruthy();
+    });
+
+    it("shows the error screen when nothing has loaded yet", async () => {
+      render(<WebEmbed path="/dashboard" />);
+
+      await act(async () => {
+        capturedWebViewProps.onError?.({ nativeEvent: { code: -1009 } });
+      });
+
+      expect(screen.getByText("errors.failed_to_load")).toBeTruthy();
+    });
+
+    it("retries the page that failed when the connection comes back", async () => {
+      const { rerender } = render(<WebEmbed path="/dashboard" />);
+      await act(async () => {
+        capturedWebViewProps.onLoad?.();
+        capturedWebViewProps.onError?.({
+          nativeEvent: { code: -2, url: `${mockWebBaseUrl}/search` },
+        });
+      });
+      expect(screen.getByText("errors.failed_to_load")).toBeTruthy();
+
+      (useNetworkStatus as jest.Mock).mockReturnValue({
+        isOffline: false,
+        recheck: jest.fn(),
+      });
+      rerender(<WebEmbed path="/dashboard" />);
+
+      expect(screen.queryByText("errors.failed_to_load")).toBeNull();
+      expect(capturedWebViewProps.source?.uri).toBe(`${mockWebBaseUrl}/search`);
+    });
+
+    it("loads pages from the cache", () => {
+      render(<WebEmbed path="/dashboard" />);
+
+      expect(capturedWebViewProps.cacheMode).toBe("LOAD_CACHE_ELSE_NETWORK");
     });
   });
 

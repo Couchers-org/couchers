@@ -8,27 +8,26 @@ import {
   Appearance,
   AppState,
   BackHandler,
-  Image,
   Linking,
   Platform,
-  Pressable,
   StyleSheet,
-  Text,
   useColorScheme,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { WebView, WebViewMessageEvent } from "react-native-webview";
 
+import LoadError from "@/components/LoadError";
 import { getWebBaseUrl } from "@/config/urls";
 import { useAuthContext } from "@/features/auth/AuthContext";
+import { useNetworkStatus } from "@/features/network/NetworkStatusContext";
 import { useAddToCalendar } from "@/hooks/useAddToCalendar";
 import { useImagePicker } from "@/hooks/useImagePicker";
 import { useWebNavigation } from "@/hooks/useWebNavigation";
-import errorGraphic from "@/resources/404graphic.png";
 import client from "@/service/client";
 import { dispatchEscapeRef, lastLoginTimeRef } from "@/state/webViewState";
 import { theme } from "@/theme";
+import { shouldLimitToAppBoundDomains } from "@/utils/appBoundDomains";
 import { applicationNameForUserAgent } from "@/utils/userAgent";
 import { shouldLoadInWebView } from "@/utils/webViewUrlUtils";
 
@@ -53,10 +52,14 @@ export default function WebEmbed({
   const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
   const webviewRef = useRef<WebView>(null);
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const { markLoggedOut, setUserId, setJailed, markAuthenticated } =
     useAuthContext();
+  const { isOffline } = useNetworkStatus();
+  const isOfflineRef = useRef(isOffline);
+  isOfflineRef.current = isOffline;
   const [hasError, setHasError] = useState(false);
+  const [retryUri, setRetryUri] = useState<string | null>(null);
   const retryCountRef = useRef(0);
   const MAX_RETRIES = 2;
 
@@ -150,6 +153,13 @@ export default function WebEmbed({
     setHasError(false);
     webviewRef.current?.reload();
   };
+
+  // Retry automatically once the connection comes back.
+  useEffect(() => {
+    if (!isOffline) {
+      setHasError(false);
+    }
+  }, [isOffline]);
 
   // Sync WebView when path prop changes (tab navigation).
   useEffect(() => {
@@ -279,7 +289,8 @@ export default function WebEmbed({
       } else if (nextState === "active" && backgroundTimeRef.current !== null) {
         const elapsed = Date.now() - backgroundTimeRef.current;
         backgroundTimeRef.current = null;
-        if (elapsed > 30 * 60 * 1000) {
+        // Reloading offline would replace the page with an error.
+        if (elapsed > 30 * 60 * 1000 && !isOfflineRef.current) {
           webviewRef.current?.reload();
         }
       }
@@ -433,22 +444,7 @@ export default function WebEmbed({
     return (
       <View style={[styles.container, { backgroundColor }]}>
         <View style={{ height: insets.top, backgroundColor }} />
-        <View style={styles.errorContainer}>
-          <Image source={errorGraphic} style={styles.errorImage} />
-          <Text style={styles.errorTitle}>{t("errors.failed_to_load")}</Text>
-          <Text style={styles.errorText}>{t("errors.check_connection")}</Text>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={t("errors.try_again")}
-            style={({ pressed }) => [
-              styles.retryButton,
-              pressed && styles.retryButtonPressed,
-            ]}
-            onPress={handleRetry}
-          >
-            <Text style={styles.retryButtonText}>{t("errors.try_again")}</Text>
-          </Pressable>
-        </View>
+        <LoadError onRetry={handleRetry} />
       </View>
     );
   }
@@ -459,7 +455,7 @@ export default function WebEmbed({
       <WebView
         ref={webviewRef}
         style={[styles.webview, { backgroundColor }]}
-        source={{ uri: initialUri }}
+        source={{ uri: retryUri ?? initialUri }}
         applicationNameForUserAgent={applicationNameForUserAgent}
         allowsBackForwardNavigationGestures // iOS swipe back/forward
         // On the new architecture an unset rate reaches iOS as 0, killing scroll momentum.
@@ -469,7 +465,11 @@ export default function WebEmbed({
           process.env.EXPO_PUBLIC_COUCHERS_ENV !== "prod"
         }
         cacheEnabled={true}
-        cacheMode="LOAD_DEFAULT" // Revalidates on normal loads, uses cache for back nav (preserves cookies)
+        // LOAD_DEFAULT revalidates on normal loads and uses cache for back nav (preserves cookies)
+        cacheMode={isOffline ? "LOAD_CACHE_ELSE_NETWORK" : "LOAD_DEFAULT"}
+        limitsNavigationsToAppBoundDomains={shouldLimitToAppBoundDomains(
+          WEB_BASE_URL,
+        )}
         startInLoadingState
         javaScriptEnabled={true}
         domStorageEnabled={true}
@@ -526,6 +526,10 @@ export default function WebEmbed({
             return;
           }
 
+          // The error screen replaces the WebView, so remount it on the page that failed
+          if (nativeEvent.url) {
+            setRetryUri(nativeEvent.url);
+          }
           setHasError(true);
           if (__DEV__) {
             console.error("WebView error:", nativeEvent);
@@ -574,43 +578,5 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: "center",
     alignItems: "center",
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 24,
-  },
-  errorImage: {
-    width: "70%",
-    height: 200,
-    resizeMode: "contain",
-    marginBottom: 24,
-  },
-  errorTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    marginBottom: 8,
-    color: "#333",
-  },
-  errorText: {
-    fontSize: 16,
-    color: "#666",
-    textAlign: "center",
-    marginBottom: 24,
-  },
-  retryButton: {
-    backgroundColor: theme.palette.primary.main,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
-  },
-  retryButtonPressed: {
-    opacity: 0.8,
-  },
-  retryButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
   },
 });

@@ -83,6 +83,8 @@ export default function useAuthStore() {
           window.ReactNativeWebView.postMessage(JSON.stringify({ type: "LOGOUT" }));
         }
         clearStorage();
+        // The query cache is persisted for offline use, so don't leave this user's data behind
+        queryClient.clear();
         setLoading(false);
       },
       async passwordLogin({

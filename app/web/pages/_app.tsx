@@ -20,6 +20,7 @@ import { useTranslation } from "i18n";
 import type { AppProps } from "next/app";
 import { appWithTranslation } from "next-i18next";
 import nextI18nextConfig from "next-i18next.config";
+import Sentry from "platform/sentry";
 import React, { ReactNode, useEffect } from "react";
 import TagManager from "react-gtm-module";
 import { polyfill } from "seamless-scroll-polyfill";
@@ -43,6 +44,16 @@ function MyApp(props: AppWithLayoutProps) {
   useEffect(() => {
     if (process.env.NEXT_PUBLIC_COUCHERS_ENV === "prod") {
       TagManager.initialize({ gtmId: "GTM-PXP3896" });
+    }
+  }, []);
+
+  // The service worker caches pages so they still open offline (it also handles push notifications).
+  // Not in development, where it would serve stale hot-reloaded bundles.
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/service-worker.js", { scope: "/" }).catch((e) => {
+        Sentry.captureException(e, { tags: { component: "_app", action: "registerServiceWorker" } });
+      });
     }
   }, []);
 
