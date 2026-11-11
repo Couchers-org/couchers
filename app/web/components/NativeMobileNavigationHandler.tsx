@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { DEFAULT_LOCALE } from "i18n/locales";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
@@ -7,9 +8,11 @@ import { useIsNativeEmbed } from "utils/nativeLink";
  * Handles navigation requests from the mobile app.
  * When the mobile app sends a MOBILE_NAVIGATE message, this component
  * uses Next.js router to navigate client-side, avoiding proxy redirects.
+ * MOBILE_REFRESH refetches the page's data when its screen comes back into view.
  */
 export default function NativeMobileNavigationHandler() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const isNativeEmbed = useIsNativeEmbed();
 
   useEffect(() => {
@@ -21,6 +24,11 @@ export default function NativeMobileNavigationHandler() {
 
         // Handle both string and object payloads
         const data = typeof payload === "string" ? JSON.parse(payload) : payload;
+
+        if (data?.type === "MOBILE_REFRESH") {
+          queryClient.invalidateQueries();
+          return;
+        }
 
         if (data?.type === "MOBILE_NAVIGATE" && data?.path) {
           // Extract locale and path (e.g., "/de/dashboard" -> locale="de", pathname="/dashboard")
@@ -45,7 +53,7 @@ export default function NativeMobileNavigationHandler() {
 
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [isNativeEmbed, router]);
+  }, [isNativeEmbed, router, queryClient]);
 
   return null;
 }
