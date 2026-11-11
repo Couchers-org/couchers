@@ -1,7 +1,7 @@
 # Makefile for the backend of the application
 # Run 'make [command]' in app/backend to execute the specified command
 
-UV_VERSION=0.10.9
+UV_VERSION=0.13.7
 ROOT_DIR := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 
 DB_PASSWORD := "203d805f4b62c0a1b2f1f6b82d4583dfe563ec1619b83ce22ee414e8376a25e7"

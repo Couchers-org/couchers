@@ -1,12 +1,11 @@
 import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from "@mui/icons-material";
 import { Box, styled, useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
-import FadingScrollTrack from "components/FadingScrollTrack";
+import CardTrack, { useCardTrack } from "components/CardTrack";
 import IconButton from "components/IconButton";
 import { useTranslation } from "next-i18next";
 import { usePersistedState } from "platform/usePersistedState";
 import { Reminder } from "proto/account_pb";
-import { useEffect, useRef, useState } from "react";
 
 import { DASHBOARD } from "../../i18n/namespaces";
 import { theme } from "../../theme";
@@ -43,6 +42,12 @@ function getReminderId(reminder: Reminder.AsObject): string | null {
   if (reminder.confirmHostRequestReminder?.hostRequestId != null) {
     return `confirm_host_request:${reminder.confirmHostRequestReminder.hostRequestId}`;
   }
+  if (reminder.respondToPublicTripOfferReminder?.hostRequestId != null) {
+    return `respond_public_trip_offer:${reminder.respondToPublicTripOfferReminder.hostRequestId}`;
+  }
+  if (reminder.confirmPublicTripOfferReminder?.hostRequestId != null) {
+    return `confirm_public_trip_offer:${reminder.confirmPublicTripOfferReminder.hostRequestId}`;
+  }
   return null;
 }
 
@@ -73,15 +78,6 @@ const StyledContainer = styled(Box)(({ theme }) => ({
   width: "100%",
 }));
 
-const StyledCardSlot = styled(Box)({
-  flex: `0 0 ${CARD_WIDTH_DESKTOP}px`,
-  scrollSnapAlign: "start",
-
-  [theme.breakpoints.down("md")]: {
-    flex: `0 0 ${CARD_WIDTH_MOBILE}px`,
-  },
-});
-
 const StyledArrow = styled(IconButton)({
   backgroundColor: "var(--mui-palette-primary-main)",
   color: "var(--mui-palette-primary-contrastText)",
@@ -104,11 +100,7 @@ export default function ReminderCarousel() {
     {},
   );
 
-  const scrollerRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
 
   const reminders = data?.remindersList ?? [];
 
@@ -126,23 +118,7 @@ export default function ReminderCarousel() {
     setDismissedReminders({ ...pruned, [id]: dismissTime });
   };
 
-  const updateScrollState = () => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 0);
-    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
-  };
-
-  useEffect(() => {
-    updateScrollState();
-  }, [visibleReminders.length]);
-
-  const scrollByCard = (direction: 1 | -1) => {
-    scrollerRef.current?.scrollBy({
-      left: direction * (isMobile ? CARD_WIDTH_MOBILE + CARD_GAP : CARD_WIDTH_DESKTOP + CARD_GAP),
-      behavior: "smooth",
-    });
-  };
+  const track = useCardTrack({ maxCardsPerScroll: 1 });
 
   if (error) return <Alert severity="error">{error.message}</Alert>;
   if (!visibleReminders.length) return null;
@@ -152,18 +128,17 @@ export default function ReminderCarousel() {
       <StyledArrow
         aria-label={t("dashboard:reminder.carousel_scroller.left_arrow_a11y")}
         size={isMobile ? "small" : "medium"}
-        onClick={() => scrollByCard(-1)}
-        disabled={!canScrollLeft}
+        onClick={track.navProps.onPrevious}
+        disabled={!track.canScrollLeft}
       >
         <ChevronLeftIcon />
       </StyledArrow>
 
-      <FadingScrollTrack
-        ref={scrollerRef}
-        onScroll={updateScrollState}
-        $gap={CARD_GAP}
-        $canScrollLeft={canScrollLeft}
-        $canScrollRight={canScrollRight}
+      <CardTrack
+        track={track}
+        cardWidth={CARD_WIDTH_DESKTOP}
+        mobileCardWidth={CARD_WIDTH_MOBILE}
+        gap={CARD_GAP}
         sx={{
           flex: 1,
           minWidth: 0,
@@ -171,17 +146,15 @@ export default function ReminderCarousel() {
         }}
       >
         {visibleReminders.map(({ id, reminder }) => (
-          <StyledCardSlot key={id}>
-            <ReminderItem reminder={reminder} onDismiss={() => handleDismiss(id)} />
-          </StyledCardSlot>
+          <ReminderItem key={id} reminder={reminder} onDismiss={() => handleDismiss(id)} />
         ))}
-      </FadingScrollTrack>
+      </CardTrack>
 
       <StyledArrow
         aria-label={t("dashboard:reminder.carousel_scroller.right_arrow_a11y")}
         size={isMobile ? "small" : "medium"}
-        onClick={() => scrollByCard(1)}
-        disabled={!canScrollRight}
+        onClick={track.navProps.onNext}
+        disabled={!track.canScrollRight}
       >
         <ChevronRightIcon />
       </StyledArrow>

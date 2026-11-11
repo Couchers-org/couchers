@@ -2,7 +2,7 @@
   "change_email_form": {
     "title": "Change email",
     "current_email_message": "Your email address is currently <strong>{{email}}</strong>.",
-    "success_message": "Your email change has been received. Check your new email to complete the change.",
+    "success_message": "We have sent a confirmation link to your new email address. Click it to finish updating your account.",
     "current_password": "Current password",
     "new_email": "New email",
     "hide_current_password": "Hide current password",
@@ -11,7 +11,7 @@
   "change_signup_email_form": {
     "title": "Change signup email",
     "current_email_message": "Your email address is currently <strong>{{email}}</strong>.",
-    "success_message": "Your email change has been received. Check your new email to confirm your email.",
+    "success_message": "We have sent a verification link to your new email address. Click it to confirm your email.",
     "signup_change_email": "Change email address"
   },
   "do_not_email": {
@@ -183,7 +183,7 @@
   "sign_up_resend_verification_email_help": "Didn't receive the email? Click <resendLink>here to resend the verification link</resendLink>.",
   "sign_up_resend_verification_done": "Done! We've sent you another email.",
   "sign_up_change_email": "Mistyped your email address? Enter your correct email address here:",
-  "sign_up_completed_prompt": "We have sent an email with a verification link to your email address: <strong>{{email}}</strong>. Please click the link to activate your account.",
+  "sign_up_completed_prompt": "We have sent a verification link to your email address: <strong>{{email}}</strong>. Please click the link to activate your account.",
   "sign_up_confirmed_prompt": "You're all done! If you are not redirected, try logging in.",
   "unhandled_sign_up_state": "Error: unhandled signup flow state.",
   "login_prompt": "Click here to log in",
@@ -316,6 +316,112 @@
     "button_text": "Confirm action",
     "error_message": "Error: {{message}}",
     "missing_payload_or_sig": "Invalid URL"
+  },
+  "verification_page": {
+    "title": "Verification",
+    "intro": "Verification helps other members trust that you are who you say you are. It's always optional.",
+    "earned_badge_caption": "Adds this badge to your profile:",
+    "settings_link": {
+      "title": "Verification",
+      "moved_message": "Looking for verification? It's <verificationLink>moved here</verificationLink>."
+    },
+    "status_pill": {
+      "verified": "Verified",
+      "not_verified": "Not verified",
+      "code_sent": "Code sent",
+      "in_progress": "In progress"
+    },
+    "strong": {
+      "description": "A free way to verify your age and gender by using your biometric passport and phone. Your passport details remain private; only your verified age and gender appear on your profile.",
+      "benefits_header": "What you get",
+      "benefits": {
+        "photos_title_one": "{{count}} profile photo",
+        "photos_title_other": "{{count}} profile photos",
+        "photos_description": "Instead of {{unverified_count}}.",
+        "visibility_title": "Higher visibility",
+        "visibility_description": "You rank higher in search results.",
+        "badge_title": "A verified badge",
+        "badge_description": "Shown next to your name, with your age and gender marked as checked.",
+        "interactions_title": "More trust",
+        "interactions_description": "Members know you are who you say you are."
+      },
+      "data_notes": {
+        "third_party": "<strong>Scanned by <irisIdLink>Iris ID</irisIdLink>.</strong> Their app reads your passport chip with your phone and passes the result to us.",
+        "encryption": "<strong>Encrypted at rest.</strong> The passport record is encrypted and can only be read with a key stored offline. Only the <fieldsLink>minimum fields needed for verification</fieldsLink> are stored unencrypted.",
+        "deletion": "<strong>Delete it whenever you want.</strong> You can remove the data that keeps your verification active at any time. Verification also expires when your passport does."
+      },
+      "requirements_header": "What you need",
+      "requirements": {
+        "passport": "A biometric passport, with the gold chip symbol on the cover",
+        "nfc_phone": "A phone with NFC, with the case off",
+        "time": "About five minutes"
+      },
+      "start_hint": "We'll walk you through the passport scan step by step.",
+      "verified_message": "You're verified. It expires when your passport does."
+    },
+    "phone": {
+      "header": "Phone verification",
+      "description": "We will send a verification code to your phone. Your number remains entirely private and will never be displayed on your profile, used or passed on¹. Due to provider costs, this feature is reserved for donors.",
+      "code_sent_description": "We sent a code to <strong>{{phone_number}}</strong>. Enter it below to verify your number.",
+      "use_another_number_button": "Use another number",
+      "verified_message": "Verified: <strong>{{phone_number}}</strong>."
+    },
+    "postal": {
+      "header": "Postal verification",
+      "description": "We will mail a postcard with a code to your address to confirm your location. Your address remains entirely private and will only be used to send the card¹. Due to printing and postage costs, this feature is reserved for donors.",
+      "need_to_donate": "You need to <donateLink>donate</donateLink> before you can complete postal verification.",
+      "step_number": "Step {{step_number}}",
+      "steps": {
+        "address": "Your address",
+        "confirm": "Confirm it",
+        "in_the_post": "In the post",
+        "code": "Enter the code"
+      },
+      "address_form": {
+        "description": "Street, city and country are required. We check the address is deliverable before printing anything.",
+        "recipient_name_label": "Name",
+        "recipient_name_helper": "Taken from your profile display name, which is what we print on the postcard. If that isn't the name on your mailbox, <editProfileLink>update your display name</editProfileLink> first.",
+        "address_line_1_label": "Address line 1",
+        "address_line_2_label": "Address line 2 (optional)",
+        "address_line_2_placeholder": "Apartment, suite, floor",
+        "city_label": "City",
+        "state_label": "State or region (optional)",
+        "state_placeholder": "If your country uses one",
+        "postal_code_label": "Postal code",
+        "country_label": "Country",
+        "submit_button": "Check my address",
+        "required_field_error": "This field is required"
+      },
+      "confirm": {
+        "corrected_description": "We have updated your address to match official postal records. Please review it carefully. Once confirmed, the delivery address cannot be changed.",
+        "unchanged_description": "Please double-check your address. Once confirmed, the delivery address cannot be changed.",
+        "entered_header": "You entered",
+        "will_post_to_header": "We'll post to",
+        "submit_button": "Send my postcard",
+        "edit_button": "Edit address"
+      },
+      "in_the_post": {
+        "sent_message": "Your postcard was mailed on {{date}}. It usually takes one to three weeks to arrive. The code is valid for {{code_lifetime_days}} days from the date it was mailed.",
+        "queued_message": "Your postcard is queued for printing. It usually takes one to three weeks to arrive once mailed. The code is valid for {{code_lifetime_days}} days after it is sent."
+      },
+      "code_form": {
+        "description": "Enter the six characters printed on your postcard.",
+        "code_label": "Postcard code",
+        "attempts_left_one": "{{remaining}} of {{count}} try left.",
+        "attempts_left_other": "{{remaining}} of {{count}} tries left.",
+        "wrong_code_message": "That code doesn't match. Please try again.",
+        "submit_button": "Verify code"
+      },
+      "cancel_button": "Cancel this attempt",
+      "verified_message": "Your address is verified.",
+      "rate_limited_message": "You can restart postal verification on {{date}}.",
+      "failed_message": "That postal verification attempt was unsuccessful. You can restart the process below.",
+      "cancelled_message": "You cancelled your last postal verification attempt. You can restart the process below."
+    },
+    "data_use": {
+      "header": "How your data is used",
+      "body": "Your data is used only for verification purposes. Other members will only ever see that you're verified, never your personal details. We don't use your data for anything else, and we never share it with anyone except when required by legal authorities in a formal investigation of serious wrongdoing. If you'd like to learn more about how we keep your data secure for Strong Verification in particular, see our <helpCenterLink>Help Center article</helpCenterLink> about it."
+    }
   },
   "change_phone": {
     "title": "Phone number",

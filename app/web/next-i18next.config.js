@@ -77,7 +77,7 @@ module.exports = {
   i18n: {
     defaultLocale: "en",
     locales: allLanguages,
-    localeDetection: false, // Disabled - using custom middleware for locale detection
+    localeDetection: false, // Disabled - using custom proxy (proxy.ts) for locale detection
   },
   fallbackLng,
   defaultNS: "global",
@@ -91,6 +91,10 @@ module.exports = {
   localePath: (locale, namespace) => {
     // eslint-disable-next-line
     const path = require("path");
+    if (locale === "en-US") {
+      // en-US is a format-only locale. The translation is shared.
+      locale = "en";
+    }
     if (namespace === "global") {
       return path.resolve(process.cwd(), `resources/locales/${locale.replace("-", "_")}.json`);
     }

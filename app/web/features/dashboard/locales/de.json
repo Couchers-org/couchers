@@ -1,7 +1,6 @@
 {
-  "dashboard": "Übersicht",
+  "dashboard": "Dashboard",
   "find_a_host": "Finde einen Host",
-  "browse_communities": "Communitys durchsuchen",
   "search_input_label": "Wo gehst du hin?",
   "search_input_placeholder": "Suche einen Ort",
   "become_a_host": "Werde ein Host",
@@ -9,7 +8,6 @@
   "no_community": "Du befindest dich aktuell in keiner Community.",
   "no_sub_communities": "Keine Sub-Communitys.",
   "load_more": "Mehr laden",
-  "welcome": "Willkommen bei Couchers.org!",
   "new_pill": "Neu",
   "member_count_one": "{{count}} Mitglied",
   "member_count_other": "{{count}} Mitglieder",
@@ -63,6 +61,16 @@
     "carousel_scroller": {
       "left_arrow_a11y": "Nach links scrollen",
       "right_arrow_a11y": "Nach rechts scrollen"
+    },
+    "respond_to_public_trip_offer": {
+      "title": "{{name}} antworten",
+      "button": "Einladung anzeigen",
+      "description": "{{name}} hat angeboten, dich auf deinem Trip zu hosten. Gib Bescheid, ob du das Angebot annehmen möchtest."
+    },
+    "confirm_public_trip_offer": {
+      "title": "Bestätige {{name}} zu hosten",
+      "description": "{{name}} hat deine Einladung angenommen. Bestätige den Aufenthalt, um ihn einzuloggen.",
+      "button": "Aufenthalt bestätigen"
     }
   },
   "events": {
@@ -95,7 +103,9 @@
     "same_gender_only_indicator": "Gleiches Geschlecht",
     "invitations_count_one": "{{count}} Einladung",
     "invitations_count_other": "{{count}} Einladungen",
-    "no_invitations": "Noch keine Einladungen"
+    "no_invitations": "Noch keine Einladungen",
+    "community_trips_header": "Öffentliche Trips in deinen Communitys",
+    "community_trips_empty_description": "Gerade sucht niemand in deinen Communitys nach einem Host."
   },
   "today_label": "Heute"
 }

@@ -14,9 +14,9 @@
       "push": {
         "title": "Účet smazán",
         "ios_title": "Účet smazán",
-        "body_one": "Můžeš jej obnovit do {{count}} dne pomocí odkazu, který jsme ti zaslali e-mailem.",
-        "body_few": "Můžeš jej obnovit do {{count}} dní pomocí odkazu, který jsme ti zaslali e-mailem.",
-        "body_other": "Můžeš jej obnovit do {{count}} dnů pomocí odkazu, který jsme ti zaslali e-mailem."
+        "body_one": "Můžeš jej obnovit do {{count}} dne pomocí odkazu, který jsme ti zaslali emailem.",
+        "body_few": "Můžeš jej obnovit do {{count}} dní pomocí odkazu, který jsme ti zaslali emailem.",
+        "body_other": "Můžeš jej obnovit do {{count}} dnů pomocí odkazu, který jsme ti zaslali emailem."
       }
     },
     "recovered": {
@@ -31,7 +31,7 @@
       "push": {
         "title": "Žádost o smazání účtu podána",
         "ios_title": "Žádost o smazání účtu byla odeslána",
-        "body": "Použij odkaz, který jsme ti poslali e-mailem k potvrzení."
+        "body": "Použij odkaz, který jsme ti poslali emailem k potvrzení."
       },
       "event_description": "Zahájili jste smazání účtu"
     }
@@ -52,7 +52,7 @@
       "push": {
         "title": "API klíč vytvořen",
         "ios_title": "API klíč vytvořen",
-        "body": "Podrobnosti ti byly zaslány e-mailem."
+        "body": "Podrobnosti ti byly zaslány emailem."
       }
     }
   },
@@ -79,7 +79,7 @@
       "push": {
         "title": "Datum narození změněno",
         "ios_title": "Datum narození změněno",
-        "body": "Administrátor změnil tvé datum narození na {{birthdate}}."
+        "body": "Správce změnil tvé datum narození na {{birthdate}}."
       },
       "event_description": "Tvé datum narození bylo změněno"
     }
@@ -155,6 +155,28 @@
         "body_one": "Stále máš {{count}} den na napsání reference pro {{user}}.",
         "body_few": "Stále máš {{count}} dny na napsání reference pro {{user}}.",
         "body_other": "Stále máš {{count}} dnů na napsání reference pro {{user}}."
+      }
+    }
+  },
+  "event": {
+    "create_any": {
+      "event_description": "Uživatel vytvoří jakoukoli událost ve tvojí komunitě (bez kontroly správcem)"
+    }
+  },
+  "gender": {
+    "change": {
+      "push": {
+        "body": "Správce změnil tvoje pohlaví na {{gender}}.",
+        "title": "Pohlaví změněno",
+        "ios_title": "Pohlaví změněno"
+      },
+      "event_description": "Pohlaví zobrazené na tvém profilu bylo změněno"
+    }
+  },
+  "verification": {
+    "sv_fail": {
+      "push": {
+        "body_wrong_birthdate_gender": "Datum narození nebo pohlaví ve tvém profilu neodpovídá datu narození nebo pohlaví uvedenému ve tvém cestovním pasu. Kontaktuj prosím tým podpory, pokud chceš aktualizovat datum narození nebo pohlaví, nebo pokud pohlaví uvedené ve tvém pasu neodpovídá tvé genderové identitě."
       }
     }
   }

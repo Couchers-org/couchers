@@ -148,7 +148,10 @@
     "press": "Tisk a média",
     "close_menu_a11y": "Zavřít menu",
     "close_drawer_a11y": "Zavřít menu",
-    "open_drawer_a11y": "Otevřít menu"
+    "open_drawer_a11y": "Otevřít menu",
+    "verification": "Ověření",
+    "user_menu_verification_link": "Ověř svoji identitu",
+    "couch_crashes": "Couch Crashes"
   },
   "html_meta": {
     "default_description": "Sdílej svůj svět a objevuj ten jejich. Autentické místní zážitky postavené na důvěře a skutečném spojení — ne na transakcích.",
@@ -329,7 +332,9 @@
   "not_found_text_2": "Chceš prostě <homeLink>jít domů?</homeLink>",
   "copy_button": {
     "a11y": "Kopírovat",
-    "copied_tooltip": "Zkopírováno do schránky"
+    "copied_tooltip": "Zkopírováno do schránky",
+    "copied_message": "Zkopírováno",
+    "failed_message": "Nepodařilo se zkopírovat"
   },
   "google_play_badge_a11y": "Stáhnout v Google Play",
   "app_store_badge_a11y": "Stáhnout v App Store",

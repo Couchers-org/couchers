@@ -42,10 +42,6 @@ msgstr "Central de ajuda"
 msgid "blog"
 msgstr "blog"
 
-#. (noun) The activity of free hospitality welcome/exchange. Platform-agnostic.
-msgid "couch surfing"
-msgstr "couch surfing"
-
 #. (verb) The act of volunteering with Couchers.org.
 msgid "volunteer.verb"
 msgstr "voluntariar-se"

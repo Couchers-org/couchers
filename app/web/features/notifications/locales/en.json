@@ -25,7 +25,7 @@
         "chat": "Messages",
         "event": "Events",
         "friend_request": "Friend requests",
-        "host_request": "Host requests",
+        "host_request": "Host requests and invitations",
         "reference": "References",
         "discussion": "Discussions",
         "reply": "Replies"

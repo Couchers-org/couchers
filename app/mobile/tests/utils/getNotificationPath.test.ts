@@ -9,6 +9,10 @@ jest.mock("react-native", () => ({
   },
 }));
 
+jest.mock("@/config/urls", () => ({
+  getWebBaseUrl: () => "http://192.0.2.1:3000",
+}));
+
 describe("getNotificationPath", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -67,6 +71,13 @@ describe("getNotificationPath", () => {
     expect(getNotificationPath("https://www.couchers.org/messages")).toBe(
       "/messages",
     );
+  });
+
+  it("handles the web address the app is using, e.g. a local dev server", () => {
+    expect(
+      getNotificationPath("http://192.0.2.1:3000/event/1/party?comment=5"),
+    ).toBe("/event/1/party?comment=5");
+    expect(Linking.openURL).not.toHaveBeenCalled();
   });
 
   it("opens external URLs in browser and returns null", () => {

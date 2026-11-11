@@ -3,18 +3,54 @@
     "submit_button": "Odeslat pozvánku",
     "message": {
       "chars_remaining_one": "Je potřeba ještě {{count}} znak.",
-      "chars_remaining_few": "Je potřeba ještě {{count}} znaky.",
+      "chars_remaining_few": "Jsou potřeba ještě {{count}} znaky.",
       "chars_remaining_other": "Je potřeba ještě {{count}} znaků.",
       "required_error": "Napiš prosím zprávu.",
       "label": "Tvá zpráva",
       "placeholder": "Představ se a dej jim vědět, co můžeš nabídnout."
-    }
+    },
+    "title": "Nabídni se jako hostitel pro {{name}}"
   },
   "create_edit_dialog": {
     "edit_submit_button": "Uložit změny",
     "same_gender_only": {
       "label": "Pouze stejné pohlaví",
       "description": "Zobrazit tuto cestu pouze uživatelům stejného pohlaví."
-    }
+    },
+    "create_submit_button": "Zveřejnit cestu",
+    "description": {
+      "chars_remaining_one": "Je potřeba ještě {{count}} znak",
+      "chars_remaining_few": "Jsou potřeba ještě {{count}} znaky.",
+      "chars_remaining_other": "Je potřeba ještě {{count}} znaků.",
+      "required_error": "Přidej prosím krátký popis.",
+      "placeholder": "Co máš v plánu? Jak dlouho zůstaneš? Je něco, co by hostitelé měli vědět?",
+      "label": "O tvé cestě"
+    },
+    "location_label": "Místo:",
+    "to_date": {
+      "required_error": "Vyber prosím datum odjezdu.",
+      "label": "Odjezd"
+    },
+    "from_date": {
+      "required_error": "Vyber prosím datum příjezdu.",
+      "label": "Příjezd"
+    },
+    "edit_title": "Upravit veřejnou cestu",
+    "create_title": "Vytvořit veřejnou cestu"
+  },
+  "close_dialog": {
+    "confirm_button": "Uzavřít cestu",
+    "message": "Uzavřením cesty ji odstraníš ze seznamu pro komunitu a zastavíš nové pozvánky od hostitelů.",
+    "title": "Uzavřít tuto cestu?"
+  },
+  "trip_card": {
+    "offer_to_host_button_disabled_tooltip": "Tato cesta již nepřijímá pozvánky.",
+    "offer_to_host_button": "Nabídnout se jako hostitel",
+    "reopen_button": "Znovu otevřít cestu",
+    "close_button": "Označit jako uzavřenou",
+    "edit_button": "Upravit cestu",
+    "view_invitations_button": "Zobrazit pozvánky",
+    "view_profile_button": "Zobrazit profil",
+    "show_more_action": "Zobrazit více"
   }
 }

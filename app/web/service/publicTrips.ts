@@ -1,5 +1,6 @@
 import {
   CreatePublicTripReq,
+  ListMyCommunitiesPublicTripsReq,
   ListPublicTripsByUserReq,
   ListPublicTripsReq,
   PublicTripStatus,
@@ -34,11 +35,13 @@ export async function listPublicTripsByUser({
   pageToken,
   pageSize,
   ascending,
+  includePast,
 }: {
   userId: number;
   pageToken?: string;
   pageSize?: number;
   ascending?: boolean;
+  includePast?: boolean;
 }) {
   const req = new ListPublicTripsByUserReq();
   req.setUserId(userId);
@@ -51,7 +54,22 @@ export async function listPublicTripsByUser({
   if (ascending !== undefined) {
     req.setAscending(ascending);
   }
+  if (includePast !== undefined) {
+    req.setIncludePast(includePast);
+  }
   const res = await client.publicTrips.listPublicTripsByUser(req);
+  return res.toObject();
+}
+
+export async function listMyCommunitiesPublicTrips({ pageToken, pageSize }: { pageToken?: string; pageSize?: number }) {
+  const req = new ListMyCommunitiesPublicTripsReq();
+  if (pageToken) {
+    req.setPageToken(pageToken);
+  }
+  if (pageSize) {
+    req.setPageSize(pageSize);
+  }
+  const res = await client.publicTrips.listMyCommunitiesPublicTrips(req);
   return res.toObject();
 }
 

@@ -1,3 +1,4 @@
+import { ButtonProps } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -10,7 +11,7 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
 import { service } from "service";
 
-export default function DeleteStrongVerificationDataButton() {
+export default function DeleteStrongVerificationDataButton({ variant }: { variant?: ButtonProps["variant"] }) {
   const { t } = useTranslation([GLOBAL, AUTH]);
 
   const [open, setOpen] = useState(false);
@@ -64,7 +65,7 @@ export default function DeleteStrongVerificationDataButton() {
           </Button>
         </DialogActions>
       </Dialog>
-      <Button loading={isPending} onClick={() => setOpen(true)}>
+      <Button variant={variant} loading={isPending} onClick={() => setOpen(true)}>
         {t("auth:strong_verification.delete_button")}
       </Button>
     </>

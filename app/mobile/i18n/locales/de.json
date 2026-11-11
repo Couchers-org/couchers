@@ -6,7 +6,11 @@
     "camera_permission_denied": "Die Kameraerlaubnis ist erforderlich, um Fotos zu machen.",
     "camera_permission_required": "Kameraberechtigung erforderlich",
     "camera_permission_denied_permanently": "Der Kamerazugriff wurde verweigert. Um Fotos aufzunehmen, musst du die Kameraberechtigung in den Einstellungen deines Geräts aktivieren.",
-    "camera_permission_explanation": "Diese App benötigt Kamerazugriff, um Fotos aufzunehmen. Bitte erteile die Berechtigung, wenn du dazu aufgefordert wirst."
+    "camera_permission_explanation": "Diese App benötigt Kamerazugriff, um Fotos aufzunehmen. Bitte erteile die Berechtigung, wenn du dazu aufgefordert wirst.",
+    "calendar_permission_required": "Kalenderberechtigung erforderlich",
+    "calendar_permission_explanation": "Diese App benötigt Zugriff auf deinen Kalender, um Events hinzuzufügen. Bitte erteile die Berechtigung, wenn du dazu aufgefordert wirst.",
+    "calendar_permission_denied_permanently": "Der Zugriff auf den Kalender wurde verweigert. Um Events zu deinem Kalender hinzuzufügen, musst du die Kalenderberechtigung in den Geräteeinstellungen aktivieren.",
+    "add_to_calendar_failed": "Dein Kalender konnte nicht geöffnet werden. Bitte versuche es noch einmal."
   },
   "not_found": {
     "title": "Upps!",

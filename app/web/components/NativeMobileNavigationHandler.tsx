@@ -6,7 +6,7 @@ import { useIsNativeEmbed } from "utils/nativeLink";
 /**
  * Handles navigation requests from the mobile app.
  * When the mobile app sends a MOBILE_NAVIGATE message, this component
- * uses Next.js router to navigate client-side, avoiding middleware redirects.
+ * uses Next.js router to navigate client-side, avoiding proxy redirects.
  */
 export default function NativeMobileNavigationHandler() {
   const router = useRouter();
