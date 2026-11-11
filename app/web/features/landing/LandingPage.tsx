@@ -4,6 +4,7 @@ import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
 import PageContainer from "components/PageContainer";
 import { useAuthContext } from "features/auth/AuthProvider";
+import Celebration100k from "features/celebration100k/Celebration100k";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
@@ -39,6 +40,8 @@ export default function LandingPage() {
   return (
     <>
       <HtmlMeta />
+      {/* The landing page shows the 100k banner but never plays the celebration by itself */}
+      <Celebration100k />
       <PageContainer component="section">
         <HeroSection />
       </PageContainer>
