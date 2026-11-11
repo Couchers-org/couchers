@@ -291,7 +291,7 @@
   },
   "stays": {
     "created": {
-      "host_request": {
+      "request": {
         "subject": "{{initiator}} отправил вам запрос на хостинг",
         "purpose": "<b>{{initiator}}</b> отправил вам запрос на хостинг:",
         "respond_encouragement": "Пожалуйста, ответьте на этот запрос. Даже быстрый отказ лучше, чем отсутствие ответа!"
@@ -299,19 +299,19 @@
     },
     "generic": {
       "date_range": "С <b>{{from_date}}</b> по <b>{{to_date}}</b>.",
-      "host_request": {
+      "request": {
         "view_action": "Просмотреть запросы хосту"
       },
       "quick_decline_action": "Быстрый отказ"
     },
     "reminder": {
-      "host_request": {
+      "request": {
         "subject": "У вас есть ожидающий рассмотрения запрос на размещение от {{initiator}}",
         "purpose": "<b>{{initiator}}</b> ждёт вашего ответа. Даже быстрый отказ лучше, чем молчание!"
       }
     },
     "status_changed": {
-      "host_request": {
+      "request": {
         "accepted_by_recipient": {
           "subject": "{{counterparty}} принял ваш запрос на размещение",
           "purpose": "<b>{{counterparty}}</b> принял(а) ваш запрос на размещение:"
@@ -322,7 +322,7 @@
       }
     },
     "message": {
-      "host_request": {
+      "request": {
         "from_initiator": {
           "subject": "{{counterparty}} отправил(а) вам сообщение в своём запросе на размещение",
           "purpose": "<b>{{counterparty}}</b> отправил(а) вам сообщение в своём запросе на размещение:"

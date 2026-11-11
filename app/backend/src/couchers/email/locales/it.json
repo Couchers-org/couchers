@@ -217,7 +217,7 @@
   },
   "stays": {
     "created": {
-      "host_request": {
+      "request": {
         "subject": "{{initiator}} ti ha inviato una richiesta di soggiorno",
         "purpose": "<b>{{initiator}}</b> ti ha inviato una richiesta di soggiorno:",
         "respond_encouragement": "Per favore, rispondi a questa richiesta. Anche un rapido rifiuto è meglio di nessuna risposta!"
@@ -225,19 +225,19 @@
     },
     "generic": {
       "date_range": "Da <b>{{from_date}}</b> a <b>{{to_date}}</b>.",
-      "host_request": {
+      "request": {
         "view_action": "Visualizza richiesta di soggiorno"
       },
       "quick_decline_action": "Rifiuta rapidamente"
     },
     "reminder": {
-      "host_request": {
+      "request": {
         "subject": "Hai una richiesta di soggiorno in sospeso da {{initiator}}",
         "purpose": "<b>{{initiator}}</b> è in attesa di una tua risposta. Anche un rapido rifiuto è meglio di nessuna risposta!"
       }
     },
     "message": {
-      "host_request": {
+      "request": {
         "from_initiator": {
           "subject": "{{counterparty}} ti ha inviato un messaggio riguardo alla sua richiesta di soggiorno",
           "purpose": "<b>{{counterparty}}</b> ti ha inviato un messaggio riguardo alla sua richiesta di soggiorno:"
@@ -249,7 +249,7 @@
       }
     },
     "missed_messages": {
-      "host_request": {
+      "request": {
         "from_initiator": {
           "subject": "{{counterparty}} ti ha inviato dei messaggi riguardo alla sua richiesta di soggiorno",
           "purpose": "<b>{{counterparty}}</b> ti ha inviato uno o più messaggi nella sua richiesta di soggiorno:"
@@ -261,7 +261,7 @@
       }
     },
     "status_changed": {
-      "host_request": {
+      "request": {
         "accepted_by_recipient": {
           "subject": "{{counterparty}} ha accettato la tua richiesta di soggiorno",
           "purpose": "<b>{{counterparty}}</b> ha accettato la tua richiesta di soggiorno:"

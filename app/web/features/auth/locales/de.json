@@ -8,7 +8,7 @@
   },
   "account_form": {
     "tos_accept_label": "Ich akzeptiere die Nutzungsbedingungen.",
-    "header": "Deine Accountdetails",
+    "header": "Deine Kontodetails",
     "username": {
       "field_label": "Benutzername",
       "required_error": "Gib deinen Benutzernamen ein",
@@ -104,7 +104,7 @@
   "login_page": {
     "title": "Einloggen",
     "header": "Willkommen zurück!",
-    "no_account_prompt": "Du hast noch keinen Account? <signupLink>Account erstellen</signupLink>",
+    "no_account_prompt": "Du hast noch kein Konto? <signupLink>Mitmachen</signupLink>",
     "form": {
       "username_field_label": "E-Mail-Adresse/Benutzername",
       "password_field_label": "Passwort",
@@ -115,7 +115,7 @@
     }
   },
   "basic_sign_up_form": {
-    "existing_user_prompt": "Du hast bereits einen Account? <loginLink>Einloggen</loginLink>",
+    "existing_user_prompt": "Du hast schon ein Konto? <loginLink>Einloggen</loginLink>",
     "sign_up_agreement_explainer": "Beim Fortfahren stimmst du unseren <tosLink>Nutzungsbedingungen</tosLink> zu, inklusive unseren Bedingungen zur Verwendung von Cookies, E-Mail-Adresse und digitalen Informationen."
   },
   "sign_up_completed_title": "Danke, dass du dich bei uns registriert hast!",
@@ -226,27 +226,27 @@
   },
   "delete_account": {
     "request": {
-      "description": "Um deinen Account zu löschen, folge bitte den unten stehenden Schritten. Wir senden dir anschließend eine Bestätigungs E-Mail.",
-      "title": "Account löschen",
-      "confirm_username_explanation": "Dein Benutzername ist <strong>{{ username }}</strong>. Bitte gib ihn unten ein, um das Löschen deines Accounts zu bestätigen.",
-      "success_message": "Die Accountlöschung wurde eingeleitet. Schließe sie ab, indem du auf den Link in der Bestätigungs-E-Mail klickst, die wir dir geschickt haben.",
+      "description": "Um dein Konto zu löschen, folge bitte den unten stehenden Schritten. Wir senden dir anschließend eine Bestätigungs E-Mail.",
+      "title": "Konto löschen",
+      "confirm_username_explanation": "Dein Benutzername ist <strong>{{ username }}</strong>. Bitte gib ihn unten ein, um die Kontolöschung zu bestätigen.",
+      "success_message": "Die Kontolöschung wurde eingeleitet. Schließe sie ab, indem du auf den Link in der Bestätigungs-E-Mail klickst, die wir dir geschickt haben.",
       "confirm_username_label": "Bestätigung des Benutzernamens",
       "username_mismatch": "Der Benutzername stimmt nicht überein.",
-      "reason_explanation": "Bitte hilf uns, die Plattform zu verbessern, indem du uns sagst warum du deinen Account löschst.",
-      "reason_label": "Grund der Accountlöschung"
+      "reason_explanation": "Bitte hilf uns, die Plattform zu verbessern, indem du uns sagst, warum du dein Konto löschst.",
+      "reason_label": "Grund der Kontolöschung"
     },
     "confirm": {
-      "error_message": "Die Accountlöschung konnte nicht bestätigt werden: {{message}}",
-      "title": "Accountlöschung bestätigen",
-      "account_deleted": "Dein Account wurde gelöscht. Danke, dass du Couchers.org genutzt hast!",
-      "button_text": "Accountlöschung bestätigen"
+      "error_message": "Die Kontolöschung konnte nicht bestätigt werden: {{message}}",
+      "title": "Kontolöschung bestätigen",
+      "account_deleted": "Dein Konto wurde gelöscht. Danke, dass du Couchers.org genutzt hast!",
+      "button_text": "Kontolöschung bestätigen"
     },
     "missing_token": "Fehler: Token fehlt",
     "recover": {
-      "title": "Stelle deinen Couchers.org-Account wieder her",
-      "error_message": "Der Account konnte nicht wiederhergestellt werden: {{message}}",
-      "button_text": "Account wiederherstellen",
-      "success": "Dein Account wurde wiederhergestellt, du kannst dich jetzt wieder einloggen. Wir freuen uns, dass du wieder zurück bist!"
+      "title": "Stelle dein Couchers.org-Konto wieder her",
+      "error_message": "Das Konto konnte nicht wiederhergestellt werden: {{message}}",
+      "button_text": "Dein Konto wiederherstellen",
+      "success": "Dein Konto wurde wiederhergestellt, du kannst dich jetzt wieder einloggen. Wir freuen uns, dass du wieder zurück bist!"
     }
   },
   "active_logins": {
@@ -414,7 +414,7 @@
   "sign_up_change_email": "Hast du dich bei deiner E-Mail-Adresse vertippt? Gib hier deine korrekte E-Mail-Adresse ein:",
   "verification_page": {
     "title": "Verifizierung",
-    "intro": "Wenn du dich verifizierst, trägst du zur Sicherheit unserer Community bei, und Hosts sagen eher zu, während Surfer dir eher eine Anfrage schicken. Das ist kostenlos und immer freiwillig.",
+    "intro": "Die Verifizierung hilft anderen Mitgliedern, darauf zu vertrauen, dass du wirklich die Person bist, die du vorgibst zu sein. Sie ist immer optional.",
     "settings_link": {
       "title": "Verifizierung",
       "moved_message": "Suchst du nach der Verifizierung? Sie ist <verificationLink>hierher umgezogen</verificationLink>."
@@ -426,25 +426,25 @@
       "in_progress": "In Bearbeitung"
     },
     "strong": {
-      "description": "Bestätige dein Geburtsdatum und dein Geschlecht mit deinem biometrischen Reisepass, ganz einfach mit deinem Handy.",
-      "benefits_header": "Funktionen, die du erhältst",
+      "description": "Eine kostenlose Möglichkeit, dein Alter und dein Geschlecht mit deinem biometrischen Reisepass und deinem Handy zu verifizieren. Deine Passdaten bleiben privat; nur dein verifiziertes Alter und Geschlecht werden in deinem Profil angezeigt.",
+      "benefits_header": "Was du bekommst",
       "benefits": {
         "photos_title_one": "{{count}} Profilfoto",
         "photos_title_other": "{{count}} Profilfotos",
         "photos_description": "Anstatt {{unverified_count}}.",
-        "badge_title": "Ein Profilabzeichen",
-        "badge_description": "Alter und Geschlecht werden als geprüft angezeigt.",
-        "interactions_title": "Bessere Interaktionen",
-        "interactions_description": "Du bekommst eher eine Antwort.",
-        "visibility_title": "Mehr Sichtbarkeit",
+        "badge_title": "Ein Verifizierungsabzeichen",
+        "badge_description": "Wird neben deinem Namen angezeigt, wobei dein Alter und dein Geschlecht als geprüft markiert sind.",
+        "interactions_title": "Mehr Vertrauen",
+        "interactions_description": "Mitglieder wissen, dass du wirklich die Person bist, für die du dich ausgibst.",
+        "visibility_title": "Höhere Sichtbarkeit",
         "visibility_description": "Du wirst in den Suchergebnissen weiter oben angezeigt."
       },
       "start_hint": "Wir führen dich Schritt für Schritt durch den Scan deines Reisepasses.",
       "verified_message": "Du bist verifiziert. Die Verifizierung läuft ab, wenn dein Reisepass abläuft.",
       "data_notes": {
-        "third_party": "<strong>Gescannt von Iris ID.</strong> Deren App liest auf deinem Handy den Chip deines Reisepasses aus und übermittelt uns das Ergebnis.",
-        "encryption": "<strong>Im Ruhezustand verschlüsselt.</strong> Der Passdatensatz wird verschlüsselt, außerhalb des Systems aufbewahrt wird. Nur die für die Verifizierung mindestens erforderlichen Felder werden unverschlüsselt gespeichert.",
-        "deletion": "<strong>Lösche sie, wann immer du willst.</strong> Die Verifizierung läuft außerdem ab, sobald dein Reisepass abläuft."
+        "third_party": "<strong>Gescannt von <irisIdLink>Iris ID</irisIdLink>.</strong> Ihre App liest mit deinem Smartphone den Chip deines Reisepasses aus und übermittelt uns das Ergebnis.",
+        "encryption": "<strong>Im Ruhezustand verschlüsselt.</strong> Der Reisepass-Datensatz ist verschlüsselt und kann nur mit einem offline gespeicherten Schlüssel gelesen werden. Nur die <fieldsLink>für die Verifizierung mindestens erforderlichen Felder</fieldsLink> werden unverschlüsselt gespeichert.",
+        "deletion": "<strong>Lösche sie, wann immer du willst.</strong> Du kannst die Daten, die deine Verifizierung aktiv halten, jederzeit entfernen. Die Verifizierung läuft außerdem ab, wenn dein Reisepass abläuft."
       },
       "requirements_header": "Was du brauchst",
       "requirements": {
@@ -455,14 +455,14 @@
     },
     "phone": {
       "header": "Telefonverifizierung",
-      "description": "Wir schicken dir einen Code per SMS. Deine Nummer wird nie in deinem Profil angezeigt und wir schreiben dir nicht darüber. Nur für Spender verfügbar, da uns der SMS-Versand Geld kostet.",
+      "description": "Wir senden dir einen Bestätigungscode an dein Handy. Deine Nummer bleibt vollständig privat und wird niemals in deinem Profil angezeigt, verwendet oder weitergegeben¹. Aufgrund von Anbieterkosten ist diese Funktion Spendern vorbehalten.",
       "code_sent_description": "Wir haben einen Code an <strong>{{phone_number}}</strong> gesendet. Gib ihn unten ein, um deine Nummer zu bestätigen.",
       "use_another_number_button": "Andere Nummer verwenden",
       "verified_message": "Verifiziert: <strong>{{phone_number}}</strong>."
     },
     "postal": {
       "header": "Adress-Verifizierung",
-      "description": "Wir schicken dir einen Code per Postkarte, damit du bestätigen kannst, dass du dort wohnst, wo es in deinem Profil steht. Deine Adresse wird nur zum Versand der Karte verwendet. Verfügbar für Spender, da wir die Kosten für Druck und Porto übernehmen.",
+      "description": "Wir schicken dir eine Postkarte mit einem Code an deine Adresse, um deinen Ort zu bestätigen. Deine Adresse bleibt vollständig privat und wird ausschließlich für den Versand der Karte verwendet¹. Aufgrund von Druck- und Portokosten ist diese Funktion Spendern vorbehalten.",
       "need_to_donate": "Du musst <donateLink>spenden</donateLink>, bevor du die Adress-Verifizierung abschließen kannst.",
       "step_number": "Schritt {{step_number}}",
       "steps": {
@@ -482,37 +482,40 @@
         "postal_code_label": "Postleitzahl",
         "country_label": "Land",
         "submit_button": "Überprüfe meine Adresse",
-        "required_field_error": "Dieses Feld wird benötigt"
+        "required_field_error": "Dieses Feld wird benötigt",
+        "recipient_name_label": "Name",
+        "recipient_name_helper": "Übernommen aus dem Anzeigenamen in deinem Profil. Diesen Namen drucken wir auf die Postkarte. Wenn das nicht der Name auf deinem Briefkasten ist, solltest du zuerst <editProfileLink>deinen Anzeigenamen aktualisieren</editProfileLink>."
       },
       "confirm": {
-        "corrected_description": "Wir haben deine Adresse an die Daten der Post angepasst. Bitte überprüfe sie, denn sobald du bestätigst, können wir nicht mehr ändern, wohin die Karte geschickt wird.",
-        "unchanged_description": "Überprüfe deine Adresse, denn sobald du bestätigst, können wir nicht mehr ändern, wohin die Karte geschickt wird.",
+        "corrected_description": "Wir haben deine Adresse an die offiziellen Postdaten angepasst. Bitte überprüfe sie sorgfältig. Sobald sie bestätigt ist, kann die Lieferadresse nicht mehr geändert werden.",
+        "unchanged_description": "Bitte überprüfe deine Adresse. Sobald sie bestätigt ist, kann die Lieferadresse nicht mehr geändert werden.",
         "entered_header": "Du hast eingegeben",
         "will_post_to_header": "Wir senden zu",
         "submit_button": "Sende meine Postkarte",
         "edit_button": "Adresse bearbeiten"
       },
       "in_the_post": {
-        "sent_message": "Deine Postkarte wurde am {{date}} verschickt. Normalerweise dauert es ein bis drei Wochen, bis sie ankommt, und der Code ist {{code_lifetime_days}} Tage lang gültig.",
-        "queued_message": "Deine Postkarte wartet auf den Druck. Nach dem Versand dauert es in der Regel ein bis drei Wochen, bis sie ankommt, und der Code ist ab dem Versand {{code_lifetime_days}} Tage gültig."
+        "sent_message": "Deine Postkarte wurde am {{date}} verschickt. Die Zustellung dauert in der Regel ein bis drei Wochen. Der Code ist ab dem Versanddatum {{code_lifetime_days}} Tage lang gültig.",
+        "queued_message": "Deine Postkarte wartet auf den Druck. Nach dem Versand dauert es in der Regel ein bis drei Wochen, bis sie ankommt. Der Code ist nach dem Versand {{code_lifetime_days}} Tage lang gültig."
       },
       "code_form": {
         "description": "Gib die sechs Zeichen ein, die auf deiner Postkarte abgedruckt sind.",
         "code_label": "Postkartencode",
-        "tries_left_one": "{{count}} von {{max_tries}} Versuch übrig.",
-        "tries_left_other": "{{count}} von {{max_tries}} Versuchen übrig.",
         "wrong_code_message": "Dieser Code stimmt nicht. Bitte versuch es noch einmal.",
-        "submit_button": "Code bestätigen"
+        "submit_button": "Code bestätigen",
+        "attempts_left_one": "Noch {{remaining}} Versuch von {{count}} übrig.",
+        "attempts_left_other": "Noch {{remaining}} Versuche von {{count}} übrig."
       },
       "cancel_button": "Diesen Versuch abbrechen",
       "verified_message": "Deine Adresse ist verifiziert.",
       "rate_limited_message": "Du kannst die Adress-Verifizierung per Post am {{date}} erneut starten.",
-      "failed_message": "Dieser Versuch der Verifizierung per Post hat leider nicht geklappt. Du kannst unten von vorne beginnen.",
-      "cancelled_message": "Du hast deinen letzten Versuch der Adress-Verifizierung per Post abgebrochen. Du kannst unten neu beginnen."
+      "failed_message": "Dieser Versuch der Verifizierung per Post war nicht erfolgreich. Du kannst den Vorgang unten neu starten.",
+      "cancelled_message": "Du hast deinen letzten Versuch der Verifizierung per Post abgebrochen. Du kannst den Vorgang unten neu starten."
     },
     "data_use": {
       "header": "Wie deine Daten verwendet werden",
-      "body": "Wir verwenden Verifizierungsdaten, um Missbrauch zu verhindern (zum Beispiel, indem wir sicherstellen, dass ein Reisepass nur zur Verifizierung eines einzigen Kontos verwendet wird). Wir geben Verifizierungsdaten an Behörden weiter (aber nicht an andere Mitglieder), falls dies im Rahmen einer offiziellen Untersuchung eines schwerwiegenden Fehlverhaltens erforderlich ist. Andere Mitglieder sehen immer nur, dass du verifiziert bist, niemals die Details."
-    }
+      "body": "Deine Daten werden ausschließlich zur Verifizierung verwendet. Andere Mitglieder sehen immer nur, dass du verifiziert bist, niemals deine persönlichen Daten. Wir verwenden deine Daten für nichts anderes und geben sie niemals an Dritte weiter, außer wenn dies von Behörden im Rahmen einer offiziellen Ermittlung wegen schwerwiegenden Fehlverhaltens verlangt wird. Wenn du mehr darüber erfahren möchtest, wie wir deine Daten speziell bei der Starken Verifizierung schützen, sieh dir unseren <helpCenterLink>Artikel im Hilfezentrum</helpCenterLink> dazu an."
+    },
+    "earned_badge_caption": "Fügt deinem Profil dieses Abzeichen hinzu:"
   }
 }

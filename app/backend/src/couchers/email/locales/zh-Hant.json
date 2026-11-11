@@ -209,7 +209,7 @@
   },
   "stays": {
     "created": {
-      "host_request": {
+      "request": {
         "subject": "{{initiator}}向您發送了接待請求",
         "purpose": "<b>{{initiator}}</b>向您發送了接待請求：",
         "respond_encouragement": "請回覆此請求。即使快速拒絕，也比不回覆更好！"
@@ -217,19 +217,19 @@
     },
     "generic": {
       "date_range": "從<b>{{from_date}}</b>到<b>{{to_date}}</b>。",
-      "host_request": {
+      "request": {
         "view_action": "查看接待請求"
       },
       "quick_decline_action": "快速拒絕"
     },
     "reminder": {
-      "host_request": {
+      "request": {
         "subject": "您有一個來自{{initiator}}的待處理接待請求",
         "purpose": "<b>{{initiator}}</b>正在等待您的回覆。即使快速拒絕，也比不回覆更好！"
       }
     },
     "message": {
-      "host_request": {
+      "request": {
         "from_initiator": {
           "subject": "{{counterparty}}在其接待請求中向您發送了一則訊息",
           "purpose": "<b>{{counterparty}}</b>在其接待請求中向您發送了一則訊息："
@@ -241,7 +241,7 @@
       }
     },
     "missed_messages": {
-      "host_request": {
+      "request": {
         "from_initiator": {
           "subject": "{{counterparty}}在其接待請求中向您發送了訊息",
           "purpose": "<b>{{counterparty}}</b>在其接待請求中向您發送了一條或多條訊息："
@@ -253,7 +253,7 @@
       }
     },
     "status_changed": {
-      "host_request": {
+      "request": {
         "accepted_by_recipient": {
           "subject": "{{counterparty}}接受了您的接待請求",
           "purpose": "<b>{{counterparty}}</b>接受了您的接待請求："
