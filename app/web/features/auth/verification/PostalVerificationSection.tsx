@@ -5,7 +5,6 @@ import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
-import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Trans, useTranslation } from "i18n";
 import { localizeDateOnly } from "i18n/datetimes";
 import { AUTH } from "i18n/namespaces";
@@ -132,7 +131,6 @@ export default function PostalVerificationSection({ hasDonated }: { hasDonated: 
     verifyCode,
     cancel,
   } = usePostalVerification();
-  const { data: currentUser } = useCurrentUser();
 
   const countries = useMemo(() => getLocalizedCountries(language), [language]);
   const countryName = useMemo(() => {
@@ -141,9 +139,7 @@ export default function PostalVerificationSection({ hasDonated }: { hasDonated: 
   }, [countries]);
 
   const [address, setAddress] = useState<AddressFields>(EMPTY_ADDRESS);
-  // null until edited, so it follows the profile name; editing only affects this postcard
-  const [editedRecipientName, setEditedRecipientName] = useState<string | null>(null);
-  const recipientName = editedRecipientName ?? currentUser?.name ?? "";
+  const [recipientName, setRecipientName] = useState("");
   const [showRequiredErrors, setShowRequiredErrors] = useState(false);
   const [code, setCode] = useState("");
 
@@ -252,12 +248,12 @@ export default function PostalVerificationSection({ hasDonated }: { hasDonated: 
                     autoComplete="name"
                     label={t("verification_page.postal.address_form.recipient_name_label")}
                     value={recipientName}
-                    onChange={(event) => setEditedRecipientName(event.target.value)}
+                    onChange={(event) => setRecipientName(event.target.value)}
                     error={isMissing("recipientName")}
                     helperText={
                       isMissing("recipientName")
                         ? t("verification_page.postal.address_form.required_field_error")
-                        : t("verification_page.postal.address_form.recipient_name_prefilled_helper")
+                        : t("verification_page.postal.address_form.recipient_name_helper")
                     }
                     sx={{ gridColumn: "1 / -1", mb: 2 }}
                   />

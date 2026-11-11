@@ -4,11 +4,9 @@ import { GetAccountInfoRes } from "proto/account_pb";
 import { GetPostalVerificationStatusRes, PostalVerificationStatus } from "proto/postal_verification_pb";
 import { routeToBadge } from "routes";
 import { service } from "service";
-import users from "test/fixtures/users.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import i18n from "test/i18n";
-import { getUser } from "test/serviceMockDefaults";
-import { addDefaultUser, MockedService } from "test/utils";
+import { MockedService } from "test/utils";
 
 import VerificationPage from "./VerificationPage";
 
@@ -86,15 +84,11 @@ function renderPage({
   render(<VerificationPage />, { wrapper });
 }
 
-const getUserMock = service.user.getUser as jest.Mock;
 const updateProfileMock = service.user.updateProfile as jest.Mock;
 const getBadgesMock = service.resources.getBadges as MockedService<typeof service.resources.getBadges>;
-const profileName = users.find((user) => user.userId === defaultUser.userId)!.name;
 
 describe("VerificationPage", () => {
   beforeEach(() => {
-    addDefaultUser();
-    getUserMock.mockImplementation(getUser);
     getPostalStatusMock.mockResolvedValue(noPostalAttempt);
   });
 
@@ -252,12 +246,9 @@ describe("VerificationPage", () => {
       });
       renderPage({ isPostalEnabled: true });
 
-      // pre-filled from the profile, but editable for this postcard
       const nameField = await screen.findByLabelText(
         t("auth:verification_page.postal.address_form.recipient_name_label"),
       );
-      await waitFor(() => expect(nameField).toHaveValue(profileName));
-      await user.clear(nameField);
       await user.type(nameField, "Marie Curie");
 
       await fillAddress(user);
@@ -298,39 +289,15 @@ describe("VerificationPage", () => {
       expect(within(willPostTo).getByText("Marie Curie")).toBeVisible();
     });
 
-    it("sends the profile name if it isn't changed", async () => {
-      const user = userEvent.setup();
-      initiatePostalMock.mockResolvedValue({
-        postalVerificationAttemptId: 7,
-        correctedAddress: parisAddress,
-        addressWasCorrected: false,
-      });
-      renderPage({ isPostalEnabled: true });
-      await waitFor(async () =>
-        expect(
-          await screen.findByLabelText(t("auth:verification_page.postal.address_form.recipient_name_label")),
-        ).toHaveValue(profileName),
-      );
-
-      await fillAddress(user);
-      await user.click(
-        screen.getByRole("button", { name: t("auth:verification_page.postal.address_form.submit_button") }),
-      );
-
-      await waitFor(() => {
-        expect(initiatePostalMock).toHaveBeenCalledWith(expect.objectContaining({ recipientName: profileName }));
-      });
-    });
-
     it("requires a name", async () => {
       const user = userEvent.setup();
       renderPage({ isPostalEnabled: true });
       const nameField = await screen.findByLabelText(
         t("auth:verification_page.postal.address_form.recipient_name_label"),
       );
-      await waitFor(() => expect(nameField).toHaveValue(profileName));
+      // not prefilled: display names aren't always the name on the mailbox
+      expect(nameField).toHaveValue("");
 
-      await user.clear(nameField);
       await fillAddress(user);
       await user.click(
         screen.getByRole("button", { name: t("auth:verification_page.postal.address_form.submit_button") }),

@@ -380,7 +380,7 @@
       "address_form": {
         "description": "Street, city and country are required. We check the address is deliverable before printing anything.",
         "recipient_name_label": "Full name",
-        "recipient_name_prefilled_helper": "Filled in from your profile. Change it to the name on your mailbox if it's different. This only changes the postcard, not your profile.",
+        "recipient_name_helper": "As it appears on your mailbox.",
         "address_line_1_label": "Address line 1",
         "address_line_2_label": "Address line 2 (optional)",
         "address_line_2_placeholder": "Apartment, suite, floor",
