@@ -1,3 +1,4 @@
+import { useFeatureValue } from "@growthbook/growthbook-react";
 import { alpha, Button, keyframes, Modal, styled, Typography, useMediaQuery } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import IconButton from "components/IconButton";
@@ -12,7 +13,7 @@ import { COUCHERS_LOGO_PATHS } from "resources/couchersLogoPaths";
 
 import { drawFinalMap, startConfetti, startMapAnimation } from "./animation";
 import {
-  CELEBRATION_100K_BLOG_URL,
+  CELEBRATION_100K_BLOG_URL_FLAG,
   CELEBRATION_100K_DONATE_URL,
   CLUSTERED_MEMBERS_PATH,
   MEMBER_MILESTONE,
@@ -208,6 +209,7 @@ const couchPaths = COUCHERS_LOGO_PATHS.map((d) => <path key={d} d={d} />);
 /** Full-screen 100k celebration: couch confetti that turns into the member map. Closable at any time. */
 export default function CelebrationOverlay({ open, onClose }: CelebrationOverlayProps) {
   const { t, i18n } = useTranslation(DASHBOARD);
+  const blogUrl = useFeatureValue(CELEBRATION_100K_BLOG_URL_FLAG, "");
   const { authState } = useAuthContext();
   const reduceMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
 
@@ -361,9 +363,11 @@ export default function CelebrationOverlay({ open, onClose }: CelebrationOverlay
               <Typography variant="body1" component="span" sx={{ fontWeight: 500, lineHeight: 1.3 }}>
                 {t("celebration_100k.map_message_thanks")}
               </Typography>
-              <StyledLink href={CELEBRATION_100K_BLOG_URL} variant="body2" underline="always" sx={{ mt: 0.25 }}>
-                {t("celebration_100k.map_read_more_link")}
-              </StyledLink>
+              {blogUrl && (
+                <StyledLink href={blogUrl} variant="body2" underline="always" sx={{ mt: 0.25 }}>
+                  {t("celebration_100k.map_read_more_link")}
+                </StyledLink>
+              )}
             </StyledMessageText>
             <Button
               variant="contained"

@@ -4,7 +4,7 @@ import wrapper, { getHookWrapperWithClient } from "test/hookWrapper";
 import i18n from "test/i18n";
 
 import Celebration100k from "./Celebration100k";
-import { CELEBRATION_100K_FLAG, CELEBRATION_100K_SEEN_KEY } from "./constants";
+import { CELEBRATION_100K_BLOG_URL_FLAG, CELEBRATION_100K_FLAG, CELEBRATION_100K_SEEN_KEY } from "./constants";
 import { fetchMemberLocations } from "./mapData";
 
 jest.mock("./mapData", () => ({
@@ -16,8 +16,11 @@ const fetchMemberLocationsMock = fetchMemberLocations as jest.MockedFunction<typ
 
 const t = (key: string) => i18n.t(`dashboard:celebration_100k.${key}`);
 
-function renderCelebration(props: { autoPlay?: boolean } = {}) {
-  const { wrapper: enabledWrapper } = getHookWrapperWithClient({ [CELEBRATION_100K_FLAG]: { defaultValue: true } });
+function renderCelebration(props: { autoPlay?: boolean } = {}, blogUrl?: string) {
+  const { wrapper: enabledWrapper } = getHookWrapperWithClient({
+    [CELEBRATION_100K_FLAG]: { defaultValue: true },
+    ...(blogUrl && { [CELEBRATION_100K_BLOG_URL_FLAG]: { defaultValue: blogUrl } }),
+  });
   return render(<Celebration100k {...props} />, { wrapper: enabledWrapper });
 }
 
@@ -73,10 +76,21 @@ describe("Celebration100k", () => {
     expect(await screen.findByRole("button", { name: t("close_button_a11y") })).toBeVisible();
   });
 
-  it("links the banner to the blog post and the donate page", () => {
+  it("links to the blog post only once its URL is set", () => {
+    const { unmount } = renderCelebration();
+    expect(screen.queryByRole("link", { name: t("banner_read_more_link") })).not.toBeInTheDocument();
+    unmount();
+
+    renderCelebration({}, "https://couchers.org/blog/100k");
+    expect(screen.getByRole("link", { name: t("banner_read_more_link") })).toHaveAttribute(
+      "href",
+      "https://couchers.org/blog/100k",
+    );
+  });
+
+  it("links the banner to the donate page", () => {
     renderCelebration();
 
-    expect(screen.getByRole("link", { name: t("banner_read_more_link") })).toHaveAttribute("href", "/blog");
     expect(screen.getByRole("link", { name: t("help_us_grow_button") })).toHaveAttribute(
       "href",
       "/donate?utm_source=celebration_100k",

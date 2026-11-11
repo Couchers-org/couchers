@@ -1,3 +1,4 @@
+import { useFeatureValue } from "@growthbook/growthbook-react";
 import { Replay } from "@mui/icons-material";
 import { alpha, Box, Button, ButtonBase, styled, Typography, useMediaQuery } from "@mui/material";
 import StyledLink from "components/StyledLink";
@@ -7,7 +8,7 @@ import Link from "next/link";
 import { COUCHERS_LOGO_PATHS } from "resources/couchersLogoPaths";
 import { theme } from "theme";
 
-import { CELEBRATION_100K_BLOG_URL, CELEBRATION_100K_DONATE_URL } from "./constants";
+import { CELEBRATION_100K_BLOG_URL_FLAG, CELEBRATION_100K_DONATE_URL } from "./constants";
 
 interface CelebrationBannerProps {
   onReplay: () => void;
@@ -71,10 +72,11 @@ const StyledReplay = styled(ButtonBase)(({ theme }) => ({
   },
 }));
 
-/** One-row box under the nav during the 100k week, with a link to the blog post, a replay and a donate button. */
+/** One-row box under the nav during the 100k week, with a replay, a donate button and (once published) a link to the blog post. */
 export default function CelebrationBanner({ onReplay }: CelebrationBannerProps) {
   const { t } = useTranslation(DASHBOARD);
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const blogUrl = useFeatureValue(CELEBRATION_100K_BLOG_URL_FLAG, "");
 
   return (
     <StyledBanner>
@@ -86,15 +88,20 @@ export default function CelebrationBanner({ onReplay }: CelebrationBannerProps) 
       <StyledMessage>
         <Typography variant="body2" component="span" sx={{ fontWeight: 500 }}>
           {t("celebration_100k.banner_message")}
-        </Typography>{" "}
-        <StyledLink
-          href={CELEBRATION_100K_BLOG_URL}
-          variant="body2"
-          underline="always"
-          sx={{ fontWeight: 500, whiteSpace: "nowrap" }}
-        >
-          {t("celebration_100k.banner_read_more_link")}
-        </StyledLink>
+        </Typography>
+        {blogUrl && (
+          <>
+            {" "}
+            <StyledLink
+              href={blogUrl}
+              variant="body2"
+              underline="always"
+              sx={{ fontWeight: 500, whiteSpace: "nowrap" }}
+            >
+              {t("celebration_100k.banner_read_more_link")}
+            </StyledLink>
+          </>
+        )}
       </StyledMessage>
       <StyledActions>
         <StyledReplay onClick={onReplay} aria-label={t("celebration_100k.banner_replay_button")}>
