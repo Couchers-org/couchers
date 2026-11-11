@@ -17,6 +17,7 @@ from couchers.models import DonationInitiation, DonationType, Invoice, InvoiceTy
 from couchers.proto import donations_pb2
 from couchers.proto.google.api import httpbody_pb2
 from tests.fixtures.db import generate_user
+from tests.fixtures.feature_flags import FeatureFlags
 from tests.fixtures.sessions import donations_session, real_stripe_session
 
 
@@ -30,7 +31,7 @@ def stripe_config() -> None:
     config.MERCH_SHOP_URL = "https://shop.couchershq.org"
 
 
-def test_donations_disabled(db, feature_flags):
+def test_donations_disabled(db, feature_flags: FeatureFlags):
     feature_flags.set("donations_enabled", False)
     _, token = generate_user()
 

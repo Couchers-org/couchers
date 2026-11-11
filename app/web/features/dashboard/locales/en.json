@@ -4,13 +4,11 @@
   "no_community": "You are not currently in a community.",
   "no_sub_communities": "No sub-communities.",
   "load_more": "Load more",
-  "welcome": "Welcome to Couchers.org!",
   "new_pill": "New",
   "communities_intro": "Community pages help organize local events and discussions. <strong>You are always in the communities at your location, but you can <browseCommunitiesLink>join any community.</browseCommunitiesLink></strong>",
   "community_builder": "Want to be an ambassador for your community and help it grow? Become a <communityBuilderLink>Community Builder!</communityBuilderLink>",
   "find_your_community": "Find a community",
   "find_your_community_intro_simplified": "Search for your community or browse below. <requestCommunityLink>Don't see yours? Request it!</requestCommunityLink>",
-  "browse_communities": "Browse Communities",
   "browse_all_communities": "Browse All Communities",
   "browse_communities_text": "Click on a region name to see the other communities within it below. Click on link to go to that city or region's community page.",
   "show_all_communities": "Show all communities",
@@ -50,7 +48,9 @@
     "same_gender_only_indicator": "Same gender",
     "invitations_count_one": "{{count}} invitation",
     "invitations_count_other": "{{count}} invitations",
-    "no_invitations": "No invitations yet"
+    "no_invitations": "No invitations yet",
+    "community_trips_header": "Public trips in your communities",
+    "community_trips_empty_description": "No one in your communities is looking for a host right now."
   },
   "stays": {
     "upcoming_trips_header": "Your upcoming stays",

@@ -184,5 +184,8 @@
   "incomplete_profile_haiku": "Prázdný avatar hledí,\nza tichem se skrývá tajemství -\nkdo jsi, cizinče?",
   "meetup_status": {
     "does_not_want_to_meetup_description": "Raději se s ostatními nescházím"
+  },
+  "copy_profile_link": {
+    "button_a11y": "Kopírovat odkaz na profil"
   }
 }

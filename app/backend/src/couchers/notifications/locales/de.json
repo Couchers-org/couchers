@@ -14,8 +14,8 @@
       "push": {
         "title": "Konto gelöscht",
         "ios_title": "Konto gelöscht",
-        "body_one": "Du kannst ihn innerhalb von {{count}} Tag über den Link wiederherstellen, den wir dir per E-Mail gesendet haben.",
-        "body_other": "Du kannst ihn innerhalb von {{count}} Tagen über den Link wiederherstellen, den wir dir per E-Mail gesendet haben."
+        "body_one": "Du kannst es innerhalb von {{count}} Tag über den Link wiederherstellen, den wir dir per E-Mail gesendet haben.",
+        "body_other": "Du kannst es innerhalb von {{count}} Tagen über den Link wiederherstellen, den wir dir per E-Mail gesendet haben."
       }
     },
     "recovered": {

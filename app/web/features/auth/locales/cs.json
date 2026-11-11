@@ -2,7 +2,7 @@
   "change_email_form": {
     "title": "Změnit email",
     "current_email_message": "Tvá současná emailová adresa je <strong>{{email}}</strong>.",
-    "success_message": "Žádost o změnu emailové adresy byla přijata. Pro dokončení změny prosím zkontroluj svou emailovou schránku.",
+    "success_message": "Na tvou novou emailovou adresu jsme odeslali potvrzovací odkaz. Kliknutím na něj dokončíš aktualizaci svého účtu.",
     "current_password": "Současné heslo",
     "new_email": "Nový email",
     "hide_current_password": "Skrýt aktuální heslo",
@@ -122,11 +122,11 @@
     },
     "gender_section": {
       "title": "Změnit pohlaví",
-      "explanation": "Admini ti rádi pomůžou se změnou tvého pohlavního označení. Prosím, kontaktuj support@couchers.org!"
+      "explanation": "Správci ti rádi pomůžou se změnou tvého pohlavního označení. Prosím, kontaktuj support@couchers.org!"
     },
     "birth_date_section": {
       "title": "Změnit datum narození",
-      "explanation": "Admini ti rádi pomůžou se změnou data tvého narození. Prosím, kontaktuj support@couchers.org!"
+      "explanation": "Admini ti rádi pomůžou se změnou data narození. Prosím kontaktuj support@couchers.org."
     },
     "appearance_section": {
       "title": "Vzhled",
@@ -237,7 +237,7 @@
     "field_label": "Tvá poloha",
     "validation_error": "Vyber prosím platnou lokalitu."
   },
-  "sign_up_completed_prompt": "Na tvou emailovou adresu <strong>{{email}}</strong> jsme odeslali email s ověřovacím odkazem. Kliknutím na odkaz aktivuješ svůj účet.",
+  "sign_up_completed_prompt": "Na tvou emailovou adresu <strong>{{email}}</strong> jsme odeslali ověřovací odkaz. Kliknutím na odkaz aktivuješ svůj účet.",
   "sign_up_confirmed_prompt": "Hotovo! Pokud nebudeš přesměrován/a, zkus se přihlásit.",
   "unhandled_sign_up_state": "Chyba: neošetřený stav registračního procesu.",
   "sign_up_need_verification_title": "Ještě poslední věc: potvrď svůj email.",
@@ -408,7 +408,7 @@
   "change_signup_email_form": {
     "title": "Změnit registrační email",
     "current_email_message": "Tvá současná emailová adresa je <strong>{{email}}</strong>.",
-    "success_message": "Tvoje žádost o změnu emailu byla přijata. Zkontroluj svůj nový email a potvrď ho.",
+    "success_message": "Na tvou novou emailovou adresu jsme odeslali ověřovací odkaz. Kliknutím na něj potvrdíš svůj email.",
     "signup_change_email": "Změnit emailovou adresu"
   },
   "sign_up_change_email": "Překlep v emailové adrese? Zadej svou správnou emailovou adresu zde:",

@@ -3,6 +3,7 @@ import pytest
 
 from couchers import profiling
 from couchers.config import config
+from tests.fixtures.feature_flags import FeatureFlags
 
 TAGS = {"role": "api", "instance": "api-1761"}
 
@@ -23,13 +24,13 @@ def fake_agent(monkeypatch):
     return configure_calls, shutdown_calls
 
 
-def _enable(feature_flags, *, rate=20, mode="wall"):
+def _enable(feature_flags: FeatureFlags, *, rate=20, mode="wall"):
     feature_flags.set("profiling_enabled", True)
     feature_flags.set("profiling_sample_rate", rate)
     feature_flags.set("profiling_mode", mode)
 
 
-def test_disabled_does_nothing(feature_flags, fake_agent):
+def test_disabled_does_nothing(feature_flags: FeatureFlags, fake_agent):
     configure_calls, shutdown_calls = fake_agent
     feature_flags.set("profiling_enabled", False)
     profiling._reconcile()
@@ -38,7 +39,7 @@ def test_disabled_does_nothing(feature_flags, fake_agent):
     assert profiling._running is False
 
 
-def test_enables_with_flag_driven_params(feature_flags, fake_agent, monkeypatch):
+def test_enables_with_flag_driven_params(feature_flags: FeatureFlags, fake_agent, monkeypatch):
     monkeypatch.setitem(config, "PYROSCOPE_SERVER", "https://pyroscope.couchershq.org")
     monkeypatch.setitem(config, "PYROSCOPE_AUTH_TOKEN", "secret-token")
     configure_calls, _ = fake_agent
@@ -57,7 +58,7 @@ def test_enables_with_flag_driven_params(feature_flags, fake_agent, monkeypatch)
     assert (profiling._running, profiling._sample_rate, profiling._oncpu) == (True, 50, True)
 
 
-def test_idempotent_when_unchanged(feature_flags, fake_agent):
+def test_idempotent_when_unchanged(feature_flags: FeatureFlags, fake_agent):
     configure_calls, shutdown_calls = fake_agent
     _enable(feature_flags)
     profiling._reconcile()
@@ -66,7 +67,7 @@ def test_idempotent_when_unchanged(feature_flags, fake_agent):
     assert shutdown_calls == []
 
 
-def test_rate_change_restarts_agent(feature_flags, fake_agent):
+def test_rate_change_restarts_agent(feature_flags: FeatureFlags, fake_agent):
     configure_calls, shutdown_calls = fake_agent
     _enable(feature_flags, rate=20)
     profiling._reconcile()
@@ -78,7 +79,7 @@ def test_rate_change_restarts_agent(feature_flags, fake_agent):
     assert profiling._sample_rate == 73
 
 
-def test_mode_change_restarts_agent(feature_flags, fake_agent):
+def test_mode_change_restarts_agent(feature_flags: FeatureFlags, fake_agent):
     configure_calls, shutdown_calls = fake_agent
     _enable(feature_flags, mode="wall")
     profiling._reconcile()
@@ -89,7 +90,7 @@ def test_mode_change_restarts_agent(feature_flags, fake_agent):
     assert profiling._oncpu is True
 
 
-def test_disable_after_running_shuts_down(feature_flags, fake_agent):
+def test_disable_after_running_shuts_down(feature_flags: FeatureFlags, fake_agent):
     _, shutdown_calls = fake_agent
     _enable(feature_flags)
     profiling._reconcile()
@@ -99,7 +100,7 @@ def test_disable_after_running_shuts_down(feature_flags, fake_agent):
     assert profiling._running is False
 
 
-def test_sample_rate_is_clamped(feature_flags, fake_agent):
+def test_sample_rate_is_clamped(feature_flags: FeatureFlags, fake_agent):
     configure_calls, _ = fake_agent
     _enable(feature_flags, rate=100000)
     profiling._reconcile()

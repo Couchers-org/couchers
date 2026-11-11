@@ -79,7 +79,6 @@ def dump_all(outdir: Path, *, filter_glob: str = "*", locales: list[str] | None 
     """
     locales = _ordered_locales(locales)
     footer = EmailFooter(
-        timezone_name="UTC",
         unsubscribe_info=UnsubscribeInfo(
             manage_notifications_url="https://example.com/manage-notifications",
             do_not_email_url="https://example.com/do-not-email",
