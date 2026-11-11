@@ -44,7 +44,8 @@ const reportContentMock = service.reporting.reportContent as jest.MockedFunction
   typeof service.reporting.reportContent
 >;
 
-function renderEventPage(id = 1, slug = "weekly-meetup", query = "") {
+function renderEventPage(id = 1, slug = "weekly-meetup", { commentId }: { commentId?: number } = {}) {
+  const query = commentId === undefined ? "" : `?comment=${commentId}`;
   mockRouter.setCurrentUrl(`${eventBaseRoute}/${id}/${slug}${query}`);
   render(<EventPage eventId={id} eventSlug={slug} />, { wrapper: hookWrapper });
 }
@@ -125,7 +126,7 @@ describe("Event page", () => {
   it("scrolls to the comments when opened from a comment notification", async () => {
     const scrollIntoView = Element.prototype.scrollIntoView as jest.Mock;
     scrollIntoView.mockClear();
-    renderEventPage(1, "weekly-meetup", "?comment=5");
+    renderEventPage(1, "weekly-meetup", { commentId: 5 });
 
     const heading = await screen.findByRole("heading", { name: t("communities:event_discussion") });
 
@@ -140,7 +141,7 @@ describe("Event page", () => {
         ? { nextPageToken: "", repliesList: comments.slice(0, 2) }
         : getThread(threadId),
     );
-    renderEventPage(1, "weekly-meetup", `?comment=${comments[1].threadId}`);
+    renderEventPage(1, "weekly-meetup", { commentId: comments[1].threadId });
 
     const linkedComment = (await screen.findByText(comments[1].content)).closest("[data-testid='comment']");
 
