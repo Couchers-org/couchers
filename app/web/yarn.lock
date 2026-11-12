@@ -671,10 +671,17 @@
   dependencies:
     "@growthbook/growthbook" "^1.8.0"
 
-"@growthbook/growthbook@^1.6.5", "@growthbook/growthbook@^1.8.0":
+"@growthbook/growthbook@^1.8.0":
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/@growthbook/growthbook/-/growthbook-1.8.0.tgz#a3e54c94492630900fe3637c747fc7c3d5ced092"
   integrity sha512-WlS5bCwm0EJQDdTNkiPGE1X9EdvU7BIaAbHP8pg/5xP1stRyUI7sPQMpC21p6B2c/VvgxatGn/tM+r0SYnhfQw==
+  dependencies:
+    dom-mutator "^0.6.0"
+
+"@growthbook/growthbook@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@growthbook/growthbook/-/growthbook-2.0.0.tgz#d2afc56c3a52579520d664e78abeb30419a0c673"
+  integrity sha512-NQgdtW9ezfNopNlc1ZzuA8lc7iKuNX6HT2o3NTHKgthdOlRFAubNSGf+F259sL1mbdsEO4e3j1aUQDF4CtUouA==
   dependencies:
     dom-mutator "^0.6.0"
 
