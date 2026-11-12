@@ -285,14 +285,14 @@
     "donate_button": "Spende, um Couchers.org zu unterstützen",
     "donation_message1": "Die Verifizierung ist für dich kostenlos, aber sie verursacht für uns Kosten. Als gemeinnützige Organisation, die von Freiwilligen betrieben wird, sind wir auf Spenden angewiesen, um Ausgaben wie den Betrieb unserer Server, die Verifizierung sowie Werkzeuge für Freiwillige und Community-Betreuer zu decken.",
     "instructions": {
-      "warning": "Wichtig: Das Scannen des Passchipps kann knifflig sein—lies zuerst alle Anweisungen!",
+      "warning": "Wichtig: Das Scannen des Reisepass-Chips kann knifflig sein. Lies dir zuerst alle Anweisungen durch!",
       "step1": "Lade die <strong>Iris ID</strong> App herunter",
       "step2": "Klicke unten auf <strong>\"Starke Verifizierung starten\"</strong> (öffnet in einem neuen Tab)",
       "step3": "Scanne den QR-Code mit deinem Handy",
       "step4": "Wenn du dazu aufgefordert wirst, öffne die App und scanne den QR-Code erneut",
       "step5": "Wähle <strong>Reisepass</strong> aus (Personalausweise werden nicht unterstützt)",
       "step7": "Halte dein Telefon an die Passseite mit dem NFC-Chip und <strong>halte es mindestens 5 Sekunden lang völlig still</strong> — zu frühes Bewegen ist die häufigste Fehlerursache",
-      "step8": "Du wirst wissen, dass es erfolgreich ist, wenn du steigende Prozentsätze und einen Ladebalken siehst",
+      "step8": "Wenn du steigende Prozentangaben und einen Ladebalken siehst, machst du es richtig",
       "download_app_store": "Im App Store herunterladen",
       "download_google_play": "Bei Google Play herunterladen",
       "chip_location": {
@@ -308,23 +308,23 @@
       "scanning_tips": {
         "heading": "Tipps für erfolgreiches NFC-Scannen",
         "description": "Der NFC-Scan ist der kniffligste Teil. Diese Tipps erhöhen deine Chancen erheblich:",
-        "remove_case": "<strong>Entferne deine Handyhülle</strong> – selbst dünne Hüllen können das NFC-Signal blockieren",
-        "hold_still": "<strong>Halte dein Telefon vollkommen ruhig</strong> für mindestens 5 Sekunden – zu frühes Bewegen ist die häufigste Fehlerursache",
-        "flat_surface": "<strong>Legen deinen Reisepass auf eine ebene Fläche</strong> – halte ihn nicht in der Hand",
-        "nfc_location": "<strong>Finde die NFC-Antenne deines Handys</strong> – sie befindet sich normalerweise oben in der Mitte auf der Rückseite des Handys. Probiere verschiedene Positionen aus, falls keine Verbindung zustande kommt",
-        "no_metal": "<strong>Vermeide Metalloberflächen</strong> – lege deinen Reisepass nicht auf einen Metalltisch oder Laptop",
-        "retry": "Wenn der Scan fehlschlägt, versuche es erneut – oft sind 2-3 Versuche nötig, um die richtige Position zu finden"
+        "remove_case": "<strong>Entferne deine Handyhülle</strong> — selbst dünne Hüllen können das NFC-Signal blockieren",
+        "hold_still": "<strong>Halte dein Telefon vollkommen ruhig</strong> für mindestens 5 Sekunden — zu frühes Bewegen ist die häufigste Fehlerursache",
+        "flat_surface": "<strong>Legen deinen Reisepass auf eine ebene Fläche</strong> — halte ihn nicht in der Hand",
+        "nfc_location": "<strong>Finde die NFC-Antenne deines Handys</strong> — sie befindet sich meistens oben in der Mitte auf der Rückseite des Handys. Probiere verschiedene Positionen aus, falls keine Verbindung zustande kommt",
+        "no_metal": "<strong>Vermeide Metalloberflächen</strong> — lege deinen Reisepass nicht auf einen Metalltisch oder Laptop",
+        "retry": "Wenn der Scan fehlschlägt, versuche es erneut — oft sind 2-3 Versuche nötig, um die richtige Position zu finden"
       },
       "before_you_start": {
         "heading": "Bevor du beginst",
-        "nfc_check": "Dein Telefon muss über <strong>NFC-Funktionalität</strong> verfügen – die meisten modernen Telefone tun dies. NFC ist normalerweise standardmäßig aktiviert, bei einigen älteren Telefonen muss es jedoch möglicherweise in den Einstellungen deines Telefons aktiviert werden.",
+        "nfc_check": "Dein Telefon muss über <strong>NFC-Funktionalität</strong> verfügen — die meisten modernen Telefone tun dies. NFC ist normalerweise standardmäßig aktiviert, bei einigen älteren Telefonen muss es jedoch möglicherweise in den Einstellungen deines Telefons aktiviert werden.",
         "passport_check": "Dein Reisepass muss ein <strong>biometrischer Reisepass</strong> sein — achte auf das goldene Chip-Symbol auf dem Umschlag. Ältere Reisepässe ohne dieses Symbol funktionieren nicht.",
-        "remove_case": "<strong>Entferne deine Handyhülle vor dem Start</strong> – selbst dünne Hüllen können das NFC-Signal blockieren und zum Scheitern des Scans führen."
+        "remove_case": "<strong>Entferne deine Handyhülle vor dem Start</strong> — selbst dünne Hüllen können das NFC-Signal blockieren und zum Scheitern des Scans führen."
       },
       "didnt_work": {
         "heading": "Hast du Probleme?",
         "tip1": "Stelle bei älteren Android-Handys sicher, dass NFC in den Einstellungen deines Handys aktiviert ist (bei den meisten modernen Handys ist es standardmäßig aktiviert)",
-        "tip2": "Probiere eine andere Seite deines Reisepasses – die Position des Chips variiert je nach Land",
+        "tip2": "Probiere eine andere Seite deines Reisepasses — die Position des Chips variiert je nach Land",
         "tip3": "Stelle bei Android sicher, dass du die IRIS-ID-App installiert hast (nicht die Browser-Version)",
         "tip4": "Einige ältere Reisepässe oder Passkarten verfügen nicht über NFC-Chips und funktionieren nicht",
         "contact": "Falls du weiterhin Probleme hast, <supportLink>lass es uns wissen</supportLink> und wir helfen dir."
@@ -432,7 +432,7 @@
         "photos_title_one": "{{count}} Profilfoto",
         "photos_title_other": "{{count}} Profilfotos",
         "photos_description": "Anstatt {{unverified_count}}.",
-        "badge_title": "Ein Verifizierungsabzeichen",
+        "badge_title": "Ein Abzeichen",
         "badge_description": "Wird neben deinem Namen angezeigt, wobei dein Alter und dein Geschlecht als geprüft markiert sind.",
         "interactions_title": "Mehr Vertrauen",
         "interactions_description": "Mitglieder wissen, dass du wirklich die Person bist, für die du dich ausgibst.",

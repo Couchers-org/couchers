@@ -99,5 +99,20 @@
       "left_arrow_a11y": "прокрутити вліво",
       "right_arrow_a11y": "прокрутити вправо"
     }
+  },
+  "celebration_100k": {
+    "banner_message": "Аудиторія Couchers досягла 100 тисяч учасників!",
+    "banner_read_more_link": "Дізнатися більше",
+    "banner_replay_button": "Передивитись анімацію",
+    "help_us_grow_button": "Допомогти нам зростати",
+    "dialog_a11y": "Couchers вже має 100,000 учасників",
+    "burst_heading": "Нас {{member_count}}+ !",
+    "map_counter_total": "{{member_count}}+",
+    "close_button_a11y": "Закрити",
+    "map_a11y": "Карта учасників Couchers по всьому світу, що показуються групами місто за містом, та поєднуються у регіони",
+    "map_counter_label": "Couchers, і число зростає",
+    "map_message_everywhere": "Ми всюди.",
+    "map_message_thanks": "Дякуємо, що відкриваєте свої двері.",
+    "map_read_more_link": "Дізнатися більше"
   }
 }
