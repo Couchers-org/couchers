@@ -7,6 +7,7 @@ import { BackIcon, OverflowMenuIcon } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
 import { BOTTOM_NAV_BASE_HEIGHT } from "components/Navigation/constants";
 import PageTitle from "components/PageTitle";
+import PullToRefresh from "components/PullToRefresh";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { GROUP_CHAT_REFETCH_INTERVAL } from "features/messages/groupchats/constants";
 import HostRequestSendField from "features/messages/requests/HostRequestSendField";
@@ -266,6 +267,7 @@ export default function HostRequestView({ hostRequestId }: { hostRequestId: numb
 
   return (
     <StyledPageWrapper isNativeEmbed={isNativeEmbed}>
+      <PullToRefresh queryKeys={[hostRequestKey(hostRequestId), hostRequestMessagesKey(hostRequestId)]} />
       <StyledHeader>
         <HeaderButton
           onClick={handleBack}

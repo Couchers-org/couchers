@@ -4,10 +4,12 @@ import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { EmailIcon } from "components/Icons";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
+import PullToRefresh from "components/PullToRefresh";
 import TextBody from "components/TextBody";
 import useAccountInfo from "features/auth/useAccountInfo";
 import { SectionTitle } from "features/communities/CommunityPage";
 import { useListDiscussions } from "features/communities/hooks";
+import { communityDiscussionsKey } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
@@ -86,6 +88,7 @@ export default function DiscussionsListPage({ community }: { community: Communit
 
   return (
     <>
+      <PullToRefresh queryKeys={[communityDiscussionsKey(community.communityId)]} />
       <ProfileIncompleteDialog
         open={profileDialogOpen}
         onClose={() => setIsCreatingNewPost(false)}

@@ -3,6 +3,7 @@
   "close": "Close",
   "close_button_a11y": "Close",
   "more_options_a11y": "More options",
+  "pull_to_refresh_progress_a11y": "Pull down to refresh",
   "create_account": "Create Account",
   "expand": "Expand",
   "retract": "Retract",
