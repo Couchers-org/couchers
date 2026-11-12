@@ -2,6 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import wrapper, { getHookWrapperWithClient } from "test/hookWrapper";
 import i18n from "test/i18n";
+import { addDefaultUser } from "test/utils";
 
 import Celebration100k from "./Celebration100k";
 import { CELEBRATION_100K_BLOG_URL_FLAG, CELEBRATION_100K_FLAG, CELEBRATION_100K_SEEN_KEY } from "./constants";
@@ -29,6 +30,7 @@ const closeButton = () => screen.queryByRole("button", { name: t("close_button_a
 describe("Celebration100k", () => {
   beforeEach(() => {
     window.localStorage.clear();
+    addDefaultUser();
     fetchMemberLocationsMock.mockResolvedValue({ features: [] });
   });
 
@@ -37,6 +39,37 @@ describe("Celebration100k", () => {
 
     expect(screen.queryByText(t("banner_message"))).not.toBeInTheDocument();
     expect(closeButton()).not.toBeInTheDocument();
+  });
+
+  it("shows nothing to logged-out visitors", () => {
+    window.localStorage.clear();
+    renderCelebration({ autoPlay: true });
+
+    expect(screen.queryByText(t("banner_message"))).not.toBeInTheDocument();
+    expect(closeButton()).not.toBeInTheDocument();
+  });
+
+  it("waits for the map data before playing", async () => {
+    let resolveMembers: (value: { features: [] }) => void = () => {};
+    fetchMemberLocationsMock.mockReturnValue(new Promise((resolve) => (resolveMembers = resolve)));
+    renderCelebration({ autoPlay: true });
+
+    await waitFor(() => expect(fetchMemberLocationsMock).toHaveBeenCalled());
+    expect(closeButton()).not.toBeInTheDocument();
+    expect(window.localStorage.getItem(CELEBRATION_100K_SEEN_KEY)).toBeNull();
+
+    resolveMembers({ features: [] });
+    expect(await screen.findByRole("button", { name: t("close_button_a11y") })).toBeVisible();
+  });
+
+  it("waits for a later visit if the map data fails to load", async () => {
+    fetchMemberLocationsMock.mockRejectedValue(new Error("offline"));
+    renderCelebration({ autoPlay: true });
+
+    await waitFor(() => expect(fetchMemberLocationsMock).toHaveBeenCalled());
+    // Give the failure time to settle: it must not open
+    await expect(screen.findByRole("button", { name: t("close_button_a11y") }, { timeout: 500 })).rejects.toThrow();
+    expect(window.localStorage.getItem(CELEBRATION_100K_SEEN_KEY)).toBeNull();
   });
 
   it("plays the celebration on the first visit and remembers it on this device", async () => {
