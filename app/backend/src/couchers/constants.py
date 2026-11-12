@@ -66,7 +66,9 @@ POSTAL_VERIFICATION_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 POSTAL_VERIFICATION_CODE_LIFETIME = timedelta(days=90)
 # Max wrong code attempts before lockout
 POSTAL_VERIFICATION_MAX_ATTEMPTS = 5
-# Can only initiate once per 30 days
+# Confirmed but still unsent after this long means something went wrong and a person needs to look
+POSTCARD_STUCK_AFTER = timedelta(hours=1)
+# Wait this long after a postcard is sent before starting another
 POSTAL_VERIFICATION_RATE_LIMIT = timedelta(days=30)
 
 SIGNUP_EMAIL_TOKEN_VALIDITY = timedelta(hours=48)

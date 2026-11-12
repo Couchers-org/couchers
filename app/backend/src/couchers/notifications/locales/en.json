@@ -411,6 +411,7 @@
         "ios_title": "Postal Verification Failed",
         "body_code_expired": "Your verification code has expired. Codes are valid for 90 days after the postcard is sent. You can request a new postcard.",
         "body_too_many_attempts": "Too many incorrect code attempts. You can request a new postcard.",
+        "body_address_rejected": "We couldn't send a postcard to that address. Please check it and try again.",
         "body_generic": "Your postal verification attempt has failed. You can request a new postcard."
       }
     },

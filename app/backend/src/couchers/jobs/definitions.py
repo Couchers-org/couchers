@@ -4,6 +4,7 @@ from typing import Any, Protocol, cast, get_type_hints
 
 from couchers.jobs.handlers import (
     add_users_to_email_list,
+    alert_stuck_postcards,
     auto_approve_moderation_queue,
     check_database_consistency,
     check_expo_push_receipts,
@@ -103,6 +104,7 @@ _JOBS_LIST = [
     Job(send_postal_verification_postcard),
     Job(check_database_consistency, schedule=timedelta(hours=24)),
     Job(check_mypostcard_jobs, schedule=timedelta(hours=24)),
+    Job(alert_stuck_postcards, schedule=timedelta(hours=24)),
     Job(auto_approve_moderation_queue, schedule=timedelta(seconds=15)),
 ]
 

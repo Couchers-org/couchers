@@ -60,9 +60,11 @@ enum PostalVerificationStatus {
 }
 
 // Postal address for international mail delivery.
-// Required fields: address_line_1, city, country
+// Required fields: recipient_name, address_line_1, city, country
 // Optional fields: address_line_2, state, postal_code (varies by country)
 message PostalAddress {
+  // Required: full name printed on the postcard. Doesn't change the profile name.
+  string recipient_name = 7;
   // Required: street address, house number, building name, etc.
   string address_line_1 = 1;
   // Optional: apartment, suite, unit, floor, etc. Empty string if not provided.
@@ -123,6 +125,10 @@ message GetPostalVerificationStatusRes {
   bool can_initiate_new_attempt = 8;
   // If rate limited, when user can try again. Zero value if not rate limited.
   google.protobuf.Timestamp next_attempt_allowed_at = 9;
+  // Confirmed a while ago but not sent yet, so the team has been alerted to look into it
+  bool postcard_delayed = 10;
+  // Failed because MyPostcard didn't accept the address. Nothing was sent, so they can fix it and try again now
+  bool address_rejected = 11;
 }
 
 // Submit verification code (from postcard or QR code)

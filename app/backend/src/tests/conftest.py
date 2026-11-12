@@ -391,6 +391,7 @@ def _testconfig() -> Generator[None]:
     config.SLACK_BOT_TOKEN = ""
     config.SLACK_DONATIONS_CHANNEL = ""
     config.SLACK_MERCH_CHANNEL = ""
+    config.SLACK_MONITORING_CHANNEL = ""
 
     # Profiling disabled by default in tests
     config.PYROSCOPE_ENABLED = False

@@ -223,6 +223,8 @@ enum PostalVerificationFailReason {
   POSTAL_VERIFICATION_FAIL_REASON_CODE_EXPIRED = 1;
   // Too many wrong attempts (5 attempts)
   POSTAL_VERIFICATION_FAIL_REASON_TOO_MANY_ATTEMPTS = 2;
+  // MyPostcard rejected the address, so no postcard was ordered
+  POSTAL_VERIFICATION_FAIL_REASON_ADDRESS_REJECTED = 3;
 }
 
 message PostalVerificationFailed {

@@ -22,6 +22,10 @@ logger = logging.getLogger(__name__)
 API_BASE = "https://www.mypostcard.com/api/v1"
 
 
+class AddressRejectedError(Exception):
+    """MyPostcard rejected the address. It validates before creating the job, so nothing was ordered."""
+
+
 def _generate_back_left_side_png(verification_code: str) -> bytes:
     """
     Generates the back left side image (780x1016 px PNG at 300 DPI).
@@ -72,7 +76,8 @@ def _credentials() -> dict[str, str]:
     }
 
 
-def _authenticate() -> str:
+def authenticate() -> str:
+    # Separate from send_postcard: failing here means no order could have been placed, so it's safe to retry
     response = requests.post(
         f"{API_BASE}/auth",
         data=_credentials(),
@@ -120,12 +125,17 @@ def _place_order(
         },
         timeout=60,
     )
+    # Their docs spell it "adress"
+    if response.status_code == 400 and ("adress" in response.text.lower() or "address" in response.text.lower()):
+        raise AddressRejectedError(response.text)
     response.raise_for_status()
     result: dict[str, Any] = response.json()
     return result
 
 
 def send_postcard(
+    *,
+    auth_token: str,
     recipient_name: str,
     address_line_1: str,
     address_line_2: str | None,
@@ -139,6 +149,7 @@ def send_postcard(
     Sends a physical postcard with verification code via MyPostcard API.
 
     Args:
+        auth_token: From authenticate()
         recipient_name: Name to print on the postcard
         address_line_1: Street address
         address_line_2: Apartment/suite (optional)
@@ -166,7 +177,7 @@ def send_postcard(
         recipient["state"] = state
 
     result = _place_order(
-        _authenticate(), recipient, get_postcard_front_image(), _generate_back_left_side_png(verification_code)
+        auth_token, recipient, get_postcard_front_image(), _generate_back_left_side_png(verification_code)
     )
     logger.info(f"MyPostcard order placed successfully: {result}")
     return int(result["job_id"])

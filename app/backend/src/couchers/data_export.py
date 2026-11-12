@@ -752,6 +752,7 @@ def _verification(session: Session, user: User) -> user_data_export_pb2.Verifica
             user_data_export_pb2.PostalVerificationAttempt(
                 created=_ts(attempt.created),
                 status=_enum(attempt.status),
+                recipient_name=attempt.recipient_name,
                 address_line_1=attempt.address_line_1,
                 address_line_2=attempt.address_line_2,
                 city=attempt.city,

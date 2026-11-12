@@ -7,7 +7,7 @@ from collections.abc import Sequence
 from datetime import UTC, date, datetime, timedelta
 from math import cos, pi, sin
 from random import sample
-from typing import Any
+from typing import Any, TypedDict
 from zoneinfo import ZoneInfo
 
 import requests
@@ -63,6 +63,7 @@ from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.helpers.group_chats import is_newest_subscription, is_unseen
 from couchers.helpers.hosting_meetup_status import record_hosting_meetup_status
+from couchers.helpers.postal_verification import alert_postcards_need_review, postcard_is_stuck
 from couchers.materialized_views import (
     UserResponseRate,
 )
@@ -105,6 +106,7 @@ from couchers.models import (
     PasswordResetToken,
     PhotoGallery,
     PostalVerificationAttempt,
+    PostalVerificationFailReason,
     PostalVerificationStatus,
     PushNotificationDeliveryAttempt,
     PushNotificationSubscription,
@@ -122,7 +124,7 @@ from couchers.moderation.utils import auto_approve_due_queue_items, create_moder
 from couchers.notifications.expo_api import get_expo_push_receipts
 from couchers.notifications.notify import notify
 from couchers.postal.bypass import email_verification_code_instead_of_posting
-from couchers.postal.my_postcard import get_order_ids, send_postcard
+from couchers.postal.my_postcard import AddressRejectedError, authenticate, get_order_ids, send_postcard
 from couchers.proto import moderation_pb2, notification_data_pb2
 from couchers.proto.internal import internal_pb2, jobs_pb2
 from couchers.resources import get_badge_dict, get_static_badge_dict
@@ -1422,78 +1424,157 @@ def check_expo_push_receipts(payload: empty_pb2.Empty) -> None:
     )
 
 
+class PostcardRecipient(TypedDict):
+    recipient_name: str
+    address_line_1: str
+    address_line_2: str | None
+    city: str
+    state: str | None
+    postal_code: str | None
+    country: str
+
+
 def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPostcardPayload) -> None:
     """
-    Sends the postcard via external API and updates attempt status.
+    Orders the postcard from MyPostcard and records it.
+
+    Each order costs money and MyPostcard has no idempotency key, so we order at most once: claim the attempt
+    first, and never retry an order that might have gone through. Unclear cases get flagged for a person.
     """
+    attempt_id = payload.postal_verification_attempt_id
+
     with session_scope() as session:
         attempt = session.execute(
-            select(PostalVerificationAttempt).where(
-                PostalVerificationAttempt.id == payload.postal_verification_attempt_id
-            )
+            select(PostalVerificationAttempt).where(PostalVerificationAttempt.id == attempt_id).with_for_update()
         ).scalar_one_or_none()
 
         if not attempt or attempt.status != PostalVerificationStatus.in_progress:
-            logger.warning(
-                f"Postal verification attempt {payload.postal_verification_attempt_id} not found or wrong state"
-            )
+            logger.warning(f"Postal verification attempt {attempt_id} not found or wrong state")
             return
 
-        user_name, user_email = session.execute(select(User.name, User.email).where(User.id == attempt.user_id)).one()
+        if attempt.postcard_order_started_at is not None:
+            # An earlier run claimed it but never recorded an order, which may still have gone through
+            alert_postcards_need_review(session, [attempt], "an earlier run may have ordered it without recording it")
+            return
 
+        # Committed before calling MyPostcard so a retry (or a cancel) can see we may have ordered
+        attempt.postcard_order_started_at = func.now()
+
+        user_id = attempt.user_id
+        country_code = attempt.country_code
+        city = attempt.city
+        verification_code = not_none(attempt.verification_code)
+        postcard = PostcardRecipient(
+            recipient_name=attempt.recipient_name,
+            address_line_1=attempt.address_line_1,
+            address_line_2=attempt.address_line_2,
+            city=attempt.city,
+            state=attempt.state,
+            postal_code=attempt.postal_code,
+            country=attempt.country_code,
+        )
+        user_email = session.execute(select(User.email).where(User.id == user_id)).scalar_one()
+
+    mypostcard_job_id = None
+    if not config.POSTAL_VERIFICATION_BYPASS_POST_AND_EMAIL_CODE_FOR_TESTING:
+        try:
+            auth_token = authenticate()
+        except Exception:
+            # Nothing can have been ordered yet, so it's safe to release the claim and let the job retry
+            with session_scope() as session:
+                session.execute(
+                    update(PostalVerificationAttempt)
+                    .where(PostalVerificationAttempt.id == attempt_id)
+                    .values(postcard_order_started_at=None)
+                )
+            raise
+
+        try:
+            mypostcard_job_id = send_postcard(auth_token=auth_token, verification_code=verification_code, **postcard)
+        except AddressRejectedError as e:
+            # Definitely not ordered, so the member can fix the address and try again straight away
+            logger.info(f"MyPostcard rejected the address for attempt {attempt_id}: {e}")
+            with session_scope() as session:
+                session.execute(
+                    update(PostalVerificationAttempt)
+                    .where(PostalVerificationAttempt.id == attempt_id)
+                    .values(
+                        status=PostalVerificationStatus.failed,
+                        fail_reason=PostalVerificationFailReason.address_rejected,
+                    )
+                )
+                notify(
+                    session,
+                    user_id=user_id,
+                    topic_action=NotificationTopicAction.postal_verification__failed,
+                    key="",
+                    data=notification_data_pb2.PostalVerificationFailed(
+                        reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_ADDRESS_REJECTED
+                    ),
+                )
+            return
+        except Exception as e:
+            # MyPostcard may have taken the order anyway, so a person checks rather than us retrying
+            report_error(e)
+            with session_scope() as session:
+                attempt = session.execute(
+                    select(PostalVerificationAttempt).where(PostalVerificationAttempt.id == attempt_id)
+                ).scalar_one()
+                alert_postcards_need_review(
+                    session, [attempt], f"ordering failed ({e!r}), it may still have gone through"
+                )
+            return
+
+    # Recorded on its own, so nothing that happens afterwards can roll back the record of a paid order
+    with session_scope() as session:
         if config.POSTAL_VERIFICATION_BYPASS_POST_AND_EMAIL_CODE_FOR_TESTING:
             email_verification_code_instead_of_posting(
-                session,
-                recipient_email=user_email,
-                recipient_name=user_name,
-                address_line_1=attempt.address_line_1,
-                address_line_2=attempt.address_line_2,
-                city=attempt.city,
-                state=attempt.state,
-                postal_code=attempt.postal_code,
-                country=attempt.country_code,
-                verification_code=not_none(attempt.verification_code),
+                session, recipient_email=user_email, verification_code=verification_code, **postcard
             )
-        else:
-            attempt.mypostcard_job_id = send_postcard(
-                recipient_name=user_name,
-                address_line_1=attempt.address_line_1,
-                address_line_2=attempt.address_line_2,
-                city=attempt.city,
-                state=attempt.state,
-                postal_code=attempt.postal_code,
-                country=attempt.country_code,
-                verification_code=not_none(attempt.verification_code),
+        session.execute(
+            update(PostalVerificationAttempt)
+            .where(PostalVerificationAttempt.id == attempt_id)
+            .values(
+                mypostcard_job_id=mypostcard_job_id,
+                status=PostalVerificationStatus.awaiting_verification,
+                postcard_sent_at=func.now(),
             )
+        )
 
-        attempt.status = PostalVerificationStatus.awaiting_verification
-        attempt.postcard_sent_at = func.now()
+    postcards_sent_counter.labels(country_code=country_code).inc()
 
-        postcards_sent_counter.labels(country_code=attempt.country_code).inc()
-
-        context = make_background_user_context(attempt.user_id)
+    with session_scope() as session:
         log_event(
-            context,
+            make_background_user_context(user_id),
             session,
             "postcard.sent",
-            {
-                "attempt_id": attempt.id,
-                "country": attempt.country_code,
-                "city": attempt.city,
-                "mypostcard_job_id": attempt.mypostcard_job_id,
-            },
+            {"attempt_id": attempt_id, "country": country_code, "city": city, "mypostcard_job_id": mypostcard_job_id},
         )
-
         notify(
             session,
-            user_id=attempt.user_id,
+            user_id=user_id,
             topic_action=NotificationTopicAction.postal_verification__postcard_sent,
             key="",
-            data=notification_data_pb2.PostalVerificationPostcardSent(
-                city=attempt.city,
-                country=attempt.country_code,
-            ),
+            data=notification_data_pb2.PostalVerificationPostcardSent(city=city, country=country_code),
         )
+
+
+def alert_stuck_postcards(payload: empty_pb2.Empty) -> None:
+    """
+    Daily reminder of postcards still stuck, since a one-off alert is easy to forget.
+    """
+    with session_scope() as session:
+        stuck = (
+            session.execute(
+                select(PostalVerificationAttempt)
+                .where(postcard_is_stuck())
+                .order_by(PostalVerificationAttempt.address_confirmed_at)
+            )
+            .scalars()
+            .all()
+        )
+        if stuck:
+            alert_postcards_need_review(session, stuck, f"{len(stuck)} still unsent")
 
 
 def check_mypostcard_jobs(payload: empty_pb2.Empty) -> None:
