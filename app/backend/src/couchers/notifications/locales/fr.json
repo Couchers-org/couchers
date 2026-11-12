@@ -228,46 +228,6 @@
       "event_description": "Un nouvel article de blog est publié"
     }
   },
-  "host_request": {
-    "accept": {
-      "event_description": "Quelqu'un.e accepte votre demande d'hébergement",
-      "push": {
-        "ios_title": "{{user}}",
-        "ios_subtitle": "Demande d'hébergement acceptée",
-        "body": "{{user}} a accepté votre demande d'hébergement pour le {{date}}."
-      }
-    },
-    "cancel": {
-      "event_description": "Quelqu'un.e annule sa demande d'hébergement",
-      "push": {
-        "title": "{{user}} a annulé sa demande d'hébergement",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "Demande d'hébergement annulée"
-      }
-    },
-    "confirm": {
-      "event_description": "Quelqu'un.e confirme sa demande d'hébergement"
-    },
-    "create": {
-      "event_description": "Quelqu’un.e vous envoie une demande d’hébergement"
-    },
-    "message": {
-      "event_description": "Quelqu’un.e envoie un message dans une demande d’hébergement"
-    },
-    "missed_messages": {
-      "event_description": "Vous manquez des messages dans une demande d'hébergement",
-      "push": {
-        "ios_subtitle": "Messages manqués",
-        "body": "Vous avez de nouveaux messages non lus de {{user}}."
-      }
-    },
-    "reject": {
-      "event_description": "Quelqu'un.e refuse votre demande d'hébergement"
-    },
-    "reminder": {
-      "event_description": "Vous n'avez pas répondu à une demande d'hébergement en attente"
-    }
-  },
   "onboarding": {
     "reminder": {
       "event_description": "Rappel de compléter votre profil après votre inscription récente"
@@ -309,6 +269,50 @@
     },
     "reminder_surfed": {
       "event_description": "Attention : Rappel d'écrire une référence pour quelqu'un.e avec qui vous avez surfé"
+    }
+  },
+  "stay": {
+    "accept": {
+      "event_description": "Quelqu'un.e accepte votre demande d'hébergement",
+      "request": {
+        "push": {
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Demande d'hébergement acceptée",
+          "body": "{{user}} a accepté votre demande d'hébergement pour le {{date}}."
+        }
+      }
+    },
+    "cancel": {
+      "event_description": "Quelqu'un.e annule sa demande d'hébergement",
+      "request": {
+        "push": {
+          "title": "{{user}} a annulé sa demande d'hébergement",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Demande d'hébergement annulée"
+        }
+      }
+    },
+    "confirm": {
+      "event_description": "Quelqu'un.e confirme sa demande d'hébergement"
+    },
+    "create": {
+      "event_description": "Quelqu’un.e vous envoie une demande d’hébergement"
+    },
+    "message": {
+      "event_description": "Quelqu’un.e envoie un message dans une demande d’hébergement"
+    },
+    "missed_messages": {
+      "event_description": "Vous manquez des messages dans une demande d'hébergement",
+      "push": {
+        "ios_subtitle": "Messages manqués",
+        "body": "Vous avez de nouveaux messages non lus de {{user}}."
+      }
+    },
+    "reject": {
+      "event_description": "Quelqu'un.e refuse votre demande d'hébergement"
+    },
+    "reminder": {
+      "event_description": "Vous n'avez pas répondu à une demande d'hébergement en attente"
     }
   },
   "thread": {
