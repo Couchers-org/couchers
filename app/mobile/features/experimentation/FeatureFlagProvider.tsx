@@ -124,9 +124,9 @@ export default function FeatureFlagProvider({
 
   return (
     <GrowthBookProvider growthbook={growthbook}>
-      <AttributesReadyContext.Provider value={attributesReady}>
+      <AttributesReadyContext value={attributesReady}>
         {children}
-      </AttributesReadyContext.Provider>
+      </AttributesReadyContext>
     </GrowthBookProvider>
   );
 }

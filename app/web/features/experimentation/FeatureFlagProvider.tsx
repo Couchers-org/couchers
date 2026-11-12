@@ -103,7 +103,7 @@ export default function FeatureFlagProvider({ children }: { children: ReactNode 
 
   return (
     <GrowthBookProvider growthbook={growthbook}>
-      <AttributesReadyContext.Provider value={attributesReady}>{children}</AttributesReadyContext.Provider>
+      <AttributesReadyContext value={attributesReady}>{children}</AttributesReadyContext>
     </GrowthBookProvider>
   );
 }
