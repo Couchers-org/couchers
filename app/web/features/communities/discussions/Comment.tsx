@@ -18,6 +18,7 @@ import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
+import { useRouter } from "next/router";
 import { Reply } from "proto/threads_pb";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -149,6 +150,17 @@ export default function Comment({ topLevel = false, comment, parentThreadId, dis
   const commentFormRef = useRef<HTMLFormElement>(null);
   const resetInputRef: MarkdownInputProps["resetInputRef"] = useRef(null);
 
+  // Links from comment notifications carry ?comment=<id>
+  const router = useRouter();
+  const isLinkedComment = router.query.comment === comment.threadId.toString();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isLinkedComment) {
+      containerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [isLinkedComment]);
+
   useEffect(() => {
     if (showCommentForm && commentFormRef.current) {
       commentFormRef.current.scrollIntoView({
@@ -220,7 +232,11 @@ export default function Comment({ topLevel = false, comment, parentThreadId, dis
 
   return (
     <>
-      <StyledCommentContainer data-testid={COMMENT_TEST_ID}>
+      <StyledCommentContainer
+        ref={containerRef}
+        data-testid={COMMENT_TEST_ID}
+        sx={isLinkedComment ? { outline: "2px solid var(--mui-palette-primary-main)" } : undefined}
+      >
         {!comment.deleted && (
           <StyledButtonsContainer>
             <StyledAvatar user={user} />

@@ -441,7 +441,9 @@ def _render_event__comment(
         },
         body=data.reply.content,
         icon_user=data.author,
-        action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
+        action_url=urls.event_link(
+            occurrence_id=data.event.event_id, slug=data.event.slug, comment_id=data.reply.thread_id
+        ),
     )
 
 
@@ -829,7 +831,9 @@ def _render_thread__reply(
     match data.WhichOneof("reply_parent"):
         case "event":
             parent_title = data.event.title
-            view_link = urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug)
+            view_link = urls.event_link(
+                occurrence_id=data.event.event_id, slug=data.event.slug, comment_id=data.reply.thread_id
+            )
         case "discussion":
             parent_title = data.discussion.title
             view_link = urls.discussion_link(discussion_id=data.discussion.discussion_id, slug=data.discussion.slug)

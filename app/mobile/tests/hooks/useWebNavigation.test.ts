@@ -111,6 +111,25 @@ describe("useWebNavigation", () => {
       expect(mockRouter.navigate).toHaveBeenCalledWith("/user/123");
     });
 
+    it("keeps the query when navigating to a detail page", () => {
+      const syncTargetPathRef = { current: null };
+      const { result } = renderHook(() =>
+        useWebNavigation({
+          webBaseUrl: mockWebBaseUrl,
+          currentPath: "/dashboard",
+          syncTargetPathRef,
+        }),
+      );
+
+      result.current.handleNavigationStateChange(
+        createNavState(`${mockWebBaseUrl}/event/1/party?comment=5`, false),
+      );
+
+      expect(mockRouter.navigate).toHaveBeenCalledWith(
+        "/event/1/party?comment=5",
+      );
+    });
+
     it("triggers native navigation from catch-all to tab route", () => {
       const syncTargetPathRef = { current: null };
       const { result } = renderHook(() =>
