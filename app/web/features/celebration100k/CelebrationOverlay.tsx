@@ -1,10 +1,8 @@
 import { useFeatureValue } from "@growthbook/growthbook-react";
 import { alpha, Button, keyframes, Modal, styled, Typography, useMediaQuery } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
 import IconButton from "components/IconButton";
 import { CloseIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
-import { useAuthContext } from "features/auth/AuthProvider";
 import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
@@ -12,14 +10,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { COUCHERS_LOGO_PATHS } from "resources/couchersLogoPaths";
 
 import { drawFinalMap, startConfetti, startMapAnimation } from "./animation";
-import {
-  CELEBRATION_100K_BLOG_URL_FLAG,
-  CELEBRATION_100K_DONATE_URL,
-  CLUSTERED_MEMBERS_PATH,
-  MEMBER_MILESTONE,
-  PUBLIC_MEMBERS_PATH,
-} from "./constants";
-import { clusterMembers, fetchMemberLocations, STAYS } from "./mapData";
+import { CELEBRATION_100K_BLOG_URL_FLAG, CELEBRATION_100K_DONATE_URL, MEMBER_MILESTONE } from "./constants";
+import { STAYS } from "./mapData";
+import { useMemberClusters } from "./useMemberClusters";
 
 type Phase = "burst" | "map";
 
@@ -28,8 +21,6 @@ interface CelebrationOverlayProps {
   onClose: () => void;
 }
 
-// Plain env read, so this doesn't pull in the full map library just for the URL
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const BURST_FOR_MS = 2600;
 const POP_AT_MS = 450;
 
@@ -204,13 +195,15 @@ const StyledMessageText = styled("div")(({ theme }) => ({
   },
 }));
 
+// Shared so a failed load doesn't hand the map effect a new object (and restart it) on every render
+const NO_CLUSTERS = { cities: [], regions: [] };
+
 const couchPaths = COUCHERS_LOGO_PATHS.map((d) => <path key={d} d={d} />);
 
 /** Full-screen 100k celebration: couch confetti that turns into the member map. Closable at any time. */
 export default function CelebrationOverlay({ open, onClose }: CelebrationOverlayProps) {
   const { t, i18n } = useTranslation(DASHBOARD);
   const blogUrl = useFeatureValue(CELEBRATION_100K_BLOG_URL_FLAG, "");
-  const { authState } = useAuthContext();
   const reduceMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
 
   const [burstPhase, setBurstPhase] = useState<Phase>("burst");
@@ -227,18 +220,9 @@ export default function CelebrationOverlay({ open, onClose }: CelebrationOverlay
   const numberFormat = useMemo(() => new Intl.NumberFormat(i18n.language), [i18n.language]);
   const milestone = numberFormat.format(MEMBER_MILESTONE);
 
-  const membersPath = authState.authenticated ? CLUSTERED_MEMBERS_PATH : PUBLIC_MEMBERS_PATH;
-  const { data: members, isError } = useQuery({
-    queryKey: ["celebration100kMembers", membersPath],
-    queryFn: () => fetchMemberLocations(`${API_BASE_URL}${membersPath}`),
-    enabled: open,
-    staleTime: Infinity,
-  });
+  const { data: clusters, isError } = useMemberClusters(open);
   // Without member data the map still plays, just without clusters
-  const mapData = useMemo(
-    () => (members ? clusterMembers(members) : isError ? { cities: [], regions: [] } : undefined),
-    [members, isError],
-  );
+  const mapData = clusters ?? (isError ? NO_CLUSTERS : undefined);
 
   // Reset once closed, so the next opening (a replay) starts from the beginning
   useEffect(() => {

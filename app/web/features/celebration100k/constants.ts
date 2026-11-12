@@ -8,6 +8,5 @@ export const MEMBER_MILESTONE = 100000;
 
 export const CELEBRATION_100K_DONATE_URL = `${donationsRoute}?utm_source=celebration_100k`;
 
-// Logged-in members get the server's pre-clustered locations; logged-out visitors use the public map data
+// Pre-clustered member locations. Logged-in only: the logged-out map data is far too big to download for this
 export const CLUSTERED_MEMBERS_PATH = "/geojson/clustered-users";
-export const PUBLIC_MEMBERS_PATH = "/geojson/public-users";
