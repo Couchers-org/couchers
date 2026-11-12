@@ -1,11 +1,13 @@
+import threading
 from datetime import timedelta
 from pathlib import Path
+from typing import Any
 from unittest.mock import patch
 
 import grpc
 import pytest
 from google.protobuf import empty_pb2
-from sqlalchemy import select
+from sqlalchemy import select, update
 
 from couchers.config import config
 from couchers.constants import (
@@ -22,7 +24,7 @@ from couchers.models.postal_verification import PostalVerificationAttempt, Posta
 from couchers.postal.my_postcard import _generate_back_left_side_png
 from couchers.proto import postal_verification_pb2
 from couchers.resources import get_postcard_front_image
-from couchers.utils import now
+from couchers.utils import now, to_aware_datetime
 from tests.fixtures.db import generate_user
 from tests.fixtures.feature_flags import FeatureFlags
 from tests.fixtures.sessions import postal_verification_session
@@ -50,6 +52,7 @@ def test_postal_verification_disabled(db, feature_flags: FeatureFlags):
             pv.InitiatePostalVerification(
                 postal_verification_pb2.InitiatePostalVerificationReq(
                     address=postal_verification_pb2.PostalAddress(
+                        recipient_name="Test User",
                         address_line_1="123 Main St",
                         city="Test City",
                         country_code="US",
@@ -67,6 +70,7 @@ def test_postal_verification_confirm_disabled(db, feature_flags: FeatureFlags):
     # Seed a pending attempt directly, since initiation is gated by the same flag.
     with session_scope() as session:
         attempt = PostalVerificationAttempt(
+            recipient_name="Test User",
             user_id=user.id,
             status=PostalVerificationStatus.pending_address_confirmation,
             address_line_1="123 Main St",
@@ -101,6 +105,7 @@ def test_postal_verification_happy_path(db):
         res = pv.InitiatePostalVerification(
             postal_verification_pb2.InitiatePostalVerificationReq(
                 address=postal_verification_pb2.PostalAddress(
+                    recipient_name="  Jane Q. Public  ",
                     address_line_1="123 Main St",
                     address_line_2="Apt 4",
                     city="Test City",
@@ -120,6 +125,7 @@ def test_postal_verification_happy_path(db):
         assert not status.can_initiate_new_attempt
         assert status.has_active_attempt
         assert status.status == postal_verification_pb2.POSTAL_VERIFICATION_STATUS_PENDING_ADDRESS_CONFIRMATION
+        assert status.address.recipient_name == "Jane Q. Public"
 
     # Step 2: Confirm address
     with postal_verification_session(token) as pv:
@@ -137,6 +143,11 @@ def test_postal_verification_happy_path(db):
         mock_send.return_value = 12345
         while process_job():
             pass
+
+    # Printed with the name entered for this attempt, which doesn't touch the profile name
+    assert mock_send.call_args.kwargs["recipient_name"] == "Jane Q. Public"
+    with session_scope() as session:
+        assert session.execute(select(User.name).where(User.id == user.id)).scalar_one() == user.name
 
     # Check status after postcard sent
     with postal_verification_session(token) as pv:
@@ -177,6 +188,7 @@ def test_postal_verification_wrong_code(db):
         res = pv.InitiatePostalVerification(
             postal_verification_pb2.InitiatePostalVerificationReq(
                 address=postal_verification_pb2.PostalAddress(
+                    recipient_name="Test User",
                     address_line_1="123 Main St",
                     city="Test City",
                     country_code="US",
@@ -223,6 +235,7 @@ def test_postal_verification_code_expiry(db):
         res = pv.InitiatePostalVerification(
             postal_verification_pb2.InitiatePostalVerificationReq(
                 address=postal_verification_pb2.PostalAddress(
+                    recipient_name="Test User",
                     address_line_1="123 Main St",
                     city="Test City",
                     country_code="US",
@@ -258,35 +271,138 @@ def test_postal_verification_code_expiry(db):
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
-def test_postal_verification_rate_limit(db):
-    """Test rate limiting on postal verification attempts."""
-    user, token = generate_user()
-
-    # First attempt
+def _initiate(token: str) -> int:
     with postal_verification_session(token) as pv:
         res = pv.InitiatePostalVerification(
             postal_verification_pb2.InitiatePostalVerificationReq(
                 address=postal_verification_pb2.PostalAddress(
+                    recipient_name="Test User",
                     address_line_1="123 Main St",
                     city="Test City",
                     country_code="US",
                 )
             )
         )
-        attempt_id = res.postal_verification_attempt_id
+    attempt_id: int = res.postal_verification_attempt_id
+    return attempt_id
 
-    # Cancel the first attempt
+
+def _cancel(token: str, attempt_id: int) -> None:
     with postal_verification_session(token) as pv:
         pv.CancelPostalVerification(
             postal_verification_pb2.CancelPostalVerificationReq(postal_verification_attempt_id=attempt_id)
         )
 
-    # Try to initiate again immediately - should be rate limited
+
+def test_postal_verification_rate_limit_ignores_unsent_attempts(db):
+    """Cancelling before the postcard is sent costs us nothing, so it mustn't lock the user out."""
+    user, token = generate_user()
+
+    # cancelled at the confirm step
+    _cancel(token, _initiate(token))
+
+    # cancelled after confirming, before the postcard job ran
+    attempt_id = _initiate(token)
     with postal_verification_session(token) as pv:
+        pv.ConfirmPostalAddress(
+            postal_verification_pb2.ConfirmPostalAddressReq(postal_verification_attempt_id=attempt_id)
+        )
+    _cancel(token, attempt_id)
+    with patch("couchers.jobs.handlers.send_postcard") as mock_send:
+        while process_job():
+            pass
+    mock_send.assert_not_called()
+
+    with postal_verification_session(token) as pv:
+        status = pv.GetPostalVerificationStatus(postal_verification_pb2.GetPostalVerificationStatusReq())
+        assert status.can_initiate_new_attempt
+        assert not status.HasField("next_attempt_allowed_at")
+
+    assert _initiate(token) > 0
+
+
+def test_postal_verification_cancel_waits_for_postcard_being_sent(db):
+    """A cancel mid-send mustn't lose the record of a postcard we've paid for, or it'd skip the rate limit."""
+    user, token = generate_user()
+    attempt_id = _initiate(token)
+    with postal_verification_session(token) as pv:
+        pv.ConfirmPostalAddress(
+            postal_verification_pb2.ConfirmPostalAddressReq(postal_verification_attempt_id=attempt_id)
+        )
+
+    ordering = threading.Event()
+    release_order = threading.Event()
+
+    def slow_send_postcard(**kwargs: Any) -> int:
+        ordering.set()
+        assert release_order.wait(timeout=10)
+        return 12345
+
+    cancelled = threading.Event()
+
+    def cancel() -> None:
+        _cancel(token, attempt_id)
+        cancelled.set()
+
+    with patch("couchers.jobs.handlers.send_postcard", side_effect=slow_send_postcard):
+        job = threading.Thread(target=process_job)
+        job.start()
+        assert ordering.wait(timeout=10)
+
+        canceller = threading.Thread(target=cancel)
+        canceller.start()
+        # blocked behind the job's lock on the attempt
+        assert not cancelled.wait(timeout=0.5)
+
+        release_order.set()
+        job.join(timeout=10)
+        canceller.join(timeout=10)
+    assert cancelled.is_set()
+
+    with session_scope() as session:
+        attempt = session.execute(
+            select(PostalVerificationAttempt).where(PostalVerificationAttempt.id == attempt_id)
+        ).scalar_one()
+        assert attempt.status == PostalVerificationStatus.cancelled
+        assert attempt.postcard_sent_at is not None
+        assert attempt.mypostcard_job_id == 12345
+
+    with postal_verification_session(token) as pv:
+        status = pv.GetPostalVerificationStatus(postal_verification_pb2.GetPostalVerificationStatusReq())
+        assert not status.can_initiate_new_attempt
+
+
+def test_postal_verification_rate_limit_after_postcard_sent(db):
+    user, token = generate_user()
+
+    attempt_id = _initiate(token)
+    with postal_verification_session(token) as pv:
+        pv.ConfirmPostalAddress(
+            postal_verification_pb2.ConfirmPostalAddressReq(postal_verification_attempt_id=attempt_id)
+        )
+    with patch("couchers.jobs.handlers.send_postcard") as mock_send:
+        mock_send.return_value = 12345
+        while process_job():
+            pass
+    _cancel(token, attempt_id)
+
+    with session_scope() as session:
+        sent_at = session.execute(
+            select(PostalVerificationAttempt.postcard_sent_at).where(PostalVerificationAttempt.id == attempt_id)
+        ).scalar_one()
+    assert sent_at is not None
+
+    # Blocked, and told when they can try again: 30 days after the postcard was sent
+    with postal_verification_session(token) as pv:
+        status = pv.GetPostalVerificationStatus(postal_verification_pb2.GetPostalVerificationStatusReq())
+        assert not status.can_initiate_new_attempt
+        assert to_aware_datetime(status.next_attempt_allowed_at) == sent_at + POSTAL_VERIFICATION_RATE_LIMIT
+
         with pytest.raises(grpc.RpcError) as e:
             pv.InitiatePostalVerification(
                 postal_verification_pb2.InitiatePostalVerificationReq(
                     address=postal_verification_pb2.PostalAddress(
+                        recipient_name="Test User",
                         address_line_1="456 Other St",
                         city="Test City",
                         country_code="US",
@@ -295,11 +411,18 @@ def test_postal_verification_rate_limit(db):
             )
         assert e.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
 
-    # Check status shows rate limit info
+    # Once 30 days have passed since sending, they can start again
+    with session_scope() as session:
+        session.execute(
+            update(PostalVerificationAttempt)
+            .where(PostalVerificationAttempt.id == attempt_id)
+            .values(postcard_sent_at=sent_at - POSTAL_VERIFICATION_RATE_LIMIT - timedelta(minutes=1))
+        )
+
     with postal_verification_session(token) as pv:
         status = pv.GetPostalVerificationStatus(postal_verification_pb2.GetPostalVerificationStatusReq())
-        assert not status.can_initiate_new_attempt
-        assert status.next_attempt_allowed_at.seconds > 0
+        assert status.can_initiate_new_attempt
+    assert _initiate(token) > 0
 
 
 def test_postal_verification_already_in_progress(db):
@@ -311,6 +434,7 @@ def test_postal_verification_already_in_progress(db):
         pv.InitiatePostalVerification(
             postal_verification_pb2.InitiatePostalVerificationReq(
                 address=postal_verification_pb2.PostalAddress(
+                    recipient_name="Test User",
                     address_line_1="123 Main St",
                     city="Test City",
                     country_code="US",
@@ -324,6 +448,7 @@ def test_postal_verification_already_in_progress(db):
             pv.InitiatePostalVerification(
                 postal_verification_pb2.InitiatePostalVerificationReq(
                     address=postal_verification_pb2.PostalAddress(
+                        recipient_name="Test User",
                         address_line_1="456 Other St",
                         city="Test City",
                         country_code="US",
@@ -342,6 +467,7 @@ def test_postal_verification_cancel(db):
         res = pv.InitiatePostalVerification(
             postal_verification_pb2.InitiatePostalVerificationReq(
                 address=postal_verification_pb2.PostalAddress(
+                    recipient_name="Test User",
                     address_line_1="123 Main St",
                     city="Test City",
                     country_code="US",
@@ -372,6 +498,7 @@ def test_postal_verification_can_cancel_after_postcard_sent(db):
         res = pv.InitiatePostalVerification(
             postal_verification_pb2.InitiatePostalVerificationReq(
                 address=postal_verification_pb2.PostalAddress(
+                    recipient_name="Test User",
                     address_line_1="123 Main St",
                     city="Test City",
                     country_code="US",
@@ -418,6 +545,7 @@ def test_postal_verification_list_attempts(db):
         res = pv.InitiatePostalVerification(
             postal_verification_pb2.InitiatePostalVerificationReq(
                 address=postal_verification_pb2.PostalAddress(
+                    recipient_name="Test User",
                     address_line_1="123 Main St",
                     city="Test City",
                     country_code="US",
@@ -443,6 +571,7 @@ def test_postal_verification_list_attempts(db):
         res = pv.InitiatePostalVerification(
             postal_verification_pb2.InitiatePostalVerificationReq(
                 address=postal_verification_pb2.PostalAddress(
+                    recipient_name="Test User",
                     address_line_1="456 Other St",
                     city="Other City",
                     country_code="CA",
@@ -471,6 +600,7 @@ def test_postal_verification_address_validation(db):
             pv.InitiatePostalVerification(
                 postal_verification_pb2.InitiatePostalVerificationReq(
                     address=postal_verification_pb2.PostalAddress(
+                        recipient_name="Test User",
                         city="Test City",
                         country_code="US",
                     )
@@ -483,6 +613,7 @@ def test_postal_verification_address_validation(db):
             pv.InitiatePostalVerification(
                 postal_verification_pb2.InitiatePostalVerificationReq(
                     address=postal_verification_pb2.PostalAddress(
+                        recipient_name="Test User",
                         address_line_1="123 Main St",
                         country_code="US",
                     )
@@ -495,12 +626,33 @@ def test_postal_verification_address_validation(db):
             pv.InitiatePostalVerification(
                 postal_verification_pb2.InitiatePostalVerificationReq(
                     address=postal_verification_pb2.PostalAddress(
+                        recipient_name="Test User",
                         address_line_1="123 Main St",
                         city="Test City",
                     )
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+
+def test_postal_verification_requires_recipient_name(db):
+    user, token = generate_user()
+
+    with postal_verification_session(token) as pv:
+        for name in ["", "   "]:
+            with pytest.raises(grpc.RpcError) as e:
+                pv.InitiatePostalVerification(
+                    postal_verification_pb2.InitiatePostalVerificationReq(
+                        address=postal_verification_pb2.PostalAddress(
+                            recipient_name=name,
+                            address_line_1="123 Main St",
+                            city="Test City",
+                            country_code="US",
+                        )
+                    )
+                )
+            assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+            assert e.value.details() == "Full name is required."
 
 
 def test_postal_verification_postcard_send_failure(db):
@@ -512,6 +664,7 @@ def test_postal_verification_postcard_send_failure(db):
         res = pv.InitiatePostalVerification(
             postal_verification_pb2.InitiatePostalVerificationReq(
                 address=postal_verification_pb2.PostalAddress(
+                    recipient_name="Test User",
                     address_line_1="123 Main St",
                     city="Test City",
                     country_code="US",
@@ -546,6 +699,7 @@ def test_postal_verification_code_case_insensitive(db):
         res = pv.InitiatePostalVerification(
             postal_verification_pb2.InitiatePostalVerificationReq(
                 address=postal_verification_pb2.PostalAddress(
+                    recipient_name="Test User",
                     address_line_1="123 Main St",
                     city="Test City",
                     country_code="US",
@@ -609,6 +763,7 @@ def test_postal_verification_other_user_attempt(db):
         res = pv.InitiatePostalVerification(
             postal_verification_pb2.InitiatePostalVerificationReq(
                 address=postal_verification_pb2.PostalAddress(
+                    recipient_name="Test User",
                     address_line_1="123 Main St",
                     city="Test City",
                     country_code="US",
@@ -648,6 +803,7 @@ def test_has_postal_verification_helper(db):
         res = pv.InitiatePostalVerification(
             postal_verification_pb2.InitiatePostalVerificationReq(
                 address=postal_verification_pb2.PostalAddress(
+                    recipient_name="Test User",
                     address_line_1="123 Main St",
                     city="Test City",
                     country_code="US",
@@ -690,6 +846,7 @@ def test_postal_verification_requires_donation(db):
             pv.InitiatePostalVerification(
                 postal_verification_pb2.InitiatePostalVerificationReq(
                     address=postal_verification_pb2.PostalAddress(
+                        recipient_name="Test User",
                         address_line_1="123 Main St",
                         city="Test City",
                         country_code="US",
@@ -712,6 +869,7 @@ def _confirmed_attempt_id(token: str) -> int:
         res = pv.InitiatePostalVerification(
             postal_verification_pb2.InitiatePostalVerificationReq(
                 address=postal_verification_pb2.PostalAddress(
+                    recipient_name="Test User",
                     address_line_1="123 Main St",
                     city="Test City",
                     state="CA",

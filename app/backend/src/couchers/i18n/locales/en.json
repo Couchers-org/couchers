@@ -214,6 +214,7 @@
     "reference_already_given": "Reference already given.",
     "reference_invalid_rating": "The rating must be between 0 and 1, inclusive.",
     "reference_no_text": "The text of a reference must not be empty",
+    "recipient_name_required": "Full name is required.",
     "requested_too_many_users": "You can't request that many users at a time.",
     "reverification_too_early": "Too early for a new phone number verification. Please try again later.",
     "signup_email_cannot_be_used": "You cannot sign up with that email address.",
