@@ -3,12 +3,16 @@ import {
   GrowthBook,
   setPolyfills,
 } from "@growthbook/growthbook";
-import { GrowthBookProvider } from "@growthbook/growthbook-react";
+import {
+  GrowthBookProvider,
+  useGrowthBook,
+} from "@growthbook/growthbook-react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Sentry from "@sentry/react-native";
-import { ReactNode, useEffect } from "react";
+import { createContext, ReactNode, useContext, useEffect } from "react";
 
 import { useAuthContext } from "@/features/auth/AuthContext";
+import { useTargetingAttributes } from "@/features/experimentation/targetingAttributes";
 import { reportExposure } from "@/service/experiments";
 
 const INIT_TIMEOUT_MS = 1500;
@@ -53,6 +57,9 @@ const growthbook = new GrowthBook({
   },
 });
 
+// Defaults to ready so components rendered without the provider (e.g. in tests) aren't blocked
+const AttributesReadyContext = createContext(true);
+
 export type FeatureFlagSnapshot = {
   targeting: Record<string, unknown>;
   values: Record<string, unknown>;
@@ -77,7 +84,11 @@ export default function FeatureFlagProvider({
 }: {
   children: ReactNode;
 }) {
-  const { userId } = useAuthContext();
+  const { checkedAuthStatus, userId } = useAuthContext();
+  const { attributes, ready: attributesReady } = useTargetingAttributes(
+    userId,
+    checkedAuthStatus,
+  );
 
   useEffect(() => {
     // Dev-only: when set, flags resolve from feature-flags.dev.json instead of GrowthBook,
@@ -108,10 +119,21 @@ export default function FeatureFlagProvider({
   }, []);
 
   useEffect(() => {
-    growthbook.setAttributes(userId != null ? { id: userId.toString() } : {});
-  }, [userId]);
+    growthbook.setAttributes(attributes);
+  }, [attributes]);
 
   return (
-    <GrowthBookProvider growthbook={growthbook}>{children}</GrowthBookProvider>
+    <GrowthBookProvider growthbook={growthbook}>
+      <AttributesReadyContext value={attributesReady}>
+        {children}
+      </AttributesReadyContext>
+    </GrowthBookProvider>
   );
+}
+
+/** Whether flags can be evaluated: the GrowthBook payload and the user's targeting attributes are loaded or timed out. */
+export function useFeatureFlagsReady() {
+  const growthbookReady = useGrowthBook().ready;
+  const attributesReady = useContext(AttributesReadyContext);
+  return growthbookReady && attributesReady;
 }
