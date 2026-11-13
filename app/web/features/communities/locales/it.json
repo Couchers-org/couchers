@@ -148,5 +148,10 @@
   "sub_community_search_placeholder": "Località",
   "sub_community_dropdown_a11y": "Esplora community più specifiche",
   "report_discussion_button_a11y": "Segnala questa discussione",
-  "report_event_button_a11y": "Segnala questo evento"
+  "report_event_button_a11y": "Segnala questo evento",
+  "comment_edited_date2": "Modificato <timeAgo/>",
+  "discussion_edited_date2": "Modificato <timeAgo/>",
+  "add_to_calendar": "Aggiungi al calendario",
+  "new_discussion_button": "Nuova discussione",
+  "couch_crashes_prompt": "Cerchi qualcosa di più grande? <crashesLink>Scopri i prossimi Couch Crashes</crashesLink>"
 }
