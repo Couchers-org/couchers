@@ -19,15 +19,15 @@ def _pad_request_text_to_valid_length(text: str) -> str:
     return text
 
 
-# Neutral default text of valid length
-REQUEST_TEXT_DEFAULT = _pad_request_text_to_valid_length("Dummy request text.")
-
-
 @contextmanager
 def _requests_session(token: str):
     channel = FakeChannel(token)
     requests_pb2_grpc.add_RequestsServicer_to_server(Requests(), cast(grpc.Server, channel))
     yield requests_pb2_grpc.RequestsStub(cast(grpc.Channel, channel))
+
+
+# Neutral default text of valid length
+_CREATE_DEFAULT_TEXT = _pad_request_text_to_valid_length("Dummy request text.")
 
 
 def create_host_request(
@@ -37,7 +37,7 @@ def create_host_request(
     # Strings allow testing malformed dates.
     from_date: date | str | None = None,
     to_date: date | str | None = None,
-    text: str | None = REQUEST_TEXT_DEFAULT,
+    text: str | None = _CREATE_DEFAULT_TEXT,
     pad_text_to_valid_length: bool = False,
     public_trip_id: int | None = None,
     approve_by: Moderator | None = None,

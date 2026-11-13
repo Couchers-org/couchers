@@ -1395,11 +1395,14 @@ def test_regression_disappearing_refs(db, hs, moderator):
     """
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
+    host_request_id = requests_api.create_host_request(
+        token=token1, host_user_id=user2.id, text="Test request", pad_text_to_valid_length=True, approve_by=moderator
+    )
 
     assert (
-        requests_api.list_host_requests(token=token1, only_sent=True).host_requests[0].latest_message.text.text
-        == requests_api.REQUEST_TEXT_DEFAULT
+        requests_api.list_host_requests(token=token1, only_sent=True)
+        .host_requests[0]
+        .latest_message.text.text.startswith("Test request")
     )
 
     requests_api.respond_host_request(

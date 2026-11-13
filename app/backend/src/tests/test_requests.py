@@ -112,14 +112,16 @@ def test_create_request(db, moderator):
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
     assert e.value.details() == "Host request cannot be shorter than 250 characters."
 
-    requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
+    requests_api.create_host_request(
+        token=token1, host_user_id=user2.id, text="Test request", pad_text_to_valid_length=True, approve_by=moderator
+    )
 
     host_requests = requests_api.list_host_requests(token=token1, only_sent=True).host_requests
 
     assert len(host_requests) == 1
     hr = host_requests[0]
 
-    assert hr.latest_message.text.text == requests_api.REQUEST_TEXT_DEFAULT
+    assert hr.latest_message.text.text.startswith("Test request")
 
     assert hr.hosting_city == hosting_city
     assert round(hr.hosting_lat, 4) == hosting_lat
