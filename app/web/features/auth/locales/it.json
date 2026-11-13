@@ -4,7 +4,7 @@
     "current_password": "Password attuale",
     "new_email": "Nuova e-mail",
     "title": "Modificare e-mail",
-    "success_message": "La tua modifica e-mail è stata ricevuta. Controlla la tua nuova e-mail per completare la modifica.",
+    "success_message": "Abbiamo inviato un link di conferma al tuo nuovo indirizzo email. Fai clic sul link per completare l'aggiornamento del tuo account.",
     "show_current_password": "Mostra la password attuale",
     "hide_current_password": "Nascondi la password attuale"
   },
@@ -122,7 +122,7 @@
   "unhandled_sign_up_state": "Stato del flusso di iscrizione non gestito.",
   "login_prompt": "Clicca qui per accedere",
   "reset_password": "Ripristina password",
-  "sign_up_completed_prompt": "Abbiamo inviato un'email con un link di verifica al tuo indirizzo email: <strong>{{email}}</strong>. Fai clic sul link per attivare il tuo account.",
+  "sign_up_completed_prompt": "Abbiamo inviato un link di verifica al tuo indirizzo email: <strong>{{email}}</strong>. Fai clic sul link per attivare il tuo account.",
   "feature_preview": {
     "title": "Anteprima caratteristica",
     "explanation": "Questa pagina ti permette di provare caratteristiche che sono ancora in sviluppo prima che siano pronte per l'uso di tutti.",
@@ -408,8 +408,75 @@
   "change_signup_email_form": {
     "title": "Modifica l'email di registrazione",
     "current_email_message": "Il tuo indirizzo e-mail attuale è <strong>{{email}}</strong>.",
-    "success_message": "La modifica del tuo indirizzo email è stata ricevuta. Controlla la tua nuova casella di posta per confermare.",
+    "success_message": "Abbiamo inviato un link di verifica al tuo nuovo indirizzo email. Fai clic sul link per confermare la tua email.",
     "signup_change_email": "Modifica indirizzo email"
   },
-  "sign_up_change_email": "Hai digitato male il tuo indirizzo email? Inserisci qui l'indirizzo email corretto:"
+  "sign_up_change_email": "Hai digitato male il tuo indirizzo email? Inserisci qui l'indirizzo email corretto:",
+  "verification_page": {
+    "title": "Verifica",
+    "intro": "La verifica aiuta gli altri membri a fidarsi del fatto che tu sia chi dici di essere. È comunque facoltativa.",
+    "earned_badge_caption": "Aggiunge questo badge al tuo profilo:",
+    "settings_link": {
+      "title": "Verifica",
+      "moved_message": "Cerchi la verifica? È stata <verificationLink>spostata qui</verificationLink>."
+    },
+    "status_pill": {
+      "verified": "Verificato",
+      "not_verified": "Non verificato",
+      "code_sent": "Codice inviato",
+      "in_progress": "In corso"
+    },
+    "strong": {
+      "description": "Un modo gratuito per verificare la tua età e il tuo genere utilizzando il tuo passaporto biometrico e il tuo telefono. I dati del tuo passaporto restano privati; sul tuo profilo compaiono solo l'età e il genere verificati.",
+      "benefits_header": "Cosa ottieni",
+      "benefits": {
+        "photos_title_one": "{{count}} foto del profilo",
+        "photos_title_many": "{{count}} di foto del profilo",
+        "photos_title_other": "{{count}} foto del profilo",
+        "photos_description": "Invece di {{unverified_count}}.",
+        "visibility_title": "Maggiore visibilità",
+        "visibility_description": "Appari più in alto nei risultati di ricerca.",
+        "badge_title": "Un badge di verifica",
+        "badge_description": "Mostrato accanto al tuo nome, con età e genere contrassegnati come verificati.",
+        "interactions_title": "Più fiducia",
+        "interactions_description": "I membri sanno che sei davvero chi dici di essere."
+      },
+      "data_notes": {
+        "third_party": "<strong>Scansionato da <irisIdLink>Iris ID</irisIdLink>.</strong> La loro app legge il chip del tuo passaporto tramite il tuo telefono e ci trasmette il risultato.",
+        "encryption": "<strong>Crittografato.</strong> Il record del passaporto è crittografato e può essere letto solo con una chiave conservata offline. Solo i <fieldsLink>campi minimi necessari per la verifica</fieldsLink> vengono memorizzati in forma non crittografata.",
+        "deletion": "<strong>Elimina quando vuoi.</strong> Puoi rimuovere in qualsiasi momento i dati che mantengono attiva la tua verifica. La verifica scade anche alla scadenza del tuo passaporto."
+      },
+      "requirements_header": "Cosa ti serve",
+      "requirements": {
+        "passport": "Un passaporto biometrico, con il simbolo del chip dorato sulla copertina",
+        "nfc_phone": "Un telefono con NFC, senza custodia",
+        "time": "Circa cinque minuti"
+      },
+      "start_hint": "Ti guideremo passo passo nella scansione del passaporto.",
+      "verified_message": "Verifica completata. La verifica scade quando scade il passaporto."
+    },
+    "phone": {
+      "header": "Verifica del telefono",
+      "description": "Ti invieremo un codice di verifica sul telefono. Il tuo numero rimane del tutto privato e non verrà mai mostrato sul tuo profilo, utilizzato o ceduto a terzi¹. A causa dei costi del fornitore, questa funzione è riservata ai donatori.",
+      "code_sent_description": "Abbiamo inviato un codice a <strong>{{phone_number}}</strong>. Inseriscilo qui sotto per verificare il tuo numero.",
+      "use_another_number_button": "Usa un altro numero",
+      "verified_message": "Verificato: <strong>{{phone_number}}</strong>."
+    },
+    "postal": {
+      "header": "Verifica postale",
+      "description": "Invieremo una cartolina con un codice al tuo indirizzo per confermare la tua posizione. Il tuo indirizzo rimarrà completamente privato e verrà utilizzato solo per inviare la cartolina¹. A causa dei costi di stampa e di spedizione, questa funzione è riservata ai donatori.",
+      "need_to_donate": "<donateLink>Dona</donateLink> per poter completare la verifica postale.",
+      "step_number": "Passo {{step_number}}",
+      "steps": {
+        "address": "Il tuo indirizzo",
+        "confirm": "Confermalo",
+        "in_the_post": "Nel post",
+        "code": "Inserisci il codice"
+      },
+      "address_form": {
+        "description": "Via, città e paese sono obbligatori. Verifichiamo che l'indirizzo sia raggiungibile per la consegna prima di stampare la cartolina.",
+        "recipient_name_label": "Nome"
+      }
+    }
+  }
 }

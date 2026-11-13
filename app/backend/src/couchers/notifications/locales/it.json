@@ -498,7 +498,7 @@
       "push": {
         "title": "Verifica robusta non riuscita",
         "ios_title": "Verifica robusta non riuscita",
-        "body_wrong_birthdate_gender": "La data di nascita o il genere sul tuo profilo non corrisponde alla data di nascita o al sesso sul tuo passaporto. Contatta il team di supporto per aggiornare la tua data di nascita o il tuo genere, oppure se il sesso indicato sul tuo passaporto non corrisponde alla tua identità di genere.",
+        "body_wrong_birthdate_gender": "La data di nascita o il genere sul tuo profilo non corrisponde alla data di nascita o al sesso sul tuo passaporto. Contatta il team di assistenza per aggiornare la tua data di nascita o il tuo genere, oppure se il sesso indicato sul tuo passaporto non corrisponde alla tua identità di genere.",
         "body_not_a_passport": "Hai utilizzato un documento diverso da un passaporto. Puoi utilizzare solo un passaporto per la verifica robusta.",
         "body_duplicate": "Hai usato un passaporto che è già stato utilizzato per la verifica. Usa un altro passaporto."
       }

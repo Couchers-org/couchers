@@ -12,7 +12,7 @@
     },
     "footer": {
       "received_because": "Stai ricevendo queste email perché hai fatto l'iscrizione a Couchers.org.",
-      "contact_support": "Puoi contattare il nostro team di supporto all'indirizzo {{ email_link }}.",
+      "contact_support": "Puoi contattare il nostro team di assistenza all'indirizzo {{ email_link }}.",
       "donate_link": "Dona",
       "volunteer_link": "Diventa volontario",
       "blog_link": "Blog",
@@ -414,7 +414,7 @@
     "failed": {
       "subject": "Verifica robusta non riuscita",
       "purpose": {
-        "wrong_birthdate_or_gender": "Il tuo tentativo di verifica robusta non è andato a buon fine perché la data di nascita o il genere sul tuo profilo non corrispondono alla data di nascita o al sesso indicati sul tuo passaporto. Contatta il team di supporto per aggiornare la tua data di nascita o il tuo genere, oppure se il sesso indicato sul passaporto non corrisponde alla tua identità di genere.",
+        "wrong_birthdate_or_gender": "Il tuo tentativo di verifica robusta non è andato a buon fine perché la data di nascita o il genere sul tuo profilo non corrispondono alla data di nascita o al sesso indicati sul tuo passaporto. Contatta il team di assistenza per aggiornare la tua data di nascita o il tuo genere, oppure se il sesso indicato sul passaporto non corrisponde alla tua identità di genere.",
         "not_a_passport": "Il tuo tentativo di verifica robusta non è andato a buon fine perché hai utilizzato un documento diverso dal passaporto. Per la verifica robusta puoi utilizzare esclusivamente il passaporto.",
         "duplicate": "Il tuo tentativo di verifica robusta non è andato a buon fine perché hai utilizzato un passaporto già usato sulla piattaforma. Ti preghiamo di utilizzare un altro passaporto."
       },

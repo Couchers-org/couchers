@@ -1,2 +1,516 @@
 msgid ""
-msgstr "X-Generator: Weblate\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit"
+msgstr ""
+"PO-Revision-Date: 2026-11-13 12:51+0000\n"
+"Last-Translator: Francesco Biletta <biletta23@gmail.com>\n"
+"Language-Team: Italian <https://translate.couchershq.org/projects/couchers/glossary-key-terms/it/>\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.15.2\n"
+
+#. The section of a user profile with information relating their person.
+msgid "profile.about_me"
+msgstr "su di me"
+
+#. (verb) As a host, the act of accepting a surfer's host request.
+msgid "host_request.accept"
+msgstr "accetta"
+
+#. (adj) The state of a host request that was accepted by the host.
+msgid "host_request.accepted"
+msgstr "accettata"
+
+#. (noun) A user account on Couchers.org.
+msgid "account"
+msgstr "account"
+
+#. (noun) A user's account settings (notifications, theme, language, etc.).
+msgid "account_settings"
+msgstr "impostazioni account"
+
+#. (noun) A secret code used to make programmatic operations (call APIs) on behalf of a user.
+msgid "api_key"
+msgstr "chiave API"
+
+#. (noun) A user who has indicated their intention to attend an event.
+msgid "events.attendee"
+msgstr "partecipante"
+
+#. (noun) Users who have indicated their intention to attend an event.
+msgid "events.attendees"
+msgstr "partecipanti"
+
+#. (noun) The Couchers.org blog.
+msgid "blog"
+msgstr "blog"
+
+#. (verb) As a surfer, the act of cancelling a host request.
+msgid "host_request.cancel"
+msgstr "cancella"
+
+#. (verb) The act of cancelling an event.
+msgid "events.cancel"
+msgstr "cancella"
+
+#. (adj) The state of a host request that was cancelled by the surfer.
+msgid "host_request.cancelled"
+msgstr "cancellata"
+
+#. (adj) The state of an event that has been cancelled.
+msgid "events.cancelled"
+msgstr "cancellato"
+
+#. A user status whereby a user is willing to host surfers.
+msgid "status.can_host"
+msgstr "può ospitare"
+
+#. A user status whereby a user is unwilling to host surfers.
+msgid "status.cant_host"
+msgstr "non può ospitare"
+
+#. (noun) A thread for messages between two or more users.
+msgid "chat"
+msgstr "chat"
+
+#. (noun) Threads for messages between two or more users.
+msgid "chats"
+msgstr "chat"
+
+#. (noun) A top-level comment on a discussion or event.
+msgid "discussions.comment.noun"
+msgstr "commento"
+
+#. (verb) The act of adding a top-level comment on a discussion or event.
+msgid "discussions.comment.verb"
+msgstr "commenta"
+
+#. (noun) Top-level comments on a discussion or event.
+msgid "discussions.comments"
+msgstr "commenti"
+
+#. (noun) Geographical communities with local discussions, events, etc.
+msgid "communities"
+msgstr "community"
+
+#. (noun) A geographical community with local discussions, events, etc.
+msgid "community"
+msgstr "community"
+
+#. (noun) A user recognized to be highly involved in a community, with special editing rights.
+msgid "community_builder"
+msgstr "creatore di community"
+
+#. (noun) Users recognized to be highly involved in a community, with special editing rights.
+msgid "community_builders"
+msgstr "creatori di community"
+
+#. (noun) The behavioral guidelines that new members must accept when joining Couchers.org.
+msgid "community_guidelines"
+msgstr "Linee guida della Community"
+
+#. (verb) As a surfer, the act of confirming a host request that was accepted by the host.
+msgid "host_request.confirm"
+msgstr "conferma"
+
+#. (adj) The state of a host request that was confirmed by the surfer after being accepted by the host.
+msgid "host_request.confirmed"
+msgstr "confermata"
+
+#. (noun) Other users which are friends or have pending friend requests.
+msgid "connections"
+msgstr "conoscenze"
+
+#. (noun) The team behind Couchers.org.
+msgid "couchers_org_team"
+msgstr "Il team di Couchers.org"
+
+#. (noun) The activity of free hospitality welcome/exchange.
+#. Platform-agnostic. Avoid "Couchsurfing" (one word) as that is trademarked.
+msgid "couch_surfing"
+msgstr "couch surfing"
+
+#. (noun) The logged-in landing page showing upcoming events, stays, etc.
+msgid "dashboard"
+msgstr "pannello di controllo"
+
+#. (verb) As a host, the act of declining a surfer's host request.
+msgid "host_request.decline"
+msgstr "rifiuta"
+
+#. (adj) The state of a host request that was declined by the host.
+msgid "host_request.declined"
+msgstr "rifiutata"
+
+#. (verb) As a user, the action of deleting one's account.
+msgid "account.delete"
+msgstr "elimina"
+
+#. (adj) The state of a user's account which has been deleted.
+msgid "account.deleted"
+msgstr "eliminato"
+
+#. (noun) A community or event discussion that supports replies.
+msgid "discussion"
+msgstr "discussione"
+
+#. (noun) Community or event discussions that support replies.
+msgid "discussions"
+msgstr "discussioni"
+
+#. (verb) The act of donating money to Couchers.org.
+msgid "donate"
+msgstr "dona"
+
+#. (verb) The act of donating money to Couchers.org.
+msgid "donating"
+msgstr "donando"
+
+#. (noun) Money donated to Couchers.org.
+msgid "donation"
+msgstr "donazione"
+
+#. (noun) Money donated to Couchers.org.
+msgid "donations"
+msgstr "donazioni"
+
+#. (noun) An event created by a user for others to attend.
+msgid "event"
+msgstr "evento"
+
+#. (noun) Events created by users for others to attend.
+msgid "events"
+msgstr "eventi"
+
+#. (noun) Another user confirmed as a friend using the friend feature.
+msgid "friend"
+msgstr "amico"
+
+#. (noun) A reference from a friend.
+msgid "friend_reference"
+msgstr "referenza da amico"
+
+#. (noun) A request to add another user as a friend.
+msgid "friend_request"
+msgstr "richiesta di amicizia"
+
+#. (noun) Requests to add other users as friends.
+msgid "friend_requests"
+msgstr "richieste di amicizia"
+
+#. (noun) Other users confirmed as friends using the friend feature.
+msgid "friends"
+msgstr "amici"
+
+#. (noun) A named thread for messages between three or more users.
+msgid "group_chat"
+msgstr "chat di gruppo"
+
+#. (noun) A named thread for messages between three or more users.
+msgid "group_chats"
+msgstr "chat di gruppo"
+
+#. (noun) The https://help.couchers.org website.
+msgid "help_center"
+msgstr "Centro assistenza"
+
+#. (noun) A user providing hospitality to other users.
+msgid "host.noun"
+msgstr "host"
+
+#. (verb) As a host, the act of offering hospitality to other users.
+msgid "host.verb"
+msgstr "ospita"
+
+#. (adjective) As a surfer, the state of receiving hospitality from a host.
+msgid "hosted"
+msgstr "ospitato"
+
+#. (verb) As a host, the act of offering hospitality to other users.
+msgid "hosting"
+msgstr "hosting"
+
+#. A user's willingness to host surfers.
+msgid "hosting_status"
+msgstr "disponibilità ad ospitare"
+
+#. (noun) The process of establishing a hosting relationship.
+msgid "host_request"
+msgstr "richiesta di soggiorno"
+
+#. (noun) The process of establishing a hosting relationship.
+msgid "host_requests"
+msgstr "richieste di soggiorno"
+
+#. (noun) Users providing hospitality to other users.
+msgid "hosts.noun"
+msgstr "host"
+
+#. (noun) An invitation sent by a host in response to a surfer's public trip.
+msgid "public_trip.invitation"
+msgstr "invito"
+
+#. (noun) Invitations sent by hosts in response to a surfer's public trip.
+msgid "public_trip.invitations"
+msgstr "inviti"
+
+#. (verb) As a host, sending an invitation to a surfer in response to their public trip.
+msgid "public_trip.invite"
+msgstr "invita"
+
+#. (noun) A code that can be shared to invite people to join Couchers.org.
+msgid "invite_code"
+msgstr "codice di invito"
+
+#. (noun) Codes that can be shared to invite people to join Couchers.org.
+msgid "invite_codes"
+msgstr "codici di invito"
+
+#. (adj) The state of a surfer who has received an invitation from a host.
+msgid "public_trip.invited"
+msgstr "invitato"
+
+#. (verb) As a host, sending an invitation to a surfer in response to their public trip.
+msgid "public_trip.inviting"
+msgstr "invitando"
+
+#. A geographical location such as an address or the name of a city.
+msgid "location"
+msgstr "posizione"
+
+#. (verb) The action of logging in to Couchers.org after logging out.
+msgid "log_back_in"
+msgstr "accedi di nuovo"
+
+#. (adj) The state of being logged in to Couchers.org.
+msgid "logged_in"
+msgstr "accesso effettuato"
+
+#. (adj) The state of being logged out of Couchers.org.
+msgid "logged_out"
+msgstr "disconnesso"
+
+#. (verb) The action of logging in to Couchers.org.
+msgid "logging_in"
+msgstr "accesso in corso"
+
+#. (verb) The action of logging out of Couchers.org.
+msgid "logging_out"
+msgstr "disconnessione in corso"
+
+#. (verb) The action of logging in to Couchers.org.
+msgid "log_in"
+msgstr "accedi"
+
+#. (verb) The action of logging out of Couchers.org.
+msgid "log_out"
+msgstr "esci"
+
+#. A user status whereby a user is potentially willing to host surfers.
+msgid "status.may_host"
+msgstr "potrebbe ospitare"
+
+#. (noun) The Couchers.org merchandise shop website.
+msgid "merch_shop"
+msgstr "Merchandising"
+
+#. (noun) A message sent from a user to another user or to a group chat.
+msgid "message.noun"
+msgstr "messaggio"
+
+#. (verb) The act of sending a message to another user or to a group chat.
+msgid "message.verb"
+msgstr "invia un messaggio"
+
+#. (noun) Messages sent between users or to group chats.
+msgid "messages"
+msgstr "messaggi"
+
+#. (noun) A moderator from the Couchers.org team.
+msgid "moderator"
+msgstr "moderatore"
+
+#. (noun) A note sent to a user by a moderator.
+msgid "moderator_note"
+msgstr "nota del moderatore"
+
+#. (noun) Notes sent to a user by a moderator.
+msgid "moderator_notes"
+msgstr "note del moderatore"
+
+#. (noun) Moderators from the Couchers.org team.
+msgid "moderators"
+msgstr "moderatori"
+
+#. The section of a user profile with information relating to their home.
+msgid "profile.my_home"
+msgstr "la mia casa"
+
+#. (noun) An email or push notifications sent to a user.
+msgid "notification"
+msgstr "notifica"
+
+#. (noun) Email or push notifications sent to a user.
+msgid "notifications"
+msgstr "notifiche"
+
+#. (noun) A user listed as an organizer on an event.
+msgid "events.organizer"
+msgstr "organizzatore"
+
+#. (noun) Users listed as organizers on an event.
+msgid "events.organizers"
+msgstr "organizzatori"
+
+#. (noun) A user's account password on Couchers.org.
+msgid "password"
+msgstr "password"
+
+#. (noun) A process and the resulting status for verifying a user's phone number.
+msgid "phone_verification"
+msgstr "Verifica del telefono"
+
+#. (noun) A profile picture.
+msgid "photo"
+msgstr "foto"
+
+#. (noun) Profile pictures.
+msgid "photos"
+msgstr "foto"
+
+#. (noun) A post on the Couchers.org blog.
+msgid "blog.post"
+msgstr "post"
+
+#. (noun) A problem with the platform reported by a user.
+msgid "report_problem.problem"
+msgstr "problema"
+
+#. (noun) Problems with the platform reported by a user.
+msgid "report_problem.problems"
+msgstr "problemi"
+
+#. (noun) A trip published by a surfer to solicit invitations from hosts.
+msgid "public_trip"
+msgstr "viaggio pubblico"
+
+#. (noun) Trips published by surfers to solicit invitations from hosts.
+msgid "public_trips"
+msgstr "viaggi pubblici"
+
+#. (noun) A notifications sent to a user's phone or browser.
+msgid "push_notification"
+msgstr "notifica push"
+
+#. (noun) Notifications sent to a user's phone or browser.
+msgid "push_notifications"
+msgstr "notifiche push"
+
+#. (verb) As a user, the action of recovering a previously deleted account.
+msgid "account.recover"
+msgstr "recupera"
+
+#. (adj) The state of a user's account which has been recovered.
+msgid "account.recovered"
+msgstr "recuperato"
+
+#. (noun) A reference from a friend, host or surfer.
+msgid "reference"
+msgstr "referenza"
+
+#. (noun) References from friends, hosts or surfers.
+msgid "references"
+msgstr "referenze"
+
+#. (noun) Replies on a top-level comment in a discussion or event.
+msgid "discussions.replies"
+msgstr "risposte"
+
+#. (noun) A reply on a top-level comment in a discussion or event.
+msgid "discussions.reply.noun"
+msgstr "risposta"
+
+#. (verb) The act of replying to a top-level comment on a discussion or event.
+msgid "discussions.reply.verb"
+msgstr "rispondi"
+
+#. (noun) As a user, the act of reporting a problem with the platform.
+msgid "report_problem.report"
+msgstr "segnala"
+
+#. (verb) The action of resetting one's password.
+msgid "password.reset"
+msgstr "reimposta"
+
+#. (noun) The Couchers.org safety team.
+msgid "safety_team"
+msgstr "Team di Sicurezza"
+
+#. (noun) A website/app session, from logging in to logging out.
+msgid "session"
+msgstr "sessione"
+
+#. (noun) Website/app sessions, from logging in to logging out.
+msgid "sessions"
+msgstr "sessioni"
+
+#. (noun) A grouping of settings (account, notifications, etc.)
+msgid "settings"
+msgstr "impostazioni"
+
+#. (noun) An agreement for a surfer to stay with a host over a date range.
+msgid "stay.noun"
+msgstr "soggiorno"
+
+#. (noun) Agreements for surfers to stay with hosts over specific date ranges.
+msgid "stays"
+msgstr "soggiorni"
+
+#. (noun) A process and the resulting status for verifying a user's identity.
+msgid "strong_verification"
+msgstr "Verifica robusta"
+
+#. (noun) The Couchers.org support team.
+msgid "support_team"
+msgstr "Team di Assistenza"
+
+#. (noun) A user receiving hospitality from other users.
+msgid "surfer"
+msgstr "surfer"
+
+#. (noun) Users receiving hospitality from other users.
+msgid "surfers"
+msgstr "surfer"
+
+#. (noun) The team behind Couchers.org, short form.
+msgid "team"
+msgstr "team"
+
+#. (noun) The document outlining the legal agreement for using Couchers.org.
+msgid "terms_of_service"
+msgstr "Termini di Servizio"
+
+#. (noun) Someone with an account on Couchers.org.
+msgid "user"
+msgstr "utente"
+
+#. (noun) A user's account identifier on Couchers.org.
+msgid "username"
+msgstr "nome utente"
+
+#. (noun) Someone with an account on Couchers.org.
+msgid "users"
+msgstr "utenti"
+
+#. (verb) The act of volunteering with Couchers.org.
+msgid "volunteer.verb"
+msgstr "fai volontariato"
+
+#. (noun) A person volunteering with Couchers.org.
+msgid "volunteer.noun"
+msgstr "volontario"
+
+#. (noun) A person volunteering with Couchers.org.
+msgid "volunteers"
+msgstr "volontari"
