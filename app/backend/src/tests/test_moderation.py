@@ -50,12 +50,12 @@ from couchers.proto import (
     moderation_pb2,
     notifications_pb2,
     pages_pb2,
-    public_trips_pb2,
     threads_pb2,
 )
 from couchers.servicers.threads import pack_thread_id
-from couchers.utils import Timestamp_from_datetime, now, today
+from couchers.utils import Timestamp_from_datetime, now
 from tests.fixtures.api import events as events_api
+from tests.fixtures.api import public_trips as public_trips_api
 from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import backdate_conversations, generate_user, make_friends
 from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
@@ -65,13 +65,11 @@ from tests.fixtures.sessions import (
     discussions_session,
     notifications_session,
     pages_session,
-    public_trips_session,
     real_admin_session,
     real_moderation_session,
     threads_session,
 )
 from tests.test_communities import create_community, create_group
-from tests.test_public_trips import VALID_DESCRIPTION as VALID_TRIP_DESCRIPTION
 from tests.test_references import create_friend_reference
 
 
@@ -549,12 +547,14 @@ def test_shadowed_host_request_visible_to_author_only(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
+    host_request_id = requests_api.create_host_request(
+        token=token1, host_user_id=user2.id, text="Test request", pad_text_to_valid_length=True
+    )
 
     # Surfer (author) can see it with GetHostRequest
     res = requests_api.get_host_request(token=token1, host_request_id=host_request_id)
     assert res.host_request_id == host_request_id
-    assert res.latest_message.text.text == requests_api.REQUEST_TEXT_DEFAULT
+    assert res.latest_message.text.text.startswith("Test request")
 
     # Host (recipient) CANNOT see it with GetHostRequest - it's shadowed
     with pytest.raises(grpc.RpcError) as e:
@@ -3758,15 +3758,7 @@ def test_GetModeratedObject_public_trip(db):
     with session_scope() as session:
         community_id = create_community(session, 0, 2, "Trip Community", [user], [], None).id
 
-    with public_trips_session(token) as api:
-        trip_id = api.CreatePublicTrip(
-            public_trips_pb2.CreatePublicTripReq(
-                community_id=community_id,
-                from_date=(today() + timedelta(days=5)).isoformat(),
-                to_date=(today() + timedelta(days=10)).isoformat(),
-                description=VALID_TRIP_DESCRIPTION,
-            )
-        ).trip_id
+    trip_id = public_trips_api.create_public_trip(token=token, community_id=community_id).trip_id
 
     res = _get_moderated_object(super_token, _moderation_state_id(ModerationObjectType.public_trip, trip_id))
     assert res.community.community_id == community_id

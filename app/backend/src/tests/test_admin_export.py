@@ -26,24 +26,22 @@ from couchers.proto import (
     discussions_pb2,
     events_pb2,
     messages_pb2,
-    public_trips_pb2,
     references_pb2,
     threads_pb2,
 )
-from couchers.utils import not_none, now, today
+from couchers.utils import not_none, now
 from tests.fixtures.api import events as events_api
+from tests.fixtures.api import public_trips as public_trips_api
 from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user, make_friends, make_user_block, make_user_invisible
 from tests.fixtures.sessions import (
     conversations_session,
     discussions_session,
-    public_trips_session,
     real_admin_session,
     references_session,
     threads_session,
 )
 from tests.test_communities import create_community
-from tests.test_public_trips import VALID_DESCRIPTION as TRIP_DESCRIPTION
 from tests.utils import local_date_time
 
 
@@ -129,7 +127,9 @@ def test_ExportUserData_conversations_with_visible_user(db, moderator):
     with conversations_session(other_token) as api:
         api.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat_id, text="hello back from them"))
 
-    host_request_id = requests_api.create_host_request(token=token, host_user_id=other.id, approve_by=moderator)
+    host_request_id = requests_api.create_host_request(
+        token=token, host_user_id=other.id, text="Export request", pad_text_to_valid_length=True, approve_by=moderator
+    )
     requests_api.send_host_request_message(
         token=other_token, host_request_id=host_request_id, text="sure, come on over"
     )
@@ -149,7 +149,7 @@ def test_ExportUserData_conversations_with_visible_user(db, moderator):
     assert request["role"] == "surfer"
     assert request["host"] == {"user_id": str(other.id), "username": f"@{other.username}"}
     request_texts = [message.get("text") for message in request["messages"]]
-    assert requests_api.REQUEST_TEXT_DEFAULT in request_texts
+    assert any(text.startswith("Export request") for text in request_texts)
     assert "sure, come on over" in request_texts
 
 
@@ -257,15 +257,9 @@ def test_ExportUserData_covers_content_across_the_site(db, moderator):
         api.PostReply(threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="export reply"))
         api.PostReply(threads_pb2.PostReplyReq(thread_id=event.thread.thread_id, content="export event comment"))
 
-    with public_trips_session(token) as api:
-        api.CreatePublicTrip(
-            public_trips_pb2.CreatePublicTripReq(
-                community_id=node_id,
-                from_date=(today() + timedelta(days=5)).isoformat(),
-                to_date=(today() + timedelta(days=10)).isoformat(),
-                description=TRIP_DESCRIPTION,
-            )
-        )
+    public_trips_api.create_public_trip(
+        token=token, community_id=node_id, description="Export trip", pad_description_to_valid_length=True
+    )
 
     with session_scope() as session:
         session.add(Upload(key="export_key", filename="export.jpg", creator_user_id=user.id, credit="me"))
@@ -306,7 +300,7 @@ def test_ExportUserData_covers_content_across_the_site(db, moderator):
     assert [item["title"] for item in export["events"]["organizing"]] == ["export event"]
 
     (trip,) = export["public_trips"]
-    assert trip["description"] == TRIP_DESCRIPTION
+    assert trip["description"].startswith("Export trip")
 
     photos = {photo["url"]: photo for gallery in export["photos"]["galleries"] for photo in gallery["photos"]}
     (photo_url,) = [url for url in photos if url.endswith("/img/full/export.jpg")]
@@ -454,7 +448,9 @@ def test_ExportUserData_for_a_banned_user_is_not_gutted(db, moderator):
     with conversations_session(other_token) as api:
         api.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat_id, text="hello back from them"))
 
-    host_request_id = requests_api.create_host_request(token=token, host_user_id=other.id, approve_by=moderator)
+    host_request_id = requests_api.create_host_request(
+        token=token, host_user_id=other.id, text="Export request", pad_text_to_valid_length=True, approve_by=moderator
+    )
     requests_api.send_host_request_message(
         token=other_token, host_request_id=host_request_id, text="sure, come on over"
     )
@@ -487,10 +483,10 @@ def test_ExportUserData_for_a_banned_user_is_not_gutted(db, moderator):
 
     (request,) = export["host_requests"]
     assert request["host"] == {"user_id": str(other.id), "username": f"@{other.username}"}
-    assert [message["text"] for message in request["messages"] if message.get("text")] == [
-        requests_api.REQUEST_TEXT_DEFAULT,
-        "sure, come on over",
-    ]
+    request_texts = [message["text"] for message in request["messages"] if message.get("text")]
+    assert len(request_texts) == 2
+    assert request_texts[0].startswith("Export request")
+    assert request_texts[1] == "sure, come on over"
 
 
 def test_ExportUserData_keeps_references_from_writers_who_deleted_their_account(db, moderator):
