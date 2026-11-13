@@ -470,13 +470,54 @@
       "steps": {
         "address": "Il tuo indirizzo",
         "confirm": "Confermalo",
-        "in_the_post": "Nel post",
+        "in_the_post": "Spedita",
         "code": "Inserisci il codice"
       },
       "address_form": {
         "description": "Via, città e paese sono obbligatori. Verifichiamo che l'indirizzo sia raggiungibile per la consegna prima di stampare la cartolina.",
-        "recipient_name_label": "Nome"
-      }
+        "recipient_name_label": "Nome",
+        "recipient_name_helper": "Preso dal nome sul tuo profilo, che è quello che stampiamo sulla cartolina. Se non corrisponde al nome sulla tua cassetta della posta, <editProfileLink>aggiorna il nome sul tuo profilo</editProfileLink>.",
+        "address_line_1_label": "Indirizzo (linea 1)",
+        "address_line_2_label": "Indirizzo (riga 2, facoltativo)",
+        "address_line_2_placeholder": "Scala, interno, piano",
+        "city_label": "Città",
+        "state_label": "Stato o regione (facoltativo)",
+        "state_placeholder": "Se il tuo Paese ne usa uno",
+        "postal_code_label": "Codice postale",
+        "country_label": "Paese",
+        "submit_button": "Controlla il mio indirizzo",
+        "required_field_error": "Questo campo è obbligatorio"
+      },
+      "confirm": {
+        "corrected_description": "Abbiamo aggiornato il tuo indirizzo in base ai registri postali ufficiali. Ti preghiamo di controllarlo attentamente. Una volta confermata la scelta, l'indirizzo di consegna non potrà più essere modificato.",
+        "unchanged_description": "Controlla attentamente il tuo indirizzo. Una volta confermata la scelta, l'indirizzo di consegna non potrà più essere modificato.",
+        "entered_header": "Hai inserito",
+        "will_post_to_header": "Spediremo la cartolina all'indirizzo",
+        "submit_button": "Invia la mia cartolina",
+        "edit_button": "Modifica indirizzo"
+      },
+      "in_the_post": {
+        "sent_message": "La tua cartolina è stata spedita il {{date}}. Di solito impiega da una a tre settimane per arrivare a destinazione. Il codice è valido per {{code_lifetime_days}} giorni dalla data di spedizione.",
+        "queued_message": "La tua cartolina è in lista di stampa. Di solito ci vogliono da una a tre settimane perché arrivi dopo la spedizione. Il codice è valido per {{code_lifetime_days}} giorni dall'invio."
+      },
+      "code_form": {
+        "description": "Inserisci i sei caratteri stampati sulla tua cartolina.",
+        "code_label": "Codice della cartolina",
+        "attempts_left_one": "{{remaining}} di {{count}} tentativo rimanente.",
+        "attempts_left_many": "{{remaining}} di {{count}} tentativi rimanenti.",
+        "attempts_left_other": "{{remaining}} di {{count}} tentativi rimanenti.",
+        "wrong_code_message": "Il codice non corrisponde. Riprova.",
+        "submit_button": "Verifica codice"
+      },
+      "cancel_button": "Cancella questo tentativo",
+      "verified_message": "Il tuo indirizzo è verificato.",
+      "rate_limited_message": "Potrai riavviare la verifica postale il {{date}}.",
+      "failed_message": "Il tentativo di verifica postale non è andato a buon fine. Puoi riavviare la procedura qui sotto.",
+      "cancelled_message": "Hai cancellato il tuo ultimo tentativo di verifica postale. Puoi riavviare la procedura qui sotto."
+    },
+    "data_use": {
+      "header": "Come vengono utilizzati i tuoi dati",
+      "body": "I tuoi dati vengono utilizzati esclusivamente a fini di verifica. Gli altri membri vedranno solo che sei verificato, non i tuoi dati personali. Non utilizziamo i tuoi dati per nessun altro scopo e non li condividiamo con nessuno, tranne se richiesto dalle autorità giudiziarie nell'ambito di un'indagine formale su gravi illeciti. Se vuoi saperne di più su come proteggiamo i tuoi dati per la Verifica robusta, consulta il relativo <helpCenterLink>articolo del Centro assistenza</helpCenterLink>."
     }
   }
 }
