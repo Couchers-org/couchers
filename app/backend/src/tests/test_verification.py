@@ -15,6 +15,7 @@ from couchers.utils import now
 from tests.fixtures.db import generate_user
 from tests.fixtures.feature_flags import FeatureFlags
 from tests.fixtures.misc import PushCollector, process_jobs
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import account_session, api_session
 
 
@@ -29,14 +30,12 @@ def test_ChangePhone(db, monkeypatch, push_collector: PushCollector):
         monkeypatch.setattr(couchers.phone.sms, "send_sms", pytest.fail)
 
         # Try with a too long number
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             account.ChangePhone(account_pb2.ChangePhoneReq(phone="+4670174060666666"))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
         # try to see if one digit too much is caught before attempting to send sms
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.UNIMPLEMENTED):
             account.ChangePhone(account_pb2.ChangePhoneReq(phone="+467017406066"))
-        assert e.value.code() == grpc.StatusCode.UNIMPLEMENTED
 
         # Test with operator not supported by SMS backend
         def deny_operator(phone, message):
@@ -45,9 +44,8 @@ def test_ChangePhone(db, monkeypatch, push_collector: PushCollector):
 
         monkeypatch.setattr(couchers.phone.sms, "send_sms", deny_operator)
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.UNIMPLEMENTED):
             account.ChangePhone(account_pb2.ChangePhoneReq(phone="+46701740605"))
-        assert e.value.code() == grpc.StatusCode.UNIMPLEMENTED
 
         # Test with successfully sent SMS
         def succeed(phone, message):
@@ -97,9 +95,8 @@ def test_ChangePhone_ratelimit(db, monkeypatch):
 
         account.ChangePhone(account_pb2.ChangePhoneReq(phone="+46701740605"))
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.RESOURCE_EXHAUSTED):
             account.ChangePhone(account_pb2.ChangePhoneReq(phone="+46701740606"))
-        assert e.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
 
         # Check that an earlier phone number/verification status is still saved
         with session_scope() as session:
@@ -112,9 +109,8 @@ def test_ChangePhone_ratelimit(db, monkeypatch):
 def test_VerifyPhone(push_collector: PushCollector):
     user, token = generate_user()
     with account_session(token) as account, api_session(token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
             account.VerifyPhone(account_pb2.VerifyPhoneReq(token="123455"))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
         res = api.GetUser(api_pb2.GetUserReq(user=str(user.id)))
         assert res.verification == 0.0
@@ -238,9 +234,8 @@ def test_ChangePhone_sms_disabled(db, feature_flags: FeatureFlags):
     user, token = generate_user()
     with account_session(token) as account:
         # Setting a new number requires sending an SMS, which is gated.
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.UNAVAILABLE):
             account.ChangePhone(account_pb2.ChangePhoneReq(phone="+46701740605"))
-        assert e.value.code() == grpc.StatusCode.UNAVAILABLE
 
         # Removing a number doesn't send an SMS, so it's still allowed.
         account.ChangePhone(account_pb2.ChangePhoneReq(phone=""))
@@ -249,7 +244,8 @@ def test_ChangePhone_sms_disabled(db, feature_flags: FeatureFlags):
 def test_sms_verification_no_donation():
     user, token = generate_user(last_donated=None)
     with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION,
+            "You need to donate to Couchers.org before you can verify your phone number.",
+        ):
             account.ChangePhone(account_pb2.ChangePhoneReq(phone="+467017406066"))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You need to donate to Couchers.org before you can verify your phone number."

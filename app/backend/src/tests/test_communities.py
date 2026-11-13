@@ -30,6 +30,7 @@ from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_mu
 from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user, get_user_id_and_token
 from tests.fixtures.misc import Moderator
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
     auth_api_session,
     communities_session,
@@ -619,24 +620,18 @@ class TestCommunities:
             node_id = get_community_id(session, "Country 1, Region 1, City 2")
 
         with communities_session(token8) as api:
-            with pytest.raises(grpc.RpcError) as err:
+            with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You're not allowed to moderate that community"):
                 api.AddAdmin(communities_pb2.AddAdminReq(community_id=node_id, user_id=user2_id))
-            assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-            assert err.value.details() == "You're not allowed to moderate that community"
 
         with communities_session(token4) as api:
             res = api.ListAdmins(communities_pb2.ListAdminsReq(community_id=node_id))
             assert res.admin_user_ids == [user4_id, user5_id]
 
-            with pytest.raises(grpc.RpcError) as err:
+            with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "That user is not in the community."):
                 api.AddAdmin(communities_pb2.AddAdminReq(community_id=node_id, user_id=user8_id))
-            assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-            assert err.value.details() == "That user is not in the community."
 
-            with pytest.raises(grpc.RpcError) as err:
+            with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "That user is already an admin."):
                 api.AddAdmin(communities_pb2.AddAdminReq(community_id=node_id, user_id=user5_id))
-            assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-            assert err.value.details() == "That user is already an admin."
 
             api.AddAdmin(communities_pb2.AddAdminReq(community_id=node_id, user_id=user2_id))
             res = api.ListAdmins(communities_pb2.ListAdminsReq(community_id=node_id))
@@ -654,24 +649,18 @@ class TestCommunities:
             node_id = get_community_id(session, "Country 1, Region 1, City 2")
 
         with communities_session(token8) as api:
-            with pytest.raises(grpc.RpcError) as err:
+            with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You're not allowed to moderate that community"):
                 api.AddAdmin(communities_pb2.AddAdminReq(community_id=node_id, user_id=user2_id))
-            assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-            assert err.value.details() == "You're not allowed to moderate that community"
 
         with communities_session(token4) as api:
             res = api.ListAdmins(communities_pb2.ListAdminsReq(community_id=node_id))
             assert res.admin_user_ids == [user4_id, user5_id]
 
-            with pytest.raises(grpc.RpcError) as err:
+            with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "That user is not in the community."):
                 api.RemoveAdmin(communities_pb2.RemoveAdminReq(community_id=node_id, user_id=user8_id))
-            assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-            assert err.value.details() == "That user is not in the community."
 
-            with pytest.raises(grpc.RpcError) as err:
+            with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "That user is not an admin."):
                 api.RemoveAdmin(communities_pb2.RemoveAdminReq(community_id=node_id, user_id=user2_id))
-            assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-            assert err.value.details() == "That user is not an admin."
 
             api.RemoveAdmin(communities_pb2.RemoveAdminReq(community_id=node_id, user_id=user5_id))
             res = api.ListAdmins(communities_pb2.ListAdminsReq(community_id=node_id))
@@ -886,10 +875,8 @@ class TestCommunities:
             _, token = get_user_id_and_token(session, "user1")
 
         with communities_session(token) as api:
-            with pytest.raises(grpc.RpcError) as err:
+            with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Query must be at least 3 characters long."):
                 api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="   "))
-            assert err.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-            assert err.value.details() == "Query must be at least 3 characters long."
 
     @staticmethod
     def test_min_length_lt_3_aborts(testing_communities):
@@ -900,10 +887,8 @@ class TestCommunities:
             _, token = get_user_id_and_token(session, "user1")
 
         with communities_session(token) as api:
-            with pytest.raises(grpc.RpcError) as err:
+            with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Query must be at least 3 characters long."):
                 api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="zz", page_size=5))
-            assert err.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-            assert err.value.details() == "Query must be at least 3 characters long."
 
     @staticmethod
     def test_typo_matches_existing_name(testing_communities):
@@ -1128,29 +1113,25 @@ def test_JoinCommunity_and_LeaveCommunity(testing_communities):
         assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
 
         # user1 is already part of c1, cannot join
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You're already in that community."):
             res = api.JoinCommunity(
                 communities_pb2.JoinCommunityReq(
                     community_id=c1_id,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You're already in that community."
 
         assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
 
         # user1 is inside c1, cannot leave
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION,
+            "Your location on your profile is within this community, so you cannot leave it. However, you can adjust your notifications in your account settings.",
+        ):
             res = api.LeaveCommunity(
                 communities_pb2.LeaveCommunityReq(
                     community_id=c1_id,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert (
-            e.value.details()
-            == "Your location on your profile is within this community, so you cannot leave it. However, you can adjust your notifications in your account settings."
-        )
 
         assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
 
@@ -1158,14 +1139,12 @@ def test_JoinCommunity_and_LeaveCommunity(testing_communities):
         assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
 
         # user8 is not in c1 yet, cannot leave
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You're not in that community."):
             res = api.LeaveCommunity(
                 communities_pb2.LeaveCommunityReq(
                     community_id=c1_id,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You're not in that community."
 
         assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
 
@@ -1179,14 +1158,12 @@ def test_JoinCommunity_and_LeaveCommunity(testing_communities):
         assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
 
         # user8 is not in c1 and but now part, can't join again
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You're already in that community."):
             res = api.JoinCommunity(
                 communities_pb2.JoinCommunityReq(
                     community_id=c1_id,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You're already in that community."
 
         assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
 

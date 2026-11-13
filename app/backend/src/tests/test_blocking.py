@@ -1,5 +1,4 @@
 import grpc
-import pytest
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 
@@ -9,6 +8,7 @@ from couchers.proto import blocking_pb2
 from couchers.servicers.blocking import is_not_visible
 from couchers.utils import now
 from tests.fixtures.db import generate_user, make_user_block
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import blocking_session
 
 
@@ -23,17 +23,13 @@ def test_BlockUser(db):
         assert len(blocked_user_list) == 0
 
     with blocking_session(token1) as user_blocks:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "You can't block yourself."):
             user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user1.username))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "You can't block yourself."
 
         user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user2.username))
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Target user has already been blocked."):
             user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user2.username))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Target user has already been blocked."
 
     with session_scope() as session:
         blocked_user_list = (
@@ -68,10 +64,8 @@ def test_UnblockUser(db):
         assert len(blocked_users) == 0
 
     with blocking_session(token1) as user_blocks:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Target user is not blocked."):
             user_blocks.UnblockUser(blocking_pb2.UnblockUserReq(username=user2.username))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Target user is not blocked."
 
         # Test re-blocking
         user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user2.username))

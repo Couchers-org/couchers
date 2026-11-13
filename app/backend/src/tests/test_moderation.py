@@ -59,6 +59,7 @@ from tests.fixtures.api import events as events_api
 from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import backdate_conversations, generate_user, make_friends
 from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
     api_session,
     conversations_session,
@@ -235,7 +236,7 @@ def test_flag_with_invalid_data(db):
     state_id = create_test_host_request_with_moderation(token1, user2.id)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The moderation data must be valid JSON."):
             api.ModerateContent(
                 moderation_pb2.ModerateContentReq(
                     moderation_state_id=state_id,
@@ -245,8 +246,6 @@ def test_flag_with_invalid_data(db):
                     data="not json",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "The moderation data must be valid JSON."
 
 
 def test_data_rejected_on_non_flag_action(db):
@@ -258,7 +257,7 @@ def test_data_rejected_on_non_flag_action(db):
     state_id = create_test_host_request_with_moderation(token1, user2.id)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Moderation data can only be set when flagging."):
             api.ModerateContent(
                 moderation_pb2.ModerateContentReq(
                     moderation_state_id=state_id,
@@ -268,8 +267,6 @@ def test_data_rejected_on_non_flag_action(db):
                     data=json.dumps({"score": 0.1}),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Moderation data can only be set when flagging."
 
 
 def test_create_moderation_with_data(db):
@@ -557,9 +554,8 @@ def test_shadowed_host_request_visible_to_author_only(db):
     assert res.latest_message.text.text == requests_api.REQUEST_TEXT_DEFAULT
 
     # Host (recipient) CANNOT see it with GetHostRequest - it's shadowed
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
         requests_api.get_host_request(token=token2, host_request_id=host_request_id)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_unlisted_host_request_not_in_lists(db):
@@ -655,19 +651,16 @@ def test_hidden_host_request_invisible_to_all(db):
         )
 
     # Surfer can't see it with GetHostRequest
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
         requests_api.get_host_request(token=token1, host_request_id=host_request_id)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
     # Host can't see it with GetHostRequest
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
         requests_api.get_host_request(token=token2, host_request_id=host_request_id)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
     # Third party definitely can't see it
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
         requests_api.get_host_request(token=token3, host_request_id=host_request_id)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
     # Not in any lists
     res = requests_api.list_host_requests(token=token1, only_sent=True)
@@ -1350,10 +1343,8 @@ def test_GetModerationLog_not_found(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Moderation state not found."):
             api.GetModerationLog(moderation_pb2.GetModerationLogReq(moderation_state_id=999999))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Moderation state not found."
 
 
 def test_GetModerationState(db):
@@ -1382,15 +1373,13 @@ def test_GetModerationState_not_found(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Moderation state not found."):
             api.GetModerationState(
                 moderation_pb2.GetModerationStateReq(
                     object_type=moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST,
                     object_id=999999,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Moderation state not found."
 
 
 def test_GetModerationState_unspecified_type(db):
@@ -1398,15 +1387,13 @@ def test_GetModerationState_unspecified_type(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Object type must be specified."):
             api.GetModerationState(
                 moderation_pb2.GetModerationStateReq(
                     object_type=moderation_pb2.MODERATION_OBJECT_TYPE_UNSPECIFIED,
                     object_id=123,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Object type must be specified."
 
 
 def test_ModerateContent_approve(db):
@@ -1449,7 +1436,7 @@ def test_ModerateContent_not_found(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Moderation state not found."):
             api.ModerateContent(
                 moderation_pb2.ModerateContentReq(
                     moderation_state_id=999999,
@@ -1458,8 +1445,6 @@ def test_ModerateContent_not_found(db):
                     reason="Test",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Moderation state not found."
 
 
 def test_ModerateContent_hide(db):
@@ -1570,7 +1555,7 @@ def test_ModerateContent_flag_requires_trigger(db):
     state_id = create_test_host_request_with_moderation(token1, user2.id)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             api.ModerateContent(
                 moderation_pb2.ModerateContentReq(
                     moderation_state_id=state_id,
@@ -1578,7 +1563,6 @@ def test_ModerateContent_flag_requires_trigger(db):
                     reason="no trigger",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def _open_queue_item_id(state_id):
@@ -1672,7 +1656,7 @@ def test_ModerateContent_unflag_requires_queue_item(db):
     state_id = create_test_host_request_with_moderation(token1, user2.id)
 
     with real_moderation_session(mod_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             api.ModerateContent(
                 moderation_pb2.ModerateContentReq(
                     moderation_state_id=state_id,
@@ -1680,7 +1664,6 @@ def test_ModerateContent_unflag_requires_queue_item(db):
                     reason="no target",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_ModerateContent_approve_without_clear_flags_leaves_flag_open(db):
@@ -1986,9 +1969,8 @@ def test_auto_approve_moderation_queue_disabled_when_zero(db, email_collector: E
     assert sent.host_requests[0].host_request_id == host_request_id
 
     # Host cannot see the request (it's shadowed from them)
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
         requests_api.get_host_request(token=token2, host_request_id=host_request_id)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
     # Host doesn't see it in their received list either
     received = requests_api.list_host_requests(token=token2, only_received=True)
@@ -2027,9 +2009,8 @@ def test_auto_approve_moderation_queue_approves_old_items(
     assert email_collector.count_for_recipient(user2.email) == 0
 
     # Host cannot see the request yet
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
         requests_api.get_host_request(token=token2, host_request_id=host_request_id)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
     # Make the queue item appear old by backdating its time_created
     with session_scope() as session:
@@ -2118,9 +2099,8 @@ def test_auto_approve_does_not_approve_recent_items(db, email_collector: EmailCo
     assert email_collector.count_for_recipient(user2.email) == 0
 
     # Host still cannot see the request
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
         requests_api.get_host_request(token=token2, host_request_id=host_request_id)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
     # Not in host's received list
     res = requests_api.list_host_requests(token=token2, only_received=True)
@@ -2260,9 +2240,8 @@ def test_auto_approve_does_not_approve_moderator_shadowed_items(db):
         assert state_res.moderation_state.visibility == moderation_pb2.MODERATION_VISIBILITY_SHADOWED
 
     # Host still cannot see the request
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
         requests_api.get_host_request(token=token2, host_request_id=host_request_id)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_auto_approve_skips_shadowed_user_authored_items(db):
@@ -2305,9 +2284,8 @@ def test_auto_approve_skips_shadowed_user_authored_items(db):
         assert state_res.moderation_state.visibility == moderation_pb2.MODERATION_VISIBILITY_SHADOWED
 
     # Host still cannot see the request
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
         requests_api.get_host_request(token=host_token, host_request_id=host_request_id)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
     # But the (shadowed) author can still see their own request
     res = requests_api.get_host_request(token=surfer_token, host_request_id=host_request_id)
@@ -2940,14 +2918,13 @@ def test_SetUserContentVisibility_unspecified_rejected(db):
     target, _ = generate_user()
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             api.SetUserContentVisibility(
                 moderation_pb2.SetUserContentVisibilityReq(
                     user_id=target.id,
                     visibility=moderation_pb2.MODERATION_VISIBILITY_UNSPECIFIED,
                 )
             )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_SetUserContentVisibility_non_admin_rejected(db):
@@ -2955,14 +2932,13 @@ def test_SetUserContentVisibility_non_admin_rejected(db):
     target, _ = generate_user()
 
     with real_moderation_session(normal_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED):
             api.SetUserContentVisibility(
                 moderation_pb2.SetUserContentVisibilityReq(
                     user_id=target.id,
                     visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
                 )
             )
-    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
 
 def test_SetUserContentVisibility_writes_admin_action(db):
@@ -3027,14 +3003,13 @@ def test_SetUserContentVisibility_user_not_found(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             api.SetUserContentVisibility(
                 moderation_pb2.SetUserContentVisibilityReq(
                     user_id=999999,
                     visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
                 )
             )
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_SetUserContentVisibility_from_visibility_filter(db):
@@ -3149,7 +3124,7 @@ def test_SetUserContentVisibility_from_visibility_unspecified_rejected(db):
     target, _ = generate_user()
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             api.SetUserContentVisibility(
                 moderation_pb2.SetUserContentVisibilityReq(
                     user_id=target.id,
@@ -3157,7 +3132,6 @@ def test_SetUserContentVisibility_from_visibility_unspecified_rejected(db):
                     from_visibility=[moderation_pb2.MODERATION_VISIBILITY_UNSPECIFIED],
                 )
             )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def _content_state_ids(res: moderation_pb2.ListModerationStatesRes) -> list[int]:
@@ -3333,14 +3307,13 @@ def test_GetModerationState_for_nonexistent_user(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             api.GetModerationState(
                 moderation_pb2.GetModerationStateReq(
                     object_type=moderation_pb2.MODERATION_OBJECT_TYPE_USER,
                     object_id=999999,
                 )
             )
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_flag_user_shows_up_in_queue_and_author_filters(db):
@@ -3398,7 +3371,7 @@ def test_ModerateContent_cannot_set_visibility_on_user_state(db, action):
             )
         ).moderation_state.moderation_state_id
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             api.ModerateContent(
                 moderation_pb2.ModerateContentReq(
                     moderation_state_id=user_state_id,
@@ -3406,7 +3379,6 @@ def test_ModerateContent_cannot_set_visibility_on_user_state(db, action):
                     visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
                 )
             )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
     with session_scope() as session:
         state = session.execute(select(ModerationState).where(ModerationState.id == user_state_id)).scalar_one()
@@ -3829,6 +3801,5 @@ def test_GetModeratedObject_not_found(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             api.GetModeratedObject(moderation_pb2.GetModeratedObjectReq(moderation_state_id=999_999_999))
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND

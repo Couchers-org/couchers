@@ -32,6 +32,7 @@ from couchers.utils import now, to_aware_datetime
 from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import EmailCollector, Moderator, PushCollector, process_jobs
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import notifications_session, real_editor_session, threads_session
 from tests.fixtures.timewarp import FrozenTimewarp
 from tests.test_communities import create_community, create_group
@@ -176,70 +177,50 @@ def test_CreateEvent_failure(db, frozen_timewarp, moderator: Moderator):
     with session_scope() as session:
         create_community(session, 0, 2, "Community", [creator_user], [], None)
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Missing event title."):
         events_api.create_event(token=creator_token, title=None)
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "Missing event title."
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Missing event content."):
         events_api.create_event(token=creator_token, content=None)
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "Missing event content."
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Photo not found."):
         events_api.create_event(token=creator_token, photo_key="nonexistent")
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "Photo not found."
 
     # Location
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Missing event address or location."):
         events_api.create_event(token=creator_token, location=None)
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "Missing event address or location."
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid coordinate."):
         events_api.create_event(token=creator_token, location=events_pb2.EventLocation(address="Address only"))
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "Invalid coordinate."
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Missing event address or location."):
         events_api.create_event(token=creator_token, location=events_pb2.EventLocation(lat=0.1, lng=0.1))
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "Missing event address or location."
 
     # Dates
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The event must be in the future."):
         events_api.create_event(token=creator_token, start_date_time=local_date_time(now() - timedelta(hours=2)))
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "The event must be in the future."
 
     valid_start_time = _to_event_time_granularity(now() + timedelta(days=2))
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The event must end after it starts."):
         events_api.create_event(
             token=creator_token,
             start_date_time=local_date_time(valid_start_time + timedelta(hours=1)),
             end_date_time=local_date_time(valid_start_time),
         )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "The event must end after it starts."
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The event needs to start within the next year."):
         events_api.create_event(
             token=creator_token,
             start_date_time=local_date_time(now() + timedelta(days=500, hours=2)),
             end_date_time=local_date_time(now() + timedelta(days=500, hours=5)),
         )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "The event needs to start within the next year."
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Events cannot last longer than 7 days."):
         events_api.create_event(
             token=creator_token,
             start_date_time=local_date_time(valid_start_time),
             end_date_time=local_date_time(valid_start_time + timedelta(days=100)),
         )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "Events cannot last longer than 7 days."
 
     # Recurrence
     valid_start_date = valid_start_time.date()  # The default event location is in UTC
@@ -249,27 +230,27 @@ def test_CreateEvent_failure(db, frozen_timewarp, moderator: Moderator):
         events_pb2.CreateEventRecurrence(weekly_interval=0, ends_on_date=valid_ends_on_date),
         events_pb2.CreateEventRecurrence(weekly_interval=3, ends_on_date=valid_ends_on_date),
     ]:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.INVALID_ARGUMENT,
+            "Only weekly and biweekly recurring events are supported.",
+        ):
             events_api.create_event(token=creator_token, recurrence=invalid_rule)
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Only weekly and biweekly recurring events are supported."
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid recurring event end date."):
         events_api.create_event(
             token=creator_token,
             recurrence=events_pb2.CreateEventRecurrence(weekly_interval=1, ends_on_date="not a date"),
         )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "Invalid recurring event end date."
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(
+        grpc.StatusCode.INVALID_ARGUMENT,
+        "A recurring event must end on or after its first occurrence.",
+    ):
         events_api.create_event(
             token=creator_token,
             start_date_time=local_date_time(valid_start_time + timedelta(days=1)),
             recurrence=events_api.weekly_recurrence(ends_on_date=valid_start_time.date()),
         )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "A recurring event must end on or after its first occurrence."
 
 
 def test_CreateEvent_recurring(db, frozen_timewarp: FrozenTimewarp):
@@ -307,10 +288,11 @@ def test_CreateEvent_incomplete_profile(db):
     with session_scope() as session:
         c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(
+        grpc.StatusCode.FAILED_PRECONDITION,
+        "You have to complete your profile before you can create an event.",
+    ):
         events_api.create_event(token=token1)
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-    assert e.value.details() == "You have to complete your profile before you can create an event."
 
 
 def test_ScheduleEvent(db, frozen_timewarp):
@@ -399,15 +381,13 @@ def test_cannot_overlap_occurrences_schedule(db):
         end_date_time=local_date_time(start + timedelta(hours=3)),
     )
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "An event cannot have overlapping occurrences."):
         events_api.schedule_event(
             token=token,
             event_id=res.event_id,
             start_date_time=local_date_time(start + timedelta(hours=2)),
             end_date_time=local_date_time(start + timedelta(hours=6)),
         )
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-    assert e.value.details() == "An event cannot have overlapping occurrences."
 
 
 def test_cannot_overlap_occurrences_update(db):
@@ -446,15 +426,13 @@ def test_cannot_overlap_occurrences_update(db):
         end_date_time=local_date_time(start + timedelta(hours=6)),
     )
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "An event cannot have overlapping occurrences."):
         events_api.update_event(
             token=token,
             event_id=event_id,
             start_date_time=local_date_time(start + timedelta(hours=2)),
             end_date_time=local_date_time(start + timedelta(hours=4)),
         )
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-    assert e.value.details() == "An event cannot have overlapping occurrences."
 
 
 def test_UpdateEvent_single(db, frozen_timewarp: FrozenTimewarp, moderator: Moderator):
@@ -788,7 +766,10 @@ def test_UpdateEvent_all_cant_change_times(db, moderator: Moderator):
         end_date_time=local_date_time(start_time + timedelta(hours=3)),
     )
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(
+        grpc.StatusCode.INVALID_ARGUMENT,
+        "You cannot update all events if you're modifying start or end times.",
+    ):
         events_api.update_event(
             token=token1,
             event_id=event_id,
@@ -796,8 +777,6 @@ def test_UpdateEvent_all_cant_change_times(db, moderator: Moderator):
             end_date_time=local_date_time(start_time + timedelta(hours=1, minutes=30)),
             update_all_future=True,
         )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "You cannot update all events if you're modifying start or end times."
 
 
 def test_GetEvent(db, frozen_timewarp, moderator: Moderator):
@@ -951,32 +930,37 @@ def test_CancelEvent(db, moderator: Moderator):
     events_api.cancel_event(token=token1, event_id=event_id)
     assert events_api.get_event(token=token1, event_id=event_id).is_cancelled
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(
+        grpc.StatusCode.PERMISSION_DENIED,
+        "You can't modify, subscribe to, or attend to an event that's been cancelled.",
+    ):
         events_api.update_event(token=token1, event_id=event_id, title="New Title")
-    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-    assert e.value.details() == "You can't modify, subscribe to, or attend to an event that's been cancelled."
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(
+        grpc.StatusCode.PERMISSION_DENIED,
+        "You can't modify, subscribe to, or attend to an event that's been cancelled.",
+    ):
         events_api.invite_event_organizer(token=token1, event_id=event_id, user_id=user3.id)
-    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-    assert e.value.details() == "You can't modify, subscribe to, or attend to an event that's been cancelled."
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(
+        grpc.StatusCode.PERMISSION_DENIED,
+        "You can't modify, subscribe to, or attend to an event that's been cancelled.",
+    ):
         events_api.transfer_event(token=token1, event_id=event_id, new_owner_community_id=c_id)
-    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-    assert e.value.details() == "You can't modify, subscribe to, or attend to an event that's been cancelled."
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(
+        grpc.StatusCode.PERMISSION_DENIED,
+        "You can't modify, subscribe to, or attend to an event that's been cancelled.",
+    ):
         events_api.set_event_subscription(token=token3, event_id=event_id, subscribe=True)
-    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-    assert e.value.details() == "You can't modify, subscribe to, or attend to an event that's been cancelled."
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(
+        grpc.StatusCode.PERMISSION_DENIED,
+        "You can't modify, subscribe to, or attend to an event that's been cancelled.",
+    ):
         events_api.set_event_attendance(
             token=token3, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING
         )
-    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-    assert e.value.details() == "You can't modify, subscribe to, or attend to an event that's been cancelled."
 
     for include_cancelled in [True, False]:
         occurrences = events_api.list_event_occurrences(
@@ -1111,10 +1095,8 @@ def test_TransferEvent(db):
     # remove ourselves as organizer, otherwise we can still edit it
     events_api.remove_event_organizer(token=token1, event_id=event_id)
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You're not allowed to transfer that event."):
         events_api.transfer_event(token=token1, event_id=event_id, new_owner_group_id=h_id)
-    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-    assert e.value.details() == "You're not allowed to transfer that event."
 
     event_id = events_api.create_event(token=token1).event_id
     events_api.transfer_event(token=token1, event_id=event_id, new_owner_group_id=h_id)
@@ -1122,10 +1104,8 @@ def test_TransferEvent(db):
     # remove ourselves as organizer, otherwise we can still edit it
     events_api.remove_event_organizer(token=token1, event_id=event_id)
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You're not allowed to transfer that event."):
         events_api.transfer_event(token=token1, event_id=event_id, new_owner_community_id=c_id)
-    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-    assert e.value.details() == "You're not allowed to transfer that event."
 
 
 def test_SetEventSubscription(db, moderator: Moderator):
@@ -1186,10 +1166,8 @@ def test_InviteEventOrganizer(db, moderator: Moderator):
 
     assert not events_api.get_event(token=token2, event_id=event_id).organizer
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You're not allowed to edit that event."):
         events_api.invite_event_organizer(token=token2, event_id=event_id, user_id=user1.id)
-    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-    assert e.value.details() == "You're not allowed to edit that event."
 
     assert not events_api.get_event(token=token2, event_id=event_id).organizer
 
@@ -1480,9 +1458,8 @@ def test_list_my_events_exclude_attending(db, moderator: Moderator):
     assert [e.event_id for e in res.events] == [e_community_only]
 
     # exclude_attending with attending=True: invalid combination
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
         events_api.list_my_events(token=token1, attending=True, exclude_attending=True)
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
     # user2 has no attendance/organizing relationship with e_community_only, so exclude_attending has no effect on it
     res = events_api.list_my_events(token=token2, my_communities=True, exclude_attending=True)
@@ -1501,19 +1478,15 @@ def test_RemoveEventOrganizer(db, moderator: Moderator):
 
     assert not events_api.get_event(token=token2, event_id=event_id).organizer
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You're not allowed to edit that event."):
         events_api.remove_event_organizer(token=token2, event_id=event_id)
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-    assert e.value.details() == "You're not allowed to edit that event."
 
     assert not events_api.get_event(token=token2, event_id=event_id).organizer
 
     events_api.invite_event_organizer(token=token1, event_id=event_id, user_id=user2.id)
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You cannot remove the event owner as an organizer."):
         events_api.remove_event_organizer(token=token1, event_id=event_id)
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-    assert e.value.details() == "You cannot remove the event owner as an organizer."
 
     res = events_api.get_event(token=token2, event_id=event_id)
     assert res.organizer
@@ -1522,10 +1495,8 @@ def test_RemoveEventOrganizer(db, moderator: Moderator):
     events_api.remove_event_organizer(token=token2, event_id=event_id)
     assert not events_api.get_event(token=token2, event_id=event_id).organizer
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You're not allowed to edit that event."):
         events_api.remove_event_organizer(token=token2, event_id=event_id)
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-    assert e.value.details() == "You're not allowed to edit that event."
 
     res = events_api.get_event(token=token2, event_id=event_id)
     assert not res.organizer
@@ -1545,10 +1516,8 @@ def test_RemoveEventOrganizer(db, moderator: Moderator):
 
     # Test that non-organizers cannot remove other organizers
     # User2 cannot invite themselves as organizer (not the owner)
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You're not allowed to edit that event."):
         events_api.invite_event_organizer(token=token2, event_id=event_id, user_id=user2.id)
-    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-    assert e.value.details() == "You're not allowed to edit that event."
 
     # Test that non-organizers cannot remove other organizers (user1 adds user2 back first)
     events_api.invite_event_organizer(token=token1, event_id=event_id, user_id=user2.id)
@@ -1857,10 +1826,11 @@ def test_community_invite_requests(db, email_collector: EmailCollector, moderato
     assert event_url in email.plain
 
     # can't send another req
-    with pytest.raises(grpc.RpcError) as err:
+    with expect_rpc_error(
+        grpc.StatusCode.FAILED_PRECONDITION,
+        "You have already requested a community invite for this event.",
+    ):
         events_api.request_community_invite(token=token1, event_id=event_id)
-    assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-    assert err.value.details() == "You have already requested a community invite for this event."
 
     # another user can send one though
     # api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
@@ -1873,10 +1843,8 @@ def test_community_invite_requests(db, email_collector: EmailCollector, moderato
     assert res.community_invite_requested is True
 
     # but not a non-admin
-    with pytest.raises(grpc.RpcError) as err:
+    with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You're not allowed to edit that event."):
         events_api.request_community_invite(token=token2, event_id=event_id)
-    assert err.value.code() == grpc.StatusCode.PERMISSION_DENIED
-    assert err.value.details() == "You're not allowed to edit that event."
 
     with real_editor_session(token5) as editor:
         res = editor.ListEventCommunityInviteRequests(editor_pb2.ListEventCommunityInviteRequestsReq())
@@ -1907,10 +1875,11 @@ def test_community_invite_requests(db, email_collector: EmailCollector, moderato
     assert res.community_invite_requested is True
 
     # not after approve
-    with pytest.raises(grpc.RpcError) as err:
+    with expect_rpc_error(
+        grpc.StatusCode.FAILED_PRECONDITION,
+        "A community invite has already been sent out for this event.",
+    ):
         events_api.request_community_invite(token=token4, event_id=event_id)
-    assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-    assert err.value.details() == "A community invite has already been sent out for this event."
 
 
 def test_list_decided_community_invite_requests(db, moderator: Moderator):
@@ -2221,9 +2190,8 @@ def test_shadowed_event_visible_to_creator_only(db):
     assert res.title == "Shadowed Event"
 
     # Other user cannot
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
         events_api.get_event(token=token2, event_id=event_id)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_event_visible_after_approval(db, moderator: Moderator):
@@ -2237,9 +2205,8 @@ def test_event_visible_after_approval(db, moderator: Moderator):
     event_id = events_api.create_event(token=token1, title="Approved Event").event_id
 
     # Other user cannot see it yet
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
         events_api.get_event(token=token2, event_id=event_id)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
     # Approve the event
     moderator.approve_event_occurrence(event_id)

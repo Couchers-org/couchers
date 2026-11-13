@@ -48,6 +48,7 @@ from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import backdate_conversations, generate_user, make_user_block
 from tests.fixtures.feature_flags import FeatureFlags
 from tests.fixtures.misc import EmailCollector, Moderator, PushCollector
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import api_session, auth_api_session
 from tests.test_public_trips import _create_trip_directly, _make_node
 
@@ -69,48 +70,34 @@ def test_create_request(db, moderator):
     today_minus_2 = today() - timedelta(days=2)
     today_minus_3 = today() - timedelta(days=3)
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Can't request hosting from yourself."):
         requests_api.create_host_request(token=token1, host_user_id=user1.id)
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "Can't request hosting from yourself."
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that user."):
         requests_api.create_host_request(token=token1, host_user_id=999)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == "Couldn't find that user."
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "From date can't be after to date."):
         requests_api.create_host_request(
             token=token1, host_user_id=user2.id, from_date=today_plus_3, to_date=today_plus_2
         )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "From date can't be after to date."
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "From date must be today or later."):
         requests_api.create_host_request(
             token=token1, host_user_id=user2.id, from_date=today_minus_3, to_date=today_plus_2
         )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "From date must be today or later."
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "From date can't be after to date."):
         requests_api.create_host_request(
             token=token1, host_user_id=user2.id, from_date=today_plus_2, to_date=today_minus_2
         )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "From date can't be after to date."
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid date."):
         requests_api.create_host_request(
             token=token1, host_user_id=user2.id, from_date="2020-00-06", to_date=today_minus_2
         )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "Invalid date."
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Host request cannot be shorter than 250 characters."):
         requests_api.create_host_request(token=token1, host_user_id=user2.id, text="Too short.")
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "Host request cannot be shorter than 250 characters."
 
     requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
 
@@ -130,25 +117,24 @@ def test_create_request(db, moderator):
     today_plus_one_year = today_ + timedelta(days=365)
     today_plus_one_year_plus_2 = today_plus_one_year + timedelta(days=2)
     today_plus_one_year_plus_3 = today_plus_one_year + timedelta(days=3)
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The start date must be within one year from today."):
         requests_api.create_host_request(
             token=token1,
             host_user_id=user2.id,
             from_date=today_plus_one_year_plus_2,
             to_date=today_plus_one_year_plus_3,
         )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "The start date must be within one year from today."
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(
+        grpc.StatusCode.INVALID_ARGUMENT,
+        "You cannot request to stay with someone for longer than one year.",
+    ):
         requests_api.create_host_request(
             token=token1,
             host_user_id=user2.id,
             from_date=today_plus_2,
             to_date=today_plus_one_year_plus_3,
         )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "You cannot request to stay with someone for longer than one year."
 
 
 def test_create_host_request_rejects_date_past_in_host_timezone(db):
@@ -167,11 +153,10 @@ def test_create_host_request_rejects_date_past_in_host_timezone(db):
         "couchers.servicers.requests.today_in_timezone",
         side_effect=lambda tz: fake_today_by_tz.get(tz, date(2026, 1, 15)),
     ):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             requests_api.create_host_request(
                 token=token1, host_user_id=user2.id, from_date=date(2026, 1, 15), to_date=date(2026, 1, 18)
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_create_host_request_date_valid_when_host_behind_requester(db):
@@ -230,20 +215,17 @@ def test_create_request_duplicate_within_window(db):
 
     assert requests_api.create_host_request(token=token1, host_user_id=user2.id, from_date=from_date, to_date=to_date)
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, lambda d: "past 3 hours" in d):
         requests_api.create_host_request(token=token1, host_user_id=user2.id, from_date=from_date, to_date=to_date)
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-    assert "past 3 hours" in (e.value.details() or "")
 
     # partly overlapping dates are blocked too
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
         requests_api.create_host_request(
             token=token1,
             host_user_id=user2.id,
             from_date=to_date - timedelta(days=1),
             to_date=to_date + timedelta(days=5),
         )
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
     # a different host is unaffected
     assert requests_api.create_host_request(token=token1, host_user_id=user3.id, from_date=from_date, to_date=to_date)
@@ -325,10 +307,11 @@ def test_create_request_duplicate_window_ignores_public_trip_offers(db):
 def test_create_request_incomplete_profile(db):
     user1, token1 = generate_user(complete_profile=False)
     user2, _ = generate_user()
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(
+        grpc.StatusCode.FAILED_PRECONDITION,
+        "You have to complete your profile before you can send a request.",
+    ):
         requests_api.create_host_request(token=token1, host_user_id=user2.id)
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-    assert e.value.details() == "You have to complete your profile before you can send a request."
 
 
 def test_excessive_requests_are_reported(db, low_rate_limits, email_collector: EmailCollector):
@@ -357,13 +340,11 @@ def test_excessive_requests_are_reported(db, low_rate_limits, email_collector: E
     assert email_collector.count_for_reports() == 0
 
     host_user, _ = generate_user()
-    with pytest.raises(grpc.RpcError) as exc_info:
+    with expect_rpc_error(
+        grpc.StatusCode.RESOURCE_EXHAUSTED,
+        "You have sent a lot of host requests in the past 24 hours. To avoid spam, you can't send any more for now.",
+    ):
         requests_api.create_host_request(token=token, host_user_id=host_user.id)
-    assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
-    assert (
-        exc_info.value.details()
-        == "You have sent a lot of host requests in the past 24 hours. To avoid spam, you can't send any more for now."
-    )
 
     email = email_collector.pop_for_reports(last=True)
     assert email.plain.startswith(
@@ -380,9 +361,8 @@ def test_excessive_requests_are_reported(db, low_rate_limits, email_collector: E
 
     # still blocked once the hard violation is on record, without reporting again
     host_user, _ = generate_user()
-    with pytest.raises(grpc.RpcError) as exc_info:
+    with expect_rpc_error(grpc.StatusCode.RESOURCE_EXHAUSTED):
         requests_api.create_host_request(token=token, host_user_id=host_user.id)
-    assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
     assert email_collector.count_for_reports() == 0
 
 
@@ -401,10 +381,8 @@ def test_GetHostRequest(db):
     user3, token3 = generate_user()
     host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that host request."):
         requests_api.get_host_request(token=token1, host_request_id=999)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == "Couldn't find that host request."
 
     requests_api.send_host_request_message(token=token1, host_request_id=host_request_id, text="Test message 1")
 
@@ -723,40 +701,31 @@ def test_RespondHostRequests(db, moderator):
     request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
 
     # another user can't access
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that host request."):
         requests_api.respond_host_request(
             token=token3, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
         )
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == "Couldn't find that host request."
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You are not the host of this request."):
         requests_api.respond_host_request(
             token=token1, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
         )
-    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-    assert e.value.details() == "You are not the host of this request."
 
     # non existing id
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
         requests_api.respond_host_request(
             token=token2, host_request_id=9999, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
         )
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
     # host can't confirm or cancel (host should accept/reject)
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You can't set the host request status to that."):
         requests_api.respond_host_request(
             token=token2, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
         )
-    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-    assert e.value.details() == "You can't set the host request status to that."
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You can't set the host request status to that."):
         requests_api.respond_host_request(
             token=token2, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
         )
-    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-    assert e.value.details() == "You can't set the host request status to that."
 
     requests_api.respond_host_request(
         token=token2,
@@ -774,12 +743,10 @@ def test_RespondHostRequests(db, moderator):
     )
 
     # can't make pending
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You can't set the host request status to that."):
         requests_api.respond_host_request(
             token=token1, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_PENDING
         )
-    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-    assert e.value.details() == "You can't set the host request status to that."
 
     # can confirm then cancel
     requests_api.respond_host_request(
@@ -791,12 +758,10 @@ def test_RespondHostRequests(db, moderator):
     )
 
     # can't confirm after having cancelled
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You can't set the host request status to that."):
         requests_api.respond_host_request(
             token=token1, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
         )
-    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-    assert e.value.details() == "You can't set the host request status to that."
 
     # at this point there should be 7 messages
     # 2 for creation, 2 for the status change with message, 3 for the other status changed
@@ -864,14 +829,11 @@ def test_SendHostRequestMessage(db, moderator):
     user3, token3 = generate_user()
     host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
         requests_api.send_host_request_message(token=token1, host_request_id=999, text="Test message 1")
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid message."):
         requests_api.send_host_request_message(token=token1, host_request_id=host_request_id, text="")
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "Invalid message."
 
     requests_api.send_host_request_message(token=token1, host_request_id=host_request_id, text="Test message 1")
     res = requests_api.get_host_request_messages(token=token1, host_request_id=host_request_id)
@@ -879,10 +841,8 @@ def test_SendHostRequestMessage(db, moderator):
     assert res.messages[0].author_user_id == user1.id
 
     # other user can't send
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that host request."):
         requests_api.send_host_request_message(token=token3, host_request_id=host_request_id, text="Test message 2")
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == "Couldn't find that host request."
 
     requests_api.send_host_request_message(token=token2, host_request_id=host_request_id, text="Test message 2")
     res = requests_api.get_host_request_messages(token=token2, host_request_id=host_request_id)
@@ -947,9 +907,8 @@ def test_get_updates(db, moderator):
     message_id_1 = messages_res.messages[3].message_id
     message_id_0 = messages_res.messages[4].message_id
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
         requests_api.get_host_request_updates(token=token1, newest_message_id=0)
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
     res = requests_api.get_host_request_updates(token=token1, newest_message_id=message_id_1)
     assert res.no_more
@@ -1067,10 +1026,8 @@ def test_mark_last_seen(db, moderator):
 
     assert requests_api.list_host_requests(token=token2).host_requests[0].last_seen_message_id == 3
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You can't unsee messages."):
         requests_api.mark_last_seen_host_request(token=token2, host_request_id=host_request_id, last_seen_message_id=1)
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-    assert e.value.details() == "You can't unsee messages."
 
     # this will be used to test sent request notifications
     host_request_id_3 = requests_api.create_host_request(token=token2, host_user_id=user1.id, approve_by=moderator)
@@ -1195,10 +1152,8 @@ def test_response_rate(db, moderator):
         refresh_materialized_view(session, "user_response_rates")
 
     # deleted: not found
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that user."):
         requests_api.get_response_rate(token=token1, user_id=user3.id)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == "Couldn't find that user."
 
     # no requests: insufficient
     res = requests_api.get_response_rate(token=token1, user_id=user2.id)
@@ -1529,10 +1484,8 @@ def test_host_req_feedback(db, moderator):
     assert res.need_host_request_feedback
 
     # surfer can't leave feedback
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that host request."):
         requests_api.send_host_request_feedback(token=surfer_token, host_request_id=hr_id)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == "Couldn't find that host request."
 
     requests_api.send_host_request_feedback(
         token=host_token, host_request_id=hr_id, host_request_quality=requests_pb2.HOST_REQUEST_QUALITY_LOW
@@ -1541,10 +1494,8 @@ def test_host_req_feedback(db, moderator):
     assert not res.need_host_request_feedback
 
     # can't leave it twice
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You have already left feedback for this host request!"):
         requests_api.send_host_request_feedback(token=host_token, host_request_id=hr_id)
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-    assert e.value.details() == "You have already left feedback for this host request!"
 
     res = requests_api.get_host_request(token=host_token, host_request_id=hr_id)
     assert not res.need_host_request_feedback
@@ -1553,10 +1504,8 @@ def test_host_req_feedback(db, moderator):
         token=host2_token, host_request_id=hr2_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
     )
     # can't leave feedback on the wrong one
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that host request."):
         requests_api.send_host_request_feedback(token=host2_token, host_request_id=hr_id)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == "Couldn't find that host request."
 
     # null feedback is still feedback
     requests_api.send_host_request_feedback(token=host2_token, host_request_id=hr2_id)
@@ -1679,10 +1628,11 @@ def test_public_trip_offer_min_length(db):
             public_trip_id=trip_id,
         )
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(
+        grpc.StatusCode.INVALID_ARGUMENT,
+        "Your offer to host cannot be shorter than 100 characters.",
+    ):
         offer("a" * (PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16 - 1))
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "Your offer to host cannot be shorter than 100 characters."
 
     # Shorter than a regular host request, but long enough for an offer
     offer("a" * PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16)
@@ -1759,7 +1709,7 @@ def test_create_request_with_public_trip_dates_out_of_range(db):
     trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
 
     # from_date before trip starts
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
         requests_api.create_host_request(
             token=host_token,
             host_user_id=surfer.id,
@@ -1767,10 +1717,9 @@ def test_create_request_with_public_trip_dates_out_of_range(db):
             to_date=trip_from + timedelta(days=1),
             public_trip_id=trip_id,
         )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
     # to_date after trip ends
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
         requests_api.create_host_request(
             token=host_token,
             host_user_id=surfer.id,
@@ -1778,7 +1727,6 @@ def test_create_request_with_public_trip_dates_out_of_range(db):
             to_date=trip_to + timedelta(days=1),
             public_trip_id=trip_id,
         )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_create_request_with_public_trip_user_mismatch(db):
@@ -1791,7 +1739,7 @@ def test_create_request_with_public_trip_user_mismatch(db):
     trip_to = today() + timedelta(days=20)
     trip_id = _create_public_trip(trip_owner.id, trip_from, trip_to)
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
         requests_api.create_host_request(
             token=host_token,
             host_user_id=other_user.id,  # not the trip owner
@@ -1799,7 +1747,6 @@ def test_create_request_with_public_trip_user_mismatch(db):
             to_date=trip_to - timedelta(days=1),
             public_trip_id=trip_id,
         )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_create_request_with_closed_public_trip(db):
@@ -1811,7 +1758,7 @@ def test_create_request_with_closed_public_trip(db):
     trip_to = today() + timedelta(days=20)
     trip_id = _create_public_trip(surfer.id, trip_from, trip_to, status=PublicTripStatus.closed)
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
         requests_api.create_host_request(
             token=host_token,
             host_user_id=surfer.id,
@@ -1819,7 +1766,6 @@ def test_create_request_with_closed_public_trip(db):
             to_date=trip_to - timedelta(days=1),
             public_trip_id=trip_id,
         )
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
 def test_create_request_with_nonexistent_public_trip(db):
@@ -1827,9 +1773,8 @@ def test_create_request_with_nonexistent_public_trip(db):
     surfer, _ = generate_user()
     host, host_token = generate_user()
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
         requests_api.create_host_request(token=host_token, host_user_id=surfer.id, public_trip_id=999999)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_create_request_with_shadowed_public_trip(db, moderator):
@@ -1841,7 +1786,7 @@ def test_create_request_with_shadowed_public_trip(db, moderator):
     trip_to = today() + timedelta(days=20)
     trip_id = _create_public_trip(surfer.id, trip_from, trip_to, visibility=ModerationVisibility.shadowed)
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that public trip."):
         requests_api.create_host_request(
             token=host_token,
             host_user_id=surfer.id,
@@ -1849,8 +1794,6 @@ def test_create_request_with_shadowed_public_trip(db, moderator):
             to_date=trip_to - timedelta(days=1),
             public_trip_id=trip_id,
         )
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == "Couldn't find that public trip."
 
     moderator.approve_public_trip(trip_id)
 
@@ -1872,7 +1815,7 @@ def test_create_request_with_hidden_public_trip(db):
     trip_to = today() + timedelta(days=20)
     trip_id = _create_public_trip(surfer.id, trip_from, trip_to, visibility=ModerationVisibility.hidden)
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that public trip."):
         requests_api.create_host_request(
             token=host_token,
             host_user_id=surfer.id,
@@ -1880,8 +1823,6 @@ def test_create_request_with_hidden_public_trip(db):
             to_date=trip_to - timedelta(days=1),
             public_trip_id=trip_id,
         )
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == "Couldn't find that public trip."
 
 
 def test_create_request_without_public_trip_id_unchanged(db, moderator):
@@ -1903,11 +1844,10 @@ def test_create_request_same_gender_only_wrong_gender_rejected(db):
     trip_to = today() + timedelta(days=20)
     trip_id = _create_public_trip(surfer.id, trip_from, trip_to, same_gender_only=True)
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
         requests_api.create_host_request(
             token=host_token, host_user_id=surfer.id, from_date=trip_from, to_date=trip_to, public_trip_id=trip_id
         )
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
 def test_create_request_same_gender_only_same_gender_allowed(db, moderator):
@@ -1983,11 +1923,10 @@ def test_create_request_duplicate_offer_rejected(db):
     requests_api.create_host_request(
         token=host_token, host_user_id=surfer.id, from_date=trip_from, to_date=trip_to, public_trip_id=trip_id
     )
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
         requests_api.create_host_request(
             token=host_token, host_user_id=surfer.id, from_date=trip_from, to_date=trip_to, public_trip_id=trip_id
         )
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
 def test_create_request_offer_allowed_after_withdrawal(db, moderator):
@@ -2023,11 +1962,10 @@ def test_create_request_offer_allowed_after_withdrawal(db, moderator):
     assert second_request_id != request_id
 
     # ...but that new offer is active, so a third is still blocked
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
         requests_api.create_host_request(
             token=host_token, host_user_id=surfer.id, from_date=trip_from, to_date=trip_to, public_trip_id=trip_id
         )
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
 def test_no_feedback_for_declined_public_trip_offer(db, moderator):
@@ -2054,11 +1992,10 @@ def test_no_feedback_for_declined_public_trip_offer(db, moderator):
     res = requests_api.get_host_request(token=surfer_token, host_request_id=request_id)
     assert not res.need_host_request_feedback
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
         requests_api.send_host_request_feedback(
             token=surfer_token, host_request_id=request_id, host_request_quality=requests_pb2.HOST_REQUEST_QUALITY_LOW
         )
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
     res = requests_api.get_host_request(token=host_token, host_request_id=request_id)
     assert not res.need_host_request_feedback
@@ -2204,11 +2141,10 @@ def test_create_request_offer_blocked_after_traveller_declines(db, moderator):
         token=surfer_token, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
     )
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
         requests_api.create_host_request(
             token=host_token, host_user_id=surfer.id, from_date=trip_from, to_date=trip_to, public_trip_id=trip_id
         )
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
 def _create_accepted_request(surfer_token: str, host_token: str, host_id: int, moderator, days_ahead: int = 2) -> int:
@@ -2353,6 +2289,5 @@ def test_ListStays_hides_blocked_users(db, moderator):
 def test_ListStays_requires_role(db):
     _, token = generate_user()
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
         requests_api.list_stays(token=token, role=requests_pb2.STAY_ROLE_UNSPECIFIED)
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT

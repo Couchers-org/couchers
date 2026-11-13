@@ -2,7 +2,6 @@ import string
 import textwrap
 
 import grpc
-import pytest
 from sqlalchemy import select
 
 from couchers.db import session_scope
@@ -23,6 +22,7 @@ from couchers.utils import now
 from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import Moderator
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import discussions_session, real_moderation_session, threads_session
 from tests.test_communities import create_community
 
@@ -87,40 +87,28 @@ def test_threads_errors(db):
     user1, token1 = generate_user()
     with threads_session(token1) as api:
         # request non-existing comment
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Discussion thread not found."):
             api.GetThread(threads_pb2.GetThreadReq(thread_id=11))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Discussion thread not found."
 
         # request non-existing depth digit
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Discussion thread not found."):
             api.GetThread(threads_pb2.GetThreadReq(thread_id=19))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Discussion thread not found."
 
         # post on non-existing comment
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Discussion thread not found."):
             api.PostReply(threads_pb2.PostReplyReq(thread_id=11, content="foo"))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Discussion thread not found."
 
         # post on non-existing depth
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Discussion thread not found."):
             api.PostReply(threads_pb2.PostReplyReq(thread_id=19, content="foo"))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Discussion thread not found."
 
         # post empty content
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "You cannot post an empty comment."):
             api.PostReply(threads_pb2.PostReplyReq(thread_id=19, content=""))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "You cannot post an empty comment."
 
         # post whitespace only content
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "You cannot post an empty comment."):
             api.PostReply(threads_pb2.PostReplyReq(thread_id=19, content="    "))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "You cannot post an empty comment."
 
 
 def pagination_test(api, parent_id):
@@ -565,9 +553,8 @@ def test_post_reply_incomplete_profile_blocked_on_event_comment(db):
     event_thread_id = _create_event_and_get_thread_id(organizer, organizer_token)
 
     with threads_session(commenter_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
             api.PostReply(threads_pb2.PostReplyReq(thread_id=event_thread_id, content="hello"))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
 def test_post_reply_incomplete_profile_blocked_on_event_reply(db):
@@ -584,9 +571,8 @@ def test_post_reply_incomplete_profile_blocked_on_event_reply(db):
         ).thread_id
 
     with threads_session(replier_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
             api.PostReply(threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="a reply"))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
 def test_post_reply_complete_profile_allowed_on_event_comment(db):
@@ -622,9 +608,8 @@ def test_post_reply_incomplete_profile_blocked_on_discussion_thread(db):
         discussion_thread_id = discussion.thread.thread_id
 
     with threads_session(commenter_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
             api.PostReply(threads_pb2.PostReplyReq(thread_id=discussion_thread_id, content="hello"))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
 def test_edit_comment_multiple_edits_creates_multiple_version_records(db):

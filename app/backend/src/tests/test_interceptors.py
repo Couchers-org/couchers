@@ -49,6 +49,7 @@ from couchers.servicers.account import Account
 from couchers.servicers.api import API
 from couchers.utils import generate_sofa_cookie, now, parse_sofa_cookie
 from tests.fixtures.db import generate_user
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import real_admin_session
 
 
@@ -160,10 +161,8 @@ def test_logging_interceptor_all_ignored():
             context.abort(status_code, message)  # noqa: B023
 
         with interceptor_dummy_api(TestRpc, interceptors=[ErrorSanitizationInterceptor()]) as call_rpc:
-            with pytest.raises(grpc.RpcError) as e:
+            with expect_rpc_error(status_code, message):
                 call_rpc(empty_pb2.Empty())
-            assert e.value.code() == status_code
-            assert e.value.details() == message
 
 
 def test_logging_interceptor_assertion():
@@ -171,10 +170,11 @@ def test_logging_interceptor_assertion():
         raise AssertionError()
 
     with interceptor_dummy_api(TestRpc, interceptors=[ErrorSanitizationInterceptor()]) as call_rpc:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.INTERNAL,
+            "An unknown backend error occurred. Please consider filing a bug!",
+        ):
             call_rpc(empty_pb2.Empty())
-        assert e.value.code() == grpc.StatusCode.INTERNAL
-        assert e.value.details() == "An unknown backend error occurred. Please consider filing a bug!"
 
 
 def test_logging_interceptor_div0():
@@ -182,10 +182,11 @@ def test_logging_interceptor_div0():
         1 / 0  # noqa: B018
 
     with interceptor_dummy_api(TestRpc, interceptors=[ErrorSanitizationInterceptor()]) as call_rpc:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.INTERNAL,
+            "An unknown backend error occurred. Please consider filing a bug!",
+        ):
             call_rpc(empty_pb2.Empty())
-        assert e.value.code() == grpc.StatusCode.INTERNAL
-        assert e.value.details() == "An unknown backend error occurred. Please consider filing a bug!"
 
 
 def test_logging_interceptor_raise():
@@ -193,10 +194,11 @@ def test_logging_interceptor_raise():
         raise Exception()
 
     with interceptor_dummy_api(TestRpc, interceptors=[ErrorSanitizationInterceptor()]) as call_rpc:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.INTERNAL,
+            "An unknown backend error occurred. Please consider filing a bug!",
+        ):
             call_rpc(empty_pb2.Empty())
-        assert e.value.code() == grpc.StatusCode.INTERNAL
-        assert e.value.details() == "An unknown backend error occurred. Please consider filing a bug!"
 
 
 def test_logging_interceptor_raise_custom():
@@ -207,10 +209,11 @@ def test_logging_interceptor_raise_custom():
         raise _TestingException("This is a custom exception")
 
     with interceptor_dummy_api(TestRpc, interceptors=[ErrorSanitizationInterceptor()]) as call_rpc:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.INTERNAL,
+            "An unknown backend error occurred. Please consider filing a bug!",
+        ):
             call_rpc(empty_pb2.Empty())
-        assert e.value.code() == grpc.StatusCode.INTERNAL
-        assert e.value.details() == "An unknown backend error occurred. Please consider filing a bug!"
 
 
 def test_tracing_interceptor_ok_open(db):
@@ -482,10 +485,8 @@ def test_setup_phase_exception_observed(db):
         patch("couchers.middleware.interceptors.sentry_sdk") as mock_sentry,
         interceptor_dummy_api(TestRpc, interceptors=[CouchersMiddlewareInterceptor()]) as call_rpc,
     ):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INTERNAL, UNKNOWN_ERROR_MESSAGE):
             call_rpc(empty_pb2.Empty())
-        assert e.value.code() == grpc.StatusCode.INTERNAL
-        assert e.value.details() == UNKNOWN_ERROR_MESSAGE
         mock_sentry.capture_exception.assert_called_once()
 
     assert _get_setup_errors_value(method, "ValueError") == val + 1
@@ -564,10 +565,8 @@ def test_auth_interceptor(db):
 
     # no creds, no-go for secure APIs
     with interceptor_dummy_api(**rpc_def, creds=grpc.local_channel_credentials()) as call_rpc:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized"):
             call_rpc(empty_pb2.Empty())
-        assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
-        assert e.value.details() == "Unauthorized"
 
     # can auth with cookie
     with interceptor_dummy_api(**rpc_def, creds=grpc.local_channel_credentials()) as call_rpc:
@@ -580,10 +579,8 @@ def test_auth_interceptor(db):
 
     # can't auth with a wrong cookie
     with interceptor_dummy_api(**rpc_def, creds=grpc.local_channel_credentials()) as call_rpc:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized"):
             call_rpc(empty_pb2.Empty(), metadata=(cookie_auth(random_hex(32)),))
-        assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
-        assert e.value.details() == "Unauthorized"
 
     # can auth with an api key
     with interceptor_dummy_api(**rpc_def, creds=grpc.local_channel_credentials()) as call_rpc:
@@ -596,10 +593,8 @@ def test_auth_interceptor(db):
 
     # can't auth with a wrong api key
     with interceptor_dummy_api(**rpc_def, creds=grpc.local_channel_credentials()) as call_rpc:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized"):
             call_rpc(empty_pb2.Empty(), metadata=(api_auth(random_hex(32)),))
-        assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
-        assert e.value.details() == "Unauthorized"
 
     # can auth with grpc helper (they do the same as above)
     comp_creds = grpc.composite_channel_credentials(
@@ -611,24 +606,18 @@ def test_auth_interceptor(db):
 
     # can't auth with both
     with interceptor_dummy_api(**rpc_def, creds=grpc.local_channel_credentials()) as call_rpc:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.UNAUTHENTICATED, 'Both "cookie" and "authorization" in request'):
             call_rpc(empty_pb2.Empty(), metadata=(cookie_auth(token), api_auth(api_key)))
-        assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
-        assert e.value.details() == 'Both "cookie" and "authorization" in request'
 
     # malformed bearer
     with interceptor_dummy_api(**rpc_def, creds=grpc.local_channel_credentials()) as call_rpc:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized"):
             call_rpc(empty_pb2.Empty(), metadata=(("authorization", f"bearer {api_key}"),))
-        assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
-        assert e.value.details() == "Unauthorized"
 
     # Invisible (deleted) user
     with interceptor_dummy_api(**rpc_def, creds=grpc.local_channel_credentials()) as call_rpc:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized"):
             call_rpc(empty_pb2.Empty(), metadata=(cookie_auth(deleted_token),))
-        assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
-        assert e.value.details() == "Unauthorized"
 
     # Invalid (expired) session
     long_ago = now() - timedelta(weeks=100)
@@ -636,20 +625,16 @@ def test_auth_interceptor(db):
         session.execute(update(UserSession).values(last_seen=long_ago).where(UserSession.token == token))
 
     with interceptor_dummy_api(**rpc_def, creds=grpc.local_channel_credentials()) as call_rpc:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized"):
             call_rpc(empty_pb2.Empty(), metadata=(cookie_auth(token),))
-        assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
-        assert e.value.details() == "Unauthorized"
 
     # API key token, but session is for session cookie (probably impossible, but...)
     with session_scope() as session:
         session.execute(update(UserSession).values(last_seen=now(), is_api_key=True).where(UserSession.token == token))
 
     with interceptor_dummy_api(**rpc_def, creds=grpc.local_channel_credentials()) as call_rpc:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized"):
             call_rpc(empty_pb2.Empty(), metadata=(cookie_auth(token),))
-        assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
-        assert e.value.details() == "Unauthorized"
 
     # Check that metadata are updated
     six_minutes_ago = now() - timedelta(minutes=6)
@@ -858,28 +843,22 @@ def test_auth_levels(db):
             if should_work:
                 call_rpc(empty_pb2.Empty(), metadata=metadata)
             else:
-                with pytest.raises(grpc.RpcError) as err:
+                with expect_rpc_error(code, message):
                     call_rpc(empty_pb2.Empty(), metadata=metadata)
-                assert err.value.code() == code
-                assert err.value.details() == message
 
     # a non-existent RPC
     nonexistent = gen_args("org.couchers.nonexistent.NA", "GetNothing")
 
     with interceptor_dummy_api(**nonexistent) as call_rpc:
-        with pytest.raises(grpc.RpcError) as err:
+        with expect_rpc_error(grpc.StatusCode.UNIMPLEMENTED, "API call does not exist. Please refresh and try again."):
             call_rpc(empty_pb2.Empty())
-        assert err.value.code() == grpc.StatusCode.UNIMPLEMENTED
-        assert err.value.details() == "API call does not exist. Please refresh and try again."
 
     # an RPC without a service level
     invalid_args = gen_args("org.couchers.media.Media", "UploadConfirmation")
 
     with interceptor_dummy_api(**invalid_args) as call_rpc:
-        with pytest.raises(grpc.RpcError) as err:
+        with expect_rpc_error(grpc.StatusCode.INTERNAL, "Internal authentication error."):
             call_rpc(empty_pb2.Empty())
-        assert err.value.code() == grpc.StatusCode.INTERNAL
-        assert err.value.details() == "Internal authentication error."
 
 
 def test_rejected_call_logged_unauthenticated(db):
@@ -896,9 +875,8 @@ def test_rejected_call_logged_unauthenticated(db):
         service_name="org.couchers.api.account.Account",
         method_name="GetAccountInfo",
     ) as call_rpc:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.UNAUTHENTICATED):
             call_rpc(empty_pb2.Empty())
-        assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
 
     with session_scope() as session:
         trace = session.execute(select(APICall)).scalar_one()
@@ -931,9 +909,8 @@ def test_rejected_call_logged_permission_denied(db):
         service_name="org.couchers.admin.Admin",
         method_name="GetUserDetails",
     ) as call_rpc:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED):
             call_rpc(empty_pb2.Empty(), metadata=(cookie_auth(token), ("x-couchers-client-platform", "web_mobile")))
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
     with session_scope() as session:
         trace = session.execute(select(APICall)).scalar_one()
@@ -969,10 +946,8 @@ def test_rejected_call_logged_service_missing_from_pool(db):
         service_name="org.couchers.nonexistent.NA",
         method_name="GetNothing",
     ) as call_rpc:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.UNIMPLEMENTED, NONEXISTENT_API_CALL_ERROR_MESSAGE):
             call_rpc(empty_pb2.Empty(), metadata=(("x-couchers-real-ip", "1.1.1.1"),))
-        assert e.value.code() == grpc.StatusCode.UNIMPLEMENTED
-        assert e.value.details() == NONEXISTENT_API_CALL_ERROR_MESSAGE
 
     with session_scope() as session:
         trace = session.execute(select(APICall)).scalar_one()
@@ -1007,10 +982,8 @@ def test_rejected_call_logged_unregistered_method(db):
         interceptors=[CouchersMiddlewareInterceptor()],
         call_method_name="NotRegistered",
     ) as call_rpc:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.UNIMPLEMENTED, NONEXISTENT_API_CALL_ERROR_MESSAGE):
             call_rpc(empty_pb2.Empty(), metadata=(("x-couchers-real-ip", "1.1.1.1"),))
-        assert e.value.code() == grpc.StatusCode.UNIMPLEMENTED
-        assert e.value.details() == NONEXISTENT_API_CALL_ERROR_MESSAGE
 
     with session_scope() as session:
         trace = session.execute(select(APICall)).scalar_one()
@@ -1035,10 +1008,8 @@ def test_rejected_call_logged_missing_auth_level(db):
         service_name="org.couchers.media.Media",
         method_name="UploadConfirmation",
     ) as call_rpc:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INTERNAL, MISSING_AUTH_LEVEL_ERROR_MESSAGE):
             call_rpc(empty_pb2.Empty())
-        assert e.value.code() == grpc.StatusCode.INTERNAL
-        assert e.value.details() == MISSING_AUTH_LEVEL_ERROR_MESSAGE
 
     with session_scope() as session:
         trace = session.execute(select(APICall)).scalar_one()
@@ -1053,10 +1024,8 @@ def test_rejected_call_logged_bad_headers(db):
         return empty_pb2.Empty()
 
     with interceptor_dummy_api(TestRpc, interceptors=[CouchersMiddlewareInterceptor()]) as call_rpc:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.UNAUTHENTICATED, COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE):
             call_rpc(empty_pb2.Empty(), metadata=(cookie_auth(token), api_auth(token)))
-        assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
-        assert e.value.details() == COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE
 
     with session_scope() as session:
         trace = session.execute(select(APICall)).scalar_one()
