@@ -1229,8 +1229,12 @@ class StayProposalReceivedEmail(EmailBase):
             },
         )
         builder.quote(self.text, markdown=False)
-        builder.action(self.view_link, f"stays.generic.{self.proposal_type}.view_action")
-        builder.action(self.quick_decline_link, "stays.generic.quick_decline_action")
+        builder.action_pair(
+            primary_url=self.view_link,
+            primary_text_key=f"stays.generic.{self.proposal_type}.view_action",
+            secondary_url=self.quick_decline_link,
+            secondary_text_key="stays.generic.quick_decline_action",
+        )
         builder.para(".respond_encouragement")
         builder.para(_do_not_reply_request_string_key, epilogue=True)
         return builder.build()
@@ -1292,8 +1296,12 @@ class StayProposalReminderEmail(EmailBase):
                 "to_date": _localize_stay_date(self.to_date, loc_context),
             },
         )
-        builder.action(self.view_link, f"stays.generic.{self.proposal_type}.view_action")
-        builder.action(self.quick_decline_link, "stays.generic.quick_decline_action")
+        builder.action_pair(
+            primary_url=self.view_link,
+            primary_text_key=f"stays.generic.{self.proposal_type}.view_action",
+            secondary_url=self.quick_decline_link,
+            secondary_text_key="stays.generic.quick_decline_action",
+        )
         builder.para(_do_not_reply_request_string_key, epilogue=True)
         return builder.build()
 
