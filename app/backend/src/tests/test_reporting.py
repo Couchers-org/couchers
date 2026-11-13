@@ -1,11 +1,11 @@
 import grpc
-import pytest
 from sqlalchemy import select
 
 from couchers.db import session_scope
 from couchers.models import ContentReport
 from couchers.proto import reporting_pb2
 from tests.fixtures.db import generate_user
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import reporting_session
 
 
@@ -41,7 +41,7 @@ def test_reporting(db):
     # Test that reporting nonexisting user fails
 
     with reporting_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that user."):
             api.Report(
                 reporting_pb2.ReportReq(
                     reason="spam",
@@ -52,5 +52,3 @@ def test_reporting(db):
                     page="https://couchers.org/comment/123",
                 )
             )
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == "Couldn't find that user."

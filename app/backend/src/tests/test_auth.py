@@ -32,6 +32,7 @@ from couchers.servicers.auth import create_session
 from couchers.utils import now
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import EmailCollector, PushCollector
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
     MetadataKeeperInterceptor,
     _MockCouchersContext,
@@ -449,9 +450,10 @@ def test_login_part_signed_up_verified_email(db):
 
     with EmailCollector() as email_collector:
         with auth_api_session() as (auth_api, metadata_interceptor):
-            with pytest.raises(grpc.RpcError) as err:
+            with expect_rpc_error(
+                grpc.StatusCode.FAILED_PRECONDITION, "Please check your email for a link to continue signing up."
+            ):
                 auth_api.Authenticate(auth_pb2.AuthReq(user="email@couchers.org.invalid", password="wrong pwd"))
-            assert err.value.details() == "Please check your email for a link to continue signing up."
 
         email = email_collector.pop_for_recipient("email@couchers.org.invalid", last=True)
         assert email.recipient == "email@couchers.org.invalid"
@@ -484,9 +486,10 @@ def test_login_part_signed_up_not_verified_email(db):
 
     with EmailCollector() as email_collector:
         with auth_api_session() as (auth_api, metadata_interceptor):
-            with pytest.raises(grpc.RpcError) as err:
+            with expect_rpc_error(
+                grpc.StatusCode.FAILED_PRECONDITION, "Please check your email for a link to continue signing up."
+            ):
                 auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="wrong pwd"))
-            assert err.value.details() == "Please check your email for a link to continue signing up."
 
         with session_scope() as session:
             flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
@@ -506,10 +509,8 @@ def test_banned_user(db):
         session.execute(select(User)).scalar_one().banned_at = now()
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "Your account is suspended."):
             auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="a very insecure password"))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "Your account is suspended."
 
     with session_scope() as session:
         access = session.execute(select(NonvisibleUserAccess)).scalar_one()
@@ -543,10 +544,8 @@ def test_deleted_user(db):
         session.execute(update(User).where(User.id == user_id).values(deleted_at=func.now()))
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "An account with that username or email was not found."):
             auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="a very insecure password"))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "An account with that username or email was not found."
 
 
 def test_invalid_token(db):
@@ -555,11 +554,8 @@ def test_invalid_token(db):
 
     wrong_token = random_hex(32)
 
-    with real_api_session(wrong_token) as api, pytest.raises(grpc.RpcError) as e:
+    with real_api_session(wrong_token) as api, expect_rpc_error(grpc.StatusCode.UNAUTHENTICATED, "Unauthorized"):
         res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
-
-    assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
-    assert e.value.details() == "Unauthorized"
 
 
 def test_password_reset_v2(db, email_collector: EmailCollector, push_collector: PushCollector):
@@ -590,12 +586,13 @@ def test_password_reset_v2(db, email_collector: EmailCollector, push_collector: 
 
     # make sure bad password are caught
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as err:
+        with expect_rpc_error(
+            grpc.StatusCode.INVALID_ARGUMENT,
+            "The password is insecure. Please use one that is not easily guessable.",
+        ):
             auth_api.CompletePasswordResetV2(
                 auth_pb2.CompletePasswordResetV2Req(password_reset_token=password_reset_token, new_password="password")
             )
-        assert err.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert err.value.details() == "The password is insecure. Please use one that is not easily guessable."
 
     # make sure we can set a good password
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -622,14 +619,12 @@ def test_password_reset_v2(db, email_collector: EmailCollector, push_collector: 
 
     # make sure we can't set a password again
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as err:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Invalid token."):
             auth_api.CompletePasswordResetV2(
                 auth_pb2.CompletePasswordResetV2Req(
                     password_reset_token=password_reset_token, new_password=random_hex()
                 )
             )
-        assert err.value.code() == grpc.StatusCode.NOT_FOUND
-        assert err.value.details() == "Invalid token."
 
     with session_scope() as session:
         user = session.execute(select(User)).scalar_one()
@@ -661,10 +656,11 @@ def test_password_reset_invalid_token_v2(db):
             )
         )
 
-    with auth_api_session() as (auth_api, metadata_interceptor), pytest.raises(grpc.RpcError) as e:
+    with (
+        auth_api_session() as (auth_api, metadata_interceptor),
+        expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Invalid token."),
+    ):
         res = auth_api.CompletePasswordResetV2(auth_pb2.CompletePasswordResetV2Req(password_reset_token="wrongtoken"))
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == "Invalid token."
 
     with session_scope() as session:
         user = session.execute(select(User)).scalar_one()
@@ -695,7 +691,7 @@ def test_logout_invalid_token(db):
 
 def test_signup_without_password(db):
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The password must be 8 or more characters long."):
             auth_api.SignupFlow(
                 auth_pb2.SignupFlowReq(
                     basic=auth_pb2.SignupBasic(name="Räksmörgås", email="a1@b.com"),
@@ -714,13 +710,11 @@ def test_signup_without_password(db):
                     feedback=auth_pb2.ContributorForm(),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "The password must be 8 or more characters long."
 
 
 def test_signup_invalid_birthdate(db):
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You must be at least 18 years old to sign up."):
             auth_api.SignupFlow(
                 auth_pb2.SignupFlowReq(
                     basic=auth_pb2.SignupBasic(name="Räksmörgås", email="a1@b.com"),
@@ -739,8 +733,6 @@ def test_signup_invalid_birthdate(db):
                     feedback=auth_pb2.ContributorForm(),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You must be at least 18 years old to sign up."
 
         res = auth_api.SignupFlow(
             auth_pb2.SignupFlowReq(
@@ -763,7 +755,7 @@ def test_signup_invalid_birthdate(db):
 
         assert res.flow_token
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You must be at least 18 years old to sign up."):
             auth_api.SignupFlow(
                 auth_pb2.SignupFlowReq(
                     basic=auth_pb2.SignupBasic(name="Franklin", email="a3@b.com"),
@@ -782,8 +774,6 @@ def test_signup_invalid_birthdate(db):
                     feedback=auth_pb2.ContributorForm(),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You must be at least 18 years old to sign up."
 
         with session_scope() as session:
             assert session.execute(select(func.count()).select_from(SignupFlow)).scalar_one() == 1
@@ -791,28 +781,20 @@ def test_signup_invalid_birthdate(db):
 
 def test_signup_invalid_email(db):
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid email."):
             reply = auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email="a")))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Invalid email."
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid email."):
             reply = auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email="a@b")))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Invalid email."
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid email."):
             reply = auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email="a@b.")))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Invalid email."
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid email."):
             reply = auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email="a@b.c")))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Invalid email."
 
 
 def test_signup_existing_email(db):
@@ -820,10 +802,11 @@ def test_signup_existing_email(db):
     user, _ = generate_user()
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION,
+            "That email address is already associated with an account. Please log in instead!",
+        ):
             auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email=user.email)))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "That email address is already associated with an account. Please log in instead!"
 
 
 def test_signup_banned_user_email(db):
@@ -833,10 +816,8 @@ def test_signup_banned_user_email(db):
         session.execute(update(User).where(User.id == user.id).values(banned_at=func.now()))
 
     with auth_api_session() as (auth_api, _):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You cannot sign up with that email address."):
             auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="NewName", email=user.email)))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You cannot sign up with that email address."
 
 
 def test_signup_deleted_user_email(db):
@@ -873,10 +854,8 @@ def test_signup_deleted_banned_user_email(db):
         session.execute(update(User).where(User.id == user.id).values(deleted_at=func.now(), banned_at=func.now()))
 
     with auth_api_session() as (auth_api, _):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You cannot sign up with that email address."):
             auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="NewName", email=user.email)))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You cannot sign up with that email address."
 
 
 def test_signup_shadowed_user_email(db):
@@ -886,10 +865,11 @@ def test_signup_shadowed_user_email(db):
         session.execute(update(User).where(User.id == user.id).values(shadowed_at=func.now()))
 
     with auth_api_session() as (auth_api, _):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION,
+            "That email address is already associated with an account. Please log in instead!",
+        ):
             auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="NewName", email=user.email)))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "That email address is already associated with an account. Please log in instead!"
 
 
 def test_recover_account_email_reused(db):
@@ -905,13 +885,11 @@ def test_recover_account_email_reused(db):
     generate_user(email=user.email)
 
     with auth_api_session() as (auth_api, _):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION,
+            "This account can't be recovered because its email address is now used by another account.",
+        ):
             auth_api.RecoverAccount(auth_pb2.RecoverAccountReq(token="token"))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert (
-            e.value.details()
-            == "This account can't be recovered because its email address is now used by another account."
-        )
 
     with session_scope() as session:
         assert session.execute(select(User.deleted_at).where(User.id == user.id)).scalar_one() is not None
@@ -926,12 +904,13 @@ def test_signup_continue_with_email(db):
 
     # continue with same email, should just send another email to the user
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION,
+            "Please check your email for a link to continue signing up.",
+        ):
             res = auth_api.SignupFlow(
                 auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email=testing_email))
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "Please check your email for a link to continue signing up."
 
 
 def test_signup_resend_email(db, email_collector: EmailCollector):
@@ -1053,14 +1032,12 @@ def test_signup_change_email(db, email_collector: EmailCollector):
 
     # The old token should no longer be usable.
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             auth_api.SignupFlow(
                 auth_pb2.SignupFlowReq(
                     email_token=old_email_token,
                 )
             )
-
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
     # The new email should receive a verification link containing the new token.
     email = email_collector.pop_for_recipient(new_email, last=True)
@@ -1092,7 +1069,7 @@ def test_signup_change_new_invalid_email(db, invalid_email):
 
     # Try changing to an invalid email.
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid email."):
             auth_api.SignupFlow(
                 auth_pb2.SignupFlowReq(
                     flow_token=flow_token,
@@ -1101,9 +1078,6 @@ def test_signup_change_new_invalid_email(db, invalid_email):
                     ),
                 )
             )
-
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "Invalid email."
 
     # Make sure the original email wasn't changed.
     with session_scope() as session:
@@ -1154,7 +1128,7 @@ def test_signup_change_email_after_email_verified(db):
 
     # Changing the email is no longer allowed.
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You have already verified your email."):
             auth_api.SignupFlow(
                 auth_pb2.SignupFlowReq(
                     flow_token=flow_token,
@@ -1163,8 +1137,6 @@ def test_signup_change_email_after_email_verified(db):
                     ),
                 )
             )
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-    assert e.value.details() == "You have already verified your email."
 
     # Make sure the signup email wasn't changed.
     with session_scope() as session:
@@ -1214,15 +1186,15 @@ def test_signup_change_email_same_email(db, email_collector: EmailCollector):
     email_collector.pop_for_recipient(testing_email, last=True)
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION, "Please check your email for a link to continue signing up."
+        ):
             auth_api.SignupFlow(
                 auth_pb2.SignupFlowReq(
                     flow_token=flow_token,
                     change_email=auth_pb2.ChangeSignupEmail(new_email=testing_email),
                 )
             )
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-    assert e.value.details() == "Please check your email for a link to continue signing up."
 
     # The existing verification link is resent.
     email = email_collector.pop_for_recipient(testing_email, last=True)
@@ -1246,15 +1218,16 @@ def test_signup_change_email_to_existing_user_email(db):
     flow_token = _start_signup_flow(testing_email)
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION,
+            "That email address is already associated with an account. Please log in instead!",
+        ):
             auth_api.SignupFlow(
                 auth_pb2.SignupFlowReq(
                     flow_token=flow_token,
                     change_email=auth_pb2.ChangeSignupEmail(new_email=user.email),
                 )
             )
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-    assert e.value.details() == "That email address is already associated with an account. Please log in instead!"
 
     with session_scope() as session:
         flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
@@ -1274,15 +1247,13 @@ def test_signup_change_email_to_banned_user_email(db, columns):
     flow_token = _start_signup_flow(testing_email)
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You cannot sign up with that email address."):
             auth_api.SignupFlow(
                 auth_pb2.SignupFlowReq(
                     flow_token=flow_token,
                     change_email=auth_pb2.ChangeSignupEmail(new_email=user.email),
                 )
             )
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-    assert e.value.details() == "You cannot sign up with that email address."
 
     with session_scope() as session:
         flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
@@ -1308,15 +1279,15 @@ def test_signup_change_email_to_other_flow_email(db, email_collector: EmailColle
     email_collector.pop_for_recipient(other_email, last=True)
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION, "Please check your email for a link to continue signing up."
+        ):
             auth_api.SignupFlow(
                 auth_pb2.SignupFlowReq(
                     flow_token=flow_token,
                     change_email=auth_pb2.ChangeSignupEmail(new_email=other_email),
                 )
             )
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-    assert e.value.details() == "Please check your email for a link to continue signing up."
 
     # The other signup gets its own link resent, this one is untouched.
     email = email_collector.pop_for_recipient(other_email, last=True)
@@ -1332,14 +1303,12 @@ def test_signup_change_email_to_other_flow_email(db, email_collector: EmailColle
 
 def test_signup_change_email_without_flow_token(db):
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Account details needed to sign up."):
             auth_api.SignupFlow(
                 auth_pb2.SignupFlowReq(
                     change_email=auth_pb2.ChangeSignupEmail(new_email=f"{random_hex(12)}@couchers.org.invalid"),
                 )
             )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "Account details needed to sign up."
 
 
 def test_signup_change_email_and_resend_verification_email(db, email_collector: EmailCollector):
@@ -1350,7 +1319,7 @@ def test_signup_change_email_and_resend_verification_email(db, email_collector: 
     email_collector.pop_for_recipient(testing_email, last=True)
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, _INVALID_SIGNUP_REQUEST):
             auth_api.SignupFlow(
                 auth_pb2.SignupFlowReq(
                     flow_token=flow_token,
@@ -1358,8 +1327,6 @@ def test_signup_change_email_and_resend_verification_email(db, email_collector: 
                     resend_verification_email=True,
                 )
             )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == _INVALID_SIGNUP_REQUEST
 
     assert email_collector.count() == 0
 
@@ -1383,10 +1350,8 @@ def test_signup_email_token_with_other_fields(db, field):
         assert email_token
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, _INVALID_SIGNUP_REQUEST):
             auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token, **{field: _SIGNUP_FLOW_FIELDS[field]}))
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == _INVALID_SIGNUP_REQUEST
 
     # the token wasn't consumed
     with session_scope() as session:
@@ -1405,7 +1370,7 @@ def test_signup_flow_signup_step_with_recovery_step(db, signup_field, recovery_f
     flow_token = _start_signup_flow(testing_email)
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, _INVALID_SIGNUP_REQUEST):
             auth_api.SignupFlow(
                 auth_pb2.SignupFlowReq(
                     flow_token=flow_token,
@@ -1415,8 +1380,6 @@ def test_signup_flow_signup_step_with_recovery_step(db, signup_field, recovery_f
                     },
                 )
             )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == _INVALID_SIGNUP_REQUEST
 
     with session_scope() as session:
         flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
@@ -1537,33 +1500,25 @@ def test_unsuccessful_authenticate(db):
 
     # Invalid password
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Wrong username/email or password."):
             reply = auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password="incorrectpassword"))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Wrong username/email or password."
 
     # Invalid username
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "An account with that username or email was not found."):
             reply = auth_api.Authenticate(auth_pb2.AuthReq(user="notarealusername", password="password"))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "An account with that username or email was not found."
 
     # Invalid email
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "An account with that username or email was not found."):
             reply = auth_api.Authenticate(
                 auth_pb2.AuthReq(user=f"{random_hex(12)}@couchers.org.invalid", password="password")
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "An account with that username or email was not found."
 
     # Invalid id
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "An account with that username or email was not found."):
             reply = auth_api.Authenticate(auth_pb2.AuthReq(user="-1", password="password"))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "An account with that username or email was not found."
 
 
 def test_complete_signup(db):
@@ -1577,7 +1532,7 @@ def test_complete_signup(db):
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         # Invalid username
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid username."):
             auth_api.SignupFlow(
                 auth_pb2.SignupFlowReq(
                     flow_token=flow_token,
@@ -1595,23 +1550,19 @@ def test_complete_signup(db):
                     ),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Invalid username."
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         # Invalid name
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Name not supported."):
             auth_api.SignupFlow(
                 auth_pb2.SignupFlowReq(
                     basic=auth_pb2.SignupBasic(name=" ", email=f"{random_hex(12)}@couchers.org.invalid")
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Name not supported."
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         # Hosting status required
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Hosting status is required."):
             auth_api.SignupFlow(
                 auth_pb2.SignupFlowReq(
                     flow_token=flow_token,
@@ -1629,13 +1580,11 @@ def test_complete_signup(db):
                     ),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Hosting status is required."
 
     user, _ = generate_user()
     with auth_api_session() as (auth_api, metadata_interceptor):
         # Username unavailable
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "Sorry, that username isn't available."):
             auth_api.SignupFlow(
                 auth_pb2.SignupFlowReq(
                     flow_token=flow_token,
@@ -1653,12 +1602,10 @@ def test_complete_signup(db):
                     ),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "Sorry, that username isn't available."
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         # Invalid coordinate
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid coordinate."):
             auth_api.SignupFlow(
                 auth_pb2.SignupFlowReq(
                     flow_token=flow_token,
@@ -1676,8 +1623,6 @@ def test_complete_signup(db):
                     ),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Invalid coordinate."
 
 
 def test_signup_token_regression(db):
@@ -1712,10 +1657,11 @@ def test_signup_token_regression(db):
 
     # 3. Start a new signup with the same email
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION,
+            "Please check your email for a link to continue signing up.",
+        ):
             auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email=testing_email)))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "Please check your email for a link to continue signing up."
 
 
 @pytest.mark.parametrize("opt_out", [True, False])
@@ -1865,7 +1811,7 @@ def test_banned_username(db):
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         # Banned username
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "Sorry, that username isn't available."):
             auth_api.SignupFlow(
                 auth_pb2.SignupFlowReq(
                     flow_token=flow_token,
@@ -1883,8 +1829,6 @@ def test_banned_username(db):
                     ),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "Sorry, that username isn't available."
 
 
 # tests for ConfirmChangeEmail within test_account.py tests for test_ChangeEmail_*
@@ -1926,10 +1870,8 @@ def test_GetInviteCodeInfo_not_found(db):
     generate_user()
 
     with auth_api_session() as (auth, _):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Invite code not found."):
             auth.GetInviteCodeInfo(auth_pb2.GetInviteCodeInfoReq(code="BADCODE"))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Invite code not found."
 
 
 def test_SignupFlow_invite_code(db):
@@ -2104,7 +2046,10 @@ def test_signup_motivations_cannot_be_refilled(db):
 
     # Try to submit motivations again - should fail
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION,
+            "You've already told us about why you are signing up.",
+        ):
             auth_api.SignupFlow(
                 auth_pb2.SignupFlowReq(
                     flow_token=flow_token,
@@ -2114,8 +2059,6 @@ def test_signup_motivations_cannot_be_refilled(db):
                     ),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You've already told us about why you are signing up."
 
 
 def test_signup_motivations_required(db):

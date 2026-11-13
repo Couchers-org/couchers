@@ -6,7 +6,6 @@ from datetime import UTC, date, datetime, time
 from typing import cast
 
 import grpc
-import pytest
 from google.protobuf import empty_pb2
 from sqlalchemy import func, select, update
 
@@ -20,6 +19,7 @@ from couchers.utils import to_aware_datetime
 from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import Moderator
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import _MockCouchersContext
 from tests.fixtures.timewarp import FrozenTimewarp
 from tests.test_communities import create_community
@@ -331,12 +331,11 @@ def test_CreateEvent_recurring_disabled(db, frozen_timewarp: FrozenTimewarp, fea
     user, token = _create_user_in_community()
 
     feature_flags.set("recurring_event_creation_enabled", False)
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.UNAVAILABLE):
         events_api.create_event(
             token=token,
             recurrence=events_api.weekly_recurrence(ends_on_date=date(2000, 6, 30)),
         )
-    assert e.value.code() == grpc.StatusCode.UNAVAILABLE
 
 
 def test_UpdateEvent_all_future_recurring(db, frozen_timewarp: FrozenTimewarp):
@@ -401,9 +400,8 @@ def test_UpdateEvent_stop_recurrence(db, frozen_timewarp: FrozenTimewarp, modera
     schedule_event_occurrences(empty_pb2.Empty())
 
     # Only organizers can stop the recurrence
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED):
         events_api.update_event(token=other_token, event_id=initial_occurrence.event_id, stop_recurrence=True)
-    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
     updated_occurrence = events_api.update_event(
         token=creator_token, event_id=initial_occurrence.event_id, stop_recurrence=True

@@ -27,6 +27,7 @@ from couchers.proto.google.api import httpbody_pb2
 from tests.fixtures.db import generate_user
 from tests.fixtures.feature_flags import FeatureFlags
 from tests.fixtures.misc import PushCollector
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import account_session, api_session, real_admin_session, real_iris_session
 
 
@@ -621,10 +622,8 @@ def test_strong_verification_disabled(db, feature_flags: FeatureFlags):
     user, token = generate_user()
 
     with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.UNAVAILABLE, "Strong verification is currently disabled."):
             account.InitiateStrongVerification(empty_pb2.Empty())
-        assert e.value.code() == grpc.StatusCode.UNAVAILABLE
-        assert e.value.details() == "Strong verification is currently disabled."
 
 
 def test_strong_verification_delete_data_cant_reverify(db, sv_config, push_collector: PushCollector):

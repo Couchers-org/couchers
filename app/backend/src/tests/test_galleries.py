@@ -8,6 +8,7 @@ from couchers.models import PhotoGallery, PhotoGalleryItem, Upload, User
 from couchers.models.uploads import get_avatar_upload, has_avatar_photo_expression
 from couchers.proto import api_pb2, galleries_pb2
 from tests.fixtures.db import generate_user
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import api_session, galleries_session
 
 
@@ -60,20 +61,16 @@ def test_GetGalleryEditInfo_not_owner(db):
     user2, token2 = generate_user(complete_profile=False)
 
     with galleries_session(token2) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You do not have permission to edit this gallery."):
             api.GetGalleryEditInfo(galleries_pb2.GetGalleryEditInfoReq(gallery_id=user1.profile_gallery_id))
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == "You do not have permission to edit this gallery."
 
 
 def test_GetGalleryEditInfo_not_found(db):
     user1, token1 = generate_user(complete_profile=False)
 
     with galleries_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Gallery not found."):
             api.GetGalleryEditInfo(galleries_pb2.GetGalleryEditInfoReq(gallery_id=999999))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Gallery not found."
 
 
 def test_GetGalleryEditInfo_with_photos(db):
@@ -118,10 +115,8 @@ def test_GetGallery_not_found(db):
     user1, token1 = generate_user(complete_profile=False)
 
     with galleries_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Gallery not found."):
             api.GetGallery(galleries_pb2.GetGalleryReq(gallery_id=999999))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Gallery not found."
 
 
 def test_AddPhotoToGallery_success(db):
@@ -197,15 +192,13 @@ def test_AddPhotoToGallery_not_owner(db):
         upload_key = create_upload(session, user2.id)
 
     with galleries_session(token2) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You do not have permission to edit this gallery."):
             api.AddPhotoToGallery(
                 galleries_pb2.AddPhotoToGalleryReq(
                     gallery_id=user1.profile_gallery_id,
                     upload_key=upload_key,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == "You do not have permission to edit this gallery."
 
 
 def test_AddPhotoToGallery_upload_not_owned(db):
@@ -216,15 +209,13 @@ def test_AddPhotoToGallery_upload_not_owned(db):
         upload_key = create_upload(session, user2.id)
 
     with galleries_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Upload not found or you don't own it."):
             api.AddPhotoToGallery(
                 galleries_pb2.AddPhotoToGalleryReq(
                     gallery_id=user1.profile_gallery_id,
                     upload_key=upload_key,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Upload not found or you don't own it."
 
 
 def test_AddPhotoToGallery_max_capacity(db):
@@ -242,15 +233,16 @@ def test_AddPhotoToGallery_max_capacity(db):
                 )
             )
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION,
+            "The gallery is at maximum capacity and cannot accept more photos.",
+        ):
             api.AddPhotoToGallery(
                 galleries_pb2.AddPhotoToGalleryReq(
                     gallery_id=user1.profile_gallery_id,
                     upload_key=keys[5],
                 )
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "The gallery is at maximum capacity and cannot accept more photos."
 
 
 def test_AddPhotoToGallery_duplicate_photo(db):
@@ -267,15 +259,13 @@ def test_AddPhotoToGallery_duplicate_photo(db):
             )
         )
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "This photo is already in the gallery."):
             api.AddPhotoToGallery(
                 galleries_pb2.AddPhotoToGalleryReq(
                     gallery_id=user1.profile_gallery_id,
                     upload_key=upload_key,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "This photo is already in the gallery."
 
 
 def test_AddPhotoToGallery_gallery_not_found(db):
@@ -285,15 +275,13 @@ def test_AddPhotoToGallery_gallery_not_found(db):
         upload_key = create_upload(session, user1.id)
 
     with galleries_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Gallery not found."):
             api.AddPhotoToGallery(
                 galleries_pb2.AddPhotoToGalleryReq(
                     gallery_id=999999,
                     upload_key=upload_key,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Gallery not found."
 
 
 def test_RemovePhotoFromGallery_success(db):
@@ -337,30 +325,26 @@ def test_RemovePhotoFromGallery_not_owner(db):
         item_id = res.photos[0].item_id
 
     with galleries_session(token2) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You do not have permission to edit this gallery."):
             api.RemovePhotoFromGallery(
                 galleries_pb2.RemovePhotoFromGalleryReq(
                     gallery_id=user1.profile_gallery_id,
                     item_id=item_id,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == "You do not have permission to edit this gallery."
 
 
 def test_RemovePhotoFromGallery_item_not_found(db):
     user1, token1 = generate_user(complete_profile=False)
 
     with galleries_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Gallery item not found."):
             api.RemovePhotoFromGallery(
                 galleries_pb2.RemovePhotoFromGalleryReq(
                     gallery_id=user1.profile_gallery_id,
                     item_id=999999,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Gallery item not found."
 
 
 def test_MovePhoto_to_first(db):
@@ -497,7 +481,7 @@ def test_MovePhoto_not_owner(db):
         item_id = res.photos[0].item_id
 
     with galleries_session(token2) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You do not have permission to edit this gallery."):
             api.MovePhoto(
                 galleries_pb2.MovePhotoReq(
                     gallery_id=user1.profile_gallery_id,
@@ -505,15 +489,13 @@ def test_MovePhoto_not_owner(db):
                     after_item_id=0,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == "You do not have permission to edit this gallery."
 
 
 def test_MovePhoto_item_not_found(db):
     user1, token1 = generate_user(complete_profile=False)
 
     with galleries_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Gallery item not found."):
             api.MovePhoto(
                 galleries_pb2.MovePhotoReq(
                     gallery_id=user1.profile_gallery_id,
@@ -521,8 +503,6 @@ def test_MovePhoto_item_not_found(db):
                     after_item_id=0,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Gallery item not found."
 
 
 def test_MovePhoto_after_item_not_found(db):
@@ -537,7 +517,7 @@ def test_MovePhoto_after_item_not_found(db):
         )
         item_id = res.photos[0].item_id
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "The item to place after was not found."):
             api.MovePhoto(
                 galleries_pb2.MovePhotoReq(
                     gallery_id=user1.profile_gallery_id,
@@ -545,8 +525,6 @@ def test_MovePhoto_after_item_not_found(db):
                     after_item_id=999999,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "The item to place after was not found."
 
 
 def test_UpdatePhotoCaption_success(db):
@@ -615,7 +593,7 @@ def test_UpdatePhotoCaption_not_owner(db):
         item_id = res.photos[0].item_id
 
     with galleries_session(token2) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You do not have permission to edit this gallery."):
             api.UpdatePhotoCaption(
                 galleries_pb2.UpdatePhotoCaptionReq(
                     gallery_id=user1.profile_gallery_id,
@@ -623,15 +601,13 @@ def test_UpdatePhotoCaption_not_owner(db):
                     caption="Hacked!",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == "You do not have permission to edit this gallery."
 
 
 def test_UpdatePhotoCaption_item_not_found(db):
     user1, token1 = generate_user(complete_profile=False)
 
     with galleries_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Gallery item not found."):
             api.UpdatePhotoCaption(
                 galleries_pb2.UpdatePhotoCaptionReq(
                     gallery_id=user1.profile_gallery_id,
@@ -639,8 +615,6 @@ def test_UpdatePhotoCaption_item_not_found(db):
                     caption="Test",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Gallery item not found."
 
 
 def test_remove_and_readd_photo(db):
