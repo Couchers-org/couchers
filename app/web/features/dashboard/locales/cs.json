@@ -111,5 +111,20 @@
     "no_upcoming_guests": "Zatím žádní nadcházející hosté.",
     "no_upcoming_trips": "Žádné nadcházející cesty. Připraveni objevovat?"
   },
-  "today_label": "Dnes"
+  "today_label": "Dnes",
+  "celebration_100k": {
+    "banner_message": "Couchers má už 100 tisíc členů!",
+    "banner_read_more_link": "Číst dále",
+    "banner_replay_button": "Přehrát animaci znovu",
+    "help_us_grow_button": "Pomoz nám růst",
+    "dialog_a11y": "Couchers dosáhl 100 000 členů",
+    "close_button_a11y": "Zavřít",
+    "burst_heading": "Je nás {{member_count}}+!",
+    "map_counter_total": "Víc než {{member_count}}",
+    "map_counter_label": "Coucherů a stále nás přibývá",
+    "map_message_everywhere": "Jsme všude.",
+    "map_message_thanks": "Díky, že jsi nám otevřel své dveře.",
+    "map_read_more_link": "Číst dále",
+    "map_a11y": "Mapa členů Couchers po celém světě, na které se shluky členů objevují město po městě a slévají se do regionů"
+  }
 }
