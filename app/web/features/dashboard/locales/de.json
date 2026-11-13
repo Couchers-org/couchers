@@ -1,7 +1,6 @@
 {
   "dashboard": "Dashboard",
   "find_a_host": "Finde einen Host",
-  "browse_communities": "Communitys durchsuchen",
   "search_input_label": "Wo gehst du hin?",
   "search_input_placeholder": "Suche einen Ort",
   "become_a_host": "Werde ein Host",
@@ -9,7 +8,6 @@
   "no_community": "Du befindest dich aktuell in keiner Community.",
   "no_sub_communities": "Keine Sub-Communitys.",
   "load_more": "Mehr laden",
-  "welcome": "Willkommen bei Couchers.org!",
   "new_pill": "Neu",
   "member_count_one": "{{count}} Mitglied",
   "member_count_other": "{{count}} Mitglieder",
@@ -105,7 +103,24 @@
     "same_gender_only_indicator": "Gleiches Geschlecht",
     "invitations_count_one": "{{count}} Einladung",
     "invitations_count_other": "{{count}} Einladungen",
-    "no_invitations": "Noch keine Einladungen"
+    "no_invitations": "Noch keine Einladungen",
+    "community_trips_header": "Öffentliche Trips in deinen Communitys",
+    "community_trips_empty_description": "Gerade sucht niemand in deinen Communitys nach einem Host."
   },
-  "today_label": "Heute"
+  "today_label": "Heute",
+  "celebration_100k": {
+    "banner_message": "Couchers erreicht 100.000 Mitglieder!",
+    "banner_read_more_link": "Mehr erfahren",
+    "banner_replay_button": "Animation erneut abspielen",
+    "help_us_grow_button": "Hilf uns zu wachsen",
+    "dialog_a11y": "Couchers erreicht 100.000 Mitglieder",
+    "close_button_a11y": "Schließen",
+    "burst_heading": "{{member_count}}+ von uns!",
+    "map_counter_total": "{{member_count}}+",
+    "map_counter_label": "Couchers und wachsend",
+    "map_message_everywhere": "Wir sind überall.",
+    "map_message_thanks": "Danke, dass ihr eure Türen geöffnet habt.",
+    "map_read_more_link": "Mehr erfahren",
+    "map_a11y": "Karte der Couchers-Mitglieder weltweit, auf der Mitglieder-Cluster Stadt für Stadt erscheinen und zu Regionen verschmelzen"
+  }
 }

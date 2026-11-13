@@ -2,7 +2,6 @@
   "no_community": "Actualmente no perteneces a ninguna comunidad.",
   "your_communities_heading": "Tus comunidades",
   "load_more": "Cargar más",
-  "welcome": "¡Bienvenido a Couchers.org!",
   "new_pill": "Nuevo",
   "dashboard": "Panel principal",
   "profile_summary_edit": "Editar perfil",
@@ -10,7 +9,6 @@
   "profile_mobile_summary_view": "Ir al perfil",
   "find_a_host": "Buscar anfitrión",
   "no_sub_communities": "Sin sub-comunidades.",
-  "browse_communities": "Explorar las comunidades",
   "community_builder": "¿Quieres ser un embajador para tu comunidad y ayudar a que crezca? !Conviértete en <communityBuilderLink>Creador de comunidades!</communityBuilderLink>",
   "find_your_community": "Encuentra una Comunidad",
   "communities_intro": "Las páginas de la comunidad ayudan a organizar eventos locales y debates. <strong>Siempre estás en las comunidades de tu ubicación, pero puedes <browseCommunitiesLink>unirte a cualquier comunidad.</browseCommunitiesLink></strong>",
@@ -109,7 +107,9 @@
     "invitations_count_one": "{{count}} invitación",
     "invitations_count_many": "{{count}} de invitaciones",
     "invitations_count_other": "{{count}} invitaciones",
-    "no_invitations": "Aún no tienes ninguna invitación"
+    "no_invitations": "Aún no tienes ninguna invitación",
+    "community_trips_header": "Viajes públicos en tus comunidades",
+    "community_trips_empty_description": "Nadie en tus comunidades está buscando un anfitrión en este momento."
   },
   "today_label": "Hoy"
 }

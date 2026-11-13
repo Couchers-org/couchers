@@ -192,7 +192,7 @@
     "thank_you_header": "Grazie per aver lasciato una referenza!",
     "thank_you_references_available": "Quando ospiti o soggiorni,le referenze diventano visibili quando entrambe le persone hanno scritto le rispettive referenze, oppure dopo 2 settimane, a seconda di quale evento si verifichi prima.",
     "thank_you_support": "Soprattutto, grazie per essere su Couchers e far parte della nostra community!",
-    "thank_you_donation_prompt": "Considera di <donateLink>fare una donazione</donateLink>! Couchers.org è un'organizzazione senza scopo di lucro 501(c)(3) e abbiamo bisogno di donazioni per mantenere attivi i nostri server.",
+    "thank_you_donation_prompt": "Prendi in considerazione l'idea di <donateLink>fare una donazione</donateLink>! Couchers, Inc. è un'organizzazione no-profit statunitense 501(c)(3) e abbiamo bisogno di donazioni per mantenere attivi i nostri server.",
     "was_appropriate_required": "Per aiutarci a mantenere sicura la nostra community, questa domanda è obbligatoria.",
     "rating_required": "Per favore, sposta il cursore e valuta la tua esperienza.",
     "rating_negative": "Negativa",
@@ -243,7 +243,8 @@
     "request_chars_remaining_one": "Scrivi almeno {{count}} carattere in più per inviare una richiesta di soggiorno.",
     "request_chars_remaining_many": "Scrivi almeno {{count}} di caratteri in più per inviare una richiesta di soggiorno.",
     "request_chars_remaining_other": "Scrivi almeno {{count}} caratteri in più per inviare una richiesta di soggiorno.",
-    "success": "Richiesta inviata!"
+    "success": "Richiesta inviata!",
+    "departure_date_not_after_arrival": "La data di partenza deve essere successiva alla data di arrivo."
   },
   "message_form": {
     "send_message": "Invia un messaggio a {{name}}",
@@ -344,5 +345,8 @@
     "report_photo": "Segnala foto"
   },
   "local_time_with_time_zone_text": "{{ time }} (<timeZone/>)",
-  "open_profile_a11y": "Apri profilo"
+  "open_profile_a11y": "Apri profilo",
+  "copy_profile_link": {
+    "button_a11y": "Copia link del profilo"
+  }
 }

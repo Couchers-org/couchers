@@ -253,7 +253,11 @@
     "public_trip_offer_too_short_one": "Tu ofreciimiento para hospedar no puede tener menos de {{count}} carácter.",
     "public_trip_offer_too_short_many": "Tu ofreciimiento para hospedar no puede tener menos de {{count}} de caracteres.",
     "public_trip_offer_too_short_other": "Tu ofreciimiento para hospedar no puede tener menos de {{count}} caracteres.",
-    "date_to_not_after_from": "La fecha de finalización debe ser posterior a la fecha de inicio."
+    "date_to_not_after_from": "La fecha de finalización debe ser posterior a la fecha de inicio.",
+    "event_recurrence_ends_before_starts": "Un evento recurrente debe terminar en la misma fecha de su primera repetición o después de ella.",
+    "invalid_event_recurrence_end_date": "Fecha de finalización del evento recurrente no válida.",
+    "invalid_event_recurrence_rule": "Solo se admiten eventos recurrentes semanales y quincenales.",
+    "recurring_event_creation_disabled": "La creación de eventos recurrentes está deshabilitada actualmente."
   },
   "badges": {
     "volunteer_name": "Voluntario en activo",

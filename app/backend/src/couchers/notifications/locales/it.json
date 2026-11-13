@@ -259,76 +259,6 @@
       }
     }
   },
-  "host_request": {
-    "accept": {
-      "event_description": "Qualcuno accetta la tua richiesta di soggiorno",
-      "push": {
-        "title": "{{user}} ha accettato la tua richiesta di soggiorno",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "Richiesta di soggiorno accettata",
-        "body": "{{user}} ha accettato la tua richiesta di soggiorno per il {{date}}."
-      }
-    },
-    "cancel": {
-      "event_description": "Qualcuno annulla la sua richiesta di soggiorno",
-      "push": {
-        "title": "{{user}} ha annullato la sua richiesta di soggiorno",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "Richiesta di soggiorno annullata",
-        "body": "{{user}} ha annullato la sua richiesta di soggiorno per il {{date}}."
-      }
-    },
-    "confirm": {
-      "event_description": "Qualcuno conferma la sua richiesta di soggiorno",
-      "push": {
-        "title": "{{user}} ha confermato la sua richiesta di soggiorno",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "Richiesta di soggiorno confermata",
-        "body": "{{user}} ha confermato la sua richiesta di soggiorno per il {{date}}."
-      }
-    },
-    "create": {
-      "event_description": "Qualcuno ti invia una richiesta di soggiorno",
-      "push": {
-        "title": "Nuova richiesta di soggiorno da {{user}}",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "Nuova richiesta di soggiorno",
-        "body_one": "{{user}} vorrebbe soggiornare dal {{start_date}} per {{count}} notte.",
-        "body_many": "{{user}} vorrebbe soggiornare dal {{start_date}} per {{count}} di notti.",
-        "body_other": "{{user}} vorrebbe soggiornare dal {{start_date}} per {{count}} notti."
-      }
-    },
-    "message": {
-      "event_description": "Qualcuno invia un messaggio in una richiesta di soggiorno"
-    },
-    "missed_messages": {
-      "event_description": "Hai messaggi non letti in una richiesta di soggiorno",
-      "push": {
-        "title": "Nuovi messaggi da {{user}}",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "Messaggi persi",
-        "body": "Hai nuovi messaggi non letti da {{user}}."
-      }
-    },
-    "reject": {
-      "event_description": "Qualcuno rifiuta la tua richiesta di soggiorno",
-      "push": {
-        "title": "{{user}} ha rifiutato la tua richiesta di soggiorno",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "Richiesta di soggiorno rifiutata",
-        "body": "{{user}} ha rifiutato la tua richiesta di soggiorno per il {{date}}."
-      }
-    },
-    "reminder": {
-      "event_description": "Non hai risposto a una richiesta di soggiorno in sospeso",
-      "push": {
-        "title": "Richiesta in sospeso da {{user}}",
-        "ios_title": "Richiesta di soggiorno in attesa",
-        "ios_subtitle": "{{user}}",
-        "body": "{{user}} è in attesa della tua risposta, per favore accetta o rifiuta la richiesta."
-      }
-    }
-  },
   "modnote": {
     "create": {
       "event_description": "Un moderatore ti invia una nota",
@@ -470,6 +400,88 @@
       "event_description": "Promemoria per scrivere una referenza a qualcuno che ti ha ospitato"
     }
   },
+  "stay": {
+    "accept": {
+      "event_description": "Qualcuno accetta la tua richiesta di soggiorno",
+      "request": {
+        "push": {
+          "title": "{{user}} ha accettato la tua richiesta di soggiorno",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Richiesta di soggiorno accettata",
+          "body": "{{user}} ha accettato la tua richiesta di soggiorno per il {{date}}."
+        }
+      }
+    },
+    "cancel": {
+      "event_description": "Qualcuno annulla la sua richiesta di soggiorno",
+      "request": {
+        "push": {
+          "title": "{{user}} ha annullato la sua richiesta di soggiorno",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Richiesta di soggiorno annullata",
+          "body": "{{user}} ha annullato la sua richiesta di soggiorno per il {{date}}."
+        }
+      }
+    },
+    "confirm": {
+      "event_description": "Qualcuno conferma la sua richiesta di soggiorno",
+      "request": {
+        "push": {
+          "title": "{{user}} ha confermato la sua richiesta di soggiorno",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Richiesta di soggiorno confermata",
+          "body": "{{user}} ha confermato la sua richiesta di soggiorno per il {{date}}."
+        }
+      }
+    },
+    "create": {
+      "event_description": "Qualcuno ti invia una richiesta di soggiorno",
+      "request": {
+        "push": {
+          "title": "Nuova richiesta di soggiorno da {{user}}",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Nuova richiesta di soggiorno",
+          "body_one": "{{user}} vorrebbe soggiornare dal {{start_date}} per {{count}} notte.",
+          "body_many": "{{user}} vorrebbe soggiornare dal {{start_date}} per {{count}} di notti.",
+          "body_other": "{{user}} vorrebbe soggiornare dal {{start_date}} per {{count}} notti."
+        }
+      }
+    },
+    "message": {
+      "event_description": "Qualcuno invia un messaggio in una richiesta di soggiorno"
+    },
+    "missed_messages": {
+      "event_description": "Hai messaggi non letti in una richiesta di soggiorno",
+      "push": {
+        "title": "Nuovi messaggi da {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Messaggi persi",
+        "body": "Hai nuovi messaggi non letti da {{user}}."
+      }
+    },
+    "reject": {
+      "event_description": "Qualcuno rifiuta la tua richiesta di soggiorno",
+      "request": {
+        "push": {
+          "title": "{{user}} ha rifiutato la tua richiesta di soggiorno",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Richiesta di soggiorno rifiutata",
+          "body": "{{user}} ha rifiutato la tua richiesta di soggiorno per il {{date}}."
+        }
+      }
+    },
+    "reminder": {
+      "event_description": "Non hai risposto a una richiesta di soggiorno in sospeso",
+      "request": {
+        "push": {
+          "title": "Richiesta in sospeso da {{user}}",
+          "ios_title": "Richiesta di soggiorno in attesa",
+          "ios_subtitle": "{{user}}",
+          "body": "{{user}} è in attesa della tua risposta, per favore accetta o rifiuta la richiesta."
+        }
+      }
+    }
+  },
   "thread": {
     "reply": {
       "event_description": "Qualcuno risponde al tuo commento",
@@ -486,7 +498,7 @@
       "push": {
         "title": "Verifica robusta non riuscita",
         "ios_title": "Verifica robusta non riuscita",
-        "body_wrong_birthdate_gender": "La data di nascita o il genere sul tuo profilo non corrisponde alla data di nascita o al sesso sul tuo passaporto. Contatta il team di supporto per aggiornare la tua data di nascita o il tuo genere, oppure se il sesso indicato sul tuo passaporto non corrisponde alla tua identità di genere.",
+        "body_wrong_birthdate_gender": "La data di nascita o il genere sul tuo profilo non corrisponde alla data di nascita o al sesso sul tuo passaporto. Contatta il team di assistenza per aggiornare la tua data di nascita o il tuo genere, oppure se il sesso indicato sul tuo passaporto non corrisponde alla tua identità di genere.",
         "body_not_a_passport": "Hai utilizzato un documento diverso da un passaporto. Puoi utilizzare solo un passaporto per la verifica robusta.",
         "body_duplicate": "Hai usato un passaporto che è già stato utilizzato per la verifica. Usa un altro passaporto."
       }

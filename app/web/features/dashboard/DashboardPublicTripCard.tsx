@@ -18,7 +18,6 @@ import { Temporal } from "temporal-polyfill";
 import dayjs from "utils/dayjs";
 
 export const CARD_WIDTH = 220;
-export const CARD_GAP = 12;
 
 const StyledCard = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -230,7 +229,6 @@ export function DashboardPublicTripCard({
         display: "flex",
         textDecoration: "none",
         color: "inherit",
-        height: "100%",
         width: "100%",
       }}
     >

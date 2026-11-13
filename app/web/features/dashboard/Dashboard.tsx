@@ -2,6 +2,7 @@ import { useFeatureValue } from "@growthbook/growthbook-react";
 import { Grid } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import PageContainer from "components/PageContainer";
+import Celebration100k from "features/celebration100k/Celebration100k";
 import CommunitiesList from "features/dashboard/CommunitiesList";
 import { useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
@@ -23,6 +24,7 @@ export default function Dashboard() {
 
   return (
     <>
+      <Celebration100k autoPlay />
       <Hero />
       {/* this view uses a container, instead of it coming from the route layout,
         because the hero section is full viewport width */}

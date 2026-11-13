@@ -1,18 +1,12 @@
 import { TravelExplore } from "@mui/icons-material";
-import { Box, styled, Typography } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
-import FadingScrollTrack, { cardScrollDistance } from "components/FadingScrollTrack";
+import CardTrack, { useCardTrack } from "components/CardTrack";
 import { useListMyCommunitiesPublicTrips } from "features/publicTrips/useListPublicTrips";
 import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
-import { useEffect, useRef, useState } from "react";
 
-import {
-  CARD_GAP,
-  CARD_WIDTH,
-  DashboardPublicTripCard,
-  DashboardPublicTripCardSkeleton,
-} from "./DashboardPublicTripCard";
+import { CARD_WIDTH, DashboardPublicTripCard, DashboardPublicTripCardSkeleton } from "./DashboardPublicTripCard";
 import DashboardSectionHeader from "./DashboardSectionHeader";
 
 const EmptyStateRow = styled("div")(({ theme }) => ({
@@ -34,64 +28,36 @@ export default function DashboardCommunityPublicTrips() {
   const { data, isLoading, error } = useListMyCommunitiesPublicTrips("");
   const trips = data?.publicTripsList ?? [];
 
-  const scrollerRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-
-  const updateScrollState = () => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 0);
-    setCanScrollRight(Math.round(el.scrollLeft) < el.scrollWidth - el.clientWidth);
-  };
-
-  useEffect(() => {
-    updateScrollState();
-  }, [trips.length, isLoading]);
-
-  const scroll = (dir: 1 | -1) => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    el.scrollBy({ left: dir * cardScrollDistance(el, CARD_WIDTH, CARD_GAP), behavior: "smooth" });
-  };
+  const track = useCardTrack();
 
   return (
     <section>
       <DashboardSectionHeader
         icon={TravelExplore}
         title={t("dashboard:public_trips.community_trips_header")}
-        hasPrevious={canScrollLeft}
-        hasNext={canScrollRight}
-        onPrevious={() => scroll(-1)}
-        onNext={() => scroll(1)}
+        {...track.navProps}
       />
 
       {error && <Alert severity="error">{error.message}</Alert>}
 
       {isLoading ? (
-        <FadingScrollTrack $gap={CARD_GAP} $snapType="x proximity">
+        <CardTrack cardWidth={CARD_WIDTH}>
           {[0, 1, 2].map((i) => (
-            <Box key={i} sx={{ flex: `0 0 ${CARD_WIDTH}px`, scrollSnapAlign: "start" }}>
-              <DashboardPublicTripCardSkeleton showCommunityName />
-            </Box>
+            <DashboardPublicTripCardSkeleton key={i} showCommunityName />
           ))}
-        </FadingScrollTrack>
+        </CardTrack>
       ) : trips.length > 0 ? (
-        <FadingScrollTrack
-          ref={scrollerRef}
-          onScroll={updateScrollState}
-          $gap={CARD_GAP}
-          $snapType="x proximity"
-          $canScrollLeft={canScrollLeft}
-          $canScrollRight={canScrollRight}
-        >
+        <CardTrack track={track} cardWidth={CARD_WIDTH}>
           {trips.map((trip) => (
-            <Box key={trip.tripId} sx={{ flex: `0 0 ${CARD_WIDTH}px`, scrollSnapAlign: "start" }}>
-              {/* the backend leaves out the viewer's own trips */}
-              <DashboardPublicTripCard trip={trip} locale={locale} isOwnTrip={false} showCommunityName />
-            </Box>
+            <DashboardPublicTripCard
+              key={trip.tripId}
+              trip={trip}
+              locale={locale}
+              isOwnTrip={false}
+              showCommunityName
+            />
           ))}
-        </FadingScrollTrack>
+        </CardTrack>
       ) : (
         !error && (
           <EmptyStateRow>

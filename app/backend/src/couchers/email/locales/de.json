@@ -13,7 +13,6 @@
     "footer": {
       "received_because": "Du erhältst diese E-Mail, weil du dich bei Couchers.org registriert hast.",
       "contact_support": "Du erreichst unser Support-Team unter {{ email_link }}.",
-      "timezone_note": "Alle Zeiten sind in {{ timezone }}, basierend auf deinem Profilstandort.",
       "donate_link": "Spenden",
       "volunteer_link": "Helfen",
       "blog_link": "Blog",
@@ -39,7 +38,7 @@
     "started": {
       "subject": "Bestätige die Löschung deines Kontos",
       "purpose": "Du hast beantragt, dass wir dein Couchers.org-Konto löschen. Um diesen Vorgang abzuschließen, klicke bitte auf den folgenden Link:",
-      "confirm_action": "Accountlöschung bestätigen"
+      "confirm_action": "Kontolöschung bestätigen"
     },
     "completed": {
       "subject": "Dein Konto wurde gelöscht",
@@ -69,9 +68,9 @@
   "api_key_issued": {
     "subject": "Dein API-Schlüssel für Couchers.org",
     "header": "Du hast kürzlich einen API-Schlüssel für Couchers.org angefordert. Wir haben dir den folgenden API-Schlüssel ausgestellt:",
-    "expiry": "Der Schlüssel läuft am <b>{{ datetime }}</b> ab.",
     "usage_warning": "Dieser API-Schlüssel ist einzigartig für dein Konto; teile ihn mit niemandem. Er gewährt vollständigen Zugriff auf dein Konto, und du bist für alle Aktionen verantwortlich, die mit diesem API-Schlüssel durchgeführt werden.",
-    "policy_warning": "Bitte denke daran, während der Nutzung unserer APIs unsere <a href=\"{{terms_url}}\">Nutzungsbedingungen</a>, unsere Community-Richtlinien und andere Richtlinien einzuhalten. Alle Zugriffe werden protokolliert und analysiert, und wir können deinen Zugriff oder dein Konto sperren, wenn du den Dienst missbrauchst."
+    "policy_warning": "Bitte denke daran, während der Nutzung unserer APIs unsere <a href=\"{{terms_url}}\">Nutzungsbedingungen</a>, unsere Community-Richtlinien und andere Richtlinien einzuhalten. Alle Zugriffe werden protokolliert und analysiert, und wir können deinen Zugriff oder dein Konto sperren, wenn du den Dienst missbrauchst.",
+    "expiry2": "Der Schlüssel läuft am <b>{{ datetime_utc }}</b> (UTC) ab."
   },
   "badges": {
     "added": {
@@ -215,48 +214,38 @@
   },
   "stays": {
     "created": {
-      "host_request": {
-        "subject": "{{initiator}} hat dir eine Host-Anfrage gesendet",
-        "purpose": "<b>{{initiator}}</b> hat dir eine Host-Anfrage gesendet:",
-        "respond_encouragement": "Bitte antworte auf diese Anfrage. Selbst eine schnelle Absage ist besser als gar keine Antwort!"
-      },
       "invitation": {
         "subject": "{{initiator}} hat dir eine Einladung geschickt",
         "purpose": "<b>{{initiator}}</b> hat dir eine Einladung geschickt:",
         "respond_encouragement": "Bitte antworte auf diese Einladung. Selbst eine schnelle Absage ist besser als gar keine Antwort!"
+      },
+      "request": {
+        "subject": "{{initiator}} hat dir eine Host-Anfrage gesendet",
+        "purpose": "<b>{{initiator}}</b> hat dir eine Host-Anfrage gesendet:",
+        "respond_encouragement": "Bitte antworte auf diese Anfrage. Selbst eine schnelle Absage ist besser als gar keine Antwort!"
       }
     },
     "generic": {
       "date_range": "Von <b>{{from_date}}</b> bis <b>{{to_date}}</b>.",
-      "host_request": {
-        "view_action": "Host-Anfrage ansehen"
-      },
       "quick_decline_action": "Schnelle Absage",
       "invitation": {
         "view_action": "Einladung anzeigen"
+      },
+      "request": {
+        "view_action": "Host-Anfrage anzeigen"
       }
     },
     "reminder": {
-      "host_request": {
-        "subject": "Du hast eine ausstehende Host-Anfrage von {{initiator}}",
-        "purpose": "<b>{{initiator}}</b> wartet auf deine Antwort. Selbst eine schnelle Absage ist besser als gar keine Antwort!"
-      },
       "invitation": {
         "subject": "Du hast eine ausstehende Einladung von {{initiator}}",
+        "purpose": "<b>{{initiator}}</b> wartet auf deine Antwort. Selbst eine schnelle Absage ist besser als gar keine Antwort!"
+      },
+      "request": {
+        "subject": "Du hast eine ausstehende Host-Anfrage von {{initiator}}",
         "purpose": "<b>{{initiator}}</b> wartet auf deine Antwort. Selbst eine schnelle Absage ist besser als gar keine Antwort!"
       }
     },
     "message": {
-      "host_request": {
-        "from_initiator": {
-          "subject": "{{counterparty}} hat dir eine Nachricht in der Host-Anfrage gesendet",
-          "purpose": "<b>{{counterparty}}</b> hat dir eine Nachricht in der Host-Anfrage gesendet:"
-        },
-        "from_recipient": {
-          "subject": "{{counterparty}} hat dir eine Nachricht in deiner Host-Anfrage gesendet",
-          "purpose": "<b>{{counterparty}}</b> hat dir eine Nachricht in deiner Host-Anfrage gesendet:"
-        }
-      },
       "invitation": {
         "from_initiator": {
           "subject": "{{counterparty}} hat dir eine Nachricht in der Einladung geschrieben",
@@ -266,19 +255,19 @@
           "subject": "{{counterparty}} hat dir eine Nachricht in deiner Einladung geschrieben",
           "purpose": "<b>{{counterparty}}</b> hat dir eine Nachricht in deiner Einladung geschrieben:"
         }
+      },
+      "request": {
+        "from_initiator": {
+          "subject": "{{counterparty}} hat dir eine Nachricht in der Host-Anfrage gesendet",
+          "purpose": "<b>{{counterparty}}</b> hat dir eine Nachricht in der Host-Anfrage gesendet:"
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}} hat dir eine Nachricht in deiner Host-Anfrage gesendet",
+          "purpose": "<b>{{counterparty}}</b> hat dir eine Nachricht in deiner Host-Anfrage gesendet:"
+        }
       }
     },
     "missed_messages": {
-      "host_request": {
-        "from_initiator": {
-          "subject": "{{counterparty}} hat dir Nachricht(en) in der Host-Anfrage gesendet",
-          "purpose": "<b>{{counterparty}}</b> hat dir eine oder mehrere Nachrichten in der Host-Anfrage gesendet:"
-        },
-        "from_recipient": {
-          "subject": "{{counterparty}} hat dir Nachricht(en) in deiner Host-Anfrage gesendet",
-          "purpose": "<b>{{counterparty}}</b> hat dir eine oder mehrere Nachrichten in deiner Host-Anfrage gesendet:"
-        }
-      },
       "invitation": {
         "from_initiator": {
           "subject": "{{counterparty}} hat dir Nachricht(en) in der Einladung geschrieben",
@@ -288,27 +277,19 @@
           "subject": "{{counterparty}} hat dir Nachricht(en) in deiner Einladung geschrieben",
           "purpose": "<b>{{counterparty}}</b> hat dir eine oder mehrere Nachrichten in deiner Einladung gesendet:"
         }
+      },
+      "request": {
+        "from_initiator": {
+          "subject": "{{counterparty}} hat dir Nachricht(en) in der Host-Anfrage gesendet",
+          "purpose": "<b>{{counterparty}}</b> hat dir eine oder mehrere Nachrichten in der Host-Anfrage gesendet:"
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}} hat dir Nachricht(en) in deiner Host-Anfrage gesendet",
+          "purpose": "<b>{{counterparty}}</b> hat dir eine oder mehrere Nachrichten in deiner Host-Anfrage gesendet:"
+        }
       }
     },
     "status_changed": {
-      "host_request": {
-        "accepted_by_recipient": {
-          "subject": "{{counterparty}} hat deine Host-Anfrage angenommen",
-          "purpose": "<b>{{counterparty}}</b> hat deine Host-Anfrage angenommen:"
-        },
-        "declined_by_recipient": {
-          "subject": "{{counterparty}} hat deine Host-Anfrage abgelehnt",
-          "purpose": "<b>{{counterparty}}</b> hat deine Host-Anfrage abgelehnt:"
-        },
-        "confirmed_by_initiator": {
-          "subject": "{{counterparty}} hat die Host-Anfrage bestätigt",
-          "purpose": "<b>{{counterparty}}</b> hat die Host-Anfrage bestätigt:"
-        },
-        "cancelled_by_initiator": {
-          "subject": "{{counterparty}} hat die Host-Anfrage zurückgezogen",
-          "purpose": "<b>{{counterparty}}</b> hat die Host-Anfrage zurückgezogen:"
-        }
-      },
       "invitation": {
         "accepted_by_recipient": {
           "subject": "{{counterparty}} hat deine Einladung angenommen",
@@ -325,6 +306,24 @@
         "cancelled_by_initiator": {
           "subject": "{{counterparty}} hat die Einladung abgebrochen",
           "purpose": "<b>{{counterparty}}</b> hat die Einladung abgebrochen:"
+        }
+      },
+      "request": {
+        "accepted_by_recipient": {
+          "subject": "{{counterparty}} hat deine Host-Anfrage angenommen",
+          "purpose": "<b>{{counterparty}}</b> hat deine Host-Anfrage angenommen:"
+        },
+        "declined_by_recipient": {
+          "subject": "{{counterparty}} hat deine Host-Anfrage abgelehnt",
+          "purpose": "<b>{{counterparty}}</b> hat deine Host-Anfrage abgelehnt:"
+        },
+        "confirmed_by_initiator": {
+          "subject": "{{counterparty}} hat die Host-Anfrage bestätigt",
+          "purpose": "<b>{{counterparty}}</b> hat die Host-Anfrage bestätigt:"
+        },
+        "cancelled_by_initiator": {
+          "subject": "{{counterparty}} hat die Host-Anfrage zurückgezogen",
+          "purpose": "<b>{{counterparty}}</b> hat die Host-Anfrage zurückgezogen:"
         }
       }
     }

@@ -166,6 +166,7 @@ export default function PhoneVerificationSection({ accountInfo }: PhoneVerificat
         title={t("verification_page.phone.header")}
         description={t("verification_page.phone.description")}
         status={status}
+        badgeId="phone_verified"
       />
 
       {changeError && <Alert severity="error">{changeError.message}</Alert>}

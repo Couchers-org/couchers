@@ -5,10 +5,12 @@ import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import Divider from "components/Divider";
 import HtmlMeta from "components/HtmlMeta";
+import StyledLink from "components/StyledLink";
 import useAccountInfo from "features/auth/useAccountInfo";
-import { useTranslation } from "i18n";
+import { Trans, useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
 import { ReactNode } from "react";
+import { helpCenterStrongVerificationDataUrl } from "routes";
 
 import PhoneVerificationSection from "./PhoneVerificationSection";
 import PostalVerificationSection from "./PostalVerificationSection";
@@ -112,7 +114,11 @@ function DataUseSection({ heading, body }: { heading: string; body: ReactNode })
     >
       <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
         <LockOutlined sx={{ fontSize: 24, color: "var(--mui-palette-primary-main)" }} />
-        <Typography variant="h2">{heading}</Typography>
+        {/* footnote target for the "¹" in the verification descriptions */}
+        <Typography variant="h2">
+          <span aria-hidden="true">¹ </span>
+          {heading}
+        </Typography>
       </Box>
       <Typography variant="body1" sx={{ textWrap: "pretty" }}>
         {body}
@@ -180,7 +186,16 @@ export default function VerificationPage() {
           </>
         ) : null}
 
-        <DataUseSection heading={t("verification_page.data_use.header")} body={t("verification_page.data_use.body")} />
+        <DataUseSection
+          heading={t("verification_page.data_use.header")}
+          body={
+            <Trans
+              t={t}
+              i18nKey="verification_page.data_use.body"
+              components={{ helpCenterLink: <StyledLink href={helpCenterStrongVerificationDataUrl} target="_blank" /> }}
+            />
+          }
+        />
       </PageWidth>
     </>
   );
