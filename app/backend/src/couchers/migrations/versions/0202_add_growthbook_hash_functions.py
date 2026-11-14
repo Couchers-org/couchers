@@ -1,7 +1,7 @@
 """Add GrowthBook hash functions for evaluating flags in SQL
 
-Revision ID: 0200
-Revises: 0199
+Revision ID: 0202
+Revises: 0201
 Create Date: 2026-10-24 00:00:00.000000
 
 """
@@ -9,8 +9,8 @@ Create Date: 2026-10-24 00:00:00.000000
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "0200"
-down_revision = "0199"
+revision = "0202"
+down_revision = "0201"
 branch_labels = None
 depends_on = None
 
