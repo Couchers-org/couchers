@@ -20,10 +20,10 @@ from couchers.experimentation import (
 from couchers.i18n import LocalizationContext
 from couchers.metrics import feature_flag_evaluations_counter
 from couchers.models.logging import ExperimentExposure, ExposureSource, FeatureUsage
-from couchers.proto import bugs_pb2
+from couchers.proto import account_pb2, bugs_pb2
 from tests.fixtures.db import generate_user, make_volunteer
 from tests.fixtures.feature_flags import FeatureFlags, Flags
-from tests.fixtures.sessions import bugs_session
+from tests.fixtures.sessions import account_session, bugs_session
 
 
 def _flag_eval_count(flag_key: str, source: str, value: str) -> float:
@@ -57,7 +57,8 @@ _VOLUNTEERS_FLAG = {"defaultValue": False, "rules": [{"condition": {"is_voluntee
 
 def test_logged_in_user_is_bucketed_into_rollout(db, feature_flags: FeatureFlags):
     feature_flags.set_definition("rollout_flag", _ROLLOUT_FLAG)
-    context = make_background_user_context(123)
+    user, _ = generate_user()
+    context = make_background_user_context(user.id)
     assert context.get_string_value("rollout_flag", "fallback") == "treatment"
 
 
@@ -83,11 +84,12 @@ def test_evaluating_an_experiment_flag_records_exactly_one_exposure(db, feature_
     # Evaluating an experiment-backed flag for a bucketed user records exactly one exposure - this is
     # the whole point of per-flag evaluation: exposure is logged only for flags the user actually hits.
     feature_flags.set_definition("experiment_flag", _EXPERIMENT_FLAG)
-    context = make_background_user_context(123)
+    user, _ = generate_user()
+    context = make_background_user_context(user.id)
     assert context.get_object_value("experiment_flag", "control") in {"control", "treatment"}
 
     with session_scope() as session:
-        rows = session.execute(select(ExperimentExposure).where(ExperimentExposure.user_id == 123)).scalars().all()
+        rows = session.execute(select(ExperimentExposure).where(ExperimentExposure.user_id == user.id)).scalars().all()
         assert len(rows) == 1
         assert rows[0].experiment_key == "my_experiment"
         assert rows[0].source == ExposureSource.backend
@@ -109,13 +111,42 @@ def test_targeting_attributes(db):
         )
 
     assert get_targeting_attributes(None) == {"logged_in": False}
-    assert get_targeting_attributes(user.id) == {"id": str(user.id), "logged_in": True, "is_volunteer": False}
-    assert get_targeting_attributes(volunteer.id) == {"id": str(volunteer.id), "logged_in": True, "is_volunteer": True}
+    assert get_targeting_attributes(user.id) == {
+        "id": str(user.id),
+        "logged_in": True,
+        "is_volunteer": False,
+        "is_beta": False,
+    }
+    assert get_targeting_attributes(volunteer.id) == {
+        "id": str(volunteer.id),
+        "logged_in": True,
+        "is_volunteer": True,
+        "is_beta": False,
+    }
     assert get_targeting_attributes(past_volunteer.id) == {
         "id": str(past_volunteer.id),
         "logged_in": True,
         "is_volunteer": False,
+        "is_beta": False,
     }
+
+
+def test_targeting_attributes_is_beta(db):
+    user, token = generate_user()
+    with account_session(token) as account:
+        account.SetBetaFeaturesOptIn(account_pb2.SetBetaFeaturesOptInReq(beta_features_opt_in=True))
+    assert get_targeting_attributes(user.id)["is_beta"] is True
+
+
+def test_flag_targeted_at_beta_users(db, feature_flags: FeatureFlags):
+    feature_flags.set_definition(
+        "beta_flag", {"defaultValue": False, "rules": [{"condition": {"is_beta": True}, "force": True}]}
+    )
+    user, token = generate_user()
+    assert make_background_user_context(user.id).get_boolean_value("beta_flag", default=False) is False
+    with account_session(token) as account:
+        account.SetBetaFeaturesOptIn(account_pb2.SetBetaFeaturesOptInReq(beta_features_opt_in=True))
+    assert make_background_user_context(user.id).get_boolean_value("beta_flag", default=False) is True
 
 
 def test_flag_targeted_at_volunteers(db, feature_flags: FeatureFlags):
@@ -135,7 +166,12 @@ def test_get_feature_flag_attributes_servicer(db):
     user, token = generate_user()
     with bugs_session(token) as bugs:
         res = bugs.GetFeatureFlagAttributes(empty_pb2.Empty())
-    assert json.loads(res.attributes_json) == {"id": str(user.id), "logged_in": True, "is_volunteer": False}
+    assert json.loads(res.attributes_json) == {
+        "id": str(user.id),
+        "logged_in": True,
+        "is_volunteer": False,
+        "is_beta": False,
+    }
 
     with bugs_session() as bugs:
         res = bugs.GetFeatureFlagAttributes(empty_pb2.Empty())

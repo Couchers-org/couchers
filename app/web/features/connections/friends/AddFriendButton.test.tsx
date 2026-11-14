@@ -35,6 +35,7 @@ const accountInfo = {
   isVolunteer: false,
   myHomeComplete: false,
   shouldShowDonationBanner: false,
+  hasOptedInToBetaFeatures: false,
 };
 
 const incompleteAccountInfo = { ...accountInfo, profileComplete: false };
