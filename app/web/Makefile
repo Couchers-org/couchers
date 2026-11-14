@@ -1,6 +1,7 @@
 # Makefile for the frontend of the application
 # Run 'make [command]' in app/web to execute the specified command
 .SILENT:
+MAKEFLAGS += --no-print-directory
 
 .PHONY: default
 default: protos translation-stats

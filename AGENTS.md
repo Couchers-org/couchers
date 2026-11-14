@@ -98,7 +98,7 @@ make mypy
 
 ### Proto Files
 - Located in `/app/proto`
-- Run `make protos` from backend after changes
+- Run `make protos` from backend after changes (or from `app/` to update every component)
 - Internal job payloads in `/app/backend/proto/internal/jobs.proto`
 
 **⚠️ FIELD NUMBERS ARE PERMANENT — NEVER RENUMBER OR REPURPOSE A FIELD ⚠️**

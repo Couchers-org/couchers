@@ -1,5 +1,7 @@
 # Makefile for the backend of the application
 # Run 'make [command]' in app/backend to execute the specified command
+.SILENT:
+MAKEFLAGS += --no-print-directory
 
 UV_VERSION=0.13.7
 ROOT_DIR := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
@@ -7,8 +9,17 @@ ROOT_DIR := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 DB_PASSWORD := "203d805f4b62c0a1b2f1f6b82d4583dfe563ec1619b83ce22ee414e8376a25e7"
 DB_CONNECTION_STRING := "postgresql://postgres:${DB_PASSWORD}@localhost:6545/postgres"
 
+.PHONY: default
+default: protos
+
+# Generate the Python protobuf bindings and descriptor set into src/couchers/proto/.
+.PHONY: protos
 protos:
-	../generate_protos.sh
+	$(MAKE) -C ../proto python
+	mkdir -p src/couchers/proto
+	rsync --recursive --checksum --delete \
+		../proto/gen/python/api/ ../proto/gen/python/backend/ ../proto/gen/python/descriptors.pb \
+		src/couchers/proto/
 
 setup:
 	curl -fsSL https://astral.sh/uv/${UV_VERSION}/install.sh | sh

@@ -1,7 +1,9 @@
-# Generates protobuf bindings incrementally for dev scenarios.
+# Generates protobuf bindings incrementally under gen/.
 # Uses a GRPC docker container if dependencies are not installed locally.
-# CI doesn't use this file because the GRPC container doesn't have Make installed.
+# Consumers (backend, web, etc.) invoke this from their own Makefile's 'protos' target,
+# then copy the generated files they need into their own tree.
 .SILENT:
+MAKEFLAGS += --no-print-directory
 
 API_SOURCE_FILES := $(shell find api -type f -name "*.proto")
 BACKEND_SOURCE_FILES := $(shell find backend -type f -name "*.proto")
