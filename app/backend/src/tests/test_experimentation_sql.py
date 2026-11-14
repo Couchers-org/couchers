@@ -14,7 +14,9 @@ from couchers.experimentation_sql import (
     feature_value_sql,
     record_sql_exposures,
 )
+from couchers.models import User
 from couchers.models.logging import ExperimentExposure
+from tests.fixtures.db import generate_user
 
 N_USERS = 3000
 
@@ -169,7 +171,7 @@ def test_record_sql_exposures_matches_sdk_exposures(db, feature_flags):
         ],
     }
     feature_flags.set_definition("flag", definition)
-    user_ids = list(range(1, 201))
+    user_ids = [generate_user()[0].id for _ in range(50)]
 
     for user_id in user_ids:
         assert make_background_user_context(user_id).get_integer_value("flag", 0) in {1, 2, 3, 4, 5}
@@ -178,15 +180,14 @@ def test_record_sql_exposures_matches_sdk_exposures(db, feature_flags):
     with session_scope() as session:
         session.execute(delete(ExperimentExposure))
 
-    users = _users()
-    feature = feature_value_sql("flag", 0, users.c.id)
+    feature = feature_value_sql("flag", 0, User.id)
     with session_scope() as session:
-        record_sql_exposures(session, feature, select(users.c.id).where(users.c.id <= 200), lambda value: true())
+        record_sql_exposures(session, feature, select(User.id), lambda value: true())
     assert _exposures() == from_sdk
 
     # already exposed, so nothing changes
     with session_scope() as session:
-        record_sql_exposures(session, feature, select(users.c.id).where(users.c.id <= 200), lambda value: true())
+        record_sql_exposures(session, feature, select(User.id), lambda value: true())
     assert _exposures() == from_sdk
 
 
