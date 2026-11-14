@@ -143,6 +143,41 @@ describe("AnalyticsProvider", () => {
 
       expect(pageCall![1].search).toBeNull();
     });
+
+    it.each([
+      ["/quick-link", "?payload=abc&sig=secret", "payload=abc"],
+      ["/signup", "?token=secret", null],
+      ["/complete-strong-verification", "?verification_attempt_token=secret", null],
+    ])("strips secrets from search on %s", (path, search, expected) => {
+      setLocation(path, search);
+
+      render(
+        <AnalyticsProvider>
+          <div />
+        </AnalyticsProvider>,
+      );
+
+      const pageCall = mockLogEvent.mock.calls.find((call) => call[0] === "page.viewed");
+
+      expect(pageCall![1].search).toBe(expected);
+    });
+
+    it("strips secrets from search on route change", () => {
+      render(
+        <AnalyticsProvider>
+          <div />
+        </AnalyticsProvider>,
+      );
+      mockLogEvent.mockClear();
+
+      act(() => {
+        mockRouter.push("/confirm-email?token=secret&from=email");
+      });
+
+      const pageCall = mockLogEvent.mock.calls.find((call) => call[0] === "page.viewed");
+
+      expect(pageCall![1]).toMatchObject({ path: "/confirm-email", search: "from=email" });
+    });
   });
 
   describe("UTM params in session.started", () => {

@@ -30,6 +30,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import DevSettingsButton from "@/components/DevSettingsButton";
 import { hydrateUrlOverrides } from "@/config/urls";
+import { useEmailLinkLogger } from "@/features/analytics/useEmailLinkLogger";
 import { AuthProvider, useAuthContext } from "@/features/auth/AuthContext";
 import NativeUpdatePrompt from "@/features/diagnostics/NativeUpdatePrompt";
 import { useNativeDiagnostics } from "@/features/diagnostics/useNativeDiagnostics";
@@ -152,6 +153,7 @@ function RootLayout() {
         <AuthProvider>
           <FeatureFlagProvider>
             <PushNotificationsRegistrar />
+            <EmailLinkLogger />
             <RootNavigator fontsLoaded={fontsLoaded} />
             <DevSettingsButton />
           </FeatureFlagProvider>
@@ -162,6 +164,11 @@ function RootLayout() {
 }
 
 export default sentryEnabled ? Sentry.wrap(RootLayout) : RootLayout;
+
+function EmailLinkLogger() {
+  useEmailLinkLogger();
+  return null;
+}
 
 function PushNotificationsRegistrar() {
   useRegisterPushNotifications();
