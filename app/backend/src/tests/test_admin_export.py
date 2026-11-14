@@ -3,7 +3,6 @@ from datetime import date, timedelta
 from typing import Any
 
 import grpc
-import pytest
 from sqlalchemy import func, update
 
 from couchers.db import session_scope
@@ -34,6 +33,7 @@ from couchers.utils import not_none, now, today
 from tests.fixtures.api import events as events_api
 from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user, make_friends, make_user_block, make_user_invisible
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
     conversations_session,
     discussions_session,
@@ -84,9 +84,8 @@ def test_ExportUserData_not_found(db):
     _, super_token = generate_user(is_superuser=True)
 
     with real_admin_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             api.ExportUserData(admin_pb2.ExportUserDataReq(user="nonexistentuser"))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_ExportUserData_references_written(db):

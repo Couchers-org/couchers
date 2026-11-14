@@ -3,7 +3,6 @@ from datetime import UTC, date, datetime, timedelta
 from unittest.mock import patch
 
 import grpc
-import pytest
 from google.protobuf import wrappers_pb2
 from sqlalchemy import select, update
 from sqlalchemy.sql import func
@@ -49,6 +48,7 @@ from tests.fixtures.db import (
     make_friends,
 )
 from tests.fixtures.misc import EmailCollector, Moderator, PushCollector
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
     account_session,
     auth_api_session,
@@ -66,13 +66,12 @@ def test_access_by_normal_user(db):
 
     with real_admin_session(normal_token) as api:
         # all requests to the admin servicer should break when done by a non-super_user
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED):
             api.GetUserDetails(
                 admin_pb2.GetUserDetailsReq(
                     user=str(normal_user.id),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
 
 def test_GetNonvisibleUserAccessLog(db):
@@ -385,13 +384,12 @@ def test_SetModerationAutoApproveDeadline(db):
         assert not res.HasField("moderation_auto_approve_seconds")
 
         for seconds in [-1, 48 * 3600 + 1, 2**63 - 1]:
-            with pytest.raises(grpc.RpcError) as e:
+            with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
                 api.SetModerationAutoApproveDeadline(
                     admin_pb2.SetModerationAutoApproveDeadlineReq(
                         user=normal_user.username, auto_approve_seconds=wrappers_pb2.Int64Value(value=seconds)
                     )
                 )
-            assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
     assert [(a.action_type, a.note) for a in res.admin_actions] == [
         ("set_moderation_auto_approve_deadline", "Changed from default to never"),
@@ -405,9 +403,8 @@ def test_ShadowUser_blank_note(db):
     normal_user, _ = generate_user()
 
     with real_admin_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             api.ShadowUser(admin_pb2.ShadowUserReq(user=normal_user.username, admin_note="  \t  "))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_AddAdminNote(db):
@@ -443,10 +440,8 @@ def test_AddAdminNote_blank(db):
     empty_admin_note = "  \t  \n "
 
     with real_admin_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Provide exactly one of admin_note or data."):
             api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=normal_user.username, admin_note=empty_admin_note))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Provide exactly one of admin_note or data."
 
 
 def test_AddAdminNote_data(db):
@@ -467,12 +462,10 @@ def test_AddAdminNote_both_note_and_data(db):
     normal_user, _ = generate_user()
 
     with real_admin_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Provide exactly one of admin_note or data."):
             api.AddAdminNote(
                 admin_pb2.AddAdminNoteReq(user=normal_user.username, admin_note="note text", data='{"x": 1}')
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Provide exactly one of admin_note or data."
 
 
 def test_AddAdminNote_neither(db):
@@ -480,10 +473,8 @@ def test_AddAdminNote_neither(db):
     normal_user, _ = generate_user()
 
     with real_admin_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Provide exactly one of admin_note or data."):
             api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=normal_user.username))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Provide exactly one of admin_note or data."
 
 
 def test_AddAdminNote_invalid_json(db):
@@ -491,10 +482,8 @@ def test_AddAdminNote_invalid_json(db):
     normal_user, _ = generate_user()
 
     with real_admin_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The admin note data must be valid JSON."):
             api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=normal_user.username, data="{not valid json"))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "The admin note data must be valid JSON."
 
 
 def test_admin_content_reports(db):
@@ -541,10 +530,8 @@ def test_admin_content_reports(db):
         )
 
     with real_admin_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Content report not found."):
             api.GetContentReport(admin_pb2.GetContentReportReq(content_report_id=-1))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Content report not found."
 
         res = api.GetContentReport(admin_pb2.GetContentReportReq(content_report_id=id_by_description["r2"]))
         rep = res.content_report
@@ -640,17 +627,14 @@ def test_RecoverDeletedUser_email_reused(db):
     new_user, _ = generate_user(email=normal_user.email)
 
     with real_admin_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION,
+            "That email address is used by more than one user, look them up by username or ID instead.",
+        ):
             api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.email))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert (
-            e.value.details()
-            == "That email address is used by more than one user, look them up by username or ID instead."
-        )
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
             api.RecoverDeletedUser(admin_pb2.RecoverDeletedUserReq(user=normal_user.username))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
 def test_SearchUsers_exact_email(db):
@@ -744,16 +728,12 @@ def test_badges(db, email_collector: EmailCollector, push_collector: PushCollect
         assert push.content.body == "The Swagster badge was added to your profile."
 
         # can't add/edit special tags
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "Admins cannot edit that badge."):
             api.AddBadge(admin_pb2.AddBadgeReq(user=normal_user.username, badge_id="founder"))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "Admins cannot edit that badge."
 
         # double add badge
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "The user already has that badge."):
             api.AddBadge(admin_pb2.AddBadgeReq(user=normal_user.username, badge_id="swagster"))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "The user already has that badge."
 
         # can remove badge
         assert "swagster" in api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.username)).badges
@@ -768,16 +748,12 @@ def test_badges(db, email_collector: EmailCollector, push_collector: PushCollect
         assert push.content.body == "The Swagster badge was removed from your profile."
 
         # not found on user
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "The user does not have that badge."):
             api.RemoveBadge(admin_pb2.RemoveBadgeReq(user=normal_user.username, badge_id="swagster"))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "The user does not have that badge."
 
         # not found in general
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Badge not found."):
             api.AddBadge(admin_pb2.AddBadgeReq(user=normal_user.username, badge_id="nonexistentbadge"))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Badge not found."
 
 
 def test_DeleteEvent(db):
@@ -868,9 +844,8 @@ def test_DeleteReference_deprecated(db):
         )
 
     with real_admin_session(super_token) as admin_api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
             admin_api.DeleteReference(admin_pb2.DeleteReferenceReq(reference_id=reference.reference_id))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
 def test_GetUserReferences(db):
@@ -1005,9 +980,8 @@ def test_GetUserReferences_not_found(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with real_admin_session(super_token) as admin_api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             admin_api.GetUserReferences(admin_pb2.GetUserReferencesReq(user="nonexistent"))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_GetFriendRequests(db):
@@ -1074,9 +1048,8 @@ def test_GetFriendRequests_not_found(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with real_admin_session(super_token) as admin_api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             admin_api.GetFriendRequests(admin_pb2.GetFriendRequestsReq(user="nonexistent"))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_GetUserBlocks(db):
@@ -1118,9 +1091,8 @@ def test_GetUserBlocks_not_found(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with real_admin_session(super_token) as admin_api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             admin_api.GetUserBlocks(admin_pb2.GetUserBlocksReq(user="nonexistent"))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_AddUsersToModerationUserList(db):
@@ -1135,20 +1107,16 @@ def test_AddUsersToModerationUserList(db):
     with session_scope() as session:
         with real_admin_session(super_token) as api:
             # Test adding users to a non-existent moderation list (should raise an error)
-            with pytest.raises(grpc.RpcError) as e:
+            with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Moderation user list not found."):
                 api.AddUsersToModerationUserList(
                     admin_pb2.AddUsersToModerationUserListReq(users=[user2.username], moderation_list_id=999),
                 )
-            assert e.value.code() == grpc.StatusCode.NOT_FOUND
-            assert "Moderation user list not found." == e.value.details()
 
             # Test with non-existent user (should raise an error)
-            with pytest.raises(grpc.RpcError) as e:
+            with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that user."):
                 api.AddUsersToModerationUserList(
                     admin_pb2.AddUsersToModerationUserListReq(users=[user1.username, "nonexistent"]),
                 )
-            assert e.value.code() == grpc.StatusCode.NOT_FOUND
-            assert "Couldn't find that user." == e.value.details()
 
             # Test successful creation of new moderation list (no moderation_list_id provided)
             res = api.AddUsersToModerationUserList(
@@ -1201,26 +1169,20 @@ def test_RemoveUserFromModerationUserList(db):
 
     with real_admin_session(super_token) as api:
         # Test with non-existent user (should raise error)
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that user."):
             api.RemoveUserFromModerationUserList(admin_pb2.RemoveUserFromModerationUserListReq(user="nonexistent"))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert "Couldn't find that user." == e.value.details()
 
         # Test without providing moderation list id (should raise error)
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Missing moderation user list id."):
             api.RemoveUserFromModerationUserList(admin_pb2.RemoveUserFromModerationUserListReq(user=user2.username))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert "Missing moderation user list id." == e.value.details()
 
         # Test removing user that's not in the provided moderation list (should raise error)
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "User is not in the moderation user list."):
             api.RemoveUserFromModerationUserList(
                 admin_pb2.RemoveUserFromModerationUserListReq(
                     user=user3.username, moderation_list_id=moderation_list_id
                 )
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert "User is not in the moderation user list." == e.value.details()
 
         # Test successful removal
         api.RemoveUserFromModerationUserList(
@@ -1367,10 +1329,8 @@ def test_SetLastDonated(db):
             assert user.last_donated is None
 
         # user not found
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that user."):
             api.SetLastDonated(admin_pb2.SetLastDonatedReq(user="nonexistent"))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Couldn't find that user."
 
 
 def test_admin_actions_level(db):
@@ -1532,25 +1492,19 @@ def test_create_admin_tag_duplicate(db):
 
     with real_admin_session(super_token) as api:
         api.CreateAdminTag(admin_pb2.CreateAdminTagReq(tag="test-tag"))
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.ALREADY_EXISTS, "That admin tag already exists."):
             api.CreateAdminTag(admin_pb2.CreateAdminTagReq(tag="test-tag"))
-        assert e.value.code() == grpc.StatusCode.ALREADY_EXISTS
-        assert e.value.details() == "That admin tag already exists."
 
 
 def test_create_admin_tag_empty(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with real_admin_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The admin tag cannot be empty."):
             api.CreateAdminTag(admin_pb2.CreateAdminTagReq(tag=""))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "The admin tag cannot be empty."
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The admin tag cannot be empty."):
             api.CreateAdminTag(admin_pb2.CreateAdminTagReq(tag="   "))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "The admin tag cannot be empty."
 
 
 def test_list_admin_tags(db):
@@ -1592,10 +1546,8 @@ def test_add_admin_tag_to_user_duplicate(db):
         api.CreateAdminTag(admin_pb2.CreateAdminTagReq(tag="vip"))
         api.AddAdminTagToUser(admin_pb2.AddAdminTagToUserReq(user=normal_user.username, tag="vip"))
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "The user already has that admin tag."):
             api.AddAdminTagToUser(admin_pb2.AddAdminTagToUserReq(user=normal_user.username, tag="vip"))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "The user already has that admin tag."
 
 
 def test_add_admin_tag_to_user_tag_not_found(db):
@@ -1603,10 +1555,8 @@ def test_add_admin_tag_to_user_tag_not_found(db):
     normal_user, _ = generate_user()
 
     with real_admin_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Admin tag not found."):
             api.AddAdminTagToUser(admin_pb2.AddAdminTagToUserReq(user=normal_user.username, tag="nonexistent"))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Admin tag not found."
 
 
 def test_remove_admin_tag_from_user(db):
@@ -1629,10 +1579,8 @@ def test_remove_admin_tag_from_user_not_assigned(db):
     with real_admin_session(super_token) as api:
         api.CreateAdminTag(admin_pb2.CreateAdminTagReq(tag="vip"))
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "The user does not have that admin tag."):
             api.RemoveAdminTagFromUser(admin_pb2.RemoveAdminTagFromUserReq(user=normal_user.username, tag="vip"))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "The user does not have that admin tag."
 
 
 def test_search_users_by_admin_tag(db):
@@ -1882,9 +1830,8 @@ def test_ListUserUploads_not_found(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with real_admin_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             api.ListUserUploads(admin_pb2.ListUserUploadsReq(user="nonexistent"))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 # community invite feature tested in test_events.py
@@ -1954,23 +1901,20 @@ def test_CreateOTAPackage_invalid(db):
     manifests = {"v-incomplete": {"id": "x"}}  # on the CDN but missing runtimeVersion / createdAt
     with _patch_ota_cdn(manifests), real_admin_session(super_token) as api:
         # missing version
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             api.CreateOTAPackage(admin_pb2.CreateOTAPackageReq(platform=admin_pb2.OTA_PLATFORM_IOS))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
         # nothing published at this version
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             api.CreateOTAPackage(
                 admin_pb2.CreateOTAPackageReq(platform=admin_pb2.OTA_PLATFORM_IOS, version="v-missing")
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
         # manifest present but missing required fields
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             api.CreateOTAPackage(
                 admin_pb2.CreateOTAPackageReq(platform=admin_pb2.OTA_PLATFORM_IOS, version="v-incomplete")
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_CreateOTAPackage_rejects_duplicate_version(db):
@@ -1979,11 +1923,10 @@ def test_CreateOTAPackage_rejects_duplicate_version(db):
     manifests = {"v1.3.1.aaaa": _ota_manifest(version="v1.3.1.aaaa", fingerprint="ios-fp")}
     with _patch_ota_cdn(manifests), real_admin_session(super_token) as api:
         api.CreateOTAPackage(admin_pb2.CreateOTAPackageReq(platform=admin_pb2.OTA_PLATFORM_IOS, version="v1.3.1.aaaa"))
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
             api.CreateOTAPackage(
                 admin_pb2.CreateOTAPackageReq(platform=admin_pb2.OTA_PLATFORM_IOS, version="v1.3.1.aaaa")
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
 def test_ListOTAPackages(db):
@@ -2056,18 +1999,15 @@ def test_BanOTAPackage_requires_reason(db):
     }
     with _patch_ota_cdn(manifests), real_admin_session(super_token) as api:
         pkg = api.CreateOTAPackage(admin_pb2.CreateOTAPackageReq(platform=admin_pb2.OTA_PLATFORM_IOS, version="v1.3.1"))
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             api.BanOTAPackage(admin_pb2.BanOTAPackageReq(ota_package_id=pkg.ota_package_id))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             api.BanOTAPackage(admin_pb2.BanOTAPackageReq(ota_package_id=pkg.ota_package_id, reason="   "))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_BanOTAPackage_not_found(db):
     _, super_token = generate_user(is_superuser=True)
 
     with real_admin_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             api.BanOTAPackage(admin_pb2.BanOTAPackageReq(ota_package_id=123456, reason="never mind"))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND

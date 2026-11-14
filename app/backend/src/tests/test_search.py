@@ -27,6 +27,7 @@ from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.feature_flags import Flags
 from tests.fixtures.misc import Moderator
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import communities_session, search_session
 from tests.test_communities import create_community, testing_communities  # noqa
 from tests.test_references import create_friend_reference
@@ -841,9 +842,8 @@ def test_event_search_exclude_attending(sample_community, moderator: Moderator):
         assert {event.title for event in res.events} == {"Community only event", "Other community event"}
 
         # attending + exclude_attending is invalid
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             api.EventSearch(search_pb2.EventSearchReq(attending=True, exclude_attending=True))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_regression_search_multiple_pages(db):

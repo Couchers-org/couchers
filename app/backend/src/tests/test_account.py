@@ -2,7 +2,6 @@ from datetime import UTC, date, datetime, timedelta
 from unittest.mock import patch
 
 import grpc
-import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy import select, update
 from sqlalchemy.sql import func
@@ -28,6 +27,7 @@ from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import backdate_conversations, generate_user, make_volunteer
 from tests.fixtures.feature_flags import FeatureFlags
 from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
     account_session,
     auth_api_session,
@@ -207,15 +207,13 @@ def test_ChangePasswordV2_normal_short_password(db, fast_passwords):
     user, token = generate_user(hashed_password=hash_password(old_password))
 
     with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The password must be 8 or more characters long."):
             account.ChangePasswordV2(
                 account_pb2.ChangePasswordV2Req(
                     old_password=old_password,
                     new_password=new_password,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "The password must be 8 or more characters long."
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -229,15 +227,13 @@ def test_ChangePasswordV2_normal_long_password(db, fast_passwords):
     user, token = generate_user(hashed_password=hash_password(old_password))
 
     with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The password must be less than 256 characters."):
             account.ChangePasswordV2(
                 account_pb2.ChangePasswordV2Req(
                     old_password=old_password,
                     new_password=new_password,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "The password must be less than 256 characters."
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -251,15 +247,16 @@ def test_ChangePasswordV2_normal_insecure_password(db, fast_passwords):
     user, token = generate_user(hashed_password=hash_password(old_password))
 
     with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.INVALID_ARGUMENT,
+            "The password is insecure. Please use one that is not easily guessable.",
+        ):
             account.ChangePasswordV2(
                 account_pb2.ChangePasswordV2Req(
                     old_password=old_password,
                     new_password=new_password,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "The password is insecure. Please use one that is not easily guessable."
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -273,15 +270,13 @@ def test_ChangePasswordV2_normal_wrong_password(db, fast_passwords):
     user, token = generate_user(hashed_password=hash_password(old_password))
 
     with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Wrong password."):
             account.ChangePasswordV2(
                 account_pb2.ChangePasswordV2Req(
                     old_password="Wrong password",
                     new_password=new_password,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Wrong password."
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -294,10 +289,8 @@ def test_ChangePasswordV2_normal_no_passwords(db, fast_passwords):
     user, token = generate_user(hashed_password=hash_password(old_password))
 
     with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The password must be 8 or more characters long."):
             account.ChangePasswordV2(account_pb2.ChangePasswordV2Req(old_password=old_password))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "The password must be 8 or more characters long."
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -310,15 +303,13 @@ def test_ChangeEmailV2_wrong_password(db, fast_passwords):
     user, token = generate_user(hashed_password=hash_password(password))
 
     with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Wrong password."):
             account.ChangeEmailV2(
                 account_pb2.ChangeEmailV2Req(
                     password="Wrong password",
                     new_email=new_email,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Wrong password."
 
     with session_scope() as session:
         assert (
@@ -337,15 +328,13 @@ def test_ChangeEmailV2_wrong_email(db, fast_passwords):
     user, token = generate_user(hashed_password=hash_password(password))
 
     with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Wrong password."):
             account.ChangeEmailV2(
                 account_pb2.ChangeEmailV2Req(
                     password="Wrong password",
                     new_email=new_email,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Wrong password."
 
     with session_scope() as session:
         assert (
@@ -363,15 +352,13 @@ def test_ChangeEmailV2_invalid_email(db, fast_passwords):
     user, token = generate_user(hashed_password=hash_password(password))
 
     with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid email."):
             account.ChangeEmailV2(
                 account_pb2.ChangeEmailV2Req(
                     password=password,
                     new_email="not a real email",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Invalid email."
 
     with session_scope() as session:
         assert (
@@ -390,15 +377,13 @@ def test_ChangeEmailV2_email_in_use(db, fast_passwords):
     user2, token2 = generate_user(hashed_password=hash_password(password))
 
     with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid email."):
             account.ChangeEmailV2(
                 account_pb2.ChangeEmailV2Req(
                     password=password,
                     new_email=user2.email,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Invalid email."
 
     with session_scope() as session:
         assert (
@@ -423,9 +408,8 @@ def test_ChangeEmailV2_deleted_user_email(db, fast_passwords):
         )
 
     with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             account.ChangeEmailV2(account_pb2.ChangeEmailV2Req(password=password, new_email=banned_user.email))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
         account.ChangeEmailV2(account_pb2.ChangeEmailV2Req(password=password, new_email=deleted_user.email))
 
@@ -435,15 +419,13 @@ def test_ChangeEmailV2_no_change(db, fast_passwords):
     user, token = generate_user(hashed_password=hash_password(password))
 
     with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid email."):
             account.ChangeEmailV2(
                 account_pb2.ChangeEmailV2Req(
                     password=password,
                     new_email=user.email,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Invalid email."
 
     with session_scope() as session:
         assert (
@@ -470,14 +452,12 @@ def test_ChangeEmailV2_wrong_token(db, fast_passwords):
         )
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Invalid token."):
             res = auth_api.ConfirmChangeEmailV2(
                 auth_pb2.ConfirmChangeEmailV2Req(
                     change_email_token="wrongtoken",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Invalid token."
 
     with session_scope() as session:
         user_updated = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -503,36 +483,28 @@ def test_ChangeEmailV2_tokens_two_hour_window(db, fast_passwords, timewarp: Time
     # before the token was issued
     timewarp.advance(-timedelta(minutes=1))
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Invalid token."):
             auth_api.ConfirmChangeEmailV2(auth_pb2.ConfirmChangeEmailV2Req())
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Invalid token."
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Invalid token."):
             auth_api.ConfirmChangeEmailV2(
                 auth_pb2.ConfirmChangeEmailV2Req(
                     change_email_token=new_email_token,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Invalid token."
 
     # and a minute after the two hour window closed
     timewarp.advance(timedelta(hours=2, minutes=1))
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Invalid token."):
             auth_api.ConfirmChangeEmailV2(auth_pb2.ConfirmChangeEmailV2Req())
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Invalid token."
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Invalid token."):
             auth_api.ConfirmChangeEmailV2(
                 auth_pb2.ConfirmChangeEmailV2Req(
                     change_email_token=new_email_token,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Invalid token."
 
 
 def test_ChangeEmailV2(db, fast_passwords, push_collector: PushCollector):
@@ -692,10 +664,8 @@ def test_full_delete_account_with_recovery(db, email_collector: EmailCollector, 
     user_id = user.id
 
     with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as err:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "Please confirm your account deletion."):
             account.DeleteAccount(account_pb2.DeleteAccountReq())
-        assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert err.value.details() == "Please confirm your account deletion."
 
         account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True))
 
@@ -938,10 +908,11 @@ def test_LogOutOtherSessions(db, fast_passwords):
     with real_account_session(token) as account:
         res = account.ListActiveSessions(account_pb2.ListActiveSessionsReq())
         assert len(res.active_sessions) == 5
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION,
+            "Please confirm you want to log out of other sessions.",
+        ):
             account.LogOutOtherSessions(account_pb2.LogOutOtherSessionsReq(confirm=False))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "Please confirm you want to log out of other sessions."
 
         account.LogOutOtherSessions(account_pb2.LogOutOtherSessionsReq(confirm=True))
         res = account.ListActiveSessions(account_pb2.ListActiveSessionsReq())
@@ -1241,19 +1212,17 @@ def test_volunteer_stuff(db):
         res = account.GetAccountInfo(empty_pb2.Empty())
         assert not res.is_volunteer
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.NOT_FOUND,
+            "You are currently not registered as a volunteer, if this is wrong, please contact us.",
+        ):
             account.GetMyVolunteerInfo(empty_pb2.Empty())
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert (
-            e.value.details() == "You are currently not registered as a volunteer, if this is wrong, please contact us."
-        )
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.NOT_FOUND,
+            "You are currently not registered as a volunteer, if this is wrong, please contact us.",
+        ):
             account.UpdateMyVolunteerInfo(account_pb2.UpdateMyVolunteerInfoReq())
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert (
-            e.value.details() == "You are currently not registered as a volunteer, if this is wrong, please contact us."
-        )
 
     with session_scope() as session:
         session.add(

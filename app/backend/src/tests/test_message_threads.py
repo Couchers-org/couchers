@@ -1,7 +1,6 @@
 from datetime import timedelta
 
 import grpc
-import pytest
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 
@@ -16,6 +15,7 @@ from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user, make_user_block
 from tests.fixtures.feature_flags import FeatureFlags
 from tests.fixtures.misc import process_jobs
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
     conversations_session,
     notifications_session,
@@ -281,13 +281,12 @@ def test_list_message_threads_rejects_unspecified_category(db):
     _user1, token1 = generate_user()
 
     with conversations_session(token1) as c:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             c.ListMessageThreads(
                 conversations_pb2.ListMessageThreadsReq(
                     categories=[conversations_pb2.MESSAGE_THREAD_CATEGORY_UNSPECIFIED]
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_list_message_threads_unread_filter(db, moderator):
@@ -409,13 +408,12 @@ def test_mark_all_threads_seen_rejects_unspecified_category(db):
     _user1, token1 = generate_user()
 
     with conversations_session(token1) as c:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             c.MarkAllThreadsSeen(
                 conversations_pb2.MarkAllThreadsSeenReq(
                     categories=[conversations_pb2.MESSAGE_THREAD_CATEGORY_UNSPECIFIED]
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_mark_all_threads_seen_respects_categories(db, moderator):

@@ -50,9 +50,10 @@ from couchers.proto import (
 )
 from couchers.proto.internal import jobs_pb2, unsubscribe_pb2
 from couchers.servicers.api import user_model_to_pb
-from couchers.utils import not_none, now
+from couchers.utils import now
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
     api_session,
     auth_api_session,
@@ -120,7 +121,10 @@ def test_SetNotificationSettings_preferences_not_editable(db):
     topic_action = NotificationTopicAction.password_reset__start
 
     with notifications_session(token) as notifications:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION,
+            "That notification preference is not user editable.",
+        ):
             notifications.SetNotificationSettings(
                 notifications_pb2.SetNotificationSettingsReq(
                     preferences=[
@@ -133,8 +137,6 @@ def test_SetNotificationSettings_preferences_not_editable(db):
                     ],
                 )
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "That notification preference is not user editable."
 
 
 def test_unsubscribe(db, email_collector: EmailCollector):
@@ -560,13 +562,12 @@ def test_RegisterPushNotificationSubscription_invalid_endpoint(db):
     }
 
     with notifications_session(token) as notifications:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             notifications.RegisterPushNotificationSubscription(
                 notifications_pb2.RegisterPushNotificationSubscriptionReq(
                     full_subscription_json=json.dumps(subscription_info),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_SendTestPushNotification(db, push_collector: PushCollector):
@@ -1242,15 +1243,13 @@ def test_SendDevPushNotification_disabled(db, push_collector: PushCollector):
     config.ENABLE_DEV_APIS = False
 
     with notifications_session(token) as notifications:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.UNAVAILABLE, lambda d: "Development APIs are not enabled" in d):
             notifications.SendDevPushNotification(
                 notifications_pb2.SendDevPushNotificationReq(
                     title="Should Fail",
                     body="This should not be sent",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.UNAVAILABLE
-        assert "Development APIs are not enabled" in not_none(e.value.details())
 
     assert push_collector.count_for_user(user.id) == 0
 
@@ -1263,15 +1262,13 @@ def test_SendDevPushNotification_push_notifications_disabled(db, push_collector:
     config.PUSH_NOTIFICATIONS_ENABLED = False
 
     with notifications_session(token) as notifications:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.UNAVAILABLE, lambda d: "Push notifications are currently disabled" in d):
             notifications.SendDevPushNotification(
                 notifications_pb2.SendDevPushNotificationReq(
                     title="Should Fail",
                     body="This should not be sent",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.UNAVAILABLE
-        assert "Push notifications are currently disabled" in not_none(e.value.details())
 
     assert push_collector.count_for_user(user.id) == 0
 
@@ -1410,12 +1407,10 @@ def test_DebugRedeliverPushNotification_not_found(db, push_collector: PushCollec
     config.ENABLE_DEV_APIS = True
 
     with notifications_session(token) as notifications:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, lambda d: "notification not found" in d.lower()):
             notifications.DebugRedeliverPushNotification(
                 notifications_pb2.DebugRedeliverPushNotificationReq(notification_id=999999)
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert "notification not found" in not_none(e.value.details()).lower()
 
     assert push_collector.count_for_user(user.id) == 0
 
@@ -1450,12 +1445,10 @@ def test_DebugRedeliverPushNotification_wrong_user(db, push_collector: PushColle
 
     # user2 tries to redeliver user1's notification
     with notifications_session(token2) as notifications:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, lambda d: "notification not found" in d.lower()):
             notifications.DebugRedeliverPushNotification(
                 notifications_pb2.DebugRedeliverPushNotificationReq(notification_id=notification_id)
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert "notification not found" in not_none(e.value.details()).lower()
 
     assert push_collector.count_for_user(user2.id) == 0
 
@@ -1467,12 +1460,10 @@ def test_DebugRedeliverPushNotification_disabled(db, push_collector: PushCollect
     config.ENABLE_DEV_APIS = False
 
     with notifications_session(token) as notifications:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.UNAVAILABLE, lambda d: "Development APIs are not enabled" in d):
             notifications.DebugRedeliverPushNotification(
                 notifications_pb2.DebugRedeliverPushNotificationReq(notification_id=1)
             )
-        assert e.value.code() == grpc.StatusCode.UNAVAILABLE
-        assert "Development APIs are not enabled" in not_none(e.value.details())
 
     assert push_collector.count_for_user(user.id) == 0
 
@@ -1485,12 +1476,10 @@ def test_DebugRedeliverPushNotification_push_notifications_disabled(db, push_col
     config.PUSH_NOTIFICATIONS_ENABLED = False
 
     with notifications_session(token) as notifications:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.UNAVAILABLE, lambda d: "Push notifications are currently disabled" in d):
             notifications.DebugRedeliverPushNotification(
                 notifications_pb2.DebugRedeliverPushNotificationReq(notification_id=1)
             )
-        assert e.value.code() == grpc.StatusCode.UNAVAILABLE
-        assert "Push notifications are currently disabled" in not_none(e.value.details())
 
     assert push_collector.count_for_user(user.id) == 0
 
