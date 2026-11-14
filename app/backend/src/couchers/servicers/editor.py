@@ -482,6 +482,7 @@ class Editor(editor_pb2_grpc.EditorServicer):
                     attempt.status, postal_verification_pb2.POSTAL_VERIFICATION_STATUS_UNKNOWN
                 ),
                 address=postal_verification_pb2.PostalAddress(
+                    recipient_name=attempt.recipient_name,
                     address_line_1=attempt.address_line_1,
                     address_line_2=attempt.address_line_2,
                     city=attempt.city,
