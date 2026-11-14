@@ -18,6 +18,7 @@ from couchers.models import (
     Cluster,
     ClusterRole,
     ClusterSubscription,
+    Discussion,
     Event,
     EventOccurrence,
     Node,
