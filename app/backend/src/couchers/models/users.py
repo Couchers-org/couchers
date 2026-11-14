@@ -170,6 +170,9 @@ class User(Base, kw_only=True):
     )
     has_modified_public_visibility: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
 
+    # opted in to feature previews; exposed as the is_beta feature flag targeting attribute
+    has_opted_in_to_beta_features: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
+
     # id of the last message that they received a notification about
     last_notified_message_id: Mapped[int] = mapped_column(BigInteger, default=0)
     # same as above for host requests

@@ -199,6 +199,7 @@ class Account(account_pb2_grpc.AccountServicer):
             profile_public_visibility=profilepublicitysetting2api[user.public_visibility],
             is_volunteer=volunteer is not None,
             should_show_donation_banner=should_show_donation_banner,
+            has_opted_in_to_beta_features=user.has_opted_in_to_beta_features,
             **get_strong_verification_fields(session, user),
         )
 
@@ -688,6 +689,20 @@ class Account(account_pb2_grpc.AccountServicer):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         user.public_visibility = profilepublicitysetting2sql[request.profile_public_visibility]  # type: ignore[assignment]
         user.has_modified_public_visibility = True
+        return empty_pb2.Empty()
+
+    def SetBetaFeaturesOptIn(
+        self, request: account_pb2.SetBetaFeaturesOptInReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
+        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        if user.has_opted_in_to_beta_features != request.beta_features_opt_in:
+            user.has_opted_in_to_beta_features = request.beta_features_opt_in
+            log_event(
+                context,
+                session,
+                "account.beta_features_opt_in_changed",
+                {"opted_in": request.beta_features_opt_in},
+            )
         return empty_pb2.Empty()
 
     def CreateInviteCode(

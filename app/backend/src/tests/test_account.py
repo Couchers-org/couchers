@@ -52,6 +52,18 @@ def test_GetAccountInfo(db, fast_passwords):
         assert not res.is_superuser
         assert res.ui_language_preference == ""
         assert not res.is_volunteer
+        assert not res.has_opted_in_to_beta_features
+
+
+def test_SetBetaFeaturesOptIn(db):
+    user, token = generate_user()
+
+    with account_session(token) as account:
+        account.SetBetaFeaturesOptIn(account_pb2.SetBetaFeaturesOptInReq(beta_features_opt_in=True))
+        assert account.GetAccountInfo(empty_pb2.Empty()).has_opted_in_to_beta_features
+
+        account.SetBetaFeaturesOptIn(account_pb2.SetBetaFeaturesOptInReq(beta_features_opt_in=False))
+        assert not account.GetAccountInfo(empty_pb2.Empty()).has_opted_in_to_beta_features
 
 
 def test_donation_banner_no_drive(db):
