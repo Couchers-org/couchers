@@ -335,10 +335,11 @@ hide_title: true
 }
 .cc-fab {
   position: sticky;
-  bottom: 24px;
+  bottom: 48px;
   float: right;
   z-index: 999;
   margin-top: 16px;
+  margin-bottom: 16px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.22);
 }
 .cc-fab-hidden {
@@ -388,9 +389,22 @@ hide_title: true
 <h2 class="cc-section-title">Upcoming Crashes</h2>
 <h3 class="cc-month">December 2026</h3>
 <ul class="cc-grid">
-  <li class="cc-card">
+  <li class="cc-card overlap">
+    <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/d783c85969eee911cd5f00fcb4d1f716aeb508bb829c1b1c871e4843c70a4573.jpg" alt="Berlin Anti-Xmas Xtravaganza 2026">
+    <div class="cc-date-row">
+	  <span class="cc-date">📅 Dec 25 – Dec 29, 2026</span>
+	  <span class="cc-overlap-tag">Same Weekend</span>
+	</div>
+    <h4 class="cc-title"><a href="https://couchers.org/event/8390/berlin-anti-xmas-xtravaganza-2026">Berlin Anti-Xmas Xtravaganza 2026</a></h4>
+    <p class="cc-meta">📍 Berlin, Germany</p>
+    <p class="cc-organizer">👤 Organized by <a href="https://couchers.org/user/ivan_not_from_russia">Ivan</a></p>
+  </li>
+  <li class="cc-card overlap">
     <img class="cc-card-img" src="https://usercontent.couchershq.org/media/img/full/424761af69e6c7078869b78915e7e59fdd2c695e920171899e93e317935d5767.jpg" alt="Sporty Winter Crash in Szklarska Poręba">
-    <div class="cc-date-row"><span class="cc-date">📅 Dec 27 – Dec 29, 2026</span></div>
+    <div class="cc-date-row">
+	  <span class="cc-date">📅 Dec 27 – Dec 29, 2026</span>
+	  <span class="cc-overlap-tag">Same Weekend</span>
+	</div>
     <h4 class="cc-title"><a href="https://couchers.org/event/7768/sporty-winter-crash-in-szklarska-poreba-an-active-pre-nye-camp">Sporty Winter Crash in Szklarska Poręba</a></h4>
     <p class="cc-meta">📍 Szklarska Poręba, Poland</p>
     <p class="cc-organizer">👤 Organized by <a href="https://couchers.org/user/christr">Chris</a></p>
@@ -436,7 +450,7 @@ hide_title: true
   </ul>
 </details>
 <!-- FLOATING PROPOSE BUTTON -->
-<a href="#propose-crash" class="cc-btn cc-fab" id="cc-floating-btn">Propose a Crash</a>
+<a href="#propose-crash" class="cc-btn cc-fab" id="cc-floating-btn">List a Crash</a>
 <!-- PROPOSE A CRASH SECTION -->
 <div id="propose-crash" class="cc-propose-box">
   <h3>Propose a Crash</h3>
