@@ -389,7 +389,7 @@ requires-dist = [
     { name = "cryptography", specifier = ">=50.0.1" },
     { name = "geoalchemy2", specifier = ">=0.18.0" },
     { name = "geoip2", specifier = ">=5.3.0" },
-    { name = "growthbook", specifier = ">=3.0.0" },
+    { name = "growthbook", specifier = ">=4.0.1" },
     { name = "grpcio", specifier = ">=1.85.1" },
     { name = "http-ece", specifier = ">=1.2.1" },
     { name = "icalendar", specifier = ">=7.2.2" },
@@ -651,7 +651,7 @@ wheels = [
 
 [[package]]
 name = "growthbook"
-version = "3.0.0"
+version = "4.0.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -659,9 +659,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/66/da/fdd2a5f66d0446c6e0bf7f2e1b84a02b2e53544da7e5e775ff7114ab9704/growthbook-3.0.0.tar.gz", hash = "sha256:01b29c2c58197afbe188a432addcb4c30f017c599eedc1c77de8869b530d90e2", size = 122796, upload-time = "2026-08-26T22:58:54.874Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a9/18/e89800c2f2c2c9a686288499d327f3551166fc41b225c7457f926e091f9d/growthbook-4.0.1.tar.gz", hash = "sha256:cc7de29ac8abcdce5606e9a3bdd7f0cce0962ff7d3f727ce9d4a9c5bb65be65c", size = 182123, upload-time = "2026-11-12T22:48:08.643Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/6d/c9/13bdab4b98ef9b8f0c4cd09aaaf68a9d701de684c30e431cd6e9a8f0749b/growthbook-3.0.0-py2.py3-none-any.whl", hash = "sha256:fe3453b411a7dcb7c18f4763a70e1e4d95e633e344cad173a89c893f3155bd0a", size = 72869, upload-time = "2026-08-26T22:58:53.904Z" },
+    { url = "https://files.pythonhosted.org/packages/8d/98/54dc23e0d0ec5abf471a338e6361ac2fdf9f0dc0f100e6eb0e04a627467d/growthbook-4.0.1-py2.py3-none-any.whl", hash = "sha256:0be715a471edecb54ab4e397af7ff549908bcbec90a0ba97326cf66db40858f4", size = 96266, upload-time = "2026-11-12T22:48:07.562Z" },
 ]
 
 [[package]]
