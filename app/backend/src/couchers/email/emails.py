@@ -1948,6 +1948,8 @@ class PostalVerificationFailedEmail(EmailBase):
                 purpose_string_key = ".purpose.code_expired"
             case notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_TOO_MANY_ATTEMPTS:
                 purpose_string_key = ".purpose.too_many_attempts"
+            case notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_ADDRESS_REJECTED:
+                purpose_string_key = ".purpose.address_rejected"
             case _:
                 purpose_string_key = ".purpose.default"
         builder.para(purpose_string_key)
@@ -1967,6 +1969,7 @@ class PostalVerificationFailedEmail(EmailBase):
         return [
             replace(prototype, reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_CODE_EXPIRED),
             replace(prototype, reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_TOO_MANY_ATTEMPTS),
+            replace(prototype, reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_ADDRESS_REJECTED),
             replace(prototype, reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_UNKNOWN),
         ]
 

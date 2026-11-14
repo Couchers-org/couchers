@@ -155,6 +155,8 @@ class Config:
     SLACK_BOT_TOKEN: str
     SLACK_DONATIONS_CHANNEL: str
     SLACK_MERCH_CHANNEL: str
+    # Where alerts that need someone to act go
+    SLACK_MONITORING_CHANNEL: str
     # an empty host turns rate limiting off entirely, see docs/rate-limit-design.md
     VALKEY_HOST: str = ""
     VALKEY_PORT: int = 6379
