@@ -1,11 +1,12 @@
 from sqlalchemy import select
+from sqlalchemy.sql.selectable import Exists
 
 from couchers.context import CouchersContext
 from couchers.models import Comment, Discussion
 from couchers.sql import where_moderated_content_visible, where_users_column_visible
 
 
-def has_visible_comments(context: CouchersContext):
+def has_visible_comments(context: CouchersContext) -> Exists:
     return (
         where_moderated_content_visible(
             where_users_column_visible(
