@@ -35,7 +35,7 @@ from sqlalchemy.dialects.postgresql import insert
 from couchers import metrics
 from couchers.config import config
 from couchers.db import session_scope
-from couchers.models import Volunteer
+from couchers.models import User, Volunteer
 from couchers.models.logging import ExperimentExposure, ExposureSource, FeatureUsage
 
 logger = logging.getLogger(__name__)
@@ -242,14 +242,16 @@ def get_targeting_attributes(user_id: int | None) -> dict[str, Any]:
     """
     if user_id is None:
         return {"logged_in": False}
+    is_volunteer = exists().where(Volunteer.user_id == user_id).where(Volunteer.stopped_volunteering.is_(None))
     with session_scope() as session:
-        is_volunteer = session.execute(
-            select(exists().where(Volunteer.user_id == user_id).where(Volunteer.stopped_volunteering.is_(None)))
-        ).scalar_one()
+        is_beta, is_volunteer = session.execute(
+            select(User.has_opted_in_to_beta_features, is_volunteer).where(User.id == user_id)
+        ).one()
     return {
         "id": str(user_id),
         "logged_in": True,
         "is_volunteer": is_volunteer,
+        "is_beta": is_beta,
     }
 
 

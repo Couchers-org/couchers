@@ -13,7 +13,7 @@ from sqlalchemy.sql import exists, update
 from couchers import urls
 from couchers.context import CouchersContext
 from couchers.db import get_parent_node_at_location, session_scope
-from couchers.helpers.clusters import CHILD_NODE_TYPE, create_cluster, create_node
+from couchers.helpers.clusters import CHILD_NODE_TYPE, busiest_user_neighbourhood_location, create_cluster, create_node
 from couchers.jobs.enqueue import queue_job
 from couchers.materialized_views import LiteUser
 from couchers.models import EventCommunityInviteRequest, EventOccurrence, Node, User, UserActivity, Volunteer
@@ -156,7 +156,21 @@ class Editor(editor_pb2_grpc.EditorServicer):
             parent_type = None
         node_type = CHILD_NODE_TYPE[parent_type]
         node = create_node(session, geom, parent_node_id, node_type)
-        create_cluster(session, node.id, request.name, request.description, context.user_id, request.admin_ids, True)
+        main_page_geom = (
+            busiest_user_neighbourhood_location(session, node)
+            if request.set_main_page_location_from_busiest_user_neighbourhood
+            else None
+        )
+        create_cluster(
+            session,
+            node.id,
+            request.name,
+            request.description,
+            context.user_id,
+            request.admin_ids,
+            True,
+            main_page_geom=main_page_geom,
+        )
 
         return community_to_pb(session, node, context)
 

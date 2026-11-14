@@ -4,7 +4,7 @@ import grpc
 import pytest
 from google.protobuf import empty_pb2
 from google.protobuf.wrappers_pb2 import BoolValue, DoubleValue, StringValue
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views_rapid
@@ -18,7 +18,7 @@ from couchers.models import (
 )
 from couchers.proto import editor_pb2, events_pb2
 from couchers.tasks import enforce_community_memberships
-from couchers.utils import now
+from couchers.utils import create_coordinate, get_coordinates, now
 from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.rpc_errors import expect_rpc_error
@@ -234,6 +234,57 @@ def test_CreateCommunity(db):
             community = session.execute(select(Cluster).where(Cluster.name == "test community")).scalar_one()
             assert community.description == "community for testing"
             assert community.slug == "test-community"
+
+
+def _create_community(api, name, set_main_page_location_from_busiest_user_neighbourhood):
+    return api.CreateCommunity(
+        editor_pb2.CreateCommunityReq(
+            name=name,
+            description="community for testing",
+            admin_ids=[],
+            geojson=VALID_GEOJSON_MULTIPOLYGON,
+            set_main_page_location_from_busiest_user_neighbourhood=set_main_page_location_from_busiest_user_neighbourhood,
+        )
+    ).community_id
+
+
+def _main_page_version(session, name):
+    return session.execute(select(Cluster).where(Cluster.name == name)).scalar_one().main_page.versions[-1]
+
+
+def test_CreateCommunity_set_main_page_location_from_busiest_user_neighbourhood(db):
+    editor_user, editor_token = generate_user(is_editor=True)
+    for _ in range(2):
+        generate_user(geom=create_coordinate(40.7415, -73.9925))
+    generate_user(geom=create_coordinate(40.7470, -74.0030))
+    generate_user(geom=create_coordinate(40.7470, -74.0030), delete_user=True)
+    generate_user(geom=create_coordinate(40.7470, -74.0030), delete_user=True)
+
+    with real_editor_session(editor_token) as api:
+        _create_community(api, "located", True)
+        _create_community(api, "unlocated", False)
+
+    with session_scope() as session:
+        located = _main_page_version(session, "located")
+        assert get_coordinates(located.geom) == pytest.approx((40.7415, -73.9925))
+        assert located.address == "located"
+
+        unlocated = _main_page_version(session, "unlocated")
+        assert unlocated.geom is None
+        assert unlocated.address is None
+
+
+def test_CreateCommunity_set_main_page_location_from_busiest_user_neighbourhood_without_users(db):
+    editor_user, editor_token = generate_user(is_editor=True)
+
+    with real_editor_session(editor_token) as api:
+        community_id = _create_community(api, "empty", True)
+
+    with session_scope() as session:
+        located = _main_page_version(session, "empty")
+        assert located.geom is not None
+        node_geom = select(Node.geom).where(Node.id == community_id).scalar_subquery()
+        assert session.execute(select(func.ST_Contains(node_geom, located.geom))).scalar_one()
 
 
 def test_UpdateCommunity2(db):

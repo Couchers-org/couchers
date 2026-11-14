@@ -1,7 +1,9 @@
 from collections.abc import Sequence
 
+from geoalchemy2 import Geometry, WKBElement
 from geoalchemy2.shape import from_shape
 from shapely.geometry.base import BaseGeometry
+from sqlalchemy import func, select, type_coerce
 from sqlalchemy.orm import Session
 
 from couchers.models import (
@@ -14,6 +16,7 @@ from couchers.models import (
     PageType,
     PageVersion,
     Thread,
+    User,
 )
 
 CHILD_NODE_TYPE = {
@@ -36,6 +39,28 @@ def create_node(session: Session, geom: BaseGeometry, parent_node_id: int | None
     return node
 
 
+def busiest_user_neighbourhood_location(session: Session, node: Node) -> WKBElement:
+    """
+    The centre of the users within about a kilometre of the user inside the node who has the most such neighbours.
+    For a city this is nearly always its centre, because searching for a city puts people there.
+    """
+    node_geom = select(Node.geom).where(Node.id == node.id).scalar_subquery()
+    users = select(User.id, User.geom).where(User.is_visible).where(func.ST_Contains(node_geom, User.geom)).cte()
+    user, neighbour = users.alias(), users.alias()
+    busiest = (
+        select(func.ST_Centroid(func.ST_Collect(neighbour.c.geom)))
+        .select_from(user.join(neighbour, func.ST_DWithin(user.c.geom, neighbour.c.geom, 0.01)))
+        .group_by(user.c.id)
+        .order_by(func.count().desc())
+        .limit(1)
+        .scalar_subquery()
+    )
+    centre: WKBElement = session.execute(
+        select(type_coerce(func.coalesce(busiest, func.ST_PointOnSurface(node_geom)), Geometry(srid=4326)))
+    ).scalar_one()
+    return centre
+
+
 def create_cluster(
     session: Session,
     parent_node_id: int,
@@ -44,6 +69,7 @@ def create_cluster(
     creator_user_id: int,
     admin_ids: Sequence[int],
     is_community: bool,
+    main_page_geom: WKBElement | None = None,
 ) -> Cluster:
     cluster_type = "community" if is_community else "group"
     cluster = Cluster(
@@ -71,6 +97,8 @@ def create_cluster(
         editor_user_id=creator_user_id,
         title=DEFAULT_PAGE_TITLE_TEMPLATE.format(name=name, type=cluster_type),
         content=DEFAULT_PAGE_CONTENT,
+        geom=main_page_geom,
+        address=name if main_page_geom is not None else None,
     )
     session.add(page_version)
     for admin_id in admin_ids:

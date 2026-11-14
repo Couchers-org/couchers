@@ -331,6 +331,20 @@ def test_logout_creates_event(db):
         assert events[0].properties == {}
 
 
+def test_beta_features_opt_in_creates_event_only_on_change(db):
+    user, token = generate_user()
+
+    with account_session(token) as account:
+        account.SetBetaFeaturesOptIn(account_pb2.SetBetaFeaturesOptInReq(beta_features_opt_in=True))
+        account.SetBetaFeaturesOptIn(account_pb2.SetBetaFeaturesOptInReq(beta_features_opt_in=True))
+        account.SetBetaFeaturesOptIn(account_pb2.SetBetaFeaturesOptInReq(beta_features_opt_in=False))
+
+    with session_scope() as session:
+        events = _get_events(session, "account.beta_features_opt_in_changed")
+        assert [e.user_id for e in events] == [user.id, user.id]
+        assert [e.properties for e in events] == [{"opted_in": True}, {"opted_in": False}]
+
+
 # ===== Integration tests: host request events =====
 
 

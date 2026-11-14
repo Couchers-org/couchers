@@ -32,6 +32,7 @@ const baseAccountInfo = {
   isVolunteer: false,
   myHomeComplete: false,
   shouldShowDonationBanner: false,
+  hasOptedInToBetaFeatures: false,
 };
 
 describe("AdminPanelUserButton", () => {
