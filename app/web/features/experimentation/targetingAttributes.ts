@@ -1,5 +1,5 @@
 import Sentry from "platform/sentry";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { getFeatureFlagAttributes } from "service/experiments";
 
 type Attributes = Record<string, unknown>;
@@ -34,6 +34,7 @@ export function useTargetingAttributes(userId: number | null) {
   const [attributes, setAttributes] = useState(readCache);
   const userKey = userId?.toString() ?? "";
   const [settledFor, setSettledFor] = useState<string>();
+  const [refreshCount, setRefreshCount] = useState(0);
 
   useEffect(() => {
     const timeout = setTimeout(() => setSettledFor(userKey), FETCH_TIMEOUT_MS);
@@ -50,10 +51,11 @@ export function useTargetingAttributes(userId: number | null) {
         setSettledFor(userKey);
       });
     return () => clearTimeout(timeout);
-  }, [userKey]);
+  }, [userKey, refreshCount]);
 
   return {
     attributes: useMemo(() => getTargetingAttributes(userId, attributes), [userId, attributes]),
     ready: isForUser(attributes, userId) || settledFor === userKey,
+    refresh: useCallback(() => setRefreshCount((count) => count + 1), []),
   };
 }

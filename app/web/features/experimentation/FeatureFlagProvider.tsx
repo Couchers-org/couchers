@@ -40,6 +40,7 @@ const growthbook = new GrowthBook({
 
 // Defaults to ready so components rendered without the provider (e.g. in tests) aren't blocked
 const AttributesReadyContext = createContext(true);
+const RefreshAttributesContext = createContext(() => {});
 
 export type FeatureFlagSnapshot = {
   targeting: Record<string, unknown>;
@@ -72,7 +73,7 @@ if (typeof window !== "undefined") {
 
 export default function FeatureFlagProvider({ children }: { children: ReactNode }) {
   const { authState } = useAuthContext();
-  const { attributes, ready: attributesReady } = useTargetingAttributes(authState.userId);
+  const { attributes, ready: attributesReady, refresh } = useTargetingAttributes(authState.userId);
 
   useEffect(() => {
     // Dev-only: when set, flags resolve from feature-flags.dev.json instead of GrowthBook,
@@ -103,7 +104,9 @@ export default function FeatureFlagProvider({ children }: { children: ReactNode 
 
   return (
     <GrowthBookProvider growthbook={growthbook}>
-      <AttributesReadyContext value={attributesReady}>{children}</AttributesReadyContext>
+      <AttributesReadyContext value={attributesReady}>
+        <RefreshAttributesContext value={refresh}>{children}</RefreshAttributesContext>
+      </AttributesReadyContext>
     </GrowthBookProvider>
   );
 }
@@ -113,4 +116,9 @@ export function useFeatureFlagsReady() {
   const growthbookReady = useGrowthBook().ready;
   const attributesReady = useContext(AttributesReadyContext);
   return growthbookReady && attributesReady;
+}
+
+/** Refetches the user's targeting attributes, for when something they depend on (e.g. is_beta) changes. */
+export function useRefreshFeatureFlagAttributes() {
+  return useContext(RefreshAttributesContext);
 }

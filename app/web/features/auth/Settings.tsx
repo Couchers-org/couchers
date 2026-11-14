@@ -21,6 +21,7 @@ import { useIsNativeEmbed } from "utils/nativeLink";
 
 import DeleteAccount from "./deletion/DeleteAccount";
 import ManageDonations from "./donations/ManageDonations";
+import FeaturePreviewLink from "./FeaturePreviewLink";
 import LoginsLink from "./logins/LoginsLink";
 import useAccountInfo from "./useAccountInfo";
 import VerificationLink from "./verification/VerificationLink";
@@ -125,6 +126,9 @@ export default function Settings() {
           </MarginWrapper>
           <MarginWrapper>
             <LanguagePickerSettings />
+          </MarginWrapper>
+          <MarginWrapper>
+            <FeaturePreviewLink />
           </MarginWrapper>
           <MarginWrapper id="do-not-email">
             <DoNotEmail />

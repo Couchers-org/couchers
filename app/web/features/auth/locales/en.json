@@ -224,10 +224,13 @@
     "title": "Feature Preview",
     "explanation": "This page allows you to try out features that are still in development before they are quite ready for use by everyone.",
     "disclaimer": "Please keep in mind that these features are experimental. They may not work as intended and they may change rapidly as we develop them. Feel free to give feedback using the \"Report a problem\" button to report any bugs!",
-    "no_previews": {
-      "title": "No features currently in preview",
-      "explanation": "There are currently no active features in preview, please check back later!"
-    }
+    "opt_in": {
+      "header": "Try new features early",
+      "explanation": "Turn this on to get access to new features before they are released to everyone. You can turn it off again at any time.",
+      "switch_label": "Show me features in preview"
+    },
+    "settings_page_text": "Try out new features before they are released to everyone",
+    "settings_page_link": "Go to feature preview"
   },
   "active_logins": {
     "heading": "Current logins",
