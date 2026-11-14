@@ -47,6 +47,8 @@ const ATTRIBUTION_PARAMS = ["utm_source", "utm_medium", "utm_campaign", "utm_ter
 // zn: the notification id, added to push notification links, see app/backend/src/couchers/notifications/push.py
 const ONE_TIME_PARAMS = ["zz", "zn"];
 
+const SECRET_PARAMS = ["token", "verification_attempt_token", "sig"];
+
 /**
  * Extract attribution parameters (UTM params) from the URL.
  * These help track which campaigns, ads, or links brought users to your site.
@@ -69,7 +71,7 @@ function getFilteredSearch(queryString: string): string | null {
   const params = new URLSearchParams(queryString);
   const filtered = new URLSearchParams();
   params.forEach((value, key) => {
-    if (!key.startsWith("utm_") && !ATTRIBUTION_PARAMS.includes(key)) {
+    if (!key.startsWith("utm_") && !ATTRIBUTION_PARAMS.includes(key) && !SECRET_PARAMS.includes(key)) {
       filtered.set(key, value);
     }
   });

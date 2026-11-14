@@ -75,6 +75,10 @@ jest.mock("@/features/notifications/useRegisterPushNotifications", () => ({
   useRegisterPushNotifications: jest.fn(),
 }));
 
+jest.mock("@/features/analytics/useEmailLinkLogger", () => ({
+  useEmailLinkLogger: jest.fn(),
+}));
+
 jest.mock("@/features/diagnostics/useNativeDiagnostics", () => ({
   useNativeDiagnostics: () => ({ prompt: null, dismiss: jest.fn() }),
 }));
