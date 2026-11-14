@@ -25,7 +25,7 @@ The recommended way get `nodejs` is to use NVM as above, but any other way of in
 
 If you don't want `nvm` to be run when you start your terminal, you can add `--no-use` in your shell's `rc` file (e.g. `~/.zshrc`), just before where it says `# This loads nvm`. You then need to run `nvm use` every time you enter the `app/web` folder to start developing.
 
-On macOS you can alternatively install dependencies via homebrew. You can get nvm with `brew install nvm`, or `nodejs` directly with `brew install node@20`.
+On macOS you can alternatively install dependencies via homebrew. You can get nvm with `brew install nvm`, or `nodejs` directly with `brew install node@22`.
 
 You also need `git`, `curl`, and `tar`, they should be preinstalled or be available from the usual places.
 
