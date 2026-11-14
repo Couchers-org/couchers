@@ -12,8 +12,7 @@
     },
     "footer": {
       "received_because": "Stai ricevendo queste email perché hai fatto l'iscrizione a Couchers.org.",
-      "contact_support": "Puoi contattare il nostro team di supporto all'indirizzo {{ email_link }}.",
-      "timezone_note": "Tutti gli orari sono in {{ timezone }}, in base alla posizione del tuo profilo.",
+      "contact_support": "Puoi contattare il nostro team di assistenza all'indirizzo {{ email_link }}.",
       "donate_link": "Dona",
       "volunteer_link": "Diventa volontario",
       "blog_link": "Blog",
@@ -71,7 +70,6 @@
   "api_key_issued": {
     "subject": "La tua chiave API per Couchers.org",
     "header": "Hai recentemente richiesto una chiave API per Couchers.org. Abbiamo creato per te la seguente chiave API:",
-    "expiry": "La chiave scade il <b>{{ datetime }}</b>.",
     "usage_warning": "Questa chiave API è univoca per il tuo account; non condividerla con nessuno. Fornisce accesso completo al tuo account e sei responsabile di qualsiasi azione eseguita utilizzando questa chiave API.",
     "policy_warning": "Ricorda di rispettare i nostri <a href=\"{{terms_url}}\">Termini di Servizio</a>, le nostre Linee Guida della community e le altre policy durante l'utilizzo delle nostre API. Tutti gli accessi vengono registrati e analizzati e potremmo revocare il tuo accesso o account in caso di abuso del servizio."
   },
@@ -219,7 +217,7 @@
   },
   "stays": {
     "created": {
-      "host_request": {
+      "request": {
         "subject": "{{initiator}} ti ha inviato una richiesta di soggiorno",
         "purpose": "<b>{{initiator}}</b> ti ha inviato una richiesta di soggiorno:",
         "respond_encouragement": "Per favore, rispondi a questa richiesta. Anche un rapido rifiuto è meglio di nessuna risposta!"
@@ -227,19 +225,19 @@
     },
     "generic": {
       "date_range": "Da <b>{{from_date}}</b> a <b>{{to_date}}</b>.",
-      "host_request": {
+      "request": {
         "view_action": "Visualizza richiesta di soggiorno"
       },
       "quick_decline_action": "Rifiuta rapidamente"
     },
     "reminder": {
-      "host_request": {
+      "request": {
         "subject": "Hai una richiesta di soggiorno in sospeso da {{initiator}}",
         "purpose": "<b>{{initiator}}</b> è in attesa di una tua risposta. Anche un rapido rifiuto è meglio di nessuna risposta!"
       }
     },
     "message": {
-      "host_request": {
+      "request": {
         "from_initiator": {
           "subject": "{{counterparty}} ti ha inviato un messaggio riguardo alla sua richiesta di soggiorno",
           "purpose": "<b>{{counterparty}}</b> ti ha inviato un messaggio riguardo alla sua richiesta di soggiorno:"
@@ -251,7 +249,7 @@
       }
     },
     "missed_messages": {
-      "host_request": {
+      "request": {
         "from_initiator": {
           "subject": "{{counterparty}} ti ha inviato dei messaggi riguardo alla sua richiesta di soggiorno",
           "purpose": "<b>{{counterparty}}</b> ti ha inviato uno o più messaggi nella sua richiesta di soggiorno:"
@@ -263,7 +261,7 @@
       }
     },
     "status_changed": {
-      "host_request": {
+      "request": {
         "accepted_by_recipient": {
           "subject": "{{counterparty}} ha accettato la tua richiesta di soggiorno",
           "purpose": "<b>{{counterparty}}</b> ha accettato la tua richiesta di soggiorno:"
@@ -416,7 +414,7 @@
     "failed": {
       "subject": "Verifica robusta non riuscita",
       "purpose": {
-        "wrong_birthdate_or_gender": "Il tuo tentativo di verifica robusta non è andato a buon fine perché la data di nascita o il genere sul tuo profilo non corrispondono alla data di nascita o al sesso indicati sul tuo passaporto. Contatta il team di supporto per aggiornare la tua data di nascita o il tuo genere, oppure se il sesso indicato sul passaporto non corrisponde alla tua identità di genere.",
+        "wrong_birthdate_or_gender": "Il tuo tentativo di verifica robusta non è andato a buon fine perché la data di nascita o il genere sul tuo profilo non corrispondono alla data di nascita o al sesso indicati sul tuo passaporto. Contatta il team di assistenza per aggiornare la tua data di nascita o il tuo genere, oppure se il sesso indicato sul passaporto non corrisponde alla tua identità di genere.",
         "not_a_passport": "Il tuo tentativo di verifica robusta non è andato a buon fine perché hai utilizzato un documento diverso dal passaporto. Per la verifica robusta puoi utilizzare esclusivamente il passaporto.",
         "duplicate": "Il tuo tentativo di verifica robusta non è andato a buon fine perché hai utilizzato un passaporto già usato sulla piattaforma. Ti preghiamo di utilizzare un altro passaporto."
       },

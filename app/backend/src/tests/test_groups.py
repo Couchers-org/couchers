@@ -1,10 +1,10 @@
 import grpc
-import pytest
 
 from couchers.db import session_scope
 from couchers.proto import groups_pb2, pages_pb2
 from couchers.tasks import enforce_community_memberships
 from tests.fixtures.db import generate_user, get_user_id_and_token
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import groups_session
 from tests.test_communities import (  # noqa
     create_1d_point,
@@ -329,14 +329,12 @@ def test_JoinGroup_and_LeaveGroup(testing_communities):
         assert not api.GetGroup(groups_pb2.GetGroupReq(group_id=h_id)).member
 
         # can't leave
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You're not in that group."):
             res = api.LeaveGroup(
                 groups_pb2.LeaveGroupReq(
                     group_id=h_id,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You're not in that group."
 
         # didn't magically join
         assert not api.GetGroup(groups_pb2.GetGroupReq(group_id=h_id)).member
@@ -352,14 +350,12 @@ def test_JoinGroup_and_LeaveGroup(testing_communities):
         assert api.GetGroup(groups_pb2.GetGroupReq(group_id=h_id)).member
 
         # can't join again
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You're already in that group."):
             res = api.JoinGroup(
                 groups_pb2.JoinGroupReq(
                     group_id=h_id,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You're already in that group."
 
         # didn't magically leave
         assert api.GetGroup(groups_pb2.GetGroupReq(group_id=h_id)).member

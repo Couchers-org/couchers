@@ -118,7 +118,7 @@ class UserInfo:
     profile_url: str
 
     @classmethod
-    def from_protobuf(cls, user: api_pb2.User) -> Self:
+    def from_proto(cls, user: api_pb2.User) -> Self:
         return cls(
             name=user.name,
             age=user.age,
@@ -209,7 +209,6 @@ class EmailBlocksBuilder:
 
 @dataclass(kw_only=True)
 class EmailFooter:
-    timezone_name: str
     copyright_year: int = now().year
     unsubscribe_info: UnsubscribeInfo | None
 

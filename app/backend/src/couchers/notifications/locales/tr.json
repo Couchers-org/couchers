@@ -227,73 +227,6 @@
       }
     }
   },
-  "host_request": {
-    "accept": {
-      "event_description": "Birisi ev sahipliği isteğini kabul edince",
-      "push": {
-        "title": "{{user}} ev sahipliği isteğinizi kabul etti",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "Ev Sahipliği İsteği Kabul Edildi",
-        "body": "{{user}}, {{date}} için ev sahipliği isteğinizi kabul etti."
-      }
-    },
-    "confirm": {
-      "event_description": "Birisi ev sahipliği isteğini onayladığında",
-      "push": {
-        "title": "{{user}}, ev sahibi isteklerini onayladı",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "Ev Sahipliği İsteği Onaylandı",
-        "body": "{{user}}, {{date}} için kendi ev sahipliği isteğini onayladı."
-      }
-    },
-    "create": {
-      "event_description": "Birisi sana bir ev sahipliği isteği gönderdiğinde",
-      "push": {
-        "title": "{{user}}'dan yeni konaklama isteği",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "Yeni Ev Sahipliği İsteği",
-        "body_one": "{{user}}, {{start_date}} tarihinden itibaren {{count}} gece kalmak istiyor.",
-        "body_other": "{{user}}, {{start_date}} tarihinden itibaren {{count}} gece kalmak istiyor."
-      }
-    },
-    "message": {
-      "event_description": "Birisi ev sahipliği isteğinde mesaj gönderdiğinde"
-    },
-    "missed_messages": {
-      "event_description": "Bir ev sahipliği isteğinde mesaj kaçırdığında",
-      "push": {
-        "title": "{{user}}'dan yeni mesajlar",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "Okunmamış Mesajlar",
-        "body": "{{user}} kişisinden yeni okunmamış mesajların var."
-      }
-    },
-    "reject": {
-      "event_description": "Birisi ev sahipliği isteğini reddettiğinde",
-      "push": {
-        "title": "{{user}} ev sahipliği isteğini reddetti",
-        "ios_title": "{{user}}"
-      }
-    },
-    "reminder": {
-      "event_description": "Bekleyen bir ev sahibi isteğine henüz yanıt vermediniz",
-      "push": {
-        "ios_subtitle": "{{user}}",
-        "body": "{{user}} sizin cevabınızı bekliyor, lütfen isteği kabul edin veya reddedin.",
-        "title": "{{user}} tarafından bekleyen istek",
-        "ios_title": "Ev Sahipliği İsteği Beklemede"
-      }
-    },
-    "cancel": {
-      "event_description": "Birisi ev sahipliği isteğini iptal ettiğinde",
-      "push": {
-        "title": "{{user}} ev sahipliği isteğini iptal etti",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "Ev Sahipliği İsteği İptal Edildi",
-        "body": "{{user}}, {{date}} için ev sahipliği isteğini iptal etti."
-      }
-    }
-  },
   "phone_number": {
     "change": {
       "event_description": "Telefon numaranız değiştirildi"
@@ -314,6 +247,85 @@
     },
     "receive_surfed": {
       "event_description": "Ev sahipliği yaptığın birinden referans aldığında"
+    }
+  },
+  "stay": {
+    "accept": {
+      "event_description": "Birisi ev sahipliği isteğini kabul edince",
+      "request": {
+        "push": {
+          "title": "{{user}} ev sahipliği isteğinizi kabul etti",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Ev Sahipliği İsteği Kabul Edildi",
+          "body": "{{user}}, {{date}} için ev sahipliği isteğinizi kabul etti."
+        }
+      }
+    },
+    "cancel": {
+      "event_description": "Birisi ev sahipliği isteğini iptal ettiğinde",
+      "request": {
+        "push": {
+          "title": "{{user}} ev sahipliği isteğini iptal etti",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Ev Sahipliği İsteği İptal Edildi",
+          "body": "{{user}}, {{date}} için ev sahipliği isteğini iptal etti."
+        }
+      }
+    },
+    "confirm": {
+      "event_description": "Birisi ev sahipliği isteğini onayladığında",
+      "request": {
+        "push": {
+          "title": "{{user}}, ev sahibi isteklerini onayladı",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Ev Sahipliği İsteği Onaylandı",
+          "body": "{{user}}, {{date}} için kendi ev sahipliği isteğini onayladı."
+        }
+      }
+    },
+    "create": {
+      "event_description": "Birisi sana bir ev sahipliği isteği gönderdiğinde",
+      "request": {
+        "push": {
+          "title": "{{user}}'dan yeni konaklama isteği",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Yeni Ev Sahipliği İsteği",
+          "body_one": "{{user}}, {{start_date}} tarihinden itibaren {{count}} gece kalmak istiyor.",
+          "body_other": "{{user}}, {{start_date}} tarihinden itibaren {{count}} gece kalmak istiyor."
+        }
+      }
+    },
+    "message": {
+      "event_description": "Birisi ev sahipliği isteğinde mesaj gönderdiğinde"
+    },
+    "missed_messages": {
+      "event_description": "Bir ev sahipliği isteğinde mesaj kaçırdığında",
+      "push": {
+        "title": "{{user}}'dan yeni mesajlar",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Okunmamış Mesajlar",
+        "body": "{{user}} kişisinden yeni okunmamış mesajların var."
+      }
+    },
+    "reject": {
+      "event_description": "Birisi ev sahipliği isteğini reddettiğinde",
+      "request": {
+        "push": {
+          "title": "{{user}} ev sahipliği isteğini reddetti",
+          "ios_title": "{{user}}"
+        }
+      }
+    },
+    "reminder": {
+      "event_description": "Bekleyen bir ev sahibi isteğine henüz yanıt vermediniz",
+      "request": {
+        "push": {
+          "ios_subtitle": "{{user}}",
+          "body": "{{user}} sizin cevabınızı bekliyor, lütfen isteği kabul edin veya reddedin.",
+          "title": "{{user}} tarafından bekleyen istek",
+          "ios_title": "Ev Sahipliği İsteği Beklemede"
+        }
+      }
     }
   },
   "thread": {

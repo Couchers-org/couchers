@@ -51,14 +51,15 @@ from couchers.proto import (
     notifications_pb2,
     pages_pb2,
     public_trips_pb2,
-    requests_pb2,
     threads_pb2,
 )
 from couchers.servicers.threads import pack_thread_id
 from couchers.utils import Timestamp_from_datetime, now, today
 from tests.fixtures.api import events as events_api
+from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import backdate_conversations, generate_user, make_friends
 from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
     api_session,
     conversations_session,
@@ -68,29 +69,17 @@ from tests.fixtures.sessions import (
     public_trips_session,
     real_admin_session,
     real_moderation_session,
-    requests_session,
     threads_session,
 )
 from tests.test_communities import create_community, create_group
 from tests.test_public_trips import VALID_DESCRIPTION as VALID_TRIP_DESCRIPTION
 from tests.test_references import create_friend_reference
-from tests.test_requests import valid_request_text
 
 
 def create_test_host_request_with_moderation(surfer_token, host_user_id):
     """Helper to create a host request and return its moderation state ID"""
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
 
-    with requests_session(surfer_token) as api:
-        hr_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host_user_id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    hr_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user_id)
 
     backdate_conversations()
 
@@ -140,19 +129,8 @@ def test_add_to_moderation_queue(db):
     user1, token1 = generate_user()
     user2, _ = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
     # Create a real host request (which automatically creates moderation state and adds to queue)
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
 
     # Get the moderation state ID
     state_id = None
@@ -258,7 +236,7 @@ def test_flag_with_invalid_data(db):
     state_id = create_test_host_request_with_moderation(token1, user2.id)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The moderation data must be valid JSON."):
             api.ModerateContent(
                 moderation_pb2.ModerateContentReq(
                     moderation_state_id=state_id,
@@ -268,8 +246,6 @@ def test_flag_with_invalid_data(db):
                     data="not json",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "The moderation data must be valid JSON."
 
 
 def test_data_rejected_on_non_flag_action(db):
@@ -281,7 +257,7 @@ def test_data_rejected_on_non_flag_action(db):
     state_id = create_test_host_request_with_moderation(token1, user2.id)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Moderation data can only be set when flagging."):
             api.ModerateContent(
                 moderation_pb2.ModerateContentReq(
                     moderation_state_id=state_id,
@@ -291,8 +267,6 @@ def test_data_rejected_on_non_flag_action(db):
                     data=json.dumps({"score": 0.1}),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Moderation data can only be set when flagging."
 
 
 def test_create_moderation_with_data(db):
@@ -321,20 +295,9 @@ def test_moderate_content(db):
     user, token = generate_user()
     host, _ = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
     # Create a real host request
     state_id = None
-    with requests_session(token) as api:
-        hr_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    hr_id = requests_api.create_host_request(token=token, host_user_id=host.id)
 
     with session_scope() as session:
         hr = session.execute(select(HostRequest).where(HostRequest.conversation_id == hr_id)).scalar_one()
@@ -381,19 +344,8 @@ def test_resolve_queue_item(db):
     user2, _ = generate_user()
     moderator, moderator_token = generate_user(is_superuser=True)
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
     # Create a host request using the API (which automatically creates moderation state)
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
 
     state_id = None
     with session_scope() as session:
@@ -440,19 +392,8 @@ def test_approve_content_via_api(db):
     user2, _ = generate_user()
     moderator, moderator_token = generate_user(is_superuser=True)
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
     # Create a host request using the API (which automatically creates moderation state)
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
 
     state_id = None
     with session_scope() as session:
@@ -499,18 +440,7 @@ def test_create_host_request_creates_moderation_state(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
 
     with session_scope() as session:
         # Check that host request has a moderation state
@@ -548,18 +478,7 @@ def test_host_request_no_notification_before_approval(db, push_collector: PushCo
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
 
     # Process all jobs (including the notification job)
     process_jobs()
@@ -573,19 +492,8 @@ def test_shadowed_notification_not_in_list_notifications(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
     # Create a host request (which creates a shadowed notification for the host)
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
 
     # Host (recipient) should NOT see the notification in ListNotifications - it's for shadowed content
     with notifications_session(token2) as api:
@@ -600,19 +508,8 @@ def test_notification_visible_after_approval(db):
     user2, token2 = generate_user()
     mod, mod_token = generate_user(is_superuser=True)
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
     # Create a host request (which creates a shadowed notification for the host)
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
 
     # Host (recipient) should NOT see the notification initially
     with notifications_session(token2) as api:
@@ -649,30 +546,16 @@ def test_shadowed_host_request_visible_to_author_only(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
 
     # Surfer (author) can see it with GetHostRequest
-    with requests_session(token1) as api:
-        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
-        assert res.host_request_id == host_request_id
-        assert res.latest_message.text.text == valid_request_text()
+    res = requests_api.get_host_request(token=token1, host_request_id=host_request_id)
+    assert res.host_request_id == host_request_id
+    assert res.latest_message.text.text == requests_api.REQUEST_TEXT_DEFAULT
 
     # Host (recipient) CANNOT see it with GetHostRequest - it's shadowed
-    with requests_session(token2) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
+        requests_api.get_host_request(token=token2, host_request_id=host_request_id)
 
 
 def test_unlisted_host_request_not_in_lists(db):
@@ -680,28 +563,15 @@ def test_unlisted_host_request_not_in_lists(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
 
     # Surfer (author) should see it in their sent list even though it's SHADOWED
-    with requests_session(token1) as api:
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
-        assert len(res.host_requests) == 1
+    res = requests_api.list_host_requests(token=token1, only_sent=True)
+    assert len(res.host_requests) == 1
 
     # Host should NOT see it in their received list (still SHADOWED from them)
-    with requests_session(token2) as api:
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
-        assert len(res.host_requests) == 0
+    res = requests_api.list_host_requests(token=token2, only_received=True)
+    assert len(res.host_requests) == 0
 
 
 def test_approved_host_request_in_lists_and_notifications(db, push_collector: PushCollector):
@@ -710,18 +580,7 @@ def test_approved_host_request_in_lists_and_notifications(db, push_collector: Pu
     user2, token2 = generate_user()
     mod, mod_token = generate_user(is_superuser=True)
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
 
     # Process the initial notification job - should be deferred (no notification sent)
     process_jobs()
@@ -750,16 +609,14 @@ def test_approved_host_request_in_lists_and_notifications(db, push_collector: Pu
     process_jobs()
 
     # Now surfer SHOULD see it in their sent list
-    with requests_session(token1) as api:
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
-        assert len(res.host_requests) == 1
-        assert res.host_requests[0].host_request_id == host_request_id
+    res = requests_api.list_host_requests(token=token1, only_sent=True)
+    assert len(res.host_requests) == 1
+    assert res.host_requests[0].host_request_id == host_request_id
 
     # Host SHOULD see it in their received list
-    with requests_session(token2) as api:
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
-        assert len(res.host_requests) == 1
-        assert res.host_requests[0].host_request_id == host_request_id
+    res = requests_api.list_host_requests(token=token2, only_received=True)
+    assert len(res.host_requests) == 1
+    assert res.host_requests[0].host_request_id == host_request_id
 
     # After approval, the host should have received a push notification
     assert push_collector.pop_for_user(user2.id, last=True).topic_action == "host_request:create"
@@ -772,18 +629,7 @@ def test_hidden_host_request_invisible_to_all(db):
     user3, token3 = generate_user()  # Third party
     moderator, moderator_token = generate_user(is_superuser=True)
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
 
     # Get the moderation state ID
     state_id = None
@@ -805,31 +651,23 @@ def test_hidden_host_request_invisible_to_all(db):
         )
 
     # Surfer can't see it with GetHostRequest
-    with requests_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
+        requests_api.get_host_request(token=token1, host_request_id=host_request_id)
 
     # Host can't see it with GetHostRequest
-    with requests_session(token2) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
+        requests_api.get_host_request(token=token2, host_request_id=host_request_id)
 
     # Third party definitely can't see it
-    with requests_session(token3) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
+        requests_api.get_host_request(token=token3, host_request_id=host_request_id)
 
     # Not in any lists
-    with requests_session(token1) as api:
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
-        assert len(res.host_requests) == 0
+    res = requests_api.list_host_requests(token=token1, only_sent=True)
+    assert len(res.host_requests) == 0
 
-    with requests_session(token2) as api:
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
-        assert len(res.host_requests) == 0
+    res = requests_api.list_host_requests(token=token2, only_received=True)
+    assert len(res.host_requests) == 0
 
 
 def test_multiple_host_requests_listing_visibility(db):
@@ -838,24 +676,13 @@ def test_multiple_host_requests_listing_visibility(db):
     user2, token2 = generate_user()
     moderator, moderator_token = generate_user(is_superuser=True)
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
     # Create 3 host requests
     host_request_ids = []
     state_ids = []
-    with requests_session(token1) as api:
-        for i in range(3):
-            hr_id = api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=user2.id,
-                    from_date=today_plus_2,
-                    to_date=today_plus_3,
-                    text=valid_request_text(f"Test request {i + 1}"),
-                )
-            ).host_request_id
-            host_request_ids.append(hr_id)
-            backdate_conversations()
+    for i in range(3):
+        hr_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
+        host_request_ids.append(hr_id)
+        backdate_conversations()
 
     # Get state IDs
     with session_scope() as session:
@@ -886,17 +713,15 @@ def test_multiple_host_requests_listing_visibility(db):
         )
 
     # Surfer should see the approved one and the shadowed one (author can see their SHADOWED content)
-    with requests_session(token1) as api:
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
-        assert len(res.host_requests) == 2
-        visible_ids = {hr.host_request_id for hr in res.host_requests}
-        assert visible_ids == {host_request_ids[0], host_request_ids[1]}
+    res = requests_api.list_host_requests(token=token1, only_sent=True)
+    assert len(res.host_requests) == 2
+    visible_ids = {hr.host_request_id for hr in res.host_requests}
+    assert visible_ids == {host_request_ids[0], host_request_ids[1]}
 
     # Host should see only the approved one in received list
-    with requests_session(token2) as api:
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
-        assert len(res.host_requests) == 1
-        assert res.host_requests[0].host_request_id == host_request_ids[0]
+    res = requests_api.list_host_requests(token=token2, only_received=True)
+    assert len(res.host_requests) == 1
+    assert res.host_requests[0].host_request_id == host_request_ids[0]
 
 
 def test_moderation_log_tracking(db):
@@ -984,19 +809,8 @@ def test_moderation_queue_workflow(db):
     user2, _ = generate_user()
     moderator, moderator_token = generate_user(is_superuser=True)
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
     # Create a host request using the API (which automatically creates moderation state and adds to queue)
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
 
     state_id = None
     queue_item_id = None
@@ -1303,40 +1117,14 @@ def test_GetModerationQueue_filter_by_author(db):
     user2, token2 = generate_user()
     host_user, _ = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
     # Create 2 host requests by user1
-    with requests_session(token1) as api:
-        hr1_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host_user.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
-        backdate_conversations()
+    hr1_id = requests_api.create_host_request(token=token1, host_user_id=host_user.id)
+    backdate_conversations()
 
-        hr2_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host_user.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    hr2_id = requests_api.create_host_request(token=token1, host_user_id=host_user.id)
 
     # Create 1 host request by user2
-    with requests_session(token2) as api:
-        hr3_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host_user.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    hr3_id = requests_api.create_host_request(token=token2, host_user_id=host_user.id)
 
     # Get moderation state IDs
     state1_id, state2_id, state3_id = None, None, None
@@ -1430,23 +1218,12 @@ def test_GetModerationQueue_pagination_newest_first(db):
     normal_user, normal_token = generate_user()
     host_user, _ = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
     # Create 5 host requests
     hr_ids = []
-    with requests_session(normal_token) as api:
-        for i in range(5):
-            hr_id = api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=host_user.id,
-                    from_date=today_plus_2,
-                    to_date=today_plus_3,
-                    text=valid_request_text(),
-                )
-            ).host_request_id
-            hr_ids.append(hr_id)
-            backdate_conversations()
+    for i in range(5):
+        hr_id = requests_api.create_host_request(token=normal_token, host_user_id=host_user.id)
+        hr_ids.append(hr_id)
+        backdate_conversations()
 
     # Get moderation state IDs
     state_ids = []
@@ -1566,10 +1343,8 @@ def test_GetModerationLog_not_found(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Moderation state not found."):
             api.GetModerationLog(moderation_pb2.GetModerationLogReq(moderation_state_id=999999))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Moderation state not found."
 
 
 def test_GetModerationState(db):
@@ -1578,18 +1353,7 @@ def test_GetModerationState(db):
     user1, token1 = generate_user()
     user2, _ = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
 
     with real_moderation_session(super_token) as api:
         res = api.GetModerationState(
@@ -1609,15 +1373,13 @@ def test_GetModerationState_not_found(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Moderation state not found."):
             api.GetModerationState(
                 moderation_pb2.GetModerationStateReq(
                     object_type=moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST,
                     object_id=999999,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Moderation state not found."
 
 
 def test_GetModerationState_unspecified_type(db):
@@ -1625,15 +1387,13 @@ def test_GetModerationState_unspecified_type(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Object type must be specified."):
             api.GetModerationState(
                 moderation_pb2.GetModerationStateReq(
                     object_type=moderation_pb2.MODERATION_OBJECT_TYPE_UNSPECIFIED,
                     object_id=123,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Object type must be specified."
 
 
 def test_ModerateContent_approve(db):
@@ -1642,19 +1402,8 @@ def test_ModerateContent_approve(db):
     user1, token1 = generate_user()
     user2, _ = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
     # Create a host request using the API (which automatically creates moderation state)
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
 
     # Get the moderation state ID
     state_id = None
@@ -1687,7 +1436,7 @@ def test_ModerateContent_not_found(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Moderation state not found."):
             api.ModerateContent(
                 moderation_pb2.ModerateContentReq(
                     moderation_state_id=999999,
@@ -1696,8 +1445,6 @@ def test_ModerateContent_not_found(db):
                     reason="Test",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Moderation state not found."
 
 
 def test_ModerateContent_hide(db):
@@ -1761,18 +1508,8 @@ def test_ModerateContent_flag(db):
     user2, _ = generate_user()
 
     # Create a host request
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
 
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
 
     # Get the moderation state ID
     with session_scope() as session:
@@ -1818,7 +1555,7 @@ def test_ModerateContent_flag_requires_trigger(db):
     state_id = create_test_host_request_with_moderation(token1, user2.id)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             api.ModerateContent(
                 moderation_pb2.ModerateContentReq(
                     moderation_state_id=state_id,
@@ -1826,7 +1563,6 @@ def test_ModerateContent_flag_requires_trigger(db):
                     reason="no trigger",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def _open_queue_item_id(state_id):
@@ -1920,7 +1656,7 @@ def test_ModerateContent_unflag_requires_queue_item(db):
     state_id = create_test_host_request_with_moderation(token1, user2.id)
 
     with real_moderation_session(mod_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             api.ModerateContent(
                 moderation_pb2.ModerateContentReq(
                     moderation_state_id=state_id,
@@ -1928,7 +1664,6 @@ def test_ModerateContent_unflag_requires_queue_item(db):
                     reason="no target",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_ModerateContent_approve_without_clear_flags_leaves_flag_open(db):
@@ -2212,47 +1947,34 @@ def test_auto_approve_moderation_queue_disabled_when_zero(db, email_collector: E
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
     # Create a host request
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
 
-        # No email should have been sent (request is shadowed)
-        assert email_collector.count_for_recipient(user2.email) == 0
+    # No email should have been sent (request is shadowed)
+    assert email_collector.count_for_recipient(user2.email) == 0
 
-        # Ensure deadline is 0 (disabled)
-        config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 0
+    # Ensure deadline is 0 (disabled)
+    config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 0
 
-        # Run the job
-        auto_approve_moderation_queue(empty_pb2.Empty())
+    # Run the job
+    auto_approve_moderation_queue(empty_pb2.Empty())
 
-        # Surfer (author) can see the request via API
-        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
-        assert res.host_request_id == host_request_id
+    # Surfer (author) can see the request via API
+    res = requests_api.get_host_request(token=token1, host_request_id=host_request_id)
+    assert res.host_request_id == host_request_id
 
-        # Author can see their SHADOWED request in their sent list
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
-        assert len(res.host_requests) == 1
-        assert res.host_requests[0].host_request_id == host_request_id
+    # Author can see their SHADOWED request in their sent list
+    sent = requests_api.list_host_requests(token=token1, only_sent=True)
+    assert len(sent.host_requests) == 1
+    assert sent.host_requests[0].host_request_id == host_request_id
 
     # Host cannot see the request (it's shadowed from them)
-    with requests_session(token2) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
+        requests_api.get_host_request(token=token2, host_request_id=host_request_id)
 
-        # Host doesn't see it in their received list either
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
-        assert len(res.host_requests) == 0
+    # Host doesn't see it in their received list either
+    received = requests_api.list_host_requests(token=token2, only_received=True)
+    assert len(received.host_requests) == 0
 
     # Moderator can still see the item in the moderation queue
     with real_moderation_session(mod_token) as api:
@@ -2278,28 +2000,17 @@ def test_auto_approve_moderation_queue_approves_old_items(
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
     # Create a host request
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text("Test request for auto-approval"),
-            )
-        ).host_request_id
+    host_request_id = requests_api.create_host_request(
+        token=token1, host_user_id=user2.id, text="Test request for auto-approval", pad_text_to_valid_length=True
+    )
 
-        # No email sent initially (shadowed)
-        assert email_collector.count_for_recipient(user2.email) == 0
+    # No email sent initially (shadowed)
+    assert email_collector.count_for_recipient(user2.email) == 0
 
     # Host cannot see the request yet
-    with requests_session(token2) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
+        requests_api.get_host_request(token=token2, host_request_id=host_request_id)
 
     # Make the queue item appear old by backdating its time_created
     with session_scope() as session:
@@ -2322,21 +2033,19 @@ def test_auto_approve_moderation_queue_approves_old_items(
     auto_approve_moderation_queue(empty_pb2.Empty())
 
     # Now host can see the request via API
-    with requests_session(token2) as api:
-        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
-        assert res.host_request_id == host_request_id
-        assert res.latest_message.text.text == valid_request_text("Test request for auto-approval")
+    res = requests_api.get_host_request(token=token2, host_request_id=host_request_id)
+    assert res.host_request_id == host_request_id
+    assert res.latest_message.text.text.startswith("Test request for auto-approval")
 
-        # Host sees it in their received list
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
-        assert len(res.host_requests) == 1
-        assert res.host_requests[0].host_request_id == host_request_id
+    # Host sees it in their received list
+    received = requests_api.list_host_requests(token=token2, only_received=True)
+    assert len(received.host_requests) == 1
+    assert received.host_requests[0].host_request_id == host_request_id
 
     # Surfer sees it in their sent list
-    with requests_session(token1) as api:
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
-        assert len(res.host_requests) == 1
-        assert res.host_requests[0].host_request_id == host_request_id
+    sent = requests_api.list_host_requests(token=token1, only_sent=True)
+    assert len(sent.host_requests) == 1
+    assert sent.host_requests[0].host_request_id == host_request_id
 
     with real_moderation_session(mod_token) as api:
         res = api.GetModerationQueue(moderation_pb2.GetModerationQueueReq(unresolved_only=True))
@@ -2373,22 +2082,11 @@ def test_auto_approve_does_not_approve_recent_items(db, email_collector: EmailCo
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
     # Create a host request
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
 
-        # No email sent (shadowed)
-        assert email_collector.count_for_recipient(user2.email) == 0
+    # No email sent (shadowed)
+    assert email_collector.count_for_recipient(user2.email) == 0
 
     # Set deadline to 1 hour (items older than 1 hour will be auto-approved)
     config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 3600
@@ -2401,14 +2099,12 @@ def test_auto_approve_does_not_approve_recent_items(db, email_collector: EmailCo
     assert email_collector.count_for_recipient(user2.email) == 0
 
     # Host still cannot see the request
-    with requests_session(token2) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
+        requests_api.get_host_request(token=token2, host_request_id=host_request_id)
 
-        # Not in host's received list
-        res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
-        assert len(res.host_requests) == 0
+    # Not in host's received list
+    res = requests_api.list_host_requests(token=token2, only_received=True)
+    assert len(res.host_requests) == 0
 
     # Moderator sees it still in queue unresolved
     with real_moderation_session(mod_token) as api:
@@ -2431,19 +2127,8 @@ def test_auto_approve_does_not_approve_already_approved(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
     # Create a host request
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
 
     # Moderator approves it manually
     with real_moderation_session(mod_token) as api:
@@ -2466,9 +2151,8 @@ def test_auto_approve_does_not_approve_already_approved(db):
         )
 
     # Host can now see it
-    with requests_session(token2) as api:
-        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
-        assert res.host_request_id == host_request_id
+    res = requests_api.get_host_request(token=token2, host_request_id=host_request_id)
+    assert res.host_request_id == host_request_id
 
     # Get log count before auto-approval
     with real_moderation_session(mod_token) as api:
@@ -2498,19 +2182,8 @@ def test_auto_approve_does_not_approve_moderator_shadowed_items(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
     # Create a host request
-    with requests_session(token1) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
 
     # Moderator explicitly shadows the content (keeping it shadowed but resolving the queue item)
     with real_moderation_session(mod_token) as api:
@@ -2567,10 +2240,8 @@ def test_auto_approve_does_not_approve_moderator_shadowed_items(db):
         assert state_res.moderation_state.visibility == moderation_pb2.MODERATION_VISIBILITY_SHADOWED
 
     # Host still cannot see the request
-    with requests_session(token2) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
+        requests_api.get_host_request(token=token2, host_request_id=host_request_id)
 
 
 def test_auto_approve_skips_shadowed_user_authored_items(db):
@@ -2579,18 +2250,7 @@ def test_auto_approve_skips_shadowed_user_authored_items(db):
     surfer, surfer_token = generate_user()
     host, host_token = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
-    with requests_session(surfer_token) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    host_request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host.id)
 
     # Shadow the surfer after the host request was created
     with session_scope() as session:
@@ -2624,15 +2284,12 @@ def test_auto_approve_skips_shadowed_user_authored_items(db):
         assert state_res.moderation_state.visibility == moderation_pb2.MODERATION_VISIBILITY_SHADOWED
 
     # Host still cannot see the request
-    with requests_session(host_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
+        requests_api.get_host_request(token=host_token, host_request_id=host_request_id)
 
     # But the (shadowed) author can still see their own request
-    with requests_session(surfer_token) as api:
-        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
-        assert res.host_request_id == host_request_id
+    res = requests_api.get_host_request(token=surfer_token, host_request_id=host_request_id)
+    assert res.host_request_id == host_request_id
 
 
 def test_auto_approve_preserves_other_open_flags(db):
@@ -2825,38 +2482,16 @@ def test_host_request_message_notifications_suppressed_before_approval(
     host, host_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
     # Create host request (it starts in SHADOWED state)
-    with requests_session(surfer_token) as api:
-        hr_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text("Initial request message"),
-            )
-        ).host_request_id
+    hr_id = requests_api.create_host_request(token=surfer_token, host_user_id=host.id)
 
     # No notifications should have been sent to the host (request is SHADOWED)
     assert email_collector.count_for_recipient(host.email) == 0
     assert push_collector.count_for_user(host.id) == 0
 
     # Send additional messages BEFORE approval - should NOT generate notifications
-    with requests_session(surfer_token) as api:
-        api.SendHostRequestMessage(
-            requests_pb2.SendHostRequestMessageReq(
-                host_request_id=hr_id,
-                text="Follow-up message 1",
-            )
-        )
-        api.SendHostRequestMessage(
-            requests_pb2.SendHostRequestMessageReq(
-                host_request_id=hr_id,
-                text="Follow-up message 2",
-            )
-        )
+    requests_api.send_host_request_message(token=surfer_token, host_request_id=hr_id, text="Follow-up message 1")
+    requests_api.send_host_request_message(token=surfer_token, host_request_id=hr_id, text="Follow-up message 2")
 
     # Host should STILL have no notifications (messages sent while SHADOWED)
     assert email_collector.count_for_recipient(host.email) == 0
@@ -2886,33 +2521,20 @@ def test_host_request_status_notifications_suppressed_before_approval(db, push_c
     host, host_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
     # Create host request
-    with requests_session(surfer_token) as api:
-        hr_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    hr_id = requests_api.create_host_request(token=surfer_token, host_user_id=host.id)
 
     # No notifications should have been sent to the host (request is SHADOWED)
     assert push_collector.count_for_user(host.id) == 0
 
     # The surfer can cancel their own request even when SHADOWED
     # But this should NOT notify the host since the request isn't approved
-    with requests_session(surfer_token) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=hr_id,
-                status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED,
-                text="Actually, never mind",
-            )
-        )
+    requests_api.respond_host_request(
+        token=surfer_token,
+        host_request_id=hr_id,
+        status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED,
+        text="Actually, never mind",
+    )
 
     # Host should STILL have no notifications (cancel notification suppressed)
     assert push_collector.count_for_user(host.id) == 0
@@ -2927,35 +2549,20 @@ def test_host_request_notifications_sent_after_approval(
     host, host_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-
     # Create and approve host request
-    with requests_session(surfer_token) as api:
-        hr_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
-
-    moderator.approve_host_request(hr_id)
+    hr_id = requests_api.create_host_request(token=surfer_token, host_user_id=host.id, approve_by=moderator)
 
     # Host should have received 1 notification (the approval notification)
     email_collector.pop_for_recipient(host.email, last=True)
     push_collector.pop_for_user(host.id, last=True)
 
     # Host accepts the request - surfer should be notified
-    with requests_session(host_token) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=hr_id,
-                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
-                text="Sure, come on over!",
-            )
-        )
+    requests_api.respond_host_request(
+        token=host_token,
+        host_request_id=hr_id,
+        status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+        text="Sure, come on over!",
+    )
 
     # Surfer should have 1 notification (the accept notification)
     email_collector.pop_for_recipient(surfer.email, last=True)
@@ -2963,14 +2570,12 @@ def test_host_request_notifications_sent_after_approval(
     assert push.content.title == f"{host.name} accepted your host request"
 
     # Surfer confirms - host should be notified
-    with requests_session(surfer_token) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=hr_id,
-                status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED,
-                text="See you then!",
-            )
-        )
+    requests_api.respond_host_request(
+        token=surfer_token,
+        host_request_id=hr_id,
+        status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED,
+        text="See you then!",
+    )
 
     # Host should now have received the confirmation notifications
     email_collector.pop_for_recipient(host.email, last=True)
@@ -3097,17 +2702,7 @@ def test_SetUserContentVisibility_host_request(db):
     surfer, surfer_token = generate_user()
     host, _ = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-    with requests_session(surfer_token) as api:
-        hr_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    hr_id = requests_api.create_host_request(token=surfer_token, host_user_id=host.id)
 
     with real_moderation_session(super_token) as api:
         res = api.SetUserContentVisibility(
@@ -3226,17 +2821,7 @@ def test_SetUserContentVisibility_round_trip(db):
     surfer, surfer_token = generate_user()
     host, _ = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-    with requests_session(surfer_token) as api:
-        hr_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    hr_id = requests_api.create_host_request(token=surfer_token, host_user_id=host.id)
 
     with real_moderation_session(super_token) as api:
         api.SetUserContentVisibility(
@@ -3279,17 +2864,7 @@ def test_SetUserContentVisibility_resolves_queue_items(db):
     surfer, surfer_token = generate_user()
     host, _ = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-    with requests_session(surfer_token) as api:
-        hr_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    hr_id = requests_api.create_host_request(token=surfer_token, host_user_id=host.id)
 
     with session_scope() as session:
         state = _get_moderation_state(session, ModerationObjectType.host_request, hr_id)
@@ -3319,17 +2894,7 @@ def test_SetUserContentVisibility_noop_when_matches(db):
     surfer, surfer_token = generate_user()
     host, _ = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-    with requests_session(surfer_token) as api:
-        api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        )
+    requests_api.create_host_request(token=surfer_token, host_user_id=host.id)
 
     with session_scope() as session:
         log_count_before = len(session.execute(select(ModerationLog)).scalars().all())
@@ -3353,14 +2918,13 @@ def test_SetUserContentVisibility_unspecified_rejected(db):
     target, _ = generate_user()
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             api.SetUserContentVisibility(
                 moderation_pb2.SetUserContentVisibilityReq(
                     user_id=target.id,
                     visibility=moderation_pb2.MODERATION_VISIBILITY_UNSPECIFIED,
                 )
             )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_SetUserContentVisibility_non_admin_rejected(db):
@@ -3368,14 +2932,13 @@ def test_SetUserContentVisibility_non_admin_rejected(db):
     target, _ = generate_user()
 
     with real_moderation_session(normal_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED):
             api.SetUserContentVisibility(
                 moderation_pb2.SetUserContentVisibilityReq(
                     user_id=target.id,
                     visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
                 )
             )
-    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
 
 def test_SetUserContentVisibility_writes_admin_action(db):
@@ -3383,17 +2946,7 @@ def test_SetUserContentVisibility_writes_admin_action(db):
     surfer, surfer_token = generate_user()
     host, _ = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-    with requests_session(surfer_token) as api:
-        api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        )
+    requests_api.create_host_request(token=surfer_token, host_user_id=host.id)
 
     with real_moderation_session(super_token) as api:
         api.SetUserContentVisibility(
@@ -3426,28 +2979,9 @@ def test_SetUserContentVisibility_only_touches_target(db):
     other, other_token = generate_user()
     host, _ = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    target_hr_id = requests_api.create_host_request(token=target_token, host_user_id=host.id)
 
-    with requests_session(target_token) as api:
-        target_hr_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
-
-    with requests_session(other_token) as api:
-        other_hr_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    other_hr_id = requests_api.create_host_request(token=other_token, host_user_id=host.id)
 
     with real_moderation_session(super_token) as api:
         res = api.SetUserContentVisibility(
@@ -3469,14 +3003,13 @@ def test_SetUserContentVisibility_user_not_found(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             api.SetUserContentVisibility(
                 moderation_pb2.SetUserContentVisibilityReq(
                     user_id=999999,
                     visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
                 )
             )
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_SetUserContentVisibility_from_visibility_filter(db):
@@ -3484,17 +3017,7 @@ def test_SetUserContentVisibility_from_visibility_filter(db):
     surfer, surfer_token = generate_user()
     host, _ = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-    with requests_session(surfer_token) as api:
-        hr_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    hr_id = requests_api.create_host_request(token=surfer_token, host_user_id=host.id)
 
     with real_moderation_session(super_token) as api:
         api.SetUserContentVisibility(
@@ -3539,25 +3062,8 @@ def test_SetUserContentVisibility_from_visibility_multi(db):
     host1, _ = generate_user()
     host2, _ = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-    with requests_session(surfer_token) as api:
-        hr1_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host1.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
-        hr2_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    hr1_id = requests_api.create_host_request(token=surfer_token, host_user_id=host1.id)
+    hr2_id = requests_api.create_host_request(token=surfer_token, host_user_id=host2.id)
 
     with session_scope() as session:
         state1_id = _get_moderation_state(session, ModerationObjectType.host_request, hr1_id).id
@@ -3596,17 +3102,7 @@ def test_SetUserContentVisibility_from_visibility_empty_is_any(db):
     surfer, surfer_token = generate_user()
     host, _ = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-    with requests_session(surfer_token) as api:
-        hr_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
+    hr_id = requests_api.create_host_request(token=surfer_token, host_user_id=host.id)
 
     with real_moderation_session(super_token) as api:
         res = api.SetUserContentVisibility(
@@ -3628,7 +3124,7 @@ def test_SetUserContentVisibility_from_visibility_unspecified_rejected(db):
     target, _ = generate_user()
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             api.SetUserContentVisibility(
                 moderation_pb2.SetUserContentVisibilityReq(
                     user_id=target.id,
@@ -3636,7 +3132,6 @@ def test_SetUserContentVisibility_from_visibility_unspecified_rejected(db):
                     from_visibility=[moderation_pb2.MODERATION_VISIBILITY_UNSPECIFIED],
                 )
             )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def _content_state_ids(res: moderation_pb2.ListModerationStatesRes) -> list[int]:
@@ -3812,14 +3307,13 @@ def test_GetModerationState_for_nonexistent_user(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             api.GetModerationState(
                 moderation_pb2.GetModerationStateReq(
                     object_type=moderation_pb2.MODERATION_OBJECT_TYPE_USER,
                     object_id=999999,
                 )
             )
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_flag_user_shows_up_in_queue_and_author_filters(db):
@@ -3877,7 +3371,7 @@ def test_ModerateContent_cannot_set_visibility_on_user_state(db, action):
             )
         ).moderation_state.moderation_state_id
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             api.ModerateContent(
                 moderation_pb2.ModerateContentReq(
                     moderation_state_id=user_state_id,
@@ -3885,7 +3379,6 @@ def test_ModerateContent_cannot_set_visibility_on_user_state(db, action):
                     visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
                 )
             )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
     with session_scope() as session:
         state = session.execute(select(ModerationState).where(ModerationState.id == user_state_id)).scalar_one()
@@ -4308,6 +3801,5 @@ def test_GetModeratedObject_not_found(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             api.GetModeratedObject(moderation_pb2.GetModeratedObjectReq(moderation_state_id=999_999_999))
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND

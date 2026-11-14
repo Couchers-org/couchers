@@ -10,6 +10,8 @@ from couchers.middleware import ratelimit
 from couchers.middleware.interceptors import CouchersHeaders
 from couchers.proto import api_pb2, auth_pb2
 from tests.fixtures.db import generate_user
+from tests.fixtures.feature_flags import FeatureFlags
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import auth_api_session, real_api_session
 
 AUTHENTICATE = "/org.couchers.auth.Auth/Authenticate"
@@ -132,7 +134,7 @@ def test_no_store_means_rate_limiting_is_off():
     assert not _limited(AUTHENTICATE, ip="1.2.3.4")
 
 
-def test_trips_per_ip(feature_flags, store):
+def test_trips_per_ip(feature_flags: FeatureFlags, store):
     feature_flags.set("rate_limiting_enabled", True)
     # Authenticate per_ip = 10 and every other limit is far higher, so the 11th call from an IP is the first
     # to trip anything
@@ -141,21 +143,21 @@ def test_trips_per_ip(feature_flags, store):
     assert _limited(AUTHENTICATE, ip="1.2.3.4")
 
 
-def test_per_ip_skipped_without_ip(feature_flags, store):
+def test_per_ip_skipped_without_ip(feature_flags: FeatureFlags, store):
     feature_flags.set("rate_limiting_enabled", True)
     # no IP → the per_ip dimension is not counted, so the per_ip=10 limit can never trip
     for _ in range(20):
         assert not _limited(AUTHENTICATE)
 
 
-def test_separate_subnets_counted_separately(feature_flags, store):
+def test_separate_subnets_counted_separately(feature_flags: FeatureFlags, store):
     feature_flags.set("rate_limiting_enabled", True)
     for _ in range(11):
         _limited(AUTHENTICATE, ip="2001:db8:1::1")
     assert not _limited(AUTHENTICATE, ip="2001:db8:2::1")
 
 
-def test_store_error_fails_open(feature_flags, monkeypatch):
+def test_store_error_fails_open(feature_flags: FeatureFlags, monkeypatch):
     feature_flags.set("rate_limiting_enabled", True)
     _use_store(monkeypatch, BrokenStore())
     captured = []
@@ -166,7 +168,7 @@ def test_store_error_fails_open(feature_flags, monkeypatch):
     assert len(captured) == 1
 
 
-def test_interceptor_superuser_exempt_when_enforcing(db, feature_flags, monkeypatch):
+def test_interceptor_superuser_exempt_when_enforcing(db, feature_flags: FeatureFlags, monkeypatch):
     feature_flags.set("rate_limiting_enabled", True)
     _use_store(monkeypatch, AlwaysTripStore())
     superuser, token = generate_user(is_superuser=True)
@@ -176,41 +178,39 @@ def test_interceptor_superuser_exempt_when_enforcing(db, feature_flags, monkeypa
         assert api.Ping(api_pb2.PingReq()).user.user_id == superuser.id
 
 
-def test_interceptor_non_superuser_still_blocked_when_enforcing(db, feature_flags, monkeypatch):
+def test_interceptor_non_superuser_still_blocked_when_enforcing(db, feature_flags: FeatureFlags, monkeypatch):
     feature_flags.set("rate_limiting_enabled", True)
     _use_store(monkeypatch, AlwaysTripStore())
     _, token = generate_user()
 
     with real_api_session(token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.RESOURCE_EXHAUSTED):
             api.Ping(api_pb2.PingReq())
-        assert e.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
 
 
-def test_interceptor_no_store_allows(db, feature_flags, monkeypatch):
+def test_interceptor_no_store_allows(db, feature_flags: FeatureFlags, monkeypatch):
     feature_flags.set("rate_limiting_enabled", True)
     _use_store(monkeypatch, None)
     with auth_api_session() as (auth_api, _):
         assert auth_api.UsernameValid(auth_pb2.UsernameValidReq(username="test")).valid
 
 
-def test_interceptor_shadow_allows(db, feature_flags, monkeypatch):
+def test_interceptor_shadow_allows(db, feature_flags: FeatureFlags, monkeypatch):
     feature_flags.set("rate_limiting_enabled", False)
     _use_store(monkeypatch, AlwaysTripStore())
     with auth_api_session() as (auth_api, _):
         assert auth_api.UsernameValid(auth_pb2.UsernameValidReq(username="test")).valid
 
 
-def test_interceptor_enforce_rejects(db, feature_flags, monkeypatch):
+def test_interceptor_enforce_rejects(db, feature_flags: FeatureFlags, monkeypatch):
     feature_flags.set("rate_limiting_enabled", True)
     _use_store(monkeypatch, AlwaysTripStore())
     with auth_api_session() as (auth_api, _):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.RESOURCE_EXHAUSTED):
             auth_api.UsernameValid(auth_pb2.UsernameValidReq(username="test"))
-        assert e.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
 
 
-def test_interceptor_fails_open_when_enforcing(db, feature_flags, monkeypatch):
+def test_interceptor_fails_open_when_enforcing(db, feature_flags: FeatureFlags, monkeypatch):
     feature_flags.set("rate_limiting_enabled", True)
     _use_store(monkeypatch, BrokenStore())
     with auth_api_session() as (auth_api, _):
@@ -228,7 +228,7 @@ def _metric_value(counter, name: str, **labels: str) -> float:
     )
 
 
-def test_interceptor_emits_metrics_on_enforce(db, feature_flags, monkeypatch):
+def test_interceptor_emits_metrics_on_enforce(db, feature_flags: FeatureFlags, monkeypatch):
     feature_flags.set("rate_limiting_enabled", True)
     _use_store(monkeypatch, AlwaysTripStore())
 
@@ -321,7 +321,7 @@ def test_valkey_store_does_not_extend_ttl_on_later_increments(valkey_store, valk
     assert 0 < valkey_client.ttl(key) <= 5
 
 
-def test_rate_limiting_end_to_end_against_valkey(feature_flags, valkey_store, monkeypatch):
+def test_rate_limiting_end_to_end_against_valkey(feature_flags: FeatureFlags, valkey_store, monkeypatch):
     feature_flags.set("rate_limiting_enabled", True)
     _use_store(monkeypatch, valkey_store)
     # a /64 unique to this run, so the per-IP counters start clean

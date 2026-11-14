@@ -4,13 +4,11 @@
   "no_community": "You are not currently in a community.",
   "no_sub_communities": "No sub-communities.",
   "load_more": "Load more",
-  "welcome": "Welcome to Couchers.org!",
   "new_pill": "New",
   "communities_intro": "Community pages help organize local events and discussions. <strong>You are always in the communities at your location, but you can <browseCommunitiesLink>join any community.</browseCommunitiesLink></strong>",
   "community_builder": "Want to be an ambassador for your community and help it grow? Become a <communityBuilderLink>Community Builder!</communityBuilderLink>",
   "find_your_community": "Find a community",
   "find_your_community_intro_simplified": "Search for your community or browse below. <requestCommunityLink>Don't see yours? Request it!</requestCommunityLink>",
-  "browse_communities": "Browse Communities",
   "browse_all_communities": "Browse All Communities",
   "browse_communities_text": "Click on a region name to see the other communities within it below. Click on link to go to that city or region's community page.",
   "show_all_communities": "Show all communities",
@@ -50,7 +48,9 @@
     "same_gender_only_indicator": "Same gender",
     "invitations_count_one": "{{count}} invitation",
     "invitations_count_other": "{{count}} invitations",
-    "no_invitations": "No invitations yet"
+    "no_invitations": "No invitations yet",
+    "community_trips_header": "Public trips in your communities",
+    "community_trips_empty_description": "No one in your communities is looking for a host right now."
   },
   "stays": {
     "upcoming_trips_header": "Your upcoming stays",
@@ -107,5 +107,20 @@
       "left_arrow_a11y": "Scroll left",
       "right_arrow_a11y": "Scroll right"
     }
+  },
+  "celebration_100k": {
+    "banner_message": "Couchers hit 100k members!",
+    "banner_read_more_link": "Read more",
+    "banner_replay_button": "Replay animation",
+    "help_us_grow_button": "Help us grow",
+    "dialog_a11y": "Couchers hit 100,000 members",
+    "close_button_a11y": "Close",
+    "burst_heading": "{{member_count}}+ of us!",
+    "map_counter_total": "{{member_count}}+",
+    "map_counter_label": "Couchers and growing",
+    "map_message_everywhere": "We're everywhere.",
+    "map_message_thanks": "Thanks for opening your doors.",
+    "map_read_more_link": "Read more",
+    "map_a11y": "Map of Couchers members around the world, with clusters of members appearing city by city and merging into regions"
   }
 }

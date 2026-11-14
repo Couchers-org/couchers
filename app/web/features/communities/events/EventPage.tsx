@@ -28,7 +28,7 @@ import { localizeDateTimeRange } from "i18n/datetimes";
 import { COMMUNITIES } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { AttendanceState, Event } from "proto/events_pb";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { eventsRoute, routeToDuplicateEvent, routeToEditEvent, routeToEvent } from "routes";
 import { service } from "service";
 import { Temporal } from "temporal-polyfill";
@@ -202,6 +202,16 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
       });
     },
   });
+
+  // Links from comment notifications carry ?comment=<id>, so open on the comments
+  const isCommentLink = router.query.comment !== undefined;
+  const discussionRef = useRef<HTMLDivElement>(null);
+  const hasEvent = event !== undefined;
+  useEffect(() => {
+    if (isCommentLink && hasEvent) {
+      discussionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [isCommentLink, hasEvent]);
 
   const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
   const [showInviteCommunitySuccess, setShowInviteCommunitySuccess] = useState(false);
@@ -407,7 +417,7 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
               <EventOrganizers event={event} />
               <EventAttendees event={event} />
             </StyledEventDetailsContainer>
-            <StyledDiscussionContainer>
+            <StyledDiscussionContainer ref={discussionRef}>
               <Typography variant="h2">{t("communities:event_discussion")}</Typography>
               <CommentTree threadId={event.thread!.threadId} />
             </StyledDiscussionContainer>

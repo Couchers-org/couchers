@@ -58,6 +58,9 @@ updates:
       # react and react-dom must be the exact same version or the build fails
       react:
         patterns: ["react", "react-dom", "@types/react", "@types/react-dom"]
+      # the TanStack query packages share query-core, so mismatched versions break typechecking
+      tanstack-query:
+        patterns: ["@tanstack/*"]
 
   - package-ecosystem: "docker"
     directory: "/app/web"

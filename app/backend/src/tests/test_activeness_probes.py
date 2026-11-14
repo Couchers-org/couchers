@@ -1,7 +1,6 @@
 from datetime import timedelta
 
 import grpc
-import pytest
 from google.protobuf import empty_pb2
 from sqlalchemy import exists, select
 
@@ -14,6 +13,7 @@ from couchers.proto import api_pb2, jail_pb2
 from couchers.utils import now
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import PushCollector, process_jobs
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import api_session, real_jail_session
 
 
@@ -139,12 +139,10 @@ def test_activeness_probes_expiry(db, push_collector: PushCollector):
 
     with real_jail_session(token) as jail:
         # no such probe
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You don't currently have an activeness probe."):
             jail.RespondToActivenessProbe(
                 jail_pb2.RespondToActivenessProbeReq(response=jail_pb2.ACTIVENESS_PROBE_RESPONSE_STILL_ACTIVE)
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You don't currently have an activeness probe."
 
         res = jail.JailInfo(empty_pb2.Empty())
         assert not res.has_pending_activeness_probe

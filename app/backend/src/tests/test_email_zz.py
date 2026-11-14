@@ -18,6 +18,7 @@ from couchers.models.logging import EventLog
 from couchers.proto import api_pb2, bugs_pb2
 from couchers.tasks import send_signup_email
 from tests.fixtures.db import generate_user, get_friend_relationship
+from tests.fixtures.feature_flags import FeatureFlags
 from tests.fixtures.misc import EmailCollector, Moderator
 from tests.fixtures.sessions import api_session, real_bugs_session
 
@@ -48,7 +49,9 @@ def test_add_open_pixel():
     assert f'src="{open_pixel_url("abc")}"' in html
 
 
-def test_notification_email_gets_zz(db, email_collector: EmailCollector, moderator: Moderator, feature_flags):
+def test_notification_email_gets_zz(
+    db, email_collector: EmailCollector, moderator: Moderator, feature_flags: FeatureFlags
+):
     feature_flags.set("email_zz_links_enabled", True)
     to_user, _ = generate_user()
     from_user, from_token = generate_user()
@@ -81,7 +84,9 @@ def test_notification_email_gets_zz(db, email_collector: EmailCollector, moderat
     assert "/email/open/" not in email.html
 
 
-def test_userless_email_gets_open_pixel_without_zz_links(db, email_collector: EmailCollector, feature_flags):
+def test_userless_email_gets_open_pixel_without_zz_links(
+    db, email_collector: EmailCollector, feature_flags: FeatureFlags
+):
     feature_flags.set("email_open_pixel_enabled", True)
     recipient = f"{random_hex(12)}@couchers.org.invalid"
 

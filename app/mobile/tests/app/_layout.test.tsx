@@ -1,10 +1,10 @@
-import { useGrowthBook } from "@growthbook/growthbook-react";
 import { act, render, screen } from "@testing-library/react-native";
 import * as SplashScreen from "expo-splash-screen";
 import { ReactNode } from "react";
 
 import RootLayout from "@/app/_layout";
 import { useAuthContext } from "@/features/auth/AuthContext";
+import { useFeatureFlagsReady } from "@/features/experimentation/FeatureFlagProvider";
 import { useNotificationObserver } from "@/features/notifications/useNotificationObserver";
 
 // Side-effect imports at the top of the layout
@@ -56,10 +56,6 @@ jest.mock("@expo-google-fonts/ubuntu", () => ({
   Ubuntu_700Bold_Italic: {},
 }));
 
-jest.mock("@growthbook/growthbook-react", () => ({
-  useGrowthBook: jest.fn(),
-}));
-
 jest.mock("@/features/auth/AuthContext", () => ({
   useAuthContext: jest.fn(),
   AuthProvider: ({ children }: { children: ReactNode }) => children,
@@ -68,6 +64,7 @@ jest.mock("@/features/auth/AuthContext", () => ({
 jest.mock("@/features/experimentation/FeatureFlagProvider", () => ({
   __esModule: true,
   default: ({ children }: { children: ReactNode }) => children,
+  useFeatureFlagsReady: jest.fn(),
 }));
 
 jest.mock("@/features/notifications/useNotificationObserver", () => ({
@@ -104,7 +101,7 @@ jest.mock("@/service/client", () => ({
 jest.mock("@/service/buildInfo", () => ({ appVariant: "development" }));
 
 const useAuthContextMock = useAuthContext as jest.Mock;
-const useGrowthBookMock = useGrowthBook as jest.Mock;
+const useFeatureFlagsReadyMock = useFeatureFlagsReady as jest.Mock;
 
 function setState({
   authenticated = true,
@@ -112,7 +109,7 @@ function setState({
   featuresReady = true,
 }) {
   useAuthContextMock.mockReturnValue({ authenticated, checkedAuthStatus });
-  useGrowthBookMock.mockReturnValue({ ready: featuresReady });
+  useFeatureFlagsReadyMock.mockReturnValue(featuresReady);
 }
 
 // The root layout loads persisted config before rendering anything, so let that settle

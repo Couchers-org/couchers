@@ -92,7 +92,9 @@
     "title_for_surfer": "Solicitud a {{user}} - {{status}}",
     "request_duration_one": "{{count}} noche",
     "request_duration_many": "{{count}} de noches",
-    "request_duration_other": "{{count}} noches"
+    "request_duration_other": "{{count}} noches",
+    "invitation_title_for_surfer": "Invitación de {{user}} · {{status}}",
+    "invitation_title_for_host": "Tu invitación a {{user}} · {{status}}"
   },
   "admins_dialog": {
     "step_down_confirmation_dialog": {
@@ -175,6 +177,12 @@
       "accepted": "{{name}} aceptó tu invitación",
       "rejected": "{{name}} rechazó tu invitación",
       "cancelled": "Retiraste tu invitación"
+    },
+    "invitation_surfer_status": {
+      "pending": "Invitación para alojarte · esperando tu respuesta",
+      "accepted": "Has aceptado la invitación de {{name}}",
+      "rejected": "Has declinado esta invitación",
+      "cancelled": "{{name}} retiró su invitación"
     }
   },
   "past_request_help_text": "Esta solicitud está pasada, todavía puedes enviar mensajes pero no puedes modificarla.",
@@ -249,5 +257,9 @@
   "withdraw_invitation_dialog_dismiss_button": "Mantener invitación",
   "status_bar_edit_button": "Editar",
   "status_bar_cancel_edit_button": "Cancelar",
-  "status_bar_close_button": "Cerrar"
+  "status_bar_close_button": "Cerrar",
+  "my_public_trips": {
+    "empty_state": "Todavía no hay invitaciones en tus viajes públicos.",
+    "toggle_group": "Alternar viaje"
+  }
 }

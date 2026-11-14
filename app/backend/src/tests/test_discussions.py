@@ -1,5 +1,4 @@
 import grpc
-import pytest
 from google.protobuf.wrappers_pb2 import StringValue
 from sqlalchemy import select
 
@@ -10,6 +9,7 @@ from couchers.proto import admin_pb2, communities_pb2, discussions_pb2, moderati
 from couchers.utils import now, to_aware_datetime
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import Moderator, PushCollector, process_jobs
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
     communities_session,
     discussions_session,
@@ -24,26 +24,22 @@ from tests.test_communities import create_community, create_group
 def test_create_discussion_errors(db):
     user, token = generate_user()
     with discussions_session(token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Missing discussion title."):
             api.CreateDiscussion(
                 discussions_pb2.CreateDiscussionReq(
                     title=None,
                     content="dummy content",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Missing discussion title."
 
     with discussions_session(token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Missing discussion content."):
             api.CreateDiscussion(
                 discussions_pb2.CreateDiscussionReq(
                     title="dummy title",
                     content=None,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Missing discussion content."
 
 
 def test_create_and_get_discussion(db, frozen_timewarp, push_collector: PushCollector, moderator: Moderator):
@@ -207,14 +203,12 @@ def test_update_discussion_permission_denied(db):
         discussion_id = res.discussion_id
 
     with discussions_session(other_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You are not allowed to edit this discussion."):
             api.UpdateDiscussion(
                 discussions_pb2.UpdateDiscussionReq(
                     discussion_id=discussion_id,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == "You are not allowed to edit this discussion."
 
 
 def test_update_deleted_discussion(db):
@@ -235,10 +229,8 @@ def test_update_deleted_discussion(db):
         api.DeleteDiscussion(discussions_pb2.DeleteDiscussionReq(discussion_id=discussion_id))
 
     with discussions_session(token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "This discussion has been deleted."):
             api.UpdateDiscussion(discussions_pb2.UpdateDiscussionReq(discussion_id=discussion_id))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "This discussion has been deleted."
 
 
 def test_delete_discussion_by_creator(db):
@@ -289,14 +281,12 @@ def test_delete_discussion_permission_denied_for_non_creator(db):
         assert res.can_edit
 
     with discussions_session(random_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED):
             api.DeleteDiscussion(discussions_pb2.DeleteDiscussionReq(discussion_id=discussion_id))
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
     with discussions_session(community_admin_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED):
             api.DeleteDiscussion(discussions_pb2.DeleteDiscussionReq(discussion_id=discussion_id))
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
 
 def test_deleted_discussion_not_in_list(db):
@@ -569,9 +559,8 @@ def test_shadowed_discussion_visible_to_author_only(db):
 
     # Other user cannot
     with discussions_session(other_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             api.GetDiscussion(discussions_pb2.GetDiscussionReq(discussion_id=discussion_id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_shadowed_discussion_excluded_from_listings(db):
@@ -658,9 +647,8 @@ def test_hidden_discussion_filtered_for_author_too(db, moderator: Moderator):
         )
 
     with discussions_session(author_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             api.GetDiscussion(discussions_pb2.GetDiscussionReq(discussion_id=discussion_id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_list_my_communities_discussions_respects_moderation(db, moderator: Moderator):
@@ -863,7 +851,10 @@ def test_create_discussion_incomplete_profile(db):
         community_id = create_community(session, 0, 1, "Testing Community", [user2], [], None).id
 
     with discussions_session(token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION,
+            "You have to complete your profile before you can start a discussion.",
+        ):
             api.CreateDiscussion(
                 discussions_pb2.CreateDiscussionReq(
                     title="dummy title",
@@ -871,5 +862,3 @@ def test_create_discussion_incomplete_profile(db):
                     owner_community_id=community_id,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You have to complete your profile before you can start a discussion."

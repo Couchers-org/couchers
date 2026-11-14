@@ -43,7 +43,6 @@ from couchers.proto import (
     public_trips_pb2_grpc,
     references_pb2_grpc,
     reporting_pb2_grpc,
-    requests_pb2_grpc,
     resources_pb2_grpc,
     screens_pb2_grpc,
     search_pb2_grpc,
@@ -74,7 +73,6 @@ from couchers.servicers.public import Public
 from couchers.servicers.public_trips import PublicTrips
 from couchers.servicers.references import References
 from couchers.servicers.reporting import Reporting
-from couchers.servicers.requests import Requests
 from couchers.servicers.resources import Resources
 from couchers.servicers.screens import Screens
 from couchers.servicers.search import Search
@@ -426,16 +424,6 @@ def conversations_session(token: str):
     channel = FakeChannel(token)
     conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(), channel)
     yield conversations_pb2_grpc.ConversationsStub(channel)
-
-
-@contextmanager
-def requests_session(token: str):
-    """
-    Create a Requests API for testing, uses the token for auth
-    """
-    channel = FakeChannel(token)
-    requests_pb2_grpc.add_RequestsServicer_to_server(Requests(), channel)
-    yield requests_pb2_grpc.RequestsStub(channel)
 
 
 @contextmanager

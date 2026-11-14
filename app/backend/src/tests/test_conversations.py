@@ -25,6 +25,7 @@ from couchers.servicers import conversations
 from couchers.utils import Duration_from_timedelta, now, to_aware_datetime
 from tests.fixtures.db import generate_user, make_friends, make_user_block, make_user_invisible
 from tests.fixtures.misc import EmailCollector, Moderator, PushCollector, process_jobs
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import api_session, conversations_session, notifications_session
 from tests.fixtures.timewarp import Timewarp
 
@@ -504,9 +505,8 @@ def test_get_group_chat_info_denied(db):
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
 
     with conversations_session(token4) as c:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_get_group_chat_info_left(db, moderator):
@@ -569,11 +569,10 @@ def test_remove_group_chat_user(db):
         assert user3.id in res.member_user_ids  # other users are still in the group
 
         # can't remove the same user twice
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
             c.RemoveGroupChatUser(
                 conversations_pb2.RemoveGroupChatUserReq(group_chat_id=group_chat_id, user_id=user2.id)
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
 def test_edit_group_chat(db, moderator):
@@ -605,7 +604,7 @@ def test_edit_group_chat(db, moderator):
 
     # make sure non-admin is not allowed to modify
     with conversations_session(token2) as c:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED):
             c.EditGroupChat(
                 conversations_pb2.EditGroupChatReq(
                     group_chat_id=group_chat_id,
@@ -613,11 +612,10 @@ def test_edit_group_chat(db, moderator):
                     only_admins_invite=wrappers_pb2.BoolValue(value=True),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
     # make sure non-recipient is not allowed to modify
     with conversations_session(token3) as c:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             c.EditGroupChat(
                 conversations_pb2.EditGroupChatReq(
                     group_chat_id=group_chat_id,
@@ -625,7 +623,6 @@ def test_edit_group_chat(db, moderator):
                     only_admins_invite=wrappers_pb2.BoolValue(value=True),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_make_remove_group_chat_admin(db, moderator):
@@ -644,20 +641,16 @@ def test_make_remove_group_chat_admin(db, moderator):
         moderator.approve_group_chat(group_chat_id)
 
         # shouldn't be able to remove only admin
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You can't remove the last admin."):
             c.RemoveGroupChatAdmin(
                 conversations_pb2.RemoveGroupChatAdminReq(group_chat_id=group_chat_id, user_id=user1.id)
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You can't remove the last admin."
 
         c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(group_chat_id=group_chat_id, user_id=user2.id))
 
         # shouldn't be able to make admin again
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "That user is already an admin."):
             c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(group_chat_id=group_chat_id, user_id=user2.id))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "That user is already an admin."
 
     with conversations_session(token2) as c:
         res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
@@ -673,9 +666,8 @@ def test_make_remove_group_chat_admin(db, moderator):
 
     with conversations_session(token2) as c:
         # shouldn't be able to make admin if not admin
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED):
             c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(group_chat_id=group_chat_id, user_id=user3.id))
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
 
 def test_send_message(db, moderator: Moderator, push_collector: PushCollector, email_collector: EmailCollector):
@@ -741,15 +733,13 @@ def test_send_message(db, moderator: Moderator, push_collector: PushCollector, e
 
     # can't send message if not in chat
     with conversations_session(token3) as c:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 2"))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
     make_user_block(user2, user1)
     with conversations_session(token1) as c:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You can't send a message in this chat."):
             c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Message after block"))
-        assert e.value.details() == "You can't send a message in this chat."
 
 
 def test_send_direct_message(db, moderator: Moderator, push_collector: PushCollector, email_collector: EmailCollector):
@@ -851,13 +841,11 @@ def test_excessive_chat_initiations_are_reported(db, low_rate_limits, email_coll
         assert email_collector.count_for_reports() == 0
 
         recipient_user, _ = generate_user()
-        with pytest.raises(grpc.RpcError) as exc_info:
+        with expect_rpc_error(
+            grpc.StatusCode.RESOURCE_EXHAUSTED,
+            "You have messaged a lot of users in the past 24 hours. To avoid spam, you can't contact any more users for now.",
+        ):
             _ = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
-        assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
-        assert (
-            exc_info.value.details()
-            == "You have messaged a lot of users in the past 24 hours. To avoid spam, you can't contact any more users for now."
-        )
 
         email = email_collector.pop_for_reports(last=True)
         assert email.plain.startswith(
@@ -874,9 +862,8 @@ def test_excessive_chat_initiations_are_reported(db, low_rate_limits, email_coll
 
         # still blocked once the hard violation is on record, without reporting again
         recipient_user, _ = generate_user()
-        with pytest.raises(grpc.RpcError) as exc_info:
+        with expect_rpc_error(grpc.StatusCode.RESOURCE_EXHAUSTED):
             _ = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
-        assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
         assert email_collector.count_for_reports() == 0
 
 
@@ -916,13 +903,11 @@ def test_send_direct_message_rate_limit(db, low_rate_limits, moderator, email_co
         assert email_collector.count_for_reports() == 0
 
         recipient, _ = generate_user()
-        with pytest.raises(grpc.RpcError) as exc_info:
+        with expect_rpc_error(
+            grpc.StatusCode.RESOURCE_EXHAUSTED,
+            "You have messaged a lot of users in the past 24 hours. To avoid spam, you can't contact any more users for now.",
+        ):
             c.SendDirectMessage(conversations_pb2.SendDirectMessageReq(recipient_user_id=recipient.id, text="hi"))
-        assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
-        assert (
-            exc_info.value.details()
-            == "You have messaged a lot of users in the past 24 hours. To avoid spam, you can't contact any more users for now."
-        )
 
         email = email_collector.pop_for_reports(last=True)
         assert email.plain.startswith(
@@ -959,51 +944,39 @@ def test_leave_invite_to_group_chat(db, moderator):
 
     # other user not in chat
     with conversations_session(token3) as c:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             res = c.InviteToGroupChat(
                 conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user4.id)
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             res = c.LeaveGroupChat(conversations_pb2.LeaveGroupChatReq(group_chat_id=group_chat_id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
     with conversations_session(token2) as c:
         res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
         assert user3.id not in res.member_user_ids
 
         # only_admins_invite defaults to true so shouldn't be able to invite
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED):
             res = c.InviteToGroupChat(
                 conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user3.id)
             )
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
         c.LeaveGroupChat(conversations_pb2.LeaveGroupChatReq(group_chat_id=group_chat_id))
 
     with conversations_session(token1) as c:
         # invite invisible user fails
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that user."):
             c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user6.id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Couldn't find that user."
         # invite fake user fails
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that user."):
             c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=999))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Couldn't find that user."
         # invite blocked user fails
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that user."):
             c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user7.id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Couldn't find that user."
         # invite blocking user fails
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that user."):
             c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user8.id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Couldn't find that user."
 
         c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user3.id))
         res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
@@ -1076,10 +1049,8 @@ def test_invite_to_dm(db):
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
 
         # dm, shou;dn't be able to invite someone else
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You can't invite other users to a direct message."):
             c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user3.id))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You can't invite other users to a direct message."
 
 
 def test_sole_admin_leaves(db, moderator):
@@ -1098,10 +1069,8 @@ def test_sole_admin_leaves(db, moderator):
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
 
         # sole admin can't leave group chat
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "The last admin can't leave a group chat."):
             c.LeaveGroupChat(conversations_pb2.LeaveGroupChatReq(group_chat_id=group_chat_id))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "The last admin can't leave a group chat."
 
     with conversations_session(token2) as c:
         c.LeaveGroupChat(conversations_pb2.LeaveGroupChatReq(group_chat_id=group_chat_id))
@@ -1219,12 +1188,10 @@ def test_admin_behaviour(db, moderator):
         assert user2.id in res.admin_user_ids
 
     with conversations_session(token3) as c:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED):
             c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(group_chat_id=gcid, user_id=user3.id))
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED):
             c.RemoveGroupChatAdmin(conversations_pb2.RemoveGroupChatAdminReq(group_chat_id=gcid, user_id=user1.id))
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
         res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
         assert len(res.admin_user_ids) == 2
         assert user1.id in res.admin_user_ids
@@ -1264,19 +1231,15 @@ def test_admin_behaviour(db, moderator):
         assert user3.id in res.admin_user_ids
 
     with conversations_session(token3) as c:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You can't remove the last admin."):
             c.RemoveGroupChatAdmin(conversations_pb2.RemoveGroupChatAdminReq(group_chat_id=gcid, user_id=user3.id))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You can't remove the last admin."
         res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
         assert len(res.admin_user_ids) == 1
         assert user3.id in res.admin_user_ids
 
         # last admin can't leave
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "The last admin can't leave a group chat."):
             c.LeaveGroupChat(conversations_pb2.LeaveGroupChatReq(group_chat_id=gcid))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "The last admin can't leave a group chat."
 
         c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(group_chat_id=gcid, user_id=user1.id))
 
@@ -1312,28 +1275,20 @@ def test_add_remove_admin_failures(db):
         make_user_block(user5, user1)
 
         # make non-existent user admin
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that user."):
             c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(group_chat_id=gcid, user_id=999))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Couldn't find that user."
 
         # make invisible user admin
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that user."):
             c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(group_chat_id=gcid, user_id=user3.id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Couldn't find that user."
 
         # make blocked user admin
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that user."):
             c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(group_chat_id=gcid, user_id=user4.id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Couldn't find that user."
 
         # make blocking user admin
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that user."):
             c.MakeGroupChatAdmin(conversations_pb2.MakeGroupChatAdminReq(group_chat_id=gcid, user_id=user5.id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Couldn't find that user."
 
         with session_scope() as session:
             subscriptions = (
@@ -1351,28 +1306,20 @@ def test_add_remove_admin_failures(db):
 
     with conversations_session(token1) as c:
         # remove non-existent user admin
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that user."):
             c.RemoveGroupChatAdmin(conversations_pb2.RemoveGroupChatAdminReq(group_chat_id=gcid, user_id=999))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Couldn't find that user."
 
         # remove invisible admin
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that user."):
             c.RemoveGroupChatAdmin(conversations_pb2.RemoveGroupChatAdminReq(group_chat_id=gcid, user_id=user3.id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Couldn't find that user."
 
         # remove blocked admin
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that user."):
             c.RemoveGroupChatAdmin(conversations_pb2.RemoveGroupChatAdminReq(group_chat_id=gcid, user_id=user4.id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Couldn't find that user."
 
         # remove blocking admin
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that user."):
             c.RemoveGroupChatAdmin(conversations_pb2.RemoveGroupChatAdminReq(group_chat_id=gcid, user_id=user5.id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Couldn't find that user."
 
 
 def test_last_seen(db, moderator):
@@ -1562,14 +1509,12 @@ def test_one_dm_per_pair(db, moderator):
         dm_with_user3 = res.group_chat_id
 
         # can't create another group chat with just user 2
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
             res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
         # can't create another group chat with just user 3
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
             res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user3.id]))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
         # can create joined group chat
         res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id]))
@@ -1584,9 +1529,8 @@ def test_one_dm_per_pair(db, moderator):
         assert res.is_dm
 
         # can't create another group chat with just user 1 (DM was approved, so user2 can see it)
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
             res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user1.id]))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
 def test_GetDirectMessage(db):
@@ -1600,14 +1544,12 @@ def test_GetDirectMessage(db):
 
     with conversations_session(token1) as c:
         # no group chat with user 2
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             res = c.GetDirectMessage(conversations_pb2.GetDirectMessageReq(user_id=user2.id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
         # no group chat with nor user 3
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             res = c.GetDirectMessage(conversations_pb2.GetDirectMessageReq(user_id=user3.id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
         # create DM with user 2
         res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
@@ -1790,9 +1732,8 @@ def test_left_group_chat_can_be_marked_seen(db, moderator):
 
         assert c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id)).unseen_message_count == 0
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="let me back in"))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
     with api_session(token1) as api:
         assert api.Ping(api_pb2.PingReq()).unseen_message_count == 0
@@ -2211,19 +2152,17 @@ def test_archiving_chat_not_found(db, moderator):
 
     # User3 is not in the chat - should get NOT_FOUND
     with conversations_session(token3) as c:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             c.SetGroupChatArchiveStatus(
                 conversations_pb2.SetGroupChatArchiveStatusReq(group_chat_id=gcid, is_archived=True)
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
     # Non-existent chat ID should fail
     with conversations_session(token1) as c:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             c.SetGroupChatArchiveStatus(
                 conversations_pb2.SetGroupChatArchiveStatusReq(group_chat_id=99999, is_archived=True)
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_archiving_after_leaving_chat(db, moderator):
@@ -2249,11 +2188,10 @@ def test_archiving_after_leaving_chat(db, moderator):
 
     # User2 should not be able to archive it now
     with conversations_session(token2) as c:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             c.SetGroupChatArchiveStatus(
                 conversations_pb2.SetGroupChatArchiveStatusReq(group_chat_id=gcid, is_archived=True)
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_archiving_dm(db, moderator):
@@ -2457,7 +2395,8 @@ def test_incomplete_profile(db):
 
     # user 2 cannot
     with conversations_session(token2) as c:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION,
+            "You have to complete your profile before you can send a message.",
+        ):
             c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user3.id]))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You have to complete your profile before you can send a message."
