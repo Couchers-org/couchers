@@ -336,7 +336,7 @@ def observe_api_call(method: str, client_platform: ClientPlatform | None) -> Non
 _set_hacky_gauges_funcs: list[tuple[Gauge, Callable[[], Any]]] = []
 
 
-def _make_gauge_from_query(name: str, description: str, statement: Select[Any]) -> Gauge:
+def _make_gauge_from_query(name: str, description: str, statement: Select[*tuple[Any, ...]]) -> Gauge:
     """
     Given a name, description and statement that is a sqlalchemy statement, creates a gauge from it
 
@@ -361,7 +361,7 @@ def _make_labeled_gauge_from_query(
     name: str,
     description: str,
     labelname: str,
-    statement: Select[Any],
+    statement: Select[*tuple[Any, ...]],
 ) -> Gauge:
     """
     Given a name, description, label name and statement, creates a gauge with one label set from the statement.
@@ -388,7 +388,7 @@ _set_hacky_multi_gauges_funcs: list[Callable[[], None]] = []
 
 def _make_gauges_from_single_pass(
     span_name: str,
-    make_statement: Callable[[list[Any]], Select[Any]],
+    make_statement: Callable[[list[Any]], Select[*tuple[Any, ...]]],
     specs: Sequence[tuple[str, str, ColumnElement[bool] | None]],
     labeled_specs: Sequence[tuple[Gauge, str, ColumnElement[bool]]] = (),
 ) -> list[Gauge]:
@@ -553,7 +553,7 @@ _ACTIVE_USERS_BY_PLATFORM_WINDOW = timedelta(hours=24)
 _MOBILE_PLATFORMS = [ClientPlatform.web_mobile, ClientPlatform.app_ios, ClientPlatform.app_android]
 
 
-def active_users_by_platform_statement() -> Select[Any]:
+def active_users_by_platform_statement() -> Select[*tuple[Any, ...]]:
     # one scan of the last 24h of user_activity: distinct active users in total, the mobile subset (for the share
     # fraction), and a breakdown per platform. client_platform is set from a header the client explicitly sends; it's
     # null for some other client (e.g. an API key script) or activity from before the header existed, so the

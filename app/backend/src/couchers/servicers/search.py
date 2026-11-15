@@ -618,13 +618,13 @@ def _user_search_inner(
             and_(UserRankingOffset.user_id == User.id, UserRankingOffset.variant == ranking_offsets_variant),
         )
         ranking_score = ranking_score + func.coalesce(UserRankingOffset.offset, 0.0)
-    statement = statement.add_columns(ranking_score)
+    ranked_statement = statement.add_columns(ranking_score)
     if request.page_token:
         last_score, last_id = decrypt_page_token(request.page_token).split(",")
-        statement = statement.where(tuple_(ranking_score, User.id) < (float(last_score), int(last_id)))
+        ranked_statement = ranked_statement.where(tuple_(ranking_score, User.id) < (float(last_score), int(last_id)))
 
-    statement = statement.order_by(ranking_score.desc(), User.id.desc()).limit(page_size + 1)
-    res = session.execute(statement).all()
+    ranked_statement = ranked_statement.order_by(ranking_score.desc(), User.id.desc()).limit(page_size + 1)
+    res = session.execute(ranked_statement).all()
 
     next_page_token = None
     if len(res) > page_size:

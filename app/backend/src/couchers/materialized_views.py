@@ -52,8 +52,8 @@ logger = logging.getLogger(__name__)
 
 def create_materialized_view_with_different_ddl(
     name: str,
-    select_selectable: Select[Any] | CompoundSelect[Any],
-    create_selectable: Select[Any] | CompoundSelect[Any],
+    select_selectable: Select[*tuple[Any, ...]] | CompoundSelect[*tuple[Any, ...]],
+    create_selectable: Select[*tuple[Any, ...]] | CompoundSelect[*tuple[Any, ...]],
     metadata: MetaData,
     indexes: Sequence[Index] | None = None,
     aliases: dict[str, str] | None = None,
@@ -143,7 +143,7 @@ class ClusterAdminCount(MatViewBase):
     count: Mapped[int]
 
 
-def make_lite_users_selectable(create: bool = False) -> Select[Any]:
+def make_lite_users_selectable(create: bool = False) -> Select[*tuple[Any, ...]]:
     if create:
         # because this is rendered as a select when emitting the CREATE VIEW, using User.geom would be rendered as
         # `ST_AsEWKB(users.geom)` instead of the literal column, the following fixes it
@@ -252,7 +252,7 @@ class LiteUser(MatViewBase):
     geojson: Mapped[str]
 
 
-def make_clustered_users_selectable(create: bool = False) -> CompoundSelect[Any]:
+def make_clustered_users_selectable(create: bool = False) -> CompoundSelect[*tuple[Any, ...]]:
     # emits something along the lines of
     # WITH anon_1 AS (
     #   SELECT id,

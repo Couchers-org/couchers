@@ -167,8 +167,8 @@ class Account(account_pb2_grpc.AccountServicer):
     def GetAccountInfo(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> account_pb2.GetAccountInfoRes:
-        user, volunteer = session.execute(
-            select(User, Volunteer).outerjoin(Volunteer, Volunteer.user_id == User.id).where(User.id == context.user_id)
+        user, is_volunteer = session.execute(
+            select(User, exists().where(Volunteer.user_id == User.id)).where(User.id == context.user_id)
         ).one()
 
         # Test experimentation integration - check if user is in the test gate
@@ -197,7 +197,7 @@ class Account(account_pb2_grpc.AccountServicer):
             is_superuser=user.is_superuser,
             ui_language_preference=user.ui_language_preference,
             profile_public_visibility=profilepublicitysetting2api[user.public_visibility],
-            is_volunteer=volunteer is not None,
+            is_volunteer=is_volunteer,
             should_show_donation_banner=should_show_donation_banner,
             has_opted_in_to_beta_features=user.has_opted_in_to_beta_features,
             **get_strong_verification_fields(session, user),

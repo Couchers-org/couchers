@@ -75,7 +75,7 @@ def communities_to_pb(
     official_cluster_ids = [cluster.id for cluster in official_clusters]
 
     member_counts: dict[int, int] = dict(
-        session.execute(  # type: ignore[arg-type]
+        session.execute(
             select(ClusterSubscriptionCount.cluster_id, ClusterSubscriptionCount.count).where(
                 ClusterSubscriptionCount.cluster_id.in_(official_cluster_ids)
             )
@@ -92,7 +92,7 @@ def communities_to_pb(
     )
 
     admin_counts: dict[int, int] = dict(
-        session.execute(  # type: ignore[arg-type]
+        session.execute(
             select(ClusterAdminCount.cluster_id, ClusterAdminCount.count).where(
                 ClusterAdminCount.cluster_id.in_(official_cluster_ids)
             )
@@ -587,7 +587,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 Node,
                 Cluster,
                 ClusterSubscriptionCount.count,
-                ClusterSubscription.cluster_id.label("user_subscription"),
+                ClusterSubscription.cluster_id.is_not(None),
             )
             .join(Cluster, Cluster.parent_node_id == Node.id)
             .outerjoin(
@@ -608,12 +608,12 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                     community_id=node.id,
                     name=cluster.name,
                     slug=cluster.slug,
-                    member=user_subscription is not None,
+                    member=is_member,
                     member_count=member_count or 1,
                     parents=_parents_to_pb(session, node.id),
                     created=Timestamp_from_datetime(node.created),
                     node_type=nodetype2api[node.node_type],
                 )
-                for node, cluster, member_count, user_subscription in results
+                for node, cluster, member_count, is_member in results
             ],
         )
