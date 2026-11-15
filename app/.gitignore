@@ -1,3 +1,6 @@
 /data/
 /pgdata/
 *.prod.env
+
+# left behind in existing checkouts, the proxy now uses descriptors.gen.pb
+/proxy/descriptors.pb

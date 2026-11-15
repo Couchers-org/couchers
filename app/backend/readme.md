@@ -21,8 +21,8 @@ Next, run the following commands to get the backend up and running:
 git clone https://github.com/Couchers-org/couchers.git
 cd couchers/app
 
-## Run build steps, including generating protos
-make
+## Generate the protos for every component
+make protos
 
 ## Build and start the docker containers
 docker compose up --build
