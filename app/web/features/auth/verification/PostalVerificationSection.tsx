@@ -109,7 +109,13 @@ function addressLines(address: PostalAddressData, countryName: string, recipient
   ].filter((line): line is string => !!line);
 }
 
-export default function PostalVerificationSection({ hasDonated }: { hasDonated: boolean }) {
+export default function PostalVerificationSection({
+  hasDonated,
+  initialCode = "",
+}: {
+  hasDonated: boolean;
+  initialCode?: string;
+}) {
   const {
     t,
     i18n: { language },
@@ -140,7 +146,7 @@ export default function PostalVerificationSection({ hasDonated }: { hasDonated: 
 
   const [address, setAddress] = useState<PostalAddressData>(EMPTY_ADDRESS);
   const [showRequiredErrors, setShowRequiredErrors] = useState(false);
-  const [code, setCode] = useState("");
+  const [code, setCode] = useState(initialCode);
 
   const setField = (field: keyof PostalAddressData) => (value: string) =>
     setAddress((previous) => ({ ...previous, [field]: value }));

@@ -9,14 +9,19 @@ import StyledLink from "components/StyledLink";
 import useAccountInfo from "features/auth/useAccountInfo";
 import { Trans, useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
-import { ReactNode } from "react";
 import { helpCenterStrongVerificationDataUrl } from "routes";
 
 import PhoneVerificationSection from "./PhoneVerificationSection";
 import PostalVerificationSection from "./PostalVerificationSection";
 import StrongVerificationSection from "./StrongVerificationSection";
 
-const PageWidth = styled("div")(({ theme }) => ({
+// Matches the nav bar's paper background. `html body` outranks CssBaseline's `body`
+// rule whichever stylesheet is inserted first.
+export const paperBackground = (
+  <GlobalStyles styles={{ "html body": { backgroundColor: "var(--mui-palette-background-paper)" } }} />
+);
+
+export const PageWidth = styled("div")(({ theme }) => ({
   width: "100%",
   maxWidth: 900,
   marginInline: "auto",
@@ -99,7 +104,8 @@ function HeroTiles() {
   );
 }
 
-function DataUseSection({ heading, body }: { heading: string; body: ReactNode }) {
+export function DataUseSection() {
+  const { t } = useTranslation(AUTH);
   return (
     <Box
       component="section"
@@ -117,11 +123,15 @@ function DataUseSection({ heading, body }: { heading: string; body: ReactNode })
         {/* footnote target for the "¹" in the verification descriptions */}
         <Typography variant="h2">
           <span aria-hidden="true">¹ </span>
-          {heading}
+          {t("verification_page.data_use.header")}
         </Typography>
       </Box>
       <Typography variant="body1" sx={{ textWrap: "pretty" }}>
-        {body}
+        <Trans
+          t={t}
+          i18nKey="verification_page.data_use.body"
+          components={{ helpCenterLink: <StyledLink href={helpCenterStrongVerificationDataUrl} target="_blank" /> }}
+        />
       </Typography>
     </Box>
   );
@@ -135,11 +145,7 @@ export default function VerificationPage() {
   return (
     <>
       <HtmlMeta title={t("verification_page.title")} />
-      {/* The nav bar is a Paper, so it sits on background.paper while the body
-          defaults to background.default. Match it so the page reads as one
-          surface. `html body` outranks CssBaseline's `body` rule regardless of
-          which stylesheet is inserted first. */}
-      <GlobalStyles styles={{ "html body": { backgroundColor: "var(--mui-palette-background-paper)" } }} />
+      {paperBackground}
 
       <PageWidth
         sx={(theme) => ({
@@ -186,16 +192,7 @@ export default function VerificationPage() {
           </>
         ) : null}
 
-        <DataUseSection
-          heading={t("verification_page.data_use.header")}
-          body={
-            <Trans
-              t={t}
-              i18nKey="verification_page.data_use.body"
-              components={{ helpCenterLink: <StyledLink href={helpCenterStrongVerificationDataUrl} target="_blank" /> }}
-            />
-          }
-        />
+        <DataUseSection />
       </PageWidth>
     </>
   );
