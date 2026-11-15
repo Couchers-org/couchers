@@ -31,8 +31,7 @@ interface OfferToHostDialogProps {
   open: boolean;
   onClose: () => void;
   tripId: number;
-  hostUserId: number;
-  hostName: string;
+  travelerName: string;
   tripFromDate: Temporal.PlainDate;
   tripToDate: Temporal.PlainDate;
 }
@@ -99,8 +98,7 @@ export default function OfferToHostDialog({
   open,
   onClose,
   tripId,
-  hostUserId,
-  hostName,
+  travelerName,
   tripFromDate,
   tripToDate,
 }: OfferToHostDialogProps) {
@@ -140,14 +138,12 @@ export default function OfferToHostDialog({
     reset: resetMutation,
   } = useMutation({
     mutationFn: ({ fromDate, toDate, text }: FormValues) =>
-      service.requests.createHostRequest({
-        hostUserId,
+      service.publicTrips.offerToHost({
+        tripId,
         // Both are required by the form, so non-null at submit time.
-        fromDate: fromDate!,
-        toDate: toDate!,
+        fromDate: fromDate!.toString(),
+        toDate: toDate!.toString(),
         text: text.trim(),
-        publicTripId: tripId,
-        stayType: 0,
       }),
     onSuccess: (hostRequestId) => {
       // Refetch trips so the card's viewerHostRequestId updates (the button
@@ -252,7 +248,7 @@ export default function OfferToHostDialog({
     return (
       <StyledSheet anchor="bottom" open={open} onClose={handleClose} onOpen={() => {}} disableSwipeToOpen>
         <Puller />
-        <SheetTitle id={titleId}>{t("publicTrips:offer_to_host_dialog.title", { name: hostName })}</SheetTitle>
+        <SheetTitle id={titleId}>{t("publicTrips:offer_to_host_dialog.title", { name: travelerName })}</SheetTitle>
         <SheetScrollContent>{formBody}</SheetScrollContent>
         <SheetActionBar>
           {cancelButton}
@@ -265,7 +261,7 @@ export default function OfferToHostDialog({
   return (
     <Dialog aria-labelledby={titleId} open={open} onClose={handleClose}>
       <DialogTitle id={titleId} onClose={handleClose}>
-        {t("publicTrips:offer_to_host_dialog.title", { name: hostName })}
+        {t("publicTrips:offer_to_host_dialog.title", { name: travelerName })}
       </DialogTitle>
       <DialogContent>{formBody}</DialogContent>
       <DialogActions sx={{ padding: theme.spacing(0, 3, 2) }}>
