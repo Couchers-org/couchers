@@ -30,9 +30,8 @@ import {
   VerificationSectionHeader,
 } from "./VerificationSection";
 
-type AddressFields = Omit<PostalAddressData, "recipientName">;
-
-const EMPTY_ADDRESS: AddressFields = {
+const EMPTY_ADDRESS: PostalAddressData = {
+  recipientName: "",
   addressLine1: "",
   addressLine2: "",
   city: "",
@@ -137,23 +136,22 @@ export default function PostalVerificationSection({ hasDonated }: { hasDonated: 
     return (code: string) => byCode.get(code) ?? code;
   }, [countries]);
 
-  const [address, setAddress] = useState<AddressFields>(EMPTY_ADDRESS);
-  const [recipientName, setRecipientName] = useState("");
+  const [address, setAddress] = useState<PostalAddressData>(EMPTY_ADDRESS);
   const [showRequiredErrors, setShowRequiredErrors] = useState(false);
   const [code, setCode] = useState("");
 
-  const setField = (field: keyof AddressFields) => (value: string) =>
+  const setField = (field: keyof PostalAddressData) => (value: string) =>
     setAddress((previous) => ({ ...previous, [field]: value }));
 
   const isMissing = (field: "recipientName" | "addressLine1" | "city" | "countryCode") =>
-    showRequiredErrors && !(field === "recipientName" ? recipientName : address[field]).trim();
+    showRequiredErrors && !address[field].trim();
 
   const onSubmitAddress = () => {
-    if (!recipientName.trim() || !address.addressLine1 || !address.city || !address.countryCode) {
+    if (!address.recipientName.trim() || !address.addressLine1.trim() || !address.city.trim() || !address.countryCode) {
       setShowRequiredErrors(true);
       return;
     }
-    initiate.mutate({ ...address, recipientName });
+    initiate.mutate(address);
   };
 
   const attemptId = status?.postalVerificationAttemptId ?? 0;
@@ -246,8 +244,8 @@ export default function PostalVerificationSection({ hasDonated }: { hasDonated: 
                     fullWidth
                     autoComplete="name"
                     label={t("verification_page.postal.address_form.recipient_name_label")}
-                    value={recipientName}
-                    onChange={(event) => setRecipientName(event.target.value)}
+                    value={address.recipientName}
+                    onChange={(event) => setField("recipientName")(event.target.value)}
                     error={isMissing("recipientName")}
                     helperText={
                       isMissing("recipientName")
