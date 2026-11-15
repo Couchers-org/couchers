@@ -889,11 +889,17 @@ class Account(account_pb2_grpc.AccountServicer):
                 link_text = link_text
                 link_url = f"https://www.linkedin.com/in/{link_text}/"
             elif link_type == "email":
-                if not is_valid_email(link_text):
+                if not link_text or not is_valid_email(link_text):
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_email")
                 link_url = f"mailto:{link_text}"
             elif link_type == "website":
-                if not link_url.startswith("https://") or "/" in link_text or link_text not in link_url:
+                if (
+                    not link_url
+                    or not link_text
+                    or not link_url.startswith("https://")
+                    or "/" in link_text
+                    or link_text not in link_url
+                ):
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_website_url")
             else:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_link_type")
