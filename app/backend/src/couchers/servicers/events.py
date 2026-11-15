@@ -412,7 +412,7 @@ def occurrences_next_page_token(occurrences: Sequence[EventOccurrence], page_siz
 
 
 def is_community_too_large_for_event_notifications(node: Node) -> bool:
-    return node.node_type.value <= NodeType.region.value
+    return not node.official_cluster.small_community_features_enabled
 
 
 def get_users_to_notify_for_new_event(
@@ -434,7 +434,7 @@ def get_users_to_notify_for_new_event(
     cluster = node.official_cluster
     creator = aliased(User)
     if is_community_too_large_for_event_notifications(node):
-        logger.info(f"Community {node.id} is a {node.node_type} and too big for email notifications.")
+        logger.info(f"Community {node.id} has small community features disabled, so it gets no event notifications.")
         return [], node.id
     elif occurrence.creator_user in cluster.admins or cluster.is_leaf:
         members = (
