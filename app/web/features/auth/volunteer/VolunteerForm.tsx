@@ -1,5 +1,4 @@
 import {
-  Box,
   Checkbox,
   FormControl,
   FormControlLabel,
@@ -93,7 +92,7 @@ export default function VolunteerForm({ volunteerInfo }: VolunteerFormProps) {
       case "email":
         return t("auth:volunteer_management.form.link_text_email_placeholder");
       case "website":
-        return t("auth:volunteer_management.form.link_text_website_placeholder");
+        return t("auth:volunteer_management.form.link_text_website_example_placeholder");
       default:
         return "";
     }
@@ -192,12 +191,42 @@ export default function VolunteerForm({ volunteerInfo }: VolunteerFormProps) {
             )}
           />
 
-          {watchedLinkType !== "couchers" && watchedLinkType !== "website" && (
+          {watchedLinkType === "website" && (
+            <TextField
+              id="linkUrl"
+              label={t("auth:volunteer_management.form.link_url_label")}
+              {...register("linkUrl", {
+                validate: (value) => {
+                  if (watchedLinkType !== "website") return true;
+
+                  if (!value || value.trim() === "") {
+                    return t("auth:volunteer_management.form.link_url_required");
+                  }
+
+                  if (!URL_PATTERN.test(value)) {
+                    return t("auth:volunteer_management.form.link_url_not_https");
+                  }
+
+                  return true;
+                },
+              })}
+              error={!!errors?.linkUrl}
+              placeholder={t("auth:volunteer_management.form.link_url_placeholder")}
+              helperText={errors?.linkUrl?.message || t("auth:volunteer_management.form.link_url_helper")}
+              sx={{ flex: 1, minWidth: 200 }}
+            />
+          )}
+
+          {watchedLinkType !== "couchers" && (
             <TextField
               id="linkText"
-              label={t("auth:volunteer_management.form.link_text_label")}
+              label={
+                watchedLinkType === "website"
+                  ? t("auth:volunteer_management.form.link_text_website_label")
+                  : t("auth:volunteer_management.form.link_text_label")
+              }
               {...register("linkText", {
-                validate: (value) => {
+                validate: (value, { linkUrl }) => {
                   if (!value || value.trim() === "") {
                     return t("auth:volunteer_management.form.link_text_required");
                   }
@@ -208,6 +237,10 @@ export default function VolunteerForm({ volunteerInfo }: VolunteerFormProps) {
 
                   if (watchedLinkType === "linkedin" && !LINKEDIN_USERNAME_PATTERN.test(value)) {
                     return t("auth:volunteer_management.form.link_text_linkedin_invalid");
+                  }
+
+                  if (watchedLinkType === "website" && (value.includes("/") || !linkUrl.includes(value))) {
+                    return t("auth:volunteer_management.form.link_text_website_invalid");
                   }
 
                   return true;
@@ -222,34 +255,6 @@ export default function VolunteerForm({ volunteerInfo }: VolunteerFormProps) {
             />
           )}
         </FormRow>
-
-        {watchedLinkType === "website" && (
-          <Box sx={{ width: 400 }}>
-            <TextField
-              id="linkUrl"
-              label={t("auth:volunteer_management.form.link_url_label")}
-              {...register("linkUrl", {
-                validate: (value) => {
-                  if (watchedLinkType !== "website") return true;
-
-                  if (!value || value.trim() === "") {
-                    return t("auth:volunteer_management.form.link_url_required");
-                  }
-
-                  if (!URL_PATTERN.test(value)) {
-                    return t("auth:volunteer_management.form.link_url_invalid");
-                  }
-
-                  return true;
-                },
-              })}
-              error={!!errors?.linkUrl}
-              placeholder={t("auth:volunteer_management.form.link_url_placeholder")}
-              helperText={errors?.linkUrl?.message || t("auth:volunteer_management.form.link_url_helper")}
-              fullWidth
-            />
-          </Box>
-        )}
 
         <Button type="submit" loading={isUpdateLoading}>
           {t("auth:volunteer_management.form.save_button")}

@@ -7,7 +7,7 @@ export type LinkType = (typeof LINK_TYPES)[number];
 
 // Validation patterns
 export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-export const URL_PATTERN = /^https?:\/\/.+/;
+export const URL_PATTERN = /^https:\/\/.+/;
 export const LINKEDIN_USERNAME_PATTERN = /^[\w-]{3,100}$/;
 
 // Form types
