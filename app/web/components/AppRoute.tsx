@@ -127,7 +127,7 @@ function AppRoute({ children, isPrivate, noFooter = false, variant = "standard",
   useEffect(() => {
     if (!isAuthenticated && isPrivate) {
       authActions.authError("Please log in.");
-      router.push({ pathname: loginRoute, query: { from: location.pathname } });
+      router.push({ pathname: loginRoute, query: { from: location.pathname + location.search } });
     }
     if (isAuthenticated && isJailed && isPrivate && pathname !== jailRoute) {
       router.push(jailRoute);
