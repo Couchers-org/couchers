@@ -30,7 +30,6 @@ import {
   VerificationSectionHeader,
 } from "./VerificationSection";
 
-// the recipient name is tracked separately, since it's pre-filled from the profile once that loads
 type AddressFields = Omit<PostalAddressData, "recipientName">;
 
 const EMPTY_ADDRESS: AddressFields = {
