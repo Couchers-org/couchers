@@ -1195,6 +1195,46 @@ def observe_feature_flag_evaluation(flag_key: str, source: str, value: Any) -> N
 
 
 # =============================================================================
+# bfc metrics (see couchers/bfc.py)
+# =============================================================================
+
+bfc_rpc_duration_histogram: Histogram = Histogram(
+    "couchers_bfc_rpc_duration_seconds",
+    "Duration of calls to bfc as the backend sees them, by method and gRPC status code",
+    labelnames=["method", "code"],
+    buckets=MACHINE_DURATION_SECONDS,
+)
+
+
+def observe_bfc_rpc(method: str, code: str, duration_s: float) -> None:
+    bfc_rpc_duration_histogram.labels(method, code).observe(duration_s)
+
+
+# source is "bfc" when bfc served the response, "fallback" when bfc was asked and failed, and "backend" otherwise
+bfc_function_duration_histogram: Histogram = Histogram(
+    "couchers_bfc_function_duration_seconds",
+    "End-to-end duration of backend handlers that can use bfc, by function and where the response came from",
+    labelnames=["function", "source"],
+    buckets=MACHINE_DURATION_SECONDS,
+)
+
+
+def observe_bfc_function(function: str, source: str, duration_s: float) -> None:
+    bfc_function_duration_histogram.labels(function, source).observe(duration_s)
+
+
+bfc_fallbacks_counter: Counter = Counter(
+    "couchers_bfc_fallbacks_total",
+    "Times the backend served its own answer because bfc failed, by function and gRPC status code",
+    labelnames=["function", "code"],
+)
+
+
+def observe_bfc_fallback(function: str, code: str) -> None:
+    bfc_fallbacks_counter.labels(function, code).inc()
+
+
+# =============================================================================
 # Rate limiting metrics (see couchers/middleware/ratelimit.py)
 # =============================================================================
 

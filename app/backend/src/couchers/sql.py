@@ -83,7 +83,7 @@ def users_visible(context: CouchersContext, table: _User = User) -> ColumnElemen
     """
     clauses = [table.is_visible, _shadow_clause(context, table)]
     if context.is_logged_in():
-        clauses.append(~table.id.in_(_relevant_user_blocks(context.user_id)))
+        clauses.append(~table.id.in_(relevant_user_blocks(context.user_id)))
     return and_(*clauses)
 
 
@@ -253,7 +253,7 @@ def moderation_state_column_visible(
     )
 
 
-def _relevant_user_blocks(user_id: int) -> Select[tuple[int]]:
+def relevant_user_blocks(user_id: int) -> Select[tuple[int]]:
     """
     Gets a list of blocked user IDs or users that have blocked this user: those should be hidden
     """
