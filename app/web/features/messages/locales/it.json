@@ -20,7 +20,7 @@
   "past_request_help_text": "Questa richiesta è passata, puoi ancora inviare messaggi ma non puoi modificarla.",
   "reference_card": {
     "title": "Scrivi una referenza",
-    "description": "Condividi la tua esperienza per aiutare la community."
+    "description": "Condividi la tua esperienza per supportare la community."
   },
   "respond_box_title": "Invia una risposta",
   "respond_box_description": "Seleziona una risposta per far sapere subito a {{name}}. Se ti va puoi anche inviare un messaggio.",
@@ -208,5 +208,7 @@
     "request_duration_other": "{{count}} notti"
   },
   "unknown_user": "Utente sconosciuto",
-  "show_more_actions_button_a11y": "Mostra altre azioni"
+  "show_more_actions_button_a11y": "Mostra altre azioni",
+  "mark_all_read_button_text_public_trips": "Segna tutti gli inviti relativi ai viaggi pubblici come letti",
+  "invitation_respond_box_title": "Rispondi all'invito di {{name}}"
 }
