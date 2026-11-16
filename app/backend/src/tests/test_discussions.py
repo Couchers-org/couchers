@@ -44,12 +44,12 @@ def test_create_discussion_errors(db):
 
 def test_create_and_get_discussion(db, frozen_timewarp, push_collector: PushCollector, moderator: Moderator):
     generate_user()
-    user, token = generate_user()
-    user2, token2 = generate_user()
+    creator_user, creator_token = generate_user()
+    admin_user, admin_token = generate_user()
     generate_user()
     generate_user()
 
-    with notifications_session(token2) as notifications:
+    with notifications_session(admin_token) as notifications:
         notifications.SetNotificationSettings(
             notifications_pb2.SetNotificationSettingsReq(
                 preferences=[
@@ -64,12 +64,12 @@ def test_create_and_get_discussion(db, frozen_timewarp, push_collector: PushColl
         )
 
     with session_scope() as session:
-        community = create_community(session, 0, 1, "Testing Community", [user2], [], None)
-        group_id = create_group(session, "Testing Group", [user2], [], community).id
+        community = create_community(session, 0, 1, "Testing Community", [admin_user], [], None)
+        group_id = create_group(session, "Testing Group", [admin_user], [], community).id
         community_id = community.id
-        user2_id = user2.id
+        admin_user_id = admin_user.id
 
-    with discussions_session(token) as api:
+    with discussions_session(creator_token) as api:
         time_before_create = now()
         res = api.CreateDiscussion(
             discussions_pb2.CreateDiscussionReq(
@@ -84,7 +84,7 @@ def test_create_and_get_discussion(db, frozen_timewarp, push_collector: PushColl
         assert res.content == "dummy content"
         assert res.slug == "dummy-title"
         assert time_before_create <= to_aware_datetime(res.created) <= time_after_create
-        assert res.creator_user_id == user.id
+        assert res.creator_user_id == creator_user.id
         assert res.owner_community_id == community_id
 
         discussion_id = res.discussion_id
@@ -92,13 +92,13 @@ def test_create_and_get_discussion(db, frozen_timewarp, push_collector: PushColl
     moderator.approve_discussion(discussion_id)
     process_jobs()
 
-    push = push_collector.pop_for_user(user2_id, last=True)
+    push = push_collector.pop_for_user(admin_user_id, last=True)
     assert push.content.title == "New discussion: dummy title"
     assert push.content.ios_title == "New Discussion"
     assert push.content.ios_subtitle == "dummy title"
-    assert push.content.body == f"{user.name} started the discussion in Testing Community."
+    assert push.content.body == f"{creator_user.name} started the discussion in Testing Community."
 
-    with discussions_session(token) as api:
+    with discussions_session(creator_token) as api:
         res = api.GetDiscussion(
             discussions_pb2.GetDiscussionReq(
                 discussion_id=discussion_id,
@@ -109,10 +109,10 @@ def test_create_and_get_discussion(db, frozen_timewarp, push_collector: PushColl
         assert res.content == "dummy content"
         assert res.slug == "dummy-title"
         assert time_before_create <= to_aware_datetime(res.created) <= time_after_create
-        assert res.creator_user_id == user.id
+        assert res.creator_user_id == creator_user.id
         assert res.owner_community_id == community_id
 
-    with discussions_session(token) as api:
+    with discussions_session(creator_token) as api:
         time_before_create = now()
         res = api.CreateDiscussion(
             discussions_pb2.CreateDiscussionReq(
@@ -127,12 +127,12 @@ def test_create_and_get_discussion(db, frozen_timewarp, push_collector: PushColl
         assert res.content == "dummy content"
         assert res.slug == "dummy-title"
         assert time_before_create <= to_aware_datetime(res.created) <= time_after_create
-        assert res.creator_user_id == user.id
+        assert res.creator_user_id == creator_user.id
         assert res.owner_group_id == group_id
 
         discussion_id = res.discussion_id
 
-    with discussions_session(token) as api:
+    with discussions_session(creator_token) as api:
         res = api.GetDiscussion(
             discussions_pb2.GetDiscussionReq(
                 discussion_id=discussion_id,
@@ -143,7 +143,7 @@ def test_create_and_get_discussion(db, frozen_timewarp, push_collector: PushColl
         assert res.content == "dummy content"
         assert res.slug == "dummy-title"
         assert time_before_create <= to_aware_datetime(res.created) <= time_after_create
-        assert res.creator_user_id == user.id
+        assert res.creator_user_id == creator_user.id
         assert res.owner_group_id == group_id
 
 
@@ -446,19 +446,19 @@ def test_admin_delete_discussion(db):
 
 def test_discussion_notifications_regression(db, push_collector: PushCollector, moderator: Moderator):
     generate_user()
-    user, token = generate_user()
-    user2, token2 = generate_user()
-    user3, token3 = generate_user()
+    creator_user, creator_token = generate_user()
+    commenter_user, commenter_token = generate_user()
+    replier_user, replier_token = generate_user()
     generate_user()
     generate_user()
 
     with session_scope() as session:
-        community = create_community(session, 0, 1, "Testing Community", [user2], [], None)
-        group_id = create_group(session, "Testing Group", [user2], [], community).id
+        community = create_community(session, 0, 1, "Testing Community", [commenter_user], [], None)
+        group_id = create_group(session, "Testing Group", [commenter_user], [], community).id
         community_id = community.id
-        user2_id = user2.id
+        commenter_user_id = commenter_user.id
 
-    with discussions_session(token) as api:
+    with discussions_session(creator_token) as api:
         res = api.CreateDiscussion(
             discussions_pb2.CreateDiscussionReq(
                 title="dummy title",
@@ -470,23 +470,23 @@ def test_discussion_notifications_regression(db, push_collector: PushCollector, 
         assert res.title == "dummy title"
         assert res.content == "dummy content"
         assert res.slug == "dummy-title"
-        assert res.creator_user_id == user.id
+        assert res.creator_user_id == creator_user.id
         assert res.owner_community_id == community_id
 
         discussion_id = res.discussion_id
         thread_id = res.thread.thread_id
 
-    with threads_session(token2) as api:
+    with threads_session(commenter_token) as api:
         comment_thread_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=thread_id, content="comment")).thread_id
     moderator.approve_thread_post(comment_thread_id)
 
-    with threads_session(token3) as api:
+    with threads_session(replier_token) as api:
         reply_thread_id_a = api.PostReply(
             threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="reply to comment")
         ).thread_id
     moderator.approve_thread_post(reply_thread_id_a)
 
-    with threads_session(token) as api:
+    with threads_session(creator_token) as api:
         reply_thread_id_b = api.PostReply(
             threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="reply to reply to comment")
         ).thread_id
@@ -494,17 +494,17 @@ def test_discussion_notifications_regression(db, push_collector: PushCollector, 
 
     process_jobs()
 
-    # User2 should get 2 notifications about 2 replies to their comment, User3 should get 1 notification about 1 reply
-    push = push_collector.pop_for_user(user2_id, last=False)
-    assert push.content.title == f"{user3.name} • dummy title"
+    # The commenter should get 2 notifications about 2 replies to their comment, the replier should get 1 notification about 1 reply
+    push = push_collector.pop_for_user(commenter_user_id, last=False)
+    assert push.content.title == f"{replier_user.name} • dummy title"
     assert push.topic_action == "thread:reply"
 
-    push = push_collector.pop_for_user(user2_id, last=True)
-    assert push.content.title == f"{user.name} • dummy title"
+    push = push_collector.pop_for_user(commenter_user_id, last=True)
+    assert push.content.title == f"{creator_user.name} • dummy title"
     assert push.topic_action == "thread:reply"
 
-    push = push_collector.pop_for_user(user3.id, last=True)
-    assert push.content.title == f"{user.name} • dummy title"
+    push = push_collector.pop_for_user(replier_user.id, last=True)
+    assert push.content.title == f"{creator_user.name} • dummy title"
     assert push.topic_action == "thread:reply"
 
 
@@ -845,10 +845,10 @@ def test_admin_delete_discussion_creates_version_record(db):
 
 def test_create_discussion_incomplete_profile(db):
     user, token = generate_user(complete_profile=False)
-    user2, token2 = generate_user()
+    admin_user, admin_token = generate_user()
 
     with session_scope() as session:
-        community_id = create_community(session, 0, 1, "Testing Community", [user2], [], None).id
+        community_id = create_community(session, 0, 1, "Testing Community", [admin_user], [], None).id
 
     with discussions_session(token) as api:
         with expect_rpc_error(

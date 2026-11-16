@@ -355,19 +355,19 @@ def test_get_group_chat_messages(db):
 
 
 def test_get_group_chat_messages_pagination(db, moderator):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    make_friends(user1, user2)
+    sender_user, sender_token = generate_user()
+    recipient_user, recipient_token = generate_user()
+    make_friends(sender_user, recipient_user)
 
-    with conversations_session(token1) as c:
-        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
+    with conversations_session(sender_token) as c:
+        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
         group_chat_id = res.group_chat_id
         for i in range(30):
             c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text=str(i)))
 
     moderator.approve_group_chat(group_chat_id)
 
-    with conversations_session(token2) as c:
+    with conversations_session(recipient_token) as c:
         res = c.GetGroupChatMessages(conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id))
         # pagination
         assert len(res.messages) == 20
@@ -743,13 +743,13 @@ def test_send_message(db, moderator: Moderator, push_collector: PushCollector, e
 
 
 def test_send_direct_message(db, moderator: Moderator, push_collector: PushCollector, email_collector: EmailCollector):
-    user1, token1 = generate_user(complete_profile=True)
-    user2, token2 = generate_user(complete_profile=True)
+    sender_user, sender_token = generate_user(complete_profile=True)
+    recipient_user, recipient_token = generate_user(complete_profile=True)
 
-    make_friends(user1, user2)
+    make_friends(sender_user, recipient_user)
 
-    # Let user2 receive email notifications for every chat message
-    with notifications_session(token2) as n:
+    # Let recipient_user receive email notifications for every chat message
+    with notifications_session(recipient_token) as n:
         n.SetNotificationSettings(
             notifications_pb2.SetNotificationSettingsReq(
                 preferences=[
@@ -763,39 +763,41 @@ def test_send_direct_message(db, moderator: Moderator, push_collector: PushColle
             )
         )
 
-    # Let user1 send two DM's to user2
+    # Let sender_user send two DM's to recipient_user
     message1 = "Hello, user2!"
     message2 = "One more message."
 
-    with conversations_session(token1) as c1:
-        # Send a DM from user1 to user2
-        res = c1.SendDirectMessage(conversations_pb2.SendDirectMessageReq(recipient_user_id=user2.id, text=message1))
+    with conversations_session(sender_token) as c1:
+        # Send a DM from sender_user to recipient_user
+        res = c1.SendDirectMessage(
+            conversations_pb2.SendDirectMessageReq(recipient_user_id=recipient_user.id, text=message1)
+        )
         moderator.approve_group_chat(res.group_chat_id)
 
-        c1.SendDirectMessage(conversations_pb2.SendDirectMessageReq(recipient_user_id=user2.id, text=message2))
+        c1.SendDirectMessage(conversations_pb2.SendDirectMessageReq(recipient_user_id=recipient_user.id, text=message2))
 
-    # user2 should have received push and email notifications for both messages
-    push = push_collector.pop_for_user(user2.id, last=False)
+    # recipient_user should have received push and email notifications for both messages
+    push = push_collector.pop_for_user(recipient_user.id, last=False)
     assert push.topic_action == NotificationTopicAction.chat__message.display
-    assert push.content.title == user1.name
+    assert push.content.title == sender_user.name
     assert push.content.body == message1
 
-    email = email_collector.pop_for_recipient(user2.email, last=False)
-    assert user1.name in email.subject
+    email = email_collector.pop_for_recipient(recipient_user.email, last=False)
+    assert sender_user.name in email.subject
     assert message1 in email.plain
     assert message1 in email.html
 
-    push = push_collector.pop_for_user(user2.id, last=True)
+    push = push_collector.pop_for_user(recipient_user.id, last=True)
     assert push.topic_action == NotificationTopicAction.chat__message.display
-    assert push.content.title == user1.name
+    assert push.content.title == sender_user.name
     assert push.content.body == message2
 
-    email = email_collector.pop_for_recipient(user2.email, last=True)
-    assert user1.name in email.subject
+    email = email_collector.pop_for_recipient(recipient_user.email, last=True)
+    assert sender_user.name in email.subject
     assert message2 in email.plain
     assert message2 in email.html
 
-    with conversations_session(token2) as c2:
+    with conversations_session(recipient_token) as c2:
         # Fetch the chat by ID returned from SendDirectMessage
         chat = c2.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=res.group_chat_id))
 
@@ -810,7 +812,7 @@ def test_send_direct_message(db, moderator: Moderator, push_collector: PushColle
         assert len(messages) == 2
         assert messages[0].text.text == message2
         assert messages[1].text.text == message1
-        assert messages[0].author_user_id == user1.id
+        assert messages[0].author_user_id == sender_user.id
 
 
 def test_excessive_chat_initiations_are_reported(db, low_rate_limits, email_collector: EmailCollector):
@@ -1395,19 +1397,19 @@ def test_last_seen(db, moderator):
 
 
 def test_mark_last_seen_clears_notifications(db, moderator):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    sender_user, sender_token = generate_user()
+    recipient_user, recipient_token = generate_user()
 
-    with conversations_session(token1) as c:
+    with conversations_session(sender_token) as c:
         gcid = c.CreateGroupChat(
             conversations_pb2.CreateGroupChatReq(
-                recipient_user_ids=[user2.id], title=wrappers_pb2.StringValue(value="Test chat")
+                recipient_user_ids=[recipient_user.id], title=wrappers_pb2.StringValue(value="Test chat")
             )
         ).group_chat_id
 
     moderator.approve_group_chat(gcid)
 
-    with conversations_session(token1) as c:
+    with conversations_session(sender_token) as c:
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text="Hello"))
 
     process_jobs()
@@ -1422,12 +1424,12 @@ def test_mark_last_seen_clears_notifications(db, moderator):
                 .where(Notification.is_seen == False)
             ).scalar_one()
 
-    assert unseen_notification_count(user2.id) > 0
+    assert unseen_notification_count(recipient_user.id) > 0
 
-    with conversations_session(token2) as c:
+    with conversations_session(recipient_token) as c:
         c.MarkLastSeenGroupChat(conversations_pb2.MarkLastSeenGroupChatReq(group_chat_id=gcid, last_seen_message_id=1))
 
-    assert unseen_notification_count(user2.id) == 0
+    assert unseen_notification_count(recipient_user.id) == 0
 
 
 def test_mark_last_seen_clears_missed_messages_notification(db, moderator, timewarp: Timewarp):
@@ -1435,11 +1437,11 @@ def test_mark_last_seen_clears_missed_messages_notification(db, moderator, timew
     Regression test: chat__missed_messages is a summary keyed with "" rather than a chat id, so it
     needs to be marked seen separately from the per-chat chat__message notifications.
     """
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    sender_user, sender_token = generate_user()
+    recipient_user, recipient_token = generate_user()
 
     # this notification is email-only by default, and the in-app feed only shows push-enabled ones
-    with notifications_session(token2) as n:
+    with notifications_session(recipient_token) as n:
         n.SetNotificationSettings(
             notifications_pb2.SetNotificationSettingsReq(
                 preferences=[
@@ -1453,16 +1455,16 @@ def test_mark_last_seen_clears_missed_messages_notification(db, moderator, timew
             )
         )
 
-    with conversations_session(token1) as c:
+    with conversations_session(sender_token) as c:
         gcid = c.CreateGroupChat(
             conversations_pb2.CreateGroupChatReq(
-                recipient_user_ids=[user2.id], title=wrappers_pb2.StringValue(value="Test chat")
+                recipient_user_ids=[recipient_user.id], title=wrappers_pb2.StringValue(value="Test chat")
             )
         ).group_chat_id
 
     moderator.approve_group_chat(gcid)
 
-    with conversations_session(token1) as c:
+    with conversations_session(sender_token) as c:
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text="Hello!"))
 
     # the job only picks up messages that have been unseen for five minutes
@@ -1471,7 +1473,7 @@ def test_mark_last_seen_clears_missed_messages_notification(db, moderator, timew
     process_jobs()
 
     def unseen_missed_messages():
-        with notifications_session(token2) as n:
+        with notifications_session(recipient_token) as n:
             res = n.ListNotifications(notifications_pb2.ListNotificationsReq(only_unread=True))
         return [
             notification
@@ -1482,7 +1484,7 @@ def test_mark_last_seen_clears_missed_messages_notification(db, moderator, timew
 
     assert len(unseen_missed_messages()) == 1
 
-    with conversations_session(token2) as c:
+    with conversations_session(recipient_token) as c:
         c.MarkLastSeenGroupChat(conversations_pb2.MarkLastSeenGroupChatReq(group_chat_id=gcid, last_seen_message_id=1))
 
     assert unseen_missed_messages() == []
@@ -2378,14 +2380,14 @@ def test_chat_notifications(db, moderator):
 
 def test_incomplete_profile(db):
     user1, token1 = generate_user(complete_profile=True)
-    user2, token2 = generate_user(complete_profile=False)
+    incomplete_user, incomplete_token = generate_user(complete_profile=False)
     user3, token3 = generate_user(complete_profile=True)
-    make_friends(user1, user2)
+    make_friends(user1, incomplete_user)
     make_friends(user1, user3)
 
     # user 1 can make a chat
     with conversations_session(token1) as c:
-        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
+        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[incomplete_user.id]))
         group_chat_id = res.group_chat_id
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
         res = c.GetGroupChatMessages(conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id))
@@ -2393,8 +2395,8 @@ def test_incomplete_profile(db):
         assert to_aware_datetime(res.messages[0].time) <= now()
         assert res.messages[0].author_user_id == user1.id
 
-    # user 2 cannot
-    with conversations_session(token2) as c:
+    # incomplete_user cannot
+    with conversations_session(incomplete_token) as c:
         with expect_rpc_error(
             grpc.StatusCode.FAILED_PRECONDITION,
             "You have to complete your profile before you can send a message.",

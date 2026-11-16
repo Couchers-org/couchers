@@ -40,12 +40,12 @@ from tests.test_references import create_public_trip
 
 def test_GetAccountInfo(db, fast_passwords):
     # with password
-    user1, token1 = generate_user(hashed_password=hash_password(random_hex()), email="user@couchers.invalid")
+    user, token = generate_user(hashed_password=hash_password(random_hex()), email="user@couchers.invalid")
 
-    with account_session(token1) as account:
+    with account_session(token) as account:
         res = account.GetAccountInfo(empty_pb2.Empty())
         assert res.email == "user@couchers.invalid"
-        assert res.username == user1.username
+        assert res.username == user.username
         assert not res.has_strong_verification
         assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED
         assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_UNVERIFIED
@@ -386,14 +386,14 @@ def test_ChangeEmailV2_invalid_email(db, fast_passwords):
 def test_ChangeEmailV2_email_in_use(db, fast_passwords):
     password = random_hex()
     user, token = generate_user(hashed_password=hash_password(password))
-    user2, token2 = generate_user(hashed_password=hash_password(password))
+    other_user, other_token = generate_user(hashed_password=hash_password(password))
 
     with account_session(token) as account:
         with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid email."):
             account.ChangeEmailV2(
                 account_pb2.ChangeEmailV2Req(
                     password=password,
-                    new_email=user2.email,
+                    new_email=other_user.email,
                 )
             )
 
@@ -1183,33 +1183,33 @@ def test_public_trip_offer_reminders(db, moderator):
 
 def test_my_home_reminder(db):
     # can_host with incomplete my home (max_guests not set) → reminder shown
-    can_host_incomplete, token1 = generate_user(hosting_status=HostingStatus.can_host)
+    can_host_incomplete, can_host_incomplete_token = generate_user(hosting_status=HostingStatus.can_host)
     # maybe with incomplete my home → reminder shown
-    maybe_incomplete, token2 = generate_user(hosting_status=HostingStatus.maybe)
+    maybe_incomplete, maybe_incomplete_token = generate_user(hosting_status=HostingStatus.maybe)
     # cant_host → no reminder regardless of my home completion
-    cant_host, token3 = generate_user(hosting_status=HostingStatus.cant_host)
+    cant_host, cant_host_token = generate_user(hosting_status=HostingStatus.cant_host)
     # can_host with fully completed my home → no reminder
-    can_host_complete, token4 = generate_user(
+    can_host_complete, can_host_complete_token = generate_user(
         hosting_status=HostingStatus.can_host,
         max_guests=2,
         sleeping_arrangement=SleepingArrangement.private,
         # about_place is set by default in make_user
     )
 
-    with account_session(token1) as account:
+    with account_session(can_host_incomplete_token) as account:
         assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == [
             "complete_my_home_reminder",
         ]
 
-    with account_session(token2) as account:
+    with account_session(maybe_incomplete_token) as account:
         assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == [
             "complete_my_home_reminder",
         ]
 
-    with account_session(token3) as account:
+    with account_session(cant_host_token) as account:
         assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == []
 
-    with account_session(token4) as account:
+    with account_session(can_host_complete_token) as account:
         assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == []
 
 

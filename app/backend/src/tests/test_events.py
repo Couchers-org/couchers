@@ -282,17 +282,17 @@ def test_CreateEvent_recurring(db, frozen_timewarp: FrozenTimewarp):
 
 
 def test_CreateEvent_incomplete_profile(db):
-    user1, token1 = generate_user(complete_profile=False)
-    user2, token2 = generate_user()
+    user, token = generate_user(complete_profile=False)
+    admin_user, admin_token = generate_user()
 
     with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+        c_id = create_community(session, 0, 2, "Community", [admin_user], [], None).id
 
     with expect_rpc_error(
         grpc.StatusCode.FAILED_PRECONDITION,
         "You have to complete your profile before you can create an event.",
     ):
-        events_api.create_event(token=token1)
+        events_api.create_event(token=token)
 
 
 def test_ScheduleEvent(db, frozen_timewarp):
@@ -442,9 +442,9 @@ def test_UpdateEvent_single(db, frozen_timewarp: FrozenTimewarp, moderator: Mode
     # notifies attendees
 
     # event creator
-    user1, token1 = generate_user()
+    creator_user, creator_token = generate_user()
     # community moderator
-    user2, token2 = generate_user()
+    admin_user, admin_token = generate_user()
     # third parties
     user3, token3 = generate_user()
     user4, token4 = generate_user()
@@ -452,14 +452,14 @@ def test_UpdateEvent_single(db, frozen_timewarp: FrozenTimewarp, moderator: Mode
     user6, token6 = generate_user()
 
     with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+        c_id = create_community(session, 0, 2, "Community", [admin_user], [], None).id
 
     time_before = now()
     start_time = _to_event_time_granularity(now() + timedelta(hours=2))
     end_time = start_time + timedelta(hours=3)
 
     res = events_api.create_event(
-        token=token1,
+        token=creator_token,
         parent_community_id=c_id,
         location=events_pb2.EventLocation(
             address="Near Null Island",
@@ -481,8 +481,8 @@ def test_UpdateEvent_single(db, frozen_timewarp: FrozenTimewarp, moderator: Mode
     frozen_timewarp.advance(timedelta(minutes=1))
     time_before_update = now()
 
-    res = events_api.update_event(token=token1, event_id=event_id)
-    res = events_api.get_event(token=token1, event_id=event_id)
+    res = events_api.update_event(token=creator_token, event_id=event_id)
+    res = events_api.get_event(token=creator_token, event_id=event_id)
 
     assert res.is_next
     assert res.title == "Dummy Title"
@@ -495,7 +495,7 @@ def test_UpdateEvent_single(db, frozen_timewarp: FrozenTimewarp, moderator: Mode
     assert res.location.address == "Near Null Island"
     assert time_before <= to_aware_datetime(res.created) <= time_before_update
     assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
-    assert res.creator_user_id == user1.id
+    assert res.creator_user_id == creator_user.id
     assert to_aware_datetime(res.start_time) == start_time
     assert to_aware_datetime(res.end_time) == end_time
     assert _is_utc_or_gmt(res.timezone)
@@ -505,14 +505,14 @@ def test_UpdateEvent_single(db, frozen_timewarp: FrozenTimewarp, moderator: Mode
     assert res.going_count == 2
     assert res.organizer_count == 1
     assert res.subscriber_count == 3
-    assert res.owner_user_id == user1.id
+    assert res.owner_user_id == creator_user.id
     assert not res.owner_community_id
     assert not res.owner_group_id
     assert res.thread.thread_id
     assert res.can_edit
     assert not res.can_moderate
 
-    res = events_api.get_event(token=token2, event_id=event_id)
+    res = events_api.get_event(token=admin_token, event_id=event_id)
 
     assert res.is_next
     assert res.title == "Dummy Title"
@@ -525,7 +525,7 @@ def test_UpdateEvent_single(db, frozen_timewarp: FrozenTimewarp, moderator: Mode
     assert res.location.address == "Near Null Island"
     assert time_before <= to_aware_datetime(res.created) <= time_before_update
     assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
-    assert res.creator_user_id == user1.id
+    assert res.creator_user_id == creator_user.id
     assert to_aware_datetime(res.start_time) == start_time
     assert to_aware_datetime(res.end_time) == end_time
     assert _is_utc_or_gmt(res.timezone)
@@ -535,7 +535,7 @@ def test_UpdateEvent_single(db, frozen_timewarp: FrozenTimewarp, moderator: Mode
     assert res.going_count == 2
     assert res.organizer_count == 1
     assert res.subscriber_count == 3
-    assert res.owner_user_id == user1.id
+    assert res.owner_user_id == creator_user.id
     assert not res.owner_community_id
     assert not res.owner_group_id
     assert res.thread.thread_id
@@ -555,7 +555,7 @@ def test_UpdateEvent_single(db, frozen_timewarp: FrozenTimewarp, moderator: Mode
     assert res.location.address == "Near Null Island"
     assert time_before <= to_aware_datetime(res.created) <= time_before_update
     assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
-    assert res.creator_user_id == user1.id
+    assert res.creator_user_id == creator_user.id
     assert to_aware_datetime(res.start_time) == start_time
     assert to_aware_datetime(res.end_time) == end_time
     assert _is_utc_or_gmt(res.timezone)
@@ -565,7 +565,7 @@ def test_UpdateEvent_single(db, frozen_timewarp: FrozenTimewarp, moderator: Mode
     assert res.going_count == 2
     assert res.organizer_count == 1
     assert res.subscriber_count == 3
-    assert res.owner_user_id == user1.id
+    assert res.owner_user_id == creator_user.id
     assert not res.owner_community_id
     assert not res.owner_group_id
     assert res.thread.thread_id
@@ -573,7 +573,7 @@ def test_UpdateEvent_single(db, frozen_timewarp: FrozenTimewarp, moderator: Mode
     assert not res.can_moderate
 
     res = events_api.update_event(
-        token=token1,
+        token=creator_token,
         event_id=event_id,
         location=events_pb2.EventLocation(
             address="Nearer Null Island",
@@ -592,9 +592,9 @@ def test_UpdateEvent_single(db, frozen_timewarp: FrozenTimewarp, moderator: Mode
 
 def test_UpdateEvent_all(db, frozen_timewarp: FrozenTimewarp, moderator: Moderator):
     # event creator
-    user1, token1 = generate_user()
+    creator_user, creator_token = generate_user()
     # community moderator
-    user2, token2 = generate_user()
+    admin_user, admin_token = generate_user()
     # third parties
     user3, token3 = generate_user()
     user4, token4 = generate_user()
@@ -602,7 +602,7 @@ def test_UpdateEvent_all(db, frozen_timewarp: FrozenTimewarp, moderator: Moderat
     user6, token6 = generate_user()
 
     with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+        c_id = create_community(session, 0, 2, "Community", [admin_user], [], None).id
 
     time_before = now()
     start_time = now() + timedelta(hours=1)
@@ -611,7 +611,7 @@ def test_UpdateEvent_all(db, frozen_timewarp: FrozenTimewarp, moderator: Moderat
     event_ids = []
 
     event_id = events_api.create_event(
-        token=token1,
+        token=creator_token,
         content="0th occurrence",
         start_date_time=local_date_time(start_time),
         end_date_time=local_date_time(end_time),
@@ -625,7 +625,7 @@ def test_UpdateEvent_all(db, frozen_timewarp: FrozenTimewarp, moderator: Moderat
 
     for i in range(5):
         occurrence_id = events_api.schedule_event(
-            token=token1,
+            token=creator_token,
             event_id=event_ids[-1],
             content=f"{i + 1}th occurrence",
             start_date_time=local_date_time(start_time + timedelta(hours=2 + i)),
@@ -641,7 +641,7 @@ def test_UpdateEvent_all(db, frozen_timewarp: FrozenTimewarp, moderator: Moderat
     time_before_update = now()
 
     res = events_api.update_event(
-        token=token1,
+        token=creator_token,
         event_id=updated_event_id,
         title="New Title",
         content="New content.",
@@ -656,12 +656,12 @@ def test_UpdateEvent_all(db, frozen_timewarp: FrozenTimewarp, moderator: Moderat
     time_after_update = now()
 
     for i in range(3):
-        res = events_api.get_event(token=token2, event_id=event_ids[i])
+        res = events_api.get_event(token=admin_token, event_id=event_ids[i])
         assert res.content == f"{i}th occurrence"
         assert time_before <= to_aware_datetime(res.last_edited) <= time_before_update
 
     for i in range(3, 6):
-        res = events_api.get_event(token=token2, event_id=event_ids[i])
+        res = events_api.get_event(token=admin_token, event_id=event_ids[i])
         assert res.content == "New content."
         assert time_before_update <= to_aware_datetime(res.last_edited) <= time_after_update
 
@@ -669,19 +669,19 @@ def test_UpdateEvent_all(db, frozen_timewarp: FrozenTimewarp, moderator: Moderat
 def test_UpdateEvent_all_leaves_other_events_alone(db, moderator: Moderator):
     """update_all_future must only touch the occurrences of the event being edited."""
     # creator of the event that gets edited
-    user1, token1 = generate_user()
+    creator_user, creator_token = generate_user()
     # creator of an unrelated event in the same time window
-    user2, token2 = generate_user()
+    other_creator_user, other_creator_token = generate_user()
     # community moderator, so that neither creator has edit rights on the other's event
-    user3, token3 = generate_user()
+    admin_user, admin_token = generate_user()
 
     with session_scope() as session:
-        create_community(session, 0, 2, "Community", [user3], [], None)
+        create_community(session, 0, 2, "Community", [admin_user], [], None)
 
     start_time = now() + timedelta(hours=1)
 
     edited_id = events_api.create_event(
-        token=token1,
+        token=creator_token,
         title="Edited Event",
         content="0th occurrence",
         start_date_time=local_date_time(start_time),
@@ -690,7 +690,7 @@ def test_UpdateEvent_all_leaves_other_events_alone(db, moderator: Moderator):
     ).event_id
 
     second_id = events_api.schedule_event(
-        token=token1,
+        token=creator_token,
         event_id=edited_id,
         content="1th occurrence",
         start_date_time=local_date_time(start_time + timedelta(hours=2)),
@@ -700,7 +700,7 @@ def test_UpdateEvent_all_leaves_other_events_alone(db, moderator: Moderator):
 
     # an occurrence of a different event, starting after the edited one and ending well after the cutoff
     other_id = events_api.create_event(
-        token=token2,
+        token=other_creator_token,
         title="Other Event",
         content="Other content.",
         location=events_pb2.EventLocation(
@@ -713,10 +713,10 @@ def test_UpdateEvent_all_leaves_other_events_alone(db, moderator: Moderator):
         approve_by=moderator,
     ).event_id
 
-    other_before = events_api.get_event(token=token2, event_id=other_id)
+    other_before = events_api.get_event(token=other_creator_token, event_id=other_id)
 
     events_api.update_event(
-        token=token1,
+        token=creator_token,
         event_id=edited_id,
         content="New content.",
         location=events_pb2.EventLocation(
@@ -728,11 +728,11 @@ def test_UpdateEvent_all_leaves_other_events_alone(db, moderator: Moderator):
     )
 
     for occurrence_id in (edited_id, second_id):
-        res = events_api.get_event(token=token3, event_id=occurrence_id)
+        res = events_api.get_event(token=admin_token, event_id=occurrence_id)
         assert res.content == "New content."
         assert res.location.address == "Not so near Null Island"
 
-    res = events_api.get_event(token=token3, event_id=other_id)
+    res = events_api.get_event(token=admin_token, event_id=other_id)
     assert res.content == "Other content."
     assert res.location.address == "Somewhere else entirely"
     assert res.location.lat == 0.5
@@ -743,23 +743,23 @@ def test_UpdateEvent_all_leaves_other_events_alone(db, moderator: Moderator):
 
 def test_UpdateEvent_all_cant_change_times(db, moderator: Moderator):
     """Every future occurrence would get the same times, which the exclusion constraint forbids."""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    creator_user, creator_token = generate_user()
+    admin_user, admin_token = generate_user()
 
     with session_scope() as session:
-        create_community(session, 0, 2, "Community", [user2], [], None)
+        create_community(session, 0, 2, "Community", [admin_user], [], None)
 
     start_time = now() + timedelta(hours=1)
 
     event_id = events_api.create_event(
-        token=token1,
+        token=creator_token,
         content="0th occurrence",
         start_date_time=local_date_time(start_time),
         end_date_time=local_date_time(start_time + timedelta(hours=1)),
     ).event_id
 
     events_api.schedule_event(
-        token=token1,
+        token=creator_token,
         event_id=event_id,
         content="1th occurrence",
         start_date_time=local_date_time(start_time + timedelta(hours=2)),
@@ -771,7 +771,7 @@ def test_UpdateEvent_all_cant_change_times(db, moderator: Moderator):
         "You cannot update all events if you're modifying start or end times.",
     ):
         events_api.update_event(
-            token=token1,
+            token=creator_token,
             event_id=event_id,
             start_date_time=local_date_time(start_time + timedelta(minutes=30)),
             end_date_time=local_date_time(start_time + timedelta(hours=1, minutes=30)),
@@ -781,9 +781,9 @@ def test_UpdateEvent_all_cant_change_times(db, moderator: Moderator):
 
 def test_GetEvent(db, frozen_timewarp, moderator: Moderator):
     # event creator
-    user1, token1 = generate_user()
+    creator_user, creator_token = generate_user()
     # community moderator
-    user2, token2 = generate_user()
+    admin_user, admin_token = generate_user()
     # third parties
     user3, token3 = generate_user()
     user4, token4 = generate_user()
@@ -791,7 +791,7 @@ def test_GetEvent(db, frozen_timewarp, moderator: Moderator):
     user6, token6 = generate_user()
 
     with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+        c_id = create_community(session, 0, 2, "Community", [admin_user], [], None).id
 
     time_before = now()
     start_time = _to_event_time_granularity(now() + timedelta(hours=2))
@@ -799,7 +799,7 @@ def test_GetEvent(db, frozen_timewarp, moderator: Moderator):
 
     # in person event
     res = events_api.create_event(
-        token=token1,
+        token=creator_token,
         location=events_pb2.EventLocation(
             address="Near Null Island",
             lat=0.1,
@@ -816,7 +816,7 @@ def test_GetEvent(db, frozen_timewarp, moderator: Moderator):
     events_api.set_event_attendance(token=token5, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
     events_api.set_event_subscription(token=token6, event_id=event_id, subscribe=True)
 
-    res = events_api.get_event(token=token1, event_id=event_id)
+    res = events_api.get_event(token=creator_token, event_id=event_id)
 
     assert res.is_next
     assert res.title == "Dummy Title"
@@ -829,7 +829,7 @@ def test_GetEvent(db, frozen_timewarp, moderator: Moderator):
     assert res.location.address == "Near Null Island"
     assert time_before <= to_aware_datetime(res.created) <= now()
     assert time_before <= to_aware_datetime(res.last_edited) <= now()
-    assert res.creator_user_id == user1.id
+    assert res.creator_user_id == creator_user.id
     assert to_aware_datetime(res.start_time) == start_time
     assert to_aware_datetime(res.end_time) == end_time
     assert _is_utc_or_gmt(res.timezone)
@@ -839,14 +839,14 @@ def test_GetEvent(db, frozen_timewarp, moderator: Moderator):
     assert res.going_count == 2
     assert res.organizer_count == 1
     assert res.subscriber_count == 3
-    assert res.owner_user_id == user1.id
+    assert res.owner_user_id == creator_user.id
     assert not res.owner_community_id
     assert not res.owner_group_id
     assert res.thread.thread_id
     assert res.can_edit
     assert not res.can_moderate
 
-    res = events_api.get_event(token=token2, event_id=event_id)
+    res = events_api.get_event(token=admin_token, event_id=event_id)
 
     assert res.is_next
     assert res.title == "Dummy Title"
@@ -859,7 +859,7 @@ def test_GetEvent(db, frozen_timewarp, moderator: Moderator):
     assert res.location.address == "Near Null Island"
     assert time_before <= to_aware_datetime(res.created) <= now()
     assert time_before <= to_aware_datetime(res.last_edited) <= now()
-    assert res.creator_user_id == user1.id
+    assert res.creator_user_id == creator_user.id
     assert to_aware_datetime(res.start_time) == start_time
     assert to_aware_datetime(res.end_time) == end_time
     assert _is_utc_or_gmt(res.timezone)
@@ -869,7 +869,7 @@ def test_GetEvent(db, frozen_timewarp, moderator: Moderator):
     assert res.going_count == 2
     assert res.organizer_count == 1
     assert res.subscriber_count == 3
-    assert res.owner_user_id == user1.id
+    assert res.owner_user_id == creator_user.id
     assert not res.owner_community_id
     assert not res.owner_group_id
     assert res.thread.thread_id
@@ -889,7 +889,7 @@ def test_GetEvent(db, frozen_timewarp, moderator: Moderator):
     assert res.location.address == "Near Null Island"
     assert time_before <= to_aware_datetime(res.created) <= now()
     assert time_before <= to_aware_datetime(res.last_edited) <= now()
-    assert res.creator_user_id == user1.id
+    assert res.creator_user_id == creator_user.id
     assert to_aware_datetime(res.start_time) == start_time
     assert to_aware_datetime(res.end_time) == end_time
     assert _is_utc_or_gmt(res.timezone)
@@ -899,7 +899,7 @@ def test_GetEvent(db, frozen_timewarp, moderator: Moderator):
     assert res.going_count == 2
     assert res.organizer_count == 1
     assert res.subscriber_count == 3
-    assert res.owner_user_id == user1.id
+    assert res.owner_user_id == creator_user.id
     assert not res.owner_community_id
     assert not res.owner_group_id
     assert res.thread.thread_id
@@ -909,9 +909,9 @@ def test_GetEvent(db, frozen_timewarp, moderator: Moderator):
 
 def test_CancelEvent(db, moderator: Moderator):
     # event creator
-    user1, token1 = generate_user()
+    creator_user, creator_token = generate_user()
     # community moderator
-    user2, token2 = generate_user()
+    admin_user, admin_token = generate_user()
     # third parties
     user3, token3 = generate_user()
     user4, token4 = generate_user()
@@ -919,34 +919,34 @@ def test_CancelEvent(db, moderator: Moderator):
     user6, token6 = generate_user()
 
     with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+        c_id = create_community(session, 0, 2, "Community", [admin_user], [], None).id
 
-    event_id = events_api.create_event(token=token1, approve_by=moderator).event_id
+    event_id = events_api.create_event(token=creator_token, approve_by=moderator).event_id
 
     events_api.set_event_subscription(token=token4, event_id=event_id, subscribe=True)
     events_api.set_event_attendance(token=token5, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
     events_api.set_event_subscription(token=token6, event_id=event_id, subscribe=True)
 
-    events_api.cancel_event(token=token1, event_id=event_id)
-    assert events_api.get_event(token=token1, event_id=event_id).is_cancelled
+    events_api.cancel_event(token=creator_token, event_id=event_id)
+    assert events_api.get_event(token=creator_token, event_id=event_id).is_cancelled
 
     with expect_rpc_error(
         grpc.StatusCode.PERMISSION_DENIED,
         "You can't modify, subscribe to, or attend to an event that's been cancelled.",
     ):
-        events_api.update_event(token=token1, event_id=event_id, title="New Title")
+        events_api.update_event(token=creator_token, event_id=event_id, title="New Title")
 
     with expect_rpc_error(
         grpc.StatusCode.PERMISSION_DENIED,
         "You can't modify, subscribe to, or attend to an event that's been cancelled.",
     ):
-        events_api.invite_event_organizer(token=token1, event_id=event_id, user_id=user3.id)
+        events_api.invite_event_organizer(token=creator_token, event_id=event_id, user_id=user3.id)
 
     with expect_rpc_error(
         grpc.StatusCode.PERMISSION_DENIED,
         "You can't modify, subscribe to, or attend to an event that's been cancelled.",
     ):
-        events_api.transfer_event(token=token1, event_id=event_id, new_owner_community_id=c_id)
+        events_api.transfer_event(token=creator_token, event_id=event_id, new_owner_community_id=c_id)
 
     with expect_rpc_error(
         grpc.StatusCode.PERMISSION_DENIED,
@@ -964,14 +964,14 @@ def test_CancelEvent(db, moderator: Moderator):
 
     for include_cancelled in [True, False]:
         occurrences = events_api.list_event_occurrences(
-            token=token1, event_id=event_id, include_cancelled=include_cancelled
+            token=creator_token, event_id=event_id, include_cancelled=include_cancelled
         ).events
         if include_cancelled:
             assert len(occurrences) > 0
         else:
             assert len(occurrences) == 0
 
-        mine = events_api.list_my_events(token=token1, include_cancelled=include_cancelled).events
+        mine = events_api.list_my_events(token=creator_token, include_cancelled=include_cancelled).events
         if include_cancelled:
             assert len(mine) > 0
         else:
@@ -1078,115 +1078,122 @@ def test_ListEventOrganizers(db, moderator: Moderator):
 
 
 def test_TransferEvent(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    user3, token3 = generate_user()
-    user4, token4 = generate_user()
+    creator_user, creator_token = generate_user()
+    other_user, other_token = generate_user()
+    community_admin_user, community_admin_token = generate_user()
+    group_admin_user, group_admin_token = generate_user()
 
     with session_scope() as session:
-        c = create_community(session, 0, 2, "Community", [user3], [], None)
-        h = create_group(session, "Group", [user4], [], c)
+        c = create_community(session, 0, 2, "Community", [community_admin_user], [], None)
+        h = create_group(session, "Group", [group_admin_user], [], c)
         c_id = c.id
         h_id = h.id
 
-    event_id = events_api.create_event(token=token1).event_id
-    events_api.transfer_event(token=token1, event_id=event_id, new_owner_community_id=c_id)
+    event_id = events_api.create_event(token=creator_token).event_id
+    events_api.transfer_event(token=creator_token, event_id=event_id, new_owner_community_id=c_id)
 
     # remove ourselves as organizer, otherwise we can still edit it
-    events_api.remove_event_organizer(token=token1, event_id=event_id)
+    events_api.remove_event_organizer(token=creator_token, event_id=event_id)
 
     with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You're not allowed to transfer that event."):
-        events_api.transfer_event(token=token1, event_id=event_id, new_owner_group_id=h_id)
+        events_api.transfer_event(token=creator_token, event_id=event_id, new_owner_group_id=h_id)
 
-    event_id = events_api.create_event(token=token1).event_id
-    events_api.transfer_event(token=token1, event_id=event_id, new_owner_group_id=h_id)
+    event_id = events_api.create_event(token=creator_token).event_id
+    events_api.transfer_event(token=creator_token, event_id=event_id, new_owner_group_id=h_id)
 
     # remove ourselves as organizer, otherwise we can still edit it
-    events_api.remove_event_organizer(token=token1, event_id=event_id)
+    events_api.remove_event_organizer(token=creator_token, event_id=event_id)
 
     with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You're not allowed to transfer that event."):
-        events_api.transfer_event(token=token1, event_id=event_id, new_owner_community_id=c_id)
+        events_api.transfer_event(token=creator_token, event_id=event_id, new_owner_community_id=c_id)
 
 
 def test_SetEventSubscription(db, moderator: Moderator):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    creator_user, creator_token = generate_user()
+    subscriber_user, subscriber_token = generate_user()
 
     with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
+        c_id = create_community(session, 0, 2, "Community", [creator_user], [], None).id
 
     event_id = events_api.create_event(
-        token=token1,
+        token=creator_token,
         approve_by=moderator,
     ).event_id
 
-    assert not events_api.get_event(token=token2, event_id=event_id).subscriber
-    events_api.set_event_subscription(token=token2, event_id=event_id, subscribe=True)
-    assert events_api.get_event(token=token2, event_id=event_id).subscriber
-    events_api.set_event_subscription(token=token2, event_id=event_id, subscribe=False)
-    assert not events_api.get_event(token=token2, event_id=event_id).subscriber
+    assert not events_api.get_event(token=subscriber_token, event_id=event_id).subscriber
+    events_api.set_event_subscription(token=subscriber_token, event_id=event_id, subscribe=True)
+    assert events_api.get_event(token=subscriber_token, event_id=event_id).subscriber
+    events_api.set_event_subscription(token=subscriber_token, event_id=event_id, subscribe=False)
+    assert not events_api.get_event(token=subscriber_token, event_id=event_id).subscriber
 
 
 def test_SetEventAttendance(db, moderator: Moderator):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    creator_user, creator_token = generate_user()
+    attendee_user, attendee_token = generate_user()
 
     with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
+        c_id = create_community(session, 0, 2, "Community", [creator_user], [], None).id
 
     event_id = events_api.create_event(
-        token=token1,
+        token=creator_token,
         approve_by=moderator,
     ).event_id
 
     assert (
-        events_api.get_event(token=token2, event_id=event_id).attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
+        events_api.get_event(token=attendee_token, event_id=event_id).attendance_state
+        == events_pb2.ATTENDANCE_STATE_NOT_GOING
     )
-    events_api.set_event_attendance(token=token2, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
-    assert events_api.get_event(token=token2, event_id=event_id).attendance_state == events_pb2.ATTENDANCE_STATE_GOING
     events_api.set_event_attendance(
-        token=token2, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_NOT_GOING
+        token=attendee_token, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING
     )
     assert (
-        events_api.get_event(token=token2, event_id=event_id).attendance_state == events_pb2.ATTENDANCE_STATE_NOT_GOING
+        events_api.get_event(token=attendee_token, event_id=event_id).attendance_state
+        == events_pb2.ATTENDANCE_STATE_GOING
+    )
+    events_api.set_event_attendance(
+        token=attendee_token, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_NOT_GOING
+    )
+    assert (
+        events_api.get_event(token=attendee_token, event_id=event_id).attendance_state
+        == events_pb2.ATTENDANCE_STATE_NOT_GOING
     )
 
 
 def test_InviteEventOrganizer(db, moderator: Moderator):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    organizer_user, organizer_token = generate_user()
+    invitee_user, invitee_token = generate_user()
 
     with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
+        c_id = create_community(session, 0, 2, "Community", [organizer_user], [], None).id
 
     event_id = events_api.create_event(
-        token=token1,
+        token=organizer_token,
         approve_by=moderator,
     ).event_id
 
-    assert not events_api.get_event(token=token2, event_id=event_id).organizer
+    assert not events_api.get_event(token=invitee_token, event_id=event_id).organizer
 
     with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You're not allowed to edit that event."):
-        events_api.invite_event_organizer(token=token2, event_id=event_id, user_id=user1.id)
+        events_api.invite_event_organizer(token=invitee_token, event_id=event_id, user_id=organizer_user.id)
 
-    assert not events_api.get_event(token=token2, event_id=event_id).organizer
+    assert not events_api.get_event(token=invitee_token, event_id=event_id).organizer
 
-    events_api.invite_event_organizer(token=token1, event_id=event_id, user_id=user2.id)
-    assert events_api.get_event(token=token2, event_id=event_id).organizer
+    events_api.invite_event_organizer(token=organizer_token, event_id=event_id, user_id=invitee_user.id)
+    assert events_api.get_event(token=invitee_token, event_id=event_id).organizer
 
 
 def test_ListEventOccurrences(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    creator_user, creator_token = generate_user()
+    admin_user, admin_token = generate_user()
 
     with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+        c_id = create_community(session, 0, 2, "Community", [admin_user], [], None).id
 
     start = now()
 
     event_ids = [
         events_api.create_event(
-            token=token1,
+            token=creator_token,
             title="First occurrence",
             parent_community_id=c_id,
             start_date_time=local_date_time(start + timedelta(hours=1)),
@@ -1197,7 +1204,7 @@ def test_ListEventOccurrences(db):
     for i in range(5):
         event_ids.append(
             events_api.schedule_event(
-                token=token1,
+                token=creator_token,
                 event_id=event_ids[-1],
                 content=f"{i}th occurrence",
                 start_date_time=local_date_time(start + timedelta(hours=2 + i)),
@@ -1205,16 +1212,16 @@ def test_ListEventOccurrences(db):
             ).event_id
         )
 
-    res = events_api.list_event_occurrences(token=token1, event_id=event_ids[-1], page_size=2)
+    res = events_api.list_event_occurrences(token=creator_token, event_id=event_ids[-1], page_size=2)
     assert [event.event_id for event in res.events] == event_ids[:2]
 
     res = events_api.list_event_occurrences(
-        token=token1, event_id=event_ids[-1], page_size=2, page_token=res.next_page_token
+        token=creator_token, event_id=event_ids[-1], page_size=2, page_token=res.next_page_token
     )
     assert [event.event_id for event in res.events] == event_ids[2:4]
 
     res = events_api.list_event_occurrences(
-        token=token1, event_id=event_ids[-1], page_size=2, page_token=res.next_page_token
+        token=creator_token, event_id=event_ids[-1], page_size=2, page_token=res.next_page_token
     )
     assert [event.event_id for event in res.events] == event_ids[4:6]
     assert not res.next_page_token
@@ -1468,59 +1475,59 @@ def test_list_my_events_exclude_attending(db, moderator: Moderator):
 
 
 def test_RemoveEventOrganizer(db, moderator: Moderator):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    owner_user, owner_token = generate_user()
+    organizer_user, organizer_token = generate_user()
 
     with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
+        c_id = create_community(session, 0, 2, "Community", [owner_user], [], None).id
 
-    event_id = events_api.create_event(token=token1, approve_by=moderator).event_id
+    event_id = events_api.create_event(token=owner_token, approve_by=moderator).event_id
 
-    assert not events_api.get_event(token=token2, event_id=event_id).organizer
+    assert not events_api.get_event(token=organizer_token, event_id=event_id).organizer
 
     with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You're not allowed to edit that event."):
-        events_api.remove_event_organizer(token=token2, event_id=event_id)
+        events_api.remove_event_organizer(token=organizer_token, event_id=event_id)
 
-    assert not events_api.get_event(token=token2, event_id=event_id).organizer
+    assert not events_api.get_event(token=organizer_token, event_id=event_id).organizer
 
-    events_api.invite_event_organizer(token=token1, event_id=event_id, user_id=user2.id)
+    events_api.invite_event_organizer(token=owner_token, event_id=event_id, user_id=organizer_user.id)
 
     with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You cannot remove the event owner as an organizer."):
-        events_api.remove_event_organizer(token=token1, event_id=event_id)
+        events_api.remove_event_organizer(token=owner_token, event_id=event_id)
 
-    res = events_api.get_event(token=token2, event_id=event_id)
+    res = events_api.get_event(token=organizer_token, event_id=event_id)
     assert res.organizer
     assert res.organizer_count == 2
 
-    events_api.remove_event_organizer(token=token2, event_id=event_id)
-    assert not events_api.get_event(token=token2, event_id=event_id).organizer
+    events_api.remove_event_organizer(token=organizer_token, event_id=event_id)
+    assert not events_api.get_event(token=organizer_token, event_id=event_id).organizer
 
     with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You're not allowed to edit that event."):
-        events_api.remove_event_organizer(token=token2, event_id=event_id)
+        events_api.remove_event_organizer(token=organizer_token, event_id=event_id)
 
-    res = events_api.get_event(token=token2, event_id=event_id)
+    res = events_api.get_event(token=organizer_token, event_id=event_id)
     assert not res.organizer
     assert res.organizer_count == 1
 
     # Test that event owner can remove co-organizers
 
-    # Add user2 back as organizer and verify
-    events_api.invite_event_organizer(token=token1, event_id=event_id, user_id=user2.id)
-    res = events_api.get_event(token=token1, event_id=event_id)
+    # Add the co-organizer back and verify
+    events_api.invite_event_organizer(token=owner_token, event_id=event_id, user_id=organizer_user.id)
+    res = events_api.get_event(token=owner_token, event_id=event_id)
     assert res.organizer_count == 2
 
     # Event owner can remove co-organizer
-    events_api.remove_event_organizer(token=token1, event_id=event_id, user_id=user2.id)
-    res = events_api.get_event(token=token1, event_id=event_id)
+    events_api.remove_event_organizer(token=owner_token, event_id=event_id, user_id=organizer_user.id)
+    res = events_api.get_event(token=owner_token, event_id=event_id)
     assert res.organizer_count == 1
 
     # Test that non-organizers cannot remove other organizers
-    # User2 cannot invite themselves as organizer (not the owner)
+    # The co-organizer cannot invite themselves as organizer (not the owner)
     with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You're not allowed to edit that event."):
-        events_api.invite_event_organizer(token=token2, event_id=event_id, user_id=user2.id)
+        events_api.invite_event_organizer(token=organizer_token, event_id=event_id, user_id=organizer_user.id)
 
-    # Test that non-organizers cannot remove other organizers (user1 adds user2 back first)
-    events_api.invite_event_organizer(token=token1, event_id=event_id, user_id=user2.id)
+    # Test that non-organizers cannot remove other organizers (the owner adds the co-organizer back first)
+    events_api.invite_event_organizer(token=owner_token, event_id=event_id, user_id=organizer_user.id)
 
 
 def test_ListEventAttendees_regression(db):
@@ -1537,36 +1544,36 @@ def test_ListEventAttendees_regression(db):
     # **Actual/current behaviour**
     # `ListEventAttendees` returns another user's ID. This ID seems to be determined from the row's auto increment ID in `event_occurrence_attendees` in the database
 
-    user1, token1 = generate_user()
+    user, token = generate_user()
 
     with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user1], [], None).id
+        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
 
-    event_id = events_api.create_event(token=token1, parent_community_id=c_id).event_id
-    event_id = events_api.transfer_event(token=token1, event_id=event_id, new_owner_community_id=c_id).event_id
+    event_id = events_api.create_event(token=token, parent_community_id=c_id).event_id
+    event_id = events_api.transfer_event(token=token, event_id=event_id, new_owner_community_id=c_id).event_id
 
     events_api.set_event_attendance(
-        token=token1, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_NOT_GOING
+        token=token, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_NOT_GOING
     )
-    events_api.set_event_attendance(token=token1, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
+    events_api.set_event_attendance(token=token, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
 
-    attendee_user_ids = events_api.list_event_attendees(token=token1, event_id=event_id).attendee_user_ids
+    attendee_user_ids = events_api.list_event_attendees(token=token, event_id=event_id).attendee_user_ids
     assert len(attendee_user_ids) == 1
-    assert attendee_user_ids[0] == user1.id
+    assert attendee_user_ids[0] == user.id
 
 
 def test_GetEventCalendarFile(db, moderator: Moderator):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    creator_user, creator_token = generate_user()
+    admin_user, admin_token = generate_user()
 
     with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+        c_id = create_community(session, 0, 2, "Community", [admin_user], [], None).id
 
     start_time = now() + timedelta(hours=2)
     end_time = start_time + timedelta(hours=3)
 
     event_id = events_api.create_event(
-        token=token1,
+        token=creator_token,
         parent_community_id=c_id,
         title="Dummy Title",
         content="Dummy content.",
@@ -1580,7 +1587,7 @@ def test_GetEventCalendarFile(db, moderator: Moderator):
         approve_by=moderator,
     ).event_id
 
-    file_res = events_api.get_event_calendar_file(token=token1, event_id=event_id)
+    file_res = events_api.get_event_calendar_file(token=creator_token, event_id=event_id)
     assert file_res.content_type == "text/calendar"
     ics_string = file_res.data.decode("utf-8")
     assert "SUMMARY:Dummy Title" in ics_string
@@ -1591,9 +1598,9 @@ def test_GetEventCalendarFile(db, moderator: Moderator):
     assert pre_cancel_match is not None
     pre_cancel_sequence = int(pre_cancel_match.group(1))
 
-    events_api.cancel_event(token=token1, event_id=event_id)
+    events_api.cancel_event(token=creator_token, event_id=event_id)
 
-    file_res = events_api.get_event_calendar_file(token=token1, event_id=event_id)
+    file_res = events_api.get_event_calendar_file(token=creator_token, event_id=event_id)
     ics_string = file_res.data.decode("utf-8")
     assert "SUMMARY:Cancelled: Dummy Title" in ics_string
     assert "STATUS:CANCELLED" in ics_string
@@ -1605,38 +1612,38 @@ def test_GetEventCalendarFile(db, moderator: Moderator):
 
 
 def test_event_threads(db, push_collector: PushCollector, email_collector: EmailCollector, moderator: Moderator):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    user3, token3 = generate_user()
-    user4, token4 = generate_user()
+    creator_user, creator_token = generate_user()
+    commenter_user, commenter_token = generate_user()
+    replier_user, replier_token = generate_user()
+    group_admin_user, group_admin_token = generate_user()
 
     with session_scope() as session:
-        c = create_community(session, 0, 2, "Community", [user3], [], None)
-        h = create_group(session, "Group", [user4], [], c)
+        c = create_community(session, 0, 2, "Community", [replier_user], [], None)
+        h = create_group(session, "Group", [group_admin_user], [], c)
         c_id = c.id
         h_id = h.id
-        user4_id = user4.id
+        group_admin_user_id = group_admin_user.id
 
     event = events_api.create_event(
-        token=token1,
+        token=creator_token,
         approve_by=moderator,
     )
 
-    with threads_session(token2) as api:
+    with threads_session(commenter_token) as api:
         reply_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=event.thread.thread_id, content="hi")).thread_id
 
     moderator.approve_thread_post(reply_id)
 
-    res = events_api.get_event(token=token3, event_id=event.event_id)
+    res = events_api.get_event(token=replier_token, event_id=event.event_id)
     assert res.thread.num_responses == 1
 
-    with threads_session(token3) as api:
+    with threads_session(replier_token) as api:
         ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=res.thread.thread_id))
         assert len(ret.replies) == 1
         assert not ret.next_page_token
         assert ret.replies[0].thread_id == reply_id
         assert ret.replies[0].content == "hi"
-        assert ret.replies[0].author_user_id == user2.id
+        assert ret.replies[0].author_user_id == commenter_user.id
         assert ret.replies[0].num_replies == 0
 
         nested_reply_id = api.PostReply(
@@ -1651,25 +1658,25 @@ def test_event_threads(db, push_collector: PushCollector, email_collector: Email
     comment_url = urls.event_link(occurrence_id=event.event_id, slug=event.slug, comment_id=reply_id)
     nested_reply_url = urls.event_link(occurrence_id=event.event_id, slug=event.slug, comment_id=nested_reply_id)
 
-    push = push_collector.pop_for_user(user1.id, last=True)
+    push = push_collector.pop_for_user(creator_user.id, last=True)
     assert push.topic_action == NotificationTopicAction.event__comment.display
-    assert push.content.title == f"{user2.name} • Dummy Title"
-    assert push.content.ios_title == user2.name
+    assert push.content.title == f"{commenter_user.name} • Dummy Title"
+    assert push.content.ios_title == commenter_user.name
     assert push.content.ios_subtitle == "Commented on Dummy Title"
     assert push.content.body == "hi"
     assert push.content.action_url == comment_url
-    assert comment_url in email_collector.pop_for_recipient(user1.email, last=True).plain
-    with notifications_session(token1) as api:
+    assert comment_url in email_collector.pop_for_recipient(creator_user.email, last=True).plain
+    with notifications_session(creator_token) as api:
         assert api.ListNotifications(notifications_pb2.ListNotificationsReq()).notifications[0].url == comment_url
 
-    push = push_collector.pop_for_user(user2.id, last=True)
-    assert push.content.title == f"{user3.name} • Dummy Title"
+    push = push_collector.pop_for_user(commenter_user.id, last=True)
+    assert push.content.title == f"{replier_user.name} • Dummy Title"
     assert push.content.action_url == nested_reply_url
-    assert nested_reply_url in email_collector.pop_for_recipient(user2.email, last=True).plain
-    with notifications_session(token2) as api:
+    assert nested_reply_url in email_collector.pop_for_recipient(commenter_user.email, last=True).plain
+    with notifications_session(commenter_token) as api:
         assert api.ListNotifications(notifications_pb2.ListNotificationsReq()).notifications[0].url == nested_reply_url
 
-    assert push_collector.count_for_user(user4_id) == 0
+    assert push_collector.count_for_user(group_admin_user_id) == 0
 
 
 def test_can_overlap_other_events_schedule_regression(db):
@@ -1796,12 +1803,12 @@ def test_community_invite_requests(db, email_collector: EmailCollector, moderato
     user2, token2 = generate_user()
     user3, token3 = generate_user()
     user4, token4 = generate_user()
-    user5, token5 = generate_user(is_superuser=True)
+    editor_user, editor_token = generate_user(is_superuser=True)
 
     with session_scope() as session:
-        w = create_community(session, 0, 2, "World Community", [user5], [], None)
-        mr = create_community(session, 0, 2, "Macroregion", [user5], [], w)
-        r = create_community(session, 0, 2, "Region", [user5], [], mr)
+        w = create_community(session, 0, 2, "World Community", [editor_user], [], None)
+        mr = create_community(session, 0, 2, "Macroregion", [editor_user], [], w)
+        r = create_community(session, 0, 2, "Region", [editor_user], [], mr)
         c_id = create_community(session, 0, 2, "Community", [user1, user3, user4], [], r).id
 
     enforce_community_memberships()
@@ -1846,7 +1853,7 @@ def test_community_invite_requests(db, email_collector: EmailCollector, moderato
     with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You're not allowed to edit that event."):
         events_api.request_community_invite(token=token2, event_id=event_id)
 
-    with real_editor_session(token5) as editor:
+    with real_editor_session(editor_token) as editor:
         res = editor.ListEventCommunityInviteRequests(editor_pb2.ListEventCommunityInviteRequestsReq())
         assert len(res.requests) == 2
         assert res.requests[0].user_id == user1.id
@@ -1883,16 +1890,16 @@ def test_community_invite_requests(db, email_collector: EmailCollector, moderato
 
 
 def test_list_decided_community_invite_requests(db, moderator: Moderator):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    user3, token3 = generate_user()
+    approved_user, approved_token = generate_user()
+    declined_user, declined_token = generate_user()
+    pending_user, pending_token = generate_user()
     superuser, superuser_token = generate_user(is_superuser=True)
 
     with session_scope() as session:
         w = create_community(session, 0, 2, "World Community", [superuser], [], None)
         mr = create_community(session, 0, 2, "Macroregion", [superuser], [], w)
         r = create_community(session, 0, 2, "Region", [superuser], [], mr)
-        c_id = create_community(session, 0, 2, "Community", [user1, user2, user3], [], r).id
+        c_id = create_community(session, 0, 2, "Community", [approved_user, declined_user, pending_user], [], r).id
 
     enforce_community_memberships()
 
@@ -1906,10 +1913,10 @@ def test_list_decided_community_invite_requests(db, moderator: Moderator):
         events_api.request_community_invite(token=token, event_id=res.event_id)
         return f"http://localhost:3000/event/{res.event_id}/{res.slug}"
 
-    event1_url = create_event_and_request_invite(token1, "Approved Event")
-    event2_url = create_event_and_request_invite(token2, "Declined Event")
+    event1_url = create_event_and_request_invite(approved_token, "Approved Event")
+    event2_url = create_event_and_request_invite(declined_token, "Declined Event")
     # this one stays pending
-    create_event_and_request_invite(token3, "Pending Event")
+    create_event_and_request_invite(pending_token, "Pending Event")
 
     with real_editor_session(superuser_token) as editor:
         pending = editor.ListEventCommunityInviteRequests(editor_pb2.ListEventCommunityInviteRequestsReq())
@@ -1923,13 +1930,13 @@ def test_list_decided_community_invite_requests(db, moderator: Moderator):
 
         editor.DecideEventCommunityInviteRequest(
             editor_pb2.DecideEventCommunityInviteRequestReq(
-                event_community_invite_request_id=by_user[user1.id],
+                event_community_invite_request_id=by_user[approved_user.id],
                 approve=True,
             )
         )
         editor.DecideEventCommunityInviteRequest(
             editor_pb2.DecideEventCommunityInviteRequestReq(
-                event_community_invite_request_id=by_user[user2.id],
+                event_community_invite_request_id=by_user[declined_user.id],
                 approve=False,
             )
         )
@@ -1941,16 +1948,16 @@ def test_list_decided_community_invite_requests(db, moderator: Moderator):
 
         declined, approved = res.requests
 
-        assert declined.event_community_invite_request_id == by_user[user2.id]
-        assert declined.user_id == user2.id
+        assert declined.event_community_invite_request_id == by_user[declined_user.id]
+        assert declined.user_id == declined_user.id
         assert declined.event_url == event2_url
         assert declined.community_id == c_id
         assert declined.decided_by_user_id == superuser.id
         assert not declined.approved
         assert declined.created.ToDatetime() <= declined.decided.ToDatetime()
 
-        assert approved.event_community_invite_request_id == by_user[user1.id]
-        assert approved.user_id == user1.id
+        assert approved.event_community_invite_request_id == by_user[approved_user.id]
+        assert approved.user_id == approved_user.id
         assert approved.event_url == event1_url
         assert approved.community_id == c_id
         assert approved.decided_by_user_id == superuser.id
@@ -1961,24 +1968,24 @@ def test_list_decided_community_invite_requests(db, moderator: Moderator):
         res = editor.ListDecidedEventCommunityInviteRequests(
             editor_pb2.ListDecidedEventCommunityInviteRequestsReq(approved=wrappers_pb2.BoolValue(value=True))
         )
-        assert [req.event_community_invite_request_id for req in res.requests] == [by_user[user1.id]]
+        assert [req.event_community_invite_request_id for req in res.requests] == [by_user[approved_user.id]]
 
         res = editor.ListDecidedEventCommunityInviteRequests(
             editor_pb2.ListDecidedEventCommunityInviteRequestsReq(approved=wrappers_pb2.BoolValue(value=False))
         )
-        assert [req.event_community_invite_request_id for req in res.requests] == [by_user[user2.id]]
+        assert [req.event_community_invite_request_id for req in res.requests] == [by_user[declined_user.id]]
 
         # pagination
         res = editor.ListDecidedEventCommunityInviteRequests(
             editor_pb2.ListDecidedEventCommunityInviteRequestsReq(page_size=1)
         )
-        assert [req.event_community_invite_request_id for req in res.requests] == [by_user[user2.id]]
+        assert [req.event_community_invite_request_id for req in res.requests] == [by_user[declined_user.id]]
         assert res.next_page_token
 
         res = editor.ListDecidedEventCommunityInviteRequests(
             editor_pb2.ListDecidedEventCommunityInviteRequestsReq(page_size=1, page_token=res.next_page_token)
         )
-        assert [req.event_community_invite_request_id for req in res.requests] == [by_user[user1.id]]
+        assert [req.event_community_invite_request_id for req in res.requests] == [by_user[approved_user.id]]
         assert not res.next_page_token
 
 
@@ -2177,94 +2184,94 @@ def test_event_created_with_shadowed_visibility(db):
 
 def test_shadowed_event_visible_to_creator_only(db):
     """SHADOWED events are visible to the creator but not to other users."""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    creator_user, creator_token = generate_user()
+    other_user, other_token = generate_user()
 
     with session_scope() as session:
-        create_community(session, 0, 2, "Community", [user1], [], None)
+        create_community(session, 0, 2, "Community", [creator_user], [], None)
 
-    event_id = events_api.create_event(token=token1, title="Shadowed Event").event_id
+    event_id = events_api.create_event(token=creator_token, title="Shadowed Event").event_id
 
     # Creator can see it
-    res = events_api.get_event(token=token1, event_id=event_id)
+    res = events_api.get_event(token=creator_token, event_id=event_id)
     assert res.title == "Shadowed Event"
 
     # Other user cannot
     with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
-        events_api.get_event(token=token2, event_id=event_id)
+        events_api.get_event(token=other_token, event_id=event_id)
 
 
 def test_event_visible_after_approval(db, moderator: Moderator):
     """Events become visible to all users after moderation approval."""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    creator_user, creator_token = generate_user()
+    other_user, other_token = generate_user()
 
     with session_scope() as session:
-        create_community(session, 0, 2, "Community", [user1], [], None)
+        create_community(session, 0, 2, "Community", [creator_user], [], None)
 
-    event_id = events_api.create_event(token=token1, title="Approved Event").event_id
+    event_id = events_api.create_event(token=creator_token, title="Approved Event").event_id
 
     # Other user cannot see it yet
     with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
-        events_api.get_event(token=token2, event_id=event_id)
+        events_api.get_event(token=other_token, event_id=event_id)
 
     # Approve the event
     moderator.approve_event_occurrence(event_id)
 
     # Now other user can see it
-    res = events_api.get_event(token=token2, event_id=event_id)
+    res = events_api.get_event(token=other_token, event_id=event_id)
     assert res.title == "Approved Event"
 
 
 def test_shadowed_event_hidden_from_list_for_non_creator(db, moderator: Moderator):
     """SHADOWED events appear in lists for the creator but not for other users."""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    creator_user, creator_token = generate_user()
+    other_user, other_token = generate_user()
 
     with session_scope() as session:
-        create_community(session, 0, 2, "Community", [user1], [], None)
+        create_community(session, 0, 2, "Community", [creator_user], [], None)
 
-    res = events_api.create_event(token=token1)
+    res = events_api.create_event(token=creator_token)
 
     event_id = res.event_id
 
     # Creator can see their own SHADOWED event in lists
-    list_res = events_api.list_all_events(token=token1)
+    list_res = events_api.list_all_events(token=creator_token)
     event_ids = [e.event_id for e in list_res.events]
     assert event_id in event_ids
 
     # Other user cannot see the SHADOWED event in lists
-    list_res = events_api.list_all_events(token=token2)
+    list_res = events_api.list_all_events(token=other_token)
     event_ids = [e.event_id for e in list_res.events]
     assert event_id not in event_ids
 
     # After approval, other user can see it
     moderator.approve_event_occurrence(event_id)
 
-    list_res = events_api.list_all_events(token=token2)
+    list_res = events_api.list_all_events(token=other_token)
     event_ids = [e.event_id for e in list_res.events]
     assert event_id in event_ids
 
 
 def test_event_create_notification_deferred_until_approval(db, push_collector: PushCollector, moderator: Moderator):
     """Event create notifications are deferred while SHADOWED, then unblocked after approval."""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    creator_user, creator_token = generate_user()
+    recipient_user, recipient_token = generate_user()
 
     # Need world -> macroregion -> region -> subregion so the subregion community gets notifications
     with session_scope() as session:
-        world = create_community(session, 0, 10, "World", [user1], [], None)
-        macroregion = create_community(session, 0, 7, "Macroregion", [user1], [], world)
-        region = create_community(session, 0, 5, "Region", [user1], [], macroregion)
-        create_community(session, 0, 2, "Child", [user2], [], region)
+        world = create_community(session, 0, 10, "World", [creator_user], [], None)
+        macroregion = create_community(session, 0, 7, "Macroregion", [creator_user], [], world)
+        region = create_community(session, 0, 5, "Region", [creator_user], [], macroregion)
+        create_community(session, 0, 2, "Child", [recipient_user], [], region)
 
-    event_id = events_api.create_event(token=token1).event_id
+    event_id = events_api.create_event(token=creator_token).event_id
 
     # Process all jobs — notification should be deferred (event is SHADOWED)
     process_jobs()
 
     with session_scope() as session:
-        notif = session.execute(select(Notification).where(Notification.user_id == user2.id)).scalar_one()
+        notif = session.execute(select(Notification).where(Notification.user_id == recipient_user.id)).scalar_one()
         # Notification was created with moderation_state_id for deferral
         assert notif.moderation_state_id is not None
         # No delivery exists (deferred because event is SHADOWED)
@@ -2288,32 +2295,34 @@ def test_event_create_notification_deferred_until_approval(db, push_collector: P
 
 def test_event_update_notification_has_moderation_state(db, push_collector: PushCollector, moderator: Moderator):
     """Event update notifications should carry the event's moderation_state_id for deferral."""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    organizer_user, organizer_token = generate_user()
+    subscriber_user, subscriber_token = generate_user()
 
     with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+        c_id = create_community(session, 0, 2, "Community", [subscriber_user], [], None).id
 
-    event_id = events_api.create_event(token=token1, title="Update Test", approve_by=moderator).event_id
+    event_id = events_api.create_event(token=organizer_token, title="Update Test", approve_by=moderator).event_id
 
     process_jobs()
     # Clear any create notifications
-    while push_collector.count_for_user(user2.id):
-        push_collector.pop_for_user(user2.id)
+    while push_collector.count_for_user(subscriber_user.id):
+        push_collector.pop_for_user(subscriber_user.id)
 
-    # User2 subscribes to the event
-    events_api.set_event_subscription(token=token2, event_id=event_id, subscribe=True)
+    # The subscriber subscribes to the event
+    events_api.set_event_subscription(token=subscriber_token, event_id=event_id, subscribe=True)
 
-    # User1 updates the event with should_notify=True
-    events_api.update_event(token=token1, event_id=event_id, title="Updated Title", should_notify=True)
+    # The organizer updates the event with should_notify=True
+    events_api.update_event(token=organizer_token, event_id=event_id, title="Updated Title", should_notify=True)
 
     process_jobs()
 
-    # Verify that the update notification for user2 has moderation_state_id set
+    # Verify that the update notification for the subscriber has moderation_state_id set
     with session_scope() as session:
         occurrence = session.execute(select(EventOccurrence).where(EventOccurrence.id == event_id)).scalar_one()
 
-        notifications = session.execute(select(Notification).where(Notification.user_id == user2.id)).scalars().all()
+        notifications = (
+            session.execute(select(Notification).where(Notification.user_id == subscriber_user.id)).scalars().all()
+        )
         # Find the update notification (most recent one)
         update_notifs = [n for n in notifications if n.topic_action.action == "update"]
         assert len(update_notifs) == 1
@@ -2322,31 +2331,33 @@ def test_event_update_notification_has_moderation_state(db, push_collector: Push
 
 def test_event_cancel_notification_has_moderation_state(db, push_collector: PushCollector, moderator: Moderator):
     """Event cancel notifications should carry the event's moderation_state_id for deferral."""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    organizer_user, organizer_token = generate_user()
+    subscriber_user, subscriber_token = generate_user()
 
     with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+        c_id = create_community(session, 0, 2, "Community", [subscriber_user], [], None).id
 
-    event_id = events_api.create_event(token=token1, approve_by=moderator).event_id
-
-    process_jobs()
-    while push_collector.count_for_user(user2.id):
-        push_collector.pop_for_user(user2.id)
-
-    # User2 subscribes
-    events_api.set_event_subscription(token=token2, event_id=event_id, subscribe=True)
-
-    # User1 cancels the event
-    events_api.cancel_event(token=token1, event_id=event_id)
+    event_id = events_api.create_event(token=organizer_token, approve_by=moderator).event_id
 
     process_jobs()
+    while push_collector.count_for_user(subscriber_user.id):
+        push_collector.pop_for_user(subscriber_user.id)
 
-    # Verify that the cancel notification for user2 has moderation_state_id set
+    # The subscriber subscribes
+    events_api.set_event_subscription(token=subscriber_token, event_id=event_id, subscribe=True)
+
+    # The organizer cancels the event
+    events_api.cancel_event(token=organizer_token, event_id=event_id)
+
+    process_jobs()
+
+    # Verify that the cancel notification for the subscriber has moderation_state_id set
     with session_scope() as session:
         occurrence = session.execute(select(EventOccurrence).where(EventOccurrence.id == event_id)).scalar_one()
 
-        notifications = session.execute(select(Notification).where(Notification.user_id == user2.id)).scalars().all()
+        notifications = (
+            session.execute(select(Notification).where(Notification.user_id == subscriber_user.id)).scalars().all()
+        )
         cancel_notifs = [n for n in notifications if n.topic_action.action == "cancel"]
         assert len(cancel_notifs) == 1
         assert cancel_notifs[0].moderation_state_id == occurrence.moderation_state_id
@@ -2385,18 +2396,18 @@ def test_event_update_and_cancel_notifications_not_sent_to_actor(
 
 def test_event_reminder_notification_has_moderation_state(db, push_collector: PushCollector, moderator: Moderator):
     """Event reminder notifications should carry the event's moderation_state_id for deferral."""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    organizer_user, organizer_token = generate_user()
+    attendee_user, attendee_token = generate_user()
 
     with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+        c_id = create_community(session, 0, 2, "Community", [attendee_user], [], None).id
 
     # Create event starting 23 hours from now (within 24h reminder window)
     start_time = now() + timedelta(hours=23)
     end_time = start_time + timedelta(hours=1)
 
     res = events_api.create_event(
-        token=token1,
+        token=organizer_token,
         start_date_time=local_date_time(start_time),
         end_date_time=local_date_time(end_time),
         approve_by=moderator,
@@ -2404,21 +2415,25 @@ def test_event_reminder_notification_has_moderation_state(db, push_collector: Pu
 
     event_id = res.event_id
     process_jobs()
-    while push_collector.count_for_user(user2.id):
-        push_collector.pop_for_user(user2.id)
+    while push_collector.count_for_user(attendee_user.id):
+        push_collector.pop_for_user(attendee_user.id)
 
-    # User2 marks attendance
-    events_api.set_event_attendance(token=token2, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
+    # The attendee marks attendance
+    events_api.set_event_attendance(
+        token=attendee_token, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING
+    )
 
     # Run the event reminder handler
     send_event_reminders(empty_pb2.Empty())
     process_jobs()
 
-    # Verify that the reminder notification for user2 has moderation_state_id set
+    # Verify that the reminder notification for the attendee has moderation_state_id set
     with session_scope() as session:
         occurrence = session.execute(select(EventOccurrence).where(EventOccurrence.id == event_id)).scalar_one()
 
-        notifications = session.execute(select(Notification).where(Notification.user_id == user2.id)).scalars().all()
+        notifications = (
+            session.execute(select(Notification).where(Notification.user_id == attendee_user.id)).scalars().all()
+        )
         reminder_notifs = [n for n in notifications if n.topic_action.action == "reminder"]
         assert len(reminder_notifs) == 1
         assert reminder_notifs[0].moderation_state_id == occurrence.moderation_state_id
@@ -2426,18 +2441,18 @@ def test_event_reminder_notification_has_moderation_state(db, push_collector: Pu
 
 def test_event_reminder_not_sent_for_cancelled_event(db, push_collector: PushCollector, moderator: Moderator):
     """Event reminders should not be sent for cancelled events."""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    organizer_user, organizer_token = generate_user()
+    attendee_user, attendee_token = generate_user()
 
     with session_scope() as session:
-        create_community(session, 0, 2, "Community", [user2], [], None)
+        create_community(session, 0, 2, "Community", [attendee_user], [], None)
 
     # Create event starting 23 hours from now (within 24h reminder window)
     start_time = now() + timedelta(hours=23)
     end_time = start_time + timedelta(hours=1)
 
     event_id = events_api.create_event(
-        token=token1,
+        token=organizer_token,
         start_date_time=local_date_time(start_time),
         end_date_time=local_date_time(end_time),
         approve_by=moderator,
@@ -2445,24 +2460,28 @@ def test_event_reminder_not_sent_for_cancelled_event(db, push_collector: PushCol
 
     process_jobs()
 
-    # User2 marks attendance
-    events_api.set_event_attendance(token=token2, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
+    # The attendee marks attendance
+    events_api.set_event_attendance(
+        token=attendee_token, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING
+    )
 
-    # User1 cancels the event
-    events_api.cancel_event(token=token1, event_id=event_id)
+    # The organizer cancels the event
+    events_api.cancel_event(token=organizer_token, event_id=event_id)
 
     process_jobs()
     # Drain any cancellation-related notifications so we can cleanly assert on reminders
-    while push_collector.count_for_user(user2.id):
-        push_collector.pop_for_user(user2.id)
+    while push_collector.count_for_user(attendee_user.id):
+        push_collector.pop_for_user(attendee_user.id)
 
     # Run the event reminder handler
     send_event_reminders(empty_pb2.Empty())
     process_jobs()
 
-    # Verify that no reminder notification was sent for user2
+    # Verify that no reminder notification was sent for the attendee
     with session_scope() as session:
-        notifications = session.execute(select(Notification).where(Notification.user_id == user2.id)).scalars().all()
+        notifications = (
+            session.execute(select(Notification).where(Notification.user_id == attendee_user.id)).scalars().all()
+        )
         reminder_notifs = [n for n in notifications if n.topic_action == NotificationTopicAction.event__reminder]
         assert len(reminder_notifs) == 0
 
@@ -2471,17 +2490,17 @@ def test_event_reminder_not_sent_for_cancelled_event(db, push_collector: PushCol
 def test_event_reminder_not_sent_for_invisible_attendee(
     db, push_collector: PushCollector, moderator: Moderator, invisible_field
 ):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    organizer_user, organizer_token = generate_user()
+    attendee_user, attendee_token = generate_user()
 
     with session_scope() as session:
-        create_community(session, 0, 2, "Community", [user2], [], None)
+        create_community(session, 0, 2, "Community", [attendee_user], [], None)
 
     start_time = now() + timedelta(hours=23)
     end_time = start_time + timedelta(hours=1)
 
     event_id = events_api.create_event(
-        token=token1,
+        token=organizer_token,
         start_date_time=local_date_time(start_time),
         end_date_time=local_date_time(end_time),
         approve_by=moderator,
@@ -2489,16 +2508,20 @@ def test_event_reminder_not_sent_for_invisible_attendee(
 
     process_jobs()
 
-    events_api.set_event_attendance(token=token2, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
+    events_api.set_event_attendance(
+        token=attendee_token, event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING
+    )
 
     with session_scope() as session:
-        session.execute(update(User).where(User.id == user2.id).values({invisible_field: now()}))
+        session.execute(update(User).where(User.id == attendee_user.id).values({invisible_field: now()}))
 
     send_event_reminders(empty_pb2.Empty())
     process_jobs()
 
     with session_scope() as session:
-        notifications = session.execute(select(Notification).where(Notification.user_id == user2.id)).scalars().all()
+        notifications = (
+            session.execute(select(Notification).where(Notification.user_id == attendee_user.id)).scalars().all()
+        )
         reminder_notifs = [n for n in notifications if n.topic_action == NotificationTopicAction.event__reminder]
         assert len(reminder_notifs) == 0
 
@@ -2573,37 +2596,39 @@ def test_ListEventOccurrences_does_not_leak_other_events(db, moderator: Moderato
 
 def test_event_comment_notification_has_moderation_state(db, push_collector: PushCollector, moderator: Moderator):
     """Event comment notifications should carry the comment's moderation_state_id for deferral."""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    organizer_user, organizer_token = generate_user()
+    commenter_user, commenter_token = generate_user()
 
     with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+        c_id = create_community(session, 0, 2, "Community", [commenter_user], [], None).id
 
-    res = events_api.create_event(token=token1, parent_community_id=c_id, approve_by=moderator)
+    res = events_api.create_event(token=organizer_token, parent_community_id=c_id, approve_by=moderator)
     event_id = res.event_id
     thread_id = res.thread.thread_id
 
     process_jobs()
-    while push_collector.count_for_user(user1.id):
-        push_collector.pop_for_user(user1.id)
+    while push_collector.count_for_user(organizer_user.id):
+        push_collector.pop_for_user(organizer_user.id)
 
-    # User1 subscribes (creator is auto-subscribed, but let's be explicit)
-    events_api.set_event_subscription(token=token1, event_id=event_id, subscribe=True)
+    # The organizer subscribes (creator is auto-subscribed, but let's be explicit)
+    events_api.set_event_subscription(token=organizer_token, event_id=event_id, subscribe=True)
 
-    # User2 posts a top-level comment on the event thread
-    with threads_session(token2) as api:
+    # The commenter posts a top-level comment on the event thread
+    with threads_session(commenter_token) as api:
         comment_thread_id = api.PostReply(
             threads_pb2.PostReplyReq(thread_id=thread_id, content="Hello event!")
         ).thread_id
 
     process_jobs()
 
-    # The comment notification for user1 should be gated on the comment's own moderation_state_id
+    # The comment notification for the organizer should be gated on the comment's own moderation_state_id
     comment_db_id = comment_thread_id // 10
     with session_scope() as session:
         comment = session.execute(select(Comment).where(Comment.id == comment_db_id)).scalar_one()
 
-        notifications = session.execute(select(Notification).where(Notification.user_id == user1.id)).scalars().all()
+        notifications = (
+            session.execute(select(Notification).where(Notification.user_id == organizer_user.id)).scalars().all()
+        )
         comment_notifs = [n for n in notifications if n.topic_action.action == "comment"]
         assert len(comment_notifs) == 1
         assert comment_notifs[0].moderation_state_id == comment.moderation_state_id
@@ -2611,45 +2636,47 @@ def test_event_comment_notification_has_moderation_state(db, push_collector: Pus
 
 def test_event_thread_reply_notification_has_moderation_state(db, push_collector: PushCollector, moderator: Moderator):
     """Event thread reply notifications should carry the reply's moderation_state_id for deferral."""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    user3, token3 = generate_user()
+    organizer_user, organizer_token = generate_user()
+    commenter_user, commenter_token = generate_user()
+    replier_user, replier_token = generate_user()
 
     with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user2, user3], [], None).id
+        c_id = create_community(session, 0, 2, "Community", [commenter_user, replier_user], [], None).id
 
-    res = events_api.create_event(token=token1, approve_by=moderator)
+    res = events_api.create_event(token=organizer_token, approve_by=moderator)
     event_id = res.event_id
     thread_id = res.thread.thread_id
 
     process_jobs()
-    while push_collector.count_for_user(user1.id):
-        push_collector.pop_for_user(user1.id)
+    while push_collector.count_for_user(organizer_user.id):
+        push_collector.pop_for_user(organizer_user.id)
 
-    # User2 posts a top-level comment
-    with threads_session(token2) as api:
+    # The commenter posts a top-level comment
+    with threads_session(commenter_token) as api:
         comment_thread_id = api.PostReply(
             threads_pb2.PostReplyReq(thread_id=thread_id, content="Top-level comment")
         ).thread_id
 
     process_jobs()
-    while push_collector.count_for_user(user1.id):
-        push_collector.pop_for_user(user1.id)
+    while push_collector.count_for_user(organizer_user.id):
+        push_collector.pop_for_user(organizer_user.id)
 
-    # User3 replies to user2's comment (depth=2 reply)
-    with threads_session(token3) as api:
+    # The replier replies to the commenter's comment (depth=2 reply)
+    with threads_session(replier_token) as api:
         nested_reply_thread_id = api.PostReply(
             threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="Nested reply")
         ).thread_id
 
     process_jobs()
 
-    # The nested reply notification for user2 should be gated on the reply's own moderation_state_id
+    # The nested reply notification for the commenter should be gated on the reply's own moderation_state_id
     nested_reply_db_id = nested_reply_thread_id // 10
     with session_scope() as session:
         nested_reply = session.execute(select(Reply).where(Reply.id == nested_reply_db_id)).scalar_one()
 
-        notifications = session.execute(select(Notification).where(Notification.user_id == user2.id)).scalars().all()
+        notifications = (
+            session.execute(select(Notification).where(Notification.user_id == commenter_user.id)).scalars().all()
+        )
         reply_notifs = [n for n in notifications if n.topic_action.action == "reply"]
         assert len(reply_notifs) == 1
         assert reply_notifs[0].moderation_state_id == nested_reply.moderation_state_id

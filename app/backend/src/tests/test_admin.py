@@ -803,15 +803,15 @@ def test_EditReferenceText(db):
     super_user, super_token = generate_user(is_superuser=True)
     test_new_text = "New Text"
 
-    user1, user1_token = generate_user()
-    user2, user2_token = generate_user()
-    make_friends(user1, user2)
+    from_user, from_token = generate_user()
+    to_user, to_token = generate_user()
+    make_friends(from_user, to_user)
 
     with session_scope() as session:
-        with references_session(user1_token) as api:
+        with references_session(from_token) as api:
             reference = api.WriteFriendReference(
                 references_pb2.WriteFriendReferenceReq(
-                    to_user_id=user2.id, text="Old Text", private_text="", was_appropriate=True, rating=1
+                    to_user_id=to_user.id, text="Old Text", private_text="", was_appropriate=True, rating=1
                 )
             )
 
@@ -832,14 +832,14 @@ def test_DeleteReference_deprecated(db):
     """DeleteReference is deprecated; admins should hide via UMS instead."""
     super_user, super_token = generate_user(is_superuser=True)
 
-    user1, user1_token = generate_user()
-    user2, user2_token = generate_user()
-    make_friends(user1, user2)
+    from_user, from_token = generate_user()
+    to_user, to_token = generate_user()
+    make_friends(from_user, to_user)
 
-    with references_session(user1_token) as api:
+    with references_session(from_token) as api:
         reference = api.WriteFriendReference(
             references_pb2.WriteFriendReferenceReq(
-                to_user_id=user2.id, text="Old Text", private_text="", was_appropriate=True, rating=1
+                to_user_id=to_user.id, text="Old Text", private_text="", was_appropriate=True, rating=1
             )
         )
 
@@ -931,13 +931,13 @@ def test_GetUserReferences(db):
 def test_GetUserReferences_host_request(db):
     super_user, super_token = generate_user(is_superuser=True)
 
-    user1, _ = generate_user()
-    user2, _ = generate_user()
+    surfer_user, _ = generate_user()
+    host_user, _ = generate_user()
 
     with session_scope() as session:
-        surfed_ref_id, host_request_id = create_host_reference(session, user1.id, user2.id, timedelta(days=2))
+        surfed_ref_id, host_request_id = create_host_reference(session, surfer_user.id, host_user.id, timedelta(days=2))
         hosted_ref_id, _ = create_host_reference(
-            session, user2.id, user1.id, timedelta(days=2), host_request_id=host_request_id
+            session, host_user.id, surfer_user.id, timedelta(days=2), host_request_id=host_request_id
         )
         host_request = session.execute(
             select(HostRequest).where(HostRequest.conversation_id == host_request_id)
@@ -946,16 +946,16 @@ def test_GetUserReferences_host_request(db):
         to_date = date_to_api(host_request.to_date)
 
     with real_admin_session(super_token) as admin_api:
-        res = admin_api.GetUserReferences(admin_pb2.GetUserReferencesReq(user=user1.username))
+        res = admin_api.GetUserReferences(admin_pb2.GetUserReferencesReq(user=surfer_user.username))
 
     assert len(res.references_from) == 1
     surfed_ref = res.references_from[0]
     assert surfed_ref.reference_id == surfed_ref_id
     assert surfed_ref.reference_type == "surfed"
-    assert surfed_ref.from_user.user_id == user1.id
-    assert surfed_ref.from_user.username == user1.username
-    assert surfed_ref.to_user.user_id == user2.id
-    assert surfed_ref.to_user.username == user2.username
+    assert surfed_ref.from_user.user_id == surfer_user.id
+    assert surfed_ref.from_user.username == surfer_user.username
+    assert surfed_ref.to_user.user_id == host_user.id
+    assert surfed_ref.to_user.username == host_user.username
     assert surfed_ref.moderation_visibility == "visible"
     assert surfed_ref.host_request_id == host_request_id
     assert surfed_ref.hosting_city == "Test City"
@@ -967,8 +967,8 @@ def test_GetUserReferences_host_request(db):
     hosted_ref = res.references_to[0]
     assert hosted_ref.reference_id == hosted_ref_id
     assert hosted_ref.reference_type == "hosted"
-    assert hosted_ref.from_user.user_id == user2.id
-    assert hosted_ref.to_user.user_id == user1.id
+    assert hosted_ref.from_user.user_id == host_user.id
+    assert hosted_ref.to_user.user_id == surfer_user.id
     assert hosted_ref.host_request_id == host_request_id
     assert hosted_ref.hosting_city == "Test City"
     assert hosted_ref.from_date == from_date

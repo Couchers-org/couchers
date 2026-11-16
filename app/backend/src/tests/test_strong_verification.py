@@ -775,7 +775,7 @@ def test_strong_verification_delete_data_cant_reverify(db, sv_config, push_colle
 
 def test_strong_verification_duplicate_other_user(db, sv_config, push_collector: PushCollector):
     user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
-    user2, token2 = generate_user(birthdate=date(1988, 1, 1), gender="Man")
+    other_user, other_token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
     _, superuser_token = generate_user(is_superuser=True)
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
@@ -845,8 +845,8 @@ def test_strong_verification_duplicate_other_user(db, sv_config, push_collector:
         )
 
     reference_data = do_and_check_sv(
-        user2,
-        token2,
+        other_user,
+        other_token,
         verification_id=5731012934821984,
         sex="MALE",
         dob="1988-01-01",
@@ -902,10 +902,10 @@ def test_strong_verification_duplicate_other_user(db, sv_config, push_collector:
         verification_attempt = session.execute(
             select(StrongVerificationAttempt).where(StrongVerificationAttempt.iris_session_id == 5731012934821984)
         ).scalar_one()
-        assert verification_attempt.user_id == user2.id
+        assert verification_attempt.user_id == other_user.id
         assert verification_attempt.status == StrongVerificationAttemptStatus.duplicate
 
-    push = push_collector.pop_for_user(user2.id, last=True)
+    push = push_collector.pop_for_user(other_user.id, last=True)
     assert push.content.title == "Strong Verification failed"
     assert (
         push.content.body
