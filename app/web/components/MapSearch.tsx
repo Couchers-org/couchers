@@ -76,7 +76,7 @@ export default function MapSearch({ setError, setResult, inputFieldError, collap
   } = useGeocodeQuery({
     biasToUserLocation: true,
     collapseToCity,
-    allowFallback: true /*false*/,
+    allowFallback: true,
     surface: MAP_SEARCH_SURFACE,
   });
   const searchSession = useLocationSearchSession({

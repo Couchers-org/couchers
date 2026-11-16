@@ -180,7 +180,7 @@ export default function EventForm({
             biasToUserLocation
             showUseMyLocation
             // The venue is persisted, so later (re: #10160) we won't allow the fallback provider (no provider id)
-            allowFallback={true /*false*/}
+            allowFallback={true}
             autocompleteContext="create-event-form"
           />
 
