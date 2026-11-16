@@ -13,11 +13,6 @@ import type { FocusPoint } from "utils/pelias";
  * (permission `prompt`, `denied`, no Permissions API, geolocation error, timeout)
  * degrades silently to no bias, i.e. normal unbiased autocomplete.
  *
- * Safari does not implement `permissions.query({ name: "geolocation" })`, so it
- * can't tell us the state. `markGeolocationGranted()` records a successful fix in
- * localStorage as a substitute signal, letting bias work there on subsequent
- * visits after an explicit, user-initiated geolocation elsewhere in the app.
- *
  * Returns a ref rather than state on purpose: the position arrives
  * asynchronously, callers read it inside an event-driven `query(...)` callback,
  * and a state update would needlessly re-render the widget (and re-create the
@@ -34,8 +29,6 @@ const GEOLOCATION_OPTIONS: PositionOptions = {
   timeout: 5_000,
 };
 
-const GRANTED_STORAGE_KEY = "geolocationGranted";
-
 // Two decimals is ~1 km: plenty for city-level bias, and limits how precisely
 // the member's position is disclosed to the geocoding provider.
 const COORDINATE_DECIMALS = 2;
@@ -46,47 +39,23 @@ function roundCoordinate(value: number): number {
 }
 
 /**
- * Remember that the user has granted geolocation, for browsers whose Permissions
- * API cannot report it (Safari). Call this from any flow where a geolocation fix
- * succeeded after an explicit user action (e.g. "use my location").
- */
-export function markGeolocationGranted() {
-  try {
-    window.localStorage.setItem(GRANTED_STORAGE_KEY, "true");
-  } catch {
-    // Storage disabled or full — we simply lose the Safari bias hint.
-  }
-}
-
-function wasGeolocationGranted(): boolean {
-  try {
-    return window.localStorage.getItem(GRANTED_STORAGE_KEY) === "true";
-  } catch {
-    return false;
-  }
-}
-
-/**
  * Has the user already granted geolocation, such that reading their position
- * shows no prompt? Resolves `false` whenever we cannot be sure.
+ * shows no prompt? Resolves `false` whenever we cannot be sure. `prompt` (which
+ * includes "ask every time") and `denied` must never lead to a read here.
  */
 async function hasGeolocationPermission(): Promise<boolean> {
-  if (navigator.permissions?.query) {
-    try {
-      const status = await navigator.permissions.query({
-        name: "geolocation",
-      });
-      if (status.state === "granted") {
-        return true;
-      }
-      // `prompt` / `denied`: never ask here.
-      // A stale localStorage hint must not override a real `denied`/`prompt`.
-      return false;
-    } catch {
-      // Permission name unsupported (Safari) — fall through to the stored hint.
-    }
+  if (!navigator.permissions?.query) {
+    return false;
   }
-  return wasGeolocationGranted();
+  try {
+    const status = await navigator.permissions.query({
+      name: "geolocation",
+    });
+    return status.state === "granted";
+  } catch {
+    // Permission name unsupported by this browser.
+    return false;
+  }
 }
 
 export default function useLocationBias(enabled: boolean): MutableRefObject<FocusPoint | undefined> {
@@ -107,7 +76,6 @@ export default function useLocationBias(enabled: boolean): MutableRefObject<Focu
           if (isCancelled) {
             return;
           }
-          markGeolocationGranted();
           focusRef.current = {
             lat: roundCoordinate(position.coords.latitude),
             lon: roundCoordinate(position.coords.longitude),

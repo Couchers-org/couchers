@@ -4,7 +4,6 @@ import { useCallback, useRef, useState } from "react";
 import { useGeocodeTelemetry } from "utils/geocodeTelemetry";
 import type { GeocodeResult } from "utils/hooks";
 import { PeliasError, reverse, toPeliasLanguage } from "utils/pelias";
-import { markGeolocationGranted } from "utils/useLocationBias";
 
 /**
  * The explicit "use my location" action — ask for the device position, then
@@ -88,9 +87,6 @@ export default function useMyLocation({
       if (isStale()) {
         return undefined;
       }
-      // Lets location bias work on browsers that can't report permission state.
-      markGeolocationGranted();
-
       const { results } = await reverse(position.coords.latitude, position.coords.longitude, {
         language: toPeliasLanguage(i18n.language),
         preferCity,

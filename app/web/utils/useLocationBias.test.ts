@@ -1,6 +1,6 @@
 import { renderHook, waitFor } from "@testing-library/react";
 
-import useLocationBias, { markGeolocationGranted } from "./useLocationBias";
+import useLocationBias from "./useLocationBias";
 
 const getCurrentPosition = jest.fn();
 const permissionsQuery = jest.fn();
@@ -110,24 +110,14 @@ describe("useLocationBias", () => {
     expect(result.current.current).toBeUndefined();
   });
 
-  describe("when the Permissions API cannot report geolocation (Safari)", () => {
-    it("stays unbiased until a grant has been recorded", async () => {
-      mockGeolocation({ permissionsSupported: false });
+  it("never prompts when the Permissions API cannot report geolocation, even with a stale localStorage flag", async () => {
+    mockGeolocation({ permissionsSupported: false });
+    window.localStorage.setItem("geolocationGranted", "true");
 
-      const { result } = renderHook(() => useLocationBias(true));
+    const { result } = renderHook(() => useLocationBias(true));
 
-      await waitFor(() => expect(permissionsQuery).toHaveBeenCalled());
-      expect(getCurrentPosition).not.toHaveBeenCalled();
-      expect(result.current.current).toBeUndefined();
-    });
-
-    it("biases once a grant has been recorded", async () => {
-      mockGeolocation({ permissionsSupported: false });
-      markGeolocationGranted();
-
-      const { result } = renderHook(() => useLocationBias(true));
-
-      await waitFor(() => expect(result.current.current).toEqual({ lat: 43.0, lon: -81.2 }));
-    });
+    await waitFor(() => expect(permissionsQuery).toHaveBeenCalled());
+    expect(getCurrentPosition).not.toHaveBeenCalled();
+    expect(result.current.current).toBeUndefined();
   });
 });
