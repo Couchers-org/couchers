@@ -59,6 +59,16 @@ interface LocationAutocompleteProps {
   sx?: SxProps<Theme>;
 }
 
+function isSameLocation(option: GeocodeResult | string, value: GeocodeResult | string): boolean {
+  if (typeof option === "string" || typeof value === "string") {
+    return option === value;
+  }
+  if (option?.id && value?.id) {
+    return option.id === value.id;
+  }
+  return option?.simplifiedName === value?.simplifiedName;
+}
+
 const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(props: LocationAutocompleteProps, ref) {
   const {
     className,
@@ -349,15 +359,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
         return geocodeResult2String(option, showFullDisplayName);
       }}
       getOptionDisabled={(option) => isNoResultsOption(option)}
-      isOptionEqualToValue={(option, value) => {
-        if (typeof option === "string" || typeof value === "string") {
-          return option === value;
-        }
-        if (option?.id && value?.id) {
-          return option.id === value.id;
-        }
-        return option?.simplifiedName === value?.simplifiedName;
-      }}
+      isOptionEqualToValue={isSameLocation}
       filterOptions={(opts) => opts}
       onInputChange={(_e, value, reason) => handleInputChange(value, reason)}
       onChange={(_e, value, reason) => handleChange(value, reason)}
