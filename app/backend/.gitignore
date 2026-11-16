@@ -6,6 +6,10 @@ src/proto/
 
 .env
 
+# coverage reports
+.coverage
+htmlcov/
+
 # test artifacts
 test_artifacts/
 
