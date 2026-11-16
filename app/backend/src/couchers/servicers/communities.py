@@ -12,12 +12,12 @@ from couchers.context import CouchersContext
 from couchers.crypto import decrypt_page_token, encrypt_page_token
 from couchers.db import can_moderate_node, get_node_parents_recursively, is_user_in_node_geography
 from couchers.event_log import log_event
+from couchers.helpers.discussions import has_visible_comments
 from couchers.materialized_views import ClusterAdminCount, ClusterSubscriptionCount
 from couchers.models import (
     Cluster,
     ClusterRole,
     ClusterSubscription,
-    Comment,
     Discussion,
     Event,
     EventOccurrence,
@@ -32,7 +32,7 @@ from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.events import apply_occurrence_pagination, event_to_pb, occurrences_next_page_token
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
-from couchers.sql import to_bool, users_visible, where_moderated_content_visible, where_users_column_visible
+from couchers.sql import to_bool, users_visible, where_moderated_content_visible
 from couchers.utils import Timestamp_from_datetime
 
 logger = logging.getLogger(__name__)
@@ -466,29 +466,12 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
         if not node.official_cluster.small_community_features_enabled:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "discussions_not_enabled")
-        has_visible_comments = (
-            where_moderated_content_visible(
-                where_users_column_visible(
-                    select(func.count())
-                    .select_from(Comment)
-                    .where(Comment.thread_id == Discussion.thread_id)
-                    .where(Comment.deleted == None),
-                    context,
-                    Comment.author_user_id,
-                ),
-                context,
-                Comment,
-                is_list_operation=True,
-            )
-            .correlate(Discussion)
-            .scalar_subquery()
-        )
         discussions = (
             session.execute(
                 where_moderated_content_visible(
                     select(Discussion)
                     .where(Discussion.owner_cluster_id == node.official_cluster.id)
-                    .where((Discussion.deleted == None) | (has_visible_comments > 0))
+                    .where((Discussion.deleted == None) | has_visible_comments(context))
                     .where(Discussion.id <= next_page_id)
                     .order_by(Discussion.id.desc())
                     .limit(page_size + 1),
