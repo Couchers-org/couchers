@@ -403,6 +403,8 @@ def _testconfig() -> Generator[None]:
     config.VALKEY_PORT = 6379
     config.RATE_LIMIT_IPV6_PREFIX = 64
 
+    config.BFC_ADDRESS = ""
+
     yield None
 
     config.copy_from(prevconfig)
