@@ -6,6 +6,7 @@ import {
   AutocompleteInputChangeReason,
   CircularProgress,
   debounce,
+  FormHelperText,
   InputAdornment,
   InputProps,
   styled,
@@ -16,6 +17,7 @@ import TextField from "components/TextField";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { forwardRef, SyntheticEvent, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { service } from "service";
 import { theme } from "theme";
 import { useLocationSearchSession } from "utils/geocodeTelemetry";
@@ -34,6 +36,9 @@ interface LocationAutocompleteOutlinedProps {
   fieldError?: string | undefined;
   fullWidth?: boolean;
   hasSearchValue?: boolean;
+  // Where to render hints and errors, so they take their own space instead of
+  // growing a fixed-height host. Rendered under the field when not provided.
+  helperTextContainer?: HTMLElement | null;
   id?: string;
   InputProps?: InputProps;
   label?: string;
@@ -88,6 +93,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     fieldError,
     fullWidth,
     hasSearchValue,
+    helperTextContainer,
     id = "location-autocomplete-outlined",
     InputProps,
     label,
@@ -286,6 +292,17 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     }
   };
 
+  // Never blocks typing: the field stays editable and the message clears
+  // on the next keystroke.
+  const helperText =
+    myLocationError ||
+    (isProviderUnavailable
+      ? t("location_autocomplete.provider_unavailable")
+      : isSubmitMode
+        ? t("location_autocomplete.search_location_hint")
+        : undefined);
+  const hasError = !!fieldError || !!geocodeError || isProviderUnavailable || !!myLocationError;
+
   return (
     <Autocomplete
       className={className}
@@ -303,17 +320,8 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
         <TextField
           {...params}
           label={label}
-          error={!!fieldError || !!geocodeError || isProviderUnavailable || !!myLocationError}
-          helperText={
-            // Never blocks typing: the field stays editable and the message clears
-            // on the next keystroke.
-            myLocationError ||
-            (isProviderUnavailable
-              ? t("location_autocomplete.provider_unavailable")
-              : isSubmitMode
-                ? t("location_autocomplete.search_location_hint")
-                : undefined)
-          }
+          error={hasError}
+          helperText={helperTextContainer ? undefined : helperText}
           fullWidth={fullWidth}
           variant="outlined"
           placeholder={placeholder}
@@ -324,6 +332,14 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
               endAdornment: (
                 <>
                   {params.slotProps.input.endAdornment}
+                  {helperTextContainer &&
+                    helperText &&
+                    createPortal(
+                      <FormHelperText error={hasError} sx={{ textAlign: "center", mt: 1, mx: 2 }}>
+                        {helperText}
+                      </FormHelperText>,
+                      helperTextContainer,
+                    )}
                   <InputAdornment
                     position="end"
                     sx={{

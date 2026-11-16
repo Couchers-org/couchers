@@ -34,10 +34,11 @@ interface FloatingSearchNavigationProps {
   onZoomIn: (newZoom: number, center?: LngLatLike, isLocationSearch?: boolean) => void;
 }
 
-const StyledControlsWrapper = styled("div")(({ theme }) => ({
+const StyledControlsWrapper = styled("div")({
   display: "flex",
+  flexDirection: "column",
   alignItems: "center",
-}));
+});
 
 const StyledButtonsContainer = styled("div")(({ theme }) => ({
   display: "flex",
@@ -150,6 +151,8 @@ const FloatingSearchControls = ({
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [keyword, setKeyword] = useState("");
+  // Hints/errors from the location field render here, below the pill.
+  const [helperTextContainer, setHelperTextContainer] = useState<HTMLDivElement | null>(null);
 
   const {
     search: { bbox, query },
@@ -232,6 +235,7 @@ const FloatingSearchControls = ({
               <StyledLocationAutocompleteOutlined
                 defaultValue={query}
                 hasSearchValue={!!query || !!bbox}
+                helperTextContainer={helperTextContainer}
                 fullWidth={false}
                 placeholder={t("search:form.location_field_label")}
                 name="location"
@@ -343,6 +347,7 @@ const FloatingSearchControls = ({
             </Tooltip>
           )}
         </StyledButtonsContainer>
+        <div ref={setHelperTextContainer} />
       </StyledControlsWrapper>
     </>
   );
