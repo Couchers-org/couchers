@@ -12,6 +12,7 @@ from couchers.constants import (
     POSTAL_VERIFICATION_RATE_LIMIT,
 )
 from couchers.context import CouchersContext
+from couchers.helpers.badges import user_add_badge
 from couchers.helpers.postal_verification import generate_postal_verification_code, has_postal_verification
 from couchers.jobs.enqueue import queue_job
 from couchers.jobs.handlers import send_postal_verification_postcard
@@ -343,6 +344,8 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         # Success!
         attempt.status = PostalVerificationStatus.succeeded
         attempt.verified_at = now()
+
+        user_add_badge(session, context.user_id, "postal_verified", do_notify=False)
 
         notify(
             session,

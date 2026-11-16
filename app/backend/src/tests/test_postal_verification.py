@@ -17,7 +17,7 @@ from couchers.db import session_scope
 from couchers.helpers.postal_verification import generate_postal_verification_code, has_postal_verification
 from couchers.jobs.handlers import check_mypostcard_jobs
 from couchers.jobs.worker import process_job
-from couchers.models import User
+from couchers.models import User, UserBadge
 from couchers.models.postal_verification import PostalVerificationAttempt, PostalVerificationStatus
 from couchers.postal.my_postcard import _generate_back_left_side_png
 from couchers.proto import postal_verification_pb2
@@ -165,6 +165,9 @@ def test_postal_verification_happy_path(db):
     with session_scope() as session:
         db_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
         assert has_postal_verification(session, db_user)
+        assert session.execute(
+            select(UserBadge).where(UserBadge.user_id == user.id, UserBadge.badge_id == "postal_verified")
+        ).scalar_one_or_none()
 
 
 def test_postal_verification_wrong_code(db):
