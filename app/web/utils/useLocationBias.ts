@@ -36,6 +36,15 @@ const GEOLOCATION_OPTIONS: PositionOptions = {
 
 const GRANTED_STORAGE_KEY = "geolocationGranted";
 
+// Two decimals is ~1 km: plenty for city-level bias, and limits how precisely
+// the member's position is disclosed to the geocoding provider.
+const COORDINATE_DECIMALS = 2;
+
+function roundCoordinate(value: number): number {
+  const factor = 10 ** COORDINATE_DECIMALS;
+  return Math.round(value * factor) / factor;
+}
+
 /**
  * Remember that the user has granted geolocation, for browsers whose Permissions
  * API cannot report it (Safari). Call this from any flow where a geolocation fix
@@ -100,8 +109,8 @@ export default function useLocationBias(enabled: boolean): MutableRefObject<Focu
           }
           markGeolocationGranted();
           focusRef.current = {
-            lat: position.coords.latitude,
-            lon: position.coords.longitude,
+            lat: roundCoordinate(position.coords.latitude),
+            lon: roundCoordinate(position.coords.longitude),
           };
         },
         () => {

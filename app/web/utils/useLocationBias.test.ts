@@ -47,6 +47,17 @@ describe("useLocationBias", () => {
     await waitFor(() => expect(result.current.current).toEqual({ lat: 43.0, lon: -81.2 }));
   });
 
+  it("rounds the coordinates to 2 decimals before exposing them", async () => {
+    mockGeolocation({ permissionState: "granted" });
+    getCurrentPosition.mockImplementation((onSuccess) =>
+      onSuccess({ coords: { latitude: 43.01234567, longitude: -81.2765432 } } as GeolocationPosition),
+    );
+
+    const { result } = renderHook(() => useLocationBias(true));
+
+    await waitFor(() => expect(result.current.current).toEqual({ lat: 43.01, lon: -81.28 }));
+  });
+
   it("does not prompt, and stays unbiased, when permission has not been granted", async () => {
     mockGeolocation({ permissionState: "prompt" });
 
