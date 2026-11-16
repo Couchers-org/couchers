@@ -86,7 +86,12 @@
   },
   "chat": {
     "message": {
-      "event_description": "Qualcuno ti invia un messaggio"
+      "event_description": "Qualcuno ti invia un messaggio",
+      "push_group": {
+        "title": "{{user}} • {{group}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "{{group}}"
+      }
     },
     "missed_messages": {
       "event_description": "Perdi messaggi in una chat",
@@ -402,7 +407,7 @@
   },
   "stay": {
     "accept": {
-      "event_description": "Qualcuno accetta la tua richiesta di soggiorno",
+      "event_description": "Qualcuno accetta la tua richiesta di soggiorno o invito",
       "request": {
         "push": {
           "title": "{{user}} ha accettato la tua richiesta di soggiorno",
@@ -410,10 +415,18 @@
           "ios_subtitle": "Richiesta di soggiorno accettata",
           "body": "{{user}} ha accettato la tua richiesta di soggiorno per il {{date}}."
         }
+      },
+      "invitation": {
+        "push": {
+          "title": "{{user}} ha accettato il tuo invito",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Invito accettato",
+          "body": "{{user}} ha accettato il tuo invito per il {{date}}."
+        }
       }
     },
     "cancel": {
-      "event_description": "Qualcuno annulla la sua richiesta di soggiorno",
+      "event_description": "Qualcuno annulla la sua richiesta di soggiorno o il suo invito",
       "request": {
         "push": {
           "title": "{{user}} ha annullato la sua richiesta di soggiorno",
@@ -421,10 +434,18 @@
           "ios_subtitle": "Richiesta di soggiorno annullata",
           "body": "{{user}} ha annullato la sua richiesta di soggiorno per il {{date}}."
         }
+      },
+      "invitation": {
+        "push": {
+          "title": "{{user}} ha cancellato il suo invito",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Invito cancellato",
+          "body": "{{user}} ha cancellato il suo invito per il {{date}}."
+        }
       }
     },
     "confirm": {
-      "event_description": "Qualcuno conferma la sua richiesta di soggiorno",
+      "event_description": "Qualcuno conferma la sua richiesta di soggiorno o il suo invito",
       "request": {
         "push": {
           "title": "{{user}} ha confermato la sua richiesta di soggiorno",
@@ -432,10 +453,18 @@
           "ios_subtitle": "Richiesta di soggiorno confermata",
           "body": "{{user}} ha confermato la sua richiesta di soggiorno per il {{date}}."
         }
+      },
+      "invitation": {
+        "push": {
+          "title": "{{user}} ha confermato il tuo soggiorno",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Invito confermato",
+          "body": "{{user}} ha confermato il tuo soggiorno per il {{date}}."
+        }
       }
     },
     "create": {
-      "event_description": "Qualcuno ti invia una richiesta di soggiorno",
+      "event_description": "Qualcuno ti invia una richiesta di soggiorno o un invito",
       "request": {
         "push": {
           "title": "Nuova richiesta di soggiorno da {{user}}",
@@ -445,13 +474,23 @@
           "body_many": "{{user}} vorrebbe soggiornare dal {{start_date}} per {{count}} di notti.",
           "body_other": "{{user}} vorrebbe soggiornare dal {{start_date}} per {{count}} notti."
         }
+      },
+      "invitation": {
+        "push": {
+          "title": "Nuovo invito da {{user}}",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Nuovo invito",
+          "body_one": "{{user}} ti ha invitato per un soggiorno a partire dal {{start_date}} per {{count}} notte.",
+          "body_many": "{{user}} ti ha invitato per un soggiorno a partire dal {{start_date}} per {{count}} di notti.",
+          "body_other": "{{user}} ti ha invitato per un soggiorno a partire dal {{start_date}} per {{count}} notti."
+        }
       }
     },
     "message": {
-      "event_description": "Qualcuno invia un messaggio in una richiesta di soggiorno"
+      "event_description": "Qualcuno invia un messaggio in una richiesta di soggiorno o in un invito"
     },
     "missed_messages": {
-      "event_description": "Hai messaggi non letti in una richiesta di soggiorno",
+      "event_description": "Hai messaggi non letti in una richiesta di soggiorno o in un invito",
       "push": {
         "title": "Nuovi messaggi da {{user}}",
         "ios_title": "{{user}}",
@@ -460,7 +499,7 @@
       }
     },
     "reject": {
-      "event_description": "Qualcuno rifiuta la tua richiesta di soggiorno",
+      "event_description": "Qualcuno rifiuta la tua richiesta di soggiorno o il tuo invito",
       "request": {
         "push": {
           "title": "{{user}} ha rifiutato la tua richiesta di soggiorno",
@@ -468,16 +507,32 @@
           "ios_subtitle": "Richiesta di soggiorno rifiutata",
           "body": "{{user}} ha rifiutato la tua richiesta di soggiorno per il {{date}}."
         }
+      },
+      "invitation": {
+        "push": {
+          "title": "{{user}} ha rifiutato il tuo invito",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Invito rifiutato",
+          "body": "{{user}} ha rifiutato il tuo invito per il {{date}}."
+        }
       }
     },
     "reminder": {
-      "event_description": "Non hai risposto a una richiesta di soggiorno in sospeso",
+      "event_description": "Non hai risposto a una richiesta di soggiorno o a un invito in sospeso",
       "request": {
         "push": {
-          "title": "Richiesta in sospeso da {{user}}",
+          "title": "Richiesta in attesa da {{user}}",
           "ios_title": "Richiesta di soggiorno in attesa",
           "ios_subtitle": "{{user}}",
           "body": "{{user}} è in attesa della tua risposta, per favore accetta o rifiuta la richiesta."
+        }
+      },
+      "invitation": {
+        "push": {
+          "title": "Invito in attesa da {{user}}",
+          "ios_title": "Invito in attesa",
+          "ios_subtitle": "{{user}}",
+          "body": "{{user}} è in attesa della tua risposta, per favore accetta o rifiuta l'invito."
         }
       }
     }

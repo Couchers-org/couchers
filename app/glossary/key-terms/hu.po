@@ -1,2 +1,219 @@
 msgid ""
-msgstr "X-Generator: Weblate\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit"
+msgstr ""
+"PO-Revision-Date: 2026-11-15 16:30+0000\n"
+"Last-Translator: Mark Szente <lovuho0@gmail.com>\n"
+"Language-Team: Hungarian <https://translate.couchershq.org/projects/couchers/glossary-key-terms/hu/>\n"
+"Language: hu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.15.2\n"
+
+#. The section of a user profile with information relating their person.
+msgid "profile.about_me"
+msgstr "rólam"
+
+#. (verb) As a host, the act of accepting a surfer's host request.
+msgid "host_request.accept"
+msgstr "elfogad"
+
+#. (adj) The state of a host request that was accepted by the host.
+msgid "host_request.accepted"
+msgstr "elfogadva"
+
+#. (noun) A user account on Couchers.org.
+msgid "account"
+msgstr "fiók"
+
+#. (noun) A user's account settings (notifications, theme, language, etc.).
+msgid "account_settings"
+msgstr "fiók beállítások"
+
+#. (noun) A secret code used to make programmatic operations (call APIs) on behalf of a user.
+msgid "api_key"
+msgstr "API kulcs"
+
+#. (noun) A user who has indicated their intention to attend an event.
+msgid "events.attendee"
+msgstr "résztvevő"
+
+#. (noun) Users who have indicated their intention to attend an event.
+msgid "events.attendees"
+msgstr "résztvevők"
+
+#. (noun) The Couchers.org blog.
+msgid "blog"
+msgstr "blog"
+
+#. (verb) As a surfer, the act of cancelling a host request.
+msgid "host_request.cancel"
+msgstr "visszamond"
+
+#. (verb) The act of cancelling an event.
+msgid "events.cancel"
+msgstr "lemond"
+
+#. (adj) The state of a host request that was cancelled by the surfer.
+msgid "host_request.cancelled"
+msgstr "visszamondva"
+
+#. (adj) The state of an event that has been cancelled.
+msgid "events.cancelled"
+msgstr "lemondva"
+
+#. A user status whereby a user is willing to host surfers.
+msgid "status.can_host"
+msgstr "fogad vendéget"
+
+#. A user status whereby a user is unwilling to host surfers.
+msgid "status.cant_host"
+msgstr "nem fogad vendéget"
+
+#. (noun) A thread for messages between two or more users.
+msgid "chat"
+msgstr "chat"
+
+#. (noun) Threads for messages between two or more users.
+msgid "chats"
+msgstr "chatek"
+
+#. (noun) A top-level comment on a discussion or event.
+msgid "discussions.comment.noun"
+msgstr "hozzászólás"
+
+#. (verb) The act of adding a top-level comment on a discussion or event.
+msgid "discussions.comment.verb"
+msgstr "hozzászólás"
+
+#. (noun) Top-level comments on a discussion or event.
+msgid "discussions.comments"
+msgstr "hozzászólások"
+
+#. (noun) Geographical communities with local discussions, events, etc.
+msgid "communities"
+msgstr "közösségek"
+
+#. (noun) A geographical community with local discussions, events, etc.
+msgid "community"
+msgstr "közösség"
+
+#. (noun) A user recognized to be highly involved in a community, with special editing rights.
+msgid "community_builder"
+msgstr "közösség építő"
+
+#. (noun) Users recognized to be highly involved in a community, with special editing rights.
+msgid "community_builders"
+msgstr "közösség építők"
+
+#. (noun) The behavioral guidelines that new members must accept when joining Couchers.org.
+msgid "community_guidelines"
+msgstr "Közösségi Irányelvek"
+
+#. (verb) As a surfer, the act of confirming a host request that was accepted by the host.
+msgid "host_request.confirm"
+msgstr "megerősít"
+
+#. (adj) The state of a host request that was confirmed by the surfer after being accepted by the host.
+msgid "host_request.confirmed"
+msgstr "megerősítve"
+
+#. (noun) Other users which are friends or have pending friend requests.
+msgid "connections"
+msgstr "kapcsolatok"
+
+#. (noun) The team behind Couchers.org.
+msgid "couchers_org_team"
+msgstr "Couchers.org Csapat"
+
+#. (noun) The logged-in landing page showing upcoming events, stays, etc.
+msgid "dashboard"
+msgstr "irányítópult"
+
+#. (verb) As a host, the act of declining a surfer's host request.
+msgid "host_request.decline"
+msgstr "elutasít"
+
+#. (adj) The state of a host request that was declined by the host.
+msgid "host_request.declined"
+msgstr "elutasítva"
+
+#. (verb) As a user, the action of deleting one's account.
+msgid "account.delete"
+msgstr "töröl"
+
+#. (adj) The state of a user's account which has been deleted.
+msgid "account.deleted"
+msgstr "törölt"
+
+#. (noun) A community or event discussion that supports replies.
+msgid "discussion"
+msgstr "beszélgetés"
+
+#. (noun) Community or event discussions that support replies.
+msgid "discussions"
+msgstr "beszélgetések"
+
+#. (verb) The act of donating money to Couchers.org.
+msgid "donate"
+msgstr "adományoz"
+
+#. (verb) The act of donating money to Couchers.org.
+msgid "donating"
+msgstr "adományoz"
+
+#. (noun) Money donated to Couchers.org.
+msgid "donation"
+msgstr "adomány"
+
+#. (noun) Money donated to Couchers.org.
+msgid "donations"
+msgstr "adományok"
+
+#. (noun) An event created by a user for others to attend.
+msgid "event"
+msgstr "esemény"
+
+#. (noun) Events created by users for others to attend.
+msgid "events"
+msgstr "események"
+
+#. (noun) Another user confirmed as a friend using the friend feature.
+msgid "friend"
+msgstr "ismerős"
+
+#. (noun) A reference from a friend.
+msgid "friend_reference"
+msgstr "ismerős értékelése"
+
+#. (noun) A request to add another user as a friend.
+msgid "friend_request"
+msgstr "ismerősnek jelölés"
+
+#. (noun) Requests to add other users as friends.
+msgid "friend_requests"
+msgstr "ismerősnek jelölések"
+
+#. (noun) Other users confirmed as friends using the friend feature.
+msgid "friends"
+msgstr "ismerősök"
+
+#. (noun) A named thread for messages between three or more users.
+msgid "group_chat"
+msgstr "csoport chat"
+
+#. (noun) A named thread for messages between three or more users.
+msgid "group_chats"
+msgstr "csoport chatek"
+
+#. (noun) The https://help.couchers.org website.
+msgid "help_center"
+msgstr "Súgó Központ"
+
+#. (noun) A user providing hospitality to other users.
+msgid "host.noun"
+msgstr "vendéglátó"
+
+#. (verb) As a host, the act of offering hospitality to other users.
+msgid "host.verb"
+msgstr "vendéglátó"

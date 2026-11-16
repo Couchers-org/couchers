@@ -48,6 +48,8 @@ nodetype2api = {
     NodeType.sublocality: communities_pb2.NODE_TYPE_SUBLOCALITY,
 }
 
+api2nodetype = {v: k for k, v in nodetype2api.items()}
+
 
 def _parents_to_pb(session: Session, node_id: int) -> list[groups_pb2.Parent]:
     parents = get_node_parents_recursively(session, node_id)

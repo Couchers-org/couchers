@@ -1331,3 +1331,24 @@ def test_volunteer_stuff(db):
         assert v.link_type == "email"
         assert v.link_text == "tester@vontester.com.invalid"
         assert v.link_url == "mailto:tester@vontester.com.invalid"
+
+
+def test_UpdateMyVolunteerInfo_missing_link(db):
+    user, token = generate_user()
+
+    with session_scope() as session:
+        session.add(make_volunteer(user_id=user.id, role="Tester", started_volunteering=date(2020, 6, 1)))
+
+    with account_session(token) as account:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid email."):
+            account.UpdateMyVolunteerInfo(
+                account_pb2.UpdateMyVolunteerInfoReq(link_type=wrappers_pb2.StringValue(value="email"))
+            )
+
+        with expect_rpc_error(
+            grpc.StatusCode.INVALID_ARGUMENT,
+            'Invalid website URL or text, make sure URL starts with "https://", and that the text is included in the URL.',
+        ):
+            account.UpdateMyVolunteerInfo(
+                account_pb2.UpdateMyVolunteerInfoReq(link_type=wrappers_pb2.StringValue(value="website"))
+            )

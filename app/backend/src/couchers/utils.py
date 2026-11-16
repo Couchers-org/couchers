@@ -273,7 +273,7 @@ def get_coordinates(geom: WKBElement | WKTElement | None) -> tuple[float, float]
     Returns EPSG4326 (lat, lng) pair for a given WKT geom point or None if the input is not truthy
     """
     if geom:
-        shp = to_shape(geom)
+        shp = typing.cast(Point, to_shape(geom))
         # note the funniness with 4326 normally being (x, y) = (lng, lat)
         return shp.y, shp.x
     else:
