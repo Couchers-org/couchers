@@ -5,7 +5,17 @@ import { service } from "service";
 import users from "test/fixtures/users.json";
 import wrapper, { getHookWrapperWithClient } from "test/hookWrapper";
 import i18n from "test/i18n";
-import { mockNominatimFailure, mockPeliasAutocomplete, mockPeliasFailure, rest, server } from "test/restMock";
+import {
+  FALLBACK_CITY_LABEL,
+  mockNominatimFailure,
+  mockNominatimFallbackCity,
+  mockPeliasAutocomplete,
+  mockPeliasFailure,
+  mockPeliasTestCity,
+  rest,
+  server,
+  TEST_CITY_LABEL,
+} from "test/restMock";
 import { getUser } from "test/serviceMockDefaults";
 import { addDefaultUser } from "test/utils";
 import { resetFailoverState } from "utils/geocode";
@@ -28,6 +38,7 @@ describe("useGeocodeQuery hook", () => {
   });
 
   it("works with expected loading state and result", async () => {
+    mockPeliasTestCity();
     const { result } = renderHook(() => useGeocodeQuery({ requirePeliasGid: false }), { wrapper });
     expect(result.current).toMatchObject({
       isLoading: false,
@@ -43,7 +54,7 @@ describe("useGeocodeQuery hook", () => {
         error: undefined,
         results: [
           {
-            name: "test city, test county, test country",
+            name: TEST_CITY_LABEL,
             location: expect.any(LngLat),
             simplifiedName: "test city, test country",
           },
@@ -140,6 +151,7 @@ describe("useGeocodeQuery hook", () => {
   });
 
   it("clear() drops results and cancels in-flight work", async () => {
+    mockPeliasTestCity();
     const { result } = renderHook(() => useGeocodeQuery({ requirePeliasGid: false }), { wrapper });
     await act(() => result.current.query("test"));
     await waitFor(() => {
@@ -365,6 +377,7 @@ describe("useGeocodeQuery hook", () => {
 
     it("queries Nominatim only after switching to submit mode", async () => {
       failPelias(500);
+      mockNominatimFallbackCity();
       const { result } = renderHook(() => useGeocodeQuery({ requirePeliasGid: false }), { wrapper });
 
       await act(() => result.current.query("test"));
@@ -381,8 +394,8 @@ describe("useGeocodeQuery hook", () => {
       expect(result.current.results?.[0].id).toBeUndefined();
       expect(result.current.results).toEqual([
         {
-          name: "fallback city, fallback state, fallback country",
-          simplifiedName: "fallback city, fallback state, fallback country",
+          name: FALLBACK_CITY_LABEL,
+          simplifiedName: FALLBACK_CITY_LABEL,
           location: new LngLat(3.0, 4.0),
           bbox: [4, 2, 3, 1],
           isRegion: false,
@@ -392,6 +405,7 @@ describe("useGeocodeQuery hook", () => {
 
     it("stays on the fallback provider once it has been used", async () => {
       failPelias(500);
+      mockNominatimFallbackCity();
       const { result } = renderHook(() => useGeocodeQuery({ requirePeliasGid: false }), { wrapper });
 
       await act(() => result.current.query("test"));
@@ -400,7 +414,7 @@ describe("useGeocodeQuery hook", () => {
       });
 
       // Geocode.earth recovers, but the provider must not flip back mid-session.
-      server.resetHandlers();
+      mockPeliasTestCity();
       await act(() => result.current.query("test again"));
 
       await waitFor(() => {
@@ -446,7 +460,7 @@ describe("useGeocodeQuery hook", () => {
         expect(result.current.isProviderUnavailable).toBe(true);
       });
 
-      server.resetHandlers();
+      mockPeliasTestCity();
       await act(() => result.current.query("test again"));
 
       await waitFor(() => {
@@ -489,6 +503,7 @@ describe("useGeocodeQuery hook", () => {
     const eventsOf = (tag: string) => mockLogEvent.mock.calls.filter(([eventType]) => eventType === tag);
 
     it("logs each completed request with its surface, provider and latency", async () => {
+      mockPeliasTestCity();
       const { result } = renderHook(() => useGeocodeQuery({ requirePeliasGid: false, surface: "hero-search" }), {
         wrapper,
       });

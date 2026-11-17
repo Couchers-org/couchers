@@ -1,7 +1,9 @@
 import {
   AUTOCOMPLETE_URL,
+  mockNominatimFallbackCity,
   mockPeliasAutocomplete,
   mockPeliasFailure,
+  mockPeliasTestCity,
   NOMINATIM_SEARCH_URL,
   rest,
   server,
@@ -67,6 +69,7 @@ describe("geocodeSearch", () => {
 
   describe("with the default (auto) setting", () => {
     it("uses Geocode.earth when it is available", async () => {
+      mockPeliasTestCity();
       const { geocodeSearch } = await loadGeocode();
 
       const { provider, results, peliasFeatures } = await geocodeSearch("test", searchOpts());
@@ -188,6 +191,7 @@ describe("geocodeSearch", () => {
     });
 
     it("still serves Geocode.earth results normally", async () => {
+      mockPeliasTestCity();
       const { geocodeSearch } = await loadGeocode();
 
       const { provider, results } = await geocodeSearch("test", searchOpts("auto", true));
@@ -199,6 +203,7 @@ describe("geocodeSearch", () => {
 
   describe("when a provider is forced", () => {
     it("starts on Nominatim and never calls Geocode.earth", async () => {
+      mockNominatimFallbackCity();
       let peliasRequests = 0;
       mockPeliasAutocomplete([], () => {
         peliasRequests += 1;
@@ -255,6 +260,7 @@ describe("geocodeSearch", () => {
     });
 
     it("treats an unrecognised setting as nominatim", async () => {
+      mockNominatimFallbackCity();
       let peliasRequests = 0;
       mockPeliasAutocomplete([], () => {
         peliasRequests += 1;

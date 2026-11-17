@@ -114,7 +114,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(prop
         // Free text is never a place (no coordinates). Return bare false so we
         // don't show a validation message while the list is open; on submit we
         // reopen the list instead (see useLocationAutocompleteOpen).
-        didSelect: (value) => (value === "" || typeof value !== "string"),
+        didSelect: (value) => value === "" || typeof value !== "string",
         isSpecific: (value) => (!value?.isRegion || !disableRegions ? true : t("location_autocomplete.more_specific")),
       },
     },

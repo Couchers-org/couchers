@@ -5,7 +5,7 @@ import { LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { useEffect } from "react";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
-import { mockPosition, rest, REVERSE_URL, server } from "test/restMock";
+import { mockPeliasTestCity, mockPosition, rest, REVERSE_URL, server, TEST_CITY_LABEL } from "test/restMock";
 import { resetFailoverState } from "utils/geocode";
 
 import EditLocationMap from "./EditLocationMap";
@@ -105,6 +105,7 @@ describe("Edit location map", () => {
     });
 
     it("is shrunk again when being populated from a search result", async () => {
+      mockPeliasTestCity();
       const updateLocation = jest.fn();
       render(
         <EditLocationMap
@@ -127,7 +128,7 @@ describe("Edit location map", () => {
       );
       await user.click(
         await screen.findByRole("option", {
-          name: "test city, test county, test country",
+          name: TEST_CITY_LABEL,
         }),
       );
 
@@ -145,6 +146,7 @@ describe("Edit location map", () => {
     });
 
     it("still accepts a search result when the map style is gone", async () => {
+      mockPeliasTestCity();
       MapMock.mockImplementation(({ postMapInitialize }) => {
         useEffect(() => {
           const instance = new MaplibreMap({
@@ -187,7 +189,7 @@ describe("Edit location map", () => {
       );
       await user.click(
         await screen.findByRole("option", {
-          name: "test city, test county, test country",
+          name: TEST_CITY_LABEL,
         }),
       );
 

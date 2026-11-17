@@ -6,13 +6,17 @@ import wrapper, { getHookWrapperWithClient } from "test/hookWrapper";
 import i18n from "test/i18n";
 import {
   AUTOCOMPLETE_URL,
+  FALLBACK_CITY_LABEL,
+  mockNominatimFallbackCity,
   mockPeliasAutocomplete,
   mockPeliasFailure,
   mockPeliasReverse,
+  mockPeliasTestCity,
   mockPosition,
   rest,
   REVERSE_URL,
   server,
+  TEST_CITY_LABEL,
 } from "test/restMock";
 import { resetFailoverState } from "utils/geocode";
 import { GeocodeResult } from "utils/hooks";
@@ -102,6 +106,7 @@ describe("LocationAutocomplete component", () => {
   });
 
   it("successfully searches and submits", async () => {
+    mockPeliasTestCity();
     const onChange = jest.fn();
     renderForm("", onChange);
 
@@ -124,7 +129,7 @@ describe("LocationAutocomplete component", () => {
         expect.objectContaining({
           location: {
             id: "whosonfirst:locality:1",
-            name: "test city, test county, test country",
+            name: TEST_CITY_LABEL,
             simplifiedName: "test city, test country",
             location: { lng: 1.0, lat: 2.0 },
             isRegion: false,
@@ -147,7 +152,7 @@ describe("LocationAutocomplete component", () => {
           properties: {
             gid: "whosonfirst:locality:1",
             layer: "locality",
-            label: "test city, test county, test country",
+            label: TEST_CITY_LABEL,
             name: "test city",
             locality: "test city",
             country: "test country",
@@ -175,6 +180,7 @@ describe("LocationAutocomplete component", () => {
   });
 
   it("selects a typeahead result without needing a submit click", async () => {
+    mockPeliasTestCity();
     const onChange = jest.fn();
     renderForm("", onChange);
 
@@ -266,6 +272,7 @@ describe("LocationAutocomplete component", () => {
   });
 
   it("shows the search result's full display name if showFullDisplayName is true", async () => {
+    mockPeliasTestCity();
     const onChange = jest.fn();
     renderForm("", onChange, { showFullDisplayName: true });
 
@@ -273,7 +280,7 @@ describe("LocationAutocomplete component", () => {
 
     await user.type(await screen.findByLabelText(LABEL), "tes{enter}");
 
-    expect(await screen.findByText("test city, test county, test country")).toBeVisible();
+    expect(await screen.findByText(TEST_CITY_LABEL)).toBeVisible();
   });
 
   it("does not render a search button or enter-to-search hint", async () => {
@@ -310,6 +317,7 @@ describe("LocationAutocomplete component", () => {
   });
 
   it("does not submit the form when Enter is pressed without selecting an option", async () => {
+    mockPeliasTestCity();
     const onChange = jest.fn();
     renderForm("", onChange);
 
@@ -326,6 +334,7 @@ describe("LocationAutocomplete component", () => {
   });
 
   it("reopens results when the form is submitted with free text instead of a selected place", async () => {
+    mockPeliasTestCity();
     const onChange = jest.fn();
     renderForm("", onChange);
 
@@ -350,6 +359,7 @@ describe("LocationAutocomplete component", () => {
   });
 
   it("reopens results on Enter after blur left free text in the field", async () => {
+    mockPeliasTestCity();
     const onChange = jest.fn();
     renderForm("", onChange);
 
@@ -607,6 +617,7 @@ describe("LocationAutocomplete component", () => {
     });
 
     it("explains a denied permission and still allows typing", async () => {
+      mockPeliasTestCity();
       mockPosition(false, 1);
       renderForm("", () => {}, { showUseMyLocation: true });
       const user = userEvent.setup();
@@ -666,7 +677,7 @@ describe("LocationAutocomplete component", () => {
   describe("during a Geocode.earth outage", () => {
     const SEARCH_BUTTON = t("global:location_autocomplete.search_location_button");
     const SEARCH_HINT = t("global:location_autocomplete.search_location_hint");
-    const FALLBACK_RESULT = "fallback city, fallback state, fallback country";
+    const FALLBACK_RESULT = FALLBACK_CITY_LABEL;
 
     const failPelias = () => mockPeliasFailure(503, "unavailable");
 
@@ -796,6 +807,7 @@ describe("LocationAutocomplete component", () => {
 
     it("does not submit the form when Enter triggers a fallback search", async () => {
       failPelias();
+      mockNominatimFallbackCity();
       renderForm("", () => {});
       const user = userEvent.setup();
       const input = await screen.findByLabelText(LABEL);
@@ -867,6 +879,7 @@ describe("LocationAutocomplete component", () => {
 
     it("submits a fallback result that has no provider id", async () => {
       failPelias();
+      mockNominatimFallbackCity();
       renderForm("", () => {});
       const user = userEvent.setup();
       const input = await screen.findByLabelText(LABEL);
