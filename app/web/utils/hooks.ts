@@ -40,12 +40,12 @@ export interface GeocodeResult {
 
 interface GeocodeQueryOptions {
   /**
-   * Required: pass `false` on any surface that persists the chosen location
-   * requiring a gid, since fallback results carry no Pelias `gid`. In that case
-   * it surfaces `isProviderUnavailable` on an outage instead of degraded
+   * Required: pass `true` on any surface that persists the chosen location by its
+   * Pelias `gid`; the fallback provider cannot supply one. In that case the hook
+   * surfaces `isProviderUnavailable` on an outage instead of degraded
    * results, and `provider` never leaves `"pelias"`.
    */
-  allowFallback: boolean;
+  requirePeliasGid: boolean;
   /**
    * Homepage destination search: enables soft city ranking and dedupe by
    * display string. Labels always keep the matched name (venue, address,
@@ -94,7 +94,7 @@ interface GeocodeQueryOptions {
  * unset until the user submits.
  */
 const useGeocodeQuery = (options: GeocodeQueryOptions) => {
-  const { allowFallback } = options;
+  const { requirePeliasGid } = options;
   const surface = options.surface ?? "unknown";
   const preferCity = options.preferCity ?? false;
   const collapseToCity = options.collapseToCity ?? false;
@@ -112,7 +112,7 @@ const useGeocodeQuery = (options: GeocodeQueryOptions) => {
   const providerSettingSource = useFeature("geocode_provider").source;
   const track = useGeocodeTelemetry();
 
-  const [provider, setProvider] = useState<GeocodeProvider>(() => initialProvider(allowFallback, providerSetting));
+  const [provider, setProvider] = useState<GeocodeProvider>(() => initialProvider(requirePeliasGid, providerSetting));
   const providerRef = useRef(provider);
   providerRef.current = provider;
 
@@ -149,8 +149,8 @@ const useGeocodeQuery = (options: GeocodeQueryOptions) => {
     }
     providerSettingRef.current = providerSetting;
     clear();
-    setProvider(initialProvider(allowFallback, providerSetting));
-  }, [allowFallback, clear, providerSetting, setProvider]);
+    setProvider(initialProvider(requirePeliasGid, providerSetting));
+  }, [requirePeliasGid, clear, providerSetting, setProvider]);
 
   const query = useCallback(
     async (value: string) => {
@@ -180,7 +180,7 @@ const useGeocodeQuery = (options: GeocodeQueryOptions) => {
             surface,
             setting: providerSetting,
             setting_source: providerSettingSource,
-            allow_fallback: allowFallback,
+            require_pelias_gid: requirePeliasGid,
             bias: focus === undefined ? "none" : focus === focusRef.current ? "device" : "profile",
             query_length: value.length,
             ...properties,
@@ -197,7 +197,7 @@ const useGeocodeQuery = (options: GeocodeQueryOptions) => {
           fallbackCause,
           awaitingSubmit,
         } = await geocodeSearch(value, {
-          allowFallback,
+          requirePeliasGid,
           providerSetting,
           language: i18n.language,
           preferCity,
@@ -209,7 +209,7 @@ const useGeocodeQuery = (options: GeocodeQueryOptions) => {
           // Nominatim only once the widget is already in submit mode. Read from
           // the ref so an in-flight typeahead still defers after a sibling
           // request has recorded failover, until this hook re-renders.
-          useFallbackProvider: providerRef.current === "nominatim",
+          useFallbackNonTypeaheadProvider: providerRef.current === "nominatim",
         });
 
         if (fallbackCause) {
@@ -287,7 +287,7 @@ const useGeocodeQuery = (options: GeocodeQueryOptions) => {
         // A no-fallback surface hitting an outage is not a query the user got
         // wrong; the consumer shows a "try again shortly" message instead of the
         // provider's raw error text.
-        if (!allowFallback && isOutageError(e)) {
+        if (requirePeliasGid && isOutageError(e)) {
           setIsProviderUnavailable(true);
         } else {
           setError(e instanceof Error ? e.message : "");
@@ -299,7 +299,7 @@ const useGeocodeQuery = (options: GeocodeQueryOptions) => {
       }
     },
     [
-      allowFallback,
+      requirePeliasGid,
       biasToUserLocation,
       clear,
       collapseToCity,

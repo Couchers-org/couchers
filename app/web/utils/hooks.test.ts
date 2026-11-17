@@ -28,7 +28,7 @@ describe("useGeocodeQuery hook", () => {
   });
 
   it("works with expected loading state and result", async () => {
-    const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper });
+    const { result } = renderHook(() => useGeocodeQuery({ requirePeliasGid: false }), { wrapper });
     expect(result.current).toMatchObject({
       isLoading: false,
       error: undefined,
@@ -108,7 +108,7 @@ describe("useGeocodeQuery hook", () => {
       }),
     );
 
-    const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper });
+    const { result } = renderHook(() => useGeocodeQuery({ requirePeliasGid: false }), { wrapper });
     await act(() => result.current.query("first"));
     await waitFor(() => {
       expect(result.current.results?.[0].simplifiedName).toBe("first city, first country");
@@ -140,7 +140,7 @@ describe("useGeocodeQuery hook", () => {
   });
 
   it("clear() drops results and cancels in-flight work", async () => {
-    const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper });
+    const { result } = renderHook(() => useGeocodeQuery({ requirePeliasGid: false }), { wrapper });
     await act(() => result.current.query("test"));
     await waitFor(() => {
       expect(result.current.results).toBeDefined();
@@ -172,7 +172,7 @@ describe("useGeocodeQuery hook", () => {
     );
 
     await act(() => i18n.changeLanguage(language));
-    const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper });
+    const { result } = renderHook(() => useGeocodeQuery({ requirePeliasGid: false }), { wrapper });
     await act(() => result.current.query("test"));
 
     await waitFor(() => {
@@ -238,7 +238,7 @@ describe("useGeocodeQuery hook", () => {
       mockGranted(true);
       const captured = captureParams();
 
-      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true, biasToUserLocation: true }), {
+      const { result } = renderHook(() => useGeocodeQuery({ requirePeliasGid: false, biasToUserLocation: true }), {
         wrapper,
       });
       // Let the permission check and position read settle before querying.
@@ -256,7 +256,7 @@ describe("useGeocodeQuery hook", () => {
       addDefaultUser();
       const captured = captureParams();
 
-      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true, biasToUserLocation: true }), {
+      const { result } = renderHook(() => useGeocodeQuery({ requirePeliasGid: false, biasToUserLocation: true }), {
         wrapper,
       });
       await waitFor(() => expect(getUserMock).toHaveBeenCalled());
@@ -274,7 +274,7 @@ describe("useGeocodeQuery hook", () => {
       addDefaultUser();
       const captured = captureParams();
 
-      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true, biasToUserLocation: true }), {
+      const { result } = renderHook(() => useGeocodeQuery({ requirePeliasGid: false, biasToUserLocation: true }), {
         wrapper,
       });
       await waitFor(() => expect(getUserMock).toHaveBeenCalled());
@@ -291,7 +291,7 @@ describe("useGeocodeQuery hook", () => {
       mockGranted(false);
       const captured = captureParams();
 
-      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true, biasToUserLocation: true }), {
+      const { result } = renderHook(() => useGeocodeQuery({ requirePeliasGid: false, biasToUserLocation: true }), {
         wrapper,
       });
       await act(async () => {});
@@ -309,7 +309,7 @@ describe("useGeocodeQuery hook", () => {
       addDefaultUser();
       const captured = captureParams();
 
-      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper });
+      const { result } = renderHook(() => useGeocodeQuery({ requirePeliasGid: false }), { wrapper });
       await act(async () => {});
       await act(() => result.current.query("london"));
 
@@ -328,7 +328,7 @@ describe("useGeocodeQuery hook", () => {
         return res(ctx.status(400), ctx.text("Generic error"));
       }),
     );
-    const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper });
+    const { result } = renderHook(() => useGeocodeQuery({ requirePeliasGid: false }), { wrapper });
     expect(result.current).toMatchObject({
       isLoading: false,
       error: undefined,
@@ -367,7 +367,7 @@ describe("useGeocodeQuery hook", () => {
           return res(ctx.json([]));
         }),
       );
-      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper });
+      const { result } = renderHook(() => useGeocodeQuery({ requirePeliasGid: false }), { wrapper });
 
       await act(() => result.current.query("test"));
 
@@ -381,7 +381,7 @@ describe("useGeocodeQuery hook", () => {
 
     it("queries Nominatim only after switching to submit mode", async () => {
       failPelias(500);
-      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper });
+      const { result } = renderHook(() => useGeocodeQuery({ requirePeliasGid: false }), { wrapper });
 
       await act(() => result.current.query("test"));
       await waitFor(() => {
@@ -408,7 +408,7 @@ describe("useGeocodeQuery hook", () => {
 
     it("stays on the fallback provider once it has been used", async () => {
       failPelias(500);
-      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper });
+      const { result } = renderHook(() => useGeocodeQuery({ requirePeliasGid: false }), { wrapper });
 
       await act(() => result.current.query("test"));
       await waitFor(() => {
@@ -427,7 +427,7 @@ describe("useGeocodeQuery hook", () => {
 
     it("fails closed when the caller does not allow fallback", async () => {
       failPelias(503);
-      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: false }), { wrapper });
+      const { result } = renderHook(() => useGeocodeQuery({ requirePeliasGid: true }), { wrapper });
 
       await act(() => result.current.query("test"));
 
@@ -443,7 +443,7 @@ describe("useGeocodeQuery hook", () => {
 
     it("reports a bad request as an error even when fallback is disallowed", async () => {
       failPelias(400);
-      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: false }), { wrapper });
+      const { result } = renderHook(() => useGeocodeQuery({ requirePeliasGid: true }), { wrapper });
 
       await act(() => result.current.query("test"));
 
@@ -455,7 +455,7 @@ describe("useGeocodeQuery hook", () => {
 
     it("clears the unavailable state when a later query succeeds", async () => {
       failPelias(503);
-      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: false }), { wrapper });
+      const { result } = renderHook(() => useGeocodeQuery({ requirePeliasGid: true }), { wrapper });
 
       await act(() => result.current.query("test"));
       await waitFor(() => {
@@ -478,7 +478,7 @@ describe("useGeocodeQuery hook", () => {
           return res(ctx.status(500), ctx.text("fallback down"));
         }),
       );
-      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper });
+      const { result } = renderHook(() => useGeocodeQuery({ requirePeliasGid: false }), { wrapper });
 
       await act(() => result.current.query("test"));
       await waitFor(() => {
@@ -509,7 +509,7 @@ describe("useGeocodeQuery hook", () => {
     const eventsOf = (tag: string) => mockLogEvent.mock.calls.filter(([eventType]) => eventType === tag);
 
     it("logs each completed request with its surface, provider and latency", async () => {
-      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true, surface: "hero-search" }), {
+      const { result } = renderHook(() => useGeocodeQuery({ requirePeliasGid: false, surface: "hero-search" }), {
         wrapper,
       });
 
@@ -536,7 +536,7 @@ describe("useGeocodeQuery hook", () => {
 
     it("logs the failover and the deferred request on an outage", async () => {
       failPelias(503);
-      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true, surface: "hero-search" }), {
+      const { result } = renderHook(() => useGeocodeQuery({ requirePeliasGid: false, surface: "hero-search" }), {
         wrapper,
       });
 
@@ -568,7 +568,7 @@ describe("useGeocodeQuery hook", () => {
 
     it("logs an outage on a surface that does not allow fallback", async () => {
       failPelias(503);
-      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: false }), { wrapper });
+      const { result } = renderHook(() => useGeocodeQuery({ requirePeliasGid: true }), { wrapper });
 
       await act(() => result.current.query("test"));
       await waitFor(() => {
@@ -578,7 +578,7 @@ describe("useGeocodeQuery hook", () => {
       expect(eventsOf("geocode.request")).toEqual([
         [
           "geocode.request",
-          expect.objectContaining({ allow_fallback: false, outcome: "outage", status: 503, error_kind: "http" }),
+          expect.objectContaining({ require_pelias_gid: true, outcome: "outage", status: 503, error_kind: "http" }),
           expect.any(Number),
         ],
       ]);
@@ -590,7 +590,7 @@ describe("useGeocodeQuery hook", () => {
       const { wrapper: disabledWrapper } = getHookWrapperWithClient({
         geocode_telemetry_enabled: { defaultValue: false },
       });
-      const { result } = renderHook(() => useGeocodeQuery({ allowFallback: true }), { wrapper: disabledWrapper });
+      const { result } = renderHook(() => useGeocodeQuery({ requirePeliasGid: false }), { wrapper: disabledWrapper });
 
       await act(() => result.current.query("test"));
       await waitFor(() => {

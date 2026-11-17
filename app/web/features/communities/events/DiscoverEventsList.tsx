@@ -130,7 +130,7 @@ const DiscoverEventsList = () => {
       biasToUserLocation
       showUseMyLocation
       // Event search filter, not persisted.
-      allowFallback
+      requirePeliasGid={false}
       autocompleteContext="discover-events-list"
       sx={{
         "#location-autocomplete": {

@@ -244,7 +244,7 @@ const FloatingSearchControls = ({
                 preferCity
                 showUseMyLocation
                 // Search filter only, never persisted.
-                allowFallback
+                requirePeliasGid={false}
                 autocompleteContext="floating-search-controls"
               />
             )}

@@ -57,10 +57,10 @@ interface LocationAutocompleteOutlinedProps {
   // device's position. Prompts for permission, and always leaves manual typing
   // available on any failure.
   showUseMyLocation?: boolean;
-  // Whether a Geocode.earth outage may be served by the legacy fallback
-  // provider. Required, and later must be `false` wherever the chosen location is
-  // persisted — fallback results have no provider id (see utils/geocode.ts).
-  allowFallback: boolean;
+  // Whether the chosen location is persisted by its Pelias gid. Required, and must
+  // be `true` wherever that happens; the geocoding layer decides what that rules
+  // out (see utils/geocode.ts).
+  requirePeliasGid: boolean;
   autocompleteContext: string;
 }
 
@@ -104,7 +104,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     preferCity = false,
     biasToUserLocation = false,
     showUseMyLocation = false,
-    allowFallback,
+    requirePeliasGid,
     autocompleteContext,
   } = props;
   const { t } = useTranslation([GLOBAL]);
@@ -120,7 +120,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     isLoading,
     provider,
     isProviderUnavailable,
-  } = useGeocodeQuery({ preferCity, biasToUserLocation, allowFallback, surface: autocompleteContext });
+  } = useGeocodeQuery({ preferCity, biasToUserLocation, requirePeliasGid, surface: autocompleteContext });
   const searchSession = useLocationSearchSession({
     surface: autocompleteContext,
     provider,

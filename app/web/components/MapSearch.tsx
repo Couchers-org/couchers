@@ -55,10 +55,19 @@ interface MapSearchProps {
   inputFieldError?: FieldError;
   // Force the displayed address to the containing city/locality regardless of
   // what matched (street, venue, address, …), rather than the precise hit.
+  // Whether the chosen location is persisted by its Pelias gid; see
+  // `useGeocodeQuery`. Required so each surface states it.
+  requirePeliasGid: boolean;
   collapseToCity?: boolean;
 }
 
-export default function MapSearch({ setError, setResult, inputFieldError, collapseToCity = false }: MapSearchProps) {
+export default function MapSearch({
+  setError,
+  setResult,
+  inputFieldError,
+  collapseToCity = false,
+  requirePeliasGid,
+}: MapSearchProps) {
   const [value, setValue] = useState("");
   const { t } = useTranslation([GLOBAL]);
 
@@ -76,7 +85,7 @@ export default function MapSearch({ setError, setResult, inputFieldError, collap
   } = useGeocodeQuery({
     biasToUserLocation: true,
     collapseToCity,
-    allowFallback: true,
+    requirePeliasGid,
     surface: MAP_SEARCH_SURFACE,
   });
   const searchSession = useLocationSearchSession({

@@ -24,7 +24,7 @@ const renderForm = (
   onChange: (value: GeocodeResult | "") => void,
   showFullDisplayName = false,
   disableRegions = false,
-  allowFallback = true,
+  requirePeliasGid = false,
   showUseMyLocation = false,
   preferCity = false,
   isPending = false,
@@ -49,7 +49,7 @@ const renderForm = (
           showFullDisplayName={showFullDisplayName}
           fieldError={errors.location?.message}
           disableRegions={disableRegions}
-          allowFallback={allowFallback}
+          requirePeliasGid={requirePeliasGid}
           showUseMyLocation={showUseMyLocation}
           preferCity={preferCity}
           isPending={isPending}
@@ -75,7 +75,7 @@ describe("LocationAutocomplete component", () => {
   });
 
   it("locks the field and shows a spinner while pending", async () => {
-    renderForm("", jest.fn(), false, false, true, false, false, true);
+    renderForm("", jest.fn(), false, false, false, false, false, true);
 
     const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
     expect(input).toHaveAttribute("readonly");
@@ -557,7 +557,7 @@ describe("LocationAutocomplete component", () => {
       const { wrapper: nominatimWrapper } = getHookWrapperWithClient({
         geocode_provider: { defaultValue: "nominatim" },
       });
-      renderForm("", () => {}, false, false, true, true, false, false, nominatimWrapper);
+      renderForm("", () => {}, false, false, false, true, false, false, nominatimWrapper);
       await screen.findByLabelText(LABEL);
       expect(screen.queryByRole("button", { name: BUTTON })).not.toBeInTheDocument();
     });
@@ -566,7 +566,7 @@ describe("LocationAutocomplete component", () => {
       mockPosition(true);
       mockReverse();
       const onChange = jest.fn();
-      renderForm("", onChange, false, false, true, true);
+      renderForm("", onChange, false, false, false, true);
       const user = userEvent.setup();
       const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
 
@@ -612,7 +612,7 @@ describe("LocationAutocomplete component", () => {
         ),
       );
       const onChange = jest.fn();
-      renderForm("", onChange, false, false, true, true, true);
+      renderForm("", onChange, false, false, false, true, true);
       const user = userEvent.setup();
       const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
 
@@ -631,7 +631,7 @@ describe("LocationAutocomplete component", () => {
 
     it("explains a denied permission and still allows typing", async () => {
       mockPosition(false, 1);
-      renderForm("", () => {}, false, false, true, true);
+      renderForm("", () => {}, false, false, false, true);
       const user = userEvent.setup();
       const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
 
@@ -648,7 +648,7 @@ describe("LocationAutocomplete component", () => {
 
     it("explains an unavailable position and still allows typing", async () => {
       mockPosition(false, 2 /* POSITION_UNAVAILABLE */);
-      renderForm("", () => {}, false, false, true, true);
+      renderForm("", () => {}, false, false, false, true);
       const user = userEvent.setup();
       const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
 
@@ -662,7 +662,7 @@ describe("LocationAutocomplete component", () => {
     it("explains a failed provider lookup and still allows typing", async () => {
       mockPosition(true);
       mockReverse(503);
-      renderForm("", () => {}, false, false, true, true);
+      renderForm("", () => {}, false, false, false, true);
       const user = userEvent.setup();
       const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
 
@@ -676,7 +676,7 @@ describe("LocationAutocomplete component", () => {
     it("reports when the provider has nothing at that point", async () => {
       mockPosition(true);
       server.use(rest.get(REVERSE_URL, (_req, res, ctx) => res(ctx.json({ type: "FeatureCollection", features: [] }))));
-      renderForm("", () => {}, false, false, true, true);
+      renderForm("", () => {}, false, false, false, true);
       const user = userEvent.setup();
       await screen.findByLabelText(LABEL);
 
@@ -722,7 +722,7 @@ describe("LocationAutocomplete component", () => {
 
     it("hides use my location after failing over to Nominatim", async () => {
       failPelias();
-      renderForm("", () => {}, false, false, true, true);
+      renderForm("", () => {}, false, false, false, true);
       const user = userEvent.setup();
       const input = await screen.findByLabelText(LABEL);
       const useMyLocation = t("global:use_my_location.button_a11y");
@@ -872,7 +872,7 @@ describe("LocationAutocomplete component", () => {
       });
     });
 
-    it("fails closed with a retry message when allowFallback is false", async () => {
+    it("fails closed with a retry message when requirePeliasGid is true", async () => {
       failPelias();
       let fallbackRequests = 0;
       server.use(
@@ -881,7 +881,7 @@ describe("LocationAutocomplete component", () => {
           return res(ctx.json([]));
         }),
       );
-      renderForm("", () => {}, false, false, false);
+      renderForm("", () => {}, false, false, true);
       const user = userEvent.setup();
       const input = await screen.findByLabelText(LABEL);
 

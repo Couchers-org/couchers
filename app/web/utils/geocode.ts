@@ -25,7 +25,7 @@ import { autocomplete, PeliasError, toPeliasLanguage } from "utils/pelias";
  * `gid`. A surface that *persists* the gid as our location identity
  * (re: issue #10160) must therefore fail closed rather than fall back — writing a
  * location with no gid, or an id from another namespace, is not recoverable.
- * Those surfaces pass `allowFallback: false`, which guarantees results only ever
+ * Those surfaces pass `requirePeliasGid: true`, which guarantees results only ever
  * come from Pelias, including when a provider has been forced.
  */
 
@@ -66,8 +66,8 @@ export function resetFailoverState() {
 
 // Should this search skip Geocode.earth entirely? True when Nominatim is forced,
 // or when auto mode already knows Pelias is unavailable.
-function shouldSkipPelias(allowFallback: boolean, setting: ProviderSetting): boolean {
-  if (!allowFallback) {
+function shouldSkipPelias(requirePeliasGid: boolean, setting: ProviderSetting): boolean {
+  if (requirePeliasGid) {
     return false;
   }
   return setting === "nominatim" || (setting === "auto" && hasFailedOver);
@@ -78,8 +78,8 @@ function shouldSkipPelias(allowFallback: boolean, setting: ProviderSetting): boo
  * results always starts — and stays — on Pelias, so its UI never switches to the
  * legacy submit mode.
  */
-export function initialProvider(allowFallback: boolean, setting: ProviderSetting): GeocodeProvider {
-  return shouldSkipPelias(allowFallback, setting) ? "nominatim" : "pelias";
+export function initialProvider(requirePeliasGid: boolean, setting: ProviderSetting): GeocodeProvider {
+  return shouldSkipPelias(requirePeliasGid, setting) ? "nominatim" : "pelias";
 }
 
 /**
@@ -103,15 +103,15 @@ export function isOutageError(error: unknown): boolean {
 
 export interface GeocodeSearchOptions {
   /**
-   * May this search be served by the legacy fallback provider? Deliberately
-   * required rather than defaulted, so a new call site has to state which kind of
-   * surface it is instead of silently inheriting the wrong answer.
+   * Does the caller persist the resolved location by its Pelias `gid` (re: issue
+   * #10160)? Deliberately required rather than defaulted, so a new call site has
+   * to state which kind of surface it is instead of silently inheriting the wrong
+   * answer. Whether and how to fall back is decided here, not by the caller.
    *
-   * `false` means Pelias only — no fallback on an outage, and the forced
-   * `nominatim` setting is refused too. Use it for anything that persists the
-   * resolved location, since fallback results have no Pelias `gid`.
+   * `true` means Pelias only: no fallback on an outage, and the forced
+   * `nominatim` setting is refused too, since fallback results have no `gid`.
    */
-  allowFallback: boolean;
+  requirePeliasGid: boolean;
   /**
    * Runtime provider mode from GrowthBook / env default. Required so callers
    * cannot silently re-read configuration from process.env.
@@ -127,11 +127,12 @@ export interface GeocodeSearchOptions {
   focus?: FocusPoint;
   signal?: AbortSignal;
   /**
-   * Query Nominatim when auto mode has already failed over. Typeahead must leave
-   * this false: public Nominatim forbids as-you-type use, so an outage only
-   * flips the session into submit mode. Submit-mode widgets pass true.
+   * Query the legacy Nominatim provider (non-typeahead) when auto mode has already
+   * failed over. Typeahead must leave this false: public Nominatim forbids
+   * as-you-type use, so an outage only flips the session into submit mode.
+   * Submit-mode widgets pass true.
    */
-  useFallbackProvider?: boolean;
+  useFallbackNonTypeaheadProvider?: boolean;
 }
 
 export interface GeocodeSearchResult {
@@ -163,21 +164,21 @@ function deferNominatim(fallbackCause?: PeliasError): GeocodeSearchResult {
 
 /**
  * Run a forward search against the active provider, falling back to Nominatim if
- * Geocode.earth is unavailable and the caller allows it.
+ * Geocode.earth is unavailable and the caller does not require a Pelias gid.
  *
  * A deliberate cancellation (a newer keystroke aborting `options.signal`) is
  * never treated as an outage and never triggers a fallback request.
  *
  * Discovering an outage never queries Nominatim in the same turn: it records
  * failover and returns `awaitingSubmit` so the widget can switch to submit
- * mode. The next search, with `useFallbackProvider: true`, is the one that
+ * mode. The next search, with `useFallbackNonTypeaheadProvider: true`, is the one that
  * may hit Nominatim.
  */
 export async function geocodeSearch(text: string, options: GeocodeSearchOptions): Promise<GeocodeSearchResult> {
-  const { allowFallback, providerSetting: setting, useFallbackProvider } = options;
+  const { requirePeliasGid, providerSetting: setting, useFallbackNonTypeaheadProvider } = options;
 
-  if (shouldSkipPelias(allowFallback, setting)) {
-    if (setting === "nominatim" || useFallbackProvider) {
+  if (shouldSkipPelias(requirePeliasGid, setting)) {
+    if (setting === "nominatim" || useFallbackNonTypeaheadProvider) {
       return viaNominatim(text, options);
     }
     return deferNominatim();
@@ -195,7 +196,7 @@ export async function geocodeSearch(text: string, options: GeocodeSearchOptions)
   } catch (error) {
     // Fail closed: a surface that persists the result would rather show an error
     // than store a location the fallback provider cannot identify.
-    if (!allowFallback) {
+    if (requirePeliasGid) {
       throw error;
     }
     if (setting === "pelias" || options.signal?.aborted) {
@@ -205,7 +206,7 @@ export async function geocodeSearch(text: string, options: GeocodeSearchOptions)
       throw error;
     }
     hasFailedOver = true;
-    if (useFallbackProvider) {
+    if (useFallbackNonTypeaheadProvider) {
       const result = await viaNominatim(text, options);
       return { ...result, fallbackCause: error as PeliasError };
     }

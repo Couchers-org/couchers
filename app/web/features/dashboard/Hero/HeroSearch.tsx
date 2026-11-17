@@ -84,7 +84,7 @@ export default function HeroSearch() {
           defaultValue={""}
           // Destination search only — the result is never persisted, so degraded
           // fallback results are better than no search at all.
-          allowFallback
+          requirePeliasGid={false}
           isPending={isNavigating}
           onChange={(value) => {
             if (value && value.bbox && value.simplifiedName) {

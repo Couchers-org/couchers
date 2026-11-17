@@ -294,6 +294,7 @@ export default function EditLocationMap({
           <MapSearch
             inputFieldError={inputFieldError}
             collapseToCity={collapseToCity}
+            requirePeliasGid={false} /* temporary, re: #10160 */
             setError={setError}
             setResult={(coordinate, _, simplified) => {
               commit({ address: simplified }, false);

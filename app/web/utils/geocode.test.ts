@@ -20,8 +20,8 @@ const failPelias = (status: number, body = "unavailable") =>
     }),
   );
 
-const searchOpts = (providerSetting: ProviderSetting = "auto", allowFallback = true) => ({
-  allowFallback,
+const searchOpts = (providerSetting: ProviderSetting = "auto", requirePeliasGid = false) => ({
+  requirePeliasGid,
   providerSetting,
 });
 
@@ -98,7 +98,7 @@ describe("geocodeSearch", () => {
       expect(first.fallbackCause?.message).toBe("gateway down");
       expect(nominatimRequests).toBe(0);
 
-      const second = await geocodeSearch("test", { ...searchOpts(), useFallbackProvider: true });
+      const second = await geocodeSearch("test", { ...searchOpts(), useFallbackNonTypeaheadProvider: true });
 
       expect(second.provider).toBe("nominatim");
       expect(second.awaitingSubmit).toBeUndefined();
@@ -176,7 +176,7 @@ describe("geocodeSearch", () => {
       const fallback = countFallbackRequests();
       const { geocodeSearch } = await loadGeocode();
 
-      await expect(geocodeSearch("test", searchOpts("auto", false))).rejects.toThrow("gateway down");
+      await expect(geocodeSearch("test", searchOpts("auto", true))).rejects.toThrow("gateway down");
       expect(fallback.count).toBe(0);
     });
 
@@ -185,15 +185,15 @@ describe("geocodeSearch", () => {
       const fallback = countFallbackRequests();
       const { geocodeSearch, initialProvider } = await loadGeocode();
 
-      expect(initialProvider(false, "nominatim")).toBe("pelias");
-      await expect(geocodeSearch("test", searchOpts("nominatim", false))).rejects.toThrow("gateway down");
+      expect(initialProvider(true, "nominatim")).toBe("pelias");
+      await expect(geocodeSearch("test", searchOpts("nominatim", true))).rejects.toThrow("gateway down");
       expect(fallback.count).toBe(0);
     });
 
     it("still serves Geocode.earth results normally", async () => {
       const { geocodeSearch } = await loadGeocode();
 
-      const { provider, results } = await geocodeSearch("test", searchOpts("auto", false));
+      const { provider, results } = await geocodeSearch("test", searchOpts("auto", true));
 
       expect(provider).toBe("pelias");
       expect(results[0].id).toBe("whosonfirst:locality:1");
@@ -211,7 +211,7 @@ describe("geocodeSearch", () => {
       );
       const { geocodeSearch, initialProvider } = await loadGeocode();
 
-      expect(initialProvider(true, "nominatim")).toBe("nominatim");
+      expect(initialProvider(false, "nominatim")).toBe("nominatim");
       const { provider } = await geocodeSearch("test", searchOpts("nominatim"));
 
       expect(provider).toBe("nominatim");
@@ -229,7 +229,7 @@ describe("geocodeSearch", () => {
       );
       const { geocodeSearch, initialProvider } = await loadGeocode();
 
-      expect(initialProvider(true, "pelias")).toBe("pelias");
+      expect(initialProvider(false, "pelias")).toBe("pelias");
       await expect(geocodeSearch("test", searchOpts("pelias"))).rejects.toThrow("gateway down");
       expect(fallbackRequests).toBe(0);
     });
@@ -251,10 +251,10 @@ describe("geocodeSearch", () => {
       const { geocodeSearch, initialProvider } = await loadGeocode();
 
       await geocodeSearch("test", searchOpts("auto"));
-      expect(initialProvider(true, "auto")).toBe("nominatim");
+      expect(initialProvider(false, "auto")).toBe("nominatim");
       expect(nominatimRequests).toBe(0);
 
-      expect(initialProvider(true, "pelias")).toBe("pelias");
+      expect(initialProvider(false, "pelias")).toBe("pelias");
       await expect(geocodeSearch("test", searchOpts("pelias"))).rejects.toThrow("gateway down");
       expect(peliasRequests).toBeGreaterThan(0);
       expect(nominatimRequests).toBe(0);
@@ -272,7 +272,7 @@ describe("geocodeSearch", () => {
       const setting = normalizeProviderSetting("bogus");
 
       expect(setting).toBe("nominatim");
-      expect(initialProvider(true, setting)).toBe("nominatim");
+      expect(initialProvider(false, setting)).toBe("nominatim");
       const { provider } = await geocodeSearch("test", searchOpts(setting));
 
       expect(provider).toBe("nominatim");
