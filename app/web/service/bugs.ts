@@ -52,7 +52,9 @@ export async function geolocationSearchInfo({
   durationMs,
 }: {
   searchString: string;
-  // Proto field name is historical; callers send Pelias or Nominatim provider JSON here.
+  /**
+   * Proto field name is historical; callers send Pelias or Nominatim provider JSON here.
+   */
   nominatimResultJson: string;
   formattedResultJson: string;
   durationMs: number;

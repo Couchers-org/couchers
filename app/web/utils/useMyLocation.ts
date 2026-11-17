@@ -29,19 +29,25 @@ const GEOLOCATION_OPTIONS: PositionOptions = {
 };
 
 export interface UseMyLocationOptions {
-  // Soft city-oriented ranking for destination-search fields. Labels keep the
-  // matched name (street/venue/address); preferCity does not collapse them to
-  // the containing city. Leave unset for address fields.
+  /**
+   * Soft city-oriented ranking for destination-search fields. Labels keep the
+   * matched name (street/venue/address); preferCity does not collapse them to
+   * the containing city. Leave unset for address fields.
+   */
   preferCity?: boolean;
-  // Force the label to the containing city/locality regardless of what
-  // matched. For approximate-location fields (a user's home) where the
-  // precise hit must never be shown. Independent of `preferCity`.
+  /**
+   * Force the label to the containing city/locality regardless of what
+   * matched. For approximate-location fields (a user's home) where the
+   * precise hit must never be shown. Independent of `preferCity`.
+   */
   collapseToCity?: boolean;
 }
 
 export interface UseMyLocationResult {
-  // Ask for the position and resolve it. Resolves to the place, or undefined if
-  // anything went wrong (in which case `error` holds a translated message).
+  /**
+   * Ask for the position and resolve it. Resolves to the place, or undefined if
+   * anything went wrong (in which case `error` holds a translated message).
+   */
   getMyLocation: () => Promise<GeocodeResult | undefined>;
   isLoading: boolean;
   error: string | undefined;

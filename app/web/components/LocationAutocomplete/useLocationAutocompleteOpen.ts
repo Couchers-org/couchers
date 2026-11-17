@@ -13,7 +13,9 @@ type UseLocationAutocompleteOpenArgs = {
   enableSubmitReopen?: boolean;
   freeTextForSubmit?: string;
   submitCount?: number;
-  // Called when a form submit reopens the list (telemetry).
+  /**
+   * Called when a form submit reopens the list (telemetry).
+   */
   onSubmitReopen?: () => void;
 };
 

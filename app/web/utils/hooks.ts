@@ -25,12 +25,16 @@ function useIsClient() {
 }
 
 export interface GeocodeResult {
-  // Stable provider id (Pelias `gid`). Consumed by the storage stories
-  // (re: issue #10160); the homepage widget only needs the label + bbox.
+  /**
+   * Stable provider id (Pelias `gid`). Consumed by the storage stories
+   * (re: issue #10160); the homepage widget only needs the label + bbox.
+   */
   id?: string;
-  // Full display name. For a venue with a known street address, this is the
-  // venue name plus that address (Pelias's own label omits it) — see
-  // `withVenueStreetAddress` in `utils/pelias.ts`.
+  /**
+   * Full display name. For a venue with a known street address, this is the
+   * venue name plus that address (Pelias's own label omits it) — see
+   * `withVenueStreetAddress` in `utils/pelias.ts`.
+   */
   name: string;
   simplifiedName: string;
   location: LngLat;

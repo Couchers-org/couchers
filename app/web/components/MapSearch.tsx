@@ -53,10 +53,12 @@ interface MapSearchProps {
   setError: (error: string) => void;
   setResult: (lngLat: LngLat, address: string, simplifiedAddress: string) => void;
   inputFieldError?: FieldError;
-  // Force the displayed address to the containing city/locality regardless of
-  // what matched (street, venue, address, …), rather than the precise hit.
-  // Whether the chosen location is persisted by its Pelias gid; see
-  // `useGeocodeQuery`. Required so each surface states it.
+  /**
+   * Force the displayed address to the containing city/locality regardless of
+   * what matched (street, venue, address, …), rather than the precise hit.
+   * Whether the chosen location is persisted by its Pelias gid; see
+   * `useGeocodeQuery`. Required so each surface states it.
+   */
   requirePeliasGid: boolean;
   collapseToCity?: boolean;
 }

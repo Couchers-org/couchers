@@ -17,18 +17,28 @@ import type { GeocodeResult } from "utils/hooks";
 
 // A Pelias GeoJSON feature as returned by GET /v1/autocomplete.
 export interface PeliasFeatureProperties {
-  // Stable global id in the form "{source}:{layer}:{id}",
-  // e.g. "whosonfirst:locality:101751119".
+  /**
+   * Stable global id in the form "{source}:{layer}:{id}",
+   * e.g. "whosonfirst:locality:101751119".
+   */
   gid: string;
-  // Clean place-type field, e.g. "locality", "region", "country", "venue".
+  /**
+   * Clean place-type field, e.g. "locality", "region", "country", "venue".
+   */
   layer: string;
-  // Full formatted display name, e.g. "Paris, Île-de-France, France".
+  /**
+   * Full formatted display name, e.g. "Paris, Île-de-France, France".
+   */
   label: string;
-  // Primary matched name, e.g. "Paris".
+  /**
+   * Primary matched name, e.g. "Paris".
+   */
   name: string;
   country?: string;
-  // ISO 3166-1 alpha-3, e.g. "FRA".
-  // Note: Mapping to alpha-2 is deferred to the storage implementation (re: issue #10160); for now: display label + bbox.
+  /**
+   * ISO 3166-1 alpha-3, e.g. "FRA".
+   * Note: Mapping to alpha-2 is deferred to the storage implementation (re: issue #10160); for now: display label + bbox.
+   */
   country_a?: string;
   macroregion?: string;
   region?: string;
@@ -42,8 +52,10 @@ export interface PeliasFeatureProperties {
   borough?: string;
   neighbourhood?: string;
   continent?: string;
-  // Street-level address components, present on many venues in addition to
-  // `address` features
+  /**
+   * Street-level address components, present on many venues in addition to
+   * `address` features
+   */
   housenumber?: string;
   street?: string;
 }
@@ -52,12 +64,16 @@ export interface PeliasFeature {
   type: "Feature";
   geometry: {
     type: "Point";
-    // [longitude, latitude]
+    /**
+     * [longitude, latitude]
+     */
     coordinates: [number, number];
   };
   properties: PeliasFeatureProperties;
-  // [minLon, minLat, maxLon, maxLat] — present for areas, absent for point
-  // results such as a precise address or venue.
+  /**
+   * [minLon, minLat, maxLon, maxLat] — present for areas, absent for point
+   * results such as a precise address or venue.
+   */
   bbox?: [number, number, number, number];
 }
 
@@ -473,9 +489,11 @@ export async function reverse(
   lon: number,
   options: {
     language?: string;
-    // Accepted for symmetry with `autocomplete`, where it soft-reorders the
-    // result list. A reverse lookup returns one ranked list about a single
-    // point and no label depends on it, so it is deliberately unused here.
+    /**
+     * Accepted for symmetry with `autocomplete`, where it soft-reorders the
+     * result list. A reverse lookup returns one ranked list about a single
+     * point and no label depends on it, so it is deliberately unused here.
+     */
     preferCity?: boolean;
     collapseToCity?: boolean;
     signal?: AbortSignal;
@@ -507,16 +525,20 @@ export async function reverse(
 export interface AutocompleteOptions {
   language?: string;
   focus?: FocusPoint;
-  // Destination-search ranking: promote the first city/venue over a leading
-  // neighbourhood or macrocounty, and cap venue/address/street/intersection
-  // hits at `MAX_PRECISE_RESULTS` so a common business name cannot fill the
-  // list. Does not pass `layers` to Pelias. Labels always keep the matched
-  // name; preferCity does not collapse them to a city.
+  /**
+   * Destination-search ranking: promote the first city/venue over a leading
+   * neighbourhood or macrocounty, and cap venue/address/street/intersection
+   * hits at `MAX_PRECISE_RESULTS` so a common business name cannot fill the
+   * list. Does not pass `layers` to Pelias. Labels always keep the matched
+   * name; preferCity does not collapse them to a city.
+   */
   preferCity?: boolean;
-  // Force labels to the containing city/locality regardless of what matched
-  // (street, venue, address, …). For approximate-location fields (a user's
-  // home) where the precise hit must never be shown. Independent of
-  // `preferCity`.
+  /**
+   * Force labels to the containing city/locality regardless of what matched
+   * (street, venue, address, …). For approximate-location fields (a user's
+   * home) where the precise hit must never be shown. Independent of
+   * `preferCity`.
+   */
   collapseToCity?: boolean;
   signal?: AbortSignal;
 }

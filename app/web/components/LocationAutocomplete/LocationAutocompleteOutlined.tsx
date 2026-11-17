@@ -36,8 +36,10 @@ interface LocationAutocompleteOutlinedProps {
   fieldError?: string | undefined;
   fullWidth?: boolean;
   hasSearchValue?: boolean;
-  // Where to render hints and errors, so they take their own space instead of
-  // growing a fixed-height host. Rendered under the field when not provided.
+  /**
+   * Where to render hints and errors, so they take their own space instead of
+   * growing a fixed-height host. Rendered under the field when not provided.
+   */
   helperTextContainer?: HTMLElement | null;
   id?: string;
   InputProps?: InputProps;
@@ -48,18 +50,26 @@ interface LocationAutocompleteOutlinedProps {
   placeholder?: string;
   required?: string;
   showFullDisplayName?: boolean;
-  // Soft-promote city hits over a leading neighbourhood, macrocounty, venue, address etc.
+  /**
+   * Soft-promote city hits over a leading neighbourhood, macrocounty, venue, address etc.
+   */
   preferCity?: boolean;
-  // Rank places near the user's approximate location higher. Silent
-  // best-effort: no permission prompt, unbiased results when unavailable
+  /**
+   * Rank places near the user's approximate location higher. Silent
+   * best-effort: no permission prompt, unbiased results when unavailable
+   */
   biasToUserLocation?: boolean;
-  // Show the "use my location" button, which fills the field from the
-  // device's position. Prompts for permission, and always leaves manual typing
-  // available on any failure.
+  /**
+   * Show the "use my location" button, which fills the field from the
+   * device's position. Prompts for permission, and always leaves manual typing
+   * available on any failure.
+   */
   showUseMyLocation?: boolean;
-  // Whether the chosen location is persisted by its Pelias gid. Required, and must
-  // be `true` wherever that happens; the geocoding layer decides what that rules
-  // out (see utils/geocode.ts).
+  /**
+   * Whether the chosen location is persisted by its Pelias gid. Required, and must
+   * be `true` wherever that happens; the geocoding layer decides what that rules
+   * out (see utils/geocode.ts).
+   */
   requirePeliasGid: boolean;
   autocompleteContext: string;
 }

@@ -7,9 +7,13 @@ import { ReactNode } from "react";
 interface DashboardSectionHeaderProps {
   icon: SvgIconComponent;
   title: string;
-  // shown as a badge next to the title when greater than zero
+  /**
+   * shown as a badge next to the title when greater than zero
+   */
   count?: number;
-  // extra content shown before the arrows, e.g. a "manage" link
+  /**
+   * extra content shown before the arrows, e.g. a "manage" link
+   */
   action?: ReactNode;
   hasPrevious: boolean;
   hasNext: boolean;

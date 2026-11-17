@@ -85,9 +85,13 @@ async function recordDismissal(
 }
 
 export interface NativeDiagnostics {
-  // The update prompt to render right now, or null when nothing should be shown.
+  /**
+   * The update prompt to render right now, or null when nothing should be shown.
+   */
   prompt: UpdatePrompt | null;
-  // Dismisses the current prompt (no-op for non-dismissible "block" prompts).
+  /**
+   * Dismisses the current prompt (no-op for non-dismissible "block" prompts).
+   */
   dismiss: () => void;
 }
 

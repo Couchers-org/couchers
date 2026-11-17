@@ -134,7 +134,9 @@ export const normalize = (place: NominatimPlace): GeocodeResult => {
 };
 
 export interface SearchOptions {
-  // BCP-47 UI locale, passed straight through as Nominatim's `accept-language`.
+  /**
+   * BCP-47 UI locale, passed straight through as Nominatim's `accept-language`.
+   */
   language?: string;
   signal?: AbortSignal;
 }

@@ -39,22 +39,30 @@ interface LocationAutocompleteProps {
   required?: string;
   showFullDisplayName?: boolean;
   disableRegions?: boolean;
-  // Soft-promote city hits over a leading neighbourhood, macrocounty, venue, address etc.
+  /** Soft-promote city hits over a leading neighbourhood, macrocounty, venue, address etc */
   preferCity?: boolean;
-  // Rank places near the user's approximate location higher. Silent
-  // best-effort: no permission prompt, unbiased results when unavailable
+  /**
+   * Rank places near the user's approximate location higher. Silent
+   * best-effort: no permission prompt, unbiased results when unavailable
+   */
   biasToUserLocation?: boolean;
-  // Show the "use my location" button, which fills the field from the
-  // device's position. Prompts for permission, and always leaves manual typing
-  // available on any failure.
+  /**
+   * Show the "use my location" button, which fills the field from the
+   * device's position. Prompts for permission, and always leaves manual typing
+   * available on any failure.
+   */
   showUseMyLocation?: boolean;
-  // Whether the chosen location is persisted by its Pelias gid. Required, and must
-  // be `true` wherever that happens; the geocoding layer decides what that rules
-  // out (see utils/geocode.ts).
+  /**
+   * Whether the chosen location is persisted by its Pelias gid. Required, and must
+   * be `true` wherever that happens; the geocoding layer decides what that rules
+   * out (see utils/geocode.ts).
+   */
   requirePeliasGid: boolean;
   autocompleteContext: string;
-  // Parent is navigating / submitting after a selection: lock the field and
-  // show a spinner so the user doesn't keep typing into a dead zone.
+  /**
+   * Parent is navigating / submitting after a selection: lock the field and
+   * show a spinner so the user doesn't keep typing into a dead zone.
+   */
   isPending?: boolean;
   sx?: SxProps<Theme>;
 }

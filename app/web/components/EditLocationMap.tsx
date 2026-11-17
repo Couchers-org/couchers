@@ -40,19 +40,27 @@ export interface ApproximateLocation {
 
 export interface EditLocationMapProps extends BoxProps {
   initialLocation?: ApproximateLocation;
-  // this function is called on mouse release
+  /**
+   * this function is called on mouse release
+   */
   updateLocation: (value: ApproximateLocation | null) => void;
   grow?: boolean;
-  // whether to hide the radius slider
+  /**
+   * whether to hide the radius slider
+   */
   showRadiusSlider?: boolean;
-  // whether we are selecting an exact point (for pages, etc) or approx circle, doesn't maeks ense with radius slider
+  /**
+   * whether we are selecting an exact point (for pages, etc) or approx circle, doesn't maeks ense with radius slider
+   */
   exact?: boolean;
   inputFieldError?: FieldError | undefined;
   variant?: "standard" | "outlined" | "filled";
-  // Force the displayed/stored address to the containing city/locality rather
-  // than the precise matched place (street, venue, address, …). Set this for
-  // approximate, privacy-sensitive locations (a user's home); leave it off for
-  // an exact place.
+  /**
+   * Force the displayed/stored address to the containing city/locality rather
+   * than the precise matched place (street, venue, address, …). Set this for
+   * approximate, privacy-sensitive locations (a user's home); leave it off for
+   * an exact place.
+   */
   collapseToCity?: boolean;
 }
 

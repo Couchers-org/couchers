@@ -28,8 +28,10 @@ const StyledMuiTextField = styled(MuiTextField)<TextFieldProps>(({ theme, multil
 }));
 
 type AccessibleTextFieldProps = Omit<TextFieldProps, "variant"> & {
-  // id is required for accessibility, but optional when used inside Autocomplete
-  // (Autocomplete provides the id via inputProps)
+  /**
+   * id is required for accessibility, but optional when used inside Autocomplete
+   * (Autocomplete provides the id via inputProps)
+   */
   id?: BaseTextFieldProps["id"];
   onChange?: TextFieldProps["onChange"];
   variant?: "filled" | "outlined" | "standard";

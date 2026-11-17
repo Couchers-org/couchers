@@ -117,13 +117,17 @@ export interface GeocodeSearchOptions {
    * cannot silently re-read configuration from process.env.
    */
   providerSetting: ProviderSetting;
-  // BCP-47 UI locale (e.g. "pt-BR"); narrowed per provider.
+  /**
+   * BCP-47 UI locale (e.g. "pt-BR"); narrowed per provider.
+   */
   language?: string;
   preferCity?: boolean;
   collapseToCity?: boolean; // only affects Pelias
-  // Soft ranking bias toward the user's approximate location. Pelias only
-  // (Nominatim's viewbox is a different, harder mechanism we don't replicate for
-  // the deprecated fallback path). Omitted entirely when unknown.
+  /**
+   * Soft ranking bias toward the user's approximate location. Pelias only
+   * (Nominatim's viewbox is a different, harder mechanism we don't replicate for
+   * the deprecated fallback path). Omitted entirely when unknown.
+   */
   focus?: FocusPoint;
   signal?: AbortSignal;
   /**
@@ -138,10 +142,14 @@ export interface GeocodeSearchOptions {
 export interface GeocodeSearchResult {
   results: GeocodeResult[];
   provider: GeocodeProvider;
-  // Raw provider payload for `GeolocationSearchInfo` telemetry.
+  /**
+   * Raw provider payload for `GeolocationSearchInfo` telemetry.
+   */
   peliasFeatures?: unknown[];
   nominatimPlaces?: unknown[];
-  // The Pelias failure that caused the fallback, when one happened.
+  /**
+   * The Pelias failure that caused the fallback, when one happened.
+   */
   fallbackCause?: PeliasError;
   /**
    * Pelias is down (or already known down) and this request was not allowed to
