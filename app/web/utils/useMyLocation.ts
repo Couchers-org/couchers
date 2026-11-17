@@ -1,7 +1,7 @@
 import { useTranslation } from "next-i18next";
 import Sentry from "platform/sentry";
 import { useCallback, useRef, useState } from "react";
-import { useGeocodeTelemetry } from "utils/geocodeTelemetry";
+import { GeocodeEvent, useGeocodeTelemetry } from "utils/geocodeTelemetry";
 import type { GeocodeResult } from "utils/hooks";
 import { PeliasError, reverse, toPeliasLanguage } from "utils/pelias";
 
@@ -74,7 +74,7 @@ export default function useMyLocation({
     const isStale = () => requestId !== latestRequestIdRef.current;
     const startTime = performance.now();
     const trackOutcome = (outcome: string, properties: Record<string, unknown> = {}) =>
-      track("geocode.my_location", { outcome, ...properties }, performance.now() - startTime);
+      track(GeocodeEvent.MyLocation, { outcome, ...properties }, performance.now() - startTime);
 
     setError(undefined);
 

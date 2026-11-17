@@ -13,7 +13,7 @@ import {
   isOutageError,
   normalizeProviderSetting,
 } from "utils/geocode";
-import { useGeocodeTelemetry } from "utils/geocodeTelemetry";
+import { GeocodeEvent, useGeocodeTelemetry } from "utils/geocodeTelemetry";
 import { PeliasError } from "utils/pelias";
 import useLocationBias from "utils/useLocationBias";
 import useProfileLocationBias from "utils/useProfileLocationBias";
@@ -74,7 +74,7 @@ interface GeocodeQueryOptions {
    */
   biasToUserLocation?: boolean;
   /**
-   * Names the widget in `geocode.request` / `geocode.failover` telemetry (see
+   * Names the widget in `GeocodeEvent.Request` / `GeocodeEvent.Failover` telemetry (see
    * `utils/geocodeTelemetry.ts`).
    */
   surface?: string;
@@ -179,7 +179,7 @@ const useGeocodeQuery = (options: GeocodeQueryOptions) => {
       const focus = biasToUserLocation ? (focusRef.current ?? profileFocus) : undefined;
       const trackRequest = (properties: Record<string, unknown>) =>
         track(
-          "geocode.request",
+          GeocodeEvent.Request,
           {
             surface,
             setting: providerSetting,
@@ -217,7 +217,7 @@ const useGeocodeQuery = (options: GeocodeQueryOptions) => {
         });
 
         if (fallbackCause) {
-          track("geocode.failover", {
+          track(GeocodeEvent.Failover, {
             surface,
             setting: providerSetting,
             cause_status: fallbackCause.status ?? null,

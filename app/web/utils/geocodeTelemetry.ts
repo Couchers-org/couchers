@@ -13,20 +13,27 @@ import type { GeocodeResult } from "utils/hooks";
  * GrowthBook itself is unreachable, which is exactly when outage diagnostics
  * matter most.
  *
- * Events:
- * - `geocode.request`: one per forward-search request, value = latency in ms.
- * - `geocode.failover`: a Geocode.earth outage switched to the fallback path.
- * - `geocode.my_location`: outcome of a "use my location" lookup, value = ms.
- * - `location_autocomplete.session`: one per widget interaction, from the first
- *   keystroke to its outcome, value = ms.
- * - `location_autocomplete.reselected`: the user started editing again shortly
- *   after picking a result (likely a wrong pick or a misleading label).
- *
  * Raw query text is never logged here (it is already recorded, with the raw
  * provider payload, by `GeolocationSearchInfo`); only lengths and counts are.
  */
 
-type GeocodeTelemetry = (eventType: string, properties?: Record<string, unknown>, value?: number) => void;
+/** Event names sent by this module, see each entry for what it means. */
+export const GeocodeEvent = {
+  /** One per forward-search request, value = latency in ms. */
+  Request: "geocode.request",
+  /** A Geocode.earth outage switched to the fallback path. */
+  Failover: "geocode.failover",
+  /** Outcome of a "use my location" lookup, value = ms. */
+  MyLocation: "geocode.my_location",
+  /** One per widget interaction, from the first keystroke to its outcome, value = ms. */
+  Session: "location_autocomplete.session",
+  /** The user started editing again shortly after picking a result (likely a wrong pick or a misleading label). */
+  Reselected: "location_autocomplete.reselected",
+} as const;
+
+type GeocodeEventType = (typeof GeocodeEvent)[keyof typeof GeocodeEvent];
+
+type GeocodeTelemetry = (eventType: GeocodeEventType, properties?: Record<string, unknown>, value?: number) => void;
 
 type SessionOutcome = "selected" | "used_my_location" | "cleared" | "abandoned" | "left_page";
 
@@ -76,7 +83,7 @@ function sameResult(a: GeocodeResult, b: GeocodeResult) {
 
 /**
  * Tracks one location-widget interaction and logs a single
- * `location_autocomplete.session` summary when it ends, which is what exposes
+ * `GeocodeEvent.Session` summary when it ends, which is what exposes
  * abandonment, empty results, errors and ranking quality per surface.
  *
  * A session starts on the first keystroke and ends on a selection, "use my
@@ -110,7 +117,7 @@ export function useLocationSearchSession({
       const { surface, provider, results } = contextRef.current;
       const now = performance.now();
       track(
-        "location_autocomplete.session",
+        GeocodeEvent.Session,
         {
           surface,
           provider,
@@ -139,7 +146,7 @@ export function useLocationSearchSession({
         lastSelectedAtRef.current = null;
         if (now - lastSelectedAt < RESELECT_WINDOW_MS) {
           track(
-            "location_autocomplete.reselected",
+            GeocodeEvent.Reselected,
             { surface: contextRef.current.surface, provider: contextRef.current.provider },
             now - lastSelectedAt,
           );
