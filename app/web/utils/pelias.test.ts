@@ -1,5 +1,5 @@
 import { LngLat } from "maplibre-gl";
-import { rest, server } from "test/restMock";
+import { AUTOCOMPLETE_URL, mockPeliasAutocomplete, mockPeliasFailure, rest, REVERSE_URL, server } from "test/restMock";
 
 import {
   autocomplete,
@@ -15,9 +15,7 @@ import {
   toPeliasLanguage,
 } from "./pelias";
 
-const AUTOCOMPLETE_URL = `${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/autocomplete`;
 const PLACE_URL = `${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/place`;
-const REVERSE_URL = `${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/reverse`;
 
 const feature = (
   overrides: {
@@ -869,13 +867,10 @@ describe("autocomplete", () => {
   it("returns normalized results and forwards the language", async () => {
     let requestedLang: string | null = null;
     let requestedText: string | null = null;
-    server.use(
-      rest.get(AUTOCOMPLETE_URL, (req, res, ctx) => {
-        requestedLang = req.url.searchParams.get("lang");
-        requestedText = req.url.searchParams.get("text");
-        return res(ctx.json({ type: "FeatureCollection", features: [feature()] }));
-      }),
-    );
+    mockPeliasAutocomplete([feature()], (params) => {
+      requestedLang = params.get("lang");
+      requestedText = params.get("text");
+    });
 
     const { results } = await autocomplete("paris", { language: "fr" });
 
@@ -887,12 +882,9 @@ describe("autocomplete", () => {
 
   it("sends focus.point coordinates when a bias point is given", async () => {
     let params: URLSearchParams | undefined;
-    server.use(
-      rest.get(AUTOCOMPLETE_URL, (req, res, ctx) => {
-        params = req.url.searchParams;
-        return res(ctx.json({ type: "FeatureCollection", features: [feature()] }));
-      }),
-    );
+    mockPeliasAutocomplete([feature()], (requested) => {
+      params = requested;
+    });
 
     await autocomplete("london", { focus: { lat: 43.0, lon: -81.2 } });
 
@@ -904,12 +896,9 @@ describe("autocomplete", () => {
 
   it("omits focus.point entirely when no bias point is known", async () => {
     let params: URLSearchParams | undefined;
-    server.use(
-      rest.get(AUTOCOMPLETE_URL, (req, res, ctx) => {
-        params = req.url.searchParams;
-        return res(ctx.json({ type: "FeatureCollection", features: [feature()] }));
-      }),
-    );
+    mockPeliasAutocomplete([feature()], (requested) => {
+      params = requested;
+    });
 
     await autocomplete("london");
 
@@ -1335,21 +1324,19 @@ describe("autocomplete", () => {
   });
 
   it("throws a typed PeliasError on a non-ok response", async () => {
-    server.use(rest.get(AUTOCOMPLETE_URL, (_req, res, ctx) => res(ctx.status(500), ctx.text("boom"))));
+    mockPeliasFailure(500, "boom");
 
     await expect(autocomplete("paris")).rejects.toBeInstanceOf(PeliasError);
   });
 
   it("classifies a non-ok response as an http error with its status", async () => {
-    server.use(rest.get(AUTOCOMPLETE_URL, (_req, res, ctx) => res(ctx.status(429), ctx.text("slow down"))));
+    mockPeliasFailure(429, "slow down");
 
     await expect(autocomplete("paris")).rejects.toMatchObject({ kind: "http", status: 429 });
   });
 
   it("classifies a non-JSON 200 body as an invalid response", async () => {
-    server.use(
-      rest.get(AUTOCOMPLETE_URL, (_req, res, ctx) => res(ctx.status(200), ctx.text("<html>proxy error</html>"))),
-    );
+    mockPeliasFailure(200, "<html>proxy error</html>");
 
     await expect(autocomplete("paris")).rejects.toMatchObject({ kind: "invalid_response", status: undefined });
   });
@@ -1523,7 +1510,7 @@ describe("reverse", () => {
   });
 
   it("throws a typed PeliasError on a non-ok response", async () => {
-    server.use(rest.get(REVERSE_URL, (_req, res, ctx) => res(ctx.status(503), ctx.text("down"))));
+    mockPeliasFailure(503, "down", REVERSE_URL);
 
     await expect(reverse(48.8566, 2.3522)).rejects.toBeInstanceOf(PeliasError);
   });

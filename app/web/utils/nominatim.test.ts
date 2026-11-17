@@ -1,4 +1,4 @@
-import { rest, server } from "test/restMock";
+import { mockNominatimFailure, NOMINATIM_SEARCH_URL, rest, server } from "test/restMock";
 
 import {
   filterDuplicatePlaces,
@@ -8,8 +8,6 @@ import {
   search,
   simplifyPlaceDisplayName,
 } from "./nominatim";
-
-const SEARCH_URL = `${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`;
 
 describe("Nominatim utilities", () => {
   describe("simplifyPlaceDisplayName", () => {
@@ -461,7 +459,7 @@ describe("Nominatim utilities", () => {
     it("requests the query and locale, and returns deduplicated results", async () => {
       let requestUrl: URL | undefined;
       server.use(
-        rest.get(SEARCH_URL, (req, res, ctx) => {
+        rest.get(NOMINATIM_SEARCH_URL, (req, res, ctx) => {
           requestUrl = new URL(req.url.toString());
           return res(
             ctx.json([
@@ -510,7 +508,7 @@ describe("Nominatim utilities", () => {
     it("omits accept-language when no locale is given", async () => {
       let requestUrl: URL | undefined;
       server.use(
-        rest.get(SEARCH_URL, (req, res, ctx) => {
+        rest.get(NOMINATIM_SEARCH_URL, (req, res, ctx) => {
           requestUrl = new URL(req.url.toString());
           return res(ctx.json([]));
         }),
@@ -522,11 +520,7 @@ describe("Nominatim utilities", () => {
     });
 
     it("throws a NominatimError on a non-2xx response", async () => {
-      server.use(
-        rest.get(SEARCH_URL, (_req, res, ctx) => {
-          return res(ctx.status(429), ctx.text("rate limited"));
-        }),
-      );
+      mockNominatimFailure(429, "rate limited");
 
       await expect(search("berlin")).rejects.toThrow(NominatimError);
       await expect(search("berlin")).rejects.toThrow("rate limited");

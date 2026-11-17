@@ -5,7 +5,7 @@ import { LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { useEffect } from "react";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
-import { rest, server } from "test/restMock";
+import { rest, REVERSE_URL, server } from "test/restMock";
 import { resetFailoverState } from "utils/geocode";
 
 import EditLocationMap from "./EditLocationMap";
@@ -199,7 +199,6 @@ describe("Edit location map", () => {
 
   describe('the "use my location" button', () => {
     const BUTTON = t("global:use_my_location.button_a11y");
-    const REVERSE_URL = `${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/reverse`;
 
     const mockPosition = (granted: boolean) => {
       Object.defineProperty(navigator, "geolocation", {

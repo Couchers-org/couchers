@@ -4,15 +4,21 @@ import { LngLat } from "maplibre-gl";
 import { useForm } from "react-hook-form";
 import wrapper, { getHookWrapperWithClient } from "test/hookWrapper";
 import i18n from "test/i18n";
-import { rest, server } from "test/restMock";
+import {
+  AUTOCOMPLETE_URL,
+  mockPeliasAutocomplete,
+  mockPeliasFailure,
+  mockPeliasReverse,
+  rest,
+  REVERSE_URL,
+  server,
+} from "test/restMock";
 import { resetFailoverState } from "utils/geocode";
 import { GeocodeResult } from "utils/hooks";
 
 import LocationAutocomplete from "./LocationAutocomplete";
 
 const { t } = i18n;
-
-const AUTOCOMPLETE_URL = `${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/autocomplete`;
 
 const submitAction = jest.fn();
 const submitInvalidAction = jest.fn();
@@ -119,30 +125,25 @@ describe("LocationAutocomplete component", () => {
 
   it("shows live typeahead results without pressing enter, and debounces requests", async () => {
     let callCount = 0;
-    server.use(
-      rest.get(AUTOCOMPLETE_URL, (_req, res, ctx) => {
+    mockPeliasAutocomplete(
+      [
+        {
+          type: "Feature",
+          geometry: { type: "Point", coordinates: [1.0, 2.0] },
+          bbox: [1, 1, 1, 1],
+          properties: {
+            gid: "whosonfirst:locality:1",
+            layer: "locality",
+            label: "test city, test county, test country",
+            name: "test city",
+            locality: "test city",
+            country: "test country",
+          },
+        },
+      ],
+      () => {
         callCount++;
-        return res(
-          ctx.json({
-            type: "FeatureCollection",
-            features: [
-              {
-                type: "Feature",
-                geometry: { type: "Point", coordinates: [1.0, 2.0] },
-                bbox: [1, 1, 1, 1],
-                properties: {
-                  gid: "whosonfirst:locality:1",
-                  layer: "locality",
-                  label: "test city, test county, test country",
-                  name: "test city",
-                  locality: "test city",
-                  country: "test country",
-                },
-              },
-            ],
-          }),
-        );
-      }),
+      },
     );
 
     renderForm("", jest.fn());
@@ -239,11 +240,7 @@ describe("LocationAutocomplete component", () => {
   });
 
   it("shows an empty state when there are no results", async () => {
-    server.use(
-      rest.get(AUTOCOMPLETE_URL, (_req, res, ctx) => {
-        return res(ctx.json({ type: "FeatureCollection", features: [] }));
-      }),
-    );
+    mockPeliasAutocomplete();
 
     renderForm("", jest.fn());
 
@@ -396,11 +393,7 @@ describe("LocationAutocomplete component", () => {
 
   it("shows an error when the geocode lookup fails", async () => {
     // 400 is a bad request, not an outage, so no fallback is attempted.
-    server.use(
-      rest.get(AUTOCOMPLETE_URL, async (_req, res, ctx) => {
-        return res(ctx.status(400), ctx.text("generic error"));
-      }),
-    );
+    mockPeliasFailure(400, "generic error");
 
     renderForm("", () => {});
 
@@ -418,29 +411,24 @@ describe("LocationAutocomplete component", () => {
   it("renders suggestions localized to the current i18n.language", async () => {
     const originalLanguage = i18n.language;
     let requestedLang: string | null = null;
-    server.use(
-      rest.get(AUTOCOMPLETE_URL, (req, res, ctx) => {
-        requestedLang = req.url.searchParams.get("lang");
-        return res(
-          ctx.json({
-            type: "FeatureCollection",
-            features: [
-              {
-                type: "Feature",
-                geometry: { type: "Point", coordinates: [7.4474, 46.9481] },
-                bbox: [7.0, 46.0, 8.0, 47.0],
-                properties: {
-                  gid: "whosonfirst:country:2",
-                  layer: "country",
-                  label: "Allemagne",
-                  name: "Allemagne",
-                  country: "Allemagne",
-                },
-              },
-            ],
-          }),
-        );
-      }),
+    mockPeliasAutocomplete(
+      [
+        {
+          type: "Feature",
+          geometry: { type: "Point", coordinates: [7.4474, 46.9481] },
+          bbox: [7.0, 46.0, 8.0, 47.0],
+          properties: {
+            gid: "whosonfirst:country:2",
+            layer: "country",
+            label: "Allemagne",
+            name: "Allemagne",
+            country: "Allemagne",
+          },
+        },
+      ],
+      (params) => {
+        requestedLang = params.get("lang");
+      },
     );
 
     await i18n.changeLanguage("fr-FR");
@@ -456,29 +444,20 @@ describe("LocationAutocomplete component", () => {
   });
 
   it("shows an error when a region is selected and disableRegions is true", async () => {
-    server.use(
-      rest.get(AUTOCOMPLETE_URL, (_req, res, ctx) => {
-        return res(
-          ctx.json({
-            type: "FeatureCollection",
-            features: [
-              {
-                type: "Feature",
-                geometry: { type: "Point", coordinates: [1.0, 2.0] },
-                bbox: [1, 1, 1, 1],
-                properties: {
-                  gid: "whosonfirst:country:1",
-                  layer: "country",
-                  label: "test country",
-                  name: "test country",
-                  country: "test country",
-                },
-              },
-            ],
-          }),
-        );
-      }),
-    );
+    mockPeliasAutocomplete([
+      {
+        type: "Feature",
+        geometry: { type: "Point", coordinates: [1.0, 2.0] },
+        bbox: [1, 1, 1, 1],
+        properties: {
+          gid: "whosonfirst:country:1",
+          layer: "country",
+          label: "test country",
+          name: "test country",
+          country: "test country",
+        },
+      },
+    ]);
     renderForm("", () => {}, false, true);
 
     const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
@@ -499,7 +478,6 @@ describe("LocationAutocomplete component", () => {
 
   describe('the "use my location" button', () => {
     const BUTTON = t("global:use_my_location.button_a11y");
-    const REVERSE_URL = `${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/reverse`;
 
     const mockPosition = (granted: boolean, code = 1) => {
       Object.defineProperty(navigator, "geolocation", {
@@ -675,7 +653,7 @@ describe("LocationAutocomplete component", () => {
 
     it("reports when the provider has nothing at that point", async () => {
       mockPosition(true);
-      server.use(rest.get(REVERSE_URL, (_req, res, ctx) => res(ctx.json({ type: "FeatureCollection", features: [] }))));
+      mockPeliasReverse();
       renderForm("", () => {}, false, false, false, true);
       const user = userEvent.setup();
       await screen.findByLabelText(LABEL);
@@ -691,12 +669,7 @@ describe("LocationAutocomplete component", () => {
     const SEARCH_HINT = t("global:location_autocomplete.search_location_hint");
     const FALLBACK_RESULT = "fallback city, fallback state, fallback country";
 
-    const failPelias = () =>
-      server.use(
-        rest.get(AUTOCOMPLETE_URL, async (_req, res, ctx) => {
-          return res(ctx.status(503), ctx.text("unavailable"));
-        }),
-      );
+    const failPelias = () => mockPeliasFailure(503, "unavailable");
 
     // Type enough to trigger the typeahead, which discovers the outage and
     // flips the widget into submit mode without querying Nominatim.

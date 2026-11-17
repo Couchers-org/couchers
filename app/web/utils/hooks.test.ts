@@ -5,7 +5,7 @@ import { service } from "service";
 import users from "test/fixtures/users.json";
 import wrapper, { getHookWrapperWithClient } from "test/hookWrapper";
 import i18n from "test/i18n";
-import { rest, server } from "test/restMock";
+import { mockNominatimFailure, mockPeliasAutocomplete, mockPeliasFailure, rest, server } from "test/restMock";
 import { getUser } from "test/serviceMockDefaults";
 import { addDefaultUser } from "test/utils";
 import { resetFailoverState } from "utils/geocode";
@@ -164,12 +164,9 @@ describe("useGeocodeQuery hook", () => {
   ])("forwards i18n.language %s to the provider as %s", async (language, expectedLang) => {
     const originalLanguage = i18n.language;
     let requestedLang: string | null = null;
-    server.use(
-      rest.get(`${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/autocomplete`, (req, res, ctx) => {
-        requestedLang = req.url.searchParams.get("lang");
-        return res(ctx.json({ type: "FeatureCollection", features: [] }));
-      }),
-    );
+    mockPeliasAutocomplete([], (params) => {
+      requestedLang = params.get("lang");
+    });
 
     await act(() => i18n.changeLanguage(language));
     const { result } = renderHook(() => useGeocodeQuery({ requirePeliasGid: false }), { wrapper });
@@ -183,7 +180,6 @@ describe("useGeocodeQuery hook", () => {
   });
 
   describe("location bias", () => {
-    const autocompleteUrl = `${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/autocomplete`;
     const getUserMock = service.user.getUser as jest.Mock;
 
     beforeEach(() => {
@@ -225,12 +221,9 @@ describe("useGeocodeQuery hook", () => {
 
     const captureParams = () => {
       const captured: { params?: URLSearchParams } = {};
-      server.use(
-        rest.get(autocompleteUrl, (req, res, ctx) => {
-          captured.params = req.url.searchParams;
-          return res(ctx.json({ type: "FeatureCollection", features: [] }));
-        }),
-      );
+      mockPeliasAutocomplete([], (params) => {
+        captured.params = params;
+      });
       return captured;
     };
 
@@ -323,11 +316,7 @@ describe("useGeocodeQuery hook", () => {
   it("gives correct error result", async () => {
     // 400 is a bad request, not an outage — it must surface as an error rather
     // than fall back to Nominatim.
-    server.use(
-      rest.get(`${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/autocomplete`, async (_req, res, ctx) => {
-        return res(ctx.status(400), ctx.text("Generic error"));
-      }),
-    );
+    mockPeliasFailure(400, "Generic error");
     const { result } = renderHook(() => useGeocodeQuery({ requirePeliasGid: false }), { wrapper });
     expect(result.current).toMatchObject({
       isLoading: false,
@@ -351,12 +340,7 @@ describe("useGeocodeQuery hook", () => {
   });
 
   describe("Geocode.earth outage fallback", () => {
-    const failPelias = (status: number) =>
-      server.use(
-        rest.get(`${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/autocomplete`, async (_req, res, ctx) => {
-          return res(ctx.status(status), ctx.text("provider unavailable"));
-        }),
-      );
+    const failPelias = (status: number) => mockPeliasFailure(status, "provider unavailable");
 
     it.each([500, 503, 429, 402])("switches to Nominatim submit mode on a %i without querying it", async (status) => {
       failPelias(status);
@@ -473,11 +457,7 @@ describe("useGeocodeQuery hook", () => {
 
     it("surfaces an error when the fallback provider also fails", async () => {
       failPelias(500);
-      server.use(
-        rest.get(`${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`, async (_req, res, ctx) => {
-          return res(ctx.status(500), ctx.text("fallback down"));
-        }),
-      );
+      mockNominatimFailure(500, "fallback down");
       const { result } = renderHook(() => useGeocodeQuery({ requirePeliasGid: false }), { wrapper });
 
       await act(() => result.current.query("test"));

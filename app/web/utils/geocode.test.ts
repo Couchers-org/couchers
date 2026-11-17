@@ -1,9 +1,13 @@
-import { rest, server } from "test/restMock";
+import {
+  AUTOCOMPLETE_URL,
+  mockPeliasAutocomplete,
+  mockPeliasFailure,
+  NOMINATIM_SEARCH_URL,
+  rest,
+  server,
+} from "test/restMock";
 
 import type { ProviderSetting } from "./geocode";
-
-const AUTOCOMPLETE_URL = `${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/autocomplete`;
-const NOMINATIM_SEARCH_URL = `${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`;
 
 const loadGeocode = async () => {
   jest.resetModules();
@@ -12,13 +16,6 @@ const loadGeocode = async () => {
   const [geocode, pelias] = await Promise.all([import("./geocode"), import("./pelias")]);
   return { ...geocode, PeliasError: pelias.PeliasError };
 };
-
-const failPelias = (status: number, body = "unavailable") =>
-  server.use(
-    rest.get(AUTOCOMPLETE_URL, async (_req, res, ctx) => {
-      return res(ctx.status(status), ctx.text(body));
-    }),
-  );
 
 const searchOpts = (providerSetting: ProviderSetting = "auto", requirePeliasGid = false) => ({
   requirePeliasGid,
@@ -80,7 +77,7 @@ describe("geocodeSearch", () => {
     });
 
     it("does not query Nominatim on the outage request; a later search does", async () => {
-      failPelias(503, "gateway down");
+      mockPeliasFailure(503, "gateway down");
       let nominatimRequests = 0;
       server.use(
         rest.get(NOMINATIM_SEARCH_URL, (_req, res, ctx) => {
@@ -106,7 +103,7 @@ describe("geocodeSearch", () => {
     });
 
     it("rethrows a bad request instead of falling back", async () => {
-      failPelias(400, "bad query");
+      mockPeliasFailure(400, "bad query");
       const { geocodeSearch } = await loadGeocode();
 
       await expect(geocodeSearch("test", searchOpts())).rejects.toThrow("bad query");
@@ -172,7 +169,7 @@ describe("geocodeSearch", () => {
     };
 
     it("throws on an outage instead of falling back", async () => {
-      failPelias(503, "gateway down");
+      mockPeliasFailure(503, "gateway down");
       const fallback = countFallbackRequests();
       const { geocodeSearch } = await loadGeocode();
 
@@ -181,7 +178,7 @@ describe("geocodeSearch", () => {
     });
 
     it("refuses the forced nominatim setting rather than serving id-less results", async () => {
-      failPelias(503, "gateway down");
+      mockPeliasFailure(503, "gateway down");
       const fallback = countFallbackRequests();
       const { geocodeSearch, initialProvider } = await loadGeocode();
 
@@ -203,12 +200,9 @@ describe("geocodeSearch", () => {
   describe("when a provider is forced", () => {
     it("starts on Nominatim and never calls Geocode.earth", async () => {
       let peliasRequests = 0;
-      server.use(
-        rest.get(AUTOCOMPLETE_URL, (_req, res, ctx) => {
-          peliasRequests += 1;
-          return res(ctx.json({ type: "FeatureCollection", features: [] }));
-        }),
-      );
+      mockPeliasAutocomplete([], () => {
+        peliasRequests += 1;
+      });
       const { geocodeSearch, initialProvider } = await loadGeocode();
 
       expect(initialProvider(false, "nominatim")).toBe("nominatim");
@@ -219,7 +213,7 @@ describe("geocodeSearch", () => {
     });
 
     it("does not fall back when pinned to Geocode.earth", async () => {
-      failPelias(503, "gateway down");
+      mockPeliasFailure(503, "gateway down");
       let fallbackRequests = 0;
       server.use(
         rest.get(NOMINATIM_SEARCH_URL, (_req, res, ctx) => {
@@ -235,7 +229,7 @@ describe("geocodeSearch", () => {
     });
 
     it("ignores session failover when the setting is later forced to pelias", async () => {
-      failPelias(503, "gateway down");
+      mockPeliasFailure(503, "gateway down");
       let peliasRequests = 0;
       let nominatimRequests = 0;
       server.use(
@@ -262,12 +256,9 @@ describe("geocodeSearch", () => {
 
     it("treats an unrecognised setting as nominatim", async () => {
       let peliasRequests = 0;
-      server.use(
-        rest.get(AUTOCOMPLETE_URL, (_req, res, ctx) => {
-          peliasRequests += 1;
-          return res(ctx.json({ type: "FeatureCollection", features: [] }));
-        }),
-      );
+      mockPeliasAutocomplete([], () => {
+        peliasRequests += 1;
+      });
       const { geocodeSearch, initialProvider, normalizeProviderSetting } = await loadGeocode();
       const setting = normalizeProviderSetting("bogus");
 
