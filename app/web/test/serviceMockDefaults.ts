@@ -1,4 +1,11 @@
-import { BirthdateVerificationStatus, GenderVerificationStatus, GetLiteUsersRes, LiteUser, User } from "proto/api_pb";
+import {
+  BirthdateVerificationStatus,
+  GenderVerificationStatus,
+  GetLiteUsersRes,
+  HostPool,
+  LiteUser,
+  User,
+} from "proto/api_pb";
 import { GetBlockedUsersRes } from "proto/blocking_pb";
 import { ListAdminsRes } from "proto/communities_pb";
 import { ListEventAttendeesRes, ListEventOrganizersRes } from "proto/events_pb";
@@ -115,6 +122,9 @@ export async function getAccountInfo() {
     isVolunteer: false,
     shouldShowDonationBanner: false,
     hasOptedInToBetaFeatures: false,
+    hostPool: HostPool.HOST_POOL_NORMAL,
+    newbiePoolEligible: false,
+    hostProfileReady: false,
   };
 }
 

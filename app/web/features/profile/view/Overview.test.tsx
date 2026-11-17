@@ -32,6 +32,9 @@ const accountInfo = {
   myHomeComplete: false,
   shouldShowDonationBanner: false,
   hasOptedInToBetaFeatures: false,
+  hostPool: 1,
+  newbiePoolEligible: false,
+  hostProfileReady: false,
 };
 
 const incompleteAccountInfo = { ...accountInfo, profileComplete: false };
