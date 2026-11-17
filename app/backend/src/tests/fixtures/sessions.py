@@ -25,7 +25,6 @@ from couchers.proto import (
     blocking_pb2_grpc,
     bugs_pb2_grpc,
     communities_pb2_grpc,
-    conversations_pb2_grpc,
     discussions_pb2_grpc,
     donations_pb2_grpc,
     editor_pb2_grpc,
@@ -56,7 +55,6 @@ from couchers.servicers.auth import Auth
 from couchers.servicers.blocking import Blocking
 from couchers.servicers.bugs import Bugs
 from couchers.servicers.communities import Communities
-from couchers.servicers.conversations import Conversations
 from couchers.servicers.discussions import Discussions
 from couchers.servicers.donations import Donations, Stripe
 from couchers.servicers.editor import Editor
@@ -414,16 +412,6 @@ def public_trips_session(token: str):
     channel = FakeChannel(token)
     public_trips_pb2_grpc.add_PublicTripsServicer_to_server(PublicTrips(), channel)
     yield public_trips_pb2_grpc.PublicTripsStub(channel)
-
-
-@contextmanager
-def conversations_session(token: str):
-    """
-    Create a Conversations API for testing, uses the token for auth
-    """
-    channel = FakeChannel(token)
-    conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(), channel)
-    yield conversations_pb2_grpc.ConversationsStub(channel)
 
 
 @contextmanager

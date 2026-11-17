@@ -41,7 +41,6 @@ from couchers.notifications.web_push_api import decode_key, send_web_push
 from couchers.proto import (
     api_pb2,
     auth_pb2,
-    conversations_pb2,
     editor_pb2,
     events_pb2,
     moderation_pb2,
@@ -51,13 +50,13 @@ from couchers.proto import (
 from couchers.proto.internal import jobs_pb2, unsubscribe_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.utils import now
+from tests.fixtures.api import conversations as conversations_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
 from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
     api_session,
     auth_api_session,
-    conversations_session,
     notifications_session,
     real_editor_session,
 )
@@ -363,12 +362,11 @@ def test_list_notifications(db, push_collector: PushCollector, moderator):
     assert n.icon.startswith("http://localhost:5001/img/thumbnail/")
     assert n.url == f"http://localhost:3000/connections/friends/?from={sender_user.id}"
 
-    with conversations_session(sender_token) as c:
-        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
-        group_chat_id = res.group_chat_id
-        moderator.approve_group_chat(group_chat_id)
-        for i in range(17):
-            c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text=f"Test message {i}"))
+    group_chat_id = conversations_api.create_group_chat(
+        token=sender_token, recipient_user_ids=[recipient_user.id], approve_by=moderator
+    ).group_chat_id
+    for i in range(17):
+        conversations_api.send_message(token=sender_token, group_chat_id=group_chat_id, text=f"Test message {i}")
 
     process_jobs()
 
@@ -498,14 +496,11 @@ def test_notifications_follow_the_visibility_of_their_content(db, moderator, vis
     other, other_token = generate_user()
     sender, sender_token = generate_user()
 
-    with conversations_session(author_token) as c:
-        group_chat_id = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[other.id, sender.id])
-        ).group_chat_id
-    moderator.approve_group_chat(group_chat_id)
+    group_chat_id = conversations_api.create_group_chat(
+        token=author_token, recipient_user_ids=[other.id, sender.id], approve_by=moderator
+    ).group_chat_id
 
-    with conversations_session(sender_token) as c:
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message"))
+    conversations_api.send_message(token=sender_token, group_chat_id=group_chat_id, text="Test message")
 
     process_jobs()
 
