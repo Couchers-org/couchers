@@ -220,7 +220,7 @@ hide_title: true
 .cc-drawer .cc-year:first-of-type { margin-top: 0; }
 .cc-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(245px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 16px;
   margin: 8px 0 24px 0 !important;
   padding: 0 !important;
