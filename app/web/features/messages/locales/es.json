@@ -260,6 +260,12 @@
   "status_bar_close_button": "Cerrar",
   "my_public_trips": {
     "empty_state": "Todavía no hay invitaciones en tus viajes públicos.",
-    "toggle_group": "Alternar viaje"
+    "toggle_group": "Alternar viaje",
+    "nights_one": "{{count}} noche",
+    "nights_many": "{{count}} de noches",
+    "nights_other": "{{count}} noches",
+    "invitations_one": "{{count}} invitación",
+    "invitations_many": "{{count}} de invitaciones",
+    "invitations_other": "{{count}} invitaciones"
   }
 }
