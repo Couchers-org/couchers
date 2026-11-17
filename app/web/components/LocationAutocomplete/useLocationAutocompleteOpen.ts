@@ -3,7 +3,7 @@ import { GeocodeResult } from "utils/hooks";
 
 import { MIN_SEARCH_LENGTH } from "./constants";
 
-type UseLocationAutocompleteOpenArgs = {
+interface UseLocationAutocompleteOpenArgs {
   id: string;
   inputValue: string;
   options: GeocodeResult[] | undefined;
@@ -17,7 +17,7 @@ type UseLocationAutocompleteOpenArgs = {
    * Called when a form submit reopens the list (telemetry).
    */
   onSubmitReopen?: () => void;
-};
+}
 
 /**
  * Controlled open state for location autocomplete: Enter-after-blur reopen,
