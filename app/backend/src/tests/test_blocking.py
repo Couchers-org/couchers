@@ -13,80 +13,84 @@ from tests.fixtures.sessions import blocking_session
 
 
 def test_BlockUser(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    blocker_user, blocker_token = generate_user()
+    blocked_user, blocked_token = generate_user()
 
     with session_scope() as session:
         blocked_user_list = (
-            session.execute(select(UserBlock).where(UserBlock.blocking_user_id == user1.id)).scalars().all()
+            session.execute(select(UserBlock).where(UserBlock.blocking_user_id == blocker_user.id)).scalars().all()
         )
         assert len(blocked_user_list) == 0
 
-    with blocking_session(token1) as user_blocks:
+    with blocking_session(blocker_token) as user_blocks:
         with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "You can't block yourself."):
-            user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user1.username))
+            user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=blocker_user.username))
 
-        user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user2.username))
+        user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=blocked_user.username))
 
         with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Target user has already been blocked."):
-            user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user2.username))
+            user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=blocked_user.username))
 
     with session_scope() as session:
         blocked_user_list = (
-            session.execute(select(UserBlock).where(UserBlock.blocking_user_id == user1.id)).scalars().all()
+            session.execute(select(UserBlock).where(UserBlock.blocking_user_id == blocker_user.id)).scalars().all()
         )
         assert len(blocked_user_list) == 1
 
 
 def test_make_user_block(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    blocker_user, blocker_token = generate_user()
+    blocked_user, blocked_token = generate_user()
 
-    make_user_block(user1, user2)
+    make_user_block(blocker_user, blocked_user)
 
     with session_scope() as session:
         blocked_user_list = (
-            session.execute(select(UserBlock).where(UserBlock.blocking_user_id == user1.id)).scalars().all()
+            session.execute(select(UserBlock).where(UserBlock.blocking_user_id == blocker_user.id)).scalars().all()
         )
         assert len(blocked_user_list) == 1
 
 
 def test_UnblockUser(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    make_user_block(user1, user2)
+    blocker_user, blocker_token = generate_user()
+    blocked_user, blocked_token = generate_user()
+    make_user_block(blocker_user, blocked_user)
 
-    with blocking_session(token1) as user_blocks:
-        user_blocks.UnblockUser(blocking_pb2.UnblockUserReq(username=user2.username))
+    with blocking_session(blocker_token) as user_blocks:
+        user_blocks.UnblockUser(blocking_pb2.UnblockUserReq(username=blocked_user.username))
 
     with session_scope() as session:
-        blocked_users = session.execute(select(UserBlock).where(UserBlock.blocking_user_id == user1.id)).scalars().all()
+        blocked_users = (
+            session.execute(select(UserBlock).where(UserBlock.blocking_user_id == blocker_user.id)).scalars().all()
+        )
         assert len(blocked_users) == 0
 
-    with blocking_session(token1) as user_blocks:
+    with blocking_session(blocker_token) as user_blocks:
         with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Target user is not blocked."):
-            user_blocks.UnblockUser(blocking_pb2.UnblockUserReq(username=user2.username))
+            user_blocks.UnblockUser(blocking_pb2.UnblockUserReq(username=blocked_user.username))
 
         # Test re-blocking
-        user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user2.username))
+        user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=blocked_user.username))
 
     with session_scope() as session:
-        blocked_users = session.execute(select(UserBlock).where(UserBlock.blocking_user_id == user1.id)).scalars().all()
+        blocked_users = (
+            session.execute(select(UserBlock).where(UserBlock.blocking_user_id == blocker_user.id)).scalars().all()
+        )
         assert len(blocked_users) == 1
 
 
 def test_GetBlockedUsers(db):
-    user1, token1 = generate_user()
+    blocker_user, blocker_token = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
 
-    with blocking_session(token1) as user_blocks:
+    with blocking_session(blocker_token) as user_blocks:
         # Check no blocked users to start
         blocked_user_list = user_blocks.GetBlockedUsers(empty_pb2.Empty())
         assert len(blocked_user_list.blocked_users) == 0
 
-        make_user_block(user1, user2)
-        make_user_block(user1, user3)
+        make_user_block(blocker_user, user2)
+        make_user_block(blocker_user, user3)
         blocked_user_list = user_blocks.GetBlockedUsers(empty_pb2.Empty())
         assert len(blocked_user_list.blocked_users) == 2
 
@@ -100,14 +104,16 @@ def test_GetBlockedUsers(db):
 
 
 def test_relationships_userblock_dot_user(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    blocker_user, blocker_token = generate_user()
+    blocked_user, blocked_token = generate_user()
 
-    make_user_block(user1, user2)
+    make_user_block(blocker_user, blocked_user)
 
     with session_scope() as session:
         block = session.execute(
-            select(UserBlock).where((UserBlock.blocking_user_id == user1.id) & (UserBlock.blocked_user_id == user2.id))
+            select(UserBlock).where(
+                (UserBlock.blocking_user_id == blocker_user.id) & (UserBlock.blocked_user_id == blocked_user.id)
+            )
         ).scalar_one()
 
         blocking_user_username = block.blocking_user.username
@@ -116,10 +122,10 @@ def test_relationships_userblock_dot_user(db):
         blocked_user_username = block.blocked_user.username
         blocked_user_name = block.blocked_user.name
 
-    assert blocking_user_username == user1.username
-    assert blocked_user_username == user2.username
-    assert blocking_user_name == user1.name
-    assert blocked_user_name == user2.name
+    assert blocking_user_username == blocker_user.username
+    assert blocked_user_username == blocked_user.username
+    assert blocking_user_name == blocker_user.name
+    assert blocked_user_name == blocked_user.name
 
 
 def test_is_not_visible(db):

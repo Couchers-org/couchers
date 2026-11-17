@@ -814,8 +814,8 @@ def test_ListVolunteers(db):
 def test_ListVolunteers_with_past(db):
     """ListVolunteers should include past volunteers when requested"""
     editor_user, editor_token = generate_user(is_editor=True)
-    user1, _ = generate_user()
-    user2, _ = generate_user()
+    current_volunteer_user, _ = generate_user()
+    past_volunteer_user, _ = generate_user()
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
     with session_scope() as session:
@@ -823,7 +823,7 @@ def test_ListVolunteers_with_past(db):
             # Create current volunteer
             api.MakeUserVolunteer(
                 editor_pb2.MakeUserVolunteerReq(
-                    user_id=user1.id,
+                    user_id=current_volunteer_user.id,
                     role="Current Volunteer",
                 )
             )
@@ -831,13 +831,13 @@ def test_ListVolunteers_with_past(db):
             # Create past volunteer
             api.MakeUserVolunteer(
                 editor_pb2.MakeUserVolunteerReq(
-                    user_id=user2.id,
+                    user_id=past_volunteer_user.id,
                     role="Past Volunteer",
                 )
             )
             api.UpdateVolunteer(
                 editor_pb2.UpdateVolunteerReq(
-                    user_id=user2.id,
+                    user_id=past_volunteer_user.id,
                     stopped_volunteering=StringValue(value="2024-06-30"),
                 )
             )
@@ -845,17 +845,17 @@ def test_ListVolunteers_with_past(db):
             # List only current volunteers
             res = api.ListVolunteers(editor_pb2.ListVolunteersReq(include_past=False))
             assert len(res.volunteers) == 1
-            assert res.volunteers[0].user_id == user1.id
+            assert res.volunteers[0].user_id == current_volunteer_user.id
             assert not res.volunteers[0].HasField("stopped_volunteering")
 
             # List all volunteers (including past)
             res_with_past = api.ListVolunteers(editor_pb2.ListVolunteersReq(include_past=True))
             assert len(res_with_past.volunteers) == 2
             user_ids = {v.user_id for v in res_with_past.volunteers}
-            assert user_ids == {user1.id, user2.id}
+            assert user_ids == {current_volunteer_user.id, past_volunteer_user.id}
 
             # Find the past volunteer and verify stopped_volunteering is set
-            past_volunteer = next(v for v in res_with_past.volunteers if v.user_id == user2.id)
+            past_volunteer = next(v for v in res_with_past.volunteers if v.user_id == past_volunteer_user.id)
             assert past_volunteer.stopped_volunteering == "2024-06-30"
 
 

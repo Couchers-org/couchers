@@ -140,18 +140,18 @@ def test_user_filter_complete_profile(db):
     """
     Make sure the completed profile flag returns only completed user profile
     """
-    user_complete_profile, token6 = generate_user(complete_profile=True)
+    user_complete_profile, complete_profile_token = generate_user(complete_profile=True)
 
-    user_incomplete_profile, token7 = generate_user(complete_profile=False)
+    user_incomplete_profile, incomplete_profile_token = generate_user(complete_profile=False)
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
     refresh_materialized_views(empty_pb2.Empty())
 
-    with search_session(token7) as api:
+    with search_session(incomplete_profile_token) as api:
         res = api.UserSearchV2(search_pb2.UserSearchReq(profile_completed=wrappers_pb2.BoolValue(value=False)))
         assert user_incomplete_profile.id in [result.user_id for result in res.results]
 
-    with search_session(token6) as api:
+    with search_session(complete_profile_token) as api:
         res = api.UserSearchV2(search_pb2.UserSearchReq(profile_completed=wrappers_pb2.BoolValue(value=True)))
         assert [result.user_id for result in res.results] == [user_complete_profile.id]
 
@@ -160,18 +160,20 @@ def test_user_filter_meetup_status(db):
     """
     Make sure the completed profile flag returns only completed user profile
     """
-    user_wants_to_meetup, token8 = generate_user(meetup_status=MeetupStatus.wants_to_meetup)
+    user_wants_to_meetup, wants_to_meetup_token = generate_user(meetup_status=MeetupStatus.wants_to_meetup)
 
-    user_does_not_want_to_meet, token9 = generate_user(meetup_status=MeetupStatus.does_not_want_to_meetup)
+    user_does_not_want_to_meet, does_not_want_to_meet_token = generate_user(
+        meetup_status=MeetupStatus.does_not_want_to_meetup
+    )
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
     refresh_materialized_views(empty_pb2.Empty())
 
-    with search_session(token8) as api:
+    with search_session(wants_to_meetup_token) as api:
         res = api.UserSearchV2(search_pb2.UserSearchReq(meetup_status_filter=[api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP]))
         assert user_wants_to_meetup.id in [result.user_id for result in res.results]
 
-    with search_session(token9) as api:
+    with search_session(does_not_want_to_meet_token) as api:
         res = api.UserSearchV2(
             search_pb2.UserSearchReq(meetup_status_filter=[api_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP])
         )
@@ -182,9 +184,11 @@ def test_user_filter_language(db):
     """
     Test filtering users by language ability.
     """
-    user_with_german_beginner, token11 = generate_user(hosting_status=HostingStatus.can_host)
-    user_with_japanese_conversational, token12 = generate_user(hosting_status=HostingStatus.can_host)
-    user_with_german_fluent, token13 = generate_user(hosting_status=HostingStatus.can_host)
+    user_with_german_beginner, german_beginner_token = generate_user(hosting_status=HostingStatus.can_host)
+    user_with_japanese_conversational, japanese_conversational_token = generate_user(
+        hosting_status=HostingStatus.can_host
+    )
+    user_with_german_fluent, german_fluent_token = generate_user(hosting_status=HostingStatus.can_host)
 
     with session_scope() as session:
         session.add(
@@ -206,7 +210,7 @@ def test_user_filter_language(db):
     refresh_materialized_views_rapid(empty_pb2.Empty())
     refresh_materialized_views(empty_pb2.Empty())
 
-    with search_session(token11) as api:
+    with search_session(german_beginner_token) as api:
         res = api.UserSearchV2(
             search_pb2.UserSearchReq(
                 language_ability_filter=[
