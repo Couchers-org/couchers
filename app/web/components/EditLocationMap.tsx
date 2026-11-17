@@ -25,9 +25,10 @@ const StyledMap = styled("div")({
   position: "relative",
 });
 
-// MapLibre nulls `style` on WebGL context loss (e.g. after a long idle tab);
+// Whether the map is in a usable state. MapLibre nulls `style` on WebGL context
+// loss (e.g. after a long idle tab), so we use it as a proxy for that;
 // the Map instance itself stays non-null.
-function hasMapStyle(map: MaplibreMap | null): map is MaplibreMap {
+function isMapAvailable(map: MaplibreMap | null): map is MaplibreMap {
   return map != null && map.style != null;
 }
 
@@ -138,7 +139,7 @@ export default function EditLocationMap({
       lat: wrapped.lat,
       lng: wrapped.lng,
     });
-    if (!hasMapStyle(map.current)) return;
+    if (!isMapAvailable(map.current)) return;
     if (!isBlank.current && map.current.getLayer(CIRCLE_LAYER_NAME)) {
       map.current.setLayoutProperty(CIRCLE_LAYER_NAME, "visibility", "visible");
     }
@@ -146,7 +147,7 @@ export default function EditLocationMap({
   };
 
   const redrawMap = () => {
-    if (!hasMapStyle(map.current)) return;
+    if (!isMapAvailable(map.current)) return;
     const circle = map.current?.getSource<GeoJSONSource>(CIRCLE_SOURCE_NAME);
     if (!circle) return;
     if (!exact) {
@@ -267,7 +268,7 @@ export default function EditLocationMap({
 
   const flyToSearch = (coords: LngLat) => {
     if (!map.current) return;
-    if (hasMapStyle(map.current)) {
+    if (isMapAvailable(map.current)) {
       map.current.flyTo({ center: coords, zoom: 12.5 });
     }
     if (!exact) {
