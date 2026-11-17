@@ -94,4 +94,19 @@ export const mockNominatimSearch = (results: unknown[] = [], onRequest?: Request
 export const mockNominatimFailure = (status: number, body = "unavailable") =>
   mockPeliasFailure(status, body, NOMINATIM_SEARCH_URL);
 
+// Stubs navigator.geolocation to either succeed (Paris) or fail with the given error code.
+export const mockPosition = (granted: boolean, code = 1) => {
+  Object.defineProperty(navigator, "geolocation", {
+    configurable: true,
+    value: {
+      getCurrentPosition: (onSuccess: PositionCallback, onError: PositionErrorCallback) =>
+        granted
+          ? onSuccess({
+              coords: { latitude: 48.8566, longitude: 2.3522 },
+            } as GeolocationPosition)
+          : onError({ code, message: "nope" } as GeolocationPositionError),
+    },
+  });
+};
+
 export { rest, server };

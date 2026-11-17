@@ -5,7 +5,7 @@ import { LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { useEffect } from "react";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
-import { rest, REVERSE_URL, server } from "test/restMock";
+import { mockPosition, rest, REVERSE_URL, server } from "test/restMock";
 import { resetFailoverState } from "utils/geocode";
 
 import EditLocationMap from "./EditLocationMap";
@@ -199,23 +199,6 @@ describe("Edit location map", () => {
 
   describe('the "use my location" button', () => {
     const BUTTON = t("global:use_my_location.button_a11y");
-
-    const mockPosition = (granted: boolean) => {
-      Object.defineProperty(navigator, "geolocation", {
-        configurable: true,
-        value: {
-          getCurrentPosition: (onSuccess: PositionCallback, onError: PositionErrorCallback) =>
-            granted
-              ? onSuccess({
-                  coords: { latitude: 48.8566, longitude: 2.3522 },
-                } as GeolocationPosition)
-              : onError({
-                  code: 1,
-                  message: "denied",
-                } as GeolocationPositionError),
-        },
-      });
-    };
 
     const renderMap = (updateLocation = jest.fn()) => {
       render(

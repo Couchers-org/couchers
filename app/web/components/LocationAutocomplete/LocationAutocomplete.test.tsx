@@ -9,6 +9,7 @@ import {
   mockPeliasAutocomplete,
   mockPeliasFailure,
   mockPeliasReverse,
+  mockPosition,
   rest,
   REVERSE_URL,
   server,
@@ -478,20 +479,6 @@ describe("LocationAutocomplete component", () => {
 
   describe('the "use my location" button', () => {
     const BUTTON = t("global:use_my_location.button_a11y");
-
-    const mockPosition = (granted: boolean, code = 1) => {
-      Object.defineProperty(navigator, "geolocation", {
-        configurable: true,
-        value: {
-          getCurrentPosition: (onSuccess: PositionCallback, onError: PositionErrorCallback) =>
-            granted
-              ? onSuccess({
-                  coords: { latitude: 48.8566, longitude: 2.3522 },
-                } as GeolocationPosition)
-              : onError({ code, message: "nope" } as GeolocationPositionError),
-        },
-      });
-    };
 
     const mockReverse = (status = 200) =>
       server.use(
