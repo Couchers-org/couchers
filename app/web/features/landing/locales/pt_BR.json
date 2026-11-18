@@ -46,5 +46,7 @@
   "num_countries2_many": "Mais de {{count}} países",
   "num_countries2_other": "Mais de {{count}} países",
   "animation_error": "Erro ao carregar animação",
-  "last_signup2": "Último cadastro <timeAgo/>"
+  "last_signup2": "Último cadastro <timeAgo/>",
+  "hero_animation_pause_button_a11y": "Pausar animação",
+  "hero_animation_play_button_a11y": "Reproduzir animação"
 }

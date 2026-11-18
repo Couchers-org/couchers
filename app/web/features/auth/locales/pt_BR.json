@@ -1,6 +1,6 @@
 {
   "change_email_form": {
-    "success_message": "A alteração ao teu e-mail foi recebida. Verifica o teu novo email para completar a alteração.",
+    "success_message": "Enviamos um link de confirmação para seu novo e-mail. Clique nele para finalizar a atualização da sua conta.",
     "new_email": "Novo e-mail",
     "current_password": "Palavra-passe actual",
     "title": "Alterar e-mail",
@@ -401,5 +401,11 @@
     "something_else": "Outra coisa",
     "events_description": "Quero participar de eventos e conhecer a comunidade",
     "events": "Eventos"
+  },
+  "change_signup_email_form": {
+    "title": "Alterar e-mail de registro",
+    "current_email_message": "Seu endereço de e-mail atualmente é <strong>{{email}}</strong>.",
+    "success_message": "Enviamos um link de verificação para seu novo endereço de e-mail. Clique nele para confirmar seu e-mail.",
+    "signup_change_email": "Alterar endereço de e-mail"
   }
 }
