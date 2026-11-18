@@ -2117,6 +2117,15 @@ def test_event_photo_key(db):
     assert get_res.photo_key == "test_event_photo_key_123"
     assert "test_event_photo_key_123" in get_res.photo_url
 
+    # Updating to an unknown photo fails
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
+        events_api.update_event(token=token, event_id=event_id, photo_key="nonexistent_key")
+
+    # An empty photo key clears the photo
+    update_res = events_api.update_event(token=token, event_id=event_id, photo_key="")
+    assert update_res.photo_key == ""
+    assert update_res.photo_url == ""
+
 
 def test_event_timezone(db):
     user, token = generate_user()
