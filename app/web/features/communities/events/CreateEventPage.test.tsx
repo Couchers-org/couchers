@@ -250,8 +250,11 @@ describe("Create event page", () => {
       myHomeComplete: false,
       shouldShowDonationBanner: false,
       hasOptedInToBetaFeatures: false,
+<<<<<<< HEAD
       hostPool: 1,
       hasNewbieHostingHistory: false,
+=======
+>>>>>>> b649ee350 (fixing localized dates in test)
     });
 
     render(<CreateEventPage />, { wrapper });
