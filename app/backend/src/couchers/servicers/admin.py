@@ -103,6 +103,7 @@ uploadusetype2api = {
     UploadUseType.profile_gallery_photo_avatar: admin_pb2.UPLOAD_USE_TYPE_PROFILE_GALLERY_PHOTO_AVATAR,
     UploadUseType.event: admin_pb2.UPLOAD_USE_TYPE_EVENT,
     UploadUseType.page: admin_pb2.UPLOAD_USE_TYPE_PAGE,
+    UploadUseType.event_recurrence: admin_pb2.UPLOAD_USE_TYPE_EVENT_RECURRENCE,
 }
 
 otaplatform2api = {
@@ -1519,6 +1520,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                             user_id=use.user_id,
                             event_id=use.event_id,
                             page_id=use.page_id,
+                            event_recurrence_id=use.event_recurrence_id,
                             url=use.url,
                         )
                         for use in uses_by_key.get(upload.key, [])

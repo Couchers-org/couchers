@@ -10,6 +10,7 @@ from couchers import urls
 from couchers.models import (
     Event,
     EventOccurrence,
+    EventRecurrence,
     Page,
     PageType,
     PageVersion,
@@ -26,6 +27,8 @@ class UploadUseType(enum.Enum):
     profile_gallery_photo_avatar = enum.auto()
     event = enum.auto()
     page = enum.auto()
+    # the template for future occurrences of a recurring event
+    event_recurrence = enum.auto()
 
 
 @dataclass
@@ -37,6 +40,7 @@ class UploadUse:
     user_id: int | None = None
     event_id: int | None = None
     page_id: int | None = None
+    event_recurrence_id: int | None = None
     # link to the use (user profile, event, community page); not set for places/guides (no frontend route yet)
     url: str | None = None
 
@@ -99,6 +103,32 @@ def get_upload_uses_for_keys(session: Session, keys: list[str]) -> dict[str, lis
                 is_current=not is_deleted,
                 event_id=occurrence_id,
                 url=urls.event_link(occurrence_id=occurrence_id, slug=slug),
+            )
+        )
+
+    # a recurrence has no page of its own, so link to its event's latest occurrence
+    latest_occurrence_id = (
+        select(EventOccurrence.id)
+        .where(EventOccurrence.event_id == EventRecurrence.event_id)
+        .where(~EventOccurrence.is_deleted)
+        .order_by(EventOccurrence.start_time.desc(), EventOccurrence.id.desc())
+        .limit(1)
+        .correlate(EventRecurrence)
+        .scalar_subquery()
+    )
+    recurrence_rows = session.execute(
+        select(EventRecurrence.photo_key, EventRecurrence.id, latest_occurrence_id, Event.slug)
+        .join(Event, Event.id == EventRecurrence.event_id)
+        .where(EventRecurrence.photo_key.in_(keys))
+    ).all()
+    for photo_key, recurrence_id, occurrence_id, slug in recurrence_rows:
+        uses[not_none(photo_key)].append(
+            UploadUse(
+                use_type=UploadUseType.event_recurrence,
+                # the recurrence row is deleted when recurrence stops, so it's always in use
+                is_current=True,
+                event_recurrence_id=recurrence_id,
+                url=urls.event_link(occurrence_id=occurrence_id, slug=slug) if occurrence_id is not None else None,
             )
         )
 

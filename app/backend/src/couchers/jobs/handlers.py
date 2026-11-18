@@ -1317,7 +1317,7 @@ def _schedule_occurrences_for_recurrence(session: Session, recurrence: EventRecu
                 geom=recurrence.geom,
                 address=recurrence.address,
                 timezone=recurrence.timezone,
-                # TODO(#9845): Initialize photo_key. Implies adding admin usage tracking infra.
+                photo_key=recurrence.photo_key,
                 during=TimestamptzRange(start_datetime, end_datetime),
                 creator_user_id=recurrence.event.creator_user_id,
                 moderation_state_id=moderation_state_id,
