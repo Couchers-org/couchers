@@ -167,8 +167,8 @@ class Account(account_pb2_grpc.AccountServicer):
     def GetAccountInfo(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> account_pb2.GetAccountInfoRes:
-        user, volunteer = session.execute(
-            select(User, Volunteer).outerjoin(Volunteer, Volunteer.user_id == User.id).where(User.id == context.user_id)
+        user, is_volunteer = session.execute(
+            select(User, exists().where(Volunteer.user_id == User.id)).where(User.id == context.user_id)
         ).one()
 
         # Test experimentation integration - check if user is in the test gate
@@ -197,8 +197,9 @@ class Account(account_pb2_grpc.AccountServicer):
             is_superuser=user.is_superuser,
             ui_language_preference=user.ui_language_preference,
             profile_public_visibility=profilepublicitysetting2api[user.public_visibility],
-            is_volunteer=volunteer is not None,
+            is_volunteer=is_volunteer,
             should_show_donation_banner=should_show_donation_banner,
+            has_opted_in_to_beta_features=user.has_opted_in_to_beta_features,
             **get_strong_verification_fields(session, user),
         )
 
@@ -690,6 +691,20 @@ class Account(account_pb2_grpc.AccountServicer):
         user.has_modified_public_visibility = True
         return empty_pb2.Empty()
 
+    def SetBetaFeaturesOptIn(
+        self, request: account_pb2.SetBetaFeaturesOptInReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
+        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        if user.has_opted_in_to_beta_features != request.beta_features_opt_in:
+            user.has_opted_in_to_beta_features = request.beta_features_opt_in
+            log_event(
+                context,
+                session,
+                "account.beta_features_opt_in_changed",
+                {"opted_in": request.beta_features_opt_in},
+            )
+        return empty_pb2.Empty()
+
     def CreateInviteCode(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> account_pb2.CreateInviteCodeRes:
@@ -874,11 +889,17 @@ class Account(account_pb2_grpc.AccountServicer):
                 link_text = link_text
                 link_url = f"https://www.linkedin.com/in/{link_text}/"
             elif link_type == "email":
-                if not is_valid_email(link_text):
+                if not link_text or not is_valid_email(link_text):
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_email")
                 link_url = f"mailto:{link_text}"
             elif link_type == "website":
-                if not link_url.startswith("https://") or "/" in link_text or link_text not in link_url:
+                if (
+                    not link_url
+                    or not link_text
+                    or not link_url.startswith("https://")
+                    or "/" in link_text
+                    or link_text not in link_url
+                ):
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_website_url")
             else:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_link_type")

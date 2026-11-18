@@ -3,15 +3,22 @@ import { Box, Tooltip, Typography } from "@mui/material";
 import IconButton from "components/IconButton";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
+import { ReactNode } from "react";
 import useCopyToClipboard from "utils/useCopyToClipboard";
 
 interface CopyButtonProps {
   text: string;
   label?: string;
+  icon?: ReactNode;
   onCopy?: (succeeded: boolean) => void;
 }
 
-export default function CopyButton({ text, label, onCopy }: CopyButtonProps) {
+export default function CopyButton({
+  text,
+  label,
+  icon = <ContentCopyOutlined sx={{ fontSize: 16 }} />,
+  onCopy,
+}: CopyButtonProps) {
   const { t } = useTranslation(GLOBAL);
   const { copy, status } = useCopyToClipboard();
   const a11yLabel = label ?? t("global:copy_button.a11y");
@@ -29,7 +36,7 @@ export default function CopyButton({ text, label, onCopy }: CopyButtonProps) {
             onCopy?.(succeeded);
           }}
         >
-          <ContentCopyOutlined sx={{ fontSize: 16 }} />
+          {icon}
         </IconButton>
       </Tooltip>
       <Typography

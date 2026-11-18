@@ -1,12 +1,11 @@
 import { Luggage, MeetingRoom, SvgIconComponent } from "@mui/icons-material";
 import { Box, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
-import FadingScrollTrack, { cardScrollDistance } from "components/FadingScrollTrack";
+import CardTrack, { useCardTrack } from "components/CardTrack";
 import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import { HostRequest } from "proto/requests_pb";
-import { useEffect, useRef, useState } from "react";
 import { routeToEditProfile, searchRoute } from "routes";
 import { theme } from "theme";
 
@@ -25,7 +24,6 @@ interface UpcomingStaysWidgetProps {
 }
 
 const CARD_WIDTH = 220;
-const CARD_GAP = 12;
 
 const EmptyStateRow = styled("div")(({ theme }) => ({
   display: "flex",
@@ -46,49 +44,18 @@ function UpcomingStaysWidget({
   emptyCtaLabel,
   emptyCtaHref,
 }: UpcomingStaysWidgetProps) {
-  const scrollerRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-
-  const updateScrollState = () => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    // scrollLeft: pixels scrolled; clientWidth: visible width; scrollWidth: total content width.
-    // scrollLeft is a float on high-DPI screens, so Math.round prevents the right arrow staying lit at the end.
-    setCanScrollLeft(el.scrollLeft > 0);
-    setCanScrollRight(Math.round(el.scrollLeft) < el.scrollWidth - el.clientWidth);
-  };
-
-  useEffect(() => {
-    updateScrollState();
-  }, [requests.length, isLoading]);
-
-  const scroll = (dir: 1 | -1) => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    el.scrollBy({ left: dir * cardScrollDistance(el, CARD_WIDTH, CARD_GAP), behavior: "smooth" });
-  };
+  const track = useCardTrack();
 
   return (
     <section>
-      <DashboardSectionHeader
-        icon={icon}
-        title={title}
-        count={isLoading ? 0 : requests.length}
-        hasPrevious={canScrollLeft}
-        hasNext={canScrollRight}
-        onPrevious={() => scroll(-1)}
-        onNext={() => scroll(1)}
-      />
+      <DashboardSectionHeader icon={icon} title={title} count={isLoading ? 0 : requests.length} {...track.navProps} />
 
       {isLoading ? (
-        <FadingScrollTrack $gap={CARD_GAP} $snapType="x proximity">
+        <CardTrack cardWidth={CARD_WIDTH}>
           {[0, 1, 2].map((i) => (
-            <Box key={i} sx={{ flex: `0 0 ${CARD_WIDTH}px`, scrollSnapAlign: "start" }}>
-              <UpcomingStayCardSkeleton />
-            </Box>
+            <UpcomingStayCardSkeleton key={i} />
           ))}
-        </FadingScrollTrack>
+        </CardTrack>
       ) : requests.length === 0 ? (
         <EmptyStateRow>
           <Typography variant="body2" sx={{ flex: 1, color: "var(--mui-palette-text-secondary)" }}>
@@ -109,27 +76,11 @@ function UpcomingStaysWidget({
           </Link>
         </EmptyStateRow>
       ) : (
-        <FadingScrollTrack
-          ref={scrollerRef}
-          onScroll={updateScrollState}
-          $gap={CARD_GAP}
-          $snapType="x proximity"
-          $canScrollLeft={canScrollLeft}
-          $canScrollRight={canScrollRight}
-        >
+        <CardTrack track={track} cardWidth={CARD_WIDTH}>
           {requests.map((r) => (
-            <Box
-              key={r.hostRequestId}
-              sx={{
-                flex: `0 0 ${CARD_WIDTH}px`,
-                minWidth: 0,
-                scrollSnapAlign: "start",
-              }}
-            >
-              <UpcomingStayCard hostRequest={r} />
-            </Box>
+            <UpcomingStayCard key={r.hostRequestId} hostRequest={r} />
           ))}
-        </FadingScrollTrack>
+        </CardTrack>
       )}
     </section>
   );

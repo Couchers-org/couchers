@@ -31,6 +31,7 @@ from couchers.resources import get_badge_dict
 from couchers.utils import create_coordinate, now, to_aware_datetime
 from tests.fixtures.db import generate_user, make_friends, make_user_block
 from tests.fixtures.misc import EmailCollector, PushCollector
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
     api_session,
     blocking_session,
@@ -164,36 +165,36 @@ def test_coords(db):
 
 
 def test_get_user(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    viewer_user, viewer_token = generate_user()
+    target_user, target_token = generate_user()
 
-    with api_session(token1) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user2.username))
-        assert res.user_id == user2.id
-        assert res.username == user2.username
-        assert res.name == user2.name
+    with api_session(viewer_token) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=target_user.username))
+        assert res.user_id == target_user.id
+        assert res.username == target_user.username
+        assert res.name == target_user.name
 
-    with api_session(token1) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=str(user2.id)))
-        assert res.user_id == user2.id
-        assert res.username == user2.username
-        assert res.name == user2.name
+    with api_session(viewer_token) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=str(target_user.id)))
+        assert res.user_id == target_user.id
+        assert res.username == target_user.username
+        assert res.name == target_user.name
 
 
 @pytest.mark.parametrize("flag", ["deleted_at", "banned_at"])
 def test_user_model_to_pb_ghost_user(db, flag):
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
+    viewer_user, viewer_token = generate_user()
+    ghost_user, _ = generate_user()
 
     with session_scope() as session:
-        session.execute(update(User).where(User.id == user2.id).values(**{flag: func.now()}))
+        session.execute(update(User).where(User.id == ghost_user.id).values(**{flag: func.now()}))
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
 
-    with api_session(token1) as api:
-        user_pb = api.GetUser(api_pb2.GetUserReq(user=user2.username))
+    with api_session(viewer_token) as api:
+        user_pb = api.GetUser(api_pb2.GetUserReq(user=ghost_user.username))
 
-    assert user_pb.user_id == user2.id
+    assert user_pb.user_id == ghost_user.id
     assert user_pb.is_ghost
     assert user_pb.username == "ghost"
     assert user_pb.name == "Deactivated Account"
@@ -230,10 +231,10 @@ def test_user_model_to_pb_ghost_user(db, flag):
     assert user_pb.avatar_thumbnail_url == ""
     assert not user_pb.has_strong_verification
 
-    with api_session(token1) as api:
-        lite_user_pb = api.GetLiteUser(api_pb2.GetLiteUserReq(user=user2.username))
+    with api_session(viewer_token) as api:
+        lite_user_pb = api.GetLiteUser(api_pb2.GetLiteUserReq(user=ghost_user.username))
 
-    assert lite_user_pb.user_id == user2.id
+    assert lite_user_pb.user_id == ghost_user.id
     assert lite_user_pb.is_ghost
     assert lite_user_pb.username == "ghost"
     assert lite_user_pb.name == "Deactivated Account"
@@ -248,18 +249,18 @@ def test_user_model_to_pb_ghost_user(db, flag):
 
 
 def test_user_model_to_pb_ghost_user_blocked(db):
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
+    blocker_user, blocker_token = generate_user()
+    blocked_user, _ = generate_user()
 
-    with blocking_session(token1) as user_blocks:
-        user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user2.username))
+    with blocking_session(blocker_token) as user_blocks:
+        user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=blocked_user.username))
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
 
-    with api_session(token1) as api:
-        user_pb = api.GetUser(api_pb2.GetUserReq(user=user2.username))
+    with api_session(blocker_token) as api:
+        user_pb = api.GetUser(api_pb2.GetUserReq(user=blocked_user.username))
 
-    assert user_pb.user_id == user2.id
+    assert user_pb.user_id == blocked_user.id
     assert user_pb.is_ghost
     assert user_pb.username == "ghost"
     assert user_pb.name == "Deactivated Account"
@@ -296,10 +297,10 @@ def test_user_model_to_pb_ghost_user_blocked(db):
     assert user_pb.avatar_thumbnail_url == ""
     assert not user_pb.has_strong_verification
 
-    with api_session(token1) as api:
-        lite_user_pb = api.GetLiteUser(api_pb2.GetLiteUserReq(user=user2.username))
+    with api_session(blocker_token) as api:
+        lite_user_pb = api.GetLiteUser(api_pb2.GetLiteUserReq(user=blocked_user.username))
 
-    assert lite_user_pb.user_id == user2.id
+    assert lite_user_pb.user_id == blocked_user.id
     assert lite_user_pb.is_ghost
     assert lite_user_pb.username == "ghost"
     assert lite_user_pb.name == "Deactivated Account"
@@ -322,40 +323,40 @@ def test_user_model_to_pb_ghost_user_blocked(db):
     ],
 )
 def test_viewing_nonvisible_user_profile_is_logged(db, flag, state):
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
+    viewer_user, viewer_token = generate_user()
+    target_user, _ = generate_user()
 
     with session_scope() as session:
-        session.execute(update(User).where(User.id == user2.id).values(**{flag: func.now()}))
+        session.execute(update(User).where(User.id == target_user.id).values(**{flag: func.now()}))
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
 
-    with api_session(token1) as api:
-        user_pb = api.GetUser(api_pb2.GetUserReq(user=user2.username))
+    with api_session(viewer_token) as api:
+        user_pb = api.GetUser(api_pb2.GetUserReq(user=target_user.username))
     assert user_pb.is_ghost
 
     with session_scope() as session:
         access = session.execute(select(NonvisibleUserAccess)).scalar_one()
         assert access.access_type == NonvisibleUserAccessType.ghost_served
         assert access.target_state == state
-        assert access.target_user_id == user2.id
-        assert access.actor_user_id == user1.id
+        assert access.target_user_id == target_user.id
+        assert access.actor_user_id == viewer_user.id
         assert access.ip_address is None
         assert access.user_agent is None
         assert access.sofa is None
 
 
 def test_viewing_blocked_user_profile_is_not_logged(db):
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
+    blocker_user, blocker_token = generate_user()
+    blocked_user, _ = generate_user()
 
-    with blocking_session(token1) as user_blocks:
-        user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user2.username))
+    with blocking_session(blocker_token) as user_blocks:
+        user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=blocked_user.username))
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
 
-    with api_session(token1) as api:
-        user_pb = api.GetUser(api_pb2.GetUserReq(user=user2.username))
+    with api_session(blocker_token) as api:
+        user_pb = api.GetUser(api_pb2.GetUserReq(user=blocked_user.username))
     assert user_pb.is_ghost
 
     with session_scope() as session:
@@ -464,22 +465,22 @@ def test_lite_coords(db):
 
 
 def test_lite_get_user(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    viewer_user, viewer_token = generate_user()
+    target_user, target_token = generate_user()
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
 
-    with api_session(token1) as api:
-        res = api.GetLiteUser(api_pb2.GetLiteUserReq(user=user2.username))
-        assert res.user_id == user2.id
-        assert res.username == user2.username
-        assert res.name == user2.name
+    with api_session(viewer_token) as api:
+        res = api.GetLiteUser(api_pb2.GetLiteUserReq(user=target_user.username))
+        assert res.user_id == target_user.id
+        assert res.username == target_user.username
+        assert res.name == target_user.name
 
-    with api_session(token1) as api:
-        res = api.GetLiteUser(api_pb2.GetLiteUserReq(user=str(user2.id)))
-        assert res.user_id == user2.id
-        assert res.username == user2.username
-        assert res.name == user2.name
+    with api_session(viewer_token) as api:
+        res = api.GetLiteUser(api_pb2.GetLiteUserReq(user=str(target_user.id)))
+        assert res.user_id == target_user.id
+        assert res.username == target_user.username
+        assert res.name == target_user.name
 
 
 def test_GetLiteUsers(db):
@@ -545,41 +546,31 @@ def test_GetLiteUsers(db):
         assert res.responses[8].user.name == "Deactivated Account"
 
     with api_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "You can't request that many users at a time."):
             api.GetLiteUsers(api_pb2.GetLiteUsersReq(users=201 * [user1.username]))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "You can't request that many users at a time."
 
 
 def test_update_profile(db):
     user, token = generate_user()
 
     with api_session(token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Name not supported."):
             api.UpdateProfile(api_pb2.UpdateProfileReq(name=wrappers_pb2.StringValue(value="  ")))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Name not supported."
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid coordinate."):
             api.UpdateProfile(
                 api_pb2.UpdateProfileReq(lat=wrappers_pb2.DoubleValue(value=0), lng=wrappers_pb2.DoubleValue(value=0))
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Invalid coordinate."
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid region."):
             api.UpdateProfile(
                 api_pb2.UpdateProfileReq(regions_visited=api_pb2.RepeatedStringValue(value=["United States"]))
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Invalid region."
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid region."):
             api.UpdateProfile(
                 api_pb2.UpdateProfileReq(regions_lived=api_pb2.RepeatedStringValue(value=["United Kingdom"]))
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Invalid region."
 
         api.UpdateProfile(
             api_pb2.UpdateProfileReq(
@@ -676,15 +667,17 @@ def test_update_profile_do_not_email(db):
         notifications.SetNotificationSettings(notifications_pb2.SetNotificationSettingsReq(enable_do_not_email=True))
 
     with api_session(token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION,
+            "You cannot enable hosting while you have emails turned off in your settings.",
+        ):
             api.UpdateProfile(api_pb2.UpdateProfileReq(hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You cannot enable hosting while you have emails turned off in your settings."
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION,
+            "You cannot enable meeting up while you have emails turned off in your settings.",
+        ):
             api.UpdateProfile(api_pb2.UpdateProfileReq(meetup_status=api_pb2.MEETUP_STATUS_OPEN_TO_MEETUP))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You cannot enable meeting up while you have emails turned off in your settings."
 
 
 def test_language_abilities(db):
@@ -700,7 +693,7 @@ def test_language_abilities(db):
         assert len(res.language_abilities) == 2
 
         # can't add non-existent languages
-        with pytest.raises(grpc.RpcError) as err:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid language."):
             api.UpdateProfile(
                 api_pb2.UpdateProfileReq(
                     language_abilities=api_pb2.RepeatedLanguageAbilityValue(
@@ -713,8 +706,6 @@ def test_language_abilities(db):
                     ),
                 )
             )
-        assert err.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert err.value.details() == "Invalid language."
 
         # can't have multiple languages of the same type
         with pytest.raises(Exception) as err2:
@@ -819,30 +810,30 @@ def test_language_abilities(db):
 
 
 def test_pending_friend_request_count(db, moderator):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    user3, token3 = generate_user()
+    sender_user, sender_token = generate_user()
+    recipient_user, recipient_token = generate_user()
+    other_user, other_token = generate_user()
 
-    with api_session(token2) as api:
+    with api_session(recipient_token) as api:
         res = api.Ping(api_pb2.PingReq())
         assert res.pending_friend_request_count == 0
 
-    with api_session(token1) as api:
+    with api_session(sender_token) as api:
         res = api.Ping(api_pb2.PingReq())
         assert res.pending_friend_request_count == 0
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=recipient_user.id))
         # Sender can still see their own sent requests (even while SHADOWED)
         res = api.Ping(api_pb2.PingReq())
         assert res.pending_friend_request_count == 0
 
     # Get friend request ID from sender's view (author can see SHADOWED)
-    with api_session(token1) as api:
+    with api_session(sender_token) as api:
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert len(res.sent) == 1
         fr_id = res.sent[0].friend_request_id
 
     # Recipient cannot see SHADOWED friend requests before mod approval
-    with api_session(token2) as api:
+    with api_session(recipient_token) as api:
         res = api.Ping(api_pb2.PingReq())
         assert res.pending_friend_request_count == 0
 
@@ -850,18 +841,18 @@ def test_pending_friend_request_count(db, moderator):
     moderator.approve_friend_request(fr_id)
 
     # Now recipient can see the approved friend request
-    with api_session(token2) as api:
+    with api_session(recipient_token) as api:
         res = api.Ping(api_pb2.PingReq())
         assert res.pending_friend_request_count == 1
 
-    with api_session(token2) as api:
+    with api_session(recipient_token) as api:
         # check it's there
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert len(res.sent) == 0
         assert len(res.received) == 1
 
         assert res.received[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
-        assert res.received[0].user_id == user1.id
+        assert res.received[0].user_id == sender_user.id
 
         fr_id = res.received[0].friend_request_id
 
@@ -873,38 +864,38 @@ def test_pending_friend_request_count(db, moderator):
 
 
 def test_friend_request_flow(db, email_collector: EmailCollector, push_collector: PushCollector, moderator):
-    user1, token1 = generate_user(complete_profile=True)
-    user2, token2 = generate_user(complete_profile=True)
-    user3, token3 = generate_user()
+    sender_user, sender_token = generate_user(complete_profile=True)
+    recipient_user, recipient_token = generate_user(complete_profile=True)
+    non_friend_user, non_friend_token = generate_user()
 
-    # send a friend request from user1 to user2
-    with api_session(token1) as api:
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+    # send a friend request from the sender to the recipient
+    with api_session(sender_token) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=recipient_user.id))
 
     with session_scope() as session:
         friend_request = session.execute(
             select(FriendRelationship).where(
-                FriendRelationship.from_user_id == user1.id, FriendRelationship.to_user_id == user2.id
+                FriendRelationship.from_user_id == sender_user.id, FriendRelationship.to_user_id == recipient_user.id
             )
         ).scalar_one()
         friend_request_id = friend_request.id
 
     # Notification is deferred while content is SHADOWED
     # No push notification sent yet
-    assert push_collector.count_for_user(user2.id) == 0
+    assert push_collector.count_for_user(recipient_user.id) == 0
 
-    with api_session(token1) as api:
+    with api_session(sender_token) as api:
         # Sender can see their own sent requests (even while SHADOWED)
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert len(res.sent) == 1
         assert len(res.received) == 0
 
         assert res.sent[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
-        assert res.sent[0].user_id == user2.id
+        assert res.sent[0].user_id == recipient_user.id
         assert res.sent[0].friend_request_id == friend_request_id
 
     # Recipient cannot see SHADOWED friend requests
-    with api_session(token2) as api:
+    with api_session(recipient_token) as api:
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert len(res.sent) == 0
         assert len(res.received) == 0
@@ -912,32 +903,32 @@ def test_friend_request_flow(db, email_collector: EmailCollector, push_collector
     # Moderator approves the friend request - this triggers the notification
     moderator.approve_friend_request(friend_request_id)
 
-    push = push_collector.pop_for_user(user2.id, last=True)
-    assert push.content.title == f"Friend request from {user1.name}"
-    assert push.content.body == f"{user1.name} wants to be your friend."
-    assert push.content.action_url == f"http://localhost:3000/connections/friends/?from={user1.id}"
+    push = push_collector.pop_for_user(recipient_user.id, last=True)
+    assert push.content.title == f"Friend request from {sender_user.name}"
+    assert push.content.body == f"{sender_user.name} wants to be your friend."
+    assert push.content.action_url == f"http://localhost:3000/connections/friends/?from={sender_user.id}"
 
-    email = email_collector.pop_for_recipient(user2.email, last=True)
-    assert email.recipient == user2.email
-    assert email.subject == f"[TEST] {user1.name} wants to be your friend"
-    assert user2.name in email.plain
-    assert user2.name in email.html
-    assert user1.name in email.plain
-    assert user1.name in email.html
+    email = email_collector.pop_for_recipient(recipient_user.email, last=True)
+    assert email.recipient == recipient_user.email
+    assert email.subject == f"[TEST] {sender_user.name} wants to be your friend"
+    assert recipient_user.name in email.plain
+    assert recipient_user.name in email.html
+    assert sender_user.name in email.plain
+    assert sender_user.name in email.html
     assert "http://localhost:5001/img/thumbnail/" not in email.plain
     assert "http://localhost:5001/img/thumbnail/" in email.html
     assert "http://localhost:3000/connections/friends/" in email.plain
     assert "http://localhost:3000/connections/friends/" in email.html
 
     # Now recipient can see the approved friend request
-    with api_session(token2) as api:
+    with api_session(recipient_token) as api:
         # check it's there
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert len(res.sent) == 0
         assert len(res.received) == 1
 
         assert res.received[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
-        assert res.received[0].user_id == user1.id
+        assert res.received[0].user_id == sender_user.id
 
         fr_id = res.received[0].friend_request_id
 
@@ -952,27 +943,27 @@ def test_friend_request_flow(db, email_collector: EmailCollector, push_collector
         # check we're friends now
         res = api.ListFriends(empty_pb2.Empty())
         assert len(res.user_ids) == 1
-        assert res.user_ids[0] == user1.id
+        assert res.user_ids[0] == sender_user.id
 
-    # user2 got one push (from the friend request creation)
-    # user1 should now have one push (from the friend request acceptance)
-    push = push_collector.pop_for_user(user1.id, last=True)
-    assert push.content.title == f"{user2.name} accepted your friend request"
-    assert push.content.body == f"You are now friends with {user2.name}."
+    # the recipient got one push (from the friend request creation)
+    # the sender should now have one push (from the friend request acceptance)
+    push = push_collector.pop_for_user(sender_user.id, last=True)
+    assert push.content.title == f"{recipient_user.name} accepted your friend request"
+    assert push.content.body == f"You are now friends with {recipient_user.name}."
 
-    email = email_collector.pop_for_recipient(user1.email, last=True)
-    assert email.recipient == user1.email
-    assert email.subject == f"[TEST] {user2.name} accepted your friend request"
-    assert user1.name in email.plain
-    assert user1.name in email.html
-    assert user2.name in email.plain
-    assert user2.name in email.html
+    email = email_collector.pop_for_recipient(sender_user.email, last=True)
+    assert email.recipient == sender_user.email
+    assert email.subject == f"[TEST] {recipient_user.name} accepted your friend request"
+    assert sender_user.name in email.plain
+    assert sender_user.name in email.html
+    assert recipient_user.name in email.plain
+    assert recipient_user.name in email.html
     assert "http://localhost:5001/img/thumbnail/" not in email.plain
     assert "http://localhost:5001/img/thumbnail/" in email.html
-    assert f"http://localhost:3000/user/{user2.username}" in email.plain
-    assert f"http://localhost:3000/user/{user2.username}" in email.html
+    assert f"http://localhost:3000/user/{recipient_user.username}" in email.plain
+    assert f"http://localhost:3000/user/{recipient_user.username}" in email.html
 
-    with api_session(token1) as api:
+    with api_session(sender_token) as api:
         # check it's gone
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert len(res.sent) == 0
@@ -981,17 +972,15 @@ def test_friend_request_flow(db, email_collector: EmailCollector, push_collector
         # check we're friends now
         res = api.ListFriends(empty_pb2.Empty())
         assert len(res.user_ids) == 1
-        assert res.user_ids[0] == user2.id
+        assert res.user_ids[0] == recipient_user.id
 
-    with api_session(token1) as api:
+    with api_session(sender_token) as api:
         # we can't unfriend if we aren't friends
-        with pytest.raises(grpc.RpcError) as err:
-            api.RemoveFriend(api_pb2.RemoveFriendReq(user_id=user3.id))
-        assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert err.value.details() == "You aren't friends with that user!"
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You aren't friends with that user!"):
+            api.RemoveFriend(api_pb2.RemoveFriendReq(user_id=non_friend_user.id))
 
         # we can unfriend
-        res = api.RemoveFriend(api_pb2.RemoveFriendReq(user_id=user2.id))
+        res = api.RemoveFriend(api_pb2.RemoveFriendReq(user_id=recipient_user.id))
 
         res = api.ListFriends(empty_pb2.Empty())
         assert len(res.user_ids) == 0
@@ -1053,32 +1042,34 @@ def test_RemoveFriend_regression(db, push_collector: PushCollector, moderator):
 
 
 def test_cant_friend_request_twice(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    sender_user, sender_token = generate_user()
+    recipient_user, recipient_token = generate_user()
 
-    # send friend request from user1 to user2
-    with api_session(token1) as api:
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+    # send friend request from the sender to the recipient
+    with api_session(sender_token) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=recipient_user.id))
 
-        with pytest.raises(grpc.RpcError) as e:
-            api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You are already friends with or have sent a friend request to that user."
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION,
+            "You are already friends with or have sent a friend request to that user.",
+        ):
+            api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=recipient_user.id))
 
 
 def test_cant_friend_request_pending(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    sender_user, sender_token = generate_user()
+    recipient_user, recipient_token = generate_user()
 
-    # send friend request from user1 to user2
-    with api_session(token1) as api:
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+    # send friend request from the sender to the recipient
+    with api_session(sender_token) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=recipient_user.id))
 
-    with api_session(token2) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You are already friends with or have sent a friend request to that user."
+    with api_session(recipient_token) as api:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION,
+            "You are already friends with or have sent a friend request to that user.",
+        ):
+            api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=sender_user.id))
 
 
 def test_cant_friend_request_already_friends(db):
@@ -1087,31 +1078,34 @@ def test_cant_friend_request_already_friends(db):
     make_friends(user1, user2)
 
     with api_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION,
+            "You are already friends with or have sent a friend request to that user.",
+        ):
             api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You are already friends with or have sent a friend request to that user."
 
     with api_session(token2) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION,
+            "You are already friends with or have sent a friend request to that user.",
+        ):
             api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You are already friends with or have sent a friend request to that user."
 
 
 def test_cant_friend_request_incomplete_profile(db):
-    user1, token1 = generate_user(complete_profile=False)
-    user2, token2 = generate_user(complete_profile=True)
+    incomplete_user, incomplete_token = generate_user(complete_profile=False)
+    complete_user, complete_token = generate_user(complete_profile=True)
 
-    with api_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You have to complete your profile before you can send a friend request."
+    with api_session(incomplete_token) as api:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION,
+            "You have to complete your profile before you can send a friend request.",
+        ):
+            api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=complete_user.id))
 
     # the other direction should still work
-    with api_session(token2) as api:
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+    with api_session(complete_token) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=incomplete_user.id))
 
 
 def test_excessive_friend_requests_are_reported(db, low_rate_limits, email_collector: EmailCollector):
@@ -1140,13 +1134,11 @@ def test_excessive_friend_requests_are_reported(db, low_rate_limits, email_colle
 
         assert email_collector.count_for_reports() == 0
         friend_user, _ = generate_user()
-        with pytest.raises(grpc.RpcError) as exc_info:
+        with expect_rpc_error(
+            grpc.StatusCode.RESOURCE_EXHAUSTED,
+            "You have sent a lot of friend requests in the past 24 hours. To avoid spam, you can't send any more for now.",
+        ):
             _ = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=friend_user.id))
-        assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
-        assert (
-            exc_info.value.details()
-            == "You have sent a lot of friend requests in the past 24 hours. To avoid spam, you can't send any more for now."
-        )
 
         email = email_collector.pop_for_reports(last=True)
         assert email.plain.startswith(
@@ -1163,9 +1155,8 @@ def test_excessive_friend_requests_are_reported(db, low_rate_limits, email_colle
 
         # still blocked once the hard violation is on record, without reporting again
         friend_user, _ = generate_user()
-        with pytest.raises(grpc.RpcError) as exc_info:
+        with expect_rpc_error(grpc.StatusCode.RESOURCE_EXHAUSTED):
             _ = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=friend_user.id))
-        assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
         assert email_collector.count_for_reports() == 0
 
 
@@ -1315,14 +1306,14 @@ def test_mutual_friends_self(db):
 
 
 def test_CancelFriendRequest(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    sender_user, sender_token = generate_user()
+    recipient_user, recipient_token = generate_user()
 
-    with api_session(token1) as api:
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+    with api_session(sender_token) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=recipient_user.id))
 
         res = api.ListFriendRequests(empty_pb2.Empty())
-        assert res.sent[0].user_id == user2.id
+        assert res.sent[0].user_id == recipient_user.id
         fr_id = res.sent[0].friend_request_id
 
         api.CancelFriendRequest(api_pb2.CancelFriendRequestReq(friend_request_id=fr_id))
@@ -1336,7 +1327,7 @@ def test_CancelFriendRequest(db):
         res = api.ListFriends(empty_pb2.Empty())
         assert len(res.user_ids) == 0
 
-    with api_session(token2) as api:
+    with api_session(recipient_token) as api:
         # check it's gone
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert len(res.sent) == 0
@@ -1346,18 +1337,18 @@ def test_CancelFriendRequest(db):
         res = api.ListFriends(empty_pb2.Empty())
         assert len(res.user_ids) == 0
 
-    with api_session(token1) as api:
+    with api_session(sender_token) as api:
         # check we can send another friend req
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=recipient_user.id))
 
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert res.sent[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
-        assert res.sent[0].user_id == user2.id
+        assert res.sent[0].user_id == recipient_user.id
 
 
 def test_accept_friend_request(db, moderator):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    sender_user, sender_token = generate_user()
+    recipient_user, recipient_token = generate_user()
 
     with session_scope() as session:
         moderation_state = ModerationState(
@@ -1368,8 +1359,8 @@ def test_accept_friend_request(db, moderator):
         session.add(moderation_state)
         session.flush()
         friend_request = FriendRelationship(
-            from_user_id=user1.id,
-            to_user_id=user2.id,
+            from_user_id=sender_user.id,
+            to_user_id=recipient_user.id,
             status=FriendStatus.pending,
             moderation_state_id=moderation_state.id,
         )
@@ -1379,11 +1370,11 @@ def test_accept_friend_request(db, moderator):
         session.commit()
         friend_request_id = friend_request.id
 
-    with api_session(token2) as api:
+    with api_session(recipient_token) as api:
         # check request pending
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert len(res.received) == 1
-        assert res.received[0].user_id == user1.id
+        assert res.received[0].user_id == sender_user.id
 
         api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=friend_request_id, accept=True))
 
@@ -1395,9 +1386,9 @@ def test_accept_friend_request(db, moderator):
         # check now friends
         res = api.ListFriends(empty_pb2.Empty())
         assert len(res.user_ids) == 1
-        assert res.user_ids[0] == user1.id
+        assert res.user_ids[0] == sender_user.id
 
-    with api_session(token1) as api:
+    with api_session(sender_token) as api:
         # check request gone
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert len(res.sent) == 0
@@ -1406,28 +1397,28 @@ def test_accept_friend_request(db, moderator):
         # check now friends
         res = api.ListFriends(empty_pb2.Empty())
         assert len(res.user_ids) == 1
-        assert res.user_ids[0] == user2.id
+        assert res.user_ids[0] == recipient_user.id
 
 
 def test_reject_friend_request(db, moderator):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    sender_user, sender_token = generate_user()
+    recipient_user, recipient_token = generate_user()
 
-    with api_session(token1) as api:
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+    with api_session(sender_token) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=recipient_user.id))
 
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert res.sent[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
-        assert res.sent[0].user_id == user2.id
+        assert res.sent[0].user_id == recipient_user.id
         fr_id = res.sent[0].friend_request_id
 
     # Moderator approves the friend request so recipient can see it
     moderator.approve_friend_request(fr_id)
 
-    with api_session(token2) as api:
+    with api_session(recipient_token) as api:
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert res.received[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
-        assert res.received[0].user_id == user1.id
+        assert res.received[0].user_id == sender_user.id
 
         fr_id = res.received[0].friend_request_id
 
@@ -1443,7 +1434,7 @@ def test_reject_friend_request(db, moderator):
         res = api.ListFriends(empty_pb2.Empty())
         assert len(res.user_ids) == 0
 
-    with api_session(token1) as api:
+    with api_session(sender_token) as api:
         # check it's gone
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert len(res.sent) == 0
@@ -1454,19 +1445,19 @@ def test_reject_friend_request(db, moderator):
         assert len(res.user_ids) == 0
 
         # check we can send another friend req
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=recipient_user.id))
 
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert res.sent[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
-        assert res.sent[0].user_id == user2.id
+        assert res.sent[0].user_id == recipient_user.id
 
 
 def test_hosting_preferences(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    owner_user, owner_token = generate_user()
+    viewer_user, viewer_token = generate_user()
 
-    with api_session(token1) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
+    with api_session(owner_token) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=owner_user.username))
         assert not res.HasField("max_guests")
         assert not res.HasField("last_minute")
         assert not res.HasField("has_pets")
@@ -1521,8 +1512,8 @@ def test_hosting_preferences(db):
 
     # Use a second user to view the hosting preferences just to check
     # that it is public information.
-    with api_session(token2) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
+    with api_session(viewer_token) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=owner_user.username))
         assert res.max_guests.value == 3
         assert res.last_minute.value
         assert not res.has_pets.value
@@ -1548,7 +1539,7 @@ def test_hosting_preferences(db):
         assert not res.camping_ok.value
 
     # test unsetting
-    with api_session(token1) as api:
+    with api_session(owner_token) as api:
         api.UpdateProfile(
             api_pb2.UpdateProfileReq(
                 max_guests=api_pb2.NullableUInt32Value(is_null=True),
@@ -1577,7 +1568,7 @@ def test_hosting_preferences(db):
             )
         )
 
-        res = api.GetUser(api_pb2.GetUserReq(user=user1.username))
+        res = api.GetUser(api_pb2.GetUserReq(user=owner_user.username))
         assert not res.HasField("max_guests")
         assert not res.HasField("last_minute")
         assert not res.HasField("has_pets")
@@ -1607,14 +1598,14 @@ def test_badges(db):
     user1, _ = generate_user(last_donated=None)
     user2, _ = generate_user(last_donated=None)
     user3, _ = generate_user(last_donated=None)
-    user4, token = generate_user(last_donated=None)
+    viewer_user, viewer_token = generate_user(last_donated=None)
 
     update_badges(empty_pb2.Empty())
 
     founder_badge = get_badge_dict()["founder"]
     board_member_badge = get_badge_dict()["board_member"]
 
-    with api_session(token) as api:
+    with api_session(viewer_token) as api:
         assert api.GetUser(api_pb2.GetUserReq(user=user1.username)).badges == ["founder", "board_member"]
         assert api.GetUser(api_pb2.GetUserReq(user=user2.username)).badges == ["founder", "board_member"]
         assert api.GetUser(api_pb2.GetUserReq(user=user3.username)).badges == []
@@ -1669,54 +1660,54 @@ def test_user_add_badge_is_idempotent(db):
 @pytest.mark.parametrize("flag", ["deleted_at", "banned_at"])
 def test_ListBadgeUsers_excludes_ghost_users(db, flag):
     """Test that ListBadgeUsers does not return deleted/banned users."""
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
-    user3, _ = generate_user()
+    viewer_user, viewer_token = generate_user()
+    ghost_user, _ = generate_user()
+    visible_user, _ = generate_user()
 
     volunteer_badge = get_badge_dict()["volunteer"]
 
     # Give all three users the volunteer badge
     with session_scope() as session:
-        user_add_badge(session, user1.id, "volunteer", do_notify=False)
-        user_add_badge(session, user2.id, "volunteer", do_notify=False)
-        user_add_badge(session, user3.id, "volunteer", do_notify=False)
+        user_add_badge(session, viewer_user.id, "volunteer", do_notify=False)
+        user_add_badge(session, ghost_user.id, "volunteer", do_notify=False)
+        user_add_badge(session, visible_user.id, "volunteer", do_notify=False)
 
     # Verify all three users appear in the badge list
-    with api_session(token1) as api:
+    with api_session(viewer_token) as api:
         res = api.ListBadgeUsers(api_pb2.ListBadgeUsersReq(badge_id=volunteer_badge.id))
-        assert set(res.user_ids) == {user1.id, user2.id, user3.id}
+        assert set(res.user_ids) == {viewer_user.id, ghost_user.id, visible_user.id}
 
-    # Make user2 invisible (deleted or banned)
+    # Make the ghost user invisible (deleted or banned)
     with session_scope() as session:
-        db_user2 = session.execute(select(User).where(User.id == user2.id)).scalar_one()
-        setattr(db_user2, flag, now())
+        db_ghost_user = session.execute(select(User).where(User.id == ghost_user.id)).scalar_one()
+        setattr(db_ghost_user, flag, now())
 
-    # Now user2 should not appear in the badge list
-    with api_session(token1) as api:
+    # Now the ghost user should not appear in the badge list
+    with api_session(viewer_token) as api:
         res = api.ListBadgeUsers(api_pb2.ListBadgeUsersReq(badge_id=volunteer_badge.id))
-        assert set(res.user_ids) == {user1.id, user3.id}
+        assert set(res.user_ids) == {viewer_user.id, visible_user.id}
 
 
 @pytest.mark.parametrize("flag", ["deleted_at", "banned_at"])
 def test_GetLiteUser_ghost_user_by_username(db, flag):
     """Test that GetLiteUser returns a ghost profile for deleted/banned users when querying by username."""
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
+    viewer_user, viewer_token = generate_user()
+    ghost_user, _ = generate_user()
 
-    # Make user2 invisible
+    # Make the ghost user invisible
     with session_scope() as session:
-        db_user2 = session.merge(user2)
-        setattr(db_user2, flag, now())
+        db_ghost_user = session.merge(ghost_user)
+        setattr(db_ghost_user, flag, now())
         session.commit()
 
     # Refresh the materialized view
     refresh_materialized_views_rapid(empty_pb2.Empty())
 
-    with api_session(token1) as api:
+    with api_session(viewer_token) as api:
         # Query by username
-        lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=user2.username))
+        lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=ghost_user.username))
 
-        assert lite_user.user_id == user2.id
+        assert lite_user.user_id == ghost_user.id
         assert lite_user.username == "ghost"
         assert lite_user.name == "Deactivated Account"
         assert lite_user.lat == 0
@@ -1732,23 +1723,23 @@ def test_GetLiteUser_ghost_user_by_username(db, flag):
 @pytest.mark.parametrize("flag", ["deleted_at", "banned_at"])
 def test_GetLiteUser_ghost_user_by_id(db, flag):
     """Test that GetLiteUser returns a ghost profile for deleted/banned users when querying by ID."""
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
+    viewer_user, viewer_token = generate_user()
+    ghost_user, _ = generate_user()
 
-    # Make user2 invisible
+    # Make the ghost user invisible
     with session_scope() as session:
-        db_user2 = session.merge(user2)
-        setattr(db_user2, flag, now())
+        db_ghost_user = session.merge(ghost_user)
+        setattr(db_ghost_user, flag, now())
         session.commit()
 
     # Refresh the materialized view
     refresh_materialized_views_rapid(empty_pb2.Empty())
 
-    with api_session(token1) as api:
+    with api_session(viewer_token) as api:
         # Query by ID
-        lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=str(user2.id)))
+        lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=str(ghost_user.id)))
 
-        assert lite_user.user_id == user2.id
+        assert lite_user.user_id == ghost_user.id
         assert lite_user.username == "ghost"
         assert lite_user.name == "Deactivated Account"
         assert lite_user.lat == 0
@@ -1763,28 +1754,28 @@ def test_GetLiteUser_ghost_user_by_id(db, flag):
 
 def test_GetLiteUser_blocked_user(db):
     """Test that GetLiteUser returns a ghost profile for blocked users."""
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
+    blocker_user, blocker_token = generate_user()
+    blocked_user, _ = generate_user()
 
-    # User1 blocks user2
-    make_user_block(user1, user2)
+    # The viewer blocks the target user
+    make_user_block(blocker_user, blocked_user)
 
     # Refresh the materialized view
     refresh_materialized_views_rapid(empty_pb2.Empty())
 
-    with api_session(token1) as api:
+    with api_session(blocker_token) as api:
         # Query by username
-        lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=user2.username))
+        lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=blocked_user.username))
 
-        assert lite_user.user_id == user2.id
+        assert lite_user.user_id == blocked_user.id
         assert lite_user.is_ghost
         assert lite_user.username == "ghost"
         assert lite_user.name == "Deactivated Account"
 
         # Query by ID
-        lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=str(user2.id)))
+        lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=str(blocked_user.id)))
 
-        assert lite_user.user_id == user2.id
+        assert lite_user.user_id == blocked_user.id
         assert lite_user.is_ghost
         assert lite_user.username == "ghost"
         assert lite_user.name == "Deactivated Account"
@@ -1792,28 +1783,28 @@ def test_GetLiteUser_blocked_user(db):
 
 def test_GetLiteUser_blocking_user(db):
     """Test that GetLiteUser returns a ghost profile when the target user has blocked the requester."""
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
+    blocked_user, blocked_token = generate_user()
+    blocker_user, _ = generate_user()
 
-    # User2 blocks user1
-    make_user_block(user2, user1)
+    # The target user blocks the viewer
+    make_user_block(blocker_user, blocked_user)
 
     # Refresh the materialized view
     refresh_materialized_views_rapid(empty_pb2.Empty())
 
-    with api_session(token1) as api:
+    with api_session(blocked_token) as api:
         # Query by username
-        lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=user2.username))
+        lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=blocker_user.username))
 
-        assert lite_user.user_id == user2.id
+        assert lite_user.user_id == blocker_user.id
         assert lite_user.is_ghost
         assert lite_user.username == "ghost"
         assert lite_user.name == "Deactivated Account"
 
         # Query by ID
-        lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=str(user2.id)))
+        lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=str(blocker_user.id)))
 
-        assert lite_user.user_id == user2.id
+        assert lite_user.user_id == blocker_user.id
         assert lite_user.is_ghost
         assert lite_user.username == "ghost"
         assert lite_user.name == "Deactivated Account"
@@ -1945,20 +1936,20 @@ def test_GetLiteUsers_blocked_users(db):
 @pytest.mark.parametrize("flag", ["deleted_at", "banned_at"])
 def test_GetUser_ghost_user_by_id(db, flag):
     """Test that GetUser returns a ghost profile for deleted/banned users when querying by ID."""
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
+    viewer_user, viewer_token = generate_user()
+    ghost_user, _ = generate_user()
 
-    # Make user2 invisible
+    # Make the ghost user invisible
     with session_scope() as session:
-        db_user2 = session.merge(user2)
-        setattr(db_user2, flag, now())
+        db_ghost_user = session.merge(ghost_user)
+        setattr(db_ghost_user, flag, now())
         session.commit()
 
-    with api_session(token1) as api:
+    with api_session(viewer_token) as api:
         # Query by ID
-        user_pb = api.GetUser(api_pb2.GetUserReq(user=str(user2.id)))
+        user_pb = api.GetUser(api_pb2.GetUserReq(user=str(ghost_user.id)))
 
-        assert user_pb.user_id == user2.id
+        assert user_pb.user_id == ghost_user.id
         assert user_pb.username == "ghost"
         assert user_pb.name == "Deactivated Account"
         assert user_pb.city == ""
@@ -1968,47 +1959,47 @@ def test_GetUser_ghost_user_by_id(db, flag):
 
 def test_GetUser_blocked_user(db):
     """Test that GetUser returns a ghost profile for blocked users."""
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
+    blocker_user, blocker_token = generate_user()
+    blocked_user, _ = generate_user()
 
-    # User1 blocks user2
-    make_user_block(user1, user2)
+    # The viewer blocks the target user
+    make_user_block(blocker_user, blocked_user)
 
-    with api_session(token1) as api:
+    with api_session(blocker_token) as api:
         # Query by username
-        user_pb = api.GetUser(api_pb2.GetUserReq(user=user2.username))
+        user_pb = api.GetUser(api_pb2.GetUserReq(user=blocked_user.username))
 
-        assert user_pb.user_id == user2.id
+        assert user_pb.user_id == blocked_user.id
         assert user_pb.username == "ghost"
         assert user_pb.name == "Deactivated Account"
 
         # Query by ID
-        user_pb = api.GetUser(api_pb2.GetUserReq(user=str(user2.id)))
+        user_pb = api.GetUser(api_pb2.GetUserReq(user=str(blocked_user.id)))
 
-        assert user_pb.user_id == user2.id
+        assert user_pb.user_id == blocked_user.id
         assert user_pb.username == "ghost"
         assert user_pb.name == "Deactivated Account"
 
 
 def test_GetUser_blocking_user(db):
     """Test that GetUser returns a ghost profile when the target user has blocked the requester."""
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
+    blocked_user, blocked_token = generate_user()
+    blocker_user, _ = generate_user()
 
-    # User2 blocks user1
-    make_user_block(user2, user1)
+    # The target user blocks the viewer
+    make_user_block(blocker_user, blocked_user)
 
-    with api_session(token1) as api:
+    with api_session(blocked_token) as api:
         # Query by username
-        user_pb = api.GetUser(api_pb2.GetUserReq(user=user2.username))
+        user_pb = api.GetUser(api_pb2.GetUserReq(user=blocker_user.username))
 
-        assert user_pb.user_id == user2.id
+        assert user_pb.user_id == blocker_user.id
         assert user_pb.username == "ghost"
         assert user_pb.name == "Deactivated Account"
 
         # Query by ID
-        user_pb = api.GetUser(api_pb2.GetUserReq(user=str(user2.id)))
+        user_pb = api.GetUser(api_pb2.GetUserReq(user=str(blocker_user.id)))
 
-        assert user_pb.user_id == user2.id
+        assert user_pb.user_id == blocker_user.id
         assert user_pb.username == "ghost"
         assert user_pb.name == "Deactivated Account"

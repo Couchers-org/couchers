@@ -12,14 +12,13 @@
     },
     "footer": {
       "received_because": "Stai ricevendo queste email perché hai fatto l'iscrizione a Couchers.org.",
-      "contact_support": "Puoi contattare il nostro team di supporto all'indirizzo {{ email_link }}.",
-      "timezone_note": "Tutti gli orari sono in {{ timezone }}, in base alla posizione del tuo profilo.",
+      "contact_support": "Puoi contattare il nostro team di assistenza all'indirizzo {{ email_link }}.",
       "donate_link": "Dona",
       "volunteer_link": "Diventa volontario",
       "blog_link": "Blog",
       "nonprofit_note": "Couchers.org è un progetto di Couchers, Inc., un'organizzazione senza scopo di lucro statunitense 501(c)(3) e per questo esente da tasse.",
       "security_email_note": "Questa è un'email di sicurezza, non puoi annullare l'iscrizione.",
-      "notification_settings_link": "Gestisci le preferenze di notifica",
+      "notification_settings_link": "Gestisci le impostazioni di notifica",
       "do_not_email_link": "Non inviarmi email (disabilita la possibilità di ospitare)",
       "happy_couch_icon_caption": "Il divano felice di Coucher ti augura un buon proseguimento di giornata."
     }
@@ -66,14 +65,14 @@
     "instructions_days_other": "Per mantenere il tuo stato \"Può ospitare\", effettua nuovamente l'accesso entro <b>{{count}} giorni</b>. Altrimenti, cambieremo il tuo stato di ospitalità in \"Non può ospitare\".",
     "login_action": "Accedi di nuovo",
     "encouragement": "Questi check aiutano i viaggiatori a trovare più facilmente host attivi e a mantenere accurati i tempi di risposta.",
-    "latest_release": "Nel caso te lo fossi perso, abbiamo recentemente rilasciato la versione {{version}}. Alcuni degli aggiornamenti recenti includono: app mobili per iOS e Android, una dashboard migliorata, un sistema di messaggistica rinnovato e nuove funzionalità per gli eventi. Leggi di più sul <a href=\"{{blog_url}}\">blog di Couchers.org</a>."
+    "latest_release": "Se te la fossi persa, abbiamo da poco rilasciato la versione {{version}}. Tra gli aggiornamenti più recenti: una modalità di visualizzazione \"tutto\" che riunisce le tue chat e le richieste di soggiorno, i prossimi soggiorni nel tuo pannello di controllo, una condivisione degli eventi più semplice e un migliore supporto per la tua lingua e il tuo fuso orario. Scopri di più sul <a href=\"{{blog_url}}\">blog di Couchers.org</a>."
   },
   "api_key_issued": {
     "subject": "La tua chiave API per Couchers.org",
     "header": "Hai recentemente richiesto una chiave API per Couchers.org. Abbiamo creato per te la seguente chiave API:",
-    "expiry": "La chiave scade il <b>{{ datetime }}</b>.",
     "usage_warning": "Questa chiave API è univoca per il tuo account; non condividerla con nessuno. Fornisce accesso completo al tuo account e sei responsabile di qualsiasi azione eseguita utilizzando questa chiave API.",
-    "policy_warning": "Ricorda di rispettare i nostri <a href=\"{{terms_url}}\">Termini di Servizio</a>, le nostre Linee Guida della community e le altre policy durante l'utilizzo delle nostre API. Tutti gli accessi vengono registrati e analizzati e potremmo revocare il tuo accesso o account in caso di abuso del servizio."
+    "policy_warning": "Ricorda di rispettare i nostri <a href=\"{{terms_url}}\">Termini di Servizio</a>, le nostre Linee Guida della community e le altre policy durante l'utilizzo delle nostre API. Tutti gli accessi vengono registrati e analizzati e potremmo revocare il tuo accesso o account in caso di abuso del servizio.",
+    "expiry2": "La chiave scade il <b>{{ datetime_utc }}</b> (UTC)."
   },
   "badges": {
     "added": {
@@ -219,27 +218,39 @@
   },
   "stays": {
     "created": {
-      "host_request": {
+      "request": {
         "subject": "{{initiator}} ti ha inviato una richiesta di soggiorno",
         "purpose": "<b>{{initiator}}</b> ti ha inviato una richiesta di soggiorno:",
         "respond_encouragement": "Per favore, rispondi a questa richiesta. Anche un rapido rifiuto è meglio di nessuna risposta!"
+      },
+      "invitation": {
+        "subject": "{{initiator}} ti ha inviato un invito",
+        "purpose": "<b>{{initiator}}</b> ti ha inviato un invito:",
+        "respond_encouragement": "Per favore rispondi a questo invito. Anche un rifiuto rapido è meglio che nessuna risposta!"
       }
     },
     "generic": {
       "date_range": "Da <b>{{from_date}}</b> a <b>{{to_date}}</b>.",
-      "host_request": {
+      "request": {
         "view_action": "Visualizza richiesta di soggiorno"
       },
-      "quick_decline_action": "Rifiuta rapidamente"
+      "quick_decline_action": "Rifiuto rapido",
+      "invitation": {
+        "view_action": "Visualizza invito"
+      }
     },
     "reminder": {
-      "host_request": {
+      "request": {
         "subject": "Hai una richiesta di soggiorno in sospeso da {{initiator}}",
         "purpose": "<b>{{initiator}}</b> è in attesa di una tua risposta. Anche un rapido rifiuto è meglio di nessuna risposta!"
+      },
+      "invitation": {
+        "subject": "Hai un invito in attesa da {{initiator}}",
+        "purpose": "<b>{{initiator}}</b> è in attesa di una tua risposta. Anche un rapido rifiuto è meglio che nessuna risposta!"
       }
     },
     "message": {
-      "host_request": {
+      "request": {
         "from_initiator": {
           "subject": "{{counterparty}} ti ha inviato un messaggio riguardo alla sua richiesta di soggiorno",
           "purpose": "<b>{{counterparty}}</b> ti ha inviato un messaggio riguardo alla sua richiesta di soggiorno:"
@@ -248,10 +259,20 @@
           "subject": "{{counterparty}} ti ha inviato un messaggio riguardo alla tua richiesta di soggiorno",
           "purpose": "<b>{{counterparty}}</b> ti ha inviato un messaggio riguardo alla tua richiesta di soggiorno:"
         }
+      },
+      "invitation": {
+        "from_initiator": {
+          "subject": "{{counterparty}} ti ha inviato un messaggio nel suo invito",
+          "purpose": "<b>{{counterparty}}</b> ti ha inviato un messaggio nel suo invito:"
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}} ti ha inviato un messaggio nel tuo invito",
+          "purpose": "<b>{{counterparty}}</b> ti ha inviato un messaggio nel tuo invito:"
+        }
       }
     },
     "missed_messages": {
-      "host_request": {
+      "request": {
         "from_initiator": {
           "subject": "{{counterparty}} ti ha inviato dei messaggi riguardo alla sua richiesta di soggiorno",
           "purpose": "<b>{{counterparty}}</b> ti ha inviato uno o più messaggi nella sua richiesta di soggiorno:"
@@ -260,10 +281,20 @@
           "subject": "{{counterparty}} ti ha inviato uno o più messaggi riguardo alla tua richiesta di soggiorno",
           "purpose": "<b>{{counterparty}}</b> ti ha inviato uno o più messaggi riguardo alla tua richiesta di soggiorno:"
         }
+      },
+      "invitation": {
+        "from_initiator": {
+          "subject": "{{counterparty}} ti ha inviato uno o più messaggi nel suo invito",
+          "purpose": "<b>{{counterparty}}</b> ti ha inviato uno o più messaggi nel suo invito:"
+        },
+        "from_recipient": {
+          "subject": "{{counterparty}} ti ha inviato uno o più messaggi nel tuo invito",
+          "purpose": "<b>{{counterparty}}</b> ti ha inviato uno o più messaggi nel tuo invito:"
+        }
       }
     },
     "status_changed": {
-      "host_request": {
+      "request": {
         "accepted_by_recipient": {
           "subject": "{{counterparty}} ha accettato la tua richiesta di soggiorno",
           "purpose": "<b>{{counterparty}}</b> ha accettato la tua richiesta di soggiorno:"
@@ -280,13 +311,34 @@
           "subject": "{{counterparty}} ha annullato la sua richiesta di soggiorno",
           "purpose": "<b>{{counterparty}}</b> ha annullato la sua richiesta di soggiorno:"
         }
+      },
+      "invitation": {
+        "accepted_by_recipient": {
+          "subject": "{{counterparty}} ha accettato il tuo invito",
+          "purpose": "<b>{{counterparty}}</b> ha accettato il tuo invito:"
+        },
+        "declined_by_recipient": {
+          "subject": "{{counterparty}} ha rifiutato il tuo invito",
+          "purpose": "<b>{{counterparty}}</b> ha rifiutato il tuo invito:"
+        },
+        "confirmed_by_initiator": {
+          "subject": "{{counterparty}} ha confermato il suo invito",
+          "purpose": "<b>{{counterparty}}</b> ha confermato il suo invito:"
+        },
+        "cancelled_by_initiator": {
+          "subject": "{{counterparty}} ha cancellato il suo invito",
+          "purpose": "<b>{{counterparty}}</b> ha cancellato il suo invito:"
+        }
       }
     }
   },
   "moderator_note": {
     "subject": "Hai ricevuto una nota da parte del moderatore",
     "purpose": "Hai ricevuto una nota importante dai moderatori. Devi leggerla e confermarne la presa visione prima di continuare a utilizzare la piattaforma.",
-    "view_action": "Visualizza la nota del moderatore"
+    "view_action": "Visualizza la nota del moderatore",
+    "purpose_with_note": "Hai ricevuto una nota importante dai moderatori:",
+    "acknowledge_request": "Devi leggere questa nota e confermarne la presa visione prima di continuare a utilizzare la piattaforma.",
+    "reply_instructions": "Puoi rispondere al team di moderazione rispondendo a questa email."
   },
   "new_blog_post": {
     "subject": "Nuovo post nel blog: {{title}}",
@@ -416,7 +468,7 @@
     "failed": {
       "subject": "Verifica robusta non riuscita",
       "purpose": {
-        "wrong_birthdate_or_gender": "Il tuo tentativo di verifica robusta non è andato a buon fine perché la data di nascita o il genere sul tuo profilo non corrispondono alla data di nascita o al sesso indicati sul tuo passaporto. Contatta il team di supporto per aggiornare la tua data di nascita o il tuo genere, oppure se il sesso indicato sul passaporto non corrisponde alla tua identità di genere.",
+        "wrong_birthdate_or_gender": "Il tuo tentativo di verifica robusta non è andato a buon fine perché la data di nascita o il genere sul tuo profilo non corrispondono alla data di nascita o al sesso indicati sul tuo passaporto. Contatta il team di assistenza per aggiornare la tua data di nascita o il tuo genere, oppure se il sesso indicato sul passaporto non corrisponde alla tua identità di genere.",
         "not_a_passport": "Il tuo tentativo di verifica robusta non è andato a buon fine perché hai utilizzato un documento diverso dal passaporto. Per la verifica robusta puoi utilizzare esclusivamente il passaporto.",
         "duplicate": "Il tuo tentativo di verifica robusta non è andato a buon fine perché hai utilizzato un passaporto già usato sulla piattaforma. Ti preghiamo di utilizzare un altro passaporto."
       },

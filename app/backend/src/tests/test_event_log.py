@@ -21,12 +21,13 @@ from couchers.proto import (
     messages_pb2,
     references_pb2,
     reporting_pb2,
-    requests_pb2,
     search_pb2,
 )
 from couchers.utils import create_coordinate, today
 from tests.fixtures.api import events as events_api
+from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user, make_friends
+from tests.fixtures.feature_flags import Flags
 from tests.fixtures.sessions import (
     MockGrpcContext,
     account_session,
@@ -35,7 +36,6 @@ from tests.fixtures.sessions import (
     conversations_session,
     references_session,
     reporting_session,
-    requests_session,
     search_session,
 )
 from tests.test_communities import create_community
@@ -331,13 +331,27 @@ def test_logout_creates_event(db):
         assert events[0].properties == {}
 
 
+def test_beta_features_opt_in_creates_event_only_on_change(db):
+    user, token = generate_user()
+
+    with account_session(token) as account:
+        account.SetBetaFeaturesOptIn(account_pb2.SetBetaFeaturesOptInReq(beta_features_opt_in=True))
+        account.SetBetaFeaturesOptIn(account_pb2.SetBetaFeaturesOptInReq(beta_features_opt_in=True))
+        account.SetBetaFeaturesOptIn(account_pb2.SetBetaFeaturesOptInReq(beta_features_opt_in=False))
+
+    with session_scope() as session:
+        events = _get_events(session, "account.beta_features_opt_in_changed")
+        assert [e.user_id for e in events] == [user.id, user.id]
+        assert [e.properties for e in events] == [{"opted_in": True}, {"opted_in": False}]
+
+
 # ===== Integration tests: host request events =====
 
 
 def test_host_request_created_event(db, moderator):
     """Creating a host request logs host_request.created with full context."""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user(
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user(
         city="Berlin",
         geom=create_coordinate(52.5200, 13.4050),
         geom_radius=200,
@@ -346,27 +360,19 @@ def test_host_request_created_event(db, moderator):
     from_date = today() + timedelta(days=2)
     to_date = today() + timedelta(days=5)
 
-    with requests_session(token1) as api:
-        res = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=from_date.isoformat(),
-                to_date=to_date.isoformat(),
-                text="a]" * 200 + "Hello! I would love to stay with you.",
-            )
-        )
-
-    host_request_id = res.host_request_id
+    host_request_id = requests_api.create_host_request(
+        token=surfer_token, host_user_id=host_user.id, from_date=from_date, to_date=to_date
+    )
 
     with session_scope() as session:
         events = _get_events(session, "host_request.created")
         assert len(events) == 1
         e = events[0]
-        assert e.user_id == user1.id
+        assert e.user_id == surfer_user.id
         assert e.properties["host_request_id"] == host_request_id
-        assert e.properties["host_id"] == user2.id
-        assert e.properties["surfer_gender"] == user1.gender
-        assert e.properties["host_gender"] == user2.gender
+        assert e.properties["host_id"] == host_user.id
+        assert e.properties["surfer_gender"] == surfer_user.gender
+        assert e.properties["host_gender"] == host_user.gender
         assert e.properties["city"] == "Berlin"
         assert e.properties["from_date"] == str(from_date)
         assert e.properties["to_date"] == str(to_date)
@@ -375,8 +381,8 @@ def test_host_request_created_event(db, moderator):
 
 def test_host_request_status_change_events(db, moderator):
     """Accepting a host request logs event with both parties' info."""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user(
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user(
         city="Berlin",
         geom=create_coordinate(52.5200, 13.4050),
         geom_radius=200,
@@ -385,188 +391,130 @@ def test_host_request_status_change_events(db, moderator):
     from_date = today() + timedelta(days=2)
     to_date = today() + timedelta(days=5)
 
-    with requests_session(token1) as api:
-        res = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=from_date.isoformat(),
-                to_date=to_date.isoformat(),
-                text="a]" * 200 + "Hello! I would love to stay with you.",
-            )
-        )
-    host_request_id = res.host_request_id
-    moderator.approve_host_request(host_request_id)
+    host_request_id = requests_api.create_host_request(
+        token=surfer_token, host_user_id=host_user.id, from_date=from_date, to_date=to_date, approve_by=moderator
+    )
 
     # Host accepts
-    with requests_session(token2) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id,
-                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
-            )
-        )
+    requests_api.respond_host_request(
+        token=host_token, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+    )
 
     with session_scope() as session:
         events = _get_events(session, "host_request.accepted")
         assert len(events) == 1
         e = events[0]
-        assert e.user_id == user2.id
+        assert e.user_id == host_user.id
         assert e.properties["host_request_id"] == host_request_id
-        assert e.properties["surfer_id"] == user1.id
-        assert e.properties["host_id"] == user2.id
-        assert e.properties["surfer_gender"] == user1.gender
-        assert e.properties["host_gender"] == user2.gender
+        assert e.properties["surfer_id"] == surfer_user.id
+        assert e.properties["host_id"] == host_user.id
+        assert e.properties["surfer_gender"] == surfer_user.gender
+        assert e.properties["host_gender"] == host_user.gender
         assert e.properties["from_date"] == str(from_date)
         assert e.properties["to_date"] == str(to_date)
         assert e.properties["host_city"] == "Berlin"
 
     # Surfer confirms
-    with requests_session(token1) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id,
-                status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED,
-            )
-        )
+    requests_api.respond_host_request(
+        token=surfer_token, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
+    )
 
     with session_scope() as session:
         events = _get_events(session, "host_request.confirmed")
         assert len(events) == 1
         e = events[0]
-        assert e.user_id == user1.id
-        assert e.properties["surfer_id"] == user1.id
-        assert e.properties["host_id"] == user2.id
-        assert e.properties["surfer_gender"] == user1.gender
-        assert e.properties["host_gender"] == user2.gender
+        assert e.user_id == surfer_user.id
+        assert e.properties["surfer_id"] == surfer_user.id
+        assert e.properties["host_id"] == host_user.id
+        assert e.properties["surfer_gender"] == surfer_user.gender
+        assert e.properties["host_gender"] == host_user.gender
 
 
 def test_host_request_rejected_event(db, moderator):
     """Rejecting a host request logs event."""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user(
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user(
         city="Paris",
         geom=create_coordinate(48.8566, 2.3522),
         geom_radius=200,
     )
 
-    with requests_session(token1) as api:
-        res = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=(today() + timedelta(days=2)).isoformat(),
-                to_date=(today() + timedelta(days=4)).isoformat(),
-                text="a]" * 200 + "Would love to visit!",
-            )
-        )
-    moderator.approve_host_request(res.host_request_id)
+    host_request_id = requests_api.create_host_request(
+        token=surfer_token, host_user_id=host_user.id, approve_by=moderator
+    )
 
-    with requests_session(token2) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=res.host_request_id,
-                status=messages_pb2.HOST_REQUEST_STATUS_REJECTED,
-            )
-        )
+    requests_api.respond_host_request(
+        token=host_token, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
+    )
 
     with session_scope() as session:
         events = _get_events(session, "host_request.rejected")
         assert len(events) == 1
         e = events[0]
-        assert e.user_id == user2.id
-        assert e.properties["surfer_id"] == user1.id
-        assert e.properties["host_id"] == user2.id
+        assert e.user_id == host_user.id
+        assert e.properties["surfer_id"] == surfer_user.id
+        assert e.properties["host_id"] == host_user.id
         assert e.properties["host_city"] == "Paris"
 
 
 def test_host_request_cancelled_event(db, moderator):
     """Cancelling a host request logs event."""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user(
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user(
         geom=create_coordinate(52.5200, 13.4050),
         geom_radius=200,
     )
 
-    with requests_session(token1) as api:
-        res = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=(today() + timedelta(days=2)).isoformat(),
-                to_date=(today() + timedelta(days=4)).isoformat(),
-                text="a]" * 200 + "Would love to visit!",
-            )
-        )
-    moderator.approve_host_request(res.host_request_id)
+    host_request_id = requests_api.create_host_request(
+        token=surfer_token, host_user_id=host_user.id, approve_by=moderator
+    )
 
-    with requests_session(token1) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=res.host_request_id,
-                status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED,
-            )
-        )
+    requests_api.respond_host_request(
+        token=surfer_token, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
+    )
 
     with session_scope() as session:
         events = _get_events(session, "host_request.cancelled")
         assert len(events) == 1
         e = events[0]
-        assert e.user_id == user1.id
-        assert e.properties["surfer_id"] == user1.id
-        assert e.properties["host_id"] == user2.id
+        assert e.user_id == surfer_user.id
+        assert e.properties["surfer_id"] == surfer_user.id
+        assert e.properties["host_id"] == host_user.id
 
 
 def test_host_request_message_event(db, moderator):
     """Sending a message in a host request logs event with role."""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user(
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user(
         geom=create_coordinate(52.5200, 13.4050),
         geom_radius=200,
     )
 
-    with requests_session(token1) as api:
-        res = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id,
-                from_date=(today() + timedelta(days=2)).isoformat(),
-                to_date=(today() + timedelta(days=4)).isoformat(),
-                text="a]" * 200 + "Hello!",
-            )
-        )
-    host_request_id = res.host_request_id
-    moderator.approve_host_request(host_request_id)
+    host_request_id = requests_api.create_host_request(
+        token=surfer_token, host_user_id=host_user.id, approve_by=moderator
+    )
 
     # Host sends a message
-    with requests_session(token2) as api:
-        api.SendHostRequestMessage(
-            requests_pb2.SendHostRequestMessageReq(
-                host_request_id=host_request_id,
-                text="Welcome!",
-            )
-        )
+    requests_api.send_host_request_message(token=host_token, host_request_id=host_request_id, text="Welcome!")
 
     with session_scope() as session:
         events = _get_events(session, "host_request.message_sent")
         assert len(events) == 1
         e = events[0]
-        assert e.user_id == user2.id
+        assert e.user_id == host_user.id
         assert e.properties["host_request_id"] == host_request_id
         assert e.properties["role"] == "host"
-        assert e.properties["surfer_id"] == user1.id
-        assert e.properties["host_id"] == user2.id
+        assert e.properties["surfer_id"] == surfer_user.id
+        assert e.properties["host_id"] == host_user.id
 
     # Surfer sends a message
-    with requests_session(token1) as api:
-        api.SendHostRequestMessage(
-            requests_pb2.SendHostRequestMessageReq(
-                host_request_id=host_request_id,
-                text="Thanks!",
-            )
-        )
+    requests_api.send_host_request_message(token=surfer_token, host_request_id=host_request_id, text="Thanks!")
 
     with session_scope() as session:
         events = _get_events(session, "host_request.message_sent")
         assert len(events) == 2
         e = events[1]
-        assert e.user_id == user1.id
+        assert e.user_id == surfer_user.id
         assert e.properties["role"] == "surfer"
 
 
@@ -575,14 +523,14 @@ def test_host_request_message_event(db, moderator):
 
 def test_send_message_creates_event(db):
     """Sending a direct message creates a message.sent event."""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    make_friends(user1, user2)
+    sender_user, sender_token = generate_user()
+    recipient_user, recipient_token = generate_user()
+    make_friends(sender_user, recipient_user)
 
-    with conversations_session(token1) as api:
+    with conversations_session(sender_token) as api:
         res = api.SendDirectMessage(
             conversations_pb2.SendDirectMessageReq(
-                recipient_user_id=user2.id,
+                recipient_user_id=recipient_user.id,
                 text="Hello friend!",
             )
         )
@@ -591,21 +539,21 @@ def test_send_message_creates_event(db):
         events = _get_events(session, "message.sent")
         assert len(events) == 1
         e = events[0]
-        assert e.user_id == user1.id
+        assert e.user_id == sender_user.id
         assert e.properties["group_chat_id"] == res.group_chat_id
         assert e.properties["is_dm"] is True
-        assert e.properties["recipient_id"] == user2.id
+        assert e.properties["recipient_id"] == recipient_user.id
 
 
 def test_create_group_chat_event(db):
     """Creating a group chat creates a group_chat.created event."""
-    user1, token1 = generate_user()
+    creator_user, creator_token = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
-    make_friends(user1, user2)
-    make_friends(user1, user3)
+    make_friends(creator_user, user2)
+    make_friends(creator_user, user3)
 
-    with conversations_session(token1) as api:
+    with conversations_session(creator_token) as api:
         res = api.CreateGroupChat(
             conversations_pb2.CreateGroupChatReq(
                 recipient_user_ids=[user2.id, user3.id],
@@ -617,7 +565,7 @@ def test_create_group_chat_event(db):
         events = _get_events(session, "group_chat.created")
         assert len(events) == 1
         e = events[0]
-        assert e.user_id == user1.id
+        assert e.user_id == creator_user.id
         assert e.properties["group_chat_id"] == res.group_chat_id
         assert e.properties["is_dm"] is False
         assert e.properties["recipient_count"] == 2
@@ -628,18 +576,18 @@ def test_create_group_chat_event(db):
 
 def test_friendship_request_events(db, moderator):
     """Friend request lifecycle creates appropriate events."""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    from_user, from_token = generate_user()
+    to_user, to_token = generate_user()
 
     # Send friend request
-    with api_session(token1) as api:
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+    with api_session(from_token) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=to_user.id))
 
     with session_scope() as session:
         events = _get_events(session, "friendship.request_sent")
         assert len(events) == 1
-        assert events[0].user_id == user1.id
-        assert events[0].properties["to_user_id"] == user2.id
+        assert events[0].user_id == from_user.id
+        assert events[0].properties["to_user_id"] == to_user.id
 
     # Approve and accept friend request
     with session_scope() as session:
@@ -648,47 +596,47 @@ def test_friendship_request_events(db, moderator):
 
     moderator.approve_friend_request(fr_id)
 
-    with api_session(token2) as api:
+    with api_session(to_token) as api:
         api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
 
     with session_scope() as session:
         events = _get_events(session, "friendship.request_responded")
         assert len(events) == 1
         e = events[0]
-        assert e.user_id == user2.id
-        assert e.properties["from_user_id"] == user1.id
+        assert e.user_id == to_user.id
+        assert e.properties["from_user_id"] == from_user.id
         assert e.properties["accepted"] is True
 
     # Remove friend
-    with api_session(token1) as api:
-        api.RemoveFriend(api_pb2.RemoveFriendReq(user_id=user2.id))
+    with api_session(from_token) as api:
+        api.RemoveFriend(api_pb2.RemoveFriendReq(user_id=to_user.id))
 
     with session_scope() as session:
         events = _get_events(session, "friendship.removed")
         assert len(events) == 1
-        assert events[0].user_id == user1.id
-        assert events[0].properties["other_user_id"] == user2.id
+        assert events[0].user_id == from_user.id
+        assert events[0].properties["other_user_id"] == to_user.id
 
 
 def test_friendship_cancel_event(db, moderator):
     """Cancelling a friend request creates event."""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    from_user, from_token = generate_user()
+    to_user, to_token = generate_user()
 
-    with api_session(token1) as api:
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+    with api_session(from_token) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=to_user.id))
 
     with session_scope() as session:
         fr = session.execute(select(FriendRelationship)).scalar_one()
         fr_id = fr.id
 
-    with api_session(token1) as api:
+    with api_session(from_token) as api:
         api.CancelFriendRequest(api_pb2.CancelFriendRequestReq(friend_request_id=fr_id))
 
     with session_scope() as session:
         events = _get_events(session, "friendship.request_cancelled")
         assert len(events) == 1
-        assert events[0].properties["to_user_id"] == user2.id
+        assert events[0].properties["to_user_id"] == to_user.id
 
 
 # ===== Integration tests: reporting events =====
@@ -696,16 +644,16 @@ def test_friendship_cancel_event(db, moderator):
 
 def test_report_creates_event(db):
     """Reporting content creates content.reported event with full context."""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    reporter_user, reporter_token = generate_user()
+    reported_user, reported_token = generate_user()
 
-    with reporting_session(token1) as api:
+    with reporting_session(reporter_token) as api:
         api.Report(
             reporting_pb2.ReportReq(
                 reason="spam",
                 description="This is spam",
                 content_ref="comment/456",
-                author_user=user2.username,
+                author_user=reported_user.username,
                 user_agent="TestAgent/1.0",
                 page="https://couchers.org/profile/123",
             )
@@ -715,8 +663,8 @@ def test_report_creates_event(db):
         events = _get_events(session, "content.reported")
         assert len(events) == 1
         e = events[0]
-        assert e.user_id == user1.id
-        assert e.properties["author_user_id"] == user2.id
+        assert e.user_id == reporter_user.id
+        assert e.properties["author_user_id"] == reported_user.id
         assert e.properties["reason"] == "spam"
         assert e.properties["content_ref"] == "comment/456"
         assert e.properties["page"] == "https://couchers.org/profile/123"
@@ -744,7 +692,7 @@ def test_search_creates_event(db):
         assert e.properties["ranking_offsets_variant"] == ""
 
 
-def test_search_v2_creates_event(db, flags):
+def test_search_v2_creates_event(db, flags: Flags):
     user, token = generate_user()
     flags.set_string("search_ranking_offsets_variant", "a")
 
@@ -796,14 +744,14 @@ def test_search_v2_selection_event(db):
 
 def test_friend_reference_event(db):
     """Writing a friend reference creates reference.friend_written event."""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    make_friends(user1, user2)
+    from_user, from_token = generate_user()
+    to_user, to_token = generate_user()
+    make_friends(from_user, to_user)
 
-    with references_session(token1) as api:
+    with references_session(from_token) as api:
         api.WriteFriendReference(
             references_pb2.WriteFriendReferenceReq(
-                to_user_id=user2.id,
+                to_user_id=to_user.id,
                 text="Great person!",
                 private_text="",
                 rating=0.9,
@@ -815,8 +763,8 @@ def test_friend_reference_event(db):
         events = _get_events(session, "reference.friend_written")
         assert len(events) == 1
         e = events[0]
-        assert e.user_id == user1.id
-        assert e.properties["to_user_id"] == user2.id
+        assert e.user_id == from_user.id
+        assert e.properties["to_user_id"] == to_user.id
         assert e.properties["rating"] == pytest.approx(0.9)
         assert e.properties["was_appropriate"] is True
 

@@ -351,7 +351,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         # Batch: unseen message counts in one query instead of N individual queries
         subscription_ids = [r.GroupChatSubscription.id for r in results[:page_size]]
         unseen_counts: dict[int, int] = dict(
-            session.execute(  # type: ignore[arg-type]
+            session.execute(
                 select(GroupChatSubscription.id, func.count(Message.id))
                 .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
                 .where(GroupChatSubscription.id.in_(subscription_ids))
@@ -785,7 +785,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         if not result:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "chat_not_found")
 
-        subscription, group_chat = result._tuple()
+        subscription, group_chat = result
         if not _user_can_message(session, context, group_chat):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_message_in_chat")
 
@@ -1009,7 +1009,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         if not result:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "chat_not_found")
 
-        your_subscription, group_chat = result._tuple()
+        your_subscription, group_chat = result
 
         if request.user_id == context.user_id:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_invite_self")

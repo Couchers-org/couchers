@@ -90,7 +90,7 @@ def session_scope() -> Generator[Session]:
                         filename_line = f"{frame.filename}:{frame.lineno}"
                     except Exception as e:
                         filename_line = "{unknown file}"
-                    backend_pid = session.execute(text("SELECT pg_backend_pid();")).scalar_one()
+                    backend_pid: int = session.execute(text("SELECT pg_backend_pid();")).scalar_one()
                     logger.debug(f"SScope: got {backend_pid=} at {filename_line}")
                     rollspan.set_attribute("db.backend_pid", backend_pid)
                     rollspan.set_attribute("db.filename_line", filename_line)
@@ -162,7 +162,7 @@ def _get_node_parents_recursive_cte_subquery(node_id: int) -> Subquery:
     ).subquery()
 
 
-def get_node_parents_recursively(session: Session, node_id: int) -> Sequence[Row[tuple[int, int, int, Cluster]]]:
+def get_node_parents_recursively(session: Session, node_id: int) -> Sequence[Row[int, int, int, Cluster]]:
     subquery = _get_node_parents_recursive_cte_subquery(node_id)
     return session.execute(
         select(subquery, Cluster)

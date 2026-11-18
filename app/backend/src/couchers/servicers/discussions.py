@@ -9,6 +9,7 @@ from couchers.context import CouchersContext, make_notification_user_context
 from couchers.db import can_moderate_node, session_scope
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
+from couchers.helpers.discussions import has_visible_comments
 from couchers.jobs.enqueue import queue_job
 from couchers.models import Cluster, ClusterSubscription, Discussion, ModerationObjectType, Thread, User
 from couchers.models.discussions import ContentChangeType, DiscussionVersion
@@ -317,6 +318,7 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
                     .where(Cluster.is_official_cluster)
                     .where(Cluster.small_community_features_enabled)
                     .where(Discussion.id <= next_page_id)
+                    .where((Discussion.deleted == None) | has_visible_comments(context))
                     .order_by(Discussion.id.desc())
                     .limit(page_size + 1),
                     context,

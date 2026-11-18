@@ -16,7 +16,8 @@ from couchers.i18n.localize import format_phone_number
 from couchers.models import Notification, NotificationTopicAction
 from couchers.notifications.locales import get_notifs_i18next
 from couchers.notifications.push import PushNotificationContent
-from couchers.proto import api_pb2, notification_data_pb2
+from couchers.notifications.utils import get_notification_string_key_prefix
+from couchers.proto import api_pb2, notification_data_pb2, requests_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -144,40 +145,56 @@ def render_push_notification(notification: Notification, loc_context: Localizati
 
 def render_adhoc_push_notification(name: str, loc_context: LocalizationContext) -> PushNotificationContent:
     """Renders a push notification that doesn't have an assigned topic-action."""
-    return _get_content(string_group=f"_adhoc.{name}.push", loc_context=loc_context)
+    return _get_content(string_key_prefix=f"_adhoc.{name}.push", loc_context=loc_context)
+
+
+class LocString:
+    """A key for a localized string lookup."""
+
+    def __init__(self, *, subkey: str):
+        self.subkey = subkey
 
 
 def _get_content(
-    string_group: NotificationTopicAction | str,
+    string_key_prefix: str,
     loc_context: LocalizationContext,
     title: str | None = None,
     ios_title: str | None = None,
     ios_subtitle: str | None = None,
-    body: str | None = None,
+    body: str | LocString | None = None,
     substitutions: dict[str, str | int] | None = None,
     icon_user: api_pb2.User | None = None,
     action_url: str | None = None,
 ) -> PushNotificationContent:
     """
     Fills a PushNotificationContent by looking up localized
-    string based on the topic_action key, unless other strings
+    strings under the given key prefix, unless other strings
     are provided by the caller.
 
     Localized strings have the provided substitutions applied.
     """
+    i18next = get_notifs_i18next()
+
     # Look up the localized string for any string that was not provided
     if title is None:
-        title = _get_string(string_group, "title", loc_context, substitutions)
+        title = loc_context.localize_string(f"{string_key_prefix}.title", i18next=i18next, substitutions=substitutions)
     if ios_title is None:
-        ios_title = _get_string(string_group, "ios_title", loc_context, substitutions)
+        ios_title = loc_context.localize_string(
+            f"{string_key_prefix}.ios_title", i18next=i18next, substitutions=substitutions
+        )
     if ios_subtitle is None:
         try:
-            ios_subtitle = _get_string(string_group, "ios_subtitle", loc_context, substitutions)
+            ios_subtitle = loc_context.localize_string(
+                f"{string_key_prefix}.ios_subtitle", i18next=i18next, substitutions=substitutions
+            )
         except LocalizationError:
             # Not all notifications have subtitles
             pass
-    if body is None:
-        body = _get_string(string_group, "body", loc_context, substitutions)
+    if not isinstance(body, str):
+        body_subkey = body.subkey if isinstance(body, LocString) else "body"
+        body = loc_context.localize_string(
+            f"{string_key_prefix}.{body_subkey}", i18next=i18next, substitutions=substitutions
+        )
 
     icon_url = _avatar_url_or_default(icon_user) if icon_user else None
 
@@ -186,17 +203,23 @@ def _get_content(
     )
 
 
-def _get_string(
-    string_group: NotificationTopicAction | str,
-    key: str,
-    loc_context: LocalizationContext,
-    substitutions: dict[str, str | int] | None = None,
+def _string_key_prefix(
+    topic_action: NotificationTopicAction, *, host_request: requests_pb2.HostRequest | None = None
 ) -> str:
-    if isinstance(string_group, NotificationTopicAction):
-        full_key = f"{string_group.topic}.{string_group.action}.push.{key}"
-    else:
-        full_key = f"{string_group}.{key}"
-    return get_notifs_i18next().localize(full_key, loc_context.locale_list, substitutions)
+    """Gets the key prefix for strings for a given notification kind."""
+    key_prefix = get_notification_string_key_prefix(topic_action)
+    if topic_action.topic == "host_request":
+        # The "host_request" topic-action is for both requests and invitation notifications.
+        # Notification strings are different in all cases but messaging.
+        if host_request is None:
+            raise ValueError(f"host_request is required for {topic_action}")
+        if topic_action not in (
+            NotificationTopicAction.host_request__message,
+            NotificationTopicAction.host_request__missed_messages,
+        ):
+            key_prefix += ".invitation" if host_request.public_trip_id else ".request"
+
+    return f"{key_prefix}.push"
 
 
 def _avatar_url_or_default(user: api_pb2.User) -> str:
@@ -206,38 +229,40 @@ def _avatar_url_or_default(user: api_pb2.User) -> str:
 def _render_account_deletion__start(
     data: notification_data_pb2.AccountDeletionStart, loc_context: LocalizationContext
 ) -> PushNotificationContent:
-    return _get_content(NotificationTopicAction.account_deletion__start, loc_context)
+    return _get_content(_string_key_prefix(NotificationTopicAction.account_deletion__start), loc_context)
 
 
 def _render_account_deletion__complete(
     data: notification_data_pb2.AccountDeletionComplete, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.account_deletion__complete, loc_context, substitutions={"count": data.undelete_days}
+        _string_key_prefix(NotificationTopicAction.account_deletion__complete),
+        loc_context,
+        substitutions={"count": data.undelete_days},
     )
 
 
 def _render_account_deletion__recovered(loc_context: LocalizationContext) -> PushNotificationContent:
-    return _get_content(NotificationTopicAction.account_deletion__recovered, loc_context)
+    return _get_content(_string_key_prefix(NotificationTopicAction.account_deletion__recovered), loc_context)
 
 
 def _render_activeness__probe(
     data: notification_data_pb2.ActivenessProbe, loc_context: LocalizationContext
 ) -> PushNotificationContent:
-    return _get_content(NotificationTopicAction.activeness__probe, loc_context)
+    return _get_content(_string_key_prefix(NotificationTopicAction.activeness__probe), loc_context)
 
 
 def _render_api_key__create(
     data: notification_data_pb2.ApiKeyCreate, loc_context: LocalizationContext
 ) -> PushNotificationContent:
-    return _get_content(NotificationTopicAction.api_key__create, loc_context)
+    return _get_content(_string_key_prefix(NotificationTopicAction.api_key__create), loc_context)
 
 
 def _render_badge__add(
     data: notification_data_pb2.BadgeAdd, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.badge__add,
+        _string_key_prefix(NotificationTopicAction.badge__add),
         loc_context,
         substitutions={"badge_name": data.badge_name},
         action_url=urls.profile_link(),
@@ -248,7 +273,7 @@ def _render_badge__remove(
     data: notification_data_pb2.BadgeRemove, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.badge__remove,
+        _string_key_prefix(NotificationTopicAction.badge__remove),
         loc_context,
         substitutions={"badge_name": data.badge_name},
         action_url=urls.profile_link(),
@@ -259,7 +284,7 @@ def _render_birthdate__change(
     data: notification_data_pb2.BirthdateChange, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.birthdate__change,
+        _string_key_prefix(NotificationTopicAction.birthdate__change),
         loc_context,
         substitutions={"birthdate": loc_context.localize_date_from_iso(data.birthdate)},
         action_url=urls.account_settings_link(),
@@ -300,7 +325,7 @@ def _render_chat__missed_messages(
         missed_count = sum(message.unseen_count for message in data.messages)
 
     return _get_content(
-        NotificationTopicAction.chat__missed_messages,
+        _string_key_prefix(NotificationTopicAction.chat__missed_messages),
         loc_context,
         substitutions={"count": missed_count},
         action_url=urls.messages_link(),
@@ -311,7 +336,7 @@ def _render_donation__received(
     data: notification_data_pb2.DonationReceived, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.donation__received,
+        _string_key_prefix(NotificationTopicAction.donation__received),
         loc_context,
         # Other currencies are not yet supported
         substitutions={"amount_with_currency": f"${data.amount}"},
@@ -323,7 +348,7 @@ def _render_discussion__create(
     data: notification_data_pb2.DiscussionCreate, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.discussion__create,
+        _string_key_prefix(NotificationTopicAction.discussion__create),
         loc_context,
         substitutions={
             "title": data.discussion.title,
@@ -339,7 +364,7 @@ def _render_discussion__comment(
     data: notification_data_pb2.DiscussionComment, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.discussion__comment,
+        _string_key_prefix(NotificationTopicAction.discussion__comment),
         loc_context,
         ios_title=data.author.name,
         ios_subtitle=data.discussion.title,
@@ -354,7 +379,7 @@ def _render_email_address__change(
     data: notification_data_pb2.EmailAddressChange, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.email_address__change,
+        _string_key_prefix(NotificationTopicAction.email_address__change),
         loc_context,
         substitutions={"email": data.new_email},
         action_url=urls.account_settings_link(),
@@ -363,7 +388,7 @@ def _render_email_address__change(
 
 def _render_email_address__verify(loc_context: LocalizationContext) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.email_address__verify,
+        _string_key_prefix(NotificationTopicAction.email_address__verify),
         loc_context,
         action_url=urls.account_settings_link(),
     )
@@ -373,7 +398,7 @@ def _render_event__create_any(
     data: notification_data_pb2.EventCreate, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.event__create_any,
+        _string_key_prefix(NotificationTopicAction.event__create_any),
         loc_context,
         substitutions={
             "title": data.event.title,
@@ -388,7 +413,7 @@ def _render_event__create_approved(
     data: notification_data_pb2.EventCreate, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.event__create_approved,
+        _string_key_prefix(NotificationTopicAction.event__create_approved),
         loc_context,
         substitutions={
             "title": data.event.title,
@@ -405,7 +430,7 @@ def _render_event__update(
     # updated_items can include: title, content, start_time, end_time, location,
     # but a list like that is tricky to localize.
     return _get_content(
-        NotificationTopicAction.event__update,
+        _string_key_prefix(NotificationTopicAction.event__update),
         loc_context,
         substitutions={
             "title": data.event.title,
@@ -419,7 +444,7 @@ def _render_event__invite_organizer(
     data: notification_data_pb2.EventInviteOrganizer, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.event__invite_organizer,
+        _string_key_prefix(NotificationTopicAction.event__invite_organizer),
         loc_context,
         substitutions={
             "title": data.event.title,
@@ -433,7 +458,7 @@ def _render_event__comment(
     data: notification_data_pb2.EventComment, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.event__comment,
+        _string_key_prefix(NotificationTopicAction.event__comment),
         loc_context,
         substitutions={
             "title": data.event.title,
@@ -441,7 +466,9 @@ def _render_event__comment(
         },
         body=data.reply.content,
         icon_user=data.author,
-        action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
+        action_url=urls.event_link(
+            occurrence_id=data.event.event_id, slug=data.event.slug, comment_id=data.reply.thread_id
+        ),
     )
 
 
@@ -449,7 +476,7 @@ def _render_event__reminder(
     data: notification_data_pb2.EventReminder, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.event__reminder,
+        _string_key_prefix(NotificationTopicAction.event__reminder),
         loc_context,
         substitutions={
             "title": data.event.title,
@@ -463,7 +490,7 @@ def _render_event__cancel(
     data: notification_data_pb2.EventCancel, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.event__cancel,
+        _string_key_prefix(NotificationTopicAction.event__cancel),
         loc_context,
         substitutions={
             "title": data.event.title,
@@ -476,14 +503,18 @@ def _render_event__cancel(
 def _render_event__delete(
     data: notification_data_pb2.EventDelete, loc_context: LocalizationContext
 ) -> PushNotificationContent:
-    return _get_content(NotificationTopicAction.event__delete, loc_context, substitutions={"title": data.event.title})
+    return _get_content(
+        _string_key_prefix(NotificationTopicAction.event__delete),
+        loc_context,
+        substitutions={"title": data.event.title},
+    )
 
 
 def _render_friend_request__create(
     data: notification_data_pb2.FriendRequestCreate, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.friend_request__create,
+        _string_key_prefix(NotificationTopicAction.friend_request__create),
         loc_context,
         substitutions={"from_user": data.other_user.name},
         icon_user=data.other_user,
@@ -495,7 +526,7 @@ def _render_friend_request__accept(
     data: notification_data_pb2.FriendRequestAccept, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.friend_request__accept,
+        _string_key_prefix(NotificationTopicAction.friend_request__accept),
         loc_context,
         substitutions={"friend": data.other_user.name},
         icon_user=data.other_user,
@@ -507,7 +538,7 @@ def _render_gender__change(
     data: notification_data_pb2.GenderChange, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.gender__change,
+        _string_key_prefix(NotificationTopicAction.gender__change),
         loc_context,
         substitutions={"gender": data.gender},
         action_url=urls.account_settings_link(),
@@ -518,7 +549,7 @@ def _render_general__new_blog_post(
     data: notification_data_pb2.GeneralNewBlogPost, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.general__new_blog_post,
+        _string_key_prefix(NotificationTopicAction.general__new_blog_post),
         loc_context,
         body=data.blurb,
         substitutions={"title": data.title},
@@ -527,11 +558,11 @@ def _render_general__new_blog_post(
 
 
 def _render_host_request__create(
-    data: notification_data_pb2.HostRequestCreate, loc_context: LocalizationContext
+    data: notification_data_pb2.StayCreate, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     night_count = (date.fromisoformat(data.host_request.to_date) - date.fromisoformat(data.host_request.from_date)).days
     return _get_content(
-        NotificationTopicAction.host_request__create,
+        _string_key_prefix(NotificationTopicAction.host_request__create, host_request=data.host_request),
         loc_context,
         substitutions={
             "user": data.initiator.name,
@@ -544,7 +575,7 @@ def _render_host_request__create(
 
 
 def _render_host_request__message(
-    data: notification_data_pb2.HostRequestMessage, loc_context: LocalizationContext
+    data: notification_data_pb2.StayMessage, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     # All strings are dynamic, no need to use _get_content
     return PushNotificationContent(
@@ -557,10 +588,10 @@ def _render_host_request__message(
 
 
 def _render_host_request__missed_messages(
-    data: notification_data_pb2.HostRequestMissedMessages, loc_context: LocalizationContext
+    data: notification_data_pb2.StayMissedMessages, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.host_request__missed_messages,
+        _string_key_prefix(NotificationTopicAction.host_request__missed_messages, host_request=data.host_request),
         loc_context,
         substitutions={"user": data.counterparty.name},
         icon_user=data.counterparty,
@@ -569,10 +600,10 @@ def _render_host_request__missed_messages(
 
 
 def _render_host_request__reminder(
-    data: notification_data_pb2.HostRequestReminder, loc_context: LocalizationContext
+    data: notification_data_pb2.StayReminder, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.host_request__reminder,
+        _string_key_prefix(NotificationTopicAction.host_request__reminder, host_request=data.host_request),
         loc_context,
         substitutions={"user": data.initiator.name},
         icon_user=data.initiator,
@@ -581,10 +612,10 @@ def _render_host_request__reminder(
 
 
 def _render_host_request__accept(
-    data: notification_data_pb2.HostRequestAccept, loc_context: LocalizationContext
+    data: notification_data_pb2.StayAccept, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.host_request__accept,
+        _string_key_prefix(NotificationTopicAction.host_request__accept, host_request=data.host_request),
         loc_context,
         substitutions={
             "user": data.recipient.name,
@@ -596,10 +627,10 @@ def _render_host_request__accept(
 
 
 def _render_host_request__reject(
-    data: notification_data_pb2.HostRequestReject, loc_context: LocalizationContext
+    data: notification_data_pb2.StayReject, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.host_request__reject,
+        _string_key_prefix(NotificationTopicAction.host_request__reject, host_request=data.host_request),
         loc_context,
         substitutions={
             "user": data.recipient.name,
@@ -611,10 +642,10 @@ def _render_host_request__reject(
 
 
 def _render_host_request__cancel(
-    data: notification_data_pb2.HostRequestCancel, loc_context: LocalizationContext
+    data: notification_data_pb2.StayCancel, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.host_request__cancel,
+        _string_key_prefix(NotificationTopicAction.host_request__cancel, host_request=data.host_request),
         loc_context,
         substitutions={
             "user": data.initiator.name,
@@ -626,10 +657,10 @@ def _render_host_request__cancel(
 
 
 def _render_host_request__confirm(
-    data: notification_data_pb2.HostRequestConfirm, loc_context: LocalizationContext
+    data: notification_data_pb2.StayConfirm, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.host_request__confirm,
+        _string_key_prefix(NotificationTopicAction.host_request__confirm, host_request=data.host_request),
         loc_context,
         substitutions={
             "user": data.initiator.name,
@@ -641,7 +672,7 @@ def _render_host_request__confirm(
 
 
 def _render_modnote__create(loc_context: LocalizationContext) -> PushNotificationContent:
-    return _get_content(NotificationTopicAction.modnote__create, loc_context)
+    return _get_content(_string_key_prefix(NotificationTopicAction.modnote__create), loc_context)
 
 
 def _render_onboarding__reminder(key: str, loc_context: LocalizationContext) -> PushNotificationContent:
@@ -654,14 +685,18 @@ def _render_onboarding__reminder(key: str, loc_context: LocalizationContext) -> 
 
 
 def _render_password__change(loc_context: LocalizationContext) -> PushNotificationContent:
-    return _get_content(NotificationTopicAction.password__change, loc_context, action_url=urls.account_settings_link())
+    return _get_content(
+        _string_key_prefix(NotificationTopicAction.password__change),
+        loc_context,
+        action_url=urls.account_settings_link(),
+    )
 
 
 def _render_password_reset__start(
     data: notification_data_pb2.PasswordResetStart, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.password_reset__start,
+        _string_key_prefix(NotificationTopicAction.password_reset__start),
         loc_context,
         action_url=urls.account_settings_link(),
     )
@@ -669,7 +704,7 @@ def _render_password_reset__start(
 
 def _render_password_reset__complete(loc_context: LocalizationContext) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.password_reset__complete,
+        _string_key_prefix(NotificationTopicAction.password_reset__complete),
         loc_context,
         action_url=urls.account_settings_link(),
     )
@@ -679,7 +714,7 @@ def _render_phone_number__change(
     data: notification_data_pb2.PhoneNumberChange, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.phone_number__change,
+        _string_key_prefix(NotificationTopicAction.phone_number__change),
         loc_context,
         substitutions={"phone_number": format_phone_number(data.phone)},
         action_url=urls.account_settings_link(),
@@ -690,7 +725,7 @@ def _render_phone_number__verify(
     data: notification_data_pb2.PhoneNumberVerify, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.phone_number__verify,
+        _string_key_prefix(NotificationTopicAction.phone_number__verify),
         loc_context,
         substitutions={"phone_number": format_phone_number(data.phone)},
         action_url=urls.account_settings_link(),
@@ -701,7 +736,7 @@ def _render_postal_verification__postcard_sent(
     data: notification_data_pb2.PostalVerificationPostcardSent, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.postal_verification__postcard_sent,
+        _string_key_prefix(NotificationTopicAction.postal_verification__postcard_sent),
         loc_context,
         substitutions={"city": data.city, "country": data.country},
         action_url=urls.account_settings_link(),
@@ -710,7 +745,7 @@ def _render_postal_verification__postcard_sent(
 
 def _render_postal_verification__success(loc_context: LocalizationContext) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.postal_verification__success,
+        _string_key_prefix(NotificationTopicAction.postal_verification__success),
         loc_context,
         action_url=urls.account_settings_link(),
     )
@@ -728,10 +763,11 @@ def _render_postal_verification__failed(
         case _:
             body_key = "body_generic"
 
+    key_prefix = _string_key_prefix(NotificationTopicAction.postal_verification__failed)
     return _get_content(
-        NotificationTopicAction.postal_verification__failed,
+        key_prefix,
         loc_context,
-        body=_get_string(NotificationTopicAction.postal_verification__failed, body_key, loc_context),
+        body=LocString(subkey=body_key),
         action_url=urls.account_settings_link(),
     )
 
@@ -740,7 +776,7 @@ def _render_reference__receive_friend(
     data: notification_data_pb2.ReferenceReceiveFriend, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.reference__receive_friend,
+        _string_key_prefix(NotificationTopicAction.reference__receive_friend),
         loc_context,
         body=data.text,
         substitutions={"user": data.from_user.name},
@@ -750,26 +786,24 @@ def _render_reference__receive_friend(
 
 
 def _render_reference__receive(
-    data: notification_data_pb2.ReferenceReceiveHostRequest, leave_reference_type: str, loc_context: LocalizationContext
+    data: notification_data_pb2.ReferenceReceiveStay, leave_reference_type: str, loc_context: LocalizationContext
 ) -> PushNotificationContent:
-    body: str
+    key_prefix = "reference._receive_any.push"
+
+    body: str | LocString
     if data.text:
         body = data.text
         action_url = urls.profile_references_link()
     else:
-        body = _get_string(
-            "reference._receive_any.push",
-            "body_must_write_yours",
-            loc_context,
-            substitutions={"user": data.from_user.name},
-        )
+        body = LocString(subkey="body_must_write_yours")
         action_url = urls.leave_reference_link(
             reference_type=leave_reference_type,
             to_user_id=data.from_user.user_id,
             host_request_id=str(data.host_request_id),
         )
+
     return _get_content(
-        string_group="reference._receive_any.push",
+        string_key_prefix=key_prefix,
         loc_context=loc_context,
         body=body,
         substitutions={"user": data.from_user.name},
@@ -779,14 +813,14 @@ def _render_reference__receive(
 
 
 def _render_reference__receive_hosted(
-    data: notification_data_pb2.ReferenceReceiveHostRequest, loc_context: LocalizationContext
+    data: notification_data_pb2.ReferenceReceiveStay, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     # Receiving a hosted reminder means I need to leave a surfed reference
     return _render_reference__receive(data, leave_reference_type="surfed", loc_context=loc_context)
 
 
 def _render_reference__receive_surfed(
-    data: notification_data_pb2.ReferenceReceiveHostRequest, loc_context: LocalizationContext
+    data: notification_data_pb2.ReferenceReceiveStay, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _render_reference__receive(data, leave_reference_type="hosted", loc_context=loc_context)
 
@@ -800,7 +834,7 @@ def _render_reference__reminder(
         host_request_id=str(data.host_request_id),
     )
     return _get_content(
-        string_group="reference._reminder_any.push",
+        string_key_prefix="reference._reminder_any.push",
         loc_context=loc_context,
         substitutions={"count": data.days_left, "user": data.other_user.name},
         icon_user=data.other_user,
@@ -829,7 +863,9 @@ def _render_thread__reply(
     match data.WhichOneof("reply_parent"):
         case "event":
             parent_title = data.event.title
-            view_link = urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug)
+            view_link = urls.event_link(
+                occurrence_id=data.event.event_id, slug=data.event.slug, comment_id=data.reply.thread_id
+            )
         case "discussion":
             parent_title = data.discussion.title
             view_link = urls.discussion_link(discussion_id=data.discussion.discussion_id, slug=data.discussion.slug)
@@ -837,7 +873,7 @@ def _render_thread__reply(
             raise Exception("Can only do replies to events and discussions")
 
     return _get_content(
-        NotificationTopicAction.thread__reply,
+        _string_key_prefix(NotificationTopicAction.thread__reply),
         loc_context=loc_context,
         body=data.reply.content,
         substitutions={"user": data.author.name, "title": parent_title},
@@ -848,7 +884,7 @@ def _render_thread__reply(
 
 def _render_verification__sv_success(loc_context: LocalizationContext) -> PushNotificationContent:
     return _get_content(
-        NotificationTopicAction.verification__sv_success,
+        _string_key_prefix(NotificationTopicAction.verification__sv_success),
         loc_context,
         action_url=urls.account_settings_link(),
     )
@@ -857,21 +893,22 @@ def _render_verification__sv_success(loc_context: LocalizationContext) -> PushNo
 def _render_verification__sv_fail(
     data: notification_data_pb2.VerificationSVFail, loc_context: LocalizationContext
 ) -> PushNotificationContent:
-    body_key: str
+    body_subkey: str
     match data.reason:
         case notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER:
-            body_key = "body_wrong_birthdate_gender"
+            body_subkey = "body_wrong_birthdate_gender"
         case notification_data_pb2.SV_FAIL_REASON_NOT_A_PASSPORT:
-            body_key = "body_not_a_passport"
+            body_subkey = "body_not_a_passport"
         case notification_data_pb2.SV_FAIL_REASON_DUPLICATE:
-            body_key = "body_duplicate"
+            body_subkey = "body_duplicate"
         case _:
             raise Exception("Shouldn't get here")
 
+    key_prefix = _string_key_prefix(NotificationTopicAction.verification__sv_fail)
     return _get_content(
-        NotificationTopicAction.verification__sv_fail,
+        key_prefix,
         loc_context,
-        body=_get_string(NotificationTopicAction.verification__sv_fail, body_key, loc_context),
+        body=LocString(subkey=body_subkey),
         action_url=urls.account_settings_link(),
     )
 

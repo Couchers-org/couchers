@@ -264,76 +264,6 @@
       }
     }
   },
-  "host_request": {
-    "accept": {
-      "event_description": "Alguém aceita sua solicitação de hospedagem",
-      "push": {
-        "title": "{{user}} aceitou sua solicitação de hospedagem",
-        "ios_title": "{{user}}",
-        "body": "{{user}} aceitou sua solicitação de hospedagem para {{date}}.",
-        "ios_subtitle": "Solicitação de hospedagem aceita"
-      }
-    },
-    "cancel": {
-      "event_description": "Alguém cancela sua solicitação de hospedagem",
-      "push": {
-        "title": "{{user}} cancelou a solicitação de hospedagem",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "Solicitação de hospedagem cancelada",
-        "body": "{{user}} cancelou a solicitação de hospedagem para {{date}}."
-      }
-    },
-    "confirm": {
-      "event_description": "Alguém confirma a solicitação de hospedagem recebida",
-      "push": {
-        "title": "{{user}} confirmou a solicitação de hospedagem",
-        "ios_subtitle": "Solicitação de hospedagem confirmada",
-        "ios_title": "{{user}}",
-        "body": "{{user}} confirmou a solicitação de hospedagem para {{date}}."
-      }
-    },
-    "create": {
-      "event_description": "Alguém envia uma solicitação de hospedagem para você",
-      "push": {
-        "ios_title": "{{user}}",
-        "ios_subtitle": "Nova solicitação de hospedagem",
-        "title": "Nova solicitação de hospedagem de {{user}}",
-        "body_one": "{{user}} quer se hospedar a partir de {{start_date}} por {{count}} noite.",
-        "body_many": "{{user}} quer se hospedar a partir de {{start_date}} por {{count}} noites.",
-        "body_other": "{{user}} quer se hospedar a partir de {{start_date}} por {{count}} noites."
-      }
-    },
-    "message": {
-      "event_description": "Alguém envia uma mensagem em uma solicitação de hospedagem"
-    },
-    "missed_messages": {
-      "event_description": "Você tem mensagens pendentes em uma solicitação de hospedagem",
-      "push": {
-        "title": "Novas mensagens de {{user}}",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "Mensagens perdidas",
-        "body": "Você tem novas mensagens não visualizadas de {{user}}."
-      }
-    },
-    "reject": {
-      "event_description": "Alguém recusa sua solicitação de hospedagem",
-      "push": {
-        "title": "{{user}} recusou sua solicitação de hospedagem",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "Solicitação de hospedagem recusada",
-        "body": "{{user}} recusou sua solicitação de hospedagem para {{date}}."
-      }
-    },
-    "reminder": {
-      "event_description": "Você não respondeu a uma solicitação pendente de hospedagem",
-      "push": {
-        "title": "Solicitação pendente de {{user}}",
-        "ios_title": "Solicitação de hospedagem pendente",
-        "ios_subtitle": "{{user}}",
-        "body": "{{user}} está esperando sua resposta. Aceite ou recuse a solicitação."
-      }
-    }
-  },
   "modnote": {
     "create": {
       "event_description": "Um moderador envia uma mensagem",
@@ -473,6 +403,88 @@
     },
     "reminder_surfed": {
       "event_description": "Lembrete para escrever uma referência para alguém com quem você se hospedou"
+    }
+  },
+  "stay": {
+    "accept": {
+      "event_description": "Alguém aceita sua solicitação de hospedagem",
+      "request": {
+        "push": {
+          "title": "{{user}} aceitou sua solicitação de hospedagem",
+          "ios_title": "{{user}}",
+          "body": "{{user}} aceitou sua solicitação de hospedagem para {{date}}.",
+          "ios_subtitle": "Solicitação de hospedagem aceita"
+        }
+      }
+    },
+    "cancel": {
+      "event_description": "Alguém cancela sua solicitação de hospedagem",
+      "request": {
+        "push": {
+          "title": "{{user}} cancelou a solicitação de hospedagem",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Solicitação de hospedagem cancelada",
+          "body": "{{user}} cancelou a solicitação de hospedagem para {{date}}."
+        }
+      }
+    },
+    "confirm": {
+      "event_description": "Alguém confirma a solicitação de hospedagem recebida",
+      "request": {
+        "push": {
+          "title": "{{user}} confirmou a solicitação de hospedagem",
+          "ios_subtitle": "Solicitação de hospedagem confirmada",
+          "ios_title": "{{user}}",
+          "body": "{{user}} confirmou a solicitação de hospedagem para {{date}}."
+        }
+      }
+    },
+    "create": {
+      "event_description": "Alguém envia uma solicitação de hospedagem para você",
+      "request": {
+        "push": {
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Nova solicitação de hospedagem",
+          "title": "Nova solicitação de hospedagem de {{user}}",
+          "body_one": "{{user}} quer se hospedar a partir de {{start_date}} por {{count}} noite.",
+          "body_many": "{{user}} quer se hospedar a partir de {{start_date}} por {{count}} noites.",
+          "body_other": "{{user}} quer se hospedar a partir de {{start_date}} por {{count}} noites."
+        }
+      }
+    },
+    "message": {
+      "event_description": "Alguém envia uma mensagem em uma solicitação de hospedagem"
+    },
+    "missed_messages": {
+      "event_description": "Você tem mensagens pendentes em uma solicitação de hospedagem",
+      "push": {
+        "title": "Novas mensagens de {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Mensagens perdidas",
+        "body": "Você tem novas mensagens não visualizadas de {{user}}."
+      }
+    },
+    "reject": {
+      "event_description": "Alguém recusa sua solicitação de hospedagem",
+      "request": {
+        "push": {
+          "title": "{{user}} recusou sua solicitação de hospedagem",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Solicitação de hospedagem recusada",
+          "body": "{{user}} recusou sua solicitação de hospedagem para {{date}}."
+        }
+      }
+    },
+    "reminder": {
+      "event_description": "Você não respondeu a uma solicitação pendente de hospedagem",
+      "request": {
+        "push": {
+          "title": "Solicitação pendente de {{user}}",
+          "ios_title": "Solicitação de hospedagem pendente",
+          "ios_subtitle": "{{user}}",
+          "body": "{{user}} está esperando sua resposta. Aceite ou recuse a solicitação."
+        }
+      }
     }
   },
   "thread": {

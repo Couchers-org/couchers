@@ -1050,7 +1050,7 @@ def get_num_references(session: Session, context: CouchersContext, user_ids: Ite
     query = where_reference_user_visible(
         query.where(Reference.to_user_id.in_(user_ids)), context, Reference.from_user_id
     ).group_by(Reference.to_user_id)
-    return cast(dict[int, int], dict(session.execute(query).all()))  # type: ignore[arg-type]
+    return cast(dict[int, int], dict(session.execute(query).all()))
 
 
 def user_model_to_pb(

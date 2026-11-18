@@ -6,16 +6,16 @@ from couchers.db import session_scope
 from couchers.proto import discussions_pb2, events_pb2, messages_pb2, public_trips_pb2, requests_pb2, screens_pb2
 from couchers.utils import today
 from tests.fixtures.api import events as events_api
+from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user
+from tests.fixtures.feature_flags import Flags
 from tests.fixtures.sessions import (
     account_session,
     discussions_session,
     public_trips_session,
-    requests_session,
     screens_session,
 )
 from tests.test_communities import create_community
-from tests.test_requests import valid_request_text
 
 UPCOMING_STATUSES = [
     messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
@@ -23,75 +23,53 @@ UPCOMING_STATUSES = [
 ]
 
 
-def _setup_accepted_host_request(token_surfer, host_user_id, moderator):
-    from_date = today() + timedelta(days=2)
-    to_date = today() + timedelta(days=3)
-    with requests_session(token_surfer) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host_user_id,
-                from_date=from_date.isoformat(),
-                to_date=to_date.isoformat(),
-                text=valid_request_text(),
-            )
-        ).host_request_id
-    moderator.approve_host_request(host_request_id)
-    return host_request_id
-
-
 def test_GetDashboard_matches_individual_rpcs(db, moderator):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
 
-    host_request_id = _setup_accepted_host_request(token1, user2.id, moderator)
-    with requests_session(token2) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id,
-                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
-                text="Sure, come on over!",
-            )
-        )
+    host_request_id = requests_api.create_host_request(
+        token=surfer_token, host_user_id=host_user.id, approve_by=moderator
+    )
+    requests_api.respond_host_request(
+        token=host_token, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+    )
 
     # the dashboard response must be identical to fanning out to the individual RPCs with the
     # same parameters the web frontend uses
-    with requests_session(token1) as api:
-        surfing = api.ListHostRequests(
-            requests_pb2.ListHostRequestsReq(
-                only_sent=True,
-                only_active=True,
-                status_in=UPCOMING_STATUSES,
-                sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
-                number=10,
-            )
-        )
-        hosting = api.ListHostRequests(
-            requests_pb2.ListHostRequestsReq(
-                only_received=True,
-                only_active=True,
-                status_in=UPCOMING_STATUSES,
-                sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
-                number=10,
-            )
-        )
+    surfing = requests_api.list_host_requests(
+        token=surfer_token,
+        only_sent=True,
+        only_active=True,
+        status_in=UPCOMING_STATUSES,
+        sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
+        number=10,
+    )
+    hosting = requests_api.list_host_requests(
+        token=surfer_token,
+        only_received=True,
+        only_active=True,
+        status_in=UPCOMING_STATUSES,
+        sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
+        number=10,
+    )
 
-    my_events = events_api.list_my_events(token=token1, page_size=9, attending=True, organizing=True)
+    my_events = events_api.list_my_events(token=surfer_token, page_size=9, attending=True, organizing=True)
     community_events = events_api.list_my_events(
-        token=token1,
+        token=surfer_token,
         page_size=9,
         my_communities=True,
         my_communities_exclude_global=True,
         exclude_attending=True,
     )
 
-    with discussions_session(token1) as api:
+    with discussions_session(surfer_token) as api:
         discussions = api.ListMyCommunitiesDiscussions(discussions_pb2.ListMyCommunitiesDiscussionsReq(page_size=9))
-    with account_session(token1) as api:
+    with account_session(surfer_token) as api:
         reminders = api.GetReminders(empty_pb2.Empty())
-    with public_trips_session(token1) as api:
+    with public_trips_session(surfer_token) as api:
         my_public_trips = api.ListPublicTripsByUser(
             public_trips_pb2.ListPublicTripsByUserReq(
-                user_id=user1.id,
+                user_id=surfer_user.id,
                 page_size=10,
                 statuses_in=[public_trips_pb2.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST],
                 ascending=True,
@@ -101,7 +79,7 @@ def test_GetDashboard_matches_individual_rpcs(db, moderator):
             public_trips_pb2.ListMyCommunitiesPublicTripsReq(page_size=10)
         )
 
-    with screens_session(token1) as api:
+    with screens_session(surfer_token) as api:
         res = api.GetDashboard(screens_pb2.GetDashboardReq())
 
     assert res.reminders == reminders
@@ -121,21 +99,18 @@ def test_GetDashboard_matches_individual_rpcs(db, moderator):
 
 
 def test_GetDashboard_buckets_by_role(db, moderator):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
 
-    host_request_id = _setup_accepted_host_request(token1, user2.id, moderator)
-    with requests_session(token2) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id,
-                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
-                text="Sure, come on over!",
-            )
-        )
+    host_request_id = requests_api.create_host_request(
+        token=surfer_token, host_user_id=host_user.id, approve_by=moderator
+    )
+    requests_api.respond_host_request(
+        token=host_token, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+    )
 
     # the host sees the upcoming stay under hosting, nothing under surfing
-    with screens_session(token2) as api:
+    with screens_session(host_token) as api:
         res = api.GetDashboard(screens_pb2.GetDashboardReq())
     assert len(res.hosting.host_requests) == 1
     assert res.hosting.host_requests[0].host_request_id == host_request_id
@@ -145,27 +120,29 @@ def test_GetDashboard_buckets_by_role(db, moderator):
 def test_GetDashboard_community_events_excludes_attending(db, moderator):
     # Pins the exclude_attending parameter the web frontend sends: an event the user is
     # attending shows under my_events and must not also duplicate into community_events.
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    attendee_user, attendee_token = generate_user()
+    organizer_user, organizer_token = generate_user()
 
     with session_scope() as session:
         # community_events excludes global-level communities, so nest down to a subregion
-        world = create_community(session, 0, 100, "World", [user1, user2], [], None)
-        macroregion = create_community(session, 0, 100, "Macroregion", [user1, user2], [], world)
-        region = create_community(session, 0, 100, "Region", [user1, user2], [], macroregion)
-        subregion = create_community(session, 0, 100, "Subregion", [user1, user2], [], region)
+        world = create_community(session, 0, 100, "World", [attendee_user, organizer_user], [], None)
+        macroregion = create_community(session, 0, 100, "Macroregion", [attendee_user, organizer_user], [], world)
+        region = create_community(session, 0, 100, "Region", [attendee_user, organizer_user], [], macroregion)
+        subregion = create_community(session, 0, 100, "Subregion", [attendee_user, organizer_user], [], region)
         community_id = subregion.id
 
-    e_attending = events_api.create_event(token=token2, parent_community_id=community_id, approve_by=moderator).event_id
+    e_attending = events_api.create_event(
+        token=organizer_token, parent_community_id=community_id, approve_by=moderator
+    ).event_id
     e_community_only = events_api.create_event(
-        token=token2, parent_community_id=community_id, approve_by=moderator
+        token=organizer_token, parent_community_id=community_id, approve_by=moderator
     ).event_id
 
     events_api.set_event_attendance(
-        token=token1, event_id=e_attending, attendance_state=events_pb2.ATTENDANCE_STATE_GOING
+        token=attendee_token, event_id=e_attending, attendance_state=events_pb2.ATTENDANCE_STATE_GOING
     )
 
-    with screens_session(token1) as api:
+    with screens_session(attendee_token) as api:
         res = api.GetDashboard(screens_pb2.GetDashboardReq())
 
     # the attended event shows only under my_events, and the unjoined community event only under community_events
@@ -212,7 +189,7 @@ def test_GetDashboard_empty(db):
     assert len(res.reminders.reminders) == 0
 
 
-def test_GetDashboard_public_trips_behind_flag(db, flags):
+def test_GetDashboard_public_trips_behind_flag(db, flags: Flags):
     user, token = generate_user()
 
     with screens_session(token) as api:

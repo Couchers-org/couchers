@@ -472,7 +472,7 @@ describe("Signup", () => {
       await screen.findByText((_, element) => {
         return (
           element?.textContent ===
-          `We have sent an email with a verification link to your email address: test@example.com. Please click the link to activate your account.`
+          `We have sent a verification link to your email address: test@example.com. Please click the link to activate your account.`
         );
       }),
     ).toBeVisible();

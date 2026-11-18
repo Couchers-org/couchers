@@ -414,6 +414,11 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
             res.value.CopyFrom(holder.fields["value"])
         return res
 
+    def GetFeatureFlagAttributes(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> bugs_pb2.GetFeatureFlagAttributesRes:
+        return bugs_pb2.GetFeatureFlagAttributesRes(attributes_json=json.dumps(context.get_feature_flag_attributes()))
+
     def LogExperimentExposure(
         self, request: bugs_pb2.LogExperimentExposureReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:

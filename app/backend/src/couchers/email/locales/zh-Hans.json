@@ -13,7 +13,6 @@
     "footer": {
       "received_because": "您收到这封电子邮件是因为您注册了Couchers.org。",
       "contact_support": "您可以通过{{ email_link }}联系我们的支持团队。",
-      "timezone_note": "所有时间均根据您个人资料中的位置，以{{ timezone }}时区显示。",
       "donate_link": "捐赠",
       "volunteer_link": "志愿者",
       "blog_link": "博客",
@@ -67,7 +66,6 @@
   "api_key_issued": {
     "subject": "您的Couchers.org API密钥",
     "header": "您最近请求了Couchers.org的API密钥。我们已向您颁发以下API密钥：",
-    "expiry": "密钥将于<b>{{ datetime }}</b>到期。",
     "usage_warning": "该API密钥对于您的帐户是唯一的；不要与任何人分享。它提供对您帐户的完全访问权限，并且您对使用此API密钥采取的任何操作负责。",
     "policy_warning": "使用我们的API时，请记住遵守我们的<a href=\"{{terms_url}}\">服务条款</a>、我们的社区准则和其他政策。所有访问都会被记录和分析，如果您滥用服务，我们可能会终止您的访问或帐户。"
   },
@@ -211,7 +209,7 @@
   },
   "stays": {
     "created": {
-      "host_request": {
+      "request": {
         "subject": "{{initiator}}向您发送了接待请求",
         "purpose": "<b>{{initiator}}</b>向您发送了接待请求：",
         "respond_encouragement": "请回复此请求。即使快速拒绝，也比不回复更好！"
@@ -219,19 +217,19 @@
     },
     "generic": {
       "date_range": "从<b>{{from_date}}</b>到<b>{{to_date}}</b>。",
-      "host_request": {
+      "request": {
         "view_action": "查看接待请求"
       },
       "quick_decline_action": "快速拒绝"
     },
     "reminder": {
-      "host_request": {
+      "request": {
         "subject": "您有一个来自{{initiator}}的待处理接待请求",
         "purpose": "<b>{{initiator}}</b>正在等待您的回复。即使快速拒绝，也比不回复更好！"
       }
     },
     "message": {
-      "host_request": {
+      "request": {
         "from_initiator": {
           "subject": "{{counterparty}}在其接待请求中向您发送了一条消息",
           "purpose": "<b>{{counterparty}}</b>在其接待请求中向您发送了一条消息："
@@ -243,7 +241,7 @@
       }
     },
     "missed_messages": {
-      "host_request": {
+      "request": {
         "from_initiator": {
           "subject": "{{counterparty}}在其接待请求中向您发送了消息",
           "purpose": "<b>{{counterparty}}</b>在其接待请求中向您发送了一条或多条消息："
@@ -255,7 +253,7 @@
       }
     },
     "status_changed": {
-      "host_request": {
+      "request": {
         "accepted_by_recipient": {
           "subject": "{{counterparty}}接受了您的接待请求",
           "purpose": "<b>{{counterparty}}</b>接受了您的接待请求："

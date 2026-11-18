@@ -1,7 +1,6 @@
 {
   "dashboard": "Dashboard",
   "your_communities_heading": "Jouw communities",
-  "welcome": "Welkom bij Couchers.org!",
   "no_community": "Je zit op dit moment niet in een community.",
   "no_sub_communities": "Geen sub-communities.",
   "load_more": "Meer laden",
@@ -9,7 +8,6 @@
   "communities_intro": "Communitypagina's helpen bij het organiseren van events en discussies. <strong>Je bent altijd lid van communities op jouw locatie, maar je kan <browseCommunitiesLink>ook lid worden van een andere community.</browseCommunitiesLink></strong>",
   "community_builder": "Wil je ambassadeur worden en zorgen dat jouw community groeit? Word een <communityBuilderLink>Community Builder!</communityBuilderLink>",
   "find_your_community_intro_simplified": "Zoek jouw community of blader door de lijst hieronder. <requestCommunityLink>Niet gevonden wat je zoekt? Vraag hem aan!</requestCommunityLink>",
-  "browse_communities": "Blader door communities",
   "browse_all_communities": "Blader door alle communities",
   "find_your_community": "Vind een community",
   "browse_communities_text": "Klik op de naam van een regio om alle onderliggende communities te bekijken. Klik op de link om naar die stad of regio community-pagina te gaan.",

@@ -13,7 +13,7 @@ EOT
 
 FROM base AS build
 
-ENV UV_VERSION=0.9.8
+ENV UV_VERSION=0.13.7
 
 WORKDIR /app
 

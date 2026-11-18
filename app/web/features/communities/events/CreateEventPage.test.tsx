@@ -46,6 +46,7 @@ const accountInfo = {
   isVolunteer: false,
   myHomeComplete: false,
   shouldShowDonationBanner: false,
+  hasOptedInToBetaFeatures: false,
 };
 
 describe("Create event page", () => {
@@ -73,6 +74,18 @@ describe("Create event page", () => {
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
     await fillRequiredEventFields(user);
+
+    expect(titleInput).toHaveValue("Test event");
+
+    expect(startDateGroup).toHaveTextContent("01/08/2021");
+
+    expect(startTimeGroup).toHaveTextContent("01:00 am");
+
+    expect(endDateGroup).toHaveTextContent("01/08/2021");
+
+    expect(endTimeGroup).toHaveTextContent("02:00 am");
+
+    expect(locationInput).toHaveValue("tes");
 
     expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue("sick social!");
     await act(async () => user.click(screen.getByRole("button", { name: t("global:create") })));
@@ -108,9 +121,9 @@ describe("Create event page", () => {
 
     await user.click(startDateGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("08012021");
+    await user.keyboard("01082021");
 
-    expect(startDateGroup).toHaveTextContent("08/01/2021");
+    expect(startDateGroup).toHaveTextContent("01/08/2021");
 
     const startTimeGroup = await screen.findByRole("group", {
       name: t("communities:start_time"),
@@ -128,9 +141,9 @@ describe("Create event page", () => {
 
     await user.click(endDateGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("08012021");
+    await user.keyboard("01082021");
 
-    expect(endDateGroup).toHaveTextContent("08/01/2021");
+    expect(endDateGroup).toHaveTextContent("01/08/2021");
 
     const endTimeGroup = await screen.findByRole("group", {
       name: t("communities:end_time"),
@@ -190,6 +203,7 @@ describe("Create event page", () => {
       isVolunteer: false,
       myHomeComplete: false,
       shouldShowDonationBanner: false,
+      hasOptedInToBetaFeatures: false,
     });
 
     render(<CreateEventPage />, { wrapper });

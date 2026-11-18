@@ -1,15 +1,8 @@
-venv/
-.venv/
 *db.sqlite
-__pycache__/
 
-*.egg-info/
-
-.pytest_cache
-
-src/couchers/proto
+src/couchers/proto/
 # old
-src/proto
+src/proto/
 
 .env
 
