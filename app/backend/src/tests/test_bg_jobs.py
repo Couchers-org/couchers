@@ -1578,7 +1578,7 @@ def test_update_badges(db, push_collector: PushCollector):
         (user6.id, "postal_verified"),
     ]
 
-    assert badge_tuples == expected  # type: ignore[comparison-overlap]
+    assert badge_tuples == expected
 
     print(push_collector.by_user)
 

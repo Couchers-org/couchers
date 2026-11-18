@@ -242,10 +242,10 @@ def get_targeting_attributes(user_id: int | None) -> dict[str, Any]:
     """
     if user_id is None:
         return {"logged_in": False}
-    is_volunteer = exists().where(Volunteer.user_id == user_id).where(Volunteer.stopped_volunteering.is_(None))
+    active_volunteer = exists().where(Volunteer.user_id == user_id).where(Volunteer.stopped_volunteering.is_(None))
     with session_scope() as session:
         is_beta, is_volunteer = session.execute(
-            select(User.has_opted_in_to_beta_features, is_volunteer).where(User.id == user_id)
+            select(User.has_opted_in_to_beta_features, active_volunteer).where(User.id == user_id)
         ).one()
     return {
         "id": str(user_id),

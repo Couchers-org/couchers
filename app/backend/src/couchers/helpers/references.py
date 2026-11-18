@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from sqlalchemy import select
 from sqlalchemy.orm import InstrumentedAttribute, aliased
@@ -11,9 +11,9 @@ if TYPE_CHECKING:
     from couchers.context import CouchersContext
 
 
-def where_reference_user_visible[T: tuple[Any, ...]](
-    statement: Select[T], context: CouchersContext, user_id_column: InstrumentedAttribute[int]
-) -> Select[T]:
+def where_reference_user_visible[*Ts](
+    statement: Select[*Ts], context: CouchersContext, user_id_column: InstrumentedAttribute[int]
+) -> Select[*Ts]:
     """
     Filters references based on the visibility of the user in the given column (the writer
     or the subject of the reference).
@@ -35,7 +35,7 @@ def where_reference_user_visible[T: tuple[Any, ...]](
     )
 
 
-def where_references_not_hidden_by_reciprocity[T: tuple[Any, ...]](statement: Select[T]) -> Select[T]:
+def where_references_not_hidden_by_reciprocity[*Ts](statement: Select[*Ts]) -> Select[*Ts]:
     """
     Filters out references that are still hidden by the reciprocal-reference rule.
 

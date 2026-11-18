@@ -44,7 +44,7 @@ make mypy
 
 ### Backend (Python)
 - Uses `uv` for dependency management
-- SQLAlchemy 2.0 with mapped_column style
+- SQLAlchemy 2.1 with mapped_column style
 - gRPC for API (defined in `/app/proto`)
 - Background jobs in `couchers/jobs/handlers.py`
 - Notifications system in `couchers/notifications/`

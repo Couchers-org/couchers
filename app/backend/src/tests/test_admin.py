@@ -526,7 +526,7 @@ def test_admin_content_reports(db):
 
     with session_scope() as session:
         id_by_description: dict[str, int] = dict(
-            session.execute(select(ContentReport.description, ContentReport.id)).all()  # type: ignore[arg-type]
+            session.execute(select(ContentReport.description, ContentReport.id)).all()
         )
 
     with real_admin_session(super_token) as api:

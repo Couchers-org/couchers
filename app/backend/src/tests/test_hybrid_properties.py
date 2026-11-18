@@ -609,7 +609,7 @@ def test_hybrid_method_agrees_with_sql(db, model: type[Base], name: str) -> None
                 python_value = getattr(instance, name)(user)
                 # the subject comes from the users table, exactly as it does in a real query; the join
                 # pins it to this one user so the row is the pair under test
-                sql_value = session.execute(
+                sql_value: Any = session.execute(
                     select(getattr(model, name)(User))
                     .select_from(model)
                     .join(User, User.id == user.id)

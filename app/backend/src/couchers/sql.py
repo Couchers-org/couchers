@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from sqlalchemy import ColumnElement, SQLColumnExpression, and_, false, or_, select, true
 from sqlalchemy.orm import InstrumentedAttribute, aliased
@@ -87,9 +87,9 @@ def users_visible(context: CouchersContext, table: _User = User) -> ColumnElemen
     return and_(*clauses)
 
 
-def where_users_column_visible[T: tuple[Any, ...]](
-    query: Select[T], context: CouchersContext, column: SQLColumnExpression[int]
-) -> Select[T]:
+def where_users_column_visible[*Ts](
+    query: Select[*Ts], context: CouchersContext, column: SQLColumnExpression[int]
+) -> Select[*Ts]:
     """
     Filters the given column, not yet joined/selected from
     """
@@ -121,9 +121,9 @@ def users_visible_to_each_other(*, self_user: _User, other_user: _User) -> Colum
     )
 
 
-def where_user_columns_visible_to_each_other[T: tuple[Any, ...]](
-    query: Select[T], *, self_column: InstrumentedAttribute[int], other_column: InstrumentedAttribute[int]
-) -> Select[T]:
+def where_user_columns_visible_to_each_other[*Ts](
+    query: Select[*Ts], *, self_column: InstrumentedAttribute[int], other_column: InstrumentedAttribute[int]
+) -> Select[*Ts]:
     """
     Filters to ensure the user in other_column is visible to the user in self_column, and that they
     haven't blocked each other.
@@ -143,12 +143,12 @@ def where_user_columns_visible_to_each_other[T: tuple[Any, ...]](
     )
 
 
-def where_moderated_content_visible_to_user_column[T: tuple[Any, ...]](
-    query: Select[T],
+def where_moderated_content_visible_to_user_column[*Ts](
+    query: Select[*Ts],
     table: type[ModeratedContent],
     user_id_column: InstrumentedAttribute[int] | int,
     is_list_operation: bool = False,
-) -> Select[T]:
+) -> Select[*Ts]:
     entry = get_moderated_models()[table.__moderation_object_type__]
     assert not entry.has_own_visibility_mechanism, f"{table.__name__} visibility is not decided by the UMS"
     aliased_mod_state = aliased(ModerationState)
@@ -171,12 +171,12 @@ def where_moderated_content_visible_to_user_column[T: tuple[Any, ...]](
     )
 
 
-def where_moderated_content_visible[T: tuple[Any, ...]](
-    query: Select[T],
+def where_moderated_content_visible[*Ts](
+    query: Select[*Ts],
     context: CouchersContext,
     table: type[ModeratedContent],
     is_list_operation: bool = False,
-) -> Select[T]:
+) -> Select[*Ts]:
     entry = get_moderated_models()[table.__moderation_object_type__]
     assert not entry.has_own_visibility_mechanism, f"{table.__name__} visibility is not decided by the UMS"
     aliased_mod_state = aliased(ModerationState)
@@ -253,7 +253,7 @@ def moderation_state_column_visible(
     )
 
 
-def relevant_user_blocks(user_id: int) -> Select[tuple[int]]:
+def relevant_user_blocks(user_id: int) -> Select[int]:
     """
     Gets a list of blocked user IDs or users that have blocked this user: those should be hidden
     """
