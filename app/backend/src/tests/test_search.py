@@ -379,7 +379,7 @@ def test_user_search_profile_snippet(db):
         res = api.UserSearchV2(search_pb2.UserSearchReq(exactly_user_ids=[user1.id, user2.id, user3.id]))
         snippets = [result.profile_snippet for result in res.results]
         assert snippets[0] == "Hello, see my site."
-        assert snippets[1] == "word " * 119 + "word…"
+        assert snippets[1] == "word " * 59 + "word…"
         assert snippets[2] == ""
 
 

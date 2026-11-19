@@ -84,7 +84,7 @@ from couchers.utils import (
 # searches are a bit expensive, we'd rather send back a bunch of results at once than lots of small pages
 MAX_PAGINATION_LENGTH = 100
 
-PROFILE_SNIPPET_MAX_LENGTH = 600
+PROFILE_SNIPPET_MAX_LENGTH = 300
 
 DEFAULT_SEARCH_AGE_MIN = 18
 DEFAULT_SEARCH_AGE_MAX = 200
