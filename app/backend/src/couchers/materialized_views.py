@@ -5,17 +5,33 @@ from datetime import datetime, timedelta
 from typing import Any
 
 from google.protobuf import empty_pb2
-from sqlalchemy import CompoundSelect, Connection, Float, Index, Integer, MetaData, Select, Table, Text, event
+from sqlalchemy import (
+    ColumnElement,
+    CompoundSelect,
+    Connection,
+    Float,
+    Index,
+    Integer,
+    MetaData,
+    Select,
+    Table,
+    Text,
+    event,
+)
 from sqlalchemy.dialects.postgresql import JSON
-from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import Mapped, aliased
 from sqlalchemy.sql import (
     and_,
     case,
     cast,
+    false,
     func,
     literal,
     literal_column,
+    null,
+    or_,
     select,
+    true,
     union_all,
 )
 from sqlalchemy.sql.functions import percentile_disc
@@ -27,6 +43,7 @@ from sqlalchemy_utils.view import (
     refresh_materialized_view,
 )
 
+from couchers.constants import ACCEPT_TIME_EXPECTATION, RESPONSE_COUNT_DECAY, RESPONSE_TIME_EXPECTATION
 from couchers.db import session_scope
 from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.models import (
@@ -37,15 +54,21 @@ from couchers.models import (
     ClusterSubscription,
     Geom,
     HostRequest,
+    HostRequestStatus,
     MatViewBase,
     Message,
     MessageType,
+    ModerationState,
     StayProposalKind,
     StrongVerificationAttempt,
     Upload,
     User,
 )
 from couchers.models.uploads import get_avatar_photo_subquery
+from couchers.sql import (
+    moderated_content_visible_to_user_column,
+    users_visible_to_each_other,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -319,24 +342,84 @@ def float_(stmt: Any) -> Any:
 t = select(Message.conversation_id, Message.time).where(Message.message_type == MessageType.chat_created).subquery()
 # this subquery gets the time that the user responded to the request
 s = (
-    select(Message.conversation_id, Message.author_id, func.min(Message.time).label("time"))
+    select(
+        Message.conversation_id,
+        Message.author_id,
+        func.min(Message.time).label("time"),
+        func.min(Message.time)
+        .filter(Message.host_request_status_target == HostRequestStatus.accepted)
+        .label("accepted"),
+    )
     .group_by(Message.conversation_id, Message.author_id)
     .subquery()
 )
+host = aliased(User, name="host")
+sender = aliased(User, name="sender")
+
+
+def request_window_over(window: timedelta) -> ColumnElement[bool]:
+    return t.c.time < func.now() - window
+
+
+def request_still_answerable(window: timedelta) -> ColumnElement[bool]:
+    return and_(
+        moderated_content_visible_to_user_column(ModerationState, HostRequest, HostRequest.recipient_user_id),
+        users_visible_to_each_other(self_user=host, other_user=sender),
+        ~select(Message.id)
+        .where(Message.conversation_id == HostRequest.conversation_id)
+        .where(Message.host_request_status_target == HostRequestStatus.cancelled)
+        .where(Message.time < t.c.time + window)
+        .exists(),
+    )
+
+
 all_responses = union_all(
     # host request responses
     select(
         HostRequest.recipient_user_id.label("user_id"),
+        t.c.time.label("time"),
+        false().label("is_probe"),
         (s.c.time - t.c.time).label("response_time"),
+        case(
+            (and_(request_window_over(RESPONSE_TIME_EXPECTATION), s.c.time - t.c.time < RESPONSE_TIME_EXPECTATION), 1),
+            (
+                and_(
+                    request_window_over(RESPONSE_TIME_EXPECTATION),
+                    or_(s.c.time.is_not(None), request_still_answerable(RESPONSE_TIME_EXPECTATION)),
+                ),
+                0,
+            ),
+        ).label("response96h"),
+        case(
+            (
+                and_(
+                    request_window_over(ACCEPT_TIME_EXPECTATION),
+                    s.c.accepted - t.c.time < ACCEPT_TIME_EXPECTATION,
+                ),
+                1,
+            ),
+            (
+                and_(
+                    request_window_over(ACCEPT_TIME_EXPECTATION),
+                    or_(s.c.time.is_not(None), request_still_answerable(ACCEPT_TIME_EXPECTATION)),
+                ),
+                0,
+            ),
+        ).label("accept168h"),
     )
     .join(t, t.c.conversation_id == HostRequest.conversation_id)
     .outerjoin(
         s, and_(s.c.conversation_id == HostRequest.conversation_id, s.c.author_id == HostRequest.recipient_user_id)
     )
+    .join(ModerationState, ModerationState.id == HostRequest.moderation_state_id)
+    .join(host, host.id == HostRequest.recipient_user_id)
+    .join(sender, sender.id == HostRequest.initiator_user_id)
     .where(HostRequest.proposal_kind == StayProposalKind.request),
     # activeness probes
     select(
         ActivenessProbe.user_id,
+        ActivenessProbe.probe_initiated,
+        true().label("is_probe"),
         (
             # expired probes have a responded time for when they were marked responded
             case(
@@ -347,25 +430,54 @@ all_responses = union_all(
                 else_=None,
             )
         ).label("response_time"),
+        # probes expire after 96 hours
+        case(
+            (
+                ActivenessProbe.response.in_(
+                    [ActivenessProbeStatus.still_active, ActivenessProbeStatus.no_longer_active]
+                ),
+                1,
+            ),
+            (ActivenessProbe.response == ActivenessProbeStatus.expired, 0),
+        ).label("response96h"),
+        null().label("accept168h"),
     ),
 ).subquery()
+ranked_responses = select(
+    all_responses,
+    (
+        func.count(all_responses.c.response96h).over(
+            partition_by=all_responses.c.user_id, order_by=all_responses.c.time.desc(), rows=(None, 0)
+        )
+        - 1
+    ).label("later_responses96h"),
+).subquery()
+response96h_weight = func.power(RESPONSE_COUNT_DECAY, ranked_responses.c.later_responses96h)
 
 user_response_rates_selectable = select(
-    all_responses.c.user_id.label("user_id"),
+    ranked_responses.c.user_id.label("user_id"),
     # number of requests received
     func.count().label("requests"),
     # percentage of requests responded to
-    (func.count(all_responses.c.response_time) / func.count()).label("response_rate"),
-    func.avg(all_responses.c.response_time).label("avg_response_time"),
+    (func.count(ranked_responses.c.response_time) / func.count()).label("response_rate"),
+    func.avg(ranked_responses.c.response_time).label("avg_response_time"),
     # the 33rd percentile response time
     percentile_disc(0.33)
-    .within_group(func.coalesce(all_responses.c.response_time, timedelta(days=1000)))
+    .within_group(func.coalesce(ranked_responses.c.response_time, timedelta(days=1000)))
     .label("response_time_33p"),
     # the 66th percentile response time
     percentile_disc(0.66)
-    .within_group(func.coalesce(all_responses.c.response_time, timedelta(days=1000)))
+    .within_group(func.coalesce(ranked_responses.c.response_time, timedelta(days=1000)))
     .label("response_time_66p"),
-).group_by(all_responses.c.user_id)
+    func.avg(ranked_responses.c.response96h).label("response96h"),
+    func.count(ranked_responses.c.response96h).filter(~ranked_responses.c.is_probe).label("requests96h"),
+    func.count(ranked_responses.c.response96h).filter(ranked_responses.c.is_probe).label("probes96h"),
+    func.sum(response96h_weight).filter(ranked_responses.c.response96h.is_not(None)).label("requests96h_decayed"),
+    func.sum(response96h_weight * ranked_responses.c.response96h).label("responses96h_decayed"),
+    # leaves out unanswered requests cancelled within 168 hours, but counts ones cancelled later as not accepted
+    func.avg(ranked_responses.c.accept168h).label("accept168h"),
+    func.count(ranked_responses.c.accept168h).label("requests168h"),
+).group_by(ranked_responses.c.user_id)
 
 user_response_rates = create_materialized_view(
     "user_response_rates",
@@ -384,6 +496,13 @@ class UserResponseRate(MatViewBase):
     avg_response_time: Mapped[float]
     response_time_33p: Mapped[timedelta]
     response_time_66p: Mapped[timedelta]
+    response96h: Mapped[float | None]
+    requests96h: Mapped[int]
+    probes96h: Mapped[int]
+    requests96h_decayed: Mapped[float | None]
+    responses96h_decayed: Mapped[float | None]
+    accept168h: Mapped[float | None]
+    requests168h: Mapped[int]
 
 
 def refresh_materialized_views(payload: empty_pb2.Empty) -> None:
