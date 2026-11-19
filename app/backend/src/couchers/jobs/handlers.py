@@ -1439,13 +1439,13 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
             )
             return
 
-        user_name, user_email = session.execute(select(User.name, User.email).where(User.id == attempt.user_id)).one()
+        user_email = session.execute(select(User.email).where(User.id == attempt.user_id)).scalar_one()
 
         if config.POSTAL_VERIFICATION_BYPASS_POST_AND_EMAIL_CODE_FOR_TESTING:
             email_verification_code_instead_of_posting(
                 session,
                 recipient_email=user_email,
-                recipient_name=user_name,
+                recipient_name=attempt.recipient_name,
                 address_line_1=attempt.address_line_1,
                 address_line_2=attempt.address_line_2,
                 city=attempt.city,
@@ -1456,7 +1456,7 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
             )
         else:
             attempt.mypostcard_job_id = send_postcard(
-                recipient_name=user_name,
+                recipient_name=attempt.recipient_name,
                 address_line_1=attempt.address_line_1,
                 address_line_2=attempt.address_line_2,
                 city=attempt.city,

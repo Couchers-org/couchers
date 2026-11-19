@@ -244,6 +244,7 @@ def _populate_postal_verification_attempts() -> None:
     with session_scope() as session:
         session.add(
             PostalVerificationAttempt(
+                recipient_name="Test User",
                 user_id=verified.id,
                 status=PostalVerificationStatus.succeeded,
                 address_line_1="1 Test Street",
@@ -256,6 +257,7 @@ def _populate_postal_verification_attempts() -> None:
         )
         session.add(
             PostalVerificationAttempt(
+                recipient_name="Test User",
                 user_id=cancelled.id,
                 status=PostalVerificationStatus.cancelled,
                 address_line_1="2 Test Street",
@@ -265,6 +267,7 @@ def _populate_postal_verification_attempts() -> None:
         )
         session.add(
             PostalVerificationAttempt(
+                recipient_name="Test User",
                 user_id=pending.id,
                 status=PostalVerificationStatus.pending_address_confirmation,
                 address_line_1="3 Test Street",

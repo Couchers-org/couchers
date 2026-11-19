@@ -10,6 +10,7 @@ import {
 import client from "./client";
 
 export type PostalAddressData = {
+  recipientName: string;
   addressLine1: string;
   addressLine2?: string;
   city: string;
@@ -20,6 +21,7 @@ export type PostalAddressData = {
 
 function addressToProto(address: PostalAddressData) {
   const req = new PostalAddress();
+  req.setRecipientName(address.recipientName);
   req.setAddressLine1(address.addressLine1);
   req.setAddressLine2(address.addressLine2 ?? "");
   req.setCity(address.city);
