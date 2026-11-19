@@ -6,9 +6,10 @@ from google.protobuf import empty_pb2
 from sqlalchemy import select, update
 
 from couchers.db import session_scope
-from couchers.materialized_views import refresh_materialized_views
+from couchers.materialized_views import LiteUser, refresh_materialized_views, refresh_materialized_views_rapid
 from couchers.models import (
     HostingStatus,
+    HostPool,
     HostRequest,
     HostRequestStatus,
     Message,
@@ -256,9 +257,29 @@ def test_host_pool_ignores_offers_on_public_trips(db):
 
 def test_host_pool_in_account_info_is_live(db):
     host, token = _generate_host()
+    refresh_materialized_views_rapid(empty_pb2.Empty())
     _assert_account_info(token, api_pb2.HOST_POOL_NEWBIE, True, True)
 
     with session_scope() as session:
         session.execute(update(User).where(User.id == host.id).values(hosting_status=HostingStatus.cant_host))
 
     _assert_account_info(token, api_pb2.HOST_POOL_NORMAL, True, True)
+
+
+def test_host_pool_in_lite_users(db):
+    newbie, _ = _generate_host()
+    not_ready, _ = _generate_host(about_place=None)
+    ineligible, _ = _generate_host()
+    _add_references(ineligible.id, 2)
+
+    refresh_materialized_views(empty_pb2.Empty())
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+
+    with session_scope() as session:
+        host_pools = {
+            row.id: row.host_pool
+            for row in session.execute(
+                select(LiteUser.id, LiteUser.host_pool).where(LiteUser.id.in_([newbie.id, not_ready.id, ineligible.id]))
+            ).all()
+        }
+    assert host_pools == {newbie.id: HostPool.newbie, not_ready.id: HostPool.normal, ineligible.id: HostPool.normal}
