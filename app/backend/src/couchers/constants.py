@@ -96,6 +96,12 @@ UNDELETE_DAYS = 7
 # expiry time for preferred language cookie
 PREFERRED_LANGUAGE_COOKIE_EXPIRY = timedelta(days=3650)
 
+# our goal response time
+RESPONSE_TIME_EXPECTATION = timedelta(hours=96)
+# decay per request in the decayed response counts
+RESPONSE_COUNT_DECAY = 0.8
+# window for the acceptance rate
+ACCEPT_TIME_EXPECTATION = timedelta(hours=168)
 
 # activeness probe settings
 # wait about 11 months before sending one out
@@ -103,7 +109,7 @@ ACTIVENESS_PROBE_INACTIVITY_PERIOD = timedelta(days=333)
 # times at which to send notifications after inactivity (cumulative since start of probe)
 ACTIVENESS_PROBE_TIME_REMINDERS = [timedelta(days=0), timedelta(days=2, hours=8)]
 # total time from initiation after which to expire the probe
-ACTIVENESS_PROBE_EXPIRY_TIME = timedelta(days=4)
+ACTIVENESS_PROBE_EXPIRY_TIME = RESPONSE_TIME_EXPECTATION
 
 # how long a message must go unseen before we email the user about it
 MISSED_MESSAGES_DELAY = timedelta(minutes=5)
