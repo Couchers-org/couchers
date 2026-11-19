@@ -1,4 +1,10 @@
-from couchers.markup import html_to_plaintext, markdown_to_html, markdown_to_plaintext
+from couchers.markup import (
+    html_to_plaintext,
+    markdown_to_html,
+    markdown_to_plaintext,
+    plaintext_snippet,
+    strip_markdown,
+)
 
 
 def test_markdown_to_html() -> None:
@@ -63,3 +69,32 @@ def test_html_to_plaintext() -> None:
     assert html_to_plaintext("a<script/>b") == "ab"
     assert html_to_plaintext('<a href="https://example.com">attributes</a>') == "attributes"
     assert html_to_plaintext("</b>malformed<a>") == "malformed"
+
+
+def test_strip_markdown() -> None:
+    # Expected values are the output of stripMarkdown in app/web/utils/stripMarkdown.ts
+    assert strip_markdown("Hi! I'm **Anna**, a _teacher_ from Berlin.") == "Hi! I'm Anna, a teacher from Berlin."
+    assert (
+        strip_markdown(
+            "# About me\n\nI love hiking.\n\n## Hobbies\n\n- climbing\n- reading\n* cooking\n1. first\n2. second"
+        )
+        == "About me\n\nI love hiking.\n\nHobbies\n\nclimbing\nreading\ncooking\nfirst\nsecond"
+    )
+    assert (
+        strip_markdown("Check out [my blog](https://example.com) and ![a cat](cat.png).")
+        == "Check out my blog and a cat."
+    )
+    assert strip_markdown("Line one<br>Line two<br/>Line three") == "Line oneLine twoLine three"
+    assert strip_markdown("---\n\nAfter a rule\n***\n___") == "\nAfter a rule\n"
+    assert strip_markdown("> quoted text\nnot quoted") == "quoted text\nnot quoted"
+    assert strip_markdown("Some `inline code` and\n```\nfenced\n```\nafter") == "Some inline code and\nfenced\nafter"
+
+
+def test_plaintext_snippet() -> None:
+    assert plaintext_snippet("**short**", 10) == "short"
+    assert plaintext_snippet("exactly ten", 11) == "exactly ten"
+    assert plaintext_snippet("one two three", 9) == "one two…"
+    assert plaintext_snippet("one two three", 7) == "one two…"
+    assert plaintext_snippet("one two\nthree", 10) == "one two…"
+    assert plaintext_snippet("[a link](https://example.com/very/long/url) and more", 10) == "a link and…"
+    assert plaintext_snippet("unbreakableword", 5) == "unbre…"
