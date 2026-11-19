@@ -169,6 +169,14 @@ message GetAccountInfoRes {
 
   // whether the user has opted in to feature previews
   bool has_opted_in_to_beta_features = 21;
+
+  // which host pool the user is in: newbie if their host profile is ready and they're eligible, unless they have yet to
+  // accept one of their first few requests
+  org.couchers.api.core.HostPool host_pool = 22;
+  // whether the user can still get into the newbie pool based on their hosting history; once false it stays false
+  bool newbie_pool_eligible = 23;
+  // whether the user can host, has a complete profile, and has filled in "About my home"
+  bool host_profile_ready = 24;
 }
 
 message ChangePasswordV2Req {
