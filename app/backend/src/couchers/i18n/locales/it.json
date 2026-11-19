@@ -161,7 +161,7 @@
     "no_recipients": "Nessun destinatario.",
     "node_moderate_permission_denied": "Non sei autorizzato a moderare quella community",
     "not_a_volunteer": "Al momento non risulti registrato come volontario, se non è corretto ti preghiamo di contattarci.",
-    "not_donated": "Completa la donazione per verificare il tuo numero di telefono.",
+    "not_donated": "Devi effettuare una donazione a Couchers.org per poter verificare il tuo numero di telefono.",
     "not_friends": "Non hai stretto amicizia con questo utente!",
     "permission_denied_to_edit_gallery": "Non hai il permesso di modificare questa galleria.",
     "not_in_community": "Non fai parte di questa community.",
@@ -243,7 +243,22 @@
     "duplicate_host_request_one": "Nell'ultima ora hai già inviato a questa persona una richiesta di soggiorno per date che si sovrappongono. Controlla i tuoi messaggi, potrebbe essere stata inviata anche se non l'hai vista.",
     "duplicate_host_request_many": "Nelle ultime {{count}} di ore hai già inviato a questa persona una richiesta di soggiorno per date che si sovrappongono. Controlla i tuoi messaggi, potrebbe essere stata inviata anche se non l'hai vista.",
     "duplicate_host_request_other": "Nelle ultime {{count}} ore hai già inviato a questa persona una richiesta di soggiorno per date che si sovrappongono. Controlla i tuoi messaggi, potrebbe essere stata inviata anche se non l'hai vista.",
-    "invalid_thread_category": "Categoria del thread di messaggi non valida."
+    "invalid_thread_category": "Categoria del thread di messaggi non valida.",
+    "date_to_not_after_from": "La data di fine deve essere successiva alla data di inizio.",
+    "event_recurrence_ends_before_starts": "Un evento ricorrente deve terminare in corrispondenza o dopo la sua prima occorrenza.",
+    "invalid_donation_frequency": "Frequenza della donazione non valida.",
+    "invalid_event_recurrence_end_date": "Data di fine dell'evento ricorrente non valida.",
+    "invalid_event_recurrence_rule": "Sono supportati solo gli eventi ricorrenti a cadenza di una o due settimane.",
+    "invalid_stay_role": "Ruolo del soggiorno non valido.",
+    "not_donated_postal": "Devi effettuare una donazione a Couchers.org per poter verificare il tuo indirizzo.",
+    "public_trip_offer_too_short_one": "Il tuo invito ad ospitare non può essere più corto di {{count}} carattere.",
+    "public_trip_offer_too_short_many": "Il tuo invito ad ospitare non può essere più corto di {{count}} di caratteri.",
+    "public_trip_offer_too_short_other": "Il tuo invito ad ospitare non può essere più corto di {{count}} caratteri.",
+    "recurring_event_creation_disabled": "La creazione di eventi ricorrenti è attualmente disabilitata.",
+    "signup_flow_email_verified": "Hai già verificato la tua email.",
+    "signup_flow_invalid_request": "Richiesta di registrazione non valida: non puoi recuperare la tua registrazione e continuare a registrarti contemporaneamente.",
+    "undelete_email_reused": "Questo account non può essere recuperato perché il suo indirizzo email è ora utilizzato da un altro account.",
+    "user_search_area_not_supported": "La ricerca di utenti per area o community non è più supportata."
   },
   "quick_links": {
     "do_not_email": "Non riceverai più email che non riguardino la sicurezza e il tuo stato di ospitalità è stato disattivato. Potresti continuare a ricevere la newsletter, dalla quale devi annullare l'iscrizione separatamente.",
@@ -275,7 +290,9 @@
     "strong_verification_name": "Verifica robusta",
     "strong_verification_description": "Questo utente ha verificato il proprio genere e la propria data di nascita con un passaporto biometrico",
     "swagster_name": "Swagster",
-    "swagster_description": "Questo utente ha acquistato dei gadget di Couchers.org!"
+    "swagster_description": "Questo utente ha acquistato dei gadget di Couchers.org!",
+    "postal_verified_name": "Indirizzo verificato",
+    "postal_verified_description": "L'indirizzo di questo utente è stato verificato con una cartolina fisica"
   },
   "community_guidelines": {
     "be_kind_title": "Siate gentili gli uni con gli altri",
@@ -286,5 +303,6 @@
     "be_safe_guideline": "Leggi i profili, le referenze e le risorse. Segnala qualsiasi contenuto o comportamento inappropriato.",
     "no_money_title": "Lascia stare i soldi",
     "no_money_guideline": "Lascia le transazioni fuori dal discorso. Non scambiare denaro quando sei ospite o quando ospiti qualcuno. Couchers.org è fatto per imparare, vivere esperienze e conoscere le persone."
-  }
+  },
+  "ambiguous_language_display_format": "{{name}} ({{code}})"
 }

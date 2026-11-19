@@ -12,11 +12,12 @@ from couchers.models import (
     Cluster,
     Event,
     Node,
+    NodeType,
     User,
     UserActivity,
     Volunteer,
 )
-from couchers.proto import editor_pb2, events_pb2
+from couchers.proto import communities_pb2, editor_pb2, events_pb2
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import create_coordinate, get_coordinates, now
 from tests.fixtures.api import events as events_api
@@ -285,6 +286,69 @@ def test_CreateCommunity_set_main_page_location_from_busiest_user_neighbourhood_
         assert located.geom is not None
         node_geom = select(Node.geom).where(Node.id == community_id).scalar_subquery()
         assert session.execute(select(func.ST_Contains(node_geom, located.geom))).scalar_one()
+
+
+def _create_typed_community(api, name, parent_node_id=0, node_type=communities_pb2.NODE_TYPE_UNSPECIFIED):
+    return api.CreateCommunity(
+        editor_pb2.CreateCommunityReq(
+            name=name,
+            description="community for testing",
+            admin_ids=[],
+            geojson=VALID_GEOJSON_MULTIPOLYGON,
+            parent_node_id=parent_node_id,
+            node_type=node_type,
+        )
+    )
+
+
+def test_CreateCommunity_node_type(db):
+    editor_user, editor_token = generate_user(is_editor=True)
+
+    with real_editor_session(editor_token) as api:
+        world = _create_typed_community(api, "world")
+        assert world.node_type == communities_pb2.NODE_TYPE_WORLD
+
+        continent = _create_typed_community(api, "continent", world.community_id)
+        assert continent.node_type == communities_pb2.NODE_TYPE_MACROREGION
+
+        country = _create_typed_community(api, "country", continent.community_id)
+        assert country.node_type == communities_pb2.NODE_TYPE_REGION
+
+        city = _create_typed_community(api, "city", country.community_id, communities_pb2.NODE_TYPE_LOCALITY)
+        assert city.node_type == communities_pb2.NODE_TYPE_LOCALITY
+
+        neighbourhood = _create_typed_community(api, "neighbourhood", city.community_id)
+        assert neighbourhood.node_type == communities_pb2.NODE_TYPE_SUBLOCALITY
+
+    with session_scope() as session:
+        assert (
+            session.execute(select(Node.node_type).where(Node.id == city.community_id)).scalar_one()
+            == NodeType.locality
+        )
+
+
+def test_CreateCommunity_node_type_not_below_parent(db):
+    editor_user, editor_token = generate_user(is_editor=True)
+
+    with real_editor_session(editor_token) as api:
+        world = _create_typed_community(api, "world")
+        continent = _create_typed_community(api, "continent", world.community_id)
+        country = _create_typed_community(api, "country", continent.community_id)
+
+        for parent_node_id, node_type in [
+            (country.community_id, communities_pb2.NODE_TYPE_REGION),
+            (country.community_id, communities_pb2.NODE_TYPE_MACROREGION),
+            (world.community_id, communities_pb2.NODE_TYPE_WORLD),
+            (0, communities_pb2.NODE_TYPE_REGION),
+        ]:
+            with expect_rpc_error(
+                grpc.StatusCode.INVALID_ARGUMENT,
+                "A community's type must be narrower than its parent's, and only a community with no parent can be the world.",
+            ):
+                _create_typed_community(api, "wrong", parent_node_id, node_type)
+
+    with session_scope() as session:
+        assert session.execute(select(func.count()).select_from(Node)).scalar_one() == 3
 
 
 def test_UpdateCommunity2(db):
@@ -750,8 +814,8 @@ def test_ListVolunteers(db):
 def test_ListVolunteers_with_past(db):
     """ListVolunteers should include past volunteers when requested"""
     editor_user, editor_token = generate_user(is_editor=True)
-    user1, _ = generate_user()
-    user2, _ = generate_user()
+    current_volunteer_user, _ = generate_user()
+    past_volunteer_user, _ = generate_user()
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
     with session_scope() as session:
@@ -759,7 +823,7 @@ def test_ListVolunteers_with_past(db):
             # Create current volunteer
             api.MakeUserVolunteer(
                 editor_pb2.MakeUserVolunteerReq(
-                    user_id=user1.id,
+                    user_id=current_volunteer_user.id,
                     role="Current Volunteer",
                 )
             )
@@ -767,13 +831,13 @@ def test_ListVolunteers_with_past(db):
             # Create past volunteer
             api.MakeUserVolunteer(
                 editor_pb2.MakeUserVolunteerReq(
-                    user_id=user2.id,
+                    user_id=past_volunteer_user.id,
                     role="Past Volunteer",
                 )
             )
             api.UpdateVolunteer(
                 editor_pb2.UpdateVolunteerReq(
-                    user_id=user2.id,
+                    user_id=past_volunteer_user.id,
                     stopped_volunteering=StringValue(value="2024-06-30"),
                 )
             )
@@ -781,17 +845,17 @@ def test_ListVolunteers_with_past(db):
             # List only current volunteers
             res = api.ListVolunteers(editor_pb2.ListVolunteersReq(include_past=False))
             assert len(res.volunteers) == 1
-            assert res.volunteers[0].user_id == user1.id
+            assert res.volunteers[0].user_id == current_volunteer_user.id
             assert not res.volunteers[0].HasField("stopped_volunteering")
 
             # List all volunteers (including past)
             res_with_past = api.ListVolunteers(editor_pb2.ListVolunteersReq(include_past=True))
             assert len(res_with_past.volunteers) == 2
             user_ids = {v.user_id for v in res_with_past.volunteers}
-            assert user_ids == {user1.id, user2.id}
+            assert user_ids == {current_volunteer_user.id, past_volunteer_user.id}
 
             # Find the past volunteer and verify stopped_volunteering is set
-            past_volunteer = next(v for v in res_with_past.volunteers if v.user_id == user2.id)
+            past_volunteer = next(v for v in res_with_past.volunteers if v.user_id == past_volunteer_user.id)
             assert past_volunteer.stopped_volunteering == "2024-06-30"
 
 

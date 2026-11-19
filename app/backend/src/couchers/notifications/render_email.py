@@ -184,23 +184,24 @@ def get_source_data_header(notification: Notification) -> str:
 def get_ics_attachment(notification: Notification, loc_context: LocalizationContext) -> EmailPart | None:
     data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     if notification.topic_action == NotificationTopicAction.host_request__accept:
-        # Caveat: The surfer technically still hasn't confirmed, but when they do they don't receive an email,
+        # Caveat: The initiator technically still hasn't confirmed, but when they do they don't receive an email,
         # so the accept notification is our last opportunity to provide them with a calendar event.
-        return create_host_request_attachment(
-            data.host_request, other_name=data.recipient.name, hosting=False, loc_context=loc_context
-        )
-    elif notification.topic_action == NotificationTopicAction.host_request__confirm:
-        return create_host_request_attachment(
-            data.host_request, other_name=data.initiator.name, hosting=True, loc_context=loc_context
-        )
-    elif notification.topic_action == NotificationTopicAction.host_request__cancel:
+        other_name = data.recipient.name
+    elif notification.topic_action in (
+        NotificationTopicAction.host_request__confirm,
         # Caveat: only the party getting cancelled receives this notification,
         # we have no opportunity to provide the cancelling party with a cancelled ics attachment.
-        return create_host_request_attachment(
-            data.host_request, other_name=data.initiator.name, hosting=True, loc_context=loc_context
-        )
+        NotificationTopicAction.host_request__cancel,
+    ):
+        other_name = data.initiator.name
     else:
         return None
+    return create_host_request_attachment(
+        data.host_request,
+        other_name=other_name,
+        hosting=notification.user_id == data.host_request.host_user_id,
+        loc_context=loc_context,
+    )
 
 
 def get_list_unsubscribe_header(notification: Notification) -> str | None:

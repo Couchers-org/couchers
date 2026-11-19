@@ -13,12 +13,12 @@ from tests.fixtures.sessions import real_account_session, real_admin_session, re
 
 
 def test_jail_basic(db):
-    user1, token1 = generate_user()
+    normal_user, normal_token = generate_user()
 
-    with real_api_session(token1) as api:
+    with real_api_session(normal_token) as api:
         api.Ping(api_pb2.PingReq())
 
-    with real_jail_session(token1) as jail:
+    with real_jail_session(normal_token) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
         # check every field is false
         for field in res.DESCRIPTOR.fields:
@@ -27,12 +27,12 @@ def test_jail_basic(db):
         assert not res.jailed
 
     # make the user jailed
-    user2, token2 = generate_user(accepted_tos=0)
+    jailed_user, jailed_token = generate_user(accepted_tos=0)
 
-    with real_api_session(token2) as api, expect_rpc_error(grpc.StatusCode.UNAUTHENTICATED):
+    with real_api_session(jailed_token) as api, expect_rpc_error(grpc.StatusCode.UNAUTHENTICATED):
         api.Ping(api_pb2.PingReq())
 
-    with real_jail_session(token2) as jail:
+    with real_jail_session(jailed_token) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
 
         assert res.jailed
@@ -47,33 +47,33 @@ def test_jail_basic(db):
 
 
 def test_JailInfo(db):
-    user1, token1 = generate_user(accepted_tos=0)
+    jailed_user, jailed_token = generate_user(accepted_tos=0)
 
-    with real_jail_session(token1) as jail:
+    with real_jail_session(jailed_token) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
         assert res.jailed
         assert res.has_not_accepted_tos
 
-    with real_api_session(token1) as api, expect_rpc_error(grpc.StatusCode.UNAUTHENTICATED):
+    with real_api_session(jailed_token) as api, expect_rpc_error(grpc.StatusCode.UNAUTHENTICATED):
         res = api.Ping(api_pb2.PingReq())
 
     # make the user not jailed
-    user2, token2 = generate_user()
+    normal_user, normal_token = generate_user()
 
-    with real_jail_session(token2) as jail:
+    with real_jail_session(normal_token) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
         assert not res.jailed
         assert not res.has_not_accepted_tos
 
-    with real_api_session(token2) as api:
+    with real_api_session(normal_token) as api:
         res = api.Ping(api_pb2.PingReq())
 
 
 def test_AcceptTOS(db):
     # make them have not accepted TOS
-    user1, token1 = generate_user(accepted_tos=0)
+    jailed_user, jailed_token = generate_user(accepted_tos=0)
 
-    with real_jail_session(token1) as jail:
+    with real_jail_session(jailed_token) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
         assert res.jailed
         assert res.has_not_accepted_tos
@@ -104,9 +104,9 @@ def test_AcceptTOS(db):
             res = jail.AcceptTOS(jail_pb2.AcceptTOSReq(accept=False))
 
     # make them have accepted TOS
-    user2, token2 = generate_user()
+    normal_user, normal_token = generate_user()
 
-    with real_jail_session(token2) as jail:
+    with real_jail_session(normal_token) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
         assert not res.jailed
         assert not res.has_not_accepted_tos
@@ -165,7 +165,7 @@ def test_TOS_increase(db, monkeypatch):
 
 def test_SetLocation(db):
     # make them need to update location
-    user1, token1 = generate_user(geom=create_coordinate(0, 0), geom_radius=0, needs_to_update_location=True)
+    user, token = generate_user(geom=create_coordinate(0, 0), geom_radius=0, needs_to_update_location=True)
 
 
 def test_MarkUserNeedsLocationUpdate(db):
@@ -205,9 +205,9 @@ def test_MarkUserNeedsLocationUpdate(db):
 
 def test_AcceptCommunityGuidelines(db):
     # make them have not accepted GC
-    user1, token1 = generate_user(accepted_community_guidelines=0)
+    jailed_user, jailed_token = generate_user(accepted_community_guidelines=0)
 
-    with real_jail_session(token1) as jail:
+    with real_jail_session(jailed_token) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
         assert res.jailed
         assert res.has_not_accepted_community_guidelines
@@ -238,9 +238,9 @@ def test_AcceptCommunityGuidelines(db):
             res = jail.AcceptCommunityGuidelines(jail_pb2.AcceptCommunityGuidelinesReq(accept=False))
 
     # make them have accepted GC
-    user2, token2 = generate_user()
+    normal_user, normal_token = generate_user()
 
-    with real_jail_session(token2) as jail:
+    with real_jail_session(normal_token) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
         assert not res.jailed
         assert not res.has_not_accepted_community_guidelines

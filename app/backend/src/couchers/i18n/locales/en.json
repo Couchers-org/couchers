@@ -245,6 +245,7 @@
     "upload_not_found_or_not_owned": "Upload not found or you don't own it.",
     "user_already_admin": "That user is already an admin.",
     "user_already_blocked": "Target user has already been blocked.",
+    "user_search_area_not_supported": "Searching for users by area or community is no longer supported.",
     "user_not_admin": "That user is not an admin.",
     "user_not_blocked": "Target user is not blocked.",
     "user_not_found": "Couldn't find that user.",

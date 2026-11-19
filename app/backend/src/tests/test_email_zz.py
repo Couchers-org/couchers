@@ -1,4 +1,5 @@
 import re
+from typing import Any
 
 from sqlalchemy import select
 
@@ -70,7 +71,7 @@ def test_notification_email_gets_zz(
             .where(Notification.user_id == to_user.id)
             .where(Notification.topic_action == NotificationTopicAction.friend_request__create)
         ).scalar_one()
-        properties = session.execute(
+        properties: dict[str, Any] = session.execute(
             select(EventLog.properties).where(EventLog.event_type == "email.sent").where(EventLog.user_id == to_user.id)
         ).scalar_one()
 
@@ -120,7 +121,7 @@ def test_record_email_open(db):
     assert metadata_interceptor.latest_headers["cache-control"] == "no-store"
 
     with session_scope() as session:
-        properties = session.execute(
+        properties: dict[str, Any] = session.execute(
             select(EventLog.properties).where(EventLog.event_type == "email.opened")
         ).scalar_one()
     assert properties == {"zz": zz}

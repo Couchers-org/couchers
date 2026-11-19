@@ -371,20 +371,20 @@ def test_GetVolunteers_excludes_hidden(db):
 
     _get_volunteers.cache_clear()
 
-    user1, _ = generate_user(username="visible")
-    user2, _ = generate_user(username="hidden")
+    visible_user, _ = generate_user(username="visible")
+    hidden_user, _ = generate_user(username="hidden")
 
     with session_scope() as session:
         session.add(
             make_volunteer(
-                user_id=user1.id,
+                user_id=visible_user.id,
                 role="Visible Role",
                 started_volunteering=date(2023, 1, 1),
             )
         )
         session.add(
             make_volunteer(
-                user_id=user2.id,
+                user_id=hidden_user.id,
                 role="Hidden Role",
                 started_volunteering=date(2023, 1, 1),
                 show_on_team_page=False,

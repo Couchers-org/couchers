@@ -297,16 +297,16 @@ def test_do_not_email_security(db, email_collector: EmailCollector):
 
 
 def test_do_not_email_non_security(db, email_collector: EmailCollector):
-    user, token1 = generate_user(complete_profile=True)
-    from_user, token2 = generate_user(complete_profile=True)
+    user, token = generate_user(complete_profile=True)
+    from_user, from_token = generate_user(complete_profile=True)
     # Need a moderator to approve the friend request since UMS defers notification
     mod_user, mod_token = generate_user(is_superuser=True)
     moderator = Moderator(mod_user, mod_token)
 
-    with notifications_session(token1) as notifications:
+    with notifications_session(token) as notifications:
         notifications.SetNotificationSettings(notifications_pb2.SetNotificationSettingsReq(enable_do_not_email=True))
 
-    with api_session(token2) as api:
+    with api_session(from_token) as api:
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user.id))
 
     friend_relationship = get_friend_relationship(from_user, user)
@@ -318,12 +318,12 @@ def test_do_not_email_non_security(db, email_collector: EmailCollector):
 
 def test_do_not_email_non_security_unsublink(db, email_collector: EmailCollector):
     user, _ = generate_user(complete_profile=True)
-    from_user, token2 = generate_user(complete_profile=True)
+    from_user, from_token = generate_user(complete_profile=True)
     # Need a moderator to approve the friend request since UMS defers notification
     mod_user, mod_token = generate_user(is_superuser=True)
     moderator = Moderator(mod_user, mod_token)
 
-    with api_session(token2) as api:
+    with api_session(from_token) as api:
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user.id))
 
     friend_relationship = get_friend_relationship(from_user, user)

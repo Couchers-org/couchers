@@ -10,16 +10,16 @@ from tests.fixtures.sessions import reporting_session
 
 
 def test_reporting(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    reporter_user, reporter_token = generate_user()
+    reported_user, reported_token = generate_user()
 
-    with reporting_session(token1) as api:
+    with reporting_session(reporter_token) as api:
         res = api.Report(
             reporting_pb2.ReportReq(
                 reason="spam",
                 description="I think this is spam and does not belong on couchers",
                 content_ref="comment/123",
-                author_user=user2.username,
+                author_user=reported_user.username,
                 user_agent="n/a",
                 page="https://couchers.org/comment/123",
             )
@@ -30,17 +30,17 @@ def test_reporting(db):
 
         assert len(entries) == 1
 
-        assert entries[0].reporting_user_id == user1.id
+        assert entries[0].reporting_user_id == reporter_user.id
         assert entries[0].reason == "spam"
         assert entries[0].description == "I think this is spam and does not belong on couchers"
         assert entries[0].content_ref == "comment/123"
-        assert entries[0].author_user_id == user2.id
+        assert entries[0].author_user_id == reported_user.id
         assert entries[0].user_agent == "n/a"
         assert entries[0].page == "https://couchers.org/comment/123"
 
     # Test that reporting nonexisting user fails
 
-    with reporting_session(token1) as api:
+    with reporting_session(reporter_token) as api:
         with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that user."):
             api.Report(
                 reporting_pb2.ReportReq(

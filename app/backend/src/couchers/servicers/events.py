@@ -234,7 +234,7 @@ def _get_event_and_occurrence_query(
     occurrence_id: int,
     include_deleted: bool,
     context: CouchersContext | None = None,
-) -> Select[tuple[Event, EventOccurrence]]:
+) -> Select[Event, EventOccurrence]:
     query = (
         select(Event, EventOccurrence)
         .where(EventOccurrence.id == occurrence_id)
@@ -254,8 +254,8 @@ def _get_event_and_occurrence_one(
     session: Session, occurrence_id: int, include_deleted: bool = False
 ) -> tuple[Event, EventOccurrence]:
     """For background jobs only - no visibility filtering."""
-    result = session.execute(_get_event_and_occurrence_query(occurrence_id, include_deleted)).one()
-    return result._tuple()
+    event, occurrence = session.execute(_get_event_and_occurrence_query(occurrence_id, include_deleted)).one()
+    return event, occurrence
 
 
 def _get_event_and_occurrence_one_or_none(
@@ -264,7 +264,10 @@ def _get_event_and_occurrence_one_or_none(
     result = session.execute(
         _get_event_and_occurrence_query(occurrence_id, include_deleted, context=context)
     ).one_or_none()
-    return result._tuple() if result else None
+    if not result:
+        return None
+    event, occurrence = result
+    return event, occurrence
 
 
 def _check_location(location: events_pb2.EventLocation | None, context: CouchersContext) -> tuple[WKBElement, str]:
@@ -380,9 +383,7 @@ def _create_recurrence(session: Session, occurrence: EventOccurrence, rrule_inte
     )
 
 
-def apply_occurrence_pagination(
-    query: Select[tuple[EventOccurrence]], page_token: str, past: bool
-) -> Select[tuple[EventOccurrence]]:
+def apply_occurrence_pagination(query: Select[EventOccurrence], page_token: str, past: bool) -> Select[EventOccurrence]:
     """
     Restricts to upcoming (not yet ended) or past occurrences, orders by start time (with id as
     tiebreaker), and seeks to the (start_time, id) cursor from the page token, if given.

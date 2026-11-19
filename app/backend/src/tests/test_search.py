@@ -85,38 +85,18 @@ class TestSearchInCommunities:
             assert len(res.events) > 0
 
 
-def test_regression_search_in_area(db):
-    """
-    Makes sure search_in_area works.
+def test_user_search_area_and_community_not_supported(db):
+    user, token = generate_user()
 
-    At the equator/prime meridian intersection (0,0), one degree is roughly 111 km.
-    """
-
-    # outside
-    user1, token1 = generate_user(geom=create_coordinate(1, 0), geom_radius=100)
-    # outside
-    user2, token2 = generate_user(geom=create_coordinate(0, 1), geom_radius=100)
-    # inside
-    user3, token3 = generate_user(geom=create_coordinate(0.1, 0), geom_radius=100)
-    # inside
-    user4, token4 = generate_user(geom=create_coordinate(0, 0.1), geom_radius=100)
-    # outside
-    user5, token5 = generate_user(geom=create_coordinate(10, 10), geom_radius=100)
-
-    refresh_materialized_views_rapid(empty_pb2.Empty())
-    refresh_materialized_views(empty_pb2.Empty())
-
-    with search_session(token5) as api:
-        res = api.UserSearchV2(
-            search_pb2.UserSearchReq(
-                search_in_area=search_pb2.Area(
-                    lat=0,
-                    lng=0,
-                    radius=100000,
-                )
-            )
-        )
-        assert [result.user_id for result in res.results] == [user3.id, user4.id]
+    with search_session(token) as api:
+        with expect_rpc_error(
+            grpc.StatusCode.INVALID_ARGUMENT, "Searching for users by area or community is no longer supported."
+        ):
+            api.UserSearchV2(search_pb2.UserSearchReq(search_in_area=search_pb2.Area(lat=0, lng=0, radius=100000)))
+        with expect_rpc_error(
+            grpc.StatusCode.INVALID_ARGUMENT, "Searching for users by area or community is no longer supported."
+        ):
+            api.UserSearchV2(search_pb2.UserSearchReq(search_in_community_id=1))
 
 
 def test_user_search_in_rectangle(db):
@@ -160,18 +140,18 @@ def test_user_filter_complete_profile(db):
     """
     Make sure the completed profile flag returns only completed user profile
     """
-    user_complete_profile, token6 = generate_user(complete_profile=True)
+    user_complete_profile, complete_profile_token = generate_user(complete_profile=True)
 
-    user_incomplete_profile, token7 = generate_user(complete_profile=False)
+    user_incomplete_profile, incomplete_profile_token = generate_user(complete_profile=False)
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
     refresh_materialized_views(empty_pb2.Empty())
 
-    with search_session(token7) as api:
+    with search_session(incomplete_profile_token) as api:
         res = api.UserSearchV2(search_pb2.UserSearchReq(profile_completed=wrappers_pb2.BoolValue(value=False)))
         assert user_incomplete_profile.id in [result.user_id for result in res.results]
 
-    with search_session(token6) as api:
+    with search_session(complete_profile_token) as api:
         res = api.UserSearchV2(search_pb2.UserSearchReq(profile_completed=wrappers_pb2.BoolValue(value=True)))
         assert [result.user_id for result in res.results] == [user_complete_profile.id]
 
@@ -180,18 +160,20 @@ def test_user_filter_meetup_status(db):
     """
     Make sure the completed profile flag returns only completed user profile
     """
-    user_wants_to_meetup, token8 = generate_user(meetup_status=MeetupStatus.wants_to_meetup)
+    user_wants_to_meetup, wants_to_meetup_token = generate_user(meetup_status=MeetupStatus.wants_to_meetup)
 
-    user_does_not_want_to_meet, token9 = generate_user(meetup_status=MeetupStatus.does_not_want_to_meetup)
+    user_does_not_want_to_meet, does_not_want_to_meet_token = generate_user(
+        meetup_status=MeetupStatus.does_not_want_to_meetup
+    )
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
     refresh_materialized_views(empty_pb2.Empty())
 
-    with search_session(token8) as api:
+    with search_session(wants_to_meetup_token) as api:
         res = api.UserSearchV2(search_pb2.UserSearchReq(meetup_status_filter=[api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP]))
         assert user_wants_to_meetup.id in [result.user_id for result in res.results]
 
-    with search_session(token9) as api:
+    with search_session(does_not_want_to_meet_token) as api:
         res = api.UserSearchV2(
             search_pb2.UserSearchReq(meetup_status_filter=[api_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP])
         )
@@ -202,9 +184,11 @@ def test_user_filter_language(db):
     """
     Test filtering users by language ability.
     """
-    user_with_german_beginner, token11 = generate_user(hosting_status=HostingStatus.can_host)
-    user_with_japanese_conversational, token12 = generate_user(hosting_status=HostingStatus.can_host)
-    user_with_german_fluent, token13 = generate_user(hosting_status=HostingStatus.can_host)
+    user_with_german_beginner, german_beginner_token = generate_user(hosting_status=HostingStatus.can_host)
+    user_with_japanese_conversational, japanese_conversational_token = generate_user(
+        hosting_status=HostingStatus.can_host
+    )
+    user_with_german_fluent, german_fluent_token = generate_user(hosting_status=HostingStatus.can_host)
 
     with session_scope() as session:
         session.add(
@@ -226,7 +210,7 @@ def test_user_filter_language(db):
     refresh_materialized_views_rapid(empty_pb2.Empty())
     refresh_materialized_views(empty_pb2.Empty())
 
-    with search_session(token11) as api:
+    with search_session(german_beginner_token) as api:
         res = api.UserSearchV2(
             search_pb2.UserSearchReq(
                 language_ability_filter=[
@@ -343,7 +327,7 @@ def test_regression_search_only_with_references(db):
 
 def test_user_search_exactly_user_ids(db):
     """
-    Test that UserSearch with exactly_user_ids returns only those users and ignores other filters.
+    Test that UserSearch with exactly_user_ids returns only those users, in the given order, and ignores other filters.
     """
     # Create users with different properties
     user1, token1 = generate_user()
@@ -357,8 +341,13 @@ def test_user_search_exactly_user_ids(db):
 
     with search_session(token1) as api:
         # Test that exactly_user_ids returns only the specified users
-        res = api.UserSearchV2(search_pb2.UserSearchReq(exactly_user_ids=[user2.id, user3.id, user4.id]))
-        assert sorted([result.user_id for result in res.results]) == sorted([user2.id, user3.id, user4.id])
+        res = api.UserSearchV2(search_pb2.UserSearchReq(exactly_user_ids=[user3.id, user4.id, user2.id]))
+        assert [result.user_id for result in res.results] == [user3.id, user4.id, user2.id]
+        assert res.total_items == 3
+        assert not res.next_page_token
+
+        res = api.UserSearchV2(search_pb2.UserSearchReq(exactly_user_ids=[user4.id, user2.id, user3.id]))
+        assert [result.user_id for result in res.results] == [user4.id, user2.id, user3.id]
 
         # Test that exactly_user_ids ignores other filters
         res = api.UserSearchV2(
@@ -367,7 +356,7 @@ def test_user_search_exactly_user_ids(db):
                 only_with_strong_verification=True,  # This would normally filter out user3 and user4
             )
         )
-        assert sorted([result.user_id for result in res.results]) == sorted([user2.id, user3.id, user4.id])
+        assert [result.user_id for result in res.results] == [user2.id, user3.id, user4.id]
 
         # Test with non-existent user IDs (should be ignored)
         res = api.UserSearchV2(search_pb2.UserSearchReq(exactly_user_ids=[user1.id, 99999]))

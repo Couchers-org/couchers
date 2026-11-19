@@ -3,6 +3,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 
 from sqlalchemy import select
+from sqlalchemy.dialects.postgresql import distinct_on
 from sqlalchemy.orm import Session
 
 from couchers import urls
@@ -17,6 +18,7 @@ from couchers.models import (
     User,
     get_avatar_photo_subquery,
 )
+from couchers.utils import not_none
 
 
 class UploadUseType(enum.Enum):
@@ -91,7 +93,7 @@ def get_upload_uses_for_keys(session: Session, keys: list[str]) -> dict[str, lis
         .where(EventOccurrence.photo_key.in_(keys))
     ).all()
     for photo_key, occurrence_id, is_deleted, slug in event_rows:
-        uses[photo_key].append(
+        uses[not_none(photo_key)].append(
             UploadUse(
                 use_type=UploadUseType.event,
                 is_current=not is_deleted,
@@ -103,7 +105,7 @@ def get_upload_uses_for_keys(session: Session, keys: list[str]) -> dict[str, lis
     # the link points at the page as it stands now, so use the current version's slug
     current_version = (
         select(PageVersion.page_id, PageVersion.id.label("current_id"), PageVersion.slug.label("current_slug"))
-        .distinct(PageVersion.page_id)
+        .ext(distinct_on(PageVersion.page_id))
         .order_by(PageVersion.page_id, PageVersion.id.desc())
         .subquery()
     )

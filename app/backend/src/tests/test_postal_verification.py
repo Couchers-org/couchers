@@ -660,11 +660,11 @@ def test_postal_verification_attempt_not_found(db):
 
 def test_postal_verification_other_user_attempt(db):
     """Test that users cannot access other users' attempts."""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    owner_user, owner_token = generate_user()
+    other_user, other_token = generate_user()
 
-    # User 1 creates an attempt
-    with postal_verification_session(token1) as pv:
+    # Owner creates an attempt
+    with postal_verification_session(owner_token) as pv:
         res = pv.InitiatePostalVerification(
             postal_verification_pb2.InitiatePostalVerificationReq(
                 address=postal_verification_pb2.PostalAddress(
@@ -677,15 +677,15 @@ def test_postal_verification_other_user_attempt(db):
         )
         attempt_id = res.postal_verification_attempt_id
 
-    # User 2 tries to confirm user 1's attempt
-    with postal_verification_session(token2) as pv:
+    # Other user tries to confirm the owner's attempt
+    with postal_verification_session(other_token) as pv:
         with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             pv.ConfirmPostalAddress(
                 postal_verification_pb2.ConfirmPostalAddressReq(postal_verification_attempt_id=attempt_id)
             )
 
-    # User 2 tries to cancel user 1's attempt
-    with postal_verification_session(token2) as pv:
+    # Other user tries to cancel the owner's attempt
+    with postal_verification_session(other_token) as pv:
         with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             pv.CancelPostalVerification(
                 postal_verification_pb2.CancelPostalVerificationReq(postal_verification_attempt_id=attempt_id)

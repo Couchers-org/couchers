@@ -28,7 +28,7 @@ from tests.test_communities import create_community
 
 
 def test_threads_basic(db):
-    user1, token1 = generate_user()
+    user, token = generate_user()
 
     # Create a dummy Thread (should be replaced by pages later on)
     with session_scope() as session:
@@ -37,7 +37,7 @@ def test_threads_basic(db):
         session.flush()
         PARENT_THREAD_ID = pack_thread_id(database_id=dummy_thread.id, depth=0)
 
-    with threads_session(token1) as api:
+    with threads_session(token) as api:
         bat_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=PARENT_THREAD_ID, content="bat")).thread_id
 
         cat_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=PARENT_THREAD_ID, content="cat")).thread_id
@@ -59,17 +59,17 @@ def test_threads_basic(db):
         assert ret.next_page_token == ""
         assert ret.replies[0].thread_id == dog_id
         assert ret.replies[0].content == "dog"
-        assert ret.replies[0].author_user_id == user1.id
+        assert ret.replies[0].author_user_id == user.id
         assert ret.replies[0].num_replies == 3
 
         assert ret.replies[1].thread_id == cat_id
         assert ret.replies[1].content == "cat"
-        assert ret.replies[1].author_user_id == user1.id
+        assert ret.replies[1].author_user_id == user.id
         assert ret.replies[1].num_replies == 3
 
         assert ret.replies[2].thread_id == bat_id
         assert ret.replies[2].content == "bat"
-        assert ret.replies[2].author_user_id == user1.id
+        assert ret.replies[2].author_user_id == user.id
         assert ret.replies[2].num_replies == 0
 
         ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=cat_id))
@@ -84,8 +84,8 @@ def test_threads_basic(db):
 
 
 def test_threads_errors(db):
-    user1, token1 = generate_user()
-    with threads_session(token1) as api:
+    user, token = generate_user()
+    with threads_session(token) as api:
         # request non-existing comment
         with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Discussion thread not found."):
             api.GetThread(threads_pb2.GetThreadReq(thread_id=11))
@@ -130,7 +130,7 @@ def pagination_test(api, parent_id):
 
 
 def test_threads_pagination(db):
-    user1, token1 = generate_user()
+    user, token = generate_user()
 
     PARENT_THREAD_ID = 10
 
@@ -138,7 +138,7 @@ def test_threads_pagination(db):
     with session_scope() as session:
         session.add(Thread())
 
-    with threads_session(token1) as api:
+    with threads_session(token) as api:
         comment_id = pagination_test(api, PARENT_THREAD_ID)
         pagination_test(api, comment_id)
 

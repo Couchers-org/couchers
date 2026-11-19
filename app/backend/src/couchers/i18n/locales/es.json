@@ -257,7 +257,8 @@
     "event_recurrence_ends_before_starts": "Un evento recurrente debe terminar en la misma fecha de su primera repetición o después de ella.",
     "invalid_event_recurrence_end_date": "Fecha de finalización del evento recurrente no válida.",
     "invalid_event_recurrence_rule": "Solo se admiten eventos recurrentes semanales y quincenales.",
-    "recurring_event_creation_disabled": "La creación de eventos recurrentes está deshabilitada actualmente."
+    "recurring_event_creation_disabled": "La creación de eventos recurrentes está deshabilitada actualmente.",
+    "user_search_area_not_supported": "Ya no se admite la búsqueda de usuarios por área o comunidad."
   },
   "badges": {
     "volunteer_name": "Voluntario en activo",
