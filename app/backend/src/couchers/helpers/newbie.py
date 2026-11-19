@@ -1,11 +1,12 @@
 from typing import Any
 
-from sqlalchemy import BigInteger, Enum, Numeric
-from sqlalchemy.sql import and_, case, column, func, or_, select, table, type_coerce
+from sqlalchemy import Enum
+from sqlalchemy.sql import and_, case, func, or_, select, type_coerce
 from sqlalchemy.sql.elements import ColumnElement
 
-from couchers.helpers.completed_profile import has_completed_profile_expression, has_filled_my_home_expression
+from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.helpers.references import where_references_counted
+from couchers.materialized_views import UserResponseRate
 from couchers.models import (
     HostingStatus,
     HostPool,
@@ -23,15 +24,6 @@ HOST_POOL_NEWBIE_MIN_RESPONSE96H = 0.66
 # at least one of the first this many host requests must be accepted
 HOST_POOL_NEWBIE_FIRST_REQUESTS = 3
 
-# the user_response_rates materialized view, referenced by name because materialized_views imports this module for
-# lite_users
-_user_response_rates = table(
-    "user_response_rates",
-    column("user_id", BigInteger),
-    column("requests96h", BigInteger),
-    column("response96h", Numeric),
-)
-
 
 def _newbie_history_expressions() -> tuple[ColumnElement[bool], ColumnElement[bool], ColumnElement[bool]]:
     """
@@ -46,12 +38,12 @@ def _newbie_history_expressions() -> tuple[ColumnElement[bool], ColumnElement[bo
 
     # a null response96h (nothing counted yet) doesn't disqualify
     has_disqualifying_response_rate = (
-        select(_user_response_rates.c.user_id)
-        .where(_user_response_rates.c.user_id == User.id)
+        select(UserResponseRate.user_id)
+        .where(UserResponseRate.user_id == User.id)
         .where(
             or_(
-                _user_response_rates.c.requests96h > HOST_POOL_NEWBIE_MAX_REQUESTS,
-                _user_response_rates.c.response96h < HOST_POOL_NEWBIE_MIN_RESPONSE96H,
+                UserResponseRate.requests96h > HOST_POOL_NEWBIE_MAX_REQUESTS,
+                UserResponseRate.response96h < HOST_POOL_NEWBIE_MIN_RESPONSE96H,
             )
         )
         .exists()
@@ -104,8 +96,6 @@ def newbie_pool_eligible_expression() -> ColumnElement[bool]:
 def host_pool_expression() -> ColumnElement[Any]:
     """
     The host pool of the User in the enclosing query.
-
-    Evaluated live for the user's own account info, and stored in lite_users for bulk reads.
     """
     has_good_record, accepted_early_enough, _ = _newbie_history_expressions()
     # nested so the history subqueries only run for the few users who meet the profile conditions
@@ -115,7 +105,7 @@ def host_pool_expression() -> ColumnElement[Any]:
                 and_(
                     User.hosting_status == HostingStatus.can_host,
                     has_completed_profile_expression(),
-                    has_filled_my_home_expression(),
+                    User.has_completed_my_home,
                 ),
                 case(
                     (and_(has_good_record, accepted_early_enough), HostPool.newbie.name),

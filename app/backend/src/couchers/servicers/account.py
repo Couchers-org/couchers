@@ -27,7 +27,7 @@ from couchers.crypto import (
     verify_token,
 )
 from couchers.event_log import log_event
-from couchers.helpers.completed_profile import has_completed_profile, has_filled_my_home_expression
+from couchers.helpers.completed_profile import has_completed_profile
 from couchers.helpers.geoip import geoip_approximate_location
 from couchers.helpers.newbie import host_pool_expression, newbie_pool_eligible_expression
 from couchers.helpers.strong_verification import get_strong_verification_fields
@@ -174,13 +174,12 @@ class Account(account_pb2_grpc.AccountServicer):
     def GetAccountInfo(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> account_pb2.GetAccountInfoRes:
-        user, is_volunteer, host_pool, newbie_pool_eligible, has_filled_my_home = session.execute(
+        user, is_volunteer, host_pool, newbie_pool_eligible = session.execute(
             select(
                 User,
                 exists().where(Volunteer.user_id == User.id),
                 host_pool_expression(),
                 newbie_pool_eligible_expression(),
-                has_filled_my_home_expression(),
             ).where(User.id == context.user_id)
         ).one()
 
@@ -215,7 +214,6 @@ class Account(account_pb2_grpc.AccountServicer):
             has_opted_in_to_beta_features=user.has_opted_in_to_beta_features,
             host_pool=hostpool2api[host_pool],
             newbie_pool_eligible=newbie_pool_eligible,
-            has_filled_my_home=has_filled_my_home,
             **get_strong_verification_fields(session, user),
         )
 

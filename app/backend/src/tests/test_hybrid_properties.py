@@ -54,7 +54,6 @@ from couchers.models import (
     PostalVerificationAttempt,
     PostalVerificationStatus,
     SignupFlow,
-    SleepingArrangement,
     StayProposalKind,
     StrongVerificationAttempt,
     StrongVerificationAttemptStatus,
@@ -120,8 +119,8 @@ def _populate_users() -> None:
     generate_user()
     generate_user(accepted_tos=TOS_VERSION - 1)
     generate_user(accepted_community_guidelines=GUIDELINES_VERSION - 1)
-    generate_user(max_guests=3, sleeping_arrangement=SleepingArrangement.private)
-    generate_user(max_guests=3, sleeping_arrangement=None)
+    generate_user(about_place="x" * 50)
+    generate_user(about_place=None)
     banned, _ = generate_user()
     make_user_invisible(banned.id)
     generate_user(delete_user=True)

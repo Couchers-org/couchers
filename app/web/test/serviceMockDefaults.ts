@@ -124,7 +124,6 @@ export async function getAccountInfo() {
     hasOptedInToBetaFeatures: false,
     hostPool: HostPool.HOST_POOL_NORMAL,
     newbiePoolEligible: false,
-    hasFilledMyHome: false,
   };
 }
 

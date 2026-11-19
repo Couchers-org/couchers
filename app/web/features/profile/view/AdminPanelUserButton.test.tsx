@@ -35,7 +35,6 @@ const baseAccountInfo = {
   hasOptedInToBetaFeatures: false,
   hostPool: 1,
   newbiePoolEligible: false,
-  hasFilledMyHome: false,
 };
 
 describe("AdminPanelUserButton", () => {

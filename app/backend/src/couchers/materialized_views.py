@@ -46,7 +46,6 @@ from sqlalchemy_utils.view import (
 from couchers.constants import ACCEPT_TIME_EXPECTATION, RESPONSE_COUNT_DECAY, RESPONSE_TIME_EXPECTATION
 from couchers.db import session_scope
 from couchers.helpers.completed_profile import has_completed_profile_expression
-from couchers.helpers.newbie import host_pool_expression
 from couchers.models import (
     ActivenessProbe,
     ActivenessProbeStatus,
@@ -54,7 +53,6 @@ from couchers.models import (
     ClusterRole,
     ClusterSubscription,
     Geom,
-    HostPool,
     HostRequest,
     HostRequestStatus,
     MatViewBase,
@@ -165,6 +163,174 @@ class ClusterAdminCount(MatViewBase):
     __table__ = cluster_admin_counts
 
     cluster_id: Mapped[int]
+    count: Mapped[int]
+
+
+def make_lite_users_selectable(create: bool = False) -> Select[*tuple[Any, ...]]:
+    if create:
+        # because this is rendered as a select when emitting the CREATE VIEW, using User.geom would be rendered as
+        # `ST_AsEWKB(users.geom)` instead of the literal column, the following fixes it
+        geom_column: Any = literal_column("users.geom")
+    else:
+        geom_column = User.geom
+
+    strong_verification_subquery = (
+        select(User.id, literal(True).label("true"))
+        .select_from(StrongVerificationAttempt)
+        .join(User, User.id == StrongVerificationAttempt.user_id)
+        .where(StrongVerificationAttempt.has_strong_verification(User))
+        .distinct()
+        .subquery(name="sv_subquery")
+    )
+
+    avatar_photo_subquery = get_avatar_photo_subquery(name="avatar_photo")
+
+    # Pre-compute GeoJSON Feature for each user (used by GIS.GetUsers)
+    geojson_feature = cast(
+        func.json_build_object(
+            "type",
+            "Feature",
+            "geometry",
+            cast(func.ST_AsGeoJSON(geom_column, 5), JSON),
+            "properties",
+            func.json_build_object("id", User.id, "has_completed_profile", has_completed_profile_expression()),
+        ),
+        Text,
+    )
+
+    # Be sure to modify the LiteUser type if you add/remove columns!
+    return (
+        select(
+            User.id.label("id"),
+            User.username.label("username"),
+            User.name.label("name"),
+            User.city.label("city"),
+            User.age.label("age"),
+            geom_column.label("geom"),
+            User.geom_radius.label("radius"),
+            User.is_visible.label("is_visible"),
+            User.shadowed_at.label("shadowed_at"),
+            Upload.filename.label("avatar_filename"),
+            has_completed_profile_expression().label("has_completed_profile"),
+            User.has_completed_my_home.label("has_completed_my_home"),
+            func.coalesce(strong_verification_subquery.c.true, False).label("has_strong_verification"),
+            geojson_feature.label("geojson"),
+        )
+        .select_from(User)
+        .outerjoin(
+            avatar_photo_subquery,
+            avatar_photo_subquery.c.gallery_id == User.profile_gallery_id,
+        )
+        .outerjoin(Upload, Upload.key == avatar_photo_subquery.c.upload_key)
+        .outerjoin(strong_verification_subquery, strong_verification_subquery.c.id == User.id)
+    )
+
+
+lite_users_selectable_select = make_lite_users_selectable(create=False)
+lite_users_selectable_create = make_lite_users_selectable(create=True)
+
+lite_users_subquery = lite_users_selectable_create.subquery()
+
+lite_users = create_materialized_view_with_different_ddl(
+    "lite_users",
+    lite_users_selectable_select,
+    lite_users_selectable_create,
+    Base.metadata,
+    [
+        Index("uq_lite_users_id", lite_users_subquery.c.id, unique=True),
+        Index("uq_lite_users_username", lite_users_subquery.c.username, unique=True),
+        Index(
+            "ix_lite_users_id_visible",
+            lite_users_subquery.c.id,
+            postgresql_using="hash",
+            postgresql_where=lite_users_subquery.c.is_visible,
+        ),
+        Index(
+            "ix_lite_users_username_visible",
+            lite_users_subquery.c.username,
+            postgresql_using="hash",
+            postgresql_where=lite_users_subquery.c.is_visible,
+        ),
+    ],
+)
+
+
+class LiteUser(MatViewBase):
+    __table__ = lite_users
+
+    # A subset enough to make mypy happy. Taken from "make_lite_users_selectable".
+    id: Mapped[int]
+    username: Mapped[str]
+    name: Mapped[str]
+    city: Mapped[str]
+    age: Mapped[int]
+    geom: Mapped[Geom]
+    radius: Mapped[float]
+    is_visible: Mapped[bool]
+    shadowed_at: Mapped[datetime | None]
+    avatar_filename: Mapped[str]
+    has_completed_profile: Mapped[bool]
+    has_completed_my_home: Mapped[bool]
+    has_strong_verification: Mapped[bool]
+    geojson: Mapped[str]
+
+
+def make_clustered_users_selectable(create: bool = False) -> CompoundSelect[*tuple[Any, ...]]:
+    # emits something along the lines of
+    # WITH anon_1 AS (
+    #   SELECT id,
+    #     geom,
+    #     ST_ClusterDBSCAN(geom, eps := .15, minpoints := 5) OVER (ORDER BY id) AS cluster_id
+    #   FROM users
+    #   WHERE geom IS NOT NULL
+    # )
+
+    cluster_cte = (
+        select(
+            User.id,
+            User.geom,
+            # DBSCAN clustering with epsilon=.15 deg (~17 km), minpoints=5, cluster will be NULL for not in any cluster
+            func.ST_ClusterDBSCAN(User.geom, 0.15, 5).over(order_by=User.id).label("cluster_id"),
+        )
+        .where(User.is_visible)
+        .cte("clustered")
+    )
+
+    if create:
+        centroid_geom: Any = literal_column("ST_Centroid(ST_Collect(clustered.geom))")
+        cluster_geom: Any = literal_column("clustered.geom")
+    else:
+        centroid_geom = func.ST_Centroid(func.ST_Collect(cluster_cte.c.geom))
+        cluster_geom = cluster_cte.c.geom
+
+    clustered_users = (
+        select(centroid_geom.label("geom"), func.count().label("count"))
+        .select_from(cluster_cte)
+        .where(cluster_cte.c.cluster_id != None)
+        .group_by(cluster_cte.c.cluster_id)
+    )
+
+    isolated_users = (
+        select(cluster_geom.label("geom"), literal(1, type_=Integer).label("count"))
+        .select_from(cluster_cte)
+        .where(cluster_cte.c.cluster_id == None)
+    )
+
+    return union_all(clustered_users, isolated_users)
+
+
+clustered_users_selectable_select = make_clustered_users_selectable(create=False)
+clustered_users_selectable_create = make_clustered_users_selectable(create=True)
+
+clustered_users = create_materialized_view_with_different_ddl(
+    "clustered_users", clustered_users_selectable_select, clustered_users_selectable_create, Base.metadata
+)
+
+
+class ClusteredUser(MatViewBase):
+    __table__ = clustered_users
+
+    geom: Mapped[Geom]
     count: Mapped[int]
 
 
@@ -337,176 +503,6 @@ class UserResponseRate(MatViewBase):
     responses96h_decayed: Mapped[float | None]
     accept168h: Mapped[float | None]
     requests168h: Mapped[int]
-
-
-def make_lite_users_selectable(create: bool = False) -> Select[*tuple[Any, ...]]:
-    if create:
-        # because this is rendered as a select when emitting the CREATE VIEW, using User.geom would be rendered as
-        # `ST_AsEWKB(users.geom)` instead of the literal column, the following fixes it
-        geom_column: Any = literal_column("users.geom")
-    else:
-        geom_column = User.geom
-
-    strong_verification_subquery = (
-        select(User.id, literal(True).label("true"))
-        .select_from(StrongVerificationAttempt)
-        .join(User, User.id == StrongVerificationAttempt.user_id)
-        .where(StrongVerificationAttempt.has_strong_verification(User))
-        .distinct()
-        .subquery(name="sv_subquery")
-    )
-
-    avatar_photo_subquery = get_avatar_photo_subquery(name="avatar_photo")
-
-    # Pre-compute GeoJSON Feature for each user (used by GIS.GetUsers)
-    geojson_feature = cast(
-        func.json_build_object(
-            "type",
-            "Feature",
-            "geometry",
-            cast(func.ST_AsGeoJSON(geom_column, 5), JSON),
-            "properties",
-            func.json_build_object("id", User.id, "has_completed_profile", has_completed_profile_expression()),
-        ),
-        Text,
-    )
-
-    # Be sure to modify the LiteUser type if you add/remove columns!
-    return (
-        select(
-            User.id.label("id"),
-            User.username.label("username"),
-            User.name.label("name"),
-            User.city.label("city"),
-            User.age.label("age"),
-            geom_column.label("geom"),
-            User.geom_radius.label("radius"),
-            User.is_visible.label("is_visible"),
-            User.shadowed_at.label("shadowed_at"),
-            Upload.filename.label("avatar_filename"),
-            has_completed_profile_expression().label("has_completed_profile"),
-            User.has_completed_my_home.label("has_completed_my_home"),
-            func.coalesce(strong_verification_subquery.c.true, False).label("has_strong_verification"),
-            host_pool_expression().label("host_pool"),
-            geojson_feature.label("geojson"),
-        )
-        .select_from(User)
-        .outerjoin(
-            avatar_photo_subquery,
-            avatar_photo_subquery.c.gallery_id == User.profile_gallery_id,
-        )
-        .outerjoin(Upload, Upload.key == avatar_photo_subquery.c.upload_key)
-        .outerjoin(strong_verification_subquery, strong_verification_subquery.c.id == User.id)
-    )
-
-
-lite_users_selectable_select = make_lite_users_selectable(create=False)
-lite_users_selectable_create = make_lite_users_selectable(create=True)
-
-lite_users_subquery = lite_users_selectable_create.subquery()
-
-lite_users = create_materialized_view_with_different_ddl(
-    "lite_users",
-    lite_users_selectable_select,
-    lite_users_selectable_create,
-    Base.metadata,
-    [
-        Index("uq_lite_users_id", lite_users_subquery.c.id, unique=True),
-        Index("uq_lite_users_username", lite_users_subquery.c.username, unique=True),
-        Index(
-            "ix_lite_users_id_visible",
-            lite_users_subquery.c.id,
-            postgresql_using="hash",
-            postgresql_where=lite_users_subquery.c.is_visible,
-        ),
-        Index(
-            "ix_lite_users_username_visible",
-            lite_users_subquery.c.username,
-            postgresql_using="hash",
-            postgresql_where=lite_users_subquery.c.is_visible,
-        ),
-    ],
-)
-
-
-class LiteUser(MatViewBase):
-    __table__ = lite_users
-
-    # A subset enough to make mypy happy. Taken from "make_lite_users_selectable".
-    id: Mapped[int]
-    username: Mapped[str]
-    name: Mapped[str]
-    city: Mapped[str]
-    age: Mapped[int]
-    geom: Mapped[Geom]
-    radius: Mapped[float]
-    is_visible: Mapped[bool]
-    shadowed_at: Mapped[datetime | None]
-    avatar_filename: Mapped[str]
-    has_completed_profile: Mapped[bool]
-    has_completed_my_home: Mapped[bool]
-    has_strong_verification: Mapped[bool]
-    host_pool: Mapped[HostPool]
-    geojson: Mapped[str]
-
-
-def make_clustered_users_selectable(create: bool = False) -> CompoundSelect[*tuple[Any, ...]]:
-    # emits something along the lines of
-    # WITH anon_1 AS (
-    #   SELECT id,
-    #     geom,
-    #     ST_ClusterDBSCAN(geom, eps := .15, minpoints := 5) OVER (ORDER BY id) AS cluster_id
-    #   FROM users
-    #   WHERE geom IS NOT NULL
-    # )
-
-    cluster_cte = (
-        select(
-            User.id,
-            User.geom,
-            # DBSCAN clustering with epsilon=.15 deg (~17 km), minpoints=5, cluster will be NULL for not in any cluster
-            func.ST_ClusterDBSCAN(User.geom, 0.15, 5).over(order_by=User.id).label("cluster_id"),
-        )
-        .where(User.is_visible)
-        .cte("clustered")
-    )
-
-    if create:
-        centroid_geom: Any = literal_column("ST_Centroid(ST_Collect(clustered.geom))")
-        cluster_geom: Any = literal_column("clustered.geom")
-    else:
-        centroid_geom = func.ST_Centroid(func.ST_Collect(cluster_cte.c.geom))
-        cluster_geom = cluster_cte.c.geom
-
-    clustered_users = (
-        select(centroid_geom.label("geom"), func.count().label("count"))
-        .select_from(cluster_cte)
-        .where(cluster_cte.c.cluster_id != None)
-        .group_by(cluster_cte.c.cluster_id)
-    )
-
-    isolated_users = (
-        select(cluster_geom.label("geom"), literal(1, type_=Integer).label("count"))
-        .select_from(cluster_cte)
-        .where(cluster_cte.c.cluster_id == None)
-    )
-
-    return union_all(clustered_users, isolated_users)
-
-
-clustered_users_selectable_select = make_clustered_users_selectable(create=False)
-clustered_users_selectable_create = make_clustered_users_selectable(create=True)
-
-clustered_users = create_materialized_view_with_different_ddl(
-    "clustered_users", clustered_users_selectable_select, clustered_users_selectable_create, Base.metadata
-)
-
-
-class ClusteredUser(MatViewBase):
-    __table__ = clustered_users
-
-    geom: Mapped[Geom]
-    count: Mapped[int]
 
 
 def refresh_materialized_views(payload: empty_pb2.Empty) -> None:

@@ -9,7 +9,6 @@ from couchers.db import session_scope
 from couchers.materialized_views import LiteUser, refresh_materialized_views, refresh_materialized_views_rapid
 from couchers.models import (
     HostingStatus,
-    HostPool,
     HostRequest,
     HostRequestStatus,
     Message,
@@ -40,12 +39,12 @@ def _get_account_info(token: str) -> account_pb2.GetAccountInfoRes:
     return res
 
 
-def _assert_account_info(token: str, host_pool: int, newbie_pool_eligible: bool, has_filled_my_home: bool) -> None:
+def _assert_account_info(token: str, host_pool: int, newbie_pool_eligible: bool, my_home_complete: bool) -> None:
     res = _get_account_info(token)
-    assert (res.host_pool, res.newbie_pool_eligible, res.has_filled_my_home) == (
+    assert (res.host_pool, res.newbie_pool_eligible, res.my_home_complete) == (
         host_pool,
         newbie_pool_eligible,
-        has_filled_my_home,
+        my_home_complete,
     )
 
 
@@ -118,7 +117,7 @@ def test_host_pool_newbie_without_requests(db):
 
 
 @pytest.mark.parametrize(
-    "kwargs, has_filled_my_home",
+    "kwargs, my_home_complete",
     [
         ({"hosting_status": HostingStatus.maybe}, True),
         ({"hosting_status": HostingStatus.cant_host}, True),
@@ -127,9 +126,9 @@ def test_host_pool_newbie_without_requests(db):
         ({"complete_profile": False}, True),
     ],
 )
-def test_host_pool_host_profile_not_ready(db, kwargs, has_filled_my_home):
+def test_host_pool_host_profile_not_ready(db, kwargs, my_home_complete):
     _, token = _generate_host(**kwargs)
-    _assert_account_info(token, api_pb2.HOST_POOL_NORMAL, True, has_filled_my_home)
+    _assert_account_info(token, api_pb2.HOST_POOL_NORMAL, True, my_home_complete)
 
 
 def test_host_pool_about_place_just_long_enough(db):
@@ -257,7 +256,6 @@ def test_host_pool_ignores_offers_on_public_trips(db):
 
 def test_host_pool_in_account_info_is_live(db):
     host, token = _generate_host()
-    refresh_materialized_views_rapid(empty_pb2.Empty())
     _assert_account_info(token, api_pb2.HOST_POOL_NEWBIE, True, True)
 
     with session_scope() as session:
@@ -266,20 +264,19 @@ def test_host_pool_in_account_info_is_live(db):
     _assert_account_info(token, api_pb2.HOST_POOL_NORMAL, True, True)
 
 
-def test_host_pool_in_lite_users(db):
-    newbie, _ = _generate_host()
-    not_ready, _ = _generate_host(about_place=None)
-    ineligible, _ = _generate_host()
-    _add_references(ineligible.id, 2)
+def test_has_completed_my_home_in_lite_users(db):
+    filled, _ = _generate_host(about_place="x" * 50)
+    too_short, _ = _generate_host(about_place="x" * 49)
+    empty, _ = _generate_host(about_place=None)
 
-    refresh_materialized_views(empty_pb2.Empty())
     refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with session_scope() as session:
-        host_pools = {
-            row.id: row.host_pool
-            for row in session.execute(
-                select(LiteUser.id, LiteUser.host_pool).where(LiteUser.id.in_([newbie.id, not_ready.id, ineligible.id]))
+        has_completed_my_home = dict(
+            session.execute(
+                select(LiteUser.id, LiteUser.has_completed_my_home).where(
+                    LiteUser.id.in_([filled.id, too_short.id, empty.id])
+                )
             ).all()
-        }
-    assert host_pools == {newbie.id: HostPool.newbie, not_ready.id: HostPool.normal, ineligible.id: HostPool.normal}
+        )
+    assert has_completed_my_home == {filled.id: True, too_short.id: False, empty.id: False}
