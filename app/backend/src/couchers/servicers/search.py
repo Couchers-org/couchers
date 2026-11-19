@@ -1083,10 +1083,22 @@ class Search(search_pb2_grpc.SearchServicer):
 
         statement = apply_occurrence_pagination(statement, page_token, request.past)
 
-        total_items = session.execute(select(func.count()).select_from(statement.subquery())).scalar()
+        page_statement = statement.add_columns(func.count().over())
         # Apply pagination by page number
-        statement = statement.offset(offset).limit(page_size) if request.page_number else statement.limit(page_size + 1)
-        occurrences = session.execute(statement).scalars().all()
+        page_statement = (
+            page_statement.offset(offset).limit(page_size)
+            if request.page_number
+            else page_statement.limit(page_size + 1)
+        )
+        rows = session.execute(page_statement).all()
+        occurrences = [occurrence for occurrence, _ in rows]
+
+        if rows:
+            total_items = rows[0][1]
+        elif page_token or request.page_number:
+            total_items = session.execute(select(func.count()).select_from(statement.subquery())).scalar()
+        else:
+            total_items = 0
 
         return search_pb2.EventSearchRes(
             events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],
