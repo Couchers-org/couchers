@@ -517,6 +517,30 @@ def test_postal_verification_address_validation(db):
                 )
             )
 
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Address line 1 is required."):
+            pv.InitiatePostalVerification(
+                postal_verification_pb2.InitiatePostalVerificationReq(
+                    address=postal_verification_pb2.PostalAddress(
+                        recipient_name="Test User",
+                        address_line_1="   ",
+                        city="Test City",
+                        country_code="US",
+                    )
+                )
+            )
+
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "City is required."):
+            pv.InitiatePostalVerification(
+                postal_verification_pb2.InitiatePostalVerificationReq(
+                    address=postal_verification_pb2.PostalAddress(
+                        recipient_name="Test User",
+                        address_line_1="123 Main St",
+                        city=" ",
+                        country_code="US",
+                    )
+                )
+            )
+
 
 def test_postal_verification_requires_recipient_name(db):
     user, token = generate_user()
