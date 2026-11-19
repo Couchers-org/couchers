@@ -1,14 +1,14 @@
 """Add recipient name to postal verification attempts
 
-Revision ID: 0201
-Revises: 0200
+Revision ID: 0204
+Revises: 0203
 """
 
 import sqlalchemy as sa
 from alembic import op
 
-revision = "0201"
-down_revision = "0200"
+revision = "0204"
+down_revision = "0203"
 branch_labels = None
 depends_on = None
 
