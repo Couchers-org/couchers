@@ -214,16 +214,23 @@ def test_host_pool_newbie_with_two_unaccepted_requests(db):
     _assert_account_info(token, api_pb2.HOST_POOL_NEWBIE, True, True)
 
 
-def test_host_pool_normal_without_acceptance_in_first_requests(db):
+def test_host_pool_normal_without_acceptance_in_three_requests(db):
     host, token = _generate_host()
     _add_host_requests(host.id, 3, timedelta(hours=1))
     _assert_account_info(token, api_pb2.HOST_POOL_NORMAL, False, True)
 
 
-def test_host_pool_late_acceptance_does_not_count(db):
+def test_host_pool_newbie_with_acceptance_after_three_requests(db):
     host, token = _generate_host()
     _add_host_requests(host.id, 3, timedelta(hours=1))
     _add_host_requests(host.id, 1, timedelta(hours=1), accepted=True)
+    _assert_account_info(token, api_pb2.HOST_POOL_NEWBIE, True, True)
+
+
+def test_host_pool_acceptance_after_168_hours_does_not_count(db):
+    host, token = _generate_host()
+    _add_host_requests(host.id, 2, timedelta(hours=1))
+    _add_host_requests(host.id, 1, timedelta(hours=170), accepted=True)
     _assert_account_info(token, api_pb2.HOST_POOL_NORMAL, False, True)
 
 
@@ -234,14 +241,23 @@ def test_host_pool_acceptance_counts_after_cancellation(db):
     _assert_account_info(token, api_pb2.HOST_POOL_NEWBIE, True, True)
 
 
-def test_host_pool_pending_first_request_keeps_eligibility(db):
+def test_host_pool_ignores_unaccepted_requests_from_banned_users(db):
     host, token = _generate_host()
     _add_host_requests(host.id, 2, timedelta(hours=1))
-    _add_host_requests(host.id, 1, None, status=HostRequestStatus.pending, host_request_age=timedelta(days=-10))
-    _assert_account_info(token, api_pb2.HOST_POOL_NORMAL, True, True)
+    spammer_ids = _add_host_requests(host.id, 2, None)
+    with session_scope() as session:
+        session.execute(update(User).where(User.id.in_(spammer_ids)).values(banned_at=now()))
+    _assert_account_info(token, api_pb2.HOST_POOL_NEWBIE, True, True)
 
 
-def test_host_pool_pending_first_request_in_the_past_loses_eligibility(db):
+def test_host_pool_recent_request_does_not_count_yet(db):
+    host, token = _generate_host()
+    _add_host_requests(host.id, 2, timedelta(hours=1))
+    _add_host_requests(host.id, 1, None, status=HostRequestStatus.pending, host_request_age=timedelta(days=-2))
+    _assert_account_info(token, api_pb2.HOST_POOL_NEWBIE, True, True)
+
+
+def test_host_pool_unanswered_third_request_loses_eligibility(db):
     host, token = _generate_host()
     _add_host_requests(host.id, 2, timedelta(hours=1))
     _add_host_requests(host.id, 1, None, status=HostRequestStatus.pending)
