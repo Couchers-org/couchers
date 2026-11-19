@@ -179,7 +179,7 @@
   },
   "reference_card": {
     "title": "Escreva uma referência",
-    "description": "Compartilhe sua experiência para ajudar a comunidade."
+    "description": "Compartilhe sua experiência para apoiar a comunidade."
   },
   "respond_box_title": "Envie uma resposta",
   "respond_box_description": "Selecione uma resposta para avisar {{name}} imediatamente. Fique à vontade para enviar uma nova mensagem mais tarde.",
@@ -208,5 +208,8 @@
   },
   "surfer_confirm_box_title": "{{name}} aceitou sua solicitação!",
   "surfer_confirm_box_description": "Confirme para garantir sua hospedagem, ou cancele se seus planos mudaram.",
-  "show_more_actions_button_a11y": "Mostrar mais ações"
+  "show_more_actions_button_a11y": "Mostrar mais ações",
+  "mark_all_read_button_text_public_trips": "Marcar todos os convites para viagens públicas como lidos",
+  "invitation_respond_box_title": "Responder ao convite de {{name}}",
+  "invitation_respond_box_description": "Aceitar permite que {{name}} saiba que você gostaria de se hospedar. Vocês podem continuar conversando para esclarecer os detalhes."
 }

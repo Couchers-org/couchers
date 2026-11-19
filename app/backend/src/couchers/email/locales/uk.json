@@ -217,7 +217,7 @@
   },
   "stays": {
     "created": {
-      "host_request": {
+      "request": {
         "subject": "{{initiator}} запитує, чи можна завітати до вас у гості",
         "purpose": "<b>{{initiator}}</b> відправив(ла) вам запит:",
         "respond_encouragement": "Будь ласка, напишіть відповідь на цей запит. Навіть швидка відмова краща за вічне очікування!"
@@ -230,7 +230,7 @@
     },
     "generic": {
       "date_range": "З <b>{{from_date}}</b> до <b>{{to_date}}</b>.",
-      "host_request": {
+      "request": {
         "view_action": "Переглянути запит"
       },
       "quick_decline_action": "Швидка відмова",
@@ -239,7 +239,7 @@
       }
     },
     "reminder": {
-      "host_request": {
+      "request": {
         "subject": "{{initiator}} досі очікує вашої відповіді на запит",
         "purpose": "<b>{{initiator}}</b> очікує на вашу відповідь, чи ви можете прийняти його(її) у гості. Навіть швидка відмова краща за вічне очікування!"
       },
@@ -249,7 +249,7 @@
       }
     },
     "message": {
-      "host_request": {
+      "request": {
         "from_initiator": {
           "subject": "{{counterparty}} відправив(ла) вам повідомлення стосовно свого запиту",
           "purpose": "<b>{{counterparty}}</b> відправив(ла) вам повідомлення стосовно свого запиту:"
@@ -271,7 +271,7 @@
       }
     },
     "missed_messages": {
-      "host_request": {
+      "request": {
         "from_initiator": {
           "subject": "{{counterparty}} відправив(ла) вам повідомлення щодо свого запиту",
           "purpose": "<b>{{counterparty}}</b> відправив(ла) вам одне чи більше повідомлень щодо свого запиту:"
@@ -293,7 +293,7 @@
       }
     },
     "status_changed": {
-      "host_request": {
+      "request": {
         "accepted_by_recipient": {
           "subject": "{{counterparty}} прийняв(ла) ваш запит",
           "purpose": "<b>{{counterparty}}</b> прийняв(ла) ваш запит:"

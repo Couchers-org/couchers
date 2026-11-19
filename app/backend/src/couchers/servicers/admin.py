@@ -9,6 +9,7 @@ from google.protobuf import empty_pb2
 from google.protobuf.json_format import MessageToJson
 from google.protobuf.wrappers_pb2 import Int64Value
 from sqlalchemy import select, tuple_
+from sqlalchemy.dialects.postgresql import distinct_on
 from sqlalchemy.orm import Session, aliased, selectinload, undefer
 from sqlalchemy.sql import and_, func, or_
 from user_agents import parse as user_agents_parse
@@ -170,7 +171,7 @@ def _live_ota_package_ids(session: Session) -> set[int]:
         session.scalars(
             select(OTAPackage.id)
             .where(OTAPackage.banned_at.is_(None))
-            .distinct(OTAPackage.platform, OTAPackage.fingerprint)
+            .ext(distinct_on(OTAPackage.platform, OTAPackage.fingerprint))
             .order_by(
                 OTAPackage.platform,
                 OTAPackage.fingerprint,

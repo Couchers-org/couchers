@@ -5,7 +5,7 @@
   "new_pill": "Nuovo",
   "no_community": "Attualmente non sei in alcuna community.",
   "no_sub_communities": "Nessuna sotto-community.",
-  "communities_intro": "Per aiutare la gente in tutto il mondo a organizzare eventi, discussioni e incontri, abbiamo creato il portale delle community, che sono riportate qui sotto. <strong>Fai automaticamente parte di alcune di queste in base alla tua posizione geografica, ma puoi unirti a qualsiasi community tu voglia!</strong> Le tue community sono riportate nella bacheca.",
+  "communities_intro": "Le pagine delle community aiutano a organizzare eventi e discussioni locali. <strong>Fai sempre parte delle community della tua zona, ma puoi <browseCommunitiesLink>unirti a qualsiasi community.</browseCommunitiesLink></strong>",
   "community_builder": "Vuoi essere un ambasciatore per la tua community e aiutare a farla crescere? Diventa un <communityBuilderLink>Creatore di community!</communityBuilderLink>",
   "find_your_community": "Trova una community",
   "find_your_community_intro_simplified": "Cerca la tua community o naviga qui sotto. <requestCommunityLink>Non trovi la tua? Richiedila!</requestCommunityLink>",
@@ -45,8 +45,14 @@
     "my_trips_header": "I tuoi viaggi pubblici",
     "manage_link": "Gestisci",
     "when_now": "Adesso",
-    "empty_description": "Vai da qualche parte? Pubblica un viaggio pubblico in una community per ricevere offerte dagli host nelle vicinanze.",
-    "same_gender_only_indicator": "Stesso genere"
+    "empty_description": "Vai da qualche parte? Pubblica un viaggio pubblico in una community per ricevere inviti dagli host nelle vicinanze.",
+    "same_gender_only_indicator": "Stesso genere",
+    "invitations_count_one": "{{count}} invito",
+    "invitations_count_many": "{{count}} di inviti",
+    "invitations_count_other": "{{count}} inviti",
+    "no_invitations": "Nessun invito da visualizzare",
+    "community_trips_header": "Viaggi pubblici nelle tue community",
+    "community_trips_empty_description": "Nessuno nelle tue community sta cercando un host in questo momento."
   },
   "stays": {
     "upcoming_trips_header": "I tuoi prossimi soggiorni",
@@ -89,7 +95,36 @@
       "description": "{{name}} ha accettato la tua richiesta. Conferma il tuo soggiorno per riservarlo.",
       "button": "Conferma soggiorno"
     },
-    "carousel_dismiss_button_a11y": "Ignora promemoria"
+    "carousel_dismiss_button_a11y": "Ignora promemoria",
+    "respond_to_public_trip_offer": {
+      "title": "Rispondi a {{name}}",
+      "description": "{{name}} ti ha offerto ospitalità durante il tuo viaggio. Fagli sapere se vuoi accettare.",
+      "button": "Visualizza invito"
+    },
+    "confirm_public_trip_offer": {
+      "title": "Conferma soggiorno di {{name}}",
+      "description": "{{name}} ha accettato il tuo invito. Conferma il soggiorno per renderlo definitivo.",
+      "button": "Conferma soggiorno"
+    },
+    "carousel_scroller": {
+      "left_arrow_a11y": "Scorri a sinistra",
+      "right_arrow_a11y": "Scorri a destra"
+    }
   },
-  "today_label": "Oggi"
+  "today_label": "Oggi",
+  "celebration_100k": {
+    "banner_message": "Couchers ha raggiunto 100.000 membri!",
+    "banner_read_more_link": "Scopri di più",
+    "banner_replay_button": "Ripeti animazione",
+    "help_us_grow_button": "Aiutaci a crescere",
+    "dialog_a11y": "Couchers ha raggiunto 100.000 membri",
+    "close_button_a11y": "Chiudi",
+    "burst_heading": "Siamo in più di {{member_count}}!",
+    "map_counter_total": "{{member_count}}",
+    "map_counter_label": "Couchers e in continua crescita",
+    "map_message_everywhere": "Siamo ovunque.",
+    "map_message_thanks": "Grazie per averci aperto le tue porte.",
+    "map_read_more_link": "Scopri di più",
+    "map_a11y": "Mappa dei membri di Couchers in tutto il mondo, con gruppi di utenti mostrati città per città e fusi insieme in regioni"
+  }
 }

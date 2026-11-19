@@ -17,19 +17,42 @@
         "reference": "Reference",
         "discussion": "Diskuze",
         "reply": "Odpovědi",
-        "host_request": "Žádosti o ubytování"
+        "host_request": "Žádosti o ubytování a pozvánky"
       },
       "collapse_all": "Sbalit vše",
       "expand_all": "Rozbalit vše",
       "channels": {
-        "email_label": "Email"
+        "email_label": "Email",
+        "push_label": "Push"
       }
     },
     "push_notifications": {
       "title": "Push notifikace",
       "description": "Push notifikace pro Couchers.org můžeš zapnout na svém zařízení. Pracujeme na rozšíření této funkce.",
       "enabled_message": "Aktuálně máš push notifikace <strong>zapnuté</strong>.",
-      "disabled_message": "Aktuálně máš push notifikace <strong>vypnuté</strong>."
+      "disabled_message": "Aktuálně máš push notifikace <strong>vypnuté</strong>.",
+      "allow_push": "Klikni na tlačítko „Povolit“ ve vyskakovacím okně prohlížeče a zapni si tak push notifikace.",
+      "error_generic": "Chyba při přihlašování k odběru push notifikací",
+      "error_unsupported": "Tvůj prohlížeč nepodporuje push notifikace nebo service workery.",
+      "error_not_granted": "Povolení k odesílání push notifikací nebylo uděleno.",
+      "permission_denied": {
+        "platform_settings_description": "Máš stále potíže i po povolení notifikací ve svém prohlížeči? Možná budeš muset upravit nastavení své platformy.",
+        "instructions": {
+          "chrome": "Notifikace jsou zablokovány. Pokud chceš pokračovat, povol prosím notifikace v nastavení prohlížeče. V Chromu klikni na ikonu zámku v adresním řádku a pak uprav nastavení „Notifikace“.",
+          "firefox": "Notifikace jsou zablokovány. Pokud chceš pokračovat, povol prosím notifikace v nastavení prohlížeče. Ve Firefoxu přejdi do Nastavení > Soukromí a zabezpečení > Oprávnění a uprav oprávnění stránek.",
+          "safari": "Notifikace jsou zablokovány. Pro pokračování je potřeba je povolit v nastavení prohlížeče. V Safari otevři Nastavení > Webové stránky > Oznámení a uprav oprávnění.",
+          "generic": "Notifikace jsou zablokovány. Pro pokračování je potřeba je povolit v nastavení prohlížeče.",
+          "macos": "V macOS otevři Nastavení systému > Oznámení a změň oprávnění dané aplikace.",
+          "windows": "Ve Windows přejdi do Nastavení > Systém > Oznámení a akce a uprav oprávnění aplikace nebo webu.",
+          "linux": {
+            "gnome": "V GNOME přejdi do Nastavení > Oznámení a uprav oprávnění aplikace."
+          },
+          "mobile": {
+            "browser": "V nastavení mobilního prohlížeče uprav oprávnění k oznámením pro tento web.",
+            "os": "V nastavení oznámení v mobilním zařízení povol oznámení."
+          }
+        }
+      }
     }
   },
   "error_loading": "Chyba při načítání oznámení",
@@ -40,5 +63,9 @@
   "notifications_filters": {
     "all_button": "Vše",
     "unread_button": "Nepřečtené"
+  },
+  "push_notification_banner": {
+    "message": "Ať ti neunikne žádná žádost, odpověď ani zpráva. Smíme ti posílat push notifikace?",
+    "confirm": "Ano prosím."
   }
 }

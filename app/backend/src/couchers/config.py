@@ -160,6 +160,8 @@ class Config:
     VALKEY_PORT: int = 6379
     # prefix length per-IP counters are keyed at for IPv6; IPv4 is always /32
     RATE_LIMIT_IPV6_PREFIX: int = 64
+    # host:port of bfc; when empty, nothing calls it
+    BFC_ADDRESS: str = ""
 
     def __init__(self) -> None:
         # Initialize instance attributes with default values from class attributes.

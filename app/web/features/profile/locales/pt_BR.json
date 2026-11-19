@@ -345,5 +345,8 @@
   "edit_profile_pronouns_placeholder": "p. ex. ela/dela",
   "open_full_profile": "Abrir perfil completo",
   "do_not_email_error_link": "Atualize as configurações do seu e-mail para reabilitar isso.",
-  "open_profile_a11y": "Abrir perfil"
+  "open_profile_a11y": "Abrir perfil",
+  "copy_profile_link": {
+    "button_a11y": "Copiar link do perfil"
+  }
 }

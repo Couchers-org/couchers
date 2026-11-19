@@ -671,7 +671,7 @@ class EventInfo:
         return ActionBlock(text=view_action_text, target_url=self.view_url)
 
     @classmethod
-    def from_proto(cls, event: events_pb2.Event) -> EventInfo:
+    def from_proto(cls, event: events_pb2.Event, *, comment_id: int | None = None) -> EventInfo:
         return cls(
             title=event.title,
             start_time=to_aware_datetime(event.start_time),
@@ -679,7 +679,7 @@ class EventInfo:
             timezone=ZoneInfo(event.timezone),
             # Backcompat (2026-06): We might still have queued notifications referencing events with online_information.
             address=(event.location.address or None) if event.HasField("location") else None,
-            view_url=urls.event_link(occurrence_id=event.event_id, slug=event.slug),
+            view_url=urls.event_link(occurrence_id=event.event_id, slug=event.slug, comment_id=comment_id),
             description_markdown=event.content or "",
         )
 
@@ -918,7 +918,7 @@ class EventCommentEmail(EmailBase):
         return cls(
             user_name=user_name,
             author=UserInfo.from_proto(data.author),
-            event_info=EventInfo.from_proto(data.event),
+            event_info=EventInfo.from_proto(data.event, comment_id=data.reply.thread_id),
             comment_markdown=data.reply.content,
         )
 
@@ -2166,7 +2166,9 @@ class ThreadReplyEmail(EmailBase):
         parent = data.WhichOneof("reply_parent")
         if parent == "event":
             parent_context = data.event.title
-            view_link = urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug)
+            view_link = urls.event_link(
+                occurrence_id=data.event.event_id, slug=data.event.slug, comment_id=data.reply.thread_id
+            )
         elif parent == "discussion":
             parent_context = data.discussion.title
             view_link = urls.discussion_link(discussion_id=data.discussion.discussion_id, slug=data.discussion.slug)

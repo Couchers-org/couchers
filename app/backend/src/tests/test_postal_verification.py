@@ -25,6 +25,7 @@ from couchers.resources import get_postcard_front_image
 from couchers.utils import now
 from tests.fixtures.db import generate_user
 from tests.fixtures.feature_flags import FeatureFlags
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import postal_verification_session
 
 
@@ -46,7 +47,7 @@ def test_postal_verification_disabled(db, feature_flags: FeatureFlags):
     user, token = generate_user()
 
     with postal_verification_session(token) as pv:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.UNAVAILABLE):
             pv.InitiatePostalVerification(
                 postal_verification_pb2.InitiatePostalVerificationReq(
                     address=postal_verification_pb2.PostalAddress(
@@ -57,7 +58,6 @@ def test_postal_verification_disabled(db, feature_flags: FeatureFlags):
                     )
                 )
             )
-        assert e.value.code() == grpc.StatusCode.UNAVAILABLE
 
 
 def test_postal_verification_confirm_disabled(db, feature_flags: FeatureFlags):
@@ -80,11 +80,10 @@ def test_postal_verification_confirm_disabled(db, feature_flags: FeatureFlags):
         attempt_id = attempt.id
 
     with postal_verification_session(token) as pv:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.UNAVAILABLE):
             pv.ConfirmPostalAddress(
                 postal_verification_pb2.ConfirmPostalAddressReq(postal_verification_attempt_id=attempt_id)
             )
-        assert e.value.code() == grpc.StatusCode.UNAVAILABLE
 
 
 def test_postal_verification_happy_path(db):
@@ -264,9 +263,8 @@ def test_postal_verification_code_expiry(db):
 
     # Try to verify - should fail due to expiry
     with postal_verification_session(token) as pv:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
             pv.VerifyPostalCode(postal_verification_pb2.VerifyPostalCodeReq(code=verification_code))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
 def test_postal_verification_rate_limit(db):
@@ -295,7 +293,7 @@ def test_postal_verification_rate_limit(db):
 
     # Try to initiate again immediately - should be rate limited
     with postal_verification_session(token) as pv:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.RESOURCE_EXHAUSTED):
             pv.InitiatePostalVerification(
                 postal_verification_pb2.InitiatePostalVerificationReq(
                     address=postal_verification_pb2.PostalAddress(
@@ -306,7 +304,6 @@ def test_postal_verification_rate_limit(db):
                     )
                 )
             )
-        assert e.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
 
     # Check status shows rate limit info
     with postal_verification_session(token) as pv:
@@ -334,7 +331,7 @@ def test_postal_verification_already_in_progress(db):
 
     # Try to initiate another - should fail
     with postal_verification_session(token) as pv:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
             pv.InitiatePostalVerification(
                 postal_verification_pb2.InitiatePostalVerificationReq(
                     address=postal_verification_pb2.PostalAddress(
@@ -345,7 +342,6 @@ def test_postal_verification_already_in_progress(db):
                     )
                 )
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
 def test_postal_verification_cancel(db):
@@ -486,7 +482,7 @@ def test_postal_verification_address_validation(db):
     # Missing required fields
     with postal_verification_session(token) as pv:
         # Missing address_line_1
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             pv.InitiatePostalVerification(
                 postal_verification_pb2.InitiatePostalVerificationReq(
                     address=postal_verification_pb2.PostalAddress(
@@ -496,10 +492,9 @@ def test_postal_verification_address_validation(db):
                     )
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
         # Missing city
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             pv.InitiatePostalVerification(
                 postal_verification_pb2.InitiatePostalVerificationReq(
                     address=postal_verification_pb2.PostalAddress(
@@ -509,10 +504,9 @@ def test_postal_verification_address_validation(db):
                     )
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
         # Missing country
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             pv.InitiatePostalVerification(
                 postal_verification_pb2.InitiatePostalVerificationReq(
                     address=postal_verification_pb2.PostalAddress(
@@ -522,7 +516,6 @@ def test_postal_verification_address_validation(db):
                     )
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_postal_verification_requires_recipient_name(db):
@@ -629,27 +622,25 @@ def test_postal_verification_attempt_not_found(db):
 
     with postal_verification_session(token) as pv:
         # Try to confirm non-existent attempt
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             pv.ConfirmPostalAddress(
                 postal_verification_pb2.ConfirmPostalAddressReq(postal_verification_attempt_id=999999)
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
         # Try to cancel non-existent attempt
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             pv.CancelPostalVerification(
                 postal_verification_pb2.CancelPostalVerificationReq(postal_verification_attempt_id=999999)
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_postal_verification_other_user_attempt(db):
     """Test that users cannot access other users' attempts."""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    owner_user, owner_token = generate_user()
+    other_user, other_token = generate_user()
 
-    # User 1 creates an attempt
-    with postal_verification_session(token1) as pv:
+    # Owner creates an attempt
+    with postal_verification_session(owner_token) as pv:
         res = pv.InitiatePostalVerification(
             postal_verification_pb2.InitiatePostalVerificationReq(
                 address=postal_verification_pb2.PostalAddress(
@@ -662,21 +653,19 @@ def test_postal_verification_other_user_attempt(db):
         )
         attempt_id = res.postal_verification_attempt_id
 
-    # User 2 tries to confirm user 1's attempt
-    with postal_verification_session(token2) as pv:
-        with pytest.raises(grpc.RpcError) as e:
+    # Other user tries to confirm the owner's attempt
+    with postal_verification_session(other_token) as pv:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             pv.ConfirmPostalAddress(
                 postal_verification_pb2.ConfirmPostalAddressReq(postal_verification_attempt_id=attempt_id)
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
-    # User 2 tries to cancel user 1's attempt
-    with postal_verification_session(token2) as pv:
-        with pytest.raises(grpc.RpcError) as e:
+    # Other user tries to cancel the owner's attempt
+    with postal_verification_session(other_token) as pv:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             pv.CancelPostalVerification(
                 postal_verification_pb2.CancelPostalVerificationReq(postal_verification_attempt_id=attempt_id)
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_has_postal_verification_helper(db):
@@ -732,7 +721,10 @@ def test_postal_verification_requires_donation(db):
     user, token = generate_user(last_donated=None)
 
     with postal_verification_session(token) as pv:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION,
+            "You need to donate to Couchers.org before you can verify your address.",
+        ):
             pv.InitiatePostalVerification(
                 postal_verification_pb2.InitiatePostalVerificationReq(
                     address=postal_verification_pb2.PostalAddress(
@@ -743,8 +735,6 @@ def test_postal_verification_requires_donation(db):
                     )
                 )
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You need to donate to Couchers.org before you can verify your address."
 
     # No attempt should have been created
     with session_scope() as session:

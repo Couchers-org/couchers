@@ -4,7 +4,6 @@ from math import sqrt
 from unittest.mock import patch
 
 import grpc
-import pytest
 from google.protobuf import empty_pb2
 from sqlalchemy import func, select, update
 
@@ -29,6 +28,7 @@ from couchers.utils import now
 from tests.fixtures.db import generate_user, make_friends, make_volunteer
 from tests.fixtures.feature_flags import FeatureFlags
 from tests.fixtures.misc import process_jobs
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import public_session
 from tests.test_references import create_friend_reference, create_host_reference
 
@@ -371,20 +371,20 @@ def test_GetVolunteers_excludes_hidden(db):
 
     _get_volunteers.cache_clear()
 
-    user1, _ = generate_user(username="visible")
-    user2, _ = generate_user(username="hidden")
+    visible_user, _ = generate_user(username="visible")
+    hidden_user, _ = generate_user(username="hidden")
 
     with session_scope() as session:
         session.add(
             make_volunteer(
-                user_id=user1.id,
+                user_id=visible_user.id,
                 role="Visible Role",
                 started_volunteering=date(2023, 1, 1),
             )
         )
         session.add(
             make_volunteer(
-                user_id=user2.id,
+                user_id=hidden_user.id,
                 role="Hidden Role",
                 started_volunteering=date(2023, 1, 1),
                 show_on_team_page=False,
@@ -521,9 +521,8 @@ def test_GetSignupPageInfo_excludes_invisible_users(db):
 def test_GetPublicUser_not_found(db):
     """Test GetPublicUser returns NOT_FOUND for nonexistent user"""
     with public_session() as public:
-        with pytest.raises(grpc.RpcError) as exc:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             public.GetPublicUser(public_pb2.GetPublicUserReq(user="nonexistent_user"))
-        assert exc.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_GetPublicUser_invisible_user(db):
@@ -531,9 +530,8 @@ def test_GetPublicUser_invisible_user(db):
     deleted_user, _ = generate_user(username="deleted", delete_user=True)
 
     with public_session() as public:
-        with pytest.raises(grpc.RpcError) as exc:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             public.GetPublicUser(public_pb2.GetPublicUserReq(user="deleted"))
-        assert exc.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_GetPublicUser_shadowed_user(db):
@@ -544,9 +542,8 @@ def test_GetPublicUser_shadowed_user(db):
         session.execute(select(User).where(User.id == shadowed_user.id)).scalar_one().shadowed_at = now()
 
     with public_session() as public:
-        with pytest.raises(grpc.RpcError) as exc:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             public.GetPublicUser(public_pb2.GetPublicUserReq(user="shadowed"))
-        assert exc.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_GetPublicUser_limited_visibility(db):

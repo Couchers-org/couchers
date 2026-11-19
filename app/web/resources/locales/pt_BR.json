@@ -118,7 +118,9 @@
   },
   "copy_button": {
     "a11y": "Copiar",
-    "copied_tooltip": "Copiado para área de transferência"
+    "copied_tooltip": "Copiado para área de transferência",
+    "copied_message": "Copiado!",
+    "failed_message": "Não foi possível copiar"
   },
   "image_input": {
     "select_button_a11y": "Selecione uma imagem",
@@ -200,7 +202,10 @@
     "close_menu_a11y": "Fechar menu",
     "open_drawer_a11y": "Abrir menu hamburguer",
     "close_drawer_a11y": "Fechar menu hamburguer",
-    "press": "Imprensa"
+    "press": "Imprensa",
+    "verification": "Verificação",
+    "user_menu_verification_link": "Obtenha a verificação",
+    "couch_crashes": "Couch Crashes"
   },
   "invites": {
     "title": "Convidar membros",
