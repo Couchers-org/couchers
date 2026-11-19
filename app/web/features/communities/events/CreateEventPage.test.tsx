@@ -48,7 +48,7 @@ const accountInfo = {
   shouldShowDonationBanner: false,
   hasOptedInToBetaFeatures: false,
   hostPool: 1,
-  newbiePoolEligible: false,
+  hasNewbieHostingHistory: false,
 };
 
 describe("Create event page", () => {
@@ -251,7 +251,7 @@ describe("Create event page", () => {
       shouldShowDonationBanner: false,
       hasOptedInToBetaFeatures: false,
       hostPool: 1,
-      newbiePoolEligible: false,
+      hasNewbieHostingHistory: false,
     });
 
     render(<CreateEventPage />, { wrapper });

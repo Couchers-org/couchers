@@ -29,7 +29,7 @@ from couchers.crypto import (
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.helpers.geoip import geoip_approximate_location
-from couchers.helpers.newbie import host_pool_expression, newbie_pool_eligible_expression
+from couchers.helpers.newbie import has_newbie_hosting_history_expression, host_pool_expression
 from couchers.helpers.strong_verification import get_strong_verification_fields
 from couchers.jobs.enqueue import queue_job
 from couchers.jobs.handlers import finalize_strong_verification
@@ -174,12 +174,12 @@ class Account(account_pb2_grpc.AccountServicer):
     def GetAccountInfo(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> account_pb2.GetAccountInfoRes:
-        user, is_volunteer, host_pool, newbie_pool_eligible = session.execute(
+        user, is_volunteer, host_pool, has_newbie_hosting_history = session.execute(
             select(
                 User,
                 exists().where(Volunteer.user_id == User.id),
                 host_pool_expression(),
-                newbie_pool_eligible_expression(),
+                has_newbie_hosting_history_expression(),
             ).where(User.id == context.user_id)
         ).one()
 
@@ -213,7 +213,7 @@ class Account(account_pb2_grpc.AccountServicer):
             should_show_donation_banner=should_show_donation_banner,
             has_opted_in_to_beta_features=user.has_opted_in_to_beta_features,
             host_pool=hostpool2api[host_pool],
-            newbie_pool_eligible=newbie_pool_eligible,
+            has_newbie_hosting_history=has_newbie_hosting_history,
             **get_strong_verification_fields(session, user),
         )
 

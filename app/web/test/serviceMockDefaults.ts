@@ -123,7 +123,7 @@ export async function getAccountInfo() {
     shouldShowDonationBanner: false,
     hasOptedInToBetaFeatures: false,
     hostPool: HostPool.HOST_POOL_NORMAL,
-    newbiePoolEligible: false,
+    hasNewbieHostingHistory: false,
   };
 }
 

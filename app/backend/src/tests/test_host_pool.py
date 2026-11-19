@@ -39,11 +39,11 @@ def _get_account_info(token: str) -> account_pb2.GetAccountInfoRes:
     return res
 
 
-def _assert_account_info(token: str, host_pool: int, newbie_pool_eligible: bool, my_home_complete: bool) -> None:
+def _assert_account_info(token: str, host_pool: int, has_newbie_hosting_history: bool, my_home_complete: bool) -> None:
     res = _get_account_info(token)
-    assert (res.host_pool, res.newbie_pool_eligible, res.my_home_complete) == (
+    assert (res.host_pool, res.has_newbie_hosting_history, res.my_home_complete) == (
         host_pool,
-        newbie_pool_eligible,
+        has_newbie_hosting_history,
         my_home_complete,
     )
 

@@ -16,7 +16,7 @@ HOST_POOL_NEWBIE_MIN_RESPONSE96H = 0.66
 HOST_POOL_NEWBIE_REQUESTS_BEFORE_ACCEPTANCE = 3
 
 
-def newbie_pool_eligible_expression() -> ColumnElement[bool]:
+def has_newbie_hosting_history_expression() -> ColumnElement[bool]:
     """
     Whether the hosting history of the User in the enclosing query lets them into the newbie pool.
     """
@@ -59,7 +59,7 @@ def host_pool_expression() -> ColumnElement[Any]:
                     User.has_completed_my_home,
                 ),
                 case(
-                    (newbie_pool_eligible_expression(), HostPool.newbie.name),
+                    (has_newbie_hosting_history_expression(), HostPool.newbie.name),
                     else_=HostPool.normal.name,
                 ),
             ),

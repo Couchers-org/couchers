@@ -32,7 +32,7 @@ const accountInfo = {
   shouldShowDonationBanner: false,
   hasOptedInToBetaFeatures: false,
   hostPool: 1,
-  newbiePoolEligible: false,
+  hasNewbieHostingHistory: false,
 };
 
 describe("ChangeEmail", () => {
