@@ -30,12 +30,12 @@ def _get_account_info(token: str) -> account_pb2.GetAccountInfoRes:
     return res
 
 
-def _assert_account_info(token: str, host_pool: int, newbie_pool_eligible: bool, host_profile_ready: bool) -> None:
+def _assert_account_info(token: str, host_pool: int, newbie_pool_eligible: bool, has_filled_my_home: bool) -> None:
     res = _get_account_info(token)
-    assert (res.host_pool, res.newbie_pool_eligible, res.host_profile_ready) == (
+    assert (res.host_pool, res.newbie_pool_eligible, res.has_filled_my_home) == (
         host_pool,
         newbie_pool_eligible,
-        host_profile_ready,
+        has_filled_my_home,
     )
 
 
@@ -95,22 +95,22 @@ def test_host_pool_newbie_without_requests(db):
 
 
 @pytest.mark.parametrize(
-    "kwargs",
+    "kwargs, has_filled_my_home",
     [
-        {"hosting_status": HostingStatus.maybe},
-        {"hosting_status": HostingStatus.cant_host},
-        {"about_place": None},
-        {"about_place": "x" * 50},
-        {"complete_profile": False},
+        ({"hosting_status": HostingStatus.maybe}, True),
+        ({"hosting_status": HostingStatus.cant_host}, True),
+        ({"about_place": None}, False),
+        ({"about_place": "x" * 49}, False),
+        ({"complete_profile": False}, True),
     ],
 )
-def test_host_pool_host_profile_not_ready(db, kwargs):
+def test_host_pool_host_profile_not_ready(db, kwargs, has_filled_my_home):
     _, token = _generate_host(**kwargs)
-    _assert_account_info(token, api_pb2.HOST_POOL_NORMAL, True, False)
+    _assert_account_info(token, api_pb2.HOST_POOL_NORMAL, True, has_filled_my_home)
 
 
 def test_host_pool_about_place_just_long_enough(db):
-    _, token = _generate_host(about_place="x" * 51)
+    _, token = _generate_host(about_place="x" * 50)
     _assert_account_info(token, api_pb2.HOST_POOL_NEWBIE, True, True)
 
 
@@ -134,8 +134,8 @@ def test_host_pool_ignores_references_hidden_from_profile(db):
     _assert_account_info(token, api_pb2.HOST_POOL_NEWBIE, True, True)
 
 
-def test_host_pool_ineligible_and_not_ready(db):
-    host, token = _generate_host(hosting_status=HostingStatus.cant_host)
+def test_host_pool_ineligible_and_my_home_not_filled(db):
+    host, token = _generate_host(about_place=None)
     _add_references(host.id, 2)
     _assert_account_info(token, api_pb2.HOST_POOL_NORMAL, False, False)
 
@@ -222,5 +222,5 @@ def test_host_pool_in_account_info_is_live(db):
     with session_scope() as session:
         session.execute(update(User).where(User.id == host.id).values(hosting_status=HostingStatus.cant_host))
 
-    _assert_account_info(token, api_pb2.HOST_POOL_NORMAL, True, False)
+    _assert_account_info(token, api_pb2.HOST_POOL_NORMAL, True, True)
 

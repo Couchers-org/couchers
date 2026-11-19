@@ -5,7 +5,7 @@ from sqlalchemy import Enum
 from sqlalchemy.sql import and_, case, func, or_, select, type_coerce
 from sqlalchemy.sql.elements import ColumnElement
 
-from couchers.helpers.completed_profile import has_completed_profile_expression
+from couchers.helpers.completed_profile import has_completed_profile_expression, has_filled_my_home_expression
 from couchers.helpers.references import where_references_counted
 from couchers.materialized_views import UserResponseRate
 from couchers.models import (
@@ -19,22 +19,11 @@ from couchers.models import (
     User,
 )
 
-HOST_POOL_NEWBIE_MIN_ABOUT_PLACE_LENGTH = 50
 HOST_POOL_NEWBIE_MAX_REFERENCES = 1
 HOST_POOL_NEWBIE_MAX_REQUESTS = 5
 HOST_POOL_NEWBIE_MAX_RESPONSE_TIME_66P = timedelta(hours=96)
 # at least one of the first this many host requests must be accepted
 HOST_POOL_NEWBIE_FIRST_REQUESTS = 3
-
-def host_profile_ready_expression() -> ColumnElement[bool]:
-    """
-    Whether the User in the enclosing query has done everything they can themselves to get into the newbie pool.
-    """
-    return and_(
-        User.hosting_status == HostingStatus.can_host,
-        has_completed_profile_expression(),
-        func.coalesce(func.length(User.about_place), 0) > HOST_POOL_NEWBIE_MIN_ABOUT_PLACE_LENGTH,
-    )
 
 
 def _newbie_history_expressions() -> tuple[ColumnElement[bool], ColumnElement[bool], ColumnElement[bool]]:
@@ -111,11 +100,15 @@ def host_pool_expression() -> ColumnElement[Any]:
     The host pool of the User in the enclosing query.
     """
     has_good_record, accepted_early_enough, _ = _newbie_history_expressions()
-    # nested so the history subqueries only run for the few users with a ready host profile
+    # nested so the history subqueries only run for the few users who meet the profile conditions
     return type_coerce(
         case(
             (
-                host_profile_ready_expression(),
+                and_(
+                    User.hosting_status == HostingStatus.can_host,
+                    has_completed_profile_expression(),
+                    has_filled_my_home_expression(),
+                ),
                 case(
                     (and_(has_good_record, accepted_early_enough), HostPool.newbie.name),
                     else_=HostPool.normal.name,

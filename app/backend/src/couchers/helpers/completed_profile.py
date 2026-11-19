@@ -1,9 +1,9 @@
-from sqlalchemy import and_, select
+from sqlalchemy import and_, func, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.elements import ColumnElement
 from sqlalchemy.sql.selectable import Subquery
 
-from couchers.constants import COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH
+from couchers.constants import COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH, FILLED_MY_HOME_MINIMUM_CHAR_LENGTH
 from couchers.models import User
 from couchers.models.uploads import has_avatar_photo_expression
 
@@ -38,3 +38,7 @@ def has_completed_profile_expression(galleries_with_photos: Subquery | None = No
         else galleries_with_photos.c.gallery_id.isnot(None),
         User.about_me_length >= COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH,
     )
+
+
+def has_filled_my_home_expression() -> ColumnElement[bool]:
+    return func.coalesce(func.length(User.about_place), 0) >= FILLED_MY_HOME_MINIMUM_CHAR_LENGTH

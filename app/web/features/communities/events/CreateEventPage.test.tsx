@@ -49,7 +49,7 @@ const accountInfo = {
   hasOptedInToBetaFeatures: false,
   hostPool: 1,
   newbiePoolEligible: false,
-  hostProfileReady: false,
+  hasFilledMyHome: false,
 };
 
 describe("Create event page", () => {
@@ -253,7 +253,7 @@ describe("Create event page", () => {
       hasOptedInToBetaFeatures: false,
       hostPool: 1,
       newbiePoolEligible: false,
-      hostProfileReady: false,
+      hasFilledMyHome: false,
     });
 
     render(<CreateEventPage />, { wrapper });

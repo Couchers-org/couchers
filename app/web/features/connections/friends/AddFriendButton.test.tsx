@@ -38,7 +38,7 @@ const accountInfo = {
   hasOptedInToBetaFeatures: false,
   hostPool: 1,
   newbiePoolEligible: false,
-  hostProfileReady: false,
+  hasFilledMyHome: false,
 };
 
 const incompleteAccountInfo = { ...accountInfo, profileComplete: false };
