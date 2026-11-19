@@ -607,7 +607,6 @@ def _user_search_inner(
     # bool friends_only = 13;
 
     page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-    total_items = cast(int, session.execute(select(func.count()).select_from(statement.subquery())).scalar())
 
     noise_scale = context.get_float_value("user_search_noise_scale", DEFAULT_USER_SEARCH_NOISE_SCALE)
     ranking_score = User.recommendation_score + noise_scale * _user_search_noise(User.id, context.user_id)
@@ -618,19 +617,29 @@ def _user_search_inner(
             and_(UserRankingOffset.user_id == User.id, UserRankingOffset.variant == ranking_offsets_variant),
         )
         ranking_score = ranking_score + func.coalesce(UserRankingOffset.offset, 0.0)
-    ranked_statement = statement.add_columns(ranking_score)
+    # the page token condition goes outside this subquery so that the window count covers every match, not only the
+    # matches after the token
+    ranked = statement.add_columns(ranking_score.label("score"), func.count().over().label("total")).subquery()
+    page_statement = select(ranked.c.id, ranked.c.score, ranked.c.total)
     if request.page_token:
         last_score, last_id = decrypt_page_token(request.page_token).split(",")
-        ranked_statement = ranked_statement.where(tuple_(ranking_score, User.id) < (float(last_score), int(last_id)))
+        page_statement = page_statement.where(tuple_(ranked.c.score, ranked.c.id) < (float(last_score), int(last_id)))
 
-    ranked_statement = ranked_statement.order_by(ranking_score.desc(), User.id.desc()).limit(page_size + 1)
-    res = session.execute(ranked_statement).all()
+    page_statement = page_statement.order_by(ranked.c.score.desc(), ranked.c.id.desc()).limit(page_size + 1)
+    res = session.execute(page_statement).all()
+
+    if res:
+        total_items = res[0].total
+    elif request.page_token:
+        total_items = cast(int, session.execute(select(func.count()).select_from(statement.subquery())).scalar())
+    else:
+        total_items = 0
 
     next_page_token = None
     if len(res) > page_size:
-        last_user_id, last_rec_score = res[page_size - 1]
+        last_user_id, last_rec_score, _ = res[page_size - 1]
         next_page_token = encrypt_page_token(f"{last_rec_score},{last_user_id}")
-    return [user_id for user_id, _ in res[:page_size]], next_page_token, total_items, ranking_offsets_variant
+    return [user_id for user_id, _, _ in res[:page_size]], next_page_token, total_items, ranking_offsets_variant
 
 
 def _user_search_bfc(
