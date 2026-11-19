@@ -33,6 +33,8 @@ const baseAccountInfo = {
   myHomeComplete: false,
   shouldShowDonationBanner: false,
   hasOptedInToBetaFeatures: false,
+  hostPool: 1,
+  hasNewbieHostingHistory: false,
 };
 
 describe("AdminPanelUserButton", () => {

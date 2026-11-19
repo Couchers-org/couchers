@@ -47,6 +47,8 @@ const baseAccountInfo: GetAccountInfoRes.AsObject = {
   myHomeComplete: false,
   shouldShowDonationBanner: false,
   hasOptedInToBetaFeatures: false,
+  hostPool: 1,
+  hasNewbieHostingHistory: false,
 };
 
 const noPostalAttempt: GetPostalVerificationStatusRes.AsObject = {

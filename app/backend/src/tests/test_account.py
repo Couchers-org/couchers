@@ -17,7 +17,6 @@ from couchers.models import (
     HostingStatus,
     InviteCode,
     PhotoGalleryItem,
-    SleepingArrangement,
     Upload,
     User,
 )
@@ -1182,7 +1181,7 @@ def test_public_trip_offer_reminders(db, moderator):
 
 
 def test_my_home_reminder(db):
-    # can_host with incomplete my home (max_guests not set) → reminder shown
+    # can_host with incomplete my home (about_place too short) → reminder shown
     can_host_incomplete, can_host_incomplete_token = generate_user(hosting_status=HostingStatus.can_host)
     # maybe with incomplete my home → reminder shown
     maybe_incomplete, maybe_incomplete_token = generate_user(hosting_status=HostingStatus.maybe)
@@ -1190,10 +1189,7 @@ def test_my_home_reminder(db):
     cant_host, cant_host_token = generate_user(hosting_status=HostingStatus.cant_host)
     # can_host with fully completed my home → no reminder
     can_host_complete, can_host_complete_token = generate_user(
-        hosting_status=HostingStatus.can_host,
-        max_guests=2,
-        sleeping_arrangement=SleepingArrangement.private,
-        # about_place is set by default in make_user
+        hosting_status=HostingStatus.can_host, about_place="x" * 50
     )
 
     with account_session(can_host_incomplete_token) as account:

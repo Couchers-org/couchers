@@ -26,7 +26,7 @@ from couchers.helpers.host_requests import (
     is_surfing_party,
 )
 from couchers.helpers.hosting_meetup_status import record_hosting_meetup_status
-from couchers.helpers.references import where_reference_user_visible, where_references_not_hidden_by_reciprocity
+from couchers.helpers.references import where_references_counted
 from couchers.helpers.strong_verification import get_strong_verification_fields
 from couchers.materialized_views import LiteUser, UserResponseRate
 from couchers.models import (
@@ -1042,13 +1042,8 @@ def response_rate_to_pb(response_rate: UserResponseRate | None) -> dict[str, goo
 
 
 def get_num_references(session: Session, context: CouchersContext, user_ids: Iterable[int]) -> dict[int, int]:
-    query = where_moderated_content_visible(
-        select(Reference.to_user_id, func.count(Reference.id)), context, Reference, is_list_operation=True
-    )
-    # exclude references still hidden by the reciprocal-reference rule, matching ListReferences
-    query = where_references_not_hidden_by_reciprocity(query)
-    query = where_reference_user_visible(
-        query.where(Reference.to_user_id.in_(user_ids)), context, Reference.from_user_id
+    query = where_references_counted(
+        select(Reference.to_user_id, func.count(Reference.id)).where(Reference.to_user_id.in_(user_ids)), context
     ).group_by(Reference.to_user_id)
     return cast(dict[int, int], dict(session.execute(query).all()))
 

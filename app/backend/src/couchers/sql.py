@@ -53,8 +53,8 @@ def username_or_email_or_id(value: str) -> ColumnElement[bool]:
     return false()
 
 
-def _shadow_clause(context: CouchersContext, table: _User) -> ColumnElement[bool]:
-    if context.is_logged_in():
+def _shadow_clause(context: CouchersContext | None, table: _User) -> ColumnElement[bool]:
+    if context is not None and context.is_logged_in():
         return or_(table.shadowed_at.is_(None), table.id == context.user_id)
     return table.shadowed_at.is_(None)
 
@@ -186,7 +186,7 @@ def where_moderated_content_visible_to_user_column[*Ts](
 
 def where_moderated_content_visible[*Ts](
     query: Select[*Ts],
-    context: CouchersContext,
+    context: CouchersContext | None,
     table: type[ModeratedContent],
     is_list_operation: bool = False,
 ) -> Select[*Ts]:
@@ -199,8 +199,8 @@ def where_moderated_content_visible[*Ts](
     if not is_list_operation:
         conditions.append(aliased_mod_state.visibility == ModerationVisibility.unlisted)
 
-    # Authors can always see their own SHADOWED content
-    if context.is_logged_in():
+    # Authors can always see their own SHADOWED content. No context means no particular (i.e. a logged out) viewer
+    if context is not None and context.is_logged_in():
         conditions.append(
             and_(
                 aliased_mod_state.visibility == ModerationVisibility.shadowed,
