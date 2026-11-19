@@ -7,7 +7,16 @@ from sqlalchemy import select, update
 
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views
-from couchers.models import HostingStatus, HostRequestStatus, Message, MessageType, User
+from couchers.models import (
+    HostingStatus,
+    HostRequest,
+    HostRequestStatus,
+    Message,
+    MessageType,
+    ModerationState,
+    ModerationVisibility,
+    User,
+)
 from couchers.proto import account_pb2, api_pb2
 from couchers.utils import now
 from tests.fixtures.db import generate_user
@@ -58,12 +67,24 @@ def _add_host_requests(
     status: HostRequestStatus = HostRequestStatus.confirmed,
     host_request_age: timedelta = timedelta(days=15),
     is_offer: bool = False,
-) -> None:
+) -> list[int]:
+    surfer_ids = []
     for _ in range(count):
         surfer, _ = generate_user()
+        surfer_ids.append(surfer.id)
         with session_scope() as session:
             conversation_id = create_host_request(
                 session, surfer.id, host_id, host_request_age=host_request_age, status=status, is_offer=is_offer
+            )
+            session.execute(
+                update(ModerationState)
+                .where(
+                    ModerationState.id
+                    == select(HostRequest.moderation_state_id)
+                    .where(HostRequest.conversation_id == conversation_id)
+                    .scalar_subquery()
+                )
+                .values(visibility=ModerationVisibility.visible)
             )
             if response_time is not None:
                 created = session.execute(
@@ -87,6 +108,7 @@ def _add_host_requests(
                     )
                 response.time = created + response_time
                 session.add(response)
+    return surfer_ids
 
 
 def test_host_pool_newbie_without_requests(db):
@@ -169,6 +191,23 @@ def test_host_pool_normal_with_unanswered_requests(db):
     _assert_account_info(token, api_pb2.HOST_POOL_NORMAL, False, True)
 
 
+def test_host_pool_ignores_unanswered_requests_from_banned_users(db):
+    host, token = _generate_host()
+    _add_host_requests(host.id, 1, timedelta(hours=1), accepted=True)
+    _add_host_requests(host.id, 1, timedelta(hours=1))
+    spammer_ids = _add_host_requests(host.id, 2, None)
+    with session_scope() as session:
+        session.execute(update(User).where(User.id.in_(spammer_ids)).values(banned_at=now()))
+    _assert_account_info(token, api_pb2.HOST_POOL_NEWBIE, True, True)
+
+
+def test_host_pool_ignores_requests_younger_than_96_hours(db):
+    host, token = _generate_host()
+    _add_host_requests(host.id, 1, timedelta(hours=1), accepted=True)
+    _add_host_requests(host.id, 5, timedelta(hours=1), host_request_age=timedelta(days=-2))
+    _assert_account_info(token, api_pb2.HOST_POOL_NEWBIE, True, True)
+
+
 def test_host_pool_newbie_with_two_unaccepted_requests(db):
     host, token = _generate_host()
     _add_host_requests(host.id, 2, timedelta(hours=1))
@@ -223,4 +262,3 @@ def test_host_pool_in_account_info_is_live(db):
         session.execute(update(User).where(User.id == host.id).values(hosting_status=HostingStatus.cant_host))
 
     _assert_account_info(token, api_pb2.HOST_POOL_NORMAL, True, True)
-

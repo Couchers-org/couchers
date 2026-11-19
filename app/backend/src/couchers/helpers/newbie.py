@@ -1,4 +1,3 @@
-from datetime import timedelta
 from typing import Any
 
 from sqlalchemy import Enum
@@ -21,7 +20,7 @@ from couchers.models import (
 
 HOST_POOL_NEWBIE_MAX_REFERENCES = 1
 HOST_POOL_NEWBIE_MAX_REQUESTS = 5
-HOST_POOL_NEWBIE_MAX_RESPONSE_TIME_66P = timedelta(hours=96)
+HOST_POOL_NEWBIE_MIN_RESPONSE96H = 0.66
 # at least one of the first this many host requests must be accepted
 HOST_POOL_NEWBIE_FIRST_REQUESTS = 3
 
@@ -37,15 +36,14 @@ def _newbie_history_expressions() -> tuple[ColumnElement[bool], ColumnElement[bo
         select(func.count(Reference.id)).where(Reference.to_user_id == User.id), None
     ).scalar_subquery()
 
-    # no row means the user has never received a request. Unanswered requests count as a 1000 day response time in the
-    # 66th percentile, so the response time check means at least ~66% of requests were responded to within the cutoff
+    # a null response96h (nothing counted yet) doesn't disqualify
     has_disqualifying_response_rate = (
         select(UserResponseRate.user_id)
         .where(UserResponseRate.user_id == User.id)
         .where(
             or_(
-                UserResponseRate.requests > HOST_POOL_NEWBIE_MAX_REQUESTS,
-                UserResponseRate.response_time_66p > HOST_POOL_NEWBIE_MAX_RESPONSE_TIME_66P,
+                UserResponseRate.requests96h > HOST_POOL_NEWBIE_MAX_REQUESTS,
+                UserResponseRate.response96h < HOST_POOL_NEWBIE_MIN_RESPONSE96H,
             )
         )
         .exists()
