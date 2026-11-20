@@ -1,8 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { publicTripsBaseKey, publicTripsByUserBaseKey, publicTripsByUserKey, publicTripsKey } from "features/queryKeys";
+import {
+  dashboardKey,
+  publicTripsBaseKey,
+  publicTripsByUserBaseKey,
+  publicTripsByUserKey,
+  publicTripsKey,
+} from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import {
-  ListMyCommunitiesPublicTripsRes,
   ListPublicTripsByUserRes,
   ListPublicTripsRes,
   PublicTrip as PublicTripPb,
@@ -52,18 +57,6 @@ export function useListPublicTripsByUser({
   });
 }
 
-export function useListMyCommunitiesPublicTrips(pageToken: string) {
-  return useQuery<ListMyCommunitiesPublicTripsRes.AsObject, RpcError>({
-    // under publicTripsBaseKey so trip updates refresh it too
-    queryKey: [publicTripsBaseKey, "myCommunities", pageToken],
-    queryFn: () =>
-      service.publicTrips.listMyCommunitiesPublicTrips({
-        pageToken: pageToken || undefined,
-        pageSize: PAGE_SIZE,
-      }),
-  });
-}
-
 export function useCreatePublicTrip(communityId: number, onSuccess?: () => void) {
   const queryClient = useQueryClient();
   return useMutation<
@@ -82,6 +75,7 @@ export function useCreatePublicTrip(communityId: number, onSuccess?: () => void)
       queryClient.invalidateQueries({
         queryKey: publicTripsKey(communityId),
       });
+      queryClient.invalidateQueries({ queryKey: [dashboardKey] });
       onSuccess?.();
     },
   });
@@ -105,6 +99,7 @@ export function useUpdatePublicTrip(onSuccess?: () => void) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [publicTripsBaseKey] });
       queryClient.invalidateQueries({ queryKey: [publicTripsByUserBaseKey] });
+      queryClient.invalidateQueries({ queryKey: [dashboardKey] });
       onSuccess?.();
     },
   });

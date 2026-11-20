@@ -8,11 +8,14 @@ import { service } from "service";
 // section, which the widgets page through locally.
 export const DASHBOARD_PAGE_SIZE = 3;
 
+export type Dashboard = GetDashboardRes.AsObject;
+
 /**
  * The dashboard's data, from a single GetDashboard request shared by every widget. Each widget
  * passes `select` to pick its section, and only re-renders when that section changes.
+ * Define `select` outside the component so it's the same function on every render.
  */
-export default function useGetDashboard<TData>(select: (dashboard: GetDashboardRes.AsObject) => TData) {
+export default function useGetDashboard<TData>(select: (dashboard: Dashboard) => TData) {
   return useQuery<GetDashboardRes.AsObject, RpcError, TData>({
     queryKey: [dashboardKey],
     queryFn: () => service.screens.getDashboard(),
