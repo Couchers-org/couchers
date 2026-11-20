@@ -80,7 +80,7 @@ interface EventUsersInput {
   type: QueryType;
 }
 
-const eventOrganizersBaseKey = "eventOrganizers";
+export const eventOrganizersBaseKey = "eventOrganizers";
 export const eventOrganizersKey = ({ eventId, type }: EventUsersInput) => [
   eventOrganizersBaseKey,
   eventId,
