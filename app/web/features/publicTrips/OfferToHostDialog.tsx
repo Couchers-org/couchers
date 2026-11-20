@@ -5,7 +5,7 @@ import Button from "components/Button";
 import Datepicker from "components/Datepicker";
 import { Dialog, DialogActions, DialogContent, DialogTitle } from "components/Dialog";
 import TextField from "components/TextField";
-import { publicTripsBaseKey, publicTripsByUserBaseKey } from "features/queryKeys";
+import { dashboardKey, publicTripsBaseKey } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { GLOBAL, PUBLIC_TRIPS } from "i18n/namespaces";
 import { useRouter } from "next/router";
@@ -153,7 +153,7 @@ export default function OfferToHostDialog({
       // Refetch trips so the card's viewerHostRequestId updates (the button
       // flips to "Already offered") next time the list is shown.
       queryClient.invalidateQueries({ queryKey: [publicTripsBaseKey] });
-      queryClient.invalidateQueries({ queryKey: [publicTripsByUserBaseKey] });
+      queryClient.invalidateQueries({ queryKey: [dashboardKey] });
       reset();
       onClose();
       router.push(routeToHostRequest(hostRequestId));

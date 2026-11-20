@@ -2,12 +2,12 @@ import { TravelExplore } from "@mui/icons-material";
 import { styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import CardTrack, { useCardTrack } from "components/CardTrack";
-import { useListMyCommunitiesPublicTrips } from "features/publicTrips/useListPublicTrips";
 import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 
 import { CARD_WIDTH, DashboardPublicTripCard, DashboardPublicTripCardSkeleton } from "./DashboardPublicTripCard";
 import DashboardSectionHeader from "./DashboardSectionHeader";
+import useGetDashboard, { Dashboard } from "./useGetDashboard";
 
 const EmptyStateRow = styled("div")(({ theme }) => ({
   display: "flex",
@@ -19,14 +19,15 @@ const EmptyStateRow = styled("div")(({ theme }) => ({
   background: "var(--mui-palette-grey-50)",
 }));
 
+const selectCommunityPublicTrips = (dashboard: Dashboard) => dashboard.communityPublicTrips?.publicTripsList ?? [];
+
 export default function DashboardCommunityPublicTrips() {
   const {
     t,
     i18n: { language: locale },
   } = useTranslation([DASHBOARD]);
 
-  const { data, isLoading, error } = useListMyCommunitiesPublicTrips("");
-  const trips = data?.publicTripsList ?? [];
+  const { data: trips = [], isLoading, error } = useGetDashboard(selectCommunityPublicTrips);
 
   const track = useCardTrack();
 

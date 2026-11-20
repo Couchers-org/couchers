@@ -2,17 +2,14 @@ import { TravelExplore } from "@mui/icons-material";
 import { styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import CardTrack, { useCardTrack } from "components/CardTrack";
-import { useAuthContext } from "features/auth/AuthProvider";
-import { useListPublicTripsByUser } from "features/publicTrips/useListPublicTrips";
 import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
-import { PublicTripStatus } from "proto/public_trips_pb";
 import { myPublicTripsRoute } from "routes";
-import dayjs from "utils/dayjs";
 
 import { CARD_WIDTH, DashboardPublicTripCard, DashboardPublicTripCardSkeleton } from "./DashboardPublicTripCard";
 import DashboardSectionHeader from "./DashboardSectionHeader";
+import useGetDashboard, { Dashboard } from "./useGetDashboard";
 
 const EmptyStateRow = styled("div")(({ theme }) => ({
   display: "flex",
@@ -24,25 +21,15 @@ const EmptyStateRow = styled("div")(({ theme }) => ({
   background: "var(--mui-palette-grey-50)",
 }));
 
+const selectMyPublicTrips = (dashboard: Dashboard) => dashboard.myPublicTrips?.publicTripsList ?? [];
+
 export default function DashboardMyPublicTrips() {
   const {
     t,
     i18n: { language: locale },
   } = useTranslation([DASHBOARD]);
-  const { authState } = useAuthContext();
-  const userId = authState.userId ?? 0;
-
-  const { data, isLoading, error } = useListPublicTripsByUser({
-    userId,
-    pageToken: "",
-    ascending: true,
-  });
-
-  const activeTrips = (data?.publicTripsList ?? []).filter(
-    (trip) =>
-      trip.status === PublicTripStatus.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST &&
-      !dayjs(trip.toDate).isBefore(dayjs().startOf("day")),
-  );
+  // the backend only returns upcoming trips still searching for a host
+  const { data: activeTrips = [], isLoading, error } = useGetDashboard(selectMyPublicTrips);
 
   const track = useCardTrack();
 
