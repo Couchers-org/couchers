@@ -22,6 +22,7 @@ from couchers.models import (
 )
 from couchers.proto import account_pb2, api_pb2, auth_pb2, messages_pb2
 from couchers.utils import now, today
+from tests.fixtures.api import public_trips as public_trips_api
 from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import backdate_conversations, generate_user, make_volunteer
 from tests.fixtures.feature_flags import FeatureFlags
@@ -1140,12 +1141,11 @@ def test_public_trip_offer_reminders(db, moderator):
             return account.GetReminders(empty_pb2.Empty()).reminders
 
     offer1_id, offer2_id = (
-        requests_api.create_host_request(
+        public_trips_api.offer_to_host(
             token=token,
-            host_user_id=traveller.id,
+            trip_id=trip_id,
             from_date=from_date,
             to_date=to_date,
-            public_trip_id=trip_id,
             approve_by=moderator,
         )
         for token in (host1_token, host2_token)

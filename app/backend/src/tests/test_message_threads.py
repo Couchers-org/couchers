@@ -11,6 +11,7 @@ from couchers.jobs.handlers import send_message_notifications
 from couchers.models import HostRequest, NotificationTopicAction, User
 from couchers.proto import api_pb2, conversations_pb2, messages_pb2, notifications_pb2, requests_pb2
 from couchers.utils import today
+from tests.fixtures.api import public_trips as public_trips_api
 from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user, make_user_block
 from tests.fixtures.feature_flags import FeatureFlags
@@ -124,12 +125,11 @@ def test_list_message_threads_no_feedback_for_declined_public_trip_offer(db, mod
     _host, host_token = generate_user()
     _, trip_id = _make_trip(traveller)
 
-    request_id = requests_api.create_host_request(
+    request_id = public_trips_api.offer_to_host(
         token=host_token,
-        host_user_id=traveller.id,
+        trip_id=trip_id,
         from_date=today() + timedelta(days=5),
         to_date=today() + timedelta(days=10),
-        public_trip_id=trip_id,
         approve_by=moderator,
     )
 
@@ -335,12 +335,11 @@ def test_list_message_threads_public_trip_offer_role_based(db, moderator):
     _, trip_id = _make_trip(traveler)
 
     # host offers to host the traveller's public trip (role reversal)
-    request_id = requests_api.create_host_request(
+    request_id = public_trips_api.offer_to_host(
         token=host_token,
-        host_user_id=traveler.id,
+        trip_id=trip_id,
         from_date=today() + timedelta(days=5),
         to_date=today() + timedelta(days=10),
-        public_trip_id=trip_id,
         approve_by=moderator,
     )
 

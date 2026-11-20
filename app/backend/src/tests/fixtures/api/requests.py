@@ -39,7 +39,6 @@ def create_host_request(
     to_date: date | str | None = None,
     text: str | None = _CREATE_DEFAULT_TEXT,
     pad_text_to_valid_length: bool = False,
-    public_trip_id: int | None = None,
     approve_by: Moderator | None = None,
 ) -> int:
     if text is not None and pad_text_to_valid_length:
@@ -57,7 +56,6 @@ def create_host_request(
                 from_date=from_date if isinstance(from_date, str) else date_to_api(from_date),
                 to_date=to_date if isinstance(to_date, str) else date_to_api(to_date),
                 text=text,
-                public_trip_id=public_trip_id,
             )
         )
 
