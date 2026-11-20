@@ -5,7 +5,7 @@ multi-ecosystem-groups:
     schedule:
       interval: "weekly"
     labels:
-      - "1.topic backend"
+      - "backend"
       - "dependencies"
 
   infra:
@@ -52,7 +52,7 @@ updates:
     schedule:
       interval: "weekly"
     labels:
-      - "1.topic frontend"
+      - "web"
       - "dependencies"
     groups:
       # react and react-dom must be the exact same version or the build fails
