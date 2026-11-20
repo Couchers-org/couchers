@@ -367,6 +367,22 @@ def test_user_search_exactly_user_ids(db):
         assert [result.user_id for result in res.results] == [user1.id]
 
 
+def test_user_search_profile_snippet(db):
+    user1, token1 = generate_user(complete_profile=False, about_me="**Hello**, see [my site](https://example.com).")
+    user2, _ = generate_user(complete_profile=False, about_me="word " * 200)
+    user3, _ = generate_user(complete_profile=False, about_me=None)
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
+
+    with search_session(token1) as api:
+        res = api.UserSearchV2(search_pb2.UserSearchReq(exactly_user_ids=[user1.id, user2.id, user3.id]))
+        snippets = [result.profile_snippet for result in res.results]
+        assert snippets[0] == "Hello, see my site."
+        assert snippets[1] == "word " * 59 + "word…"
+        assert snippets[2] == ""
+
+
 def test_user_search_pagination_with_tied_scores(db, flags: Flags):
     """
     Paging through tied recommendation scores, including a tie block larger than the page size, returns every user

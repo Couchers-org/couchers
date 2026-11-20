@@ -86,6 +86,47 @@ class _HTMLToPlaintext(HTMLParser):
         self.plaintext += data.replace("\n", "")  # Newlines in html are meaningless
 
 
+# A port of stripMarkdown in app/web/utils/stripMarkdown.ts with its default options, kept regex for regex so that
+# the server and the web client produce the same text.
+_STRIP_MARKDOWN_RULES: list[tuple[re.Pattern[str], str]] = [
+    (re.compile(r"^(-\s*?|\*\s*?|_\s*?){3,}\s*$", re.MULTILINE), ""),
+    (re.compile(r"^([\s\t]*)([*\-+]|\d+\.)\s+", re.MULTILINE), r"\1"),
+    (re.compile(r"\n={2,}"), "\n"),
+    (re.compile(r"~{3}.*\n"), ""),
+    (re.compile(r"~~"), ""),
+    (re.compile(r"`{3}.*\n"), ""),
+    (re.compile(r"<[^>]*>"), ""),
+    (re.compile(r"^[=-]{2,}\s*\Z"), ""),
+    (re.compile(r"\[\^.+?\](: .*?\Z)?"), ""),
+    (re.compile(r"\s{0,2}\[.*?\]: .*?\Z"), ""),
+    (re.compile(r"!\[(.*?)\][\[(].*?[\])]"), r"\1"),
+    (re.compile(r"\[(.*?)\][\[(].*?[\])]"), r"\1"),
+    (re.compile(r"^\s{0,3}>\s?"), ""),
+    (re.compile(r"^\s{1,2}\[(.*?)\]: (\S+)( \".*?\")?\s*\Z"), ""),
+    (re.compile(r"^(\n)?\s{0,}#{1,6}\s+| {0,}(\n)?\s{0,}#{0,} {0,}(\n)?\s{0,}$", re.MULTILINE), r"\1\2\3"),
+    (re.compile(r"([*_]{1,3})(\S.*?\S{0,1})\1"), r"\2"),
+    (re.compile(r"([*_]{1,3})(\S.*?\S{0,1})\1"), r"\2"),
+    (re.compile(r"(`{3,})(.*?)\1", re.MULTILINE), r"\2"),
+    (re.compile(r"`(.+?)`"), r"\1"),
+    (re.compile(r"\n{2,}"), "\n\n"),
+]
+
+
+def strip_markdown(text: str) -> str:
+    for pattern, replacement in _STRIP_MARKDOWN_RULES:
+        text = pattern.sub(replacement, text)
+    return text
+
+
+def plaintext_snippet(markdown: str, max_length: int) -> str:
+    text = strip_markdown(markdown).strip()
+    if len(text) <= max_length:
+        return text
+    match = re.match(rf"(.{{1,{max_length}}})\s", text, re.DOTALL)
+    cut = match.group(1) if match else text[:max_length]
+    return cut.rstrip() + "…"
+
+
 def html_mailto_link(email: str, subject: str | None = None) -> Markup:
     url = f"mailto:{email}"
     if subject:
