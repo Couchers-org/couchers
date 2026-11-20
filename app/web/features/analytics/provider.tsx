@@ -32,6 +32,8 @@ import { destroyCollector, initializeCollector, logEvent } from "./eventCollecto
 // zz: added to links in our emails, see app/backend/src/couchers/email/zz.py
 const ATTRIBUTION_PARAMS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "zz"];
 
+const SECRET_PARAMS = ["token", "verification_attempt_token", "sig"];
+
 /**
  * Extract attribution parameters (UTM params and email refs) from the URL.
  * These help track which campaigns, ads, emails, or links brought users to your site.
@@ -54,7 +56,7 @@ function getFilteredSearch(queryString: string): string | null {
   const params = new URLSearchParams(queryString);
   const filtered = new URLSearchParams();
   params.forEach((value, key) => {
-    if (!key.startsWith("utm_") && !ATTRIBUTION_PARAMS.includes(key)) {
+    if (!key.startsWith("utm_") && !ATTRIBUTION_PARAMS.includes(key) && !SECRET_PARAMS.includes(key)) {
       filtered.set(key, value);
     }
   });
