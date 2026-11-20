@@ -75,7 +75,6 @@ class Screens(screens_pb2_grpc.ScreensServicer):
                     page_size=community_events_page_size,
                     my_communities=True,
                     my_communities_exclude_global=True,
-                    exclude_attending=True,
                 ),
                 context,
                 session,
