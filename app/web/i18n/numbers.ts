@@ -15,7 +15,7 @@ function getIntlNumberFormat(locale: string, options?: Intl.NumberFormatOptions)
   return format;
 }
 
-/** Localizes a USD amount, e.g. "$1,234" / "US$1,234" depending on locale. */
+/** Localizes a USD amount, e.g. "$1,234" / "1.234 $" depending on locale. */
 export function localizeUSD(amount: number, locale: string): string {
   // Show cents (always 2 digits) only when the amount actually has a fractional part,
   // e.g. 1 -> "$1", 1.1 -> "$1.10", 1.11 -> "$1.11".
@@ -23,6 +23,7 @@ export function localizeUSD(amount: number, locale: string): string {
   return getIntlNumberFormat(locale, {
     style: "currency",
     currency: "USD",
+    currencyDisplay: "narrowSymbol",
     minimumFractionDigits: hasCents ? 2 : 0,
     maximumFractionDigits: 2,
   }).format(amount);
