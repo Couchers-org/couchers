@@ -42,7 +42,8 @@ export default function DevSettingsButton() {
     }),
   ).current;
 
-  if (!isDevUrlOverrideEnabled()) {
+  // hidden in builds made by scripts/store-screenshots
+  if (!isDevUrlOverrideEnabled() || process.env.EXPO_PUBLIC_STORE_SCREENSHOTS) {
     return null;
   }
 
