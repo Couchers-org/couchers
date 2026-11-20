@@ -3,5 +3,6 @@
   "show_moderator_badge": true,
   "public_trips_enabled": true,
   "postal_verification_enabled": true,
-  "global_message": { "severity": "info", "message": "" }
+  "global_message": { "severity": "info", "message": "" },
+  "celebration_100k_enabled": true
 }

@@ -1,1 +1,98 @@
-{}
+{
+  "heading": "Viaggi pubblici",
+  "my_trips_heading": "I miei viaggi pubblici",
+  "create_trip_button": "Crea viaggio pubblico",
+  "view_my_trips_button": "Visualizza i miei viaggi pubblici",
+  "community_section": {
+    "intro": "Qui i viaggiatori pubblicano i loro prossimi viaggi. Se vedi un itinerario che ti piace, puoi offrirti di fare da host o di incontrarli!"
+  },
+  "trip_list": {
+    "filters": {
+      "active_option": "Attivi",
+      "all_option": "Tutti",
+      "closed_option": "Chiusi",
+      "past_option": "Passati",
+      "no_match_placeholder": "Nessun viaggio corrisponde a questo filtro."
+    },
+    "empty_placeholder": "Nessun viaggio pubblico al momento.",
+    "mine_empty_placeholder": "Non hai ancora pubblicato viaggi pubblici.",
+    "pagination": {
+      "previous_button": "Precedente",
+      "next_button": "Seguente",
+      "next_button_a11y": "Pagina successiva",
+      "previous_button_a11y": "Pagina precedente",
+      "page_indicator": "Pagina {{current}}"
+    },
+    "see_all_link": "Vedi tutti i viaggi pubblici"
+  },
+  "trip_card": {
+    "references_one": "{{count}} referenza",
+    "references_many": "{{count}} di referenze",
+    "references_other": "{{count}} referenze",
+    "you_overlay": "TU",
+    "invitations_count_one": "{{count}} invito",
+    "invitations_count_many": "{{count}} di inviti",
+    "invitations_count_other": "{{count}} inviti",
+    "no_invitations": "Nessun invito da visualizzare",
+    "status_pills": {
+      "active": "Attivo",
+      "closed": "Chiuso",
+      "past": "Passato"
+    },
+    "same_gender_only_indicator": "Visibile solo a persone dello stesso genere",
+    "already_invited_indicator": "Invito inviato",
+    "show_less_action": "Mostra meno",
+    "show_more_action": "Mostra altro",
+    "view_profile_button": "Visualizza profilo",
+    "view_invitations_button": "Visualizza inviti",
+    "edit_button": "Modifica viaggio",
+    "close_button": "Segna come chiuso",
+    "reopen_button": "Riapri viaggio",
+    "offer_to_host_button": "Offriti come host",
+    "offer_to_host_button_disabled_tooltip": "Questo viaggio non accetta più inviti."
+  },
+  "create_edit_dialog": {
+    "create_title": "Crea viaggio pubblico",
+    "edit_title": "Modifica viaggio pubblico",
+    "from_date": {
+      "label": "Arrivo",
+      "required_error": "Scegli una data di arrivo."
+    },
+    "to_date": {
+      "label": "Partenza",
+      "required_error": "Seleziona una data di partenza."
+    },
+    "location_label": "Località:",
+    "same_gender_only": {
+      "label": "Solo stesso genere",
+      "description": "Mostra questo viaggio solo agli utenti dello stesso genere."
+    },
+    "description": {
+      "label": "Informazioni sul tuo viaggio",
+      "placeholder": "Cosa avevi in mente di fare? Quanto tempo ti fermi? C'è qualcosa che gli host dovrebbero sapere?",
+      "required_error": "Aggiungi una breve descrizione.",
+      "chars_remaining_one": "È necessario ancora {{count}} carattere.",
+      "chars_remaining_many": "Sono necessari ancora {{count}} di caratteri.",
+      "chars_remaining_other": "Sono necessari ancora {{count}} caratteri."
+    },
+    "create_submit_button": "Pubblica viaggio",
+    "edit_submit_button": "Salva modifiche"
+  },
+  "close_dialog": {
+    "title": "Chiudere questo viaggio?",
+    "message": "Chiudendo il tuo viaggio, questo verrà rimosso dall'elenco della community e non riceverai più nuovi inviti dagli host.",
+    "confirm_button": "Chiudi viaggio"
+  },
+  "offer_to_host_dialog": {
+    "title": "Offri ospitalità a {{name}}",
+    "message": {
+      "label": "Il tuo messaggio",
+      "placeholder": "Presentati e fai sapere agli ospiti cosa puoi offrire.",
+      "required_error": "Per favore scrivi un messaggio.",
+      "chars_remaining_one": "È necessario ancora {{count}} carattere.",
+      "chars_remaining_many": "Sono necessari ancora {{count}} di caratteri.",
+      "chars_remaining_other": "Sono necessari ancora {{count}} caratteri."
+    },
+    "submit_button": "Invia invito"
+  }
+}

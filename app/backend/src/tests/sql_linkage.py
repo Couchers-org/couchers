@@ -97,7 +97,9 @@ class _Components:
         return len({self.find(key) for key in self._parent})
 
 
-def find_unkeyed_joins(statement: Select[Any] | CompoundSelect[Any], path: str = "query") -> list[str]:
+def find_unkeyed_joins(
+    statement: Select[*tuple[Any, ...]] | CompoundSelect[*tuple[Any, ...]], path: str = "query"
+) -> list[str]:
     """Returns a problem for every FROM list (recursing into subqueries and unions) not connected by keys."""
     if isinstance(statement, CompoundSelect):
         return [

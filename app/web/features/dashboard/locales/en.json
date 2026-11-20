@@ -107,5 +107,20 @@
       "left_arrow_a11y": "Scroll left",
       "right_arrow_a11y": "Scroll right"
     }
+  },
+  "celebration_100k": {
+    "banner_message": "Couchers hit 100k members!",
+    "banner_read_more_link": "Read more",
+    "banner_replay_button": "Replay animation",
+    "help_us_grow_button": "Help us grow",
+    "dialog_a11y": "Couchers hit 100,000 members",
+    "close_button_a11y": "Close",
+    "burst_heading": "{{member_count}}+ of us!",
+    "map_counter_total": "{{member_count}}+",
+    "map_counter_label": "Couchers and growing",
+    "map_message_everywhere": "We're everywhere.",
+    "map_message_thanks": "Thanks for opening your doors.",
+    "map_read_more_link": "Read more",
+    "map_a11y": "Map of Couchers members around the world, with clusters of members appearing city by city and merging into regions"
   }
 }

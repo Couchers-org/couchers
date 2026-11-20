@@ -65,14 +65,14 @@ from couchers.models import (
     UserBlock,
     Volunteer,
 )
-from couchers.proto import conversations_pb2, messages_pb2
+from couchers.proto import messages_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.utils import now, today
+from tests.fixtures.api import conversations as conversations_api
 from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user, make_friends, make_user_block, make_volunteer
 from tests.fixtures.feature_flags import FeatureFlags
 from tests.fixtures.misc import PushCollector, process_jobs
-from tests.fixtures.sessions import conversations_session
 from tests.fixtures.timewarp import Timewarp
 from tests.test_references import create_host_reference, create_host_request, create_host_request_by_date
 
@@ -646,27 +646,21 @@ def test_send_message_notifications_basic(db, moderator, timewarp: Timewarp):
             == 0
         )
 
-    with conversations_session(token1) as c:
-        group_chat_id1 = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
-        ).group_chat_id
-    moderator.approve_group_chat(group_chat_id1)
+    group_chat_id1 = conversations_api.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id, user3.id], approve_by=moderator
+    ).group_chat_id
 
-    with conversations_session(token1) as c:
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id1, text="Test message 1"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id1, text="Test message 2"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id1, text="Test message 3"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id1, text="Test message 4"))
+    conversations_api.send_message(token=token1, group_chat_id=group_chat_id1, text="Test message 1")
+    conversations_api.send_message(token=token1, group_chat_id=group_chat_id1, text="Test message 2")
+    conversations_api.send_message(token=token1, group_chat_id=group_chat_id1, text="Test message 3")
+    conversations_api.send_message(token=token1, group_chat_id=group_chat_id1, text="Test message 4")
 
-    with conversations_session(token3) as c:
-        group_chat_id2 = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
-        ).group_chat_id
-    moderator.approve_group_chat(group_chat_id2)
+    group_chat_id2 = conversations_api.create_group_chat(
+        token=token3, recipient_user_ids=[user2.id], approve_by=moderator
+    ).group_chat_id
 
-    with conversations_session(token3) as c:
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id2, text="Test message 5"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id2, text="Test message 6"))
+    conversations_api.send_message(token=token3, group_chat_id=group_chat_id2, text="Test message 5")
+    conversations_api.send_message(token=token3, group_chat_id=group_chat_id2, text="Test message 6")
 
     send_message_notifications(empty_pb2.Empty())
     process_jobs()
@@ -722,29 +716,23 @@ def test_send_message_notifications_ignores_abandoned_subscription(db, moderator
     make_friends(user1, user3)
     make_friends(user2, user3)
 
-    with conversations_session(token1) as c:
-        group_chat_id = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
-        ).group_chat_id
-    moderator.approve_group_chat(group_chat_id)
+    group_chat_id = conversations_api.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id, user3.id], approve_by=moderator
+    ).group_chat_id
 
-    with conversations_session(token1) as c:
-        # unread and un-notified for user2 when they get removed below
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 2"))
-        c.RemoveGroupChatUser(conversations_pb2.RemoveGroupChatUserReq(group_chat_id=group_chat_id, user_id=user2.id))
-        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user2.id))
+    # unread and un-notified for user2 when they get removed below
+    conversations_api.send_message(token=token1, group_chat_id=group_chat_id, text="Test message 1")
+    conversations_api.send_message(token=token1, group_chat_id=group_chat_id, text="Test message 2")
+    conversations_api.remove_group_chat_user(token=token1, group_chat_id=group_chat_id, user_id=user2.id)
+    conversations_api.invite_to_group_chat(token=token1, group_chat_id=group_chat_id, user_id=user2.id)
 
     for token in [token2, token3]:
-        with conversations_session(token) as c:
-            latest_message_id = c.GetGroupChat(
-                conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id)
-            ).latest_message.message_id
-            c.MarkLastSeenGroupChat(
-                conversations_pb2.MarkLastSeenGroupChatReq(
-                    group_chat_id=group_chat_id, last_seen_message_id=latest_message_id
-                )
-            )
+        latest_message_id = conversations_api.get_group_chat(
+            token=token, group_chat_id=group_chat_id
+        ).latest_message.message_id
+        conversations_api.mark_last_seen_group_chat(
+            token=token, group_chat_id=group_chat_id, last_seen_message_id=latest_message_id
+        )
 
     timewarp.advance(MISSED_MESSAGES_DELAY)
 
@@ -781,29 +769,23 @@ def test_send_message_notifications_muted(db, moderator, timewarp: Timewarp):
             == 0
         )
 
-    with conversations_session(token1) as c:
-        group_chat_id = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
-        ).group_chat_id
-    moderator.approve_group_chat(group_chat_id)
+    group_chat_id = conversations_api.create_group_chat(
+        token=token1, recipient_user_ids=[user2.id, user3.id], approve_by=moderator
+    ).group_chat_id
 
-    with conversations_session(token3) as c:
-        # mute it for user 3
-        c.MuteGroupChat(conversations_pb2.MuteGroupChatReq(group_chat_id=group_chat_id, forever=True))
+    # mute it for user 3
+    conversations_api.mute_group_chat(token=token3, group_chat_id=group_chat_id, forever=True)
 
-    with conversations_session(token1) as c:
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 2"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 3"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 4"))
+    conversations_api.send_message(token=token1, group_chat_id=group_chat_id, text="Test message 1")
+    conversations_api.send_message(token=token1, group_chat_id=group_chat_id, text="Test message 2")
+    conversations_api.send_message(token=token1, group_chat_id=group_chat_id, text="Test message 3")
+    conversations_api.send_message(token=token1, group_chat_id=group_chat_id, text="Test message 4")
 
-    with conversations_session(token3) as c:
-        group_chat_id = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
-        ).group_chat_id
-        moderator.approve_group_chat(group_chat_id)
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 5"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 6"))
+    group_chat_id = conversations_api.create_group_chat(
+        token=token3, recipient_user_ids=[user2.id], approve_by=moderator
+    ).group_chat_id
+    conversations_api.send_message(token=token3, group_chat_id=group_chat_id, text="Test message 5")
+    conversations_api.send_message(token=token3, group_chat_id=group_chat_id, text="Test message 6")
 
     send_message_notifications(empty_pb2.Empty())
     process_jobs()
@@ -847,14 +829,11 @@ def test_send_message_notifications_muted(db, moderator, timewarp: Timewarp):
 
 
 def _send_one_chat_message(token: str, recipient_id: int, moderator) -> None:
-    with conversations_session(token) as c:
-        group_chat_id = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_id])
-        ).group_chat_id
-    moderator.approve_group_chat(group_chat_id)
+    group_chat_id = conversations_api.create_group_chat(
+        token=token, recipient_user_ids=[recipient_id], approve_by=moderator
+    ).group_chat_id
 
-    with conversations_session(token) as c:
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
+    conversations_api.send_message(token=token, group_chat_id=group_chat_id, text="Test message 1")
 
     with session_scope() as session:
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
@@ -863,14 +842,14 @@ def _send_one_chat_message(token: str, recipient_id: int, moderator) -> None:
 def test_send_message_notifications_delayed_for_push_capable_users(
     db, moderator, push_collector: PushCollector, timewarp: Timewarp
 ):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    make_friends(user1, user2)
-    _add_mobile_push_subscription(user2.id)
+    sender_user, sender_token = generate_user()
+    recipient_user, recipient_token = generate_user()
+    make_friends(sender_user, recipient_user)
+    _add_mobile_push_subscription(recipient_user.id)
 
-    _send_one_chat_message(token1, user2.id, moderator)
+    _send_one_chat_message(sender_token, recipient_user.id, moderator)
 
-    # user2 already got a push about this, so the usual 5 minute delay doesn't apply to them
+    # the recipient already got a push about this, so the usual 5 minute delay doesn't apply to them
     timewarp.advance(MISSED_MESSAGES_DELAY)
     send_message_notifications(empty_pb2.Empty())
     process_jobs()
@@ -885,13 +864,13 @@ def test_send_message_notifications_delayed_for_push_capable_users(
 def test_send_message_notifications_not_delayed_when_push_subscription_disabled(
     db, moderator, push_collector: PushCollector, timewarp: Timewarp
 ):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    make_friends(user1, user2)
-    # e.g. the device unregistered, so we can't reach user2 by push and the email is all they'll get
-    _add_mobile_push_subscription(user2.id, disabled=True)
+    sender_user, sender_token = generate_user()
+    recipient_user, recipient_token = generate_user()
+    make_friends(sender_user, recipient_user)
+    # e.g. the device unregistered, so we can't reach the recipient by push and the email is all they'll get
+    _add_mobile_push_subscription(recipient_user.id, disabled=True)
 
-    _send_one_chat_message(token1, user2.id, moderator)
+    _send_one_chat_message(sender_token, recipient_user.id, moderator)
 
     timewarp.advance(MISSED_MESSAGES_DELAY)
     send_message_notifications(empty_pb2.Empty())
@@ -900,8 +879,8 @@ def test_send_message_notifications_not_delayed_when_push_subscription_disabled(
 
 
 def test_send_request_notifications_host_request(db, moderator, timewarp: Timewarp):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
 
     send_request_notifications(empty_pb2.Empty())
     process_jobs()
@@ -910,7 +889,9 @@ def test_send_request_notifications_host_request(db, moderator, timewarp: Timewa
     with session_scope() as session:
         assert session.execute(select(func.count()).select_from(BackgroundJob)).scalar_one() == 0
 
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
+    host_request_id = requests_api.create_host_request(
+        token=surfer_token, host_user_id=host_user.id, approve_by=moderator
+    )
 
     with session_scope() as session:
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
@@ -925,7 +906,7 @@ def test_send_request_notifications_host_request(db, moderator, timewarp: Timewa
 
     # test that responding to host request creates email
     requests_api.respond_host_request(
-        token=token2,
+        token=host_token,
         host_request_id=host_request_id,
         status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
         text="Test request",
@@ -958,14 +939,16 @@ def test_send_request_notifications_host_request_with_followup(db, moderator, ti
     the host should get a missed_messages notification (even though the initial
     creation message alone would be skipped).
     """
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
 
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
+    host_request_id = requests_api.create_host_request(
+        token=surfer_token, host_user_id=host_user.id, approve_by=moderator
+    )
 
     # surfer sends a follow-up message
     requests_api.send_host_request_message(
-        token=token1, host_request_id=host_request_id, text="Following up on my request!"
+        token=surfer_token, host_request_id=host_request_id, text="Following up on my request!"
     )
 
     with session_scope() as session:
@@ -981,26 +964,30 @@ def test_send_request_notifications_host_request_with_followup(db, moderator, ti
 
 def test_send_request_notifications_two_requests_one_with_followup(db, moderator, timewarp: Timewarp):
     """
-    A host (user2) receives two requests: first from user1 (with a follow-up message),
-    then from user3 (creation only). Because request B is created after request A's
+    A host receives two requests: first from surfer A (with a follow-up message),
+    then from surfer B (creation only). Because request B is created after request A's
     follow-up, it has a higher message ID. If the background job processes B first and
     advances last_notified_request_message_id past A's messages, one might expect A's
     notification to be lost — but it isn't, because the query results are already
     materialized before the loop begins.
     """
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    user3, token3 = generate_user()
+    surfer_a_user, surfer_a_token = generate_user()
+    host_user, host_token = generate_user()
+    surfer_b_user, surfer_b_token = generate_user()
 
-    # request A: user1 -> user2, with a follow-up
-    host_request_a = requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
-
-    requests_api.send_host_request_message(
-        token=token1, host_request_id=host_request_a, text="Sorry, meant Tuesday night!"
+    # request A: surfer A -> host, with a follow-up
+    host_request_a = requests_api.create_host_request(
+        token=surfer_a_token, host_user_id=host_user.id, approve_by=moderator
     )
 
-    # request B: user3 -> user2, creation only (higher message IDs than A's follow-up)
-    host_request_b = requests_api.create_host_request(token=token3, host_user_id=user2.id, approve_by=moderator)
+    requests_api.send_host_request_message(
+        token=surfer_a_token, host_request_id=host_request_a, text="Sorry, meant Tuesday night!"
+    )
+
+    # request B: surfer B -> host, creation only (higher message IDs than A's follow-up)
+    host_request_b = requests_api.create_host_request(
+        token=surfer_b_token, host_user_id=host_user.id, approve_by=moderator
+    )
 
     with session_scope() as session:
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
@@ -1017,14 +1004,16 @@ def test_send_request_notifications_two_requests_one_with_followup(db, moderator
 def test_send_request_notifications_delayed_for_push_capable_users(
     db, moderator, push_collector: PushCollector, timewarp: Timewarp
 ):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    _add_mobile_push_subscription(user1.id)
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
+    _add_mobile_push_subscription(surfer_user.id)
 
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
+    host_request_id = requests_api.create_host_request(
+        token=surfer_token, host_user_id=host_user.id, approve_by=moderator
+    )
 
     requests_api.respond_host_request(
-        token=token2,
+        token=host_token,
         host_request_id=host_request_id,
         status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
         text="Test request",
@@ -1045,10 +1034,10 @@ def test_send_request_notifications_delayed_for_push_capable_users(
 
 
 def test_send_message_notifications_seen(db, moderator, timewarp: Timewarp):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    sender_user, sender_token = generate_user()
+    recipient_user, recipient_token = generate_user()
 
-    make_friends(user1, user2)
+    make_friends(sender_user, recipient_user)
 
     send_message_notifications(empty_pb2.Empty())
 
@@ -1061,22 +1050,21 @@ def test_send_message_notifications_seen(db, moderator, timewarp: Timewarp):
             == 0
         )
 
-    with conversations_session(token1) as c:
-        group_chat_id = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
-        ).group_chat_id
-        moderator.approve_group_chat(group_chat_id)
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 2"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 3"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 4"))
+    group_chat_id = conversations_api.create_group_chat(
+        token=sender_token, recipient_user_ids=[recipient_user.id], approve_by=moderator
+    ).group_chat_id
+    conversations_api.send_message(token=sender_token, group_chat_id=group_chat_id, text="Test message 1")
+    conversations_api.send_message(token=sender_token, group_chat_id=group_chat_id, text="Test message 2")
+    conversations_api.send_message(token=sender_token, group_chat_id=group_chat_id, text="Test message 3")
+    conversations_api.send_message(token=sender_token, group_chat_id=group_chat_id, text="Test message 4")
 
-    # user 2 now marks those messages as seen
-    with conversations_session(token2) as c:
-        m_id = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id)).latest_message.message_id
-        c.MarkLastSeenGroupChat(
-            conversations_pb2.MarkLastSeenGroupChatReq(group_chat_id=group_chat_id, last_seen_message_id=m_id)
-        )
+    # the recipient now marks those messages as seen
+    m_id = conversations_api.get_group_chat(
+        token=recipient_token, group_chat_id=group_chat_id
+    ).latest_message.message_id
+    conversations_api.mark_last_seen_group_chat(
+        token=recipient_token, group_chat_id=group_chat_id, last_seen_message_id=m_id
+    )
 
     send_message_notifications(empty_pb2.Empty())
 
@@ -1091,7 +1079,7 @@ def test_send_message_notifications_seen(db, moderator, timewarp: Timewarp):
 
     timewarp.advance(timedelta(minutes=30))
 
-    # still shouldn't generate emails as user2 has seen all messages
+    # still shouldn't generate emails as the recipient has seen all messages
     send_message_notifications(empty_pb2.Empty())
 
     with session_scope() as session:
@@ -1539,6 +1527,7 @@ def test_update_badges(db, push_collector: PushCollector):
         session.add(UserBadge(user_id=user5.id, badge_id="board_member"))
         session.add(
             PostalVerificationAttempt(
+                recipient_name="Test User",
                 user_id=user6.id,
                 address_line_1="123 Main St",
                 city="Test City",
@@ -1568,7 +1557,7 @@ def test_update_badges(db, push_collector: PushCollector):
         (user6.id, "postal_verified"),
     ]
 
-    assert badge_tuples == expected  # type: ignore[comparison-overlap]
+    assert badge_tuples == expected
 
     print(push_collector.by_user)
 
@@ -1649,18 +1638,20 @@ def test_send_request_notifications_blocked_users_no_notification(db, moderator,
     Regression test: send_request_notifications should not send notifications
     when the host and surfer are not visible to each other (e.g., one blocked the other).
     """
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
 
     # Create a host request
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
+    host_request_id = requests_api.create_host_request(
+        token=surfer_token, host_user_id=host_user.id, approve_by=moderator
+    )
 
     with session_scope() as session:
         # delete send_email BackgroundJob created by CreateHostRequest
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
-    # Now user2 (host) blocks user1 (surfer)
-    make_user_block(user2, user1)
+    # Now the host blocks the surfer
+    make_user_block(host_user, surfer_user)
 
     timewarp.advance(MISSED_MESSAGES_DELAY)
 
@@ -1679,7 +1670,7 @@ def test_send_request_notifications_blocked_users_no_notification(db, moderator,
 
     # Host responds
     requests_api.respond_host_request(
-        token=token2,
+        token=host_token,
         host_request_id=host_request_id,
         status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
         text="Accepting your request",
@@ -1688,8 +1679,8 @@ def test_send_request_notifications_blocked_users_no_notification(db, moderator,
     with session_scope() as session:
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
-    # Now user1 (surfer) blocks user2 (host)
-    make_user_block(user1, user2)
+    # Now the surfer blocks the host
+    make_user_block(surfer_user, host_user)
 
     timewarp.advance(MISSED_MESSAGES_DELAY)
 
@@ -1706,15 +1697,15 @@ def test_send_host_request_reminders_blocked_users_no_notification(db, moderator
     send_host_request_reminders should not send notifications when the host and surfer are not visible to each other
     (e.g., one blocked the other).
     """
-    user1, token1 = generate_user(email="user1@couchers.org.invalid", name="User 1")
-    user2, token2 = generate_user(email="user2@couchers.org.invalid", name="User 2")
+    surfer_user, surfer_token = generate_user(email="user1@couchers.org.invalid", name="User 1")
+    host_user, host_token = generate_user(email="user2@couchers.org.invalid", name="User 2")
 
     with session_scope() as session:
         # Create a pending host request where the host has not replied
         hr = create_host_request_by_date(
             session=session,
-            surfer_user_id=user1.id,
-            host_user_id=user2.id,
+            surfer_user_id=surfer_user.id,
+            host_user_id=host_user.id,
             from_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=1),
             to_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=2),
             status=HostRequestStatus.pending,
@@ -1745,7 +1736,7 @@ def test_send_host_request_reminders_blocked_users_no_notification(db, moderator
         host_request.last_sent_request_reminder_time = now() - HOST_REQUEST_REMINDER_INTERVAL
 
     # Now have the host block the surfer
-    make_user_block(user2, user1)
+    make_user_block(host_user, surfer_user)
 
     send_host_request_reminders(empty_pb2.Empty())
 
@@ -1762,23 +1753,19 @@ def test_send_message_notifications_blocked_users_no_notification(db, moderator,
     Regression test: send_message_notifications should not send notifications
     for messages from users who are blocked by the recipient.
     """
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    sender_user, sender_token = generate_user()
+    recipient_user, recipient_token = generate_user()
 
-    make_friends(user1, user2)
+    make_friends(sender_user, recipient_user)
 
     # Create a group chat and send messages
-    with conversations_session(token1) as c:
-        group_chat_id = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
-        ).group_chat_id
-
     # Approve the group chat so it's visible for notifications
-    moderator.approve_group_chat(group_chat_id)
+    group_chat_id = conversations_api.create_group_chat(
+        token=sender_token, recipient_user_ids=[recipient_user.id], approve_by=moderator
+    ).group_chat_id
 
-    with conversations_session(token1) as c:
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 2"))
+    conversations_api.send_message(token=sender_token, group_chat_id=group_chat_id, text="Test message 1")
+    conversations_api.send_message(token=sender_token, group_chat_id=group_chat_id, text="Test message 2")
 
     # Verify that without blocking, a notification would be sent
     with session_scope() as session:
@@ -1795,16 +1782,16 @@ def test_send_message_notifications_blocked_users_no_notification(db, moderator,
         # Clean up
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
-    # Reset the notification state so user2 will receive notifications for old messages again
+    # Reset the notification state so the recipient will receive notifications for old messages again
     with session_scope() as session:
-        u2 = session.execute(select(User).where(User.id == user2.id)).scalar_one()
-        u2.last_notified_message_id = 0
+        db_recipient_user = session.execute(select(User).where(User.id == recipient_user.id)).scalar_one()
+        db_recipient_user.last_notified_message_id = 0
 
-    # Now have user2 block user1
-    make_user_block(user2, user1)
+    # Now have the recipient block the sender
+    make_user_block(recipient_user, sender_user)
 
-    # The existing messages from user1 should now NOT trigger notifications
-    # since user2 has blocked user1
+    # The existing messages from the sender should now NOT trigger notifications
+    # since the recipient has blocked the sender
     with session_scope() as session:
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 

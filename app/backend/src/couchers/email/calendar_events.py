@@ -42,6 +42,7 @@ def create_host_request_ics_event(
 
     event = Event()  # type: ignore[no-untyped-call]
     event.add("uid", _event_uid(host_request.host_request_id, kind="host_request"))
+    event.add("dtstamp", now())
     _set_sequence_timestamp(event, now())
 
     title: str
@@ -95,6 +96,7 @@ def create_event_ics_event(event: events_pb2.Event, loc_context: LocalizationCon
 
     ics_event = Event()  # type: ignore[no-untyped-call]
     ics_event.add("uid", _event_uid(event.event_id, kind="event"))
+    ics_event.add("dtstamp", now())
     ics_event.add("summary", _final_title(event.title, loc_context, is_cancelled=event.is_cancelled))
 
     last_update_datetime = to_aware_datetime(event.created if event.last_edited.seconds == 0 else event.last_edited)
@@ -146,6 +148,8 @@ def ics_event_to_calendar(event: Event, method: str | None, loc_context: Localiz
     if method:
         calendar.add("method", method)
     calendar.add_component(event)
+    # Include VTIMEZONE components for any TZIDs referenced (RFC 5545 §3.2.19)
+    calendar.add_missing_timezones()
     return calendar
 
 

@@ -14,7 +14,6 @@ import {
   Ubuntu_700Bold_Italic,
   useFonts,
 } from "@expo-google-fonts/ubuntu";
-import { useGrowthBook } from "@growthbook/growthbook-react";
 import {
   DarkTheme,
   DefaultTheme,
@@ -34,7 +33,9 @@ import { hydrateUrlOverrides } from "@/config/urls";
 import { AuthProvider, useAuthContext } from "@/features/auth/AuthContext";
 import NativeUpdatePrompt from "@/features/diagnostics/NativeUpdatePrompt";
 import { useNativeDiagnostics } from "@/features/diagnostics/useNativeDiagnostics";
-import FeatureFlagProvider from "@/features/experimentation/FeatureFlagProvider";
+import FeatureFlagProvider, {
+  useFeatureFlagsReady,
+} from "@/features/experimentation/FeatureFlagProvider";
 import { useNotificationObserver } from "@/features/notifications/useNotificationObserver";
 import { useRegisterPushNotifications } from "@/features/notifications/useRegisterPushNotifications";
 import { appVariant } from "@/service/buildInfo";
@@ -74,7 +75,7 @@ function NotificationObserver() {
 
 function RootNavigator({ fontsLoaded }: { fontsLoaded: boolean }) {
   const { authenticated, checkedAuthStatus } = useAuthContext();
-  const featuresReady = useGrowthBook().ready;
+  const featuresReady = useFeatureFlagsReady();
   const isReady = fontsLoaded && checkedAuthStatus && featuresReady;
 
   useEffect(() => {

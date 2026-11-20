@@ -1,4 +1,6 @@
 import { alpha, Box, styled, Typography } from "@mui/material";
+import Badge from "features/badges/Badge";
+import { useBadges } from "features/badges/hooks";
 import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
 import { ReactNode } from "react";
@@ -111,7 +113,26 @@ type VerificationSectionHeaderProps = {
   title: string;
   description: string;
   status: VerificationStatus;
+  // profile badge this verification earns, shown under the description
+  badgeId?: string;
 };
+
+function EarnedBadge({ badgeId }: { badgeId: string }) {
+  const { t } = useTranslation(AUTH);
+  const { badges } = useBadges();
+  const badge = badges?.[badgeId];
+  if (!badge) return null;
+
+  return (
+    // the chip's own margins are for wrapping rows of badges on the profile
+    <Box sx={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 1, "& .MuiChip-root": { m: 0 } }}>
+      <Typography variant="body2" sx={{ color: "var(--mui-palette-text-secondary)" }}>
+        {t("verification_page.earned_badge_caption")}
+      </Typography>
+      <Badge badge={badge} />
+    </Box>
+  );
+}
 
 export function VerificationSectionHeader({
   icon,
@@ -119,6 +140,7 @@ export function VerificationSectionHeader({
   title,
   description,
   status,
+  badgeId,
 }: VerificationSectionHeaderProps) {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
@@ -140,6 +162,7 @@ export function VerificationSectionHeader({
       <Typography variant="body1" sx={{ color: "var(--mui-palette-text-secondary)", textWrap: "pretty" }}>
         {description}
       </Typography>
+      {badgeId && <EarnedBadge badgeId={badgeId} />}
     </Box>
   );
 }

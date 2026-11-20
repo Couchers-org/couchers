@@ -53,7 +53,9 @@
   "continue": "Continua",
   "copy_button": {
     "a11y": "Copia",
-    "copied_tooltip": "Copiato negli appunti"
+    "copied_tooltip": "Copiato negli appunti",
+    "copied_message": "Copiato!",
+    "failed_message": "Impossibile copiare"
   },
   "thanks": "Grazie!",
   "community_standing": "Reputazione nella community",
@@ -88,13 +90,14 @@
     "label": "Segnala un problema",
     "bug": {
       "button_label": "Segnala un problema tecnico",
-      "warning_message": "Tieni presente che queste informazioni, così come i dati diagnostici, tra cui la pagina in cui ti trovi, il browser che stai utilizzando e il tuo nome utente, verranno salvati in un elenco pubblico di bug.",
+      "warning_message": "Le informazioni che fornisci in questo modulo, insieme alle informazioni diagnostiche della pagina in cui ti trovi (il tuo browser e il tuo nome utente), verranno registrate affinché il nostro team possa esaminarle.",
       "title_label": "Titolo del report",
-      "problem_label": "Cosa hai fatto che potrebbe aver scatenato l'errore?",
-      "problem_helper": "Breve descrizione del problema e di come riprodurlo",
+      "problem_label": "Come hai riscontrato il problema?",
+      "problem_helper": "Descrivi le azioni che hai eseguito: su quali pagine ti trovavi, su cosa hai cliccato, ecc.",
       "expect_label": "Cosa è successo? Cosa sarebbe dovuto succedere?",
-      "expect_helper": "Breve descrizione di ciò che ti aspettavi che accadesse",
-      "success_message2": "Grazie per aver segnalato il problema e per rendere Couchers più robusto: un report è stato inviato agli sviluppatori! L'ID del bug è <id/>."
+      "expect_helper": "Descrivi il problema che hai riscontrato in seguito alle tue azioni, includendo i messaggi di errore che sono apparsi e spiegando cosa ti aspettavi che succedesse invece del problema.",
+      "success_message2": "Grazie per aver segnalato questo problema e per aver contribuito a migliorare Couchers! È stata inviata una segnalazione agli sviluppatori. Puoi fare riferimento a questo problema usando l'ID: <id/>.",
+      "no_response_note": "<strong>Non riceverai una risposta.</strong> Se hai bisogno di assistenza, contattaci qui: <supportLink>support@couchers.org</supportLink>."
     },
     "content": {
       "button_label": "Segnala contenuti o comportamenti inappropriati",
@@ -202,7 +205,10 @@
     "close_menu_a11y": "Chiudi menu",
     "open_drawer_a11y": "Apri menu a tendina",
     "close_drawer_a11y": "Chiudi menu a tendina",
-    "press": "Stampa e media"
+    "press": "Stampa e media",
+    "verification": "Verifica",
+    "user_menu_verification_link": "Ottieni la verifica",
+    "couch_crashes": "Couch Crashes"
   },
   "invites": {
     "title": "Invita membri",
@@ -323,7 +329,7 @@
     "cs": "Ceco",
     "de": "Tedesco",
     "en": "Inglese",
-    "es": "Spagnolo (Spagna)",
+    "es": "Spagnolo",
     "fr": "Francese",
     "he": "Ebraico",
     "hi": "Hindi",
@@ -344,5 +350,6 @@
   },
   "bar": {
     "help_button_a11y": "Aiuto"
-  }
+  },
+  "more_options_a11y": "Altre opzioni"
 }

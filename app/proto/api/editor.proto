@@ -48,6 +48,9 @@ message CreateCommunityReq {
   int64 parent_node_id = 4;
   repeated int64 admin_ids = 5;
   string geojson = 6;
+  bool set_main_page_location_from_busiest_user_neighbourhood = 7;
+  // defaults to the type one level below the parent's
+  org.couchers.api.communities.NodeType node_type = 8;
 }
 
 message UpdateCommunityReq {

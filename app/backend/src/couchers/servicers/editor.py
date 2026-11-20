@@ -13,10 +13,10 @@ from sqlalchemy.sql import exists, update
 from couchers import urls
 from couchers.context import CouchersContext
 from couchers.db import get_parent_node_at_location, session_scope
-from couchers.helpers.clusters import CHILD_NODE_TYPE, create_cluster, create_node
+from couchers.helpers.clusters import CHILD_NODE_TYPE, busiest_user_neighbourhood_location, create_cluster, create_node
 from couchers.jobs.enqueue import queue_job
 from couchers.materialized_views import LiteUser
-from couchers.models import EventCommunityInviteRequest, EventOccurrence, Node, User, UserActivity, Volunteer
+from couchers.models import EventCommunityInviteRequest, EventOccurrence, Node, NodeType, User, UserActivity, Volunteer
 from couchers.models.notifications import NotificationTopicAction
 from couchers.models.postal_verification import PostalVerificationAttempt
 from couchers.notifications.notify import notify
@@ -24,7 +24,7 @@ from couchers.postal.my_postcard import download_pdf
 from couchers.proto import communities_pb2, editor_pb2, editor_pb2_grpc, notification_data_pb2, postal_verification_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.resources import get_static_badge_dict
-from couchers.servicers.communities import community_to_pb
+from couchers.servicers.communities import api2nodetype, community_to_pb
 from couchers.servicers.events import (
     generate_event_create_notifications,
     get_users_to_notify_for_new_event,
@@ -154,9 +154,32 @@ class Editor(editor_pb2_grpc.EditorServicer):
             parent_type = parent_node.node_type
         else:
             parent_type = None
-        node_type = CHILD_NODE_TYPE[parent_type]
+        if request.node_type == communities_pb2.NODE_TYPE_UNSPECIFIED:
+            node_type = CHILD_NODE_TYPE[parent_type]
+        else:
+            node_type = api2nodetype[request.node_type]
+            if parent_type is None:
+                valid = node_type == NodeType.world
+            else:
+                valid = node_type.value > parent_type.value
+            if not valid:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:node_type_not_below_parent")
         node = create_node(session, geom, parent_node_id, node_type)
-        create_cluster(session, node.id, request.name, request.description, context.user_id, request.admin_ids, True)
+        main_page_geom = (
+            busiest_user_neighbourhood_location(session, node)
+            if request.set_main_page_location_from_busiest_user_neighbourhood
+            else None
+        )
+        create_cluster(
+            session,
+            node.id,
+            request.name,
+            request.description,
+            context.user_id,
+            request.admin_ids,
+            True,
+            main_page_geom=main_page_geom,
+        )
 
         return community_to_pb(session, node, context)
 
@@ -482,6 +505,7 @@ class Editor(editor_pb2_grpc.EditorServicer):
                     attempt.status, postal_verification_pb2.POSTAL_VERIFICATION_STATUS_UNKNOWN
                 ),
                 address=postal_verification_pb2.PostalAddress(
+                    recipient_name=attempt.recipient_name,
                     address_line_1=attempt.address_line_1,
                     address_line_2=attempt.address_line_2,
                     city=attempt.city,

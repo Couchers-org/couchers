@@ -107,7 +107,9 @@
     "invitations_count_one": "{{count}} invitación",
     "invitations_count_many": "{{count}} de invitaciones",
     "invitations_count_other": "{{count}} invitaciones",
-    "no_invitations": "Aún no tienes ninguna invitación"
+    "no_invitations": "Aún no tienes ninguna invitación",
+    "community_trips_header": "Viajes públicos en tus comunidades",
+    "community_trips_empty_description": "Nadie en tus comunidades está buscando un anfitrión en este momento."
   },
   "today_label": "Hoy"
 }

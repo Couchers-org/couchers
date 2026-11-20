@@ -1,12 +1,7 @@
-venv/
 db.sqlite
-__pycache__/
 
-*.egg-info/
-
-.pytest_cache
-
-src/proto  # old path
-src/media/proto
+# old path
+src/proto/
+src/media/proto/
 
 .env

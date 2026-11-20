@@ -78,5 +78,11 @@
   "moderator_note": {
     "purpose_with_note": "Obdrželi jste důležitou zprávu od moderátorů:",
     "acknowledge_request": "Než budeš pokračovat v používání platformy, musíš si přečíst a potvrdit tuto poznámku."
+  },
+  "birthdate_changed": {
+    "purpose": "Tvoje datum narození bylo správcem změněno na <b>{{ date }}</b>."
+  },
+  "gender_changed": {
+    "purpose": "Tvé pohlaví na Couchers.org bylo správcem změněno na <b>{{ gender }}</b>."
   }
 }

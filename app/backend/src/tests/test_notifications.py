@@ -41,7 +41,6 @@ from couchers.notifications.web_push_api import decode_key, send_web_push
 from couchers.proto import (
     api_pb2,
     auth_pb2,
-    conversations_pb2,
     editor_pb2,
     events_pb2,
     moderation_pb2,
@@ -50,13 +49,14 @@ from couchers.proto import (
 )
 from couchers.proto.internal import jobs_pb2, unsubscribe_pb2
 from couchers.servicers.api import user_model_to_pb
-from couchers.utils import not_none, now
+from couchers.utils import now
+from tests.fixtures.api import conversations as conversations_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
     api_session,
     auth_api_session,
-    conversations_session,
     notifications_session,
     real_editor_session,
 )
@@ -120,7 +120,10 @@ def test_SetNotificationSettings_preferences_not_editable(db):
     topic_action = NotificationTopicAction.password_reset__start
 
     with notifications_session(token) as notifications:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION,
+            "That notification preference is not user editable.",
+        ):
             notifications.SetNotificationSettings(
                 notifications_pb2.SetNotificationSettingsReq(
                     preferences=[
@@ -133,8 +136,6 @@ def test_SetNotificationSettings_preferences_not_editable(db):
                     ],
                 )
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "That notification preference is not user editable."
 
 
 def test_unsubscribe(db, email_collector: EmailCollector):
@@ -336,18 +337,18 @@ def test_set_do_not_email(db):
 
 
 def test_list_notifications(db, push_collector: PushCollector, moderator):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    recipient_user, recipient_token = generate_user()
+    sender_user, sender_token = generate_user()
 
-    with api_session(token2) as api:
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+    with api_session(sender_token) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=recipient_user.id))
         res = api.ListFriendRequests(empty_pb2.Empty())
         fr_id = res.sent[0].friend_request_id
 
     # Moderator approves the friend request so the notification is sent
     moderator.approve_friend_request(fr_id)
 
-    with notifications_session(token1) as notifications:
+    with notifications_session(recipient_token) as notifications:
         res = notifications.ListNotifications(notifications_pb2.ListNotificationsReq())
         assert len(res.notifications) == 1
 
@@ -355,23 +356,22 @@ def test_list_notifications(db, push_collector: PushCollector, moderator):
 
     assert n.topic == "friend_request"
     assert n.action == "create"
-    assert n.key == str(user2.id)
-    assert n.title == f"Friend request from {user2.name}"
-    assert n.body == f"{user2.name} wants to be your friend."
+    assert n.key == str(sender_user.id)
+    assert n.title == f"Friend request from {sender_user.name}"
+    assert n.body == f"{sender_user.name} wants to be your friend."
     assert n.icon.startswith("http://localhost:5001/img/thumbnail/")
-    assert n.url == f"http://localhost:3000/connections/friends/?from={user2.id}"
+    assert n.url == f"http://localhost:3000/connections/friends/?from={sender_user.id}"
 
-    with conversations_session(token2) as c:
-        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user1.id]))
-        group_chat_id = res.group_chat_id
-        moderator.approve_group_chat(group_chat_id)
-        for i in range(17):
-            c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text=f"Test message {i}"))
+    group_chat_id = conversations_api.create_group_chat(
+        token=sender_token, recipient_user_ids=[recipient_user.id], approve_by=moderator
+    ).group_chat_id
+    for i in range(17):
+        conversations_api.send_message(token=sender_token, group_chat_id=group_chat_id, text=f"Test message {i}")
 
     process_jobs()
 
     all_notifs = []
-    with notifications_session(token1) as notifications:
+    with notifications_session(recipient_token) as notifications:
         page_token = None
         for _ in range(100):
             res = notifications.ListNotifications(
@@ -386,23 +386,23 @@ def test_list_notifications(db, push_collector: PushCollector, moderator):
             if not page_token:
                 break
 
-    bodys = [f"Test message {16 - i}" for i in range(17)] + [f"{user2.name} wants to be your friend."]
+    bodys = [f"Test message {16 - i}" for i in range(17)] + [f"{sender_user.name} wants to be your friend."]
     assert bodys == [n.body for n in all_notifs]
 
 
 def test_notifications_seen(db, push_collector: PushCollector, moderator):
-    user1, token1 = generate_user()
+    recipient_user, recipient_token = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
     user4, token4 = generate_user()
 
     with api_session(token2) as api:
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=recipient_user.id))
         res = api.ListFriendRequests(empty_pb2.Empty())
         fr_id2 = res.sent[0].friend_request_id
 
     with api_session(token3) as api:
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=recipient_user.id))
         res = api.ListFriendRequests(empty_pb2.Empty())
         fr_id3 = res.sent[0].friend_request_id
 
@@ -410,7 +410,7 @@ def test_notifications_seen(db, push_collector: PushCollector, moderator):
     moderator.approve_friend_request(fr_id2)
     moderator.approve_friend_request(fr_id3)
 
-    with notifications_session(token1) as notifications, api_session(token1) as api:
+    with notifications_session(recipient_token) as notifications, api_session(recipient_token) as api:
         res = notifications.ListNotifications(notifications_pb2.ListNotificationsReq())
         assert len(res.notifications) == 2
         assert [n.is_seen for n in res.notifications] == [False, False]
@@ -421,14 +421,14 @@ def test_notifications_seen(db, push_collector: PushCollector, moderator):
         assert api.Ping(api_pb2.PingReq()).unseen_notification_count == 2
 
     with api_session(token4) as api:
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=recipient_user.id))
         res = api.ListFriendRequests(empty_pb2.Empty())
         fr_id4 = res.sent[0].friend_request_id
 
     # Moderator approves the friend request so notification is sent
     moderator.approve_friend_request(fr_id4)
 
-    with notifications_session(token1) as notifications, api_session(token1) as api:
+    with notifications_session(recipient_token) as notifications, api_session(recipient_token) as api:
         # mark everything before just the last one as seen (pretend we didn't load the last one yet in the api)
         notifications.MarkAllNotificationsSeen(
             notifications_pb2.MarkAllNotificationsSeenReq(latest_notification_id=notification_ids[0])
@@ -463,22 +463,22 @@ def test_notifications_seen(db, push_collector: PushCollector, moderator):
 
 
 def test_unseen_notification_count_excludes_ums_hidden(db, moderator):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    recipient_user, recipient_token = generate_user()
+    sender_user, sender_token = generate_user()
 
-    with api_session(token2) as api:
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+    with api_session(sender_token) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=recipient_user.id))
         res = api.ListFriendRequests(empty_pb2.Empty())
         fr_id = res.sent[0].friend_request_id
 
     # Before moderation the friend request is shadowed, so the resulting notification
     # is not visible to the recipient and must not contribute to their unseen count.
-    with api_session(token1) as api:
+    with api_session(recipient_token) as api:
         assert api.Ping(api_pb2.PingReq()).unseen_notification_count == 0
 
     moderator.approve_friend_request(fr_id)
 
-    with api_session(token1) as api:
+    with api_session(recipient_token) as api:
         assert api.Ping(api_pb2.PingReq()).unseen_notification_count == 1
 
 
@@ -496,14 +496,11 @@ def test_notifications_follow_the_visibility_of_their_content(db, moderator, vis
     other, other_token = generate_user()
     sender, sender_token = generate_user()
 
-    with conversations_session(author_token) as c:
-        group_chat_id = c.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[other.id, sender.id])
-        ).group_chat_id
-    moderator.approve_group_chat(group_chat_id)
+    group_chat_id = conversations_api.create_group_chat(
+        token=author_token, recipient_user_ids=[other.id, sender.id], approve_by=moderator
+    ).group_chat_id
 
-    with conversations_session(sender_token) as c:
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message"))
+    conversations_api.send_message(token=sender_token, group_chat_id=group_chat_id, text="Test message")
 
     process_jobs()
 
@@ -560,13 +557,12 @@ def test_RegisterPushNotificationSubscription_invalid_endpoint(db):
     }
 
     with notifications_session(token) as notifications:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             notifications.RegisterPushNotificationSubscription(
                 notifications_pb2.RegisterPushNotificationSubscriptionReq(
                     full_subscription_json=json.dumps(subscription_info),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_SendTestPushNotification(db, push_collector: PushCollector):
@@ -584,15 +580,15 @@ def test_SendTestPushNotification(db, push_collector: PushCollector):
 def test_SendBlogPostNotification(db, email_collector: EmailCollector, push_collector: PushCollector):
     super_user, super_token = generate_user(is_superuser=True)
 
-    user1, user1_token = generate_user()
+    default_user, default_token = generate_user()
     # enabled email
-    user2, user2_token = generate_user()
+    email_enabled_user, email_enabled_token = generate_user()
     # disabled push
-    user3, user3_token = generate_user()
+    push_disabled_user, push_disabled_token = generate_user()
 
     topic_action = NotificationTopicAction.general__new_blog_post
 
-    with notifications_session(user2_token) as notifications:
+    with notifications_session(email_enabled_token) as notifications:
         notifications.SetNotificationSettings(
             notifications_pb2.SetNotificationSettingsReq(
                 preferences=[
@@ -606,7 +602,7 @@ def test_SendBlogPostNotification(db, email_collector: EmailCollector, push_coll
             )
         )
 
-    with notifications_session(user3_token) as notifications:
+    with notifications_session(push_disabled_token) as notifications:
         notifications.SetNotificationSettings(
             notifications_pb2.SetNotificationSettingsReq(
                 preferences=[
@@ -629,8 +625,8 @@ def test_SendBlogPostNotification(db, email_collector: EmailCollector, push_coll
             )
         )
 
-    email = email_collector.pop_for_recipient(user2.email, last=True)
-    assert email.recipient == user2.email
+    email = email_collector.pop_for_recipient(email_enabled_user.email, last=True)
+    assert email.recipient == email_enabled_user.email
     assert "Couchers.org v0.9.9 Release Notes" in email.html
     assert "Couchers.org v0.9.9 Release Notes" in email.plain
     assert "Read about last major updates before v1!" in email.html
@@ -638,17 +634,17 @@ def test_SendBlogPostNotification(db, email_collector: EmailCollector, push_coll
     assert "https://couchers.org/blog/2025/05/11/v0.9.9-release" in email.html
     assert "https://couchers.org/blog/2025/05/11/v0.9.9-release" in email.plain
 
-    push = push_collector.pop_for_user(user1.id, last=True)
+    push = push_collector.pop_for_user(default_user.id, last=True)
     assert push.content.title == "New blog post: Couchers.org v0.9.9 Release Notes"
     assert push.content.body == "Read about last major updates before v1!"
     assert push.content.action_url == "https://couchers.org/blog/2025/05/11/v0.9.9-release"
 
-    push = push_collector.pop_for_user(user2.id, last=True)
+    push = push_collector.pop_for_user(email_enabled_user.id, last=True)
     assert push.content.title == "New blog post: Couchers.org v0.9.9 Release Notes"
     assert push.content.body == "Read about last major updates before v1!"
     assert push.content.action_url == "https://couchers.org/blog/2025/05/11/v0.9.9-release"
 
-    assert push_collector.count_for_user(user3.id) == 0
+    assert push_collector.count_for_user(push_disabled_user.id) == 0
 
 
 def test_get_topic_actions_by_delivery_type(db):
@@ -1242,15 +1238,13 @@ def test_SendDevPushNotification_disabled(db, push_collector: PushCollector):
     config.ENABLE_DEV_APIS = False
 
     with notifications_session(token) as notifications:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.UNAVAILABLE, lambda d: "Development APIs are not enabled" in d):
             notifications.SendDevPushNotification(
                 notifications_pb2.SendDevPushNotificationReq(
                     title="Should Fail",
                     body="This should not be sent",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.UNAVAILABLE
-        assert "Development APIs are not enabled" in not_none(e.value.details())
 
     assert push_collector.count_for_user(user.id) == 0
 
@@ -1263,15 +1257,13 @@ def test_SendDevPushNotification_push_notifications_disabled(db, push_collector:
     config.PUSH_NOTIFICATIONS_ENABLED = False
 
     with notifications_session(token) as notifications:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.UNAVAILABLE, lambda d: "Push notifications are currently disabled" in d):
             notifications.SendDevPushNotification(
                 notifications_pb2.SendDevPushNotificationReq(
                     title="Should Fail",
                     body="This should not be sent",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.UNAVAILABLE
-        assert "Push notifications are currently disabled" in not_none(e.value.details())
 
     assert push_collector.count_for_user(user.id) == 0
 
@@ -1410,28 +1402,26 @@ def test_DebugRedeliverPushNotification_not_found(db, push_collector: PushCollec
     config.ENABLE_DEV_APIS = True
 
     with notifications_session(token) as notifications:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, lambda d: "notification not found" in d.lower()):
             notifications.DebugRedeliverPushNotification(
                 notifications_pb2.DebugRedeliverPushNotificationReq(notification_id=999999)
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert "notification not found" in not_none(e.value.details()).lower()
 
     assert push_collector.count_for_user(user.id) == 0
 
 
 def test_DebugRedeliverPushNotification_wrong_user(db, push_collector: PushCollector):
     """Test DebugRedeliverPushNotification fails when notification belongs to another user."""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    owner_user, owner_token = generate_user()
+    other_user, other_token = generate_user()
 
     config.ENABLE_DEV_APIS = True
 
-    # Create a notification for user1
+    # Create a notification for owner_user
     with session_scope() as session:
         notify(
             session,
-            user_id=user1.id,
+            user_id=owner_user.id,
             topic_action=NotificationTopicAction.badge__add,
             key="test-badge",
             data=notification_data_pb2.BadgeAdd(
@@ -1445,19 +1435,17 @@ def test_DebugRedeliverPushNotification_wrong_user(db, push_collector: PushColle
 
     # Get the notification_id
     with session_scope() as session:
-        notification = session.execute(select(Notification).where(Notification.user_id == user1.id)).scalar_one()
+        notification = session.execute(select(Notification).where(Notification.user_id == owner_user.id)).scalar_one()
         notification_id = notification.id
 
-    # user2 tries to redeliver user1's notification
-    with notifications_session(token2) as notifications:
-        with pytest.raises(grpc.RpcError) as e:
+    # other_user tries to redeliver owner_user's notification
+    with notifications_session(other_token) as notifications:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, lambda d: "notification not found" in d.lower()):
             notifications.DebugRedeliverPushNotification(
                 notifications_pb2.DebugRedeliverPushNotificationReq(notification_id=notification_id)
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert "notification not found" in not_none(e.value.details()).lower()
 
-    assert push_collector.count_for_user(user2.id) == 0
+    assert push_collector.count_for_user(other_user.id) == 0
 
 
 def test_DebugRedeliverPushNotification_disabled(db, push_collector: PushCollector):
@@ -1467,12 +1455,10 @@ def test_DebugRedeliverPushNotification_disabled(db, push_collector: PushCollect
     config.ENABLE_DEV_APIS = False
 
     with notifications_session(token) as notifications:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.UNAVAILABLE, lambda d: "Development APIs are not enabled" in d):
             notifications.DebugRedeliverPushNotification(
                 notifications_pb2.DebugRedeliverPushNotificationReq(notification_id=1)
             )
-        assert e.value.code() == grpc.StatusCode.UNAVAILABLE
-        assert "Development APIs are not enabled" in not_none(e.value.details())
 
     assert push_collector.count_for_user(user.id) == 0
 
@@ -1485,12 +1471,10 @@ def test_DebugRedeliverPushNotification_push_notifications_disabled(db, push_col
     config.PUSH_NOTIFICATIONS_ENABLED = False
 
     with notifications_session(token) as notifications:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.UNAVAILABLE, lambda d: "Push notifications are currently disabled" in d):
             notifications.DebugRedeliverPushNotification(
                 notifications_pb2.DebugRedeliverPushNotificationReq(notification_id=1)
             )
-        assert e.value.code() == grpc.StatusCode.UNAVAILABLE
-        assert "Push notifications are currently disabled" in not_none(e.value.details())
 
     assert push_collector.count_for_user(user.id) == 0
 
@@ -1875,13 +1859,13 @@ def test_handle_notification_duplicate_delivery_skipped(db, push_collector: Push
 
 def test_handle_notification_deferred_when_content_not_visible(db, moderator):
     """Test that notifications linked to non-visible moderated content are deferred."""
-    user1, token1 = generate_user(complete_profile=True)
-    user2, token2 = generate_user(complete_profile=True)
+    recipient_user, recipient_token = generate_user(complete_profile=True)
+    sender_user, sender_token = generate_user(complete_profile=True)
 
     # Create a friend request (which creates a moderation state)
     # This also queues a notification via SendFriendRequest
-    with api_session(token2) as api:
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+    with api_session(sender_token) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=recipient_user.id))
 
     # Process the queued job (handle_notification)
     process_job()
@@ -1890,7 +1874,7 @@ def test_handle_notification_deferred_when_content_not_visible(db, moderator):
     with session_scope() as session:
         notification = session.execute(
             select(Notification)
-            .where(Notification.user_id == user1.id)
+            .where(Notification.user_id == recipient_user.id)
             .where(Notification.topic_action == NotificationTopicAction.friend_request__create)
         ).scalar_one()
 
@@ -1905,12 +1889,12 @@ def test_handle_notification_deferred_when_content_not_visible(db, moderator):
 
 def test_handle_notification_delivered_when_content_visible(db, moderator):
     """Test that notifications linked to visible moderated content are delivered."""
-    user1, token1 = generate_user(complete_profile=True)
-    user2, token2 = generate_user(complete_profile=True)
+    recipient_user, recipient_token = generate_user(complete_profile=True)
+    sender_user, sender_token = generate_user(complete_profile=True)
 
     # Create a friend request
-    with api_session(token2) as api:
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+    with api_session(sender_token) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=recipient_user.id))
         res = api.ListFriendRequests(empty_pb2.Empty())
         fr_id = res.sent[0].friend_request_id
 
@@ -1927,7 +1911,7 @@ def test_handle_notification_delivered_when_content_visible(db, moderator):
     with session_scope() as session:
         notification = session.execute(
             select(Notification)
-            .where(Notification.user_id == user1.id)
+            .where(Notification.user_id == recipient_user.id)
             .where(Notification.topic_action == NotificationTopicAction.friend_request__create)
         ).scalar_one()
 

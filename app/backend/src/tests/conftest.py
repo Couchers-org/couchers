@@ -284,6 +284,7 @@ _TEST_FLAG_DEFAULTS: dict[str, Any] = {
     "antibot_enabled": True,
     "postal_verification_enabled": True,
     "listmonk_enabled": True,
+    "recurring_event_creation_enabled": True,
     "remove_removed_users_from_mailing_list_enabled": True,
     "notification_translations_enabled": True,
     "email_ics_attachments_enabled": True,
@@ -401,6 +402,8 @@ def _testconfig() -> Generator[None]:
     config.VALKEY_HOST = ""
     config.VALKEY_PORT = 6379
     config.RATE_LIMIT_IPV6_PREFIX = 64
+
+    config.BFC_ADDRESS = ""
 
     yield None
 

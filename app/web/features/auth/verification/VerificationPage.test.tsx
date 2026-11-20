@@ -1,7 +1,8 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { GetAccountInfoRes } from "proto/account_pb";
 import { GetPostalVerificationStatusRes, PostalVerificationStatus } from "proto/postal_verification_pb";
+import { routeToBadge } from "routes";
 import { service } from "service";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import i18n from "test/i18n";
@@ -43,6 +44,9 @@ const baseAccountInfo: GetAccountInfoRes.AsObject = {
   isVolunteer: false,
   myHomeComplete: false,
   shouldShowDonationBanner: false,
+  hasOptedInToBetaFeatures: false,
+  hostPool: 1,
+  hasNewbieHostingHistory: false,
 };
 
 const noPostalAttempt: GetPostalVerificationStatusRes.AsObject = {
@@ -54,6 +58,7 @@ const noPostalAttempt: GetPostalVerificationStatusRes.AsObject = {
 };
 
 const parisAddress = {
+  recipientName: "Marie Curie",
   addressLine1: "12 Rue de la Paix",
   addressLine2: "",
   city: "Paris",
@@ -61,6 +66,15 @@ const parisAddress = {
   postalCode: "75002",
   countryCode: "FR",
 };
+
+async function fillAddress(user: ReturnType<typeof userEvent.setup>) {
+  await user.type(
+    screen.getByLabelText(t("auth:verification_page.postal.address_form.address_line_1_label")),
+    "12 rue de la paix",
+  );
+  await user.type(screen.getByLabelText(t("auth:verification_page.postal.address_form.city_label")), "paris");
+  await user.selectOptions(screen.getByLabelText(t("auth:verification_page.postal.address_form.country_label")), "FR");
+}
 
 function renderPage({
   accountInfo = {},
@@ -72,6 +86,9 @@ function renderPage({
   );
   render(<VerificationPage />, { wrapper });
 }
+
+const updateProfileMock = service.user.updateProfile as jest.Mock;
+const getBadgesMock = service.resources.getBadges as MockedService<typeof service.resources.getBadges>;
 
 describe("VerificationPage", () => {
   beforeEach(() => {
@@ -111,6 +128,27 @@ describe("VerificationPage", () => {
         screen.queryByRole("heading", { name: t("auth:verification_page.strong.requirements_header") }),
       ).not.toBeInTheDocument();
     });
+  });
+
+  it("shows the profile badge phone and postal verification each earn", async () => {
+    getBadgesMock.mockResolvedValue({
+      badgesList: [
+        { id: "phone_verified", name: "Phone verified", description: "Verified their phone number", color: "#71b768" },
+        { id: "postal_verified", name: "Postal verified", description: "Verified their address", color: "#4f8fc7" },
+      ],
+    });
+    renderPage({ isPostalEnabled: true });
+
+    // the real badge chips, linking to their badge pages
+    expect((await screen.findByText("Phone verified")).closest("a")).toHaveAttribute(
+      "href",
+      routeToBadge("phone_verified"),
+    );
+    expect((await screen.findByText("Postal verified")).closest("a")).toHaveAttribute(
+      "href",
+      routeToBadge("postal_verified"),
+    );
+    expect(screen.getAllByText(t("auth:verification_page.earned_badge_caption"))).toHaveLength(2);
   });
 
   describe("phone verification", () => {
@@ -211,15 +249,12 @@ describe("VerificationPage", () => {
       });
       renderPage({ isPostalEnabled: true });
 
-      await user.type(
-        await screen.findByLabelText(t("auth:verification_page.postal.address_form.address_line_1_label")),
-        "12 rue de la paix",
+      const nameField = await screen.findByLabelText(
+        t("auth:verification_page.postal.address_form.recipient_name_label"),
       );
-      await user.type(screen.getByLabelText(t("auth:verification_page.postal.address_form.city_label")), "paris");
-      await user.selectOptions(
-        screen.getByLabelText(t("auth:verification_page.postal.address_form.country_label")),
-        "FR",
-      );
+      await user.type(nameField, "Marie Curie");
+
+      await fillAddress(user);
 
       // The next status poll reflects the attempt the backend just created.
       getPostalStatusMock.mockResolvedValue({
@@ -237,12 +272,42 @@ describe("VerificationPage", () => {
 
       await waitFor(() => {
         expect(initiatePostalMock).toHaveBeenCalledWith(
-          expect.objectContaining({ addressLine1: "12 rue de la paix", city: "paris", countryCode: "FR" }),
+          expect.objectContaining({
+            recipientName: "Marie Curie",
+            addressLine1: "12 rue de la paix",
+            city: "paris",
+            countryCode: "FR",
+          }),
         );
       });
+      expect(updateProfileMock).not.toHaveBeenCalled();
       expect(
         await screen.findByRole("button", { name: t("auth:verification_page.postal.confirm.submit_button") }),
       ).toBeVisible();
+      // the confirm step shows who the card is addressed to
+      const willPostTo = screen.getByText(
+        t("auth:verification_page.postal.confirm.will_post_to_header"),
+      ).parentElement!;
+      // the name the backend stored for this postcard
+      expect(within(willPostTo).getByText("Marie Curie")).toBeVisible();
+    });
+
+    it("requires a name", async () => {
+      const user = userEvent.setup();
+      renderPage({ isPostalEnabled: true });
+      const nameField = await screen.findByLabelText(
+        t("auth:verification_page.postal.address_form.recipient_name_label"),
+      );
+      // not prefilled: display names aren't always the name on the mailbox
+      expect(nameField).toHaveValue("");
+
+      await fillAddress(user);
+      await user.click(
+        screen.getByRole("button", { name: t("auth:verification_page.postal.address_form.submit_button") }),
+      );
+
+      expect(nameField).toBeInvalid();
+      expect(initiatePostalMock).not.toHaveBeenCalled();
     });
 
     it("confirms the corrected address", async () => {
@@ -279,7 +344,7 @@ describe("VerificationPage", () => {
       });
       renderPage({ isPostalEnabled: true });
 
-      expect(await screen.findByText(/was posted on/)).toBeVisible();
+      expect(await screen.findByText(/was mailed on/)).toBeVisible();
     });
 
     it("reports a wrong code with the number of tries left", async () => {
@@ -303,7 +368,7 @@ describe("VerificationPage", () => {
       expect(await screen.findByText(t("auth:verification_page.postal.code_form.wrong_code_message"))).toBeVisible();
       expect(verifyPostalCodeMock).toHaveBeenCalledWith("X7KM4Q");
       expect(
-        screen.getByText(t("auth:verification_page.postal.code_form.tries_left", { count: 4, max_tries: 5 })),
+        screen.getByText(t("auth:verification_page.postal.code_form.attempts_left", { remaining: 4, count: 5 })),
       ).toBeVisible();
     });
 
