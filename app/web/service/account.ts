@@ -14,6 +14,7 @@ import {
   LogOutOtherSessionsReq,
   LogOutSessionReq,
   ProfilePublicVisibility,
+  SetBetaFeaturesOptInReq,
   SetProfilePublicVisibilityReq,
   UpdateMyVolunteerInfoReq,
   VerifyPhoneReq,
@@ -156,6 +157,12 @@ export function setProfilePublicVisibility(setting: ProfilePublicVisibility) {
   const req = new SetProfilePublicVisibilityReq();
   req.setProfilePublicVisibility(setting);
   return client.account.setProfilePublicVisibility(req);
+}
+
+export function setBetaFeaturesOptIn(optIn: boolean) {
+  const req = new SetBetaFeaturesOptInReq();
+  req.setBetaFeaturesOptIn(optIn);
+  return client.account.setBetaFeaturesOptIn(req);
 }
 
 export type UpdateVolunteerInfoParams = {
