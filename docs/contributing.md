@@ -54,9 +54,9 @@ All our code is in one repository (monorepo). We currently use the pull request 
     - `git switch develop`
     - `git pull`
     - `git switch -c branch-name`
-2. Branches ought to be named with the `{component}/{type}/{slug}` format, where component is either `web` or `backend`, the type is `feature`, `bugfix`, `refactor`, etc; and slug is a brief name for the branch, for example:
-    - `web/feature/avatar-component`
-    - `backend/bugfix/email-html-escaping`
+2. Branches ought to be named with the `<dev-name>/<description>` format, where `dev-name` is your name or GitHub handle and `description` is a brief kebab-case name for the branch, for example:
+    - `jdoe/avatar-component`
+    - `jdoe/email-html-escaping`
 3. Work on the new branch, feel free to commit regularly. Ideally a commit should make one change to the code but the code should compile and run both before and after the change (though this is not always possible). Each feature or bugfix should be self-contained and if possible, split a change up into multiple smaller PRs so they're easier to review.
 4. Push the new branch to GitHub, and open a Pull Request (PR). If your branch is ready to be merged, pending review, make it a normal PR. If it's still work in progress and you don't want a review yet, you can make it a [draft PR](https://github.blog/2019-02-14-introducing-draft-pull-requests/). Choose some appropriate labels on the PR, such as `web`/`backend` and `feature`/`bug` to make it easier for others to navigate the list of PRs.
 5. When you are ready for a review, select a reviewer and ask them to review the code. Feel free to choose someone you know can review it, or if you don't know who else, just select @aapeliv who'll delegate someone. You can also message on the appropriate channel on Slack.

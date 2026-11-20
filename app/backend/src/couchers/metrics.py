@@ -42,6 +42,7 @@ from couchers.models import (
     NonvisibleUserAccessType,
     NonvisibleUserState,
     Reference,
+    StayProposalKind,
     User,
     UserActivity,
 )
@@ -335,7 +336,7 @@ def observe_api_call(method: str, client_platform: ClientPlatform | None) -> Non
 _set_hacky_gauges_funcs: list[tuple[Gauge, Callable[[], Any]]] = []
 
 
-def _make_gauge_from_query(name: str, description: str, statement: Select[Any]) -> Gauge:
+def _make_gauge_from_query(name: str, description: str, statement: Select[*tuple[Any, ...]]) -> Gauge:
     """
     Given a name, description and statement that is a sqlalchemy statement, creates a gauge from it
 
@@ -360,7 +361,7 @@ def _make_labeled_gauge_from_query(
     name: str,
     description: str,
     labelname: str,
-    statement: Select[Any],
+    statement: Select[*tuple[Any, ...]],
 ) -> Gauge:
     """
     Given a name, description, label name and statement, creates a gauge with one label set from the statement.
@@ -387,7 +388,7 @@ _set_hacky_multi_gauges_funcs: list[Callable[[], None]] = []
 
 def _make_gauges_from_single_pass(
     span_name: str,
-    make_statement: Callable[[list[Any]], Select[Any]],
+    make_statement: Callable[[list[Any]], Select[*tuple[Any, ...]]],
     specs: Sequence[tuple[str, str, ColumnElement[bool] | None]],
     labeled_specs: Sequence[tuple[Gauge, str, ColumnElement[bool]]] = (),
 ) -> list[Gauge]:
@@ -552,7 +553,7 @@ _ACTIVE_USERS_BY_PLATFORM_WINDOW = timedelta(hours=24)
 _MOBILE_PLATFORMS = [ClientPlatform.web_mobile, ClientPlatform.app_ios, ClientPlatform.app_android]
 
 
-def active_users_by_platform_statement() -> Select[Any]:
+def active_users_by_platform_statement() -> Select[*tuple[Any, ...]]:
     # one scan of the last 24h of user_activity: distinct active users in total, the mobile subset (for the share
     # fraction), and a breakdown per platform. client_platform is set from a header the client explicitly sends; it's
     # null for some other client (e.g. an API key script) or activity from before the header existed, so the
@@ -615,6 +616,8 @@ sent_request_gauge: Gauge = _make_gauge_from_query(
         select(func.count(distinct(HostRequest.initiator_user_id)))
         .join(User, User.id == HostRequest.initiator_user_id)
         .where(User.is_visible)
+        # don't include public trip offers
+        .where(HostRequest.proposal_kind == StayProposalKind.request)
     ),
 )
 
@@ -744,6 +747,11 @@ strong_verification_data_deletions_counter: Counter = Counter(
 host_requests_sent_counter: Counter = Counter(
     "couchers_host_requests_total",
     "Number of host requests sent",
+    labelnames=["from_gender", "to_gender"],
+)
+public_trip_offers_sent_counter: Counter = Counter(
+    "couchers_public_trip_offers_total",
+    "Number of offers to host sent on public trips, from the host to the traveller",
     labelnames=["from_gender", "to_gender"],
 )
 host_request_responses_counter: Counter = Counter(
@@ -1184,6 +1192,46 @@ def _stringify_flag_value(value: Any) -> str:
 
 def observe_feature_flag_evaluation(flag_key: str, source: str, value: Any) -> None:
     feature_flag_evaluations_counter.labels(flag_key, source, _stringify_flag_value(value)).inc()
+
+
+# =============================================================================
+# bfc metrics (see couchers/bfc.py)
+# =============================================================================
+
+bfc_rpc_duration_histogram: Histogram = Histogram(
+    "couchers_bfc_rpc_duration_seconds",
+    "Duration of calls to bfc as the backend sees them, by method and gRPC status code",
+    labelnames=["method", "code"],
+    buckets=MACHINE_DURATION_SECONDS,
+)
+
+
+def observe_bfc_rpc(method: str, code: str, duration_s: float) -> None:
+    bfc_rpc_duration_histogram.labels(method, code).observe(duration_s)
+
+
+# source is "bfc" when bfc served the response, "fallback" when bfc was asked and failed, and "backend" otherwise
+bfc_function_duration_histogram: Histogram = Histogram(
+    "couchers_bfc_function_duration_seconds",
+    "End-to-end duration of backend handlers that can use bfc, by function and where the response came from",
+    labelnames=["function", "source"],
+    buckets=MACHINE_DURATION_SECONDS,
+)
+
+
+def observe_bfc_function(function: str, source: str, duration_s: float) -> None:
+    bfc_function_duration_histogram.labels(function, source).observe(duration_s)
+
+
+bfc_fallbacks_counter: Counter = Counter(
+    "couchers_bfc_fallbacks_total",
+    "Times the backend served its own answer because bfc failed, by function and gRPC status code",
+    labelnames=["function", "code"],
+)
+
+
+def observe_bfc_fallback(function: str, code: str) -> None:
+    bfc_fallbacks_counter.labels(function, code).inc()
 
 
 # =============================================================================

@@ -13,9 +13,13 @@ Yes! We have an active volunteer group of dedicated volunteers working across de
 
 Yes. We not only strive to be a viable alternative to Couchsurfing™ but also to be the most safe, modern, and active couch surfing community. We aim to build the features people have come to love across all platforms, but with many improvements. We have also added completely new features which help enhance the couch surfing experience for everyone.
 
-### Is there going to be a mobile app for Couchers.org on both iOS and Android?
+### Is there a mobile app for Couchers.org on iOS and Android?
 
-Yes, mobile apps are critical for all travel platforms. We are currently working on native apps for iOS and Android and hope to release them in early 2026. For now, you can [bookmark the Couchers.org website to your phone's home screen](https://couchers.org/blog/2025/05/10/how-to-add-couchers-org-phone-home-screen) to have it behave like an app.
+Yes! Our native apps are out now. Download Couchers.org on the [App Store](https://apps.apple.com/us/app/couchers-org/id6623776751) for iOS or on [Google Play](https://play.google.com/store/apps/details?id=org.couchers.android) for Android.
+
+### Where can I find or add Couch Crashes on Couchers?
+
+Check out our [Couch Crash Calendar](/crashes) for upcoming Couch Crashes around the world. A Couch Crash is a multi-day couch surfing event organized by locals to welcome the global community, usually with tours, potlucks, and parties. If your community is organizing one, follow the "Propose a Crash" steps on that page to get it listed.
 
 ### How will you prevent this platform from ever becoming a for-profit like Couchsurfing&#8482; did?
 

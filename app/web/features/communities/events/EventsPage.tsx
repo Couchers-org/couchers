@@ -1,9 +1,10 @@
 import { Button, styled, Typography } from "@mui/material";
 import PageTitle from "components/PageTitle";
-import { useTranslation } from "i18n";
+import StyledLink from "components/StyledLink";
+import { Trans, useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { newEventRoute } from "routes";
+import { crashCalendarRoute, newEventRoute } from "routes";
 import { theme } from "theme";
 
 import DiscoverEventsList from "../events/DiscoverEventsList";
@@ -45,6 +46,13 @@ const EventsPage = () => {
           {t("communities:create_new_event")}
         </StyledButton>
       </StyledHeaderRow>
+      <Typography variant="body1" sx={{ mb: 2 }}>
+        <Trans
+          t={t}
+          i18nKey="communities:couch_crashes_prompt"
+          components={{ crashesLink: <StyledLink href={crashCalendarRoute} /> }}
+        />
+      </Typography>
       <StyledColumn id="my-events">
         <Typography variant="h2">{t("communities:your_events")}</Typography>
         <MyEventsList />

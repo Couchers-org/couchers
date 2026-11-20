@@ -11,7 +11,8 @@ import discussions from "test/fixtures/discussions.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import i18n from "test/i18n";
 import { getAccountInfo, getLiteUser, getThread } from "test/serviceMockDefaults";
-import { assertErrorAlert, mockConsoleError, MockedService, wait } from "test/utils";
+import { assertErrorAlert, mockConsoleError, MockedService, pullToRefresh, wait } from "test/utils";
+import { useIsNativeEmbed } from "utils/nativeLink";
 
 import { COMMENT_TEST_ID, REFETCH_LOADING_TEST_ID } from "./Comment";
 import DiscussionPage, { CREATOR_TEST_ID } from "./DiscussionPage";
@@ -19,6 +20,10 @@ import DiscussionPage, { CREATOR_TEST_ID } from "./DiscussionPage";
 const { t } = i18n;
 
 jest.mock("components/MarkdownInput");
+jest.mock("utils/nativeLink", () => ({
+  ...jest.requireActual("utils/nativeLink"),
+  useIsNativeEmbed: jest.fn(),
+}));
 
 const getLiteUserMock = service.user.getLiteUser as MockedService<typeof service.user.getLiteUser>;
 const getCommunityMock = service.communities.getCommunity as MockedService<typeof service.communities.getCommunity>;
@@ -137,7 +142,7 @@ describe("Discussion page", () => {
       }),
     ).toBeVisible();
     expect(creatorContainer.getByText("Funny Cat current User")).toBeVisible();
-    expect(creatorContainer.getByText("Created on January 1, 2020")).toBeVisible();
+    expect(creatorContainer.getByText("Created on 1 January 2020")).toBeVisible();
   });
 
   it("renders a loading skeleton if the user info is still loading", async () => {
@@ -179,13 +184,10 @@ describe("Discussion page", () => {
         name: getProfileLinkA11yLabel(commentUser.name),
       }),
     ).toBeVisible();
-    expect(
-      commentCards[0].getByText(
-        `${t("communities:by_creator", {
-          name: commentUser.name,
-        })} • last year`,
-      ),
-    ).toBeVisible();
+    const firstPostedTime = `${t("communities:by_creator", {
+      name: commentUser.name,
+    })} • last year`;
+    expect(commentCards[0].getByText((_, element) => element?.textContent === firstPostedTime)).toBeVisible();
     expect(commentCards[0].getByText(firstTopLevelComment!.content)).toBeVisible();
     expect(commentCards[0].getByRole("button", { name: t("global:reply") })).toBeVisible();
 
@@ -197,12 +199,28 @@ describe("Discussion page", () => {
         name: getProfileLinkA11yLabel(replyUser.name),
       }),
     ).toBeVisible();
-    expect(
-      commentCards[1].getByText(`${t("communities:by_creator", { name: replyUser.name })} • last year`),
-    ).toBeVisible();
+    const secondPostedTime = `${t("communities:by_creator", { name: replyUser.name })} • last year`;
+    expect(commentCards[1].getByText((_, element) => element?.textContent === secondPostedTime)).toBeVisible();
     expect(commentCards[1].getByText("+6")).toBeVisible();
     // Nested comment cannot be replied on further
     expect(commentCards[1].queryByRole("button", { name: t("global:reply") })).not.toBeInTheDocument();
+  });
+
+  it("shows new comments after pulling to refresh in the mobile app", async () => {
+    jest.mocked(useIsNativeEmbed).mockReturnValue(true);
+    // the newest comment on the discussion (thread 2) hasn't been posted yet on first load
+    getThreadMock.mockImplementation(async (threadId: number) => {
+      const res = await getThread(threadId);
+      return threadId === 2 ? { ...res, repliesList: res.repliesList.slice(1) } : res;
+    });
+    renderDiscussion();
+    expect(await screen.findByText(comments[1].content)).toBeVisible();
+    expect(screen.queryByText(comments[0].content)).not.toBeInTheDocument();
+
+    getThreadMock.mockImplementation(getThread);
+    pullToRefresh();
+
+    expect(await screen.findByText(comments[0].content)).toBeVisible();
   });
 
   it("shows the no comments message if there aren't any in the discussion", async () => {

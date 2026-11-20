@@ -4,7 +4,7 @@ import grpc
 import pytest
 from google.protobuf import empty_pb2
 from google.protobuf.wrappers_pb2 import BoolValue, DoubleValue, StringValue
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views_rapid
@@ -12,16 +12,20 @@ from couchers.models import (
     Cluster,
     Event,
     Node,
+    NodeType,
     User,
     UserActivity,
     Volunteer,
 )
-from couchers.proto import editor_pb2, events_pb2
+from couchers.proto import communities_pb2, editor_pb2, events_pb2
 from couchers.tasks import enforce_community_memberships
-from couchers.utils import datetime_to_iso8601_local, now
+from couchers.utils import create_coordinate, get_coordinates, now
+from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user
-from tests.fixtures.sessions import events_session, real_editor_session
+from tests.fixtures.rpc_errors import expect_rpc_error
+from tests.fixtures.sessions import real_editor_session
 from tests.test_communities import create_1d_point, create_community
+from tests.utils import local_date_time
 
 VALID_GEOJSON_MULTIPOLYGON = """
     {
@@ -66,7 +70,7 @@ def test_access_by_normal_user(db):
     normal_user, normal_token = generate_user()
 
     with real_editor_session(normal_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "Permission denied"):
             api.CreateCommunity(
                 editor_pb2.CreateCommunityReq(
                     name="test community",
@@ -75,8 +79,6 @@ def test_access_by_normal_user(db):
                     geojson=VALID_GEOJSON_MULTIPOLYGON,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == "Permission denied"
 
 
 def test_access_by_editor_user(db):
@@ -122,7 +124,7 @@ def test_CreateCommunity_invalid_geojson(db):
     editor_user, editor_token = generate_user(is_editor=True)
 
     with real_editor_session(editor_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "GeoJson was not of type MultiPolygon."):
             api.CreateCommunity(
                 editor_pb2.CreateCommunityReq(
                     name="test community",
@@ -131,8 +133,6 @@ def test_CreateCommunity_invalid_geojson(db):
                     geojson=POINT_GEOJSON,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "GeoJson was not of type MultiPolygon."
 
 
 def test_UpdateCommunity_invalid_geojson(db):
@@ -151,7 +151,7 @@ def test_UpdateCommunity_invalid_geojson(db):
             )
             community = session.execute(select(Cluster).where(Cluster.name == "test community")).scalar_one()
 
-            with pytest.raises(grpc.RpcError) as e:
+            with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "GeoJson was not of type MultiPolygon."):
                 api.UpdateCommunity(
                     editor_pb2.UpdateCommunityReq(
                         community_id=community.parent_node_id,
@@ -160,8 +160,6 @@ def test_UpdateCommunity_invalid_geojson(db):
                         geojson=POINT_GEOJSON,
                     )
                 )
-            assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-            assert e.value.details() == "GeoJson was not of type MultiPolygon."
 
 
 def test_UpdateCommunity_invalid_id(db):
@@ -178,7 +176,7 @@ def test_UpdateCommunity_invalid_id(db):
             )
         )
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Community not found."):
             api.UpdateCommunity(
                 editor_pb2.UpdateCommunityReq(
                     community_id=1000,
@@ -187,8 +185,6 @@ def test_UpdateCommunity_invalid_id(db):
                     geojson=VALID_GEOJSON_MULTIPOLYGON,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Community not found."
 
 
 def test_UpdateCommunity(db):
@@ -239,6 +235,120 @@ def test_CreateCommunity(db):
             community = session.execute(select(Cluster).where(Cluster.name == "test community")).scalar_one()
             assert community.description == "community for testing"
             assert community.slug == "test-community"
+
+
+def _create_community(api, name, set_main_page_location_from_busiest_user_neighbourhood):
+    return api.CreateCommunity(
+        editor_pb2.CreateCommunityReq(
+            name=name,
+            description="community for testing",
+            admin_ids=[],
+            geojson=VALID_GEOJSON_MULTIPOLYGON,
+            set_main_page_location_from_busiest_user_neighbourhood=set_main_page_location_from_busiest_user_neighbourhood,
+        )
+    ).community_id
+
+
+def _main_page_version(session, name):
+    return session.execute(select(Cluster).where(Cluster.name == name)).scalar_one().main_page.versions[-1]
+
+
+def test_CreateCommunity_set_main_page_location_from_busiest_user_neighbourhood(db):
+    editor_user, editor_token = generate_user(is_editor=True)
+    for _ in range(2):
+        generate_user(geom=create_coordinate(40.7415, -73.9925))
+    generate_user(geom=create_coordinate(40.7470, -74.0030))
+    generate_user(geom=create_coordinate(40.7470, -74.0030), delete_user=True)
+    generate_user(geom=create_coordinate(40.7470, -74.0030), delete_user=True)
+
+    with real_editor_session(editor_token) as api:
+        _create_community(api, "located", True)
+        _create_community(api, "unlocated", False)
+
+    with session_scope() as session:
+        located = _main_page_version(session, "located")
+        assert get_coordinates(located.geom) == pytest.approx((40.7415, -73.9925))
+        assert located.address == "located"
+
+        unlocated = _main_page_version(session, "unlocated")
+        assert unlocated.geom is None
+        assert unlocated.address is None
+
+
+def test_CreateCommunity_set_main_page_location_from_busiest_user_neighbourhood_without_users(db):
+    editor_user, editor_token = generate_user(is_editor=True)
+
+    with real_editor_session(editor_token) as api:
+        community_id = _create_community(api, "empty", True)
+
+    with session_scope() as session:
+        located = _main_page_version(session, "empty")
+        assert located.geom is not None
+        node_geom = select(Node.geom).where(Node.id == community_id).scalar_subquery()
+        assert session.execute(select(func.ST_Contains(node_geom, located.geom))).scalar_one()
+
+
+def _create_typed_community(api, name, parent_node_id=0, node_type=communities_pb2.NODE_TYPE_UNSPECIFIED):
+    return api.CreateCommunity(
+        editor_pb2.CreateCommunityReq(
+            name=name,
+            description="community for testing",
+            admin_ids=[],
+            geojson=VALID_GEOJSON_MULTIPOLYGON,
+            parent_node_id=parent_node_id,
+            node_type=node_type,
+        )
+    )
+
+
+def test_CreateCommunity_node_type(db):
+    editor_user, editor_token = generate_user(is_editor=True)
+
+    with real_editor_session(editor_token) as api:
+        world = _create_typed_community(api, "world")
+        assert world.node_type == communities_pb2.NODE_TYPE_WORLD
+
+        continent = _create_typed_community(api, "continent", world.community_id)
+        assert continent.node_type == communities_pb2.NODE_TYPE_MACROREGION
+
+        country = _create_typed_community(api, "country", continent.community_id)
+        assert country.node_type == communities_pb2.NODE_TYPE_REGION
+
+        city = _create_typed_community(api, "city", country.community_id, communities_pb2.NODE_TYPE_LOCALITY)
+        assert city.node_type == communities_pb2.NODE_TYPE_LOCALITY
+
+        neighbourhood = _create_typed_community(api, "neighbourhood", city.community_id)
+        assert neighbourhood.node_type == communities_pb2.NODE_TYPE_SUBLOCALITY
+
+    with session_scope() as session:
+        assert (
+            session.execute(select(Node.node_type).where(Node.id == city.community_id)).scalar_one()
+            == NodeType.locality
+        )
+
+
+def test_CreateCommunity_node_type_not_below_parent(db):
+    editor_user, editor_token = generate_user(is_editor=True)
+
+    with real_editor_session(editor_token) as api:
+        world = _create_typed_community(api, "world")
+        continent = _create_typed_community(api, "continent", world.community_id)
+        country = _create_typed_community(api, "country", continent.community_id)
+
+        for parent_node_id, node_type in [
+            (country.community_id, communities_pb2.NODE_TYPE_REGION),
+            (country.community_id, communities_pb2.NODE_TYPE_MACROREGION),
+            (world.community_id, communities_pb2.NODE_TYPE_WORLD),
+            (0, communities_pb2.NODE_TYPE_REGION),
+        ]:
+            with expect_rpc_error(
+                grpc.StatusCode.INVALID_ARGUMENT,
+                "A community's type must be narrower than its parent's, and only a community with no parent can be the world.",
+            ):
+                _create_typed_community(api, "wrong", parent_node_id, node_type)
+
+    with session_scope() as session:
+        assert session.execute(select(func.count()).select_from(Node)).scalar_one() == 3
 
 
 def test_UpdateCommunity2(db):
@@ -364,15 +474,13 @@ def test_MakeUserVolunteer_user_not_found(db):
     editor_user, editor_token = generate_user(is_editor=True)
 
     with real_editor_session(editor_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that user."):
             api.MakeUserVolunteer(
                 editor_pb2.MakeUserVolunteerReq(
                     user_id=999999,
                     role="Test Volunteer",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Couldn't find that user."
 
 
 def test_MakeUserVolunteer_already_volunteer(db):
@@ -391,15 +499,13 @@ def test_MakeUserVolunteer_already_volunteer(db):
         )
 
         # Try to create again
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "This user is already a volunteer."):
             api.MakeUserVolunteer(
                 editor_pb2.MakeUserVolunteerReq(
                     user_id=normal_user.id,
                     role="Test Volunteer 2",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "This user is already a volunteer."
 
 
 def test_MakeUserVolunteer_invalid_date(db):
@@ -408,7 +514,7 @@ def test_MakeUserVolunteer_invalid_date(db):
     normal_user, normal_token = generate_user()
 
     with real_editor_session(editor_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid start date for volunteering."):
             api.MakeUserVolunteer(
                 editor_pb2.MakeUserVolunteerReq(
                     user_id=normal_user.id,
@@ -416,8 +522,6 @@ def test_MakeUserVolunteer_invalid_date(db):
                     started_volunteering="invalid-date",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Invalid start date for volunteering."
 
 
 def test_UpdateVolunteer(db):
@@ -503,15 +607,13 @@ def test_UpdateVolunteer_not_found(db):
     normal_user, normal_token = generate_user()
 
     with real_editor_session(editor_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Volunteer not found."):
             api.UpdateVolunteer(
                 editor_pb2.UpdateVolunteerReq(
                     user_id=normal_user.id,
                     role=StringValue(value="Updated Volunteer"),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Volunteer not found."
 
 
 def test_UpdateVolunteer_invalid_started_date(db):
@@ -530,15 +632,13 @@ def test_UpdateVolunteer_invalid_started_date(db):
         )
 
         # Try to update with invalid date
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid start date for volunteering."):
             api.UpdateVolunteer(
                 editor_pb2.UpdateVolunteerReq(
                     user_id=normal_user.id,
                     started_volunteering=StringValue(value="invalid-date"),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Invalid start date for volunteering."
 
 
 def test_UpdateVolunteer_invalid_stopped_date(db):
@@ -557,15 +657,13 @@ def test_UpdateVolunteer_invalid_stopped_date(db):
         )
 
         # Try to update with invalid date
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid end date for volunteering."):
             api.UpdateVolunteer(
                 editor_pb2.UpdateVolunteerReq(
                     user_id=normal_user.id,
                     stopped_volunteering=StringValue(value="not-a-date"),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Invalid end date for volunteering."
 
 
 def test_UpdateVolunteer_reinstate(db):
@@ -650,7 +748,10 @@ def test_UpdateVolunteer_reinstate_conflict_with_stopped(db):
             )
         )
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.INVALID_ARGUMENT,
+            "Cannot reinstate a volunteer and set a stopped date at the same time.",
+        ):
             api.UpdateVolunteer(
                 editor_pb2.UpdateVolunteerReq(
                     user_id=normal_user.id,
@@ -658,8 +759,6 @@ def test_UpdateVolunteer_reinstate_conflict_with_stopped(db):
                     stopped_volunteering=StringValue(value="2024-12-31"),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Cannot reinstate a volunteer and set a stopped date at the same time."
 
 
 def test_ListVolunteers(db):
@@ -715,8 +814,8 @@ def test_ListVolunteers(db):
 def test_ListVolunteers_with_past(db):
     """ListVolunteers should include past volunteers when requested"""
     editor_user, editor_token = generate_user(is_editor=True)
-    user1, _ = generate_user()
-    user2, _ = generate_user()
+    current_volunteer_user, _ = generate_user()
+    past_volunteer_user, _ = generate_user()
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
     with session_scope() as session:
@@ -724,7 +823,7 @@ def test_ListVolunteers_with_past(db):
             # Create current volunteer
             api.MakeUserVolunteer(
                 editor_pb2.MakeUserVolunteerReq(
-                    user_id=user1.id,
+                    user_id=current_volunteer_user.id,
                     role="Current Volunteer",
                 )
             )
@@ -732,13 +831,13 @@ def test_ListVolunteers_with_past(db):
             # Create past volunteer
             api.MakeUserVolunteer(
                 editor_pb2.MakeUserVolunteerReq(
-                    user_id=user2.id,
+                    user_id=past_volunteer_user.id,
                     role="Past Volunteer",
                 )
             )
             api.UpdateVolunteer(
                 editor_pb2.UpdateVolunteerReq(
-                    user_id=user2.id,
+                    user_id=past_volunteer_user.id,
                     stopped_volunteering=StringValue(value="2024-06-30"),
                 )
             )
@@ -746,17 +845,17 @@ def test_ListVolunteers_with_past(db):
             # List only current volunteers
             res = api.ListVolunteers(editor_pb2.ListVolunteersReq(include_past=False))
             assert len(res.volunteers) == 1
-            assert res.volunteers[0].user_id == user1.id
+            assert res.volunteers[0].user_id == current_volunteer_user.id
             assert not res.volunteers[0].HasField("stopped_volunteering")
 
             # List all volunteers (including past)
             res_with_past = api.ListVolunteers(editor_pb2.ListVolunteersReq(include_past=True))
             assert len(res_with_past.volunteers) == 2
             user_ids = {v.user_id for v in res_with_past.volunteers}
-            assert user_ids == {user1.id, user2.id}
+            assert user_ids == {current_volunteer_user.id, past_volunteer_user.id}
 
             # Find the past volunteer and verify stopped_volunteering is set
-            past_volunteer = next(v for v in res_with_past.volunteers if v.user_id == user2.id)
+            past_volunteer = next(v for v in res_with_past.volunteers if v.user_id == past_volunteer_user.id)
             assert past_volunteer.stopped_volunteering == "2024-06-30"
 
 
@@ -840,25 +939,8 @@ def test_LookupUsersForDebug(db):
 
     with real_editor_session(editor_token) as api:
         for bad_prefix in ["", "abcdefghijk", "abcdefghijklm", shared_sofa]:
-            with pytest.raises(grpc.RpcError) as e:
+            with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The sofa prefix must be exactly 12 characters."):
                 api.LookupUsersForDebug(editor_pb2.LookupUsersForDebugReq(sofa_prefix=bad_prefix))
-            assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-            assert e.value.details() == "The sofa prefix must be exactly 12 characters."
-
-
-def _create_event_in_community(token: str, community_id: int, lat: float, lng: float) -> int:
-    with events_session(token) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title="Dummy Title",
-                content="Dummy content.",
-                parent_community_id=community_id,
-                location=events_pb2.EventLocation(address="Somewhere", lat=lat, lng=lng),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=3)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(hours=4)),
-            )
-        )
-        return int(res.event_id)
 
 
 @pytest.fixture
@@ -879,7 +961,11 @@ def event_in_wrong_community(db):
 
     enforce_community_memberships()
 
-    event_id = _create_event_in_community(creator_token, country_id, lat=3, lng=1)
+    event_id = events_api.create_event(
+        token=creator_token,
+        parent_community_id=country_id,
+        location=events_pb2.EventLocation(address="Somewhere", lat=3, lng=1),
+    ).event_id
 
     yield editor_token, creator_token, event_id, country_id, city_id
 
@@ -912,7 +998,11 @@ def test_GetEventCommunityInfo(event_in_wrong_community):
 def test_GetEventCommunityInfo_already_in_smallest_community(event_in_wrong_community):
     editor_token, creator_token, event_id, country_id, city_id = event_in_wrong_community
 
-    correctly_placed_event_id = _create_event_in_community(creator_token, city_id, lat=3, lng=1)
+    correctly_placed_event_id = events_api.create_event(
+        token=creator_token,
+        parent_community_id=city_id,
+        location=events_pb2.EventLocation(address="Somewhere", lat=3, lng=1),
+    ).event_id
 
     with real_editor_session(editor_token) as api:
         res = api.GetEventCommunityInfo(editor_pb2.GetEventCommunityInfoReq(event_id=correctly_placed_event_id))
@@ -926,19 +1016,16 @@ def test_GetEventCommunityInfo_event_not_found(db):
     _, editor_token = generate_user(is_editor=True)
 
     with real_editor_session(editor_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Event not found."):
             api.GetEventCommunityInfo(editor_pb2.GetEventCommunityInfoReq(event_id=42))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Event not found."
 
 
 def test_GetEventCommunityInfo_access_by_normal_user(event_in_wrong_community):
     editor_token, creator_token, event_id, country_id, city_id = event_in_wrong_community
 
     with real_editor_session(creator_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED):
             api.GetEventCommunityInfo(editor_pb2.GetEventCommunityInfoReq(event_id=event_id))
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
 
 def test_MoveEventToCommunity_smallest_local_community(event_in_wrong_community):
@@ -977,16 +1064,14 @@ def test_MoveEventToCommunity_explicit_community(event_in_wrong_community):
 def test_MoveEventToCommunity_moves_all_occurrences(event_in_wrong_community):
     editor_token, creator_token, event_id, country_id, city_id = event_in_wrong_community
 
-    with events_session(creator_token) as api:
-        other_occurrence_id = api.ScheduleEvent(
-            events_pb2.ScheduleEventReq(
-                event_id=event_id,
-                content="Dummy content.",
-                location=events_pb2.EventLocation(address="Somewhere", lat=3, lng=1),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(days=1)),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + timedelta(days=1, hours=1)),
-            )
-        ).event_id
+    # the fixture's occurrence is tomorrow at noon, so schedule this one after it
+    other_occurrence_id = events_api.schedule_event(
+        token=creator_token,
+        event_id=event_id,
+        location=events_pb2.EventLocation(address="Somewhere", lat=3, lng=1),
+        start_date_time=local_date_time(now() + timedelta(days=2)),
+        end_date_time=local_date_time(now() + timedelta(days=2, hours=1)),
+    ).event_id
 
     with real_editor_session(editor_token) as api:
         res = api.MoveEventToCommunity(
@@ -1002,20 +1087,16 @@ def test_MoveEventToCommunity_no_target(event_in_wrong_community):
     editor_token, creator_token, event_id, country_id, city_id = event_in_wrong_community
 
     with real_editor_session(editor_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.INVALID_ARGUMENT,
+            "Specify either a community to move the event to, or recompute it from the event's location.",
+        ):
             api.MoveEventToCommunity(editor_pb2.MoveEventToCommunityReq(event_id=event_id))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert (
-            e.value.details()
-            == "Specify either a community to move the event to, or recompute it from the event's location."
-        )
 
 
 def test_MoveEventToCommunity_community_not_found(event_in_wrong_community):
     editor_token, creator_token, event_id, country_id, city_id = event_in_wrong_community
 
     with real_editor_session(editor_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Community not found."):
             api.MoveEventToCommunity(editor_pb2.MoveEventToCommunityReq(event_id=event_id, community_id=42))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Community not found."

@@ -22,7 +22,6 @@ import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
-import { useIsMounted, useSafeState } from "utils/hooks";
 
 interface CommunityGuidelinesProps {
   onSubmit: (accept: boolean) => Promise<void>;
@@ -56,8 +55,7 @@ const StyledButton = styled(Button)(({ theme }) => ({
 
 export default function CommunityGuidelines({ onSubmit, className, title }: CommunityGuidelinesProps) {
   const { t } = useTranslation([AUTH, GLOBAL]);
-  const isMounted = useIsMounted();
-  const [completed, setCompleted] = useSafeState(isMounted, false);
+  const [completed, setCompleted] = useState(false);
   const [error, setError] = useState("");
 
   const {

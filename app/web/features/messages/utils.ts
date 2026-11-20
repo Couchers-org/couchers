@@ -5,7 +5,12 @@ import { Message } from "proto/messages_pb";
 import { HostRequest } from "proto/requests_pb";
 import { firstName } from "utils/names";
 
-import { requestStatusChangedMessageToSelfTransKey, requestStatusChangedMessageToTransKey } from "./constants";
+import {
+  invitationStatusChangedMessageToSelfTransKey,
+  invitationStatusChangedMessageToTransKey,
+  requestStatusChangedMessageToSelfTransKey,
+  requestStatusChangedMessageToTransKey,
+} from "./constants";
 
 type Conversation = GroupChat.AsObject | HostRequest.AsObject;
 
@@ -34,12 +39,14 @@ export function controlMessage({
   message,
   t,
   isCurrentUser,
+  isOffer,
 }: {
   user: string;
   target_user?: string;
   message: Message.AsObject;
   t: TFunction<"messages", undefined>;
   isCurrentUser?: boolean;
+  isOffer?: boolean;
 }) {
   const userCap = user.charAt(0).toUpperCase() + user.slice(1);
   if (message.chatCreated) {
@@ -64,8 +71,9 @@ export function controlMessage({
       target_user,
     });
   } else if (message.hostRequestStatusChanged) {
-    const map = isCurrentUser ? requestStatusChangedMessageToSelfTransKey : requestStatusChangedMessageToTransKey;
-    const transKey = map[message.hostRequestStatusChanged.status];
+    const selfKeys = isOffer ? invitationStatusChangedMessageToSelfTransKey : requestStatusChangedMessageToSelfTransKey;
+    const otherKeys = isOffer ? invitationStatusChangedMessageToTransKey : requestStatusChangedMessageToTransKey;
+    const transKey = (isCurrentUser ? selfKeys : otherKeys)[message.hostRequestStatusChanged.status];
     if (transKey == null) {
       throw Error(t("control_message.unknown_message_text"));
     }

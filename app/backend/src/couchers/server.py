@@ -41,6 +41,7 @@ from couchers.proto import (
     reporting_pb2_grpc,
     requests_pb2_grpc,
     resources_pb2_grpc,
+    screens_pb2_grpc,
     search_pb2_grpc,
     stripe_pb2_grpc,
     threads_pb2_grpc,
@@ -72,6 +73,7 @@ from couchers.servicers.references import References
 from couchers.servicers.reporting import Reporting
 from couchers.servicers.requests import Requests
 from couchers.servicers.resources import Resources
+from couchers.servicers.screens import Screens
 from couchers.servicers.search import Search
 from couchers.servicers.threads import Threads
 
@@ -126,6 +128,7 @@ def create_main_server(port: int, start_resource_sampler: bool = False) -> grpc.
     reporting_pb2_grpc.add_ReportingServicer_to_server(Reporting(), server)
     requests_pb2_grpc.add_RequestsServicer_to_server(Requests(), server)
     resources_pb2_grpc.add_ResourcesServicer_to_server(Resources(), server)
+    screens_pb2_grpc.add_ScreensServicer_to_server(Screens(), server)
     search_pb2_grpc.add_SearchServicer_to_server(Search(), server)
     stripe_pb2_grpc.add_StripeServicer_to_server(Stripe(), server)
     threads_pb2_grpc.add_ThreadsServicer_to_server(Threads(), server)

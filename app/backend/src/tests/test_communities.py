@@ -24,19 +24,21 @@ from couchers.models import (
     Thread,
     User,
 )
-from couchers.proto import api_pb2, auth_pb2, communities_pb2, discussions_pb2, events_pb2, pages_pb2
+from couchers.proto import api_pb2, auth_pb2, communities_pb2, discussions_pb2, pages_pb2
 from couchers.tasks import enforce_community_memberships
-from couchers.utils import create_coordinate, create_polygon_lat_lng, datetime_to_iso8601_local, now, to_multi
+from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_multi
+from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user, get_user_id_and_token
 from tests.fixtures.misc import Moderator
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
     auth_api_session,
     communities_session,
     discussions_session,
-    events_session,
     pages_session,
 )
 from tests.test_auth import get_session_cookie_tokens
+from tests.utils import local_date_time
 
 # For testing purposes, restrict ourselves to a 1D-world, consisting of "intervals" that have width 2, and coordinates
 # that are points at (x, 1).
@@ -199,27 +201,16 @@ def create_discussion(token: str, community_id: int | None, group_id: int | None
 def create_event(
     token: str, community_id: int | None, group_id: int | None, title: str, content: str, start_td: timedelta
 ) -> None:
-    with events_session(token) as api:
-        res = api.CreateEvent(
-            events_pb2.CreateEventReq(
-                title=title,
-                content=content,
-                location=events_pb2.EventLocation(
-                    address="Near Null Island",
-                    lat=0.1,
-                    lng=0.2,
-                ),
-                start_datetime_iso8601_local=datetime_to_iso8601_local(now() + start_td),
-                end_datetime_iso8601_local=datetime_to_iso8601_local(now() + start_td + timedelta(hours=2)),
-            )
-        )
-        api.TransferEvent(
-            events_pb2.TransferEventReq(
-                event_id=res.event_id,
-                new_owner_community_id=community_id,
-                new_owner_group_id=group_id,
-            )
-        )
+    res = events_api.create_event(
+        token=token,
+        title=title,
+        content=content,
+        start_date_time=local_date_time(now() + start_td),
+        end_date_time=local_date_time(now() + start_td + timedelta(hours=2)),
+    )
+    events_api.transfer_event(
+        token=token, event_id=res.event_id, new_owner_community_id=community_id, new_owner_group_id=group_id
+    )
 
 
 def get_community_id(session: Session, community_name: str) -> int:
@@ -629,24 +620,18 @@ class TestCommunities:
             node_id = get_community_id(session, "Country 1, Region 1, City 2")
 
         with communities_session(token8) as api:
-            with pytest.raises(grpc.RpcError) as err:
+            with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You're not allowed to moderate that community"):
                 api.AddAdmin(communities_pb2.AddAdminReq(community_id=node_id, user_id=user2_id))
-            assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-            assert err.value.details() == "You're not allowed to moderate that community"
 
         with communities_session(token4) as api:
             res = api.ListAdmins(communities_pb2.ListAdminsReq(community_id=node_id))
             assert res.admin_user_ids == [user4_id, user5_id]
 
-            with pytest.raises(grpc.RpcError) as err:
+            with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "That user is not in the community."):
                 api.AddAdmin(communities_pb2.AddAdminReq(community_id=node_id, user_id=user8_id))
-            assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-            assert err.value.details() == "That user is not in the community."
 
-            with pytest.raises(grpc.RpcError) as err:
+            with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "That user is already an admin."):
                 api.AddAdmin(communities_pb2.AddAdminReq(community_id=node_id, user_id=user5_id))
-            assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-            assert err.value.details() == "That user is already an admin."
 
             api.AddAdmin(communities_pb2.AddAdminReq(community_id=node_id, user_id=user2_id))
             res = api.ListAdmins(communities_pb2.ListAdminsReq(community_id=node_id))
@@ -664,24 +649,18 @@ class TestCommunities:
             node_id = get_community_id(session, "Country 1, Region 1, City 2")
 
         with communities_session(token8) as api:
-            with pytest.raises(grpc.RpcError) as err:
+            with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You're not allowed to moderate that community"):
                 api.AddAdmin(communities_pb2.AddAdminReq(community_id=node_id, user_id=user2_id))
-            assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-            assert err.value.details() == "You're not allowed to moderate that community"
 
         with communities_session(token4) as api:
             res = api.ListAdmins(communities_pb2.ListAdminsReq(community_id=node_id))
             assert res.admin_user_ids == [user4_id, user5_id]
 
-            with pytest.raises(grpc.RpcError) as err:
+            with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "That user is not in the community."):
                 api.RemoveAdmin(communities_pb2.RemoveAdminReq(community_id=node_id, user_id=user8_id))
-            assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-            assert err.value.details() == "That user is not in the community."
 
-            with pytest.raises(grpc.RpcError) as err:
+            with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "That user is not an admin."):
                 api.RemoveAdmin(communities_pb2.RemoveAdminReq(community_id=node_id, user_id=user2_id))
-            assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-            assert err.value.details() == "That user is not an admin."
 
             api.RemoveAdmin(communities_pb2.RemoveAdminReq(community_id=node_id, user_id=user5_id))
             res = api.ListAdmins(communities_pb2.ListAdminsReq(community_id=node_id))
@@ -896,10 +875,8 @@ class TestCommunities:
             _, token = get_user_id_and_token(session, "user1")
 
         with communities_session(token) as api:
-            with pytest.raises(grpc.RpcError) as err:
+            with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Query must be at least 3 characters long."):
                 api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="   "))
-            assert err.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-            assert err.value.details() == "Query must be at least 3 characters long."
 
     @staticmethod
     def test_min_length_lt_3_aborts(testing_communities):
@@ -910,10 +887,8 @@ class TestCommunities:
             _, token = get_user_id_and_token(session, "user1")
 
         with communities_session(token) as api:
-            with pytest.raises(grpc.RpcError) as err:
+            with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Query must be at least 3 characters long."):
                 api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="zz", page_size=5))
-            assert err.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-            assert err.value.details() == "Query must be at least 3 characters long."
 
     @staticmethod
     def test_typo_matches_existing_name(testing_communities):
@@ -1138,29 +1113,25 @@ def test_JoinCommunity_and_LeaveCommunity(testing_communities):
         assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
 
         # user1 is already part of c1, cannot join
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You're already in that community."):
             res = api.JoinCommunity(
                 communities_pb2.JoinCommunityReq(
                     community_id=c1_id,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You're already in that community."
 
         assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
 
         # user1 is inside c1, cannot leave
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION,
+            "Your location on your profile is within this community, so you cannot leave it. However, you can adjust your notifications in your account settings.",
+        ):
             res = api.LeaveCommunity(
                 communities_pb2.LeaveCommunityReq(
                     community_id=c1_id,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert (
-            e.value.details()
-            == "Your location on your profile is within this community, so you cannot leave it. However, you can adjust your notifications in your account settings."
-        )
 
         assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
 
@@ -1168,14 +1139,12 @@ def test_JoinCommunity_and_LeaveCommunity(testing_communities):
         assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
 
         # user8 is not in c1 yet, cannot leave
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You're not in that community."):
             res = api.LeaveCommunity(
                 communities_pb2.LeaveCommunityReq(
                     community_id=c1_id,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You're not in that community."
 
         assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
 
@@ -1189,14 +1158,12 @@ def test_JoinCommunity_and_LeaveCommunity(testing_communities):
         assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
 
         # user8 is not in c1 and but now part, can't join again
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You're already in that community."):
             res = api.JoinCommunity(
                 communities_pb2.JoinCommunityReq(
                     community_id=c1_id,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You're already in that community."
 
         assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
 
@@ -1215,26 +1182,26 @@ def test_LeaveCommunity_regression(db):
     # 2. Leave one of them
     # 3. You are no longer in any community
     # admin
-    user1, token1 = generate_user(username="user1", geom=create_1d_point(200), geom_radius=0.1)
+    admin_user, admin_token = generate_user(username="user1", geom=create_1d_point(200), geom_radius=0.1)
     # joiner/leaver
-    user2, token2 = generate_user(username="user2", geom=create_1d_point(201), geom_radius=0.1)
+    member_user, member_token = generate_user(username="user2", geom=create_1d_point(201), geom_radius=0.1)
 
     with session_scope() as session:
-        c0 = create_community(session, 0, 100, "Community 0", [user1], [], None)
-        c1 = create_community(session, 0, 50, "Community 1", [user1], [], c0)
-        c2 = create_community(session, 0, 10, "Community 2", [user1], [], c0)
+        c0 = create_community(session, 0, 100, "Community 0", [admin_user], [], None)
+        c1 = create_community(session, 0, 50, "Community 1", [admin_user], [], c0)
+        c2 = create_community(session, 0, 10, "Community 2", [admin_user], [], c0)
         c0_id = c0.id
         c1_id = c1.id
         c2_id = c2.id
 
     enforce_community_memberships()
 
-    with communities_session(token1) as api:
+    with communities_session(admin_token) as api:
         assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c0_id)).member
         assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
         assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c2_id)).member
 
-    with communities_session(token2) as api:
+    with communities_session(member_token) as api:
         # first check we're not in any communities
         assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c0_id)).member
         assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member

@@ -51,7 +51,7 @@ describe("EditNotificationSettingsPage", () => {
         ],
       },
       {
-        heading: "Host requests",
+        heading: "Host requests and invitations",
         topicsList: [
           {
             topic: "host_request",

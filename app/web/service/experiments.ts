@@ -1,3 +1,4 @@
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { LogExperimentExposureReq } from "proto/bugs_pb";
 
 import client from "./client";
@@ -38,4 +39,9 @@ export async function reportExposure(exposure: ExposureReport): Promise<void> {
     req.setStickyBucketUsed(exposure.stickyBucketUsed);
   }
   await client.bugs.logExperimentExposure(req);
+}
+
+export async function getFeatureFlagAttributes(): Promise<string> {
+  const res = await client.bugs.getFeatureFlagAttributes(new Empty());
+  return res.getAttributesJson();
 }

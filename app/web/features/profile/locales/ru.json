@@ -176,7 +176,8 @@
     "request_chars_remaining_one": "Пожалуйста, напишите ещё как минимум {{count}} символ, чтобы отправить запрос хосту.",
     "request_chars_remaining_few": "Пожалуйста, напишите ещё как минимум {{count}} символа, чтобы отправить запрос хосту.",
     "request_chars_remaining_many": "Пожалуйста, напишите ещё как минимум {{count}} символов, чтобы отправить запрос хосту.",
-    "arrival_date_before_host_today": "Эта дата для {{name}} уже прошла."
+    "arrival_date_before_host_today": "Эта дата для {{name}} уже прошла.",
+    "departure_date_not_after_arrival": "Дата отъезда должна быть позже даты прибытия."
   },
   "message_form": {
     "hosting_request_hint": "Отправляете запрос на хостинг? Используйте кнопку <request>Отправить Запрос</request>.",
@@ -344,5 +345,8 @@
   "hobbies_textbox_placeholder": "например, занятия, книги, фильмы, музыка...",
   "edit_profile_pronouns_placeholder": "напр. она/её",
   "local_time_with_time_zone_text": "{{ time }} (<timeZone/>)",
-  "open_profile_a11y": "Открыть профиль"
+  "open_profile_a11y": "Открыть профиль",
+  "copy_profile_link": {
+    "button_a11y": "Скопировать ссылку на профиль"
+  }
 }

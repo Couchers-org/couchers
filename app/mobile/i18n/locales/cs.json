@@ -13,7 +13,11 @@
     "camera_permission_denied": "Udělení přístupu k fotoaparátu je nutné pro pořizování fotografií.",
     "camera_permission_required": "Vyžadováno oprávnění k fotoaparátu",
     "camera_permission_explanation": "Tato aplikace potřebuje přístup k fotoaparátu pro pořizování fotografií. Po zobrazení výzvy prosím uděl oprávnění.",
-    "camera_permission_denied_permanently": "Přístup k fotoaparátu byl zamítnut. Pokud chceš pořizovat fotografie, budeš muset udělit oprávnění k fotoaparátu v nastavení tvého zařízení."
+    "camera_permission_denied_permanently": "Přístup k fotoaparátu byl zamítnut. Pokud chceš pořizovat fotografie, budeš muset udělit oprávnění k fotoaparátu v nastavení tvého zařízení.",
+    "calendar_permission_required": "Je nutné oprávnění přístupu ke kalendáři",
+    "calendar_permission_explanation": "Tato aplikace potřebuje přístup ke kalendáři, aby mohla přidávat události. Po zobrazení výzvy prosím uděl oprávnění.",
+    "calendar_permission_denied_permanently": "Přístup ke kalendáři byl zamítnut. Pokud chceš přidávat události do kalendáře, povol v nastavení zařízení přístup ke kalendáři.",
+    "add_to_calendar_failed": "Nepodařilo se otevřít tvůj kalendář. Zkus to prosím znovu."
   },
   "not_found": {
     "title": "Jejda!",

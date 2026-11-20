@@ -5,9 +5,10 @@
   "listmonk_enabled": false,
   "log_native_ota_requests": true,
   "notification_translations_enabled": true,
-  "postal_verification_enabled": false,
+  "postal_verification_enabled": true,
   "public_trips_enabled": true,
   "rate_limiting_enabled": false,
+  "recurring_event_creation_enabled": true,
   "sms_enabled": false,
   "strong_verification_enabled": false,
   "test_growthbook_integration": true

@@ -17,6 +17,7 @@ export const listNotificationsQueryKey = "listNotifications";
 export const pingQueryKey = "ping";
 export const username2Id = "username2Id";
 export const volunteerInfoQueryKey = "volunteerInfo";
+export const postalVerificationStatusQueryKey = "postalVerificationStatus";
 
 export function userKey(userId?: number) {
   return userId === undefined ? ["user"] : ["user", userId];
@@ -79,7 +80,7 @@ interface EventUsersInput {
   type: QueryType;
 }
 
-const eventOrganizersBaseKey = "eventOrganizers";
+export const eventOrganizersBaseKey = "eventOrganizers";
 export const eventOrganizersKey = ({ eventId, type }: EventUsersInput) => [
   eventOrganizersBaseKey,
   eventId,
@@ -115,6 +116,7 @@ export const myCommunityEventsKey = (type: EventsType) => ["myCommunityEvents", 
 export const activeLoginsKey = "activeLogins";
 export const inviteCodesKey = "inviteCodes";
 export const remindersKey = "reminders";
+export const dashboardKey = "dashboard";
 
 // Badges
 interface BadgeUsersInput {

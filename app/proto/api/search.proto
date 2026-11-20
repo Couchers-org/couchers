@@ -20,13 +20,8 @@ service Search {
     // Search all content
   }
 
-  rpc UserSearch(UserSearchReq) returns (UserSearchRes) {
-    // Search for users in particular with extra filters, e.g. hosts
-  }
-
   rpc UserSearchV2(UserSearchReq) returns (UserSearchV2Res) {
     // Search for users in particular with extra filters, e.g. hosts
-    // only returns used fields
   }
 
   rpc EventSearch(EventSearchReq) returns (EventSearchRes) {
@@ -161,15 +156,6 @@ message UserSearchReq {
 
   uint32 page_size = 1;
   string page_token = 2;
-}
-
-message UserSearchRes {
-  // sorted with highest rank first
-  // this will only contain users
-  repeated Result results = 1;
-
-  string next_page_token = 2;
-  uint32 total_items = 3;
 }
 
 message SearchUser {

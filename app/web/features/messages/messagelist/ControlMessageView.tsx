@@ -1,4 +1,5 @@
 import { Skeleton, styled } from "@mui/material";
+import RelativeTime from "components/RelativeTime";
 import TextBody from "components/TextBody";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
@@ -6,13 +7,15 @@ import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import React from "react";
 import { theme } from "theme";
-import { timestampToInstant } from "utils/date";
 
 import { firstName } from "../../../utils/names";
 import useOnVisibleEffect from "../../../utils/useOnVisibleEffect";
 import { controlMessage, messageTargetId } from "../utils";
 import { messageElementId, MessageProps } from "./MessageView";
-import TimeInterval from "./TimeInterval";
+
+interface ControlMessageProps extends MessageProps {
+  isOffer?: boolean;
+}
 
 const StyledWrapper = styled("div")(() => ({
   marginInlineEnd: "auto",
@@ -20,7 +23,11 @@ const StyledWrapper = styled("div")(() => ({
   textAlign: "center",
 }));
 
-const StyledTimestamp = styled("div")(() => theme.typography.caption);
+const StyledRelativeTime = styled(RelativeTime)(() => ({
+  ...theme.typography.caption,
+  fontSize: "0.75rem", // 12px
+  display: "block",
+}));
 
 const StyledBodyWrapper = styled("div")(() => ({
   paddingInlineEnd: theme.spacing(1),
@@ -30,7 +37,7 @@ const StyledSkeleton = styled(Skeleton)(() => ({
   minWidth: 100,
 }));
 
-export default function ControlMessageView({ message, onVisible, className }: MessageProps) {
+export default function ControlMessageView({ message, onVisible, className, isOffer }: ControlMessageProps) {
   const { t } = useTranslation(MESSAGES);
   const { authState } = useAuthContext();
   const { data: author, isLoading: isAuthorLoading } = useLiteUser(message.authorUserId);
@@ -46,9 +53,7 @@ export default function ControlMessageView({ message, onVisible, className }: Me
       ref={ref}
       id={messageElementId(message.messageId)}
     >
-      <StyledTimestamp>
-        <TimeInterval instant={timestampToInstant(message.time!)} />
-      </StyledTimestamp>
+      <StyledRelativeTime instant={message.time!} />
 
       <StyledBodyWrapper>
         {!isAuthorLoading && !isTargetLoading ? (
@@ -59,6 +64,7 @@ export default function ControlMessageView({ message, onVisible, className }: Me
               target_user: targetName,
               t,
               isCurrentUser: message.authorUserId === authState.userId,
+              isOffer,
             })}
           </TextBody>
         ) : (

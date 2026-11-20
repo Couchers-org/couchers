@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import DonationsBox from "features/donations/DonationsBox";
 import { DonationFrequency } from "proto/donations_pb";
 import { service } from "service";
-import wrapper from "test/hookWrapper";
+import wrapper, { getHookWrapperWithClient } from "test/hookWrapper";
 import i18n from "test/i18n";
 
 const { t } = i18n;
@@ -21,9 +21,9 @@ describe("DonationsBox", () => {
   it("shows the monthly amounts by default", () => {
     render(<DonationsBox />, { wrapper });
 
-    expect(screen.getByText("$3")).toBeVisible();
-    expect(screen.getByText("$500")).toBeVisible();
-    expect(screen.queryByText("$1,000")).not.toBeInTheDocument();
+    expect(screen.getByText("US$3")).toBeVisible();
+    expect(screen.getByText("US$500")).toBeVisible();
+    expect(screen.queryByText("US$1,000")).not.toBeInTheDocument();
   });
 
   it("swaps in the larger amounts when yearly is selected", async () => {
@@ -31,16 +31,16 @@ describe("DonationsBox", () => {
 
     await userEvent.click(screen.getByLabelText(t("donations:donations_box.yearly_button_label")));
 
-    expect(screen.getByText("$25")).toBeVisible();
-    expect(screen.getByText("$1,000")).toBeVisible();
-    expect(screen.queryByText("$3")).not.toBeInTheDocument();
+    expect(screen.getByText("US$25")).toBeVisible();
+    expect(screen.getByText("US$1,000")).toBeVisible();
+    expect(screen.queryByText("US$3")).not.toBeInTheDocument();
   });
 
   it("initiates a yearly donation with the selected amount", async () => {
     render(<DonationsBox />, { wrapper });
 
     await userEvent.click(screen.getByLabelText(t("donations:donations_box.yearly_button_label")));
-    await userEvent.click(screen.getByText("$250"));
+    await userEvent.click(screen.getByText("US$250"));
     await userEvent.click(screen.getByRole("button", { name: t("donations:donations_box.action_button_label") }));
 
     await waitFor(() => {
@@ -50,6 +50,44 @@ describe("DonationsBox", () => {
 
   it("initiates a monthly donation by default", async () => {
     render(<DonationsBox />, { wrapper });
+
+    await userEvent.click(screen.getByRole("button", { name: t("donations:donations_box.action_button_label") }));
+
+    await waitFor(() => {
+      expect(initiateDonationMock).toHaveBeenCalledWith(10, DonationFrequency.DONATION_FREQUENCY_MONTHLY, undefined);
+    });
+  });
+
+  it("takes the amounts and default from the flags", async () => {
+    const { wrapper } = getHookWrapperWithClient({
+      donation_amounts: { defaultValue: [7, 14, 21, 42] },
+      donation_amounts_yearly: { defaultValue: [60, 120, 240] },
+    });
+    render(<DonationsBox />, { wrapper });
+
+    expect(screen.getByText("US$42")).toBeVisible();
+    expect(screen.queryByText("US$500")).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByLabelText(t("donations:donations_box.yearly_button_label")));
+
+    expect(screen.getByText("US$240")).toBeVisible();
+    expect(screen.queryByText("US$1,000")).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: t("donations:donations_box.action_button_label") }));
+
+    await waitFor(() => {
+      expect(initiateDonationMock).toHaveBeenCalledWith(240, DonationFrequency.DONATION_FREQUENCY_YEARLY, undefined);
+    });
+  });
+
+  it("falls back to the built-in amounts when a flag is malformed", async () => {
+    const { wrapper } = getHookWrapperWithClient({
+      donation_amounts: { defaultValue: [1, 5, 10] },
+    });
+    render(<DonationsBox />, { wrapper });
+
+    expect(screen.getByText("US$3")).toBeVisible();
+    expect(screen.queryByText("US$1")).not.toBeInTheDocument();
 
     await userEvent.click(screen.getByRole("button", { name: t("donations:donations_box.action_button_label") }));
 

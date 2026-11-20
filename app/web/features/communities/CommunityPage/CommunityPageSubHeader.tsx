@@ -75,7 +75,7 @@ export default function CommunityPageSubHeader({
       ...(isPublicTripsEnabled && {
         "public-trips": (
           <span style={{ display: "inline-flex", alignItems: "center" }}>
-            {t("publicTrips:label")}
+            {t("publicTrips:heading")}
             <BetaFlag />
           </span>
         ),

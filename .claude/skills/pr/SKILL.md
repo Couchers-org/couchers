@@ -25,14 +25,13 @@ If there are no meaningful changes to commit, tell the user and stop.
 
 ### 2. Determine the branch name
 
-Branch names in this repo follow the pattern: `<area>/<type>/<short-description>`
+Branch names in this repo follow the pattern: `<dev-name>/<description>`
 
 Where:
-- `<area>` is one of: `backend`, `web`, `frontend`, `mobile`, `devops`, `docs`, or another area that matches the changed files. For cross-cutting changes spanning multiple areas, pick the one that best describes the change.
-- `<type>` is one of: `feature`, `bugfix`, `fix`, `refactor`, or similar
-- `<short-description>` is a short kebab-case description
+- `<dev-name>` is the developer's name or GitHub handle (get it with `gh api user --jq .login`)
+- `<description>` is a short kebab-case description of the change
 
-Infer area and type from the changed files and the nature of the changes. Never use a username as the area.
+Infer the description from the changed files and the nature of the changes.
 
 ### 3. Run linters and formatters
 

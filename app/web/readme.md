@@ -25,7 +25,7 @@ The recommended way get `nodejs` is to use NVM as above, but any other way of in
 
 If you don't want `nvm` to be run when you start your terminal, you can add `--no-use` in your shell's `rc` file (e.g. `~/.zshrc`), just before where it says `# This loads nvm`. You then need to run `nvm use` every time you enter the `app/web` folder to start developing.
 
-On macOS you can alternatively install dependencies via homebrew. You can get nvm with `brew install nvm`, or `nodejs` directly with `brew install node@20`.
+On macOS you can alternatively install dependencies via homebrew. You can get nvm with `brew install nvm`, or `nodejs` directly with `brew install node@22`.
 
 You also need `git`, `curl`, and `tar`, they should be preinstalled or be available from the usual places.
 
@@ -82,7 +82,7 @@ If you are running the backend locally, use username `aapeli` and password `Aape
 
 2. Make sure you have the development environment going (see above).
 
-3. Create a new branch for your issue under 'web/issue-type/branch-name' eg. `web/feature/global-search`, `web/bug/no-duplicate-users` or `web/refactor/fix-host-requests`
+3. Create a new branch for your issue named `<dev-name>/<description>`, where `<dev-name>` is your name or GitHub handle, eg. `jdoe/global-search`, `jdoe/no-duplicate-users` or `jdoe/fix-host-requests`
 
 4. Do some code! It is good to commit regularly, but if possible your code should successfully compile with each commit.
 
@@ -102,13 +102,14 @@ The React frontend communicates with the backend using Protocol Buffers over gRP
 
 ### Compiling protos locally
 
-You can compile the protos locally if you have [installed Docker](https://docs.docker.com/engine/install/) (this is how the built protos are generated in the CI pipeline):
+You can compile the protos locally if you have either `protoc` with the `protoc-gen-js` and `protoc-gen-grpc-web` plugins, or [Docker](https://docs.docker.com/engine/install/) (this is how the built protos are generated in the CI pipeline):
 
 ```sh
-app/generate_protos.sh
+cd app/web
+make protos
 ```
 
-The TypeScript definitions will be generated into `app/web/proto` (all the other definitions will also be generated into the right places, for the Python backend, etc).
+The TypeScript definitions will be generated into `app/web/proto`. To also generate the definitions for the Python backend, etc, run `app/generate_protos.sh` instead.
 
 You can always download the latest protos at <https://develop--protos.preview.couchershq.org/> for any of the languages we use if you don't want to set up Docker.
 

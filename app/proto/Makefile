@@ -3,25 +3,26 @@
 # CI doesn't use this file because the GRPC container doesn't have Make installed.
 .SILENT:
 
-API_SOURCE_FILES := $(shell find api backend -type f -name "*.proto")
-GENERATED_SENTINEL := gen/api/descriptors.pb # No-op if this file is up-to-date
+API_SOURCE_FILES := $(shell find api -type f -name "*.proto")
+BACKEND_SOURCE_FILES := $(shell find backend -type f -name "*.proto")
+PYTHON_SENTINEL := gen/python/python.tar.gz # No-op if this file is up-to-date
+TS_SENTINEL := gen/ts/ts.tar.gz # No-op if this file is up-to-date
 
 .PHONY: default
-default: generate
+default: python ts
 
-.PHONY: generate
-generate: ${GENERATED_SENTINEL}
+.PHONY: python
+python: ${PYTHON_SENTINEL}
 
-${GENERATED_SENTINEL}: generate.sh postprocess_grpc_stubs.py ${API_SOURCE_FILES}
-	./auto_container.sh ./generate.sh gen
+${PYTHON_SENTINEL}: generate_python.sh postprocess_grpc_stubs.py ${API_SOURCE_FILES} ${BACKEND_SOURCE_FILES}
+	./generate_python.sh --auto-container
+
+.PHONY: ts
+ts: ${TS_SENTINEL}
+
+${TS_SENTINEL}: generate_ts.sh ${API_SOURCE_FILES}
+	./generate_ts.sh --auto-container
 
 .PHONY: clean
 clean:
-	# If we're generating files in the container, also delete them in the container,
-	# as they may be owned by root.
-	./auto_container.sh rm -rf gen
-
-# Called in CI where we assume we're already in the container
-.PHONY: ci
-ci:
-	./generate.sh gen
+	rm -rf gen

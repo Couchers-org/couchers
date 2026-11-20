@@ -8,11 +8,13 @@ import TextField from "components/TextField";
 import { createForegroundTracker } from "features/analytics/foregroundTracker";
 import { useLogEvent } from "features/analytics/hooks";
 import { readSearchReferrer, referrerToProperties } from "features/analytics/searchAttribution";
+import { useAuthContext } from "features/auth/AuthProvider";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
-import React, { MutableRefObject, useEffect, useRef } from "react";
+import { useClearablePersistedState } from "platform/usePersistedState";
+import React, { RefObject, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { howToWriteRequestGuideUrl } from "routes";
 import { service } from "service";
@@ -50,7 +52,7 @@ function useHostRequestFormTracking({
   getLatestValues,
 }: {
   hostUserId: number;
-  formRef: MutableRefObject<HTMLFormElement | null>;
+  formRef: RefObject<HTMLFormElement | null>;
   getSubmitted: () => boolean;
   getLatestValues: () => FormValuesSnapshot;
 }) {
@@ -161,6 +163,13 @@ const StyledSendActions = styled(CardActions)(() => ({
 
 const MIN_LENGTH = 250; // Must match backend
 
+// Dates are stored as "yyyy-mm-dd" since Temporal objects don't survive JSON
+interface HostRequestDraft {
+  text: string;
+  fromDate: string | null;
+  toDate: string | null;
+}
+
 interface NewHostRequestProps {
   setIsRequestSuccess: (value: boolean) => void;
   setIsRequesting: (value: boolean) => void;
@@ -169,6 +178,14 @@ interface NewHostRequestProps {
 export default function NewHostRequest({ setIsRequestSuccess, setIsRequesting }: NewHostRequestProps) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
+  const currentUserId = useAuthContext().authState.userId;
+
+  // Keep the draft across unmounts (e.g. the mobile profile sheet being swiped closed)
+  const [draft, setDraft, clearDraft] = useClearablePersistedState<HostRequestDraft | null>(
+    `hostRequestDraft.${currentUserId}.${user.userId}`,
+    null,
+    "sessionStorage",
+  );
 
   const {
     control,
@@ -176,12 +193,30 @@ export default function NewHostRequest({ setIsRequestSuccess, setIsRequesting }:
     handleSubmit,
     register,
     setValue,
+    subscribe,
     watch,
     reset,
     formState: { errors },
   } = useForm<CreateHostRequestWrapper>({
-    defaultValues: { hostUserId: user.userId },
+    defaultValues: {
+      hostUserId: user.userId,
+      text: draft?.text ?? "",
+      fromDate: draft?.fromDate ? Temporal.PlainDate.from(draft.fromDate) : undefined,
+      toDate: draft?.toDate ? Temporal.PlainDate.from(draft.toDate) : undefined,
+    },
   });
+
+  useEffect(
+    () =>
+      subscribe({
+        formState: { values: true },
+        callback: ({ values: { text, fromDate, toDate } }) => {
+          if (!text && !fromDate && !toDate) return clearDraft();
+          setDraft({ text, fromDate: fromDate?.toString() ?? null, toDate: toDate?.toString() ?? null });
+        },
+      }),
+    [subscribe, setDraft, clearDraft],
+  );
 
   const textField = watch("text") ?? "";
 
@@ -213,6 +248,7 @@ export default function NewHostRequest({ setIsRequestSuccess, setIsRequesting }:
     onSuccess: () => {
       submittedRef.current = true;
       reset();
+      clearDraft();
       setIsRequesting(false);
       setIsRequestSuccess(true);
     },
@@ -231,12 +267,14 @@ export default function NewHostRequest({ setIsRequestSuccess, setIsRequesting }:
   const watchFromDate = watch("fromDate", undefined);
   const arrivalBeforeHostToday = !!watchFromDate && Temporal.PlainDate.compare(watchFromDate, hostToday) < 0;
 
-  useEffect(() => {
+  // Only react to the arrival date changing: adjusting on every render also fired while the
+  // departure year was half-typed (e.g. year 0002), overwriting the departure being entered.
+  const pushDepartureAfterArrival = (fromDate: Temporal.PlainDate | null) => {
     const toDate = getValues("toDate");
-    if (watchFromDate && toDate && Temporal.PlainDate.compare(watchFromDate, toDate) >= 0) {
-      setValue("toDate", watchFromDate.add({ days: 1 }));
+    if (fromDate && toDate && Temporal.PlainDate.compare(fromDate, toDate) >= 0) {
+      setValue("toDate", fromDate.add({ days: 1 }));
     }
-  });
+  };
 
   return (
     <>
@@ -258,6 +296,7 @@ export default function NewHostRequest({ setIsRequestSuccess, setIsRequesting }:
                 label={t("profile:request_form.arrival_date")}
                 name="fromDate"
                 minValue={hostToday}
+                onPostChange={pushDepartureAfterArrival}
                 rules={{
                   required: t("profile:request_form.arrival_date_empty"),
                   validate: {
@@ -288,7 +327,18 @@ export default function NewHostRequest({ setIsRequestSuccess, setIsRequesting }:
                 name="toDate"
                 rules={{
                   required: t("profile:request_form.departure_date_empty"),
-                  validate: (stringDate) => stringDate !== "",
+                  validate: {
+                    notEmpty: (stringDate) => stringDate !== "",
+                    afterArrival: (date) => {
+                      const fromDate = getValues("fromDate");
+                      return (
+                        !date ||
+                        !fromDate ||
+                        Temporal.PlainDate.compare(Temporal.PlainDate.from(date), fromDate) > 0 ||
+                        t("profile:request_form.departure_date_not_after_arrival")
+                      );
+                    },
+                  },
                 }}
               />
             </StyledDateRow>

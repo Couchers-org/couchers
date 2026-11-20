@@ -7,6 +7,7 @@ import { User } from "proto/api_pb";
 import { AttendanceState } from "proto/events_pb";
 import { eventBaseRoute } from "routes";
 import { service } from "service";
+import comments from "test/fixtures/comments.json";
 import events from "test/fixtures/events.json";
 import users from "test/fixtures/users.json";
 import hookWrapper from "test/hookWrapper";
@@ -43,8 +44,9 @@ const reportContentMock = service.reporting.reportContent as jest.MockedFunction
   typeof service.reporting.reportContent
 >;
 
-function renderEventPage(id = 1, slug = "weekly-meetup") {
-  mockRouter.setCurrentUrl(`${eventBaseRoute}/${id}/${slug}`);
+function renderEventPage(id = 1, slug = "weekly-meetup", { commentId }: { commentId?: number } = {}) {
+  const query = commentId === undefined ? "" : `?comment=${commentId}`;
+  mockRouter.setCurrentUrl(`${eventBaseRoute}/${id}/${slug}${query}`);
   render(<EventPage eventId={id} eventSlug={slug} />, { wrapper: hookWrapper });
 }
 
@@ -78,7 +80,7 @@ describe("Event page", () => {
     expect(await screen.findByRole("heading", { name: firstEvent.title })).toBeVisible();
     expect(await screen.findByText(firstEvent.location!.address)).toBeVisible();
     expect(
-      await screen.findByText("Tuesday, June 29, 4:37 – 5:37 AM", {
+      await screen.findByText("Tuesday, 29 June, 4:37 – 5:37 am", {
         normalizer: (x) => x, // Match non-breaking spaces and en dashes exactly
       }),
     ).toBeVisible();
@@ -115,10 +117,46 @@ describe("Event page", () => {
     renderEventPage(secondEvent.eventId, secondEvent.slug);
 
     expect(
-      await screen.findByText("Tuesday, June 29 at 11:00 PM – Wednesday, June 30 at 4:00 AM", {
+      await screen.findByText("Tuesday, 29 June at 11:00 pm – Wednesday, 30 June at 4:00 am", {
         normalizer: (x) => x, // Match non-breaking spaces and en dashes exactly
       }),
     ).toBeVisible();
+  });
+
+  it("scrolls to the comments when opened from a comment notification", async () => {
+    const scrollIntoView = Element.prototype.scrollIntoView as jest.Mock;
+    scrollIntoView.mockClear();
+    renderEventPage(1, "weekly-meetup", { commentId: 5 });
+
+    const heading = await screen.findByRole("heading", { name: t("communities:event_discussion") });
+
+    await waitFor(() => expect(scrollIntoView.mock.contexts).toContain(heading.parentElement));
+  });
+
+  it("scrolls to and highlights the linked comment", async () => {
+    const scrollIntoView = Element.prototype.scrollIntoView as jest.Mock;
+    scrollIntoView.mockClear();
+    getThreadMock.mockImplementation(async (threadId) =>
+      threadId === firstEvent.thread!.threadId
+        ? { nextPageToken: "", repliesList: comments.slice(0, 2) }
+        : getThread(threadId),
+    );
+    renderEventPage(1, "weekly-meetup", { commentId: comments[1].threadId });
+
+    const linkedComment = (await screen.findByText(comments[1].content)).closest("[data-testid='comment']");
+
+    await waitFor(() => expect(scrollIntoView.mock.contexts).toContain(linkedComment));
+    expect(linkedComment).toHaveStyle({ outline: "2px solid var(--mui-palette-primary-main)" });
+  });
+
+  it("doesn't scroll to the comments when opened normally", async () => {
+    const scrollIntoView = Element.prototype.scrollIntoView as jest.Mock;
+    scrollIntoView.mockClear();
+    renderEventPage();
+
+    const heading = await screen.findByRole("heading", { name: t("communities:event_discussion") });
+
+    expect(scrollIntoView.mock.contexts).not.toContain(heading.parentElement);
   });
 
   it("goes back to the previous page when the back button is clicked", async () => {
@@ -155,6 +193,118 @@ describe("Event page", () => {
     await user.click(screen.getByRole("button", { name: t("communities:previous_page") }));
 
     await waitFor(() => expect(mockRouter.push).toHaveBeenCalledWith("/events"));
+  });
+
+  it("shows the 'add to calendar' item for a non-cancelled event", async () => {
+    renderEventPage();
+
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await user.click(await screen.findByTestId("event-page-more-options"));
+
+    expect(
+      await screen.findByRole("menuitem", {
+        name: t("communities:add_to_calendar"),
+      }),
+    ).toBeVisible();
+  });
+
+  it("hides the 'add to calendar' item for cancelled events", async () => {
+    getEventMock.mockResolvedValue({ ...firstEvent, isCancelled: true });
+    renderEventPage();
+
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await user.click(await screen.findByTestId("event-page-more-options"));
+
+    expect(
+      screen.queryByRole("menuitem", {
+        name: t("communities:add_to_calendar"),
+      }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("downloads a calendar file with the event's filename when 'add to calendar' is clicked", async () => {
+    const mockBlob = new Blob(["BEGIN:VCALENDAR"]);
+    global.fetch = jest.fn().mockResolvedValue({ ok: true, blob: jest.fn().mockResolvedValue(mockBlob) });
+    jest.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock-url");
+    URL.revokeObjectURL = jest.fn();
+
+    renderEventPage();
+
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await user.click(await screen.findByTestId("event-page-more-options"));
+
+    const clickSpy = jest.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (
+      this: HTMLAnchorElement,
+    ) {
+      expect(this.href).toBe("blob:mock-url");
+      expect(this.download).toBe(`${firstEvent.slug}.ics`);
+    });
+
+    await user.click(
+      await screen.findByRole("menuitem", {
+        name: t("communities:add_to_calendar"),
+      }),
+    );
+
+    expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining(`/events/${firstEvent.eventId}/calendar`), {
+      credentials: "include",
+    });
+    expect(clickSpy).toHaveBeenCalledTimes(1);
+  });
+
+  describe("in the native app", () => {
+    const postMessage = jest.fn();
+
+    function mockNativeApp(capabilities: string[]) {
+      window.ReactNativeWebView = {
+        injectedObjectJson: () => JSON.stringify({ isNativeEmbed: true, capabilities }),
+        postMessage,
+      };
+    }
+
+    afterEach(() => {
+      delete window.ReactNativeWebView;
+    });
+
+    it("hides the 'add to calendar' item when the app can't add to calendar", async () => {
+      mockNativeApp([]);
+      renderEventPage();
+
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+      await user.click(await screen.findByTestId("event-page-more-options"));
+
+      expect(
+        screen.queryByRole("menuitem", {
+          name: t("communities:add_to_calendar"),
+        }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("asks the app to add the event to the calendar", async () => {
+      mockNativeApp(["addToCalendar"]);
+      renderEventPage();
+
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+      await user.click(await screen.findByTestId("event-page-more-options"));
+      await user.click(
+        await screen.findByRole("menuitem", {
+          name: t("communities:add_to_calendar"),
+        }),
+      );
+
+      expect(JSON.parse(postMessage.mock.calls[0][0])).toEqual({
+        type: "REQUEST_ADD_TO_CALENDAR",
+        data: {
+          title: firstEvent.title,
+          startDate: "2021-06-29T02:37:00Z",
+          endDate: "2021-06-29T03:37:00Z",
+          timeZone: firstEvent.timezone,
+          location: firstEvent.location.address,
+          url: `${window.location.origin}/event/1/weekly-meetup`,
+          notes: `Be there or be square!\n\n${window.location.origin}/event/1/weekly-meetup`,
+        },
+      });
+    });
   });
 
   it("shows the 'edit event' button if the user has edit permission", async () => {

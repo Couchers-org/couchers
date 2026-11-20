@@ -32,6 +32,7 @@ from sqlalchemy.sql import expression
 from sqlalchemy.sql.elements import ColumnElement
 
 from couchers.constants import (
+    COMPLETED_MY_HOME_MINIMUM_CHAR_LENGTH,
     COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH,
     EMAIL_REGEX,
     GUIDELINES_VERSION,
@@ -58,6 +59,11 @@ class HostingStatus(enum.Enum):
     can_host = enum.auto()
     maybe = enum.auto()
     cant_host = enum.auto()
+
+
+class HostPool(enum.Enum):
+    normal = enum.auto()
+    newbie = enum.auto()
 
 
 class MeetupStatus(enum.Enum):
@@ -170,6 +176,9 @@ class User(Base, kw_only=True):
     )
     has_modified_public_visibility: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
 
+    # opted in to feature previews; exposed as the is_beta feature flag targeting attribute
+    has_opted_in_to_beta_features: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
+
     # id of the last message that they received a notification about
     last_notified_message_id: Mapped[int] = mapped_column(BigInteger, default=0)
     # same as above for host requests
@@ -211,6 +220,7 @@ class User(Base, kw_only=True):
     banned_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
     shadowed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+    moderation_auto_approve_deadline_seconds: Mapped[int | None] = mapped_column(Integer, default=None)
 
     moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
 
@@ -497,36 +507,12 @@ class User(Base, kw_only=True):
 
     @hybrid_property
     def has_completed_my_home(self) -> bool:
-        # completed my profile means that:
-        # 1. has filled out max_guests
-        # 2. has filled out sleeping_arrangement (sleeping privacy)
-        # 3. has some text in at least one of the my home free text fields
-        return (
-            self.max_guests is not None
-            and self.sleeping_arrangement is not None
-            and (
-                self.about_place is not None
-                or self.other_host_info is not None
-                or self.sleeping_details is not None
-                or self.area is not None
-                or self.house_rules is not None
-            )
-        )
+        return len(self.about_place or "") >= COMPLETED_MY_HOME_MINIMUM_CHAR_LENGTH
 
     @has_completed_my_home.inplace.expression
     @classmethod
     def _has_completed_my_home_expression(cls) -> ColumnElement[bool]:
-        return and_(
-            cls.max_guests != None,
-            cls.sleeping_arrangement != None,
-            or_(
-                cls.about_place != None,
-                cls.other_host_info != None,
-                cls.sleeping_details != None,
-                cls.area != None,
-                cls.house_rules != None,
-            ),
-        )
+        return func.coalesce(func.length(cls.about_place), 0) >= COMPLETED_MY_HOME_MINIMUM_CHAR_LENGTH
 
     @hybrid_property
     def jailed_missing_tos(self) -> bool:
@@ -737,3 +723,16 @@ class UserEmailHistory(Base, kw_only=True):
         Index("ix_user_email_history_user_id_time", user_id, time),
         Index("ix_user_email_history_email", email),
     )
+
+
+class UserRankingOffset(Base, kw_only=True):
+    """
+    Offsets added to users' recommendation_score in user search for viewers on a given variant (picked by the
+    search_ranking_offsets_variant flag).
+    """
+
+    __tablename__ = "user_ranking_offsets"
+
+    variant: Mapped[str] = mapped_column(String, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    offset: Mapped[float] = mapped_column(Float)

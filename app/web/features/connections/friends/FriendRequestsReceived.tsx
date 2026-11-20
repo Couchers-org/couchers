@@ -5,8 +5,7 @@ import { CONNECTIONS } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import { FriendRequest } from "proto/api_pb";
-import { useEffect, useRef } from "react";
-import { useIsMounted, useSafeState } from "utils/hooks";
+import { useEffect, useRef, useState } from "react";
 
 import type { SetMutationError } from ".";
 import FriendSummaryView from "./FriendSummaryView";
@@ -64,9 +63,13 @@ function RespondToFriendRequestAction({ friendRequest, setMutationError }: Respo
   );
 }
 
-function FriendRequestsReceived() {
-  const isMounted = useIsMounted();
-  const [mutationError, setMutationError] = useSafeState(isMounted, "");
+interface FriendRequestsReceivedProps {
+  /** Whether the sections above this one have loaded, so scrolling to it won't be undone by them growing */
+  isContentAboveLoaded?: boolean;
+}
+
+function FriendRequestsReceived({ isContentAboveLoaded = true }: FriendRequestsReceivedProps) {
+  const [mutationError, setMutationError] = useState("");
   const { data, isLoading, isError, errors } = useFriendRequests("received");
   const { t } = useTranslation([CONNECTIONS]);
   const router = useRouter();
@@ -79,19 +82,19 @@ function FriendRequestsReceived() {
   const requestNotFound =
     fromUserId !== null && !isLoading && data !== undefined && !data.some((req) => req.userId === fromUserId);
 
-  // Scroll to the user id from the URL parameter
-  const highlightedCardRef = useRef<HTMLDivElement>(null);
+  // Coming from a friend request notification (?from=), scroll to this section once per
+  // notification, after everything above it has loaded so it doesn't get pushed back down.
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const scrolledForUserIdRef = useRef<number | null>(null);
   useEffect(() => {
-    if (highlightedCardRef.current) {
-      highlightedCardRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-    }
-  }, [fromUserId, data]);
+    if (fromUserId === null || isLoading || !isContentAboveLoaded) return;
+    if (scrolledForUserIdRef.current === fromUserId) return;
+    scrolledForUserIdRef.current = fromUserId;
+    sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [fromUserId, isLoading, isContentAboveLoaded]);
 
   return (
-    <>
+    <div ref={sectionRef}>
       {requestNotFound && (
         <Alert severity="info" sx={{ mb: 2 }}>
           {t("connections:friend_request_no_longer_available")}
@@ -107,16 +110,12 @@ function FriendRequestsReceived() {
       >
         {data &&
           data.map((friendRequest) => (
-            <FriendSummaryView
-              key={friendRequest.friendRequestId}
-              friend={friendRequest.friend}
-              cardRef={friendRequest.userId === fromUserId ? highlightedCardRef : undefined}
-            >
+            <FriendSummaryView key={friendRequest.friendRequestId} friend={friendRequest.friend}>
               <RespondToFriendRequestAction friendRequest={friendRequest} setMutationError={setMutationError} />
             </FriendSummaryView>
           ))}
       </FriendTile>
-    </>
+    </div>
   );
 }
 

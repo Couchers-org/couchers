@@ -7,19 +7,22 @@ from sqlalchemy import update
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views
 from couchers.metrics import (
+    _set_hacky_gauges_funcs,
     _set_hacky_labeled_gauges_funcs,
     _set_hacky_multi_gauges_funcs,
     active_users_by_platform_gauge,
     active_users_by_platform_statement,
     active_users_by_recency_gauge,
     active_users_mobile_fraction_gauge,
+    sent_request_gauge,
     users_gauges,
     users_per_community_gauge,
 )
 from couchers.models import ClientPlatform, HostingStatus, User, UserActivity
-from couchers.utils import now
+from couchers.utils import now, today
 from tests.fixtures.db import generate_user
 from tests.test_communities import create_community
+from tests.test_requests import _create_host_request_via_api, _create_public_trip
 
 
 def _populate(gauge):
@@ -28,6 +31,13 @@ def _populate(gauge):
             f(registered_gauge)
             return
     raise AssertionError("gauge is not a registered labeled gauge")
+
+
+def _query_value(gauge):
+    for registered_gauge, f in _set_hacky_gauges_funcs:
+        if registered_gauge is gauge:
+            return f()
+    raise AssertionError("gauge is not a registered gauge")
 
 
 def _populate_single_pass():
@@ -248,3 +258,17 @@ def test_active_users_mobile_fraction_gauge(db):
     # populating the breakdown gauge also sets the mobile fraction gauge: 3 of 4 active users are on mobile
     _populate(active_users_by_platform_gauge)
     assert _gauge_value(active_users_mobile_fraction_gauge) == pytest.approx(0.75)
+
+
+def test_sent_request_gauge_excludes_public_trip_offers(db, moderator):
+    _, surfer_token = generate_user()
+    host, host_token = generate_user()
+    traveller, _ = generate_user()
+
+    _create_host_request_via_api(surfer_token, host.id, moderator)
+
+    # the host offering to host a public trip hasn't sent a host request
+    trip_id = _create_public_trip(traveller.id, today() + timedelta(days=5), today() + timedelta(days=10))
+    _create_host_request_via_api(host_token, traveller.id, moderator, public_trip_id=trip_id)
+
+    assert _query_value(sent_request_gauge) == 1

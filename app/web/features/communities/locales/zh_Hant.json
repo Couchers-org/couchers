@@ -127,8 +127,6 @@
   "comment_deleted": "該評論已被刪除。",
   "edit_comment": "編輯評論",
   "delete_comment": "刪除評論",
-  "comment_edited_date": "已編輯{{timeAgo}}",
-  "discussion_edited_date": "已編輯{{timeAgo}}",
   "discussion_deleted": "此討論已被刪除。",
   "delete_discussion": "刪除討論",
   "delete_discussion_dialog": {

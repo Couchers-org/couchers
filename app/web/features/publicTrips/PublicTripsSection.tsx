@@ -89,24 +89,24 @@ export default function PublicTripsSection({ community }: { community: Community
         communityId={community.communityId}
         communityName={community.name}
       />
-      <SectionTitle icon={<CouchIcon />}>{t("publicTrips:label")}</SectionTitle>
+      <SectionTitle icon={<CouchIcon />}>{t("publicTrips:heading")}</SectionTitle>
       {hasOwnTrip ? (
         <Button sx={{ my: 2 }} startIcon={<EditIcon />} component={Link} href={myPublicTripsRoute}>
-          {t("publicTrips:edit_my_trips")}
+          {t("publicTrips:view_my_trips_button")}
         </Button>
       ) : (
         <Button sx={{ my: 2 }} startIcon={<AddIcon />} onClick={handleCreateClick}>
-          {t("publicTrips:create_trip")}
+          {t("publicTrips:create_trip_button")}
         </Button>
       )}
       <Typography variant="body1" sx={{ mb: 2 }}>
-        {t("publicTrips:section_intro")}
+        {t("publicTrips:community_section.intro")}
       </Typography>
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
         <CenteredSpinner />
       ) : !hasResults && pageIndex === 0 ? (
-        <Typography variant="body1">{t("publicTrips:empty_state")}</Typography>
+        <Typography variant="body1">{t("publicTrips:trip_list.empty_placeholder")}</Typography>
       ) : (
         <>
           <TripsList>
@@ -121,15 +121,15 @@ export default function PublicTripsSection({ community }: { community: Community
           </TripsList>
           <PaginationRow>
             <Button onClick={goPrev} disabled={pageIndex === 0} startIcon={<ChevronLeftIcon />}>
-              {t("publicTrips:previous")}
+              {t("publicTrips:trip_list.pagination.previous_button")}
             </Button>
             <Typography variant="body2">
-              {t("publicTrips:page_indicator", {
+              {t("publicTrips:trip_list.pagination.page_indicator", {
                 current: pageIndex + 1,
               })}
             </Typography>
             <Button onClick={goNext} disabled={!data?.nextPageToken} endIcon={<ChevronRightIcon />}>
-              {t("publicTrips:next")}
+              {t("publicTrips:trip_list.pagination.next_button")}
             </Button>
           </PaginationRow>
         </>

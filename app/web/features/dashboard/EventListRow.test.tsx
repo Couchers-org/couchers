@@ -58,7 +58,7 @@ describe("EventListRow", () => {
     expect(screen.getByText("May")).toBeVisible();
     expect(screen.getByText("13")).toBeVisible();
     // \s: ICU's meridiem separator is a plain space in some versions, narrow no-break in others.
-    expect(screen.getByText(/^12:34\sPM$/)).toBeVisible();
+    expect(screen.getByText(/^12:34\spm$/)).toBeVisible();
     expect(screen.queryByText(t("dashboard:today_label"))).not.toBeInTheDocument();
     expect(screen.queryByText(t("dashboard:now_label"))).not.toBeInTheDocument();
   });

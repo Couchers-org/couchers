@@ -1,18 +1,17 @@
 import { ArrowBack, ArrowForward } from "@mui/icons-material";
 import { Box, IconButton, styled } from "@mui/material";
 import Alert from "components/Alert";
+import CardTrack, { useCardTrack } from "components/CardTrack";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import FadingScrollTrack from "components/FadingScrollTrack";
 import { CouchIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { SectionTitle } from "features/communities/CommunityPage";
-import { CARD_GAP, CARD_WIDTH, DashboardPublicTripCard } from "features/dashboard/DashboardPublicTripCard";
+import { CARD_WIDTH, DashboardPublicTripCard } from "features/dashboard/DashboardPublicTripCard";
 import { useTranslation } from "i18n";
 import { PUBLIC_TRIPS } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
-import { useEffect, useRef, useState } from "react";
 import { routeToCommunity } from "routes";
 import { theme } from "theme";
 
@@ -48,54 +47,35 @@ export default function PublicTripsOverview({ community }: { community: Communit
 
   const { data, error, isLoading } = useListPublicTrips(community.communityId, "");
 
-  const scrollerRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-
-  const updateScrollState = () => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 0);
-    setCanScrollRight(Math.round(el.scrollLeft) < el.scrollWidth - el.clientWidth);
-  };
-
   const allTrips = data?.publicTripsList ?? [];
   const trips = allTrips.slice(0, PREVIEW_COUNT);
 
-  useEffect(() => {
-    updateScrollState();
-  }, [trips.length, isLoading]);
-
-  const scroll = (dir: 1 | -1) => {
-    scrollerRef.current?.scrollBy({
-      left: dir * (CARD_WIDTH + CARD_GAP),
-      behavior: "smooth",
-    });
-  };
+  const track = useCardTrack({ maxCardsPerScroll: 1 });
+  const { canScrollLeft, canScrollRight } = track;
 
   return (
     <StyledSection>
       <SectionHeader>
         <SectionTitle icon={<CouchIcon />} variant="h2">
-          {t("publicTrips:label")}
+          {t("publicTrips:heading")}
         </SectionTitle>
         {trips.length > 0 && (
           <Box sx={{ display: "flex", alignItems: "center", gap: "4px" }}>
             <IconButton
               size="small"
-              onClick={() => scroll(-1)}
+              onClick={track.navProps.onPrevious}
               disabled={!canScrollLeft}
               color={canScrollLeft ? "primary" : "default"}
-              aria-label={t("publicTrips:prev_page_button_a11y")}
+              aria-label={t("publicTrips:trip_list.pagination.previous_button_a11y")}
             >
               <ArrowBack fontSize="small" />
             </IconButton>
             <IconButton
               size="small"
-              onClick={() => scroll(1)}
+              onClick={track.navProps.onNext}
               disabled={!canScrollRight}
               color={canScrollRight ? "primary" : "default"}
-              aria-label={t("publicTrips:next_page_button_a11y")}
+              aria-label={t("publicTrips:trip_list.pagination.next_button_a11y")}
             >
               <ArrowForward fontSize="small" />
             </IconButton>
@@ -107,34 +87,24 @@ export default function PublicTripsOverview({ community }: { community: Communit
       {isLoading ? (
         <CenteredSpinner />
       ) : trips.length > 0 ? (
-        <FadingScrollTrack
-          ref={scrollerRef}
-          onScroll={updateScrollState}
-          $gap={CARD_GAP}
-          $snapType="x proximity"
-          $canScrollLeft={canScrollLeft}
-          $canScrollRight={canScrollRight}
-        >
+        <CardTrack track={track} cardWidth={CARD_WIDTH}>
           {trips.map((trip) => (
-            <div
+            <DashboardPublicTripCard
               key={trip.tripId}
-              style={{
-                flex: `0 0 ${CARD_WIDTH}px`,
-                scrollSnapAlign: "start",
-              }}
-            >
-              <DashboardPublicTripCard trip={trip} locale={locale} isOwnTrip={trip.user?.userId === authState.userId} />
-            </div>
+              trip={trip}
+              locale={locale}
+              isOwnTrip={trip.user?.userId === authState.userId}
+            />
           ))}
-        </FadingScrollTrack>
+        </CardTrack>
       ) : (
-        <TextBody>{t("publicTrips:empty_state")}</TextBody>
+        <TextBody>{t("publicTrips:trip_list.empty_placeholder")}</TextBody>
       )}
 
       <FooterRow>
         {trips.length > 0 && (
           <StyledLink href={routeToCommunity(community.communityId, community.slug, "public-trips")}>
-            {t("publicTrips:see_all")}
+            {t("publicTrips:trip_list.see_all_link")}
           </StyledLink>
         )}
       </FooterRow>

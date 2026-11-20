@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+package bfc;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+service BFC {
+  rpc UserSearch(UserSearchReq) returns (UserSearchRes);
+}
+
+message Rectangle {
+  double lat_min = 1;
+  double lng_min = 2;
+  double lat_max = 3;
+  double lng_max = 4;
+}
+
+message LanguageAbility {
+  string code = 1;
+  // org.couchers.api.core.LanguageAbility.Fluency
+  int32 fluency = 2;
+}
+
+// The filters of org.couchers.api.search.UserSearchReq. Enum fields carry the numeric values of the matching
+// org.couchers.api.core enums.
+message UserSearchFilters {
+  google.protobuf.Timestamp last_active = 1;
+
+  repeated int32 hosting_status = 2;
+  repeated int32 meetup_status = 3;
+  repeated int32 smoking_location = 4;
+  repeated int32 sleeping_arrangement = 5;
+  repeated int32 parking_details = 6;
+  repeated LanguageAbility language_ability = 7;
+
+  google.protobuf.UInt32Value guests = 8;
+  bool only_with_references = 9;
+  bool only_with_strong_verification = 10;
+
+  google.protobuf.UInt32Value age_min = 11;
+  google.protobuf.UInt32Value age_max = 12;
+
+  google.protobuf.BoolValue last_minute = 13;
+  google.protobuf.BoolValue has_pets = 14;
+  google.protobuf.BoolValue accepts_pets = 15;
+  google.protobuf.BoolValue has_kids = 16;
+  google.protobuf.BoolValue accepts_kids = 17;
+  google.protobuf.BoolValue has_housemates = 18;
+  google.protobuf.BoolValue wheelchair_accessible = 19;
+  google.protobuf.BoolValue smokes_at_home = 20;
+  google.protobuf.BoolValue drinking_allowed = 21;
+  google.protobuf.BoolValue drinks_at_home = 22;
+  google.protobuf.BoolValue parking = 23;
+  google.protobuf.BoolValue camping_ok = 24;
+  google.protobuf.BoolValue profile_completed = 25;
+
+  // Users of any of these genders. Empty means any gender.
+  repeated string genders = 26;
+}
+
+message UserSearchReq {
+  int64 viewer_id = 1;
+  // Users the viewer has blocked and users who have blocked the viewer.
+  repeated int64 blocked_user_ids = 2;
+
+  // Absent means the whole world.
+  Rectangle rectangle = 3;
+  UserSearchFilters filters = 4;
+
+  uint32 page_size = 5;
+  string page_token = 6;
+}
+
+message UserSearchResult {
+  int64 user_id = 1;
+}
+
+message UserSearchRes {
+  string search_id = 1;
+  // The page, followed by a few users past its end.
+  repeated UserSearchResult results = 2;
+  uint32 page_size = 3;
+  string next_page_token = 4;
+  uint64 total = 5;
+  // What total would be with no filters: the users in the view that the viewer can see.
+  uint64 unfiltered_total = 6;
+}

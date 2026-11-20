@@ -1,0 +1,98 @@
+{
+  "heading": "Публічні подорожі",
+  "my_trips_heading": "Мої публічні подорожі",
+  "create_trip_button": "Створити публічну подорож",
+  "view_my_trips_button": "Переглянути мої публічні подорожі",
+  "community_section": {
+    "intro": "Мандрівники можуть тут публікувати свої майбутні подорожі, а місцеві жителі можуть їх переглядати та запрошувати у гості. Якщо хтось вас зацікавив, напишіть йому(їй) та запропонуйте свою домівку!"
+  },
+  "trip_list": {
+    "filters": {
+      "active_option": "Відкриті",
+      "all_option": "Усі",
+      "closed_option": "Закриті",
+      "past_option": "Минулі",
+      "no_match_placeholder": "Не знайдено подорожей за цим фільтом"
+    },
+    "empty_placeholder": "Наразі немає публічних подорожей.",
+    "mine_empty_placeholder": "Ви поки що не створювали публічних подорожей.",
+    "pagination": {
+      "previous_button": "Попередня",
+      "next_button": "Наступна",
+      "next_button_a11y": "Наступна сторінка",
+      "previous_button_a11y": "Попередня сторінка",
+      "page_indicator": "Сторінка {{current}}"
+    },
+    "see_all_link": "Переглянути усі публічні подорожі"
+  },
+  "trip_card": {
+    "references_one": "{{count}} відгук",
+    "references_few": "{{count}} відгуки",
+    "references_many": "{{count}} відгуків",
+    "you_overlay": "Ви",
+    "invitations_count_one": "{{count}} запрошення",
+    "invitations_count_few": "{{count}} запрошення",
+    "invitations_count_many": "{{count}} запрошень",
+    "no_invitations": "Наразі немає запрошень",
+    "status_pills": {
+      "active": "Відкрита",
+      "closed": "Закрита",
+      "past": "Минула"
+    },
+    "same_gender_only_indicator": "Видима лише для людей вашого гендеру",
+    "already_invited_indicator": "Запрошення відправлено",
+    "show_less_action": "Показувати менше",
+    "show_more_action": "Показати більше",
+    "view_profile_button": "Переглянути профіль",
+    "view_invitations_button": "Переглянути запрошення",
+    "edit_button": "Редагувати подорож",
+    "close_button": "Позначити закритою",
+    "reopen_button": "Відкрити подорож наново",
+    "offer_to_host_button": "Запросити у гості",
+    "offer_to_host_button_disabled_tooltip": "У цій подорожі мандрівник(ця) уже не приймає запрошень."
+  },
+  "create_edit_dialog": {
+    "create_title": "Створити публічну подорож",
+    "edit_title": "Редагувати публічну подорож",
+    "from_date": {
+      "label": "Приїзд",
+      "required_error": "Будь ласка оберіть дату приїзду."
+    },
+    "to_date": {
+      "label": "Виїзд",
+      "required_error": "Будь ласка оберіть дату виїзду."
+    },
+    "location_label": "Місто:",
+    "same_gender_only": {
+      "label": "Однаковий гендер",
+      "description": "Показувати цю подорож лише людям вашого гендеру."
+    },
+    "description": {
+      "label": "Про вашу подорож",
+      "placeholder": "Які у вас плани ? Як довго триватиме ваш візит ? Усе що потрібно знати людям, які потенційно могли б запросити вас у гості.",
+      "required_error": "Будь ласка додайте короткий опис.",
+      "chars_remaining_one": "Додайте іще {{count}} символ.",
+      "chars_remaining_few": "Додайте іще {{count}} символи.",
+      "chars_remaining_many": "Додайте іще {{count}} символів."
+    },
+    "create_submit_button": "Опублікувати подорож",
+    "edit_submit_button": "Зберегти зміни"
+  },
+  "close_dialog": {
+    "title": "Закрити цю подорож?",
+    "message": "Закриття подорожі приховує її зі сторінки спільноти та блокує нові запрошення від місцевих жителів.",
+    "confirm_button": "Закрити подорож"
+  },
+  "offer_to_host_dialog": {
+    "title": "Запросити {{name}} у гості",
+    "message": {
+      "label": "Ваше повідомлення",
+      "placeholder": "Розкажіть детальніше про себе та свою пропозицію.",
+      "required_error": "Будь ласка напишіть повідомлення.",
+      "chars_remaining_one": "Необхідний іще {{count}} символ.",
+      "chars_remaining_few": "Необхідні іще {{count}} символи.",
+      "chars_remaining_many": "Необхідно іще {{count}} символів."
+    },
+    "submit_button": "Відправити запрошення"
+  }
+}

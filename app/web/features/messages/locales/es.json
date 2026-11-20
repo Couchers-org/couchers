@@ -9,7 +9,8 @@
       "chats": "Conversaciones",
       "hosting": "Hospedar",
       "surfing": "Ser hospedado",
-      "unread": "No leídas"
+      "unread": "No leídas",
+      "public_trips": "Mis viajes públicos"
     }
   },
   "chat_view": {
@@ -91,7 +92,9 @@
     "title_for_surfer": "Solicitud a {{user}} - {{status}}",
     "request_duration_one": "{{count}} noche",
     "request_duration_many": "{{count}} de noches",
-    "request_duration_other": "{{count}} noches"
+    "request_duration_other": "{{count}} noches",
+    "invitation_title_for_surfer": "Invitación de {{user}} · {{status}}",
+    "invitation_title_for_host": "Tu invitación a {{user}} · {{status}}"
   },
   "admins_dialog": {
     "step_down_confirmation_dialog": {
@@ -138,6 +141,16 @@
       "cancelled_self": "Has cancelado la solicitud",
       "confirmed_self": "Has confirmado la solicitud",
       "rejected_self": "Has rechazado la solicitud"
+    },
+    "invitation_status_changed": {
+      "accepted": "{{user}} ha aceptado la invitación",
+      "accepted_self": "Has aceptado la invitación",
+      "cancelled": "{{user}} ha retirado la invitación",
+      "cancelled_self": "Has retirado la invitación",
+      "confirmed": "{{user}} ha confirmado la estancia",
+      "confirmed_self": "Has confirmado la estancia",
+      "rejected": "{{user}} ha rechazado la invitación",
+      "rejected_self": "Has rechazado la invitación"
     }
   },
   "host_pending_request_help_text": "<guideLink>Cosas a considerar</guideLink> antes de responder.",
@@ -157,6 +170,19 @@
       "cancelled": "Has cancelado esta solicitud",
       "confirmed": "¡Diviértete! {{name}} aceptó y tu has confirmdo esta solicitud.",
       "rejected": "Tu solicitud fue declinada"
+    },
+    "public_trip_chip": "Viaje público",
+    "invitation_host_status": {
+      "pending": "Esperando la respuesta de {{name}}",
+      "accepted": "{{name}} aceptó tu invitación",
+      "rejected": "{{name}} rechazó tu invitación",
+      "cancelled": "Retiraste tu invitación"
+    },
+    "invitation_surfer_status": {
+      "pending": "Invitación para alojarte · esperando tu respuesta",
+      "accepted": "Has aceptado la invitación de {{name}}",
+      "rejected": "Has declinado esta invitación",
+      "cancelled": "{{name}} retiró su invitación"
     }
   },
   "past_request_help_text": "Esta solicitud está pasada, todavía puedes enviar mensajes pero no puedes modificarla.",
@@ -179,7 +205,7 @@
   },
   "reference_card": {
     "title": "Escribe una referencia",
-    "description": "Comparte tu experiencia para ayudar a la comunidad."
+    "description": "Comparte tu experiencia para apoyar a la comunidad."
   },
   "respond_box_title": "Envía una respuesta",
   "respond_box_description": "Selecciona una respuesta para avisar a {{name}} de inmediato. Posteriormente si quieres podrás enviarle un mensaje.",
@@ -208,5 +234,38 @@
   },
   "surfer_confirm_box_title": "¡{{name}} ha aceptado tu solicitud!",
   "surfer_confirm_box_description": "Confirma para asegurar tu estancia, o cancela si tus planes han cambiado.",
-  "show_more_actions_button_a11y": "Mostrar más acciones"
+  "show_more_actions_button_a11y": "Mostrar más acciones",
+  "mark_all_read_button_text_public_trips": "Marcar todas las invitaciones a viajes públicos como leídas",
+  "invitation_respond_box_title": "Responder a la invitación de {{name}}",
+  "invitation_respond_box_description": "Al aceptar, {{name}} sabrá que te gustaría quedarte. En cualquier caso puedes seguir chateando para concretar los detalles.",
+  "invitation_accept_confirmation": "Aceptaste la invitación de {{name}}. Envíale un saludo y coordina los detalles de tu llegada.",
+  "cancel_accepted_invitation_stay_button": "Cancelar estancia",
+  "cancel_accepted_invitation_stay_dialog_title": "¿Cancelar tu estancia con {{name}}?",
+  "cancel_accepted_invitation_stay_dialog_message": "Se notificará a {{name}}. No puedes deshacer esta acción.",
+  "cancel_accepted_invitation_stay_dialog_confirm_button": "Cancelar estancia",
+  "cancel_accepted_invitation_stay_dialog_dismiss_button": "Mantener la estancia",
+  "invitation_sent_box_title": "Invitación enviada",
+  "invitation_sent_box_description": "{{name}} aún no ha respondido. Te avisaremos cuando responda.",
+  "invitation_host_accepted_box_title": "{{name}} aceptó tu invitación",
+  "invitation_host_accepted_box_description": "Confirma para asegurar la estancia, o desiste si tus planes han cambiado.",
+  "invitation_host_confirmed_box_title": "Estás hospedando a {{name}}",
+  "invitation_host_confirmed_box_description": "Si tus planes cambian aún puedes retirar tu invitación. Se notificará a {{name}}.",
+  "withdraw_invitation_button": "Retirar invitación",
+  "withdraw_invitation_dialog_title": "¿Retirar tu invitación?",
+  "withdraw_invitation_dialog_message": "Esto retirará tu invitación para hospedar a {{name}} y se le notificará. No podrás deshacer esta acción.",
+  "withdraw_invitation_dialog_confirm_button": "Retirar invitación",
+  "withdraw_invitation_dialog_dismiss_button": "Mantener invitación",
+  "status_bar_edit_button": "Editar",
+  "status_bar_cancel_edit_button": "Cancelar",
+  "status_bar_close_button": "Cerrar",
+  "my_public_trips": {
+    "empty_state": "Todavía no hay invitaciones en tus viajes públicos.",
+    "toggle_group": "Alternar viaje",
+    "nights_one": "{{count}} noche",
+    "nights_many": "{{count}} de noches",
+    "nights_other": "{{count}} noches",
+    "invitations_one": "{{count}} invitación",
+    "invitations_many": "{{count}} de invitaciones",
+    "invitations_other": "{{count}} invitaciones"
+  }
 }

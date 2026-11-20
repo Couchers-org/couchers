@@ -6,6 +6,7 @@ from geoalchemy2 import Geometry
 from sqlalchemy import (
     BigInteger,
     Boolean,
+    CheckConstraint,
     Computed,
     Date,
     DateTime,
@@ -14,7 +15,9 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     String,
+    and_,
     func,
+    select,
     text,
 )
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -23,6 +26,7 @@ from sqlalchemy.sql import expression
 
 from couchers.models.base import Base, Geom
 from couchers.models.moderation import ModerationObjectType
+from couchers.models.static import TimezoneArea
 from couchers.utils import date_in_timezone, now
 
 if TYPE_CHECKING:
@@ -38,6 +42,13 @@ class HostRequestStatus(enum.Enum):
     rejected = enum.auto()
     confirmed = enum.auto()
     cancelled = enum.auto()
+
+
+class StayProposalKind(enum.Enum):
+    # a surfer asking a host to stay
+    request = enum.auto()
+    # a host inviting the traveller of a public trip to stay
+    invitation = enum.auto()
 
 
 class HostRequestQuality(enum.Enum):
@@ -57,8 +68,9 @@ class HostRequest(Base, kw_only=True):
     * surfer/host is the stay role: whose couch it is. References, feedback, response rates and metrics key
       off this axis.
 
-    An offer on a public trip reverses them: the host initiates and the traveller responds. surfer_user_id
-    and host_user_id are generated from that so the stay role can never drift out of sync.
+    An invitation on a public trip (proposal_kind == invitation) reverses them: the host initiates and the traveller
+    responds. surfer_user_id and host_user_id are generated from proposal_kind so the stay role can never drift out of
+    sync.
     """
 
     __tablename__ = "host_requests"
@@ -70,15 +82,21 @@ class HostRequest(Base, kw_only=True):
     initiator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     recipient_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
+    proposal_kind: Mapped[StayProposalKind] = mapped_column(Enum(StayProposalKind))
+
     surfer_user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id"),
-        Computed("case when public_trip_id is null then initiator_user_id else recipient_user_id end", persisted=True),
+        Computed(
+            "case when proposal_kind = 'request' then initiator_user_id else recipient_user_id end", persisted=True
+        ),
         index=True,
         init=False,
     )
     host_user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id"),
-        Computed("case when public_trip_id is null then recipient_user_id else initiator_user_id end", persisted=True),
+        Computed(
+            "case when proposal_kind = 'request' then recipient_user_id else initiator_user_id end", persisted=True
+        ),
         index=True,
         init=False,
     )
@@ -90,12 +108,21 @@ class HostRequest(Base, kw_only=True):
     hosting_location: Mapped[Geom] = mapped_column(Geometry("POINT", srid=4326))
     hosting_radius: Mapped[float] = mapped_column(Float)
 
-    # TODO: proper timezone handling
-    timezone = "Etc/UTC"
-
-    # dates in the timezone above
+    # from/to dates, local to the stay's timezone
     from_date: Mapped[date] = mapped_column(Date)
     to_date: Mapped[date] = mapped_column(Date)
+
+    # Timezone at the location of the stay.
+    # Not deferred because we always need it to interpret the dates.
+    timezone: Mapped[str] = column_property(
+        func.coalesce(
+            select(TimezoneArea.tzid)
+            .where(func.ST_Contains(TimezoneArea.geom, hosting_location))
+            .limit(1)
+            .scalar_subquery(),
+            "Etc/UTC",
+        )
+    )
 
     # timezone-aware start and end times of the request, can be compared to now()
     start_time = column_property(date_in_timezone(from_date, timezone))
@@ -124,7 +151,7 @@ class HostRequest(Base, kw_only=True):
     recipient_reason_didnt_meetup: Mapped[str | None] = mapped_column(String, default=None)
     initiator_reason_didnt_meetup: Mapped[str | None] = mapped_column(String, default=None)
 
-    # Optional link to public trip if this request originated from one
+    # set exactly when proposal_kind == invitation
     public_trip_id: Mapped[int | None] = mapped_column(ForeignKey("public_trips.id"), index=True, default=None)
 
     initiator: Mapped[User] = relationship(
@@ -157,6 +184,18 @@ class HostRequest(Base, kw_only=True):
             recipient_sent_request_reminders,
             last_sent_request_reminder_time,
             from_date,
+        ),
+        # A host can have at most one non-withdrawn offer per public trip
+        Index(
+            "ix_host_requests_one_active_offer_per_trip",
+            public_trip_id,
+            initiator_user_id,
+            unique=True,
+            postgresql_where=and_(proposal_kind == StayProposalKind.invitation, status != HostRequestStatus.cancelled),
+        ),
+        CheckConstraint(
+            "(proposal_kind = 'invitation') = (public_trip_id IS NOT NULL)",
+            name="public_trip_id_iff_invitation",
         ),
     )
 

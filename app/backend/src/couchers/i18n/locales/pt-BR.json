@@ -292,5 +292,6 @@
     "be_kind_guideline": "O Couchers.org é uma comunidade inclusiva onde pessoas de todas as culturas e experiências se reúnem. Trate todos com respeito mútuo e dignidade.",
     "no_dating_title": "Isto não é um aplicativo de namoro",
     "no_money_guideline": "Mantenha as coisas não comerciais. Não pague para ser hospedado ou hospedar. O Couchers.org tem a ver com aprendizado, experiências e conhecer pessoas."
-  }
+  },
+  "ambiguous_language_display_format": "{{name}} ({{code}})"
 }

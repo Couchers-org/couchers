@@ -11,7 +11,6 @@
     "footer": {
       "received_because": "Bu e-postayı Couchers.org'a kaydolduğunuz için alıyorsunuz.",
       "contact_support": "Destek ekibimize {{ email_link }} adresinden ulaşabilirsiniz.",
-      "timezone_note": "Tüm saatler, profil konumunuza göre {{ timezone }} cinsindendir.",
       "donate_link": "Bağış Yap",
       "volunteer_link": "Gönüllü Ol",
       "blog_link": "Blog",
@@ -95,6 +94,11 @@
       "invitation": {
         "subject": "{{user}} seni {{title}}'ya davet etti"
       }
+    }
+  },
+  "calendar_events": {
+    "host_requests": {
+      "title_surfer": "{{ name }} ile sörf"
     }
   }
 }

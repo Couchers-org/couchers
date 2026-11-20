@@ -3,12 +3,16 @@ import {
   GrowthBook,
   setPolyfills,
 } from "@growthbook/growthbook";
-import { GrowthBookProvider } from "@growthbook/growthbook-react";
+import {
+  GrowthBookProvider,
+  useGrowthBook,
+} from "@growthbook/growthbook-react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Sentry from "@sentry/react-native";
-import { ReactNode, useEffect } from "react";
+import { createContext, ReactNode, useContext, useEffect } from "react";
 
 import { useAuthContext } from "@/features/auth/AuthContext";
+import { useTargetingAttributes } from "@/features/experimentation/targetingAttributes";
 import { reportExposure } from "@/service/experiments";
 
 const INIT_TIMEOUT_MS = 1500;
@@ -53,12 +57,38 @@ const growthbook = new GrowthBook({
   },
 });
 
+// Defaults to ready so components rendered without the provider (e.g. in tests) aren't blocked
+const AttributesReadyContext = createContext(true);
+
+export type FeatureFlagSnapshot = {
+  targeting: Record<string, unknown>;
+  values: Record<string, unknown>;
+};
+
+export function getFeatureFlagSnapshot(): FeatureFlagSnapshot {
+  const targeting = growthbook.getAttributes();
+  const probe = new GrowthBook({ attributes: targeting });
+  probe.initSync({ payload: growthbook.getDecryptedPayload() });
+  return {
+    targeting,
+    values: Object.fromEntries(
+      Object.keys(probe.getFeatures())
+        .sort()
+        .map((key) => [key, probe.evalFeature(key).value]),
+    ),
+  };
+}
+
 export default function FeatureFlagProvider({
   children,
 }: {
   children: ReactNode;
 }) {
-  const { userId } = useAuthContext();
+  const { checkedAuthStatus, userId } = useAuthContext();
+  const { attributes, ready: attributesReady } = useTargetingAttributes(
+    userId,
+    checkedAuthStatus,
+  );
 
   useEffect(() => {
     // Dev-only: when set, flags resolve from feature-flags.dev.json instead of GrowthBook,
@@ -69,15 +99,13 @@ export default function FeatureFlagProvider({
     if (__DEV__ && process.env.EXPO_PUBLIC_FEATURE_FLAGS_OVERRIDE === "1") {
       void import("@/feature-flags.dev.json").then((mod) => {
         const overrides = (mod.default ?? mod) as Record<string, unknown>;
-        growthbook.initSync({
-          payload: {
-            features: Object.fromEntries(
-              Object.entries(overrides).map(([key, value]) => [
-                key,
-                { defaultValue: value },
-              ]),
-            ),
-          },
+        void growthbook.setPayload({
+          features: Object.fromEntries(
+            Object.entries(overrides).map(([key, value]) => [
+              key,
+              { defaultValue: value },
+            ]),
+          ),
         });
       });
       return;
@@ -91,10 +119,21 @@ export default function FeatureFlagProvider({
   }, []);
 
   useEffect(() => {
-    growthbook.setAttributes(userId != null ? { id: userId.toString() } : {});
-  }, [userId]);
+    growthbook.setAttributes(attributes);
+  }, [attributes]);
 
   return (
-    <GrowthBookProvider growthbook={growthbook}>{children}</GrowthBookProvider>
+    <GrowthBookProvider growthbook={growthbook}>
+      <AttributesReadyContext value={attributesReady}>
+        {children}
+      </AttributesReadyContext>
+    </GrowthBookProvider>
   );
+}
+
+/** Whether flags can be evaluated: the GrowthBook payload and the user's targeting attributes are loaded or timed out. */
+export function useFeatureFlagsReady() {
+  const growthbookReady = useGrowthBook().ready;
+  const attributesReady = useContext(AttributesReadyContext);
+  return growthbookReady && attributesReady;
 }

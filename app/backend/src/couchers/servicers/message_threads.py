@@ -41,6 +41,7 @@ from couchers.models import (
     HostRequestFeedback,
     HostRequestStatus,
     Message,
+    StayProposalKind,
 )
 from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import mark_notifications_seen
@@ -58,7 +59,7 @@ _KIND_GROUP_CHAT = "group_chat"
 _KIND_HOST_REQUEST = "host_request"
 
 # one thread as the select queries yield it: (conversation_id, latest_message_id, kind)
-_ThreadRow = Row[tuple[int, int, str]]
+_ThreadRow = Row[int, int, str]
 
 
 @dataclass(frozen=True)
@@ -98,7 +99,7 @@ def _resolve_thread_filters(
 
 def _build_group_chat_select_query(
     context: CouchersContext, only_archived: bool | None, unread: bool
-) -> Select[tuple[int, int, str]]:
+) -> Select[int, int, str]:
     """
     The group chats (including DMs) the viewer should see, narrowed by the request's archived and
     unread filters, along with the id of the newest message each one shows them.
@@ -128,7 +129,7 @@ def _build_group_chat_select_query(
 
 def _build_host_request_select_query(
     context: CouchersContext, role_filter: ColumnElement[bool], only_archived: bool | None, unread: bool
-) -> Select[tuple[int, int, str]]:
+) -> Select[int, int, str]:
     """
     The host requests and public-trip offers the viewer should see, narrowed by the request's
     archived and unread filters, along with the id of each one's newest message.
@@ -213,6 +214,7 @@ def _host_request_thread_to_pb(
         created=Timestamp_from_datetime(conversation.created),
         from_date=date_to_api(host_request.from_date),
         to_date=date_to_api(host_request.to_date),
+        timezone=host_request.timezone,
         last_seen_message_id=(
             host_request.initiator_last_seen_message_id
             if host_request.initiator_user_id == user_id
@@ -249,7 +251,7 @@ def _build_group_chats_pb(
     latest_message_ids = [thread.latest_message_id for thread in threads]
 
     unseen_count_by_group_chat: dict[int, int] = dict(
-        session.execute(  # type: ignore[arg-type]
+        session.execute(
             select(GroupChatSubscription.group_chat_id, func.count(Message.id))
             .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
             .where(GroupChatSubscription.group_chat_id.in_(group_chat_ids))
@@ -340,12 +342,12 @@ def _build_host_request_threads_pb(
     latest_message_ids = [thread.latest_message_id for thread in threads]
 
     # same rule as host_request_to_pb: the host is asked for feedback once they've rejected a request
-    # and haven't given any yet.
-    # TODO(#9347): the recipient-based logic is wrong for public-trip offers, where the recipient is
-    # the traveller rather than the host — same for the response-rate observation.
+    # and haven't given any yet. Public-trip offers aren't asked, as their recipient is the traveller.
+    # TODO(#9347): the recipient-based response-time observation is wrong for public-trip offers.
     need_host_request_feedback = and_(
         HostRequest.recipient_user_id == context.user_id,
         HostRequest.status == HostRequestStatus.rejected,
+        HostRequest.proposal_kind == StayProposalKind.request,
         ~exists()
         .where(HostRequestFeedback.from_user_id == context.user_id)
         .where(HostRequestFeedback.host_request_id == HostRequest.conversation_id)

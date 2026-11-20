@@ -1,4 +1,10 @@
-import { CancelOutlined, ContentCopyOutlined, EditOutlined, LinkOutlined } from "@mui/icons-material";
+import {
+  CancelOutlined,
+  ContentCopyOutlined,
+  EditOutlined,
+  EventAvailableOutlined,
+  LinkOutlined,
+} from "@mui/icons-material";
 import { Card, Chip, styled, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { eventImagePlaceholderUrl } from "appConstants";
@@ -10,6 +16,7 @@ import HeaderButton from "components/HeaderButton";
 import HtmlMeta from "components/HtmlMeta";
 import { BackIcon, CalendarIcon } from "components/Icons";
 import Markdown from "components/Markdown";
+import PullToRefresh from "components/PullToRefresh";
 import Snackbar from "components/Snackbar";
 import { useAuthContext } from "features/auth/AuthProvider";
 import EventAttendees from "features/communities/events/EventAttendees";
@@ -22,15 +29,16 @@ import { localizeDateTimeRange } from "i18n/datetimes";
 import { COMMUNITIES } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { AttendanceState, Event } from "proto/events_pb";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { eventsRoute, routeToDuplicateEvent, routeToEditEvent, routeToEvent } from "routes";
 import { service } from "service";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
+import { useAddToCalendar } from "utils/addToCalendar";
 import { timestampToInstant, timestampToPlainDateTime } from "utils/date";
-import { sendNativeBack, useIsNativeEmbed } from "utils/nativeLink";
+import { sendNativeBack, useIsNativeEmbed, useIsSupportedInApp } from "utils/nativeLink";
 
-import { eventAttendeesBaseKey, eventKey } from "../../queryKeys";
+import { eventAttendeesBaseKey, eventKey, eventOrganizersBaseKey, threadKey } from "../../queryKeys";
 import CommentTree from "../discussions/CommentTree";
 import AttendanceMenu from "./AttendanceMenu";
 import CancelEventDialog from "./CancelEventDialog";
@@ -167,6 +175,8 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
   } = useTranslation([COMMUNITIES]);
   const router = useRouter();
   const isNativeEmbed = useIsNativeEmbed();
+  const isAddToCalendarSupported = useIsSupportedInApp("addToCalendar");
+  const addToCalendar = useAddToCalendar();
   const queryClient = useQueryClient();
   const currentUserId = useAuthContext().authState.userId;
   const { data: event, error: eventError, isLoading, isValidEventId } = useEvent({ eventId });
@@ -194,6 +204,16 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
     },
   });
 
+  // Links from comment notifications carry ?comment=<id>, so open on the comments
+  const isCommentLink = router.query.comment !== undefined;
+  const discussionRef = useRef<HTMLDivElement>(null);
+  const hasEvent = event !== undefined;
+  useEffect(() => {
+    if (isCommentLink && hasEvent) {
+      discussionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [isCommentLink, hasEvent]);
+
   const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
   const [showInviteCommunitySuccess, setShowInviteCommunitySuccess] = useState(false);
   const [inviteCommunityDialogIsOpen, setInviteCommunityDialogIsOpen] = useState(false);
@@ -214,6 +234,8 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
     : false;
 
   const isCreator = currentUserId === event?.creatorUserId;
+
+  const canAddToCalendar = !event?.isCancelled && !isPastEvent && isAddToCalendarSupported;
 
   const handleBackClick = () => {
     if (isNativeEmbed) {
@@ -243,6 +265,16 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
       },
       id: "copy-link",
     },
+    ...(canAddToCalendar
+      ? ([
+          {
+            icon: EventAvailableOutlined,
+            label: t("communities:add_to_calendar"),
+            onClick: () => addToCalendar(event!),
+            id: "add-to-calendar",
+          },
+        ] as EllipsisMenuItem[])
+      : []),
     ...(event?.canEdit && !event.isCancelled && !isPastEvent
       ? ([
           {
@@ -282,6 +314,14 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
   return (
     <>
       <HtmlMeta title={event?.title} />
+      <PullToRefresh
+        queryKeys={[
+          eventKey(eventId),
+          [eventAttendeesBaseKey, eventId],
+          [eventOrganizersBaseKey, eventId],
+          ...(event ? [threadKey(event.thread!.threadId)] : []),
+        ]}
+      />
       {(eventError || setEventAttendanceError) && (
         <Alert severity="error">{eventError?.message || setEventAttendanceError?.message || ""}</Alert>
       )}
@@ -386,7 +426,7 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
               <EventOrganizers event={event} />
               <EventAttendees event={event} />
             </StyledEventDetailsContainer>
-            <StyledDiscussionContainer>
+            <StyledDiscussionContainer ref={discussionRef}>
               <Typography variant="h2">{t("communities:event_discussion")}</Typography>
               <CommentTree threadId={event.thread!.threadId} />
             </StyledDiscussionContainer>

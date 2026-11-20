@@ -1,4 +1,4 @@
-FROM python:3.14-slim-trixie AS base
+FROM python:3.14-slim-trixie@sha256:cd89c30eda26ee911a4611b18680086e0ea42e6f5f8cbe653d07fa7958c9cec8 AS base
 
 RUN <<EOT
 apt-get update -qy
@@ -13,7 +13,7 @@ EOT
 
 FROM base AS build
 
-ENV UV_VERSION=0.9.8
+ENV UV_VERSION=0.13.7
 
 WORKDIR /app
 

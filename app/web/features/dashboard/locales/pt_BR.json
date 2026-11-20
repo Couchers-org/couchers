@@ -9,13 +9,11 @@
   "no_sub_communities": "Nenhuma subcomunidade.",
   "profile_summary_edit": "Editar perfil",
   "browse_communities_text": "Clique no nome de uma região para ver outras comunidades dentro dela abaixo. Clique no link para ir para a página da comunidade dessa cidade ou região.",
-  "welcome": "Bem-vindo ao Couchers.org!",
   "new_pill": "Novo",
   "communities_intro": "As páginas de comunidades ajudam a organizar eventos e discussões locais. <strong>Você sempre fica nas comunidades da sua localização, mas pode <browseCommunitiesLink>se juntar a qualquer comunidade.</browseCommunitiesLink></strong>",
   "community_builder": "Quer ser um embaixador da sua comunidade e ajudá-la a crescer? Torne-se um <communityBuilderLink>Criador de Comunidade!</communityBuilderLink>",
   "find_your_community": "Encontre uma comunidade",
   "find_your_community_intro_simplified": "Busque por sua comunidade ou navegue abaixo. <requestCommunityLink>Não está vendo a sua? Solicite-a!</requestCommunityLink>",
-  "browse_communities": "Explore as comunidades",
   "profile_mobile_summary_view": "Ir para o perfil",
   "find_a_host": "Encontre um anfitrião",
   "become_a_host": "Seja um anfitrião",
@@ -49,10 +47,12 @@
     "same_gender_only_indicator": "Mesmo gênero",
     "manage_link": "Gerenciar",
     "empty_description": "Indo a algum lugar? Publique uma viagem pública em uma comunidade para receber convites de anfitriões próximos.",
-    "offers_count_one": "{{count}} convite",
-    "offers_count_many": "{{count}} convites",
-    "offers_count_other": "{{count}} convites",
-    "no_offers": "Nenhuma oferta ainda"
+    "invitations_count_one": "{{count}} convites",
+    "invitations_count_many": "",
+    "invitations_count_other": "",
+    "no_invitations": "Nenhum convite ainda",
+    "community_trips_header": "Viagens públicas em suas comunidades",
+    "community_trips_empty_description": "Ninguém em suas comunidades está procurando por hospedagem agora."
   },
   "stays": {
     "upcoming_guests_header": "Seus próximos hóspedes",
@@ -99,7 +99,32 @@
     "carousel_scroller": {
       "left_arrow_a11y": "Rolar para a esquerda",
       "right_arrow_a11y": "Rolar para a direita"
+    },
+    "respond_to_public_trip_offer": {
+      "title": "Responder para {{name}}",
+      "description": "{{name}} se ofereceu para hospedar você durante sua viagem. Avise-o se quiser aceitar.",
+      "button": "Visualizar convite"
+    },
+    "confirm_public_trip_offer": {
+      "title": "Confirmar hospedagem de {{name}}",
+      "description": "{{name}} aceitou seu convite. Confirme a estadia para garantí-la.",
+      "button": "Confirmar estadia"
     }
   },
-  "today_label": "Hoje"
+  "today_label": "Hoje",
+  "celebration_100k": {
+    "banner_message": "O Couchers chegou a 100 mil membros!",
+    "banner_read_more_link": "Leia mais",
+    "banner_replay_button": "Repetir animação",
+    "help_us_grow_button": "Ajude-nos a crescer",
+    "dialog_a11y": "O Couchers chegou a 100 mil membros",
+    "close_button_a11y": "Fechar",
+    "burst_heading": "Somos mais de {{member_count}}!",
+    "map_counter_total": "Mais de {{member_count}}",
+    "map_counter_label": "Couchers e crescendo",
+    "map_message_everywhere": "Estamos em todo lugar.",
+    "map_message_thanks": "Agradecemos por abrir as suas portas.",
+    "map_read_more_link": "Leia mais",
+    "map_a11y": "Mapa de membros do Couchers em todo o mundo, com grupos de membros cidade a cidade e mesclando entre regiões"
+  }
 }

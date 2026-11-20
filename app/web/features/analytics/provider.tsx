@@ -8,7 +8,7 @@
  * - Session starts (when users first land on your site)
  * - Page views (including time spent on each page)
  * - Device info (screen size, browser, language)
- * - Marketing attribution (UTM parameters from ads/campaigns)
+ * - Marketing attribution (UTM parameters from ads/campaigns, refs from our emails)
  * - Referral sources (where users came from)
  *
  * HOW TO USE:
@@ -29,29 +29,32 @@ import { ReactNode, useEffect, useRef } from "react";
 
 import { destroyCollector, initializeCollector, logEvent } from "./eventCollector";
 
+// zz: added to links in our emails, see app/backend/src/couchers/email/zz.py
+const ATTRIBUTION_PARAMS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "zz"];
+
 /**
- * Extract UTM parameters from the URL for marketing attribution.
- * These help track which campaigns, ads, or links brought users to your site.
+ * Extract attribution parameters (UTM params and email refs) from the URL.
+ * These help track which campaigns, ads, emails, or links brought users to your site.
  */
-function getUtmParams(): Record<string, string> {
+function getAttributionParams(): Record<string, string> {
   const params = new URLSearchParams(window.location.search);
-  const utm: Record<string, string> = {};
-  for (const key of ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"]) {
+  const attribution: Record<string, string> = {};
+  for (const key of ATTRIBUTION_PARAMS) {
     const val = params.get(key);
-    if (val) utm[key] = val;
+    if (val) attribution[key] = val;
   }
-  return utm;
+  return attribution;
 }
 
 /**
- * Get query parameters excluding UTM params (for cleaner page.viewed events).
+ * Get query parameters excluding attribution params (for cleaner page.viewed events).
  * This keeps your analytics focused on actual page parameters, not marketing tags.
  */
 function getFilteredSearch(queryString: string): string | null {
   const params = new URLSearchParams(queryString);
   const filtered = new URLSearchParams();
   params.forEach((value, key) => {
-    if (!key.startsWith("utm_")) {
+    if (!key.startsWith("utm_") && !ATTRIBUTION_PARAMS.includes(key)) {
       filtered.set(key, value);
     }
   });
@@ -75,6 +78,7 @@ export default function AnalyticsProvider({ children }: { children: ReactNode })
   const previousPathRef = useRef<string | null>(null);
   const previousTimestampRef = useRef<number>(Date.now());
   const initializedRef = useRef(false);
+  const strippingZzRef = useRef(false);
 
   // Session start + initial page view (runs once on mount)
   useEffect(() => {
@@ -85,7 +89,7 @@ export default function AnalyticsProvider({ children }: { children: ReactNode })
     initializeCollector();
 
     logEvent("session.started", {
-      ...getUtmParams(),
+      ...getAttributionParams(),
       referrer: document.referrer || null,
       landing_page: window.location.pathname,
       user_agent: navigator.userAgent,
@@ -107,10 +111,31 @@ export default function AnalyticsProvider({ children }: { children: ReactNode })
     previousTimestampRef.current = Date.now();
   }, []);
 
+  // Remove zz from the URL so it isn't shared, bookmarked or re-logged on reload. This must go through the
+  // Next router after it's ready: hydration replaces the URL with the original one, and the router keeps zz in
+  // asPath/query (and history.state) otherwise, putting it back on later navigations.
+  useEffect(() => {
+    if (!router.isReady || !("zz" in router.query)) return;
+    const query = { ...router.query };
+    delete query.zz;
+    const as = new URL(router.asPath, window.location.origin);
+    as.searchParams.delete("zz");
+    strippingZzRef.current = true;
+    router.replace({ pathname: router.pathname, query }, as.pathname + as.search + as.hash, {
+      shallow: true,
+      scroll: false,
+    });
+  }, [router]);
+
   // Route change tracking
   useEffect(() => {
     const handleRouteChange = (url: string) => {
       const [path, queryString] = url.split("?");
+      if (strippingZzRef.current) {
+        strippingZzRef.current = false;
+        // the zz strip isn't a new page view, but a redirect that cancelled it is
+        if (path.split("#")[0] === previousPathRef.current) return;
+      }
       const now = Date.now();
       const timeOnPreviousPage = (now - previousTimestampRef.current) / 1000;
 

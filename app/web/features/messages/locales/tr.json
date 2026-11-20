@@ -146,5 +146,7 @@
   "cancel_request_dialog_title": "İsteği iptal et?",
   "cancel_request_dialog_message": "İsteğini iptal etmek istediğinden emin misin? Bu işlem geri alınamaz.",
   "cancel_request_dialog_confirm_button": "Evet, iptal et",
-  "cancel_request_dialog_dismiss_button": "Hayır"
+  "cancel_request_dialog_dismiss_button": "Hayır",
+  "invitation_host_accepted_box_title": "{{name}} davetini kabul etti",
+  "invitation_host_accepted_box_description": "Konaklamanızı kesinleştirmek için onaylayın veya planlarınız değiştiyse vazgeçin."
 }

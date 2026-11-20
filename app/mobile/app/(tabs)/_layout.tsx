@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { Platform, StyleSheet, Text, useColorScheme, View } from "react-native";
 
 import { TabBarIcon } from "@/components/TabBarIcon";
+import { getFeatureFlagSnapshot } from "@/features/experimentation/FeatureFlagProvider";
 import {
   createdAt,
   embeddedDebugVersion,
@@ -66,12 +67,18 @@ export default function TabLayout() {
     if (tapTimestamps.current.length < 3) return;
     tapTimestamps.current = [];
     const info = getDebugInfo();
-    void Clipboard.setStringAsync(info);
+    const flags = getFeatureFlagSnapshot();
+    void Clipboard.setStringAsync(
+      `${info}\n\nFeature flags:\n${JSON.stringify(flags, null, 2)}`,
+    );
     Sentry.captureMessage("debug.triple-tap", {
       level: "info",
-      contexts: { debug: { info } },
+      contexts: { debug: { info }, feature_flags: flags },
     });
-    setDebugToast(`${info}\n\nCopied to clipboard & sent to Sentry`);
+    setDebugToast(
+      `${info}\nFlags: ${Object.keys(flags.values).length}` +
+        `\n\nCopied to clipboard & sent to Sentry`,
+    );
     if (toastTimer.current) clearTimeout(toastTimer.current);
     toastTimer.current = setTimeout(() => setDebugToast(null), 6000);
   }, []);

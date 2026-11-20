@@ -129,8 +129,6 @@
   "comment_deleted": "Deze reactie is verwijderd.",
   "edit_comment": "Reactie bewerken",
   "delete_comment": "Reactie verwijderen",
-  "comment_edited_date": "Bewerkt {{timeAgo}}",
-  "discussion_edited_date": "Bewerkt {{timeAgo}}",
   "discussion_deleted": "Deze discussie is verwijderd.",
   "delete_discussion": "Verwijder discussie",
   "delete_discussion_dialog": {

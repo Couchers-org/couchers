@@ -1,0 +1,94 @@
+{
+  "heading": "Öffentliche Trips",
+  "my_trips_heading": "Meine öffentlichen Trips",
+  "create_trip_button": "Öffentlichen Trip erstellen",
+  "view_my_trips_button": "Meine öffentlichen Trips anzeigen",
+  "trip_list": {
+    "filters": {
+      "active_option": "Aktiv",
+      "all_option": "Alle",
+      "no_match_placeholder": "Keine Trips entsprechen diesem Filter.",
+      "closed_option": "Geschlossen",
+      "past_option": "Vergangen"
+    },
+    "empty_placeholder": "Derzeit gibt es keine öffentlichen Trips.",
+    "mine_empty_placeholder": "Du hast noch keine Öffentlichen Trips gepostet.",
+    "pagination": {
+      "next_button_a11y": "Nächste Seite",
+      "previous_button_a11y": "Vorherige Seite",
+      "page_indicator": "Seite {{current}}",
+      "previous_button": "Vorherige",
+      "next_button": "Nächste"
+    },
+    "see_all_link": "Alle öffentlichen Trips ansehen"
+  },
+  "trip_card": {
+    "references_one": "{{count}} Referenz",
+    "references_other": "{{count}} Referenzen",
+    "you_overlay": "DU",
+    "invitations_count_one": "{{count}} Einladung",
+    "invitations_count_other": "{{count}} Einladungen",
+    "no_invitations": "Noch keine Einladungen",
+    "status_pills": {
+      "active": "Aktiv",
+      "closed": "Geschlossen",
+      "past": "Vergangen"
+    },
+    "same_gender_only_indicator": "Nur für Personen des gleichen Geschlechts sichtbar",
+    "already_invited_indicator": "Einladung gesendet",
+    "show_less_action": "Weniger anzeigen",
+    "show_more_action": "Mehr anzeigen",
+    "view_profile_button": "Profil anzeigen",
+    "view_invitations_button": "Einladungen anzeigen",
+    "edit_button": "Trip bearbeiten",
+    "reopen_button": "Trip wieder öffnen",
+    "offer_to_host_button_disabled_tooltip": "Dieser Trip akzeptiert keine Einladungen mehr.",
+    "close_button": "Als geschlossen markieren",
+    "offer_to_host_button": "Anbieten zu Hosten"
+  },
+  "create_edit_dialog": {
+    "create_title": "Öffentlichen Trip erstellen",
+    "edit_title": "Öffentlichen Trip bearbeiten",
+    "from_date": {
+      "label": "Ankunft",
+      "required_error": "Bitte wähle ein Ankunftsdatum aus."
+    },
+    "to_date": {
+      "label": "Abreise",
+      "required_error": "Bitte wähle ein Abreisedatum aus."
+    },
+    "location_label": "Ort:",
+    "same_gender_only": {
+      "label": "Nur gleichgeschlechtliche",
+      "description": "Diesen Trip nur Benutzern desselben Geschlechts anzeigen."
+    },
+    "description": {
+      "label": "Über deinen Trip",
+      "placeholder": "Was hast du vor? Wie lange bleibst du? Gibt es etwas, das Hosts wissen sollten?",
+      "required_error": "Bitte füge eine kurze Beschreibung hinzu.",
+      "chars_remaining_one": "Noch {{count}} Zeichen erforderlich.",
+      "chars_remaining_other": "Noch {{count}} Zeichen erforderlich."
+    },
+    "create_submit_button": "Trip posten",
+    "edit_submit_button": "Änderungen speichern"
+  },
+  "offer_to_host_dialog": {
+    "title": "Anbieten, {{name}} zu hosten",
+    "message": {
+      "label": "Deine Nachricht",
+      "placeholder": "Stell dich vor und schreib, was du anbieten kannst.",
+      "required_error": "Bitte schreib eine Nachricht.",
+      "chars_remaining_one": "Noch {{count}} Zeichen erforderlich.",
+      "chars_remaining_other": "Noch {{count}} Zeichen erforderlich."
+    },
+    "submit_button": "Einladung senden"
+  },
+  "community_section": {
+    "intro": "Reisende posten ihre bevorstehenden Trips hier. Du kannst anbieten sie zu hosten oder dich mit ihnen zu treffen, wenn du einen Trip siehst, der dich interessiert!"
+  },
+  "close_dialog": {
+    "title": "Diesen Trip schließen?",
+    "message": "Wenn du deinen Trip schließt, wird er aus der Community-Liste entfernt und du erhältst keine neuen Einladungen mehr von Hosts.",
+    "confirm_button": "Trip schließen"
+  }
+}

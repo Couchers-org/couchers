@@ -6,8 +6,9 @@ import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
 import TextBody from "components/TextBody";
 import { useAuthContext } from "features/auth/AuthProvider";
 import HostRequestStatusIcon from "features/messages/requests/HostRequestStatusIcon";
+import ThreadTitleRow from "features/messages/ThreadTitleRow";
 import { controlMessage, hasUnreadMessages, isControlMessage, messageTargetId } from "features/messages/utils";
-import { hostRequestsListKey } from "features/queryKeys";
+import { messageThreadsListKey } from "features/queryKeys";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
@@ -42,6 +43,11 @@ const StyledMenuContainer = styled("div")(() => ({
   bottom: theme.spacing(1),
   right: theme.spacing(1),
   zIndex: 1,
+}));
+
+// only the lines below the title share the row with the menu
+const StyledSecondary = styled("div")(({ theme }) => ({
+  paddingInlineEnd: theme.spacing(5),
 }));
 
 const StyledDateAndBadgeContainer = styled("div")(({ theme }) => ({
@@ -85,7 +91,10 @@ export default function HostRequestListItem({ hostRequest, className, isArchived
     i18n: { language: locale },
   } = useTranslation(MESSAGES);
   const { authState } = useAuthContext();
-  const isHost = authState.userId === hostRequest.hostUserId;
+  // surferUserId/hostUserId are generated stay-role columns, so the backend has already reversed
+  // them for public-trip offers: the viewer is the host if their id is the host id.
+  const isHost = hostRequest.hostUserId === authState.userId;
+  const isOffer = !!hostRequest.publicTripId;
   const { data: currentUser } = useCurrentUser();
   const { data: otherUser, isLoading: isOtherUserLoading } = useLiteUser(
     isHost ? hostRequest.surferUserId : hostRequest.hostUserId,
@@ -112,6 +121,7 @@ export default function HostRequestListItem({ hostRequest, className, isArchived
           user: authorName,
           target_user: targetName,
           t,
+          isOffer,
         })
       : //if it's a normal message, show "<User's Name>: <The message>"
         `${capitalize(authorName)}: ${hostRequest.latestMessage.text?.text || ""}`
@@ -145,11 +155,11 @@ export default function HostRequestListItem({ hostRequest, className, isArchived
     onMutate: async () => {
       handleMenuClose();
       // Cancel outgoing refetches so they don't overwrite our optimistic update
-      await queryClient.cancelQueries({ queryKey: hostRequestsListKey() });
+      await queryClient.cancelQueries({ queryKey: messageThreadsListKey() });
     },
     onSettled: () => {
       // Refetch after mutation completes (success or error)
-      queryClient.invalidateQueries({ queryKey: hostRequestsListKey() });
+      queryClient.invalidateQueries({ queryKey: messageThreadsListKey() });
     },
   });
 
@@ -169,24 +179,29 @@ export default function HostRequestListItem({ hostRequest, className, isArchived
         className={className}
         sx={{
           color: isPast ? "var(--mui-palette-grey-500)" : "var(--mui-palette-text-primary)",
-          paddingRight: 7,
+          width: "auto",
         }}
       >
         <ListItemAvatar>
           <Avatar user={otherUser} isProfileLink={false} />
         </ListItemAvatar>
         <ListItemText
-          sx={{ paddingRight: 5 }}
           disableTypography
           primary={
-            <Typography variant="h2" sx={isPast && isUnread ? { color: "var(--mui-palette-text-primary)" } : undefined}>
-              {!otherUser ? <Skeleton width={100} /> : otherUser.name}
-            </Typography>
+            <ThreadTitleRow latestMessageTime={hostRequest.latestMessage?.time} isUnread={isUnread}>
+              <Typography
+                variant="h2"
+                noWrap
+                sx={isPast && isUnread ? { color: "var(--mui-palette-text-primary)" } : undefined}
+              >
+                {!otherUser ? <Skeleton width={100} /> : otherUser.name}
+              </Typography>
+            </ThreadTitleRow>
           }
           secondary={
-            <>
+            <StyledSecondary>
               <StyledHostStatusContainer>
-                <StyledHostRequestStatusIcon hostRequest={hostRequest} />
+                <StyledHostRequestStatusIcon status={hostRequest.status} isOffer={isOffer} />
                 {isOtherUserLoading ? (
                   <Skeleton width={200} />
                 ) : (
@@ -194,6 +209,8 @@ export default function HostRequestListItem({ hostRequest, className, isArchived
                     isHost={isHost}
                     requestStatus={hostRequest.status}
                     isPast={isPast}
+                    isOffer={isOffer}
+                    otherName={firstName(otherUser?.name)}
                     hostName={!isHost ? firstName(otherUser?.name) : undefined}
                   />
                 )}
@@ -216,8 +233,14 @@ export default function HostRequestListItem({ hostRequest, className, isArchived
                   )}
                 </Typography>
                 <RequestTypeChip
-                  label={isHost ? t("messages_page.tabs.hosting") : t("messages_page.tabs.surfing")}
-                  isHost={isHost}
+                  label={
+                    isOffer
+                      ? t("host_request_item.public_trip_chip")
+                      : isHost
+                        ? t("messages_page.tabs.hosting")
+                        : t("messages_page.tabs.surfing")
+                  }
+                  isHost={isOffer || isHost}
                   size="small"
                 />
               </StyledDateAndBadgeContainer>
@@ -230,7 +253,7 @@ export default function HostRequestListItem({ hostRequest, className, isArchived
               >
                 {isOtherUserLoading ? <Skeleton width={100} /> : latestMessageText}
               </TextBody>
-            </>
+            </StyledSecondary>
           }
         />
       </ListItem>

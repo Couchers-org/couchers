@@ -3,11 +3,19 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tansta
 import Alert from "components/Alert";
 import HtmlMeta from "components/HtmlMeta";
 import { BOTTOM_NAV_BASE_HEIGHT } from "components/Navigation/constants";
+import PullToRefresh from "components/PullToRefresh";
 import { useAuthContext } from "features/auth/AuthProvider";
 import GroupChatSendField from "features/messages/groupchats/GroupChatSendField";
 import useMarkLastSeen, { MarkLastSeenVariables } from "features/messages/useMarkLastSeen";
 import { groupChatTitleText } from "features/messages/utils";
-import { groupChatKey, groupChatMessagesKey, groupChatsListKey, pingQueryKey } from "features/queryKeys";
+import {
+  groupChatKey,
+  groupChatMessagesKey,
+  groupChatsListKey,
+  listNotificationsQueryKey,
+  messageThreadsListKey,
+  pingQueryKey,
+} from "features/queryKeys";
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
@@ -116,7 +124,8 @@ export default function GroupChatView({ chatId, embedded = false }: { chatId: nu
     mutationFn: (text) => service.conversations.sendMessage(chatId, text),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: groupChatMessagesKey(chatId) });
-      queryClient.invalidateQueries({ queryKey: [groupChatsListKey] });
+      queryClient.invalidateQueries({ queryKey: groupChatsListKey() });
+      queryClient.invalidateQueries({ queryKey: messageThreadsListKey() });
       queryClient.invalidateQueries({ queryKey: groupChatKey(chatId) });
     },
   });
@@ -125,7 +134,10 @@ export default function GroupChatView({ chatId, embedded = false }: { chatId: nu
     mutationFn: (messageId) => service.conversations.markLastSeenGroupChat(chatId, messageId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: groupChatKey(chatId) });
+      queryClient.invalidateQueries({ queryKey: messageThreadsListKey() });
       queryClient.invalidateQueries({ queryKey: [pingQueryKey] });
+      // The backend also marks the related notifications seen, so refresh the feed.
+      queryClient.invalidateQueries({ queryKey: [listNotificationsQueryKey] });
     },
   });
   const { markLastSeen } = useMarkLastSeen(markLastSeenGroupChat, groupChat?.lastSeenMessageId);
@@ -137,6 +149,7 @@ export default function GroupChatView({ chatId, embedded = false }: { chatId: nu
   return (
     <>
       <HtmlMeta title={title} />
+      {!embedded && <PullToRefresh queryKeys={[groupChatKey(chatId), groupChatMessagesKey(chatId)]} />}
       {!chatId ? (
         <Alert severity="error">{t("messages:chat_view.invalid_id_error")}</Alert>
       ) : (

@@ -35,6 +35,17 @@ describe("DashboardPublicTripCard", () => {
     jest.useRealTimers();
   });
 
+  // Descriptions are written in a plain textarea, so the teaser has to render the
+  // author's line breaks rather than collapsing them into spaces.
+  it("keeps the author's line breaks in the description", () => {
+    const trip = { ...publicTrips[0], description: "Line one\nLine two\nLine three" };
+    render(<DashboardPublicTripCard trip={trip} locale="en" />, { wrapper });
+
+    const description = screen.getByText(/Line one/);
+    expect(description.textContent).toBe("Line one\nLine two\nLine three");
+    expect(window.getComputedStyle(description).whiteSpace).toBe("pre-line");
+  });
+
   // The dashboard renders the card without isOwnTrip; the community overview passes it.
   describe.each([
     ["on the dashboard", {}],
@@ -73,13 +84,13 @@ describe("DashboardPublicTripCard", () => {
     it("shows the trip's date range, naming the month once when it doesn't change", () => {
       render(<DashboardPublicTripCard trip={tripFrom(9, 12)} locale="en" {...modeProps} />, { wrapper });
 
-      expect(screen.getByText(/^May 19\s–\s22, 2021$/)).toBeVisible();
+      expect(screen.getByText(/^19–22 May 2021$/)).toBeVisible();
     });
 
     it("names both months in the date range when the trip spans a month boundary", () => {
       render(<DashboardPublicTripCard trip={tripFrom(20, 30)} locale="en" {...modeProps} />, { wrapper });
 
-      expect(screen.getByText(/^May 30\s–\sJun 9, 2021$/)).toBeVisible();
+      expect(screen.getByText(/^30 May\s–\s9 Jun 2021$/)).toBeVisible();
     });
   });
 });

@@ -231,6 +231,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
                 session.flush()
                 signup_email_verified_counter.inc()
+                log_event(context, session, "account.signup_email_verified", {"signup_flow_id": flow.id})
             else:
                 # just try to find the flow by flow token, no verification is done
                 flow = session.execute(
@@ -295,7 +296,12 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 session.add(flow)
                 session.flush()
                 signup_initiations_counter.inc()
-                log_event(context, session, "account.signup_initiated", {"has_invite_code": invite_id is not None})
+                log_event(
+                    context,
+                    session,
+                    "account.signup_initiated",
+                    {"has_invite_code": invite_id is not None, "signup_flow_id": flow.id},
+                )
             else:
                 # not fresh signup
                 flow = session.execute(
@@ -501,6 +507,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     "city": flow.city,
                     "has_invite_code": flow.invite_code_id is not None,
                     "filled_contributor_form": user.filled_contributor_form,
+                    "signup_flow_id": flow.id,
                 },
                 _override_user_id=user.id,
             )

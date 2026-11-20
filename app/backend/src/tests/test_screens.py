@@ -1,0 +1,204 @@
+from datetime import time, timedelta
+
+from google.protobuf import empty_pb2
+
+from couchers.db import session_scope
+from couchers.proto import discussions_pb2, events_pb2, messages_pb2, public_trips_pb2, requests_pb2, screens_pb2
+from couchers.utils import today
+from tests.fixtures.api import events as events_api
+from tests.fixtures.api import requests as requests_api
+from tests.fixtures.db import generate_user
+from tests.fixtures.feature_flags import Flags
+from tests.fixtures.sessions import (
+    account_session,
+    discussions_session,
+    public_trips_session,
+    screens_session,
+)
+from tests.test_communities import create_community
+
+UPCOMING_STATUSES = [
+    messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+    messages_pb2.HOST_REQUEST_STATUS_CONFIRMED,
+]
+
+
+def test_GetDashboard_matches_individual_rpcs(db, moderator):
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
+
+    host_request_id = requests_api.create_host_request(
+        token=surfer_token, host_user_id=host_user.id, approve_by=moderator
+    )
+    requests_api.respond_host_request(
+        token=host_token, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+    )
+
+    # the dashboard response must be identical to fanning out to the individual RPCs with the
+    # same parameters the web frontend uses
+    surfing = requests_api.list_host_requests(
+        token=surfer_token,
+        only_sent=True,
+        only_active=True,
+        status_in=UPCOMING_STATUSES,
+        sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
+        number=10,
+    )
+    hosting = requests_api.list_host_requests(
+        token=surfer_token,
+        only_received=True,
+        only_active=True,
+        status_in=UPCOMING_STATUSES,
+        sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
+        number=10,
+    )
+
+    my_events = events_api.list_my_events(token=surfer_token, page_size=9, attending=True, organizing=True)
+    community_events = events_api.list_my_events(
+        token=surfer_token,
+        page_size=9,
+        my_communities=True,
+        my_communities_exclude_global=True,
+        exclude_attending=True,
+    )
+
+    with discussions_session(surfer_token) as api:
+        discussions = api.ListMyCommunitiesDiscussions(discussions_pb2.ListMyCommunitiesDiscussionsReq(page_size=9))
+    with account_session(surfer_token) as api:
+        reminders = api.GetReminders(empty_pb2.Empty())
+    with public_trips_session(surfer_token) as api:
+        my_public_trips = api.ListPublicTripsByUser(
+            public_trips_pb2.ListPublicTripsByUserReq(
+                user_id=surfer_user.id,
+                page_size=10,
+                statuses_in=[public_trips_pb2.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST],
+                ascending=True,
+            )
+        )
+        community_public_trips = api.ListMyCommunitiesPublicTrips(
+            public_trips_pb2.ListMyCommunitiesPublicTripsReq(page_size=10)
+        )
+
+    with screens_session(surfer_token) as api:
+        res = api.GetDashboard(screens_pb2.GetDashboardReq())
+
+    assert res.reminders == reminders
+    assert res.surfing == surfing
+    assert res.hosting == hosting
+    assert res.my_events == my_events
+    assert res.community_events == community_events
+    assert res.discussions == discussions
+    assert res.my_public_trips == my_public_trips
+    assert res.community_public_trips == community_public_trips
+
+    # the surfer sees their upcoming trip under surfing, nothing under hosting
+    assert len(res.surfing.host_requests) == 1
+    assert res.surfing.host_requests[0].host_request_id == host_request_id
+    assert res.surfing.host_requests[0].status == messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+    assert len(res.hosting.host_requests) == 0
+
+
+def test_GetDashboard_buckets_by_role(db, moderator):
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
+
+    host_request_id = requests_api.create_host_request(
+        token=surfer_token, host_user_id=host_user.id, approve_by=moderator
+    )
+    requests_api.respond_host_request(
+        token=host_token, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+    )
+
+    # the host sees the upcoming stay under hosting, nothing under surfing
+    with screens_session(host_token) as api:
+        res = api.GetDashboard(screens_pb2.GetDashboardReq())
+    assert len(res.hosting.host_requests) == 1
+    assert res.hosting.host_requests[0].host_request_id == host_request_id
+    assert len(res.surfing.host_requests) == 0
+
+
+def test_GetDashboard_community_events_excludes_attending(db, moderator):
+    # Pins the exclude_attending parameter the web frontend sends: an event the user is
+    # attending shows under my_events and must not also duplicate into community_events.
+    attendee_user, attendee_token = generate_user()
+    organizer_user, organizer_token = generate_user()
+
+    with session_scope() as session:
+        # community_events excludes global-level communities, so nest down to a subregion
+        world = create_community(session, 0, 100, "World", [attendee_user, organizer_user], [], None)
+        macroregion = create_community(session, 0, 100, "Macroregion", [attendee_user, organizer_user], [], world)
+        region = create_community(session, 0, 100, "Region", [attendee_user, organizer_user], [], macroregion)
+        subregion = create_community(session, 0, 100, "Subregion", [attendee_user, organizer_user], [], region)
+        community_id = subregion.id
+
+    e_attending = events_api.create_event(
+        token=organizer_token, parent_community_id=community_id, approve_by=moderator
+    ).event_id
+    e_community_only = events_api.create_event(
+        token=organizer_token, parent_community_id=community_id, approve_by=moderator
+    ).event_id
+
+    events_api.set_event_attendance(
+        token=attendee_token, event_id=e_attending, attendance_state=events_pb2.ATTENDANCE_STATE_GOING
+    )
+
+    with screens_session(attendee_token) as api:
+        res = api.GetDashboard(screens_pb2.GetDashboardReq())
+
+    # the attended event shows only under my_events, and the unjoined community event only under community_events
+    assert [e.event_id for e in res.my_events.events] == [e_attending]
+    assert [e.event_id for e in res.community_events.events] == [e_community_only]
+
+
+def test_GetDashboard_returns_several_pages_per_section(db, moderator):
+    # the client pages through each section locally, so a section returns a batch of items and a
+    # token for that section's own RPC when there are more
+    page_size = 9  # GetDashboard's my_events page size
+    user, token = generate_user()
+
+    with session_scope() as session:
+        community_id = create_community(session, 0, 100, "Community", [user], [], None).id
+
+    tomorrow = today() + timedelta(days=1)
+    event_ids = [
+        events_api.create_event(
+            token=token,
+            parent_community_id=community_id,
+            start_date_time=(tomorrow, time(i, 0)),
+            approve_by=moderator,
+        ).event_id
+        for i in range(page_size + 1)
+    ]
+
+    with screens_session(token) as api:
+        res = api.GetDashboard(screens_pb2.GetDashboardReq())
+
+    assert [e.event_id for e in res.my_events.events] == event_ids[:page_size]
+    assert res.my_events.next_page_token
+
+
+def test_GetDashboard_empty(db):
+    user, token = generate_user()
+    with screens_session(token) as api:
+        res = api.GetDashboard(screens_pb2.GetDashboardReq())
+    assert len(res.surfing.host_requests) == 0
+    assert len(res.hosting.host_requests) == 0
+    assert len(res.my_events.events) == 0
+    assert len(res.community_events.events) == 0
+    assert len(res.discussions.discussions) == 0
+    assert len(res.reminders.reminders) == 0
+
+
+def test_GetDashboard_public_trips_behind_flag(db, flags: Flags):
+    user, token = generate_user()
+
+    with screens_session(token) as api:
+        res = api.GetDashboard(screens_pb2.GetDashboardReq())
+    assert res.HasField("my_public_trips")
+    assert res.HasField("community_public_trips")
+
+    flags.set_boolean("public_trips_enabled", False)
+    with screens_session(token) as api:
+        res = api.GetDashboard(screens_pb2.GetDashboardReq())
+    assert not res.HasField("my_public_trips")
+    assert not res.HasField("community_public_trips")
