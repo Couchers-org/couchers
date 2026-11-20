@@ -5,7 +5,7 @@ import PageContainer from "components/PageContainer";
 import PullToRefresh from "components/PullToRefresh";
 import Celebration100k from "features/celebration100k/Celebration100k";
 import CommunitiesList from "features/dashboard/CommunitiesList";
-import { dashboardKey, publicTripsBaseKey, publicTripsByUserBaseKey, userCommunitiesListKey } from "features/queryKeys";
+import { dashboardKey, userCommunitiesListKey } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import { theme } from "theme";
@@ -26,14 +26,8 @@ export default function Dashboard() {
 
   return (
     <>
-      <PullToRefresh
-        queryKeys={[
-          [dashboardKey],
-          [publicTripsByUserBaseKey],
-          [publicTripsBaseKey, "myCommunities"],
-          [userCommunitiesListKey],
-        ]}
-      />
+      {/*TODO(NA): Follow up PR to add userCommunitiesList query into thje getDashboard screen query */}
+      <PullToRefresh queryKeys={[[dashboardKey], [userCommunitiesListKey]]} />
       <Celebration100k autoPlay />
       <Hero />
       {/* this view uses a container, instead of it coming from the route layout,
