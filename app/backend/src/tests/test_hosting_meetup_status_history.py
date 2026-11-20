@@ -15,15 +15,15 @@ from couchers.models import (
     MeetupStatus,
     User,
 )
-from couchers.proto import api_pb2, auth_pb2, jail_pb2, notifications_pb2
+from couchers.proto import api_pb2, auth_pb2, jail_pb2
 from couchers.proto.internal import unsubscribe_pb2
 from couchers.utils import now
+from tests.fixtures.api import notifications as notifications_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import PushCollector, process_jobs
 from tests.fixtures.sessions import (
     api_session,
     auth_api_session,
-    notifications_session,
     real_jail_session,
 )
 from tests.test_auth import _quick_signup
@@ -95,8 +95,7 @@ def test_history_not_recorded_when_unchanged(db):
 def test_history_recorded_on_do_not_email(db):
     user, token = generate_user(hosting_status=HostingStatus.can_host, meetup_status=MeetupStatus.wants_to_meetup)
 
-    with notifications_session(token) as notifications:
-        notifications.SetNotificationSettings(notifications_pb2.SetNotificationSettingsReq(enable_do_not_email=True))
+    notifications_api.set_notification_settings(token=token, enable_do_not_email=True)
 
     assert get_history(user.id) == [
         (HostingMeetupStatusSource.do_not_email, HostingStatus.cant_host, MeetupStatus.does_not_want_to_meetup)
