@@ -1404,12 +1404,12 @@
     clsx "^2.1.1"
     prop-types "^15.8.1"
 
-"@mui/material-nextjs@^9.4.0":
-  version "9.4.0"
-  resolved "https://registry.yarnpkg.com/@mui/material-nextjs/-/material-nextjs-9.4.0.tgz#56bc3afc43f12f67c05c33b7e16a32df4246f4e8"
-  integrity sha512-LDE1I6vJDlVHu7MUheabo//Uzy5/Tdpt+MXaMar5IpdWDuoLp3c+GiMv5m22GXp30FUfB427XFuUG//CBbglgA==
+"@mui/material-nextjs@^9.5.0":
+  version "9.5.0"
+  resolved "https://registry.yarnpkg.com/@mui/material-nextjs/-/material-nextjs-9.5.0.tgz#134e6ea6bb2707e5888d118af56e933961582615"
+  integrity sha512-IzEH+a4WnOaLHkINsL/4gHdEW/codbaX9reiINSZXhn3Px9YZ4zfm8WMcPjTXhIlmjB/VBjp7jsb+HRN/PLE6g==
   dependencies:
-    "@babel/runtime" "^7.29.7"
+    "@babel/runtime" "^7.29.7 || ^8.0.5"
 
 "@mui/material@^9.5.0":
   version "9.5.0"
