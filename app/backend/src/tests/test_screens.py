@@ -3,7 +3,15 @@ from datetime import time, timedelta
 from google.protobuf import empty_pb2
 
 from couchers.db import session_scope
-from couchers.proto import discussions_pb2, events_pb2, messages_pb2, public_trips_pb2, requests_pb2, screens_pb2
+from couchers.proto import (
+    communities_pb2,
+    discussions_pb2,
+    events_pb2,
+    messages_pb2,
+    public_trips_pb2,
+    requests_pb2,
+    screens_pb2,
+)
 from couchers.utils import today
 from tests.fixtures.api import events as events_api
 from tests.fixtures.api import requests as requests_api
@@ -11,6 +19,7 @@ from tests.fixtures.db import generate_user
 from tests.fixtures.feature_flags import Flags
 from tests.fixtures.sessions import (
     account_session,
+    communities_session,
     discussions_session,
     public_trips_session,
     screens_session,
@@ -79,6 +88,9 @@ def test_GetDashboard_matches_individual_rpcs(db, moderator):
             public_trips_pb2.ListMyCommunitiesPublicTripsReq(page_size=10)
         )
 
+    with communities_session(surfer_token) as api:
+        my_communities = api.ListUserCommunities(communities_pb2.ListUserCommunitiesReq(page_size=25))
+
     with screens_session(surfer_token) as api:
         res = api.GetDashboard(screens_pb2.GetDashboardReq())
 
@@ -90,6 +102,7 @@ def test_GetDashboard_matches_individual_rpcs(db, moderator):
     assert res.discussions == discussions
     assert res.my_public_trips == my_public_trips
     assert res.community_public_trips == community_public_trips
+    assert res.my_communities == my_communities
 
     # the surfer sees their upcoming trip under surfing, nothing under hosting
     assert len(res.surfing.host_requests) == 1
@@ -150,6 +163,22 @@ def test_GetDashboard_community_events_excludes_attending(db, moderator):
     assert [e.event_id for e in res.community_events.events] == [e_community_only]
 
 
+def test_GetDashboard_my_communities(db):
+    user, token = generate_user()
+    other_user, _ = generate_user()
+
+    with session_scope() as session:
+        world = create_community(session, 0, 100, "World", [user], [], None)
+        joined = create_community(session, 0, 50, "Joined", [user], [], world)
+        create_community(session, 0, 25, "Not joined", [other_user], [], joined)
+        expected_ids = [joined.id, world.id]
+
+    with screens_session(token) as api:
+        res = api.GetDashboard(screens_pb2.GetDashboardReq())
+
+    assert [c.community_id for c in res.my_communities.communities] == expected_ids
+
+
 def test_GetDashboard_returns_several_pages_per_section(db, moderator):
     # the client pages through each section locally, so a section returns a batch of items and a
     # token for that section's own RPC when there are more
@@ -187,6 +216,7 @@ def test_GetDashboard_empty(db):
     assert len(res.community_events.events) == 0
     assert len(res.discussions.discussions) == 0
     assert len(res.reminders.reminders) == 0
+    assert len(res.my_communities.communities) == 0
 
 
 def test_GetDashboard_public_trips_behind_flag(db, flags: Flags):
