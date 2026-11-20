@@ -59,6 +59,11 @@ const StyledSelect = styled(Select, {
   ...(displayMode === "icon" && {
     width: 41.25,
     minWidth: 41.25,
+    // Select does not inherit IconButton's background-color transition; palette
+    // CSS variables only interpolate when the property declares one.
+    transition: theme.transitions.create("background-color", {
+      duration: theme.transitions.duration.shortest,
+    }),
     "& .MuiSelect-select": {
       display: "flex",
       alignItems: "center",
