@@ -2,5 +2,5 @@
 /pgdata/
 *.prod.env
 
-# protobuf descriptor sets
-descriptors.pb
+# left behind in existing checkouts, the proxy now uses descriptors.gen.pb
+/proxy/descriptors.pb
