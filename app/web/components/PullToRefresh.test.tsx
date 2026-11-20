@@ -1,22 +1,37 @@
 import { useQuery } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { ReactNode } from "react";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import { pullToRefresh } from "test/utils";
-import { useIsNativeEmbed } from "utils/nativeLink";
+import { sendNativeHapticImpact, useIsNativeEmbed } from "utils/nativeLink";
 
 import PullToRefresh from "./PullToRefresh";
 
 jest.mock("utils/nativeLink", () => ({
   useIsNativeEmbed: jest.fn(),
+  sendNativeHapticImpact: jest.fn(),
 }));
 
 const mockUseIsNativeEmbed = useIsNativeEmbed as jest.MockedFunction<typeof useIsNativeEmbed>;
+const mockSendNativeHapticImpact = sendNativeHapticImpact as jest.MockedFunction<typeof sendNativeHapticImpact>;
 
-function renderPullToRefresh() {
+function renderPullToRefresh(extra?: ReactNode) {
   const { client, wrapper } = getHookWrapperWithClient();
   const refetchQueries = jest.spyOn(client, "refetchQueries");
-  render(<PullToRefresh queryKeys={[["screen"]]} />, { wrapper });
+  render(
+    <>
+      {extra}
+      <PullToRefresh queryKeys={[["screen"]]} />
+    </>,
+    { wrapper },
+  );
   return refetchQueries;
+}
+
+// Touch at the top, then move down through each y without lifting the finger
+function drag(...ys: number[]) {
+  fireEvent.touchStart(document.body, { touches: [{ clientX: 100, clientY: 0 }] });
+  ys.forEach((y) => fireEvent.touchMove(document.body, { touches: [{ clientX: 100, clientY: y }] }));
 }
 
 function ScreenWithAppWideQuery({ fetchScreen, fetchPing }: { fetchScreen: () => string; fetchPing: () => string }) {
@@ -47,10 +62,17 @@ describe("PullToRefresh", () => {
   it("shows how far you've pulled", () => {
     renderPullToRefresh();
 
-    fireEvent.touchStart(document.body, { touches: [{ clientX: 100, clientY: 0 }] });
-    fireEvent.touchMove(document.body, { touches: [{ clientX: 100, clientY: 60 }] });
+    drag(60);
 
     expect(screen.getByRole("progressbar", { name: "Pull down to refresh" })).toBeVisible();
+  });
+
+  it("taps once when the pull passes the threshold", () => {
+    renderPullToRefresh();
+
+    drag(160, 180);
+
+    expect(mockSendNativeHapticImpact).toHaveBeenCalledTimes(1);
   });
 
   it("does nothing after a short pull", () => {
@@ -59,18 +81,15 @@ describe("PullToRefresh", () => {
     pullToRefresh(document.body, 40);
 
     expect(refetchQueries).not.toHaveBeenCalled();
+    expect(mockSendNativeHapticImpact).not.toHaveBeenCalled();
   });
 
   it("does nothing when the pull starts on a map", () => {
-    const refetchQueries = renderPullToRefresh();
-    const map = document.createElement("div");
-    map.className = "maplibregl-map";
-    document.body.appendChild(map);
+    const refetchQueries = renderPullToRefresh(<div className="maplibregl-map" data-testid="map" />);
 
-    pullToRefresh(map);
+    pullToRefresh(screen.getByTestId("map"));
 
     expect(refetchQueries).not.toHaveBeenCalled();
-    map.remove();
   });
 
   it("does nothing outside the mobile app", () => {

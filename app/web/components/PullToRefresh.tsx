@@ -3,9 +3,11 @@ import { QueryKey, useQueryClient } from "@tanstack/react-query";
 import { GLOBAL } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { useEffect, useRef, useState } from "react";
-import { useIsNativeEmbed } from "utils/nativeLink";
+import { sendNativeHapticImpact, useIsNativeEmbed } from "utils/nativeLink";
 
 const PULL_THRESHOLD_PX = 70;
+// a fast refetch would only flash the spinner, so it doesn't look like anything happened
+const MIN_REFRESH_MS = 600;
 const MAX_PULL_PX = 100;
 // the indicator moves at half the finger's speed, so it feels like it resists
 const PULL_RESISTANCE = 0.5;
@@ -39,7 +41,7 @@ export default function PullToRefresh({ queryKeys }: PullToRefreshProps) {
   const [pull, setPull] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const startRef = useRef<{ x: number; y: number } | null>(null);
-  const pullRef = useRef(0);
+  const fullyPulledRef = useRef(false);
   const isRefreshingRef = useRef(false);
   // a ref so a new array each render doesn't re-attach the touch listeners
   const queryKeysRef = useRef(queryKeys);
@@ -49,7 +51,10 @@ export default function PullToRefresh({ queryKeys }: PullToRefreshProps) {
     if (!isNativeEmbed) return;
 
     const updatePull = (value: number) => {
-      pullRef.current = value;
+      const fullyPulled = value >= PULL_THRESHOLD_PX;
+      // a tap on reaching the threshold, so the user feels the pull "take"
+      if (fullyPulled && !fullyPulledRef.current) sendNativeHapticImpact();
+      fullyPulledRef.current = fullyPulled;
       setPull(value);
     };
 
@@ -78,7 +83,7 @@ export default function PullToRefresh({ queryKeys }: PullToRefreshProps) {
     };
 
     const handleTouchEnd = async () => {
-      const shouldRefresh = startRef.current !== null && pullRef.current >= PULL_THRESHOLD_PX;
+      const shouldRefresh = startRef.current !== null && fullyPulledRef.current;
       startRef.current = null;
       updatePull(0);
       if (!shouldRefresh) return;
@@ -87,9 +92,10 @@ export default function PullToRefresh({ queryKeys }: PullToRefreshProps) {
       setIsRefreshing(true);
       try {
         // "active" skips cached variants nothing on screen uses; awaiting keeps the spinner until data is back
-        await Promise.all(
-          queryKeysRef.current.map((queryKey) => queryClient.refetchQueries({ queryKey, type: "active" })),
-        );
+        await Promise.all([
+          ...queryKeysRef.current.map((queryKey) => queryClient.refetchQueries({ queryKey, type: "active" })),
+          new Promise((resolve) => setTimeout(resolve, MIN_REFRESH_MS)),
+        ]);
       } finally {
         isRefreshingRef.current = false;
         setIsRefreshing(false);
