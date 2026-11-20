@@ -5,7 +5,8 @@ import { LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { useEffect } from "react";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
-import { server } from "test/restMock";
+import { mockPeliasTestCity, mockPosition, rest, REVERSE_URL, server, TEST_CITY_LABEL } from "test/restMock";
+import { resetFailoverState } from "utils/geocode";
 
 import EditLocationMap from "./EditLocationMap";
 
@@ -53,6 +54,7 @@ describe("Edit location map", () => {
 
   afterEach(() => {
     server.resetHandlers();
+    resetFailoverState();
   });
 
   afterAll(() => {
@@ -103,6 +105,7 @@ describe("Edit location map", () => {
     });
 
     it("is shrunk again when being populated from a search result", async () => {
+      mockPeliasTestCity();
       const updateLocation = jest.fn();
       render(
         <EditLocationMap
@@ -125,7 +128,7 @@ describe("Edit location map", () => {
       );
       await user.click(
         await screen.findByRole("option", {
-          name: "test city, test county, test country",
+          name: TEST_CITY_LABEL,
         }),
       );
 
@@ -140,6 +143,128 @@ describe("Edit location map", () => {
         expect(screen.getByRole("combobox").classList.contains("MuiAutocomplete-loading")).toBe(false);
         expect(updateLocation).toHaveBeenCalledTimes(1);
       });
+    });
+
+    it("still accepts a search result when the map style is gone", async () => {
+      mockPeliasTestCity();
+      MapMock.mockImplementation(({ postMapInitialize }) => {
+        useEffect(() => {
+          const instance = new MaplibreMap({
+            container: document.createElement("div"),
+            style: "mapbox://styles/mapbox/streets-v11",
+          });
+          Object.defineProperty(instance, "style", {
+            configurable: true,
+            value: null,
+          });
+          instance.flyTo = jest.fn(() => {
+            throw new TypeError("Cannot read properties of null");
+          });
+          instance.setLayoutProperty = jest.fn(() => {
+            throw new TypeError("Cannot read properties of null");
+          });
+          postMapInitialize?.(instance);
+        });
+        return <div>Map</div>;
+      });
+
+      const updateLocation = jest.fn();
+      render(
+        <EditLocationMap
+          initialLocation={{
+            address: "",
+            lat: 1,
+            lng: 2,
+            radius: 100,
+          }}
+          updateLocation={updateLocation}
+        />,
+        { wrapper },
+      );
+
+      const user = userEvent.setup();
+      await user.type(
+        screen.getByLabelText(t("global:components.edit_location_map.search_location_label")),
+        "test{enter}",
+      );
+      await user.click(
+        await screen.findByRole("option", {
+          name: TEST_CITY_LABEL,
+        }),
+      );
+
+      await waitFor(() => {
+        expect(updateLocation).toHaveBeenCalledTimes(1);
+      });
+    });
+  });
+
+  describe('the "use my location" button', () => {
+    const BUTTON = t("global:use_my_location.button_a11y");
+
+    const renderMap = (updateLocation = jest.fn()) => {
+      render(
+        <EditLocationMap
+          initialLocation={{ address: "", lat: 0, lng: 0, radius: 100 }}
+          updateLocation={updateLocation}
+        />,
+        { wrapper },
+      );
+      return updateLocation;
+    };
+
+    it("fills the display address from the device position", async () => {
+      mockPosition(true);
+      server.use(
+        rest.get(REVERSE_URL, (_req, res, ctx) =>
+          res(
+            ctx.json({
+              type: "FeatureCollection",
+              features: [
+                {
+                  type: "Feature",
+                  geometry: { type: "Point", coordinates: [2.3522, 48.8566] },
+                  bbox: [2.224, 48.815, 2.47, 48.902],
+                  properties: {
+                    gid: "whosonfirst:locality:101751119",
+                    layer: "locality",
+                    label: "Paris, Île-de-France, France",
+                    name: "Paris",
+                    locality: "Paris",
+                    region: "Île-de-France",
+                    country: "France",
+                  },
+                },
+              ],
+            }),
+          ),
+        ),
+      );
+      const updateLocation = renderMap();
+      const user = userEvent.setup();
+
+      await user.click(await screen.findByRole("button", { name: BUTTON }));
+
+      await waitFor(() => {
+        expect(screen.getByLabelText(t("global:components.edit_location_map.display_location_label"))).toHaveValue(
+          "Paris, Île-de-France, France",
+        );
+      });
+      expect(updateLocation).toHaveBeenCalled();
+    });
+
+    it("explains a denied permission and leaves the address editable", async () => {
+      mockPosition(false);
+      renderMap();
+      const user = userEvent.setup();
+
+      await user.click(await screen.findByRole("button", { name: BUTTON }));
+
+      expect(await screen.findByText(t("global:use_my_location.permission_denied_error"))).toBeVisible();
+
+      const addressField = screen.getByLabelText(t("global:components.edit_location_map.display_location_label"));
+      await user.type(addressField, "Somewhere");
+      expect(addressField).toHaveValue("Somewhere");
     });
   });
 });

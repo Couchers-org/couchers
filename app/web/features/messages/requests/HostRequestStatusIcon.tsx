@@ -6,9 +6,11 @@ import { theme } from "theme";
 
 interface HostRequestStatusIconProps extends AvatarProps {
   status: HostRequestStatus;
-  // For public-trip offers, an accepted offer is a positive terminal state for
-  // the traveller, so it's shown green rather than the neutral gray of a normal
-  // accepted request that's still awaiting confirmation.
+  /**
+   * For public-trip offers, an accepted offer is a positive terminal state for
+   * the traveller, so it's shown green rather than the neutral gray of a normal
+   * accepted request that's still awaiting confirmation.
+   */
   isOffer?: boolean;
 }
 

@@ -39,6 +39,7 @@ export { default as InfoIcon } from "@mui/icons-material/InfoOutlined";
 export { default as LinkedInIcon } from "@mui/icons-material/LinkedIn";
 export { default as LocationIcon } from "@mui/icons-material/LocationOnOutlined";
 export { default as MenuIcon } from "@mui/icons-material/Menu";
+export { default as MyLocationIcon } from "@mui/icons-material/MyLocation";
 export { default as QuestionIcon } from "@mui/icons-material/MoreHorizOutlined";
 export { default as ReopenIcon } from "@mui/icons-material/AutorenewOutlined";
 export { default as MuteIcon } from "@mui/icons-material/VolumeOffOutlined";
