@@ -282,6 +282,15 @@ def _check_location(location: events_pb2.EventLocation | None, context: Couchers
     return (geom, location.address)
 
 
+def _check_photo_key(photo_key: str, context: CouchersContext, session: Session) -> str | None:
+    """Checks that the photo exists, if any. Returns the photo key, or None for an empty key (no photo)."""
+    if not photo_key:
+        return None
+    if not session.execute(select(Upload).where(Upload.key == photo_key)).scalar_one_or_none():
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "photo_not_found")
+    return photo_key
+
+
 def _check_timezone_at(geom: WKBElement, context: CouchersContext, session: Session) -> ZoneInfo:
     timezone_id = session.execute(
         select(TimezoneArea.tzid).where(func.ST_Contains(TimezoneArea.geom, func.ST_PointOnSurface(geom))).limit(1)
@@ -367,7 +376,7 @@ def _create_recurrence(session: Session, occurrence: EventOccurrence, rrule_inte
         EventRecurrence(
             event_id=occurrence.event_id,
             content=occurrence.content,
-            # TODO(#9845): Initialize photo_key. Implies adding admin usage tracking infra.
+            photo_key=occurrence.photo_key,
             geom=occurrence.geom,
             address=occurrence.address,
             timezone=occurrence.timezone,
@@ -647,11 +656,7 @@ class Events(events_pb2_grpc.EventsServicer):
         if not parent_node:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "community_not_found")
 
-        if (
-            request.photo_key
-            and not session.execute(select(Upload).where(Upload.key == request.photo_key)).scalar_one_or_none()
-        ):
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "photo_not_found")
+        photo_key = _check_photo_key(request.photo_key, context, session)
 
         event = Event(
             title=request.title,
@@ -676,7 +681,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 geom=geom,
                 address=address,
                 timezone=timezone.key,
-                photo_key=request.photo_key if request.photo_key != "" else None,
+                photo_key=photo_key,
                 during=TimestamptzRange(start_datetime, end_datetime),
                 creator_user_id=context.user_id,
                 moderation_state_id=moderation_state_id,
@@ -773,11 +778,7 @@ class Events(events_pb2_grpc.EventsServicer):
         if occurrence.is_cancelled:
             context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "event_cant_update_cancelled_event")
 
-        if (
-            request.photo_key
-            and not session.execute(select(Upload).where(Upload.key == request.photo_key)).scalar_one_or_none()
-        ):
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "photo_not_found")
+        photo_key = _check_photo_key(request.photo_key, context, session)
 
         during = TimestamptzRange(start_datetime, end_datetime)
 
@@ -809,7 +810,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 geom=geom,
                 address=address,
                 timezone=timezone.key,
-                photo_key=request.photo_key if request.photo_key != "" else None,
+                photo_key=photo_key,
                 during=during,
                 creator_user_id=context.user_id,
                 moderation_state_id=moderation_state_id,
@@ -872,7 +873,7 @@ class Events(events_pb2_grpc.EventsServicer):
             occurrence_update["content"] = request.content.value
 
         if request.HasField("photo_key"):
-            occurrence_update["photo_key"] = request.photo_key.value
+            occurrence_update["photo_key"] = _check_photo_key(request.photo_key.value, context, session)
 
         old_timezone = ZoneInfo(occurrence.timezone)
         timezone: ZoneInfo = old_timezone
@@ -946,8 +947,7 @@ class Events(events_pb2_grpc.EventsServicer):
             if event.recurrence and not request.stop_recurrence:
                 # Occurrences scheduled in the future are based on the recurrence template, so update it too.
                 # Times can't change here (see above).
-                # TODO(#9845): Update photo_key.
-                for key in ("content", "geom", "address", "timezone"):
+                for key in ("content", "photo_key", "geom", "address", "timezone"):
                     if key in occurrence_update:
                         setattr(event.recurrence, key, occurrence_update[key])
             session.execute(
