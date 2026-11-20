@@ -37,6 +37,7 @@
       </mj-section>
       <!-- end-block:action -->
 
+      <!-- Columns stack in source order on narrow screens. Putting the primary button first with direction="rtl" shows it on the right on wide screens and on top on narrow ones. -->
       <!-- begin-block:action-pair -->
       <mj-section padding="0px" direction="rtl">
         <mj-column>
