@@ -397,6 +397,7 @@ def test_user_search_pagination_with_tied_scores(db, flags: Flags):
             res = api.UserSearchV2(search_pb2.UserSearchReq(page_size=2, page_token=page_token))
             seen += [result.user_id for result in res.results]
             assert len(seen) <= len(expected)
+            assert res.total_items == len(expected)
             page_token = res.next_page_token
             if not page_token:
                 break
