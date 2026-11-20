@@ -17,6 +17,7 @@ def send_expo_push_notification(
     ios_subtitle: str | None = None,
     data: dict[str, Any] | None = None,
     collapse_key: str | None = None,
+    badge: int | None = None,
 ) -> dict[str, Any]:
     """Send a push notification via the Expo Push API"""
     message: dict[str, Any] = {
@@ -33,6 +34,10 @@ def send_expo_push_notification(
 
     if collapse_key:
         message["collapseKey"] = collapse_key
+
+    if badge is not None:
+        # iOS only: the number on the app icon, 0 clears it
+        message["badge"] = badge
 
     try:
         response = requests.post(
