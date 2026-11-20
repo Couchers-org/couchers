@@ -12,13 +12,13 @@ from couchers.models import HostRequest, NotificationTopicAction, User
 from couchers.proto import api_pb2, conversations_pb2, messages_pb2, notifications_pb2, requests_pb2
 from couchers.utils import today
 from tests.fixtures.api import conversations as conversations_api
+from tests.fixtures.api import notifications as notifications_api
 from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user, make_user_block
 from tests.fixtures.feature_flags import FeatureFlags
 from tests.fixtures.misc import process_jobs
 from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
-    notifications_session,
     real_api_session,
 )
 from tests.fixtures.timewarp import Timewarp
@@ -522,19 +522,17 @@ def test_mark_all_threads_seen_clears_missed_messages_notification(db, moderator
     recipient_user, recipient_token = generate_user()
 
     # this notification is email-only by default, and the in-app feed only shows push-enabled ones
-    with notifications_session(recipient_token) as n:
-        n.SetNotificationSettings(
-            notifications_pb2.SetNotificationSettingsReq(
-                preferences=[
-                    notifications_pb2.SingleNotificationPreference(
-                        topic=NotificationTopicAction.chat__missed_messages.topic,
-                        action=NotificationTopicAction.chat__missed_messages.action,
-                        delivery_method="push",
-                        enabled=True,
-                    )
-                ]
+    notifications_api.set_notification_settings(
+        token=recipient_token,
+        preferences=[
+            notifications_pb2.SingleNotificationPreference(
+                topic=NotificationTopicAction.chat__missed_messages.topic,
+                action=NotificationTopicAction.chat__missed_messages.action,
+                delivery_method="push",
+                enabled=True,
             )
-        )
+        ],
+    )
 
     _create_group_chat(sender_token, [recipient_user.id], moderator, text="hello there")
 
@@ -544,8 +542,7 @@ def test_mark_all_threads_seen_clears_missed_messages_notification(db, moderator
     process_jobs()
 
     def unseen_missed_messages():
-        with notifications_session(recipient_token) as n:
-            res = n.ListNotifications(notifications_pb2.ListNotificationsReq(only_unread=True))
+        res = notifications_api.list_notifications(token=recipient_token, only_unread=True)
         return [
             notification
             for notification in res.notifications
