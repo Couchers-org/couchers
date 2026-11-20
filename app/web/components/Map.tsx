@@ -9,9 +9,10 @@ import {
   unclusteredPointLayer,
   USERS_SOURCE_ID,
 } from "features/search/utils/mapLayers";
+import { loadMapUserPins } from "features/search/utils/mapUtils";
 import ZoomControl from "features/search/ZoomControl";
 import { MapLayerMouseEvent, RequestParameters } from "maplibre-gl";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Layer, Map as MaplibreMap, MapRef, Source, ViewStateChangeEvent } from "react-map-gl/maplibre";
 import { theme } from "theme";
 
@@ -46,13 +47,16 @@ const Map = ({
 }: MapProps) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const isZoomFromControlRef = useRef(false);
+  const [isUserPinLoaded, setIsUserPinLoaded] = useState(false);
 
   const {
     uiOnly: { zoom },
   } = useMapSearchState();
 
-  const handleMapLoad = () => {
+  const handleMapLoad = async () => {
     if (mapRef.current) {
+      await loadMapUserPins(mapRef);
+      setIsUserPinLoaded(true);
       onLoad();
     }
   };
@@ -156,7 +160,8 @@ const Map = ({
         >
           <Layer {...clusterLayer} />
           <Layer {...clusterCountLayer} />
-          <Layer {...unclusteredPointLayer} />
+          {/* "user-pin" is added asynchronously; mounting earlier triggers a missing image warning */}
+          {isUserPinLoaded && <Layer {...unclusteredPointLayer} />}
         </Source>
         {/** WHY BUILD OUR OWN ZOOM CONTROL? The built in NavigationControl component from react-map-gl doesn't offer a
          * click event, nor does the underlying map-libre. We need a click event to control the api queries for the pins
