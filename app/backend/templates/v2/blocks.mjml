@@ -38,15 +38,15 @@
       <!-- end-block:action -->
 
       <!-- begin-block:action-pair -->
-      <mj-section padding="0px">
-        <mj-column>
-          <mj-button background-color="#fff" color="#00a398" border="2px solid #00a398" border-radius="5px" href="{{ secondary_url }}">
-            <b>{{ secondary_text }}</b>
-          </mj-button>
-        </mj-column>
+      <mj-section padding="0px" direction="rtl">
         <mj-column>
           <mj-button background-color="#00a398" color="white" border="2px solid #00a398" border-radius="5px" href="{{ primary_url }}">
             <b>{{ primary_text }}</b>
+          </mj-button>
+        </mj-column>
+        <mj-column>
+          <mj-button background-color="#fff" color="#00a398" border="2px solid #00a398" border-radius="5px" href="{{ secondary_url }}">
+            <b>{{ secondary_text }}</b>
           </mj-button>
         </mj-column>
       </mj-section>
