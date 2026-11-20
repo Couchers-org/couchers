@@ -21,7 +21,6 @@ from couchers.models import (
 )
 from couchers.proto import (
     admin_pb2,
-    conversations_pb2,
     discussions_pb2,
     events_pb2,
     messages_pb2,
@@ -29,13 +28,13 @@ from couchers.proto import (
     threads_pb2,
 )
 from couchers.utils import not_none, now
+from tests.fixtures.api import conversations as conversations_api
 from tests.fixtures.api import events as events_api
 from tests.fixtures.api import public_trips as public_trips_api
 from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user, make_friends, make_user_block, make_user_invisible
 from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
-    conversations_session,
     discussions_session,
     real_admin_session,
     references_session,
@@ -119,12 +118,11 @@ def test_ExportUserData_conversations_with_visible_user(db, moderator):
 
     make_friends(user, other)
 
-    with conversations_session(token) as api:
-        chat_id = api.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[other.id])).group_chat_id
-        api.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat_id, text="hello from me"))
-    moderator.approve_group_chat(chat_id)
-    with conversations_session(other_token) as api:
-        api.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat_id, text="hello back from them"))
+    chat_id = conversations_api.create_group_chat(
+        token=token, recipient_user_ids=[other.id], approve_by=moderator
+    ).group_chat_id
+    conversations_api.send_message(token=token, group_chat_id=chat_id, text="hello from me")
+    conversations_api.send_message(token=other_token, group_chat_id=chat_id, text="hello back from them")
 
     host_request_id = requests_api.create_host_request(
         token=token, host_user_id=other.id, text="Export request", pad_text_to_valid_length=True, approve_by=moderator
@@ -159,12 +157,11 @@ def test_ExportUserData_conversations_with_invisible_user(db, moderator):
 
     make_friends(user, other)
 
-    with conversations_session(token) as api:
-        chat_id = api.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[other.id])).group_chat_id
-        api.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat_id, text="hello from me"))
-    moderator.approve_group_chat(chat_id)
-    with conversations_session(other_token) as api:
-        api.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat_id, text="hello back from them"))
+    chat_id = conversations_api.create_group_chat(
+        token=token, recipient_user_ids=[other.id], approve_by=moderator
+    ).group_chat_id
+    conversations_api.send_message(token=token, group_chat_id=chat_id, text="hello from me")
+    conversations_api.send_message(token=other_token, group_chat_id=chat_id, text="hello back from them")
 
     host_request_id = requests_api.create_host_request(token=token, host_user_id=other.id, approve_by=moderator)
     requests_api.send_host_request_message(
@@ -195,12 +192,11 @@ def test_ExportUserData_conversations_with_blocked_user(db, moderator):
 
     make_friends(user, other)
 
-    with conversations_session(token) as api:
-        chat_id = api.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[other.id])).group_chat_id
-        api.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat_id, text="hello from me"))
-    moderator.approve_group_chat(chat_id)
-    with conversations_session(other_token) as api:
-        api.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat_id, text="hello back from them"))
+    chat_id = conversations_api.create_group_chat(
+        token=token, recipient_user_ids=[other.id], approve_by=moderator
+    ).group_chat_id
+    conversations_api.send_message(token=token, group_chat_id=chat_id, text="hello from me")
+    conversations_api.send_message(token=other_token, group_chat_id=chat_id, text="hello back from them")
 
     make_user_block(user, other)
 
@@ -415,10 +411,10 @@ def test_ExportUserData_leaves_out_moderation_hidden_content(db, moderator):
 
     make_friends(user, other)
 
-    with conversations_session(token) as api:
-        chat_id = api.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[other.id])).group_chat_id
-        api.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat_id, text="hello from me"))
-    moderator.approve_group_chat(chat_id)
+    chat_id = conversations_api.create_group_chat(
+        token=token, recipient_user_ids=[other.id], approve_by=moderator
+    ).group_chat_id
+    conversations_api.send_message(token=token, group_chat_id=chat_id, text="hello from me")
 
     assert "hello from me" in json.dumps(_export(super_token, user))
 
@@ -440,12 +436,11 @@ def test_ExportUserData_for_a_banned_user_is_not_gutted(db, moderator):
 
     make_friends(user, other)
 
-    with conversations_session(token) as api:
-        chat_id = api.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[other.id])).group_chat_id
-        api.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat_id, text="hello from me"))
-    moderator.approve_group_chat(chat_id)
-    with conversations_session(other_token) as api:
-        api.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat_id, text="hello back from them"))
+    chat_id = conversations_api.create_group_chat(
+        token=token, recipient_user_ids=[other.id], approve_by=moderator
+    ).group_chat_id
+    conversations_api.send_message(token=token, group_chat_id=chat_id, text="hello from me")
+    conversations_api.send_message(token=other_token, group_chat_id=chat_id, text="hello back from them")
 
     host_request_id = requests_api.create_host_request(
         token=token, host_user_id=other.id, text="Export request", pad_text_to_valid_length=True, approve_by=moderator
