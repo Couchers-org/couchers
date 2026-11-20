@@ -572,15 +572,14 @@ def _user_search_inner(
 
     if request.HasField("search_in_rectangle"):
         statement = statement.where(
-            func.ST_Within(
-                User.geom,
+            User.geom.op("&&")(
                 func.ST_MakeEnvelope(
                     request.search_in_rectangle.lng_min,
                     request.search_in_rectangle.lat_min,
                     request.search_in_rectangle.lng_max,
                     request.search_in_rectangle.lat_max,
                     4326,
-                ),
+                )
             )
         )
 
@@ -1040,15 +1039,14 @@ class Search(search_pb2_grpc.SearchServicer):
             )
         if request.HasField("search_in_rectangle"):
             statement = statement.where(
-                func.ST_Within(
-                    EventOccurrence.geom,
+                EventOccurrence.geom.op("&&")(
                     func.ST_MakeEnvelope(
                         request.search_in_rectangle.lng_min,
                         request.search_in_rectangle.lat_min,
                         request.search_in_rectangle.lng_max,
                         request.search_in_rectangle.lat_max,
                         4326,
-                    ),
+                    )
                 )
             )
         if request.HasField("search_in_community_id"):

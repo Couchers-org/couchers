@@ -112,7 +112,7 @@ def test_user_search_in_rectangle(db):
     user3, token3 = generate_user(geom=create_coordinate(0.1, 0.1), geom_radius=100)
     # inside
     user4, token4 = generate_user(geom=create_coordinate(1.2, 0.1), geom_radius=100)
-    # outside (not fully inside)
+    # on the corner, which counts as inside
     user5, token5 = generate_user(geom=create_coordinate(0, 0), geom_radius=100)
     # outside
     user6, token6 = generate_user(geom=create_coordinate(0.1, 1.2), geom_radius=100)
@@ -133,7 +133,7 @@ def test_user_search_in_rectangle(db):
                 )
             )
         )
-        assert [result.user_id for result in res.results] == [user3.id, user4.id]
+        assert {result.user_id for result in res.results} == {user3.id, user4.id, user5.id}
 
 
 def test_user_filter_complete_profile(db):
