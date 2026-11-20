@@ -11,15 +11,12 @@ export function useUpdateVolunteerInfo() {
 
   return useMutation<GetMyVolunteerInfoRes.AsObject, RpcError, VolunteerFormData>({
     mutationFn: async (data) => {
-      // For website, use the URL as both the display text and href
-      const linkText = data.linkType === "website" ? data.linkUrl : data.linkText;
-
       const result = await service.account.updateVolunteerInfo({
         displayName: data.overrideName ? data.displayName : "",
         displayLocation: data.overrideLocation ? data.displayLocation : "",
         showOnTeamPage: data.showOnTeamPage,
         linkType: data.linkType || undefined,
-        linkText: linkText || undefined,
+        linkText: data.linkText || undefined,
         linkUrl: data.linkType === "website" ? data.linkUrl || undefined : undefined,
       });
       return result.toObject();
