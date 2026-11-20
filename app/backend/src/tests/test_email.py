@@ -398,7 +398,7 @@ def test_send_donation_email(db, email_collector: EmailCollector):
         email.plain
         == """Hi Testy von Test,
 
-Thank you so much for your donation of $20 to Couchers.org.
+Thank you so much for your donation of US$20 to Couchers.org.
 
 Your contribution will go towards building and sustaining the Couchers.org community, and is vital for our goal of a free and non-profit couch surfing platform.
 
@@ -421,7 +421,7 @@ This is a security email, you cannot unsubscribe from it.
 """
     )
 
-    assert "Thank you so much for your donation of <b>$20</b> to Couchers.org." in email.html
+    assert "Thank you so much for your donation of <b>US$20</b> to Couchers.org." in email.html
     assert email.sender_name == "Couchers.org"
     assert email.sender_email == "notify@couchers.org.invalid"
     assert email.recipient == "testing@couchers.org.invalid"
