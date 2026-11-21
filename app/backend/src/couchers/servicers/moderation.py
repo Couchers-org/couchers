@@ -1,6 +1,5 @@
 import json
 import logging
-from collections import defaultdict
 
 import grpc
 from sqlalchemy import and_, exists, not_, or_, select
@@ -38,7 +37,6 @@ from couchers.models import (
     ModerationVisibility,
     Notification,
     NotificationDelivery,
-    NotificationDeliveryType,
     Page,
     PublicTrip,
     Reference,
@@ -929,24 +927,8 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
                 .distinct()
             ).scalars()
         )
-        # Digest deliveries are marked delivered without an email going out
-        notified_recipients = session.execute(
-            select(Notification.moderation_state_id, Notification.user_id)
-            .join(NotificationDelivery, NotificationDelivery.notification_id == Notification.id)
-            .where(Notification.moderation_state_id.in_(state_ids))
-            .where(NotificationDelivery.delivered.is_not(None))
-            .where(NotificationDelivery.delivery_type != NotificationDeliveryType.digest)
-            .distinct()
-        ).all()
-        recipients_by_state: dict[int, set[int]] = defaultdict(set)
-        for state_id, user_id in notified_recipients:
-            recipients_by_state[not_none(state_id)].add(user_id)
-
         for state_pb in state_pbs:
             state_pb.ever_visible = state_pb.moderation_state_id in ever_visible_ids
-            state_pb.notifications_sent = bool(
-                recipients_by_state[state_pb.moderation_state_id] - {state_pb.author_user_id}
-            )
 
         return moderation_pb2.ListModerationStatesRes(
             moderation_states=state_pbs,

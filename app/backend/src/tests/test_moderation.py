@@ -3221,21 +3221,20 @@ def test_ListModerationStates_pagination_ignores_created(db):
     assert paged_ids == expected
 
 
-def test_ListModerationStates_ever_visible_and_notifications_sent(db, push_collector: PushCollector):
+def test_ListModerationStates_ever_visible(db):
     super_user, super_token = generate_user(is_superuser=True)
     surfer, surfer_token = generate_user()
     host, _ = generate_user()
 
     approved_state_id = create_test_host_request_with_moderation(surfer_token, host.id)
     shadowed_state_id = create_test_host_request_with_moderation(surfer_token, host.id)
-    process_jobs()
 
-    def flags() -> dict[int, tuple[bool, bool]]:
+    def ever_visible() -> dict[int, bool]:
         with real_moderation_session(super_token) as api:
             res = api.ListModerationStates(moderation_pb2.ListModerationStatesReq(author_user_id=surfer.id))
-        return {s.moderation_state_id: (s.ever_visible, s.notifications_sent) for s in res.moderation_states}
+        return {s.moderation_state_id: s.ever_visible for s in res.moderation_states}
 
-    assert flags()[approved_state_id] == (False, False)
+    assert not ever_visible()[approved_state_id]
 
     with real_moderation_session(super_token) as api:
         api.ModerateContent(
@@ -3247,12 +3246,7 @@ def test_ListModerationStates_ever_visible_and_notifications_sent(db, push_colle
             )
         )
 
-    # The deferred notification only goes out once its job runs again
-    assert flags()[approved_state_id] == (True, False)
-
-    process_jobs()
-    assert push_collector.count_for_user(host.id) > 0
-    assert flags()[approved_state_id] == (True, True)
+    assert ever_visible()[approved_state_id]
 
     with real_moderation_session(super_token) as api:
         api.ModerateContent(
@@ -3264,9 +3258,9 @@ def test_ListModerationStates_ever_visible_and_notifications_sent(db, push_colle
             )
         )
 
-    result = flags()
-    assert result[approved_state_id] == (True, True)
-    assert result[shadowed_state_id] == (False, False)
+    result = ever_visible()
+    assert result[approved_state_id]
+    assert not result[shadowed_state_id]
 
 
 # ============================================================================

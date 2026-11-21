@@ -85,8 +85,6 @@ message ModerationStateInfo {
   // Only set by ListModerationStates
   // Whether the content was ever VISIBLE or UNLISTED
   bool ever_visible = 10;
-  // Whether an email or push notification about the content went to someone other than the author
-  bool notifications_sent = 11;
 }
 
 message ModerationQueueItemInfo {
