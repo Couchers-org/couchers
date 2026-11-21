@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from couchers.context import CouchersContext
 from couchers.proto import (
+    communities_pb2,
     discussions_pb2,
     events_pb2,
     messages_pb2,
@@ -12,6 +13,7 @@ from couchers.proto import (
     screens_pb2_grpc,
 )
 from couchers.servicers.account import Account
+from couchers.servicers.communities import Communities
 from couchers.servicers.discussions import Discussions
 from couchers.servicers.events import Events
 from couchers.servicers.public_trips import PublicTrips
@@ -28,6 +30,7 @@ class Screens(screens_pb2_grpc.ScreensServicer):
         community_events_page_size = 9
         discussions_page_size = 9
         public_trips_page_size = 10
+        communities_page_size = 25
 
         def upcoming_host_requests_req(*, surfing: bool) -> requests_pb2.ListHostRequestsReq:
             return requests_pb2.ListHostRequestsReq(
@@ -87,4 +90,7 @@ class Screens(screens_pb2_grpc.ScreensServicer):
             ),
             my_public_trips=my_public_trips,
             community_public_trips=community_public_trips,
+            my_communities=Communities().ListUserCommunities(
+                communities_pb2.ListUserCommunitiesReq(page_size=communities_page_size), context, session
+            ),
         )
