@@ -54,7 +54,6 @@ from couchers.models import (
     PostalVerificationAttempt,
     PostalVerificationStatus,
     SignupFlow,
-    SleepingArrangement,
     StayProposalKind,
     StrongVerificationAttempt,
     StrongVerificationAttemptStatus,
@@ -120,8 +119,8 @@ def _populate_users() -> None:
     generate_user()
     generate_user(accepted_tos=TOS_VERSION - 1)
     generate_user(accepted_community_guidelines=GUIDELINES_VERSION - 1)
-    generate_user(max_guests=3, sleeping_arrangement=SleepingArrangement.private)
-    generate_user(max_guests=3, sleeping_arrangement=None)
+    generate_user(about_place="x" * 50)
+    generate_user(about_place=None)
     banned, _ = generate_user()
     make_user_invisible(banned.id)
     generate_user(delete_user=True)
@@ -245,6 +244,7 @@ def _populate_postal_verification_attempts() -> None:
     with session_scope() as session:
         session.add(
             PostalVerificationAttempt(
+                recipient_name="Test User",
                 user_id=verified.id,
                 status=PostalVerificationStatus.succeeded,
                 address_line_1="1 Test Street",
@@ -257,6 +257,7 @@ def _populate_postal_verification_attempts() -> None:
         )
         session.add(
             PostalVerificationAttempt(
+                recipient_name="Test User",
                 user_id=cancelled.id,
                 status=PostalVerificationStatus.cancelled,
                 address_line_1="2 Test Street",
@@ -266,6 +267,7 @@ def _populate_postal_verification_attempts() -> None:
         )
         session.add(
             PostalVerificationAttempt(
+                recipient_name="Test User",
                 user_id=pending.id,
                 status=PostalVerificationStatus.pending_address_confirmation,
                 address_line_1="3 Test Street",

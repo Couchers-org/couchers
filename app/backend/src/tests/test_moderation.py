@@ -44,17 +44,17 @@ from couchers.moderation.utils import create_moderation
 from couchers.proto import (
     admin_pb2,
     api_pb2,
-    conversations_pb2,
     discussions_pb2,
     messages_pb2,
     moderation_pb2,
-    notifications_pb2,
     pages_pb2,
     threads_pb2,
 )
 from couchers.servicers.threads import pack_thread_id
 from couchers.utils import Timestamp_from_datetime, now
+from tests.fixtures.api import conversations as conversations_api
 from tests.fixtures.api import events as events_api
+from tests.fixtures.api import notifications as notifications_api
 from tests.fixtures.api import public_trips as public_trips_api
 from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import backdate_conversations, generate_user, make_friends
@@ -62,9 +62,7 @@ from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
 from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
     api_session,
-    conversations_session,
     discussions_session,
-    notifications_session,
     pages_session,
     real_admin_session,
     real_moderation_session,
@@ -494,10 +492,9 @@ def test_shadowed_notification_not_in_list_notifications(db):
     host_request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id)
 
     # Host (recipient) should NOT see the notification in ListNotifications - it's for shadowed content
-    with notifications_session(host_token) as api:
-        res = api.ListNotifications(notifications_pb2.ListNotificationsReq())
-        # Should be empty - the host request is still shadowed
-        assert len(res.notifications) == 0
+    res = notifications_api.list_notifications(token=host_token)
+    # Should be empty - the host request is still shadowed
+    assert len(res.notifications) == 0
 
 
 def test_notification_visible_after_approval(db):
@@ -510,9 +507,8 @@ def test_notification_visible_after_approval(db):
     host_request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id)
 
     # Host (recipient) should NOT see the notification initially
-    with notifications_session(host_token) as api:
-        res = api.ListNotifications(notifications_pb2.ListNotificationsReq())
-        assert len(res.notifications) == 0
+    res = notifications_api.list_notifications(token=host_token)
+    assert len(res.notifications) == 0
 
     # Get the moderation state ID and approve
     with session_scope() as session:
@@ -532,11 +528,10 @@ def test_notification_visible_after_approval(db):
         )
 
     # Now host SHOULD see the notification
-    with notifications_session(host_token) as api:
-        res = api.ListNotifications(notifications_pb2.ListNotificationsReq())
-        assert len(res.notifications) == 1
-        assert res.notifications[0].topic == "host_request"
-        assert res.notifications[0].action == "create"
+    res = notifications_api.list_notifications(token=host_token)
+    assert len(res.notifications) == 1
+    assert res.notifications[0].topic == "host_request"
+    assert res.notifications[0].action == "create"
 
 
 def test_shadowed_host_request_visible_to_author_only(db):
@@ -1768,9 +1763,8 @@ def test_group_chat_created_with_moderation_state(db):
     recipient_user, _ = generate_user()
     make_friends(creator_user, recipient_user)
 
-    with conversations_session(creator_token) as api:
-        res = api.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
-        group_chat_id = res.group_chat_id
+    res = conversations_api.create_group_chat(token=creator_token, recipient_user_ids=[recipient_user.id])
+    group_chat_id = res.group_chat_id
 
     # Verify moderation state was created
     with session_scope() as session:
@@ -1802,9 +1796,8 @@ def test_group_chat_GetModerationState(db):
     moderator, mod_token = generate_user(is_superuser=True)
     make_friends(creator_user, recipient_user)
 
-    with conversations_session(creator_token) as api:
-        res = api.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
-        group_chat_id = res.group_chat_id
+    res = conversations_api.create_group_chat(token=creator_token, recipient_user_ids=[recipient_user.id])
+    group_chat_id = res.group_chat_id
 
     # Moderator can look up the moderation state
     with real_moderation_session(mod_token) as api:
@@ -1827,10 +1820,10 @@ def test_group_chat_moderation_hide(db):
     moderator, mod_token = generate_user(is_superuser=True)
     make_friends(creator_user, participant_user)
 
-    with conversations_session(creator_token) as api:
-        res = api.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[participant_user.id]))
-        group_chat_id = res.group_chat_id
-        api.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Hello!"))
+    group_chat_id = conversations_api.create_group_chat(
+        token=creator_token, recipient_user_ids=[participant_user.id]
+    ).group_chat_id
+    conversations_api.send_message(token=creator_token, group_chat_id=group_chat_id, text="Hello!")
 
     # First approve the group chat so both users can see it
     with real_moderation_session(mod_token) as api:
@@ -1850,13 +1843,11 @@ def test_group_chat_moderation_hide(db):
         )
 
     # Both users can see the chat now
-    with conversations_session(creator_token) as api:
-        res = api.ListGroupChats(conversations_pb2.ListGroupChatsReq())
-        assert len(res.group_chats) == 1
+    res = conversations_api.list_group_chats(token=creator_token)
+    assert len(res.group_chats) == 1
 
-    with conversations_session(participant_token) as api:
-        res = api.ListGroupChats(conversations_pb2.ListGroupChatsReq())
-        assert len(res.group_chats) == 1
+    res = conversations_api.list_group_chats(token=participant_token)
+    assert len(res.group_chats) == 1
 
     # Moderator hides the group chat
     with real_moderation_session(mod_token) as api:
@@ -1876,18 +1867,15 @@ def test_group_chat_moderation_hide(db):
         )
 
     # Neither user can see the chat now
-    with conversations_session(creator_token) as api:
-        res = api.ListGroupChats(conversations_pb2.ListGroupChatsReq())
-        assert len(res.group_chats) == 0
+    res = conversations_api.list_group_chats(token=creator_token)
+    assert len(res.group_chats) == 0
 
-    with conversations_session(participant_token) as api:
-        res = api.ListGroupChats(conversations_pb2.ListGroupChatsReq())
-        assert len(res.group_chats) == 0
+    res = conversations_api.list_group_chats(token=participant_token)
+    assert len(res.group_chats) == 0
 
     # Trying to get messages returns empty (chat is hidden so no messages visible)
-    with conversations_session(creator_token) as api:
-        res = api.GetGroupChatMessages(conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id))
-        assert len(res.messages) == 0
+    messages_res = conversations_api.get_group_chat_messages(token=creator_token, group_chat_id=group_chat_id)
+    assert len(messages_res.messages) == 0
 
 
 def test_group_chat_moderation_shadow(db):
@@ -1897,10 +1885,10 @@ def test_group_chat_moderation_shadow(db):
     moderator, mod_token = generate_user(is_superuser=True)
     make_friends(creator_user, participant_user)
 
-    with conversations_session(creator_token) as api:
-        res = api.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[participant_user.id]))
-        group_chat_id = res.group_chat_id
-        api.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Hello!"))
+    group_chat_id = conversations_api.create_group_chat(
+        token=creator_token, recipient_user_ids=[participant_user.id]
+    ).group_chat_id
+    conversations_api.send_message(token=creator_token, group_chat_id=group_chat_id, text="Hello!")
 
     # Moderator shadows the group chat
     with real_moderation_session(mod_token) as api:
@@ -1920,20 +1908,17 @@ def test_group_chat_moderation_shadow(db):
         )
 
     # Creator can see SHADOWED content in list operations
-    with conversations_session(creator_token) as api:
-        res = api.ListGroupChats(conversations_pb2.ListGroupChatsReq())
-        assert len(res.group_chats) == 1
-        assert res.group_chats[0].group_chat_id == group_chat_id
+    res = conversations_api.list_group_chats(token=creator_token)
+    assert len(res.group_chats) == 1
+    assert res.group_chats[0].group_chat_id == group_chat_id
 
     # But non-creator participant cannot see it in lists
-    with conversations_session(participant_token) as api:
-        res = api.ListGroupChats(conversations_pb2.ListGroupChatsReq())
-        assert len(res.group_chats) == 0
+    res = conversations_api.list_group_chats(token=participant_token)
+    assert len(res.group_chats) == 0
 
     # Creator can also access it directly via GetGroupChat
-    with conversations_session(creator_token) as api:
-        res = api.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
-        assert res.group_chat_id == group_chat_id
+    group_chat = conversations_api.get_group_chat(token=creator_token, group_chat_id=group_chat_id)
+    assert group_chat.group_chat_id == group_chat_id
 
 
 # ============================================================================
@@ -2595,13 +2580,8 @@ def test_group_chat_message_notifications_suppressed_before_approval(db, push_co
     recipient_user, recipient_token = generate_user(complete_profile=True)
 
     # Create a group chat (starts in SHADOWED state)
-    with conversations_session(sender_token) as api:
-        res = api.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(
-                recipient_user_ids=[recipient_user.id],
-            )
-        )
-        gc_id = res.group_chat_id
+    res = conversations_api.create_group_chat(token=sender_token, recipient_user_ids=[recipient_user.id])
+    gc_id = res.group_chat_id
 
     # Verify initial state
     with session_scope() as session:
@@ -2612,13 +2592,7 @@ def test_group_chat_message_notifications_suppressed_before_approval(db, push_co
     assert push_collector.count_for_user(recipient_user.id) == 0
 
     # Send messages BEFORE approval
-    with conversations_session(sender_token) as api:
-        api.SendMessage(
-            conversations_pb2.SendMessageReq(
-                group_chat_id=gc_id,
-                text="Hello before approval",
-            )
-        )
+    conversations_api.send_message(token=sender_token, group_chat_id=gc_id, text="Hello before approval")
 
     # Process the queued notification job
     while process_job():
@@ -2645,13 +2619,7 @@ def test_group_chat_message_notifications_suppressed_before_approval(db, push_co
     assert push.content.body == "Hello before approval"
 
     # Send a message AFTER approval
-    with conversations_session(sender_token) as api:
-        api.SendMessage(
-            conversations_pb2.SendMessageReq(
-                group_chat_id=gc_id,
-                text="Hello after approval",
-            )
-        )
+    conversations_api.send_message(token=sender_token, group_chat_id=gc_id, text="Hello after approval")
 
     # Process the queued notification job
     while process_job():
@@ -2753,8 +2721,7 @@ def test_SetUserContentVisibility_group_chat(db):
     other, _ = generate_user()
     make_friends(creator, other)
 
-    with conversations_session(creator_token) as api:
-        gc_id = api.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[other.id])).group_chat_id
+    gc_id = conversations_api.create_group_chat(token=creator_token, recipient_user_ids=[other.id]).group_chat_id
 
     with real_moderation_session(super_token) as api:
         api.SetUserContentVisibility(
@@ -3647,13 +3614,10 @@ def test_GetModeratedObject_group_chat(db):
     make_friends(creator, member)
     make_friends(creator, removed)
 
-    with conversations_session(creator_token) as api:
-        group_chat_id = api.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[member.id, removed.id])
-        ).group_chat_id
-        api.RemoveGroupChatUser(
-            conversations_pb2.RemoveGroupChatUserReq(group_chat_id=group_chat_id, user_id=removed.id)
-        )
+    group_chat_id = conversations_api.create_group_chat(
+        token=creator_token, recipient_user_ids=[member.id, removed.id]
+    ).group_chat_id
+    conversations_api.remove_group_chat_user(token=creator_token, group_chat_id=group_chat_id, user_id=removed.id)
 
     res = _get_moderated_object(super_token, _moderation_state_id(ModerationObjectType.group_chat, group_chat_id))
     assert res.moderation_state.author_user_id == creator.id

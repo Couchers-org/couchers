@@ -17,6 +17,8 @@ from couchers.db import session_scope
 from couchers.i18n import LocalizationContext
 from couchers.materialized_views import UserResponseRate
 from couchers.models import (
+    ActivenessProbe,
+    ActivenessProbeStatus,
     Cluster,
     ClusterRole,
     ClusterSubscription,
@@ -32,6 +34,7 @@ from couchers.models import (
     Notification,
     RateLimitAction,
     RateLimitViolation,
+    User,
 )
 from couchers.models.notifications import NotificationTopicAction
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
@@ -1422,6 +1425,151 @@ def test_response_rate_ignores_public_trip_offers(db, moderator):
         ).scalar_one()
         assert response_rate.requests == 1
         assert response_rate.response_rate == 0
+
+
+def test_response96h(db, frozen_timewarp, moderator):
+    host, host_token = generate_user()
+    spam_target, _ = generate_user()
+    # far enough ahead that the host can still answer after five days
+    from_date = today() + timedelta(days=30)
+
+    def request(*, approve=True, recipient=host):
+        surfer, surfer_token = generate_user()
+        host_request_id = requests_api.create_host_request(
+            token=surfer_token,
+            host_user_id=recipient.id,
+            from_date=from_date,
+            approve_by=moderator if approve else None,
+        )
+        return surfer, surfer_token, host_request_id
+
+    def reply(host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED):
+        requests_api.respond_host_request(token=host_token, host_request_id=host_request_id, status=status)
+
+    def cancel(surfer_token, host_request_id):
+        requests_api.respond_host_request(
+            token=surfer_token, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
+        )
+
+    def start_probe():
+        with session_scope() as session:
+            probe = ActivenessProbe(user_id=host.id)
+            session.add(probe)
+            session.flush()
+            return probe.id
+
+    def respond_probe(probe_id, response):
+        with session_scope() as session:
+            session.execute(
+                update(ActivenessProbe).where(ActivenessProbe.id == probe_id).values(response=response, responded=now())
+            )
+
+    _, _, fast = request()
+    _, _, slow = request()
+    _, _, ignored = request()
+    _, _, rejected = request()
+    # never approved, so the host never saw it: left out
+    request(approve=False)
+    # the sender deletes their account before the host answers: left out
+    deleted_surfer, _, _ = request()
+    # the host blocks the sender before answering: left out
+    blocked_surfer, _, _ = request()
+    banned_surfer, _, sender_banned = request()
+    _, cancelled_early_token, cancelled_early = request()
+    _, cancelled_late_token, cancelled_late = request()
+    request(approve=False, recipient=spam_target)
+    answered_probe = start_probe()
+
+    frozen_timewarp.advance(timedelta(hours=1))
+    # the host can't answer requests while a probe is pending
+    respond_probe(answered_probe, ActivenessProbeStatus.still_active)
+    reply(fast)
+    reply(rejected, messages_pb2.HOST_REQUEST_STATUS_REJECTED)
+    # the host answers in time and the sender is banned later: still a hit
+    reply(sender_banned)
+    # cancelled within 96 hours: left out
+    cancel(cancelled_early_token, cancelled_early)
+    expired_probe = start_probe()
+
+    frozen_timewarp.advance(timedelta(hours=96))
+    respond_probe(expired_probe, ActivenessProbeStatus.expired)
+
+    frozen_timewarp.advance(timedelta(days=1))
+    # answered after 96 hours: a miss, but accepted within 168 hours
+    reply(slow)
+    # cancelled after 96 hours: a miss, but left out of the acceptance rate as it was cancelled within 168 hours
+    cancel(cancelled_late_token, cancelled_late)
+    # its 96 hours aren't over when the rates are computed: left out
+    request()
+
+    frozen_timewarp.advance(timedelta(days=2))
+    make_user_block(host, blocked_surfer)
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == deleted_surfer.id).values(deleted_at=now()))
+        session.execute(update(User).where(User.id == banned_surfer.id).values(banned_at=now()))
+    # still pending: left out
+    start_probe()
+
+    with session_scope() as session:
+        refresh_materialized_view(session, "user_response_rates")
+        rates = {
+            user_id: (requests, requests96h, probes96h, response96h, requests168h, accept168h)
+            for user_id, requests, requests96h, probes96h, response96h, requests168h, accept168h in session.execute(
+                select(
+                    UserResponseRate.user_id,
+                    UserResponseRate.requests,
+                    UserResponseRate.requests96h,
+                    UserResponseRate.probes96h,
+                    UserResponseRate.response96h,
+                    UserResponseRate.requests168h,
+                    UserResponseRate.accept168h,
+                ).where(UserResponseRate.user_id.in_([host.id, spam_target.id]))
+            )
+        }
+
+    requests, requests96h, probes96h, response96h, requests168h, accept168h = rates[host.id]
+    assert requests == 14
+    # hits: fast, rejected, sender_banned and the answered probe; misses: slow, ignored, cancelled_late and the expired probe
+    assert requests96h == 6
+    assert probes96h == 2
+    assert response96h is not None
+    assert float(response96h) == pytest.approx(4 / 8)
+    # hits: fast, slow and sender_banned; misses: ignored and rejected
+    assert requests168h == 5
+    assert accept168h is not None
+    assert float(accept168h) == pytest.approx(3 / 5)
+    assert rates[spam_target.id][1:] == (0, 0, None, 0, None)
+
+
+def test_response96h_decayed(db, frozen_timewarp, moderator):
+    host, host_token = generate_user()
+
+    # a day apart, oldest first: answered in time, ignored, never approved (left out), answered in time
+    for approve, answer in [(True, True), (True, False), (False, False), (True, True)]:
+        _, surfer_token = generate_user()
+        host_request_id = requests_api.create_host_request(
+            token=surfer_token, host_user_id=host.id, approve_by=moderator if approve else None
+        )
+        frozen_timewarp.advance(timedelta(hours=1))
+        if answer:
+            requests_api.respond_host_request(
+                token=host_token, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+            )
+        frozen_timewarp.advance(timedelta(hours=23))
+
+    frozen_timewarp.advance(timedelta(days=7))
+    with session_scope() as session:
+        refresh_materialized_view(session, "user_response_rates")
+        requests_decayed, responses_decayed = session.execute(
+            select(UserResponseRate.requests96h_decayed, UserResponseRate.responses96h_decayed).where(
+                UserResponseRate.user_id == host.id
+            )
+        ).one()
+
+    assert requests_decayed is not None
+    assert responses_decayed is not None
+    assert float(requests_decayed) == pytest.approx(1 + 0.8 + 0.8**2)
+    assert float(responses_decayed) == pytest.approx(1 + 0.8**2)
 
 
 def test_request_notifications(db, email_collector: EmailCollector, push_collector: PushCollector, moderator):

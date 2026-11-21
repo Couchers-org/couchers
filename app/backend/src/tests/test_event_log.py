@@ -17,13 +17,13 @@ from couchers.proto import (
     account_pb2,
     api_pb2,
     auth_pb2,
-    conversations_pb2,
     messages_pb2,
     references_pb2,
     reporting_pb2,
     search_pb2,
 )
 from couchers.utils import create_coordinate, today
+from tests.fixtures.api import conversations as conversations_api
 from tests.fixtures.api import events as events_api
 from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user, make_friends
@@ -33,7 +33,6 @@ from tests.fixtures.sessions import (
     account_session,
     api_session,
     auth_api_session,
-    conversations_session,
     references_session,
     reporting_session,
     search_session,
@@ -527,20 +526,16 @@ def test_send_message_creates_event(db):
     recipient_user, recipient_token = generate_user()
     make_friends(sender_user, recipient_user)
 
-    with conversations_session(sender_token) as api:
-        res = api.SendDirectMessage(
-            conversations_pb2.SendDirectMessageReq(
-                recipient_user_id=recipient_user.id,
-                text="Hello friend!",
-            )
-        )
+    group_chat_id = conversations_api.send_direct_message(
+        token=sender_token, recipient_user_id=recipient_user.id, text="Hello friend!"
+    )
 
     with session_scope() as session:
         events = _get_events(session, "message.sent")
         assert len(events) == 1
         e = events[0]
         assert e.user_id == sender_user.id
-        assert e.properties["group_chat_id"] == res.group_chat_id
+        assert e.properties["group_chat_id"] == group_chat_id
         assert e.properties["is_dm"] is True
         assert e.properties["recipient_id"] == recipient_user.id
 
@@ -553,13 +548,9 @@ def test_create_group_chat_event(db):
     make_friends(creator_user, user2)
     make_friends(creator_user, user3)
 
-    with conversations_session(creator_token) as api:
-        res = api.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(
-                recipient_user_ids=[user2.id, user3.id],
-                title=wrappers_pb2.StringValue(value="Test Group"),
-            )
-        )
+    res = conversations_api.create_group_chat(
+        token=creator_token, recipient_user_ids=[user2.id, user3.id], title="Test Group"
+    )
 
     with session_scope() as session:
         events = _get_events(session, "group_chat.created")

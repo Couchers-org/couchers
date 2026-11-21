@@ -323,6 +323,7 @@ message PostalVerificationAttempt {
   google.protobuf.Timestamp address_confirmed = 9;
   google.protobuf.Timestamp postcard_sent = 10;
   google.protobuf.Timestamp verified = 11;
+  string recipient_name = 12;
 }
 
 message Verification {

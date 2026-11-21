@@ -11,14 +11,14 @@ from couchers.jobs.handlers import send_message_notifications
 from couchers.models import HostRequest, NotificationTopicAction, User
 from couchers.proto import api_pb2, conversations_pb2, messages_pb2, notifications_pb2, requests_pb2
 from couchers.utils import today
+from tests.fixtures.api import conversations as conversations_api
+from tests.fixtures.api import notifications as notifications_api
 from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user, make_user_block
 from tests.fixtures.feature_flags import FeatureFlags
 from tests.fixtures.misc import process_jobs
 from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
-    conversations_session,
-    notifications_session,
     real_api_session,
 )
 from tests.fixtures.timewarp import Timewarp
@@ -35,10 +35,8 @@ def _make_trip(user: User) -> tuple[int, int]:
 
 
 def _create_group_chat(token: str, recipient_ids: list[int], moderator, text: str = "hi") -> int:
-    with conversations_session(token) as c:
-        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=recipient_ids))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=res.group_chat_id, text=text))
-    moderator.approve_group_chat(res.group_chat_id)
+    res = conversations_api.create_group_chat(token=token, recipient_user_ids=recipient_ids, approve_by=moderator)
+    conversations_api.send_message(token=token, group_chat_id=res.group_chat_id, text=text)
     return int(res.group_chat_id)
 
 
@@ -78,8 +76,7 @@ def test_list_message_threads_latest_status_change_message(db, moderator):
         token=host_token, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
     )
 
-    with conversations_session(host_token) as c:
-        res = c.ListMessageThreads(conversations_pb2.ListMessageThreadsReq())
+    res = conversations_api.list_message_threads(token=host_token)
     thread = next(t for t in res.threads if t.WhichOneof("thread") == "host_request")
     assert thread.host_request.latest_message.WhichOneof("content") == "host_request_status_changed"
     assert (
@@ -95,8 +92,7 @@ def test_list_message_threads_need_host_request_feedback(db, moderator):
     request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id, approve_by=moderator)
 
     def host_request_thread(token: str) -> requests_pb2.HostRequest:
-        with conversations_session(token) as c:
-            res = c.ListMessageThreads(conversations_pb2.ListMessageThreadsReq())
+        res = conversations_api.list_message_threads(token=token)
         thread: requests_pb2.HostRequest = next(
             t.host_request for t in res.threads if t.host_request.host_request_id == request_id
         )
@@ -139,8 +135,7 @@ def test_list_message_threads_no_feedback_for_declined_public_trip_offer(db, mod
     )
 
     for token in (traveller_token, host_token):
-        with conversations_session(token) as c:
-            res = c.ListMessageThreads(conversations_pb2.ListMessageThreadsReq())
+        res = conversations_api.list_message_threads(token=token)
         thread = next(t.host_request for t in res.threads if t.host_request.host_request_id == request_id)
         assert not thread.need_host_request_feedback
 
@@ -155,15 +150,13 @@ def test_list_message_threads_can_message(db, moderator):
     chat_id = _create_group_chat(viewer_token, [blocker_user.id, departed_user.id], moderator)
 
     def can_message_by_chat(token: str) -> dict[int, bool]:
-        with conversations_session(token) as c:
-            res = c.ListMessageThreads(conversations_pb2.ListMessageThreadsReq())
+        res = conversations_api.list_message_threads(token=token)
         return {t.group_chat.group_chat_id: t.group_chat.can_message for t in res.threads}
 
     assert can_message_by_chat(viewer_token) == {blocked_dm_id: True, departed_dm_id: True, chat_id: True}
 
     make_user_block(blocker_user, viewer_user)
-    with conversations_session(departed_token) as c:
-        c.LeaveGroupChat(conversations_pb2.LeaveGroupChatReq(group_chat_id=departed_dm_id))
+    conversations_api.leave_group_chat(token=departed_token, group_chat_id=departed_dm_id)
 
     # a DM whose other party is blocked or gone can't be messaged; a true group chat always can
     assert can_message_by_chat(viewer_token) == {blocked_dm_id: False, departed_dm_id: False, chat_id: True}
@@ -177,8 +170,7 @@ def test_list_message_threads_interleaves_chats_and_requests(db, moderator):
     # the surfer sends a host request to the host
     request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id, approve_by=moderator)
 
-    with conversations_session(host_token) as c:
-        res = c.ListMessageThreads(conversations_pb2.ListMessageThreadsReq())
+    res = conversations_api.list_message_threads(token=host_token)
 
     kinds = [t.WhichOneof("thread") for t in res.threads]
     assert "group_chat" in kinds
@@ -211,8 +203,7 @@ def test_list_message_threads_single_cursor_pagination_across_kinds(db, moderato
     latest_ids: list[int] = []
     page_token = ""
     while True:
-        with conversations_session(token) as c:
-            res = c.ListMessageThreads(conversations_pb2.ListMessageThreadsReq(page_size=3, page_token=page_token))
+        res = conversations_api.list_message_threads(token=token, page_size=3, page_token=page_token)
         for t in res.threads:
             if t.WhichOneof("thread") == "group_chat":
                 collected_chat_ids.append(t.group_chat.group_chat_id)
@@ -240,10 +231,9 @@ def test_list_message_threads_chats_filter_excludes_host_requests(db, moderator)
     chat_id = _create_group_chat(host_token, [surfer_user.id], moderator)
     requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id, approve_by=moderator)
 
-    with conversations_session(host_token) as c:
-        res = c.ListMessageThreads(
-            conversations_pb2.ListMessageThreadsReq(categories=[conversations_pb2.MESSAGE_THREAD_CATEGORY_CHATS])
-        )
+    res = conversations_api.list_message_threads(
+        token=host_token, categories=[conversations_pb2.MESSAGE_THREAD_CATEGORY_CHATS]
+    )
 
     assert [t.WhichOneof("thread") for t in res.threads] == ["group_chat"]
     assert res.threads[0].group_chat.group_chat_id == chat_id
@@ -261,20 +251,17 @@ def test_list_message_threads_roster_is_frozen_for_a_departed_viewer(db, moderat
 
     chat_id = _create_group_chat(admin_token, [viewer.id, member.id], moderator)
 
-    with conversations_session(admin_token) as c:
-        c.RemoveGroupChatUser(conversations_pb2.RemoveGroupChatUserReq(group_chat_id=chat_id, user_id=viewer.id))
-        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=chat_id, user_id=latecomer.id))
+    conversations_api.remove_group_chat_user(token=admin_token, group_chat_id=chat_id, user_id=viewer.id)
+    conversations_api.invite_to_group_chat(token=admin_token, group_chat_id=chat_id, user_id=latecomer.id)
 
-    with conversations_session(viewer_token) as c:
-        res = c.ListMessageThreads(conversations_pb2.ListMessageThreadsReq())
+    res = conversations_api.list_message_threads(token=viewer_token)
     departed_view = res.threads[0].group_chat
     assert set(departed_view.member_user_ids) == {admin.id, viewer.id, member.id}
     assert list(departed_view.admin_user_ids) == [admin.id]
     # chat created, "hi" and the removal notice; the invite notice is out of reach
     assert departed_view.unseen_message_count == 3
 
-    with conversations_session(admin_token) as c:
-        res = c.ListMessageThreads(conversations_pb2.ListMessageThreadsReq())
+    res = conversations_api.list_message_threads(token=admin_token)
     admin_view = res.threads[0].group_chat
     assert set(admin_view.member_user_ids) == {admin.id, member.id, latecomer.id}
 
@@ -282,13 +269,10 @@ def test_list_message_threads_roster_is_frozen_for_a_departed_viewer(db, moderat
 def test_list_message_threads_rejects_unspecified_category(db):
     _user, token = generate_user()
 
-    with conversations_session(token) as c:
-        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
-            c.ListMessageThreads(
-                conversations_pb2.ListMessageThreadsReq(
-                    categories=[conversations_pb2.MESSAGE_THREAD_CATEGORY_UNSPECIFIED]
-                )
-            )
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
+        conversations_api.list_message_threads(
+            token=token, categories=[conversations_pb2.MESSAGE_THREAD_CATEGORY_UNSPECIFIED]
+        )
 
 
 def test_list_message_threads_unread_filter(db, moderator):
@@ -298,14 +282,13 @@ def test_list_message_threads_unread_filter(db, moderator):
     # the surfer sends a request to the host -> the host has unseen messages
     request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id, approve_by=moderator)
 
-    with conversations_session(host_token) as c:
-        res = c.ListMessageThreads(conversations_pb2.ListMessageThreadsReq(only_unread=True))
-        assert [t.host_request.host_request_id for t in res.threads] == [request_id]
+    res = conversations_api.list_message_threads(token=host_token, only_unread=True)
+    assert [t.host_request.host_request_id for t in res.threads] == [request_id]
 
-        # after marking everything seen, the unread filter is empty
-        c.MarkAllThreadsSeen(conversations_pb2.MarkAllThreadsSeenReq())
-        res = c.ListMessageThreads(conversations_pb2.ListMessageThreadsReq(only_unread=True))
-        assert len(res.threads) == 0
+    # after marking everything seen, the unread filter is empty
+    conversations_api.mark_all_threads_seen(token=host_token)
+    res = conversations_api.list_message_threads(token=host_token, only_unread=True)
+    assert len(res.threads) == 0
 
 
 def test_list_message_threads_archived_is_orthogonal(db, moderator):
@@ -314,19 +297,16 @@ def test_list_message_threads_archived_is_orthogonal(db, moderator):
 
     chat_id = _create_group_chat(token1, [user2.id], moderator)
 
-    with conversations_session(token1) as c:
-        # archive the chat
-        c.SetGroupChatArchiveStatus(
-            conversations_pb2.SetGroupChatArchiveStatusReq(group_chat_id=chat_id, is_archived=True)
-        )
+    # archive the chat
+    conversations_api.set_group_chat_archive_status(token=token1, group_chat_id=chat_id, is_archived=True)
 
-        # default (non-archived) excludes it
-        res = c.ListMessageThreads(conversations_pb2.ListMessageThreadsReq(only_archived=False))
-        assert len(res.threads) == 0
+    # default (non-archived) excludes it
+    res = conversations_api.list_message_threads(token=token1, only_archived=False)
+    assert len(res.threads) == 0
 
-        # only_archived=True includes it
-        res = c.ListMessageThreads(conversations_pb2.ListMessageThreadsReq(only_archived=True))
-        assert [t.group_chat.group_chat_id for t in res.threads] == [chat_id]
+    # only_archived=True includes it
+    res = conversations_api.list_message_threads(token=token1, only_archived=True)
+    assert [t.group_chat.group_chat_id for t in res.threads] == [chat_id]
 
 
 def test_list_message_threads_public_trip_offer_role_based(db, moderator):
@@ -345,50 +325,46 @@ def test_list_message_threads_public_trip_offer_role_based(db, moderator):
     )
 
     # From the offering host's view: appears under HOSTING (role-based filter)
-    with conversations_session(host_token) as c:
-        res = c.ListMessageThreads(
-            conversations_pb2.ListMessageThreadsReq(categories=[conversations_pb2.MESSAGE_THREAD_CATEGORY_HOSTING])
-        )
-        assert len(res.threads) == 1
-        hr = res.threads[0].host_request
-        assert hr.host_request_id == request_id
-        assert hr.HasField("public_trip_id")
-        assert hr.public_trip_id == trip_id
-        # payload keeps the Requests API semantics: surfer/host are the stay roles, which an
-        # offer reverses — the offering host is the host, the trip's traveller is the surfer
-        assert hr.surfer_user_id == traveler.id
-        assert hr.host_user_id == host.id
+    res = conversations_api.list_message_threads(
+        token=host_token, categories=[conversations_pb2.MESSAGE_THREAD_CATEGORY_HOSTING]
+    )
+    assert len(res.threads) == 1
+    hr = res.threads[0].host_request
+    assert hr.host_request_id == request_id
+    assert hr.HasField("public_trip_id")
+    assert hr.public_trip_id == trip_id
+    # payload keeps the Requests API semantics: surfer/host are the stay roles, which an
+    # offer reverses — the offering host is the host, the trip's traveller is the surfer
+    assert hr.surfer_user_id == traveler.id
+    assert hr.host_user_id == host.id
 
-        # not under SURFING for the host
-        res = c.ListMessageThreads(
-            conversations_pb2.ListMessageThreadsReq(categories=[conversations_pb2.MESSAGE_THREAD_CATEGORY_SURFING])
-        )
-        assert len(res.threads) == 0
+    # not under SURFING for the host
+    res = conversations_api.list_message_threads(
+        token=host_token, categories=[conversations_pb2.MESSAGE_THREAD_CATEGORY_SURFING]
+    )
+    assert len(res.threads) == 0
 
     # the same request served by the Requests API has to agree on who's who
     from_requests_api = requests_api.get_host_request(token=host_token, host_request_id=request_id)
     assert (from_requests_api.surfer_user_id, from_requests_api.host_user_id) == (hr.surfer_user_id, hr.host_user_id)
 
     # From the traveller's view: appears under SURFING and MY_PUBLIC_TRIPS (role-based filters)
-    with conversations_session(traveler_token) as c:
-        res = c.ListMessageThreads(
-            conversations_pb2.ListMessageThreadsReq(categories=[conversations_pb2.MESSAGE_THREAD_CATEGORY_SURFING])
-        )
-        assert [t.host_request.host_request_id for t in res.threads] == [request_id]
-        # same payload regardless of viewer
-        assert res.threads[0].host_request.surfer_user_id == traveler.id
-        assert res.threads[0].host_request.host_user_id == host.id
+    res = conversations_api.list_message_threads(
+        token=traveler_token, categories=[conversations_pb2.MESSAGE_THREAD_CATEGORY_SURFING]
+    )
+    assert [t.host_request.host_request_id for t in res.threads] == [request_id]
+    # same payload regardless of viewer
+    assert res.threads[0].host_request.surfer_user_id == traveler.id
+    assert res.threads[0].host_request.host_user_id == host.id
 
-        res = c.ListMessageThreads(
-            conversations_pb2.ListMessageThreadsReq(
-                categories=[conversations_pb2.MESSAGE_THREAD_CATEGORY_MY_PUBLIC_TRIPS]
-            )
-        )
-        assert [t.host_request.host_request_id for t in res.threads] == [request_id]
+    res = conversations_api.list_message_threads(
+        token=traveler_token, categories=[conversations_pb2.MESSAGE_THREAD_CATEGORY_MY_PUBLIC_TRIPS]
+    )
+    assert [t.host_request.host_request_id for t in res.threads] == [request_id]
 
-        # also present in ALL
-        res = c.ListMessageThreads(conversations_pb2.ListMessageThreadsReq())
-        assert request_id in {t.host_request.host_request_id for t in res.threads}
+    # also present in ALL
+    res = conversations_api.list_message_threads(token=traveler_token)
+    assert request_id in {t.host_request.host_request_id for t in res.threads}
 
 
 def test_list_message_threads_public_trips_filter_gated_by_flag(db, moderator, feature_flags: FeatureFlags):
@@ -396,26 +372,20 @@ def test_list_message_threads_public_trips_filter_gated_by_flag(db, moderator, f
 
     traveler, traveler_token = generate_user()
 
-    with conversations_session(traveler_token) as c:
-        res = c.ListMessageThreads(
-            conversations_pb2.ListMessageThreadsReq(
-                categories=[conversations_pb2.MESSAGE_THREAD_CATEGORY_MY_PUBLIC_TRIPS]
-            )
-        )
-        assert len(res.threads) == 0
-        assert not res.next_page_token
+    res = conversations_api.list_message_threads(
+        token=traveler_token, categories=[conversations_pb2.MESSAGE_THREAD_CATEGORY_MY_PUBLIC_TRIPS]
+    )
+    assert len(res.threads) == 0
+    assert not res.next_page_token
 
 
 def test_mark_all_threads_seen_rejects_unspecified_category(db):
     _user, token = generate_user()
 
-    with conversations_session(token) as c:
-        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
-            c.MarkAllThreadsSeen(
-                conversations_pb2.MarkAllThreadsSeenReq(
-                    categories=[conversations_pb2.MESSAGE_THREAD_CATEGORY_UNSPECIFIED]
-                )
-            )
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
+        conversations_api.mark_all_threads_seen(
+            token=token, categories=[conversations_pb2.MESSAGE_THREAD_CATEGORY_UNSPECIFIED]
+        )
 
 
 def test_mark_all_threads_seen_respects_categories(db, moderator):
@@ -433,15 +403,13 @@ def test_mark_all_threads_seen_respects_categories(db, moderator):
 
     assert unseen() == (2, 1)
 
-    with conversations_session(recipient_token) as c:
-        c.MarkAllThreadsSeen(
-            conversations_pb2.MarkAllThreadsSeenReq(categories=[conversations_pb2.MESSAGE_THREAD_CATEGORY_CHATS])
-        )
+    conversations_api.mark_all_threads_seen(
+        token=recipient_token, categories=[conversations_pb2.MESSAGE_THREAD_CATEGORY_CHATS]
+    )
     # the chat is now read; the host request is untouched
     assert unseen() == (0, 1)
 
-    with conversations_session(recipient_token) as c:
-        c.MarkAllThreadsSeen(conversations_pb2.MarkAllThreadsSeenReq())
+    conversations_api.mark_all_threads_seen(token=recipient_token)
     assert unseen() == (0, 0)
 
 
@@ -453,10 +421,9 @@ def test_mark_all_threads_seen_respects_unread_and_archived_filters(db, moderato
     archived_chat_id = _create_group_chat(token2, [recipient_user.id], moderator, text="archived")
     _create_group_chat(token3, [recipient_user.id], moderator, text="not archived")
 
-    with conversations_session(recipient_token) as c:
-        c.SetGroupChatArchiveStatus(
-            conversations_pb2.SetGroupChatArchiveStatusReq(group_chat_id=archived_chat_id, is_archived=True)
-        )
+    conversations_api.set_group_chat_archive_status(
+        token=recipient_token, group_chat_id=archived_chat_id, is_archived=True
+    )
 
     def unseen_chat_messages() -> int:
         with real_api_session(recipient_token) as api:
@@ -465,12 +432,10 @@ def test_mark_all_threads_seen_respects_unread_and_archived_filters(db, moderato
     # two messages in each chat: the creation notice and the text
     assert unseen_chat_messages() == 4
 
-    with conversations_session(recipient_token) as c:
-        c.MarkAllThreadsSeen(conversations_pb2.MarkAllThreadsSeenReq(only_archived=True))
+    conversations_api.mark_all_threads_seen(token=recipient_token, only_archived=True)
     assert unseen_chat_messages() == 2
 
-    with conversations_session(recipient_token) as c:
-        c.MarkAllThreadsSeen(conversations_pb2.MarkAllThreadsSeenReq(only_unread=True))
+    conversations_api.mark_all_threads_seen(token=recipient_token, only_unread=True)
     assert unseen_chat_messages() == 0
 
 
@@ -489,24 +454,21 @@ def test_departed_group_chat_unseen_count_agrees_with_ping_and_clears(db, modera
 
     chat_id = _create_group_chat(creator_token, [viewer_user.id, other_user.id], moderator)
 
-    with conversations_session(creator_token) as c:
-        c.RemoveGroupChatUser(conversations_pb2.RemoveGroupChatUserReq(group_chat_id=chat_id, user_id=viewer_user.id))
-        for _ in range(3):
-            c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat_id, text="after you left"))
+    conversations_api.remove_group_chat_user(token=creator_token, group_chat_id=chat_id, user_id=viewer_user.id)
+    for _ in range(3):
+        conversations_api.send_message(token=creator_token, group_chat_id=chat_id, text="after you left")
 
     def unseen_counts() -> tuple[int, int]:
         with real_api_session(viewer_token) as api:
             ping_count = api.Ping(api_pb2.PingReq()).unseen_message_count
-        with conversations_session(viewer_token) as c:
-            res = c.ListMessageThreads(conversations_pb2.ListMessageThreadsReq())
+        res = conversations_api.list_message_threads(token=viewer_token)
         thread = next(t for t in res.threads if t.group_chat.group_chat_id == chat_id)
         return thread.group_chat.unseen_message_count, ping_count
 
     # chat created, "hi", and the removal notice; the three messages sent afterwards are out of reach
     assert unseen_counts() == (3, 3)
 
-    with conversations_session(viewer_token) as c:
-        c.MarkAllThreadsSeen(conversations_pb2.MarkAllThreadsSeenReq())
+    conversations_api.mark_all_threads_seen(token=viewer_token)
     assert unseen_counts() == (0, 0)
 
 
@@ -524,22 +486,19 @@ def test_rejoined_group_chat_reads_the_current_subscription(db, moderator):
     chat_id = _create_group_chat(creator_token, [viewer_user.id, other_user.id], moderator)
 
     # removed rather than leaving, so the viewer's first subscription is left behind with unread messages
-    with conversations_session(creator_token) as c:
-        c.RemoveGroupChatUser(conversations_pb2.RemoveGroupChatUserReq(group_chat_id=chat_id, user_id=viewer_user.id))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat_id, text="while you were away"))
-        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=chat_id, user_id=viewer_user.id))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat_id, text="welcome back"))
+    conversations_api.remove_group_chat_user(token=creator_token, group_chat_id=chat_id, user_id=viewer_user.id)
+    conversations_api.send_message(token=creator_token, group_chat_id=chat_id, text="while you were away")
+    conversations_api.invite_to_group_chat(token=creator_token, group_chat_id=chat_id, user_id=viewer_user.id)
+    conversations_api.send_message(token=creator_token, group_chat_id=chat_id, text="welcome back")
 
     def unread_chat_ids() -> list[int]:
-        with conversations_session(viewer_token) as c:
-            res = c.ListMessageThreads(conversations_pb2.ListMessageThreadsReq(only_unread=True))
+        res = conversations_api.list_message_threads(token=viewer_token, only_unread=True)
         return [t.group_chat.group_chat_id for t in res.threads]
 
     def unseen_counts() -> tuple[int, int]:
         with real_api_session(viewer_token) as api:
             ping_count = api.Ping(api_pb2.PingReq()).unseen_message_count
-        with conversations_session(viewer_token) as c:
-            res = c.ListMessageThreads(conversations_pb2.ListMessageThreadsReq())
+        res = conversations_api.list_message_threads(token=viewer_token)
         threads = [t for t in res.threads if t.group_chat.group_chat_id == chat_id]
         # the two subscriptions must not surface the chat twice
         assert len(threads) == 1
@@ -549,8 +508,7 @@ def test_rejoined_group_chat_reads_the_current_subscription(db, moderator):
     assert unseen_counts() == (2, 2)
     assert unread_chat_ids() == [chat_id]
 
-    with conversations_session(viewer_token) as c:
-        c.MarkAllThreadsSeen(conversations_pb2.MarkAllThreadsSeenReq())
+    conversations_api.mark_all_threads_seen(token=viewer_token)
     assert unseen_counts() == (0, 0)
     assert unread_chat_ids() == []
 
@@ -564,19 +522,17 @@ def test_mark_all_threads_seen_clears_missed_messages_notification(db, moderator
     recipient_user, recipient_token = generate_user()
 
     # this notification is email-only by default, and the in-app feed only shows push-enabled ones
-    with notifications_session(recipient_token) as n:
-        n.SetNotificationSettings(
-            notifications_pb2.SetNotificationSettingsReq(
-                preferences=[
-                    notifications_pb2.SingleNotificationPreference(
-                        topic=NotificationTopicAction.chat__missed_messages.topic,
-                        action=NotificationTopicAction.chat__missed_messages.action,
-                        delivery_method="push",
-                        enabled=True,
-                    )
-                ]
+    notifications_api.set_notification_settings(
+        token=recipient_token,
+        preferences=[
+            notifications_pb2.SingleNotificationPreference(
+                topic=NotificationTopicAction.chat__missed_messages.topic,
+                action=NotificationTopicAction.chat__missed_messages.action,
+                delivery_method="push",
+                enabled=True,
             )
-        )
+        ],
+    )
 
     _create_group_chat(sender_token, [recipient_user.id], moderator, text="hello there")
 
@@ -586,8 +542,7 @@ def test_mark_all_threads_seen_clears_missed_messages_notification(db, moderator
     process_jobs()
 
     def unseen_missed_messages():
-        with notifications_session(recipient_token) as n:
-            res = n.ListNotifications(notifications_pb2.ListNotificationsReq(only_unread=True))
+        res = notifications_api.list_notifications(token=recipient_token, only_unread=True)
         return [
             notification
             for notification in res.notifications
@@ -597,7 +552,6 @@ def test_mark_all_threads_seen_clears_missed_messages_notification(db, moderator
 
     assert len(unseen_missed_messages()) == 1
 
-    with conversations_session(recipient_token) as c:
-        c.MarkAllThreadsSeen(conversations_pb2.MarkAllThreadsSeenReq())
+    conversations_api.mark_all_threads_seen(token=recipient_token)
 
     assert unseen_missed_messages() == []

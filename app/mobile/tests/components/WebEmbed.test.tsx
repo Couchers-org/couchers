@@ -1,4 +1,5 @@
 import { act, render, screen, userEvent } from "@testing-library/react-native";
+import * as Haptics from "expo-haptics";
 import * as Notifications from "expo-notifications";
 import { useFocusEffect, useRouter } from "expo-router";
 import React from "react";
@@ -18,6 +19,11 @@ jest.mock("expo-notifications", () => ({
   addNotificationReceivedListener: jest.fn(() => ({
     remove: mockRemoveNotificationListener,
   })),
+}));
+
+jest.mock("expo-haptics", () => ({
+  impactAsync: jest.fn(),
+  ImpactFeedbackStyle: { Medium: "medium" },
 }));
 
 jest.mock("expo-router", () => ({
@@ -291,6 +297,20 @@ describe("WebEmbed", () => {
       });
 
       expect(mockAddToCalendar).toHaveBeenCalledWith(event);
+    });
+
+    it("plays a haptic tap on HAPTIC_IMPACT message", () => {
+      render(<WebEmbed path="/dashboard" />);
+
+      capturedWebViewProps.onMessage?.({
+        nativeEvent: {
+          data: JSON.stringify({ type: "HAPTIC_IMPACT", data: {} }),
+        },
+      });
+
+      expect(Haptics.impactAsync).toHaveBeenCalledWith(
+        Haptics.ImpactFeedbackStyle.Medium,
+      );
     });
 
     it("tells the web app it can add to calendar", () => {

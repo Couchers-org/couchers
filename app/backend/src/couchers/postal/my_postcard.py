@@ -139,7 +139,7 @@ def send_postcard(
     Sends a physical postcard with verification code via MyPostcard API.
 
     Args:
-        recipient_name: Name to print on the postcard
+        recipient_name: Name for the delivery address
         address_line_1: Street address
         address_line_2: Apartment/suite (optional)
         city: City

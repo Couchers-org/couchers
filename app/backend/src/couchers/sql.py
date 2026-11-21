@@ -53,8 +53,8 @@ def username_or_email_or_id(value: str) -> ColumnElement[bool]:
     return false()
 
 
-def _shadow_clause(context: CouchersContext, table: _User) -> ColumnElement[bool]:
-    if context.is_logged_in():
+def _shadow_clause(context: CouchersContext | None, table: _User) -> ColumnElement[bool]:
+    if context is not None and context.is_logged_in():
         return or_(table.shadowed_at.is_(None), table.id == context.user_id)
     return table.shadowed_at.is_(None)
 
@@ -143,6 +143,34 @@ def where_user_columns_visible_to_each_other[*Ts](
     )
 
 
+def moderated_content_visible_to_user_column(
+    mod_state: type[ModerationState],
+    table: type[ModeratedContent],
+    user_id_column: InstrumentedAttribute[int] | int,
+    is_list_operation: bool = False,
+) -> ColumnElement[bool]:
+    """
+    Whether the content is visible to the user in user_id_column, with its moderation state already joined as mod_state
+    """
+    entry = get_moderated_models()[table.__moderation_object_type__]
+    assert not entry.has_own_visibility_mechanism, f"{table.__name__} visibility is not decided by the UMS"
+    conditions = [mod_state.visibility == ModerationVisibility.visible]
+
+    # UNLISTED content is visible in single-item operations but not in lists
+    if not is_list_operation:
+        conditions.append(mod_state.visibility == ModerationVisibility.unlisted)
+
+    # Authors can always see their own SHADOWED content
+    conditions.append(
+        and_(
+            mod_state.visibility == ModerationVisibility.shadowed,
+            entry.author_column == user_id_column,
+        )
+    )
+
+    return or_(*conditions)
+
+
 def where_moderated_content_visible_to_user_column[*Ts](
     query: Select[*Ts],
     table: type[ModeratedContent],
@@ -150,30 +178,15 @@ def where_moderated_content_visible_to_user_column[*Ts](
     is_list_operation: bool = False,
 ) -> Select[*Ts]:
     entry = get_moderated_models()[table.__moderation_object_type__]
-    assert not entry.has_own_visibility_mechanism, f"{table.__name__} visibility is not decided by the UMS"
     aliased_mod_state = aliased(ModerationState)
-    conditions = [aliased_mod_state.visibility == ModerationVisibility.visible]
-
-    # UNLISTED content is visible in single-item operations but not in lists
-    if not is_list_operation:
-        conditions.append(aliased_mod_state.visibility == ModerationVisibility.unlisted)
-
-    # Authors can always see their own SHADOWED content
-    conditions.append(
-        and_(
-            aliased_mod_state.visibility == ModerationVisibility.shadowed,
-            entry.author_column == user_id_column,
-        )
-    )
-
     return query.join(aliased_mod_state, aliased_mod_state.id == entry.moderation_state_id_column).where(
-        or_(*conditions)
+        moderated_content_visible_to_user_column(aliased_mod_state, table, user_id_column, is_list_operation)
     )
 
 
 def where_moderated_content_visible[*Ts](
     query: Select[*Ts],
-    context: CouchersContext,
+    context: CouchersContext | None,
     table: type[ModeratedContent],
     is_list_operation: bool = False,
 ) -> Select[*Ts]:
@@ -186,8 +199,8 @@ def where_moderated_content_visible[*Ts](
     if not is_list_operation:
         conditions.append(aliased_mod_state.visibility == ModerationVisibility.unlisted)
 
-    # Authors can always see their own SHADOWED content
-    if context.is_logged_in():
+    # Authors can always see their own SHADOWED content. No context means no particular (i.e. a logged out) viewer
+    if context is not None and context.is_logged_in():
         conditions.append(
             and_(
                 aliased_mod_state.visibility == ModerationVisibility.shadowed,

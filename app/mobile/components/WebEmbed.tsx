@@ -1,3 +1,4 @@
+import * as Haptics from "expo-haptics";
 import * as Notifications from "expo-notifications";
 import { useFocusEffect } from "expo-router";
 import { hasAction, requestReview } from "expo-store-review";
@@ -408,6 +409,8 @@ export default function WebEmbed({
         });
       } else if (payload?.type === "REQUEST_ADD_TO_CALENDAR") {
         addToCalendar(payload.data);
+      } else if (payload?.type === "HAPTIC_IMPACT") {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       }
     } catch (error) {
       // Ignore non-JSON messages from browser/WebView internals.
