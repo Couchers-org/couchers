@@ -15,6 +15,7 @@ from couchers.config import config
 from couchers.email.blocks import ActionBlock, EmailBase, EmailBlock, EmailFooter, ParaBlock, QuoteBlock, UserBlock
 from couchers.email.locales import get_emails_i18next
 from couchers.email.smtp import embed_html_relative_images
+from couchers.email.zz import label_html_links, label_link
 from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import SubstitutionDict, full_string_key
 from couchers.markup import html_mailto_link, html_to_plaintext, markdown_to_html
@@ -131,8 +132,11 @@ def _get_footer_template_args(footer: EmailFooter, loc_context: LocalizationCont
         "contact_support": localize(".contact_support", {"email_link": html_mailto_link("support@couchers.org")}),
         "copyright_year": footer.copyright_year,
         "donate_link": localize(".donate_link"),
+        "donate_url": "https://couchers.org/donate",
         "volunteer_link": localize(".volunteer_link"),
+        "volunteer_url": "https://couchers.org/volunteer",
         "blog_link": localize(".blog_link"),
+        "blog_url": "https://couchers.org/blog",
         "nonprofit_note": localize(".nonprofit_note"),
         "is_critical": footer.unsubscribe_info is None,
     }
@@ -239,24 +243,35 @@ class HTMLRenderer:
                                 "name": block.info.name,
                                 "age": block.info.age,
                                 "city": block.info.city,
-                                "profile_url": block.info.profile_url,
+                                "profile_url": label_link(block.info.profile_url, "user_profile"),
                                 "avatar_url": block.info.avatar_url,
                                 "comment": block.comment,
                             },
                         )
                     )
                 case QuoteBlock():
-                    args = {"text": Markup(markdown_to_html(block.text)) if block.markdown else block.text}
+                    args = {
+                        "text": label_html_links(markdown_to_html(block.text), "content")
+                        if block.markdown
+                        else block.text
+                    }
                     concats.append(self.quote_block_template.render(args))
                 case ActionBlock():
-                    concats.append(self.action_block_template.render(asdict(block)))
+                    concats.append(
+                        self.action_block_template.render(
+                            {"text": block.text, "target_url": label_link(block.target_url, block.name)}
+                        )
+                    )
                 case TwoButtonHTMLBlock():
                     concats.append(self.two_buttons_block_template.render(asdict(block)))
                 case _:
                     raise TypeError(f"Unexpected email block type: {block.__class__}")
 
         # Render the footer
-        footer_template_args = _get_footer_template_args(footer, loc_context)
+        footer_template_args = {
+            arg: label_link(value, arg) if arg.endswith("_url") else value
+            for arg, value in _get_footer_template_args(footer, loc_context).items()
+        }
         concats.append(self.footer_template.render(footer_template_args))
 
         return "\n".join(concats)
@@ -272,9 +287,9 @@ class HTMLRenderer:
             next_block = blocks[block_index + 1]
             if isinstance(block, ActionBlock) and isinstance(next_block, ActionBlock):
                 blocks[block_index] = TwoButtonHTMLBlock(
-                    target_url_1=block.target_url,
+                    target_url_1=label_link(block.target_url, block.name),
                     text_1=block.text,
-                    target_url_2=next_block.target_url,
+                    target_url_2=label_link(next_block.target_url, next_block.name),
                     text_2=next_block.text,
                 )
                 blocks.pop(block_index + 1)

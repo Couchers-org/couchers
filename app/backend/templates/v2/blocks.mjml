@@ -90,10 +90,10 @@
             {{ contact_support }}
           </mj-text>
           <mj-text align="center" font-size="10px">
-            <a href="https://couchers.org/donate">{{ donate_link }}</a>
+            <a href="{{ donate_url }}">{{ donate_link }}</a>
             | <a href="https://github.com/Couchers-org/couchers">GitHub</a>
-            | <a href="https://couchers.org/volunteer">{{ volunteer_link }}</a>
-            | <a href="https://couchers.org/blog">{{ blog_link }}</a>
+            | <a href="{{ volunteer_url }}">{{ volunteer_link }}</a>
+            | <a href="{{ blog_url }}">{{ blog_link }}</a>
           </mj-text>
           <mj-text align="center" font-size="8px" line-height="10px">
             &copy; {{ copyright_year }} Couchers, Inc.<br />

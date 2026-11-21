@@ -1,6 +1,7 @@
 import re
 from typing import Any
 
+from markupsafe import Markup
 from sqlalchemy import select
 
 from couchers.context import make_logged_out_context
@@ -11,7 +12,10 @@ from couchers.email.zz import (
     add_open_pixel,
     add_zz_to_html_links,
     generate_zz,
+    label_html_links,
+    label_link,
     open_pixel_url,
+    remove_zz_labels,
 )
 from couchers.i18n import LocalizationContext
 from couchers.models import Notification, NotificationTopicAction, SignupFlow
@@ -40,6 +44,36 @@ def test_add_zz_to_html_links():
         '<a href="http://localhost:3000.evil.com/x">d</a>'
         '<img src="http://localhost:3000/logo512.png">'
         "<p>http://localhost:3000/user/bob</p>"
+    )
+
+
+def test_label_link():
+    assert label_link("http://localhost:3000/dashboard", "x.y") == "http://localhost:3000/dashboard?zz=x.y"
+    assert label_link("http://localhost:3000/a?b=c&zz=old#d", "x") == "http://localhost:3000/a?b=c&zz=x#d"
+    assert label_link("https://example.com/", "x") == "https://example.com/"
+
+
+def test_label_html_links():
+    html = Markup(
+        '<a href="http://localhost:3000/user/bob?zz=abc.def">a</a><a href="https://example.com/?q=1&amp;r=2">b</a>'
+    )
+    assert label_html_links(html, "content") == (
+        '<a href="http://localhost:3000/user/bob?zz=content">a</a><a href="https://example.com/?q=1&amp;r=2">b</a>'
+    )
+
+
+def test_add_zz_to_labelled_html_links():
+    html = '<a href="http://localhost:3000/a?b=c&amp;zz=x.y#top">a</a><a href="http://localhost:3000/b">b</a>'
+    assert add_zz_to_html_links(html, "abc") == (
+        '<a href="http://localhost:3000/a?b=c&amp;zz=abc.x.y#top">a</a><a href="http://localhost:3000/b?zz=abc">b</a>'
+    )
+
+
+def test_remove_zz_labels():
+    html = '<a href="http://localhost:3000/a?b=c&amp;zz=x#top">a</a><a href="http://localhost:3000/b?zz=y">b</a>'
+    assert (
+        remove_zz_labels(html)
+        == '<a href="http://localhost:3000/a?b=c#top">a</a><a href="http://localhost:3000/b">b</a>'
     )
 
 
@@ -80,7 +114,14 @@ def test_notification_email_gets_zz(
 
     hrefs = re.findall(r'href="(http://localhost:3000[^"]*)"', email.html)
     assert hrefs
-    assert all(f"zz={zz}" in href for href in hrefs)
+    assert all(f"zz={zz}." in href for href in hrefs)
+    labels = {href.partition(f"zz={zz}.")[2] for href in hrefs}
+    assert {
+        "friend_requests.received.view_action",
+        "user_profile",
+        "manage_notifications_url",
+        "do_not_email_url",
+    } <= labels
     assert "zz=" not in email.plain
     assert "/email/open/" not in email.html
 

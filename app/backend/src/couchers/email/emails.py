@@ -49,6 +49,7 @@ from couchers.email.blocks import (
     UserInfo,
 )
 from couchers.email.locales import get_emails_i18next
+from couchers.email.zz import label_link
 from couchers.i18n import LocalizationContext
 from couchers.i18n.localize import format_phone_number
 from couchers.markup import html_link, html_mailto_link, markdown_to_plaintext
@@ -176,7 +177,10 @@ class ActivenessProbeEmail(EmailBase):
         if version_match := re.search(r"^v?(\d+\.\d+)\b", version):
             version = version_match[1]
 
-        builder.para(".latest_release", {"version": version, "blog_url": LATEST_RELEASE_BLOG_URL})
+        builder.para(
+            ".latest_release",
+            {"version": version, "blog_url": label_link(LATEST_RELEASE_BLOG_URL, "latest_release_blog")},
+        )
         return builder.build()
 
     @classmethod
@@ -207,7 +211,7 @@ class APIKeyIssuedEmail(EmailBase):
         # API keys are technical information so show in UTC (string emphasizes this).
         builder.para(".expiry2", {"datetime_utc": loc_context.localize_datetime(self.expiry, display_timezone=UTC)})
         builder.para(".usage_warning")
-        builder.para(".policy_warning", {"terms_url": urls.terms_of_service_url()})
+        builder.para(".policy_warning", {"terms_url": label_link(urls.terms_of_service_url(), "terms")})
         return builder.build()
 
     @classmethod
@@ -674,7 +678,7 @@ class EventInfo:
 
     def get_view_action_block(self, loc_context: LocalizationContext) -> EmailBlock:
         view_action_text = loc_context.localize_string("events.generic.view_action", i18next=get_emails_i18next())
-        return ActionBlock(text=view_action_text, target_url=self.view_url)
+        return ActionBlock(text=view_action_text, target_url=self.view_url, name="events.generic.view_action")
 
     @classmethod
     def from_proto(cls, event: events_pb2.Event, *, comment_id: int | None = None) -> EventInfo:
@@ -1816,7 +1820,7 @@ class OnboardingReminderEmail(EmailBase):
         builder.para(
             "generic.closing_lines.aapeli",
             {
-                "profile_link": html_link("https://couchers.org/user/aapeli"),
+                "profile_link": html_link(label_link("https://couchers.org/user/aapeli", "aapeli_profile")),
             },
         )
 
@@ -1829,7 +1833,7 @@ class OnboardingReminderEmail(EmailBase):
             "generic.closing_lines.emily",
             {
                 "email_link": html_mailto_link("community@couchers.org"),
-                "profile_link": html_link("https://couchers.org/user/emily"),
+                "profile_link": html_link(label_link("https://couchers.org/user/emily", "emily_profile")),
             },
         )
 

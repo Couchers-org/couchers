@@ -8,7 +8,7 @@ from couchers.config import config
 from couchers.context import CouchersContext
 from couchers.email.blocks import EmailBase, EmailFooter
 from couchers.email.rendering import render_email
-from couchers.email.zz import add_open_pixel, add_zz_to_html_links, generate_zz
+from couchers.email.zz import add_open_pixel, add_zz_to_html_links, generate_zz, remove_zz_labels
 from couchers.event_log import log_event
 from couchers.i18n import LocalizationContext
 from couchers.jobs.enqueue import queue_job
@@ -48,6 +48,8 @@ def queue_email_with_zz(context: CouchersContext, session: Session, payload: job
     if payload.html:
         if context.get_boolean_value("email_zz_links_enabled", default=False):
             payload.html = add_zz_to_html_links(payload.html, zz)
+        else:
+            payload.html = remove_zz_labels(payload.html)
         if context.get_boolean_value("email_open_pixel_enabled", default=False):
             payload.html = add_open_pixel(payload.html, zz)
 
