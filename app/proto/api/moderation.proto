@@ -82,7 +82,6 @@ message ModerationStateInfo {
   int64 author_user_id = 7;
   string content = 8;
   org.couchers.admin.UserDetails author = 9;
-  // Only set by ListModerationStates
   // Whether the content was ever VISIBLE or UNLISTED
   bool ever_visible = 10;
 }
