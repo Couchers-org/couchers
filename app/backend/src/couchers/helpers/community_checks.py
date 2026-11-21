@@ -18,7 +18,6 @@ from couchers.models import (
     CommunityCheckRun,
     CommunityIssue,
     CommunityIssuePriority,
-    CommunityIssueRule,
     Node,
     NodeType,
     User,
@@ -29,6 +28,19 @@ logger = logging.getLogger(__name__)
 CITY_TYPES = {NodeType.locality, NodeType.sublocality}
 MAX_CITY_KM2 = 10_000
 ACTIVE_WINDOW = timedelta(days=90)
+
+RULES = (
+    "parent_loop",
+    "missing_parent",
+    "official_cluster",
+    "type_by_level",
+    "type_not_below_parent",
+    "duplicate_boundary",
+    "invalid_boundary",
+    "outside_parent",
+    "overlap",
+    "oversized_city",
+)
 
 # Casting to geography fails on the 180°-long edges of the world's and continents' boundaries, so areas are measured in
 # an equal-area projection instead. Some boundaries reach a little past ±180°, and without +over the projection wraps
@@ -62,7 +74,7 @@ class Community:
 
 @dataclass(frozen=True)
 class Issue:
-    rule: CommunityIssueRule
+    rule: str
     community: Community
     other: Community | None = None
     area_km2: float | None = None
@@ -72,13 +84,13 @@ class Issue:
 
     @property
     def priority(self) -> CommunityIssuePriority:
-        if self.rule == CommunityIssueRule.oversized_city:
+        if self.rule == "oversized_city":
             return CommunityIssuePriority.low
-        if self.rule == CommunityIssueRule.outside_parent:
+        if self.rule == "outside_parent":
             if self.community.type == NodeType.region:
                 return CommunityIssuePriority.low
             return CommunityIssuePriority.medium
-        if self.rule == CommunityIssueRule.overlap:
+        if self.rule == "overlap":
             assert self.other is not None
             types = (self.community.type, self.other.type)
             cities = [t in CITY_TYPES for t in types]
@@ -90,7 +102,7 @@ class Issue:
         return CommunityIssuePriority.high
 
     @property
-    def key(self) -> tuple[CommunityIssueRule, int, int | None]:
+    def key(self) -> tuple[str, int, int | None]:
         return (self.rule, self.community.id, self.other.id if self.other else None)
 
 
@@ -169,9 +181,7 @@ def structural_issues(communities: dict[int, Community], loops: Iterable[Sequenc
     for loop in loops:
         chain = " → ".join(communities[i].label for i in [*loop, loop[0]])
         for i in loop:
-            yield Issue(
-                CommunityIssueRule.parent_loop, communities[i], details=f"The parent links go round in a loop: {chain}."
-            )
+            yield Issue("parent_loop", communities[i], details=f"The parent links go round in a loop: {chain}.")
 
     worlds = [c for c in communities.values() if c.parent_id is None and c.type == NodeType.world]
     by_hash = defaultdict(list)
@@ -179,28 +189,24 @@ def structural_issues(communities: dict[int, Community], loops: Iterable[Sequenc
         by_hash[c.geom_hash].append(c)
 
         if c.clusters != 1:
-            yield Issue(CommunityIssueRule.official_cluster, c, details=f"It has {c.clusters} official clusters.")
+            yield Issue("official_cluster", c, details=f"It has {c.clusters} official clusters.")
         if c.invalid_reason:
-            yield Issue(CommunityIssueRule.invalid_boundary, c, details=f"PostGIS says: {c.invalid_reason}.")
+            yield Issue("invalid_boundary", c, details=f"PostGIS says: {c.invalid_reason}.")
         if c.type in CITY_TYPES and c.area_km2 > MAX_CITY_KM2:
-            yield Issue(
-                CommunityIssueRule.oversized_city, c, area_km2=c.area_km2, details=f"It covers {c.area_km2:,.0f} km²."
-            )
+            yield Issue("oversized_city", c, area_km2=c.area_km2, details=f"It covers {c.area_km2:,.0f} km².")
 
         if c.parent_id is None:
             if c.type != NodeType.world:
-                yield Issue(CommunityIssueRule.missing_parent, c, details=f"It is a {c.type.name} with no parent.")
+                yield Issue("missing_parent", c, details=f"It is a {c.type.name} with no parent.")
             elif c is not worlds[0]:
-                yield Issue(
-                    CommunityIssueRule.missing_parent, c, worlds[0], details=f"{worlds[0].label} is also a world."
-                )
+                yield Issue("missing_parent", c, worlds[0], details=f"{worlds[0].label} is also a world.")
             continue
         parent = communities[c.parent_id]
         if parent.type in (NodeType.world, NodeType.macroregion):
             expected = NodeType.macroregion if parent.type == NodeType.world else NodeType.region
             if c.type != expected:
                 yield Issue(
-                    CommunityIssueRule.type_by_level,
+                    "type_by_level",
                     c,
                     parent,
                     details=(
@@ -210,7 +216,7 @@ def structural_issues(communities: dict[int, Community], loops: Iterable[Sequenc
                 )
         elif c.type.value <= parent.type.value:
             yield Issue(
-                CommunityIssueRule.type_not_below_parent,
+                "type_not_below_parent",
                 c,
                 parent,
                 details=f"It is a {c.type.name}, and its parent {parent.name} is a {parent.type.name}.",
@@ -219,7 +225,7 @@ def structural_issues(communities: dict[int, Community], loops: Iterable[Sequenc
     for same in by_hash.values():
         for c in same[1:]:
             yield Issue(
-                CommunityIssueRule.duplicate_boundary,
+                "duplicate_boundary",
                 c,
                 same[0],
                 details=f"Its boundary is identical to that of {same[0].label}.",
@@ -260,7 +266,7 @@ def outside_parent_issues(session: Session, communities: dict[int, Community]) -
             c = communities[row.id]
             p = communities[row.parent_id]
             yield Issue(
-                CommunityIssueRule.outside_parent,
+                "outside_parent",
                 c,
                 p,
                 row.outside_km2,
@@ -315,7 +321,7 @@ def overlap_issues(
         if share > 0.01 and (share > 0.05 or {ca.type, cb.type} & CITY_TYPES):
             small, big = (ca, cb) if row.a_km2 <= row.b_km2 else (cb, ca)
             yield Issue(
-                CommunityIssueRule.overlap,
+                "overlap",
                 small,
                 big,
                 row.overlap_km2,
@@ -402,4 +408,4 @@ def run_community_checks(session: Session, now: datetime) -> None:
     issues = find_issues(session)
     active_users = count_active_users(session, now)
     record(session, issues, active_users, now)
-    logger.info(f"Community checks found {len(issues)} issues: {dict(Counter(issue.rule.name for issue in issues))}")
+    logger.info(f"Community checks found {len(issues)} issues: {dict(Counter(issue.rule for issue in issues))}")

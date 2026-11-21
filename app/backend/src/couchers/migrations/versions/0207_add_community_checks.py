@@ -17,23 +17,7 @@ def upgrade() -> None:
     op.create_table(
         "community_issues",
         sa.Column("id", sa.BigInteger(), nullable=False),
-        sa.Column(
-            "rule",
-            sa.Enum(
-                "parent_loop",
-                "missing_parent",
-                "official_cluster",
-                "type_by_level",
-                "type_not_below_parent",
-                "duplicate_boundary",
-                "invalid_boundary",
-                "outside_parent",
-                "overlap",
-                "oversized_city",
-                name="communityissuerule",
-            ),
-            nullable=False,
-        ),
+        sa.Column("rule", sa.String(), nullable=False),
         sa.Column("priority", sa.Enum("high", "medium", "low", name="communityissuepriority"), nullable=False),
         sa.Column("node_id", sa.BigInteger(), nullable=False),
         sa.Column("other_node_id", sa.BigInteger(), nullable=True),
@@ -79,4 +63,3 @@ def downgrade() -> None:
     op.drop_index(op.f("ix_community_issues_node_id"), table_name="community_issues")
     op.drop_table("community_issues")
     sa.Enum(name="communityissuepriority").drop(op.get_bind(), checkfirst=True)
-    sa.Enum(name="communityissuerule").drop(op.get_bind(), checkfirst=True)

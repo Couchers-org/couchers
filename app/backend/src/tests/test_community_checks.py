@@ -62,7 +62,7 @@ def find() -> list[Issue]:
 
 
 def key(issue: Issue) -> tuple[str, int, int | None]:
-    return (issue.rule.name, issue.community.id, issue.other.id if issue.other else None)
+    return (issue.rule, issue.community.id, issue.other.id if issue.other else None)
 
 
 def found() -> list[tuple[str, int, int | None]]:
@@ -126,7 +126,7 @@ def test_parent_loop(world: World):
         session.execute(update(Node).where(Node.id == a).values(parent_node_id=b))
     add_community(b, NodeType.sublocality, "Below the loop", box(3.1, 3.1, 3.2, 3.2))
 
-    loops = [issue for issue in find() if issue.rule.name == "parent_loop"]
+    loops = [issue for issue in find() if issue.rule == "parent_loop"]
 
     assert [issue.community.id for issue in loops] == sorted([a, b], key=str)
     assert loops[0].details in (
@@ -163,7 +163,7 @@ def test_a_city_across_the_date_line_is_measured_where_it_is(world: World):
     nation = add_community(world.continent, NodeType.region, "Island nation", box(179, 0, 180.5, 1))
     add_community(nation, NodeType.locality, "Island town", box(179.9, 0.2, 180.2, 0.5))
 
-    assert [issue for issue in find() if issue.rule.name == "oversized_city"] == []
+    assert [issue for issue in find() if issue.rule == "oversized_city"] == []
 
 
 def test_issues_stay_open_until_fixed_and_are_served(world: World):

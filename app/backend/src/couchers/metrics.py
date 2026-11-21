@@ -26,6 +26,7 @@ from sqlalchemy.sql.selectable import Select
 from couchers import experimentation
 from couchers.config import config
 from couchers.db import session_scope
+from couchers.helpers.community_checks import RULES as COMMUNITY_ISSUE_RULES
 from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.materialized_views import ClusterSubscriptionCount
 from couchers.middleware.perf import PerfResult
@@ -36,7 +37,6 @@ from couchers.models import (
     CommunityCheckRun,
     CommunityIssue,
     CommunityIssuePriority,
-    CommunityIssueRule,
     EventOccurrenceAttendee,
     HostingStatus,
     HostRequest,
@@ -624,9 +624,9 @@ def _set_community_issues(gauge: Gauge) -> None:
                 .group_by(CommunityIssue.rule, CommunityIssue.priority)
             ).all()
     counts = {(rule, priority): count for rule, priority, count in rows}
-    for rule in CommunityIssueRule:
+    for rule in COMMUNITY_ISSUE_RULES:
         for priority in CommunityIssuePriority:
-            gauge.labels(rule.name, priority.name).set(counts.get((rule, priority), 0))
+            gauge.labels(rule, priority.name).set(counts.get((rule, priority), 0))
 
 
 _set_hacky_labeled_gauges_funcs.append((community_issues_gauge, _set_community_issues))

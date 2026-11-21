@@ -7,19 +7,6 @@ from sqlalchemy.orm import Mapped, mapped_column
 from couchers.models.base import Base
 
 
-class CommunityIssueRule(enum.Enum):
-    parent_loop = enum.auto()
-    missing_parent = enum.auto()
-    official_cluster = enum.auto()
-    type_by_level = enum.auto()
-    type_not_below_parent = enum.auto()
-    duplicate_boundary = enum.auto()
-    invalid_boundary = enum.auto()
-    outside_parent = enum.auto()
-    overlap = enum.auto()
-    oversized_city = enum.auto()
-
-
 class CommunityIssuePriority(enum.Enum):
     high = enum.auto()
     medium = enum.auto()
@@ -36,7 +23,7 @@ class CommunityIssue(Base, kw_only=True):
     __tablename__ = "community_issues"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
-    rule: Mapped[CommunityIssueRule] = mapped_column(Enum(CommunityIssueRule))
+    rule: Mapped[str] = mapped_column(String)
     priority: Mapped[CommunityIssuePriority] = mapped_column(Enum(CommunityIssuePriority))
     node_id: Mapped[int] = mapped_column(ForeignKey("nodes.id", ondelete="CASCADE"), index=True)
     # the parent, the community it overlaps, or the earlier copy, depending on the rule

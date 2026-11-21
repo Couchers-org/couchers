@@ -26,7 +26,6 @@ from couchers.models import (
     CommunityCheckRun,
     CommunityIssue,
     CommunityIssuePriority,
-    CommunityIssueRule,
     HostingStatus,
     User,
     UserActivity,
@@ -297,7 +296,7 @@ def test_community_checks_gauges(db):
         for node_id, resolved in [(world.id, None), (city.id, None), (city.id, now())]:
             session.add(
                 CommunityIssue(
-                    rule=CommunityIssueRule.oversized_city,
+                    rule="oversized_city",
                     priority=CommunityIssuePriority.low,
                     node_id=node_id,
                     details="",

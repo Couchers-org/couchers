@@ -148,7 +148,7 @@ def community_issues_to_pb(session: Session, issues: Sequence[CommunityIssue]) -
     return [
         editor_pb2.CommunityIssue(
             issue_id=issue.id,
-            rule=issue.rule.name,
+            rule=issue.rule,
             priority=communityissuepriority2api[issue.priority],
             community=communities[issue.node_id],
             other=communities[issue.other_node_id] if issue.other_node_id else None,
