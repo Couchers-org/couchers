@@ -213,6 +213,11 @@ class ModerationLog(Base, kw_only=True):
     __table_args__ = (
         # Fast lookup of log entries for a given state, ordered by time
         Index("ix_moderation_log_state_time", moderation_state_id, time.desc()),
+        Index(
+            "ix_moderation_log_ever_visible",
+            moderation_state_id,
+            postgresql_where=new_visibility.in_([ModerationVisibility.visible, ModerationVisibility.unlisted]),
+        ),
     )
 
     def __repr__(self) -> str:
