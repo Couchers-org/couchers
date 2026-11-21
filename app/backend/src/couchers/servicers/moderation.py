@@ -322,6 +322,14 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
 
     author = session.execute(select(User).where(User.id == author_user_id)).scalar_one()
 
+    ever_visible = session.execute(
+        select(
+            exists()
+            .where(ModerationLog.moderation_state_id == state.id)
+            .where(ModerationLog.new_visibility.in_([ModerationVisibility.visible, ModerationVisibility.unlisted]))
+        )
+    ).scalar_one()
+
     state_pb = moderation_pb2.ModerationStateInfo(
         moderation_state_id=state.id,
         object_type=moderationobjecttype2api[state.object_type],
@@ -332,6 +340,7 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
         author_user_id=author_user_id,
         author=_user_to_details(session, author),
         content=content or "",
+        ever_visible=ever_visible,
     )
 
     return state_pb
