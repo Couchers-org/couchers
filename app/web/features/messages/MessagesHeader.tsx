@@ -3,7 +3,6 @@ import { styled } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import MarkAllReadButton from "features/messages/requests/MarkAllReadButton";
-import useNotifications from "features/useNotifications";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { MessageFilterType } from "routes";
@@ -45,15 +44,13 @@ export default function MessagesHeader({ tab }: { tab: MessageFilterType }) {
   const { t } = useTranslation(MESSAGES);
   const isPublicTripsEnabled = useFeatureValue("public_trips_enabled", false);
   const markAllReadType = getMarkAllReadType(tab === "public-trips" && !isPublicTripsEnabled ? "all" : tab);
-  const { data: notifications } = useNotifications();
-  const hasNothingToMark = markAllReadType === "public-trips" && !notifications?.unseenPublicTripOfferCount;
 
   return (
     <StyledRoot>
       <HtmlMeta title={t("messages_page.title")} />
       <StyledHeader>
         <PageTitle>{t("messages_page.title")}</PageTitle>
-        {markAllReadType && !hasNothingToMark && <MarkAllReadButton type={markAllReadType} />}
+        {markAllReadType && <MarkAllReadButton type={markAllReadType} />}
       </StyledHeader>
     </StyledRoot>
   );
