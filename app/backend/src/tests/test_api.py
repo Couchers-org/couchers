@@ -905,7 +905,11 @@ def test_friend_request_flow(db, email_collector: EmailCollector, push_collector
     push = push_collector.pop_for_user(recipient_user.id, last=True)
     assert push.content.title == f"Friend request from {sender_user.name}"
     assert push.content.body == f"{sender_user.name} wants to be your friend."
-    assert push.content.action_url == f"http://localhost:3000/connections/friends/?from={sender_user.id}"
+    notification_id = notifications_api.list_notifications(token=recipient_token).notifications[0].notification_id
+    assert (
+        push.content.action_url
+        == f"http://localhost:3000/connections/friends/?from={sender_user.id}&zn={notification_id}"
+    )
 
     email = email_collector.pop_for_recipient(recipient_user.email, last=True)
     assert email.recipient == recipient_user.email
