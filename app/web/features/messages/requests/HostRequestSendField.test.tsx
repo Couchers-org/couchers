@@ -5,6 +5,7 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { HostRequestStatus } from "proto/messages_pb";
 import { HostRequest } from "proto/requests_pb";
+import { howToWriteRequestGuideUrl } from "routes";
 import hostRequest from "test/fixtures/hostRequest";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
@@ -197,5 +198,29 @@ describe("HostRequestSendField", () => {
 
     const sendButton = screen.getByRole("button", { name: t("global:send") });
     expect(sendButton).toBeDisabled();
+  });
+
+  describe("guide to writing requests", () => {
+    const declined = (publicTripId: number) => ({
+      ...mockHostRequest,
+      status: HostRequestStatus.HOST_REQUEST_STATUS_REJECTED,
+      fromDate: "2099-01-01",
+      toDate: "2099-01-05",
+      publicTripId,
+    });
+    const guideLink = () =>
+      screen.queryAllByRole("link").find((link) => link.getAttribute("href") === howToWriteRequestGuideUrl);
+
+    it("is shown to a surfer whose request was declined", () => {
+      render(<HostRequestSendField hostRequest={declined(0)} sendMutation={mockSendMutation} />, { wrapper });
+
+      expect(guideLink()).toBeInTheDocument();
+    });
+
+    it("isn't shown to a traveller who declined an offer on their public trip", () => {
+      render(<HostRequestSendField hostRequest={declined(7)} sendMutation={mockSendMutation} />, { wrapper });
+
+      expect(guideLink()).toBeUndefined();
+    });
   });
 });
