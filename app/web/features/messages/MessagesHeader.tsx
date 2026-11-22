@@ -3,6 +3,7 @@ import { styled } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import MarkAllReadButton from "features/messages/requests/MarkAllReadButton";
+import useNotifications from "features/useNotifications";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { MessageFilterType } from "routes";
@@ -16,7 +17,8 @@ const StyledRoot = styled("div")(({ theme }) => ({
 const StyledHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
-  gap: theme.spacing(2),
+  flexWrap: "wrap",
+  columnGap: theme.spacing(2),
 }));
 
 // Map tab to MarkAllReadButton type (excluding archived)
@@ -43,13 +45,15 @@ export default function MessagesHeader({ tab }: { tab: MessageFilterType }) {
   const { t } = useTranslation(MESSAGES);
   const isPublicTripsEnabled = useFeatureValue("public_trips_enabled", false);
   const markAllReadType = getMarkAllReadType(tab === "public-trips" && !isPublicTripsEnabled ? "all" : tab);
+  const { data: notifications } = useNotifications();
+  const hasNothingToMark = markAllReadType === "public-trips" && !notifications?.unseenPublicTripOfferCount;
 
   return (
     <StyledRoot>
       <HtmlMeta title={t("messages_page.title")} />
       <StyledHeader>
         <PageTitle>{t("messages_page.title")}</PageTitle>
-        {markAllReadType && <MarkAllReadButton type={markAllReadType} />}
+        {markAllReadType && !hasNothingToMark && <MarkAllReadButton type={markAllReadType} />}
       </StyledHeader>
     </StyledRoot>
   );
