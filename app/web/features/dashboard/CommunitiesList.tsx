@@ -4,12 +4,18 @@ import Alert from "components/Alert";
 import CardTrack, { useCardTrack } from "components/CardTrack";
 import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
-import { useListUserCommunities } from "features/communities/hooks";
 import { Trans, useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
+import { Community } from "proto/communities_pb";
 import { routeToCommunity } from "routes";
 
 import DashboardSectionHeader from "./DashboardSectionHeader";
+
+interface CommunitiesListProps {
+  communities: Community.AsObject[];
+  isLoading: boolean;
+  error?: string;
+}
 
 const CARD_WIDTH = 200;
 
@@ -48,14 +54,10 @@ const SkeletonCard = styled("div")(({ theme }) => ({
   background: "var(--mui-palette-background-paper)",
 }));
 
-export default function CommunitiesList() {
+export default function CommunitiesList({ communities, isLoading, error }: CommunitiesListProps) {
   const { t } = useTranslation([DASHBOARD]);
   const theme = useTheme();
   const cardsPerView = useMediaQuery(theme.breakpoints.down("sm")) ? 2 : 3;
-
-  const { data, isPending, error } = useListUserCommunities();
-
-  const communities = (data?.pages ?? []).flatMap((page) => page.communitiesList);
 
   const track = useCardTrack({ maxCardsPerScroll: 3 });
 
@@ -70,8 +72,8 @@ export default function CommunitiesList() {
           }}
         />
       </Typography>
-      {error?.message && <Alert severity="error">{error.message}</Alert>}
-      {isPending ? (
+      {error && <Alert severity="error">{error}</Alert>}
+      {isLoading ? (
         <CardTrack cardWidth={CARD_WIDTH}>
           {Array.from({ length: cardsPerView }).map((_, i) => (
             <SkeletonCard key={i} />

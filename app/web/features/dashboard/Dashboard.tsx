@@ -4,8 +4,7 @@ import HtmlMeta from "components/HtmlMeta";
 import PageContainer from "components/PageContainer";
 import PullToRefresh from "components/PullToRefresh";
 import Celebration100k from "features/celebration100k/Celebration100k";
-import CommunitiesList from "features/dashboard/CommunitiesList";
-import { dashboardKey, userCommunitiesListKey } from "features/queryKeys";
+import { dashboardKey } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import { theme } from "theme";
@@ -15,6 +14,7 @@ import DashboardCommunityPublicTrips from "./DashboardCommunityPublicTrips";
 import DashboardMyPublicTrips from "./DashboardMyPublicTrips";
 import DashboardUserProfileSummary from "./DashboardUserProfileSummary";
 import Hero from "./Hero";
+import MyCommunities from "./MyCommunities";
 import MyCommunitiesDiscussions from "./MyCommunitiesDiscussions";
 import MyEvents from "./MyEvents";
 import ReminderCarousel from "./ReminderCarousel";
@@ -27,7 +27,7 @@ export default function Dashboard() {
   return (
     <>
       {/*TODO(NA): Follow up PR to add userCommunitiesList query into thje getDashboard screen query */}
-      <PullToRefresh queryKeys={[[dashboardKey], [userCommunitiesListKey]]} />
+      <PullToRefresh queryKeys={[[dashboardKey]]} />
       <Celebration100k autoPlay />
       <Hero />
       {/* this view uses a container, instead of it coming from the route layout,
@@ -69,7 +69,7 @@ export default function Dashboard() {
 
             <MyCommunitiesDiscussions />
 
-            <CommunitiesList />
+            <MyCommunities />
           </Grid>
         </Grid>
       </PageContainer>
