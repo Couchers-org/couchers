@@ -26,7 +26,7 @@ from couchers.proto import notification_data_pb2, references_pb2, references_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.sql import users_visible, where_moderated_content_visible, where_users_column_visible
 from couchers.tasks import maybe_send_reference_report_email
-from couchers.utils import Timestamp_from_datetime, now
+from couchers.utils import Timestamp_from_datetime, now, strip_text
 
 MAX_PAGINATION_LENGTH = 100
 
@@ -110,7 +110,7 @@ def check_valid_reference(
     if request.rating < 0 or request.rating > 1:
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "reference_invalid_rating")
 
-    if request.text.strip() == "":
+    if strip_text(request.text) == "":
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "reference_no_text")
 
 
@@ -242,7 +242,7 @@ class References(references_pb2_grpc.ReferencesServicer):
         ).scalar_one_or_none():
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "reference_already_given")
 
-        reference_text = request.text.strip()
+        reference_text = strip_text(request.text)
 
         reference: Reference | None = None
 
@@ -253,7 +253,7 @@ class References(references_pb2_grpc.ReferencesServicer):
                 to_user_id=request.to_user_id,
                 reference_type=ReferenceType.friend,
                 text=reference_text,
-                private_text=request.private_text.strip(),
+                private_text=strip_text(request.private_text),
                 rating=request.rating,
                 was_appropriate=request.was_appropriate,
                 moderation_state_id=moderation_state_id,
@@ -309,7 +309,7 @@ class References(references_pb2_grpc.ReferencesServicer):
 
         host_request, surfed = get_host_req_and_check_can_write_ref(session, context, request.host_request_id)
 
-        reference_text = request.text.strip()
+        reference_text = strip_text(request.text)
 
         if surfed:
             # we surfed with someone
@@ -329,7 +329,7 @@ class References(references_pb2_grpc.ReferencesServicer):
                 to_user_id=to_user_id,
                 host_request_id=host_request.conversation_id,
                 text=reference_text,
-                private_text=request.private_text.strip(),
+                private_text=strip_text(request.private_text),
                 rating=request.rating,
                 was_appropriate=request.was_appropriate,
                 reference_type=reference_type,
@@ -396,7 +396,7 @@ class References(references_pb2_grpc.ReferencesServicer):
     ) -> empty_pb2.Empty:
         host_request, surfed = get_host_req_and_check_can_write_ref(session, context, request.host_request_id)
 
-        reason = request.reason_didnt_meetup.strip()
+        reason = strip_text(request.reason_didnt_meetup)
 
         if surfed:
             host_request.initiator_reason_didnt_meetup = reason

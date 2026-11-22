@@ -46,7 +46,7 @@ from couchers.models import (
 )
 from couchers.proto import moderation_pb2, moderation_pb2_grpc
 from couchers.proto.internal import jobs_pb2
-from couchers.utils import Timestamp_from_datetime, not_none, now
+from couchers.utils import Timestamp_from_datetime, not_none, now, strip_text
 
 logger = logging.getLogger(__name__)
 
@@ -691,7 +691,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
         object_type = moderation_state.object_type
 
         data = None
-        if request.data.strip():
+        if strip_text(request.data):
             if action != ModerationAction.flag:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:data_only_allowed_on_flag")
             try:

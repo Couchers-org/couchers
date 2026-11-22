@@ -33,7 +33,7 @@ from couchers.servicers.events import apply_occurrence_pagination, event_to_pb, 
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
 from couchers.sql import to_bool, users_visible, where_moderated_content_visible
-from couchers.utils import Timestamp_from_datetime
+from couchers.utils import Timestamp_from_datetime, strip_text
 
 logger = logging.getLogger(__name__)
 
@@ -173,7 +173,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
     def SearchCommunities(
         self, request: communities_pb2.SearchCommunitiesReq, context: CouchersContext, session: Session
     ) -> communities_pb2.SearchCommunitiesRes:
-        raw_query = request.query.strip()
+        raw_query = strip_text(request.query)
         if len(raw_query) < 3:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "query_too_short")
 

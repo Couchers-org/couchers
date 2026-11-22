@@ -24,6 +24,7 @@ from couchers.utils import (
     date_id_to_page_token,
     date_to_api,
     parse_date,
+    strip_text,
     today_in_timezone,
     utf16_length,
 )
@@ -45,7 +46,7 @@ publictripstatus2sql = {
 
 
 def _strip_and_validate_description(description: str, context: CouchersContext) -> str:
-    description = description.strip()
+    description = strip_text(description)
     if not description:
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_public_trip_description")
     if utf16_length(description) < PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16:

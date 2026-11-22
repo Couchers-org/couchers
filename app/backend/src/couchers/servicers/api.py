@@ -83,6 +83,7 @@ from couchers.utils import (
     is_valid_username,
     not_none,
     now,
+    strip_text,
 )
 
 
@@ -369,18 +370,19 @@ class API(api_pb2_grpc.APIServicer):
         user: User = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
         if request.HasField("name"):
-            if not is_valid_name(request.name.value):
+            name = strip_text(request.name.value)
+            if not is_valid_name(name):
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_name")
-            user.name = request.name.value
+            user.name = name
 
         if request.HasField("city"):
-            user.city = request.city.value
+            user.city = strip_text(request.city.value)
 
         if request.HasField("hometown"):
             if request.hometown.is_null:
                 user.hometown = None
             else:
-                user.hometown = request.hometown.value
+                user.hometown = strip_text(request.hometown.value)
 
         if request.HasField("lat") and request.HasField("lng"):
             if request.lat.value == 0 and request.lng.value == 0:
@@ -398,37 +400,37 @@ class API(api_pb2_grpc.APIServicer):
             if request.pronouns.is_null:
                 user.pronouns = None
             else:
-                user.pronouns = request.pronouns.value
+                user.pronouns = strip_text(request.pronouns.value)
 
         if request.HasField("occupation"):
             if request.occupation.is_null:
                 user.occupation = None
             else:
-                user.occupation = request.occupation.value
+                user.occupation = strip_text(request.occupation.value)
 
         if request.HasField("education"):
             if request.education.is_null:
                 user.education = None
             else:
-                user.education = request.education.value
+                user.education = strip_text(request.education.value)
 
         if request.HasField("about_me"):
             if request.about_me.is_null:
                 user.about_me = None
             else:
-                user.about_me = request.about_me.value
+                user.about_me = strip_text(request.about_me.value)
 
         if request.HasField("things_i_like"):
             if request.things_i_like.is_null:
                 user.things_i_like = None
             else:
-                user.things_i_like = request.things_i_like.value
+                user.things_i_like = strip_text(request.things_i_like.value)
 
         if request.HasField("about_place"):
             if request.about_place.is_null:
                 user.about_place = None
             else:
-                user.about_place = request.about_place.value
+                user.about_place = strip_text(request.about_place.value)
 
         if request.hosting_status != api_pb2.HOSTING_STATUS_UNSPECIFIED:
             if user.do_not_email and request.hosting_status != api_pb2.HOSTING_STATUS_CANT_HOST:
@@ -494,7 +496,7 @@ class API(api_pb2_grpc.APIServicer):
             if request.additional_information.is_null:
                 user.additional_information = None
             else:
-                user.additional_information = request.additional_information.value
+                user.additional_information = strip_text(request.additional_information.value)
 
         if request.HasField("max_guests"):
             if request.max_guests.is_null:
@@ -524,7 +526,7 @@ class API(api_pb2_grpc.APIServicer):
             if request.pet_details.is_null:
                 user.pet_details = None
             else:
-                user.pet_details = request.pet_details.value
+                user.pet_details = strip_text(request.pet_details.value)
 
         if request.HasField("has_kids"):
             if request.has_kids.is_null:
@@ -542,7 +544,7 @@ class API(api_pb2_grpc.APIServicer):
             if request.kid_details.is_null:
                 user.kid_details = None
             else:
-                user.kid_details = request.kid_details.value
+                user.kid_details = strip_text(request.kid_details.value)
 
         if request.HasField("has_housemates"):
             if request.has_housemates.is_null:
@@ -554,7 +556,7 @@ class API(api_pb2_grpc.APIServicer):
             if request.housemate_details.is_null:
                 user.housemate_details = None
             else:
-                user.housemate_details = request.housemate_details.value
+                user.housemate_details = strip_text(request.housemate_details.value)
 
         if request.HasField("wheelchair_accessible"):
             if request.wheelchair_accessible.is_null:
@@ -587,7 +589,7 @@ class API(api_pb2_grpc.APIServicer):
             if request.other_host_info.is_null:
                 user.other_host_info = None
             else:
-                user.other_host_info = request.other_host_info.value
+                user.other_host_info = strip_text(request.other_host_info.value)
 
         if request.sleeping_arrangement != api_pb2.SLEEPING_ARRANGEMENT_UNSPECIFIED:
             user.sleeping_arrangement = sleepingarrangement2sql[request.sleeping_arrangement]
@@ -596,19 +598,19 @@ class API(api_pb2_grpc.APIServicer):
             if request.sleeping_details.is_null:
                 user.sleeping_details = None
             else:
-                user.sleeping_details = request.sleeping_details.value
+                user.sleeping_details = strip_text(request.sleeping_details.value)
 
         if request.HasField("area"):
             if request.area.is_null:
                 user.area = None
             else:
-                user.area = request.area.value
+                user.area = strip_text(request.area.value)
 
         if request.HasField("house_rules"):
             if request.house_rules.is_null:
                 user.house_rules = None
             else:
-                user.house_rules = request.house_rules.value
+                user.house_rules = strip_text(request.house_rules.value)
 
         if request.HasField("parking"):
             if request.parking.is_null:
