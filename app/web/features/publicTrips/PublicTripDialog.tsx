@@ -10,6 +10,7 @@ import { GLOBAL, PUBLIC_TRIPS } from "i18n/namespaces";
 import { useEffect } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { Temporal } from "temporal-polyfill";
+import { charsRemaining } from "utils/validation";
 
 import { PublicTrip, useCreatePublicTrip, useUpdatePublicTrip } from "./useListPublicTrips";
 
@@ -89,7 +90,7 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
 
   const watchFromDate = useWatch({ control, name: "fromDate" });
   const watchDescription = useWatch({ control, name: "description" }) ?? "";
-  const descriptionCharsRemaining = DESCRIPTION_MIN_LENGTH - watchDescription.length;
+  const descriptionCharsRemaining = charsRemaining(watchDescription, DESCRIPTION_MIN_LENGTH);
 
   // PublicTrip proto only carries community_id, so fetch the community name in
   // edit mode. Hook is no-op when id is 0 (create mode already has the name).
@@ -118,7 +119,7 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
     const payload = {
       fromDate: fromDate.toString(),
       toDate: toDate.toString(),
-      description: description.trim(),
+      description,
       sameGenderOnly,
     };
     if (props.mode === "edit") {
@@ -205,12 +206,11 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
                   if (value.trim().length === 0) {
                     return t("publicTrips:create_edit_dialog.description.required_error");
                   }
-                  if (value.length < DESCRIPTION_MIN_LENGTH) {
-                    return t("publicTrips:create_edit_dialog.description.chars_remaining", {
-                      count: DESCRIPTION_MIN_LENGTH - value.length,
-                    });
-                  }
-                  return true;
+                  const remaining = charsRemaining(value, DESCRIPTION_MIN_LENGTH);
+                  return (
+                    remaining === 0 ||
+                    t("publicTrips:create_edit_dialog.description.chars_remaining", { count: remaining })
+                  );
                 },
               })}
               label={t("publicTrips:create_edit_dialog.description.label")}

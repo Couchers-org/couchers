@@ -63,6 +63,7 @@ from couchers.utils import (
     now,
     parse_date,
     today_in_timezone,
+    utf16_length,
 )
 
 logger = logging.getLogger(__name__)
@@ -173,22 +174,20 @@ def _possibly_observe_first_response_time(
         )
 
 
-def _validate_request_text(text: str, is_public_trip_offer: bool, context: CouchersContext) -> None:
+def _strip_and_validate_request_text(text: str, is_public_trip_offer: bool, context: CouchersContext) -> str:
     min_length, error_code = (
         (PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16, "public_trip_offer_too_short")
         if is_public_trip_offer
         else (HOST_REQUEST_MIN_LENGTH_UTF16, "host_request_too_short2")
     )
-    # Python's len(str) does not match Javascript's string.length.
-    # e.g. len("é") == 2 but "é".length == 1.
-    # To match the frontend's validation, measure the string in utf16 code units.
-    text_length_utf16 = len(text.encode("utf-16-le")) // 2  # utf-16-le does not include a prefix BOM code unit.
-    if text_length_utf16 < min_length:
+    text = text.strip()
+    if utf16_length(text) < min_length:
         context.abort_with_error_code(
             grpc.StatusCode.INVALID_ARGUMENT,
             error_code,
             substitutions={"count": min_length},
         )
+    return text
 
 
 class Requests(requests_pb2_grpc.RequestsServicer):
@@ -241,7 +240,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if to_date - from_date > timedelta(days=365):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_after_one_year")
 
-        _validate_request_text(request.text, proposal_kind == StayProposalKind.invitation, context)
+        text = _strip_and_validate_request_text(request.text, proposal_kind == StayProposalKind.invitation, context)
 
         # Check if user has been sending host requests excessively
         if process_rate_limits_and_check_abort(
@@ -323,7 +322,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         message = Message(
             conversation_id=conversation.id,
             author_id=context.user_id,
-            text=request.text,
+            text=text,
             message_type=MessageType.text,
         )
         session.add(message)
@@ -364,7 +363,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             data=notification_data_pb2.StayCreate(
                 host_request=host_request_to_pb(host_request, session, recipient_context),
                 initiator=user_model_to_pb(host_request.initiator, session, recipient_context),
-                text=request.text,
+                text=text,
             ),
             moderation_state_id=moderation_state.id,
         )
