@@ -1,14 +1,24 @@
-import { Box, Breadcrumbs, Container, Link, styled, Typography, TypographyProps } from "@mui/material";
+import { Box, Breadcrumbs, Button, Container, Link, styled, Typography, TypographyProps } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import SocialMediaLinks from "components/SocialMediaLinks";
 import { Trans, useTranslation } from "i18n";
 import markdown from "markdown-it";
 import Head from "next/head";
+import NextLink from "next/link";
+import { donationsRoute } from "routes";
 import { theme } from "theme";
 
-import { COMMUNITIES } from "../../i18n/namespaces";
+import { COMMUNITIES, GLOBAL } from "../../i18n/namespaces";
 
 const mkd = new markdown();
+
+const DonateButtonRow = styled("div")(({ theme }) => ({
+  display: "flex",
+  marginTop: theme.spacing(2),
+  [theme.breakpoints.down("sm")]: {
+    "& > *": { flexGrow: 1 },
+  },
+}));
 
 interface MarkdownPageFrontmatter {
   title: string;
@@ -23,6 +33,8 @@ interface MarkdownPageFrontmatter {
   is_blog_post?: boolean;
   has_custom_cta?: boolean;
   share_image?: string;
+  // shows a donate button above and below the post
+  show_donate_button?: boolean;
 }
 
 export interface MarkdownPageProps {
@@ -191,7 +203,7 @@ function createBreadcrumbs({ slug, frontmatter }: { slug: Array<string>; frontma
 }
 
 export default function MarkdownPage({ slug, frontmatter, content }: MarkdownPageProps) {
-  const { t } = useTranslation([COMMUNITIES]);
+  const { t } = useTranslation([COMMUNITIES, GLOBAL]);
   const subtitle = !!frontmatter.subtitle ? mkd.renderInline(frontmatter.subtitle) : null;
   const bustitle = !!frontmatter.bustitle ? mkd.renderInline(frontmatter.bustitle) : null;
 
@@ -225,7 +237,31 @@ export default function MarkdownPage({ slug, frontmatter, content }: MarkdownPag
             <div dangerouslySetInnerHTML={{ __html: subtitle }}></div>
           </Typography>
         )}
+        {frontmatter.show_donate_button && (
+          <DonateButtonRow>
+            <Button
+              component={NextLink}
+              href={`${donationsRoute}?utm_source=donation_blog_post`}
+              variant="contained"
+              color="secondary"
+            >
+              {t("global:donation_banner.button")}
+            </Button>
+          </DonateButtonRow>
+        )}
         <StyledMarkdown dangerouslySetInnerHTML={{ __html: content }}></StyledMarkdown>
+        {frontmatter.show_donate_button && (
+          <DonateButtonRow>
+            <Button
+              component={NextLink}
+              href={`${donationsRoute}?utm_source=donation_blog_post`}
+              variant="contained"
+              color="secondary"
+            >
+              {t("global:donation_banner.button")}
+            </Button>
+          </DonateButtonRow>
+        )}
         {frontmatter.is_blog_post && frontmatter.date && (
           <Typography variant="body1" sx={{ fontStyle: "italic", marginTop: theme.spacing(2) }}>
             {frontmatter.author ? (
