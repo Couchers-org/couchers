@@ -56,7 +56,6 @@ describe("NotificationItem", () => {
           onClose={mockOnClose}
           onClick={jest.fn()}
           onMenuOpened={jest.fn()}
-          onMenuClosed={jest.fn()}
           onMarkIsSeen={onMarkIsSeenMock}
         />
       </MenuList>,
@@ -91,7 +90,6 @@ describe("NotificationItem", () => {
           onClose={mockOnClose}
           onClick={jest.fn()}
           onMenuOpened={jest.fn()}
-          onMenuClosed={jest.fn()}
           onMarkIsSeen={onMarkIsSeenMock}
         />
       </MenuList>,
@@ -120,7 +118,6 @@ describe("NotificationItem", () => {
           onClose={mockOnClose}
           onClick={jest.fn()}
           onMenuOpened={jest.fn()}
-          onMenuClosed={jest.fn()}
           onMarkIsSeen={onMarkIsSeenMock}
         />
       </MenuList>,

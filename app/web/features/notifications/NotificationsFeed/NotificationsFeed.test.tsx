@@ -93,9 +93,6 @@ describe("NotificationsFeed", () => {
     await userEvent.click(markAllReadButton);
 
     expect(markAllNotificationsIsSeenMock).toHaveBeenCalledWith(latestNotificationId);
-    expect(loggedEvents("notifications.options_menu_closed")).toEqual([
-      expect.objectContaining({ action: "mark_all_read" }),
-    ]);
     expect(loggedEvents("notifications.mark_all_read")).toEqual([
       expect.objectContaining({
         latest_notification_id: latestNotificationId,
@@ -105,31 +102,27 @@ describe("NotificationsFeed", () => {
     ]);
   });
 
-  it("logs the tray opening and closing with a summary of the loaded notifications", async () => {
-    const { rerender } = render(
-      <NotificationsFeed anchorEl={document.createElement("div")} isOpen={true} onClose={mockOnClose} badgeCount={2} />,
-      { wrapper },
-    );
-
-    expect(loggedEvents("notifications.tray_opened")).toEqual([
-      expect.objectContaining({ badge_count: 2, filter: "all" }),
-    ]);
-
-    await screen.findAllByTestId("notification-item");
-
-    rerender(
+  it("logs the tray opening with a summary of the loaded notifications", async () => {
+    const renderFeed = (isOpen: boolean) => (
       <NotificationsFeed
         anchorEl={document.createElement("div")}
-        isOpen={false}
+        isOpen={isOpen}
         onClose={mockOnClose}
         badgeCount={2}
-      />,
+      />
     );
+    const { rerender } = render(renderFeed(true), { wrapper });
+    await screen.findAllByTestId("notification-item");
+    rerender(renderFeed(false));
+    rerender(renderFeed(true));
 
-    expect(loggedEvents("notifications.tray_closed")).toEqual([
+    const events = loggedEvents("notifications.tray_opened");
+    expect(events).toHaveLength(2);
+    expect(events[1]).toEqual(
       expect.objectContaining({
         badge_count: 2,
-        clicked_notification_id: null,
+        filter: "all",
+        is_loaded: true,
         loaded_count: 3,
         loaded_seen_count: 1,
         loaded_unseen_count: 2,
@@ -139,7 +132,7 @@ describe("NotificationsFeed", () => {
           expect.objectContaining({ id: 3, topic_action: "reference:reminder_surfed", is_seen: false }),
         ],
       }),
-    ]);
+    );
   });
 
   it("logs clicks on a notification", async () => {
@@ -152,26 +145,22 @@ describe("NotificationsFeed", () => {
 
     expect(loggedEvents("notifications.item_clicked")).toEqual([
       expect.objectContaining({
-        notification_id: 2,
-        topic_action: "chat:missed_messages",
-        was_seen: false,
+        item: expect.objectContaining({ id: 2, topic_action: "chat:missed_messages", is_seen: false }),
         position: 1,
         loaded_count: 3,
       }),
     ]);
   });
 
-  it("logs the options menu being opened and abandoned", async () => {
+  it("logs the options menu being opened", async () => {
     render(<NotificationsFeed anchorEl={document.createElement("div")} isOpen={true} onClose={mockOnClose} />, {
       wrapper,
     });
 
     await screen.findAllByTestId("notification-item");
     await userEvent.click(screen.getByTestId("notifications-feed--more-options"));
-    await userEvent.keyboard("{Escape}");
 
     expect(loggedEvents("notifications.options_menu_opened")).toEqual([expect.objectContaining({ loaded_count: 3 })]);
-    expect(loggedEvents("notifications.options_menu_closed")).toEqual([expect.objectContaining({ action: null })]);
   });
 
   it("logs the item menu being opened and used to mark a notification unread", async () => {
@@ -183,12 +172,11 @@ describe("NotificationsFeed", () => {
     await userEvent.click(screen.getByTestId("mark-unread-menu-item"));
 
     expect(loggedEvents("notifications.item_menu_opened")).toEqual([
-      expect.objectContaining({ notification_id: 1, was_seen: true }),
+      expect.objectContaining({ item: expect.objectContaining({ id: 1, is_seen: true }), position: 0 }),
     ]);
-    expect(loggedEvents("notifications.item_menu_closed")).toEqual([
-      expect.objectContaining({ notification_id: 1, action: "mark_unread" }),
+    expect(loggedEvents("notifications.item_marked_unread")).toEqual([
+      expect.objectContaining({ item: expect.objectContaining({ id: 1 }) }),
     ]);
-    expect(loggedEvents("notifications.item_marked_unread")).toEqual([expect.objectContaining({ notification_id: 1 })]);
   });
 
   it("logs filter clicks", async () => {

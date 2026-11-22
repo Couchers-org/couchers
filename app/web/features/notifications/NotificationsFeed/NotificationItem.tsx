@@ -6,7 +6,7 @@ import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Notification } from "proto/notifications_pb";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
 import { theme } from "theme";
 
@@ -17,7 +17,6 @@ interface NotificationItemProps {
   onClose: () => void;
   onClick: () => void;
   onMenuOpened: () => void;
-  onMenuClosed: (action: "mark_unread" | null) => void;
   onMarkIsSeen: (args: { notificationId: Notification.AsObject["notificationId"]; isSeen: boolean }) => void;
 }
 
@@ -60,14 +59,7 @@ const BottomRightIconWrapper = styled(Box)(({ theme }) => ({
   justifyContent: "center",
 }));
 
-const NotificationItem = ({
-  notification,
-  onClose,
-  onClick,
-  onMenuOpened,
-  onMenuClosed,
-  onMarkIsSeen,
-}: NotificationItemProps) => {
+const NotificationItem = ({ notification, onClose, onClick, onMenuOpened, onMarkIsSeen }: NotificationItemProps) => {
   const { t } = useTranslation([GLOBAL]);
   const router = useRouter();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -75,8 +67,6 @@ const NotificationItem = ({
   const [markUnreadMenuAnchorEl, setMarkUnseedMenuAnchorEl] = useState<HTMLButtonElement | null>(null);
 
   const isMarkUnreadMenuOpen = Boolean(markUnreadMenuAnchorEl);
-  // A backdrop click fires both the menu's onClose and onClick, so this stops the close being logged twice
-  const isMenuOpenRef = useRef(false);
 
   const userName = notification.title.split(" ")[0];
 
@@ -92,27 +82,18 @@ const NotificationItem = ({
 
   const handleMarkUnreadMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
-    isMenuOpenRef.current = true;
     onMenuOpened();
     setMarkUnseedMenuAnchorEl(event.currentTarget);
   };
 
-  const closeMarkUnreadMenu = (action: "mark_unread" | null) => {
-    if (isMenuOpenRef.current) {
-      isMenuOpenRef.current = false;
-      onMenuClosed(action);
-    }
-    setMarkUnseedMenuAnchorEl(null);
-  };
-
   const handleMarkUnreadMenuClose = (event: React.MouseEvent<HTMLDivElement>) => {
     event.stopPropagation();
-    closeMarkUnreadMenu(null);
+    setMarkUnseedMenuAnchorEl(null);
   };
 
   const handleMarkItemUnread = (event: React.MouseEvent<HTMLLIElement>) => {
     event.stopPropagation();
-    closeMarkUnreadMenu("mark_unread");
+    setMarkUnseedMenuAnchorEl(null);
     onMarkIsSeen({
       notificationId: notification.notificationId,
       isSeen: false,

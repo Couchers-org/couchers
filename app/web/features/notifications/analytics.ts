@@ -8,20 +8,24 @@ const SUMMARIZED_NOTIFICATIONS = 10;
 // Module level so that remounting the navigation doesn't log the same counts again
 let lastLoggedBadgeCounts: string | null = null;
 
+export function summarizeNotification(notification: Notification.AsObject) {
+  return {
+    id: notification.notificationId,
+    topic_action: `${notification.topic}:${notification.action}`,
+    is_seen: notification.isSeen,
+    age_s: notification.created ? Math.round(Date.now() / 1000 - notification.created.seconds) : null,
+  };
+}
+
 export function summarizeNotifications(notifications: Notification.AsObject[] | undefined) {
   const loaded = notifications ?? [];
-  const nowS = Date.now() / 1000;
   const loadedSeenCount = loaded.filter((notification) => notification.isSeen).length;
   return {
+    is_loaded: notifications !== undefined,
     loaded_count: loaded.length,
     loaded_seen_count: loadedSeenCount,
     loaded_unseen_count: loaded.length - loadedSeenCount,
-    notifications: loaded.slice(0, SUMMARIZED_NOTIFICATIONS).map((notification) => ({
-      id: notification.notificationId,
-      topic_action: `${notification.topic}:${notification.action}`,
-      is_seen: notification.isSeen,
-      age_s: notification.created ? Math.round(nowS - notification.created.seconds) : null,
-    })),
+    notifications: loaded.slice(0, SUMMARIZED_NOTIFICATIONS).map(summarizeNotification),
   };
 }
 
