@@ -181,9 +181,42 @@ def test_create_public_trip_in_past_uses_node_timezone(db):
         "couchers.servicers.public_trips.today_in_timezone",
         side_effect=lambda tz: fake_today_by_tz[tz],
     ):
-        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The arrival date is in the past for this community."):
             public_trips_api.create_public_trip(
                 token=token, community_id=node_id, from_date=date(2026, 1, 15), to_date=date(2026, 1, 20)
+            )
+
+
+@pytest.mark.parametrize(
+    "from_days,to_days,message",
+    [
+        (-2, 1, "The arrival date is in the past for this community."),
+        (10, 5, "The departure date must be after the arrival date."),
+        (366, 370, "The arrival date must be within one year from today."),
+        (5, 375, "A public trip can't be longer than one year."),
+    ],
+)
+def test_public_trip_date_errors_name_the_form_fields(db, from_days, to_days, message):
+    user, token = generate_user()
+    node_id = _make_node()
+
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, message):
+        public_trips_api.create_public_trip(
+            token=token,
+            community_id=node_id,
+            from_date=today() + timedelta(days=from_days),
+            to_date=today() + timedelta(days=to_days),
+        )
+
+    trip_id = _create_trip_directly(user.id, node_id, today() + timedelta(days=20), today() + timedelta(days=25))
+    with public_trips_session(token) as api:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, message):
+            api.UpdatePublicTrip(
+                public_trips_pb2.UpdatePublicTripReq(
+                    trip_id=trip_id,
+                    from_date=(today() + timedelta(days=from_days)).isoformat(),
+                    to_date=(today() + timedelta(days=to_days)).isoformat(),
+                )
             )
 
 
@@ -228,7 +261,7 @@ def test_create_public_trip_minimum_stay(db, nights):
     to_date = from_date + timedelta(days=nights)
 
     if nights == 0:
-        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The end date must be later than the start date."):
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The departure date must be after the arrival date."):
             public_trips_api.create_public_trip(token=token, community_id=node_id, from_date=from_date, to_date=to_date)
     else:
         res = public_trips_api.create_public_trip(
@@ -866,7 +899,7 @@ def test_update_public_trip_cant_reopen_with_same_day_dates(db):
         user.id, node_id, trip_date, trip_date + timedelta(days=1), status=PublicTripStatus.closed
     )
 
-    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The end date must be later than the start date."):
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The departure date must be after the arrival date."):
         public_trips_api.update_public_trip(
             token=token,
             trip_id=trip_id,
