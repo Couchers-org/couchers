@@ -16,6 +16,7 @@ The native app shows the web profile, so web changes cover mobile too.
 - [ ] **Latest reference preview card** with "Read all N references", switching to the References tab. Hidden when there are no references.
 - [ ] **"Staying with X" teaser:** one essentials line (sleeping privacy, max guests, last-minute) linking to the Home tab.
 - [ ] **Connections card:** one card with two versions. On someone else's profile, friends in common (call `ListMutualFriends` from the web, avatars via `useLiteUsers`), hidden when there are none or when logged out. On your own profile, "Your connections": friend count, avatar stack, "N new friend requests · Review". Replaces the outlined "My connections" button in `Overview.tsx`.
+- [ ] **Profile completeness on your own profile:** a scale (e.g. "Your profile is 70% complete") with the next steps to finish it, like adding a photo, writing more about yourself, filling in My home or getting verified. Today completeness is only yes/no (`profile_complete`, `has_completed_my_home`), so decide which fields count and whether it's worked out on the web or the backend.
 - [ ] **Action buttons:** Request to stay (contained), Message (outlined), Add friend and Report as small grey text buttons.
 
 ## 3. Restyle each section (still in tabs)
