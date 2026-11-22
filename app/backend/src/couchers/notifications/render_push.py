@@ -643,14 +643,23 @@ def _render_host_request__reject(
 def _render_host_request__cancel(
     data: notification_data_pb2.StayCancel, loc_context: LocalizationContext
 ) -> PushNotificationContent:
+    if data.HasField("recipient"):
+        canceller = data.recipient
+        key_prefix = (
+            f"{get_notification_string_key_prefix(NotificationTopicAction.host_request__cancel)}"
+            ".invitation_by_recipient.push"
+        )
+    else:
+        canceller = data.initiator
+        key_prefix = _string_key_prefix(NotificationTopicAction.host_request__cancel, host_request=data.host_request)
     return _get_content(
-        _string_key_prefix(NotificationTopicAction.host_request__cancel, host_request=data.host_request),
+        key_prefix,
         loc_context,
         substitutions={
-            "user": data.initiator.name,
+            "user": canceller.name,
             "date": _format_host_request_start_date(data.host_request.from_date, loc_context),
         },
-        icon_user=data.initiator,
+        icon_user=canceller,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
     )
 

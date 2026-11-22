@@ -35,6 +35,8 @@ message StayConfirm {
 message StayCancel {
   org.couchers.api.requests.HostRequest host_request = 1;
   org.couchers.api.core.User initiator = 2;
+  // set instead of initiator when the recipient cancelled, see HOST_REQUEST_STATUS_CANCELLED_BY_RECIPIENT
+  org.couchers.api.core.User recipient = 3;
 }
 
 message StayMessage {

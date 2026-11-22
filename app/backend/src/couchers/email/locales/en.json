@@ -324,6 +324,10 @@
         "cancelled_by_initiator": {
           "subject": "{{counterparty}} cancelled their invitation",
           "purpose": "<b>{{counterparty}}</b> cancelled their invitation:"
+        },
+        "cancelled_by_recipient": {
+          "subject": "{{counterparty}} cancelled their stay",
+          "purpose": "<b>{{counterparty}}</b> cancelled the stay they had accepted:"
         }
       }
     }

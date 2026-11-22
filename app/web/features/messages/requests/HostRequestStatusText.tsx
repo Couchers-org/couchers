@@ -42,6 +42,10 @@ function offerStatusText(
         });
       case HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED:
         return t("host_request_item.invitation_host_status.cancelled");
+      case HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED_BY_RECIPIENT:
+        return t("host_request_item.invitation_host_status.cancelled_by_recipient", {
+          name: otherName,
+        });
     }
   } else {
     switch (requestStatus) {
@@ -56,6 +60,8 @@ function offerStatusText(
         return t("host_request_item.invitation_surfer_status.cancelled", {
           name: otherName,
         });
+      case HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED_BY_RECIPIENT:
+        return t("host_request_item.invitation_surfer_status.cancelled_by_recipient");
     }
   }
   return "";

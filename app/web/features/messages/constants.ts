@@ -50,6 +50,7 @@ export function messageFilterToRequest(filter: MessageFilterType): {
 export const requestStatusToTransKey = {
   [HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED]: "host_request_status.accepted",
   [HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED]: "host_request_status.cancelled",
+  [HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED_BY_RECIPIENT]: "host_request_status.cancelled",
   [HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED]: "host_request_status.confirmed",
   [HostRequestStatus.HOST_REQUEST_STATUS_PENDING]: "host_request_status.pending",
   [HostRequestStatus.HOST_REQUEST_STATUS_REJECTED]: "host_request_status.rejected",
@@ -60,6 +61,8 @@ export const requestStatusChangedMessageToTransKey = {
   [HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED]: "control_message.host_request_status_changed.cancelled",
   [HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED]: "control_message.host_request_status_changed.confirmed",
   [HostRequestStatus.HOST_REQUEST_STATUS_REJECTED]: "control_message.host_request_status_changed.rejected",
+  // Only happens on invitations.
+  [HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED_BY_RECIPIENT]: null,
   // There's no flow in which a request status transitions back to pending.
   [HostRequestStatus.HOST_REQUEST_STATUS_PENDING]: null,
 } as const;
@@ -69,16 +72,19 @@ export const requestStatusChangedMessageToSelfTransKey = {
   [HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED]: "control_message.host_request_status_changed.cancelled_self",
   [HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED]: "control_message.host_request_status_changed.confirmed_self",
   [HostRequestStatus.HOST_REQUEST_STATUS_REJECTED]: "control_message.host_request_status_changed.rejected_self",
+  [HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED_BY_RECIPIENT]: null,
   [HostRequestStatus.HOST_REQUEST_STATUS_PENDING]: null,
 } as const;
 
 // Public-trip invitations reverse the roles, so the control messages need their own wording:
-// the traveller accepts/declines and the host withdraws.
+// the traveller accepts/declines (or cancels a stay they accepted) and the host withdraws.
 export const invitationStatusChangedMessageToTransKey = {
   [HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED]: "control_message.invitation_status_changed.accepted",
   [HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED]: "control_message.invitation_status_changed.cancelled",
   [HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED]: "control_message.invitation_status_changed.confirmed",
   [HostRequestStatus.HOST_REQUEST_STATUS_REJECTED]: "control_message.invitation_status_changed.rejected",
+  [HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED_BY_RECIPIENT]:
+    "control_message.invitation_status_changed.cancelled_by_recipient",
   [HostRequestStatus.HOST_REQUEST_STATUS_PENDING]: null,
 } as const;
 
@@ -87,6 +93,8 @@ export const invitationStatusChangedMessageToSelfTransKey = {
   [HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED]: "control_message.invitation_status_changed.cancelled_self",
   [HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED]: "control_message.invitation_status_changed.confirmed_self",
   [HostRequestStatus.HOST_REQUEST_STATUS_REJECTED]: "control_message.invitation_status_changed.rejected_self",
+  [HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED_BY_RECIPIENT]:
+    "control_message.invitation_status_changed.cancelled_by_recipient_self",
   [HostRequestStatus.HOST_REQUEST_STATUS_PENDING]: null,
 } as const;
 

@@ -193,7 +193,10 @@ def get_ics_attachment(notification: Notification, loc_context: LocalizationCont
         # we have no opportunity to provide the cancelling party with a cancelled ics attachment.
         NotificationTopicAction.host_request__cancel,
     ):
-        other_name = data.initiator.name
+        if notification.topic_action == NotificationTopicAction.host_request__cancel and data.HasField("recipient"):
+            other_name = data.recipient.name
+        else:
+            other_name = data.initiator.name
     else:
         return None
     return create_host_request_attachment(

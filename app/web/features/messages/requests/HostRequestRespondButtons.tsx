@@ -80,8 +80,7 @@ function CancelAcceptedOfferButton({
 }
 
 // Public-trip offers: the traveller accepts/declines (and can cancel their stay after
-// accepting, which is sent as a decline); the offering host can
-// confirm once accepted, and withdraw at any point.
+// accepting); the offering host can confirm once accepted, and withdraw at any point.
 function OfferRespondButtons({
   isHost,
   status,
@@ -131,7 +130,7 @@ function OfferRespondButtons({
           <Typography variant="body2">{t("messages:invitation_accept_confirmation", { name })}</Typography>
           <CancelAcceptedOfferButton
             isLoading={isLoading}
-            onConfirm={handleStatus(HostRequestStatus.HOST_REQUEST_STATUS_REJECTED)}
+            onConfirm={handleStatus(HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED_BY_RECIPIENT)}
             name={name}
           />
         </StyledBanner>

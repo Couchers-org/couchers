@@ -42,6 +42,8 @@ class HostRequestStatus(enum.Enum):
     rejected = enum.auto()
     confirmed = enum.auto()
     cancelled = enum.auto()
+    # the traveller called off a stay they had accepted on a public trip offer
+    cancelled_by_recipient = enum.auto()
 
 
 class StayProposalKind(enum.Enum):

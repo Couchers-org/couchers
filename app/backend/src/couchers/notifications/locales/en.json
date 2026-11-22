@@ -438,6 +438,14 @@
           "ios_subtitle": "Invitation Cancelled",
           "body": "{{user}} cancelled their invitation for {{date}}."
         }
+      },
+      "invitation_by_recipient": {
+        "push": {
+          "title": "{{user}} cancelled their stay",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Stay Cancelled",
+          "body": "{{user}} cancelled the stay they had accepted for {{date}}."
+        }
       }
     },
     "confirm": {

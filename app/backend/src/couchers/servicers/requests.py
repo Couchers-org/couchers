@@ -679,10 +679,11 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if context.user_id != host_request.recipient_user_id:
                 context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "not_the_host")
             # can't accept a cancelled or confirmed request (only reject), or already accepted
-            if (
-                host_request.status == HostRequestStatus.cancelled
-                or host_request.status == HostRequestStatus.confirmed
-                or host_request.status == HostRequestStatus.accepted
+            if host_request.status in (
+                HostRequestStatus.cancelled,
+                HostRequestStatus.cancelled_by_recipient,
+                HostRequestStatus.confirmed,
+                HostRequestStatus.accepted,
             ):
                 context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
             _possibly_observe_first_response_time(session, host_request, context.user_id, "accepted")
@@ -725,7 +726,11 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if context.user_id != host_request.recipient_user_id:
                 context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
             # can't reject a cancelled or already rejected request
-            if host_request.status == HostRequestStatus.cancelled or host_request.status == HostRequestStatus.rejected:
+            if host_request.status in (
+                HostRequestStatus.cancelled,
+                HostRequestStatus.cancelled_by_recipient,
+                HostRequestStatus.rejected,
+            ):
                 context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
             _possibly_observe_first_response_time(session, host_request, context.user_id, "rejected")
             control_message.host_request_status_target = HostRequestStatus.rejected
@@ -809,7 +814,11 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if context.user_id != host_request.initiator_user_id:
                 context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
             # can't' cancel an already cancelled or rejected request
-            if host_request.status == HostRequestStatus.rejected or host_request.status == HostRequestStatus.cancelled:
+            if host_request.status in (
+                HostRequestStatus.rejected,
+                HostRequestStatus.cancelled,
+                HostRequestStatus.cancelled_by_recipient,
+            ):
                 context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
             control_message.host_request_status_target = HostRequestStatus.cancelled
             host_request.status = HostRequestStatus.cancelled
@@ -833,6 +842,49 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 context,
                 session,
                 "host_request.cancelled",
+                {
+                    "host_request_id": host_request.conversation_id,
+                    "surfer_id": host_request.surfer_user_id,
+                    "host_id": host_request.host_user_id,
+                    "surfer_gender": host_request.surfer.gender,
+                    "host_gender": host_request.host.gender,
+                    "from_date": str(host_request.from_date),
+                    "to_date": str(host_request.to_date),
+                    "host_city": host_request.hosting_city,
+                },
+            )
+
+        if request.status == messages_pb2.HOST_REQUEST_STATUS_CANCELLED_BY_RECIPIENT:
+            # only the traveller on a public trip offer can call off a stay they accepted
+            if (
+                context.user_id != host_request.recipient_user_id
+                or host_request.proposal_kind != StayProposalKind.invitation
+            ):
+                context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
+            if host_request.status not in (HostRequestStatus.accepted, HostRequestStatus.confirmed):
+                context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
+            control_message.host_request_status_target = HostRequestStatus.cancelled_by_recipient
+            host_request.status = HostRequestStatus.cancelled_by_recipient
+            session.flush()
+
+            recipient_context = make_notification_user_context(user_id=host_request.initiator_user_id)
+            notify(
+                session,
+                user_id=host_request.initiator_user_id,
+                topic_action=NotificationTopicAction.host_request__cancel,
+                key=str(host_request.conversation_id),
+                data=notification_data_pb2.StayCancel(
+                    host_request=host_request_to_pb(host_request, session, recipient_context),
+                    recipient=user_model_to_pb(host_request.recipient, session, recipient_context),
+                ),
+                moderation_state_id=host_request.moderation_state_id,
+            )
+
+            count_host_response(host_request, host_request.initiator_user_id, "cancelled_by_recipient")
+            log_event(
+                context,
+                session,
+                "host_request.cancelled_by_recipient",
                 {
                     "host_request_id": host_request.conversation_id,
                     "surfer_id": host_request.surfer_user_id,

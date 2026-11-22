@@ -2419,15 +2419,72 @@ def test_traveller_cancelling_confirmed_offer_is_not_shown_to_host_as_decline(
     cancelled_id = offer(cancelled_host_token)
     respond(surfer_token, cancelled_id, messages_pb2.HOST_REQUEST_STATUS_ACCEPTED)
     respond(cancelled_host_token, cancelled_id, messages_pb2.HOST_REQUEST_STATUS_CONFIRMED)
-    # The web app's "Cancel stay" button sends this, because only the offering host may send CANCELLED on an offer.
-    respond(surfer_token, cancelled_id, messages_pb2.HOST_REQUEST_STATUS_REJECTED)
+    respond(surfer_token, cancelled_id, messages_pb2.HOST_REQUEST_STATUS_CANCELLED_BY_RECIPIENT)
 
     declined = requests_api.get_host_request(token=declined_host_token, host_request_id=declined_id)
     cancelled = requests_api.get_host_request(token=cancelled_host_token, host_request_id=cancelled_id)
-    assert cancelled.status != declined.status, "the host sees a cancelled stay as a declined offer"
-    assert last_push_title(cancelled_host.id) != last_push_title(declined_host.id), (
-        "the host is notified of a cancelled stay as of a declined offer"
+    assert declined.status == messages_pb2.HOST_REQUEST_STATUS_REJECTED
+    assert cancelled.status == messages_pb2.HOST_REQUEST_STATUS_CANCELLED_BY_RECIPIENT
+    assert last_push_title(declined_host.id) == f"{surfer.name} declined your invitation"
+    assert last_push_title(cancelled_host.id) == f"{surfer.name} cancelled their stay"
+
+
+def test_cancelled_by_recipient_only_for_traveller_on_accepted_offer(db, moderator):
+    surfer, surfer_token = generate_user()
+    host, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+    offer_id = requests_api.create_host_request(
+        token=host_token,
+        host_user_id=surfer.id,
+        from_date=trip_from,
+        to_date=trip_to,
+        public_trip_id=trip_id,
+        approve_by=moderator,
     )
+
+    def cancel(token: str, host_request_id: int) -> None:
+        requests_api.respond_host_request(
+            token=token,
+            host_request_id=host_request_id,
+            status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED_BY_RECIPIENT,
+        )
+
+    # not before the traveller has accepted
+    with pytest.raises(grpc.RpcError) as e:
+        cancel(surfer_token, offer_id)
+    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+
+    requests_api.respond_host_request(
+        token=surfer_token, host_request_id=offer_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+    )
+
+    # not by the offering host
+    with pytest.raises(grpc.RpcError) as e:
+        cancel(host_token, offer_id)
+    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+
+    # not on an ordinary request
+    request_host, request_host_token = generate_user()
+    request_id = _create_accepted_request(surfer_token, request_host_token, request_host.id, moderator)
+    with pytest.raises(grpc.RpcError) as e:
+        cancel(request_host_token, request_id)
+    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+
+    cancel(surfer_token, offer_id)
+
+    # and nothing can be done to the offer after that
+    for token, status in [
+        (surfer_token, messages_pb2.HOST_REQUEST_STATUS_ACCEPTED),
+        (surfer_token, messages_pb2.HOST_REQUEST_STATUS_REJECTED),
+        (host_token, messages_pb2.HOST_REQUEST_STATUS_CANCELLED),
+        (host_token, messages_pb2.HOST_REQUEST_STATUS_CONFIRMED),
+    ]:
+        with pytest.raises(grpc.RpcError) as e:
+            requests_api.respond_host_request(token=token, host_request_id=offer_id, status=status)
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
 
 def _create_accepted_request(surfer_token: str, host_token: str, host_id: int, moderator, days_ahead: int = 2) -> int:

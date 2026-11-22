@@ -25,7 +25,10 @@ export default function HostRequestStatusIcon({ status: s, isOffer = false, ...p
   } else if (s === HostRequestStatus.HOST_REQUEST_STATUS_PENDING) {
     icon = <QuestionIcon fontSize="inherit" />;
     color = "gray";
-  } else if (s === HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED) {
+  } else if (
+    s === HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED ||
+    s === HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED_BY_RECIPIENT
+  ) {
     icon = <CrossIcon fontSize="inherit" />;
     color = "gray";
   } else if (s === HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED) {

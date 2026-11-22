@@ -203,7 +203,9 @@
       "confirmed": "{{user}} has confirmed the stay",
       "confirmed_self": "You have confirmed the stay",
       "rejected": "{{user}} has declined the invitation",
-      "rejected_self": "You have declined the invitation"
+      "rejected_self": "You have declined the invitation",
+      "cancelled_by_recipient": "{{user}} has cancelled the stay",
+      "cancelled_by_recipient_self": "You have cancelled the stay"
     },
     "unknown_message_text": "Unknown control message"
   },
@@ -236,13 +238,15 @@
       "pending": "Awaiting {{name}}'s reply",
       "accepted": "{{name}} accepted your invitation",
       "rejected": "{{name}} declined your invitation",
-      "cancelled": "You withdrew your invitation"
+      "cancelled": "You withdrew your invitation",
+      "cancelled_by_recipient": "{{name}} cancelled the stay"
     },
     "invitation_surfer_status": {
       "pending": "Invitation to host you · awaiting your reply",
       "accepted": "You accepted {{name}}'s invitation",
       "rejected": "You declined this invitation",
-      "cancelled": "{{name}} withdrew their invitation"
+      "cancelled": "{{name}} withdrew their invitation",
+      "cancelled_by_recipient": "You cancelled the stay"
     }
   },
   "my_public_trips": {

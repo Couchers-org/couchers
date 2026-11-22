@@ -1495,6 +1495,8 @@ class StayStatusChangedEmail(EmailBase):
                 return f"{base_key}.confirmed_by_initiator"
             case messages_pb2.HOST_REQUEST_STATUS_CANCELLED:
                 return f"{base_key}.cancelled_by_initiator"
+            case messages_pb2.HOST_REQUEST_STATUS_CANCELLED_BY_RECIPIENT:
+                return f"{base_key}.cancelled_by_recipient"
             case _:
                 raise ValueError(f"Unexpected host request status: {self.new_status}")
 
@@ -1538,6 +1540,9 @@ class StayStatusChangedEmail(EmailBase):
             case notification_data_pb2.StayConfirm():
                 counterparty = UserInfo.from_proto(data.initiator)
                 new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED
+            case notification_data_pb2.StayCancel() if data.HasField("recipient"):
+                counterparty = UserInfo.from_proto(data.recipient)
+                new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED_BY_RECIPIENT
             case notification_data_pb2.StayCancel():
                 counterparty = UserInfo.from_proto(data.initiator)
                 new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED
@@ -1575,6 +1580,12 @@ class StayStatusChangedEmail(EmailBase):
                 messages_pb2.HOST_REQUEST_STATUS_CANCELLED,
             ]
             for proposal_type in StayProposalType
+        ] + [
+            replace(
+                prototype,
+                proposal_type=StayProposalType.invitation,
+                new_status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED_BY_RECIPIENT,
+            )
         ]
 
 

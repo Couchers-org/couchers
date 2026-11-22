@@ -38,6 +38,17 @@ describe("HostRequestStatusText (public-trip offers)", () => {
       />,
     );
     expect(screen.getByText("You declined this invitation")).toBeVisible();
+
+    rerender(
+      <HostRequestStatusText
+        isHost={false}
+        isOffer
+        requestStatus={HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED_BY_RECIPIENT}
+        isPast={false}
+        otherName="Luca"
+      />,
+    );
+    expect(screen.getByText("You cancelled the stay")).toBeVisible();
   });
 
   it("shows the offering host offer copy", () => {
@@ -63,5 +74,16 @@ describe("HostRequestStatusText (public-trip offers)", () => {
       />,
     );
     expect(screen.getByText("Mateo declined your invitation")).toBeVisible();
+
+    rerender(
+      <HostRequestStatusText
+        isHost
+        isOffer
+        requestStatus={HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED_BY_RECIPIENT}
+        isPast={false}
+        otherName="Mateo"
+      />,
+    );
+    expect(screen.getByText("Mateo cancelled the stay")).toBeVisible();
   });
 });

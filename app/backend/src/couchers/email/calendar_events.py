@@ -16,6 +16,11 @@ from couchers.utils import now, to_aware_datetime
 
 HOST_REQUEST_ICS_FILENAME = "host_request.ics"
 
+_CANCELLED_STATUSES = (
+    messages_pb2.HOST_REQUEST_STATUS_CANCELLED,
+    messages_pb2.HOST_REQUEST_STATUS_CANCELLED_BY_RECIPIENT,
+)
+
 
 def create_host_request_attachment(
     host_request: requests_pb2.HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
@@ -62,7 +67,7 @@ def create_host_request_ics_event(
         _final_title(
             title,
             loc_context,
-            is_cancelled=host_request.status == messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED,
+            is_cancelled=host_request.status in _CANCELLED_STATUSES,
         ),
     )
 
@@ -77,7 +82,7 @@ def create_host_request_ics_event(
     # Google Calendar™ will hide the URL if there is a location, so also include it in the description
     event.add("description", url)
 
-    if host_request.status == messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED:
+    if host_request.status in _CANCELLED_STATUSES:
         event.add("status", "CANCELLED")
 
     return event

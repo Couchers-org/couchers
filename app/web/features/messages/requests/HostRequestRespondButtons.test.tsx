@@ -260,7 +260,9 @@ describe("HostRequestRespondButtons — public-trip offer", () => {
       const cancelCallback = jest.fn();
       const handleStatus = jest
         .fn()
-        .mockImplementation((s) => (s === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED ? cancelCallback : jest.fn()));
+        .mockImplementation((s) =>
+          s === HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED_BY_RECIPIENT ? cancelCallback : jest.fn(),
+        );
       render(
         <HostRequestRespondButtons
           isHost={false}

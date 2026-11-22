@@ -13,6 +13,7 @@ hostrequeststatus2api = {
     HostRequestStatus.rejected: messages_pb2.HOST_REQUEST_STATUS_REJECTED,
     HostRequestStatus.confirmed: messages_pb2.HOST_REQUEST_STATUS_CONFIRMED,
     HostRequestStatus.cancelled: messages_pb2.HOST_REQUEST_STATUS_CANCELLED,
+    HostRequestStatus.cancelled_by_recipient: messages_pb2.HOST_REQUEST_STATUS_CANCELLED_BY_RECIPIENT,
 }
 
 api2hostrequeststatus = {
@@ -21,6 +22,7 @@ api2hostrequeststatus = {
     messages_pb2.HOST_REQUEST_STATUS_REJECTED: HostRequestStatus.rejected,
     messages_pb2.HOST_REQUEST_STATUS_CONFIRMED: HostRequestStatus.confirmed,
     messages_pb2.HOST_REQUEST_STATUS_CANCELLED: HostRequestStatus.cancelled,
+    messages_pb2.HOST_REQUEST_STATUS_CANCELLED_BY_RECIPIENT: HostRequestStatus.cancelled_by_recipient,
 }
 
 

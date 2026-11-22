@@ -73,4 +73,16 @@ describe("ControlMessageView", () => {
       await screen.findByText(t("messages:control_message.invitation_status_changed.accepted", { user: "Funny" })),
     ).toBeVisible();
   });
+
+  it("says the traveller cancelled the stay rather than declined", async () => {
+    render(
+      <ControlMessageView
+        message={statusMessage(HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED_BY_RECIPIENT, 2)}
+        isOffer
+      />,
+      { wrapper },
+    );
+
+    expect(await screen.findByText("Funny has cancelled the stay")).toBeVisible();
+  });
 });
