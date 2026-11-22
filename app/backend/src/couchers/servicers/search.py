@@ -635,9 +635,9 @@ def _user_search_inner(
 
 def _user_search_bfc(
     request: search_pb2.UserSearchReq, context: CouchersContext, session: Session
-) -> tuple[list[int], str | None, int, str] | None:
+) -> tuple[list[int], str | None, int, int, str] | None:
     """
-    Returns the page, the next page token, the total and bfc's search id, or None if bfc failed
+    Returns the page, the next page token, the total, the unfiltered total and bfc's search id, or None if bfc failed
     """
     user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
@@ -709,7 +709,7 @@ def _user_search_bfc(
 
     # bfc sends a few users past the end of the page
     user_ids = [result.user_id for result in res.results[: res.page_size]]
-    return user_ids, res.next_page_token or None, res.total, res.search_id
+    return user_ids, res.next_page_token or None, res.total, res.unfiltered_total, res.search_id
 
 
 def _visible_users_in_order(user_ids: list[int], context: CouchersContext, session: Session) -> list[int]:
@@ -830,6 +830,7 @@ class Search(search_pb2_grpc.SearchServicer):
         bfc_result = _user_search_bfc(request, context, session) if use_bfc else None
 
         bfc_search_id = None
+        total_unfiltered_items = 0
         rerank = False
         if request.exactly_user_ids:
             source = "backend"
@@ -837,7 +838,7 @@ class Search(search_pb2_grpc.SearchServicer):
             next_page_token, total_items, ranking_offsets_variant = None, len(user_ids_to_return), ""
         elif bfc_result is not None:
             source = "bfc"
-            user_ids_to_return, next_page_token, total_items, bfc_search_id = bfc_result
+            user_ids_to_return, next_page_token, total_items, total_unfiltered_items, bfc_search_id = bfc_result
             ranking_offsets_variant = ""
         else:
             source = "fallback" if use_bfc else "backend"
@@ -929,6 +930,7 @@ class Search(search_pb2_grpc.SearchServicer):
             results=results,
             next_page_token=next_page_token,
             total_items=total_items,
+            total_unfiltered_items=total_unfiltered_items,
         )
 
     def EventSearch(
