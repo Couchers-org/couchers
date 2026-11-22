@@ -135,6 +135,38 @@ def test_donation_banner_donated_exactly_at_drive_start(db, feature_flags: Featu
         assert not res.should_show_donation_banner
 
 
+def test_donation_banner_drive_not_started(db, feature_flags: FeatureFlags):
+    """Test that banner is not shown before the drive's start time"""
+    user, token = generate_user(last_donated=None)
+
+    feature_flags.set("donation_drive_start", int((now() + timedelta(days=1)).timestamp()))
+    with account_session(token) as account:
+        res = account.GetAccountInfo(empty_pb2.Empty())
+        assert not res.should_show_donation_banner
+
+
+def test_donation_banner_drive_ended(db, feature_flags: FeatureFlags):
+    """Test that banner is not shown after the drive's end time"""
+    user, token = generate_user(last_donated=None)
+
+    feature_flags.set("donation_drive_start", int((now() - timedelta(days=2)).timestamp()))
+    feature_flags.set("donation_drive_end", int((now() - timedelta(days=1)).timestamp()))
+    with account_session(token) as account:
+        res = account.GetAccountInfo(empty_pb2.Empty())
+        assert not res.should_show_donation_banner
+
+
+def test_donation_banner_before_drive_end(db, feature_flags: FeatureFlags):
+    """Test that banner is shown between the drive's start and end times"""
+    user, token = generate_user(last_donated=None)
+
+    feature_flags.set("donation_drive_start", int((now() - timedelta(days=1)).timestamp()))
+    feature_flags.set("donation_drive_end", int((now() + timedelta(days=1)).timestamp()))
+    with account_session(token) as account:
+        res = account.GetAccountInfo(empty_pb2.Empty())
+        assert res.should_show_donation_banner
+
+
 def test_GetAccountInfo_regression(db):
     # there was a bug in evaluating `has_completed_profile` on the backend (in python)
     # when about_me is None but the user has a key, it was failing because len(about_me) doesn't work on None
