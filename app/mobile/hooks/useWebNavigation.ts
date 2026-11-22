@@ -192,7 +192,11 @@ export function useWebNavigation({
       if (targetRoute !== currentRoute && targetRoute) {
         if (isDetailRoute) {
           // Navigate to [..slug] so no tab is highlighted while on a detail page.
-          const detailPath = stripLocalePrefix(webPathWithoutQuery);
+          // keep the query, e.g. ?comment= from a notification link
+          const queryString = webPath.includes("?")
+            ? webPath.substring(webPath.indexOf("?"))
+            : "";
+          const detailPath = `${stripLocalePrefix(webPathWithoutQuery)}${queryString}`;
           detailRouteOriginRef.current = currentPath;
           lastMobileNavigationRef.current = detailPath;
           router.navigate(detailPath as Href);

@@ -1,4 +1,6 @@
 import { act, render, screen, userEvent } from "@testing-library/react-native";
+import * as Haptics from "expo-haptics";
+import * as Notifications from "expo-notifications";
 import { useFocusEffect, useRouter } from "expo-router";
 import React from "react";
 import { BackHandler, Linking, Platform } from "react-native";
@@ -12,6 +14,18 @@ import { useWebNavigation } from "@/hooks/useWebNavigation";
 import { currentActiveWebPathRef } from "@/state/webViewState";
 
 const mockWebBaseUrl = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
+
+const mockRemoveNotificationListener = jest.fn();
+jest.mock("expo-notifications", () => ({
+  addNotificationReceivedListener: jest.fn(() => ({
+    remove: mockRemoveNotificationListener,
+  })),
+}));
+
+jest.mock("expo-haptics", () => ({
+  impactAsync: jest.fn(),
+  ImpactFeedbackStyle: { Medium: "medium" },
+}));
 
 jest.mock("expo-router", () => ({
   ...jest.requireActual("expo-router"),
@@ -286,6 +300,20 @@ describe("WebEmbed", () => {
       expect(mockAddToCalendar).toHaveBeenCalledWith(event);
     });
 
+    it("plays a haptic tap on HAPTIC_IMPACT message", () => {
+      render(<WebEmbed path="/dashboard" />);
+
+      capturedWebViewProps.onMessage?.({
+        nativeEvent: {
+          data: JSON.stringify({ type: "HAPTIC_IMPACT", data: {} }),
+        },
+      });
+
+      expect(Haptics.impactAsync).toHaveBeenCalledWith(
+        Haptics.ImpactFeedbackStyle.Medium,
+      );
+    });
+
     it("tells the web app it can add to calendar", () => {
       render(<WebEmbed path="/dashboard" />);
 
@@ -432,6 +460,50 @@ describe("WebEmbed", () => {
       focusEffectCleanups.forEach((cleanup) => cleanup());
 
       expect(currentActiveWebPathRef.current).toBeNull();
+    });
+  });
+
+  describe("refreshing data on refocus", () => {
+    it("asks the page to refetch when the screen comes back into focus", () => {
+      const { rerender } = render(<WebEmbed path="/event/1/party" />);
+      act(() => {
+        capturedWebViewProps.onLoad?.();
+      });
+
+      rerender(<WebEmbed path="/event/1/party" />);
+
+      expect(mockWebViewRef.injectJavaScript).toHaveBeenCalledWith(
+        expect.stringContaining("MOBILE_REFRESH"),
+      );
+    });
+
+    it("asks the page to refetch when a notification arrives", () => {
+      render(<WebEmbed path="/event/1/party" />);
+      const onNotification = (
+        Notifications.addNotificationReceivedListener as jest.Mock
+      ).mock.calls.at(-1)[0];
+
+      onNotification();
+
+      expect(mockWebViewRef.injectJavaScript).toHaveBeenCalledWith(
+        expect.stringContaining("MOBILE_REFRESH"),
+      );
+    });
+
+    it("stops listening for notifications when the screen loses focus", () => {
+      render(<WebEmbed path="/event/1/party" />);
+
+      focusEffectCleanups.forEach((cleanup) => cleanup());
+
+      expect(mockRemoveNotificationListener).toHaveBeenCalled();
+    });
+
+    it("doesn't ask before the page has loaded", () => {
+      render(<WebEmbed path="/event/1/party" />);
+
+      expect(mockWebViewRef.injectJavaScript).not.toHaveBeenCalledWith(
+        expect.stringContaining("MOBILE_REFRESH"),
+      );
     });
   });
 

@@ -4,7 +4,6 @@ from math import sqrt
 from unittest.mock import patch
 
 import grpc
-import pytest
 from google.protobuf import empty_pb2
 from sqlalchemy import func, select, update
 
@@ -27,7 +26,9 @@ from couchers.proto import api_pb2, public_pb2
 from couchers.servicers.public import _get_donation_stats, _get_public_users, _get_signup_page_info, _get_volunteers
 from couchers.utils import now
 from tests.fixtures.db import generate_user, make_friends, make_volunteer
+from tests.fixtures.feature_flags import FeatureFlags
 from tests.fixtures.misc import process_jobs
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import public_session
 from tests.test_references import create_friend_reference, create_host_reference
 
@@ -107,7 +108,7 @@ def test_GetPublicMapLayer_excludes_shadowed(db):
     assert {feature["properties"]["username"] for feature in data["features"]} == {"visible"}
 
 
-def test_GetDonationStats_empty(db, feature_flags):
+def test_GetDonationStats_empty(db, feature_flags: FeatureFlags):
     """Test GetDonationStats with no donations returns zero and goal"""
     _get_donation_stats.cache_clear()
 
@@ -119,7 +120,7 @@ def test_GetDonationStats_empty(db, feature_flags):
         assert res.goal == 2500
 
 
-def test_GetDonationStats_with_donations(db, feature_flags):
+def test_GetDonationStats_with_donations(db, feature_flags: FeatureFlags):
     """Test GetDonationStats sums on_platform donations correctly"""
     _get_donation_stats.cache_clear()
     user, _ = generate_user()
@@ -162,7 +163,7 @@ def test_GetDonationStats_with_donations(db, feature_flags):
         assert res.goal == 5000
 
 
-def test_GetDonationStats_excludes_merch(db, feature_flags):
+def test_GetDonationStats_excludes_merch(db, feature_flags: FeatureFlags):
     """Test GetDonationStats excludes external_shop (merch) invoices"""
     _get_donation_stats.cache_clear()
     user, _ = generate_user()
@@ -198,7 +199,7 @@ def test_GetDonationStats_excludes_merch(db, feature_flags):
         assert res.goal == 5000
 
 
-def test_GetDonationStats_excludes_previous_years(db, feature_flags):
+def test_GetDonationStats_excludes_previous_years(db, feature_flags: FeatureFlags):
     """Test GetDonationStats only counts current year donations"""
     _get_donation_stats.cache_clear()
     user, _ = generate_user()
@@ -237,7 +238,7 @@ def test_GetDonationStats_excludes_previous_years(db, feature_flags):
         assert res.goal == 5000
 
 
-def test_GetDonationStats_uses_flags(db, feature_flags):
+def test_GetDonationStats_uses_flags(db, feature_flags: FeatureFlags):
     """Goal and offset come from the donation_goal_usd / donation_offset_usd flags when configured"""
     _get_donation_stats.cache_clear()
     user, _ = generate_user()
@@ -370,20 +371,20 @@ def test_GetVolunteers_excludes_hidden(db):
 
     _get_volunteers.cache_clear()
 
-    user1, _ = generate_user(username="visible")
-    user2, _ = generate_user(username="hidden")
+    visible_user, _ = generate_user(username="visible")
+    hidden_user, _ = generate_user(username="hidden")
 
     with session_scope() as session:
         session.add(
             make_volunteer(
-                user_id=user1.id,
+                user_id=visible_user.id,
                 role="Visible Role",
                 started_volunteering=date(2023, 1, 1),
             )
         )
         session.add(
             make_volunteer(
-                user_id=user2.id,
+                user_id=hidden_user.id,
                 role="Hidden Role",
                 started_volunteering=date(2023, 1, 1),
                 show_on_team_page=False,
@@ -520,9 +521,8 @@ def test_GetSignupPageInfo_excludes_invisible_users(db):
 def test_GetPublicUser_not_found(db):
     """Test GetPublicUser returns NOT_FOUND for nonexistent user"""
     with public_session() as public:
-        with pytest.raises(grpc.RpcError) as exc:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             public.GetPublicUser(public_pb2.GetPublicUserReq(user="nonexistent_user"))
-        assert exc.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_GetPublicUser_invisible_user(db):
@@ -530,9 +530,8 @@ def test_GetPublicUser_invisible_user(db):
     deleted_user, _ = generate_user(username="deleted", delete_user=True)
 
     with public_session() as public:
-        with pytest.raises(grpc.RpcError) as exc:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             public.GetPublicUser(public_pb2.GetPublicUserReq(user="deleted"))
-        assert exc.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_GetPublicUser_shadowed_user(db):
@@ -543,9 +542,8 @@ def test_GetPublicUser_shadowed_user(db):
         session.execute(select(User).where(User.id == shadowed_user.id)).scalar_one().shadowed_at = now()
 
     with public_session() as public:
-        with pytest.raises(grpc.RpcError) as exc:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             public.GetPublicUser(public_pb2.GetPublicUserReq(user="shadowed"))
-        assert exc.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_GetPublicUser_limited_visibility(db):

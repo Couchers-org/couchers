@@ -3,6 +3,7 @@ import * as Notifications from "expo-notifications";
 import { router } from "expo-router";
 
 import { useNotificationObserver } from "@/features/notifications/useNotificationObserver";
+import { detailRouteOriginRef } from "@/state/webViewState";
 
 jest.mock("expo-notifications", () => ({
   getLastNotificationResponse: jest.fn(),
@@ -92,6 +93,18 @@ describe("useNotificationObserver", () => {
     renderHook(() => useNotificationObserver());
 
     expect(router.push).not.toHaveBeenCalled();
+  });
+
+  it("forgets the screen an earlier page was opened from", () => {
+    detailRouteOriginRef.current = "/communities";
+    renderHook(() => useNotificationObserver());
+
+    const onResponse = addListenerMock.mock.calls[0][0];
+    onResponse(
+      notificationResponse("origin", "https://couchers.org/event/1/party"),
+    );
+
+    expect(detailRouteOriginRef.current).toBeNull();
   });
 
   it("stops listening on unmount", () => {

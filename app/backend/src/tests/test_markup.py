@@ -21,6 +21,24 @@ def test_markdown_to_html() -> None:
     assert markdown_to_html("---") == "<hr>\n"
 
 
+def test_markdown_to_html_br_tags() -> None:
+    def to_para(span: str) -> str:
+        return f"<p>{span}</p>\n"
+
+    # <br> tags are emitted by the frontend's markdown editor and rendered by its viewer.
+    assert markdown_to_html("a<br>b") == to_para("a<br>\nb")
+    assert markdown_to_html("a<br/>b") == to_para("a<br>\nb")
+    assert markdown_to_html("a<BR />b") == to_para("a<br>\nb")
+    assert markdown_to_html("**a<br>b**") == to_para("<strong>a<br>\nb</strong>")
+
+    # Extra blank lines as written by the frontend's markdown editor
+    assert markdown_to_html("Para one\n\n<br>\nPara two") == "<p>Para one</p>\n" + to_para("<br>\n<br>\nPara two")
+
+    # Other tags, including <br> with attributes, remain escaped
+    assert markdown_to_html("<br onclick=x>") == to_para("&lt;br onclick=x&gt;")
+    assert markdown_to_html("<bra>") == to_para("&lt;bra&gt;")
+
+
 def test_markdown_to_plaintext() -> None:
     assert markdown_to_plaintext("new\nline") == "new\nline"
     assert markdown_to_plaintext("a & b") == "a & b"
@@ -33,6 +51,9 @@ def test_markdown_to_plaintext() -> None:
     assert markdown_to_plaintext("<script/>") == "<script/>"
 
     assert markdown_to_plaintext("# title") == "title"
+
+    assert markdown_to_plaintext("a<br>b") == "a\nb"
+    assert markdown_to_plaintext("Para one\n\n<br>\nPara two") == "Para one\n\nPara two"
 
 
 def test_html_to_plaintext() -> None:

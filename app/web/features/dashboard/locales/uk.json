@@ -4,13 +4,11 @@
   "no_community": "Наразі ви не є учасником спільнот.",
   "no_sub_communities": "Немає дочірніх спільнот.",
   "load_more": "Більше",
-  "welcome": "Ласкаво просимо на Couchers.org!",
   "new_pill": "Нові",
   "communities_intro": "За допомогою Спільнот люди по всьому світу можуть організовувати локальні події та обговорення. <strong>Ви завжди перебуваєте у місцевих спільнотах, але ви можете <browseCommunitiesLink>долучитися до будь-якої спільноти!</browseCommunitiesLink></strong>",
   "community_builder": "Хочете бути провідником для вашої спільноти та допомогти їй зростати? Станьте <communityBuilderLink>Архітектором спільноти!</communityBuilderLink>",
   "find_your_community": "Знайти спільноту",
   "find_your_community_intro_simplified": "Знайдіть вашу спільноту або перегляньте список нижче. <requestCommunityLink>Не бачите вашої? Подайте запит на створення!</requestCommunityLink>",
-  "browse_communities": "Переглянути Спільноти",
   "browse_all_communities": "Переглянути усі Спільноти",
   "browse_communities_text": "Натисність на назву регіону аби побачити нижче усі спільноти всередині нього. Натиснить на посилання аби відвідати сторінку спільноти цього міста чи регіону.",
   "show_all_communities": "Показати усі спільноти",
@@ -101,5 +99,20 @@
       "left_arrow_a11y": "прокрутити вліво",
       "right_arrow_a11y": "прокрутити вправо"
     }
+  },
+  "celebration_100k": {
+    "banner_message": "Аудиторія Couchers досягла 100 тисяч учасників!",
+    "banner_read_more_link": "Дізнатися більше",
+    "banner_replay_button": "Передивитись анімацію",
+    "help_us_grow_button": "Допомогти нам зростати",
+    "dialog_a11y": "Couchers вже має 100,000 учасників",
+    "burst_heading": "Нас {{member_count}}+ !",
+    "map_counter_total": "{{member_count}}+",
+    "close_button_a11y": "Закрити",
+    "map_a11y": "Карта учасників Couchers по всьому світу, що показуються групами місто за містом, та поєднуються у регіони",
+    "map_counter_label": "Couchers, і число зростає",
+    "map_message_everywhere": "Ми всюди.",
+    "map_message_thanks": "Дякуємо, що відкриваєте свої двері.",
+    "map_read_more_link": "Дізнатися більше"
   }
 }

@@ -25,7 +25,6 @@ from couchers.proto import (
     blocking_pb2_grpc,
     bugs_pb2_grpc,
     communities_pb2_grpc,
-    conversations_pb2_grpc,
     discussions_pb2_grpc,
     donations_pb2_grpc,
     editor_pb2_grpc,
@@ -36,14 +35,12 @@ from couchers.proto import (
     jail_pb2_grpc,
     media_pb2_grpc,
     moderation_pb2_grpc,
-    notifications_pb2_grpc,
     pages_pb2_grpc,
     postal_verification_pb2_grpc,
     public_pb2_grpc,
     public_trips_pb2_grpc,
     references_pb2_grpc,
     reporting_pb2_grpc,
-    requests_pb2_grpc,
     resources_pb2_grpc,
     screens_pb2_grpc,
     search_pb2_grpc,
@@ -57,7 +54,6 @@ from couchers.servicers.auth import Auth
 from couchers.servicers.blocking import Blocking
 from couchers.servicers.bugs import Bugs
 from couchers.servicers.communities import Communities
-from couchers.servicers.conversations import Conversations
 from couchers.servicers.discussions import Discussions
 from couchers.servicers.donations import Donations, Stripe
 from couchers.servicers.editor import Editor
@@ -67,14 +63,12 @@ from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.moderation import Moderation
-from couchers.servicers.notifications import Notifications
 from couchers.servicers.pages import Pages
 from couchers.servicers.postal_verification import PostalVerification
 from couchers.servicers.public import Public
 from couchers.servicers.public_trips import PublicTrips
 from couchers.servicers.references import References
 from couchers.servicers.reporting import Reporting
-from couchers.servicers.requests import Requests
 from couchers.servicers.resources import Resources
 from couchers.servicers.screens import Screens
 from couchers.servicers.search import Search
@@ -419,26 +413,6 @@ def public_trips_session(token: str):
 
 
 @contextmanager
-def conversations_session(token: str):
-    """
-    Create a Conversations API for testing, uses the token for auth
-    """
-    channel = FakeChannel(token)
-    conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(), channel)
-    yield conversations_pb2_grpc.ConversationsStub(channel)
-
-
-@contextmanager
-def requests_session(token: str):
-    """
-    Create a Requests API for testing, uses the token for auth
-    """
-    channel = FakeChannel(token)
-    requests_pb2_grpc.add_RequestsServicer_to_server(Requests(), channel)
-    yield requests_pb2_grpc.RequestsStub(channel)
-
-
-@contextmanager
 def threads_session(token: str):
     channel = FakeChannel(token)
     threads_pb2_grpc.add_ThreadsServicer_to_server(Threads(), channel)
@@ -492,13 +466,6 @@ def blocking_session(token: str):
     channel = FakeChannel(token)
     blocking_pb2_grpc.add_BlockingServicer_to_server(Blocking(), channel)
     yield blocking_pb2_grpc.BlockingStub(channel)
-
-
-@contextmanager
-def notifications_session(token: str):
-    channel = FakeChannel(token)
-    notifications_pb2_grpc.add_NotificationsServicer_to_server(Notifications(), channel)
-    yield notifications_pb2_grpc.NotificationsStub(channel)
 
 
 @contextmanager

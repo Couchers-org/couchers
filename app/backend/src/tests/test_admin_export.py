@@ -3,7 +3,6 @@ from datetime import date, timedelta
 from typing import Any
 
 import grpc
-import pytest
 from sqlalchemy import func, update
 
 from couchers.db import session_scope
@@ -22,30 +21,26 @@ from couchers.models import (
 )
 from couchers.proto import (
     admin_pb2,
-    conversations_pb2,
     discussions_pb2,
     events_pb2,
     messages_pb2,
-    public_trips_pb2,
     references_pb2,
-    requests_pb2,
     threads_pb2,
 )
-from couchers.utils import not_none, now, today
+from couchers.utils import not_none, now
+from tests.fixtures.api import conversations as conversations_api
 from tests.fixtures.api import events as events_api
+from tests.fixtures.api import public_trips as public_trips_api
+from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user, make_friends, make_user_block, make_user_invisible
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
-    conversations_session,
     discussions_session,
-    public_trips_session,
     real_admin_session,
     references_session,
-    requests_session,
     threads_session,
 )
 from tests.test_communities import create_community
-from tests.test_public_trips import VALID_DESCRIPTION as TRIP_DESCRIPTION
-from tests.test_requests import valid_request_text
 from tests.utils import local_date_time
 
 
@@ -86,9 +81,8 @@ def test_ExportUserData_not_found(db):
     _, super_token = generate_user(is_superuser=True)
 
     with real_admin_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             api.ExportUserData(admin_pb2.ExportUserDataReq(user="nonexistentuser"))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_ExportUserData_references_written(db):
@@ -124,29 +118,18 @@ def test_ExportUserData_conversations_with_visible_user(db, moderator):
 
     make_friends(user, other)
 
-    with conversations_session(token) as api:
-        chat_id = api.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[other.id])).group_chat_id
-        api.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat_id, text="hello from me"))
-    moderator.approve_group_chat(chat_id)
-    with conversations_session(other_token) as api:
-        api.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat_id, text="hello back from them"))
+    chat_id = conversations_api.create_group_chat(
+        token=token, recipient_user_ids=[other.id], approve_by=moderator
+    ).group_chat_id
+    conversations_api.send_message(token=token, group_chat_id=chat_id, text="hello from me")
+    conversations_api.send_message(token=other_token, group_chat_id=chat_id, text="hello back from them")
 
-    today_plus_2 = (date.today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (date.today() + timedelta(days=3)).isoformat()
-    with requests_session(token) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=other.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
-    moderator.approve_host_request(host_request_id)
-    with requests_session(other_token) as api:
-        api.SendHostRequestMessage(
-            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="sure, come on over")
-        )
+    host_request_id = requests_api.create_host_request(
+        token=token, host_user_id=other.id, text="Export request", pad_text_to_valid_length=True, approve_by=moderator
+    )
+    requests_api.send_host_request_message(
+        token=other_token, host_request_id=host_request_id, text="sure, come on over"
+    )
 
     export = _export(super_token, user)
 
@@ -163,7 +146,7 @@ def test_ExportUserData_conversations_with_visible_user(db, moderator):
     assert request["role"] == "surfer"
     assert request["host"] == {"user_id": str(other.id), "username": f"@{other.username}"}
     request_texts = [message.get("text") for message in request["messages"]]
-    assert valid_request_text() in request_texts
+    assert any(text.startswith("Export request") for text in request_texts)
     assert "sure, come on over" in request_texts
 
 
@@ -174,29 +157,16 @@ def test_ExportUserData_conversations_with_invisible_user(db, moderator):
 
     make_friends(user, other)
 
-    with conversations_session(token) as api:
-        chat_id = api.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[other.id])).group_chat_id
-        api.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat_id, text="hello from me"))
-    moderator.approve_group_chat(chat_id)
-    with conversations_session(other_token) as api:
-        api.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat_id, text="hello back from them"))
+    chat_id = conversations_api.create_group_chat(
+        token=token, recipient_user_ids=[other.id], approve_by=moderator
+    ).group_chat_id
+    conversations_api.send_message(token=token, group_chat_id=chat_id, text="hello from me")
+    conversations_api.send_message(token=other_token, group_chat_id=chat_id, text="hello back from them")
 
-    today_plus_2 = (date.today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (date.today() + timedelta(days=3)).isoformat()
-    with requests_session(token) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=other.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
-    moderator.approve_host_request(host_request_id)
-    with requests_session(other_token) as api:
-        api.SendHostRequestMessage(
-            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="sure, come on over")
-        )
+    host_request_id = requests_api.create_host_request(token=token, host_user_id=other.id, approve_by=moderator)
+    requests_api.send_host_request_message(
+        token=other_token, host_request_id=host_request_id, text="sure, come on over"
+    )
 
     make_user_invisible(other.id)
 
@@ -222,12 +192,11 @@ def test_ExportUserData_conversations_with_blocked_user(db, moderator):
 
     make_friends(user, other)
 
-    with conversations_session(token) as api:
-        chat_id = api.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[other.id])).group_chat_id
-        api.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat_id, text="hello from me"))
-    moderator.approve_group_chat(chat_id)
-    with conversations_session(other_token) as api:
-        api.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat_id, text="hello back from them"))
+    chat_id = conversations_api.create_group_chat(
+        token=token, recipient_user_ids=[other.id], approve_by=moderator
+    ).group_chat_id
+    conversations_api.send_message(token=token, group_chat_id=chat_id, text="hello from me")
+    conversations_api.send_message(token=other_token, group_chat_id=chat_id, text="hello back from them")
 
     make_user_block(user, other)
 
@@ -283,15 +252,9 @@ def test_ExportUserData_covers_content_across_the_site(db, moderator):
         api.PostReply(threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="export reply"))
         api.PostReply(threads_pb2.PostReplyReq(thread_id=event.thread.thread_id, content="export event comment"))
 
-    with public_trips_session(token) as api:
-        api.CreatePublicTrip(
-            public_trips_pb2.CreatePublicTripReq(
-                community_id=node_id,
-                from_date=(today() + timedelta(days=5)).isoformat(),
-                to_date=(today() + timedelta(days=10)).isoformat(),
-                description=TRIP_DESCRIPTION,
-            )
-        )
+    public_trips_api.create_public_trip(
+        token=token, community_id=node_id, description="Export trip", pad_description_to_valid_length=True
+    )
 
     with session_scope() as session:
         session.add(Upload(key="export_key", filename="export.jpg", creator_user_id=user.id, credit="me"))
@@ -332,7 +295,7 @@ def test_ExportUserData_covers_content_across_the_site(db, moderator):
     assert [item["title"] for item in export["events"]["organizing"]] == ["export event"]
 
     (trip,) = export["public_trips"]
-    assert trip["description"] == TRIP_DESCRIPTION
+    assert trip["description"].startswith("Export trip")
 
     photos = {photo["url"]: photo for gallery in export["photos"]["galleries"] for photo in gallery["photos"]}
     (photo_url,) = [url for url in photos if url.endswith("/img/full/export.jpg")]
@@ -401,24 +364,10 @@ def test_ExportUserData_leaves_out_references_the_user_cannot_see_yet(db, modera
     surfer, surfer_token = generate_user()
     host, host_token = generate_user()
 
-    today_plus_2 = (date.today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (date.today() + timedelta(days=3)).isoformat()
-    with requests_session(surfer_token) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
-    moderator.approve_host_request(host_request_id)
-    with requests_session(host_token) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
-            )
-        )
+    host_request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host.id, approve_by=moderator)
+    requests_api.respond_host_request(
+        token=host_token, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+    )
     with session_scope() as session:
         session.execute(
             update(HostRequest)
@@ -462,10 +411,10 @@ def test_ExportUserData_leaves_out_moderation_hidden_content(db, moderator):
 
     make_friends(user, other)
 
-    with conversations_session(token) as api:
-        chat_id = api.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[other.id])).group_chat_id
-        api.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat_id, text="hello from me"))
-    moderator.approve_group_chat(chat_id)
+    chat_id = conversations_api.create_group_chat(
+        token=token, recipient_user_ids=[other.id], approve_by=moderator
+    ).group_chat_id
+    conversations_api.send_message(token=token, group_chat_id=chat_id, text="hello from me")
 
     assert "hello from me" in json.dumps(_export(super_token, user))
 
@@ -487,29 +436,18 @@ def test_ExportUserData_for_a_banned_user_is_not_gutted(db, moderator):
 
     make_friends(user, other)
 
-    with conversations_session(token) as api:
-        chat_id = api.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[other.id])).group_chat_id
-        api.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat_id, text="hello from me"))
-    moderator.approve_group_chat(chat_id)
-    with conversations_session(other_token) as api:
-        api.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=chat_id, text="hello back from them"))
+    chat_id = conversations_api.create_group_chat(
+        token=token, recipient_user_ids=[other.id], approve_by=moderator
+    ).group_chat_id
+    conversations_api.send_message(token=token, group_chat_id=chat_id, text="hello from me")
+    conversations_api.send_message(token=other_token, group_chat_id=chat_id, text="hello back from them")
 
-    today_plus_2 = (date.today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (date.today() + timedelta(days=3)).isoformat()
-    with requests_session(token) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=other.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text(),
-            )
-        ).host_request_id
-    moderator.approve_host_request(host_request_id)
-    with requests_session(other_token) as api:
-        api.SendHostRequestMessage(
-            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="sure, come on over")
-        )
+    host_request_id = requests_api.create_host_request(
+        token=token, host_user_id=other.id, text="Export request", pad_text_to_valid_length=True, approve_by=moderator
+    )
+    requests_api.send_host_request_message(
+        token=other_token, host_request_id=host_request_id, text="sure, come on over"
+    )
 
     with references_session(other_token) as api:
         reference_id = api.WriteFriendReference(
@@ -539,10 +477,10 @@ def test_ExportUserData_for_a_banned_user_is_not_gutted(db, moderator):
 
     (request,) = export["host_requests"]
     assert request["host"] == {"user_id": str(other.id), "username": f"@{other.username}"}
-    assert [message["text"] for message in request["messages"] if message.get("text")] == [
-        valid_request_text(),
-        "sure, come on over",
-    ]
+    request_texts = [message["text"] for message in request["messages"] if message.get("text")]
+    assert len(request_texts) == 2
+    assert request_texts[0].startswith("Export request")
+    assert request_texts[1] == "sure, come on over"
 
 
 def test_ExportUserData_keeps_references_from_writers_who_deleted_their_account(db, moderator):

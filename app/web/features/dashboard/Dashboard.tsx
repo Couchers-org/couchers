@@ -1,15 +1,17 @@
 import { useFeatureValue } from "@growthbook/growthbook-react";
-import { Box, Grid } from "@mui/material";
-import Divider from "components/Divider";
+import { Grid } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import PageContainer from "components/PageContainer";
-import PageTitle from "components/PageTitle";
+import PullToRefresh from "components/PullToRefresh";
+import Celebration100k from "features/celebration100k/Celebration100k";
 import CommunitiesList from "features/dashboard/CommunitiesList";
+import { dashboardKey, publicTripsBaseKey, publicTripsByUserBaseKey, userCommunitiesListKey } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import { theme } from "theme";
 
 import CommunityEvents from "./CommunityEvents";
+import DashboardCommunityPublicTrips from "./DashboardCommunityPublicTrips";
 import DashboardMyPublicTrips from "./DashboardMyPublicTrips";
 import DashboardUserProfileSummary from "./DashboardUserProfileSummary";
 import Hero from "./Hero";
@@ -24,6 +26,15 @@ export default function Dashboard() {
 
   return (
     <>
+      <PullToRefresh
+        queryKeys={[
+          [dashboardKey],
+          [publicTripsByUserBaseKey],
+          [publicTripsBaseKey, "myCommunities"],
+          [userCommunitiesListKey],
+        ]}
+      />
+      <Celebration100k autoPlay />
       <Hero />
       {/* this view uses a container, instead of it coming from the route layout,
         because the hero section is full viewport width */}
@@ -36,6 +47,10 @@ export default function Dashboard() {
           <Grid
             size={{ sm: 8, xs: 12 }}
             sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: theme.spacing(3),
+              marginTop: theme.spacing(3),
               [theme.breakpoints.up("sm")]: {
                 paddingLeft: theme.spacing(5),
               },
@@ -43,34 +58,22 @@ export default function Dashboard() {
           >
             <HtmlMeta title={t("global:nav.dashboard")} />
 
-            <PageTitle>{t("dashboard:welcome")}</PageTitle>
-
             <ReminderCarousel />
-
-            <Divider spacing={3} />
 
             <UpcomingStays />
 
-            <Box sx={{ height: theme.spacing(3) }} />
-
-            <MyEvents />
-
-            <Box sx={{ height: theme.spacing(3) }} />
-
-            <CommunityEvents />
-
             {isPublicTripsEnabled && (
               <>
-                <Box sx={{ height: theme.spacing(3) }} />
                 <DashboardMyPublicTrips />
+                <DashboardCommunityPublicTrips />
               </>
             )}
 
-            <Box sx={{ height: theme.spacing(3) }} />
+            <MyEvents />
+
+            <CommunityEvents />
 
             <MyCommunitiesDiscussions />
-
-            <Box sx={{ height: theme.spacing(3) }} />
 
             <CommunitiesList />
           </Grid>

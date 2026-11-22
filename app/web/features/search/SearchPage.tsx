@@ -179,11 +179,16 @@ export default function SearchPage() {
       setMoveMapUIOnly({ zoom: newZoom });
     }
 
-    mapRef.current?.easeTo({
-      center,
-      zoom: newZoom,
-      duration: 2000,
-    });
+    // Skip a no-center call already at the target zoom (the map's own zoomend echo; equal because the
+    // map is uncontrolled). A zoomend fired while another animation is interrupted would nest an
+    // easeTo whose frame gets orphaned, freezing the map (Sentry FRONTEND-6E3/6E4).
+    if (center || newZoom !== mapRef.current?.getZoom()) {
+      mapRef.current?.easeTo({
+        center,
+        zoom: newZoom,
+        duration: 2000,
+      });
+    }
   };
 
   const handleZoomOut = (newZoom: number) => {
@@ -198,10 +203,12 @@ export default function SearchPage() {
       setShowSearchThisAreaButton(true);
     }
 
-    mapRef.current?.easeTo({
-      zoom: newZoom,
-      duration: 2000,
-    });
+    if (newZoom !== mapRef.current?.getZoom()) {
+      mapRef.current?.easeTo({
+        zoom: newZoom,
+        duration: 2000,
+      });
+    }
   };
 
   return (

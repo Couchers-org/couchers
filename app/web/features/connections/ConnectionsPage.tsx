@@ -1,4 +1,4 @@
-import { Grid, Stack } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import { CONNECTIONS } from "i18n/namespaces";
@@ -19,19 +19,29 @@ function ConnectionsPage() {
       <HtmlMeta title={t("connections:my_connections")} />
       <PageTitle>{t("connections:my_connections")}</PageTitle>
       {/* Your friends is the main content, so it gets the larger share and the
-          rest stack beside it. */}
-      <Grid container spacing={2} sx={{ width: "100%", alignItems: "flex-start" }}>
-        <Grid size={{ xs: 12, md: 7 }}>
+          rest stack beside it. On mobile, requests to answer come first. */}
+      <Box
+        sx={{
+          display: "grid",
+          gap: 2,
+          alignItems: "start",
+          gridTemplateAreas: { xs: `"received" "friends" "others"`, md: `"friends received" "friends others"` },
+          gridTemplateColumns: { xs: "minmax(0, 1fr)", md: "minmax(0, 7fr) minmax(0, 5fr)" },
+          // the second row takes any extra height, so no gap opens under requests
+          gridTemplateRows: { md: "auto 1fr" },
+        }}
+      >
+        <Box sx={{ gridArea: "friends" }}>
           <FriendList errors={errors} friends={friends} isLoading={isLoading} />
-        </Grid>
-        <Grid size={{ xs: 12, md: 5 }}>
-          <Stack spacing={2}>
-            <FriendRequestsReceived isContentAboveLoaded={!isLoading} />
-            <FriendRequestsSent />
-            <BlockedUsersList refetchFriends={refetchFriends} />
-          </Stack>
-        </Grid>
-      </Grid>
+        </Box>
+        <Box sx={{ gridArea: "received" }}>
+          <FriendRequestsReceived isContentAboveLoaded={!isLoading} />
+        </Box>
+        <Stack spacing={2} sx={{ gridArea: "others" }}>
+          <FriendRequestsSent />
+          <BlockedUsersList refetchFriends={refetchFriends} />
+        </Stack>
+      </Box>
     </>
   );
 }

@@ -59,7 +59,7 @@ _KIND_GROUP_CHAT = "group_chat"
 _KIND_HOST_REQUEST = "host_request"
 
 # one thread as the select queries yield it: (conversation_id, latest_message_id, kind)
-_ThreadRow = Row[tuple[int, int, str]]
+_ThreadRow = Row[int, int, str]
 
 
 @dataclass(frozen=True)
@@ -99,7 +99,7 @@ def _resolve_thread_filters(
 
 def _build_group_chat_select_query(
     context: CouchersContext, only_archived: bool | None, unread: bool
-) -> Select[tuple[int, int, str]]:
+) -> Select[int, int, str]:
     """
     The group chats (including DMs) the viewer should see, narrowed by the request's archived and
     unread filters, along with the id of the newest message each one shows them.
@@ -129,7 +129,7 @@ def _build_group_chat_select_query(
 
 def _build_host_request_select_query(
     context: CouchersContext, role_filter: ColumnElement[bool], only_archived: bool | None, unread: bool
-) -> Select[tuple[int, int, str]]:
+) -> Select[int, int, str]:
     """
     The host requests and public-trip offers the viewer should see, narrowed by the request's
     archived and unread filters, along with the id of each one's newest message.
@@ -251,7 +251,7 @@ def _build_group_chats_pb(
     latest_message_ids = [thread.latest_message_id for thread in threads]
 
     unseen_count_by_group_chat: dict[int, int] = dict(
-        session.execute(  # type: ignore[arg-type]
+        session.execute(
             select(GroupChatSubscription.group_chat_id, func.count(Message.id))
             .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
             .where(GroupChatSubscription.group_chat_id.in_(group_chat_ids))

@@ -12,11 +12,12 @@ import { BackIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import MarkdownInput from "components/MarkdownInput";
 import PageTitle from "components/PageTitle";
+import PullToRefresh from "components/PullToRefresh";
 import RelativeTime from "components/RelativeTime";
 import TextField from "components/TextField";
 import { contentRefs } from "features/contentRefs";
 import FlagButton from "features/FlagButton";
-import { discussionKey } from "features/queryKeys";
+import { discussionKey, threadKey } from "features/queryKeys";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
@@ -187,6 +188,9 @@ export default function DiscussionPage({ discussionId }: { discussionId: number 
   return (
     <>
       <HtmlMeta title={discussion?.title} />
+      <PullToRefresh
+        queryKeys={[discussionKey(discussionId), ...(discussion ? [threadKey(discussion.thread!.threadId)] : [])]}
+      />
       {error && <Alert severity="error">{error.message}</Alert>}
       {isDiscussionLoading ? (
         <CenteredSpinner />

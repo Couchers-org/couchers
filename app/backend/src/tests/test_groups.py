@@ -1,10 +1,10 @@
 import grpc
-import pytest
 
 from couchers.db import session_scope
 from couchers.proto import groups_pb2, pages_pb2
 from couchers.tasks import enforce_community_memberships
 from tests.fixtures.db import generate_user, get_user_id_and_token
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import groups_session
 from tests.test_communities import (  # noqa
     create_1d_point,
@@ -329,14 +329,12 @@ def test_JoinGroup_and_LeaveGroup(testing_communities):
         assert not api.GetGroup(groups_pb2.GetGroupReq(group_id=h_id)).member
 
         # can't leave
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You're not in that group."):
             res = api.LeaveGroup(
                 groups_pb2.LeaveGroupReq(
                     group_id=h_id,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You're not in that group."
 
         # didn't magically join
         assert not api.GetGroup(groups_pb2.GetGroupReq(group_id=h_id)).member
@@ -352,14 +350,12 @@ def test_JoinGroup_and_LeaveGroup(testing_communities):
         assert api.GetGroup(groups_pb2.GetGroupReq(group_id=h_id)).member
 
         # can't join again
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You're already in that group."):
             res = api.JoinGroup(
                 groups_pb2.JoinGroupReq(
                     group_id=h_id,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You're already in that group."
 
         # didn't magically leave
         assert api.GetGroup(groups_pb2.GetGroupReq(group_id=h_id)).member
@@ -379,24 +375,24 @@ def test_LeaveGroup_regression(db):
     # see test_LeaveCommunity_regression
 
     # admin
-    user1, token1 = generate_user(username="user1", geom=create_1d_point(200), geom_radius=0.1)
+    admin_user, admin_token = generate_user(username="user1", geom=create_1d_point(200), geom_radius=0.1)
     # joiner/leaver
-    user2, token2 = generate_user(username="user2", geom=create_1d_point(201), geom_radius=0.1)
+    joiner_user, joiner_token = generate_user(username="user2", geom=create_1d_point(201), geom_radius=0.1)
 
     with session_scope() as session:
-        c0 = create_community(session, 0, 100, "Community 0", [user1], [], None)
-        g1 = create_group(session, "Group 1", [user1], [], c0)
-        g2 = create_group(session, "Group 2", [user1], [], c0)
+        c0 = create_community(session, 0, 100, "Community 0", [admin_user], [], None)
+        g1 = create_group(session, "Group 1", [admin_user], [], c0)
+        g2 = create_group(session, "Group 2", [admin_user], [], c0)
         g1_id = g1.id
         g2_id = g2.id
 
     enforce_community_memberships()
 
-    with groups_session(token1) as api:
+    with groups_session(admin_token) as api:
         assert api.GetGroup(groups_pb2.GetGroupReq(group_id=g1_id)).member
         assert api.GetGroup(groups_pb2.GetGroupReq(group_id=g2_id)).member
 
-    with groups_session(token2) as api:
+    with groups_session(joiner_token) as api:
         # first check we're not in any groups
         assert not api.GetGroup(groups_pb2.GetGroupReq(group_id=g1_id)).member
         assert not api.GetGroup(groups_pb2.GetGroupReq(group_id=g2_id)).member

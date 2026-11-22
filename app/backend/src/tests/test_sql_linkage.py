@@ -14,7 +14,7 @@ from tests.sql_linkage import find_unkeyed_joins
 _MAPPED_CLASSES = {mapper.class_.__name__: mapper.class_ for mapper in Base.registry.mappers}
 
 
-def _materialized_views() -> list[tuple[str, Select[Any] | CompoundSelect[Any]]]:
+def _materialized_views() -> list[tuple[str, Select[*tuple[Any, ...]] | CompoundSelect[*tuple[Any, ...]]]]:
     return sorted(
         (listener.name, listener.selectable)
         for listener in Base.metadata.dispatch.after_create

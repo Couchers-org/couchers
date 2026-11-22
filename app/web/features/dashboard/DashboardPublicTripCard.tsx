@@ -18,7 +18,6 @@ import { Temporal } from "temporal-polyfill";
 import dayjs from "utils/dayjs";
 
 export const CARD_WIDTH = 220;
-export const CARD_GAP = 12;
 
 const StyledCard = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -61,6 +60,21 @@ const TextBlock = styled("div")({
   flex: 1,
 });
 
+const SubLine = styled(Typography)({
+  fontSize: 12,
+  color: "var(--mui-palette-text-secondary)",
+  display: "flex",
+  alignItems: "center",
+  gap: "3px",
+  marginTop: 2,
+  overflow: "hidden",
+  "& > span": {
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
+});
+
 const DescriptionText = styled(Typography)(({ theme }) => ({
   // Keep the author's line breaks, same as the full card.
   whiteSpace: "pre-line",
@@ -73,9 +87,6 @@ const DescriptionText = styled(Typography)(({ theme }) => ({
   textOverflow: "ellipsis",
   lineHeight: 1.4,
   marginTop: theme.spacing(0.75),
-  [theme.breakpoints.down("sm")]: {
-    WebkitLineClamp: 1,
-  },
 }));
 
 const WhenChipStyled = styled("span")(({ theme }) => ({
@@ -179,11 +190,14 @@ export function DashboardPublicTripCard({
   locale,
   offersCount,
   isOwnTrip,
+  showCommunityName,
 }: {
   trip: PublicTrip;
   locale: string;
   offersCount?: number;
   isOwnTrip?: boolean;
+  // for lists spanning several communities
+  showCommunityName?: boolean;
 }) {
   const { t } = useTranslation([DASHBOARD, PUBLIC_TRIPS]);
   // When isOwnTrip is provided (even false), render in community-overview mode:
@@ -215,7 +229,6 @@ export function DashboardPublicTripCard({
         display: "flex",
         textDecoration: "none",
         color: "inherit",
-        height: "100%",
         width: "100%",
       }}
     >
@@ -267,29 +280,16 @@ export function DashboardPublicTripCard({
             <Typography variant="h3" noWrap sx={{ fontSize: 14, fontWeight: 700, lineHeight: 1.3 }}>
               {communityMode ? user!.name : communityLoading ? <Skeleton width={80} /> : (community?.name ?? "—")}
             </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                fontSize: 12,
-                color: "var(--mui-palette-text-secondary)",
-                display: "flex",
-                alignItems: "center",
-                gap: "3px",
-                mt: "2px",
-                overflow: "hidden",
-              }}
-            >
+            <SubLine variant="body2">
               <EventOutlined style={{ fontSize: 12, flexShrink: 0 }} />
-              <span
-                style={{
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {dateRange}
-              </span>
-            </Typography>
+              <span>{dateRange}</span>
+            </SubLine>
+            {showCommunityName && (
+              <SubLine variant="body2">
+                <PlaceOutlined style={{ fontSize: 12, flexShrink: 0 }} />
+                <span>{trip.communityName}</span>
+              </SubLine>
+            )}
           </TextBlock>
           <WhenChip fromDate={trip.fromDate} toDate={trip.toDate} locale={locale} />
         </IdentityRow>
@@ -305,7 +305,7 @@ export function DashboardPublicTripCard({
   );
 }
 
-export function DashboardPublicTripCardSkeleton() {
+export function DashboardPublicTripCardSkeleton({ showCommunityName }: { showCommunityName?: boolean }) {
   return (
     <Box
       sx={{
@@ -320,6 +320,7 @@ export function DashboardPublicTripCardSkeleton() {
         <Box sx={{ flex: 1, minWidth: 0 }}>
           <Skeleton height={16} sx={{ mb: 0.5 }} />
           <Skeleton height={12} width="70%" />
+          {showCommunityName && <Skeleton height={12} width="60%" />}
         </Box>
       </Box>
       <Skeleton height={12} sx={{ mt: 1 }} />

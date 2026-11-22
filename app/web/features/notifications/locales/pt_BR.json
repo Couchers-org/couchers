@@ -7,7 +7,7 @@
       "error_loading": "Erro ao carregar preferências de notificações",
       "list_items": {
         "chat": "Mensagens",
-        "host_request": "Solicitações de hospedagem",
+        "host_request": "Solicitações de hospedagem e convites",
         "event": "Eventos",
         "friend_request": "Solicitações de amizade",
         "reference": "Referências",

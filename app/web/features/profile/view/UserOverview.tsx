@@ -1,3 +1,4 @@
+import { LinkOutlined } from "@mui/icons-material";
 import { Box, Card, CardActions, styled, Tooltip, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import BarWithHelp from "components/Bar/BarWithHelp";
@@ -130,6 +131,7 @@ export default function UserOverview({
           <CopyButton
             text={`${typeof window !== "undefined" ? window.location.origin : ""}${routeToUser(user.username)}`}
             label={t("profile:copy_profile_link.button_a11y")}
+            icon={<LinkOutlined sx={{ fontSize: 16 }} />}
             onCopy={(succeeded) =>
               logEvent("profile.link_copied", { user_id: user.userId, is_own_profile: isOwnProfile, succeeded })
             }

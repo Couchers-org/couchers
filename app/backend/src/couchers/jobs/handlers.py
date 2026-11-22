@@ -397,7 +397,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                     user_id=user.id,
                     topic_action=NotificationTopicAction.host_request__missed_messages,
                     key=str(host_request.conversation_id),
-                    data=notification_data_pb2.HostRequestMissedMessages(
+                    data=notification_data_pb2.StayMissedMessages(
                         host_request=host_request_to_pb(host_request, session, context),
                         counterparty=user_model_to_pb(host_request.recipient, session, context),
                         # Notification to the recipient == message from the initiator
@@ -441,7 +441,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                     user_id=user.id,
                     topic_action=NotificationTopicAction.host_request__missed_messages,
                     key=str(host_request.conversation_id),
-                    data=notification_data_pb2.HostRequestMissedMessages(
+                    data=notification_data_pb2.StayMissedMessages(
                         host_request=host_request_to_pb(host_request, session, context),
                         counterparty=user_model_to_pb(host_request.initiator, session, context),
                         # Notification to the recipient == message from the initiator
@@ -640,7 +640,7 @@ def send_host_request_reminders(payload: empty_pb2.Empty) -> None:
                 user_id=host_request.recipient_user_id,
                 topic_action=NotificationTopicAction.host_request__reminder,
                 key=str(host_request.conversation_id),
-                data=notification_data_pb2.HostRequestReminder(
+                data=notification_data_pb2.StayReminder(
                     host_request=host_request_to_pb(host_request, session, context),
                     initiator=user_model_to_pb(host_request.initiator, session, context),
                 ),
@@ -1439,13 +1439,13 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
             )
             return
 
-        user_name, user_email = session.execute(select(User.name, User.email).where(User.id == attempt.user_id)).one()
+        user_email = session.execute(select(User.email).where(User.id == attempt.user_id)).scalar_one()
 
         if config.POSTAL_VERIFICATION_BYPASS_POST_AND_EMAIL_CODE_FOR_TESTING:
             email_verification_code_instead_of_posting(
                 session,
                 recipient_email=user_email,
-                recipient_name=user_name,
+                recipient_name=attempt.recipient_name,
                 address_line_1=attempt.address_line_1,
                 address_line_2=attempt.address_line_2,
                 city=attempt.city,
@@ -1456,7 +1456,7 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
             )
         else:
             attempt.mypostcard_job_id = send_postcard(
-                recipient_name=user_name,
+                recipient_name=attempt.recipient_name,
                 address_line_1=attempt.address_line_1,
                 address_line_2=attempt.address_line_2,
                 city=attempt.city,

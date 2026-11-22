@@ -85,7 +85,8 @@ type MessageType =
   | "NATIVE_BACK"
   | "LANGUAGE_CHANGE"
   | "REQUEST_REVIEW"
-  | "REQUEST_ADD_TO_CALENDAR";
+  | "REQUEST_ADD_TO_CALENDAR"
+  | "HAPTIC_IMPACT";
 
 function sendToNative(type: MessageType, data: unknown) {
   if (!isNativeEmbed()) return;
@@ -114,6 +115,10 @@ export function sendNativeRequestReview() {
 
 export function sendNativeAddToCalendar(event: NativeCalendarEvent) {
   sendToNative("REQUEST_ADD_TO_CALENDAR", event);
+}
+
+export function sendNativeHapticImpact() {
+  sendToNative("HAPTIC_IMPACT", {});
 }
 
 // Image picker bridge for native mobile app

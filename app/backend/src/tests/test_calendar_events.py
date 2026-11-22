@@ -7,10 +7,11 @@ from couchers.email.calendar_events import create_event_ics_calendar, create_hos
 from couchers.i18n.context import LocalizationContext
 from couchers.proto import events_pb2, messages_pb2, requests_pb2
 from couchers.utils import Timestamp_from_datetime, today
+from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user
+from tests.fixtures.feature_flags import FeatureFlags
 from tests.fixtures.misc import EmailCollector, Moderator
-from tests.fixtures.sessions import requests_session
-from tests.test_requests import valid_request_text
+from tests.test_public_trips import _create_trip_directly, _make_node
 
 
 def test_host_request_ics_content():
@@ -33,6 +34,7 @@ VERSION:2.0
 PRODID:-//Couchers.org//Couchers//EN
 BEGIN:VEVENT
 SEQUENCE:***
+DTSTAMP:***Z
 DTSTART;VALUE=DATE:20000101
 DTEND;VALUE=DATE:20000103
 DESCRIPTION:***/42
@@ -71,6 +73,7 @@ VERSION:2.0
 PRODID:-//Couchers.org//Couchers//EN
 BEGIN:VEVENT
 SEQUENCE:***
+DTSTAMP:***Z
 DTSTART;VALUE=DATE:20000101
 DTEND;VALUE=DATE:20000103
 DESCRIPTION:***/42
@@ -106,8 +109,19 @@ def test_event_ics_content():
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Couchers.org//Couchers//EN
+BEGIN:VTIMEZONE
+TZID:Etc/GMT-1
+COMMENT:***
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZNAME:+01
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0100
+END:STANDARD
+END:VTIMEZONE
 BEGIN:VEVENT
 UID:event.42@***
+DTSTAMP:***Z
 SEQUENCE:***
 SUMMARY:Event Title
 DESCRIPTION:Event description***/event/42/event-slug
@@ -148,31 +162,18 @@ def test_host_request_attachments(db, email_collector: EmailCollector, moderator
     to_date = today() + timedelta(days=3)
 
     # Send the host request, no calendar attachment yet
-    with requests_session(surfer_token) as api:
-        hr_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=from_date.isoformat(),
-                to_date=to_date.isoformat(),
-                text=valid_request_text("can i stay plz"),
-            )
-        ).host_request_id
-
-    moderator.approve_host_request(hr_id)
+    hr_id = requests_api.create_host_request(
+        token=surfer_token, host_user_id=host.id, from_date=from_date, to_date=to_date, approve_by=moderator
+    )
 
     email = email_collector.pop_for_recipient(host.email, last=True)
     assert "request" in email.subject and surfer.name in email.subject
     assert not email.attachments
 
     # Host accepts, surfer gets a calendar attachment
-    with requests_session(host_token) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=hr_id,
-                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
-                text="Accepting host request",
-            )
-        )
+    requests_api.respond_host_request(
+        token=host_token, host_request_id=hr_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+    )
 
     email = email_collector.pop_for_recipient(surfer.email, last=True)
     assert "accept" in email.subject and host.name in email.subject
@@ -184,14 +185,9 @@ def test_host_request_attachments(db, email_collector: EmailCollector, moderator
     assert accepted_ics_event.get("location") == host.city
 
     # Surfer confirms, host gets a calendar attachment
-    with requests_session(surfer_token) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=hr_id,
-                status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED,
-                text="Confirming host request",
-            )
-        )
+    requests_api.respond_host_request(
+        token=surfer_token, host_request_id=hr_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
+    )
 
     email = email_collector.pop_for_recipient(host.email, last=True)
     assert "confirm" in email.subject and surfer.name in email.subject
@@ -200,14 +196,9 @@ def test_host_request_attachments(db, email_collector: EmailCollector, moderator
     assert confirmed_ics_event.get("summary") == f"Hosting {surfer.name}"
 
     # Surfer cancels, host gets a calendar attachment
-    with requests_session(surfer_token) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=hr_id,
-                status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED,
-                text="Cancelling host request",
-            )
-        )
+    requests_api.respond_host_request(
+        token=surfer_token, host_request_id=hr_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
+    )
 
     email = email_collector.pop_for_recipient(host.email, last=True)
     assert "cancel" in email.subject and surfer.name in email.subject
@@ -217,38 +208,56 @@ def test_host_request_attachments(db, email_collector: EmailCollector, moderator
     assert cancelled_ics_event.get("status") == "CANCELLED"
 
 
-def test_host_request_attachments_disabled(db, email_collector: EmailCollector, feature_flags, moderator: Moderator):
+def test_public_trip_invitation_attachments(db, email_collector: EmailCollector, moderator: Moderator):
+    traveller, traveller_token = generate_user(complete_profile=True)
+    host, host_token = generate_user(complete_profile=True)
+    from_date = today() + timedelta(days=5)
+    to_date = today() + timedelta(days=10)
+    trip_id = _create_trip_directly(traveller.id, _make_node(), from_date, to_date)
+
+    hr_id = requests_api.create_host_request(
+        token=host_token,
+        host_user_id=traveller.id,
+        from_date=from_date,
+        to_date=to_date,
+        public_trip_id=trip_id,
+        approve_by=moderator,
+    )
+    email_collector.pop_for_recipient(traveller.email, last=True)
+
+    # Traveller accepts, host gets a calendar attachment
+    requests_api.respond_host_request(
+        token=traveller_token, host_request_id=hr_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+    )
+
+    email = email_collector.pop_for_recipient(host.email, last=True)
+    assert _get_email_ics_attachment_calendar_event(email).get("summary") == f"Hosting {traveller.name}"
+
+    # Host confirms, traveller gets a calendar attachment
+    requests_api.respond_host_request(
+        token=host_token, host_request_id=hr_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
+    )
+
+    email = email_collector.pop_for_recipient(traveller.email, last=True)
+    assert _get_email_ics_attachment_calendar_event(email).get("summary") == f"Surfing with {host.name}"
+
+
+def test_host_request_attachments_disabled(
+    db, email_collector: EmailCollector, feature_flags: FeatureFlags, moderator: Moderator
+):
     feature_flags.set("email_ics_attachments_enabled", False)
 
     host, host_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
 
-    from_date = today() + timedelta(days=2)
-    to_date = today() + timedelta(days=3)
-
-    with requests_session(surfer_token) as api:
-        hr_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=from_date.isoformat(),
-                to_date=to_date.isoformat(),
-                text=valid_request_text("can i stay plz"),
-            )
-        ).host_request_id
-
-    moderator.approve_host_request(hr_id)
+    hr_id = requests_api.create_host_request(token=surfer_token, host_user_id=host.id, approve_by=moderator)
 
     email_collector.pop_for_recipient(host.email, last=True)
 
     # Host accepts: normally the surfer would get a calendar attachment, but the flag is off
-    with requests_session(host_token) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=hr_id,
-                status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
-                text="Accepting host request",
-            )
-        )
+    requests_api.respond_host_request(
+        token=host_token, host_request_id=hr_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+    )
 
     email = email_collector.pop_for_recipient(surfer.email, last=True)
     assert "accept" in email.subject and host.name in email.subject

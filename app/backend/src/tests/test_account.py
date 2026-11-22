@@ -2,7 +2,6 @@ from datetime import UTC, date, datetime, timedelta
 from unittest.mock import patch
 
 import grpc
-import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy import select, update
 from sqlalchemy.sql import func
@@ -18,40 +17,52 @@ from couchers.models import (
     HostingStatus,
     InviteCode,
     PhotoGalleryItem,
-    SleepingArrangement,
     Upload,
     User,
 )
-from couchers.proto import account_pb2, api_pb2, auth_pb2, messages_pb2, requests_pb2
+from couchers.proto import account_pb2, api_pb2, auth_pb2, messages_pb2
 from couchers.utils import now, today
+from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import backdate_conversations, generate_user, make_volunteer
+from tests.fixtures.feature_flags import FeatureFlags
 from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
     account_session,
     auth_api_session,
     public_session,
     real_account_session,
-    requests_session,
 )
 from tests.fixtures.timewarp import Timewarp
 from tests.test_references import create_public_trip
-from tests.test_requests import valid_request_text
 
 
 def test_GetAccountInfo(db, fast_passwords):
     # with password
-    user1, token1 = generate_user(hashed_password=hash_password(random_hex()), email="user@couchers.invalid")
+    user, token = generate_user(hashed_password=hash_password(random_hex()), email="user@couchers.invalid")
 
-    with account_session(token1) as account:
+    with account_session(token) as account:
         res = account.GetAccountInfo(empty_pb2.Empty())
         assert res.email == "user@couchers.invalid"
-        assert res.username == user1.username
+        assert res.username == user.username
         assert not res.has_strong_verification
         assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED
         assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_UNVERIFIED
         assert not res.is_superuser
         assert res.ui_language_preference == ""
         assert not res.is_volunteer
+        assert not res.has_opted_in_to_beta_features
+
+
+def test_SetBetaFeaturesOptIn(db):
+    user, token = generate_user()
+
+    with account_session(token) as account:
+        account.SetBetaFeaturesOptIn(account_pb2.SetBetaFeaturesOptInReq(beta_features_opt_in=True))
+        assert account.GetAccountInfo(empty_pb2.Empty()).has_opted_in_to_beta_features
+
+        account.SetBetaFeaturesOptIn(account_pb2.SetBetaFeaturesOptInReq(beta_features_opt_in=False))
+        assert not account.GetAccountInfo(empty_pb2.Empty()).has_opted_in_to_beta_features
 
 
 def test_donation_banner_no_drive(db):
@@ -64,7 +75,7 @@ def test_donation_banner_no_drive(db):
         assert not res.should_show_donation_banner
 
 
-def test_donation_banner_never_donated(db, feature_flags):
+def test_donation_banner_never_donated(db, feature_flags: FeatureFlags):
     """Test that banner is shown when user has never donated and drive is active"""
     # Explicitly set last_donated=None since generate_user defaults to now()
     user, token = generate_user(last_donated=None)
@@ -76,7 +87,7 @@ def test_donation_banner_never_donated(db, feature_flags):
         assert res.should_show_donation_banner
 
 
-def test_donation_banner_donated_before_drive(db, feature_flags):
+def test_donation_banner_donated_before_drive(db, feature_flags: FeatureFlags):
     """Test that banner is shown when user donated before drive start"""
     user, token = generate_user()
 
@@ -92,7 +103,7 @@ def test_donation_banner_donated_before_drive(db, feature_flags):
         assert res.should_show_donation_banner
 
 
-def test_donation_banner_donated_after_drive(db, feature_flags):
+def test_donation_banner_donated_after_drive(db, feature_flags: FeatureFlags):
     """Test that banner is not shown when user donated after drive start"""
     user, token = generate_user()
 
@@ -108,7 +119,7 @@ def test_donation_banner_donated_after_drive(db, feature_flags):
         assert not res.should_show_donation_banner
 
 
-def test_donation_banner_donated_exactly_at_drive_start(db, feature_flags):
+def test_donation_banner_donated_exactly_at_drive_start(db, feature_flags: FeatureFlags):
     """Test that banner is not shown when user donated exactly at drive start time"""
     drive_start = datetime(2025, 11, 1, tzinfo=UTC)
 
@@ -207,15 +218,13 @@ def test_ChangePasswordV2_normal_short_password(db, fast_passwords):
     user, token = generate_user(hashed_password=hash_password(old_password))
 
     with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The password must be 8 or more characters long."):
             account.ChangePasswordV2(
                 account_pb2.ChangePasswordV2Req(
                     old_password=old_password,
                     new_password=new_password,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "The password must be 8 or more characters long."
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -229,15 +238,13 @@ def test_ChangePasswordV2_normal_long_password(db, fast_passwords):
     user, token = generate_user(hashed_password=hash_password(old_password))
 
     with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The password must be less than 256 characters."):
             account.ChangePasswordV2(
                 account_pb2.ChangePasswordV2Req(
                     old_password=old_password,
                     new_password=new_password,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "The password must be less than 256 characters."
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -251,15 +258,16 @@ def test_ChangePasswordV2_normal_insecure_password(db, fast_passwords):
     user, token = generate_user(hashed_password=hash_password(old_password))
 
     with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.INVALID_ARGUMENT,
+            "The password is insecure. Please use one that is not easily guessable.",
+        ):
             account.ChangePasswordV2(
                 account_pb2.ChangePasswordV2Req(
                     old_password=old_password,
                     new_password=new_password,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "The password is insecure. Please use one that is not easily guessable."
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -273,15 +281,13 @@ def test_ChangePasswordV2_normal_wrong_password(db, fast_passwords):
     user, token = generate_user(hashed_password=hash_password(old_password))
 
     with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Wrong password."):
             account.ChangePasswordV2(
                 account_pb2.ChangePasswordV2Req(
                     old_password="Wrong password",
                     new_password=new_password,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Wrong password."
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -294,10 +300,8 @@ def test_ChangePasswordV2_normal_no_passwords(db, fast_passwords):
     user, token = generate_user(hashed_password=hash_password(old_password))
 
     with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The password must be 8 or more characters long."):
             account.ChangePasswordV2(account_pb2.ChangePasswordV2Req(old_password=old_password))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "The password must be 8 or more characters long."
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -310,15 +314,13 @@ def test_ChangeEmailV2_wrong_password(db, fast_passwords):
     user, token = generate_user(hashed_password=hash_password(password))
 
     with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Wrong password."):
             account.ChangeEmailV2(
                 account_pb2.ChangeEmailV2Req(
                     password="Wrong password",
                     new_email=new_email,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Wrong password."
 
     with session_scope() as session:
         assert (
@@ -337,15 +339,13 @@ def test_ChangeEmailV2_wrong_email(db, fast_passwords):
     user, token = generate_user(hashed_password=hash_password(password))
 
     with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Wrong password."):
             account.ChangeEmailV2(
                 account_pb2.ChangeEmailV2Req(
                     password="Wrong password",
                     new_email=new_email,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Wrong password."
 
     with session_scope() as session:
         assert (
@@ -363,15 +363,13 @@ def test_ChangeEmailV2_invalid_email(db, fast_passwords):
     user, token = generate_user(hashed_password=hash_password(password))
 
     with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid email."):
             account.ChangeEmailV2(
                 account_pb2.ChangeEmailV2Req(
                     password=password,
                     new_email="not a real email",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Invalid email."
 
     with session_scope() as session:
         assert (
@@ -387,18 +385,16 @@ def test_ChangeEmailV2_invalid_email(db, fast_passwords):
 def test_ChangeEmailV2_email_in_use(db, fast_passwords):
     password = random_hex()
     user, token = generate_user(hashed_password=hash_password(password))
-    user2, token2 = generate_user(hashed_password=hash_password(password))
+    other_user, other_token = generate_user(hashed_password=hash_password(password))
 
     with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid email."):
             account.ChangeEmailV2(
                 account_pb2.ChangeEmailV2Req(
                     password=password,
-                    new_email=user2.email,
+                    new_email=other_user.email,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Invalid email."
 
     with session_scope() as session:
         assert (
@@ -423,9 +419,8 @@ def test_ChangeEmailV2_deleted_user_email(db, fast_passwords):
         )
 
     with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             account.ChangeEmailV2(account_pb2.ChangeEmailV2Req(password=password, new_email=banned_user.email))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
         account.ChangeEmailV2(account_pb2.ChangeEmailV2Req(password=password, new_email=deleted_user.email))
 
@@ -435,15 +430,13 @@ def test_ChangeEmailV2_no_change(db, fast_passwords):
     user, token = generate_user(hashed_password=hash_password(password))
 
     with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid email."):
             account.ChangeEmailV2(
                 account_pb2.ChangeEmailV2Req(
                     password=password,
                     new_email=user.email,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Invalid email."
 
     with session_scope() as session:
         assert (
@@ -470,14 +463,12 @@ def test_ChangeEmailV2_wrong_token(db, fast_passwords):
         )
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Invalid token."):
             res = auth_api.ConfirmChangeEmailV2(
                 auth_pb2.ConfirmChangeEmailV2Req(
                     change_email_token="wrongtoken",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Invalid token."
 
     with session_scope() as session:
         user_updated = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -503,36 +494,28 @@ def test_ChangeEmailV2_tokens_two_hour_window(db, fast_passwords, timewarp: Time
     # before the token was issued
     timewarp.advance(-timedelta(minutes=1))
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Invalid token."):
             auth_api.ConfirmChangeEmailV2(auth_pb2.ConfirmChangeEmailV2Req())
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Invalid token."
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Invalid token."):
             auth_api.ConfirmChangeEmailV2(
                 auth_pb2.ConfirmChangeEmailV2Req(
                     change_email_token=new_email_token,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Invalid token."
 
     # and a minute after the two hour window closed
     timewarp.advance(timedelta(hours=2, minutes=1))
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Invalid token."):
             auth_api.ConfirmChangeEmailV2(auth_pb2.ConfirmChangeEmailV2Req())
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Invalid token."
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Invalid token."):
             auth_api.ConfirmChangeEmailV2(
                 auth_pb2.ConfirmChangeEmailV2Req(
                     change_email_token=new_email_token,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Invalid token."
 
 
 def test_ChangeEmailV2(db, fast_passwords, push_collector: PushCollector):
@@ -692,10 +675,8 @@ def test_full_delete_account_with_recovery(db, email_collector: EmailCollector, 
     user_id = user.id
 
     with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as err:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "Please confirm your account deletion."):
             account.DeleteAccount(account_pb2.DeleteAccountReq())
-        assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert err.value.details() == "Please confirm your account deletion."
 
         account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True))
 
@@ -938,10 +919,11 @@ def test_LogOutOtherSessions(db, fast_passwords):
     with real_account_session(token) as account:
         res = account.ListActiveSessions(account_pb2.ListActiveSessionsReq())
         assert len(res.active_sessions) == 5
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION,
+            "Please confirm you want to log out of other sessions.",
+        ):
             account.LogOutOtherSessions(account_pb2.LogOutOtherSessionsReq(confirm=False))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "Please confirm you want to log out of other sessions."
 
         account.LogOutOtherSessions(account_pb2.LogOutOtherSessionsReq(confirm=True))
         res = account.ListActiveSessions(account_pb2.ListActiveSessionsReq())
@@ -1010,18 +992,9 @@ def test_reminders(db, moderator):
             "complete_profile_reminder",
         ]
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-    with requests_session(req_user_token1) as api:
-        host_request1_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text("Test request 1"),
-            )
-        ).host_request_id
-    moderator.approve_host_request(host_request1_id)
+    host_request1_id = requests_api.create_host_request(
+        token=req_user_token1, host_user_id=user.id, approve_by=moderator
+    )
 
     with account_session(token) as account:
         reminders = account.GetReminders(empty_pb2.Empty()).reminders
@@ -1032,16 +1005,9 @@ def test_reminders(db, moderator):
         assert reminders[0].respond_to_host_request_reminder.host_request_id == host_request1_id
         assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
 
-    with requests_session(req_user_token2) as api:
-        host_request2_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text("Test request 2"),
-            )
-        ).host_request_id
-    moderator.approve_host_request(host_request2_id)
+    host_request2_id = requests_api.create_host_request(
+        token=req_user_token2, host_user_id=user.id, approve_by=moderator
+    )
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
     with account_session(token) as account:
@@ -1057,16 +1023,9 @@ def test_reminders(db, moderator):
         assert reminders[1].respond_to_host_request_reminder.surfer_user.user_id == req_user2.id
 
     backdate_conversations()
-    with requests_session(req_user_token1) as api:
-        host_request3_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=user.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
-                text=valid_request_text("Test request 3"),
-            )
-        ).host_request_id
-    moderator.approve_host_request(host_request3_id)
+    host_request3_id = requests_api.create_host_request(
+        token=req_user_token1, host_user_id=user.id, approve_by=moderator
+    )
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
     with account_session(token) as account:
@@ -1085,12 +1044,9 @@ def test_reminders(db, moderator):
         assert reminders[2].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
 
     # accept req
-    with requests_session(token) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request1_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
-            )
-        )
+    requests_api.respond_host_request(
+        token=token, host_request_id=host_request1_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+    )
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
     with account_session(token) as account:
@@ -1106,10 +1062,7 @@ def test_reminders(db, moderator):
         assert reminders[1].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
 
     # host replies to req2 with a message: reminder should clear even though it's still pending
-    with requests_session(token) as api:
-        api.SendHostRequestMessage(
-            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request2_id, text="Let me think about it")
-        )
+    requests_api.send_host_request_message(token=token, host_request_id=host_request2_id, text="Let me think about it")
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
     with account_session(token) as account:
@@ -1122,10 +1075,7 @@ def test_reminders(db, moderator):
         assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
 
     # surfer sending a message should not clear the reminder
-    with requests_session(req_user_token1) as api:
-        api.SendHostRequestMessage(
-            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request3_id, text="Any update?")
-        )
+    requests_api.send_host_request_message(token=req_user_token1, host_request_id=host_request3_id, text="Any update?")
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
     with account_session(token) as account:
@@ -1142,30 +1092,20 @@ def test_confirm_host_request_reminder(db, moderator):
     host, host_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
 
-    today_plus_10 = (today() + timedelta(days=10)).isoformat()
-    today_plus_12 = (today() + timedelta(days=12)).isoformat()
+    today_plus_10 = today() + timedelta(days=10)
+    today_plus_12 = today() + timedelta(days=12)
 
-    with requests_session(surfer_token) as api:
-        host_request_id = api.CreateHostRequest(
-            requests_pb2.CreateHostRequestReq(
-                host_user_id=host.id,
-                from_date=today_plus_10,
-                to_date=today_plus_12,
-                text=valid_request_text("Please host me"),
-            )
-        ).host_request_id
-    moderator.approve_host_request(host_request_id)
+    host_request_id = requests_api.create_host_request(
+        token=surfer_token, host_user_id=host.id, from_date=today_plus_10, to_date=today_plus_12, approve_by=moderator
+    )
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
     with account_session(surfer_token) as account:
         assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == []
 
-    with requests_session(host_token) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
-            )
-        )
+    requests_api.respond_host_request(
+        token=host_token, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+    )
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
     with account_session(surfer_token) as account:
@@ -1175,12 +1115,9 @@ def test_confirm_host_request_reminder(db, moderator):
         assert reminders[0].confirm_host_request_reminder.host_user.user_id == host.id
 
     # after surfer confirms, reminder should clear
-    with requests_session(surfer_token) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
-            )
-        )
+    requests_api.respond_host_request(
+        token=surfer_token, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
+    )
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
     with account_session(surfer_token) as account:
@@ -1197,27 +1134,22 @@ def test_public_trip_offer_reminders(db, moderator):
     with session_scope() as session:
         trip_id = create_public_trip(session, traveller.id, from_date, to_date)
 
-    def offer(host_token: str) -> int:
-        with requests_session(host_token) as api:
-            host_request_id: int = api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=traveller.id,
-                    from_date=from_date.isoformat(),
-                    to_date=to_date.isoformat(),
-                    text=valid_request_text("I'd love to host you"),
-                    public_trip_id=trip_id,
-                )
-            ).host_request_id
-        moderator.approve_host_request(host_request_id)
-        return host_request_id
-
     def get_reminders(token: str):
         refresh_materialized_views_rapid(empty_pb2.Empty())
         with account_session(token) as account:
             return account.GetReminders(empty_pb2.Empty()).reminders
 
-    offer1_id = offer(host1_token)
-    offer2_id = offer(host2_token)
+    offer1_id, offer2_id = (
+        requests_api.create_host_request(
+            token=token,
+            host_user_id=traveller.id,
+            from_date=from_date,
+            to_date=to_date,
+            public_trip_id=trip_id,
+            approve_by=moderator,
+        )
+        for token in (host1_token, host2_token)
+    )
 
     reminders = get_reminders(traveller_token)
     assert [reminder.WhichOneof("reminder") for reminder in reminders] == [
@@ -1230,13 +1162,9 @@ def test_public_trip_offer_reminders(db, moderator):
     assert reminders[1].respond_to_public_trip_offer_reminder.host_user.user_id == host2.id
     assert list(get_reminders(host1_token)) == []
 
-    with requests_session(traveller_token) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=offer1_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
-            )
-        )
-
+    requests_api.respond_host_request(
+        token=traveller_token, host_request_id=offer1_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+    )
     reminders = get_reminders(traveller_token)
     assert [reminder.WhichOneof("reminder") for reminder in reminders] == ["respond_to_public_trip_offer_reminder"]
     assert reminders[0].respond_to_public_trip_offer_reminder.host_request_id == offer2_id
@@ -1246,45 +1174,38 @@ def test_public_trip_offer_reminders(db, moderator):
     assert reminders[0].confirm_public_trip_offer_reminder.host_request_id == offer1_id
     assert reminders[0].confirm_public_trip_offer_reminder.surfer_user.user_id == traveller.id
 
-    with requests_session(host1_token) as api:
-        api.RespondHostRequest(
-            requests_pb2.RespondHostRequestReq(
-                host_request_id=offer1_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
-            )
-        )
-
+    requests_api.respond_host_request(
+        token=host1_token, host_request_id=offer1_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
+    )
     assert list(get_reminders(host1_token)) == []
 
 
 def test_my_home_reminder(db):
-    # can_host with incomplete my home (max_guests not set) → reminder shown
-    can_host_incomplete, token1 = generate_user(hosting_status=HostingStatus.can_host)
+    # can_host with incomplete my home (about_place too short) → reminder shown
+    can_host_incomplete, can_host_incomplete_token = generate_user(hosting_status=HostingStatus.can_host)
     # maybe with incomplete my home → reminder shown
-    maybe_incomplete, token2 = generate_user(hosting_status=HostingStatus.maybe)
+    maybe_incomplete, maybe_incomplete_token = generate_user(hosting_status=HostingStatus.maybe)
     # cant_host → no reminder regardless of my home completion
-    cant_host, token3 = generate_user(hosting_status=HostingStatus.cant_host)
+    cant_host, cant_host_token = generate_user(hosting_status=HostingStatus.cant_host)
     # can_host with fully completed my home → no reminder
-    can_host_complete, token4 = generate_user(
-        hosting_status=HostingStatus.can_host,
-        max_guests=2,
-        sleeping_arrangement=SleepingArrangement.private,
-        # about_place is set by default in make_user
+    can_host_complete, can_host_complete_token = generate_user(
+        hosting_status=HostingStatus.can_host, about_place="x" * 50
     )
 
-    with account_session(token1) as account:
+    with account_session(can_host_incomplete_token) as account:
         assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == [
             "complete_my_home_reminder",
         ]
 
-    with account_session(token2) as account:
+    with account_session(maybe_incomplete_token) as account:
         assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == [
             "complete_my_home_reminder",
         ]
 
-    with account_session(token3) as account:
+    with account_session(cant_host_token) as account:
         assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == []
 
-    with account_session(token4) as account:
+    with account_session(can_host_complete_token) as account:
         assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == []
 
 
@@ -1299,19 +1220,17 @@ def test_volunteer_stuff(db):
         res = account.GetAccountInfo(empty_pb2.Empty())
         assert not res.is_volunteer
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.NOT_FOUND,
+            "You are currently not registered as a volunteer, if this is wrong, please contact us.",
+        ):
             account.GetMyVolunteerInfo(empty_pb2.Empty())
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert (
-            e.value.details() == "You are currently not registered as a volunteer, if this is wrong, please contact us."
-        )
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.NOT_FOUND,
+            "You are currently not registered as a volunteer, if this is wrong, please contact us.",
+        ):
             account.UpdateMyVolunteerInfo(account_pb2.UpdateMyVolunteerInfoReq())
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert (
-            e.value.details() == "You are currently not registered as a volunteer, if this is wrong, please contact us."
-        )
 
     with session_scope() as session:
         session.add(
@@ -1408,3 +1327,24 @@ def test_volunteer_stuff(db):
         assert v.link_type == "email"
         assert v.link_text == "tester@vontester.com.invalid"
         assert v.link_url == "mailto:tester@vontester.com.invalid"
+
+
+def test_UpdateMyVolunteerInfo_missing_link(db):
+    user, token = generate_user()
+
+    with session_scope() as session:
+        session.add(make_volunteer(user_id=user.id, role="Tester", started_volunteering=date(2020, 6, 1)))
+
+    with account_session(token) as account:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid email."):
+            account.UpdateMyVolunteerInfo(
+                account_pb2.UpdateMyVolunteerInfoReq(link_type=wrappers_pb2.StringValue(value="email"))
+            )
+
+        with expect_rpc_error(
+            grpc.StatusCode.INVALID_ARGUMENT,
+            'Invalid website URL or text, make sure URL starts with "https://", and that the text is included in the URL.',
+        ):
+            account.UpdateMyVolunteerInfo(
+                account_pb2.UpdateMyVolunteerInfoReq(link_type=wrappers_pb2.StringValue(value="website"))
+            )

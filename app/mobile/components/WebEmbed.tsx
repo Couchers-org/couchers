@@ -1,3 +1,5 @@
+import * as Haptics from "expo-haptics";
+import * as Notifications from "expo-notifications";
 import { useFocusEffect } from "expo-router";
 import { hasAction, requestReview } from "expo-store-review";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
@@ -212,6 +214,27 @@ export default function WebEmbed({
     `);
   }, [path, stripLocale, i18n.language, currentWebPathRef]);
 
+  const refreshPage = useCallback(() => {
+    webviewRef.current?.injectJavaScript(`
+      window.postMessage(${JSON.stringify({ type: "MOBILE_REFRESH" })}, "*");
+      true;
+    `);
+  }, []);
+
+  // A screen kept in the background shows the data it had when you left it, e.g.
+  // an event opened again from a notification, so ask the page to refetch. A
+  // notification arriving while you're on the screen also means there's new data.
+  useFocusEffect(
+    useCallback(() => {
+      if (hasLoadedRef.current) {
+        refreshPage();
+      }
+      const subscription =
+        Notifications.addNotificationReceivedListener(refreshPage);
+      return () => subscription.remove();
+    }, [refreshPage]),
+  );
+
   // Sync WebView when screen comes back into focus (tab switch).
   useFocusEffect(
     useCallback(() => {
@@ -406,6 +429,8 @@ export default function WebEmbed({
         });
       } else if (payload?.type === "REQUEST_ADD_TO_CALENDAR") {
         addToCalendar(payload.data);
+      } else if (payload?.type === "HAPTIC_IMPACT") {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       }
     } catch (error) {
       // Ignore non-JSON messages from browser/WebView internals.

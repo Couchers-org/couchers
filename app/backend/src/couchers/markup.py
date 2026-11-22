@@ -1,11 +1,33 @@
+import re
 from html.parser import HTMLParser
 from typing import Any
 from urllib.parse import urlencode
 
 from markdown_it import MarkdownIt
+from markdown_it.rules_inline import StateInline
 from markupsafe import Markup, escape
 
-# Markdown config should match frontend's MarkdownNoSSR component.
+_BR_TAG_RE = re.compile(r"<br\s*/?>", re.IGNORECASE)
+
+
+def _br_tag_rule(state: StateInline, silent: bool) -> bool:
+    """
+    Processes inline text for <br> tags to preserve them as line breaks,
+    since our MarkdownIt is otherwise configured to escape html tags.
+    """
+    # match is anchored at state.pos, so the tag must start there.
+    # posMax bounds it to the current inline block.
+    match = _BR_TAG_RE.match(state.src, state.pos, state.posMax)
+    if not match:
+        return False
+    if not silent:
+        state.push("hardbreak", "br", 0)
+    state.pos = match.end()
+    return True
+
+
+# Markdown config should match frontend's MarkdownNoSSR component,
+# which strips all HTML except <br> tags.
 _markdown = MarkdownIt(
     "zero",  # Base configuration disables all features
     options_update={
@@ -23,6 +45,7 @@ _markdown = MarkdownIt(
         "smartquotes",  # Convert straight quotation marks to typographic ones
     ]
 )
+_markdown.inline.ruler.before("newline", "br_tag", _br_tag_rule)
 
 
 def markdown_to_html(text: str) -> Markup:
