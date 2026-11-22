@@ -966,6 +966,40 @@ def test_update_public_trip_in_past(db):
             )
 
 
+def test_update_public_trip_after_arrival(db):
+    user, token = generate_user()
+    node_id = _make_node()
+    from_date = today() - timedelta(days=2)
+    to_date = today() + timedelta(days=3)
+    trip_id = _create_trip_directly(user.id, node_id, from_date, to_date)
+
+    updated = VALID_DESCRIPTION + " Updated plans."
+
+    with public_trips_session(token) as api:
+        # The edit dialog sends both dates along with every change, even when they're unchanged.
+        res = api.UpdatePublicTrip(
+            public_trips_pb2.UpdatePublicTripReq(
+                trip_id=trip_id,
+                from_date=from_date.isoformat(),
+                to_date=(to_date + timedelta(days=1)).isoformat(),
+                description=updated,
+                same_gender_only=True,
+            )
+        )
+        assert res.from_date == from_date.isoformat()
+        assert res.to_date == (to_date + timedelta(days=1)).isoformat()
+        assert res.description == updated
+        assert res.same_gender_only
+
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "From date must be today or later."):
+            api.UpdatePublicTrip(
+                public_trips_pb2.UpdatePublicTripReq(
+                    trip_id=trip_id,
+                    from_date=(from_date - timedelta(days=1)).isoformat(),
+                )
+            )
+
+
 def test_update_public_trip_date_validation(db):
     user, token = generate_user()
     node_id = _make_node()

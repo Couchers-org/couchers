@@ -452,7 +452,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_date")
                 new_to_date = parsed
 
-            if new_from_date < today_local:
+            if new_from_date != public_trip.from_date and new_from_date < today_local:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_before_today")
 
             if new_from_date >= new_to_date:
