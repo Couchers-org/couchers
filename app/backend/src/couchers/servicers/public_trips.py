@@ -281,9 +281,21 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             statement = statement.where(_same_gender_filter(context))
         public_trips = session.execute(statement).scalars().all()
 
+        viewer_has_open_trip = session.execute(
+            select(
+                where_moderated_content_visible(select(PublicTrip.id), context, PublicTrip, is_list_operation=True)
+                .where(PublicTrip.user_id == context.user_id)
+                .where(PublicTrip.node_id == node.id)
+                .where(PublicTrip.status == PublicTripStatus.searching_for_host)
+                .where(PublicTrip.end_time >= func.now())
+                .exists()
+            )
+        ).scalar_one()
+
         return public_trips_pb2.ListPublicTripsRes(
             public_trips=[public_trip_to_pb(trip, session, context) for trip in public_trips[:page_size]],
             next_page_token=encrypt_page_token(str(public_trips[-1].id)) if len(public_trips) > page_size else None,
+            can_create_public_trip=not viewer_has_open_trip,
         )
 
     def ListPublicTripsByUser(

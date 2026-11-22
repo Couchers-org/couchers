@@ -99,6 +99,8 @@ message ListPublicTripsRes {
   repeated PublicTrip public_trips = 1;
 
   string next_page_token = 2;
+
+  bool can_create_public_trip = 3;
 }
 
 message ListPublicTripsByUserReq {

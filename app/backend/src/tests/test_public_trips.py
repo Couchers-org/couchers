@@ -370,7 +370,7 @@ def test_get_public_trip_not_found(db):
 
 
 def test_list_public_trips(db):
-    traveler, _ = generate_user()
+    traveler, traveler_token = generate_user()
     _, host_token = generate_user()
     node_id = _make_node()
 
@@ -383,6 +383,11 @@ def test_list_public_trips(db):
         assert returned_ids == {trip1, trip2}
         assert all(t.community_slug == "test-community" for t in res.public_trips)
         assert all(t.community_name == "Test community" for t in res.public_trips)
+        assert res.can_create_public_trip
+
+    with public_trips_session(traveler_token) as api:
+        res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
+        assert not res.can_create_public_trip
 
 
 def test_list_public_trips_filters_closed_and_past(db):

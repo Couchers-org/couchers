@@ -45,10 +45,8 @@ export default function PublicTripsSection({ community }: { community: Community
   const pageIndex = tokens.length - 1;
   const currentToken = tokens[pageIndex];
   const { data, error, isLoading } = useListPublicTrips(community.communityId, currentToken);
-
-  // TODO: Replace with real ListPublicTripsByUser query once we wire it up for
-  // the user's dashboard; for now we infer "has own trip" from the page we're on.
-  const hasOwnTrip = data?.publicTripsList.some((trip) => trip.user?.userId === authState.userId);
+  // Read from the first page, which stays cached, so the button doesn't vanish while another page loads.
+  const { data: firstPage } = useListPublicTrips(community.communityId, "");
 
   const handleCreateClick = () => {
     if (!accountInfo?.profileComplete) {
@@ -90,15 +88,16 @@ export default function PublicTripsSection({ community }: { community: Community
         communityName={community.name}
       />
       <SectionTitle icon={<CouchIcon />}>{t("publicTrips:heading")}</SectionTitle>
-      {hasOwnTrip ? (
-        <Button sx={{ my: 2 }} startIcon={<EditIcon />} component={Link} href={myPublicTripsRoute}>
-          {t("publicTrips:view_my_trips_button")}
-        </Button>
-      ) : (
-        <Button sx={{ my: 2 }} startIcon={<AddIcon />} onClick={handleCreateClick}>
-          {t("publicTrips:create_trip_button")}
-        </Button>
-      )}
+      {firstPage &&
+        (firstPage.canCreatePublicTrip ? (
+          <Button sx={{ my: 2 }} startIcon={<AddIcon />} onClick={handleCreateClick}>
+            {t("publicTrips:create_trip_button")}
+          </Button>
+        ) : (
+          <Button sx={{ my: 2 }} startIcon={<EditIcon />} component={Link} href={myPublicTripsRoute}>
+            {t("publicTrips:view_my_trips_button")}
+          </Button>
+        ))}
       <Typography variant="body1" sx={{ mb: 2 }}>
         {t("publicTrips:community_section.intro")}
       </Typography>
