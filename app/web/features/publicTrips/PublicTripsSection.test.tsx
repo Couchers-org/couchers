@@ -75,6 +75,7 @@ describe("PublicTripsSection", () => {
     listPublicTripsMock.mockResolvedValue({
       publicTripsList: publicTrips,
       nextPageToken: "",
+      canCreatePublicTrip: true,
     });
   });
 
@@ -108,6 +109,7 @@ describe("PublicTripsSection", () => {
       listPublicTripsMock.mockResolvedValue({
         publicTripsList: [],
         nextPageToken: "",
+        canCreatePublicTrip: true,
       });
 
       render(<PublicTripsSection community={community} />, { wrapper });
@@ -118,13 +120,6 @@ describe("PublicTripsSection", () => {
 
   describe("create", () => {
     beforeEach(() => {
-      // Default user (id 1) owns one trip in the full fixture, which would
-      // trigger the "Edit my public trips" button instead of "Create".
-      // For the create-flow tests we need them to NOT own any trip.
-      listPublicTripsMock.mockResolvedValue({
-        publicTripsList: publicTrips.filter((t) => t.user?.userId !== 1),
-        nextPageToken: "",
-      });
       createPublicTripMock.mockResolvedValue(publicTrips[0]);
     });
 
@@ -352,10 +347,12 @@ describe("PublicTripsSection", () => {
       listPublicTripsMock.mockResolvedValueOnce({
         publicTripsList: [...publicTrips.slice(0, 5), closedFutureTrip],
         nextPageToken: "",
+        canCreatePublicTrip: true,
       });
       listPublicTripsMock.mockResolvedValue({
         publicTripsList: [...publicTrips.slice(0, 5), searchingTrip],
         nextPageToken: "",
+        canCreatePublicTrip: true,
       });
 
       render(<PublicTripsSection community={community} />, { wrapper });
@@ -396,6 +393,7 @@ describe("PublicTripsSection", () => {
           { ...activeTrip(publicTrips[1]), viewerHostRequestId: 0 },
         ],
         nextPageToken: "",
+        canCreatePublicTrip: true,
       });
 
       render(<PublicTripsSection community={community} />, { wrapper });
@@ -433,6 +431,7 @@ describe("PublicTripsSection", () => {
       listPublicTripsMock.mockResolvedValue({
         publicTripsList: [activeTrip(publicTrips[0])],
         nextPageToken: "",
+        canCreatePublicTrip: true,
       });
 
       render(<PublicTripsSection community={community} />, { wrapper });
@@ -489,6 +488,7 @@ describe("PublicTripsSection", () => {
           },
         ],
         nextPageToken: "",
+        canCreatePublicTrip: true,
       });
 
       render(<PublicTripsSection community={community} />, { wrapper });
