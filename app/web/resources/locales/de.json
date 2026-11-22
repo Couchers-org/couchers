@@ -349,5 +349,6 @@
   "bar": {
     "help_button_a11y": "Hilfe"
   },
-  "more_options_a11y": "Weitere Optionen"
+  "more_options_a11y": "Weitere Optionen",
+  "pull_to_refresh_progress_a11y": "Zum Aktualisieren nach unten ziehen"
 }
