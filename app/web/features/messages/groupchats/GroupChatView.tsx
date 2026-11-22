@@ -131,7 +131,6 @@ export default function GroupChatView({ chatId, embedded = false }: { chatId: nu
       {!chatId ? (
         <Alert severity="error">{t("messages:chat_view.invalid_id_error")}</Alert>
       ) : (
-        // Prevent page scroll - only messages should scroll
         <StyledFullHeightView isNativeEmbed={isNativeEmbed} embedded={embedded} noOverflow>
           <StyledHeader>
             <GroupChatHeaderBar
