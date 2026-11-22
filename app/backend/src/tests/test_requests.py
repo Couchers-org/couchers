@@ -2385,6 +2385,51 @@ def test_create_request_offer_blocked_after_traveller_declines(db, moderator):
         )
 
 
+def test_traveller_cancelling_confirmed_offer_is_not_shown_to_host_as_decline(
+    db, moderator, push_collector: PushCollector
+):
+    surfer, surfer_token = generate_user()
+    declined_host, declined_host_token = generate_user()
+    cancelled_host, cancelled_host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+
+    def offer(token: str) -> int:
+        return requests_api.create_host_request(
+            token=token,
+            host_user_id=surfer.id,
+            from_date=trip_from,
+            to_date=trip_to,
+            public_trip_id=trip_id,
+            approve_by=moderator,
+        )
+
+    def respond(token: str, host_request_id: int, status: messages_pb2.HostRequestStatus.ValueType) -> None:
+        requests_api.respond_host_request(token=token, host_request_id=host_request_id, status=status)
+
+    def last_push_title(user_id: int) -> str:
+        pushes = [push_collector.pop_for_user(user_id) for _ in range(push_collector.count_for_user(user_id))]
+        return pushes[-1].content.title
+
+    declined_id = offer(declined_host_token)
+    respond(surfer_token, declined_id, messages_pb2.HOST_REQUEST_STATUS_REJECTED)
+
+    cancelled_id = offer(cancelled_host_token)
+    respond(surfer_token, cancelled_id, messages_pb2.HOST_REQUEST_STATUS_ACCEPTED)
+    respond(cancelled_host_token, cancelled_id, messages_pb2.HOST_REQUEST_STATUS_CONFIRMED)
+    # The web app's "Cancel stay" button sends this, because only the offering host may send CANCELLED on an offer.
+    respond(surfer_token, cancelled_id, messages_pb2.HOST_REQUEST_STATUS_REJECTED)
+
+    declined = requests_api.get_host_request(token=declined_host_token, host_request_id=declined_id)
+    cancelled = requests_api.get_host_request(token=cancelled_host_token, host_request_id=cancelled_id)
+    assert cancelled.status != declined.status, "the host sees a cancelled stay as a declined offer"
+    assert last_push_title(cancelled_host.id) != last_push_title(declined_host.id), (
+        "the host is notified of a cancelled stay as of a declined offer"
+    )
+
+
 def _create_accepted_request(surfer_token: str, host_token: str, host_id: int, moderator, days_ahead: int = 2) -> int:
     request_id = requests_api.create_host_request(
         token=surfer_token,
