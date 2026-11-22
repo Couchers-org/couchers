@@ -35,6 +35,7 @@ from couchers.models import (
 from couchers.notifications.background import handle_notification
 from couchers.notifications.expo_api import get_expo_push_receipts
 from couchers.notifications.notify import PendingNotification, notify, notify_many
+from couchers.notifications.push import add_push_source
 from couchers.notifications.send_raw_push_notification import PushNotificationError, send_raw_push_notification_v2
 from couchers.notifications.settings import get_topic_actions_by_delivery_type, reset_preference
 from couchers.notifications.web_push_api import decode_key, send_web_push
@@ -439,6 +440,21 @@ def test_notifications_seen(db, push_collector: PushCollector, moderator):
         assert [n.is_seen for n in res.notifications] == [True, True, False]
 
         assert api.Ping(api_pb2.PingReq()).unseen_notification_count == 1
+
+
+@pytest.mark.parametrize(
+    "url,expected",
+    [
+        ("https://couchers.org/messages/1", "https://couchers.org/messages/1?source=push"),
+        (
+            "https://couchers.org/connections/friends/?from=5",
+            "https://couchers.org/connections/friends/?from=5&source=push",
+        ),
+        ("https://couchers.org/event/1#comments", "https://couchers.org/event/1?source=push#comments"),
+    ],
+)
+def test_add_push_source(url, expected):
+    assert add_push_source(url) == expected
 
 
 def test_unseen_notification_count_excludes_ums_hidden(db, moderator):

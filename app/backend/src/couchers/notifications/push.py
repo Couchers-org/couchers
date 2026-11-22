@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import ClassVar
+from urllib.parse import urlsplit, urlunsplit
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -105,6 +106,12 @@ class PushNotificationContent:
     """A URL to the icon to show in the notification. If None, will use the default app icon."""
 
 
+def add_push_source(url: str) -> str:
+    parts = urlsplit(url)
+    param = "source=push"
+    return urlunsplit(parts._replace(query=f"{parts.query}&{param}" if parts.query else param))
+
+
 def push_to_subscription(
     session: Session,
     *,
@@ -118,7 +125,7 @@ def push_to_subscription(
     title = config.NOTIFICATION_PREFIX + content.title[: PushNotificationContent.MAX_TITLE_LENGTH]
     body = content.body[: PushNotificationContent.MAX_BODY_LENGTH]
     icon_url = content.icon_url or urls.icon_url()
-    action_url = content.action_url or ""
+    action_url = add_push_source(content.action_url) if content.action_url else ""
     queue_job(
         session,
         job=send_raw_push_notification_v2,
