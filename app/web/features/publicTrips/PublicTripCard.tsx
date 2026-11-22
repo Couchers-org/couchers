@@ -17,6 +17,7 @@ import {
 } from "components/Icons";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
 import ProfileLink from "components/ProfileLink/ProfileLink";
+import Snackbar from "components/Snackbar";
 import StyledLink from "components/StyledLink";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAccountInfo from "features/auth/useAccountInfo";
@@ -174,7 +175,7 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
   const { authState } = useAuthContext();
   const isNativeEmbed = useIsNativeEmbed();
   const router = useRouter();
-  const { mutate: updateTrip } = useUpdatePublicTrip();
+  const { mutate: updateTrip, error: updateError } = useUpdatePublicTrip();
   const isOwnTrip = trip.user?.userId === authState.userId;
 
   // The backend sets viewerHostRequestId to the viewer's own existing offer on
@@ -206,6 +207,7 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
 
   return (
     <>
+      {updateError && <Snackbar severity="error">{updateError.message}</Snackbar>}
       {showIncompleteDialog && (
         <ProfileIncompleteDialog open onClose={() => setShowIncompleteDialog(false)} attempted_action="send_request" />
       )}
