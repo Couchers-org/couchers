@@ -8,7 +8,14 @@ interface Props {
 }
 
 const StyledContainer = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexWrap: "wrap",
+  justifyContent: "center",
+  gap: theme.spacing(1),
   marginTop: theme.spacing(1),
+  marginBottom: theme.spacing(1),
+  // spacing comes from the gap, so the chips stay centred
+  "& .MuiChip-root": { margin: 0 },
 }));
 
 export const Badges = ({ user }: Props) => {
