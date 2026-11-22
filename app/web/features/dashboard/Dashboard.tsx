@@ -26,7 +26,6 @@ export default function Dashboard() {
 
   return (
     <>
-      {/*TODO(NA): Follow up PR to add userCommunitiesList query into thje getDashboard screen query */}
       <PullToRefresh queryKeys={[[dashboardKey]]} />
       <Celebration100k autoPlay />
       <Hero />
