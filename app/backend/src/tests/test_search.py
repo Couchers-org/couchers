@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import UTC, date, datetime, time, timedelta
 
 import grpc
 import pytest
@@ -234,6 +234,62 @@ def test_user_filter_language(db):
             )
         )
         assert [result.user_id for result in res.results] == [user_with_japanese_conversational.id]
+
+
+@pytest.mark.parametrize(
+    "frozen_date, age_min, age_max, birthdates, expected",
+    [
+        (
+            date(2028, 2, 29),
+            18,
+            19,
+            [date(2010, 3, 1), date(2010, 2, 28), date(2008, 3, 1), date(2008, 2, 29)],
+            [date(2010, 2, 28), date(2008, 3, 1)],
+        ),
+        (
+            date(2027, 2, 28),
+            19,
+            100,
+            [date(2008, 2, 29), date(2008, 2, 28)],
+            [date(2008, 2, 28)],
+        ),
+        (
+            date(2027, 3, 1),
+            19,
+            100,
+            [date(2008, 3, 2), date(2008, 2, 29)],
+            [date(2008, 2, 29)],
+        ),
+    ],
+)
+def test_user_filter_age(db, frozen_timewarp, frozen_date, age_min, age_max, birthdates, expected):
+    frozen_timewarp.freeze_at(datetime.combine(frozen_date, time(12), tzinfo=UTC))
+    _, token = generate_user(birthdate=date(1900, 1, 1))
+    users = [generate_user(birthdate=birthdate)[0] for birthdate in birthdates]
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
+
+    with search_session(token) as api:
+        res = api.UserSearchV2(
+            search_pb2.UserSearchReq(
+                age_min=wrappers_pb2.UInt32Value(value=age_min),
+                age_max=wrappers_pb2.UInt32Value(value=age_max),
+            )
+        )
+    assert {result.user_id for result in res.results} == {user.id for user in users if user.birthdate in expected}
+
+
+def test_user_filter_age_out_of_range(db):
+    _, token = generate_user()
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
+
+    with search_session(token) as api:
+        res = api.UserSearchV2(search_pb2.UserSearchReq(age_max=wrappers_pb2.UInt32Value(value=4_000_000_000)))
+        assert len(res.results) == 1
+        res = api.UserSearchV2(search_pb2.UserSearchReq(age_min=wrappers_pb2.UInt32Value(value=4_000_000_000)))
+        assert len(res.results) == 0
 
 
 def test_user_filter_strong_verification(db):

@@ -7,6 +7,7 @@ from math import pi
 from typing import Any, cast
 
 import grpc
+from dateutil.relativedelta import relativedelta
 from google.protobuf import wrappers_pb2
 from sqlalchemy import ColumnElement, Float, SQLColumnExpression, literal_column, select, tuple_, type_coerce
 from sqlalchemy.orm import Session
@@ -515,11 +516,18 @@ def _user_search_inner(
         statement = statement.where(
             User.parking_details.in_([parkingdetails2sql[det] for det in request.parking_details_filter])
         )
-    # limits/default could be handled on the front end as well
-    min_age = request.age_min.value if request.HasField("age_min") else DEFAULT_SEARCH_AGE_MIN
-    max_age = request.age_max.value if request.HasField("age_max") else DEFAULT_SEARCH_AGE_MAX
+    # clamped so that subtracting the ages from today stays within the range of a date
+    min_age = min(
+        request.age_min.value if request.HasField("age_min") else DEFAULT_SEARCH_AGE_MIN, DEFAULT_SEARCH_AGE_MAX
+    )
+    max_age = min(
+        request.age_max.value if request.HasField("age_max") else DEFAULT_SEARCH_AGE_MAX, DEFAULT_SEARCH_AGE_MAX
+    )
 
-    statement = statement.where((User.age >= min_age) & (User.age <= max_age))
+    statement = statement.where(
+        (User.birthdate <= today() - relativedelta(years=min_age))
+        & (User.birthdate > today() - relativedelta(years=max_age + 1))
+    )
 
     # return results with by language code as only input
     # fluency in conversational or fluent
