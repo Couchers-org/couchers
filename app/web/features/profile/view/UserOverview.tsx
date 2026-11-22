@@ -35,9 +35,9 @@ const StyledCard = styled(Card)(({ theme }) => ({
   },
 }));
 
+// fills most of the card on bigger screens, but stays small on phones so the profile starts sooner
 const avatarSize = (theme: Theme) => ({
-  width: 180,
-  maxWidth: "100%",
+  maxWidth: "75%",
   margin: "0 auto",
   [theme.breakpoints.down("sm")]: {
     width: 148,
