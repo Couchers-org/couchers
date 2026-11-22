@@ -29,17 +29,10 @@ describe("PublicTripCard description", () => {
     expect(window.getComputedStyle(description).whiteSpace).toBe("pre-line");
   });
 
-  it("drops blank lines while shortened, so the ellipsis doesn't end up on an empty line", () => {
-    const trip = { ...publicTrips[0], description: "Short opening.\n\nA longer second paragraph." };
-    render(<PublicTripCard trip={trip} />, { wrapper });
-
-    expect(screen.getByText(/Short opening/).textContent).toBe("Short opening.\nA longer second paragraph.");
-  });
-
   it("toggles a long description with a Show more button", async () => {
     jest.spyOn(HTMLElement.prototype, "scrollHeight", "get").mockReturnValue(200);
     jest.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(100);
-    const trip = { ...publicTrips[0], description: "Short opening.\n\nA longer second paragraph." };
+    const trip = { ...publicTrips[0], description: "A long description." };
     render(<PublicTripCard trip={trip} />, { wrapper });
 
     const toggle = await screen.findByRole("button", { name: t("publicTrips:trip_card.show_more_action") });
@@ -51,6 +44,5 @@ describe("PublicTripCard description", () => {
       "aria-expanded",
       "true",
     );
-    expect(screen.getByText(/Short opening/).textContent).toBe("Short opening.\n\nA longer second paragraph.");
   });
 });

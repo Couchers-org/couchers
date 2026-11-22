@@ -377,7 +377,7 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
               onClick={isOverflowing || expanded ? () => setExpanded((e) => !e) : undefined}
               sx={{ cursor: isOverflowing || expanded ? "pointer" : "default" }}
             >
-              {expanded ? trip.description : trip.description.replace(/\n\s*\n/g, "\n")}
+              {trip.description}
             </Description>
             {(isOverflowing || expanded) && (
               <Button
