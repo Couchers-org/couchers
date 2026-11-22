@@ -56,7 +56,12 @@ export default function HostRequestSendField({ hostRequest, sendMutation }: Host
 
   return (
     <form onSubmit={onSubmit}>
-      <HostRequestGuideLinks isPast={isPast} isHost={isHost} status={hostRequest.status} />
+      <HostRequestGuideLinks
+        isPast={isPast}
+        isHost={isHost}
+        isPublicTripOffer={!!hostRequest.publicTripId}
+        status={hostRequest.status}
+      />
       <StyledContainer>
         <TextField
           {...register("text")}
