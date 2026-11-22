@@ -2102,7 +2102,7 @@ def test_create_request_same_gender_only_same_gender_allowed(db, moderator):
     assert host_request_id > 0
 
 
-def test_create_request_same_gender_only_moderator_bypass(db, moderator):
+def test_create_request_same_gender_only_moderator_of_other_gender_rejected(db, moderator):
     surfer, _ = generate_user(gender="Woman")
     host, host_token = generate_user(gender="Man")
 
@@ -2111,10 +2111,12 @@ def test_create_request_same_gender_only_moderator_bypass(db, moderator):
     trip_id = _create_public_trip(surfer.id, trip_from, trip_to, same_gender_only=True)
     _make_trip_node_admin(host.id, trip_id)
 
-    host_request_id = requests_api.create_host_request(
-        token=host_token, host_user_id=surfer.id, from_date=trip_from, to_date=trip_to, public_trip_id=trip_id
-    )
-    assert host_request_id > 0
+    with expect_rpc_error(
+        grpc.StatusCode.FAILED_PRECONDITION, "This trip is only open to offers from people of the same gender."
+    ):
+        requests_api.create_host_request(
+            token=host_token, host_user_id=surfer.id, from_date=trip_from, to_date=trip_to, public_trip_id=trip_id
+        )
 
 
 def test_list_host_requests_public_trip_offer_by_stay_role(db, moderator):
