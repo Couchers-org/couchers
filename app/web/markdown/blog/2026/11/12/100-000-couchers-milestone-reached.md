@@ -1,9 +1,11 @@
 ---
+is_blog_post: true
 title: 100,000+ Couchers Milestone Reached
 slug: 100k-couchers-milestone-reached
 description: Couchers.org just passed 100,000 members!
 date: 2026/11/12
 author: Chris
+author_username: chrisk
 share_image: https://couchers.org/img/share.jpg
 ---
 # 100,000 Couchers and Counting
