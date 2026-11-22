@@ -89,7 +89,7 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
 
   const watchFromDate = useWatch({ control, name: "fromDate" });
   const watchDescription = useWatch({ control, name: "description" }) ?? "";
-  const descriptionCharsRemaining = DESCRIPTION_MIN_LENGTH - watchDescription.length;
+  const descriptionCharsRemaining = DESCRIPTION_MIN_LENGTH - watchDescription.trim().length;
 
   // PublicTrip proto only carries community_id, so fetch the community name in
   // edit mode. Hook is no-op when id is 0 (create mode already has the name).
@@ -205,9 +205,9 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
                   if (value.trim().length === 0) {
                     return t("publicTrips:create_edit_dialog.description.required_error");
                   }
-                  if (value.length < DESCRIPTION_MIN_LENGTH) {
+                  if (value.trim().length < DESCRIPTION_MIN_LENGTH) {
                     return t("publicTrips:create_edit_dialog.description.chars_remaining", {
-                      count: DESCRIPTION_MIN_LENGTH - value.length,
+                      count: DESCRIPTION_MIN_LENGTH - value.trim().length,
                     });
                   }
                   return true;

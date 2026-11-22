@@ -131,7 +131,7 @@ export default function OfferToHostDialog({
 
   const watchFromDate = watch("fromDate");
   const text = watch("text") ?? "";
-  const charsRemaining = MESSAGE_MIN_LENGTH - text.length;
+  const charsRemaining = MESSAGE_MIN_LENGTH - text.trim().length;
 
   const {
     mutate,
@@ -209,12 +209,11 @@ export default function OfferToHostDialog({
             id="offer-to-host-message"
             {...register("text", {
               required: t("publicTrips:offer_to_host_dialog.message.required_error"),
-              minLength: {
-                value: MESSAGE_MIN_LENGTH,
-                message: t("publicTrips:offer_to_host_dialog.message.chars_remaining", {
-                  count: charsRemaining,
+              validate: (value) =>
+                value.trim().length >= MESSAGE_MIN_LENGTH ||
+                t("publicTrips:offer_to_host_dialog.message.chars_remaining", {
+                  count: MESSAGE_MIN_LENGTH - value.trim().length,
                 }),
-              },
             })}
             label={t("publicTrips:offer_to_host_dialog.message.label")}
             placeholder={t("publicTrips:offer_to_host_dialog.message.placeholder")}
