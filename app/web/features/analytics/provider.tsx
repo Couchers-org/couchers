@@ -8,7 +8,7 @@
  * - Session starts (when users first land on your site)
  * - Page views (including time spent on each page)
  * - Device info (screen size, browser, language)
- * - Marketing attribution (UTM parameters from ads/campaigns, refs from our emails)
+ * - Marketing attribution (UTM parameters from ads/campaigns)
  * - Referral sources (where users came from)
  *
  * HOW TO USE:
@@ -29,15 +29,15 @@ import { ReactNode, useEffect, useRef } from "react";
 
 import { destroyCollector, initializeCollector, logEvent } from "./eventCollector";
 
-// zz: added to links in our emails, see app/backend/src/couchers/email/zz.py
-const ATTRIBUTION_PARAMS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "zz"];
+const ATTRIBUTION_PARAMS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"];
 
+// zz: added to links in our emails, see app/backend/src/couchers/email/zz.py
 // zn: the notification id, added to push notification links, see app/backend/src/couchers/notifications/push.py
 const ONE_TIME_PARAMS = ["zz", "zn"];
 
 /**
- * Extract attribution parameters (UTM params and email refs) from the URL.
- * These help track which campaigns, ads, emails, or links brought users to your site.
+ * Extract attribution parameters (UTM params) from the URL.
+ * These help track which campaigns, ads, or links brought users to your site.
  */
 function getAttributionParams(): Record<string, string> {
   const params = new URLSearchParams(window.location.search);
