@@ -3,9 +3,11 @@ import Button from "components/Button";
 import { GlobalMessage } from "components/GlobalMessage";
 import { CloseIcon, MenuIcon } from "components/Icons";
 import ExternalNavButton from "components/Navigation/ExternalNavButton";
+import { logEvent } from "features/analytics";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { DonationBanner } from "features/donations/DonationBanner";
 import { useShowDonations } from "features/donations/useShowDonations";
+import { badgeCounts, useLogNotificationBadgeCount } from "features/notifications/analytics";
 import LanguagePickerSelect from "features/translate/LanguagePickerSelect";
 import useNotifications from "features/useNotifications";
 import { GLOBAL } from "i18n/namespaces";
@@ -264,6 +266,12 @@ export default function Navigation() {
   const [isMounted, setIsMounted] = useState(false);
 
   const { data: pingData } = useNotifications();
+  useLogNotificationBadgeCount(pingData);
+
+  const handleNavButtonClick = (route: string, location: "top" | "drawer") =>
+    route === messagesRoute
+      ? () => logEvent("messages.nav_clicked", { location, ...badgeCounts(pingData) })
+      : undefined;
   const { authState } = useAuthContext();
   const isAuthenticated = isMounted && authState.authenticated;
   const isNativeEmbed = useIsNativeEmbed();
@@ -316,7 +324,13 @@ export default function Navigation() {
               {externalLink ? (
                 <ExternalNavButton route={route} label={name} labelVariant="h2" />
               ) : (
-                <NavButton route={route} label={name} labelVariant="h2" notificationCount={notificationCount} />
+                <NavButton
+                  route={route}
+                  label={name}
+                  labelVariant="h2"
+                  notificationCount={notificationCount}
+                  onClick={handleNavButtonClick(route, "drawer")}
+                />
               )}
             </ListItem>
           ),
@@ -385,6 +399,7 @@ export default function Navigation() {
                       label={name}
                       key={`${name}-nav-button`}
                       notificationCount={notificationCount}
+                      onClick={handleNavButtonClick(route, "top")}
                     />
                   ),
               )}

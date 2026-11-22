@@ -1,18 +1,22 @@
 import { Check, MoreHoriz, Settings } from "@mui/icons-material";
-import { Alert, IconButton, Menu, MenuItem, Skeleton, Stack, styled, Typography } from "@mui/material";
+import { Alert, IconButton, Menu, MenuItem, Skeleton, Stack, styled, Typography, useMediaQuery } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import Pill from "components/Pill";
+import { logEvent } from "features/analytics";
+import { createForegroundTracker } from "features/analytics/foregroundTracker";
 import { listNotificationsQueryKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { ListNotificationsRes } from "proto/notifications_pb";
-import { useState } from "react";
+import { ListNotificationsRes, Notification } from "proto/notifications_pb";
+import { useEffect, useRef, useState } from "react";
 import { notificationSettingsRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
+import { useIsNativeEmbed } from "utils/nativeLink";
 
+import { summarizeNotifications } from "../analytics";
 import { useMarkAllNotificationsSeen, useMarkSingleNotificationIsSeen } from "../utils/helpers";
 import NotificationItem from "./NotificationItem";
 
@@ -20,7 +24,10 @@ interface NotificationsFeedProps {
   anchorEl: HTMLElement | null;
   isOpen: boolean;
   onClose: () => void;
+  badgeCount?: number;
 }
+
+type NotificationsFilter = "all" | "unread";
 
 const TopContentWrapper = styled("div")(({ theme }) => ({
   padding: theme.spacing(1, 2),
@@ -48,12 +55,14 @@ const StyledPills = styled("div")(({ theme }) => ({
   marginBottom: theme.spacing(1),
 }));
 
-const NotificationsFeed = ({ anchorEl, isOpen, onClose }: NotificationsFeedProps) => {
+const NotificationsFeed = ({ anchorEl, isOpen, onClose, badgeCount }: NotificationsFeedProps) => {
   const { t } = useTranslation([GLOBAL, NOTIFICATIONS]);
   const router = useRouter();
 
   const [internalMenuAnchorEl, setInternalMenuAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const [notificationsFilter, setNotificationsFilter] = useState<"all" | "unread">("all");
+  const [notificationsFilter, setNotificationsFilter] = useState<NotificationsFilter>("all");
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isNativeEmbed = useIsNativeEmbed();
 
   const isInternalMenuOpen = Boolean(internalMenuAnchorEl);
 
@@ -74,7 +83,80 @@ const NotificationsFeed = ({ anchorEl, isOpen, onClose }: NotificationsFeedProps
   const { error: markSingleNotificationIsSeenError, markSingleNotificationIsSeenMutation } =
     useMarkSingleNotificationIsSeen();
 
+  // The open/close effect only reruns when the tray opens or closes, so it reads the latest state from here
+  const latestRef = useRef({ data, notificationsFilter, badgeCount, isMobile, isNativeEmbed });
+  latestRef.current = { data, notificationsFilter, badgeCount, isMobile, isNativeEmbed };
+  const clickedNotificationIdRef = useRef<number | null>(null);
+  const isOptionsMenuOpenRef = useRef(false);
+
+  const trayProperties = () => ({
+    filter: latestRef.current.notificationsFilter,
+    badge_count: latestRef.current.badgeCount ?? null,
+    ...summarizeNotifications(latestRef.current.data?.notificationsList),
+  });
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const tracker = createForegroundTracker();
+    document.addEventListener("visibilitychange", tracker.onVisibilityChange);
+    clickedNotificationIdRef.current = null;
+    logEvent("notifications.tray_opened", {
+      ...trayProperties(),
+      is_mobile: latestRef.current.isMobile,
+      is_native_embed: latestRef.current.isNativeEmbed,
+    });
+    return () => {
+      document.removeEventListener("visibilitychange", tracker.onVisibilityChange);
+      const { foregroundMs, totalMs } = tracker.finalize();
+      logEvent(
+        "notifications.tray_closed",
+        {
+          ...trayProperties(),
+          clicked_notification_id: clickedNotificationIdRef.current,
+          foreground_ms: foregroundMs,
+          total_ms: totalMs,
+        },
+        totalMs / 1000,
+      );
+    };
+  }, [isOpen]);
+
+  const notificationProperties = (notification: Notification.AsObject) => {
+    const position = (data?.notificationsList ?? []).findIndex(
+      (loaded) => loaded.notificationId === notification.notificationId,
+    );
+    return {
+      ...trayProperties(),
+      notification_id: notification.notificationId,
+      topic_action: `${notification.topic}:${notification.action}`,
+      was_seen: notification.isSeen,
+      position,
+      age_s: notification.created ? Math.round(Date.now() / 1000 - notification.created.seconds) : null,
+    };
+  };
+
+  const handleNotificationClick = (notification: Notification.AsObject) => {
+    clickedNotificationIdRef.current = notification.notificationId;
+    logEvent("notifications.item_clicked", notificationProperties(notification));
+  };
+
+  const handleMarkIsSeen = (notification: Notification.AsObject, isSeen: boolean) => {
+    if (!isSeen) {
+      logEvent("notifications.item_marked_unread", notificationProperties(notification));
+    }
+    markSingleNotificationIsSeenMutation({ notificationId: notification.notificationId, isSeen });
+  };
+
+  const closeOptionsMenu = (action: "mark_all_read" | "settings" | null) => {
+    if (isOptionsMenuOpenRef.current) {
+      isOptionsMenuOpenRef.current = false;
+      logEvent("notifications.options_menu_closed", { ...trayProperties(), action });
+    }
+    setInternalMenuAnchorEl(null);
+  };
+
   const handleNotificationSettingsClick = () => {
+    closeOptionsMenu("settings");
     router.push(notificationSettingsRoute);
     onClose();
   };
@@ -86,20 +168,27 @@ const NotificationsFeed = ({ anchorEl, isOpen, onClose }: NotificationsFeedProps
 
     if (!latestNotificationId) return;
 
-    setInternalMenuAnchorEl(null);
+    closeOptionsMenu("mark_all_read");
 
+    logEvent("notifications.mark_all_read", {
+      ...trayProperties(),
+      latest_notification_id: latestNotificationId,
+    });
     markAllNotificationsSeenMutation({ latestNotificationId });
   };
 
   const handleInternalMenuOpen = (event: React.MouseEvent<HTMLButtonElement>): void => {
+    isOptionsMenuOpenRef.current = true;
+    logEvent("notifications.options_menu_opened", trayProperties());
     setInternalMenuAnchorEl(event.currentTarget);
   };
 
   const handleInternalMenuClose = (): void => {
-    setInternalMenuAnchorEl(null);
+    closeOptionsMenu(null);
   };
 
-  const handleNotificationsFilterChange = (filter: "all" | "unread"): void => {
+  const handleNotificationsFilterChange = (filter: NotificationsFilter): void => {
+    logEvent("notifications.filter_clicked", { ...trayProperties(), new_filter: filter });
     setNotificationsFilter(filter);
   };
 
@@ -268,7 +357,12 @@ const NotificationsFeed = ({ anchorEl, isOpen, onClose }: NotificationsFeedProps
                   key={notification.notificationId}
                   notification={notification}
                   onClose={onClose}
-                  onMarkIsSeen={markSingleNotificationIsSeenMutation}
+                  onClick={() => handleNotificationClick(notification)}
+                  onMenuOpened={() => logEvent("notifications.item_menu_opened", notificationProperties(notification))}
+                  onMenuClosed={(action) =>
+                    logEvent("notifications.item_menu_closed", { ...notificationProperties(notification), action })
+                  }
+                  onMarkIsSeen={({ isSeen }) => handleMarkIsSeen(notification, isSeen)}
                 />
               ))
             ) : (

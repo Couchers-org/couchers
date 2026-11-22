@@ -2,8 +2,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "components/Button";
 import { DoneAllIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
+import { logEvent } from "features/analytics";
 import { messageFilterToRequest } from "features/messages/constants";
+import { badgeCounts } from "features/notifications/analytics";
 import { listNotificationsQueryKey, messageThreadsListKey, pingQueryKey } from "features/queryKeys";
+import useNotifications from "features/useNotifications";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { MessageFilterType } from "routes";
@@ -23,6 +26,7 @@ const labelKeyByType: Record<MarkAllReadType, string> = {
 export default function MarkAllReadButton({ type }: { type: MarkAllReadType }) {
   const { t } = useTranslation(MESSAGES);
   const queryClient = useQueryClient();
+  const { data: pingData } = useNotifications();
   const markAll = useMutation({
     mutationFn: () => service.conversations.markAllThreadsSeen(messageFilterToRequest(type)),
     onSuccess: () => {
@@ -40,7 +44,10 @@ export default function MarkAllReadButton({ type }: { type: MarkAllReadType }) {
       {markAll.error && <Snackbar severity="error">{markAll.error.message}</Snackbar>}
 
       <Button
-        onClick={() => markAll.mutate()}
+        onClick={() => {
+          logEvent("messages.mark_all_read", { type, ...badgeCounts(pingData) });
+          markAll.mutate();
+        }}
         loading={markAll.isPending}
         variant="text"
         size="small"

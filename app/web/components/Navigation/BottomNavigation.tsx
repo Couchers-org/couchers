@@ -1,5 +1,8 @@
 import { BottomNavigation as MuiBottomNavigation, BottomNavigationAction, Paper, styled } from "@mui/material";
 import { CalendarIcon, ChatBubbleIcon, HomeIcon, PersonIcon, SearchIcon } from "components/Icons";
+import { logEvent } from "features/analytics";
+import { badgeCounts } from "features/notifications/analytics";
+import useNotifications from "features/useNotifications";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
@@ -37,6 +40,7 @@ const StyledBottomNavigation = styled(MuiBottomNavigation)(({ theme }) => ({
 export default function BottomNavigation() {
   const router = useRouter();
   const { t } = useTranslation(GLOBAL);
+  const { data: pingData } = useNotifications();
 
   // Strip locale prefix from pathname to determine current route
   const currentRoute = useMemo(() => {
@@ -67,7 +71,10 @@ export default function BottomNavigation() {
           label={t("nav.messages")}
           value={messagesRoute}
           icon={<ChatBubbleIcon />}
-          onClick={() => handleNavigation(messagesRoute)}
+          onClick={() => {
+            logEvent("messages.nav_clicked", { location: "bottom", ...badgeCounts(pingData) });
+            handleNavigation(messagesRoute);
+          }}
         />
         <BottomNavigationAction
           label={t("nav.communities")}
