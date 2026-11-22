@@ -32,6 +32,9 @@ import { destroyCollector, initializeCollector, logEvent } from "./eventCollecto
 // zz: added to links in our emails, see app/backend/src/couchers/email/zz.py
 const ATTRIBUTION_PARAMS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "zz"];
 
+// zn: the notification id, added to push notification links, see app/backend/src/couchers/notifications/push.py
+const ONE_TIME_PARAMS = ["zz", "zn"];
+
 /**
  * Extract attribution parameters (UTM params and email refs) from the URL.
  * These help track which campaigns, ads, emails, or links brought users to your site.
@@ -78,7 +81,7 @@ export default function AnalyticsProvider({ children }: { children: ReactNode })
   const previousPathRef = useRef<string | null>(null);
   const previousTimestampRef = useRef<number>(Date.now());
   const initializedRef = useRef(false);
-  const strippingZzRef = useRef(false);
+  const strippingParamsRef = useRef(false);
 
   // Session start + initial page view (runs once on mount)
   useEffect(() => {
@@ -111,16 +114,16 @@ export default function AnalyticsProvider({ children }: { children: ReactNode })
     previousTimestampRef.current = Date.now();
   }, []);
 
-  // Remove zz from the URL so it isn't shared, bookmarked or re-logged on reload. This must go through the
-  // Next router after it's ready: hydration replaces the URL with the original one, and the router keeps zz in
-  // asPath/query (and history.state) otherwise, putting it back on later navigations.
+  // Remove zz and zn from the URL so they aren't shared, bookmarked or re-logged on reload. This must go through
+  // the Next router after it's ready: hydration replaces the URL with the original one, and the router keeps them in
+  // asPath/query (and history.state) otherwise, putting them back on later navigations.
   useEffect(() => {
-    if (!router.isReady || !("zz" in router.query)) return;
+    if (!router.isReady || !ONE_TIME_PARAMS.some((param) => param in router.query)) return;
     const query = { ...router.query };
-    delete query.zz;
+    ONE_TIME_PARAMS.forEach((param) => delete query[param]);
     const as = new URL(router.asPath, window.location.origin);
-    as.searchParams.delete("zz");
-    strippingZzRef.current = true;
+    ONE_TIME_PARAMS.forEach((param) => as.searchParams.delete(param));
+    strippingParamsRef.current = true;
     router.replace({ pathname: router.pathname, query }, as.pathname + as.search + as.hash, {
       shallow: true,
       scroll: false,
@@ -131,9 +134,9 @@ export default function AnalyticsProvider({ children }: { children: ReactNode })
   useEffect(() => {
     const handleRouteChange = (url: string) => {
       const [path, queryString] = url.split("?");
-      if (strippingZzRef.current) {
-        strippingZzRef.current = false;
-        // the zz strip isn't a new page view, but a redirect that cancelled it is
+      if (strippingParamsRef.current) {
+        strippingParamsRef.current = false;
+        // removing the params isn't a new page view, but a redirect that cancelled it is
         if (path.split("#")[0] === previousPathRef.current) return;
       }
       const now = Date.now();

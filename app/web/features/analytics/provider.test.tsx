@@ -274,6 +274,42 @@ describe("AnalyticsProvider", () => {
     });
   });
 
+  describe("push notification id", () => {
+    it("keeps zn in page.viewed search and then removes it from the URL", () => {
+      setLocation("/messages/chats/1", "?zn=42");
+      mockRouter.setCurrentUrl("/messages/chats/1?zn=42");
+
+      render(
+        <AnalyticsProvider>
+          <div />
+        </AnalyticsProvider>,
+      );
+
+      const pageCalls = mockLogEvent.mock.calls.filter((call) => call[0] === "page.viewed");
+      expect(pageCalls).toHaveLength(1);
+      expect(pageCalls[0][1].search).toBe("zn=42");
+      expect(mockRouter.asPath).toBe("/messages/chats/1");
+    });
+
+    it("logs zn on an in-app navigation and then removes it", () => {
+      render(
+        <AnalyticsProvider>
+          <div />
+        </AnalyticsProvider>,
+      );
+      mockLogEvent.mockClear();
+
+      act(() => {
+        mockRouter.push("/connections/friends?from=5&zn=42");
+      });
+
+      const pageCalls = mockLogEvent.mock.calls.filter((call) => call[0] === "page.viewed");
+      expect(pageCalls).toHaveLength(1);
+      expect(pageCalls[0][1]).toMatchObject({ path: "/connections/friends", search: "from=5&zn=42" });
+      expect(mockRouter.asPath).toBe("/connections/friends?from=5");
+    });
+  });
+
   describe("route change tracking", () => {
     it("registers a routeChangeComplete listener on mount", () => {
       render(
