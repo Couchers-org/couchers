@@ -26,7 +26,6 @@ from couchers.models import (
     Upload,
     User,
 )
-from couchers.notifications.push import add_notification_id_to_url
 from couchers.proto import editor_pb2, events_pb2, threads_pb2
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import now, to_aware_datetime
@@ -1661,22 +1660,20 @@ def test_event_threads(db, push_collector: PushCollector, email_collector: Email
     nested_reply_url = urls.event_link(occurrence_id=event.event_id, slug=event.slug, comment_id=nested_reply_id)
 
     push = push_collector.pop_for_user(creator_user.id, last=True)
-    notification = notifications_api.list_notifications(token=creator_token).notifications[0]
     assert push.topic_action == NotificationTopicAction.event__comment.display
     assert push.content.title == f"{commenter_user.name} • Dummy Title"
     assert push.content.ios_title == commenter_user.name
     assert push.content.ios_subtitle == "Commented on Dummy Title"
     assert push.content.body == "hi"
-    assert push.content.action_url == add_notification_id_to_url(comment_url, notification.notification_id)
+    assert push.content.action_url == comment_url
     assert comment_url in email_collector.pop_for_recipient(creator_user.email, last=True).plain
-    assert notification.url == comment_url
+    assert notifications_api.list_notifications(token=creator_token).notifications[0].url == comment_url
 
     push = push_collector.pop_for_user(commenter_user.id, last=True)
-    notification = notifications_api.list_notifications(token=commenter_token).notifications[0]
     assert push.content.title == f"{replier_user.name} • Dummy Title"
-    assert push.content.action_url == add_notification_id_to_url(nested_reply_url, notification.notification_id)
+    assert push.content.action_url == nested_reply_url
     assert nested_reply_url in email_collector.pop_for_recipient(commenter_user.email, last=True).plain
-    assert notification.url == nested_reply_url
+    assert notifications_api.list_notifications(token=commenter_token).notifications[0].url == nested_reply_url
 
     assert push_collector.count_for_user(group_admin_user_id) == 0
 
