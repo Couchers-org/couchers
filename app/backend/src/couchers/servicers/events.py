@@ -1422,7 +1422,7 @@ class Events(events_pb2_grpc.EventsServicer):
         query = query.where(or_(*where_))
 
         if request.my_communities_exclude_global:
-            query = query.join(Node, Node.id == Event.parent_node_id).where(Node.node_type > NodeType.region)
+            query = query.join(Node, Node.id == Event.parent_node_id).where(Node.node_type > NodeType.macroregion)
 
         if not request.include_cancelled:
             query = query.where(~EventOccurrence.is_cancelled)
