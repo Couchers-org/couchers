@@ -119,19 +119,21 @@ export default function PublicTripsSection({ community }: { community: Community
               />
             ))}
           </TripsList>
-          <PaginationRow>
-            <Button onClick={goPrev} disabled={pageIndex === 0} startIcon={<ChevronLeftIcon />}>
-              {t("publicTrips:trip_list.pagination.previous_button")}
-            </Button>
-            <Typography variant="body2">
-              {t("publicTrips:trip_list.pagination.page_indicator", {
-                current: pageIndex + 1,
-              })}
-            </Typography>
-            <Button onClick={goNext} disabled={!data?.nextPageToken} endIcon={<ChevronRightIcon />}>
-              {t("publicTrips:trip_list.pagination.next_button")}
-            </Button>
-          </PaginationRow>
+          {(pageIndex > 0 || data?.nextPageToken) && (
+            <PaginationRow>
+              <Button onClick={goPrev} disabled={pageIndex === 0} startIcon={<ChevronLeftIcon />}>
+                {t("publicTrips:trip_list.pagination.previous_button")}
+              </Button>
+              <Typography variant="body2">
+                {t("publicTrips:trip_list.pagination.page_indicator", {
+                  current: pageIndex + 1,
+                })}
+              </Typography>
+              <Button onClick={goNext} disabled={!data?.nextPageToken} endIcon={<ChevronRightIcon />}>
+                {t("publicTrips:trip_list.pagination.next_button")}
+              </Button>
+            </PaginationRow>
+          )}
         </>
       )}
     </>
