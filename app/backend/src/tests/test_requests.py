@@ -36,6 +36,7 @@ from couchers.models import (
     RateLimitViolation,
     User,
 )
+from couchers.models.logging import EventLog
 from couchers.models.notifications import NotificationTopicAction
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.proto import (
@@ -1224,6 +1225,17 @@ def test_mark_last_seen_clears_notifications(db, moderator):
     requests_api.mark_last_seen_host_request(token=host_token, host_request_id=host_request_id, last_seen_message_id=1)
 
     assert unseen_notification_count(host_user.id) == 0
+
+    with session_scope() as session:
+        messages_event = session.execute(
+            select(EventLog).where(EventLog.event_type == "messages.marked_seen")
+        ).scalar_one()
+        assert messages_event.properties == {
+            "reason": "host_request_read",
+            "host_request_id": host_request_id,
+            "previous_last_seen_message_id": 0,
+            "last_seen_message_id": 1,
+        }
 
 
 def test_response_rate(db, moderator):
