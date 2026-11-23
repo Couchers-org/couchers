@@ -6,9 +6,9 @@ Exposes backend APIs 1-to-1 as functions providing:
 - Neutral parameter defaults so tests only need to be explicit about relevant arguments
 - Where it avoids boilerplate, convenience functionality such as moderation approval as part of object creation.
 
-The point is to support integration tests of backend APIs,
-so functions should correspond and delegate to a backend API,
-and avoid manipulating the database directly.
+Backend API integration tests use these functions,
+so they must map directly to corresponding backend APIs,
+and avoid direct database manipulation or similar shortcuts.
 """
 
 # Reexport submodules such that tests can import "api" and then use "api.events.create_event".
