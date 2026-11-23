@@ -4,8 +4,9 @@ from sqlalchemy import select
 from couchers.db import session_scope
 from couchers.models import ModerationObjectType, ModerationState, ModerationVisibility
 from couchers.models.discussions import ContentChangeType, DiscussionVersion
-from couchers.proto import admin_pb2, communities_pb2, moderation_pb2, notifications_pb2
+from couchers.proto import admin_pb2, moderation_pb2, notifications_pb2
 from couchers.utils import now, to_aware_datetime
+from tests.fixtures.api import communities as communities_api
 from tests.fixtures.api import discussions as discussions_api
 from tests.fixtures.api import notifications as notifications_api
 from tests.fixtures.api import threads as threads_api
@@ -13,7 +14,6 @@ from tests.fixtures.db import generate_user
 from tests.fixtures.misc import Moderator, PushCollector, process_jobs
 from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
-    communities_session,
     real_admin_session,
     real_moderation_session,
 )
@@ -217,11 +217,10 @@ def test_deleted_discussion_not_in_list(db):
     deleted_id = discussions_api.create_discussion(token=token, owner_community_id=community_id).discussion_id
     discussions_api.delete_discussion(token=token, discussion_id=deleted_id)
 
-    with communities_session(token) as api:
-        res = api.ListDiscussions(communities_pb2.ListDiscussionsReq(community_id=community_id))
-        ids = [d.discussion_id for d in res.discussions]
-        assert visible_id in ids
-        assert deleted_id not in ids
+    res = communities_api.list_discussions(token=token, community_id=community_id)
+    ids = [d.discussion_id for d in res.discussions]
+    assert visible_id in ids
+    assert deleted_id not in ids
 
 
 def test_deleted_discussion_thread_still_accessible(db, moderator: Moderator):
@@ -403,9 +402,8 @@ def test_shadowed_discussion_excluded_from_listings(db):
     discussions_api.create_discussion(token=author_token, owner_community_id=community_id)
 
     # Other user does not see the shadowed discussion in listings
-    with communities_session(other_token) as api:
-        res = api.ListDiscussions(communities_pb2.ListDiscussionsReq(community_id=community_id))
-        assert [d.title for d in res.discussions] == []
+    res = communities_api.list_discussions(token=other_token, community_id=community_id)
+    assert [d.title for d in res.discussions] == []
 
 
 def test_approved_discussion_visible_to_others(db, moderator: Moderator):

@@ -20,15 +20,16 @@ from couchers.models import (
     User,
     UserRankingOffset,
 )
-from couchers.proto import api_pb2, communities_pb2, events_pb2, search_pb2
+from couchers.proto import api_pb2, events_pb2, search_pb2
 from couchers.servicers.search import USER_SEARCH_NOISE_PERIOD_DAYS
 from couchers.utils import Timestamp_from_datetime, create_coordinate, now, today
+from tests.fixtures.api import communities as communities_api
 from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.feature_flags import Flags
 from tests.fixtures.misc import Moderator
 from tests.fixtures.rpc_errors import expect_rpc_error
-from tests.fixtures.sessions import communities_session, search_session
+from tests.fixtures.sessions import search_session
 from tests.test_communities import create_community, testing_communities  # noqa
 from tests.test_references import create_friend_reference
 from tests.utils import local_date_time
@@ -783,8 +784,7 @@ def test_event_search_filter_subscription_attendance_organizing_my_communities(s
     _, token = generate_user()
     other_user, other_token = generate_user()
 
-    with communities_session(token) as api:
-        api.JoinCommunity(communities_pb2.JoinCommunityReq(community_id=sample_community))
+    communities_api.join_community(token=token, community_id=sample_community)
 
     with session_scope() as session:
         create_community(session, 55, 60, "Other community", [other_user], [], None)
@@ -846,8 +846,7 @@ def test_event_search_exclude_attending(sample_community, moderator: Moderator):
     user, token = generate_user()
     other_user, other_token = generate_user()
 
-    with communities_session(token) as api:
-        api.JoinCommunity(communities_pb2.JoinCommunityReq(community_id=sample_community))
+    communities_api.join_community(token=token, community_id=sample_community)
 
     with session_scope() as session:
         create_community(session, 55, 60, "Other community", [other_user], [], None)
