@@ -380,21 +380,16 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
               {trip.description}
             </Description>
             {(isOverflowing || expanded) && (
-              <Typography
-                variant="body2"
+              <Button
+                variant="text"
+                size="small"
                 onClick={() => setExpanded((e) => !e)}
-                sx={{
-                  cursor: "pointer",
-                  color: "var(--mui-palette-primary-main)",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 0.25,
-                  mt: 0.5,
-                }}
+                aria-expanded={expanded}
+                endIcon={expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                sx={{ alignSelf: "flex-start", mt: 0.5, px: 0 }}
               >
                 {expanded ? t("publicTrips:trip_card.show_less_action") : t("publicTrips:trip_card.show_more_action")}
-                {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-              </Typography>
+              </Button>
             )}
             {!showOwnMarker && (
               <Box

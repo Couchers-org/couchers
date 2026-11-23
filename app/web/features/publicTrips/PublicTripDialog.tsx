@@ -174,6 +174,7 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
               <Typography variant="body2">
                 <Typography
                   component="span"
+                  variant="inherit"
                   sx={{
                     fontWeight: 600,
                   }}
