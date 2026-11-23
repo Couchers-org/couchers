@@ -21,13 +21,13 @@ from couchers.models import (
 )
 from couchers.proto import (
     admin_pb2,
-    discussions_pb2,
     events_pb2,
     messages_pb2,
     references_pb2,
 )
 from couchers.utils import not_none, now
 from tests.fixtures.api import conversations as conversations_api
+from tests.fixtures.api import discussions as discussions_api
 from tests.fixtures.api import events as events_api
 from tests.fixtures.api import public_trips as public_trips_api
 from tests.fixtures.api import requests as requests_api
@@ -35,7 +35,6 @@ from tests.fixtures.api import threads as threads_api
 from tests.fixtures.db import generate_user, make_friends, make_user_block, make_user_invisible
 from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
-    discussions_session,
     real_admin_session,
     references_session,
 )
@@ -225,14 +224,9 @@ def test_ExportUserData_covers_content_across_the_site(db, moderator):
     with session_scope() as session:
         node_id = create_community(session, 0, 2, "Export Community", [user], [], None).id
 
-    with discussions_session(token) as api:
-        discussion = api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title="export discussion",
-                content="export discussion content",
-                owner_community_id=node_id,
-            )
-        )
+    discussion = discussions_api.create_discussion(
+        token=token, title="export discussion", content="export discussion content", owner_community_id=node_id
+    )
 
     start_time = now() + timedelta(hours=2)
     event = events_api.create_event(
