@@ -9,7 +9,9 @@ from couchers.proto.bfc import bfc_pb2, bfc_pb2_grpc
 
 TIMEOUT_SECONDS = 0.25
 CHANNEL_OPTIONS = [
-    ("grpc.max_reconnect_backoff_ms", 5_000),
+    ("grpc.initial_reconnect_backoff_ms", 200),
+    ("grpc.max_reconnect_backoff_ms", 500),
+    ("grpc.dns_min_time_between_resolutions_ms", 500),
     ("grpc.keepalive_time_ms", 30_000),
     ("grpc.keepalive_timeout_ms", 10_000),
     ("grpc.keepalive_permit_without_calls", 1),
