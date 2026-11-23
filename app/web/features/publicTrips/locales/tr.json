@@ -1,1 +1,39 @@
-{}
+{
+  "trip_list": {
+    "pagination": {
+      "page_indicator": "Sayfa {{current}}"
+    },
+    "see_all_link": "Herkese açık tüm yolculukları gör"
+  },
+  "trip_card": {
+    "references_one": "{{count}} referans",
+    "references_other": "{{count}} referans",
+    "you_overlay": "SEN",
+    "invitations_count_one": "{{count}} davet",
+    "invitations_count_other": "{{count}} davet",
+    "no_invitations": "Henüz davet yok",
+    "status_pills": {
+      "active": "Aktif",
+      "closed": "Kapalı"
+    },
+    "same_gender_only_indicator": "Yalnızca aynı cinsiyetten kişilere görünür",
+    "already_invited_indicator": "Davet gönderildi",
+    "show_less_action": "Daha az göster",
+    "show_more_action": "Daha fazla göster",
+    "view_profile_button": "Profili görüntüle",
+    "view_invitations_button": "Davetleri görüntüle",
+    "edit_button": "Seyahati düzenle",
+    "close_button": "Kapalı olarak işaretle",
+    "reopen_button": "Seyahati yeniden aç",
+    "offer_to_host_button": "Ev sahipliği yapmayı teklif et",
+    "offer_to_host_button_disabled_tooltip": "Bu seyahat artık davet kabul etmiyor."
+  },
+  "create_edit_dialog": {
+    "create_title": "Herkese açık seyahat oluştur",
+    "edit_title": "Herkese açık seyahati düzenle",
+    "from_date": {
+      "label": "Varış",
+      "required_error": "Lütfen bir varış tarihi seçin."
+    }
+  }
+}

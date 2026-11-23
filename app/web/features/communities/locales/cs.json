@@ -153,5 +153,8 @@
   "comment_edited_date2": "Upraveno<timeAgo/>",
   "discussion_edited_date2": "Upraveno<timeAgo/>",
   "add_to_calendar": "Přidat do kalendáře",
-  "couch_crashes_prompt": "Hledáš něco většího? <crashesLink>Zobrazit nadcházející Couch Crashes</crashesLink>"
+  "couch_crashes_prompt": "Hledáš něco většího? <crashesLink>Zobrazit nadcházející Couch Crashes</crashesLink>",
+  "event_created_merch_note": {
+    "title": "Tvá událost byla vytvořena!"
+  }
 }

@@ -475,8 +475,8 @@
       },
       "address_form": {
         "description": "Via, città e paese sono obbligatori. Verifichiamo che l'indirizzo sia raggiungibile per la consegna prima di stampare la cartolina.",
-        "recipient_name_label": "Nome",
-        "recipient_name_helper": "Preso dal nome sul tuo profilo, che è quello che stampiamo sulla cartolina. Se non corrisponde al nome sulla tua cassetta della posta, <editProfileLink>aggiorna il nome sul tuo profilo</editProfileLink>.",
+        "recipient_name_label": "Nome completo",
+        "recipient_name_helper": "Come appare sulla tua cassetta postale.",
         "address_line_1_label": "Indirizzo (linea 1)",
         "address_line_2_label": "Indirizzo (riga 2, facoltativo)",
         "address_line_2_placeholder": "Scala, interno, piano",
