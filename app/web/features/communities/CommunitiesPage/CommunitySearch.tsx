@@ -67,25 +67,8 @@ export default function CommunitySearch() {
     fetchAllCommunities();
   }, []);
 
-  // Sort hierarchically: first by depth (number of parents), then by full
-  // parent path, then by name. Honors the user's locale and re-sorts on
-  // language change without re-fetching.
   const sortedCommunities = useMemo(
-    () =>
-      [...allCommunities].sort((a, b) => {
-        // First, sort by depth in hierarchy (fewer parents = higher in tree)
-        const depthCompare = a.parentsList.length - b.parentsList.length;
-        if (depthCompare !== 0) return depthCompare;
-
-        // Then sort by the full path through the hierarchy
-        const aPath = a.parentsList.map((p) => p.community?.name || "").join("/");
-        const bPath = b.parentsList.map((p) => p.community?.name || "").join("/");
-        const pathCompare = aPath.localeCompare(bPath, i18n.language);
-        if (pathCompare !== 0) return pathCompare;
-
-        // Finally sort by community name
-        return a.name.localeCompare(b.name, i18n.language);
-      }),
+    () => [...allCommunities].sort((a, b) => a.name.localeCompare(b.name, i18n.language)),
     [allCommunities, i18n.language],
   );
 
