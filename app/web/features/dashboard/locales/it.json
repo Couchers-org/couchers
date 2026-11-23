@@ -126,5 +126,7 @@
     "map_message_thanks": "Grazie per averci aperto le tue porte.",
     "map_read_more_link": "Scopri di più",
     "map_a11y": "Mappa dei membri di Couchers in tutto il mondo, con gruppi di utenti mostrati città per città e fusi insieme in regioni"
-  }
+  },
+  "happening_now_pill": "ora",
+  "happening_soon_pill": "presto"
 }
