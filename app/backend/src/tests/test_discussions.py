@@ -5,9 +5,10 @@ from sqlalchemy import select
 from couchers.db import session_scope
 from couchers.models import ModerationObjectType, ModerationState, ModerationVisibility
 from couchers.models.discussions import ContentChangeType, DiscussionVersion
-from couchers.proto import admin_pb2, communities_pb2, discussions_pb2, moderation_pb2, notifications_pb2, threads_pb2
+from couchers.proto import admin_pb2, communities_pb2, discussions_pb2, moderation_pb2, notifications_pb2
 from couchers.utils import now, to_aware_datetime
 from tests.fixtures.api import notifications as notifications_api
+from tests.fixtures.api import threads as threads_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import Moderator, PushCollector, process_jobs
 from tests.fixtures.rpc_errors import expect_rpc_error
@@ -16,7 +17,6 @@ from tests.fixtures.sessions import (
     discussions_session,
     real_admin_session,
     real_moderation_session,
-    threads_session,
 )
 from tests.test_communities import create_community, create_group
 
@@ -340,9 +340,7 @@ def test_deleted_discussion_thread_still_accessible(db, moderator: Moderator):
 
     process_jobs()
 
-    with threads_session(commenter_token) as api:
-        comment_thread_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=thread_id, content="a comment")).thread_id
-    moderator.approve_thread_post(comment_thread_id)
+    threads_api.post_reply(token=commenter_token, thread_id=thread_id, approve_by=moderator)
 
     with discussions_session(token) as api:
         api.DeleteDiscussion(discussions_pb2.DeleteDiscussionReq(discussion_id=discussion_id))
@@ -350,9 +348,8 @@ def test_deleted_discussion_thread_still_accessible(db, moderator: Moderator):
         assert res.deleted
         assert res.thread.num_responses == 1
 
-    with threads_session(token) as api:
-        res = api.GetThread(threads_pb2.GetThreadReq(thread_id=thread_id))
-        assert len(res.replies) == 1
+    res = threads_api.get_thread(token=token, thread_id=thread_id)
+    assert len(res.replies) == 1
 
 
 def test_delete_comment_shows_placeholder_with_replies(db, moderator: Moderator):
@@ -377,39 +374,25 @@ def test_delete_comment_shows_placeholder_with_replies(db, moderator: Moderator)
         thread_id = discussion.thread.thread_id
 
     # commenter adds a top-level comment
-    with threads_session(commenter_token) as api:
-        comment_thread_id = api.PostReply(
-            threads_pb2.PostReplyReq(thread_id=thread_id, content="top-level comment")
-        ).thread_id
+    comment_thread_id = threads_api.post_reply(token=commenter_token, thread_id=thread_id, approve_by=moderator)
 
     # replier adds two nested replies
-    with threads_session(replier_token) as api:
-        reply_thread_id_1 = api.PostReply(
-            threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="nested reply 1")
-        ).thread_id
-        reply_thread_id_2 = api.PostReply(
-            threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="nested reply 2")
-        ).thread_id
-
-    moderator.approve_thread_post(comment_thread_id)
-    moderator.approve_thread_post(reply_thread_id_1)
-    moderator.approve_thread_post(reply_thread_id_2)
+    threads_api.post_reply(token=replier_token, thread_id=comment_thread_id, approve_by=moderator)
+    threads_api.post_reply(token=replier_token, thread_id=comment_thread_id, approve_by=moderator)
 
     # commenter deletes their top-level comment
-    with threads_session(commenter_token) as api:
-        api.DeleteReply(threads_pb2.DeleteReplyReq(thread_id=comment_thread_id))
+    threads_api.delete_reply(token=commenter_token, thread_id=comment_thread_id)
 
     # the top-level comment appears as a deleted placeholder (has replies), replies still visible
-    with threads_session(token) as api:
-        thread_res = api.GetThread(threads_pb2.GetThreadReq(thread_id=thread_id))
-        assert len(thread_res.replies) == 1
-        placeholder = thread_res.replies[0]
-        assert placeholder.deleted
-        assert placeholder.content == ""
-        assert placeholder.author_user_id == 0
+    thread_res = threads_api.get_thread(token=token, thread_id=thread_id)
+    assert len(thread_res.replies) == 1
+    placeholder = thread_res.replies[0]
+    assert placeholder.deleted
+    assert placeholder.content == ""
+    assert placeholder.author_user_id == 0
 
-        nested = api.GetThread(threads_pb2.GetThreadReq(thread_id=placeholder.thread_id))
-        assert len(nested.replies) == 2
+    nested = threads_api.get_thread(token=token, thread_id=placeholder.thread_id)
+    assert len(nested.replies) == 2
 
     # num_responses counts the 2 visible nested replies (not the deleted top-level)
     with discussions_session(token) as api:
@@ -474,21 +457,11 @@ def test_discussion_notifications_regression(db, push_collector: PushCollector, 
         discussion_id = res.discussion_id
         thread_id = res.thread.thread_id
 
-    with threads_session(commenter_token) as api:
-        comment_thread_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=thread_id, content="comment")).thread_id
-    moderator.approve_thread_post(comment_thread_id)
+    comment_thread_id = threads_api.post_reply(token=commenter_token, thread_id=thread_id, approve_by=moderator)
 
-    with threads_session(replier_token) as api:
-        reply_thread_id_a = api.PostReply(
-            threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="reply to comment")
-        ).thread_id
-    moderator.approve_thread_post(reply_thread_id_a)
+    threads_api.post_reply(token=replier_token, thread_id=comment_thread_id, approve_by=moderator)
 
-    with threads_session(creator_token) as api:
-        reply_thread_id_b = api.PostReply(
-            threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="reply to reply to comment")
-        ).thread_id
-    moderator.approve_thread_post(reply_thread_id_b)
+    threads_api.post_reply(token=creator_token, thread_id=comment_thread_id, approve_by=moderator)
 
     process_jobs()
 
