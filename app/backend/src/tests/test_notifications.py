@@ -32,6 +32,7 @@ from couchers.models import (
     PushNotificationSubscription,
     User,
 )
+from couchers.models.logging import EventLog
 from couchers.notifications.background import handle_notification
 from couchers.notifications.expo_api import get_expo_push_receipts
 from couchers.notifications.notify import PendingNotification, notify, notify_many
@@ -439,6 +440,24 @@ def test_notifications_seen(db, push_collector: PushCollector, moderator):
         assert [n.is_seen for n in res.notifications] == [True, True, False]
 
         assert api.Ping(api_pb2.PingReq()).unseen_notification_count == 1
+
+    with session_scope() as session:
+        events = session.execute(
+            select(EventLog).where(EventLog.event_type.startswith("notifications.marked_")).order_by(EventLog.id)
+        ).scalars()
+        assert [(e.event_type, e.user_id, e.properties) for e in events] == [
+            ("notifications.marked_all_seen", recipient_user.id, {"latest_notification_id": notification_ids[0]}),
+            (
+                "notifications.marked_unseen",
+                recipient_user.id,
+                {"notification_id": notification_ids[1], "was_seen": True},
+            ),
+            (
+                "notifications.marked_seen",
+                recipient_user.id,
+                {"notification_id": notification_ids2[0], "was_seen": False},
+            ),
+        ]
 
 
 def test_unseen_notification_count_excludes_ums_hidden(db, moderator):

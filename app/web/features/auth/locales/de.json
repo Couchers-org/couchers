@@ -483,8 +483,8 @@
         "country_label": "Land",
         "submit_button": "Überprüfe meine Adresse",
         "required_field_error": "Dieses Feld wird benötigt",
-        "recipient_name_label": "Name",
-        "recipient_name_helper": "Übernommen aus dem Anzeigenamen in deinem Profil. Diesen Namen drucken wir auf die Postkarte. Wenn das nicht der Name auf deinem Briefkasten ist, solltest du zuerst <editProfileLink>deinen Anzeigenamen aktualisieren</editProfileLink>."
+        "recipient_name_label": "Vollständiger Name",
+        "recipient_name_helper": "Wie auf deinem Briefkasten angegeben."
       },
       "confirm": {
         "corrected_description": "Wir haben deine Adresse an die offiziellen Postdaten angepasst. Bitte überprüfe sie sorgfältig. Sobald sie bestätigt ist, kann die Lieferadresse nicht mehr geändert werden.",

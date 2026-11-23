@@ -75,7 +75,7 @@ describe("DiscoverEventsList", () => {
     expect(screen.getByRole("link", { name: "create" })).toBeInTheDocument();
   });
 
-  it("Excludes events the user is already attending or organizing", async () => {
+  it("Includes events the user is attending or organizing", async () => {
     mockEventSearch.mockResolvedValue({
       eventsList: [],
       totalItems: 0,
@@ -85,8 +85,9 @@ describe("DiscoverEventsList", () => {
     render(<DiscoverEventsList />, { wrapper });
 
     await waitFor(() => {
-      expect(mockEventSearch).toHaveBeenCalledWith(expect.objectContaining({ excludeAttending: true }));
+      expect(mockEventSearch).toHaveBeenCalled();
     });
+    expect(mockEventSearch).not.toHaveBeenCalledWith(expect.objectContaining({ excludeAttending: true }));
   });
 
   it("Renders error message when there is an error", async () => {

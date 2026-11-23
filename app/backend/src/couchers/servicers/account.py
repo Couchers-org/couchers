@@ -188,13 +188,18 @@ class Account(account_pb2_grpc.AccountServicer):
         test_gate = context.get_boolean_value("test_growthbook_integration", default=False)
         logger.info(f"Experimentation gate 'test_growthbook_integration' for user {user.id}: {test_gate}")
 
-        # The donation drive (and its banner) is controlled by the donation_drive_start flag: a Unix
-        # epoch in seconds when a drive is running, or 0/unset when there's no drive. Users who haven't
-        # donated since the drive started see the banner.
+        # The donation drive (and its banner) runs between the donation_drive_start and donation_drive_end
+        # flags, Unix epochs in seconds. A start of 0/unset means no drive; an end of 0/unset means no end.
+        # Users who haven't donated since the start see the banner.
         drive_start_epoch = context.get_integer_value("donation_drive_start", 0)
+        drive_end_epoch = context.get_integer_value("donation_drive_end", 0)
         drive_start = datetime.fromtimestamp(drive_start_epoch, tz=UTC) if drive_start_epoch else None
-        should_show_donation_banner = drive_start is not None and (
-            user.last_donated is None or user.last_donated < drive_start
+        drive_end = datetime.fromtimestamp(drive_end_epoch, tz=UTC) if drive_end_epoch else None
+        should_show_donation_banner = (
+            drive_start is not None
+            and drive_start <= now()
+            and (drive_end is None or now() < drive_end)
+            and (user.last_donated is None or user.last_donated < drive_start)
         )
 
         return account_pb2.GetAccountInfoRes(

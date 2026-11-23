@@ -60,6 +60,7 @@ from couchers.email.smtp import send_smtp_email
 from couchers.event_log import log_event
 from couchers.event_recurrence import make_every_nth_week_rrule, schedule_occurrences
 from couchers.helpers.badges import user_add_badge, user_remove_badge
+from couchers.helpers.community_checks import run_community_checks
 from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.helpers.group_chats import is_newest_subscription, is_unseen
 from couchers.helpers.hosting_meetup_status import record_hosting_meetup_status
@@ -721,6 +722,11 @@ def add_users_to_email_list(payload: empty_pb2.Empty) -> None:
 
 def enforce_community_membership(payload: empty_pb2.Empty) -> None:
     tasks_enforce_community_memberships()
+
+
+def check_communities(payload: empty_pb2.Empty) -> None:
+    with session_scope() as session:
+        run_community_checks(session, now())
 
 
 def update_recommendation_scores(payload: empty_pb2.Empty) -> None:

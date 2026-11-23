@@ -258,7 +258,12 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
     ) -> threads_pb2.GetThreadRes:
         database_id, depth = unpack_thread_id(request.thread_id)
         page_size = request.page_size if 0 < request.page_size < 100000 else 1000
-        page_start = unpack_thread_id(int(request.page_token))[0] if request.page_token else 2**50
+        oldest_first = request.sort_order == threads_pb2.THREAD_SORT_ORDER_OLDEST_FIRST
+        # the page token is the id of the last reply on the previous page; ids grow with time
+        if request.page_token:
+            page_start = unpack_thread_id(int(request.page_token))[0]
+        else:
+            page_start = 0 if oldest_first else 2**50
 
         if depth == 0:
             if not session.execute(select(Thread).where(Thread.id == database_id)).scalar_one_or_none():
@@ -286,8 +291,8 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                         select(Comment, visible_reply_count)
                         .where(Comment.thread_id == database_id)
                         .where((Comment.deleted == None) | has_replies)
-                        .where(Comment.id < page_start)
-                        .order_by(Comment.created.desc())
+                        .where(Comment.id > page_start if oldest_first else Comment.id < page_start)
+                        .order_by(Comment.created.asc() if oldest_first else Comment.created.desc())
                         .limit(page_size + 1),
                         context,
                         Comment.author_user_id,
@@ -343,8 +348,8 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                             select(Reply)
                             .where(Reply.comment_id == database_id)
                             .where(Reply.deleted == None)
-                            .where(Reply.id < page_start)
-                            .order_by(Reply.created.desc())
+                            .where(Reply.id > page_start if oldest_first else Reply.id < page_start)
+                            .order_by(Reply.created.asc() if oldest_first else Reply.created.desc())
                             .limit(page_size + 1),
                             context,
                             Reply.author_user_id,
