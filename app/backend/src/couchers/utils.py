@@ -59,6 +59,13 @@ def is_valid_user_id(field: str) -> bool:
     return re.match(r"[1-9][0-9]*$", field) is not None
 
 
+def utf16_length(text: str) -> int:
+    # Python's len(str) does not match Javascript's string.length.
+    # e.g. len("😀") == 1 but "😀".length == 2.
+    # To match the frontend's validation, measure the string in utf16 code units.
+    return len(text.encode("utf-16-le")) // 2  # utf-16-le does not include a prefix BOM code unit.
+
+
 def is_valid_username(field: str) -> bool:
     """
     Checks if it's an alphanumeric + underscore, lowercase string, at least
