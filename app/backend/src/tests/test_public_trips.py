@@ -196,7 +196,7 @@ def test_create_public_trip_in_past_uses_node_timezone(db):
         (5, 375, "A public trip can't be longer than one year."),
     ],
 )
-def test_public_trip_date_errors_name_the_form_fields(db, from_days, to_days, message):
+def test_create_update_date_validation(db, frozen_timewarp, from_days, to_days, message):
     user, token = generate_user()
     node_id = _make_node()
 
@@ -209,15 +209,13 @@ def test_public_trip_date_errors_name_the_form_fields(db, from_days, to_days, me
         )
 
     trip_id = _create_trip_directly(user.id, node_id, today() + timedelta(days=20), today() + timedelta(days=25))
-    with public_trips_session(token) as api:
-        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, message):
-            api.UpdatePublicTrip(
-                public_trips_pb2.UpdatePublicTripReq(
-                    trip_id=trip_id,
-                    from_date=(today() + timedelta(days=from_days)).isoformat(),
-                    to_date=(today() + timedelta(days=to_days)).isoformat(),
-                )
-            )
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, message):
+        public_trips_api.update_public_trip(
+            token=token,
+            trip_id=trip_id,
+            from_date=today() + timedelta(days=from_days),
+            to_date=today() + timedelta(days=to_days),
+        )
 
 
 def test_create_public_trip_date_errors(db):
