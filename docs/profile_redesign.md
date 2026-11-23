@@ -16,7 +16,10 @@ The native app shows the web profile, so web changes cover mobile too.
 - [ ] **Latest reference preview card** with "Read all N references", switching to the References tab. Hidden when there are no references.
 - [ ] **"Staying with X" teaser:** one essentials line (sleeping privacy, max guests, last-minute) linking to the Home tab.
 - [ ] **Connections card:** one card with two versions. On someone else's profile, friends in common (call `ListMutualFriends` from the web, avatars via `useLiteUsers`), hidden when there are none or when logged out. On your own profile, "Your connections": friend count, avatar stack, "N new friend requests · Review". Replaces the outlined "My connections" button in `Overview.tsx`.
-- [ ] **Profile completeness on your own profile:** a scale (e.g. "Your profile is 70% complete") with the next steps to finish it, like adding a photo, writing more about yourself, filling in My home or getting verified. Today completeness is only yes/no (`profile_complete`, `has_completed_my_home`), so decide which fields count and whether it's worked out on the web or the backend.
+- [ ] **Profile completeness on your own profile:** a "% done" scale (e.g. "Your profile is 70% complete") with the next steps to finish it.
+  - **Depends on hosting:** if you can or may host, My home counts towards the %; if you can't host, it doesn't, so non-hosts aren't marked down for it.
+  - **Uses the backend's rules, not copies of them:** `has_completed_profile` (photo + about me ≥ `COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH`, 150) and the new `has_completed_my_home` (about my home ≥ `COMPLETED_MY_HOME_MINIMUM_CHAR_LENGTH`, 50). Expose these (or the minimums) to your own profile from the backend; today `has_completed_my_home` is only on search results and the web hardcodes 150 in `profileAboutMeMinLength`.
+  - **Includes the minimum alert:** while the profile is below the minimum, show the existing "Please write at least N more characters to unlock messaging and requests" / "Please add a photo" alert (`EditProfile.tsx`) inside the card, since that's what blocks messages, requests, comments and events.
 - [ ] **Action buttons:** Request to stay (contained), Message (outlined), Add friend and Report as small grey text buttons.
 
 ## 3. Restyle each section (still in tabs)
@@ -54,5 +57,4 @@ Today you edit your whole profile on one page with "about" and "home" tabs. Inst
 
 - [ ] "My Home" photos, up to 3 (#10091)
 - [ ] Request to stay in the left panel, like Message
-- [ ] Share / copy profile link
 - [ ] Active public trips on the profile
