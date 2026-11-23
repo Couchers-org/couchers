@@ -14,6 +14,7 @@ from couchers.proto import (
 )
 from couchers.utils import today
 from tests.fixtures.api import events as events_api
+from tests.fixtures.api import public_trips as public_trips_api
 from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.feature_flags import Flags
@@ -21,7 +22,6 @@ from tests.fixtures.sessions import (
     account_session,
     communities_session,
     discussions_session,
-    public_trips_session,
     screens_session,
 )
 from tests.test_communities import create_community
@@ -68,25 +68,20 @@ def test_GetDashboard_matches_individual_rpcs(db, moderator):
         page_size=9,
         my_communities=True,
         my_communities_exclude_global=True,
-        exclude_attending=True,
     )
 
     with discussions_session(surfer_token) as api:
         discussions = api.ListMyCommunitiesDiscussions(discussions_pb2.ListMyCommunitiesDiscussionsReq(page_size=9))
     with account_session(surfer_token) as api:
         reminders = api.GetReminders(empty_pb2.Empty())
-    with public_trips_session(surfer_token) as api:
-        my_public_trips = api.ListPublicTripsByUser(
-            public_trips_pb2.ListPublicTripsByUserReq(
-                user_id=surfer_user.id,
-                page_size=10,
-                statuses_in=[public_trips_pb2.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST],
-                ascending=True,
-            )
-        )
-        community_public_trips = api.ListMyCommunitiesPublicTrips(
-            public_trips_pb2.ListMyCommunitiesPublicTripsReq(page_size=10)
-        )
+    my_public_trips = public_trips_api.list_public_trips_by_user(
+        token=surfer_token,
+        user_id=surfer_user.id,
+        page_size=10,
+        statuses_in=[public_trips_pb2.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST],
+        ascending=True,
+    )
+    community_public_trips = public_trips_api.list_my_communities_public_trips(token=surfer_token, page_size=10)
 
     with communities_session(surfer_token) as api:
         my_communities = api.ListUserCommunities(communities_pb2.ListUserCommunitiesReq(page_size=25))
@@ -130,19 +125,17 @@ def test_GetDashboard_buckets_by_role(db, moderator):
     assert len(res.surfing.host_requests) == 0
 
 
-def test_GetDashboard_community_events_excludes_attending(db, moderator):
-    # Pins the exclude_attending parameter the web frontend sends: an event the user is
-    # attending shows under my_events and must not also duplicate into community_events.
+def test_GetDashboard_community_events_includes_own_events(db, moderator):
+    # Users' own events also show under community_events, so they can see they're published
     attendee_user, attendee_token = generate_user()
     organizer_user, organizer_token = generate_user()
 
     with session_scope() as session:
-        # community_events excludes global-level communities, so nest down to a subregion
+        # community_events excludes world and macroregion communities, so nest down to a region
         world = create_community(session, 0, 100, "World", [attendee_user, organizer_user], [], None)
         macroregion = create_community(session, 0, 100, "Macroregion", [attendee_user, organizer_user], [], world)
         region = create_community(session, 0, 100, "Region", [attendee_user, organizer_user], [], macroregion)
-        subregion = create_community(session, 0, 100, "Subregion", [attendee_user, organizer_user], [], region)
-        community_id = subregion.id
+        community_id = region.id
 
     e_attending = events_api.create_event(
         token=organizer_token, parent_community_id=community_id, approve_by=moderator
@@ -157,10 +150,12 @@ def test_GetDashboard_community_events_excludes_attending(db, moderator):
 
     with screens_session(attendee_token) as api:
         res = api.GetDashboard(screens_pb2.GetDashboardReq())
-
-    # the attended event shows only under my_events, and the unjoined community event only under community_events
     assert [e.event_id for e in res.my_events.events] == [e_attending]
-    assert [e.event_id for e in res.community_events.events] == [e_community_only]
+    assert [e.event_id for e in res.community_events.events] == [e_attending, e_community_only]
+
+    with screens_session(organizer_token) as api:
+        res = api.GetDashboard(screens_pb2.GetDashboardReq())
+    assert [e.event_id for e in res.community_events.events] == [e_attending, e_community_only]
 
 
 def test_GetDashboard_my_communities(db):

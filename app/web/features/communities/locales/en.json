@@ -1,4 +1,9 @@
 {
+  "event_created_merch_note": {
+    "title": "Your event has been created!",
+    "message": "Did you know Couchers.org has merch? Grab a flag, t-shirt or more to help people find your event!",
+    "shop_button": "Check out the shop"
+  },
   "by_creator": "By {{name}}",
   "cancelled": "Cancelled",
   "cancel_event": "Cancel event",

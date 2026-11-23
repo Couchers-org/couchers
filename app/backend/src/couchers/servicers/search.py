@@ -7,6 +7,7 @@ from math import pi
 from typing import Any, cast
 
 import grpc
+from dateutil.relativedelta import relativedelta
 from google.protobuf import wrappers_pb2
 from sqlalchemy import ColumnElement, Float, SQLColumnExpression, literal_column, select, tuple_, type_coerce
 from sqlalchemy.orm import Session
@@ -515,11 +516,18 @@ def _user_search_inner(
         statement = statement.where(
             User.parking_details.in_([parkingdetails2sql[det] for det in request.parking_details_filter])
         )
-    # limits/default could be handled on the front end as well
-    min_age = request.age_min.value if request.HasField("age_min") else DEFAULT_SEARCH_AGE_MIN
-    max_age = request.age_max.value if request.HasField("age_max") else DEFAULT_SEARCH_AGE_MAX
+    # clamped so that subtracting the ages from today stays within the range of a date
+    min_age = min(
+        request.age_min.value if request.HasField("age_min") else DEFAULT_SEARCH_AGE_MIN, DEFAULT_SEARCH_AGE_MAX
+    )
+    max_age = min(
+        request.age_max.value if request.HasField("age_max") else DEFAULT_SEARCH_AGE_MAX, DEFAULT_SEARCH_AGE_MAX
+    )
 
-    statement = statement.where((User.age >= min_age) & (User.age <= max_age))
+    statement = statement.where(
+        (User.birthdate <= today() - relativedelta(years=min_age))
+        & (User.birthdate > today() - relativedelta(years=max_age + 1))
+    )
 
     # return results with by language code as only input
     # fluency in conversational or fluent
@@ -572,15 +580,14 @@ def _user_search_inner(
 
     if request.HasField("search_in_rectangle"):
         statement = statement.where(
-            func.ST_Within(
-                User.geom,
+            User.geom.op("&&")(
                 func.ST_MakeEnvelope(
                     request.search_in_rectangle.lng_min,
                     request.search_in_rectangle.lat_min,
                     request.search_in_rectangle.lng_max,
                     request.search_in_rectangle.lat_max,
                     4326,
-                ),
+                )
             )
         )
 
@@ -607,7 +614,6 @@ def _user_search_inner(
     # bool friends_only = 13;
 
     page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-    total_items = cast(int, session.execute(select(func.count()).select_from(statement.subquery())).scalar())
 
     noise_scale = context.get_float_value("user_search_noise_scale", DEFAULT_USER_SEARCH_NOISE_SCALE)
     ranking_score = User.recommendation_score + noise_scale * _user_search_noise(User.id, context.user_id)
@@ -618,26 +624,36 @@ def _user_search_inner(
             and_(UserRankingOffset.user_id == User.id, UserRankingOffset.variant == ranking_offsets_variant),
         )
         ranking_score = ranking_score + func.coalesce(UserRankingOffset.offset, 0.0)
-    ranked_statement = statement.add_columns(ranking_score)
+    # the page token condition goes outside this subquery so that the window count covers every match, not only the
+    # matches after the token
+    ranked = statement.add_columns(ranking_score.label("score"), func.count().over().label("total")).subquery()
+    page_statement = select(ranked.c.id, ranked.c.score, ranked.c.total)
     if request.page_token:
         last_score, last_id = decrypt_page_token(request.page_token).split(",")
-        ranked_statement = ranked_statement.where(tuple_(ranking_score, User.id) < (float(last_score), int(last_id)))
+        page_statement = page_statement.where(tuple_(ranked.c.score, ranked.c.id) < (float(last_score), int(last_id)))
 
-    ranked_statement = ranked_statement.order_by(ranking_score.desc(), User.id.desc()).limit(page_size + 1)
-    res = session.execute(ranked_statement).all()
+    page_statement = page_statement.order_by(ranked.c.score.desc(), ranked.c.id.desc()).limit(page_size + 1)
+    res = session.execute(page_statement).all()
+
+    if res:
+        total_items = res[0].total
+    elif request.page_token:
+        total_items = cast(int, session.execute(select(func.count()).select_from(statement.subquery())).scalar())
+    else:
+        total_items = 0
 
     next_page_token = None
     if len(res) > page_size:
-        last_user_id, last_rec_score = res[page_size - 1]
+        last_user_id, last_rec_score, _ = res[page_size - 1]
         next_page_token = encrypt_page_token(f"{last_rec_score},{last_user_id}")
-    return [user_id for user_id, _ in res[:page_size]], next_page_token, total_items, ranking_offsets_variant
+    return [user_id for user_id, _, _ in res[:page_size]], next_page_token, total_items, ranking_offsets_variant
 
 
 def _user_search_bfc(
     request: search_pb2.UserSearchReq, context: CouchersContext, session: Session
-) -> tuple[list[int], str | None, int, str] | None:
+) -> tuple[list[int], str | None, int, int, str] | None:
     """
-    Returns the page, the next page token, the total and bfc's search id, or None if bfc failed
+    Returns the page, the next page token, the total, the unfiltered total and bfc's search id, or None if bfc failed
     """
     user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
@@ -709,7 +725,7 @@ def _user_search_bfc(
 
     # bfc sends a few users past the end of the page
     user_ids = [result.user_id for result in res.results[: res.page_size]]
-    return user_ids, res.next_page_token or None, res.total, res.search_id
+    return user_ids, res.next_page_token or None, res.total, res.unfiltered_total, res.search_id
 
 
 def _visible_users_in_order(user_ids: list[int], context: CouchersContext, session: Session) -> list[int]:
@@ -830,6 +846,7 @@ class Search(search_pb2_grpc.SearchServicer):
         bfc_result = _user_search_bfc(request, context, session) if use_bfc else None
 
         bfc_search_id = None
+        total_unfiltered_items = 0
         rerank = False
         if request.exactly_user_ids:
             source = "backend"
@@ -837,7 +854,7 @@ class Search(search_pb2_grpc.SearchServicer):
             next_page_token, total_items, ranking_offsets_variant = None, len(user_ids_to_return), ""
         elif bfc_result is not None:
             source = "bfc"
-            user_ids_to_return, next_page_token, total_items, bfc_search_id = bfc_result
+            user_ids_to_return, next_page_token, total_items, total_unfiltered_items, bfc_search_id = bfc_result
             ranking_offsets_variant = ""
         else:
             source = "fallback" if use_bfc else "backend"
@@ -929,6 +946,7 @@ class Search(search_pb2_grpc.SearchServicer):
             results=results,
             next_page_token=next_page_token,
             total_items=total_items,
+            total_unfiltered_items=total_unfiltered_items,
         )
 
     def EventSearch(
@@ -1040,15 +1058,14 @@ class Search(search_pb2_grpc.SearchServicer):
             )
         if request.HasField("search_in_rectangle"):
             statement = statement.where(
-                func.ST_Within(
-                    EventOccurrence.geom,
+                EventOccurrence.geom.op("&&")(
                     func.ST_MakeEnvelope(
                         request.search_in_rectangle.lng_min,
                         request.search_in_rectangle.lat_min,
                         request.search_in_rectangle.lng_max,
                         request.search_in_rectangle.lat_max,
                         4326,
-                    ),
+                    )
                 )
             )
         if request.HasField("search_in_community_id"):
@@ -1074,10 +1091,22 @@ class Search(search_pb2_grpc.SearchServicer):
 
         statement = apply_occurrence_pagination(statement, page_token, request.past)
 
-        total_items = session.execute(select(func.count()).select_from(statement.subquery())).scalar()
+        page_statement = statement.add_columns(func.count().over())
         # Apply pagination by page number
-        statement = statement.offset(offset).limit(page_size) if request.page_number else statement.limit(page_size + 1)
-        occurrences = session.execute(statement).scalars().all()
+        page_statement = (
+            page_statement.offset(offset).limit(page_size)
+            if request.page_number
+            else page_statement.limit(page_size + 1)
+        )
+        rows = session.execute(page_statement).all()
+        occurrences = [occurrence for occurrence, _ in rows]
+
+        if rows:
+            total_items = rows[0][1]
+        elif page_token or request.page_number:
+            total_items = session.execute(select(func.count()).select_from(statement.subquery())).scalar()
+        else:
+            total_items = 0
 
         return search_pb2.EventSearchRes(
             events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],

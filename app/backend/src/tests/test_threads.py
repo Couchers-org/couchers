@@ -112,19 +112,28 @@ def test_threads_errors(db):
 
 
 def pagination_test(api, parent_id):
-    # Post some data
+    # Post some data, oldest "z" to newest "a"
     for c in reversed(string.ascii_lowercase):
         api.PostReply(threads_pb2.PostReplyReq(thread_id=parent_id, content=c))
 
-    # Get it with pagination
-    token = ""
+    def read_pages(**kwargs):
+        token = ""
+        pages = []
+        while True:
+            ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_id, page_size=5, page_token=token, **kwargs))
+            pages.append("".join(x.content for x in ret.replies))
+            token = ret.next_page_token
+            if not token:
+                return pages, ret
 
-    for expected_page in textwrap.wrap(string.ascii_lowercase, 5):
-        ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_id, page_size=5, page_token=token))
-        assert "".join(x.content for x in ret.replies) == expected_page
-        token = ret.next_page_token
+    newest_pages = textwrap.wrap(string.ascii_lowercase, 5)
+    oldest_pages = textwrap.wrap(string.ascii_lowercase[::-1], 5)
 
-    assert token == ""
+    # newest first is the default
+    pages, ret = read_pages()
+    assert pages == newest_pages
+    assert read_pages(sort_order=threads_pb2.THREAD_SORT_ORDER_NEWEST_FIRST)[0] == newest_pages
+    assert read_pages(sort_order=threads_pb2.THREAD_SORT_ORDER_OLDEST_FIRST)[0] == oldest_pages
 
     return ret.replies[0].thread_id  # to be used as a test one level deeper
 

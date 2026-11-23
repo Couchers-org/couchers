@@ -60,6 +60,7 @@ from couchers.email.smtp import send_smtp_email
 from couchers.event_log import log_event
 from couchers.event_recurrence import make_every_nth_week_rrule, schedule_occurrences
 from couchers.helpers.badges import user_add_badge, user_remove_badge
+from couchers.helpers.community_checks import run_community_checks
 from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.helpers.group_chats import is_newest_subscription, is_unseen
 from couchers.helpers.hosting_meetup_status import record_hosting_meetup_status
@@ -723,6 +724,11 @@ def enforce_community_membership(payload: empty_pb2.Empty) -> None:
     tasks_enforce_community_memberships()
 
 
+def check_communities(payload: empty_pb2.Empty) -> None:
+    with session_scope() as session:
+        run_community_checks(session, now())
+
+
 def update_recommendation_scores(payload: empty_pb2.Empty) -> None:
     text_fields = [
         User.hometown,
@@ -1317,7 +1323,7 @@ def _schedule_occurrences_for_recurrence(session: Session, recurrence: EventRecu
                 geom=recurrence.geom,
                 address=recurrence.address,
                 timezone=recurrence.timezone,
-                # TODO(#9845): Initialize photo_key. Implies adding admin usage tracking infra.
+                photo_key=recurrence.photo_key,
                 during=TimestamptzRange(start_datetime, end_datetime),
                 creator_user_id=recurrence.event.creator_user_id,
                 moderation_state_id=moderation_state_id,

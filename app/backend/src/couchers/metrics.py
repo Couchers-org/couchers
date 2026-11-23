@@ -26,6 +26,7 @@ from sqlalchemy.sql.selectable import Select
 from couchers import experimentation
 from couchers.config import config
 from couchers.db import session_scope
+from couchers.helpers.community_checks import RULES as COMMUNITY_ISSUE_RULES
 from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.materialized_views import ClusterSubscriptionCount
 from couchers.middleware.perf import PerfResult
@@ -33,6 +34,9 @@ from couchers.models import (
     BackgroundJob,
     ClientPlatform,
     Cluster,
+    CommunityCheckRun,
+    CommunityIssue,
+    CommunityIssuePriority,
     EventOccurrenceAttendee,
     HostingStatus,
     HostRequest,
@@ -602,6 +606,48 @@ def _set_active_users_by_platform(gauge: Gauge) -> None:
 
 
 _set_hacky_labeled_gauges_funcs.append((active_users_by_platform_gauge, _set_active_users_by_platform))
+
+community_issues_gauge: Gauge = Gauge(
+    "couchers_community_issues",
+    "Open issues found by the community checks, by rule and priority",
+    labelnames=["rule", "priority"],
+    multiprocess_mode="mostrecent",
+)
+
+
+def _set_community_issues(gauge: Gauge) -> None:
+    with tracer.start_as_current_span("metric.couchers_community_issues"):
+        with session_scope() as session:
+            rows = session.execute(
+                select(CommunityIssue.rule, CommunityIssue.priority, func.count())
+                .where(CommunityIssue.resolved.is_(None))
+                .group_by(CommunityIssue.rule, CommunityIssue.priority)
+            ).all()
+    counts = {(rule, priority): count for rule, priority, count in rows}
+    for rule in COMMUNITY_ISSUE_RULES:
+        for priority in CommunityIssuePriority:
+            gauge.labels(rule, priority.name).set(counts.get((rule, priority), 0))
+
+
+_set_hacky_labeled_gauges_funcs.append((community_issues_gauge, _set_community_issues))
+
+
+def _from_last_community_check_run(column: Any) -> Select[*tuple[Any, ...]]:
+    return select(func.coalesce(select(column).order_by(CommunityCheckRun.id.desc()).limit(1).scalar_subquery(), 0))
+
+
+community_checks_active_users_gauge: Gauge = _make_gauge_from_query(
+    "couchers_community_checks_active_users",
+    "Users active in the last 90 days, as of the last run of the community checks",
+    _from_last_community_check_run(CommunityCheckRun.active_users),
+)
+
+active_users_outside_localities_gauge: Gauge = _make_gauge_from_query(
+    "couchers_active_users_outside_localities",
+    "Users active in the last 90 days whose location is outside every locality, as of the last run of the community "
+    "checks",
+    _from_last_community_check_run(CommunityCheckRun.active_users_outside_localities),
+)
 
 sent_message_gauge: Gauge = _make_gauge_from_query(
     "couchers_users_sent_message",

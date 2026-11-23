@@ -44,8 +44,12 @@ const reportContentMock = service.reporting.reportContent as jest.MockedFunction
   typeof service.reporting.reportContent
 >;
 
-function renderEventPage(id = 1, slug = "weekly-meetup", { commentId }: { commentId?: number } = {}) {
-  const query = commentId === undefined ? "" : `?comment=${commentId}`;
+function renderEventPage(
+  id = 1,
+  slug = "weekly-meetup",
+  { commentId, query: extraQuery }: { commentId?: number; query?: string } = {},
+) {
+  const query = extraQuery ?? (commentId === undefined ? "" : `?comment=${commentId}`);
   mockRouter.setCurrentUrl(`${eventBaseRoute}/${id}/${slug}${query}`);
   render(<EventPage eventId={id} eventSlug={slug} />, { wrapper: hookWrapper });
 }
@@ -531,5 +535,13 @@ describe("Event page", () => {
 
       await assertErrorAlert(errorMessage);
     });
+  });
+
+  it("offers the merch shop once right after creating the event, then drops the flag from the URL", async () => {
+    renderEventPage(1, "weekly-meetup", { query: "?created=true" });
+
+    const shopLink = await screen.findByRole("link", { name: t("communities:event_created_merch_note.shop_button") });
+    expect(shopLink).toHaveAttribute("href", "/shop?utm_source=event_created");
+    await waitFor(() => expect(mockRouter.query.created).toBeUndefined());
   });
 });

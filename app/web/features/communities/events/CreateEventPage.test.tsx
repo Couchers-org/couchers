@@ -148,6 +148,8 @@ describe("Create event page", () => {
       startTime: Temporal.PlainDateTime.from("2021-08-01T01:00"),
       endTime: Temporal.PlainDateTime.from("2021-08-01T02:00"),
     });
+    // the event page uses "created" to show the organizer a one-off note
+    await waitFor(() => expect(mockRouter.asPath).toBe(`/event/${events[0].eventId}/${events[0].slug}?created=true`));
   });
 
   it("creates on event with route state correctly", async () => {

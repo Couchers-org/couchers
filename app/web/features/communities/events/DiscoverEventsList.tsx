@@ -93,7 +93,6 @@ const DiscoverEventsList = () => {
     pageNumber,
     isMyCommunities,
     searchLocation: locationResult,
-    excludeAttending: true,
   });
 
   const hasEvents = data && data.eventsList && data.eventsList.length > 0;
