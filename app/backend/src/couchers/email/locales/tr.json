@@ -23,12 +23,14 @@
   "account_deletion": {
     "started": {
       "confirm_action": "Hesap silme işlemini onayla",
-      "subject": "Hesabının silinmesini onayla"
+      "subject": "Hesabının silinmesini onayla",
+      "purpose": "Couchers.org hesabınızı silmemizi talep ettiniz. Bu işlemi tamamlamak için lütfen aşağıdaki bağlantıya tıklayın:"
     },
     "completed": {
       "subject": "Hesabınız silindi",
       "purpose": "Couchers.org hesabınızı başarıyla sildiniz.",
-      "farewell": "Gittiğini görmek bizi üzüyor, gelecekteki yolculuklarında sana en iyisini diliyoruz. Couchers.org platformuna geri dönmen her zaman memnuniyetle karşılanır :)"
+      "farewell": "Gittiğini görmek bizi üzüyor, gelecekteki yolculuklarında sana en iyisini diliyoruz. Couchers.org platformuna geri dönmen her zaman memnuniyetle karşılanır :)",
+      "recover_action": "Hesap kurtar"
     },
     "recovered": {
       "login_instructions": "Tekrar giriş yapmak için bağlantıya tıklayın:",
@@ -99,6 +101,7 @@
   "calendar_events": {
     "host_requests": {
       "title_surfer": "{{ name }} ile sörf"
-    }
+    },
+    "title_cancelled": "{{ title }}: İptal edildi"
   }
 }
