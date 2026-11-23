@@ -103,7 +103,8 @@ export default function SearchPage() {
     hasNextPage,
     hasPreviousPage,
     currentRange,
-    totalItems,
+    totalFilteredItems,
+    totalUnfilteredItems,
     users,
     searchQueryId,
   } = useUserSearch(searchParams, mapSearchState);
@@ -120,7 +121,8 @@ export default function SearchPage() {
       search_query_id: searchQueryId,
       page_number: mapSearchState.pageNumber,
       num_results: users.length,
-      total_items: totalItems,
+      total_items: totalFilteredItems,
+      total_unfiltered_items: totalUnfilteredItems,
       has_next_page: hasNextPage,
       has_previous_page: hasPreviousPage,
       map_view: mapView,
@@ -140,7 +142,8 @@ export default function SearchPage() {
     mapSearchState.filters,
     hasNextPage,
     hasPreviousPage,
-    totalItems,
+    totalFilteredItems,
+    totalUnfilteredItems,
     mapView,
     logEvent,
   ]);
@@ -211,6 +214,10 @@ export default function SearchPage() {
     }
   };
 
+  // here so both the search bar and the results line can open the filters
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const handleOpenFilters = () => setIsFiltersOpen(true);
+
   return (
     <SearchPageContainer>
       <MapProvider>
@@ -218,8 +225,11 @@ export default function SearchPage() {
         <SearchControlsWrapper>
           <SearchControls
             drawerWidth={drawerWidth}
+            isFiltersOpen={isFiltersOpen}
             mapRef={mapRef}
             mapView={mapView}
+            onCloseFilters={() => setIsFiltersOpen(false)}
+            onOpenFilters={handleOpenFilters}
             onSetMapView={handleSetMapView}
             onZoomIn={handleZoomIn}
           />
@@ -227,6 +237,7 @@ export default function SearchPage() {
         <SearchAnalyticsProvider searchQueryId={searchQueryId} pageNumber={mapSearchState.pageNumber}>
           <MapSearchContent
             error={error}
+            onOpenFilters={handleOpenFilters}
             drawerWidth={drawerWidth}
             hasPreviousPage={hasPreviousPage}
             hasNextPage={hasNextPage}
@@ -240,7 +251,8 @@ export default function SearchPage() {
             onSetMapView={handleSetMapView}
             onZoomIn={handleZoomIn}
             onZoomOut={handleZoomOut}
-            totalItems={totalItems}
+            totalFilteredItems={totalFilteredItems}
+            totalUnfilteredItems={totalUnfilteredItems}
             users={users}
           />
         </SearchAnalyticsProvider>

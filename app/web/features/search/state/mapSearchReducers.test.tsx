@@ -43,6 +43,35 @@ describe("mapSearchReducer SET_FILTERS", () => {
 });
 
 describe("mapSearchReducer", () => {
+  describe("the searched place's name, for the results line", () => {
+    const searched = mapSearchReducer(initialState, {
+      type: mapSearchActionTypes.SET_SEARCH_INPUT_VALUE,
+      payload: { location: berlin, center: [13.4, 52.5], zoom: 10 },
+    });
+
+    it("is kept after searching a place", () => {
+      expect(searched.uiOnly.placeName).toBe("Berlin");
+    });
+
+    it("is dropped when searching a different map area", () => {
+      const state = mapSearchReducer(searched, {
+        type: mapSearchActionTypes.SET_MAP_QUERY_AREA,
+        payload: { bbox: [0, 0, 1, 1], zoom: 12, didCrossSearchThreshold: false },
+      });
+
+      expect(state.uiOnly.placeName).toBeUndefined();
+    });
+
+    it("is dropped when the location search is cleared", () => {
+      const state = mapSearchReducer(searched, {
+        type: mapSearchActionTypes.CLEAR_SEARCH_INPUT_VALUE,
+        payload: { bbox: BBOX },
+      });
+
+      expect(state.uiOnly.placeName).toBeUndefined();
+    });
+  });
+
   describe("after searching a location and then clearing it", () => {
     const searched = mapSearchReducer(initialState, {
       type: mapSearchActionTypes.SET_SEARCH_INPUT_VALUE,
@@ -120,14 +149,14 @@ describe("mapSearchReducer SET_MAP_QUERY_AREA", () => {
     payload: { hostingStatus: [HostingStatus.HOSTING_STATUS_CANT_HOST], acceptsPets: true },
   });
 
-  it("applies the default filters when zooming in with none set", () => {
+  it("applies the default hosting filter when zooming in with none set, without hiding empty profiles", () => {
     const state = zoomIn(initialState);
 
     expect(state.filters.hostingStatus).toEqual([
       HostingStatus.HOSTING_STATUS_CAN_HOST,
       HostingStatus.HOSTING_STATUS_MAYBE,
     ]);
-    expect(state.filters.showEmptyProfile).toBe(false);
+    expect(state.filters.showEmptyProfile).toBeUndefined();
   });
 
   it("keeps the user's hosting status when zooming in", () => {

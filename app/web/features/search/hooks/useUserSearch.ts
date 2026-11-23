@@ -8,28 +8,23 @@ import { service } from "service";
 import { FilterOptions } from "../SearchPage";
 import { MapSearchState } from "../state/mapSearchReducers";
 
+export interface ResultsRange {
+  firstResultNumber: number;
+  lastResultNumber: number;
+}
+
+const PAGE_SIZE = 100;
+
 const calculateCurrentRange = ({
   pageNumber,
-  currentPageNumItems,
-  totalItems,
+  totalFilteredItems,
 }: {
   pageNumber: number;
-  currentPageNumItems: number;
-  totalItems: number;
-}) => {
-  const pageSize = 100;
-
-  if (pageNumber === 1 && currentPageNumItems < pageSize) {
-    // First page with fewer results than page size
-    return `${currentPageNumItems}`;
-  }
-
-  // Calculate range for paginated results
-  const startRange = (pageNumber - 1) * pageSize + 1;
-  const endRange = Math.min(pageNumber * pageSize, totalItems);
-
-  return `${startRange}-${endRange}`;
-};
+  totalFilteredItems: number;
+}): ResultsRange => ({
+  firstResultNumber: (pageNumber - 1) * PAGE_SIZE + 1,
+  lastResultNumber: Math.min(pageNumber * PAGE_SIZE, totalFilteredItems),
+});
 
 export function useUserSearch(searchParams: FilterOptions, mapSearchState: MapSearchState) {
   const meetsSearchCriteria =
@@ -61,15 +56,11 @@ export function useUserSearch(searchParams: FilterOptions, mapSearchState: MapSe
 
   const hasNextPage = (users ?? []).length > 0 && data?.pages[mapSearchState.pageNumber - 1]?.nextPageToken !== "";
 
-  const totalItems = data?.pages[0]?.totalItems ?? 0;
+  const totalFilteredItems = data?.pages[0]?.totalItems ?? 0;
+  // everyone in the area before filters; 0 when the backend can't count it (e.g. keyword searches)
+  const totalUnfilteredItems = data?.pages[0]?.totalUnfilteredItems ?? 0;
 
-  const currentPageNumItems = data?.pages[mapSearchState.pageNumber - 1]?.resultsList?.length ?? 0;
-
-  const currentRange = calculateCurrentRange({
-    pageNumber: mapSearchState.pageNumber,
-    currentPageNumItems,
-    totalItems,
-  });
+  const currentRange = calculateCurrentRange({ pageNumber: mapSearchState.pageNumber, totalFilteredItems });
 
   // Rolls when filters/bbox/query change, stays put across pagination within
   // the same intent. searchParams keeps a stable reference across pagination.
@@ -90,7 +81,8 @@ export function useUserSearch(searchParams: FilterOptions, mapSearchState: MapSe
     fetchNextPage,
     fetchPreviousPage,
     currentRange,
-    totalItems,
+    totalFilteredItems,
+    totalUnfilteredItems,
     searchQueryId,
   };
 }

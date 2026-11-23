@@ -47,8 +47,8 @@ describe("SearchPage map zoom handlers", () => {
       hasPreviousPage: false,
       fetchNextPage: jest.fn(),
       fetchPreviousPage: jest.fn(),
-      currentRange: "0",
-      totalItems: 0,
+      currentRange: { firstResultNumber: 1, lastResultNumber: 0 },
+      totalFilteredItems: 0,
       searchQueryId: "test-query-id",
     });
 

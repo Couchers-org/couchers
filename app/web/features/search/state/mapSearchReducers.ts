@@ -51,6 +51,8 @@ type MapSearchState = {
     bbox: Coordinates | undefined;
     center: LngLatLike | undefined;
     zoom: number;
+    // name of the searched place, e.g. "Berlin"; undefined once the area isn't that place's
+    placeName: string | undefined;
   };
 };
 
@@ -147,6 +149,7 @@ const initialState: MapSearchState = {
     bbox: undefined,
     center: undefined,
     zoom: 1,
+    placeName: undefined,
   },
 };
 
@@ -159,10 +162,9 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
         state.hasActiveFilters || state.search.bbox !== undefined || state.shouldSearchByUserId;
 
       const defaultFiltersActive =
-        state.filters.showEmptyProfile ||
-        (state.filters.hostingStatus?.includes(HostingStatus.HOSTING_STATUS_CAN_HOST) &&
-          state.filters.hostingStatus?.includes(HostingStatus.HOSTING_STATUS_MAYBE) &&
-          !state.filters.hostingStatus.includes(HostingStatus.HOSTING_STATUS_CANT_HOST));
+        state.filters.hostingStatus?.includes(HostingStatus.HOSTING_STATUS_CAN_HOST) &&
+        state.filters.hostingStatus?.includes(HostingStatus.HOSTING_STATUS_MAYBE) &&
+        !state.filters.hostingStatus.includes(HostingStatus.HOSTING_STATUS_CANT_HOST);
 
       return {
         ...state,
@@ -171,7 +173,6 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
           filters: {
             ...state.filters,
             hostingStatus: initialState.filters.hostingStatus,
-            showEmptyProfile: initialState.filters.showEmptyProfile,
           },
         }),
         search: {
@@ -195,13 +196,16 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
         pageNumber: initialState.pageNumber,
         showSearchThisAreaButton: initialState.showSearchThisAreaButton,
         shouldSearchByUserId: initialState.shouldSearchByUserId,
+        uiOnly: {
+          ...state.uiOnly,
+          placeName: initialState.uiOnly.placeName,
+        },
       };
     case mapSearchActionTypes.CLEAR_SEARCH_INPUT_VALUE:
       const areDefaultFiltersActive =
-        state.filters.showEmptyProfile ||
-        (state.filters.hostingStatus?.includes(HostingStatus.HOSTING_STATUS_CAN_HOST) &&
-          state.filters.hostingStatus?.includes(HostingStatus.HOSTING_STATUS_MAYBE) &&
-          !state.filters.hostingStatus.includes(HostingStatus.HOSTING_STATUS_CANT_HOST));
+        state.filters.hostingStatus?.includes(HostingStatus.HOSTING_STATUS_CAN_HOST) &&
+        state.filters.hostingStatus?.includes(HostingStatus.HOSTING_STATUS_MAYBE) &&
+        !state.filters.hostingStatus.includes(HostingStatus.HOSTING_STATUS_CANT_HOST);
 
       const clearedState = {
         ...state,
@@ -209,12 +213,15 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
           filters: {
             ...state.filters,
             hostingStatus: initialState.filters.hostingStatus,
-            showEmptyProfile: initialState.filters.showEmptyProfile,
           },
         }),
         search: {
           bbox: initialState.search.bbox,
           query: initialState.search.query,
+        },
+        uiOnly: {
+          ...state.uiOnly,
+          placeName: initialState.uiOnly.placeName,
         },
         pageNumber: initialState.pageNumber,
         shouldSearchByUserId: state.selectedUserId !== undefined,
@@ -246,7 +253,6 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
         filters: {
           ...state.filters,
           hostingStatus: [HostingStatus.HOSTING_STATUS_CAN_HOST, HostingStatus.HOSTING_STATUS_MAYBE], // Default to can host and maybe when searching a location
-          showEmptyProfile: false, // Default to not showing empty profiles when searching a location
         },
         search: {
           ...state.search,
@@ -261,6 +267,7 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
           bbox: locationBbox,
           center: newCenter,
           zoom: newZoom ? newZoom : state.uiOnly.zoom,
+          placeName: location?.simplifiedName,
         },
       };
 
@@ -286,9 +293,6 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
           filters: {
             ...state.filters,
             ...(isDefaultHostingStatus && { hostingStatus: initialState.filters.hostingStatus }),
-            ...(state.filters.showEmptyProfile === false && {
-              showEmptyProfile: initialState.filters.showEmptyProfile,
-            }),
           },
         };
 
@@ -308,7 +312,6 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
               HostingStatus.HOSTING_STATUS_CAN_HOST,
               HostingStatus.HOSTING_STATUS_MAYBE,
             ],
-            showEmptyProfile: state.filters.showEmptyProfile ?? false,
           },
         }),
         search: {
@@ -323,6 +326,7 @@ const mapSearchReducer = (state: MapSearchState, action: MapSearchAction): MapSe
         uiOnly: {
           ...state.uiOnly,
           zoom: action.payload.zoom ?? state.uiOnly.zoom,
+          placeName: initialState.uiOnly.placeName,
         },
       };
     }
