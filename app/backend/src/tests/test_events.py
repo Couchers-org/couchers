@@ -1228,6 +1228,26 @@ def test_ListEventOccurrences(db):
     assert not res.next_page_token
 
 
+def test_ListMyEvents_exclude_global_keeps_regions(db, moderator: Moderator):
+    user, token = generate_user()
+
+    with session_scope() as session:
+        world = create_community(session, 0, 100, "World", [user], [], None)
+        macroregion = create_community(session, 0, 75, "Macroregion", [user], [], world)
+        region = create_community(session, 0, 50, "Region", [user], [], macroregion)
+        community_ids = [world.id, macroregion.id, region.id]
+
+    world_event, macroregion_event, region_event = [
+        events_api.create_event(token=token, parent_community_id=community_id, approve_by=moderator).event_id
+        for community_id in community_ids
+    ]
+
+    listed_events = events_api.list_my_events(
+        token=token, my_communities=True, my_communities_exclude_global=True
+    ).events
+    assert [event.event_id for event in listed_events] == [region_event]
+
+
 def test_ListMyEvents(db, moderator: Moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
@@ -1237,7 +1257,7 @@ def test_ListMyEvents(db, moderator: Moderator):
 
     with session_scope() as session:
         # Create global (world) -> macroregion -> region -> subregion hierarchy
-        # my_communities_exclude_global filters out world, macroregion, and region level communities
+        # my_communities_exclude_global filters out world and macroregion level communities
         global_community = create_community(session, 0, 100, "Global", [user3], [], None)
         c_id = global_community.id
         macroregion_community = create_community(
@@ -2116,6 +2136,15 @@ def test_event_photo_key(db):
     get_res = events_api.get_event(token=token, event_id=event_id)
     assert get_res.photo_key == "test_event_photo_key_123"
     assert "test_event_photo_key_123" in get_res.photo_url
+
+    # Updating to an unknown photo fails
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
+        events_api.update_event(token=token, event_id=event_id, photo_key="nonexistent_key")
+
+    # An empty photo key clears the photo
+    update_res = events_api.update_event(token=token, event_id=event_id, photo_key="")
+    assert update_res.photo_key == ""
+    assert update_res.photo_url == ""
 
 
 def test_event_timezone(db):

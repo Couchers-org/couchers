@@ -1,23 +1,20 @@
 import { render, screen } from "@testing-library/react";
-import { ListMyCommunitiesPublicTripsRes } from "proto/public_trips_pb";
 import { service } from "service";
 import publicTrips from "test/fixtures/publicTrips";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
+import { getDashboard } from "test/serviceMockDefaults";
 
 import DashboardCommunityPublicTrips from "./DashboardCommunityPublicTrips";
 
 const { t } = i18n;
 
-const listMyCommunitiesPublicTripsMock = service.publicTrips.listMyCommunitiesPublicTrips as jest.MockedFunction<
-  typeof service.publicTrips.listMyCommunitiesPublicTrips
->;
+const getDashboardMock = service.screens.getDashboard as jest.MockedFunction<typeof service.screens.getDashboard>;
 
 function mockTrips(trips: typeof publicTrips) {
-  listMyCommunitiesPublicTripsMock.mockResolvedValue({
-    ...new ListMyCommunitiesPublicTripsRes().toObject(),
-    publicTripsList: trips,
-  });
+  getDashboardMock.mockImplementation(() =>
+    getDashboard({ communityPublicTrips: { publicTripsList: trips, nextPageToken: "" } }),
+  );
 }
 
 describe("DashboardCommunityPublicTrips", () => {
@@ -34,6 +31,8 @@ describe("DashboardCommunityPublicTrips", () => {
     );
     expect(screen.getAllByText(first.communityName)[0]).toBeVisible();
     expect(screen.getByText(publicTrips[1].user!.name)).toBeVisible();
+    // the trips come from the dashboard, not a separate request
+    expect(service.publicTrips.listMyCommunitiesPublicTrips).not.toHaveBeenCalled();
   });
 
   it("shows an empty message when there are no trips", async () => {

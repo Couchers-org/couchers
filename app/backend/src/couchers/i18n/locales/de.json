@@ -251,7 +251,8 @@
     "invalid_event_recurrence_end_date": "Ungültiges Enddatum für wiederkehrendes Event.",
     "invalid_event_recurrence_rule": "Es werden nur wöchentlich und zweiwöchentlich wiederkehrende Events unterstützt.",
     "recurring_event_creation_disabled": "Das Erstellen wiederkehrender Events ist derzeit deaktiviert.",
-    "user_search_area_not_supported": "Die Suche nach Benutzern nach Bereich oder Community wird nicht mehr unterstützt."
+    "user_search_area_not_supported": "Die Suche nach Benutzern nach Bereich oder Community wird nicht mehr unterstützt.",
+    "recipient_name_required": "Der vollständige Name ist erforderlich."
   },
   "quick_links": {
     "do_not_email": "Du wirst keine E-Mails mehr erhalten, die nicht sicherheitsrelevant sind, und dein Hosting-Status wurde zurückgesetzt. Der Newsletter muss separat abbestellt werden.",

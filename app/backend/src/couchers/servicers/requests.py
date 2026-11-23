@@ -1068,11 +1068,25 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if host_request.initiator_user_id == context.user_id:
             if not host_request.initiator_last_seen_message_id <= request.last_seen_message_id:
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_unsee_messages")
+            previous_last_seen_message_id = host_request.initiator_last_seen_message_id
             host_request.initiator_last_seen_message_id = request.last_seen_message_id
         else:
             if not host_request.recipient_last_seen_message_id <= request.last_seen_message_id:
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_unsee_messages")
+            previous_last_seen_message_id = host_request.recipient_last_seen_message_id
             host_request.recipient_last_seen_message_id = request.last_seen_message_id
+
+        log_event(
+            context,
+            session,
+            "messages.marked_seen",
+            {
+                "reason": "host_request_read",
+                "host_request_id": host_request.conversation_id,
+                "previous_last_seen_message_id": previous_last_seen_message_id,
+                "last_seen_message_id": request.last_seen_message_id,
+            },
+        )
 
         mark_notifications_seen(
             session,

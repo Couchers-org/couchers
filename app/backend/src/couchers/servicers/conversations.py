@@ -571,6 +571,17 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         if not subscription.last_seen_message_id <= request.last_seen_message_id:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_unsee_messages")
 
+        log_event(
+            context,
+            session,
+            "messages.marked_seen",
+            {
+                "reason": "group_chat_read",
+                "group_chat_id": request.group_chat_id,
+                "previous_last_seen_message_id": subscription.last_seen_message_id,
+                "last_seen_message_id": request.last_seen_message_id,
+            },
+        )
         subscription.last_seen_message_id = request.last_seen_message_id
 
         mark_notifications_seen(

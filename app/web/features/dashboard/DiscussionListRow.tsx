@@ -23,7 +23,7 @@ const RowLink = styled(Link)({
   display: "flex",
   alignItems: "center",
   gap: "14px",
-  padding: "10px 14px 10px 0",
+  padding: "10px 14px",
   textDecoration: "none",
   color: "inherit",
   borderRadius: "8px",
@@ -82,7 +82,7 @@ const SkeletonRow = styled("div")({
   display: "flex",
   alignItems: "center",
   gap: "14px",
-  padding: "10px 14px 10px 0",
+  padding: "10px 14px",
 });
 
 export function DiscussionListRowSkeleton() {

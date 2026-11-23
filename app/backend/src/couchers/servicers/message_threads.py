@@ -22,6 +22,7 @@ from sqlalchemy.sql import and_, case, func, literal, or_
 
 from couchers.context import CouchersContext
 from couchers.crypto import decrypt_page_token, encrypt_page_token
+from couchers.event_log import log_event
 from couchers.helpers.group_chats import is_newest_subscription, is_unseen, mute_info, was_subscribed_at
 from couchers.helpers.host_requests import (
     HOST_REQUEST_NOTIFICATION_TOPIC_ACTIONS,
@@ -439,6 +440,8 @@ def mark_all_threads_seen(
 
     # (topic actions, keys) groups for the notifications owned by the threads we mark seen
     notification_groups: list[tuple[Sequence[NotificationTopicAction], Sequence[str]]] = []
+    marked_group_chat_ids: Sequence[int] = []
+    marked_conversation_ids: list[int] = []
 
     if conversations_pb2.MESSAGE_THREAD_CATEGORY_CHATS in filters.categories:
         chat_query = _build_group_chat_select_query(context, filters.only_archived, filters.only_unread)
@@ -489,7 +492,6 @@ def mark_all_threads_seen(
         latest_message_id = (
             select(func.max(Message.id)).where(Message.conversation_id == HostRequest.conversation_id).scalar_subquery()
         )
-        marked_conversation_ids: list[int] = []
         for user_id_column, last_seen_column in (
             (HostRequest.initiator_user_id, HostRequest.initiator_last_seen_message_id),
             (HostRequest.recipient_user_id, HostRequest.recipient_last_seen_message_id),
@@ -514,6 +516,18 @@ def mark_all_threads_seen(
                     [str(conversation_id) for conversation_id in marked_conversation_ids],
                 )
             )
+
+    log_event(
+        context,
+        session,
+        "messages.marked_seen",
+        {
+            "reason": "all_threads_read",
+            "group_chat_ids": sorted(marked_group_chat_ids),
+            "host_request_ids": sorted(marked_conversation_ids),
+        },
+        value=len(marked_group_chat_ids) + len(marked_conversation_ids),
+    )
 
     mark_notifications_seen(session, user_id=context.user_id, topic_actions_and_keys=notification_groups)
 

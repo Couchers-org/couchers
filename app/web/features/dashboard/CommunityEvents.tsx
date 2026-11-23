@@ -9,7 +9,7 @@ import { useState } from "react";
 import { routeToNewEvent } from "../../routes";
 import DashboardSectionHeader from "./DashboardSectionHeader";
 import EventListRow, { EventListContainer, EventListRowSkeleton } from "./EventListRow";
-import useGetDashboard, { DASHBOARD_PAGE_SIZE } from "./useGetDashboard";
+import useGetDashboard, { Dashboard, DASHBOARD_PAGE_SIZE } from "./useGetDashboard";
 
 const EmptyStateRow = styled("div")(({ theme }) => ({
   display: "flex",
@@ -21,16 +21,14 @@ const EmptyStateRow = styled("div")(({ theme }) => ({
   background: "var(--mui-palette-grey-50)",
 }));
 
+const selectCommunityEvents = (dashboard: Dashboard) => dashboard.communityEvents?.eventsList ?? [];
+
 export default function CommunityEvents() {
   const { t } = useTranslation([DASHBOARD]);
 
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
 
-  const {
-    data: items = [],
-    error,
-    isLoading,
-  } = useGetDashboard((dashboard) => dashboard.communityEvents?.eventsList ?? []);
+  const { data: items = [], error, isLoading } = useGetDashboard(selectCommunityEvents);
 
   const currentItems = items.slice(
     currentPageIndex * DASHBOARD_PAGE_SIZE,
