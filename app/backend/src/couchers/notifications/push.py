@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import ClassVar
-from urllib.parse import urlsplit, urlunsplit
+from urllib.parse import urlsplit
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -12,6 +12,7 @@ from couchers.jobs.enqueue import queue_job
 from couchers.models import PushNotificationSubscription
 from couchers.notifications.send_raw_push_notification import send_raw_push_notification_v2
 from couchers.proto.internal import jobs_pb2
+from couchers.utils import add_query_params
 
 
 @dataclass(frozen=True, slots=True)
@@ -108,10 +109,10 @@ class PushNotificationContent:
 
 def add_notification_id_to_url(url: str, notification_id: int) -> str:
     parts = urlsplit(url)
+    # Only if the notification link goes to Couchers
     if parts.netloc != urlsplit(config.BASE_URL).netloc:
         return url
-    param = f"zn={notification_id}"
-    return urlunsplit(parts._replace(query=f"{parts.query}&{param}" if parts.query else param))
+    return add_query_params(url, {"zn": notification_id})
 
 
 def push_to_subscription(
