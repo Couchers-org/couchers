@@ -182,6 +182,8 @@ def main() -> None:
 
     setup_tracing()
 
+    setup_profiling(role="main", instance="main")
+
     media_server = None
     if config.ROLE in ["api", "all"]:
         media_server = create_media_server(port=MEDIA_PORT)
