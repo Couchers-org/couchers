@@ -159,16 +159,16 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         today = today_in_timezone(node.timezone)
 
         if from_date < today:
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_before_today")
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_arrival_before_today")
 
         if from_date >= to_date:
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_not_after_from")
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_departure_not_after_arrival")
 
         if from_date - today > timedelta(days=365):
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_after_one_year")
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_arrival_after_one_year")
 
         if to_date - from_date > timedelta(days=365):
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_after_one_year")
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_longer_than_one_year")
 
         description = _strip_and_validate_description(request.description, context)
 
@@ -451,16 +451,18 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
                 new_to_date = parsed
 
             if new_from_date < today_local:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_before_today")
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_arrival_before_today")
 
             if new_from_date >= new_to_date:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_not_after_from")
+                context.abort_with_error_code(
+                    grpc.StatusCode.INVALID_ARGUMENT, "public_trip_departure_not_after_arrival"
+                )
 
             if new_from_date - today_local > timedelta(days=365):
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_after_one_year")
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_arrival_after_one_year")
 
             if new_to_date - new_from_date > timedelta(days=365):
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_after_one_year")
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_longer_than_one_year")
 
             if request.HasField("description"):
                 public_trip.description = _strip_and_validate_description(request.description, context)
@@ -479,7 +481,9 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
                 if public_trip.from_date < today_local:
                     context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "public_trip_in_past")
                 if public_trip.from_date >= public_trip.to_date:
-                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_not_after_from")
+                    context.abort_with_error_code(
+                        grpc.StatusCode.INVALID_ARGUMENT, "public_trip_departure_not_after_arrival"
+                    )
             elif new_status != PublicTripStatus.closed:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_public_trip_status")
             public_trip.status = new_status
