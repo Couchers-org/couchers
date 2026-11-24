@@ -23,20 +23,19 @@ from couchers.proto import (
     admin_pb2,
     events_pb2,
     messages_pb2,
-    references_pb2,
 )
 from couchers.utils import not_none, now
 from tests.fixtures.api import conversations as conversations_api
 from tests.fixtures.api import discussions as discussions_api
 from tests.fixtures.api import events as events_api
 from tests.fixtures.api import public_trips as public_trips_api
+from tests.fixtures.api import references as references_api
 from tests.fixtures.api import requests as requests_api
 from tests.fixtures.api import threads as threads_api
 from tests.fixtures.db import generate_user, make_friends, make_user_block, make_user_invisible
 from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
     real_admin_session,
-    references_session,
 )
 from tests.test_communities import create_community
 from tests.utils import local_date_time
@@ -90,16 +89,7 @@ def test_ExportUserData_references_written(db):
 
     make_friends(user, friend)
 
-    with references_session(token) as api:
-        api.WriteFriendReference(
-            references_pb2.WriteFriendReferenceReq(
-                to_user_id=friend.id,
-                text="a good friend",
-                private_text="but they snore",
-                was_appropriate=True,
-                rating=0.5,
-            )
-        )
+    references_api.write_friend_reference(token=token, to_user_id=friend.id, text="a good friend")
 
     export = _export(super_token, user)
 
@@ -367,29 +357,21 @@ def test_ExportUserData_leaves_out_references_the_user_cannot_see_yet(db, modera
             .values(from_date=date.today() - timedelta(days=3), to_date=date.today() - timedelta(days=2))
         )
 
-    with references_session(host_token) as api:
-        reference_id = api.WriteHostRequestReference(
-            references_pb2.WriteHostRequestReferenceReq(
-                host_request_id=host_request_id,
-                text="they were a fine guest",
-                was_appropriate=True,
-                rating=0.5,
-            )
-        ).reference_id
+    reference_id = references_api.write_host_request_reference(
+        token=host_token,
+        host_request_id=host_request_id,
+        text="they were a fine guest",
+    ).reference_id
     moderator.approve_reference(reference_id)
 
     # the surfer hasn't written theirs back and the window is still open, so the app hides it
     assert _export(super_token, surfer).get("references", {}).get("received", []) == []
 
-    with references_session(surfer_token) as api:
-        api.WriteHostRequestReference(
-            references_pb2.WriteHostRequestReferenceReq(
-                host_request_id=host_request_id,
-                text="a fine host",
-                was_appropriate=True,
-                rating=0.5,
-            )
-        )
+    references_api.write_host_request_reference(
+        token=surfer_token,
+        host_request_id=host_request_id,
+        text="a fine host",
+    )
 
     (received,) = _export(super_token, surfer)["references"]["received"]
     assert received["text"] == "they were a fine guest"
@@ -441,12 +423,11 @@ def test_ExportUserData_for_a_banned_user_is_not_gutted(db, moderator):
         token=other_token, host_request_id=host_request_id, text="sure, come on over"
     )
 
-    with references_session(other_token) as api:
-        reference_id = api.WriteFriendReference(
-            references_pb2.WriteFriendReferenceReq(
-                to_user_id=user.id, text="a good friend", was_appropriate=True, rating=0.5
-            )
-        ).reference_id
+    reference_id = references_api.write_friend_reference(
+        token=other_token,
+        to_user_id=user.id,
+        text="a good friend",
+    ).reference_id
     moderator.approve_reference(reference_id)
 
     make_user_invisible(user.id)
@@ -482,12 +463,9 @@ def test_ExportUserData_keeps_references_from_writers_who_deleted_their_account(
 
     make_friends(user, other)
 
-    with references_session(other_token) as api:
-        reference_id = api.WriteFriendReference(
-            references_pb2.WriteFriendReferenceReq(
-                to_user_id=user.id, text="a good friend", was_appropriate=True, rating=0.5
-            )
-        ).reference_id
+    reference_id = references_api.write_friend_reference(
+        token=other_token, to_user_id=user.id, text="a good friend"
+    ).reference_id
     moderator.approve_reference(reference_id)
 
     with session_scope() as session:

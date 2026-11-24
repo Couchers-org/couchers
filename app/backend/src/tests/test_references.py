@@ -30,6 +30,7 @@ from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.moderation.utils import create_moderation
 from couchers.proto import api_pb2, messages_pb2, moderation_pb2, references_pb2
 from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_aware_datetime, to_multi, today
+from tests.fixtures.api import references as references_api
 from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user, make_friends, make_user_block
 from tests.fixtures.misc import EmailCollector, PushCollector
@@ -38,7 +39,6 @@ from tests.fixtures.sessions import (
     account_session,
     api_session,
     real_moderation_session,
-    references_session,
 )
 
 
@@ -350,115 +350,99 @@ def test_ListPagination(db):
 
     # these check the right refs are in the right requests and appear in the right order (latest first)
 
-    with references_session(token2) as api:
-        # written by user1
-        res = api.ListReferences(references_pb2.ListReferencesReq(from_user_id=user1.id, page_size=2))
-        assert [ref.reference_id for ref in res.references] == [ref8c, ref7b]
+    # written by user1
+    res = references_api.list_references(token=token2, from_user_id=user1.id, page_size=2)
+    assert [ref.reference_id for ref in res.references] == [ref8c, ref7b]
 
-        res = api.ListReferences(
-            references_pb2.ListReferencesReq(from_user_id=user1.id, page_token=res.next_page_token, page_size=2)
-        )
-        assert [ref.reference_id for ref in res.references] == [ref5b, ref4b]
+    res = references_api.list_references(
+        token=token2, from_user_id=user1.id, page_token=res.next_page_token, page_size=2
+    )
+    assert [ref.reference_id for ref in res.references] == [ref5b, ref4b]
 
-        res = api.ListReferences(
-            references_pb2.ListReferencesReq(from_user_id=user1.id, page_token=res.next_page_token, page_size=2)
-        )
-        assert [ref.reference_id for ref in res.references] == [ref2b]
-        assert not res.next_page_token
+    res = references_api.list_references(
+        token=token2, from_user_id=user1.id, page_token=res.next_page_token, page_size=2
+    )
+    assert [ref.reference_id for ref in res.references] == [ref2b]
+    assert not res.next_page_token
 
-        # received by user1
-        res = api.ListReferences(references_pb2.ListReferencesReq(to_user_id=user1.id, page_size=5))
-        assert [ref.reference_id for ref in res.references] == [ref8b, ref9, ref8, ref7, ref6]
+    # received by user1
+    res = references_api.list_references(token=token2, to_user_id=user1.id, page_size=5)
+    assert [ref.reference_id for ref in res.references] == [ref8b, ref9, ref8, ref7, ref6]
 
-        res = api.ListReferences(
-            references_pb2.ListReferencesReq(to_user_id=user1.id, page_token=res.next_page_token, page_size=5)
-        )
-        assert [ref.reference_id for ref in res.references] == [ref5, ref4, ref3, ref2]
-        assert not res.next_page_token
+    res = references_api.list_references(token=token2, to_user_id=user1.id, page_token=res.next_page_token, page_size=5)
+    assert [ref.reference_id for ref in res.references] == [ref5, ref4, ref3, ref2]
+    assert not res.next_page_token
 
-        # same thing but with filters
-        res = api.ListReferences(
-            references_pb2.ListReferencesReq(
-                to_user_id=user1.id,
-                reference_type_filter=[
-                    references_pb2.REFERENCE_TYPE_HOSTED,
-                    references_pb2.REFERENCE_TYPE_SURFED,
-                    references_pb2.REFERENCE_TYPE_FRIEND,
-                ],
-                page_size=5,
-            )
-        )
-        assert [ref.reference_id for ref in res.references] == [ref8b, ref9, ref8, ref7, ref6]
+    # same thing but with filters
+    res = references_api.list_references(
+        token=token2,
+        to_user_id=user1.id,
+        reference_type_filter=[
+            references_pb2.REFERENCE_TYPE_HOSTED,
+            references_pb2.REFERENCE_TYPE_SURFED,
+            references_pb2.REFERENCE_TYPE_FRIEND,
+        ],
+        page_size=5,
+    )
+    assert [ref.reference_id for ref in res.references] == [ref8b, ref9, ref8, ref7, ref6]
 
-        res = api.ListReferences(
-            references_pb2.ListReferencesReq(
-                to_user_id=user1.id,
-                reference_type_filter=[
-                    references_pb2.REFERENCE_TYPE_HOSTED,
-                    references_pb2.REFERENCE_TYPE_SURFED,
-                    references_pb2.REFERENCE_TYPE_FRIEND,
-                ],
-                page_token=res.next_page_token,
-                page_size=5,
-            )
-        )
-        assert [ref.reference_id for ref in res.references] == [ref5, ref4, ref3, ref2]
-        assert not res.next_page_token
+    res = references_api.list_references(
+        token=token2,
+        to_user_id=user1.id,
+        reference_type_filter=[
+            references_pb2.REFERENCE_TYPE_HOSTED,
+            references_pb2.REFERENCE_TYPE_SURFED,
+            references_pb2.REFERENCE_TYPE_FRIEND,
+        ],
+        page_token=res.next_page_token,
+        page_size=5,
+    )
+    assert [ref.reference_id for ref in res.references] == [ref5, ref4, ref3, ref2]
+    assert not res.next_page_token
 
-        # received hosting references
-        res = api.ListReferences(
-            references_pb2.ListReferencesReq(
-                to_user_id=user1.id, reference_type_filter=[references_pb2.REFERENCE_TYPE_HOSTED], page_size=3
-            )
-        )
-        assert [ref.reference_id for ref in res.references] == [ref8b, ref9, ref8]
+    # received hosting references
+    res = references_api.list_references(
+        token=token2, to_user_id=user1.id, reference_type_filter=[references_pb2.REFERENCE_TYPE_HOSTED], page_size=3
+    )
+    assert [ref.reference_id for ref in res.references] == [ref8b, ref9, ref8]
 
-        res = api.ListReferences(
-            references_pb2.ListReferencesReq(
-                to_user_id=user1.id,
-                reference_type_filter=[references_pb2.REFERENCE_TYPE_HOSTED],
-                page_token=res.next_page_token,
-                page_size=3,
-            )
-        )
-        assert [ref.reference_id for ref in res.references] == [ref5, ref3]
-        assert not res.next_page_token
+    res = references_api.list_references(
+        token=token2,
+        to_user_id=user1.id,
+        reference_type_filter=[references_pb2.REFERENCE_TYPE_HOSTED],
+        page_token=res.next_page_token,
+        page_size=3,
+    )
+    assert [ref.reference_id for ref in res.references] == [ref5, ref3]
+    assert not res.next_page_token
 
-        # written friend references
-        res = api.ListReferences(
-            references_pb2.ListReferencesReq(
-                from_user_id=user1.id, reference_type_filter=[references_pb2.REFERENCE_TYPE_FRIEND]
-            )
-        )
-        assert [ref.reference_id for ref in res.references] == [ref7b, ref4b]
-        assert not res.next_page_token
+    # written friend references
+    res = references_api.list_references(
+        token=token2, from_user_id=user1.id, reference_type_filter=[references_pb2.REFERENCE_TYPE_FRIEND]
+    )
+    assert [ref.reference_id for ref in res.references] == [ref7b, ref4b]
+    assert not res.next_page_token
 
-        # written surfing references
-        res = api.ListReferences(
-            references_pb2.ListReferencesReq(
-                from_user_id=user1.id, reference_type_filter=[references_pb2.REFERENCE_TYPE_SURFED]
-            )
-        )
-        assert [ref.reference_id for ref in res.references] == [ref8c, ref5b]
-        assert not res.next_page_token
+    # written surfing references
+    res = references_api.list_references(
+        token=token2, from_user_id=user1.id, reference_type_filter=[references_pb2.REFERENCE_TYPE_SURFED]
+    )
+    assert [ref.reference_id for ref in res.references] == [ref8c, ref5b]
+    assert not res.next_page_token
 
-    with references_session(token7) as api:
-        # need to set at least one of from or to user
-        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "You need to specify at least one user."):
-            api.ListReferences(
-                references_pb2.ListReferencesReq(reference_type_filter=[references_pb2.REFERENCE_TYPE_SURFED])
-            )
+    # need to set at least one of from or to user
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "You need to specify at least one user."):
+        references_api.list_references(token=token7, reference_type_filter=[references_pb2.REFERENCE_TYPE_SURFED])
 
-    with references_session(token5) as api:
-        # from user1 to user2
-        res = api.ListReferences(references_pb2.ListReferencesReq(from_user_id=user1.id, to_user_id=user2.id))
-        assert [ref.reference_id for ref in res.references] == [ref2b]
-        assert not res.next_page_token
+    # from user1 to user2
+    res = references_api.list_references(token=token5, from_user_id=user1.id, to_user_id=user2.id)
+    assert [ref.reference_id for ref in res.references] == [ref2b]
+    assert not res.next_page_token
 
-        # from user5 to user1
-        res = api.ListReferences(references_pb2.ListReferencesReq(from_user_id=user5.id, to_user_id=user1.id))
-        assert [ref.reference_id for ref in res.references] == [ref5]
-        assert not res.next_page_token
+    # from user5 to user1
+    res = references_api.list_references(token=token5, from_user_id=user5.id, to_user_id=user1.id)
+    assert [ref.reference_id for ref in res.references] == [ref5]
+    assert not res.next_page_token
 
     with api_session(token2) as api:
         # the reference count matches the 9 references visible in the list; ref6hidden is excluded
@@ -482,9 +466,8 @@ def test_num_references_matches_visible_list(db):
         # surfer_user has not written their reciprocal reference yet, so this reference is hidden.
         create_host_reference(session, host_user.id, surfer_user.id, timedelta(days=3), surfing=False)
 
-    with references_session(host_token) as api:
-        res = api.ListReferences(references_pb2.ListReferencesReq(to_user_id=surfer_user.id))
-        assert len(res.references) == 0
+    res = references_api.list_references(token=host_token, to_user_id=surfer_user.id)
+    assert len(res.references) == 0
 
     with api_session(host_token) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=surfer_user.username))
@@ -496,9 +479,8 @@ def test_num_references_matches_visible_list(db):
         # surfer_user writes the reciprocal reference: now both references become visible
         create_host_reference(session, surfer_user.id, host_user.id, timedelta(days=2), host_request_id=host_request_id)
 
-    with references_session(host_token) as api:
-        res = api.ListReferences(references_pb2.ListReferencesReq(to_user_id=surfer_user.id))
-        assert len(res.references) == 1
+    res = references_api.list_references(token=host_token, to_user_id=surfer_user.id)
+    assert len(res.references) == 1
 
     with api_session(host_token) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=surfer_user.username))
@@ -516,11 +498,10 @@ def test_ListReference_banned_deleted_users(db):
         create_friend_reference(session, user.id, banned_user.id, timedelta(days=15))
         create_friend_reference(session, user.id, deleted_user.id, timedelta(days=16))
 
-    with references_session(token) as api:
-        refs_rec = api.ListReferences(references_pb2.ListReferencesReq(to_user_id=user.id)).references
-        refs_sent = api.ListReferences(references_pb2.ListReferencesReq(from_user_id=user.id)).references
-        assert len(refs_rec) == 2
-        assert len(refs_sent) == 2
+    refs_rec = references_api.list_references(token=token, to_user_id=user.id).references
+    refs_sent = references_api.list_references(token=token, from_user_id=user.id).references
+    assert len(refs_rec) == 2
+    assert len(refs_sent) == 2
 
     with api_session(token) as api:
         assert api.GetUser(api_pb2.GetUserReq(user=user.username)).num_references == 2
@@ -530,11 +511,10 @@ def test_ListReference_banned_deleted_users(db):
         session.execute(update(User).where(User.username == banned_user.username).values(banned_at=func.now()))
 
     # reference to and from banned user is hidden
-    with references_session(token) as api:
-        refs_rec = api.ListReferences(references_pb2.ListReferencesReq(to_user_id=user.id)).references
-        refs_sent = api.ListReferences(references_pb2.ListReferencesReq(from_user_id=user.id)).references
-        assert len(refs_rec) == 1
-        assert len(refs_sent) == 1
+    refs_rec = references_api.list_references(token=token, to_user_id=user.id).references
+    refs_sent = references_api.list_references(token=token, from_user_id=user.id).references
+    assert len(refs_rec) == 1
+    assert len(refs_sent) == 1
 
     with api_session(token) as api:
         assert api.GetUser(api_pb2.GetUserReq(user=user.username)).num_references == 1
@@ -544,11 +524,10 @@ def test_ListReference_banned_deleted_users(db):
         session.execute(update(User).where(User.username == deleted_user.username).values(deleted_at=func.now()))
 
     # doesn't change; references to and from deleted users remain
-    with references_session(token) as api:
-        refs_rec = api.ListReferences(references_pb2.ListReferencesReq(to_user_id=user.id)).references
-        refs_sent = api.ListReferences(references_pb2.ListReferencesReq(from_user_id=user.id)).references
-        assert len(refs_rec) == 1
-        assert len(refs_sent) == 1
+    refs_rec = references_api.list_references(token=token, to_user_id=user.id).references
+    refs_sent = references_api.list_references(token=token, from_user_id=user.id).references
+    assert len(refs_rec) == 1
+    assert len(refs_sent) == 1
 
     with api_session(token) as api:
         assert api.GetUser(api_pb2.GetUserReq(user=user.username)).num_references == 1
@@ -566,9 +545,8 @@ def test_ListReference_blocked_shadowed_users(db):
     # user blocks blocked_user: reference from blocked user remains in both list and count
     make_user_block(user, blocked_user)
 
-    with references_session(token) as api:
-        refs_rec = api.ListReferences(references_pb2.ListReferencesReq(to_user_id=user.id)).references
-        assert len(refs_rec) == 2
+    refs_rec = references_api.list_references(token=token, to_user_id=user.id).references
+    assert len(refs_rec) == 2
 
     with api_session(token) as api:
         assert api.GetUser(api_pb2.GetUserReq(user=user.username)).num_references == 2
@@ -577,17 +555,15 @@ def test_ListReference_blocked_shadowed_users(db):
     with session_scope() as session:
         session.execute(update(User).where(User.username == shadowed_user.username).values(shadowed_at=func.now()))
 
-    with references_session(token) as api:
-        refs_rec = api.ListReferences(references_pb2.ListReferencesReq(to_user_id=user.id)).references
-        assert len(refs_rec) == 1
+    refs_rec = references_api.list_references(token=token, to_user_id=user.id).references
+    assert len(refs_rec) == 1
 
     with api_session(token) as api:
         assert api.GetUser(api_pb2.GetUserReq(user=user.username)).num_references == 1
 
     # the shadowed author still sees their own reference in both, so the shadow ban isn't leaked
-    with references_session(shadowed_token) as api:
-        refs_rec = api.ListReferences(references_pb2.ListReferencesReq(to_user_id=user.id)).references
-        assert len(refs_rec) == 2
+    refs_rec = references_api.list_references(token=shadowed_token, to_user_id=user.id).references
+    assert len(refs_rec) == 2
 
     with api_session(shadowed_token) as api:
         assert api.GetUser(api_pb2.GetUserReq(user=user.username)).num_references == 2
@@ -601,79 +577,57 @@ def test_WriteFriendReference(db, moderator):
     # Make writer_user and subject_user friends
     make_friends(writer_user, subject_user)
 
-    with references_session(writer_token) as api:
-        # can write normal friend reference
-        res = api.WriteFriendReference(
-            references_pb2.WriteFriendReferenceReq(
-                to_user_id=subject_user.id,
-                text="A test reference",
-                was_appropriate=True,
-                rating=0.5,
-            )
+    # can write normal friend reference
+    res = references_api.write_friend_reference(
+        token=writer_token,
+        to_user_id=subject_user.id,
+        text="A test reference",
+        approve_by=moderator,
+    )
+    assert res.from_user_id == writer_user.id
+    assert res.to_user_id == subject_user.id
+    assert res.reference_type == references_pb2.REFERENCE_TYPE_FRIEND
+    assert res.text == "A test reference"
+    assert now() - timedelta(hours=24) <= to_aware_datetime(res.written_time) <= now()
+    assert not res.host_request_id
+
+    # check it shows up
+    list_res = references_api.list_references(
+        token=viewer_token,
+        from_user_id=writer_user.id,
+        to_user_id=subject_user.id,
+        reference_type_filter=[references_pb2.REFERENCE_TYPE_FRIEND],
+    )
+    assert len(list_res.references) == 1
+    ref = list_res.references[0]
+    assert ref.from_user_id == writer_user.id
+    assert ref.to_user_id == subject_user.id
+    assert ref.reference_type == references_pb2.REFERENCE_TYPE_FRIEND
+    assert ref.text == "A test reference"
+    assert now() - timedelta(hours=24) <= to_aware_datetime(ref.written_time) <= now()
+    assert not ref.host_request_id
+
+    # can't write a second friend reference
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "Reference already given."):
+        references_api.write_friend_reference(
+            token=writer_token,
+            to_user_id=subject_user.id,
         )
-        assert res.from_user_id == writer_user.id
-        assert res.to_user_id == subject_user.id
-        assert res.reference_type == references_pb2.REFERENCE_TYPE_FRIEND
-        assert res.text == "A test reference"
-        assert now() - timedelta(hours=24) <= to_aware_datetime(res.written_time) <= now()
-        assert not res.host_request_id
 
-    moderator.approve_reference(res.reference_id)
-
-    with references_session(viewer_token) as api:
-        # check it shows up
-        res = api.ListReferences(
-            references_pb2.ListReferencesReq(
-                from_user_id=writer_user.id,
-                to_user_id=subject_user.id,
-                reference_type_filter=[references_pb2.REFERENCE_TYPE_FRIEND],
-            )
+    # can't write a reference about yourself
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "You can't refer yourself."):
+        references_api.write_friend_reference(
+            token=subject_token,
+            to_user_id=subject_user.id,
         )
-        assert len(res.references) == 1
-        ref = res.references[0]
-        assert ref.from_user_id == writer_user.id
-        assert ref.to_user_id == subject_user.id
-        assert ref.reference_type == references_pb2.REFERENCE_TYPE_FRIEND
-        assert ref.text == "A test reference"
-        assert now() - timedelta(hours=24) <= to_aware_datetime(ref.written_time) <= now()
-        assert not ref.host_request_id
-
-    with references_session(writer_token) as api:
-        # can't write a second friend reference
-        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "Reference already given."):
-            api.WriteFriendReference(
-                references_pb2.WriteFriendReferenceReq(
-                    to_user_id=subject_user.id,
-                    text="A test reference",
-                    was_appropriate=True,
-                    rating=0.5,
-                )
-            )
-
-    with references_session(subject_token) as api:
-        # can't write a reference about yourself
-        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "You can't refer yourself."):
-            api.WriteFriendReference(
-                references_pb2.WriteFriendReferenceReq(
-                    to_user_id=subject_user.id,
-                    text="I'm really awesome",
-                    was_appropriate=True,
-                    rating=1.0,
-                )
-            )
 
 
 def test_WriteFriendReference_with_empty_text(db):
     writer_user, writer_token = generate_user()
     subject_user, subject_token = generate_user()
 
-    with references_session(writer_token) as api:
-        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The text of a reference must not be empty"):
-            api.WriteFriendReference(
-                references_pb2.WriteFriendReferenceReq(
-                    to_user_id=subject_user.id, text="  ", was_appropriate=True, rating=0.8
-                )
-            )
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The text of a reference must not be empty"):
+        references_api.write_friend_reference(token=writer_token, to_user_id=subject_user.id, text="  ")
 
 
 def test_WriteFriendReference_with_private_text(
@@ -685,18 +639,12 @@ def test_WriteFriendReference_with_private_text(
     # Make users friends
     make_friends(writer_user, subject_user)
 
-    with references_session(writer_token) as api:
-        ref = api.WriteFriendReference(
-            references_pb2.WriteFriendReferenceReq(
-                to_user_id=subject_user.id,
-                text="They were nice!",
-                was_appropriate=True,
-                rating=0.6,
-                private_text="A bit of an odd ball, but a nice person nonetheless.",
-            )
-        )
-        # Approve before patches/jobs exit so the pending notification is delivered while mocked.
-        moderator.approve_reference(ref.reference_id)
+    references_api.write_friend_reference(
+        token=writer_token,
+        to_user_id=subject_user.id,
+        text="They were nice!",
+        approve_by=moderator,
+    )
 
     # make sure an email was sent to the user receiving the ref as well as the mods
     email_collector.pop_for_reports(last=True)
@@ -715,35 +663,25 @@ def test_WriteFriendReference_requires_friendship(db):
     subject_user, subject_token = generate_user()
 
     # Try to write friend reference without being friends
-    with references_session(writer_token) as api:
-        with expect_rpc_error(
-            grpc.StatusCode.FAILED_PRECONDITION,
-            "You can only write friend references for confirmed friends.",
-        ):
-            api.WriteFriendReference(
-                references_pb2.WriteFriendReferenceReq(
-                    to_user_id=subject_user.id,
-                    text="A test reference",
-                    was_appropriate=True,
-                    rating=0.5,
-                )
-            )
+    with expect_rpc_error(
+        grpc.StatusCode.FAILED_PRECONDITION,
+        "You can only write friend references for confirmed friends.",
+    ):
+        references_api.write_friend_reference(
+            token=writer_token,
+            to_user_id=subject_user.id,
+        )
 
     # Now make them friends
     make_friends(writer_user, subject_user)
 
     # Should now be able to write a reference
-    with references_session(writer_token) as api:
-        res = api.WriteFriendReference(
-            references_pb2.WriteFriendReferenceReq(
-                to_user_id=subject_user.id,
-                text="A test reference",
-                was_appropriate=True,
-                rating=0.5,
-            )
-        )
-        assert res.from_user_id == writer_user.id
-        assert res.to_user_id == subject_user.id
+    res = references_api.write_friend_reference(
+        token=writer_token,
+        to_user_id=subject_user.id,
+    )
+    assert res.from_user_id == writer_user.id
+    assert res.to_user_id == subject_user.id
 
     # Test the unfriending scenario: delete the friendship
     with session_scope() as session:
@@ -756,19 +694,14 @@ def test_WriteFriendReference_requires_friendship(db):
 
     # Try to write another friend reference after unfriending
     # (Note: This assumes writer_user didn't already write a reference, or we test with subject_user writing to writer_user)
-    with references_session(subject_token) as api:
-        with expect_rpc_error(
-            grpc.StatusCode.FAILED_PRECONDITION,
-            "You can only write friend references for confirmed friends.",
-        ):
-            api.WriteFriendReference(
-                references_pb2.WriteFriendReferenceReq(
-                    to_user_id=writer_user.id,
-                    text="Another test reference",
-                    was_appropriate=True,
-                    rating=0.8,
-                )
-            )
+    with expect_rpc_error(
+        grpc.StatusCode.FAILED_PRECONDITION,
+        "You can only write friend references for confirmed friends.",
+    ):
+        references_api.write_friend_reference(
+            token=subject_token,
+            to_user_id=writer_user.id,
+        )
 
 
 def test_host_request_states_references(db, moderator):
@@ -804,68 +737,47 @@ def test_host_request_states_references(db, moderator):
     moderator.approve_host_request(hr4)
     moderator.approve_host_request(hr5)
 
-    with references_session(host_token) as api:
-        # pending
-        api.WriteHostRequestReference(
-            references_pb2.WriteHostRequestReferenceReq(
-                host_request_id=hr2,
-                text="Should work!",
-                was_appropriate=True,
-                rating=0.9,
-            )
+    # pending
+    references_api.write_host_request_reference(
+        token=host_token,
+        host_request_id=hr2,
+    )
+
+    # accepted
+    references_api.write_host_request_reference(
+        token=host_token,
+        host_request_id=hr4,
+    )
+
+    # rejected
+    with expect_rpc_error(
+        grpc.StatusCode.FAILED_PRECONDITION,
+        "You can't write a reference for that host request, or it wasn't found.",
+    ):
+        references_api.write_host_request_reference(
+            token=host_token,
+            host_request_id=hr1,
         )
 
-        # accepted
-        api.WriteHostRequestReference(
-            references_pb2.WriteHostRequestReferenceReq(
-                host_request_id=hr4,
-                text="Should work!",
-                was_appropriate=True,
-                rating=0.9,
-            )
+    # confirmed
+    with expect_rpc_error(
+        grpc.StatusCode.FAILED_PRECONDITION,
+        "You can't write a reference for that host request, or it wasn't found.",
+    ):
+        references_api.write_host_request_reference(
+            token=host_token,
+            host_request_id=hr3,
         )
 
-        # rejected
-        with expect_rpc_error(
-            grpc.StatusCode.FAILED_PRECONDITION,
-            "You can't write a reference for that host request, or it wasn't found.",
-        ):
-            api.WriteHostRequestReference(
-                references_pb2.WriteHostRequestReferenceReq(
-                    host_request_id=hr1,
-                    text="Shouldn't work...",
-                    was_appropriate=True,
-                    rating=0.9,
-                )
-            )
-
-        # confirmed
-        with expect_rpc_error(
-            grpc.StatusCode.FAILED_PRECONDITION,
-            "You can't write a reference for that host request, or it wasn't found.",
-        ):
-            api.WriteHostRequestReference(
-                references_pb2.WriteHostRequestReferenceReq(
-                    host_request_id=hr3,
-                    text="Shouldn't work...",
-                    was_appropriate=True,
-                    rating=0.9,
-                )
-            )
-
-        # cancelled
-        with expect_rpc_error(
-            grpc.StatusCode.FAILED_PRECONDITION,
-            "You can't write a reference for that host request, or it wasn't found.",
-        ):
-            api.WriteHostRequestReference(
-                references_pb2.WriteHostRequestReferenceReq(
-                    host_request_id=hr5,
-                    text="Shouldn't work...",
-                    was_appropriate=True,
-                    rating=0.9,
-                )
-            )
+    # cancelled
+    with expect_rpc_error(
+        grpc.StatusCode.FAILED_PRECONDITION,
+        "You can't write a reference for that host request, or it wasn't found.",
+    ):
+        references_api.write_host_request_reference(
+            token=host_token,
+            host_request_id=hr5,
+        )
 
 
 def test_public_trip_offer_reference_roles(db, moderator):
@@ -880,39 +792,29 @@ def test_public_trip_offer_reference_roles(db, moderator):
     # ListPendingReferencesToWrite reads the other user out of the LiteUser matview
     refresh_materialized_views_rapid(empty_pb2.Empty())
 
-    with references_session(surfer_token) as api:
-        available = api.AvailableWriteReferences(
-            references_pb2.AvailableWriteReferencesReq(to_user_id=host.id)
-        ).available_write_references
-        assert [r.reference_type for r in available] == [references_pb2.REFERENCE_TYPE_SURFED]
-        pending = api.ListPendingReferencesToWrite(empty_pb2.Empty()).pending_references
-        assert [r.reference_type for r in pending] == [references_pb2.REFERENCE_TYPE_SURFED]
+    available = references_api.available_write_references(
+        token=surfer_token, to_user_id=host.id
+    ).available_write_references
+    assert [r.reference_type for r in available] == [references_pb2.REFERENCE_TYPE_SURFED]
+    pending = references_api.list_pending_references_to_write(token=surfer_token).pending_references
+    assert [r.reference_type for r in pending] == [references_pb2.REFERENCE_TYPE_SURFED]
 
-        api.WriteHostRequestReference(
-            references_pb2.WriteHostRequestReferenceReq(
-                host_request_id=host_request_id,
-                text="Thanks for having me!",
-                was_appropriate=True,
-                rating=0.9,
-            )
-        )
+    references_api.write_host_request_reference(
+        token=surfer_token,
+        host_request_id=host_request_id,
+    )
 
-    with references_session(host_token) as api:
-        available = api.AvailableWriteReferences(
-            references_pb2.AvailableWriteReferencesReq(to_user_id=surfer.id)
-        ).available_write_references
-        assert [r.reference_type for r in available] == [references_pb2.REFERENCE_TYPE_HOSTED]
-        pending = api.ListPendingReferencesToWrite(empty_pb2.Empty()).pending_references
-        assert [r.reference_type for r in pending] == [references_pb2.REFERENCE_TYPE_HOSTED]
+    available = references_api.available_write_references(
+        token=host_token, to_user_id=surfer.id
+    ).available_write_references
+    assert [r.reference_type for r in available] == [references_pb2.REFERENCE_TYPE_HOSTED]
+    pending = references_api.list_pending_references_to_write(token=host_token).pending_references
+    assert [r.reference_type for r in pending] == [references_pb2.REFERENCE_TYPE_HOSTED]
 
-        api.WriteHostRequestReference(
-            references_pb2.WriteHostRequestReferenceReq(
-                host_request_id=host_request_id,
-                text="Great guest!",
-                was_appropriate=True,
-                rating=0.9,
-            )
-        )
+    references_api.write_host_request_reference(
+        token=host_token,
+        host_request_id=host_request_id,
+    )
 
     with session_scope() as session:
         references = {
@@ -955,122 +857,81 @@ def test_WriteHostRequestReference(db, moderator):
     moderator.approve_host_request(hr5)
     moderator.approve_host_request(hr6)
 
-    with references_session(token3) as api:
-        # can write for this one
-        api.WriteHostRequestReference(
-            references_pb2.WriteHostRequestReferenceReq(
-                host_request_id=hr3,
-                text="Should work!",
-                was_appropriate=True,
-                rating=0.9,
-            )
+    # can write for this one
+    references_api.write_host_request_reference(
+        token=token3,
+        host_request_id=hr3,
+    )
+
+    # can't write reference for a HR that's not yet finished
+    with expect_rpc_error(
+        grpc.StatusCode.FAILED_PRECONDITION,
+        "You can't write a reference for that host request, or it wasn't found.",
+    ):
+        references_api.write_host_request_reference(
+            token=token1,
+            host_request_id=hr4,
         )
 
-    with references_session(token1) as api:
-        # can't write reference for a HR that's not yet finished
-        with expect_rpc_error(
-            grpc.StatusCode.FAILED_PRECONDITION,
-            "You can't write a reference for that host request, or it wasn't found.",
-        ):
-            api.WriteHostRequestReference(
-                references_pb2.WriteHostRequestReferenceReq(
-                    host_request_id=hr4,
-                    text="Shouldn't work...",
-                    was_appropriate=True,
-                    rating=0.9,
-                )
-            )
-
-        # can't write reference that's more than 2 weeks old
-        with expect_rpc_error(
-            grpc.StatusCode.FAILED_PRECONDITION,
-            "You can't write a reference for that host request, or it wasn't found.",
-        ):
-            api.WriteHostRequestReference(
-                references_pb2.WriteHostRequestReferenceReq(
-                    host_request_id=hr1,
-                    text="Shouldn't work...",
-                    was_appropriate=True,
-                    rating=0.9,
-                )
-            )
-
-        # can write for this one
-        api.WriteHostRequestReference(
-            references_pb2.WriteHostRequestReferenceReq(
-                host_request_id=hr2,
-                text="Should work!",
-                was_appropriate=True,
-                rating=0.9,
-            )
+    # can't write reference that's more than 2 weeks old
+    with expect_rpc_error(
+        grpc.StatusCode.FAILED_PRECONDITION,
+        "You can't write a reference for that host request, or it wasn't found.",
+    ):
+        references_api.write_host_request_reference(
+            token=token1,
+            host_request_id=hr1,
         )
 
-        # but can't write a second one for the same one
-        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "Reference already given."):
-            api.WriteHostRequestReference(
-                references_pb2.WriteHostRequestReferenceReq(
-                    host_request_id=hr2,
-                    text="Shouldn't work...",
-                    was_appropriate=True,
-                    rating=0.9,
-                )
-            )
+    # can write for this one
+    references_api.write_host_request_reference(
+        token=token1,
+        host_request_id=hr2,
+    )
 
-        # can write for this one too
-        api.WriteHostRequestReference(
-            references_pb2.WriteHostRequestReferenceReq(
-                host_request_id=hr3,
-                text="Should work!",
-                was_appropriate=True,
-                rating=0.9,
-            )
+    # but can't write a second one for the same one
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "Reference already given."):
+        references_api.write_host_request_reference(
+            token=token1,
+            host_request_id=hr2,
         )
 
-        # can't write reference for a HR that we indicated we didn't show up
-        with expect_rpc_error(
-            grpc.StatusCode.FAILED_PRECONDITION,
-            "You can't write a reference for that host request because you indicated that you didn't meet up.",
-        ):
-            api.WriteHostRequestReference(
-                references_pb2.WriteHostRequestReferenceReq(
-                    host_request_id=hr5,
-                    text="Shouldn't work...",
-                    was_appropriate=True,
-                    rating=0.9,
-                )
-            )
+    # can write for this one too
+    references_api.write_host_request_reference(
+        token=token1,
+        host_request_id=hr3,
+    )
 
-        # can't write reference for a HR that we indicate we didn't show up for
-        api.HostRequestIndicateDidntMeetup(
-            references_pb2.HostRequestIndicateDidntMeetupReq(
-                host_request_id=hr6,
-                reason_didnt_meetup="No clue?",
-            )
+    # can't write reference for a HR that we indicated we didn't show up
+    with expect_rpc_error(
+        grpc.StatusCode.FAILED_PRECONDITION,
+        "You can't write a reference for that host request because you indicated that you didn't meet up.",
+    ):
+        references_api.write_host_request_reference(
+            token=token1,
+            host_request_id=hr5,
         )
 
-        with expect_rpc_error(
-            grpc.StatusCode.FAILED_PRECONDITION,
-            "You can't write a reference for that host request because you indicated that you didn't meet up.",
-        ):
-            api.WriteHostRequestReference(
-                references_pb2.WriteHostRequestReferenceReq(
-                    host_request_id=hr6,
-                    text="Shouldn't work...",
-                    was_appropriate=True,
-                    rating=0.9,
-                )
-            )
+    # can't write reference for a HR that we indicate we didn't show up for
+    references_api.host_request_indicate_didnt_meetup(
+        token=token1,
+        host_request_id=hr6,
+    )
 
-    with references_session(token4) as api:
-        # they can still write one
-        api.WriteHostRequestReference(
-            references_pb2.WriteHostRequestReferenceReq(
-                host_request_id=hr6,
-                text="Should work!",
-                was_appropriate=True,
-                rating=0.9,
-            )
+    with expect_rpc_error(
+        grpc.StatusCode.FAILED_PRECONDITION,
+        "You can't write a reference for that host request because you indicated that you didn't meet up.",
+    ):
+        references_api.write_host_request_reference(
+            token=token1,
+            host_request_id=hr6,
         )
+
+    # they can still write one
+    references_api.write_host_request_reference(
+        token=token4,
+        host_request_id=hr6,
+    )
 
 
 def test_WriteHostRequestReference_private_text(
@@ -1083,18 +944,11 @@ def test_WriteHostRequestReference_private_text(
         hr = create_host_request(session, surfer_user.id, host_user.id, timedelta(days=10))
     moderator.approve_host_request(hr)
 
-    with references_session(surfer_token) as api:
-        ref = api.WriteHostRequestReference(
-            references_pb2.WriteHostRequestReferenceReq(
-                host_request_id=hr,
-                text="Should work!",
-                was_appropriate=True,
-                rating=0.9,
-                private_text="Something",
-            )
-        )
-        # Approve before patches/jobs exit so the pending notification is delivered while mocked.
-        moderator.approve_reference(ref.reference_id)
+    references_api.write_host_request_reference(
+        token=surfer_token,
+        host_request_id=hr,
+        approve_by=moderator,
+    )
 
     # make sure an email was sent to the user receiving the ref as well as the mods
     email_collector.pop_for_reports(last=True)
@@ -1115,41 +969,28 @@ def test_GetHostRequestReferenceStatus(db, moderator):
     with session_scope() as session:
         hr1 = create_host_request(session, user1.id, user2.id, timedelta(days=7))
     moderator.approve_host_request(hr1)
-    with references_session(token1) as api:
-        api.WriteHostRequestReference(
-            references_pb2.WriteHostRequestReferenceReq(
-                host_request_id=hr1, text="Great stay!", was_appropriate=True, rating=0.9
-            )
-        )
-        res = api.GetHostRequestReferenceStatus(references_pb2.GetHostRequestReferenceStatusReq(host_request_id=hr1))
-        assert res.has_given is True
+    references_api.write_host_request_reference(token=token1, host_request_id=hr1)
+    res = references_api.get_host_request_reference_status(token=token1, host_request_id=hr1)
+    assert res.has_given is True
 
     # false: no reference written yet
     with session_scope() as session:
         hr2 = create_host_request(session, user1.id, user2.id, timedelta(days=7))
     moderator.approve_host_request(hr2)
-    with references_session(token1) as api:
-        res = api.GetHostRequestReferenceStatus(references_pb2.GetHostRequestReferenceStatusReq(host_request_id=hr2))
-        assert res.has_given is False
+    res = references_api.get_host_request_reference_status(token=token1, host_request_id=hr2)
+    assert res.has_given is False
 
     # false: other user wrote a reference
     with session_scope() as session:
         hr3 = create_host_request(session, user1.id, user2.id, timedelta(days=7))
     moderator.approve_host_request(hr3)
-    with references_session(token2) as api:
-        api.WriteHostRequestReference(
-            references_pb2.WriteHostRequestReferenceReq(
-                host_request_id=hr3, text="Lovely guest!", was_appropriate=True, rating=0.95
-            )
-        )
-    with references_session(token1) as api:
-        res = api.GetHostRequestReferenceStatus(references_pb2.GetHostRequestReferenceStatusReq(host_request_id=hr3))
-        assert res.has_given is False
+    references_api.write_host_request_reference(token=token2, host_request_id=hr3)
+    res = references_api.get_host_request_reference_status(token=token1, host_request_id=hr3)
+    assert res.has_given is False
 
     # false: nonexistent host request id
-    with references_session(token1) as api:
-        res = api.GetHostRequestReferenceStatus(references_pb2.GetHostRequestReferenceStatusReq(host_request_id=999999))
-        assert res.has_given is False
+    res = references_api.get_host_request_reference_status(token=token1, host_request_id=999999)
+    assert res.has_given is False
 
     # Additional status flags
     with session_scope() as session:
@@ -1169,34 +1010,25 @@ def test_GetHostRequestReferenceStatus(db, moderator):
     moderator.approve_host_request(hr_other_didnt_stay)
 
     # expired: is_expired true, can_write false, didnt_stay false
-    with references_session(token1) as api:
-        res = api.GetHostRequestReferenceStatus(
-            references_pb2.GetHostRequestReferenceStatusReq(host_request_id=hr_expired)
-        )
-        assert res.has_given is False
-        assert res.is_expired is True
-        assert res.can_write is False
-        assert res.didnt_stay is False
+    res = references_api.get_host_request_reference_status(token=token1, host_request_id=hr_expired)
+    assert res.has_given is False
+    assert res.is_expired is True
+    assert res.can_write is False
+    assert res.didnt_stay is False
 
     # current user indicated didn't meet up: didnt_stay true, can_write false, not expired
-    with references_session(token1) as api:
-        res = api.GetHostRequestReferenceStatus(
-            references_pb2.GetHostRequestReferenceStatusReq(host_request_id=hr_didnt_stay_host)
-        )
-        assert res.has_given is False
-        assert res.is_expired is False
-        assert res.didnt_stay is True
-        assert res.can_write is False
+    res = references_api.get_host_request_reference_status(token=token1, host_request_id=hr_didnt_stay_host)
+    assert res.has_given is False
+    assert res.is_expired is False
+    assert res.didnt_stay is True
+    assert res.can_write is False
 
     # other party indicated didn't meet up: didnt_stay false, can_write true (within window), not expired
-    with references_session(token1) as api:
-        res = api.GetHostRequestReferenceStatus(
-            references_pb2.GetHostRequestReferenceStatusReq(host_request_id=hr_other_didnt_stay)
-        )
-        assert res.has_given is False
-        assert res.is_expired is False
-        assert res.didnt_stay is False
-        assert res.can_write is True
+    res = references_api.get_host_request_reference_status(token=token1, host_request_id=hr_other_didnt_stay)
+    assert res.has_given is False
+    assert res.is_expired is False
+    assert res.didnt_stay is False
+    assert res.can_write is True
 
 
 def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db, moderator):
@@ -1278,91 +1110,90 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db, moderator
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
 
-    with references_session(token1) as api:
-        # can't write reference for invisible user
-        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that user."):
-            api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user5.id))
+    # can't write reference for invisible user
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that user."):
+        references_api.available_write_references(token=token1, to_user_id=user5.id)
 
-        # can't write reference for blocking user
-        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that user."):
-            api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user7.id))
+    # can't write reference for blocking user
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that user."):
+        references_api.available_write_references(token=token1, to_user_id=user7.id)
 
-        # can't write reference for blocked user
-        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that user."):
-            api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user6.id))
+    # can't write reference for blocked user
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that user."):
+        references_api.available_write_references(token=token1, to_user_id=user6.id)
 
-        # can't write anything to myself
-        res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user1.id))
-        assert not res.can_write_friend_reference
-        assert len(res.available_write_references) == 0
+    # can't write anything to myself
+    res = references_api.available_write_references(token=token1, to_user_id=user1.id)
+    assert not res.can_write_friend_reference
+    assert len(res.available_write_references) == 0
 
-        res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user2.id))
-        # can't write friend ref to user2
-        assert not res.can_write_friend_reference
-        # none we can write for user2
-        assert len(res.available_write_references) == 0
+    res = references_api.available_write_references(token=token1, to_user_id=user2.id)
+    # can't write friend ref to user2
+    assert not res.can_write_friend_reference
+    # none we can write for user2
+    assert len(res.available_write_references) == 0
 
-        res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user3.id))
-        # can't write friend ref to user3
-        assert not res.can_write_friend_reference
-        # can write one reference because we hosted user3
-        assert len(res.available_write_references) == 1
-        w = res.available_write_references[0]
-        assert w.host_request_id == hr3
-        assert w.reference_type == references_pb2.REFERENCE_TYPE_HOSTED
-        assert now() + timedelta(days=6) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=7)
+    res = references_api.available_write_references(token=token1, to_user_id=user3.id)
+    # can't write friend ref to user3
+    assert not res.can_write_friend_reference
+    # can write one reference because we hosted user3
+    assert len(res.available_write_references) == 1
+    w = res.available_write_references[0]
+    assert w.host_request_id == hr3
+    assert w.reference_type == references_pb2.REFERENCE_TYPE_HOSTED
+    assert now() + timedelta(days=6) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=7)
 
-        res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user4.id))
-        # can write friend ref to user4
-        assert res.can_write_friend_reference
-        # can write one reference because we surfed with user4
-        assert len(res.available_write_references) == 1
-        w = res.available_write_references[0]
-        assert w.host_request_id == hr4
-        assert w.reference_type == references_pb2.REFERENCE_TYPE_SURFED
-        assert now() + timedelta(days=9) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=10)
+    res = references_api.available_write_references(token=token1, to_user_id=user4.id)
+    # can write friend ref to user4
+    assert res.can_write_friend_reference
+    # can write one reference because we surfed with user4
+    assert len(res.available_write_references) == 1
+    w = res.available_write_references[0]
+    assert w.host_request_id == hr4
+    assert w.reference_type == references_pb2.REFERENCE_TYPE_SURFED
+    assert now() + timedelta(days=9) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=10)
 
-        # can't write a req if we indicated we didn't meet up
-        res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user8.id))
-        assert len(res.available_write_references) == 0
-        res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user9.id))
-        assert len(res.available_write_references) == 0
+    # can't write a req if we indicated we didn't meet up
+    res = references_api.available_write_references(token=token1, to_user_id=user8.id)
+    assert len(res.available_write_references) == 0
+    res = references_api.available_write_references(token=token1, to_user_id=user9.id)
+    assert len(res.available_write_references) == 0
 
-        # can still write ref if the other person indicated we didn't meet up
-        # surfed with them
-        res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user10.id))
-        assert len(res.available_write_references) == 1
-        w = res.available_write_references[0]
-        assert w.host_request_id == hr6
-        assert w.reference_type == references_pb2.REFERENCE_TYPE_SURFED
-        assert now() + timedelta(days=10) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=11)
-        # hosted them
-        res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user11.id))
-        assert len(res.available_write_references) == 1
-        w = res.available_write_references[0]
-        assert w.host_request_id == hr7
-        assert w.reference_type == references_pb2.REFERENCE_TYPE_HOSTED
-        assert now() + timedelta(days=11) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=12)
+    # can still write ref if the other person indicated we didn't meet up
+    # surfed with them
+    res = references_api.available_write_references(token=token1, to_user_id=user10.id)
+    assert len(res.available_write_references) == 1
+    w = res.available_write_references[0]
+    assert w.host_request_id == hr6
+    assert w.reference_type == references_pb2.REFERENCE_TYPE_SURFED
+    assert now() + timedelta(days=10) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=11)
+    # hosted them
+    res = references_api.available_write_references(token=token1, to_user_id=user11.id)
+    assert len(res.available_write_references) == 1
+    w = res.available_write_references[0]
+    assert w.host_request_id == hr7
+    assert w.reference_type == references_pb2.REFERENCE_TYPE_HOSTED
+    assert now() + timedelta(days=11) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=12)
 
-        # finally check the general list
-        res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
-        assert len(res.pending_references) == 4
-        w = res.pending_references[0]
-        assert w.host_request_id == hr3
-        assert w.reference_type == references_pb2.REFERENCE_TYPE_HOSTED
-        assert now() + timedelta(days=6) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=7)
-        w = res.pending_references[1]
-        assert w.host_request_id == hr4
-        assert w.reference_type == references_pb2.REFERENCE_TYPE_SURFED
-        assert now() + timedelta(days=9) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=10)
-        w = res.pending_references[2]
-        assert w.host_request_id == hr6
-        assert w.reference_type == references_pb2.REFERENCE_TYPE_SURFED
-        assert now() + timedelta(days=10) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=11)
-        w = res.pending_references[3]
-        assert w.host_request_id == hr7
-        assert w.reference_type == references_pb2.REFERENCE_TYPE_HOSTED
-        assert now() + timedelta(days=11) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=12)
+    # finally check the general list
+    pending_res = references_api.list_pending_references_to_write(token=token1)
+    assert len(pending_res.pending_references) == 4
+    w = pending_res.pending_references[0]
+    assert w.host_request_id == hr3
+    assert w.reference_type == references_pb2.REFERENCE_TYPE_HOSTED
+    assert now() + timedelta(days=6) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=7)
+    w = pending_res.pending_references[1]
+    assert w.host_request_id == hr4
+    assert w.reference_type == references_pb2.REFERENCE_TYPE_SURFED
+    assert now() + timedelta(days=9) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=10)
+    w = pending_res.pending_references[2]
+    assert w.host_request_id == hr6
+    assert w.reference_type == references_pb2.REFERENCE_TYPE_SURFED
+    assert now() + timedelta(days=10) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=11)
+    w = pending_res.pending_references[3]
+    assert w.host_request_id == hr7
+    assert w.reference_type == references_pb2.REFERENCE_TYPE_HOSTED
+    assert now() + timedelta(days=11) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=12)
 
     with account_session(token1) as account:
         reminders = account.GetReminders(empty_pb2.Empty()).reminders
@@ -1420,17 +1251,15 @@ def test_regression_disappearing_refs(db, hs, moderator):
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
 
-    with references_session(surfer_token) as api:
-        res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
-        assert len(res.pending_references) == 0
-        res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=host_user.id))
-        assert len(res.available_write_references) == 0
+    pending_res = references_api.list_pending_references_to_write(token=surfer_token)
+    assert len(pending_res.pending_references) == 0
+    res = references_api.available_write_references(token=surfer_token, to_user_id=host_user.id)
+    assert len(res.available_write_references) == 0
 
-    with references_session(host_token) as api:
-        res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
-        assert len(res.pending_references) == 0
-        res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=surfer_user.id))
-        assert len(res.available_write_references) == 0
+    pending_res = references_api.list_pending_references_to_write(token=host_token)
+    assert len(pending_res.pending_references) == 0
+    res = references_api.available_write_references(token=host_token, to_user_id=surfer_user.id)
+    assert len(res.available_write_references) == 0
 
     # hack the time backwards
     hack_req_start = today() - timedelta(days=10) + timedelta(days=2)
@@ -1441,84 +1270,68 @@ def test_regression_disappearing_refs(db, hs, moderator):
         host_request.from_date = hack_req_start
         host_request.to_date = hack_req_end
 
-    with references_session(surfer_token) as api:
-        res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
-        assert len(res.pending_references) == 1
-        assert res.pending_references[0].host_request_id == host_request_id
-        assert res.pending_references[0].reference_type == references_pb2.REFERENCE_TYPE_SURFED
+    pending_res = references_api.list_pending_references_to_write(token=surfer_token)
+    assert len(pending_res.pending_references) == 1
+    assert pending_res.pending_references[0].host_request_id == host_request_id
+    assert pending_res.pending_references[0].reference_type == references_pb2.REFERENCE_TYPE_SURFED
 
-        res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=host_user.id))
+    res = references_api.available_write_references(token=surfer_token, to_user_id=host_user.id)
+    assert len(res.available_write_references) == 1
+    assert res.available_write_references[0].host_request_id == host_request_id
+    assert res.available_write_references[0].reference_type == references_pb2.REFERENCE_TYPE_SURFED
+
+    pending_res = references_api.list_pending_references_to_write(token=host_token)
+    assert len(pending_res.pending_references) == 1
+    assert pending_res.pending_references[0].host_request_id == host_request_id
+    assert pending_res.pending_references[0].reference_type == references_pb2.REFERENCE_TYPE_HOSTED
+
+    res = references_api.available_write_references(token=host_token, to_user_id=surfer_user.id)
+    assert len(res.available_write_references) == 1
+    assert res.available_write_references[0].host_request_id == host_request_id
+    assert res.available_write_references[0].reference_type == references_pb2.REFERENCE_TYPE_HOSTED
+
+    if hs == "host":
+        references_api.write_host_request_reference(
+            token=host_token,
+            host_request_id=host_request_id,
+        )
+
+        pending_res = references_api.list_pending_references_to_write(token=host_token)
+        assert len(pending_res.pending_references) == 0
+
+        res = references_api.available_write_references(token=host_token, to_user_id=host_user.id)
+        assert len(res.available_write_references) == 0
+
+        pending_res = references_api.list_pending_references_to_write(token=surfer_token)
+        assert len(pending_res.pending_references) == 1
+        assert pending_res.pending_references[0].host_request_id == host_request_id
+        assert pending_res.pending_references[0].reference_type == references_pb2.REFERENCE_TYPE_SURFED
+
+        res = references_api.available_write_references(token=surfer_token, to_user_id=host_user.id)
         assert len(res.available_write_references) == 1
         assert res.available_write_references[0].host_request_id == host_request_id
         assert res.available_write_references[0].reference_type == references_pb2.REFERENCE_TYPE_SURFED
+    else:
+        references_api.write_host_request_reference(
+            token=surfer_token,
+            host_request_id=host_request_id,
+        )
 
-    with references_session(host_token) as api:
-        res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
-        assert len(res.pending_references) == 1
-        assert res.pending_references[0].host_request_id == host_request_id
-        assert res.pending_references[0].reference_type == references_pb2.REFERENCE_TYPE_HOSTED
+        pending_res = references_api.list_pending_references_to_write(token=surfer_token)
+        assert len(pending_res.pending_references) == 0
 
-        res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=surfer_user.id))
+        res = references_api.available_write_references(token=surfer_token, to_user_id=surfer_user.id)
+        assert len(res.available_write_references) == 0
+
+        pending_res = references_api.list_pending_references_to_write(token=host_token)
+        assert len(pending_res.pending_references) == 1
+        assert pending_res.pending_references[0].host_request_id == host_request_id
+        assert pending_res.pending_references[0].reference_type == references_pb2.REFERENCE_TYPE_HOSTED
+
+        res = references_api.available_write_references(token=host_token, to_user_id=surfer_user.id)
         assert len(res.available_write_references) == 1
         assert res.available_write_references[0].host_request_id == host_request_id
         assert res.available_write_references[0].reference_type == references_pb2.REFERENCE_TYPE_HOSTED
-
-    if hs == "host":
-        with references_session(host_token) as api:
-            api.WriteHostRequestReference(
-                references_pb2.WriteHostRequestReferenceReq(
-                    host_request_id=host_request_id,
-                    text="Good stuff",
-                    was_appropriate=True,
-                    rating=0.86,
-                )
-            )
-
-        with references_session(host_token) as api:
-            res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
-            assert len(res.pending_references) == 0
-
-            res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=host_user.id))
-            assert len(res.available_write_references) == 0
-
-        with references_session(surfer_token) as api:
-            res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
-            assert len(res.pending_references) == 1
-            assert res.pending_references[0].host_request_id == host_request_id
-            assert res.pending_references[0].reference_type == references_pb2.REFERENCE_TYPE_SURFED
-
-            res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=host_user.id))
-            assert len(res.available_write_references) == 1
-            assert res.available_write_references[0].host_request_id == host_request_id
-            assert res.available_write_references[0].reference_type == references_pb2.REFERENCE_TYPE_SURFED
-    else:
-        with references_session(surfer_token) as api:
-            api.WriteHostRequestReference(
-                references_pb2.WriteHostRequestReferenceReq(
-                    host_request_id=host_request_id,
-                    text="Good stuff",
-                    was_appropriate=True,
-                    rating=0.86,
-                )
-            )
-
-        with references_session(surfer_token) as api:
-            res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
-            assert len(res.pending_references) == 0
-
-            res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=surfer_user.id))
-            assert len(res.available_write_references) == 0
-
-        with references_session(host_token) as api:
-            res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
-            assert len(res.pending_references) == 1
-            assert res.pending_references[0].host_request_id == host_request_id
-            assert res.pending_references[0].reference_type == references_pb2.REFERENCE_TYPE_HOSTED
-
-            res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=surfer_user.id))
-            assert len(res.available_write_references) == 1
-            assert res.available_write_references[0].host_request_id == host_request_id
-            assert res.available_write_references[0].reference_type == references_pb2.REFERENCE_TYPE_HOSTED
 
 
 def test_WriteFriendReference_creates_shadowed_moderation_state(db):
@@ -1528,12 +1341,7 @@ def test_WriteFriendReference_creates_shadowed_moderation_state(db):
     viewer_user, viewer_token = generate_user()
     make_friends(writer_user, subject_user)
 
-    with references_session(writer_token) as api:
-        ref = api.WriteFriendReference(
-            references_pb2.WriteFriendReferenceReq(
-                to_user_id=subject_user.id, text="Nice friend", was_appropriate=True, rating=0.9
-            )
-        )
+    ref = references_api.write_friend_reference(token=writer_token, to_user_id=subject_user.id)
 
     with session_scope() as session:
         reference = session.execute(select(Reference).where(Reference.id == ref.reference_id)).scalar_one()
@@ -1542,14 +1350,12 @@ def test_WriteFriendReference_creates_shadowed_moderation_state(db):
         assert reference.moderation_state.object_id == reference.id
 
     # Author can see their own shadowed reference.
-    with references_session(writer_token) as api:
-        res = api.ListReferences(references_pb2.ListReferencesReq(from_user_id=writer_user.id))
-        assert [r.reference_id for r in res.references] == [ref.reference_id]
+    res = references_api.list_references(token=writer_token, from_user_id=writer_user.id)
+    assert [r.reference_id for r in res.references] == [ref.reference_id]
 
     # Non-author user cannot see it while shadowed.
-    with references_session(viewer_token) as api:
-        res = api.ListReferences(references_pb2.ListReferencesReq(to_user_id=subject_user.id))
-        assert [r.reference_id for r in res.references] == []
+    res = references_api.list_references(token=viewer_token, to_user_id=subject_user.id)
+    assert [r.reference_id for r in res.references] == []
 
 
 def test_reference_hidden_via_ums_disappears_from_listings(db, moderator):
@@ -1559,16 +1365,13 @@ def test_reference_hidden_via_ums_disappears_from_listings(db, moderator):
     viewer_user, viewer_token = generate_user()
     make_friends(writer_user, subject_user)
 
-    with references_session(writer_token) as api:
-        ref = api.WriteFriendReference(
-            references_pb2.WriteFriendReferenceReq(
-                to_user_id=subject_user.id, text="Visible for now", was_appropriate=True, rating=0.9
-            )
-        )
-    moderator.approve_reference(ref.reference_id)
+    ref = references_api.write_friend_reference(
+        token=writer_token,
+        to_user_id=subject_user.id,
+        approve_by=moderator,
+    )
 
-    with references_session(viewer_token) as api:
-        assert api.ListReferences(references_pb2.ListReferencesReq(to_user_id=subject_user.id)).references
+    assert references_api.list_references(token=viewer_token, to_user_id=subject_user.id).references
 
     # Hide the reference via the moderation API.
     with real_moderation_session(moderator.token) as mod_api:
@@ -1588,7 +1391,5 @@ def test_reference_hidden_via_ums_disappears_from_listings(db, moderator):
         )
 
     # Hidden references are invisible to the author and to other users.
-    with references_session(writer_token) as api:
-        assert not api.ListReferences(references_pb2.ListReferencesReq(from_user_id=writer_user.id)).references
-    with references_session(viewer_token) as api:
-        assert not api.ListReferences(references_pb2.ListReferencesReq(to_user_id=subject_user.id)).references
+    assert not references_api.list_references(token=writer_token, from_user_id=writer_user.id).references
+    assert not references_api.list_references(token=viewer_token, to_user_id=subject_user.id).references

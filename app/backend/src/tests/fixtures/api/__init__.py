@@ -17,4 +17,5 @@ from . import conversations as conversations
 from . import discussions as discussions
 from . import events as events
 from . import notifications as notifications
+from . import references as references
 from . import threads as threads
