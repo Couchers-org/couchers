@@ -322,6 +322,24 @@ def _create_tasty_cookie(name: str, value: Any, expiry: datetime, httponly: bool
     return cookie.OutputString()
 
 
+def is_cross_site_origin(origin: str | None) -> bool:
+    """
+    Whether a request's Origin header is outside COOKIE_DOMAIN, e.g. a Vercel preview. Native app requests send no Origin.
+    """
+    if not origin:
+        return False
+    host = urlsplit(origin).hostname or ""
+    domain = config.COOKIE_DOMAIN.lstrip(".")
+    return host != domain and not host.endswith(f".{domain}")
+
+
+def without_partitioned(cookie: str) -> str:
+    """
+    Drops the Partitioned attribute: a partitioned cookie stays inside the WebView on iOS, so the native app can't use it.
+    """
+    return "; ".join(part for part in cookie.split("; ") if part.lower() != "partitioned")
+
+
 def create_session_cookies(token: str, user_id: str | int, expiry: datetime) -> list[str]:
     """
     Creates our session cookies.
