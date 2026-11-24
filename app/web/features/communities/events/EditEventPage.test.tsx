@@ -213,4 +213,115 @@ describe("Edit event page", () => {
 
     expect(endDateErrorText).toBeInTheDocument();
   });
+
+  it("shows an enabled community invite checkbox when no invite has been requested", async () => {
+    getEventMock.mockResolvedValue({
+      ...events[0],
+      communityInviteRequested: false,
+    });
+
+    renderPage();
+
+    const checkbox = await screen.findByRole("checkbox", {
+      name: t("communities:invite_community_dialog:message_box"),
+    });
+
+    expect(checkbox).toBeEnabled();
+    expect(checkbox).not.toBeChecked();
+  });
+
+  it("opens the community invite confirmation dialog when the invite checkbox is checked", async () => {
+    getEventMock.mockResolvedValue({
+      ...events[0],
+      communityInviteRequested: false,
+    });
+
+    renderPage();
+
+    const user = userEvent.setup({
+      advanceTimers: jest.advanceTimersByTime,
+    });
+
+    const checkbox = await screen.findByRole("checkbox", {
+      name: t("communities:invite_community_dialog:message_box"),
+    });
+
+    await user.click(checkbox);
+
+    await user.click(
+      screen.getByRole("button", {
+        name: t("global:update"),
+      }),
+    );
+
+    await waitFor(() => {
+      expect(updateEventMock).toHaveBeenCalledTimes(1);
+    });
+
+    expect(updateEventMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventId: 1,
+        inviteCommunity: true,
+      }),
+    );
+
+    expect(
+      await screen.findByRole("dialog", {
+        name: t("communities:invite_community_dialog.title"),
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("submits a community invite after confirming the dialog", async () => {
+    getEventMock.mockResolvedValue({
+      ...events[0],
+      communityInviteRequested: false,
+    });
+
+    renderPage();
+
+    const user = userEvent.setup({
+      advanceTimers: jest.advanceTimersByTime,
+    });
+
+    await user.click(
+      await screen.findByRole("checkbox", {
+        name: t("communities:invite_community_dialog:message_box"),
+      }),
+    );
+
+    await user.click(
+      screen.getByRole("button", {
+        name: t("global:update"),
+      }),
+    );
+
+    await screen.findByRole("dialog", {
+      name: t("communities:invite_community_dialog.title"),
+    });
+
+    await user.click(
+      screen.getByRole("button", {
+        name: t("communities:invite_community_dialog_buttons.confirm"),
+      }),
+    );
+
+    await waitFor(() => {
+      expect(service.events.RequestCommunityInvite).toHaveBeenCalledWith(1);
+    });
+  });
+  it("disables the invite checkbox after a community invite has been requested", async () => {
+    getEventMock.mockResolvedValue({
+      ...events[0],
+      communityInviteRequested: true,
+    });
+
+    renderPage();
+
+    const checkbox = await screen.findByRole("checkbox", {
+      name: t("communities:invite_community_dialog:message_box"),
+    });
+    expect(checkbox).toBeChecked();
+    expect(checkbox).toBeDisabled();
+  });
 });

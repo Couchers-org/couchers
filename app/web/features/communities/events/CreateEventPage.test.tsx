@@ -59,8 +59,8 @@ describe("Create event page", () => {
   afterAll(() => {
     server.close();
   });
-
   beforeEach(() => {
+    jest.clearAllMocks();
     createEventMock.mockResolvedValue(events[0]);
     jest.useFakeTimers();
     jest.setSystemTime(new Date("2021-08-01 00:00"));
@@ -71,7 +71,7 @@ describe("Create event page", () => {
     jest.useRealTimers();
   });
 
-  it("creates on event with no route state correctly", async () => {
+  it("creates an event with no route state correctly", async () => {
     renderPageWithState();
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
@@ -131,9 +131,7 @@ describe("Create event page", () => {
     await user.click(await screen.findByText("test city, test county, test country"));
 
     await user.type(screen.getByLabelText(t("communities:event_details")), "sick social!");
-
     expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue("sick social!");
-
     await act(async () => user.click(screen.getByRole("button", { name: t("global:create") })));
 
     expect(createEventMock).toHaveBeenCalledTimes(1);
@@ -144,6 +142,7 @@ describe("Create event page", () => {
       address: "test city, test county, test country",
       title: "Test event",
       content: "sick social!",
+      inviteCommunity: false,
       photoKey: undefined,
       startTime: Temporal.PlainDateTime.from("2021-08-01T01:00"),
       endTime: Temporal.PlainDateTime.from("2021-08-01T02:00"),
@@ -152,7 +151,7 @@ describe("Create event page", () => {
     await waitFor(() => expect(mockRouter.asPath).toBe(`/event/${events[0].eventId}/${events[0].slug}?created=true`));
   });
 
-  it("creates on event with route state correctly", async () => {
+  it("creates an event with route state correctly", async () => {
     renderPageWithState({ communityId: 99 });
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
@@ -228,6 +227,7 @@ describe("Create event page", () => {
       photoKey: undefined,
       startTime: Temporal.PlainDateTime.from("2021-08-01T01:00"),
       endTime: Temporal.PlainDateTime.from("2021-08-01T02:00"),
+      inviteCommunity: false,
       parentCommunityId: 99,
     });
   });
@@ -262,10 +262,132 @@ describe("Create event page", () => {
       expect(screen.getByText(t("profile:complete_profile_dialog.title"))).toBeInTheDocument();
     });
   });
+
+  it("shows the invite community checkbox unchecked by default", async () => {
+    renderPageWithState();
+
+    const checkbox = await screen.findByRole("checkbox", {
+      name: t("communities:invite_community_dialog:message_box"),
+    });
+
+    expect(checkbox).not.toBeChecked();
+  });
+
+  it("creates an event without requesting a community invite by default", async () => {
+    renderPageWithState();
+
+    const user = userEvent.setup({
+      advanceTimers: jest.advanceTimersByTime,
+    });
+
+    await fillRequiredEventFields(user);
+
+    await act(async () => user.click(screen.getByRole("button", { name: t("global:create") })));
+
+    await waitFor(() => {
+      expect(createEventMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          inviteCommunity: false,
+        }),
+      );
+    });
+  });
+  it("creates an event requesting a community invite when the checkbox is selected", async () => {
+    renderPageWithState();
+
+    const user = userEvent.setup({
+      advanceTimers: jest.advanceTimersByTime,
+    });
+
+    await fillRequiredEventFields(user);
+
+    await user.click(
+      screen.getByRole("checkbox", {
+        name: t("communities:invite_community_dialog:message_box"),
+      }),
+    );
+
+    await act(async () => user.click(screen.getByRole("button", { name: t("global:create") })));
+
+    expect(createEventMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        inviteCommunity: true,
+      }),
+    );
+  });
+  it("opens the invite community dialog after creating an event with invite community selected", async () => {
+    renderPageWithState();
+
+    const user = userEvent.setup({
+      advanceTimers: jest.advanceTimersByTime,
+    });
+
+    await fillRequiredEventFields(user);
+
+    await user.click(
+      screen.getByRole("checkbox", {
+        name: t("communities:invite_community_dialog:message_box"),
+      }),
+    );
+
+    await act(async () => user.click(screen.getByRole("button", { name: t("global:create") })));
+
+    expect(await screen.findByRole("dialog")).toBeVisible();
+
+    expect(screen.getByText(t("communities:invite_community_dialog.title"))).toBeVisible();
+  });
 });
 
 function renderPageWithState(state?: { communityId: number }) {
   mockRouter.setCurrentUrl(routeToNewEvent(state?.communityId));
   const { wrapper } = getHookWrapperWithClient();
   render(<CreateEventPage />, { wrapper });
+}
+
+async function fillRequiredEventFields(user: UserEvent) {
+  const titleInput = (await screen.findByLabelText(t("communities:event_title_label"))) as HTMLInputElement;
+
+  await user.type(titleInput, "Test event");
+
+  const startDateGroup = await screen.findByRole("group", {
+    name: t("communities:start_date"),
+  });
+
+  await user.click(startDateGroup);
+  await user.keyboard("{Control>}a{/Control}");
+  await user.keyboard("08012021");
+
+  const startTimeGroup = await screen.findByRole("group", {
+    name: t("communities:start_time"),
+  });
+
+  await user.click(startTimeGroup);
+  await user.keyboard("{Control>}a{/Control}");
+  await user.keyboard("01:00 AM");
+
+  const endDateGroup = await screen.findByRole("group", {
+    name: t("communities:end_date"),
+  });
+
+  await user.click(endDateGroup);
+  await user.keyboard("{Control>}a{/Control}");
+  await user.keyboard("08012021");
+
+  const endTimeGroup = await screen.findByRole("group", {
+    name: t("communities:end_time"),
+  });
+
+  await user.click(endTimeGroup);
+  await user.keyboard("{Control>}a{/Control}");
+  await user.keyboard("02:00 AM");
+
+  const locationInput = screen.getByLabelText(t("communities:location")) as HTMLInputElement;
+
+  await user.type(locationInput, "tes{enter}");
+
+  await user.click(await screen.findByText("test city, test county, test country"));
+
+  const detailsInput = screen.getByLabelText(t("communities:event_details"));
+
+  await user.type(detailsInput, "sick social!");
 }
