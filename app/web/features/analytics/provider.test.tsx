@@ -13,6 +13,8 @@ jest.mock("./eventCollector", () => ({
   initializeCollector: () => mockInitializeCollector(),
 }));
 
+jest.mock("next/web-vitals", () => ({ useReportWebVitals: jest.fn() }));
+
 let eventOnSpy: jest.SpyInstance;
 let eventOffSpy: jest.SpyInstance;
 

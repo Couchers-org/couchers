@@ -25,9 +25,21 @@
  */
 
 import { useRouter } from "next/router";
-import { ReactNode, useEffect, useRef } from "react";
+import { useReportWebVitals } from "next/web-vitals";
+import { ReactNode, useCallback, useEffect, useRef } from "react";
 
 import { destroyCollector, initializeCollector, logEvent } from "./eventCollector";
+
+// Next doesn't ship types for its bundled copy of web-vitals
+type WebVitalMetric = {
+  name: string;
+  id: string;
+  value: number;
+  delta: number;
+  rating: string;
+  navigationType: string;
+  navigationURL?: string;
+};
 
 const ATTRIBUTION_PARAMS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"];
 
@@ -82,6 +94,7 @@ export default function AnalyticsProvider({ children }: { children: ReactNode })
   const previousTimestampRef = useRef<number>(Date.now());
   const initializedRef = useRef(false);
   const strippingParamsRef = useRef(false);
+  const routeByPathRef = useRef(new Map<string, string>());
 
   // Session start + initial page view (runs once on mount)
   useEffect(() => {
@@ -158,6 +171,28 @@ export default function AnalyticsProvider({ children }: { children: ReactNode })
       router.events.off("routeChangeComplete", handleRouteChange);
     };
   }, [router.events]);
+
+  useEffect(() => {
+    routeByPathRef.current.set(window.location.pathname, router.pathname);
+  }, [router.asPath, router.pathname]);
+
+  const reportWebVital = useCallback((metric: WebVitalMetric) => {
+    // A metric can be reported after the user has moved on, so look up the route of the page it measured
+    const path = metric.navigationURL ? new URL(metric.navigationURL).pathname : null;
+    logEvent(
+      "web_vital.measured",
+      {
+        name: metric.name,
+        id: metric.id,
+        delta: metric.delta,
+        rating: metric.rating,
+        navigation_type: metric.navigationType,
+        route: (path && routeByPathRef.current.get(path)) ?? null,
+      },
+      metric.value,
+    );
+  }, []);
+  useReportWebVitals(reportWebVital);
 
   // Cleanup on unmount
   useEffect(() => {
