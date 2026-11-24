@@ -21,10 +21,11 @@ from couchers.models import (
     UserRankingOffset,
 )
 from couchers.proto import api_pb2, communities_pb2, events_pb2, search_pb2
+from couchers.servicers import search
 from couchers.servicers.search import USER_SEARCH_NOISE_PERIOD_DAYS
 from couchers.utils import Timestamp_from_datetime, create_coordinate, now, today
 from tests.fixtures.api import events as events_api
-from tests.fixtures.db import generate_user
+from tests.fixtures.db import generate_user, make_user_block
 from tests.fixtures.feature_flags import Flags
 from tests.fixtures.misc import Moderator
 from tests.fixtures.rpc_errors import expect_rpc_error
@@ -134,6 +135,53 @@ def test_user_search_in_rectangle(db):
             )
         )
         assert {result.user_id for result in res.results} == {user3.id, user4.id, user5.id}
+
+
+def test_user_search_unfiltered_count(db):
+    viewer, token = generate_user(geom=create_coordinate(0.5, 0.5))
+    generate_user(geom=create_coordinate(0.1, 0.1))
+    generate_user(geom=create_coordinate(0.9, 0.9))
+    blocked, _ = generate_user(geom=create_coordinate(0.5, 0.2))
+    make_user_block(viewer, blocked)
+    generate_user(geom=create_coordinate(5, 5))
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
+
+    with search_session(token) as api:
+        res = api.UserSearchV2(
+            search_pb2.UserSearchReq(
+                search_in_rectangle=search_pb2.RectArea(lat_min=0, lat_max=1, lng_min=0, lng_max=1),
+                age_min=wrappers_pb2.UInt32Value(value=150),
+            )
+        )
+    assert res.total_items == 0
+    assert res.total_unfiltered_items == 3
+
+
+def test_user_search_unfiltered_count_capped(db, monkeypatch):
+    monkeypatch.setattr(search, "MAX_UNFILTERED_COUNT", 3)
+    monkeypatch.setattr(search, "EXACT_UNFILTERED_COUNT_BELOW", 0)
+    viewer, token = generate_user(geom=create_coordinate(0.5, 0.5))
+    for i in range(5):
+        generate_user(geom=create_coordinate(0.1 * i, 0.1))
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
+
+    with search_session(token) as api:
+        res = api.UserSearchV2(
+            search_pb2.UserSearchReq(
+                search_in_rectangle=search_pb2.RectArea(lat_min=0, lat_max=1, lng_min=0, lng_max=1),
+            )
+        )
+        assert res.total_unfiltered_items == 4
+        res = api.UserSearchV2(
+            search_pb2.UserSearchReq(
+                search_in_rectangle=search_pb2.RectArea(lat_min=0.4, lat_max=1, lng_min=0.4, lng_max=1),
+            )
+        )
+        assert res.total_unfiltered_items == 1
 
 
 def test_user_filter_complete_profile(db):
