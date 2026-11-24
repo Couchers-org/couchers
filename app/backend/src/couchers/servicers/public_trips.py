@@ -45,7 +45,7 @@ publictripstatus2sql = {
 }
 
 
-def _strip_and_validate_description(description: str, context: CouchersContext) -> str:
+def _check_description(description: str, context: CouchersContext) -> str:
     description = strip_text(description)
     if not description:
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_public_trip_description")
@@ -171,7 +171,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         if to_date - from_date > timedelta(days=365):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_longer_than_one_year")
 
-        description = _strip_and_validate_description(request.description, context)
+        description = _check_description(request.description, context)
 
         if _has_overlapping_public_trip(session, context.user_id, node.id, from_date, to_date):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "overlapping_public_trip_exists")
@@ -466,7 +466,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_longer_than_one_year")
 
             if request.HasField("description"):
-                public_trip.description = _strip_and_validate_description(request.description, context)
+                public_trip.description = _check_description(request.description, context)
 
             public_trip.from_date = new_from_date
             public_trip.to_date = new_to_date

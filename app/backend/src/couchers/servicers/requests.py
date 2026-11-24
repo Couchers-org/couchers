@@ -174,7 +174,7 @@ def _possibly_observe_first_response_time(
         )
 
 
-def _strip_and_validate_request_text(text: str, is_public_trip_offer: bool, context: CouchersContext) -> str:
+def _check_request_text(text: str, is_public_trip_offer: bool, context: CouchersContext) -> str:
     min_length, error_code = (
         (PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16, "public_trip_offer_too_short")
         if is_public_trip_offer
@@ -240,7 +240,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if to_date - from_date > timedelta(days=365):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_after_one_year")
 
-        text = _strip_and_validate_request_text(request.text, proposal_kind == StayProposalKind.invitation, context)
+        text = _check_request_text(request.text, proposal_kind == StayProposalKind.invitation, context)
 
         # Check if user has been sending host requests excessively
         if process_rate_limits_and_check_abort(
