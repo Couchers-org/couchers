@@ -154,17 +154,18 @@ Local builds default to the `devtool` variant, so set it explicitly if you want 
 
 #### Run directly on your phone without the Dev Tool
 
-The Dev Tool can be finicky. If it's not working, build the Staging app on your phone instead (connected to your laptop via USB):
+Use this when you want a plain local build instead of the Dev Tool. With your phone connected via USB:
+
+- Delete "Couchers (Staging)" app if you already have it downloaded from TestFlight
 
 ```bash
 npm run ios:local       # or: npm run android:local
 ```
 
-- It opens already connected to Metro, and code changes hot-reload as usual. Later, start Metro again with `npm run start:local`.
-- It installs as "Couchers (Staging)", next to your store Couchers app. It replaces a TestFlight/Play Staging app if you have one.
-- It uses the test servers from `.env`, which is what the Staging app expects.
-- Staging normally only accepts signed code, which Metro can't provide, so these scripts set `LOCAL_UNSIGNED_BUILD=1` to leave the signing check out of this build. Never set it for builds that go to testers or the stores.
-- To go back to the Dev Tool, run `npx expo prebuild --clean`.
+- Builds and installs "Couchers (Staging)" (next to your store app), already connected to Metro, so changes hot-reload. Next time, just run `npm run start:local`.
+- Uses the staging servers from `.env`.
+- Only for local development: it turns off the Staging app's update signing check (`LOCAL_UNSIGNED_BUILD=1`).
+- To switch back to the Dev Tool, run `npx expo prebuild --clean` first.
 
 If you hit iOS signing issues, open `app/mobile/ios` in Xcode and set up signing there, see [the Expo docs on this](https://github.com/expo/fyi/blob/main/setup-xcode-signing.md).
 
