@@ -1,7 +1,7 @@
 """
 Continuous profiling via Grafana Pyroscope.
 
-Each API and background-worker process runs an in-process pyroscope-io agent (py-spy under the
+Each backend process runs an in-process pyroscope-io agent (py-spy under the
 hood). Profiling is controlled at runtime by GrowthBook flags, so it can be turned on, off, and
 retuned in production without a redeploy:
 
