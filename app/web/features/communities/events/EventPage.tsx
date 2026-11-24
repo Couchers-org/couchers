@@ -16,6 +16,7 @@ import HeaderButton from "components/HeaderButton";
 import HtmlMeta from "components/HtmlMeta";
 import { BackIcon, CalendarIcon } from "components/Icons";
 import Markdown from "components/Markdown";
+import PullToRefresh from "components/PullToRefresh";
 import Snackbar from "components/Snackbar";
 import { useAuthContext } from "features/auth/AuthProvider";
 import EventAttendees from "features/communities/events/EventAttendees";
@@ -28,7 +29,7 @@ import { localizeDateTimeRange } from "i18n/datetimes";
 import { COMMUNITIES } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { AttendanceState, Event } from "proto/events_pb";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { eventsRoute, routeToDuplicateEvent, routeToEditEvent, routeToEvent } from "routes";
 import { service } from "service";
 import { Temporal } from "temporal-polyfill";
@@ -37,10 +38,11 @@ import { useAddToCalendar } from "utils/addToCalendar";
 import { timestampToInstant, timestampToPlainDateTime } from "utils/date";
 import { sendNativeBack, useIsNativeEmbed, useIsSupportedInApp } from "utils/nativeLink";
 
-import { eventAttendeesBaseKey, eventKey } from "../../queryKeys";
+import { eventAttendeesBaseKey, eventKey, eventOrganizersBaseKey, threadKey } from "../../queryKeys";
 import CommentTree from "../discussions/CommentTree";
 import AttendanceMenu from "./AttendanceMenu";
 import CancelEventDialog from "./CancelEventDialog";
+import EventCreatedMerchNote from "./EventCreatedMerchNote";
 import EventOrganizers from "./EventOrganizers";
 import { useEvent } from "./hooks";
 import InviteCommunityDialog from "./InviteCommunityDialog";
@@ -203,6 +205,16 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
     },
   });
 
+  // Links from comment notifications carry ?comment=<id>, so open on the comments
+  const isCommentLink = router.query.comment !== undefined;
+  const discussionRef = useRef<HTMLDivElement>(null);
+  const hasEvent = event !== undefined;
+  useEffect(() => {
+    if (isCommentLink && hasEvent) {
+      discussionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [isCommentLink, hasEvent]);
+
   const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
   const [showInviteCommunitySuccess, setShowInviteCommunitySuccess] = useState(false);
   const [inviteCommunityDialogIsOpen, setInviteCommunityDialogIsOpen] = useState(false);
@@ -303,6 +315,14 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
   return (
     <>
       <HtmlMeta title={event?.title} />
+      <PullToRefresh
+        queryKeys={[
+          eventKey(eventId),
+          [eventAttendeesBaseKey, eventId],
+          [eventOrganizersBaseKey, eventId],
+          ...(event ? [threadKey(event.thread!.threadId)] : []),
+        ]}
+      />
       {(eventError || setEventAttendanceError) && (
         <Alert severity="error">{eventError?.message || setEventAttendanceError?.message || ""}</Alert>
       )}
@@ -310,6 +330,7 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
         <Snackbar severity="success">{t("communities:invite_community_dialog.toast_success")}</Snackbar>
       )}
       {showCopyLinkSuccess && <Snackbar severity="success">{t("communities:copy_link_success")}</Snackbar>}
+      <EventCreatedMerchNote />
       {isLoading ? (
         <CenteredSpinner />
       ) : (
@@ -407,7 +428,7 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
               <EventOrganizers event={event} />
               <EventAttendees event={event} />
             </StyledEventDetailsContainer>
-            <StyledDiscussionContainer>
+            <StyledDiscussionContainer ref={discussionRef}>
               <Typography variant="h2">{t("communities:event_discussion")}</Typography>
               <CommentTree threadId={event.thread!.threadId} />
             </StyledDiscussionContainer>

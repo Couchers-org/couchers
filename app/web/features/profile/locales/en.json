@@ -342,5 +342,8 @@
     },
     "edit_profile_button": "Edit your profile now",
     "cancel_button": "Never mind"
+  },
+  "copy_profile_link": {
+    "button_a11y": "Copy profile link"
   }
 }

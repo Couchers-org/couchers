@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { HostingStatus, MeetupStatus } from "proto/api_pb";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
@@ -9,6 +10,11 @@ import { ProfileUserProvider } from "../hooks/useProfileUser";
 import UserOverview from "./UserOverview";
 
 const { t } = i18n;
+
+const mockLogEvent = jest.fn();
+jest.mock("features/analytics/hooks", () => ({
+  useLogEvent: () => mockLogEvent,
+}));
 
 describe("UserOverview", () => {
   beforeEach(() => {
@@ -34,6 +40,32 @@ describe("UserOverview", () => {
         { wrapper },
       );
       expect(screen.getByText(`@${defaultUser.username}`)).toBeInTheDocument();
+    });
+
+    it("links the username to the profile and copies the link from the icon", async () => {
+      const writeText = jest.fn().mockResolvedValue(undefined);
+      Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
+      render(
+        <ProfileUserProvider user={defaultUser}>
+          <UserOverview showHostAndMeetAvailability={false} />
+        </ProfileUserProvider>,
+        { wrapper },
+      );
+
+      expect(screen.getByRole("link", { name: `@${defaultUser.username}` })).toHaveAttribute(
+        "href",
+        `/user/${defaultUser.username}`,
+      );
+
+      await userEvent.click(screen.getByRole("button", { name: t("profile:copy_profile_link.button_a11y") }));
+
+      expect(writeText).toHaveBeenCalledWith(`${window.location.origin}/user/${defaultUser.username}`);
+      expect(mockLogEvent).toHaveBeenCalledWith("profile.link_copied", {
+        user_id: defaultUser.userId,
+        is_own_profile: false,
+        succeeded: true,
+      });
+      expect(await screen.findByText(t("global:copy_button.copied_message"))).toBeVisible();
     });
 
     it("should display the user location", () => {

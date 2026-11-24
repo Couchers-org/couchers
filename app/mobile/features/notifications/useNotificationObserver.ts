@@ -2,6 +2,7 @@ import * as Notifications from "expo-notifications";
 import { Href, router } from "expo-router";
 import { useEffect } from "react";
 
+import { detailRouteOriginRef } from "@/state/webViewState";
 import { getNotificationPath } from "@/utils/getNotificationPath";
 
 // Module-level Set to track handled notification IDs (persists across component remounts)
@@ -41,6 +42,9 @@ function handleNotificationResponse(
   const path = getNotificationPath(url);
 
   if (path) {
+    // A screen saved by earlier browsing is stale here (e.g. left via the tab bar),
+    // so back should use its fallback instead of returning there
+    detailRouteOriginRef.current = null;
     router.push(path as Href);
   }
 }

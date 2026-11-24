@@ -1,8 +1,8 @@
 import string
 import textwrap
+from typing import Any
 
 import grpc
-import pytest
 from sqlalchemy import select
 
 from couchers.db import session_scope
@@ -21,14 +21,16 @@ from couchers.proto import discussions_pb2, moderation_pb2, threads_pb2
 from couchers.servicers.threads import pack_thread_id
 from couchers.utils import now
 from tests.fixtures.api import events as events_api
+from tests.fixtures.api import threads as threads_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import Moderator
-from tests.fixtures.sessions import discussions_session, real_moderation_session, threads_session
+from tests.fixtures.rpc_errors import expect_rpc_error
+from tests.fixtures.sessions import discussions_session, real_moderation_session
 from tests.test_communities import create_community
 
 
 def test_threads_basic(db):
-    user1, token1 = generate_user()
+    user, token = generate_user()
 
     # Create a dummy Thread (should be replaced by pages later on)
     with session_scope() as session:
@@ -37,112 +39,107 @@ def test_threads_basic(db):
         session.flush()
         PARENT_THREAD_ID = pack_thread_id(database_id=dummy_thread.id, depth=0)
 
-    with threads_session(token1) as api:
-        bat_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=PARENT_THREAD_ID, content="bat")).thread_id
+    bat_id = threads_api.post_reply(token=token, thread_id=PARENT_THREAD_ID, content="bat")
 
-        cat_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=PARENT_THREAD_ID, content="cat")).thread_id
+    cat_id = threads_api.post_reply(token=token, thread_id=PARENT_THREAD_ID, content="cat")
 
-        dog_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=PARENT_THREAD_ID, content="dog")).thread_id
+    dog_id = threads_api.post_reply(token=token, thread_id=PARENT_THREAD_ID, content="dog")
 
-        dogs = [
-            api.PostReply(threads_pb2.PostReplyReq(thread_id=dog_id, content=animal)).thread_id
-            for animal in ["hyena", "wolf", "prariewolf"]
-        ]
-        cats = [
-            api.PostReply(threads_pb2.PostReplyReq(thread_id=cat_id, content=animal)).thread_id
-            for animal in ["cheetah", "lynx", "panther"]
-        ]
+    dogs = [
+        threads_api.post_reply(token=token, thread_id=dog_id, content=animal)
+        for animal in ["hyena", "wolf", "prariewolf"]
+    ]
+    cats = [
+        threads_api.post_reply(token=token, thread_id=cat_id, content=animal)
+        for animal in ["cheetah", "lynx", "panther"]
+    ]
 
-        # Make some queries
-        ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=PARENT_THREAD_ID))
-        assert len(ret.replies) == 3
-        assert ret.next_page_token == ""
-        assert ret.replies[0].thread_id == dog_id
-        assert ret.replies[0].content == "dog"
-        assert ret.replies[0].author_user_id == user1.id
-        assert ret.replies[0].num_replies == 3
+    # Make some queries
+    ret = threads_api.get_thread(token=token, thread_id=PARENT_THREAD_ID)
+    assert len(ret.replies) == 3
+    assert ret.next_page_token == ""
+    assert ret.replies[0].thread_id == dog_id
+    assert ret.replies[0].content == "dog"
+    assert ret.replies[0].author_user_id == user.id
+    assert ret.replies[0].num_replies == 3
 
-        assert ret.replies[1].thread_id == cat_id
-        assert ret.replies[1].content == "cat"
-        assert ret.replies[1].author_user_id == user1.id
-        assert ret.replies[1].num_replies == 3
+    assert ret.replies[1].thread_id == cat_id
+    assert ret.replies[1].content == "cat"
+    assert ret.replies[1].author_user_id == user.id
+    assert ret.replies[1].num_replies == 3
 
-        assert ret.replies[2].thread_id == bat_id
-        assert ret.replies[2].content == "bat"
-        assert ret.replies[2].author_user_id == user1.id
-        assert ret.replies[2].num_replies == 0
+    assert ret.replies[2].thread_id == bat_id
+    assert ret.replies[2].content == "bat"
+    assert ret.replies[2].author_user_id == user.id
+    assert ret.replies[2].num_replies == 0
 
-        ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=cat_id))
-        assert len(ret.replies) == 3
-        assert ret.next_page_token == ""
-        assert [reply.thread_id for reply in ret.replies] == cats[::-1]
+    ret = threads_api.get_thread(token=token, thread_id=cat_id)
+    assert len(ret.replies) == 3
+    assert ret.next_page_token == ""
+    assert [reply.thread_id for reply in ret.replies] == cats[::-1]
 
-        ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=dog_id))
-        assert len(ret.replies) == 3
-        assert ret.next_page_token == ""
-        assert [reply.thread_id for reply in ret.replies] == dogs[::-1]
+    ret = threads_api.get_thread(token=token, thread_id=dog_id)
+    assert len(ret.replies) == 3
+    assert ret.next_page_token == ""
+    assert [reply.thread_id for reply in ret.replies] == dogs[::-1]
 
 
 def test_threads_errors(db):
-    user1, token1 = generate_user()
-    with threads_session(token1) as api:
-        # request non-existing comment
-        with pytest.raises(grpc.RpcError) as e:
-            api.GetThread(threads_pb2.GetThreadReq(thread_id=11))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Discussion thread not found."
+    user, token = generate_user()
+    # request non-existing comment
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Discussion thread not found."):
+        threads_api.get_thread(token=token, thread_id=11)
 
-        # request non-existing depth digit
-        with pytest.raises(grpc.RpcError) as e:
-            api.GetThread(threads_pb2.GetThreadReq(thread_id=19))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Discussion thread not found."
+    # request non-existing depth digit
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Discussion thread not found."):
+        threads_api.get_thread(token=token, thread_id=19)
 
-        # post on non-existing comment
-        with pytest.raises(grpc.RpcError) as e:
-            api.PostReply(threads_pb2.PostReplyReq(thread_id=11, content="foo"))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Discussion thread not found."
+    # post on non-existing comment
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Discussion thread not found."):
+        threads_api.post_reply(token=token, thread_id=11)
 
-        # post on non-existing depth
-        with pytest.raises(grpc.RpcError) as e:
-            api.PostReply(threads_pb2.PostReplyReq(thread_id=19, content="foo"))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Discussion thread not found."
+    # post on non-existing depth
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Discussion thread not found."):
+        threads_api.post_reply(token=token, thread_id=19)
 
-        # post empty content
-        with pytest.raises(grpc.RpcError) as e:
-            api.PostReply(threads_pb2.PostReplyReq(thread_id=19, content=""))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "You cannot post an empty comment."
+    # post empty content
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "You cannot post an empty comment."):
+        threads_api.post_reply(token=token, thread_id=19, content="")
 
-        # post whitespace only content
-        with pytest.raises(grpc.RpcError) as e:
-            api.PostReply(threads_pb2.PostReplyReq(thread_id=19, content="    "))
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "You cannot post an empty comment."
+    # post whitespace only content
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "You cannot post an empty comment."):
+        threads_api.post_reply(token=token, thread_id=19, content="    ")
 
 
-def pagination_test(api, parent_id):
-    # Post some data
+def pagination_test(token: str, parent_id: int) -> int:
+    # Post some data, oldest "z" to newest "a"
     for c in reversed(string.ascii_lowercase):
-        api.PostReply(threads_pb2.PostReplyReq(thread_id=parent_id, content=c))
+        threads_api.post_reply(token=token, thread_id=parent_id, content=c)
 
-    # Get it with pagination
-    token = ""
+    def read_pages(**kwargs: Any) -> tuple[list[str], threads_pb2.GetThreadRes]:
+        page_token = ""
+        pages = []
+        while True:
+            ret = threads_api.get_thread(token=token, thread_id=parent_id, page_size=5, page_token=page_token, **kwargs)
+            pages.append("".join(x.content for x in ret.replies))
+            page_token = ret.next_page_token
+            if not page_token:
+                return pages, ret
 
-    for expected_page in textwrap.wrap(string.ascii_lowercase, 5):
-        ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_id, page_size=5, page_token=token))
-        assert "".join(x.content for x in ret.replies) == expected_page
-        token = ret.next_page_token
+    newest_pages = textwrap.wrap(string.ascii_lowercase, 5)
+    oldest_pages = textwrap.wrap(string.ascii_lowercase[::-1], 5)
 
-    assert token == ""
+    # newest first is the default
+    pages, ret = read_pages()
+    assert pages == newest_pages
+    assert read_pages(sort_order=threads_pb2.THREAD_SORT_ORDER_NEWEST_FIRST)[0] == newest_pages
+    assert read_pages(sort_order=threads_pb2.THREAD_SORT_ORDER_OLDEST_FIRST)[0] == oldest_pages
 
     return ret.replies[0].thread_id  # to be used as a test one level deeper
 
 
 def test_threads_pagination(db):
-    user1, token1 = generate_user()
+    user, token = generate_user()
 
     PARENT_THREAD_ID = 10
 
@@ -150,9 +147,8 @@ def test_threads_pagination(db):
     with session_scope() as session:
         session.add(Thread())
 
-    with threads_session(token1) as api:
-        comment_id = pagination_test(api, PARENT_THREAD_ID)
-        pagination_test(api, comment_id)
+    comment_id = pagination_test(token, PARENT_THREAD_ID)
+    pagination_test(token, comment_id)
 
 
 def _make_thread_and_comment(token, content="hello"):
@@ -163,10 +159,7 @@ def _make_thread_and_comment(token, content="hello"):
         session.flush()
         parent_thread_id = pack_thread_id(database_id=thread.id, depth=0)
 
-    with threads_session(token) as api:
-        comment_thread_id = api.PostReply(
-            threads_pb2.PostReplyReq(thread_id=parent_thread_id, content=content)
-        ).thread_id
+    comment_thread_id = threads_api.post_reply(token=token, thread_id=parent_thread_id, content=content)
 
     return parent_thread_id, comment_thread_id
 
@@ -198,10 +191,7 @@ def test_reply_creates_moderation_state(db):
     user, token = generate_user()
     _, comment_thread_id = _make_thread_and_comment(token)
 
-    with threads_session(token) as api:
-        reply_thread_id = api.PostReply(
-            threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="reply text")
-        ).thread_id
+    reply_thread_id = threads_api.post_reply(token=token, thread_id=comment_thread_id)
     reply_db_id = reply_thread_id // 10
 
     with session_scope() as session:
@@ -223,15 +213,13 @@ def test_shadowed_comment_visible_to_author_only(db):
     parent_thread_id, _ = _make_thread_and_comment(author_token, content="secret")
 
     # Author sees their own shadowed comment
-    with threads_session(author_token) as api:
-        ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_thread_id))
-        assert len(ret.replies) == 1
-        assert ret.replies[0].content == "secret"
+    ret = threads_api.get_thread(token=author_token, thread_id=parent_thread_id)
+    assert len(ret.replies) == 1
+    assert ret.replies[0].content == "secret"
 
     # Other user does not see the shadowed comment
-    with threads_session(other_token) as api:
-        ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_thread_id))
-        assert len(ret.replies) == 0
+    ret = threads_api.get_thread(token=other_token, thread_id=parent_thread_id)
+    assert len(ret.replies) == 0
 
 
 def test_shadowed_reply_visible_to_author_only(db, moderator: Moderator):
@@ -243,19 +231,16 @@ def test_shadowed_reply_visible_to_author_only(db, moderator: Moderator):
     # Approve the comment so the parent comment is visible to others (otherwise they can't see the comment context anyway)
     moderator.approve_thread_post(comment_thread_id)
 
-    with threads_session(author_token) as api:
-        api.PostReply(threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="my reply"))
+    threads_api.post_reply(token=author_token, thread_id=comment_thread_id, content="my reply")
 
     # Author sees their own shadowed reply
-    with threads_session(author_token) as api:
-        ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=comment_thread_id))
-        assert len(ret.replies) == 1
-        assert ret.replies[0].content == "my reply"
+    ret = threads_api.get_thread(token=author_token, thread_id=comment_thread_id)
+    assert len(ret.replies) == 1
+    assert ret.replies[0].content == "my reply"
 
     # Other user does not see the shadowed reply
-    with threads_session(other_token) as api:
-        ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=comment_thread_id))
-        assert len(ret.replies) == 0
+    ret = threads_api.get_thread(token=other_token, thread_id=comment_thread_id)
+    assert len(ret.replies) == 0
 
 
 def test_comment_by_invisible_user_hidden(db, moderator: Moderator):
@@ -267,16 +252,14 @@ def test_comment_by_invisible_user_hidden(db, moderator: Moderator):
     moderator.approve_thread_post(comment_thread_id)
 
     # while the author is visible, the comment shows
-    with threads_session(other_token) as api:
-        assert len(api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_thread_id)).replies) == 1
+    assert len(threads_api.get_thread(token=other_token, thread_id=parent_thread_id).replies) == 1
 
     # delete the author
     with session_scope() as session:
         session.execute(select(User).where(User.id == author.id)).scalar_one().deleted_at = now()
 
     # the comment is now hidden from other users
-    with threads_session(other_token) as api:
-        assert len(api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_thread_id)).replies) == 0
+    assert len(threads_api.get_thread(token=other_token, thread_id=parent_thread_id).replies) == 0
 
 
 def test_reply_by_invisible_user_hidden(db, moderator: Moderator):
@@ -289,27 +272,21 @@ def test_reply_by_invisible_user_hidden(db, moderator: Moderator):
     parent_thread_id, comment_thread_id = _make_thread_and_comment(commenter_token, content="hi")
     moderator.approve_thread_post(comment_thread_id)
 
-    with threads_session(replier_token) as api:
-        reply_thread_id = api.PostReply(
-            threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="my reply")
-        ).thread_id
-    moderator.approve_thread_post(reply_thread_id)
+    threads_api.post_reply(token=replier_token, thread_id=comment_thread_id, approve_by=moderator)
 
     # while the replier is visible, the reply shows and is counted on the parent comment
-    with threads_session(viewer_token) as api:
-        assert len(api.GetThread(threads_pb2.GetThreadReq(thread_id=comment_thread_id)).replies) == 1
-        parent = api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_thread_id))
-        assert parent.replies[0].num_replies == 1
+    assert len(threads_api.get_thread(token=viewer_token, thread_id=comment_thread_id).replies) == 1
+    parent = threads_api.get_thread(token=viewer_token, thread_id=parent_thread_id)
+    assert parent.replies[0].num_replies == 1
 
     # delete the replier
     with session_scope() as session:
         session.execute(select(User).where(User.id == replier.id)).scalar_one().deleted_at = now()
 
     # the reply is now hidden from other users and no longer counted on the parent comment
-    with threads_session(viewer_token) as api:
-        assert len(api.GetThread(threads_pb2.GetThreadReq(thread_id=comment_thread_id)).replies) == 0
-        parent = api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_thread_id))
-        assert parent.replies[0].num_replies == 0
+    assert len(threads_api.get_thread(token=viewer_token, thread_id=comment_thread_id).replies) == 0
+    parent = threads_api.get_thread(token=viewer_token, thread_id=parent_thread_id)
+    assert parent.replies[0].num_replies == 0
 
 
 def test_admin_can_approve_comment(db):
@@ -326,8 +303,7 @@ def test_admin_can_approve_comment(db):
         state_id = comment.moderation_state_id
 
     # Other user can't see it yet
-    with threads_session(other_token) as api:
-        assert len(api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_thread_id)).replies) == 0
+    assert len(threads_api.get_thread(token=other_token, thread_id=parent_thread_id).replies) == 0
 
     # Moderator approves
     with real_moderation_session(moderator_token) as api:
@@ -341,10 +317,9 @@ def test_admin_can_approve_comment(db):
         )
 
     # Now other user sees it
-    with threads_session(other_token) as api:
-        ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_thread_id))
-        assert len(ret.replies) == 1
-        assert ret.replies[0].content == "approved comment"
+    ret = threads_api.get_thread(token=other_token, thread_id=parent_thread_id)
+    assert len(ret.replies) == 1
+    assert ret.replies[0].content == "approved comment"
 
 
 def test_admin_can_hide_comment(db, moderator: Moderator):
@@ -356,17 +331,14 @@ def test_admin_can_hide_comment(db, moderator: Moderator):
     moderator.approve_thread_post(comment_thread_id)
 
     # Other user sees it
-    with threads_session(other_token) as api:
-        assert len(api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_thread_id)).replies) == 1
+    assert len(threads_api.get_thread(token=other_token, thread_id=parent_thread_id).replies) == 1
 
     moderator.set_thread_post_visibility(comment_thread_id, moderation_pb2.MODERATION_VISIBILITY_HIDDEN)
 
     # Other user no longer sees it
-    with threads_session(other_token) as api:
-        assert len(api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_thread_id)).replies) == 0
+    assert len(threads_api.get_thread(token=other_token, thread_id=parent_thread_id).replies) == 0
     # Author also no longer sees it (hidden, not shadowed)
-    with threads_session(author_token) as api:
-        assert len(api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_thread_id)).replies) == 0
+    assert len(threads_api.get_thread(token=author_token, thread_id=parent_thread_id).replies) == 0
 
 
 def test_total_num_responses_excludes_shadowed(db, moderator: Moderator):
@@ -416,10 +388,7 @@ def test_total_num_responses_excludes_replies_under_hidden_comment(db, moderator
     viewer_context = make_background_user_context(user_id=viewer.id)
     parent_db_id, _ = divmod(parent_thread_id, 10)
 
-    with threads_session(author_token) as api:
-        reply_thread_id = api.PostReply(
-            threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="reply")
-        ).thread_id
+    reply_thread_id = threads_api.post_reply(token=author_token, thread_id=comment_thread_id)
 
     moderator.approve_thread_post(comment_thread_id)
     moderator.approve_thread_post(reply_thread_id)
@@ -429,8 +398,7 @@ def test_total_num_responses_excludes_replies_under_hidden_comment(db, moderator
 
     moderator.set_thread_post_visibility(comment_thread_id, moderation_pb2.MODERATION_VISIBILITY_HIDDEN)
 
-    with threads_session(viewer_token) as api:
-        assert len(api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_thread_id)).replies) == 0
+    assert len(threads_api.get_thread(token=viewer_token, thread_id=parent_thread_id).replies) == 0
     with session_scope() as session:
         assert total_num_responses(session, viewer_context, parent_db_id) == 0
 
@@ -446,12 +414,7 @@ def test_total_num_responses_excludes_replies_under_someone_elses_shadowed_comme
     replier_context = make_background_user_context(user_id=replier.id)
     parent_db_id, _ = divmod(parent_thread_id, 10)
 
-    with threads_session(replier_token) as api:
-        reply_thread_id = api.PostReply(
-            threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="reply")
-        ).thread_id
-
-    moderator.approve_thread_post(reply_thread_id)
+    threads_api.post_reply(token=replier_token, thread_id=comment_thread_id, approve_by=moderator)
 
     with session_scope() as session:
         assert total_num_responses(session, replier_context, parent_db_id) == 0
@@ -467,8 +430,7 @@ def test_edit_comment_creates_version_record(db):
     parent_thread_id, comment_thread_id = _make_thread_and_comment(token, content="original comment")
     comment_db_id = comment_thread_id // 10
 
-    with threads_session(token) as api:
-        api.UpdateReply(threads_pb2.UpdateReplyReq(thread_id=comment_thread_id, content="edited comment"))
+    threads_api.update_reply(token=token, thread_id=comment_thread_id, content="edited comment")
 
     with session_scope() as session:
         versions = (
@@ -487,8 +449,7 @@ def test_delete_comment_creates_version_record(db):
     parent_thread_id, comment_thread_id = _make_thread_and_comment(token, content="comment to delete")
     comment_db_id = comment_thread_id // 10
 
-    with threads_session(token) as api:
-        api.DeleteReply(threads_pb2.DeleteReplyReq(thread_id=comment_thread_id))
+    threads_api.delete_reply(token=token, thread_id=comment_thread_id)
 
     with session_scope() as session:
         versions = (
@@ -506,14 +467,10 @@ def test_edit_reply_creates_version_record(db):
     user, token = generate_user()
     _, comment_thread_id = _make_thread_and_comment(token, content="a comment")
 
-    with threads_session(token) as api:
-        reply_thread_id = api.PostReply(
-            threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="original reply")
-        ).thread_id
+    reply_thread_id = threads_api.post_reply(token=token, thread_id=comment_thread_id, content="original reply")
     reply_db_id = reply_thread_id // 10
 
-    with threads_session(token) as api:
-        api.UpdateReply(threads_pb2.UpdateReplyReq(thread_id=reply_thread_id, content="edited reply"))
+    threads_api.update_reply(token=token, thread_id=reply_thread_id, content="edited reply")
 
     with session_scope() as session:
         versions = session.execute(select(ReplyVersion).where(ReplyVersion.reply_id == reply_db_id)).scalars().all()
@@ -529,14 +486,10 @@ def test_delete_reply_creates_version_record(db):
     user, token = generate_user()
     _, comment_thread_id = _make_thread_and_comment(token, content="a comment")
 
-    with threads_session(token) as api:
-        reply_thread_id = api.PostReply(
-            threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="reply to delete")
-        ).thread_id
+    reply_thread_id = threads_api.post_reply(token=token, thread_id=comment_thread_id, content="reply to delete")
     reply_db_id = reply_thread_id // 10
 
-    with threads_session(token) as api:
-        api.DeleteReply(threads_pb2.DeleteReplyReq(thread_id=reply_thread_id))
+    threads_api.delete_reply(token=token, thread_id=reply_thread_id)
 
     with session_scope() as session:
         versions = session.execute(select(ReplyVersion).where(ReplyVersion.reply_id == reply_db_id)).scalars().all()
@@ -564,10 +517,8 @@ def test_post_reply_incomplete_profile_blocked_on_event_comment(db):
 
     event_thread_id = _create_event_and_get_thread_id(organizer, organizer_token)
 
-    with threads_session(commenter_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.PostReply(threads_pb2.PostReplyReq(thread_id=event_thread_id, content="hello"))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
+        threads_api.post_reply(token=commenter_token, thread_id=event_thread_id)
 
 
 def test_post_reply_incomplete_profile_blocked_on_event_reply(db):
@@ -578,15 +529,10 @@ def test_post_reply_incomplete_profile_blocked_on_event_reply(db):
 
     event_thread_id = _create_event_and_get_thread_id(organizer, organizer_token)
 
-    with threads_session(commenter_token) as api:
-        comment_thread_id = api.PostReply(
-            threads_pb2.PostReplyReq(thread_id=event_thread_id, content="top-level comment")
-        ).thread_id
+    comment_thread_id = threads_api.post_reply(token=commenter_token, thread_id=event_thread_id)
 
-    with threads_session(replier_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.PostReply(threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="a reply"))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
+        threads_api.post_reply(token=replier_token, thread_id=comment_thread_id)
 
 
 def test_post_reply_complete_profile_allowed_on_event_comment(db):
@@ -596,10 +542,7 @@ def test_post_reply_complete_profile_allowed_on_event_comment(db):
 
     event_thread_id = _create_event_and_get_thread_id(organizer, organizer_token)
 
-    with threads_session(commenter_token) as api:
-        comment_thread_id = api.PostReply(
-            threads_pb2.PostReplyReq(thread_id=event_thread_id, content="hello")
-        ).thread_id
+    comment_thread_id = threads_api.post_reply(token=commenter_token, thread_id=event_thread_id)
     assert comment_thread_id
 
 
@@ -621,10 +564,8 @@ def test_post_reply_incomplete_profile_blocked_on_discussion_thread(db):
         )
         discussion_thread_id = discussion.thread.thread_id
 
-    with threads_session(commenter_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.PostReply(threads_pb2.PostReplyReq(thread_id=discussion_thread_id, content="hello"))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
+        threads_api.post_reply(token=commenter_token, thread_id=discussion_thread_id)
 
 
 def test_edit_comment_multiple_edits_creates_multiple_version_records(db):
@@ -632,9 +573,8 @@ def test_edit_comment_multiple_edits_creates_multiple_version_records(db):
     _, comment_thread_id = _make_thread_and_comment(token, content="v1")
     comment_db_id = comment_thread_id // 10
 
-    with threads_session(token) as api:
-        api.UpdateReply(threads_pb2.UpdateReplyReq(thread_id=comment_thread_id, content="v2"))
-        api.UpdateReply(threads_pb2.UpdateReplyReq(thread_id=comment_thread_id, content="v3"))
+    threads_api.update_reply(token=token, thread_id=comment_thread_id, content="v2")
+    threads_api.update_reply(token=token, thread_id=comment_thread_id, content="v3")
 
     with session_scope() as session:
         versions = (

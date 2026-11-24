@@ -43,6 +43,7 @@ from couchers.constants import (
     HOST_REQUEST_REMINDER_INTERVAL,
     MISSED_MESSAGES_DELAY,
     MISSED_MESSAGES_DELAY_WITH_PUSH,
+    MISSED_MESSAGES_LOOKBACK,
     MODERATION_AUTO_APPROVE_FLAG_PRIORITY,
 )
 from couchers.context import make_background_user_context, make_notification_user_context
@@ -60,6 +61,7 @@ from couchers.email.smtp import send_smtp_email
 from couchers.event_log import log_event
 from couchers.event_recurrence import make_every_nth_week_rrule, schedule_occurrences
 from couchers.helpers.badges import user_add_badge, user_remove_badge
+from couchers.helpers.community_checks import run_community_checks
 from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.helpers.group_chats import is_newest_subscription, is_unseen
 from couchers.helpers.hosting_meetup_status import record_hosting_meetup_status
@@ -233,6 +235,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                 .where(is_unseen(Message, GroupChatSubscription))
                 .where(Message.id > User.last_notified_message_id)
                 .where(_message_unseen_long_enough(User.id))
+                .where(Message.time > now() - MISSED_MESSAGES_LOOKBACK)
                 .where(Message.message_type == MessageType.text)  # TODO: only text messages for now
             )
             .scalars()
@@ -397,7 +400,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                     user_id=user.id,
                     topic_action=NotificationTopicAction.host_request__missed_messages,
                     key=str(host_request.conversation_id),
-                    data=notification_data_pb2.HostRequestMissedMessages(
+                    data=notification_data_pb2.StayMissedMessages(
                         host_request=host_request_to_pb(host_request, session, context),
                         counterparty=user_model_to_pb(host_request.recipient, session, context),
                         # Notification to the recipient == message from the initiator
@@ -441,7 +444,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                     user_id=user.id,
                     topic_action=NotificationTopicAction.host_request__missed_messages,
                     key=str(host_request.conversation_id),
-                    data=notification_data_pb2.HostRequestMissedMessages(
+                    data=notification_data_pb2.StayMissedMessages(
                         host_request=host_request_to_pb(host_request, session, context),
                         counterparty=user_model_to_pb(host_request.initiator, session, context),
                         # Notification to the recipient == message from the initiator
@@ -640,7 +643,7 @@ def send_host_request_reminders(payload: empty_pb2.Empty) -> None:
                 user_id=host_request.recipient_user_id,
                 topic_action=NotificationTopicAction.host_request__reminder,
                 key=str(host_request.conversation_id),
-                data=notification_data_pb2.HostRequestReminder(
+                data=notification_data_pb2.StayReminder(
                     host_request=host_request_to_pb(host_request, session, context),
                     initiator=user_model_to_pb(host_request.initiator, session, context),
                 ),
@@ -721,6 +724,11 @@ def add_users_to_email_list(payload: empty_pb2.Empty) -> None:
 
 def enforce_community_membership(payload: empty_pb2.Empty) -> None:
     tasks_enforce_community_memberships()
+
+
+def check_communities(payload: empty_pb2.Empty) -> None:
+    with session_scope() as session:
+        run_community_checks(session, now())
 
 
 def update_recommendation_scores(payload: empty_pb2.Empty) -> None:
@@ -1317,7 +1325,7 @@ def _schedule_occurrences_for_recurrence(session: Session, recurrence: EventRecu
                 geom=recurrence.geom,
                 address=recurrence.address,
                 timezone=recurrence.timezone,
-                # TODO(#9845): Initialize photo_key. Implies adding admin usage tracking infra.
+                photo_key=recurrence.photo_key,
                 during=TimestamptzRange(start_datetime, end_datetime),
                 creator_user_id=recurrence.event.creator_user_id,
                 moderation_state_id=moderation_state_id,
@@ -1439,13 +1447,13 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
             )
             return
 
-        user_name, user_email = session.execute(select(User.name, User.email).where(User.id == attempt.user_id)).one()
+        user_email = session.execute(select(User.email).where(User.id == attempt.user_id)).scalar_one()
 
         if config.POSTAL_VERIFICATION_BYPASS_POST_AND_EMAIL_CODE_FOR_TESTING:
             email_verification_code_instead_of_posting(
                 session,
                 recipient_email=user_email,
-                recipient_name=user_name,
+                recipient_name=attempt.recipient_name,
                 address_line_1=attempt.address_line_1,
                 address_line_2=attempt.address_line_2,
                 city=attempt.city,
@@ -1456,7 +1464,7 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
             )
         else:
             attempt.mypostcard_job_id = send_postcard(
-                recipient_name=user_name,
+                recipient_name=attempt.recipient_name,
                 address_line_1=attempt.address_line_1,
                 address_line_2=attempt.address_line_2,
                 city=attempt.city,

@@ -25,33 +25,51 @@
  */
 
 import { useRouter } from "next/router";
-import { ReactNode, useEffect, useRef } from "react";
+import { useReportWebVitals } from "next/web-vitals";
+import { ReactNode, useCallback, useEffect, useRef } from "react";
 
 import { destroyCollector, initializeCollector, logEvent } from "./eventCollector";
 
+// Next doesn't ship types for its bundled copy of web-vitals
+type WebVitalMetric = {
+  name: string;
+  id: string;
+  value: number;
+  delta: number;
+  rating: string;
+  navigationType: string;
+  navigationURL?: string;
+};
+
+const ATTRIBUTION_PARAMS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"];
+
+// zz: added to links in our emails, see app/backend/src/couchers/email/zz.py
+// zn: the notification id, added to push notification links, see app/backend/src/couchers/notifications/push.py
+const ONE_TIME_PARAMS = ["zz", "zn"];
+
 /**
- * Extract UTM parameters from the URL for marketing attribution.
+ * Extract attribution parameters (UTM params) from the URL.
  * These help track which campaigns, ads, or links brought users to your site.
  */
-function getUtmParams(): Record<string, string> {
+function getAttributionParams(): Record<string, string> {
   const params = new URLSearchParams(window.location.search);
-  const utm: Record<string, string> = {};
-  for (const key of ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"]) {
+  const attribution: Record<string, string> = {};
+  for (const key of ATTRIBUTION_PARAMS) {
     const val = params.get(key);
-    if (val) utm[key] = val;
+    if (val) attribution[key] = val;
   }
-  return utm;
+  return attribution;
 }
 
 /**
- * Get query parameters excluding UTM params (for cleaner page.viewed events).
+ * Get query parameters excluding attribution params (for cleaner page.viewed events).
  * This keeps your analytics focused on actual page parameters, not marketing tags.
  */
 function getFilteredSearch(queryString: string): string | null {
   const params = new URLSearchParams(queryString);
   const filtered = new URLSearchParams();
   params.forEach((value, key) => {
-    if (!key.startsWith("utm_")) {
+    if (!key.startsWith("utm_") && !ATTRIBUTION_PARAMS.includes(key)) {
       filtered.set(key, value);
     }
   });
@@ -75,6 +93,8 @@ export default function AnalyticsProvider({ children }: { children: ReactNode })
   const previousPathRef = useRef<string | null>(null);
   const previousTimestampRef = useRef<number>(Date.now());
   const initializedRef = useRef(false);
+  const strippingParamsRef = useRef(false);
+  const routeByPathRef = useRef(new Map<string, string>());
 
   // Session start + initial page view (runs once on mount)
   useEffect(() => {
@@ -85,7 +105,7 @@ export default function AnalyticsProvider({ children }: { children: ReactNode })
     initializeCollector();
 
     logEvent("session.started", {
-      ...getUtmParams(),
+      ...getAttributionParams(),
       referrer: document.referrer || null,
       landing_page: window.location.pathname,
       user_agent: navigator.userAgent,
@@ -107,10 +127,31 @@ export default function AnalyticsProvider({ children }: { children: ReactNode })
     previousTimestampRef.current = Date.now();
   }, []);
 
+  // Remove zz and zn from the URL so they aren't shared, bookmarked or re-logged on reload. This must go through
+  // the Next router after it's ready: hydration replaces the URL with the original one, and the router keeps them in
+  // asPath/query (and history.state) otherwise, putting them back on later navigations.
+  useEffect(() => {
+    if (!router.isReady || !ONE_TIME_PARAMS.some((param) => param in router.query)) return;
+    const query = { ...router.query };
+    ONE_TIME_PARAMS.forEach((param) => delete query[param]);
+    const as = new URL(router.asPath, window.location.origin);
+    ONE_TIME_PARAMS.forEach((param) => as.searchParams.delete(param));
+    strippingParamsRef.current = true;
+    router.replace({ pathname: router.pathname, query }, as.pathname + as.search + as.hash, {
+      shallow: true,
+      scroll: false,
+    });
+  }, [router]);
+
   // Route change tracking
   useEffect(() => {
     const handleRouteChange = (url: string) => {
       const [path, queryString] = url.split("?");
+      if (strippingParamsRef.current) {
+        strippingParamsRef.current = false;
+        // removing the params isn't a new page view, but a redirect that cancelled it is
+        if (path.split("#")[0] === previousPathRef.current) return;
+      }
       const now = Date.now();
       const timeOnPreviousPage = (now - previousTimestampRef.current) / 1000;
 
@@ -130,6 +171,28 @@ export default function AnalyticsProvider({ children }: { children: ReactNode })
       router.events.off("routeChangeComplete", handleRouteChange);
     };
   }, [router.events]);
+
+  useEffect(() => {
+    routeByPathRef.current.set(window.location.pathname, router.pathname);
+  }, [router.asPath, router.pathname]);
+
+  const reportWebVital = useCallback((metric: WebVitalMetric) => {
+    // A metric can be reported after the user has moved on, so look up the route of the page it measured
+    const path = metric.navigationURL ? new URL(metric.navigationURL).pathname : null;
+    logEvent(
+      "web_vital.measured",
+      {
+        name: metric.name,
+        id: metric.id,
+        delta: metric.delta,
+        rating: metric.rating,
+        navigation_type: metric.navigationType,
+        route: (path && routeByPathRef.current.get(path)) ?? null,
+      },
+      metric.value,
+    );
+  }, []);
+  useReportWebVitals(reportWebVital);
 
   // Cleanup on unmount
   useEffect(() => {

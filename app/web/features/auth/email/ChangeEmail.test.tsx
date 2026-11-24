@@ -30,6 +30,9 @@ const accountInfo = {
   isVolunteer: false,
   myHomeComplete: false,
   shouldShowDonationBanner: false,
+  hasOptedInToBetaFeatures: false,
+  hostPool: 1,
+  hasNewbieHostingHistory: false,
 };
 
 describe("ChangeEmail", () => {
@@ -113,7 +116,7 @@ describe("ChangeEmail", () => {
     const errorAlert = await screen.findByRole("alert");
     expect(errorAlert).toBeVisible();
     expect(errorAlert).toHaveTextContent("Invalid email");
-    expect(screen.queryByText(/Your email change has been received/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/We have sent a confirmation link to your new email address/i)).not.toBeInTheDocument();
   });
 
   describe("password visibility toggle", () => {

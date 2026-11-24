@@ -25,6 +25,7 @@
     "mod_note_notification_must_be_specified": "Whether and how to notify the user about the mod note must be specified.",
     "moderation_user_list_not_found": "Moderation user list not found.",
     "no_multipolygon": "GeoJson was not of type MultiPolygon.",
+    "node_type_not_below_parent": "A community's type must be narrower than its parent's, and only a community with no parent can be the world.",
     "note_cant_be_empty": "The admin note cannot be empty.",
     "note_data_must_be_valid_json": "The admin note data must be valid JSON.",
     "note_requires_exactly_one_of_note_or_data": "Provide exactly one of admin_note or data.",

@@ -4,6 +4,7 @@ from .auth import *  # noqa: F401,F403
 from .background_jobs import *  # noqa: F401,F403
 from .base import *  # noqa: F401,F403
 from .clusters import *  # noqa: F401,F403
+from .community_checks import *  # noqa: F401,F403
 from .conversations import *  # noqa: F401,F403
 from .discussions import *  # noqa: F401,F403
 from .donations import *  # noqa: F401,F403

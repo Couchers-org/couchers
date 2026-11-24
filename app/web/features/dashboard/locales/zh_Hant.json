@@ -4,14 +4,12 @@
   "no_community": "您當前不在任何社群中。",
   "no_sub_communities": "沒有子社群。",
   "load_more": "載入更多",
-  "welcome": "歡迎來到Couchers.org！",
   "new_pill": "新",
   "profile_summary_edit": "編輯個人資料",
   "profile_summary_view": "查看我的個人資料",
   "profile_mobile_summary_view": "前往個人資料",
   "find_a_host": "尋找接待者",
   "become_a_host": "成為接待者",
-  "browse_communities": "瀏覽社群",
   "search_input_label": "您要去哪裡？",
   "search_input_placeholder": "搜尋位置",
   "show_map": "顯示地圖",
@@ -86,5 +84,20 @@
     "night_count_other": "{{count}}晚",
     "no_upcoming_trips": "沒有即將到來的旅行。準備好探索了嗎？",
     "no_upcoming_guests": "還沒有即將到來的客人。"
+  },
+  "celebration_100k": {
+    "banner_message": "Couchers 成員突破10萬！",
+    "banner_read_more_link": "瞭解更多",
+    "banner_replay_button": "重播動畫",
+    "help_us_grow_button": "幫助我們成長",
+    "dialog_a11y": "Couchers 成員突破10萬",
+    "close_button_a11y": "關閉",
+    "burst_heading": "我們已有超過{{member_count}}人！",
+    "map_counter_total": "{{member_count}}+",
+    "map_counter_label": "位 Couchers 成員，仍在持續增加",
+    "map_message_everywhere": "我們的足跡遍布世界。",
+    "map_message_thanks": "感謝您敞開家門。",
+    "map_read_more_link": "瞭解更多",
+    "map_a11y": "世界各地 Couchers 成員的分布地圖，成員群組逐個城市顯現，並匯聚成區域"
   }
 }

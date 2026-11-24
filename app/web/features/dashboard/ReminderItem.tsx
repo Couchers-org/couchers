@@ -93,7 +93,6 @@ export default function ReminderItem({ reminder, onDismiss }: { reminder: Remind
         padding: isMobile ? "14px" : "24px",
         display: "flex",
         flexDirection: "column",
-        height: "100%",
       })}
     >
       <Box

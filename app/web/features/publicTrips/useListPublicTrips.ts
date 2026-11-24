@@ -1,5 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { publicTripsBaseKey, publicTripsByUserBaseKey, publicTripsByUserKey, publicTripsKey } from "features/queryKeys";
+import {
+  dashboardKey,
+  publicTripsBaseKey,
+  publicTripsByUserBaseKey,
+  publicTripsByUserKey,
+  publicTripsKey,
+} from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import {
   ListPublicTripsByUserRes,
@@ -69,6 +75,7 @@ export function useCreatePublicTrip(communityId: number, onSuccess?: () => void)
       queryClient.invalidateQueries({
         queryKey: publicTripsKey(communityId),
       });
+      queryClient.invalidateQueries({ queryKey: [dashboardKey] });
       onSuccess?.();
     },
   });
@@ -92,6 +99,7 @@ export function useUpdatePublicTrip(onSuccess?: () => void) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [publicTripsBaseKey] });
       queryClient.invalidateQueries({ queryKey: [publicTripsByUserBaseKey] });
+      queryClient.invalidateQueries({ queryKey: [dashboardKey] });
       onSuccess?.();
     },
   });

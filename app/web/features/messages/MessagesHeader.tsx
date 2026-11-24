@@ -16,7 +16,8 @@ const StyledRoot = styled("div")(({ theme }) => ({
 const StyledHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
-  gap: theme.spacing(2),
+  flexWrap: "wrap",
+  columnGap: theme.spacing(2),
 }));
 
 // Map tab to MarkAllReadButton type (excluding archived)

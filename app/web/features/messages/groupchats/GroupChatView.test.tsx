@@ -11,11 +11,17 @@ import messageData from "test/fixtures/messages.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import i18n from "test/i18n";
 import { getGroupChatMessages, getLiteUser, getLiteUsers, getUser } from "test/serviceMockDefaults";
-import { addDefaultUser, assertErrorAlert, mockConsoleError, MockedService, wait } from "test/utils";
+import { addDefaultUser, assertErrorAlert, mockConsoleError, MockedService, pullToRefresh, wait } from "test/utils";
+import { useIsNativeEmbed } from "utils/nativeLink";
 
 import { GROUP_CHAT_REFETCH_INTERVAL } from "./constants";
 
 const { t } = i18n;
+
+jest.mock("utils/nativeLink", () => ({
+  ...jest.requireActual("utils/nativeLink"),
+  useIsNativeEmbed: jest.fn(),
+}));
 
 const getGroupChatMock = service.conversations.getGroupChat as MockedService<typeof service.conversations.getGroupChat>;
 const getLiteUserMock = service.user.getLiteUser as jest.Mock;
@@ -477,5 +483,22 @@ describe("GroupChatView", () => {
       .click();
 
     await assertErrorAlert("Can't mute");
+  });
+
+  it("shows new messages after pulling to refresh in the mobile app", async () => {
+    jest.mocked(useIsNativeEmbed).mockReturnValue(true);
+    // the newest message hasn't arrived yet on first load
+    getGroupChatMessagesMock.mockImplementation(async () => {
+      const res = await getGroupChatMessages();
+      return { ...res, messagesList: res.messagesList.slice(1) };
+    });
+    renderGroupChatView();
+    expect(await screen.findByText(messageData[1].text!.text)).toBeVisible();
+    expect(screen.queryByText(messageData[0].text!.text)).not.toBeInTheDocument();
+
+    getGroupChatMessagesMock.mockImplementation(getGroupChatMessages);
+    pullToRefresh();
+
+    expect(await screen.findByText(messageData[0].text!.text)).toBeVisible();
   });
 });

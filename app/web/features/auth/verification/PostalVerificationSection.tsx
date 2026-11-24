@@ -31,6 +31,7 @@ import {
 } from "./VerificationSection";
 
 const EMPTY_ADDRESS: PostalAddressData = {
+  recipientName: "",
   addressLine1: "",
   addressLine2: "",
   city: "",
@@ -99,6 +100,7 @@ const AddressCardLabel = styled("div")(({ theme }) => ({
 
 function addressLines(address: PostalAddressData, countryName: string): string[] {
   return [
+    address.recipientName,
     address.addressLine1,
     address.addressLine2,
     [address.postalCode, address.city].filter(Boolean).join(" "),
@@ -141,10 +143,11 @@ export default function PostalVerificationSection({ hasDonated }: { hasDonated: 
   const setField = (field: keyof PostalAddressData) => (value: string) =>
     setAddress((previous) => ({ ...previous, [field]: value }));
 
-  const isMissing = (field: "addressLine1" | "city" | "countryCode") => showRequiredErrors && !address[field];
+  const isMissing = (field: "recipientName" | "addressLine1" | "city" | "countryCode") =>
+    showRequiredErrors && !address[field].trim();
 
   const onSubmitAddress = () => {
-    if (!address.addressLine1 || !address.city || !address.countryCode) {
+    if (!address.recipientName.trim() || !address.addressLine1.trim() || !address.city.trim() || !address.countryCode) {
       setShowRequiredErrors(true);
       return;
     }
@@ -170,6 +173,7 @@ export default function PostalVerificationSection({ hasDonated }: { hasDonated: 
         iconTint="primaryDark"
         title={t("verification_page.postal.header")}
         description={t("verification_page.postal.description")}
+        badgeId="postal_verified"
         status={isVerified ? "verified" : status?.hasActiveAttempt ? "in_progress" : "not_verified"}
       />
 
@@ -235,6 +239,21 @@ export default function PostalVerificationSection({ hasDonated }: { hasDonated: 
                   {t("verification_page.postal.address_form.description")}
                 </Typography>
                 <AddressFieldGrid>
+                  <TextField
+                    id="postal-recipient-name"
+                    fullWidth
+                    autoComplete="name"
+                    label={t("verification_page.postal.address_form.recipient_name_label")}
+                    value={address.recipientName}
+                    onChange={(event) => setField("recipientName")(event.target.value)}
+                    error={isMissing("recipientName")}
+                    helperText={
+                      isMissing("recipientName")
+                        ? t("verification_page.postal.address_form.required_field_error")
+                        : t("verification_page.postal.address_form.recipient_name_helper")
+                    }
+                    sx={{ gridColumn: "1 / -1", mb: 2 }}
+                  />
                   <TextField
                     id="postal-address-line-1"
                     fullWidth
@@ -359,6 +378,7 @@ export default function PostalVerificationSection({ hasDonated }: { hasDonated: 
                   <Typography variant="body1">
                     {addressLines(
                       {
+                        recipientName: status.address.recipientName,
                         addressLine1: status.address.addressLine1,
                         addressLine2: status.address.addressLine2,
                         city: status.address.city,
@@ -419,9 +439,10 @@ export default function PostalVerificationSection({ hasDonated }: { hasDonated: 
                 sx={{ "& input": { fontSize: "1.5rem", fontWeight: 700, letterSpacing: "10px" } }}
               />
               <Typography variant="body2" sx={{ color: "var(--mui-palette-text-secondary)" }}>
-                {t("verification_page.postal.code_form.tries_left", {
-                  count: remainingCodeAttempts ?? POSTAL_VERIFICATION_MAX_ATTEMPTS,
-                  max_tries: POSTAL_VERIFICATION_MAX_ATTEMPTS,
+                {/* pluralised on the total, as in "1 of 1 try left" */}
+                {t("verification_page.postal.code_form.attempts_left", {
+                  remaining: remainingCodeAttempts ?? POSTAL_VERIFICATION_MAX_ATTEMPTS,
+                  count: POSTAL_VERIFICATION_MAX_ATTEMPTS,
                 })}
               </Typography>
               {isCodeWrong && (

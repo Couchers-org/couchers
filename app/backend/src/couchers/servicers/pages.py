@@ -7,7 +7,13 @@ from couchers.db import can_moderate_at, can_moderate_node, get_parent_node_at_l
 from couchers.models import Cluster, Node, Page, PageType, PageVersion, Thread, Upload, User
 from couchers.proto import pages_pb2, pages_pb2_grpc
 from couchers.servicers.threads import thread_to_pb
-from couchers.utils import Timestamp_from_datetime, create_coordinate, not_none, remove_duplicates_retain_order
+from couchers.utils import (
+    Timestamp_from_datetime,
+    create_coordinate,
+    not_none,
+    remove_duplicates_retain_order,
+    strip_text,
+)
 
 MAX_PAGINATION_LENGTH = 25
 
@@ -101,11 +107,14 @@ class Pages(pages_pb2_grpc.PagesServicer):
     def CreatePlace(
         self, request: pages_pb2.CreatePlaceReq, context: CouchersContext, session: Session
     ) -> pages_pb2.Page:
-        if not request.title:
+        title = strip_text(request.title)
+        content = strip_text(request.content)
+        address = strip_text(request.address)
+        if not title:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_page_title")
-        if not request.content:
+        if not content:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_page_content")
-        if not request.address:
+        if not address:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_page_address")
         if not request.HasField("location"):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_page_location")
@@ -138,10 +147,10 @@ class Pages(pages_pb2_grpc.PagesServicer):
         page_version = PageVersion(
             page_id=page.id,
             editor_user_id=context.user_id,
-            title=request.title,
-            content=request.content,
+            title=title,
+            content=content,
             photo_key=request.photo_key if request.photo_key else None,
-            address=request.address,
+            address=address,
             geom=geom,
         )
         session.add(page_version)
@@ -151,16 +160,18 @@ class Pages(pages_pb2_grpc.PagesServicer):
     def CreateGuide(
         self, request: pages_pb2.CreateGuideReq, context: CouchersContext, session: Session
     ) -> pages_pb2.Page:
-        if not request.title:
+        title = strip_text(request.title)
+        content = strip_text(request.content)
+        address: str | None = strip_text(request.address)
+        if not title:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_page_title")
-        if not request.content:
+        if not content:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_page_content")
-        if request.address and request.HasField("location"):
-            address = request.address
+        if address and request.HasField("location"):
             if request.location.lat == 0 and request.location.lng == 0:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
             geom = create_coordinate(request.location.lat, request.location.lng)
-        elif not request.address and not request.HasField("location"):
+        elif not address and not request.HasField("location"):
             address = None
             geom = None
         else:
@@ -196,8 +207,8 @@ class Pages(pages_pb2_grpc.PagesServicer):
         page_version = PageVersion(
             page_id=page.id,
             editor_user_id=context.user_id,
-            title=request.title,
-            content=request.content,
+            title=title,
+            content=content,
             photo_key=request.photo_key if request.photo_key else None,
             address=address,
             geom=geom,
@@ -240,14 +251,16 @@ class Pages(pages_pb2_grpc.PagesServicer):
         )
 
         if request.HasField("title"):
-            if not request.title.value:
+            new_title = strip_text(request.title.value)
+            if not new_title:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_page_title")
-            page_version.title = request.title.value
+            page_version.title = new_title
 
         if request.HasField("content"):
-            if not request.content.value:
+            new_content = strip_text(request.content.value)
+            if not new_content:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_page_content")
-            page_version.content = request.content.value
+            page_version.content = new_content
 
         if request.HasField("photo_key"):
             if not request.photo_key.value:
@@ -260,9 +273,10 @@ class Pages(pages_pb2_grpc.PagesServicer):
                 page_version.photo_key = request.photo_key.value
 
         if request.HasField("address"):
-            if not request.address.value:
+            new_address = strip_text(request.address.value)
+            if not new_address:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_page_address")
-            page_version.address = request.address.value
+            page_version.address = new_address
 
         if request.HasField("location"):
             page_version.geom = create_coordinate(request.location.lat, request.location.lng)

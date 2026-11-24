@@ -1,4 +1,3 @@
-import { useGrowthBook } from "@growthbook/growthbook-react";
 import { Box, Container, GlobalStyles, useMediaQuery } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -7,6 +6,7 @@ import ErrorBoundary from "components/ErrorBoundary";
 import Footer from "components/Footer";
 import { STANDARD_PAGE_MAX_WIDTH } from "components/PageContainer";
 import { useAuthContext } from "features/auth/AuthProvider";
+import { useFeatureFlagsReady } from "features/experimentation/FeatureFlagProvider";
 import { PushNotificationBanner } from "features/notifications/PushNotificationBanner";
 import { useRouter } from "next/router";
 import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react";
@@ -100,7 +100,7 @@ function AppRoute({ children, isPrivate, noFooter = false, variant = "standard",
   const isAuthenticated = authState.authenticated;
   const isJailed = authState.jailed;
   const isNativeEmbed = useIsNativeEmbed();
-  const featuresReady = useGrowthBook().ready;
+  const featuresReady = useFeatureFlagsReady();
 
   //there must be the same loading state on auth'd pages on server and client
   //for hydration matching, so we will display a loader until mounted.

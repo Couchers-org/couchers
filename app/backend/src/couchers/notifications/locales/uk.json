@@ -41,76 +41,6 @@
       }
     }
   },
-  "host_request": {
-    "accept": {
-      "event_description": "Хтось прийняв ваш запит",
-      "push": {
-        "title": "{{user}} прийняв(ла) ваш запит",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "Запит прийнято",
-        "body": "{{user}} прийняв ваш запит у гості на {{date}}."
-      }
-    },
-    "cancel": {
-      "event_description": "Хтось скасував свій запит",
-      "push": {
-        "title": "{{user}} скасував(ла) свій запит",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "Запит скасовано",
-        "body": "{{user}} скасував свій запит у гості на {{date}}."
-      }
-    },
-    "confirm": {
-      "event_description": "Хтось підтвердив свій запит",
-      "push": {
-        "title": "{{user}} підтвердив(ла) свій запит",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "Запит підтверджено",
-        "body": "{{user}} підтвердив свій запит у гості на {{date}}."
-      }
-    },
-    "create": {
-      "event_description": "Хтось запитує, чи можна завітати до вас у гості",
-      "push": {
-        "title": "Новий запит від {{user}}",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "Новий запит",
-        "body_one": "{{user}} запитує чи можна завітати до вас у гості з {{start_date}} на {{count}} ніч.",
-        "body_few": "{{user}} запитує чи можна завітати до вас у гості з {{start_date}} на {{count}} ночі.",
-        "body_many": "{{user}} запитує чи можна завітати до вас у гості з {{start_date}} на {{count}} ночей."
-      }
-    },
-    "message": {
-      "event_description": "Хтось відправив повідомлення стосовного свого запиту"
-    },
-    "missed_messages": {
-      "push": {
-        "title": "Нові повідомлення від {{user}}",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "Пропущені повідомлення",
-        "body": "Ви маєте непрочитані повідомлення від {{user}}."
-      },
-      "event_description": "Ви пропустили повідомлення стосовно запиту у гості"
-    },
-    "reject": {
-      "event_description": "Хтось відхилив ваш запит",
-      "push": {
-        "title": "{{user}} відхилив(ла) ваш запит",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "Запит відхилено",
-        "body": "{{user}} відхилив(ла) ваш запит у гості на {{date}}."
-      }
-    },
-    "reminder": {
-      "event_description": "Ви іще не відповіли на запит",
-      "push": {
-        "title": "Запит від {{user}} досі очікує на вашу відповідь",
-        "ios_title": "Запит очікує на відповідь",
-        "ios_subtitle": "{{user}}",
-        "body": "{{user}} чекає на вашу відповідь, будь ласка, прийміть або відхиліть запит."
-      }
-    }
-  },
   "modnote": {
     "create": {
       "event_description": "Модератор надіслав вам зауваження",
@@ -176,6 +106,88 @@
     },
     "reminder_surfed": {
       "event_description": "Нагадування: хтось із людей, в яких ви гостювали, досі чекає на відгук, напишіть його будь ласка"
+    }
+  },
+  "stay": {
+    "accept": {
+      "event_description": "Хтось прийняв ваш запит",
+      "request": {
+        "push": {
+          "title": "{{user}} прийняв(ла) ваш запит",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Запит прийнято",
+          "body": "{{user}} прийняв ваш запит у гості на {{date}}."
+        }
+      }
+    },
+    "cancel": {
+      "event_description": "Хтось скасував свій запит",
+      "request": {
+        "push": {
+          "title": "{{user}} скасував(ла) свій запит",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Запит скасовано",
+          "body": "{{user}} скасував свій запит у гості на {{date}}."
+        }
+      }
+    },
+    "confirm": {
+      "event_description": "Хтось підтвердив свій запит",
+      "request": {
+        "push": {
+          "title": "{{user}} підтвердив(ла) свій запит",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Запит підтверджено",
+          "body": "{{user}} підтвердив свій запит у гості на {{date}}."
+        }
+      }
+    },
+    "create": {
+      "event_description": "Хтось запитує, чи можна завітати до вас у гості",
+      "request": {
+        "push": {
+          "title": "Новий запит від {{user}}",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Новий запит",
+          "body_one": "{{user}} запитує чи можна завітати до вас у гості з {{start_date}} на {{count}} ніч.",
+          "body_few": "{{user}} запитує чи можна завітати до вас у гості з {{start_date}} на {{count}} ночі.",
+          "body_many": "{{user}} запитує чи можна завітати до вас у гості з {{start_date}} на {{count}} ночей."
+        }
+      }
+    },
+    "message": {
+      "event_description": "Хтось відправив повідомлення стосовного свого запиту"
+    },
+    "missed_messages": {
+      "event_description": "Ви пропустили повідомлення стосовно запиту у гості",
+      "push": {
+        "title": "Нові повідомлення від {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Пропущені повідомлення",
+        "body": "Ви маєте непрочитані повідомлення від {{user}}."
+      }
+    },
+    "reject": {
+      "event_description": "Хтось відхилив ваш запит",
+      "request": {
+        "push": {
+          "title": "{{user}} відхилив(ла) ваш запит",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Запит відхилено",
+          "body": "{{user}} відхилив(ла) ваш запит у гості на {{date}}."
+        }
+      }
+    },
+    "reminder": {
+      "event_description": "Ви іще не відповіли на запит",
+      "request": {
+        "push": {
+          "title": "Запит від {{user}} досі очікує на вашу відповідь",
+          "ios_title": "Запит очікує на відповідь",
+          "ios_subtitle": "{{user}}",
+          "body": "{{user}} чекає на вашу відповідь, будь ласка, прийміть або відхиліть запит."
+        }
+      }
     }
   },
   "_adhoc": {

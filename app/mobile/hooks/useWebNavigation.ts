@@ -13,6 +13,7 @@ interface UseWebNavigationOptions {
   webBaseUrl: string;
   currentPath: string;
   syncTargetPathRef: React.RefObject<string | null>;
+  isFocusedRef: React.RefObject<boolean>;
   onRetryCountReset?: () => void;
 }
 
@@ -30,6 +31,7 @@ export function useWebNavigation({
   webBaseUrl,
   currentPath,
   syncTargetPathRef,
+  isFocusedRef,
   onRetryCountReset,
 }: UseWebNavigationOptions): UseWebNavigationReturn {
   const router = useRouter();
@@ -154,7 +156,11 @@ export function useWebNavigation({
       const previousWebPathWithoutQuery =
         currentWebPathRef.current.split("?")[0];
       currentWebPathRef.current = webPath;
-      currentActiveWebPathRef.current = webPath;
+      // background tabs also navigate (e.g. on a language change), so only the
+      // screen on display may update the page the notification handler sees
+      if (isFocusedRef.current) {
+        currentActiveWebPathRef.current = webPath;
+      }
 
       // Sync native route when WebView navigates to a different page
       const targetRoute = getRouteNameForPath(webPathWithoutQuery);
@@ -186,7 +192,11 @@ export function useWebNavigation({
       if (targetRoute !== currentRoute && targetRoute) {
         if (isDetailRoute) {
           // Navigate to [..slug] so no tab is highlighted while on a detail page.
-          const detailPath = stripLocalePrefix(webPathWithoutQuery);
+          // keep the query, e.g. ?comment= from a notification link
+          const queryString = webPath.includes("?")
+            ? webPath.substring(webPath.indexOf("?"))
+            : "";
+          const detailPath = `${stripLocalePrefix(webPathWithoutQuery)}${queryString}`;
           detailRouteOriginRef.current = currentPath;
           lastMobileNavigationRef.current = detailPath;
           router.navigate(detailPath as Href);
@@ -206,13 +216,16 @@ export function useWebNavigation({
       }
     },
     [
-      webBaseUrl,
-      currentPath,
       onRetryCountReset,
-      extractLocaleFromPath,
+      webBaseUrl,
+      syncTargetPathRef,
+      isFocusedRef,
       getRouteNameForPath,
-      router,
+      currentPath,
+      extractLocaleFromPath,
       i18n,
+      stripLocalePrefix,
+      router,
     ],
   );
 

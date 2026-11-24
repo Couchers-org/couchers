@@ -1,5 +1,7 @@
 import { Linking } from "react-native";
 
+import { getWebBaseUrl } from "@/config/urls";
+
 // Couchers domains that should be handled in-app
 const COUCHERS_HOSTS = [
   "couchers.org",
@@ -8,6 +10,32 @@ const COUCHERS_HOSTS = [
   "couchershq.org",
   "next.couchershq.org",
 ];
+
+/**
+ * Extracts the in-app path from a notification URL, without side effects.
+ *
+ * @param url - Full URL (e.g., "https://couchers.org/messages/123") or path
+ * @returns The path (e.g., "/messages/123"), or null if invalid or external
+ */
+export function getInAppNotificationPath(
+  url: string | undefined,
+): string | null {
+  if (typeof url !== "string") {
+    return null;
+  }
+
+  try {
+    const urlObj = new URL(url);
+    // Couchers URLs, including the web address the app is using, e.g. a local dev server
+    const isCouchersUrl =
+      COUCHERS_HOSTS.includes(urlObj.host) ||
+      urlObj.host === new URL(getWebBaseUrl()).host;
+    return isCouchersUrl ? urlObj.pathname + urlObj.search : null;
+  } catch {
+    // If URL parsing fails, assume it's already a path
+    return url;
+  }
+}
 
 /**
  * Extracts the navigation path from a notification URL.
@@ -19,27 +47,15 @@ const COUCHERS_HOSTS = [
  * @returns The path to navigate to (e.g., "/messages/123"), or null if invalid/external
  */
 export function getNotificationPath(url: string | undefined): string | null {
-  if (typeof url !== "string") {
-    return null;
-  }
+  const path = getInAppNotificationPath(url);
 
-  try {
-    const urlObj = new URL(url);
-
-    // Check if this is a Couchers URL (should navigate in-app)
-    if (COUCHERS_HOSTS.includes(urlObj.host)) {
-      return urlObj.pathname + urlObj.search;
-    }
-
+  if (path === null && typeof url === "string") {
     // External URL (Stripe, etc.) - open in browser instead
     Linking.openURL(url).catch((err) => {
       if (__DEV__) {
         console.error("Failed to open external notification URL:", err);
       }
     });
-    return null;
-  } catch {
-    // If URL parsing fails, assume it's already a path
-    return url;
   }
+  return path;
 }

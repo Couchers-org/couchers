@@ -50,7 +50,6 @@
     "footer": {
       "received_because": "Recibes este correo electrónico porque te registraste en Couchers.org.",
       "contact_support": "Puedes contactar con nuestro equipo de soporte en {{ email_link }}.",
-      "timezone_note": "Todas las horas están en {{ timezone }}, según la ubicación de tu perfil.",
       "donate_link": "Donar",
       "volunteer_link": "Voluntario",
       "blog_link": "Blog",

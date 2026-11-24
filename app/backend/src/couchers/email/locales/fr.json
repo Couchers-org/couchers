@@ -15,7 +15,6 @@
       "security_email_note": "Ceci est un email de sécurité, vous ne pouvez pas vous en désabonner.",
       "do_not_email_link": "Ne m'envoyez plus d'emails (désactive l'hébergement)",
       "contact_support": "Vous pouvez joindre notre équipe support à {{ email_link }}.",
-      "timezone_note": "Toutes les heures sont à {{ timezone }}, d'après la localisation de votre profil.",
       "blog_link": "Blog",
       "notification_settings_link": "Modifier les paramètres de notification",
       "happy_couch_icon_caption": "Le canapé heureux de Couchers vous souhaite une belle journée."
@@ -66,7 +65,6 @@
   "api_key_issued": {
     "subject": "Votre clé d'API pour Couchers.org",
     "header": "Vous avez récemment demandé une clé d'API pour Couchers.org. Nous vous avons généré cette clé d'API :",
-    "expiry": "La clé expire le <b>{{ datetime }}</b>.",
     "usage_warning": "Cette clé d'API est unique pour votre compte ; ne la partagez avec personne. Elle donne un accès complet à votre compte, et vous êtes responsable de toutes les actions effectuées avec cette clé d'API."
   },
   "badges": {
@@ -168,25 +166,25 @@
   },
   "stays": {
     "created": {
-      "host_request": {
+      "request": {
         "purpose": "<b>{{initiator}}</b> vous a envoyé une demande d'hébergement :"
       }
     },
     "generic": {
       "date_range": "Du <b>{{from_date}}</b> au <b>{{to_date}}</b>.",
-      "host_request": {
+      "request": {
         "view_action": "Voir la demande d'hébergement"
       },
       "quick_decline_action": "Refus rapide"
     },
     "reminder": {
-      "host_request": {
+      "request": {
         "subject": "Vous avez une demande d'hébergement en attente de {{initiator}}",
         "purpose": "<b>{{initiator}}</b> attend votre réponse. Même un refus rapide est préférable l'absence d'une réponse !"
       }
     },
     "status_changed": {
-      "host_request": {
+      "request": {
         "cancelled_by_initiator": {
           "subject": "{{counterparty}} a annulé sa demande d'hébergement",
           "purpose": "<b>{{counterparty}}</b> a annulé sa demande d'hébergement :"

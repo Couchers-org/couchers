@@ -9,6 +9,7 @@ import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import { HostRequest } from "proto/requests_pb";
 import React from "react";
 import { useForm } from "react-hook-form";
+import { isHostRequestPast } from "utils/hostRequests";
 
 import FieldButton from "./FieldButton";
 import HostRequestGuideLinks from "./HostRequestGuideLinks";
@@ -44,7 +45,7 @@ export default function HostRequestSendField({ hostRequest, sendMutation }: Host
     reset();
   });
 
-  const isPast = hostRequest.toDate < new Date().toISOString().split("T")[0];
+  const isPast = isHostRequestPast(hostRequest);
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === "Enter" && event.ctrlKey) {
@@ -55,7 +56,12 @@ export default function HostRequestSendField({ hostRequest, sendMutation }: Host
 
   return (
     <form onSubmit={onSubmit}>
-      <HostRequestGuideLinks isPast={isPast} isHost={isHost} status={hostRequest.status} />
+      <HostRequestGuideLinks
+        isPast={isPast}
+        isHost={isHost}
+        isOffer={!!hostRequest.publicTripId}
+        status={hostRequest.status}
+      />
       <StyledContainer>
         <TextField
           {...register("text")}

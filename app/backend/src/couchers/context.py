@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, NoReturn, cast
+from typing import TYPE_CHECKING, Any, NoReturn, cast
 
 import grpc
 
@@ -230,10 +230,15 @@ class CouchersContext:
     def get_object_value[T](self, flag_key: str, default: T) -> T:
         return experimentation._feature_value(flag_key, default, self._get_growthbook)
 
+    def get_feature_flag_attributes(self) -> dict[str, Any]:
+        return self._get_growthbook().get_attributes()
+
     def _get_growthbook(self) -> GrowthBook:
         if self._growthbook is None:
             # _user_id is None when logged out: evaluate anonymously, falling through to defaults.
-            self._growthbook = experimentation._create_evaluator(self._user_id)
+            self._growthbook = experimentation._create_evaluator(
+                self._user_id, experimentation.get_targeting_attributes(self._user_id)
+            )
         return self._growthbook
 
 

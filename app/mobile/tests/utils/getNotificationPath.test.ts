@@ -1,12 +1,19 @@
 import { Linking } from "react-native";
 
-import { getNotificationPath } from "@/utils/getNotificationPath";
+import {
+  getInAppNotificationPath,
+  getNotificationPath,
+} from "@/utils/getNotificationPath";
 
 // Mock Linking.openURL
 jest.mock("react-native", () => ({
   Linking: {
     openURL: jest.fn(() => Promise.resolve()),
   },
+}));
+
+jest.mock("@/config/urls", () => ({
+  getWebBaseUrl: () => "http://192.0.2.1:3000",
 }));
 
 describe("getNotificationPath", () => {
@@ -69,6 +76,13 @@ describe("getNotificationPath", () => {
     );
   });
 
+  it("handles the web address the app is using, e.g. a local dev server", () => {
+    expect(
+      getNotificationPath("http://192.0.2.1:3000/event/1/party?comment=5"),
+    ).toBe("/event/1/party?comment=5");
+    expect(Linking.openURL).not.toHaveBeenCalled();
+  });
+
   it("opens external URLs in browser and returns null", () => {
     const stripeUrl = "https://pay.stripe.com/receipts/payment/abc123";
     expect(getNotificationPath(stripeUrl)).toBeNull();
@@ -79,5 +93,24 @@ describe("getNotificationPath", () => {
     const checkoutUrl = "https://checkout.stripe.com/c/pay/test123";
     expect(getNotificationPath(checkoutUrl)).toBeNull();
     expect(Linking.openURL).toHaveBeenCalledWith(checkoutUrl);
+  });
+});
+
+describe("getInAppNotificationPath", () => {
+  it("returns the path for Couchers URLs", () => {
+    expect(getInAppNotificationPath("https://couchers.org/messages/123")).toBe(
+      "/messages/123",
+    );
+  });
+
+  it("returns null for external URLs without opening them", () => {
+    (Linking.openURL as jest.Mock).mockClear();
+
+    expect(
+      getInAppNotificationPath(
+        "https://pay.stripe.com/receipts/payment/abc123",
+      ),
+    ).toBeNull();
+    expect(Linking.openURL).not.toHaveBeenCalled();
   });
 });

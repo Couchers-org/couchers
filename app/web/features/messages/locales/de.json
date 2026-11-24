@@ -248,7 +248,8 @@
     "nights_other": "{{count}} Nächte",
     "empty_state": "Noch keine Einladungen für deinen öffentlichen Trips.",
     "invitations_one": "{{count}} Einladung",
-    "invitations_other": "{{count}} Einladungen"
+    "invitations_other": "{{count}} Einladungen",
+    "toggle_group": "Trip ein- oder ausklappen"
   },
   "invitation_respond_box_description": "Wenn du annimmst, weiß {{name}}, dass du gerne bleiben möchtest. In jedem Fall könnt ihr weiter chatten, um die Details zu klären.",
   "cancel_accepted_invitation_stay_button": "Aufenthalt abbrechen",

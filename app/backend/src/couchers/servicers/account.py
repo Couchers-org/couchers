@@ -29,6 +29,7 @@ from couchers.crypto import (
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.helpers.geoip import geoip_approximate_location
+from couchers.helpers.newbie import has_newbie_hosting_history_expression, host_pool_expression
 from couchers.helpers.strong_verification import get_strong_verification_fields
 from couchers.jobs.enqueue import queue_job
 from couchers.jobs.handlers import finalize_strong_verification
@@ -44,12 +45,14 @@ from couchers.models import (
     ContributeOption,
     ContributorForm,
     HostingStatus,
+    HostPool,
     HostRequest,
     HostRequestStatus,
     InviteCode,
     Message,
     ModNote,
     ProfilePublicVisibility,
+    StayProposalKind,
     StrongVerificationAttempt,
     StrongVerificationAttemptStatus,
     StrongVerificationCallbackEvent,
@@ -61,7 +64,7 @@ from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
 from couchers.phone import sms
 from couchers.phone.check import is_e164_format, is_known_operator
-from couchers.proto import account_pb2, account_pb2_grpc, auth_pb2, iris_pb2_grpc, notification_data_pb2
+from couchers.proto import account_pb2, account_pb2_grpc, api_pb2, auth_pb2, iris_pb2_grpc, notification_data_pb2
 from couchers.proto.google.api import httpbody_pb2
 from couchers.proto.internal import internal_pb2, jobs_pb2
 from couchers.servicers.api import lite_user_to_pb
@@ -77,6 +80,7 @@ from couchers.utils import (
     dt_to_page_token,
     is_valid_email,
     now,
+    strip_text,
     to_aware_datetime,
 )
 
@@ -113,6 +117,11 @@ profilepublicitysetting2api = {
     ProfilePublicVisibility.limited: account_pb2.PROFILE_PUBLIC_VISIBILITY_LIMITED,
     ProfilePublicVisibility.most: account_pb2.PROFILE_PUBLIC_VISIBILITY_MOST,
     ProfilePublicVisibility.full: account_pb2.PROFILE_PUBLIC_VISIBILITY_FULL,
+}
+
+hostpool2api = {
+    HostPool.normal: api_pb2.HOST_POOL_NORMAL,
+    HostPool.newbie: api_pb2.HOST_POOL_NEWBIE,
 }
 
 MAX_PAGINATION_LENGTH = 50
@@ -166,8 +175,13 @@ class Account(account_pb2_grpc.AccountServicer):
     def GetAccountInfo(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> account_pb2.GetAccountInfoRes:
-        user, volunteer = session.execute(
-            select(User, Volunteer).outerjoin(Volunteer, Volunteer.user_id == User.id).where(User.id == context.user_id)
+        user, is_volunteer, host_pool, has_newbie_hosting_history = session.execute(
+            select(
+                User,
+                exists().where(Volunteer.user_id == User.id),
+                host_pool_expression(),
+                has_newbie_hosting_history_expression(),
+            ).where(User.id == context.user_id)
         ).one()
 
         # Test experimentation integration - check if user is in the test gate
@@ -175,13 +189,18 @@ class Account(account_pb2_grpc.AccountServicer):
         test_gate = context.get_boolean_value("test_growthbook_integration", default=False)
         logger.info(f"Experimentation gate 'test_growthbook_integration' for user {user.id}: {test_gate}")
 
-        # The donation drive (and its banner) is controlled by the donation_drive_start flag: a Unix
-        # epoch in seconds when a drive is running, or 0/unset when there's no drive. Users who haven't
-        # donated since the drive started see the banner.
+        # The donation drive (and its banner) runs between the donation_drive_start and donation_drive_end
+        # flags, Unix epochs in seconds. A start of 0/unset means no drive; an end of 0/unset means no end.
+        # Users who haven't donated since the start see the banner.
         drive_start_epoch = context.get_integer_value("donation_drive_start", 0)
+        drive_end_epoch = context.get_integer_value("donation_drive_end", 0)
         drive_start = datetime.fromtimestamp(drive_start_epoch, tz=UTC) if drive_start_epoch else None
-        should_show_donation_banner = drive_start is not None and (
-            user.last_donated is None or user.last_donated < drive_start
+        drive_end = datetime.fromtimestamp(drive_end_epoch, tz=UTC) if drive_end_epoch else None
+        should_show_donation_banner = (
+            drive_start is not None
+            and drive_start <= now()
+            and (drive_end is None or now() < drive_end)
+            and (user.last_donated is None or user.last_donated < drive_start)
         )
 
         return account_pb2.GetAccountInfoRes(
@@ -196,8 +215,11 @@ class Account(account_pb2_grpc.AccountServicer):
             is_superuser=user.is_superuser,
             ui_language_preference=user.ui_language_preference,
             profile_public_visibility=profilepublicitysetting2api[user.public_visibility],
-            is_volunteer=volunteer is not None,
+            is_volunteer=is_volunteer,
             should_show_donation_banner=should_show_donation_banner,
+            has_opted_in_to_beta_features=user.has_opted_in_to_beta_features,
+            host_pool=hostpool2api[host_pool],
+            has_newbie_hosting_history=has_newbie_hosting_history,
             **get_strong_verification_fields(session, user),
         )
 
@@ -576,7 +598,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
-        reason = request.reason.strip()
+        reason = strip_text(request.reason)
         if reason:
             session.add(AccountDeletionReason(user_id=user.id, reason=reason))
 
@@ -689,6 +711,20 @@ class Account(account_pb2_grpc.AccountServicer):
         user.has_modified_public_visibility = True
         return empty_pb2.Empty()
 
+    def SetBetaFeaturesOptIn(
+        self, request: account_pb2.SetBetaFeaturesOptInReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
+        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        if user.has_opted_in_to_beta_features != request.beta_features_opt_in:
+            user.has_opted_in_to_beta_features = request.beta_features_opt_in
+            log_event(
+                context,
+                session,
+                "account.beta_features_opt_in_changed",
+                {"opted_in": request.beta_features_opt_in},
+            )
+        return empty_pb2.Empty()
+
     def CreateInviteCode(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> account_pb2.CreateInviteCodeRes:
@@ -753,7 +789,7 @@ class Account(account_pb2_grpc.AccountServicer):
         host_has_sent_message = select(1).where(
             Message.conversation_id == HostRequest.conversation_id, Message.author_id == HostRequest.recipient_user_id
         )
-        query = select(HostRequest.conversation_id, HostRequest.public_trip_id, LiteUser).join(
+        query = select(HostRequest.conversation_id, HostRequest.proposal_kind, LiteUser).join(
             LiteUser, LiteUser.id == HostRequest.initiator_user_id
         )
         query = where_users_column_visible(query, context, HostRequest.initiator_user_id)
@@ -772,18 +808,18 @@ class Account(account_pb2_grpc.AccountServicer):
                     host_user=lite_user_to_pb(session, lite_user, context),
                 )
             )
-            if public_trip_id is not None
+            if proposal_kind == StayProposalKind.invitation
             else account_pb2.Reminder(
                 respond_to_host_request_reminder=account_pb2.RespondToHostRequestReminder(
                     host_request_id=host_request_id,
                     surfer_user=lite_user_to_pb(session, lite_user, context),
                 )
             )
-            for host_request_id, public_trip_id, lite_user in pending_host_requests
+            for host_request_id, proposal_kind, lite_user in pending_host_requests
         ]
 
         # the initiator needs to confirm accepted requests: the surfer on a normal request, the host on an offer
-        confirm_query = select(HostRequest.conversation_id, HostRequest.public_trip_id, LiteUser).join(
+        confirm_query = select(HostRequest.conversation_id, HostRequest.proposal_kind, LiteUser).join(
             LiteUser, LiteUser.id == HostRequest.recipient_user_id
         )
         confirm_query = where_users_column_visible(confirm_query, context, HostRequest.recipient_user_id)
@@ -801,14 +837,14 @@ class Account(account_pb2_grpc.AccountServicer):
                     surfer_user=lite_user_to_pb(session, lite_user, context),
                 )
             )
-            if public_trip_id is not None
+            if proposal_kind == StayProposalKind.invitation
             else account_pb2.Reminder(
                 confirm_host_request_reminder=account_pb2.ConfirmHostRequestReminder(
                     host_request_id=host_request_id,
                     host_user=lite_user_to_pb(session, lite_user, context),
                 )
             )
-            for host_request_id, public_trip_id, lite_user in accepted_host_requests
+            for host_request_id, proposal_kind, lite_user in accepted_host_requests
         ]
 
         # references come second, in order of deadline, desc
@@ -873,11 +909,17 @@ class Account(account_pb2_grpc.AccountServicer):
                 link_text = link_text
                 link_url = f"https://www.linkedin.com/in/{link_text}/"
             elif link_type == "email":
-                if not is_valid_email(link_text):
+                if not link_text or not is_valid_email(link_text):
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_email")
                 link_url = f"mailto:{link_text}"
             elif link_type == "website":
-                if not link_url.startswith("https://") or "/" in link_text or link_text not in link_url:
+                if (
+                    not link_url
+                    or not link_text
+                    or not link_url.startswith("https://")
+                    or "/" in link_text
+                    or link_text not in link_url
+                ):
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_website_url")
             else:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_link_type")

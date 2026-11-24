@@ -5,6 +5,7 @@ from typing import Any, Protocol, cast, get_type_hints
 from couchers.jobs.handlers import (
     add_users_to_email_list,
     auto_approve_moderation_queue,
+    check_communities,
     check_database_consistency,
     check_expo_push_receipts,
     check_mypostcard_jobs,
@@ -92,6 +93,7 @@ _JOBS_LIST = [
     Job(send_host_request_reminders, schedule=timedelta(minutes=15)),
     Job(add_users_to_email_list, schedule=timedelta(hours=1)),
     Job(enforce_community_membership, schedule=timedelta(minutes=15)),
+    Job(check_communities, schedule=timedelta(hours=1)),
     Job(update_recommendation_scores, schedule=timedelta(hours=24)),
     Job(update_badges, schedule=timedelta(minutes=15)),
     Job(finalize_strong_verification),

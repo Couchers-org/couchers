@@ -138,7 +138,7 @@ def _try_get_and_update_user_details(
         if not result:
             return None
 
-        user, user_session, is_jailed = result._tuple()
+        user, user_session, is_jailed = result
 
         # update user last active time if it's been a while; a non-matching UPDATE takes no row lock, so this
         # costs nothing on the calls that don't move it

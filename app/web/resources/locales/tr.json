@@ -272,7 +272,9 @@
   },
   "copy_button": {
     "a11y": "Kopyala",
-    "copied_tooltip": "Panoya kopyalandı"
+    "copied_tooltip": "Panoya kopyalandı",
+    "copied_message": "Kopyalandı!",
+    "failed_message": "Kopyalanamadı"
   },
   "image_input": {
     "select_button_a11y": "Bir resim seçin",
