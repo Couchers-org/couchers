@@ -5,6 +5,7 @@ from collections.abc import Mapping, Sequence
 from datetime import UTC, date, datetime, timedelta, tzinfo
 from email.utils import formatdate
 from typing import TYPE_CHECKING, Any, overload
+from urllib.parse import urlencode, urlsplit, urlunsplit
 from zoneinfo import ZoneInfo
 
 import regex
@@ -511,3 +512,9 @@ def is_geom(x: Geom | None) -> Geom:
     if x is None:
         raise ValueError("Expected a Geom but got None")
     return x
+
+
+def add_query_params(url: str, params: Mapping[str, str | int]) -> str:
+    parts = urlsplit(url)
+    new = urlencode(params)
+    return urlunsplit(parts._replace(query=f"{parts.query}&{new}" if parts.query else new))

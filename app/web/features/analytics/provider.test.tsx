@@ -166,7 +166,7 @@ describe("AnalyticsProvider", () => {
   });
 
   describe("email ref", () => {
-    it("includes zz in session.started and strips it from page.viewed search", () => {
+    it("keeps zz in page.viewed search and leaves it out of session.started", () => {
       setLocation("/messages/chats/1", "?zz=abc123&tab=info");
 
       render(
@@ -178,20 +178,8 @@ describe("AnalyticsProvider", () => {
       const sessionCall = mockLogEvent.mock.calls.find((call) => call[0] === "session.started");
       const pageCall = mockLogEvent.mock.calls.find((call) => call[0] === "page.viewed");
 
-      expect(sessionCall![1]).toMatchObject({ zz: "abc123" });
-      expect(pageCall![1].search).toBe("tab=info");
-    });
-
-    it("omits zz from session.started when not present", () => {
-      render(
-        <AnalyticsProvider>
-          <div />
-        </AnalyticsProvider>,
-      );
-
-      const sessionCall = mockLogEvent.mock.calls.find((call) => call[0] === "session.started");
-
       expect(sessionCall![1]).not.toHaveProperty("zz");
+      expect(pageCall![1].search).toBe("zz=abc123&tab=info");
     });
 
     it("removes zz from the URL, keeping other params and the hash, without logging a page view", () => {
@@ -271,6 +259,42 @@ describe("AnalyticsProvider", () => {
       expect(replaceSpy).not.toHaveBeenCalled();
       expect(mockRouter.asPath).toBe("/search?q=paris");
       replaceSpy.mockRestore();
+    });
+  });
+
+  describe("push notification id", () => {
+    it("keeps zn in page.viewed search and then removes it from the URL", () => {
+      setLocation("/messages/chats/1", "?zn=42");
+      mockRouter.setCurrentUrl("/messages/chats/1?zn=42");
+
+      render(
+        <AnalyticsProvider>
+          <div />
+        </AnalyticsProvider>,
+      );
+
+      const pageCalls = mockLogEvent.mock.calls.filter((call) => call[0] === "page.viewed");
+      expect(pageCalls).toHaveLength(1);
+      expect(pageCalls[0][1].search).toBe("zn=42");
+      expect(mockRouter.asPath).toBe("/messages/chats/1");
+    });
+
+    it("logs zn on an in-app navigation and then removes it", () => {
+      render(
+        <AnalyticsProvider>
+          <div />
+        </AnalyticsProvider>,
+      );
+      mockLogEvent.mockClear();
+
+      act(() => {
+        mockRouter.push("/connections/friends?from=5&zn=42");
+      });
+
+      const pageCalls = mockLogEvent.mock.calls.filter((call) => call[0] === "page.viewed");
+      expect(pageCalls).toHaveLength(1);
+      expect(pageCalls[0][1]).toMatchObject({ path: "/connections/friends", search: "from=5&zn=42" });
+      expect(mockRouter.asPath).toBe("/connections/friends?from=5");
     });
   });
 
