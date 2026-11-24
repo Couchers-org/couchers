@@ -40,7 +40,7 @@ from couchers.models import (
 )
 from couchers.moderation.utils import create_moderation
 from couchers.servicers.auth import create_session
-from couchers.utils import create_coordinate, now
+from couchers.utils import create_coordinate, now, today
 from tests.fixtures.sessions import _MockCouchersContext
 
 
@@ -185,7 +185,7 @@ def make_user(moderation_state_id: int = 0, **kwargs: Any) -> User:
         city="Testing city",
         hometown="Test hometown",
         community_standing=0.5,
-        birthdate=date(year=2000, month=1, day=1),
+        birthdate=today() - timedelta(days=365 * 30),  # ~30 years old, far enough from the 18 cutoff
         gender="Woman",
         pronouns="",
         occupation="Tester",

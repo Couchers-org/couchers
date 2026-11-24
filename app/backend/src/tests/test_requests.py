@@ -1,6 +1,6 @@
 import html
 import re
-from datetime import date, timedelta
+from datetime import UTC, date, datetime, timedelta
 from unittest.mock import DEFAULT, patch
 from urllib.parse import parse_qs, urlparse
 
@@ -147,45 +147,36 @@ def test_create_request(db, moderator):
         )
 
 
-def test_create_host_request_rejects_date_past_in_host_timezone(db):
+def test_create_host_request_rejects_date_past_in_host_timezone(db, frozen_timewarp):
     # When the host's timezone has already rolled over to the next day, a
     # from_date of "today in UTC" is in the past from the host's perspective and
     # must be rejected. The frontend blocks this date before submission; the
     # backend enforces the same rule for consistency.
+    # At 23:00 UTC, Helsinki (UTC+2) is already on 2000-01-01; requester submits 1999-12-31.
+    frozen_timewarp.freeze_at(datetime(1999, 12, 31, 23, 0, tzinfo=UTC))
     surfer_user, surfer_token = generate_user()
     # geom inside the fake Europe/Helsinki timezone polygon used in tests
     host_user, _ = generate_user(geom=create_coordinate(61, 25))
 
-    # Helsinki is already on 2026-01-16; requester submits 2026-01-15.
-    fake_today_by_tz = {"Europe/Helsinki": date(2026, 1, 16)}
-
-    with patch(
-        "couchers.servicers.requests.today_in_timezone",
-        side_effect=lambda tz: fake_today_by_tz.get(tz, date(2026, 1, 15)),
-    ):
-        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
-            requests_api.create_host_request(
-                token=surfer_token, host_user_id=host_user.id, from_date=date(2026, 1, 15), to_date=date(2026, 1, 18)
-            )
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
+        requests_api.create_host_request(
+            token=surfer_token, host_user_id=host_user.id, from_date=date(1999, 12, 31), to_date=date(2000, 1, 3)
+        )
 
 
-def test_create_host_request_date_valid_when_host_behind_requester(db):
-    # Simulate the opposite timezone direction: the host (America/New_York) is
-    # still on 2026-01-15 while the requester has already rolled into 2026-01-16.
-    # A from_date of 2026-01-16 is "today" for the requester and "tomorrow" for
-    # the host — must be accepted without issue.
-    surfer_user, surfer_token = generate_user()
+def test_create_host_request_date_valid_when_host_behind_requester(db, frozen_timewarp):
+    # Simulate the opposite timezone direction: at 23:00 UTC the host (America/New_York, UTC-5)
+    # is still on 1999-12-31 while the requester (Europe/Helsinki, UTC+2) has already rolled
+    # into 2000-01-01. A from_date of 2000-01-01 is "today" for the requester and "tomorrow"
+    # for the host — must be accepted without issue.
+    frozen_timewarp.freeze_at(datetime(1999, 12, 31, 23, 0, tzinfo=UTC))
+    # geom inside the fake Europe/Helsinki timezone polygon used in tests
+    surfer_user, surfer_token = generate_user(geom=create_coordinate(61, 25))
     host_user, _ = generate_user()  # default geom resolves to America/New_York
 
-    fake_today_by_tz = {"America/New_York": date(2026, 1, 15)}
-
-    with patch(
-        "couchers.servicers.requests.today_in_timezone",
-        side_effect=lambda tz: fake_today_by_tz.get(tz, date(2026, 1, 15)),
-    ):
-        assert requests_api.create_host_request(
-            token=surfer_token, host_user_id=host_user.id, from_date=date(2026, 1, 16), to_date=date(2026, 1, 20)
-        )
+    assert requests_api.create_host_request(
+        token=surfer_token, host_user_id=host_user.id, from_date=date(2000, 1, 1), to_date=date(2000, 1, 5)
+    )
 
 
 def test_create_request_records_host_timezone(db, frozen_timewarp, moderator):

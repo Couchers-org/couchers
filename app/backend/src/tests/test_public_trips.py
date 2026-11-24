@@ -1,5 +1,4 @@
 from datetime import UTC, date, datetime, timedelta
-from unittest.mock import patch
 
 import grpc
 import pytest
@@ -167,24 +166,19 @@ def test_create_public_trip_allows_region_and_narrower(db, node_type):
     assert res.trip_id > 0
 
 
-def test_create_public_trip_in_past_uses_node_timezone(db):
+def test_create_public_trip_in_past_uses_node_timezone(db, frozen_timewarp):
     # Default user geom resolves to America/New_York; the node's geom is in Europe/Helsinki.
-    # Simulate a moment where Helsinki has already rolled into the next day (2026-01-16)
-    # while NYC is still on 2026-01-15. A from_date of 2026-01-15 is "today" in NYC but
+    # At 23:00 UTC, Helsinki (UTC+2) has already rolled into the next day (2000-01-01)
+    # while NYC (UTC-5) is still on 1999-12-31. A from_date of 1999-12-31 is "today" in NYC but
     # "yesterday" in Helsinki, and must be rejected because the check uses the node's tz.
+    frozen_timewarp.freeze_at(datetime(1999, 12, 31, 23, 0, tzinfo=UTC))
     _, token = generate_user()
     node_id = _make_node()
 
-    fake_today_by_tz = {"America/New_York": date(2026, 1, 15), "Europe/Helsinki": date(2026, 1, 16)}
-
-    with patch(
-        "couchers.servicers.public_trips.today_in_timezone",
-        side_effect=lambda tz: fake_today_by_tz[tz],
-    ):
-        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The arrival date is in the past for this community."):
-            public_trips_api.create_public_trip(
-                token=token, community_id=node_id, from_date=date(2026, 1, 15), to_date=date(2026, 1, 20)
-            )
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The arrival date is in the past for this community."):
+        public_trips_api.create_public_trip(
+            token=token, community_id=node_id, from_date=date(1999, 12, 31), to_date=date(2000, 1, 5)
+        )
 
 
 @pytest.mark.parametrize(
