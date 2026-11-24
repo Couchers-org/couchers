@@ -643,6 +643,7 @@ def test_WriteFriendReference_with_private_text(
         token=writer_token,
         to_user_id=subject_user.id,
         text="They were nice!",
+        private_text="Hello mods!",
         approve_by=moderator,
     )
 
@@ -947,6 +948,7 @@ def test_WriteHostRequestReference_private_text(
     references_api.write_host_request_reference(
         token=surfer_token,
         host_request_id=hr,
+        private_text="Hello mods",
         approve_by=moderator,
     )
 
