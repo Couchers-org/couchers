@@ -137,18 +137,34 @@ npx expo run:ios --device
 npx expo run:android --device
 ```
 
+`npx expo run:ios --device` / `npx expo run:android --device` starts Metro and opens the app on your phone already connected to it, so there's nothing to scan.
+
 **After the initial build is installed:**
 ```bash
-npx expo start
+npm run start:devtool
 ```
 
-Scan the QR code with your phone's camera. Your JavaScript/TypeScript changes will hot-reload automatically.
+Scan the QR code with your phone's camera. Your JavaScript/TypeScript changes will hot-reload automatically. (Plain `npx expo start` prints a QR code that may open a different Couchers app on your phone.)
 
 **When to rebuild vs when to use `npx expo start`:**
 - **Rebuild** (`npx expo run:ios` or `npx expo run:android`): When adding/removing native dependencies, changing `app.config.js`, or updating Expo SDK
 - **Just start Metro** (`npx expo start`): For all JavaScript/TypeScript code changes (most development)
 
 Local builds default to the `devtool` variant, so set it explicitly if you want staging/prod versions.
+
+#### Run directly on your phone without the Dev Tool
+
+The Dev Tool can be finicky. If it's not working, build the Staging app on your phone instead (connected to your laptop via USB):
+
+```bash
+npm run ios:local       # or: npm run android:local
+```
+
+- It opens already connected to Metro, and code changes hot-reload as usual. Later, start Metro again with `npm run start:local`.
+- It installs as "Couchers (Staging)", next to your store Couchers app. It replaces a TestFlight/Play Staging app if you have one.
+- It uses the test servers from `.env`, which is what the Staging app expects.
+- Staging normally only accepts signed code, which Metro can't provide, so these scripts set `LOCAL_UNSIGNED_BUILD=1` to leave the signing check out of this build. Never set it for builds that go to testers or the stores.
+- To go back to the Dev Tool, run `npx expo prebuild --clean`.
 
 If you hit iOS signing issues, open `app/mobile/ios` in Xcode and set up signing there, see [the Expo docs on this](https://github.com/expo/fyi/blob/main/setup-xcode-signing.md).
 
