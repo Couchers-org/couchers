@@ -10,6 +10,7 @@ from sqlalchemy import event, select, update
 from sqlalchemy.sql import delete, func
 
 from couchers import urls
+from couchers.config import config
 from couchers.context import CouchersContext
 from couchers.crypto import hash_password, random_hex
 from couchers.db import _get_base_engine, session_scope
@@ -1703,6 +1704,32 @@ def test_opt_out_of_newsletter(db, opt_out):
         user = session.execute(select(User).where(User.id == user_id)).scalar_one()
         assert not user.in_sync_with_newsletter
         assert user.opt_out_of_newsletter == opt_out
+
+
+@pytest.mark.parametrize(
+    "origin, partitioned",
+    [
+        (None, False),  # the native app sends no Origin
+        ("https://next.couchershq.org", False),
+        ("https://couchershq.org", False),
+        ("https://couchers-git-branch.vercel.app", True),
+    ],
+)
+def test_cookies_only_partitioned_for_cross_site_origins(db, origin, partitioned):
+    config.DEV = False
+    config.COOKIE_DOMAIN = "couchershq.org"
+    config.COOKIE_SAMESITE = "None"
+    config.COOKIE_PARTITIONED = True
+
+    # outside DEV the server requires the client IP that the proxy adds
+    metadata = (("x-couchers-real-ip", "127.0.0.1"),) + ((("origin", origin),) if origin else ())
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.GetAuthState(empty_pb2.Empty(), metadata=metadata)
+        set_cookies = [val for key, val in metadata_interceptor.latest_header_raw if key == "set-cookie"]
+
+    sofa = [cookie for cookie in set_cookies if cookie.startswith("sofa=")][0]
+    assert ("; Partitioned" in sofa) == partitioned
+    assert "; Secure" in sofa
 
 
 def test_GetAuthState(db):
