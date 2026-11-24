@@ -146,5 +146,20 @@
   "cancel_request_dialog_title": "İsteği iptal et?",
   "cancel_request_dialog_message": "İsteğini iptal etmek istediğinden emin misin? Bu işlem geri alınamaz.",
   "cancel_request_dialog_confirm_button": "Evet, iptal et",
-  "cancel_request_dialog_dismiss_button": "Hayır"
+  "cancel_request_dialog_dismiss_button": "Hayır",
+  "invitation_host_accepted_box_title": "{{name}} davetini kabul etti",
+  "invitation_host_accepted_box_description": "Konaklamanızı kesinleştirmek için onaylayın veya planlarınız değiştiyse vazgeçin.",
+  "cancel_accepted_invitation_stay_dialog_message": "{{name}} bilgilendirilecek. Bu işlemi geri alamazsın.",
+  "invitation_sent_box_title": "Davet gönderildi",
+  "invitation_sent_box_description": "{{name}} daha yanıt vermedi. Yanıt verdiklerinde bildirim alacaksınız.",
+  "invitation_host_confirmed_box_title": "{{name}}'a ev sahipliği yapıyorsunuz",
+  "invitation_host_confirmed_box_description": "Planların değişirse davetini yine de geri çekebilirsin. {{name}} bilgilendirilecek.",
+  "withdraw_invitation_button": "Daveti geri çek",
+  "withdraw_invitation_dialog_title": "Davetini geri çek?",
+  "withdraw_invitation_dialog_message": "Bu işlem, {{name}}'a gönderdiğin ev sahipliği davetini geri çekecek ve ona bildirim gönderilecek. Bu işlemi geri alamazsın.",
+  "withdraw_invitation_dialog_confirm_button": "Daveti geri çek",
+  "withdraw_invitation_dialog_dismiss_button": "Daveti sakla",
+  "status_bar_edit_button": "Düzenle",
+  "status_bar_cancel_edit_button": "İptal Et",
+  "status_bar_close_button": "Kapat"
 }

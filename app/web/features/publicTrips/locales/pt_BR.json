@@ -1,0 +1,23 @@
+{
+  "heading": "Viagens públicas",
+  "my_trips_heading": "Minhas viagens públicas",
+  "create_trip_button": "Criar viagem pública",
+  "view_my_trips_button": "Visualizar minhas viagens públicas",
+  "community_section": {
+    "intro": "Os viajantes publicam suas viagens públicas aqui. Você pode se oferecer para hospedá-los ou encontrá-los se vir um itinerário de que goste!"
+  },
+  "trip_list": {
+    "filters": {
+      "active_option": "Ativo",
+      "all_option": "Todos",
+      "closed_option": "Fechado",
+      "past_option": "Passado",
+      "no_match_placeholder": "Nenhuma viagem corresponde a este filtro."
+    },
+    "empty_placeholder": "Nenhuma viagem pública no momento.",
+    "mine_empty_placeholder": "Você não publicou nenhuma viagem pública ainda.",
+    "pagination": {
+      "previous_button": "Anterior"
+    }
+  }
+}

@@ -6,15 +6,19 @@ from typing import Any
 
 import grpc
 from google.protobuf import empty_pb2
+from google.protobuf.json_format import MessageToJson
 from google.protobuf.wrappers_pb2 import Int64Value
 from sqlalchemy import select, tuple_
+from sqlalchemy.dialects.postgresql import distinct_on
 from sqlalchemy.orm import Session, aliased, selectinload, undefer
 from sqlalchemy.sql import and_, func, or_
 from user_agents import parse as user_agents_parse
 
 from couchers import urls
+from couchers.constants import MODERATION_AUTO_APPROVE_DEADLINE_MAX_SECONDS
 from couchers.context import CouchersContext
 from couchers.crypto import urlsafe_secure_token
+from couchers.data_export import generate_user_data_export
 from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.helpers.geoip import geoip_approximate_location, geoip_asn
 from couchers.helpers.strong_verification import get_strong_verification_fields
@@ -72,7 +76,15 @@ from couchers.servicers.events import generate_event_delete_notifications
 from couchers.servicers.moderation import bulk_set_user_content_visibility
 from couchers.servicers.threads import unpack_thread_id
 from couchers.sql import to_bool, username_or_email_or_id
-from couchers.utils import Timestamp_from_datetime, date_to_api, not_none, now, parse_date, to_aware_datetime
+from couchers.utils import (
+    Timestamp_from_datetime,
+    date_to_api,
+    not_none,
+    now,
+    parse_date,
+    strip_text,
+    to_aware_datetime,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -99,6 +111,7 @@ uploadusetype2api = {
     UploadUseType.profile_gallery_photo_avatar: admin_pb2.UPLOAD_USE_TYPE_PROFILE_GALLERY_PHOTO_AVATAR,
     UploadUseType.event: admin_pb2.UPLOAD_USE_TYPE_EVENT,
     UploadUseType.page: admin_pb2.UPLOAD_USE_TYPE_PAGE,
+    UploadUseType.event_recurrence: admin_pb2.UPLOAD_USE_TYPE_EVENT_RECURRENCE,
 }
 
 otaplatform2api = {
@@ -167,7 +180,7 @@ def _live_ota_package_ids(session: Session) -> set[int]:
         session.scalars(
             select(OTAPackage.id)
             .where(OTAPackage.banned_at.is_(None))
-            .distinct(OTAPackage.platform, OTAPackage.fingerprint)
+            .ext(distinct_on(OTAPackage.platform, OTAPackage.fingerprint))
             .order_by(
                 OTAPackage.platform,
                 OTAPackage.fingerprint,
@@ -289,7 +302,20 @@ def _user_to_details(session: Session, user: User) -> admin_pb2.UserDetails:
         admin_tags=list(admin_tags),
         mod_score=user.mod_score,
         ui_language_preference=user.ui_language_preference,
+        moderation_auto_approve_seconds=(
+            Int64Value(value=user.moderation_auto_approve_deadline_seconds)
+            if user.moderation_auto_approve_deadline_seconds is not None
+            else None
+        ),
     )
+
+
+def _format_auto_approve_deadline(deadline_seconds: int | None) -> str:
+    if deadline_seconds is None:
+        return "default"
+    if deadline_seconds == 0:
+        return "never"
+    return f"{deadline_seconds} seconds"
 
 
 def _content_report_to_pb(content_report: ContentReport) -> admin_pb2.ContentReport:
@@ -561,7 +587,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         self, request: admin_pb2.BanUserReq, context: CouchersContext, session: Session
     ) -> admin_pb2.UserDetails:
         user = find_user_by_username_or_email_or_id(session, context, request.user)
-        if not request.admin_note.strip():
+        if not strip_text(request.admin_note):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:note_cant_be_empty")
         log_admin_action(session, context, user, "ban", note=request.admin_note, level=AdminActionLevel.high)
         user.banned_at = now()
@@ -571,7 +597,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         self, request: admin_pb2.UnbanUserReq, context: CouchersContext, session: Session
     ) -> admin_pb2.UserDetails:
         user = find_user_by_username_or_email_or_id(session, context, request.user)
-        if not request.admin_note.strip():
+        if not strip_text(request.admin_note):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:note_cant_be_empty")
         log_admin_action(session, context, user, "unban", note=request.admin_note, level=AdminActionLevel.high)
         user.banned_at = None
@@ -581,7 +607,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         self, request: admin_pb2.ShadowUserReq, context: CouchersContext, session: Session
     ) -> admin_pb2.UserDetails:
         user = find_user_by_username_or_email_or_id(session, context, request.user)
-        if not request.admin_note.strip():
+        if not strip_text(request.admin_note):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:note_cant_be_empty")
         log_admin_action(session, context, user, "shadow", note=request.admin_note, level=AdminActionLevel.high)
         user.shadowed_at = now()
@@ -599,7 +625,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         self, request: admin_pb2.UnshadowUserReq, context: CouchersContext, session: Session
     ) -> admin_pb2.UserDetails:
         user = find_user_by_username_or_email_or_id(session, context, request.user)
-        if not request.admin_note.strip():
+        if not strip_text(request.admin_note):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:note_cant_be_empty")
         log_admin_action(session, context, user, "unshadow", note=request.admin_note, level=AdminActionLevel.high)
         user.shadowed_at = None
@@ -614,12 +640,39 @@ class Admin(admin_pb2_grpc.AdminServicer):
         )
         return _user_to_details(session, user)
 
+    def SetModerationAutoApproveDeadline(
+        self, request: admin_pb2.SetModerationAutoApproveDeadlineReq, context: CouchersContext, session: Session
+    ) -> admin_pb2.UserDetails:
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
+        deadline_seconds = None
+        if request.HasField("auto_approve_seconds"):
+            deadline_seconds = request.auto_approve_seconds.value
+            if not 0 <= deadline_seconds <= MODERATION_AUTO_APPROVE_DEADLINE_MAX_SECONDS:
+                context.abort_with_error_code(
+                    grpc.StatusCode.INVALID_ARGUMENT,
+                    "admin:auto_approve_deadline_out_of_range",
+                    substitutions={"max_hours": MODERATION_AUTO_APPROVE_DEADLINE_MAX_SECONDS // 3600},
+                )
+        old_deadline_seconds = user.moderation_auto_approve_deadline_seconds
+        user.moderation_auto_approve_deadline_seconds = deadline_seconds
+        log_admin_action(
+            session,
+            context,
+            user,
+            "set_moderation_auto_approve_deadline",
+            note=(
+                f"Changed from {_format_auto_approve_deadline(old_deadline_seconds)} "
+                f"to {_format_auto_approve_deadline(deadline_seconds)}"
+            ),
+        )
+        return _user_to_details(session, user)
+
     def AddAdminNote(
         self, request: admin_pb2.AddAdminNoteReq, context: CouchersContext, session: Session
     ) -> admin_pb2.UserDetails:
         user = find_user_by_username_or_email_or_id(session, context, request.user)
-        has_note = bool(request.admin_note.strip())
-        has_data = bool(request.data.strip())
+        has_note = bool(strip_text(request.admin_note))
+        has_data = bool(strip_text(request.data))
         if has_note == has_data:
             context.abort_with_error_code(
                 grpc.StatusCode.INVALID_ARGUMENT, "admin:note_requires_exactly_one_of_note_or_data"
@@ -672,6 +725,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def SendModNote(
         self, request: admin_pb2.SendModNoteReq, context: CouchersContext, session: Session
     ) -> admin_pb2.UserDetails:
+        content = strip_text(request.content)
         if request.notification not in _MOD_NOTE_NOTIFY_LOG_LABELS:
             context.abort_with_error_code(
                 grpc.StatusCode.INVALID_ARGUMENT, "admin:mod_note_notification_must_be_specified"
@@ -682,7 +736,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 user_id=user.id,
                 internal_id=request.internal_id,
                 creator_user_id=context.user_id,
-                note_content=request.content,
+                note_content=content,
             )
         )
         session.flush()
@@ -691,7 +745,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             context,
             user,
             "send_mod_note",
-            note=f"Notify user: {_MOD_NOTE_NOTIFY_LOG_LABELS[request.notification]}\n\n{request.content}",
+            note=f"Notify user: {_MOD_NOTE_NOTIFY_LOG_LABELS[request.notification]}\n\n{content}",
         )
 
         if request.notification != admin_pb2.MOD_NOTE_NOTIFICATION_NONE:
@@ -702,9 +756,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 key="",
                 data=notification_data_pb2.ModNoteCreate(
                     markdown_text=(
-                        request.content
-                        if request.notification == admin_pb2.MOD_NOTE_NOTIFICATION_NOTIFY_WITH_CONTENT
-                        else ""
+                        content if request.notification == admin_pb2.MOD_NOTE_NOTIFICATION_NOTIFY_WITH_CONTENT else ""
                     ),
                 ),
             )
@@ -932,10 +984,10 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if reference is None:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "admin:reference_not_found")
 
-        if not request.new_text.strip():
+        if not strip_text(request.new_text):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "reference_no_text")
 
-        reference.text = request.new_text.strip()
+        reference.text = strip_text(request.new_text)
         # Log action against the reference author
         author = session.execute(select(User).where(User.id == reference.from_user_id)).scalar_one()
         log_admin_action(session, context, author, "edit_reference", note=f"Edited reference {reference.id}")
@@ -1101,9 +1153,9 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not discussion:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "discussion_not_found")
         if request.new_title:
-            discussion.title = request.new_title.strip()
+            discussion.title = strip_text(request.new_title)
         if request.new_content:
-            discussion.content = request.new_content.strip()
+            discussion.content = strip_text(request.new_content)
         return empty_pb2.Empty()
 
     def DeleteDiscussion(
@@ -1144,7 +1196,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not obj:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "admin:object_not_found")
         old_content = obj.content
-        new_content = request.new_content.strip()
+        new_content = strip_text(request.new_content)
         if depth == 1:
             session.add(
                 CommentVersion(
@@ -1316,12 +1368,12 @@ class Admin(admin_pb2_grpc.AdminServicer):
     def CreateAdminTag(
         self, request: admin_pb2.CreateAdminTagReq, context: CouchersContext, session: Session
     ) -> admin_pb2.AdminTagInfo:
-        if not request.tag.strip():
+        if not strip_text(request.tag):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:tag_cant_be_empty")
-        existing = session.execute(select(AdminTag).where(AdminTag.tag == request.tag.strip())).scalar_one_or_none()
+        existing = session.execute(select(AdminTag).where(AdminTag.tag == strip_text(request.tag))).scalar_one_or_none()
         if existing:
             context.abort_with_error_code(grpc.StatusCode.ALREADY_EXISTS, "admin:tag_already_exists")
-        admin_tag = AdminTag(tag=request.tag.strip())
+        admin_tag = AdminTag(tag=strip_text(request.tag))
         session.add(admin_tag)
         session.flush()
         return admin_pb2.AdminTagInfo(admin_tag_id=admin_tag.id, tag=admin_tag.tag)
@@ -1475,6 +1527,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                             user_id=use.user_id,
                             event_id=use.event_id,
                             page_id=use.page_id,
+                            event_recurrence_id=use.event_recurrence_id,
                             url=use.url,
                         )
                         for use in uses_by_key.get(upload.key, [])
@@ -1483,6 +1536,24 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 for upload in page
             ],
             next_page_token=uploads[page_size - 1].key if len(uploads) > page_size else None,
+        )
+
+    def ExportUserData(
+        self, request: admin_pb2.ExportUserDataReq, context: CouchersContext, session: Session
+    ) -> admin_pb2.ExportUserDataRes:
+        user = find_user_by_username_or_email_or_id(session, context, request.user)
+
+        generated = now()
+        export = generate_user_data_export(session, user, generated)
+        log_admin_action(session, context, user, "export_user_data")
+
+        return admin_pb2.ExportUserDataRes(
+            user_id=user.id,
+            generated=Timestamp_from_datetime(generated),
+            filename=f"couchers-data-export-{user.username}-{generated.date().isoformat()}.json",
+            json=MessageToJson(
+                export, indent=2, preserving_proto_field_name=True, always_print_fields_with_no_presence=True
+            ),
         )
 
     def CreateOTAPackage(
@@ -1564,7 +1635,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
     ) -> admin_pb2.OTAPackage:
         # Bans are irreversible — to roll back an accidental ban, republish the bundle as a new
         # package — so a reason is required for the audit trail.
-        if not request.reason.strip():
+        if not strip_text(request.reason):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:ota_ban_reason_required")
 
         package = session.execute(

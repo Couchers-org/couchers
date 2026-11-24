@@ -1,22 +1,36 @@
 import json
 import logging
+from collections.abc import Sequence
 
 import grpc
 from geoalchemy2.shape import from_shape
-from google.protobuf import empty_pb2
+from google.protobuf import empty_pb2, wrappers_pb2
 from shapely.geometry import shape
 from shapely.geometry.base import BaseGeometry
-from sqlalchemy import select, tuple_
+from sqlalchemy import and_, func, select, tuple_
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import exists, update
 
 from couchers import urls
 from couchers.context import CouchersContext
 from couchers.db import get_parent_node_at_location, session_scope
-from couchers.helpers.clusters import CHILD_NODE_TYPE, create_cluster, create_node
+from couchers.helpers.clusters import CHILD_NODE_TYPE, busiest_user_neighbourhood_location, create_cluster, create_node
 from couchers.jobs.enqueue import queue_job
-from couchers.materialized_views import LiteUser
-from couchers.models import EventCommunityInviteRequest, EventOccurrence, Node, User, UserActivity, Volunteer
+from couchers.jobs.handlers import check_communities
+from couchers.materialized_views import ClusterSubscriptionCount, LiteUser
+from couchers.models import (
+    Cluster,
+    CommunityCheckRun,
+    CommunityIssue,
+    CommunityIssuePriority,
+    EventCommunityInviteRequest,
+    EventOccurrence,
+    Node,
+    NodeType,
+    User,
+    UserActivity,
+    Volunteer,
+)
 from couchers.models.notifications import NotificationTopicAction
 from couchers.models.postal_verification import PostalVerificationAttempt
 from couchers.notifications.notify import notify
@@ -24,7 +38,7 @@ from couchers.postal.my_postcard import download_pdf
 from couchers.proto import communities_pb2, editor_pb2, editor_pb2_grpc, notification_data_pb2, postal_verification_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.resources import get_static_badge_dict
-from couchers.servicers.communities import community_to_pb
+from couchers.servicers.communities import api2nodetype, community_to_pb, nodetype2api
 from couchers.servicers.events import (
     generate_event_create_notifications,
     get_users_to_notify_for_new_event,
@@ -40,11 +54,19 @@ from couchers.utils import (
     not_none,
     now,
     parse_date,
+    strip_text,
+    to_aware_datetime,
 )
 
 logger = logging.getLogger(__name__)
 
 MAX_PAGINATION_LENGTH = 250
+
+communityissuepriority2api = {
+    CommunityIssuePriority.high: editor_pb2.COMMUNITY_ISSUE_PRIORITY_HIGH,
+    CommunityIssuePriority.medium: editor_pb2.COMMUNITY_ISSUE_PRIORITY_MEDIUM,
+    CommunityIssuePriority.low: editor_pb2.COMMUNITY_ISSUE_PRIORITY_LOW,
+}
 
 
 def load_community_geom(geojson: str, context: CouchersContext) -> BaseGeometry:
@@ -102,6 +124,47 @@ def event_community_info_to_pb(
     )
 
 
+def _optional_double(value: float | None) -> wrappers_pb2.DoubleValue | None:
+    return wrappers_pb2.DoubleValue(value=value) if value is not None else None
+
+
+def community_issues_to_pb(session: Session, issues: Sequence[CommunityIssue]) -> list[editor_pb2.CommunityIssue]:
+    node_ids = {issue.node_id for issue in issues} | {issue.other_node_id for issue in issues if issue.other_node_id}
+    rows = session.execute(
+        select(Node.id, Node.node_type, Cluster.name, Cluster.slug, func.coalesce(ClusterSubscriptionCount.count, 0))
+        .outerjoin(Cluster, and_(Cluster.parent_node_id == Node.id, Cluster.is_official_cluster))
+        .outerjoin(ClusterSubscriptionCount, ClusterSubscriptionCount.cluster_id == Cluster.id)
+        .where(Node.id.in_(node_ids))
+    ).all()
+    communities = {
+        node_id: editor_pb2.CommunityIssueCommunity(
+            community_id=node_id,
+            name=name or "",
+            slug=slug or "",
+            node_type=nodetype2api[node_type],
+            member_count=member_count,
+        )
+        for node_id, node_type, name, slug, member_count in rows
+    }
+    return [
+        editor_pb2.CommunityIssue(
+            issue_id=issue.id,
+            rule=issue.rule,
+            priority=communityissuepriority2api[issue.priority],
+            community=communities[issue.node_id],
+            other=communities[issue.other_node_id] if issue.other_node_id else None,
+            area_km2=_optional_double(issue.area_km2),
+            share=_optional_double(issue.share),
+            details=issue.details,
+            area_geojson=issue.area_geojson or "",
+            first_seen=Timestamp_from_datetime(issue.first_seen),
+            last_seen=Timestamp_from_datetime(issue.last_seen),
+            resolved=Timestamp_from_datetime(issue.resolved) if issue.resolved else None,
+        )
+        for issue in issues
+    ]
+
+
 def volunteer_to_pb(session: Session, volunteer: Volunteer) -> editor_pb2.Volunteer:
     """Convert a Volunteer model to the editor protobuf message."""
     lite_user = session.execute(select(LiteUser).where(LiteUser.id == volunteer.user_id)).scalar_one()
@@ -154,9 +217,32 @@ class Editor(editor_pb2_grpc.EditorServicer):
             parent_type = parent_node.node_type
         else:
             parent_type = None
-        node_type = CHILD_NODE_TYPE[parent_type]
+        if request.node_type == communities_pb2.NODE_TYPE_UNSPECIFIED:
+            node_type = CHILD_NODE_TYPE[parent_type]
+        else:
+            node_type = api2nodetype[request.node_type]
+            if parent_type is None:
+                valid = node_type == NodeType.world
+            else:
+                valid = node_type.value > parent_type.value
+            if not valid:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:node_type_not_below_parent")
         node = create_node(session, geom, parent_node_id, node_type)
-        create_cluster(session, node.id, request.name, request.description, context.user_id, request.admin_ids, True)
+        main_page_geom = (
+            busiest_user_neighbourhood_location(session, node)
+            if request.set_main_page_location_from_busiest_user_neighbourhood
+            else None
+        )
+        create_cluster(
+            session,
+            node.id,
+            strip_text(request.name),
+            strip_text(request.description),
+            context.user_id,
+            request.admin_ids,
+            True,
+            main_page_geom=main_page_geom,
+        )
 
         return community_to_pb(session, node, context)
 
@@ -168,11 +254,11 @@ class Editor(editor_pb2_grpc.EditorServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
         cluster = node.official_cluster
 
-        if request.name:
-            cluster.name = request.name
+        if name := strip_text(request.name):
+            cluster.name = name
 
-        if request.description:
-            cluster.description = request.description
+        if description := strip_text(request.description):
+            cluster.description = description
 
         if request.geojson:
             geom = load_community_geom(request.geojson, context)
@@ -482,6 +568,7 @@ class Editor(editor_pb2_grpc.EditorServicer):
                     attempt.status, postal_verification_pb2.POSTAL_VERIFICATION_STATUS_UNKNOWN
                 ),
                 address=postal_verification_pb2.PostalAddress(
+                    recipient_name=attempt.recipient_name,
                     address_line_1=attempt.address_line_1,
                     address_line_2=attempt.address_line_2,
                     city=attempt.city,
@@ -522,7 +609,7 @@ class Editor(editor_pb2_grpc.EditorServicer):
     def LookupUsersForDebug(
         self, request: editor_pb2.LookupUsersForDebugReq, context: CouchersContext, session: Session
     ) -> editor_pb2.LookupUsersForDebugRes:
-        sofa_prefix = request.sofa_prefix.strip()
+        sofa_prefix = strip_text(request.sofa_prefix)
         if len(sofa_prefix) != 12:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:invalid_sofa_prefix")
 
@@ -547,3 +634,44 @@ class Editor(editor_pb2_grpc.EditorServicer):
                 for user_id, banned_at, deleted_at, shadowed_at in users
             ]
         )
+
+    def ListCommunityIssues(
+        self, request: editor_pb2.ListCommunityIssuesReq, context: CouchersContext, session: Session
+    ) -> editor_pb2.ListCommunityIssuesRes:
+        last_run = session.execute(
+            select(CommunityCheckRun).order_by(CommunityCheckRun.id.desc()).limit(1)
+        ).scalar_one_or_none()
+        open_issues = (
+            session.execute(select(CommunityIssue).where(CommunityIssue.resolved.is_(None)).order_by(CommunityIssue.id))
+            .scalars()
+            .all()
+        )
+        resolved_issues = (
+            session.execute(
+                select(CommunityIssue)
+                .where(CommunityIssue.resolved > to_aware_datetime(request.resolved_since))
+                .order_by(CommunityIssue.resolved.desc())
+            )
+            .scalars()
+            .all()
+            if request.HasField("resolved_since")
+            else []
+        )
+        return editor_pb2.ListCommunityIssuesRes(
+            last_run=editor_pb2.CommunityCheckRun(
+                time=Timestamp_from_datetime(last_run.time),
+                open_issues=last_run.open_issues,
+                active_users=last_run.active_users,
+                active_users_outside_localities=last_run.active_users_outside_localities,
+            )
+            if last_run
+            else None,
+            open_issues=community_issues_to_pb(session, open_issues),
+            resolved_issues=community_issues_to_pb(session, resolved_issues),
+        )
+
+    def RunCommunityChecks(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
+        queue_job(session, job=check_communities, payload=empty_pb2.Empty())
+        return empty_pb2.Empty()

@@ -8,7 +8,7 @@ GUIDELINES_VERSION = 1
 
 # When updating this, also update the "activeness_probe" notification strings in
 # src/couchers/email/locales/en.json
-LATEST_RELEASE_BLOG_URL = "https://couchers.org/blog/2026/05/25/couchers-spring-release"
+LATEST_RELEASE_BLOG_URL = "https://couchers.org/blog/2026/10/15/version-1.4.0-release"
 
 # Keep the frontend in sync at app/web/utils/validation.ts
 EMAIL_REGEX = r"^[0-9a-z]([0-9a-z\-\_\+]|(\.[0-9a-z\-\_\+]))*@([0-9a-z\-]+\.)*[0-9a-z\-]+\.[a-z]{2,}$"
@@ -96,6 +96,12 @@ UNDELETE_DAYS = 7
 # expiry time for preferred language cookie
 PREFERRED_LANGUAGE_COOKIE_EXPIRY = timedelta(days=3650)
 
+# our goal response time
+RESPONSE_TIME_EXPECTATION = timedelta(hours=96)
+# decay per request in the decayed response counts
+RESPONSE_COUNT_DECAY = 0.8
+# window for the acceptance rate
+ACCEPT_TIME_EXPECTATION = timedelta(hours=168)
 
 # activeness probe settings
 # wait about 11 months before sending one out
@@ -103,12 +109,14 @@ ACTIVENESS_PROBE_INACTIVITY_PERIOD = timedelta(days=333)
 # times at which to send notifications after inactivity (cumulative since start of probe)
 ACTIVENESS_PROBE_TIME_REMINDERS = [timedelta(days=0), timedelta(days=2, hours=8)]
 # total time from initiation after which to expire the probe
-ACTIVENESS_PROBE_EXPIRY_TIME = timedelta(days=4)
+ACTIVENESS_PROBE_EXPIRY_TIME = RESPONSE_TIME_EXPECTATION
 
 # how long a message must go unseen before we email the user about it
 MISSED_MESSAGES_DELAY = timedelta(minutes=5)
 # ... unless we could reach them by push, in which case they've already been told about it once
 MISSED_MESSAGES_DELAY_WITH_PUSH = timedelta(hours=24)
+# messages older than this are never emailed about, which lets the job skip scanning all of history
+MISSED_MESSAGES_LOOKBACK = timedelta(days=7)
 
 HOST_REQUEST_MAX_REMINDERS = 1
 HOST_REQUEST_REMINDER_INTERVAL = timedelta(days=2)
@@ -117,7 +125,8 @@ HOST_REQUEST_DUPLICATE_WINDOW_HOURS = 3
 
 # Note: Javascript's string.length is in utf16 code units, Python's len(str) is in utf8 code units.
 HOST_REQUEST_MIN_LENGTH_UTF16 = 250  # Must match frontend
-PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16 = 150  # Must match frontend
+PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16 = 150  # Traveller's trip description. Must match frontend
+PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16 = 100  # Host's message offering to host a trip. Must match frontend
 
 ANTIBOT_FREQ = timedelta(hours=48)
 
@@ -127,6 +136,8 @@ EVENT_REMINDER_TIMEDELTA = timedelta(hours=24)
 # recurring events should have occurrences scheduled.
 EVENT_RECURRENCE_SCHEDULE_WINDOW = timedelta(weeks=2)
 EVENT_RECURRENCE_MIN_SCHEDULED_OCCURRENCES = 2
+# How long after the first occurrence recurring events can keep having occurrences scheduled.
+EVENT_RECURRENCE_MAX_DURATION = timedelta(days=183)  # ~6 months
 
 COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD = 0.35
 
@@ -151,6 +162,7 @@ GALLERY_MAX_PHOTOS_NOT_VERIFIED = 2
 GALLERY_MAX_PHOTOS_VERIFIED = 5
 
 COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH = 150
+COMPLETED_MY_HOME_MINIMUM_CHAR_LENGTH = 50
 
 # How long a container must run uninterrupted before /status reports stable=true
 STABLE_THRESHOLD_SECONDS = 5 * 60
@@ -159,3 +171,4 @@ STABLE_THRESHOLD_SECONDS = 5 * 60
 RATE_LIMIT_WINDOW_SECONDS = 60
 
 MODERATION_AUTO_APPROVE_FLAG_PRIORITY = 1000
+MODERATION_AUTO_APPROVE_DEADLINE_MAX_SECONDS = 48 * 3600

@@ -19,6 +19,8 @@ from couchers import sentry, urls
 from couchers.config import config
 from couchers.constants import STABLE_THRESHOLD_SECONDS
 from couchers.context import CouchersContext
+from couchers.email.zz import OPEN_PIXEL_GIF, ZZ_RE
+from couchers.event_log import log_event
 from couchers.metrics import (
     observe_native_banned_bundle_hit,
     observe_native_binary_age,
@@ -289,6 +291,14 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         observe_native_ota_manifest_request(platform, "served")
         return httpbody_pb2.HttpBody(content_type=content_type, data=body)
 
+    def RecordEmailOpen(
+        self, request: bugs_pb2.RecordEmailOpenReq, context: CouchersContext, session: Session
+    ) -> httpbody_pb2.HttpBody:
+        if ZZ_RE.fullmatch(request.zz):
+            log_event(context, session, "email.opened", {"zz": request.zz})
+        context.set_response_headers([("cache-control", "no-store")])
+        return httpbody_pb2.HttpBody(content_type="image/gif", data=OPEN_PIXEL_GIF)
+
     def ReportDiagnostics(
         self, request: bugs_pb2.ReportDiagnosticsReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
@@ -403,6 +413,11 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
             holder["value"] = value
             res.value.CopyFrom(holder.fields["value"])
         return res
+
+    def GetFeatureFlagAttributes(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> bugs_pb2.GetFeatureFlagAttributesRes:
+        return bugs_pb2.GetFeatureFlagAttributesRes(attributes_json=json.dumps(context.get_feature_flag_attributes()))
 
     def LogExperimentExposure(
         self, request: bugs_pb2.LogExperimentExposureReq, context: CouchersContext, session: Session

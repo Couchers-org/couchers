@@ -2,16 +2,26 @@
 See //docs/search.md for an overview.
 """
 
+import time
+from math import pi
 from typing import Any, cast
 
 import grpc
-from sqlalchemy import literal_column, select
+from dateutil.relativedelta import relativedelta
+from google.protobuf import wrappers_pb2
+from sqlalchemy import ColumnElement, Float, SQLColumnExpression, literal_column, select, tuple_, type_coerce
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import and_, func, or_
 
-from couchers import urls
+from couchers import bfc, metrics, urls
 from couchers.context import CouchersContext
-from couchers.crypto import decrypt_page_token, encrypt_page_token
+from couchers.crypto import (
+    USER_SEARCH_NOISE_KEY_NAME,
+    decrypt_page_token,
+    encrypt_page_token,
+    generate_hash_signature,
+    get_secret,
+)
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.helpers.strong_verification import has_strong_verification
@@ -32,9 +42,12 @@ from couchers.models import (
     Reference,
     StrongVerificationAttempt,
     User,
+    UserRankingOffset,
 )
 from couchers.proto import search_pb2, search_pb2_grpc
+from couchers.proto.bfc import bfc_pb2
 from couchers.reranker import reranker
+from couchers.sentry import report_error
 from couchers.servicers.api import (
     fluency2sql,
     get_num_references,
@@ -52,21 +65,34 @@ from couchers.servicers.communities import community_to_pb
 from couchers.servicers.events import apply_occurrence_pagination, event_to_pb, occurrences_next_page_token
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
-from couchers.sql import to_bool, users_visible, where_moderated_content_visible, where_users_column_visible
+from couchers.sql import (
+    relevant_user_blocks,
+    to_bool,
+    users_visible,
+    where_moderated_content_visible,
+    where_users_column_visible,
+)
 from couchers.utils import (
     Timestamp_from_datetime,
     create_coordinate,
     get_coordinates,
     last_active_coarsen,
     to_aware_datetime,
+    today,
 )
 
 # searches are a bit expensive, we'd rather send back a bunch of results at once than lots of small pages
 MAX_PAGINATION_LENGTH = 100
 
+DEFAULT_SEARCH_AGE_MIN = 18
+DEFAULT_SEARCH_AGE_MAX = 200
+
 REGCONFIG = "english"
 TRI_SIMILARITY_THRESHOLD = 0.6
 TRI_SIMILARITY_WEIGHT = 5
+
+DEFAULT_USER_SEARCH_NOISE_SCALE = 2.0
+USER_SEARCH_NOISE_PERIOD_DAYS = 7
 
 
 def _join_with_space(coalesces: list[Any]) -> Any:
@@ -409,201 +435,348 @@ def _search_clusters(
     ]
 
 
+def stable_normal_rv(column: SQLColumnExpression[int], key: bytes, seed: bytes) -> ColumnElement[float]:
+    """
+    Standard normal random variate for each value of a bigint column, deterministic given the key and seed
+    """
+    digest = generate_hash_signature(message=seed, key=key, digest_size=16)
+    # hashint8extended gives a uniform signed 64-bit int; keep the top 53 bits so it's exact as a double, and map into
+    # (0, 1] so it's safe to take ln() of
+    seeds = (int.from_bytes(digest[i : i + 8], "big", signed=True) for i in (0, 8))
+    u1, u2 = ((func.hashint8extended(column, seed).op(">>")(11) + 2**52 + 1).cast(Float) / 2.0**53 for seed in seeds)
+    # Box-Muller transform. Postgres' random_normal() can't be seeded per row, so we roll our own
+    return type_coerce(func.sqrt(-2 * func.ln(u1)) * func.cos(2 * pi * u2), Float)
+
+
+def _user_search_noise(column: SQLColumnExpression[int], viewer_id: int) -> ColumnElement[float]:
+    """
+    Standard normal noise for each value of the column, different for each viewer and stable for a given viewer over
+    USER_SEARCH_NOISE_PERIOD_DAYS, so different viewers see a different ordering
+    """
+    # offset by viewer id so that viewers don't all reshuffle on the same day
+    period = (today().toordinal() + viewer_id) // USER_SEARCH_NOISE_PERIOD_DAYS
+    return stable_normal_rv(column, get_secret(USER_SEARCH_NOISE_KEY_NAME), f"{viewer_id}|{period}".encode())
+
+
 def _user_search_inner(
     request: search_pb2.UserSearchReq, context: CouchersContext, session: Session
-) -> tuple[list[int], str | None, int]:
+) -> tuple[list[int], str | None, int, str]:
     user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
     # Base statement with visibility filter
-    statement = select(User.id, User.recommendation_score).where(users_visible(context))
+    statement = select(User.id).where(users_visible(context))
     # make sure that only users who are in LiteUser show up
     statement = statement.join(LiteUser, LiteUser.id == User.id)
 
-    # If exactly_user_ids is present, only filter by those IDs and ignore all other filters
-    # This is a bit of a hacky feature to help with the frontend map implementation
-    if len(request.exactly_user_ids) > 0:
-        statement = statement.where(User.id.in_(request.exactly_user_ids))
-    else:
-        # Apply all the normal filters
-        if request.HasField("query"):
-            if request.query_name_only:
-                statement = statement.where(
-                    or_(User.name.ilike(f"%{request.query.value}%"), User.username.ilike(f"%{request.query.value}%"))
-                )
-            else:
-                statement = statement.where(
-                    or_(
-                        User.name.ilike(f"%{request.query.value}%"),
-                        User.username.ilike(f"%{request.query.value}%"),
-                        User.city.ilike(f"%{request.query.value}%"),
-                        User.hometown.ilike(f"%{request.query.value}%"),
-                        User.about_me.ilike(f"%{request.query.value}%"),
-                        User.things_i_like.ilike(f"%{request.query.value}%"),
-                        User.about_place.ilike(f"%{request.query.value}%"),
-                        User.additional_information.ilike(f"%{request.query.value}%"),
-                    )
-                )
-
-        if request.HasField("last_active"):
-            raw_dt = to_aware_datetime(request.last_active)
-            statement = statement.where(User.last_active >= last_active_coarsen(raw_dt))
-
-        if request.same_gender_only:
-            if not has_strong_verification(session, user):
-                context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "need_strong_verification")
-            statement = statement.where(User.gender == user.gender)
-
-        if len(request.hosting_status_filter) > 0:
+    if request.HasField("query"):
+        if request.query_name_only:
             statement = statement.where(
-                User.hosting_status.in_([hostingstatus2sql[status] for status in request.hosting_status_filter])
+                or_(User.name.ilike(f"%{request.query.value}%"), User.username.ilike(f"%{request.query.value}%"))
             )
-        if len(request.meetup_status_filter) > 0:
+        else:
             statement = statement.where(
-                User.meetup_status.in_([meetupstatus2sql[status] for status in request.meetup_status_filter])
-            )
-        if len(request.smoking_location_filter) > 0:
-            statement = statement.where(
-                User.smoking_allowed.in_([smokinglocation2sql[loc] for loc in request.smoking_location_filter])
-            )
-        if len(request.sleeping_arrangement_filter) > 0:
-            statement = statement.where(
-                User.sleeping_arrangement.in_(
-                    [sleepingarrangement2sql[arr] for arr in request.sleeping_arrangement_filter]
+                or_(
+                    User.name.ilike(f"%{request.query.value}%"),
+                    User.username.ilike(f"%{request.query.value}%"),
+                    User.city.ilike(f"%{request.query.value}%"),
+                    User.hometown.ilike(f"%{request.query.value}%"),
+                    User.about_me.ilike(f"%{request.query.value}%"),
+                    User.things_i_like.ilike(f"%{request.query.value}%"),
+                    User.about_place.ilike(f"%{request.query.value}%"),
+                    User.additional_information.ilike(f"%{request.query.value}%"),
                 )
             )
-        if len(request.parking_details_filter) > 0:
-            statement = statement.where(
-                User.parking_details.in_([parkingdetails2sql[det] for det in request.parking_details_filter])
-            )
-        # limits/default could be handled on the front end as well
-        min_age = request.age_min.value if request.HasField("age_min") else 18
-        max_age = request.age_max.value if request.HasField("age_max") else 200
 
-        statement = statement.where((User.age >= min_age) & (User.age <= max_age))
+    if request.HasField("last_active"):
+        raw_dt = to_aware_datetime(request.last_active)
+        statement = statement.where(User.last_active >= last_active_coarsen(raw_dt))
 
-        # return results with by language code as only input
-        # fluency in conversational or fluent
+    if request.same_gender_only:
+        if not has_strong_verification(session, user):
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "need_strong_verification")
+        statement = statement.where(User.gender == user.gender)
 
-        if len(request.language_ability_filter) > 0:
-            language_options = []
-            for ability_filter in request.language_ability_filter:
-                fluency_sql_value = fluency2sql.get(ability_filter.fluency)
+    if len(request.hosting_status_filter) > 0:
+        statement = statement.where(
+            User.hosting_status.in_([hostingstatus2sql[status] for status in request.hosting_status_filter])
+        )
+    if len(request.meetup_status_filter) > 0:
+        statement = statement.where(
+            User.meetup_status.in_([meetupstatus2sql[status] for status in request.meetup_status_filter])
+        )
+    if len(request.smoking_location_filter) > 0:
+        statement = statement.where(
+            User.smoking_allowed.in_([smokinglocation2sql[loc] for loc in request.smoking_location_filter])
+        )
+    if len(request.sleeping_arrangement_filter) > 0:
+        statement = statement.where(
+            User.sleeping_arrangement.in_([sleepingarrangement2sql[arr] for arr in request.sleeping_arrangement_filter])
+        )
+    if len(request.parking_details_filter) > 0:
+        statement = statement.where(
+            User.parking_details.in_([parkingdetails2sql[det] for det in request.parking_details_filter])
+        )
+    # clamped so that subtracting the ages from today stays within the range of a date
+    min_age = min(
+        request.age_min.value if request.HasField("age_min") else DEFAULT_SEARCH_AGE_MIN, DEFAULT_SEARCH_AGE_MAX
+    )
+    max_age = min(
+        request.age_max.value if request.HasField("age_max") else DEFAULT_SEARCH_AGE_MAX, DEFAULT_SEARCH_AGE_MAX
+    )
 
-                if fluency_sql_value is None:
-                    continue
-                language_options.append(
-                    and_(
-                        (LanguageAbility.language_code == ability_filter.code),
-                        (LanguageAbility.fluency >= (fluency_sql_value)),
-                    )
-                )
-            statement = statement.join(LanguageAbility, LanguageAbility.user_id == User.id)
-            statement = statement.where(or_(*language_options))
+    statement = statement.where(
+        (User.birthdate <= today() - relativedelta(years=min_age))
+        & (User.birthdate > today() - relativedelta(years=max_age + 1))
+    )
 
-        if request.HasField("profile_completed"):
-            statement = statement.where(has_completed_profile_expression() == request.profile_completed.value)
-        if request.HasField("guests"):
-            statement = statement.where(User.max_guests >= request.guests.value)
-        if request.HasField("last_minute"):
-            statement = statement.where(User.last_minute == request.last_minute.value)
-        if request.HasField("has_pets"):
-            statement = statement.where(User.has_pets == request.has_pets.value)
-        if request.HasField("accepts_pets"):
-            statement = statement.where(User.accepts_pets == request.accepts_pets.value)
-        if request.HasField("has_kids"):
-            statement = statement.where(User.has_kids == request.has_kids.value)
-        if request.HasField("accepts_kids"):
-            statement = statement.where(User.accepts_kids == request.accepts_kids.value)
-        if request.HasField("has_housemates"):
-            statement = statement.where(User.has_housemates == request.has_housemates.value)
-        if request.HasField("wheelchair_accessible"):
-            statement = statement.where(User.wheelchair_accessible == request.wheelchair_accessible.value)
-        if request.HasField("smokes_at_home"):
-            statement = statement.where(User.smokes_at_home == request.smokes_at_home.value)
-        if request.HasField("drinking_allowed"):
-            statement = statement.where(User.drinking_allowed == request.drinking_allowed.value)
-        if request.HasField("drinks_at_home"):
-            statement = statement.where(User.drinks_at_home == request.drinks_at_home.value)
-        if request.HasField("parking"):
-            statement = statement.where(User.parking == request.parking.value)
-        if request.HasField("camping_ok"):
-            statement = statement.where(User.camping_ok == request.camping_ok.value)
+    # return results with by language code as only input
+    # fluency in conversational or fluent
 
-        if request.HasField("search_in_area"):
-            # EPSG4326 measures distance in decimal degress
-            # we want to check whether two circles overlap, so check if the distance between their centers is less
-            # than the sum of their radii, divided by 111111 m ~= 1 degree (at the equator)
-            search_point = create_coordinate(request.search_in_area.lat, request.search_in_area.lng)
-            statement = statement.where(
-                func.ST_DWithin(
-                    # old:
-                    # User.geom, search_point, (User.geom_radius + request.search_in_area.radius) / 111111
-                    # this is an optimization that speeds up the db queries since it doesn't need to look up the
-                    # user's geom radius
-                    User.geom,
-                    search_point,
-                    (1000 + request.search_in_area.radius) / 111111,
-                )
-            )
-        if request.HasField("search_in_rectangle"):
-            statement = statement.where(
-                func.ST_Within(
-                    User.geom,
-                    func.ST_MakeEnvelope(
-                        request.search_in_rectangle.lng_min,
-                        request.search_in_rectangle.lat_min,
-                        request.search_in_rectangle.lng_max,
-                        request.search_in_rectangle.lat_max,
-                        4326,
-                    ),
-                )
-            )
-        if request.HasField("search_in_community_id"):
-            # could do a join here as well, but this is just simpler
-            node = session.execute(select(Node).where(Node.id == request.search_in_community_id)).scalar_one_or_none()
-            if not node:
-                context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
-            statement = statement.where(func.ST_Contains(node.geom, User.geom))
+    if len(request.language_ability_filter) > 0:
+        language_options = []
+        for ability_filter in request.language_ability_filter:
+            fluency_sql_value = fluency2sql.get(ability_filter.fluency)
 
-        if request.only_with_references:
-            references = (
-                where_users_column_visible(
-                    select(Reference.to_user_id.label("user_id")),
-                    context,
-                    Reference.from_user_id,
-                )
-                .distinct()
-                .subquery()
-            )
-            statement = statement.join(references, references.c.user_id == User.id)
-
-        if request.only_with_strong_verification:
-            statement = statement.join(
-                StrongVerificationAttempt,
+            if fluency_sql_value is None:
+                continue
+            language_options.append(
                 and_(
-                    StrongVerificationAttempt.user_id == User.id,
-                    StrongVerificationAttempt.has_strong_verification(User),
-                ),
+                    (LanguageAbility.language_code == ability_filter.code),
+                    (LanguageAbility.fluency >= (fluency_sql_value)),
+                )
             )
-        # TODO:
-        # bool friends_only = 13;
+        statement = statement.where(
+            select(LanguageAbility).where(LanguageAbility.user_id == User.id).where(or_(*language_options)).exists()
+        )
+
+    if request.HasField("profile_completed"):
+        statement = statement.where(has_completed_profile_expression() == request.profile_completed.value)
+    if request.HasField("guests"):
+        statement = statement.where(User.max_guests >= request.guests.value)
+    if request.HasField("last_minute"):
+        statement = statement.where(User.last_minute == request.last_minute.value)
+    if request.HasField("has_pets"):
+        statement = statement.where(User.has_pets == request.has_pets.value)
+    if request.HasField("accepts_pets"):
+        statement = statement.where(User.accepts_pets == request.accepts_pets.value)
+    if request.HasField("has_kids"):
+        statement = statement.where(User.has_kids == request.has_kids.value)
+    if request.HasField("accepts_kids"):
+        statement = statement.where(User.accepts_kids == request.accepts_kids.value)
+    if request.HasField("has_housemates"):
+        statement = statement.where(User.has_housemates == request.has_housemates.value)
+    if request.HasField("wheelchair_accessible"):
+        statement = statement.where(User.wheelchair_accessible == request.wheelchair_accessible.value)
+    if request.HasField("smokes_at_home"):
+        statement = statement.where(User.smokes_at_home == request.smokes_at_home.value)
+    if request.HasField("drinking_allowed"):
+        statement = statement.where(User.drinking_allowed == request.drinking_allowed.value)
+    if request.HasField("drinks_at_home"):
+        statement = statement.where(User.drinks_at_home == request.drinks_at_home.value)
+    if request.HasField("parking"):
+        statement = statement.where(User.parking == request.parking.value)
+    if request.HasField("camping_ok"):
+        statement = statement.where(User.camping_ok == request.camping_ok.value)
+
+    if request.HasField("search_in_rectangle"):
+        statement = statement.where(
+            User.geom.op("&&")(
+                func.ST_MakeEnvelope(
+                    request.search_in_rectangle.lng_min,
+                    request.search_in_rectangle.lat_min,
+                    request.search_in_rectangle.lng_max,
+                    request.search_in_rectangle.lat_max,
+                    4326,
+                )
+            )
+        )
+
+    if request.only_with_references:
+        references = (
+            where_users_column_visible(
+                select(Reference.to_user_id.label("user_id")),
+                context,
+                Reference.from_user_id,
+            )
+            .distinct()
+            .subquery()
+        )
+        statement = statement.join(references, references.c.user_id == User.id)
+
+    if request.only_with_strong_verification:
+        statement = statement.where(
+            select(StrongVerificationAttempt)
+            .where(StrongVerificationAttempt.user_id == User.id)
+            .where(StrongVerificationAttempt.has_strong_verification(User))
+            .exists()
+        )
+    # TODO:
+    # bool friends_only = 13;
 
     page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-    next_recommendation_score = float(decrypt_page_token(request.page_token)) if request.page_token else 1e10
-    total_items = cast(int, session.execute(select(func.count()).select_from(statement.subquery())).scalar())
 
-    statement = (
-        statement.where(User.recommendation_score <= next_recommendation_score)
-        .order_by(User.recommendation_score.desc())
-        .limit(page_size + 1)
-    )
-    res = session.execute(statement).all()
-    users: list[int] = []
+    noise_scale = context.get_float_value("user_search_noise_scale", DEFAULT_USER_SEARCH_NOISE_SCALE)
+    ranking_score = User.recommendation_score + noise_scale * _user_search_noise(User.id, context.user_id)
+    ranking_offsets_variant = context.get_string_value("search_ranking_offsets_variant", "")
+    if ranking_offsets_variant:
+        statement = statement.outerjoin(
+            UserRankingOffset,
+            and_(UserRankingOffset.user_id == User.id, UserRankingOffset.variant == ranking_offsets_variant),
+        )
+        ranking_score = ranking_score + func.coalesce(UserRankingOffset.offset, 0.0)
+    # the page token condition goes outside this subquery so that the window count covers every match, not only the
+    # matches after the token
+    ranked = statement.add_columns(ranking_score.label("score"), func.count().over().label("total")).subquery()
+    page_statement = select(ranked.c.id, ranked.c.score, ranked.c.total)
+    if request.page_token:
+        last_score, last_id = decrypt_page_token(request.page_token).split(",")
+        page_statement = page_statement.where(tuple_(ranked.c.score, ranked.c.id) < (float(last_score), int(last_id)))
+
+    page_statement = page_statement.order_by(ranked.c.score.desc(), ranked.c.id.desc()).limit(page_size + 1)
+    res = session.execute(page_statement).all()
+
     if res:
-        users, rec_scores = zip(*res)  # type: ignore[assignment]
+        total_items = res[0].total
+    elif request.page_token:
+        total_items = cast(int, session.execute(select(func.count()).select_from(statement.subquery())).scalar())
+    else:
+        total_items = 0
 
-    next_page_token = encrypt_page_token(str(rec_scores[-1])) if len(users) > page_size else None
-    return users[:page_size], next_page_token, total_items
+    next_page_token = None
+    if len(res) > page_size:
+        last_user_id, last_rec_score, _ = res[page_size - 1]
+        next_page_token = encrypt_page_token(f"{last_rec_score},{last_user_id}")
+    return [user_id for user_id, _, _ in res[:page_size]], next_page_token, total_items, ranking_offsets_variant
+
+
+def _user_search_bfc(
+    request: search_pb2.UserSearchReq, context: CouchersContext, session: Session
+) -> tuple[list[int], str | None, int, int, str] | None:
+    """
+    Returns the page, the next page token, the total, the unfiltered total and bfc's search id, or None if bfc failed
+    """
+    user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+
+    genders = []
+    if request.same_gender_only:
+        if not has_strong_verification(session, user):
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "need_strong_verification")
+        genders = [user.gender]
+
+    rectangle = None
+    if request.HasField("search_in_rectangle"):
+        rectangle = bfc_pb2.Rectangle(
+            lat_min=request.search_in_rectangle.lat_min,
+            lng_min=request.search_in_rectangle.lng_min,
+            lat_max=request.search_in_rectangle.lat_max,
+            lng_max=request.search_in_rectangle.lng_max,
+        )
+
+    filters = bfc_pb2.UserSearchFilters(
+        last_active=request.last_active if request.HasField("last_active") else None,
+        hosting_status=request.hosting_status_filter,
+        meetup_status=request.meetup_status_filter,
+        smoking_location=request.smoking_location_filter,
+        sleeping_arrangement=request.sleeping_arrangement_filter,
+        parking_details=request.parking_details_filter,
+        language_ability=[
+            bfc_pb2.LanguageAbility(code=ability.code, fluency=ability.fluency)
+            for ability in request.language_ability_filter
+        ],
+        guests=request.guests if request.HasField("guests") else None,
+        only_with_references=request.only_with_references,
+        only_with_strong_verification=request.only_with_strong_verification,
+        age_min=wrappers_pb2.UInt32Value(
+            value=request.age_min.value if request.HasField("age_min") else DEFAULT_SEARCH_AGE_MIN
+        ),
+        age_max=wrappers_pb2.UInt32Value(
+            value=request.age_max.value if request.HasField("age_max") else DEFAULT_SEARCH_AGE_MAX
+        ),
+        last_minute=request.last_minute if request.HasField("last_minute") else None,
+        has_pets=request.has_pets if request.HasField("has_pets") else None,
+        accepts_pets=request.accepts_pets if request.HasField("accepts_pets") else None,
+        has_kids=request.has_kids if request.HasField("has_kids") else None,
+        accepts_kids=request.accepts_kids if request.HasField("accepts_kids") else None,
+        has_housemates=request.has_housemates if request.HasField("has_housemates") else None,
+        wheelchair_accessible=request.wheelchair_accessible if request.HasField("wheelchair_accessible") else None,
+        smokes_at_home=request.smokes_at_home if request.HasField("smokes_at_home") else None,
+        drinking_allowed=request.drinking_allowed if request.HasField("drinking_allowed") else None,
+        drinks_at_home=request.drinks_at_home if request.HasField("drinks_at_home") else None,
+        parking=request.parking if request.HasField("parking") else None,
+        camping_ok=request.camping_ok if request.HasField("camping_ok") else None,
+        profile_completed=request.profile_completed if request.HasField("profile_completed") else None,
+        genders=genders,
+    )
+
+    bfc_request = bfc_pb2.UserSearchReq(
+        viewer_id=user.id,
+        blocked_user_ids=session.execute(relevant_user_blocks(user.id)).scalars().all(),
+        rectangle=rectangle,
+        filters=filters,
+        page_size=min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH),
+        page_token=request.page_token,
+    )
+    try:
+        res = bfc.user_search(bfc_request)
+    except grpc.RpcError as e:
+        metrics.observe_bfc_fallback("user_search", e.code().name)
+        report_error(e)
+        return None
+
+    # bfc sends a few users past the end of the page
+    user_ids = [result.user_id for result in res.results[: res.page_size]]
+    return user_ids, res.next_page_token or None, res.total, res.unfiltered_total, res.search_id
+
+
+def _visible_users_in_order(user_ids: list[int], context: CouchersContext, session: Session) -> list[int]:
+    visible = set(
+        session.execute(
+            select(User.id)
+            .where(users_visible(context))
+            .join(LiteUser, LiteUser.id == User.id)
+            .where(User.id.in_(user_ids))
+        ).scalars()
+    )
+    return [user_id for user_id in dict.fromkeys(user_ids) if user_id in visible][:MAX_PAGINATION_LENGTH]
+
+
+def _log_search_performed(
+    request: search_pb2.UserSearchReq,
+    context: CouchersContext,
+    session: Session,
+    total_items: int,
+    ranking_offsets_variant: str,
+    source: str,
+    bfc_search_id: str | None,
+) -> None:
+    non_filter_fields = {
+        "query",
+        "query_name_only",
+        "search_in_area",
+        "search_in_community_id",
+        "search_in_rectangle",
+        "exactly_user_ids",
+        "page_size",
+        "page_token",
+    }
+    filters = sorted(field.name for field, _ in request.ListFields() if field.name not in non_filter_fields)
+    log_event(
+        context,
+        session,
+        "search.performed",
+        {
+            "search_in": request.WhichOneof("search_in"),
+            "has_query": request.HasField("query"),
+            "has_filters": len(filters) > 0,
+            "filters": filters,
+            "is_selection": len(request.exactly_user_ids) > 0,
+            "has_page_token": bool(request.page_token),
+            "total_items": total_items,
+            "ranking_offsets_variant": ranking_offsets_variant,
+            "source": source,
+            "bfc_search_id": bfc_search_id,
+        },
+    )
 
 
 class Search(search_pb2_grpc.SearchServicer):
@@ -657,54 +830,40 @@ class Search(search_pb2_grpc.SearchServicer):
             next_page_token=str(all_results[page_size].rank) if len(all_results) > page_size else None,
         )
 
-    def UserSearch(
-        self, request: search_pb2.UserSearchReq, context: CouchersContext, session: Session
-    ) -> search_pb2.UserSearchRes:
-        user_ids_to_return, next_page_token, total_items = _user_search_inner(request, context, session)
-
-        log_event(
-            context,
-            session,
-            "search.performed",
-            {
-                "search_in": request.WhichOneof("search_in"),
-                "has_query": request.HasField("query"),
-                "has_filters": (
-                    len(request.hosting_status_filter) > 0
-                    or len(request.meetup_status_filter) > 0
-                    or len(request.smoking_location_filter) > 0
-                    or len(request.sleeping_arrangement_filter) > 0
-                    or len(request.parking_details_filter) > 0
-                    or len(request.language_ability_filter) > 0
-                    or request.only_with_references
-                    or request.only_with_strong_verification
-                ),
-                "total_items": total_items,
-            },
-        )
-
-        user_ids_to_users: dict[int, User] = dict(
-            session.execute(  # type: ignore[arg-type]
-                select(User.id, User).where(User.id.in_(user_ids_to_return))
-            ).all()
-        )
-
-        return search_pb2.UserSearchRes(
-            results=[
-                search_pb2.Result(
-                    rank=1,
-                    user=user_model_to_pb(user_ids_to_users[user_id], session, context),
-                )
-                for user_id in user_ids_to_return
-            ],
-            next_page_token=next_page_token,
-            total_items=total_items,
-        )
-
     def UserSearchV2(
         self, request: search_pb2.UserSearchReq, context: CouchersContext, session: Session
     ) -> search_pb2.UserSearchV2Res:
-        user_ids_to_return, next_page_token, total_items = _user_search_inner(request, context, session)
+        if request.HasField("search_in_area") or request.HasField("search_in_community_id"):
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "user_search_area_not_supported")
+
+        start = time.perf_counter()
+        use_bfc = (
+            bfc.is_configured()
+            and not request.exactly_user_ids
+            and not request.HasField("query")
+            and context.get_boolean_value("bfc_user_search_enabled", default=False)
+        )
+        bfc_result = _user_search_bfc(request, context, session) if use_bfc else None
+
+        bfc_search_id = None
+        total_unfiltered_items = 0
+        rerank = False
+        if request.exactly_user_ids:
+            source = "backend"
+            user_ids_to_return = _visible_users_in_order(list(request.exactly_user_ids), context, session)
+            next_page_token, total_items, ranking_offsets_variant = None, len(user_ids_to_return), ""
+        elif bfc_result is not None:
+            source = "bfc"
+            user_ids_to_return, next_page_token, total_items, total_unfiltered_items, bfc_search_id = bfc_result
+            ranking_offsets_variant = ""
+        else:
+            source = "fallback" if use_bfc else "backend"
+            user_ids_to_return, next_page_token, total_items, ranking_offsets_variant = _user_search_inner(
+                request, context, session
+            )
+            rerank = True
+
+        _log_search_performed(request, context, session, total_items, ranking_offsets_variant, source, bfc_search_id)
 
         LiteUser_by_id = {
             lite_user.id: lite_user
@@ -733,7 +892,9 @@ class Search(search_pb2_grpc.SearchServicer):
                     User.hosting_status,
                     User.meetup_status,
                     User.joined,
-                ).where(User.id.in_(user_ids_to_return))
+                )
+                .where(User.id.in_(user_ids_to_return))
+                .where(users_visible(context))
             ).all()
         }
 
@@ -772,12 +933,20 @@ class Search(search_pb2_grpc.SearchServicer):
                 **response_rate_to_pb(response_rate_by_id.get(user_id)),
             )
 
-        results = reranker([_user_to_search_user(user_id) for user_id in user_ids_to_return])
+        results = [
+            _user_to_search_user(user_id)
+            for user_id in user_ids_to_return
+            if user_id in db_user_data_by_id and user_id in LiteUser_by_id
+        ]
+        if rerank:
+            results = reranker(results)
 
+        metrics.observe_bfc_function("user_search", source, time.perf_counter() - start)
         return search_pb2.UserSearchV2Res(
             results=results,
             next_page_token=next_page_token,
             total_items=total_items,
+            total_unfiltered_items=total_unfiltered_items,
         )
 
     def EventSearch(
@@ -889,15 +1058,14 @@ class Search(search_pb2_grpc.SearchServicer):
             )
         if request.HasField("search_in_rectangle"):
             statement = statement.where(
-                func.ST_Within(
-                    EventOccurrence.geom,
+                EventOccurrence.geom.op("&&")(
                     func.ST_MakeEnvelope(
                         request.search_in_rectangle.lng_min,
                         request.search_in_rectangle.lat_min,
                         request.search_in_rectangle.lng_max,
                         request.search_in_rectangle.lat_max,
                         4326,
-                    ),
+                    )
                 )
             )
         if request.HasField("search_in_community_id"):
@@ -923,10 +1091,22 @@ class Search(search_pb2_grpc.SearchServicer):
 
         statement = apply_occurrence_pagination(statement, page_token, request.past)
 
-        total_items = session.execute(select(func.count()).select_from(statement.subquery())).scalar()
+        page_statement = statement.add_columns(func.count().over())
         # Apply pagination by page number
-        statement = statement.offset(offset).limit(page_size) if request.page_number else statement.limit(page_size + 1)
-        occurrences = session.execute(statement).scalars().all()
+        page_statement = (
+            page_statement.offset(offset).limit(page_size)
+            if request.page_number
+            else page_statement.limit(page_size + 1)
+        )
+        rows = session.execute(page_statement).all()
+        occurrences = [occurrence for occurrence, _ in rows]
+
+        if rows:
+            total_items = rows[0][1]
+        elif page_token or request.page_number:
+            total_items = session.execute(select(func.count()).select_from(statement.subquery())).scalar()
+        else:
+            total_items = 0
 
         return search_pb2.EventSearchRes(
             events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],

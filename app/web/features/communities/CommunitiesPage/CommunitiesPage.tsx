@@ -3,6 +3,7 @@ import { Button, Collapse, styled, Typography } from "@mui/material";
 import MuiLink from "@mui/material/Link";
 import PageTitle from "components/PageTitle";
 import useAccountInfo from "features/auth/useAccountInfo";
+import { useListUserCommunities } from "features/communities/hooks";
 import CommunitiesList from "features/dashboard/CommunitiesList";
 import CommunityBrowser from "features/dashboard/CommunityBrowser";
 import { Trans, useTranslation } from "i18n";
@@ -67,16 +68,15 @@ const CommunitiesPage = () => {
   const { t } = useTranslation([GLOBAL, DASHBOARD]);
   const [browserExpanded, setBrowserExpanded] = useState(false);
   const { data: accountInfo } = useAccountInfo();
+  const { data: communitiesData, isPending: isCommunitiesPending, error: communitiesError } = useListUserCommunities();
+  const communities = (communitiesData?.pages ?? []).flatMap((page) => page.communitiesList);
+
   return (
     <>
-      <div>
-        <HeaderRow>
-          <PageTitle>{t("nav.communities")}</PageTitle>
-        </HeaderRow>
-      </div>
-      <StyledTypography>
-        <CommunitiesList />
-      </StyledTypography>
+      <HeaderRow>
+        <PageTitle>{t("nav.communities")}</PageTitle>
+      </HeaderRow>
+      <CommunitiesList communities={communities} isLoading={isCommunitiesPending} error={communitiesError?.message} />
       <StyledTypography variant="body1">
         <Trans
           i18nKey="dashboard:community_builder"

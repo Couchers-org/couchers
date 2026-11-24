@@ -7,29 +7,37 @@
 #
 # Usage: generate_python.sh [--auto-container]
 #   --auto-container: run in the GRPC container if dependencies are not installed locally.
+#   On macOS it always runs in the container, with or without this flag.
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd -P)"
 GEN_DIR="$SCRIPT_DIR/gen/python"
 PROTO_IMAGE=registry.gitlab.com/couchers/grpc
 
-if [ "$1" = "--auto-container" ]; then
-  shift
+USE_CONTAINER=
+if [ "$(uname -s)" = "Darwin" ]; then
+  # Always use the container on macOS: the steps below rely on GNU sed and tar, which macOS lacks.
+  USE_CONTAINER=1
+elif [ "$1" = "--auto-container" ]; then
   # Keep running locally if all dependencies are installed, otherwise rerun in the container.
   if ! { command -v protoc \
     && command -v grpc_python_plugin \
     && command -v protoc-gen-mypy \
     && command -v protoc-gen-mypy_grpc \
     && command -v python3; } >/dev/null 2>&1; then
-    if ! command -v docker >/dev/null 2>&1; then
-      echo "error: neither the python protoc dependencies nor docker are installed" >&2
-      exit 1
-    fi
-    docker pull -q "$PROTO_IMAGE" >/dev/null
-    # The container runs as root, so pass the host user to chown the generated files back.
-    exec docker run --rm -e HOST_UID="$(id -u)" -e HOST_GID="$(id -g)" \
-      -v "$SCRIPT_DIR:/app" -w /app "$PROTO_IMAGE" ./generate_python.sh
+    USE_CONTAINER=1
   fi
+fi
+
+if [ -n "$USE_CONTAINER" ]; then
+  if ! command -v docker >/dev/null 2>&1; then
+    echo "error: docker is required to generate the python protos (always on macOS, otherwise when the protoc dependencies are missing)" >&2
+    exit 1
+  fi
+  docker pull -q "$PROTO_IMAGE" >/dev/null
+  # The container runs as root, so pass the host user to chown the generated files back.
+  exec docker run --rm -e HOST_UID="$(id -u)" -e HOST_GID="$(id -g)" \
+    -v "$SCRIPT_DIR:/app" -w /app "$PROTO_IMAGE" ./generate_python.sh
 fi
 
 # Switch to script directory
@@ -60,7 +68,9 @@ find api -name '*.proto' | protoc -I api \
 
 # create internal backend protos
 (find backend -name '*.proto' | protoc -I backend \
+  --plugin=protoc-gen-grpc_python=$(which grpc_python_plugin) \
   --python_out="$GEN_DIR/backend" \
+  --grpc_python_out="$GEN_DIR/backend" \
   --mypy_out="${MYPY_OUT_OPTS}:$GEN_DIR/backend" \
   --mypy_grpc_out="${MYPY_GRPC_OUT_OPTS}:$GEN_DIR/backend" \
   $(xargs))
@@ -70,11 +80,18 @@ find api -name '*.proto' | protoc -I api \
 sed -i -E 's/^import.*_pb2/from . &/' "$GEN_DIR/api"/*.py
 sed -i -E 's/^from google.api/from .google.api/' "$GEN_DIR/api"/*.py
 sed -i -E 's/^from google.api/from ./' "$GEN_DIR/api/google/api"/*.py
+# the backend protos are compiled from their parent directory, so they import e.g. "internal.x_pb2"
+for dir in "$GEN_DIR/backend"/*/; do
+  pkg=$(basename "$dir")
+  sed -i -E "s/^from $pkg import/from . import/" "$dir"*.py
+  sed -i -E -e "s/^import $pkg\.([a-z0-9_]+)$/from . import \1/" -e "s/\b$pkg\.([a-z0-9_]+_pb2)\./\1./g" "$dir"*.pyi
+done
 
 # delete TypeVar definitions and Stub classes from _grpc.pyi files
 # these are not used, and cause huge memory consumption when type-checking.
 # Also patches method parameters to accept CouchersContext and sqlalchemy Session.
-find "$GEN_DIR/api" -name '*_grpc.pyi' -type f -exec python3 postprocess_grpc_stubs.py {} \;
+# Uses "{} +" because find ignores the exit status of "-exec ... \;", which would hide postprocessing failures.
+find "$GEN_DIR/api" -name '*_grpc.pyi' -type f -exec python3 postprocess_grpc_stubs.py {} +
 
 (cd "$GEN_DIR" && tar czf python.tar.gz --transform 's,^api,proto,' api)
 

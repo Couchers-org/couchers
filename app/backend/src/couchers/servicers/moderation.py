@@ -46,7 +46,7 @@ from couchers.models import (
 )
 from couchers.proto import moderation_pb2, moderation_pb2_grpc
 from couchers.proto.internal import jobs_pb2
-from couchers.utils import Timestamp_from_datetime, not_none, now
+from couchers.utils import Timestamp_from_datetime, not_none, now, strip_text
 
 logger = logging.getLogger(__name__)
 
@@ -322,6 +322,14 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
 
     author = session.execute(select(User).where(User.id == author_user_id)).scalar_one()
 
+    ever_visible = session.execute(
+        select(
+            exists()
+            .where(ModerationLog.moderation_state_id == state.id)
+            .where(ModerationLog.new_visibility.in_([ModerationVisibility.visible, ModerationVisibility.unlisted]))
+        )
+    ).scalar_one()
+
     state_pb = moderation_pb2.ModerationStateInfo(
         moderation_state_id=state.id,
         object_type=moderationobjecttype2api[state.object_type],
@@ -332,6 +340,7 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
         author_user_id=author_user_id,
         author=_user_to_details(session, author),
         content=content or "",
+        ever_visible=ever_visible,
     )
 
     return state_pb
@@ -682,7 +691,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
         object_type = moderation_state.object_type
 
         data = None
-        if request.data.strip():
+        if strip_text(request.data):
             if action != ModerationAction.flag:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:data_only_allowed_on_flag")
             try:

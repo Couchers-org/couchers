@@ -2,8 +2,7 @@ import Button from "components/Button";
 import { CONNECTIONS } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { FriendRequest } from "proto/api_pb";
-import React from "react";
-import { useIsMounted, useSafeState } from "utils/hooks";
+import React, { useState } from "react";
 
 import type { SetMutationError } from ".";
 import FriendSummaryView from "./FriendSummaryView";
@@ -43,8 +42,7 @@ function CancelFriendRequestAction({
 }
 
 function FriendRequestsSent() {
-  const isMounted = useIsMounted();
-  const [mutationError, setMutationError] = useSafeState(isMounted, "");
+  const [mutationError, setMutationError] = useState("");
   const { data, isLoading, isError, errors } = useFriendRequests("sent");
   const { t } = useTranslation([CONNECTIONS]);
 

@@ -1,19 +1,19 @@
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from sqlalchemy import select
 from sqlalchemy.orm import InstrumentedAttribute, aliased
 from sqlalchemy.sql import Select, exists, func, or_
 
 from couchers.models import HostRequest, Reference, ReferenceType, User
-from couchers.sql import _shadow_clause
+from couchers.sql import _shadow_clause, where_moderated_content_visible
 
 if TYPE_CHECKING:
     from couchers.context import CouchersContext
 
 
-def where_reference_user_visible[T: tuple[Any, ...]](
-    statement: Select[T], context: CouchersContext, user_id_column: InstrumentedAttribute[int]
-) -> Select[T]:
+def where_reference_user_visible[*Ts](
+    statement: Select[*Ts], context: CouchersContext | None, user_id_column: InstrumentedAttribute[int]
+) -> Select[*Ts]:
     """
     Filters references based on the visibility of the user in the given column (the writer
     or the subject of the reference).
@@ -35,7 +35,7 @@ def where_reference_user_visible[T: tuple[Any, ...]](
     )
 
 
-def where_references_not_hidden_by_reciprocity[T: tuple[Any, ...]](statement: Select[T]) -> Select[T]:
+def where_references_not_hidden_by_reciprocity[*Ts](statement: Select[*Ts]) -> Select[*Ts]:
     """
     Filters out references that are still hidden by the reciprocal-reference rule.
 
@@ -67,3 +67,14 @@ def where_references_not_hidden_by_reciprocity[T: tuple[Any, ...]](statement: Se
             window_closed,
         )
     )
+
+
+def where_references_counted[*Ts](statement: Select[*Ts], context: CouchersContext | None) -> Select[*Ts]:
+    """
+    Filters references to the ones counted on a user's profile, as seen by the viewer in the context.
+
+    Without a context, as seen by a logged out viewer.
+    """
+    statement = where_moderated_content_visible(statement, context, Reference, is_list_operation=True)
+    statement = where_references_not_hidden_by_reciprocity(statement)
+    return where_reference_user_visible(statement, context, Reference.from_user_id)

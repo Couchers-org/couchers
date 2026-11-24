@@ -117,6 +117,7 @@ export default function MyPublicTripsMessages() {
     userId: userId ?? 0,
     pageToken: "",
     ascending: true,
+    includePast: true,
   });
 
   const offersQuery = useInfiniteQuery<ListMessageThreadsRes.AsObject, RpcError>({
@@ -190,7 +191,7 @@ export default function MyPublicTripsMessages() {
     <div>
       <StyledActions>
         <Button variant="outlined" size="small" startIcon={<EditIcon />} component={Link} href={myPublicTripsRoute}>
-          {t("publicTrips:edit_my_trips")}
+          {t("publicTrips:view_my_trips_button")}
         </Button>
       </StyledActions>
       {tripGroups.map((trip) => {
@@ -236,7 +237,7 @@ export default function MyPublicTripsMessages() {
                   })}
                 </Typography>
               </div>
-              <OffersChip count={tripOffers.length} dimmed={isDimmed} />
+              <OffersChip count={trip.offersCount ?? 0} dimmed={isDimmed} />
             </StyledGroupHeader>
             <Collapse in={!isCollapsed} mountOnEnter unmountOnExit>
               <List disablePadding sx={{ width: "100%" }}>

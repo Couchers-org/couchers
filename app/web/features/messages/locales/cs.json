@@ -85,7 +85,7 @@
   "cancel_request_dialog_confirm_button": "Ano, zrušit",
   "cancel_request_dialog_dismiss_button": "Ne",
   "private_feedback_card": {
-    "quality_label": "Ohodnoť tuto žádost soukromě (nepovinné):",
+    "quality_label": "Anonymně ohodnoť žádost (volitelné):",
     "quality_high": "Kvalitní",
     "quality_okay": "Dobrý",
     "decline_reason_options": {
@@ -165,8 +165,8 @@
     "edited_chat_text": "Chat editován {{user}}",
     "invite_user_text": "Pozvánka od {{user}} pro {{target_user}}",
     "user_left_chat_text": "{{user}} je pryč z chatu",
-    "admin_assignment_text": "{{target_user}} má nově roli admina (uděleno uživatelem {{user}})",
-    "admin_removal_text": "{{target_user}} už nemá roli admina (odebráno uživatelem {{user}})",
+    "admin_assignment_text": "{{target_user}} má nově roli správce (uděleno uživatelem {{user}})",
+    "admin_removal_text": "{{target_user}} už nemá roli správce (odebráno uživatelem {{user}})",
     "host_request_status_changed": {
       "accepted": "Žádost byla přijata {{user}}",
       "accepted_self": "Žádost byla tebou přijata",

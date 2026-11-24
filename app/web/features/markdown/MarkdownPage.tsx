@@ -1,5 +1,6 @@
-import { Breadcrumbs, Container, Link, styled, Typography, TypographyProps } from "@mui/material";
+import { Box, Breadcrumbs, Container, Link, styled, Typography, TypographyProps } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
+import SocialMediaLinks from "components/SocialMediaLinks";
 import { Trans, useTranslation } from "i18n";
 import markdown from "markdown-it";
 import Head from "next/head";
@@ -252,14 +253,9 @@ export default function MarkdownPage({ slug, frontmatter, content }: MarkdownPag
           </Typography>
         )}
         {frontmatter.is_blog_post && (
-          <Typography variant="body1" sx={{ marginTop: theme.spacing(3), display: "flex", gap: 1 }}>
-            <Link href="https://www.instagram.com/couchersorg/" target="_blank" rel="noopener">
-              <img src="/img/blog/instagram_logo.svg" alt="Instagram" style={{ width: 26 }} />
-            </Link>
-            <Link href="https://bsky.app/profile/couchers.bsky.social" target="_blank" rel="noopener">
-              <img src="/img/blog/bluesky_logo.svg" alt="Bluesky" style={{ width: 26 }} />
-            </Link>
-          </Typography>
+          <Box sx={{ marginTop: theme.spacing(3), display: "flex", gap: 1.5 }}>
+            <SocialMediaLinks iconSize="1.75rem" />
+          </Box>
         )}
         {bustitle && (
           <StyledBusTitle component="h2">

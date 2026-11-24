@@ -11,6 +11,7 @@ from sqlalchemy.sql import or_
 from couchers.config import config
 from couchers.constants import DATETIME_INFINITY
 from couchers.context import CouchersContext
+from couchers.event_log import log_event
 from couchers.helpers.hosting_meetup_status import record_hosting_meetup_status
 from couchers.i18n import LocalizationContext
 from couchers.models import (
@@ -145,6 +146,12 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         )
         if not notification:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "notification_not_found")
+        log_event(
+            context,
+            session,
+            "notifications.marked_seen" if request.set_seen else "notifications.marked_unseen",
+            {"notification_id": notification.id, "was_seen": notification.is_seen},
+        )
         notification.is_seen = request.set_seen
         return empty_pb2.Empty()
 
@@ -156,6 +163,12 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             .values(is_seen=True)
             .where(Notification.user_id == context.user_id)
             .where(Notification.id <= request.latest_notification_id)
+        )
+        log_event(
+            context,
+            session,
+            "notifications.marked_all_seen",
+            {"latest_notification_id": request.latest_notification_id},
         )
         return empty_pb2.Empty()
 

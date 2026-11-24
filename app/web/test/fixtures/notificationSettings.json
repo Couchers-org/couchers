@@ -7,11 +7,11 @@
       "topicsList": [
         {
           "topic": "host_request",
-          "name": "Host Requests",
+          "name": "Host Requests and Invitations",
           "itemsList": [
             {
               "action": "create",
-              "description": "Someone sends you a host request",
+              "description": "Someone sends you a host request or invitation",
               "userEditable": true,
               "push": false,
               "digest": false,
@@ -20,7 +20,7 @@
             },
             {
               "action": "accept",
-              "description": "Someone accepts your host request",
+              "description": "Someone accepts your host request or invitation",
               "userEditable": true,
               "push": true,
               "email": true,
@@ -29,7 +29,7 @@
             },
             {
               "action": "confirm",
-              "description": "Someone confirms their host request",
+              "description": "Someone confirms their host request or invitation",
               "userEditable": true,
               "push": true,
               "email": true,
@@ -38,7 +38,7 @@
             },
             {
               "action": "reject",
-              "description": "Someone declines your host request",
+              "description": "Someone declines your host request or invitation",
               "userEditable": true,
               "push": true,
               "email": true,
@@ -47,7 +47,7 @@
             },
             {
               "action": "cancel",
-              "description": "Someone cancels their host request",
+              "description": "Someone cancels their host request or invitation",
               "userEditable": true,
               "push": true,
               "digest": false,
@@ -56,7 +56,7 @@
             },
             {
               "action": "message",
-              "description": "Someone sends a message in a host request",
+              "description": "Someone sends a message in a host request or invitation",
               "userEditable": true,
               "push": true,
               "digest": false,
@@ -65,7 +65,7 @@
             },
             {
               "action": "missed_messages",
-              "description": "You miss messages in a host request",
+              "description": "You miss messages in a host request or invitation",
               "digest": false,
               "email": true,
               "push": false,

@@ -1,12 +1,24 @@
+from datetime import timedelta
+
 from google.protobuf import wrappers_pb2
 from sqlalchemy import select
 
 from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.helpers.upload_uses import UploadUseType, get_upload_uses, get_upload_uses_for_keys
-from couchers.models import Base, EventOccurrence, Page, PageType, PhotoGallery, PhotoGalleryItem, Upload
+from couchers.models import (
+    Base,
+    EventOccurrence,
+    EventRecurrence,
+    Page,
+    PageType,
+    PhotoGallery,
+    PhotoGalleryItem,
+    Upload,
+)
 from couchers.proto import pages_pb2
-from tests.fixtures import api_helpers
+from couchers.utils import today
+from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import pages_session
 from tests.test_communities import create_community
@@ -61,11 +73,7 @@ def test_get_upload_uses_event(db):
         create_community(session, 0, 2, "Community", [user], [], None)
     _add_upload(user.id, "event_key")
 
-    res = api_helpers.create_event(
-        token=token,
-        photo_key="event_key",
-    )
-    event_id = res.event_id
+    event_id = events_api.create_event(token=token, photo_key="event_key").event_id
 
     with session_scope() as session:
         uses = get_upload_uses(session, "event_key")
@@ -88,6 +96,43 @@ def test_get_upload_uses_event(db):
         assert len(uses) == 1
         assert uses[0].use_type == UploadUseType.event
         assert not uses[0].is_current
+
+
+def test_get_upload_uses_event_recurrence(db):
+    user, token = generate_user()
+
+    with session_scope() as session:
+        create_community(session, 0, 2, "Community", [user], [], None)
+    _add_upload(user.id, "recurring_event_key")
+
+    event_id = events_api.create_event(
+        token=token,
+        photo_key="recurring_event_key",
+        recurrence=events_api.weekly_recurrence(ends_on_date=today() + timedelta(days=30)),
+    ).event_id
+
+    # both the first occurrence and the recurrence template for future occurrences use the photo
+    with session_scope() as session:
+        uses = get_upload_uses(session, "recurring_event_key")
+        assert {use.use_type for use in uses} == {UploadUseType.event, UploadUseType.event_recurrence}
+        recurrence_use = next(use for use in uses if use.use_type == UploadUseType.event_recurrence)
+        assert recurrence_use.is_current
+        recurrence_id = session.execute(
+            select(EventRecurrence.id)
+            .join(EventOccurrence, EventOccurrence.event_id == EventRecurrence.event_id)
+            .where(EventOccurrence.id == event_id)
+        ).scalar_one()
+        assert recurrence_use.event_recurrence_id == recurrence_id
+        assert recurrence_use.event_id is None
+        assert recurrence_use.url is not None
+        assert f"/event/{event_id}/" in recurrence_use.url
+
+    # stopping the recurrence removes the template
+    events_api.update_event(token=token, event_id=event_id, stop_recurrence=True)
+
+    with session_scope() as session:
+        uses = get_upload_uses(session, "recurring_event_key")
+        assert [use.use_type for use in uses] == [UploadUseType.event]
 
 
 def test_get_upload_uses_page(db):
@@ -227,5 +272,6 @@ def test_upload_uses_covers_all_foreign_keys(db):
     assert referencing == {
         ("photo_gallery_items", "upload_key"),
         ("event_occurrences", "photo_key"),
+        ("event_recurrences", "photo_key"),
         ("page_versions", "photo_key"),
     }

@@ -46,6 +46,9 @@ const accountInfo = {
   isVolunteer: false,
   myHomeComplete: false,
   shouldShowDonationBanner: false,
+  hasOptedInToBetaFeatures: false,
+  hostPool: 1,
+  hasNewbieHostingHistory: false,
 };
 
 describe("Create event page", () => {
@@ -85,9 +88,9 @@ describe("Create event page", () => {
 
     await user.click(startDateGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("08012021");
+    await user.keyboard("01082021");
 
-    expect(startDateGroup).toHaveTextContent("08/01/2021");
+    expect(startDateGroup).toHaveTextContent("01/08/2021");
 
     const startTimeGroup = await screen.findByRole("group", {
       name: t("communities:start_time"),
@@ -105,9 +108,9 @@ describe("Create event page", () => {
 
     await user.click(endDateGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("08012021");
+    await user.keyboard("01082021");
 
-    expect(endDateGroup).toHaveTextContent("08/01/2021");
+    expect(endDateGroup).toHaveTextContent("01/08/2021");
 
     const endTimeGroup = await screen.findByRole("group", {
       name: t("communities:end_time"),
@@ -145,6 +148,8 @@ describe("Create event page", () => {
       startTime: Temporal.PlainDateTime.from("2021-08-01T01:00"),
       endTime: Temporal.PlainDateTime.from("2021-08-01T02:00"),
     });
+    // the event page uses "created" to show the organizer a one-off note
+    await waitFor(() => expect(mockRouter.asPath).toBe(`/event/${events[0].eventId}/${events[0].slug}?created=true`));
   });
 
   it("creates on event with route state correctly", async () => {
@@ -164,9 +169,9 @@ describe("Create event page", () => {
 
     await user.click(startDateGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("08012021");
+    await user.keyboard("01082021");
 
-    expect(startDateGroup).toHaveTextContent("08/01/2021");
+    expect(startDateGroup).toHaveTextContent("01/08/2021");
 
     const startTimeGroup = await screen.findByRole("group", {
       name: t("communities:start_time"),
@@ -184,9 +189,9 @@ describe("Create event page", () => {
 
     await user.click(endDateGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("08012021");
+    await user.keyboard("01082021");
 
-    expect(endDateGroup).toHaveTextContent("08/01/2021");
+    expect(endDateGroup).toHaveTextContent("01/08/2021");
 
     const endTimeGroup = await screen.findByRole("group", {
       name: t("communities:end_time"),
@@ -246,6 +251,9 @@ describe("Create event page", () => {
       isVolunteer: false,
       myHomeComplete: false,
       shouldShowDonationBanner: false,
+      hasOptedInToBetaFeatures: false,
+      hostPool: 1,
+      hasNewbieHostingHistory: false,
     });
 
     render(<CreateEventPage />, { wrapper });

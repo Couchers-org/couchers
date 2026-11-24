@@ -90,7 +90,7 @@ def session_scope() -> Generator[Session]:
                         filename_line = f"{frame.filename}:{frame.lineno}"
                     except Exception as e:
                         filename_line = "{unknown file}"
-                    backend_pid = session.execute(text("SELECT pg_backend_pid();")).scalar_one()
+                    backend_pid: int = session.execute(text("SELECT pg_backend_pid();")).scalar_one()
                     logger.debug(f"SScope: got {backend_pid=} at {filename_line}")
                     rollspan.set_attribute("db.backend_pid", backend_pid)
                     rollspan.set_attribute("db.filename_line", filename_line)
@@ -130,16 +130,16 @@ def are_friends(session: Session, context: CouchersContext, other_user: int) -> 
 
 def get_parent_node_at_location(session: Session, shape: Geom) -> Node | None:
     """
-    Finds the smallest node containing the shape.
+    Finds the most specific node containing the shape, by node type and then by smallest area.
 
     Shape can be any PostGIS geo object, e.g., output from create_coordinate
     """
-
-    # Find the lowest Node (in the Node tree) that contains the shape. By construction of nodes, the area of a sub-node
-    # must always be less than its parent Node, so no need to actually traverse the tree!
     return (
         session.execute(
-            select(Node).where(func.ST_Contains(Node.geom, shape)).order_by(func.ST_Area(Node.geom)).limit(1)
+            select(Node)
+            .where(func.ST_Contains(Node.geom, shape))
+            .order_by(Node.node_type.desc(), func.ST_Area(Node.geom))
+            .limit(1)
         )
         .scalars()
         .one_or_none()
@@ -162,7 +162,7 @@ def _get_node_parents_recursive_cte_subquery(node_id: int) -> Subquery:
     ).subquery()
 
 
-def get_node_parents_recursively(session: Session, node_id: int) -> Sequence[Row[tuple[int, int, int, Cluster]]]:
+def get_node_parents_recursively(session: Session, node_id: int) -> Sequence[Row[int, int, int, Cluster]]:
     subquery = _get_node_parents_recursive_cte_subquery(node_id)
     return session.execute(
         select(subquery, Cluster)

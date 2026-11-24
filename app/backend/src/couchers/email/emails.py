@@ -30,6 +30,7 @@ Other instructions for body text:
 import re
 from dataclasses import dataclass, replace
 from datetime import UTC, date, datetime, tzinfo
+from enum import Enum
 from typing import Self, assert_never
 from zoneinfo import ZoneInfo
 
@@ -52,7 +53,7 @@ from couchers.i18n import LocalizationContext
 from couchers.i18n.localize import format_phone_number
 from couchers.markup import html_link, html_mailto_link, markdown_to_plaintext
 from couchers.notifications.quick_links import generate_quick_decline_link
-from couchers.proto import events_pb2, messages_pb2, notification_data_pb2
+from couchers.proto import events_pb2, messages_pb2, notification_data_pb2, requests_pb2
 from couchers.utils import now, to_aware_datetime
 
 # Common string keys
@@ -203,7 +204,8 @@ class APIKeyIssuedEmail(EmailBase):
         builder = self._body_builder(loc_context, security_warning=True)
         builder.para(".header")
         builder.quote(self.api_key, markdown=False)
-        builder.para(".expiry", {"datetime": loc_context.localize_datetime(self.expiry)})
+        # API keys are technical information so show in UTC (string emphasizes this).
+        builder.para(".expiry2", {"datetime_utc": loc_context.localize_datetime(self.expiry, display_timezone=UTC)})
         builder.para(".usage_warning")
         builder.para(".policy_warning", {"terms_url": urls.terms_of_service_url()})
         return builder.build()
@@ -312,7 +314,7 @@ class ChatMessageReceivedEmail(EmailBase):
     def from_notification(cls, data: notification_data_pb2.ChatMessage, *, user_name: str) -> Self:
         return cls(
             user_name,
-            author=UserInfo.from_protobuf(data.author),
+            author=UserInfo.from_proto(data.author),
             text=data.text,
             group_chat_title=data.group_chat_title or None,
             view_url=urls.chat_link(chat_id=data.group_chat_id),
@@ -380,7 +382,7 @@ class ChatMessagesMissedEmail(EmailBase):
             cls.Entry(
                 group_chat_title=message.group_chat_title or None,
                 missed_count=message.unseen_count,
-                latest_message_author=UserInfo.from_protobuf(message.author),
+                latest_message_author=UserInfo.from_proto(message.author),
                 latest_message_text=message.text,
                 view_url=urls.chat_link(chat_id=message.group_chat_id),
             )
@@ -449,7 +451,7 @@ class DiscussionCreatedEmail(EmailBase):
         discussion = data.discussion
         return cls(
             user_name=user_name,
-            author=UserInfo.from_protobuf(data.author),
+            author=UserInfo.from_proto(data.author),
             title=discussion.title,
             parent_context=discussion.owner_title,
             markdown_text=discussion.content,
@@ -512,7 +514,7 @@ class DiscussionCommentEmail(EmailBase):
         discussion = data.discussion
         return cls(
             user_name=user_name,
-            author=UserInfo.from_protobuf(data.author),
+            author=UserInfo.from_proto(data.author),
             discussion_title=discussion.title,
             discussion_parent_context=discussion.owner_title,
             markdown_text=data.reply.content,
@@ -537,7 +539,7 @@ class DiscussionCommentEmail(EmailBase):
 class DonationReceivedEmail(EmailBase):
     """Sent to a user to thank them for a donation."""
 
-    amount: int
+    amount_whole_usd: int
     receipt_url: str
 
     @property
@@ -546,7 +548,7 @@ class DonationReceivedEmail(EmailBase):
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context, default_closing=False)
-        builder.para(".purpose", {"amount_with_currency": f"${self.amount}"})
+        builder.para(".purpose", {"amount_with_currency": loc_context.localize_currency(self.amount_whole_usd, "USD")})
         builder.para(".contribution_impact")
         builder.para(".invoice_receipt_info")
         builder.action(self.receipt_url, ".download_invoice")
@@ -558,11 +560,17 @@ class DonationReceivedEmail(EmailBase):
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.DonationReceived, *, user_name: str) -> Self:
-        return cls(user_name=user_name, amount=data.amount, receipt_url=data.receipt_url)
+        return cls(user_name=user_name, amount_whole_usd=data.amount, receipt_url=data.receipt_url)
 
     @classmethod
     def test_instances(cls) -> list[Self]:
-        return [cls(user_name="Alice", amount=25, receipt_url="https://couchers.org/receipts/123")]
+        return [
+            cls(
+                user_name="Alice",
+                amount_whole_usd=25,
+                receipt_url="https://couchers.org/receipts/123",
+            )
+        ]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -643,7 +651,7 @@ class EventInfo:
 
     def get_details_block(self, loc_context: LocalizationContext) -> EmailBlock:
         # TODO(#8695): Support localized time ranges
-        # Force using the start/end time timezone (that of the event), not the user's.
+        # Event start/end date-times are always shown in the timezone at its location, not the user's.
         start_time_display = loc_context.localize_datetime(
             self.start_time, display_timezone=self.timezone, with_year=False, with_day_of_week=True
         )
@@ -669,7 +677,7 @@ class EventInfo:
         return ActionBlock(text=view_action_text, target_url=self.view_url)
 
     @classmethod
-    def from_proto(cls, event: events_pb2.Event) -> EventInfo:
+    def from_proto(cls, event: events_pb2.Event, *, comment_id: int | None = None) -> EventInfo:
         return cls(
             title=event.title,
             start_time=to_aware_datetime(event.start_time),
@@ -677,7 +685,7 @@ class EventInfo:
             timezone=ZoneInfo(event.timezone),
             # Backcompat (2026-06): We might still have queued notifications referencing events with online_information.
             address=(event.location.address or None) if event.HasField("location") else None,
-            view_url=urls.event_link(occurrence_id=event.event_id, slug=event.slug),
+            view_url=urls.event_link(occurrence_id=event.event_id, slug=event.slug, comment_id=comment_id),
             description_markdown=event.content or "",
         )
 
@@ -738,7 +746,7 @@ class EventCreatedEmail(EmailBase):
         )
         return cls(
             user_name=user_name,
-            inviting_user=UserInfo.from_protobuf(data.inviting_user),
+            inviting_user=UserInfo.from_proto(data.inviting_user),
             event_info=EventInfo.from_proto(data.event),
             community_name=data.in_community.name if has_community else None,
             community_url=community_url,
@@ -808,7 +816,7 @@ class EventUpdatedEmail(EmailBase):
 
         return cls(
             user_name=user_name,
-            updating_user=UserInfo.from_protobuf(data.updating_user),
+            updating_user=UserInfo.from_proto(data.updating_user),
             event_info=EventInfo.from_proto(data.event),
             updated_items=updated_items,
         )
@@ -875,7 +883,7 @@ class EventOrganizerInvitedEmail(EmailBase):
     def from_notification(cls, data: notification_data_pb2.EventInviteOrganizer, *, user_name: str) -> Self:
         return cls(
             user_name=user_name,
-            inviting_user=UserInfo.from_protobuf(data.inviting_user),
+            inviting_user=UserInfo.from_proto(data.inviting_user),
             event_info=EventInfo.from_proto(data.event),
         )
 
@@ -915,8 +923,8 @@ class EventCommentEmail(EmailBase):
     def from_notification(cls, data: notification_data_pb2.EventComment, *, user_name: str) -> Self:
         return cls(
             user_name=user_name,
-            author=UserInfo.from_protobuf(data.author),
-            event_info=EventInfo.from_proto(data.event),
+            author=UserInfo.from_proto(data.author),
+            event_info=EventInfo.from_proto(data.event, comment_id=data.reply.thread_id),
             comment_markdown=data.reply.content,
         )
 
@@ -996,7 +1004,7 @@ class EventCancelledEmail(EmailBase):
     def from_notification(cls, data: notification_data_pb2.EventCancel, *, user_name: str) -> Self:
         return cls(
             user_name=user_name,
-            cancelling_user=UserInfo.from_protobuf(data.cancelling_user),
+            cancelling_user=UserInfo.from_proto(data.cancelling_user),
             event_info=EventInfo.from_proto(data.event),
         )
 
@@ -1068,7 +1076,7 @@ class FriendReferenceReceivedEmail(EmailBase):
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.ReferenceReceiveFriend, *, user_name: str) -> Self:
-        return cls(user_name=user_name, from_user=UserInfo.from_protobuf(data.from_user), text=data.text)
+        return cls(user_name=user_name, from_user=UserInfo.from_proto(data.from_user), text=data.text)
 
     @classmethod
     def test_instances(cls) -> list[Self]:
@@ -1105,7 +1113,7 @@ class FriendRequestReceivedEmail(EmailBase):
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.FriendRequestCreate, *, user_name: str) -> Self:
-        return cls(user_name=user_name, befriender=UserInfo.from_protobuf(data.other_user))
+        return cls(user_name=user_name, befriender=UserInfo.from_proto(data.other_user))
 
     @classmethod
     def test_instances(cls) -> list[Self]:
@@ -1140,7 +1148,7 @@ class FriendRequestAcceptedEmail(EmailBase):
 
     @classmethod
     def from_notification(cls, data: notification_data_pb2.FriendRequestAccept, *, user_name: str) -> Self:
-        return cls(user_name=user_name, new_friend=UserInfo.from_protobuf(data.other_user))
+        return cls(user_name=user_name, new_friend=UserInfo.from_proto(data.other_user))
 
     @classmethod
     def test_instances(cls) -> list[Self]:
@@ -1181,177 +1189,232 @@ class GenderChangedEmail(EmailBase):
         ]
 
 
-@dataclass(kw_only=True, slots=True)
-class HostRequestCreatedEmail(EmailBase):
-    """Sent to a host when a surfer sends them a new host request."""
+class StayProposalType(Enum):
+    request = "request"
+    invitation = "invitation"
 
-    surfer: UserInfo
+    def __str__(self) -> str:
+        return self.value
+
+    @staticmethod
+    def from_proto(data: requests_pb2.HostRequest) -> StayProposalType:
+        return StayProposalType.invitation if data.public_trip_id else StayProposalType.request
+
+
+def _stay_proposal_quick_decline_link(host_request: requests_pb2.HostRequest) -> str | None:
+    # Requests are unsolicited, so they can be quick declined,
+    # but invitations are solicited by a public trip, so they should get a reply.
+    return (
+        generate_quick_decline_link(host_request)
+        if StayProposalType.from_proto(host_request) == StayProposalType.request
+        else None
+    )
+
+
+def _add_stay_proposal_actions(
+    builder: EmailBlocksBuilder,
+    *,
+    proposal_type: StayProposalType,
+    view_link: str,
+    quick_decline_link: str | None,
+) -> None:
+    view_text_key = f"stays.generic.{proposal_type}.view_action"
+    if quick_decline_link is not None:
+        builder.action_pair(
+            primary_url=view_link,
+            primary_text_key=view_text_key,
+            secondary_url=quick_decline_link,
+            secondary_text_key="stays.generic.quick_decline_action",
+        )
+    else:
+        builder.action(view_link, view_text_key)
+
+
+@dataclass(kw_only=True, slots=True)
+class StayProposalReceivedEmail(EmailBase):
+    """Sent to the recipient of a stay proposal."""
+
+    proposal_type: StayProposalType
+    initiator: UserInfo
     from_date: date
     to_date: date
     text: str
     view_link: str
-    quick_decline_link: str
+    quick_decline_link: str | None
 
     @property
     def string_key_base(self) -> str:
-        return "host_requests.created"
+        return f"stays.created.{self.proposal_type}"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, ".subject", {"surfer_name": self.surfer.name})
+        return self._localize(loc_context, ".subject", {"initiator": self.initiator.name})
 
     def get_preview_line(self, loc_context: LocalizationContext) -> str | None:
         return self.text
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context)
-        builder.para(".purpose", {"surfer_name": self.surfer.name})
+        builder.para(".purpose", {"initiator": self.initiator.name})
         builder.user(
-            self.surfer,
-            "host_requests.generic.date_range",
+            self.initiator,
+            "stays.generic.date_range",
             {
-                "from_date": _localize_host_request_date(self.from_date, loc_context),
-                "to_date": _localize_host_request_date(self.to_date, loc_context),
+                "from_date": _localize_stay_date(self.from_date, loc_context),
+                "to_date": _localize_stay_date(self.to_date, loc_context),
             },
         )
         builder.quote(self.text, markdown=False)
-        builder.action(self.view_link, "host_requests.generic.view_action")
-        builder.action(self.quick_decline_link, "host_requests.generic.quick_decline_action")
+        _add_stay_proposal_actions(
+            builder,
+            proposal_type=self.proposal_type,
+            view_link=self.view_link,
+            quick_decline_link=self.quick_decline_link,
+        )
         builder.para(".respond_encouragement")
         builder.para(_do_not_reply_request_string_key, epilogue=True)
         return builder.build()
 
     @classmethod
-    def from_notification(cls, data: notification_data_pb2.HostRequestCreate, *, user_name: str) -> Self:
+    def from_notification(cls, data: notification_data_pb2.StayCreate, *, user_name: str) -> Self:
         return cls(
             user_name,
-            surfer=UserInfo.from_protobuf(data.surfer),
+            proposal_type=StayProposalType.from_proto(data.host_request),
+            initiator=UserInfo.from_proto(data.initiator),
             from_date=date.fromisoformat(data.host_request.from_date),
             to_date=date.fromisoformat(data.host_request.to_date),
             text=data.text,
             view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
-            quick_decline_link=generate_quick_decline_link(data.host_request),
+            quick_decline_link=_stay_proposal_quick_decline_link(data.host_request),
         )
 
     @classmethod
     def test_instances(cls) -> list[Self]:
-        return [
-            cls(
-                user_name="Alice",
-                surfer=UserInfo.dummy_bob(),
-                from_date=date(2025, 6, 1),
-                to_date=date(2025, 6, 7),
-                text="Hey, I'd love to stay for a few nights!",
-                view_link="https://couchers.org/requests/123",
-                quick_decline_link="https://couchers.org/requests/123/decline?token=xxx",
-            )
-        ]
+        prototype = cls(
+            user_name="Alice",
+            proposal_type=StayProposalType.request,
+            initiator=UserInfo.dummy_bob(),
+            from_date=date(2025, 6, 1),
+            to_date=date(2025, 6, 7),
+            text="Hey, I'd love to stay for a few nights!",
+            view_link="https://couchers.org/requests/123",
+            quick_decline_link="https://couchers.org/requests/123/decline?token=xxx",
+        )
+        return [prototype, replace(prototype, proposal_type=StayProposalType.invitation, quick_decline_link=None)]
 
 
 @dataclass(kw_only=True, slots=True)
-class HostRequestReminderEmail(EmailBase):
-    """Sent to a host as a reminder to respond to a pending host request."""
+class StayProposalReminderEmail(EmailBase):
+    """Sent to a the recipient of a pending stay proposal as a reminder to respond."""
 
-    surfer: UserInfo
+    proposal_type: StayProposalType
+    initiator: UserInfo
     from_date: date
     to_date: date
     view_link: str
-    quick_decline_link: str
+    quick_decline_link: str | None
 
     @property
     def string_key_base(self) -> str:
-        return "host_requests.reminder"
+        return f"stays.reminder.{self.proposal_type}"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, ".subject", {"surfer_name": self.surfer.name})
+        return self._localize(loc_context, ".subject", {"initiator": self.initiator.name})
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context)
-        builder.para(".purpose", {"surfer_name": self.surfer.name})
+        builder.para(".purpose", {"initiator": self.initiator.name})
         builder.user(
-            self.surfer,
-            "host_requests.generic.date_range",
+            self.initiator,
+            "stays.generic.date_range",
             {
-                "from_date": _localize_host_request_date(self.from_date, loc_context),
-                "to_date": _localize_host_request_date(self.to_date, loc_context),
+                "from_date": _localize_stay_date(self.from_date, loc_context),
+                "to_date": _localize_stay_date(self.to_date, loc_context),
             },
         )
-        builder.action(self.view_link, "host_requests.generic.view_action")
-        builder.action(self.quick_decline_link, "host_requests.generic.quick_decline_action")
+        _add_stay_proposal_actions(
+            builder,
+            proposal_type=self.proposal_type,
+            view_link=self.view_link,
+            quick_decline_link=self.quick_decline_link,
+        )
         builder.para(_do_not_reply_request_string_key, epilogue=True)
         return builder.build()
 
     @classmethod
-    def from_notification(cls, data: notification_data_pb2.HostRequestReminder, *, user_name: str) -> Self:
+    def from_notification(cls, data: notification_data_pb2.StayReminder, *, user_name: str) -> Self:
         return cls(
             user_name,
-            surfer=UserInfo.from_protobuf(data.surfer),
+            proposal_type=StayProposalType.from_proto(data.host_request),
+            initiator=UserInfo.from_proto(data.initiator),
             from_date=date.fromisoformat(data.host_request.from_date),
             to_date=date.fromisoformat(data.host_request.to_date),
             view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
-            quick_decline_link=generate_quick_decline_link(data.host_request),
+            quick_decline_link=_stay_proposal_quick_decline_link(data.host_request),
         )
 
     @classmethod
     def test_instances(cls) -> list[Self]:
-        return [
-            cls(
-                user_name="Alice",
-                surfer=UserInfo.dummy_bob(),
-                from_date=date(2025, 6, 1),
-                to_date=date(2025, 6, 7),
-                view_link="https://couchers.org/requests/123",
-                quick_decline_link="https://couchers.org/requests/123/decline?token=xxx",
-            )
-        ]
+        prototype = cls(
+            user_name="Alice",
+            proposal_type=StayProposalType.request,
+            initiator=UserInfo.dummy_bob(),
+            from_date=date(2025, 6, 1),
+            to_date=date(2025, 6, 7),
+            view_link="https://couchers.org/requests/123",
+            quick_decline_link="https://couchers.org/requests/123/decline?token=xxx",
+        )
+        return [prototype, replace(prototype, proposal_type=StayProposalType.invitation, quick_decline_link=None)]
 
 
 @dataclass(kw_only=True, slots=True)
-class HostRequestMessageEmail(EmailBase):
-    """Sent when a user sends a message in an existing host request."""
+class StayMessageEmail(EmailBase):
+    """Sent when the counterparty sends a message in a stay."""
 
-    other_user: UserInfo
+    proposal_type: StayProposalType
+    counterparty: UserInfo
+    counterparty_is_initiator: bool
     from_date: date
     to_date: date
     text: str
-    from_host: bool
     view_link: str
 
     @property
     def string_key_base(self) -> str:
-        variant = "from_host" if self.from_host else "from_surfer"
-        return f"host_requests.message.{variant}"
+        variant = "from_initiator" if self.counterparty_is_initiator else "from_recipient"
+        return f"stays.message.{self.proposal_type}.{variant}"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, ".subject", {"other_name": self.other_user.name})
+        return self._localize(loc_context, ".subject", {"counterparty": self.counterparty.name})
 
     def get_preview_line(self, loc_context: LocalizationContext) -> str | None:
         return self.text
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context)
-        builder.para(".purpose", {"other_name": self.other_user.name})
+        builder.para(".purpose", {"counterparty": self.counterparty.name})
         builder.user(
-            self.other_user,
-            "host_requests.generic.date_range",
+            self.counterparty,
+            "stays.generic.date_range",
             {
-                "from_date": _localize_host_request_date(self.from_date, loc_context),
-                "to_date": _localize_host_request_date(self.to_date, loc_context),
+                "from_date": _localize_stay_date(self.from_date, loc_context),
+                "to_date": _localize_stay_date(self.to_date, loc_context),
             },
         )
         builder.quote(self.text, markdown=False)
-        builder.action(self.view_link, "host_requests.generic.view_action")
+        builder.action(self.view_link, f"stays.generic.{self.proposal_type}.view_action")
         builder.para(_do_not_reply_request_string_key, epilogue=True)
         return builder.build()
 
     @classmethod
-    def from_notification(cls, data: notification_data_pb2.HostRequestMessage, *, user_name: str) -> Self:
+    def from_notification(cls, data: notification_data_pb2.StayMessage, *, user_name: str) -> Self:
         return cls(
             user_name,
-            other_user=UserInfo.from_protobuf(data.user),
+            proposal_type=StayProposalType.from_proto(data.host_request),
+            counterparty=UserInfo.from_proto(data.counterparty),
+            counterparty_is_initiator=data.counterparty_is_initiator,
             from_date=date.fromisoformat(data.host_request.from_date),
             to_date=date.fromisoformat(data.host_request.to_date),
             text=data.text,
-            from_host=not data.am_host,
             view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
         )
 
@@ -1359,57 +1422,64 @@ class HostRequestMessageEmail(EmailBase):
     def test_instances(cls) -> list[Self]:
         prototype = cls(
             user_name="Alice",
-            other_user=UserInfo.dummy_bob(),
+            proposal_type=StayProposalType.request,
+            counterparty=UserInfo.dummy_bob(),
+            counterparty_is_initiator=False,
             from_date=date(2025, 6, 1),
             to_date=date(2025, 6, 7),
             text="Looking forward to it, see you soon!",
-            from_host=True,
             view_link="https://couchers.org/requests/123",
         )
-        return [replace(prototype, from_host=True), replace(prototype, from_host=False)]
+        return [
+            replace(prototype, proposal_type=proposal_type, counterparty_is_initiator=counterparty_is_initiator)
+            for counterparty_is_initiator in [False, True]
+            for proposal_type in StayProposalType
+        ]
 
 
 @dataclass(kw_only=True, slots=True)
-class HostRequestMissedMessagesEmail(EmailBase):
-    """Sent as a digest when a user has missed messages in a host request."""
+class StayMissedMessagesEmail(EmailBase):
+    """Sent as a digest when a user has missed messages in a stay."""
 
-    other_user: UserInfo
+    proposal_type: StayProposalType
+    counterparty: UserInfo
+    counterparty_is_initiator: bool
     from_date: date
     to_date: date
-    from_host: bool
     view_link: str
 
     @property
     def string_key_base(self) -> str:
-        variant = "from_host" if self.from_host else "from_surfer"
-        return f"host_requests.missed_messages.{variant}"
+        variant = "from_initiator" if self.counterparty_is_initiator else "from_recipient"
+        return f"stays.missed_messages.{self.proposal_type}.{variant}"
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, ".subject", {"other_name": self.other_user.name})
+        return self._localize(loc_context, ".subject", {"counterparty": self.counterparty.name})
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context)
-        builder.para(".purpose", {"other_name": self.other_user.name})
+        builder.para(".purpose", {"counterparty": self.counterparty.name})
         builder.user(
-            self.other_user,
-            "host_requests.generic.date_range",
+            self.counterparty,
+            "stays.generic.date_range",
             {
-                "from_date": _localize_host_request_date(self.from_date, loc_context),
-                "to_date": _localize_host_request_date(self.to_date, loc_context),
+                "from_date": _localize_stay_date(self.from_date, loc_context),
+                "to_date": _localize_stay_date(self.to_date, loc_context),
             },
         )
-        builder.action(self.view_link, "host_requests.generic.view_action")
+        builder.action(self.view_link, f"stays.generic.{self.proposal_type}.view_action")
         builder.para(_do_not_reply_request_string_key, epilogue=True)
         return builder.build()
 
     @classmethod
-    def from_notification(cls, data: notification_data_pb2.HostRequestMissedMessages, *, user_name: str) -> Self:
+    def from_notification(cls, data: notification_data_pb2.StayMissedMessages, *, user_name: str) -> Self:
         return cls(
             user_name,
-            other_user=UserInfo.from_protobuf(data.user),
+            proposal_type=StayProposalType.from_proto(data.host_request),
+            counterparty=UserInfo.from_proto(data.counterparty),
+            counterparty_is_initiator=data.counterparty_is_initiator,
             from_date=date.fromisoformat(data.host_request.from_date),
             to_date=date.fromisoformat(data.host_request.to_date),
-            from_host=not data.am_host,
             view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
         )
 
@@ -1417,20 +1487,26 @@ class HostRequestMissedMessagesEmail(EmailBase):
     def test_instances(cls) -> list[Self]:
         prototype = cls(
             user_name="Alice",
-            other_user=UserInfo.dummy_bob(),
+            proposal_type=StayProposalType.request,
+            counterparty=UserInfo.dummy_bob(),
+            counterparty_is_initiator=False,
             from_date=date(2025, 6, 1),
             to_date=date(2025, 6, 7),
-            from_host=True,
             view_link="https://couchers.org/requests/123",
         )
-        return [replace(prototype, from_host=True), replace(prototype, from_host=False)]
+        return [
+            replace(prototype, proposal_type=proposal_type, counterparty_is_initiator=counterparty_is_initiator)
+            for counterparty_is_initiator in [False, True]
+            for proposal_type in StayProposalType
+        ]
 
 
 @dataclass(kw_only=True, slots=True)
-class HostRequestStatusChangedEmail(EmailBase):
-    """Sent when a host request is accepted, declined, confirmed, or cancelled."""
+class StayStatusChangedEmail(EmailBase):
+    """Sent when the counterparty accepts, declines, confirms or cancels a stay."""
 
-    other_user: UserInfo
+    proposal_type: StayProposalType
+    counterparty: UserInfo
     from_date: date
     to_date: date
     new_status: messages_pb2.HostRequestStatus.ValueType
@@ -1438,61 +1514,61 @@ class HostRequestStatusChangedEmail(EmailBase):
 
     @property
     def string_key_base(self) -> str:
-        base_key = "host_requests.status_changed"
+        base_key = f"stays.status_changed.{self.proposal_type}"
         match self.new_status:
             case messages_pb2.HOST_REQUEST_STATUS_ACCEPTED:
-                return f"{base_key}.accepted_by_host"
+                return f"{base_key}.accepted_by_recipient"
             case messages_pb2.HOST_REQUEST_STATUS_REJECTED:
-                return f"{base_key}.declined_by_host"
+                return f"{base_key}.declined_by_recipient"
             case messages_pb2.HOST_REQUEST_STATUS_CONFIRMED:
-                return f"{base_key}.confirmed_by_surfer"
+                return f"{base_key}.confirmed_by_initiator"
             case messages_pb2.HOST_REQUEST_STATUS_CANCELLED:
-                return f"{base_key}.cancelled_by_surfer"
+                return f"{base_key}.cancelled_by_initiator"
             case _:
                 raise ValueError(f"Unexpected host request status: {self.new_status}")
 
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, ".subject", {"other_name": self.other_user.name})
+        return self._localize(loc_context, ".subject", {"counterparty": self.counterparty.name})
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context)
-        builder.para(".purpose", {"other_name": self.other_user.name})
+        builder.para(".purpose", {"counterparty": self.counterparty.name})
         builder.user(
-            self.other_user,
-            "host_requests.generic.date_range",
+            self.counterparty,
+            "stays.generic.date_range",
             {
-                "from_date": _localize_host_request_date(self.from_date, loc_context),
-                "to_date": _localize_host_request_date(self.to_date, loc_context),
+                "from_date": _localize_stay_date(self.from_date, loc_context),
+                "to_date": _localize_stay_date(self.to_date, loc_context),
             },
         )
-        builder.action(self.view_link, "host_requests.generic.view_action")
+        builder.action(self.view_link, f"stays.generic.{self.proposal_type}.view_action")
         builder.para(_do_not_reply_request_string_key, epilogue=True)
         return builder.build()
 
     @classmethod
     def from_notification(
         cls,
-        data: notification_data_pb2.HostRequestAccept
-        | notification_data_pb2.HostRequestReject
-        | notification_data_pb2.HostRequestConfirm
-        | notification_data_pb2.HostRequestCancel,
+        data: notification_data_pb2.StayAccept
+        | notification_data_pb2.StayReject
+        | notification_data_pb2.StayConfirm
+        | notification_data_pb2.StayCancel,
         *,
         user_name: str,
     ) -> Self:
-        other_user: UserInfo
+        counterparty: UserInfo
         new_status: messages_pb2.HostRequestStatus.ValueType
         match data:
-            case notification_data_pb2.HostRequestAccept():
-                other_user = UserInfo.from_protobuf(data.host)
+            case notification_data_pb2.StayAccept():
+                counterparty = UserInfo.from_proto(data.recipient)
                 new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED
-            case notification_data_pb2.HostRequestReject():
-                other_user = UserInfo.from_protobuf(data.host)
+            case notification_data_pb2.StayReject():
+                counterparty = UserInfo.from_proto(data.recipient)
                 new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_REJECTED
-            case notification_data_pb2.HostRequestConfirm():
-                other_user = UserInfo.from_protobuf(data.surfer)
+            case notification_data_pb2.StayConfirm():
+                counterparty = UserInfo.from_proto(data.initiator)
                 new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED
-            case notification_data_pb2.HostRequestCancel():
-                other_user = UserInfo.from_protobuf(data.surfer)
+            case notification_data_pb2.StayCancel():
+                counterparty = UserInfo.from_proto(data.initiator)
                 new_status = messages_pb2.HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED
             case _:
                 # Enable mypy's exhaustiveness checking
@@ -1500,7 +1576,8 @@ class HostRequestStatusChangedEmail(EmailBase):
 
         return cls(
             user_name,
-            other_user=other_user,
+            proposal_type=StayProposalType.from_proto(data.host_request),
+            counterparty=counterparty,
             from_date=date.fromisoformat(data.host_request.from_date),
             to_date=date.fromisoformat(data.host_request.to_date),
             new_status=new_status,
@@ -1511,22 +1588,27 @@ class HostRequestStatusChangedEmail(EmailBase):
     def test_instances(cls) -> list[Self]:
         prototype = cls(
             user_name="Alice",
-            other_user=UserInfo.dummy_bob(),
+            proposal_type=StayProposalType.request,
+            counterparty=UserInfo.dummy_bob(),
             from_date=date(2025, 6, 1),
             to_date=date(2025, 6, 7),
             new_status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
             view_link="https://couchers.org/requests/123",
         )
         return [
-            replace(prototype, new_status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED),
-            replace(prototype, new_status=messages_pb2.HOST_REQUEST_STATUS_REJECTED),
-            replace(prototype, new_status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED),
-            replace(prototype, new_status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED),
+            replace(prototype, proposal_type=proposal_type, new_status=new_status)
+            for new_status in [
+                messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                messages_pb2.HOST_REQUEST_STATUS_REJECTED,
+                messages_pb2.HOST_REQUEST_STATUS_CONFIRMED,
+                messages_pb2.HOST_REQUEST_STATUS_CANCELLED,
+            ]
+            for proposal_type in StayProposalType
         ]
 
 
 @dataclass(kw_only=True, slots=True)
-class HostReferenceReceivedEmail(EmailBase):
+class StayReferenceReceivedEmail(EmailBase):
     """Sent to a user when they receive a reference from a past host or surfer."""
 
     from_user: UserInfo
@@ -1562,11 +1644,11 @@ class HostReferenceReceivedEmail(EmailBase):
 
     @classmethod
     def from_notification(
-        cls, data: notification_data_pb2.ReferenceReceiveHostRequest, *, user_name: str, surfed: bool
+        cls, data: notification_data_pb2.ReferenceReceiveStay, *, user_name: str, surfed: bool
     ) -> Self:
         return cls(
             user_name=user_name,
-            from_user=UserInfo.from_protobuf(data.from_user),
+            from_user=UserInfo.from_proto(data.from_user),
             text=data.text or None,
             surfed=surfed,
             leave_reference_url=urls.leave_reference_link(
@@ -1594,10 +1676,10 @@ class HostReferenceReceivedEmail(EmailBase):
 
 
 @dataclass(kw_only=True, slots=True)
-class HostReferenceReminderEmail(EmailBase):
+class StayReferenceReminderEmail(EmailBase):
     """Sent as a reminder to write a reference after a stay."""
 
-    other_user: UserInfo
+    counterparty: UserInfo
     days_left: int
     surfed: bool  # True if I was the surfer, False if I was the host
     leave_reference_url: str
@@ -1614,21 +1696,21 @@ class HostReferenceReminderEmail(EmailBase):
         return self._localize(
             loc_context,
             ".subject_days",
-            {"name": self.other_user.name, "count": self.days_left},
+            {"name": self.counterparty.name, "count": self.days_left},
         )
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         builder = self._body_builder(loc_context)
         builder.para(
-            f".{self.string_role_subkey}.purpose_days", {"name": self.other_user.name, "count": self.days_left}
+            f".{self.string_role_subkey}.purpose_days", {"name": self.counterparty.name, "count": self.days_left}
         )
-        builder.user(self.other_user)
+        builder.user(self.counterparty)
         builder.action(
             self.leave_reference_url,
             "references.write_action",
-            {"name": self.other_user.name},
+            {"name": self.counterparty.name},
         )
-        builder.para(".no_meeting_note", {"name": self.other_user.name})
+        builder.para(".no_meeting_note", {"name": self.counterparty.name})
         builder.para(".visibility_note")
         return builder.build()
 
@@ -1636,7 +1718,7 @@ class HostReferenceReminderEmail(EmailBase):
     def from_notification(cls, data: notification_data_pb2.ReferenceReminder, *, user_name: str, surfed: bool) -> Self:
         return cls(
             user_name=user_name,
-            other_user=UserInfo.from_protobuf(data.other_user),
+            counterparty=UserInfo.from_proto(data.other_user),
             days_left=data.days_left,
             surfed=surfed,
             leave_reference_url=urls.leave_reference_link(
@@ -1650,7 +1732,7 @@ class HostReferenceReminderEmail(EmailBase):
     def test_instances(cls) -> list[Self]:
         prototype = cls(
             user_name="Alice",
-            other_user=UserInfo.dummy_bob(),
+            counterparty=UserInfo.dummy_bob(),
             days_left=7,
             surfed=True,
             leave_reference_url="https://couchers.org/leave-reference/123",
@@ -2127,7 +2209,9 @@ class ThreadReplyEmail(EmailBase):
         parent = data.WhichOneof("reply_parent")
         if parent == "event":
             parent_context = data.event.title
-            view_link = urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug)
+            view_link = urls.event_link(
+                occurrence_id=data.event.event_id, slug=data.event.slug, comment_id=data.reply.thread_id
+            )
         elif parent == "discussion":
             parent_context = data.discussion.title
             view_link = urls.discussion_link(discussion_id=data.discussion.discussion_id, slug=data.discussion.slug)
@@ -2135,7 +2219,7 @@ class ThreadReplyEmail(EmailBase):
             raise Exception("Can only do replies to events and discussions")
         return cls(
             user_name=user_name,
-            author=UserInfo.from_protobuf(data.author),
+            author=UserInfo.from_proto(data.author),
             parent_context=parent_context,
             markdown_text=data.reply.content,
             view_link=view_link,
@@ -2154,5 +2238,5 @@ class ThreadReplyEmail(EmailBase):
         ]
 
 
-def _localize_host_request_date(value: date, loc_context: LocalizationContext) -> str:
+def _localize_stay_date(value: date, loc_context: LocalizationContext) -> str:
     return loc_context.localize_date(value, with_year=False, with_day_of_week=True)

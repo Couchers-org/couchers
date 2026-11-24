@@ -46,6 +46,13 @@ service Bugs {
     };
   }
 
+  rpc RecordEmailOpen(RecordEmailOpenReq) returns (google.api.HttpBody) {
+    // Email open pixel, see couchers/email/zz.py
+    option (google.api.http) = {
+      get : "/email/open/{zz}"
+    };
+  }
+
   rpc GeolocationSearchInfo(GeolocationSearchInfoReq) returns (google.protobuf.Empty) {}
 
   rpc GeolocationClickInfo(GeolocationClickInfoReq) returns (google.protobuf.Empty) {}
@@ -64,6 +71,10 @@ service Bugs {
 
   rpc LogExperimentExposure(LogExperimentExposureReq) returns (google.protobuf.Empty) {
     // Record a client-side experiment exposure, reported by the SDK as the user is bucketed.
+  }
+
+  rpc GetFeatureFlagAttributes(google.protobuf.Empty) returns (GetFeatureFlagAttributesRes) {
+    // GrowthBook targeting attributes for the current session (logged in or not), for client SDKs
   }
 }
 
@@ -112,6 +123,10 @@ message GeolocationSearchInfoReq {
   string nominatim_result_json = 2;
   string formatted_result_json = 3;
   uint32 duration_ms = 4;
+}
+
+message RecordEmailOpenReq {
+  string zz = 1;
 }
 
 message GeolocationClickInfoReq {
@@ -222,6 +237,11 @@ message EvaluateFeatureFlagRes {
   // The flag's resolved value (bool, string, number, or JSON object/array). Unset when the flag
   // isn't configured server-side, so the frontend's in-code default applies.
   google.protobuf.Value value = 1;
+}
+
+message GetFeatureFlagAttributesRes {
+  // JSON object, to be passed verbatim to the client SDK
+  string attributes_json = 1;
 }
 
 message LogExperimentExposureReq {

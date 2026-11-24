@@ -26,20 +26,17 @@ jest.mock("next/router", () => {
     },
   };
 });
-// Mock next/dynamic to skip the dynamic part
-// This works by extracting the require("path/to/component")
-// It needs to be in the form dynamic(() => import("components/MarkdownNoSSR"))
-// This is hacky. Really we need to just ditch any non-ssr components
+// The markdown components load via next/dynamic (ssr: false), which doesn't render
+// synchronously in tests, so render the real client-only components instead.
 /// TODO: Get an SSR-friendly markdown editor
-jest.mock("next/dynamic", () => ({
+jest.mock("components/Markdown", () => ({
+  ...jest.requireActual("components/Markdown"),
   __esModule: true,
-  default: (...props: unknown[]) => {
-    const matchedPath = /require\("(.*)"\)/.exec(`${props[0]}`);
-    if (matchedPath) {
-      const Component = require(matchedPath[1]).default; //eslint-disable-line
-      return Component;
-    } else throw Error(`Couldn't resolve dynamic component: ${matchedPath}`);
-  },
+  default: jest.requireActual("components/MarkdownNoSSR").default,
+}));
+jest.mock("components/MarkdownInput/MarkdownInput", () => ({
+  __esModule: true,
+  default: jest.requireActual("components/MarkdownInput/MarkdownInputNoSSR").default,
 }));
 jest.mock("react-gtm-module");
 jest.mock("i18n/useLocaleInfos", () => ({

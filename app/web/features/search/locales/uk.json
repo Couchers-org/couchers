@@ -16,7 +16,7 @@
   "form": {
     "location_field_label": "Біля міста",
     "keywords": {
-      "field_label": "Ім'я, ключове слово, або назва користувача",
+      "field_label": "Ім'я, ключове слово, або назва акаунта",
       "clear_field_action_a11y_label": "Очистити пошук",
       "search_this_keyword_a11y_label": "Шукати за цим ключовим словом"
     },

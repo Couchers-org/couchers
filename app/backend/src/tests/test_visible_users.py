@@ -79,36 +79,36 @@ def test_select_dot_where_users_column_visible(db):
 
 
 def test_shadowed_user_hidden_from_others_visible_to_self(db):
-    user1, _ = generate_user()
-    user2, _ = generate_user()
+    other_user, _ = generate_user()
+    shadowed_user, _ = generate_user()
 
     with session_scope() as session:
-        session.execute(update(User).where(User.id == user2.id).values(shadowed_at=func.now()))
+        session.execute(update(User).where(User.id == shadowed_user.id).values(shadowed_at=func.now()))
 
-    other_context = cast(CouchersContext, _FakeContext(user1.id))
-    self_context = cast(CouchersContext, _FakeContext(user2.id))
+    other_context = cast(CouchersContext, _FakeContext(other_user.id))
+    self_context = cast(CouchersContext, _FakeContext(shadowed_user.id))
     anon_context = cast(CouchersContext, _FakeContext(None))
 
     with session_scope() as session:
-        # user1 (other) does not see shadowed user2
+        # other_user does not see shadowed_user
         visible_to_other = (
-            session.execute(select(User.id).where(users_visible(other_context)).where(User.id == user2.id))
+            session.execute(select(User.id).where(users_visible(other_context)).where(User.id == shadowed_user.id))
             .scalars()
             .all()
         )
         assert visible_to_other == []
 
-        # user2 (self) sees themselves
+        # shadowed_user (self) sees themselves
         visible_to_self = (
-            session.execute(select(User.id).where(users_visible(self_context)).where(User.id == user2.id))
+            session.execute(select(User.id).where(users_visible(self_context)).where(User.id == shadowed_user.id))
             .scalars()
             .all()
         )
-        assert visible_to_self == [user2.id]
+        assert visible_to_self == [shadowed_user.id]
 
-        # anonymous viewer does not see shadowed user2
+        # anonymous viewer does not see shadowed_user
         visible_to_anon = (
-            session.execute(select(User.id).where(users_visible(anon_context)).where(User.id == user2.id))
+            session.execute(select(User.id).where(users_visible(anon_context)).where(User.id == shadowed_user.id))
             .scalars()
             .all()
         )
@@ -116,15 +116,15 @@ def test_shadowed_user_hidden_from_others_visible_to_self(db):
 
 
 def test_shadowed_user_column_visible_with_self_exception(db):
-    user1, _ = generate_user()
-    user2, _ = generate_user()
-    make_friends(user1, user2)
+    other_user, _ = generate_user()
+    shadowed_user, _ = generate_user()
+    make_friends(other_user, shadowed_user)
 
     with session_scope() as session:
-        session.execute(update(User).where(User.id == user2.id).values(shadowed_at=func.now()))
+        session.execute(update(User).where(User.id == shadowed_user.id).values(shadowed_at=func.now()))
 
-    # user1 (other): friendship to shadowed user2 is filtered out
-    context_other = cast(CouchersContext, _FakeContext(user1.id))
+    # other_user: friendship to shadowed_user is filtered out
+    context_other = cast(CouchersContext, _FakeContext(other_user.id))
     with session_scope() as session:
         count = session.execute(
             where_users_column_visible(
@@ -133,8 +133,8 @@ def test_shadowed_user_column_visible_with_self_exception(db):
         ).scalar_one()
         assert count == 0
 
-    # user2 (self): can see the friendship pointing at themselves
-    context_self = cast(CouchersContext, _FakeContext(user2.id))
+    # shadowed_user (self): can see the friendship pointing at themselves
+    context_self = cast(CouchersContext, _FakeContext(shadowed_user.id))
     with session_scope() as session:
         count = session.execute(
             where_users_column_visible(

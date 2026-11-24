@@ -180,6 +180,7 @@ describe("DonationBanner", () => {
     mockUseAccountInfo.mockReturnValue({
       data: {
         shouldShowDonationBanner: false,
+        hasOptedInToBetaFeatures: false,
       },
       isLoading: false,
     } as ReturnType<typeof useAccountInfo>);

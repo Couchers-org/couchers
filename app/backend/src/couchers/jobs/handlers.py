@@ -5,7 +5,7 @@ Background job servicers
 import logging
 from collections.abc import Sequence
 from datetime import UTC, date, datetime, timedelta
-from math import cos, pi, sin, sqrt
+from math import cos, pi, sin
 from random import sample
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -43,6 +43,7 @@ from couchers.constants import (
     HOST_REQUEST_REMINDER_INTERVAL,
     MISSED_MESSAGES_DELAY,
     MISSED_MESSAGES_DELAY_WITH_PUSH,
+    MISSED_MESSAGES_LOOKBACK,
     MODERATION_AUTO_APPROVE_FLAG_PRIORITY,
 )
 from couchers.context import make_background_user_context, make_notification_user_context
@@ -60,6 +61,7 @@ from couchers.email.smtp import send_smtp_email
 from couchers.event_log import log_event
 from couchers.event_recurrence import make_every_nth_week_rrule, schedule_occurrences
 from couchers.helpers.badges import user_add_badge, user_remove_badge
+from couchers.helpers.community_checks import run_community_checks
 from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.helpers.group_chats import is_newest_subscription, is_unseen
 from couchers.helpers.hosting_meetup_status import record_hosting_meetup_status
@@ -118,7 +120,7 @@ from couchers.models import (
     get_moderated_models,
 )
 from couchers.models.notifications import NotificationTopicAction
-from couchers.moderation.utils import create_moderation
+from couchers.moderation.utils import auto_approve_due_queue_items, create_moderation
 from couchers.notifications.expo_api import get_expo_push_receipts
 from couchers.notifications.notify import notify
 from couchers.postal.bypass import email_verification_code_instead_of_posting
@@ -233,6 +235,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                 .where(is_unseen(Message, GroupChatSubscription))
                 .where(Message.id > User.last_notified_message_id)
                 .where(_message_unseen_long_enough(User.id))
+                .where(Message.time > now() - MISSED_MESSAGES_LOOKBACK)
                 .where(Message.message_type == MessageType.text)  # TODO: only text messages for now
             )
             .scalars()
@@ -397,10 +400,11 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                     user_id=user.id,
                     topic_action=NotificationTopicAction.host_request__missed_messages,
                     key=str(host_request.conversation_id),
-                    data=notification_data_pb2.HostRequestMissedMessages(
+                    data=notification_data_pb2.StayMissedMessages(
                         host_request=host_request_to_pb(host_request, session, context),
-                        user=user_model_to_pb(host_request.recipient, session, context),
-                        am_host=host_request.host_user_id == user.id,
+                        counterparty=user_model_to_pb(host_request.recipient, session, context),
+                        # Notification to the recipient == message from the initiator
+                        counterparty_is_initiator=user.id == host_request.recipient_user_id,
                     ),
                 )
 
@@ -440,10 +444,11 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                     user_id=user.id,
                     topic_action=NotificationTopicAction.host_request__missed_messages,
                     key=str(host_request.conversation_id),
-                    data=notification_data_pb2.HostRequestMissedMessages(
+                    data=notification_data_pb2.StayMissedMessages(
                         host_request=host_request_to_pb(host_request, session, context),
-                        user=user_model_to_pb(host_request.initiator, session, context),
-                        am_host=host_request.host_user_id == user.id,
+                        counterparty=user_model_to_pb(host_request.initiator, session, context),
+                        # Notification to the recipient == message from the initiator
+                        counterparty_is_initiator=user.id == host_request.recipient_user_id,
                     ),
                 )
 
@@ -638,9 +643,9 @@ def send_host_request_reminders(payload: empty_pb2.Empty) -> None:
                 user_id=host_request.recipient_user_id,
                 topic_action=NotificationTopicAction.host_request__reminder,
                 key=str(host_request.conversation_id),
-                data=notification_data_pb2.HostRequestReminder(
+                data=notification_data_pb2.StayReminder(
                     host_request=host_request_to_pb(host_request, session, context),
-                    surfer=user_model_to_pb(host_request.initiator, session, context),
+                    initiator=user_model_to_pb(host_request.initiator, session, context),
                 ),
                 moderation_state_id=host_request.moderation_state_id,
             )
@@ -721,6 +726,11 @@ def enforce_community_membership(payload: empty_pb2.Empty) -> None:
     tasks_enforce_community_memberships()
 
 
+def check_communities(payload: empty_pb2.Empty) -> None:
+    with session_scope() as session:
+        run_community_checks(session, now())
+
+
 def update_recommendation_scores(payload: empty_pb2.Empty) -> None:
     text_fields = [
         User.hometown,
@@ -739,13 +749,6 @@ def update_recommendation_scores(payload: empty_pb2.Empty) -> None:
         User.house_rules,
     ]
     home_fields = [User.about_place, User.other_host_info, User.sleeping_details, User.area, User.house_rules]
-
-    def poor_man_gaussian() -> ColumnElement[float] | float:
-        """
-        Produces an approximatley std normal random variate
-        """
-        trials = 5
-        return (sum([func.random() for _ in range(trials)]) - trials / 2) / sqrt(trials / 12)
 
     def int_(stmt: Any) -> Function[int]:
         return func.coalesce(cast(stmt, Integer), 0)
@@ -873,13 +876,7 @@ def update_recommendation_scores(payload: empty_pb2.Empty) -> None:
         response_rate_points = -10 * int_(response_time_33p > 60 * 96.0) + 5 * int_(response_time_66p < 60 * 96.0)
 
         recommendation_score = (
-            hosting_status_points
-            + profile_points
-            + ref_score
-            + activeness_points
-            + other_points
-            + response_rate_points
-            + 2 * poor_man_gaussian()
+            hosting_status_points + profile_points + ref_score + activeness_points + other_points + response_rate_points
         )
 
         scores = (
@@ -1328,7 +1325,7 @@ def _schedule_occurrences_for_recurrence(session: Session, recurrence: EventRecu
                 geom=recurrence.geom,
                 address=recurrence.address,
                 timezone=recurrence.timezone,
-                # TODO(#9845): Initialize photo_key. Implies adding admin usage tracking infra.
+                photo_key=recurrence.photo_key,
                 during=TimestamptzRange(start_datetime, end_datetime),
                 creator_user_id=recurrence.event.creator_user_id,
                 moderation_state_id=moderation_state_id,
@@ -1450,13 +1447,13 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
             )
             return
 
-        user_name, user_email = session.execute(select(User.name, User.email).where(User.id == attempt.user_id)).one()
+        user_email = session.execute(select(User.email).where(User.id == attempt.user_id)).scalar_one()
 
         if config.POSTAL_VERIFICATION_BYPASS_POST_AND_EMAIL_CODE_FOR_TESTING:
             email_verification_code_instead_of_posting(
                 session,
                 recipient_email=user_email,
-                recipient_name=user_name,
+                recipient_name=attempt.recipient_name,
                 address_line_1=attempt.address_line_1,
                 address_line_2=attempt.address_line_2,
                 city=attempt.city,
@@ -1467,7 +1464,7 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
             )
         else:
             attempt.mypostcard_job_id = send_postcard(
-                recipient_name=user_name,
+                recipient_name=attempt.recipient_name,
                 address_line_1=attempt.address_line_1,
                 address_line_2=attempt.address_line_2,
                 city=attempt.city,
@@ -1725,20 +1722,12 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
         if gc_reverse_mismatches:
             errors.append(f"GroupChat points to ModerationState with wrong type/object_id: {gc_reverse_mismatches}")
 
-        # Ensure auto-approve deadline isn't being exceeded by a significant margin
+        # Ensure auto-approve deadlines aren't being exceeded by a significant margin
         # The auto-approver runs every 15s, so allow 5 minutes grace before alerting
-        deadline_seconds = config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS
-        if deadline_seconds > 0:
-            grace_period = timedelta(minutes=5)
+        if config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS > 0:
+            due = auto_approve_due_queue_items(now() - timedelta(minutes=5))
             stale_initial_review_items = session.execute(
-                select(
-                    ModerationQueueItem.id,
-                    ModerationQueueItem.moderation_state_id,
-                    ModerationQueueItem.time_created,
-                )
-                .where(ModerationQueueItem.trigger == ModerationTrigger.initial_review)
-                .where(ModerationQueueItem.resolved_by_log_id.is_(None))
-                .where(ModerationQueueItem.time_created < now() - timedelta(seconds=deadline_seconds) - grace_period)
+                select(due.c.id, due.c.moderation_state_id, due.c.time_created)
             ).all()
             if stale_initial_review_items:
                 errors.append(
@@ -1751,47 +1740,32 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
 
 def auto_approve_moderation_queue(payload: empty_pb2.Empty) -> None:
     """
-    Dead man's switch: approves unresolved INITIAL_REVIEW content older than the deadline to VISIBLE, then
-    re-flags it as a high-priority MACHINE_FLAG superseding only the INITIAL_REVIEW item. The switch only fires
-    when moderators are behind, so every auto-approved item stays in the queue for a human to check. Other open
-    flags are untouched, and items already actioned by moderators are left alone.
+    Dead man's switch: approves still-shadowed content to VISIBLE once its unresolved INITIAL_REVIEW item is older
+    than the author's auto-approve deadline, then re-flags it as a high-priority MACHINE_FLAG superseding only the
+    INITIAL_REVIEW item. The switch only fires when moderators are behind, so every auto-approved item stays in the
+    queue for a human to check. Other open flags are untouched, and content already actioned by moderators is left
+    alone.
     """
-    deadline_seconds = config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS
-    if deadline_seconds <= 0:
+    if config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS <= 0:
         return
 
     with session_scope() as session:
         ctx = make_background_user_context(user_id=config.MODERATION_BOT_USER_ID)
 
-        items = (
-            Moderation()
-            .GetModerationQueue(
-                request=moderation_pb2.GetModerationQueueReq(
-                    triggers=[moderation_pb2.MODERATION_TRIGGER_INITIAL_REVIEW],
-                    unresolved_only=True,
-                    page_size=100,
-                    created_before=Timestamp_from_datetime(now() - timedelta(seconds=deadline_seconds)),
-                ),
-                context=ctx,
-                session=session,
-            )
-            .queue_items
-        )
+        due = auto_approve_due_queue_items(now())
+        items = session.execute(
+            select(due.c.id, due.c.moderation_state_id, due.c.deadline).order_by(due.c.time_created).limit(100)
+        ).all()
 
         if not items:
             return
 
-        # Skip items whose author is shadowed; their content stays in shadowed state indefinitely
-        approvable = [item for item in items if not item.moderation_state.author.shadowed]
-        if not approvable:
-            return
-
-        logger.info(f"Auto-approving {len(approvable)} moderation queue items")
-        reason = f"Auto-approved: moderation deadline of {deadline_seconds} seconds exceeded."
-        for item in approvable:
+        logger.info(f"Auto-approving {len(items)} moderation queue items")
+        for queue_item_id, moderation_state_id, deadline in items:
+            reason = f"Auto-approved: moderation deadline of {deadline} seconds exceeded."
             Moderation().ModerateContent(
                 request=moderation_pb2.ModerateContentReq(
-                    moderation_state_id=item.moderation_state_id,
+                    moderation_state_id=moderation_state_id,
                     action=moderation_pb2.MODERATION_ACTION_APPROVE,
                     visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
                     reason=reason,
@@ -1802,14 +1776,14 @@ def auto_approve_moderation_queue(payload: empty_pb2.Empty) -> None:
             )
             Moderation().ModerateContent(
                 request=moderation_pb2.ModerateContentReq(
-                    moderation_state_id=item.moderation_state_id,
+                    moderation_state_id=moderation_state_id,
                     action=moderation_pb2.MODERATION_ACTION_FLAG,
                     trigger=moderation_pb2.MODERATION_TRIGGER_MACHINE_FLAG,
                     priority=MODERATION_AUTO_APPROVE_FLAG_PRIORITY,
                     reason=reason,
-                    supersede_queue_item_id=item.queue_item_id,
+                    supersede_queue_item_id=queue_item_id,
                 ),
                 context=ctx,
                 session=session,
             )
-        moderation_auto_approved_counter.inc(len(approvable))
+        moderation_auto_approved_counter.inc(len(items))

@@ -15,12 +15,14 @@ import { GroupsPromiseClient } from "proto/groups_grpc_web_pb";
 import { JailPromiseClient } from "proto/jail_grpc_web_pb";
 import { NotificationsPromiseClient } from "proto/notifications_grpc_web_pb";
 import { PagesPromiseClient } from "proto/pages_grpc_web_pb";
+import { PostalVerificationPromiseClient } from "proto/postal_verification_grpc_web_pb";
 import { PublicPromiseClient } from "proto/public_grpc_web_pb";
 import { PublicTripsPromiseClient } from "proto/public_trips_grpc_web_pb";
 import { ReferencesPromiseClient } from "proto/references_grpc_web_pb";
 import { ReportingPromiseClient } from "proto/reporting_grpc_web_pb";
 import { RequestsPromiseClient } from "proto/requests_grpc_web_pb";
 import { ResourcesPromiseClient } from "proto/resources_grpc_web_pb";
+import { ScreensPromiseClient } from "proto/screens_grpc_web_pb";
 import { SearchPromiseClient } from "proto/search_grpc_web_pb";
 import { ThreadsPromiseClient } from "proto/threads_grpc_web_pb";
 import { getClientPlatform } from "utils/clientPlatform";
@@ -103,12 +105,14 @@ const client = {
   jail: new JailPromiseClient(URL, null, opts),
   notifications: new NotificationsPromiseClient(URL, null, opts),
   pages: new PagesPromiseClient(URL, null, opts),
+  postalVerification: new PostalVerificationPromiseClient(URL, null, opts),
   public: new PublicPromiseClient(URL, null, opts),
   publicTrips: new PublicTripsPromiseClient(URL, null, opts),
   references: new ReferencesPromiseClient(URL, null, opts),
   reporting: new ReportingPromiseClient(URL, null, opts),
   requests: new RequestsPromiseClient(URL, null, opts),
   resources: new ResourcesPromiseClient(URL, null, opts),
+  screens: new ScreensPromiseClient(URL, null, opts),
   search: new SearchPromiseClient(URL, null, opts),
   threads: new ThreadsPromiseClient(URL, null, opts),
 };
@@ -134,12 +138,14 @@ if (!IS_PROD && typeof window !== "undefined") {
     client.jail,
     client.notifications,
     client.pages,
+    client.postalVerification,
     client.public,
     client.publicTrips,
     client.references,
     client.reporting,
     client.requests,
     client.resources,
+    client.screens,
     client.search,
     client.threads,
   ]);

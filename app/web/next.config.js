@@ -7,17 +7,18 @@ const generateBlogIndex = require("./scripts/generate-blog-index"); // eslint-di
 const nextConfig = {
   assetPrefix: process.env.ASSET_PREFIX,
   reactStrictMode: true,
-  eslint: {
-    dirs: ["components", "features", "i18n", "markdown", "pages", "resources", "service", "test", "types", "utils"],
-  },
   i18n,
   productionBrowserSourceMaps: true,
   // ESM-only packages with no CommonJS entry point - Next.js (and next/jest) need to
   // transpile these themselves rather than treating them as pre-built node_modules.
-  transpilePackages: ["temporal-polyfill", "temporal-utils"],
+  // react-simple-maps does have one, but it require()s the ESM-only d3 packages, which
+  // crashes the server on runtimes without require(esm), such as Vercel's.
+  transpilePackages: ["temporal-polyfill", "temporal-utils", "react-simple-maps"],
   experimental: {
     // Trades slightly slower compiles for a lower webpack memory ceiling.
     webpackMemoryOptimizations: true,
+    // Default policy for `next upgrade --agent` reminders.
+    agentUpgrade: "latest",
   },
   webpack: (config, { isServer }) => {
     if (isServer) {

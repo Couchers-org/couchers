@@ -28,7 +28,7 @@ from tests.fixtures.db import (
     generate_user,
     pg_dump_is_available,
 )
-from tests.test_communities import create_1d_point, get_community_id, testing_communities  # noqa
+from tests.test_communities import create_1d_point, create_community, get_community_id, testing_communities  # noqa
 
 
 def test_is_valid_user_id() -> None:
@@ -147,6 +147,19 @@ def test_get_parent_node_at_location(testing_communities):
         assert get_parent_node_at_location(session, create_1d_point(8)).id == c1r1c2_id  # type: ignore[union-attr]
         assert get_parent_node_at_location(session, create_1d_point(15)).id == c1_id  # type: ignore[union-attr]
         assert get_parent_node_at_location(session, create_1d_point(51)).id == w_id  # type: ignore[union-attr]
+
+
+def test_get_parent_node_at_location_prefers_node_type_over_area(db):
+    user, _ = generate_user()
+    with session_scope() as session:
+        world = create_community(session, 0, 100, "World", [user], [], None)
+        country = create_community(session, 0, 60, "Country", [user], [], world)
+        city = create_community(session, 0, 50, "City", [user], [], country)
+        small_city = create_community(session, 41, 44, "Small City", [user], [], country)
+        create_community(session, 40, 48, "Overlapping Region", [user], [], world)
+
+        assert get_parent_node_at_location(session, create_1d_point(46)).id == city.id  # type: ignore[union-attr]
+        assert get_parent_node_at_location(session, create_1d_point(42)).id == small_city.id  # type: ignore[union-attr]
 
 
 def pg_dump() -> str:

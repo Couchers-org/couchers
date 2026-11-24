@@ -2,6 +2,7 @@ import { Box, Button, ButtonProps, Link as MuiLink, styled, Typography } from "@
 import ReportButton from "components/Navigation/ReportButton";
 import SocialMediaLinks from "components/SocialMediaLinks";
 import StyledLink from "components/StyledLink";
+import { useShowDonations } from "features/donations/useShowDonations";
 import { Trans, useTranslation } from "i18n";
 import { localizeRelativeTime } from "i18n/datetimes";
 import { GLOBAL } from "i18n/namespaces";
@@ -13,8 +14,8 @@ import {
   contactRoute,
   couchersAppStoreURL,
   couchersGooglePlayURL,
+  crashCalendarRoute,
   donationsRoute,
-  eventsRoute,
   faqRoute,
   foundationRoute,
   githubUpdatesURL,
@@ -28,10 +29,10 @@ import {
   shopRoute,
   teamRoute,
   tosRoute,
+  verificationRoute,
   volunteerRoute,
 } from "routes";
 import { Temporal } from "temporal-polyfill";
-import { useIsNativeEmbed } from "utils/nativeLink";
 
 const StyledFooter = styled("footer")<{ bottomMargin?: string }>(({ bottomMargin }) => ({
   display: "flex",
@@ -152,7 +153,7 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
     t,
     i18n: { language: locale },
   } = useTranslation(GLOBAL);
-  const isNativeEmbed = useIsNativeEmbed();
+  const showDonations = useShowDonations();
 
   const version_text = process.env.NEXT_PUBLIC_DISPLAY_VERSION || "dev";
   const version_link = roadmapRoute;
@@ -188,8 +189,9 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
             </Typography>
             <FooterLink href={blogRoute}>{t("nav.blog")}</FooterLink>
             <FooterLink href={teamRoute}>{t("nav.our_team")}</FooterLink>
+            <FooterLink href={crashCalendarRoute}>{t("nav.couch_crashes")}</FooterLink>
             <FooterLink href={landingRoute}>{t("nav.landing_page")}</FooterLink>
-            <FooterLink href={eventsRoute}>{t("nav.show_all_events")}</FooterLink>
+            <FooterLink href={verificationRoute}>{t("nav.verification")}</FooterLink>
             <FooterLink href={newsletterSignupURL}>{t("nav.newsletter")}</FooterLink>
             <FooterLink href={shopRoute}>{t("nav.merch_shop")}</FooterLink>
           </div>
@@ -204,7 +206,7 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
             <ReportButton isMenuLink />
           </div>
           <StyledButtonContainer>
-            {!isNativeEmbed && (
+            {showDonations && (
               <StyledButton component={Link} href={donationsRoute} variant="contained">
                 {t("nav.donate")}
               </StyledButton>

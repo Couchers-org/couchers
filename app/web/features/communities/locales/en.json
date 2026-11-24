@@ -1,4 +1,9 @@
 {
+  "event_created_merch_note": {
+    "title": "Your event has been created!",
+    "message": "Did you know Couchers.org has merch? Grab a flag, t-shirt or more to help people find your event!",
+    "shop_button": "Check out the shop"
+  },
   "by_creator": "By {{name}}",
   "cancelled": "Cancelled",
   "cancel_event": "Cancel event",
@@ -127,6 +132,7 @@
   "past": "Past",
   "upcoming": "Upcoming",
   "your_events": "Your events",
+  "couch_crashes_prompt": "Looking for something bigger? <crashesLink>See upcoming Couch Crashes</crashesLink>",
   "discover_events_title": "Discover Couchers.org events",
   "created_by_me": "Created by me",
   "notify_attendees": "Notify event attendees of this change",

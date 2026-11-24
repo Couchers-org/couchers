@@ -5,7 +5,7 @@ import Button from "components/Button";
 import Datepicker from "components/Datepicker";
 import { Dialog, DialogActions, DialogContent, DialogTitle } from "components/Dialog";
 import TextField from "components/TextField";
-import { publicTripsBaseKey, publicTripsByUserBaseKey } from "features/queryKeys";
+import { dashboardKey, publicTripsBaseKey } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { GLOBAL, PUBLIC_TRIPS } from "i18n/namespaces";
 import { useRouter } from "next/router";
@@ -15,6 +15,7 @@ import { service } from "service";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
 import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
+import { charsRemaining } from "utils/validation";
 
 // Must match the backend PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16.
 const MESSAGE_MIN_LENGTH = 100;
@@ -130,8 +131,7 @@ export default function OfferToHostDialog({
   });
 
   const watchFromDate = watch("fromDate");
-  const text = watch("text") ?? "";
-  const charsRemaining = MESSAGE_MIN_LENGTH - text.length;
+  const textCharsRemaining = charsRemaining(watch("text") ?? "", MESSAGE_MIN_LENGTH);
 
   const {
     mutate,
@@ -145,7 +145,7 @@ export default function OfferToHostDialog({
         // Both are required by the form, so non-null at submit time.
         fromDate: fromDate!,
         toDate: toDate!,
-        text: text.trim(),
+        text,
         publicTripId: tripId,
         stayType: 0,
       }),
@@ -153,7 +153,7 @@ export default function OfferToHostDialog({
       // Refetch trips so the card's viewerHostRequestId updates (the button
       // flips to "Already offered") next time the list is shown.
       queryClient.invalidateQueries({ queryKey: [publicTripsBaseKey] });
-      queryClient.invalidateQueries({ queryKey: [publicTripsByUserBaseKey] });
+      queryClient.invalidateQueries({ queryKey: [dashboardKey] });
       reset();
       onClose();
       router.push(routeToHostRequest(hostRequestId));
@@ -187,37 +187,37 @@ export default function OfferToHostDialog({
               error={!!errors.fromDate}
               helperText={errors.fromDate?.message}
               id={`${DATE_FIELD_ID}-from`}
-              label={t("publicTrips:from_date_label")}
+              label={t("publicTrips:create_edit_dialog.from_date.label")}
               name="fromDate"
               minValue={earliest}
               maxValue={tripToDate}
-              rules={{ required: t("publicTrips:from_date_required") }}
+              rules={{ required: t("publicTrips:create_edit_dialog.from_date.required_error") }}
             />
             <Datepicker
               control={control}
               error={!!errors.toDate}
               helperText={errors.toDate?.message}
               id={`${DATE_FIELD_ID}-to`}
-              label={t("publicTrips:to_date_label")}
+              label={t("publicTrips:create_edit_dialog.to_date.label")}
               name="toDate"
               minValue={watchFromDate ?? earliest}
               maxValue={tripToDate}
-              rules={{ required: t("publicTrips:to_date_required") }}
+              rules={{ required: t("publicTrips:create_edit_dialog.to_date.required_error") }}
             />
           </DateRow>
           <TextField
             id="offer-to-host-message"
             {...register("text", {
-              required: t("publicTrips:offer_dialog_message_required"),
-              minLength: {
-                value: MESSAGE_MIN_LENGTH,
-                message: t("publicTrips:offer_dialog_chars_remaining", {
-                  count: charsRemaining,
-                }),
+              required: t("publicTrips:offer_to_host_dialog.message.required_error"),
+              validate: (value) => {
+                const remaining = charsRemaining(value, MESSAGE_MIN_LENGTH);
+                return (
+                  remaining === 0 || t("publicTrips:offer_to_host_dialog.message.chars_remaining", { count: remaining })
+                );
               },
             })}
-            label={t("publicTrips:offer_dialog_message_label")}
-            placeholder={t("publicTrips:offer_dialog_message_placeholder")}
+            label={t("publicTrips:offer_to_host_dialog.message.label")}
+            placeholder={t("publicTrips:offer_to_host_dialog.message.placeholder")}
             minRows={6}
             multiline
             fullWidth
@@ -225,9 +225,9 @@ export default function OfferToHostDialog({
             helperText={
               errors.text?.message
                 ? errors.text.message
-                : charsRemaining > 0
-                  ? t("publicTrips:offer_dialog_chars_remaining", {
-                      count: charsRemaining,
+                : textCharsRemaining > 0
+                  ? t("publicTrips:offer_to_host_dialog.message.chars_remaining", {
+                      count: textCharsRemaining,
                     })
                   : ""
             }
@@ -244,7 +244,7 @@ export default function OfferToHostDialog({
   );
   const submitButton = (
     <Button type="submit" form={formId} loading={isPending}>
-      {t("publicTrips:offer_dialog_submit")}
+      {t("publicTrips:offer_to_host_dialog.submit_button")}
     </Button>
   );
 
@@ -252,7 +252,7 @@ export default function OfferToHostDialog({
     return (
       <StyledSheet anchor="bottom" open={open} onClose={handleClose} onOpen={() => {}} disableSwipeToOpen>
         <Puller />
-        <SheetTitle id={titleId}>{t("publicTrips:offer_dialog_title", { name: hostName })}</SheetTitle>
+        <SheetTitle id={titleId}>{t("publicTrips:offer_to_host_dialog.title", { name: hostName })}</SheetTitle>
         <SheetScrollContent>{formBody}</SheetScrollContent>
         <SheetActionBar>
           {cancelButton}
@@ -265,7 +265,7 @@ export default function OfferToHostDialog({
   return (
     <Dialog aria-labelledby={titleId} open={open} onClose={handleClose}>
       <DialogTitle id={titleId} onClose={handleClose}>
-        {t("publicTrips:offer_dialog_title", { name: hostName })}
+        {t("publicTrips:offer_to_host_dialog.title", { name: hostName })}
       </DialogTitle>
       <DialogContent>{formBody}</DialogContent>
       <DialogActions sx={{ padding: theme.spacing(0, 3, 2) }}>

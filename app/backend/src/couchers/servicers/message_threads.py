@@ -22,6 +22,7 @@ from sqlalchemy.sql import and_, case, func, literal, or_
 
 from couchers.context import CouchersContext
 from couchers.crypto import decrypt_page_token, encrypt_page_token
+from couchers.event_log import log_event
 from couchers.helpers.group_chats import is_newest_subscription, is_unseen, mute_info, was_subscribed_at
 from couchers.helpers.host_requests import (
     HOST_REQUEST_NOTIFICATION_TOPIC_ACTIONS,
@@ -41,6 +42,7 @@ from couchers.models import (
     HostRequestFeedback,
     HostRequestStatus,
     Message,
+    StayProposalKind,
 )
 from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import mark_notifications_seen
@@ -58,7 +60,7 @@ _KIND_GROUP_CHAT = "group_chat"
 _KIND_HOST_REQUEST = "host_request"
 
 # one thread as the select queries yield it: (conversation_id, latest_message_id, kind)
-_ThreadRow = Row[tuple[int, int, str]]
+_ThreadRow = Row[int, int, str]
 
 
 @dataclass(frozen=True)
@@ -98,7 +100,7 @@ def _resolve_thread_filters(
 
 def _build_group_chat_select_query(
     context: CouchersContext, only_archived: bool | None, unread: bool
-) -> Select[tuple[int, int, str]]:
+) -> Select[int, int, str]:
     """
     The group chats (including DMs) the viewer should see, narrowed by the request's archived and
     unread filters, along with the id of the newest message each one shows them.
@@ -128,7 +130,7 @@ def _build_group_chat_select_query(
 
 def _build_host_request_select_query(
     context: CouchersContext, role_filter: ColumnElement[bool], only_archived: bool | None, unread: bool
-) -> Select[tuple[int, int, str]]:
+) -> Select[int, int, str]:
     """
     The host requests and public-trip offers the viewer should see, narrowed by the request's
     archived and unread filters, along with the id of each one's newest message.
@@ -250,7 +252,7 @@ def _build_group_chats_pb(
     latest_message_ids = [thread.latest_message_id for thread in threads]
 
     unseen_count_by_group_chat: dict[int, int] = dict(
-        session.execute(  # type: ignore[arg-type]
+        session.execute(
             select(GroupChatSubscription.group_chat_id, func.count(Message.id))
             .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
             .where(GroupChatSubscription.group_chat_id.in_(group_chat_ids))
@@ -341,12 +343,12 @@ def _build_host_request_threads_pb(
     latest_message_ids = [thread.latest_message_id for thread in threads]
 
     # same rule as host_request_to_pb: the host is asked for feedback once they've rejected a request
-    # and haven't given any yet.
-    # TODO(#9347): the recipient-based logic is wrong for public-trip offers, where the recipient is
-    # the traveller rather than the host — same for the response-rate observation.
+    # and haven't given any yet. Public-trip offers aren't asked, as their recipient is the traveller.
+    # TODO(#9347): the recipient-based response-time observation is wrong for public-trip offers.
     need_host_request_feedback = and_(
         HostRequest.recipient_user_id == context.user_id,
         HostRequest.status == HostRequestStatus.rejected,
+        HostRequest.proposal_kind == StayProposalKind.request,
         ~exists()
         .where(HostRequestFeedback.from_user_id == context.user_id)
         .where(HostRequestFeedback.host_request_id == HostRequest.conversation_id)
@@ -438,6 +440,8 @@ def mark_all_threads_seen(
 
     # (topic actions, keys) groups for the notifications owned by the threads we mark seen
     notification_groups: list[tuple[Sequence[NotificationTopicAction], Sequence[str]]] = []
+    marked_group_chat_ids: Sequence[int] = []
+    marked_conversation_ids: list[int] = []
 
     if conversations_pb2.MESSAGE_THREAD_CATEGORY_CHATS in filters.categories:
         chat_query = _build_group_chat_select_query(context, filters.only_archived, filters.only_unread)
@@ -488,7 +492,6 @@ def mark_all_threads_seen(
         latest_message_id = (
             select(func.max(Message.id)).where(Message.conversation_id == HostRequest.conversation_id).scalar_subquery()
         )
-        marked_conversation_ids: list[int] = []
         for user_id_column, last_seen_column in (
             (HostRequest.initiator_user_id, HostRequest.initiator_last_seen_message_id),
             (HostRequest.recipient_user_id, HostRequest.recipient_last_seen_message_id),
@@ -513,6 +516,18 @@ def mark_all_threads_seen(
                     [str(conversation_id) for conversation_id in marked_conversation_ids],
                 )
             )
+
+    log_event(
+        context,
+        session,
+        "messages.marked_seen",
+        {
+            "reason": "all_threads_read",
+            "group_chat_ids": sorted(marked_group_chat_ids),
+            "host_request_ids": sorted(marked_conversation_ids),
+        },
+        value=len(marked_group_chat_ids) + len(marked_conversation_ids),
+    )
 
     mark_notifications_seen(session, user_id=context.user_id, topic_actions_and_keys=notification_groups)
 

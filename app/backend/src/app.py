@@ -1,11 +1,14 @@
+import json
 import logging
 import signal
 import sys
 import threading
+from datetime import UTC, datetime
 from multiprocessing import Process
 from os import environ
 from tempfile import TemporaryDirectory
 from types import TracebackType
+from typing import Any
 
 # these two lines need to be at the top of the file before we span child processes
 # this temp dir will be destroyed when prometheus_multiproc_dir is destroyed, aka at the end of the program.
@@ -36,9 +39,34 @@ from dummy_data import add_dummy_data
 
 config.check()
 
-logging.basicConfig(
-    format="[%(process)5d:%(threadName)-20s] %(asctime)s: %(name)s:%(lineno)d: %(message)s", level=logging.INFO
-)
+
+class JsonFormatter(logging.Formatter):
+    def format(self, record: logging.LogRecord) -> str:
+        entry: dict[str, Any] = {
+            "time": datetime.fromtimestamp(record.created, UTC).isoformat(timespec="microseconds"),
+            "level": record.levelname,
+            "logger": record.name,
+            "function": record.funcName,
+            "line": record.lineno,
+            "process": record.process,
+            "thread": record.threadName,
+            "message": record.getMessage(),
+        }
+        if record.exc_info:
+            entry["exception"] = self.formatException(record.exc_info)
+        if record.stack_info:
+            entry["stack"] = self.formatStack(record.stack_info)
+        return json.dumps(entry)
+
+
+log_handler = logging.StreamHandler()
+if config.DEV:
+    log_handler.setFormatter(
+        logging.Formatter("[%(process)5d:%(threadName)-20s] %(asctime)s: %(name)s:%(lineno)d: %(message)s")
+    )
+else:
+    log_handler.setFormatter(JsonFormatter())
+logging.basicConfig(handlers=[log_handler], level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -153,6 +181,8 @@ def main() -> None:
     setup_experimentation()
 
     setup_tracing()
+
+    setup_profiling(role="main", instance="main")
 
     media_server = None
     if config.ROLE in ["api", "all"]:

@@ -6,6 +6,7 @@ import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
 import TextBody from "components/TextBody";
 import { useAuthContext } from "features/auth/AuthProvider";
 import HostRequestStatusIcon from "features/messages/requests/HostRequestStatusIcon";
+import ThreadTitleRow from "features/messages/ThreadTitleRow";
 import { controlMessage, hasUnreadMessages, isControlMessage, messageTargetId } from "features/messages/utils";
 import { messageThreadsListKey } from "features/queryKeys";
 import useCurrentUser from "features/userQueries/useCurrentUser";
@@ -19,6 +20,7 @@ import React, { useState } from "react";
 import { service } from "service";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
+import { isHostRequestPast } from "utils/hostRequests";
 import { firstName } from "utils/names";
 
 import HostRequestStatusText from "./HostRequestStatusText";
@@ -42,6 +44,11 @@ const StyledMenuContainer = styled("div")(() => ({
   bottom: theme.spacing(1),
   right: theme.spacing(1),
   zIndex: 1,
+}));
+
+// only the lines below the title share the row with the menu
+const StyledSecondary = styled("div")(({ theme }) => ({
+  paddingInlineEnd: theme.spacing(5),
 }));
 
 const StyledDateAndBadgeContainer = styled("div")(({ theme }) => ({
@@ -121,9 +128,7 @@ export default function HostRequestListItem({ hostRequest, className, isArchived
         `${capitalize(authorName)}: ${hostRequest.latestMessage.text?.text || ""}`
     : "";
 
-  const isPast =
-    hostRequest &&
-    Temporal.PlainDate.compare(Temporal.PlainDate.from(hostRequest.toDate), Temporal.Now.plainDateISO()) < 0;
+  const isPast = hostRequest && isHostRequestPast(hostRequest);
 
   const queryClient = useQueryClient();
 
@@ -173,22 +178,27 @@ export default function HostRequestListItem({ hostRequest, className, isArchived
         className={className}
         sx={{
           color: isPast ? "var(--mui-palette-grey-500)" : "var(--mui-palette-text-primary)",
-          paddingRight: 7,
+          width: "auto",
         }}
       >
         <ListItemAvatar>
           <Avatar user={otherUser} isProfileLink={false} />
         </ListItemAvatar>
         <ListItemText
-          sx={{ paddingRight: 5 }}
           disableTypography
           primary={
-            <Typography variant="h2" sx={isPast && isUnread ? { color: "var(--mui-palette-text-primary)" } : undefined}>
-              {!otherUser ? <Skeleton width={100} /> : otherUser.name}
-            </Typography>
+            <ThreadTitleRow latestMessageTime={hostRequest.latestMessage?.time} isUnread={isUnread}>
+              <Typography
+                variant="h2"
+                noWrap
+                sx={isPast && isUnread ? { color: "var(--mui-palette-text-primary)" } : undefined}
+              >
+                {!otherUser ? <Skeleton width={100} /> : otherUser.name}
+              </Typography>
+            </ThreadTitleRow>
           }
           secondary={
-            <>
+            <StyledSecondary>
               <StyledHostStatusContainer>
                 <StyledHostRequestStatusIcon status={hostRequest.status} isOffer={isOffer} />
                 {isOtherUserLoading ? (
@@ -242,7 +252,7 @@ export default function HostRequestListItem({ hostRequest, className, isArchived
               >
                 {isOtherUserLoading ? <Skeleton width={100} /> : latestMessageText}
               </TextBody>
-            </>
+            </StyledSecondary>
           }
         />
       </ListItem>

@@ -37,7 +37,8 @@ function MapSearchProvider({
   const [mapSearchState, dispatch] = useReducer(mapSearchReducer, {
     ...initialState,
     hasActiveFilters: Object.keys(initialFilters).length > 0 ? true : false,
-    filters: initialFilters,
+    // getHasActiveFilters diffs against initialState, so missing keys would read as active
+    filters: { ...initialState.filters, ...initialFilters },
     search: {
       query: initialLocationName,
       bbox: initialBbox,

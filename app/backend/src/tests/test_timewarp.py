@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from datetime import UTC, date, datetime, timedelta
 from unittest.mock import patch
 from zoneinfo import ZoneInfo
@@ -321,7 +322,7 @@ def test_nothing_depends_on_the_real_now(db) -> None:
     """Every column default should have bound mock.now(), not pg_catalog.now(). A dependency on the
     real function means some DDL resolved before the search_path was in place."""
     with session_scope() as session:
-        dependants = (
+        dependants: Sequence[str] = (
             session.execute(
                 text("""
                 SELECT pg_describe_object(classid, objid, objsubid)

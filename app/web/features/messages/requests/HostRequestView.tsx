@@ -7,6 +7,7 @@ import { BackIcon, OverflowMenuIcon } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
 import { BOTTOM_NAV_BASE_HEIGHT } from "components/Navigation/constants";
 import PageTitle from "components/PageTitle";
+import PullToRefresh from "components/PullToRefresh";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { GROUP_CHAT_REFETCH_INTERVAL } from "features/messages/groupchats/constants";
 import HostRequestSendField from "features/messages/requests/HostRequestSendField";
@@ -29,8 +30,8 @@ import { GetHostRequestMessagesRes, RespondHostRequestReq } from "proto/requests
 import { useEffect, useRef, useState } from "react";
 import { messagesRoute } from "routes";
 import { service } from "service";
-import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
+import { isHostRequestPast } from "utils/hostRequests";
 import { firstName } from "utils/names";
 import { sendNativeBack, useIsNativeEmbed } from "utils/nativeLink";
 
@@ -146,9 +147,7 @@ export default function HostRequestView({ hostRequestId }: { hostRequestId: numb
   const isHost = hostRequest?.hostUserId === currentUserId;
   // The other party in the conversation, independent of stay-role.
   const otherUser = hostRequest?.surferUserId === currentUserId ? host : surfer;
-  const isRequestPast =
-    hostRequest &&
-    Temporal.PlainDate.compare(Temporal.PlainDate.from(hostRequest.toDate), Temporal.Now.plainDateISO()) < 0;
+  const isRequestPast = hostRequest && isHostRequestPast(hostRequest);
 
   const titleStatus =
     hostRequest && t(requestStatusToTransKey[hostRequest.status as keyof typeof requestStatusToTransKey]);
@@ -266,6 +265,7 @@ export default function HostRequestView({ hostRequestId }: { hostRequestId: numb
 
   return (
     <StyledPageWrapper isNativeEmbed={isNativeEmbed}>
+      <PullToRefresh queryKeys={[hostRequestKey(hostRequestId), hostRequestMessagesKey(hostRequestId)]} />
       <StyledHeader>
         <HeaderButton
           onClick={handleBack}

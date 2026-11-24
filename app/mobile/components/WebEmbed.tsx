@@ -1,3 +1,5 @@
+import * as Haptics from "expo-haptics";
+import * as Notifications from "expo-notifications";
 import { useFocusEffect } from "expo-router";
 import { hasAction, requestReview } from "expo-store-review";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
@@ -22,14 +24,26 @@ import { WebView, WebViewMessageEvent } from "react-native-webview";
 
 import { getWebBaseUrl } from "@/config/urls";
 import { useAuthContext } from "@/features/auth/AuthContext";
+import { useAddToCalendar } from "@/hooks/useAddToCalendar";
 import { useImagePicker } from "@/hooks/useImagePicker";
 import { useWebNavigation } from "@/hooks/useWebNavigation";
 import errorGraphic from "@/resources/404graphic.png";
 import client from "@/service/client";
-import { dispatchEscapeRef, lastLoginTimeRef } from "@/state/webViewState";
+import {
+  currentActiveWebPathRef,
+  dispatchEscapeRef,
+  lastLoginTimeRef,
+} from "@/state/webViewState";
 import { theme } from "@/theme";
 import { applicationNameForUserAgent } from "@/utils/userAgent";
 import { isUnsafeUrl, shouldLoadInWebView } from "@/utils/webViewUrlUtils";
+
+// Read by the web app (app/web/utils/nativeLink.ts). Capabilities let it show
+// features only to app versions that handle them.
+const NATIVE_EMBED_INFO = {
+  isNativeEmbed: true,
+  capabilities: ["addToCalendar"],
+};
 
 type WebEmbedProps = {
   path: string;
@@ -55,6 +69,7 @@ export default function WebEmbed({
   // Tracks the path we're syncing to so handleNavigationStateChange can
   // distinguish sync-triggered navigations from user-initiated ones.
   const syncTargetPathRef = useRef<string | null>(null);
+  const isFocusedRef = useRef(false);
 
   // Compute the initial URI once at mount using the current locale so the
   // WebView loads the correct language directly, without relying on the
@@ -76,6 +91,7 @@ export default function WebEmbed({
   const backgroundTimeRef = useRef<number | null>(null);
 
   const { pickImage } = useImagePicker();
+  const { addToCalendar } = useAddToCalendar();
 
   const stripLocale = useCallback(
     (p: string) => p.replace(/^\/[a-z]{2,3}(-[A-Za-z0-9]+)?\//, "/"),
@@ -91,6 +107,7 @@ export default function WebEmbed({
     webBaseUrl: WEB_BASE_URL,
     currentPath: path,
     syncTargetPathRef,
+    isFocusedRef,
     onRetryCountReset: () => {
       retryCountRef.current = 0;
     },
@@ -106,6 +123,20 @@ export default function WebEmbed({
         );
       };
     }, []),
+  );
+
+  // Tell the notification handler which page is on screen. Navigation events
+  // don't cover a tab's first page or switching back to a screen.
+  useFocusEffect(
+    useCallback(() => {
+      isFocusedRef.current = true;
+      currentActiveWebPathRef.current = currentWebPathRef.current;
+      return () => {
+        isFocusedRef.current = false;
+        // screens without a WebView (e.g. dev settings) don't record a page
+        currentActiveWebPathRef.current = null;
+      };
+    }, [currentWebPathRef]),
   );
 
   // Android hardware back button: go back in WebView if possible.
@@ -182,6 +213,27 @@ export default function WebEmbed({
       true;
     `);
   }, [path, stripLocale, i18n.language, currentWebPathRef]);
+
+  const refreshPage = useCallback(() => {
+    webviewRef.current?.injectJavaScript(`
+      window.postMessage(${JSON.stringify({ type: "MOBILE_REFRESH" })}, "*");
+      true;
+    `);
+  }, []);
+
+  // A screen kept in the background shows the data it had when you left it, e.g.
+  // an event opened again from a notification, so ask the page to refetch. A
+  // notification arriving while you're on the screen also means there's new data.
+  useFocusEffect(
+    useCallback(() => {
+      if (hasLoadedRef.current) {
+        refreshPage();
+      }
+      const subscription =
+        Notifications.addNotificationReceivedListener(refreshPage);
+      return () => subscription.remove();
+    }, [refreshPage]),
+  );
 
   // Sync WebView when screen comes back into focus (tab switch).
   useFocusEffect(
@@ -375,6 +427,10 @@ export default function WebEmbed({
         hasAction().then((canReview) => {
           if (canReview) requestReview();
         });
+      } else if (payload?.type === "REQUEST_ADD_TO_CALENDAR") {
+        addToCalendar(payload.data);
+      } else if (payload?.type === "HAPTIC_IMPACT") {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       }
     } catch (error) {
       // Ignore non-JSON messages from browser/WebView internals.
@@ -459,7 +515,12 @@ export default function WebEmbed({
         source={{ uri: initialUri }}
         applicationNameForUserAgent={applicationNameForUserAgent}
         allowsBackForwardNavigationGestures // iOS swipe back/forward
+        // On the new architecture an unset rate reaches iOS as 0, killing scroll momentum.
+        decelerationRate={Platform.OS === "ios" ? "normal" : undefined}
         sharedCookiesEnabled
+        webviewDebuggingEnabled={
+          process.env.EXPO_PUBLIC_COUCHERS_ENV !== "prod"
+        }
         cacheEnabled={true}
         cacheMode="LOAD_DEFAULT" // Revalidates on normal loads, uses cache for back nav (preserves cookies)
         startInLoadingState
@@ -473,7 +534,9 @@ export default function WebEmbed({
             />
           </View>
         )}
-        injectedJavaScriptObject={{ isNativeEmbed: true }}
+        injectedJavaScriptObject={NATIVE_EMBED_INFO}
+        // No-op: Android only re-injects the object above on each page load when this is set
+        injectedJavaScriptBeforeContentLoaded="true;"
         onLoad={() => {
           hasLoadedRef.current = true;
         }}

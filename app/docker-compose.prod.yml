@@ -3,7 +3,8 @@ services:
     image: postgis/postgis:18-3.6
     command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
     restart: always
-    stop_grace_period: 30s
+    # postgres waits up to wal_sender_timeout (60s) for an unresponsive replica before its shutdown checkpoint
+    stop_grace_period: 75s
     env_file: postgres.prod.env
     volumes:
       - "./data/postgres/:/var/lib/postgresql/"
@@ -128,6 +129,10 @@ services:
       - "--collector.stat_statements.include_query"
       # raise the 120-char default so long statements aren't cut off
       - "--collector.stat_statements.query_length=2048"
+      # additional queries
+      - "--extend.query-path=/etc/pgprom/queries.yaml"
+    volumes:
+      - "./pgprom/queries.yaml:/etc/pgprom/queries.yaml:ro"
     expose:
       - 9187
     networks:

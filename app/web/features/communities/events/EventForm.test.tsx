@@ -82,10 +82,10 @@ describe("Event form", () => {
     expect(screen.getByText(t("communities:upload_helper_text"))).toBeVisible();
     // In MUI X v8, empty date/time fields don't have easily testable values
     // So we just check that the fields exist and are rendered
-    expect(screen.getByRole("group", { name: t("communities:start_date") })).toHaveTextContent("MM/DD/YYYY");
+    expect(screen.getByRole("group", { name: t("communities:start_date") })).toHaveTextContent("DD/MM/YYYY");
 
     expect(screen.getByRole("group", { name: t("communities:start_time") })).toHaveTextContent("hh:mm aa");
-    expect(screen.getByRole("group", { name: t("communities:end_date") })).toHaveTextContent("MM/DD/YYYY");
+    expect(screen.getByRole("group", { name: t("communities:end_date") })).toHaveTextContent("DD/MM/YYYY");
     expect(screen.getByRole("group", { name: t("communities:end_time") })).toHaveTextContent("hh:mm aa");
     assertFieldVisibleWithValue(screen.getByLabelText(t("communities:location")), "");
     expect(screen.getByLabelText(t("communities:event_details"))).toBeVisible();
@@ -114,9 +114,9 @@ describe("Event form", () => {
       name: t("communities:end_time"),
     });
 
-    expect(startDateGroup).toHaveTextContent("06/29/2021");
+    expect(startDateGroup).toHaveTextContent("29/06/2021");
     expect(startTimeGroup).toHaveTextContent("04:37 am");
-    expect(endDateGroup).toHaveTextContent("06/29/2021");
+    expect(endDateGroup).toHaveTextContent("29/06/2021");
     expect(endTimeGroup).toHaveTextContent("05:37 am");
 
     assertFieldVisibleWithValue(screen.getByLabelText(t("communities:location")), "Concertgebouw");
@@ -176,7 +176,7 @@ describe("Event form", () => {
     });
     await user.click(startDateGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("08012021");
+    await user.keyboard("01082021");
 
     const startTimeGroup = await screen.findByRole("group", {
       name: t("communities:start_time"),
@@ -190,7 +190,7 @@ describe("Event form", () => {
     });
     await user.click(endDateGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("08012021");
+    await user.keyboard("01082021");
 
     const endTimeGroup = screen.getByRole("group", {
       name: t("communities:end_time"),
@@ -241,7 +241,7 @@ describe("Event form", () => {
     });
     await user.click(startDateGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("08012021");
+    await user.keyboard("01082021");
 
     const startTimeGroup = await screen.findByRole("group", {
       name: t("communities:start_time"),
@@ -255,7 +255,7 @@ describe("Event form", () => {
     });
     await user.click(endDateGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("08012021");
+    await user.keyboard("01082021");
 
     const endTimeGroup = screen.getByRole("group", {
       name: t("communities:end_time"),
@@ -297,7 +297,7 @@ describe("Event form", () => {
     });
     await user.click(startDateGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("08012021");
+    await user.keyboard("01082021");
 
     const startTimeGroup = await screen.findByRole("group", {
       name: t("communities:start_time"),
@@ -311,7 +311,7 @@ describe("Event form", () => {
     });
     await user.click(endDateGroup);
     await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("08012021");
+    await user.keyboard("01082021");
 
     const endTimeGroup = screen.getByRole("group", {
       name: t("communities:end_time"),

@@ -4,9 +4,11 @@ from google.protobuf.timestamp_pb2 import Timestamp
 from sqlalchemy import select, update
 from sqlalchemy.sql import func
 
+from couchers.config import config
 from couchers.db import session_scope
 from couchers.models import User
 from couchers.utils import (
+    create_session_cookies,
     date_id_from_page_token,
     date_id_to_page_token,
     dt_from_page_token,
@@ -14,6 +16,7 @@ from couchers.utils import (
     http_date,
     now,
     to_timezone,
+    utf16_length,
     wrap_coordinate,
 )
 from tests.fixtures.db import generate_user
@@ -62,6 +65,20 @@ def test_http_date_without_datetime(frozen_timewarp: FrozenTimewarp):
     frozen_timewarp.freeze_at(datetime(2024, 3, 20, 14, 25, 30, tzinfo=UTC))
 
     assert http_date() == "Wed, 20 Mar 2024 14:25:30 GMT"
+
+
+def test_session_cookies_partitioned():
+    config.DEV = False
+    config.COOKIE_SAMESITE = "None"
+
+    config.COOKIE_PARTITIONED = False
+    for cookie in create_session_cookies("token", 1, now()):
+        assert "Partitioned" not in cookie
+
+    config.COOKIE_PARTITIONED = True
+    for cookie in create_session_cookies("token", 1, now()):
+        assert "; Partitioned;" in cookie
+        assert "; Secure" in cookie
 
 
 def test_wrap_coordinate():
@@ -168,3 +185,10 @@ def test_to_timezone():
     # With datetime
     epoch_utc_plus_one = to_timezone(epoch_utc, utc_plus_one)
     assert epoch_utc_plus_one.isoformat() == "1970-01-01T01:00:00+01:00"
+
+
+def test_utf16_length():
+    assert utf16_length("") == 0
+    assert utf16_length("abc") == 3
+    assert utf16_length("é") == 1
+    assert utf16_length("😀") == 2

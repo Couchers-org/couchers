@@ -211,7 +211,8 @@ describe("cached data", () => {
       wrapper: sharedClientWrapper,
     });
 
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    // with cached data isLoading is already false, so wait for the refetch itself to finish
+    await waitFor(() => expect(result.current.isFetching).toBe(false));
 
     expect(result.current).toMatchObject({
       data: new Map([

@@ -10,6 +10,7 @@ import { GLOBAL, PUBLIC_TRIPS } from "i18n/namespaces";
 import { useEffect } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { Temporal } from "temporal-polyfill";
+import { charsRemaining } from "utils/validation";
 
 import { PublicTrip, useCreatePublicTrip, useUpdatePublicTrip } from "./useListPublicTrips";
 
@@ -89,7 +90,7 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
 
   const watchFromDate = useWatch({ control, name: "fromDate" });
   const watchDescription = useWatch({ control, name: "description" }) ?? "";
-  const descriptionCharsRemaining = DESCRIPTION_MIN_LENGTH - watchDescription.length;
+  const descriptionCharsRemaining = charsRemaining(watchDescription, DESCRIPTION_MIN_LENGTH);
 
   // PublicTrip proto only carries community_id, so fetch the community name in
   // edit mode. Hook is no-op when id is 0 (create mode already has the name).
@@ -118,7 +119,7 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
     const payload = {
       fromDate: fromDate.toString(),
       toDate: toDate.toString(),
-      description: description.trim(),
+      description,
       sameGenderOnly,
     };
     if (props.mode === "edit") {
@@ -134,7 +135,7 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
   return (
     <Dialog aria-labelledby={titleId} open={open} onClose={handleClose}>
       <DialogTitle id={titleId} onClose={handleClose}>
-        {isEdit ? t("publicTrips:edit_dialog_title") : t("publicTrips:create_dialog_title")}
+        {isEdit ? t("publicTrips:create_edit_dialog.edit_title") : t("publicTrips:create_edit_dialog.create_title")}
       </DialogTitle>
       <DialogContent>
         {error && (
@@ -150,10 +151,10 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
                 error={!!errors.fromDate}
                 helperText={errors.fromDate?.message}
                 id={`${DATE_FIELD_ID}-from`}
-                label={t("publicTrips:from_date_label")}
+                label={t("publicTrips:create_edit_dialog.from_date.label")}
                 name="fromDate"
                 rules={{
-                  required: t("publicTrips:from_date_required"),
+                  required: t("publicTrips:create_edit_dialog.from_date.required_error"),
                 }}
               />
               <Datepicker
@@ -161,11 +162,11 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
                 error={!!errors.toDate}
                 helperText={errors.toDate?.message}
                 id={`${DATE_FIELD_ID}-to`}
-                label={t("publicTrips:to_date_label")}
+                label={t("publicTrips:create_edit_dialog.to_date.label")}
                 name="toDate"
                 minValue={watchFromDate ?? Temporal.Now.plainDateISO()}
                 rules={{
-                  required: t("publicTrips:to_date_required"),
+                  required: t("publicTrips:create_edit_dialog.to_date.required_error"),
                 }}
               />
             </DateRow>
@@ -173,11 +174,12 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
               <Typography variant="body2">
                 <Typography
                   component="span"
+                  variant="inherit"
                   sx={{
                     fontWeight: 600,
                   }}
                 >
-                  {t("publicTrips:location_label")}
+                  {t("publicTrips:create_edit_dialog.location_label")}
                 </Typography>{" "}
                 {communityName}
               </Typography>
@@ -189,10 +191,10 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
                 <div>
                   <FormControlLabel
                     control={<Checkbox checked={value} onChange={onChange} />}
-                    label={t("publicTrips:same_gender_only_label")}
+                    label={t("publicTrips:create_edit_dialog.same_gender_only.label")}
                   />
                   <Typography variant="body2" color="textSecondary" sx={{ pl: 4 }}>
-                    {t("publicTrips:same_gender_only_helper")}
+                    {t("publicTrips:create_edit_dialog.same_gender_only.description")}
                   </Typography>
                 </div>
               )}
@@ -200,21 +202,20 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
             <TextField
               id="public-trip-description"
               {...register("description", {
-                required: t("publicTrips:description_required"),
+                required: t("publicTrips:create_edit_dialog.description.required_error"),
                 validate: (value) => {
                   if (value.trim().length === 0) {
-                    return t("publicTrips:description_required");
+                    return t("publicTrips:create_edit_dialog.description.required_error");
                   }
-                  if (value.length < DESCRIPTION_MIN_LENGTH) {
-                    return t("publicTrips:description_chars_remaining", {
-                      count: DESCRIPTION_MIN_LENGTH - value.length,
-                    });
-                  }
-                  return true;
+                  const remaining = charsRemaining(value, DESCRIPTION_MIN_LENGTH);
+                  return (
+                    remaining === 0 ||
+                    t("publicTrips:create_edit_dialog.description.chars_remaining", { count: remaining })
+                  );
                 },
               })}
-              label={t("publicTrips:description_label")}
-              placeholder={t("publicTrips:description_placeholder")}
+              label={t("publicTrips:create_edit_dialog.description.label")}
+              placeholder={t("publicTrips:create_edit_dialog.description.placeholder")}
               multiline
               minRows={4}
               fullWidth
@@ -223,7 +224,7 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
                 errors.description?.message
                   ? errors.description.message
                   : descriptionCharsRemaining > 0
-                    ? t("publicTrips:description_chars_remaining", {
+                    ? t("publicTrips:create_edit_dialog.description.chars_remaining", {
                         count: descriptionCharsRemaining,
                       })
                     : ""
@@ -237,7 +238,9 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
           {t("global:cancel")}
         </Button>
         <Button type="submit" form={formId} loading={isPending}>
-          {isEdit ? t("publicTrips:edit_dialog_submit") : t("publicTrips:create_dialog_submit")}
+          {isEdit
+            ? t("publicTrips:create_edit_dialog.edit_submit_button")
+            : t("publicTrips:create_edit_dialog.create_submit_button")}
         </Button>
       </DialogActions>
     </Dialog>

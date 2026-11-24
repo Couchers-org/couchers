@@ -44,7 +44,7 @@ make mypy
 
 ### Backend (Python)
 - Uses `uv` for dependency management
-- SQLAlchemy 2.0 with mapped_column style
+- SQLAlchemy 2.1 with mapped_column style
 - gRPC for API (defined in `/app/proto`)
 - Background jobs in `couchers/jobs/handlers.py`
 - Notifications system in `couchers/notifications/`
@@ -82,6 +82,7 @@ make mypy
 - Prefer modern 2025 design patterns for UI components
 - Add Tanstack `queryKeys` to `app/web/features/queryKeys.ts` if they are used in more than one place
 - Use `slotProps` rather than `InputLabelProps` for MUI (`InputLabelProps` is deprecated)
+- For any horizontal row of cards (dashboard widgets, carousels), use `CardTrack` + `useCardTrack` from `components/CardTrack`, never `FadingScrollTrack` with hand-sized children. It sets card width, stops long text stretching cards, and narrows cards on mobile. Pass cards as direct children with no wrapper `Box`, don't set `height: 100%` on a card's root (it breaks equal-height stretching), and spread `track.navProps` into `DashboardSectionHeader`
 
 ### Web Dark Mode
 - **Always use CSS variables for theme colors** to ensure dark mode compatibility:
