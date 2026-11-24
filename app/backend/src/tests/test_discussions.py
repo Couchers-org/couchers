@@ -1,22 +1,22 @@
 import grpc
-import pytest
 from google.protobuf.wrappers_pb2 import StringValue
 from sqlalchemy import select
 
 from couchers.db import session_scope
 from couchers.models import ModerationObjectType, ModerationState, ModerationVisibility
 from couchers.models.discussions import ContentChangeType, DiscussionVersion
-from couchers.proto import admin_pb2, communities_pb2, discussions_pb2, moderation_pb2, notifications_pb2, threads_pb2
+from couchers.proto import admin_pb2, communities_pb2, discussions_pb2, moderation_pb2, notifications_pb2
 from couchers.utils import now, to_aware_datetime
+from tests.fixtures.api import notifications as notifications_api
+from tests.fixtures.api import threads as threads_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import Moderator, PushCollector, process_jobs
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
     communities_session,
     discussions_session,
-    notifications_session,
     real_admin_session,
     real_moderation_session,
-    threads_session,
 )
 from tests.test_communities import create_community, create_group
 
@@ -24,56 +24,50 @@ from tests.test_communities import create_community, create_group
 def test_create_discussion_errors(db):
     user, token = generate_user()
     with discussions_session(token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Missing discussion title."):
             api.CreateDiscussion(
                 discussions_pb2.CreateDiscussionReq(
                     title=None,
                     content="dummy content",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Missing discussion title."
 
     with discussions_session(token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Missing discussion content."):
             api.CreateDiscussion(
                 discussions_pb2.CreateDiscussionReq(
                     title="dummy title",
                     content=None,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Missing discussion content."
 
 
 def test_create_and_get_discussion(db, frozen_timewarp, push_collector: PushCollector, moderator: Moderator):
     generate_user()
-    user, token = generate_user()
-    user2, token2 = generate_user()
+    creator_user, creator_token = generate_user()
+    admin_user, admin_token = generate_user()
     generate_user()
     generate_user()
 
-    with notifications_session(token2) as notifications:
-        notifications.SetNotificationSettings(
-            notifications_pb2.SetNotificationSettingsReq(
-                preferences=[
-                    notifications_pb2.SingleNotificationPreference(
-                        topic="discussion",
-                        action="create",
-                        delivery_method="push",
-                        enabled=True,
-                    )
-                ],
+    notifications_api.set_notification_settings(
+        token=admin_token,
+        preferences=[
+            notifications_pb2.SingleNotificationPreference(
+                topic="discussion",
+                action="create",
+                delivery_method="push",
+                enabled=True,
             )
-        )
+        ],
+    )
 
     with session_scope() as session:
-        community = create_community(session, 0, 1, "Testing Community", [user2], [], None)
-        group_id = create_group(session, "Testing Group", [user2], [], community).id
+        community = create_community(session, 0, 1, "Testing Community", [admin_user], [], None)
+        group_id = create_group(session, "Testing Group", [admin_user], [], community).id
         community_id = community.id
-        user2_id = user2.id
+        admin_user_id = admin_user.id
 
-    with discussions_session(token) as api:
+    with discussions_session(creator_token) as api:
         time_before_create = now()
         res = api.CreateDiscussion(
             discussions_pb2.CreateDiscussionReq(
@@ -88,7 +82,7 @@ def test_create_and_get_discussion(db, frozen_timewarp, push_collector: PushColl
         assert res.content == "dummy content"
         assert res.slug == "dummy-title"
         assert time_before_create <= to_aware_datetime(res.created) <= time_after_create
-        assert res.creator_user_id == user.id
+        assert res.creator_user_id == creator_user.id
         assert res.owner_community_id == community_id
 
         discussion_id = res.discussion_id
@@ -96,13 +90,13 @@ def test_create_and_get_discussion(db, frozen_timewarp, push_collector: PushColl
     moderator.approve_discussion(discussion_id)
     process_jobs()
 
-    push = push_collector.pop_for_user(user2_id, last=True)
+    push = push_collector.pop_for_user(admin_user_id, last=True)
     assert push.content.title == "New discussion: dummy title"
     assert push.content.ios_title == "New Discussion"
     assert push.content.ios_subtitle == "dummy title"
-    assert push.content.body == f"{user.name} started the discussion in Testing Community."
+    assert push.content.body == f"{creator_user.name} started the discussion in Testing Community."
 
-    with discussions_session(token) as api:
+    with discussions_session(creator_token) as api:
         res = api.GetDiscussion(
             discussions_pb2.GetDiscussionReq(
                 discussion_id=discussion_id,
@@ -113,10 +107,10 @@ def test_create_and_get_discussion(db, frozen_timewarp, push_collector: PushColl
         assert res.content == "dummy content"
         assert res.slug == "dummy-title"
         assert time_before_create <= to_aware_datetime(res.created) <= time_after_create
-        assert res.creator_user_id == user.id
+        assert res.creator_user_id == creator_user.id
         assert res.owner_community_id == community_id
 
-    with discussions_session(token) as api:
+    with discussions_session(creator_token) as api:
         time_before_create = now()
         res = api.CreateDiscussion(
             discussions_pb2.CreateDiscussionReq(
@@ -131,12 +125,12 @@ def test_create_and_get_discussion(db, frozen_timewarp, push_collector: PushColl
         assert res.content == "dummy content"
         assert res.slug == "dummy-title"
         assert time_before_create <= to_aware_datetime(res.created) <= time_after_create
-        assert res.creator_user_id == user.id
+        assert res.creator_user_id == creator_user.id
         assert res.owner_group_id == group_id
 
         discussion_id = res.discussion_id
 
-    with discussions_session(token) as api:
+    with discussions_session(creator_token) as api:
         res = api.GetDiscussion(
             discussions_pb2.GetDiscussionReq(
                 discussion_id=discussion_id,
@@ -147,7 +141,7 @@ def test_create_and_get_discussion(db, frozen_timewarp, push_collector: PushColl
         assert res.content == "dummy content"
         assert res.slug == "dummy-title"
         assert time_before_create <= to_aware_datetime(res.created) <= time_after_create
-        assert res.creator_user_id == user.id
+        assert res.creator_user_id == creator_user.id
         assert res.owner_group_id == group_id
 
 
@@ -207,14 +201,12 @@ def test_update_discussion_permission_denied(db):
         discussion_id = res.discussion_id
 
     with discussions_session(other_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You are not allowed to edit this discussion."):
             api.UpdateDiscussion(
                 discussions_pb2.UpdateDiscussionReq(
                     discussion_id=discussion_id,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == "You are not allowed to edit this discussion."
 
 
 def test_update_deleted_discussion(db):
@@ -235,10 +227,8 @@ def test_update_deleted_discussion(db):
         api.DeleteDiscussion(discussions_pb2.DeleteDiscussionReq(discussion_id=discussion_id))
 
     with discussions_session(token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "This discussion has been deleted."):
             api.UpdateDiscussion(discussions_pb2.UpdateDiscussionReq(discussion_id=discussion_id))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "This discussion has been deleted."
 
 
 def test_delete_discussion_by_creator(db):
@@ -289,14 +279,12 @@ def test_delete_discussion_permission_denied_for_non_creator(db):
         assert res.can_edit
 
     with discussions_session(random_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED):
             api.DeleteDiscussion(discussions_pb2.DeleteDiscussionReq(discussion_id=discussion_id))
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
     with discussions_session(community_admin_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED):
             api.DeleteDiscussion(discussions_pb2.DeleteDiscussionReq(discussion_id=discussion_id))
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
 
 def test_deleted_discussion_not_in_list(db):
@@ -352,9 +340,7 @@ def test_deleted_discussion_thread_still_accessible(db, moderator: Moderator):
 
     process_jobs()
 
-    with threads_session(commenter_token) as api:
-        comment_thread_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=thread_id, content="a comment")).thread_id
-    moderator.approve_thread_post(comment_thread_id)
+    threads_api.post_reply(token=commenter_token, thread_id=thread_id, approve_by=moderator)
 
     with discussions_session(token) as api:
         api.DeleteDiscussion(discussions_pb2.DeleteDiscussionReq(discussion_id=discussion_id))
@@ -362,9 +348,8 @@ def test_deleted_discussion_thread_still_accessible(db, moderator: Moderator):
         assert res.deleted
         assert res.thread.num_responses == 1
 
-    with threads_session(token) as api:
-        res = api.GetThread(threads_pb2.GetThreadReq(thread_id=thread_id))
-        assert len(res.replies) == 1
+    res = threads_api.get_thread(token=token, thread_id=thread_id)
+    assert len(res.replies) == 1
 
 
 def test_delete_comment_shows_placeholder_with_replies(db, moderator: Moderator):
@@ -389,39 +374,25 @@ def test_delete_comment_shows_placeholder_with_replies(db, moderator: Moderator)
         thread_id = discussion.thread.thread_id
 
     # commenter adds a top-level comment
-    with threads_session(commenter_token) as api:
-        comment_thread_id = api.PostReply(
-            threads_pb2.PostReplyReq(thread_id=thread_id, content="top-level comment")
-        ).thread_id
+    comment_thread_id = threads_api.post_reply(token=commenter_token, thread_id=thread_id, approve_by=moderator)
 
     # replier adds two nested replies
-    with threads_session(replier_token) as api:
-        reply_thread_id_1 = api.PostReply(
-            threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="nested reply 1")
-        ).thread_id
-        reply_thread_id_2 = api.PostReply(
-            threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="nested reply 2")
-        ).thread_id
-
-    moderator.approve_thread_post(comment_thread_id)
-    moderator.approve_thread_post(reply_thread_id_1)
-    moderator.approve_thread_post(reply_thread_id_2)
+    threads_api.post_reply(token=replier_token, thread_id=comment_thread_id, approve_by=moderator)
+    threads_api.post_reply(token=replier_token, thread_id=comment_thread_id, approve_by=moderator)
 
     # commenter deletes their top-level comment
-    with threads_session(commenter_token) as api:
-        api.DeleteReply(threads_pb2.DeleteReplyReq(thread_id=comment_thread_id))
+    threads_api.delete_reply(token=commenter_token, thread_id=comment_thread_id)
 
     # the top-level comment appears as a deleted placeholder (has replies), replies still visible
-    with threads_session(token) as api:
-        thread_res = api.GetThread(threads_pb2.GetThreadReq(thread_id=thread_id))
-        assert len(thread_res.replies) == 1
-        placeholder = thread_res.replies[0]
-        assert placeholder.deleted
-        assert placeholder.content == ""
-        assert placeholder.author_user_id == 0
+    thread_res = threads_api.get_thread(token=token, thread_id=thread_id)
+    assert len(thread_res.replies) == 1
+    placeholder = thread_res.replies[0]
+    assert placeholder.deleted
+    assert placeholder.content == ""
+    assert placeholder.author_user_id == 0
 
-        nested = api.GetThread(threads_pb2.GetThreadReq(thread_id=placeholder.thread_id))
-        assert len(nested.replies) == 2
+    nested = threads_api.get_thread(token=token, thread_id=placeholder.thread_id)
+    assert len(nested.replies) == 2
 
     # num_responses counts the 2 visible nested replies (not the deleted top-level)
     with discussions_session(token) as api:
@@ -456,19 +427,19 @@ def test_admin_delete_discussion(db):
 
 def test_discussion_notifications_regression(db, push_collector: PushCollector, moderator: Moderator):
     generate_user()
-    user, token = generate_user()
-    user2, token2 = generate_user()
-    user3, token3 = generate_user()
+    creator_user, creator_token = generate_user()
+    commenter_user, commenter_token = generate_user()
+    replier_user, replier_token = generate_user()
     generate_user()
     generate_user()
 
     with session_scope() as session:
-        community = create_community(session, 0, 1, "Testing Community", [user2], [], None)
-        group_id = create_group(session, "Testing Group", [user2], [], community).id
+        community = create_community(session, 0, 1, "Testing Community", [commenter_user], [], None)
+        group_id = create_group(session, "Testing Group", [commenter_user], [], community).id
         community_id = community.id
-        user2_id = user2.id
+        commenter_user_id = commenter_user.id
 
-    with discussions_session(token) as api:
+    with discussions_session(creator_token) as api:
         res = api.CreateDiscussion(
             discussions_pb2.CreateDiscussionReq(
                 title="dummy title",
@@ -480,41 +451,31 @@ def test_discussion_notifications_regression(db, push_collector: PushCollector, 
         assert res.title == "dummy title"
         assert res.content == "dummy content"
         assert res.slug == "dummy-title"
-        assert res.creator_user_id == user.id
+        assert res.creator_user_id == creator_user.id
         assert res.owner_community_id == community_id
 
         discussion_id = res.discussion_id
         thread_id = res.thread.thread_id
 
-    with threads_session(token2) as api:
-        comment_thread_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=thread_id, content="comment")).thread_id
-    moderator.approve_thread_post(comment_thread_id)
+    comment_thread_id = threads_api.post_reply(token=commenter_token, thread_id=thread_id, approve_by=moderator)
 
-    with threads_session(token3) as api:
-        reply_thread_id_a = api.PostReply(
-            threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="reply to comment")
-        ).thread_id
-    moderator.approve_thread_post(reply_thread_id_a)
+    threads_api.post_reply(token=replier_token, thread_id=comment_thread_id, approve_by=moderator)
 
-    with threads_session(token) as api:
-        reply_thread_id_b = api.PostReply(
-            threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="reply to reply to comment")
-        ).thread_id
-    moderator.approve_thread_post(reply_thread_id_b)
+    threads_api.post_reply(token=creator_token, thread_id=comment_thread_id, approve_by=moderator)
 
     process_jobs()
 
-    # User2 should get 2 notifications about 2 replies to their comment, User3 should get 1 notification about 1 reply
-    push = push_collector.pop_for_user(user2_id, last=False)
-    assert push.content.title == f"{user3.name} • dummy title"
+    # The commenter should get 2 notifications about 2 replies to their comment, the replier should get 1 notification about 1 reply
+    push = push_collector.pop_for_user(commenter_user_id, last=False)
+    assert push.content.title == f"{replier_user.name} • dummy title"
     assert push.topic_action == "thread:reply"
 
-    push = push_collector.pop_for_user(user2_id, last=True)
-    assert push.content.title == f"{user.name} • dummy title"
+    push = push_collector.pop_for_user(commenter_user_id, last=True)
+    assert push.content.title == f"{creator_user.name} • dummy title"
     assert push.topic_action == "thread:reply"
 
-    push = push_collector.pop_for_user(user3.id, last=True)
-    assert push.content.title == f"{user.name} • dummy title"
+    push = push_collector.pop_for_user(replier_user.id, last=True)
+    assert push.content.title == f"{creator_user.name} • dummy title"
     assert push.topic_action == "thread:reply"
 
 
@@ -569,9 +530,8 @@ def test_shadowed_discussion_visible_to_author_only(db):
 
     # Other user cannot
     with discussions_session(other_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             api.GetDiscussion(discussions_pb2.GetDiscussionReq(discussion_id=discussion_id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_shadowed_discussion_excluded_from_listings(db):
@@ -658,9 +618,8 @@ def test_hidden_discussion_filtered_for_author_too(db, moderator: Moderator):
         )
 
     with discussions_session(author_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             api.GetDiscussion(discussions_pb2.GetDiscussionReq(discussion_id=discussion_id))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_list_my_communities_discussions_respects_moderation(db, moderator: Moderator):
@@ -857,13 +816,16 @@ def test_admin_delete_discussion_creates_version_record(db):
 
 def test_create_discussion_incomplete_profile(db):
     user, token = generate_user(complete_profile=False)
-    user2, token2 = generate_user()
+    admin_user, admin_token = generate_user()
 
     with session_scope() as session:
-        community_id = create_community(session, 0, 1, "Testing Community", [user2], [], None).id
+        community_id = create_community(session, 0, 1, "Testing Community", [admin_user], [], None).id
 
     with discussions_session(token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION,
+            "You have to complete your profile before you can start a discussion.",
+        ):
             api.CreateDiscussion(
                 discussions_pb2.CreateDiscussionReq(
                     title="dummy title",
@@ -871,5 +833,3 @@ def test_create_discussion_incomplete_profile(db):
                     owner_community_id=community_id,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You have to complete your profile before you can start a discussion."

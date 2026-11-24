@@ -35,10 +35,12 @@ import {
 } from "proto/communities_pb";
 import { Discussion } from "proto/discussions_pb";
 import { GetVolunteersRes } from "proto/public_pb";
-import { GetThreadRes } from "proto/threads_pb";
+import { GetThreadRes, ThreadSortOrder } from "proto/threads_pb";
 import { useEffect } from "react";
 import { routeToCommunity } from "routes";
 import { service } from "service";
+
+type ThreadQueryKey = [...ReturnType<typeof threadKey>, ThreadSortOrder];
 
 export const useCommunity = (
   id: number,
@@ -177,19 +179,16 @@ export const useNewDiscussionMutation = (onSuccess?: () => void) => {
 
 export const useThread = (
   threadId: number,
+  sortOrder: ThreadSortOrder,
   options?: Omit<
-    UseInfiniteQueryOptions<
-      GetThreadRes.AsObject,
-      RpcError,
-      InfiniteData<GetThreadRes.AsObject>,
-      ReturnType<typeof threadKey>
-    >,
+    UseInfiniteQueryOptions<GetThreadRes.AsObject, RpcError, InfiniteData<GetThreadRes.AsObject>, ThreadQueryKey>,
     "queryKey" | "queryFn" | "getNextPageParam" | "initialPageParam" | "enabled"
   > & { enabled?: boolean; initialPageParam?: string },
 ) =>
-  useInfiniteQuery<GetThreadRes.AsObject, RpcError, InfiniteData<GetThreadRes.AsObject>, ReturnType<typeof threadKey>>({
-    queryKey: threadKey(threadId),
-    queryFn: ({ pageParam }) => service.threads.getThread(threadId, pageParam as string | undefined),
+  useInfiniteQuery<GetThreadRes.AsObject, RpcError, InfiniteData<GetThreadRes.AsObject>, ThreadQueryKey>({
+    // under threadKey(threadId), so invalidating the thread refreshes both orders
+    queryKey: [...threadKey(threadId), sortOrder],
+    queryFn: ({ pageParam }) => service.threads.getThread(threadId, pageParam as string | undefined, sortOrder),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
     initialPageParam: undefined,
     ...options,

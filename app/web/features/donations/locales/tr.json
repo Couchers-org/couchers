@@ -18,7 +18,7 @@
     },
     "helper_text": "Bağışını tamamlamak için, harcama yöneticimiz olan Stripe'a yönlendirileceksin.Herhangi bir zaman, var olan bir bağışı değiştirmek veya iptal etmek için <portalLink>buraya tıklayarak bağış portalımıza gidebilirsin</portalLink>."
   },
-  "donations_recurrence_explainer": "Aylık bir bağış geleceği planlamamıza ve faaliyetlerimizi istikrarlı bir şekilde devam ettirmemize yardımcı oluyor.",
+  "donations_recurrence_explainer": "Düzenli bir bağış geleceği planlamamıza ve faaliyetlerimizi istikrarlı bir şekilde devam ettirmemize yardımcı oluyor.",
   "settings_fragment": {
     "button_text": "Bağış yönetim portalına git",
     "title": "Bağışlarını yönet",

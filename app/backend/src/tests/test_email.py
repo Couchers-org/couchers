@@ -2,7 +2,7 @@ from unittest.mock import patch
 from urllib.parse import parse_qs, urlparse
 
 import pytest
-from sqlalchemy import func, select, update
+from sqlalchemy import func, update
 
 from couchers.config import config
 from couchers.context import make_background_user_context, make_logged_out_context
@@ -11,7 +11,6 @@ from couchers.db import session_scope
 from couchers.i18n import LocalizationContext
 from couchers.models import (
     ContentReport,
-    Email,
     ModerationObjectType,
     ModerationState,
     ModerationVisibility,
@@ -22,7 +21,7 @@ from couchers.models import (
 )
 from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
-from couchers.proto import api_pb2, auth_pb2, editor_pb2, notification_data_pb2, notifications_pb2
+from couchers.proto import api_pb2, auth_pb2, editor_pb2, notification_data_pb2
 from couchers.tasks import (
     enforce_community_memberships,
     maybe_send_reference_report_email,
@@ -31,12 +30,12 @@ from couchers.tasks import (
     send_signup_email,
 )
 from tests.fixtures.api import events as events_api
+from tests.fixtures.api import notifications as notifications_api
 from tests.fixtures.db import generate_user, get_friend_relationship, make_friends
 from tests.fixtures.misc import EmailCollector, Moderator, process_jobs
 from tests.fixtures.sessions import (
     api_session,
     auth_api_session,
-    notifications_session,
     real_editor_session,
 )
 from tests.test_communities import create_community
@@ -263,8 +262,7 @@ def test_do_not_email_security(db, email_collector: EmailCollector):
 
     password_reset_token = urlsafe_secure_token()
 
-    with notifications_session(token) as notifications:
-        notifications.SetNotificationSettings(notifications_pb2.SetNotificationSettingsReq(enable_do_not_email=True))
+    notifications_api.set_notification_settings(token=token, enable_do_not_email=True)
 
     # make sure we still get security emails
 
@@ -297,16 +295,15 @@ def test_do_not_email_security(db, email_collector: EmailCollector):
 
 
 def test_do_not_email_non_security(db, email_collector: EmailCollector):
-    user, token1 = generate_user(complete_profile=True)
-    from_user, token2 = generate_user(complete_profile=True)
+    user, token = generate_user(complete_profile=True)
+    from_user, from_token = generate_user(complete_profile=True)
     # Need a moderator to approve the friend request since UMS defers notification
     mod_user, mod_token = generate_user(is_superuser=True)
     moderator = Moderator(mod_user, mod_token)
 
-    with notifications_session(token1) as notifications:
-        notifications.SetNotificationSettings(notifications_pb2.SetNotificationSettingsReq(enable_do_not_email=True))
+    notifications_api.set_notification_settings(token=token, enable_do_not_email=True)
 
-    with api_session(token2) as api:
+    with api_session(from_token) as api:
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user.id))
 
     friend_relationship = get_friend_relationship(from_user, user)
@@ -318,12 +315,12 @@ def test_do_not_email_non_security(db, email_collector: EmailCollector):
 
 def test_do_not_email_non_security_unsublink(db, email_collector: EmailCollector):
     user, _ = generate_user(complete_profile=True)
-    from_user, token2 = generate_user(complete_profile=True)
+    from_user, from_token = generate_user(complete_profile=True)
     # Need a moderator to approve the friend request since UMS defers notification
     mod_user, mod_token = generate_user(is_superuser=True)
     moderator = Moderator(mod_user, mod_token)
 
-    with api_session(token2) as api:
+    with api_session(from_token) as api:
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user.id))
 
     friend_relationship = get_friend_relationship(from_user, user)
@@ -346,8 +343,8 @@ def test_email_prefix_config(db, email_collector: EmailCollector):
             topic_action=NotificationTopicAction.donation__received,
             key="",
             data=notification_data_pb2.DonationReceived(
-                amount=20,
                 receipt_url="https://example.com/receipt/12345",
+                amount=20,
             ),
         )
 
@@ -367,8 +364,8 @@ def test_email_prefix_config(db, email_collector: EmailCollector):
             topic_action=NotificationTopicAction.donation__received,
             key="",
             data=notification_data_pb2.DonationReceived(
-                amount=20,
                 receipt_url="https://example.com/receipt/12345",
+                amount=20,
             ),
         )
 
@@ -378,10 +375,8 @@ def test_email_prefix_config(db, email_collector: EmailCollector):
     assert email2.subject == "Thank you for your donation to Couchers.org!"
 
 
-def test_send_donation_email(db):
+def test_send_donation_email(db, email_collector: EmailCollector):
     user, _ = generate_user(name="Testy von Test", email="testing@couchers.org.invalid")
-
-    config.ENABLE_EMAIL = True
 
     with session_scope() as session:
         notify(
@@ -390,22 +385,18 @@ def test_send_donation_email(db):
             topic_action=NotificationTopicAction.donation__received,
             key="",
             data=notification_data_pb2.DonationReceived(
-                amount=20,
                 receipt_url="https://example.com/receipt/12345",
+                amount=20,
             ),
         )
 
-    with patch("couchers.email.smtp.smtplib.SMTP"):
-        process_jobs()
+    email = email_collector.pop_for_recipient(user.email, last=True)
+    assert email.subject == "[TEST] Thank you for your donation to Couchers.org!"
+    assert (
+        email.plain
+        == """Hi Testy von Test,
 
-    with session_scope() as session:
-        email = session.execute(select(Email)).scalar_one()
-        assert email.subject == "[TEST] Thank you for your donation to Couchers.org!"
-        assert (
-            email.plain
-            == """Hi Testy von Test,
-
-Thank you so much for your donation of $20 to Couchers.org.
+Thank you so much for your donation of US$20 to Couchers.org.
 
 Your contribution will go towards building and sustaining the Couchers.org community, and is vital for our goal of a free and non-profit couch surfing platform.
 
@@ -426,15 +417,15 @@ Couchers.org Founders
 
 This is a security email, you cannot unsubscribe from it.
 """
-        )
+    )
 
-        assert "Thank you so much for your donation of <b>$20</b> to Couchers.org." in email.html
-        assert email.sender_name == "Couchers.org"
-        assert email.sender_email == "notify@couchers.org.invalid"
-        assert email.recipient == "testing@couchers.org.invalid"
-        assert "https://example.com/receipt/12345" in email.html
-        assert not email.list_unsubscribe_header
-        assert email.source_data and ("donation:received" in email.source_data)
+    assert "Thank you so much for your donation of <b>US$20</b> to Couchers.org." in email.html
+    assert email.sender_name == "Couchers.org"
+    assert email.sender_email == "notify@couchers.org.invalid"
+    assert email.recipient == "testing@couchers.org.invalid"
+    assert "https://example.com/receipt/12345" in email.html
+    assert not email.list_unsubscribe_header
+    assert email.source_data and ("donation:received" in email.source_data)
 
 
 def test_chat_missed_messages_list_unsubscribe_header(db, email_collector: EmailCollector):

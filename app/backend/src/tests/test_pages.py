@@ -1,7 +1,6 @@
 from datetime import timedelta
 
 import grpc
-import pytest
 from google.protobuf import wrappers_pb2
 
 from couchers.crypto import random_hex
@@ -21,6 +20,7 @@ from couchers.models import (
 from couchers.proto import pages_pb2
 from couchers.utils import create_polygon_lat_lng, now, to_aware_datetime, to_multi
 from tests.fixtures.db import generate_user
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import pages_session
 from tests.fixtures.timewarp import FrozenTimewarp
 from tests.test_communities import create_community
@@ -32,7 +32,7 @@ def test_create_place_errors(db):
         create_community(session, 0, 2, "Root node", [user], [], None)
 
     with pages_session(token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Missing page title."):
             api.CreatePlace(
                 pages_pb2.CreatePlaceReq(
                     title=None,
@@ -44,11 +44,9 @@ def test_create_place_errors(db):
                     ),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Missing page title."
 
     with pages_session(token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Missing page text."):
             api.CreatePlace(
                 pages_pb2.CreatePlaceReq(
                     title="dummy title",
@@ -60,11 +58,9 @@ def test_create_place_errors(db):
                     ),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Missing page text."
 
     with pages_session(token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Missing page address."):
             api.CreatePlace(
                 pages_pb2.CreatePlaceReq(
                     title="dummy title",
@@ -76,11 +72,9 @@ def test_create_place_errors(db):
                     ),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Missing page address."
 
     with pages_session(token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Missing page geo-location."):
             api.CreatePlace(
                 pages_pb2.CreatePlaceReq(
                     title="dummy title",
@@ -88,8 +82,6 @@ def test_create_place_errors(db):
                     address="dummy address",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Missing page geo-location."
 
 
 def test_create_guide_errors(db):
@@ -98,7 +90,7 @@ def test_create_guide_errors(db):
         c_id = create_community(session, 0, 2, "Root node", [user], [], None).id
 
     with pages_session(token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Missing page title."):
             api.CreateGuide(
                 pages_pb2.CreateGuideReq(
                     title=None,
@@ -106,11 +98,9 @@ def test_create_guide_errors(db):
                     parent_community_id=c_id,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Missing page title."
 
     with pages_session(token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Missing page text."):
             api.CreateGuide(
                 pages_pb2.CreateGuideReq(
                     title="dummy title",
@@ -118,22 +108,18 @@ def test_create_guide_errors(db):
                     parent_community_id=c_id,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Missing page text."
 
     with pages_session(token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Missing page parent."):
             api.CreateGuide(
                 pages_pb2.CreateGuideReq(
                     title="dummy title",
                     content="dummy content",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Missing page parent."
 
     with pages_session(token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Community not found."):
             api.CreateGuide(
                 pages_pb2.CreateGuideReq(
                     title="dummy title",
@@ -141,11 +127,12 @@ def test_create_guide_errors(db):
                     parent_community_id=9999,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Community not found."
 
     with pages_session(token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.INVALID_ARGUMENT,
+            "You need to either supply an address and location or neither for a guide.",
+        ):
             api.CreateGuide(
                 pages_pb2.CreateGuideReq(
                     title="dummy title",
@@ -154,11 +141,12 @@ def test_create_guide_errors(db):
                     parent_community_id=c_id,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "You need to either supply an address and location or neither for a guide."
 
     with pages_session(token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(
+            grpc.StatusCode.INVALID_ARGUMENT,
+            "You need to either supply an address and location or neither for a guide.",
+        ):
             api.CreateGuide(
                 pages_pb2.CreateGuideReq(
                     title="dummy title",
@@ -170,8 +158,6 @@ def test_create_guide_errors(db):
                     parent_community_id=c_id,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "You need to either supply an address and location or neither for a guide."
 
 
 def test_create_page_place(db, frozen_timewarp):
@@ -279,12 +265,12 @@ def test_create_page_guide(db, frozen_timewarp):
 
 
 def test_get_page(db, frozen_timewarp):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    creator_user, creator_token = generate_user()
+    viewer_user, viewer_token = generate_user()
     with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Root node", [user1], [], None).id
+        c_id = create_community(session, 0, 2, "Root node", [creator_user], [], None).id
 
-    with pages_session(token1) as api:
+    with pages_session(creator_token) as api:
         time_before_create = now()
         page_id = api.CreatePlace(
             pages_pb2.CreatePlaceReq(
@@ -298,7 +284,7 @@ def test_get_page(db, frozen_timewarp):
             )
         ).page_id
 
-    with pages_session(token2) as api:
+    with pages_session(viewer_token) as api:
         time_before_get = now()
         res = api.GetPage(pages_pb2.GetPageReq(page_id=page_id))
         assert res.title == "dummy title"
@@ -309,12 +295,12 @@ def test_get_page(db, frozen_timewarp):
         assert res.slug == "dummy-title"
         assert time_before_create <= to_aware_datetime(res.created) <= time_before_get
         assert time_before_create <= to_aware_datetime(res.last_edited) <= time_before_get
-        assert res.last_editor_user_id == user1.id
-        assert res.creator_user_id == user1.id
-        assert res.owner_user_id == user1.id
+        assert res.last_editor_user_id == creator_user.id
+        assert res.creator_user_id == creator_user.id
+        assert res.owner_user_id == creator_user.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.editor_user_ids == [user1.id]
+        assert res.editor_user_ids == [creator_user.id]
         assert not res.can_edit
         assert not res.can_moderate
         assert res.thread.thread_id > 0
@@ -471,13 +457,13 @@ def test_owner_not_moderator(db):
     """
     You can be the owner of content yet not have moderation rights
     """
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    moderator_user, moderator_token = generate_user()
+    owner_user, owner_token = generate_user()
     with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Root node", [user1], [], None).id
+        c_id = create_community(session, 0, 2, "Root node", [moderator_user], [], None).id
 
-    # user2 makes page, is owner but not moderator, so can edit, not moderate
-    with pages_session(token2) as api:
+    # owner_user makes page, is owner but not moderator, so can edit, not moderate
+    with pages_session(owner_token) as api:
         res = api.CreatePlace(
             pages_pb2.CreatePlaceReq(
                 title="dummy title",
@@ -495,19 +481,19 @@ def test_owner_not_moderator(db):
         assert res.location.lat == 1
         assert res.location.lng == 1
         assert res.slug == "dummy-title"
-        assert res.last_editor_user_id == user2.id
-        assert res.creator_user_id == user2.id
-        assert res.owner_user_id == user2.id
+        assert res.last_editor_user_id == owner_user.id
+        assert res.creator_user_id == owner_user.id
+        assert res.owner_user_id == owner_user.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.editor_user_ids == [user2.id]
+        assert res.editor_user_ids == [owner_user.id]
         assert res.can_edit
         assert not res.can_moderate
 
         page_id = res.page_id
 
-    # user1 is not owner so can't edit but can moderate
-    with pages_session(token1) as api:
+    # moderator_user is not owner so can't edit but can moderate
+    with pages_session(moderator_token) as api:
         res = api.GetPage(pages_pb2.GetPageReq(page_id=page_id))
         assert res.title == "dummy title"
         assert res.content == "dummy content"
@@ -515,12 +501,12 @@ def test_owner_not_moderator(db):
         assert res.location.lat == 1
         assert res.location.lng == 1
         assert res.slug == "dummy-title"
-        assert res.last_editor_user_id == user2.id
-        assert res.creator_user_id == user2.id
-        assert res.owner_user_id == user2.id
+        assert res.last_editor_user_id == owner_user.id
+        assert res.creator_user_id == owner_user.id
+        assert res.owner_user_id == owner_user.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.editor_user_ids == [user2.id]
+        assert res.editor_user_ids == [owner_user.id]
         assert res.can_edit
         assert res.can_moderate
         assert res.thread.thread_id > 0
@@ -545,44 +531,38 @@ def test_update_page_errors(db):
             )
         ).page_id
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Missing page title."):
             api.UpdatePage(
                 pages_pb2.UpdatePageReq(
                     page_id=page_id,
                     title=wrappers_pb2.StringValue(value=""),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Missing page title."
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Missing page text."):
             api.UpdatePage(
                 pages_pb2.UpdatePageReq(
                     page_id=page_id,
                     content=wrappers_pb2.StringValue(value=""),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Missing page text."
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Missing page address."):
             api.UpdatePage(
                 pages_pb2.UpdatePageReq(
                     page_id=page_id,
                     address=wrappers_pb2.StringValue(value=""),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Missing page address."
 
 
 def test_page_transfer(db):
     # transfers the pages
-    user1, token1 = generate_user()
+    owner_user, owner_token = generate_user()
     # admin of the community/group
-    user2, token2 = generate_user()
+    admin_user, admin_token = generate_user()
     # member of the community/group, shouldn't ever have edit access to anything
-    user3, token3 = generate_user()
+    member_user, member_token = generate_user()
     with session_scope() as session:
         # create a community
         node = Node(
@@ -603,7 +583,7 @@ def test_page_transfer(db):
         session.flush()
         main_page = Page(
             parent_node_id=community_cluster.parent_node_id,
-            creator_user_id=user2.id,
+            creator_user_id=admin_user.id,
             owner_cluster_id=community_cluster.id,
             type=PageType.main_page,
             thread_id=thread.id,
@@ -613,21 +593,21 @@ def test_page_transfer(db):
         session.add(
             PageVersion(
                 page_id=main_page.id,
-                editor_user_id=user2.id,
+                editor_user_id=admin_user.id,
                 title="Main page for the testing community",
                 content="Empty.",
             )
         )
         community_cluster.cluster_subscriptions.append(
             ClusterSubscription(
-                user_id=user2.id,
+                user_id=admin_user.id,
                 cluster_id=community_cluster.id,
                 role=ClusterRole.admin,
             )
         )
         community_cluster.cluster_subscriptions.append(
             ClusterSubscription(
-                user_id=user3.id,
+                user_id=member_user.id,
                 cluster_id=community_cluster.id,
                 role=ClusterRole.member,
             )
@@ -646,7 +626,7 @@ def test_page_transfer(db):
         session.flush()
         main_page = Page(
             parent_node_id=group_cluster.parent_node_id,
-            creator_user_id=user2.id,
+            creator_user_id=admin_user.id,
             owner_cluster_id=group_cluster.id,
             type=PageType.main_page,
             thread_id=thread.id,
@@ -656,21 +636,21 @@ def test_page_transfer(db):
         session.add(
             PageVersion(
                 page_id=main_page.id,
-                editor_user_id=user2.id,
+                editor_user_id=admin_user.id,
                 title="Main page for the testing community",
                 content="Empty.",
             )
         )
         group_cluster.cluster_subscriptions.append(
             ClusterSubscription(
-                user_id=user2.id,
+                user_id=admin_user.id,
                 cluster_id=group_cluster.id,
                 role=ClusterRole.admin,
             )
         )
         group_cluster.cluster_subscriptions.append(
             ClusterSubscription(
-                user_id=user3.id,
+                user_id=member_user.id,
                 cluster_id=group_cluster.id,
                 role=ClusterRole.member,
             )
@@ -681,7 +661,7 @@ def test_page_transfer(db):
         community_cluster_id = community_cluster.id
         group_id = group_cluster.id
 
-    with pages_session(token1) as api:
+    with pages_session(owner_token) as api:
         create_page_req = pages_pb2.CreatePlaceReq(
             title="title",
             content="content",
@@ -694,19 +674,19 @@ def test_page_transfer(db):
 
         # transfer should work fine to a community
         page1 = api.CreatePlace(create_page_req)
-        assert page1.owner_user_id == user1.id
+        assert page1.owner_user_id == owner_user.id
         assert page1.can_edit
         assert not page1.can_moderate
 
-    with pages_session(token2) as api:
+    with pages_session(admin_token) as api:
         assert api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_edit
         assert api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_moderate
 
-    with pages_session(token3) as api:
+    with pages_session(member_token) as api:
         assert not api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_edit
         assert not api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_moderate
 
-    with pages_session(token1) as api:
+    with pages_session(owner_token) as api:
         page1 = api.TransferPage(
             pages_pb2.TransferPageReq(
                 page_id=page1.page_id,
@@ -717,43 +697,41 @@ def test_page_transfer(db):
         assert not page1.can_edit
         assert not page1.can_moderate
 
-    with pages_session(token2) as api:
+    with pages_session(admin_token) as api:
         assert api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_edit
         assert api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_moderate
 
-    with pages_session(token3) as api:
+    with pages_session(member_token) as api:
         assert not api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_edit
         assert not api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_moderate
 
-    with pages_session(token1) as api:
+    with pages_session(owner_token) as api:
         # now we're no longer the owner, can't transfer
         page1 = api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id))
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You're not allowed to transfer that page."):
             api.TransferPage(
                 pages_pb2.TransferPageReq(
                     page_id=page1.page_id,
                     new_owner_group_id=group_id,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == "You're not allowed to transfer that page."
         page1 = api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id))
         assert page1.owner_community_id == community_id
         assert not page1.can_edit
         assert not page1.can_moderate
 
-    with pages_session(token2) as api:
+    with pages_session(admin_token) as api:
         assert api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_edit
         assert api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_moderate
 
-    with pages_session(token3) as api:
+    with pages_session(member_token) as api:
         assert not api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_edit
         assert not api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_moderate
 
-    with pages_session(token1) as api:
+    with pages_session(owner_token) as api:
         # try a new page, just for fun
         page2 = api.CreatePlace(create_page_req)
-        assert page2.owner_user_id == user1.id
+        assert page2.owner_user_id == owner_user.id
 
         page2 = api.TransferPage(
             pages_pb2.TransferPageReq(
@@ -763,46 +741,44 @@ def test_page_transfer(db):
         )
         assert page2.owner_community_id == community_id
 
-    with pages_session(token2) as api:
+    with pages_session(admin_token) as api:
         assert api.GetPage(pages_pb2.GetPageReq(page_id=page2.page_id)).can_edit
         assert api.GetPage(pages_pb2.GetPageReq(page_id=page2.page_id)).can_moderate
 
-    with pages_session(token3) as api:
+    with pages_session(member_token) as api:
         assert not api.GetPage(pages_pb2.GetPageReq(page_id=page2.page_id)).can_edit
         assert not api.GetPage(pages_pb2.GetPageReq(page_id=page2.page_id)).can_moderate
 
-    with pages_session(token1) as api:
+    with pages_session(owner_token) as api:
         # can't transfer a page to an official cluster, only through community
         page3 = api.CreatePlace(create_page_req)
-        assert page3.owner_user_id == user1.id
+        assert page3.owner_user_id == owner_user.id
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Group or community not found."):
             api.TransferPage(
                 pages_pb2.TransferPageReq(
                     page_id=page3.page_id,
                     new_owner_community_id=community_cluster_id,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Group or community not found."
         page3 = api.GetPage(pages_pb2.GetPageReq(page_id=page3.page_id))
-        assert page3.owner_user_id == user1.id
+        assert page3.owner_user_id == owner_user.id
 
         # can transfer to group
         page4 = api.CreatePlace(create_page_req)
-        assert page4.owner_user_id == user1.id
+        assert page4.owner_user_id == owner_user.id
         assert page4.can_edit
         assert not page4.can_moderate
 
-    with pages_session(token2) as api:
+    with pages_session(admin_token) as api:
         assert api.GetPage(pages_pb2.GetPageReq(page_id=page4.page_id)).can_edit
         assert api.GetPage(pages_pb2.GetPageReq(page_id=page4.page_id)).can_moderate
 
-    with pages_session(token3) as api:
+    with pages_session(member_token) as api:
         assert not api.GetPage(pages_pb2.GetPageReq(page_id=page4.page_id)).can_edit
         assert not api.GetPage(pages_pb2.GetPageReq(page_id=page4.page_id)).can_moderate
 
-    with pages_session(token1) as api:
+    with pages_session(owner_token) as api:
         page4 = api.TransferPage(
             pages_pb2.TransferPageReq(
                 page_id=page4.page_id,
@@ -813,25 +789,23 @@ def test_page_transfer(db):
         assert not page4.can_edit
         assert not page4.can_moderate
 
-    with pages_session(token2) as api:
+    with pages_session(admin_token) as api:
         assert api.GetPage(pages_pb2.GetPageReq(page_id=page4.page_id)).can_edit
         assert api.GetPage(pages_pb2.GetPageReq(page_id=page4.page_id)).can_moderate
 
-    with pages_session(token3) as api:
+    with pages_session(member_token) as api:
         assert not api.GetPage(pages_pb2.GetPageReq(page_id=page4.page_id)).can_edit
         assert not api.GetPage(pages_pb2.GetPageReq(page_id=page4.page_id)).can_moderate
 
-    with pages_session(token1) as api:
+    with pages_session(owner_token) as api:
         # now we're no longer the owner, can't transfer
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You're not allowed to transfer that page."):
             api.TransferPage(
                 pages_pb2.TransferPageReq(
                     page_id=page4.page_id,
                     new_owner_community_id=community_id,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == "You're not allowed to transfer that page."
         page4 = api.GetPage(pages_pb2.GetPageReq(page_id=page4.page_id))
         assert page4.owner_group_id == group_id
 
@@ -870,7 +844,7 @@ def test_page_photo(db):
         assert filename1 in res.photo_url
 
         # can't create with non-existent photo
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Photo not found."):
             api.CreatePlace(
                 pages_pb2.CreatePlaceReq(
                     title="dummy title",
@@ -883,8 +857,6 @@ def test_page_photo(db):
                     ),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Photo not found."
 
         # can create page with no photo
         res = api.CreatePlace(
@@ -904,15 +876,13 @@ def test_page_photo(db):
         page_id = res.page_id
 
         # can't set it to non-existent stuff
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Photo not found."):
             api.UpdatePage(
                 pages_pb2.UpdatePageReq(
                     page_id=page_id,
                     photo_key=wrappers_pb2.StringValue(value="non-existent id"),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Photo not found."
 
         key2 = random_hex(32)
         filename2 = random_hex(32)
@@ -948,11 +918,11 @@ def test_page_photo(db):
 
 
 def test_list_user_places(db):
-    user1, token1 = generate_user()
+    user, token = generate_user()
     with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Root node", [user1], [], None).id
+        c_id = create_community(session, 0, 2, "Root node", [user], [], None).id
 
-    with pages_session(token1) as api:
+    with pages_session(token) as api:
         place1_id = api.CreatePlace(
             pages_pb2.CreatePlaceReq(
                 title="dummy title",
@@ -977,18 +947,18 @@ def test_list_user_places(db):
             )
         ).page_id
 
-    with pages_session(token1) as api:
+    with pages_session(token) as api:
         res = api.ListUserPlaces(pages_pb2.ListUserPlacesReq())
         assert [p.page_id for p in res.places] == [place1_id, place2_id]
 
 
 def test_list_other_user_places(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    owner_user, owner_token = generate_user()
+    viewer_user, viewer_token = generate_user()
     with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Root node", [user1], [], None).id
+        c_id = create_community(session, 0, 2, "Root node", [owner_user], [], None).id
 
-    with pages_session(token1) as api:
+    with pages_session(owner_token) as api:
         place1_id = api.CreatePlace(
             pages_pb2.CreatePlaceReq(
                 title="dummy title",
@@ -1013,17 +983,17 @@ def test_list_other_user_places(db):
             )
         ).page_id
 
-    with pages_session(token2) as api:
-        res = api.ListUserPlaces(pages_pb2.ListUserPlacesReq(user_id=user1.id))
+    with pages_session(viewer_token) as api:
+        res = api.ListUserPlaces(pages_pb2.ListUserPlacesReq(user_id=owner_user.id))
         assert [p.page_id for p in res.places] == [place1_id, place2_id]
 
 
 def test_list_user_guides(db):
-    user1, token1 = generate_user()
+    user, token = generate_user()
     with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Root node", [user1], [], None).id
+        c_id = create_community(session, 0, 2, "Root node", [user], [], None).id
 
-    with pages_session(token1) as api:
+    with pages_session(token) as api:
         guide1_id = api.CreateGuide(
             pages_pb2.CreateGuideReq(
                 title="dummy title",
@@ -1050,18 +1020,18 @@ def test_list_user_guides(db):
             )
         ).page_id
 
-    with pages_session(token1) as api:
+    with pages_session(token) as api:
         res = api.ListUserGuides(pages_pb2.ListUserGuidesReq())
         assert [p.page_id for p in res.guides] == [guide1_id, guide2_id]
 
 
 def test_list_other_user_guides(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    owner_user, owner_token = generate_user()
+    viewer_user, viewer_token = generate_user()
     with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Root node", [user1], [], None).id
+        c_id = create_community(session, 0, 2, "Root node", [owner_user], [], None).id
 
-    with pages_session(token1) as api:
+    with pages_session(owner_token) as api:
         guide1_id = api.CreateGuide(
             pages_pb2.CreateGuideReq(
                 title="dummy title",
@@ -1088,6 +1058,6 @@ def test_list_other_user_guides(db):
             )
         ).page_id
 
-    with pages_session(token2) as api:
-        res = api.ListUserGuides(pages_pb2.ListUserGuidesReq(user_id=user1.id))
+    with pages_session(viewer_token) as api:
+        res = api.ListUserGuides(pages_pb2.ListUserGuidesReq(user_id=owner_user.id))
         assert [p.page_id for p in res.guides] == [guide1_id, guide2_id]

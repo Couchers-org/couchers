@@ -50,7 +50,11 @@ def setup_tracing() -> None:
 
         grpc_server_instrumentor = GrpcInstrumentorServer()  # type: ignore[no-untyped-call]
         grpc_server_instrumentor.instrument()
-        SQLAlchemyInstrumentor().instrument(engine=_get_base_engine(), enable_commenter=True, commenter_options={})
+        # The instrumentor declares sqlalchemy<2.1 and silently does nothing on 2.1 unless the check is skipped. It works
+        # on 2.1, but patches sqlalchemy.ext.asyncio, which is why we depend on sqlalchemy[asyncio] for greenlet.
+        SQLAlchemyInstrumentor().instrument(
+            engine=_get_base_engine(), enable_commenter=True, commenter_options={}, skip_dep_check=True
+        )
 
         tracer = TracerProvider(
             resource=Resource(attributes={"service.name": "backend"}),

@@ -44,34 +44,30 @@ from couchers.moderation.utils import create_moderation
 from couchers.proto import (
     admin_pb2,
     api_pb2,
-    conversations_pb2,
     discussions_pb2,
     messages_pb2,
     moderation_pb2,
-    notifications_pb2,
     pages_pb2,
-    public_trips_pb2,
-    threads_pb2,
 )
 from couchers.servicers.threads import pack_thread_id
-from couchers.utils import Timestamp_from_datetime, now, today
+from couchers.utils import Timestamp_from_datetime, now
+from tests.fixtures.api import conversations as conversations_api
 from tests.fixtures.api import events as events_api
+from tests.fixtures.api import notifications as notifications_api
+from tests.fixtures.api import public_trips as public_trips_api
 from tests.fixtures.api import requests as requests_api
+from tests.fixtures.api import threads as threads_api
 from tests.fixtures.db import backdate_conversations, generate_user, make_friends
 from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
     api_session,
-    conversations_session,
     discussions_session,
-    notifications_session,
     pages_session,
-    public_trips_session,
     real_admin_session,
     real_moderation_session,
-    threads_session,
 )
 from tests.test_communities import create_community, create_group
-from tests.test_public_trips import VALID_DESCRIPTION as VALID_TRIP_DESCRIPTION
 from tests.test_references import create_friend_reference
 
 
@@ -125,11 +121,11 @@ def test_create_moderation(db):
 def test_add_to_moderation_queue(db):
     """Test adding content to moderation queue via API"""
     super_user, super_token = generate_user(is_superuser=True)
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, _ = generate_user()
 
     # Create a real host request (which automatically creates moderation state and adds to queue)
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
+    host_request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id)
 
     # Get the moderation state ID
     state_id = None
@@ -171,10 +167,10 @@ def test_add_to_moderation_queue(db):
 def test_flag_with_data(db):
     """A flag can carry a JSON payload"""
     super_user, super_token = generate_user(is_superuser=True)
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, _ = generate_user()
 
-    state_id = create_test_host_request_with_moderation(token1, user2.id)
+    state_id = create_test_host_request_with_moderation(surfer_token, host_user.id)
 
     with real_moderation_session(super_token) as api:
         api.ModerateContent(
@@ -209,10 +205,10 @@ def test_flag_with_data(db):
 def test_flag_without_data(db):
     """A flag with no data serializes as an empty string"""
     super_user, super_token = generate_user(is_superuser=True)
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, _ = generate_user()
 
-    state_id = create_test_host_request_with_moderation(token1, user2.id)
+    state_id = create_test_host_request_with_moderation(surfer_token, host_user.id)
 
     with real_moderation_session(super_token) as api:
         res = api.GetModerationQueue(moderation_pb2.GetModerationQueueReq())
@@ -229,13 +225,13 @@ def test_flag_without_data(db):
 def test_flag_with_invalid_data(db):
     """Flag data must be valid JSON"""
     super_user, super_token = generate_user(is_superuser=True)
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, _ = generate_user()
 
-    state_id = create_test_host_request_with_moderation(token1, user2.id)
+    state_id = create_test_host_request_with_moderation(surfer_token, host_user.id)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The moderation data must be valid JSON."):
             api.ModerateContent(
                 moderation_pb2.ModerateContentReq(
                     moderation_state_id=state_id,
@@ -245,20 +241,18 @@ def test_flag_with_invalid_data(db):
                     data="not json",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "The moderation data must be valid JSON."
 
 
 def test_data_rejected_on_non_flag_action(db):
     """Data has nowhere to go on actions that don't create a queue item"""
     super_user, super_token = generate_user(is_superuser=True)
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, _ = generate_user()
 
-    state_id = create_test_host_request_with_moderation(token1, user2.id)
+    state_id = create_test_host_request_with_moderation(surfer_token, host_user.id)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Moderation data can only be set when flagging."):
             api.ModerateContent(
                 moderation_pb2.ModerateContentReq(
                     moderation_state_id=state_id,
@@ -268,8 +262,6 @@ def test_data_rejected_on_non_flag_action(db):
                     data=json.dumps({"score": 0.1}),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Moderation data can only be set when flagging."
 
 
 def test_create_moderation_with_data(db):
@@ -343,12 +335,12 @@ def test_moderate_content(db):
 
 def test_resolve_queue_item(db):
     """Test resolving a moderation queue item via ModerateContent API"""
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, _ = generate_user()
     moderator, moderator_token = generate_user(is_superuser=True)
 
     # Create a host request using the API (which automatically creates moderation state)
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
+    host_request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id)
 
     state_id = None
     with session_scope() as session:
@@ -391,12 +383,12 @@ def test_resolve_queue_item(db):
 
 def test_approve_content_via_api(db):
     """Test approving content via ModerateContent API"""
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, _ = generate_user()
     moderator, moderator_token = generate_user(is_superuser=True)
 
     # Create a host request using the API (which automatically creates moderation state)
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
+    host_request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id)
 
     state_id = None
     with session_scope() as session:
@@ -440,10 +432,10 @@ def test_approve_content_via_api(db):
 
 def test_create_host_request_creates_moderation_state(db):
     """Test that creating a host request automatically creates a moderation state"""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
 
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
+    host_request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id)
 
     with session_scope() as session:
         # Check that host request has a moderation state
@@ -478,46 +470,44 @@ def test_create_host_request_creates_moderation_state(db):
 
 def test_host_request_no_notification_before_approval(db, push_collector: PushCollector):
     """Test that host requests don't send notifications until approved"""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
 
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
+    host_request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id)
 
     # Process all jobs (including the notification job)
     process_jobs()
 
     # No push notification should be sent yet (host requests are shadowed initially)
-    assert push_collector.count_for_user(user2.id) == 0
+    assert push_collector.count_for_user(host_user.id) == 0
 
 
 def test_shadowed_notification_not_in_list_notifications(db):
     """Test that notifications for shadowed content don't appear in ListNotifications API"""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
 
     # Create a host request (which creates a shadowed notification for the host)
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
+    host_request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id)
 
     # Host (recipient) should NOT see the notification in ListNotifications - it's for shadowed content
-    with notifications_session(token2) as api:
-        res = api.ListNotifications(notifications_pb2.ListNotificationsReq())
-        # Should be empty - the host request is still shadowed
-        assert len(res.notifications) == 0
+    res = notifications_api.list_notifications(token=host_token)
+    # Should be empty - the host request is still shadowed
+    assert len(res.notifications) == 0
 
 
 def test_notification_visible_after_approval(db):
     """Test that notifications appear in ListNotifications after content is approved"""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
     mod, mod_token = generate_user(is_superuser=True)
 
     # Create a host request (which creates a shadowed notification for the host)
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
+    host_request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id)
 
     # Host (recipient) should NOT see the notification initially
-    with notifications_session(token2) as api:
-        res = api.ListNotifications(notifications_pb2.ListNotificationsReq())
-        assert len(res.notifications) == 0
+    res = notifications_api.list_notifications(token=host_token)
+    assert len(res.notifications) == 0
 
     # Get the moderation state ID and approve
     with session_scope() as session:
@@ -537,58 +527,58 @@ def test_notification_visible_after_approval(db):
         )
 
     # Now host SHOULD see the notification
-    with notifications_session(token2) as api:
-        res = api.ListNotifications(notifications_pb2.ListNotificationsReq())
-        assert len(res.notifications) == 1
-        assert res.notifications[0].topic == "host_request"
-        assert res.notifications[0].action == "create"
+    res = notifications_api.list_notifications(token=host_token)
+    assert len(res.notifications) == 1
+    assert res.notifications[0].topic == "host_request"
+    assert res.notifications[0].action == "create"
 
 
 def test_shadowed_host_request_visible_to_author_only(db):
     """Test that SHADOWED host requests are visible only to the author (surfer), not the recipient (host)"""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
 
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
+    host_request_id = requests_api.create_host_request(
+        token=surfer_token, host_user_id=host_user.id, text="Test request", pad_text_to_valid_length=True
+    )
 
     # Surfer (author) can see it with GetHostRequest
-    res = requests_api.get_host_request(token=token1, host_request_id=host_request_id)
+    res = requests_api.get_host_request(token=surfer_token, host_request_id=host_request_id)
     assert res.host_request_id == host_request_id
-    assert res.latest_message.text.text == requests_api.REQUEST_TEXT_DEFAULT
+    assert res.latest_message.text.text.startswith("Test request")
 
     # Host (recipient) CANNOT see it with GetHostRequest - it's shadowed
-    with pytest.raises(grpc.RpcError) as e:
-        requests_api.get_host_request(token=token2, host_request_id=host_request_id)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
+        requests_api.get_host_request(token=host_token, host_request_id=host_request_id)
 
 
 def test_unlisted_host_request_not_in_lists(db):
     """Test that SHADOWED host requests are visible to author but not to recipient"""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
 
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
+    host_request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id)
 
     # Surfer (author) should see it in their sent list even though it's SHADOWED
-    res = requests_api.list_host_requests(token=token1, only_sent=True)
+    res = requests_api.list_host_requests(token=surfer_token, only_sent=True)
     assert len(res.host_requests) == 1
 
     # Host should NOT see it in their received list (still SHADOWED from them)
-    res = requests_api.list_host_requests(token=token2, only_received=True)
+    res = requests_api.list_host_requests(token=host_token, only_received=True)
     assert len(res.host_requests) == 0
 
 
 def test_approved_host_request_in_lists_and_notifications(db, push_collector: PushCollector):
     """Test that approved host requests appear in lists and send notifications"""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
     mod, mod_token = generate_user(is_superuser=True)
 
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
+    host_request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id)
 
     # Process the initial notification job - should be deferred (no notification sent)
     process_jobs()
-    assert push_collector.count_for_user(user2.id) == 0
+    assert push_collector.count_for_user(host_user.id) == 0
 
     # Get the moderation state ID
     state_id = None
@@ -613,27 +603,27 @@ def test_approved_host_request_in_lists_and_notifications(db, push_collector: Pu
     process_jobs()
 
     # Now surfer SHOULD see it in their sent list
-    res = requests_api.list_host_requests(token=token1, only_sent=True)
+    res = requests_api.list_host_requests(token=surfer_token, only_sent=True)
     assert len(res.host_requests) == 1
     assert res.host_requests[0].host_request_id == host_request_id
 
     # Host SHOULD see it in their received list
-    res = requests_api.list_host_requests(token=token2, only_received=True)
+    res = requests_api.list_host_requests(token=host_token, only_received=True)
     assert len(res.host_requests) == 1
     assert res.host_requests[0].host_request_id == host_request_id
 
     # After approval, the host should have received a push notification
-    assert push_collector.pop_for_user(user2.id, last=True).topic_action == "host_request:create"
+    assert push_collector.pop_for_user(host_user.id, last=True).topic_action == "host_request:create"
 
 
 def test_hidden_host_request_invisible_to_all(db):
     """Test that HIDDEN host requests are invisible to everyone except moderators"""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    user3, token3 = generate_user()  # Third party
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
+    other_user, other_token = generate_user()  # Third party
     moderator, moderator_token = generate_user(is_superuser=True)
 
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
+    host_request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id)
 
     # Get the moderation state ID
     state_id = None
@@ -655,39 +645,36 @@ def test_hidden_host_request_invisible_to_all(db):
         )
 
     # Surfer can't see it with GetHostRequest
-    with pytest.raises(grpc.RpcError) as e:
-        requests_api.get_host_request(token=token1, host_request_id=host_request_id)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
+        requests_api.get_host_request(token=surfer_token, host_request_id=host_request_id)
 
     # Host can't see it with GetHostRequest
-    with pytest.raises(grpc.RpcError) as e:
-        requests_api.get_host_request(token=token2, host_request_id=host_request_id)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
+        requests_api.get_host_request(token=host_token, host_request_id=host_request_id)
 
     # Third party definitely can't see it
-    with pytest.raises(grpc.RpcError) as e:
-        requests_api.get_host_request(token=token3, host_request_id=host_request_id)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
+        requests_api.get_host_request(token=other_token, host_request_id=host_request_id)
 
     # Not in any lists
-    res = requests_api.list_host_requests(token=token1, only_sent=True)
+    res = requests_api.list_host_requests(token=surfer_token, only_sent=True)
     assert len(res.host_requests) == 0
 
-    res = requests_api.list_host_requests(token=token2, only_received=True)
+    res = requests_api.list_host_requests(token=host_token, only_received=True)
     assert len(res.host_requests) == 0
 
 
 def test_multiple_host_requests_listing_visibility(db):
     """Test that ListHostRequests correctly filters based on moderation state"""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
     moderator, moderator_token = generate_user(is_superuser=True)
 
     # Create 3 host requests
     host_request_ids = []
     state_ids = []
     for i in range(3):
-        hr_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
+        hr_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id)
         host_request_ids.append(hr_id)
         backdate_conversations()
 
@@ -720,13 +707,13 @@ def test_multiple_host_requests_listing_visibility(db):
         )
 
     # Surfer should see the approved one and the shadowed one (author can see their SHADOWED content)
-    res = requests_api.list_host_requests(token=token1, only_sent=True)
+    res = requests_api.list_host_requests(token=surfer_token, only_sent=True)
     assert len(res.host_requests) == 2
     visible_ids = {hr.host_request_id for hr in res.host_requests}
     assert visible_ids == {host_request_ids[0], host_request_ids[1]}
 
     # Host should see only the approved one in received list
-    res = requests_api.list_host_requests(token=token2, only_received=True)
+    res = requests_api.list_host_requests(token=host_token, only_received=True)
     assert len(res.host_requests) == 1
     assert res.host_requests[0].host_request_id == host_request_ids[0]
 
@@ -812,12 +799,12 @@ def test_moderation_log_tracking(db):
 
 def test_moderation_queue_workflow(db):
     """Test the full moderation queue workflow via API"""
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, _ = generate_user()
     moderator, moderator_token = generate_user(is_superuser=True)
 
     # Create a host request using the API (which automatically creates moderation state and adds to queue)
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
+    host_request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id)
 
     state_id = None
     queue_item_id = None
@@ -1350,19 +1337,17 @@ def test_GetModerationLog_not_found(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Moderation state not found."):
             api.GetModerationLog(moderation_pb2.GetModerationLogReq(moderation_state_id=999999))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Moderation state not found."
 
 
 def test_GetModerationState(db):
     """Test getting moderation state by object type and ID"""
     super_user, super_token = generate_user(is_superuser=True)
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, _ = generate_user()
 
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
+    host_request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id)
 
     with real_moderation_session(super_token) as api:
         res = api.GetModerationState(
@@ -1382,15 +1367,13 @@ def test_GetModerationState_not_found(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Moderation state not found."):
             api.GetModerationState(
                 moderation_pb2.GetModerationStateReq(
                     object_type=moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST,
                     object_id=999999,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Moderation state not found."
 
 
 def test_GetModerationState_unspecified_type(db):
@@ -1398,25 +1381,23 @@ def test_GetModerationState_unspecified_type(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Object type must be specified."):
             api.GetModerationState(
                 moderation_pb2.GetModerationStateReq(
                     object_type=moderation_pb2.MODERATION_OBJECT_TYPE_UNSPECIFIED,
                     object_id=123,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Object type must be specified."
 
 
 def test_ModerateContent_approve(db):
     """Test approving content via unified moderation API"""
     super_user, super_token = generate_user(is_superuser=True)
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, _ = generate_user()
 
     # Create a host request using the API (which automatically creates moderation state)
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
+    host_request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id)
 
     # Get the moderation state ID
     state_id = None
@@ -1449,7 +1430,7 @@ def test_ModerateContent_not_found(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Moderation state not found."):
             api.ModerateContent(
                 moderation_pb2.ModerateContentReq(
                     moderation_state_id=999999,
@@ -1458,8 +1439,6 @@ def test_ModerateContent_not_found(db):
                     reason="Test",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Moderation state not found."
 
 
 def test_ModerateContent_hide(db):
@@ -1519,12 +1498,12 @@ def test_ModerateContent_shadow(db):
 def test_ModerateContent_flag(db):
     """Test opening a flag via the FLAG action"""
     super_user, super_token = generate_user(is_superuser=True)
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, _ = generate_user()
 
     # Create a host request
 
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
+    host_request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id)
 
     # Get the moderation state ID
     with session_scope() as session:
@@ -1565,12 +1544,12 @@ def test_ModerateContent_flag(db):
 def test_ModerateContent_flag_requires_trigger(db):
     """FLAG without a trigger is rejected."""
     super_user, super_token = generate_user(is_superuser=True)
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
-    state_id = create_test_host_request_with_moderation(token1, user2.id)
+    surfer_user, surfer_token = generate_user()
+    host_user, _ = generate_user()
+    state_id = create_test_host_request_with_moderation(surfer_token, host_user.id)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             api.ModerateContent(
                 moderation_pb2.ModerateContentReq(
                     moderation_state_id=state_id,
@@ -1578,7 +1557,6 @@ def test_ModerateContent_flag_requires_trigger(db):
                     reason="no trigger",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def _open_queue_item_id(state_id):
@@ -1598,9 +1576,9 @@ def _open_queue_item_id(state_id):
 def test_ModerateContent_set_priority(db):
     """SET_PRIORITY changes a flag's priority and logs it, without touching visibility."""
     moderator, mod_token = generate_user(is_superuser=True)
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
-    state_id = create_test_host_request_with_moderation(token1, user2.id)
+    surfer_user, surfer_token = generate_user()
+    host_user, _ = generate_user()
+    state_id = create_test_host_request_with_moderation(surfer_token, host_user.id)
     queue_item_id = _open_queue_item_id(state_id)
 
     with real_moderation_session(mod_token) as api:
@@ -1639,9 +1617,9 @@ def test_ModerateContent_set_priority(db):
 def test_ModerateContent_unflag(db):
     """UNFLAG resolves a single named flag and does not change visibility."""
     moderator, mod_token = generate_user(is_superuser=True)
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
-    state_id = create_test_host_request_with_moderation(token1, user2.id)
+    surfer_user, surfer_token = generate_user()
+    host_user, _ = generate_user()
+    state_id = create_test_host_request_with_moderation(surfer_token, host_user.id)
     queue_item_id = _open_queue_item_id(state_id)
 
     with real_moderation_session(mod_token) as api:
@@ -1667,12 +1645,12 @@ def test_ModerateContent_unflag(db):
 def test_ModerateContent_unflag_requires_queue_item(db):
     """UNFLAG without a queue_item_id is rejected."""
     moderator, mod_token = generate_user(is_superuser=True)
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
-    state_id = create_test_host_request_with_moderation(token1, user2.id)
+    surfer_user, surfer_token = generate_user()
+    host_user, _ = generate_user()
+    state_id = create_test_host_request_with_moderation(surfer_token, host_user.id)
 
     with real_moderation_session(mod_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             api.ModerateContent(
                 moderation_pb2.ModerateContentReq(
                     moderation_state_id=state_id,
@@ -1680,15 +1658,14 @@ def test_ModerateContent_unflag_requires_queue_item(db):
                     reason="no target",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_ModerateContent_approve_without_clear_flags_leaves_flag_open(db):
     """APPROVE without clear_flags changes visibility but leaves open flags in the queue."""
     moderator, mod_token = generate_user(is_superuser=True)
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
-    state_id = create_test_host_request_with_moderation(token1, user2.id)
+    surfer_user, surfer_token = generate_user()
+    host_user, _ = generate_user()
+    state_id = create_test_host_request_with_moderation(surfer_token, host_user.id)
     queue_item_id = _open_queue_item_id(state_id)
 
     with real_moderation_session(mod_token) as api:
@@ -1709,9 +1686,9 @@ def test_ModerateContent_approve_without_clear_flags_leaves_flag_open(db):
 def test_ModerateContent_flag_supersede(db):
     """FLAG with supersede_queue_item_id resolves the named flag as the new one opens."""
     moderator, mod_token = generate_user(is_superuser=True)
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
-    state_id = create_test_host_request_with_moderation(token1, user2.id)
+    surfer_user, surfer_token = generate_user()
+    host_user, _ = generate_user()
+    state_id = create_test_host_request_with_moderation(surfer_token, host_user.id)
     initial_item_id = _open_queue_item_id(state_id)
 
     with real_moderation_session(mod_token) as api:
@@ -1747,9 +1724,9 @@ def test_ModerateContent_flag_supersede(db):
 def test_GetModerationQueue_filter_by_priority(db):
     """priority_min / priority_max filter the queue by priority range."""
     moderator, mod_token = generate_user(is_superuser=True)
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
-    state_id = create_test_host_request_with_moderation(token1, user2.id)
+    surfer_user, surfer_token = generate_user()
+    host_user, _ = generate_user()
+    state_id = create_test_host_request_with_moderation(surfer_token, host_user.id)
     queue_item_id = _open_queue_item_id(state_id)
 
     with real_moderation_session(mod_token) as api:
@@ -1781,13 +1758,12 @@ def test_GetModerationQueue_filter_by_priority(db):
 
 def test_group_chat_created_with_moderation_state(db):
     """Test that group chats are created with moderation state"""
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
-    make_friends(user1, user2)
+    creator_user, creator_token = generate_user()
+    recipient_user, _ = generate_user()
+    make_friends(creator_user, recipient_user)
 
-    with conversations_session(token1) as api:
-        res = api.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
-        group_chat_id = res.group_chat_id
+    res = conversations_api.create_group_chat(token=creator_token, recipient_user_ids=[recipient_user.id])
+    group_chat_id = res.group_chat_id
 
     # Verify moderation state was created
     with session_scope() as session:
@@ -1814,14 +1790,13 @@ def test_group_chat_created_with_moderation_state(db):
 
 def test_group_chat_GetModerationState(db):
     """Test GetModerationState API for group chats"""
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
+    creator_user, creator_token = generate_user()
+    recipient_user, _ = generate_user()
     moderator, mod_token = generate_user(is_superuser=True)
-    make_friends(user1, user2)
+    make_friends(creator_user, recipient_user)
 
-    with conversations_session(token1) as api:
-        res = api.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
-        group_chat_id = res.group_chat_id
+    res = conversations_api.create_group_chat(token=creator_token, recipient_user_ids=[recipient_user.id])
+    group_chat_id = res.group_chat_id
 
     # Moderator can look up the moderation state
     with real_moderation_session(mod_token) as api:
@@ -1839,15 +1814,15 @@ def test_group_chat_GetModerationState(db):
 
 def test_group_chat_moderation_hide(db):
     """Test that a moderator can hide a group chat and participants can no longer see it"""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    creator_user, creator_token = generate_user()
+    participant_user, participant_token = generate_user()
     moderator, mod_token = generate_user(is_superuser=True)
-    make_friends(user1, user2)
+    make_friends(creator_user, participant_user)
 
-    with conversations_session(token1) as api:
-        res = api.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
-        group_chat_id = res.group_chat_id
-        api.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Hello!"))
+    group_chat_id = conversations_api.create_group_chat(
+        token=creator_token, recipient_user_ids=[participant_user.id]
+    ).group_chat_id
+    conversations_api.send_message(token=creator_token, group_chat_id=group_chat_id, text="Hello!")
 
     # First approve the group chat so both users can see it
     with real_moderation_session(mod_token) as api:
@@ -1867,13 +1842,11 @@ def test_group_chat_moderation_hide(db):
         )
 
     # Both users can see the chat now
-    with conversations_session(token1) as api:
-        res = api.ListGroupChats(conversations_pb2.ListGroupChatsReq())
-        assert len(res.group_chats) == 1
+    res = conversations_api.list_group_chats(token=creator_token)
+    assert len(res.group_chats) == 1
 
-    with conversations_session(token2) as api:
-        res = api.ListGroupChats(conversations_pb2.ListGroupChatsReq())
-        assert len(res.group_chats) == 1
+    res = conversations_api.list_group_chats(token=participant_token)
+    assert len(res.group_chats) == 1
 
     # Moderator hides the group chat
     with real_moderation_session(mod_token) as api:
@@ -1893,31 +1866,28 @@ def test_group_chat_moderation_hide(db):
         )
 
     # Neither user can see the chat now
-    with conversations_session(token1) as api:
-        res = api.ListGroupChats(conversations_pb2.ListGroupChatsReq())
-        assert len(res.group_chats) == 0
+    res = conversations_api.list_group_chats(token=creator_token)
+    assert len(res.group_chats) == 0
 
-    with conversations_session(token2) as api:
-        res = api.ListGroupChats(conversations_pb2.ListGroupChatsReq())
-        assert len(res.group_chats) == 0
+    res = conversations_api.list_group_chats(token=participant_token)
+    assert len(res.group_chats) == 0
 
     # Trying to get messages returns empty (chat is hidden so no messages visible)
-    with conversations_session(token1) as api:
-        res = api.GetGroupChatMessages(conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id))
-        assert len(res.messages) == 0
+    messages_res = conversations_api.get_group_chat_messages(token=creator_token, group_chat_id=group_chat_id)
+    assert len(messages_res.messages) == 0
 
 
 def test_group_chat_moderation_shadow(db):
     """Test that shadowing a group chat hides it from non-creator participants"""
-    user1, token1 = generate_user()  # Creator
-    user2, token2 = generate_user()  # Participant
+    creator_user, creator_token = generate_user()
+    participant_user, participant_token = generate_user()
     moderator, mod_token = generate_user(is_superuser=True)
-    make_friends(user1, user2)
+    make_friends(creator_user, participant_user)
 
-    with conversations_session(token1) as api:
-        res = api.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
-        group_chat_id = res.group_chat_id
-        api.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Hello!"))
+    group_chat_id = conversations_api.create_group_chat(
+        token=creator_token, recipient_user_ids=[participant_user.id]
+    ).group_chat_id
+    conversations_api.send_message(token=creator_token, group_chat_id=group_chat_id, text="Hello!")
 
     # Moderator shadows the group chat
     with real_moderation_session(mod_token) as api:
@@ -1937,20 +1907,17 @@ def test_group_chat_moderation_shadow(db):
         )
 
     # Creator can see SHADOWED content in list operations
-    with conversations_session(token1) as api:
-        res = api.ListGroupChats(conversations_pb2.ListGroupChatsReq())
-        assert len(res.group_chats) == 1
-        assert res.group_chats[0].group_chat_id == group_chat_id
+    res = conversations_api.list_group_chats(token=creator_token)
+    assert len(res.group_chats) == 1
+    assert res.group_chats[0].group_chat_id == group_chat_id
 
     # But non-creator participant cannot see it in lists
-    with conversations_session(token2) as api:
-        res = api.ListGroupChats(conversations_pb2.ListGroupChatsReq())
-        assert len(res.group_chats) == 0
+    res = conversations_api.list_group_chats(token=participant_token)
+    assert len(res.group_chats) == 0
 
     # Creator can also access it directly via GetGroupChat
-    with conversations_session(token1) as api:
-        res = api.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
-        assert res.group_chat_id == group_chat_id
+    group_chat = conversations_api.get_group_chat(token=creator_token, group_chat_id=group_chat_id)
+    assert group_chat.group_chat_id == group_chat_id
 
 
 # ============================================================================
@@ -1961,14 +1928,14 @@ def test_group_chat_moderation_shadow(db):
 def test_auto_approve_moderation_queue_disabled_when_zero(db, email_collector: EmailCollector):
     """Test that auto-approval is disabled when deadline is 0"""
     moderator, mod_token = generate_user(is_superuser=True)
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
 
     # Create a host request
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
+    host_request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id)
 
     # No email should have been sent (request is shadowed)
-    assert email_collector.count_for_recipient(user2.email) == 0
+    assert email_collector.count_for_recipient(host_user.email) == 0
 
     # Ensure deadline is 0 (disabled)
     config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 0
@@ -1977,21 +1944,20 @@ def test_auto_approve_moderation_queue_disabled_when_zero(db, email_collector: E
     auto_approve_moderation_queue(empty_pb2.Empty())
 
     # Surfer (author) can see the request via API
-    res = requests_api.get_host_request(token=token1, host_request_id=host_request_id)
+    res = requests_api.get_host_request(token=surfer_token, host_request_id=host_request_id)
     assert res.host_request_id == host_request_id
 
     # Author can see their SHADOWED request in their sent list
-    sent = requests_api.list_host_requests(token=token1, only_sent=True)
+    sent = requests_api.list_host_requests(token=surfer_token, only_sent=True)
     assert len(sent.host_requests) == 1
     assert sent.host_requests[0].host_request_id == host_request_id
 
     # Host cannot see the request (it's shadowed from them)
-    with pytest.raises(grpc.RpcError) as e:
-        requests_api.get_host_request(token=token2, host_request_id=host_request_id)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
+        requests_api.get_host_request(token=host_token, host_request_id=host_request_id)
 
     # Host doesn't see it in their received list either
-    received = requests_api.list_host_requests(token=token2, only_received=True)
+    received = requests_api.list_host_requests(token=host_token, only_received=True)
     assert len(received.host_requests) == 0
 
     # Moderator can still see the item in the moderation queue
@@ -2015,21 +1981,23 @@ def test_auto_approve_moderation_queue_approves_old_items(
 ):
     """Test that auto-approval approves items older than the deadline"""
     moderator, mod_token = generate_user(is_superuser=True)
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
 
     # Create a host request
     host_request_id = requests_api.create_host_request(
-        token=token1, host_user_id=user2.id, text="Test request for auto-approval", pad_text_to_valid_length=True
+        token=surfer_token,
+        host_user_id=host_user.id,
+        text="Test request for auto-approval",
+        pad_text_to_valid_length=True,
     )
 
     # No email sent initially (shadowed)
-    assert email_collector.count_for_recipient(user2.email) == 0
+    assert email_collector.count_for_recipient(host_user.email) == 0
 
     # Host cannot see the request yet
-    with pytest.raises(grpc.RpcError) as e:
-        requests_api.get_host_request(token=token2, host_request_id=host_request_id)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
+        requests_api.get_host_request(token=host_token, host_request_id=host_request_id)
 
     # Make the queue item appear old by backdating its time_created
     with session_scope() as session:
@@ -2052,17 +2020,17 @@ def test_auto_approve_moderation_queue_approves_old_items(
     auto_approve_moderation_queue(empty_pb2.Empty())
 
     # Now host can see the request via API
-    res = requests_api.get_host_request(token=token2, host_request_id=host_request_id)
+    res = requests_api.get_host_request(token=host_token, host_request_id=host_request_id)
     assert res.host_request_id == host_request_id
     assert res.latest_message.text.text.startswith("Test request for auto-approval")
 
     # Host sees it in their received list
-    received = requests_api.list_host_requests(token=token2, only_received=True)
+    received = requests_api.list_host_requests(token=host_token, only_received=True)
     assert len(received.host_requests) == 1
     assert received.host_requests[0].host_request_id == host_request_id
 
     # Surfer sees it in their sent list
-    sent = requests_api.list_host_requests(token=token1, only_sent=True)
+    sent = requests_api.list_host_requests(token=surfer_token, only_sent=True)
     assert len(sent.host_requests) == 1
     assert sent.host_requests[0].host_request_id == host_request_id
 
@@ -2098,14 +2066,14 @@ def test_auto_approve_moderation_queue_approves_old_items(
 def test_auto_approve_does_not_approve_recent_items(db, email_collector: EmailCollector):
     """Test that auto-approval does not approve items that are newer than the deadline"""
     moderator, mod_token = generate_user(is_superuser=True)
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
 
     # Create a host request
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
+    host_request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id)
 
     # No email sent (shadowed)
-    assert email_collector.count_for_recipient(user2.email) == 0
+    assert email_collector.count_for_recipient(host_user.email) == 0
 
     # Set deadline to 1 hour (items older than 1 hour will be auto-approved)
     config.MODERATION_AUTO_APPROVE_DEADLINE_SECONDS = 3600
@@ -2115,15 +2083,14 @@ def test_auto_approve_does_not_approve_recent_items(db, email_collector: EmailCo
     auto_approve_moderation_queue(empty_pb2.Empty())
 
     # Still no email sent
-    assert email_collector.count_for_recipient(user2.email) == 0
+    assert email_collector.count_for_recipient(host_user.email) == 0
 
     # Host still cannot see the request
-    with pytest.raises(grpc.RpcError) as e:
-        requests_api.get_host_request(token=token2, host_request_id=host_request_id)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
+        requests_api.get_host_request(token=host_token, host_request_id=host_request_id)
 
     # Not in host's received list
-    res = requests_api.list_host_requests(token=token2, only_received=True)
+    res = requests_api.list_host_requests(token=host_token, only_received=True)
     assert len(res.host_requests) == 0
 
     # Moderator sees it still in queue unresolved
@@ -2144,11 +2111,11 @@ def test_auto_approve_does_not_approve_recent_items(db, email_collector: EmailCo
 def test_auto_approve_does_not_approve_already_approved(db):
     """Test that auto-approval does not re-approve already visible content"""
     moderator, mod_token = generate_user(is_superuser=True)
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
 
     # Create a host request
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
+    host_request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id)
 
     # Moderator approves it manually
     with real_moderation_session(mod_token) as api:
@@ -2171,7 +2138,7 @@ def test_auto_approve_does_not_approve_already_approved(db):
         )
 
     # Host can now see it
-    res = requests_api.get_host_request(token=token2, host_request_id=host_request_id)
+    res = requests_api.get_host_request(token=host_token, host_request_id=host_request_id)
     assert res.host_request_id == host_request_id
 
     # Get log count before auto-approval
@@ -2199,11 +2166,11 @@ def test_auto_approve_does_not_approve_already_approved(db):
 def test_auto_approve_does_not_approve_moderator_shadowed_items(db):
     """Test that auto-approval does not approve items that were explicitly shadowed by a moderator"""
     moderator, mod_token = generate_user(is_superuser=True)
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
 
     # Create a host request
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
+    host_request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id)
 
     # Moderator explicitly shadows the content (keeping it shadowed but resolving the queue item)
     with real_moderation_session(mod_token) as api:
@@ -2260,9 +2227,8 @@ def test_auto_approve_does_not_approve_moderator_shadowed_items(db):
         assert state_res.moderation_state.visibility == moderation_pb2.MODERATION_VISIBILITY_SHADOWED
 
     # Host still cannot see the request
-    with pytest.raises(grpc.RpcError) as e:
-        requests_api.get_host_request(token=token2, host_request_id=host_request_id)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
+        requests_api.get_host_request(token=host_token, host_request_id=host_request_id)
 
 
 def test_auto_approve_skips_shadowed_user_authored_items(db):
@@ -2305,9 +2271,8 @@ def test_auto_approve_skips_shadowed_user_authored_items(db):
         assert state_res.moderation_state.visibility == moderation_pb2.MODERATION_VISIBILITY_SHADOWED
 
     # Host still cannot see the request
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
         requests_api.get_host_request(token=host_token, host_request_id=host_request_id)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
     # But the (shadowed) author can still see their own request
     res = requests_api.get_host_request(token=surfer_token, host_request_id=host_request_id)
@@ -2610,17 +2575,12 @@ def test_group_chat_message_notifications_suppressed_before_approval(db, push_co
     Test that notifications are NOT sent for messages in group chats
     that haven't been approved yet.
     """
-    user1, token1 = generate_user(complete_profile=True)
-    user2, token2 = generate_user(complete_profile=True)
+    sender_user, sender_token = generate_user(complete_profile=True)
+    recipient_user, recipient_token = generate_user(complete_profile=True)
 
     # Create a group chat (starts in SHADOWED state)
-    with conversations_session(token1) as api:
-        res = api.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(
-                recipient_user_ids=[user2.id],
-            )
-        )
-        gc_id = res.group_chat_id
+    res = conversations_api.create_group_chat(token=sender_token, recipient_user_ids=[recipient_user.id])
+    gc_id = res.group_chat_id
 
     # Verify initial state
     with session_scope() as session:
@@ -2628,23 +2588,17 @@ def test_group_chat_message_notifications_suppressed_before_approval(db, push_co
         assert gc.moderation_state.visibility == ModerationVisibility.shadowed
 
     # No notifications should have been sent yet (chat is SHADOWED)
-    assert push_collector.count_for_user(user2.id) == 0
+    assert push_collector.count_for_user(recipient_user.id) == 0
 
     # Send messages BEFORE approval
-    with conversations_session(token1) as api:
-        api.SendMessage(
-            conversations_pb2.SendMessageReq(
-                group_chat_id=gc_id,
-                text="Hello before approval",
-            )
-        )
+    conversations_api.send_message(token=sender_token, group_chat_id=gc_id, text="Hello before approval")
 
     # Process the queued notification job
     while process_job():
         pass
 
-    # User2 should STILL have no notifications (chat is SHADOWED)
-    assert push_collector.count_for_user(user2.id) == 0
+    # Recipient should STILL have no notifications (chat is SHADOWED)
+    assert push_collector.count_for_user(recipient_user.id) == 0
 
     # Now approve the group chat
     moderator.approve_group_chat(gc_id)
@@ -2658,26 +2612,20 @@ def test_group_chat_message_notifications_suppressed_before_approval(db, push_co
         gc = session.execute(select(GroupChat).where(GroupChat.conversation_id == gc_id)).scalar_one()
         assert gc.moderation_state.visibility == ModerationVisibility.visible
 
-    # User2 should have received 1 notification for the first message sent before approval
-    push = push_collector.pop_for_user(user2.id, last=True)
-    assert push.content.title == user1.name
+    # Recipient should have received 1 notification for the first message sent before approval
+    push = push_collector.pop_for_user(recipient_user.id, last=True)
+    assert push.content.title == sender_user.name
     assert push.content.body == "Hello before approval"
 
     # Send a message AFTER approval
-    with conversations_session(token1) as api:
-        api.SendMessage(
-            conversations_pb2.SendMessageReq(
-                group_chat_id=gc_id,
-                text="Hello after approval",
-            )
-        )
+    conversations_api.send_message(token=sender_token, group_chat_id=gc_id, text="Hello after approval")
 
     # Process the queued notification job
     while process_job():
         pass
 
-    # User2 should have received another notification
-    assert push_collector.count_for_user(user2.id) == 1
+    # Recipient should have received another notification
+    assert push_collector.count_for_user(recipient_user.id) == 1
 
 
 def test_event_moderation_state_content(db):
@@ -2772,8 +2720,7 @@ def test_SetUserContentVisibility_group_chat(db):
     other, _ = generate_user()
     make_friends(creator, other)
 
-    with conversations_session(creator_token) as api:
-        gc_id = api.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[other.id])).group_chat_id
+    gc_id = conversations_api.create_group_chat(token=creator_token, recipient_user_ids=[other.id]).group_chat_id
 
     with real_moderation_session(super_token) as api:
         api.SetUserContentVisibility(
@@ -2940,14 +2887,13 @@ def test_SetUserContentVisibility_unspecified_rejected(db):
     target, _ = generate_user()
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             api.SetUserContentVisibility(
                 moderation_pb2.SetUserContentVisibilityReq(
                     user_id=target.id,
                     visibility=moderation_pb2.MODERATION_VISIBILITY_UNSPECIFIED,
                 )
             )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_SetUserContentVisibility_non_admin_rejected(db):
@@ -2955,14 +2901,13 @@ def test_SetUserContentVisibility_non_admin_rejected(db):
     target, _ = generate_user()
 
     with real_moderation_session(normal_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED):
             api.SetUserContentVisibility(
                 moderation_pb2.SetUserContentVisibilityReq(
                     user_id=target.id,
                     visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
                 )
             )
-    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
 
 def test_SetUserContentVisibility_writes_admin_action(db):
@@ -3027,14 +2972,13 @@ def test_SetUserContentVisibility_user_not_found(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             api.SetUserContentVisibility(
                 moderation_pb2.SetUserContentVisibilityReq(
                     user_id=999999,
                     visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
                 )
             )
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_SetUserContentVisibility_from_visibility_filter(db):
@@ -3149,7 +3093,7 @@ def test_SetUserContentVisibility_from_visibility_unspecified_rejected(db):
     target, _ = generate_user()
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             api.SetUserContentVisibility(
                 moderation_pb2.SetUserContentVisibilityReq(
                     user_id=target.id,
@@ -3157,7 +3101,6 @@ def test_SetUserContentVisibility_from_visibility_unspecified_rejected(db):
                     from_visibility=[moderation_pb2.MODERATION_VISIBILITY_UNSPECIFIED],
                 )
             )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def _content_state_ids(res: moderation_pb2.ListModerationStatesRes) -> list[int]:
@@ -3277,6 +3220,48 @@ def test_ListModerationStates_pagination_ignores_created(db):
     assert paged_ids == expected
 
 
+def test_ListModerationStates_ever_visible(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+
+    approved_state_id = create_test_host_request_with_moderation(surfer_token, host.id)
+    shadowed_state_id = create_test_host_request_with_moderation(surfer_token, host.id)
+
+    def ever_visible() -> dict[int, bool]:
+        with real_moderation_session(super_token) as api:
+            res = api.ListModerationStates(moderation_pb2.ListModerationStatesReq(author_user_id=surfer.id))
+        return {s.moderation_state_id: s.ever_visible for s in res.moderation_states}
+
+    assert not ever_visible()[approved_state_id]
+
+    with real_moderation_session(super_token) as api:
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=approved_state_id,
+                action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+                reason="Looks good",
+            )
+        )
+
+    assert ever_visible()[approved_state_id]
+
+    with real_moderation_session(super_token) as api:
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=approved_state_id,
+                action=moderation_pb2.MODERATION_ACTION_HIDE,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
+                reason="Changed my mind",
+            )
+        )
+
+    result = ever_visible()
+    assert result[approved_state_id]
+    assert not result[shadowed_state_id]
+
+
 # ============================================================================
 # Tests for user account moderation states
 # ============================================================================
@@ -3333,14 +3318,13 @@ def test_GetModerationState_for_nonexistent_user(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             api.GetModerationState(
                 moderation_pb2.GetModerationStateReq(
                     object_type=moderation_pb2.MODERATION_OBJECT_TYPE_USER,
                     object_id=999999,
                 )
             )
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_flag_user_shows_up_in_queue_and_author_filters(db):
@@ -3398,7 +3382,7 @@ def test_ModerateContent_cannot_set_visibility_on_user_state(db, action):
             )
         ).moderation_state.moderation_state_id
 
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             api.ModerateContent(
                 moderation_pb2.ModerateContentReq(
                     moderation_state_id=user_state_id,
@@ -3406,7 +3390,6 @@ def test_ModerateContent_cannot_set_visibility_on_user_state(db, action):
                     visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
                 )
             )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
     with session_scope() as session:
         state = session.execute(select(ModerationState).where(ModerationState.id == user_state_id)).scalar_one()
@@ -3483,11 +3466,6 @@ def test_visibility_check_constraint_matches_the_models(db, object_type):
 def _get_moderated_object(token, moderation_state_id):
     with real_moderation_session(token) as api:
         return api.GetModeratedObject(moderation_pb2.GetModeratedObjectReq(moderation_state_id=moderation_state_id))
-
-
-def _post_reply(token, thread_id, content):
-    with threads_session(token) as api:
-        return api.PostReply(threads_pb2.PostReplyReq(thread_id=thread_id, content=content)).thread_id
 
 
 def _moderation_state_id(object_type, object_id):
@@ -3569,7 +3547,9 @@ def test_GetModeratedObject_comment_on_discussion(db):
                 title="Where to eat?", content="Discussion body.", owner_community_id=community_id
             )
         )
-    comment_thread_id = _post_reply(token, discussion.thread.thread_id, "Try the noodle place")
+    comment_thread_id = threads_api.post_reply(
+        token=token, thread_id=discussion.thread.thread_id, content="Try the noodle place"
+    )
 
     res = _get_moderated_object(
         super_token, _moderation_state_id(ModerationObjectType.comment, comment_thread_id // 10)
@@ -3593,7 +3573,7 @@ def test_GetModeratedObject_comment_on_page(db):
             .where(Page.type == PageType.main_page)
         ).one()
 
-    comment_thread_id = _post_reply(token, pack_thread_id(page_thread_id, 0), "Nice page")
+    comment_thread_id = threads_api.post_reply(token=token, thread_id=pack_thread_id(page_thread_id, 0))
 
     res = _get_moderated_object(
         super_token, _moderation_state_id(ModerationObjectType.comment, comment_thread_id // 10)
@@ -3626,7 +3606,7 @@ def test_GetModeratedObject_comment_on_page_transferred_to_group_elsewhere(db):
         )
         api.TransferPage(pages_pb2.TransferPageReq(page_id=place.page_id, new_owner_group_id=group_id))
 
-    comment_thread_id = _post_reply(token, place.thread.thread_id, "Is it open to visitors?")
+    comment_thread_id = threads_api.post_reply(token=token, thread_id=place.thread.thread_id)
 
     res = _get_moderated_object(
         super_token, _moderation_state_id(ModerationObjectType.comment, comment_thread_id // 10)
@@ -3647,8 +3627,10 @@ def test_GetModeratedObject_reply_on_event(db):
         community_id = create_community(session, 0, 2, "Event Community", [user], [], None).id
 
     event = events_api.create_event(token=token, title="Board Games")
-    comment_thread_id = _post_reply(token, event.thread.thread_id, "Can I bring a friend?")
-    reply_thread_id = _post_reply(token, comment_thread_id, "Sure")
+    comment_thread_id = threads_api.post_reply(
+        token=token, thread_id=event.thread.thread_id, content="Can I bring a friend?"
+    )
+    reply_thread_id = threads_api.post_reply(token=token, thread_id=comment_thread_id, content="Sure")
 
     with session_scope() as session:
         reply_state_id = session.execute(
@@ -3672,13 +3654,10 @@ def test_GetModeratedObject_group_chat(db):
     make_friends(creator, member)
     make_friends(creator, removed)
 
-    with conversations_session(creator_token) as api:
-        group_chat_id = api.CreateGroupChat(
-            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[member.id, removed.id])
-        ).group_chat_id
-        api.RemoveGroupChatUser(
-            conversations_pb2.RemoveGroupChatUserReq(group_chat_id=group_chat_id, user_id=removed.id)
-        )
+    group_chat_id = conversations_api.create_group_chat(
+        token=creator_token, recipient_user_ids=[member.id, removed.id]
+    ).group_chat_id
+    conversations_api.remove_group_chat_user(token=creator_token, group_chat_id=group_chat_id, user_id=removed.id)
 
     res = _get_moderated_object(super_token, _moderation_state_id(ModerationObjectType.group_chat, group_chat_id))
     assert res.moderation_state.author_user_id == creator.id
@@ -3758,15 +3737,7 @@ def test_GetModeratedObject_public_trip(db):
     with session_scope() as session:
         community_id = create_community(session, 0, 2, "Trip Community", [user], [], None).id
 
-    with public_trips_session(token) as api:
-        trip_id = api.CreatePublicTrip(
-            public_trips_pb2.CreatePublicTripReq(
-                community_id=community_id,
-                from_date=(today() + timedelta(days=5)).isoformat(),
-                to_date=(today() + timedelta(days=10)).isoformat(),
-                description=VALID_TRIP_DESCRIPTION,
-            )
-        ).trip_id
+    trip_id = public_trips_api.create_public_trip(token=token, community_id=community_id).trip_id
 
     res = _get_moderated_object(super_token, _moderation_state_id(ModerationObjectType.public_trip, trip_id))
     assert res.community.community_id == community_id
@@ -3829,6 +3800,5 @@ def test_GetModeratedObject_not_found(db):
     super_user, super_token = generate_user(is_superuser=True)
 
     with real_moderation_session(super_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
             api.GetModeratedObject(moderation_pb2.GetModeratedObjectReq(moderation_state_id=999_999_999))
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND

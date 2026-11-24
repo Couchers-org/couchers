@@ -12,11 +12,12 @@ import { BackIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import MarkdownInput from "components/MarkdownInput";
 import PageTitle from "components/PageTitle";
+import PullToRefresh from "components/PullToRefresh";
 import RelativeTime from "components/RelativeTime";
 import TextField from "components/TextField";
 import { contentRefs } from "features/contentRefs";
 import FlagButton from "features/FlagButton";
-import { discussionKey } from "features/queryKeys";
+import { discussionKey, threadKey } from "features/queryKeys";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
@@ -66,6 +67,8 @@ const StyledCreatorRow = styled("div")(({ theme }) => ({
   alignItems: "center",
   display: "flex",
   gap: theme.spacing(2),
+  // room before the comments heading row and its sort toggle
+  marginBlockEnd: theme.spacing(3),
 }));
 
 const StyledAvatar = styled(Avatar)(() => ({
@@ -187,6 +190,9 @@ export default function DiscussionPage({ discussionId }: { discussionId: number 
   return (
     <>
       <HtmlMeta title={discussion?.title} />
+      <PullToRefresh
+        queryKeys={[discussionKey(discussionId), ...(discussion ? [threadKey(discussion.thread!.threadId)] : [])]}
+      />
       {error && <Alert severity="error">{error.message}</Alert>}
       {isDiscussionLoading ? (
         <CenteredSpinner />
@@ -294,8 +300,11 @@ export default function DiscussionPage({ discussionId }: { discussionId: number 
                       </>
                     )}
                   </div>
-                  <Typography variant="h2">{t("communities:comments")}</Typography>
-                  <CommentTree threadId={discussion.thread!.threadId} discussionId={discussionId} />
+                  <CommentTree
+                    threadId={discussion.thread!.threadId}
+                    title={t("communities:comments")}
+                    discussionId={discussionId}
+                  />
                 </StyledDiscussionBodyWrapper>
                 <DeleteDiscussionDialog
                   discussionId={discussionId}

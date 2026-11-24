@@ -1,4 +1,9 @@
 {
+  "event_created_merch_note": {
+    "title": "Your event has been created!",
+    "message": "Did you know Couchers.org has merch? Grab a flag, t-shirt or more to help people find your event!",
+    "shop_button": "Check out the shop"
+  },
   "by_creator": "By {{name}}",
   "cancelled": "Cancelled",
   "cancel_event": "Cancel event",
@@ -24,6 +29,11 @@
   "delete_comment": "Delete comment",
   "comment_edited_date2": "Edited <timeAgo/>",
   "comments": "Comments",
+  "comment_sort": {
+    "label": "Sort comments",
+    "newest": "Newest",
+    "oldest": "Oldest"
+  },
   "comments_count": "Comments | {{count}}",
   "fill_out_comment": "You need to type something first!",
   "community_header": "Welcome to {{name}}",
@@ -61,8 +71,9 @@
   "invalid_community_id": "Invalid community id.",
   "join_community": "Join community",
   "leave_community": "Leave community",
-  "load_earlier_comments": "Load earlier comments",
-  "load_earlier_replies": "Load earlier replies",
+  "show_older_comments": "Show older comments",
+  "show_newer_comments": "Show newer comments",
+  "load_more_replies": "Load more replies",
   "load_more_moderators": "Load more Community Builders",
   "local_info_label": "Local info",
   "local_info_title": "About {{name}}",

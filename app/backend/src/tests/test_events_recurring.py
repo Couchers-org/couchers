@@ -5,18 +5,21 @@ Integration tests for the job scheduling event recurrences.
 from datetime import UTC, date, datetime, time
 from typing import cast
 
+import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import func, select, update
 
 from couchers.context import CouchersContext
 from couchers.db import session_scope
 from couchers.jobs.handlers import schedule_event_occurrences
-from couchers.models import User
+from couchers.models import Upload, User
 from couchers.proto import events_pb2
 from couchers.servicers.auth import create_session
 from couchers.utils import to_aware_datetime
 from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user
+from tests.fixtures.misc import Moderator
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import _MockCouchersContext
 from tests.fixtures.timewarp import FrozenTimewarp
 from tests.test_communities import create_community
@@ -42,20 +45,39 @@ def _create_user_in_community() -> tuple[User, str]:
     return user, token
 
 
-def test_progressive_scheduling_until_end_date(db, frozen_timewarp: FrozenTimewarp):
+def _add_upload(user_id: int, key: str) -> None:
+    with session_scope() as session:
+        session.add(Upload(key=key, filename=f"{key}.jpg", creator_user_id=user_id))
+
+
+def test_recurring_event(db, frozen_timewarp: FrozenTimewarp):
     """
     A weekly recurring event should get scheduled progressively (2 occurrences at a time) until the ends_on date.
     """
     user, token = _create_user_in_community()
+    _add_upload(user.id, "recurring_photo")
 
     # Set time to Wednesday, January 1, 2020
     frozen_timewarp.freeze_at(datetime(2020, 1, 1, tzinfo=UTC))
 
     # Create a recurring weekly event on Thursday, January 2, 2020, 12:00-13:30 UTC.
     initial_occurrence = events_api.create_event(
-        token=token, start_date_time=(date(2020, 1, 2), time(12, 0)), end_date_time=(date(2020, 1, 2), time(13, 30))
+        token=token,
+        photo_key="recurring_photo",
+        start_date_time=(date(2020, 1, 2), time(12, 0)),
+        end_date_time=(date(2020, 1, 2), time(13, 30)),
+        recurrence=events_api.weekly_recurrence(interval=1, ends_on_date=date(2020, 1, 20)),
     )
-    events_api.x_make_event_recurring(initial_occurrence, rrule_interval=1, ends_on_date=date(2020, 1, 20))
+
+    expected_recurrence = events_pb2.EventRecurrence(
+        weekly=events_pb2.WeeklyEventRecurrence(
+            day_of_week=events_pb2.DayOfWeek.DAY_OF_WEEK_THURSDAY,
+            weekly_interval=1,
+        ),
+        ends_on_date="2020-01-20",
+    )
+    assert initial_occurrence.recurrence == expected_recurrence
+    assert events_api.get_event(token=token, event_id=initial_occurrence.event_id).recurrence == expected_recurrence
 
     occurrences_before_scheduling = events_api.list_event_occurrences(
         token=token, event_id=initial_occurrence.event_id, past=False
@@ -77,6 +99,8 @@ def test_progressive_scheduling_until_end_date(db, frozen_timewarp: FrozenTimewa
     assert to_aware_datetime(occurrences_after_scheduling[1].end_time) == datetime(2020, 1, 9, 13, 30, tzinfo=UTC)
     assert occurrences_after_scheduling[0].title == occurrences_after_scheduling[1].title
     assert occurrences_after_scheduling[0].content == occurrences_after_scheduling[1].content
+    assert occurrences_after_scheduling[0].photo_key == occurrences_after_scheduling[1].photo_key == "recurring_photo"
+    assert occurrences_after_scheduling[0].photo_url == occurrences_after_scheduling[1].photo_url
     assert occurrences_after_scheduling[0].location.address == occurrences_after_scheduling[1].location.address
     assert occurrences_after_scheduling[0].location.lat == occurrences_after_scheduling[1].location.lat
     assert occurrences_after_scheduling[0].location.lng == occurrences_after_scheduling[1].location.lng
@@ -135,9 +159,11 @@ def test_biweekly_frequency(db, frozen_timewarp: FrozenTimewarp):
 
     # Create a recurring biweekly event on Thursday, January 2, 2020, 12:00-13:30 UTC.
     initial_occurrence = events_api.create_event(
-        token=token, start_date_time=(date(2020, 1, 2), time(12, 0)), end_date_time=(date(2020, 1, 2), time(13, 30))
+        token=token,
+        start_date_time=(date(2020, 1, 2), time(12, 0)),
+        end_date_time=(date(2020, 1, 2), time(13, 30)),
+        recurrence=events_api.weekly_recurrence(interval=2, ends_on_date=date(2020, 1, 20)),
     )
-    events_api.x_make_event_recurring(initial_occurrence, rrule_interval=2, ends_on_date=date(2020, 1, 20))
 
     schedule_event_occurrences(empty_pb2.Empty())
 
@@ -160,9 +186,11 @@ def test_no_rescheduling_after_edit_or_cancel(db, frozen_timewarp: FrozenTimewar
 
     # Create a recurring event on Fridays
     initial_occurrence = events_api.create_event(
-        token=token, start_date_time=(date(2020, 1, 3), time(12, 0)), end_date_time=(date(2020, 1, 3), time(13, 0))
+        token=token,
+        start_date_time=(date(2020, 1, 3), time(12, 0)),
+        end_date_time=(date(2020, 1, 3), time(13, 0)),
+        recurrence=events_api.weekly_recurrence(interval=1, ends_on_date=date(2020, 6, 30)),
     )
-    events_api.x_make_event_recurring(initial_occurrence, rrule_interval=1, ends_on_date=date(2020, 6, 30))
 
     schedule_event_occurrences(empty_pb2.Empty())
 
@@ -214,8 +242,8 @@ def test_new_occurrence_not_based_on_previous(db, frozen_timewarp: FrozenTimewar
         content="Initial content",
         start_date_time=(date(2020, 1, 2), time(12, 0)),
         end_date_time=(date(2020, 1, 2), time(13, 0)),
+        recurrence=events_api.weekly_recurrence(interval=1, ends_on_date=date(2020, 6, 30)),
     )
-    events_api.x_make_event_recurring(initial_occurrence, rrule_interval=1, ends_on_date=date(2020, 6, 30))
 
     # Change the original occurrence
     initial_occurrence = events_api.update_event(
@@ -241,9 +269,11 @@ def test_no_scheduling_after_creator_banned(db, frozen_timewarp: FrozenTimewarp)
 
     # Schedule on Thursdays
     initial_occurrence = events_api.create_event(
-        token=token, start_date_time=(date(2020, 1, 2), time(12, 0)), end_date_time=(date(2020, 1, 2), time(13, 0))
+        token=token,
+        start_date_time=(date(2020, 1, 2), time(12, 0)),
+        end_date_time=(date(2020, 1, 2), time(13, 0)),
+        recurrence=events_api.weekly_recurrence(interval=1, ends_on_date=date(2020, 6, 30)),
     )
-    events_api.x_make_event_recurring(initial_occurrence, rrule_interval=1, ends_on_date=date(2020, 6, 30))
 
     # Schedules January 9
     schedule_event_occurrences(empty_pb2.Empty())
@@ -285,9 +315,11 @@ def test_organizers_attend_scheduled_occurrences(db, frozen_timewarp: FrozenTime
 
     # Schedule on Thursdays
     initial_occurrence = events_api.create_event(
-        token=token, start_date_time=(date(2020, 1, 2), time(12, 0)), end_date_time=(date(2020, 1, 2), time(13, 0))
+        token=token,
+        start_date_time=(date(2020, 1, 2), time(12, 0)),
+        end_date_time=(date(2020, 1, 2), time(13, 0)),
+        recurrence=events_api.weekly_recurrence(interval=1, ends_on_date=date(2020, 6, 30)),
     )
-    events_api.x_make_event_recurring(initial_occurrence, rrule_interval=1, ends_on_date=date(2020, 6, 30))
 
     events_api.invite_event_organizer(token=token, event_id=initial_occurrence.event_id, user_id=co_organizer.id)
 
@@ -300,3 +332,114 @@ def test_organizers_attend_scheduled_occurrences(db, frozen_timewarp: FrozenTime
     assert to_aware_datetime(scheduled_occurrence.start_time) == datetime(2020, 1, 9, 12, 0, tzinfo=UTC)
     assert scheduled_occurrence.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
     assert scheduled_occurrence.going_count == 2
+
+
+def test_CreateEvent_recurring_disabled(db, frozen_timewarp: FrozenTimewarp, feature_flags):
+    frozen_timewarp.freeze_at(datetime(2000, 1, 1, tzinfo=UTC))
+
+    user, token = _create_user_in_community()
+
+    feature_flags.set("recurring_event_creation_enabled", False)
+    with expect_rpc_error(grpc.StatusCode.UNAVAILABLE):
+        events_api.create_event(
+            token=token,
+            recurrence=events_api.weekly_recurrence(ends_on_date=date(2000, 6, 30)),
+        )
+
+
+def test_UpdateEvent_all_future_recurring(db, frozen_timewarp: FrozenTimewarp):
+    user, token = generate_user()
+
+    with session_scope() as session:
+        create_community(session, 0, 2, "Community", [user], [], None)
+
+    # Set time to Wednesday, January 1, 2020
+    frozen_timewarp.freeze_at(datetime(2020, 1, 1, tzinfo=UTC))
+
+    _add_upload(user.id, "initial_photo")
+    _add_upload(user.id, "updated_photo")
+
+    # Weekly on Thursdays
+    initial_occurrence = events_api.create_event(
+        token=token,
+        content="Initial content",
+        photo_key="initial_photo",
+        start_date_time=(date(2020, 1, 2), time(12, 0)),
+        end_date_time=(date(2020, 1, 2), time(13, 0)),
+        recurrence=events_api.weekly_recurrence(ends_on_date=date(2020, 6, 30)),
+    )
+
+    # Same timezone, since timezone changes are not supported when updating all future occurrences
+    new_location = events_pb2.EventLocation(address="Further from Null Island", lat=0.3, lng=0.4)
+    events_api.update_event(
+        token=token,
+        event_id=initial_occurrence.event_id,
+        content="Updated content",
+        photo_key="updated_photo",
+        location=new_location,
+        update_all_future=True,
+    )
+
+    # Newly scheduled occurrences should be based on the updated template
+    schedule_event_occurrences(empty_pb2.Empty())
+
+    occurrences = events_api.list_event_occurrences(token=token, event_id=initial_occurrence.event_id).events
+    assert len(occurrences) == 2
+    assert to_aware_datetime(occurrences[1].start_time) == datetime(2020, 1, 9, 12, 0, tzinfo=UTC)
+    for occurrence in occurrences:
+        assert occurrence.content == "Updated content"
+        assert occurrence.photo_key == "updated_photo"
+        assert occurrence.location == new_location
+
+
+def test_UpdateEvent_stop_recurrence(db, frozen_timewarp: FrozenTimewarp, moderator: Moderator):
+    creator_user, creator_token = generate_user()
+    other_user, other_token = generate_user()
+
+    with session_scope() as session:
+        create_community(session, 0, 2, "Community", [creator_user], [other_user], None)
+
+    # Set time to Wednesday, January 1, 2020
+    frozen_timewarp.freeze_at(datetime(2020, 1, 1, tzinfo=UTC))
+
+    # Weekly on Thursdays
+    initial_occurrence = events_api.create_event(
+        token=creator_token,
+        start_date_time=(date(2020, 1, 2), time(12, 0)),
+        end_date_time=(date(2020, 1, 2), time(13, 0)),
+        recurrence=events_api.weekly_recurrence(ends_on_date=date(2020, 6, 30)),
+        approve_by=moderator,
+    )
+
+    # Schedules January 9
+    schedule_event_occurrences(empty_pb2.Empty())
+
+    # Only organizers can stop the recurrence
+    with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED):
+        events_api.update_event(token=other_token, event_id=initial_occurrence.event_id, stop_recurrence=True)
+
+    updated_occurrence = events_api.update_event(
+        token=creator_token, event_id=initial_occurrence.event_id, stop_recurrence=True
+    )
+    assert not updated_occurrence.HasField("recurrence")
+
+    # Set time to Friday, January 3, 2020, when January 16 would otherwise get scheduled
+    frozen_timewarp.freeze_at(datetime(2020, 1, 3, tzinfo=UTC))
+    schedule_event_occurrences(empty_pb2.Empty())
+
+    # Already scheduled occurrences are kept, but no longer recur
+    occurrences = [
+        *events_api.list_event_occurrences(token=creator_token, event_id=initial_occurrence.event_id, past=True).events,
+        *events_api.list_event_occurrences(token=creator_token, event_id=initial_occurrence.event_id).events,
+    ]
+    assert sorted(to_aware_datetime(occurrence.start_time) for occurrence in occurrences) == [
+        datetime(2020, 1, 2, 12, 0, tzinfo=UTC),
+        datetime(2020, 1, 9, 12, 0, tzinfo=UTC),
+    ]
+    assert not any(occurrence.HasField("recurrence") for occurrence in occurrences)
+
+    # Stopping the recurrence of a non-recurring event is a no-op
+    updated_occurrence = events_api.update_event(
+        token=creator_token, event_id=initial_occurrence.event_id, stop_recurrence=True
+    )
+    assert not updated_occurrence.HasField("recurrence")

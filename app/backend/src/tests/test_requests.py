@@ -17,6 +17,8 @@ from couchers.db import session_scope
 from couchers.i18n import LocalizationContext
 from couchers.materialized_views import UserResponseRate
 from couchers.models import (
+    ActivenessProbe,
+    ActivenessProbeStatus,
     Cluster,
     ClusterRole,
     ClusterSubscription,
@@ -32,7 +34,10 @@ from couchers.models import (
     Notification,
     RateLimitAction,
     RateLimitViolation,
+    User,
 )
+from couchers.models.logging import EventLog
+from couchers.models.notifications import NotificationTopicAction
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.proto import (
     api_pb2,
@@ -46,18 +51,19 @@ from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_mu
 from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import backdate_conversations, generate_user, make_user_block
 from tests.fixtures.feature_flags import FeatureFlags
-from tests.fixtures.misc import EmailCollector, PushCollector
+from tests.fixtures.misc import EmailCollector, Moderator, PushCollector
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import api_session, auth_api_session
 from tests.test_public_trips import _create_trip_directly, _make_node
 
 
 def test_create_request(db, moderator):
-    user1, token1 = generate_user()
+    surfer_user, surfer_token = generate_user()
     hosting_city = "Morningside Heights, New York City"
     hosting_lat = 40.8086
     hosting_lng = -73.9616
     hosting_radius = 500
-    user2, token2 = generate_user(
+    host_user, host_token = generate_user(
         city=hosting_city,
         geom=create_coordinate(hosting_lat, hosting_lng),
         geom_radius=hosting_radius,
@@ -68,57 +74,49 @@ def test_create_request(db, moderator):
     today_minus_2 = today() - timedelta(days=2)
     today_minus_3 = today() - timedelta(days=3)
 
-    with pytest.raises(grpc.RpcError) as e:
-        requests_api.create_host_request(token=token1, host_user_id=user1.id)
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "Can't request hosting from yourself."
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Can't request hosting from yourself."):
+        requests_api.create_host_request(token=surfer_token, host_user_id=surfer_user.id)
 
-    with pytest.raises(grpc.RpcError) as e:
-        requests_api.create_host_request(token=token1, host_user_id=999)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == "Couldn't find that user."
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that user."):
+        requests_api.create_host_request(token=surfer_token, host_user_id=999)
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "From date can't be after to date."):
         requests_api.create_host_request(
-            token=token1, host_user_id=user2.id, from_date=today_plus_3, to_date=today_plus_2
+            token=surfer_token, host_user_id=host_user.id, from_date=today_plus_3, to_date=today_plus_2
         )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "From date can't be after to date."
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "From date must be today or later."):
         requests_api.create_host_request(
-            token=token1, host_user_id=user2.id, from_date=today_minus_3, to_date=today_plus_2
+            token=surfer_token, host_user_id=host_user.id, from_date=today_minus_3, to_date=today_plus_2
         )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "From date must be today or later."
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "From date can't be after to date."):
         requests_api.create_host_request(
-            token=token1, host_user_id=user2.id, from_date=today_plus_2, to_date=today_minus_2
+            token=surfer_token, host_user_id=host_user.id, from_date=today_plus_2, to_date=today_minus_2
         )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "From date can't be after to date."
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid date."):
         requests_api.create_host_request(
-            token=token1, host_user_id=user2.id, from_date="2020-00-06", to_date=today_minus_2
+            token=surfer_token, host_user_id=host_user.id, from_date="2020-00-06", to_date=today_minus_2
         )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "Invalid date."
 
-    with pytest.raises(grpc.RpcError) as e:
-        requests_api.create_host_request(token=token1, host_user_id=user2.id, text="Too short.")
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "Host request cannot be shorter than 250 characters."
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Host request cannot be shorter than 250 characters."):
+        requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id, text="Too short.")
 
-    requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
+    requests_api.create_host_request(
+        token=surfer_token,
+        host_user_id=host_user.id,
+        text="Test request",
+        pad_text_to_valid_length=True,
+        approve_by=moderator,
+    )
 
-    host_requests = requests_api.list_host_requests(token=token1, only_sent=True).host_requests
+    host_requests = requests_api.list_host_requests(token=surfer_token, only_sent=True).host_requests
 
     assert len(host_requests) == 1
     hr = host_requests[0]
 
-    assert hr.latest_message.text.text == requests_api.REQUEST_TEXT_DEFAULT
+    assert hr.latest_message.text.text.startswith("Test request")
 
     assert hr.hosting_city == hosting_city
     assert round(hr.hosting_lat, 4) == hosting_lat
@@ -129,25 +127,24 @@ def test_create_request(db, moderator):
     today_plus_one_year = today_ + timedelta(days=365)
     today_plus_one_year_plus_2 = today_plus_one_year + timedelta(days=2)
     today_plus_one_year_plus_3 = today_plus_one_year + timedelta(days=3)
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The start date must be within one year from today."):
         requests_api.create_host_request(
-            token=token1,
-            host_user_id=user2.id,
+            token=surfer_token,
+            host_user_id=host_user.id,
             from_date=today_plus_one_year_plus_2,
             to_date=today_plus_one_year_plus_3,
         )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "The start date must be within one year from today."
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(
+        grpc.StatusCode.INVALID_ARGUMENT,
+        "You cannot request to stay with someone for longer than one year.",
+    ):
         requests_api.create_host_request(
-            token=token1,
-            host_user_id=user2.id,
+            token=surfer_token,
+            host_user_id=host_user.id,
             from_date=today_plus_2,
             to_date=today_plus_one_year_plus_3,
         )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "You cannot request to stay with someone for longer than one year."
 
 
 def test_create_host_request_rejects_date_past_in_host_timezone(db):
@@ -155,9 +152,9 @@ def test_create_host_request_rejects_date_past_in_host_timezone(db):
     # from_date of "today in UTC" is in the past from the host's perspective and
     # must be rejected. The frontend blocks this date before submission; the
     # backend enforces the same rule for consistency.
-    user1, token1 = generate_user()
+    surfer_user, surfer_token = generate_user()
     # geom inside the fake Europe/Helsinki timezone polygon used in tests
-    user2, _ = generate_user(geom=create_coordinate(61, 25))
+    host_user, _ = generate_user(geom=create_coordinate(61, 25))
 
     # Helsinki is already on 2026-01-16; requester submits 2026-01-15.
     fake_today_by_tz = {"Europe/Helsinki": date(2026, 1, 16)}
@@ -166,11 +163,10 @@ def test_create_host_request_rejects_date_past_in_host_timezone(db):
         "couchers.servicers.requests.today_in_timezone",
         side_effect=lambda tz: fake_today_by_tz.get(tz, date(2026, 1, 15)),
     ):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
             requests_api.create_host_request(
-                token=token1, host_user_id=user2.id, from_date=date(2026, 1, 15), to_date=date(2026, 1, 18)
+                token=surfer_token, host_user_id=host_user.id, from_date=date(2026, 1, 15), to_date=date(2026, 1, 18)
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_create_host_request_date_valid_when_host_behind_requester(db):
@@ -178,8 +174,8 @@ def test_create_host_request_date_valid_when_host_behind_requester(db):
     # still on 2026-01-15 while the requester has already rolled into 2026-01-16.
     # A from_date of 2026-01-16 is "today" for the requester and "tomorrow" for
     # the host — must be accepted without issue.
-    user1, token1 = generate_user()
-    user2, _ = generate_user()  # default geom resolves to America/New_York
+    surfer_user, surfer_token = generate_user()
+    host_user, _ = generate_user()  # default geom resolves to America/New_York
 
     fake_today_by_tz = {"America/New_York": date(2026, 1, 15)}
 
@@ -188,7 +184,7 @@ def test_create_host_request_date_valid_when_host_behind_requester(db):
         side_effect=lambda tz: fake_today_by_tz.get(tz, date(2026, 1, 15)),
     ):
         assert requests_api.create_host_request(
-            token=token1, host_user_id=user2.id, from_date=date(2026, 1, 16), to_date=date(2026, 1, 20)
+            token=surfer_token, host_user_id=host_user.id, from_date=date(2026, 1, 16), to_date=date(2026, 1, 20)
         )
 
 
@@ -221,65 +217,74 @@ def test_create_request_records_host_timezone(db, frozen_timewarp, moderator):
 def test_create_request_duplicate_within_window(db):
     """A second request to the same host for overlapping dates inside the window is rejected, so a
     client that resends (or a user who re-taps Send) doesn't create a pile of duplicates."""
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
-    user3, _ = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, _ = generate_user()
+    other_host_user, _ = generate_user()
     from_date = today() + timedelta(days=10)
     to_date = today() + timedelta(days=15)
 
-    assert requests_api.create_host_request(token=token1, host_user_id=user2.id, from_date=from_date, to_date=to_date)
+    assert requests_api.create_host_request(
+        token=surfer_token, host_user_id=host_user.id, from_date=from_date, to_date=to_date
+    )
 
-    with pytest.raises(grpc.RpcError) as e:
-        requests_api.create_host_request(token=token1, host_user_id=user2.id, from_date=from_date, to_date=to_date)
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-    assert "past 3 hours" in (e.value.details() or "")
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, lambda d: "past 3 hours" in d):
+        requests_api.create_host_request(
+            token=surfer_token, host_user_id=host_user.id, from_date=from_date, to_date=to_date
+        )
 
     # partly overlapping dates are blocked too
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
         requests_api.create_host_request(
-            token=token1,
-            host_user_id=user2.id,
+            token=surfer_token,
+            host_user_id=host_user.id,
             from_date=to_date - timedelta(days=1),
             to_date=to_date + timedelta(days=5),
         )
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
     # a different host is unaffected
-    assert requests_api.create_host_request(token=token1, host_user_id=user3.id, from_date=from_date, to_date=to_date)
+    assert requests_api.create_host_request(
+        token=surfer_token, host_user_id=other_host_user.id, from_date=from_date, to_date=to_date
+    )
 
 
 def test_create_request_duplicate_window_allows_other_dates(db):
     """Only overlapping stays count as duplicates, including a stay starting the day another one
     ends."""
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, _ = generate_user()
     from_date = today() + timedelta(days=10)
     to_date = today() + timedelta(days=15)
 
-    assert requests_api.create_host_request(token=token1, host_user_id=user2.id, from_date=from_date, to_date=to_date)
-
     assert requests_api.create_host_request(
-        token=token1, host_user_id=user2.id, from_date=to_date, to_date=to_date + timedelta(days=5)
+        token=surfer_token, host_user_id=host_user.id, from_date=from_date, to_date=to_date
     )
 
     assert requests_api.create_host_request(
-        token=token1,
-        host_user_id=user2.id,
+        token=surfer_token, host_user_id=host_user.id, from_date=to_date, to_date=to_date + timedelta(days=5)
+    )
+
+    assert requests_api.create_host_request(
+        token=surfer_token,
+        host_user_id=host_user.id,
         from_date=from_date + timedelta(days=90),
         to_date=to_date + timedelta(days=90),
     )
 
 
 def test_create_request_duplicate_allowed_after_window(db):
-    user1, token1 = generate_user()
-    user2, _ = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, _ = generate_user()
     from_date = today() + timedelta(days=10)
     to_date = today() + timedelta(days=15)
 
-    requests_api.create_host_request(token=token1, host_user_id=user2.id, from_date=from_date, to_date=to_date)
+    requests_api.create_host_request(
+        token=surfer_token, host_user_id=host_user.id, from_date=from_date, to_date=to_date
+    )
     backdate_conversations()
 
-    assert requests_api.create_host_request(token=token1, host_user_id=user2.id, from_date=from_date, to_date=to_date)
+    assert requests_api.create_host_request(
+        token=surfer_token, host_user_id=host_user.id, from_date=from_date, to_date=to_date
+    )
 
 
 def test_create_request_duplicate_window_ignores_public_trip_offers(db):
@@ -322,12 +327,13 @@ def test_create_request_duplicate_window_ignores_public_trip_offers(db):
 
 
 def test_create_request_incomplete_profile(db):
-    user1, token1 = generate_user(complete_profile=False)
-    user2, _ = generate_user()
-    with pytest.raises(grpc.RpcError) as e:
-        requests_api.create_host_request(token=token1, host_user_id=user2.id)
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-    assert e.value.details() == "You have to complete your profile before you can send a request."
+    surfer_user, surfer_token = generate_user(complete_profile=False)
+    host_user, _ = generate_user()
+    with expect_rpc_error(
+        grpc.StatusCode.FAILED_PRECONDITION,
+        "You have to complete your profile before you can send a request.",
+    ):
+        requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id)
 
 
 def test_excessive_requests_are_reported(db, low_rate_limits, email_collector: EmailCollector):
@@ -356,13 +362,11 @@ def test_excessive_requests_are_reported(db, low_rate_limits, email_collector: E
     assert email_collector.count_for_reports() == 0
 
     host_user, _ = generate_user()
-    with pytest.raises(grpc.RpcError) as exc_info:
+    with expect_rpc_error(
+        grpc.StatusCode.RESOURCE_EXHAUSTED,
+        "You have sent a lot of host requests in the past 24 hours. To avoid spam, you can't send any more for now.",
+    ):
         requests_api.create_host_request(token=token, host_user_id=host_user.id)
-    assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
-    assert (
-        exc_info.value.details()
-        == "You have sent a lot of host requests in the past 24 hours. To avoid spam, you can't send any more for now."
-    )
 
     email = email_collector.pop_for_reports(last=True)
     assert email.plain.startswith(
@@ -379,9 +383,8 @@ def test_excessive_requests_are_reported(db, low_rate_limits, email_collector: E
 
     # still blocked once the hard violation is on record, without reporting again
     host_user, _ = generate_user()
-    with pytest.raises(grpc.RpcError) as exc_info:
+    with expect_rpc_error(grpc.StatusCode.RESOURCE_EXHAUSTED):
         requests_api.create_host_request(token=token, host_user_id=host_user.id)
-    assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
     assert email_collector.count_for_reports() == 0
 
 
@@ -395,19 +398,17 @@ def add_message(db, text, author_id, conversation_id):
 
 
 def test_GetHostRequest(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    user3, token3 = generate_user()
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
+    other_user, other_token = generate_user()
+    host_request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id)
 
-    with pytest.raises(grpc.RpcError) as e:
-        requests_api.get_host_request(token=token1, host_request_id=999)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == "Couldn't find that host request."
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that host request."):
+        requests_api.get_host_request(token=surfer_token, host_request_id=999)
 
-    requests_api.send_host_request_message(token=token1, host_request_id=host_request_id, text="Test message 1")
+    requests_api.send_host_request_message(token=surfer_token, host_request_id=host_request_id, text="Test message 1")
 
-    res = requests_api.get_host_request(token=token1, host_request_id=host_request_id)
+    res = requests_api.get_host_request(token=surfer_token, host_request_id=host_request_id)
     assert res.latest_message.text.text == "Test message 1"
 
 
@@ -464,23 +465,35 @@ def test_ListHostRequests_pagination_regression(db, moderator):
     """
     ListHostRequests was skipping a request when getting multiple pages
     """
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
     host_request_1 = requests_api.create_host_request(
-        token=token1, host_user_id=user2.id, text="Test request 1", pad_text_to_valid_length=True, approve_by=moderator
+        token=surfer_token,
+        host_user_id=host_user.id,
+        text="Test request 1",
+        pad_text_to_valid_length=True,
+        approve_by=moderator,
     )
     backdate_conversations()
 
     host_request_2 = requests_api.create_host_request(
-        token=token1, host_user_id=user2.id, text="Test request 2", pad_text_to_valid_length=True, approve_by=moderator
+        token=surfer_token,
+        host_user_id=host_user.id,
+        text="Test request 2",
+        pad_text_to_valid_length=True,
+        approve_by=moderator,
     )
     backdate_conversations()
 
     host_request_3 = requests_api.create_host_request(
-        token=token1, host_user_id=user2.id, text="Test request 3", pad_text_to_valid_length=True, approve_by=moderator
+        token=surfer_token,
+        host_user_id=host_user.id,
+        text="Test request 3",
+        pad_text_to_valid_length=True,
+        approve_by=moderator,
     )
 
-    res = requests_api.list_host_requests(token=token2, only_received=True)
+    res = requests_api.list_host_requests(token=host_token, only_received=True)
     assert res.no_more
     assert len(res.host_requests) == 3
     assert res.host_requests[0].latest_message.text.text.startswith("Test request 3")
@@ -488,48 +501,52 @@ def test_ListHostRequests_pagination_regression(db, moderator):
     assert res.host_requests[2].latest_message.text.text.startswith("Test request 1")
 
     requests_api.respond_host_request(
-        token=token2,
+        token=host_token,
         host_request_id=host_request_2,
         status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
         text="Accepting host request 2",
     )
     requests_api.respond_host_request(
-        token=token2,
+        token=host_token,
         host_request_id=host_request_1,
         status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
         text="Accepting host request 1",
     )
     requests_api.respond_host_request(
-        token=token2,
+        token=host_token,
         host_request_id=host_request_3,
         status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
         text="Accepting host request 3",
     )
 
-    res = requests_api.list_host_requests(token=token2, only_received=True)
+    res = requests_api.list_host_requests(token=host_token, only_received=True)
     assert res.no_more
     assert len(res.host_requests) == 3
     assert res.host_requests[0].latest_message.text.text == "Accepting host request 3"
     assert res.host_requests[1].latest_message.text.text == "Accepting host request 1"
     assert res.host_requests[2].latest_message.text.text == "Accepting host request 2"
 
-    res = requests_api.list_host_requests(token=token2, only_received=True, number=1)
+    res = requests_api.list_host_requests(token=host_token, only_received=True, number=1)
     assert not res.no_more
     assert len(res.host_requests) == 1
     assert res.host_requests[0].latest_message.text.text == "Accepting host request 3"
-    res = requests_api.list_host_requests(token=token2, only_received=True, number=1, page_token=res.next_page_token)
+    res = requests_api.list_host_requests(
+        token=host_token, only_received=True, number=1, page_token=res.next_page_token
+    )
     assert not res.no_more
     assert len(res.host_requests) == 1
     assert res.host_requests[0].latest_message.text.text == "Accepting host request 1"
-    res = requests_api.list_host_requests(token=token2, only_received=True, number=1, page_token=res.next_page_token)
+    res = requests_api.list_host_requests(
+        token=host_token, only_received=True, number=1, page_token=res.next_page_token
+    )
     assert res.no_more
     assert len(res.host_requests) == 1
     assert res.host_requests[0].latest_message.text.text == "Accepting host request 2"
 
 
 def test_ListHostRequests_sort_by_from_date(db, moderator):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
     today_plus_2 = today() + timedelta(days=2)
     today_plus_3 = today() + timedelta(days=3)
     today_plus_5 = today() + timedelta(days=5)
@@ -537,23 +554,35 @@ def test_ListHostRequests_sort_by_from_date(db, moderator):
     today_plus_10 = today() + timedelta(days=10)
 
     hr_late = requests_api.create_host_request(
-        token=token1, host_user_id=user2.id, from_date=today_plus_7, to_date=today_plus_10, approve_by=moderator
+        token=surfer_token,
+        host_user_id=host_user.id,
+        from_date=today_plus_7,
+        to_date=today_plus_10,
+        approve_by=moderator,
     )
     hr_early = requests_api.create_host_request(
-        token=token1, host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, approve_by=moderator
+        token=surfer_token,
+        host_user_id=host_user.id,
+        from_date=today_plus_2,
+        to_date=today_plus_3,
+        approve_by=moderator,
     )
     hr_mid = requests_api.create_host_request(
-        token=token1, host_user_id=user2.id, from_date=today_plus_5, to_date=today_plus_7, approve_by=moderator
+        token=surfer_token,
+        host_user_id=host_user.id,
+        from_date=today_plus_5,
+        to_date=today_plus_7,
+        approve_by=moderator,
     )
 
     # default sort: latest message first (creation order reversed)
-    res = requests_api.list_host_requests(token=token2, only_received=True)
+    res = requests_api.list_host_requests(token=host_token, only_received=True)
     assert res.no_more
     assert [r.host_request_id for r in res.host_requests] == [hr_mid, hr_early, hr_late]
 
     # from_date sort: ascending by travel date
     res = requests_api.list_host_requests(
-        token=token2, only_received=True, sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE
+        token=host_token, only_received=True, sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE
     )
     assert res.no_more
     assert [r.host_request_id for r in res.host_requests] == [hr_early, hr_mid, hr_late]
@@ -561,40 +590,48 @@ def test_ListHostRequests_sort_by_from_date(db, moderator):
 
 def test_ListHostRequests_sort_by_from_date_pagination(db, moderator):
     """Pagination cursor correctly handles both different and identical from_dates."""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
     today_plus_2 = today() + timedelta(days=2)
     today_plus_3 = today() + timedelta(days=3)
     today_plus_5 = today() + timedelta(days=5)
 
     hr_a = requests_api.create_host_request(
-        token=token1, host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, approve_by=moderator
+        token=surfer_token,
+        host_user_id=host_user.id,
+        from_date=today_plus_2,
+        to_date=today_plus_3,
+        approve_by=moderator,
     )
     backdate_conversations()
 
     # Same from_date as A — tiebreaker by conversation_id
     hr_b = requests_api.create_host_request(
-        token=token1, host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, approve_by=moderator
+        token=surfer_token,
+        host_user_id=host_user.id,
+        from_date=today_plus_2,
+        to_date=today_plus_3,
+        approve_by=moderator,
     )
     backdate_conversations()
 
     hr_c = requests_api.create_host_request(
-        token=token1,
-        host_user_id=user2.id,
+        token=surfer_token,
+        host_user_id=host_user.id,
         from_date=today_plus_5,
         to_date=today_plus_5 + timedelta(days=2),
         approve_by=moderator,
     )
 
     res = requests_api.list_host_requests(
-        token=token2, only_received=True, number=1, sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE
+        token=host_token, only_received=True, number=1, sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE
     )
     assert not res.no_more
     assert len(res.host_requests) == 1
     assert res.host_requests[0].host_request_id == hr_a
 
     res = requests_api.list_host_requests(
-        token=token2,
+        token=host_token,
         only_received=True,
         number=1,
         sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
@@ -605,7 +642,7 @@ def test_ListHostRequests_sort_by_from_date_pagination(db, moderator):
     assert res.host_requests[0].host_request_id == hr_b
 
     res = requests_api.list_host_requests(
-        token=token2,
+        token=host_token,
         only_received=True,
         number=1,
         sort_by=requests_pb2.HOST_REQUEST_SORT_BY_FROM_DATE,
@@ -617,34 +654,34 @@ def test_ListHostRequests_sort_by_from_date_pagination(db, moderator):
 
 
 def test_ListHostRequests_active_filter(db, moderator):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
 
-    request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
+    request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id, approve_by=moderator)
 
     requests_api.respond_host_request(
-        token=token1, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
+        token=surfer_token, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
     )
 
-    res = requests_api.list_host_requests(token=token2, only_received=True)
+    res = requests_api.list_host_requests(token=host_token, only_received=True)
     assert len(res.host_requests) == 1
-    res = requests_api.list_host_requests(token=token2, only_active=True)
+    res = requests_api.list_host_requests(token=host_token, only_active=True)
     assert len(res.host_requests) == 0
 
 
 def test_ListHostRequests_active_filter_excludes_past(db, moderator):
     """only_active must exclude requests whose end date has passed (regression test for <= bug)."""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
 
-    request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
+    request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id, approve_by=moderator)
 
     requests_api.respond_host_request(
-        token=token2, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+        token=host_token, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
     )
 
     # Future request is visible with only_active
-    res = requests_api.list_host_requests(token=token2, only_active=True)
+    res = requests_api.list_host_requests(token=host_token, only_active=True)
     assert len(res.host_requests) == 1
 
     # Move dates into the past
@@ -654,18 +691,18 @@ def test_ListHostRequests_active_filter_excludes_past(db, moderator):
         hr.to_date = today() - timedelta(days=2)
 
     # Past request must be excluded by only_active
-    res = requests_api.list_host_requests(token=token2, only_active=True)
+    res = requests_api.list_host_requests(token=host_token, only_active=True)
     assert len(res.host_requests) == 0
 
     # Still visible without the filter
-    res = requests_api.list_host_requests(token=token2, only_received=True)
+    res = requests_api.list_host_requests(token=host_token, only_received=True)
     assert len(res.host_requests) == 1
 
 
 def test_ListHostRequests_status_in_filter(db, moderator):
     """status_in must return only requests with the specified statuses."""
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
     today_plus_2 = today() + timedelta(days=2)
     today_plus_3 = today() + timedelta(days=3)
     today_plus_4 = today() + timedelta(days=4)
@@ -673,31 +710,39 @@ def test_ListHostRequests_status_in_filter(db, moderator):
 
     # Create a pending request
     requests_api.create_host_request(
-        token=token1, host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, approve_by=moderator
+        token=surfer_token,
+        host_user_id=host_user.id,
+        from_date=today_plus_2,
+        to_date=today_plus_3,
+        approve_by=moderator,
     )
 
     # Create an accepted request
     accepted_id = requests_api.create_host_request(
-        token=token1, host_user_id=user2.id, from_date=today_plus_4, to_date=today_plus_5, approve_by=moderator
+        token=surfer_token,
+        host_user_id=host_user.id,
+        from_date=today_plus_4,
+        to_date=today_plus_5,
+        approve_by=moderator,
     )
 
     requests_api.respond_host_request(
-        token=token2, host_request_id=accepted_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+        token=host_token, host_request_id=accepted_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
     )
 
     # Filter to accepted only
-    res = requests_api.list_host_requests(token=token2, status_in=[messages_pb2.HOST_REQUEST_STATUS_ACCEPTED])
+    res = requests_api.list_host_requests(token=host_token, status_in=[messages_pb2.HOST_REQUEST_STATUS_ACCEPTED])
     assert len(res.host_requests) == 1
     assert res.host_requests[0].status == messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
 
     # Filter to pending only
-    res = requests_api.list_host_requests(token=token2, status_in=[messages_pb2.HOST_REQUEST_STATUS_PENDING])
+    res = requests_api.list_host_requests(token=host_token, status_in=[messages_pb2.HOST_REQUEST_STATUS_PENDING])
     assert len(res.host_requests) == 1
     assert res.host_requests[0].status == messages_pb2.HOST_REQUEST_STATUS_PENDING
 
     # Filter to accepted + pending — both appear
     res = requests_api.list_host_requests(
-        token=token2,
+        token=host_token,
         status_in=[
             messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
             messages_pb2.HOST_REQUEST_STATUS_PENDING,
@@ -706,100 +751,87 @@ def test_ListHostRequests_status_in_filter(db, moderator):
     assert len(res.host_requests) == 2
 
     # Filter to confirmed — none appear
-    res = requests_api.list_host_requests(token=token2, status_in=[messages_pb2.HOST_REQUEST_STATUS_CONFIRMED])
+    res = requests_api.list_host_requests(token=host_token, status_in=[messages_pb2.HOST_REQUEST_STATUS_CONFIRMED])
     assert len(res.host_requests) == 0
 
     # Empty status_in — all requests returned (no filter applied)
-    res = requests_api.list_host_requests(token=token2, only_received=True)
+    res = requests_api.list_host_requests(token=host_token, only_received=True)
     assert len(res.host_requests) == 2
 
 
 def test_RespondHostRequests(db, moderator):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    user3, token3 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
+    other_user, other_token = generate_user()
 
-    request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
+    request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id, approve_by=moderator)
 
     # another user can't access
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that host request."):
         requests_api.respond_host_request(
-            token=token3, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
+            token=other_token, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
         )
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == "Couldn't find that host request."
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You are not the host of this request."):
         requests_api.respond_host_request(
-            token=token1, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+            token=surfer_token, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
         )
-    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-    assert e.value.details() == "You are not the host of this request."
 
     # non existing id
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
         requests_api.respond_host_request(
-            token=token2, host_request_id=9999, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
+            token=host_token, host_request_id=9999, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
         )
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
     # host can't confirm or cancel (host should accept/reject)
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You can't set the host request status to that."):
         requests_api.respond_host_request(
-            token=token2, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
+            token=host_token, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
         )
-    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-    assert e.value.details() == "You can't set the host request status to that."
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You can't set the host request status to that."):
         requests_api.respond_host_request(
-            token=token2, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
+            token=host_token, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
         )
-    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-    assert e.value.details() == "You can't set the host request status to that."
 
     requests_api.respond_host_request(
-        token=token2,
+        token=host_token,
         host_request_id=request_id,
         status=messages_pb2.HOST_REQUEST_STATUS_REJECTED,
         text="Test rejection message",
     )
-    res = requests_api.get_host_request_messages(token=token2, host_request_id=request_id)
+    res = requests_api.get_host_request_messages(token=host_token, host_request_id=request_id)
     assert res.messages[0].text.text == "Test rejection message"
     assert res.messages[1].WhichOneof("content") == "host_request_status_changed"
     assert res.messages[1].host_request_status_changed.status == messages_pb2.HOST_REQUEST_STATUS_REJECTED
     # should be able to move from rejected -> accepted
     requests_api.respond_host_request(
-        token=token2, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+        token=host_token, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
     )
 
     # can't make pending
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You can't set the host request status to that."):
         requests_api.respond_host_request(
-            token=token1, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_PENDING
+            token=surfer_token, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_PENDING
         )
-    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-    assert e.value.details() == "You can't set the host request status to that."
 
     # can confirm then cancel
     requests_api.respond_host_request(
-        token=token1, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
+        token=surfer_token, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
     )
 
     requests_api.respond_host_request(
-        token=token1, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
+        token=surfer_token, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
     )
 
     # can't confirm after having cancelled
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You can't set the host request status to that."):
         requests_api.respond_host_request(
-            token=token1, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
+            token=surfer_token, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
         )
-    assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-    assert e.value.details() == "You can't set the host request status to that."
 
     # at this point there should be 7 messages
     # 2 for creation, 2 for the status change with message, 3 for the other status changed
-    res = requests_api.get_host_request_messages(token=token1, host_request_id=request_id)
+    res = requests_api.get_host_request_messages(token=surfer_token, host_request_id=request_id)
     assert len(res.messages) == 7
     assert res.messages[0].host_request_status_changed.status == messages_pb2.HOST_REQUEST_STATUS_CANCELLED
     assert res.messages[1].host_request_status_changed.status == messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
@@ -809,33 +841,37 @@ def test_RespondHostRequests(db, moderator):
 
 
 def test_get_host_request_messages(db, moderator):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
     conversation_id = requests_api.create_host_request(
-        token=token1, host_user_id=user2.id, text="Test request 1", pad_text_to_valid_length=True, approve_by=moderator
+        token=surfer_token,
+        host_user_id=host_user.id,
+        text="Test request 1",
+        pad_text_to_valid_length=True,
+        approve_by=moderator,
     )
 
-    add_message(db, "Test request 1 message 1", user1.id, conversation_id)
-    add_message(db, "Test request 1 message 2", user1.id, conversation_id)
-    add_message(db, "Test request 1 message 3", user1.id, conversation_id)
+    add_message(db, "Test request 1 message 1", surfer_user.id, conversation_id)
+    add_message(db, "Test request 1 message 2", surfer_user.id, conversation_id)
+    add_message(db, "Test request 1 message 3", surfer_user.id, conversation_id)
 
     requests_api.respond_host_request(
-        token=token2, host_request_id=conversation_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+        token=host_token, host_request_id=conversation_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
     )
 
-    add_message(db, "Test request 1 message 4", user2.id, conversation_id)
-    add_message(db, "Test request 1 message 5", user2.id, conversation_id)
+    add_message(db, "Test request 1 message 4", host_user.id, conversation_id)
+    add_message(db, "Test request 1 message 5", host_user.id, conversation_id)
 
     requests_api.respond_host_request(
-        token=token2, host_request_id=conversation_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
+        token=host_token, host_request_id=conversation_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
     )
 
     # 9 including initial message
-    res = requests_api.get_host_request_messages(token=token1, host_request_id=conversation_id)
+    res = requests_api.get_host_request_messages(token=surfer_token, host_request_id=conversation_id)
     assert len(res.messages) == 9
     assert res.no_more
 
-    res = requests_api.get_host_request_messages(token=token1, host_request_id=conversation_id, number=3)
+    res = requests_api.get_host_request_messages(token=surfer_token, host_request_id=conversation_id, number=3)
     assert not res.no_more
     assert len(res.messages) == 3
     assert res.messages[0].host_request_status_changed.status == messages_pb2.HOST_REQUEST_STATUS_REJECTED
@@ -844,7 +880,7 @@ def test_get_host_request_messages(db, moderator):
     assert res.messages[2].text.text == "Test request 1 message 4"
 
     res = requests_api.get_host_request_messages(
-        token=token1, host_request_id=conversation_id, last_message_id=res.messages[2].message_id, number=6
+        token=surfer_token, host_request_id=conversation_id, last_message_id=res.messages[2].message_id, number=6
     )
     assert res.no_more
     assert len(res.messages) == 6
@@ -858,71 +894,74 @@ def test_get_host_request_messages(db, moderator):
 
 
 def test_SendHostRequestMessage(db, moderator):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    user3, token3 = generate_user()
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
+    other_user, other_token = generate_user()
+    host_request_id = requests_api.create_host_request(
+        token=surfer_token, host_user_id=host_user.id, approve_by=moderator
+    )
 
-    with pytest.raises(grpc.RpcError) as e:
-        requests_api.send_host_request_message(token=token1, host_request_id=999, text="Test message 1")
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
+        requests_api.send_host_request_message(token=surfer_token, host_request_id=999, text="Test message 1")
 
-    with pytest.raises(grpc.RpcError) as e:
-        requests_api.send_host_request_message(token=token1, host_request_id=host_request_id, text="")
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "Invalid message."
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid message."):
+        requests_api.send_host_request_message(token=surfer_token, host_request_id=host_request_id, text="")
 
-    requests_api.send_host_request_message(token=token1, host_request_id=host_request_id, text="Test message 1")
-    res = requests_api.get_host_request_messages(token=token1, host_request_id=host_request_id)
+    requests_api.send_host_request_message(token=surfer_token, host_request_id=host_request_id, text="Test message 1")
+    res = requests_api.get_host_request_messages(token=surfer_token, host_request_id=host_request_id)
     assert res.messages[0].text.text == "Test message 1"
-    assert res.messages[0].author_user_id == user1.id
+    assert res.messages[0].author_user_id == surfer_user.id
 
     # other user can't send
-    with pytest.raises(grpc.RpcError) as e:
-        requests_api.send_host_request_message(token=token3, host_request_id=host_request_id, text="Test message 2")
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == "Couldn't find that host request."
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that host request."):
+        requests_api.send_host_request_message(
+            token=other_token, host_request_id=host_request_id, text="Test message 2"
+        )
 
-    requests_api.send_host_request_message(token=token2, host_request_id=host_request_id, text="Test message 2")
-    res = requests_api.get_host_request_messages(token=token2, host_request_id=host_request_id)
+    requests_api.send_host_request_message(token=host_token, host_request_id=host_request_id, text="Test message 2")
+    res = requests_api.get_host_request_messages(token=host_token, host_request_id=host_request_id)
     # including 2 for creation control message and message
     assert len(res.messages) == 4
     assert res.messages[0].text.text == "Test message 2"
-    assert res.messages[0].author_user_id == user2.id
+    assert res.messages[0].author_user_id == host_user.id
 
     # CAN send messages to a rejected, confirmed or cancelled request, and for accepted
     requests_api.respond_host_request(
-        token=token2, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
+        token=host_token, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
     )
-    requests_api.send_host_request_message(token=token2, host_request_id=host_request_id, text="Test message 3")
+    requests_api.send_host_request_message(token=host_token, host_request_id=host_request_id, text="Test message 3")
 
     requests_api.respond_host_request(
-        token=token2, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+        token=host_token, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
     )
 
     requests_api.respond_host_request(
-        token=token1, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
+        token=surfer_token, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
     )
-    requests_api.send_host_request_message(token=token1, host_request_id=host_request_id, text="Test message 3")
+    requests_api.send_host_request_message(token=surfer_token, host_request_id=host_request_id, text="Test message 3")
 
     requests_api.respond_host_request(
-        token=token1, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
+        token=surfer_token, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
     )
-    requests_api.send_host_request_message(token=token1, host_request_id=host_request_id, text="Test message 3")
+    requests_api.send_host_request_message(token=surfer_token, host_request_id=host_request_id, text="Test message 3")
 
 
 def test_get_updates(db, moderator):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    user3, token3 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
+    other_user, other_token = generate_user()
     host_request_id = requests_api.create_host_request(
-        token=token1, host_user_id=user2.id, text="Test message 0", pad_text_to_valid_length=True, approve_by=moderator
+        token=surfer_token,
+        host_user_id=host_user.id,
+        text="Test message 0",
+        pad_text_to_valid_length=True,
+        approve_by=moderator,
     )
 
-    requests_api.send_host_request_message(token=token1, host_request_id=host_request_id, text="Test message 1")
-    requests_api.send_host_request_message(token=token1, host_request_id=host_request_id, text="Test message 2")
+    requests_api.send_host_request_message(token=surfer_token, host_request_id=host_request_id, text="Test message 1")
+    requests_api.send_host_request_message(token=surfer_token, host_request_id=host_request_id, text="Test message 2")
     requests_api.respond_host_request(
-        token=token1,
+        token=surfer_token,
         host_request_id=host_request_id,
         status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED,
         text="Test message 3",
@@ -930,10 +969,10 @@ def test_get_updates(db, moderator):
 
     backdate_conversations()
     requests_api.create_host_request(
-        token=token1, host_user_id=user2.id, text="Test message 4", pad_text_to_valid_length=True
+        token=surfer_token, host_user_id=host_user.id, text="Test message 4", pad_text_to_valid_length=True
     )
 
-    messages_res = requests_api.get_host_request_messages(token=token1, host_request_id=host_request_id)
+    messages_res = requests_api.get_host_request_messages(token=surfer_token, host_request_id=host_request_id)
     assert len(messages_res.messages) == 6
     assert messages_res.messages[0].text.text == "Test message 3"
     assert messages_res.messages[1].host_request_status_changed.status == messages_pb2.HOST_REQUEST_STATUS_CANCELLED
@@ -946,11 +985,10 @@ def test_get_updates(db, moderator):
     message_id_1 = messages_res.messages[3].message_id
     message_id_0 = messages_res.messages[4].message_id
 
-    with pytest.raises(grpc.RpcError) as e:
-        requests_api.get_host_request_updates(token=token1, newest_message_id=0)
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
+        requests_api.get_host_request_updates(token=surfer_token, newest_message_id=0)
 
-    res = requests_api.get_host_request_updates(token=token1, newest_message_id=message_id_1)
+    res = requests_api.get_host_request_updates(token=surfer_token, newest_message_id=message_id_1)
     assert res.no_more
     assert len(res.updates) == 5
     assert res.updates[0].message.text.text == "Test message 2"
@@ -961,73 +999,77 @@ def test_get_updates(db, moderator):
     assert res.updates[3].status == messages_pb2.HOST_REQUEST_STATUS_PENDING
     assert res.updates[4].message.text.text.startswith("Test message 4")
 
-    res = requests_api.get_host_request_updates(token=token1, newest_message_id=message_id_1, number=1)
+    res = requests_api.get_host_request_updates(token=surfer_token, newest_message_id=message_id_1, number=1)
     assert not res.no_more
     assert len(res.updates) == 1
     assert res.updates[0].message.text.text == "Test message 2"
     assert res.updates[0].status == messages_pb2.HOST_REQUEST_STATUS_CANCELLED
 
     # other user can't access
-    res = requests_api.get_host_request_updates(token=token3, newest_message_id=message_id_1)
+    res = requests_api.get_host_request_updates(token=other_token, newest_message_id=message_id_1)
     assert len(res.updates) == 0
 
 
 def test_archive_host_request(db, moderator):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
 
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id)
+    host_request_id = requests_api.create_host_request(token=surfer_token, host_user_id=host_user.id)
 
-    requests_api.send_host_request_message(token=token1, host_request_id=host_request_id, text="Test message 1")
-    requests_api.send_host_request_message(token=token1, host_request_id=host_request_id, text="Test message 2")
+    requests_api.send_host_request_message(token=surfer_token, host_request_id=host_request_id, text="Test message 1")
+    requests_api.send_host_request_message(token=surfer_token, host_request_id=host_request_id, text="Test message 2")
 
     moderator.approve_host_request(host_request_id)
 
     # happy path archiving host request
     requests_api.respond_host_request(
-        token=token1,
+        token=surfer_token,
         host_request_id=host_request_id,
         status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED,
         text="Test message 3",
     )
-    res = requests_api.list_host_requests(token=token1, only_sent=True)
+    res = requests_api.list_host_requests(token=surfer_token, only_sent=True)
     assert len(res.host_requests) == 1
     assert res.host_requests[0].status == messages_pb2.HOST_REQUEST_STATUS_CANCELLED
 
     # Verify is_archived is False before archiving
-    host_request = requests_api.get_host_request(token=token1, host_request_id=host_request_id)
+    host_request = requests_api.get_host_request(token=surfer_token, host_request_id=host_request_id)
     assert not host_request.is_archived
 
-    requests_api.set_host_request_archive_status(token=token1, host_request_id=host_request_id, is_archived=True)
-    res = requests_api.list_host_requests(token=token1, only_archived=True)
+    requests_api.set_host_request_archive_status(token=surfer_token, host_request_id=host_request_id, is_archived=True)
+    res = requests_api.list_host_requests(token=surfer_token, only_archived=True)
     assert len(res.host_requests) == 1
 
     # Verify is_archived is True after archiving
-    host_request = requests_api.get_host_request(token=token1, host_request_id=host_request_id)
+    host_request = requests_api.get_host_request(token=surfer_token, host_request_id=host_request_id)
     assert host_request.is_archived
 
 
 def test_host_request_unseen_message_count(db, moderator):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
 
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
+    host_request_id = requests_api.create_host_request(
+        token=surfer_token, host_user_id=host_user.id, approve_by=moderator
+    )
 
-    requests_api.send_host_request_message(token=token1, host_request_id=host_request_id, text="and one more thing")
+    requests_api.send_host_request_message(
+        token=surfer_token, host_request_id=host_request_id, text="and one more thing"
+    )
     # sending marks your own messages seen
-    res = requests_api.get_host_request(token=token1, host_request_id=host_request_id)
+    res = requests_api.get_host_request(token=surfer_token, host_request_id=host_request_id)
     assert res.unseen_message_count == 0
 
-    listed = requests_api.list_host_requests(token=token2).host_requests[0]
+    listed = requests_api.list_host_requests(token=host_token).host_requests[0]
     # the request's control message, its text, and the follow-up
     assert listed.unseen_message_count == 3
-    assert requests_api.get_host_request(token=token2, host_request_id=host_request_id).unseen_message_count == 3
+    assert requests_api.get_host_request(token=host_token, host_request_id=host_request_id).unseen_message_count == 3
 
     requests_api.mark_last_seen_host_request(
-        token=token2, host_request_id=host_request_id, last_seen_message_id=listed.latest_message.message_id
+        token=host_token, host_request_id=host_request_id, last_seen_message_id=listed.latest_message.message_id
     )
-    assert requests_api.list_host_requests(token=token2).host_requests[0].unseen_message_count == 0
-    assert requests_api.get_host_request(token=token2, host_request_id=host_request_id).unseen_message_count == 0
+    assert requests_api.list_host_requests(token=host_token).host_requests[0].unseen_message_count == 0
+    assert requests_api.get_host_request(token=host_token, host_request_id=host_request_id).unseen_message_count == 0
 
 
 def test_mark_last_seen(db, moderator):
@@ -1066,10 +1108,8 @@ def test_mark_last_seen(db, moderator):
 
     assert requests_api.list_host_requests(token=token2).host_requests[0].last_seen_message_id == 3
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You can't unsee messages."):
         requests_api.mark_last_seen_host_request(token=token2, host_request_id=host_request_id, last_seen_message_id=1)
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-    assert e.value.details() == "You can't unsee messages."
 
     # this will be used to test sent request notifications
     host_request_id_3 = requests_api.create_host_request(token=token2, host_user_id=user1.id, approve_by=moderator)
@@ -1101,13 +1141,13 @@ def _create_host_request_via_api(surfer_token: str, host_id: int, moderator, pub
 
 
 def test_ping_role_based_counts_match_direction_without_offers(db, moderator):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    host_user, host_token = generate_user()
+    surfer_user, surfer_token = generate_user()
 
-    # user2 surfs with user1 -> user1 is the host of the stay
-    _create_host_request_via_api(token2, user1.id, moderator)
+    # surfer_user requests to stay with host_user
+    _create_host_request_via_api(surfer_token, host_user.id, moderator)
 
-    with api_session(token1) as api:
+    with api_session(host_token) as api:
         res = api.Ping(api_pb2.PingReq())
         # with no public-trip offers, role-based counts equal the direction-based ones
         assert res.unseen_received_host_request_count == 1
@@ -1163,10 +1203,12 @@ def test_ping_public_trip_offer_count_gated_by_flag(db, moderator, feature_flags
 
 
 def test_mark_last_seen_clears_notifications(db, moderator):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
 
-    host_request_id = requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
+    host_request_id = requests_api.create_host_request(
+        token=surfer_token, host_user_id=host_user.id, approve_by=moderator
+    )
 
     def unseen_notification_count(user_id):
         with session_scope() as session:
@@ -1178,33 +1220,44 @@ def test_mark_last_seen_clears_notifications(db, moderator):
                 .where(Notification.is_seen == False)
             ).scalar_one()
 
-    assert unseen_notification_count(user2.id) > 0
+    assert unseen_notification_count(host_user.id) > 0
 
-    requests_api.mark_last_seen_host_request(token=token2, host_request_id=host_request_id, last_seen_message_id=1)
+    requests_api.mark_last_seen_host_request(token=host_token, host_request_id=host_request_id, last_seen_message_id=1)
 
-    assert unseen_notification_count(user2.id) == 0
+    assert unseen_notification_count(host_user.id) == 0
+
+    with session_scope() as session:
+        messages_event = session.execute(
+            select(EventLog).where(EventLog.event_type == "messages.marked_seen")
+        ).scalar_one()
+        assert messages_event.properties == {
+            "reason": "host_request_read",
+            "host_request_id": host_request_id,
+            "previous_last_seen_message_id": 0,
+            "last_seen_message_id": 1,
+        }
 
 
 def test_response_rate(db, moderator):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-    user3, token3 = generate_user(delete_user=True)
+    surfer_user, surfer_token = generate_user()
+    host_user, host_token = generate_user()
+    deleted_user, deleted_token = generate_user(delete_user=True)
 
     with session_scope() as session:
         refresh_materialized_view(session, "user_response_rates")
 
     # deleted: not found
-    with pytest.raises(grpc.RpcError) as e:
-        requests_api.get_response_rate(token=token1, user_id=user3.id)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == "Couldn't find that user."
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that user."):
+        requests_api.get_response_rate(token=surfer_token, user_id=deleted_user.id)
 
     # no requests: insufficient
-    res = requests_api.get_response_rate(token=token1, user_id=user2.id)
+    res = requests_api.get_response_rate(token=surfer_token, user_id=host_user.id)
     assert res.HasField("insufficient_data")
 
     # send a request and back date it by 36 hours
-    host_request_1 = requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
+    host_request_1 = requests_api.create_host_request(
+        token=surfer_token, host_user_id=host_user.id, approve_by=moderator
+    )
     backdate_conversations()
     with session_scope() as session:
         session.execute(
@@ -1215,11 +1268,13 @@ def test_response_rate(db, moderator):
         refresh_materialized_view(session, "user_response_rates")
 
     # still insufficient
-    res = requests_api.get_response_rate(token=token1, user_id=user2.id)
+    res = requests_api.get_response_rate(token=surfer_token, user_id=host_user.id)
     assert res.HasField("insufficient_data")
 
     # send a request and back date it by 35 hours
-    host_request_2 = requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
+    host_request_2 = requests_api.create_host_request(
+        token=surfer_token, host_user_id=host_user.id, approve_by=moderator
+    )
     backdate_conversations()
     with session_scope() as session:
         session.execute(
@@ -1230,11 +1285,13 @@ def test_response_rate(db, moderator):
         refresh_materialized_view(session, "user_response_rates")
 
     # still insufficient
-    res = requests_api.get_response_rate(token=token1, user_id=user2.id)
+    res = requests_api.get_response_rate(token=surfer_token, user_id=host_user.id)
     assert res.HasField("insufficient_data")
 
     # send a request and back date it by 34 hours
-    host_request_3 = requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
+    host_request_3 = requests_api.create_host_request(
+        token=surfer_token, host_user_id=host_user.id, approve_by=moderator
+    )
     backdate_conversations()
     with session_scope() as session:
         session.execute(
@@ -1245,12 +1302,12 @@ def test_response_rate(db, moderator):
         refresh_materialized_view(session, "user_response_rates")
 
     # now low
-    res = requests_api.get_response_rate(token=token1, user_id=user2.id)
+    res = requests_api.get_response_rate(token=surfer_token, user_id=host_user.id)
     assert res.HasField("low")
 
     # accept a host req
     requests_api.respond_host_request(
-        token=token2,
+        token=host_token,
         host_request_id=host_request_2,
         status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
     )
@@ -1259,13 +1316,13 @@ def test_response_rate(db, moderator):
         refresh_materialized_view(session, "user_response_rates")
 
     # now some w p33 = 35h
-    res = requests_api.get_response_rate(token=token1, user_id=user2.id)
+    res = requests_api.get_response_rate(token=surfer_token, user_id=host_user.id)
     assert res.HasField("some")
     assert res.some.response_time_p33.ToTimedelta() == timedelta(hours=35)
 
     # accept another host req
     requests_api.respond_host_request(
-        token=token2,
+        token=host_token,
         host_request_id=host_request_3,
         status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
     )
@@ -1274,14 +1331,14 @@ def test_response_rate(db, moderator):
         refresh_materialized_view(session, "user_response_rates")
 
     # now most w p33 = 34h, p66 = 35h
-    res = requests_api.get_response_rate(token=token1, user_id=user2.id)
+    res = requests_api.get_response_rate(token=surfer_token, user_id=host_user.id)
     assert res.HasField("most")
     assert res.most.response_time_p33.ToTimedelta() == timedelta(hours=34)
     assert res.most.response_time_p66.ToTimedelta() == timedelta(hours=35)
 
     # accept last host req
     requests_api.respond_host_request(
-        token=token2,
+        token=host_token,
         host_request_id=host_request_1,
         status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
     )
@@ -1290,13 +1347,15 @@ def test_response_rate(db, moderator):
         refresh_materialized_view(session, "user_response_rates")
 
     # now all w p33 = 34h, p66 = 35h
-    res = requests_api.get_response_rate(token=token1, user_id=user2.id)
+    res = requests_api.get_response_rate(token=surfer_token, user_id=host_user.id)
     assert res.HasField("almost_all")
     assert res.almost_all.response_time_p33.ToTimedelta() == timedelta(hours=34)
     assert res.almost_all.response_time_p66.ToTimedelta() == timedelta(hours=35)
 
     # send a request and back date it by 2 hours
-    host_request_4 = requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
+    host_request_4 = requests_api.create_host_request(
+        token=surfer_token, host_user_id=host_user.id, approve_by=moderator
+    )
     backdate_conversations()
     with session_scope() as session:
         session.execute(
@@ -1307,7 +1366,9 @@ def test_response_rate(db, moderator):
         refresh_materialized_view(session, "user_response_rates")
 
     # send a request and back date it by 4 hours
-    host_request_5 = requests_api.create_host_request(token=token1, host_user_id=user2.id, approve_by=moderator)
+    host_request_5 = requests_api.create_host_request(
+        token=surfer_token, host_user_id=host_user.id, approve_by=moderator
+    )
     backdate_conversations()
     with session_scope() as session:
         session.execute(
@@ -1318,13 +1379,13 @@ def test_response_rate(db, moderator):
         refresh_materialized_view(session, "user_response_rates")
 
     # now some w p33 = 35h
-    res = requests_api.get_response_rate(token=token1, user_id=user2.id)
+    res = requests_api.get_response_rate(token=surfer_token, user_id=host_user.id)
     assert res.HasField("some")
     assert res.some.response_time_p33.ToTimedelta() == timedelta(hours=35)
 
     # accept host req
     requests_api.respond_host_request(
-        token=token2,
+        token=host_token,
         host_request_id=host_request_5,
         status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
     )
@@ -1333,14 +1394,14 @@ def test_response_rate(db, moderator):
         refresh_materialized_view(session, "user_response_rates")
 
     # now most w p33 = 34h, p66 = 36h
-    res = requests_api.get_response_rate(token=token1, user_id=user2.id)
+    res = requests_api.get_response_rate(token=surfer_token, user_id=host_user.id)
     assert res.HasField("most")
     assert res.most.response_time_p33.ToTimedelta() == timedelta(hours=34)
     assert res.most.response_time_p66.ToTimedelta() == timedelta(hours=36)
 
     # accept host req
     requests_api.respond_host_request(
-        token=token2,
+        token=host_token,
         host_request_id=host_request_4,
         status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED,
     )
@@ -1349,7 +1410,7 @@ def test_response_rate(db, moderator):
         refresh_materialized_view(session, "user_response_rates")
 
     # now most w p33 = 4h, p66 = 35h
-    res = requests_api.get_response_rate(token=token1, user_id=user2.id)
+    res = requests_api.get_response_rate(token=surfer_token, user_id=host_user.id)
     assert res.HasField("almost_all")
     assert res.almost_all.response_time_p33.ToTimedelta() == timedelta(hours=4)
     assert res.almost_all.response_time_p66.ToTimedelta() == timedelta(hours=35)
@@ -1376,6 +1437,151 @@ def test_response_rate_ignores_public_trip_offers(db, moderator):
         ).scalar_one()
         assert response_rate.requests == 1
         assert response_rate.response_rate == 0
+
+
+def test_response96h(db, frozen_timewarp, moderator):
+    host, host_token = generate_user()
+    spam_target, _ = generate_user()
+    # far enough ahead that the host can still answer after five days
+    from_date = today() + timedelta(days=30)
+
+    def request(*, approve=True, recipient=host):
+        surfer, surfer_token = generate_user()
+        host_request_id = requests_api.create_host_request(
+            token=surfer_token,
+            host_user_id=recipient.id,
+            from_date=from_date,
+            approve_by=moderator if approve else None,
+        )
+        return surfer, surfer_token, host_request_id
+
+    def reply(host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED):
+        requests_api.respond_host_request(token=host_token, host_request_id=host_request_id, status=status)
+
+    def cancel(surfer_token, host_request_id):
+        requests_api.respond_host_request(
+            token=surfer_token, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_CANCELLED
+        )
+
+    def start_probe():
+        with session_scope() as session:
+            probe = ActivenessProbe(user_id=host.id)
+            session.add(probe)
+            session.flush()
+            return probe.id
+
+    def respond_probe(probe_id, response):
+        with session_scope() as session:
+            session.execute(
+                update(ActivenessProbe).where(ActivenessProbe.id == probe_id).values(response=response, responded=now())
+            )
+
+    _, _, fast = request()
+    _, _, slow = request()
+    _, _, ignored = request()
+    _, _, rejected = request()
+    # never approved, so the host never saw it: left out
+    request(approve=False)
+    # the sender deletes their account before the host answers: left out
+    deleted_surfer, _, _ = request()
+    # the host blocks the sender before answering: left out
+    blocked_surfer, _, _ = request()
+    banned_surfer, _, sender_banned = request()
+    _, cancelled_early_token, cancelled_early = request()
+    _, cancelled_late_token, cancelled_late = request()
+    request(approve=False, recipient=spam_target)
+    answered_probe = start_probe()
+
+    frozen_timewarp.advance(timedelta(hours=1))
+    # the host can't answer requests while a probe is pending
+    respond_probe(answered_probe, ActivenessProbeStatus.still_active)
+    reply(fast)
+    reply(rejected, messages_pb2.HOST_REQUEST_STATUS_REJECTED)
+    # the host answers in time and the sender is banned later: still a hit
+    reply(sender_banned)
+    # cancelled within 96 hours: left out
+    cancel(cancelled_early_token, cancelled_early)
+    expired_probe = start_probe()
+
+    frozen_timewarp.advance(timedelta(hours=96))
+    respond_probe(expired_probe, ActivenessProbeStatus.expired)
+
+    frozen_timewarp.advance(timedelta(days=1))
+    # answered after 96 hours: a miss, but accepted within 168 hours
+    reply(slow)
+    # cancelled after 96 hours: a miss, but left out of the acceptance rate as it was cancelled within 168 hours
+    cancel(cancelled_late_token, cancelled_late)
+    # its 96 hours aren't over when the rates are computed: left out
+    request()
+
+    frozen_timewarp.advance(timedelta(days=2))
+    make_user_block(host, blocked_surfer)
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == deleted_surfer.id).values(deleted_at=now()))
+        session.execute(update(User).where(User.id == banned_surfer.id).values(banned_at=now()))
+    # still pending: left out
+    start_probe()
+
+    with session_scope() as session:
+        refresh_materialized_view(session, "user_response_rates")
+        rates = {
+            user_id: (requests, requests96h, probes96h, response96h, requests168h, accept168h)
+            for user_id, requests, requests96h, probes96h, response96h, requests168h, accept168h in session.execute(
+                select(
+                    UserResponseRate.user_id,
+                    UserResponseRate.requests,
+                    UserResponseRate.requests96h,
+                    UserResponseRate.probes96h,
+                    UserResponseRate.response96h,
+                    UserResponseRate.requests168h,
+                    UserResponseRate.accept168h,
+                ).where(UserResponseRate.user_id.in_([host.id, spam_target.id]))
+            )
+        }
+
+    requests, requests96h, probes96h, response96h, requests168h, accept168h = rates[host.id]
+    assert requests == 14
+    # hits: fast, rejected, sender_banned and the answered probe; misses: slow, ignored, cancelled_late and the expired probe
+    assert requests96h == 6
+    assert probes96h == 2
+    assert response96h is not None
+    assert float(response96h) == pytest.approx(4 / 8)
+    # hits: fast, slow and sender_banned; misses: ignored and rejected
+    assert requests168h == 5
+    assert accept168h is not None
+    assert float(accept168h) == pytest.approx(3 / 5)
+    assert rates[spam_target.id][1:] == (0, 0, None, 0, None)
+
+
+def test_response96h_decayed(db, frozen_timewarp, moderator):
+    host, host_token = generate_user()
+
+    # a day apart, oldest first: answered in time, ignored, never approved (left out), answered in time
+    for approve, answer in [(True, True), (True, False), (False, False), (True, True)]:
+        _, surfer_token = generate_user()
+        host_request_id = requests_api.create_host_request(
+            token=surfer_token, host_user_id=host.id, approve_by=moderator if approve else None
+        )
+        frozen_timewarp.advance(timedelta(hours=1))
+        if answer:
+            requests_api.respond_host_request(
+                token=host_token, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+            )
+        frozen_timewarp.advance(timedelta(hours=23))
+
+    frozen_timewarp.advance(timedelta(days=7))
+    with session_scope() as session:
+        refresh_materialized_view(session, "user_response_rates")
+        requests_decayed, responses_decayed = session.execute(
+            select(UserResponseRate.requests96h_decayed, UserResponseRate.responses96h_decayed).where(
+                UserResponseRate.user_id == host.id
+            )
+        ).one()
+
+    assert requests_decayed is not None
+    assert responses_decayed is not None
+    assert float(requests_decayed) == pytest.approx(1 + 0.8 + 0.8**2)
+    assert float(responses_decayed) == pytest.approx(1 + 0.8**2)
 
 
 def test_request_notifications(db, email_collector: EmailCollector, push_collector: PushCollector, moderator):
@@ -1528,10 +1734,8 @@ def test_host_req_feedback(db, moderator):
     assert res.need_host_request_feedback
 
     # surfer can't leave feedback
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that host request."):
         requests_api.send_host_request_feedback(token=surfer_token, host_request_id=hr_id)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == "Couldn't find that host request."
 
     requests_api.send_host_request_feedback(
         token=host_token, host_request_id=hr_id, host_request_quality=requests_pb2.HOST_REQUEST_QUALITY_LOW
@@ -1540,10 +1744,8 @@ def test_host_req_feedback(db, moderator):
     assert not res.need_host_request_feedback
 
     # can't leave it twice
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "You have already left feedback for this host request!"):
         requests_api.send_host_request_feedback(token=host_token, host_request_id=hr_id)
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-    assert e.value.details() == "You have already left feedback for this host request!"
 
     res = requests_api.get_host_request(token=host_token, host_request_id=hr_id)
     assert not res.need_host_request_feedback
@@ -1552,10 +1754,8 @@ def test_host_req_feedback(db, moderator):
         token=host2_token, host_request_id=hr2_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
     )
     # can't leave feedback on the wrong one
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that host request."):
         requests_api.send_host_request_feedback(token=host2_token, host_request_id=hr_id)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == "Couldn't find that host request."
 
     # null feedback is still feedback
     requests_api.send_host_request_feedback(token=host2_token, host_request_id=hr2_id)
@@ -1626,7 +1826,9 @@ def _create_public_trip(
         return trip.id
 
 
-def test_create_request_with_public_trip(db, moderator):
+def test_create_request_with_public_trip(
+    db, moderator: Moderator, push_collector: PushCollector, email_collector: EmailCollector
+):
     """Hosts can offer to host a public trip; offered dates must be within trip dates."""
     surfer, surfer_token = generate_user()
     host, host_token = generate_user()
@@ -1648,6 +1850,14 @@ def test_create_request_with_public_trip(db, moderator):
     hr = requests_api.get_host_request(token=host_token, host_request_id=host_request_id)
     assert hr.public_trip_id == trip_id
 
+    # Verify the surfer got notified (push + email)
+    push = push_collector.pop_for_user(surfer.id, last=True)
+    assert push.topic_action == NotificationTopicAction.host_request__create.display
+    assert f"New invitation from {host.name}" in push.content.title
+
+    email = email_collector.pop_for_recipient(surfer.email, last=True)
+    assert f"{host.name} sent you an invitation" in email.subject
+
 
 def test_public_trip_offer_min_length(db):
     """Offers on public trips have a shorter minimum length than regular host requests."""
@@ -1668,10 +1878,11 @@ def test_public_trip_offer_min_length(db):
             public_trip_id=trip_id,
         )
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(
+        grpc.StatusCode.INVALID_ARGUMENT,
+        "Your offer to host cannot be shorter than 100 characters.",
+    ):
         offer("a" * (PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16 - 1))
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "Your offer to host cannot be shorter than 100 characters."
 
     # Shorter than a regular host request, but long enough for an offer
     offer("a" * PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16)
@@ -1748,7 +1959,7 @@ def test_create_request_with_public_trip_dates_out_of_range(db):
     trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
 
     # from_date before trip starts
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
         requests_api.create_host_request(
             token=host_token,
             host_user_id=surfer.id,
@@ -1756,10 +1967,9 @@ def test_create_request_with_public_trip_dates_out_of_range(db):
             to_date=trip_from + timedelta(days=1),
             public_trip_id=trip_id,
         )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
     # to_date after trip ends
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
         requests_api.create_host_request(
             token=host_token,
             host_user_id=surfer.id,
@@ -1767,7 +1977,6 @@ def test_create_request_with_public_trip_dates_out_of_range(db):
             to_date=trip_to + timedelta(days=1),
             public_trip_id=trip_id,
         )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_create_request_with_public_trip_user_mismatch(db):
@@ -1780,7 +1989,7 @@ def test_create_request_with_public_trip_user_mismatch(db):
     trip_to = today() + timedelta(days=20)
     trip_id = _create_public_trip(trip_owner.id, trip_from, trip_to)
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
         requests_api.create_host_request(
             token=host_token,
             host_user_id=other_user.id,  # not the trip owner
@@ -1788,7 +1997,6 @@ def test_create_request_with_public_trip_user_mismatch(db):
             to_date=trip_to - timedelta(days=1),
             public_trip_id=trip_id,
         )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_create_request_with_closed_public_trip(db):
@@ -1800,7 +2008,7 @@ def test_create_request_with_closed_public_trip(db):
     trip_to = today() + timedelta(days=20)
     trip_id = _create_public_trip(surfer.id, trip_from, trip_to, status=PublicTripStatus.closed)
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
         requests_api.create_host_request(
             token=host_token,
             host_user_id=surfer.id,
@@ -1808,7 +2016,6 @@ def test_create_request_with_closed_public_trip(db):
             to_date=trip_to - timedelta(days=1),
             public_trip_id=trip_id,
         )
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
 def test_create_request_with_nonexistent_public_trip(db):
@@ -1816,9 +2023,8 @@ def test_create_request_with_nonexistent_public_trip(db):
     surfer, _ = generate_user()
     host, host_token = generate_user()
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
         requests_api.create_host_request(token=host_token, host_user_id=surfer.id, public_trip_id=999999)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_create_request_with_shadowed_public_trip(db, moderator):
@@ -1830,7 +2036,7 @@ def test_create_request_with_shadowed_public_trip(db, moderator):
     trip_to = today() + timedelta(days=20)
     trip_id = _create_public_trip(surfer.id, trip_from, trip_to, visibility=ModerationVisibility.shadowed)
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that public trip."):
         requests_api.create_host_request(
             token=host_token,
             host_user_id=surfer.id,
@@ -1838,8 +2044,6 @@ def test_create_request_with_shadowed_public_trip(db, moderator):
             to_date=trip_to - timedelta(days=1),
             public_trip_id=trip_id,
         )
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == "Couldn't find that public trip."
 
     moderator.approve_public_trip(trip_id)
 
@@ -1861,7 +2065,7 @@ def test_create_request_with_hidden_public_trip(db):
     trip_to = today() + timedelta(days=20)
     trip_id = _create_public_trip(surfer.id, trip_from, trip_to, visibility=ModerationVisibility.hidden)
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Couldn't find that public trip."):
         requests_api.create_host_request(
             token=host_token,
             host_user_id=surfer.id,
@@ -1869,8 +2073,6 @@ def test_create_request_with_hidden_public_trip(db):
             to_date=trip_to - timedelta(days=1),
             public_trip_id=trip_id,
         )
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == "Couldn't find that public trip."
 
 
 def test_create_request_without_public_trip_id_unchanged(db, moderator):
@@ -1892,11 +2094,10 @@ def test_create_request_same_gender_only_wrong_gender_rejected(db):
     trip_to = today() + timedelta(days=20)
     trip_id = _create_public_trip(surfer.id, trip_from, trip_to, same_gender_only=True)
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
         requests_api.create_host_request(
             token=host_token, host_user_id=surfer.id, from_date=trip_from, to_date=trip_to, public_trip_id=trip_id
         )
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
 def test_create_request_same_gender_only_same_gender_allowed(db, moderator):
@@ -1913,7 +2114,7 @@ def test_create_request_same_gender_only_same_gender_allowed(db, moderator):
     assert host_request_id > 0
 
 
-def test_create_request_same_gender_only_moderator_bypass(db, moderator):
+def test_create_request_same_gender_only_moderator_of_other_gender_rejected(db, moderator):
     surfer, _ = generate_user(gender="Woman")
     host, host_token = generate_user(gender="Man")
 
@@ -1922,10 +2123,12 @@ def test_create_request_same_gender_only_moderator_bypass(db, moderator):
     trip_id = _create_public_trip(surfer.id, trip_from, trip_to, same_gender_only=True)
     _make_trip_node_admin(host.id, trip_id)
 
-    host_request_id = requests_api.create_host_request(
-        token=host_token, host_user_id=surfer.id, from_date=trip_from, to_date=trip_to, public_trip_id=trip_id
-    )
-    assert host_request_id > 0
+    with expect_rpc_error(
+        grpc.StatusCode.FAILED_PRECONDITION, "This trip is only open to offers from people of the same gender."
+    ):
+        requests_api.create_host_request(
+            token=host_token, host_user_id=surfer.id, from_date=trip_from, to_date=trip_to, public_trip_id=trip_id
+        )
 
 
 def test_list_host_requests_public_trip_offer_by_stay_role(db, moderator):
@@ -1972,11 +2175,10 @@ def test_create_request_duplicate_offer_rejected(db):
     requests_api.create_host_request(
         token=host_token, host_user_id=surfer.id, from_date=trip_from, to_date=trip_to, public_trip_id=trip_id
     )
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
         requests_api.create_host_request(
             token=host_token, host_user_id=surfer.id, from_date=trip_from, to_date=trip_to, public_trip_id=trip_id
         )
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
 def test_create_request_offer_allowed_after_withdrawal(db, moderator):
@@ -2012,11 +2214,10 @@ def test_create_request_offer_allowed_after_withdrawal(db, moderator):
     assert second_request_id != request_id
 
     # ...but that new offer is active, so a third is still blocked
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
         requests_api.create_host_request(
             token=host_token, host_user_id=surfer.id, from_date=trip_from, to_date=trip_to, public_trip_id=trip_id
         )
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
 def test_no_feedback_for_declined_public_trip_offer(db, moderator):
@@ -2043,11 +2244,10 @@ def test_no_feedback_for_declined_public_trip_offer(db, moderator):
     res = requests_api.get_host_request(token=surfer_token, host_request_id=request_id)
     assert not res.need_host_request_feedback
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
         requests_api.send_host_request_feedback(
             token=surfer_token, host_request_id=request_id, host_request_quality=requests_pb2.HOST_REQUEST_QUALITY_LOW
         )
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
     res = requests_api.get_host_request(token=host_token, host_request_id=request_id)
     assert not res.need_host_request_feedback
@@ -2193,11 +2393,10 @@ def test_create_request_offer_blocked_after_traveller_declines(db, moderator):
         token=surfer_token, host_request_id=request_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
     )
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
         requests_api.create_host_request(
             token=host_token, host_user_id=surfer.id, from_date=trip_from, to_date=trip_to, public_trip_id=trip_id
         )
-    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
 def _create_accepted_request(surfer_token: str, host_token: str, host_id: int, moderator, days_ahead: int = 2) -> int:
@@ -2342,6 +2541,5 @@ def test_ListStays_hides_blocked_users(db, moderator):
 def test_ListStays_requires_role(db):
     _, token = generate_user()
 
-    with pytest.raises(grpc.RpcError) as e:
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
         requests_api.list_stays(token=token, role=requests_pb2.STAY_ROLE_UNSPECIFIED)
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT

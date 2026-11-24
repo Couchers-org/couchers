@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 import type { WebViewNavigation } from "react-native-webview";
 
 import { useWebNavigation } from "@/hooks/useWebNavigation";
+import { currentActiveWebPathRef } from "@/state/webViewState";
 
 const mockWebBaseUrl = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
 
@@ -41,6 +42,40 @@ describe("useWebNavigation", () => {
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
   });
 
+  describe("current page for notifications", () => {
+    function navigate(isFocused: boolean) {
+      const { result } = renderHook(() =>
+        useWebNavigation({
+          webBaseUrl: mockWebBaseUrl,
+          currentPath: "/dashboard",
+          syncTargetPathRef: { current: null },
+          isFocusedRef: { current: isFocused },
+        }),
+      );
+      result.current.handleNavigationStateChange(
+        createNavState(`${mockWebBaseUrl}/en/messages`, false),
+      );
+    }
+
+    afterEach(() => {
+      currentActiveWebPathRef.current = null;
+    });
+
+    it("records the page when the screen is on display", () => {
+      navigate(true);
+
+      expect(currentActiveWebPathRef.current).toBe("/en/messages");
+    });
+
+    it("leaves the page alone when a background screen navigates", () => {
+      currentActiveWebPathRef.current = "/en/messages/request/425";
+
+      navigate(false);
+
+      expect(currentActiveWebPathRef.current).toBe("/en/messages/request/425");
+    });
+  });
+
   describe("navigation state changes", () => {
     it("navigates to messages tab when WebView navigates to /messages", () => {
       const syncTargetPathRef = { current: null };
@@ -49,6 +84,7 @@ describe("useWebNavigation", () => {
           webBaseUrl: mockWebBaseUrl,
           currentPath: "/dashboard",
           syncTargetPathRef,
+          isFocusedRef: { current: true },
         }),
       );
 
@@ -66,6 +102,7 @@ describe("useWebNavigation", () => {
           webBaseUrl: mockWebBaseUrl,
           currentPath: "/dashboard",
           syncTargetPathRef,
+          isFocusedRef: { current: true },
         }),
       );
 
@@ -83,6 +120,7 @@ describe("useWebNavigation", () => {
           webBaseUrl: mockWebBaseUrl,
           currentPath: "/dashboard",
           syncTargetPathRef,
+          isFocusedRef: { current: true },
         }),
       );
 
@@ -101,6 +139,7 @@ describe("useWebNavigation", () => {
           webBaseUrl: mockWebBaseUrl,
           currentPath: "/dashboard",
           syncTargetPathRef,
+          isFocusedRef: { current: true },
         }),
       );
 
@@ -111,6 +150,26 @@ describe("useWebNavigation", () => {
       expect(mockRouter.navigate).toHaveBeenCalledWith("/user/123");
     });
 
+    it("keeps the query when navigating to a detail page", () => {
+      const syncTargetPathRef = { current: null };
+      const { result } = renderHook(() =>
+        useWebNavigation({
+          webBaseUrl: mockWebBaseUrl,
+          currentPath: "/dashboard",
+          syncTargetPathRef,
+          isFocusedRef: { current: true },
+        }),
+      );
+
+      result.current.handleNavigationStateChange(
+        createNavState(`${mockWebBaseUrl}/event/1/party?comment=5`, false),
+      );
+
+      expect(mockRouter.navigate).toHaveBeenCalledWith(
+        "/event/1/party?comment=5",
+      );
+    });
+
     it("triggers native navigation from catch-all to tab route", () => {
       const syncTargetPathRef = { current: null };
       const { result } = renderHook(() =>
@@ -118,6 +177,7 @@ describe("useWebNavigation", () => {
           webBaseUrl: mockWebBaseUrl,
           currentPath: "/user/456",
           syncTargetPathRef,
+          isFocusedRef: { current: true },
         }),
       );
 
@@ -135,6 +195,7 @@ describe("useWebNavigation", () => {
           webBaseUrl: mockWebBaseUrl,
           currentPath: "/dashboard",
           syncTargetPathRef,
+          isFocusedRef: { current: true },
         }),
       );
 
@@ -154,6 +215,7 @@ describe("useWebNavigation", () => {
           webBaseUrl: mockWebBaseUrl,
           currentPath: "/messages",
           syncTargetPathRef,
+          isFocusedRef: { current: true },
         }),
       );
 
@@ -171,6 +233,7 @@ describe("useWebNavigation", () => {
           webBaseUrl: mockWebBaseUrl,
           currentPath: "/dashboard",
           syncTargetPathRef,
+          isFocusedRef: { current: true },
         }),
       );
 
@@ -188,6 +251,7 @@ describe("useWebNavigation", () => {
           webBaseUrl: mockWebBaseUrl,
           currentPath: "/user/username",
           syncTargetPathRef,
+          isFocusedRef: { current: true },
         }),
       );
 
@@ -229,6 +293,7 @@ describe("useWebNavigation", () => {
             webBaseUrl: mockWebBaseUrl,
             currentPath: "/dashboard",
             syncTargetPathRef,
+            isFocusedRef: { current: true },
           }),
         );
 
@@ -255,6 +320,7 @@ describe("useWebNavigation", () => {
           webBaseUrl: mockWebBaseUrl,
           currentPath: "/dashboard",
           syncTargetPathRef,
+          isFocusedRef: { current: true },
         }),
       );
 
@@ -273,6 +339,7 @@ describe("useWebNavigation", () => {
           webBaseUrl: mockWebBaseUrl,
           currentPath: "/dashboard",
           syncTargetPathRef,
+          isFocusedRef: { current: true },
         }),
       );
 
@@ -291,6 +358,7 @@ describe("useWebNavigation", () => {
           webBaseUrl: mockWebBaseUrl,
           currentPath: "/dashboard",
           syncTargetPathRef,
+          isFocusedRef: { current: true },
         }),
       );
 
@@ -311,6 +379,7 @@ describe("useWebNavigation", () => {
           webBaseUrl: mockWebBaseUrl,
           currentPath: "/search",
           syncTargetPathRef,
+          isFocusedRef: { current: true },
         }),
       );
 
@@ -324,6 +393,7 @@ describe("useWebNavigation", () => {
           webBaseUrl: mockWebBaseUrl,
           currentPath: "/search",
           syncTargetPathRef,
+          isFocusedRef: { current: true },
         }),
       );
 
@@ -360,6 +430,7 @@ describe("useWebNavigation", () => {
           webBaseUrl: mockWebBaseUrl,
           currentPath: "/search",
           syncTargetPathRef,
+          isFocusedRef: { current: true },
         }),
       );
 
@@ -387,6 +458,7 @@ describe("useWebNavigation", () => {
           webBaseUrl: mockWebBaseUrl,
           currentPath: "/dashboard",
           syncTargetPathRef,
+          isFocusedRef: { current: true },
         }),
       );
 

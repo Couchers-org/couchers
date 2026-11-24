@@ -30,6 +30,9 @@ const accountInfo = {
   isVolunteer: false,
   myHomeComplete: false,
   shouldShowDonationBanner: false,
+  hasOptedInToBetaFeatures: false,
+  hostPool: 1,
+  hasNewbieHostingHistory: false,
 };
 
 describe("ChangeEmail", () => {

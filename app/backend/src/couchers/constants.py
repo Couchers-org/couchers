@@ -96,6 +96,12 @@ UNDELETE_DAYS = 7
 # expiry time for preferred language cookie
 PREFERRED_LANGUAGE_COOKIE_EXPIRY = timedelta(days=3650)
 
+# our goal response time
+RESPONSE_TIME_EXPECTATION = timedelta(hours=96)
+# decay per request in the decayed response counts
+RESPONSE_COUNT_DECAY = 0.8
+# window for the acceptance rate
+ACCEPT_TIME_EXPECTATION = timedelta(hours=168)
 
 # activeness probe settings
 # wait about 11 months before sending one out
@@ -103,12 +109,14 @@ ACTIVENESS_PROBE_INACTIVITY_PERIOD = timedelta(days=333)
 # times at which to send notifications after inactivity (cumulative since start of probe)
 ACTIVENESS_PROBE_TIME_REMINDERS = [timedelta(days=0), timedelta(days=2, hours=8)]
 # total time from initiation after which to expire the probe
-ACTIVENESS_PROBE_EXPIRY_TIME = timedelta(days=4)
+ACTIVENESS_PROBE_EXPIRY_TIME = RESPONSE_TIME_EXPECTATION
 
 # how long a message must go unseen before we email the user about it
 MISSED_MESSAGES_DELAY = timedelta(minutes=5)
 # ... unless we could reach them by push, in which case they've already been told about it once
 MISSED_MESSAGES_DELAY_WITH_PUSH = timedelta(hours=24)
+# messages older than this are never emailed about, which lets the job skip scanning all of history
+MISSED_MESSAGES_LOOKBACK = timedelta(days=7)
 
 HOST_REQUEST_MAX_REMINDERS = 1
 HOST_REQUEST_REMINDER_INTERVAL = timedelta(days=2)
@@ -128,6 +136,8 @@ EVENT_REMINDER_TIMEDELTA = timedelta(hours=24)
 # recurring events should have occurrences scheduled.
 EVENT_RECURRENCE_SCHEDULE_WINDOW = timedelta(weeks=2)
 EVENT_RECURRENCE_MIN_SCHEDULED_OCCURRENCES = 2
+# How long after the first occurrence recurring events can keep having occurrences scheduled.
+EVENT_RECURRENCE_MAX_DURATION = timedelta(days=183)  # ~6 months
 
 COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD = 0.35
 
@@ -152,6 +162,7 @@ GALLERY_MAX_PHOTOS_NOT_VERIFIED = 2
 GALLERY_MAX_PHOTOS_VERIFIED = 5
 
 COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH = 150
+COMPLETED_MY_HOME_MINIMUM_CHAR_LENGTH = 50
 
 # How long a container must run uninterrupted before /status reports stable=true
 STABLE_THRESHOLD_SECONDS = 5 * 60

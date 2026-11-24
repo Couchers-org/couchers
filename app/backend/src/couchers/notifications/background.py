@@ -1,4 +1,5 @@
 import logging
+from dataclasses import replace
 
 from google.protobuf import empty_pb2
 from sqlalchemy import select
@@ -15,7 +16,7 @@ from couchers.models import (
     NotificationDeliveryType,
     User,
 )
-from couchers.notifications.push import push_to_user
+from couchers.notifications.push import add_notification_id_to_url, push_to_user
 from couchers.notifications.render_email import get_send_email_payload
 from couchers.notifications.render_push import render_push_notification
 from couchers.notifications.settings import get_preference
@@ -58,7 +59,10 @@ def _send_email_notification(session: Session, user: User, notification: Notific
 def _send_push_notification(session: Session, user: User, notification: Notification) -> None:
     logger.debug(f"Formatting push notification for {user}")
 
+    context = make_background_user_context(user.id)
     content = render_push_notification(notification, LocalizationContext.from_user(user))
+    if content.action_url and context.get_boolean_value("email_zz_links_enabled", default=False):
+        content = replace(content, action_url=add_notification_id_to_url(content.action_url, notification.id))
     push_to_user(
         session,
         user_id=user.id,

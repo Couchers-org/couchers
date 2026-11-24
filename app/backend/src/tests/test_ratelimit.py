@@ -11,6 +11,7 @@ from couchers.middleware.interceptors import CouchersHeaders
 from couchers.proto import api_pb2, auth_pb2
 from tests.fixtures.db import generate_user
 from tests.fixtures.feature_flags import FeatureFlags
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import auth_api_session, real_api_session
 
 AUTHENTICATE = "/org.couchers.auth.Auth/Authenticate"
@@ -183,9 +184,8 @@ def test_interceptor_non_superuser_still_blocked_when_enforcing(db, feature_flag
     _, token = generate_user()
 
     with real_api_session(token) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.RESOURCE_EXHAUSTED):
             api.Ping(api_pb2.PingReq())
-        assert e.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
 
 
 def test_interceptor_no_store_allows(db, feature_flags: FeatureFlags, monkeypatch):
@@ -206,9 +206,8 @@ def test_interceptor_enforce_rejects(db, feature_flags: FeatureFlags, monkeypatc
     feature_flags.set("rate_limiting_enabled", True)
     _use_store(monkeypatch, AlwaysTripStore())
     with auth_api_session() as (auth_api, _):
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.RESOURCE_EXHAUSTED):
             auth_api.UsernameValid(auth_pb2.UsernameValidReq(username="test"))
-        assert e.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
 
 
 def test_interceptor_fails_open_when_enforcing(db, feature_flags: FeatureFlags, monkeypatch):

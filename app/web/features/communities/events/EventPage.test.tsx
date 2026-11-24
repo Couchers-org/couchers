@@ -7,6 +7,7 @@ import { User } from "proto/api_pb";
 import { AttendanceState } from "proto/events_pb";
 import { eventBaseRoute } from "routes";
 import { service } from "service";
+import comments from "test/fixtures/comments.json";
 import events from "test/fixtures/events.json";
 import users from "test/fixtures/users.json";
 import hookWrapper from "test/hookWrapper";
@@ -43,8 +44,13 @@ const reportContentMock = service.reporting.reportContent as jest.MockedFunction
   typeof service.reporting.reportContent
 >;
 
-function renderEventPage(id = 1, slug = "weekly-meetup") {
-  mockRouter.setCurrentUrl(`${eventBaseRoute}/${id}/${slug}`);
+function renderEventPage(
+  id = 1,
+  slug = "weekly-meetup",
+  { commentId, query: extraQuery }: { commentId?: number; query?: string } = {},
+) {
+  const query = extraQuery ?? (commentId === undefined ? "" : `?comment=${commentId}`);
+  mockRouter.setCurrentUrl(`${eventBaseRoute}/${id}/${slug}${query}`);
   render(<EventPage eventId={id} eventSlug={slug} />, { wrapper: hookWrapper });
 }
 
@@ -119,6 +125,43 @@ describe("Event page", () => {
         normalizer: (x) => x, // Match non-breaking spaces and en dashes exactly
       }),
     ).toBeVisible();
+  });
+
+  it("scrolls to the comments when opened from a comment notification", async () => {
+    const scrollIntoView = Element.prototype.scrollIntoView as jest.Mock;
+    scrollIntoView.mockClear();
+    renderEventPage(1, "weekly-meetup", { commentId: 5 });
+
+    const heading = await screen.findByRole("heading", { name: t("communities:event_discussion") });
+
+    // the discussion section holds the heading row
+    await waitFor(() => expect(scrollIntoView.mock.contexts).toContain(heading.parentElement?.parentElement));
+  });
+
+  it("scrolls to and highlights the linked comment", async () => {
+    const scrollIntoView = Element.prototype.scrollIntoView as jest.Mock;
+    scrollIntoView.mockClear();
+    getThreadMock.mockImplementation(async (threadId) =>
+      threadId === firstEvent.thread!.threadId
+        ? { nextPageToken: "", repliesList: comments.slice(0, 2) }
+        : getThread(threadId),
+    );
+    renderEventPage(1, "weekly-meetup", { commentId: comments[1].threadId });
+
+    const linkedComment = (await screen.findByText(comments[1].content)).closest("[data-testid='comment']");
+
+    await waitFor(() => expect(scrollIntoView.mock.contexts).toContain(linkedComment));
+    expect(linkedComment).toHaveStyle({ outline: "2px solid var(--mui-palette-primary-main)" });
+  });
+
+  it("doesn't scroll to the comments when opened normally", async () => {
+    const scrollIntoView = Element.prototype.scrollIntoView as jest.Mock;
+    scrollIntoView.mockClear();
+    renderEventPage();
+
+    const heading = await screen.findByRole("heading", { name: t("communities:event_discussion") });
+
+    expect(scrollIntoView.mock.contexts).not.toContain(heading.parentElement);
   });
 
   it("goes back to the previous page when the back button is clicked", async () => {
@@ -493,5 +536,13 @@ describe("Event page", () => {
 
       await assertErrorAlert(errorMessage);
     });
+  });
+
+  it("offers the merch shop once right after creating the event, then drops the flag from the URL", async () => {
+    renderEventPage(1, "weekly-meetup", { query: "?created=true" });
+
+    const shopLink = await screen.findByRole("link", { name: t("communities:event_created_merch_note.shop_button") });
+    expect(shopLink).toHaveAttribute("href", "/shop?utm_source=event_created");
+    await waitFor(() => expect(mockRouter.query.created).toBeUndefined());
   });
 });

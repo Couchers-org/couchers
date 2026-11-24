@@ -264,76 +264,6 @@
       }
     }
   },
-  "host_request": {
-    "accept": {
-      "event_description": "Algú ha acceptat la teva sol·licitud d'allotjament",
-      "push": {
-        "title": "{{user}} ha acceptat la teva sol·licitud d'allotjament",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "Sol·licitud d'allotjament acceptada",
-        "body": "{{user}} ha acceptat la teva sol·licitud d'allotjament per al {{date}}."
-      }
-    },
-    "cancel": {
-      "event_description": "Algú ha cancel·lat la seva sol·licitud d'allotjament",
-      "push": {
-        "title": "{{user}} ha cancel·lat la seva sol·licitud d'allotjament",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "Sol·licitud d'allotjament cancel·lada",
-        "body": "{{user}} ha cancel·lat la seva sol·licitud d'allotjament per al {{date}}."
-      }
-    },
-    "confirm": {
-      "event_description": "Algú ha confirmat la seva sol·licitud d'allotjament",
-      "push": {
-        "title": "{{user}} ha confirmat la seva sol·licitud d'allotjament",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "Sol·licitud d'allotjament confirmada",
-        "body": "{{user}} ha confirmat la seva sol·licitud d'allotjament per al {{date}}."
-      }
-    },
-    "create": {
-      "event_description": "Algú t'ha enviat una sol·licitud d'allotjament",
-      "push": {
-        "title": "Nova sol·licitud d'allotjament de {{user}}",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "Nova sol·licitud d'allotjament",
-        "body_one": "{{user}} vol allotjar-se des de {{start_date}} durant {{count}} nit.",
-        "body_many": "{{user}} vol allotjar-se des de {{start_date}} durant {{count}} de nits.",
-        "body_other": "{{user}} vol allotjar-se des de {{start_date}} durant {{count}} nits."
-      }
-    },
-    "message": {
-      "event_description": "Algú ha enviat un missatge en una sol·licitud d'allotjament"
-    },
-    "missed_messages": {
-      "event_description": "T'has perdut missatges en una sol·licitud d'allotjament",
-      "push": {
-        "title": "Nous missatges de {{user}}",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "Missatges perduts",
-        "body": "Tens nous missatges no llegits de {{user}}."
-      }
-    },
-    "reject": {
-      "event_description": "Algú ha declinat la teva sol·licitud d'allotjament",
-      "push": {
-        "title": "{{user}} ha declinat la teva sol·licitud d'allotjament",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "Sol·licitud d'allotjament declinada",
-        "body": "{{user}} ha declinat la teva sol·licitud d'allotjament per al {{date}}."
-      }
-    },
-    "reminder": {
-      "event_description": "No has respost a una sol·licitud d'allotjament pendent",
-      "push": {
-        "title": "Sol·licitud pendent de {{user}}",
-        "ios_title": "Sol·licitud d'allotjament pendent",
-        "ios_subtitle": "{{user}}",
-        "body": "{{user}} espera la teva resposta; accepta o declina la sol·licitud."
-      }
-    }
-  },
   "modnote": {
     "create": {
       "event_description": "Un moderador t'ha enviat una nota",
@@ -473,6 +403,88 @@
     },
     "reminder_surfed": {
       "event_description": "Recordatori per escriure una referència a algú amb qui t'has allotjat"
+    }
+  },
+  "stay": {
+    "accept": {
+      "event_description": "Algú ha acceptat la teva sol·licitud d'allotjament",
+      "request": {
+        "push": {
+          "title": "{{user}} ha acceptat la teva sol·licitud d'allotjament",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Sol·licitud d'allotjament acceptada",
+          "body": "{{user}} ha acceptat la teva sol·licitud d'allotjament per al {{date}}."
+        }
+      }
+    },
+    "cancel": {
+      "event_description": "Algú ha cancel·lat la seva sol·licitud d'allotjament",
+      "request": {
+        "push": {
+          "title": "{{user}} ha cancel·lat la seva sol·licitud d'allotjament",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Sol·licitud d'allotjament cancel·lada",
+          "body": "{{user}} ha cancel·lat la seva sol·licitud d'allotjament per al {{date}}."
+        }
+      }
+    },
+    "confirm": {
+      "event_description": "Algú ha confirmat la seva sol·licitud d'allotjament",
+      "request": {
+        "push": {
+          "title": "{{user}} ha confirmat la seva sol·licitud d'allotjament",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Sol·licitud d'allotjament confirmada",
+          "body": "{{user}} ha confirmat la seva sol·licitud d'allotjament per al {{date}}."
+        }
+      }
+    },
+    "create": {
+      "event_description": "Algú t'ha enviat una sol·licitud d'allotjament",
+      "request": {
+        "push": {
+          "title": "Nova sol·licitud d'allotjament de {{user}}",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Nova sol·licitud d'allotjament",
+          "body_one": "{{user}} vol allotjar-se des de {{start_date}} durant {{count}} nit.",
+          "body_many": "{{user}} vol allotjar-se des de {{start_date}} durant {{count}} de nits.",
+          "body_other": "{{user}} vol allotjar-se des de {{start_date}} durant {{count}} nits."
+        }
+      }
+    },
+    "message": {
+      "event_description": "Algú ha enviat un missatge en una sol·licitud d'allotjament"
+    },
+    "missed_messages": {
+      "event_description": "T'has perdut missatges en una sol·licitud d'allotjament",
+      "push": {
+        "title": "Nous missatges de {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Missatges perduts",
+        "body": "Tens nous missatges no llegits de {{user}}."
+      }
+    },
+    "reject": {
+      "event_description": "Algú ha declinat la teva sol·licitud d'allotjament",
+      "request": {
+        "push": {
+          "title": "{{user}} ha declinat la teva sol·licitud d'allotjament",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "Sol·licitud d'allotjament declinada",
+          "body": "{{user}} ha declinat la teva sol·licitud d'allotjament per al {{date}}."
+        }
+      }
+    },
+    "reminder": {
+      "event_description": "No has respost a una sol·licitud d'allotjament pendent",
+      "request": {
+        "push": {
+          "title": "Sol·licitud pendent de {{user}}",
+          "ios_title": "Sol·licitud d'allotjament pendent",
+          "ios_subtitle": "{{user}}",
+          "body": "{{user}} espera la teva resposta; accepta o declina la sol·licitud."
+        }
+      }
     }
   },
   "thread": {

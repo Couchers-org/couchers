@@ -11,6 +11,7 @@ from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.feature_flags import FeatureFlags
 from tests.fixtures.misc import EmailCollector, Moderator
+from tests.test_public_trips import _create_trip_directly, _make_node
 
 
 def test_host_request_ics_content():
@@ -33,6 +34,7 @@ VERSION:2.0
 PRODID:-//Couchers.org//Couchers//EN
 BEGIN:VEVENT
 SEQUENCE:***
+DTSTAMP:***Z
 DTSTART;VALUE=DATE:20000101
 DTEND;VALUE=DATE:20000103
 DESCRIPTION:***/42
@@ -71,6 +73,7 @@ VERSION:2.0
 PRODID:-//Couchers.org//Couchers//EN
 BEGIN:VEVENT
 SEQUENCE:***
+DTSTAMP:***Z
 DTSTART;VALUE=DATE:20000101
 DTEND;VALUE=DATE:20000103
 DESCRIPTION:***/42
@@ -106,8 +109,19 @@ def test_event_ics_content():
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Couchers.org//Couchers//EN
+BEGIN:VTIMEZONE
+TZID:Etc/GMT-1
+COMMENT:***
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZNAME:+01
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0100
+END:STANDARD
+END:VTIMEZONE
 BEGIN:VEVENT
 UID:event.42@***
+DTSTAMP:***Z
 SEQUENCE:***
 SUMMARY:Event Title
 DESCRIPTION:Event description***/event/42/event-slug
@@ -192,6 +206,45 @@ def test_host_request_attachments(db, email_collector: EmailCollector, moderator
     # Ideally the sequence number are strictly ascending, but they are based on timestamps so in tests they could be equal.
     assert (_get_ics_event_sequence(cancelled_ics_event) or 0) >= (_get_ics_event_sequence(accepted_ics_event) or 0)
     assert cancelled_ics_event.get("status") == "CANCELLED"
+
+
+def test_public_trip_invitation_attachments(db, email_collector: EmailCollector, moderator: Moderator):
+    traveller, traveller_token = generate_user(complete_profile=True)
+    host, host_token = generate_user(complete_profile=True)
+    from_date = today() + timedelta(days=5)
+    to_date = today() + timedelta(days=10)
+    trip_id = _create_trip_directly(traveller.id, _make_node(), from_date, to_date)
+
+    hr_id = requests_api.create_host_request(
+        token=host_token,
+        host_user_id=traveller.id,
+        from_date=from_date,
+        to_date=to_date,
+        public_trip_id=trip_id,
+        approve_by=moderator,
+    )
+    email = email_collector.pop_for_recipient(traveller.email, last=True)
+    assert "invitation" in email.subject.lower()
+    # Invitations are solicited by the public trip, so there's no quick decline option
+    assert f"/messages/request/{hr_id}" in email.plain
+    assert "quick decline" not in email.plain.lower()
+    assert "quick decline" not in email.html.lower()
+
+    # Traveller accepts, host gets a calendar attachment
+    requests_api.respond_host_request(
+        token=traveller_token, host_request_id=hr_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+    )
+
+    email = email_collector.pop_for_recipient(host.email, last=True)
+    assert _get_email_ics_attachment_calendar_event(email).get("summary") == f"Hosting {traveller.name}"
+
+    # Host confirms, traveller gets a calendar attachment
+    requests_api.respond_host_request(
+        token=host_token, host_request_id=hr_id, status=messages_pb2.HOST_REQUEST_STATUS_CONFIRMED
+    )
+
+    email = email_collector.pop_for_recipient(traveller.email, last=True)
+    assert _get_email_ics_attachment_calendar_event(email).get("summary") == f"Surfing with {host.name}"
 
 
 def test_host_request_attachments_disabled(

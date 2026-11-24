@@ -72,6 +72,10 @@ service Bugs {
   rpc LogExperimentExposure(LogExperimentExposureReq) returns (google.protobuf.Empty) {
     // Record a client-side experiment exposure, reported by the SDK as the user is bucketed.
   }
+
+  rpc GetFeatureFlagAttributes(google.protobuf.Empty) returns (GetFeatureFlagAttributesRes) {
+    // GrowthBook targeting attributes for the current session (logged in or not), for client SDKs
+  }
 }
 
 message VersionInfo {
@@ -233,6 +237,11 @@ message EvaluateFeatureFlagRes {
   // The flag's resolved value (bool, string, number, or JSON object/array). Unset when the flag
   // isn't configured server-side, so the frontend's in-code default applies.
   google.protobuf.Value value = 1;
+}
+
+message GetFeatureFlagAttributesRes {
+  // JSON object, to be passed verbatim to the client SDK
+  string attributes_json = 1;
 }
 
 message LogExperimentExposureReq {

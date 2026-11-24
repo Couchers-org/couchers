@@ -3,6 +3,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tansta
 import Alert from "components/Alert";
 import HtmlMeta from "components/HtmlMeta";
 import { BOTTOM_NAV_BASE_HEIGHT } from "components/Navigation/constants";
+import PullToRefresh from "components/PullToRefresh";
 import { useAuthContext } from "features/auth/AuthProvider";
 import GroupChatSendField from "features/messages/groupchats/GroupChatSendField";
 import useMarkLastSeen, { MarkLastSeenVariables } from "features/messages/useMarkLastSeen";
@@ -148,6 +149,7 @@ export default function GroupChatView({ chatId, embedded = false }: { chatId: nu
   return (
     <>
       <HtmlMeta title={title} />
+      {!embedded && <PullToRefresh queryKeys={[groupChatKey(chatId), groupChatMessagesKey(chatId)]} />}
       {!chatId ? (
         <Alert severity="error">{t("messages:chat_view.invalid_id_error")}</Alert>
       ) : (

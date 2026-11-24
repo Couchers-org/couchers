@@ -7,20 +7,15 @@ import grpc
 from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.proto import messages_pb2, requests_pb2, requests_pb2_grpc
 from couchers.servicers.requests import Requests
-from couchers.utils import date_to_api, today
+from couchers.utils import date_to_api, today, utf16_length
 from tests.fixtures.misc import Moderator
 from tests.fixtures.sessions import FakeChannel
 
 
 def _pad_request_text_to_valid_length(text: str) -> str:
-    # Request lengths are measured in utf-16 code units to match the frontend.
-    while len(text.encode("utf-16-le")) // 2 < HOST_REQUEST_MIN_LENGTH_UTF16:
+    while utf16_length(text) < HOST_REQUEST_MIN_LENGTH_UTF16:
         text += " padding"
     return text
-
-
-# Neutral default text of valid length
-REQUEST_TEXT_DEFAULT = _pad_request_text_to_valid_length("Dummy request text.")
 
 
 @contextmanager
@@ -30,6 +25,10 @@ def _requests_session(token: str):
     yield requests_pb2_grpc.RequestsStub(cast(grpc.Channel, channel))
 
 
+# Neutral default text of valid length
+_CREATE_DEFAULT_TEXT = _pad_request_text_to_valid_length("Dummy request text.")
+
+
 def create_host_request(
     *,
     token: str,
@@ -37,7 +36,7 @@ def create_host_request(
     # Strings allow testing malformed dates.
     from_date: date | str | None = None,
     to_date: date | str | None = None,
-    text: str | None = REQUEST_TEXT_DEFAULT,
+    text: str | None = _CREATE_DEFAULT_TEXT,
     pad_text_to_valid_length: bool = False,
     public_trip_id: int | None = None,
     approve_by: Moderator | None = None,

@@ -68,7 +68,9 @@ find api -name '*.proto' | protoc -I api \
 
 # create internal backend protos
 (find backend -name '*.proto' | protoc -I backend \
+  --plugin=protoc-gen-grpc_python=$(which grpc_python_plugin) \
   --python_out="$GEN_DIR/backend" \
+  --grpc_python_out="$GEN_DIR/backend" \
   --mypy_out="${MYPY_OUT_OPTS}:$GEN_DIR/backend" \
   --mypy_grpc_out="${MYPY_GRPC_OUT_OPTS}:$GEN_DIR/backend" \
   $(xargs))
@@ -78,6 +80,12 @@ find api -name '*.proto' | protoc -I api \
 sed -i -E 's/^import.*_pb2/from . &/' "$GEN_DIR/api"/*.py
 sed -i -E 's/^from google.api/from .google.api/' "$GEN_DIR/api"/*.py
 sed -i -E 's/^from google.api/from ./' "$GEN_DIR/api/google/api"/*.py
+# the backend protos are compiled from their parent directory, so they import e.g. "internal.x_pb2"
+for dir in "$GEN_DIR/backend"/*/; do
+  pkg=$(basename "$dir")
+  sed -i -E "s/^from $pkg import/from . import/" "$dir"*.py
+  sed -i -E -e "s/^import $pkg\.([a-z0-9_]+)$/from . import \1/" -e "s/\b$pkg\.([a-z0-9_]+_pb2)\./\1./g" "$dir"*.pyi
+done
 
 # delete TypeVar definitions and Stub classes from _grpc.pyi files
 # these are not used, and cause huge memory consumption when type-checking.

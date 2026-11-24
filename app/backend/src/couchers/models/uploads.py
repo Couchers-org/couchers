@@ -15,7 +15,7 @@ from sqlalchemy import (
     select,
 )
 from sqlalchemy import LargeBinary as Binary
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSONB, distinct_on
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
 from sqlalchemy.sql.elements import ColumnElement
@@ -163,7 +163,7 @@ def get_avatar_photo_subquery(name: str = "avatar_photo") -> Subquery:
             PhotoGalleryItem.gallery_id,
             PhotoGalleryItem.upload_key,
         )
-        .distinct(PhotoGalleryItem.gallery_id)
+        .ext(distinct_on(PhotoGalleryItem.gallery_id))
         .order_by(PhotoGalleryItem.gallery_id, PhotoGalleryItem.position)
         .subquery(name=name)
     )

@@ -84,5 +84,20 @@
     "night_count_other": "{{count}}晚",
     "no_upcoming_trips": "沒有即將到來的旅行。準備好探索了嗎？",
     "no_upcoming_guests": "還沒有即將到來的客人。"
+  },
+  "celebration_100k": {
+    "banner_message": "Couchers 成員突破10萬！",
+    "banner_read_more_link": "瞭解更多",
+    "banner_replay_button": "重播動畫",
+    "help_us_grow_button": "幫助我們成長",
+    "dialog_a11y": "Couchers 成員突破10萬",
+    "close_button_a11y": "關閉",
+    "burst_heading": "我們已有超過{{member_count}}人！",
+    "map_counter_total": "{{member_count}}+",
+    "map_counter_label": "位 Couchers 成員，仍在持續增加",
+    "map_message_everywhere": "我們的足跡遍布世界。",
+    "map_message_thanks": "感謝您敞開家門。",
+    "map_read_more_link": "瞭解更多",
+    "map_a11y": "世界各地 Couchers 成員的分布地圖，成員群組逐個城市顯現，並匯聚成區域"
   }
 }

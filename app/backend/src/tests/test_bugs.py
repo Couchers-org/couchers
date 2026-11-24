@@ -18,13 +18,14 @@ from couchers.proto.google.api import httpbody_pb2
 from couchers.servicers.bugs import _fetch_signed_manifest
 from tests.fixtures.db import generate_user
 from tests.fixtures.feature_flags import FeatureFlags
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import bugs_session, real_bugs_session
 
 EAS_CLIENT_ID = uuid.UUID("11111111-1111-1111-1111-111111111111")
 
 
 def test_bugs_disabled():
-    with bugs_session() as bugs, pytest.raises(grpc.RpcError) as e:
+    with bugs_session() as bugs, expect_rpc_error(grpc.StatusCode.UNAVAILABLE):
         bugs.ReportBug(
             bugs_pb2.ReportBugReq(
                 subject="subject",
@@ -35,7 +36,6 @@ def test_bugs_disabled():
                 page="page",
             )
         )
-    assert e.value.code() == grpc.StatusCode.UNAVAILABLE
 
 
 def test_bugs(db):
@@ -244,7 +244,7 @@ def test_bugs_fails_on_network_error(db):
         config.BUG_TOOL_ENABLED = True
 
         with patch("couchers.servicers.bugs.requests.post", dud_post):
-            with pytest.raises(grpc.RpcError) as e:
+            with expect_rpc_error(grpc.StatusCode.INTERNAL):
                 res = bugs.ReportBug(
                     bugs_pb2.ReportBugReq(
                         subject="subject",
@@ -255,7 +255,6 @@ def test_bugs_fails_on_network_error(db):
                         page="page",
                     )
                 )
-            assert e.value.code() == grpc.StatusCode.INTERNAL
 
 
 def test_version():
@@ -404,7 +403,7 @@ def test_report_diagnostics_with_occurred(db):
 
 
 def test_report_diagnostics_invalid_json(db):
-    with bugs_session() as bugs, pytest.raises(grpc.RpcError) as e:
+    with bugs_session() as bugs, expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
         bugs.ReportDiagnostics(
             bugs_pb2.ReportDiagnosticsReq(
                 frontend_version="1.2.3",
@@ -417,7 +416,6 @@ def test_report_diagnostics_invalid_json(db):
                 ],
             )
         )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_report_diagnostics_empty_batch(db):
@@ -437,14 +435,13 @@ def test_report_diagnostics_empty_batch(db):
 def test_report_diagnostics_too_many(db):
     infos = [bugs_pb2.DiagnosticInfo(tag=f"event.{i}", properties_json="{}", value=1) for i in range(101)]
 
-    with bugs_session() as bugs, pytest.raises(grpc.RpcError) as e:
+    with bugs_session() as bugs, expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
         bugs.ReportDiagnostics(
             bugs_pb2.ReportDiagnosticsReq(
                 frontend_version="1.2.3",
                 infos=infos,
             )
         )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_report_diagnostics_frontend_version(db):

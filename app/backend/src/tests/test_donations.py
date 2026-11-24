@@ -18,6 +18,7 @@ from couchers.proto import donations_pb2
 from couchers.proto.google.api import httpbody_pb2
 from tests.fixtures.db import generate_user
 from tests.fixtures.feature_flags import FeatureFlags
+from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import donations_session, real_stripe_session
 
 
@@ -36,10 +37,8 @@ def test_donations_disabled(db, feature_flags: FeatureFlags):
     _, token = generate_user()
 
     with donations_session(token) as donations:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.UNAVAILABLE, "Donations are currently disabled."):
             donations.InitiateDonation(donations_pb2.InitiateDonationReq(amount=100))
-    assert e.value.code() == grpc.StatusCode.UNAVAILABLE
-    assert e.value.details() == "Donations are currently disabled."
 
 
 def test_one_time_donation_flow(db, stripe_config):
@@ -325,22 +324,18 @@ def test_unspecified_donation_frequency(db, stripe_config):
     _, token = generate_user()
 
     with donations_session(token) as donations:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid donation frequency."):
             donations.InitiateDonation(donations_pb2.InitiateDonationReq(amount=100))
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "Invalid donation frequency."
 
 
 def test_unknown_donation_frequency(db, stripe_config):
     _, token = generate_user()
 
     with donations_session(token) as donations:
-        with pytest.raises(grpc.RpcError) as e:
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Invalid donation frequency."):
             donations.InitiateDonation(
                 donations_pb2.InitiateDonationReq(amount=100, frequency=donations_pb2.DonationFrequency.ValueType(42))
             )
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == "Invalid donation frequency."
 
 
 def test_customer_portal_url(db, stripe_config):

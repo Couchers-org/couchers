@@ -253,74 +253,6 @@
       }
     }
   },
-  "host_request": {
-    "accept": {
-      "event_description": "有人接受了您的接待请求",
-      "push": {
-        "title": "{{user}}接受了您的接待请求",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "接待请求已接受",
-        "body": "{{user}}接受了您{{date}}的接待请求。"
-      }
-    },
-    "cancel": {
-      "event_description": "有人取消了其接待请求",
-      "push": {
-        "title": "{{user}}取消了其接待请求",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "接待请求已取消",
-        "body": "{{user}}取消了您{{date}}的接待请求。"
-      }
-    },
-    "confirm": {
-      "event_description": "有人确认了其接待请求",
-      "push": {
-        "title": "{{user}}确认了其接待请求",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "接待请求已确认",
-        "body": "{{user}}确认了您{{date}}的接待请求。"
-      }
-    },
-    "create": {
-      "event_description": "有人向您发送了接待请求",
-      "push": {
-        "title": "来自{{user}}的新接待请求",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "新接待请求",
-        "body_other": "{{user}}想从{{start_date}}起入住{{count}}天。"
-      }
-    },
-    "message": {
-      "event_description": "有人在接待请求中发送了消息"
-    },
-    "missed_messages": {
-      "event_description": "您错过了接待请求中的消息",
-      "push": {
-        "title": "来自{{user}}的新消息",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "未读消息",
-        "body": "您收到了来自{{user}}的新未读消息。"
-      }
-    },
-    "reject": {
-      "event_description": "有人拒绝了您的接待请求",
-      "push": {
-        "title": "{{user}}拒绝了您的接待请求",
-        "ios_title": "{{user}}",
-        "ios_subtitle": "接待请求已拒绝",
-        "body": "{{user}}拒绝了您{{date}}的接待请求。"
-      }
-    },
-    "reminder": {
-      "event_description": "您尚未回复待处理的接待请求",
-      "push": {
-        "title": "来自{{user}}的待处理请求",
-        "ios_title": "接待请求待处理",
-        "ios_subtitle": "{{user}}",
-        "body": "{{user}}正在等待您的回复，请接受或拒绝该请求。"
-      }
-    }
-  },
   "modnote": {
     "create": {
       "event_description": "版主向您发送了一条备注",
@@ -458,6 +390,86 @@
     },
     "reminder_surfed": {
       "event_description": "提醒您为您曾借宿过的人撰写评语"
+    }
+  },
+  "stay": {
+    "accept": {
+      "event_description": "有人接受了您的接待请求",
+      "request": {
+        "push": {
+          "title": "{{user}}接受了您的接待请求",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "接待请求已接受",
+          "body": "{{user}}接受了您{{date}}的接待请求。"
+        }
+      }
+    },
+    "cancel": {
+      "event_description": "有人取消了其接待请求",
+      "request": {
+        "push": {
+          "title": "{{user}}取消了其接待请求",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "接待请求已取消",
+          "body": "{{user}}取消了您{{date}}的接待请求。"
+        }
+      }
+    },
+    "confirm": {
+      "event_description": "有人确认了其接待请求",
+      "request": {
+        "push": {
+          "title": "{{user}}确认了其接待请求",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "接待请求已确认",
+          "body": "{{user}}确认了您{{date}}的接待请求。"
+        }
+      }
+    },
+    "create": {
+      "event_description": "有人向您发送了接待请求",
+      "request": {
+        "push": {
+          "title": "来自{{user}}的新接待请求",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "新接待请求",
+          "body_other": "{{user}}想从{{start_date}}起入住{{count}}天。"
+        }
+      }
+    },
+    "message": {
+      "event_description": "有人在接待请求中发送了消息"
+    },
+    "missed_messages": {
+      "event_description": "您错过了接待请求中的消息",
+      "push": {
+        "title": "来自{{user}}的新消息",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "未读消息",
+        "body": "您收到了来自{{user}}的新未读消息。"
+      }
+    },
+    "reject": {
+      "event_description": "有人拒绝了您的接待请求",
+      "request": {
+        "push": {
+          "title": "{{user}}拒绝了您的接待请求",
+          "ios_title": "{{user}}",
+          "ios_subtitle": "接待请求已拒绝",
+          "body": "{{user}}拒绝了您{{date}}的接待请求。"
+        }
+      }
+    },
+    "reminder": {
+      "event_description": "您尚未回复待处理的接待请求",
+      "request": {
+        "push": {
+          "title": "来自{{user}}的待处理请求",
+          "ios_title": "接待请求待处理",
+          "ios_subtitle": "{{user}}",
+          "body": "{{user}}正在等待您的回复，请接受或拒绝该请求。"
+        }
+      }
     }
   },
   "thread": {

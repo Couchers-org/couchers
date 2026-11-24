@@ -57,7 +57,7 @@ class PostalVerificationAttempt(Base, kw_only=True):
         default=PostalVerificationStatus.pending_address_confirmation,
     )
 
-    # Full name printed on the postcard, as entered for this attempt
+    # Name line of the postcard's delivery address, as entered for this attempt
     recipient_name: Mapped[str] = mapped_column(String)
 
     # Address fields (normalized/validated)

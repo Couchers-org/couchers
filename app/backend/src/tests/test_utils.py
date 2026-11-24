@@ -16,6 +16,7 @@ from couchers.utils import (
     http_date,
     now,
     to_timezone,
+    utf16_length,
     wrap_coordinate,
 )
 from tests.fixtures.db import generate_user
@@ -184,3 +185,10 @@ def test_to_timezone():
     # With datetime
     epoch_utc_plus_one = to_timezone(epoch_utc, utc_plus_one)
     assert epoch_utc_plus_one.isoformat() == "1970-01-01T01:00:00+01:00"
+
+
+def test_utf16_length():
+    assert utf16_length("") == 0
+    assert utf16_length("abc") == 3
+    assert utf16_length("é") == 1
+    assert utf16_length("😀") == 2

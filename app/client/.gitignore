@@ -1,6 +1,2 @@
-venv/
-.venv/
-__pycache__/
-*.egg-info/
-src/couchers/proto
+src/couchers/proto/
 dist/
