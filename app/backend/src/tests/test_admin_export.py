@@ -25,20 +25,19 @@ from couchers.proto import (
     events_pb2,
     messages_pb2,
     references_pb2,
-    threads_pb2,
 )
 from couchers.utils import not_none, now
 from tests.fixtures.api import conversations as conversations_api
 from tests.fixtures.api import events as events_api
 from tests.fixtures.api import public_trips as public_trips_api
 from tests.fixtures.api import requests as requests_api
+from tests.fixtures.api import threads as threads_api
 from tests.fixtures.db import generate_user, make_friends, make_user_block, make_user_invisible
 from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
     discussions_session,
     real_admin_session,
     references_session,
-    threads_session,
 )
 from tests.test_communities import create_community
 from tests.utils import local_date_time
@@ -245,12 +244,11 @@ def test_ExportUserData_covers_content_across_the_site(db, moderator):
         end_date_time=local_date_time(start_time + timedelta(hours=3)),
     )
 
-    with threads_session(token) as api:
-        comment_thread_id = api.PostReply(
-            threads_pb2.PostReplyReq(thread_id=discussion.thread.thread_id, content="export comment")
-        ).thread_id
-        api.PostReply(threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="export reply"))
-        api.PostReply(threads_pb2.PostReplyReq(thread_id=event.thread.thread_id, content="export event comment"))
+    comment_thread_id = threads_api.post_reply(
+        token=token, thread_id=discussion.thread.thread_id, content="export comment"
+    )
+    threads_api.post_reply(token=token, thread_id=comment_thread_id, content="export reply")
+    threads_api.post_reply(token=token, thread_id=event.thread.thread_id, content="export event comment")
 
     public_trips_api.create_public_trip(
         token=token, community_id=node_id, description="Export trip", pad_description_to_valid_length=True

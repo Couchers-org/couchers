@@ -6,7 +6,7 @@ import { useState } from "react";
 
 import DashboardSectionHeader from "./DashboardSectionHeader";
 import DiscussionListRow, { DiscussionListContainer, DiscussionListRowSkeleton } from "./DiscussionListRow";
-import useGetDashboard, { DASHBOARD_PAGE_SIZE } from "./useGetDashboard";
+import useGetDashboard, { Dashboard, DASHBOARD_PAGE_SIZE } from "./useGetDashboard";
 
 const EmptyStateRow = styled("div")(({ theme }) => ({
   display: "flex",
@@ -18,12 +18,14 @@ const EmptyStateRow = styled("div")(({ theme }) => ({
   background: "var(--mui-palette-grey-50)",
 }));
 
+const selectDiscussions = (dashboard: Dashboard) => dashboard.discussions?.discussionsList ?? [];
+
 export default function MyCommunitiesDiscussions() {
   const { t } = useTranslation([DASHBOARD]);
 
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
 
-  const { data: items = [], isLoading } = useGetDashboard((dashboard) => dashboard.discussions?.discussionsList ?? []);
+  const { data: items = [], isLoading } = useGetDashboard(selectDiscussions);
 
   const currentItems = items.slice(
     currentPageIndex * DASHBOARD_PAGE_SIZE,

@@ -36,6 +36,7 @@ from couchers.models.logging import EventLog
 from couchers.notifications.background import handle_notification
 from couchers.notifications.expo_api import get_expo_push_receipts
 from couchers.notifications.notify import PendingNotification, notify, notify_many
+from couchers.notifications.push import add_notification_id_to_url
 from couchers.notifications.send_raw_push_notification import PushNotificationError, send_raw_push_notification_v2
 from couchers.notifications.settings import get_topic_actions_by_delivery_type, reset_preference
 from couchers.notifications.web_push_api import decode_key, send_web_push
@@ -54,6 +55,7 @@ from couchers.utils import now
 from tests.fixtures.api import conversations as conversations_api
 from tests.fixtures.api import notifications as notifications_api
 from tests.fixtures.db import generate_user
+from tests.fixtures.feature_flags import FeatureFlags
 from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
 from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
@@ -458,6 +460,44 @@ def test_notifications_seen(db, push_collector: PushCollector, moderator):
                 {"notification_id": notification_ids2[0], "was_seen": False},
             ),
         ]
+
+
+@pytest.mark.parametrize(
+    "url,expected",
+    [
+        ("http://localhost:3000/messages/1", "http://localhost:3000/messages/1?zn=7"),
+        (
+            "http://localhost:3000/connections/friends/?from=5",
+            "http://localhost:3000/connections/friends/?from=5&zn=7",
+        ),
+        ("http://localhost:3000/event/1#comments", "http://localhost:3000/event/1?zn=7#comments"),
+        ("https://example.com/receipt", "https://example.com/receipt"),
+    ],
+)
+def test_add_notification_id_to_url(url, expected):
+    assert add_notification_id_to_url(url, 7) == expected
+
+
+@pytest.mark.parametrize("enabled", [True, False])
+def test_push_action_url_gets_notification_id(
+    db, push_collector: PushCollector, moderator, feature_flags: FeatureFlags, enabled
+):
+    feature_flags.set("email_zz_links_enabled", enabled)
+    user, token = generate_user()
+    other_user, other_token = generate_user(complete_profile=True)
+
+    with api_session(other_token) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user.id))
+        fr_id = api.ListFriendRequests(empty_pb2.Empty()).sent[0].friend_request_id
+    moderator.approve_friend_request(fr_id)
+
+    push = push_collector.pop_for_user(user.id, last=True)
+    url = f"http://localhost:3000/connections/friends/?from={other_user.id}"
+    if enabled:
+        notification_id = notifications_api.list_notifications(token=token).notifications[0].notification_id
+        assert push.content.action_url == f"{url}&zn={notification_id}"
+    else:
+        assert push.content.action_url == url
 
 
 def test_unseen_notification_count_excludes_ums_hidden(db, moderator):

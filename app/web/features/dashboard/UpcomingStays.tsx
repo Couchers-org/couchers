@@ -11,7 +11,7 @@ import { theme } from "theme";
 
 import DashboardSectionHeader from "./DashboardSectionHeader";
 import UpcomingStayCard, { UpcomingStayCardSkeleton } from "./UpcomingStayCard";
-import useGetDashboard from "./useGetDashboard";
+import useGetDashboard, { Dashboard } from "./useGetDashboard";
 
 interface UpcomingStaysWidgetProps {
   icon: SvgIconComponent;
@@ -86,16 +86,18 @@ function UpcomingStaysWidget({
   );
 }
 
+const selectUpcomingStays = (dashboard: Dashboard) => ({
+  upcomingTrips: dashboard.surfing?.hostRequestsList ?? [],
+  upcomingGuests: dashboard.hosting?.hostRequestsList ?? [],
+});
+
 export default function UpcomingStays() {
   const { t } = useTranslation([DASHBOARD]);
   const {
     data: { upcomingTrips, upcomingGuests } = { upcomingTrips: [], upcomingGuests: [] },
     isLoading,
     error,
-  } = useGetDashboard((dashboard) => ({
-    upcomingTrips: dashboard.surfing?.hostRequestsList ?? [],
-    upcomingGuests: dashboard.hosting?.hostRequestsList ?? [],
-  }));
+  } = useGetDashboard(selectUpcomingStays);
 
   return (
     <div>

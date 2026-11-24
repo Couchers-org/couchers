@@ -21,6 +21,11 @@ export const timePattern = /\d{2}:\d{2}/;
 
 export const profileAboutMeMinLength = 150;
 
+// The backend strips surrounding whitespace before checking a minimum length, so only count what it will keep.
+export function charsRemaining(text: string, minLength: number) {
+  return Math.max(0, minLength - text.trim().length);
+}
+
 export function validatePastDate(stringDate: string) {
   const date = new Date(stringDate);
   return !isNaN(date.getTime()) && date < new Date();

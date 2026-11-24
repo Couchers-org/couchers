@@ -14,6 +14,7 @@ from couchers.proto import (
 )
 from couchers.utils import today
 from tests.fixtures.api import events as events_api
+from tests.fixtures.api import public_trips as public_trips_api
 from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.feature_flags import Flags
@@ -21,7 +22,6 @@ from tests.fixtures.sessions import (
     account_session,
     communities_session,
     discussions_session,
-    public_trips_session,
     screens_session,
 )
 from tests.test_communities import create_community
@@ -74,18 +74,14 @@ def test_GetDashboard_matches_individual_rpcs(db, moderator):
         discussions = api.ListMyCommunitiesDiscussions(discussions_pb2.ListMyCommunitiesDiscussionsReq(page_size=9))
     with account_session(surfer_token) as api:
         reminders = api.GetReminders(empty_pb2.Empty())
-    with public_trips_session(surfer_token) as api:
-        my_public_trips = api.ListPublicTripsByUser(
-            public_trips_pb2.ListPublicTripsByUserReq(
-                user_id=surfer_user.id,
-                page_size=10,
-                statuses_in=[public_trips_pb2.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST],
-                ascending=True,
-            )
-        )
-        community_public_trips = api.ListMyCommunitiesPublicTrips(
-            public_trips_pb2.ListMyCommunitiesPublicTripsReq(page_size=10)
-        )
+    my_public_trips = public_trips_api.list_public_trips_by_user(
+        token=surfer_token,
+        user_id=surfer_user.id,
+        page_size=10,
+        statuses_in=[public_trips_pb2.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST],
+        ascending=True,
+    )
+    community_public_trips = public_trips_api.list_my_communities_public_trips(token=surfer_token, page_size=10)
 
     with communities_session(surfer_token) as api:
         my_communities = api.ListUserCommunities(communities_pb2.ListUserCommunitiesReq(page_size=25))

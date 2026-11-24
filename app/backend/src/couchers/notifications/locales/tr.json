@@ -85,7 +85,11 @@
   },
   "chat": {
     "message": {
-      "event_description": "Birisi sana bir mesaj gönderdiğinde"
+      "event_description": "Birisi sana bir mesaj gönderdiğinde",
+      "push_group": {
+        "ios_title": "{{user}}",
+        "ios_subtitle": "{{group}}"
+      }
     },
     "missed_messages": {
       "event_description": "Bir sohbette mesaj kaçırdığında",

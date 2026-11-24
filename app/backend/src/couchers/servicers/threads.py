@@ -29,7 +29,7 @@ from couchers.proto.internal import jobs_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import is_not_visible
 from couchers.sql import where_moderated_content_visible, where_users_column_visible
-from couchers.utils import Timestamp_from_datetime, now
+from couchers.utils import Timestamp_from_datetime, now, strip_text
 
 logger = logging.getLogger(__name__)
 
@@ -389,7 +389,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
     def PostReply(
         self, request: threads_pb2.PostReplyReq, context: CouchersContext, session: Session
     ) -> threads_pb2.PostReplyRes:
-        content = request.content.strip()
+        content = strip_text(request.content)
 
         if content == "":
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_comment")
@@ -450,7 +450,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
     def UpdateReply(
         self, request: threads_pb2.UpdateReplyReq, context: CouchersContext, session: Session
     ) -> threads_pb2.Reply:
-        content = request.content.strip()
+        content = strip_text(request.content)
         if not content:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_comment")
 

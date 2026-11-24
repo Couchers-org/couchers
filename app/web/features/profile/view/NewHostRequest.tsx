@@ -21,6 +21,7 @@ import { service } from "service";
 import { CreateHostRequestWrapper } from "service/requests";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
+import { charsRemaining } from "utils/validation";
 
 const TYPING_GAP_CAP_MS = 3000;
 
@@ -218,7 +219,7 @@ export default function NewHostRequest({ setIsRequestSuccess, setIsRequesting }:
     [subscribe, setDraft, clearDraft],
   );
 
-  const textField = watch("text") ?? "";
+  const textCharsRemaining = charsRemaining(watch("text") ?? "", MIN_LENGTH);
 
   const formRef = useRef<HTMLFormElement | null>(null);
   const submittedRef = useRef(false);
@@ -356,11 +357,9 @@ export default function NewHostRequest({ setIsRequestSuccess, setIsRequesting }:
             id="text"
             {...register("text", {
               required: t("profile:request_form.request_description_empty"),
-              minLength: {
-                value: MIN_LENGTH,
-                message: t("profile:request_form.request_chars_remaining", {
-                  count: MIN_LENGTH - textField.length,
-                }),
+              validate: (value) => {
+                const remaining = charsRemaining(value, MIN_LENGTH);
+                return remaining === 0 || t("profile:request_form.request_chars_remaining", { count: remaining });
               },
             })}
             label={t("profile:request_form.request")}
@@ -372,9 +371,9 @@ export default function NewHostRequest({ setIsRequestSuccess, setIsRequesting }:
             helperText={
               errors.text?.message
                 ? errors.text.message
-                : MIN_LENGTH - textField.length > 0
+                : textCharsRemaining > 0
                   ? t("profile:request_form.request_chars_remaining", {
-                      count: MIN_LENGTH - textField.length,
+                      count: textCharsRemaining,
                     })
                   : ""
             }

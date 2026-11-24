@@ -15,3 +15,4 @@ and avoid direct database manipulation or similar shortcuts.
 from . import conversations as conversations
 from . import events as events
 from . import notifications as notifications
+from . import threads as threads

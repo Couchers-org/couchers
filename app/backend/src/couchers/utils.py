@@ -5,6 +5,7 @@ from collections.abc import Mapping, Sequence
 from datetime import UTC, date, datetime, timedelta, tzinfo
 from email.utils import formatdate
 from typing import TYPE_CHECKING, Any, overload
+from urllib.parse import urlencode, urlsplit, urlunsplit
 from zoneinfo import ZoneInfo
 
 import regex
@@ -57,6 +58,18 @@ def is_valid_user_id(field: str) -> bool:
     Checks if it's a string representing a base 10 integer not starting with 0
     """
     return re.match(r"[1-9][0-9]*$", field) is not None
+
+
+def utf16_length(text: str) -> int:
+    # Python's len(str) does not match Javascript's string.length.
+    # e.g. len("😀") == 1 but "😀".length == 2.
+    # To match the frontend's validation, measure the string in utf16 code units.
+    return len(text.encode("utf-16-le")) // 2  # utf-16-le does not include a prefix BOM code unit.
+
+
+def strip_text(text: str) -> str:
+    # This also strips the control characters \x1c-\x1f, which Javascript's trim() does not.
+    return text.strip()
 
 
 def is_valid_username(field: str) -> bool:
@@ -499,3 +512,9 @@ def is_geom(x: Geom | None) -> Geom:
     if x is None:
         raise ValueError("Expected a Geom but got None")
     return x
+
+
+def add_query_params(url: str, params: Mapping[str, str | int]) -> str:
+    parts = urlsplit(url)
+    new = urlencode(params)
+    return urlunsplit(parts._replace(query=f"{parts.query}&{new}" if parts.query else new))
