@@ -1,8 +1,13 @@
 import { act, renderHook, waitFor } from "@testing-library/react-native";
 import { ReactNode } from "react";
 
-import client from "@/service/client";
 import { AuthProvider, useAuthContext } from "@/features/auth/AuthContext";
+import client from "@/service/client";
+import { clearNativeCookies } from "@/utils/clearNativeCookies";
+
+jest.mock("@/utils/clearNativeCookies", () => ({
+  clearNativeCookies: jest.fn(),
+}));
 
 jest.mock("@/service/client", () => ({
   auth: {
@@ -16,6 +21,7 @@ function wrapper({ children }: { children: ReactNode }) {
 
 describe("AuthContext", () => {
   beforeEach(() => {
+    (clearNativeCookies as jest.Mock).mockClear();
     // Default: not logged in
     (client.auth.getAuthState as jest.Mock).mockResolvedValue({
       toObject: () => ({ loggedIn: false }),
@@ -150,6 +156,26 @@ describe("AuthContext", () => {
       expect(result.current.authenticated).toBe(false);
       expect(result.current.userId).toBe(null);
       expect(result.current.jailed).toBe(false);
+    });
+
+    it("clears the app's stored cookies so the old session can't come back", async () => {
+      (client.auth.getAuthState as jest.Mock).mockResolvedValue({
+        toObject: () => ({
+          loggedIn: true,
+          authRes: { userId: 123, jailed: false },
+        }),
+      });
+
+      const { result } = renderHook(() => useAuthContext(), { wrapper });
+      await waitFor(() => {
+        expect(result.current.authenticated).toBe(true);
+      });
+
+      await act(async () => {
+        await result.current.markLoggedOut();
+      });
+
+      expect(clearNativeCookies).toHaveBeenCalledTimes(1);
     });
   });
 

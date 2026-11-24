@@ -152,6 +152,11 @@ const updates =
           codeSigningMetadata: { keyid: "main", alg: "rsa-v1_5-sha256" },
         };
 
+// Local Metro builds of staging/production (`npm run ios:local`): there's no
+// signing key on a laptop, so leave out the signing check. Never set in CI.
+const isLocalUnsignedBuild =
+  process.env.LOCAL_UNSIGNED_BUILD === "1" && APP_VARIANT !== "devtool";
+
 export default {
   name: variant.name,
   slug: "mobile",
@@ -161,7 +166,7 @@ export default {
   scheme: variant.scheme,
   userInterfaceStyle: "automatic",
   runtimeVersion: { policy: "fingerprint" },
-  updates,
+  updates: isLocalUnsignedBuild ? { url: updates.url } : updates,
   ios: {
     supportsTablet: true,
     bundleIdentifier: variant.bundleIdentifier,

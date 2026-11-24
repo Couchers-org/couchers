@@ -5,6 +5,7 @@ import grpc
 from couchers import experimentation
 from couchers.i18n import LocalizationContext
 from couchers.i18n.locales import get_translation_component
+from couchers.utils import is_cross_site_origin, without_partitioned
 
 if TYPE_CHECKING:
     from growthbook import GrowthBook
@@ -164,7 +165,11 @@ class CouchersContext:
         self.__response_headers += headers
 
     def _send_cookies(self) -> None:
-        data = tuple([("set-cookie", cookie) for cookie in self.__cookies]) + tuple(self.__response_headers)
+        cookies = self.__cookies
+        # only cross-site requests (e.g. Vercel previews) need partitioned cookies
+        if not is_cross_site_origin(self.get_header("origin")):
+            cookies = [without_partitioned(cookie) for cookie in cookies]
+        data = tuple([("set-cookie", cookie) for cookie in cookies]) + tuple(self.__response_headers)
         self._grpc_context.send_initial_metadata(data)  # type: ignore[union-attr]
 
     @property
