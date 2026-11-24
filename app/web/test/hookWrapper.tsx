@@ -1,6 +1,6 @@
 import { FeatureApiResponse, GrowthBook } from "@growthbook/growthbook";
 import { GrowthBookProvider } from "@growthbook/growthbook-react";
-import { StyledEngineProvider, ThemeProvider } from "@mui/material";
+import { ThemeProvider } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -46,17 +46,15 @@ function Providers({
   return (
     <Suspense fallback="loading...">
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <StyledEngineProvider injectFirst>
-          <ThemeProvider theme={theme}>
-            <QueryClientProvider client={client}>
-              <MemoryRouterProvider>
-                <AuthProvider>
-                  <GrowthBookProvider growthbook={growthbook}>{children}</GrowthBookProvider>
-                </AuthProvider>
-              </MemoryRouterProvider>
-            </QueryClientProvider>
-          </ThemeProvider>
-        </StyledEngineProvider>
+        <ThemeProvider theme={theme}>
+          <QueryClientProvider client={client}>
+            <MemoryRouterProvider>
+              <AuthProvider>
+                <GrowthBookProvider growthbook={growthbook}>{children}</GrowthBookProvider>
+              </AuthProvider>
+            </MemoryRouterProvider>
+          </QueryClientProvider>
+        </ThemeProvider>
       </LocalizationProvider>
     </Suspense>
   );
