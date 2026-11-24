@@ -66,6 +66,11 @@ def utf16_length(text: str) -> int:
     return len(text.encode("utf-16-le")) // 2  # utf-16-le does not include a prefix BOM code unit.
 
 
+def strip_text(text: str) -> str:
+    # This also strips the control characters \x1c-\x1f, which Javascript's trim() does not.
+    return text.strip()
+
+
 def is_valid_username(field: str) -> bool:
     """
     Checks if it's an alphanumeric + underscore, lowercase string, at least

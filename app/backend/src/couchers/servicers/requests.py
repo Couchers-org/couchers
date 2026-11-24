@@ -61,6 +61,7 @@ from couchers.utils import (
     get_coordinates,
     now,
     parse_date,
+    strip_text,
     today_in_timezone,
     utf16_length,
 )
@@ -179,7 +180,7 @@ def _strip_and_validate_request_text(text: str, is_public_trip_offer: bool, cont
         if is_public_trip_offer
         else (HOST_REQUEST_MIN_LENGTH_UTF16, "host_request_too_short2")
     )
-    text = text.strip()
+    text = strip_text(text)
     if utf16_length(text) < min_length:
         context.abort_with_error_code(
             grpc.StatusCode.INVALID_ARGUMENT,
@@ -840,10 +841,11 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
         session.add(control_message)
 
-        if request.text:
+        text = strip_text(request.text)
+        if text:
             latest_message = Message(
                 conversation_id=host_request.conversation_id,
-                text=request.text,
+                text=text,
                 author_id=context.user_id,
                 message_type=MessageType.text,
             )
@@ -905,7 +907,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
     def SendHostRequestMessage(
         self, request: requests_pb2.SendHostRequestMessageReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
-        if request.text == "":
+        text = strip_text(request.text)
+        if not text:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_message")
         host_request = session.execute(
             where_moderated_content_visible(select(HostRequest), context, HostRequest, is_list_operation=False).where(
@@ -926,7 +929,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             conversation_id=host_request.conversation_id,
             author_id=context.user_id,
             message_type=MessageType.text,
-            text=request.text,
+            text=text,
         )
 
         session.add(message)
@@ -944,7 +947,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 data=notification_data_pb2.StayMessage(
                     host_request=host_request_to_pb(host_request, session, recipient_context),
                     counterparty=user_model_to_pb(host_request.initiator, session, recipient_context),
-                    text=request.text,
+                    text=text,
                     counterparty_is_initiator=True,
                 ),
                 moderation_state_id=host_request.moderation_state_id,
@@ -962,7 +965,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 data=notification_data_pb2.StayMessage(
                     host_request=host_request_to_pb(host_request, session, recipient_context),
                     counterparty=user_model_to_pb(host_request.recipient, session, recipient_context),
-                    text=request.text,
+                    text=text,
                     counterparty_is_initiator=False,
                 ),
                 moderation_state_id=host_request.moderation_state_id,
@@ -1136,6 +1139,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
     def SendHostRequestFeedback(
         self, request: requests_pb2.SendHostRequestFeedbackReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
+        decline_reason = strip_text(request.decline_reason)
         host_request = session.execute(
             where_moderated_content_visible(select(HostRequest), context, HostRequest, is_list_operation=False)
             .where(HostRequest.conversation_id == request.host_request_id)
@@ -1162,7 +1166,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 from_user_id=host_request.recipient_user_id,
                 to_user_id=host_request.initiator_user_id,
                 request_quality=hostrequestquality2sql.get(request.host_request_quality),
-                decline_reason=request.decline_reason,
+                decline_reason=decline_reason,
             )
         )
         quality = hostrequestquality2sql.get(request.host_request_quality)
@@ -1175,7 +1179,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 "surfer_id": host_request.surfer_user_id,
                 "host_id": host_request.host_user_id,
                 "request_quality": quality.name if quality else None,
-                "has_decline_reason": bool(request.decline_reason),
+                "has_decline_reason": bool(decline_reason),
                 "host_city": host_request.hosting_city,
             },
         )
