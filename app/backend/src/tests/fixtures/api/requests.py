@@ -7,14 +7,13 @@ import grpc
 from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.proto import messages_pb2, requests_pb2, requests_pb2_grpc
 from couchers.servicers.requests import Requests
-from couchers.utils import date_to_api, today
+from couchers.utils import date_to_api, today, utf16_length
 from tests.fixtures.misc import Moderator
 from tests.fixtures.sessions import FakeChannel
 
 
 def _pad_request_text_to_valid_length(text: str) -> str:
-    # Request lengths are measured in utf-16 code units to match the frontend.
-    while len(text.encode("utf-16-le")) // 2 < HOST_REQUEST_MIN_LENGTH_UTF16:
+    while utf16_length(text) < HOST_REQUEST_MIN_LENGTH_UTF16:
         text += " padding"
     return text
 

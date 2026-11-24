@@ -65,6 +65,7 @@ from couchers.utils import (
     not_none,
     now,
     parse_date,
+    strip_text,
 )
 
 logger = logging.getLogger(__name__)
@@ -625,12 +626,14 @@ class Events(events_pb2_grpc.EventsServicer):
     def CreateEvent(
         self, request: events_pb2.CreateEventReq, context: CouchersContext, session: Session
     ) -> events_pb2.Event:
+        title = strip_text(request.title)
+        content = strip_text(request.content)
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         if not has_completed_profile(session, user):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "incomplete_profile_create_event")
-        if not request.title:
+        if not title:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_title")
-        if not request.content:
+        if not content:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_content")
 
         geom, address = _check_location(request.location if request.HasField("location") else None, context)
@@ -659,7 +662,7 @@ class Events(events_pb2_grpc.EventsServicer):
         photo_key = _check_photo_key(request.photo_key, context, session)
 
         event = Event(
-            title=request.title,
+            title=title,
             parent_node_id=parent_node.id,
             owner_user_id=context.user_id,
             creator_user_id=context.user_id,
@@ -677,7 +680,7 @@ class Events(events_pb2_grpc.EventsServicer):
             nonlocal occurrence
             occurrence = EventOccurrence(
                 event_id=event.id,
-                content=request.content,
+                content=content,
                 geom=geom,
                 address=address,
                 timezone=timezone.key,
@@ -757,7 +760,8 @@ class Events(events_pb2_grpc.EventsServicer):
     def ScheduleEvent(
         self, request: events_pb2.ScheduleEventReq, context: CouchersContext, session: Session
     ) -> events_pb2.Event:
-        if not request.content:
+        content = strip_text(request.content)
+        if not content:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_content")
 
         geom, address = _check_location(request.location if request.HasField("location") else None, context)
@@ -806,7 +810,7 @@ class Events(events_pb2_grpc.EventsServicer):
             nonlocal new_occurrence
             new_occurrence = EventOccurrence(
                 event_id=event.id,
-                content=request.content,
+                content=content,
                 geom=geom,
                 address=address,
                 timezone=timezone.key,
@@ -866,11 +870,11 @@ class Events(events_pb2_grpc.EventsServicer):
 
         if request.HasField("title"):
             notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_TITLE)
-            event.title = request.title.value
+            event.title = strip_text(request.title.value)
 
         if request.HasField("content"):
             notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_CONTENT)
-            occurrence_update["content"] = request.content.value
+            occurrence_update["content"] = strip_text(request.content.value)
 
         if request.HasField("photo_key"):
             occurrence_update["photo_key"] = _check_photo_key(request.photo_key.value, context, session)

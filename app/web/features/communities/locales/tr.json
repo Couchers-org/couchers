@@ -84,5 +84,8 @@
   "event_details": "Etkinlik detayları",
   "comment_deleted": "Bu yorum silinmiş.",
   "edit_comment": "Yorumu düzenle",
-  "delete_discussion": "Tartışmayı sil"
+  "delete_discussion": "Tartışmayı sil",
+  "comment_edited_date2": "<timeAgo/> Düzenlendi",
+  "discussion_edited_date2": "<timeAgo/> Düzenlendi",
+  "report_discussion_button_a11y": "Bu tartışmayı bildir"
 }

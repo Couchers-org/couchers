@@ -292,6 +292,7 @@ export async function getDashboard(
     myEvents: { eventsList: [], nextPageToken: "", totalItems: 0 },
     communityEvents: { eventsList: [], nextPageToken: "", totalItems: 0 },
     discussions: { discussionsList: [], nextPageToken: "" },
+    myCommunities: { communitiesList: [], nextPageToken: "" },
     ...sections,
   };
 }

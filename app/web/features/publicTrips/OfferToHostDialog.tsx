@@ -5,7 +5,7 @@ import Button from "components/Button";
 import Datepicker from "components/Datepicker";
 import { Dialog, DialogActions, DialogContent, DialogTitle } from "components/Dialog";
 import TextField from "components/TextField";
-import { publicTripsBaseKey, publicTripsByUserBaseKey } from "features/queryKeys";
+import { dashboardKey, publicTripsBaseKey } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { GLOBAL, PUBLIC_TRIPS } from "i18n/namespaces";
 import { useRouter } from "next/router";
@@ -15,6 +15,7 @@ import { service } from "service";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
 import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
+import { charsRemaining } from "utils/validation";
 
 // Must match the backend PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16.
 const MESSAGE_MIN_LENGTH = 100;
@@ -130,8 +131,7 @@ export default function OfferToHostDialog({
   });
 
   const watchFromDate = watch("fromDate");
-  const text = watch("text") ?? "";
-  const charsRemaining = MESSAGE_MIN_LENGTH - text.length;
+  const textCharsRemaining = charsRemaining(watch("text") ?? "", MESSAGE_MIN_LENGTH);
 
   const {
     mutate,
@@ -145,7 +145,7 @@ export default function OfferToHostDialog({
         // Both are required by the form, so non-null at submit time.
         fromDate: fromDate!,
         toDate: toDate!,
-        text: text.trim(),
+        text,
         publicTripId: tripId,
         stayType: 0,
       }),
@@ -153,7 +153,7 @@ export default function OfferToHostDialog({
       // Refetch trips so the card's viewerHostRequestId updates (the button
       // flips to "Already offered") next time the list is shown.
       queryClient.invalidateQueries({ queryKey: [publicTripsBaseKey] });
-      queryClient.invalidateQueries({ queryKey: [publicTripsByUserBaseKey] });
+      queryClient.invalidateQueries({ queryKey: [dashboardKey] });
       reset();
       onClose();
       router.push(routeToHostRequest(hostRequestId));
@@ -209,11 +209,11 @@ export default function OfferToHostDialog({
             id="offer-to-host-message"
             {...register("text", {
               required: t("publicTrips:offer_to_host_dialog.message.required_error"),
-              minLength: {
-                value: MESSAGE_MIN_LENGTH,
-                message: t("publicTrips:offer_to_host_dialog.message.chars_remaining", {
-                  count: charsRemaining,
-                }),
+              validate: (value) => {
+                const remaining = charsRemaining(value, MESSAGE_MIN_LENGTH);
+                return (
+                  remaining === 0 || t("publicTrips:offer_to_host_dialog.message.chars_remaining", { count: remaining })
+                );
               },
             })}
             label={t("publicTrips:offer_to_host_dialog.message.label")}
@@ -225,9 +225,9 @@ export default function OfferToHostDialog({
             helperText={
               errors.text?.message
                 ? errors.text.message
-                : charsRemaining > 0
+                : textCharsRemaining > 0
                   ? t("publicTrips:offer_to_host_dialog.message.chars_remaining", {
-                      count: charsRemaining,
+                      count: textCharsRemaining,
                     })
                   : ""
             }

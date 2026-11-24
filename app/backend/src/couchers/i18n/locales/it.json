@@ -258,7 +258,8 @@
     "signup_flow_email_verified": "Hai già verificato la tua email.",
     "signup_flow_invalid_request": "Richiesta di registrazione non valida: non puoi recuperare la tua registrazione e continuare a registrarti contemporaneamente.",
     "undelete_email_reused": "Questo account non può essere recuperato perché il suo indirizzo email è ora utilizzato da un altro account.",
-    "user_search_area_not_supported": "La ricerca di utenti per area o community non è più supportata."
+    "user_search_area_not_supported": "La ricerca di utenti per area o community non è più supportata.",
+    "recipient_name_required": "Il nome completo è obbligatorio."
   },
   "quick_links": {
     "do_not_email": "Non riceverai più email che non riguardino la sicurezza e il tuo stato di ospitalità è stato disattivato. Potresti continuare a ricevere la newsletter, dalla quale devi annullare l'iscrizione separatamente.",

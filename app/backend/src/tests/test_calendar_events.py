@@ -223,7 +223,12 @@ def test_public_trip_invitation_attachments(db, email_collector: EmailCollector,
         public_trip_id=trip_id,
         approve_by=moderator,
     )
-    email_collector.pop_for_recipient(traveller.email, last=True)
+    email = email_collector.pop_for_recipient(traveller.email, last=True)
+    assert "invitation" in email.subject.lower()
+    # Invitations are solicited by the public trip, so there's no quick decline option
+    assert f"/messages/request/{hr_id}" in email.plain
+    assert "quick decline" not in email.plain.lower()
+    assert "quick decline" not in email.html.lower()
 
     # Traveller accepts, host gets a calendar attachment
     requests_api.respond_host_request(

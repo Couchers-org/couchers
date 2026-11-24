@@ -80,6 +80,7 @@ from couchers.utils import (
     dt_to_page_token,
     is_valid_email,
     now,
+    strip_text,
     to_aware_datetime,
 )
 
@@ -597,7 +598,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
-        reason = request.reason.strip()
+        reason = strip_text(request.reason)
         if reason:
             session.add(AccountDeletionReason(user_id=user.id, reason=reason))
 

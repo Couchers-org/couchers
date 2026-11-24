@@ -44,7 +44,6 @@ from couchers.proto import (
     screens_pb2_grpc,
     search_pb2_grpc,
     stripe_pb2_grpc,
-    threads_pb2_grpc,
 )
 from couchers.servicers.account import Account, Iris
 from couchers.servicers.admin import Admin
@@ -70,7 +69,6 @@ from couchers.servicers.reporting import Reporting
 from couchers.servicers.resources import Resources
 from couchers.servicers.screens import Screens
 from couchers.servicers.search import Search
-from couchers.servicers.threads import Threads
 from tests.fixtures import query_log
 
 
@@ -401,13 +399,6 @@ def public_session(token: str | None = None):
     channel = FakeChannel(token)
     public_pb2_grpc.add_PublicServicer_to_server(Public(), channel)
     yield public_pb2_grpc.PublicStub(channel)
-
-
-@contextmanager
-def threads_session(token: str):
-    channel = FakeChannel(token)
-    threads_pb2_grpc.add_ThreadsServicer_to_server(Threads(), channel)
-    yield threads_pb2_grpc.ThreadsStub(channel)
 
 
 @contextmanager
