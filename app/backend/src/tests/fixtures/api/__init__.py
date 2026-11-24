@@ -13,6 +13,7 @@ and avoid direct database manipulation or similar shortcuts.
 
 # Reexport submodules such that tests can import "api" and then use "api.events.create_event".
 from . import conversations as conversations
+from . import discussions as discussions
 from . import events as events
 from . import notifications as notifications
 from . import threads as threads

@@ -5,7 +5,6 @@ from google.protobuf import empty_pb2
 from couchers.db import session_scope
 from couchers.proto import (
     communities_pb2,
-    discussions_pb2,
     events_pb2,
     messages_pb2,
     public_trips_pb2,
@@ -13,6 +12,7 @@ from couchers.proto import (
     screens_pb2,
 )
 from couchers.utils import today
+from tests.fixtures.api import discussions as discussions_api
 from tests.fixtures.api import events as events_api
 from tests.fixtures.api import public_trips as public_trips_api
 from tests.fixtures.api import requests as requests_api
@@ -21,7 +21,6 @@ from tests.fixtures.feature_flags import Flags
 from tests.fixtures.sessions import (
     account_session,
     communities_session,
-    discussions_session,
     screens_session,
 )
 from tests.test_communities import create_community
@@ -70,8 +69,7 @@ def test_GetDashboard_matches_individual_rpcs(db, moderator):
         my_communities_exclude_global=True,
     )
 
-    with discussions_session(surfer_token) as api:
-        discussions = api.ListMyCommunitiesDiscussions(discussions_pb2.ListMyCommunitiesDiscussionsReq(page_size=9))
+    discussions = discussions_api.list_my_communities_discussions(token=surfer_token, page_size=9)
     with account_session(surfer_token) as api:
         reminders = api.GetReminders(empty_pb2.Empty())
     my_public_trips = public_trips_api.list_public_trips_by_user(
