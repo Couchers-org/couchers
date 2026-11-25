@@ -748,6 +748,7 @@ def _log_search_performed(
     ranking_offsets_variant: str,
     source: str,
     bfc_search_id: str | None,
+    user_ids: list[int],
 ) -> None:
     non_filter_fields = {
         "query",
@@ -775,6 +776,7 @@ def _log_search_performed(
             "ranking_offsets_variant": ranking_offsets_variant,
             "source": source,
             "bfc_search_id": bfc_search_id,
+            "user_ids": user_ids,
         },
     )
 
@@ -863,8 +865,6 @@ class Search(search_pb2_grpc.SearchServicer):
             )
             rerank = True
 
-        _log_search_performed(request, context, session, total_items, ranking_offsets_variant, source, bfc_search_id)
-
         LiteUser_by_id = {
             lite_user.id: lite_user
             for lite_user in session.execute(select(LiteUser).where(LiteUser.id.in_(user_ids_to_return)))
@@ -940,6 +940,17 @@ class Search(search_pb2_grpc.SearchServicer):
         ]
         if rerank:
             results = reranker(results)
+
+        _log_search_performed(
+            request,
+            context,
+            session,
+            total_items,
+            ranking_offsets_variant,
+            source,
+            bfc_search_id,
+            [result.user_id for result in results],
+        )
 
         metrics.observe_bfc_function("user_search", source, time.perf_counter() - start)
         return search_pb2.UserSearchV2Res(
