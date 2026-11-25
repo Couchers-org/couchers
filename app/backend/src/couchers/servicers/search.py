@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import and_, func, or_
 
 from couchers import bfc, metrics, urls
+from couchers.constants import MAX_UNFILTERED_COUNT
 from couchers.context import CouchersContext
 from couchers.crypto import (
     USER_SEARCH_NOISE_KEY_NAME,
@@ -93,6 +94,8 @@ TRI_SIMILARITY_WEIGHT = 5
 
 DEFAULT_USER_SEARCH_NOISE_SCALE = 2.0
 USER_SEARCH_NOISE_PERIOD_DAYS = 7
+
+EXACT_UNFILTERED_COUNT_BELOW = 50
 
 
 def _join_with_space(coalesces: list[Any]) -> Any:
@@ -649,6 +652,34 @@ def _user_search_inner(
     return [user_id for user_id, _, _ in res[:page_size]], next_page_token, total_items, ranking_offsets_variant
 
 
+def _count_unfiltered_users(request: search_pb2.UserSearchReq, context: CouchersContext, session: Session) -> int:
+    """
+    Counts the users in the search area, capped at MAX_UNFILTERED_COUNT + 1. Users hidden from only this viewer, such
+    as those they blocked, are only left out of small counts.
+    """
+    statement = select(User.id).where(User.is_visible, User.shadowed_at.is_(None))
+    if request.HasField("search_in_rectangle"):
+        envelope = func.ST_MakeEnvelope(
+            request.search_in_rectangle.lng_min,
+            request.search_in_rectangle.lat_min,
+            request.search_in_rectangle.lng_max,
+            request.search_in_rectangle.lat_max,
+            4326,
+        )
+        # ordering by distance makes postgres walk the spatial index, so the limit bounds the work. Without it,
+        # postgres sometimes scans the whole table instead.
+        statement = statement.where(User.geom.op("&&")(envelope)).order_by(
+            User.geom.op("<->")(func.ST_Centroid(envelope))
+        )
+    statement = statement.limit(MAX_UNFILTERED_COUNT + 1)
+    count = session.execute(select(func.count()).select_from(statement.subquery())).scalar_one()
+
+    if count < EXACT_UNFILTERED_COUNT_BELOW:
+        statement = statement.where(~User.id.in_(relevant_user_blocks(context.user_id)))
+        count = session.execute(select(func.count()).select_from(statement.subquery())).scalar_one()
+    return count
+
+
 def _user_search_bfc(
     request: search_pb2.UserSearchReq, context: CouchersContext, session: Session
 ) -> tuple[list[int], str | None, int, int, str] | None:
@@ -861,6 +892,7 @@ class Search(search_pb2_grpc.SearchServicer):
             user_ids_to_return, next_page_token, total_items, ranking_offsets_variant = _user_search_inner(
                 request, context, session
             )
+            total_unfiltered_items = _count_unfiltered_users(request, context, session)
             rerank = True
 
         _log_search_performed(request, context, session, total_items, ranking_offsets_variant, source, bfc_search_id)

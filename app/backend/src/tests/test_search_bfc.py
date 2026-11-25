@@ -149,7 +149,7 @@ def test_falls_back_when_bfc_fails(db, fake_bfc: FakeBfc, reported_errors: list[
         res = api.UserSearchV2(search_pb2.UserSearchReq())
 
     assert user.id in [result.user_id for result in res.results]
-    assert res.total_unfiltered_items == 0
+    assert res.total_unfiltered_items == 1
     assert len(fake_bfc.requests) == 1
     assert len(reported_errors) == 1
     event = _search_event()
@@ -198,7 +198,7 @@ def test_flag_off(db, fake_bfc: FakeBfc, flags: Flags):
     with search_session(token) as api:
         res = api.UserSearchV2(search_pb2.UserSearchReq())
 
-    assert res.total_unfiltered_items == 0
+    assert res.total_unfiltered_items == 1
     assert fake_bfc.requests == []
     assert _search_event()["source"] == "backend"
 

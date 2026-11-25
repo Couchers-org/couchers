@@ -206,7 +206,9 @@ message UserSearchV2Res {
 
   string next_page_token = 2;
   uint32 total_items = 3;
-  // What total_items would be with no filters. 0 when the count is not available.
+  // What total_items would be with no filters. It may stop at 2001 when there are more than 2000, so anything above
+  // 2000 means more than 2000. Users hidden from only this viewer, such as those they blocked, may be counted when it
+  // is 50 or more. 0 for searches by user ID.
   uint32 total_unfiltered_items = 4;
 }
 
