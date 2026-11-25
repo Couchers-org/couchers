@@ -203,7 +203,7 @@ const useGeocodeQuery = (options: GeocodeQueryOptions) => {
         } = await geocodeSearch(value, {
           requirePeliasGid,
           providerSetting,
-          language: i18n.language,
+          locales: i18n.languages,
           preferCity,
           collapseToCity,
           // Read at request time, not render time: the fix may land between
@@ -308,7 +308,7 @@ const useGeocodeQuery = (options: GeocodeQueryOptions) => {
       clear,
       collapseToCity,
       focusRef,
-      i18n.language,
+      i18n.languages,
       preferCity,
       profileFocus,
       providerSetting,

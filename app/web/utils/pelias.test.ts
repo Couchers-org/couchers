@@ -12,7 +12,6 @@ import {
   reorderPreferCity,
   reverse,
   simplifyPeliasDisplayName,
-  toPeliasLanguage,
 } from "./pelias";
 
 const PLACE_URL = `${process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL!}/v1/place`;
@@ -664,24 +663,6 @@ describe("dedupeBySimplifiedName", () => {
   });
 });
 
-describe("toPeliasLanguage", () => {
-  it.each([
-    ["en", "en"],
-    ["fr", "fr"],
-    ["en-US", "en"],
-    ["pt-BR", "pt"],
-    ["zh-Hans-CN", "zh"],
-    ["en_US", "en"],
-    ["FR", "fr"],
-  ])("normalizes %s to %s", (tag, expected) => {
-    expect(toPeliasLanguage(tag)).toBe(expected);
-  });
-
-  it.each([[""], ["123"], ["e"], ["toolongtag"]])("returns undefined for a malformed tag %s", (tag) => {
-    expect(toPeliasLanguage(tag)).toBeUndefined();
-  });
-});
-
 describe("normalize", () => {
   it("maps a city feature to a GeocodeResult", () => {
     const result = normalize(feature());
@@ -872,7 +853,7 @@ describe("autocomplete", () => {
       requestedText = params.get("text");
     });
 
-    const { results } = await autocomplete("paris", { language: "fr" });
+    const { results } = await autocomplete("paris", { locales: ["fr"] });
 
     expect(requestedText).toBe("paris");
     expect(requestedLang).toBe("fr");
@@ -1379,7 +1360,7 @@ describe("reverse", () => {
       }),
     ]);
 
-    const { results } = await reverse(48.8566, 2.3522, { language: "fr" });
+    const { results } = await reverse(48.8566, 2.3522, { locales: ["fr"] });
 
     expect(captured.params?.get("point.lat")).toBe("48.8566");
     expect(captured.params?.get("point.lon")).toBe("2.3522");

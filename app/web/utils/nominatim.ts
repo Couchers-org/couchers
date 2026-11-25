@@ -1,5 +1,6 @@
 import { Coordinates } from "features/search/utils/constants";
 import { LngLat } from "maplibre-gl";
+import { toAcceptLanguage } from "utils/acceptLanguage";
 import type { GeocodeResult } from "utils/hooks";
 
 /**
@@ -135,9 +136,10 @@ export const normalize = (place: NominatimPlace): GeocodeResult => {
 
 export interface SearchOptions {
   /**
-   * BCP-47 UI locale, passed straight through as Nominatim's `accept-language`.
+   * Preferred BCP-47 locales, most preferred first, sent as Nominatim's
+   * `accept-language`.
    */
-  language?: string;
+  locales?: readonly string[];
   signal?: AbortSignal;
 }
 
@@ -151,7 +153,7 @@ export async function search(
   value: string,
   options: SearchOptions = {},
 ): Promise<{ results: GeocodeResult[]; places: NominatimPlace[] }> {
-  const { language, signal } = options;
+  const { locales = [], signal } = options;
 
   if (!NOMINATIM_URL) {
     throw new NominatimError("Fallback geocoding is not configured.");
@@ -161,8 +163,9 @@ export async function search(
   url.searchParams.set("format", "jsonv2");
   url.searchParams.set("q", value);
   url.searchParams.set("addressdetails", "1");
-  if (language) {
-    url.searchParams.set("accept-language", language);
+  const acceptLanguage = toAcceptLanguage(locales);
+  if (acceptLanguage) {
+    url.searchParams.set("accept-language", acceptLanguage);
   }
 
   let response: Response;

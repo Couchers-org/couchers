@@ -170,10 +170,9 @@ describe("useGeocodeQuery hook", () => {
   });
 
   it.each([
-    ["fr", "fr"],
-    ["en-US", "en"],
-    ["pt-BR", "pt"],
-  ])("forwards i18n.language %s to the provider as %s", async (language, expectedLang) => {
+    ["fr", "fr,en;q=0.9"],
+    ["pt-BR", "pt-BR,pt;q=0.9,en;q=0.8"],
+  ])("forwards the i18n.languages chain for %s to the provider as %s", async (language, expectedLang) => {
     const originalLanguage = i18n.language;
     let requestedLang: string | null = null;
     mockPeliasAutocomplete([], (params) => {

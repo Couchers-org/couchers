@@ -461,7 +461,7 @@ describe("LocationAutocomplete component", () => {
     await user.type(await screen.findByLabelText(LABEL), "test");
 
     expect(await screen.findByText("Allemagne")).toBeVisible();
-    expect(requestedLang).toBe("fr");
+    expect(requestedLang).toBe("fr-FR,fr;q=0.9,en;q=0.8");
 
     await i18n.changeLanguage(originalLanguage);
   });

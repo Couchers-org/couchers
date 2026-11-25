@@ -494,10 +494,10 @@ describe("Nominatim utilities", () => {
         }),
       );
 
-      const { results, places } = await search("berlin", { language: "de-DE" });
+      const { results, places } = await search("berlin", { locales: ["de-DE", "de", "en"] });
 
       expect(requestUrl?.searchParams.get("q")).toBe("berlin");
-      expect(requestUrl?.searchParams.get("accept-language")).toBe("de-DE");
+      expect(requestUrl?.searchParams.get("accept-language")).toBe("de-DE,de;q=0.9,en;q=0.8");
       expect(requestUrl?.searchParams.get("addressdetails")).toBe("1");
       expect(places).toHaveLength(2);
       // Both collapse to the same display name; the more important one wins.

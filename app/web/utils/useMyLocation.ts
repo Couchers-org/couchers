@@ -3,7 +3,7 @@ import Sentry from "platform/sentry";
 import { useCallback, useRef, useState } from "react";
 import { GeocodeEvent, useGeocodeTelemetry } from "utils/geocodeTelemetry";
 import type { GeocodeResult } from "utils/hooks";
-import { PeliasError, reverse, toPeliasLanguage } from "utils/pelias";
+import { PeliasError, reverse } from "utils/pelias";
 
 /**
  * The explicit "use my location" action — ask for the device position, then
@@ -94,7 +94,7 @@ export default function useMyLocation({
         return undefined;
       }
       const { results } = await reverse(position.coords.latitude, position.coords.longitude, {
-        language: toPeliasLanguage(i18n.language),
+        locales: i18n.languages,
         preferCity,
         collapseToCity,
       });
@@ -142,7 +142,7 @@ export default function useMyLocation({
         setIsLoading(false);
       }
     }
-  }, [collapseToCity, i18n.language, preferCity, t, track]);
+  }, [collapseToCity, i18n.languages, preferCity, t, track]);
 
   return { getMyLocation, isLoading, error, reset };
 }

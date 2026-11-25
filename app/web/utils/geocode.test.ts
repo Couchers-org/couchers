@@ -22,6 +22,7 @@ const loadGeocode = async () => {
 const searchOpts = (providerSetting: ProviderSetting = "auto", requirePeliasGid = false) => ({
   requirePeliasGid,
   providerSetting,
+  locales: ["en"],
 });
 
 describe("geocodeSearch", () => {

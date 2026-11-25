@@ -1,7 +1,7 @@
 import type { GeocodeResult } from "utils/hooks";
 import * as nominatim from "utils/nominatim";
 import type { FocusPoint } from "utils/pelias";
-import { autocomplete, PeliasError, toPeliasLanguage } from "utils/pelias";
+import { autocomplete, PeliasError } from "utils/pelias";
 
 /**
  * Provider selection for forward geocoding.
@@ -118,9 +118,12 @@ export interface GeocodeSearchOptions {
    */
   providerSetting: ProviderSetting;
   /**
-   * BCP-47 UI locale (e.g. "pt-BR"); narrowed per provider.
+   * The user's preferred BCP-47 locales, most preferred first, typically
+   * `i18n.languages` (e.g. `["pt-BR", "pt", "en"]`). Required so a call site
+   * cannot silently let the provider pick a language. Both providers receive the
+   * whole chain and apply their own fallback.
    */
-  language?: string;
+  locales: readonly string[];
   preferCity?: boolean;
   collapseToCity?: boolean; // only affects Pelias
   /**
@@ -160,7 +163,7 @@ export interface GeocodeSearchResult {
 
 async function viaNominatim(text: string, options: GeocodeSearchOptions): Promise<GeocodeSearchResult> {
   const { results, places } = await nominatim.search(text, {
-    language: options.language,
+    locales: options.locales,
     signal: options.signal,
   });
   return { results, provider: "nominatim", nominatimPlaces: places };
@@ -194,7 +197,7 @@ export async function geocodeSearch(text: string, options: GeocodeSearchOptions)
 
   try {
     const { results, features } = await autocomplete(text, {
-      language: options.language ? toPeliasLanguage(options.language) : undefined,
+      locales: options.locales,
       preferCity: options.preferCity,
       collapseToCity: options.collapseToCity,
       focus: options.focus,

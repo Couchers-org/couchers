@@ -1,5 +1,6 @@
 import { Coordinates } from "features/search/utils/constants";
 import { LngLat } from "maplibre-gl";
+import { toAcceptLanguage } from "utils/acceptLanguage";
 import type { GeocodeResult } from "utils/hooks";
 
 /**
@@ -154,18 +155,6 @@ const REQUEST_TIMEOUT_MS = 10_000;
 
 const BASE_URL = process.env.NEXT_PUBLIC_GEOCODE_EARTH_BASE_URL;
 const API_KEY = process.env.NEXT_PUBLIC_GEOCODE_EARTH_KEY;
-
-/**
- * Normalize a BCP-47 UI locale tag (e.g. "en-US", "pt-BR", "zh-Hans-CN") to the
- * bare ISO 639-1 primary-language subtag Pelias's `lang` parameter expects
- * (e.g. "en", "pt", "zh"). Returns `undefined` for an empty or malformed tag,
- * in which case `autocomplete` omits `lang` and Pelias falls back to its
- * default (local-language) naming rather than us guessing.
- */
-export function toPeliasLanguage(tag: string): string | undefined {
-  const primary = tag?.split(/[-_]/)[0].toLowerCase();
-  return primary && /^[a-z]{2,3}$/.test(primary) ? primary : undefined;
-}
 
 /**
  * Whether the provider's own `label` for this feature carries `region_a` as one
@@ -488,7 +477,10 @@ export async function reverse(
   lat: number,
   lon: number,
   options: {
-    language?: string;
+    /**
+     * Preferred locales, most preferred first (see `toAcceptLanguage`).
+     */
+    locales?: readonly string[];
     /**
      * Accepted for symmetry with `autocomplete`, where it soft-reorders the
      * result list. A reverse lookup returns one ranked list about a single
@@ -499,7 +491,7 @@ export async function reverse(
     signal?: AbortSignal;
   } = {},
 ): Promise<{ results: GeocodeResult[]; features: PeliasFeature[] }> {
-  const { language, collapseToCity = false, signal } = options;
+  const { locales = [], collapseToCity = false, signal } = options;
 
   if (!BASE_URL || !API_KEY) {
     throw new PeliasError("Geocoding is not configured.", undefined, "config");
@@ -509,8 +501,9 @@ export async function reverse(
   url.searchParams.set("api_key", API_KEY);
   url.searchParams.set("point.lat", String(lat));
   url.searchParams.set("point.lon", String(lon));
-  if (language) {
-    url.searchParams.set("lang", language);
+  const lang = toAcceptLanguage(locales);
+  if (lang) {
+    url.searchParams.set("lang", lang);
   }
 
   const data = await fetchPelias(url, signal);
@@ -523,7 +516,10 @@ export async function reverse(
 }
 
 export interface AutocompleteOptions {
-  language?: string;
+  /**
+   * Preferred locales, most preferred first (see `toAcceptLanguage`).
+   */
+  locales?: readonly string[];
   focus?: FocusPoint;
   /**
    * Destination-search ranking: promote the first city/venue over a leading
@@ -554,7 +550,7 @@ export async function autocomplete(
   text: string,
   options: AutocompleteOptions = {},
 ): Promise<{ results: GeocodeResult[]; features: PeliasFeature[] }> {
-  const { language, focus, preferCity = false, collapseToCity = false, signal } = options;
+  const { locales = [], focus, preferCity = false, collapseToCity = false, signal } = options;
 
   if (!BASE_URL || !API_KEY) {
     throw new PeliasError("Geocoding is not configured.", undefined, "config");
@@ -563,8 +559,9 @@ export async function autocomplete(
   const url = new URL("/v1/autocomplete", BASE_URL);
   url.searchParams.set("api_key", API_KEY);
   url.searchParams.set("text", text);
-  if (language) {
-    url.searchParams.set("lang", language);
+  const lang = toAcceptLanguage(locales);
+  if (lang) {
+    url.searchParams.set("lang", lang);
   }
   if (focus) {
     url.searchParams.set("focus.point.lat", String(focus.lat));
