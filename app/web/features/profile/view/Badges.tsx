@@ -8,7 +8,12 @@ interface Props {
 }
 
 const StyledContainer = styled("div")(({ theme }) => ({
-  marginTop: theme.spacing(1),
+  // chips flow like text so text-wrap can balance the rows (2 + 2, not 3 + 1); browsers without it wrap normally
+  textAlign: "center",
+  textWrap: "balance",
+  marginTop: theme.spacing(0.5),
+  marginBottom: theme.spacing(0.5),
+  "& .MuiChip-root": { margin: theme.spacing(0.5) },
 }));
 
 export const Badges = ({ user }: Props) => {
