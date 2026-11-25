@@ -15,10 +15,7 @@ import { service } from "service";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
 import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
-import { charsRemaining } from "utils/validation";
-
-// Must match the backend PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16.
-const MESSAGE_MIN_LENGTH = 100;
+import { charsRemaining, publicTripOfferMinLength } from "utils/validation";
 
 const DATE_FIELD_ID = "offer-to-host-dates";
 
@@ -131,7 +128,7 @@ export default function OfferToHostDialog({
   });
 
   const watchFromDate = watch("fromDate");
-  const textCharsRemaining = charsRemaining(watch("text") ?? "", MESSAGE_MIN_LENGTH);
+  const textCharsRemaining = charsRemaining(watch("text") ?? "", publicTripOfferMinLength);
 
   const {
     mutate,
@@ -210,7 +207,7 @@ export default function OfferToHostDialog({
             {...register("text", {
               required: t("publicTrips:offer_to_host_dialog.message.required_error"),
               validate: (value) => {
-                const remaining = charsRemaining(value, MESSAGE_MIN_LENGTH);
+                const remaining = charsRemaining(value, publicTripOfferMinLength);
                 return (
                   remaining === 0 || t("publicTrips:offer_to_host_dialog.message.chars_remaining", { count: remaining })
                 );
