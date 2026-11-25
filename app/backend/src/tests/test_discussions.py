@@ -244,8 +244,8 @@ def test_deleted_discussion_thread_still_accessible(db, moderator: Moderator):
     assert res.deleted
     assert res.thread.num_responses == 1
 
-    res = threads_api.get_thread(token=token, thread_id=thread_id)
-    assert len(res.replies) == 1
+    thread = threads_api.get_thread(token=token, thread_id=thread_id)
+    assert len(thread.replies) == 1
 
 
 def test_delete_comment_shows_placeholder_with_replies(db, moderator: Moderator):

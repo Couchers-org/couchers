@@ -11,6 +11,7 @@ from couchers.crypto import hash_password
 from couchers.db import session_scope
 from couchers.event_log import log_event
 from couchers.i18n import LocalizationContext
+from couchers.materialized_views import refresh_materialized_views, refresh_materialized_views_rapid
 from couchers.models import FriendRelationship, SignupFlow
 from couchers.models.logging import EventLog
 from couchers.proto import (
@@ -716,10 +717,14 @@ def test_search_v2_creates_event(db, flags: Flags):
 
 def test_search_v2_selection_event(db):
     user, token = generate_user()
-    other, _ = generate_user()
+    other1, _ = generate_user()
+    other2, _ = generate_user()
+    deleted, _ = generate_user(delete_user=True)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
 
     with search_session(token) as api:
-        api.UserSearchV2(search_pb2.UserSearchReq(exactly_user_ids=[other.id]))
+        api.UserSearchV2(search_pb2.UserSearchReq(exactly_user_ids=[other2.id, deleted.id, other1.id]))
 
     with session_scope() as session:
         events = _get_events(session, "search.performed")
@@ -728,6 +733,7 @@ def test_search_v2_selection_event(db):
         assert e.properties["is_selection"] is True
         assert e.properties["has_filters"] is False
         assert e.properties["filters"] == []
+        assert e.properties["user_ids"] == [other2.id, other1.id]
 
 
 # ===== Integration tests: reference events =====

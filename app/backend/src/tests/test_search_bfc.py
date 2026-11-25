@@ -138,6 +138,7 @@ def test_serves_bfc_results(db, fake_bfc: FakeBfc):
     event = _search_event()
     assert event["source"] == "bfc"
     assert event["bfc_search_id"] == "search"
+    assert event["user_ids"] == [other.id for other in reversed(others)][:3]
 
 
 def test_falls_back_when_bfc_fails(db, fake_bfc: FakeBfc, reported_errors: list[Exception]):
@@ -155,6 +156,7 @@ def test_falls_back_when_bfc_fails(db, fake_bfc: FakeBfc, reported_errors: list[
     event = _search_event()
     assert event["source"] == "fallback"
     assert event["bfc_search_id"] is None
+    assert event["user_ids"] == [result.user_id for result in res.results]
 
 
 def test_falls_back_when_bfc_is_too_slow(db, fake_bfc: FakeBfc, reported_errors: list[Exception], monkeypatch):
