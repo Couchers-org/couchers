@@ -284,6 +284,38 @@ def observe_in_servicer_serde_histogram(method: str, direction: str, serde_s: fl
     servicer_serde_histogram.labels(method, direction).observe(serde_s)
 
 
+proto_serde_histogram: Histogram = Histogram(
+    "couchers_proto_serde_seconds",
+    "Protobuf serialization / deserialization time per call, by message type",
+    labelnames=["message", "direction"],
+    buckets=(
+        0.000001,
+        0.0000025,
+        0.000005,
+        0.00001,
+        0.000025,
+        0.00005,
+        0.0001,
+        0.00025,
+        0.0005,
+        0.001,
+        0.0025,
+        0.005,
+        0.01,
+        0.025,
+        0.05,
+        0.1,
+        0.25,
+        1.0,
+        _INF,
+    ),
+)
+
+
+def observe_in_proto_serde_histogram(message: str, direction: str, serde_s: float) -> None:
+    proto_serde_histogram.labels(message, direction).observe(serde_s)
+
+
 # liveall keeps one series per worker pid (and drops dead workers), so these also show load balance across workers.
 # Updated from inside each worker since the /metrics scrape runs in the parent, which has neither pool.
 grpc_in_flight_gauge: Gauge = Gauge(
