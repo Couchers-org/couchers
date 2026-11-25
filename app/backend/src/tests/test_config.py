@@ -1,3 +1,4 @@
+import re
 import typing
 
 import pytest
@@ -28,7 +29,7 @@ def _complete_config(dev: bool) -> Config:
     cfg.DEV = dev
     if dev:
         # partitioned cookies require Secure, which DEV doesn't set
-        cfg.COOKIE_PARTITIONED = False
+        cfg.COOKIE_PARTITIONED_ORIGINS = ""
     if not dev:
         # production invariants that aren't satisfiable by a generic truthy value
         cfg.BASE_URL = "https://example.com"
@@ -146,10 +147,17 @@ def test_check_rejects_too_many_worker_threads() -> None:
 
 def test_check_rejects_partitioned_cookies_in_dev() -> None:
     cfg = _complete_config(dev=False)
-    cfg.COOKIE_PARTITIONED = True
+    cfg.COOKIE_PARTITIONED_ORIGINS = r"https://.*\.vercel\.app"
     cfg.check()
 
     cfg = _complete_config(dev=True)
-    cfg.COOKIE_PARTITIONED = True
-    with pytest.raises(Exception, match="COOKIE_PARTITIONED"):
+    cfg.COOKIE_PARTITIONED_ORIGINS = r"https://.*\.vercel\.app"
+    with pytest.raises(Exception, match="COOKIE_PARTITIONED_ORIGINS"):
+        cfg.check()
+
+
+def test_check_rejects_invalid_partitioned_origins_regex() -> None:
+    cfg = _complete_config(dev=False)
+    cfg.COOKIE_PARTITIONED_ORIGINS = "https://("
+    with pytest.raises(re.error):
         cfg.check()
