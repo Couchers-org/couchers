@@ -16,17 +16,19 @@ const StyledHelpTextContainer = styled("div")(({ theme }) => ({
 export default function HostRequestGuideLinks({
   isPast,
   isHost,
+  isOffer,
   status,
 }: {
   isPast: boolean;
   isHost: boolean;
+  isOffer: boolean;
   status: HostRequestStatus;
 }) {
   const { t } = useTranslation([MESSAGES]);
 
-  const isHostPending = !isPast && isHost && status === HostRequestStatus.HOST_REQUEST_STATUS_PENDING;
+  const isHostPending = !isPast && isHost && !isOffer && status === HostRequestStatus.HOST_REQUEST_STATUS_PENDING;
 
-  const isSurferRejected = !isHost && status === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED;
+  const isSurferRejected = !isHost && !isOffer && status === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED;
 
   if (isHostPending) {
     return (

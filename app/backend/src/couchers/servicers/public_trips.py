@@ -24,7 +24,9 @@ from couchers.utils import (
     date_id_to_page_token,
     date_to_api,
     parse_date,
+    strip_text,
     today_in_timezone,
+    utf16_length,
 )
 
 logger = logging.getLogger(__name__)
@@ -43,11 +45,19 @@ publictripstatus2sql = {
 }
 
 
-def _is_description_long_enough(text: str) -> bool:
-    # Match Javascript's string.length (utf16 code units) rather than Python's len()
-    # so the backend check aligns with the frontend character counter.
-    text_length_utf16 = len(text.encode("utf-16-le")) // 2
-    return text_length_utf16 >= PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16
+def _check_description(description: str, context: CouchersContext) -> str:
+    description = strip_text(description)
+    if not description:
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_public_trip_description")
+    if utf16_length(description) < PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16:
+        context.abort_with_error_code(
+            grpc.StatusCode.INVALID_ARGUMENT,
+            "public_trip_description_too_short",
+            substitutions={"count": PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16},
+        )
+    if len(description) > PUBLIC_TRIP_DESCRIPTION_MAX_LENGTH:
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_description_too_long")
+    return description
 
 
 def _has_overlapping_public_trip(
@@ -150,29 +160,18 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         today = today_in_timezone(node.timezone)
 
         if from_date < today:
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_before_today")
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_arrival_before_today")
 
         if from_date >= to_date:
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_not_after_from")
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_departure_not_after_arrival")
 
         if from_date - today > timedelta(days=365):
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_after_one_year")
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_arrival_after_one_year")
 
         if to_date - from_date > timedelta(days=365):
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_after_one_year")
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_longer_than_one_year")
 
-        if not request.description.strip():
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_public_trip_description")
-
-        if not _is_description_long_enough(request.description):
-            context.abort_with_error_code(
-                grpc.StatusCode.INVALID_ARGUMENT,
-                "public_trip_description_too_short",
-                substitutions={"count": PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16},
-            )
-
-        if len(request.description) > PUBLIC_TRIP_DESCRIPTION_MAX_LENGTH:
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_description_too_long")
+        description = _check_description(request.description, context)
 
         if _has_overlapping_public_trip(session, context.user_id, node.id, from_date, to_date):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "overlapping_public_trip_exists")
@@ -186,7 +185,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
                 node_id=node.id,
                 from_date=from_date,
                 to_date=to_date,
-                description=request.description,
+                description=description,
                 same_gender_only=request.same_gender_only,
                 moderation_state_id=moderation_state_id,
             )
@@ -453,29 +452,21 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
                 new_to_date = parsed
 
             if new_from_date < today_local:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_before_today")
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_arrival_before_today")
 
             if new_from_date >= new_to_date:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_not_after_from")
+                context.abort_with_error_code(
+                    grpc.StatusCode.INVALID_ARGUMENT, "public_trip_departure_not_after_arrival"
+                )
 
             if new_from_date - today_local > timedelta(days=365):
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_after_one_year")
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_arrival_after_one_year")
 
             if new_to_date - new_from_date > timedelta(days=365):
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_after_one_year")
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_longer_than_one_year")
 
             if request.HasField("description"):
-                if not request.description.strip():
-                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_public_trip_description")
-                if not _is_description_long_enough(request.description):
-                    context.abort_with_error_code(
-                        grpc.StatusCode.INVALID_ARGUMENT,
-                        "public_trip_description_too_short",
-                        substitutions={"count": PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16},
-                    )
-                if len(request.description) > PUBLIC_TRIP_DESCRIPTION_MAX_LENGTH:
-                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_description_too_long")
-                public_trip.description = request.description
+                public_trip.description = _check_description(request.description, context)
 
             public_trip.from_date = new_from_date
             public_trip.to_date = new_to_date
@@ -491,7 +482,9 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
                 if public_trip.from_date < today_local:
                     context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "public_trip_in_past")
                 if public_trip.from_date >= public_trip.to_date:
-                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_not_after_from")
+                    context.abort_with_error_code(
+                        grpc.StatusCode.INVALID_ARGUMENT, "public_trip_departure_not_after_arrival"
+                    )
             elif new_status != PublicTripStatus.closed:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_public_trip_status")
             public_trip.status = new_status

@@ -127,7 +127,8 @@ If you ever feel tempted to renumber, STOP and ask the user. There is essentiall
 ### Backend Tests
 - Located in `/app/backend/src/tests/`
 - Use `session_scope()` for database access
-- Use fixtures from `test_fixtures.py` (e.g., `generate_user()`, `push_collector`)
+- Use fixtures from the `fixtures/` subfolder (e.g., `generate_user()`, `push_collector`)
+- Call (and expose) backend APIs through typed helpers under `fixtures/api`. See docs in `__init__.py`.
 - Mock external APIs with `unittest.mock.patch`
 - Background jobs don't run automatically in tests - use `process_job()` to manually execute queued jobs
 - To control time, use the `timewarp` / `frozen_timewarp` fixtures rather than patching `now` on a module, which leaves postgres on the real clock. The clock can't be moved inside an open `session_scope()`

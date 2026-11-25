@@ -25,7 +25,6 @@ from couchers.proto import (
     blocking_pb2_grpc,
     bugs_pb2_grpc,
     communities_pb2_grpc,
-    discussions_pb2_grpc,
     donations_pb2_grpc,
     editor_pb2_grpc,
     galleries_pb2_grpc,
@@ -44,7 +43,6 @@ from couchers.proto import (
     screens_pb2_grpc,
     search_pb2_grpc,
     stripe_pb2_grpc,
-    threads_pb2_grpc,
 )
 from couchers.servicers.account import Account, Iris
 from couchers.servicers.admin import Admin
@@ -53,7 +51,6 @@ from couchers.servicers.auth import Auth
 from couchers.servicers.blocking import Blocking
 from couchers.servicers.bugs import Bugs
 from couchers.servicers.communities import Communities
-from couchers.servicers.discussions import Discussions
 from couchers.servicers.donations import Donations, Stripe
 from couchers.servicers.editor import Editor
 from couchers.servicers.galleries import Galleries
@@ -70,7 +67,6 @@ from couchers.servicers.reporting import Reporting
 from couchers.servicers.resources import Resources
 from couchers.servicers.screens import Screens
 from couchers.servicers.search import Search
-from couchers.servicers.threads import Threads
 from tests.fixtures import query_log
 
 
@@ -401,20 +397,6 @@ def public_session(token: str | None = None):
     channel = FakeChannel(token)
     public_pb2_grpc.add_PublicServicer_to_server(Public(), channel)
     yield public_pb2_grpc.PublicStub(channel)
-
-
-@contextmanager
-def threads_session(token: str):
-    channel = FakeChannel(token)
-    threads_pb2_grpc.add_ThreadsServicer_to_server(Threads(), channel)
-    yield threads_pb2_grpc.ThreadsStub(channel)
-
-
-@contextmanager
-def discussions_session(token: str):
-    channel = FakeChannel(token)
-    discussions_pb2_grpc.add_DiscussionsServicer_to_server(Discussions(), channel)
-    yield discussions_pb2_grpc.DiscussionsStub(channel)
 
 
 @contextmanager

@@ -134,7 +134,8 @@ describe("Event page", () => {
 
     const heading = await screen.findByRole("heading", { name: t("communities:event_discussion") });
 
-    await waitFor(() => expect(scrollIntoView.mock.contexts).toContain(heading.parentElement));
+    // the discussion section holds the heading row
+    await waitFor(() => expect(scrollIntoView.mock.contexts).toContain(heading.parentElement?.parentElement));
   });
 
   it("scrolls to and highlights the linked comment", async () => {

@@ -13,7 +13,6 @@ from couchers.constants import (
     PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16,
 )
 from couchers.context import CouchersContext, make_notification_user_context
-from couchers.db import can_moderate_node
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.helpers.host_requests import HOST_REQUEST_NOTIFICATION_TOPIC_ACTIONS, unseen_host_request_message_count
@@ -62,7 +61,9 @@ from couchers.utils import (
     get_coordinates,
     now,
     parse_date,
+    strip_text,
     today_in_timezone,
+    utf16_length,
 )
 
 logger = logging.getLogger(__name__)
@@ -173,22 +174,20 @@ def _possibly_observe_first_response_time(
         )
 
 
-def _validate_request_text(text: str, is_public_trip_offer: bool, context: CouchersContext) -> None:
+def _check_request_text(text: str, is_public_trip_offer: bool, context: CouchersContext) -> str:
     min_length, error_code = (
         (PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16, "public_trip_offer_too_short")
         if is_public_trip_offer
         else (HOST_REQUEST_MIN_LENGTH_UTF16, "host_request_too_short2")
     )
-    # Python's len(str) does not match Javascript's string.length.
-    # e.g. len("é") == 2 but "é".length == 1.
-    # To match the frontend's validation, measure the string in utf16 code units.
-    text_length_utf16 = len(text.encode("utf-16-le")) // 2  # utf-16-le does not include a prefix BOM code unit.
-    if text_length_utf16 < min_length:
+    text = strip_text(text)
+    if utf16_length(text) < min_length:
         context.abort_with_error_code(
             grpc.StatusCode.INVALID_ARGUMENT,
             error_code,
             substitutions={"count": min_length},
         )
+    return text
 
 
 class Requests(requests_pb2_grpc.RequestsServicer):
@@ -241,7 +240,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if to_date - from_date > timedelta(days=365):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_after_one_year")
 
-        _validate_request_text(request.text, proposal_kind == StayProposalKind.invitation, context)
+        text = _check_request_text(request.text, proposal_kind == StayProposalKind.invitation, context)
 
         # Check if user has been sending host requests excessively
         if process_rate_limits_and_check_abort(
@@ -289,12 +288,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             # Offered dates must fall within the trip's window (host can shorten, not extend)
             if from_date < public_trip.from_date or to_date > public_trip.to_date:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_dates_out_of_range")
-            # Enforce same_gender_only restriction (community moderators bypass)
-            if (
-                public_trip.same_gender_only
-                and not can_moderate_node(session, context.user_id, public_trip.node_id)
-                and user.gender != recipient.gender
-            ):
+            if public_trip.same_gender_only and user.gender != recipient.gender:
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "public_trip_same_gender_only")
             # Prevent duplicate offers on the same trip. A withdrawn offer doesn't count, so a host
             # can offer again after withdrawing, e.g. to renegotiate dates.
@@ -323,7 +317,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         message = Message(
             conversation_id=conversation.id,
             author_id=context.user_id,
-            text=request.text,
+            text=text,
             message_type=MessageType.text,
         )
         session.add(message)
@@ -364,7 +358,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             data=notification_data_pb2.StayCreate(
                 host_request=host_request_to_pb(host_request, session, recipient_context),
                 initiator=user_model_to_pb(host_request.initiator, session, recipient_context),
-                text=request.text,
+                text=text,
             ),
             moderation_state_id=moderation_state.id,
         )
@@ -847,10 +841,11 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
         session.add(control_message)
 
-        if request.text:
+        text = strip_text(request.text)
+        if text:
             latest_message = Message(
                 conversation_id=host_request.conversation_id,
-                text=request.text,
+                text=text,
                 author_id=context.user_id,
                 message_type=MessageType.text,
             )
@@ -912,7 +907,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
     def SendHostRequestMessage(
         self, request: requests_pb2.SendHostRequestMessageReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
-        if request.text == "":
+        text = strip_text(request.text)
+        if not text:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_message")
         host_request = session.execute(
             where_moderated_content_visible(select(HostRequest), context, HostRequest, is_list_operation=False).where(
@@ -933,7 +929,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             conversation_id=host_request.conversation_id,
             author_id=context.user_id,
             message_type=MessageType.text,
-            text=request.text,
+            text=text,
         )
 
         session.add(message)
@@ -951,7 +947,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 data=notification_data_pb2.StayMessage(
                     host_request=host_request_to_pb(host_request, session, recipient_context),
                     counterparty=user_model_to_pb(host_request.initiator, session, recipient_context),
-                    text=request.text,
+                    text=text,
                     counterparty_is_initiator=True,
                 ),
                 moderation_state_id=host_request.moderation_state_id,
@@ -969,7 +965,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 data=notification_data_pb2.StayMessage(
                     host_request=host_request_to_pb(host_request, session, recipient_context),
                     counterparty=user_model_to_pb(host_request.recipient, session, recipient_context),
-                    text=request.text,
+                    text=text,
                     counterparty_is_initiator=False,
                 ),
                 moderation_state_id=host_request.moderation_state_id,
@@ -1143,6 +1139,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
     def SendHostRequestFeedback(
         self, request: requests_pb2.SendHostRequestFeedbackReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
+        decline_reason = strip_text(request.decline_reason)
         host_request = session.execute(
             where_moderated_content_visible(select(HostRequest), context, HostRequest, is_list_operation=False)
             .where(HostRequest.conversation_id == request.host_request_id)
@@ -1169,7 +1166,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 from_user_id=host_request.recipient_user_id,
                 to_user_id=host_request.initiator_user_id,
                 request_quality=hostrequestquality2sql.get(request.host_request_quality),
-                decline_reason=request.decline_reason,
+                decline_reason=decline_reason,
             )
         )
         quality = hostrequestquality2sql.get(request.host_request_quality)
@@ -1182,7 +1179,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 "surfer_id": host_request.surfer_user_id,
                 "host_id": host_request.host_user_id,
                 "request_quality": quality.name if quality else None,
-                "has_decline_reason": bool(request.decline_reason),
+                "has_decline_reason": bool(decline_reason),
                 "host_city": host_request.hosting_city,
             },
         )

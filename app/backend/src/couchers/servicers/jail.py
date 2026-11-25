@@ -18,7 +18,7 @@ from couchers.models import (
 )
 from couchers.proto import jail_pb2, jail_pb2_grpc
 from couchers.servicers.account import mod_note_to_pb
-from couchers.utils import create_coordinate, now
+from couchers.utils import create_coordinate, now, strip_text
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +78,7 @@ class Jail(jail_pb2_grpc.JailServicer):
         if request.lat == 0 and request.lng == 0:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
 
-        user.city = request.city
+        user.city = strip_text(request.city)
         user.geom = create_coordinate(request.lat, request.lng)
         user.randomized_geom = None
         user.geom_radius = request.radius

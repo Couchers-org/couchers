@@ -33,7 +33,8 @@
           "description": " - örneğin kendine ait oda veya benzeri"
         },
         "shared_room": {
-          "label": "Paylaşılan oda"
+          "label": "Paylaşılan oda",
+          "description": " ­-Örneğin: ayrı uyku yüzeyi olan paylaşılan bir yatak odası"
         },
         "common": {
           "label": "Ortak oda",

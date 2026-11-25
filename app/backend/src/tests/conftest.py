@@ -308,7 +308,7 @@ def _testconfig() -> Generator[None]:
     config.CONSOLE_BASE_URL = "http://localhost:8888"
     config.COOKIE_DOMAIN = "localhost"
     config.COOKIE_SAMESITE = "Strict"
-    config.COOKIE_PARTITIONED = False
+    config.COOKIE_PARTITIONED_ORIGINS = ""
 
     config.SMS_SENDER_ID = "invalid"
 
@@ -449,12 +449,12 @@ def feature_flags(monkeypatch) -> FeatureFlags:
             feature_flags.set("my_flag", True)
             ...
     """
-    features: dict[str, Any] = {}
     monkeypatch.setattr(experimentation, "_initialized", True)
-    monkeypatch.setattr(experimentation, "_state", {"features": features, "savedGroups": {}})
+    # FeatureFlags replaces the snapshot; this puts the original back after the test
+    monkeypatch.setattr(experimentation, "_snapshot", experimentation._snapshot)
     # Switch to GrowthBook mode (empty override path).
     monkeypatch.setitem(config, "FEATURE_FLAGS_FILE_OVERRIDE_PATH", "")
-    return FeatureFlags(features)
+    return FeatureFlags()
 
 
 @pytest.fixture

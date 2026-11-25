@@ -23,7 +23,7 @@ from couchers.notifications.notify import notify
 from couchers.postal.address_validation import AddressValidationError, validate_address
 from couchers.proto import notification_data_pb2, postal_verification_pb2, postal_verification_pb2_grpc
 from couchers.proto.internal import jobs_pb2
-from couchers.utils import Timestamp_from_datetime, now
+from couchers.utils import Timestamp_from_datetime, now, strip_text
 
 logger = logging.getLogger(__name__)
 
@@ -106,10 +106,10 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
             context.abort_with_error_code(grpc.StatusCode.RESOURCE_EXHAUSTED, "postal_verification_rate_limited")
 
         # Validate required fields
-        recipient_name = request.address.recipient_name.strip()
-        address_line_1 = request.address.address_line_1.strip()
-        city = request.address.city.strip()
-        country_code = request.address.country_code.strip()
+        recipient_name = strip_text(request.address.recipient_name)
+        address_line_1 = strip_text(request.address.address_line_1)
+        city = strip_text(request.address.city)
+        country_code = strip_text(request.address.country_code)
         if not recipient_name:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "recipient_name_required")
         if not address_line_1:
@@ -123,10 +123,10 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         try:
             validated = validate_address(
                 address_line_1=address_line_1,
-                address_line_2=request.address.address_line_2.strip() or None,
+                address_line_2=strip_text(request.address.address_line_2) or None,
                 city=city,
-                state=request.address.state.strip() or None,
-                postal_code=request.address.postal_code.strip() or None,
+                state=strip_text(request.address.state) or None,
+                postal_code=strip_text(request.address.postal_code) or None,
                 country=country_code,
             )
         except AddressValidationError:
@@ -323,7 +323,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "postal_verification_code_expired")
 
         # Normalize submitted code
-        submitted_code = request.code.strip().upper()
+        submitted_code = strip_text(request.code).upper()
 
         if submitted_code != attempt.verification_code:
             attempt.code_attempts += 1

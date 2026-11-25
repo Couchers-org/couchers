@@ -39,7 +39,7 @@ from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.message_threads import list_message_threads, mark_all_threads_seen
 from couchers.sql import to_bool, users_visible, where_moderated_content_visible, where_users_column_visible
-from couchers.utils import Timestamp_from_datetime, now
+from couchers.utils import Timestamp_from_datetime, now, strip_text
 
 logger = logging.getLogger(__name__)
 
@@ -743,7 +743,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             session,
             creator_id=context.user_id,
             recipient_ids=request.recipient_user_ids,
-            title=request.title.value,
+            title=strip_text(request.title.value),
         )
 
         your_subscription = _get_message_subscription(session, context.user_id, group_chat.conversation_id)
@@ -778,7 +778,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
     def SendMessage(
         self, request: conversations_pb2.SendMessageReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
-        if request.text == "":
+        text = strip_text(request.text)
+        if not text:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_message")
 
         result = session.execute(
@@ -800,7 +801,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         if not _user_can_message(session, context, group_chat):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_message_in_chat")
 
-        _add_message_to_subscription(session, subscription, message_type=MessageType.text, text=request.text)
+        _add_message_to_subscription(session, subscription, message_type=MessageType.text, text=text)
 
         user_gender = session.execute(select(User.gender).where(User.id == context.user_id)).scalar_one()
         sent_messages_counter.labels(
@@ -839,7 +840,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         if user_id == recipient_id:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "cant_add_self")
 
-        if request.text == "":
+        text = strip_text(request.text)
+        if not text:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_message")
 
         # Look for an existing direct message (DM) chat between the two users
@@ -877,7 +879,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         subscription = _get_message_subscription(session, user_id, chat.conversation_id)
 
         # Add the message to the conversation
-        _add_message_to_subscription(session, subscription, message_type=MessageType.text, text=request.text)
+        _add_message_to_subscription(session, subscription, message_type=MessageType.text, text=text)
 
         user_gender = session.execute(select(User.gender).where(User.id == user_id)).scalar_one()
         sent_messages_counter.labels(user_gender, "direct message").inc()
@@ -904,7 +906,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "only_admin_can_edit")
 
         if request.HasField("title"):
-            subscription.group_chat.title = request.title.value
+            subscription.group_chat.title = strip_text(request.title.value)
 
         if request.HasField("only_admins_invite"):
             subscription.group_chat.only_admins_invite = request.only_admins_invite.value

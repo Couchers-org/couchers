@@ -43,6 +43,7 @@ from couchers.constants import (
     HOST_REQUEST_REMINDER_INTERVAL,
     MISSED_MESSAGES_DELAY,
     MISSED_MESSAGES_DELAY_WITH_PUSH,
+    MISSED_MESSAGES_LOOKBACK,
     MODERATION_AUTO_APPROVE_FLAG_PRIORITY,
 )
 from couchers.context import make_background_user_context, make_notification_user_context
@@ -234,6 +235,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                 .where(is_unseen(Message, GroupChatSubscription))
                 .where(Message.id > User.last_notified_message_id)
                 .where(_message_unseen_long_enough(User.id))
+                .where(Message.time > now() - MISSED_MESSAGES_LOOKBACK)
                 .where(Message.message_type == MessageType.text)  # TODO: only text messages for now
             )
             .scalars()
