@@ -42,6 +42,7 @@ import { eventAttendeesBaseKey, eventKey, eventOrganizersBaseKey, threadKey } fr
 import CommentTree from "../discussions/CommentTree";
 import AttendanceMenu from "./AttendanceMenu";
 import CancelEventDialog from "./CancelEventDialog";
+import EventCreatedMerchNote from "./EventCreatedMerchNote";
 import EventOrganizers from "./EventOrganizers";
 import { useEvent } from "./hooks";
 import InviteCommunityDialog from "./InviteCommunityDialog";
@@ -329,6 +330,7 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
         <Snackbar severity="success">{t("communities:invite_community_dialog.toast_success")}</Snackbar>
       )}
       {showCopyLinkSuccess && <Snackbar severity="success">{t("communities:copy_link_success")}</Snackbar>}
+      <EventCreatedMerchNote />
       {isLoading ? (
         <CenteredSpinner />
       ) : (
@@ -427,8 +429,7 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
               <EventAttendees event={event} />
             </StyledEventDetailsContainer>
             <StyledDiscussionContainer ref={discussionRef}>
-              <Typography variant="h2">{t("communities:event_discussion")}</Typography>
-              <CommentTree threadId={event.thread!.threadId} />
+              <CommentTree threadId={event.thread!.threadId} title={t("communities:event_discussion")} />
             </StyledDiscussionContainer>
           </>
         )

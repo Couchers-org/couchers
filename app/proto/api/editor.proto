@@ -40,6 +40,14 @@ service Editor {
   rpc DownloadPostcardPdf(DownloadPostcardPdfReq) returns (DownloadPostcardPdfRes) {}
 
   rpc LookupUsersForDebug(LookupUsersForDebugReq) returns (LookupUsersForDebugRes) {}
+
+  rpc ListCommunityIssues(ListCommunityIssuesReq) returns (ListCommunityIssuesRes) {
+    // Lists what the hourly community checks found wrong with how communities fit together
+  }
+
+  rpc RunCommunityChecks(google.protobuf.Empty) returns (google.protobuf.Empty) {
+    // Queues a run of the community checks
+  }
 }
 
 message CreateCommunityReq {
@@ -265,4 +273,62 @@ message LookupUser {
 
 message LookupUsersForDebugRes {
   repeated LookupUser users = 1;
+}
+
+enum CommunityIssuePriority {
+  COMMUNITY_ISSUE_PRIORITY_UNSPECIFIED = 0;
+  COMMUNITY_ISSUE_PRIORITY_HIGH = 1;
+  COMMUNITY_ISSUE_PRIORITY_MEDIUM = 2;
+  COMMUNITY_ISSUE_PRIORITY_LOW = 3;
+}
+
+message CommunityIssueCommunity {
+  int64 community_id = 1;
+  string name = 2;
+  string slug = 3;
+  org.couchers.api.communities.NodeType node_type = 4;
+  uint64 member_count = 5;
+}
+
+message CommunityIssue {
+  int64 issue_id = 1;
+  // which rule the community breaks, e.g. "outside_parent" or "overlap"
+  string rule = 2;
+  CommunityIssuePriority priority = 3;
+  CommunityIssueCommunity community = 4;
+  // the parent, the community it overlaps, or the earlier copy, depending on the rule
+  CommunityIssueCommunity other = 5;
+  // the area outside the parent, the overlap, or the whole community, depending on the rule
+  google.protobuf.DoubleValue area_km2 = 6;
+  // that area as a share of the community, or of the smaller one for an overlap
+  google.protobuf.DoubleValue share = 7;
+  string details = 8;
+  // GeoJSON of the area outside the parent or of the overlap, empty for other rules
+  string area_geojson = 9;
+  google.protobuf.Timestamp first_seen = 10;
+  google.protobuf.Timestamp last_seen = 11;
+  // unset while the issue is open
+  google.protobuf.Timestamp resolved = 12;
+}
+
+message CommunityCheckRun {
+  google.protobuf.Timestamp time = 1;
+  uint32 open_issues = 2;
+  // users active in the last 90 days
+  uint32 active_users = 3;
+  // of those, the ones whose location is outside every locality
+  uint32 active_users_outside_localities = 4;
+}
+
+message ListCommunityIssuesReq {
+  // also return issues resolved since this time; if unset, only open issues are returned
+  google.protobuf.Timestamp resolved_since = 1;
+}
+
+message ListCommunityIssuesRes {
+  // unset until the checks have run
+  CommunityCheckRun last_run = 1;
+  repeated CommunityIssue open_issues = 2;
+  // issues resolved since resolved_since, most recent first
+  repeated CommunityIssue resolved_issues = 3;
 }

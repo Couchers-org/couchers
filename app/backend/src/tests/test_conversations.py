@@ -19,6 +19,7 @@ from couchers.models import (
     RateLimitAction,
     RateLimitViolation,
 )
+from couchers.models.logging import EventLog
 from couchers.proto import api_pb2, notification_data_pb2, notifications_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.servicers import conversations
@@ -1242,6 +1243,17 @@ def test_mark_last_seen_clears_notifications(db, moderator):
     conversations_api.mark_last_seen_group_chat(token=recipient_token, group_chat_id=gcid, last_seen_message_id=1)
 
     assert unseen_notification_count(recipient_user.id) == 0
+
+    with session_scope() as session:
+        messages_event = session.execute(
+            select(EventLog).where(EventLog.event_type == "messages.marked_seen")
+        ).scalar_one()
+        assert messages_event.properties == {
+            "reason": "group_chat_read",
+            "group_chat_id": gcid,
+            "previous_last_seen_message_id": 0,
+            "last_seen_message_id": 1,
+        }
 
 
 def test_mark_last_seen_clears_missed_messages_notification(db, moderator, timewarp: Timewarp):

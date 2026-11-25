@@ -44,6 +44,7 @@ let flushTimerId: ReturnType<typeof setTimeout> | null = null;
 let hasFlushedOnce = false;
 let isDestroyed = false;
 let consecutiveFailures = 0;
+let hiddenFlushQueued = false;
 
 // Calculate backoff interval based on consecutive failures
 function getFlushInterval(): number {
@@ -184,6 +185,19 @@ export function logEvent(eventType: string, properties: Record<string, unknown> 
     occurred: new Date(),
   });
 
+  // A hidden page may be frozen or discarded before any timer fires, and web vitals report their final values as
+  // the page is hidden, possibly after our own visibilitychange flush has already run.
+  if (typeof document !== "undefined" && document.visibilityState === "hidden") {
+    if (!hiddenFlushQueued) {
+      hiddenFlushQueued = true;
+      queueMicrotask(() => {
+        hiddenFlushQueued = false;
+        flushViaBeacon();
+      });
+    }
+    return;
+  }
+
   if (!hasFlushedOnce) {
     // Batch the initial events (e.g. session.started + first page.viewed)
     // together with a short delay instead of flushing immediately
@@ -240,6 +254,7 @@ export function _resetCollectorState(): void {
   hasFlushedOnce = false;
   isDestroyed = false;
   consecutiveFailures = 0;
+  hiddenFlushQueued = false;
 
   // Re-initialize listeners for tests (they may have been cleaned up)
   cleanupListeners();

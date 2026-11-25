@@ -9,6 +9,7 @@ from couchers.models import ContentReport, User
 from couchers.proto import reporting_pb2, reporting_pb2_grpc
 from couchers.sql import username_or_id
 from couchers.tasks import send_content_report_email
+from couchers.utils import strip_text
 
 
 class Reporting(reporting_pb2_grpc.ReportingServicer):
@@ -22,7 +23,7 @@ class Reporting(reporting_pb2_grpc.ReportingServicer):
         content_report = ContentReport(
             reporting_user_id=context.user_id,
             reason=request.reason,
-            description=request.description,
+            description=strip_text(request.description),
             content_ref=request.content_ref,
             author_user_id=author_user.id,
             user_agent=request.user_agent,

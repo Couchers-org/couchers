@@ -351,5 +351,6 @@
   "bar": {
     "help_button_a11y": "Aiuto"
   },
-  "more_options_a11y": "Altre opzioni"
+  "more_options_a11y": "Altre opzioni",
+  "pull_to_refresh_progress_a11y": "Trascina verso il basso per aggiornare"
 }

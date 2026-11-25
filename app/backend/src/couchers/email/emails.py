@@ -1201,6 +1201,35 @@ class StayProposalType(Enum):
         return StayProposalType.invitation if data.public_trip_id else StayProposalType.request
 
 
+def _stay_proposal_quick_decline_link(host_request: requests_pb2.HostRequest) -> str | None:
+    # Requests are unsolicited, so they can be quick declined,
+    # but invitations are solicited by a public trip, so they should get a reply.
+    return (
+        generate_quick_decline_link(host_request)
+        if StayProposalType.from_proto(host_request) == StayProposalType.request
+        else None
+    )
+
+
+def _add_stay_proposal_actions(
+    builder: EmailBlocksBuilder,
+    *,
+    proposal_type: StayProposalType,
+    view_link: str,
+    quick_decline_link: str | None,
+) -> None:
+    view_text_key = f"stays.generic.{proposal_type}.view_action"
+    if quick_decline_link is not None:
+        builder.action_pair(
+            primary_url=view_link,
+            primary_text_key=view_text_key,
+            secondary_url=quick_decline_link,
+            secondary_text_key="stays.generic.quick_decline_action",
+        )
+    else:
+        builder.action(view_link, view_text_key)
+
+
 @dataclass(kw_only=True, slots=True)
 class StayProposalReceivedEmail(EmailBase):
     """Sent to the recipient of a stay proposal."""
@@ -1211,7 +1240,7 @@ class StayProposalReceivedEmail(EmailBase):
     to_date: date
     text: str
     view_link: str
-    quick_decline_link: str
+    quick_decline_link: str | None
 
     @property
     def string_key_base(self) -> str:
@@ -1235,8 +1264,12 @@ class StayProposalReceivedEmail(EmailBase):
             },
         )
         builder.quote(self.text, markdown=False)
-        builder.action(self.view_link, f"stays.generic.{self.proposal_type}.view_action")
-        builder.action(self.quick_decline_link, "stays.generic.quick_decline_action")
+        _add_stay_proposal_actions(
+            builder,
+            proposal_type=self.proposal_type,
+            view_link=self.view_link,
+            quick_decline_link=self.quick_decline_link,
+        )
         builder.para(".respond_encouragement")
         builder.para(_do_not_reply_request_string_key, epilogue=True)
         return builder.build()
@@ -1251,7 +1284,7 @@ class StayProposalReceivedEmail(EmailBase):
             to_date=date.fromisoformat(data.host_request.to_date),
             text=data.text,
             view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
-            quick_decline_link=generate_quick_decline_link(data.host_request),
+            quick_decline_link=_stay_proposal_quick_decline_link(data.host_request),
         )
 
     @classmethod
@@ -1266,7 +1299,7 @@ class StayProposalReceivedEmail(EmailBase):
             view_link="https://couchers.org/requests/123",
             quick_decline_link="https://couchers.org/requests/123/decline?token=xxx",
         )
-        return [replace(prototype, proposal_type=proposal_type) for proposal_type in StayProposalType]
+        return [prototype, replace(prototype, proposal_type=StayProposalType.invitation, quick_decline_link=None)]
 
 
 @dataclass(kw_only=True, slots=True)
@@ -1278,7 +1311,7 @@ class StayProposalReminderEmail(EmailBase):
     from_date: date
     to_date: date
     view_link: str
-    quick_decline_link: str
+    quick_decline_link: str | None
 
     @property
     def string_key_base(self) -> str:
@@ -1298,8 +1331,12 @@ class StayProposalReminderEmail(EmailBase):
                 "to_date": _localize_stay_date(self.to_date, loc_context),
             },
         )
-        builder.action(self.view_link, f"stays.generic.{self.proposal_type}.view_action")
-        builder.action(self.quick_decline_link, "stays.generic.quick_decline_action")
+        _add_stay_proposal_actions(
+            builder,
+            proposal_type=self.proposal_type,
+            view_link=self.view_link,
+            quick_decline_link=self.quick_decline_link,
+        )
         builder.para(_do_not_reply_request_string_key, epilogue=True)
         return builder.build()
 
@@ -1312,7 +1349,7 @@ class StayProposalReminderEmail(EmailBase):
             from_date=date.fromisoformat(data.host_request.from_date),
             to_date=date.fromisoformat(data.host_request.to_date),
             view_link=urls.host_request(host_request_id=data.host_request.host_request_id),
-            quick_decline_link=generate_quick_decline_link(data.host_request),
+            quick_decline_link=_stay_proposal_quick_decline_link(data.host_request),
         )
 
     @classmethod
@@ -1326,7 +1363,7 @@ class StayProposalReminderEmail(EmailBase):
             view_link="https://couchers.org/requests/123",
             quick_decline_link="https://couchers.org/requests/123/decline?token=xxx",
         )
-        return [replace(prototype, proposal_type=proposal_type) for proposal_type in StayProposalType]
+        return [prototype, replace(prototype, proposal_type=StayProposalType.invitation, quick_decline_link=None)]
 
 
 @dataclass(kw_only=True, slots=True)

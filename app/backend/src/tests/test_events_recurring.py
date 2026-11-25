@@ -12,7 +12,7 @@ from sqlalchemy import func, select, update
 from couchers.context import CouchersContext
 from couchers.db import session_scope
 from couchers.jobs.handlers import schedule_event_occurrences
-from couchers.models import User
+from couchers.models import Upload, User
 from couchers.proto import events_pb2
 from couchers.servicers.auth import create_session
 from couchers.utils import to_aware_datetime
@@ -45,11 +45,17 @@ def _create_user_in_community() -> tuple[User, str]:
     return user, token
 
 
+def _add_upload(user_id: int, key: str) -> None:
+    with session_scope() as session:
+        session.add(Upload(key=key, filename=f"{key}.jpg", creator_user_id=user_id))
+
+
 def test_recurring_event(db, frozen_timewarp: FrozenTimewarp):
     """
     A weekly recurring event should get scheduled progressively (2 occurrences at a time) until the ends_on date.
     """
     user, token = _create_user_in_community()
+    _add_upload(user.id, "recurring_photo")
 
     # Set time to Wednesday, January 1, 2020
     frozen_timewarp.freeze_at(datetime(2020, 1, 1, tzinfo=UTC))
@@ -57,6 +63,7 @@ def test_recurring_event(db, frozen_timewarp: FrozenTimewarp):
     # Create a recurring weekly event on Thursday, January 2, 2020, 12:00-13:30 UTC.
     initial_occurrence = events_api.create_event(
         token=token,
+        photo_key="recurring_photo",
         start_date_time=(date(2020, 1, 2), time(12, 0)),
         end_date_time=(date(2020, 1, 2), time(13, 30)),
         recurrence=events_api.weekly_recurrence(interval=1, ends_on_date=date(2020, 1, 20)),
@@ -92,6 +99,8 @@ def test_recurring_event(db, frozen_timewarp: FrozenTimewarp):
     assert to_aware_datetime(occurrences_after_scheduling[1].end_time) == datetime(2020, 1, 9, 13, 30, tzinfo=UTC)
     assert occurrences_after_scheduling[0].title == occurrences_after_scheduling[1].title
     assert occurrences_after_scheduling[0].content == occurrences_after_scheduling[1].content
+    assert occurrences_after_scheduling[0].photo_key == occurrences_after_scheduling[1].photo_key == "recurring_photo"
+    assert occurrences_after_scheduling[0].photo_url == occurrences_after_scheduling[1].photo_url
     assert occurrences_after_scheduling[0].location.address == occurrences_after_scheduling[1].location.address
     assert occurrences_after_scheduling[0].location.lat == occurrences_after_scheduling[1].location.lat
     assert occurrences_after_scheduling[0].location.lng == occurrences_after_scheduling[1].location.lng
@@ -347,10 +356,14 @@ def test_UpdateEvent_all_future_recurring(db, frozen_timewarp: FrozenTimewarp):
     # Set time to Wednesday, January 1, 2020
     frozen_timewarp.freeze_at(datetime(2020, 1, 1, tzinfo=UTC))
 
+    _add_upload(user.id, "initial_photo")
+    _add_upload(user.id, "updated_photo")
+
     # Weekly on Thursdays
     initial_occurrence = events_api.create_event(
         token=token,
         content="Initial content",
+        photo_key="initial_photo",
         start_date_time=(date(2020, 1, 2), time(12, 0)),
         end_date_time=(date(2020, 1, 2), time(13, 0)),
         recurrence=events_api.weekly_recurrence(ends_on_date=date(2020, 6, 30)),
@@ -362,6 +375,7 @@ def test_UpdateEvent_all_future_recurring(db, frozen_timewarp: FrozenTimewarp):
         token=token,
         event_id=initial_occurrence.event_id,
         content="Updated content",
+        photo_key="updated_photo",
         location=new_location,
         update_all_future=True,
     )
@@ -374,6 +388,7 @@ def test_UpdateEvent_all_future_recurring(db, frozen_timewarp: FrozenTimewarp):
     assert to_aware_datetime(occurrences[1].start_time) == datetime(2020, 1, 9, 12, 0, tzinfo=UTC)
     for occurrence in occurrences:
         assert occurrence.content == "Updated content"
+        assert occurrence.photo_key == "updated_photo"
         assert occurrence.location == new_location
 
 

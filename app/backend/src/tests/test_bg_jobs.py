@@ -11,7 +11,6 @@ from sqlalchemy import select, text
 from sqlalchemy.sql import delete, func
 
 import couchers.jobs.worker
-from couchers import experimentation
 from couchers.config import config
 from couchers.constants import (
     HOST_REQUEST_MAX_REMINDERS,
@@ -1607,16 +1606,10 @@ def test_update_badges_awards_moderator_to_superuser(db):
         )
 
 
-def test_update_badges_skips_moderator_when_flag_off(db, monkeypatch):
+def test_update_badges_skips_moderator_when_flag_off(db, feature_flags: FeatureFlags):
     """With show_moderator_badge forced off, superusers are not awarded the moderator badge."""
     # force show_moderator_badge off for everyone (force rule with no coverage applies globally)
-    monkeypatch.setattr(experimentation, "_initialized", True)
-    monkeypatch.setattr(
-        experimentation,
-        "_state",
-        {"features": {"show_moderator_badge": {"defaultValue": True, "rules": [{"force": False}]}}, "savedGroups": {}},
-    )
-    monkeypatch.setitem(config, "FEATURE_FLAGS_FILE_OVERRIDE_PATH", "")
+    feature_flags.set_definition("show_moderator_badge", {"defaultValue": True, "rules": [{"force": False}]})
 
     superuser, _ = generate_user(is_superuser=True, last_donated=None)
 

@@ -172,15 +172,14 @@ def run_scheduler() -> None:
     sched.run()
 
 
-def _per_process_init(profile_instance: str | None) -> None:
+def _per_process_init(profile_role: str, profile_instance: str) -> None:
     # Post-fork initialization: these services use threading/async internals that
     # don't survive fork() and must be initialized fresh in each child process.
     # Pyroscope in particular can only be initialized once per process.
     db_post_fork()
     setup_tracing()
     setup_experimentation()
-    if profile_instance is not None:
-        setup_profiling(role="worker", instance=profile_instance)
+    setup_profiling(role=profile_role, instance=profile_instance)
 
 
 def _run_forever(func: Callable[[], None]) -> None:
@@ -195,12 +194,12 @@ def _run_forever(func: Callable[[], None]) -> None:
 
 
 def _scheduler_process_entry() -> None:
-    _per_process_init(None)
+    _per_process_init("scheduler", "scheduler")
     _run_forever(run_scheduler)
 
 
 def _worker_process_entry(profile_instance: str, threads_per_process: int) -> None:
-    _per_process_init(profile_instance)
+    _per_process_init("worker", profile_instance)
     # the lru_cache doesn't hold a lock across the load, so otherwise every thread parses all the locales
     get_main_i18next()
     # threads rather than processes: the handlers are I/O-bound, and a process costs ~200 MB

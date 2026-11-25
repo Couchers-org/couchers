@@ -114,6 +114,31 @@ describe("PublicTripsSection", () => {
 
       expect(await screen.findByText(t("publicTrips:trip_list.empty_placeholder"))).toBeVisible();
     });
+
+    it("hides the pagination controls when there is only one page", async () => {
+      render(<PublicTripsSection community={community} />, { wrapper });
+
+      expect(await screen.findByText("Funny Kid")).toBeVisible();
+      expect(
+        screen.queryByRole("button", { name: t("publicTrips:trip_list.pagination.next_button") }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("shows the pagination controls when there is another page", async () => {
+      listPublicTripsMock.mockResolvedValue({
+        publicTripsList: publicTrips,
+        nextPageToken: "next",
+      });
+
+      render(<PublicTripsSection community={community} />, { wrapper });
+
+      expect(
+        await screen.findByRole("button", { name: t("publicTrips:trip_list.pagination.next_button") }),
+      ).toBeEnabled();
+      expect(
+        screen.getByRole("button", { name: t("publicTrips:trip_list.pagination.previous_button") }),
+      ).toBeDisabled();
+    });
   });
 
   describe("create", () => {

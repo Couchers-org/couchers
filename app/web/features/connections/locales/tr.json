@@ -36,5 +36,6 @@
     "confirm": "Evet, tanıyorum. İsteği gönder!"
   },
   "friend_requests_dismiss_button": "Reddet",
-  "cancel_request_button_a11y": "İsteği iptal et"
+  "cancel_request_button_a11y": "İsteği iptal et",
+  "friend_request_no_longer_available": "Bu arkadaşlık isteği artık mevcut değil."
 }

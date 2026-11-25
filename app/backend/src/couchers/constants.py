@@ -115,6 +115,8 @@ ACTIVENESS_PROBE_EXPIRY_TIME = RESPONSE_TIME_EXPECTATION
 MISSED_MESSAGES_DELAY = timedelta(minutes=5)
 # ... unless we could reach them by push, in which case they've already been told about it once
 MISSED_MESSAGES_DELAY_WITH_PUSH = timedelta(hours=24)
+# messages older than this are never emailed about, which lets the job skip scanning all of history
+MISSED_MESSAGES_LOOKBACK = timedelta(days=7)
 
 HOST_REQUEST_MAX_REMINDERS = 1
 HOST_REQUEST_REMINDER_INTERVAL = timedelta(days=2)

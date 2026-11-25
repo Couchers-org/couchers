@@ -21,7 +21,7 @@ from couchers.proto.internal import jobs_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.threads import thread_to_pb
 from couchers.sql import users_visible_to_each_other, where_moderated_content_visible
-from couchers.utils import Timestamp_from_datetime, now
+from couchers.utils import Timestamp_from_datetime, now, strip_text
 
 logger = logging.getLogger(__name__)
 
@@ -111,9 +111,11 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
     def CreateDiscussion(
         self, request: discussions_pb2.CreateDiscussionReq, context: CouchersContext, session: Session
     ) -> discussions_pb2.Discussion:
-        if not request.title:
+        title = strip_text(request.title)
+        content = strip_text(request.content)
+        if not title:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_discussion_title")
-        if not request.content:
+        if not content:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_discussion_content")
         if not request.owner_community_id and not request.owner_group_id:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "group_or_community_not_found")
@@ -148,8 +150,8 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
         def create_object(moderation_state_id: int) -> int:
             nonlocal discussion
             discussion = Discussion(
-                title=request.title,
-                content=request.content,
+                title=title,
+                content=content,
                 creator_user_id=context.user_id,
                 owner_cluster_id=cluster.id,
                 thread_id=thread.id,
@@ -221,13 +223,13 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
         old_content = discussion.content
 
         if request.HasField("title"):
-            new_title = request.title.value.strip()
+            new_title = strip_text(request.title.value)
             if not new_title:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_discussion_title")
             discussion.title = new_title
 
         if request.HasField("content"):
-            new_content = request.content.value.strip()
+            new_content = strip_text(request.content.value)
             if not new_content:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_discussion_content")
             discussion.content = new_content

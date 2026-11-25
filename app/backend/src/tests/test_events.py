@@ -26,15 +26,16 @@ from couchers.models import (
     Upload,
     User,
 )
-from couchers.proto import editor_pb2, events_pb2, threads_pb2
+from couchers.proto import editor_pb2, events_pb2
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import now, to_aware_datetime
 from tests.fixtures.api import events as events_api
 from tests.fixtures.api import notifications as notifications_api
+from tests.fixtures.api import threads as threads_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import EmailCollector, Moderator, PushCollector, process_jobs
 from tests.fixtures.rpc_errors import expect_rpc_error
-from tests.fixtures.sessions import real_editor_session, threads_session
+from tests.fixtures.sessions import real_editor_session
 from tests.fixtures.timewarp import FrozenTimewarp
 from tests.test_communities import create_community, create_group
 from tests.utils import local_date_time
@@ -1228,6 +1229,26 @@ def test_ListEventOccurrences(db):
     assert not res.next_page_token
 
 
+def test_ListMyEvents_exclude_global_keeps_regions(db, moderator: Moderator):
+    user, token = generate_user()
+
+    with session_scope() as session:
+        world = create_community(session, 0, 100, "World", [user], [], None)
+        macroregion = create_community(session, 0, 75, "Macroregion", [user], [], world)
+        region = create_community(session, 0, 50, "Region", [user], [], macroregion)
+        community_ids = [world.id, macroregion.id, region.id]
+
+    world_event, macroregion_event, region_event = [
+        events_api.create_event(token=token, parent_community_id=community_id, approve_by=moderator).event_id
+        for community_id in community_ids
+    ]
+
+    listed_events = events_api.list_my_events(
+        token=token, my_communities=True, my_communities_exclude_global=True
+    ).events
+    assert [event.event_id for event in listed_events] == [region_event]
+
+
 def test_ListMyEvents(db, moderator: Moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
@@ -1237,7 +1258,7 @@ def test_ListMyEvents(db, moderator: Moderator):
 
     with session_scope() as session:
         # Create global (world) -> macroregion -> region -> subregion hierarchy
-        # my_communities_exclude_global filters out world, macroregion, and region level communities
+        # my_communities_exclude_global filters out world and macroregion level communities
         global_community = create_community(session, 0, 100, "Global", [user3], [], None)
         c_id = global_community.id
         macroregion_community = create_community(
@@ -1630,28 +1651,24 @@ def test_event_threads(db, push_collector: PushCollector, email_collector: Email
         approve_by=moderator,
     )
 
-    with threads_session(commenter_token) as api:
-        reply_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=event.thread.thread_id, content="hi")).thread_id
-
-    moderator.approve_thread_post(reply_id)
+    reply_id = threads_api.post_reply(
+        token=commenter_token, thread_id=event.thread.thread_id, content="hi", approve_by=moderator
+    )
 
     res = events_api.get_event(token=replier_token, event_id=event.event_id)
     assert res.thread.num_responses == 1
 
-    with threads_session(replier_token) as api:
-        ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=res.thread.thread_id))
-        assert len(ret.replies) == 1
-        assert not ret.next_page_token
-        assert ret.replies[0].thread_id == reply_id
-        assert ret.replies[0].content == "hi"
-        assert ret.replies[0].author_user_id == commenter_user.id
-        assert ret.replies[0].num_replies == 0
+    ret = threads_api.get_thread(token=replier_token, thread_id=res.thread.thread_id)
+    assert len(ret.replies) == 1
+    assert not ret.next_page_token
+    assert ret.replies[0].thread_id == reply_id
+    assert ret.replies[0].content == "hi"
+    assert ret.replies[0].author_user_id == commenter_user.id
+    assert ret.replies[0].num_replies == 0
 
-        nested_reply_id = api.PostReply(
-            threads_pb2.PostReplyReq(thread_id=reply_id, content="what a silly comment")
-        ).thread_id
-
-    moderator.approve_thread_post(nested_reply_id)
+    nested_reply_id = threads_api.post_reply(
+        token=replier_token, thread_id=reply_id, content="what a silly comment", approve_by=moderator
+    )
 
     process_jobs()
 
@@ -2116,6 +2133,15 @@ def test_event_photo_key(db):
     get_res = events_api.get_event(token=token, event_id=event_id)
     assert get_res.photo_key == "test_event_photo_key_123"
     assert "test_event_photo_key_123" in get_res.photo_url
+
+    # Updating to an unknown photo fails
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
+        events_api.update_event(token=token, event_id=event_id, photo_key="nonexistent_key")
+
+    # An empty photo key clears the photo
+    update_res = events_api.update_event(token=token, event_id=event_id, photo_key="")
+    assert update_res.photo_key == ""
+    assert update_res.photo_url == ""
 
 
 def test_event_timezone(db):
@@ -2613,10 +2639,7 @@ def test_event_comment_notification_has_moderation_state(db, push_collector: Pus
     events_api.set_event_subscription(token=organizer_token, event_id=event_id, subscribe=True)
 
     # The commenter posts a top-level comment on the event thread
-    with threads_session(commenter_token) as api:
-        comment_thread_id = api.PostReply(
-            threads_pb2.PostReplyReq(thread_id=thread_id, content="Hello event!")
-        ).thread_id
+    comment_thread_id = threads_api.post_reply(token=commenter_token, thread_id=thread_id)
 
     process_jobs()
 
@@ -2651,20 +2674,14 @@ def test_event_thread_reply_notification_has_moderation_state(db, push_collector
         push_collector.pop_for_user(organizer_user.id)
 
     # The commenter posts a top-level comment
-    with threads_session(commenter_token) as api:
-        comment_thread_id = api.PostReply(
-            threads_pb2.PostReplyReq(thread_id=thread_id, content="Top-level comment")
-        ).thread_id
+    comment_thread_id = threads_api.post_reply(token=commenter_token, thread_id=thread_id)
 
     process_jobs()
     while push_collector.count_for_user(organizer_user.id):
         push_collector.pop_for_user(organizer_user.id)
 
     # The replier replies to the commenter's comment (depth=2 reply)
-    with threads_session(replier_token) as api:
-        nested_reply_thread_id = api.PostReply(
-            threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="Nested reply")
-        ).thread_id
+    nested_reply_thread_id = threads_api.post_reply(token=replier_token, thread_id=comment_thread_id)
 
     process_jobs()
 

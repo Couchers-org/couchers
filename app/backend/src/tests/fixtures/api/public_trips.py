@@ -8,14 +8,13 @@ import grpc
 from couchers.constants import PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16
 from couchers.proto import public_trips_pb2, public_trips_pb2_grpc
 from couchers.servicers.public_trips import PublicTrips
-from couchers.utils import date_to_api, today
+from couchers.utils import date_to_api, today, utf16_length
 from tests.fixtures.misc import Moderator
 from tests.fixtures.sessions import FakeChannel
 
 
 def _pad_description_to_valid_length(text: str) -> str:
-    # Description lengths are measured in utf-16 code units to match the frontend.
-    while len(text.encode("utf-16-le")) // 2 < PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16:
+    while utf16_length(text) < PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16:
         text += " padding"
     return text
 

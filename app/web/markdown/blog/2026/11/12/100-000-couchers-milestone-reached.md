@@ -1,9 +1,11 @@
 ---
+is_blog_post: true
 title: 100,000+ Couchers Milestone Reached
 slug: 100k-couchers-milestone-reached
 description: Couchers.org just passed 100,000 members!
 date: 2026/11/12
 author: Chris
+author_username: chrisk
 share_image: https://couchers.org/img/share.jpg
 ---
 # 100,000 Couchers and Counting
@@ -50,5 +52,3 @@ Whether you signed up back in 2020 or you are one of the 25,000 people who joine
 Couchers is a registered 501(c)(3) non-profit organization, built by volunteers and funded entirely by the community—no investors, no paywalls, and no hidden fees. Please consider [donating](https://couchers.org/donate) to help keep our servers running and support free hospitality exchange for everyone.
 
 See you on a couch or at a Couch Crash soon!
-
-Written by [Chris](https://couchers.org/user/chrisk)
