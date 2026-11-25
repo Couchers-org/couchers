@@ -51,7 +51,8 @@ from couchers.proto.annotations_pb2 import AuthLevel
 from couchers.utils import (
     create_lang_cookie,
     create_session_cookies,
-    generate_sofa_cookie,
+    create_sofa_cookie,
+    generate_sofa,
     parse_api_key,
     parse_session_cookie,
     parse_sofa_cookie,
@@ -349,7 +350,7 @@ class AdmittedCall:
     headers: CouchersHeaders
     auth_info: UserAuthInfo | None
     sofa: str
-    new_sofa_cookie: str | None
+    new_sofa: bool
     localization: LocalizationContext
 
 
@@ -394,11 +395,8 @@ def admit_call(handler_call_details: grpc.HandlerCallDetails) -> AdmittedCall | 
         if should_rate_limit(handler_call_details.method, headers, auth_info):
             raise CallRejectedError(RATE_LIMIT_ERROR_MESSAGE, grpc.StatusCode.RESOURCE_EXHAUSTED)
 
-        if headers.sofa:
-            sofa = headers.sofa
-            new_sofa_cookie = None
-        else:
-            sofa, new_sofa_cookie = generate_sofa_cookie()
+        new_sofa = headers.sofa is None
+        sofa = headers.sofa or generate_sofa()
 
         loc_context = LocalizationContext(
             locale=(auth_info.ui_language_preference if auth_info else headers.ui_lang) or "",
@@ -427,7 +425,7 @@ def admit_call(handler_call_details: grpc.HandlerCallDetails) -> AdmittedCall | 
         headers=headers,
         auth_info=auth_info,
         sofa=sofa,
-        new_sofa_cookie=new_sofa_cookie,
+        new_sofa=new_sofa,
         localization=loc_context,
     )
 
@@ -581,8 +579,8 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                 if auth_info.ui_language_preference and auth_info.ui_language_preference != headers.ui_lang:
                     couchers_context.set_cookies(create_lang_cookie(auth_info.ui_language_preference))
 
-            if call.new_sofa_cookie:
-                couchers_context.set_cookies([call.new_sofa_cookie])
+            if call.new_sofa:
+                couchers_context.set_cookies(create_sofa_cookie(sofa))
 
             if not grpc_context.is_active():
                 grpc_context.abort(grpc.StatusCode.INTERNAL, CALL_CANCELLED_ERROR_MESSAGE)

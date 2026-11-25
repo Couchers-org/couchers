@@ -1709,27 +1709,30 @@ def test_opt_out_of_newsletter(db, opt_out):
 @pytest.mark.parametrize(
     "origin, partitioned",
     [
-        (None, False),  # the native app sends no Origin
+        (None, False),
         ("https://next.couchershq.org", False),
-        ("https://couchershq.org", False),
-        ("https://couchers-git-branch.vercel.app", True),
+        ("https://couchers-git-branch-couchers-org.vercel.app", True),
+        ("https://couchers-git-branch-couchers-org.vercel.app.example.com", False),
     ],
 )
-def test_cookies_only_partitioned_for_cross_site_origins(db, origin, partitioned):
+def test_cookies_partitioned_by_origin(db, origin, partitioned):
     config.DEV = False
     config.COOKIE_DOMAIN = "couchershq.org"
     config.COOKIE_SAMESITE = "None"
-    config.COOKIE_PARTITIONED = True
+    config.COOKIE_PARTITIONED_ORIGINS = r"https://[a-z0-9-]+-couchers-org\.vercel\.app"
 
     # outside DEV the server requires the client IP that the proxy adds
     metadata = (("x-couchers-real-ip", "127.0.0.1"),) + ((("origin", origin),) if origin else ())
     with auth_api_session() as (auth_api, metadata_interceptor):
-        auth_api.GetAuthState(empty_pb2.Empty(), metadata=metadata)
+        auth_api.Deauthenticate(empty_pb2.Empty(), metadata=metadata)
         set_cookies = [val for key, val in metadata_interceptor.latest_header_raw if key == "set-cookie"]
 
-    sofa = [cookie for cookie in set_cookies if cookie.startswith("sofa=")][0]
-    assert ("; Partitioned" in sofa) == partitioned
-    assert "; Secure" in sofa
+    # sofa is set by the interceptor, the session cookies by the servicer
+    names = {cookie.split("=", 1)[0] for cookie in set_cookies}
+    assert {"sofa", "couchers-sesh", "couchers-user-id"} <= names
+    for cookie in set_cookies:
+        assert ("; Partitioned" in cookie) == partitioned
+        assert "; Secure" in cookie
 
 
 def test_GetAuthState(db):

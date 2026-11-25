@@ -302,7 +302,7 @@ def http_date(dt: datetime | None = None) -> str:
     return formatdate(dt.timestamp(), usegmt=True)
 
 
-def _create_tasty_cookie(name: str, value: Any, expiry: datetime, httponly: bool) -> str:
+def _create_tasty_cookie(name: str, value: Any, expiry: datetime, httponly: bool, origin: str | None) -> str:
     cookie: http.cookies.Morsel[str] = http.cookies.Morsel()
     cookie.set(name, str(value), str(value))
     # tell the browser when to stop sending the cookie
@@ -315,47 +315,32 @@ def _create_tasty_cookie(name: str, value: Any, expiry: datetime, httponly: bool
     if not config.DEV:
         # only set cookie on HTTPS sites in production
         cookie["secure"] = True
-        cookie["partitioned"] = config.COOKIE_PARTITIONED
+        cookie["partitioned"] = bool(
+            origin and config.COOKIE_PARTITIONED_ORIGINS and re.fullmatch(config.COOKIE_PARTITIONED_ORIGINS, origin)
+        )
     # not accessible from javascript
     cookie["httponly"] = httponly
 
     return cookie.OutputString()
 
 
-def is_cross_site_origin(origin: str | None) -> bool:
-    """
-    Whether a request's Origin header is outside COOKIE_DOMAIN, e.g. a Vercel preview. Native app requests send no Origin.
-    """
-    if not origin:
-        return False
-    host = urlsplit(origin).hostname or ""
-    domain = config.COOKIE_DOMAIN.lstrip(".")
-    return host != domain and not host.endswith(f".{domain}")
+type Cookie = tuple[str, str | int, datetime, bool]
 
 
-def without_partitioned(cookie: str) -> str:
-    """
-    Drops the Partitioned attribute: a partitioned cookie stays inside the WebView on iOS, so the native app can't use it.
-    """
-    return "; ".join(part for part in cookie.split("; ") if part.lower() != "partitioned")
-
-
-def create_session_cookies(token: str, user_id: str | int, expiry: datetime) -> list[str]:
+def create_session_cookies(token: str, user_id: str | int, expiry: datetime) -> list[Cookie]:
     """
     Creates our session cookies.
 
     We have two: the secure session token (in couchers-sesh) that's inaccessible to javascript, and the user id (in couchers-user-id) which the javascript frontend can access, so that it knows when it's logged in/out
     """
     return [
-        _create_tasty_cookie("couchers-sesh", token, expiry, httponly=True),
-        _create_tasty_cookie("couchers-user-id", user_id, expiry, httponly=False),
+        ("couchers-sesh", token, expiry, True),
+        ("couchers-user-id", user_id, expiry, False),
     ]
 
 
-def create_lang_cookie(lang: str) -> list[str]:
-    return [
-        _create_tasty_cookie("NEXT_LOCALE", lang, expiry=(now() + PREFERRED_LANGUAGE_COOKIE_EXPIRY), httponly=False)
-    ]
+def create_lang_cookie(lang: str) -> list[Cookie]:
+    return [("NEXT_LOCALE", lang, now() + PREFERRED_LANGUAGE_COOKIE_EXPIRY, False)]
 
 
 def _parse_cookie(headers: Mapping[str, str | bytes], cookie_name: str) -> str | None:
@@ -424,15 +409,18 @@ def parse_sofa_cookie(headers: Mapping[str, str | bytes]) -> str | None:
         return None
 
 
-def generate_sofa_cookie() -> tuple[str, str]:
-    sofa_value = encode_sofa(
+def generate_sofa() -> str:
+    return encode_sofa(
         create_sofa_id(),
         internal_pb2.SofaPayload(
             version=1,
             created=Timestamp_from_datetime(now()),
         ),
     )
-    return sofa_value, _create_tasty_cookie("sofa", sofa_value, now() + timedelta(days=10000), httponly=True)
+
+
+def create_sofa_cookie(sofa: str) -> list[Cookie]:
+    return [("sofa", sofa, now() + timedelta(days=10000), True)]
 
 
 def remove_duplicates_retain_order[T](list_: Sequence[T]) -> list[T]:

@@ -308,7 +308,7 @@ def _testconfig() -> Generator[None]:
     config.CONSOLE_BASE_URL = "http://localhost:8888"
     config.COOKIE_DOMAIN = "localhost"
     config.COOKIE_SAMESITE = "Strict"
-    config.COOKIE_PARTITIONED = False
+    config.COOKIE_PARTITIONED_ORIGINS = ""
 
     config.SMS_SENDER_ID = "invalid"
 
