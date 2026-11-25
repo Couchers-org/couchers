@@ -256,6 +256,13 @@ def test_global_evaluation_unknown_feature_returns_in_code_default(feature_flags
     assert experimentation.get_global_string_value("does_not_exist", "my_default") == "my_default"
 
 
+def test_global_evaluation_follows_snapshot_refresh(feature_flags: FeatureFlags):
+    feature_flags.set("refreshed_flag", "before")
+    assert experimentation.get_global_string_value("refreshed_flag", "default") == "before"
+    feature_flags.set("refreshed_flag", "after")
+    assert experimentation.get_global_string_value("refreshed_flag", "default") == "after"
+
+
 def test_evaluation_increments_metric_with_source_and_value(feature_flags: FeatureFlags):
     feature_flags.set("metric_flag", "yes")
     before = _flag_eval_count("metric_flag", "defaultValue", "yes")
@@ -275,7 +282,7 @@ def setup_isolation(monkeypatch, tmp_path):
     background refresh thread it starts is stopped afterwards."""
     monkeypatch.setattr(experimentation, "_initialized", False)
     monkeypatch.setattr(experimentation, "_last_fetch_time", None)
-    monkeypatch.setattr(experimentation, "_state", {"features": {}, "savedGroups": {}})
+    monkeypatch.setattr(experimentation, "_snapshot", experimentation._snapshot)
     monkeypatch.setitem(config, "FEATURE_FLAGS_FILE_OVERRIDE_PATH", "")
     monkeypatch.setitem(config, "GROWTHBOOK_CACHE_PATH", str(tmp_path / "cache.json"))
     yield tmp_path / "cache.json"
@@ -293,7 +300,7 @@ def test_setup_writes_cache_and_records_fetch_time(setup_isolation, monkeypatch)
 
     setup_experimentation()
 
-    assert experimentation._state["features"] == {"f": {"defaultValue": True}}
+    assert experimentation._snapshot.features == {"f": {"defaultValue": True}}
     assert experimentation.seconds_since_last_fetch() is not None
     written = json.loads(cache.read_text())
     assert written["response"] == payload
@@ -308,7 +315,7 @@ def test_setup_falls_back_to_disk_cache_when_fetch_fails(setup_isolation, monkey
 
     setup_experimentation()
 
-    assert experimentation._state["features"] == {"cached": {"defaultValue": "x"}}
+    assert experimentation._snapshot.features == {"cached": {"defaultValue": "x"}}
     # fetch time reflects the cached pull time, so staleness is large immediately
     staleness = experimentation.seconds_since_last_fetch()
     assert staleness is not None and staleness > 0
