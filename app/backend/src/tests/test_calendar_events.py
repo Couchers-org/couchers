@@ -7,6 +7,7 @@ from couchers.email.calendar_events import create_event_ics_calendar, create_hos
 from couchers.i18n.context import LocalizationContext
 from couchers.proto import events_pb2, messages_pb2, requests_pb2
 from couchers.utils import Timestamp_from_datetime, today
+from tests.fixtures.api import public_trips as public_trips_api
 from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.feature_flags import FeatureFlags
@@ -215,12 +216,11 @@ def test_public_trip_invitation_attachments(db, email_collector: EmailCollector,
     to_date = today() + timedelta(days=10)
     trip_id = _create_trip_directly(traveller.id, _make_node(), from_date, to_date)
 
-    hr_id = requests_api.create_host_request(
+    hr_id = public_trips_api.offer_to_host(
         token=host_token,
-        host_user_id=traveller.id,
+        trip_id=trip_id,
         from_date=from_date,
         to_date=to_date,
-        public_trip_id=trip_id,
         approve_by=moderator,
     )
     email = email_collector.pop_for_recipient(traveller.email, last=True)
