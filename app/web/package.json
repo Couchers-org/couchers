@@ -76,7 +76,8 @@
     "react-simple-maps": "^5.0.5",
     "seamless-scroll-polyfill": "^2.1.8",
     "temporal-polyfill": "^1.0.6",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "web-vitals": "6.2.3"
   },
   "devDependencies": {
     "@babel/core": "^7.29.13",

@@ -24,22 +24,12 @@
  * journeyHooks.ts or call logEvent() directly from eventCollector.ts.
  */
 
-import { useRouter } from "next/router";
-import { useReportWebVitals } from "next/web-vitals";
-import { ReactNode, useCallback, useEffect, useRef } from "react";
+import Router, { useRouter } from "next/router";
+import { ReactNode, useEffect, useRef } from "react";
 
 import { destroyCollector, initializeCollector, logEvent } from "./eventCollector";
-
-// Next doesn't ship types for its bundled copy of web-vitals
-type WebVitalMetric = {
-  name: string;
-  id: string;
-  value: number;
-  delta: number;
-  rating: string;
-  navigationType: string;
-  navigationURL?: string;
-};
+import { trackPageLoad } from "./pageLoad";
+import { reportWebVitals } from "./webVitals";
 
 const ATTRIBUTION_PARAMS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"];
 
@@ -95,6 +85,7 @@ export default function AnalyticsProvider({ children }: { children: ReactNode })
   const initializedRef = useRef(false);
   const strippingParamsRef = useRef(false);
   const routeByPathRef = useRef(new Map<string, string>());
+  const landingRouteRef = useRef(router.pathname);
 
   // Session start + initial page view (runs once on mount)
   useEffect(() => {
@@ -125,7 +116,39 @@ export default function AnalyticsProvider({ children }: { children: ReactNode })
 
     previousPathRef.current = window.location.pathname;
     previousTimestampRef.current = Date.now();
+
+    reportWebVitals((metric, attribution) => {
+      let route: string | null = landingRouteRef.current;
+      if (metric.navigationType === "soft-navigation" || metric.navigationType === "back-forward-cache") {
+        // A metric can be reported after the user has moved on, so look up the route of the page it measured. A soft
+        // navigation can also be reported before our effect has recorded its route.
+        const path = metric.navigationURL ? new URL(metric.navigationURL).pathname : null;
+        route =
+          (path && routeByPathRef.current.get(path)) ?? (path === window.location.pathname ? Router.pathname : null);
+      }
+      logEvent(
+        "web_vital.measured",
+        {
+          name: metric.name,
+          id: metric.id,
+          delta: metric.delta,
+          rating: metric.rating,
+          navigation_type: metric.navigationType,
+          route,
+          ...attribution,
+        },
+        metric.value,
+      );
+    });
   }, []);
+
+  useEffect(
+    () =>
+      trackPageLoad((properties, settledMs) =>
+        logEvent("page.loaded", { route: landingRouteRef.current, ...properties }, settledMs),
+      ),
+    [],
+  );
 
   // Remove zz and zn from the URL so they aren't shared, bookmarked or re-logged on reload. This must go through
   // the Next router after it's ready: hydration replaces the URL with the original one, and the router keeps them in
@@ -175,24 +198,6 @@ export default function AnalyticsProvider({ children }: { children: ReactNode })
   useEffect(() => {
     routeByPathRef.current.set(window.location.pathname, router.pathname);
   }, [router.asPath, router.pathname]);
-
-  const reportWebVital = useCallback((metric: WebVitalMetric) => {
-    // A metric can be reported after the user has moved on, so look up the route of the page it measured
-    const path = metric.navigationURL ? new URL(metric.navigationURL).pathname : null;
-    logEvent(
-      "web_vital.measured",
-      {
-        name: metric.name,
-        id: metric.id,
-        delta: metric.delta,
-        rating: metric.rating,
-        navigation_type: metric.navigationType,
-        route: (path && routeByPathRef.current.get(path)) ?? null,
-      },
-      metric.value,
-    );
-  }, []);
-  useReportWebVitals(reportWebVital);
 
   // Cleanup on unmount
   useEffect(() => {
