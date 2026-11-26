@@ -59,9 +59,6 @@ message CreateHostRequestReq {
   string from_date = 2;
   string to_date = 3;
   string text = 4;
-
-  reserved 5;
-  reserved "public_trip_id";
 }
 
 message HostRequest {

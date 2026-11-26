@@ -174,7 +174,7 @@ def _possibly_observe_first_response_time(
         )
 
 
-def _check_request_text(text: str, is_public_trip_offer: bool, context: CouchersContext) -> str:
+def check_request_text(text: str, is_public_trip_offer: bool, context: CouchersContext) -> str:
     min_length, error_code = (
         (PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16, "public_trip_offer_too_short")
         if is_public_trip_offer
@@ -190,21 +190,9 @@ def _check_request_text(text: str, is_public_trip_offer: bool, context: Couchers
     return text
 
 
-def validate_new_host_request(
-    session: Session,
-    context: CouchersContext,
-    *,
-    host_user: User,
-    from_date_str: str,
-    to_date_str: str,
-    text: str,
-    is_public_trip_offer: bool,
-) -> tuple[date, date, str]:
-    """
-    Validates the dates and text of a new host request or offer, and checks the caller's rate limit.
-
-    Returns the parsed from and to dates, and the stripped text.
-    """
+def check_stay_dates(
+    from_date_str: str, to_date_str: str, host_user: User, context: CouchersContext
+) -> tuple[date, date]:
     from_date = parse_date(from_date_str)
     to_date = parse_date(to_date_str)
 
@@ -230,8 +218,10 @@ def validate_new_host_request(
     if to_date - from_date > timedelta(days=365):
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_after_one_year")
 
-    text = _check_request_text(text, is_public_trip_offer, context)
+    return from_date, to_date
 
+
+def check_host_request_rate_limit(session: Session, context: CouchersContext) -> None:
     # Check if user has been sending host requests excessively
     if process_rate_limits_and_check_abort(
         session=session, user_id=context.user_id, action=RateLimitAction.host_request
@@ -241,8 +231,6 @@ def validate_new_host_request(
             "host_request_rate_limit2",
             substitutions={"count": RATE_LIMIT_HOURS},
         )
-
-    return from_date, to_date, text
 
 
 def create_host_request(
@@ -376,15 +364,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if not host:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
-        from_date, to_date, text = validate_new_host_request(
-            session,
-            context,
-            host_user=host,
-            from_date_str=request.from_date,
-            to_date_str=request.to_date,
-            text=request.text,
-            is_public_trip_offer=False,
-        )
+        from_date, to_date = check_stay_dates(request.from_date, request.to_date, host, context)
+        text = check_request_text(request.text, is_public_trip_offer=False, context=context)
+        check_host_request_rate_limit(session, context)
 
         # Offers on public trips are deduplicated per trip instead
         recent_request = session.execute(

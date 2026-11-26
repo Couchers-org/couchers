@@ -17,7 +17,12 @@ from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.moderation.utils import create_moderation
 from couchers.proto import public_trips_pb2, public_trips_pb2_grpc
 from couchers.servicers.api import user_model_to_pb
-from couchers.servicers.requests import create_host_request, validate_new_host_request
+from couchers.servicers.requests import (
+    check_host_request_rate_limit,
+    check_request_text,
+    check_stay_dates,
+    create_host_request,
+)
 from couchers.sql import to_bool, where_moderated_content_visible, where_users_column_visible
 from couchers.utils import (
     Timestamp_from_datetime,
@@ -546,15 +551,9 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
 
         traveler = public_trip.user
 
-        from_date, to_date, text = validate_new_host_request(
-            session,
-            context,
-            host_user=user,
-            from_date_str=request.from_date,
-            to_date_str=request.to_date,
-            text=request.text,
-            is_public_trip_offer=True,
-        )
+        from_date, to_date = check_stay_dates(request.from_date, request.to_date, user, context)
+        text = check_request_text(request.text, is_public_trip_offer=True, context=context)
+        check_host_request_rate_limit(session, context)
 
         # The host can offer a shorter stay than the trip, but not a longer one
         if from_date < public_trip.from_date or to_date > public_trip.to_date:
